@@ -1,0 +1,116 @@
+#include "SceneComponent.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
+
+#include <iostream>
+#include <string>
+
+#include <AntTweakBar.h>
+
+SceneComponent::SceneComponent(Actor* actor) : Component(actor)
+{
+    this->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->rotation = glm::identity<glm::mat4x4>();
+    this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    this->parent = nullptr;
+
+    this->modelMatrixDirty = true;
+}
+
+SceneComponent::~SceneComponent()
+{
+
+}
+
+void SceneComponent::setupTweakBar(TwBar* tweakBar)
+{
+    TwAddVarRW(tweakBar, "Position", TW_TYPE_DIR3F, &this->position, "");
+    TwAddVarRW(tweakBar, "Rotation", TW_TYPE_QUAT4F, &this->rotation, "");
+    TwAddVarRW(tweakBar, "Scale", TW_TYPE_DIR3F, &this->scale, "");
+}
+
+void SceneComponent::lookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up)
+{
+    this->modelMatrix = glm::lookAt(eye, target, up);
+
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    glm::decompose(this->modelMatrix, this->scale, this->rotation, this->position, skew, perspective);
+    this->rotation = glm::conjugate(this->rotation);
+
+    this->modelMatrixDirty = false;
+
+    std::cout << std::to_string(this->position.x) << " " << std::to_string(this->position.y) << " " << std::to_string(this->position.z) << std::endl;
+    std::cout << std::to_string(this->getRotationEuler().x) << " " << std::to_string(this->getRotationEuler().y) << " " << std::to_string(this->getRotationEuler().z) << std::endl;
+}
+
+glm::mat4 SceneComponent::getModelMatrix()
+{
+    if (this->modelMatrixDirty == true)
+    {
+        glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), this->position);
+        glm::mat4 rot = glm::mat4_cast(this->rotation);
+        glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), this->scale);
+
+        this->modelMatrix = pos * rot * scale;
+    }
+
+    return this->modelMatrix;
+}
+
+void SceneComponent::setPosition(glm::vec3 position)
+{
+    this->position = position;
+    this->modelMatrixDirty = true;
+}
+
+glm::vec3 SceneComponent::getPosition() const
+{
+    return this->position;
+}
+
+void SceneComponent::rotate(float angle, glm::vec3 axis)
+{
+    this->rotation = glm::rotate(this->rotation, angle, axis);
+}
+
+void SceneComponent::setRotation(glm::vec3 rot)
+{
+    rot.x = fmod(rot.x, 360.0f);
+    rot.y = fmod(rot.y, 360.0f);
+    rot.z = fmod(rot.z, 360.0f);
+
+    this->rotation = glm::quat(radians(rot));
+    this->modelMatrixDirty = true;
+}
+
+glm::quat SceneComponent::getRotation() const
+{
+    return this->rotation;
+}
+
+glm::vec3 SceneComponent::getRotationEuler() const
+{
+    return glm::degrees(glm::eulerAngles(this->rotation));
+}
+
+size_t SceneComponent::getChildCount() const
+{
+    return this->childs.size();
+}
+
+SceneComponent* SceneComponent::getChild(int index)
+{
+    return this->childs[index];
+}
+
+void SceneComponent::setParent(SceneComponent* parent)
+{
+    // TODO retirer du vector childs du precedent parent
+
+    this->parent = parent;
+    this->parent->childs.push_back(this);
+}
