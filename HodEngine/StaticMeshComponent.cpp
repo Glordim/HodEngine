@@ -1,5 +1,8 @@
 #include "StaticMeshComponent.h"
 
+#include "Material.h"
+#include "Mesh.h"
+
 #include "Actor.h"
 #include "SceneComponent.h"
 

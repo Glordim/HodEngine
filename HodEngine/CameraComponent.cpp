@@ -6,6 +6,8 @@
 #include "StaticMeshComponent.h"
 #include "LightComponent.h"
 
+#include "glad/glad.h"
+
 CameraComponent::CameraComponent(Actor* actor)
 : Component(actor)
 , fov(60.0f)

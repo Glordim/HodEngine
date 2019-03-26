@@ -3,8 +3,8 @@
 
 #include "RendererComponent.h"
 
-#include "Mesh.h"
-#include "Material.h"
+class Mesh;
+class Material;
 
 class StaticMeshComponent : public RendererComponent
 {
