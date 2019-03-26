@@ -1,0 +1,24 @@
+[submodule "tinyobjloader"]
+	path = tinyobjloader
+	url = https://github.com/Glordim/tinyobjloader
+	branch = master
+[submodule "PhysX"]
+	path = PhysX
+	url = https://github.com/Glordim/PhysX
+	branch = 4.1
+[submodule "glfw"]
+	path = glfw
+	url = https://github.com/Glordim/glfw
+	branch = latest
+[submodule "stb"]
+	path = stb
+	url = https://github.com/Glordim/stb
+	branch = master
+[submodule "AntTweakBar"]
+	path = AntTweakBar
+	url = https://github.com/Glordim/AntTweakBar
+	branch = master
+[submodule "glm"]
+	path = glm
+	url = https://github.com/Glordim/glm
+	branch = master
