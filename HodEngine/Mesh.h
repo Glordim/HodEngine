@@ -11,11 +11,11 @@ public:
 
     bool loadObj(const char* path);
 
-    unsigned int getVbo(int index) const;
+    unsigned int getVao() const;
     unsigned int getIndicesCount() const;
 
 private:
-    void buildVBO();
+    void buildVao();
 
 private:
     std::vector<unsigned int> indices;
@@ -24,6 +24,7 @@ private:
     std::vector<float> normal;
 
     unsigned int vbo[4];
+    unsigned int vao;
 };
 
 #endif

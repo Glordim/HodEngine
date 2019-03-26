@@ -76,40 +76,43 @@ bool Mesh::loadObj(const char* path)
         }
     }
 
-    this->buildVBO();
+    this->buildVao();
 
     return true;
 }
 
-void Mesh::buildVBO()
+void Mesh::buildVao()
 {
-    // OpenGL specific code
-    glGenBuffers(4, &vbo[0]);
+    glGenBuffers(4, &this->vbo[0]);
+    glGenVertexArrays(1, &this->vao);
+    glBindVertexArray(this->vao);
 
     // Vertex
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
     glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(float), &this->vertices[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
 
     // Uv
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
     glBufferData(GL_ARRAY_BUFFER, this->uv.size() * sizeof(float), &this->uv[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
 
     // Normal
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[2]);
     glBufferData(GL_ARRAY_BUFFER, this->normal.size() * sizeof(float), &this->normal[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(2);
 
     // Indice
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo[3]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &this->indices[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-unsigned int Mesh::getVbo(int index) const
+unsigned int Mesh::getVao() const
 {
-    return this->vbo[index];
+    return this->vao;
 }
 
 unsigned int Mesh::getIndicesCount() const

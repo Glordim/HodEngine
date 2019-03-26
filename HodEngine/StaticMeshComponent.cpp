@@ -34,21 +34,6 @@ void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightCompone
 {
     SceneComponent* sceneComponent = this->getActor()->getComponent<SceneComponent>();
 
-    glBindBuffer(GL_ARRAY_BUFFER, this->mesh->getVbo(0));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->mesh->getVbo(1));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, this->mesh->getVbo(2));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     this->material->use();
     this->material->setFloat("time", glfwGetTime());
     this->material->setMat4("mvp", camera->getProjectionMatrix() * glm::inverse(camera->getActor()->getComponent<SceneComponent>()->getModelMatrix()) * sceneComponent->getModelMatrix());
@@ -70,11 +55,6 @@ void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightCompone
     this->material->setVec4("eyePos", glm::vec4(camera->getActor()->getComponent<SceneComponent>()->getPosition(), 1.0f));
     this->material->setFloat("specularStrength", 0.0009f);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->mesh->getVbo(3));
+    glBindVertexArray(this->mesh->getVao());
     glDrawElements(GL_TRIANGLES, this->mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glDisableVertexAttribArray(2);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
 }
