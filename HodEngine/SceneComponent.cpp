@@ -75,6 +75,7 @@ glm::vec3 SceneComponent::getPosition() const
 void SceneComponent::rotate(float angle, glm::vec3 axis)
 {
     this->rotation = glm::rotate(this->rotation, angle, axis);
+    this->modelMatrixDirty = true;
 }
 
 void SceneComponent::setRotation(glm::vec3 rot)
