@@ -99,8 +99,8 @@ void FreeCam::rotateView(int x, int y)
     float angleX = ((float)x - (1920.0f * 0.5f)) / (1920.0f * 0.5f);
     float angleY = ((float)y - (1080.0f * 0.5f)) / (1080.0f * 0.5f);
 
-    this->view.x += angleX;
-    this->view.y += angleY;
+    this->view.x += -angleX;
+    this->view.y += -angleY;
 
     this->sceneComponent->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
     this->sceneComponent->rotate(view.x, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -116,7 +116,7 @@ void FreeCam::rotateView(int x, int y)
 
 void FreeCam::moveForward(float axisValue)
 {
-    this->movement.z = axisValue;
+    this->movement.z = -axisValue;
 }
 
 void FreeCam::moveRight(float axisValue)
