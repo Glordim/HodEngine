@@ -164,10 +164,6 @@ int main()
     myBar = TwNewBar("MainTweakBar");
     TwAddVarRW(myBar, "superVar", TW_TYPE_BOOLCPP, &boolcpp, "");
 
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
     Mesh sphere;
     if (sphere.loadObj("Gizmos/sphere.obj") == false)
         return 1;
