@@ -247,7 +247,7 @@ int main()
     {
         SceneComponent* sceneComponent = freeCam->getComponent<SceneComponent>();
 
-        sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         sceneComponent->setParent(scene->getRoot());
 
         freeCam->setupInputListener(&inputListener);
