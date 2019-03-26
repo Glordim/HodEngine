@@ -54,8 +54,8 @@ public:
 
 private:
     std::vector<std::function<void(int, int)>> mouseMoveCallbackList;
-    std::vector<std::function<void()>> mouseButtonPressCallbackList;
-    std::vector<std::function<void()>> mouseButtonReleaseCallbackList;
+    std::unordered_map<int, std::vector<std::function<void()>>> mouseButtonPressCallbackList;
+    std::unordered_map<int, std::vector<std::function<void()>>> mouseButtonReleaseCallbackList;
     std::unordered_map<InputListener::InternalKeyAxis*, std::function<void(float)>> axisCallbackList;
 };
 

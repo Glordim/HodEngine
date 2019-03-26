@@ -7,6 +7,7 @@
 #include <PxPhysicsAPI.h>
 
 class SceneComponent;
+class CameraComponent;
 
 class Scene
 {
@@ -16,6 +17,8 @@ public:
 
     template<typename T>
     T* spawnActor(const std::string& name);
+
+    void drawDebug(CameraComponent* camera);
 
     void simulatePhysic(float dt);
     void update(float dt);

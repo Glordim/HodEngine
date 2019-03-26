@@ -1,11 +1,18 @@
 #include "FreeCam.h"
 
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+
 #include "SceneComponent.h"
 #include "CameraComponent.h"
 
-#include "GLFW/glfw3.h"
-
 #include "InputListener.h"
+
+#include "StaticMeshComponent.h"
+#include "Mesh.h"
+#include "VertexShader.h"
+#include "FragmentShader.h"
+#include "Material.h"
 
 #include "AntTweakBar.h"
 
@@ -44,21 +51,55 @@ void FreeCam::setupInputListener(InputListener* inputListener)
 
 void FreeCam::selectObject()
 {
-    glm::mat4 screenToWorldMat = glm::inverse(this->cameraComponent->getProjectionMatrix());// *this->sceneComponent->getModelMatrix());
+    float mouseZ = 1.0f;
+
+    glm::mat4 screenToWorldMat = /*this->cameraComponent->getProjectionMatrix() **/ this->sceneComponent->getModelMatrix();
+    screenToWorldMat = glm::inverse(screenToWorldMat);
 
     glm::vec4 dir;
-    dir.x = this->mouseX / 1920.0f;
-    dir.y = this->mouseY / 1080.0f;
-    dir.z = 1.0f;
+    dir.x = (this->mouseX - 0.0f) / 1920.0f * 2.0f - 1.0f;
+    dir.x = -dir.x;
+    dir.y = ((1080.0f - this->mouseY - 0.0f)) / 1080.0f * 2.0f - 1.0f;
+    dir.y = -dir.y;
+    dir.z = 2.0f * mouseZ - 1.0f;
     dir.w = 1.0f;
 
     dir = dir * screenToWorldMat;
 
-    dir.w = 1.0 / dir.w;
+    dir.w = 1.0f / dir.w;
 
     dir.x *= dir.w;
     dir.y *= dir.w;
     dir.z *= dir.w;
+
+    dir = glm::normalize(dir);
+
+    glm::vec3 finalPos = this->sceneComponent->getPosition() + glm::vec3(dir);
+
+    Actor* actor = this->scene->spawnActor<Actor>("PasDeBol");
+    SceneComponent* sceneComponent = actor->addComponent<SceneComponent>();
+    sceneComponent->position = finalPos;
+    sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
+    sceneComponent->setParent(this->scene->getRoot());
+
+    Mesh* sphere = new Mesh();
+    if (sphere->loadObj("Gizmos/sphere.obj") == false)
+        return;
+
+    VertexShader unlitVertexShader;
+    if (unlitVertexShader.load("Shader/UnlitColor.vert") == false)
+        return;
+
+    FragmentShader unlitFragmentShader;
+    if (unlitFragmentShader.load("Shader/UnlitColor.frag") == false)
+        return;
+
+    Material* unlitMaterial = new Material(unlitVertexShader, unlitFragmentShader);
+    unlitMaterial->setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+    StaticMeshComponent* staticMeshComponent = actor->addComponent<StaticMeshComponent>();
+    staticMeshComponent->setMesh(sphere);
+    staticMeshComponent->setMaterial(unlitMaterial);
 
     physx::PxRaycastBuffer result;
 

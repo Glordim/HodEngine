@@ -300,11 +300,14 @@ int main()
 
         physx::PxRigidStatic* pxActor = pxPhysics->createRigidStatic(pxTransform);
 
-        physx::PxGeometryHolder geometryHolder;
-        const physx::PxSphereGeometry& geometry = geometryHolder.sphere();
+        //physx::PxGeometryHolder geometryHolder;
+        //const physx::PxSphereGeometry& geometry = geometryHolder.sphere();
+        //geometry.radius = 0.1f;
 
-        physx::PxShape* pxShape = pxPhysics->createShape(geometry, *pxMaterial);
+        physx::PxShape* pxShape = pxPhysics->createShape(physx::PxBoxGeometry(0.1f, 0.1f, 0.1f), *pxMaterial);
+        pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
         pxActor->attachShape(*pxShape);
+        pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
 
         scene->addPxActor(center, pxActor);
     }
@@ -358,6 +361,8 @@ int main()
         // Render
         CameraComponent* cameraComponent = freeCam->getComponent<CameraComponent>();
         cameraComponent->drawScene(*scene);        
+
+        scene->drawDebug(cameraComponent);
 
         TwDraw();
 

@@ -23,20 +23,20 @@ void InputListener::injectMouseButtonInput(int mouseButtonId, int action, int mo
 {
     if (action == GLFW_PRESS)
     {
-        size_t callbackCount = this->mouseButtonPressCallbackList.size();
+        size_t callbackCount = this->mouseButtonPressCallbackList[mouseButtonId].size();
 
         for (int i = 0; i < callbackCount; ++i)
         {
-            this->mouseButtonPressCallbackList[i]();
+            this->mouseButtonPressCallbackList[mouseButtonId][i]();
         }
     }
     else if (action == GLFW_RELEASE)
     {
-        size_t callbackCount = this->mouseButtonReleaseCallbackList.size();
+        size_t callbackCount = this->mouseButtonReleaseCallbackList[mouseButtonId].size();
 
         for (int i = 0; i < callbackCount; ++i)
         {
-            this->mouseButtonReleaseCallbackList[i]();
+            this->mouseButtonReleaseCallbackList[mouseButtonId][i]();
         }
     }
 }
@@ -173,9 +173,9 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
 void InputListener::registerMouseButtonEvent(int mouseButtonId, int action, std::function<void()> callback)
 {
     if (action == GLFW_PRESS)
-        this->mouseButtonPressCallbackList.push_back(callback);
+        this->mouseButtonPressCallbackList[mouseButtonId].push_back(callback);
     else if (action == GLFW_RELEASE)
-        this->mouseButtonReleaseCallbackList.push_back(callback);
+        this->mouseButtonReleaseCallbackList[mouseButtonId].push_back(callback);
 }
 
 void InputListener::registerMouseMoveEvent(std::function<void(int, int)> callback)
