@@ -74,7 +74,7 @@ void FreeCam::selectObject()
 
     dir = glm::normalize(dir);
 
-    glm::vec3 finalPos = this->sceneComponent->getPosition() + glm::vec3(dir);
+    glm::vec3 finalPos = this->sceneComponent->getPosition() + glm::vec3(dir * 100.0f);
 
     Actor* actor = this->scene->spawnActor<Actor>("PasDeBol");
     SceneComponent* sceneComponent = actor->addComponent<SceneComponent>();
@@ -103,7 +103,7 @@ void FreeCam::selectObject()
 
     physx::PxRaycastBuffer result;
 
-    if (this->scene->raycast(this->sceneComponent->getPosition(), dir, 100.0f, result) == true)
+    if (this->scene->raycast(this->sceneComponent->getPosition(), dir, 100.0f, result, true, Color(1.0f, 0.0f, 0.0f, 1.0f), 5.0f) == true)
     {
         physx::PxShape* pxShape = result.touches[0].shape;
         physx::PxActor* pxActor = pxShape->getActor();

@@ -9,6 +9,8 @@
 class SceneComponent;
 class CameraComponent;
 
+#include "DebugLine.h"
+
 class Scene
 {
 public:
@@ -18,12 +20,16 @@ public:
     template<typename T>
     T* spawnActor(const std::string& name);
 
-    void drawDebug(CameraComponent* camera);
+    void drawDebugPhysics(CameraComponent* camera);
+
+    void drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration);
+    void drawLine(const std::vector<Line_3P_3C>& lineVector, float duration);
+    void drawTri(const std::vector<Tri_3P_3C>& triVector, float duration);
 
     void simulatePhysic(float dt);
     void update(float dt);
 
-    bool raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result);
+    bool raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result, bool drawDebug, Color debugColor, float debugDuration);
 
     void addPxActor(Actor* actor, physx::PxActor* pxActor);
     Actor* convertPxActor(physx::PxActor* pxActor);

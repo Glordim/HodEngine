@@ -96,6 +96,7 @@
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="DebugLine.cpp" />
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="FragmentShader.cpp" />
     <ClCompile Include="FreeCam.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="DebugLine.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="FragmentShader.h" />
     <ClInclude Include="FreeCam.h" />

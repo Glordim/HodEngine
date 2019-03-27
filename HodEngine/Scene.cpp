@@ -31,7 +31,8 @@ Scene::Scene()
 
     this->pxScene = pxPhysx.createScene(pxSceneDesc);
     this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
-    this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, 2.0f);
+    this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
+    this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, 1.0f);
 }
 
 Scene::~Scene()
@@ -39,18 +40,19 @@ Scene::~Scene()
     this->pxScene->release();
 }
 
-void Scene::drawDebug(CameraComponent* camera)
+void Scene::drawDebugPhysics(CameraComponent* camera)
 {
+    this->pxScene->fetchResults();
+
     VertexShader unlitVertexShader;
-    if (unlitVertexShader.load("Shader/UnlitColor.vert") == false)
+    if (unlitVertexShader.load("Shader/UnlitVertexColor.vert") == false)
         return;
 
     FragmentShader unlitFragmentShader;
-    if (unlitFragmentShader.load("Shader/UnlitColor.frag") == false)
+    if (unlitFragmentShader.load("Shader/UnlitVertexColor.frag") == false)
         return;
 
     Material* unlitMaterial = new Material(unlitVertexShader, unlitFragmentShader);
-    unlitMaterial->setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     unlitMaterial->setMat4("mvp", camera->getProjectionMatrix() * glm::inverse(camera->getActor()->getComponent<SceneComponent>()->getModelMatrix()));
 
     struct Vertext_3V_3C
@@ -64,52 +66,31 @@ void Scene::drawDebug(CameraComponent* camera)
 
     if (lineCount != 0)
     {
-        std::vector<Vertext_3V_3C> vertices;
-        vertices.reserve(2 * lineCount);
+        std::vector<Line_3P_3C> lines;
+        lines.resize(lineCount);
 
         for (physx::PxU32 i = 0; i < lineCount; i++)
         {
-            const physx::PxDebugLine& line = rb.getLines()[i];
-            // render the line
+            const physx::PxDebugLine& pxLine = rb.getLines()[i];
 
-            Vertext_3V_3C vertex;
-            vertex.vertex[0] = line.pos0.x;
-            vertex.vertex[1] = line.pos0.y;
-            vertex.vertex[2] = line.pos0.z;
-            vertex.color[0] = (line.color0 & 0xFF000000) >> 24;
-            vertex.color[1] = (line.color0 & 0x00FF0000) >> 16;
-            vertex.color[2] = (line.color0 & 0x0000FF00) >> 8;
+            Line_3P_3C& line = lines[i];
 
-            vertices.push_back(vertex);
+            line.vertices[0].pos[0] = pxLine.pos0.x;
+            line.vertices[0].pos[1] = pxLine.pos0.y;
+            line.vertices[0].pos[2] = pxLine.pos0.z;
+            line.vertices[0].color[0] = (pxLine.color0 & 0x00FF0000) >> 16;
+            line.vertices[0].color[1] = (pxLine.color0 & 0x0000FF00) >> 8;
+            line.vertices[0].color[2] = (pxLine.color0 & 0x000000FF) >> 0;
 
-            vertex.vertex[0] = line.pos1.x;
-            vertex.vertex[1] = line.pos1.y;
-            vertex.vertex[2] = line.pos1.z;
-            vertex.color[0] = (line.color1 & 0xFF000000) >> 24;
-            vertex.color[1] = (line.color1 & 0x00FF0000) >> 16;
-            vertex.color[2] = (line.color1 & 0x0000FF00) >> 8;
-
-            vertices.push_back(vertex);
+            line.vertices[1].pos[0] = pxLine.pos1.x;
+            line.vertices[1].pos[1] = pxLine.pos1.y;
+            line.vertices[1].pos[2] = pxLine.pos1.z;
+            line.vertices[1].color[0] = (pxLine.color1 & 0x00FF0000) >> 16;
+            line.vertices[1].color[1] = (pxLine.color1 & 0x0000FF00) >> 8;
+            line.vertices[1].color[2] = (pxLine.color1 & 0x000000FF) >> 0;
         }
 
-        unsigned int vao;
-        unsigned int vbo;
-        glGenVertexArrays(1, &vao);
-        glGenBuffers(1, &vbo);
-
-        glBindVertexArray(vao);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertext_3V_3C) * lineCount * 2, &vertices[0], GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-        glEnableVertexAttribArray(1);
-
-        unlitMaterial->use();
-        glDrawArrays(GL_LINES, 0, lineCount * 2);
+        this->drawLine(lines, 0.0f);
     }
 
     physx::PxU32 triCount = rb.getNbTriangles();
@@ -128,27 +109,27 @@ void Scene::drawDebug(CameraComponent* camera)
             vertex.vertex[0] = tri.pos0.x;
             vertex.vertex[1] = tri.pos0.y;
             vertex.vertex[2] = tri.pos0.z;
-            vertex.color[0] = (tri.color0 & 0xFF000000) >> 24;
-            vertex.color[1] = (tri.color0 & 0x00FF0000) >> 16;
-            vertex.color[2] = (tri.color0 & 0x0000FF00) >> 8;
+            vertex.color[0] = (tri.color0 & 0x00FF0000) >> 16;
+            vertex.color[1] = (tri.color0 & 0x0000FF00) >> 8;
+            vertex.color[2] = (tri.color0 & 0x000000FF) >> 0;
 
             vertices.push_back(vertex);
 
             vertex.vertex[0] = tri.pos1.x;
             vertex.vertex[1] = tri.pos1.y;
             vertex.vertex[2] = tri.pos1.z;
-            vertex.color[0] = (tri.color1 & 0xFF000000) >> 24;
-            vertex.color[1] = (tri.color1 & 0x00FF0000) >> 16;
-            vertex.color[2] = (tri.color1 & 0x0000FF00) >> 8;
+            vertex.color[0] = (tri.color1 & 0x00FF0000) >> 16;
+            vertex.color[1] = (tri.color1 & 0x0000FF00) >> 8;
+            vertex.color[2] = (tri.color1 & 0x000000FF) >> 0;
 
             vertices.push_back(vertex);
 
             vertex.vertex[0] = tri.pos2.x;
             vertex.vertex[1] = tri.pos2.y;
             vertex.vertex[2] = tri.pos2.z;
-            vertex.color[0] = (tri.color2 & 0xFF000000) >> 24;
-            vertex.color[1] = (tri.color2 & 0x00FF0000) >> 16;
-            vertex.color[2] = (tri.color2 & 0x0000FF00) >> 8;
+            vertex.color[0] = (tri.color2 & 0x00FF0000) >> 16;
+            vertex.color[1] = (tri.color2 & 0x0000FF00) >> 8;
+            vertex.color[2] = (tri.color2 & 0x000000FF) >> 0;
 
             vertices.push_back(vertex);
         }
@@ -163,15 +144,56 @@ void Scene::drawDebug(CameraComponent* camera)
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(Vertext_3V_3C) * triCount * 3, &vertices[0], GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
         glEnableVertexAttribArray(0);
 
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
         unlitMaterial->use();
         glDrawArrays(GL_TRIANGLES, 0, triCount * 3);
     }
+}
+
+void Scene::drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration)
+{
+    std::vector<Line_3P_3C> lines;
+
+    Line_3P_3C line;
+
+    line.vertices[0].pos[0] = start.x;
+    line.vertices[0].pos[1] = start.y;
+    line.vertices[0].pos[2] = start.z;
+    line.vertices[0].color[0] = color.r;
+    line.vertices[0].color[1] = color.g;
+    line.vertices[0].color[2] = color.b;
+
+    line.vertices[1].pos[0] = start.x;
+    line.vertices[1].pos[1] = start.y;
+    line.vertices[1].pos[2] = start.z;
+    line.vertices[1].color[0] = color.r;
+    line.vertices[1].color[1] = color.g;
+    line.vertices[1].color[2] = color.b;
+
+    lines.push_back(line);
+
+    this->drawLine(lines, duration);
+}
+
+void Scene::drawLine(const std::vector<Line_3P_3C>& lineVector, float duration)
+{
+    DebugLine debugLine;
+    debugLine.buildVao(lineVector);
+
+    if (duration > 0)
+        this->debugLine.push_back(debugLine);
+    else
+        this->debugLineImmediat.push_back(debugLine);
+}
+
+void Scene::drawTri(const std::vector<Tri_3P_3C>& triVector, float duration)
+{
+
 }
 
 void Scene::simulatePhysic(float dt)
@@ -189,8 +211,11 @@ void Scene::update(float dt)
     }
 }
 
-bool Scene::raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result)
+bool Scene::raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result, bool drawDebug, Color debugColor, float debugduration)
 {
+    if (drawDebug == true)
+        this->drawLine(origin, origin + (dir * distance), debugColor, debugduration);
+
     physx::PxVec3 pxOrigin(origin.x, origin.y, origin.z);
     physx::PxVec3 pxDir(dir.x, dir.y, dir.z);
 
