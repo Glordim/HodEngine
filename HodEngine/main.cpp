@@ -12,6 +12,7 @@
 #include "Material.h"
 #include "VertexShader.h"
 #include "FragmentShader.h"
+#include "MaterialManager.h"
 
 #include "Scene.hpp"
 
@@ -168,17 +169,6 @@ int main()
     if (sphere.loadObj("Gizmos/sphere.obj") == false)
         return 1;
 
-    VertexShader unlitVertexShader;
-    if (unlitVertexShader.load("Shader/UnlitColor.vert") == false)
-        return 1;
-
-    FragmentShader unlitFragmentShader;
-    if (unlitFragmentShader.load("Shader/UnlitColor.frag") == false)
-        return 1;
-
-    Material unlitMaterial(unlitVertexShader, unlitFragmentShader);
-    unlitMaterial.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
     Mesh mesh;
     if (mesh.loadObj("Wall/wall.obj") == false) //if (mesh.loadObj("Canon/M_Canon.obj") == false)
         return 1;
@@ -191,31 +181,14 @@ int main()
     if (texture2.load("Wall/brickwall_normal.jpg") == false)
         return 1;
 
-    VertexShader vertexShader;
-    if (vertexShader.load("Shader/Lit.vert") == false)
-        return 1;
-
-    FragmentShader fragmentShader;
-    if (fragmentShader.load("Shader/Lit.frag") == false)
-        return 1;
-
-    VertexShader vertexShader2;
-    if (vertexShader2.load("Shader/LitNormal.vert") == false)
-        return 1;
-
-    FragmentShader fragmentShader2;
-    if (fragmentShader2.load("Shader/LitNormal.frag") == false)
-        return 1;
-
-    Material material(vertexShader, fragmentShader);
-    material.setTexture("textureSampler", texture);
-    material.setFloat("specularStrength", 0.5f);
-
-    Material material2(vertexShader, fragmentShader);
-    material2.setTexture("textureSampler", texture);
-    material2.setFloat("specularStrength", 0.5f);
-    //material2.setTexture("textureSampler_Normal", texture2);
-    //material2.setFloat("specularStrength", 0.5f);
+    MaterialManager* materialManager = MaterialManager::getInstance();
+    Material* materialLit = materialManager->getMaterial("Lit");    
+    materialLit->use();
+    materialLit->setTexture("textureSampler", texture);
+    materialLit->setFloat("specularStrength", 0.5f);
+    Material* materialUnlit = materialManager->getMaterial("UnlitColor");
+    materialUnlit->use();
+    materialUnlit->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     Scene* scene = new Scene;
 
@@ -228,7 +201,7 @@ int main()
         sceneComponent->setParent(scene->getRoot());
         StaticMeshComponent* staticMeshComponent = gun->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(&mesh);
-        staticMeshComponent->setMaterial(&material);
+        staticMeshComponent->setMaterial(materialLit);
     }
 
     Actor* gun2 = scene->spawnActor<Actor>("Gun_2");
@@ -240,7 +213,7 @@ int main()
         sceneComponent->setParent(scene->getRoot());
         StaticMeshComponent* staticMeshComponent = gun2->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(&mesh);
-        staticMeshComponent->setMaterial(&material);
+        staticMeshComponent->setMaterial(materialLit);
     }
 
     FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
@@ -262,7 +235,7 @@ int main()
 
         StaticMeshComponent* staticMeshComponent = light->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(&sphere);
-        staticMeshComponent->setMaterial(&unlitMaterial);
+        staticMeshComponent->setMaterial(materialUnlit);
 
         LightComponent* lightComponent = light->addComponent<LightComponent>();
     }
@@ -276,7 +249,7 @@ int main()
 
         StaticMeshComponent* staticMeshComponent = light2->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(&sphere);
-        staticMeshComponent->setMaterial(&unlitMaterial);
+        staticMeshComponent->setMaterial(materialUnlit);
 
         LightComponent* lightComponent = light2->addComponent<LightComponent>();
     }
@@ -290,7 +263,7 @@ int main()
 
         StaticMeshComponent* staticMeshComponent = center->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(&sphere);
-        staticMeshComponent->setMaterial(&unlitMaterial);
+        staticMeshComponent->setMaterial(materialUnlit);
 
         glm::vec3 position = sceneComponent->getPosition();
 

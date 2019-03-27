@@ -9,7 +9,19 @@
 
 #include <iostream>
 
-Material::Material(const VertexShader& vertexShader, const FragmentShader& fragmentShader)
+Material::Material()
+    : programId(0)
+{
+
+}
+
+Material::~Material()
+{
+    if (this->programId != 0)
+        glDeleteProgram(this->programId);
+}
+
+bool Material::link(const VertexShader& vertexShader, const FragmentShader& fragmentShader)
 {
     this->programId = glCreateProgram();
     glAttachShader(this->programId, vertexShader.getShaderId());
@@ -27,23 +39,15 @@ Material::Material(const VertexShader& vertexShader, const FragmentShader& fragm
         std::vector<GLchar> errorLog(maxLength);
         glGetProgramInfoLog(this->programId, maxLength, &maxLength, &errorLog[0]);
 
-        std::cerr << std::string("Material : Failed to link Shader") << std::endl;
+        std::cerr << std::string("Material : Failed to link Shaders") << std::endl;
 
         glDeleteProgram(this->programId);
         this->programId = 0;
 
-        return;
+        return false;
     }
 
-    this->use();
-}
-
-Material::~Material()
-{
-    if (this->programId != 0)
-        glDeleteProgram(this->programId);
-
-    this->nameToLocationMap.clear();
+    return true;
 }
 
 void Material::use()

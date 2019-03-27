@@ -2,6 +2,9 @@
 
 #include "glad\glad.h"
 
+#include "MaterialManager.h"
+#include "Material.h"
+
 DebugLine::DebugLine()
     : vao(0)
     , vbo(0)
@@ -38,7 +41,8 @@ void DebugLine::buildVao(const std::vector<Line_3P_3C>& lines)
 
 void DebugLine::draw(CameraComponent* cameraComponent)
 {
-    unlitMaterial->use();
+    Material* material = MaterialManager::getInstance()->getMaterial("UnlitVertexColor");
+    material->use();
 
     glBindVertexArray(this->vao);
     glDrawArrays(GL_LINES, 0, this->vertexCount);

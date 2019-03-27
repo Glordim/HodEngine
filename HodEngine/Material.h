@@ -15,9 +15,10 @@ class Texture;
 class Material
 {
 public:
-    Material(const VertexShader& vertexShader, const FragmentShader& fragmentShader);
+    Material();
     virtual ~Material();
 
+    bool link(const VertexShader& vertexShader, const FragmentShader& fragmentShader);
     void use();
 
     void setInt(const std::string& name, int value);

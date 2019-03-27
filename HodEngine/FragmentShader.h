@@ -9,7 +9,7 @@ public:
     FragmentShader();
     virtual ~FragmentShader();
 
-    bool load(const char* path);
+    bool load(const std::string& path);
 };
 
 #endif

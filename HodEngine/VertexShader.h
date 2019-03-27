@@ -9,7 +9,7 @@ public:
     VertexShader();
     virtual ~VertexShader();
 
-    bool load(const char* path);
+    bool load(const std::string& path);
 };
 
 #endif

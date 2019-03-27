@@ -90,6 +90,7 @@
     <ClCompile Include="DebugLine.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraComponent.h">
@@ -158,5 +159,6 @@
     <ClInclude Include="DebugLine.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialManager.h" />
   </ItemGroup>
 </Project>

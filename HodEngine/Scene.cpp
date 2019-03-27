@@ -8,6 +8,7 @@
 #include "VertexShader.h"
 #include "FragmentShader.h"
 #include "Material.h"
+#include "MaterialManager.h"
 
 #include "CameraComponent.h"
 
@@ -44,16 +45,10 @@ void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
 {
     this->pxScene->fetchResults();
 
-    VertexShader unlitVertexShader;
-    if (unlitVertexShader.load("Shader/UnlitVertexColor.vert") == false)
-        return;
-
-    FragmentShader unlitFragmentShader;
-    if (unlitFragmentShader.load("Shader/UnlitVertexColor.frag") == false)
-        return;
-
-    Material* unlitMaterial = new Material(unlitVertexShader, unlitFragmentShader);
-    unlitMaterial->setMat4("mvp", camera->getProjectionMatrix() * glm::inverse(camera->getActor()->getComponent<SceneComponent>()->getModelMatrix()));
+    MaterialManager* materialManager = MaterialManager::getInstance();
+    Material* material = materialManager->getMaterial("UnlitVertexColor");
+    material->use();
+    material->setMat4("mvp", camera->getProjectionMatrix() * glm::inverse(camera->getActor()->getComponent<SceneComponent>()->getModelMatrix()));
 
     struct Vertext_3V_3C
     {
@@ -150,7 +145,7 @@ void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        unlitMaterial->use();
+        material->use();
         glDrawArrays(GL_TRIANGLES, 0, triCount * 3);
     }
 

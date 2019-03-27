@@ -3,7 +3,6 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
-#include <string>
 
 Shader::Shader()
 : shaderId(0)
@@ -16,7 +15,7 @@ Shader::~Shader()
         glDeleteShader(this->shaderId);
 }
 
-bool Shader::load_internal(GLenum shaderType, const char* path)
+bool Shader::load_internal(GLenum shaderType, const std::string& path)
 {
     std::ifstream file(path);
     if (file.is_open() == false)

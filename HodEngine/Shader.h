@@ -3,6 +3,8 @@
 
 #include "glad/glad.h"
 
+#include <string>
+
 class Shader
 {
 public:
@@ -12,7 +14,7 @@ public:
     GLuint getShaderId() const;
 
 protected:
-    bool load_internal(GLenum shaderType, const char* path);
+    bool load_internal(GLenum shaderType, const std::string& path);
 
 private:
     GLuint shaderId;

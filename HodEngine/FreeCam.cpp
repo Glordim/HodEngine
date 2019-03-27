@@ -13,6 +13,7 @@
 #include "VertexShader.h"
 #include "FragmentShader.h"
 #include "Material.h"
+#include "MaterialManager.h"
 
 #include "AntTweakBar.h"
 
@@ -86,20 +87,14 @@ void FreeCam::selectObject()
     if (sphere->loadObj("Gizmos/sphere.obj") == false)
         return;
 
-    VertexShader unlitVertexShader;
-    if (unlitVertexShader.load("Shader/UnlitColor.vert") == false)
-        return;
-
-    FragmentShader unlitFragmentShader;
-    if (unlitFragmentShader.load("Shader/UnlitColor.frag") == false)
-        return;
-
-    Material* unlitMaterial = new Material(unlitVertexShader, unlitFragmentShader);
-    unlitMaterial->setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    MaterialManager* materialManager = MaterialManager::getInstance();
+    Material* material = materialManager->getMaterial("UnlitColor");
+    material->use();
+    material->setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
     StaticMeshComponent* staticMeshComponent = actor->addComponent<StaticMeshComponent>();
     staticMeshComponent->setMesh(sphere);
-    staticMeshComponent->setMaterial(unlitMaterial);
+    staticMeshComponent->setMaterial(material);
 
     physx::PxRaycastBuffer result;
 
