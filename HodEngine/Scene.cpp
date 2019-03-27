@@ -23,6 +23,12 @@ Scene::Scene()
 
     physx::PxSceneDesc pxSceneDesc(tolerancesScale);
 
+    physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
+    pxSceneDesc.filterShader = gDefaultFilterShader;
+
+    physx::PxCpuDispatcher* mCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(1);
+    pxSceneDesc.cpuDispatcher = mCpuDispatcher;
+
     this->pxScene = pxPhysx.createScene(pxSceneDesc);
     this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
     this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, 2.0f);

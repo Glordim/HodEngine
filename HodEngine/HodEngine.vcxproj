@@ -65,7 +65,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/glfw/Build/src/Debug;$(SolutionDir)/AntTweakBar/Build/TweakBar/Debug;$(SolutionDir)/PhysX/physx/bin/win.x86_64.vc141.mt/debug;$(SolutionDir)/AntTweakBar/Build/Renderer/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AntTweakBar.lib;ATBGuiRenderer.lib;glfw3.lib;PhysX_64.lib;PhysXFoundation_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AntTweakBar.lib;ATBGuiRenderer.lib;glfw3.lib;PhysX_64.lib;PhysXFoundation_64.lib;PhysXExtensions_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -87,7 +87,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/glfw/Build/src/Release;$(SolutionDir)/AntTweakBar/Build/TweakBar/Release;$(SolutionDir)/PhysX/physx/bin/win.x86_64.vc141.mt/release;$(SolutionDir)/AntTweakBar/Build/Renderer/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AntTweakBar.lib;ATBGuiRenderer.lib;glfw3.lib;PhysX_64.lib;PhysXFoundation_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AntTweakBar.lib;ATBGuiRenderer.lib;glfw3.lib;PhysX_64.lib;PhysXFoundation_64.lib;PhysXExtensions_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
