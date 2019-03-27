@@ -3,6 +3,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <iostream>
+#include <string>
+
 Texture::Texture()
 {
 }
@@ -20,7 +23,10 @@ bool Texture::load(const char* path)
     int channel;
     unsigned char* textureBuffer = stbi_load(path, &width, &height, &channel, 3);
     if (textureBuffer == nullptr)
+    {
+        std::cerr << std::string("Texture : Failed to load Texture \"") + path + "\"" << std::endl;
         return false;
+    }
 
     glGenTextures(1, &this->texureId);
     glBindTexture(GL_TEXTURE_2D, this->texureId);

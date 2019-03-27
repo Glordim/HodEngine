@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include <iostream>
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
@@ -27,7 +29,10 @@ bool Mesh::loadObj(const char* path)
     std::string err;
 
     if (tinyobj::LoadObj(&attributes, &shapes, &materials, &warn, &err, path) == false)
+    {
+        std::cerr << std::string("Mesh : Failed to load Obj \"") + path + "\"" << std::endl;
         return false;
+    }
 
     unsigned int index = 0;
 

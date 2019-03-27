@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 Material::Material(const VertexShader& vertexShader, const FragmentShader& fragmentShader)
 {
     this->programId = glCreateProgram();
@@ -24,6 +26,8 @@ Material::Material(const VertexShader& vertexShader, const FragmentShader& fragm
         // The maxLength includes the NULL character
         std::vector<GLchar> errorLog(maxLength);
         glGetProgramInfoLog(this->programId, maxLength, &maxLength, &errorLog[0]);
+
+        std::cerr << std::string("Material : Failed to link Shader") << std::endl;
 
         glDeleteProgram(this->programId);
         this->programId = 0;
