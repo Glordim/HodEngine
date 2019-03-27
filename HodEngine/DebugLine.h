@@ -24,8 +24,6 @@ class CameraComponent;
 class DebugLine
 {
 public:
-    DebugLine(const DebugLine& copy) = delete;
-
     DebugLine();
     virtual ~DebugLine();
 

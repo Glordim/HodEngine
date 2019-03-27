@@ -20,7 +20,7 @@ public:
     template<typename T>
     T* spawnActor(const std::string& name);
 
-    void drawDebugPhysics(CameraComponent* camera);
+    void drawDebugPhysics(CameraComponent* camera, float dt);
 
     void drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration);
     void drawLine(const std::vector<Line_3P_3C>& lineVector, float duration);
@@ -45,6 +45,9 @@ private:
 
     std::vector<Actor*> actorList;
     std::map<physx::PxActor*, Actor*> pxActorToActorMap;
+
+    std::vector<std::pair<DebugLine*, float>> debugLines;
+    std::vector<DebugLine*> debugLinesImmediate;
 };
 
 template<typename T>

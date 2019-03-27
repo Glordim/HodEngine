@@ -40,7 +40,7 @@ Scene::~Scene()
     this->pxScene->release();
 }
 
-void Scene::drawDebugPhysics(CameraComponent* camera)
+void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
 {
     this->pxScene->fetchResults();
 
@@ -153,6 +153,34 @@ void Scene::drawDebugPhysics(CameraComponent* camera)
         unlitMaterial->use();
         glDrawArrays(GL_TRIANGLES, 0, triCount * 3);
     }
+
+    auto it = this->debugLines.begin();
+    auto itEnd = this->debugLines.end();
+    while (it != itEnd)
+    {
+        it->first->draw(camera);
+        it->second -= dt;
+
+        if (it->second <= 0.0f)
+        {
+            delete it->first;
+            it = this->debugLines.erase(it);
+            itEnd = this->debugLines.end();
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    size_t debugLineImmediateCount = this->debugLinesImmediate.size();
+    for (int i = 0; i < debugLineImmediateCount; ++i)
+    {
+        DebugLine* debugLine = this->debugLinesImmediate[i];
+        debugLine->draw(camera);
+        delete debugLine;
+    }
+    this->debugLinesImmediate.clear();
 }
 
 void Scene::drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration)
@@ -168,9 +196,9 @@ void Scene::drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration
     line.vertices[0].color[1] = color.g;
     line.vertices[0].color[2] = color.b;
 
-    line.vertices[1].pos[0] = start.x;
-    line.vertices[1].pos[1] = start.y;
-    line.vertices[1].pos[2] = start.z;
+    line.vertices[1].pos[0] = end.x;
+    line.vertices[1].pos[1] = end.y;
+    line.vertices[1].pos[2] = end.z;
     line.vertices[1].color[0] = color.r;
     line.vertices[1].color[1] = color.g;
     line.vertices[1].color[2] = color.b;
@@ -182,13 +210,13 @@ void Scene::drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration
 
 void Scene::drawLine(const std::vector<Line_3P_3C>& lineVector, float duration)
 {
-    DebugLine debugLine;
-    debugLine.buildVao(lineVector);
+    DebugLine* debugLine = new DebugLine();
+    debugLine->buildVao(lineVector);
 
     if (duration > 0)
-        this->debugLine.push_back(debugLine);
+        this->debugLines.push_back(std::make_pair(debugLine, duration));
     else
-        this->debugLineImmediat.push_back(debugLine);
+        this->debugLinesImmediate.push_back(debugLine);
 }
 
 void Scene::drawTri(const std::vector<Tri_3P_3C>& triVector, float duration)
@@ -211,10 +239,10 @@ void Scene::update(float dt)
     }
 }
 
-bool Scene::raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result, bool drawDebug, Color debugColor, float debugduration)
+bool Scene::raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result, bool drawDebug, Color debugColor, float debugDuration)
 {
     if (drawDebug == true)
-        this->drawLine(origin, origin + (dir * distance), debugColor, debugduration);
+        this->drawLine(origin, origin + (dir * distance), debugColor, debugDuration);
 
     physx::PxVec3 pxOrigin(origin.x, origin.y, origin.z);
     physx::PxVec3 pxDir(dir.x, dir.y, dir.z);

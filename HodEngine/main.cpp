@@ -146,10 +146,10 @@ int main()
     Allocator allocator;
     Error error;
 
-    //physx::PxDefaultAllocator defaultAllocator;
-    //physx::PxDefaultErrorCallback defaultErrorCallback;
+    physx::PxDefaultAllocator defaultAllocator;
+    physx::PxDefaultErrorCallback defaultErrorCallback;
 
-    physx::PxFoundation* pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, allocator, error);
+    physx::PxFoundation* pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, defaultAllocator, defaultErrorCallback);
 
     physx::PxTolerancesScale tolerancesScale;
 
@@ -362,7 +362,7 @@ int main()
         CameraComponent* cameraComponent = freeCam->getComponent<CameraComponent>();
         cameraComponent->drawScene(*scene);        
 
-        scene->drawDebug(cameraComponent);
+        scene->drawDebugPhysics(cameraComponent, dt);
 
         TwDraw();
 
