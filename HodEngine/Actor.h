@@ -36,6 +36,8 @@ public:
 
     void setupTweakBarForAllComponent(TwBar* twBar);
 
+    Scene* getScene() const;
+
 protected:
     Scene* scene;
 

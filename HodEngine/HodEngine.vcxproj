@@ -94,6 +94,7 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Allocator.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DebugLine.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Allocator.h" />
     <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DebugLine.h" />

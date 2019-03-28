@@ -91,6 +91,7 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="MaterialManager.cpp" />
+    <ClCompile Include="ColliderComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraComponent.h">
@@ -160,5 +161,6 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManager.h" />
+    <ClInclude Include="ColliderComponent.h" />
   </ItemGroup>
 </Project>

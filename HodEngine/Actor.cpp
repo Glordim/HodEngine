@@ -37,3 +37,8 @@ void Actor::setupTweakBarForAllComponent(TwBar* twBar)
         ++it;
     }
 }
+
+Scene* Actor::getScene() const
+{
+    return this->scene;
+}

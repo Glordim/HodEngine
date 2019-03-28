@@ -4,7 +4,7 @@
 #include "Color.h"
 #include "Actor.h"
 
-#include <PxPhysicsAPI.h>
+#include "PxPhysicsAPI.h"
 
 class SceneComponent;
 class CameraComponent;
@@ -37,11 +37,14 @@ public:
     void setAmbiantColor(Color& color);
     SceneComponent* getRoot() const;
 
+    physx::PxMaterial* getDefaultMaterial() const;
+
 private:
     Color ambiantColor;
     Actor* root;
 
     physx::PxScene* pxScene;
+    physx::PxMaterial* pxDefaultMaterial;
 
     std::vector<Actor*> actorList;
     std::map<physx::PxActor*, Actor*> pxActorToActorMap;

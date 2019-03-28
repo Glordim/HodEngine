@@ -21,6 +21,7 @@
 #include "StaticMeshComponent.h"
 #include "CameraComponent.h"
 #include "LightComponent.h"
+#include "ColliderComponent.h"
 
 #include "InputListener.h"
 
@@ -199,9 +200,13 @@ int main()
         sceneComponent->setRotation(glm::vec3(90.0f, 30.0f, 0.0f));
         sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
         sceneComponent->setParent(scene->getRoot());
+
         StaticMeshComponent* staticMeshComponent = gun->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(&mesh);
         staticMeshComponent->setMaterial(materialLit);
+
+        ColliderComponent* colliderComponent = gun->addComponent<ColliderComponent>();
+        colliderComponent->setShape(ColliderComponent::Shape::Mesh);
     }
 
     Actor* gun2 = scene->spawnActor<Actor>("Gun_2");
@@ -211,9 +216,13 @@ int main()
         sceneComponent->setRotation(glm::vec3(90.0f, -30.0f, 0.0f));
         sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
         sceneComponent->setParent(scene->getRoot());
+
         StaticMeshComponent* staticMeshComponent = gun2->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(&mesh);
         staticMeshComponent->setMaterial(materialLit);
+
+        ColliderComponent* colliderComponent = gun2->addComponent<ColliderComponent>();
+        colliderComponent->setShape(ColliderComponent::Shape::Mesh);
     }
 
     FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
@@ -238,6 +247,9 @@ int main()
         staticMeshComponent->setMaterial(materialUnlit);
 
         LightComponent* lightComponent = light->addComponent<LightComponent>();
+
+        ColliderComponent* colliderComponent = light->addComponent<ColliderComponent>();
+        colliderComponent->setShape(ColliderComponent::Shape::Sphere);
     }
 
     Actor* light2 = scene->spawnActor<Actor>("Light_2");
@@ -252,6 +264,9 @@ int main()
         staticMeshComponent->setMaterial(materialUnlit);
 
         LightComponent* lightComponent = light2->addComponent<LightComponent>();
+
+        ColliderComponent* colliderComponent = light2->addComponent<ColliderComponent>();
+        colliderComponent->setShape(ColliderComponent::Shape::Sphere);
     }
 
     Actor* center = scene->spawnActor<Actor>("Center");
@@ -265,24 +280,8 @@ int main()
         staticMeshComponent->setMesh(&sphere);
         staticMeshComponent->setMaterial(materialUnlit);
 
-        glm::vec3 position = sceneComponent->getPosition();
-
-        physx::PxMaterial* pxMaterial = pxPhysics->createMaterial(0.0f, 0.0f, 0.0f);
-
-        physx::PxTransform pxTransform(physx::PxVec3(position.x, position.y, position.z));
-
-        physx::PxRigidStatic* pxActor = pxPhysics->createRigidStatic(pxTransform);
-
-        //physx::PxGeometryHolder geometryHolder;
-        //const physx::PxSphereGeometry& geometry = geometryHolder.sphere();
-        //geometry.radius = 0.1f;
-
-        physx::PxShape* pxShape = pxPhysics->createShape(physx::PxBoxGeometry(0.1f, 0.1f, 0.1f), *pxMaterial);
-        pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
-        pxActor->attachShape(*pxShape);
-        pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
-
-        scene->addPxActor(center, pxActor);
+        ColliderComponent* colliderComponent = center->addComponent<ColliderComponent>();
+        colliderComponent->setShape(ColliderComponent::Shape::Box);
     }
 
     float dt = 0.0f;

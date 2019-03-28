@@ -34,11 +34,19 @@ Scene::Scene()
     this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
     this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
     this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, 1.0f);
+
+    this->pxDefaultMaterial = pxPhysx.createMaterial(0.0f, 0.0f, 0.0f);
 }
 
 Scene::~Scene()
 {
     this->pxScene->release();
+    this->pxDefaultMaterial->release();
+}
+
+physx::PxMaterial* Scene::getDefaultMaterial() const
+{
+    return this->pxDefaultMaterial;
 }
 
 void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
