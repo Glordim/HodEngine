@@ -242,6 +242,8 @@ bool Scene::raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRa
     physx::PxVec3 pxOrigin(origin.x, origin.y, origin.z);
     physx::PxVec3 pxDir(dir.x, dir.y, dir.z);
 
+    pxDir.normalize();
+
     return this->pxScene->raycast(pxOrigin, pxDir, distance, result);
 }
 
