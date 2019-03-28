@@ -75,36 +75,16 @@ void FreeCam::selectObject()
 
     glm::vec3 finalPos = this->sceneComponent->getPosition() + glm::vec3(dir * 100.0f);
 
-    Actor* actor = this->scene->spawnActor<Actor>("PasDeBol");
-    SceneComponent* sceneComponent = actor->addComponent<SceneComponent>();
-    sceneComponent->position = finalPos;
-    sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
-    sceneComponent->setParent(this->scene->getRoot());
-
-    Mesh* sphere = new Mesh();
-    if (sphere->loadObj("Gizmos/sphere.obj") == false)
-        return;
-
-    MaterialManager* materialManager = MaterialManager::getInstance();
-    Material* material = materialManager->getMaterial("UnlitColor");
-    material->use();
-    material->setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
-    StaticMeshComponent* staticMeshComponent = actor->addComponent<StaticMeshComponent>();
-    staticMeshComponent->setMesh(sphere);
-    staticMeshComponent->setMaterial(material);
-
     physx::PxRaycastBuffer result;
 
     if (this->scene->raycast(this->sceneComponent->getPosition(), dir, 100.0f, result, true, Color(1.0f, 1.0f, 0.0f, 1.0f), 5.0f) == true)
     {
-        physx::PxShape* pxShape = result.touches[0].shape;
-        physx::PxActor* pxActor = pxShape->getActor();
+        physx::PxActor* pxActor = result.block.actor;
 
         Actor* actor = this->scene->convertPxActor(pxActor);
         if (actor != nullptr)
         {
-
+            actor->setupTweakBarForAllComponent(this->myBar);
         }
     }
 }
