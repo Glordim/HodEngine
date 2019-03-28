@@ -26,6 +26,7 @@ SceneComponent::~SceneComponent()
 
 void SceneComponent::setupTweakBar(TwBar* tweakBar)
 {
+    TwAddSeparator(tweakBar, "Scene", "");
     TwAddVarRW(tweakBar, "Position", TW_TYPE_DIR3F, &this->position, "");
     TwAddVarRW(tweakBar, "Rotation", TW_TYPE_QUAT4F, &this->rotation, "");
     TwAddVarRW(tweakBar, "Scale", TW_TYPE_DIR3F, &this->scale, "");

@@ -26,15 +26,13 @@ FreeCam::FreeCam(const std::string& name, Scene* scene) : Actor(name, scene)
 
     this->allowRotation = false;
 
-    TwBar* myBar;
-
-    myBar = TwNewBar("CameraTweakBar");
-
-    this->sceneComponent->setupTweakBar(myBar);
+    this->myBar = TwNewBar("Actor Picker");
+    this->setupTweakBarForAllComponent(this->myBar);
 }
 
 FreeCam::~FreeCam()
 {
+    TwDeleteBar(this->myBar);
 }
 
 void FreeCam::setupInputListener(InputListener* inputListener)

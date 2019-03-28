@@ -2,6 +2,7 @@
 #define __COMPONENT_HPP__
 
 class Actor;
+typedef struct CTwBar TwBar;
 
 class Component
 {
@@ -19,6 +20,8 @@ private:
 
 public:
     Actor* getActor() const;
+
+    virtual void setupTweakBar(TwBar* bar);
 };
 
 #endif

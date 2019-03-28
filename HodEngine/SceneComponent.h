@@ -8,8 +8,6 @@
 
 #include <vector>
 
-typedef struct CTwBar TwBar;
-
 class SceneComponent : public Component
 {
 public:

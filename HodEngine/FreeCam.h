@@ -8,6 +8,8 @@
 class SceneComponent;
 class CameraComponent;
 
+typedef struct CTwBar TwBar;
+
 class FreeCam : public Actor
 {
 public:
@@ -44,6 +46,8 @@ private:
 
     float mouseX;
     float mouseY;
+
+    TwBar* myBar;
 };
 
 #endif

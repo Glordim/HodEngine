@@ -11,6 +11,8 @@
 class InputListener;
 class Scene;
 
+typedef struct CTwBar TwBar;
+
 class Actor
 {
 public:
@@ -31,6 +33,8 @@ public:
     std::vector<T*> getAllComponent() const;
 
     virtual void setupInputListener(InputListener* inputListener);
+
+    void setupTweakBarForAllComponent(TwBar* twBar);
 
 protected:
     Scene* scene;

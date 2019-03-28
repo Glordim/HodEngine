@@ -8,6 +8,8 @@
 
 #include "glad/glad.h"
 
+#include "AntTweakBar.h"
+
 CameraComponent::CameraComponent(Actor* actor)
 : Component(actor)
 , fov(60.0f)
@@ -23,6 +25,14 @@ CameraComponent::CameraComponent(Actor* actor)
 CameraComponent::~CameraComponent()
 {
 
+}
+
+void CameraComponent::setupTweakBar(TwBar* tweakBar)
+{
+    TwAddSeparator(tweakBar, "Camera", "");
+    TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &this->fov, "");
+    TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &this->fNear, "");
+    TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &this->fFar, "");
 }
 
 const glm::mat4& CameraComponent::getProjectionMatrix()

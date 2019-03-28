@@ -13,3 +13,8 @@ Actor* Component::getActor() const
 {
     return this->actor;
 }
+
+void Component::setupTweakBar(TwBar* bar)
+{
+
+}
