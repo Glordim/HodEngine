@@ -44,6 +44,8 @@ public:
 
 private:
 
+    void syncPxActor();
+
     bool modelMatrixDirty;
     glm::mat4 modelMatrix;
 

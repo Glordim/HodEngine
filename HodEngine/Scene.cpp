@@ -257,6 +257,8 @@ bool Scene::raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRa
 
 void Scene::addPxActor(Actor* actor, physx::PxActor* pxActor)
 {
+    actor->setPxActor(pxActor);
+
     this->pxActorToActorMap[pxActor] = actor;
 
     this->pxScene->addActor(*pxActor);

@@ -8,6 +8,8 @@
 #include "Component.h"
 #include "SceneComponent.h"
 
+#include "PxPhysicsAPI.h"
+
 class InputListener;
 class Scene;
 
@@ -37,15 +39,21 @@ public:
     void setupTweakBarForAllComponent(TwBar* twBar);
 
     Scene* getScene() const;
+    physx::PxActor* getPxActor() const;
 
 protected:
     Scene* scene;
+    physx::PxActor* pxActor;
 
     std::string name;
 
 private:
 
+    void setPxActor(physx::PxActor* pxActor);
+
     std::map<size_t, Component*> componentMapping;
+
+    friend class Scene;
 };
 
 template<typename T>

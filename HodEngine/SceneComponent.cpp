@@ -9,6 +9,8 @@
 
 #include <AntTweakBar.h>
 
+#include "Actor.h"
+
 SceneComponent::SceneComponent(Actor* actor) : Component(actor)
 {
     this->position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -66,6 +68,8 @@ void SceneComponent::setPosition(glm::vec3 position)
 {
     this->position = position;
     this->modelMatrixDirty = true;
+
+    this->syncPxActor();
 }
 
 glm::vec3 SceneComponent::getPosition() const
@@ -77,6 +81,8 @@ void SceneComponent::rotate(float angle, glm::vec3 axis)
 {
     this->rotation = glm::rotate(this->rotation, angle, axis);
     this->modelMatrixDirty = true;
+
+    this->syncPxActor();
 }
 
 void SceneComponent::setRotation(glm::vec3 rot)
@@ -87,6 +93,8 @@ void SceneComponent::setRotation(glm::vec3 rot)
 
     this->rotation = glm::quat(radians(rot));
     this->modelMatrixDirty = true;
+
+    this->syncPxActor();
 }
 
 glm::quat SceneComponent::getRotation() const
@@ -115,4 +123,19 @@ void SceneComponent::setParent(SceneComponent* parent)
 
     this->parent = parent;
     this->parent->childs.push_back(this);
+}
+
+void SceneComponent::syncPxActor()
+{
+    physx::PxActor* pxActor = this->getActor()->getPxActor();
+
+    if (pxActor != nullptr && (pxActor->getType() == physx::PxActorType::eRIGID_STATIC || pxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC))
+    {
+        physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
+
+        physx::PxTransform pxTransform(physx::PxVec3(this->position.x, this->position.y, this->position.z));
+        pxTransform.q = physx::PxQuat(this->rotation.x, this->rotation.y, this->rotation.z, this->rotation.w);
+
+        rigidActor->setGlobalPose(pxTransform);
+    }
 }

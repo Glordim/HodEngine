@@ -42,3 +42,13 @@ Scene* Actor::getScene() const
 {
     return this->scene;
 }
+
+physx::PxActor* Actor::getPxActor() const
+{
+    return this->pxActor;
+}
+
+void Actor::setPxActor(physx::PxActor* pxActor)
+{
+    this->pxActor = pxActor;
+}
