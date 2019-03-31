@@ -52,6 +52,7 @@ bool Shader::load_internal(GLenum shaderType, const std::string& path)
         glGetShaderInfoLog(this->shaderId, maxLength, &maxLength, &errorLog[0]);
 
         std::cerr << std::string("Shader : Failed to compile Shader \"") + path + "\"" << std::endl;
+        std::cerr << std::string(&errorLog[0]) << std::endl;
 
         glDeleteShader(this->shaderId);
         this->shaderId = 0;
