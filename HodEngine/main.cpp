@@ -197,7 +197,7 @@ int main()
     {
         SceneComponent* sceneComponent = gun->addComponent<SceneComponent>();
         sceneComponent->position = glm::vec3(3.5f, 0.0f, 0.0f);
-        sceneComponent->setRotation(glm::vec3(90.0f, 30.0f, 0.0f));
+        sceneComponent->setRotation(glm::vec3(0.0f, -150.0f, 0.0f));
         sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
         sceneComponent->setParent(scene->getRoot());
 
@@ -213,7 +213,7 @@ int main()
     {
         SceneComponent* sceneComponent = gun2->addComponent<SceneComponent>();
         sceneComponent->position = glm::vec3(-3.5f, 0.0f, 0.0f);
-        sceneComponent->setRotation(glm::vec3(90.0f, -30.0f, 0.0f));
+        sceneComponent->setRotation(glm::vec3(0.0f, -30.0f, 0.0f));
         sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
         sceneComponent->setParent(scene->getRoot());
 
