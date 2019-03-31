@@ -52,18 +52,16 @@ void FreeCam::selectObject()
 {
     float mouseZ = 1.0f;
 
-    glm::mat4 screenToWorldMat = /*this->cameraComponent->getProjectionMatrix() **/ this->sceneComponent->getModelMatrix();
+    glm::mat4 screenToWorldMat = this->cameraComponent->getProjectionMatrix() * glm::inverse(this->sceneComponent->getModelMatrix());
     screenToWorldMat = glm::inverse(screenToWorldMat);
 
     glm::vec4 dir;
     dir.x = (this->mouseX - 0.0f) / 1920.0f * 2.0f - 1.0f;
-    dir.x = -dir.x;
     dir.y = ((1080.0f - this->mouseY - 0.0f)) / 1080.0f * 2.0f - 1.0f;
-    dir.y = -dir.y;
     dir.z = 2.0f * mouseZ - 1.0f;
     dir.w = 1.0f;
 
-    dir = dir * screenToWorldMat;
+    dir = screenToWorldMat * dir;
 
     dir.w = 1.0f / dir.w;
 
