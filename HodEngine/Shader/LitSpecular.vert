@@ -6,7 +6,7 @@ struct PointLight
 	vec4 color;
 	float intensity;
 	float range;
-};  
+};
 
 layout(location=0) in vec3 pos;
 layout(location=1) in vec2 uv;
@@ -27,6 +27,6 @@ void main()
 	gl_Position = mvp * vec4(pos.xyz, 1.0f);
 	out_fragPos = vec3(model * vec4(pos.xyz, 1.0f));
 	out_uv = uv;
-	out_normal = normal;
+	out_normal = mat3(transpose(inverse(model))) * normal;
 }
 

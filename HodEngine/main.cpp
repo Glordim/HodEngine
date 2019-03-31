@@ -178,15 +178,24 @@ int main()
     if (texture.load("Wall/brickwall.jpg") == false) //if (texture.load("Canon/T_Canon_C_AO.tga") == false)
         return 1;
 
-    Texture texture2;
-    if (texture2.load("Wall/brickwall_normal.jpg") == false)
+    Texture textureNormal;
+    if (textureNormal.load("Wall/brickwall_normal.jpg") == false)
+        return 1;
+
+    Texture textureSpecular;
+    if (textureSpecular.load("Wall/brickwall_Specular.png") == false)
         return 1;
 
     MaterialManager* materialManager = MaterialManager::getInstance();
     Material* materialLit = materialManager->getMaterial("Lit");    
     materialLit->use();
     materialLit->setTexture("textureSampler", texture);
-    materialLit->setFloat("specularStrength", 0.5f);
+    materialLit->setFloat("specularStrength", 1.5f);
+    Material* materialLitSpecular = materialManager->getMaterial("LitSpecular");
+    materialLitSpecular->use();
+    materialLitSpecular->setTexture("textureSampler", texture);
+    materialLitSpecular->setTexture("specularTextureSampler", textureSpecular);
+    materialLitSpecular->setFloat("specularStrength", 1.5f);
     Material* materialUnlit = materialManager->getMaterial("UnlitColor");
     materialUnlit->use();
     materialUnlit->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -219,7 +228,7 @@ int main()
 
         StaticMeshComponent* staticMeshComponent = gun2->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(&mesh);
-        staticMeshComponent->setMaterial(materialLit);
+        staticMeshComponent->setMaterial(materialLitSpecular);
 
         ColliderComponent* colliderComponent = gun2->addComponent<ColliderComponent>();
         colliderComponent->setShape(ColliderComponent::Shape::Mesh);

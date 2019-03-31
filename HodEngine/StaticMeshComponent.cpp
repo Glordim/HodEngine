@@ -56,8 +56,8 @@ void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightCompone
 
     this->material->setVec4("ambiantColor", glm::vec4(0.25f, 0.25f, 0.5f, 1.0f));
     this->material->setVec4("eyePos", glm::vec4(camera->getActor()->getComponent<SceneComponent>()->getPosition(), 1.0f));
-    this->material->setFloat("shininess", 8);
-    this->material->setFloat("specularStrength", 0.5f);
+    this->material->setFloat("shininess", 32);
+    this->material->setFloat("specularStrength", 1.5f);
 
     glBindVertexArray(this->mesh->getVao());
     glDrawElements(GL_TRIANGLES, this->mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
