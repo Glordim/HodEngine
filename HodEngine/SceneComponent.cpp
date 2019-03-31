@@ -29,9 +29,35 @@ SceneComponent::~SceneComponent()
 void SceneComponent::setupTweakBar(TwBar* tweakBar)
 {
     TwAddSeparator(tweakBar, "Scene", "");
-    TwAddVarRW(tweakBar, "Position", TW_TYPE_DIR3F, &this->position, "");
-    TwAddVarRW(tweakBar, "Rotation", TW_TYPE_QUAT4F, &this->rotation, "");
+    TwAddVarCB(tweakBar, "Position", TW_TYPE_DIR3F, &SceneComponent::twSetPos, &SceneComponent::twGetPos, static_cast<void*>(this), "");
+    TwAddVarCB(tweakBar, "Rotation", TW_TYPE_QUAT4F, &SceneComponent::twSetRot, &SceneComponent::twGetRot, static_cast<void*>(this), "");
     TwAddVarRW(tweakBar, "Scale", TW_TYPE_DIR3F, &this->scale, "");
+}
+
+void SceneComponent::twGetPos(void *value, void *clientData)
+{
+    SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
+    glm::vec3* pos = static_cast<glm::vec3*>(value);
+    *pos = thiz->getPosition();
+}
+
+void SceneComponent::twSetPos(const void *value, void *clientData)
+{
+    SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
+    thiz->setPosition(*(static_cast<const glm::vec3*>(value)));
+}
+
+void SceneComponent::twGetRot(void *value, void *clientData)
+{
+    SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
+    glm::quat* pos = static_cast<glm::quat*>(value);
+    *pos = thiz->getRotation();
+}
+
+void SceneComponent::twSetRot(const void *value, void *clientData)
+{
+    SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
+    thiz->setRotation(*(static_cast<const glm::quat*>(value)));
 }
 
 void SceneComponent::lookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up)
@@ -80,6 +106,14 @@ glm::vec3 SceneComponent::getPosition() const
 void SceneComponent::rotate(float angle, glm::vec3 axis)
 {
     this->rotation = glm::rotate(this->rotation, angle, axis);
+    this->modelMatrixDirty = true;
+
+    this->syncPxActor();
+}
+
+void SceneComponent::setRotation(glm::quat rot)
+{
+    this->rotation = rot;
     this->modelMatrixDirty = true;
 
     this->syncPxActor();

@@ -32,6 +32,7 @@ public:
     void setPosition(glm::vec3 position);
     glm::vec3 getPosition() const;
 
+    void setRotation(glm::quat rot);
     void setRotation(glm::vec3 rotation);
     glm::quat getRotation() const;
     glm::vec3 getRotationEuler() const;
@@ -43,6 +44,11 @@ public:
     void setupTweakBar(TwBar* tweakBar);
 
 private:
+    static void twSetPos(const void *value, void *clientData);
+    static void twGetPos(void *value, void *clientData);
+
+    static void twSetRot(const void *value, void *clientData);
+    static void twGetRot(void *value, void *clientData);
 
     void syncPxActor();
 
