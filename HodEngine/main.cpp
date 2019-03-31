@@ -124,7 +124,6 @@ int main()
     glfwSetCursorPosCallback(window, onMouseEventCallback);
     glfwSetMouseButtonCallback(window, onMouseButtonEventCallback);
     glfwSetCharCallback(window, (GLFWcharfun)TwEventCharModsGLFW3);
-    
 
     glfwMakeContextCurrent(window);
 
@@ -140,9 +139,10 @@ int main()
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, 0);
 
-    //glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
     Allocator allocator;
