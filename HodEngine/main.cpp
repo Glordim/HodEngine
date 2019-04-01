@@ -191,10 +191,11 @@ int main()
     materialLit->use();
     materialLit->setTexture("textureSampler", texture);
     materialLit->setFloat("specularStrength", 1.5f);
-    Material* materialLitSpecular = materialManager->getMaterial("LitSpecular");
+    Material* materialLitSpecular = materialManager->getMaterial("LitSpecularNormal");
     materialLitSpecular->use();
     materialLitSpecular->setTexture("textureSampler", texture);
     materialLitSpecular->setTexture("specularTextureSampler", textureSpecular);
+    materialLitSpecular->setTexture("normalTextureSampler", textureNormal);
     materialLitSpecular->setFloat("specularStrength", 1.5f);
     Material* materialUnlit = materialManager->getMaterial("UnlitColor");
     materialUnlit->use();
