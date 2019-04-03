@@ -92,6 +92,9 @@
     </ClCompile>
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="ColliderComponent.cpp" />
+    <ClCompile Include="DebugMesh.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraComponent.h">
@@ -162,5 +165,17 @@
     </ClInclude>
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ColliderComponent.h" />
+    <ClInclude Include="DebugMesh.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex_3P_3C.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Line_3P_3C.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Tri_3P_3C.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

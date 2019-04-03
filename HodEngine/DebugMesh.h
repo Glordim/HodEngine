@@ -1,19 +1,19 @@
-#ifndef __DEBUG_LINE_HPP__
-#define __DEBUG_LINE_HPP__
+#ifndef __DEBUG_MESH_HPP__
+#define __DEBUG_MESH_HPP__
 
 #include <vector>
 
-#include "Line_3P_3C.h"
+#include "Tri_3P_3C.h"
 
 class CameraComponent;
 
-class DebugLine
+class DebugMesh
 {
 public:
-    DebugLine();
-    virtual ~DebugLine();
+    DebugMesh();
+    virtual ~DebugMesh();
 
-    void buildVao(const std::vector<Line_3P_3C>& lines);
+    void buildVao(const std::vector<Tri_3P_3C>& tris);
     void draw(CameraComponent* cameraComponent);
 
 private:

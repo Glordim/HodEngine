@@ -10,6 +10,7 @@ class SceneComponent;
 class CameraComponent;
 
 #include "DebugLine.h"
+#include "DebugMesh.h"
 
 class Scene
 {
@@ -21,6 +22,8 @@ public:
     T* spawnActor(const std::string& name);
 
     void drawDebugPhysics(CameraComponent* camera, float dt);
+    void drawDebugLines(CameraComponent* camera, float dt);
+    void drawDebugTris(CameraComponent* camera, float dt);
 
     void drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration);
     void drawLine(const std::vector<Line_3P_3C>& lineVector, float duration);
@@ -51,6 +54,9 @@ private:
 
     std::vector<std::pair<DebugLine*, float>> debugLines;
     std::vector<DebugLine*> debugLinesImmediate;
+
+    std::vector<std::pair<DebugMesh*, float>> debugMeshes;
+    std::vector<DebugMesh*> debugMeshesImmediate;
 };
 
 template<typename T>

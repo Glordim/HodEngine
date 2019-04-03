@@ -58,12 +58,6 @@ void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
     material->use();
     material->setMat4("mvp", camera->getProjectionMatrix() * glm::inverse(camera->getActor()->getComponent<SceneComponent>()->getModelMatrix()));
 
-    struct Vertext_3V_3C
-    {
-        float vertex[3];
-        float color[3];
-    };
-
     const physx::PxRenderBuffer& rb = this->pxScene->getRenderBuffer();
     physx::PxU32 lineCount = rb.getNbLines();
 
@@ -100,63 +94,47 @@ void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
 
     if (triCount != 0)
     {
-        std::vector<Vertext_3V_3C> vertices;
-        vertices.reserve(3 * triCount);
+        std::vector<Tri_3P_3C> tris;
+        tris.resize(triCount);
 
         for (physx::PxU32 i = 0; i < triCount; i++)
         {
-            const physx::PxDebugTriangle& tri = rb.getTriangles()[i];
+            const physx::PxDebugTriangle& pxTri = rb.getTriangles()[i];
             // render the line
 
-            Vertext_3V_3C vertex;
-            vertex.vertex[0] = tri.pos0.x;
-            vertex.vertex[1] = tri.pos0.y;
-            vertex.vertex[2] = tri.pos0.z;
-            vertex.color[0] = (tri.color0 & 0x00FF0000) >> 16;
-            vertex.color[1] = (tri.color0 & 0x0000FF00) >> 8;
-            vertex.color[2] = (tri.color0 & 0x000000FF) >> 0;
+            Tri_3P_3C& tri = tris[i];
 
-            vertices.push_back(vertex);
+            tri.vertices[0].pos[0] = pxTri.pos0.x;
+            tri.vertices[0].pos[1] = pxTri.pos0.y;
+            tri.vertices[0].pos[2] = pxTri.pos0.z;
+            tri.vertices[0].color[0] = (pxTri.color0 & 0x00FF0000) >> 16;
+            tri.vertices[0].color[1] = (pxTri.color0 & 0x0000FF00) >> 8;
+            tri.vertices[0].color[2] = (pxTri.color0 & 0x000000FF) >> 0;
 
-            vertex.vertex[0] = tri.pos1.x;
-            vertex.vertex[1] = tri.pos1.y;
-            vertex.vertex[2] = tri.pos1.z;
-            vertex.color[0] = (tri.color1 & 0x00FF0000) >> 16;
-            vertex.color[1] = (tri.color1 & 0x0000FF00) >> 8;
-            vertex.color[2] = (tri.color1 & 0x000000FF) >> 0;
+            tri.vertices[1].pos[0] = pxTri.pos1.x;
+            tri.vertices[1].pos[1] = pxTri.pos1.y;
+            tri.vertices[1].pos[2] = pxTri.pos1.z;
+            tri.vertices[1].color[0] = (pxTri.color1 & 0x00FF0000) >> 16;
+            tri.vertices[1].color[1] = (pxTri.color1 & 0x0000FF00) >> 8;
+            tri.vertices[1].color[2] = (pxTri.color1 & 0x000000FF) >> 0;
 
-            vertices.push_back(vertex);
-
-            vertex.vertex[0] = tri.pos2.x;
-            vertex.vertex[1] = tri.pos2.y;
-            vertex.vertex[2] = tri.pos2.z;
-            vertex.color[0] = (tri.color2 & 0x00FF0000) >> 16;
-            vertex.color[1] = (tri.color2 & 0x0000FF00) >> 8;
-            vertex.color[2] = (tri.color2 & 0x000000FF) >> 0;
-
-            vertices.push_back(vertex);
+            tri.vertices[2].pos[0] = pxTri.pos2.x;
+            tri.vertices[2].pos[1] = pxTri.pos2.y;
+            tri.vertices[2].pos[2] = pxTri.pos2.z;
+            tri.vertices[2].color[0] = (pxTri.color2 & 0x00FF0000) >> 16;
+            tri.vertices[2].color[1] = (pxTri.color2 & 0x0000FF00) >> 8;
+            tri.vertices[2].color[2] = (pxTri.color2 & 0x000000FF) >> 0;
         }
 
-        unsigned int vao;
-        unsigned int vbo;
-        glGenVertexArrays(1, &vao);
-        glGenBuffers(1, &vbo);
-
-        glBindVertexArray(vao);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertext_3V_3C) * triCount * 3, &vertices[0], GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        material->use();
-        glDrawArrays(GL_TRIANGLES, 0, triCount * 3);
+        this->drawTri(tris, 0.0f);
     }
 
+    this->drawDebugLines(camera, dt);
+    this->drawDebugTris(camera, dt);
+}
+
+void Scene::drawDebugLines(CameraComponent* camera, float dt)
+{
     auto it = this->debugLines.begin();
     auto itEnd = this->debugLines.end();
     while (it != itEnd)
@@ -184,6 +162,37 @@ void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
         delete debugLine;
     }
     this->debugLinesImmediate.clear();
+}
+
+void Scene::drawDebugTris(CameraComponent* camera, float dt)
+{
+    auto it = this->debugMeshes.begin();
+    auto itEnd = this->debugMeshes.end();
+    while (it != itEnd)
+    {
+        it->first->draw(camera);
+        it->second -= dt;
+
+        if (it->second <= 0.0f)
+        {
+            delete it->first;
+            it = this->debugMeshes.erase(it);
+            itEnd = this->debugMeshes.end();
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    size_t debugMeshesImmediateCount = this->debugMeshesImmediate.size();
+    for (int i = 0; i < debugMeshesImmediateCount; ++i)
+    {
+        DebugMesh* debugMesh = this->debugMeshesImmediate[i];
+        debugMesh->draw(camera);
+        delete debugMesh;
+    }
+    this->debugMeshesImmediate.clear();
 }
 
 void Scene::drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration)
@@ -224,7 +233,13 @@ void Scene::drawLine(const std::vector<Line_3P_3C>& lineVector, float duration)
 
 void Scene::drawTri(const std::vector<Tri_3P_3C>& triVector, float duration)
 {
+    DebugMesh* debugMesh = new DebugMesh();
+    debugMesh->buildVao(triVector);
 
+    if (duration > 0)
+        this->debugMeshes.push_back(std::make_pair(debugMesh, duration));
+    else
+        this->debugMeshesImmediate.push_back(debugMesh);
 }
 
 void Scene::simulatePhysic(float dt)

@@ -98,6 +98,7 @@
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DebugLine.cpp" />
+    <ClCompile Include="DebugMesh.cpp" />
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="FragmentShader.cpp" />
     <ClCompile Include="FreeCam.cpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DebugLine.h" />
+    <ClInclude Include="DebugMesh.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="FragmentShader.h" />
     <ClInclude Include="FreeCam.h" />
@@ -131,6 +133,7 @@
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="KHR\khrplatform.h" />
     <ClInclude Include="LightComponent.h" />
+    <ClInclude Include="Line_3P_3C.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="Mesh.h" />
@@ -140,7 +143,9 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="StaticMeshComponent.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Tri_3P_3C.h" />
     <ClInclude Include="VertexShader.h" />
+    <ClInclude Include="Vertex_3P_3C.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
