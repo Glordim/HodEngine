@@ -20,8 +20,10 @@ private:
 private:
     std::vector<unsigned int> indices;
     std::vector<float> vertices;
-    std::vector<float> uv;
-    std::vector<float> normal;
+    std::vector<float> uvs;
+    std::vector<float> normals;
+    std::vector<float> tangents;
+    std::vector<float> biTangents;
 
     unsigned int vbo[4];
     unsigned int vao;
