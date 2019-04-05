@@ -3,6 +3,15 @@
 
 #include <vector>
 
+struct Vertex_3P_3C_3N_2UV_3TA
+{
+    float pos[3];
+    float color[3];
+    float normal[3];
+    float uv[2];
+    float tangent[3];
+};
+
 class Mesh
 {
 public:
@@ -19,13 +28,9 @@ private:
 
 private:
     std::vector<unsigned int> indices;
-    std::vector<float> vertices;
-    std::vector<float> uvs;
-    std::vector<float> normals;
-    std::vector<float> tangents;
-    std::vector<float> biTangents;
+    std::vector<Vertex_3P_3C_3N_2UV_3TA> vertices;
 
-    unsigned int vbo[4];
+    unsigned int vbo[2];
     unsigned int vao;
 };
 

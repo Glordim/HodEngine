@@ -13,15 +13,15 @@
 
 Mesh::Mesh()
 {
-    for (int i = 0; i < 4; ++i)
-    {
-        this->vbo[i] = 0;
-    }
+    this->vbo[0] = 0;
+    this->vbo[1] = 0;
+    this->vao = 0;
 }
 
 Mesh::~Mesh()
 {
-    glDeleteBuffers(4, &this->vbo[0]);
+    glDeleteBuffers(2, &this->vbo[0]);
+    glDeleteVertexArrays(1, &this->vao);
 }
 
 bool Mesh::loadObj(const char* path)
@@ -46,40 +46,77 @@ bool Mesh::loadObj(const char* path)
 
         for (int j = 0; j < shape.mesh.indices.size(); ++j)
         {
+            Vertex_3P_3C_3N_2UV_3TA vertex;
+
             int verticesIndex = shape.mesh.indices[j].vertex_index;
 
-            this->vertices.push_back(attributes.vertices[(verticesIndex * 3)]);
-            this->vertices.push_back(attributes.vertices[(verticesIndex * 3) + 1]);
-            this->vertices.push_back(attributes.vertices[(verticesIndex * 3) + 2]);
+            memcpy(&vertex.pos[0], &attributes.vertices[verticesIndex * 3], 3 * sizeof(float));
+            /*
+            vertex.pos[0] = attributes.vertices[(verticesIndex * 3)];
+            vertex.pos[1] = attributes.vertices[(verticesIndex * 3) + 1];
+            vertex.pos[2] = attributes.vertices[(verticesIndex * 3) + 2];
+            */
 
-            int uvIndex = shape.mesh.indices[j].texcoord_index;
-
-            if (uvIndex != -1)
+            if (attributes.colors.empty() == false)
             {
-                this->uvs.push_back(attributes.texcoords[(uvIndex * 2)]);
-                this->uvs.push_back(1.0f - attributes.texcoords[(uvIndex * 2) + 1]);
+                memcpy(&vertex.color[0], &attributes.colors[verticesIndex * 3], 3 * sizeof(float));
+                /*
+                vertex.color[0] = attributes.colors[(verticesIndex * 3)];
+                vertex.color[1] = attributes.colors[(verticesIndex * 3) + 1];
+                vertex.color[2] = attributes.colors[(verticesIndex * 3) + 2];
+                */
             }
             else
             {
-                this->uvs.push_back(0.0f);
-                this->uvs.push_back(0.0f);
+                memset(&vertex.color[0], 1.0f, 3 * sizeof(float));
+                /*
+                vertex.color[0] = 1.0f;
+                vertex.color[1] = 1.0f;
+                vertex.color[2] = 1.0f;
+                */
             }
 
             int normalIndex = shape.mesh.indices[j].normal_index;
 
             if (normalIndex != -1)
             {
-                this->normals.push_back(attributes.normals[(normalIndex * 3)]);
-                this->normals.push_back(attributes.normals[(normalIndex * 3) + 1]);
-                this->normals.push_back(attributes.normals[(normalIndex * 3) + 2]);
+                memcpy(&vertex.normal[0], &attributes.normals[normalIndex * 3], 3 * sizeof(float));
+                /*
+                vertex.normal[0] = attributes.normals[(normalIndex * 3)];
+                vertex.normal[1] = attributes.normals[(normalIndex * 3) + 1];
+                vertex.normal[2] = attributes.normals[(normalIndex * 3) + 2];
+                */
             }
             else
             {
-                this->normals.push_back(0.0f);
-                this->normals.push_back(0.0f);
-                this->normals.push_back(1.0f);
+                memset(&vertex.normal[0], 0.0f, 3 * sizeof(float));
+                /*
+                vertex.normal[0] = 0.0f;
+                vertex.normal[1] = 0.0f;
+                vertex.normal[2] = 0.0f;
+                */
             }
 
+            int uvIndex = shape.mesh.indices[j].texcoord_index;
+
+            if (uvIndex != -1)
+            {
+                memcpy(&vertex.uv[0], &attributes.texcoords[uvIndex * 2], 2 * sizeof(float));
+                /*
+                vertex.uv[0] = attributes.texcoords[(uvIndex * 2)];
+                vertex.uv[1] = 1.0f - attributes.texcoords[(uvIndex * 2) + 1];
+                */
+            }
+            else
+            {
+                memset(&vertex.uv[0], 0.0f, 2 * sizeof(float));
+                /*
+                vertex.uv[0] = 0.0f;
+                vertex.uv[1] = 0.0f;
+                */
+            }
+
+            this->vertices.push_back(vertex);
             this->indices.push_back(index);
             ++index;
         }
@@ -89,13 +126,17 @@ bool Mesh::loadObj(const char* path)
     size_t faceCount = this->indices.size() / 3;
     for (size_t i = 0; i < faceCount; ++i)
     {
-        glm::vec3 pos1 = glm::vec3(this->vertices[this->indices[i] * 3], this->vertices[this->indices[i] * 3 + 1], this->vertices[this->indices[i] * 3 + 2]);
-        glm::vec3 pos2 = glm::vec3(this->vertices[this->indices[i + 1] * 3], this->vertices[this->indices[i + 1] * 3 + 1], this->vertices[this->indices[i + 1] * 3 + 2]);
-        glm::vec3 pos3 = glm::vec3(this->vertices[this->indices[i + 2] * 3], this->vertices[this->indices[i + 2] * 3 + 1], this->vertices[this->indices[i + 2] * 3 + 2]);
+        Vertex_3P_3C_3N_2UV_3TA& v1 = this->vertices[this->indices[i + 0]];
+        Vertex_3P_3C_3N_2UV_3TA& v2 = this->vertices[this->indices[i + 1]];
+        Vertex_3P_3C_3N_2UV_3TA& v3 = this->vertices[this->indices[i + 2]];
 
-        glm::vec2 uv1 = glm::vec2(this->uvs[this->indices[i] * 2], this->uvs[this->indices[i] * 2 + 1]);
-        glm::vec2 uv2 = glm::vec2(this->uvs[this->indices[i + 1] * 2], this->uvs[this->indices[i + 1] * 2 + 1]);
-        glm::vec2 uv3 = glm::vec2(this->uvs[this->indices[i + 2] * 2], this->uvs[this->indices[i + 2] * 2 + 1]);
+        glm::vec3 pos1 = glm::vec3(v1.pos[0], v1.pos[1], v1.pos[2]);
+        glm::vec3 pos2 = glm::vec3(v2.pos[0], v2.pos[1], v2.pos[2]);
+        glm::vec3 pos3 = glm::vec3(v3.pos[0], v3.pos[1], v3.pos[2]);
+
+        glm::vec2 uv1 = glm::vec2(v1.uv[0], v1.uv[1]);
+        glm::vec2 uv2 = glm::vec2(v2.uv[0], v2.uv[1]);
+        glm::vec2 uv3 = glm::vec2(v3.uv[0], v3.uv[1]);
 
         glm::vec3 edge1 = pos2 - pos1;
         glm::vec3 edge2 = pos3 - pos1;
@@ -110,11 +151,25 @@ bool Mesh::loadObj(const char* path)
         tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
         tangent1 = glm::normalize(tangent1);
 
+        v1.tangent[0] = tangent1.x;
+        v1.tangent[1] = tangent1.y;
+        v1.tangent[2] = tangent1.z;
+
+        v2.tangent[0] = tangent1.x;
+        v2.tangent[1] = tangent1.y;
+        v2.tangent[2] = tangent1.z;
+
+        v2.tangent[0] = tangent1.x;
+        v2.tangent[1] = tangent1.y;
+        v2.tangent[2] = tangent1.z;
+
+        /*
         glm::vec3 bitangent1;
         bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
         bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
         bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
         bitangent1 = glm::normalize(bitangent1);
+        */
 
     }
 
@@ -125,30 +180,41 @@ bool Mesh::loadObj(const char* path)
 
 void Mesh::buildVao()
 {
-    glGenBuffers(4, &this->vbo[0]);
+    if (this->vbo[0] != 0)
+        glDeleteBuffers(2, &this->vbo[0]);
+    if (this->vao != 0)
+        glDeleteVertexArrays(1, &this->vao);
+
+    glGenBuffers(2, &this->vbo[0]);
     glGenVertexArrays(1, &this->vao);
     glBindVertexArray(this->vao);
 
     // Vertex
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
-    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(float), &this->vertices[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex_3P_3C_3N_2UV_3TA), &this->vertices[0], GL_STATIC_DRAW);
+
+    // Pos
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), 0);
     glEnableVertexAttribArray(0);
 
-    // Uv
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
-    glBufferData(GL_ARRAY_BUFFER, this->uvs.size() * sizeof(float), &this->uvs[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    // Color
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     // Normal
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[2]);
-    glBufferData(GL_ARRAY_BUFFER, this->normals.size() * sizeof(float), &this->normals[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    // Uv
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), (void*)(9 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+
+    // Tangent
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), (void*)(11 * sizeof(float)));
+    glEnableVertexAttribArray(4);
+
     // Indice
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo[3]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &this->indices[0], GL_STATIC_DRAW);
 }
 
