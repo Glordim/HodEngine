@@ -104,7 +104,7 @@ bool Mesh::loadObj(const char* path)
                 memcpy(&vertex.uv[0], &attributes.texcoords[uvIndex * 2], 2 * sizeof(float));
                 /*
                 vertex.uv[0] = attributes.texcoords[(uvIndex * 2)];
-                vertex.uv[1] = 1.0f - attributes.texcoords[(uvIndex * 2) + 1];
+                vertex.uv[1] = attributes.texcoords[(uvIndex * 2) + 1];
                 */
             }
             else
@@ -159,9 +159,9 @@ bool Mesh::loadObj(const char* path)
         v2.tangent[1] = tangent1.y;
         v2.tangent[2] = tangent1.z;
 
-        v2.tangent[0] = tangent1.x;
-        v2.tangent[1] = tangent1.y;
-        v2.tangent[2] = tangent1.z;
+        v3.tangent[0] = tangent1.x;
+        v3.tangent[1] = tangent1.y;
+        v3.tangent[2] = tangent1.z;
 
         /*
         glm::vec3 bitangent1;

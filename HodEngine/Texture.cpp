@@ -21,6 +21,9 @@ bool Texture::load(const char* path)
     int width;
     int height;
     int channel;
+
+    stbi_set_flip_vertically_on_load(true);
+
     unsigned char* textureBuffer = stbi_load(path, &width, &height, &channel, 3);
     if (textureBuffer == nullptr)
     {

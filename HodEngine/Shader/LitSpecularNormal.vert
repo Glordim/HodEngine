@@ -20,15 +20,22 @@ uniform float time;
 uniform int lightCount;
 uniform PointLight pointLight[32];
 
-out vec2 out_uv;
-out vec3 out_normal;
-out vec3 out_fragPos;
+out VS_OUT {
+    vec3 FragPos;
+    vec2 TexCoords;
+	mat3 TBN;
+} vs_out;
 
 void main()
 {
-	gl_Position = mvp * vec4(pos.xyz, 1.0f);
-	out_fragPos = vec3(model * vec4(pos.xyz, 1.0f));
-	out_uv = uv;
-	out_normal = mat3(transpose(inverse(model))) * normal;
+	vec3 T = normalize(vec3(model * vec4(tangent, 0.0f)));
+	vec3 N = normalize(vec3(model * vec4(normal, 0.0f)));
+	T = normalize(T - dot(T, N) * N);
+	vec3 B = cross(N, T);
+	
+	gl_Position = mvp * vec4(pos, 1.0f);
+	vs_out.FragPos = vec3(model * vec4(pos, 0.0f));
+	vs_out.TexCoords = uv;
+	vs_out.TBN = transpose(mat3(T, B, N));
 }
 
