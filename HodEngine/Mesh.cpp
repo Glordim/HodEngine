@@ -126,9 +126,9 @@ bool Mesh::loadObj(const char* path)
     size_t faceCount = this->indices.size() / 3;
     for (size_t i = 0; i < faceCount; ++i)
     {
-        Vertex_3P_3C_3N_2UV_3TA& v1 = this->vertices[this->indices[i + 0]];
-        Vertex_3P_3C_3N_2UV_3TA& v2 = this->vertices[this->indices[i + 1]];
-        Vertex_3P_3C_3N_2UV_3TA& v3 = this->vertices[this->indices[i + 2]];
+        Vertex_3P_3C_3N_2UV_3TA& v1 = this->vertices[this->indices[(i * 3) + 0]];
+        Vertex_3P_3C_3N_2UV_3TA& v2 = this->vertices[this->indices[(i * 3) + 1]];
+        Vertex_3P_3C_3N_2UV_3TA& v3 = this->vertices[this->indices[(i * 3) + 2]];
 
         glm::vec3 pos1 = glm::vec3(v1.pos[0], v1.pos[1], v1.pos[2]);
         glm::vec3 pos2 = glm::vec3(v2.pos[0], v2.pos[1], v2.pos[2]);
