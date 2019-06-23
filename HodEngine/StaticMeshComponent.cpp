@@ -9,9 +9,9 @@
 #include "CameraComponent.h"
 #include "LightComponent.h"
 
-#include <GLFW/glfw3.h>
-
 #include <PxPhysicsAPI.h>
+
+#include <SDL.h>
 
 StaticMeshComponent::StaticMeshComponent(Actor* actor) : RendererComponent(actor)
 {
@@ -38,7 +38,7 @@ void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightCompone
     SceneComponent* sceneComponent = this->getActor()->getComponent<SceneComponent>();
 
     this->material->use();
-    this->material->setFloat("time", glfwGetTime());
+    this->material->setFloat("time", (float)SDL_GetTicks() / 1000.0f);
     this->material->setMat4("mvp", camera->getProjectionMatrix() * glm::inverse(camera->getActor()->getComponent<SceneComponent>()->getModelMatrix()) * sceneComponent->getModelMatrix());
     this->material->setMat4("model", sceneComponent->getModelMatrix());
     size_t lightCount = allLight.size();

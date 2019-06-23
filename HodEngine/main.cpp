@@ -1,7 +1,10 @@
 #include <iostream>
 
 #include "glad/glad.h"
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
+
+#include <SDL.h>
+//#include <SDL_vulkan.h>
 
 #include <algorithm>
 #include <cstring>
@@ -36,6 +39,8 @@
 
 #include <PxPhysicsAPI.h>
 
+#include <tchar.h>
+
 void MessageCallback(GLenum source,
     GLenum type,
     GLuint id,
@@ -55,13 +60,6 @@ void onErrorCallback(int errorCode, const char* errorDescription)
 {
     fprintf(stderr, "Error %d : %s\n", errorCode, errorDescription);
     fflush(stderr);
-}
-
-bool shouldExit;
-
-void onCloseWindowCallback(GLFWwindow* window)
-{
-    shouldExit = true;
 }
 
 void onResizeWindowCallback(GLFWwindow* window, int width, int height)
@@ -97,44 +95,47 @@ void onMouseEventCallback(GLFWwindow* window, double x, double y)
     inputListener.injectMouseMoveInput(x, y);
 }
 
-int main()
+int __cdecl _tmain()
 {
-    glfwInit();
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
+        SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
 
-    glfwSetErrorCallback(onErrorCallback);
+    SDL_Window* window = SDL_CreateWindow("Toto", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    if (window == nullptr)
+    {
+        SDL_Log("Unable to create Window: %s", SDL_GetError());
+        return 1;
+    }
 
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+    /*
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    */
+    SDL_GLContext context = SDL_GL_CreateContext(window);
 
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+    if (context == nullptr)
+    {
+        SDL_Log("Unable to create Context: %s", SDL_GetError());
+        return 1;
+    }
 
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Toto", monitor, nullptr);
+    SDL_GL_SetSwapInterval(1); // Syncrho vertical
 
-    glfwSetWindowCloseCallback(window, onCloseWindowCallback);
-    glfwSetWindowSizeCallback(window, onResizeWindowCallback);
-    glfwSetKeyCallback(window, onKeyEventCallback);
-    glfwSetCursorPosCallback(window, onMouseEventCallback);
-    glfwSetMouseButtonCallback(window, onMouseButtonEventCallback);
-    glfwSetCharCallback(window, (GLFWcharfun)TwEventCharModsGLFW3);
-
-    glfwMakeContextCurrent(window);
-
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+    gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 
     std::cout << "OpenGL version : " << glGetString(GL_VERSION) << std::endl;
     std::cout << "OpenGL renderer : " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "OpenGL vendor : " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "OpenGL shader version : " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-
-    shouldExit = false;
 
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, 0);
@@ -295,21 +296,29 @@ int main()
     }
 
     float dt = 0.0f;
-    float lastTime = glfwGetTime();
+    Uint32 lastTime = SDL_GetTicks();
+
+    bool shouldExit = false;
 
     while (shouldExit == false)
     {
-        glfwPollEvents();
+        SDL_Event event;
+
+        while (SDL_PollEvent(&event) != 0)
+        {
+            if (event.type == SDL_QUIT)
+                shouldExit = true;
+        }
         inputListener.process();
 
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
-            glfwSetCursorPos(window, 1920.0f * 0.5f, 1080.0f * 0.5f);
+        //if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
+        //    glfwSetCursorPos(window, 1920.0f * 0.5f, 1080.0f * 0.5f);
 
-        double time = glfwGetTime();
-        dt = time - lastTime;
+        Uint32 time = SDL_GetTicks();
+
+        dt = std::min((float)(time - lastTime) / 1000.0f, 0.2f);
+
         lastTime = time;
-
-        dt = std::min(dt, 0.2f);
 
         // Physic
         scene->simulatePhysic(dt);
@@ -348,7 +357,7 @@ int main()
 
         TwDraw();
 
-        glfwSwapBuffers(window);
+        SDL_GL_SwapWindow(window);
     }
 
     delete scene;
@@ -357,9 +366,9 @@ int main()
 
     TwTerminate();
 
-    glfwDestroyWindow(window);
-
-    glfwTerminate();
+    SDL_GL_DeleteContext(context);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
     return 0;
 }
