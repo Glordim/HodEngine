@@ -1,7 +1,6 @@
 #include "FreeCam.h"
 
 #include "glad/glad.h"
-#include <GLFW/glfw3.h>
 
 #include "SceneComponent.h"
 #include "CameraComponent.h"
@@ -37,6 +36,7 @@ FreeCam::~FreeCam()
 
 void FreeCam::setupInputListener(InputListener* inputListener)
 {
+    /*
     inputListener->registerAxisEvent(InputListener::KeyAxis(GLFW_KEY_S, GLFW_KEY_W), std::bind(&FreeCam::moveForward, this, std::placeholders::_1));
     inputListener->registerAxisEvent(InputListener::KeyAxis(GLFW_KEY_A, GLFW_KEY_D), std::bind(&FreeCam::moveRight, this, std::placeholders::_1));
     inputListener->registerAxisEvent(InputListener::KeyAxis(GLFW_KEY_C, GLFW_KEY_SPACE), std::bind(&FreeCam::moveUp, this, std::placeholders::_1));
@@ -46,6 +46,7 @@ void FreeCam::setupInputListener(InputListener* inputListener)
     inputListener->registerMouseButtonEvent(GLFW_MOUSE_BUTTON_2, GLFW_PRESS, std::bind(&FreeCam::allowRotate, this));
     inputListener->registerMouseButtonEvent(GLFW_MOUSE_BUTTON_2, GLFW_RELEASE, std::bind(&FreeCam::disallowRotate, this));
     inputListener->registerMouseMoveEvent(std::bind(&FreeCam::rotateView, this, std::placeholders::_1, std::placeholders::_2));
+    */
 }
 
 void FreeCam::selectObject()

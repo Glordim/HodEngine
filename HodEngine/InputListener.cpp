@@ -1,7 +1,5 @@
 #include "InputListener.h"
 
-#include "GLFW/glfw3.h"
-
 InputListener::InputListener()
 {
 }
@@ -21,7 +19,7 @@ InputListener::~InputListener()
 
 void InputListener::injectMouseButtonInput(int mouseButtonId, int action, int mods)
 {
-    if (action == GLFW_PRESS)
+    if (action == 0/*GLFW_PRESS*/)
     {
         size_t callbackCount = this->mouseButtonPressCallbackList[mouseButtonId].size();
 
@@ -30,7 +28,7 @@ void InputListener::injectMouseButtonInput(int mouseButtonId, int action, int mo
             this->mouseButtonPressCallbackList[mouseButtonId][i]();
         }
     }
-    else if (action == GLFW_RELEASE)
+    else if (action == 1/*GLFW_RELEASE*/)
     {
         size_t callbackCount = this->mouseButtonReleaseCallbackList[mouseButtonId].size();
 
@@ -56,7 +54,7 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
     auto it = this->axisCallbackList.begin();
     auto itEnd = this->axisCallbackList.end();
 
-    if (action == GLFW_RELEASE)
+    if (action == 1/*GLFW_RELEASE*/)
     {
         while (it != itEnd)
         {
@@ -108,7 +106,7 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
             ++it;
         }
     }
-    else if (action == GLFW_PRESS)
+    else if (action == 0/*GLFW_PRESS*/)
     {
         while (it != itEnd)
         {
@@ -172,9 +170,9 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
 
 void InputListener::registerMouseButtonEvent(int mouseButtonId, int action, std::function<void()> callback)
 {
-    if (action == GLFW_PRESS)
+    if (action == 0/*GLFW_PRESS*/)
         this->mouseButtonPressCallbackList[mouseButtonId].push_back(callback);
-    else if (action == GLFW_RELEASE)
+    else if (action == 1/*GLFW_RELEASE*/)
         this->mouseButtonReleaseCallbackList[mouseButtonId].push_back(callback);
 }
 

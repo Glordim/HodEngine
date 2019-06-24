@@ -6,10 +6,6 @@
 	path = PhysX
 	url = https://github.com/Glordim/PhysX
 	branch = 4.1
-[submodule "glfw"]
-	path = glfw
-	url = https://github.com/Glordim/glfw
-	branch = latest
 [submodule "stb"]
 	path = stb
 	url = https://github.com/Glordim/stb
@@ -22,3 +18,6 @@
 	path = glm
 	url = https://github.com/Glordim/glm
 	branch = master
+[submodule "SDL"]
+	path = SDL
+	url = https://github.com/Glordim/SDL.git
