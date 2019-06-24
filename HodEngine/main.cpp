@@ -44,17 +44,21 @@ void MessageCallback(GLenum source,
     const GLchar* message,
     const void* userParam)
 {
+    /*
     fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
         (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
         type, severity, message);
 
     fflush(stderr);
+    */
 }
 
 void onErrorCallback(int errorCode, const char* errorDescription)
 {
+    /*
     fprintf(stderr, "Error %d : %s\n", errorCode, errorDescription);
     fflush(stderr);
+    */
 }
 
 bool shouldExit;
@@ -108,7 +112,17 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    int monitorCount = 0;
+    GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+
+    GLFWmonitor* monitor;
+
+    if (monitorCount > 1)
+        monitor = monitors[1];
+    else
+        monitor = monitors[0];
+    
+    glfwGetPrimaryMonitor();
 
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
     glfwWindowHint(GLFW_RED_BITS, mode->redBits);

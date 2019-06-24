@@ -32,23 +32,23 @@ in VS_OUT {
 
 void main()
 {
-	vec3 viewDir = fs_in.TBN * normalize(eyePos.xyz - fs_in.FragPos);
+	vec3 viewDir = normalize(eyePos.xyz - fs_in.FragPos);
+	
+	vec3 norm = normalize(texture(normalTextureSampler, fs_in.TexCoords.st).rgb);
+	norm = normalize(norm * 2.0f - 1.0f);
+	norm = normalize(fs_in.TBN * norm);
 	
 	vec3 diffuse = vec3(0.0f, 0.0f, 0.0f);
 	vec3 specular = vec3(0.0f, 0.0f, 0.0f);
 	
 	for (int i = 0; i < lightCount; ++i)
-	{
-		vec3 norm = texture(normalTextureSampler, fs_in.TexCoords.xy).rgb;
-		norm = normalize(norm * 2.0f - 1.0f);
-		norm = normalize(fs_in.TBN * norm);
-		
-		vec3 lightDir = fs_in.TBN * normalize(pointLight[i].pos.xyz - fs_in.FragPos);
+	{		
+		vec3 lightDir = normalize(pointLight[i].pos.xyz - fs_in.FragPos);
 		
 		float diff = max(dot(norm, lightDir), 0.0f);
 		diffuse += diff * pointLight[i].color.xyz;
 		
-		vec3 reflectDir = reflect(-lightDir, norm);		
+		vec3 reflectDir = normalize(reflect(-lightDir, norm));
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 		specular += spec * pointLight[i].color.xyz * (texture(specularTextureSampler, fs_in.TexCoords.xy).x * specularStrength);
 	}

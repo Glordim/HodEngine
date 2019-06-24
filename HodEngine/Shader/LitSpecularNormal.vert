@@ -36,6 +36,6 @@ void main()
 	gl_Position = mvp * vec4(pos, 1.0f);
 	vs_out.FragPos = vec3(model * vec4(pos, 0.0f));
 	vs_out.TexCoords = uv;
-	vs_out.TBN = transpose(mat3(T, B, N));
+	vs_out.TBN = mat3(T, B, N);
 }
 
