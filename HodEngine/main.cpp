@@ -75,30 +75,6 @@ void onResizeWindowCallback(GLFWwindow* window, int width, int height)
 
 InputListener inputListener;
 
-void onKeyEventCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (TwEventKeyGLFW3(window, key, action, scancode, mods))
-        return;
-
-    inputListener.injectKeyInput(key, scancode, action, mods);
-}
-
-void onMouseButtonEventCallback(GLFWwindow* window, int mouseButtonId, int action, int mods)
-{
-    if (TwEventMouseButtonGLFW3(window, mouseButtonId, action, mods))
-        return;
-
-    inputListener.injectMouseButtonInput(mouseButtonId, action, mods);
-}
-
-void onMouseEventCallback(GLFWwindow* window, double x, double y)
-{
-    if (TwEventMousePosGLFW((int)x, (int)y))
-        return;
-
-    inputListener.injectMouseMoveInput(x, y);
-}
-
 int __cdecl _tmain()
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -310,9 +286,17 @@ int __cdecl _tmain()
 
         while (SDL_PollEvent(&event) != 0)
         {
+            if (TwEventSDL(&event, SDL_MAJOR_VERSION, SDL_MINOR_VERSION) != 0)
+                continue;
+
             if (event.type == SDL_QUIT)
                 shouldExit = true;
+            else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+                inputListener.injectKeyInput(event.key.keysym.sym, event.key.keysym.scancode, event.key.state, event.key.keysym.mod);
+            //else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
+            //    inputListener.injectMouseButtonInput(mouseButtonId, action, mods);
         }
+
         inputListener.process();
 
         //if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)

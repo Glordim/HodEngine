@@ -16,6 +16,8 @@
 
 #include "AntTweakBar.h"
 
+#include <SDL.h>
+
 FreeCam::FreeCam(const std::string& name, Scene* scene) : Actor(name, scene)
 {
     this->sceneComponent = this->addComponent<SceneComponent>();
@@ -36,11 +38,10 @@ FreeCam::~FreeCam()
 
 void FreeCam::setupInputListener(InputListener* inputListener)
 {
+    inputListener->registerAxisEvent(InputListener::KeyAxis(SDL_SCANCODE_S, SDL_SCANCODE_W), std::bind(&FreeCam::moveForward, this, std::placeholders::_1));
+    inputListener->registerAxisEvent(InputListener::KeyAxis(SDL_SCANCODE_A, SDL_SCANCODE_D), std::bind(&FreeCam::moveRight, this, std::placeholders::_1));
+    inputListener->registerAxisEvent(InputListener::KeyAxis(SDL_SCANCODE_C, SDL_SCANCODE_SPACE), std::bind(&FreeCam::moveUp, this, std::placeholders::_1));
     /*
-    inputListener->registerAxisEvent(InputListener::KeyAxis(GLFW_KEY_S, GLFW_KEY_W), std::bind(&FreeCam::moveForward, this, std::placeholders::_1));
-    inputListener->registerAxisEvent(InputListener::KeyAxis(GLFW_KEY_A, GLFW_KEY_D), std::bind(&FreeCam::moveRight, this, std::placeholders::_1));
-    inputListener->registerAxisEvent(InputListener::KeyAxis(GLFW_KEY_C, GLFW_KEY_SPACE), std::bind(&FreeCam::moveUp, this, std::placeholders::_1));
-
     inputListener->registerMouseButtonEvent(GLFW_MOUSE_BUTTON_1, GLFW_PRESS, std::bind(&FreeCam::selectObject, this));
 
     inputListener->registerMouseButtonEvent(GLFW_MOUSE_BUTTON_2, GLFW_PRESS, std::bind(&FreeCam::allowRotate, this));

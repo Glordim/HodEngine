@@ -1,5 +1,7 @@
 #include "InputListener.h"
 
+#include <SDL.h>
+
 InputListener::InputListener()
 {
 }
@@ -19,7 +21,7 @@ InputListener::~InputListener()
 
 void InputListener::injectMouseButtonInput(int mouseButtonId, int action, int mods)
 {
-    if (action == 0/*GLFW_PRESS*/)
+    if (action == SDL_PRESSED)
     {
         size_t callbackCount = this->mouseButtonPressCallbackList[mouseButtonId].size();
 
@@ -28,7 +30,7 @@ void InputListener::injectMouseButtonInput(int mouseButtonId, int action, int mo
             this->mouseButtonPressCallbackList[mouseButtonId][i]();
         }
     }
-    else if (action == 1/*GLFW_RELEASE*/)
+    else if (action == SDL_RELEASED)
     {
         size_t callbackCount = this->mouseButtonReleaseCallbackList[mouseButtonId].size();
 
@@ -54,11 +56,11 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
     auto it = this->axisCallbackList.begin();
     auto itEnd = this->axisCallbackList.end();
 
-    if (action == 1/*GLFW_RELEASE*/)
+    if (action == SDL_RELEASED)
     {
         while (it != itEnd)
         {
-            if (key == it->first->negativeKey)
+            if (scancode == it->first->negativeKey)
             {
                 it->first->usingNegative = false;
                 /*
@@ -80,7 +82,7 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
                 }
                 */
             }
-            else if (key == it->first->positiveKey)
+            else if (scancode == it->first->positiveKey)
             {
                 it->first->usingPositive = false;
                 /*
@@ -106,11 +108,11 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
             ++it;
         }
     }
-    else if (action == 0/*GLFW_PRESS*/)
+    else if (action == SDL_PRESSED)
     {
         while (it != itEnd)
         {
-            if (key == it->first->negativeKey)
+            if (scancode == it->first->negativeKey)
             {
                 it->first->usingNegative = true;
                 /*
@@ -136,7 +138,7 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
                 }
                 */
             }
-            else if (key == it->first->positiveKey)
+            else if (scancode == it->first->positiveKey)
             {
                 it->first->usingPositive = true;
                 /*
@@ -170,9 +172,9 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
 
 void InputListener::registerMouseButtonEvent(int mouseButtonId, int action, std::function<void()> callback)
 {
-    if (action == 0/*GLFW_PRESS*/)
+    if (action == SDL_PRESSED)
         this->mouseButtonPressCallbackList[mouseButtonId].push_back(callback);
-    else if (action == 1/*GLFW_RELEASE*/)
+    else if (action == SDL_RELEASED)
         this->mouseButtonReleaseCallbackList[mouseButtonId].push_back(callback);
 }
 
