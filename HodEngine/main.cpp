@@ -58,14 +58,6 @@ void MessageCallback(GLenum source,
     */
 }
 
-void onErrorCallback(int errorCode, const char* errorDescription)
-{
-    /*
-    fprintf(stderr, "Error %d : %s\n", errorCode, errorDescription);
-    fflush(stderr);
-    */
-}
-
 void onResizeWindowCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0.0f, 0.0f, width, height);
@@ -93,12 +85,13 @@ int __cdecl _tmain()
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     /*
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    
     */
     SDL_GLContext context = SDL_GL_CreateContext(window);
 
@@ -276,7 +269,7 @@ int __cdecl _tmain()
     }
 
     float dt = 0.0f;
-    Uint32 lastTime = SDL_GetTicks();
+    Uint32 lastTicks = SDL_GetTicks();
 
     bool shouldExit = false;
 
@@ -307,11 +300,14 @@ int __cdecl _tmain()
                 SDL_WarpMouseInWindow(window, 1920.0f * 0.5f, 1080.0f * 0.5f);
         }
 
-        Uint32 time = SDL_GetTicks();
+        Uint32 ticks = SDL_GetTicks();
+        float time = ticks / 1000.0f;
 
-        dt = std::min((float)(time - lastTime) / 1000.0f, 0.2f);
+        dt = std::min(time - ((float)lastTicks / 1000.0f), 0.5f);
 
-        lastTime = time;
+        lastTicks = ticks;
+
+        std::cout << std::to_string(dt) << std::endl;
 
         // Physic
         scene->simulatePhysic(dt);
