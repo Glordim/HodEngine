@@ -41,6 +41,9 @@
 
 #include <tchar.h>
 
+#include <D3d12.h>
+#include <vulkan.h>
+
 void MessageCallback(GLenum source,
     GLenum type,
     GLuint id,
@@ -67,8 +70,91 @@ void onResizeWindowCallback(GLFWwindow* window, int width, int height)
 
 InputListener inputListener;
 
+enum GraphicAPI
+{
+    Vulkan,
+    DirectX12
+};
+
+bool isDeviceSuitable(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+    return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+}
+
 int __cdecl _tmain()
 {
+    GraphicAPI graphicApi = GraphicAPI::Vulkan;
+
+    if (graphicApi == GraphicAPI::Vulkan)
+    {
+        VkInstance instance = VK_NULL_HANDLE;
+
+        VkApplicationInfo appInfo = {};
+        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        appInfo.pApplicationName = "Hello Triangle";
+        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.pEngineName = "No Engine";
+        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.apiVersion = VK_API_VERSION_1_0;
+
+        VkInstanceCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        createInfo.pApplicationInfo = &appInfo;
+
+        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+        {
+            SDL_Log("Unable to create a Vulkan instance !");
+            return 1;
+        }
+
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+        if (deviceCount == 0)
+        {
+            SDL_Log("Unable to find GPUs with Vulkan support !");
+            return 1;
+        }
+
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+        for (const auto& device : devices)
+        {
+            if (isDeviceSuitable(device))
+            {
+                physicalDevice = device;
+                break;
+            }
+        }
+
+        if (physicalDevice == VK_NULL_HANDLE)
+        {
+            SDL_Log("Unable to find a suitable GPU !");
+            return 1;
+        }
+    }
+    else if (graphicApi == GraphicAPI::DirectX12)
+    {
+        ID3D12Device* device;
+
+        D3D_FEATURE_LEVEL featureLevel;
+        HRESULT hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device));
+
+        if (FAILED(hr))
+        {
+            SDL_Log("Unable to Create DirectX 12 device");
+            return 1;
+        }
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -86,13 +172,7 @@ int __cdecl _tmain()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    /*
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-    
-    */
+
     SDL_GLContext context = SDL_GL_CreateContext(window);
 
     if (context == nullptr)
