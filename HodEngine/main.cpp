@@ -275,6 +275,18 @@ int __cdecl _tmain()
 
     while (shouldExit == false)
     {
+        Uint32 ticks = SDL_GetTicks();
+        float time = ticks / 1000.0f;
+
+        dt = std::min(time - ((float)lastTicks / 1000.0f), 0.5f);
+
+        lastTicks = ticks;
+
+        std::cout << std::to_string(dt) << std::endl;
+
+        // Physic
+        scene->simulatePhysic(dt);
+
         SDL_Event event;
 
         while (SDL_PollEvent(&event) != 0)
@@ -299,18 +311,6 @@ int __cdecl _tmain()
             if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT))
                 SDL_WarpMouseInWindow(window, 1920.0f * 0.5f, 1080.0f * 0.5f);
         }
-
-        Uint32 ticks = SDL_GetTicks();
-        float time = ticks / 1000.0f;
-
-        dt = std::min(time - ((float)lastTicks / 1000.0f), 0.5f);
-
-        lastTicks = ticks;
-
-        std::cout << std::to_string(dt) << std::endl;
-
-        // Physic
-        scene->simulatePhysic(dt);
 
         // Gameplay
         scene->update(dt);

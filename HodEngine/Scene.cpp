@@ -51,8 +51,6 @@ physx::PxMaterial* Scene::getDefaultMaterial() const
 
 void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
 {
-    this->pxScene->fetchResults();
-
     MaterialManager* materialManager = MaterialManager::getInstance();
     Material* material = materialManager->getMaterial("UnlitVertexColor");
     material->use();
@@ -244,8 +242,11 @@ void Scene::drawTri(const std::vector<Tri_3P_3C>& triVector, float duration)
 
 void Scene::simulatePhysic(float dt)
 {
-    //this->pxScene->fetchResults();
-    this->pxScene->simulate(dt);
+    if (dt <= 0.0f)
+        return;
+
+    this->pxScene->simulate(dt);    
+    this->pxScene->fetchResults(true);
 }
 
 void Scene::update(float dt)
