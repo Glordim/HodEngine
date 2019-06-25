@@ -293,14 +293,19 @@ int __cdecl _tmain()
                 shouldExit = true;
             else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
                 inputListener.injectKeyInput(event.key.keysym.sym, event.key.keysym.scancode, event.key.state, event.key.keysym.mod);
-            //else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
-            //    inputListener.injectMouseButtonInput(mouseButtonId, action, mods);
+            else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
+                inputListener.injectMouseButtonInput(event.button.button, event.button.state, 0);
+            else if (event.type == SDL_MOUSEMOTION)
+                inputListener.injectMouseMoveInput(event.motion.x, event.motion.y);
         }
 
         inputListener.process();
 
-        //if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
-        //    glfwSetCursorPos(window, 1920.0f * 0.5f, 1080.0f * 0.5f);
+        if (SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)
+        {
+            if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+                SDL_WarpMouseInWindow(window, 1920.0f * 0.5f, 1080.0f * 0.5f);
+        }
 
         Uint32 time = SDL_GetTicks();
 

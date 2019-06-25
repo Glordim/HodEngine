@@ -60,7 +60,7 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
     {
         while (it != itEnd)
         {
-            if (scancode == it->first->negativeKey)
+            if (key == it->first->negativeKey)
             {
                 it->first->usingNegative = false;
                 /*
@@ -82,7 +82,7 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
                 }
                 */
             }
-            else if (scancode == it->first->positiveKey)
+            else if (key == it->first->positiveKey)
             {
                 it->first->usingPositive = false;
                 /*
@@ -112,7 +112,7 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
     {
         while (it != itEnd)
         {
-            if (scancode == it->first->negativeKey)
+            if (key == it->first->negativeKey)
             {
                 it->first->usingNegative = true;
                 /*
@@ -138,7 +138,7 @@ void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
                 }
                 */
             }
-            else if (scancode == it->first->positiveKey)
+            else if (key == it->first->positiveKey)
             {
                 it->first->usingPositive = true;
                 /*

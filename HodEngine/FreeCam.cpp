@@ -38,16 +38,15 @@ FreeCam::~FreeCam()
 
 void FreeCam::setupInputListener(InputListener* inputListener)
 {
-    inputListener->registerAxisEvent(InputListener::KeyAxis(SDL_SCANCODE_S, SDL_SCANCODE_W), std::bind(&FreeCam::moveForward, this, std::placeholders::_1));
-    inputListener->registerAxisEvent(InputListener::KeyAxis(SDL_SCANCODE_A, SDL_SCANCODE_D), std::bind(&FreeCam::moveRight, this, std::placeholders::_1));
-    inputListener->registerAxisEvent(InputListener::KeyAxis(SDL_SCANCODE_C, SDL_SCANCODE_SPACE), std::bind(&FreeCam::moveUp, this, std::placeholders::_1));
-    /*
-    inputListener->registerMouseButtonEvent(GLFW_MOUSE_BUTTON_1, GLFW_PRESS, std::bind(&FreeCam::selectObject, this));
+    inputListener->registerAxisEvent(InputListener::KeyAxis(SDLK_s, SDLK_w), std::bind(&FreeCam::moveForward, this, std::placeholders::_1));
+    inputListener->registerAxisEvent(InputListener::KeyAxis(SDLK_a, SDLK_d), std::bind(&FreeCam::moveRight, this, std::placeholders::_1));
+    inputListener->registerAxisEvent(InputListener::KeyAxis(SDLK_c, SDLK_SPACE), std::bind(&FreeCam::moveUp, this, std::placeholders::_1));
 
-    inputListener->registerMouseButtonEvent(GLFW_MOUSE_BUTTON_2, GLFW_PRESS, std::bind(&FreeCam::allowRotate, this));
-    inputListener->registerMouseButtonEvent(GLFW_MOUSE_BUTTON_2, GLFW_RELEASE, std::bind(&FreeCam::disallowRotate, this));
+    inputListener->registerMouseButtonEvent(SDL_BUTTON_LEFT, SDL_PRESSED, std::bind(&FreeCam::selectObject, this));
+
+    inputListener->registerMouseButtonEvent(SDL_BUTTON_RIGHT, SDL_PRESSED, std::bind(&FreeCam::allowRotate, this));
+    inputListener->registerMouseButtonEvent(SDL_BUTTON_RIGHT, SDL_RELEASED, std::bind(&FreeCam::disallowRotate, this));
     inputListener->registerMouseMoveEvent(std::bind(&FreeCam::rotateView, this, std::placeholders::_1, std::placeholders::_2));
-    */
 }
 
 void FreeCam::selectObject()
