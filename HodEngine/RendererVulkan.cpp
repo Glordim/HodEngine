@@ -27,21 +27,17 @@ struct QueueFamilyIndices
 RendererVulkan::RendererVulkan()
 {
     this->instance = VK_NULL_HANDLE;
-    this->debugMessenger = VK_NULL_HANDLE;
 }
 
 RendererVulkan::~RendererVulkan()
 {
-    if (RendererVulkan::DestroyDebugUtilsMessengerEXT(this->instance, this->debugMessenger, nullptr) != VK_SUCCESS)
-    {
-        fprintf(stderr, "Vulkan: Failed to destroy DebugMessenger !\n");
-    }
-
     vkDestroyInstance(this->instance, nullptr);
 }
 
 bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
 {
+    // === Extensions ===
+
     std::vector<const char*> extensionsRequiredByEngine = {
         // Nothing for the moment :P
     };
@@ -79,6 +75,8 @@ bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
         enableValidationLayers = false;
     }
 
+    // === Validation Layers ===
+
     const std::vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
     };
@@ -89,6 +87,8 @@ bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
         fprintf(stderr, "Vulkan: ValidationLayers have been disabled\n");
         enableValidationLayers = false;
     }
+
+    // === VkInstance CreateInfo ===
 
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -132,25 +132,32 @@ bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
+
+    // === Debug Messenger ===
+
+    VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = {};
+
+    if (enableValidationLayers == true)
+    {
+        debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        debugMessengerCreateInfo.pfnUserCallback = &RendererVulkan::DebugCallback;
+        debugMessengerCreateInfo.pUserData = nullptr;
+
+        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugMessengerCreateInfo;
+    }
+    else
+    {
+        createInfo.pNext = nullptr;
+    }
+
+    // === Create Instance ===
+
     if (vkCreateInstance(&createInfo, nullptr, &this->instance) != VK_SUCCESS)
     {
         fprintf(stderr, "Vulkan: Unable to create a Vulkan instance !\n");
         return false;
-    }
-
-    if (enableValidationLayers == true)
-    {
-        VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        createInfo.pfnUserCallback = &RendererVulkan::DebugCallback;
-        createInfo.pUserData = nullptr;
-
-        if (RendererVulkan::CreateDebugUtilsMessengerEXT(this->instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
-        {
-            fprintf(stderr, "Vulkan: Failed to setup debug messenger !\n");
-        }
     }
 }
 
@@ -236,34 +243,6 @@ bool RendererVulkan::CheckValidationLayerSupport(const std::vector<const char*>&
     }
 
     return true;
-}
-
-VkResult RendererVulkan::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
-{
-    PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-
-    if (func != nullptr)
-    {
-        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-    }
-    else
-    {
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
-}
-
-VkResult RendererVulkan::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
-{
-    PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-
-    if (func != nullptr)
-    {
-        func(instance, debugMessenger, pAllocator);
-    }
-    else
-    {
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL RendererVulkan::DebugCallback(
