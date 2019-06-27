@@ -17,11 +17,20 @@ struct QueueFamilyIndices
 RendererVulkan::RendererVulkan()
 {
     this->instance = VK_NULL_HANDLE;
+    this->device = VK_NULL_HANDLE;
+    this->surface = VK_NULL_HANDLE;
 }
 
 RendererVulkan::~RendererVulkan()
 {
-    vkDestroyInstance(this->instance, nullptr);
+    if (this->surface != VK_NULL_HANDLE)
+        vkDestroySurfaceKHR(this->instance, this->surface, nullptr);
+
+    if (this->device != VK_NULL_HANDLE)
+        vkDestroyDevice(this->device, nullptr);
+
+    if (this->instance != VK_NULL_HANDLE)
+        vkDestroyInstance(this->instance, nullptr);
 }
 
 bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
@@ -68,7 +77,8 @@ bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
     // === Validation Layers ===
 
     const std::vector<const char*> validationLayers = {
-        "VK_LAYER_LUNARG_standard_validation"
+        //"VK_LAYER_LUNARG_standard_validation"
+        "VK_LAYER_KHRONOS_validation"
     };
 
     if (enableValidationLayers == true && RendererVulkan::CheckValidationLayerSupport(validationLayers) == false)
@@ -275,81 +285,70 @@ std::vector<Renderer::PhysicalDevice> RendererVulkan::GetPhysicalDeviceList() co
 
         Renderer::PhysicalDevice& device = devices[i];
         device.name = deviceProperties.deviceName;
-        device.compatible = (deviceFeatures.geometryShader == VK_TRUE);
-
-        device.score = deviceProperties.limits.maxImageDimension2D;
+        device.compatible = false;
+        device.score = 0;
+        
+        device.score += deviceProperties.limits.maxImageDimension2D;
 
         if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
             device.score += 1000;
+
+        device.handle = (void*)physicalDevice;
+        device.handleQueueIndex = 0;
+
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+        for (int j = 0; j < queueFamilyCount; ++j)
+        {
+            const VkQueueFamilyProperties& queueFamily = queueFamilies[j];
+
+            if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            {
+                VkBool32 presentSupport = VK_FALSE;
+                if (vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, j, this->surface, &presentSupport) != VK_SUCCESS)
+                {
+                    fprintf(stderr, "Vulkan: Unable to check present support on FamilyQueue !\n");
+                }
+                else if (presentSupport == VK_TRUE)
+                {
+                    device.handleQueueIndex = j;
+                    device.compatible = true;
+                    break;
+                }
+            }
+        }
+
+        if (deviceFeatures.geometryShader == VK_FALSE)
+            device.compatible = false;
+
+        const std::vector<const char*> requiredExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
+
+        uint32_t availableExtensionCount;
+        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
+        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, availableExtensions.data());
+
+        if (RendererVulkan::CheckExtensionsIsAvailable(requiredExtensions, availableExtensions) == false)
+            device.compatible = false;
     }
     
     return devices;
 }
 
-bool RendererVulkan::CreateDevice(const Renderer::PhysicalDevice& physicalDevice)
+bool RendererVulkan::CreateDevice(const Renderer::PhysicalDevice& gpu)
 {
-    /*
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(this->instance, &deviceCount, nullptr);
-
-    if (deviceCount == 0)
-    {
-        fprintf(stderr, "Vulkan: Unable to find GPUs with Vulkan support !\n");
-        return 1;
-    }
-
-    std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(this->instance, &deviceCount, devices.data());
-
-    for (const auto& device : devices)
-    {
-        if (isDeviceSuitable(device))
-        {
-            physicalDevice = device;
-            break;
-        }
-    }
-
-    if (physicalDevice == VK_NULL_HANDLE)
-    {
-        SDL_Log("Unable to find a suitable GPU !");
-        return 1;
-    }
-
-    uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-
-    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
-
-    QueueFamilyIndices indices;
-    indices.graphicsFamily = 0;
-    indices.founded = false;
-
-    for (int i = 0; i < queueFamilyCount; ++i)
-    {
-        const VkQueueFamilyProperties& queueFamily = queueFamilies[i];
-
-        if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-        {
-            indices.graphicsFamily = i;
-        }
-
-        if (indices.isComplete())
-        {
-            break;
-        }
-    }
-
-    VkDevice device = VK_NULL_HANDLE;
-
     float queuePriority = 1.0f;
 
     VkDeviceQueueCreateInfo queueCreateInfo = {};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily;
+    queueCreateInfo.queueFamilyIndex = gpu.handleQueueIndex;
     queueCreateInfo.queueCount = 1;
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
@@ -361,27 +360,37 @@ bool RendererVulkan::CreateDevice(const Renderer::PhysicalDevice& physicalDevice
     createInfo.queueCreateInfoCount = 1;
 
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = 0;
 
-    if (enableValidationLayers == true)
+    const std::vector<const char*> requiredExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
+
+    createInfo.enabledExtensionCount = requiredExtensions.size();
+    createInfo.ppEnabledExtensionNames = requiredExtensions.data();
+
+    // Deprecated, now device share Validation Layer with the VkInstance
+    createInfo.ppEnabledLayerNames = nullptr;
+    createInfo.enabledLayerCount = 0;
+
+    if (vkCreateDevice((VkPhysicalDevice)gpu.handle, &createInfo, nullptr, &this->device) != VK_SUCCESS)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+        fprintf(stderr, "Vulkan: Unable to create logical device !\n");
+        return false;
     }
-    else
+
+    VkQueue graphicsQueue = VK_NULL_HANDLE;
+    vkGetDeviceQueue(this->device, gpu.handleQueueIndex, 0, &graphicsQueue);
+
+    return true;
+}
+
+bool RendererVulkan::CreateSurface(SDL_Window* window)
+{
+    if (SDL_Vulkan_CreateSurface(window, this->instance, &this->surface) == SDL_FALSE)
     {
-        createInfo.enabledLayerCount = 0;
+        fprintf(stderr, "Vulkan: Unable to create Surface for SDL Window: %s\n", SDL_GetError());
+        return false;
     }
 
-    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
-    {
-        SDL_Log("Vulkan : Unable to create logical device!");
-        return 1;
-    }
-
-    VkQueue graphicsQueue;
-    vkGetDeviceQueue(device, indices.graphicsFamily, 0, &graphicsQueue);
-    */
-
-    return false;
+    return true;
 }

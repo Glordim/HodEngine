@@ -129,3 +129,8 @@ bool RendererDirectX12::CreateDevice(const PhysicalDevice& physicalDevice)
 {
     return false;
 }
+
+bool RendererDirectX12::CreateSurface(SDL_Window* window)
+{
+    return false;
+}

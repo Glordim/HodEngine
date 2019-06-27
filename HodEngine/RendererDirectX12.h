@@ -12,6 +12,7 @@ public:
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
     virtual std::vector<PhysicalDevice> GetPhysicalDeviceList() const override;
     virtual bool CreateDevice(const PhysicalDevice& physicalDevice) override;
+    virtual bool CreateSurface(SDL_Window* window) override;
 };
 
 #endif

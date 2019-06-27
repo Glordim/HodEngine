@@ -166,6 +166,9 @@ int __cdecl _tmain()
     if (renderer->Init(window, enableValidationLayers) == false)
         return 1;
 
+    if (renderer->CreateSurface(window) == false)
+        return 1;
+
     std::vector<Renderer::PhysicalDevice> gpuList = renderer->GetPhysicalDeviceList();
     size_t gpuCount = gpuList.size();
 

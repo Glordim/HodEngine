@@ -15,8 +15,8 @@ public:
         std::string name;
         int score;
         bool compatible;
-    private:
         void* handle;
+        uint32_t handleQueueIndex;
     };
 
 public:
@@ -26,6 +26,7 @@ public:
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) = 0;
     virtual std::vector<PhysicalDevice> GetPhysicalDeviceList() const = 0;
     virtual bool CreateDevice(const PhysicalDevice& physicalDevice) = 0;
+    virtual bool CreateSurface(SDL_Window* window) = 0;
 };
 
 #endif
