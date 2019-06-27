@@ -166,7 +166,37 @@ int __cdecl _tmain()
     if (renderer->Init(window, enableValidationLayers) == false)
         return 1;
 
-    if (renderer->CreateDevice() == false)
+    std::vector<Renderer::PhysicalDevice> gpuList = renderer->GetPhysicalDeviceList();
+    size_t gpuCount = gpuList.size();
+
+    if (gpuCount == 0)
+    {
+        fprintf(stderr, "Unable to find GPUs !\n");
+        return 1;
+    }
+    
+    Renderer::PhysicalDevice* bestGpu = nullptr;
+
+    for (int i = 0; i < gpuCount; ++i)
+    {
+        Renderer::PhysicalDevice& gpu = gpuList[i];
+
+        fprintf(stdout, "%s: %d\n", gpu.name.c_str(), gpu.score);
+
+        if (gpu.compatible == false)
+            continue;
+
+        if (bestGpu == nullptr || gpu.score > bestGpu->score)
+            bestGpu = &gpu;
+    }
+
+    if (bestGpu == nullptr)
+    {
+        fprintf(stderr, "Unable to find a compatible GPUs !\n");
+        return 1;
+    }
+
+    if (renderer->CreateDevice(*bestGpu) == false)
         return 1;
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);

@@ -120,7 +120,12 @@ bool RendererDirectX12::Init(SDL_Window* window, bool enableValidationLayers)
     return false;
 }
 
-bool RendererDirectX12::CreateDevice()
+std::vector<Renderer::PhysicalDevice> RendererDirectX12::GetPhysicalDeviceList() const
+{
+    return std::vector<Renderer::PhysicalDevice>();
+}
+
+bool RendererDirectX12::CreateDevice(const PhysicalDevice& physicalDevice)
 {
     return false;
 }

@@ -3,16 +3,6 @@
 #include <SDL.h>
 #include <SDL_vulkan.h>
 
-bool isDeviceSuitable(VkPhysicalDevice device)
-{
-    VkPhysicalDeviceProperties deviceProperties;
-    VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceProperties(device, &deviceProperties);
-    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-    return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
-}
-
 struct QueueFamilyIndices
 {
     uint32_t graphicsFamily;
@@ -78,7 +68,7 @@ bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
     // === Validation Layers ===
 
     const std::vector<const char*> validationLayers = {
-        "VK_LAYER_KHRONOS_validation"
+        "VK_LAYER_LUNARG_standard_validation"
     };
 
     if (enableValidationLayers == true && RendererVulkan::CheckValidationLayerSupport(validationLayers) == false)
@@ -257,7 +247,46 @@ VKAPI_ATTR VkBool32 VKAPI_CALL RendererVulkan::DebugCallback(
     return VK_FALSE;
 }
 
-bool RendererVulkan::CreateDevice()
+std::vector<Renderer::PhysicalDevice> RendererVulkan::GetPhysicalDeviceList() const
+{
+    std::vector<Renderer::PhysicalDevice> devices;
+
+    uint32_t physicalDeviceCount = 0;
+    vkEnumeratePhysicalDevices(this->instance, &physicalDeviceCount, nullptr);
+
+    if (physicalDeviceCount == 0)
+    {
+        return devices;
+    }
+
+    devices.resize(physicalDeviceCount);
+
+    std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
+    vkEnumeratePhysicalDevices(this->instance, &physicalDeviceCount, physicalDevices.data());
+
+    for (int i = 0; i < physicalDeviceCount; ++i)
+    {
+        const VkPhysicalDevice& physicalDevice = physicalDevices[i];
+
+        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+        vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+
+        Renderer::PhysicalDevice& device = devices[i];
+        device.name = deviceProperties.deviceName;
+        device.compatible = (deviceFeatures.geometryShader == VK_TRUE);
+
+        device.score = deviceProperties.limits.maxImageDimension2D;
+
+        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+            device.score += 1000;
+    }
+    
+    return devices;
+}
+
+bool RendererVulkan::CreateDevice(const Renderer::PhysicalDevice& physicalDevice)
 {
     /*
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;

@@ -3,14 +3,29 @@
 
 struct SDL_Window;
 
+#include <string>
+#include <vector>
+
 class Renderer
 {
+public:
+    struct PhysicalDevice
+    {
+    public:
+        std::string name;
+        int score;
+        bool compatible;
+    private:
+        void* handle;
+    };
+
 public:
     Renderer();
     virtual ~Renderer();
 
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) = 0;
-    virtual bool CreateDevice() = 0;
+    virtual std::vector<PhysicalDevice> GetPhysicalDeviceList() const = 0;
+    virtual bool CreateDevice(const PhysicalDevice& physicalDevice) = 0;
 };
 
 #endif

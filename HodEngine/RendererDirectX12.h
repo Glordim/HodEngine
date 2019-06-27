@@ -10,7 +10,8 @@ public:
     virtual ~RendererDirectX12();
 
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
-    virtual bool CreateDevice() override;
+    virtual std::vector<PhysicalDevice> GetPhysicalDeviceList() const override;
+    virtual bool CreateDevice(const PhysicalDevice& physicalDevice) override;
 };
 
 #endif

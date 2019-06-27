@@ -5,8 +5,6 @@
 
 #include "Renderer.h"
 
-#include <vector>
-
 class RendererVulkan : public Renderer
 {
 public:
@@ -14,7 +12,8 @@ public:
     virtual ~RendererVulkan();
 
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
-    virtual bool CreateDevice() override;
+    virtual std::vector<PhysicalDevice> GetPhysicalDeviceList() const override;
+    virtual bool CreateDevice(const PhysicalDevice& physicalDevice) override;
 
 private:
     static void GetAvailableExtensions(std::vector<VkExtensionProperties>* availableExtensions);
