@@ -5,8 +5,7 @@
 
 #include <PxPhysicsAPI.h>
 
-#include "VertexShader.h"
-#include "FragmentShader.h"
+#include "Shader.h"
 #include "Material.h"
 #include "MaterialManager.h"
 

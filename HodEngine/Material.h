@@ -8,8 +8,7 @@
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
 
-class VertexShader;
-class FragmentShader;
+class Shader;
 class Texture;
 
 class Material
@@ -18,7 +17,9 @@ public:
     Material();
     virtual ~Material();
 
-    bool link(const VertexShader& vertexShader, const FragmentShader& fragmentShader);
+    virtual bool Build(Shader* vertexShader, Shader* fragmentShader) = 0;
+
+    bool link(Shader* vertexShader, Shader* fragmentShader);
     void use();
 
     void setInt(const std::string& name, int value);

@@ -1,23 +1,27 @@
 #ifndef __SHADER_HPP__
 #define __SHADER_HPP__
 
-#include "glad/glad.h"
-
 #include <string>
 
 class Shader
 {
 public:
-    Shader();
+    enum ShaderType
+    {
+        Vertex,
+        Geometry,
+        Fragment,
+        Compute
+    };
+
+public:
+    Shader(ShaderType type);
     virtual ~Shader();
 
-    GLuint getShaderId() const;
-
-protected:
-    bool load_internal(GLenum shaderType, const std::string& path);
+    virtual bool LoadFromFile(const std::string& path) = 0;
 
 private:
-    GLuint shaderId;
+    ShaderType type;
 };
 
 #endif

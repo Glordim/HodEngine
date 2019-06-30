@@ -97,16 +97,18 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Allocator.cpp" />
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="D3dShader.cpp" />
     <ClCompile Include="DebugLine.cpp" />
     <ClCompile Include="DebugMesh.cpp" />
     <ClCompile Include="Error.cpp" />
-    <ClCompile Include="FragmentShader.cpp" />
     <ClCompile Include="FreeCam.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="GpuHelper.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -118,25 +120,30 @@
     <ClCompile Include="RendererVulkan.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneComponent.cpp" />
+    <ClCompile Include="ScreenHelper.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="StaticMeshComponent.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="VertexShader.cpp" />
+    <ClCompile Include="VkMaterial.cpp" />
+    <ClCompile Include="VkShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Allocator.h" />
+    <ClInclude Include="Application.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="D3dShader.h" />
     <ClInclude Include="DebugLine.h" />
     <ClInclude Include="DebugMesh.h" />
     <ClInclude Include="Error.h" />
-    <ClInclude Include="FragmentShader.h" />
     <ClInclude Include="FreeCam.h" />
     <ClInclude Include="glad\glad.h" />
+    <ClInclude Include="GpuHelper.h" />
+    <ClInclude Include="GraphicsSettings.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="KHR\khrplatform.h" />
     <ClInclude Include="LightComponent.h" />
@@ -150,12 +157,14 @@
     <ClInclude Include="RendererVulkan.h" />
     <ClInclude Include="Scene.hpp" />
     <ClInclude Include="SceneComponent.h" />
+    <ClInclude Include="ScreenHelper.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="StaticMeshComponent.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Tri_3P_3C.h" />
-    <ClInclude Include="VertexShader.h" />
     <ClInclude Include="Vertex_3P_3C.h" />
+    <ClInclude Include="VkMaterial.h" />
+    <ClInclude Include="VkShader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

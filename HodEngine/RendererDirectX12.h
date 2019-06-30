@@ -10,9 +10,15 @@ public:
     virtual ~RendererDirectX12();
 
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
-    virtual std::vector<PhysicalDevice> GetPhysicalDeviceList() const override;
-    virtual bool CreateDevice(const PhysicalDevice& physicalDevice) override;
-    virtual bool CreateSurface(SDL_Window* window) override;
+
+    virtual bool GetPhysicalDeviceList(std::vector<GpuHelper::Device>* availableDevices) const override;
+
+    virtual bool BuildPipeline(const GpuHelper::Device& physicalDevice) override;
+
+    virtual bool DrawFrame() override;
+
+    virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
+    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) override;
 };
 
 #endif

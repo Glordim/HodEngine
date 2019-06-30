@@ -14,8 +14,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Material.h"
-#include "VertexShader.h"
-#include "FragmentShader.h"
+#include "Shader.h"
 #include "MaterialManager.h"
 
 #include "Scene.hpp"
@@ -47,191 +46,74 @@
 
 #include <vulkan.h>
 
+#include "GpuHelper.h"
+#include "ScreenHelper.h"
+#include "GraphicsSettings.h"
+#include "Application.h"
+
 #include "Renderer.h"
-#include "RendererVulkan.h"
-#include "RendererDirectX12.h"
-
-void MessageCallback(GLenum source,
-    GLenum type,
-    GLuint id,
-    GLenum severity,
-    GLsizei length,
-    const GLchar* message,
-    const void* userParam)
-{
-    /*
-    fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-        (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-        type, severity, message);
-
-    fflush(stderr);
-    */
-}
-
-void onResizeWindowCallback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0.0f, 0.0f, width, height);
-
-    TwWindowSize(width, height);
-}
-
-InputListener inputListener;
-
-enum GraphicAPI
-{
-    Vulkan,
-    DirectX12
-};
 
 int __cdecl _tmain()
 {
-    GraphicAPI graphicApi = GraphicAPI::Vulkan;
+    Application application;
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
-        SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
-        return 1;
-    }
+    if (application.Init() == false)
+        return false;
 
     int selectedMonitor = 0;
 
-    int monitorCount = SDL_GetNumVideoDisplays();
-
-    SDL_Log("SDL_GetNumVideoDisplays(): %i", monitorCount);
-
-    if (monitorCount > 1)
+    // Debug
+    if (ScreenHelper::GetMonitorCount() > 1)
         selectedMonitor = 1;
 
-    int modeCount = SDL_GetNumDisplayModes(selectedMonitor);
-    if (modeCount <= 0)
-    {
-        SDL_Log("SDL_GetNumDisplayModes failed: %s", SDL_GetError());
-        return 1;
-    }
-    SDL_Log("SDL_GetNumDisplayModes: %i", modeCount);
-
-    for (int i = 0; i < modeCount; ++i)
-    {
-        SDL_DisplayMode mode;
-
-        if (SDL_GetDisplayMode(selectedMonitor, i, &mode) != 0)
-        {
-            SDL_Log("SDL_GetDisplayMode failed: %s", SDL_GetError());
-            return 1;
-        }
-
-        SDL_Log("Mode %i\tbpp %i\t%s\t%i x %i", i, SDL_BITSPERPIXEL(mode.format), SDL_GetPixelFormatName(mode.format), mode.w, mode.h);
-    }
-
-    SDL_DisplayMode desktopMode;
-
-    if (SDL_GetDesktopDisplayMode(selectedMonitor, &desktopMode) != 0)
-    {
-        SDL_Log("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
-        return 1;
-    }
+    ScreenHelper::Resolution nativeResolution;
     
-    Uint32 flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
-
-    if (graphicApi == GraphicAPI::Vulkan)
-        flags |= SDL_WINDOW_VULKAN;
-    else
-        flags |= SDL_WINDOW_OPENGL;
-
-    SDL_Window* window = SDL_CreateWindow("Toto", SDL_WINDOWPOS_CENTERED_DISPLAY(selectedMonitor), SDL_WINDOWPOS_CENTERED_DISPLAY(selectedMonitor), desktopMode.w, desktopMode.h, flags);
-
-    if (window == nullptr)
-    {
-        SDL_Log("Unable to create Window: %s", SDL_GetError());
-        return 1;
-    }
-
-    Renderer* renderer = nullptr;
-
-    if (graphicApi == GraphicAPI::Vulkan)
-    {
-        renderer = new RendererVulkan();
-    }
-    else if (graphicApi == GraphicAPI::DirectX12)
-    {
-        renderer = new RendererDirectX12();
-    }
-
-#ifdef NDEBUG
-    bool enableValidationLayers = false;
-#else
-    bool enableValidationLayers = true;
-#endif
-
-    if (renderer->Init(window, enableValidationLayers) == false)
+    if (ScreenHelper::GetNativeResoltion(&nativeResolution, selectedMonitor) == false)
         return 1;
 
-    if (renderer->CreateSurface(window) == false)
+    GraphicsSettings graphicsSettings;
+    graphicsSettings.api = GraphicsSettings::API::Vulkan;
+    graphicsSettings.monitor = selectedMonitor;
+    graphicsSettings.width = nativeResolution.width;
+    graphicsSettings.height = nativeResolution.height;
+    graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::FullscreenWindow;
+
+    if (application.CreateWindowAndContext("HodEngine", graphicsSettings) == false)
         return 1;
 
-    std::vector<Renderer::PhysicalDevice> gpuList = renderer->GetPhysicalDeviceList();
-    size_t gpuCount = gpuList.size();
+    GpuHelper::Device bestDevice;
 
-    if (gpuCount == 0)
-    {
-        fprintf(stderr, "Unable to find GPUs !\n");
-        return 1;
-    }
-    
-    Renderer::PhysicalDevice* bestGpu = nullptr;
-
-    for (int i = 0; i < gpuCount; ++i)
-    {
-        Renderer::PhysicalDevice& gpu = gpuList[i];
-
-        fprintf(stdout, "%s: %d\n", gpu.name.c_str(), gpu.score);
-
-        if (gpu.compatible == false)
-            continue;
-
-        if (bestGpu == nullptr || gpu.score > bestGpu->score)
-            bestGpu = &gpu;
-    }
-
-    if (bestGpu == nullptr)
-    {
-        fprintf(stderr, "Unable to find a compatible GPUs !\n");
-        return 1;
-    }
-
-    if (renderer->CreateDevice(*bestGpu) == false)
+    if (GpuHelper::GetBestAvailableAndCompatibleDevice(&bestDevice) == false)
         return 1;
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    Renderer* renderer = Renderer::GetInstance();
 
-    SDL_GLContext context = SDL_GL_CreateContext(window);
-
-    if (context == nullptr)
-    {
-        SDL_Log("Unable to create Context: %s", SDL_GetError());
+    if (renderer->BuildPipeline(bestDevice) == false)
         return 1;
-    }
 
-    SDL_GL_SetSwapInterval(1); // Syncrho vertical
+    Shader* vertexShader = renderer->CreateShader("Shader/Lit.vert.spv", Shader::ShaderType::Vertex);
+    Shader* fragmentShader = renderer->CreateShader("Shader/Lit.frag.spv", Shader::ShaderType::Fragment);
 
-    gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
+    Material* mat = renderer->CreateMaterial(vertexShader, fragmentShader);
 
-    std::cout << "OpenGL version : " << glGetString(GL_VERSION) << std::endl;
-    std::cout << "OpenGL renderer : " << glGetString(GL_RENDERER) << std::endl;
-    std::cout << "OpenGL vendor : " << glGetString(GL_VENDOR) << std::endl;
-    std::cout << "OpenGL shader version : " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    Scene* scene = new Scene();
 
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, 0);
+    int ret = 0;
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+    if (application.Run(scene) == false)
+        ret = 1;
 
+    delete scene;
+
+    delete mat;
+
+    delete vertexShader;
+    delete fragmentShader;
+
+    return ret;
+}
+
+/*
     Allocator allocator;
     Error error;
 
@@ -381,86 +263,7 @@ int __cdecl _tmain()
         colliderComponent->setShape(ColliderComponent::Shape::Box);
     }
 
-    float dt = 0.0f;
-    Uint32 lastTicks = SDL_GetTicks();
-
-    bool shouldExit = false;
-
-    while (shouldExit == false)
-    {
-        Uint32 ticks = SDL_GetTicks();
-        float time = ticks / 1000.0f;
-
-        dt = std::min(time - ((float)lastTicks / 1000.0f), 0.5f);
-
-        lastTicks = ticks;
-
-        //std::cout << std::to_string(dt) << std::endl;
-
-        // Physic
-        scene->simulatePhysic(dt);
-
-        SDL_Event event;
-
-        while (SDL_PollEvent(&event) != 0)
-        {
-            if (TwEventSDL(&event, SDL_MAJOR_VERSION, SDL_MINOR_VERSION) != 0)
-                continue;
-
-            if (event.type == SDL_QUIT)
-                shouldExit = true;
-            else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-                inputListener.injectKeyInput(event.key.keysym.sym, event.key.keysym.scancode, event.key.state, event.key.keysym.mod);
-            else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
-                inputListener.injectMouseButtonInput(event.button.button, event.button.state, 0);
-            else if (event.type == SDL_MOUSEMOTION)
-                inputListener.injectMouseMoveInput(event.motion.x, event.motion.y);
-        }
-
-        inputListener.process();
-
-        if (SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)
-        {
-            if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-                SDL_WarpMouseInWindow(window, 1920.0f * 0.5f, 1080.0f * 0.5f);
-        }
-
-        // Gameplay
-        scene->update(dt);
-
-        // TODO move in actor::update or component
-        // Rotate Gun
-        {
-            SceneComponent* sceneComponent = gun->getComponent<SceneComponent>();
-            //sceneComponent->rotate(glm::radians(25.0f * dt), glm::vec3(0.0f, 1.0f, 0.0f));
-        }
-        {
-            SceneComponent* sceneComponent = gun2->getComponent<SceneComponent>();
-            //sceneComponent->rotate(glm::radians(25.0f * dt), glm::vec3(0.0f, 1.0f, 0.0f));
-        }
-
-        // TODO move in actor::update or component
-        // Move light
-        {
-            SceneComponent* sceneComponent = light->getComponent<SceneComponent>();
-            sceneComponent->setPosition(sceneComponent->getPosition() + glm::vec3(0.0f, 0.0035f, 0.0f) * sin((float)time));
-        }
-        {
-            SceneComponent* sceneComponent = light2->getComponent<SceneComponent>();
-            sceneComponent->setPosition(sceneComponent->getPosition() + glm::vec3(0.0f, 0.0035f, 0.0f) * sin((float)time));
-        }
-
-        // TODO scene->render (process all camera)
-        // Render
-        CameraComponent* cameraComponent = freeCam->getComponent<CameraComponent>();
-        cameraComponent->drawScene(*scene);        
-
-        scene->drawDebugPhysics(cameraComponent, dt);
-
-        TwDraw();
-
-        SDL_GL_SwapWindow(window);
-    }
+    // Loop
 
     delete scene;
 
@@ -474,3 +277,4 @@ int __cdecl _tmain()
 
     return 0;
 }
+*/

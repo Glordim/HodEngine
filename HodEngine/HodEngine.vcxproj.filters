@@ -19,8 +19,11 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{6f3c3acc-4586-4bdf-aea5-9874e7cc869f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Shader">
-      <UniqueIdentifier>{85abab7b-4439-4679-ada2-cceab6aa827a}</UniqueIdentifier>
+    <Filter Include="Renderer\Vulkan">
+      <UniqueIdentifier>{c48188fe-edc9-43d1-a410-9408ec27de98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\D3d12">
+      <UniqueIdentifier>{501d98dd-06aa-45c7-8c94-ac869c054d62}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,15 +45,6 @@
     <ClCompile Include="StaticMeshComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Core\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexShader.cpp">
-      <Filter>Core\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="FragmentShader.cpp">
-      <Filter>Core\Shader</Filter>
-    </ClCompile>
     <ClCompile Include="glad.c">
       <Filter>Renderer\OpenGL</Filter>
     </ClCompile>
@@ -64,9 +58,6 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="InputListener.cpp">
@@ -98,11 +89,29 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="ScreenHelper.cpp" />
+    <ClCompile Include="GpuHelper.cpp" />
     <ClCompile Include="RendererDirectX12.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Renderer\D3d12</Filter>
     </ClCompile>
     <ClCompile Include="RendererVulkan.cpp">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="D3dShader.cpp">
+      <Filter>Renderer\D3d12</Filter>
+    </ClCompile>
+    <ClCompile Include="VkShader.cpp">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="VkMaterial.cpp">
+      <Filter>Renderer\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -124,15 +133,6 @@
     <ClInclude Include="StaticMeshComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Core\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexShader.h">
-      <Filter>Core\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="FragmentShader.h">
-      <Filter>Core\Shader</Filter>
-    </ClInclude>
     <ClInclude Include="glad\glad.h">
       <Filter>Renderer\OpenGL</Filter>
     </ClInclude>
@@ -149,9 +149,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Actor.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
@@ -189,11 +186,32 @@
     <ClInclude Include="Renderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="RendererDirectX12.h">
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="GraphicsSettings.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="ScreenHelper.h" />
+    <ClInclude Include="GpuHelper.h" />
+    <ClInclude Include="RendererDirectX12.h">
+      <Filter>Renderer\D3d12</Filter>
+    </ClInclude>
     <ClInclude Include="RendererVulkan.h">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
       <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="D3dShader.h">
+      <Filter>Renderer\D3d12</Filter>
+    </ClInclude>
+    <ClInclude Include="VkShader.h">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="VkMaterial.h">
+      <Filter>Renderer\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

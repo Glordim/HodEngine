@@ -1,9 +1,10 @@
 #include "MaterialManager.h"
 
-#include "VertexShader.h"
-#include "FragmentShader.h"
+#include "Shader.h"
 
 #include "Material.h"
+
+#include "Renderer.h"
 
 MaterialManager* MaterialManager::instance = nullptr;
 
@@ -42,15 +43,17 @@ Material* MaterialManager::getMaterial(const std::string& shaderName)
         return it->second;
     }
 
-    VertexShader vertexShader;
-    if (vertexShader.load("Shader/" + shaderName + ".vert") == false)
+    Renderer* renderer = Renderer::GetInstance();
+
+    Shader* vertexShader = renderer->CreateShader("Shader/" + shaderName + ".vert", Shader::ShaderType::Vertex);
+    if (vertexShader == nullptr)
         return nullptr;
 
-    FragmentShader fragmentShader;
-    if (fragmentShader.load("Shader/" + shaderName + ".frag") == false)
+    Shader* fragmentShader = renderer->CreateShader("Shader/" + shaderName + ".frag", Shader::ShaderType::Fragment);
+    if (fragmentShader == nullptr)
         return nullptr;
 
-    Material* material = new Material();
+    Material* material = nullptr;//new Material();
     if (material->link(vertexShader, fragmentShader) == false)
     {
         delete material;

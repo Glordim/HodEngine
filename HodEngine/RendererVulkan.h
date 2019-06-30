@@ -12,9 +12,25 @@ public:
     virtual ~RendererVulkan();
 
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
-    virtual std::vector<PhysicalDevice> GetPhysicalDeviceList() const override;
-    virtual bool CreateDevice(const PhysicalDevice& physicalDevice) override;
-    virtual bool CreateSurface(SDL_Window* window) override;
+
+    virtual bool GetPhysicalDeviceList(std::vector<GpuHelper::Device>* availableDevices) const override;
+
+    virtual bool BuildPipeline(const GpuHelper::Device& physicalDevice) override;
+
+    bool CreateDevice(const GpuHelper::Device& physicalDevice);
+    bool CreateSwapChain();
+    bool CreateCommandPool(const GpuHelper::Device& physicalDevice);
+    bool CreateSemaphores();
+
+    virtual bool DrawFrame() override;
+
+    virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
+    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) override;
+
+    VkInstance GetVkInstance() const;
+    VkDevice GetVkDevice() const;
+    VkRenderPass GetRenderPass() const;
+    VkExtent2D GetSwapChainExtent() const;
 
 private:
     static void GetAvailableExtensions(std::vector<VkExtensionProperties>* availableExtensions);
@@ -26,8 +42,20 @@ private:
 
 private:
     VkInstance instance;
-    VkDevice device;
     VkSurfaceKHR surface;
+    VkDevice device;
+    VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    VkPhysicalDevice physicalDevice;
+    VkSwapchainKHR swapChain;
+    std::vector<VkImageView> swapChainImageViews;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+    VkRenderPass renderPass;
+    VkCommandPool commandPool;
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderFinishedSemaphore;
+
+    VkExtent2D swapChainExtent;
 };
 
 #endif

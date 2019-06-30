@@ -1,7 +1,6 @@
 #include "Material.h"
 
-#include "VertexShader.h"
-#include "FragmentShader.h"
+#include "Shader.h"
 
 #include "Texture.h"
 
@@ -21,11 +20,11 @@ Material::~Material()
         glDeleteProgram(this->programId);
 }
 
-bool Material::link(const VertexShader& vertexShader, const FragmentShader& fragmentShader)
+bool Material::link(Shader* vertexShader, Shader* fragmentShader)
 {
     this->programId = glCreateProgram();
-    glAttachShader(this->programId, vertexShader.getShaderId());
-    glAttachShader(this->programId, fragmentShader.getShaderId());
+   // glAttachShader(this->programId, vertexShader.getShaderId());
+    //glAttachShader(this->programId, fragmentShader.getShaderId());
     glLinkProgram(this->programId);
 
     GLint isLinked = 0;
