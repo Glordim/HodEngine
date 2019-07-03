@@ -15,6 +15,8 @@ Application::Application()
 {
     this->window = nullptr;
     this->renderer = nullptr;
+    this->pxFoundation = nullptr;
+    this->pxPhysics = nullptr;
 }
 
 Application::~Application()
@@ -28,6 +30,12 @@ Application::~Application()
     {
         SDL_Quit();
     }
+
+    if (this->pxPhysics != nullptr)
+        this->pxPhysics->release();
+
+    if (this->pxFoundation != nullptr)
+        this->pxFoundation->release();
 }
 
 bool Application::Init()
@@ -37,6 +45,16 @@ bool Application::Init()
         fprintf(stderr, "SDL: Unable to initialize SDL: %s", SDL_GetError());
         return false;
     }
+
+    this->pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, this->defaultAllocator, this->defaultErrorCallback);
+    if (this->pxFoundation == nullptr)
+        return false;
+
+    physx::PxTolerancesScale tolerancesScale;
+
+    this->pxPhysics = PxCreateBasePhysics(PX_PHYSICS_VERSION, *this->pxFoundation, tolerancesScale);
+    if (this->pxPhysics == nullptr)
+        return false;
 
     return true;
 }
@@ -168,14 +186,14 @@ bool Application::Run(Scene* scene)
         size_t cameraCount = cameras.size();
         for (size_t i = 0; i < cameraCount; ++i)
         {
-            cameras[i]->drawScene(*scene);
+            cameras[i]->render(*scene);
         }
 
         //scene->drawDebugPhysics(cameraComponent, dt);
 
         //TwDraw();
 
-        this->renderer->DrawFrame();
+        this->renderer->SwapBuffer();
     }
 
     return true;

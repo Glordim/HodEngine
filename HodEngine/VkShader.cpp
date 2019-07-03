@@ -24,7 +24,7 @@ bool VkShader::LoadFromFile(const std::string& path)
     std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (file.is_open() == false)
     {
-        fprintf(stderr, "VkShader : Failed to load Shader at path: \"%s\"\n", path);
+        fprintf(stderr, "VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
         return false;
     }
 

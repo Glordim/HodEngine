@@ -24,7 +24,7 @@ public:
 
     virtual void setupTweakBar(TwBar* tweakBar) override;
 
-    void drawScene(Scene& scene);
+    void render(Scene& scene);
 
     const glm::mat4& getProjectionMatrix();
 

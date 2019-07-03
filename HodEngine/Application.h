@@ -6,6 +6,8 @@ struct GraphicsSettings;
 #include <String>
 #include "InputListener.h"
 
+#include <PxPhysicsAPI.h>
+
 struct SDL_Window;
 class Renderer;
 class Scene;
@@ -23,6 +25,12 @@ private:
     SDL_Window* window;
     Renderer* renderer;
     InputListener inputListener;
+
+    physx::PxDefaultAllocator defaultAllocator;
+    physx::PxDefaultErrorCallback defaultErrorCallback;
+
+    physx::PxFoundation* pxFoundation;
+    physx::PxPhysics* pxPhysics;
 };
 
 #endif

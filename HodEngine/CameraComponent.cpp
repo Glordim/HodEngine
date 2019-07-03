@@ -10,6 +10,10 @@
 
 #include "AntTweakBar.h"
 
+#include "Renderer.h"
+#include "RenderQueue.h"
+#include "RenderQueueHelper.h"
+
 CameraComponent::CameraComponent(Actor* actor)
 : Component(actor)
 , fov(60.0f)
@@ -50,13 +54,19 @@ const glm::mat4& CameraComponent::getProjectionMatrix()
     return this->projectionMatrix;
 }
 
-void CameraComponent::drawScene(Scene& scene)
+void CameraComponent::render(Scene& scene)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    RenderQueue renderQueue;
 
-    std::vector<LightComponent*> allLight = scene.getRoot()->getActor()->getAllComponent<LightComponent>();
+    renderQueue.SetViewMatrix(glm::inverse(this->getActor()->getComponent<SceneComponent>()->getModelMatrix()));
+    renderQueue.SetProjMatrix(this->getProjectionMatrix());
 
-    this->drawSceneComponent(scene.getRoot(), allLight);
+    renderQueue.SetClearFlag(RenderQueue::ClearFlag::COLOR | RenderQueue::ClearFlag::DEPTH);
+
+    RenderQueueHelper::AddSceneComponent(renderQueue, scene.getRoot(), true);
+
+    Renderer* renderer = Renderer::GetInstance();
+    renderer->SubmitRenderQueue(renderQueue);
 }
 
 void CameraComponent::drawSceneComponent(SceneComponent* sceneComponent, std::vector<LightComponent*>& allLight)

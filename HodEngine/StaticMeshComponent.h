@@ -21,7 +21,10 @@ public:
     virtual void draw(CameraComponent* camera, std::vector<LightComponent*>& allLight) override;
 
     void setMesh(Mesh* mesh);
+    Mesh* GetMesh() const;
+
     void setMaterial(Material* material);
+    Material* GetMaterial() const;
 
 private:
     Mesh* mesh;

@@ -51,13 +51,7 @@
     <ClCompile Include="main.cpp">
       <Filter>SampleTest</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="InputListener.cpp">
@@ -91,7 +85,6 @@
     </ClCompile>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ScreenHelper.cpp" />
-    <ClCompile Include="GpuHelper.cpp" />
     <ClCompile Include="RendererDirectX12.cpp">
       <Filter>Renderer\D3d12</Filter>
     </ClCompile>
@@ -111,6 +104,30 @@
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="VkMaterial.cpp">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderQueue.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderQueueHelper.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="VkMesh.cpp">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuDevice.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuDeviceHelper.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="VkGpuDevice.cpp">
       <Filter>Renderer\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
@@ -151,13 +168,7 @@
     <ClInclude Include="Actor.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.hpp">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="InputListener.h">
@@ -191,7 +202,6 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ScreenHelper.h" />
-    <ClInclude Include="GpuHelper.h" />
     <ClInclude Include="RendererDirectX12.h">
       <Filter>Renderer\D3d12</Filter>
     </ClInclude>
@@ -211,6 +221,33 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="VkMaterial.h">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderQueue.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderQueueHelper.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="VkMesh.h">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuDevice.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuDeviceHelper.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="VkGpuDevice.h">
       <Filter>Renderer\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

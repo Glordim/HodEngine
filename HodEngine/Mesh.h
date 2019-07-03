@@ -20,18 +20,14 @@ public:
 
     bool loadObj(const char* path);
 
-    unsigned int getVao() const;
-    unsigned int getIndicesCount() const;
+    unsigned int GetIndiceCount() const;
 
-private:
-    void buildVao();
+protected:
+    virtual bool BuildBuffers() = 0;
 
-private:
+protected:
     std::vector<unsigned int> indices;
     std::vector<Vertex_3P_3C_3N_2UV_3TA> vertices;
-
-    unsigned int vbo[2];
-    unsigned int vao;
 };
 
 #endif

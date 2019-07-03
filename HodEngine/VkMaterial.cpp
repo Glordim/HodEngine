@@ -3,15 +3,29 @@
 
 #include "RendererVulkan.h"
 
+#include "Mesh.h"
+
 VkMaterial::VkMaterial() : Material()
 {
     this->graphicsPipeline = VK_NULL_HANDLE;
     this->pipelineLayout = VK_NULL_HANDLE;
+    this->descriptorSetLayout = VK_NULL_HANDLE;
+
+    this->uniformBuffer = VK_NULL_HANDLE;
+    this->uniformBufferMemory = VK_NULL_HANDLE;
 }
 
 VkMaterial::~VkMaterial()
 {
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+    if (this->uniformBuffer != VK_NULL_HANDLE)
+        vkDestroyBuffer(renderer->GetVkDevice(), this->uniformBuffer, nullptr);
+    if (this->uniformBufferMemory != VK_NULL_HANDLE)
+        vkFreeMemory(renderer->GetVkDevice(), this->uniformBufferMemory, nullptr);
+
+    if (this->descriptorSetLayout != VK_NULL_HANDLE)
+        vkDestroyDescriptorSetLayout(renderer->GetVkDevice(), this->descriptorSetLayout, nullptr);
 
     if (this->pipelineLayout != VK_NULL_HANDLE)
         vkDestroyPipelineLayout(renderer->GetVkDevice(), this->pipelineLayout, nullptr);
@@ -38,13 +52,50 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader)
 
     VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+    VkVertexInputBindingDescription bindingDescription = {};
+    bindingDescription.binding = 0;
+    bindingDescription.stride = sizeof(Vertex_3P_3C_3N_2UV_3TA);
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    VkVertexInputAttributeDescription posAttribute;
+    posAttribute.binding = 0;
+    posAttribute.location = 0;
+    posAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
+    posAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, pos);
+
+    VkVertexInputAttributeDescription colorAttribute;
+    colorAttribute.binding = 0;
+    colorAttribute.location = 1;
+    colorAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
+    colorAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, color);
+
+    VkVertexInputAttributeDescription normalAttribute;
+    normalAttribute.binding = 0;
+    normalAttribute.location = 2;
+    normalAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
+    normalAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, normal);
+
+    VkVertexInputAttributeDescription uvAttribute;
+    uvAttribute.binding = 0;
+    uvAttribute.location = 3;
+    uvAttribute.format = VK_FORMAT_R32G32_SFLOAT;
+    uvAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, uv);
+
+    VkVertexInputAttributeDescription tangentAttribute;
+    tangentAttribute.binding = 0;
+    tangentAttribute.location = 4;
+    tangentAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
+    tangentAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, tangent);
+
+    VkVertexInputAttributeDescription vertexAttributes[] = { posAttribute, colorAttribute, normalAttribute, uvAttribute, tangentAttribute };
+
     // Vertex input
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.vertexAttributeDescriptionCount = 5;
+    vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes;
 
     // Input assembly
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -134,11 +185,29 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader)
     dynamicState.dynamicStateCount = 2;
     dynamicState.pDynamicStates = dynamicStates;
 
+    VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+    uboLayoutBinding.binding = 0;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.descriptorCount = 1;
+    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    uboLayoutBinding.pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings = &uboLayoutBinding;
+
+    if (vkCreateDescriptorSetLayout(renderer->GetVkDevice(), &layoutInfo, nullptr, &this->descriptorSetLayout) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: to create descriptor set layout!\n");
+        return false;
+    }
+
     // Pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0; // Optional
-    pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &this->descriptorSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -172,5 +241,34 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader)
         return false;
     }
 
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+    if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->uniformBuffer, &this->uniformBufferMemory) == false)
+    {
+        return false;
+    }
+
     return true;
+}
+
+VkPipeline VkMaterial::GetGraphicsPipeline() const
+{
+    return this->graphicsPipeline;
+}
+
+void VkMaterial::UpdateUbo(UniformBufferObject ubo)
+{
+    RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+    void* data = nullptr;
+
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+    if (vkMapMemory(renderer->GetVkDevice(), this->uniformBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to map ubo buffer memory!\n");
+        return;
+    }
+    memcpy(data, &ubo, (size_t)bufferSize);
+    vkUnmapMemory(renderer->GetVkDevice(), this->uniformBufferMemory);
 }

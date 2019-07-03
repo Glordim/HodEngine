@@ -37,8 +37,6 @@
 
 #include <AntTweakBar.h>
 
-#include <PxPhysicsAPI.h>
-
 #include <tchar.h>
 
 #include <D3d12.h>
@@ -46,7 +44,7 @@
 
 #include <vulkan.h>
 
-#include "GpuHelper.h"
+#include "GpuDeviceHelper.h"
 #include "ScreenHelper.h"
 #include "GraphicsSettings.h"
 #include "Application.h"
@@ -81,9 +79,9 @@ int __cdecl _tmain()
     if (application.CreateWindowAndContext("HodEngine", graphicsSettings) == false)
         return 1;
 
-    GpuHelper::Device bestDevice;
+    GpuDevice* bestDevice = nullptr;
 
-    if (GpuHelper::GetBestAvailableAndCompatibleDevice(&bestDevice) == false)
+    if (GpuDeviceHelper::GetBestAvailableAndCompatibleDevice(&bestDevice) == false)
         return 1;
 
     Renderer* renderer = Renderer::GetInstance();
@@ -91,12 +89,39 @@ int __cdecl _tmain()
     if (renderer->BuildPipeline(bestDevice) == false)
         return 1;
 
-    Shader* vertexShader = renderer->CreateShader("Shader/Lit.vert.spv", Shader::ShaderType::Vertex);
-    Shader* fragmentShader = renderer->CreateShader("Shader/Lit.frag.spv", Shader::ShaderType::Fragment);
+    Shader* vertexShader = renderer->CreateShader("Shader/UnlitVertexColor.vert.vulk", Shader::ShaderType::Vertex);
+    Shader* fragmentShader = renderer->CreateShader("Shader/UnlitVertexColor.frag.vulk", Shader::ShaderType::Fragment);
 
     Material* mat = renderer->CreateMaterial(vertexShader, fragmentShader);
 
+    Mesh* mesh = renderer->CreateMesh("Gizmos/sphere.obj");
+
     Scene* scene = new Scene();
+
+    FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
+    {
+        SceneComponent* sceneComponent = freeCam->getComponent<SceneComponent>();
+
+        sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        sceneComponent->setParent(scene->getRoot());
+
+        //freeCam->setupInputListener(&inputListener);
+    }
+
+    Actor* sphereActor = scene->spawnActor<Actor>("Sphere");
+    {
+        SceneComponent* sceneComponent = sphereActor->addComponent<SceneComponent>();
+        sceneComponent->position = glm::vec3(-2.0f, 3.0f, -5.5f);
+        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
+        sceneComponent->setParent(scene->getRoot());
+
+        StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<StaticMeshComponent>();
+        staticMeshComponent->setMesh(mesh);
+        staticMeshComponent->setMaterial(mat);
+
+        ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
+        colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+    }
 
     int ret = 0;
 
@@ -104,6 +129,8 @@ int __cdecl _tmain()
         ret = 1;
 
     delete scene;
+
+    delete mesh;
 
     delete mat;
 
@@ -114,18 +141,6 @@ int __cdecl _tmain()
 }
 
 /*
-    Allocator allocator;
-    Error error;
-
-    physx::PxDefaultAllocator defaultAllocator;
-    physx::PxDefaultErrorCallback defaultErrorCallback;
-
-    physx::PxFoundation* pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, defaultAllocator, defaultErrorCallback);
-
-    physx::PxTolerancesScale tolerancesScale;
-
-    physx::PxPhysics* pxPhysics = PxCreateBasePhysics(PX_PHYSICS_VERSION, *pxFoundation, tolerancesScale);
-
     TwInit(TW_OPENGL_CORE, NULL);
     TwWindowSize(1920, 1080);
 

@@ -4,6 +4,8 @@
 #include "Component.h"
 #include "Color.h"
 
+#include "PointLight.h"
+
 class LightComponent : public Component
 {
 public:
@@ -13,12 +15,12 @@ public:
     LightComponent(Actor* actor);
     virtual ~LightComponent();
 
+    PointLight* GetPointLight() const;
+
     friend class Actor;
 
 public:
-    float intensity;
-    float range;
-    Color color;
+    PointLight data;
 };
 
 #endif

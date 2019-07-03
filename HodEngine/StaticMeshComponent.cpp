@@ -28,9 +28,19 @@ void StaticMeshComponent::setMesh(Mesh* mesh)
     this->mesh = mesh;
 }
 
+Mesh* StaticMeshComponent::GetMesh() const
+{
+    return this->mesh;
+}
+
 void StaticMeshComponent::setMaterial(Material* material)
 {
     this->material = material;
+}
+
+Material* StaticMeshComponent::GetMaterial() const
+{
+    return this->material;
 }
 
 void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightComponent*>& allLight)
@@ -48,9 +58,11 @@ void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightCompone
     {
         LightComponent* light = allLight[i];
 
-        this->material->setFloat("pointLight[" + std::to_string(i) + "].intensity", light->intensity);
-        this->material->setFloat("pointLight[" + std::to_string(i) + "].range", light->range);
-        this->material->setVec4("pointLight[" + std::to_string(i) + "].color", glm::vec4(light->color.r, light->color.g, light->color.b, light->color.a));
+        PointLight* pointLight = light->GetPointLight();
+
+        this->material->setFloat("pointLight[" + std::to_string(i) + "].intensity", pointLight->diffuseFactor);
+        this->material->setFloat("pointLight[" + std::to_string(i) + "].range", pointLight->radius);
+        this->material->setVec4("pointLight[" + std::to_string(i) + "].color", glm::vec4(pointLight->color.r, pointLight->color.g, pointLight->color.b, pointLight->color.a));
         this->material->setVec4("pointLight[" + std::to_string(i) + "].pos", glm::vec4(light->getActor()->getComponent<SceneComponent>()->getPosition(), 1.0f));
     }
 
@@ -59,6 +71,6 @@ void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightCompone
     this->material->setFloat("shininess", 32);
     this->material->setFloat("specularStrength", 1.5f);
 
-    glBindVertexArray(this->mesh->getVao());
-    glDrawElements(GL_TRIANGLES, this->mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
+    //glBindVertexArray(this->mesh->getVao());
+    //glDrawElements(GL_TRIANGLES, this->mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
 }

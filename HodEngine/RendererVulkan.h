@@ -5,6 +5,8 @@
 
 #include "Renderer.h"
 
+#include "VkGpuDevice.h"
+
 class RendererVulkan : public Renderer
 {
 public:
@@ -13,17 +15,20 @@ public:
 
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
 
-    virtual bool GetPhysicalDeviceList(std::vector<GpuHelper::Device>* availableDevices) const override;
+    virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
 
-    virtual bool BuildPipeline(const GpuHelper::Device& physicalDevice) override;
+    virtual bool BuildPipeline(GpuDevice* gpuDevice) override;
 
-    bool CreateDevice(const GpuHelper::Device& physicalDevice);
+    bool CreateDevice();
     bool CreateSwapChain();
-    bool CreateCommandPool(const GpuHelper::Device& physicalDevice);
+    bool CreateCommandPool();
     bool CreateSemaphores();
 
-    virtual bool DrawFrame() override;
+    virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
 
+    virtual bool SwapBuffer() override;
+
+    virtual Mesh* CreateMesh(const std::string& path) override;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) override;
 
@@ -32,7 +37,13 @@ public:
     VkRenderPass GetRenderPass() const;
     VkExtent2D GetSwapChainExtent() const;
 
+    bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
+
 private:
+
+    bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
+    bool GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer);
+
     static void GetAvailableExtensions(std::vector<VkExtensionProperties>* availableExtensions);
     static bool GetExtensionRequiredBySDL(SDL_Window* window, std::vector<const char*>* extensionsRequiredBySDL);
     static bool CheckExtensionsIsAvailable(const std::vector<const char*>& extensions, const std::vector<VkExtensionProperties>& availableExtensions);
@@ -46,7 +57,6 @@ private:
     VkDevice device;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
-    VkPhysicalDevice physicalDevice;
     VkSwapchainKHR swapChain;
     std::vector<VkImageView> swapChainImageViews;
     std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -54,6 +64,9 @@ private:
     VkCommandPool commandPool;
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
+
+    VkGpuDevice* selectedGpu;
+    std::vector<VkGpuDevice> availableGpu;
 
     VkExtent2D swapChainExtent;
 };

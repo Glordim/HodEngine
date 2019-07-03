@@ -3,17 +3,21 @@
 #include <SDL.h>
 #include <SDL_vulkan.h>
 
+#include "RenderQueue.h"
+
+#include "VkMesh.h"
+//#include "VkTexture.h"
 #include "VkShader.h"
 #include "VkMaterial.h"
 
 RendererVulkan::RendererVulkan()
 {
+    this->selectedGpu = nullptr;
     this->instance = VK_NULL_HANDLE;
     this->surface = VK_NULL_HANDLE;
     this->device = VK_NULL_HANDLE;
     this->graphicsQueue = VK_NULL_HANDLE;
     this->presentQueue = VK_NULL_HANDLE;
-    this->physicalDevice = VK_NULL_HANDLE;
     this->swapChain = VK_NULL_HANDLE;
     this->renderPass = VK_NULL_HANDLE;
     this->commandPool = VK_NULL_HANDLE;
@@ -318,174 +322,192 @@ VKAPI_ATTR VkBool32 VKAPI_CALL RendererVulkan::DebugCallback(
     return VK_FALSE;
 }
 
-bool RendererVulkan::GetPhysicalDeviceList(std::vector<GpuHelper::Device>* availableDevices) const
+bool RendererVulkan::GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices)
 {
     if (availableDevices == nullptr)
         return false;
 
-    uint32_t physicalDeviceCount = 0;
-    vkEnumeratePhysicalDevices(this->instance, &physicalDeviceCount, nullptr);
-
-    if (physicalDeviceCount == 0)
-        return false;
-
-    availableDevices->resize(physicalDeviceCount);
-
-    std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
-    vkEnumeratePhysicalDevices(this->instance, &physicalDeviceCount, physicalDevices.data());
-
-    for (size_t i = 0; i < physicalDeviceCount; ++i)
+    if (this->availableGpu.empty() == true)
     {
-        const VkPhysicalDevice& physicalDevice = physicalDevices[i];
+        uint32_t physicalDeviceCount = 0;
+        vkEnumeratePhysicalDevices(this->instance, &physicalDeviceCount, nullptr);
 
-        VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-        vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+        if (physicalDeviceCount == 0)
+            return false;
 
-        GpuHelper::Device& device = availableDevices->at(i);
-        device.name = deviceProperties.deviceName;
-        device.compatible = false;
-        device.score = 0;
-        
-        device.score += deviceProperties.limits.maxImageDimension2D;
+        this->availableGpu.resize(physicalDeviceCount);
 
-        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-            device.score += 1000;
+        std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
+        vkEnumeratePhysicalDevices(this->instance, &physicalDeviceCount, physicalDevices.data());
 
-        device.handle = (void*)physicalDevice;
-        device.handleQueueIndex = 0;
-
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
-
-        for (size_t j = 0; j < queueFamilyCount; ++j)
+        for (size_t i = 0; i < physicalDeviceCount; ++i)
         {
-            const VkQueueFamilyProperties& queueFamily = queueFamilies[j];
+            const VkPhysicalDevice& physicalDevice = physicalDevices[i];
 
-            if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            VkPhysicalDeviceProperties deviceProperties;
+            VkPhysicalDeviceFeatures deviceFeatures;
+            vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+            vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+
+            VkGpuDevice& device = this->availableGpu[i];
+            device.name = deviceProperties.deviceName;
+            device.compatible = false;
+            device.score = 0;
+
+            device.score += deviceProperties.limits.maxImageDimension2D;
+
+            if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+                device.score += 1000;
+
+            device.physicalDevice = physicalDevice;
+            device.graphicsAndPresentQueueFamilyIndex = 0;
+
+            uint32_t queueFamilyCount = 0;
+            vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+            std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+            vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+            for (size_t j = 0; j < queueFamilyCount; ++j)
             {
-                VkBool32 presentSupport = VK_FALSE;
-                if (vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, j, this->surface, &presentSupport) != VK_SUCCESS)
+                const VkQueueFamilyProperties& queueFamily = queueFamilies[j];
+
+                if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
                 {
-                    fprintf(stderr, "Vulkan: Unable to check present support on FamilyQueue !\n");
-                }
-                else if (presentSupport == VK_TRUE)
-                {
-                    device.handleQueueIndex = j;
-                    device.compatible = true;
-                    break;
+                    VkBool32 presentSupport = VK_FALSE;
+                    if (vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, (uint32_t)j, this->surface, &presentSupport) != VK_SUCCESS)
+                    {
+                        fprintf(stderr, "Vulkan: Unable to check present support on FamilyQueue !\n");
+                    }
+                    else if (presentSupport == VK_TRUE)
+                    {
+                        device.graphicsAndPresentQueueFamilyIndex = (uint32_t)j;
+                        device.compatible = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (deviceFeatures.geometryShader == VK_FALSE)
-            device.compatible = false;
-
-        const std::vector<const char*> requiredExtensions = {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
-        };
-
-        uint32_t availableExtensionCount;
-        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, nullptr);
-
-        std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
-        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, availableExtensions.data());
-
-        if (RendererVulkan::CheckExtensionsIsAvailable(requiredExtensions, availableExtensions) == false)
-            device.compatible = false;
-
-        if (device.compatible == true)
-        {
-            VkSurfaceCapabilitiesKHR capabilities;
-            std::vector<VkSurfaceFormatKHR> formats;
-            std::vector<VkPresentModeKHR> presentModes;
-
-            if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, this->surface, &capabilities) != VK_SUCCESS)
-            {
-                fprintf(stderr, "Vulkan: Unable to get Surface capabilities !\n");
+            if (deviceFeatures.geometryShader == VK_FALSE)
                 device.compatible = false;
-            }
-            else
+
+            const std::vector<const char*> requiredExtensions = {
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+            };
+
+            uint32_t availableExtensionCount;
+            vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, nullptr);
+
+            std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
+            vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, availableExtensions.data());
+
+            if (RendererVulkan::CheckExtensionsIsAvailable(requiredExtensions, availableExtensions) == false)
+                device.compatible = false;
+
+            if (device.compatible == true)
             {
-                uint32_t formatCount;
-                if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, this->surface, &formatCount, nullptr) != VK_SUCCESS)
+                VkSurfaceCapabilitiesKHR capabilities;
+                std::vector<VkSurfaceFormatKHR> formats;
+                std::vector<VkPresentModeKHR> presentModes;
+
+                if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, this->surface, &capabilities) != VK_SUCCESS)
                 {
-                    fprintf(stderr, "Vulkan: Unable to get Surface formats !\n");
+                    fprintf(stderr, "Vulkan: Unable to get Surface capabilities !\n");
                     device.compatible = false;
                 }
-
-                if (formatCount != 0)
+                else
                 {
-                    formats.resize(formatCount);
-                    if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, this->surface, &formatCount, formats.data()) != VK_SUCCESS)
+                    uint32_t formatCount;
+                    if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, this->surface, &formatCount, nullptr) != VK_SUCCESS)
                     {
                         fprintf(stderr, "Vulkan: Unable to get Surface formats !\n");
                         device.compatible = false;
                     }
 
-                    bool targetFormatFounded = false;
-
-                    for (int j = 0; j < formatCount; ++j)
+                    if (formatCount != 0)
                     {
-                        const VkSurfaceFormatKHR& format = formats[j];
-
-                        if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+                        formats.resize(formatCount);
+                        if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, this->surface, &formatCount, formats.data()) != VK_SUCCESS)
                         {
-                            targetFormatFounded = true;
-                            break;
+                            fprintf(stderr, "Vulkan: Unable to get Surface formats !\n");
+                            device.compatible = false;
                         }
+
+                        bool targetFormatFounded = false;
+
+                        for (size_t j = 0; j < formatCount; ++j)
+                        {
+                            const VkSurfaceFormatKHR& format = formats[j];
+
+                            if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+                            {
+                                targetFormatFounded = true;
+                                break;
+                            }
+                        }
+
+                        if (targetFormatFounded == false)
+                            device.compatible = false;
+                    }
+                    else
+                    {
+                        fprintf(stderr, "Vulkan: No Surface formats !\n");
+                        device.compatible = false;
                     }
 
-                    if (targetFormatFounded == false)
-                        device.compatible = false;
-                }
-                else
-                {
-                    fprintf(stderr, "Vulkan: No Surface formats !\n");
-                    device.compatible = false;
-                }
-
-                uint32_t presentModeCount;
-                if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, this->surface, &presentModeCount, nullptr) != VK_SUCCESS)
-                {
-                    fprintf(stderr, "Vulkan: Unable to get Surface present modes !\n");
-                    device.compatible = false;
-                }
-
-                if (presentModeCount != 0)
-                {
-                    presentModes.resize(presentModeCount);
-                    if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, this->surface, &presentModeCount, presentModes.data()) != VK_SUCCESS)
+                    uint32_t presentModeCount;
+                    if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, this->surface, &presentModeCount, nullptr) != VK_SUCCESS)
                     {
                         fprintf(stderr, "Vulkan: Unable to get Surface present modes !\n");
                         device.compatible = false;
                     }
+
+                    if (presentModeCount != 0)
+                    {
+                        presentModes.resize(presentModeCount);
+                        if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, this->surface, &presentModeCount, presentModes.data()) != VK_SUCCESS)
+                        {
+                            fprintf(stderr, "Vulkan: Unable to get Surface present modes !\n");
+                            device.compatible = false;
+                        }
+                    }
+                    else
+                    {
+                        fprintf(stderr, "Vulkan: No Surface present modes !\n");
+                        device.compatible = false;
+                    }
                 }
-                else
-                {
-                    fprintf(stderr, "Vulkan: No Surface present modes !\n");
-                    device.compatible = false;
-                }
+            }
+
+            if (device.compatible == true)
+            {
+                vkGetPhysicalDeviceMemoryProperties(physicalDevice, &device.memProperties);
             }
         }
     }
     
+    size_t avalaibleDeviceCount = this->availableGpu.size();
+    availableDevices->resize(avalaibleDeviceCount);
+
+    for (size_t i = 0; i < avalaibleDeviceCount; ++i)
+    {
+        availableDevices->at(i) = (GpuDevice*)(&this->availableGpu[i]);
+    }
+
     return true;
 }
 
-bool RendererVulkan::BuildPipeline(const GpuHelper::Device& physicalDevice)
+bool RendererVulkan::BuildPipeline(GpuDevice* physicalDevice)
 {
-    if (this->CreateDevice(physicalDevice) == false)
+    this->selectedGpu = (VkGpuDevice*)physicalDevice;
+
+    if (this->CreateDevice() == false)
         return false;
 
     if (this->CreateSwapChain() == false)
         return false;
 
-    if (this->CreateCommandPool(physicalDevice) == false)
+    if (this->CreateCommandPool() == false)
         return false;
 
     if (this->CreateSemaphores() == false)
@@ -494,13 +516,13 @@ bool RendererVulkan::BuildPipeline(const GpuHelper::Device& physicalDevice)
     return true;
 }
 
-bool RendererVulkan::CreateDevice(const GpuHelper::Device& gpu)
+bool RendererVulkan::CreateDevice()
 {
     float queuePriority = 1.0f;
 
     VkDeviceQueueCreateInfo queueCreateInfo = {};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = gpu.handleQueueIndex;
+    queueCreateInfo.queueFamilyIndex = this->selectedGpu->graphicsAndPresentQueueFamilyIndex;
     queueCreateInfo.queueCount = 1;
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
@@ -517,23 +539,21 @@ bool RendererVulkan::CreateDevice(const GpuHelper::Device& gpu)
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    createInfo.enabledExtensionCount = requiredExtensions.size();
+    createInfo.enabledExtensionCount = (uint32_t)requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
     // Deprecated, now device share Validation Layer with the VkInstance
     createInfo.ppEnabledLayerNames = nullptr;
     createInfo.enabledLayerCount = 0;
 
-    this->physicalDevice = (VkPhysicalDevice)gpu.handle;
-
-    if (vkCreateDevice(this->physicalDevice, &createInfo, nullptr, &this->device) != VK_SUCCESS)
+    if (vkCreateDevice(this->selectedGpu->physicalDevice, &createInfo, nullptr, &this->device) != VK_SUCCESS)
     {
         fprintf(stderr, "Vulkan: Unable to create logical device !\n");
         return false;
     }
 
-    vkGetDeviceQueue(this->device, gpu.handleQueueIndex, 0, &this->graphicsQueue);
-    vkGetDeviceQueue(this->device, gpu.handleQueueIndex, 0, &this->presentQueue);
+    vkGetDeviceQueue(this->device, this->selectedGpu->graphicsAndPresentQueueFamilyIndex, 0, &this->graphicsQueue);
+    vkGetDeviceQueue(this->device, this->selectedGpu->graphicsAndPresentQueueFamilyIndex, 0, &this->presentQueue);
 
     return true;
 }
@@ -577,7 +597,7 @@ bool RendererVulkan::CreateSwapChain()
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> presentModes;
 
-    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(this->physicalDevice, this->surface, &capabilities) != VK_SUCCESS)
+    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(this->selectedGpu->physicalDevice, this->surface, &capabilities) != VK_SUCCESS)
     {
         fprintf(stderr, "Vulkan: Unable to get Surface capabilities !\n");
         return false;
@@ -692,11 +712,11 @@ bool RendererVulkan::CreateSwapChain()
     return true;
 }
 
-bool RendererVulkan::CreateCommandPool(const GpuHelper::Device& physicalDevice)
+bool RendererVulkan::CreateCommandPool()
 {
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = physicalDevice.handleQueueIndex;
+    poolInfo.queueFamilyIndex = this->selectedGpu->graphicsAndPresentQueueFamilyIndex;
     poolInfo.flags = 0; // Optional
 
     if (vkCreateCommandPool(this->device, &poolInfo, nullptr, &this->commandPool) != VK_SUCCESS)
@@ -728,7 +748,195 @@ bool RendererVulkan::CreateSemaphores()
     return true;
 }
 
-bool RendererVulkan::DrawFrame()
+bool RendererVulkan::CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
+{
+    VkBufferCreateInfo bufferInfo = {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = bufferSize;
+    bufferInfo.usage = bufferUsage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(this->device, &bufferInfo, nullptr, buffer) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to create buffer!\n");
+        return false;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
+
+    uint32_t memoryTypeIndex = 0;
+    if (this->FindMemoryTypeIndex(memRequirements.memoryTypeBits, memoryProperties, &memoryTypeIndex) == false)
+    {
+        fprintf(stderr, "Vulkan: Unable to find memory type for this buffer!\n");
+        return false;
+    }
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = memoryTypeIndex;
+
+    if (vkAllocateMemory(device, &allocInfo, nullptr, bufferMemory) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to allocate buffer memory!\n");
+        return false;
+    }
+
+    if (vkBindBufferMemory(this->device, *buffer, *bufferMemory, 0) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to bind buffer and buffer memory!\n");
+        return false;
+    }
+
+    return true;
+}
+
+bool RendererVulkan::FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex)
+{
+    for (uint32_t i = 0; i < this->selectedGpu->memProperties.memoryTypeCount; ++i)
+    {
+        if ((memoryTypeBits & (1 << i)) && (this->selectedGpu->memProperties.memoryTypes[i].propertyFlags & memoryProperties) == memoryProperties)
+        {
+            *memoryTypeIndex = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer)
+{
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = 1;
+
+    if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffer) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to create Command Buffer!\n");
+        return false;
+    }
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    beginInfo.pInheritanceInfo = nullptr;
+
+    if (vkBeginCommandBuffer(*commandBuffer, &beginInfo) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to begin recording command buffer!\n");
+        return false;
+    }
+
+    VkClearValue clearColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = this->swapChainFramebuffers[0];
+    renderPassInfo.renderArea.offset = { 0, 0 };
+    renderPassInfo.renderArea.extent = swapChainExtent;
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues = &clearColor;
+
+    vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    std::vector<RenderQueue::MeshData> meshDatas = renderQueue.GetMeshDatas();
+
+    size_t meshCount = meshDatas.size();
+    for (size_t i = 0; i < meshCount; ++i)
+    {
+        RenderQueue::MeshData& meshData = meshDatas[i];
+
+        VkMaterial* material = (VkMaterial*)meshData.material;
+
+        UniformBufferObject ubo;
+        ubo.model = meshData.matrix;
+        ubo.view = renderQueue.GetViewMatrix();
+        ubo.proj = renderQueue.GetProjMatrix();
+        ubo.mvp = ubo.proj * ubo.view * ubo.model;
+
+        material->UpdateUbo(ubo);
+
+        vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
+
+        VkMesh* mesh = (VkMesh*)meshData.mesh;
+        VkBuffer vertexBuffer = mesh->GetVertexBuffer();
+        VkBuffer indiceBuffer = mesh->GetIndiceBuffer();
+        VkDeviceSize offsets[] = { 0 };
+
+        vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
+        vkCmdBindIndexBuffer(*commandBuffer, indiceBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+        vkCmdDrawIndexed(*commandBuffer, static_cast<uint32_t>(mesh->GetIndiceCount()), 1, 0, 0, 0);
+    }
+
+    vkCmdEndRenderPass(*commandBuffer);
+
+    if (vkEndCommandBuffer(*commandBuffer) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to recording command buffer!\n");
+        return false;
+    }
+
+    return true;
+}
+
+bool RendererVulkan::SubmitRenderQueue(RenderQueue& renderQueue)
+{
+    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+    
+    if (this->GenerateCommandBufferFromRenderQueue(renderQueue, &commandBuffer) == false)
+        return false;
+
+    VkFence fence = VK_NULL_HANDLE;
+
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = 0;
+    fenceCreateInfo.pNext = nullptr;
+
+    if (vkCreateFence(this->device, &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to create Fence!\n");
+        return false;
+    }
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.signalSemaphoreCount = 0;
+    submitInfo.pSignalSemaphores = nullptr;
+    submitInfo.waitSemaphoreCount = 0;
+    submitInfo.pWaitSemaphores = nullptr;
+    submitInfo.pWaitDstStageMask = nullptr;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    if (vkQueueSubmit(this->graphicsQueue, 1, &submitInfo, fence) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to submit draw command buffer!\n");
+        vkDestroyFence(this->device, fence, nullptr);
+        return false;
+    }
+
+    if (vkWaitForFences(this->device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to wait fence\n");
+        vkDestroyFence(this->device, fence, nullptr);
+        return false;
+    }
+
+    vkDestroyFence(this->device, fence, nullptr);
+
+    vkFreeCommandBuffers(this->device, this->commandPool, 1, &commandBuffer);
+
+    return true;
+}
+
+bool RendererVulkan::SwapBuffer()
 {
     uint32_t imageIndex = 0;
     if (vkAcquireNextImageKHR(this->device, this->swapChain, std::numeric_limits<uint64_t>::max(), this->imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex) != VK_SUCCESS)
@@ -737,38 +945,18 @@ bool RendererVulkan::DrawFrame()
         return false;
     }
 
-    VkSemaphore signalSemaphores[] = { this->renderFinishedSemaphore };
-    VkSemaphore waitSemaphores[] = { this->imageAvailableSemaphore };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
-    //submitInfo.commandBufferCount = 1;
-    //submitInfo.pCommandBuffers = &this->commandBuffers[imageIndex];
-    submitInfo.commandBufferCount = 0;
-    submitInfo.pCommandBuffers = nullptr;
-
-    if (vkQueueSubmit(this->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
-    {
-        fprintf(stderr, "Vulkan: Unable to submit draw command buffer!\n");
-        return false;
-    }
+    imageIndex = 0;
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
+    presentInfo.waitSemaphoreCount = 0;
+    presentInfo.pWaitSemaphores = nullptr;
 
     VkSwapchainKHR swapChains[] = { this->swapChain };
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
-    presentInfo.pResults = nullptr; // Optional
+    presentInfo.pResults = nullptr;
 
     if (vkQueuePresentKHR(this->presentQueue, &presentInfo) != VK_SUCCESS)
     {
@@ -803,4 +991,17 @@ Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentS
     }
 
     return mat;
+}
+
+Mesh* RendererVulkan::CreateMesh(const std::string& path)
+{
+    VkMesh* mesh = new VkMesh();
+
+    if (mesh->loadObj(path.c_str()) == false)
+    {
+        delete mesh;
+        return nullptr;
+    }
+
+    return mesh;
 }

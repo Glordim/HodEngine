@@ -9,8 +9,7 @@
 
 #include "StaticMeshComponent.h"
 #include "Mesh.h"
-#include "VertexShader.h"
-#include "FragmentShader.h"
+#include "Shader.h"
 #include "Material.h"
 #include "MaterialManager.h"
 

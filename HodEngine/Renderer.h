@@ -6,9 +6,13 @@ struct SDL_Window;
 #include <string>
 #include <vector>
 
-#include "GpuHelper.h"
 #include "Shader.h"
-#include "Material.h"
+
+struct GpuDevice;
+class RenderQueue;
+class Mesh;
+class Material;
+class Texture;
 
 class Renderer
 {
@@ -21,12 +25,15 @@ public:
 
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) = 0;
 
-    virtual bool GetPhysicalDeviceList(std::vector<GpuHelper::Device>* availableDevices) const = 0;
+    virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;
 
-    virtual bool BuildPipeline(const GpuHelper::Device& physicalDevice) = 0;
+    virtual bool BuildPipeline(GpuDevice* gpuDevice) = 0;
 
-    virtual bool DrawFrame() = 0;
+    virtual bool SubmitRenderQueue(RenderQueue& renderQueue) = 0;
 
+    virtual bool SwapBuffer() = 0;
+
+    virtual Mesh* CreateMesh(const std::string& path) = 0;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) = 0;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) = 0;
 

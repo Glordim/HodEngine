@@ -108,7 +108,8 @@
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="FreeCam.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="GpuHelper.cpp" />
+    <ClCompile Include="GpuDevice.cpp" />
+    <ClCompile Include="GpuDeviceHelper.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -118,6 +119,8 @@
     <ClCompile Include="RendererComponent.cpp" />
     <ClCompile Include="RendererDirectX12.cpp" />
     <ClCompile Include="RendererVulkan.cpp" />
+    <ClCompile Include="RenderQueue.cpp" />
+    <ClCompile Include="RenderQueueHelper.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneComponent.cpp" />
     <ClCompile Include="ScreenHelper.cpp" />
@@ -125,7 +128,9 @@
     <ClCompile Include="StaticMeshComponent.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="VkGpuDevice.cpp" />
     <ClCompile Include="VkMaterial.cpp" />
+    <ClCompile Include="VkMesh.cpp" />
     <ClCompile Include="VkShader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -142,7 +147,8 @@
     <ClInclude Include="Error.h" />
     <ClInclude Include="FreeCam.h" />
     <ClInclude Include="glad\glad.h" />
-    <ClInclude Include="GpuHelper.h" />
+    <ClInclude Include="GpuDevice.h" />
+    <ClInclude Include="GpuDeviceHelper.h" />
     <ClInclude Include="GraphicsSettings.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="KHR\khrplatform.h" />
@@ -151,10 +157,13 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="PointLight.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RendererComponent.h" />
     <ClInclude Include="RendererDirectX12.h" />
     <ClInclude Include="RendererVulkan.h" />
+    <ClInclude Include="RenderQueue.h" />
+    <ClInclude Include="RenderQueueHelper.h" />
     <ClInclude Include="Scene.hpp" />
     <ClInclude Include="SceneComponent.h" />
     <ClInclude Include="ScreenHelper.h" />
@@ -163,7 +172,9 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Tri_3P_3C.h" />
     <ClInclude Include="Vertex_3P_3C.h" />
+    <ClInclude Include="VkGpuDevice.h" />
     <ClInclude Include="VkMaterial.h" />
+    <ClInclude Include="VkMesh.h" />
     <ClInclude Include="VkShader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

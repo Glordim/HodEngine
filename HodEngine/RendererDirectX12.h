@@ -11,12 +11,15 @@ public:
 
     virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
 
-    virtual bool GetPhysicalDeviceList(std::vector<GpuHelper::Device>* availableDevices) const override;
+    virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
 
-    virtual bool BuildPipeline(const GpuHelper::Device& physicalDevice) override;
+    virtual bool BuildPipeline(GpuDevice* gpuDevice) override;
 
-    virtual bool DrawFrame() override;
+    virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
 
+    virtual bool SwapBuffer() override;
+
+    virtual Mesh* CreateMesh(const std::string& path) override;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) override;
 };

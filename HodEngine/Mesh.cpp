@@ -13,15 +13,12 @@
 
 Mesh::Mesh()
 {
-    this->vbo[0] = 0;
-    this->vbo[1] = 0;
-    this->vao = 0;
+
 }
 
 Mesh::~Mesh()
 {
-    glDeleteBuffers(2, &this->vbo[0]);
-    glDeleteVertexArrays(1, &this->vao);
+
 }
 
 bool Mesh::loadObj(const char* path)
@@ -173,57 +170,10 @@ bool Mesh::loadObj(const char* path)
 
     }
 
-    this->buildVao();
-
-    return true;
+    return this->BuildBuffers();
 }
 
-void Mesh::buildVao()
-{
-    if (this->vbo[0] != 0)
-        glDeleteBuffers(2, &this->vbo[0]);
-    if (this->vao != 0)
-        glDeleteVertexArrays(1, &this->vao);
-
-    glGenBuffers(2, &this->vbo[0]);
-    glGenVertexArrays(1, &this->vao);
-    glBindVertexArray(this->vao);
-
-    // Vertex
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
-    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex_3P_3C_3N_2UV_3TA), &this->vertices[0], GL_STATIC_DRAW);
-
-    // Pos
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), 0);
-    glEnableVertexAttribArray(0);
-
-    // Color
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Normal
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    // Uv
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), (void*)(9 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-
-    // Tangent
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_3P_3C_3N_2UV_3TA), (void*)(11 * sizeof(float)));
-    glEnableVertexAttribArray(4);
-
-    // Indice
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo[1]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &this->indices[0], GL_STATIC_DRAW);
-}
-
-unsigned int Mesh::getVao() const
-{
-    return this->vao;
-}
-
-unsigned int Mesh::getIndicesCount() const
+unsigned int Mesh::GetIndiceCount() const
 {
     return this->indices.size();
 }

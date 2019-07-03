@@ -120,17 +120,22 @@ bool RendererDirectX12::Init(SDL_Window* window, bool enableValidationLayers)
     return false;
 }
 
-bool RendererDirectX12::GetPhysicalDeviceList(std::vector<GpuHelper::Device>* availableDevices) const
+bool RendererDirectX12::GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices)
 {
     return false;
 }
 
-bool RendererDirectX12::BuildPipeline(const GpuHelper::Device& physicalDevice)
+bool RendererDirectX12::BuildPipeline(GpuDevice* gpuDevice)
 {
     return false;
 }
 
-bool RendererDirectX12::DrawFrame()
+bool RendererDirectX12::SubmitRenderQueue(RenderQueue& renderQueue)
+{
+    return false;
+}
+
+bool RendererDirectX12::SwapBuffer()
 {
     return false;
 }
@@ -145,3 +150,7 @@ Material* RendererDirectX12::CreateMaterial(Shader* vertexShader, Shader* fragme
     return nullptr;
 }
 
+Mesh* RendererDirectX12::CreateMesh(const std::string& path)
+{
+    return nullptr;
+}
