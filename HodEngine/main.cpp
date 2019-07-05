@@ -72,9 +72,9 @@ int __cdecl _tmain()
     GraphicsSettings graphicsSettings;
     graphicsSettings.api = GraphicsSettings::API::Vulkan;
     graphicsSettings.monitor = selectedMonitor;
-    graphicsSettings.width = nativeResolution.width / 2;
-    graphicsSettings.height = nativeResolution.height / 2;
-    graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::Window;
+    graphicsSettings.width = nativeResolution.width;
+    graphicsSettings.height = nativeResolution.height;
+    graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::FullscreenWindow;
 
     if (application.CreateWindowAndContext("HodEngine", graphicsSettings) == false)
         return 1;

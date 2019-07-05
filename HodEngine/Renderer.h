@@ -30,6 +30,8 @@ public:
 
     virtual bool BuildPipeline(GpuDevice* gpuDevice) = 0;
 
+    virtual bool ResizeSwapChain() = 0;
+
     virtual bool AcquireNextImageIndex() = 0;
     virtual bool SubmitRenderQueue(RenderQueue& renderQueue) = 0;
 

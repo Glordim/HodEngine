@@ -604,6 +604,9 @@ bool RendererVulkan::CreateSwapChain()
         return false;
     }
 
+    if (capabilities.currentExtent.width == 0)
+        return false;
+
     VkExtent2D extent;
 
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
@@ -1003,8 +1006,16 @@ bool RendererVulkan::SubmitRenderQueue(RenderQueue& renderQueue)
     return true;
 }
 
+bool RendererVulkan::ResizeSwapChain()
+{
+    return this->CreateSwapChain();
+}
+
 bool RendererVulkan::AcquireNextImageIndex()
 {
+    if (this->swapChain == nullptr) // For exemple if the window is hidden the size will be 0 and not swap chain are created
+        return false;
+
     if (vkResetFences(this->device, 1, &this->acquireNextImageFence) != VK_SUCCESS)
     {
         fprintf(stderr, "Vulkan: Unable to reset fence!\n");
@@ -1019,12 +1030,12 @@ bool RendererVulkan::AcquireNextImageIndex()
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
             fprintf(stderr, "Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
-            //this->CreateSwapChain();
+            this->ResizeSwapChain();
         }
         else if (result == VK_SUBOPTIMAL_KHR)
         {
             fprintf(stderr, "Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
-            //this->CreateSwapChain();
+            this->ResizeSwapChain();
         }
 
         return false;
@@ -1041,6 +1052,9 @@ bool RendererVulkan::AcquireNextImageIndex()
 
 bool RendererVulkan::SwapBuffer()
 {
+    if (this->swapChain == nullptr) // For exemple if the window is hidden the size will be 0 and not swap chain are created
+        return false;
+
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 0;
@@ -1060,12 +1074,12 @@ bool RendererVulkan::SwapBuffer()
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
             fprintf(stderr, "Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
-            //this->CreateSwapChain();
+            this->ResizeSwapChain();
         }
         else if (result == VK_SUBOPTIMAL_KHR)
         {
             fprintf(stderr, "Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
-            //this->CreateSwapChain();
+            this->ResizeSwapChain();
         }
 
         return false;

@@ -135,6 +135,11 @@ bool RendererDirectX12::SubmitRenderQueue(RenderQueue& renderQueue)
     return false;
 }
 
+bool RendererDirectX12::ResizeSwapChain()
+{
+    return false;
+}
+
 bool RendererDirectX12::AcquireNextImageIndex()
 {
     return false;

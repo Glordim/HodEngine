@@ -27,6 +27,8 @@ public:
 
     virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
 
+    virtual bool ResizeSwapChain() override;
+
     virtual bool AcquireNextImageIndex() override;
     virtual bool SwapBuffer() override;
 
