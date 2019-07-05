@@ -12,6 +12,7 @@ struct GpuDevice;
 class RenderQueue;
 class Mesh;
 class Material;
+class MaterialInstance;
 class Texture;
 
 class Renderer
@@ -29,6 +30,7 @@ public:
 
     virtual bool BuildPipeline(GpuDevice* gpuDevice) = 0;
 
+    virtual bool AcquireNextImageIndex() = 0;
     virtual bool SubmitRenderQueue(RenderQueue& renderQueue) = 0;
 
     virtual bool SwapBuffer() = 0;
@@ -36,6 +38,7 @@ public:
     virtual Mesh* CreateMesh(const std::string& path) = 0;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) = 0;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) = 0;
+    virtual MaterialInstance* CreateMaterialInstance(Material* material) = 0;
 
 private:
     static Renderer* instance;

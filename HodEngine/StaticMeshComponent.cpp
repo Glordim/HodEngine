@@ -33,18 +33,20 @@ Mesh* StaticMeshComponent::GetMesh() const
     return this->mesh;
 }
 
-void StaticMeshComponent::setMaterial(Material* material)
+void StaticMeshComponent::setMaterialInstance(MaterialInstance* materialInstance)
 {
-    this->material = material;
+    this->materialInstance = materialInstance;
 }
 
-Material* StaticMeshComponent::GetMaterial() const
+MaterialInstance* StaticMeshComponent::GetMaterialInstance() const
 {
-    return this->material;
+    return this->materialInstance;
 }
 
 void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightComponent*>& allLight)
 {
+    /*
+
     SceneComponent* sceneComponent = this->getActor()->getComponent<SceneComponent>();
 
     this->material->use();
@@ -73,4 +75,6 @@ void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightCompone
 
     //glBindVertexArray(this->mesh->getVao());
     //glDrawElements(GL_TRIANGLES, this->mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
+
+    */
 }

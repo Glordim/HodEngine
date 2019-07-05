@@ -130,6 +130,12 @@
     <ClCompile Include="VkGpuDevice.cpp">
       <Filter>Renderer\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialInstance.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="VkMaterialInstance.cpp">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraComponent.h">
@@ -248,6 +254,12 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="VkGpuDevice.h">
+      <Filter>Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialInstance.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="VkMaterialInstance.h">
       <Filter>Renderer\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

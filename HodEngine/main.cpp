@@ -72,9 +72,9 @@ int __cdecl _tmain()
     GraphicsSettings graphicsSettings;
     graphicsSettings.api = GraphicsSettings::API::Vulkan;
     graphicsSettings.monitor = selectedMonitor;
-    graphicsSettings.width = nativeResolution.width;
-    graphicsSettings.height = nativeResolution.height;
-    graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::FullscreenWindow;
+    graphicsSettings.width = nativeResolution.width / 2;
+    graphicsSettings.height = nativeResolution.height / 2;
+    graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::Window;
 
     if (application.CreateWindowAndContext("HodEngine", graphicsSettings) == false)
         return 1;
@@ -93,6 +93,7 @@ int __cdecl _tmain()
     Shader* fragmentShader = renderer->CreateShader("Shader/UnlitVertexColor.frag.vulk", Shader::ShaderType::Fragment);
 
     Material* mat = renderer->CreateMaterial(vertexShader, fragmentShader);
+    MaterialInstance* matInstance = renderer->CreateMaterialInstance(mat);
 
     Mesh* mesh = renderer->CreateMesh("Gizmos/sphere.obj");
 
@@ -117,7 +118,7 @@ int __cdecl _tmain()
 
         StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<StaticMeshComponent>();
         staticMeshComponent->setMesh(mesh);
-        staticMeshComponent->setMaterial(mat);
+        staticMeshComponent->setMaterialInstance(matInstance);
 
         ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
         colliderComponent->setShape(ColliderComponent::Shape::Sphere);

@@ -4,7 +4,7 @@
 #include "RendererComponent.h"
 
 class Mesh;
-class Material;
+class MaterialInstance;
 
 class StaticMeshComponent : public RendererComponent
 {
@@ -23,12 +23,12 @@ public:
     void setMesh(Mesh* mesh);
     Mesh* GetMesh() const;
 
-    void setMaterial(Material* material);
-    Material* GetMaterial() const;
+    void setMaterialInstance(MaterialInstance* materialInstance);
+    MaterialInstance* GetMaterialInstance() const;
 
 private:
     Mesh* mesh;
-    Material* material;
+    MaterialInstance* materialInstance;
 };
 
 #endif

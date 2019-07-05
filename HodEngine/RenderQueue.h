@@ -3,10 +3,11 @@
 
 #include <vector>
 
-#include "Material.h"
 #include "Mesh.h"
 #include "PointLight.h"
 #include "glm/mat4x4.hpp"
+
+class MaterialInstance;
 
 class RenderQueue
 {
@@ -21,16 +22,16 @@ public:
 
     struct MeshData
     {
-        MeshData(Mesh* mesh, Material* material, glm::mat4x4 matrix)
+        MeshData(Mesh* mesh, MaterialInstance* materialInstance, glm::mat4x4 matrix)
             : mesh(mesh)
-            , material(material)
+            , materialInstance(materialInstance)
             , matrix(matrix)
         {
 
         }
 
         Mesh* mesh;
-        Material* material;
+        MaterialInstance* materialInstance;
         glm::mat4x4 matrix;
     };
 
@@ -58,7 +59,7 @@ public:
 
     void SetClearFlag(int clearFlags);
 
-    void AddMesh(Mesh* mesh, Material* material, glm::mat4x4 matrix);
+    void AddMesh(Mesh* mesh, MaterialInstance* materialInstance, glm::mat4x4 matrix);
 
     void AddPointLight(PointLight* pointLight, glm::mat4x4 matrix);
     //void AddDirectionnalLight(const DirectionnalLight dirLight);

@@ -33,9 +33,9 @@ void RenderQueue::SetClearFlag(int clearFlags)
 
 }
 
-void RenderQueue::AddMesh(Mesh* mesh, Material* material, glm::mat4x4 matrix)
+void RenderQueue::AddMesh(Mesh* mesh, MaterialInstance* materialInstance, glm::mat4x4 matrix)
 {
-    this->meshList.push_back(MeshData(mesh, material, matrix));
+    this->meshList.push_back(MeshData(mesh, materialInstance, matrix));
 }
 
 void RenderQueue::AddPointLight(PointLight* pointLight, glm::mat4x4 matrix)

@@ -21,21 +21,25 @@ public:
 
     bool CreateDevice();
     bool CreateSwapChain();
+    void DestroySwapChain();
     bool CreateCommandPool();
     bool CreateSemaphores();
 
     virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
 
+    virtual bool AcquireNextImageIndex() override;
     virtual bool SwapBuffer() override;
 
     virtual Mesh* CreateMesh(const std::string& path) override;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) override;
+    virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
 
     VkInstance GetVkInstance() const;
     VkDevice GetVkDevice() const;
     VkRenderPass GetRenderPass() const;
     VkExtent2D GetSwapChainExtent() const;
+    VkDescriptorPool GetDescriptorPool() const;
 
     bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
 
@@ -62,13 +66,17 @@ private:
     std::vector<VkFramebuffer> swapChainFramebuffers;
     VkRenderPass renderPass;
     VkCommandPool commandPool;
+    VkDescriptorPool descriptorPool;
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
+    VkFence acquireNextImageFence;
 
     VkGpuDevice* selectedGpu;
     std::vector<VkGpuDevice> availableGpu;
 
     VkExtent2D swapChainExtent;
+
+    uint32_t currentImageIndex;
 };
 
 #endif

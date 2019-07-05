@@ -5,14 +5,6 @@
 
 #include <vulkan.h>
 
-struct UniformBufferObject
-{
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
-    glm::mat4 mvp;
-};
-
 class VkMaterial : public Material
 {
 public:
@@ -23,16 +15,13 @@ public:
     virtual bool Build(Shader* vertexShader, Shader* fragmentShader) override;
 
     VkPipeline GetGraphicsPipeline() const;
-
-    void UpdateUbo(UniformBufferObject ubo);
+    VkPipelineLayout GetPipelineLayout() const;
+    VkDescriptorSetLayout GetDescriptorLayout() const;
 
 private:
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
     VkDescriptorSetLayout descriptorSetLayout;
-
-    VkBuffer uniformBuffer;
-    VkDeviceMemory uniformBufferMemory;
 };
 
 #endif

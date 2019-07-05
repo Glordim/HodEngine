@@ -135,6 +135,11 @@ bool RendererDirectX12::SubmitRenderQueue(RenderQueue& renderQueue)
     return false;
 }
 
+bool RendererDirectX12::AcquireNextImageIndex()
+{
+    return false;
+}
+
 bool RendererDirectX12::SwapBuffer()
 {
     return false;
@@ -146,6 +151,11 @@ Shader* RendererDirectX12::CreateShader(const std::string& path, Shader::ShaderT
 }
 
 Material* RendererDirectX12::CreateMaterial(Shader* vertexShader, Shader* fragmentShader)
+{
+    return nullptr;
+}
+
+MaterialInstance* RendererDirectX12::CreateMaterialInstance(Material* material)
 {
     return nullptr;
 }

@@ -9,9 +9,11 @@
 //#include "VkTexture.h"
 #include "VkShader.h"
 #include "VkMaterial.h"
+#include "VkMaterialInstance.h"
 
 RendererVulkan::RendererVulkan()
 {
+    this->currentImageIndex = 0;
     this->selectedGpu = nullptr;
     this->instance = VK_NULL_HANDLE;
     this->surface = VK_NULL_HANDLE;
@@ -21,8 +23,10 @@ RendererVulkan::RendererVulkan()
     this->swapChain = VK_NULL_HANDLE;
     this->renderPass = VK_NULL_HANDLE;
     this->commandPool = VK_NULL_HANDLE;
+    this->descriptorPool = VK_NULL_HANDLE;
     this->imageAvailableSemaphore = VK_NULL_HANDLE;
     this->renderFinishedSemaphore = VK_NULL_HANDLE;
+    this->acquireNextImageFence = VK_NULL_HANDLE;
 }
 
 RendererVulkan::~RendererVulkan()
@@ -33,32 +37,22 @@ RendererVulkan::~RendererVulkan()
             fprintf(stderr, "Vulkan: DeviceWaitIdel failed!\n");
     }
 
+    if (this->acquireNextImageFence != VK_NULL_HANDLE)
+        vkDestroyFence(this->device, this->acquireNextImageFence, nullptr);
+
     if (this->imageAvailableSemaphore != VK_NULL_HANDLE)
         vkDestroySemaphore(this->device, this->imageAvailableSemaphore, nullptr);
 
     if (this->renderFinishedSemaphore != VK_NULL_HANDLE)
         vkDestroySemaphore(this->device, this->renderFinishedSemaphore, nullptr);
 
+    if (this->descriptorPool != VK_NULL_HANDLE)
+        vkDestroyDescriptorPool(this->device, this->descriptorPool, nullptr);
+
     if (this->commandPool != VK_NULL_HANDLE)
         vkDestroyCommandPool(this->device, this->commandPool, nullptr);
 
-    size_t swapChainFramebufferCount = this->swapChainFramebuffers.size();
-    for (int i = 0; i < swapChainFramebufferCount; ++i)
-    {
-        vkDestroyFramebuffer(this->device, this->swapChainFramebuffers[i], nullptr);
-    }
-
-    size_t swapChainImageViewCount = this->swapChainImageViews.size();
-    for (int i = 0; i < swapChainImageViewCount; ++i)
-    {
-        vkDestroyImageView(this->device, this->swapChainImageViews[i], nullptr);
-    }
-
-    if (this->renderPass != VK_NULL_HANDLE)
-        vkDestroyRenderPass(this->device, this->renderPass, nullptr);
-
-    if (this->swapChain != VK_NULL_HANDLE)
-        vkDestroySwapchainKHR(this->device, this->swapChain, nullptr);
+    this->DestroySwapChain();
 
     if (this->device != VK_NULL_HANDLE)
         vkDestroyDevice(this->device, nullptr);
@@ -68,6 +62,35 @@ RendererVulkan::~RendererVulkan()
 
     if (this->instance != VK_NULL_HANDLE)
         vkDestroyInstance(this->instance, nullptr);
+}
+
+void RendererVulkan::DestroySwapChain()
+{
+    size_t swapChainFramebufferCount = this->swapChainFramebuffers.size();
+    for (int i = 0; i < swapChainFramebufferCount; ++i)
+    {
+        vkDestroyFramebuffer(this->device, this->swapChainFramebuffers[i], nullptr);
+    }
+    this->swapChainFramebuffers.clear();
+
+    size_t swapChainImageViewCount = this->swapChainImageViews.size();
+    for (int i = 0; i < swapChainImageViewCount; ++i)
+    {
+        vkDestroyImageView(this->device, this->swapChainImageViews[i], nullptr);
+    }
+    this->swapChainImageViews.clear();
+
+    if (this->renderPass != VK_NULL_HANDLE)
+    {
+        vkDestroyRenderPass(this->device, this->renderPass, nullptr);
+        this->renderPass = VK_NULL_HANDLE;
+    }
+
+    if (this->swapChain != VK_NULL_HANDLE)
+    {
+        vkDestroySwapchainKHR(this->device, this->swapChain, nullptr);
+        this->swapChain = VK_NULL_HANDLE;
+    }
 }
 
 VkInstance RendererVulkan::GetVkInstance() const
@@ -88,6 +111,11 @@ VkRenderPass RendererVulkan::GetRenderPass() const
 VkExtent2D RendererVulkan::GetSwapChainExtent() const
 {
     return this->swapChainExtent;
+}
+
+VkDescriptorPool RendererVulkan::GetDescriptorPool() const
+{
+    return this->descriptorPool;
 }
 
 bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
@@ -250,6 +278,8 @@ bool RendererVulkan::GetExtensionRequiredBySDL(SDL_Window* window, std::vector<c
         fprintf(stderr, "Vulkan: Unable to get Extensions required by SDL: %s\n", SDL_GetError());
         return false;
     }
+
+    return true;
 }
 
 bool RendererVulkan::CheckExtensionsIsAvailable(const std::vector<const char*>& extensions, const std::vector<VkExtensionProperties>& availableExtensions)
@@ -560,38 +590,9 @@ bool RendererVulkan::CreateDevice()
 
 bool RendererVulkan::CreateSwapChain()
 {
-    // Render pass
-    VkAttachmentDescription colorAttachment = {};
-    colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    vkDeviceWaitIdle(this->device);
 
-    VkAttachmentReference colorAttachmentRef = {};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-
-    VkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments = &colorAttachment;
-    renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
-
-    if (vkCreateRenderPass(this->device, &renderPassInfo, nullptr, &this->renderPass) != VK_SUCCESS)
-    {
-        fprintf(stderr, "Vulkan: Unable to create render pass!\n");
-        return false;
-    }
+    this->DestroySwapChain();
 
     VkSurfaceCapabilitiesKHR capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
@@ -656,6 +657,40 @@ bool RendererVulkan::CreateSwapChain()
         return false;
     }
 
+    // Render pass
+    VkAttachmentDescription colorAttachment = {};
+    colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentRef = {};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+
+    VkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    if (vkCreateRenderPass(this->device, &renderPassInfo, nullptr, &this->renderPass) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to create render pass!\n");
+        return false;
+    }
+
+    // Image views
     vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
 
     std::vector<VkImage> swapChainImages(imageCount);
@@ -686,6 +721,7 @@ bool RendererVulkan::CreateSwapChain()
         }
     }
 
+    // Framebuffers
     this->swapChainFramebuffers.resize(imageCount);
     for (size_t i = 0; i < imageCount; i++)
     {
@@ -695,7 +731,7 @@ bool RendererVulkan::CreateSwapChain()
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = renderPass;
+        framebufferInfo.renderPass = this->renderPass;
         framebufferInfo.attachmentCount = 1;
         framebufferInfo.pAttachments = attachments;
         framebufferInfo.width = swapChainExtent.width;
@@ -725,6 +761,22 @@ bool RendererVulkan::CreateCommandPool()
         return false;
     }
 
+    VkDescriptorPoolSize poolSize = {};
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = 15; // TODO
+
+    VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
+    descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolInfo.poolSizeCount = 1;
+    descriptorPoolInfo.pPoolSizes = &poolSize;
+    descriptorPoolInfo.maxSets = 15; // TODO
+
+    if (vkCreateDescriptorPool(this->device, &descriptorPoolInfo, nullptr, &this->descriptorPool) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to create descriptor pool!\n");
+        return false;
+    }
+
     return true;
 }
 
@@ -742,6 +794,17 @@ bool RendererVulkan::CreateSemaphores()
     if (vkCreateSemaphore(this->device, &semaphoreInfo, nullptr, &this->renderFinishedSemaphore) != VK_SUCCESS)
     {
         fprintf(stderr, "Vulkan: Unable to create semaphores!\n");
+        return false;
+    }
+
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = 0;
+    fenceCreateInfo.pNext = nullptr;
+
+    if (vkCreateFence(this->device, &fenceCreateInfo, nullptr, &this->acquireNextImageFence) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to create fence!\n");
         return false;
     }
 
@@ -836,7 +899,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderPass;
-    renderPassInfo.framebuffer = this->swapChainFramebuffers[0];
+    renderPassInfo.framebuffer = this->swapChainFramebuffers[this->currentImageIndex];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = swapChainExtent;
     renderPassInfo.clearValueCount = 1;
@@ -851,7 +914,8 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     {
         RenderQueue::MeshData& meshData = meshDatas[i];
 
-        VkMaterial* material = (VkMaterial*)meshData.material;
+        VkMaterialInstance* materialInstance = (VkMaterialInstance*)meshData.materialInstance;
+        VkMaterial* material = materialInstance->GetMaterial();
 
         UniformBufferObject ubo;
         ubo.model = meshData.matrix;
@@ -859,9 +923,12 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         ubo.proj = renderQueue.GetProjMatrix();
         ubo.mvp = ubo.proj * ubo.view * ubo.model;
 
-        material->UpdateUbo(ubo);
+        materialInstance->UpdateUbo(ubo);
+
+        VkDescriptorSet descriptorSet = materialInstance->GetDescriptorSet();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
 
         VkMesh* mesh = (VkMesh*)meshData.mesh;
         VkBuffer vertexBuffer = mesh->GetVertexBuffer();
@@ -936,17 +1003,44 @@ bool RendererVulkan::SubmitRenderQueue(RenderQueue& renderQueue)
     return true;
 }
 
-bool RendererVulkan::SwapBuffer()
+bool RendererVulkan::AcquireNextImageIndex()
 {
-    uint32_t imageIndex = 0;
-    if (vkAcquireNextImageKHR(this->device, this->swapChain, std::numeric_limits<uint64_t>::max(), this->imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex) != VK_SUCCESS)
+    if (vkResetFences(this->device, 1, &this->acquireNextImageFence) != VK_SUCCESS)
     {
-        fprintf(stderr, "Vulkan: Unable to acquire next image!\n");
+        fprintf(stderr, "Vulkan: Unable to reset fence!\n");
         return false;
     }
 
-    imageIndex = 0;
+    VkResult result = vkAcquireNextImageKHR(this->device, this->swapChain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, this->acquireNextImageFence, &this->currentImageIndex);
+    if (result != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to acquire next image!\n");
 
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            fprintf(stderr, "Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
+            //this->CreateSwapChain();
+        }
+        else if (result == VK_SUBOPTIMAL_KHR)
+        {
+            fprintf(stderr, "Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
+            //this->CreateSwapChain();
+        }
+
+        return false;
+    }
+
+    if (vkWaitForFences(this->device, 1, &this->acquireNextImageFence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Unable to wait fence\n");
+        return false;
+    }
+
+    return true;
+}
+
+bool RendererVulkan::SwapBuffer()
+{
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 0;
@@ -955,12 +1049,25 @@ bool RendererVulkan::SwapBuffer()
     VkSwapchainKHR swapChains[] = { this->swapChain };
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pImageIndices = &this->currentImageIndex;
     presentInfo.pResults = nullptr;
 
-    if (vkQueuePresentKHR(this->presentQueue, &presentInfo) != VK_SUCCESS)
+    VkResult result = vkQueuePresentKHR(this->presentQueue, &presentInfo);
+    if (result != VK_SUCCESS)
     {
         fprintf(stderr, "Vulkan: Unable to present frame!\n");
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            fprintf(stderr, "Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
+            //this->CreateSwapChain();
+        }
+        else if (result == VK_SUBOPTIMAL_KHR)
+        {
+            fprintf(stderr, "Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
+            //this->CreateSwapChain();
+        }
+
         return false;
     }
 
@@ -991,6 +1098,19 @@ Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentS
     }
 
     return mat;
+}
+
+MaterialInstance* RendererVulkan::CreateMaterialInstance(Material* material)
+{
+    VkMaterialInstance* materialInstance = new VkMaterialInstance();
+
+    if (materialInstance->SetMaterial(material) == false)
+    {
+        delete materialInstance;
+        return nullptr;
+    }
+
+    return materialInstance;
 }
 
 Mesh* RendererVulkan::CreateMesh(const std::string& path)

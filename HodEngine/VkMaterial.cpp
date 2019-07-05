@@ -10,19 +10,11 @@ VkMaterial::VkMaterial() : Material()
     this->graphicsPipeline = VK_NULL_HANDLE;
     this->pipelineLayout = VK_NULL_HANDLE;
     this->descriptorSetLayout = VK_NULL_HANDLE;
-
-    this->uniformBuffer = VK_NULL_HANDLE;
-    this->uniformBufferMemory = VK_NULL_HANDLE;
 }
 
 VkMaterial::~VkMaterial()
 {
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-    if (this->uniformBuffer != VK_NULL_HANDLE)
-        vkDestroyBuffer(renderer->GetVkDevice(), this->uniformBuffer, nullptr);
-    if (this->uniformBufferMemory != VK_NULL_HANDLE)
-        vkFreeMemory(renderer->GetVkDevice(), this->uniformBufferMemory, nullptr);
 
     if (this->descriptorSetLayout != VK_NULL_HANDLE)
         vkDestroyDescriptorSetLayout(renderer->GetVkDevice(), this->descriptorSetLayout, nullptr);
@@ -241,13 +233,6 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader)
         return false;
     }
 
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-    if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->uniformBuffer, &this->uniformBufferMemory) == false)
-    {
-        return false;
-    }
-
     return true;
 }
 
@@ -256,19 +241,12 @@ VkPipeline VkMaterial::GetGraphicsPipeline() const
     return this->graphicsPipeline;
 }
 
-void VkMaterial::UpdateUbo(UniformBufferObject ubo)
+VkPipelineLayout VkMaterial::GetPipelineLayout() const
 {
-    RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+    return this->pipelineLayout;
+}
 
-    void* data = nullptr;
-
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-    if (vkMapMemory(renderer->GetVkDevice(), this->uniformBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
-    {
-        fprintf(stderr, "Vulkan: Unable to map ubo buffer memory!\n");
-        return;
-    }
-    memcpy(data, &ubo, (size_t)bufferSize);
-    vkUnmapMemory(renderer->GetVkDevice(), this->uniformBufferMemory);
+VkDescriptorSetLayout VkMaterial::GetDescriptorLayout() const
+{
+    return this->descriptorSetLayout;
 }

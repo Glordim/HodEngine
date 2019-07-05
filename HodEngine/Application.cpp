@@ -71,6 +71,8 @@ bool Application::CreateWindowAndContext(const std::string& name, const Graphics
     if (graphicsSettings.api == GraphicsSettings::API::Vulkan)
         flags |= SDL_WINDOW_VULKAN;
 
+    flags |= SDL_WINDOW_RESIZABLE;
+
     this->window = SDL_CreateWindow("Toto",
         SDL_WINDOWPOS_CENTERED_DISPLAY((int)graphicsSettings.monitor),
         SDL_WINDOWPOS_CENTERED_DISPLAY((int)graphicsSettings.monitor),
@@ -138,6 +140,8 @@ bool Application::Run(Scene* scene)
 
             if (event.type == SDL_QUIT)
                 shouldExit = true;
+            else if (event.type == SDL_WINDOWEVENT_SIZE_CHANGED)
+                fprintf(stdout, "Bordel");
             else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
                 this->inputListener.injectKeyInput(event.key.keysym.sym, event.key.keysym.scancode, event.key.state, event.key.keysym.mod);
             else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
@@ -181,19 +185,26 @@ bool Application::Run(Scene* scene)
         }
         */
 
-        std::vector<CameraComponent*> cameras = scene->getRoot()->getActor()->getAllComponent<CameraComponent>();
-
-        size_t cameraCount = cameras.size();
-        for (size_t i = 0; i < cameraCount; ++i)
+        if (this->renderer->AcquireNextImageIndex() == true)
         {
-            cameras[i]->render(*scene);
+            std::vector<CameraComponent*> cameras = scene->getRoot()->getActor()->getAllComponent<CameraComponent>();
+
+            size_t cameraCount = cameras.size();
+            for (size_t i = 0; i < cameraCount; ++i)
+            {
+                cameras[i]->render(*scene);
+            }
+
+            this->renderer->SwapBuffer();
         }
+
+        
 
         //scene->drawDebugPhysics(cameraComponent, dt);
 
         //TwDraw();
 
-        this->renderer->SwapBuffer();
+        
     }
 
     return true;

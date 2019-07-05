@@ -20,7 +20,7 @@ void RenderQueueHelper::AddSceneComponent(RenderQueue& renderQueue, SceneCompone
         StaticMeshComponent* staticMeshComponent = child->getActor()->getComponent<StaticMeshComponent>();
         if (staticMeshComponent != nullptr)
         {
-            renderQueue.AddMesh(staticMeshComponent->GetMesh(), staticMeshComponent->GetMaterial(), child->getModelMatrix());
+            renderQueue.AddMesh(staticMeshComponent->GetMesh(), staticMeshComponent->GetMaterialInstance(), child->getModelMatrix());
         }
 
         LightComponent* lightComponent = child->getActor()->getComponent<LightComponent>();

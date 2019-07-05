@@ -17,11 +17,13 @@ public:
 
     virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
 
+    virtual bool AcquireNextImageIndex() override;
     virtual bool SwapBuffer() override;
 
     virtual Mesh* CreateMesh(const std::string& path) override;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) override;
+    virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
 };
 
 #endif
