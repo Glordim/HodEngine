@@ -33,8 +33,6 @@ void RenderQueueHelper::AddSceneComponent(RenderQueue& renderQueue, SceneCompone
 
 void RenderQueueHelper::AddScenePhysicsDebug(RenderQueue& renderQueue, Scene* scene)
 {
-    MaterialInstance* unlitVertexColor = nullptr;
-
     physx::PxScene* pxScene = scene->GetPxScene();
 
     const physx::PxRenderBuffer& rb = pxScene->getRenderBuffer();
@@ -66,7 +64,7 @@ void RenderQueueHelper::AddScenePhysicsDebug(RenderQueue& renderQueue, Scene* sc
             line.vertices[1].color[2] = (pxLine.color1 & 0x000000FF) >> 0;
         }
 
-        renderQueue.AddLines(lines, unlitVertexColor, glm::identity<glm::mat4x4>());
+        renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
     }
 
     physx::PxU32 triCount = rb.getNbTriangles();
@@ -105,6 +103,6 @@ void RenderQueueHelper::AddScenePhysicsDebug(RenderQueue& renderQueue, Scene* sc
             tri.vertices[2].color[2] = (pxTri.color2 & 0x000000FF) >> 0;
         }
 
-        renderQueue.AddTriangles(tris, unlitVertexColor, glm::identity<glm::mat4x4>());
+        renderQueue.AddTriangles(tris, nullptr, glm::identity<glm::mat4x4>());
     }
 }

@@ -7,11 +7,11 @@ struct SDL_Window;
 #include <vector>
 
 #include "Shader.h"
+#include "Material.h"
 
 struct GpuDevice;
 class RenderQueue;
 class Mesh;
-class Material;
 class MaterialInstance;
 class Texture;
 
@@ -39,7 +39,7 @@ public:
 
     virtual Mesh* CreateMesh(const std::string& path) = 0;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) = 0;
-    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) = 0;
+    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE) = 0;
     virtual MaterialInstance* CreateMaterialInstance(Material* material) = 0;
 
 private:

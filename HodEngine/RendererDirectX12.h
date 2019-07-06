@@ -24,7 +24,7 @@ public:
 
     virtual Mesh* CreateMesh(const std::string& path) override;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
-    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader) override;
+    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE) override;
     virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
 };
 
