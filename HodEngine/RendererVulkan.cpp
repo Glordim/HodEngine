@@ -897,14 +897,14 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         return false;
     }
 
-    VkClearValue clearColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+    VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderPass;
     renderPassInfo.framebuffer = this->swapChainFramebuffers[this->currentImageIndex];
     renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = swapChainExtent;
+    renderPassInfo.renderArea.extent = this->swapChainExtent;
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
@@ -942,6 +942,81 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         vkCmdBindIndexBuffer(*commandBuffer, indiceBuffer, 0, VK_INDEX_TYPE_UINT16);
 
         vkCmdDrawIndexed(*commandBuffer, static_cast<uint32_t>(mesh->GetIndiceCount()), 1, 0, 0, 0);
+    }
+
+    std::vector<RenderQueue::LineData> lineDatas = renderQueue.GetLineDatas();
+
+    size_t lineCount = lineDatas.size();
+    for (size_t i = 0; i < lineCount; ++i)
+    {
+        RenderQueue::LineData& lineData = lineDatas[i];
+
+        VkMaterialInstance* materialInstance = (VkMaterialInstance*)lineData.materialInstance;
+        VkMaterial* material = materialInstance->GetMaterial();
+
+        UniformBufferObject ubo;
+        ubo.model = lineData.matrix;
+        ubo.view = renderQueue.GetViewMatrix();
+        ubo.proj = renderQueue.GetProjMatrix();
+        ubo.mvp = ubo.proj * ubo.view * ubo.model;
+
+        materialInstance->UpdateUbo(ubo);
+
+        VkDescriptorSet descriptorSet = materialInstance->GetDescriptorSet();
+
+        vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
+
+        VkBuffer buffer;
+        VkDeviceMemory bufferMemory;
+        VkDeviceSize bufferSize = sizeof(lineData.lines[0]) * lineData.lines.size();
+        VkDeviceSize offsets[] = { 0 };
+
+        this->CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer, &bufferMemory);
+
+        void* data = nullptr;
+
+        if (vkMapMemory(this->device, bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+        {
+            fprintf(stderr, "Vulkan: Unable to map vertex buffer memory!\n");
+            return false;
+        }
+        memcpy(data, lineData.lines.data(), (size_t)bufferSize);
+        vkUnmapMemory(this->device, bufferMemory);
+
+        vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &buffer, offsets);
+        vkCmdDraw(*commandBuffer, lineData.lines.size(), 1, 0, 0);
+
+        vkFreeMemory(this->device, bufferMemory, nullptr);
+        vkDestroyBuffer(this->device, buffer, nullptr);
+    }
+
+    std::vector<RenderQueue::TriangleData> triangleDatas = renderQueue.GetTriangleDatas();
+
+    size_t triangleCount = triangleDatas.size();
+    for (size_t i = 0; i < triangleCount; ++i)
+    {
+        /*
+        RenderQueue::TriangleData& triangleData = triangleDatas[i];
+
+        VkMaterialInstance* materialInstance = (VkMaterialInstance*)triangleData.materialInstance;
+        VkMaterial* material = materialInstance->GetMaterial();
+
+        UniformBufferObject ubo;
+        ubo.model = triangleData.matrix;
+        ubo.view = renderQueue.GetViewMatrix();
+        ubo.proj = renderQueue.GetProjMatrix();
+        ubo.mvp = ubo.proj * ubo.view * ubo.model;
+
+        materialInstance->UpdateUbo(ubo);
+
+        VkDescriptorSet descriptorSet = materialInstance->GetDescriptorSet();
+
+        vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
+
+        vkCmdDraw(*commandBuffer, triangleData.triangles.size(), 1, 0, 0);
+        */
     }
 
     vkCmdEndRenderPass(*commandBuffer);
@@ -1105,7 +1180,7 @@ Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentS
 {
     VkMaterial* mat = new VkMaterial();
 
-    if (mat->Build(vertexShader, fragmentShader) == false)
+    if (mat->Build(vertexShader, fragmentShader, Material::Topololy::TRIANGLE) == false)
     {
         delete mat;
         return nullptr;

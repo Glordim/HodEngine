@@ -51,6 +51,8 @@
 
 #include "Renderer.h"
 
+InputListener inputListener;
+
 int __cdecl _tmain()
 {
     Application application;
@@ -106,7 +108,7 @@ int __cdecl _tmain()
         sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         sceneComponent->setParent(scene->getRoot());
 
-        //freeCam->setupInputListener(&inputListener);
+        freeCam->setupInputListener(application.GetInputListenner());
     }
 
     Actor* sphereActor = scene->spawnActor<Actor>("Sphere");

@@ -198,10 +198,6 @@ bool Application::Run(Scene* scene)
             this->renderer->SwapBuffer();
         }
 
-        
-
-        //scene->drawDebugPhysics(cameraComponent, dt);
-
         //TwDraw();
 
         
@@ -210,3 +206,7 @@ bool Application::Run(Scene* scene)
     return true;
 }
 
+InputListener* Application::GetInputListenner()
+{
+    return &this->inputListener;
+}

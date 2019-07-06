@@ -40,6 +40,8 @@ public:
     void setAmbiantColor(Color& color);
     SceneComponent* getRoot() const;
 
+    physx::PxScene* GetPxScene() const;
+
     physx::PxMaterial* getDefaultMaterial() const;
 
 private:

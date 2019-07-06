@@ -43,6 +43,11 @@ Scene::~Scene()
     this->pxDefaultMaterial->release();
 }
 
+physx::PxScene* Scene::GetPxScene() const
+{
+    return this->pxScene;
+}
+
 physx::PxMaterial* Scene::getDefaultMaterial() const
 {
     return this->pxDefaultMaterial;

@@ -26,7 +26,7 @@ protected:
     virtual bool BuildBuffers() = 0;
 
 protected:
-    std::vector<unsigned int> indices;
+    std::vector<uint16_t> indices;
     std::vector<Vertex_3P_3C_3N_2UV_3TA> vertices;
 };
 

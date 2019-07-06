@@ -21,6 +21,9 @@ public:
     bool Init();
     bool CreateWindowAndContext(const std::string& name, const GraphicsSettings& graphicsSettings);
     bool Run(Scene* scene);
+
+    InputListener* GetInputListenner();
+
 private:
     SDL_Window* window;
     Renderer* renderer;

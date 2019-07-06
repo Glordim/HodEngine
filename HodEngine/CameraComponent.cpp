@@ -64,6 +64,7 @@ void CameraComponent::render(Scene& scene)
     renderQueue.SetClearFlag(RenderQueue::ClearFlag::COLOR | RenderQueue::ClearFlag::DEPTH);
 
     RenderQueueHelper::AddSceneComponent(renderQueue, scene.getRoot(), true);
+    //RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
 
     Renderer* renderer = Renderer::GetInstance();
     renderer->SubmitRenderQueue(renderQueue);

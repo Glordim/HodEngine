@@ -26,7 +26,7 @@ VkMaterial::~VkMaterial()
         vkDestroyPipeline(renderer->GetVkDevice(), this->graphicsPipeline, nullptr);
 }
 
-bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader)
+bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy)
 {
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -92,7 +92,14 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader)
     // Input assembly
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    if (topololy == Topololy::TRIANGLE)
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    else if (topololy == Topololy::LINE)
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    else if (topololy == Topololy::POINT)
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    else
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     // Viewports and scissors
@@ -125,7 +132,7 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader)
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE; //VK_FRONT_FACE_COUNTER_CLOCKWISE
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0f; // Optional
     rasterizer.depthBiasClamp = 0.0f; // Optional
@@ -220,7 +227,7 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader)
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pDepthStencilState = nullptr; // Optional
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.pDynamicState = nullptr; // Optional
+    pipelineInfo.pDynamicState = nullptr;//&dynamicState; // nullptr; // Optional
     pipelineInfo.layout = this->pipelineLayout;
     pipelineInfo.renderPass = renderer->GetRenderPass();
     pipelineInfo.subpass = 0;

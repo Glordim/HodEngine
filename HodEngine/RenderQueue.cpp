@@ -38,6 +38,16 @@ void RenderQueue::AddMesh(Mesh* mesh, MaterialInstance* materialInstance, glm::m
     this->meshList.push_back(MeshData(mesh, materialInstance, matrix));
 }
 
+void RenderQueue::AddLines(std::vector<Line_3P_3C> lines, MaterialInstance* materialInstance, glm::mat4x4 matrix)
+{
+    this->lineList.push_back(LineData(lines, materialInstance, matrix));
+}
+
+void RenderQueue::AddTriangles(std::vector<Tri_3P_3C> tris, MaterialInstance* materialInstance, glm::mat4x4 matrix)
+{
+    this->triangleList.push_back(TriangleData(tris, materialInstance, matrix));
+}
+
 void RenderQueue::AddPointLight(PointLight* pointLight, glm::mat4x4 matrix)
 {
     this->pointLightList.push_back(PointLightData(pointLight, matrix));

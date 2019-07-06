@@ -14,10 +14,17 @@ class Texture;
 class Material
 {
 public:
+    enum Topololy
+    {
+        POINT,
+        LINE,
+        TRIANGLE
+    };
+
     Material();
     virtual ~Material();
 
-    virtual bool Build(Shader* vertexShader, Shader* fragmentShader) = 0;
+    virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE) = 0;
 
     bool link(Shader* vertexShader, Shader* fragmentShader);
     void use();

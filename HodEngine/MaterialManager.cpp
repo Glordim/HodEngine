@@ -53,12 +53,9 @@ Material* MaterialManager::getMaterial(const std::string& shaderName)
     if (fragmentShader == nullptr)
         return nullptr;
 
-    Material* material = nullptr;//new Material();
-    if (material->link(vertexShader, fragmentShader) == false)
-    {
-        delete material;
+    Material* material = renderer->CreateMaterial(vertexShader, fragmentShader);
+    if (material == nullptr)
         return nullptr;
-    }
 
     this->shaderNameToMaterialMap[shaderName] = material;
 
