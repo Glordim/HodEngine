@@ -11,6 +11,8 @@
 
 class MaterialInstance;
 
+#include "Renderer.h"
+
 class RenderQueue
 {
 public:
@@ -39,30 +41,48 @@ public:
 
     struct LineData
     {
-        LineData(std::vector<Line_3P_3C> lines, MaterialInstance* materialInstance, glm::mat4x4 matrix)
-            : lines(lines)
+        LineData(std::vector<Line_3P_3C>& lines, MaterialInstance* materialInstance, glm::mat4x4& matrix)
+            : mesh(nullptr)
             , materialInstance(materialInstance)
             , matrix(matrix)
         {
+            Renderer* renderer = Renderer::GetInstance();
 
+            this->mesh = renderer->CreateMesh("");
+            this->mesh->LoadFromLines(lines);
         }
 
-        std::vector<Line_3P_3C> lines;
+        ~LineData()
+        {
+            if (this->mesh != nullptr)
+                delete this->mesh;
+        }
+
+        Mesh* mesh;
         MaterialInstance* materialInstance;
         glm::mat4x4 matrix;
     };
 
     struct TriangleData
     {
-        TriangleData(std::vector<Tri_3P_3C> triangles, MaterialInstance* materialInstance, glm::mat4x4 matrix)
-            : triangles(triangles)
+        TriangleData(std::vector<Tri_3P_3C>& triangles, MaterialInstance* materialInstance, glm::mat4x4& matrix)
+            : mesh(nullptr)
             , materialInstance(materialInstance)
             , matrix(matrix)
         {
+            Renderer* renderer = Renderer::GetInstance();
 
+            this->mesh = renderer->CreateMesh("");
+            this->mesh->LoadFromTriangles(triangles);
         }
 
-        std::vector<Tri_3P_3C> triangles;
+        ~TriangleData()
+        {
+            if (this->mesh != nullptr)
+                delete this->mesh;
+        }
+
+        Mesh* mesh;
         MaterialInstance* materialInstance;
         glm::mat4x4 matrix;
     };
@@ -99,17 +119,17 @@ public:
     //void AddDirectionnalLight(const DirectionnalLight dirLight);
     //void AddSpotLight(const SpotLight& spotLight);
 
-    std::vector<MeshData> GetMeshDatas() const
+    const std::vector<MeshData*>& GetMeshDatas() const
     {
         return this->meshList;
     }
 
-    std::vector<LineData> GetLineDatas() const
+    const std::vector<LineData*>& GetLineDatas() const
     {
         return this->lineList;
     }
 
-    std::vector<TriangleData> GetTriangleDatas() const
+    const std::vector<TriangleData*>& GetTriangleDatas() const
     {
         return this->triangleList;
     }
@@ -118,11 +138,11 @@ private:
     glm::mat4x4 viewMatrix;
     glm::mat4x4 projMatrix;
 
-    std::vector<MeshData> meshList;
-    std::vector<LineData> lineList;
-    std::vector<TriangleData> triangleList;
+    std::vector<MeshData*> meshList;
+    std::vector<LineData*> lineList;
+    std::vector<TriangleData*> triangleList;
 
-    std::vector<PointLightData> pointLightList;
+    std::vector<PointLightData*> pointLightList;
 };
 
 #endif

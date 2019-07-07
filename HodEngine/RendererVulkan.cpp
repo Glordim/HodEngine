@@ -919,14 +919,14 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
     vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    std::vector<RenderQueue::MeshData> meshDatas = renderQueue.GetMeshDatas();
+    const std::vector<RenderQueue::MeshData*>& meshDatas = renderQueue.GetMeshDatas();
 
     size_t meshCount = meshDatas.size();
     for (size_t i = 0; i < meshCount; ++i)
     {
-        RenderQueue::MeshData& meshData = meshDatas[i];
+        const RenderQueue::MeshData* meshData = meshDatas[i];
 
-        VkMaterialInstance* materialInstance = (VkMaterialInstance*)meshData.materialInstance;
+        VkMaterialInstance* materialInstance = (VkMaterialInstance*)meshData->materialInstance;
         if (materialInstance == nullptr)
         {
             materialInstance = (VkMaterialInstance*)this->unlitVertexColorMaterialInstance;
@@ -935,7 +935,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         VkMaterial* material = materialInstance->GetMaterial();
 
         UniformBufferObject ubo;
-        ubo.model = meshData.matrix;
+        ubo.model = meshData->matrix;
         ubo.view = renderQueue.GetViewMatrix();
         ubo.proj = renderQueue.GetProjMatrix();
         ubo.mvp = ubo.proj * ubo.view * ubo.model;
@@ -947,7 +947,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
         vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
 
-        VkMesh* mesh = (VkMesh*)meshData.mesh;
+        VkMesh* mesh = (VkMesh*)meshData->mesh;
         VkBuffer vertexBuffer = mesh->GetVertexBuffer();
         VkBuffer indiceBuffer = mesh->GetIndiceBuffer();
         VkDeviceSize offsets[] = { 0 };
@@ -958,14 +958,14 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         vkCmdDrawIndexed(*commandBuffer, static_cast<uint32_t>(mesh->GetIndiceCount()), 1, 0, 0, 0);
     }
 
-    std::vector<RenderQueue::LineData> lineDatas = renderQueue.GetLineDatas();
+    const std::vector<RenderQueue::LineData*>& lineDatas = renderQueue.GetLineDatas();
 
     size_t lineCount = lineDatas.size();
     for (size_t i = 0; i < lineCount; ++i)
     {
-        RenderQueue::LineData& lineData = lineDatas[i];
+        const RenderQueue::LineData* lineData = lineDatas[i];
 
-        VkMaterialInstance* materialInstance = (VkMaterialInstance*)lineData.materialInstance;
+        VkMaterialInstance* materialInstance = (VkMaterialInstance*)lineData->materialInstance;
         if (materialInstance == nullptr)
         {
             materialInstance = (VkMaterialInstance*)this->unlitVertexColorLineMaterialInstance;
@@ -974,7 +974,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         VkMaterial* material = materialInstance->GetMaterial();
 
         UniformBufferObject ubo;
-        ubo.model = lineData.matrix;
+        ubo.model = lineData->matrix;
         ubo.view = renderQueue.GetViewMatrix();
         ubo.proj = renderQueue.GetProjMatrix();
         ubo.mvp = ubo.proj * ubo.view * ubo.model;
@@ -986,38 +986,22 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
         vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
 
-        VkBuffer buffer;
-        VkDeviceMemory bufferMemory;
-        VkDeviceSize bufferSize = sizeof(lineData.lines[0]) * lineData.lines.size();
+        VkMesh* mesh = (VkMesh*)lineData->mesh;
+        VkBuffer vertexBuffer = mesh->GetVertexBuffer();
         VkDeviceSize offsets[] = { 0 };
 
-        this->CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer, &bufferMemory);
-
-        void* data = nullptr;
-
-        if (vkMapMemory(this->device, bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
-        {
-            fprintf(stderr, "Vulkan: Unable to map vertex buffer memory!\n");
-            return false;
-        }
-        memcpy(data, lineData.lines.data(), (size_t)bufferSize);
-        vkUnmapMemory(this->device, bufferMemory);
-
-        vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &buffer, offsets);
-        vkCmdDraw(*commandBuffer, lineData.lines.size() * 2, 1, 0, 0);
-
-        //vkFreeMemory(this->device, bufferMemory, nullptr);
-        //vkDestroyBuffer(this->device, buffer, nullptr);
+        vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
+        vkCmdDraw(*commandBuffer, mesh->GetVertexCount(), 1, 0, 0);
     }
 
-    std::vector<RenderQueue::TriangleData> triangleDatas = renderQueue.GetTriangleDatas();
+    const std::vector<RenderQueue::TriangleData*>& triangleDatas = renderQueue.GetTriangleDatas();
 
     size_t triangleCount = triangleDatas.size();
     for (size_t i = 0; i < triangleCount; ++i)
     {
-        RenderQueue::TriangleData& triangleData = triangleDatas[i];
+        const RenderQueue::TriangleData* triangleData = triangleDatas[i];
 
-        VkMaterialInstance* materialInstance = (VkMaterialInstance*)triangleData.materialInstance;
+        VkMaterialInstance* materialInstance = (VkMaterialInstance*)triangleData->materialInstance;
         if (materialInstance == nullptr)
         {
             materialInstance = (VkMaterialInstance*)this->unlitVertexColorMaterialInstance;
@@ -1026,7 +1010,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         VkMaterial* material = materialInstance->GetMaterial();
 
         UniformBufferObject ubo;
-        ubo.model = triangleData.matrix;
+        ubo.model = triangleData->matrix;
         ubo.view = renderQueue.GetViewMatrix();
         ubo.proj = renderQueue.GetProjMatrix();
         ubo.mvp = ubo.proj * ubo.view * ubo.model;
@@ -1038,28 +1022,12 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
         vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
 
-        VkBuffer buffer;
-        VkDeviceMemory bufferMemory;
-        VkDeviceSize bufferSize = sizeof(triangleData.triangles[0]) * triangleData.triangles.size();
+        VkMesh* mesh = (VkMesh*)triangleData->mesh;
+        VkBuffer vertexBuffer = mesh->GetVertexBuffer();
         VkDeviceSize offsets[] = { 0 };
 
-        this->CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer, &bufferMemory);
-
-        void* data = nullptr;
-
-        if (vkMapMemory(this->device, bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
-        {
-            fprintf(stderr, "Vulkan: Unable to map vertex buffer memory!\n");
-            return false;
-        }
-        memcpy(data, triangleData.triangles.data(), (size_t)bufferSize);
-        vkUnmapMemory(this->device, bufferMemory);
-
-        vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &buffer, offsets);
-        vkCmdDraw(*commandBuffer, triangleData.triangles.size() * 3, 1, 0, 0);
-
-        //vkFreeMemory(this->device, bufferMemory, nullptr);
-        //vkDestroyBuffer(this->device, buffer, nullptr);
+        vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
+        vkCmdDraw(*commandBuffer, mesh->GetVertexCount(), 1, 0, 0);
     }
 
     vkCmdEndRenderPass(*commandBuffer);
@@ -1249,7 +1217,7 @@ Mesh* RendererVulkan::CreateMesh(const std::string& path)
 {
     VkMesh* mesh = new VkMesh();
 
-    if (mesh->loadObj(path.c_str()) == false)
+    if (path != "" && mesh->loadObj(path.c_str()) == false)
     {
         delete mesh;
         return nullptr;

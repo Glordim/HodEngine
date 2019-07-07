@@ -57,20 +57,23 @@ bool VkMesh::BuildBuffers()
 
     // ---------------
 
-    bufferSize = sizeof(this->indices[0]) * this->indices.size();
-
-    if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->indiceBuffer, &this->indiceBufferMemory) == false)
-        return false;
-
-    data = nullptr;
-
-    if (vkMapMemory(renderer->GetVkDevice(), this->indiceBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+    if (this->indices.empty() == false)
     {
-        fprintf(stderr, "Vulkan: Unable to map indice buffer memory!\n");
-        return false;
+        bufferSize = sizeof(this->indices[0]) * this->indices.size();
+
+        if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->indiceBuffer, &this->indiceBufferMemory) == false)
+            return false;
+
+        data = nullptr;
+
+        if (vkMapMemory(renderer->GetVkDevice(), this->indiceBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+        {
+            fprintf(stderr, "Vulkan: Unable to map indice buffer memory!\n");
+            return false;
+        }
+        memcpy(data, this->indices.data(), (size_t)bufferSize);
+        vkUnmapMemory(renderer->GetVkDevice(), this->indiceBufferMemory);
     }
-    memcpy(data, this->indices.data(), (size_t)bufferSize);
-    vkUnmapMemory(renderer->GetVkDevice(), this->indiceBufferMemory);
 
     return true;
 }

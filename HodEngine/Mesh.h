@@ -12,6 +12,9 @@ struct Vertex_3P_3C_3N_2UV_3TA
     float tangent[3];
 };
 
+struct Line_3P_3C;
+struct Tri_3P_3C;
+
 class Mesh
 {
 public:
@@ -19,8 +22,11 @@ public:
     virtual ~Mesh();
 
     bool loadObj(const char* path);
+    bool LoadFromLines(std::vector<Line_3P_3C>& lines);
+    bool LoadFromTriangles(std::vector<Tri_3P_3C>& triangles);
 
     unsigned int GetIndiceCount() const;
+    unsigned int GetVertexCount() const;
 
 protected:
     virtual bool BuildBuffers() = 0;

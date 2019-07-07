@@ -11,6 +11,9 @@
 #include "glm/vec2.hpp"
 #include "glm/glm.hpp"
 
+#include "Line_3P_3C.h"
+#include "Tri_3P_3C.h"
+
 Mesh::Mesh()
 {
 
@@ -173,7 +176,52 @@ bool Mesh::loadObj(const char* path)
     return this->BuildBuffers();
 }
 
+bool Mesh::LoadFromLines(std::vector<Line_3P_3C>& lines)
+{
+    this->indices.clear();
+
+    size_t lineCount = lines.size();
+
+    this->vertices.resize(lineCount * 2);
+
+    for (size_t i = 0; i < lineCount; ++i)
+    {
+        size_t vertexIndex = i * 2;
+
+        this->vertices[vertexIndex + 0] = lines[i].vertices[0];
+        this->vertices[vertexIndex + 1] = lines[i].vertices[1];
+    }
+
+    return this->BuildBuffers();
+}
+
+bool Mesh::LoadFromTriangles(std::vector<Tri_3P_3C>& triangles)
+{
+    this->indices.clear();
+
+    size_t triCount = triangles.size();
+
+    this->vertices.resize(triCount * 3);
+
+    for (size_t i = 0; i < triCount; ++i)
+    {
+        size_t vertexIndex = i * 3;
+
+        this->vertices[vertexIndex + 0] = triangles[i].vertices[0];
+        this->vertices[vertexIndex + 1] = triangles[i].vertices[1];
+        this->vertices[vertexIndex + 2] = triangles[i].vertices[2];
+    }
+
+    return this->BuildBuffers();
+}
+
 unsigned int Mesh::GetIndiceCount() const
 {
     return this->indices.size();
 }
+
+unsigned int Mesh::GetVertexCount() const
+{
+    return this->vertices.size();
+}
+
