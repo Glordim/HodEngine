@@ -3,6 +3,18 @@
 
 #include "Renderer.h"
 
+#include <vector>
+
+#include <D3d12.h>
+#include <dxgi1_6.h>
+
+#include <windows.h>
+
+#include "D3d12GpuDevice.h"
+
+#include <wrl.h>
+using namespace Microsoft::WRL;
+
 class RendererDirectX12 : public Renderer
 {
 public:
@@ -26,6 +38,22 @@ public:
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE) override;
     virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
+
+private:
+    RECT g_WindowRect;
+
+    HWND hWnd;
+
+    D3d12GpuDevice* selectedGpu;
+    std::vector<D3d12GpuDevice> availableGpu;
+
+    // DirectX 12 Objects
+    ComPtr<ID3D12Debug> debugInterface;
+    ComPtr<IDXGIFactory7> dxgiFactory;
+    ComPtr<ID3D12Device5> device;
+    ComPtr<ID3D12CommandQueue> g_CommandQueue;
+    ComPtr<IDXGISwapChain4> g_SwapChain;
+    std::vector<ComPtr<ID3D12Resource>> g_BackBuffers;
 };
 
 #endif

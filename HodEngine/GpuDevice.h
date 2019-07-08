@@ -5,8 +5,9 @@
 
 struct GpuDevice
 {
-    std::string name;
-    int score;
+    std::wstring name;
+    size_t vram;
+    size_t score;
     bool compatible;
 };
 

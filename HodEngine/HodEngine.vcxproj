@@ -102,6 +102,7 @@
     <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="D3d12GpuDevice.cpp" />
     <ClCompile Include="D3dShader.cpp" />
     <ClCompile Include="DebugLine.cpp" />
     <ClCompile Include="DebugMesh.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="D3d12GpuDevice.h" />
     <ClInclude Include="D3dShader.h" />
     <ClInclude Include="DebugLine.h" />
     <ClInclude Include="DebugMesh.h" />

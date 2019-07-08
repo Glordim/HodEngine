@@ -136,6 +136,9 @@
     <ClCompile Include="VkMaterialInstance.cpp">
       <Filter>Renderer\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="D3d12GpuDevice.cpp">
+      <Filter>Renderer\D3d12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraComponent.h">
@@ -261,6 +264,9 @@
     </ClInclude>
     <ClInclude Include="VkMaterialInstance.h">
       <Filter>Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="D3d12GpuDevice.h">
+      <Filter>Renderer\D3d12</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

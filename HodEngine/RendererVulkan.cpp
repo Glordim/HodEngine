@@ -380,14 +380,33 @@ bool RendererVulkan::GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDe
             vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
 
             VkGpuDevice& device = this->availableGpu[i];
-            device.name = deviceProperties.deviceName;
+            device.name = std::wstring(deviceProperties.deviceName, deviceProperties.deviceName + strlen(deviceProperties.deviceName));
             device.compatible = false;
+            device.vram = 0;
             device.score = 0;
 
             device.score += deviceProperties.limits.maxImageDimension2D;
 
             if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
                 device.score += 1000;
+
+            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &device.memProperties);
+
+            size_t vram = 0;
+
+            for (size_t j = 0; j < device.memProperties.memoryHeapCount; ++j)
+            {
+                const VkMemoryHeap& heap = device.memProperties.memoryHeaps[j];
+
+                if (heap.flags & VkMemoryHeapFlagBits::VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+                {
+                    if (vram < heap.size)
+                        vram = heap.size;
+                }
+            }
+
+            device.vram = vram;
+            device.score += vram;
 
             device.physicalDevice = physicalDevice;
             device.graphicsAndPresentQueueFamilyIndex = 0;
@@ -507,11 +526,6 @@ bool RendererVulkan::GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDe
                         device.compatible = false;
                     }
                 }
-            }
-
-            if (device.compatible == true)
-            {
-                vkGetPhysicalDeviceMemoryProperties(physicalDevice, &device.memProperties);
             }
         }
     }

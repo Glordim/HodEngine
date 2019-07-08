@@ -39,11 +39,6 @@
 
 #include <tchar.h>
 
-#include <D3d12.h>
-#include <dxgi1_4.h>
-
-#include <vulkan.h>
-
 #include "GpuDeviceHelper.h"
 #include "ScreenHelper.h"
 #include "GraphicsSettings.h"
@@ -72,7 +67,7 @@ int __cdecl _tmain()
         return 1;
 
     GraphicsSettings graphicsSettings;
-    graphicsSettings.api = GraphicsSettings::API::Vulkan;
+    graphicsSettings.api = GraphicsSettings::API::D3d12;
     graphicsSettings.monitor = selectedMonitor;
     graphicsSettings.width = nativeResolution.width;
     graphicsSettings.height = nativeResolution.height;
