@@ -36,6 +36,7 @@ public:
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE) override;
     virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
+    virtual Texture* CreateTexture(const std::string& path) override;
 
     VkInstance GetVkInstance() const;
     VkDevice GetVkDevice() const;
@@ -44,6 +45,7 @@ public:
     VkDescriptorPool GetDescriptorPool() const;
 
     bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
+    bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
 
 private:
 

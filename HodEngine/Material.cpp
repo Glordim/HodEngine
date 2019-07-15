@@ -116,6 +116,6 @@ void Material::setMat4(const std::string& name, const glm::mat4& value)
 
 void Material::setTexture(const std::string& name, const Texture& value)
 {
-    GLint location = getLocationFromName(name);
-    locationToTextureId[location] = value.getTextureId();
+    //GLint location = getLocationFromName(name);
+    //locationToTextureId[location] = value.getTextureId();
 }

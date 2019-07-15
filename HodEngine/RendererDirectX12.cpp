@@ -56,84 +56,6 @@ bool RendererDirectX12::Init(SDL_Window* window, bool enableValidationLayers)
     return true;
 }
 
-    /*
-    HRESULT result = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&this->device));
-    if (FAILED(result) == true)
-    {
-        SDL_Log("Unable to Create DirectX 12 device");
-        return 1;
-    }
-
-    D3D12_FEATURE_DATA_D3D12_OPTIONS options;
-
-    hr = device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options));
-
-    if (FAILED(hr))
-    {
-        SDL_Log("DirectX 12: Unable to get FeatureSupport");
-        return 1;
-    }
-
-        ID3D12CommandAllocator* commandListAllocator; //d3d12 command list allocator
-        ID3D12CommandQueue* commandQueue; //d3d12 command queue
-        IDXGIDevice2* DXGIDevice; //DXGI device
-        IDXGISwapChain3* swapChain;   // the pointer to the swap chain interface
-        ID3D12GraphicsCommandList* commandList;  //d3d12 command list
-        ID3D12Fence* fence; //fence used by GPU to signal when command queue execution has finished
-        //ID3D12Resource* mRenderTarget[g_bbCount];
-
-        hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void**)&commandListAllocator);
-
-        if (FAILED(hr))
-        {
-            SDL_Log("DirectX 12: Unable to Create Command allocator");
-            return 1;
-        }
-
-        D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
-        commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-        hr = device->CreateCommandQueue(&commandQueueDesc, __uuidof(ID3D12CommandQueue), (void**)&commandQueue);
-
-        if (FAILED(hr))
-        {
-            SDL_Log("DirectX 12: Unable to Create Command queue");
-            return 1;
-        }
-
-        const UINT backBufferCount = 4;
-
-        DXGI_SWAP_CHAIN_DESC swapChainDesc;
-        ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-        swapChainDesc.BufferCount = backBufferCount;
-        swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.OutputWindow = hWnd;
-        swapChainDesc.SampleDesc.Count = 1;
-        swapChainDesc.Windowed = TRUE;
-        swapChainDesc.Flags = 0; //DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-        //swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-
-        
-
-        hr = dxgiFactory->CreateSwapChain(commandQueue, &swapChainDesc, (IDXGISwapChain**)&swapChain);
-
-        if (FAILED(hr))
-        {
-            SDL_Log("DirectX 12: Unable to Create SwapChain");
-            return 1;
-        }
-
-        //increase max frame latency when required
-        if (swapChainDesc.Flags & DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
-        {
-            swapChain->SetMaximumFrameLatency(backBufferCount);
-        }
-
-        dxgiFactory->Release();
-    */
-
 bool RendererDirectX12::GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices)
 {
     if (availableDevices == nullptr)
@@ -243,24 +165,183 @@ bool RendererDirectX12::BuildPipeline(GpuDevice* gpuDevice)
         }
     }
 
-    /*
-    ComPtr<ID3D12CommandQueue> d3d12CommandQueue;
-
     D3D12_COMMAND_QUEUE_DESC desc = {};
-    desc.Type = type;
+    desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
     desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
     desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     desc.NodeMask = 0;
 
-    ThrowIfFailed(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d12CommandQueue)));
-    */
+    if (FAILED(this->device->CreateCommandQueue(&desc, IID_PPV_ARGS(&this->commandQueue))) == true)
+    {
+        fprintf(stderr, "D3d12: Unable to create Command queue!\n");
+        return false;
+    }
+
+    int width = 0;
+    int height = 0;
+
+    RECT rect;
+    if (GetWindowRect(this->hWnd, &rect) == TRUE)
+    {
+        width = rect.right - rect.left;
+        height = rect.bottom - rect.top;
+    }
+    else
+    {
+        width = 800;
+        height = 600;
+    }
+
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+    swapChainDesc.Width = width;
+    swapChainDesc.Height = height;
+    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.Stereo = FALSE;
+    swapChainDesc.SampleDesc = { 1, 0 };
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.BufferCount = 2;
+    swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+    // It is recommended to always allow tearing if tearing support is available.
+    swapChainDesc.Flags = 0; // CheckTearingSupport() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+
+    ComPtr<IDXGISwapChain1> swapChain1 = nullptr;
+
+    if (FAILED(this->dxgiFactory->CreateSwapChainForHwnd(commandQueue.Get(), this->hWnd, &swapChainDesc, nullptr, nullptr, &swapChain1)) == true)
+    {
+        fprintf(stderr, "D3d12: Unable to create Swap Chain!\n");
+        return false;
+    }
+
+    // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
+    // will be handled manually.
+    if (FAILED(this->dxgiFactory->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER)) == true)
+    {
+        fprintf(stderr, "D3d12: Unable to disable Alt+Enter for this Window!\n");
+    }
+
+    swapChain1.As(&this->swapChain);
+
+    D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
+    descHeap.NumDescriptors = 15; // TODO
+    descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+
+    if (FAILED(this->device->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&this->descriptorHeap))) == true)
+    {
+        fprintf(stderr, "D3d12: Unable to create Descriptor Heap!\n");
+        return false;
+    }
+
+    UINT rtvDescriptorSize = this->device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(this->descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+    this->backBuffers.resize(2);
+
+    for (size_t i = 0; i < 2; ++i)
+    {
+        ComPtr<ID3D12Resource> backBuffer = nullptr;
+        if (FAILED(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer))) == true)
+        {
+            fprintf(stderr, "D3d12: Unable to retreive BackBuffer from SwapChain!\n");
+            return false;
+        }
+
+        this->device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
+
+        this->backBuffers[i] = backBuffer;
+
+        rtvHandle.ptr += rtvDescriptorSize;
+    }
+
+    if (FAILED(this->device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&this->commandAllocator))) == true)
+    {
+        fprintf(stderr, "D3d12: Unable to creare Command Allocator!\n");
+        return false;
+    }
 
     return true;
 }
 
 bool RendererDirectX12::SubmitRenderQueue(RenderQueue& renderQueue)
 {
-    return false;
+    ComPtr<ID3D12GraphicsCommandList> commandList = nullptr;
+
+    if (FAILED(this->device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, this->commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList))) == true)
+    {
+        fprintf(stderr, "D3d12: Unable to creare Command List!\n");
+        return false;
+    }
+
+    /*
+    commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+    commandList->RSSetViewports(1, &viewport);
+    commandList->RSSetScissorRects(1, &scissor);
+    */
+
+    D3D12_RESOURCE_TRANSITION_BARRIER transition;
+    transition.pResource = this->backBuffers[0].Get();
+    transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+    transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    D3D12_RESOURCE_BARRIER barrier;
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Transition = transition;
+    commandList->ResourceBarrier(1, &barrier);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE rtv(this->descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+    commandList->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
+
+    FLOAT clearColor[] = { 0.4f, 0.6f, 0.9f, 1.0f };
+
+    commandList->ClearRenderTargetView(rtv, clearColor, 0, nullptr);
+
+    transition.pResource = this->backBuffers[0].Get();
+    transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Transition = transition;
+    commandList->ResourceBarrier(1, &barrier);
+
+    if (FAILED(commandList->Close()) == true)
+    {
+        fprintf(stderr, "D3d12: Unable to close Command List!\n");
+        return false;
+    }
+
+    ID3D12CommandList* const commandLists[] = {
+        commandList.Get()
+    };
+    this->commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+    this->swapChain->Present(0, 0);
+
+    ComPtr<ID3D12Fence> fence = nullptr;
+    if (this->device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)) == true)
+    {
+        fprintf(stderr, "D3d12: Unable to create Fence!\n");
+        return false;
+    }
+
+    HANDLE fenceEvent = nullptr;
+    fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (fenceEvent == nullptr)
+    {
+        fprintf(stderr, "D3d12: Unable to create Fence Event!\n");
+        return false;
+    }
+
+    this->commandQueue->Signal(fence.Get(), 1);
+    fence->SetEventOnCompletion(1, fenceEvent);
+
+    //WaitForSingleObject(fenceEvent, static_cast<DWORD>(std::numeric_limits<Uint32>().max()));
+
+    this->swapChain->Present1(0, 0, nullptr);
+
+    return true;
 }
 
 bool RendererDirectX12::ResizeSwapChain()
@@ -294,6 +375,11 @@ MaterialInstance* RendererDirectX12::CreateMaterialInstance(Material* material)
 }
 
 Mesh* RendererDirectX12::CreateMesh(const std::string& path)
+{
+    return nullptr;
+}
+
+Texture* RendererDirectX12::CreateTexture(const std::string& path)
 {
     return nullptr;
 }

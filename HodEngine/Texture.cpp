@@ -12,11 +12,9 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-    if (this->texureId != 0)
-        glDeleteTextures(1, &this->texureId);
 }
 
-bool Texture::load(const char* path)
+bool Texture::LoadFromPath(const char* path)
 {
     int width;
     int height;
@@ -24,27 +22,17 @@ bool Texture::load(const char* path)
 
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char* textureBuffer = stbi_load(path, &width, &height, &channel, 3);
-    if (textureBuffer == nullptr)
+    unsigned char* buffer = stbi_load(path, &width, &height, &channel, 3);
+    if (buffer == nullptr)
     {
-        std::cerr << std::string("Texture : Failed to load Texture \"") + path + "\"" << std::endl;
-        return false;
+        fprintf(stderr, "Texture : Failed to load Texture \"%s\"\n", path);
+        return false; // Todo Memleak
     }
 
-    glGenTextures(1, &this->texureId);
-    glBindTexture(GL_TEXTURE_2D, this->texureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureBuffer);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (this->BuildBuffer(width, height, buffer) == false)
+        return false; // Todo Memleak
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    stbi_image_free(textureBuffer);
+    stbi_image_free(buffer);
 
     return true;
-}
-
-GLuint Texture::getTextureId() const
-{
-    return this->texureId;
 }

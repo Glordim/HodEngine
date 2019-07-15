@@ -9,11 +9,10 @@ public:
     Texture();
     virtual ~Texture();
 
-    bool load(const char* path);
-    GLuint getTextureId() const;
+    bool LoadFromPath(const char* path);
 
-private:
-    GLuint texureId;
+    virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer) = 0;
+
 };
 
 #endif

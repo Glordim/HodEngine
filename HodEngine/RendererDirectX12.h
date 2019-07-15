@@ -38,6 +38,7 @@ public:
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
     virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE) override;
     virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
+    virtual Texture* CreateTexture(const std::string& path) override;
 
 private:
     RECT g_WindowRect;
@@ -51,9 +52,11 @@ private:
     ComPtr<ID3D12Debug> debugInterface;
     ComPtr<IDXGIFactory7> dxgiFactory;
     ComPtr<ID3D12Device5> device;
-    ComPtr<ID3D12CommandQueue> g_CommandQueue;
-    ComPtr<IDXGISwapChain4> g_SwapChain;
-    std::vector<ComPtr<ID3D12Resource>> g_BackBuffers;
+    ComPtr<ID3D12CommandQueue> commandQueue;
+    ComPtr<ID3D12CommandAllocator> commandAllocator;
+    ComPtr<IDXGISwapChain4> swapChain;
+    ComPtr<ID3D12DescriptorHeap> descriptorHeap;
+    std::vector<ComPtr<ID3D12Resource>> backBuffers;
 };
 
 #endif

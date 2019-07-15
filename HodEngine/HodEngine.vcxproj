@@ -135,6 +135,7 @@
     <ClCompile Include="VkMaterialInstance.cpp" />
     <ClCompile Include="VkMesh.cpp" />
     <ClCompile Include="VkShader.cpp" />
+    <ClCompile Include="VkTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
@@ -182,6 +183,7 @@
     <ClInclude Include="VkMaterialInstance.h" />
     <ClInclude Include="VkMesh.h" />
     <ClInclude Include="VkShader.h" />
+    <ClInclude Include="VkTexture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

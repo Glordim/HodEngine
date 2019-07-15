@@ -86,6 +86,8 @@ int __cdecl _tmain()
     if (renderer->BuildPipeline(bestDevice) == false)
         return 1;
 
+    Texture* texture = renderer->CreateTexture("Texture/brickwall.jpg");
+
     Shader* vertexShader = renderer->CreateShader("Shader/UnlitVertexColor.vert.vulk", Shader::ShaderType::Vertex);
     Shader* fragmentShader = renderer->CreateShader("Shader/UnlitVertexColor.frag.vulk", Shader::ShaderType::Fragment);
 
