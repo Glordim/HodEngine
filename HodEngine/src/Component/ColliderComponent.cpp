@@ -2,8 +2,8 @@
 
 #include "glm/vec3.hpp"
 
-#include "Actor.h"
-#include "Scene.hpp"
+#include "../Actor.h"
+#include "../Scene.hpp"
 
 #include "PxPhysicsAPI.h"
 

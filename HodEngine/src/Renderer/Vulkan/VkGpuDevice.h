@@ -1,7 +1,7 @@
 #ifndef __VK_GPU_DEVICE_HPP__
 #define __VK_GPU_DEVICE_HPP__
 
-#include "GpuDevice.h"
+#include "../GpuDevice.h"
 
 #include <vulkan.h>
 

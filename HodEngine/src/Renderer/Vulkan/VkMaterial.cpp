@@ -3,7 +3,7 @@
 
 #include "RendererVulkan.h"
 
-#include "Mesh.h"
+#include "../Mesh.h"
 
 VkMaterial::VkMaterial() : Material()
 {

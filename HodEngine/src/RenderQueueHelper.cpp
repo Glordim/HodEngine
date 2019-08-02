@@ -1,9 +1,9 @@
 #include "RenderQueueHelper.h"
 
-#include "RenderQueue.h"
-#include "SceneComponent.h"
-#include "StaticMeshComponent.h"
-#include "LightComponent.h"
+#include "Renderer/RenderQueue.h"
+#include "Component/SceneComponent.h"
+#include "Component/StaticMeshComponent.h"
+#include "Component/LightComponent.h"
 #include "Actor.h"
 #include "Scene.hpp"
 

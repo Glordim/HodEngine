@@ -1,7 +1,7 @@
 #ifndef __FREECAM_HPP__
 #define __FREECAM_HPP__
 
-#include "Actor.h"
+#include "../Actor.h"
 
 #include "glm/vec3.hpp"
 

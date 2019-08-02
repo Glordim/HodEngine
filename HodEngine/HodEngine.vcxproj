@@ -99,46 +99,46 @@
 <ClInclude Include="src\Actor.h" />
 <ClInclude Include="src\Allocator.h" />
 <ClInclude Include="src\Application.h" />
-<ClInclude Include="src\CameraComponent.h" />
-<ClInclude Include="src\ColliderComponent.h" />
 <ClInclude Include="src\Color.h" />
-<ClInclude Include="src\Component.h" />
-<ClInclude Include="src\D3d12GpuDevice.h" />
-<ClInclude Include="src\D3dShader.h" />
-<ClInclude Include="src\DebugLine.h" />
-<ClInclude Include="src\DebugMesh.h" />
 <ClInclude Include="src\Error.h" />
-<ClInclude Include="src\FreeCam.h" />
-<ClInclude Include="src\GpuDevice.h" />
-<ClInclude Include="src\GpuDeviceHelper.h" />
-<ClInclude Include="src\GraphicsSettings.h" />
 <ClInclude Include="src\InputListener.h" />
-<ClInclude Include="src\LightComponent.h" />
-<ClInclude Include="src\Line_3P_3C.h" />
-<ClInclude Include="src\Material.h" />
-<ClInclude Include="src\MaterialInstance.h" />
-<ClInclude Include="src\MaterialManager.h" />
-<ClInclude Include="src\Mesh.h" />
-<ClInclude Include="src\PointLight.h" />
-<ClInclude Include="src\Renderer.h" />
-<ClInclude Include="src\RendererComponent.h" />
-<ClInclude Include="src\RendererDirectX12.h" />
-<ClInclude Include="src\RendererVulkan.h" />
-<ClInclude Include="src\RenderQueue.h" />
 <ClInclude Include="src\RenderQueueHelper.h" />
-<ClInclude Include="src\SceneComponent.h" />
 <ClInclude Include="src\ScreenHelper.h" />
-<ClInclude Include="src\Shader.h" />
-<ClInclude Include="src\StaticMeshComponent.h" />
-<ClInclude Include="src\Texture.h" />
-<ClInclude Include="src\Tri_3P_3C.h" />
-<ClInclude Include="src\Vertex_3P_3C.h" />
-<ClInclude Include="src\VkGpuDevice.h" />
-<ClInclude Include="src\VkMaterial.h" />
-<ClInclude Include="src\VkMaterialInstance.h" />
-<ClInclude Include="src\VkMesh.h" />
-<ClInclude Include="src\VkShader.h" />
-<ClInclude Include="src\VkTexture.h" />
+<ClInclude Include="src\Component\CameraComponent.h" />
+<ClInclude Include="src\Component\ColliderComponent.h" />
+<ClInclude Include="src\Component\Component.h" />
+<ClInclude Include="src\Component\LightComponent.h" />
+<ClInclude Include="src\Component\RendererComponent.h" />
+<ClInclude Include="src\Component\SceneComponent.h" />
+<ClInclude Include="src\Component\StaticMeshComponent.h" />
+<ClInclude Include="src\Renderer\DebugLine.h" />
+<ClInclude Include="src\Renderer\DebugMesh.h" />
+<ClInclude Include="src\Renderer\GpuDevice.h" />
+<ClInclude Include="src\Renderer\GpuDeviceHelper.h" />
+<ClInclude Include="src\Renderer\GraphicsSettings.h" />
+<ClInclude Include="src\Renderer\Line_3P_3C.h" />
+<ClInclude Include="src\Renderer\Material.h" />
+<ClInclude Include="src\Renderer\MaterialInstance.h" />
+<ClInclude Include="src\Renderer\MaterialManager.h" />
+<ClInclude Include="src\Renderer\Mesh.h" />
+<ClInclude Include="src\Renderer\PointLight.h" />
+<ClInclude Include="src\Renderer\Renderer.h" />
+<ClInclude Include="src\Renderer\RenderQueue.h" />
+<ClInclude Include="src\Renderer\Shader.h" />
+<ClInclude Include="src\Renderer\Texture.h" />
+<ClInclude Include="src\Renderer\Tri_3P_3C.h" />
+<ClInclude Include="src\Renderer\Vertex_3P_3C.h" />
+<ClInclude Include="src\Renderer\D3d12\D3d12GpuDevice.h" />
+<ClInclude Include="src\Renderer\D3d12\D3dShader.h" />
+<ClInclude Include="src\Renderer\D3d12\RendererDirectX12.h" />
+<ClInclude Include="src\Renderer\Vulkan\RendererVulkan.h" />
+<ClInclude Include="src\Renderer\Vulkan\VkGpuDevice.h" />
+<ClInclude Include="src\Renderer\Vulkan\VkMaterial.h" />
+<ClInclude Include="src\Renderer\Vulkan\VkMaterialInstance.h" />
+<ClInclude Include="src\Renderer\Vulkan\VkMesh.h" />
+<ClInclude Include="src\Renderer\Vulkan\VkShader.h" />
+<ClInclude Include="src\Renderer\Vulkan\VkTexture.h" />
+<ClInclude Include="src\Test\FreeCam.h" />
 
 <ClInclude Include="src\Scene.hpp" />
 
@@ -154,48 +154,129 @@
 -->
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SourcesForBigCPP\BigCPP_1.CPP" />
 
 
-<ClCompile Include="src\Actor.cpp" />
-<ClCompile Include="src\Allocator.cpp" />
-<ClCompile Include="src\Application.cpp" />
-<ClCompile Include="src\CameraComponent.cpp" />
-<ClCompile Include="src\ColliderComponent.cpp" />
-<ClCompile Include="src\Color.cpp" />
-<ClCompile Include="src\Component.cpp" />
-<ClCompile Include="src\D3d12GpuDevice.cpp" />
-<ClCompile Include="src\D3dShader.cpp" />
-<ClCompile Include="src\DebugLine.cpp" />
-<ClCompile Include="src\DebugMesh.cpp" />
-<ClCompile Include="src\Error.cpp" />
-<ClCompile Include="src\FreeCam.cpp" />
-<ClCompile Include="src\GpuDevice.cpp" />
-<ClCompile Include="src\GpuDeviceHelper.cpp" />
-<ClCompile Include="src\InputListener.cpp" />
-<ClCompile Include="src\LightComponent.cpp" />
-<ClCompile Include="src\main.cpp" />
-<ClCompile Include="src\Material.cpp" />
-<ClCompile Include="src\MaterialInstance.cpp" />
-<ClCompile Include="src\MaterialManager.cpp" />
-<ClCompile Include="src\Mesh.cpp" />
-<ClCompile Include="src\Renderer.cpp" />
-<ClCompile Include="src\RendererComponent.cpp" />
-<ClCompile Include="src\RendererDirectX12.cpp" />
-<ClCompile Include="src\RendererVulkan.cpp" />
-<ClCompile Include="src\RenderQueue.cpp" />
-<ClCompile Include="src\RenderQueueHelper.cpp" />
-<ClCompile Include="src\Scene.cpp" />
-<ClCompile Include="src\SceneComponent.cpp" />
-<ClCompile Include="src\ScreenHelper.cpp" />
-<ClCompile Include="src\Shader.cpp" />
-<ClCompile Include="src\StaticMeshComponent.cpp" />
-<ClCompile Include="src\Texture.cpp" />
-<ClCompile Include="src\VkGpuDevice.cpp" />
-<ClCompile Include="src\VkMaterial.cpp" />
-<ClCompile Include="src\VkMaterialInstance.cpp" />
-<ClCompile Include="src\VkMesh.cpp" />
-<ClCompile Include="src\VkShader.cpp" />
-<ClCompile Include="src\VkTexture.cpp" />
+<ClCompile Include="src\Actor.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Allocator.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Application.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Color.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Error.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\InputListener.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\RenderQueueHelper.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Scene.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\ScreenHelper.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Component\CameraComponent.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Component\ColliderComponent.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Component\Component.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Component\LightComponent.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Component\RendererComponent.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Component\SceneComponent.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Component\StaticMeshComponent.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\DebugLine.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\DebugMesh.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\GpuDevice.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\GpuDeviceHelper.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Material.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\MaterialInstance.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\MaterialManager.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Mesh.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Renderer.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\RenderQueue.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Shader.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Texture.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\D3d12\D3d12GpuDevice.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\D3d12\D3dShader.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\D3d12\RendererDirectX12.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\RendererVulkan.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkGpuDevice.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkMaterial.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkMaterialInstance.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkMesh.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkShader.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkTexture.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Test\FreeCam.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Test\main.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
 
 
 

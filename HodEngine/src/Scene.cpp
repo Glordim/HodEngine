@@ -1,14 +1,14 @@
 #include "Scene.hpp"
 
-#include "SceneComponent.h"
+#include "Component/SceneComponent.h"
 
 #include <PxPhysicsAPI.h>
 
-#include "Shader.h"
-#include "Material.h"
-#include "MaterialManager.h"
+#include "Renderer/Shader.h"
+#include "Renderer/Material.h"
+#include "Renderer/MaterialManager.h"
 
-#include "CameraComponent.h"
+#include "Component/CameraComponent.h"
 
 Scene::Scene()
 : ambiantColor(0.25f, 0.25f, 0.25f, 1.0f)

@@ -2,14 +2,14 @@
 
 #include <SDL.h>
 
-#include "GraphicsSettings.h"
+#include "Renderer/GraphicsSettings.h"
 
-#include "Renderer.h"
-#include "RendererVulkan.h"
-#include "RendererDirectX12.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/Vulkan/RendererVulkan.h"
+#include "Renderer/D3D12/RendererDirectX12.h"
 
 #include "Scene.hpp"
-#include "CameraComponent.h"
+#include "Component/CameraComponent.h"
 
 Application::Application()
 {

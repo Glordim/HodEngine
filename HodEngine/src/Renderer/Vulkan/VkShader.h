@@ -1,7 +1,7 @@
 #ifndef __VK_SHADER_HPP__
 #define __VK_SHADER_HPP__
 
-#include "Shader.h"
+#include "../Shader.h"
 
 #include <vulkan.h>
 

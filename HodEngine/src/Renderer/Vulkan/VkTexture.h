@@ -1,7 +1,7 @@
 #ifndef __VK_TEXTURE_HPP__
 #define __VK_TEXTURE_HPP__
 
-#include "Texture.h"
+#include "../Texture.h"
 
 #include <vulkan.h>
 

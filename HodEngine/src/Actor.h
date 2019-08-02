@@ -5,8 +5,8 @@
 #include <typeinfo>
 #include <string>
 
-#include "Component.h"
-#include "SceneComponent.h"
+#include "Component/Component.h"
+#include "Component/SceneComponent.h"
 
 #include "PxPhysicsAPI.h"
 

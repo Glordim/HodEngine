@@ -2,9 +2,9 @@
 #define __LIGHT_COMPONENT_HPP__
 
 #include "Component.h"
-#include "Color.h"
+#include "../Color.h"
 
-#include "PointLight.h"
+#include "../Renderer/PointLight.h"
 
 class LightComponent : public Component
 {

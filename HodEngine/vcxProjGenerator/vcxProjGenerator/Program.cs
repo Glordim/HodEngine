@@ -18,14 +18,14 @@ namespace vcxProjGenerator
         static int Nb_Source_File_In_BigSourceFile = 40;
 
         static string[] FOLDERS_FOR_FILES = new string[] { 
-            "" 
+            "src" 
         };
 
         static string[] FOLDERS = new string[] {
-            ""
+            "src"
         };
 
-        static string BASE_URL = "src";
+        static string BASE_URL = "";
 
         static string[] EXCLUDE_FILES = new string[]
         {

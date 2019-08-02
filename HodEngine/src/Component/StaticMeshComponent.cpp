@@ -1,9 +1,9 @@
 #include "StaticMeshComponent.h"
 
-#include "Material.h"
-#include "Mesh.h"
+#include "../Renderer/Material.h"
+#include "../Renderer/Mesh.h"
 
-#include "Actor.h"
+#include "../Actor.h"
 #include "SceneComponent.h"
 
 #include "CameraComponent.h"

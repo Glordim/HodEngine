@@ -8,40 +8,40 @@
 #include <cstring>
 #include <vector>
 
-#include "Mesh.h"
-#include "Texture.h"
-#include "Material.h"
-#include "Shader.h"
-#include "MaterialManager.h"
+#include "../Renderer/Mesh.h"
+#include "../Renderer/Texture.h"
+#include "../Renderer/Material.h"
+#include "../Renderer/Shader.h"
+#include "../Renderer/MaterialManager.h"
 
-#include "Scene.hpp"
+#include "../Scene.hpp"
 
-#include "Actor.h"
-#include "SceneComponent.h"
-#include "StaticMeshComponent.h"
-#include "CameraComponent.h"
-#include "LightComponent.h"
-#include "ColliderComponent.h"
+#include "../Actor.h"
+#include "../Component/SceneComponent.h"
+#include "../Component/StaticMeshComponent.h"
+#include "../Component/CameraComponent.h"
+#include "../Component/LightComponent.h"
+#include "../Component/ColliderComponent.h"
 
-#include "InputListener.h"
+#include "../InputListener.h"
 
 #include "FreeCam.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "Allocator.h"
-#include "Error.h"
+#include "../Allocator.h"
+#include "../Error.h"
 
 #include <AntTweakBar.h>
 
 #include <tchar.h>
 
-#include "GpuDeviceHelper.h"
-#include "ScreenHelper.h"
-#include "GraphicsSettings.h"
-#include "Application.h"
+#include "../Renderer/GpuDeviceHelper.h"
+#include "../Renderer/GraphicsSettings.h"
+#include "../ScreenHelper.h"
+#include "../Application.h"
 
-#include "Renderer.h"
+#include "../Renderer/Renderer.h"
 
 InputListener inputListener;
 

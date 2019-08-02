@@ -1,7 +1,7 @@
 #ifndef __D3D12_GPU_DEVICE_HPP__
 #define __D3D12_GPU_DEVICE_HPP__
 
-#include "GpuDevice.h"
+#include "Renderer/GpuDevice.h"
 
 #include <dxgi1_5.h>
 

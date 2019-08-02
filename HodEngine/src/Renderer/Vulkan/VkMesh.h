@@ -1,7 +1,7 @@
 #ifndef __VK_MESH_HPP__
 #define __VK_MESH_HPP__
 
-#include  "Mesh.h"
+#include "../Mesh.h"
 
 #include <vulkan.h>
 

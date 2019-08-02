@@ -1,7 +1,7 @@
 #ifndef __VK_MATERIAL_INSTANCE_HPP__
 #define __VK_MATERIAL_INSTANCE_HPP__
 
-#include "MaterialInstance.h"
+#include "../MaterialInstance.h"
 
 #include <vulkan.h>
 

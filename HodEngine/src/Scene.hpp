@@ -9,8 +9,8 @@
 class SceneComponent;
 class CameraComponent;
 
-#include "DebugLine.h"
-#include "DebugMesh.h"
+#include "Renderer/DebugLine.h"
+#include "Renderer/DebugMesh.h"
 
 class Scene
 {

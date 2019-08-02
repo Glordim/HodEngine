@@ -9,7 +9,7 @@
 
 #include <AntTweakBar.h>
 
-#include "Actor.h"
+#include "../Actor.h"
 
 SceneComponent::SceneComponent(Actor* actor) : Component(actor)
 {

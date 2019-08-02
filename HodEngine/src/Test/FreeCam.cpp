@@ -1,15 +1,9 @@
 #include "FreeCam.h"
 
-#include "SceneComponent.h"
-#include "CameraComponent.h"
+#include "../Component/SceneComponent.h"
+#include "../Component/CameraComponent.h"
 
-#include "InputListener.h"
-
-#include "StaticMeshComponent.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "Material.h"
-#include "MaterialManager.h"
+#include "../InputListener.h"
 
 #include "AntTweakBar.h"
 

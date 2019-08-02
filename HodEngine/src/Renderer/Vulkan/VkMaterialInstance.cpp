@@ -4,7 +4,7 @@
 
 #include "RendererVulkan.h"
 
-#include "Mesh.h"
+#include "../Mesh.h"
 
 VkMaterialInstance::VkMaterialInstance() : MaterialInstance()
 {

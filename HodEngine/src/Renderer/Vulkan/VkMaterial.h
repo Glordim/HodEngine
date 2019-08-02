@@ -1,7 +1,7 @@
 #ifndef __VK_MATERIAL_HPP__
 #define __VK_MATERIAL_HPP__
 
-#include "Material.h"
+#include "../Material.h"
 
 #include <vulkan.h>
 

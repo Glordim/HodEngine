@@ -1,7 +1,7 @@
 #ifndef __RENDERER_DIRECTX12_HPP__
 #define __RENDERER_DIRECTX12_HPP__
 
-#include "Renderer.h"
+#include "../Renderer.h"
 
 #include <vector>
 

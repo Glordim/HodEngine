@@ -4,7 +4,12 @@
     <Filter Include="win32">
       <!--<UniqueIdentifier>{84a8ebd8-7cf0-47f6-b75e-d441df67da40}</UniqueIdentifier>-->
     </Filter>
-    <Filter Include=""></Filter>
+    <Filter Include="src"></Filter>
+    <Filter Include="src\Component"></Filter>
+    <Filter Include="src\Renderer"></Filter>
+    <Filter Include="src\Renderer\D3d12"></Filter>
+    <Filter Include="src\Renderer\Vulkan"></Filter>
+    <Filter Include="src\Test"></Filter>
   </ItemGroup>
   <ItemGroup>
   <!--
@@ -17,52 +22,53 @@
     <ClCompile Include="WindowsSpecific/ViewerSpineSequencer.cpp"><Filter>win32</Filter></ClCompile>
 	<ClCompile Include="WindowsSpecific/UnitViewer.cpp"><Filter>win32</Filter></ClCompile>
   -->
+    <ClCompile Include="SourcesForBigCPP\BigCPP_1.CPP"><Filter>win32</Filter></ClCompile>
 
   </ItemGroup>
   <ItemGroup>
 
   </ItemGroup>
   <ItemGroup>
-<ClCompile Include="src\Actor.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Allocator.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Application.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\CameraComponent.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\ColliderComponent.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Color.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Component.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\D3d12GpuDevice.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\D3dShader.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\DebugLine.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\DebugMesh.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Error.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\FreeCam.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\GpuDevice.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\GpuDeviceHelper.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\InputListener.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\LightComponent.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\main.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Material.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\MaterialInstance.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\MaterialManager.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Mesh.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Renderer.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\RendererComponent.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\RendererDirectX12.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\RendererVulkan.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\RenderQueue.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\RenderQueueHelper.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Scene.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\SceneComponent.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\ScreenHelper.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Shader.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\StaticMeshComponent.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\Texture.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\VkGpuDevice.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\VkMaterial.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\VkMaterialInstance.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\VkMesh.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\VkShader.cpp"><Filter></Filter></ClCompile>
-<ClCompile Include="src\VkTexture.cpp"><Filter></Filter></ClCompile>
+<ClCompile Include="src\Actor.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\Allocator.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\Application.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\Color.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\Error.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\InputListener.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\RenderQueueHelper.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\Scene.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\ScreenHelper.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\Component\CameraComponent.cpp"><Filter>src\Component</Filter></ClCompile>
+<ClCompile Include="src\Component\ColliderComponent.cpp"><Filter>src\Component</Filter></ClCompile>
+<ClCompile Include="src\Component\Component.cpp"><Filter>src\Component</Filter></ClCompile>
+<ClCompile Include="src\Component\LightComponent.cpp"><Filter>src\Component</Filter></ClCompile>
+<ClCompile Include="src\Component\RendererComponent.cpp"><Filter>src\Component</Filter></ClCompile>
+<ClCompile Include="src\Component\SceneComponent.cpp"><Filter>src\Component</Filter></ClCompile>
+<ClCompile Include="src\Component\StaticMeshComponent.cpp"><Filter>src\Component</Filter></ClCompile>
+<ClCompile Include="src\Renderer\DebugLine.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\DebugMesh.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\GpuDevice.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\GpuDeviceHelper.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Material.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\MaterialInstance.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\MaterialManager.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Mesh.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Renderer.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\RenderQueue.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Shader.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Texture.cpp"><Filter>src\Renderer</Filter></ClCompile>
+<ClCompile Include="src\Renderer\D3d12\D3d12GpuDevice.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
+<ClCompile Include="src\Renderer\D3d12\D3dShader.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
+<ClCompile Include="src\Renderer\D3d12\RendererDirectX12.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\RendererVulkan.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkGpuDevice.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkMaterial.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkMaterialInstance.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkMesh.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkShader.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\VkTexture.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Test\FreeCam.cpp"><Filter>src\Test</Filter></ClCompile>
+<ClCompile Include="src\Test\main.cpp"><Filter>src\Test</Filter></ClCompile>
 
 
   </ItemGroup>
@@ -76,51 +82,51 @@
     <ClInclude Include="WindowsSpecific/ViewerSpineSequencer.hpp"><Filter>win32</Filter></ClInclude>
 	<ClInclude Include="WindowsSpecific/UnitViewer.hpp"><Filter>win32</Filter></ClInclude>
   -->
-<ClInclude Include="src\Actor.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Allocator.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Application.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\CameraComponent.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\ColliderComponent.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Color.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Component.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\D3d12GpuDevice.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\D3dShader.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\DebugLine.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\DebugMesh.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Error.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\FreeCam.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\GpuDevice.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\GpuDeviceHelper.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\GraphicsSettings.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\InputListener.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\LightComponent.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Line_3P_3C.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Material.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\MaterialInstance.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\MaterialManager.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Mesh.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\PointLight.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Renderer.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\RendererComponent.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\RendererDirectX12.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\RendererVulkan.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\RenderQueue.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\RenderQueueHelper.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\SceneComponent.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\ScreenHelper.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Shader.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\StaticMeshComponent.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Texture.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Tri_3P_3C.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\Vertex_3P_3C.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\VkGpuDevice.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\VkMaterial.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\VkMaterialInstance.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\VkMesh.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\VkShader.h"><Filter></Filter></ClInclude>
-<ClInclude Include="src\VkTexture.h"><Filter></Filter></ClInclude>
+<ClInclude Include="src\Actor.h"><Filter>src</Filter></ClInclude>
+<ClInclude Include="src\Allocator.h"><Filter>src</Filter></ClInclude>
+<ClInclude Include="src\Application.h"><Filter>src</Filter></ClInclude>
+<ClInclude Include="src\Color.h"><Filter>src</Filter></ClInclude>
+<ClInclude Include="src\Error.h"><Filter>src</Filter></ClInclude>
+<ClInclude Include="src\InputListener.h"><Filter>src</Filter></ClInclude>
+<ClInclude Include="src\RenderQueueHelper.h"><Filter>src</Filter></ClInclude>
+<ClInclude Include="src\ScreenHelper.h"><Filter>src</Filter></ClInclude>
+<ClInclude Include="src\Component\CameraComponent.h"><Filter>src\Component</Filter></ClInclude>
+<ClInclude Include="src\Component\ColliderComponent.h"><Filter>src\Component</Filter></ClInclude>
+<ClInclude Include="src\Component\Component.h"><Filter>src\Component</Filter></ClInclude>
+<ClInclude Include="src\Component\LightComponent.h"><Filter>src\Component</Filter></ClInclude>
+<ClInclude Include="src\Component\RendererComponent.h"><Filter>src\Component</Filter></ClInclude>
+<ClInclude Include="src\Component\SceneComponent.h"><Filter>src\Component</Filter></ClInclude>
+<ClInclude Include="src\Component\StaticMeshComponent.h"><Filter>src\Component</Filter></ClInclude>
+<ClInclude Include="src\Renderer\DebugLine.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\DebugMesh.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\GpuDevice.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\GpuDeviceHelper.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\GraphicsSettings.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Line_3P_3C.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Material.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\MaterialInstance.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\MaterialManager.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Mesh.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\PointLight.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Renderer.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\RenderQueue.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Shader.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Texture.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Tri_3P_3C.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vertex_3P_3C.h"><Filter>src\Renderer</Filter></ClInclude>
+<ClInclude Include="src\Renderer\D3d12\D3d12GpuDevice.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
+<ClInclude Include="src\Renderer\D3d12\D3dShader.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
+<ClInclude Include="src\Renderer\D3d12\RendererDirectX12.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\RendererVulkan.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\VkGpuDevice.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\VkMaterial.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\VkMaterialInstance.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\VkMesh.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\VkShader.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\VkTexture.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Test\FreeCam.h"><Filter>src\Test</Filter></ClInclude>
 
-<ClInclude Include="src\Scene.hpp"><Filter></Filter></ClInclude>
+<ClInclude Include="src\Scene.hpp"><Filter>src</Filter></ClInclude>
 
   </ItemGroup>
 </Project>

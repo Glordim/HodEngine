@@ -8,9 +8,9 @@
 
 #include "AntTweakBar.h"
 
-#include "Renderer.h"
-#include "RenderQueue.h"
-#include "RenderQueueHelper.h"
+#include "../Renderer/Renderer.h"
+#include "../Renderer/RenderQueue.h"
+#include "../RenderQueueHelper.h"
 
 CameraComponent::CameraComponent(Actor* actor)
 : Component(actor)

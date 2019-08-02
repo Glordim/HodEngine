@@ -1,7 +1,7 @@
 #ifndef __D3D_SHADER_HPP__
 #define __D3D_SHADER_HPP__
 
-#include "Shader.h"
+#include "../Shader.h"
 
 class D3dShader : public Shader
 {
