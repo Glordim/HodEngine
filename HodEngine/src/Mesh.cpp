@@ -5,8 +5,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
-#include "glad/glad.h"
-
 #include "glm/vec3.hpp"
 #include "glm/vec2.hpp"
 #include "glm/glm.hpp"

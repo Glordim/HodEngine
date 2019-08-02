@@ -1,4 +1,3 @@
-#include "glad\glad.h"
 #include "Scene.hpp"
 
 #include "SceneComponent.h"

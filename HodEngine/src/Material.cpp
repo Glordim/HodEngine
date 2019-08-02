@@ -16,12 +16,18 @@ Material::Material()
 
 Material::~Material()
 {
+    /*
+
     if (this->programId != 0)
         glDeleteProgram(this->programId);
+
+    */
 }
 
 bool Material::link(Shader* vertexShader, Shader* fragmentShader)
 {
+    /*
+
     this->programId = glCreateProgram();
    // glAttachShader(this->programId, vertexShader.getShaderId());
     //glAttachShader(this->programId, fragmentShader.getShaderId());
@@ -47,11 +53,15 @@ bool Material::link(Shader* vertexShader, Shader* fragmentShader)
         return false;
     }
 
+    */
+
     return true;
 }
 
 void Material::use()
 {
+    /*
+
     glUseProgram(this->programId);
 
     // Rebind texture
@@ -70,11 +80,15 @@ void Material::use()
 
         ++offset;
         ++it;
-    }    
+    }
+
+    */
 }
 
-GLint Material::getLocationFromName(const std::string& name)
+uint32_t Material::getLocationFromName(const std::string& name)
 {
+    /*
+
     auto it = this->nameToLocationMap.find(name);
     if (it == this->nameToLocationMap.end())
     {
@@ -88,34 +102,58 @@ GLint Material::getLocationFromName(const std::string& name)
     {
         return it->second;
     }
+
+    */
+
+    return 0;
 }
 
 void Material::setInt(const std::string& name, int value)
 {
+    /*
+
     GLint location = getLocationFromName(name);
     glUniform1i(location, value);
+
+    */
 }
 
 void Material::setFloat(const std::string& name, float value)
 {
+    /*
+
     GLint location = getLocationFromName(name);
     glUniform1f(location, value);
+
+    */
 }
 
 void Material::setVec4(const std::string& name, const glm::vec4& value)
 {
+    /*
+
     GLint location = getLocationFromName(name);
     glUniform4fv(location, 1, &value[0]);
+
+    */
 }
 
 void Material::setMat4(const std::string& name, const glm::mat4& value)
 {
+    /*
+
     GLint location = getLocationFromName(name);
     glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+
+    */
 }
 
 void Material::setTexture(const std::string& name, const Texture& value)
 {
-    //GLint location = getLocationFromName(name);
-    //locationToTextureId[location] = value.getTextureId();
+    /*
+
+    GLint location = getLocationFromName(name);
+    locationToTextureId[location] = value.getTextureId();
+
+    */
 }

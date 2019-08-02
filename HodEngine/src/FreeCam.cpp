@@ -1,7 +1,5 @@
 #include "FreeCam.h"
 
-#include "glad/glad.h"
-
 #include "SceneComponent.h"
 #include "CameraComponent.h"
 

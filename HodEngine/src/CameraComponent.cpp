@@ -6,8 +6,6 @@
 #include "StaticMeshComponent.h"
 #include "LightComponent.h"
 
-#include "glad/glad.h"
-
 #include "AntTweakBar.h"
 
 #include "Renderer.h"

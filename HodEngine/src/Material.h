@@ -4,7 +4,6 @@
 #include <map>
 #include <string>
 
-#include "glad/glad.h"
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
 
@@ -37,12 +36,12 @@ public:
 
 private:
 
-    GLint getLocationFromName(const std::string& name);
+    uint32_t getLocationFromName(const std::string& name);
 
-    std::map<std::string, GLint> nameToLocationMap;
-    std::map<GLint, GLint> locationToTextureId;
+    std::map<std::string, uint32_t> nameToLocationMap;
+    std::map<uint32_t, uint32_t> locationToTextureId;
 
-    GLuint programId;
+    uint32_t programId;
 };
 
 #endif

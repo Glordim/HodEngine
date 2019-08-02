@@ -1,8 +1,5 @@
 #include <iostream>
 
-#include "glad/glad.h"
-//#include <GLFW/glfw3.h>
-
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include <SDL_vulkan.h>
