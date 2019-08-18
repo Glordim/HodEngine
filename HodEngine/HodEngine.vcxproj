@@ -65,7 +65,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/glfw/Build/src/Debug;$(SolutionDir)/AntTweakBar/Build/TweakBar/Debug;$(SolutionDir)/PhysX/physx/bin/win.x86_64.vc141.mt/debug;$(SolutionDir)/AntTweakBar/Build/Renderer/Debug;$(SolutionDir)/SDL/VisualC/x64/Debug;%(AdditionalLibraryDirectories);C:\VulkanSDK\1.1.114.0\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AntTweakBar.lib;ATBGuiRenderer.lib;PhysX_64.lib;PhysXFoundation_64.lib;PhysXExtensions_static_64.lib;SDL2.lib;d3d12.lib;dxgi.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Dbghelp.lib;AntTweakBar.lib;ATBGuiRenderer.lib;PhysX_64.lib;PhysXFoundation_64.lib;PhysXExtensions_static_64.lib;SDL2.lib;d3d12.lib;dxgi.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -140,6 +140,7 @@
 <ClInclude Include="src\Renderer\Vulkan\VkTexture.h" />
 <ClInclude Include="src\Test\FreeCam.h" />
 
+<ClInclude Include="src\AllocationTracker.hpp" />
 <ClInclude Include="src\Scene.hpp" />
 
 
@@ -155,9 +156,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourcesForBigCPP\BigCPP_1.CPP" />
+    <ClCompile Include="SourcesForBigCPP\BigCPP_2.CPP" />
 
 
 <ClCompile Include="src\Actor.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\AllocationTracker.cpp">
 <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
 </ClCompile>
 <ClCompile Include="src\Allocator.cpp">

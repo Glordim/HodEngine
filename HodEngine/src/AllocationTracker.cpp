@@ -9,8 +9,11 @@
 #if defined(_WIN32) && defined(_DEBUG)
 
 #include "AllocationTracker.hpp"
+#include <algorithm>
+#include <fstream>
+#include <sstream>
 
-extern char WindowsPathAtStart[];
+//extern char WindowsPathAtStart[];
 
 const char AllocationTracker::filenameOutput[] = "MemoryLeak.txt";
 const char AllocationTracker::stopStackTraceDumpStackSymbol[] = "cocos2d::Application::run";
@@ -56,7 +59,7 @@ size_t* AllocationTracker::allocationNbUsed;
 size_t* AllocationTracker::allocationNbAllocMade;
 std::vector<AllocationTracker_InfoElement>* AllocationTracker::allocationLogs;
 
-FILE* AllocationTracker::DumpTracking_FILE;
+std::ofstream AllocationTracker::DumpTracking_FILE;
 char* AllocationTracker::DumpTracking_FILE_BufferBase;
 const size_t AllocationTracker::DumpTracking_FILE_BufferSize = 128*1024;
 size_t AllocationTracker::DumpTracking_FILE_BufferPos;
@@ -104,12 +107,9 @@ void AllocationTracker::End_Tracking_And_Dump()
 
 	OutputDebugStringA("LOG MEMORY LEAK TO FILE\n");
 
-	char locPathForOutput[1024];
-	strcpy(locPathForOutput, WindowsPathAtStart);
-	strcat(locPathForOutput, "\\");
-	strcat(locPathForOutput, filenameOutput);
+    std::string locPathForOutput = filenameOutput;
 
-	DumpTracking_OpenFile(locPathForOutput);
+	DumpTracking_OpenFile(locPathForOutput.c_str());
 
 	char szBuff[1024];
 
@@ -165,8 +165,11 @@ void AllocationTracker::End_Tracking_And_Dump()
 		int currentPercent = (int)((locIndex * 100) / listOfLeakToSort.size());
 		if (currentPercent != lastPercent)
 		{
+            fprintf(stderr, "LOG MEMORY LEAK TO FILE %d %% (%d / %d)\n", currentPercent, locIndex, listOfLeakToSort.size());
+            /*
 			_snprintf(szBuff, sizeof(szBuff), "LOG MEMORY LEAK TO FILE %d %% (%d / %d)\n", currentPercent, locIndex, listOfLeakToSort.size());
 			OutputDebugStringA(szBuff);
+            */
 			lastPercent = currentPercent;
 		}
 
@@ -179,7 +182,7 @@ void AllocationTracker::End_Tracking_And_Dump()
 		if (currentLeak.numberOfFrames == maxStackFrames)
 			DumpTracking_WriteStringToFile("\t\tSTACK FRAMES TOO BIG\n");
 
-		for (int i = 0; i <currentLeak.numberOfFrames; i++)
+		for (int i = 0; i < currentLeak.numberOfFrames; ++i)
 		{
 			DWORD64 address = (DWORD64)(currentLeak.stackTraceInfo[i]);
 			if (address == adressBreakDisplayStack)
@@ -189,30 +192,43 @@ void AllocationTracker::End_Tracking_And_Dump()
 			if (lineToPrint == nullptr)
 			{
 				SymFromAddr(process, address, NULL, symbol);
-				if (SymGetLineFromAddr64(process, address, &displacement, line))
-				{
-					if ((adressBreakDisplayStack == 0) && (strcmp(symbol->Name, stopStackTraceDumpStackSymbol) == 0))
-					{
-						adressBreakDisplayStack = address;
-						break;
-					}
-					char* newLineForAdress = new char[maxFunctionNameLength];
-					_snprintf(newLineForAdress, maxFunctionNameLength-1, "\t\t%s (%lu): %s (address: 0x%I64X)\n", line->FileName, line->LineNumber, symbol->Name, symbol->Address);
-					listOfResolvedSymbol[address] = newLineForAdress;
-					lineToPrint = newLineForAdress;
-				}
-				else
-				{
-					if ((adressBreakDisplayStack == 0) && (strcmp(symbol->Name, stopStackTraceDumpStackSymbol) == 0))
-					{
-						adressBreakDisplayStack = address;
-						break;
-					}
-					char* newLineForAdress = new char[maxFunctionNameLength];
-					_snprintf(newLineForAdress, maxFunctionNameLength-1, "\t\t%s (address: 0x%I64X)\n", symbol->Name, symbol->Address);
-					listOfResolvedSymbol[address] = newLineForAdress;
-					lineToPrint = newLineForAdress;
-				}
+
+                bool showLine = false;
+
+                if (SymGetLineFromAddr64(process, address, &displacement, line) == TRUE)
+                    showLine = true;
+
+                if ((adressBreakDisplayStack == 0) && (strcmp(symbol->Name, stopStackTraceDumpStackSymbol) == 0))
+                {
+                    adressBreakDisplayStack = address;
+                    break;
+                }
+
+                std::string newLineForAddress = "\t\t";
+
+                if (showLine == true)
+                {
+                    newLineForAddress += line->FileName;
+                    newLineForAddress += "(";
+                    newLineForAddress += std::to_string(line->LineNumber);
+                    newLineForAddress += "): ";
+                }
+
+                newLineForAddress += symbol->Name;
+                newLineForAddress += " (address: 0x";
+
+                std::stringstream ss;
+                ss << std::hex << symbol->Address;
+
+                newLineForAddress += ss.str();
+
+                newLineForAddress += ")\n";
+
+                lineToPrint = new char[newLineForAddress.size() + 1];
+                memcpy(lineToPrint, newLineForAddress.c_str(), newLineForAddress.size());
+                lineToPrint[newLineForAddress.size()] = '\0';
+
+                listOfResolvedSymbol[address] = lineToPrint;
 			}
 			DumpTracking_WriteStringToFile(lineToPrint);
 
@@ -386,17 +402,25 @@ bool AllocationTracker::SortLeak(std::pair<long, AllocationTracker_InfoElement*>
 //**************************************************************************************************************************************
 void AllocationTracker::DumpTracking_OpenFile(const char* filename)
 {
+    DumpTracking_FILE.open(filename);
+
+    /*
 	DumpTracking_FILE = fopen(filename, "w");
 
 	DumpTracking_FILE_BufferBase = new char[DumpTracking_FILE_BufferSize];
 	DumpTracking_FILE_BufferPos = 0;
 	DumpTracking_FILE_BufferNbInside = 0;
+    */
 }
 
 //**************************************************************************************************************************************
 //**************************************************************************************************************************************
 void AllocationTracker::DumpTracking_WriteStringToFile(const char* string)
 {
+    DumpTracking_FILE << string;
+
+    /*
+
 	size_t lenOfString = strlen(string);
 	if (DumpTracking_FILE_BufferNbInside + lenOfString > DumpTracking_FILE_BufferSize)
 	{
@@ -409,6 +433,8 @@ void AllocationTracker::DumpTracking_WriteStringToFile(const char* string)
 
 	DumpTracking_FILE_BufferPos += lenOfString;
 	DumpTracking_FILE_BufferNbInside += lenOfString;
+
+    */
 }
 
 //**************************************************************************************************************************************
@@ -418,7 +444,7 @@ void AllocationTracker::DumpTracking_WriteStringFormatToFile(const char* format,
 	char stringToWrite[maxFunctionNameLength*2];
 	va_list args;
 	va_start(args, format);
-	_vsnprintf(stringToWrite, (maxFunctionNameLength*2)-1, format, args);
+	_vsnprintf_s(stringToWrite, (maxFunctionNameLength*2)-1, format, args);
 	va_end(args);
 	DumpTracking_WriteStringToFile(stringToWrite);
 }
@@ -427,8 +453,7 @@ void AllocationTracker::DumpTracking_WriteStringFormatToFile(const char* format,
 //**************************************************************************************************************************************
 void AllocationTracker::DumpTracking_CloseFile()
 {
-	fwrite(DumpTracking_FILE_BufferBase, 1, DumpTracking_FILE_BufferNbInside, DumpTracking_FILE);
-	fclose(DumpTracking_FILE);
+    DumpTracking_FILE.close();
 }
 
 #endif	//#if defined(_WIN32) && defined(_DEBUG)

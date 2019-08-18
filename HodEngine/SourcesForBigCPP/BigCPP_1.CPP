@@ -1,5 +1,6 @@
 //BigCPP_1.CPP
 #include "..\src\Actor.cpp"
+#include "..\src\AllocationTracker.cpp"
 #include "..\src\Allocator.cpp"
 #include "..\src\Application.cpp"
 #include "..\src\Color.cpp"
@@ -38,5 +39,4 @@
 #include "..\src\Renderer\Vulkan\VkShader.cpp"
 #include "..\src\Renderer\Vulkan\VkTexture.cpp"
 #include "..\src\Test\FreeCam.cpp"
-#include "..\src\Test\main.cpp"
 

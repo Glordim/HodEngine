@@ -9,13 +9,15 @@
 #ifndef AllocationTracker_hpp
 #define AllocationTracker_hpp
 
-#include "cocos2d.h"
 #include "stdio.h"
+#include <Windows.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4091 )	// typedef inside dbghelp.h generate a warning C4091
 #include <dbghelp.h>
 #pragma warning( pop )
+
+#include <fstream>
 
 class AllocationTracker_InfoElement;
 
@@ -51,7 +53,7 @@ private:
 	static long fastIndexCurrentSize;
 	static std::vector<size_t*> fastIndexBlock;
 
-	static FILE* DumpTracking_FILE;
+	static std::ofstream DumpTracking_FILE;
 	static char* DumpTracking_FILE_BufferBase;
 	static const size_t DumpTracking_FILE_BufferSize;
 	static size_t DumpTracking_FILE_BufferPos;

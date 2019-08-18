@@ -43,96 +43,103 @@
 
 #include "../Renderer/Renderer.h"
 
+#include "../AllocationTracker.hpp"
+
 InputListener inputListener;
 
 int __cdecl _tmain()
 {
-    Application application;
-
-    if (application.Init() == false)
-        return false;
-
-    int selectedMonitor = 0;
-
-    // Debug
-    if (ScreenHelper::GetMonitorCount() > 1)
-        selectedMonitor = 1;
-
-    ScreenHelper::Resolution nativeResolution;
-    
-    if (ScreenHelper::GetNativeResoltion(&nativeResolution, selectedMonitor) == false)
-        return 1;
-
-    GraphicsSettings graphicsSettings;
-    graphicsSettings.api = GraphicsSettings::API::D3d12;
-    graphicsSettings.monitor = selectedMonitor;
-    graphicsSettings.width = nativeResolution.width;
-    graphicsSettings.height = nativeResolution.height;
-    graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::FullscreenWindow;
-
-    if (application.CreateWindowAndContext("HodEngine", graphicsSettings) == false)
-        return 1;
-
-    GpuDevice* bestDevice = nullptr;
-
-    if (GpuDeviceHelper::GetBestAvailableAndCompatibleDevice(&bestDevice) == false)
-        return 1;
-
-    Renderer* renderer = Renderer::GetInstance();
-
-    if (renderer->BuildPipeline(bestDevice) == false)
-        return 1;
-
-    Texture* texture = renderer->CreateTexture("Texture/brickwall.jpg");
-
-    Shader* vertexShader = renderer->CreateShader("Shader/UnlitVertexColor.vert.vulk", Shader::ShaderType::Vertex);
-    Shader* fragmentShader = renderer->CreateShader("Shader/UnlitVertexColor.frag.vulk", Shader::ShaderType::Fragment);
-
-    Material* mat = renderer->CreateMaterial(vertexShader, fragmentShader);
-    MaterialInstance* matInstance = renderer->CreateMaterialInstance(mat);
-
-    Mesh* mesh = renderer->CreateMesh("Gizmos/sphere.obj");
-
-    Scene* scene = new Scene();
-
-    FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
-    {
-        SceneComponent* sceneComponent = freeCam->getComponent<SceneComponent>();
-
-        sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        sceneComponent->setParent(scene->getRoot());
-
-        freeCam->setupInputListener(application.GetInputListenner());
-    }
-
-    Actor* sphereActor = scene->spawnActor<Actor>("Sphere");
-    {
-        SceneComponent* sceneComponent = sphereActor->addComponent<SceneComponent>();
-        sceneComponent->position = glm::vec3(-2.0f, 3.0f, -5.5f);
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
-        sceneComponent->setParent(scene->getRoot());
-
-        StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<StaticMeshComponent>();
-        staticMeshComponent->setMesh(mesh);
-        staticMeshComponent->setMaterialInstance(matInstance);
-
-        ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
-        colliderComponent->setShape(ColliderComponent::Shape::Sphere);
-    }
-
     int ret = 0;
 
-    if (application.Run(scene) == false)
-        ret = 1;
+    //AllocationTracker::Start_Tracking();
+    {
+        Application application;
 
-    delete scene;
+        if (application.Init() == false)
+            return false;
 
-    delete mesh;
+        int selectedMonitor = 0;
 
-    delete mat;
+        // Debug
+        if (ScreenHelper::GetMonitorCount() > 1)
+            selectedMonitor = 1;
 
-    delete vertexShader;
-    delete fragmentShader;
+        ScreenHelper::Resolution nativeResolution;
+
+        if (ScreenHelper::GetNativeResoltion(&nativeResolution, selectedMonitor) == false)
+            return 1;
+
+        GraphicsSettings graphicsSettings;
+        graphicsSettings.api = GraphicsSettings::API::Vulkan;
+        graphicsSettings.monitor = selectedMonitor;
+        graphicsSettings.width = nativeResolution.width;
+        graphicsSettings.height = nativeResolution.height;
+        graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::FullscreenWindow;
+
+        if (application.CreateWindowAndContext("HodEngine", graphicsSettings) == false)
+            return 1;
+
+        GpuDevice* bestDevice = nullptr;
+
+        if (GpuDeviceHelper::GetBestAvailableAndCompatibleDevice(&bestDevice) == false)
+            return 1;
+
+        Renderer* renderer = Renderer::GetInstance();
+
+        if (renderer->BuildPipeline(bestDevice) == false)
+            return 1;
+
+        Texture* texture = renderer->CreateTexture("Texture/brickwall.jpg");
+
+        Shader* vertexShader = renderer->CreateShader("Shader/UnlitVertexColor.vert.vulk", Shader::ShaderType::Vertex);
+        Shader* fragmentShader = renderer->CreateShader("Shader/UnlitVertexColor.frag.vulk", Shader::ShaderType::Fragment);
+
+        Material* mat = renderer->CreateMaterial(vertexShader, fragmentShader);
+        MaterialInstance* matInstance = renderer->CreateMaterialInstance(mat);
+
+        Mesh* mesh = renderer->CreateMesh("Gizmos/sphere.obj");
+
+        Scene* scene = new Scene();
+
+        FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
+        {
+            SceneComponent* sceneComponent = freeCam->getComponent<SceneComponent>();
+
+            sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            sceneComponent->setParent(scene->getRoot());
+
+            freeCam->setupInputListener(application.GetInputListenner());
+        }
+
+        Actor* sphereActor = scene->spawnActor<Actor>("Sphere");
+        {
+            SceneComponent* sceneComponent = sphereActor->addComponent<SceneComponent>();
+            sceneComponent->position = glm::vec3(-2.0f, 3.0f, -5.5f);
+            sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
+            sceneComponent->setParent(scene->getRoot());
+
+            StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<StaticMeshComponent>();
+            staticMeshComponent->setMesh(mesh);
+            staticMeshComponent->setMaterialInstance(matInstance);
+
+            ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
+            colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+        }
+
+        if (application.Run(scene) == false)
+            ret = 1;
+
+        delete scene;
+
+        delete mesh;
+
+        delete mat;
+
+        delete vertexShader;
+        delete fragmentShader;
+    }
+
+    //AllocationTracker::End_Tracking_And_Dump();
 
     return ret;
 }

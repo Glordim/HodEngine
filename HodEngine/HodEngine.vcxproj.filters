@@ -23,6 +23,7 @@
 	<ClCompile Include="WindowsSpecific/UnitViewer.cpp"><Filter>win32</Filter></ClCompile>
   -->
     <ClCompile Include="SourcesForBigCPP\BigCPP_1.CPP"><Filter>win32</Filter></ClCompile>
+    <ClCompile Include="SourcesForBigCPP\BigCPP_2.CPP"><Filter>win32</Filter></ClCompile>
 
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
 <ClCompile Include="src\Actor.cpp"><Filter>src</Filter></ClCompile>
+<ClCompile Include="src\AllocationTracker.cpp"><Filter>src</Filter></ClCompile>
 <ClCompile Include="src\Allocator.cpp"><Filter>src</Filter></ClCompile>
 <ClCompile Include="src\Application.cpp"><Filter>src</Filter></ClCompile>
 <ClCompile Include="src\Color.cpp"><Filter>src</Filter></ClCompile>
@@ -126,6 +128,7 @@
 <ClInclude Include="src\Renderer\Vulkan\VkTexture.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
 <ClInclude Include="src\Test\FreeCam.h"><Filter>src\Test</Filter></ClInclude>
 
+<ClInclude Include="src\AllocationTracker.hpp"><Filter>src</Filter></ClInclude>
 <ClInclude Include="src\Scene.hpp"><Filter>src</Filter></ClInclude>
 
   </ItemGroup>
