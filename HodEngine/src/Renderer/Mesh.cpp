@@ -66,7 +66,7 @@ bool Mesh::loadObj(const char* path)
             }
             else
             {
-                memset(&vertex.color[0], 1.0f, 3 * sizeof(float));
+                memset(&vertex.color[0], 1, 3 * sizeof(float));
                 /*
                 vertex.color[0] = 1.0f;
                 vertex.color[1] = 1.0f;
@@ -87,7 +87,7 @@ bool Mesh::loadObj(const char* path)
             }
             else
             {
-                memset(&vertex.normal[0], 0.0f, 3 * sizeof(float));
+                memset(&vertex.normal[0], 0, 3 * sizeof(float));
                 /*
                 vertex.normal[0] = 0.0f;
                 vertex.normal[1] = 0.0f;
@@ -107,7 +107,7 @@ bool Mesh::loadObj(const char* path)
             }
             else
             {
-                memset(&vertex.uv[0], 0.0f, 2 * sizeof(float));
+                memset(&vertex.uv[0], 0, 2 * sizeof(float));
                 /*
                 vertex.uv[0] = 0.0f;
                 vertex.uv[1] = 0.0f;
@@ -213,12 +213,12 @@ bool Mesh::LoadFromTriangles(std::vector<Tri_3P_3C>& triangles)
     return this->BuildBuffers();
 }
 
-unsigned int Mesh::GetIndiceCount() const
+size_t Mesh::GetIndiceCount() const
 {
     return this->indices.size();
 }
 
-unsigned int Mesh::GetVertexCount() const
+size_t Mesh::GetVertexCount() const
 {
     return this->vertices.size();
 }

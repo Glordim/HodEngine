@@ -146,7 +146,7 @@ size_t SceneComponent::getChildCount() const
     return this->childs.size();
 }
 
-SceneComponent* SceneComponent::getChild(int index)
+SceneComponent* SceneComponent::getChild(size_t index)
 {
     return this->childs[index];
 }

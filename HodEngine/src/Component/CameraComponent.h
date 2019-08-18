@@ -7,7 +7,7 @@
 
 #include "glm/mat4x4.hpp"
 
-#include "Scene.hpp"
+#include "../Scene.hpp"
 
 class LightComponent;
 

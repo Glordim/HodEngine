@@ -57,4 +57,6 @@ bool ScreenHelper::GetSupportedResoltions(std::vector<ScreenHelper::Resolution>*
         resolution.refreshRate = mode.refresh_rate;
         resolution.bitPerPixel = SDL_BITSPERPIXEL(mode.format);
     }
+
+    return true;
 }

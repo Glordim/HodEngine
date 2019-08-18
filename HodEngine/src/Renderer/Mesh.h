@@ -25,8 +25,8 @@ public:
     bool LoadFromLines(std::vector<Line_3P_3C>& lines);
     bool LoadFromTriangles(std::vector<Tri_3P_3C>& triangles);
 
-    unsigned int GetIndiceCount() const;
-    unsigned int GetVertexCount() const;
+    size_t GetIndiceCount() const;
+    size_t GetVertexCount() const;
 
 protected:
     virtual bool BuildBuffers() = 0;

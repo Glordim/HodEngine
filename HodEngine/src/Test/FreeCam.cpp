@@ -91,8 +91,8 @@ void FreeCam::disallowRotate()
 
 void FreeCam::rotateView(int x, int y)
 {
-    this->mouseX = x;
-    this->mouseY = y;
+    this->mouseX = (float)x;
+    this->mouseY = (float)y;
 
     if (this->allowRotation == false)
         return;

@@ -22,7 +22,7 @@ public:
 public:
 
     size_t getChildCount() const;
-    SceneComponent* getChild(int index);
+    SceneComponent* getChild(size_t index);
     void setParent(SceneComponent* parent);
 
     void lookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up);
