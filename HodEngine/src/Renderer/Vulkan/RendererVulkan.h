@@ -46,6 +46,16 @@ public:
 
     bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
     bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
+    bool CreateImageView(VkImage image, VkFormat format, VkImageView* imageView);
+    bool CreateSampler(VkSampler* sampler);
+
+    bool BeginSingleTimeCommands(VkCommandBuffer* commandBuffer);
+    bool EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+    bool CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+    bool TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
 private:
 

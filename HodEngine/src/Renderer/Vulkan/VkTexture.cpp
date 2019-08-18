@@ -6,11 +6,20 @@ VkTexture::VkTexture() : Texture()
 {
     this->textureImage = VK_NULL_HANDLE;
     this->textureImageMemory = VK_NULL_HANDLE;
+
+    this->textureImageView = VK_NULL_HANDLE;
+    this->textureSampler = VK_NULL_HANDLE;
 }
 
 VkTexture::~VkTexture()
 {
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+    if (this->textureSampler != VK_NULL_HANDLE)
+        vkDestroySampler(renderer->GetVkDevice(), this->textureSampler, nullptr);
+
+    if (this->textureImageView != VK_NULL_HANDLE)
+        vkDestroyImageView(renderer->GetVkDevice(), this->textureImageView, nullptr);
 
     if (this->textureImage != VK_NULL_HANDLE)
         vkDestroyImage(renderer->GetVkDevice(), this->textureImage, nullptr);
@@ -25,29 +34,64 @@ VkImage VkTexture::GetTextureImage() const
 
 bool VkTexture::BuildBuffer(size_t width, size_t height, unsigned char* pixels)
 {
-    VkBuffer buffer = VK_NULL_HANDLE;
-    VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
-    VkDeviceSize bufferSize = width * height * 4;
-
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-    if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer, &bufferMemory) == false)
-        return false;
-
+    VkBuffer buffer = VK_NULL_HANDLE;
+    VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
+    VkDeviceSize bufferSize = width * height * 3;
     void* data = nullptr;
-    vkMapMemory(renderer->GetVkDevice(), bufferMemory, 0, bufferSize, 0, &data);
+    bool ret = false;
+
+    if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer, &bufferMemory) == false)
+        goto exit;
+    
+    if (vkMapMemory(renderer->GetVkDevice(), bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+    {
+        fprintf(stderr, "Vulkan: Texture, unable to map memory\n");
+        goto exit;
+    }
     memcpy(data, pixels, static_cast<size_t>(bufferSize));
     vkUnmapMemory(renderer->GetVkDevice(), bufferMemory);
 
     if (renderer->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->textureImage, &this->textureImageMemory) == false)
-        return false;
+        goto exit;
 
-    // TODO Copy data from Buffer to Image
+    if (renderer->TransitionImageLayout(this->textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) == false)
+        goto exit;
 
+    if (renderer->CopyBufferToImage(buffer, this->textureImage, static_cast<uint32_t>(width), static_cast<uint32_t>(height)) == false)
+        goto exit;
+
+    if (renderer->TransitionImageLayout(this->textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
+        goto exit;
+
+    if (renderer->CreateImageView(this->textureImage, VK_FORMAT_R8G8B8A8_UNORM, &this->textureImageView) == false)
+        goto exit;
+
+    if (renderer->CreateSampler(&this->textureSampler) == false)
+        goto exit;
+
+    ret = true;
+
+exit:
     if (buffer != VK_NULL_HANDLE)
         vkDestroyBuffer(renderer->GetVkDevice(), buffer, nullptr);
     if (bufferMemory != VK_NULL_HANDLE)
         vkFreeMemory(renderer->GetVkDevice(), bufferMemory, nullptr);
 
-    return true;
+    if (ret == false)
+    {
+        if (this->textureSampler != VK_NULL_HANDLE)
+            vkDestroySampler(renderer->GetVkDevice(), this->textureSampler, nullptr);
+
+        if (this->textureImageView != VK_NULL_HANDLE)
+            vkDestroyImageView(renderer->GetVkDevice(), this->textureImageView, nullptr);
+
+        if (this->textureImage != VK_NULL_HANDLE)
+            vkDestroyImage(renderer->GetVkDevice(), this->textureImage, nullptr);
+        if (this->textureImageMemory != VK_NULL_HANDLE)
+            vkFreeMemory(renderer->GetVkDevice(), this->textureImageMemory, nullptr);
+    }
+
+    return ret;
 }
