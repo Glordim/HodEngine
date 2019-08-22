@@ -62,6 +62,8 @@
 <ClCompile Include="src\Renderer\D3d12\D3d12GpuDevice.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
 <ClCompile Include="src\Renderer\D3d12\D3dShader.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
 <ClCompile Include="src\Renderer\D3d12\RendererDirectX12.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\DescriptorSet.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Renderer\Vulkan\DescriptorSetLayout.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
 <ClCompile Include="src\Renderer\Vulkan\RendererVulkan.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
 <ClCompile Include="src\Renderer\Vulkan\VkGpuDevice.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
 <ClCompile Include="src\Renderer\Vulkan\VkMaterial.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
@@ -119,6 +121,8 @@
 <ClInclude Include="src\Renderer\D3d12\D3d12GpuDevice.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
 <ClInclude Include="src\Renderer\D3d12\D3dShader.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
 <ClInclude Include="src\Renderer\D3d12\RendererDirectX12.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\DescriptorSet.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Renderer\Vulkan\DescriptorSetLayout.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
 <ClInclude Include="src\Renderer\Vulkan\RendererVulkan.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
 <ClInclude Include="src\Renderer\Vulkan\VkGpuDevice.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
 <ClInclude Include="src\Renderer\Vulkan\VkMaterial.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>

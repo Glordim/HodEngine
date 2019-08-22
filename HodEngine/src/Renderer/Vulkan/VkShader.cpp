@@ -29,16 +29,18 @@ bool VkShader::LoadFromFile(const std::string& path)
     }
 
     size_t fileSize = file.tellg();
-    std::vector<char> buffer(fileSize);
+
+    this->buffer.clear();
+    this->buffer.resize(fileSize / sizeof(uint32_t));
 
     file.seekg(0);
-    file.read(buffer.data(), fileSize);
+    file.read(reinterpret_cast<char*>(this->buffer.data()), fileSize);
     file.close();
 
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = fileSize;
-    createInfo.pCode = reinterpret_cast<const uint32_t*>(buffer.data());
+    createInfo.pCode = this->buffer.data();
 
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -54,4 +56,9 @@ bool VkShader::LoadFromFile(const std::string& path)
 VkShaderModule VkShader::GetShaderModule() const
 {
     return this->shaderModule;
+}
+
+const std::vector<uint32_t>& VkShader::GetShaderBytecode() const
+{
+    return this->buffer;
 }

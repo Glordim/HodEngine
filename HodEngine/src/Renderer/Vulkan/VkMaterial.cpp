@@ -5,19 +5,30 @@
 
 #include "../Mesh.h"
 
+#include "spirv_cross.hpp"
+
 VkMaterial::VkMaterial() : Material()
 {
     this->graphicsPipeline = VK_NULL_HANDLE;
     this->pipelineLayout = VK_NULL_HANDLE;
-    this->descriptorSetLayout = VK_NULL_HANDLE;
 }
 
 VkMaterial::~VkMaterial()
 {
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-    if (this->descriptorSetLayout != VK_NULL_HANDLE)
-        vkDestroyDescriptorSetLayout(renderer->GetVkDevice(), this->descriptorSetLayout, nullptr);
+    size_t descriptorSetLayoutCount = this->descriptorSetLayouts.size();
+    for (int i = 0; i < descriptorSetLayoutCount; ++i)
+    {
+        /*
+        VkDescriptorSetLayout descriptorSetLayout = this->descriptorSetLayouts[i];
+
+        if (descriptorSetLayout != VK_NULL_HANDLE)
+            vkDestroyDescriptorSetLayout(renderer->GetVkDevice(), descriptorSetLayout, nullptr);
+        */
+    }
+    this->descriptorSetLayouts.clear();
+    this->descriptorSetLayouts.shrink_to_fit();
 
     if (this->pipelineLayout != VK_NULL_HANDLE)
         vkDestroyPipelineLayout(renderer->GetVkDevice(), this->pipelineLayout, nullptr);
@@ -184,38 +195,60 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
     dynamicState.dynamicStateCount = 2;
     dynamicState.pDynamicStates = dynamicStates;
 
-    VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
+    // Extract descriptorSet definition from shader bytecode
+    spirv_cross::Compiler compVert(((VkShader*)vertexShader)->GetShaderBytecode());
+    spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-    VkDescriptorSetLayoutBinding bindings[] = { uboLayoutBinding, samplerLayoutBinding };
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 2;
-    layoutInfo.pBindings = bindings;
-
-    if (vkCreateDescriptorSetLayout(renderer->GetVkDevice(), &layoutInfo, nullptr, &this->descriptorSetLayout) != VK_SUCCESS)
+    size_t uniformBufferCount = resourcesVert.uniform_buffers.size();
+    for (size_t i = 0; i < uniformBufferCount; ++i)
     {
-        fprintf(stderr, "Vulkan: to create descriptor set layout!\n");
-        return false;
+        spirv_cross::Resource& resource = resourcesVert.uniform_buffers[i];
+
+        size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+        if (this->descriptorSetLayouts.size() <= set)
+        {
+            this->descriptorSetLayouts.resize(set + 1);
+        }
+
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayouts[set];
+
+        descriptorSetLayout.ExtractBlockUbo(compVert, resource);
+    }
+
+    size_t textureCount = resourcesVert.separate_samplers.size();
+    for (size_t i = 0; i < textureCount; ++i)
+    {
+        spirv_cross::Resource& resource = resourcesVert.separate_samplers[i];
+
+        size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+        if (this->descriptorSetLayouts.size() <= set)
+        {
+            this->descriptorSetLayouts.resize(set + 1);
+        }
+
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayouts[set];
+
+        descriptorSetLayout.ExtractBlockTexture(compVert, resource);
+    }
+
+    // And build each DescriptorSetLayout
+    std::vector<VkDescriptorSetLayout> layouts;
+
+    size_t descriptorSetLayoutCount = this->descriptorSetLayouts.size();
+    for (size_t i = 0; i < descriptorSetLayoutCount; ++i)
+    {
+        this->descriptorSetLayouts[i].BuildDescriptorSetLayout();
+
+        layouts.push_back(this->descriptorSetLayouts[i].GetDescriptorSetLayout());
     }
 
     // Pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &this->descriptorSetLayout;
+    pipelineLayoutInfo.setLayoutCount = layouts.size();
+    pipelineLayoutInfo.pSetLayouts = layouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -262,7 +295,7 @@ VkPipelineLayout VkMaterial::GetPipelineLayout() const
     return this->pipelineLayout;
 }
 
-VkDescriptorSetLayout VkMaterial::GetDescriptorLayout() const
+const std::vector<DescriptorSetLayout>& VkMaterial::GetDescriptorSetLayouts() const
 {
-    return this->descriptorSetLayout;
+    return this->descriptorSetLayouts;
 }

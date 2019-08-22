@@ -15,8 +15,12 @@ public:
 
     VkShaderModule GetShaderModule() const;
 
+    const std::vector<uint32_t>& GetShaderBytecode() const;
+
 private:
     VkShaderModule shaderModule;
+
+    std::vector<uint32_t> buffer;
 };
 
 #endif

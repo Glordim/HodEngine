@@ -9,24 +9,11 @@
 VkMaterialInstance::VkMaterialInstance() : MaterialInstance()
 {
     this->material = nullptr;
-
-    this->uniformBuffer = VK_NULL_HANDLE;
-    this->uniformBufferMemory = VK_NULL_HANDLE;
-
-    this->descriptorSet = VK_NULL_HANDLE;
 }
 
 VkMaterialInstance::~VkMaterialInstance()
 {
-    RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-    if (this->descriptorSet != VK_NULL_HANDLE)
-        vkFreeDescriptorSets(renderer->GetVkDevice(), renderer->GetDescriptorPool(), 1, &this->descriptorSet);
-
-    if (this->uniformBuffer != VK_NULL_HANDLE)
-        vkDestroyBuffer(renderer->GetVkDevice(), this->uniformBuffer, nullptr);
-    if (this->uniformBufferMemory != VK_NULL_HANDLE)
-        vkFreeMemory(renderer->GetVkDevice(), this->uniformBufferMemory, nullptr);
 }
 
 bool VkMaterialInstance::SetMaterial(Material* material)
@@ -38,77 +25,20 @@ bool VkMaterialInstance::SetMaterial(Material* material)
 
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-    VkDescriptorSetLayout descriptorLayout = this->material->GetDescriptorLayout();
+    const std::vector<DescriptorSetLayout>& descriptorSetLayouts = this->material->GetDescriptorSetLayouts();
 
-    VkDescriptorSetAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = renderer->GetDescriptorPool();
-    allocInfo.descriptorSetCount = 1;
-    allocInfo.pSetLayouts = &descriptorLayout;
+    size_t descriptorSetLayoutCount = descriptorSetLayouts.size();
 
-    if (vkAllocateDescriptorSets(renderer->GetVkDevice(), &allocInfo, &this->descriptorSet) != VK_SUCCESS)
+    this->descriptorSets.resize(descriptorSetLayoutCount);
+
+    for (size_t i = 0; i < descriptorSetLayoutCount; ++i)
     {
-        fprintf(stderr, "Vulkan: Unable to allocate descriptor sets!\n");
-        return false;
-    }
+        DescriptorSet& descriptorSet = this->descriptorSets[i];
 
-    if (renderer->CreateBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->uniformBuffer, &this->uniformBufferMemory) == false)
-        return false;
+        descriptorSet.SetLayout(descriptorSetLayouts.data() + i);
+    }
 
     return true;
-}
-
-void VkMaterialInstance::UpdateUbo(UniformBufferObject ubo)
-{
-    RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-    void* data = nullptr;
-
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-    if (vkMapMemory(renderer->GetVkDevice(), this->uniformBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
-    {
-        fprintf(stderr, "Vulkan: Unable to map ubo buffer memory!\n");
-        return;
-    }
-    memcpy(data, &ubo, (size_t)bufferSize);
-    vkUnmapMemory(renderer->GetVkDevice(), this->uniformBufferMemory);
-
-    VkDescriptorBufferInfo bufferInfo = {};
-    bufferInfo.buffer = this->uniformBuffer;
-    bufferInfo.offset = 0;
-    bufferInfo.range = bufferSize;
-
-    VkDescriptorImageInfo imageInfo = {};
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = nullptr; // TODO
-    imageInfo.sampler = nullptr; // TODO
-
-    VkWriteDescriptorSet descriptorWrites[2];
-
-    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[0].dstSet = this->descriptorSet;
-    descriptorWrites[0].dstBinding = 0;
-    descriptorWrites[0].dstArrayElement = 0;
-    descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrites[0].descriptorCount = 1;
-    descriptorWrites[0].pBufferInfo = &bufferInfo;
-    descriptorWrites[0].pImageInfo = nullptr;
-    descriptorWrites[0].pTexelBufferView = nullptr;
-    descriptorWrites[0].pNext = nullptr;
-
-    descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[1].dstSet = this->descriptorSet;
-    descriptorWrites[1].dstBinding = 1;
-    descriptorWrites[1].dstArrayElement = 0;
-    descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptorWrites[1].descriptorCount = 1;
-    descriptorWrites[1].pBufferInfo = nullptr;
-    descriptorWrites[1].pImageInfo = &imageInfo;
-    descriptorWrites[1].pTexelBufferView = nullptr;
-    descriptorWrites[1].pNext = nullptr;
-
-    vkUpdateDescriptorSets(renderer->GetVkDevice(), 2, descriptorWrites, 0, nullptr);
 }
 
 VkMaterial* VkMaterialInstance::GetMaterial() const
@@ -116,7 +46,63 @@ VkMaterial* VkMaterialInstance::GetMaterial() const
     return this->material;
 }
 
-VkDescriptorSet VkMaterialInstance::GetDescriptorSet() const
+std::vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets() const
 {
-    return this->descriptorSet;
+    std::vector<VkDescriptorSet> descriptorSets;
+
+    size_t descriptorSetCount = this->descriptorSets.size();
+
+    descriptorSets.reserve(descriptorSetCount);
+
+    for (size_t i = 0; i < descriptorSetCount; ++i)
+    {
+        descriptorSets.push_back(this->descriptorSets[i].GetDescriptorSet());
+    }
+
+    return descriptorSets;
+}
+
+void VkMaterialInstance::SetInt(const std::string& uboName, const std::string& memberName, int value)
+{
+    size_t descriptorSetCount = this->descriptorSets.size();
+    for (size_t i = 0; i < descriptorSetCount; ++i)
+    {
+        this->descriptorSets[i].SetUboValue(uboName, memberName, &value);
+    }
+}
+
+void VkMaterialInstance::SetFloat(const std::string& uboName, const std::string& memberName, float value)
+{
+    size_t descriptorSetCount = this->descriptorSets.size();
+    for (size_t i = 0; i < descriptorSetCount; ++i)
+    {
+        this->descriptorSets[i].SetUboValue(uboName, memberName, &value);
+    }
+}
+
+void VkMaterialInstance::SetVec4(const std::string& uboName, const std::string& memberName, const glm::vec4& value)
+{
+    size_t descriptorSetCount = this->descriptorSets.size();
+    for (size_t i = 0; i < descriptorSetCount; ++i)
+    {
+        this->descriptorSets[i].SetUboValue(uboName, memberName, &value);
+    }
+}
+
+void VkMaterialInstance::SetMat4(const std::string& uboName, const std::string& memberName, const glm::mat4& value)
+{
+    size_t descriptorSetCount = this->descriptorSets.size();
+    for (size_t i = 0; i < descriptorSetCount; ++i)
+    {
+        this->descriptorSets[i].SetUboValue(uboName, memberName, &value);
+    }
+}
+
+void VkMaterialInstance::SetTexture(const std::string& name, const Texture& value)
+{
+    size_t descriptorSetCount = this->descriptorSets.size();
+    for (size_t i = 0; i < descriptorSetCount; ++i)
+    {
+        this->descriptorSets[i].SetTexture(name, (VkTexture*)&value);
+    }
 }

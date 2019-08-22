@@ -14,6 +14,8 @@ public:
     virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer) override;
 
     VkImage GetTextureImage() const;
+    VkImageView GetTextureImageView() const;
+    VkSampler GetTextureSampler() const;
 
 private:
     VkImage textureImage;

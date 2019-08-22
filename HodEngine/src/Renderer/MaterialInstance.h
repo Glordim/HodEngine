@@ -19,11 +19,11 @@ public:
 
     virtual bool SetMaterial(Material* material) = 0;
 
-    void setInt(const std::string& name, int value);
-    void setFloat(const std::string& name, float value);
-    void setVec4(const std::string& name, const glm::vec4& value);
-    void setMat4(const std::string& name, const glm::mat4& value);
-    void setTexture(const std::string& name, const Texture& value);
+    virtual void SetInt(const std::string& uboName, const std::string& memberName, int value) = 0;
+    virtual void SetFloat(const std::string& uboName, const std::string& memberName, float value) = 0;
+    virtual void SetVec4(const std::string& uboName, const std::string& memberName, const glm::vec4& value) = 0;
+    virtual void SetMat4(const std::string& uboName, const std::string& memberName, const glm::mat4& value) = 0;
+    virtual void SetTexture(const std::string& name, const Texture& value) = 0;
 };
 
 #endif

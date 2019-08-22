@@ -54,11 +54,6 @@ physx::PxMaterial* Scene::getDefaultMaterial() const
 
 void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
 {
-    MaterialManager* materialManager = MaterialManager::getInstance();
-    Material* material = materialManager->getMaterial("UnlitVertexColor");
-    material->use();
-    material->setMat4("mvp", camera->getProjectionMatrix() * glm::inverse(camera->getActor()->getComponent<SceneComponent>()->getModelMatrix()));
-
     const physx::PxRenderBuffer& rb = this->pxScene->getRenderBuffer();
     physx::PxU32 lineCount = rb.getNbLines();
 

@@ -32,6 +32,16 @@ VkImage VkTexture::GetTextureImage() const
     return this->textureImage;
 }
 
+VkImageView VkTexture::GetTextureImageView() const
+{
+    return this->textureImageView;
+}
+
+VkSampler VkTexture::GetTextureSampler() const
+{
+    return this->textureSampler;
+}
+
 bool VkTexture::BuildBuffer(size_t width, size_t height, unsigned char* pixels)
 {
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();

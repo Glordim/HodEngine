@@ -1218,18 +1218,15 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         VkMaterial* material = materialInstance->GetMaterial();
 
-        UniformBufferObject ubo;
-        ubo.model = meshData->matrix;
-        ubo.view = renderQueue.GetViewMatrix();
-        ubo.proj = renderQueue.GetProjMatrix();
-        ubo.mvp = ubo.proj * ubo.view * ubo.model;
+        materialInstance->SetMat4("ubo", "model", meshData->matrix);
+        materialInstance->SetMat4("ubo", "view", renderQueue.GetViewMatrix());
+        materialInstance->SetMat4("ubo", "proj", renderQueue.GetProjMatrix());
+        materialInstance->SetMat4("ubo", "mvp", renderQueue.GetProjMatrix() * renderQueue.GetViewMatrix() *  meshData->matrix);
 
-        materialInstance->UpdateUbo(ubo);
-
-        VkDescriptorSet descriptorSet = materialInstance->GetDescriptorSet();
+        std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
         VkMesh* mesh = (VkMesh*)meshData->mesh;
         VkBuffer vertexBuffer = mesh->GetVertexBuffer();
@@ -1257,18 +1254,15 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         VkMaterial* material = materialInstance->GetMaterial();
 
-        UniformBufferObject ubo;
-        ubo.model = lineData->matrix;
-        ubo.view = renderQueue.GetViewMatrix();
-        ubo.proj = renderQueue.GetProjMatrix();
-        ubo.mvp = ubo.proj * ubo.view * ubo.model;
+        materialInstance->SetMat4("ubo", "model", lineData->matrix);
+        materialInstance->SetMat4("ubo", "view", renderQueue.GetViewMatrix());
+        materialInstance->SetMat4("ubo", "proj", renderQueue.GetProjMatrix());
+        materialInstance->SetMat4("ubo", "mvp", renderQueue.GetProjMatrix() * renderQueue.GetViewMatrix() *  lineData->matrix);
 
-        materialInstance->UpdateUbo(ubo);
-
-        VkDescriptorSet descriptorSet = materialInstance->GetDescriptorSet();
+        std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
         VkMesh* mesh = (VkMesh*)lineData->mesh;
         VkBuffer vertexBuffer = mesh->GetVertexBuffer();
@@ -1293,18 +1287,15 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         VkMaterial* material = materialInstance->GetMaterial();
 
-        UniformBufferObject ubo;
-        ubo.model = triangleData->matrix;
-        ubo.view = renderQueue.GetViewMatrix();
-        ubo.proj = renderQueue.GetProjMatrix();
-        ubo.mvp = ubo.proj * ubo.view * ubo.model;
+        materialInstance->SetMat4("ubo", "model", triangleData->matrix);
+        materialInstance->SetMat4("ubo", "view", renderQueue.GetViewMatrix());
+        materialInstance->SetMat4("ubo", "proj", renderQueue.GetProjMatrix());
+        materialInstance->SetMat4("ubo", "mvp", renderQueue.GetProjMatrix() * renderQueue.GetViewMatrix() *  triangleData->matrix);
 
-        materialInstance->UpdateUbo(ubo);
-
-        VkDescriptorSet descriptorSet = materialInstance->GetDescriptorSet();
+        std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
         VkMesh* mesh = (VkMesh*)triangleData->mesh;
         VkBuffer vertexBuffer = mesh->GetVertexBuffer();

@@ -5,6 +5,8 @@
 
 #include <vulkan.h>
 
+#include "DescriptorSetLayout.h"
+
 class VkMaterial : public Material
 {
 public:
@@ -16,12 +18,14 @@ public:
 
     VkPipeline GetGraphicsPipeline() const;
     VkPipelineLayout GetPipelineLayout() const;
-    VkDescriptorSetLayout GetDescriptorLayout() const;
+
+    const std::vector<DescriptorSetLayout>& GetDescriptorSetLayouts() const;
 
 private:
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
-    VkDescriptorSetLayout descriptorSetLayout;
+
+    std::vector<DescriptorSetLayout> descriptorSetLayouts;
 };
 
 #endif
