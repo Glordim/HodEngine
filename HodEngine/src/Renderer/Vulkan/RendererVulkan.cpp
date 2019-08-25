@@ -162,8 +162,8 @@ bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
     // === Validation Layers ===
 
     const std::vector<const char*> validationLayers = {
-        //"VK_LAYER_LUNARG_standard_validation"
-        "VK_LAYER_KHRONOS_validation"
+        "VK_LAYER_LUNARG_standard_validation"
+        //"VK_LAYER_KHRONOS_validation"
     };
 
     if (enableValidationLayers == true && RendererVulkan::CheckValidationLayerSupport(validationLayers) == false)
@@ -181,7 +181,7 @@ bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
+    appInfo.apiVersion = VK_API_VERSION_1_1;
 
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -1202,6 +1202,22 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     renderPassInfo.pClearValues = &clearColor;
 
     vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    VkViewport viewport = {};
+    viewport.x = 0.0f;
+    viewport.y = (float)swapChainExtent.height;
+    viewport.width = (float)swapChainExtent.width;
+    viewport.height = -(float)swapChainExtent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    vkCmdSetViewport(*commandBuffer, 0, 1, &viewport);
+
+    VkRect2D scissor = {};
+    scissor.offset = { 0, 0 };
+    scissor.extent = swapChainExtent;
+
+    vkCmdSetScissor(*commandBuffer, 0, 1, &scissor);
 
     const std::vector<RenderQueue::MeshData*>& meshDatas = renderQueue.GetMeshDatas();
 

@@ -74,7 +74,7 @@ int __cdecl _tmain()
         graphicsSettings.monitor = selectedMonitor;
         graphicsSettings.width = nativeResolution.width;
         graphicsSettings.height = nativeResolution.height;
-        graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::FullscreenWindow;
+        graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::Window;
 
         if (application.CreateWindowAndContext("HodEngine", graphicsSettings) == false)
             return 1;
