@@ -1279,7 +1279,8 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+        if (descriptorSets.empty() == false)
+            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
 
         // Model descriptor set
@@ -1325,7 +1326,8 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+        if (descriptorSets.empty() == false)
+            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
 
         // Model descriptor set
@@ -1368,7 +1370,8 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+        if (descriptorSets.empty() == false)
+            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
 
         // Model descriptor set
