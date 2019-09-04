@@ -152,6 +152,16 @@ int __cdecl _tmain()
 
         materialUnlitInstance->SetVec4("matUbo", "color", glm::vec4(0.65f, 0.65f, 0.65f, 1.0f));
 
+        Material* materialUnlitTexture = materialManager->getMaterial("UnlitTexture");
+        if (materialUnlitTexture == nullptr)
+            return 1;
+
+        MaterialInstance* materialUnlitTextureInstance = renderer->CreateMaterialInstance(materialUnlitTexture);
+        if (materialUnlitTextureInstance == nullptr)
+            return 1;
+
+        materialUnlitTextureInstance->SetTexture("textureSampler", *wallTexture);
+
         Scene* scene = new Scene();
 
         FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
@@ -174,7 +184,8 @@ int __cdecl _tmain()
 
             StaticMeshComponent* staticMeshComponent = wall1->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(wallMesh);
-            staticMeshComponent->setMaterialInstance(materialUnlitInstance);
+            //staticMeshComponent->setMaterialInstance(materialUnlitInstance);
+            staticMeshComponent->setMaterialInstance(materialUnlitTextureInstance);
             //staticMeshComponent->setMaterialInstance(materialLitInstance);
 
             ColliderComponent* colliderComponent = wall1->addComponent<ColliderComponent>();

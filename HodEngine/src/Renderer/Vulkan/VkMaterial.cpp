@@ -189,10 +189,10 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
         descriptorSetLayout.ExtractBlockUbo(compVert, resource);
     }
 
-    size_t textureCount = resourcesVert.separate_samplers.size();
+    size_t textureCount = resourcesVert.sampled_images.size();
     for (size_t i = 0; i < textureCount; ++i)
     {
-        spirv_cross::Resource& resource = resourcesVert.separate_samplers[i];
+        spirv_cross::Resource& resource = resourcesVert.sampled_images[i];
 
         size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
 
@@ -223,10 +223,10 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
         descriptorSetLayout.ExtractBlockUbo(compFrag, resource);
     }
 
-    textureCount = resourcesFrag.separate_samplers.size();
+    textureCount = resourcesFrag.sampled_images.size();
     for (size_t i = 0; i < textureCount; ++i)
     {
-        spirv_cross::Resource& resource = resourcesFrag.separate_samplers[i];
+        spirv_cross::Resource& resource = resourcesFrag.sampled_images[i];
 
         size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
 
