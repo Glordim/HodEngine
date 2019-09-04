@@ -120,8 +120,6 @@ void DescriptorSet::SetUboValue(const std::string& uboName, const std::string& m
 
                 vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
             }
-
-            break;
         }
     }
 }
@@ -149,7 +147,7 @@ void DescriptorSet::SetTexture(const std::string& name, const VkTexture* texture
             descriptorWrite.dstSet = this->descriptorSet;
             descriptorWrite.dstBinding = texture.binding;
             descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             descriptorWrite.descriptorCount = 1;
             descriptorWrite.pBufferInfo = nullptr;
             descriptorWrite.pImageInfo = &imageInfo;

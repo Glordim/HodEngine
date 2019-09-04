@@ -557,8 +557,13 @@ bool RendererVulkan::BuildPipeline(GpuDevice* physicalDevice)
     if (this->CreateSemaphores() == false)
         return false;
 
-    Shader* vertexShader = this->CreateShader("Shader/UnlitVertexColor.vert.vulk", Shader::Vertex);
-    Shader* fragmentShader = this->CreateShader("Shader/UnlitVertexColor.frag.vulk", Shader::Fragment);
+    Shader* vertexShader = this->CreateShader("Shader/UnlitVertexColor.vert.spirv", Shader::Vertex);
+    if (vertexShader == nullptr)
+        return false;
+
+    Shader* fragmentShader = this->CreateShader("Shader/UnlitVertexColor.frag.spirv", Shader::Fragment);
+    if (fragmentShader == nullptr)
+        return false;
 
     this->unlitVertexColorMaterial = this->CreateMaterial(vertexShader, fragmentShader, Material::Topololy::TRIANGLE);
     this->unlitVertexColorMaterialInstance = this->CreateMaterialInstance(this->unlitVertexColorMaterial);
@@ -609,7 +614,25 @@ bool RendererVulkan::CreateDevice()
     vkGetDeviceQueue(this->device, this->selectedGpu->graphicsAndPresentQueueFamilyIndex, 0, &this->graphicsQueue);
     vkGetDeviceQueue(this->device, this->selectedGpu->graphicsAndPresentQueueFamilyIndex, 0, &this->presentQueue);
 
+    // Move that at renderer init and use it for material build
+    this->viewLayout.ForceViewDescriptorSet();
+    this->viewLayout.BuildDescriptorSetLayout();
+
+    this->modelLayout.ForceModelDescriptorSet();
+    this->modelLayout.BuildDescriptorSetLayout();
+    //
+
     return true;
+}
+
+VkDescriptorSetLayout RendererVulkan::GetVkViewDescriptorSet() const
+{
+    return this->viewLayout.GetDescriptorSetLayout();
+}
+
+VkDescriptorSetLayout RendererVulkan::GetVkModelDescriptorSet() const
+{
+    return this->modelLayout.GetDescriptorSetLayout();
 }
 
 bool RendererVulkan::CreateSwapChain()
@@ -793,16 +816,17 @@ bool RendererVulkan::CreateCommandPool()
     VkDescriptorPoolSize poolSizes[2];
 
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = 15; // TODO
+    poolSizes[0].descriptorCount = 150000; // TODO
 
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = 15; // TODO
+    poolSizes[1].descriptorCount = 150; // TODO
 
     VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
     descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolInfo.poolSizeCount = 2;
     descriptorPoolInfo.pPoolSizes = poolSizes;
-    descriptorPoolInfo.maxSets = 15; // TODO
+    descriptorPoolInfo.maxSets = 150000; // TODO
+    descriptorPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
     if (vkCreateDescriptorPool(this->device, &descriptorPoolInfo, nullptr, &this->descriptorPool) != VK_SUCCESS)
     {
@@ -1032,7 +1056,7 @@ bool RendererVulkan::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+    if (vkQueueSubmit(this->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
         goto exit;
 
     if (vkQueueWaitIdle(graphicsQueue) != VK_SUCCESS)
@@ -1165,7 +1189,7 @@ bool RendererVulkan::FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryProper
     return false;
 }
 
-bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer)
+bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer, std::vector<DescriptorSet*>& descriptorSetToCleanAfterRender)
 {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1219,6 +1243,24 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
     vkCmdSetScissor(*commandBuffer, 0, 1, &scissor);
 
+    const glm::mat4x4& projMatrix = renderQueue.GetProjMatrix();
+    const glm::mat4x4& viewMatrix = renderQueue.GetViewMatrix();
+    glm::mat4x4 vp = projMatrix * viewMatrix;
+
+    DescriptorSet* viewDescriptorSet = new DescriptorSet();
+    viewDescriptorSet->SetLayout(&this->viewLayout);
+    viewDescriptorSet->SetUboValue("viewUbo", "view", &viewMatrix);
+    viewDescriptorSet->SetUboValue("viewUbo", "proj", &projMatrix);
+    viewDescriptorSet->SetUboValue("viewUbo", "vp", &vp);
+    VkDescriptorSet vkViewDescriptorSet = viewDescriptorSet->GetDescriptorSet();
+
+    descriptorSetToCleanAfterRender.push_back(viewDescriptorSet);
+
+    VkMaterial* defaultMat = ((VkMaterialInstance*)this->unlitVertexColorMaterialInstance)->GetMaterial();
+
+    vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMat->GetGraphicsPipeline());
+    vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMat->GetPipelineLayout(), 0, 1, &vkViewDescriptorSet, 0, nullptr);
+
     const std::vector<RenderQueue::MeshData*>& meshDatas = renderQueue.GetMeshDatas();
 
     size_t meshCount = meshDatas.size();
@@ -1234,15 +1276,25 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         VkMaterial* material = materialInstance->GetMaterial();
 
-        materialInstance->SetMat4("ubo", "model", meshData->matrix);
-        materialInstance->SetMat4("ubo", "view", renderQueue.GetViewMatrix());
-        materialInstance->SetMat4("ubo", "proj", renderQueue.GetProjMatrix());
-        materialInstance->SetMat4("ubo", "mvp", renderQueue.GetProjMatrix() * renderQueue.GetViewMatrix() *  meshData->matrix);
-
         std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+
+
+        // Model descriptor set
+
+        glm::mat4x4 mvp = projMatrix * viewMatrix * meshData->matrix;
+
+        DescriptorSet* modelDescriptorSet = new DescriptorSet();
+        modelDescriptorSet->SetLayout(&this->modelLayout);
+        modelDescriptorSet->SetUboValue("modelUbo", "mvp", &mvp);
+        modelDescriptorSet->SetUboValue("modelUbo", "model", &meshData->matrix);
+        VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
+
+        descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
+
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
 
         VkMesh* mesh = (VkMesh*)meshData->mesh;
         VkBuffer vertexBuffer = mesh->GetVertexBuffer();
@@ -1254,7 +1306,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         vkCmdDrawIndexed(*commandBuffer, static_cast<uint32_t>(mesh->GetIndiceCount()), 1, 0, 0, 0);
     }
-
+    
     const std::vector<RenderQueue::LineData*>& lineDatas = renderQueue.GetLineDatas();
 
     size_t lineCount = lineDatas.size();
@@ -1270,15 +1322,25 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         VkMaterial* material = materialInstance->GetMaterial();
 
-        materialInstance->SetMat4("ubo", "model", lineData->matrix);
-        materialInstance->SetMat4("ubo", "view", renderQueue.GetViewMatrix());
-        materialInstance->SetMat4("ubo", "proj", renderQueue.GetProjMatrix());
-        materialInstance->SetMat4("ubo", "mvp", renderQueue.GetProjMatrix() * renderQueue.GetViewMatrix() *  lineData->matrix);
-
         std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+
+
+        // Model descriptor set
+
+        glm::mat4x4 mvp = projMatrix * viewMatrix * lineData->matrix;
+
+        DescriptorSet* modelDescriptorSet = new DescriptorSet();
+        modelDescriptorSet->SetLayout(&this->modelLayout);
+        modelDescriptorSet->SetUboValue("modelUbo", "mvp", &mvp);
+        modelDescriptorSet->SetUboValue("modelUbo", "model", &lineData->matrix);
+        VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
+
+        descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
+
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
 
         VkMesh* mesh = (VkMesh*)lineData->mesh;
         VkBuffer vertexBuffer = mesh->GetVertexBuffer();
@@ -1303,15 +1365,25 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         VkMaterial* material = materialInstance->GetMaterial();
 
-        materialInstance->SetMat4("ubo", "model", triangleData->matrix);
-        materialInstance->SetMat4("ubo", "view", renderQueue.GetViewMatrix());
-        materialInstance->SetMat4("ubo", "proj", renderQueue.GetProjMatrix());
-        materialInstance->SetMat4("ubo", "mvp", renderQueue.GetProjMatrix() * renderQueue.GetViewMatrix() *  triangleData->matrix);
-
         std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+
+
+        // Model descriptor set
+
+        glm::mat4x4 mvp = projMatrix * viewMatrix * triangleData->matrix;
+
+        DescriptorSet* modelDescriptorSet = new DescriptorSet();
+        modelDescriptorSet->SetLayout(&this->modelLayout);
+        modelDescriptorSet->SetUboValue("modelUbo", "mvp", &mvp);
+        modelDescriptorSet->SetUboValue("modelUbo", "model", &triangleData->matrix);
+        VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
+
+        descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
+
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
 
         VkMesh* mesh = (VkMesh*)triangleData->mesh;
         VkBuffer vertexBuffer = mesh->GetVertexBuffer();
@@ -1320,7 +1392,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
         vkCmdDraw(*commandBuffer, mesh->GetVertexCount(), 1, 0, 0);
     }
-
+    
     vkCmdEndRenderPass(*commandBuffer);
 
     if (vkEndCommandBuffer(*commandBuffer) != VK_SUCCESS)
@@ -1336,7 +1408,10 @@ bool RendererVulkan::SubmitRenderQueue(RenderQueue& renderQueue)
 {
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
     
-    if (this->GenerateCommandBufferFromRenderQueue(renderQueue, &commandBuffer) == false)
+    std::vector<DescriptorSet*> descriptorSetToCleanAfterRender;
+    descriptorSetToCleanAfterRender.reserve(renderQueue.GetMeshDatas().size() + renderQueue.GetLineDatas().size() + renderQueue.GetTriangleDatas().size() + 1);
+
+    if (this->GenerateCommandBufferFromRenderQueue(renderQueue, &commandBuffer, descriptorSetToCleanAfterRender) == false)
         return false;
 
     VkFence fence = VK_NULL_HANDLE;
@@ -1379,6 +1454,12 @@ bool RendererVulkan::SubmitRenderQueue(RenderQueue& renderQueue)
     vkDestroyFence(this->device, fence, nullptr);
 
     vkFreeCommandBuffers(this->device, this->commandPool, 1, &commandBuffer);
+
+    size_t descriptorSetToCleanAfterRenderCount = descriptorSetToCleanAfterRender.size();
+    for (size_t i = 0; i < descriptorSetToCleanAfterRenderCount; ++i)
+    {
+        delete descriptorSetToCleanAfterRender[i];
+    }
 
     return true;
 }

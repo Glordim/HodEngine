@@ -1,5 +1,22 @@
 #version 450 core
 
+layout(location = 0) in vec2 out_uv;
+layout(location = 1) in vec3 out_normal;
+layout(location = 2) in vec3 out_fragPos;
+
+layout(location = 0) out vec4 frag_color;
+
+layout(set = 0, binding = 0) uniform ViewUniformBufferObject {
+	mat4 view;
+	mat4 proj;
+	mat4 vp;
+} viewUbo;
+
+layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
+	mat4 mvp;
+	mat4 model;
+} modelUbo;
+
 struct PointLight
 {    
     vec4 pos;
@@ -8,40 +25,30 @@ struct PointLight
 	float range;
 };  
 
-layout(binding = 0) uniform UniformBufferObject {
-	float time;
-	
+layout(set = 2, binding = 0) uniform MatUniformBufferObject {
 	int lightCount;
 	PointLight pointLight[32];
 
 	vec4 ambiantColor;
 	vec4 eyePos;
-} ubo;
+} matUbo;
 
-layout(binding = 1) uniform sampler2D textureSampler;
-
-
-layout(location = 0) out vec4 frag_color;
-
-layout(location = 0) in vec2 out_uv;
-layout(location = 1) in vec3 out_normal;
-layout(location = 2) in vec3 out_fragPos;
+layout(set = 2, binding = 1) uniform sampler2D textureSampler;
 
 void main()
 {
 	vec3 diffuse = vec3(0.0f, 0.0f, 0.0f);
 	
-	for (int i = 0; i < ubo.lightCount; ++i)
+	for (int i = 0; i < matUbo.lightCount; ++i)
 	{
 		vec3 norm = normalize(out_normal);
-		vec3 lightDir = normalize(ubo.pointLight[i].pos.xyz - out_fragPos);
+		vec3 lightDir = normalize(matUbo.pointLight[i].pos.xyz - out_fragPos);
 		
 		float diff = max(dot(norm, lightDir), 0.0f);
-		diffuse += diff * ubo.pointLight[i].color.xyz;
+		diffuse += diff * matUbo.pointLight[i].color.xyz;
 	}
 	
-	vec3 result = (ubo.ambiantColor.xyz + diffuse) * texture(textureSampler, out_uv.xy).xyz;
+	vec3 result = (matUbo.ambiantColor.xyz + diffuse) * texture(textureSampler, out_uv.xy).xyz;
 	
 	frag_color = vec4(result, 1.0f);
 }
-

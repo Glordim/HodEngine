@@ -7,6 +7,10 @@
 
 #include "VkGpuDevice.h"
 
+#include "DescriptorSetLayout.h"
+
+class DescriptorSet;
+
 class RendererVulkan : public Renderer
 {
 public:
@@ -57,10 +61,13 @@ public:
     bool TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
+    VkDescriptorSetLayout GetVkViewDescriptorSet() const;
+    VkDescriptorSetLayout GetVkModelDescriptorSet() const;
+
 private:
 
     bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
-    bool GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer);
+    bool GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer, std::vector<DescriptorSet*>& descriptorSetToCleanAfterRender);
 
     static void GetAvailableExtensions(std::vector<VkExtensionProperties>* availableExtensions);
     static bool GetExtensionRequiredBySDL(SDL_Window* window, std::vector<const char*>* extensionsRequiredBySDL);
@@ -97,6 +104,9 @@ private:
 
     Material* unlitVertexColorLineMaterial;
     MaterialInstance* unlitVertexColorLineMaterialInstance;
+
+    DescriptorSetLayout viewLayout;
+    DescriptorSetLayout modelLayout;
 };
 
 #endif

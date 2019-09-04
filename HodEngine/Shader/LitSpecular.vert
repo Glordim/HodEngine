@@ -1,34 +1,30 @@
 #version 450 core
 
-struct PointLight
-{    
-    vec4 pos;
-	vec4 color;
-	float intensity;
-	float range;
-};
+layout(location = 0) in vec3 pos;
+layout(location = 1) in vec3 color;
+layout(location = 2) in vec3 normal;
+layout(location = 3) in vec2 uv;
+layout(location = 4) in vec3 tangent;
 
-layout(location=0) in vec3 pos;
-layout(location=1) in vec3 color;
-layout(location=2) in vec3 normal;
-layout(location=3) in vec2 uv;
-layout(location=4) in vec3 tangent;
+layout(location = 0) out vec2 out_uv;
+layout(location = 1) out vec3 out_normal;
+layout(location = 2) out vec3 out_fragPos;
 
-uniform mat4 mvp;
-uniform mat4 model;
-uniform float time;
-uniform int lightCount;
-uniform PointLight pointLight[32];
+layout(set = 0, binding = 0) uniform ViewUniformBufferObject {
+	mat4 view;
+	mat4 proj;
+	mat4 vp;
+} viewUbo;
 
-out vec2 out_uv;
-out vec3 out_normal;
-out vec3 out_fragPos;
+layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
+	mat4 mvp;
+	mat4 model;
+} modelUbo;
 
 void main()
 {
-	gl_Position = mvp * vec4(pos.xyz, 1.0f);
-	out_fragPos = vec3(model * vec4(pos.xyz, 1.0f));
+	gl_Position = modelUbo.mvp * vec4(pos.xyz, 1.0f);
+	out_fragPos = vec3(modelUbo.model * vec4(pos.xyz, 1.0f));
 	out_uv = uv;
-	out_normal = mat3(transpose(inverse(model))) * normal;
+	out_normal = mat3(transpose(inverse(modelUbo.model))) * normal;
 }
-

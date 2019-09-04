@@ -22,7 +22,7 @@ bool Texture::LoadFromPath(const char* path)
 
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char* buffer = stbi_load(path, &width, &height, &channel, 3);
+    unsigned char* buffer = stbi_load(path, &width, &height, &channel, 4);
     if (buffer == nullptr)
     {
         fprintf(stderr, "Texture : Failed to load Texture \"%s\"\n", path);

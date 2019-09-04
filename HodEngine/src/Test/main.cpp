@@ -10,9 +10,10 @@
 
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Texture.h"
-#include "../Renderer/Material.h"
 #include "../Renderer/Shader.h"
+#include "../Renderer/Material.h"
 #include "../Renderer/MaterialManager.h"
+#include "../Renderer/MaterialInstance.h"
 
 #include "../Scene.hpp"
 
@@ -26,6 +27,7 @@
 #include "../InputListener.h"
 
 #include "FreeCam.h"
+#include "FlyingPointLight.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -89,15 +91,66 @@ int __cdecl _tmain()
         if (renderer->BuildPipeline(bestDevice) == false)
             return 1;
 
-        Texture* texture = renderer->CreateTexture("Texture/brickwall.jpg");
+        Mesh* sphereMesh = renderer->CreateMesh("Mesh/sphere.obj");
+        if (sphereMesh == nullptr)
+            return 1;
 
-        Shader* vertexShader = renderer->CreateShader("Shader/UnlitVertexColor.vert.vulk", Shader::ShaderType::Vertex);
-        Shader* fragmentShader = renderer->CreateShader("Shader/UnlitVertexColor.frag.vulk", Shader::ShaderType::Fragment);
+        Mesh* wallMesh = renderer->CreateMesh("Mesh/wall.obj");
+        if (wallMesh == nullptr)
+            return 1;
 
-        Material* mat = renderer->CreateMaterial(vertexShader, fragmentShader);
-        MaterialInstance* matInstance = renderer->CreateMaterialInstance(mat);
+        Texture* wallTexture = renderer->CreateTexture("Texture/brickwall.jpg");
+        if (wallTexture == nullptr)
+            return 1;
 
-        Mesh* mesh = renderer->CreateMesh("Gizmos/sphere.obj");
+        Texture* wallTextureNormal = renderer->CreateTexture("Texture/brickwall_normal.jpg");
+        if (wallTextureNormal == nullptr)
+            return 1;
+
+        Texture* wallTextureSpecular = renderer->CreateTexture("Texture/brickwall_Specular.png");
+        if (wallTextureSpecular == nullptr)
+            return 1;
+        /*
+            Texture* gunTexture = renderer->CreateTexture("Texture/brickwall.jpg");
+            if (gunTexture == nullptr)
+                return 1;
+        */
+
+        MaterialManager* materialManager = MaterialManager::getInstance();
+        
+        Material* materialLit = materialManager->getMaterial("Lit");
+        if (materialLit == nullptr)
+            return 1;
+
+        MaterialInstance* materialLitInstance = renderer->CreateMaterialInstance(materialLit);
+        if (materialLitInstance == nullptr)
+            return 1;
+
+        materialLitInstance->SetTexture("textureSampler", *wallTexture);
+        materialLitInstance->SetFloat("matUbo", "specularStrength", 1.5f);
+
+        Material* materialLitSpecular = materialManager->getMaterial("LitSpecularNormal");
+        if (materialLitSpecular == nullptr)
+            return 1;
+
+        MaterialInstance* materialLitSpecularInstance = renderer->CreateMaterialInstance(materialLit);
+        if (materialLitSpecularInstance == nullptr)
+            return 1;
+
+        materialLitSpecularInstance->SetTexture("textureSampler", *wallTexture);
+        materialLitSpecularInstance->SetTexture("specularTextureSampler", *wallTextureSpecular);
+        materialLitSpecularInstance->SetTexture("normalTextureSampler", *wallTextureNormal);
+        materialLitSpecularInstance->SetFloat("matUbo", "specularStrength", 1.5f);
+        
+        Material* materialUnlit = materialManager->getMaterial("UnlitColor");
+        if (materialUnlit == nullptr)
+            return 1;
+
+        MaterialInstance* materialUnlitInstance = renderer->CreateMaterialInstance(materialUnlit);
+        if (materialUnlitInstance == nullptr)
+            return 1;
+
+        materialUnlitInstance->SetVec4("matUbo", "color", glm::vec4(0.65f, 0.65f, 0.65f, 1.0f));
 
         Scene* scene = new Scene();
 
@@ -111,16 +164,50 @@ int __cdecl _tmain()
             freeCam->setupInputListener(application.GetInputListenner());
         }
 
-        Actor* sphereActor = scene->spawnActor<Actor>("Sphere");
+        Actor* wall1 = scene->spawnActor<Actor>("wall1");
         {
-            SceneComponent* sceneComponent = sphereActor->addComponent<SceneComponent>();
+            SceneComponent* sceneComponent = wall1->addComponent<SceneComponent>();
+            sceneComponent->position = glm::vec3(-3.5f, 0.0f, 0.0f);
+            sceneComponent->setRotation(glm::vec3(0.0f, -150.0f, 0.0f));
+            sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
+            sceneComponent->setParent(scene->getRoot());
+
+            StaticMeshComponent* staticMeshComponent = wall1->addComponent<StaticMeshComponent>();
+            staticMeshComponent->setMesh(wallMesh);
+            staticMeshComponent->setMaterialInstance(materialUnlitInstance);
+            //staticMeshComponent->setMaterialInstance(materialLitInstance);
+
+            ColliderComponent* colliderComponent = wall1->addComponent<ColliderComponent>();
+            colliderComponent->setShape(ColliderComponent::Shape::Mesh);
+        }
+
+        Actor* wall2 = scene->spawnActor<Actor>("wall2");
+        {
+            SceneComponent* sceneComponent = wall2->addComponent<SceneComponent>();
+            sceneComponent->position = glm::vec3(3.5f, 0.0f, 0.0f);
+            sceneComponent->setRotation(glm::vec3(0.0f, -30.0f, 0.0f));
+            sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
+            sceneComponent->setParent(scene->getRoot());
+
+            StaticMeshComponent* staticMeshComponent = wall2->addComponent<StaticMeshComponent>();
+            staticMeshComponent->setMesh(wallMesh);
+            staticMeshComponent->setMaterialInstance(materialUnlitInstance);
+            //staticMeshComponent->setMaterialInstance(materialLitSpecularInstance);
+
+            ColliderComponent* colliderComponent = wall2->addComponent<ColliderComponent>();
+            colliderComponent->setShape(ColliderComponent::Shape::Mesh);
+        }
+
+        Actor* sphereActor = scene->spawnActor<FlyingPointLight>("FlyingPointLight");
+        {
+            SceneComponent* sceneComponent = sphereActor->getComponent<SceneComponent>();
             sceneComponent->position = glm::vec3(-2.0f, 3.0f, -5.5f);
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
             sceneComponent->setParent(scene->getRoot());
 
             StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<StaticMeshComponent>();
-            staticMeshComponent->setMesh(mesh);
-            staticMeshComponent->setMaterialInstance(matInstance);
+            staticMeshComponent->setMesh(sphereMesh);
+            staticMeshComponent->setMaterialInstance(materialUnlitInstance);
 
             ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Sphere);
@@ -131,12 +218,9 @@ int __cdecl _tmain()
 
         delete scene;
 
-        delete mesh;
+        delete sphereMesh;
 
-        delete mat;
-
-        delete vertexShader;
-        delete fragmentShader;
+        delete materialUnlitInstance;
     }
 
     //AllocationTracker::End_Tracking_And_Dump();
@@ -145,83 +229,13 @@ int __cdecl _tmain()
 }
 
 /*
-    TwInit(TW_OPENGL_CORE, NULL);
-    TwWindowSize(1920, 1080);
+    
 
-    bool boolcpp = false;
-
-    TwBar *myBar;
-    myBar = TwNewBar("MainTweakBar");
-    TwAddVarRW(myBar, "superVar", TW_TYPE_BOOLCPP, &boolcpp, "");
-
-    Mesh sphere;
-    if (sphere.loadObj("Gizmos/sphere.obj") == false)
-        return 1;
-
-    Mesh mesh;
-    if (mesh.loadObj("Wall/wall.obj") == false) //if (mesh.loadObj("Canon/M_Canon.obj") == false)
-        return 1;
-
-    Texture texture;
-    if (texture.load("Wall/brickwall.jpg") == false) //if (texture.load("Canon/T_Canon_C_AO.tga") == false)
-        return 1;
-
-    Texture textureNormal;
-    if (textureNormal.load("Wall/brickwall_normal.jpg") == false)
-        return 1;
-
-    Texture textureSpecular;
-    if (textureSpecular.load("Wall/brickwall_Specular.png") == false)
-        return 1;
-
-    MaterialManager* materialManager = MaterialManager::getInstance();
-    Material* materialLit = materialManager->getMaterial("Lit");    
-    materialLit->use();
-    materialLit->setTexture("textureSampler", texture);
-    materialLit->setFloat("specularStrength", 1.5f);
-    Material* materialLitSpecular = materialManager->getMaterial("LitSpecularNormal");
-    materialLitSpecular->use();
-    materialLitSpecular->setTexture("textureSampler", texture);
-    materialLitSpecular->setTexture("specularTextureSampler", textureSpecular);
-    materialLitSpecular->setTexture("normalTextureSampler", textureNormal);
-    materialLitSpecular->setFloat("specularStrength", 1.5f);
-    Material* materialUnlit = materialManager->getMaterial("UnlitColor");
-    materialUnlit->use();
-    materialUnlit->setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    
 
     Scene* scene = new Scene;
 
-    Actor* gun = scene->spawnActor<Actor>("Gun");
-    {
-        SceneComponent* sceneComponent = gun->addComponent<SceneComponent>();
-        sceneComponent->position = glm::vec3(3.5f, 0.0f, 0.0f);
-        sceneComponent->setRotation(glm::vec3(0.0f, -150.0f, 0.0f));
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
-        sceneComponent->setParent(scene->getRoot());
-
-        StaticMeshComponent* staticMeshComponent = gun->addComponent<StaticMeshComponent>();
-        staticMeshComponent->setMesh(&mesh);
-        staticMeshComponent->setMaterial(materialLit);
-
-        ColliderComponent* colliderComponent = gun->addComponent<ColliderComponent>();
-        colliderComponent->setShape(ColliderComponent::Shape::Mesh);
-    }
-
-    Actor* gun2 = scene->spawnActor<Actor>("Gun_2");
-    {
-        SceneComponent* sceneComponent = gun2->addComponent<SceneComponent>();
-        sceneComponent->position = glm::vec3(-3.5f, 0.0f, 0.0f);
-        sceneComponent->setRotation(glm::vec3(0.0f, -30.0f, 0.0f));
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
-        sceneComponent->setParent(scene->getRoot());
-
-        StaticMeshComponent* staticMeshComponent = gun2->addComponent<StaticMeshComponent>();
-        staticMeshComponent->setMesh(&mesh);
-        staticMeshComponent->setMaterial(materialLitSpecular);
-
-        ColliderComponent* colliderComponent = gun2->addComponent<ColliderComponent>();
-        colliderComponent->setShape(ColliderComponent::Shape::Mesh);
-    }
+    
 
     FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
     {

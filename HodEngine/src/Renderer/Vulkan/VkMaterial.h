@@ -7,6 +7,8 @@
 
 #include "DescriptorSetLayout.h"
 
+#include <map>
+
 class VkMaterial : public Material
 {
 public:
@@ -19,13 +21,13 @@ public:
     VkPipeline GetGraphicsPipeline() const;
     VkPipelineLayout GetPipelineLayout() const;
 
-    const std::vector<DescriptorSetLayout>& GetDescriptorSetLayouts() const;
+    const std::map<int, DescriptorSetLayout>& GetDescriptorSetLayoutMap() const;
 
 private:
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
 
-    std::vector<DescriptorSetLayout> descriptorSetLayouts;
+    std::map<int, DescriptorSetLayout> descriptorSetLayoutMap;
 };
 
 #endif

@@ -140,6 +140,7 @@
 <ClInclude Include="src\Renderer\Vulkan\VkMesh.h" />
 <ClInclude Include="src\Renderer\Vulkan\VkShader.h" />
 <ClInclude Include="src\Renderer\Vulkan\VkTexture.h" />
+<ClInclude Include="src\Test\FlyingPointLight.h" />
 <ClInclude Include="src\Test\FreeCam.h" />
 
 <ClInclude Include="src\AllocationTracker.hpp" />
@@ -282,6 +283,9 @@
 <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
 </ClCompile>
 <ClCompile Include="src\Renderer\Vulkan\VkTexture.cpp">
+<ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+</ClCompile>
+<ClCompile Include="src\Test\FlyingPointLight.cpp">
 <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
 </ClCompile>
 <ClCompile Include="src\Test\FreeCam.cpp">

@@ -1,11 +1,24 @@
 #version 450 core
 
-uniform vec4 color;
-
 layout(location = 0) out vec4 frag_color;
+
+layout(set = 0, binding = 0) uniform ViewUniformBufferObject {
+	mat4 view;
+	mat4 proj;
+	mat4 vp;
+} viewUbo;
+
+layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
+	mat4 mvp;
+	mat4 model;
+} modelUbo;
+
+layout(set = 2, binding = 0) uniform MatUniformBufferObject {
+	vec4 color;
+} matUbo;
 
 void main()
 {
-	frag_color = color;
+	frag_color = matUbo.color;
 }
 

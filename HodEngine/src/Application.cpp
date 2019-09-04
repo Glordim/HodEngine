@@ -172,17 +172,6 @@ bool Application::Run(Scene* scene)
             SceneComponent* sceneComponent = gun2->getComponent<SceneComponent>();
             //sceneComponent->rotate(glm::radians(25.0f * dt), glm::vec3(0.0f, 1.0f, 0.0f));
         }
-
-        // TODO move in actor::update or component
-        // Move light
-        {
-            SceneComponent* sceneComponent = light->getComponent<SceneComponent>();
-            sceneComponent->setPosition(sceneComponent->getPosition() + glm::vec3(0.0f, 0.0035f, 0.0f) * sin((float)time));
-        }
-        {
-            SceneComponent* sceneComponent = light2->getComponent<SceneComponent>();
-            sceneComponent->setPosition(sceneComponent->getPosition() + glm::vec3(0.0f, 0.0035f, 0.0f) * sin((float)time));
-        }
         */
 
         if (this->renderer->AcquireNextImageIndex() == true)

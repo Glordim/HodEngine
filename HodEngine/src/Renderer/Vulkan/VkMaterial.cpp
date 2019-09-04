@@ -17,18 +17,7 @@ VkMaterial::~VkMaterial()
 {
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-    size_t descriptorSetLayoutCount = this->descriptorSetLayouts.size();
-    for (int i = 0; i < descriptorSetLayoutCount; ++i)
-    {
-        /*
-        VkDescriptorSetLayout descriptorSetLayout = this->descriptorSetLayouts[i];
-
-        if (descriptorSetLayout != VK_NULL_HANDLE)
-            vkDestroyDescriptorSetLayout(renderer->GetVkDevice(), descriptorSetLayout, nullptr);
-        */
-    }
-    this->descriptorSetLayouts.clear();
-    this->descriptorSetLayouts.shrink_to_fit();
+    this->descriptorSetLayoutMap.clear();
 
     if (this->pipelineLayout != VK_NULL_HANDLE)
         vkDestroyPipelineLayout(renderer->GetVkDevice(), this->pipelineLayout, nullptr);
@@ -192,12 +181,10 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
 
         size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
 
-        if (this->descriptorSetLayouts.size() <= set)
-        {
-            this->descriptorSetLayouts.resize(set + 1);
-        }
+        if (set <= 1)
+            continue;
 
-        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayouts[set];
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[set];
 
         descriptorSetLayout.ExtractBlockUbo(compVert, resource);
     }
@@ -209,25 +196,65 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
 
         size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
 
-        if (this->descriptorSetLayouts.size() <= set)
-        {
-            this->descriptorSetLayouts.resize(set + 1);
-        }
+        if (set <= 1)
+            continue;
 
-        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayouts[set];
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[set];
 
         descriptorSetLayout.ExtractBlockTexture(compVert, resource);
     }
 
+    // Same thing for FragShader
+    spirv_cross::Compiler compFrag(((VkShader*)fragmentShader)->GetShaderBytecode());
+    spirv_cross::ShaderResources resourcesFrag = compFrag.get_shader_resources();
+
+    uniformBufferCount = resourcesFrag.uniform_buffers.size();
+    for (size_t i = 0; i < uniformBufferCount; ++i)
+    {
+        spirv_cross::Resource& resource = resourcesFrag.uniform_buffers[i];
+
+        size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+        if (set <= 1)
+            continue;
+
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[set];
+
+        descriptorSetLayout.ExtractBlockUbo(compFrag, resource);
+    }
+
+    textureCount = resourcesFrag.separate_samplers.size();
+    for (size_t i = 0; i < textureCount; ++i)
+    {
+        spirv_cross::Resource& resource = resourcesFrag.separate_samplers[i];
+
+        size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+        if (set <= 1)
+            continue;
+
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[set];
+
+        descriptorSetLayout.ExtractBlockTexture(compFrag, resource);
+    }
+
+
     // And build each DescriptorSetLayout
     std::vector<VkDescriptorSetLayout> layouts;
 
-    size_t descriptorSetLayoutCount = this->descriptorSetLayouts.size();
-    for (size_t i = 0; i < descriptorSetLayoutCount; ++i)
-    {
-        this->descriptorSetLayouts[i].BuildDescriptorSetLayout();
+    layouts.push_back(renderer->GetVkViewDescriptorSet());
+    layouts.push_back(renderer->GetVkModelDescriptorSet());
 
-        layouts.push_back(this->descriptorSetLayouts[i].GetDescriptorSetLayout());
+    auto it = this->descriptorSetLayoutMap.begin();
+    auto itEnd = this->descriptorSetLayoutMap.end();
+
+    while (it != itEnd)
+    {
+        it->second.BuildDescriptorSetLayout();
+
+        layouts.push_back(it->second.GetDescriptorSetLayout());
+
+        ++it;
     }
 
     // Pipeline layout
@@ -281,7 +308,7 @@ VkPipelineLayout VkMaterial::GetPipelineLayout() const
     return this->pipelineLayout;
 }
 
-const std::vector<DescriptorSetLayout>& VkMaterial::GetDescriptorSetLayouts() const
+const std::map<int, DescriptorSetLayout>& VkMaterial::GetDescriptorSetLayoutMap() const
 {
-    return this->descriptorSetLayouts;
+    return this->descriptorSetLayoutMap;
 }

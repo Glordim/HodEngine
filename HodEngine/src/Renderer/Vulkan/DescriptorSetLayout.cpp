@@ -18,6 +18,72 @@ VkDescriptorSetLayout DescriptorSetLayout::GetDescriptorSetLayout() const
     return this->descriptorSetLayout;
 }
 
+void DescriptorSetLayout::ForceViewDescriptorSet()
+{
+    BlockUbo ubo;
+
+    ubo.binding = 0;
+    ubo.name = "viewUbo";
+    ubo.size = 0;
+
+    BlockUbo::Member member;
+
+    member.name = "view";
+    member.size = 64;
+    member.offset = ubo.size;
+
+    ubo.size += member.size;
+
+    ubo.memberNameToMemberMap.emplace(member.name, member);
+
+    member.name = "proj";
+    member.size = 64;
+    member.offset = ubo.size;
+
+    ubo.size += member.size;
+
+    ubo.memberNameToMemberMap.emplace(member.name, member);
+
+    member.name = "vp";
+    member.size = 64;
+    member.offset = ubo.size;
+
+    ubo.size += member.size;
+
+    ubo.memberNameToMemberMap.emplace(member.name, member);
+
+    this->uboBlockVector.push_back(std::move(ubo));
+}
+
+void DescriptorSetLayout::ForceModelDescriptorSet()
+{
+    BlockUbo ubo;
+
+    ubo.binding = 0;
+    ubo.name = "modelUbo";
+    ubo.size = 0;
+
+    BlockUbo::Member member;
+
+    member.name = "mvp";
+    member.size = 64;
+    member.offset = ubo.size;
+
+    ubo.size += member.size;
+
+    ubo.memberNameToMemberMap.emplace(member.name, member);
+
+    member.name = "model";
+    member.size = 64;
+    member.offset = ubo.size;
+
+    ubo.size += member.size;
+
+    ubo.memberNameToMemberMap.emplace(member.name, member);
+
+    this->uboBlockVector.push_back(std::move(ubo));
+}
+
 void DescriptorSetLayout::ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource)
 {
     BlockUbo ubo;

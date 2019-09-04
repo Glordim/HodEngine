@@ -25,17 +25,24 @@ bool VkMaterialInstance::SetMaterial(Material* material)
 
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-    const std::vector<DescriptorSetLayout>& descriptorSetLayouts = this->material->GetDescriptorSetLayouts();
+    const std::map<int, DescriptorSetLayout>& descriptorSetLayoutMap = this->material->GetDescriptorSetLayoutMap();
 
-    size_t descriptorSetLayoutCount = descriptorSetLayouts.size();
+    size_t descriptorSetLayoutCount = descriptorSetLayoutMap.size();
 
     this->descriptorSets.resize(descriptorSetLayoutCount);
 
-    for (size_t i = 0; i < descriptorSetLayoutCount; ++i)
+    auto it = descriptorSetLayoutMap.begin();
+    auto itEnd = descriptorSetLayoutMap.end();
+    int i = 0;
+
+    while (it != itEnd)
     {
         DescriptorSet& descriptorSet = this->descriptorSets[i];
 
-        descriptorSet.SetLayout(descriptorSetLayouts.data() + i);
+        descriptorSet.SetLayout(&it->second);
+
+        ++i;
+        ++it;
     }
 
     return true;

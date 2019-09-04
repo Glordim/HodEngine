@@ -71,6 +71,7 @@
 <ClCompile Include="src\Renderer\Vulkan\VkMesh.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
 <ClCompile Include="src\Renderer\Vulkan\VkShader.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
 <ClCompile Include="src\Renderer\Vulkan\VkTexture.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
+<ClCompile Include="src\Test\FlyingPointLight.cpp"><Filter>src\Test</Filter></ClCompile>
 <ClCompile Include="src\Test\FreeCam.cpp"><Filter>src\Test</Filter></ClCompile>
 <ClCompile Include="src\Test\main.cpp"><Filter>src\Test</Filter></ClCompile>
 
@@ -130,6 +131,7 @@
 <ClInclude Include="src\Renderer\Vulkan\VkMesh.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
 <ClInclude Include="src\Renderer\Vulkan\VkShader.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
 <ClInclude Include="src\Renderer\Vulkan\VkTexture.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
+<ClInclude Include="src\Test\FlyingPointLight.h"><Filter>src\Test</Filter></ClInclude>
 <ClInclude Include="src\Test\FreeCam.h"><Filter>src\Test</Filter></ClInclude>
 
 <ClInclude Include="src\AllocationTracker.hpp"><Filter>src</Filter></ClInclude>

@@ -48,7 +48,7 @@ bool VkTexture::BuildBuffer(size_t width, size_t height, unsigned char* pixels)
 
     VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
-    VkDeviceSize bufferSize = width * height * 3;
+    VkDeviceSize bufferSize = width * height * 4;
     void* data = nullptr;
     bool ret = false;
 
@@ -92,15 +92,28 @@ exit:
     if (ret == false)
     {
         if (this->textureSampler != VK_NULL_HANDLE)
+        {
             vkDestroySampler(renderer->GetVkDevice(), this->textureSampler, nullptr);
+            this->textureSampler = VK_NULL_HANDLE;
+        }
 
         if (this->textureImageView != VK_NULL_HANDLE)
+        {
             vkDestroyImageView(renderer->GetVkDevice(), this->textureImageView, nullptr);
+            this->textureImageView = VK_NULL_HANDLE;
+        }
 
         if (this->textureImage != VK_NULL_HANDLE)
+        {
             vkDestroyImage(renderer->GetVkDevice(), this->textureImage, nullptr);
+            this->textureImage = VK_NULL_HANDLE;
+        }
+
         if (this->textureImageMemory != VK_NULL_HANDLE)
+        {
             vkFreeMemory(renderer->GetVkDevice(), this->textureImageMemory, nullptr);
+            this->textureImageMemory = VK_NULL_HANDLE;
+        }
     }
 
     return ret;

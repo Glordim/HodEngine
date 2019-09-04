@@ -6,7 +6,7 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 uv;
 layout(location = 4) in vec3 tangent;
 
-layout(location = 0) out vec3 color_out;
+layout(location = 0) out vec2 out_uv;
 
 layout(set = 0, binding = 0) uniform ViewUniformBufferObject {
 	mat4 view;
@@ -21,7 +21,8 @@ layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
 
 void main()
 {
-	color_out = color;
+	out_uv = uv;
 
 	gl_Position = modelUbo.mvp * vec4(pos.xyz, 1.0f);
 }
+

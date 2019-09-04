@@ -45,11 +45,11 @@ Material* MaterialManager::getMaterial(const std::string& shaderName)
 
     Renderer* renderer = Renderer::GetInstance();
 
-    Shader* vertexShader = renderer->CreateShader("Shader/" + shaderName + ".vert", Shader::ShaderType::Vertex);
+    Shader* vertexShader = renderer->CreateShader("Shader/" + shaderName + ".vert.spirv", Shader::ShaderType::Vertex);
     if (vertexShader == nullptr)
         return nullptr;
 
-    Shader* fragmentShader = renderer->CreateShader("Shader/" + shaderName + ".frag", Shader::ShaderType::Fragment);
+    Shader* fragmentShader = renderer->CreateShader("Shader/" + shaderName + ".frag.spirv", Shader::ShaderType::Fragment);
     if (fragmentShader == nullptr)
         return nullptr;
 
