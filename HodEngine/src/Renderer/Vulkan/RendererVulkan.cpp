@@ -1284,7 +1284,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         // Model descriptor set
 
-        glm::mat4x4 mvp = projMatrix * viewMatrix * meshData->matrix;
+        glm::mat4x4 mvp = vp * meshData->matrix;
 
         DescriptorSet* modelDescriptorSet = new DescriptorSet();
         modelDescriptorSet->SetLayout(&this->modelLayout);
@@ -1330,7 +1330,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         // Model descriptor set
 
-        glm::mat4x4 mvp = projMatrix * viewMatrix * lineData->matrix;
+        glm::mat4x4 mvp = vp * lineData->matrix;
 
         DescriptorSet* modelDescriptorSet = new DescriptorSet();
         modelDescriptorSet->SetLayout(&this->modelLayout);
@@ -1373,7 +1373,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         // Model descriptor set
 
-        glm::mat4x4 mvp = projMatrix * viewMatrix * triangleData->matrix;
+        glm::mat4x4 mvp = vp * triangleData->matrix;
 
         DescriptorSet* modelDescriptorSet = new DescriptorSet();
         modelDescriptorSet->SetLayout(&this->modelLayout);
