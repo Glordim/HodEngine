@@ -565,6 +565,50 @@ bool RendererVulkan::BuildPipeline(GpuDevice* physicalDevice)
     if (fragmentShader == nullptr)
         return false;
 
+    // Extract descriptorSet definition from shader bytecode
+    spirv_cross::Compiler compVert(((VkShader*)vertexShader)->GetShaderBytecode());
+    spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
+
+    size_t uniformBufferCount = resourcesVert.uniform_buffers.size();
+    for (size_t i = 0; i < uniformBufferCount; ++i)
+    {
+        spirv_cross::Resource& resource = resourcesVert.uniform_buffers[i];
+
+        size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+        if (set == 0)
+        {
+            this->viewLayout.ExtractBlockUbo(compVert, resource);
+        }
+        else if (set == 1)
+        {
+            this->modelLayout.ExtractBlockUbo(compVert, resource);
+        }
+    }
+
+    spirv_cross::Compiler compFrag(((VkShader*)fragmentShader)->GetShaderBytecode());
+    spirv_cross::ShaderResources resourcesFrag = compFrag.get_shader_resources();
+
+    uniformBufferCount = resourcesFrag.uniform_buffers.size();
+    for (size_t i = 0; i < uniformBufferCount; ++i)
+    {
+        spirv_cross::Resource& resource = resourcesFrag.uniform_buffers[i];
+
+        size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+        if (set == 0)
+        {
+            this->viewLayout.ExtractBlockUbo(compFrag, resource);
+        }
+        else if (set == 1)
+        {
+            this->modelLayout.ExtractBlockUbo(compFrag, resource);
+        }
+    }
+
+    this->viewLayout.BuildDescriptorSetLayout();
+    this->modelLayout.BuildDescriptorSetLayout();
+
     this->unlitVertexColorMaterial = this->CreateMaterial(vertexShader, fragmentShader, Material::Topololy::TRIANGLE);
     this->unlitVertexColorMaterialInstance = this->CreateMaterialInstance(this->unlitVertexColorMaterial);
 
@@ -613,14 +657,6 @@ bool RendererVulkan::CreateDevice()
 
     vkGetDeviceQueue(this->device, this->selectedGpu->graphicsAndPresentQueueFamilyIndex, 0, &this->graphicsQueue);
     vkGetDeviceQueue(this->device, this->selectedGpu->graphicsAndPresentQueueFamilyIndex, 0, &this->presentQueue);
-
-    // Move that at renderer init and use it for material build
-    this->viewLayout.ForceViewDescriptorSet();
-    this->viewLayout.BuildDescriptorSetLayout();
-
-    this->modelLayout.ForceModelDescriptorSet();
-    this->modelLayout.BuildDescriptorSetLayout();
-    //
 
     return true;
 }
@@ -1252,6 +1288,24 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     viewDescriptorSet->SetUboValue("viewUbo", "view", &viewMatrix);
     viewDescriptorSet->SetUboValue("viewUbo", "proj", &projMatrix);
     viewDescriptorSet->SetUboValue("viewUbo", "vp", &vp);
+
+    const std::vector<RenderQueue::PointLightData*>& pointLightDatas = renderQueue.GetPointLightDatas();
+    size_t pointLightCount = pointLightDatas.size();
+
+    glm::vec4 ambiantColor = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
+    glm::vec4 eyePos = glm::vec4(/*renderQueue.GetCameraPos()*/0.0f, 0.0f, 0.0f, 1.0f);
+
+    viewDescriptorSet->SetUboValue("lightUbo", "ambiantColor", &ambiantColor);
+    viewDescriptorSet->SetUboValue("lightUbo", "eyePos", &eyePos);
+    viewDescriptorSet->SetUboValue("lightUbo", "lightCount", &pointLightCount);
+
+    for (size_t i = 0; i < pointLightCount; ++i)
+    {
+        RenderQueue::PointLightData* pointLightData = pointLightDatas[i];
+
+        viewDescriptorSet->SetUboValueInArray("lightUbo", "pointLight", i, pointLightData);
+    }
+
     VkDescriptorSet vkViewDescriptorSet = viewDescriptorSet->GetDescriptorSet();
 
     descriptorSetToCleanAfterRender.push_back(viewDescriptorSet);

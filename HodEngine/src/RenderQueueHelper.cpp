@@ -26,7 +26,7 @@ void RenderQueueHelper::AddSceneComponent(RenderQueue& renderQueue, SceneCompone
         LightComponent* lightComponent = child->getActor()->getComponent<LightComponent>();
         if (lightComponent != nullptr)
         {
-            renderQueue.AddPointLight(lightComponent->GetPointLight(), child->getModelMatrix());
+            renderQueue.AddPointLight(child->getPosition(), lightComponent->GetPointLight());
         }
     }
 }

@@ -11,11 +11,8 @@ struct PointLight
     }
 
     Color color;
-    float ambientFactor;
-    float attenuation;
-    float diffuseFactor;
-    float invRadius;
-    float radius;
+    float intensity;
+    float range;
 };
 
 #endif

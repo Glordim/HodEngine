@@ -124,6 +124,59 @@ void DescriptorSet::SetUboValue(const std::string& uboName, const std::string& m
     }
 }
 
+void DescriptorSet::SetUboValueInArray(const std::string& uboName, const std::string& memberName, size_t index, const void* value)
+{
+    const std::vector<DescriptorSetLayout::BlockUbo>& ubos = this->descriptorSetLayout->GetUboBlocks();
+    size_t uboCount = ubos.size();
+
+    for (size_t i = 0; i < uboCount; ++i)
+    {
+        const DescriptorSetLayout::BlockUbo& ubo = ubos[i];
+
+        if (ubo.name == uboName)
+        {
+            auto it = ubo.memberNameToMemberMap.find(memberName);
+
+            if (it != ubo.memberNameToMemberMap.end())
+            {
+                RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+                void* data = nullptr;
+
+                if (vkMapMemory(renderer->GetVkDevice(), this->uboBufferMemories[i], 0, ubo.size, 0, &data) != VK_SUCCESS)
+                {
+                    fprintf(stderr, "Vulkan: Unable to map ubo buffer memory!\n");
+                    return;
+                }
+
+                size_t stride = (it->second.size / it->second.count);
+
+                memcpy(((char*)data) + it->second.offset + (stride * index), value, stride);
+                vkUnmapMemory(renderer->GetVkDevice(), this->uboBufferMemories[i]);
+
+                VkDescriptorBufferInfo bufferInfo = {};
+                bufferInfo.buffer = this->uboBuffers[i];
+                bufferInfo.offset = 0;
+                bufferInfo.range = ubo.size;
+
+                VkWriteDescriptorSet descriptorWrite = {};
+                descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                descriptorWrite.dstSet = this->descriptorSet;
+                descriptorWrite.dstBinding = ubo.binding;
+                descriptorWrite.dstArrayElement = 0;
+                descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                descriptorWrite.descriptorCount = 1;
+                descriptorWrite.pBufferInfo = &bufferInfo;
+                descriptorWrite.pImageInfo = nullptr;
+                descriptorWrite.pTexelBufferView = nullptr;
+                descriptorWrite.pNext = nullptr;
+
+                vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
+            }
+        }
+    }
+}
+
 void DescriptorSet::SetTexture(const std::string& name, const VkTexture* textureSampler)
 {
     const std::vector<DescriptorSetLayout::BlockTexture>& textures = this->descriptorSetLayout->GetTextureBlocks();

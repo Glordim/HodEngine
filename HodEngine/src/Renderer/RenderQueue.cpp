@@ -71,8 +71,8 @@ void RenderQueue::AddTriangles(std::vector<Tri_3P_3C> tris, MaterialInstance* ma
     this->triangleList.push_back(new TriangleData(tris, materialInstance, matrix));
 }
 
-void RenderQueue::AddPointLight(PointLight* pointLight, glm::mat4x4 matrix)
+void RenderQueue::AddPointLight(const glm::vec3& pos, PointLight* pointLight)
 {
-    this->pointLightList.push_back(new PointLightData(pointLight, matrix));
+    this->pointLightList.push_back(new PointLightData(pos, pointLight));
 }
 

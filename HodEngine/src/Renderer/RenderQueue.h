@@ -89,15 +89,15 @@ public:
 
     struct PointLightData
     {
-        PointLightData(PointLight* pointLight, glm::mat4x4 matrix)
-            : pointLight(pointLight)
-            , matrix(matrix)
+        PointLightData(const glm::vec3& pos, PointLight* pointLight)
+            : pos(pos)
+            , pointLight(pointLight)
         {
 
         }
 
+        glm::vec3 pos;
         PointLight* pointLight;
-        glm::mat4x4 matrix;
     };
 
     RenderQueue();
@@ -115,7 +115,7 @@ public:
     void AddLines(std::vector<Line_3P_3C> lines, MaterialInstance* materialInstance, glm::mat4x4 matrix);
     void AddTriangles(std::vector<Tri_3P_3C> tris, MaterialInstance* materialInstance, glm::mat4x4 matrix);
 
-    void AddPointLight(PointLight* pointLight, glm::mat4x4 matrix);
+    void AddPointLight(const glm::vec3& pos, PointLight* pointLight);
     //void AddDirectionnalLight(const DirectionnalLight dirLight);
     //void AddSpotLight(const SpotLight& spotLight);
 
@@ -132,6 +132,11 @@ public:
     const std::vector<TriangleData*>& GetTriangleDatas() const
     {
         return this->triangleList;
+    }
+
+    const std::vector<PointLightData*>& GetPointLightDatas() const
+    {
+        return this->pointLightList;
     }
 
 private:

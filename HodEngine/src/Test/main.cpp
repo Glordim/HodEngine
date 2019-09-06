@@ -127,7 +127,7 @@ int __cdecl _tmain()
             return 1;
 
         materialLitInstance->SetTexture("textureSampler", *wallTexture);
-        materialLitInstance->SetFloat("matUbo", "specularStrength", 1.5f);
+        //materialLitInstance->SetFloat("matUbo", "specularStrength", 1.5f);
 
         Material* materialLitSpecular = materialManager->getMaterial("LitSpecularNormal");
         if (materialLitSpecular == nullptr)
@@ -185,8 +185,8 @@ int __cdecl _tmain()
             StaticMeshComponent* staticMeshComponent = wall1->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(wallMesh);
             //staticMeshComponent->setMaterialInstance(materialUnlitInstance);
-            staticMeshComponent->setMaterialInstance(materialUnlitTextureInstance);
-            //staticMeshComponent->setMaterialInstance(materialLitInstance);
+            //staticMeshComponent->setMaterialInstance(materialUnlitTextureInstance);
+            staticMeshComponent->setMaterialInstance(materialLitInstance);
 
             ColliderComponent* colliderComponent = wall1->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Mesh);
@@ -215,6 +215,11 @@ int __cdecl _tmain()
             sceneComponent->position = glm::vec3(-2.0f, 3.0f, -5.5f);
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
             sceneComponent->setParent(scene->getRoot());
+
+            LightComponent* pointLightComponent = sphereActor->addComponent<LightComponent>();
+            pointLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            pointLightComponent->data.intensity = 1.0f;
+            pointLightComponent->data.range = 2.5f;
 
             StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(sphereMesh);

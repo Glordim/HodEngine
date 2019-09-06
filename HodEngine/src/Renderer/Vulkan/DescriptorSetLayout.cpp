@@ -18,92 +18,47 @@ VkDescriptorSetLayout DescriptorSetLayout::GetDescriptorSetLayout() const
     return this->descriptorSetLayout;
 }
 
-void DescriptorSetLayout::ForceViewDescriptorSet()
-{
-    BlockUbo ubo;
-
-    ubo.binding = 0;
-    ubo.name = "viewUbo";
-    ubo.size = 0;
-
-    BlockUbo::Member member;
-
-    member.name = "view";
-    member.size = 64;
-    member.offset = ubo.size;
-
-    ubo.size += member.size;
-
-    ubo.memberNameToMemberMap.emplace(member.name, member);
-
-    member.name = "proj";
-    member.size = 64;
-    member.offset = ubo.size;
-
-    ubo.size += member.size;
-
-    ubo.memberNameToMemberMap.emplace(member.name, member);
-
-    member.name = "vp";
-    member.size = 64;
-    member.offset = ubo.size;
-
-    ubo.size += member.size;
-
-    ubo.memberNameToMemberMap.emplace(member.name, member);
-
-    this->uboBlockVector.push_back(std::move(ubo));
-}
-
-void DescriptorSetLayout::ForceModelDescriptorSet()
-{
-    BlockUbo ubo;
-
-    ubo.binding = 0;
-    ubo.name = "modelUbo";
-    ubo.size = 0;
-
-    BlockUbo::Member member;
-
-    member.name = "mvp";
-    member.size = 64;
-    member.offset = ubo.size;
-
-    ubo.size += member.size;
-
-    ubo.memberNameToMemberMap.emplace(member.name, member);
-
-    member.name = "model";
-    member.size = 64;
-    member.offset = ubo.size;
-
-    ubo.size += member.size;
-
-    ubo.memberNameToMemberMap.emplace(member.name, member);
-
-    this->uboBlockVector.push_back(std::move(ubo));
-}
-
 void DescriptorSetLayout::ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource)
 {
     BlockUbo ubo;
 
     ubo.binding = comp.get_decoration(resource.id, spv::DecorationBinding);
+
+    size_t uboBlockCount = this->uboBlockVector.size();
+    for (size_t i = 0; i < uboBlockCount; ++i)
+    {
+        if (this->uboBlockVector[i].binding == ubo.binding)
+            return;
+    }
+
     ubo.name = comp.get_name(resource.id);
     ubo.size = 0;
 
-    const spirv_cross::SPIRType& type = comp.get_type(resource.base_type_id);
+    const spirv_cross::SPIRType& type = comp.get_type(resource.type_id);
 
     size_t memberCount = type.member_types.size();
     for (size_t i = 0; i < memberCount; ++i)
     {
+        const spirv_cross::SPIRType& memberType = comp.get_type(type.member_types[i]);
+
         BlockUbo::Member member;
 
         member.name = comp.get_member_name(resource.base_type_id, i);
         member.size = comp.get_declared_struct_member_size(type, i);
+        member.count = 1;
+
+        if (memberType.array.empty() == false)
+        {
+            member.count = memberType.array[0];
+        }
+        else
+        {
+            member.count = 1;
+        }
+
         member.offset = comp.type_struct_member_offset(type, i);
 
-        ubo.size += member.size;
+        ubo.size += member.size * member.count;
 
         ubo.memberNameToMemberMap.emplace(member.name, std::move(member));
     }

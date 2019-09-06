@@ -12,43 +12,46 @@ layout(set = 0, binding = 0) uniform ViewUniformBufferObject {
 	mat4 vp;
 } viewUbo;
 
-layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
-	mat4 mvp;
-	mat4 model;
-} modelUbo;
-
 struct PointLight
 {    
-    vec4 pos;
 	vec4 color;
+    vec3 pos;
 	float intensity;
 	float range;
 };  
 
-layout(set = 2, binding = 0) uniform MatUniformBufferObject {
+layout(set = 0, binding = 1) uniform LightUniformBufferObject {
 	int lightCount;
 	PointLight pointLight[32];
 
 	vec4 ambiantColor;
 	vec4 eyePos;
-} matUbo;
+} lightUbo;
+
+layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
+	mat4 mvp;
+	mat4 model;
+} modelUbo;
 
 layout(set = 2, binding = 1) uniform sampler2D textureSampler;
 
 void main()
 {
 	vec3 diffuse = vec3(0.0f, 0.0f, 0.0f);
+	vec4 ambiant = lightUbo.ambiantColor;
 	
-	for (int i = 0; i < matUbo.lightCount; ++i)
+	for (int i = 0; i < lightUbo.lightCount; ++i)
 	{
 		vec3 norm = normalize(out_normal);
-		vec3 lightDir = normalize(matUbo.pointLight[i].pos.xyz - out_fragPos);
+		vec3 lightDir = normalize(lightUbo.pointLight[i].pos.xyz - out_fragPos);
 		
 		float diff = max(dot(norm, lightDir), 0.0f);
-		diffuse += diff * matUbo.pointLight[i].color.xyz;
+		diffuse += diff * lightUbo.pointLight[i].color.xyz;
+		
+		//ambiant = vec4(lightUbo.pointLight[i].pos, 1.0f);
 	}
 	
-	vec3 result = (matUbo.ambiantColor.xyz + diffuse) * texture(textureSampler, out_uv.xy).xyz;
+	vec3 result = (ambiant.xyz + diffuse) * texture(textureSampler, out_uv.xy).xyz;
 	
 	frag_color = vec4(result, 1.0f);
 }

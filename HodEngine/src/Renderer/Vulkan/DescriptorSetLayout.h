@@ -30,6 +30,7 @@ public:
         {
             std::string name;
             size_t size;
+            size_t count;
             size_t offset;
         };
 
@@ -48,9 +49,6 @@ public:
     virtual ~DescriptorSetLayout();
 
     VkDescriptorSetLayout GetDescriptorSetLayout() const;
-
-    void ForceViewDescriptorSet();
-    void ForceModelDescriptorSet();
 
     void ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
     void ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
