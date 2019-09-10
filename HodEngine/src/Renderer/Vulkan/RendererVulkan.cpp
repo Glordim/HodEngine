@@ -1285,25 +1285,34 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
     DescriptorSet* viewDescriptorSet = new DescriptorSet();
     viewDescriptorSet->SetLayout(&this->viewLayout);
-    viewDescriptorSet->SetUboValue("viewUbo", "view", &viewMatrix);
-    viewDescriptorSet->SetUboValue("viewUbo", "proj", &projMatrix);
-    viewDescriptorSet->SetUboValue("viewUbo", "vp", &vp);
+    viewDescriptorSet->SetUboValue("viewUbo.view", &viewMatrix, sizeof(glm::mat4x4));
+    viewDescriptorSet->SetUboValue("viewUbo.proj", &projMatrix, sizeof(glm::mat4x4));
+    viewDescriptorSet->SetUboValue("viewUbo.vp", &vp, sizeof(glm::mat4x4));
 
     const std::vector<RenderQueue::PointLightData*>& pointLightDatas = renderQueue.GetPointLightDatas();
     size_t pointLightCount = pointLightDatas.size();
 
-    glm::vec4 ambiantColor = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
+    glm::vec4 ambiantColor = glm::vec4(0.10f, 0.10f, 0.10f, 1.0f);
     glm::vec4 eyePos = glm::vec4(/*renderQueue.GetCameraPos()*/0.0f, 0.0f, 0.0f, 1.0f);
 
-    viewDescriptorSet->SetUboValue("lightUbo", "ambiantColor", &ambiantColor);
-    viewDescriptorSet->SetUboValue("lightUbo", "eyePos", &eyePos);
-    viewDescriptorSet->SetUboValue("lightUbo", "lightCount", &pointLightCount);
+    viewDescriptorSet->SetUboValue("lightUbo.ambiantColor", &ambiantColor, sizeof(ambiantColor));
+    viewDescriptorSet->SetUboValue("lightUbo.eyePos", &eyePos, sizeof(eyePos));
+    viewDescriptorSet->SetUboValue("lightUbo.lightCount", &pointLightCount, sizeof(pointLightCount));
 
     for (size_t i = 0; i < pointLightCount; ++i)
     {
         RenderQueue::PointLightData* pointLightData = pointLightDatas[i];
 
-        viewDescriptorSet->SetUboValueInArray("lightUbo", "pointLight", i, pointLightData);
+        glm::vec4 color;
+        color.x = pointLightData->pointLight->color.r;
+        color.y = pointLightData->pointLight->color.g;
+        color.z = pointLightData->pointLight->color.b;
+        color.w = pointLightData->pointLight->color.a;
+
+        viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].pos", &pointLightData->pos, sizeof(glm::vec3));
+        viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
+        viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].intensity", &pointLightData->pointLight->intensity, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].range", &pointLightData->pointLight->range, sizeof(float));
     }
 
     VkDescriptorSet vkViewDescriptorSet = viewDescriptorSet->GetDescriptorSet();
@@ -1343,8 +1352,8 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         DescriptorSet* modelDescriptorSet = new DescriptorSet();
         modelDescriptorSet->SetLayout(&this->modelLayout);
-        modelDescriptorSet->SetUboValue("modelUbo", "mvp", &mvp);
-        modelDescriptorSet->SetUboValue("modelUbo", "model", &meshData->matrix);
+        modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
+        modelDescriptorSet->SetUboValue("modelUbo.model", &meshData->matrix, sizeof(meshData->matrix));
         VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
 
         descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
@@ -1390,8 +1399,8 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         DescriptorSet* modelDescriptorSet = new DescriptorSet();
         modelDescriptorSet->SetLayout(&this->modelLayout);
-        modelDescriptorSet->SetUboValue("modelUbo", "mvp", &mvp);
-        modelDescriptorSet->SetUboValue("modelUbo", "model", &lineData->matrix);
+        modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
+        modelDescriptorSet->SetUboValue("modelUbo.model", &lineData->matrix, sizeof(lineData->matrix));
         VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
 
         descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
@@ -1434,8 +1443,8 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         DescriptorSet* modelDescriptorSet = new DescriptorSet();
         modelDescriptorSet->SetLayout(&this->modelLayout);
-        modelDescriptorSet->SetUboValue("modelUbo", "mvp", &mvp);
-        modelDescriptorSet->SetUboValue("modelUbo", "model", &triangleData->matrix);
+        modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
+        modelDescriptorSet->SetUboValue("modelUbo.model", &triangleData->matrix, sizeof(triangleData->matrix));
         VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
 
         descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);

@@ -69,39 +69,39 @@ std::vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets() const
     return descriptorSets;
 }
 
-void VkMaterialInstance::SetInt(const std::string& uboName, const std::string& memberName, int value)
+void VkMaterialInstance::SetInt(const std::string& memberName, int value)
 {
     size_t descriptorSetCount = this->descriptorSets.size();
     for (size_t i = 0; i < descriptorSetCount; ++i)
     {
-        this->descriptorSets[i].SetUboValue(uboName, memberName, &value);
+        this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
     }
 }
 
-void VkMaterialInstance::SetFloat(const std::string& uboName, const std::string& memberName, float value)
+void VkMaterialInstance::SetFloat(const std::string& memberName, float value)
 {
     size_t descriptorSetCount = this->descriptorSets.size();
     for (size_t i = 0; i < descriptorSetCount; ++i)
     {
-        this->descriptorSets[i].SetUboValue(uboName, memberName, &value);
+        this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
     }
 }
 
-void VkMaterialInstance::SetVec4(const std::string& uboName, const std::string& memberName, const glm::vec4& value)
+void VkMaterialInstance::SetVec4(const std::string& memberName, const glm::vec4& value)
 {
     size_t descriptorSetCount = this->descriptorSets.size();
     for (size_t i = 0; i < descriptorSetCount; ++i)
     {
-        this->descriptorSets[i].SetUboValue(uboName, memberName, &value);
+        this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
     }
 }
 
-void VkMaterialInstance::SetMat4(const std::string& uboName, const std::string& memberName, const glm::mat4& value)
+void VkMaterialInstance::SetMat4(const std::string& memberName, const glm::mat4& value)
 {
     size_t descriptorSetCount = this->descriptorSets.size();
     for (size_t i = 0; i < descriptorSetCount; ++i)
     {
-        this->descriptorSets[i].SetUboValue(uboName, memberName, &value);
+        this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
     }
 }
 

@@ -32,11 +32,11 @@ public:
             size_t size;
             size_t count;
             size_t offset;
+
+            std::map<std::string, Member> childsMap;
         };
 
-        std::map<std::string, Member> memberNameToMemberMap;
-
-        size_t size;
+        Member rootMember;
     };
 
     struct BlockTexture : Block
@@ -51,6 +51,8 @@ public:
     VkDescriptorSetLayout GetDescriptorSetLayout() const;
 
     void ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
+    void ExtractUboSubMembers(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& type, BlockUbo::Member& member);
+
     void ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
 
     bool BuildDescriptorSetLayout();

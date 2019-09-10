@@ -59,7 +59,7 @@ bool DescriptorSet::SetLayout(const DescriptorSetLayout* layout)
     {
         const DescriptorSetLayout::BlockUbo& ubo = ubos[i];
 
-        if (renderer->CreateBuffer(ubo.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->uboBuffers.data() + i, this->uboBufferMemories.data() + i) == false)
+        if (renderer->CreateBuffer(ubo.rootMember.size * ubo.rootMember.count, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->uboBuffers.data() + i, this->uboBufferMemories.data() + i) == false)
             return false;
     }
 }
@@ -74,58 +74,25 @@ VkDescriptorSet DescriptorSet::GetDescriptorSet() const
     return this->descriptorSet;
 }
 
-void DescriptorSet::SetUboValue(const std::string& uboName, const std::string& memberName, const void* value)
+void DescriptorSet::SetUboValue(const std::string& memberName, const void* value, size_t valueSize)
 {
-    const std::vector<DescriptorSetLayout::BlockUbo>& ubos = this->descriptorSetLayout->GetUboBlocks();
-    size_t uboCount = ubos.size();
+    std::string varIdentifier;
 
-    for (size_t i = 0; i < uboCount; ++i)
+    int index = 1;
+    std::string target;
+
+    size_t len = memberName.find_first_of(".[");
+    if (len == std::string::npos)
     {
-        const DescriptorSetLayout::BlockUbo& ubo = ubos[i];
-
-        if (ubo.name == uboName)
-        {
-            auto it = ubo.memberNameToMemberMap.find(memberName);
-
-            if (it != ubo.memberNameToMemberMap.end())
-            {
-                RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-                void* data = nullptr;
-
-                if (vkMapMemory(renderer->GetVkDevice(), this->uboBufferMemories[i], 0, ubo.size, 0, &data) != VK_SUCCESS)
-                {
-                    fprintf(stderr, "Vulkan: Unable to map ubo buffer memory!\n");
-                    return;
-                }
-                memcpy(((char*)data) + it->second.offset, value, it->second.size);
-                vkUnmapMemory(renderer->GetVkDevice(), this->uboBufferMemories[i]);
-
-                VkDescriptorBufferInfo bufferInfo = {};
-                bufferInfo.buffer = this->uboBuffers[i];
-                bufferInfo.offset = 0;
-                bufferInfo.range = ubo.size;
-
-                VkWriteDescriptorSet descriptorWrite = {};
-                descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                descriptorWrite.dstSet = this->descriptorSet;
-                descriptorWrite.dstBinding = ubo.binding;
-                descriptorWrite.dstArrayElement = 0;
-                descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                descriptorWrite.descriptorCount = 1;
-                descriptorWrite.pBufferInfo = &bufferInfo;
-                descriptorWrite.pImageInfo = nullptr;
-                descriptorWrite.pTexelBufferView = nullptr;
-                descriptorWrite.pNext = nullptr;
-
-                vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
-            }
-        }
+        target = memberName;
+        varIdentifier = "";
     }
-}
+    else
+    {
+        target = memberName.substr(0, len);
+        varIdentifier = memberName.substr(len);
+    }
 
-void DescriptorSet::SetUboValueInArray(const std::string& uboName, const std::string& memberName, size_t index, const void* value)
-{
     const std::vector<DescriptorSetLayout::BlockUbo>& ubos = this->descriptorSetLayout->GetUboBlocks();
     size_t uboCount = ubos.size();
 
@@ -133,46 +100,79 @@ void DescriptorSet::SetUboValueInArray(const std::string& uboName, const std::st
     {
         const DescriptorSetLayout::BlockUbo& ubo = ubos[i];
 
-        if (ubo.name == uboName)
+        if (ubo.name == target)
         {
-            auto it = ubo.memberNameToMemberMap.find(memberName);
+            size_t offset = 0;
+            const DescriptorSetLayout::BlockUbo::Member* member = &ubo.rootMember;
 
-            if (it != ubo.memberNameToMemberMap.end())
+            while (varIdentifier.empty() == false)
             {
-                RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-                void* data = nullptr;
-
-                if (vkMapMemory(renderer->GetVkDevice(), this->uboBufferMemories[i], 0, ubo.size, 0, &data) != VK_SUCCESS)
+                if (varIdentifier[0] == '.')
                 {
-                    fprintf(stderr, "Vulkan: Unable to map ubo buffer memory!\n");
-                    return;
+                    std::string subMemberName;
+
+                    size_t len = varIdentifier.find_first_of(".[", 1);
+
+                    if (len == std::string::npos)
+                    {
+                        subMemberName = varIdentifier.substr(1);
+                        varIdentifier = "";
+                    }
+                    else
+                    {
+                        subMemberName = varIdentifier.substr(1, len - 1);
+                        varIdentifier = varIdentifier.substr(len);
+                    }
+
+                    auto it = member->childsMap.find(subMemberName);
+
+                    member = &it->second;
+
+                    offset += member->offset;
                 }
+                else if (varIdentifier[0] == '[')
+                {
+                    size_t len = varIdentifier.find_first_of("]", 1);
 
-                size_t stride = (it->second.size / it->second.count);
+                    std::string indexStr = varIdentifier.substr(1, len - 1);
+                    int index = std::atoi(indexStr.c_str());
 
-                memcpy(((char*)data) + it->second.offset + (stride * index), value, stride);
-                vkUnmapMemory(renderer->GetVkDevice(), this->uboBufferMemories[i]);
-
-                VkDescriptorBufferInfo bufferInfo = {};
-                bufferInfo.buffer = this->uboBuffers[i];
-                bufferInfo.offset = 0;
-                bufferInfo.range = ubo.size;
-
-                VkWriteDescriptorSet descriptorWrite = {};
-                descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                descriptorWrite.dstSet = this->descriptorSet;
-                descriptorWrite.dstBinding = ubo.binding;
-                descriptorWrite.dstArrayElement = 0;
-                descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                descriptorWrite.descriptorCount = 1;
-                descriptorWrite.pBufferInfo = &bufferInfo;
-                descriptorWrite.pImageInfo = nullptr;
-                descriptorWrite.pTexelBufferView = nullptr;
-                descriptorWrite.pNext = nullptr;
-
-                vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
+                    offset += member->size * index;
+                    
+                    varIdentifier = varIdentifier.substr(len + 1);
+                }
             }
+
+            RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+            void* data = nullptr;
+
+            if (vkMapMemory(renderer->GetVkDevice(), this->uboBufferMemories[i], 0, ubo.rootMember.size * ubo.rootMember.count, 0, &data) != VK_SUCCESS)
+            {
+                fprintf(stderr, "Vulkan: Unable to map ubo buffer memory!\n");
+                return;
+            }
+            memcpy(((char*)data) + offset, value, valueSize);
+            vkUnmapMemory(renderer->GetVkDevice(), this->uboBufferMemories[i]);
+
+            VkDescriptorBufferInfo bufferInfo = {};
+            bufferInfo.buffer = this->uboBuffers[i];
+            bufferInfo.offset = 0;
+            bufferInfo.range = ubo.rootMember.size * ubo.rootMember.count;
+
+            VkWriteDescriptorSet descriptorWrite = {};
+            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.dstSet = this->descriptorSet;
+            descriptorWrite.dstBinding = ubo.binding;
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pBufferInfo = &bufferInfo;
+            descriptorWrite.pImageInfo = nullptr;
+            descriptorWrite.pTexelBufferView = nullptr;
+            descriptorWrite.pNext = nullptr;
+
+            vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
         }
     }
 }

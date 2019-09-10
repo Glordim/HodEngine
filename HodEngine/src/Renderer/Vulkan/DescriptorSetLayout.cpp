@@ -32,38 +32,48 @@ void DescriptorSetLayout::ExtractBlockUbo(const spirv_cross::Compiler& comp, con
     }
 
     ubo.name = comp.get_name(resource.id);
-    ubo.size = 0;
 
     const spirv_cross::SPIRType& type = comp.get_type(resource.type_id);
 
-    size_t memberCount = type.member_types.size();
+    ubo.rootMember.name = ubo.name;
+    ubo.rootMember.offset = 0;
+    ubo.rootMember.size = comp.get_declared_struct_size(type);
+    if (type.array.empty() == false)
+        ubo.rootMember.count = type.array[0];
+    else
+        ubo.rootMember.count = 1;
+
+    this->ExtractUboSubMembers(comp, type, ubo.rootMember);
+
+    this->uboBlockVector.push_back(std::move(ubo));
+}
+
+void DescriptorSetLayout::ExtractUboSubMembers(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& structType, BlockUbo::Member& structMember)
+{
+    size_t memberCount = structType.member_types.size();
     for (size_t i = 0; i < memberCount; ++i)
     {
-        const spirv_cross::SPIRType& memberType = comp.get_type(type.member_types[i]);
+        const spirv_cross::SPIRType& memberType = comp.get_type(structType.member_types[i]);
 
         BlockUbo::Member member;
 
-        member.name = comp.get_member_name(resource.base_type_id, i);
-        member.size = comp.get_declared_struct_member_size(type, i);
-        member.count = 1;
+        member.name = comp.get_member_name(structType.self, i);
+        member.size = comp.get_declared_struct_member_size(structType, i);
 
         if (memberType.array.empty() == false)
-        {
             member.count = memberType.array[0];
-        }
         else
-        {
             member.count = 1;
+
+        member.offset = comp.type_struct_member_offset(structType, i);
+
+        if (memberType.basetype == spirv_cross::SPIRType::Struct)
+        {
+            this->ExtractUboSubMembers(comp, memberType, member);
         }
 
-        member.offset = comp.type_struct_member_offset(type, i);
-
-        ubo.size += member.size * member.count;
-
-        ubo.memberNameToMemberMap.emplace(member.name, std::move(member));
+        structMember.childsMap.emplace(member.name, std::move(member));
     }
-
-    this->uboBlockVector.push_back(std::move(ubo));
 }
 
 void DescriptorSetLayout::ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource)

@@ -45,3 +45,4 @@ void main()
 
 	gl_Position = modelUbo.mvp * vec4(pos.xyz, 1.0f);
 }
+

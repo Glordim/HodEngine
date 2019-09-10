@@ -19,8 +19,7 @@ public:
 
     VkDescriptorSet GetDescriptorSet() const;
 
-    void SetUboValue(const std::string& uboName, const std::string& memberName, const void* value);
-    void SetUboValueInArray(const std::string& uboName, const std::string& memberName, size_t index, const void* value);
+    void SetUboValue(const std::string& memberName, const void* value, size_t valueSize);
     void SetTexture(const std::string& name, const VkTexture* textureSampler);
 
 private:
