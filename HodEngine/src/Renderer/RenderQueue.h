@@ -7,6 +7,9 @@
 #include "Line_3P_3C.h"
 #include "Tri_3P_3C.h"
 #include "PointLight.h"
+
+#define GLM_DEPTH_ZERO_TO_ONE 1
+#define GLM_FORCE_LEFT_HANDED 1
 #include "glm/mat4x4.hpp"
 
 class MaterialInstance;

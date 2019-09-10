@@ -29,6 +29,8 @@
 #include "FreeCam.h"
 #include "FlyingPointLight.h"
 
+#define GLM_DEPTH_ZERO_TO_ONE 1
+#define GLM_FORCE_LEFT_HANDED 1
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "../Allocator.h"
@@ -140,7 +142,7 @@ int __cdecl _tmain()
         materialLitSpecularInstance->SetTexture("textureSampler", *wallTexture);
         materialLitSpecularInstance->SetTexture("specularTextureSampler", *wallTextureSpecular);
         materialLitSpecularInstance->SetTexture("normalTextureSampler", *wallTextureNormal);
-        materialLitSpecularInstance->SetFloat("matUbo", "specularStrength", 1.5f);
+        materialLitSpecularInstance->SetFloat("matUbo.specularStrength", 1.5f);
         
         Material* materialUnlit = materialManager->getMaterial("UnlitColor");
         if (materialUnlit == nullptr)
@@ -150,7 +152,7 @@ int __cdecl _tmain()
         if (materialUnlitInstance == nullptr)
             return 1;
 
-        materialUnlitInstance->SetVec4("matUbo", "color", glm::vec4(0.65f, 0.65f, 0.65f, 1.0f));
+        materialUnlitInstance->SetVec4("matUbo.color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
         Material* materialUnlitTexture = materialManager->getMaterial("UnlitTexture");
         if (materialUnlitTexture == nullptr)
@@ -168,7 +170,7 @@ int __cdecl _tmain()
         {
             SceneComponent* sceneComponent = freeCam->getComponent<SceneComponent>();
 
-            sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 9.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             sceneComponent->setParent(scene->getRoot());
 
             freeCam->setupInputListener(application.GetInputListenner());
@@ -178,14 +180,12 @@ int __cdecl _tmain()
         {
             SceneComponent* sceneComponent = wall1->addComponent<SceneComponent>();
             sceneComponent->position = glm::vec3(-3.5f, 0.0f, 0.0f);
-            sceneComponent->setRotation(glm::vec3(0.0f, -150.0f, 0.0f));
+            sceneComponent->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
             sceneComponent->setParent(scene->getRoot());
 
             StaticMeshComponent* staticMeshComponent = wall1->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(wallMesh);
-            //staticMeshComponent->setMaterialInstance(materialUnlitInstance);
-            //staticMeshComponent->setMaterialInstance(materialUnlitTextureInstance);
             staticMeshComponent->setMaterialInstance(materialLitInstance);
 
             ColliderComponent* colliderComponent = wall1->addComponent<ColliderComponent>();
@@ -196,14 +196,13 @@ int __cdecl _tmain()
         {
             SceneComponent* sceneComponent = wall2->addComponent<SceneComponent>();
             sceneComponent->position = glm::vec3(3.5f, 0.0f, 0.0f);
-            sceneComponent->setRotation(glm::vec3(0.0f, -30.0f, 0.0f));
+            sceneComponent->setRotation(glm::vec3(0.0f, 180.0f, 0.0f));
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
             sceneComponent->setParent(scene->getRoot());
 
             StaticMeshComponent* staticMeshComponent = wall2->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(wallMesh);
-            staticMeshComponent->setMaterialInstance(materialUnlitInstance);
-            //staticMeshComponent->setMaterialInstance(materialLitSpecularInstance);
+            staticMeshComponent->setMaterialInstance(materialUnlitTextureInstance);
 
             ColliderComponent* colliderComponent = wall2->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Mesh);
@@ -212,7 +211,7 @@ int __cdecl _tmain()
         Actor* sphereActor = scene->spawnActor<FlyingPointLight>("FlyingPointLight");
         {
             SceneComponent* sceneComponent = sphereActor->getComponent<SceneComponent>();
-            sceneComponent->position = glm::vec3(-2.0f, 3.0f, -5.5f);
+            sceneComponent->position = glm::vec3(0.0f, 0.0f, 0.0f);
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
             sceneComponent->setParent(scene->getRoot());
 
