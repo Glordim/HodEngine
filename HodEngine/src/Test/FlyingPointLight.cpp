@@ -18,6 +18,6 @@ void FlyingPointLight::update(float dt)
     Uint32 ticks = SDL_GetTicks();
     float time = ticks / 1000.0f;
 
-    this->sceneComponent->setPosition(this->sceneComponent->getPosition() + glm::vec3(0.0f, 0.0035f, 0.0f) * sin((float)time));
+    this->sceneComponent->setPosition(this->sceneComponent->getPosition() + glm::vec3(0.0f, 0.0005f, 0.0f) * sin((float)time));
 }
 

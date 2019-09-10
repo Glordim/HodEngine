@@ -112,6 +112,9 @@ public:
     void SetProjMatrix(const glm::mat4x4& projMatrix);
     const glm::mat4x4& GetProjMatrix() const;
 
+    void SetCameraPos(const glm::vec3& cameraPos);
+    const glm::vec3 GetCameraPos() const;
+
     void SetClearFlag(int clearFlags);
 
     void AddMesh(Mesh* mesh, MaterialInstance* materialInstance, glm::mat4x4 matrix);
@@ -145,6 +148,7 @@ public:
 private:
     glm::mat4x4 viewMatrix;
     glm::mat4x4 projMatrix;
+    glm::vec3 cameraPos;
 
     std::vector<MeshData*> meshList;
     std::vector<LineData*> lineList;

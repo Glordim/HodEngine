@@ -58,6 +58,7 @@ void CameraComponent::render(Scene& scene)
 {
     RenderQueue renderQueue;
 
+    renderQueue.SetCameraPos(this->getActor()->getComponent<SceneComponent>()->getPosition());
     renderQueue.SetViewMatrix(glm::inverse(this->getActor()->getComponent<SceneComponent>()->getModelMatrix()));
     renderQueue.SetProjMatrix(this->getProjectionMatrix());
 

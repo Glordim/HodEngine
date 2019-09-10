@@ -129,20 +129,20 @@ int __cdecl _tmain()
             return 1;
 
         materialLitInstance->SetTexture("textureSampler", *wallTexture);
-        //materialLitInstance->SetFloat("matUbo", "specularStrength", 1.5f);
 
-        Material* materialLitSpecular = materialManager->getMaterial("LitSpecularNormal");
+        Material* materialLitSpecular = materialManager->getMaterial("LitSpecular");
         if (materialLitSpecular == nullptr)
             return 1;
 
-        MaterialInstance* materialLitSpecularInstance = renderer->CreateMaterialInstance(materialLit);
+        MaterialInstance* materialLitSpecularInstance = renderer->CreateMaterialInstance(materialLitSpecular);
         if (materialLitSpecularInstance == nullptr)
             return 1;
 
         materialLitSpecularInstance->SetTexture("textureSampler", *wallTexture);
         materialLitSpecularInstance->SetTexture("specularTextureSampler", *wallTextureSpecular);
-        materialLitSpecularInstance->SetTexture("normalTextureSampler", *wallTextureNormal);
+        //materialLitSpecularInstance->SetTexture("normalTextureSampler", *wallTextureNormal);
         materialLitSpecularInstance->SetFloat("matUbo.specularStrength", 1.5f);
+        materialLitSpecularInstance->SetFloat("matUbo.shininess", 16.0f);
         
         Material* materialUnlit = materialManager->getMaterial("UnlitColor");
         if (materialUnlit == nullptr)
@@ -202,7 +202,7 @@ int __cdecl _tmain()
 
             StaticMeshComponent* staticMeshComponent = wall2->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(wallMesh);
-            staticMeshComponent->setMaterialInstance(materialUnlitTextureInstance);
+            staticMeshComponent->setMaterialInstance(materialLitSpecularInstance);
 
             ColliderComponent* colliderComponent = wall2->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Mesh);

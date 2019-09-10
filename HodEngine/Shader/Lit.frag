@@ -25,7 +25,7 @@ layout(set = 0, binding = 1) uniform LightUniformBufferObject {
 	PointLight pointLight[32];
 
 	vec4 ambiantColor;
-	vec4 eyePos;
+	vec3 eyePos;
 } lightUbo;
 
 layout(set = 1, binding = 0) uniform ModelUniformBufferObject {

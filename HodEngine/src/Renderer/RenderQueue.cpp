@@ -51,6 +51,16 @@ const glm::mat4x4& RenderQueue::GetProjMatrix() const
     return this->projMatrix;
 }
 
+void RenderQueue::SetCameraPos(const glm::vec3& cameraPos)
+{
+    this->cameraPos = cameraPos;
+}
+
+const glm::vec3 RenderQueue::GetCameraPos() const
+{
+    return this->cameraPos;
+}
+
 void RenderQueue::SetClearFlag(int clearFlags)
 {
 

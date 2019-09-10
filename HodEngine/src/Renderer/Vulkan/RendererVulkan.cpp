@@ -1293,7 +1293,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     size_t pointLightCount = pointLightDatas.size();
 
     glm::vec4 ambiantColor = glm::vec4(0.10f, 0.10f, 0.10f, 1.0f);
-    glm::vec4 eyePos = glm::vec4(/*renderQueue.GetCameraPos()*/0.0f, 0.0f, 0.0f, 1.0f);
+    glm::vec3 eyePos = renderQueue.GetCameraPos();
 
     viewDescriptorSet->SetUboValue("lightUbo.ambiantColor", &ambiantColor, sizeof(ambiantColor));
     viewDescriptorSet->SetUboValue("lightUbo.eyePos", &eyePos, sizeof(eyePos));
