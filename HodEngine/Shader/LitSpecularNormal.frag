@@ -12,30 +12,32 @@ layout(set = 0, binding = 0) uniform ViewUniformBufferObject {
 	mat4 vp;
 } viewUbo;
 
-layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
-	mat4 mvp;
-	mat4 model;
-} modelUbo;
-
 struct PointLight
 {    
-    vec4 pos;
+    vec3 pos;
 	vec4 color;
 	float intensity;
 	float range;
 };  
 
-layout(set = 2, binding = 0) uniform MatUniformBufferObject {
+layout(set = 0, binding = 1) uniform LightUniformBufferObject {
 	int lightCount;
 	PointLight pointLight[32];
 
 	vec4 ambiantColor;
-	vec4 eyePos;
+	vec3 eyePos;
+} lightUbo;
 
+layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
+	mat4 mvp;
+	mat4 model;
+} modelUbo;
+
+
+layout(set = 2, binding = 0) uniform MatUniformBufferObject {
 	float shininess;
 	float specularStrength;
 } matUbo;
-
 
 layout(set = 2, binding = 1) uniform sampler2D textureSampler;
 layout(set = 2, binding = 2) uniform sampler2D specularTextureSampler;
@@ -43,28 +45,27 @@ layout(set = 2, binding = 3) uniform sampler2D normalTextureSampler;
 
 void main()
 {
-	vec3 viewDir = normalize(matUbo.eyePos.xyz - FragPos);
+	vec3 viewDir = TBN * normalize(lightUbo.eyePos - FragPos);
 	
-	vec3 norm = normalize(texture(normalTextureSampler, TexCoords.st).rgb);
+	vec3 norm = texture(normalTextureSampler, TexCoords.xy).rgb;
 	norm = normalize(norm * 2.0f - 1.0f);
-	norm = normalize(TBN * norm);
 	
 	vec3 diffuse = vec3(0.0f, 0.0f, 0.0f);
 	vec3 specular = vec3(0.0f, 0.0f, 0.0f);
 	
-	for (int i = 0; i < matUbo.lightCount; ++i)
+	for (int i = 0; i < lightUbo.lightCount; ++i)
 	{		
-		vec3 lightDir = normalize(matUbo.pointLight[i].pos.xyz - FragPos);
+		vec3 lightDir = TBN * normalize(lightUbo.pointLight[i].pos.xyz - FragPos);
 		
 		float diff = max(dot(norm, lightDir), 0.0f);
-		diffuse += diff * matUbo.pointLight[i].color.xyz;
+		diffuse += diff * lightUbo.pointLight[i].color.xyz;
 		
 		vec3 reflectDir = normalize(reflect(-lightDir, norm));
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), matUbo.shininess);
-		specular += spec * matUbo.pointLight[i].color.xyz * (texture(specularTextureSampler, TexCoords.xy).x * matUbo.specularStrength);
+		specular += spec * lightUbo.pointLight[i].color.xyz * (texture(specularTextureSampler, TexCoords.xy).x * matUbo.specularStrength);
 	}
 	
-	vec3 result = (matUbo.ambiantColor.xyz + diffuse + specular) * texture(textureSampler, TexCoords.xy).xyz;
+	vec3 result = (lightUbo.ambiantColor.xyz + diffuse + 0.0f) * texture(textureSampler, TexCoords.xy).xyz;
 	
 	frag_color = vec4(result, 1.0f);
 }

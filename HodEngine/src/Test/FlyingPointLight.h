@@ -17,10 +17,13 @@ public:
     FlyingPointLight(const FlyingPointLight& copy) = delete;
     virtual ~FlyingPointLight();
 
+    virtual void start() override;
     virtual void update(float dt) override;
 
 private:
     SceneComponent* sceneComponent;
+
+    glm::vec3 initialPos;
 };
 
 #endif

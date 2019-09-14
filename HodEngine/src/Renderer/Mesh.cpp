@@ -101,11 +101,11 @@ bool Mesh::loadObj(const char* path)
 
             if (uvIndex != -1)
             {
-                memcpy(&vertex.uv[0], &attributes.texcoords[uvIndex * 2], 2 * sizeof(float));
-                /*
+                //memcpy(&vertex.uv[0], &attributes.texcoords[uvIndex * 2], 2 * sizeof(float));
+                
                 vertex.uv[0] = attributes.texcoords[(uvIndex * 2)];
-                vertex.uv[1] = attributes.texcoords[(uvIndex * 2) + 1];
-                */
+                vertex.uv[1] = -attributes.texcoords[(uvIndex * 2) + 1];
+                
             }
             else
             {
@@ -146,9 +146,9 @@ bool Mesh::loadObj(const char* path)
         float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
         glm::vec3 tangent1;
-        tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-        tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-        tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+        tangent1.x = f * (-deltaUV2.y * edge1.x + deltaUV1.y * edge2.x);
+        tangent1.y = f * (-deltaUV2.y * edge1.y + deltaUV1.y * edge2.y);
+        tangent1.z = f * (-deltaUV2.y * edge1.z + deltaUV1.y * edge2.z);
         tangent1 = glm::normalize(tangent1);
 
         v1.tangent[0] = tangent1.x;
@@ -163,13 +163,23 @@ bool Mesh::loadObj(const char* path)
         v3.tangent[1] = tangent1.y;
         v3.tangent[2] = tangent1.z;
 
-        /*
         glm::vec3 bitangent1;
-        bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-        bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-        bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+        bitangent1.x = f * (deltaUV2.x * edge1.x - deltaUV1.x * edge2.x);
+        bitangent1.y = f * (deltaUV2.x * edge1.y - deltaUV1.x * edge2.y);
+        bitangent1.z = f * (deltaUV2.x * edge1.z - deltaUV1.x * edge2.z);
         bitangent1 = glm::normalize(bitangent1);
-        */
+
+        v1.bitangent[0] = bitangent1.x;
+        v1.bitangent[1] = bitangent1.y;
+        v1.bitangent[2] = bitangent1.z;
+
+        v2.bitangent[0] = bitangent1.x;
+        v2.bitangent[1] = bitangent1.y;
+        v2.bitangent[2] = bitangent1.z;
+
+        v3.bitangent[0] = bitangent1.x;
+        v3.bitangent[1] = bitangent1.y;
+        v3.bitangent[2] = bitangent1.z;
 
     }
 
@@ -223,5 +233,10 @@ size_t Mesh::GetIndiceCount() const
 size_t Mesh::GetVertexCount() const
 {
     return this->vertices.size();
+}
+
+const std::vector<Vertex_3P_3C_3N_2UV_3TA>& Mesh::GetVertices() const
+{
+    return this->vertices;
 }
 

@@ -26,9 +26,14 @@ public:
     void setMaterialInstance(MaterialInstance* materialInstance);
     MaterialInstance* GetMaterialInstance() const;
 
+    void EnableDebugTangent(bool enable);
+    bool IsDebugTangentEnabled() const;
+
 private:
     Mesh* mesh;
     MaterialInstance* materialInstance;
+
+    bool debugTangent;
 };
 
 #endif

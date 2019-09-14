@@ -18,6 +18,11 @@ void Actor::setupInputListener(InputListener* inputListener)
 
 }
 
+void Actor::start()
+{
+
+}
+
 void Actor::update(float dt)
 {
 

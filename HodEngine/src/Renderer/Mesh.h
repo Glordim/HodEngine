@@ -10,6 +10,7 @@ struct Vertex_3P_3C_3N_2UV_3TA
     float normal[3];
     float uv[2];
     float tangent[3];
+    float bitangent[3];
 };
 
 struct Line_3P_3C;
@@ -28,12 +29,17 @@ public:
     size_t GetIndiceCount() const;
     size_t GetVertexCount() const;
 
+    const std::vector<Vertex_3P_3C_3N_2UV_3TA>& GetVertices() const;
+
 protected:
     virtual bool BuildBuffers() = 0;
 
 protected:
     std::vector<uint16_t> indices;
     std::vector<Vertex_3P_3C_3N_2UV_3TA> vertices;
+
+private:
+    fbxsdk::FbxNode* FindMeshInFbxNode(fbxsdk::FbxNode* node);
 };
 
 #endif

@@ -79,14 +79,20 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
     tangentAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
     tangentAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, tangent);
 
-    VkVertexInputAttributeDescription vertexAttributes[] = { posAttribute, colorAttribute, normalAttribute, uvAttribute, tangentAttribute };
+    VkVertexInputAttributeDescription bitangentAttribute;
+    bitangentAttribute.binding = 0;
+    bitangentAttribute.location = 5;
+    bitangentAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
+    bitangentAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, bitangent);
+
+    VkVertexInputAttributeDescription vertexAttributes[] = { posAttribute, colorAttribute, normalAttribute, uvAttribute, tangentAttribute, bitangentAttribute };
 
     // Vertex input
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputInfo.vertexAttributeDescriptionCount = 5;
+    vertexInputInfo.vertexAttributeDescriptionCount = 6;
     vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes;
 
     // Input assembly

@@ -15,7 +15,7 @@
 
 StaticMeshComponent::StaticMeshComponent(Actor* actor) : RendererComponent(actor)
 {
-
+    this->debugTangent = false;
 }
 
 StaticMeshComponent::~StaticMeshComponent()
@@ -77,4 +77,14 @@ void StaticMeshComponent::draw(CameraComponent* camera, std::vector<LightCompone
     //glDrawElements(GL_TRIANGLES, this->mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
 
     */
+}
+
+void StaticMeshComponent::EnableDebugTangent(bool enable)
+{
+    this->debugTangent = enable;
+}
+
+bool StaticMeshComponent::IsDebugTangentEnabled() const
+{
+    return this->debugTangent;
 }

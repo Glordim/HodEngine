@@ -143,6 +143,20 @@ int __cdecl _tmain()
         //materialLitSpecularInstance->SetTexture("normalTextureSampler", *wallTextureNormal);
         materialLitSpecularInstance->SetFloat("matUbo.specularStrength", 1.5f);
         materialLitSpecularInstance->SetFloat("matUbo.shininess", 16.0f);
+
+        Material* materialLitSpecularNormal = materialManager->getMaterial("LitSpecularNormal");
+        if (materialLitSpecularNormal == nullptr)
+            return 1;
+
+        MaterialInstance* materialLitSpecularNormalInstance = renderer->CreateMaterialInstance(materialLitSpecularNormal);
+        if (materialLitSpecularNormalInstance == nullptr)
+            return 1;
+
+        materialLitSpecularNormalInstance->SetTexture("textureSampler", *wallTexture);
+        materialLitSpecularNormalInstance->SetTexture("specularTextureSampler", *wallTextureSpecular);
+        materialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *wallTextureNormal);
+        materialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
+        materialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
         
         Material* materialUnlit = materialManager->getMaterial("UnlitColor");
         if (materialUnlit == nullptr)
@@ -186,7 +200,8 @@ int __cdecl _tmain()
 
             StaticMeshComponent* staticMeshComponent = wall1->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(wallMesh);
-            staticMeshComponent->setMaterialInstance(materialLitInstance);
+            staticMeshComponent->setMaterialInstance(materialLitSpecularNormalInstance);
+            staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = wall1->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Mesh);
@@ -202,7 +217,8 @@ int __cdecl _tmain()
 
             StaticMeshComponent* staticMeshComponent = wall2->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(wallMesh);
-            staticMeshComponent->setMaterialInstance(materialLitSpecularInstance);
+            staticMeshComponent->setMaterialInstance(materialLitSpecularNormalInstance);
+            staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = wall2->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Mesh);

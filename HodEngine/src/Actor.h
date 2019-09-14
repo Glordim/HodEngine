@@ -23,6 +23,7 @@ public:
     Actor(const Actor& copy) = delete;
     virtual ~Actor();
 
+    virtual void start();
     virtual void update(float dt);
 
     template<typename T>
