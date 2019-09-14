@@ -16,6 +16,11 @@ struct Vertex_3P_3C_3N_2UV_3TA
 struct Line_3P_3C;
 struct Tri_3P_3C;
 
+namespace fbxsdk
+{
+    class FbxNode;
+}
+
 class Mesh
 {
 public:
@@ -23,6 +28,7 @@ public:
     virtual ~Mesh();
 
     bool loadObj(const char* path);
+    bool loadFbx(const char* path);
     bool LoadFromLines(std::vector<Line_3P_3C>& lines);
     bool LoadFromTriangles(std::vector<Tri_3P_3C>& triangles);
 

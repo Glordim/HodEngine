@@ -100,6 +100,11 @@ int __cdecl _tmain()
         Mesh* wallMesh = renderer->CreateMesh("Mesh/wall.obj");
         if (wallMesh == nullptr)
             return 1;
+        
+        Mesh* boxMesh = renderer->CreateMesh("Mesh/SM_Box_1.fbx");
+        if (boxMesh == nullptr)
+            return 1;
+            
 
         Texture* wallTexture = renderer->CreateTexture("Texture/brickwall.jpg");
         if (wallTexture == nullptr)
@@ -112,6 +117,19 @@ int __cdecl _tmain()
         Texture* wallTextureSpecular = renderer->CreateTexture("Texture/brickwall_Specular.png");
         if (wallTextureSpecular == nullptr)
             return 1;
+        
+        Texture* boxTexture = renderer->CreateTexture("Texture/T_Box_1_C.tga");
+        if (boxTexture == nullptr)
+            return 1;
+
+        Texture* boxTextureNormal = renderer->CreateTexture("Texture/T_Box_1_N.tga");
+        if (boxTexture == nullptr)
+            return 1;
+
+        Texture* boxTextureMetalness = renderer->CreateTexture("Texture/T_Box_1_M.tga");
+        if (boxTexture == nullptr)
+            return 1;
+
         /*
             Texture* gunTexture = renderer->CreateTexture("Texture/brickwall.jpg");
             if (gunTexture == nullptr)
@@ -177,7 +195,17 @@ int __cdecl _tmain()
             return 1;
 
         materialUnlitTextureInstance->SetTexture("textureSampler", *wallTexture);
+        
+        MaterialInstance* boxMaterialLitSpecularNormalInstance = renderer->CreateMaterialInstance(materialLitSpecularNormal);
+        if (boxMaterialLitSpecularNormalInstance == nullptr)
+            return 1;
 
+        boxMaterialLitSpecularNormalInstance->SetTexture("textureSampler", *boxTexture);
+        boxMaterialLitSpecularNormalInstance->SetTexture("specularTextureSampler", *boxTextureMetalness);
+        boxMaterialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *boxTextureNormal);
+        boxMaterialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
+        boxMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
+        
         Scene* scene = new Scene();
 
         FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
@@ -242,6 +270,23 @@ int __cdecl _tmain()
 
             ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+        }
+
+        Actor* box = scene->spawnActor<Actor>("box");
+        {
+            SceneComponent* sceneComponent = box->addComponent<SceneComponent>();
+            sceneComponent->position = glm::vec3(0.0f, 0.0f, -5.0f);
+            sceneComponent->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+            sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.03f;
+            sceneComponent->setParent(scene->getRoot());
+
+            StaticMeshComponent* staticMeshComponent = box->addComponent<StaticMeshComponent>();
+            staticMeshComponent->setMesh(boxMesh);
+            staticMeshComponent->setMaterialInstance(boxMaterialLitSpecularNormalInstance);
+            //staticMeshComponent->EnableDebugTangent(true);
+
+            ColliderComponent* colliderComponent = box->addComponent<ColliderComponent>();
+            colliderComponent->setShape(ColliderComponent::Shape::Mesh);
         }
 
         if (application.Run(scene) == false)

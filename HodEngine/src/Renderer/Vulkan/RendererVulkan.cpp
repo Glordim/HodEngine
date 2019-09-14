@@ -1655,7 +1655,27 @@ Mesh* RendererVulkan::CreateMesh(const std::string& path)
 {
     VkMesh* mesh = new VkMesh();
 
-    if (path != "" && mesh->loadObj(path.c_str()) == false)
+    if (path.find(".fbx") != std::string::npos)
+    {
+        if (mesh->loadFbx(path.c_str()) == false)
+        {
+            delete mesh;
+            return nullptr;
+        }
+    }
+    else if (path.find(".obj") != std::string::npos)
+    {
+        if (mesh->loadObj(path.c_str()) == false)
+        {
+            delete mesh;
+            return nullptr;
+        }
+    }
+    else if (path == "")
+    {
+        // Do nothing
+    }
+    else
     {
         delete mesh;
         return nullptr;
