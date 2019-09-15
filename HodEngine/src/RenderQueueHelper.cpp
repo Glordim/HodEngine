@@ -95,7 +95,7 @@ void RenderQueueHelper::AddSceneComponent(RenderQueue& renderQueue, SceneCompone
         SpotLightComponent* spotLightComponent = child->getActor()->getComponent<SpotLightComponent>();
         if (spotLightComponent != nullptr)
         {
-            renderQueue.AddSpotLight(child->getPosition(), child->getRotationEuler(), spotLightComponent->GetSpotLight());
+            renderQueue.AddSpotLight(child->getPosition(), child->getRotation() * glm::vec3(0.0f, 0.0f, 1.0f), spotLightComponent->GetSpotLight());
         }
     }
 }

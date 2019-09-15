@@ -39,6 +39,9 @@ struct SpotLight
 	vec3 dir;
 	vec4 color;
 	float intensity;
+	float constant;
+    float linear;
+    float quadratic;
 	float radius;
 	float outer;
 	float inner;

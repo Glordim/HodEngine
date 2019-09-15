@@ -241,6 +241,11 @@ int __cdecl _tmain()
             sceneComponent->setParent(scene->getRoot());
 
             freeCam->setupInputListener(application.GetInputListenner());
+
+            SpotLightComponent* spotLightComponent = freeCam->addComponent<SpotLightComponent>();
+            spotLightComponent->data.radius = 15.0f;
+            spotLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            spotLightComponent->data.intensity = 1.0f;
         }
 
         Actor* wall1 = scene->spawnActor<Actor>("wall1");

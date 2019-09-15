@@ -1378,6 +1378,10 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
     viewDescriptorSet->SetUboValue("lightUbo.spotLightCount", &spotLightCount, sizeof(spotLightCount));
 
+    constant = 1.0f;
+    linear = 0.045f;
+    quadratic = 0.0075f;
+
     for (size_t i = 0; i < spotLightCount; ++i)
     {
         RenderQueue::SpotLightData* spotLightData = spotLightDatas[i];
@@ -1388,11 +1392,16 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         color.z = spotLightData->spotLight->color.b;
         color.w = spotLightData->spotLight->color.a;
 
+        float cosRadius = glm::cos(glm::radians(spotLightData->spotLight->radius));
+
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].pos", &spotLightData->pos, sizeof(glm::vec3));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].dir", &spotLightData->dir, sizeof(glm::vec3));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].intensity", &spotLightData->spotLight->intensity, sizeof(float));
-        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].radius", &spotLightData->spotLight->radius, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].constant", &constant, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].radius", &cosRadius, sizeof(float));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].outer", &spotLightData->spotLight->outer, sizeof(float));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].inner", &spotLightData->spotLight->inner, sizeof(float));
     }

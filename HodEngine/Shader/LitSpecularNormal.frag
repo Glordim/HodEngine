@@ -35,6 +35,9 @@ struct SpotLight
 	vec3 dir;
 	vec4 color;
 	float intensity;
+	float constant;
+    float linear;
+    float quadratic;
 	float radius;
 	float outer;
 	float inner;
@@ -107,6 +110,28 @@ void main()
 		vec3 reflectDir = normalize(reflect(-lightDir, norm));
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), matUbo.shininess);
 		specular += (spec * lightUbo.pointLight[i].color.xyz * (texture(specularTextureSampler, uv.xy).x * matUbo.specularStrength)) * attenuation;
+	}
+	
+	for (int i = 0; i < lightUbo.spotLightCount; ++i)
+	{
+		vec3 lightDir = normalize(lightUbo.spotLight[i].pos - FragPos);
+		
+		float angle = dot(lightDir, normalize(-lightUbo.spotLight[i].dir));
+    
+		if (angle > lightUbo.spotLight[i].radius)
+		{			
+			lightDir = TBN * normalize(lightUbo.spotLight[i].pos - FragPos);
+			
+			float distance = length(lightUbo.spotLight[i].pos.xyz - FragPos);
+			float attenuation = 1.0f / (lightUbo.spotLight[i].constant + lightUbo.spotLight[i].linear * distance + lightUbo.spotLight[i].quadratic * (distance * distance));
+
+			float diff = max(dot(norm, lightDir), 0.0f);
+			diffuse += (diff * lightUbo.spotLight[i].color.xyz) * attenuation;
+			
+			vec3 reflectDir = normalize(reflect(-lightDir, norm));
+			float spec = pow(max(dot(viewDir, reflectDir), 0.0), matUbo.shininess);
+			specular += (spec * lightUbo.spotLight[i].color.xyz * (texture(specularTextureSampler, uv.xy).x * matUbo.specularStrength)) * attenuation;
+		}		
 	}
 	
 	vec3 result = (lightUbo.ambiantColor.xyz + diffuse + specular) * texture(textureSampler, uv.xy).xyz;
