@@ -18,8 +18,6 @@ public:
     friend class Actor;
 
 public:
-    virtual void draw(CameraComponent* camera, std::vector<LightComponent*>& allLight) override;
-
     void setMesh(Mesh* mesh);
     Mesh* GetMesh() const;
 

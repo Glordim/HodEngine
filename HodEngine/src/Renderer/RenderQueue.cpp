@@ -81,8 +81,18 @@ void RenderQueue::AddTriangles(std::vector<Tri_3P_3C> tris, MaterialInstance* ma
     this->triangleList.push_back(new TriangleData(tris, materialInstance, matrix));
 }
 
+void RenderQueue::AddDirLight(const glm::vec3& dir, DirLight* dirLight)
+{
+    this->dirLightList.push_back(new DirLightData(dir, dirLight));
+}
+
 void RenderQueue::AddPointLight(const glm::vec3& pos, PointLight* pointLight)
 {
     this->pointLightList.push_back(new PointLightData(pos, pointLight));
+}
+
+void RenderQueue::AddSpotLight(const glm::vec3& pos, const glm::vec3& dir, SpotLight* spotLight)
+{
+    this->spotLightList.push_back(new SpotLightData(pos, dir, spotLight));
 }
 

@@ -21,7 +21,9 @@
 #include "../Component/SceneComponent.h"
 #include "../Component/StaticMeshComponent.h"
 #include "../Component/CameraComponent.h"
-#include "../Component/LightComponent.h"
+#include "../Component/Light/DirLightComponent.h"
+#include "../Component/Light/PointLightComponent.h"
+#include "../Component/Light/SpotLightComponent.h"
 #include "../Component/ColliderComponent.h"
 
 #include "../InputListener.h"
@@ -282,7 +284,7 @@ int __cdecl _tmain()
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
             sceneComponent->setParent(scene->getRoot());
 
-            LightComponent* pointLightComponent = sphereActor->addComponent<LightComponent>();
+            PointLightComponent* pointLightComponent = sphereActor->addComponent<PointLightComponent>();
             pointLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
             pointLightComponent->data.intensity = 1.0f;
             pointLightComponent->data.range = 2.5f;
@@ -295,6 +297,26 @@ int __cdecl _tmain()
             colliderComponent->setShape(ColliderComponent::Shape::Sphere);
 
             sphereActor->start();
+        }
+
+        Actor* dirLight = scene->spawnActor<Actor>("dirLight");
+        {
+            SceneComponent* sceneComponent = dirLight->addComponent<SceneComponent>();
+            sceneComponent->rotate(45.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+            sceneComponent->setParent(scene->getRoot());
+
+            DirLightComponent* dirLightComponent = dirLight->addComponent<DirLightComponent>();
+            dirLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            dirLightComponent->data.intensity = 1.0f;
+
+            StaticMeshComponent* staticMeshComponent = dirLight->addComponent<StaticMeshComponent>();
+            staticMeshComponent->setMesh(sphereMesh);
+            staticMeshComponent->setMaterialInstance(materialUnlitInstance);
+
+            ColliderComponent* colliderComponent = dirLight->addComponent<ColliderComponent>();
+            colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+
+            dirLight->start();
         }
 
         Actor* box = scene->spawnActor<Actor>("box");
@@ -377,7 +399,7 @@ int __cdecl _tmain()
         staticMeshComponent->setMesh(&sphere);
         staticMeshComponent->setMaterial(materialUnlit);
 
-        LightComponent* lightComponent = light->addComponent<LightComponent>();
+        PointLightComponent* lightComponent = light->addComponent<PointLightComponent>();
 
         ColliderComponent* colliderComponent = light->addComponent<ColliderComponent>();
         colliderComponent->setShape(ColliderComponent::Shape::Sphere);
@@ -394,7 +416,7 @@ int __cdecl _tmain()
         staticMeshComponent->setMesh(&sphere);
         staticMeshComponent->setMaterial(materialUnlit);
 
-        LightComponent* lightComponent = light2->addComponent<LightComponent>();
+        PointLightComponent* lightComponent = light2->addComponent<PointLightComponent>();
 
         ColliderComponent* colliderComponent = light2->addComponent<ColliderComponent>();
         colliderComponent->setShape(ColliderComponent::Shape::Sphere);

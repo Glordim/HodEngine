@@ -22,8 +22,11 @@ struct PointLight
     vec3 pos;
 	vec4 color;
 	float intensity;
-	float range;
-};  
+	
+	float constant;
+    float linear;
+    float quadratic;
+};
 
 layout(set = 0, binding = 1) uniform LightUniformBufferObject {
 	int lightCount;

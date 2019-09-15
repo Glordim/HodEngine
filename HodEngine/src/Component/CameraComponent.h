@@ -11,7 +11,7 @@
 
 #include "../Scene.hpp"
 
-class LightComponent;
+class PointLightComponent;
 
 class CameraComponent : public Component
 {
@@ -29,9 +29,6 @@ public:
     void render(Scene& scene);
 
     const glm::mat4& getProjectionMatrix();
-
-private:
-    void drawSceneComponent(SceneComponent* sceneComponent, std::vector<LightComponent*>& allLight);
 
 private:
     float fov;

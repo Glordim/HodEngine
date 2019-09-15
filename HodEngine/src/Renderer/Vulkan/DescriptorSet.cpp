@@ -143,6 +143,11 @@ void DescriptorSet::SetUboValue(const std::string& memberName, const void* value
                 }
             }
 
+            if (member->size != valueSize)
+            {
+                fprintf(stderr, "SetUboValue: member->size != valueSize !\n");
+            }
+
             RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
             void* data = nullptr;

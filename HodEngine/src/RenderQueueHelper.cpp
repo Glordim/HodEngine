@@ -3,7 +3,9 @@
 #include "Renderer/RenderQueue.h"
 #include "Component/SceneComponent.h"
 #include "Component/StaticMeshComponent.h"
-#include "Component/LightComponent.h"
+#include "Component/Light/DirLightComponent.h"
+#include "Component/Light/PointLightComponent.h"
+#include "Component/Light/SpotLightComponent.h"
 #include "Actor.h"
 #include "Scene.hpp"
 
@@ -78,10 +80,22 @@ void RenderQueueHelper::AddSceneComponent(RenderQueue& renderQueue, SceneCompone
             }
         }
 
-        LightComponent* lightComponent = child->getActor()->getComponent<LightComponent>();
-        if (lightComponent != nullptr)
+        DirLightComponent* dirLightComponent = child->getActor()->getComponent<DirLightComponent>();
+        if (dirLightComponent != nullptr)
         {
-            renderQueue.AddPointLight(child->getPosition(), lightComponent->GetPointLight());
+            renderQueue.AddDirLight(child->getRotationEuler(), dirLightComponent->GetDirLight());
+        }
+
+        PointLightComponent* pointLightComponent = child->getActor()->getComponent<PointLightComponent>();
+        if (pointLightComponent != nullptr)
+        {
+            renderQueue.AddPointLight(child->getPosition(), pointLightComponent->GetPointLight());
+        }
+
+        SpotLightComponent* spotLightComponent = child->getActor()->getComponent<SpotLightComponent>();
+        if (spotLightComponent != nullptr)
+        {
+            renderQueue.AddSpotLight(child->getPosition(), child->getRotationEuler(), spotLightComponent->GetSpotLight());
         }
     }
 }

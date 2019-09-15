@@ -1320,15 +1320,40 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     viewDescriptorSet->SetUboValue("viewUbo.proj", &projMatrix, sizeof(glm::mat4x4));
     viewDescriptorSet->SetUboValue("viewUbo.vp", &vp, sizeof(glm::mat4x4));
 
-    const std::vector<RenderQueue::PointLightData*>& pointLightDatas = renderQueue.GetPointLightDatas();
-    size_t pointLightCount = pointLightDatas.size();
-
     glm::vec4 ambiantColor = glm::vec4(0.10f, 0.10f, 0.10f, 1.0f);
     glm::vec3 eyePos = renderQueue.GetCameraPos();
 
     viewDescriptorSet->SetUboValue("lightUbo.ambiantColor", &ambiantColor, sizeof(ambiantColor));
     viewDescriptorSet->SetUboValue("lightUbo.eyePos", &eyePos, sizeof(eyePos));
-    viewDescriptorSet->SetUboValue("lightUbo.lightCount", &pointLightCount, sizeof(pointLightCount));
+
+    const std::vector<RenderQueue::DirLightData*>& dirLightDatas = renderQueue.GetDirLightDatas();
+    int32_t dirLightCount = dirLightDatas.size();
+
+    viewDescriptorSet->SetUboValue("lightUbo.dirLightCount", &dirLightCount, sizeof(dirLightCount));
+
+    for (size_t i = 0; i < dirLightCount; ++i)
+    {
+        RenderQueue::DirLightData* dirLightData = dirLightDatas[i];
+
+        glm::vec4 color;
+        color.x = dirLightData->dirLight->color.r;
+        color.y = dirLightData->dirLight->color.g;
+        color.z = dirLightData->dirLight->color.b;
+        color.w = dirLightData->dirLight->color.a;
+
+        viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].dir", &dirLightData->dir, sizeof(glm::vec3));
+        viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
+        viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].intensity", &dirLightData->dirLight->intensity, sizeof(float));
+    }
+
+    const std::vector<RenderQueue::PointLightData*>& pointLightDatas = renderQueue.GetPointLightDatas();
+    int32_t pointLightCount = pointLightDatas.size();
+
+    viewDescriptorSet->SetUboValue("lightUbo.pointLightCount", &pointLightCount, sizeof(pointLightCount));
+
+    float constant = 1.0f;
+    float linear = 0.14f;
+    float quadratic = 0.07f;
 
     for (size_t i = 0; i < pointLightCount; ++i)
     {
@@ -1343,7 +1368,33 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].pos", &pointLightData->pos, sizeof(glm::vec3));
         viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
         viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].intensity", &pointLightData->pointLight->intensity, sizeof(float));
-        viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].range", &pointLightData->pointLight->range, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].constant", &constant, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
+    }
+
+    const std::vector<RenderQueue::SpotLightData*>& spotLightDatas = renderQueue.GetSpotLightDatas();
+    int32_t spotLightCount = spotLightDatas.size();
+
+    viewDescriptorSet->SetUboValue("lightUbo.spotLightCount", &spotLightCount, sizeof(spotLightCount));
+
+    for (size_t i = 0; i < spotLightCount; ++i)
+    {
+        RenderQueue::SpotLightData* spotLightData = spotLightDatas[i];
+
+        glm::vec4 color;
+        color.x = spotLightData->spotLight->color.r;
+        color.y = spotLightData->spotLight->color.g;
+        color.z = spotLightData->spotLight->color.b;
+        color.w = spotLightData->spotLight->color.a;
+
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].pos", &spotLightData->pos, sizeof(glm::vec3));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].dir", &spotLightData->dir, sizeof(glm::vec3));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].intensity", &spotLightData->spotLight->intensity, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].radius", &spotLightData->spotLight->radius, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].outer", &spotLightData->spotLight->outer, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].inner", &spotLightData->spotLight->inner, sizeof(float));
     }
 
     VkDescriptorSet vkViewDescriptorSet = viewDescriptorSet->GetDescriptorSet();

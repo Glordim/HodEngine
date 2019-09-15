@@ -4,7 +4,7 @@
 #include "Component.h"
 
 class CameraComponent;
-class LightComponent;
+class PointLightComponent;
 
 #include <vector>
 
@@ -18,9 +18,6 @@ public:
     virtual ~RendererComponent();
 
     friend class Actor;
-
-public:
-    virtual void draw(CameraComponent* camera, std::vector<LightComponent*>& allLight) = 0;
 };
 
 #endif

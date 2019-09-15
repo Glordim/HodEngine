@@ -1,7 +1,7 @@
 #ifndef __POINT_LIGHT_HPP__
 #define __POINT_LIGHT_HPP__
 
-#include "../Color.h"
+#include "../../Color.h"
 
 struct PointLight
 {

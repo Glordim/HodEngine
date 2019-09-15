@@ -6,7 +6,9 @@
 #include "Mesh.h"
 #include "Line_3P_3C.h"
 #include "Tri_3P_3C.h"
-#include "PointLight.h"
+#include "Light/DirLight.h"
+#include "Light/PointLight.h"
+#include "Light/SpotLight.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -90,6 +92,19 @@ public:
         glm::mat4x4 matrix;
     };
 
+    struct DirLightData
+    {
+        DirLightData(const glm::vec3& dir, DirLight* dirLight)
+            : dir(dir)
+            , dirLight(dirLight)
+        {
+
+        }
+
+        glm::vec3 dir;
+        DirLight* dirLight;
+    };
+
     struct PointLightData
     {
         PointLightData(const glm::vec3& pos, PointLight* pointLight)
@@ -101,6 +116,21 @@ public:
 
         glm::vec3 pos;
         PointLight* pointLight;
+    };
+
+    struct SpotLightData
+    {
+        SpotLightData(const glm::vec3& pos, const glm::vec3& dir, SpotLight* spotLight)
+            : pos(pos)
+            , dir(dir)
+            , spotLight(spotLight)
+        {
+
+        }
+
+        glm::vec3 pos;
+        glm::vec3 dir;
+        SpotLight* spotLight;
     };
 
     RenderQueue();
@@ -121,9 +151,9 @@ public:
     void AddLines(std::vector<Line_3P_3C> lines, MaterialInstance* materialInstance, glm::mat4x4 matrix);
     void AddTriangles(std::vector<Tri_3P_3C> tris, MaterialInstance* materialInstance, glm::mat4x4 matrix);
 
+    void AddDirLight(const glm::vec3& dir, DirLight* dirLight);
     void AddPointLight(const glm::vec3& pos, PointLight* pointLight);
-    //void AddDirectionnalLight(const DirectionnalLight dirLight);
-    //void AddSpotLight(const SpotLight& spotLight);
+    void AddSpotLight(const glm::vec3& pos, const glm::vec3& dir, SpotLight* spotLight);
 
     const std::vector<MeshData*>& GetMeshDatas() const
     {
@@ -140,9 +170,19 @@ public:
         return this->triangleList;
     }
 
+    const std::vector<DirLightData*>& GetDirLightDatas() const
+    {
+        return this->dirLightList;
+    }
+
     const std::vector<PointLightData*>& GetPointLightDatas() const
     {
         return this->pointLightList;
+    }
+
+    const std::vector<SpotLightData*>& GetSpotLightDatas() const
+    {
+        return this->spotLightList;
     }
 
 private:
@@ -154,7 +194,9 @@ private:
     std::vector<LineData*> lineList;
     std::vector<TriangleData*> triangleList;
 
+    std::vector<DirLightData*> dirLightList;
     std::vector<PointLightData*> pointLightList;
+    std::vector<SpotLightData*> spotLightList;
 };
 
 #endif

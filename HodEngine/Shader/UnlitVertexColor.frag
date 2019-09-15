@@ -10,17 +10,43 @@ layout(set = 0, binding = 0) uniform ViewUniformBufferObject {
 	mat4 vp;
 } viewUbo;
 
+struct DirLight
+{
+	vec3 dir;
+	vec4 color;
+	float intensity;
+};
+
 struct PointLight
 {    
     vec3 pos;
 	vec4 color;
 	float intensity;
-	float range;
-};  
+	float constant;
+    float linear;
+    float quadratic;
+};
+
+struct SpotLight
+{
+	vec3 pos;
+	vec3 dir;
+	vec4 color;
+	float intensity;
+	float radius;
+	float outer;
+	float inner;
+}; 
 
 layout(set = 0, binding = 1) uniform LightUniformBufferObject {
-	int lightCount;
+	int dirLightCount;
+	DirLight dirLight[4];
+
+	int pointLightCount;
 	PointLight pointLight[32];
+	
+	int spotLightCount;
+	SpotLight spotLight[32];
 
 	vec4 ambiantColor;
 	vec3 eyePos;
