@@ -82,7 +82,7 @@ bool Mesh::loadFbx(const char* path)
             
             vertex.pos[0] = vertices[vertexIndex].mData[0];
             vertex.pos[1] = vertices[vertexIndex].mData[1];
-            vertex.pos[2] = vertices[vertexIndex].mData[2];
+            vertex.pos[2] = -vertices[vertexIndex].mData[2];
             
 
             memset(&vertex.color[0], 1, 3 * sizeof(float));
@@ -100,7 +100,7 @@ bool Mesh::loadFbx(const char* path)
                 
                 vertex.normal[0] = normal[0];
                 vertex.normal[1] = normal[1];
-                vertex.normal[2] = normal[2];
+                vertex.normal[2] = -normal[2];
                 
             }
             else
@@ -169,7 +169,7 @@ bool Mesh::loadFbx(const char* path)
         tangent1.x = f * (-deltaUV2.y * edge1.x + deltaUV1.y * edge2.x);
         tangent1.y = f * (-deltaUV2.y * edge1.y + deltaUV1.y * edge2.y);
         tangent1.z = f * (-deltaUV2.y * edge1.z + deltaUV1.y * edge2.z);
-        tangent1 = glm::normalize(tangent1);
+        tangent1 = -glm::normalize(tangent1);
 
         v1.tangent[0] = tangent1.x;
         v1.tangent[1] = tangent1.y;
@@ -187,7 +187,7 @@ bool Mesh::loadFbx(const char* path)
         bitangent1.x = f * (deltaUV2.x * edge1.x - deltaUV1.x * edge2.x);
         bitangent1.y = f * (deltaUV2.x * edge1.y - deltaUV1.x * edge2.y);
         bitangent1.z = f * (deltaUV2.x * edge1.z - deltaUV1.x * edge2.z);
-        bitangent1 = glm::normalize(bitangent1);
+        bitangent1 = -glm::normalize(bitangent1);
 
         v1.bitangent[0] = bitangent1.x;
         v1.bitangent[1] = bitangent1.y;
@@ -288,6 +288,10 @@ bool Mesh::loadObj(const char* path)
                 vertex.normal[1] = attributes.normals[(normalIndex * 3) + 1];
                 vertex.normal[2] = attributes.normals[(normalIndex * 3) + 2];
                 */
+
+                vertex.normal[0] = -vertex.normal[0];
+                vertex.normal[1] = -vertex.normal[1];
+                vertex.normal[2] = -vertex.normal[2];
             }
             else
             {
@@ -351,7 +355,7 @@ bool Mesh::loadObj(const char* path)
         tangent1.x = f * (-deltaUV2.y * edge1.x + deltaUV1.y * edge2.x);
         tangent1.y = f * (-deltaUV2.y * edge1.y + deltaUV1.y * edge2.y);
         tangent1.z = f * (-deltaUV2.y * edge1.z + deltaUV1.y * edge2.z);
-        tangent1 = glm::normalize(tangent1);
+        tangent1 = -glm::normalize(tangent1);
 
         v1.tangent[0] = tangent1.x;
         v1.tangent[1] = tangent1.y;
@@ -369,7 +373,7 @@ bool Mesh::loadObj(const char* path)
         bitangent1.x = f * (deltaUV2.x * edge1.x - deltaUV1.x * edge2.x);
         bitangent1.y = f * (deltaUV2.x * edge1.y - deltaUV1.x * edge2.y);
         bitangent1.z = f * (deltaUV2.x * edge1.z - deltaUV1.x * edge2.z);
-        bitangent1 = glm::normalize(bitangent1);
+        bitangent1 = -glm::normalize(bitangent1);
 
         v1.bitangent[0] = bitangent1.x;
         v1.bitangent[1] = bitangent1.y;

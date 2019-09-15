@@ -123,12 +123,21 @@ int __cdecl _tmain()
             return 1;
 
         Texture* boxTextureNormal = renderer->CreateTexture("Texture/T_Box_1_N.tga");
-        if (boxTexture == nullptr)
+        if (boxTextureNormal == nullptr)
             return 1;
 
         Texture* boxTextureMetalness = renderer->CreateTexture("Texture/T_Box_1_M.tga");
-        if (boxTexture == nullptr)
+        if (boxTextureMetalness == nullptr)
             return 1;
+
+        Texture* groundTexture = renderer->CreateTexture("Texture/T_Ground_Gravel_C.tga");
+        if (groundTexture == nullptr)
+            return 1;
+
+        Texture* groundTextureNormal = renderer->CreateTexture("Texture/T_Ground_Gravel_N.tga");
+        if (groundTextureNormal == nullptr)
+            return 1;
+
 
         /*
             Texture* gunTexture = renderer->CreateTexture("Texture/brickwall.jpg");
@@ -205,6 +214,16 @@ int __cdecl _tmain()
         boxMaterialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *boxTextureNormal);
         boxMaterialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
         boxMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
+
+        MaterialInstance* groundMaterialLitSpecularNormalInstance = renderer->CreateMaterialInstance(materialLitSpecularNormal);
+        if (groundMaterialLitSpecularNormalInstance == nullptr)
+            return 1;
+
+        groundMaterialLitSpecularNormalInstance->SetTexture("textureSampler", *groundTexture);
+        //groundMaterialLitSpecularNormalInstance->SetTexture("specularTextureSampler", *boxTextureMetalness);
+        groundMaterialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *groundTextureNormal);
+        groundMaterialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
+        groundMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
         
         Scene* scene = new Scene();
 
@@ -212,7 +231,8 @@ int __cdecl _tmain()
         {
             SceneComponent* sceneComponent = freeCam->getComponent<SceneComponent>();
 
-            sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 9.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            sceneComponent->setPosition(glm::vec3(0.0f, 10.0f, 9.0f));
+            sceneComponent->lookAt(sceneComponent->getPosition(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             sceneComponent->setParent(scene->getRoot());
 
             freeCam->setupInputListener(application.GetInputListenner());
@@ -221,8 +241,8 @@ int __cdecl _tmain()
         Actor* wall1 = scene->spawnActor<Actor>("wall1");
         {
             SceneComponent* sceneComponent = wall1->addComponent<SceneComponent>();
-            sceneComponent->position = glm::vec3(-3.5f, 0.0f, 0.0f);
-            sceneComponent->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+            sceneComponent->position = glm::vec3(-3.5f, 3.0f, 0.0f);
+            sceneComponent->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
             sceneComponent->setParent(scene->getRoot());
 
@@ -238,8 +258,8 @@ int __cdecl _tmain()
         Actor* wall2 = scene->spawnActor<Actor>("wall2");
         {
             SceneComponent* sceneComponent = wall2->addComponent<SceneComponent>();
-            sceneComponent->position = glm::vec3(3.5f, 0.0f, 0.0f);
-            sceneComponent->setRotation(glm::vec3(0.0f, 180.0f, 0.0f));
+            sceneComponent->position = glm::vec3(3.5f, 3.0f, 0.0f);
+            sceneComponent->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
             sceneComponent->setParent(scene->getRoot());
 
@@ -255,7 +275,7 @@ int __cdecl _tmain()
         Actor* sphereActor = scene->spawnActor<FlyingPointLight>("FlyingPointLight");
         {
             SceneComponent* sceneComponent = sphereActor->getComponent<SceneComponent>();
-            sceneComponent->position = glm::vec3(0.0f, 0.0f, 0.0f);
+            sceneComponent->position = glm::vec3(0.0f, 6.0f, 0.0f);
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
             sceneComponent->setParent(scene->getRoot());
 
@@ -270,6 +290,8 @@ int __cdecl _tmain()
 
             ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+
+            sphereActor->start();
         }
 
         Actor* box = scene->spawnActor<Actor>("box");
@@ -288,6 +310,24 @@ int __cdecl _tmain()
             ColliderComponent* colliderComponent = box->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Mesh);
         }
+        
+        Actor* ground = scene->spawnActor<Actor>("ground");
+        {
+            SceneComponent* sceneComponent = ground->addComponent<SceneComponent>();
+            sceneComponent->position = glm::vec3(0.0f, 0.0f, 0.0f);
+            sceneComponent->setRotation(glm::vec3(-90.0f, 0.0f, 0.0f));
+            sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 10.0f;
+            sceneComponent->setParent(scene->getRoot());
+
+            StaticMeshComponent* staticMeshComponent = ground->addComponent<StaticMeshComponent>();
+            staticMeshComponent->setMesh(wallMesh);
+            staticMeshComponent->setMaterialInstance(groundMaterialLitSpecularNormalInstance);
+            //staticMeshComponent->EnableDebugTangent(true);
+
+            ColliderComponent* colliderComponent = ground->addComponent<ColliderComponent>();
+            colliderComponent->setShape(ColliderComponent::Shape::Mesh);
+        }
+        
 
         if (application.Run(scene) == false)
             ret = 1;
