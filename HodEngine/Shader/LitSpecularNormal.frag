@@ -37,6 +37,7 @@ layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
 layout(set = 2, binding = 0) uniform MatUniformBufferObject {
 	float shininess;
 	float specularStrength;
+	vec4 tilingOffset;
 } matUbo;
 
 layout(set = 2, binding = 1) uniform sampler2D textureSampler;
@@ -47,7 +48,9 @@ void main()
 {
 	vec3 viewDir = TBN * normalize(lightUbo.eyePos - FragPos);
 	
-	vec3 norm = texture(normalTextureSampler, TexCoords.xy).rgb;
+	vec2 uv = (TexCoords * matUbo.tilingOffset.xy) + matUbo.tilingOffset.zw;
+	
+	vec3 norm = texture(normalTextureSampler, uv.xy).rgb;
 	norm = normalize(norm * 2.0f - 1.0f);
 	
 	vec3 diffuse = vec3(0.0f, 0.0f, 0.0f);
@@ -62,10 +65,10 @@ void main()
 		
 		vec3 reflectDir = normalize(reflect(-lightDir, norm));
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), matUbo.shininess);
-		specular += spec * lightUbo.pointLight[i].color.xyz * (texture(specularTextureSampler, TexCoords.xy).x * matUbo.specularStrength);
+		specular += spec * lightUbo.pointLight[i].color.xyz * (texture(specularTextureSampler, uv.xy).x * matUbo.specularStrength);
 	}
 	
-	vec3 result = (lightUbo.ambiantColor.xyz + diffuse + 0.0f) * texture(textureSampler, TexCoords.xy).xyz;
+	vec3 result = (lightUbo.ambiantColor.xyz + diffuse + 0.0f) * texture(textureSampler, uv.xy).xyz;
 	
 	frag_color = vec4(result, 1.0f);
 }

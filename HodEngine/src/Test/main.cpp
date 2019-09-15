@@ -184,6 +184,7 @@ int __cdecl _tmain()
         materialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *wallTextureNormal);
         materialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
         materialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
+        materialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(1.0f, 1.0f, 0.0f, 0.0f));
         
         Material* materialUnlit = materialManager->getMaterial("UnlitColor");
         if (materialUnlit == nullptr)
@@ -214,6 +215,7 @@ int __cdecl _tmain()
         boxMaterialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *boxTextureNormal);
         boxMaterialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
         boxMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
+        boxMaterialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(1.0f, 1.0f, 0.0f, 0.0f));
 
         MaterialInstance* groundMaterialLitSpecularNormalInstance = renderer->CreateMaterialInstance(materialLitSpecularNormal);
         if (groundMaterialLitSpecularNormalInstance == nullptr)
@@ -224,6 +226,7 @@ int __cdecl _tmain()
         groundMaterialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *groundTextureNormal);
         groundMaterialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
         groundMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
+        groundMaterialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(4.0f, 4.0f, 0.0f, 0.0f));
         
         Scene* scene = new Scene();
 
