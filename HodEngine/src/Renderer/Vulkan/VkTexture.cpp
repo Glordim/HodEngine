@@ -42,6 +42,55 @@ VkSampler VkTexture::GetTextureSampler() const
     return this->textureSampler;
 }
 
+bool VkTexture::BuildDepth(size_t width, size_t height)
+{
+    bool ret = false;
+
+    RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+    if (renderer->CreateImage(width, height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->textureImage, &this->textureImageMemory) == false)
+        goto exit;
+
+    if (renderer->TransitionImageLayout(this->textureImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
+        goto exit;
+
+    if (renderer->CreateImageView(this->textureImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT, &this->textureImageView) == false)
+        goto exit;
+
+    ret = true;
+
+exit:
+
+    if (ret == false)
+    {
+        if (this->textureSampler != VK_NULL_HANDLE)
+        {
+            vkDestroySampler(renderer->GetVkDevice(), this->textureSampler, nullptr);
+            this->textureSampler = VK_NULL_HANDLE;
+        }
+
+        if (this->textureImageView != VK_NULL_HANDLE)
+        {
+            vkDestroyImageView(renderer->GetVkDevice(), this->textureImageView, nullptr);
+            this->textureImageView = VK_NULL_HANDLE;
+        }
+
+        if (this->textureImage != VK_NULL_HANDLE)
+        {
+            vkDestroyImage(renderer->GetVkDevice(), this->textureImage, nullptr);
+            this->textureImage = VK_NULL_HANDLE;
+        }
+
+        if (this->textureImageMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(renderer->GetVkDevice(), this->textureImageMemory, nullptr);
+            this->textureImageMemory = VK_NULL_HANDLE;
+        }
+    }
+
+    return ret;
+}
+
 bool VkTexture::BuildBuffer(size_t width, size_t height, unsigned char* pixels)
 {
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -75,7 +124,7 @@ bool VkTexture::BuildBuffer(size_t width, size_t height, unsigned char* pixels)
     if (renderer->TransitionImageLayout(this->textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
         goto exit;
 
-    if (renderer->CreateImageView(this->textureImage, VK_FORMAT_R8G8B8A8_UNORM, &this->textureImageView) == false)
+    if (renderer->CreateImageView(this->textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, &this->textureImageView) == false)
         goto exit;
 
     if (renderer->CreateSampler(&this->textureSampler) == false)

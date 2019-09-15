@@ -548,10 +548,10 @@ bool RendererVulkan::BuildPipeline(GpuDevice* physicalDevice)
     if (this->CreateDevice() == false)
         return false;
 
-    if (this->CreateSwapChain() == false)
+    if (this->CreateCommandPool() == false)
         return false;
 
-    if (this->CreateCommandPool() == false)
+    if (this->CreateSwapChain() == false)
         return false;
 
     if (this->CreateSemaphores() == false)
@@ -758,15 +758,32 @@ bool RendererVulkan::CreateSwapChain()
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+    VkAttachmentDescription depthAttachment = {};
+    depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
+    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference depthAttachmentRef = {};
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+    VkAttachmentDescription attachments[] = { colorAttachment, depthAttachment };
 
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.attachmentCount = 2;
+    renderPassInfo.pAttachments = attachments;
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
 
@@ -775,6 +792,9 @@ bool RendererVulkan::CreateSwapChain()
         fprintf(stderr, "Vulkan: Unable to create render pass!\n");
         return false;
     }
+
+    if (this->depthTexture.BuildDepth(extent.width, extent.height) == false)
+        return false;
 
     // Image views
     vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
@@ -814,13 +834,14 @@ bool RendererVulkan::CreateSwapChain()
     for (size_t i = 0; i < imageCount; i++)
     {
         VkImageView attachments[] = {
-            this->swapChainImageViews[i]
+            this->swapChainImageViews[i],
+            this->depthTexture.GetTextureImageView()
         };
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = this->renderPass;
-        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.attachmentCount = 2;
         framebufferInfo.pAttachments = attachments;
         framebufferInfo.width = swapChainExtent.width;
         framebufferInfo.height = swapChainExtent.height;
@@ -999,7 +1020,7 @@ bool RendererVulkan::CreateImage(uint32_t width, uint32_t height, VkFormat forma
     return true;
 }
 
-bool RendererVulkan::CreateImageView(VkImage image, VkFormat format, VkImageView* imageView)
+bool RendererVulkan::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView)
 {
     *imageView = VK_NULL_HANDLE;
 
@@ -1008,7 +1029,7 @@ bool RendererVulkan::CreateImageView(VkImage image, VkFormat format, VkImageView
     viewInfo.image = image;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
     viewInfo.format = format;
-    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.aspectMask = aspectFlags;
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -1157,6 +1178,14 @@ bool RendererVulkan::TransitionImageLayout(VkImage image, VkFormat format, VkIma
         sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     }
+    else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    }
     else
     {
         fprintf(stderr, "Vulkan: TransitionImageLayout, unsupported layout transition!\n");
@@ -1250,16 +1279,18 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         return false;
     }
 
-    VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+    VkClearValue clearColor[2];
+    clearColor[0] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    clearColor[1] = { 1.0f, 0.0f, 0.0f, 0.0f };
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.renderPass = this->renderPass;
     renderPassInfo.framebuffer = this->swapChainFramebuffers[this->currentImageIndex];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = this->swapChainExtent;
-    renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues = &clearColor;
+    renderPassInfo.clearValueCount = 2;
+    renderPassInfo.pClearValues = clearColor;
 
     vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 

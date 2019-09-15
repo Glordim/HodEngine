@@ -9,6 +9,8 @@
 
 #include "DescriptorSetLayout.h"
 
+#include "VkTexture.h"
+
 class DescriptorSet;
 
 class RendererVulkan : public Renderer
@@ -50,7 +52,7 @@ public:
 
     bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
     bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
-    bool CreateImageView(VkImage image, VkFormat format, VkImageView* imageView);
+    bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
     bool CreateSampler(VkSampler* sampler);
 
     bool BeginSingleTimeCommands(VkCommandBuffer* commandBuffer);
@@ -85,6 +87,7 @@ private:
     VkSwapchainKHR swapChain;
     std::vector<VkImageView> swapChainImageViews;
     std::vector<VkFramebuffer> swapChainFramebuffers;
+    VkTexture depthTexture;
     VkRenderPass renderPass;
     VkCommandPool commandPool;
     VkDescriptorPool descriptorPool;
