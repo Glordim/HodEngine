@@ -1144,7 +1144,7 @@ bool RendererVulkan::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevice
     return true;
 }
 
-bool RendererVulkan::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+bool RendererVulkan::TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1153,7 +1153,7 @@ bool RendererVulkan::TransitionImageLayout(VkImage image, VkFormat format, VkIma
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.image = image;
-    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.aspectMask = aspectFlags;
     barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
@@ -1393,6 +1393,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         color.w = spotLightData->spotLight->color.a;
 
         float cosRadius = glm::cos(glm::radians(spotLightData->spotLight->radius));
+        float cosOuter = glm::cos(glm::radians(spotLightData->spotLight->outer));
 
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].pos", &spotLightData->pos, sizeof(glm::vec3));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].dir", &spotLightData->dir, sizeof(glm::vec3));
@@ -1402,7 +1403,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].radius", &cosRadius, sizeof(float));
-        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].outer", &spotLightData->spotLight->outer, sizeof(float));
+        viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].outer", &cosOuter, sizeof(float));
         viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].inner", &spotLightData->spotLight->inner, sizeof(float));
     }
 

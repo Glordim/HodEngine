@@ -107,6 +107,9 @@ int __cdecl _tmain()
         if (boxMesh == nullptr)
             return 1;
             
+        Texture* grayTexture = renderer->CreateTexture("Texture/black.png");
+        if (grayTexture == nullptr)
+            return 1;
 
         Texture* wallTexture = renderer->CreateTexture("Texture/brickwall.jpg");
         if (wallTexture == nullptr)
@@ -224,7 +227,7 @@ int __cdecl _tmain()
             return 1;
 
         groundMaterialLitSpecularNormalInstance->SetTexture("textureSampler", *groundTexture);
-        //groundMaterialLitSpecularNormalInstance->SetTexture("specularTextureSampler", *boxTextureMetalness);
+        groundMaterialLitSpecularNormalInstance->SetTexture("specularTextureSampler", *grayTexture);
         groundMaterialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *groundTextureNormal);
         groundMaterialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
         groundMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
@@ -246,6 +249,7 @@ int __cdecl _tmain()
             spotLightComponent->data.radius = 15.0f;
             spotLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
             spotLightComponent->data.intensity = 1.0f;
+            spotLightComponent->data.outer = 10.0f;
         }
 
         Actor* wall1 = scene->spawnActor<Actor>("wall1");

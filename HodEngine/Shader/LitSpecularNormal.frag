@@ -119,18 +119,21 @@ void main()
 		float angle = dot(lightDir, normalize(-lightUbo.spotLight[i].dir));
     
 		if (angle > lightUbo.spotLight[i].radius)
-		{			
+		{
+			float epsilon = lightUbo.spotLight[i].radius - lightUbo.spotLight[i].outer;
+			float intensity = 1.0f - clamp((angle - lightUbo.spotLight[i].outer) / epsilon, 0.0, 1.0);
+			
 			lightDir = TBN * normalize(lightUbo.spotLight[i].pos - FragPos);
 			
 			float distance = length(lightUbo.spotLight[i].pos.xyz - FragPos);
 			float attenuation = 1.0f / (lightUbo.spotLight[i].constant + lightUbo.spotLight[i].linear * distance + lightUbo.spotLight[i].quadratic * (distance * distance));
 
 			float diff = max(dot(norm, lightDir), 0.0f);
-			diffuse += (diff * lightUbo.spotLight[i].color.xyz) * attenuation;
+			diffuse += (diff * lightUbo.spotLight[i].color.xyz) * attenuation * intensity;
 			
 			vec3 reflectDir = normalize(reflect(-lightDir, norm));
 			float spec = pow(max(dot(viewDir, reflectDir), 0.0), matUbo.shininess);
-			specular += (spec * lightUbo.spotLight[i].color.xyz * (texture(specularTextureSampler, uv.xy).x * matUbo.specularStrength)) * attenuation;
+			specular += (spec * lightUbo.spotLight[i].color.xyz * (texture(specularTextureSampler, uv.xy).x * matUbo.specularStrength)) * attenuation * intensity;
 		}		
 	}
 	
