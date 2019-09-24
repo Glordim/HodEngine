@@ -16,7 +16,7 @@ public:
     VkMaterial();
     virtual ~VkMaterial();
 
-    virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE) override;
+    virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
 
     VkPipeline GetGraphicsPipeline() const;
     VkPipelineLayout GetPipelineLayout() const;

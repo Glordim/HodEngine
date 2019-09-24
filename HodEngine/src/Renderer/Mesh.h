@@ -31,6 +31,7 @@ public:
     bool loadFbx(const char* path);
     bool LoadFromLines(std::vector<Line_3P_3C>& lines);
     bool LoadFromTriangles(std::vector<Tri_3P_3C>& triangles);
+    bool LoadSkybox();
 
     size_t GetIndiceCount() const;
     size_t GetVertexCount() const;

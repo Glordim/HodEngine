@@ -364,7 +364,7 @@ Shader* RendererDirectX12::CreateShader(const std::string& path, Shader::ShaderT
     return nullptr;
 }
 
-Material* RendererDirectX12::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy)
+Material* RendererDirectX12::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy, bool useDepth)
 {
     return nullptr;
 }

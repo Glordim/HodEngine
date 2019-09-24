@@ -107,6 +107,10 @@ int __cdecl _tmain()
         if (boxMesh == nullptr)
             return 1;
             
+        Texture* hdriTexture = renderer->CreateTexture("Texture/pond_bridge_night_2k.hdr");
+        if (hdriTexture == nullptr)
+            return 1;
+
         Texture* grayTexture = renderer->CreateTexture("Texture/black.png");
         if (grayTexture == nullptr)
             return 1;
@@ -152,6 +156,17 @@ int __cdecl _tmain()
 
         MaterialManager* materialManager = MaterialManager::getInstance();
         
+        Material* materialHdri = materialManager->getMaterial("Hdri", false);
+        if (materialHdri == nullptr)
+            return 1;
+        
+        MaterialInstance* materialHdriInstance = renderer->CreateMaterialInstance(materialHdri);
+        if (materialHdriInstance == nullptr)
+            return 1;
+
+        materialHdriInstance->SetTexture("textureSampler", *hdriTexture);
+        materialHdriInstance->SetFloat("exposure", 1.0f);
+
         Material* materialLit = materialManager->getMaterial("Lit");
         if (materialLit == nullptr)
             return 1;
@@ -250,6 +265,8 @@ int __cdecl _tmain()
             spotLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
             spotLightComponent->data.intensity = 1.0f;
             spotLightComponent->data.outer = 10.0f;
+
+            freeCam->getComponent<CameraComponent>()->SetHdriMaterial(materialHdriInstance);
         }
 
         Actor* wall1 = scene->spawnActor<Actor>("wall1");

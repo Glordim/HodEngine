@@ -25,7 +25,7 @@ public:
     Material();
     virtual ~Material();
 
-    virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE) = 0;
+    virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE,bool useDepth = true) = 0;
 
     bool link(Shader* vertexShader, Shader* fragmentShader);
     void use();

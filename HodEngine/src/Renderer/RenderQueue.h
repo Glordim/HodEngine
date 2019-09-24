@@ -15,6 +15,7 @@
 #include "glm/mat4x4.hpp"
 
 class MaterialInstance;
+class MaterialInstance;
 
 #include "Renderer.h"
 
@@ -147,6 +148,9 @@ public:
 
     void SetClearFlag(int clearFlags);
 
+    void SetHdriMaterial(MaterialInstance* hdriMat);
+    MaterialInstance *GetHdriMaterial() const;
+
     void AddMesh(Mesh* mesh, MaterialInstance* materialInstance, glm::mat4x4 matrix);
     void AddLines(std::vector<Line_3P_3C> lines, MaterialInstance* materialInstance, glm::mat4x4 matrix);
     void AddTriangles(std::vector<Tri_3P_3C> tris, MaterialInstance* materialInstance, glm::mat4x4 matrix);
@@ -189,6 +193,8 @@ private:
     glm::mat4x4 viewMatrix;
     glm::mat4x4 projMatrix;
     glm::vec3 cameraPos;
+
+    MaterialInstance* hdriMat;
 
     std::vector<MeshData*> meshList;
     std::vector<LineData*> lineList;

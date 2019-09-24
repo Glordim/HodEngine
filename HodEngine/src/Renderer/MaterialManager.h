@@ -12,7 +12,7 @@ public:
     static MaterialManager* getInstance();
     static void destroyInstance();
 
-    Material* getMaterial(const std::string& shaderName);
+    Material* getMaterial(const std::string& shaderName, bool useDepth = true);
     void destroyMaterial(const std::string& shaderName);
 
 private:

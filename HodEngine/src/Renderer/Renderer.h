@@ -39,7 +39,7 @@ public:
 
     virtual Mesh* CreateMesh(const std::string& path) = 0;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) = 0;
-    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE) = 0;
+    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) = 0;
     virtual MaterialInstance* CreateMaterialInstance(Material* material) = 0;
     virtual Texture* CreateTexture(const std::string& path) = 0;
 

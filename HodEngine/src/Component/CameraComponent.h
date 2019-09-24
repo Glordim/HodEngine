@@ -11,6 +11,7 @@
 
 #include "../Scene.hpp"
 
+class MaterialInstance;
 class PointLightComponent;
 
 class CameraComponent : public Component
@@ -22,13 +23,13 @@ public:
     CameraComponent(Actor* actor);
     virtual ~CameraComponent();
 
-public:
-
     virtual void setupTweakBar(TwBar* tweakBar) override;
 
     void render(Scene& scene);
 
     const glm::mat4& getProjectionMatrix();
+
+    void SetHdriMaterial(MaterialInstance* hdriMat);
 
 private:
     float fov;
@@ -37,6 +38,8 @@ private:
     float fFar;
     bool perspective;
     bool dirtyFlag;
+
+    MaterialInstance* hdriMat;
 
     glm::mat4 projectionMatrix;
 };

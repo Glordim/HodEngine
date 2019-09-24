@@ -35,7 +35,7 @@ MaterialManager::~MaterialManager()
 {
 }
 
-Material* MaterialManager::getMaterial(const std::string& shaderName)
+Material* MaterialManager::getMaterial(const std::string& shaderName, bool useDepth)
 {
     auto it = this->shaderNameToMaterialMap.find(shaderName);
     if (it != this->shaderNameToMaterialMap.end() && it->second != nullptr)
@@ -53,7 +53,7 @@ Material* MaterialManager::getMaterial(const std::string& shaderName)
     if (fragmentShader == nullptr)
         return nullptr;
 
-    Material* material = renderer->CreateMaterial(vertexShader, fragmentShader);
+    Material* material = renderer->CreateMaterial(vertexShader, fragmentShader, Material::Topololy::TRIANGLE, useDepth);
     if (material == nullptr)
         return nullptr;
 

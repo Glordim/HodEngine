@@ -40,7 +40,7 @@ public:
 
     virtual Mesh* CreateMesh(const std::string& path) override;
     virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
-    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE) override;
+    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
     virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
     virtual Texture* CreateTexture(const std::string& path) override;
 
@@ -110,6 +110,8 @@ private:
 
     DescriptorSetLayout viewLayout;
     DescriptorSetLayout modelLayout;
+
+    Mesh* skyboxMesh;
 };
 
 #endif

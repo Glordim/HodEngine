@@ -615,6 +615,9 @@ bool RendererVulkan::BuildPipeline(GpuDevice* physicalDevice)
     this->unlitVertexColorLineMaterial = this->CreateMaterial(vertexShader, fragmentShader, Material::Topololy::LINE);
     this->unlitVertexColorLineMaterialInstance = this->CreateMaterialInstance(this->unlitVertexColorLineMaterial);
 
+    this->skyboxMesh = new VkMesh();
+    this->skyboxMesh->LoadSkybox();
+
     return true;
 }
 
@@ -1312,11 +1315,15 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
     const glm::mat4x4& projMatrix = renderQueue.GetProjMatrix();
     const glm::mat4x4& viewMatrix = renderQueue.GetViewMatrix();
+    glm::mat4x4 staticViewMatrix = renderQueue.GetViewMatrix();
+    staticViewMatrix[3].x = 0.0f;
+    staticViewMatrix[3].y = 0.0f;
+    staticViewMatrix[3].z = 0.0f;
     glm::mat4x4 vp = projMatrix * viewMatrix;
 
     DescriptorSet* viewDescriptorSet = new DescriptorSet();
     viewDescriptorSet->SetLayout(&this->viewLayout);
-    viewDescriptorSet->SetUboValue("viewUbo.view", &viewMatrix, sizeof(glm::mat4x4));
+    viewDescriptorSet->SetUboValue("viewUbo.view", &staticViewMatrix, sizeof(glm::mat4x4));
     viewDescriptorSet->SetUboValue("viewUbo.proj", &projMatrix, sizeof(glm::mat4x4));
     viewDescriptorSet->SetUboValue("viewUbo.vp", &vp, sizeof(glm::mat4x4));
 
@@ -1410,6 +1417,25 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     VkDescriptorSet vkViewDescriptorSet = viewDescriptorSet->GetDescriptorSet();
 
     descriptorSetToCleanAfterRender.push_back(viewDescriptorSet);
+
+    VkMaterialInstance* hdriMatInstance = (VkMaterialInstance*)renderQueue.GetHdriMaterial();
+    VkMaterial* hdriMat = (VkMaterial*)hdriMatInstance->GetMaterial();
+
+    vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
+    vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 0, 1, &vkViewDescriptorSet, 0, nullptr);
+
+    std::vector<VkDescriptorSet> descriptorSets = hdriMatInstance->GetDescriptorSets();
+
+    vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
+    if (descriptorSets.empty() == false)
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+
+    VkMesh* mesh = (VkMesh*)this->skyboxMesh;
+    VkBuffer vertexBuffer = mesh->GetVertexBuffer();
+    VkDeviceSize offsets[] = { 0 };
+
+    vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
+    vkCmdDraw(*commandBuffer, mesh->GetVertexCount(), 1, 0, 0);
 
     VkMaterial* defaultMat = ((VkMaterialInstance*)this->unlitVertexColorMaterialInstance)->GetMaterial();
 
@@ -1717,11 +1743,11 @@ Shader* RendererVulkan::CreateShader(const std::string& path, Shader::ShaderType
     return shader;
 }
 
-Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy)
+Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy, bool useDepth)
 {
     VkMaterial* mat = new VkMaterial();
 
-    if (mat->Build(vertexShader, fragmentShader, topololy) == false)
+    if (mat->Build(vertexShader, fragmentShader, topololy, useDepth) == false)
     {
         delete mat;
         return nullptr;

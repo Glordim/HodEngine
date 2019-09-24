@@ -2,6 +2,7 @@
 
 RenderQueue::RenderQueue()
 {
+    this->hdriMat = nullptr;
 }
 
 RenderQueue::~RenderQueue()
@@ -64,6 +65,16 @@ const glm::vec3 RenderQueue::GetCameraPos() const
 void RenderQueue::SetClearFlag(int clearFlags)
 {
 
+}
+
+void RenderQueue::SetHdriMaterial(MaterialInstance* hdriMat)
+{
+    this->hdriMat = hdriMat;
+}
+
+MaterialInstance* RenderQueue::GetHdriMaterial() const
+{
+    return this->hdriMat;
 }
 
 void RenderQueue::AddMesh(Mesh* mesh, MaterialInstance* materialInstance, glm::mat4x4 matrix)

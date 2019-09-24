@@ -431,6 +431,63 @@ bool Mesh::LoadFromTriangles(std::vector<Tri_3P_3C>& triangles)
     return this->BuildBuffers();
 }
 
+bool Mesh::LoadSkybox()
+{
+    this->indices.clear();
+
+    size_t triCount = 12;
+
+    this->vertices.resize(triCount * 3);
+
+    size_t i = 0;
+
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = 1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = -1.0f; ++i;
+    this->vertices[i].pos[0] = -1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+    this->vertices[i].pos[0] = 1.0f; this->vertices[i].pos[1] = -1.0f;  this->vertices[i].pos[2] = 1.0f; ++i;
+
+    std::reverse(this->vertices.begin(), this->vertices.end());
+
+    return this->BuildBuffers();
+}
+
 size_t Mesh::GetIndiceCount() const
 {
     return this->indices.size();
