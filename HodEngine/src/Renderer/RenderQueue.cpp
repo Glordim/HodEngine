@@ -77,6 +77,16 @@ MaterialInstance* RenderQueue::GetHdriMaterial() const
     return this->hdriMat;
 }
 
+void RenderQueue::SetHdriTexture(Texture* hdriTexture)
+{
+    this->hdriTexture = hdriTexture;
+}
+
+Texture* RenderQueue::GetHdriTexture() const
+{
+    return this->hdriTexture;
+}
+
 void RenderQueue::AddMesh(Mesh* mesh, MaterialInstance* materialInstance, glm::mat4x4 matrix)
 {
     this->meshList.push_back(new MeshData(mesh, materialInstance, matrix));

@@ -57,6 +57,8 @@ layout(set = 0, binding = 1) uniform LightUniformBufferObject {
 	vec3 eyePos;
 } lightUbo;
 
+layout(set = 0, binding = 2) uniform sampler2D skyboxSampler;
+
 layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
 	mat4 mvp;
 	mat4 model;

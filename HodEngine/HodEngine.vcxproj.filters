@@ -4,17 +4,25 @@
     <Filter Include="win32">
       <!--<UniqueIdentifier>{84a8ebd8-7cf0-47f6-b75e-d441df67da40}</UniqueIdentifier>-->
     </Filter>
-    <Filter Include="src"></Filter>
-    <Filter Include="src\Component"></Filter>
-    <Filter Include="src\Component\Light"></Filter>
-    <Filter Include="src\Renderer"></Filter>
-    <Filter Include="src\Renderer\D3d12"></Filter>
-    <Filter Include="src\Renderer\Light"></Filter>
-    <Filter Include="src\Renderer\Vulkan"></Filter>
-    <Filter Include="src\Test"></Filter>
+    <Filter Include="src">
+    </Filter>
+    <Filter Include="src\Component">
+    </Filter>
+    <Filter Include="src\Component\Light">
+    </Filter>
+    <Filter Include="src\Renderer">
+    </Filter>
+    <Filter Include="src\Renderer\D3d12">
+    </Filter>
+    <Filter Include="src\Renderer\Light">
+    </Filter>
+    <Filter Include="src\Renderer\Vulkan">
+    </Filter>
+    <Filter Include="src\Test">
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-  <!--
+    <!--
     <ClCompile Include="main.cpp"><Filter>win32</Filter></ClCompile>
     <ClCompile Include="../Classes/engine/system/SystemUtilsBuildID.cpp" />
     <ClCompile Include="WindowsSpecific/WindowsResolution.cpp"><Filter>win32</Filter></ClCompile>
@@ -24,65 +32,160 @@
     <ClCompile Include="WindowsSpecific/ViewerSpineSequencer.cpp"><Filter>win32</Filter></ClCompile>
 	<ClCompile Include="WindowsSpecific/UnitViewer.cpp"><Filter>win32</Filter></ClCompile>
   -->
-    <ClCompile Include="SourcesForBigCPP\BigCPP_1.CPP"><Filter>win32</Filter></ClCompile>
-    <ClCompile Include="SourcesForBigCPP\BigCPP_2.CPP"><Filter>win32</Filter></ClCompile>
-
+    <ClCompile Include="SourcesForBigCPP\BigCPP_1.CPP">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SourcesForBigCPP\BigCPP_2.CPP">
+      <Filter>win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-
+    <ClInclude Include="src\Renderer\Vulkan\VkMesh.h">
+      <Filter>src\Renderer\D3d12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-<ClCompile Include="src\Actor.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\AllocationTracker.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\Allocator.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\Application.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\Color.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\Error.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\InputListener.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\RenderQueueHelper.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\Scene.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\ScreenHelper.cpp"><Filter>src</Filter></ClCompile>
-<ClCompile Include="src\Component\CameraComponent.cpp"><Filter>src\Component</Filter></ClCompile>
-<ClCompile Include="src\Component\ColliderComponent.cpp"><Filter>src\Component</Filter></ClCompile>
-<ClCompile Include="src\Component\Component.cpp"><Filter>src\Component</Filter></ClCompile>
-<ClCompile Include="src\Component\RendererComponent.cpp"><Filter>src\Component</Filter></ClCompile>
-<ClCompile Include="src\Component\SceneComponent.cpp"><Filter>src\Component</Filter></ClCompile>
-<ClCompile Include="src\Component\StaticMeshComponent.cpp"><Filter>src\Component</Filter></ClCompile>
-<ClCompile Include="src\Component\Light\DirLightComponent.cpp"><Filter>src\Component\Light</Filter></ClCompile>
-<ClCompile Include="src\Component\Light\PointLightComponent.cpp"><Filter>src\Component\Light</Filter></ClCompile>
-<ClCompile Include="src\Component\Light\SpotLightComponent.cpp"><Filter>src\Component\Light</Filter></ClCompile>
-<ClCompile Include="src\Renderer\DebugLine.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\DebugMesh.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\GpuDevice.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\GpuDeviceHelper.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Material.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\MaterialInstance.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\MaterialManager.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Mesh.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Renderer.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\RenderQueue.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Shader.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Texture.cpp"><Filter>src\Renderer</Filter></ClCompile>
-<ClCompile Include="src\Renderer\D3d12\D3d12GpuDevice.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
-<ClCompile Include="src\Renderer\D3d12\D3dShader.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
-<ClCompile Include="src\Renderer\D3d12\RendererDirectX12.cpp"><Filter>src\Renderer\D3d12</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\DescriptorSet.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\DescriptorSetLayout.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\RendererVulkan.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\VkGpuDevice.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\VkMaterial.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\VkMaterialInstance.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\VkMesh.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\VkShader.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Renderer\Vulkan\VkTexture.cpp"><Filter>src\Renderer\Vulkan</Filter></ClCompile>
-<ClCompile Include="src\Test\FlyingPointLight.cpp"><Filter>src\Test</Filter></ClCompile>
-<ClCompile Include="src\Test\FreeCam.cpp"><Filter>src\Test</Filter></ClCompile>
-<ClCompile Include="src\Test\main.cpp"><Filter>src\Test</Filter></ClCompile>
-
-
+    <ClCompile Include="src\Actor.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AllocationTracker.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Allocator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Application.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Color.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Error.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputListener.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderQueueHelper.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ScreenHelper.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\CameraComponent.cpp">
+      <Filter>src\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\ColliderComponent.cpp">
+      <Filter>src\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\Component.cpp">
+      <Filter>src\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\RendererComponent.cpp">
+      <Filter>src\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\SceneComponent.cpp">
+      <Filter>src\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\StaticMeshComponent.cpp">
+      <Filter>src\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\Light\DirLightComponent.cpp">
+      <Filter>src\Component\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\Light\PointLightComponent.cpp">
+      <Filter>src\Component\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Component\Light\SpotLightComponent.cpp">
+      <Filter>src\Component\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\DebugLine.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\DebugMesh.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\GpuDevice.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\GpuDeviceHelper.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Material.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\MaterialInstance.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\MaterialManager.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Mesh.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Renderer.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\RenderQueue.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Shader.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Texture.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\D3d12\D3d12GpuDevice.cpp">
+      <Filter>src\Renderer\D3d12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\D3d12\D3dShader.cpp">
+      <Filter>src\Renderer\D3d12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\D3d12\RendererDirectX12.cpp">
+      <Filter>src\Renderer\D3d12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\DescriptorSet.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\DescriptorSetLayout.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\RendererVulkan.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\VkGpuDevice.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\VkMaterial.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\VkMaterialInstance.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\VkMesh.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\VkShader.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Vulkan\VkTexture.cpp">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Test\FlyingPointLight.cpp">
+      <Filter>src\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Test\FreeCam.cpp">
+      <Filter>src\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Test\main.cpp">
+      <Filter>src\Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-  <!--
+    <!--
     <ClInclude Include="main.h"><Filter>win32</Filter></ClInclude>
     <ClInclude Include="WindowsSpecific/WindowsResolution.hpp"><Filter>win32</Filter></ClInclude>
     <ClInclude Include="WindowsSpecific/AllocationTracker.hpp"><Filter>win32</Filter></ClInclude>
@@ -91,59 +194,158 @@
     <ClInclude Include="WindowsSpecific/ViewerSpineSequencer.hpp"><Filter>win32</Filter></ClInclude>
 	<ClInclude Include="WindowsSpecific/UnitViewer.hpp"><Filter>win32</Filter></ClInclude>
   -->
-<ClInclude Include="src\Actor.h"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\Allocator.h"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\Application.h"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\Color.h"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\Error.h"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\InputListener.h"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\RenderQueueHelper.h"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\ScreenHelper.h"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\Component\CameraComponent.h"><Filter>src\Component</Filter></ClInclude>
-<ClInclude Include="src\Component\ColliderComponent.h"><Filter>src\Component</Filter></ClInclude>
-<ClInclude Include="src\Component\Component.h"><Filter>src\Component</Filter></ClInclude>
-<ClInclude Include="src\Component\RendererComponent.h"><Filter>src\Component</Filter></ClInclude>
-<ClInclude Include="src\Component\SceneComponent.h"><Filter>src\Component</Filter></ClInclude>
-<ClInclude Include="src\Component\StaticMeshComponent.h"><Filter>src\Component</Filter></ClInclude>
-<ClInclude Include="src\Component\Light\DirLightComponent.h"><Filter>src\Component\Light</Filter></ClInclude>
-<ClInclude Include="src\Component\Light\PointLightComponent.h"><Filter>src\Component\Light</Filter></ClInclude>
-<ClInclude Include="src\Component\Light\SpotLightComponent.h"><Filter>src\Component\Light</Filter></ClInclude>
-<ClInclude Include="src\Renderer\DebugLine.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\DebugMesh.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\GpuDevice.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\GpuDeviceHelper.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\GraphicsSettings.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Line_3P_3C.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Material.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\MaterialInstance.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\MaterialManager.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Mesh.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Renderer.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\RenderQueue.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Shader.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Texture.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Tri_3P_3C.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vertex_3P_3C.h"><Filter>src\Renderer</Filter></ClInclude>
-<ClInclude Include="src\Renderer\D3d12\D3d12GpuDevice.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
-<ClInclude Include="src\Renderer\D3d12\D3dShader.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
-<ClInclude Include="src\Renderer\D3d12\RendererDirectX12.h"><Filter>src\Renderer\D3d12</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Light\DirLight.h"><Filter>src\Renderer\Light</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Light\PointLight.h"><Filter>src\Renderer\Light</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Light\SpotLight.h"><Filter>src\Renderer\Light</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\DescriptorSet.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\DescriptorSetLayout.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\RendererVulkan.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\VkGpuDevice.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\VkMaterial.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\VkMaterialInstance.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\VkMesh.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\VkShader.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Renderer\Vulkan\VkTexture.h"><Filter>src\Renderer\Vulkan</Filter></ClInclude>
-<ClInclude Include="src\Test\FlyingPointLight.h"><Filter>src\Test</Filter></ClInclude>
-<ClInclude Include="src\Test\FreeCam.h"><Filter>src\Test</Filter></ClInclude>
-
-<ClInclude Include="src\AllocationTracker.hpp"><Filter>src</Filter></ClInclude>
-<ClInclude Include="src\Scene.hpp"><Filter>src</Filter></ClInclude>
-
+    <ClInclude Include="src\Actor.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Allocator.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Color.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Error.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InputListener.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderQueueHelper.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ScreenHelper.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\CameraComponent.h">
+      <Filter>src\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\ColliderComponent.h">
+      <Filter>src\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\Component.h">
+      <Filter>src\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\RendererComponent.h">
+      <Filter>src\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\SceneComponent.h">
+      <Filter>src\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\StaticMeshComponent.h">
+      <Filter>src\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\Light\DirLightComponent.h">
+      <Filter>src\Component\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\Light\PointLightComponent.h">
+      <Filter>src\Component\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Component\Light\SpotLightComponent.h">
+      <Filter>src\Component\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\DebugLine.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\DebugMesh.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\GpuDevice.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\GpuDeviceHelper.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\GraphicsSettings.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Line_3P_3C.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Material.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\MaterialInstance.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\MaterialManager.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Mesh.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Renderer.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RenderQueue.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Shader.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Texture.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Tri_3P_3C.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vertex_3P_3C.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\D3d12\D3d12GpuDevice.h">
+      <Filter>src\Renderer\D3d12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\D3d12\D3dShader.h">
+      <Filter>src\Renderer\D3d12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\D3d12\RendererDirectX12.h">
+      <Filter>src\Renderer\D3d12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Light\DirLight.h">
+      <Filter>src\Renderer\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Light\PointLight.h">
+      <Filter>src\Renderer\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Light\SpotLight.h">
+      <Filter>src\Renderer\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vulkan\DescriptorSet.h">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vulkan\DescriptorSetLayout.h">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vulkan\RendererVulkan.h">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vulkan\VkGpuDevice.h">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vulkan\VkMaterial.h">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vulkan\VkMaterialInstance.h">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vulkan\VkShader.h">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Vulkan\VkTexture.h">
+      <Filter>src\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Test\FlyingPointLight.h">
+      <Filter>src\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Test\FreeCam.h">
+      <Filter>src\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AllocationTracker.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

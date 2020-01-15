@@ -586,6 +586,23 @@ bool RendererVulkan::BuildPipeline(GpuDevice* physicalDevice)
         }
     }
 
+    size_t textureCount = resourcesVert.sampled_images.size();
+    for (size_t i = 0; i < textureCount; ++i)
+    {
+        spirv_cross::Resource& resource = resourcesVert.sampled_images[i];
+
+        size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+        if (set == 0)
+        {
+            this->viewLayout.ExtractBlockTexture(compVert, resource);
+        }
+        else if (set == 1)
+        {
+            this->modelLayout.ExtractBlockTexture(compVert, resource);
+        }
+    }
+
     spirv_cross::Compiler compFrag(((VkShader*)fragmentShader)->GetShaderBytecode());
     spirv_cross::ShaderResources resourcesFrag = compFrag.get_shader_resources();
 
@@ -594,7 +611,7 @@ bool RendererVulkan::BuildPipeline(GpuDevice* physicalDevice)
     {
         spirv_cross::Resource& resource = resourcesFrag.uniform_buffers[i];
 
-        size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
+        size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
 
         if (set == 0)
         {
@@ -603,6 +620,23 @@ bool RendererVulkan::BuildPipeline(GpuDevice* physicalDevice)
         else if (set == 1)
         {
             this->modelLayout.ExtractBlockUbo(compFrag, resource);
+        }
+    }
+
+    textureCount = resourcesFrag.sampled_images.size();
+    for (size_t i = 0; i < textureCount; ++i)
+    {
+        spirv_cross::Resource& resource = resourcesFrag.sampled_images[i];
+
+        size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+        if (set == 0)
+        {
+            this->viewLayout.ExtractBlockTexture(compFrag, resource);
+        }
+        else if (set == 1)
+        {
+            this->modelLayout.ExtractBlockTexture(compFrag, resource);
         }
     }
 
@@ -1326,6 +1360,10 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     viewDescriptorSet->SetUboValue("viewUbo.view", &staticViewMatrix, sizeof(glm::mat4x4));
     viewDescriptorSet->SetUboValue("viewUbo.proj", &projMatrix, sizeof(glm::mat4x4));
     viewDescriptorSet->SetUboValue("viewUbo.vp", &vp, sizeof(glm::mat4x4));
+
+    VkTexture* hdriTexture = (VkTexture*)renderQueue.GetHdriTexture();
+
+    viewDescriptorSet->SetTexture("skyboxSampler", hdriTexture);
 
     glm::vec4 ambiantColor = glm::vec4(0.10f, 0.10f, 0.10f, 1.0f);
     glm::vec3 eyePos = renderQueue.GetCameraPos();

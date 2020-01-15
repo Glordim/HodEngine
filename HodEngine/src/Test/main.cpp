@@ -95,7 +95,7 @@ int __cdecl _tmain()
         if (renderer->BuildPipeline(bestDevice) == false)
             return 1;
 
-        Mesh* sphereMesh = renderer->CreateMesh("Mesh/sphere.obj");
+        Mesh* sphereMesh = renderer->CreateMesh("Mesh/sphere.fbx");
         if (sphereMesh == nullptr)
             return 1;
 
@@ -145,6 +145,18 @@ int __cdecl _tmain()
 
         Texture* groundTextureNormal = renderer->CreateTexture("Texture/T_Ground_Gravel_N.tga");
         if (groundTextureNormal == nullptr)
+            return 1;
+
+        Texture* marbreTexture = renderer->CreateTexture("Texture/marble_01_diff_2k.jpg");
+        if (marbreTexture == nullptr)
+            return 1;
+
+        Texture* marbreTextureNormal = renderer->CreateTexture("Texture/marble_01_nor_2k.jpg");
+        if (marbreTextureNormal == nullptr)
+            return 1;
+
+        Texture* marbreTextureSpec = renderer->CreateTexture("Texture/marble_01_spec_2k.jpg");
+        if (marbreTextureSpec == nullptr)
             return 1;
 
 
@@ -247,6 +259,17 @@ int __cdecl _tmain()
         groundMaterialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
         groundMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
         groundMaterialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(4.0f, 4.0f, 0.0f, 0.0f));
+
+        MaterialInstance* marbreMaterialLitSpecularNormalInstance = renderer->CreateMaterialInstance(materialLitSpecularNormal);
+        if (marbreMaterialLitSpecularNormalInstance == nullptr)
+            return 1;
+
+        marbreMaterialLitSpecularNormalInstance->SetTexture("textureSampler", *marbreTexture);
+        marbreMaterialLitSpecularNormalInstance->SetTexture("specularTextureSampler", *marbreTextureSpec);
+        marbreMaterialLitSpecularNormalInstance->SetTexture("normalTextureSampler", *marbreTextureNormal);
+        marbreMaterialLitSpecularNormalInstance->SetFloat("matUbo.specularStrength", 1.5f);
+        marbreMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
+        marbreMaterialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(1.0f, 1.0f, 0.0f, 0.0f));
         
         Scene* scene = new Scene();
 
@@ -266,7 +289,7 @@ int __cdecl _tmain()
             spotLightComponent->data.intensity = 1.0f;
             spotLightComponent->data.outer = 10.0f;
 
-            freeCam->getComponent<CameraComponent>()->SetHdriMaterial(materialHdriInstance);
+            freeCam->getComponent<CameraComponent>()->SetHdriMaterial(materialHdriInstance, hdriTexture);
         }
 
         Actor* wall1 = scene->spawnActor<Actor>("wall1");
@@ -328,6 +351,7 @@ int __cdecl _tmain()
         Actor* dirLight = scene->spawnActor<Actor>("dirLight");
         {
             SceneComponent* sceneComponent = dirLight->addComponent<SceneComponent>();
+            sceneComponent->setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
             sceneComponent->rotate(45.0f, glm::vec3(1.0f, 1.0f, 1.0f));
             sceneComponent->setParent(scene->getRoot());
 
@@ -337,7 +361,7 @@ int __cdecl _tmain()
 
             StaticMeshComponent* staticMeshComponent = dirLight->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(sphereMesh);
-            staticMeshComponent->setMaterialInstance(materialUnlitInstance);
+            staticMeshComponent->setMaterialInstance(marbreMaterialLitSpecularNormalInstance);
 
             ColliderComponent* colliderComponent = dirLight->addComponent<ColliderComponent>();
             colliderComponent->setShape(ColliderComponent::Shape::Sphere);

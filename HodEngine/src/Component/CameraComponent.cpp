@@ -21,6 +21,7 @@ CameraComponent::CameraComponent(Actor* actor)
 , perspective(true)
 , dirtyFlag(true)
 , hdriMat(nullptr)
+, hdriTexture(nullptr)
 {
 
 }
@@ -38,9 +39,10 @@ void CameraComponent::setupTweakBar(TwBar* tweakBar)
     TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &this->fFar, "");
 }
 
-void CameraComponent::SetHdriMaterial(MaterialInstance* hdriMat)
+void CameraComponent::SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture)
 {
     this->hdriMat = hdriMat;
+    this->hdriTexture = hdriTexture;
 }
 
 const glm::mat4& CameraComponent::getProjectionMatrix()
@@ -69,6 +71,7 @@ void CameraComponent::render(Scene& scene)
     renderQueue.SetClearFlag(RenderQueue::ClearFlag::COLOR | RenderQueue::ClearFlag::DEPTH);
 
     renderQueue.SetHdriMaterial(this->hdriMat);
+    renderQueue.SetHdriTexture(this->hdriTexture);
 
     RenderQueueHelper::AddSceneComponent(renderQueue, scene.getRoot(), true);
     RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);

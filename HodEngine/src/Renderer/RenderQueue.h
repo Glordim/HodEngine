@@ -151,6 +151,9 @@ public:
     void SetHdriMaterial(MaterialInstance* hdriMat);
     MaterialInstance *GetHdriMaterial() const;
 
+    void SetHdriTexture(Texture* hdriTexture);
+    Texture* GetHdriTexture() const;
+
     void AddMesh(Mesh* mesh, MaterialInstance* materialInstance, glm::mat4x4 matrix);
     void AddLines(std::vector<Line_3P_3C> lines, MaterialInstance* materialInstance, glm::mat4x4 matrix);
     void AddTriangles(std::vector<Tri_3P_3C> tris, MaterialInstance* materialInstance, glm::mat4x4 matrix);
@@ -195,6 +198,7 @@ private:
     glm::vec3 cameraPos;
 
     MaterialInstance* hdriMat;
+    Texture* hdriTexture;
 
     std::vector<MeshData*> meshList;
     std::vector<LineData*> lineList;

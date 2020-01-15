@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec2 TexCoords;
 layout(location = 2) in mat3 TBN;
+layout(location = 5) in vec3 normals;
 
 layout(location = 0) out vec4 frag_color;
 
@@ -57,6 +58,8 @@ layout(set = 0, binding = 1) uniform LightUniformBufferObject {
 	vec3 eyePos;
 } lightUbo;
 
+layout(set = 0, binding = 2) uniform sampler2D skyboxSampler;
+
 layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
 	mat4 mvp;
 	mat4 model;
@@ -72,6 +75,8 @@ layout(set = 2, binding = 0) uniform MatUniformBufferObject {
 layout(set = 2, binding = 1) uniform sampler2D textureSampler;
 layout(set = 2, binding = 2) uniform sampler2D specularTextureSampler;
 layout(set = 2, binding = 3) uniform sampler2D normalTextureSampler;
+
+#define M_PI 3.1415926535897932384626433832795
 
 void main()
 {
@@ -137,8 +142,17 @@ void main()
 		}		
 	}
 	
+	vec3 I = normalize(FragPos - lightUbo.eyePos);
+    vec3 R = reflect(I, norm);
+	
+	vec2 longlat = vec2(atan(R.x, R.z) + M_PI, acos(-R.y));
+	vec2 uvR = longlat / vec2(2.0 * M_PI, M_PI);
+	
+    vec3 R_FragColor = texture(skyboxSampler, uvR).rgb;
+	
 	vec3 result = (lightUbo.ambiantColor.xyz + diffuse + specular) * texture(textureSampler, uv.xy).xyz;
 	
-	frag_color = vec4(result, 1.0f);
+	frag_color = vec4(mix(result, R_FragColor, 0.75f), 1.0f);
+	frag_color = vec4(normals, 1.0f);
 }
 

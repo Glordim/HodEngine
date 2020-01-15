@@ -29,7 +29,7 @@ public:
 
     const glm::mat4& getProjectionMatrix();
 
-    void SetHdriMaterial(MaterialInstance* hdriMat);
+    void SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture);
 
 private:
     float fov;
@@ -40,6 +40,7 @@ private:
     bool dirtyFlag;
 
     MaterialInstance* hdriMat;
+    Texture* hdriTexture;
 
     glm::mat4 projectionMatrix;
 };
