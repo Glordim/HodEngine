@@ -3,7 +3,7 @@
 
 #include "../GpuDevice.h"
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 struct VkGpuDevice : public GpuDevice
 {

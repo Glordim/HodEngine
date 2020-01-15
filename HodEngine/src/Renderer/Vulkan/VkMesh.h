@@ -3,7 +3,7 @@
 
 #include "../Mesh.h"
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 class VkMesh : public Mesh
 {

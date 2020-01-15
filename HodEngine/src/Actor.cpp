@@ -1,6 +1,6 @@
 #include "Actor.h"
 
-#include "AntTweakBar.h"
+//#include "AntTweakBar.h"
 
 Actor::Actor(const std::string& name, Scene* scene)
     : name(name)
@@ -30,7 +30,7 @@ void Actor::update(float dt)
 
 void Actor::setupTweakBarForAllComponent(TwBar* twBar)
 {
-    TwRemoveAllVars(twBar);
+    //TwRemoveAllVars(twBar);
 
     auto it = this->componentMapping.begin();
     auto itEnd = this->componentMapping.end();

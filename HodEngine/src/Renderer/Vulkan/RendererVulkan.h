@@ -1,7 +1,7 @@
 #ifndef __RENDERER_VULKAN_HPP__
 #define __RENDERER_VULKAN_HPP__
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include "../Renderer.h"
 

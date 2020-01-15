@@ -3,7 +3,7 @@
 
 #include "../Texture.h"
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 class VkTexture : public Texture
 {

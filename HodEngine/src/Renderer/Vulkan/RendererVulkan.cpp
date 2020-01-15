@@ -3,6 +3,10 @@
 #include <SDL.h>
 #include <SDL_vulkan.h>
 
+#define GLM_DEPTH_ZERO_TO_ONE 1
+#define GLM_FORCE_LEFT_HANDED 1
+#include "glm/glm.hpp"
+
 #include "../RenderQueue.h"
 
 #include "VkMesh.h"

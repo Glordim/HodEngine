@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 
-#include <AntTweakBar.h>
+//#include <AntTweakBar.h>
 
 #include "../Actor.h"
 
@@ -30,10 +30,10 @@ SceneComponent::~SceneComponent()
 
 void SceneComponent::setupTweakBar(TwBar* tweakBar)
 {
-    TwAddSeparator(tweakBar, "Scene", "");
-    TwAddVarCB(tweakBar, "Position", TW_TYPE_DIR3F, &SceneComponent::twSetPos, &SceneComponent::twGetPos, static_cast<void*>(this), "");
-    TwAddVarCB(tweakBar, "Rotation", TW_TYPE_QUAT4F, &SceneComponent::twSetRot, &SceneComponent::twGetRot, static_cast<void*>(this), "");
-    TwAddVarRW(tweakBar, "Scale", TW_TYPE_DIR3F, &this->scale, "");
+    //TwAddSeparator(tweakBar, "Scene", "");
+    //(tweakBar, "Position", TW_TYPE_DIR3F, &SceneComponent::twSetPos, &SceneComponent::twGetPos, static_cast<void*>(this), "");
+    //TwAddVarCB(tweakBar, "Rotation", TW_TYPE_QUAT4F, &SceneComponent::twSetRot, &SceneComponent::twGetRot, static_cast<void*>(this), "");
+    //TwAddVarRW(tweakBar, "Scale", TW_TYPE_DIR3F, &this->scale, "");
 }
 
 void SceneComponent::twGetPos(void *value, void *clientData)

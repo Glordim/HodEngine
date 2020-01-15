@@ -1,12 +1,12 @@
 #ifndef __DESCRIPTOR_SET_LAYOUT_HPP__
 #define __DESCRIPTOR_SET_LAYOUT_HPP__
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include <string>
 #include <map>
 
-#include "spirv_cross.hpp"
+#include <spirv_cross.hpp>
 
 class DescriptorSetLayout
 {

@@ -1,7 +1,7 @@
 #ifndef __DESCRIPTOR_SET_HPP__
 #define __DESCRIPTOR_SET_HPP__
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include <vector>
 

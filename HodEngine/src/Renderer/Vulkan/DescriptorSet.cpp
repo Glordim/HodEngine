@@ -3,6 +3,8 @@
 
 #include "VkTexture.h"
 
+#include "RendererVulkan.h"
+
 DescriptorSet::DescriptorSet()
 {
     this->descriptorSetLayout = nullptr;

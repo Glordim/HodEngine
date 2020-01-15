@@ -5,7 +5,7 @@
 
 #include "../InputListener.h"
 
-#include "AntTweakBar.h"
+//#include "AntTweakBar.h"
 
 #include <SDL.h>
 
@@ -18,13 +18,13 @@ FreeCam::FreeCam(const std::string& name, Scene* scene) : Actor(name, scene)
 
     this->allowRotation = false;
 
-    this->myBar = TwNewBar("Actor Picker");
-    this->setupTweakBarForAllComponent(this->myBar);
+    //this->myBar = TwNewBar("Actor Picker");
+    //this->setupTweakBarForAllComponent(this->myBar);
 }
 
 FreeCam::~FreeCam()
 {
-    TwDeleteBar(this->myBar);
+    //TwDeleteBar(this->myBar);
 }
 
 void FreeCam::setupInputListener(InputListener* inputListener)

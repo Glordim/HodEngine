@@ -1,5 +1,7 @@
 #include "DescriptorSetLayout.h"
 
+#include "RendererVulkan.h"
+
 DescriptorSetLayout::DescriptorSetLayout()
 {
     this->descriptorSetLayout = VK_NULL_HANDLE;

@@ -3,7 +3,7 @@
 
 #include "../Material.h"
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include "DescriptorSetLayout.h"
 

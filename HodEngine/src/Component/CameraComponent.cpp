@@ -6,7 +6,7 @@
 
 #include "SceneComponent.h"
 
-#include "AntTweakBar.h"
+//#include "AntTweakBar.h"
 
 #include "../Renderer/Renderer.h"
 #include "../Renderer/RenderQueue.h"
@@ -33,10 +33,10 @@ CameraComponent::~CameraComponent()
 
 void CameraComponent::setupTweakBar(TwBar* tweakBar)
 {
-    TwAddSeparator(tweakBar, "Camera", "");
-    TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &this->fov, "");
-    TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &this->fNear, "");
-    TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &this->fFar, "");
+    //TwAddSeparator(tweakBar, "Camera", "");
+    //TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &this->fov, "");
+    //TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &this->fNear, "");
+    //TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &this->fFar, "");
 }
 
 void CameraComponent::SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture)

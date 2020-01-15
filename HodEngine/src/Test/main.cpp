@@ -38,7 +38,7 @@
 #include "../Allocator.h"
 #include "../Error.h"
 
-#include <AntTweakBar.h>
+//#include <AntTweakBar.h>
 
 #include <tchar.h>
 
@@ -49,11 +49,9 @@
 
 #include "../Renderer/Renderer.h"
 
-#include "../AllocationTracker.hpp"
-
 InputListener inputListener;
 
-int __cdecl _tmain()
+int main(int argc, char** argv)
 {
     int ret = 0;
 
