@@ -1,27 +1,23 @@
 [submodule "tinyobjloader"]
-	path = tinyobjloader
+	path = SDK/tinyobjloader
 	url = https://github.com/Glordim/tinyobjloader
 	branch = master
 [submodule "PhysX"]
-	path = PhysX
+	path = SDK/PhysX
 	url = https://github.com/Glordim/PhysX
 	branch = 4.1
 [submodule "stb"]
-	path = stb
+	path = SDK/stb
 	url = https://github.com/Glordim/stb
 	branch = master
-[submodule "AntTweakBar"]
-	path = AntTweakBar
-	url = https://github.com/Glordim/AntTweakBar
-	branch = master
 [submodule "glm"]
-	path = glm
+	path = SDK/glm
 	url = https://github.com/Glordim/glm
 	branch = master
 [submodule "SDL"]
-	path = SDL
+	path = SDK/SDL
 	url = https://github.com/Glordim/SDL.git
 [submodule "SPIRV-Cross"]
-	path = SPIRV-Cross
+	path = SDK/SPIRV-Cross
 	url = https://github.com/Glordim/SPIRV-Cross.git
 	branch = master
