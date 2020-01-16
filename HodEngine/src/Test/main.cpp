@@ -54,8 +54,6 @@ InputListener inputListener;
 int main(int argc, char** argv)
 {
     int ret = 0;
-
-    //AllocationTracker::Start_Tracking();
     {
         Application application;
 
@@ -411,8 +409,6 @@ int main(int argc, char** argv)
 
         delete materialUnlitInstance;
     }
-
-    //AllocationTracker::End_Tracking_And_Dump();
 
     return ret;
 }

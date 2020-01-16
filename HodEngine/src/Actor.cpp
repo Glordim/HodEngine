@@ -5,6 +5,7 @@
 Actor::Actor(const std::string& name, Scene* scene)
     : name(name)
     , scene(scene)
+    , pxActor(nullptr)
 {
 
 }

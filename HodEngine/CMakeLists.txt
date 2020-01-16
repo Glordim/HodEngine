@@ -25,21 +25,60 @@ file(GLOB_RECURSE Srcs
 	
 assign_source_group(${Srcs})
 
-set(IncludeDirs "${PROJECT_SOURCE_DIR}/src" "../glm" "../PhysX/physx/include" "../PhysX/pxshared/include" "../SDL/include" "../tinyobjloader" "../stb" "../SPIRV-Cross" "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/include")
-set(Libs
-"../PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysX_64"
-"../PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysXCommon_64"
-"../PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysXExtensions_static_64"
-"../PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysXFoundation_64"
-"../SDL/VisualC/x64/Release/SDL2"
-"../SPIRV-Cross/Build/Release/spirv-cross-core"
+add_executable(HodEngine ${Srcs})
+
+set_property(TARGET HodEngine PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "../Data")
+
+set(IncludeDirs "${PROJECT_SOURCE_DIR}/src" "../SDK/glm" "../SDK/PhysX/physx/include" "../SDK/PhysX/pxshared/include" "../SDK/SDL/include" "../SDK/tinyobjloader" "../SDK/stb" "../SDK/SPIRV-Cross" "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/include")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+ set(Libs
+"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysX_64"
+"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysXCommon_64"
+"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysXExtensions_static_64"
+"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysXFoundation_64"
+"../SDK/SDL/VisualC/x64/Release/SDL2"
+"../SDK/SDL/VisualC/x64/Release/SDL2main"
+"../SDK/SPIRV-Cross/Build/Release/spirv-cross-core"
 "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/release/libfbxsdk.lib"
 "d3d12.lib"
 "DXGI.lib")
 
-include_directories(${IncludeDirs})
+add_custom_command(TARGET HodEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "../SDK/SDL/VisualC/x64/Release/SDL2.dll"
+		"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysX_64.dll"
+		"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysXCommon_64.dll"
+		"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/release/PhysXFoundation_64.dll"
+		"C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/release/libfbxsdk.dll"
+        $<TARGET_FILE_DIR:HodEngine>)
+else()
 
-add_executable(HodEngine WIN32 ${Srcs})
+set(Libs
+"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/debug/PhysX_64"
+"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/debug/PhysXCommon_64"
+"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/debug/PhysXExtensions_static_64"
+"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/debug/PhysXFoundation_64"
+"../SDK/SDL/VisualC/x64/Debug/SDL2"
+"../SDK/SDL/VisualC/x64/Debug/SDL2main"
+"../SDK/SPIRV-Cross/Build/Debug/spirv-cross-core"
+"C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/debug/libfbxsdk.lib"
+"d3d12.lib"
+"DXGI.lib")
+
+add_custom_command(TARGET HodEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "../SDK/SDL/VisualC/x64/Release/SDL2.dll"
+		"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/debug/PhysX_64.dll"
+		"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/debug/PhysXCommon_64.dll"
+		"../SDK/PhysX/physx/bin/win.x86_64.vc141.mt/debug/PhysXFoundation_64.dll"
+		"C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/debug/libfbxsdk.dll"
+        $<TARGET_FILE_DIR:HodEngine>)
+
+endif()
+
+include_directories(${IncludeDirs})
 
 target_link_libraries(HodEngine ${Libs})
 
