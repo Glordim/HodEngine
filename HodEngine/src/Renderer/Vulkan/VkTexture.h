@@ -1,29 +1,29 @@
-#ifndef __VK_TEXTURE_HPP__
-#define __VK_TEXTURE_HPP__
+#pragma once
 
 #include "../Texture.h"
 
 #include <vulkan/vulkan.h>
 
-class VkTexture : public Texture
+namespace HOD
 {
-public:
-    VkTexture();
-    virtual ~VkTexture();
-    
-    virtual bool BuildDepth(size_t width, size_t height) override;
-    virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer) override;
+    class VkTexture : public Texture
+    {
+    public:
+        VkTexture();
+        virtual ~VkTexture();
 
-    VkImage GetTextureImage() const;
-    VkImageView GetTextureImageView() const;
-    VkSampler GetTextureSampler() const;
+        virtual bool BuildDepth(size_t width, size_t height) override;
+        virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer) override;
 
-private:
-    VkImage textureImage;
-    VkDeviceMemory textureImageMemory;
+        VkImage GetTextureImage() const;
+        VkImageView GetTextureImageView() const;
+        VkSampler GetTextureSampler() const;
 
-    VkImageView textureImageView;
-    VkSampler textureSampler;
-};
+    private:
+        VkImage textureImage;
+        VkDeviceMemory textureImageMemory;
 
-#endif
+        VkImageView textureImageView;
+        VkSampler textureSampler;
+    };
+}

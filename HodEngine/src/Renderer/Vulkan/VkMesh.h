@@ -1,29 +1,29 @@
-#ifndef __VK_MESH_HPP__
-#define __VK_MESH_HPP__
+#pragma once
 
 #include "../Mesh.h"
 
 #include <vulkan/vulkan.h>
 
-class VkMesh : public Mesh
+namespace HOD
 {
-public:
-    VkMesh();
-    virtual ~VkMesh();
+    class VkMesh : public Mesh
+    {
+    public:
+        VkMesh();
+        virtual ~VkMesh();
 
-    VkBuffer GetVertexBuffer() const;
-    VkBuffer GetIndiceBuffer() const;
+        VkBuffer GetVertexBuffer() const;
+        VkBuffer GetIndiceBuffer() const;
 
-protected:
-    virtual bool BuildBuffers() override;
+    protected:
+        virtual bool BuildBuffers() override;
 
-private:
+    private:
 
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
+        VkBuffer vertexBuffer;
+        VkDeviceMemory vertexBufferMemory;
 
-    VkBuffer indiceBuffer;
-    VkDeviceMemory indiceBufferMemory;
-};
-
-#endif
+        VkBuffer indiceBuffer;
+        VkDeviceMemory indiceBufferMemory;
+    };
+}

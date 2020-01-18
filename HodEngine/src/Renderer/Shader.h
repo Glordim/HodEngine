@@ -1,27 +1,27 @@
-#ifndef __SHADER_HPP__
-#define __SHADER_HPP__
+#pragma once
 
 #include <string>
 
-class Shader
+namespace HOD
 {
-public:
-    enum ShaderType
+    class Shader
     {
-        Vertex,
-        Geometry,
-        Fragment,
-        Compute
+    public:
+        enum ShaderType
+        {
+            Vertex,
+            Geometry,
+            Fragment,
+            Compute
+        };
+
+    public:
+        Shader(ShaderType type);
+        virtual ~Shader();
+
+        virtual bool LoadFromFile(const std::string& path) = 0;
+
+    private:
+        ShaderType type;
     };
-
-public:
-    Shader(ShaderType type);
-    virtual ~Shader();
-
-    virtual bool LoadFromFile(const std::string& path) = 0;
-
-private:
-    ShaderType type;
-};
-
-#endif
+}

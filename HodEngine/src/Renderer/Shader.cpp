@@ -4,12 +4,15 @@
 #include <fstream>
 #include <iostream>
 
-Shader::Shader(ShaderType type)
+namespace HOD
 {
-    this->type = type;
-}
+    Shader::Shader(ShaderType type)
+    {
+        this->type = type;
+    }
 
-Shader::~Shader()
-{
+    Shader::~Shader()
+    {
 
+    }
 }

@@ -1,5 +1,4 @@
-#ifndef __D3D12_GPU_DEVICE_HPP__
-#define __D3D12_GPU_DEVICE_HPP__
+#pragma once
 
 #include "Renderer/GpuDevice.h"
 
@@ -8,9 +7,10 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
-struct D3d12GpuDevice : public GpuDevice
+namespace HOD
 {
-    ComPtr<IDXGIAdapter1> adapter;
-};
-
-#endif
+    struct D3d12GpuDevice : public GpuDevice
+    {
+        ComPtr<IDXGIAdapter1> adapter;
+    };
+}

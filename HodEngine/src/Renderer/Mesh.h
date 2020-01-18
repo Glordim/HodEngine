@@ -1,52 +1,52 @@
-#ifndef __MESH_HPP__
-#define __MESH_HPP__
+#pragma once
 
 #include <vector>
-
-struct Vertex_3P_3C_3N_2UV_3TA
-{
-    float pos[3];
-    float color[3];
-    float normal[3];
-    float uv[2];
-    float tangent[3];
-    float bitangent[3];
-};
-
-struct Line_3P_3C;
-struct Tri_3P_3C;
 
 namespace fbxsdk
 {
     class FbxNode;
 }
 
-class Mesh
+namespace HOD
 {
-public:
-    Mesh();
-    virtual ~Mesh();
+    struct Line_3P_3C;
+    struct Tri_3P_3C;
 
-    bool loadObj(const char* path);
-    bool loadFbx(const char* path);
-    bool LoadFromLines(std::vector<Line_3P_3C>& lines);
-    bool LoadFromTriangles(std::vector<Tri_3P_3C>& triangles);
-    bool LoadSkybox();
+    struct Vertex_3P_3C_3N_2UV_3TA
+    {
+        float pos[3];
+        float color[3];
+        float normal[3];
+        float uv[2];
+        float tangent[3];
+        float bitangent[3];
+    };
 
-    size_t GetIndiceCount() const;
-    size_t GetVertexCount() const;
+    class Mesh
+    {
+    public:
+        Mesh();
+        virtual ~Mesh();
 
-    const std::vector<Vertex_3P_3C_3N_2UV_3TA>& GetVertices() const;
+        bool loadObj(const char* path);
+        bool loadFbx(const char* path);
+        bool LoadFromLines(std::vector<Line_3P_3C>& lines);
+        bool LoadFromTriangles(std::vector<Tri_3P_3C>& triangles);
+        bool LoadSkybox();
 
-protected:
-    virtual bool BuildBuffers() = 0;
+        size_t GetIndiceCount() const;
+        size_t GetVertexCount() const;
 
-protected:
-    std::vector<uint16_t> indices;
-    std::vector<Vertex_3P_3C_3N_2UV_3TA> vertices;
+        const std::vector<Vertex_3P_3C_3N_2UV_3TA>& GetVertices() const;
 
-private:
-    fbxsdk::FbxNode* FindMeshInFbxNode(fbxsdk::FbxNode* node);
-};
+    protected:
+        virtual bool BuildBuffers() = 0;
 
-#endif
+    protected:
+        std::vector<uint16_t> indices;
+        std::vector<Vertex_3P_3C_3N_2UV_3TA> vertices;
+
+    private:
+        fbxsdk::FbxNode* FindMeshInFbxNode(fbxsdk::FbxNode* node);
+    };
+}

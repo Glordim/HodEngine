@@ -1,25 +1,28 @@
-#ifndef __DEBUG_MESH_HPP__
-#define __DEBUG_MESH_HPP__
+#pragma once
 
 #include <vector>
 
 #include "Tri_3P_3C.h"
 
-class CameraComponent;
-
-class DebugMesh
+namespace HOD
 {
-public:
-    DebugMesh();
-    virtual ~DebugMesh();
+    namespace GAME
+    {
+        class CameraComponent;
+    }
 
-    void buildVao(const std::vector<Tri_3P_3C>& tris);
-    void draw(CameraComponent* cameraComponent);
+    class DebugMesh
+    {
+    public:
+        DebugMesh();
+        virtual ~DebugMesh();
 
-private:
-    unsigned int vao;
-    unsigned int vbo;
-    unsigned int vertexCount;
-};
+        void buildVao(const std::vector<Tri_3P_3C>& tris);
+        void draw(GAME::CameraComponent* cameraComponent);
 
-#endif // __DEBUG_LINE_HPP__
+    private:
+        unsigned int vao;
+        unsigned int vbo;
+        unsigned int vertexCount;
+    };
+}

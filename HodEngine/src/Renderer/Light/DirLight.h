@@ -1,17 +1,17 @@
-#ifndef __DIR_LIGHT_HPP__
-#define __DIR_LIGHT_HPP__
+#pragma once
 
 #include "../../Color.h"
 
-struct DirLight
+namespace HOD
 {
-    DirLight()
+    struct DirLight
     {
+        DirLight()
+        {
 
-    }
+        }
 
-    Color color;
-    float intensity;
-};
-
-#endif
+        Color color;
+        float intensity;
+    };
+}

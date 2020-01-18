@@ -1,29 +1,32 @@
-#ifndef __FLYING_POINT_LIGTH_HPP__
-#define __FLYING_POINT_LIGTH_HPP__
+#pragma once
 
-#include "../Actor.h"
+#include "../Game/Actor.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/vec3.hpp"
 
-class SceneComponent;
-
-class FlyingPointLight : public Actor
+namespace HOD
 {
-public:
-    FlyingPointLight() = delete;
-    FlyingPointLight(const std::string& name, Scene* scene);
-    FlyingPointLight(const FlyingPointLight& copy) = delete;
-    virtual ~FlyingPointLight();
+    namespace GAME
+    {
+        class SceneComponent;
+    }
 
-    virtual void start() override;
-    virtual void update(float dt) override;
+    class FlyingPointLight : public GAME::Actor
+    {
+    public:
+        FlyingPointLight() = delete;
+        FlyingPointLight(const std::string& name, GAME::Scene* scene);
+        FlyingPointLight(const FlyingPointLight& copy) = delete;
+        virtual ~FlyingPointLight();
 
-private:
-    SceneComponent* sceneComponent;
+        virtual void start() override;
+        virtual void update(float dt) override;
 
-    glm::vec3 initialPos;
-};
+    private:
+        GAME::SceneComponent* sceneComponent;
 
-#endif
+        glm::vec3 initialPos;
+    };
+}

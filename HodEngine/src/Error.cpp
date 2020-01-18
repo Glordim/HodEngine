@@ -1,13 +1,16 @@
 #include "Error.h"
 
-Error::Error()
+namespace HOD
 {
-}
+    Error::Error()
+    {
+    }
 
-Error::~Error()
-{
-}
+    Error::~Error()
+    {
+    }
 
-void Error::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
-{
+    void Error::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
+    {
+    }
 }

@@ -6,110 +6,113 @@
 
 #include "../Mesh.h"
 
-VkMaterialInstance::VkMaterialInstance() : MaterialInstance()
+namespace HOD
 {
-    this->material = nullptr;
-}
+    VkMaterialInstance::VkMaterialInstance() : MaterialInstance()
+    {
+        this->material = nullptr;
+    }
 
-VkMaterialInstance::~VkMaterialInstance()
-{
+    VkMaterialInstance::~VkMaterialInstance()
+    {
 
-}
+    }
 
-bool VkMaterialInstance::SetMaterial(Material* material)
-{
-    if (this->material == material)
+    bool VkMaterialInstance::SetMaterial(Material* material)
+    {
+        if (this->material == material)
+            return true;
+
+        this->material = (VkMaterial*)material;
+
+        RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+        const std::map<int, DescriptorSetLayout>& descriptorSetLayoutMap = this->material->GetDescriptorSetLayoutMap();
+
+        size_t descriptorSetLayoutCount = descriptorSetLayoutMap.size();
+
+        this->descriptorSets.resize(descriptorSetLayoutCount);
+
+        auto it = descriptorSetLayoutMap.begin();
+        auto itEnd = descriptorSetLayoutMap.end();
+        int i = 0;
+
+        while (it != itEnd)
+        {
+            DescriptorSet& descriptorSet = this->descriptorSets[i];
+
+            descriptorSet.SetLayout(&it->second);
+
+            ++i;
+            ++it;
+        }
+
         return true;
-
-    this->material = (VkMaterial*)material;
-
-    RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-    const std::map<int, DescriptorSetLayout>& descriptorSetLayoutMap = this->material->GetDescriptorSetLayoutMap();
-
-    size_t descriptorSetLayoutCount = descriptorSetLayoutMap.size();
-
-    this->descriptorSets.resize(descriptorSetLayoutCount);
-
-    auto it = descriptorSetLayoutMap.begin();
-    auto itEnd = descriptorSetLayoutMap.end();
-    int i = 0;
-
-    while (it != itEnd)
-    {
-        DescriptorSet& descriptorSet = this->descriptorSets[i];
-
-        descriptorSet.SetLayout(&it->second);
-
-        ++i;
-        ++it;
     }
 
-    return true;
-}
-
-VkMaterial* VkMaterialInstance::GetMaterial() const
-{
-    return this->material;
-}
-
-std::vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets() const
-{
-    std::vector<VkDescriptorSet> descriptorSets;
-
-    size_t descriptorSetCount = this->descriptorSets.size();
-
-    descriptorSets.reserve(descriptorSetCount);
-
-    for (size_t i = 0; i < descriptorSetCount; ++i)
+    VkMaterial* VkMaterialInstance::GetMaterial() const
     {
-        descriptorSets.push_back(this->descriptorSets[i].GetDescriptorSet());
+        return this->material;
     }
 
-    return descriptorSets;
-}
-
-void VkMaterialInstance::SetInt(const std::string& memberName, int value)
-{
-    size_t descriptorSetCount = this->descriptorSets.size();
-    for (size_t i = 0; i < descriptorSetCount; ++i)
+    std::vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets() const
     {
-        this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+        std::vector<VkDescriptorSet> descriptorSets;
+
+        size_t descriptorSetCount = this->descriptorSets.size();
+
+        descriptorSets.reserve(descriptorSetCount);
+
+        for (size_t i = 0; i < descriptorSetCount; ++i)
+        {
+            descriptorSets.push_back(this->descriptorSets[i].GetDescriptorSet());
+        }
+
+        return descriptorSets;
     }
-}
 
-void VkMaterialInstance::SetFloat(const std::string& memberName, float value)
-{
-    size_t descriptorSetCount = this->descriptorSets.size();
-    for (size_t i = 0; i < descriptorSetCount; ++i)
+    void VkMaterialInstance::SetInt(const std::string& memberName, int value)
     {
-        this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+        size_t descriptorSetCount = this->descriptorSets.size();
+        for (size_t i = 0; i < descriptorSetCount; ++i)
+        {
+            this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+        }
     }
-}
 
-void VkMaterialInstance::SetVec4(const std::string& memberName, const glm::vec4& value)
-{
-    size_t descriptorSetCount = this->descriptorSets.size();
-    for (size_t i = 0; i < descriptorSetCount; ++i)
+    void VkMaterialInstance::SetFloat(const std::string& memberName, float value)
     {
-        this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+        size_t descriptorSetCount = this->descriptorSets.size();
+        for (size_t i = 0; i < descriptorSetCount; ++i)
+        {
+            this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+        }
     }
-}
 
-void VkMaterialInstance::SetMat4(const std::string& memberName, const glm::mat4& value)
-{
-    size_t descriptorSetCount = this->descriptorSets.size();
-    for (size_t i = 0; i < descriptorSetCount; ++i)
+    void VkMaterialInstance::SetVec4(const std::string& memberName, const glm::vec4& value)
     {
-        this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+        size_t descriptorSetCount = this->descriptorSets.size();
+        for (size_t i = 0; i < descriptorSetCount; ++i)
+        {
+            this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+        }
     }
-}
 
-void VkMaterialInstance::SetTexture(const std::string& name, const Texture& value)
-{
-    size_t descriptorSetCount = this->descriptorSets.size();
-    for (size_t i = 0; i < descriptorSetCount; ++i)
+    void VkMaterialInstance::SetMat4(const std::string& memberName, const glm::mat4& value)
     {
-        this->descriptorSets[i].SetTexture(name, (VkTexture*)&value);
+        size_t descriptorSetCount = this->descriptorSets.size();
+        for (size_t i = 0; i < descriptorSetCount; ++i)
+        {
+            this->descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+        }
+    }
+
+    void VkMaterialInstance::SetTexture(const std::string& name, const Texture& value)
+    {
+        size_t descriptorSetCount = this->descriptorSets.size();
+        for (size_t i = 0; i < descriptorSetCount; ++i)
+        {
+            this->descriptorSets[i].SetTexture(name, (VkTexture*)&value);
+        }
     }
 }

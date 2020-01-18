@@ -1,14 +1,14 @@
-#ifndef __GPU_DEVICE_HPP__
-#define __GPU_DEVICE_HPP__
+#pragma once
 
 #include <string>
 
-struct GpuDevice
+namespace HOD
 {
-    std::wstring name;
-    size_t vram;
-    size_t score;
-    bool compatible;
-};
-
-#endif
+    struct GpuDevice
+    {
+        std::wstring name;
+        size_t vram;
+        size_t score;
+        bool compatible;
+    };
+}

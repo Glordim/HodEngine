@@ -1,15 +1,15 @@
-#ifndef __GPU_DEVICE_HELPER_HPP__
-#define __GPU_DEVICE_HELPER_HPP__
+#pragma once
 
 #include <vector>
 
 #include "GpuDevice.h"
 
-class GpuDeviceHelper
+namespace HOD
 {
-public:
-    static bool GetAvailableDevices(std::vector<GpuDevice*>* availableDevices);
-    static bool GetBestAvailableAndCompatibleDevice(GpuDevice** bestDevice);
-};
-
-#endif
+    class GpuDeviceHelper
+    {
+    public:
+        static bool GetAvailableDevices(std::vector<GpuDevice*>* availableDevices);
+        static bool GetBestAvailableAndCompatibleDevice(GpuDevice** bestDevice);
+    };
+}

@@ -6,33 +6,36 @@
 #include <iostream>
 #include <string>
 
-Texture::Texture()
+namespace HOD
 {
-}
-
-Texture::~Texture()
-{
-}
-
-bool Texture::LoadFromPath(const char* path)
-{
-    int width;
-    int height;
-    int channel;
-
-    stbi_set_flip_vertically_on_load(true);
-
-    unsigned char* buffer = stbi_load(path, &width, &height, &channel, 4);
-    if (buffer == nullptr)
+    Texture::Texture()
     {
-        fprintf(stderr, "Texture : Failed to load Texture \"%s\"\n", path);
-        return false; // Todo Memleak
     }
 
-    if (this->BuildBuffer(width, height, buffer) == false)
-        return false; // Todo Memleak
+    Texture::~Texture()
+    {
+    }
 
-    stbi_image_free(buffer);
+    bool Texture::LoadFromPath(const char* path)
+    {
+        int width;
+        int height;
+        int channel;
 
-    return true;
+        stbi_set_flip_vertically_on_load(true);
+
+        unsigned char* buffer = stbi_load(path, &width, &height, &channel, 4);
+        if (buffer == nullptr)
+        {
+            fprintf(stderr, "Texture : Failed to load Texture \"%s\"\n", path);
+            return false; // Todo Memleak
+        }
+
+        if (this->BuildBuffer(width, height, buffer) == false)
+            return false; // Todo Memleak
+
+        stbi_image_free(buffer);
+
+        return true;
+    }
 }

@@ -1,18 +1,21 @@
 #include "Renderer.h"
 
-Renderer* Renderer::instance = nullptr;
-
-Renderer::Renderer()
+namespace HOD
 {
-    Renderer::instance = this;
-}
+    Renderer* Renderer::instance = nullptr;
 
-Renderer::~Renderer()
-{
-    Renderer::instance = nullptr;
-}
+    Renderer::Renderer()
+    {
+        Renderer::instance = this;
+    }
 
-Renderer* Renderer::GetInstance()
-{
-    return Renderer::instance;
+    Renderer::~Renderer()
+    {
+        Renderer::instance = nullptr;
+    }
+
+    Renderer* Renderer::GetInstance()
+    {
+        return Renderer::instance;
+    }
 }

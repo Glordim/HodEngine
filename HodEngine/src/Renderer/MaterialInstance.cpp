@@ -8,12 +8,15 @@
 
 #include <iostream>
 
-MaterialInstance::MaterialInstance()
+namespace HOD
 {
+    MaterialInstance::MaterialInstance()
+    {
 
-}
+    }
 
-MaterialInstance::~MaterialInstance()
-{
+    MaterialInstance::~MaterialInstance()
+    {
 
+    }
 }

@@ -1,15 +1,15 @@
-#ifndef __D3D_SHADER_HPP__
-#define __D3D_SHADER_HPP__
+#pragma once
 
 #include "../Shader.h"
 
-class D3dShader : public Shader
+namespace HOD
 {
-public:
-    D3dShader(ShaderType type);
-    virtual ~D3dShader();
+    class D3dShader : public Shader
+    {
+    public:
+        D3dShader(ShaderType type);
+        virtual ~D3dShader();
 
-    virtual bool LoadFromFile(const std::string& path) override;
-};
-
-#endif
+        virtual bool LoadFromFile(const std::string& path) override;
+    };
+}

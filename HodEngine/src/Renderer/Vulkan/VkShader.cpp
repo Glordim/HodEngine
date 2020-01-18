@@ -6,59 +6,62 @@
 
 #include "RendererVulkan.h"
 
-VkShader::VkShader(ShaderType type) : Shader(type)
+namespace HOD
 {
-    this->shaderModule = VK_NULL_HANDLE;
-}
-
-VkShader::~VkShader()
-{
-    RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-    if (this->shaderModule != VK_NULL_HANDLE)
-        vkDestroyShaderModule(renderer->GetVkDevice(), this->shaderModule, nullptr);
-}
-
-bool VkShader::LoadFromFile(const std::string& path)
-{
-    std::ifstream file(path, std::ios::ate | std::ios::binary);
-    if (file.is_open() == false)
+    VkShader::VkShader(ShaderType type) : Shader(type)
     {
-        fprintf(stderr, "VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
-        return false;
+        this->shaderModule = VK_NULL_HANDLE;
     }
 
-    size_t fileSize = file.tellg();
-
-    this->buffer.clear();
-    this->buffer.resize(fileSize / sizeof(uint32_t));
-
-    file.seekg(0);
-    file.read(reinterpret_cast<char*>(this->buffer.data()), fileSize);
-    file.close();
-
-    VkShaderModuleCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = fileSize;
-    createInfo.pCode = this->buffer.data();
-
-    RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-    if (vkCreateShaderModule(renderer->GetVkDevice(), &createInfo, nullptr, &this->shaderModule) != VK_SUCCESS)
+    VkShader::~VkShader()
     {
-        fprintf(stderr, "VkShader : Failed to create Shader Module\n");
-        return false;
+        RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+        if (this->shaderModule != VK_NULL_HANDLE)
+            vkDestroyShaderModule(renderer->GetVkDevice(), this->shaderModule, nullptr);
     }
 
-    return true;
-}
+    bool VkShader::LoadFromFile(const std::string& path)
+    {
+        std::ifstream file(path, std::ios::ate | std::ios::binary);
+        if (file.is_open() == false)
+        {
+            fprintf(stderr, "VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
+            return false;
+        }
 
-VkShaderModule VkShader::GetShaderModule() const
-{
-    return this->shaderModule;
-}
+        size_t fileSize = file.tellg();
 
-const std::vector<uint32_t>& VkShader::GetShaderBytecode() const
-{
-    return this->buffer;
+        this->buffer.clear();
+        this->buffer.resize(fileSize / sizeof(uint32_t));
+
+        file.seekg(0);
+        file.read(reinterpret_cast<char*>(this->buffer.data()), fileSize);
+        file.close();
+
+        VkShaderModuleCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        createInfo.codeSize = fileSize;
+        createInfo.pCode = this->buffer.data();
+
+        RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+        if (vkCreateShaderModule(renderer->GetVkDevice(), &createInfo, nullptr, &this->shaderModule) != VK_SUCCESS)
+        {
+            fprintf(stderr, "VkShader : Failed to create Shader Module\n");
+            return false;
+        }
+
+        return true;
+    }
+
+    VkShaderModule VkShader::GetShaderModule() const
+    {
+        return this->shaderModule;
+    }
+
+    const std::vector<uint32_t>& VkShader::GetShaderBytecode() const
+    {
+        return this->buffer;
+    }
 }

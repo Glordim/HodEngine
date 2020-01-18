@@ -15,16 +15,16 @@
 #include "../Renderer/MaterialManager.h"
 #include "../Renderer/MaterialInstance.h"
 
-#include "../Scene.hpp"
+#include "../Game/Scene.h"
 
-#include "../Actor.h"
-#include "../Component/SceneComponent.h"
-#include "../Component/StaticMeshComponent.h"
-#include "../Component/CameraComponent.h"
-#include "../Component/Light/DirLightComponent.h"
-#include "../Component/Light/PointLightComponent.h"
-#include "../Component/Light/SpotLightComponent.h"
-#include "../Component/ColliderComponent.h"
+#include "../Game/Actor.h"
+#include "../Game/Component/SceneComponent.h"
+#include "../Game/Component/StaticMeshComponent.h"
+#include "../Game/Component/CameraComponent.h"
+#include "../Game/Component/Light/DirLightComponent.h"
+#include "../Game/Component/Light/PointLightComponent.h"
+#include "../Game/Component/Light/SpotLightComponent.h"
+#include "../Game/Component/ColliderComponent.h"
 
 #include "../InputListener.h"
 
@@ -48,6 +48,9 @@
 #include "../Application.h"
 
 #include "../Renderer/Renderer.h"
+
+using namespace HOD;
+using namespace HOD::GAME;
 
 InputListener inputListener;
 
@@ -280,12 +283,12 @@ int main(int argc, char** argv)
             freeCam->setupInputListener(application.GetInputListenner());
 
             SpotLightComponent* spotLightComponent = freeCam->addComponent<SpotLightComponent>();
-            spotLightComponent->data.radius = 15.0f;
-            spotLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
-            spotLightComponent->data.intensity = 1.0f;
-            spotLightComponent->data.outer = 10.0f;
+            spotLightComponent->_data.radius = 15.0f;
+            spotLightComponent->_data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            spotLightComponent->_data.intensity = 1.0f;
+            spotLightComponent->_data.outer = 10.0f;
 
-            freeCam->getComponent<CameraComponent>()->SetHdriMaterial(materialHdriInstance, hdriTexture);
+            freeCam->getComponent<GAME::CameraComponent>()->SetHdriMaterial(materialHdriInstance, hdriTexture);
         }
 
         Actor* wall1 = scene->spawnActor<Actor>("wall1");
@@ -302,7 +305,7 @@ int main(int argc, char** argv)
             staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = wall1->addComponent<ColliderComponent>();
-            colliderComponent->setShape(ColliderComponent::Shape::Mesh);
+            colliderComponent->SetShape(ColliderComponent::Shape::Mesh);
         }
 
         Actor* wall2 = scene->spawnActor<Actor>("wall2");
@@ -319,7 +322,7 @@ int main(int argc, char** argv)
             staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = wall2->addComponent<ColliderComponent>();
-            colliderComponent->setShape(ColliderComponent::Shape::Mesh);
+            colliderComponent->SetShape(ColliderComponent::Shape::Mesh);
         }
 
         Actor* sphereActor = scene->spawnActor<FlyingPointLight>("FlyingPointLight");
@@ -330,16 +333,16 @@ int main(int argc, char** argv)
             sceneComponent->setParent(scene->getRoot());
 
             PointLightComponent* pointLightComponent = sphereActor->addComponent<PointLightComponent>();
-            pointLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
-            pointLightComponent->data.intensity = 1.0f;
-            pointLightComponent->data.range = 2.5f;
+            pointLightComponent->_data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            pointLightComponent->_data.intensity = 1.0f;
+            pointLightComponent->_data.range = 2.5f;
 
             StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(sphereMesh);
             staticMeshComponent->setMaterialInstance(materialUnlitInstance);
 
             ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
-            colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+            colliderComponent->SetShape(ColliderComponent::Shape::Sphere);
 
             sphereActor->start();
         }
@@ -352,15 +355,15 @@ int main(int argc, char** argv)
             sceneComponent->setParent(scene->getRoot());
 
             DirLightComponent* dirLightComponent = dirLight->addComponent<DirLightComponent>();
-            dirLightComponent->data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
-            dirLightComponent->data.intensity = 1.0f;
+            dirLightComponent->_data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            dirLightComponent->_data.intensity = 1.0f;
 
             StaticMeshComponent* staticMeshComponent = dirLight->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(sphereMesh);
             staticMeshComponent->setMaterialInstance(marbreMaterialLitSpecularNormalInstance);
 
             ColliderComponent* colliderComponent = dirLight->addComponent<ColliderComponent>();
-            colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+            colliderComponent->SetShape(ColliderComponent::Shape::Sphere);
 
             dirLight->start();
         }
@@ -379,7 +382,7 @@ int main(int argc, char** argv)
             //staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = box->addComponent<ColliderComponent>();
-            colliderComponent->setShape(ColliderComponent::Shape::Mesh);
+            colliderComponent->SetShape(ColliderComponent::Shape::Mesh);
         }
         
         Actor* ground = scene->spawnActor<Actor>("ground");
@@ -396,7 +399,7 @@ int main(int argc, char** argv)
             //staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = ground->addComponent<ColliderComponent>();
-            colliderComponent->setShape(ColliderComponent::Shape::Mesh);
+            colliderComponent->SetShape(ColliderComponent::Shape::Mesh);
         }
         
 
@@ -446,7 +449,7 @@ int main(int argc, char** argv)
         PointLightComponent* lightComponent = light->addComponent<PointLightComponent>();
 
         ColliderComponent* colliderComponent = light->addComponent<ColliderComponent>();
-        colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+        colliderComponent->SetShape(ColliderComponent::Shape::Sphere);
     }
 
     Actor* light2 = scene->spawnActor<Actor>("Light_2");
@@ -463,7 +466,7 @@ int main(int argc, char** argv)
         PointLightComponent* lightComponent = light2->addComponent<PointLightComponent>();
 
         ColliderComponent* colliderComponent = light2->addComponent<ColliderComponent>();
-        colliderComponent->setShape(ColliderComponent::Shape::Sphere);
+        colliderComponent->SetShape(ColliderComponent::Shape::Sphere);
     }
 
     Actor* center = scene->spawnActor<Actor>("Center");
@@ -478,7 +481,7 @@ int main(int argc, char** argv)
         staticMeshComponent->setMaterial(materialUnlit);
 
         ColliderComponent* colliderComponent = center->addComponent<ColliderComponent>();
-        colliderComponent->setShape(ColliderComponent::Shape::Box);
+        colliderComponent->SetShape(ColliderComponent::Shape::Box);
     }
 
     // Loop

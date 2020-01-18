@@ -1,5 +1,4 @@
-#ifndef __MATERIAL_HPP__
-#define __MATERIAL_HPP__
+#pragma once
 
 #include <map>
 #include <string>
@@ -9,35 +8,36 @@
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
 
-class Shader;
-class Texture;
-
-class Material
+namespace HOD
 {
-public:
-    enum Topololy
+    class Shader;
+    class Texture;
+
+    class Material
     {
-        POINT,
-        LINE,
-        TRIANGLE
+    public:
+        enum Topololy
+        {
+            POINT,
+            LINE,
+            TRIANGLE
+        };
+
+        Material();
+        virtual ~Material();
+
+        virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
+
+        bool link(Shader* vertexShader, Shader* fragmentShader);
+        void use();
+
+    private:
+
+        uint32_t getLocationFromName(const std::string& name);
+
+        std::map<std::string, uint32_t> nameToLocationMap;
+        std::map<uint32_t, uint32_t> locationToTextureId;
+
+        uint32_t programId;
     };
-
-    Material();
-    virtual ~Material();
-
-    virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE,bool useDepth = true) = 0;
-
-    bool link(Shader* vertexShader, Shader* fragmentShader);
-    void use();
-
-private:
-
-    uint32_t getLocationFromName(const std::string& name);
-
-    std::map<std::string, uint32_t> nameToLocationMap;
-    std::map<uint32_t, uint32_t> locationToTextureId;
-
-    uint32_t programId;
-};
-
-#endif
+}

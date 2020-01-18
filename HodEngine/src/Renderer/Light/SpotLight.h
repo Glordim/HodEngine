@@ -1,20 +1,20 @@
-#ifndef __SPOT_LIGHT_HPP__
-#define __SPOT_LIGHT_HPP__
+#pragma once
 
 #include "../../Color.h"
 
-struct SpotLight
+namespace HOD
 {
-    SpotLight()
+    struct SpotLight
     {
+        SpotLight()
+        {
 
-    }
+        }
 
-    Color color;
-    float intensity;
-    float radius;
-    float outer;
-    float inner;
-};
-
-#endif
+        Color color;
+        float intensity;
+        float radius;
+        float outer;
+        float inner;
+    };
+}

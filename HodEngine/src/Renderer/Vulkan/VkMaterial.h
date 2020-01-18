@@ -1,5 +1,4 @@
-#ifndef __VK_MATERIAL_HPP__
-#define __VK_MATERIAL_HPP__
+#pragma once
 
 #include "../Material.h"
 
@@ -9,25 +8,26 @@
 
 #include <map>
 
-class VkMaterial : public Material
+namespace HOD
 {
-public:
+    class VkMaterial : public Material
+    {
+    public:
 
-    VkMaterial();
-    virtual ~VkMaterial();
+        VkMaterial();
+        virtual ~VkMaterial();
 
-    virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
+        virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
 
-    VkPipeline GetGraphicsPipeline() const;
-    VkPipelineLayout GetPipelineLayout() const;
+        VkPipeline GetGraphicsPipeline() const;
+        VkPipelineLayout GetPipelineLayout() const;
 
-    const std::map<int, DescriptorSetLayout>& GetDescriptorSetLayoutMap() const;
+        const std::map<int, DescriptorSetLayout>& GetDescriptorSetLayoutMap() const;
 
-private:
-    VkPipeline graphicsPipeline;
-    VkPipelineLayout pipelineLayout;
+    private:
+        VkPipeline graphicsPipeline;
+        VkPipelineLayout pipelineLayout;
 
-    std::map<int, DescriptorSetLayout> descriptorSetLayoutMap;
-};
-
-#endif
+        std::map<int, DescriptorSetLayout> descriptorSetLayoutMap;
+    };
+}

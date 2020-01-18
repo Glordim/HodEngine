@@ -1,5 +1,4 @@
-#ifndef __RENDERER_VULKAN_HPP__
-#define __RENDERER_VULKAN_HPP__
+#pragma once
 
 #include <vulkan/vulkan.h>
 
@@ -11,107 +10,108 @@
 
 #include "VkTexture.h"
 
-class DescriptorSet;
-
-class RendererVulkan : public Renderer
+namespace HOD
 {
-public:
-    RendererVulkan();
-    virtual ~RendererVulkan();
+    class DescriptorSet;
 
-    virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
+    class RendererVulkan : public Renderer
+    {
+    public:
+        RendererVulkan() = default;
+        ~RendererVulkan() override;
 
-    virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
+        virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
 
-    virtual bool BuildPipeline(GpuDevice* gpuDevice) override;
+        virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
 
-    bool CreateDevice();
-    bool CreateSwapChain();
-    void DestroySwapChain();
-    bool CreateCommandPool();
-    bool CreateSemaphores();
+        virtual bool BuildPipeline(GpuDevice* gpuDevice) override;
 
-    virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
+        bool CreateDevice();
+        bool CreateSwapChain();
+        void DestroySwapChain();
+        bool CreateCommandPool();
+        bool CreateSemaphores();
 
-    virtual bool ResizeSwapChain() override;
+        virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
 
-    virtual bool AcquireNextImageIndex() override;
-    virtual bool SwapBuffer() override;
+        virtual bool ResizeSwapChain() override;
 
-    virtual Mesh* CreateMesh(const std::string& path) override;
-    virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
-    virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
-    virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
-    virtual Texture* CreateTexture(const std::string& path) override;
+        virtual bool AcquireNextImageIndex() override;
+        virtual bool SwapBuffer() override;
 
-    VkInstance GetVkInstance() const;
-    VkDevice GetVkDevice() const;
-    VkRenderPass GetRenderPass() const;
-    VkExtent2D GetSwapChainExtent() const;
-    VkDescriptorPool GetDescriptorPool() const;
+        virtual Mesh* CreateMesh(const std::string& path) override;
+        virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
+        virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+        virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
+        virtual Texture* CreateTexture(const std::string& path) override;
 
-    bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
-    bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
-    bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
-    bool CreateSampler(VkSampler* sampler);
+        VkInstance GetVkInstance() const;
+        VkDevice GetVkDevice() const;
+        VkRenderPass GetRenderPass() const;
+        VkExtent2D GetSwapChainExtent() const;
+        VkDescriptorPool GetDescriptorPool() const;
 
-    bool BeginSingleTimeCommands(VkCommandBuffer* commandBuffer);
-    bool EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+        bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
+        bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
+        bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
+        bool CreateSampler(VkSampler* sampler);
 
-    bool CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+        bool BeginSingleTimeCommands(VkCommandBuffer* commandBuffer);
+        bool EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-    bool TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
-    bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+        bool CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
-    VkDescriptorSetLayout GetVkViewDescriptorSet() const;
-    VkDescriptorSetLayout GetVkModelDescriptorSet() const;
+        bool TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
+        bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
-private:
+        VkDescriptorSetLayout GetVkViewDescriptorSet() const;
+        VkDescriptorSetLayout GetVkModelDescriptorSet() const;
 
-    bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
-    bool GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer, std::vector<DescriptorSet*>& descriptorSetToCleanAfterRender);
+    private:
 
-    static void GetAvailableExtensions(std::vector<VkExtensionProperties>* availableExtensions);
-    static bool GetExtensionRequiredBySDL(SDL_Window* window, std::vector<const char*>* extensionsRequiredBySDL);
-    static bool CheckExtensionsIsAvailable(const std::vector<const char*>& extensions, const std::vector<VkExtensionProperties>& availableExtensions);
-    static bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
+        bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
+        bool GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer, std::vector<DescriptorSet*>& descriptorSetToCleanAfterRender);
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+        static void GetAvailableExtensions(std::vector<VkExtensionProperties>* availableExtensions);
+        static bool GetExtensionRequiredBySDL(SDL_Window* window, std::vector<const char*>* extensionsRequiredBySDL);
+        static bool CheckExtensionsIsAvailable(const std::vector<const char*>& extensions, const std::vector<VkExtensionProperties>& availableExtensions);
+        static bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
-private:
-    VkInstance instance;
-    VkSurfaceKHR surface;
-    VkDevice device;
-    VkQueue graphicsQueue;
-    VkQueue presentQueue;
-    VkSwapchainKHR swapChain;
-    std::vector<VkImageView> swapChainImageViews;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-    VkTexture depthTexture;
-    VkRenderPass renderPass;
-    VkCommandPool commandPool;
-    VkDescriptorPool descriptorPool;
-    VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderFinishedSemaphore;
-    VkFence acquireNextImageFence;
+        static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 
-    VkGpuDevice* selectedGpu;
-    std::vector<VkGpuDevice> availableGpu;
+    private:
+        VkInstance                  _instance = VK_NULL_HANDLE;
+        VkSurfaceKHR                _surface = VK_NULL_HANDLE;
+        VkDevice                    _device = VK_NULL_HANDLE;
+        VkQueue                     _graphicsQueue = VK_NULL_HANDLE;
+        VkQueue                     _presentQueue = VK_NULL_HANDLE;
+        VkSwapchainKHR              _swapChain = VK_NULL_HANDLE;
+        std::vector<VkImageView>    _swapChainImageViews;
+        std::vector<VkFramebuffer>  _swapChainFramebuffers;
+        VkTexture                   _depthTexture;
+        VkRenderPass                _renderPass = VK_NULL_HANDLE;
+        VkCommandPool               _commandPool = VK_NULL_HANDLE;
+        VkDescriptorPool            _descriptorPool = VK_NULL_HANDLE;
+        VkSemaphore                 _imageAvailableSemaphore = VK_NULL_HANDLE;
+        VkSemaphore                 _renderFinishedSemaphore = VK_NULL_HANDLE;
+        VkFence                     _acquireNextImageFence = VK_NULL_HANDLE;
 
-    VkExtent2D swapChainExtent;
+        VkGpuDevice*                _selectedGpu = VK_NULL_HANDLE;
+        std::vector<VkGpuDevice>    _availableGpu;
 
-    uint32_t currentImageIndex;
+        VkExtent2D                  _swapChainExtent;
 
-    Material* unlitVertexColorMaterial;
-    MaterialInstance* unlitVertexColorMaterialInstance;
+        uint32_t                    _currentImageIndex = 0;
 
-    Material* unlitVertexColorLineMaterial;
-    MaterialInstance* unlitVertexColorLineMaterialInstance;
+        Material*                   _unlitVertexColorMaterial = nullptr;
+        MaterialInstance*           _unlitVertexColorMaterialInstance = nullptr;
 
-    DescriptorSetLayout viewLayout;
-    DescriptorSetLayout modelLayout;
+        Material*                   _unlitVertexColorLineMaterial = nullptr;
+        MaterialInstance*           _unlitVertexColorLineMaterialInstance = nullptr;
 
-    Mesh* skyboxMesh;
-};
+        DescriptorSetLayout         _viewLayout;
+        DescriptorSetLayout         _modelLayout;
 
-#endif
+        Mesh*                       _skyboxMesh = nullptr;
+    };
+}

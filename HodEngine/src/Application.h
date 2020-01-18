@@ -1,7 +1,4 @@
-#ifndef __APPLICATION_HPP__
-#define __APPLICATION_HPP__
-
-struct GraphicsSettings;
+#pragma once
 
 #include <String>
 #include "InputListener.h"
@@ -9,31 +6,39 @@ struct GraphicsSettings;
 #include <PxPhysicsAPI.h>
 
 struct SDL_Window;
-class Renderer;
-class Scene;
 
-class Application
+namespace HOD
 {
-public:
-    Application();
-    virtual ~Application();
+    struct GraphicsSettings;
 
-    bool Init();
-    bool CreateWindowAndContext(const std::string& name, const GraphicsSettings& graphicsSettings);
-    bool Run(Scene* scene);
+    class Renderer;
 
-    InputListener* GetInputListenner();
+    namespace GAME
+    {
+        class Scene;
+    }
 
-private:
-    SDL_Window* window;
-    Renderer* renderer;
-    InputListener inputListener;
+    class Application
+    {
+    public:
+        Application();
+        virtual ~Application();
 
-    physx::PxDefaultAllocator defaultAllocator;
-    physx::PxDefaultErrorCallback defaultErrorCallback;
+        bool Init();
+        bool CreateWindowAndContext(const std::string& name, const GraphicsSettings& graphicsSettings);
+        bool Run(GAME::Scene* scene);
 
-    physx::PxFoundation* pxFoundation;
-    physx::PxPhysics* pxPhysics;
-};
+        InputListener* GetInputListenner();
 
-#endif
+    private:
+        SDL_Window* window;
+        Renderer* renderer;
+        InputListener inputListener;
+
+        physx::PxDefaultAllocator defaultAllocator;
+        physx::PxDefaultErrorCallback defaultErrorCallback;
+
+        physx::PxFoundation* pxFoundation;
+        physx::PxPhysics* pxPhysics;
+    };
+}

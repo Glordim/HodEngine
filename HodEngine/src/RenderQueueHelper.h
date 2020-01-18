@@ -1,15 +1,19 @@
-#ifndef __RENDER_QUEUE_HELPER_HPP__
-#define __RENDER_QUEUE_HELPER_HPP__
+#pragma once
 
-class RenderQueue;
-class SceneComponent;
-class Scene;
-
-class RenderQueueHelper
+namespace HOD
 {
-public:
-    static void AddSceneComponent(RenderQueue& renderQueue, SceneComponent* sceneComponent, bool recursive);
-    static void AddScenePhysicsDebug(RenderQueue& renderQueue, Scene* scene);
-};
+    namespace GAME
+    {
+        class SceneComponent;
+        class Scene;
+    }
 
-#endif
+    class RenderQueue;
+
+    class RenderQueueHelper
+    {
+    public:
+        static void AddSceneComponent(RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive);
+        static void AddScenePhysicsDebug(RenderQueue& renderQueue, GAME::Scene* scene);
+    };
+}

@@ -1,18 +1,18 @@
-#ifndef __POINT_LIGHT_HPP__
-#define __POINT_LIGHT_HPP__
+#pragma once
 
 #include "../../Color.h"
 
-struct PointLight
+namespace HOD
 {
-    PointLight()
+    struct PointLight
     {
+        PointLight()
+        {
 
-    }
+        }
 
-    Color color;
-    float intensity;
-    float range;
-};
-
-#endif
+        Color color;
+        float intensity;
+        float range;
+    };
+}
