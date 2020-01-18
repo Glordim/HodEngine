@@ -202,7 +202,7 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
         if (set <= 1)
             continue;
 
-        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[set];
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[(uint32_t)set];
 
         descriptorSetLayout.ExtractBlockUbo(compVert, resource);
     }
@@ -217,7 +217,7 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
         if (set <= 1)
             continue;
 
-        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[set];
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[(uint32_t)set];
 
         descriptorSetLayout.ExtractBlockTexture(compVert, resource);
     }
@@ -236,7 +236,7 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
         if (set <= 1)
             continue;
 
-        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[set];
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[(uint32_t)set];
 
         descriptorSetLayout.ExtractBlockUbo(compFrag, resource);
     }
@@ -251,7 +251,7 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
         if (set <= 1)
             continue;
 
-        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[set];
+        DescriptorSetLayout& descriptorSetLayout = this->descriptorSetLayoutMap[(uint32_t)set];
 
         descriptorSetLayout.ExtractBlockTexture(compFrag, resource);
     }
@@ -278,7 +278,7 @@ bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::T
     // Pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = layouts.size();
+    pipelineLayoutInfo.setLayoutCount = (uint32_t)layouts.size();
     pipelineLayoutInfo.pSetLayouts = layouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional

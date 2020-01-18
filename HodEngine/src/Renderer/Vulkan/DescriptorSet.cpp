@@ -64,6 +64,8 @@ bool DescriptorSet::SetLayout(const DescriptorSetLayout* layout)
         if (renderer->CreateBuffer(ubo.rootMember.size * ubo.rootMember.count, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->uboBuffers.data() + i, this->uboBufferMemories.data() + i) == false)
             return false;
     }
+
+    return true;
 }
 
 const DescriptorSetLayout* DescriptorSet::GetLayout() const

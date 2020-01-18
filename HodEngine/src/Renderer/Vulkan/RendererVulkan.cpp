@@ -350,6 +350,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL RendererVulkan::DebugCallback(
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData)
 {
+    (void)messageSeverity;
+    (void)messageType;
+    (void)pUserData;
 
     fprintf(stderr, "Validation Layer: %s\n", pCallbackData->pMessage);
 
@@ -1249,6 +1252,8 @@ bool RendererVulkan::TransitionImageLayout(VkImage image, VkFormat format, VkIma
 
     if (this->EndSingleTimeCommands(commandBuffer) == false)
         return false;
+
+    return true;
 }
 
 bool RendererVulkan::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
@@ -1376,7 +1381,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     viewDescriptorSet->SetUboValue("lightUbo.eyePos", &eyePos, sizeof(eyePos));
 
     const std::vector<RenderQueue::DirLightData*>& dirLightDatas = renderQueue.GetDirLightDatas();
-    int32_t dirLightCount = dirLightDatas.size();
+    uint32_t dirLightCount = (uint32_t)dirLightDatas.size();
 
     viewDescriptorSet->SetUboValue("lightUbo.dirLightCount", &dirLightCount, sizeof(dirLightCount));
 
@@ -1396,7 +1401,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     }
 
     const std::vector<RenderQueue::PointLightData*>& pointLightDatas = renderQueue.GetPointLightDatas();
-    int32_t pointLightCount = pointLightDatas.size();
+    uint32_t pointLightCount = (uint32_t)pointLightDatas.size();
 
     viewDescriptorSet->SetUboValue("lightUbo.pointLightCount", &pointLightCount, sizeof(pointLightCount));
 
@@ -1423,7 +1428,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
     }
 
     const std::vector<RenderQueue::SpotLightData*>& spotLightDatas = renderQueue.GetSpotLightDatas();
-    int32_t spotLightCount = spotLightDatas.size();
+    uint32_t spotLightCount = (uint32_t)spotLightDatas.size();
 
     viewDescriptorSet->SetUboValue("lightUbo.spotLightCount", &spotLightCount, sizeof(spotLightCount));
 
@@ -1470,14 +1475,14 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
     vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
     if (descriptorSets.empty() == false)
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
     VkMesh* mesh = (VkMesh*)this->skyboxMesh;
     VkBuffer vertexBuffer = mesh->GetVertexBuffer();
     VkDeviceSize offsets[] = { 0 };
 
     vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-    vkCmdDraw(*commandBuffer, mesh->GetVertexCount(), 1, 0, 0);
+    vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
 
     VkMaterial* defaultMat = ((VkMaterialInstance*)this->unlitVertexColorMaterialInstance)->GetMaterial();
 
@@ -1503,7 +1508,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
         if (descriptorSets.empty() == false)
-            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
 
         // Model descriptor set
@@ -1550,7 +1555,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
         if (descriptorSets.empty() == false)
-            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
 
         // Model descriptor set
@@ -1572,7 +1577,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         VkDeviceSize offsets[] = { 0 };
 
         vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-        vkCmdDraw(*commandBuffer, mesh->GetVertexCount(), 1, 0, 0);
+        vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
     }
 
     const std::vector<RenderQueue::TriangleData*>& triangleDatas = renderQueue.GetTriangleDatas();
@@ -1594,7 +1599,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
 
         vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
         if (descriptorSets.empty() == false)
-            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
 
         // Model descriptor set
@@ -1616,7 +1621,7 @@ bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQue
         VkDeviceSize offsets[] = { 0 };
 
         vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-        vkCmdDraw(*commandBuffer, mesh->GetVertexCount(), 1, 0, 0);
+        vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
     }
     
     vkCmdEndRenderPass(*commandBuffer);

@@ -30,6 +30,12 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT H
 
 set_property(TARGET HodEngine PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "../../Data")
 
+if(MSVC)
+	target_compile_options(HodEngine PRIVATE /W4 /WX)
+else()
+	target_compile_options(HodEngine PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
+
 include_directories(
 "${PROJECT_SOURCE_DIR}/src"
 "../SDK/glm"

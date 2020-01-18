@@ -242,7 +242,7 @@ bool RendererDirectX12::BuildPipeline(GpuDevice* gpuDevice)
     for (size_t i = 0; i < 2; ++i)
     {
         ComPtr<ID3D12Resource> backBuffer = nullptr;
-        if (FAILED(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer))) == true)
+        if (FAILED(swapChain->GetBuffer((UINT)i, IID_PPV_ARGS(&backBuffer))) == true)
         {
             fprintf(stderr, "D3d12: Unable to retreive BackBuffer from SwapChain!\n");
             return false;
@@ -320,7 +320,7 @@ bool RendererDirectX12::SubmitRenderQueue(RenderQueue& renderQueue)
     this->swapChain->Present(0, 0);
 
     ComPtr<ID3D12Fence> fence = nullptr;
-    if (this->device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)) == true)
+    if (FAILED(this->device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))) == true)
     {
         fprintf(stderr, "D3d12: Unable to create Fence!\n");
         return false;

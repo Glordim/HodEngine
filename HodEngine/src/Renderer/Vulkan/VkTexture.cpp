@@ -48,7 +48,7 @@ bool VkTexture::BuildDepth(size_t width, size_t height)
 
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-    if (renderer->CreateImage(width, height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->textureImage, &this->textureImageMemory) == false)
+    if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->textureImage, &this->textureImageMemory) == false)
         goto exit;
 
     if (renderer->TransitionImageLayout(this->textureImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
@@ -112,7 +112,7 @@ bool VkTexture::BuildBuffer(size_t width, size_t height, unsigned char* pixels)
     memcpy(data, pixels, static_cast<size_t>(bufferSize));
     vkUnmapMemory(renderer->GetVkDevice(), bufferMemory);
 
-    if (renderer->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->textureImage, &this->textureImageMemory) == false)
+    if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->textureImage, &this->textureImageMemory) == false)
         goto exit;
 
     if (renderer->TransitionImageLayout(this->textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) == false)

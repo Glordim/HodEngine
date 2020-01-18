@@ -59,15 +59,15 @@ void DescriptorSetLayout::ExtractUboSubMembers(const spirv_cross::Compiler& comp
 
         BlockUbo::Member member;
 
-        member.name = comp.get_member_name(structType.self, i);
-        member.size = comp.get_declared_struct_member_size(structType, i);
+        member.name = comp.get_member_name(structType.self, (uint32_t)i);
+        member.size = comp.get_declared_struct_member_size(structType, (uint32_t)i);
 
         if (memberType.array.empty() == false)
             member.count = memberType.array[0];
         else
             member.count = 1;
 
-        member.offset = comp.type_struct_member_offset(structType, i);
+        member.offset = comp.type_struct_member_offset(structType, (uint32_t)i);
 
         if (memberType.basetype == spirv_cross::SPIRType::Struct)
         {
@@ -134,7 +134,7 @@ bool DescriptorSetLayout::BuildDescriptorSetLayout()
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = descriptors.size();
+    layoutInfo.bindingCount = (uint32_t)descriptors.size();
     layoutInfo.pBindings = descriptors.data();
 
     RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();

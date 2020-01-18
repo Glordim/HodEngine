@@ -80,9 +80,9 @@ bool Mesh::loadFbx(const char* path)
 
             //memcpy(&vertex.pos[0], &vertices[vertexIndex].mData[0], 3 * sizeof(FbxDouble));
             
-            vertex.pos[0] = vertices[vertexIndex].mData[0];
-            vertex.pos[1] = vertices[vertexIndex].mData[1];
-            vertex.pos[2] = -vertices[vertexIndex].mData[2];
+            vertex.pos[0] = (float)vertices[vertexIndex].mData[0];
+            vertex.pos[1] = (float)vertices[vertexIndex].mData[1];
+            vertex.pos[2] = (float)-vertices[vertexIndex].mData[2];
             
 
             memset(&vertex.color[0], 1, 3 * sizeof(float));
@@ -98,9 +98,9 @@ bool Mesh::loadFbx(const char* path)
             {
                 //memcpy(&vertex.normal[0], &normal[0], 3 * sizeof(float));
                 
-                vertex.normal[0] = normal[0];
-                vertex.normal[1] = normal[1];
-                vertex.normal[2] = -normal[2];
+                vertex.normal[0] = (float)normal[0];
+                vertex.normal[1] = (float)normal[1];
+                vertex.normal[2] = (float)-normal[2];
                 
             }
             else
@@ -120,8 +120,8 @@ bool Mesh::loadFbx(const char* path)
             {
                 //memcpy(&vertex.uv[0], &uv[0], 2 * sizeof(float));
 
-                vertex.uv[0] = uv[0];
-                vertex.uv[1] = uv[1];
+                vertex.uv[0] = (float)uv[0];
+                vertex.uv[1] = (float)uv[1];
 
             }
             else
