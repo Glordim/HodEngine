@@ -3,6 +3,8 @@
 
 #include "../Shader.h"
 
+#include <vector>
+
 #include <vulkan/vulkan.h>
 
 class VkShader : public Shader

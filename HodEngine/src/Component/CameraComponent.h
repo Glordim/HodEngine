@@ -13,6 +13,7 @@
 
 class MaterialInstance;
 class PointLightComponent;
+class Texture;
 
 class CameraComponent : public Component
 {

@@ -85,10 +85,15 @@ if %errorlevel% neq 0 (
 	exit 1
 )
 
-if not exist "./Build/PhysX" (
-	echo Create SymLink to PhysX Build Dir
-	mklink /J %CD%\Build\PhysX %CD%\PhysX\physx\compiler\vc15win64
+if not exist "./Build/PhysX_proj" (
+	echo Create SymLink to PhysX_proj Dir
+	mklink /J "%CD%\Build\PhysX_proj" "%CD%\PhysX\physx\compiler\vc15win64"
 )
+if not exist "./Build/PhysX_lib" (
+	echo Create SymLink to PhysX_lib Dir
+	mklink /J "%CD%\Build\PhysX_lib" "%CD%\PhysX\physx\bin\win.x86_64.vc141.mt"
+)
+
 echo Done
 echo *******
 
@@ -105,10 +110,22 @@ if %errorlevel% neq 0 (
 	pause
 	exit 1
 )
+cmake --build ./Build/SDL --config Debug
+if %errorlevel% neq 0 (
+	echo Fail
+	pause
+	exit 1
+)
 echo Done
 echo *******
 echo glm...
 cmake --build ./Build/glm --config Release
+if %errorlevel% neq 0 (
+	echo Fail
+	pause
+	exit 1
+)
+cmake --build ./Build/glm --config Debug
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
@@ -123,6 +140,12 @@ if %errorlevel% neq 0 (
 	pause
 	exit 1
 )
+cmake --build ./Build/SPIRV-CROSS --config Debug
+if %errorlevel% neq 0 (
+	echo Fail
+	pause
+	exit 1
+)
 echo Done
 echo *******
 echo tinyobjloader...
@@ -132,15 +155,18 @@ if %errorlevel% neq 0 (
 	pause
 	exit 1
 )
-echo Done
-echo *******
-echo PhysX...
-cmake --build ./Build/PhysX --config Release
+cmake --build ./Build/tinyobjloader --config Debug
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
 	exit 1
 )
+echo Done
+echo *******
+echo PhysX...
+cmake --build ./Build/PhysX_proj --config Release
+cmake --build ./Build/PhysX_proj --config Debug
+
 echo Done
 echo *******
 
