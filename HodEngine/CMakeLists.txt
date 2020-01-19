@@ -27,14 +27,29 @@ assign_source_group(${Srcs})
 
 add_executable(HodEngine ${Srcs})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodEngine)
-
 set_property(TARGET HodEngine PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "../../Data")
 
-if(MSVC)
-	target_compile_options(HodEngine PRIVATE /W4 /WX)
-else()
-	target_compile_options(HodEngine PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
+file(GLOB_RECURSE SrcGame
+        "${PROJECT_SOURCE_DIR}/src/Game/*.cpp"
+        "${PROJECT_SOURCE_DIR}/src/Game/*.h"
+		"${PROJECT_SOURCE_DIR}/src/Game/*.inl"
+        )
+
+add_library(Game ${SrcGame})
+
+file(GLOB_RECURSE SrcRenderer
+        "${PROJECT_SOURCE_DIR}/src/Renderer/*.cpp"
+        "${PROJECT_SOURCE_DIR}/src/Renderer/*.h"
+		"${PROJECT_SOURCE_DIR}/src/Renderer/*.inl"
+        )
+
+add_library(Renderer ${SrcRenderer})
+
+#if(MSVC)
+#	target_compile_options(HodEngine PRIVATE /W4 /WX)
+#else()
+#	target_compile_options(HodEngine PRIVATE -Wall -Wextra -pedantic -Werror)
+#endif()
 
 include_directories(
 "${PROJECT_SOURCE_DIR}/src"

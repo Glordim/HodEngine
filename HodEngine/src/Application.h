@@ -3,8 +3,6 @@
 #include <String>
 #include "InputListener.h"
 
-#include <PxPhysicsAPI.h>
-
 struct SDL_Window;
 
 namespace HOD
@@ -34,11 +32,5 @@ namespace HOD
         SDL_Window* window;
         Renderer* renderer;
         InputListener inputListener;
-
-        physx::PxDefaultAllocator defaultAllocator;
-        physx::PxDefaultErrorCallback defaultErrorCallback;
-
-        physx::PxFoundation* pxFoundation;
-        physx::PxPhysics* pxPhysics;
     };
 }

@@ -11,14 +11,14 @@
 #include "Game/Scene.h"
 #include "Game/Component/CameraComponent.h"
 
+#include "Physic/Physic.h"
+
 namespace HOD
 {
     Application::Application()
     {
         this->window = nullptr;
         this->renderer = nullptr;
-        this->pxFoundation = nullptr;
-        this->pxPhysics = nullptr;
     }
 
     Application::~Application()
@@ -33,11 +33,7 @@ namespace HOD
             SDL_Quit();
         }
 
-        if (this->pxPhysics != nullptr)
-            this->pxPhysics->release();
-
-        if (this->pxFoundation != nullptr)
-            this->pxFoundation->release();
+        PHYSIC::Physic::DestroyInstance();
     }
 
     bool Application::Init()
@@ -48,15 +44,11 @@ namespace HOD
             return false;
         }
 
-        this->pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, this->defaultAllocator, this->defaultErrorCallback);
-        if (this->pxFoundation == nullptr)
+        PHYSIC::Physic* physic = PHYSIC::Physic::CreateInstance();
+        if (physic->Init() == false)
+        {
             return false;
-
-        physx::PxTolerancesScale tolerancesScale;
-
-        this->pxPhysics = PxCreateBasePhysics(PX_PHYSICS_VERSION, *this->pxFoundation, tolerancesScale);
-        if (this->pxPhysics == nullptr)
-            return false;
+        }
 
         return true;
     }

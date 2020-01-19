@@ -35,9 +35,6 @@
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "../Allocator.h"
-#include "../Error.h"
-
 //#include <AntTweakBar.h>
 
 #include <tchar.h>
