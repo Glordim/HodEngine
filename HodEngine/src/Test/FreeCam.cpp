@@ -11,6 +11,9 @@
 
 namespace HOD
 {
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     FreeCam::FreeCam(const std::string& name, GAME::Scene* scene) : GAME::Actor(name, scene)
     {
         this->sceneComponent = this->addComponent<GAME::SceneComponent>();
@@ -24,11 +27,17 @@ namespace HOD
         //this->setupTweakBarForAllComponent(this->myBar);
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     FreeCam::~FreeCam()
     {
         //TwDeleteBar(this->myBar);
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::setupInputListener(InputListener* inputListener)
     {
         inputListener->registerAxisEvent(InputListener::KeyAxis(SDLK_s, SDLK_w), std::bind(&FreeCam::moveForward, this, std::placeholders::_1));
@@ -42,6 +51,9 @@ namespace HOD
         inputListener->registerMouseMoveEvent(std::bind(&FreeCam::rotateView, this, std::placeholders::_1, std::placeholders::_2));
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::selectObject()
     {
         float mouseZ = 1.0f;
@@ -81,16 +93,25 @@ namespace HOD
         }
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::allowRotate()
     {
         this->allowRotation = true;
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::disallowRotate()
     {
         this->allowRotation = false;
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::rotateView(int x, int y)
     {
         this->mouseX = (float)x;
@@ -120,21 +141,33 @@ namespace HOD
         */
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::moveForward(float axisValue)
     {
         this->movement.z = axisValue;
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::moveRight(float axisValue)
     {
         this->movement.x = axisValue;
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::moveUp(float axisValue)
     {
         this->movement.y = axisValue;
     }
 
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
     void FreeCam::update(float dt)
     {
         //this->sceneComponent->setRotation(glm::degrees(glm::eulerAngles(this->tmpQuat)));

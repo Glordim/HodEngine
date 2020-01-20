@@ -2,7 +2,9 @@
 
 #include "Component/SceneComponent.h"
 
-#include <PxPhysicsAPI.h>
+#include "Physic/Physic.h"
+#include "Physic/Scene.h"
+#include "Physic/Actor.h"
 
 #include "Renderer/Shader.h"
 #include "Renderer/Material.h"
@@ -20,24 +22,7 @@ namespace HOD
             this->root = this->spawnActor<Actor>("Root");
             this->root->addComponent<SceneComponent>();
 
-            physx::PxPhysics& pxPhysx = PxGetPhysics();
-
-            physx::PxTolerancesScale tolerancesScale = pxPhysx.getTolerancesScale();
-
-            physx::PxSceneDesc pxSceneDesc(tolerancesScale);
-
-            physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
-            pxSceneDesc.filterShader = gDefaultFilterShader;
-
-            physx::PxCpuDispatcher* mCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(1);
-            pxSceneDesc.cpuDispatcher = mCpuDispatcher;
-
-            this->pxScene = pxPhysx.createScene(pxSceneDesc);
-            this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
-            this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
-            this->pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, 1.0f);
-
-            this->pxDefaultMaterial = pxPhysx.createMaterial(0.0f, 0.0f, 0.0f);
+			this->physicScene = PHYSIC::Physic::GetInstance()->CreateScene();
         }
 
         Scene::~Scene()
@@ -46,14 +31,9 @@ namespace HOD
             this->pxDefaultMaterial->release();
         }
 
-        physx::PxScene* Scene::GetPxScene() const
+        PHYSIC::Scene* Scene::GetPhysicScene() const
         {
-            return this->pxScene;
-        }
-
-        physx::PxMaterial* Scene::getDefaultMaterial() const
-        {
-            return this->pxDefaultMaterial;
+            return this->physicScene;
         }
 
         void Scene::drawDebugPhysics(CameraComponent* camera, float dt)
@@ -247,8 +227,7 @@ namespace HOD
             if (dt <= 0.0f)
                 return;
 
-            this->pxScene->simulate(dt);
-            this->pxScene->fetchResults(true);
+			this->physicScene->Update(dt);
         }
 
         void Scene::update(float dt)
@@ -270,21 +249,24 @@ namespace HOD
 
             pxDir.normalize();
 
-            return this->pxScene->raycast(pxOrigin, pxDir, distance, result);
+			return false;// this->pxScene->raycast(pxOrigin, pxDir, distance, result);
         }
 
-        void Scene::addPxActor(Actor* actor, physx::PxActor* pxActor)
+        void Scene::CreatePhysicActor(Actor* actor)
         {
-            actor->setPxActor(pxActor);
+			SceneComponent* actorSceneComponent = actor->getComponent<SceneComponent>();
 
-            this->pxActorToActorMap[pxActor] = actor;
+			PHYSIC::Actor* physicActor = physicScene->CreateActor();
 
-            this->pxScene->addActor(*pxActor);
+			physicActor->SetPosition(actorSceneComponent->getPosition());
+			physicActor->SetRotation(actorSceneComponent->getRotation());
+
+            this->physicActorToActorMap[physicActor] = actor;
         }
 
-        Actor* Scene::convertPxActor(physx::PxActor* pxActor)
+        Actor* Scene::convertPxActor(PHYSIC::Actor* physicActor)
         {
-            return this->pxActorToActorMap[pxActor];
+            return this->physicActorToActorMap[physicActor];
         }
 
         SceneComponent* Scene::getRoot() const

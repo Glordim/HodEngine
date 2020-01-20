@@ -2,21 +2,36 @@
 
 namespace HOD
 {
-    Allocator::Allocator()
-    {
-    }
+	namespace PHYSIC
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Allocator::Allocator()
+		{
+		}
 
-    Allocator::~Allocator()
-    {
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Allocator::~Allocator()
+		{
+		}
 
-    void* Allocator::allocate(size_t size, const char* typeName, const char* filename, int line)
-    {
-        return new char[size];
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void* Allocator::allocate(size_t size, const char* typeName, const char* filename, int line)
+		{
+			return new char[size];
+		}
 
-    void Allocator::deallocate(void* ptr)
-    {
-        delete[] ptr;
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Allocator::deallocate(void* ptr)
+		{
+			delete[] ptr;
+		}
+	}
 }

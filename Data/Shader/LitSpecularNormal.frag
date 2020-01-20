@@ -152,7 +152,7 @@ void main()
 	
 	vec3 result = (lightUbo.ambiantColor.xyz + diffuse + specular) * texture(textureSampler, uv.xy).xyz;
 	
-	frag_color = vec4(mix(result, R_FragColor, 0.75f), 1.0f);
-	frag_color = vec4(normals, 1.0f);
+	frag_color = vec4(mix(result, R_FragColor, 0.0f), 1.0f);
+	//frag_color = vec4(normals, 1.0f);
 }
 

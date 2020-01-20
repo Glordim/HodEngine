@@ -3,13 +3,17 @@
 #include "Color.h"
 #include "Actor.h"
 
-#include "PxPhysicsAPI.h"
-
 #include "Renderer/DebugLine.h"
 #include "Renderer/DebugMesh.h"
 
 namespace HOD
 {
+	namespace PHYSIC
+	{
+		class Scene;
+		class Actor;
+	}
+
     namespace GAME
     {
         class SceneComponent;
@@ -37,25 +41,22 @@ namespace HOD
 
             bool raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result, bool drawDebug, Color debugColor, float debugDuration);
 
-            void addPxActor(Actor* actor, physx::PxActor* pxActor);
-            Actor* convertPxActor(physx::PxActor* pxActor);
+            void CreatePhysicActor(Actor* actor);
+            Actor* convertPxActor(PHYSIC::Actor* physicActor);
 
             void setAmbiantColor(Color& color);
             SceneComponent* getRoot() const;
 
-            physx::PxScene* GetPxScene() const;
-
-            physx::PxMaterial* getDefaultMaterial() const;
+			PHYSIC::Scene* GetPhysicScene() const;
 
         private:
             Color ambiantColor;
             Actor* root;
 
-            physx::PxScene* pxScene;
-            physx::PxMaterial* pxDefaultMaterial;
+			PHYSIC::Scene* physicScene = nullptr;
 
             std::vector<Actor*> actorList;
-            std::map<physx::PxActor*, Actor*> pxActorToActorMap;
+            std::map<PHYSIC::Actor*, Actor*> physicActorToActorMap;
 
             std::vector<std::pair<DebugLine*, float>> debugLines;
             std::vector<DebugLine*> debugLinesImmediate;

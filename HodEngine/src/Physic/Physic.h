@@ -8,6 +8,11 @@ namespace HOD
 {
     namespace PHYSIC
     {
+		class Scene;
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
         class Physic : public Singleton<Physic>
         {
             friend class Singleton<Physic>;
@@ -21,6 +26,8 @@ namespace HOD
 
             bool                            Init();
             void                            Clear();
+
+			Scene*							CreateScene();
 
         private:
 
