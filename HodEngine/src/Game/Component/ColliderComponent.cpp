@@ -28,17 +28,14 @@ namespace HOD
             Actor* actor = GetActor();
             Scene* scene = actor->getScene();
 
-             = scene->getDefaultMaterial();
+            PHYSIC::Actor* physicActor = actor->getPxActor();
 
-            physx::PxActor* pxActor = actor->getPxActor();
-			physx::PxMaterial* pxMaterial = pxActor->getScene()->getDefaultMaterial();
-
-            if (pxActor == nullptr)
+            if (physicActor == nullptr)
             {
                 glm::vec3 position = actor->getComponent<SceneComponent>()->getPosition();
                 glm::quat rotation = actor->getComponent<SceneComponent>()->getRotation();
 
-				pxActor = scene->CreatePhysicActor(actor);
+                physicActor = scene->CreatePhysicActor(actor);
             }
 
             if (pxActor->getType() == physx::PxActorType::eRIGID_STATIC || pxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC)

@@ -52,24 +52,44 @@ namespace HOD
             }
         }
 
-		void Physic::CreateScene()
+		Scene* Physic::CreateScene()
 		{
-			physx::PxTolerancesScale tolerancesScale = _pxPhysics->getTolerancesScale();
+            physx::PxTolerancesScale tolerancesScale = _pxPhysics->getTolerancesScale();
 
-			physx::PxSceneDesc pxSceneDesc(tolerancesScale);
+            physx::PxSceneDesc pxSceneDesc(tolerancesScale);
 
-			physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
-			pxSceneDesc.filterShader = gDefaultFilterShader;
+            physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
+            pxSceneDesc.filterShader = gDefaultFilterShader;
 
-			physx::PxCpuDispatcher* mCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(1);
-			pxSceneDesc.cpuDispatcher = mCpuDispatcher;
+            physx::PxCpuDispatcher* mCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(1);
+            pxSceneDesc.cpuDispatcher = mCpuDispatcher;
 
-			Scene* scene = _pxPhysics->createScene(pxSceneDesc);
-			scene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
-			scene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
-			scene->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, 1.0f);
+            physx::PxScene* pxScene = _pxPhysics->createScene(pxSceneDesc);
+            pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
+            pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
+            pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, 1.0f);
 
-			this->pxDefaultMaterial = pxPhysx.createMaterial(0.0f, 0.0f, 0.0f);
+            Scene* pScene = new Scene(pxScene);
+
+            _vScenes.push_back(pScene);
+
+            return pScene;
 		}
+
+        void Physic::DestroyScene(Scene* pScene)
+        {
+            auto it = _vScenes.begin();
+            auto itEnd = _vScenes.end();
+            while (it != itEnd)
+            {
+                if (*it == pScene)
+                {
+                    _vScenes.erase(it);
+                    break;
+                }
+            }
+
+            delete pScene;
+        }
     }
 }

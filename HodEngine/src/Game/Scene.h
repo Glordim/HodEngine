@@ -41,7 +41,7 @@ namespace HOD
 
             bool raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result, bool drawDebug, Color debugColor, float debugDuration);
 
-            void CreatePhysicActor(Actor* actor);
+            PHYSIC::Actor* CreatePhysicActor(Actor* actor);
             Actor* convertPxActor(PHYSIC::Actor* physicActor);
 
             void setAmbiantColor(Color& color);

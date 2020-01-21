@@ -16,8 +16,8 @@ namespace HOD
         class Scene
         {
         public:
-            Scene() = default;
-            ~Scene() = default;
+            Scene(physx::PxScene* pPxScene);
+            ~Scene();
 
 			Actor*	CreateActor();
 

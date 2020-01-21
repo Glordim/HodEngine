@@ -2,10 +2,18 @@
 
 #include "Actor.h"
 
+#include "Physic.h"
+
 namespace HOD
 {
     namespace PHYSIC
     {
+        Scene::Scene(physx::PxScene* pPxScene)
+            : pxScene(pPxScene)
+        {
+            
+        }
+
 		Actor* Scene::CreateActor()
 		{
 			Actor* actor = new Actor();

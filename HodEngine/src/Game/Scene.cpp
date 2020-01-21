@@ -27,8 +27,7 @@ namespace HOD
 
         Scene::~Scene()
         {
-            this->pxScene->release();
-            this->pxDefaultMaterial->release();
+            PHYSIC::Physic::GetInstance()->DestroyScene(this->physicScene);
         }
 
         PHYSIC::Scene* Scene::GetPhysicScene() const
@@ -252,7 +251,7 @@ namespace HOD
 			return false;// this->pxScene->raycast(pxOrigin, pxDir, distance, result);
         }
 
-        void Scene::CreatePhysicActor(Actor* actor)
+        PHYSIC::Actor* Scene::CreatePhysicActor(Actor* actor)
         {
 			SceneComponent* actorSceneComponent = actor->getComponent<SceneComponent>();
 
@@ -262,6 +261,8 @@ namespace HOD
 			physicActor->SetRotation(actorSceneComponent->getRotation());
 
             this->physicActorToActorMap[physicActor] = actor;
+
+            return physicActor;
         }
 
         Actor* Scene::convertPxActor(PHYSIC::Actor* physicActor)

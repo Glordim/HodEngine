@@ -4,6 +4,8 @@
 
 #include <PxPhysicsAPI.h>
 
+#include <vector>
+
 namespace HOD
 {
     namespace PHYSIC
@@ -28,6 +30,7 @@ namespace HOD
             void                            Clear();
 
 			Scene*							CreateScene();
+            void                            DestroyScene(Scene* pScene);
 
         private:
 
@@ -36,6 +39,8 @@ namespace HOD
 
             physx::PxFoundation*            _pxFoundation = nullptr;
             physx::PxPhysics*               _pxPhysics = nullptr;
+
+            std::vector<Scene*>              _vScenes;
         };
     }
 }
