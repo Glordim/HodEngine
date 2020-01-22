@@ -15,7 +15,17 @@ namespace HOD
     {
         ColliderComponent::ColliderComponent(Actor* actor) : Component(actor)
         {
+            Scene* scene = actor->getScene();
 
+            PHYSIC::Actor* physicActor = actor->GetPhysicActor();
+
+            if (physicActor == nullptr)
+            {
+                glm::vec3 position = actor->getComponent<SceneComponent>()->getPosition();
+                glm::quat rotation = actor->getComponent<SceneComponent>()->getRotation();
+
+                physicActor = scene->CreatePhysicActor(actor);
+            }
         }
 
         void ColliderComponent::setupTweakBar(TwBar* bar)
@@ -28,15 +38,7 @@ namespace HOD
             Actor* actor = GetActor();
             Scene* scene = actor->getScene();
 
-            PHYSIC::Actor* physicActor = actor->getPxActor();
-
-            if (physicActor == nullptr)
-            {
-                glm::vec3 position = actor->getComponent<SceneComponent>()->getPosition();
-                glm::quat rotation = actor->getComponent<SceneComponent>()->getRotation();
-
-                physicActor = scene->CreatePhysicActor(actor);
-            }
+            PHYSIC::Actor* physicActor = actor->GetPhysicActor();
 
             if (pxActor->getType() == physx::PxActorType::eRIGID_STATIC || pxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC)
             {

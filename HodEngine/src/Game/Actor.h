@@ -15,6 +15,11 @@ namespace HOD
 {
     class InputListener;
 
+    namespace PHYSIC
+    {
+        class Actor;
+    }
+
     namespace GAME
     {
         class Scene;
@@ -44,11 +49,12 @@ namespace HOD
             void setupTweakBarForAllComponent(TwBar* twBar);
 
             Scene* getScene() const;
-            physx::PxActor* getPxActor() const;
+
+            PHYSIC::Actor* GetPhysicActor() const;
 
         protected:
-            Scene* scene;
-            physx::PxActor* pxActor;
+            Scene* scene = nullptr;
+            PHYSIC::Actor* physicActor = nullptr;
 
             std::string name;
 

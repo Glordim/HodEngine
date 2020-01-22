@@ -9,7 +9,7 @@ namespace HOD
         Actor::Actor(const std::string& name, Scene* scene)
             : name(name)
             , scene(scene)
-            , pxActor(nullptr)
+            , physicActor(nullptr)
         {
 
         }
@@ -53,9 +53,9 @@ namespace HOD
             return this->scene;
         }
 
-        physx::PxActor* Actor::getPxActor() const
+        PHYSIC::Actor* Actor::GetPhysicActor() const
         {
-            return this->pxActor;
+            return this->physicActor;
         }
 
         void Actor::setPxActor(physx::PxActor* pxActor)
