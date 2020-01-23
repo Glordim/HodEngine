@@ -6,6 +6,9 @@
 
 namespace HOD
 {
+	struct Line_3P_3C;
+	struct Tri_3P_3C;
+
     namespace PHYSIC
     {
 		class Actor;
@@ -20,6 +23,8 @@ namespace HOD
             ~Scene();
 
 			Actor*	CreateActor();
+
+			void	GetDebugGeometry(std::vector<Line_3P_3C>& lines, std::vector<Tri_3P_3C>& tris);
 
 			void	Update(float dt);
 

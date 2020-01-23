@@ -9,6 +9,8 @@
 #include "Game/Actor.h"
 #include "Game/Scene.h"
 
+#include "Physic/Scene.h"
+
 namespace HOD
 {
     void RenderQueueHelper::AddSceneComponent(RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive)
@@ -104,77 +106,11 @@ namespace HOD
 
     void RenderQueueHelper::AddScenePhysicsDebug(RenderQueue& renderQueue, GAME::Scene* scene)
     {
-        physx::PxScene* pxScene = scene->GetPxScene();
+		std::vector<Line_3P_3C> lines;
+		std::vector<Tri_3P_3C> tris;
+		scene->GetPhysicScene()->GetDebugGeometry(lines, tris);
 
-        const physx::PxRenderBuffer& rb = pxScene->getRenderBuffer();
-        physx::PxU32 lineCount = rb.getNbLines();
-
-        if (lineCount != 0)
-        {
-            std::vector<Line_3P_3C> lines;
-            lines.resize(lineCount);
-
-            for (physx::PxU32 i = 0; i < lineCount; i++)
-            {
-                const physx::PxDebugLine& pxLine = rb.getLines()[i];
-
-                Line_3P_3C& line = lines[i];
-
-                line.vertices[0].pos[0] = pxLine.pos0.x;
-                line.vertices[0].pos[1] = pxLine.pos0.y;
-                line.vertices[0].pos[2] = pxLine.pos0.z;
-                line.vertices[0].color[0] = (float)((pxLine.color0 & 0x00FF0000) >> 16);
-                line.vertices[0].color[1] = (float)((pxLine.color0 & 0x0000FF00) >> 8);
-                line.vertices[0].color[2] = (float)((pxLine.color0 & 0x000000FF) >> 0);
-
-                line.vertices[1].pos[0] = pxLine.pos1.x;
-                line.vertices[1].pos[1] = pxLine.pos1.y;
-                line.vertices[1].pos[2] = pxLine.pos1.z;
-                line.vertices[1].color[0] = (float)((pxLine.color1 & 0x00FF0000) >> 16);
-                line.vertices[1].color[1] = (float)((pxLine.color1 & 0x0000FF00) >> 8);
-                line.vertices[1].color[2] = (float)((pxLine.color1 & 0x000000FF) >> 0);
-            }
-
-            renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
-        }
-
-        physx::PxU32 triCount = rb.getNbTriangles();
-
-        if (triCount != 0)
-        {
-            std::vector<Tri_3P_3C> tris;
-            tris.resize(triCount);
-
-            for (physx::PxU32 i = 0; i < triCount; i++)
-            {
-                const physx::PxDebugTriangle& pxTri = rb.getTriangles()[i];
-                // render the line
-
-                Tri_3P_3C& tri = tris[i];
-
-                tri.vertices[0].pos[0] = pxTri.pos0.x;
-                tri.vertices[0].pos[1] = pxTri.pos0.y;
-                tri.vertices[0].pos[2] = pxTri.pos0.z;
-                tri.vertices[0].color[0] = (float)((pxTri.color0 & 0x00FF0000) >> 16);
-                tri.vertices[0].color[1] = (float)((pxTri.color0 & 0x0000FF00) >> 8);
-                tri.vertices[0].color[2] = (float)((pxTri.color0 & 0x000000FF) >> 0);
-
-                tri.vertices[1].pos[0] = pxTri.pos1.x;
-                tri.vertices[1].pos[1] = pxTri.pos1.y;
-                tri.vertices[1].pos[2] = pxTri.pos1.z;
-                tri.vertices[1].color[0] = (float)((pxTri.color1 & 0x00FF0000) >> 16);
-                tri.vertices[1].color[1] = (float)((pxTri.color1 & 0x0000FF00) >> 8);
-                tri.vertices[1].color[2] = (float)((pxTri.color1 & 0x000000FF) >> 0);
-
-                tri.vertices[2].pos[0] = pxTri.pos2.x;
-                tri.vertices[2].pos[1] = pxTri.pos2.y;
-                tri.vertices[2].pos[2] = pxTri.pos2.z;
-                tri.vertices[2].color[0] = (float)((pxTri.color2 & 0x00FF0000) >> 16);
-                tri.vertices[2].color[1] = (float)((pxTri.color2 & 0x0000FF00) >> 8);
-                tri.vertices[2].color[2] = (float)((pxTri.color2 & 0x000000FF) >> 0);
-            }
-
-            renderQueue.AddTriangles(tris, nullptr, glm::identity<glm::mat4x4>());
-        }
+		renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
+		renderQueue.AddTriangles(tris, nullptr, glm::identity<glm::mat4x4>());
     }
 }

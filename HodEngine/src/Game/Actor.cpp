@@ -60,7 +60,7 @@ namespace HOD
 
         void Actor::setPxActor(physx::PxActor* pxActor)
         {
-            this->pxActor = pxActor;
+            //this->pxActor = pxActor;
         }
     }
 }

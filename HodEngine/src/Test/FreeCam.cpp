@@ -85,11 +85,13 @@ namespace HOD
         {
             physx::PxActor* pxActor = result.block.actor;
 
+			/*
             GAME::Actor* actor = this->scene->convertPxActor(pxActor);
             if (actor != nullptr)
             {
                 actor->setupTweakBarForAllComponent(this->myBar);
             }
+			*/
         }
     }
 

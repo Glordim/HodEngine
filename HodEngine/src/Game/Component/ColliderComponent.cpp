@@ -39,7 +39,7 @@ namespace HOD
             Scene* scene = actor->getScene();
 
             PHYSIC::Actor* physicActor = actor->GetPhysicActor();
-
+			/*
             if (pxActor->getType() == physx::PxActorType::eRIGID_STATIC || pxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC)
             {
                 physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
@@ -49,6 +49,7 @@ namespace HOD
                 rigidActor->attachShape(*pxShape);
                 rigidActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
             }
+			*/
         }
     }
 }

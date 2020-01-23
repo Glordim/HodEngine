@@ -167,6 +167,7 @@ namespace HOD
 
         void SceneComponent::syncPxActor()
         {
+			/*
             physx::PxActor* pxActor = this->GetActor()->getPxActor();
 
             if (pxActor != nullptr && (pxActor->getType() == physx::PxActorType::eRIGID_STATIC || pxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC))
@@ -178,6 +179,7 @@ namespace HOD
 
                 rigidActor->setGlobalPose(pxTransform);
             }
+			*/
         }
     }
 }
