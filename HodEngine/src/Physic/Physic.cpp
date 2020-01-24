@@ -35,11 +35,23 @@ namespace HOD
                 return false;
             }
 
+            _pxDefaultMaterial = _pxPhysics->createMaterial(0.0f, 0.0f, 0.0f);
+            if (_pxDefaultMaterial == nullptr)
+            {
+                return false;
+            }
+
             return true;
         }
 
         void Physic::Clear()
         {
+            if (_pxDefaultMaterial != nullptr)
+            {
+                _pxDefaultMaterial->release();
+                _pxDefaultMaterial = nullptr;
+            }
+
             if (_pxPhysics != nullptr)
             {
                 _pxPhysics->release();
@@ -51,6 +63,11 @@ namespace HOD
                 _pxFoundation->release();
                 _pxFoundation = nullptr;
             }
+        }
+
+        const physx::PxMaterial& Physic::GetDefaultMaterial() const
+        {
+            return *_pxDefaultMaterial;
         }
 
 		Scene* Physic::CreateScene()
@@ -97,5 +114,17 @@ namespace HOD
 		{
 			return new Actor(_pxPhysics->createRigidStatic(physx::PxTransform(physx::PxIDENTITY())));
 		}
+
+        physx::PxShape* Physic::CreateShape(physx::PxGeometry& pPxGeometry, physx::PxMaterial* pPxMaterial)
+        {
+            if (pPxMaterial == nullptr)
+            {
+                return _pxPhysics->createShape(pPxGeometry, *_pxDefaultMaterial);
+            }
+            else
+            {
+                return _pxPhysics->createShape(pPxGeometry, *pPxMaterial);
+            }
+        }
     }
 }

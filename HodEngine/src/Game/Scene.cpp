@@ -188,10 +188,11 @@ namespace HOD
 
 			PHYSIC::Actor* physicActor = physicScene->CreateActor();
 
-			physicActor->SetPosition(actorSceneComponent->getPosition());
-			physicActor->SetRotation(actorSceneComponent->getRotation());
+			physicActor->SetTransform(actorSceneComponent->getPosition(), actorSceneComponent->getRotation(), glm::vec3(1.0f, 1.0f, 1.0f));
 
             this->physicActorToActorMap[physicActor] = actor;
+
+            actor->SetPhysicActor(physicActor);
 
             return physicActor;
         }

@@ -10,6 +10,14 @@ namespace HOD
 {
     namespace PHYSIC
     {
+        enum SHAPE
+        {
+            BOX,
+            CYLINDER,
+            CAPSULE,
+            SPHERE
+        };
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -19,8 +27,9 @@ namespace HOD
             Actor(physx::PxActor* pxActor);
             ~Actor() = default;
 
-			void	SetPosition(const glm::vec3& position);
-			void	SetRotation(const glm::quat& rotation);
+            void    SetShape(SHAPE eShape);
+
+            void    SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 
 			physx::PxActor* GetPxActor() const;
 

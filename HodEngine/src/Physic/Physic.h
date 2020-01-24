@@ -30,10 +30,14 @@ namespace HOD
             bool                            Init();
             void                            Clear();
 
+            const physx::PxMaterial&        GetDefaultMaterial() const;
+
 			Scene*							CreateScene();
             void                            DestroyScene(Scene* pScene);
 
 			Actor*							CreateActor();
+
+            physx::PxShape*                 CreateShape(physx::PxGeometry& pPxGeometry, physx::PxMaterial* pPxMaterial = nullptr);
 
         private:
 
@@ -42,6 +46,8 @@ namespace HOD
 
             physx::PxFoundation*            _pxFoundation = nullptr;
             physx::PxPhysics*               _pxPhysics = nullptr;
+
+            physx::PxMaterial*              _pxDefaultMaterial = nullptr;
 
             std::vector<Scene*>				_vScenes;
         };

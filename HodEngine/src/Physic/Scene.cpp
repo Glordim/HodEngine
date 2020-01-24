@@ -66,7 +66,6 @@ namespace HOD
 
 			if (lineCount != 0)
 			{
-				std::vector<Line_3P_3C> lines;
 				lines.resize(lineCount);
 
 				for (physx::PxU32 i = 0; i < lineCount; i++)
@@ -95,7 +94,6 @@ namespace HOD
 
 			if (triCount != 0)
 			{
-				std::vector<Tri_3P_3C> tris;
 				tris.resize(triCount);
 
 				for (physx::PxU32 i = 0; i < triCount; i++)

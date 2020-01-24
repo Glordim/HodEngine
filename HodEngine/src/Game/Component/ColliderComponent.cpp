@@ -7,6 +7,8 @@
 #include "../Actor.h"
 #include "../Scene.h"
 
+#include "Physic/Actor.h"
+
 namespace HOD
 {
     namespace GAME
@@ -21,8 +23,10 @@ namespace HOD
             {
                 glm::vec3 position = actor->getComponent<SceneComponent>()->getPosition();
                 glm::quat rotation = actor->getComponent<SceneComponent>()->getRotation();
+                glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
                 physicActor = scene->CreatePhysicActor(actor);
+                physicActor->SetTransform(position, rotation, scale);
             }
         }
 
@@ -31,23 +35,13 @@ namespace HOD
 
         }
 
-        void ColliderComponent::SetShape(ColliderComponent::Shape shape)
+        void ColliderComponent::SetShape(PHYSIC::SHAPE eShape)
         {
             Actor* actor = GetActor();
-            Scene* scene = actor->getScene();
 
             PHYSIC::Actor* physicActor = actor->GetPhysicActor();
-			/*
-            if (pxActor->getType() == physx::PxActorType::eRIGID_STATIC || pxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC)
-            {
-                physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
 
-                physx::PxShape* pxShape = PxGetPhysics().createShape(physx::PxBoxGeometry(0.1f, 0.1f, 0.1f), *pxMaterial);
-                pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
-                rigidActor->attachShape(*pxShape);
-                rigidActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
-            }
-			*/
+            physicActor->SetShape(eShape);
         }
     }
 }

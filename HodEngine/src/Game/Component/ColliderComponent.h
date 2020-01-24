@@ -4,6 +4,11 @@
 
 namespace HOD
 {
+    namespace PHYSIC
+    {
+        enum SHAPE;
+    }
+
     namespace GAME
     {
         class ColliderComponent : public Component
@@ -23,7 +28,7 @@ namespace HOD
 
             void    setupTweakBar(TwBar* bar) override;
 
-            void SetShape(Shape shape);
+            void SetShape(PHYSIC::SHAPE eShape);
         };
     }
 }

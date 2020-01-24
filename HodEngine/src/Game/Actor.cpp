@@ -57,5 +57,10 @@ namespace HOD
         {
             return this->physicActor;
         }
+
+        void Actor::SetPhysicActor(PHYSIC::Actor* physicActor)
+        {
+            this->physicActor = physicActor;
+        }
     }
 }

@@ -48,7 +48,8 @@ namespace HOD
 
             Scene* getScene() const;
 
-            PHYSIC::Actor* GetPhysicActor() const;
+            PHYSIC::Actor*  GetPhysicActor() const;
+            void            SetPhysicActor(PHYSIC::Actor* physicActor);
 
         protected:
             Scene* scene = nullptr;

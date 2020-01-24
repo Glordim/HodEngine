@@ -12,6 +12,7 @@
 //#include <AntTweakBar.h>
 
 #include "../Actor.h"
+#include "Physic/Actor.h"
 
 namespace HOD
 {
@@ -167,19 +168,12 @@ namespace HOD
 
         void SceneComponent::syncPxActor()
         {
-			/*
-            physx::PxActor* pxActor = this->GetActor()->getPxActor();
+            PHYSIC::Actor* physicActor = this->GetActor()->GetPhysicActor();
 
-            if (pxActor != nullptr && (pxActor->getType() == physx::PxActorType::eRIGID_STATIC || pxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC))
+            if (physicActor != nullptr)
             {
-                physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
-
-                physx::PxTransform pxTransform(physx::PxVec3(this->position.x, this->position.y, this->position.z));
-                pxTransform.q = physx::PxQuat(this->rotation.x, this->rotation.y, this->rotation.z, this->rotation.w);
-
-                rigidActor->setGlobalPose(pxTransform);
+                physicActor->SetTransform(position, rotation, scale);
             }
-			*/
         }
     }
 }

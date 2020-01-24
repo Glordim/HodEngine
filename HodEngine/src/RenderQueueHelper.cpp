@@ -110,7 +110,13 @@ namespace HOD
 		std::vector<Tri_3P_3C> tris;
 		scene->GetPhysicScene()->GetDebugGeometry(lines, tris);
 
-		renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
-		renderQueue.AddTriangles(tris, nullptr, glm::identity<glm::mat4x4>());
+        if (lines.empty() == false)
+        {
+            renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
+        }
+        if (tris.empty() == false)
+        {
+            renderQueue.AddTriangles(tris, nullptr, glm::identity<glm::mat4x4>());
+        }
     }
 }

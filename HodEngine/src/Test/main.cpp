@@ -46,6 +46,8 @@
 
 #include "../Renderer/Renderer.h"
 
+#include "Physic/Actor.h"
+
 using namespace HOD;
 using namespace HOD::GAME;
 
@@ -302,7 +304,7 @@ int main(int argc, char** argv)
             staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = wall1->addComponent<ColliderComponent>();
-            colliderComponent->SetShape(ColliderComponent::Shape::Mesh);
+            colliderComponent->SetShape(PHYSIC::SHAPE::BOX);
         }
 
         Actor* wall2 = scene->spawnActor<Actor>("wall2");
@@ -319,7 +321,7 @@ int main(int argc, char** argv)
             staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = wall2->addComponent<ColliderComponent>();
-            colliderComponent->SetShape(ColliderComponent::Shape::Mesh);
+            colliderComponent->SetShape(PHYSIC::SHAPE::BOX);
         }
 
         Actor* sphereActor = scene->spawnActor<FlyingPointLight>("FlyingPointLight");
@@ -339,7 +341,7 @@ int main(int argc, char** argv)
             staticMeshComponent->setMaterialInstance(materialUnlitInstance);
 
             ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
-            colliderComponent->SetShape(ColliderComponent::Shape::Sphere);
+            colliderComponent->SetShape(PHYSIC::SHAPE::SPHERE);
 
             sphereActor->start();
         }
@@ -360,7 +362,7 @@ int main(int argc, char** argv)
             staticMeshComponent->setMaterialInstance(marbreMaterialLitSpecularNormalInstance);
 
             ColliderComponent* colliderComponent = dirLight->addComponent<ColliderComponent>();
-            colliderComponent->SetShape(ColliderComponent::Shape::Sphere);
+            colliderComponent->SetShape(PHYSIC::SHAPE::SPHERE);
 
             dirLight->start();
         }
@@ -379,7 +381,7 @@ int main(int argc, char** argv)
             //staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = box->addComponent<ColliderComponent>();
-            colliderComponent->SetShape(ColliderComponent::Shape::Mesh);
+            colliderComponent->SetShape(PHYSIC::SHAPE::BOX);
         }
         
         Actor* ground = scene->spawnActor<Actor>("ground");
@@ -396,7 +398,7 @@ int main(int argc, char** argv)
             //staticMeshComponent->EnableDebugTangent(true);
 
             ColliderComponent* colliderComponent = ground->addComponent<ColliderComponent>();
-            colliderComponent->SetShape(ColliderComponent::Shape::Mesh);
+            colliderComponent->SetShape(PHYSIC::SHAPE::BOX);
         }
         
 
