@@ -24,7 +24,7 @@ namespace HOD
 
 		Actor* Scene::CreateActor()
 		{
-			Actor* actor = new Actor();
+			Actor* actor = Physic::GetInstance()->CreateActor();
 
 			pxScene->addActor(*actor->GetPxActor());
 

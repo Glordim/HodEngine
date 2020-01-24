@@ -1,6 +1,7 @@
 #include "Physic.h"
 
 #include "Scene.h"
+#include "Actor.h"
 
 namespace HOD
 {
@@ -91,5 +92,10 @@ namespace HOD
 
             delete pScene;
         }
+
+		Actor* Physic::CreateActor()
+		{
+			return new Actor(_pxPhysics->createRigidStatic(physx::PxTransform(physx::PxIDENTITY())));
+		}
     }
 }

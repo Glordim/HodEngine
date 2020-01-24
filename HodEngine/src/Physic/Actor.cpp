@@ -1,12 +1,14 @@
 #include "Actor.h"
 
+#include "Physic.h"
+
 namespace HOD
 {
     namespace PHYSIC
     {
-		Actor::Actor()
+		Actor::Actor(physx::PxActor* pxActor) : pxActor(pxActor)
 		{
-			pxActor = PxGetPhysics().createRigidStatic(physx::PxTransform());
+			
 		}
 
 		void Actor::SetPosition(const glm::vec3& position)

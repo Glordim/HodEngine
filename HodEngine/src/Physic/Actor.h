@@ -16,7 +16,7 @@ namespace HOD
         class Actor
         {
         public:
-            Actor();
+            Actor(physx::PxActor* pxActor);
             ~Actor() = default;
 
 			void	SetPosition(const glm::vec3& position);

@@ -10,6 +10,7 @@ namespace HOD
 {
     namespace PHYSIC
     {
+		class Actor;
 		class Scene;
 
 		//-----------------------------------------------------------------------------
@@ -32,6 +33,8 @@ namespace HOD
 			Scene*							CreateScene();
             void                            DestroyScene(Scene* pScene);
 
+			Actor*							CreateActor();
+
         private:
 
             physx::PxDefaultAllocator       _defaultAllocator;
@@ -40,7 +43,7 @@ namespace HOD
             physx::PxFoundation*            _pxFoundation = nullptr;
             physx::PxPhysics*               _pxPhysics = nullptr;
 
-            std::vector<Scene*>              _vScenes;
+            std::vector<Scene*>				_vScenes;
         };
     }
 }
