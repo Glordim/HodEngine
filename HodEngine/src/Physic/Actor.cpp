@@ -26,7 +26,7 @@ namespace HOD
 		void Actor::SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale)
 		{
             physx::PxTransform pxTransform(physx::PxVec3(position.x, position.y, position.z));
-            pxTransform.q = physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
+            //pxTransform.q = physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
             //pxTransform.sca
 
             physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);

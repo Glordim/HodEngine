@@ -21,6 +21,7 @@ namespace HOD
         ~RendererVulkan() override;
 
         virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
+        virtual bool SetupImGui() override;
 
         virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
 
@@ -96,7 +97,7 @@ namespace HOD
         VkSemaphore                 _renderFinishedSemaphore = VK_NULL_HANDLE;
         VkFence                     _acquireNextImageFence = VK_NULL_HANDLE;
 
-        VkGpuDevice*                _selectedGpu = VK_NULL_HANDLE;
+        VkGpuDevice*                _selectedGpu = nullptr;
         std::vector<VkGpuDevice>    _availableGpu;
 
         VkExtent2D                  _swapChainExtent;

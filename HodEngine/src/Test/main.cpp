@@ -93,6 +93,9 @@ int main(int argc, char** argv)
         if (renderer->BuildPipeline(bestDevice) == false)
             return 1;
 
+        if (renderer->SetupImGui() == false)
+            return 1;
+
         Mesh* sphereMesh = renderer->CreateMesh("Mesh/sphere.fbx");
         if (sphereMesh == nullptr)
             return 1;

@@ -26,6 +26,7 @@ namespace HOD
         static Renderer* GetInstance();
 
         virtual bool Init(SDL_Window* window, bool enableValidationLayers) = 0;
+        virtual bool SetupImGui() = 0;
 
         virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;
 

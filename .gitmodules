@@ -21,3 +21,6 @@
 	path = SDK/PhysX
 	url = https://github.com/Glordim/PhysX
 	branch = 4.1
+[submodule "SDK/imgui"]
+	path = SDK/imgui
+	url = https://github.com/Glordim/imgui

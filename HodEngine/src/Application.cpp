@@ -13,6 +13,10 @@
 
 #include "Physic/Physic.h"
 
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_impl_sdl.h"
+#include "ImGui/imgui_impl_vulkan.h"
+
 namespace HOD
 {
     Application::Application()
@@ -23,6 +27,9 @@ namespace HOD
 
     Application::~Application()
     {
+        ImGui_ImplSDL2_Shutdown();
+        ImGui::DestroyContext();
+
         if (this->window != nullptr)
         {
             SDL_DestroyWindow(this->window);
@@ -49,6 +56,17 @@ namespace HOD
         {
             return false;
         }
+
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+        //ImGui::StyleColorsClassic();
 
         return true;
     }
@@ -82,6 +100,8 @@ namespace HOD
 
         if (graphicsSettings.api == GraphicsSettings::API::Vulkan)
         {
+            ImGui_ImplSDL2_InitForVulkan(window);
+
             this->renderer = new RendererVulkan();
         }
         else if (graphicsSettings.api == GraphicsSettings::API::D3d12)
@@ -129,16 +149,15 @@ namespace HOD
             SDL_Event event;
             while (SDL_PollEvent(&event) != 0)
             {
-                //if (TwEventSDL(&event, SDL_MAJOR_VERSION, SDL_MINOR_VERSION) != 0)
-                //    continue;
+                ImGui_ImplSDL2_ProcessEvent(&event);
 
                 if (event.type == SDL_QUIT)
                     shouldExit = true;
                 else if (event.type == SDL_WINDOWEVENT && (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event.window.event == SDL_WINDOWEVENT_HIDDEN || event.window.event == SDL_WINDOWEVENT_MINIMIZED))
                     this->renderer->ResizeSwapChain();
-                else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+                else if ((event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) && ImGui::GetIO().WantCaptureKeyboard == false)
                     this->inputListener.injectKeyInput(event.key.keysym.sym, event.key.keysym.scancode, event.key.state, event.key.keysym.mod);
-                else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
+                else if ((event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP) && ImGui::GetIO().WantCaptureMouse == false)
                     this->inputListener.injectMouseButtonInput(event.button.button, event.button.state, 0);
                 else if (event.type == SDL_MOUSEMOTION)
                     this->inputListener.injectMouseMoveInput(event.motion.x, event.motion.y);
@@ -152,21 +171,36 @@ namespace HOD
                     SDL_WarpMouseInWindow(window, (int)(1920.0f * 0.5f), (int)(1080.0f * 0.5f));
             }
 
+            // Start the Dear ImGui frame
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplSDL2_NewFrame(window);
+            ImGui::NewFrame();
+
+            // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+            {
+                static float f = 0.0f;
+                static int counter = 0;
+
+                ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+                ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+                
+                ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                
+                if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                    counter++;
+                ImGui::SameLine();
+                ImGui::Text("counter = %d", counter);
+
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                ImGui::End();
+            }
+
             // Gameplay
             scene->update(dt);
 
-            /*
-            // TODO move in actor::update or component
-            // Rotate Gun
-            {
-                SceneComponent* sceneComponent = gun->getComponent<SceneComponent>();
-                //sceneComponent->rotate(glm::radians(25.0f * dt), glm::vec3(0.0f, 1.0f, 0.0f));
-            }
-            {
-                SceneComponent* sceneComponent = gun2->getComponent<SceneComponent>();
-                //sceneComponent->rotate(glm::radians(25.0f * dt), glm::vec3(0.0f, 1.0f, 0.0f));
-            }
-            */
+            // Rendering
+            ImGui::Render();
 
             if (this->renderer->AcquireNextImageIndex() == true)
             {
@@ -181,9 +215,13 @@ namespace HOD
                 this->renderer->SwapBuffer();
             }
 
-            //TwDraw();
+            
+            /*
+            memcpy(&wd->ClearValue.color.float32[0], &clear_color, 4 * sizeof(float));
+            FrameRender(wd);
 
-
+            FramePresent(wd);
+            */
         }
 
         return true;

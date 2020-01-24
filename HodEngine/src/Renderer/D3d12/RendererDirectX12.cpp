@@ -385,4 +385,9 @@ namespace HOD
     {
         return nullptr;
     }
+
+    bool RendererDirectX12::SetupImGui()
+    {
+        return false;
+    }
 }

@@ -15,6 +15,9 @@
 #include "VkMaterial.h"
 #include "VkMaterialInstance.h"
 
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_impl_vulkan.h"
+
 namespace HOD
 {
     RendererVulkan::~RendererVulkan()
@@ -1608,6 +1611,8 @@ namespace HOD
             vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
         }
     
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
+
         vkCmdEndRenderPass(*commandBuffer);
 
         if (vkEndCommandBuffer(*commandBuffer) != VK_SUCCESS)
@@ -1844,5 +1849,55 @@ namespace HOD
         }
 
         return texture;
+    }
+
+    bool RendererVulkan::SetupImGui()
+    {
+        ImGui_ImplVulkan_InitInfo init_info = {};
+        init_info.Instance = this->_instance;
+        init_info.PhysicalDevice = this->_selectedGpu->physicalDevice;
+        init_info.Device = this->_device;
+        init_info.QueueFamily = this->_selectedGpu->graphicsAndPresentQueueFamilyIndex;
+        init_info.Queue = this->_graphicsQueue;
+        init_info.PipelineCache = VK_NULL_HANDLE;
+        init_info.DescriptorPool = this->_descriptorPool;
+        init_info.Allocator = nullptr;
+        init_info.MinImageCount = 2;
+        init_info.ImageCount = 2;
+        init_info.CheckVkResultFn = nullptr;
+        init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+        ImGui_ImplVulkan_Init(&init_info, this->_renderPass);
+
+        // Load Fonts
+        // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+        // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+        // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+        // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+        // - Read 'docs/FONTS.txt' for more instructions and details.
+        // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+        //io.Fonts->AddFontDefault();
+        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+        //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+        //IM_ASSERT(font != NULL);
+
+        // Upload Fonts
+        {
+            // Use any command queue
+            //VkCommandPool command_pool = wd->Frames[wd->FrameIndex].CommandPool;
+            VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+
+            this->BeginSingleTimeCommands(&command_buffer);
+
+            ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
+
+            this->EndSingleTimeCommands(command_buffer);
+
+            ImGui_ImplVulkan_DestroyFontUploadObjects();
+        }
+
+        return true;
     }
 }
