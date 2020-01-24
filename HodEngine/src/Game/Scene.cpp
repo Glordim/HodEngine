@@ -174,17 +174,12 @@ namespace HOD
             }
         }
 
-        bool Scene::raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result, bool drawDebug, Color debugColor, float debugDuration)
+        bool Scene::raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration)
         {
             if (drawDebug == true)
                 this->drawLine(origin, origin + (dir * distance), debugColor, debugDuration);
 
-            physx::PxVec3 pxOrigin(origin.x, origin.y, origin.z);
-            physx::PxVec3 pxDir(dir.x, dir.y, dir.z);
-
-            pxDir.normalize();
-
-			return false;// this->pxScene->raycast(pxOrigin, pxDir, distance, result);
+			return physicScene->Raycast(origin, dir, distance, result);
         }
 
         PHYSIC::Actor* Scene::CreatePhysicActor(Actor* actor)

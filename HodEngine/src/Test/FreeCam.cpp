@@ -7,6 +7,8 @@
 
 //#include "AntTweakBar.h"
 
+#include "Physic/Scene.h"
+
 #include <SDL.h>
 
 namespace HOD
@@ -79,13 +81,13 @@ namespace HOD
 
         glm::vec3 finalPos = this->sceneComponent->getPosition() + glm::vec3(dir * 100.0f);
 
-        physx::PxRaycastBuffer result;
+        PHYSIC::RaycastResult result;
 
         if (this->scene->raycast(this->sceneComponent->getPosition(), dir, 100.0f, result, true, Color(1.0f, 1.0f, 0.0f, 1.0f), 5.0f) == true)
         {
-            physx::PxActor* pxActor = result.block.actor;
-
 			/*
+			physx::PxActor* pxActor = result.block.actor;
+
             GAME::Actor* actor = this->scene->convertPxActor(pxActor);
             if (actor != nullptr)
             {

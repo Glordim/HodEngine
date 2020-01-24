@@ -7,8 +7,6 @@
 #include "Component/Component.h"
 #include "Component/SceneComponent.h"
 
-#include "PxPhysicsAPI.h"
-
 typedef struct CTwBar TwBar;
 
 namespace HOD
@@ -59,8 +57,6 @@ namespace HOD
             std::string name;
 
         private:
-
-            void setPxActor(physx::PxActor* pxActor);
 
             std::map<size_t, Component*> componentMapping;
 

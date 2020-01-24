@@ -6,6 +6,7 @@
 
 #include "Renderer/Line_3P_3C.h"
 #include "Renderer/Tri_3P_3C.h"
+#include "Color.h"
 
 namespace HOD
 {
@@ -37,6 +38,25 @@ namespace HOD
 		{
 			this->pxScene->simulate(dt);
 			this->pxScene->fetchResults(true);
+		}
+
+		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result)
+		{
+			physx::PxVec3 pxOrigin(origin.x, origin.y, origin.z);
+			physx::PxVec3 pxDir(dir.x, dir.y, dir.z);
+
+			pxDir.normalize();
+
+			physx::PxRaycastBuffer pxRaycastBuffer;
+
+			bool bHit = pxScene->raycast(pxOrigin, pxDir, distance, pxRaycastBuffer);
+
+			if (bHit == true)
+			{
+				// Fill raycast result
+			}
+
+			return bHit;
 		}
 
 		void Scene::GetDebugGeometry(std::vector<Line_3P_3C>& lines, std::vector<Tri_3P_3C>& tris)

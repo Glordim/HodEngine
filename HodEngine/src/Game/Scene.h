@@ -10,6 +10,7 @@ namespace HOD
 {
 	namespace PHYSIC
 	{
+		struct RaycastResult;
 		class Scene;
 		class Actor;
 	}
@@ -38,8 +39,8 @@ namespace HOD
 
             void simulatePhysic(float dt);
             void update(float dt);
-
-            bool raycast(glm::vec3 origin, glm::vec3 dir, float distance, physx::PxRaycastBuffer& result, bool drawDebug, Color debugColor, float debugDuration);
+			
+            bool raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
             PHYSIC::Actor* CreatePhysicActor(Actor* actor);
             Actor* convertPxActor(PHYSIC::Actor* physicActor);

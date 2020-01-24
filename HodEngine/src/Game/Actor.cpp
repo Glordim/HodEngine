@@ -57,10 +57,5 @@ namespace HOD
         {
             return this->physicActor;
         }
-
-        void Actor::setPxActor(physx::PxActor* pxActor)
-        {
-            //this->pxActor = pxActor;
-        }
     }
 }
