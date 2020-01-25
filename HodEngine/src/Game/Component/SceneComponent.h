@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include "../Component.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -21,7 +21,8 @@ namespace HOD
             SceneComponent(const SceneComponent&) = delete;
             ~SceneComponent() override;
 
-            void    setupTweakBar(TwBar* bar) override;
+            void        DrawImGui() override;
+            const char* GetName() override;
 
         public:
 
@@ -41,6 +42,8 @@ namespace HOD
             glm::quat getRotation() const;
             glm::vec3 getRotationEuler() const;
             void rotate(float angle, glm::vec3 axis);
+
+            void setScale(glm::vec3 scale);
 
             glm::vec3 position;
             glm::vec3 scale;

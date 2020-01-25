@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Color.h"
+#include <Core/src/Color.h>
 #include "Actor.h"
 
-#include "Renderer/DebugLine.h"
-#include "Renderer/DebugMesh.h"
+#include "Renderer/Line_3P_3C.h"
+#include "Renderer/Tri_3P_3C.h"
 
 namespace HOD
 {
@@ -29,41 +29,27 @@ namespace HOD
             template<typename T>
             T* spawnActor(const std::string& name);
 
-            void drawDebugPhysics(CameraComponent* camera, float dt);
-            void drawDebugLines(CameraComponent* camera, float dt);
-            void drawDebugTris(CameraComponent* camera, float dt);
-
-            void drawLine(glm::vec3 start, glm::vec3 end, Color color, float duration);
-            void drawLine(const std::vector<Line_3P_3C>& lineVector, float duration);
-            void drawTri(const std::vector<Tri_3P_3C>& triVector, float duration);
-
             void simulatePhysic(float dt);
             void update(float dt);
 			
-            bool raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
+            bool raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration);
 
             PHYSIC::Actor* CreatePhysicActor(Actor* actor);
             Actor* convertPxActor(PHYSIC::Actor* physicActor);
 
-            void setAmbiantColor(Color& color);
+            void setAmbiantColor(CORE::Color& color);
             SceneComponent* getRoot() const;
 
 			PHYSIC::Scene* GetPhysicScene() const;
 
         private:
-            Color ambiantColor;
+            CORE::Color ambiantColor;
             Actor* root;
 
 			PHYSIC::Scene* physicScene = nullptr;
 
             std::vector<Actor*> actorList;
             std::map<PHYSIC::Actor*, Actor*> physicActorToActorMap;
-
-            std::vector<std::pair<DebugLine*, float>> debugLines;
-            std::vector<DebugLine*> debugLinesImmediate;
-
-            std::vector<std::pair<DebugMesh*, float>> debugMeshes;
-            std::vector<DebugMesh*> debugMeshesImmediate;
         };
 
         template<typename T>

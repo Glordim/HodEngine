@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Color.h"
+#include <Core/src/Color.h>
 
 namespace HOD
 {
@@ -11,7 +11,7 @@ namespace HOD
 
         }
 
-        Color color;
+        CORE::Color color;
         float intensity;
         float radius;
         float outer;

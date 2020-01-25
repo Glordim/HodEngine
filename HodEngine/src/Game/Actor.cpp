@@ -33,24 +33,19 @@ namespace HOD
 
         }
 
-        void Actor::setupTweakBarForAllComponent(TwBar* twBar)
+        void Actor::DrawImGui()
         {
-            //TwRemoveAllVars(twBar);
-
-            auto it = this->componentMapping.begin();
-            auto itEnd = this->componentMapping.end();
-
-            while (it != itEnd)
-            {
-                it->second->setupTweakBar(twBar);
-
-                ++it;
-            }
+            
         }
 
         Scene* Actor::getScene() const
         {
             return this->scene;
+        }
+
+        const std::string& Actor::getName() const
+        {
+            return this->name;
         }
 
         PHYSIC::Actor* Actor::GetPhysicActor() const
@@ -61,6 +56,23 @@ namespace HOD
         void Actor::SetPhysicActor(PHYSIC::Actor* physicActor)
         {
             this->physicActor = physicActor;
+        }
+
+        std::vector<Component*> Actor::getAllComponent() const
+        {
+            std::vector<Component*> vComponents;
+
+            auto it = this->componentMapping.begin();
+            auto itEnd = this->componentMapping.end();
+
+            while (it != itEnd)
+            {
+                vComponents.push_back(it->second);
+
+                ++it;
+            }
+
+            return vComponents;
         }
     }
 }

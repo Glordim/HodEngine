@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include "../Component.h"
 
 namespace HOD
 {
@@ -26,7 +26,8 @@ namespace HOD
             ColliderComponent(const ColliderComponent&) = delete;
             ~ColliderComponent() override = default;
 
-            void    setupTweakBar(TwBar* bar) override;
+            void        DrawImGui() override;
+            const char* GetName() override;
 
             void SetShape(PHYSIC::SHAPE eShape);
         };

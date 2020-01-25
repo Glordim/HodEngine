@@ -19,9 +19,14 @@ namespace HOD
 
         }
 
-        void StaticMeshComponent::setupTweakBar(TwBar* bar)
+        void StaticMeshComponent::DrawImGui()
         {
 
+        }
+
+        const char* StaticMeshComponent::GetName()
+        {
+            return "Static Mesh";
         }
 
         void StaticMeshComponent::setMesh(Mesh* mesh)

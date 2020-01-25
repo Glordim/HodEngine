@@ -7,7 +7,7 @@
 #include "../Actor.h"
 #include "../Scene.h"
 
-#include "Physic/Actor.h"
+#include <Physic/src/Actor.h>
 
 namespace HOD
 {
@@ -30,9 +30,14 @@ namespace HOD
             }
         }
 
-        void ColliderComponent::setupTweakBar(TwBar* bar)
+        void ColliderComponent::DrawImGui()
         {
 
+        }
+
+        const char* ColliderComponent::GetName()
+        {
+            return "Collider";
         }
 
         void ColliderComponent::SetShape(PHYSIC::SHAPE eShape)

@@ -4,9 +4,10 @@
 
 #include "Physic.h"
 
-#include "Renderer/Line_3P_3C.h"
-#include "Renderer/Tri_3P_3C.h"
-#include "Color.h"
+#include "src/Renderer/Line_3P_3C.h"
+#include "src/Renderer/Tri_3P_3C.h"
+
+#include <PxPhysicsAPI.h>
 
 namespace HOD
 {
@@ -54,6 +55,16 @@ namespace HOD
 			if (bHit == true)
 			{
 				// Fill raycast result
+                physx::PxActor* pxActor = pxRaycastBuffer.block.actor;
+
+                for (Actor* pActor : actors)
+                {
+                    if (pActor->GetPxActor() == pxActor)
+                    {
+                        result.collider = pActor;
+                        break;
+                    }
+                }
 			}
 
 			return bHit;

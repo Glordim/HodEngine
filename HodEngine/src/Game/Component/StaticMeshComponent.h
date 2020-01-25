@@ -16,7 +16,8 @@ namespace HOD
             StaticMeshComponent(const StaticMeshComponent& copy) = delete;
             ~StaticMeshComponent() override;
 
-            void    setupTweakBar(TwBar* bar) override;
+            void        DrawImGui() override;
+            const char* GetName() override;
 
         public:
             void setMesh(Mesh* mesh);

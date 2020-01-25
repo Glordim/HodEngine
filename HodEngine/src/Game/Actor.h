@@ -4,7 +4,7 @@
 #include <typeinfo>
 #include <string>
 
-#include "Component/Component.h"
+#include "Component.h"
 #include "Component/SceneComponent.h"
 
 typedef struct CTwBar TwBar;
@@ -42,10 +42,13 @@ namespace HOD
             template<typename T>
             std::vector<T*> getAllComponent() const;
 
+            std::vector<Component*> getAllComponent() const;
+
             virtual void setupInputListener(InputListener* inputListener);
 
-            void setupTweakBarForAllComponent(TwBar* twBar);
+            virtual void DrawImGui();
 
+            const std::string& getName() const;
             Scene* getScene() const;
 
             PHYSIC::Actor*  GetPhysicActor() const;

@@ -11,11 +11,13 @@
 #include "Game/Scene.h"
 #include "Game/Component/CameraComponent.h"
 
-#include "Physic/Physic.h"
+#include <Physic/src/Physic.h>
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_sdl.h"
 #include "ImGui/imgui_impl_vulkan.h"
+
+#include "DebugLayer/DebugLayer.h"
 
 namespace HOD
 {
@@ -56,6 +58,8 @@ namespace HOD
         {
             return false;
         }
+
+        DEBUG_LAYER::DebugLayer::CreateInstance();
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
@@ -176,28 +180,10 @@ namespace HOD
             ImGui_ImplSDL2_NewFrame(window);
             ImGui::NewFrame();
 
-            // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-            {
-                static float f = 0.0f;
-                static int counter = 0;
-
-                ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-                ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                
-                ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                
-                if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                    counter++;
-                ImGui::SameLine();
-                ImGui::Text("counter = %d", counter);
-
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-                ImGui::End();
-            }
-
             // Gameplay
             scene->update(dt);
+
+            DEBUG_LAYER::DebugLayer::GetInstance()->Draw();
 
             // Rendering
             ImGui::Render();
@@ -214,14 +200,6 @@ namespace HOD
 
                 this->renderer->SwapBuffer();
             }
-
-            
-            /*
-            memcpy(&wd->ClearValue.color.float32[0], &clear_color, 4 * sizeof(float));
-            FrameRender(wd);
-
-            FramePresent(wd);
-            */
         }
 
         return true;

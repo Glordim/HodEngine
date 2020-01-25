@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Component.h"
+#include "../Component.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -26,7 +26,8 @@ namespace HOD
                                 CameraComponent(const CameraComponent&) = delete;
                                 ~CameraComponent() override = default;
 
-            void                setupTweakBar(TwBar* tweakBar) override;
+            void                DrawImGui() override;
+            const char*         GetName() override;
 
             void                render(Scene& scene);
 

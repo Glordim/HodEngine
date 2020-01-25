@@ -7,9 +7,11 @@
 
 //#include "AntTweakBar.h"
 
-#include "Physic/Scene.h"
+#include <Physic/src/Scene.h>
 
 #include <SDL.h>
+
+#include "DebugLayer/DebugLayer.h"
 
 namespace HOD
 {
@@ -47,10 +49,19 @@ namespace HOD
         inputListener->registerAxisEvent(InputListener::KeyAxis(SDLK_c, SDLK_SPACE), std::bind(&FreeCam::moveUp, this, std::placeholders::_1));
 
         inputListener->registerMouseButtonEvent(SDL_BUTTON_LEFT, SDL_PRESSED, std::bind(&FreeCam::selectObject, this));
+        inputListener->registerMouseButtonEvent(SDL_BUTTON_MIDDLE, SDL_PRESSED, std::bind(&FreeCam::selectSelfObject, this));
 
         inputListener->registerMouseButtonEvent(SDL_BUTTON_RIGHT, SDL_PRESSED, std::bind(&FreeCam::allowRotate, this));
         inputListener->registerMouseButtonEvent(SDL_BUTTON_RIGHT, SDL_RELEASED, std::bind(&FreeCam::disallowRotate, this));
         inputListener->registerMouseMoveEvent(std::bind(&FreeCam::rotateView, this, std::placeholders::_1, std::placeholders::_2));
+    }
+
+    //-----------------------------------------------------------------------------
+    //! @brief		
+    //-----------------------------------------------------------------------------
+    void FreeCam::selectSelfObject()
+    {
+        DEBUG_LAYER::DebugLayer::GetInstance()->ShowActor(this);
     }
 
 	//-----------------------------------------------------------------------------
@@ -83,17 +94,15 @@ namespace HOD
 
         PHYSIC::RaycastResult result;
 
-        if (this->scene->raycast(this->sceneComponent->getPosition(), dir, 100.0f, result, true, Color(1.0f, 1.0f, 0.0f, 1.0f), 5.0f) == true)
+        if (this->scene->raycast(this->sceneComponent->getPosition(), dir, 100.0f, result, true, CORE::Color(1.0f, 1.0f, 0.0f, 1.0f), 5.0f) == true)
         {
-			/*
-			physx::PxActor* pxActor = result.block.actor;
+			PHYSIC::Actor* physicActor = result.collider;
 
-            GAME::Actor* actor = this->scene->convertPxActor(pxActor);
+            GAME::Actor* actor = this->scene->convertPxActor(physicActor);
             if (actor != nullptr)
             {
-                actor->setupTweakBarForAllComponent(this->myBar);
+                DEBUG_LAYER::DebugLayer::GetInstance()->ShowActor(actor);
             }
-			*/
         }
     }
 

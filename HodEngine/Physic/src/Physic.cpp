@@ -3,9 +3,11 @@
 #include "Scene.h"
 #include "Actor.h"
 
+#include <PxPhysicsAPI.h>
+
 namespace HOD
 {
-    PHYSIC::Physic* Singleton<PHYSIC::Physic>::_instance = nullptr;
+    PHYSIC::Physic* CORE::Singleton<PHYSIC::Physic>::_instance = nullptr;
 
     namespace PHYSIC
     {
@@ -21,7 +23,10 @@ namespace HOD
 
         bool Physic::Init()
         {
-            _pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, _defaultAllocator, _defaultErrorCallback);
+            _defaultAllocator = new physx::PxDefaultAllocator();
+            _defaultErrorCallback = new physx::PxDefaultErrorCallback();
+
+            _pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *_defaultAllocator, *_defaultErrorCallback);
             if (_pxFoundation == nullptr)
             {
                 return false;
@@ -62,6 +67,18 @@ namespace HOD
             {
                 _pxFoundation->release();
                 _pxFoundation = nullptr;
+            }
+
+            if (_defaultAllocator != nullptr)
+            {
+                delete _defaultAllocator;
+                _defaultAllocator = nullptr;
+            }
+
+            if (_defaultErrorCallback != nullptr)
+            {
+                delete _defaultErrorCallback;
+                _defaultErrorCallback = nullptr;
             }
         }
 

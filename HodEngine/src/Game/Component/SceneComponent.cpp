@@ -12,7 +12,9 @@
 //#include <AntTweakBar.h>
 
 #include "../Actor.h"
-#include "Physic/Actor.h"
+#include <Physic/src/Actor.h>
+
+#include "ImGui/imgui.h"
 
 namespace HOD
 {
@@ -33,12 +35,33 @@ namespace HOD
 
         }
 
-        void SceneComponent::setupTweakBar(TwBar* tweakBar)
+        void SceneComponent::DrawImGui()
         {
-            //TwAddSeparator(tweakBar, "Scene", "");
-            //(tweakBar, "Position", TW_TYPE_DIR3F, &SceneComponent::twSetPos, &SceneComponent::twGetPos, static_cast<void*>(this), "");
-            //TwAddVarCB(tweakBar, "Rotation", TW_TYPE_QUAT4F, &SceneComponent::twSetRot, &SceneComponent::twGetRot, static_cast<void*>(this), "");
-            //TwAddVarRW(tweakBar, "Scale", TW_TYPE_DIR3F, &this->scale, "");
+            glm::vec3 pos = this->position;
+
+            if (ImGui::DragFloat3("Position", &pos[0]) == true)
+            {
+                setPosition(pos);
+            }
+
+            glm::vec3 euler = glm::degrees(glm::eulerAngles(this->rotation));
+
+            if (ImGui::DragFloat3("Rotation", &euler[0]) == true)
+            {
+                setRotation(euler);
+            }
+
+            glm::vec3 scale = this->scale;
+
+            if (ImGui::DragFloat3("Scale", &scale[0]) == true)
+            {
+                setScale(scale);
+            }
+        }
+
+        const char* SceneComponent::GetName()
+        {
+            return "Scene";
         }
 
         void SceneComponent::twGetPos(void *value, void *clientData)
@@ -131,8 +154,8 @@ namespace HOD
             rot.x = fmod(rot.x, 360.0f);
             rot.y = fmod(rot.y, 360.0f);
             rot.z = fmod(rot.z, 360.0f);
-
-            this->rotation = glm::quat(radians(rot));
+            
+            this->rotation = glm::quat(glm::radians(rot));
             this->modelMatrixDirty = true;
 
             this->syncPxActor();
@@ -146,6 +169,15 @@ namespace HOD
         glm::vec3 SceneComponent::getRotationEuler() const
         {
             return glm::degrees(glm::eulerAngles(this->rotation));
+        }
+
+        void SceneComponent::setScale(glm::vec3 scale)
+        {
+            this->scale = scale;
+
+            this->modelMatrixDirty = true;
+
+            this->syncPxActor();
         }
 
         size_t SceneComponent::getChildCount() const

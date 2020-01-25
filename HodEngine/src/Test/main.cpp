@@ -1,9 +1,5 @@
 #include <iostream>
 
-#include <SDL.h>
-#include <SDL_syswm.h>
-#include <SDL_vulkan.h>
-
 #include <algorithm>
 #include <cstring>
 #include <vector>
@@ -35,8 +31,6 @@
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/gtc/matrix_transform.hpp"
 
-//#include <AntTweakBar.h>
-
 #include <tchar.h>
 
 #include "../Renderer/GpuDeviceHelper.h"
@@ -46,7 +40,7 @@
 
 #include "../Renderer/Renderer.h"
 
-#include "Physic/Actor.h"
+#include <Physic/src/Actor.h>
 
 using namespace HOD;
 using namespace HOD::GAME;
@@ -286,7 +280,7 @@ int main(int argc, char** argv)
 
             SpotLightComponent* spotLightComponent = freeCam->addComponent<SpotLightComponent>();
             spotLightComponent->_data.radius = 15.0f;
-            spotLightComponent->_data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            spotLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
             spotLightComponent->_data.intensity = 1.0f;
             spotLightComponent->_data.outer = 10.0f;
 
@@ -330,21 +324,21 @@ int main(int argc, char** argv)
         Actor* sphereActor = scene->spawnActor<FlyingPointLight>("FlyingPointLight");
         {
             SceneComponent* sceneComponent = sphereActor->getComponent<SceneComponent>();
-            sceneComponent->position = glm::vec3(0.0f, 6.0f, 0.0f);
+            sceneComponent->position = glm::vec3(0.0f, 3.0f, 0.0f);
             sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
             sceneComponent->setParent(scene->getRoot());
 
-            PointLightComponent* pointLightComponent = sphereActor->addComponent<PointLightComponent>();
-            pointLightComponent->_data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
-            pointLightComponent->_data.intensity = 1.0f;
-            pointLightComponent->_data.range = 2.5f;
-
             StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(sphereMesh);
-            staticMeshComponent->setMaterialInstance(materialUnlitInstance);
+            staticMeshComponent->setMaterialInstance(renderer->CreateMaterialInstance(materialUnlit));
 
             ColliderComponent* colliderComponent = sphereActor->addComponent<ColliderComponent>();
             colliderComponent->SetShape(PHYSIC::SHAPE::SPHERE);
+
+            PointLightComponent* pointLightComponent = sphereActor->addComponent<PointLightComponent>();
+            pointLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
+            pointLightComponent->_data.intensity = 1.0f;
+            pointLightComponent->_data.range = 2.5f;
 
             sphereActor->start();
         }
@@ -352,20 +346,21 @@ int main(int argc, char** argv)
         Actor* dirLight = scene->spawnActor<Actor>("dirLight");
         {
             SceneComponent* sceneComponent = dirLight->addComponent<SceneComponent>();
-            sceneComponent->setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
+            sceneComponent->setPosition(glm::vec3(-10.0f, 5.0f, -10.0f));
             sceneComponent->rotate(45.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+            sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
             sceneComponent->setParent(scene->getRoot());
-
-            DirLightComponent* dirLightComponent = dirLight->addComponent<DirLightComponent>();
-            dirLightComponent->_data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
-            dirLightComponent->_data.intensity = 1.0f;
 
             StaticMeshComponent* staticMeshComponent = dirLight->addComponent<StaticMeshComponent>();
             staticMeshComponent->setMesh(sphereMesh);
-            staticMeshComponent->setMaterialInstance(marbreMaterialLitSpecularNormalInstance);
+            staticMeshComponent->setMaterialInstance(renderer->CreateMaterialInstance(materialUnlit));
 
             ColliderComponent* colliderComponent = dirLight->addComponent<ColliderComponent>();
             colliderComponent->SetShape(PHYSIC::SHAPE::SPHERE);
+
+            DirLightComponent* dirLightComponent = dirLight->addComponent<DirLightComponent>();
+            dirLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
+            dirLightComponent->_data.intensity = 1.0f;
 
             dirLight->start();
         }
@@ -417,87 +412,3 @@ int main(int argc, char** argv)
 
     return ret;
 }
-
-/*
-    
-
-    
-
-    Scene* scene = new Scene;
-
-    
-
-    FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
-    {
-        SceneComponent* sceneComponent = freeCam->getComponent<SceneComponent>();
-
-        sceneComponent->lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        sceneComponent->setParent(scene->getRoot());
-
-        freeCam->setupInputListener(&inputListener);
-    }
-
-    Actor* light = scene->spawnActor<Actor>("Light_1");
-    {
-        SceneComponent* sceneComponent = light->addComponent<SceneComponent>();
-        sceneComponent->position = glm::vec3(-2.0f, 3.0f, -5.5f);
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
-        sceneComponent->setParent(scene->getRoot());
-
-        StaticMeshComponent* staticMeshComponent = light->addComponent<StaticMeshComponent>();
-        staticMeshComponent->setMesh(&sphere);
-        staticMeshComponent->setMaterial(materialUnlit);
-
-        PointLightComponent* lightComponent = light->addComponent<PointLightComponent>();
-
-        ColliderComponent* colliderComponent = light->addComponent<ColliderComponent>();
-        colliderComponent->SetShape(ColliderComponent::Shape::Sphere);
-    }
-
-    Actor* light2 = scene->spawnActor<Actor>("Light_2");
-    {
-        SceneComponent* sceneComponent = light2->addComponent<SceneComponent>();
-        sceneComponent->position = glm::vec3(2.0f, 3.0f, -5.5f);
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
-        sceneComponent->setParent(scene->getRoot());
-
-        StaticMeshComponent* staticMeshComponent = light2->addComponent<StaticMeshComponent>();
-        staticMeshComponent->setMesh(&sphere);
-        staticMeshComponent->setMaterial(materialUnlit);
-
-        PointLightComponent* lightComponent = light2->addComponent<PointLightComponent>();
-
-        ColliderComponent* colliderComponent = light2->addComponent<ColliderComponent>();
-        colliderComponent->SetShape(ColliderComponent::Shape::Sphere);
-    }
-
-    Actor* center = scene->spawnActor<Actor>("Center");
-    {
-        SceneComponent* sceneComponent = center->addComponent<SceneComponent>();
-        sceneComponent->position = glm::vec3(0.0f, 0.0f, 0.0f);
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
-        sceneComponent->setParent(scene->getRoot());
-
-        StaticMeshComponent* staticMeshComponent = center->addComponent<StaticMeshComponent>();
-        staticMeshComponent->setMesh(&sphere);
-        staticMeshComponent->setMaterial(materialUnlit);
-
-        ColliderComponent* colliderComponent = center->addComponent<ColliderComponent>();
-        colliderComponent->SetShape(ColliderComponent::Shape::Box);
-    }
-
-    // Loop
-
-    delete scene;
-
-    pxPhysics->release();
-
-    TwTerminate();
-
-    SDL_GL_DeleteContext(context);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-
-    return 0;
-}
-*/

@@ -14,8 +14,9 @@ function(assign_source_group)
     endforeach()
 endfunction(assign_source_group)
 
-# Notre projet est étiqueté hello
 project(HodEngine)
+#add_subdirectory(Core)
+add_subdirectory(Physic)
 	
 file(GLOB_RECURSE Srcs
         "${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -52,10 +53,9 @@ add_library(Renderer ${SrcRenderer})
 #endif()
 
 include_directories(
+"${PROJECT_SOURCE_DIR}"
 "${PROJECT_SOURCE_DIR}/src"
 "../SDK/glm"
-"../SDK/PhysX/physx/include"
-"../SDK/PhysX/pxshared/include"
 "../SDK/SDL/include"
 "../SDK/tinyobjloader"
 "../SDK/stb"
@@ -63,7 +63,7 @@ include_directories(
 "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/include"
 )
 
-target_link_libraries(HodEngine
+target_link_libraries(HodEngine Core Physic
 optimized "../../SDK/Build/PhysX_lib/release/PhysX_64" debug "../../SDK/Build/PhysX_lib/debug/PhysX_64"
 optimized "../../SDK/Build/PhysX_lib/release/PhysXCommon_64" debug "../../SDK/Build/PhysX_lib/debug/PhysXCommon_64"
 optimized "../../SDK/Build/PhysX_lib/release/PhysXExtensions_static_64" debug "../../SDK/Build/PhysX_lib/debug/PhysXExtensions_static_64"

@@ -1,10 +1,13 @@
 #pragma once
 
-#include <PxPhysicsAPI.h>
-
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
 #include <glm/glm.hpp>
+
+namespace physx
+{
+    class PxActor;
+}
 
 namespace HOD
 {

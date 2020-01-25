@@ -29,7 +29,5 @@ namespace HOD
 
     private:
         GAME::SceneComponent* sceneComponent;
-
-        glm::vec3 initialPos;
     };
 }

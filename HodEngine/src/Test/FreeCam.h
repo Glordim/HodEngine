@@ -33,6 +33,7 @@ namespace HOD
 
     private:
 
+        void selectSelfObject();
         void selectObject();
 
         void allowRotate();

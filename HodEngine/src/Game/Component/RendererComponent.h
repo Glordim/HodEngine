@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Component.h"
+#include "../Component.h"
 
 namespace HOD
 {
@@ -18,7 +18,8 @@ namespace HOD
             RendererComponent(const RendererComponent& copy) = delete;
             ~RendererComponent() override = default;
 
-            void    setupTweakBar(TwBar* bar) override;
+            void        DrawImGui() override;
+            const char* GetName() override;
         };
     }
 }

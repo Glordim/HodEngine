@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Component.h"
-#include "../../../Color.h"
+#include <Core/src/Color.h>
+
+#include "../../Component.h"
 
 #include "../../../Renderer/Light/SpotLight.h"
 
@@ -16,7 +17,8 @@ namespace HOD
             SpotLightComponent(const SpotLightComponent& copy) = delete;
             ~SpotLightComponent() override = default;
 
-            void            setupTweakBar(TwBar* bar) override;
+            void            DrawImGui() override;
+            const char*     GetName() override;
 
             SpotLight*      GetSpotLight() const;
 

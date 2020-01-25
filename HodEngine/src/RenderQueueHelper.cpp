@@ -9,7 +9,7 @@
 #include "Game/Actor.h"
 #include "Game/Scene.h"
 
-#include "Physic/Scene.h"
+#include <Physic/src/Scene.h>
 
 namespace HOD
 {

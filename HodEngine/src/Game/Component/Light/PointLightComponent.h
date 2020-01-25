@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Component.h"
-#include "../../../Color.h"
+#include <Core/src/Color.h>
+
+#include "../../Component.h"
 
 #include "../../../Renderer/Light/PointLight.h"
 
@@ -16,7 +17,8 @@ namespace HOD
                             PointLightComponent(const PointLightComponent& copy) = delete;
                             ~PointLightComponent() override = default;
 
-            void            setupTweakBar(TwBar* bar) override;
+            void            DrawImGui() override;
+            const char*     GetName() override;
 
             PointLight*     GetPointLight() const;
 

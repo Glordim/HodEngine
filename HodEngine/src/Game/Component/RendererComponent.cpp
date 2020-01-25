@@ -9,9 +9,14 @@ namespace HOD
 
         }
 
-        void RendererComponent::setupTweakBar(TwBar* bar)
+        void RendererComponent::DrawImGui()
         {
 
+        }
+
+        const char* RendererComponent::GetName()
+        {
+            return "Renderer";
         }
     }
 }

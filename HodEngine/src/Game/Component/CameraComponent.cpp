@@ -30,12 +30,17 @@ namespace HOD
 
         }
 
-        void CameraComponent::setupTweakBar(TwBar* tweakBar)
+        void CameraComponent::DrawImGui()
         {
             //TwAddSeparator(tweakBar, "Camera", "");
             //TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &this->fov, "");
             //TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &this->fNear, "");
             //TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &this->fFar, "");
+        }
+
+        const char* CameraComponent::GetName()
+        {
+            return "Camera";
         }
 
         void CameraComponent::SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture)
