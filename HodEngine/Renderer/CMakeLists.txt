@@ -14,7 +14,7 @@ function(assign_source_group)
     endforeach()
 endfunction(assign_source_group)
 
-project(Physic)
+project(Renderer)
 if (NOT TARGET Core)
 include(../Core/CMakeLists.txt)
 endif() 
@@ -30,9 +30,20 @@ assign_source_group(${Srcs})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 ".."
 "../../SDK/glm"
-"../../SDK/PhysX/physx/include"
-"../../SDK/PhysX/pxshared/include"
+"../../SDK/tinyobjloader"
+"../../SDK/stb"
+"../../SDK/SPIRV-Cross"
+"C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/include"
 )
 		
-add_library(Physic SHARED ${Srcs})
+add_library(Renderer SHARED ${Srcs})
 
+find_package(Vulkan)
+if (Vulkan_FOUND)
+  # Une fois la dépendance trouvée, nous l'incluons au projet
+  target_include_directories(Renderer PUBLIC ${Vulkan_INCLUDE_DIRS})
+  target_link_libraries (Renderer ${Vulkan_LIBRARIES})
+else ()
+  # Sinon, nous affichons un message
+  message(FATAL_ERROR "Vulkan not found")
+endif ()

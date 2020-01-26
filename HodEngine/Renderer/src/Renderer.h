@@ -25,7 +25,7 @@ namespace HOD
 
         static Renderer* GetInstance();
 
-        virtual bool Init(SDL_Window* window, bool enableValidationLayers) = 0;
+        virtual bool Init(bool enableValidationLayers, std::function<bool(std::vector<const char*>&)> getExtensionRequiredByWindowSystem, std::function<bool(VkInstance, VkSurfaceKHR*)> createSurfaceByWindowSystem) = 0;
         virtual bool SetupImGui() = 0;
 
         virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;

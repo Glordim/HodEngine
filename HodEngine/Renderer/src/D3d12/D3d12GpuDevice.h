@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer/GpuDevice.h"
+#include "../GpuDevice.h"
 
 #include <dxgi1_5.h>
 

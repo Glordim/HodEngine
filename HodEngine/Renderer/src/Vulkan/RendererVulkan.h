@@ -20,7 +20,7 @@ namespace HOD
         RendererVulkan() = default;
         ~RendererVulkan() override;
 
-        virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
+        virtual bool Init(bool enableValidationLayers, std::function<bool(std::vector<const char*>&)> getExtensionRequiredByWindowSystem, std::function<bool(VkInstance, VkSurfaceKHR*)> createSurfaceByWindowSystem) override;
         virtual bool SetupImGui() override;
 
         virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;

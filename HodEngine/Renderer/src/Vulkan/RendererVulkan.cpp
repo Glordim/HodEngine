@@ -1,7 +1,9 @@
 #include "RendererVulkan.h"
 
+/*
 #include <SDL.h>
 #include <SDL_vulkan.h>
+*/
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -109,7 +111,7 @@ namespace HOD
         return this->_descriptorPool;
     }
 
-    bool RendererVulkan::Init(SDL_Window* window, bool enableValidationLayers)
+    bool RendererVulkan::Init(bool enableValidationLayers, std::function<bool(std::vector<const char*>&)> getExtensionRequiredByWindowSystem, std::function<bool(VkInstance, VkSurfaceKHR*)> createSurfaceByWindowSystem)
     {
         // === Extensions ===
 

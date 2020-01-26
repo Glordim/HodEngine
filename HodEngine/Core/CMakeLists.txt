@@ -26,4 +26,4 @@ assign_source_group(${Srcs})
 		
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src)
 		
-add_library(Core ${Srcs})
+add_library(Core SHARED ${Srcs})
