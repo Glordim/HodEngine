@@ -1,10 +1,5 @@
 #include "RendererVulkan.h"
 
-/*
-#include <SDL.h>
-#include <SDL_vulkan.h>
-*/
-
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/glm.hpp"
@@ -17,8 +12,10 @@
 #include "VkMaterial.h"
 #include "VkMaterialInstance.h"
 
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_impl_vulkan.h"
+#include <Application/src/Application.h>
+
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_vulkan.h>
 
 namespace HOD
 {
@@ -111,7 +108,7 @@ namespace HOD
         return this->_descriptorPool;
     }
 
-    bool RendererVulkan::Init(bool enableValidationLayers, std::function<bool(std::vector<const char*>&)> getExtensionRequiredByWindowSystem, std::function<bool(VkInstance, VkSurfaceKHR*)> createSurfaceByWindowSystem)
+    bool RendererVulkan::Init(APPLICATION::Application* pApplication, bool enableValidationLayers)
     {
         // === Extensions ===
 
@@ -126,7 +123,7 @@ namespace HOD
 
         std::vector<const char*> extensionsRequiredBySDL;
 
-        if (RendererVulkan::GetExtensionRequiredBySDL(window, &extensionsRequiredBySDL) == false)
+        if (pApplication->GetExtensionRequiredToCreateVulkanSurface(&extensionsRequiredBySDL) == false)
             return false;
 
         std::vector<VkExtensionProperties> availableExtensions;
@@ -238,9 +235,8 @@ namespace HOD
             return false;
         }
 
-        if (SDL_Vulkan_CreateSurface(window, this->_instance, &this->_surface) == SDL_FALSE)
+        if (pApplication->CreateVulkanSurface(this->_instance, &this->_surface) == false)
         {
-            fprintf(stderr, "SDL: Unable to create Vulkan surface for SDL Window: %s\n", SDL_GetError());
             return false;
         }
 
@@ -254,25 +250,6 @@ namespace HOD
 
         availableExtensions->resize(availableExtensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, availableExtensions->data());
-    }
-
-    bool RendererVulkan::GetExtensionRequiredBySDL(SDL_Window* window, std::vector<const char*>* extensionsRequiredBySDL)
-    {
-        unsigned int extensionsRequiredBySDLCount = 0;
-        if (SDL_Vulkan_GetInstanceExtensions(window, &extensionsRequiredBySDLCount, nullptr) == SDL_FALSE)
-        {
-            fprintf(stderr, "Vulkan: Unable to get Extensions required by SDL: %s\n", SDL_GetError());
-            return false;
-        }
-
-        extensionsRequiredBySDL->resize(extensionsRequiredBySDLCount);
-        if (SDL_Vulkan_GetInstanceExtensions(window, &extensionsRequiredBySDLCount, extensionsRequiredBySDL->data()) == SDL_FALSE)
-        {
-            fprintf(stderr, "Vulkan: Unable to get Extensions required by SDL: %s\n", SDL_GetError());
-            return false;
-        }
-
-        return true;
     }
 
     bool RendererVulkan::CheckExtensionsIsAvailable(const std::vector<const char*>& extensions, const std::vector<VkExtensionProperties>& availableExtensions)

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
-
+/*
 #include "../Renderer/Mesh.h"
 #include "../Renderer/Texture.h"
 #include "../Renderer/Shader.h"
@@ -30,53 +30,51 @@
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/gtc/matrix_transform.hpp"
+*/
 
-#include <tchar.h>
+#include "MyApplication.h"
 
-#include "../Renderer/GpuDeviceHelper.h"
-#include "../Renderer/GraphicsSettings.h"
-#include "../ScreenHelper.h"
-#include "../Application.h"
-
-#include "../Renderer/Renderer.h"
-
-#include <Physic/src/Actor.h>
+#include <HodEngine/Application/src/VideoSettings.h>
+#include <HodEngine/Application/src/ScreenHelper.h>
 
 using namespace HOD;
-using namespace HOD::GAME;
+//using namespace HOD::GAME;
 
-InputListener inputListener;
+//InputListener inputListener;
 
 int main(int argc, char** argv)
 {
-    int ret = 0;
-    {
-        Application application;
+    MyApplication app;
 
-        if (application.Init() == false)
-            return false;
+    if (app.Init() == false)
+        return false;
 
-        int selectedMonitor = 0;
+    int selectedMonitor = 0;
 
-        // Debug
-        if (ScreenHelper::GetMonitorCount() > 1)
-            selectedMonitor = 1;
+    // For Debug
+    if (APPLICATION::ScreenHelper::GetMonitorCount() > 1)
+        selectedMonitor = 1;
 
-        ScreenHelper::Resolution nativeResolution;
+    APPLICATION::Resolution nativeResolution;
 
-        if (ScreenHelper::GetNativeResoltion(&nativeResolution, selectedMonitor) == false)
-            return 1;
+    if (APPLICATION::ScreenHelper::GetNativeResoltion(&nativeResolution, selectedMonitor) == false)
+        return 1;
 
-        GraphicsSettings graphicsSettings;
-        graphicsSettings.api = GraphicsSettings::API::Vulkan;
-        graphicsSettings.monitor = selectedMonitor;
-        graphicsSettings.width = nativeResolution.width;
-        graphicsSettings.height = nativeResolution.height;
-        graphicsSettings.fullscreenType = GraphicsSettings::FullscreenType::Window;
+    APPLICATION::VideoSettings videoSettings;
+    videoSettings.monitor = selectedMonitor;
+    videoSettings.resolution = nativeResolution;
+    videoSettings.fullscreenMode = APPLICATION::FullscreenMode::Windowed;
 
-        if (application.CreateWindowAndContext("HodEngine", graphicsSettings) == false)
-            return 1;
+    if (app.CreateWindowAndContext("HodEngine", videoSettings) == false)
+        return 1;
 
+    if (app.Run() == false)
+        return 1;
+
+    return 0;
+}
+        
+/*
         GpuDevice* bestDevice = nullptr;
 
         if (GpuDeviceHelper::GetBestAvailableAndCompatibleDevice(&bestDevice) == false)
@@ -155,11 +153,11 @@ int main(int argc, char** argv)
             return 1;
 
 
-        /*
-            Texture* gunTexture = renderer->CreateTexture("Texture/brickwall.jpg");
-            if (gunTexture == nullptr)
-                return 1;
-        */
+        
+            //Texture* gunTexture = renderer->CreateTexture("Texture/brickwall.jpg");
+            //if (gunTexture == nullptr)
+            //    return 1;
+        
 
         MaterialManager* materialManager = MaterialManager::getInstance();
         
@@ -412,3 +410,4 @@ int main(int argc, char** argv)
 
     return ret;
 }
+*/

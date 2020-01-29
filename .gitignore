@@ -38,6 +38,6 @@ obj/
 bin/
 
 SDK/Build
-HodEngine/Build
+Build
 
 !Data/**/*.obj

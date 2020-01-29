@@ -20,7 +20,7 @@ namespace HOD
         RendererVulkan() = default;
         ~RendererVulkan() override;
 
-        virtual bool Init(bool enableValidationLayers, std::function<bool(std::vector<const char*>&)> getExtensionRequiredByWindowSystem, std::function<bool(VkInstance, VkSurfaceKHR*)> createSurfaceByWindowSystem) override;
+        virtual bool Init(APPLICATION::Application* pApplication, bool enableValidationLayers) override;
         virtual bool SetupImGui() override;
 
         virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
@@ -74,7 +74,6 @@ namespace HOD
         bool GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer, std::vector<DescriptorSet*>& descriptorSetToCleanAfterRender);
 
         static void GetAvailableExtensions(std::vector<VkExtensionProperties>* availableExtensions);
-        static bool GetExtensionRequiredBySDL(SDL_Window* window, std::vector<const char*>* extensionsRequiredBySDL);
         static bool CheckExtensionsIsAvailable(const std::vector<const char*>& extensions, const std::vector<VkExtensionProperties>& availableExtensions);
         static bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 

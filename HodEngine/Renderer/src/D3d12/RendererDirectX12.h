@@ -22,7 +22,7 @@ namespace HOD
         RendererDirectX12();
         virtual ~RendererDirectX12();
 
-        virtual bool Init(SDL_Window* window, bool enableValidationLayers) override;
+        virtual bool Init(APPLICATION::Application* pApplication, bool enableValidationLayers) override;
         virtual bool SetupImGui() override;
 
         virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;

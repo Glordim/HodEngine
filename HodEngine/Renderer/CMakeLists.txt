@@ -18,6 +18,9 @@ project(Renderer)
 if (NOT TARGET Core)
 include(../Core/CMakeLists.txt)
 endif() 
+if (NOT TARGET Application)
+include(../Application/CMakeLists.txt)
+endif() 
 
 file(GLOB_RECURSE Srcs
         "${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -29,14 +32,26 @@ assign_source_group(${Srcs})
 		
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 ".."
+"../../SDK"
 "../../SDK/glm"
 "../../SDK/tinyobjloader"
 "../../SDK/stb"
 "../../SDK/SPIRV-Cross"
 "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/include"
 )
-		
+
 add_library(Renderer SHARED ${Srcs})
+		
+target_link_libraries(Renderer
+optimized "../../../Build/HodEngine/ImGui/Release/ImGui" debug "../../../Build/HodEngine/ImGui/Debug/ImGui"
+optimized "../../../Build/HodEngine/Application/Release/Application" debug "../../../Build/HodEngine/Application/Debug/Application"
+optimized "../../../SDK/Build/SPIRV-Cross/Release/spirv-cross-core" debug "../../../SDK/Build/SPIRV-Cross/Debug/spirv-cross-core"
+optimized "../../../SDK/Build/tinyobjloader/Release/tinyobjloader" debug "../../../SDK/Build/tinyobjloader/Debug/tinyobjloader"
+optimized "../../../SDK/Build/glm/glm/Release/glm_static" debug "../../../SDK/Build/glm/glm/Debug/glm_static"
+optimized "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/release/libfbxsdk.lib" debug "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/debug/libfbxsdk.lib"
+optimized "d3d12.lib" debug "d3d12.lib"
+optimized "DXGI.lib" debug "DXGI.lib"
+)
 
 find_package(Vulkan)
 if (Vulkan_FOUND)

@@ -4,8 +4,8 @@
 
 #include "Physic.h"
 
-#include "src/Renderer/Line_3P_3C.h"
-#include "src/Renderer/Tri_3P_3C.h"
+#include "Renderer/src/Line_3P_3C.h"
+#include "Renderer/src/Tri_3P_3C.h"
 
 #include <PxPhysicsAPI.h>
 

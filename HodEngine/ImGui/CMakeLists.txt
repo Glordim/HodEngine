@@ -14,7 +14,7 @@ function(assign_source_group)
     endforeach()
 endfunction(assign_source_group)
 
-project(Core)
+project(ImGui)
 
 file(GLOB_RECURSE Srcs
         "${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -24,8 +24,25 @@ file(GLOB_RECURSE Srcs
 
 assign_source_group(${Srcs})
 		
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
+".."
+"../../SDK/SDL/include"
+)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+		
+add_library(ImGui SHARED ${Srcs})
 
-add_library(Core SHARED ${Srcs})
+target_link_libraries(ImGui
+optimized "../../../SDK/Build/SDL/Release/SDL2" debug "../../../SDK/Build/SDL/Debug/SDL2d"
+)
+
+find_package(Vulkan)
+if (Vulkan_FOUND)
+  # Une fois la dépendance trouvée, nous l'incluons au projet
+  target_include_directories(ImGui PUBLIC ${Vulkan_INCLUDE_DIRS})
+  target_link_libraries (ImGui ${Vulkan_LIBRARIES})
+else ()
+  # Sinon, nous affichons un message
+  message(FATAL_ERROR "Vulkan not found")
+endif ()

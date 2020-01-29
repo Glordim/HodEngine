@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include <Vulkan/vulkan.h>
 
 #include <vector>
 

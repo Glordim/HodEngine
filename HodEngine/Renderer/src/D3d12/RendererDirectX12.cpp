@@ -1,7 +1,6 @@
 #include "RendererDirectX12.h"
 
-#include <SDL.h>
-#include <SDL_syswm.h>
+#include <Application/src/Application.h>
 
 namespace HOD
 {
@@ -16,7 +15,7 @@ namespace HOD
 
     }
 
-    bool RendererDirectX12::Init(SDL_Window* window, bool enableValidationLayers)
+    bool RendererDirectX12::Init(APPLICATION::Application* pApplication, bool enableValidationLayers)
     {
         if (enableValidationLayers == true)
         {
@@ -45,15 +44,7 @@ namespace HOD
             return false;
         }
 
-        SDL_SysWMinfo wmInfo;
-        SDL_VERSION(&wmInfo.version);
-        if (SDL_GetWindowWMInfo(window, &wmInfo) == SDL_FALSE)
-        {
-            fprintf(stderr, "SDL: Unable to get native Window instance!\n");
-            return false;
-        }
-
-        this->hWnd = wmInfo.info.win.window;
+        this->hWnd = (HWND)pApplication->GetHwnd();
 
         return true;
     }

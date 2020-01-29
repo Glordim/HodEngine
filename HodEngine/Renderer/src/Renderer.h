@@ -1,7 +1,5 @@
 #pragma once
 
-struct SDL_Window;
-
 #include <string>
 #include <vector>
 
@@ -10,6 +8,11 @@ struct SDL_Window;
 
 namespace HOD
 {
+    namespace APPLICATION
+    {
+        class Application;
+    }
+
     struct GpuDevice;
     class RenderQueue;
     class Mesh;
@@ -25,7 +28,7 @@ namespace HOD
 
         static Renderer* GetInstance();
 
-        virtual bool Init(bool enableValidationLayers, std::function<bool(std::vector<const char*>&)> getExtensionRequiredByWindowSystem, std::function<bool(VkInstance, VkSurfaceKHR*)> createSurfaceByWindowSystem) = 0;
+        virtual bool Init(APPLICATION::Application* pApplication, bool enableValidationLayers) = 0;
         virtual bool SetupImGui() = 0;
 
         virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;

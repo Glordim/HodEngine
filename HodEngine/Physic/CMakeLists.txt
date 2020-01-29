@@ -33,6 +33,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 "../../SDK/PhysX/physx/include"
 "../../SDK/PhysX/pxshared/include"
 )
-		
+
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 add_library(Physic SHARED ${Srcs})
 
+target_link_libraries(Physic
+optimized "../../../SDK/Build/PhysX_lib/release/PhysX_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysX_64"
+optimized "../../../SDK/Build/PhysX_lib/release/PhysXCommon_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysXCommon_64"
+optimized "../../../SDK/Build/PhysX_lib/release/PhysXExtensions_static_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysXExtensions_static_64"
+optimized "../../../SDK/Build/PhysX_lib/release/PhysXFoundation_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysXFoundation_64"
+)
