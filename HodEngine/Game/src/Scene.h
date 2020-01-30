@@ -3,8 +3,8 @@
 #include <Core/src/Color.h>
 #include "Actor.h"
 
-#include "Renderer/Line_3P_3C.h"
-#include "Renderer/Tri_3P_3C.h"
+#include <Renderer/src/Line_3P_3C.h>
+#include <Renderer/src/Tri_3P_3C.h>
 
 namespace HOD
 {

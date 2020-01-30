@@ -4,7 +4,7 @@
 
 #include "../../Component.h"
 
-#include "../../../Renderer/Light/PointLight.h"
+#include <Renderer/src/Light/PointLight.h>
 
 namespace HOD
 {

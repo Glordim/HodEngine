@@ -1,11 +1,11 @@
 #include "PointLightComponent.h"
 
-#include "ImGui/imgui.h"
+#include <ImGui/src/imgui.h>
 
-#include "Game/Actor.h"
-#include "Game/Component/StaticMeshComponent.h"
+#include "../../Actor.h"
+#include "../StaticMeshComponent.h"
 
-#include "Renderer/MaterialInstance.h"
+#include <Renderer/src/MaterialInstance.h>
 
 namespace HOD
 {

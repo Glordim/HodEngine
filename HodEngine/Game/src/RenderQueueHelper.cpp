@@ -1,13 +1,13 @@
 #include "RenderQueueHelper.h"
 
-#include "Renderer/RenderQueue.h"
-#include "Game/Component/SceneComponent.h"
-#include "Game/Component/StaticMeshComponent.h"
-#include "Game/Component/Light/DirLightComponent.h"
-#include "Game/Component/Light/PointLightComponent.h"
-#include "Game/Component/Light/SpotLightComponent.h"
-#include "Game/Actor.h"
-#include "Game/Scene.h"
+#include <Renderer/src/RenderQueue.h>
+#include "Component/SceneComponent.h"
+#include "Component/StaticMeshComponent.h"
+#include "Component/Light/DirLightComponent.h"
+#include "Component/Light/PointLightComponent.h"
+#include "Component/Light/SpotLightComponent.h"
+#include "Actor.h"
+#include "Scene.h"
 
 #include <Physic/src/Scene.h>
 

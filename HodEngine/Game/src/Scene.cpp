@@ -6,9 +6,9 @@
 #include <Physic/src/Actor.h>
 #include <Physic/src/Scene.h>
 
-#include "Renderer/Shader.h"
-#include "Renderer/Material.h"
-#include "Renderer/MaterialManager.h"
+#include <Renderer/src/Shader.h>
+#include <Renderer/src/Material.h>
+#include <Renderer/src/MaterialManager.h>
 
 #include "Component/CameraComponent.h"
 

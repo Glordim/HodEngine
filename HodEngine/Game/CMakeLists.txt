@@ -14,9 +14,12 @@ function(assign_source_group)
     endforeach()
 endfunction(assign_source_group)
 
-project(Application)
+project(Game)
 if (NOT TARGET Core)
 include(../Core/CMakeLists.txt)
+endif()
+if (NOT TARGET Renderer)
+include(../Renderer/CMakeLists.txt)
 endif() 
 
 file(GLOB_RECURSE Srcs
@@ -40,3 +43,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 		
 add_library(Game SHARED ${Srcs})
+
+target_link_libraries(Game
+optimized "../../../Build/HodEngine/Core/Release/Core" debug "../../../Build/HodEngine/Core/Debug/Core"
+optimized "../../../Build/HodEngine/Physic/Release/Physic" debug "../../../Build/HodEngine/Physic/Debug/Physic"
+optimized "../../../Build/HodEngine/ImGui/Release/ImGui" debug "../../../Build/HodEngine/ImGui/Debug/ImGui"
+optimized "../../../Build/HodEngine/Application/Release/Application" debug "../../../Build/HodEngine/Application/Debug/Application"
+optimized "../../../Build/HodEngine/Renderer/Release/Renderer" debug "../../../Build/HodEngine/Renderer/Debug/Renderer"
+)

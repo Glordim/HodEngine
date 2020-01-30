@@ -4,7 +4,7 @@
 
 #include "../../Component.h"
 
-#include "../../../Renderer/Light/DirLight.h"
+#include <Renderer/src/Light/DirLight.h>
 
 namespace HOD
 {
