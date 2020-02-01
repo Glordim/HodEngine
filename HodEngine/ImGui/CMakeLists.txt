@@ -29,9 +29,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 "../../SDK/SDL/include"
 )
 
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-		
-add_library(ImGui SHARED ${Srcs})
+add_library(ImGui ${Srcs})
 
 target_link_libraries(ImGui
 optimized "../../../SDK/Build/SDL/Release/SDL2" debug "../../../SDK/Build/SDL/Debug/SDL2d"

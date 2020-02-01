@@ -17,6 +17,8 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_vulkan.h>
 
+#include <spirv_cross.hpp>
+
 namespace HOD
 {
     RendererVulkan::~RendererVulkan()

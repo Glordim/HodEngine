@@ -6,6 +6,8 @@
 #include "Shader.h"
 #include "Material.h"
 
+#include <Core/Src/Singleton.h>
+
 namespace HOD
 {
     namespace APPLICATION
@@ -19,14 +21,14 @@ namespace HOD
     class MaterialInstance;
     class Texture;
 
-    class Renderer
+    class Renderer : public CORE::Singleton<Renderer>
     {
+        friend class CORE::Singleton<Renderer>;
+
     public:
 
         Renderer();
         virtual ~Renderer();
-
-        static Renderer* GetInstance();
 
         virtual bool Init(APPLICATION::Application* pApplication, bool enableValidationLayers) = 0;
         virtual bool SetupImGui() = 0;
@@ -47,8 +49,5 @@ namespace HOD
         virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) = 0;
         virtual MaterialInstance* CreateMaterialInstance(Material* material) = 0;
         virtual Texture* CreateTexture(const std::string& path) = 0;
-
-    private:
-        static Renderer* instance;
     };
 }

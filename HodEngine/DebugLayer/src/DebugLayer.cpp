@@ -1,8 +1,8 @@
 #include "DebugLayer.h"
 
-#include "ImGui/imgui.h"
+#include <ImGui/src/imgui.h>
 
-#include "Game/Actor.h"
+#include <Game/src/Actor.h>
 
 namespace HOD
 {

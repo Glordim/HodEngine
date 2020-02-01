@@ -2,8 +2,8 @@
 
 #include "VideoSettings.h"
 
-//#include "ImGui/imgui.h"
-//#include "ImGui/imgui_impl_sdl.h"
+#include <ImGui/src/imgui.h>
+#include <ImGui/src/imgui_impl_sdl.h>
 
 #include <SDL.h>
 #include <SDL_syswm.h>
@@ -42,7 +42,6 @@ namespace HOD
                 return false;
             }
 
-            /*
             // Setup Dear ImGui context
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
@@ -53,7 +52,7 @@ namespace HOD
             // Setup Dear ImGui style
             ImGui::StyleColorsDark();
             //ImGui::StyleColorsClassic();
-            */
+            
             return true;
         }
 
@@ -65,6 +64,8 @@ namespace HOD
                 flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
             else if (videoSettings.fullscreenMode == FullscreenMode::Fullscreen)
                 flags |= SDL_WINDOW_FULLSCREEN;
+
+            flags |= SDL_WINDOW_VULKAN;
 
             this->window = SDL_CreateWindow("Toto",
                 SDL_WINDOWPOS_CENTERED_DISPLAY((int)videoSettings.monitor),
@@ -79,14 +80,17 @@ namespace HOD
                 return false;
             }
 
-            //ImGui_ImplSDL2_InitForVulkan(window);
+            ImGui_ImplSDL2_InitForVulkan(window);
 
             return true;
         }
 
         bool Application::Run()
         {
-            PreRun();
+            if (PreRun() == false)
+            {
+                return 1;
+            }
 
             float dt = 0.0f;
             Uint32 lastTicks = SDL_GetTicks();
@@ -104,10 +108,29 @@ namespace HOD
 
                 lastTicks = ticks;
 
-                Loop(dt);
+                SDL_Event event;
+                while (SDL_PollEvent(&event))
+                {
+                    ImGui_ImplSDL2_ProcessEvent(&event);
+                    if (event.type == SDL_QUIT)
+                    {
+                        shouldExit = true;
+                    }
+                }
+
+                ImGui_ImplSDL2_NewFrame(window);
+                ImGui::NewFrame();
+
+                if (Loop(dt) == false)
+                {
+                    shouldExit = true;
+                }
             }
 
-            PostRun();
+            if (PostRun() == false)
+            {
+                return 1;
+            }
 
             return true;
         }

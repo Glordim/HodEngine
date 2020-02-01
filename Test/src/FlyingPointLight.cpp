@@ -2,6 +2,8 @@
 
 #include "HodEngine/Game/src/Component/SceneComponent.h"
 
+#include <SDK/SDL/include/SDL.h>
+
 namespace HOD
 {
 	//-----------------------------------------------------------------------------

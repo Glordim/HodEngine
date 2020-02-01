@@ -2,6 +2,8 @@
 
 #include "RendererVulkan.h"
 
+#include <spirv_cross.hpp>
+
 namespace HOD
 {
     DescriptorSetLayout::DescriptorSetLayout()

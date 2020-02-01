@@ -4,8 +4,14 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
-#include <spirv_cross.hpp>
+namespace spirv_cross
+{
+    class Compiler;
+    struct Resource;
+    struct SPIRType;
+}
 
 namespace HOD
 {

@@ -2,6 +2,14 @@
 
 #include <HodEngine/Application/src/Application.h>
 
+namespace HOD
+{
+    namespace GAME
+    {
+        class Scene;
+    }
+}
+
 class MyApplication : public HOD::APPLICATION::Application
 {
 public:
@@ -14,4 +22,7 @@ protected:
     bool Loop(float deltaTime) override;
     bool PostRun() override;
 
+private:
+
+    HOD::GAME::Scene* scene;
 };

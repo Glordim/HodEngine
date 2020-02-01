@@ -37,9 +37,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/include"
 )
 	
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-	
-add_library(Application SHARED ${Srcs})
+add_library(Application ${Srcs})
 
 target_link_libraries(Application
 optimized "../../../SDK/Build/SDL/Release/SDL2" debug "../../../SDK/Build/SDL/Debug/SDL2d"

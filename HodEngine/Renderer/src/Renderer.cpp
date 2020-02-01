@@ -2,20 +2,15 @@
 
 namespace HOD
 {
-    Renderer* Renderer::instance = nullptr;
+    Renderer* CORE::Singleton<Renderer>::_instance = nullptr;
 
     Renderer::Renderer()
     {
-        Renderer::instance = this;
+        Renderer::_instance = this;
     }
 
     Renderer::~Renderer()
     {
-        Renderer::instance = nullptr;
-    }
-
-    Renderer* Renderer::GetInstance()
-    {
-        return Renderer::instance;
+        Renderer::_instance = nullptr;
     }
 }
