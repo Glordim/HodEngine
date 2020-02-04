@@ -11,10 +11,14 @@
 
 namespace HOD
 {
+    APPLICATION::Application* CORE::Singleton<APPLICATION::Application>::_instance = nullptr;
+
     namespace APPLICATION
     {
         Application::Application()
         {
+            _instance = this;
+
             this->window = nullptr;
         }
 
@@ -176,6 +180,11 @@ namespace HOD
             }
 
             return true;
+        }
+
+        void Application::SetCursorPosition(int x, int y)
+        {
+            SDL_WarpMouseInWindow(window, x, y);
         }
     }
 }

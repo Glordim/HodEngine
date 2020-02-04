@@ -42,6 +42,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 		
 add_library(Game ${Srcs})
 
+add_dependencies(Game Core Renderer)
+
 target_link_libraries(Game
 optimized "../../../Build/HodEngine/Core/Release/Core" debug "../../../Build/HodEngine/Core/Debug/Core"
 optimized "../../../Build/HodEngine/Physic/Release/Physic" debug "../../../Build/HodEngine/Physic/Debug/Physic"

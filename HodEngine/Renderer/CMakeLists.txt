@@ -41,7 +41,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 )
 
 add_library(Renderer ${Srcs})
-		
+
+add_dependencies(Renderer Core Application)
+
 target_link_libraries(Renderer
 optimized "../../../Build/HodEngine/ImGui/Release/ImGui" debug "../../../Build/HodEngine/ImGui/Debug/ImGui"
 optimized "../../../Build/HodEngine/Application/Release/Application" debug "../../../Build/HodEngine/Application/Debug/Application"

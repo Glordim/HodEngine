@@ -38,3 +38,5 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 )
 		
 add_library(DebugLayer ${Srcs})
+
+add_dependencies(DebugLayer Core)

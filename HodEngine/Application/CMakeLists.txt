@@ -39,6 +39,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 	
 add_library(Application ${Srcs})
 
+add_dependencies(Application Core)
+
 target_link_libraries(Application
 optimized "../../../SDK/Build/SDL/Release/SDL2" debug "../../../SDK/Build/SDL/Debug/SDL2d"
 optimized "../../../SDK/Build/SDL/Release/SDL2main" debug "../../../SDK/Build/SDL/Debug/SDL2maind"

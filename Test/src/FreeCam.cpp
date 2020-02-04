@@ -11,6 +11,8 @@
 
 #include "HodEngine/DebugLayer/src/DebugLayer.h"
 
+#include <HodEngine/Application/src/Application.h>
+
 namespace HOD
 {
 	//-----------------------------------------------------------------------------
@@ -22,11 +24,6 @@ namespace HOD
         this->cameraComponent = this->addComponent<GAME::CameraComponent>();
 
         this->view = glm::vec3(0.0f, 0.0f, 0.0f);
-
-        this->allowRotation = false;
-
-        //this->myBar = TwNewBar("Actor Picker");
-        //this->setupTweakBarForAllComponent(this->myBar);
     }
 
 	//-----------------------------------------------------------------------------
@@ -34,32 +31,6 @@ namespace HOD
 	//-----------------------------------------------------------------------------
     FreeCam::~FreeCam()
     {
-        //TwDeleteBar(this->myBar);
-    }
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-    void FreeCam::setupInputListener(InputListener* inputListener)
-    {
-        inputListener->registerAxisEvent(InputListener::KeyAxis(SDLK_s, SDLK_w), std::bind(&FreeCam::moveForward, this, std::placeholders::_1));
-        inputListener->registerAxisEvent(InputListener::KeyAxis(SDLK_a, SDLK_d), std::bind(&FreeCam::moveRight, this, std::placeholders::_1));
-        inputListener->registerAxisEvent(InputListener::KeyAxis(SDLK_c, SDLK_SPACE), std::bind(&FreeCam::moveUp, this, std::placeholders::_1));
-
-        inputListener->registerMouseButtonEvent(SDL_BUTTON_LEFT, SDL_PRESSED, std::bind(&FreeCam::selectObject, this));
-        inputListener->registerMouseButtonEvent(SDL_BUTTON_MIDDLE, SDL_PRESSED, std::bind(&FreeCam::selectSelfObject, this));
-
-        inputListener->registerMouseButtonEvent(SDL_BUTTON_RIGHT, SDL_PRESSED, std::bind(&FreeCam::allowRotate, this));
-        inputListener->registerMouseButtonEvent(SDL_BUTTON_RIGHT, SDL_RELEASED, std::bind(&FreeCam::disallowRotate, this));
-        inputListener->registerMouseMoveEvent(std::bind(&FreeCam::rotateView, this, std::placeholders::_1, std::placeholders::_2));
-    }
-
-    //-----------------------------------------------------------------------------
-    //! @brief		
-    //-----------------------------------------------------------------------------
-    void FreeCam::selectSelfObject()
-    {
-        DEBUG_LAYER::DebugLayer::GetInstance()->ShowActor(this);
     }
 
 	//-----------------------------------------------------------------------------
@@ -107,32 +78,10 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-    void FreeCam::allowRotate()
-    {
-        this->allowRotation = true;
-    }
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-    void FreeCam::disallowRotate()
-    {
-        this->allowRotation = false;
-    }
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
     void FreeCam::rotateView(int x, int y)
     {
         this->mouseX = (float)x;
         this->mouseY = (float)y;
-
-        if (this->allowRotation == false)
-            return;
-
-        //this->sceneComponent->rotate(((float)x - (1920.0f * 0.5f)) / (1920.0f * 0.5f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //this->sceneComponent->rotate(((float)y - (1080.0f * 0.5f)) / (1080.0f * 0.5f), glm::vec3(1.0f, 0.0f, 0.0f));
 
         float angleX = ((float)x - (1920.0f * 0.5f)) / (1920.0f * 0.5f);
         float angleY = ((float)y - (1080.0f * 0.5f)) / (1080.0f * 0.5f);
@@ -143,37 +92,6 @@ namespace HOD
         this->sceneComponent->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
         this->sceneComponent->rotate(view.x, glm::vec3(0.0f, 1.0f, 0.0f));
         this->sceneComponent->rotate(view.y, glm::vec3(1.0f, 0.0f, 0.0f));
-
-        //this->sceneComponent->setPosition()
-        /*
-        glm::quat rot = glm::quat(view);
-
-        this->sceneComponent->setRotation(view);
-        */
-    }
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-    void FreeCam::moveForward(float axisValue)
-    {
-        this->movement.z = axisValue;
-    }
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-    void FreeCam::moveRight(float axisValue)
-    {
-        this->movement.x = axisValue;
-    }
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-    void FreeCam::moveUp(float axisValue)
-    {
-        this->movement.y = axisValue;
     }
 
 	//-----------------------------------------------------------------------------
@@ -181,7 +99,78 @@ namespace HOD
 	//-----------------------------------------------------------------------------
     void FreeCam::update(float dt)
     {
-        //this->sceneComponent->setRotation(glm::degrees(glm::eulerAngles(this->tmpQuat)));
-        this->sceneComponent->setPosition(sceneComponent->getPosition() + (sceneComponent->getRotation() * this->movement * dt * 5.0f));
+        if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_E] > 0.0f)
+        {
+            this->speed += 10.0f * dt;
+        }
+        else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_Q] > 0.0f)
+        {
+            this->speed -= 10.0f * dt;
+            if (this->speed < 0.0f)
+                this->speed = 0.1f;
+        }
+
+        int mouseX = 0;
+        int mouseY = 0;
+
+        Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
+
+        if (mouseState & SDL_BUTTON(3))
+        {
+            HOD::APPLICATION::Application::GetInstance()->SetCursorPosition((1920.0f * 0.5f), (1080.0f * 0.5f));
+
+            rotateView(mouseX, mouseY);
+
+            if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_W] > 0.0f)
+            {
+                this->movement.z = 1.0f;
+            }
+            else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_S] > 0.0f)
+            {
+                this->movement.z = -1.0f;
+            }
+            else
+            {
+                this->movement.z = 0.0f;
+            }
+
+            if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_A] > 0.0f)
+            {
+                this->movement.x = -1.0f;
+            }
+            else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_D] > 0.0f)
+            {
+                this->movement.x = 1.0f;
+            }
+            else
+            {
+                this->movement.x = 0.0f;
+            }
+
+            if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_SPACE] > 0.0f)
+            {
+                this->movement.y = 1.0f;
+            }
+            else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_C] > 0.0f)
+            {
+                this->movement.y = -1.0f;
+            }
+            else
+            {
+                this->movement.y = 0.0f;
+            }
+
+            this->sceneComponent->setPosition(sceneComponent->getPosition() + (sceneComponent->getRotation() * this->movement * dt * this->speed));
+        }
+
+        if (mouseState & SDL_BUTTON(1))
+        {
+            selectObject();
+        }
+
+        if (mouseState & SDL_BUTTON(2))
+        {
+            DEBUG_LAYER::DebugLayer::GetInstance()->ShowActor(this);
+        }
     }
 }

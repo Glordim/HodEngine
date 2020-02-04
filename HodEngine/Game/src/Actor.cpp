@@ -18,11 +18,6 @@ namespace HOD
         {
         }
 
-        void Actor::setupInputListener(InputListener* inputListener)
-        {
-
-        }
-
         void Actor::start()
         {
 

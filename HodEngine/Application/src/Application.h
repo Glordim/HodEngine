@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Src/Singleton.h>
+
 #include <string>
 #include <vector>
 
@@ -16,7 +18,7 @@ namespace HOD
     {
         struct VideoSettings;
 
-        class Application
+        class Application : public CORE::Singleton<Application>
         {
         public:
                     Application();
@@ -30,6 +32,8 @@ namespace HOD
 
             bool    GetExtensionRequiredToCreateVulkanSurface(std::vector<const char*>* extensionsRequiredBySDL);
             bool    CreateVulkanSurface(VkInstance instance, VkSurfaceKHR* surface);
+
+            void    SetCursorPosition(int x, int y);
 
         protected:
 

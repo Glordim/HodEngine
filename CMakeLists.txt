@@ -49,6 +49,8 @@ add_executable(HodEngine ${Srcs})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodEngine)
 set_property(TARGET HodEngine PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "../Data")
 
+add_dependencies(HodEngine Core ImGui Physic Application Renderer Game DebugLayer)
+
 #if(MSVC)
 #	target_compile_options(HodEngine PRIVATE /W4 /WX)
 #else()

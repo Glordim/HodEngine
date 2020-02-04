@@ -36,6 +36,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 
 add_library(Physic ${Srcs})
 
+add_dependencies(Physic Core)
+
 target_link_libraries(Physic
 optimized "../../../SDK/Build/PhysX_lib/release/PhysX_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysX_64"
 optimized "../../../SDK/Build/PhysX_lib/release/PhysXCommon_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysXCommon_64"

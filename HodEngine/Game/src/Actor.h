@@ -44,8 +44,6 @@ namespace HOD
 
             std::vector<Component*> getAllComponent() const;
 
-            virtual void setupInputListener(InputListener* inputListener);
-
             virtual void DrawImGui();
 
             const std::string& getName() const;

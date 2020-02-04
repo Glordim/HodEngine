@@ -27,22 +27,13 @@ namespace HOD
         FreeCam(const FreeCam&) = delete;
         ~FreeCam() override;
 
-        void setupInputListener(InputListener* inputListener) override;
-
         void update(float dt) override;
 
     private:
 
-        void selectSelfObject();
         void selectObject();
 
-        void allowRotate();
-        void disallowRotate();
         void rotateView(int x, int y);
-
-        void moveForward(float axisValue);
-        void moveRight(float axisValue);
-        void moveUp(float axisValue);
 
         GAME::SceneComponent* sceneComponent;
         GAME::CameraComponent* cameraComponent;
@@ -50,13 +41,11 @@ namespace HOD
         glm::vec3 movement;
         glm::vec3 view;
 
-        bool allowRotation;
-
         glm::quat tmpQuat;
 
         float mouseX;
         float mouseY;
 
-        TwBar* myBar;
+        float speed = 5.0f;
     };
 }
