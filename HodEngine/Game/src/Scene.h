@@ -6,8 +6,16 @@
 #include <Renderer/src/Line_3P_3C.h>
 #include <Renderer/src/Tri_3P_3C.h>
 
+#include <vector>
+#include <utility>
+
 namespace HOD
 {
+	namespace CORE
+	{
+		struct Color;
+	}
+
 	namespace PHYSIC
 	{
 		struct RaycastResult;
@@ -42,6 +50,9 @@ namespace HOD
 
 			PHYSIC::Scene* GetPhysicScene() const;
 
+			void AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration);
+			void GetDebugLines(std::vector<Line_3P_3C>& lines);
+
         private:
             CORE::Color ambiantColor;
             Actor* root;
@@ -50,6 +61,8 @@ namespace HOD
 
             std::vector<Actor*> actorList;
             std::map<PHYSIC::Actor*, Actor*> physicActorToActorMap;
+
+			std::vector<std::pair<Line_3P_3C, float>> vDebugLines;
         };
 
         template<typename T>

@@ -119,4 +119,16 @@ namespace HOD
             renderQueue.AddTriangles(tris, nullptr, glm::identity<glm::mat4x4>());
         }
     }
+
+	void RenderQueueHelper::AddDebugLines(RenderQueue& renderQueue, GAME::Scene* scene)
+	{
+		std::vector<Line_3P_3C> lines;
+
+		scene->GetDebugLines(lines);
+
+		if (lines.empty() == false)
+		{
+			renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
+		}
+	}
 }

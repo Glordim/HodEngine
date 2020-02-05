@@ -30,6 +30,9 @@ namespace HOD
 
             void*   GetHwnd();
 
+			int		GetWidth();
+			int		GetHeight();
+
             bool    GetExtensionRequiredToCreateVulkanSurface(std::vector<const char*>* extensionsRequiredBySDL);
             bool    CreateVulkanSurface(VkInstance instance, VkSurfaceKHR* surface);
 

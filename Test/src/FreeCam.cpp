@@ -43,9 +43,14 @@ namespace HOD
         glm::mat4 screenToWorldMat = this->cameraComponent->getProjectionMatrix() * glm::inverse(this->sceneComponent->getModelMatrix());
         screenToWorldMat = glm::inverse(screenToWorldMat);
 
+		APPLICATION::Application* app = APPLICATION::Application::GetInstance();
+
+		int width = app->GetWidth();
+		int height = app->GetHeight();
+
         glm::vec4 dir;
-        dir.x = (this->mouseX - 0.0f) / 1920.0f * 2.0f - 1.0f;
-        dir.y = ((1080.0f - this->mouseY - 0.0f)) / 1080.0f * 2.0f - 1.0f;
+        dir.x = (this->mouseX - 0.0f) / (float)width * 2.0f - 1.0f;
+        dir.y = (((float)height - this->mouseY - 0.0f)) / (float)height * 2.0f - 1.0f;
         dir.z = 2.0f * mouseZ - 1.0f;
         dir.w = 1.0f;
 
@@ -83,8 +88,13 @@ namespace HOD
         this->mouseX = (float)x;
         this->mouseY = (float)y;
 
-        float angleX = ((float)x - (1920.0f * 0.5f)) / (1920.0f * 0.5f);
-        float angleY = ((float)y - (1080.0f * 0.5f)) / (1080.0f * 0.5f);
+		APPLICATION::Application* app = APPLICATION::Application::GetInstance();
+
+		int width = app->GetWidth();
+		int height = app->GetHeight();
+
+        float angleX = ((float)x - ((float)width * 0.5f)) / ((float)width * 0.5f);
+        float angleY = ((float)y - ((float)height * 0.5f)) / ((float)height * 0.5f);
 
         this->view.x += angleX;
         this->view.y += angleY;
@@ -110,58 +120,77 @@ namespace HOD
                 this->speed = 0.1f;
         }
 
-        int mouseX = 0;
-        int mouseY = 0;
+		int mouseX = 0;
+		int mouseY = 0;
 
-        Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
+		Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 
         if (mouseState & SDL_BUTTON(3))
         {
-            HOD::APPLICATION::Application::GetInstance()->SetCursorPosition((1920.0f * 0.5f), (1080.0f * 0.5f));
+			APPLICATION::Application* app = APPLICATION::Application::GetInstance();
 
-            rotateView(mouseX, mouseY);
+			int width = app->GetWidth();
+			int height = app->GetHeight();
 
-            if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_W] > 0.0f)
-            {
-                this->movement.z = 1.0f;
-            }
-            else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_S] > 0.0f)
-            {
-                this->movement.z = -1.0f;
-            }
-            else
-            {
-                this->movement.z = 0.0f;
-            }
+			if (move == true)
+			{
+				rotateView(mouseX, mouseY);
 
-            if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_A] > 0.0f)
-            {
-                this->movement.x = -1.0f;
-            }
-            else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_D] > 0.0f)
-            {
-                this->movement.x = 1.0f;
-            }
-            else
-            {
-                this->movement.x = 0.0f;
-            }
+				if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_W] > 0.0f)
+				{
+					this->movement.z = 1.0f;
+				}
+				else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_S] > 0.0f)
+				{
+					this->movement.z = -1.0f;
+				}
+				else
+				{
+					this->movement.z = 0.0f;
+				}
 
-            if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_SPACE] > 0.0f)
-            {
-                this->movement.y = 1.0f;
-            }
-            else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_C] > 0.0f)
-            {
-                this->movement.y = -1.0f;
-            }
-            else
-            {
-                this->movement.y = 0.0f;
-            }
+				if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_A] > 0.0f)
+				{
+					this->movement.x = -1.0f;
+				}
+				else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_D] > 0.0f)
+				{
+					this->movement.x = 1.0f;
+				}
+				else
+				{
+					this->movement.x = 0.0f;
+				}
 
-            this->sceneComponent->setPosition(sceneComponent->getPosition() + (sceneComponent->getRotation() * this->movement * dt * this->speed));
+				if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_SPACE] > 0.0f)
+				{
+					this->movement.y = 1.0f;
+				}
+				else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_C] > 0.0f)
+				{
+					this->movement.y = -1.0f;
+				}
+				else
+				{
+					this->movement.y = 0.0f;
+				}
+
+				this->sceneComponent->setPosition(sceneComponent->getPosition() + (sceneComponent->getRotation() * this->movement * dt * this->speed));
+			}
+			else
+			{	
+				if (mouseX == ((float)width * 0.5f) && mouseY == ((float)height * 0.5f))
+				{
+					move = true;
+				}
+			}
+
+			HOD::APPLICATION::Application::GetInstance()->SetCursorPosition((float)width * 0.5f, (float)height * 0.5f);
         }
+		else
+		{
+			move = false;
+		}
 
         if (mouseState & SDL_BUTTON(1))
         {

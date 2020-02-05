@@ -114,12 +114,12 @@ namespace HOD
 
 					Tri_3P_3C& tri = tris[i];
 
-					tri.vertices[0].pos[0] = pxTri.pos0.x;
-					tri.vertices[0].pos[1] = pxTri.pos0.y;
-					tri.vertices[0].pos[2] = pxTri.pos0.z;
-					tri.vertices[0].color[0] = (float)((pxTri.color0 & 0x00FF0000) >> 16);
-					tri.vertices[0].color[1] = (float)((pxTri.color0 & 0x0000FF00) >> 8);
-					tri.vertices[0].color[2] = (float)((pxTri.color0 & 0x000000FF) >> 0);
+					tri.vertices[2].pos[0] = pxTri.pos0.x;
+					tri.vertices[2].pos[1] = pxTri.pos0.y;
+					tri.vertices[2].pos[2] = pxTri.pos0.z;
+					tri.vertices[2].color[0] = (float)((pxTri.color0 & 0x00FF0000) >> 16);
+					tri.vertices[2].color[1] = (float)((pxTri.color0 & 0x0000FF00) >> 8);
+					tri.vertices[2].color[2] = (float)((pxTri.color0 & 0x000000FF) >> 0);
 
 					tri.vertices[1].pos[0] = pxTri.pos1.x;
 					tri.vertices[1].pos[1] = pxTri.pos1.y;
@@ -128,12 +128,12 @@ namespace HOD
 					tri.vertices[1].color[1] = (float)((pxTri.color1 & 0x0000FF00) >> 8);
 					tri.vertices[1].color[2] = (float)((pxTri.color1 & 0x000000FF) >> 0);
 
-					tri.vertices[2].pos[0] = pxTri.pos2.x;
-					tri.vertices[2].pos[1] = pxTri.pos2.y;
-					tri.vertices[2].pos[2] = pxTri.pos2.z;
-					tri.vertices[2].color[0] = (float)((pxTri.color2 & 0x00FF0000) >> 16);
-					tri.vertices[2].color[1] = (float)((pxTri.color2 & 0x0000FF00) >> 8);
-					tri.vertices[2].color[2] = (float)((pxTri.color2 & 0x000000FF) >> 0);
+					tri.vertices[0].pos[0] = pxTri.pos2.x;
+					tri.vertices[0].pos[1] = pxTri.pos2.y;
+					tri.vertices[0].pos[2] = pxTri.pos2.z;
+					tri.vertices[0].color[0] = (float)((pxTri.color2 & 0x00FF0000) >> 16);
+					tri.vertices[0].color[1] = (float)((pxTri.color2 & 0x0000FF00) >> 8);
+					tri.vertices[0].color[2] = (float)((pxTri.color2 & 0x000000FF) >> 0);
 				}
 			}
 		}

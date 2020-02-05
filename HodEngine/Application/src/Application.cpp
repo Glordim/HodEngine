@@ -152,6 +152,26 @@ namespace HOD
             return wmInfo.info.win.window;
         }
 
+		int Application::GetWidth()
+		{
+			int w;
+			int h;
+
+			SDL_GetWindowSize(window, &w, &h);
+
+			return w;
+		}
+
+		int Application::GetHeight()
+		{
+			int w;
+			int h;
+
+			SDL_GetWindowSize(window, &w, &h);
+
+			return h;
+		}
+
         bool Application::GetExtensionRequiredToCreateVulkanSurface(std::vector<const char*>* extensionsRequiredBySDL)
         {
             unsigned int extensionsRequiredBySDLCount = 0;

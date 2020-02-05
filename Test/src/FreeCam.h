@@ -46,6 +46,8 @@ namespace HOD
         float mouseX;
         float mouseY;
 
+		bool move = false;
+
         float speed = 5.0f;
     };
 }

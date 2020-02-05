@@ -12,6 +12,8 @@
 #include <Renderer/src/RenderQueue.h>
 #include "../RenderQueueHelper.h"
 
+#include <Application/src/Application.h>
+
 namespace HOD
 {
     namespace GAME
@@ -27,7 +29,12 @@ namespace HOD
             , _hdriMat(nullptr)
             , _hdriTexture(nullptr)
         {
+			APPLICATION::Application* app = APPLICATION::Application::GetInstance();
 
+			int width = app->GetWidth();
+			int height = app->GetHeight();
+
+			_aspect = (float)width / (float)height;
         }
 
         void CameraComponent::DrawImGui()
@@ -79,6 +86,7 @@ namespace HOD
 
             RenderQueueHelper::AddSceneComponent(renderQueue, scene.getRoot(), true);
             RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
+			RenderQueueHelper::AddDebugLines(renderQueue, &scene);
 
             Renderer* renderer = Renderer::GetInstance();
             renderer->SubmitRenderQueue(renderQueue);
