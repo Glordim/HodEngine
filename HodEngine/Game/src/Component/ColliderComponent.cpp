@@ -6,6 +6,9 @@
 
 #include "../Actor.h"
 #include "../Scene.h"
+#include "StaticMeshComponent.h"
+
+#include <Renderer/src/Mesh.h>
 
 #include <Physic/src/Actor.h>
 
@@ -43,10 +46,19 @@ namespace HOD
         void ColliderComponent::SetShape(PHYSIC::SHAPE eShape)
         {
             Actor* actor = GetActor();
-
             PHYSIC::Actor* physicActor = actor->GetPhysicActor();
 
-            physicActor->SetShape(eShape);
+            StaticMeshComponent* pStaticMeshComponent = actor->getComponent<StaticMeshComponent>();
+            SceneComponent* pSceneComponent = actor->getComponent<SceneComponent>();
+
+            if (pStaticMeshComponent != nullptr && pStaticMeshComponent->GetMesh() != nullptr)
+            {
+                physicActor->SetShape(eShape, pStaticMeshComponent->GetMesh()->GetBoundingBox(), pSceneComponent->getScale());
+            }
+            else
+            {
+                physicActor->SetShape(eShape, BoundingBox(), pSceneComponent->getScale());
+            }
         }
     }
 }

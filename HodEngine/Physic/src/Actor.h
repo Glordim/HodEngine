@@ -11,6 +11,8 @@ namespace physx
 
 namespace HOD
 {
+    struct BoundingBox;
+
     namespace PHYSIC
     {
         enum SHAPE
@@ -30,7 +32,7 @@ namespace HOD
             Actor(physx::PxActor* pxActor);
             ~Actor() = default;
 
-            void    SetShape(SHAPE eShape);
+            void    SetShape(SHAPE eShape, const BoundingBox& boundingBox, const glm::vec3& scale);
 
             void    SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 

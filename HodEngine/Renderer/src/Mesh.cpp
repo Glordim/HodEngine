@@ -15,6 +15,7 @@
 #include "Tri_3P_3C.h"
 
 #include <fbxsdk.h>
+#include <algorithm>
 
 namespace HOD
 {
@@ -205,6 +206,8 @@ namespace HOD
 
         }
 
+        boundingBoxDirty = true;
+
         return this->BuildBuffers();
     }
 
@@ -391,6 +394,8 @@ namespace HOD
 
         }
 
+        boundingBoxDirty = true;
+
         return this->BuildBuffers();
     }
 
@@ -409,6 +414,8 @@ namespace HOD
             this->vertices[vertexIndex + 0] = lines[i].vertices[0];
             this->vertices[vertexIndex + 1] = lines[i].vertices[1];
         }
+
+        boundingBoxDirty = true;
 
         return this->BuildBuffers();
     }
@@ -429,6 +436,8 @@ namespace HOD
             this->vertices[vertexIndex + 1] = triangles[i].vertices[1];
             this->vertices[vertexIndex + 2] = triangles[i].vertices[2];
         }
+
+        boundingBoxDirty = true;
 
         return this->BuildBuffers();
     }
@@ -487,6 +496,8 @@ namespace HOD
 
         std::reverse(this->vertices.begin(), this->vertices.end());
 
+        boundingBoxDirty = true;
+
         return this->BuildBuffers();
     }
 
@@ -503,5 +514,40 @@ namespace HOD
     const std::vector<Vertex_3P_3C_3N_2UV_3TA>& Mesh::GetVertices() const
     {
         return this->vertices;
+    }
+
+    const BoundingBox& Mesh::GetBoundingBox()
+    {
+        if (boundingBoxDirty == true)
+        {
+            CalculateBoundingBox();
+        }
+
+        return boundingBox;
+    }
+
+    void Mesh::CalculateBoundingBox()
+    {
+        boundingBox.center = glm::vec3(0.0f, 0.0f, 0.0f);
+        boundingBox.min = glm::vec3(0.0f, 0.0f, 0.0f);
+        boundingBox.max = glm::vec3(0.0f, 0.0f, 0.0f);
+
+        for (Vertex_3P_3C_3N_2UV_3TA& vertex : vertices)
+        {
+            float* pos = vertex.pos;
+
+            boundingBox.min.x = std::min(vertex.pos[0], boundingBox.min.x);
+            boundingBox.max.x = std::max(vertex.pos[0], boundingBox.max.x);
+
+            boundingBox.min.y = std::min(vertex.pos[1], boundingBox.min.y);
+            boundingBox.max.y = std::max(vertex.pos[1], boundingBox.max.y);
+
+            boundingBox.min.z = std::min(vertex.pos[2], boundingBox.min.z);
+            boundingBox.max.z = std::max(vertex.pos[2], boundingBox.max.z);
+        }
+
+        boundingBox.center = (boundingBox.min + boundingBox.max) * 0.5f;
+
+        boundingBoxDirty = false;
     }
 }

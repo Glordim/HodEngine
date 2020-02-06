@@ -1,6 +1,9 @@
 #pragma once
 
 #include <vector>
+#include <glm/glm.hpp>
+
+#include "BoundingBox.h"
 
 namespace fbxsdk
 {
@@ -39,6 +42,8 @@ namespace HOD
 
         const std::vector<Vertex_3P_3C_3N_2UV_3TA>& GetVertices() const;
 
+        const BoundingBox& GetBoundingBox();
+
     protected:
         virtual bool BuildBuffers() = 0;
 
@@ -46,7 +51,12 @@ namespace HOD
         std::vector<uint16_t> indices;
         std::vector<Vertex_3P_3C_3N_2UV_3TA> vertices;
 
+        BoundingBox boundingBox;
+        bool boundingBoxDirty = true;
+
     private:
         fbxsdk::FbxNode* FindMeshInFbxNode(fbxsdk::FbxNode* node);
+
+        void CalculateBoundingBox();
     };
 }

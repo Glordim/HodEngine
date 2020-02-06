@@ -44,6 +44,7 @@ namespace HOD
             void rotate(float angle, glm::vec3 axis);
 
             void setScale(glm::vec3 scale);
+            glm::vec3 getScale() const;
 
             glm::vec3 position;
             glm::vec3 scale;

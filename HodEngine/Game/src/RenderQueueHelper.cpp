@@ -48,9 +48,9 @@ namespace HOD
                         Line_3P_3C lineX;
                         memcpy(lineX.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
                         memcpy(lineX.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
-                        lineX.vertices[1].pos[0] += vertex.tangent[0];
-                        lineX.vertices[1].pos[1] += vertex.tangent[1];
-                        lineX.vertices[1].pos[2] += vertex.tangent[2];
+                        lineX.vertices[1].pos[0] += vertex.tangent[0] * 0.1f;
+                        lineX.vertices[1].pos[1] += vertex.tangent[1] * 0.1f;
+                        lineX.vertices[1].pos[2] += vertex.tangent[2] * 0.1f;
 
                         memcpy(lineX.vertices[0].color, red, sizeof(red));
                         memcpy(lineX.vertices[1].color, red, sizeof(red));
@@ -58,9 +58,9 @@ namespace HOD
                         Line_3P_3C lineY;
                         memcpy(lineY.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
                         memcpy(lineY.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
-                        lineY.vertices[1].pos[0] += vertex.bitangent[0];
-                        lineY.vertices[1].pos[1] += vertex.bitangent[1];
-                        lineY.vertices[1].pos[2] += vertex.bitangent[2];
+                        lineY.vertices[1].pos[0] += vertex.bitangent[0] * 0.1f;
+                        lineY.vertices[1].pos[1] += vertex.bitangent[1] * 0.1f;
+                        lineY.vertices[1].pos[2] += vertex.bitangent[2] * 0.1f;
 
                         memcpy(lineY.vertices[0].color, green, sizeof(green));
                         memcpy(lineY.vertices[1].color, green, sizeof(green));
@@ -68,9 +68,9 @@ namespace HOD
                         Line_3P_3C lineZ;
                         memcpy(lineZ.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
                         memcpy(lineZ.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
-                        lineZ.vertices[1].pos[0] += vertex.normal[0];
-                        lineZ.vertices[1].pos[1] += vertex.normal[1];
-                        lineZ.vertices[1].pos[2] += vertex.normal[2];
+                        lineZ.vertices[1].pos[0] += vertex.normal[0] * 0.1f;
+                        lineZ.vertices[1].pos[1] += vertex.normal[1] * 0.1f;
+                        lineZ.vertices[1].pos[2] += vertex.normal[2] * 0.1f;
 
                         memcpy(lineZ.vertices[0].color, blue, sizeof(blue));
                         memcpy(lineZ.vertices[1].color, blue, sizeof(blue));

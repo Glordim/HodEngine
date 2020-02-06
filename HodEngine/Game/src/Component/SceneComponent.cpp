@@ -180,6 +180,11 @@ namespace HOD
             this->syncPxActor();
         }
 
+        glm::vec3 SceneComponent::getScale() const
+        {
+            return this->scale;
+        }
+
         size_t SceneComponent::getChildCount() const
         {
             return this->childs.size();

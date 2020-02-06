@@ -7,6 +7,10 @@
 
 #include <PxPhysicsAPI.h>
 
+#include <Renderer/src/BoundingBox.h>
+
+#include <algorithm>
+
 namespace HOD
 {
     namespace PHYSIC
@@ -16,14 +20,23 @@ namespace HOD
             pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
 		}
 
-        void Actor::SetShape(SHAPE eShape)
+        void Actor::SetShape(SHAPE eShape, const BoundingBox& boundingBox, const glm::vec3& scale)
         {
             physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
 
-            physx::PxShape* pxShape = Physic::GetInstance()->CreateShape(physx::PxBoxGeometry(0.1f, 0.1f, 0.1f));
-            pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+            glm::vec3 halfSize = glm::max(glm::abs((boundingBox.max - boundingBox.min) * scale) , 0.001f) * 0.5f;
 
-            rigidActor->attachShape(*pxShape);
+            physx::PxShape* pxShape = Physic::GetInstance()->CreateShape(physx::PxBoxGeometry(halfSize.x, halfSize.y, halfSize.z));
+            if (pxShape != nullptr)
+            {
+                pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+
+                glm::vec3 pos = boundingBox.center * scale;
+
+                pxShape->setLocalPose(physx::PxTransform(pos.x, pos.y, pos.z));
+
+                rigidActor->attachShape(*pxShape);
+            }
         }
 
 		void Actor::SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale)
