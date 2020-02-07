@@ -395,13 +395,13 @@ bool MyApplication::Loop(float deltaTime)
 
     scene->update(deltaTime);
 
-    DEBUG_LAYER::DebugLayer::GetInstance()->Draw();
+	CameraComponent* pCamera = scene->getRoot()->GetActor()->getAllComponent<CameraComponent>()[0];
 
-    ImGui::Render();
+	pCamera->render(*scene);
 
-    CameraComponent* pCamera = scene->getRoot()->GetActor()->getAllComponent<CameraComponent>()[0];
+	DEBUG_LAYER::DebugLayer::GetInstance()->Draw(pCamera);
 
-    pCamera->render(*scene);
+	ImGui::Render();
 
     if (Renderer::GetInstance()->AcquireNextImageIndex() == true)
     {

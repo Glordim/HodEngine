@@ -4,6 +4,7 @@
 
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/imgui_impl_sdl.h>
+#include <ImGui/src/ImGuizmo.h>
 
 #include <SDL.h>
 #include <SDL_syswm.h>
@@ -124,6 +125,7 @@ namespace HOD
 
                 ImGui_ImplSDL2_NewFrame(window);
                 ImGui::NewFrame();
+				ImGuizmo::BeginFrame();
 
                 if (Loop(dt) == false)
                 {

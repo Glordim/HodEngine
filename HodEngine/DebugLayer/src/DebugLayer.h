@@ -10,6 +10,7 @@ namespace HOD
     namespace GAME
     {
         class Actor;
+		class CameraComponent;
     }
 
     namespace DEBUG_LAYER
@@ -31,7 +32,7 @@ namespace HOD
             bool                            Init();
             void                            Clear();
 
-            void                            Draw();
+            void                            Draw(GAME::CameraComponent* pCamera);
 
             void                            ShowActor(GAME::Actor* pActor);
 

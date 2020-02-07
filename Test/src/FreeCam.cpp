@@ -36,7 +36,7 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-    void FreeCam::selectObject()
+    void FreeCam::selectObject(int mouseX, int mouseY)
     {
         float mouseZ = 1.0f;
 
@@ -49,8 +49,8 @@ namespace HOD
 		int height = app->GetHeight();
 
         glm::vec4 dir;
-        dir.x = (this->mouseX - 0.0f) / (float)width * 2.0f - 1.0f;
-        dir.y = (((float)height - this->mouseY - 0.0f)) / (float)height * 2.0f - 1.0f;
+        dir.x = (mouseX - 0.0f) / (float)width * 2.0f - 1.0f;
+        dir.y = (((float)height - mouseY - 0.0f)) / (float)height * 2.0f - 1.0f;
         dir.z = 2.0f * mouseZ - 1.0f;
         dir.w = 1.0f;
 
@@ -194,7 +194,7 @@ namespace HOD
 
         if (mouseState & SDL_BUTTON(1))
         {
-            selectObject();
+            selectObject(mouseX, mouseY);
         }
 
         if (mouseState & SDL_BUTTON(2))

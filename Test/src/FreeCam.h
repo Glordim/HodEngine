@@ -31,7 +31,7 @@ namespace HOD
 
     private:
 
-        void selectObject();
+		void selectObject(int mouseX, int mouseY);
 
         void rotateView(int x, int y);
 
