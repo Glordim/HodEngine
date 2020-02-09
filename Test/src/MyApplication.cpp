@@ -10,6 +10,7 @@
 #include <HodEngine/Renderer/src/MaterialInstance.h>
 #include <HodEngine/Renderer/src/Texture.h>
 #include <HodEngine/Renderer/src/Mesh.h>
+#include <HodEngine/Game/src/Debug/ActorDebugWindow.h>
 #include <HodEngine/Game/src/Scene.h>
 #include <HodEngine/Game/src/Actor.h>
 #include <HodEngine/Game/src/Component/SceneComponent.h>
@@ -76,6 +77,15 @@ bool MyApplication::PreRun()
 
     if (pRenderer->SetupImGui() == false)
         return 1;
+
+
+	// Debug
+
+	pDebugLayer->RegisterDebugWindow(new GAME::ActorDebugWindow());
+
+
+	//
+
 
     HOD::Mesh* sphereMesh = pRenderer->CreateMesh("Mesh/sphere.fbx");
     if (sphereMesh == nullptr)
@@ -397,11 +407,11 @@ bool MyApplication::Loop(float deltaTime)
 
 	CameraComponent* pCamera = scene->getRoot()->GetActor()->getAllComponent<CameraComponent>()[0];
 
+    DEBUG_LAYER::DebugLayer::GetInstance()->Draw();
+
+    ImGui::Render();
+
 	pCamera->render(*scene);
-
-	DEBUG_LAYER::DebugLayer::GetInstance()->Draw(pCamera);
-
-	ImGui::Render();
 
     if (Renderer::GetInstance()->AcquireNextImageIndex() == true)
     {

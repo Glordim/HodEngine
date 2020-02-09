@@ -75,7 +75,7 @@ namespace HOD
             GAME::Actor* actor = this->scene->convertPxActor(physicActor);
             if (actor != nullptr)
             {
-                DEBUG_LAYER::DebugLayer::GetInstance()->ShowActor(actor);
+				GAME::Game::GetInstance()->ShowActor(actor);
             }
         }
     }
@@ -199,7 +199,7 @@ namespace HOD
 
         if (mouseState & SDL_BUTTON(2))
         {
-            DEBUG_LAYER::DebugLayer::GetInstance()->ShowActor(this);
+			GAME::Game::GetInstance()->ShowActor(this);
         }
     }
 }

@@ -15,6 +15,8 @@ namespace HOD
 
     namespace DEBUG_LAYER
     {
+		class DebugWindow;
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -32,14 +34,14 @@ namespace HOD
             bool                            Init();
             void                            Clear();
 
-            void                            Draw(GAME::CameraComponent* pCamera);
+			void							RegisterDebugWindow(DebugWindow* pDebugWindow);
+			void							UnregisterDebugWindow(DebugWindow* pDebugWindow);
 
-            void                            ShowActor(GAME::Actor* pActor);
+            void                            Draw();
 
         private:
 
-            GAME::Actor*                    pActor = nullptr;
-            std::map<const char*, bool>     actorComponentCollapseMap;
+			std::vector<DebugWindow*>		_vDebugWindows;
         };
     }
 }

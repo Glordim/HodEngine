@@ -7,12 +7,8 @@
 #include "Component.h"
 #include "Component/SceneComponent.h"
 
-typedef struct CTwBar TwBar;
-
 namespace HOD
 {
-    class InputListener;
-
     namespace PHYSIC
     {
         class Actor;
