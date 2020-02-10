@@ -5,17 +5,6 @@
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/ImGuizmo.h>
 
-#include <Game/src/Actor.h>
-#include <Game/src/Component/CameraComponent.h>
-#include <Game/src/Component/SceneComponent.h>
-
-
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
-
 namespace HOD
 {
     DEBUG_LAYER::DebugLayer* CORE::Singleton<DEBUG_LAYER::DebugLayer>::_instance = nullptr;
@@ -41,6 +30,22 @@ namespace HOD
         {
 
         }
+
+		void DebugLayer::SetCameraMatrice(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+		{
+			_projectionMatrix = projectionMatrix;
+			_viewMatrix = viewMatrix;
+		}
+
+		const glm::mat4& DebugLayer::GetProjectionMatrix() const
+		{
+			return _projectionMatrix;
+		}
+
+		const glm::mat4& DebugLayer::GetViewMatrix() const
+		{
+			return _viewMatrix;
+		}
 
         void DebugLayer::Draw()
         {

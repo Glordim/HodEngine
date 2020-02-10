@@ -137,5 +137,21 @@ namespace HOD
 				}
 			}
 		}
+
+		void Scene::ApplyShapeVisualizationFlag(bool bVisualizeShape)
+		{
+			for (Actor* pActor : actors)
+			{
+				pActor->SetShapesVisualizationFlag(bVisualizeShape);
+			}
+		}
+
+		void Scene::ApplyActorVisualizationFlag(bool bVisualizeActor)
+		{
+			for (Actor* pActor : actors)
+			{
+				pActor->SetVisualizationFlag(bVisualizeActor);
+			}
+		}
     }
 }

@@ -1,65 +1,53 @@
 #pragma once
 
+#include "Debug/ActorDebugWindow.h"
+#include "Debug/GizmoDebugWindow.h"
+
 #include <Core/src/Singleton.h>
 
 #include <vector>
 
-namespace physx
-{
-    class PxShape;
-    class PxFoundation;
-    class PxPhysics;
-    class PxGeometry;
-    class PxMaterial;
-
-    class PxDefaultAllocator;
-    class PxDefaultErrorCallback;
-}
-
 namespace HOD
 {
-    namespace PHYSIC
+    namespace GAME
     {
-		class Actor;
 		class Scene;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class Physic : public CORE::Singleton<Physic>
+        class Game : public CORE::Singleton<Game>
         {
-            friend class CORE::Singleton<Physic>;
+            friend class CORE::Singleton<Game>;
 
         protected:
 
-                                            Physic();
-                                            ~Physic() override;
+                                    Game();
+                                    ~Game() override;
 
         public:
 
-            bool                            Init();
-            void                            Clear();
+            bool                    Init();
+            void                    Clear();
 
-            const physx::PxMaterial&        GetDefaultMaterial() const;
+			void					Update(float dt);
 
-			Scene*							CreateScene();
-            void                            DestroyScene(Scene* pScene);
-
-			Actor*							CreateActor();
-
-            physx::PxShape*                 CreateShape(physx::PxGeometry& pPxGeometry, physx::PxMaterial* pPxMaterial = nullptr);
+			Scene*					CreateScene();
+            void                    DestroyScene(Scene* pScene);
 
         private:
 
-            physx::PxDefaultAllocator*      _defaultAllocator = nullptr;
-            physx::PxDefaultErrorCallback*  _defaultErrorCallback = nullptr;
+            std::vector<Scene*>		_vScenes;
 
-            physx::PxFoundation*            _pxFoundation = nullptr;
-            physx::PxPhysics*               _pxPhysics = nullptr;
+		//Debug
+		public:
 
-            physx::PxMaterial*              _pxDefaultMaterial = nullptr;
+			void					DebugActor(Actor* pActor);
 
-            std::vector<Scene*>				_vScenes;
+		private:
+
+			ActorDebugWindow		_actorDebugWindow;
+			GizmoDebugWindow		_gizmoDebugWindow;
         };
     }
 }

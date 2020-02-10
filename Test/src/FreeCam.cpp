@@ -1,5 +1,6 @@
 #include "FreeCam.h"
 
+#include "HodEngine/Game/src/Game.h"
 #include "HodEngine/Game/src/Component/SceneComponent.h"
 #include "HodEngine/Game/src/Component/CameraComponent.h"
 
@@ -12,6 +13,8 @@
 #include "HodEngine/DebugLayer/src/DebugLayer.h"
 
 #include <HodEngine/Application/src/Application.h>
+
+#include "ImGui/src/ImGuizmo.h"
 
 namespace HOD
 {
@@ -38,6 +41,9 @@ namespace HOD
 	//-----------------------------------------------------------------------------
     void FreeCam::selectObject(int mouseX, int mouseY)
     {
+		if (ImGuizmo::IsOver() || ImGuizmo::IsUsing())
+			return;
+
         float mouseZ = 1.0f;
 
         glm::mat4 screenToWorldMat = this->cameraComponent->getProjectionMatrix() * glm::inverse(this->sceneComponent->getModelMatrix());
@@ -75,7 +81,7 @@ namespace HOD
             GAME::Actor* actor = this->scene->convertPxActor(physicActor);
             if (actor != nullptr)
             {
-				GAME::Game::GetInstance()->ShowActor(actor);
+				GAME::Game::GetInstance()->DebugActor(actor);
             }
         }
     }
@@ -194,12 +200,20 @@ namespace HOD
 
         if (mouseState & SDL_BUTTON(1))
         {
-            selectObject(mouseX, mouseY);
+			if (released == true)
+			{
+				selectObject(mouseX, mouseY);
+			}
+			released = false;
         }
+		else
+		{
+			released = true;
+		}
 
         if (mouseState & SDL_BUTTON(2))
         {
-			GAME::Game::GetInstance()->ShowActor(this);
+			GAME::Game::GetInstance()->DebugActor(this);
         }
     }
 }

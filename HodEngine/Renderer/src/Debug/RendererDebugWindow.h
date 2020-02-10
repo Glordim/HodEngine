@@ -7,19 +7,19 @@
 
 namespace HOD
 {
-    namespace PHYSIC
-	{
+    //namespace PHYSIC
+	//{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class PhysicDebugWindow : public DEBUG_LAYER::DebugWindow
+        class RendererDebugWindow : public DEBUG_LAYER::DebugWindow
         {
 		public:
 
-						PhysicDebugWindow();
-                        ~PhysicDebugWindow() override;
+						RendererDebugWindow();
+                        ~RendererDebugWindow() override;
 
             void        Draw() override;
         };
-    }
+    //}
 }

@@ -29,12 +29,7 @@ assign_source_group(${Srcs})
 		
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 ".."
-"../../SDK/SDL/include"
 "../../SDK/glm"
-"../../SDK/tinyobjloader"
-"../../SDK/stb"
-"../../SDK/SPIRV-Cross"
-"C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/include"
 )
 		
 add_library(DebugLayer ${Srcs})

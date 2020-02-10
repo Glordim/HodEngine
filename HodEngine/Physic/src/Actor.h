@@ -38,6 +38,9 @@ namespace HOD
 
 			physx::PxActor* GetPxActor() const;
 
+			void	SetShapesVisualizationFlag(bool bShapeVisualization);
+			void	SetVisualizationFlag(bool bVisualization);
+
         private:
 
             physx::PxActor* pxActor = nullptr;

@@ -1295,7 +1295,7 @@ namespace HOD
 
         VkClearValue clearColor[2];
         clearColor[0] = { 0.0f, 0.0f, 0.0f, 1.0f };
-        clearColor[1] = { 1.0f, 0.0f, 0.0f, 0.0f };
+		clearColor[1] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1324,274 +1324,277 @@ namespace HOD
 
         vkCmdSetScissor(*commandBuffer, 0, 1, &scissor);
 
-        const glm::mat4x4& projMatrix = renderQueue.GetProjMatrix();
-        const glm::mat4x4& viewMatrix = renderQueue.GetViewMatrix();
-        glm::mat4x4 staticViewMatrix = renderQueue.GetViewMatrix();
-        staticViewMatrix[3].x = 0.0f;
-        staticViewMatrix[3].y = 0.0f;
-        staticViewMatrix[3].z = 0.0f;
-        glm::mat4x4 vp = projMatrix * viewMatrix;
-
-        DescriptorSet* viewDescriptorSet = new DescriptorSet();
-        viewDescriptorSet->SetLayout(&this->_viewLayout);
-        viewDescriptorSet->SetUboValue("viewUbo.view", &staticViewMatrix, sizeof(glm::mat4x4));
-        viewDescriptorSet->SetUboValue("viewUbo.proj", &projMatrix, sizeof(glm::mat4x4));
-        viewDescriptorSet->SetUboValue("viewUbo.vp", &vp, sizeof(glm::mat4x4));
-
-        VkTexture* hdriTexture = (VkTexture*)renderQueue.GetHdriTexture();
-
-        viewDescriptorSet->SetTexture("skyboxSampler", hdriTexture);
-
-        glm::vec4 ambiantColor = glm::vec4(0.10f, 0.10f, 0.10f, 1.0f);
-        glm::vec3 eyePos = renderQueue.GetCameraPos();
-
-        viewDescriptorSet->SetUboValue("lightUbo.ambiantColor", &ambiantColor, sizeof(ambiantColor));
-        viewDescriptorSet->SetUboValue("lightUbo.eyePos", &eyePos, sizeof(eyePos));
-
-        const std::vector<RenderQueue::DirLightData*>& dirLightDatas = renderQueue.GetDirLightDatas();
-        uint32_t dirLightCount = (uint32_t)dirLightDatas.size();
-
-        viewDescriptorSet->SetUboValue("lightUbo.dirLightCount", &dirLightCount, sizeof(dirLightCount));
+		const glm::mat4x4& projMatrix = renderQueue.GetProjMatrix();
+		const glm::mat4x4& viewMatrix = renderQueue.GetViewMatrix();
+		glm::mat4x4 staticViewMatrix = renderQueue.GetViewMatrix();
+		staticViewMatrix[3].x = 0.0f;
+		staticViewMatrix[3].y = 0.0f;
+		staticViewMatrix[3].z = 0.0f;
+		glm::mat4x4 vp = projMatrix * viewMatrix;
+
+		DescriptorSet* viewDescriptorSet = new DescriptorSet();
+		viewDescriptorSet->SetLayout(&this->_viewLayout);
+		viewDescriptorSet->SetUboValue("viewUbo.view", &staticViewMatrix, sizeof(glm::mat4x4));
+		viewDescriptorSet->SetUboValue("viewUbo.proj", &projMatrix, sizeof(glm::mat4x4));
+		viewDescriptorSet->SetUboValue("viewUbo.vp", &vp, sizeof(glm::mat4x4));
+
+		if (GetVisualizationMode() == true)
+		{
+			VkTexture* hdriTexture = (VkTexture*)renderQueue.GetHdriTexture();
+
+			viewDescriptorSet->SetTexture("skyboxSampler", hdriTexture);
+
+			glm::vec4 ambiantColor = glm::vec4(0.10f, 0.10f, 0.10f, 1.0f);
+			glm::vec3 eyePos = renderQueue.GetCameraPos();
+
+			viewDescriptorSet->SetUboValue("lightUbo.ambiantColor", &ambiantColor, sizeof(ambiantColor));
+			viewDescriptorSet->SetUboValue("lightUbo.eyePos", &eyePos, sizeof(eyePos));
+
+			const std::vector<RenderQueue::DirLightData*>& dirLightDatas = renderQueue.GetDirLightDatas();
+			uint32_t dirLightCount = (uint32_t)dirLightDatas.size();
+
+			viewDescriptorSet->SetUboValue("lightUbo.dirLightCount", &dirLightCount, sizeof(dirLightCount));
+
+			for (size_t i = 0; i < dirLightCount; ++i)
+			{
+				RenderQueue::DirLightData* dirLightData = dirLightDatas[i];
+
+				glm::vec4 color;
+				color.x = dirLightData->dirLight->color.r;
+				color.y = dirLightData->dirLight->color.g;
+				color.z = dirLightData->dirLight->color.b;
+				color.w = dirLightData->dirLight->color.a;
 
-        for (size_t i = 0; i < dirLightCount; ++i)
-        {
-            RenderQueue::DirLightData* dirLightData = dirLightDatas[i];
+				viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].dir", &dirLightData->dir, sizeof(glm::vec3));
+				viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
+				viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].intensity", &dirLightData->dirLight->intensity, sizeof(float));
+			}
+
+			const std::vector<RenderQueue::PointLightData*>& pointLightDatas = renderQueue.GetPointLightDatas();
+			uint32_t pointLightCount = (uint32_t)pointLightDatas.size();
 
-            glm::vec4 color;
-            color.x = dirLightData->dirLight->color.r;
-            color.y = dirLightData->dirLight->color.g;
-            color.z = dirLightData->dirLight->color.b;
-            color.w = dirLightData->dirLight->color.a;
+			viewDescriptorSet->SetUboValue("lightUbo.pointLightCount", &pointLightCount, sizeof(pointLightCount));
 
-            viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].dir", &dirLightData->dir, sizeof(glm::vec3));
-            viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
-            viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].intensity", &dirLightData->dirLight->intensity, sizeof(float));
-        }
+			float constant = 1.0f;
+			float linear = 0.14f;
+			float quadratic = 0.07f;
 
-        const std::vector<RenderQueue::PointLightData*>& pointLightDatas = renderQueue.GetPointLightDatas();
-        uint32_t pointLightCount = (uint32_t)pointLightDatas.size();
+			for (size_t i = 0; i < pointLightCount; ++i)
+			{
+				RenderQueue::PointLightData* pointLightData = pointLightDatas[i];
 
-        viewDescriptorSet->SetUboValue("lightUbo.pointLightCount", &pointLightCount, sizeof(pointLightCount));
+				glm::vec4 color;
+				color.x = pointLightData->pointLight->color.r;
+				color.y = pointLightData->pointLight->color.g;
+				color.z = pointLightData->pointLight->color.b;
+				color.w = pointLightData->pointLight->color.a;
 
-        float constant = 1.0f;
-        float linear = 0.14f;
-        float quadratic = 0.07f;
+				viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].pos", &pointLightData->pos, sizeof(glm::vec3));
+				viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
+				viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].intensity", &pointLightData->pointLight->intensity, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].constant", &constant, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
+			}
 
-        for (size_t i = 0; i < pointLightCount; ++i)
-        {
-            RenderQueue::PointLightData* pointLightData = pointLightDatas[i];
+			const std::vector<RenderQueue::SpotLightData*>& spotLightDatas = renderQueue.GetSpotLightDatas();
+			uint32_t spotLightCount = (uint32_t)spotLightDatas.size();
 
-            glm::vec4 color;
-            color.x = pointLightData->pointLight->color.r;
-            color.y = pointLightData->pointLight->color.g;
-            color.z = pointLightData->pointLight->color.b;
-            color.w = pointLightData->pointLight->color.a;
+			viewDescriptorSet->SetUboValue("lightUbo.spotLightCount", &spotLightCount, sizeof(spotLightCount));
 
-            viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].pos", &pointLightData->pos, sizeof(glm::vec3));
-            viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
-            viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].intensity", &pointLightData->pointLight->intensity, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].constant", &constant, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
-        }
+			constant = 1.0f;
+			linear = 0.045f;
+			quadratic = 0.0075f;
 
-        const std::vector<RenderQueue::SpotLightData*>& spotLightDatas = renderQueue.GetSpotLightDatas();
-        uint32_t spotLightCount = (uint32_t)spotLightDatas.size();
+			for (size_t i = 0; i < spotLightCount; ++i)
+			{
+				RenderQueue::SpotLightData* spotLightData = spotLightDatas[i];
 
-        viewDescriptorSet->SetUboValue("lightUbo.spotLightCount", &spotLightCount, sizeof(spotLightCount));
+				glm::vec4 color;
+				color.x = spotLightData->spotLight->color.r;
+				color.y = spotLightData->spotLight->color.g;
+				color.z = spotLightData->spotLight->color.b;
+				color.w = spotLightData->spotLight->color.a;
 
-        constant = 1.0f;
-        linear = 0.045f;
-        quadratic = 0.0075f;
+				float cosRadius = glm::cos(glm::radians(spotLightData->spotLight->radius));
+				float cosOuter = glm::cos(glm::radians(spotLightData->spotLight->outer));
 
-        for (size_t i = 0; i < spotLightCount; ++i)
-        {
-            RenderQueue::SpotLightData* spotLightData = spotLightDatas[i];
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].pos", &spotLightData->pos, sizeof(glm::vec3));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].dir", &spotLightData->dir, sizeof(glm::vec3));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].intensity", &spotLightData->spotLight->intensity, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].constant", &constant, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].radius", &cosRadius, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].outer", &cosOuter, sizeof(float));
+				viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].inner", &spotLightData->spotLight->inner, sizeof(float));
+			}
 
-            glm::vec4 color;
-            color.x = spotLightData->spotLight->color.r;
-            color.y = spotLightData->spotLight->color.g;
-            color.z = spotLightData->spotLight->color.b;
-            color.w = spotLightData->spotLight->color.a;
+			VkDescriptorSet vkViewDescriptorSet = viewDescriptorSet->GetDescriptorSet();
 
-            float cosRadius = glm::cos(glm::radians(spotLightData->spotLight->radius));
-            float cosOuter = glm::cos(glm::radians(spotLightData->spotLight->outer));
+			descriptorSetToCleanAfterRender.push_back(viewDescriptorSet);
 
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].pos", &spotLightData->pos, sizeof(glm::vec3));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].dir", &spotLightData->dir, sizeof(glm::vec3));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].intensity", &spotLightData->spotLight->intensity, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].constant", &constant, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].radius", &cosRadius, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].outer", &cosOuter, sizeof(float));
-            viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].inner", &spotLightData->spotLight->inner, sizeof(float));
-        }
+			VkMaterialInstance* hdriMatInstance = (VkMaterialInstance*)renderQueue.GetHdriMaterial();
+			VkMaterial* hdriMat = (VkMaterial*)hdriMatInstance->GetMaterial();
 
-        VkDescriptorSet vkViewDescriptorSet = viewDescriptorSet->GetDescriptorSet();
+			vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
+			vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 0, 1, &vkViewDescriptorSet, 0, nullptr);
 
-        descriptorSetToCleanAfterRender.push_back(viewDescriptorSet);
+			std::vector<VkDescriptorSet> descriptorSets = hdriMatInstance->GetDescriptorSets();
 
-        VkMaterialInstance* hdriMatInstance = (VkMaterialInstance*)renderQueue.GetHdriMaterial();
-        VkMaterial* hdriMat = (VkMaterial*)hdriMatInstance->GetMaterial();
+			vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
+			if (descriptorSets.empty() == false)
+				vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
-        vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 0, 1, &vkViewDescriptorSet, 0, nullptr);
+			VkMesh* mesh = (VkMesh*)this->_skyboxMesh;
+			VkBuffer vertexBuffer = mesh->GetVertexBuffer();
+			VkDeviceSize offsets[] = { 0 };
 
-        std::vector<VkDescriptorSet> descriptorSets = hdriMatInstance->GetDescriptorSets();
+			vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
+			vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
 
-        vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
-        if (descriptorSets.empty() == false)
-            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+			VkMaterial* defaultMat = ((VkMaterialInstance*)this->_unlitVertexColorMaterialInstance)->GetMaterial();
 
-        VkMesh* mesh = (VkMesh*)this->_skyboxMesh;
-        VkBuffer vertexBuffer = mesh->GetVertexBuffer();
-        VkDeviceSize offsets[] = { 0 };
+			vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMat->GetGraphicsPipeline());
+			vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMat->GetPipelineLayout(), 0, 1, &vkViewDescriptorSet, 0, nullptr);
 
-        vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-        vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
+			const std::vector<RenderQueue::MeshData*>& meshDatas = renderQueue.GetMeshDatas();
 
-        VkMaterial* defaultMat = ((VkMaterialInstance*)this->_unlitVertexColorMaterialInstance)->GetMaterial();
+			size_t meshCount = meshDatas.size();
+			for (size_t i = 0; i < meshCount; ++i)
+			{
+				const RenderQueue::MeshData* meshData = meshDatas[i];
 
-        vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMat->GetGraphicsPipeline());
-        vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMat->GetPipelineLayout(), 0, 1, &vkViewDescriptorSet, 0, nullptr);
+				VkMaterialInstance* materialInstance = (VkMaterialInstance*)meshData->materialInstance;
+				if (materialInstance == nullptr)
+				{
+					materialInstance = (VkMaterialInstance*)this->_unlitVertexColorMaterialInstance;
+				}
 
-        const std::vector<RenderQueue::MeshData*>& meshDatas = renderQueue.GetMeshDatas();
+				VkMaterial* material = materialInstance->GetMaterial();
 
-        size_t meshCount = meshDatas.size();
-        for (size_t i = 0; i < meshCount; ++i)
-        {
-            const RenderQueue::MeshData* meshData = meshDatas[i];
+				std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
-            VkMaterialInstance* materialInstance = (VkMaterialInstance*)meshData->materialInstance;
-            if (materialInstance == nullptr)
-            {
-                materialInstance = (VkMaterialInstance*)this->_unlitVertexColorMaterialInstance;
-            }
+				vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
+				if (descriptorSets.empty() == false)
+					vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
-            VkMaterial* material = materialInstance->GetMaterial();
 
-            std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
+				// Model descriptor set
 
-            vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-            if (descriptorSets.empty() == false)
-                vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+				glm::mat4x4 mvp = vp * meshData->matrix;
 
+				DescriptorSet* modelDescriptorSet = new DescriptorSet();
+				modelDescriptorSet->SetLayout(&this->_modelLayout);
+				modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
+				modelDescriptorSet->SetUboValue("modelUbo.model", &meshData->matrix, sizeof(meshData->matrix));
+				VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
 
-            // Model descriptor set
+				descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
 
-            glm::mat4x4 mvp = vp * meshData->matrix;
+				vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
 
-            DescriptorSet* modelDescriptorSet = new DescriptorSet();
-            modelDescriptorSet->SetLayout(&this->_modelLayout);
-            modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
-            modelDescriptorSet->SetUboValue("modelUbo.model", &meshData->matrix, sizeof(meshData->matrix));
-            VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
+				VkMesh* mesh = (VkMesh*)meshData->mesh;
+				VkBuffer vertexBuffer = mesh->GetVertexBuffer();
+				VkBuffer indiceBuffer = mesh->GetIndiceBuffer();
+				VkDeviceSize offsets[] = { 0 };
 
-            descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
+				vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
+				vkCmdBindIndexBuffer(*commandBuffer, indiceBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
+				vkCmdDrawIndexed(*commandBuffer, static_cast<uint32_t>(mesh->GetIndiceCount()), 1, 0, 0, 0);
+			}
+		}
 
-            VkMesh* mesh = (VkMesh*)meshData->mesh;
-            VkBuffer vertexBuffer = mesh->GetVertexBuffer();
-            VkBuffer indiceBuffer = mesh->GetIndiceBuffer();
-            VkDeviceSize offsets[] = { 0 };
+		const std::vector<RenderQueue::LineData*>& lineDatas = renderQueue.GetLineDatas();
 
-            vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-            vkCmdBindIndexBuffer(*commandBuffer, indiceBuffer, 0, VK_INDEX_TYPE_UINT16);
+		size_t lineCount = lineDatas.size();
+		for (size_t i = 0; i < lineCount; ++i)
+		{
+			const RenderQueue::LineData* lineData = lineDatas[i];
 
-            vkCmdDrawIndexed(*commandBuffer, static_cast<uint32_t>(mesh->GetIndiceCount()), 1, 0, 0, 0);
-        }
-    
-        const std::vector<RenderQueue::LineData*>& lineDatas = renderQueue.GetLineDatas();
+			VkMaterialInstance* materialInstance = (VkMaterialInstance*)lineData->materialInstance;
+			if (materialInstance == nullptr)
+			{
+				materialInstance = (VkMaterialInstance*)this->_unlitVertexColorLineMaterialInstance;
+			}
 
-        size_t lineCount = lineDatas.size();
-        for (size_t i = 0; i < lineCount; ++i)
-        {
-            const RenderQueue::LineData* lineData = lineDatas[i];
+			VkMaterial* material = materialInstance->GetMaterial();
 
-            VkMaterialInstance* materialInstance = (VkMaterialInstance*)lineData->materialInstance;
-            if (materialInstance == nullptr)
-            {
-                materialInstance = (VkMaterialInstance*)this->_unlitVertexColorLineMaterialInstance;
-            }
+			std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
-            VkMaterial* material = materialInstance->GetMaterial();
+			vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
+			if (descriptorSets.empty() == false)
+				vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
-            std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
-            vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-            if (descriptorSets.empty() == false)
-                vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+			// Model descriptor set
 
+			glm::mat4x4 mvp = vp * lineData->matrix;
 
-            // Model descriptor set
+			DescriptorSet* modelDescriptorSet = new DescriptorSet();
+			modelDescriptorSet->SetLayout(&this->_modelLayout);
+			modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
+			modelDescriptorSet->SetUboValue("modelUbo.model", &lineData->matrix, sizeof(lineData->matrix));
+			VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
 
-            glm::mat4x4 mvp = vp * lineData->matrix;
+			descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
 
-            DescriptorSet* modelDescriptorSet = new DescriptorSet();
-            modelDescriptorSet->SetLayout(&this->_modelLayout);
-            modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
-            modelDescriptorSet->SetUboValue("modelUbo.model", &lineData->matrix, sizeof(lineData->matrix));
-            VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
+			vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
 
-            descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
+			VkMesh* mesh = (VkMesh*)lineData->mesh;
+			VkBuffer vertexBuffer = mesh->GetVertexBuffer();
+			VkDeviceSize offsets[] = { 0 };
 
-            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
+			vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
+			vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
+		}
 
-            VkMesh* mesh = (VkMesh*)lineData->mesh;
-            VkBuffer vertexBuffer = mesh->GetVertexBuffer();
-            VkDeviceSize offsets[] = { 0 };
+		const std::vector<RenderQueue::TriangleData*>& triangleDatas = renderQueue.GetTriangleDatas();
 
-            vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-            vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
-        }
+		size_t triangleCount = triangleDatas.size();
+		for (size_t i = 0; i < triangleCount; ++i)
+		{
+			const RenderQueue::TriangleData* triangleData = triangleDatas[i];
 
-        const std::vector<RenderQueue::TriangleData*>& triangleDatas = renderQueue.GetTriangleDatas();
+			VkMaterialInstance* materialInstance = (VkMaterialInstance*)triangleData->materialInstance;
+			if (materialInstance == nullptr)
+			{
+				materialInstance = (VkMaterialInstance*)this->_unlitVertexColorMaterialInstance;
+			}
 
-        size_t triangleCount = triangleDatas.size();
-        for (size_t i = 0; i < triangleCount; ++i)
-        {
-            const RenderQueue::TriangleData* triangleData = triangleDatas[i];
+			VkMaterial* material = materialInstance->GetMaterial();
 
-            VkMaterialInstance* materialInstance = (VkMaterialInstance*)triangleData->materialInstance;
-            if (materialInstance == nullptr)
-            {
-                materialInstance = (VkMaterialInstance*)this->_unlitVertexColorMaterialInstance;
-            }
+			std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
-            VkMaterial* material = materialInstance->GetMaterial();
+			vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
+			if (descriptorSets.empty() == false)
+				vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 
-            std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
 
-            vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-            if (descriptorSets.empty() == false)
-                vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+			// Model descriptor set
 
+			glm::mat4x4 mvp = vp * triangleData->matrix;
 
-            // Model descriptor set
+			DescriptorSet* modelDescriptorSet = new DescriptorSet();
+			modelDescriptorSet->SetLayout(&this->_modelLayout);
+			modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
+			modelDescriptorSet->SetUboValue("modelUbo.model", &triangleData->matrix, sizeof(triangleData->matrix));
+			VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
 
-            glm::mat4x4 mvp = vp * triangleData->matrix;
+			descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
 
-            DescriptorSet* modelDescriptorSet = new DescriptorSet();
-            modelDescriptorSet->SetLayout(&this->_modelLayout);
-            modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
-            modelDescriptorSet->SetUboValue("modelUbo.model", &triangleData->matrix, sizeof(triangleData->matrix));
-            VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
+			vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
 
-            descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
+			VkMesh* mesh = (VkMesh*)triangleData->mesh;
+			VkBuffer vertexBuffer = mesh->GetVertexBuffer();
+			VkDeviceSize offsets[] = { 0 };
 
-            vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
+			vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
+			vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
+		}
 
-            VkMesh* mesh = (VkMesh*)triangleData->mesh;
-            VkBuffer vertexBuffer = mesh->GetVertexBuffer();
-            VkDeviceSize offsets[] = { 0 };
-
-            vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-            vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
-        }
-    
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
 
         vkCmdEndRenderPass(*commandBuffer);

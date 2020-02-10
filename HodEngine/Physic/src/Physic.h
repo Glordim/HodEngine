@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Debug/PhysicDebugWindow.h"
+
 #include <Core/src/Singleton.h>
 
 #include <vector>
@@ -60,6 +62,22 @@ namespace HOD
             physx::PxMaterial*              _pxDefaultMaterial = nullptr;
 
             std::vector<Scene*>				_vScenes;
+
+		// Debug
+		public:
+
+			void							SetShapeVisualizationFlag(bool bVisualizeShape);
+			void							SetActorVisualizationFlag(bool bVisualizeActor);
+
+			bool							GetShapeVisualizationFlag() const;
+			bool							GetActorVisualizationFlag() const;
+
+		private:
+
+			bool							_bVisualizeShape = false;
+			bool							_bVisualizeActor = false;
+
+			PhysicDebugWindow				_physicDebugWindow;
         };
     }
 }

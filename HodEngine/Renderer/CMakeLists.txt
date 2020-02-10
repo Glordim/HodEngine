@@ -18,6 +18,9 @@ project(Renderer)
 if (NOT TARGET Core)
 include(../Core/CMakeLists.txt)
 endif() 
+if (NOT TARGET DebugLayer)
+include(../DebugLayer/CMakeLists.txt)
+endif() 
 if (NOT TARGET Application)
 include(../Application/CMakeLists.txt)
 endif() 
@@ -42,9 +45,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 
 add_library(Renderer ${Srcs})
 
-add_dependencies(Renderer Core Application)
+add_dependencies(Renderer Core DebugLayer Application)
 
 target_link_libraries(Renderer
+optimized "../../../Build/HodEngine/Core/Release/Core" debug "../../../Build/HodEngine/Core/Debug/Core"
+optimized "../../../Build/HodEngine/DebugLayer/Release/DebugLayer" debug "../../../Build/HodEngine/DebugLayer/Debug/DebugLayer"
 optimized "../../../Build/HodEngine/ImGui/Release/ImGui" debug "../../../Build/HodEngine/ImGui/Debug/ImGui"
 optimized "../../../Build/HodEngine/Application/Release/Application" debug "../../../Build/HodEngine/Application/Debug/Application"
 optimized "../../../SDK/Build/SPIRV-Cross/Release/spirv-cross-core" debug "../../../SDK/Build/SPIRV-Cross/Debug/spirv-cross-core"

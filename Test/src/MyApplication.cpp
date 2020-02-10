@@ -11,6 +11,7 @@
 #include <HodEngine/Renderer/src/Texture.h>
 #include <HodEngine/Renderer/src/Mesh.h>
 #include <HodEngine/Game/src/Debug/ActorDebugWindow.h>
+#include <HodEngine/Game/src/Game.h>
 #include <HodEngine/Game/src/Scene.h>
 #include <HodEngine/Game/src/Actor.h>
 #include <HodEngine/Game/src/Component/SceneComponent.h>
@@ -62,6 +63,11 @@ bool MyApplication::PreRun()
 #endif
 
     HOD::Renderer* pRenderer = new HOD::RendererVulkan();
+	if (pRenderer->Init() == false)
+	{
+		return false;
+	}
+
     if (pRenderer->Init(this, bEnableValidationLayer) == false)
     {
         return false;
@@ -78,14 +84,11 @@ bool MyApplication::PreRun()
     if (pRenderer->SetupImGui() == false)
         return 1;
 
-
-	// Debug
-
-	pDebugLayer->RegisterDebugWindow(new GAME::ActorDebugWindow());
-
-
-	//
-
+	HOD::GAME::Game* pGame = HOD::GAME::Game::CreateInstance();
+	if (pGame->Init() == false)
+	{
+		return false;
+	}
 
     HOD::Mesh* sphereMesh = pRenderer->CreateMesh("Mesh/sphere.fbx");
     if (sphereMesh == nullptr)
@@ -263,7 +266,7 @@ bool MyApplication::PreRun()
     marbreMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
     marbreMaterialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(1.0f, 1.0f, 0.0f, 0.0f));
 
-    scene = new HOD::GAME::Scene();
+    scene = pGame->CreateScene();
 
     FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
     {
@@ -406,6 +409,11 @@ bool MyApplication::Loop(float deltaTime)
     scene->update(deltaTime);
 
 	CameraComponent* pCamera = scene->getRoot()->GetActor()->getAllComponent<CameraComponent>()[0];
+
+	glm::mat4 viewMatrix = glm::inverse(pCamera->GetActor()->getComponent<SceneComponent>()->getModelMatrix());
+	glm::mat4 projectionMatrix = pCamera->getProjectionMatrix();
+
+	DEBUG_LAYER::DebugLayer::GetInstance()->SetCameraMatrice(viewMatrix, projectionMatrix);
 
     DEBUG_LAYER::DebugLayer::GetInstance()->Draw();
 

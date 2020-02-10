@@ -47,6 +47,13 @@ namespace HOD
 			physx::PxMaterial*	pxDefaultMaterial = nullptr;
 
 			std::vector<Actor*>	actors;
-        };
+
+		// Debug
+		public:
+
+			void				ApplyShapeVisualizationFlag(bool bVisualizeShape);
+			void				ApplyActorVisualizationFlag(bool bVisualizeActor);
+
+		};
     }
 }

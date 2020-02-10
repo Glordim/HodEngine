@@ -3,6 +3,8 @@
 #include "Scene.h"
 #include "Actor.h"
 
+#include <DebugLayer/src/DebugLayer.h>
+
 #include <PxPhysicsAPI.h>
 
 namespace HOD
@@ -46,11 +48,15 @@ namespace HOD
                 return false;
             }
 
+			DEBUG_LAYER::DebugLayer::GetInstance()->RegisterDebugWindow(&_physicDebugWindow);
+
             return true;
         }
 
         void Physic::Clear()
         {
+			DEBUG_LAYER::DebugLayer::GetInstance()->UnregisterDebugWindow(&_physicDebugWindow);
+
             if (_pxDefaultMaterial != nullptr)
             {
                 _pxDefaultMaterial->release();
@@ -143,5 +149,35 @@ namespace HOD
                 return _pxPhysics->createShape(pPxGeometry, *pPxMaterial);
             }
         }
+
+		void Physic::SetShapeVisualizationFlag(bool bVisualizeShape)
+		{
+			_bVisualizeShape = bVisualizeShape;
+
+			for (Scene* pScene : _vScenes)
+			{
+				pScene->ApplyShapeVisualizationFlag(bVisualizeShape);
+			}
+		}
+
+		void Physic::SetActorVisualizationFlag(bool bVisualizeActor)
+		{
+			_bVisualizeActor = bVisualizeActor;
+
+			for (Scene* pScene : _vScenes)
+			{
+				pScene->ApplyActorVisualizationFlag(bVisualizeActor);
+			}
+		}
+
+		bool Physic::GetShapeVisualizationFlag() const
+		{
+			return _bVisualizeShape;
+		}
+
+		bool Physic::GetActorVisualizationFlag() const
+		{
+			return _bVisualizeActor;
+		}
     }
 }

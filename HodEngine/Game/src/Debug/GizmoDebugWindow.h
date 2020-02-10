@@ -5,6 +5,9 @@
 #include <vector>
 #include <map>
 
+#include <ImGui/src/imgui.h>
+#include <ImGui/src/ImGuizmo.h>
+
 namespace HOD
 {
     namespace GAME
@@ -14,12 +17,12 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class ActorDebugWindow : public DEBUG_LAYER::DebugWindow
+        class GizmoDebugWindow : public DEBUG_LAYER::DebugWindow
         {
 		public:
 
-											ActorDebugWindow();
-                                            ~ActorDebugWindow() override;
+											GizmoDebugWindow();
+                                            ~GizmoDebugWindow() override;
 
             void                            Draw() override;
 
@@ -28,7 +31,9 @@ namespace HOD
         private:
 
 			Actor*							_pActor = nullptr;
-            std::map<const char*, bool>     _actorComponentCollapseMap;
+
+			ImGuizmo::OPERATION				_eOperation = ImGuizmo::OPERATION::TRANSLATE;
+			ImGuizmo::MODE					_eMode = ImGuizmo::MODE::LOCAL;
         };
     }
 }

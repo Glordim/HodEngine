@@ -17,7 +17,7 @@ namespace HOD
     {
 		Actor::Actor(physx::PxActor* pxActor) : pxActor(pxActor)
 		{
-            pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
+            pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, Physic::GetInstance()->GetActorVisualizationFlag());
 		}
 
         void Actor::SetShape(SHAPE eShape, const BoundingBox& boundingBox, const glm::vec3& scale)
@@ -29,7 +29,7 @@ namespace HOD
             physx::PxShape* pxShape = Physic::GetInstance()->CreateShape(physx::PxBoxGeometry(halfSize.x, halfSize.y, halfSize.z));
             if (pxShape != nullptr)
             {
-                pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+                pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, Physic::GetInstance()->GetShapeVisualizationFlag());
 
                 glm::vec3 pos = boundingBox.center * scale;
 
@@ -53,6 +53,29 @@ namespace HOD
 		physx::PxActor* Actor::GetPxActor() const
 		{
 			return pxActor;
+		}
+
+		void Actor::SetShapesVisualizationFlag(bool bShapeVisualization)
+		{
+			physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
+
+			physx::PxShape** aShapes = new physx::PxShape*[rigidActor->getNbShapes()];
+
+			size_t shapeCount = rigidActor->getShapes(aShapes, rigidActor->getNbShapes(), 0);
+
+			for (size_t i = 0; i < shapeCount; ++i)
+			{
+				rigidActor->detachShape(*aShapes[i]);
+
+				aShapes[i]->setFlag(physx::PxShapeFlag::eVISUALIZATION, bShapeVisualization);
+
+				rigidActor->attachShape(*aShapes[i]);
+			}
+		}
+
+		void Actor::SetVisualizationFlag(bool bVisualization)
+		{
+			pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, bVisualization);
 		}
     }
 }
