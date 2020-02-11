@@ -15,6 +15,9 @@ namespace HOD
 
     namespace PHYSIC
     {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
         enum SHAPE
         {
             BOX,
@@ -29,21 +32,21 @@ namespace HOD
         class Actor
         {
         public:
-            Actor(physx::PxActor* pxActor);
-            ~Actor() = default;
+								Actor(physx::PxActor* pxActor);
+								~Actor() = default;
 
-            void    SetShape(SHAPE eShape, const BoundingBox& boundingBox, const glm::vec3& scale);
+            void				SetShape(SHAPE eShape, const BoundingBox& boundingBox, const glm::vec3& scale);
 
-            void    SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
+            void				SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 
-			physx::PxActor* GetPxActor() const;
+			physx::PxActor*		GetPxActor() const;
 
-			void	SetShapesVisualizationFlag(bool bShapeVisualization);
-			void	SetVisualizationFlag(bool bVisualization);
+			void				SetShapesVisualizationFlag(bool bShapeVisualization);
+			void				SetVisualizationFlag(bool bVisualization);
 
         private:
 
-            physx::PxActor* pxActor = nullptr;
+            physx::PxActor*		_pPxActor = nullptr;
         };
     }
 }

@@ -53,13 +53,13 @@ namespace HOD
 
         private:
 
-            physx::PxDefaultAllocator*      _defaultAllocator = nullptr;
-            physx::PxDefaultErrorCallback*  _defaultErrorCallback = nullptr;
+            physx::PxDefaultAllocator*      _pDefaultAllocator = nullptr;
+            physx::PxDefaultErrorCallback*  _pDefaultErrorCallback = nullptr;
 
-            physx::PxFoundation*            _pxFoundation = nullptr;
-            physx::PxPhysics*               _pxPhysics = nullptr;
+            physx::PxFoundation*            _pPxFoundation = nullptr;
+            physx::PxPhysics*               _pPxPhysics = nullptr;
 
-            physx::PxMaterial*              _pxDefaultMaterial = nullptr;
+            physx::PxMaterial*              _pPxDefaultMaterial = nullptr;
 
             std::vector<Scene*>				_vScenes;
 

@@ -1,11 +1,10 @@
 #include "Scene.h"
 
 #include "Actor.h"
-
 #include "Physic.h"
 
-#include "Renderer/src/Line_3P_3C.h"
-#include "Renderer/src/Tri_3P_3C.h"
+#include <Renderer/src/Line_3P_3C.h>
+#include <Renderer/src/Tri_3P_3C.h>
 
 #include <PxPhysicsAPI.h>
 
@@ -13,34 +12,49 @@ namespace HOD
 {
     namespace PHYSIC
     {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
         Scene::Scene(physx::PxScene* pPxScene)
-            : pxScene(pPxScene)
+            : _pPxScene(pPxScene)
         {
             
         }
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		Scene::~Scene()
 		{
 
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		Actor* Scene::CreateActor()
 		{
-			Actor* actor = Physic::GetInstance()->CreateActor();
+			Actor* pActor = Physic::GetInstance()->CreateActor();
 
-			pxScene->addActor(*actor->GetPxActor());
+			_pPxScene->addActor(*pActor->GetPxActor());
 
-			actors.push_back(actor);
+			_vActors.push_back(pActor);
 
-			return actor;
+			return pActor;
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Scene::Update(float dt)
 		{
-			this->pxScene->simulate(dt);
-			this->pxScene->fetchResults(true);
+			_pPxScene->simulate(dt);
+			_pPxScene->fetchResults(true);
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result)
 		{
 			physx::PxVec3 pxOrigin(origin.x, origin.y, origin.z);
@@ -50,18 +64,18 @@ namespace HOD
 
 			physx::PxRaycastBuffer pxRaycastBuffer;
 
-			bool bHit = pxScene->raycast(pxOrigin, pxDir, distance, pxRaycastBuffer);
+			bool bHit = _pPxScene->raycast(pxOrigin, pxDir, distance, pxRaycastBuffer);
 
 			if (bHit == true)
 			{
 				// Fill raycast result
                 physx::PxActor* pxActor = pxRaycastBuffer.block.actor;
 
-                for (Actor* pActor : actors)
+                for (Actor* pActor : _vActors)
                 {
                     if (pActor->GetPxActor() == pxActor)
                     {
-                        result.collider = pActor;
+                        result._pActorCollided = pActor;
                         break;
                     }
                 }
@@ -70,9 +84,12 @@ namespace HOD
 			return bHit;
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Scene::GetDebugGeometry(std::vector<Line_3P_3C>& lines, std::vector<Tri_3P_3C>& tris)
 		{
-			const physx::PxRenderBuffer& rb = this->pxScene->getRenderBuffer();
+			const physx::PxRenderBuffer& rb = _pPxScene->getRenderBuffer();
 			physx::PxU32 lineCount = rb.getNbLines();
 
 			if (lineCount != 0)
@@ -138,17 +155,23 @@ namespace HOD
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Scene::ApplyShapeVisualizationFlag(bool bVisualizeShape)
 		{
-			for (Actor* pActor : actors)
+			for (Actor* pActor : _vActors)
 			{
 				pActor->SetShapesVisualizationFlag(bVisualizeShape);
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Scene::ApplyActorVisualizationFlag(bool bVisualizeActor)
 		{
-			for (Actor* pActor : actors)
+			for (Actor* pActor : _vActors)
 			{
 				pActor->SetVisualizationFlag(bVisualizeActor);
 			}

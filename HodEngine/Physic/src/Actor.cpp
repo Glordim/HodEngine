@@ -15,14 +15,20 @@ namespace HOD
 {
     namespace PHYSIC
     {
-		Actor::Actor(physx::PxActor* pxActor) : pxActor(pxActor)
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Actor::Actor(physx::PxActor* pPxActor) : _pPxActor(pPxActor)
 		{
-            pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, Physic::GetInstance()->GetActorVisualizationFlag());
+			_pPxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, Physic::GetInstance()->GetActorVisualizationFlag());
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
         void Actor::SetShape(SHAPE eShape, const BoundingBox& boundingBox, const glm::vec3& scale)
         {
-            physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
+            physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pPxActor);
 
             glm::vec3 halfSize = glm::max(glm::abs((boundingBox.max - boundingBox.min) * scale) , 0.001f) * 0.5f;
 
@@ -39,43 +45,55 @@ namespace HOD
             }
         }
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Actor::SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale)
 		{
             physx::PxTransform pxTransform(physx::PxVec3(position.x, position.y, position.z));
             pxTransform.q = physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
             //pxTransform.sca
 
-            physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
+            physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pPxActor);
 
             rigidActor->setGlobalPose(pxTransform);
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		physx::PxActor* Actor::GetPxActor() const
 		{
-			return pxActor;
+			return _pPxActor;
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Actor::SetShapesVisualizationFlag(bool bShapeVisualization)
 		{
-			physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(pxActor);
+			physx::PxRigidActor* pRigidActor = static_cast<physx::PxRigidActor*>(_pPxActor);
 
-			physx::PxShape** aShapes = new physx::PxShape*[rigidActor->getNbShapes()];
+			physx::PxShape** aShapes = new physx::PxShape*[pRigidActor->getNbShapes()];
 
-			size_t shapeCount = rigidActor->getShapes(aShapes, rigidActor->getNbShapes(), 0);
+			size_t uiShapeCount = pRigidActor->getShapes(aShapes, pRigidActor->getNbShapes(), 0);
 
-			for (size_t i = 0; i < shapeCount; ++i)
+			for (size_t uiShapeIndex = 0; uiShapeIndex < uiShapeCount; ++uiShapeIndex)
 			{
-				rigidActor->detachShape(*aShapes[i]);
+				pRigidActor->detachShape(*aShapes[uiShapeIndex]);
 
-				aShapes[i]->setFlag(physx::PxShapeFlag::eVISUALIZATION, bShapeVisualization);
+				aShapes[uiShapeIndex]->setFlag(physx::PxShapeFlag::eVISUALIZATION, bShapeVisualization);
 
-				rigidActor->attachShape(*aShapes[i]);
+				pRigidActor->attachShape(*aShapes[uiShapeIndex]);
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Actor::SetVisualizationFlag(bool bVisualization)
 		{
-			pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, bVisualization);
+			_pPxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, bVisualization);
 		}
     }
 }

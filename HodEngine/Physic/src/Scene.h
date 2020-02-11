@@ -20,9 +20,12 @@ namespace HOD
     {
 		class Actor;
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		struct RaycastResult
 		{
-            Actor* collider = nullptr;
+            Actor*				_pActorCollided = nullptr;
 		};
 
 		//-----------------------------------------------------------------------------
@@ -43,10 +46,10 @@ namespace HOD
 			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result);
 
         private:
-            physx::PxScene*		pxScene = nullptr;
-			physx::PxMaterial*	pxDefaultMaterial = nullptr;
+            physx::PxScene*		_pPxScene = nullptr;
+			physx::PxMaterial*	_pPxDefaultMaterial = nullptr;
 
-			std::vector<Actor*>	actors;
+			std::vector<Actor*>	_vActors;
 
 		// Debug
 		public:
