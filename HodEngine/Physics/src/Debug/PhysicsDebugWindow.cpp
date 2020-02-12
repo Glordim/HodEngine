@@ -1,17 +1,17 @@
-#include "PhysicDebugWindow.h"
-#include "Physic.h"
+#include "PhysicsDebugWindow.h"
+#include "Physics.h"
 
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/ImGuizmo.h>
 
 namespace HOD
 {
-    namespace PHYSIC
+    namespace PHYSICS
     {
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		PhysicDebugWindow::PhysicDebugWindow() : DebugWindow()
+		PhysicsDebugWindow::PhysicsDebugWindow() : DebugWindow()
         {
 
         }
@@ -19,7 +19,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		PhysicDebugWindow::~PhysicDebugWindow()
+		PhysicsDebugWindow::~PhysicsDebugWindow()
 		{
             
         }
@@ -27,22 +27,22 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        void PhysicDebugWindow::Draw()
+        void PhysicsDebugWindow::Draw()
         {
-            ImGui::Begin("Physic");
+            ImGui::Begin("Physics");
             {
-				Physic* pPhycis = Physic::GetInstance();
+				Physics* physics = Physics::GetInstance();
 
-				bool bVisualizeShape = pPhycis->GetShapeVisualizationFlag();
-				bool bVisualizeActor = pPhycis->GetActorVisualizationFlag();
+				bool visualizeShape = physics->GetShapeVisualizationFlag();
+				bool visualizeActor = physics->GetActorVisualizationFlag();
 
-				if (ImGui::Checkbox("Visualize Shape", &bVisualizeShape) == true)
+				if (ImGui::Checkbox("Visualize Shape", &visualizeShape) == true)
 				{
-					pPhycis->SetShapeVisualizationFlag(bVisualizeShape);
+					physics->SetShapeVisualizationFlag(visualizeShape);
 				}
-				if (ImGui::Checkbox("Visualize Actor", &bVisualizeActor) == true)
+				if (ImGui::Checkbox("Visualize Actor", &visualizeActor) == true)
 				{
-					pPhycis->SetActorVisualizationFlag(bVisualizeActor);
+					physics->SetActorVisualizationFlag(visualizeActor);
 				}
             }
             ImGui::End();

@@ -32,8 +32,8 @@ if (NOT TARGET Application)
 include(../Application/CMakeLists.txt)
 endif()
 
-if (NOT TARGET Physic)
-include(../Physic/CMakeLists.txt)
+if (NOT TARGET Physics)
+include(../Physics/CMakeLists.txt)
 endif()
 
 if (NOT TARGET Renderer)
@@ -56,13 +56,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 		
 add_library(Game ${Srcs})
 
-add_dependencies(Game Core DebugLayer ImGui Application Physic Renderer)
+add_dependencies(Game Core DebugLayer ImGui Application Physics Renderer)
 
 target_link_libraries(Game
 optimized "../../../Build/HodEngine/Core/Release/Core" debug "../../../Build/HodEngine/Core/Debug/Core"
 optimized "../../../Build/HodEngine/DebugLayer/Release/DebugLayer" debug "../../../Build/HodEngine/DebugLayer/Debug/DebugLayer"
 optimized "../../../Build/HodEngine/ImGui/Release/ImGui" debug "../../../Build/HodEngine/ImGui/Debug/ImGui"
 optimized "../../../Build/HodEngine/Application/Release/Application" debug "../../../Build/HodEngine/Application/Debug/Application"
-optimized "../../../Build/HodEngine/Physic/Release/Physic" debug "../../../Build/HodEngine/Physic/Debug/Physic"
+optimized "../../../Build/HodEngine/Physics/Release/Physics" debug "../../../Build/HodEngine/Physics/Debug/Physics"
 optimized "../../../Build/HodEngine/Renderer/Release/Renderer" debug "../../../Build/HodEngine/Renderer/Debug/Renderer"
 )

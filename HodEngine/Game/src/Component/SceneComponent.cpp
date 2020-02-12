@@ -12,7 +12,7 @@
 //#include <AntTweakBar.h>
 
 #include "../Actor.h"
-#include <Physic/src/Actor.h>
+#include <Physics/src/Actor.h>
 
 #include <ImGui/src/imgui.h>
 
@@ -205,7 +205,7 @@ namespace HOD
 
         void SceneComponent::syncPxActor()
         {
-            PHYSIC::Actor* physicActor = this->GetActor()->GetPhysicActor();
+			PHYSICS::Actor* physicActor = this->GetActor()->GetPhysicActor();
 
             if (physicActor != nullptr)
             {

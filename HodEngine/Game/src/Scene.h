@@ -16,7 +16,7 @@ namespace HOD
 		struct Color;
 	}
 
-	namespace PHYSIC
+	namespace PHYSICS
 	{
 		struct RaycastResult;
 		class Scene;
@@ -40,15 +40,15 @@ namespace HOD
             void simulatePhysic(float dt);
             void update(float dt);
 			
-            bool raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration);
+            bool raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration);
 
-            PHYSIC::Actor* CreatePhysicActor(Actor* actor);
-            Actor* convertPxActor(PHYSIC::Actor* physicActor);
+			PHYSICS::Actor* CreatePhysicActor(Actor* actor);
+            Actor* convertPxActor(PHYSICS::Actor* physicActor);
 
             void setAmbiantColor(CORE::Color& color);
             SceneComponent* getRoot() const;
 
-			PHYSIC::Scene* GetPhysicScene() const;
+			PHYSICS::Scene* GetPhysicScene() const;
 
 			void AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration);
 			void GetDebugLines(std::vector<Line_3P_3C>& lines);
@@ -57,10 +57,10 @@ namespace HOD
             CORE::Color ambiantColor;
             Actor* root;
 
-			PHYSIC::Scene* physicScene = nullptr;
+			PHYSICS::Scene* physicScene = nullptr;
 
             std::vector<Actor*> actorList;
-            std::map<PHYSIC::Actor*, Actor*> physicActorToActorMap;
+            std::map<PHYSICS::Actor*, Actor*> physicActorToActorMap;
 
 			std::vector<std::pair<Line_3P_3C, float>> vDebugLines;
         };

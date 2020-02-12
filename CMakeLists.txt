@@ -24,8 +24,8 @@ endif()
 if (NOT TARGET ImGui)
 add_subdirectory(HodEngine/ImGui)
 endif() 
-if (NOT TARGET Physic)
-add_subdirectory(HodEngine/Physic)
+if (NOT TARGET Physics)
+add_subdirectory(HodEngine/Physics)
 endif()
 if (NOT TARGET Application)
 add_subdirectory(HodEngine/Application)
@@ -49,7 +49,7 @@ add_executable(HodEngine ${Srcs})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodEngine)
 set_property(TARGET HodEngine PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "../Data")
 
-add_dependencies(HodEngine Core DebugLayer ImGui Physic Application Renderer Game)
+add_dependencies(HodEngine Core DebugLayer ImGui Physics Application Renderer Game)
 
 #if(MSVC)
 #	target_compile_options(HodEngine PRIVATE /W4 /WX)
@@ -69,7 +69,7 @@ optimized "HodEngine/Core/Release/Core" debug "HodEngine/Core/Debug/Core"
 optimized "HodEngine/Game/Release/Game" debug "HodEngine/Game/Debug/Game"
 optimized "HodEngine/Renderer/Release/Renderer" debug "HodEngine/Renderer/Debug/Renderer"
 optimized "HodEngine/Application/Release/Application" debug "HodEngine/Application/Debug/Application"
-optimized "HodEngine/Physic/Release/Physic" debug "HodEngine/Physic/Debug/Physic"
+optimized "HodEngine/Physics/Release/Physics" debug "HodEngine/Physics/Debug/Physics"
 optimized "HodEngine/ImGui/Release/ImGui" debug "HodEngine/ImGui/Debug/ImGui"
 optimized "HodEngine/DebugLayer/Release/DebugLayer" debug "HodEngine/DebugLayer/Debug/DebugLayer"
 optimized "../SDK/Build/SDL/Release/SDL2" debug "../SDK/Build/SDL/Debug/SDL2d"

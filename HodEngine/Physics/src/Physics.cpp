@@ -1,4 +1,4 @@
-#include "Physic.h"
+#include "Physics.h"
 
 #include "Scene.h"
 #include "Actor.h"
@@ -9,14 +9,14 @@
 
 namespace HOD
 {
-    PHYSIC::Physic* CORE::Singleton<PHYSIC::Physic>::_instance = nullptr;
+	PHYSICS::Physics* CORE::Singleton<PHYSICS::Physics>::_instance = nullptr;
 
-    namespace PHYSIC
+    namespace PHYSICS
     {
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        Physic::Physic() : Singleton()
+        Physics::Physics() : Singleton()
         {
 
         }
@@ -24,7 +24,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        Physic::~Physic()
+        Physics::~Physics()
         {
             Clear();
         }
@@ -32,27 +32,27 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        bool Physic::Init()
+        bool Physics::Init()
         {
-            _pDefaultAllocator = new physx::PxDefaultAllocator();
-			_pDefaultErrorCallback = new physx::PxDefaultErrorCallback();
+            _pxDefaultAllocator = new physx::PxDefaultAllocator();
+			_pxDefaultErrorCallback = new physx::PxDefaultErrorCallback();
 
-            _pPxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *_pDefaultAllocator, *_pDefaultErrorCallback);
-            if (_pPxFoundation == nullptr)
+            _pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *_pxDefaultAllocator, *_pxDefaultErrorCallback);
+            if (_pxFoundation == nullptr)
             {
                 return false;
             }
 
             physx::PxTolerancesScale tolerancesScale;
 
-            _pPxPhysics = PxCreateBasePhysics(PX_PHYSICS_VERSION, *_pPxFoundation, tolerancesScale);
-            if (_pPxPhysics == nullptr)
+            _pxPhysics = PxCreateBasePhysics(PX_PHYSICS_VERSION, *_pxFoundation, tolerancesScale);
+            if (_pxPhysics == nullptr)
             {
                 return false;
             }
 
-            _pPxDefaultMaterial = _pPxPhysics->createMaterial(0.0f, 0.0f, 0.0f);
-            if (_pPxDefaultMaterial == nullptr)
+            _pxDefaultMaterial = _pxPhysics->createMaterial(0.0f, 0.0f, 0.0f);
+            if (_pxDefaultMaterial == nullptr)
             {
                 return false;
             }
@@ -65,158 +65,158 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        void Physic::Clear()
+        void Physics::Clear()
         {
 			DEBUG_LAYER::DebugLayer::GetInstance()->UnregisterDebugWindow(&_physicDebugWindow);
 
-            if (_pPxDefaultMaterial != nullptr)
+            if (_pxDefaultMaterial != nullptr)
             {
-				_pPxDefaultMaterial->release();
-				_pPxDefaultMaterial = nullptr;
+				_pxDefaultMaterial->release();
+				_pxDefaultMaterial = nullptr;
             }
 
-            if (_pPxPhysics != nullptr)
+            if (_pxPhysics != nullptr)
             {
-				_pPxPhysics->release();
-				_pPxPhysics = nullptr;
+				_pxPhysics->release();
+				_pxPhysics = nullptr;
             }
 
-            if (_pPxFoundation != nullptr)
+            if (_pxFoundation != nullptr)
             {
-				_pPxFoundation->release();
-				_pPxFoundation = nullptr;
+				_pxFoundation->release();
+				_pxFoundation = nullptr;
             }
 
-            if (_pDefaultAllocator != nullptr)
+            if (_pxDefaultAllocator != nullptr)
             {
-                delete _pDefaultAllocator;
-				_pDefaultAllocator = nullptr;
+                delete _pxDefaultAllocator;
+				_pxDefaultAllocator = nullptr;
             }
 
-            if (_pDefaultErrorCallback != nullptr)
+            if (_pxDefaultErrorCallback != nullptr)
             {
-                delete _pDefaultErrorCallback;
-				_pDefaultErrorCallback = nullptr;
+                delete _pxDefaultErrorCallback;
+				_pxDefaultErrorCallback = nullptr;
             }
         }
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        const physx::PxMaterial& Physic::GetDefaultMaterial() const
+        const physx::PxMaterial& Physics::GetDefaultMaterial() const
         {
-            return *_pPxDefaultMaterial;
+            return *_pxDefaultMaterial;
         }
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Scene* Physic::CreateScene()
+		Scene* Physics::CreateScene()
 		{
-            physx::PxTolerancesScale tolerancesScale = _pPxPhysics->getTolerancesScale();
+            physx::PxTolerancesScale tolerancesScale = _pxPhysics->getTolerancesScale();
 
             physx::PxSceneDesc pxSceneDesc(tolerancesScale);
 
             physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
             pxSceneDesc.filterShader = gDefaultFilterShader;
 
-            physx::PxCpuDispatcher* mCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(1);
-            pxSceneDesc.cpuDispatcher = mCpuDispatcher;
+            physx::PxCpuDispatcher* pxCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(1);
+            pxSceneDesc.cpuDispatcher = pxCpuDispatcher;
 
-            physx::PxScene* pxScene = _pPxPhysics->createScene(pxSceneDesc);
+            physx::PxScene* pxScene = _pxPhysics->createScene(pxSceneDesc);
             pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
             pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
             pxScene->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, 1.0f);
 
-            Scene* pScene = new Scene(pxScene);
+            Scene* scene = new Scene(pxScene);
 
-            _vScenes.push_back(pScene);
+            _scenes.push_back(scene);
 
-            return pScene;
+            return scene;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        void Physic::DestroyScene(Scene* pScene)
+        void Physics::DestroyScene(Scene* scene)
         {
-            auto it = _vScenes.begin();
-            auto itEnd = _vScenes.end();
+            auto it = _scenes.begin();
+            auto itEnd = _scenes.end();
             while (it != itEnd)
             {
-                if (*it == pScene)
+                if (*it == scene)
                 {
-                    _vScenes.erase(it);
+                    _scenes.erase(it);
                     break;
                 }
             }
 
-            delete pScene;
+            delete scene;
         }
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Actor* Physic::CreateActor()
+		Actor* Physics::CreateActor()
 		{
-			return new Actor(_pPxPhysics->createRigidStatic(physx::PxTransform(physx::PxIDENTITY())));
+			return new Actor(_pxPhysics->createRigidStatic(physx::PxTransform(physx::PxIDENTITY())));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        physx::PxShape* Physic::CreateShape(physx::PxGeometry& pPxGeometry, physx::PxMaterial* pPxMaterial)
+        physx::PxShape* Physics::CreateShape(physx::PxGeometry& pxGeometry, physx::PxMaterial* pxMaterial)
         {
-            if (pPxMaterial == nullptr)
+            if (pxMaterial == nullptr)
             {
-                return _pPxPhysics->createShape(pPxGeometry, *_pPxDefaultMaterial);
+                return _pxPhysics->createShape(pxGeometry, *_pxDefaultMaterial);
             }
             else
             {
-                return _pPxPhysics->createShape(pPxGeometry, *pPxMaterial);
+                return _pxPhysics->createShape(pxGeometry, *pxMaterial);
             }
         }
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Physic::SetShapeVisualizationFlag(bool bVisualizeShape)
+		void Physics::SetShapeVisualizationFlag(bool visualization)
 		{
-			_bVisualizeShape = bVisualizeShape;
+			_visualizeShape = visualization;
 
-			for (Scene* pScene : _vScenes)
+			for (Scene* scene : _scenes)
 			{
-				pScene->ApplyShapeVisualizationFlag(bVisualizeShape);
+				scene->ApplyShapeVisualizationFlag(visualization);
 			}
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Physic::SetActorVisualizationFlag(bool bVisualizeActor)
+		void Physics::SetActorVisualizationFlag(bool visualization)
 		{
-			_bVisualizeActor = bVisualizeActor;
+			_visualizeActor = visualization;
 
-			for (Scene* pScene : _vScenes)
+			for (Scene* scene : _scenes)
 			{
-				pScene->ApplyActorVisualizationFlag(bVisualizeActor);
+				scene->ApplyActorVisualizationFlag(visualization);
 			}
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Physic::GetShapeVisualizationFlag() const
+		bool Physics::GetShapeVisualizationFlag() const
 		{
-			return _bVisualizeShape;
+			return _visualizeShape;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Physic::GetActorVisualizationFlag() const
+		bool Physics::GetActorVisualizationFlag() const
 		{
-			return _bVisualizeActor;
+			return _visualizeActor;
 		}
     }
 }

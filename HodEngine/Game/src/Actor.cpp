@@ -41,12 +41,12 @@ namespace HOD
             return this->name;
         }
 
-        PHYSIC::Actor* Actor::GetPhysicActor() const
+		PHYSICS::Actor* Actor::GetPhysicActor() const
         {
             return this->physicActor;
         }
 
-        void Actor::SetPhysicActor(PHYSIC::Actor* physicActor)
+        void Actor::SetPhysicActor(PHYSICS::Actor* physicActor)
         {
             this->physicActor = physicActor;
         }

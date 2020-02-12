@@ -14,7 +14,7 @@ function(assign_source_group)
     endforeach()
 endfunction(assign_source_group)
 
-project(Physic)
+project(Physics)
 if (NOT TARGET Core)
 include(../Core/CMakeLists.txt)
 endif() 
@@ -37,11 +37,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 "../../SDK/PhysX/pxshared/include"
 )
 
-add_library(Physic ${Srcs})
+add_library(Physics ${Srcs})
 
-add_dependencies(Physic Core DebugLayer)
+add_dependencies(Physics Core DebugLayer)
 
-target_link_libraries(Physic
+target_link_libraries(Physics
 optimized "../../../Build/HodEngine/Core/Release/Core" debug "../../../Build/HodEngine/Core/Debug/Core"
 optimized "../../../Build/HodEngine/DebugLayer/Release/DebugLayer" debug "../../../Build/HodEngine/DebugLayer/Debug/DebugLayer"
 optimized "../../../SDK/Build/PhysX_lib/release/PhysX_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysX_64"

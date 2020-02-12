@@ -42,20 +42,20 @@ namespace HOD
 		{
             Scene* pScene = new Scene();
 
-            _vScenes.push_back(pScene);
+            _scenes.push_back(pScene);
 
             return pScene;
 		}
 
         void Game::DestroyScene(Scene* pScene)
         {
-            auto it = _vScenes.begin();
-            auto itEnd = _vScenes.end();
+            auto it = _scenes.begin();
+            auto itEnd = _scenes.end();
             while (it != itEnd)
             {
                 if (*it == pScene)
                 {
-                    _vScenes.erase(it);
+                    _scenes.erase(it);
                     break;
                 }
             }
@@ -65,7 +65,7 @@ namespace HOD
 
 		void Game::Update(float dt)
 		{
-			for (Scene* pScene : _vScenes)
+			for (Scene* pScene : _scenes)
 			{
 				pScene->update(dt);
 			}

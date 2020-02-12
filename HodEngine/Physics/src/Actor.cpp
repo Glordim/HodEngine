@@ -1,6 +1,6 @@
 #include "Actor.h"
 
-#include "Physic.h"
+#include "Physics.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -13,29 +13,29 @@
 
 namespace HOD
 {
-    namespace PHYSIC
+    namespace PHYSICS
     {
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Actor::Actor(physx::PxActor* pPxActor) : _pPxActor(pPxActor)
+		Actor::Actor(physx::PxActor* pxActor) : _pxActor(pxActor)
 		{
-			_pPxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, Physic::GetInstance()->GetActorVisualizationFlag());
+			_pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, Physics::GetInstance()->GetActorVisualizationFlag());
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        void Actor::SetShape(SHAPE eShape, const BoundingBox& boundingBox, const glm::vec3& scale)
+        void Actor::SetShape(SHAPE shape, const BoundingBox& boundingBox, const glm::vec3& scale)
         {
-            physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pPxActor);
+            physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pxActor);
 
             glm::vec3 halfSize = glm::max(glm::abs((boundingBox.max - boundingBox.min) * scale) , 0.001f) * 0.5f;
 
-            physx::PxShape* pxShape = Physic::GetInstance()->CreateShape(physx::PxBoxGeometry(halfSize.x, halfSize.y, halfSize.z));
+            physx::PxShape* pxShape = Physics::GetInstance()->CreateShape(physx::PxBoxGeometry(halfSize.x, halfSize.y, halfSize.z));
             if (pxShape != nullptr)
             {
-                pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, Physic::GetInstance()->GetShapeVisualizationFlag());
+                pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, Physics::GetInstance()->GetShapeVisualizationFlag());
 
                 glm::vec3 pos = boundingBox.center * scale;
 
@@ -54,7 +54,7 @@ namespace HOD
             pxTransform.q = physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
             //pxTransform.sca
 
-            physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pPxActor);
+            physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pxActor);
 
             rigidActor->setGlobalPose(pxTransform);
 		}
@@ -64,36 +64,36 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		physx::PxActor* Actor::GetPxActor() const
 		{
-			return _pPxActor;
+			return _pxActor;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetShapesVisualizationFlag(bool bShapeVisualization)
+		void Actor::SetShapesVisualizationFlag(bool visualization)
 		{
-			physx::PxRigidActor* pRigidActor = static_cast<physx::PxRigidActor*>(_pPxActor);
+			physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pxActor);
 
-			physx::PxShape** aShapes = new physx::PxShape*[pRigidActor->getNbShapes()];
+			physx::PxShape** shapes = new physx::PxShape*[rigidActor->getNbShapes()];
 
-			size_t uiShapeCount = pRigidActor->getShapes(aShapes, pRigidActor->getNbShapes(), 0);
+			size_t shapeCount = rigidActor->getShapes(shapes, rigidActor->getNbShapes(), 0);
 
-			for (size_t uiShapeIndex = 0; uiShapeIndex < uiShapeCount; ++uiShapeIndex)
+			for (size_t shapeIndex = 0; shapeIndex < shapeCount; ++shapeIndex)
 			{
-				pRigidActor->detachShape(*aShapes[uiShapeIndex]);
+				rigidActor->detachShape(*shapes[shapeIndex]);
 
-				aShapes[uiShapeIndex]->setFlag(physx::PxShapeFlag::eVISUALIZATION, bShapeVisualization);
+				shapes[shapeIndex]->setFlag(physx::PxShapeFlag::eVISUALIZATION, visualization);
 
-				pRigidActor->attachShape(*aShapes[uiShapeIndex]);
+				rigidActor->attachShape(*shapes[shapeIndex]);
 			}
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetVisualizationFlag(bool bVisualization)
+		void Actor::SetVisualizationFlag(bool visualization)
 		{
-			_pPxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, bVisualization);
+			_pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, visualization);
 		}
     }
 }

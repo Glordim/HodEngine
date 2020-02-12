@@ -16,7 +16,7 @@ namespace HOD
 	struct Tri_3P_3C;
 	struct Color;
 
-    namespace PHYSIC
+    namespace PHYSICS
     {
 		class Actor;
 
@@ -25,7 +25,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		struct RaycastResult
 		{
-            Actor*				_pActorCollided = nullptr;
+            Actor*				_actorCollided = nullptr;
 		};
 
 		//-----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace HOD
         class Scene
         {
         public:
-								Scene(physx::PxScene* pPxScene);
+								Scene(physx::PxScene* pxScene);
 								~Scene();
 
 			Actor*				CreateActor();
@@ -43,19 +43,19 @@ namespace HOD
 
 			void				Update(float dt);
 
-			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result);
+			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result);
 
         private:
-            physx::PxScene*		_pPxScene = nullptr;
-			physx::PxMaterial*	_pPxDefaultMaterial = nullptr;
+            physx::PxScene*		_pxScene = nullptr;
+			physx::PxMaterial*	_pxDefaultMaterial = nullptr;
 
-			std::vector<Actor*>	_vActors;
+			std::vector<Actor*>	_actors;
 
 		// Debug
 		public:
 
-			void				ApplyShapeVisualizationFlag(bool bVisualizeShape);
-			void				ApplyActorVisualizationFlag(bool bVisualizeActor);
+			void				ApplyShapeVisualizationFlag(bool visualization);
+			void				ApplyActorVisualizationFlag(bool visualization);
 
 		};
     }

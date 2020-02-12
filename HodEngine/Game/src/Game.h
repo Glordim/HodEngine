@@ -37,7 +37,7 @@ namespace HOD
 
         private:
 
-            std::vector<Scene*>		_vScenes;
+            std::vector<Scene*>		_scenes;
 
 		//Debug
 		public:

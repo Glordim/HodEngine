@@ -2,7 +2,7 @@
 
 namespace HOD
 {
-	namespace PHYSIC
+	namespace PHYSICS
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

@@ -4,7 +4,7 @@
 
 namespace HOD
 {
-    namespace PHYSIC
+    namespace PHYSICS
     {
         enum SHAPE;
     }
@@ -29,7 +29,7 @@ namespace HOD
             void        DrawImGui() override;
             const char* GetName() override;
 
-            void SetShape(PHYSIC::SHAPE eShape);
+            void SetShape(PHYSICS::SHAPE eShape);
         };
     }
 }

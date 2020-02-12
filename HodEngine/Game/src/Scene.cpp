@@ -4,9 +4,9 @@
 
 #include <Core/Src/Color.h>
 
-#include <Physic/src/Physic.h>
-#include <Physic/src/Actor.h>
-#include <Physic/src/Scene.h>
+#include <Physics/src/Physics.h>
+#include <Physics/src/Actor.h>
+#include <Physics/src/Scene.h>
 
 #include <Renderer/src/Shader.h>
 #include <Renderer/src/Material.h>
@@ -26,15 +26,15 @@ namespace HOD
             this->root = this->spawnActor<Actor>("Root");
             this->root->addComponent<SceneComponent>();
 
-			this->physicScene = PHYSIC::Physic::GetInstance()->CreateScene();
+			this->physicScene = PHYSICS::Physics::GetInstance()->CreateScene();
         }
 
         Scene::~Scene()
         {
-            PHYSIC::Physic::GetInstance()->DestroyScene(this->physicScene);
+			PHYSICS::Physics::GetInstance()->DestroyScene(this->physicScene);
         }
 
-        PHYSIC::Scene* Scene::GetPhysicScene() const
+		PHYSICS::Scene* Scene::GetPhysicScene() const
         {
             return this->physicScene;
         }
@@ -73,7 +73,7 @@ namespace HOD
             }
         }
 
-        bool Scene::raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSIC::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration)
+        bool Scene::raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration)
         {
             if (drawDebug == true)
                 this->AddDebugLine(origin, origin + (dir * distance), debugColor, debugDuration);
@@ -81,11 +81,11 @@ namespace HOD
 			return physicScene->Raycast(origin, dir, distance, result);
         }
 
-        PHYSIC::Actor* Scene::CreatePhysicActor(Actor* actor)
+		PHYSICS::Actor* Scene::CreatePhysicActor(Actor* actor)
         {
 			SceneComponent* actorSceneComponent = actor->getComponent<SceneComponent>();
 
-			PHYSIC::Actor* physicActor = physicScene->CreateActor();
+			PHYSICS::Actor* physicActor = physicScene->CreateActor();
 
 			physicActor->SetTransform(actorSceneComponent->getPosition(), actorSceneComponent->getRotation(), glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -96,7 +96,7 @@ namespace HOD
             return physicActor;
         }
 
-        Actor* Scene::convertPxActor(PHYSIC::Actor* physicActor)
+        Actor* Scene::convertPxActor(PHYSICS::Actor* physicActor)
         {
             return this->physicActorToActorMap[physicActor];
         }

@@ -10,7 +10,7 @@
 
 #include <Renderer/src/Mesh.h>
 
-#include <Physic/src/Actor.h>
+#include <Physics/src/Actor.h>
 
 namespace HOD
 {
@@ -20,7 +20,7 @@ namespace HOD
         {
             Scene* scene = actor->getScene();
 
-            PHYSIC::Actor* physicActor = actor->GetPhysicActor();
+			PHYSICS::Actor* physicActor = actor->GetPhysicActor();
 
             if (physicActor == nullptr)
             {
@@ -43,10 +43,10 @@ namespace HOD
             return "Collider";
         }
 
-        void ColliderComponent::SetShape(PHYSIC::SHAPE eShape)
+        void ColliderComponent::SetShape(PHYSICS::SHAPE eShape)
         {
             Actor* actor = GetActor();
-            PHYSIC::Actor* physicActor = actor->GetPhysicActor();
+			PHYSICS::Actor* physicActor = actor->GetPhysicActor();
 
             StaticMeshComponent* pStaticMeshComponent = actor->getComponent<StaticMeshComponent>();
             SceneComponent* pSceneComponent = actor->getComponent<SceneComponent>();

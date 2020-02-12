@@ -6,7 +6,7 @@
 
 #include "HodEngine/Game/src/InputListener.h"
 
-#include <HodEngine/Physic/src/Scene.h>
+#include <HodEngine/Physics/src/Scene.h>
 
 #include <SDK/SDL/include/SDL.h>
 
@@ -72,11 +72,11 @@ namespace HOD
 
         glm::vec3 finalPos = this->sceneComponent->getPosition() + glm::vec3(dir * 100.0f);
 
-        PHYSIC::RaycastResult result;
+		PHYSICS::RaycastResult result;
 
         if (this->scene->raycast(this->sceneComponent->getPosition(), dir, 100.0f, result, true, CORE::Color(1.0f, 1.0f, 0.0f, 1.0f), 5.0f) == true)
         {
-			PHYSIC::Actor* physicActor = result.collider;
+			PHYSICS::Actor* physicActor = result._actorCollided;
 
             GAME::Actor* actor = this->scene->convertPxActor(physicActor);
             if (actor != nullptr)

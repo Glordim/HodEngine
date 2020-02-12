@@ -9,7 +9,7 @@
 
 namespace HOD
 {
-    namespace PHYSIC
+    namespace PHYSICS
     {
         class Actor;
     }
@@ -45,12 +45,12 @@ namespace HOD
             const std::string& getName() const;
             Scene* getScene() const;
 
-            PHYSIC::Actor*  GetPhysicActor() const;
-            void            SetPhysicActor(PHYSIC::Actor* physicActor);
+			PHYSICS::Actor*  GetPhysicActor() const;
+            void            SetPhysicActor(PHYSICS::Actor* physicActor);
 
         protected:
             Scene* scene = nullptr;
-            PHYSIC::Actor* physicActor = nullptr;
+			PHYSICS::Actor* physicActor = nullptr;
 
             std::string name;
 

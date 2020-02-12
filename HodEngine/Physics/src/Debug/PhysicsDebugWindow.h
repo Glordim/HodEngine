@@ -7,17 +7,17 @@
 
 namespace HOD
 {
-    namespace PHYSIC
+    namespace PHYSICS
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class PhysicDebugWindow : public DEBUG_LAYER::DebugWindow
+        class PhysicsDebugWindow : public DEBUG_LAYER::DebugWindow
         {
 		public:
 
-						PhysicDebugWindow();
-                        ~PhysicDebugWindow() override;
+						PhysicsDebugWindow();
+                        ~PhysicsDebugWindow() override;
 
             void        Draw() override;
         };

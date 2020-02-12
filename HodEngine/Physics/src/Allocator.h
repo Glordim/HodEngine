@@ -4,18 +4,19 @@
 
 namespace HOD
 {
-	namespace PHYSIC
+	namespace PHYSICS
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class Error : public physx::PxErrorCallback
+		class Allocator : public physx::PxAllocatorCallback
 		{
 		public:
-					Error();
-					~Error() override;
+							Allocator();
+							~Allocator() override;
 
-			void	reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) override;
+			void*	allocate(size_t size, const char* typeName, const char* filename, int line) override;
+			void	deallocate(void* ptr) override;
 		};
 	}
 }

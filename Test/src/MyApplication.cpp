@@ -1,7 +1,7 @@
 #include "MyApplication.h"
 
-#include <HodEngine/Physic/src/Physic.h>
-#include <HodEngine/Physic/src/Actor.h>
+#include <HodEngine/Physics/src/Physics.h>
+#include <HodEngine/Physics/src/Actor.h>
 #include <HodEngine/Renderer/src/Renderer.h>
 #include <HodEngine/Renderer/src/Vulkan/RendererVulkan.h>
 #include <HodEngine/Renderer/src/GpuDeviceHelper.h>
@@ -50,7 +50,7 @@ bool MyApplication::PreRun()
         return false;
     }
 
-    HOD::PHYSIC::Physic* pPhysics = HOD::PHYSIC::Physic::CreateInstance();
+    HOD::PHYSICS::Physics* pPhysics = HOD::PHYSICS::Physics::CreateInstance();
     if (pPhysics->Init() == false)
     {
         return false;
@@ -301,7 +301,7 @@ bool MyApplication::PreRun()
         staticMeshComponent->EnableDebugTangent(true);
 
         HOD::GAME::ColliderComponent* colliderComponent = wall1->addComponent<HOD::GAME::ColliderComponent>();
-        colliderComponent->SetShape(PHYSIC::SHAPE::BOX);
+        colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
     }
 
     Actor* wall2 = scene->spawnActor<Actor>("wall2");
@@ -318,7 +318,7 @@ bool MyApplication::PreRun()
         staticMeshComponent->EnableDebugTangent(true);
 
         HOD::GAME::ColliderComponent* colliderComponent = wall2->addComponent<HOD::GAME::ColliderComponent>();
-        colliderComponent->SetShape(PHYSIC::SHAPE::BOX);
+        colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
     }
 
     Actor* sphereActor = scene->spawnActor<FlyingPointLight>("FlyingPointLight");
@@ -333,7 +333,7 @@ bool MyApplication::PreRun()
         staticMeshComponent->setMaterialInstance(pRenderer->CreateMaterialInstance(materialUnlit));
 
         HOD::GAME::ColliderComponent* colliderComponent = sphereActor->addComponent<HOD::GAME::ColliderComponent>();
-        colliderComponent->SetShape(PHYSIC::SHAPE::SPHERE);
+        colliderComponent->SetShape(PHYSICS::SHAPE::SPHERE);
 
         HOD::GAME::PointLightComponent* pointLightComponent = sphereActor->addComponent<HOD::GAME::PointLightComponent>();
         pointLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -356,7 +356,7 @@ bool MyApplication::PreRun()
         staticMeshComponent->setMaterialInstance(pRenderer->CreateMaterialInstance(materialUnlit));
 
         HOD::GAME::ColliderComponent* colliderComponent = dirLight->addComponent<HOD::GAME::ColliderComponent>();
-        colliderComponent->SetShape(PHYSIC::SHAPE::SPHERE);
+        colliderComponent->SetShape(PHYSICS::SHAPE::SPHERE);
 
         HOD::GAME::DirLightComponent* dirLightComponent = dirLight->addComponent<HOD::GAME::DirLightComponent>();
         dirLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -379,7 +379,7 @@ bool MyApplication::PreRun()
         //staticMeshComponent->EnableDebugTangent(true);
 
         HOD::GAME::ColliderComponent* colliderComponent = box->addComponent<HOD::GAME::ColliderComponent>();
-        colliderComponent->SetShape(PHYSIC::SHAPE::BOX);
+        colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
     }
 
     Actor* ground = scene->spawnActor<Actor>("ground");
@@ -396,7 +396,7 @@ bool MyApplication::PreRun()
         //staticMeshComponent->EnableDebugTangent(true);
 
         HOD::GAME::ColliderComponent* colliderComponent = ground->addComponent<HOD::GAME::ColliderComponent>();
-        colliderComponent->SetShape(PHYSIC::SHAPE::BOX);
+        colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
     }
 
     return true;

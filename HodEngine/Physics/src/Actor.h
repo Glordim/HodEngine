@@ -13,7 +13,7 @@ namespace HOD
 {
     struct BoundingBox;
 
-    namespace PHYSIC
+    namespace PHYSICS
     {
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -35,18 +35,18 @@ namespace HOD
 								Actor(physx::PxActor* pxActor);
 								~Actor() = default;
 
-            void				SetShape(SHAPE eShape, const BoundingBox& boundingBox, const glm::vec3& scale);
+            void				SetShape(SHAPE shape, const BoundingBox& boundingBox, const glm::vec3& scale);
 
             void				SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 
 			physx::PxActor*		GetPxActor() const;
 
-			void				SetShapesVisualizationFlag(bool bShapeVisualization);
-			void				SetVisualizationFlag(bool bVisualization);
+			void				SetShapesVisualizationFlag(bool visualization);
+			void				SetVisualizationFlag(bool visualization);
 
         private:
 
-            physx::PxActor*		_pPxActor = nullptr;
+            physx::PxActor*		_pxActor = nullptr;
         };
     }
 }
