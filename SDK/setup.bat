@@ -78,7 +78,7 @@ echo Done
 echo *******
 echo PhysX...
 
-call PhysX\physx\generate_projects.bat vc15win64
+call PhysX\physx\generate_projects.bat vc19win64
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
@@ -87,7 +87,7 @@ if %errorlevel% neq 0 (
 
 if not exist "./Build/PhysX_proj" (
 	echo Create SymLink to PhysX_proj Dir
-	mklink /J "%CD%\Build\PhysX_proj" "%CD%\PhysX\physx\compiler\vc15win64"
+	mklink /J "%CD%\Build\PhysX_proj" "%CD%\PhysX\physx\compiler\vc19win64"
 )
 if not exist "./Build/PhysX_lib" (
 	echo Create SymLink to PhysX_lib Dir
