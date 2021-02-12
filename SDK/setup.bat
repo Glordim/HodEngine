@@ -91,7 +91,7 @@ if not exist "./Build/PhysX_proj" (
 )
 if not exist "./Build/PhysX_lib" (
 	echo Create SymLink to PhysX_lib Dir
-	mklink /J "%CD%\Build\PhysX_lib" "%CD%\PhysX\physx\bin\win.x86_64.vc141.mt"
+	mklink /J "%CD%\Build\PhysX_lib" "%CD%\PhysX\physx\bin\win.x86_64.vc141.md"
 )
 
 echo Done
