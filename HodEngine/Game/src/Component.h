@@ -2,30 +2,39 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class Actor;
-        
-        class Component
-        {
-            friend class Actor;
+	namespace GAME
+	{
+		class Actor;
 
-        public:
-            Actor*              GetActor() const;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class Component
+		{
+			friend class Actor;
 
-            virtual void        DrawImGui() = 0;
-            virtual const char* GetName() = 0;
+		public:
 
-        protected:
-                                Component(Actor* actor);
-                                Component(const Component&) = delete;
-                                Component(const Component&&) = delete;
-            virtual             ~Component() = default;
+			Actor*				GetActor() const;
+			virtual const char*	GetType() const = 0;
 
-        private:
-            Actor*              _actor = nullptr;
-        };
-    }
+			virtual void		DrawImGui() = 0;
+
+		protected:
+
+								Component(Actor* actor);
+								Component(const Component&) = delete;
+								Component(Component&&) = delete;
+			virtual				~Component() = default;
+
+			void				operator=(const Component&) = delete;
+			void				operator=(Component&&) = delete;
+
+		private:
+
+			Actor*				_actor = nullptr;
+		};
+	}
 }
 
 #include "Component.inl"

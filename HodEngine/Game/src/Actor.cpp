@@ -2,70 +2,100 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        Actor::Actor(const std::string& name, Scene* scene)
-            : name(name)
-            , scene(scene)
-            , physicActor(nullptr)
-        {
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Actor::Actor(const std::string& name, Scene* scene)
+			: _name(name)
+			, _scene(scene)
+			, _physicActor(nullptr)
+		{
 
-        }
+		}
 
-        Actor::~Actor()
-        {
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Actor::~Actor()
+		{
+		}
 
-        void Actor::start()
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Actor::Start()
+		{
 
-        }
+		}
 
-        void Actor::update(float dt)
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Actor::Update(float dt)
+		{
 
-        }
+		}
 
-        void Actor::DrawImGui()
-        {
-            
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Actor::DrawImGui()
+		{
 
-        Scene* Actor::getScene() const
-        {
-            return this->scene;
-        }
+		}
 
-        const std::string& Actor::getName() const
-        {
-            return this->name;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Scene* Actor::GetScene() const
+		{
+			return _scene;
+		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		const std::string& Actor::GetName() const
+		{
+			return _name;
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		PHYSICS::Actor* Actor::GetPhysicActor() const
-        {
-            return this->physicActor;
-        }
+		{
+			return _physicActor;
+		}
 
-        void Actor::SetPhysicActor(PHYSICS::Actor* physicActor)
-        {
-            this->physicActor = physicActor;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Actor::SetPhysicActor(PHYSICS::Actor* physicActor)
+		{
+			_physicActor = physicActor;
+		}
 
-        std::vector<Component*> Actor::getAllComponent() const
-        {
-            std::vector<Component*> vComponents;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		std::vector<Component*> Actor::GetAllComponent() const
+		{
+			std::vector<Component*> vComponents;
 
-            auto it = this->componentMapping.begin();
-            auto itEnd = this->componentMapping.end();
+			auto it = _componentMapping.begin();
+			auto itEnd = _componentMapping.end();
 
-            while (it != itEnd)
-            {
-                vComponents.push_back(it->second);
+			while (it != itEnd)
+			{
+				vComponents.push_back(it->second);
 
-                ++it;
-            }
+				++it;
+			}
 
-            return vComponents;
-        }
-    }
+			return vComponents;
+		}
+	}
 }

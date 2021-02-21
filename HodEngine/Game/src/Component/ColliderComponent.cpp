@@ -14,51 +14,63 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        ColliderComponent::ColliderComponent(Actor* actor) : Component(actor)
-        {
-            Scene* scene = actor->getScene();
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		ColliderComponent::ColliderComponent(Actor* actor) : Component(actor)
+		{
+			Scene* scene = actor->GetScene();
 
 			PHYSICS::Actor* physicActor = actor->GetPhysicActor();
 
-            if (physicActor == nullptr)
-            {
-                glm::vec3 position = actor->getComponent<SceneComponent>()->getPosition();
-                glm::quat rotation = actor->getComponent<SceneComponent>()->getRotation();
-                glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+			if (physicActor == nullptr)
+			{
+				glm::vec3 position = actor->GetComponent<SceneComponent>()->GetPosition();
+				glm::quat rotation = actor->GetComponent<SceneComponent>()->GetRotation();
+				glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
-                physicActor = scene->CreatePhysicActor(actor);
-                physicActor->SetTransform(position, rotation, scale);
-            }
-        }
+				physicActor = scene->CreatePhysicActor(actor);
+				physicActor->SetTransform(position, rotation, scale);
+			}
+		}
 
-        void ColliderComponent::DrawImGui()
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void ColliderComponent::DrawImGui()
+		{
 
-        }
+		}
 
-        const char* ColliderComponent::GetName()
-        {
-            return "Collider";
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		const char* ColliderComponent::GetType() const
+		{
+			return "Collider";
+		}
 
-        void ColliderComponent::SetShape(PHYSICS::SHAPE eShape)
-        {
-            Actor* actor = GetActor();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void ColliderComponent::SetShape(PHYSICS::SHAPE eShape)
+		{
+			Actor* actor = GetActor();
 			PHYSICS::Actor* physicActor = actor->GetPhysicActor();
 
-            StaticMeshComponent* pStaticMeshComponent = actor->getComponent<StaticMeshComponent>();
-            SceneComponent* pSceneComponent = actor->getComponent<SceneComponent>();
+			StaticMeshComponent* pStaticMeshComponent = actor->GetComponent<StaticMeshComponent>();
+			SceneComponent* pSceneComponent = actor->GetComponent<SceneComponent>();
 
-            if (pStaticMeshComponent != nullptr && pStaticMeshComponent->GetMesh() != nullptr)
-            {
-                physicActor->SetShape(eShape, pStaticMeshComponent->GetMesh()->GetBoundingBox(), pSceneComponent->getScale());
-            }
-            else
-            {
-                physicActor->SetShape(eShape, BoundingBox(), pSceneComponent->getScale());
-            }
-        }
-    }
+			if (pStaticMeshComponent != nullptr && pStaticMeshComponent->GetMesh() != nullptr)
+			{
+				physicActor->SetShape(eShape, pStaticMeshComponent->GetMesh()->GetBoundingBox(), pSceneComponent->GetScale());
+			}
+			else
+			{
+				physicActor->SetShape(eShape, BoundingBox(), pSceneComponent->GetScale());
+			}
+		}
+	}
 }

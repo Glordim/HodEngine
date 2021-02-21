@@ -1,11 +1,14 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        inline Actor* Component::GetActor() const
-        {
-            return _actor;
-        }
-    }
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		inline Actor* Component::GetActor() const
+		{
+			return _actor;
+		}
+	}
 }

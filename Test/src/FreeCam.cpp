@@ -23,8 +23,8 @@ namespace HOD
 	//-----------------------------------------------------------------------------
     FreeCam::FreeCam(const std::string& name, GAME::Scene* scene) : GAME::Actor(name, scene)
     {
-        this->sceneComponent = this->addComponent<GAME::SceneComponent>();
-        this->cameraComponent = this->addComponent<GAME::CameraComponent>();
+        this->sceneComponent = this->AddComponent<GAME::SceneComponent>();
+        this->cameraComponent = this->AddComponent<GAME::CameraComponent>();
 
         this->view = glm::vec3(0.0f, 0.0f, 0.0f);
     }
@@ -46,7 +46,7 @@ namespace HOD
 
         float mouseZ = 1.0f;
 
-        glm::mat4 screenToWorldMat = this->cameraComponent->getProjectionMatrix() * glm::inverse(this->sceneComponent->getModelMatrix());
+        glm::mat4 screenToWorldMat = this->cameraComponent->GetProjectionMatrix() * glm::inverse(this->sceneComponent->GetModelMatrix());
         screenToWorldMat = glm::inverse(screenToWorldMat);
 
 		APPLICATION::Application* app = APPLICATION::Application::GetInstance();
@@ -70,15 +70,15 @@ namespace HOD
 
         dir = glm::normalize(dir);
 
-        glm::vec3 finalPos = this->sceneComponent->getPosition() + glm::vec3(dir * 100.0f);
+        glm::vec3 finalPos = this->sceneComponent->GetPosition() + glm::vec3(dir * 100.0f);
 
 		PHYSICS::RaycastResult result;
 
-        if (this->scene->raycast(this->sceneComponent->getPosition(), dir, 100.0f, result, true, CORE::Color(1.0f, 1.0f, 0.0f, 1.0f), 5.0f) == true)
+        if (_scene->Raycast(this->sceneComponent->GetPosition(), dir, 100.0f, result, true, CORE::Color(1.0f, 1.0f, 0.0f, 1.0f), 5.0f) == true)
         {
 			PHYSICS::Actor* physicActor = result._actorCollided;
 
-            GAME::Actor* actor = this->scene->convertPxActor(physicActor);
+            GAME::Actor* actor = _scene->ConvertPxActor(physicActor);
             if (actor != nullptr)
             {
 				GAME::Game::GetInstance()->DebugActor(actor);
@@ -105,34 +105,34 @@ namespace HOD
         this->view.x += angleX;
         this->view.y += angleY;
 
-        this->sceneComponent->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-        this->sceneComponent->rotate(view.x, glm::vec3(0.0f, 1.0f, 0.0f));
-        this->sceneComponent->rotate(view.y, glm::vec3(1.0f, 0.0f, 0.0f));
+        this->sceneComponent->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+        this->sceneComponent->Rotate(view.x, glm::vec3(0.0f, 1.0f, 0.0f));
+        this->sceneComponent->Rotate(view.y, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-    void FreeCam::update(float dt)
-    {
-        if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_E] > 0.0f)
-        {
-            this->speed += 10.0f * dt;
-        }
-        else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_Q] > 0.0f)
-        {
-            this->speed -= 10.0f * dt;
-            if (this->speed < 0.0f)
-                this->speed = 0.1f;
-        }
+	void FreeCam::Update(float dt)
+	{
+		if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_E] > 0.0f)
+		{
+		    this->speed += 10.0f * dt;
+		}
+		else if (SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_Q] > 0.0f)
+		{
+			this->speed -= 10.0f * dt;
+			if (this->speed < 0.0f)
+				this->speed = 0.1f;
+		}
 
 		int mouseX = 0;
 		int mouseY = 0;
 
 		Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 
-        if (mouseState & SDL_BUTTON(3))
-        {
+		if (mouseState & SDL_BUTTON(3))
+		{
 			APPLICATION::Application* app = APPLICATION::Application::GetInstance();
 
 			int width = app->GetWidth();
@@ -181,39 +181,39 @@ namespace HOD
 					this->movement.y = 0.0f;
 				}
 
-				this->sceneComponent->setPosition(sceneComponent->getPosition() + (sceneComponent->getRotation() * this->movement * dt * this->speed));
+				this->sceneComponent->SetPosition(sceneComponent->GetPosition() + (sceneComponent->GetRotation() * this->movement * dt * this->speed));
 			}
 			else
 			{	
-				if (mouseX == ((float)width * 0.5f) && mouseY == ((float)height * 0.5f))
+				if (mouseX == (width / 2) && mouseY == (height / 2))
 				{
 					move = true;
 				}
 			}
 
-			HOD::APPLICATION::Application::GetInstance()->SetCursorPosition((float)width * 0.5f, (float)height * 0.5f);
-        }
+			HOD::APPLICATION::Application::GetInstance()->SetCursorPosition(width / 2, height / 2);
+		}
 		else
 		{
 			move = false;
 		}
 
-        if (mouseState & SDL_BUTTON(1))
-        {
+		if (mouseState & SDL_BUTTON(1))
+		{
 			if (released == true)
 			{
 				selectObject(mouseX, mouseY);
 			}
 			released = false;
-        }
+		}
 		else
 		{
 			released = true;
 		}
 
-        if (mouseState & SDL_BUTTON(2))
-        {
+		if (mouseState & SDL_BUTTON(2))
+		{
 			GAME::Game::GetInstance()->DebugActor(this);
-        }
-    }
+		}
+	}
 }

@@ -7,28 +7,35 @@
 
 namespace HOD
 {
-    namespace GAME
+	namespace GAME
 	{
-        class Actor;
+		class Actor;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class ActorDebugWindow : public DEBUG_LAYER::DebugWindow
-        {
+		class ActorDebugWindow : public DEBUG_LAYER::DebugWindow
+		{
 		public:
 
-											ActorDebugWindow();
-                                            ~ActorDebugWindow() override;
+										ActorDebugWindow();
+										ActorDebugWindow(const ActorDebugWindow&) = delete;
+										ActorDebugWindow(ActorDebugWindow&&) = delete;
+										~ActorDebugWindow() override;
 
-            void                            Draw() override;
+			void						operator=(const ActorDebugWindow&) = delete;
+			void						operator=(ActorDebugWindow&&) = delete;
 
-            void                            SetActor(Actor* pActor);
+		public:
 
-        private:
+			void						Draw() override;
 
-			Actor*							_pActor = nullptr;
-            std::map<const char*, bool>     _actorComponentCollapseMap;
-        };
-    }
+			void						SetActor(Actor* actor);
+
+		private:
+
+			Actor*						_actor = nullptr;
+			std::map<const char*, bool>	_actorComponentCollapseMap;
+		};
+	}
 }

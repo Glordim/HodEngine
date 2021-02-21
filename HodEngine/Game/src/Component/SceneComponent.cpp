@@ -18,199 +18,267 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        SceneComponent::SceneComponent(Actor* actor) : Component(actor)
-        {
-            this->position = glm::vec3(0.0f, 0.0f, 0.0f);
-            this->rotation = glm::identity<glm::mat4x4>();
-            this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
-            this->parent = nullptr;
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		SceneComponent::SceneComponent(Actor* actor) : Component(actor)
+		{
+			_position = glm::vec3(0.0f, 0.0f, 0.0f);
+			_rotation = glm::identity<glm::mat4x4>();
+			_scale = glm::vec3(1.0f, 1.0f, 1.0f);
+			_parent = nullptr;
 
-            this->modelMatrixDirty = true;
-        }
+			_modelMatrixDirty = true;
+		}
 
-        SceneComponent::~SceneComponent()
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		SceneComponent::~SceneComponent()
+		{
 
-        }
+		}
 
-        void SceneComponent::DrawImGui()
-        {
-            glm::vec3 pos = this->position;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::DrawImGui()
+		{
+			glm::vec3 pos = _position;
 
-            if (ImGui::DragFloat3("Position", &pos[0]) == true)
-            {
-                setPosition(pos);
-            }
+			if (ImGui::DragFloat3("Position", &pos[0]) == true)
+			{
+				SetPosition(pos);
+			}
 
-            glm::vec3 euler = glm::degrees(glm::eulerAngles(this->rotation));
+			glm::vec3 euler = glm::degrees(glm::eulerAngles(_rotation));
 
-            if (ImGui::DragFloat3("Rotation", &euler[0]) == true)
-            {
-                setRotation(euler);
-            }
+			if (ImGui::DragFloat3("Rotation", &euler[0]) == true)
+			{
+				SetRotation(euler);
+			}
 
-            glm::vec3 scale = this->scale;
+			glm::vec3 scale = _scale;
 
-            if (ImGui::DragFloat3("Scale", &scale[0]) == true)
-            {
-                setScale(scale);
-            }
-        }
+			if (ImGui::DragFloat3("Scale", &scale[0]) == true)
+			{
+				SetScale(scale);
+			}
+		}
 
-        const char* SceneComponent::GetName()
-        {
-            return "Scene";
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		const char* SceneComponent::GetType() const
+		{
+			return "Scene";
+		}
 
-        void SceneComponent::twGetPos(void *value, void *clientData)
-        {
-            SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
-            glm::vec3* pos = static_cast<glm::vec3*>(value);
-            *pos = thiz->getPosition();
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::twGetPos(void* value, void* clientData)
+		{
+			SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
+			glm::vec3* pos = static_cast<glm::vec3*>(value);
+			*pos = thiz->GetPosition();
+		}
 
-        void SceneComponent::twSetPos(const void *value, void *clientData)
-        {
-            SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
-            thiz->setPosition(*(static_cast<const glm::vec3*>(value)));
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::twSetPos(const void* value, void* clientData)
+		{
+			SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
+			thiz->SetPosition(*(static_cast<const glm::vec3*>(value)));
+		}
 
-        void SceneComponent::twGetRot(void *value, void *clientData)
-        {
-            SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
-            glm::quat* pos = static_cast<glm::quat*>(value);
-            *pos = thiz->getRotation();
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::twGetRot(void* value, void* clientData)
+		{
+			SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
+			glm::quat* pos = static_cast<glm::quat*>(value);
+			*pos = thiz->GetRotation();
+		}
 
-        void SceneComponent::twSetRot(const void *value, void *clientData)
-        {
-            SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
-            thiz->setRotation(*(static_cast<const glm::quat*>(value)));
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::twSetRot(const void* value, void* clientData)
+		{
+			SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
+			thiz->SetRotation(*(static_cast<const glm::quat*>(value)));
+		}
 
-        void SceneComponent::lookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up)
-        {
-            this->modelMatrix = glm::lookAt(eye, target, up);
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::LookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up)
+		{
+			_modelMatrix = glm::lookAt(eye, target, up);
 
-            glm::vec3 skew;
-            glm::vec4 perspective;
+			glm::vec3 skew;
+			glm::vec4 perspective;
 
-            glm::decompose(this->modelMatrix, this->scale, this->rotation, this->position, skew, perspective);
-            this->rotation = glm::conjugate(this->rotation);
+			glm::decompose(_modelMatrix, _scale, _rotation, _position, skew, perspective);
+			_rotation = glm::conjugate(_rotation);
 
-            this->modelMatrixDirty = false;
+			_modelMatrixDirty = false;
 
-            std::cout << std::to_string(this->position.x) << " " << std::to_string(this->position.y) << " " << std::to_string(this->position.z) << std::endl;
-            std::cout << std::to_string(this->getRotationEuler().x) << " " << std::to_string(this->getRotationEuler().y) << " " << std::to_string(this->getRotationEuler().z) << std::endl;
-        }
+			std::cout << std::to_string(_position.x) << " " << std::to_string(_position.y) << " " << std::to_string(_position.z) << std::endl;
+			std::cout << std::to_string(GetRotationEuler().x) << " " << std::to_string(GetRotationEuler().y) << " " << std::to_string(GetRotationEuler().z) << std::endl;
+		}
 
-        glm::mat4 SceneComponent::getModelMatrix()
-        {
-            if (this->modelMatrixDirty == true)
-            {
-                glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), this->position);
-                glm::mat4 rot = glm::mat4_cast(this->rotation);
-                glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), this->scale);
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		glm::mat4 SceneComponent::GetModelMatrix()
+		{
+			if (_modelMatrixDirty == true)
+			{
+				glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), _position);
+				glm::mat4 rot = glm::mat4_cast(_rotation);
+				glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), _scale);
 
-                this->modelMatrix = pos * rot * scale;
-            }
+				_modelMatrix = pos * rot * scale;
+			}
 
-            return this->modelMatrix;
-        }
+			return _modelMatrix;
+		}
 
-        void SceneComponent::setPosition(glm::vec3 position)
-        {
-            this->position = position;
-            this->modelMatrixDirty = true;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::SetPosition(glm::vec3 position)
+		{
+			_position = position;
+			_modelMatrixDirty = true;
 
-            this->syncPxActor();
-        }
+			SyncPxActor();
+		}
 
-        glm::vec3 SceneComponent::getPosition() const
-        {
-            return this->position;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		glm::vec3 SceneComponent::GetPosition() const
+		{
+			return _position;
+		}
 
-        void SceneComponent::rotate(float angle, glm::vec3 axis)
-        {
-            this->rotation = glm::rotate(this->rotation, angle, axis);
-            this->modelMatrixDirty = true;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::Rotate(float angle, glm::vec3 axis)
+		{
+			_rotation = glm::rotate(_rotation, angle, axis);
+			_modelMatrixDirty = true;
 
-            this->syncPxActor();
-        }
+			SyncPxActor();
+		}
 
-        void SceneComponent::setRotation(glm::quat rot)
-        {
-            this->rotation = rot;
-            this->modelMatrixDirty = true;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::SetRotation(glm::quat rot)
+		{
+			_rotation = rot;
+			_modelMatrixDirty = true;
 
-            this->syncPxActor();
-        }
+			SyncPxActor();
+		}
 
-        void SceneComponent::setRotation(glm::vec3 rot)
-        {
-            rot.x = fmod(rot.x, 360.0f);
-            rot.y = fmod(rot.y, 360.0f);
-            rot.z = fmod(rot.z, 360.0f);
-            
-            this->rotation = glm::quat(glm::radians(rot));
-            this->modelMatrixDirty = true;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::SetRotation(glm::vec3 rot)
+		{
+			rot.x = fmod(rot.x, 360.0f);
+			rot.y = fmod(rot.y, 360.0f);
+			rot.z = fmod(rot.z, 360.0f);
 
-            this->syncPxActor();
-        }
+			_rotation = glm::quat(glm::radians(rot));
+			_modelMatrixDirty = true;
 
-        glm::quat SceneComponent::getRotation() const
-        {
-            return this->rotation;
-        }
+			SyncPxActor();
+		}
 
-        glm::vec3 SceneComponent::getRotationEuler() const
-        {
-            return glm::degrees(glm::eulerAngles(this->rotation));
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		glm::quat SceneComponent::GetRotation() const
+		{
+			return _rotation;
+		}
 
-        void SceneComponent::setScale(glm::vec3 scale)
-        {
-            this->scale = scale;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		glm::vec3 SceneComponent::GetRotationEuler() const
+		{
+			return glm::degrees(glm::eulerAngles(_rotation));
+		}
 
-            this->modelMatrixDirty = true;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::SetScale(glm::vec3 scale)
+		{
+			_scale = scale;
+			_modelMatrixDirty = true;
 
-            this->syncPxActor();
-        }
+			SyncPxActor();
+		}
 
-        glm::vec3 SceneComponent::getScale() const
-        {
-            return this->scale;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		glm::vec3 SceneComponent::GetScale() const
+		{
+			return _scale;
+		}
 
-        size_t SceneComponent::getChildCount() const
-        {
-            return this->childs.size();
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		size_t SceneComponent::GetChildCount() const
+		{
+			return _childs.size();
+		}
 
-        SceneComponent* SceneComponent::getChild(size_t index)
-        {
-            return this->childs[index];
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		SceneComponent* SceneComponent::GetChild(size_t index)
+		{
+			return _childs[index];
+		}
 
-        void SceneComponent::setParent(SceneComponent* parent)
-        {
-            // TODO retirer du vector childs du precedent parent
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::SetParent(SceneComponent* parent)
+		{
+			// TODO retirer du vector childs du precedent parent
 
-            this->parent = parent;
-            this->parent->childs.push_back(this);
-        }
+			_parent = parent;
+			_parent->_childs.push_back(this);
+		}
 
-        void SceneComponent::syncPxActor()
-        {
-			PHYSICS::Actor* physicActor = this->GetActor()->GetPhysicActor();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void SceneComponent::SyncPxActor()
+		{
+			PHYSICS::Actor* physicActor = GetActor()->GetPhysicActor();
 
-            if (physicActor != nullptr)
-            {
-                physicActor->SetTransform(position, rotation, scale);
-            }
-        }
-    }
+			if (physicActor != nullptr)
+			{
+				physicActor->SetTransform(_position, _rotation, _scale);
+			}
+		}
+	}
 }

@@ -24,8 +24,8 @@ namespace HOD
         FlyingPointLight(const FlyingPointLight& copy) = delete;
         virtual ~FlyingPointLight();
 
-        virtual void start() override;
-        virtual void update(float dt) override;
+        virtual void Start() override;
+        virtual void Update(float dt) override;
 
     private:
         GAME::SceneComponent* sceneComponent;

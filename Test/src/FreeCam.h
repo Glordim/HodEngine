@@ -27,7 +27,7 @@ namespace HOD
         FreeCam(const FreeCam&) = delete;
         ~FreeCam() override;
 
-        void update(float dt) override;
+        void Update(float dt) override;
 
     private:
 

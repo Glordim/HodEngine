@@ -5,58 +5,64 @@
 
 namespace HOD
 {
-    class InputListener
-    {
-    public:
-        struct KeyAxis
-        {
-            KeyAxis(int negative, int positive)
-                : negative(negative)
-                , positive(positive)
-            {
-            }
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class InputListener
+	{
+	public:
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct KeyAxis
+		{
+			KeyAxis(int negative, int positive);
 
-            int negative;
-            int positive;
-        };
+			int	_negative;
+			int	_positive;
+		};
 
-        struct InternalKeyAxis
-        {
-            InternalKeyAxis(const KeyAxis& axis)
-                : negativeKey(axis.negative)
-                , usingNegative(false)
-                , positiveKey(axis.positive)
-                , usingPositive(false)
-            {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct InternalKeyAxis
+		{
+			InternalKeyAxis(const KeyAxis& axis);
 
-            }
+			int		_negativeKey;
+			bool	_usingNegative;
 
-            int negativeKey;
-            bool usingNegative;
+			int		_positiveKey;
+			bool	_usingPositive;
+		};
 
-            int positiveKey;
-            bool usingPositive;
-        };
+	public:
+					InputListener();
+					InputListener(const InputListener&) = delete;
+					InputListener(InputListener&&) = delete;
+		virtual		~InputListener();
 
-    public:
-        InputListener();
-        virtual ~InputListener();
+		void		operator=(const InputListener&) = delete;
+		void		operator=(InputListener&&) = delete;
 
-        void process();
+	public:
 
-        void injectKeyInput(int key, int scancode, int action, int mods);
-        void injectMouseButtonInput(int mouseButtonId, int action, int mods);
-        void injectMouseMoveInput(int x, int y);
+		void		Process();
 
-        void registerMouseMoveEvent(std::function<void(int, int)> callback);
-        void registerMouseButtonEvent(int mouseButtonId, int action, std::function<void()> callback);
+		void		InjectKeyInput(int key, int scancode, int action, int mods);
+		void		InjectMouseButtonInput(int mouseButtonId, int action, int mods);
+		void		InjectMouseMoveInput(int x, int y);
 
-        void registerAxisEvent(const InputListener::KeyAxis& axis, std::function<void(float)> callback);
+		void		RegisterMouseMoveEvent(std::function<void(int, int)> callback);
+		void		RegisterMouseButtonEvent(int mouseButtonId, int action, std::function<void()> callback);
 
-    private:
-        std::vector<std::function<void(int, int)>> mouseMoveCallbackList;
-        std::unordered_map<int, std::vector<std::function<void()>>> mouseButtonPressCallbackList;
-        std::unordered_map<int, std::vector<std::function<void()>>> mouseButtonReleaseCallbackList;
-        std::unordered_map<InputListener::InternalKeyAxis*, std::function<void(float)>> axisCallbackList;
-    };
+		void		RegisterAxisEvent(const InputListener::KeyAxis& axis, std::function<void(float)> callback);
+
+	private:
+
+		std::vector<std::function<void(int, int)>>										_mouseMoveCallbackList;
+		std::unordered_map<int, std::vector<std::function<void()>>>						_mouseButtonPressCallbackList;
+		std::unordered_map<int, std::vector<std::function<void()>>>						_mouseButtonReleaseCallbackList;
+		std::unordered_map<InputListener::InternalKeyAxis*, std::function<void(float)>>	_axisCallbackList;
+	};
 }

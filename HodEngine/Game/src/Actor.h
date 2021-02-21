@@ -9,106 +9,64 @@
 
 namespace HOD
 {
-    namespace PHYSICS
-    {
-        class Actor;
-    }
+	namespace PHYSICS
+	{
+		class Actor;
+	}
 
-    namespace GAME
-    {
-        class Scene;
+	namespace GAME
+	{
+		class Scene;
 
-        class Actor
-        {
-        public:
-            Actor() = delete;
-            Actor(const std::string& name, Scene* scene);
-            Actor(const Actor& copy) = delete;
-            virtual ~Actor();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class Actor
+		{
+			friend class Scene;
 
-            virtual void start();
-            virtual void update(float dt);
+		public:
 
-            template<typename T>
-            T* addComponent();
+											Actor() = delete;
+											Actor(const std::string& name, Scene* scene);
+											Actor(const Actor&) = delete;
+											Actor(Actor&&) = delete;
+			virtual							~Actor();
 
-            template<typename T>
-            T* getComponent() const;
+			void							operator=(const Actor&) = delete;
+			void							operator=(Actor&&) = delete;
 
-            template<typename T>
-            std::vector<T*> getAllComponent() const;
+		public:
 
-            std::vector<Component*> getAllComponent() const;
+			virtual void					Start();
+			virtual void					Update(float dt);
+			virtual void					DrawImGui();
 
-            virtual void DrawImGui();
+			template<typename T>
+			T*								AddComponent();
+			template<typename T>
+			T*								GetComponent() const;
+			template<typename T>
+			std::vector<T*>					GetAllComponent() const;
+			std::vector<Component*>			GetAllComponent() const;
 
-            const std::string& getName() const;
-            Scene* getScene() const;
+			const std::string&				GetName() const;
+			Scene*							GetScene() const;
 
-			PHYSICS::Actor*  GetPhysicActor() const;
-            void            SetPhysicActor(PHYSICS::Actor* physicActor);
+			PHYSICS::Actor*					GetPhysicActor() const;
+			void							SetPhysicActor(PHYSICS::Actor* physicActor);
 
-        protected:
-            Scene* scene = nullptr;
-			PHYSICS::Actor* physicActor = nullptr;
+		protected:
 
-            std::string name;
+			std::string						_name;
+			PHYSICS::Actor*					_physicActor = nullptr;
+			Scene*							_scene = nullptr;
 
-        private:
+		private:
 
-            std::map<size_t, Component*> componentMapping;
-
-            friend class Scene;
-        };
-
-        template<typename T>
-        T* Actor::addComponent()
-        {
-            T* component = this->getComponent<T>();
-
-            if (component == nullptr)
-            {
-                component = new T(this);
-                this->componentMapping.emplace(typeid(T).hash_code(), component);
-            }
-
-            return component;
-        }
-
-        template<typename T>
-        T* Actor::getComponent() const
-        {
-            auto it = this->componentMapping.find(typeid(T).hash_code());
-
-            if (it == this->componentMapping.end())
-                return nullptr;
-            else
-                return (T*)it->second;
-        }
-
-        template<typename T>
-        std::vector<T*> Actor::getAllComponent() const
-        {
-            std::vector<T*> ret;
-
-            auto it = this->componentMapping.find(typeid(T).hash_code());
-
-            if (it != this->componentMapping.end())
-                ret.push_back((T*)it->second);
-
-            SceneComponent* sceneComponent = this->getComponent<SceneComponent>();
-            if (sceneComponent != nullptr)
-            {
-                size_t childCount = sceneComponent->getChildCount();
-                for (int i = 0; i < childCount; ++i)
-                {
-                    std::vector<T*> componentInChild = sceneComponent->getChild(i)->GetActor()->getAllComponent<T>();
-
-                    ret.insert(ret.end(), componentInChild.begin(), componentInChild.end());
-                }
-            }
-
-            return ret;
-        }
-    }
+			std::map<size_t, Component*>	_componentMapping;
+		};
+	}
 }
+
+#include "Actor.inl"

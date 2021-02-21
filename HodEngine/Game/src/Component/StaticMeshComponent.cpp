@@ -7,56 +7,86 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        StaticMeshComponent::StaticMeshComponent(Actor* actor) : RendererComponent(actor)
-        {
-            this->debugTangent = false;
-        }
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		StaticMeshComponent::StaticMeshComponent(Actor* actor) : RendererComponent(actor)
+		{
+			_debugTangent = false;
+		}
 
-        StaticMeshComponent::~StaticMeshComponent()
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		StaticMeshComponent::~StaticMeshComponent()
+		{
 
-        }
+		}
 
-        void StaticMeshComponent::DrawImGui()
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void StaticMeshComponent::DrawImGui()
+		{
 
-        }
+		}
 
-        const char* StaticMeshComponent::GetName()
-        {
-            return "Static Mesh";
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		const char* StaticMeshComponent::GetType() const
+		{
+			return "Static Mesh";
+		}
 
-        void StaticMeshComponent::setMesh(Mesh* mesh)
-        {
-            this->mesh = mesh;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void StaticMeshComponent::SetMesh(Mesh* mesh)
+		{
+			_mesh = mesh;
+		}
 
-        Mesh* StaticMeshComponent::GetMesh() const
-        {
-            return this->mesh;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Mesh* StaticMeshComponent::GetMesh() const
+		{
+			return _mesh;
+		}
 
-        void StaticMeshComponent::setMaterialInstance(MaterialInstance* materialInstance)
-        {
-            this->materialInstance = materialInstance;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void StaticMeshComponent::SetMaterialInstance(MaterialInstance* materialInstance)
+		{
+			_materialInstance = materialInstance;
+		}
 
-        MaterialInstance* StaticMeshComponent::GetMaterialInstance() const
-        {
-            return this->materialInstance;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		MaterialInstance* StaticMeshComponent::GetMaterialInstance() const
+		{
+			return _materialInstance;
+		}
 
-        void StaticMeshComponent::EnableDebugTangent(bool enable)
-        {
-            this->debugTangent = enable;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void StaticMeshComponent::EnableDebugTangent(bool enable)
+		{
+			_debugTangent = enable;
+		}
 
-        bool StaticMeshComponent::IsDebugTangentEnabled() const
-        {
-            return this->debugTangent;
-        }
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool StaticMeshComponent::IsDebugTangentEnabled() const
+		{
+			return _debugTangent;
+		}
+	}
 }

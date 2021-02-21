@@ -8,22 +8,32 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class DirLightComponent : public Component
-        {
-        public:
-            DirLightComponent(Actor* actor);
-            DirLightComponent(const DirLightComponent& copy) = delete;
-            ~DirLightComponent() override = default;
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class DirLightComponent : public Component
+		{
+		public:
 
-            void        DrawImGui() override;
-            const char* GetName() override;
+								DirLightComponent(Actor* actor);
+								DirLightComponent(const DirLightComponent&) = delete;
+								DirLightComponent(DirLightComponent&&) = delete;
+								~DirLightComponent() override = default;
 
-            DirLight*   GetDirLight() const;
+			void				operator=(const DirLightComponent&) = delete;
+			void				operator=(DirLightComponent&&) = delete;
 
-        public:
-            DirLight    _data;
-        };
-    }
+		public:
+
+			void				DrawImGui() override;
+			const char*			GetType() const override;
+
+			DirLight*			GetDirLight() const;
+
+		public:
+			DirLight			_data;
+		};
+	}
 }

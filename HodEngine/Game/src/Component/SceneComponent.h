@@ -12,59 +12,76 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class SceneComponent : public Component
-        {
-        public:
-            SceneComponent(Actor* actor);
-            SceneComponent(const SceneComponent&) = delete;
-            ~SceneComponent() override;
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class SceneComponent : public Component
+		{
+		public:
 
-            void        DrawImGui() override;
-            const char* GetName() override;
+											SceneComponent(Actor* actor);
+											SceneComponent(const SceneComponent&) = delete;
+											SceneComponent(SceneComponent&&) = delete;
+											~SceneComponent() override;
 
-        public:
+			void							operator=(const SceneComponent&) = delete;
+			void							operator=(SceneComponent&&) = delete;
 
-            size_t getChildCount() const;
-            SceneComponent* getChild(size_t index);
-            void setParent(SceneComponent* parent);
+		public:
 
-            void lookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up);
+			void							DrawImGui() override;
+			const char*						GetType() const override;
 
-            glm::mat4 getModelMatrix();
+		public:
 
-            void setPosition(glm::vec3 position);
-            glm::vec3 getPosition() const;
+			size_t							GetChildCount() const;
+			SceneComponent*					GetChild(size_t index);
+			void							SetParent(SceneComponent* parent);
 
-            void setRotation(glm::quat rot);
-            void setRotation(glm::vec3 rotation);
-            glm::quat getRotation() const;
-            glm::vec3 getRotationEuler() const;
-            void rotate(float angle, glm::vec3 axis);
+			void							LookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up);
 
-            void setScale(glm::vec3 scale);
-            glm::vec3 getScale() const;
+			glm::mat4						GetModelMatrix();
 
-            glm::vec3 position;
-            glm::vec3 scale;
+			void							SetPosition(glm::vec3 position);
+			glm::vec3						GetPosition() const;
 
-        private:
-            static void twSetPos(const void *value, void *clientData);
-            static void twGetPos(void *value, void *clientData);
+			void							SetRotation(glm::quat rot);
+			void							SetRotation(glm::vec3 rotation);
+			glm::quat						GetRotation() const;
+			glm::vec3						GetRotationEuler() const;
+			void							Rotate(float angle, glm::vec3 axis);
 
-            static void twSetRot(const void *value, void *clientData);
-            static void twGetRot(void *value, void *clientData);
+			void							SetScale(glm::vec3 scale);
+			glm::vec3						GetScale() const;
 
-            void syncPxActor();
+		public:
 
-            bool modelMatrixDirty;
-            glm::mat4 modelMatrix;
+			glm::vec3						_position;
+			glm::vec3						_scale;
 
-            glm::quat rotation;
+		private:
 
-            std::vector<SceneComponent*> childs;
-            SceneComponent* parent;
-        };
-    }
+			void							SyncPxActor();
+
+		private:
+
+			bool							_modelMatrixDirty;
+			glm::mat4						_modelMatrix;
+
+			glm::quat						_rotation;
+
+			std::vector<SceneComponent*>	_childs;
+			SceneComponent*					_parent;
+
+		private:
+
+			static void						twSetPos(const void* value, void* clientData);
+			static void						twGetPos(void* value, void* clientData);
+
+			static void						twSetRot(const void* value, void* clientData);
+			static void						twGetRot(void* value, void* clientData);
+		};
+	}
 }

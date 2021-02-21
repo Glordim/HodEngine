@@ -8,23 +8,33 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class SpotLightComponent : public Component
-        {
-        public:
-            SpotLightComponent(Actor* actor);
-            SpotLightComponent(const SpotLightComponent& copy) = delete;
-            ~SpotLightComponent() override = default;
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class SpotLightComponent : public Component
+		{
+		public:
 
-            void            DrawImGui() override;
-            const char*     GetName() override;
+							SpotLightComponent(Actor* actor);
+							SpotLightComponent(const SpotLightComponent&) = delete;
+							SpotLightComponent(SpotLightComponent&&) = delete;
+							~SpotLightComponent() override = default;
 
-            SpotLight*      GetSpotLight() const;
+			void			operator=(const SpotLightComponent&) = delete;
+			void			operator=(SpotLightComponent&&) = delete;
 
-        public:
+		public:
 
-            SpotLight       _data;
-        };
-    }
+			void			DrawImGui() override;
+			const char*		GetType() const override;
+
+			SpotLight*		GetSpotLight() const;
+
+		public:
+
+			SpotLight		_data;
+		};
+	}
 }

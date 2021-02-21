@@ -2,11 +2,14 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        Component::Component(Actor* actor)
-            : _actor(actor)
-        {
-        }
-    }
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Component::Component(Actor* actor)
+			: _actor(actor)
+		{
+		}
+	}
 }

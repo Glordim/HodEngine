@@ -4,36 +4,47 @@
 
 namespace HOD
 {
-    class Mesh;
-    class MaterialInstance;
+	class Mesh;
+	class MaterialInstance;
 
-    namespace GAME
-    {
-        class StaticMeshComponent : public RendererComponent
-        {
-        public:
-            StaticMeshComponent(Actor* actor);
-            StaticMeshComponent(const StaticMeshComponent& copy) = delete;
-            ~StaticMeshComponent() override;
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class StaticMeshComponent : public RendererComponent
+		{
+		public:
 
-            void        DrawImGui() override;
-            const char* GetName() override;
+								StaticMeshComponent(Actor* actor);
+								StaticMeshComponent(const StaticMeshComponent&) = delete;
+								StaticMeshComponent(StaticMeshComponent&&) = delete;
+								~StaticMeshComponent() override;
 
-        public:
-            void setMesh(Mesh* mesh);
-            Mesh* GetMesh() const;
+			void				operator=(const StaticMeshComponent&) = delete;
+			void				operator=(StaticMeshComponent&&) = delete;
 
-            void setMaterialInstance(MaterialInstance* materialInstance);
-            MaterialInstance* GetMaterialInstance() const;
+		public:
 
-            void EnableDebugTangent(bool enable);
-            bool IsDebugTangentEnabled() const;
+			void				DrawImGui() override;
+			const char*			GetType() const override;
 
-        private:
-            Mesh* mesh;
-            MaterialInstance* materialInstance;
+		public:
+			Mesh*				GetMesh() const;
+			void				SetMesh(Mesh* mesh);
 
-            bool debugTangent;
-        };
-    }
+			MaterialInstance*	GetMaterialInstance() const;
+			void				SetMaterialInstance(MaterialInstance* materialInstance);
+
+			bool				IsDebugTangentEnabled() const;
+			void				EnableDebugTangent(bool enable);
+
+		private:
+
+			Mesh*				_mesh;
+			MaterialInstance*	_materialInstance;
+
+			bool				_debugTangent;
+		};
+	}
 }

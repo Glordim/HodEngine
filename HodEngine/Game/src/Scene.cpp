@@ -18,47 +18,62 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        Scene::Scene()
-            : ambiantColor(0.25f, 0.25f, 0.25f, 1.0f)
-        {
-            this->root = this->spawnActor<Actor>("Root");
-            this->root->addComponent<SceneComponent>();
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Scene::Scene()
+			: _ambiantColor(0.25f, 0.25f, 0.25f, 1.0f)
+		{
+			_root = SpawnActor<Actor>("Root");
+			_root->AddComponent<SceneComponent>();
 
-			this->physicScene = PHYSICS::Physics::GetInstance()->CreateScene();
-        }
+			_physicScene = PHYSICS::Physics::GetInstance()->CreateScene();
+		}
 
-        Scene::~Scene()
-        {
-			PHYSICS::Physics::GetInstance()->DestroyScene(this->physicScene);
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Scene::~Scene()
+		{
+			PHYSICS::Physics::GetInstance()->DestroyScene(_physicScene);
+		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		PHYSICS::Scene* Scene::GetPhysicScene() const
-        {
-            return this->physicScene;
-        }
+		{
+			return _physicScene;
+		}
 
-        void Scene::simulatePhysic(float dt)
-        {
-            if (dt <= 0.0f)
-                return;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Scene::SimulatePhysic(float dt)
+		{
+			if (dt <= 0.0f)
+				return;
 
-			this->physicScene->Update(dt);
-        }
+			_physicScene->Update(dt);
+		}
 
-        void Scene::update(float dt)
-        {
-			auto it = vDebugLines.begin();
-			auto itEnd = vDebugLines.end();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Scene::Update(float dt)
+		{
+			auto it = _debugLines.begin();
+			auto itEnd = _debugLines.end();
 			while (it != itEnd)
 			{
 				it->second -= dt;
 
 				if (it->second <= 0.0f)
 				{
-					it = vDebugLines.erase(it);
-					itEnd = vDebugLines.end();
+					it = _debugLines.erase(it);
+					itEnd = _debugLines.end();
 				}
 				else
 				{
@@ -66,51 +81,71 @@ namespace HOD
 				}
 			}
 
-            size_t actorCount = this->actorList.size();
-            for (size_t i = 0; i < actorCount; ++i)
-            {
-                this->actorList[i]->update(dt);
-            }
-        }
+			size_t actorCount = _actorList.size();
+			for (size_t i = 0; i < actorCount; ++i)
+			{
+				_actorList[i]->Update(dt);
+			}
+		}
 
-        bool Scene::raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration)
-        {
-            if (drawDebug == true)
-                this->AddDebugLine(origin, origin + (dir * distance), debugColor, debugDuration);
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration)
+		{
+			if (drawDebug == true)
+			{
+				AddDebugLine(origin, origin + (dir * distance), debugColor, debugDuration);
+			}
 
-			return physicScene->Raycast(origin, dir, distance, result);
-        }
+			return _physicScene->Raycast(origin, dir, distance, result);
+		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		PHYSICS::Actor* Scene::CreatePhysicActor(Actor* actor)
-        {
-			SceneComponent* actorSceneComponent = actor->getComponent<SceneComponent>();
+		{
+			SceneComponent* actorSceneComponent = actor->GetComponent<SceneComponent>();
 
-			PHYSICS::Actor* physicActor = physicScene->CreateActor();
+			PHYSICS::Actor* physicActor = _physicScene->CreateActor();
 
-			physicActor->SetTransform(actorSceneComponent->getPosition(), actorSceneComponent->getRotation(), glm::vec3(1.0f, 1.0f, 1.0f));
+			physicActor->SetTransform(actorSceneComponent->GetPosition(), actorSceneComponent->GetRotation(), glm::vec3(1.0f, 1.0f, 1.0f));
 
-            this->physicActorToActorMap[physicActor] = actor;
+			_physicActorToActorMap[physicActor] = actor;
 
-            actor->SetPhysicActor(physicActor);
+			actor->SetPhysicActor(physicActor);
 
-            return physicActor;
-        }
+			return physicActor;
+		}
 
-        Actor* Scene::convertPxActor(PHYSICS::Actor* physicActor)
-        {
-            return this->physicActorToActorMap[physicActor];
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Actor* Scene::ConvertPxActor(PHYSICS::Actor* physicActor)
+		{
+			return _physicActorToActorMap[physicActor];
+		}
 
-        SceneComponent* Scene::getRoot() const
-        {
-            return this->root->getComponent<SceneComponent>();
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		SceneComponent* Scene::GetRoot() const
+		{
+			return _root->GetComponent<SceneComponent>();
+		}
 
-        void Scene::setAmbiantColor(CORE::Color& color)
-        {
-            this->ambiantColor = color;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Scene::SetAmbiantColor(CORE::Color& color)
+		{
+			_ambiantColor = color;
+		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Scene::AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration)
 		{
 			Line_3P_3C line;
@@ -127,15 +162,18 @@ namespace HOD
 			line.vertices[1].color[1] = color.g;
 			line.vertices[1].color[2] = color.b;
 
-			vDebugLines.push_back(std::make_pair(line, duration));
+			_debugLines.push_back(std::make_pair(line, duration));
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void Scene::GetDebugLines(std::vector<Line_3P_3C>& lines)
 		{
-			for (std::pair<Line_3P_3C, float> line : vDebugLines)
+			for (std::pair<Line_3P_3C, float> line : _debugLines)
 			{
 				lines.push_back(line.first);
 			}
 		}
-    }
+	}
 }

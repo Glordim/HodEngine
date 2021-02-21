@@ -12,41 +12,52 @@
 
 namespace HOD
 {
-    class MaterialInstance;
-    class Texture;
+	class MaterialInstance;
+	class Texture;
 
-    namespace GAME
-    {
-        class PointLightComponent;
+	namespace GAME
+	{
+		class PointLightComponent;
 
-        class CameraComponent : public Component
-        {
-        public:
-                                CameraComponent(Actor* actor);
-                                CameraComponent(const CameraComponent&) = delete;
-                                ~CameraComponent() override = default;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class CameraComponent : public Component
+		{
+		public:
 
-            void                DrawImGui() override;
-            const char*         GetName() override;
+								CameraComponent(Actor* actor);
+								CameraComponent(const CameraComponent&) = delete;
+								CameraComponent(CameraComponent&&) = delete;
+								~CameraComponent() override = default;
 
-            void                render(Scene& scene);
+			void				operator=(const CameraComponent&) = delete;
+			void				operator=(CameraComponent&&) = delete;
 
-            const glm::mat4&    getProjectionMatrix();
+		public:
 
-            void                SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture);
+			void				DrawImGui() override;
+			const char*			GetType() const override;
 
-        private:
-            float               _fov;
-            float               _aspect;
-            float               _fNear;
-            float               _fFar;
-            bool                _perspective;
-            bool                _dirtyFlag;
+			void				Render(Scene& scene);
 
-            MaterialInstance*   _hdriMat;
-            Texture*            _hdriTexture;
+			const glm::mat4&	GetProjectionMatrix();
 
-            glm::mat4           _projectionMatrix;
-        };
-    }
+			void				SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture);
+
+		private:
+
+			float				_fov;
+			float				_aspect;
+			float				_near;
+			float				_far;
+			bool				_perspective;
+			bool				_dirtyFlag;
+
+			MaterialInstance*	_hdriMat;
+			Texture*			_hdriTexture;
+
+			glm::mat4			_projectionMatrix;
+		};
+	}
 }

@@ -4,209 +4,265 @@
 
 namespace HOD
 {
-    InputListener::InputListener()
-    {
-    }
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	InputListener::KeyAxis::KeyAxis(int negative, int positive)
+		: _negative(negative)
+		, _positive(positive)
+	{
+	}
 
-    InputListener::~InputListener()
-    {
-        auto it = this->axisCallbackList.begin();
-        auto itEnd = this->axisCallbackList.end();
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	InputListener::InternalKeyAxis::InternalKeyAxis(const KeyAxis& axis)
+		: _negativeKey(axis._negative)
+		, _usingNegative(false)
+		, _positiveKey(axis._positive)
+		, _usingPositive(false)
+	{
 
-        while (it != itEnd)
-        {
-            delete it->first;
+	}
 
-            ++it;
-        }
-    }
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	InputListener::InputListener()
+	{
+	}
 
-    void InputListener::injectMouseButtonInput(int mouseButtonId, int action, int mods)
-    {
-        if (action == SDL_PRESSED)
-        {
-            size_t callbackCount = this->mouseButtonPressCallbackList[mouseButtonId].size();
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	InputListener::~InputListener()
+	{
+		auto it = _axisCallbackList.begin();
+		auto itEnd = _axisCallbackList.end();
 
-            for (int i = 0; i < callbackCount; ++i)
-            {
-                this->mouseButtonPressCallbackList[mouseButtonId][i]();
-            }
-        }
-        else if (action == SDL_RELEASED)
-        {
-            size_t callbackCount = this->mouseButtonReleaseCallbackList[mouseButtonId].size();
+		while (it != itEnd)
+		{
+			delete it->first;
 
-            for (int i = 0; i < callbackCount; ++i)
-            {
-                this->mouseButtonReleaseCallbackList[mouseButtonId][i]();
-            }
-        }
-    }
+			++it;
+		}
+	}
 
-    void InputListener::injectMouseMoveInput(int x, int y)
-    {
-        size_t callbackCount = this->mouseMoveCallbackList.size();
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void InputListener::InjectMouseButtonInput(int mouseButtonId, int action, int mods)
+	{
+		if (action == SDL_PRESSED)
+		{
+			size_t callbackCount = _mouseButtonPressCallbackList[mouseButtonId].size();
 
-        for (int i = 0; i < callbackCount; ++i)
-        {
-            this->mouseMoveCallbackList[i](x, y);
-        }
-    }
+			for (int i = 0; i < callbackCount; ++i)
+			{
+				_mouseButtonPressCallbackList[mouseButtonId][i]();
+			}
+		}
+		else if (action == SDL_RELEASED)
+		{
+			size_t callbackCount = _mouseButtonReleaseCallbackList[mouseButtonId].size();
 
-    void InputListener::injectKeyInput(int key, int scancode, int action, int mods)
-    {
-        auto it = this->axisCallbackList.begin();
-        auto itEnd = this->axisCallbackList.end();
+			for (int i = 0; i < callbackCount; ++i)
+			{
+				_mouseButtonReleaseCallbackList[mouseButtonId][i]();
+			}
+		}
+	}
 
-        if (action == SDL_RELEASED)
-        {
-            while (it != itEnd)
-            {
-                if (key == it->first->negativeKey)
-                {
-                    it->first->usingNegative = false;
-                    /*
-                    if (it->first->usingPositive == false)
-                    {
-                        auto itUsed = this->usedAxis.begin();
-                        auto itUsedEnd = this->usedAxis.begin();
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void InputListener::InjectMouseMoveInput(int x, int y)
+	{
+		size_t callbackCount = _mouseMoveCallbackList.size();
 
-                        while (itUsed != itUsedEnd)
-                        {
-                            if (*itUsed == it->first)
-                            {
-                                this->usedAxis.erase(itUsed);
-                                break;
-                            }
+		for (int i = 0; i < callbackCount; ++i)
+		{
+			_mouseMoveCallbackList[i](x, y);
+		}
+	}
 
-                            ++itUsed;
-                        }
-                    }
-                    */
-                }
-                else if (key == it->first->positiveKey)
-                {
-                    it->first->usingPositive = false;
-                    /*
-                    if (it->first->usingNegative == false)
-                    {
-                        auto itUsed = this->usedAxis.begin();
-                        auto itUsedEnd = this->usedAxis.begin();
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void InputListener::InjectKeyInput(int key, int scancode, int action, int mods)
+	{
+		auto it = _axisCallbackList.begin();
+		auto itEnd = this->_axisCallbackList.end();
 
-                        while (itUsed != itUsedEnd)
-                        {
-                            if (*itUsed == it->first)
-                            {
-                                this->usedAxis.erase(itUsed);
-                                break;
-                            }
+		if (action == SDL_RELEASED)
+		{
+			while (it != itEnd)
+			{
+				if (key == it->first->_negativeKey)
+				{
+					it->first->_usingNegative = false;
+					/*
+					if (it->first->usingPositive == false)
+					{
+						auto itUsed = this->usedAxis.begin();
+						auto itUsedEnd = this->usedAxis.begin();
 
-                            ++itUsed;
-                        }
-                    }
-                    */
-                }
+						while (itUsed != itUsedEnd)
+						{
+							if (*itUsed == it->first)
+							{
+								this->usedAxis.erase(itUsed);
+								break;
+							}
 
-                ++it;
-            }
-        }
-        else if (action == SDL_PRESSED)
-        {
-            while (it != itEnd)
-            {
-                if (key == it->first->negativeKey)
-                {
-                    it->first->usingNegative = true;
-                    /*
-                    auto itUsed = this->usedAxis.begin();
-                    auto itUsedEnd = this->usedAxis.begin();
+							++itUsed;
+						}
+					}
+					*/
+				}
+				else if (key == it->first->_positiveKey)
+				{
+					it->first->_usingPositive = false;
+					/*
+					if (it->first->usingNegative == false)
+					{
+						auto itUsed = this->usedAxis.begin();
+						auto itUsedEnd = this->usedAxis.begin();
 
-                    bool exist = false;
+						while (itUsed != itUsedEnd)
+						{
+							if (*itUsed == it->first)
+							{
+								this->usedAxis.erase(itUsed);
+								break;
+							}
 
-                    while (itUsed != itUsedEnd)
-                    {
-                        if (*itUsed == it->first)
-                        {
-                            exist = true;
-                            break;
-                        }
+							++itUsed;
+						}
+					}
+					*/
+				}
 
-                        ++itUsed;
-                    }
+				++it;
+			}
+		}
+		else if (action == SDL_PRESSED)
+		{
+			while (it != itEnd)
+			{
+				if (key == it->first->_negativeKey)
+				{
+					it->first->_usingNegative = true;
+					/*
+					auto itUsed = this->usedAxis.begin();
+					auto itUsedEnd = this->usedAxis.begin();
 
-                    if (exist == false)
-                    {
-                        this->usedAxis.push_back(it->first);
-                    }
-                    */
-                }
-                else if (key == it->first->positiveKey)
-                {
-                    it->first->usingPositive = true;
-                    /*
-                    auto itUsed = this->usedAxis.begin();
-                    auto itUsedEnd = this->usedAxis.begin();
+					bool exist = false;
 
-                    bool exist = false;
+					while (itUsed != itUsedEnd)
+					{
+						if (*itUsed == it->first)
+						{
+							exist = true;
+							break;
+						}
 
-                    while (itUsed != itUsedEnd)
-                    {
-                        if (*itUsed == it->first)
-                        {
-                            exist = true;
-                            break;
-                        }
+						++itUsed;
+					}
 
-                        ++itUsed;
-                    }
+					if (exist == false)
+					{
+						this->usedAxis.push_back(it->first);
+					}
+					*/
+				}
+				else if (key == it->first->_positiveKey)
+				{
+					it->first->_usingPositive = true;
+					/*
+					auto itUsed = this->usedAxis.begin();
+					auto itUsedEnd = this->usedAxis.begin();
 
-                    if (exist == false)
-                    {
-                        this->usedAxis.push_back(it->first);
-                    }
-                    */
-                }
+					bool exist = false;
 
-                ++it;
-            }
-        }
-    }
+					while (itUsed != itUsedEnd)
+					{
+						if (*itUsed == it->first)
+						{
+							exist = true;
+							break;
+						}
 
-    void InputListener::registerMouseButtonEvent(int mouseButtonId, int action, std::function<void()> callback)
-    {
-        if (action == SDL_PRESSED)
-            this->mouseButtonPressCallbackList[mouseButtonId].push_back(callback);
-        else if (action == SDL_RELEASED)
-            this->mouseButtonReleaseCallbackList[mouseButtonId].push_back(callback);
-    }
+						++itUsed;
+					}
 
-    void InputListener::registerMouseMoveEvent(std::function<void(int, int)> callback)
-    {
-        this->mouseMoveCallbackList.push_back(callback);
-    }
+					if (exist == false)
+					{
+						this->usedAxis.push_back(it->first);
+					}
+					*/
+				}
 
-    void InputListener::registerAxisEvent(const InputListener::KeyAxis& axis, std::function<void(float)> callback)
-    {
-        this->axisCallbackList[new InputListener::InternalKeyAxis(axis)] = callback;
-    }
+				++it;
+			}
+		}
+	}
 
-    void InputListener::process()
-    {
-        auto it = this->axisCallbackList.begin();
-        auto itEnd = this->axisCallbackList.end();
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void InputListener::RegisterMouseButtonEvent(int mouseButtonId, int action, std::function<void()> callback)
+	{
+		if (action == SDL_PRESSED)
+		{
+			_mouseButtonPressCallbackList[mouseButtonId].push_back(callback);
+		}
+		else if (action == SDL_RELEASED)
+		{
+			_mouseButtonReleaseCallbackList[mouseButtonId].push_back(callback);
+		}
+	}
 
-        while (it != itEnd)
-        {
-            float axisValue = 0.0f;
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void InputListener::RegisterMouseMoveEvent(std::function<void(int, int)> callback)
+	{
+		_mouseMoveCallbackList.push_back(callback);
+	}
 
-            if (it->first->usingNegative == true)
-                axisValue += -1.0f;
-            if (it->first->usingPositive == true)
-                axisValue += 1.0f;
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void InputListener::RegisterAxisEvent(const InputListener::KeyAxis& axis, std::function<void(float)> callback)
+	{
+		_axisCallbackList[new InputListener::InternalKeyAxis(axis)] = callback;
+	}
 
-            it->second(axisValue);
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void InputListener::Process()
+	{
+		auto it = _axisCallbackList.begin();
+		auto itEnd = _axisCallbackList.end();
 
-            ++it;
-        }
-    }
+		while (it != itEnd)
+		{
+			float axisValue = 0.0f;
+
+			if (it->first->_usingNegative == true)
+			{
+				axisValue += -1.0f;
+			}
+			if (it->first->_usingPositive == true)
+			{
+				axisValue += 1.0f;
+			}
+
+			it->second(axisValue);
+
+			++it;
+		}
+	}
 }

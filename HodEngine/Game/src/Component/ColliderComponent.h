@@ -4,32 +4,43 @@
 
 namespace HOD
 {
-    namespace PHYSICS
-    {
-        enum SHAPE;
-    }
+	namespace PHYSICS
+	{
+		enum SHAPE;
+	}
 
-    namespace GAME
-    {
-        class ColliderComponent : public Component
-        {
-        public:
-            enum Shape
-            {
-                Box,
-                Sphere,
-                Mesh
-            };
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class ColliderComponent : public Component
+		{
+		public:
 
-        public:
-            ColliderComponent(Actor* actor);
-            ColliderComponent(const ColliderComponent&) = delete;
-            ~ColliderComponent() override = default;
+			enum Shape
+			{
+				Box,
+				Sphere,
+				Mesh
+			};
 
-            void        DrawImGui() override;
-            const char* GetName() override;
+		public:
 
-            void SetShape(PHYSICS::SHAPE eShape);
-        };
-    }
+							ColliderComponent(Actor* actor);
+							ColliderComponent(const ColliderComponent&) = delete;
+							ColliderComponent(ColliderComponent&&) = delete;
+							~ColliderComponent() override = default;
+
+			void			operator=(const ColliderComponent&) = delete;
+			void			operator=(ColliderComponent&&) = delete;
+
+		public:
+
+			void			DrawImGui() override;
+			const char*		GetType() const override;
+
+			void			SetShape(PHYSICS::SHAPE eShape);
+		};
+	}
 }

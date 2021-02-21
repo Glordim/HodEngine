@@ -10,30 +10,36 @@
 
 namespace HOD
 {
-    namespace GAME
+	namespace GAME
 	{
-        class Actor;
+		class Actor;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class GizmoDebugWindow : public DEBUG_LAYER::DebugWindow
-        {
+		class GizmoDebugWindow : public DEBUG_LAYER::DebugWindow
+		{
 		public:
 
-											GizmoDebugWindow();
-                                            ~GizmoDebugWindow() override;
+									GizmoDebugWindow();
+									GizmoDebugWindow(const GizmoDebugWindow&) = delete;
+									GizmoDebugWindow(GizmoDebugWindow&&) = delete;
+									~GizmoDebugWindow() override;
 
-            void                            Draw() override;
+			void					operator=(const GizmoDebugWindow&) = delete;
+			void					operator=(GizmoDebugWindow&&) = delete;
 
-            void                            SetActor(Actor* pActor);
+		public:
 
-        private:
+			void					Draw() override;
 
-			Actor*							_pActor = nullptr;
+			void					SetActor(Actor* actor);
 
-			ImGuizmo::OPERATION				_eOperation = ImGuizmo::OPERATION::TRANSLATE;
-			ImGuizmo::MODE					_eMode = ImGuizmo::MODE::LOCAL;
-        };
-    }
+		private:
+
+			Actor*					_actor = nullptr;
+			ImGuizmo::OPERATION		_operation = ImGuizmo::OPERATION::TRANSLATE;
+			ImGuizmo::MODE			_mode = ImGuizmo::MODE::LOCAL;
+		};
+	}
 }

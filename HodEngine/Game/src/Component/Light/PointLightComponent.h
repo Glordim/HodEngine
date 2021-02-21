@@ -8,22 +8,32 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class PointLightComponent : public Component
-        {
-        public:
-                            PointLightComponent(Actor* actor);
-                            PointLightComponent(const PointLightComponent& copy) = delete;
-                            ~PointLightComponent() override = default;
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class PointLightComponent : public Component
+		{
+		public:
 
-            void            DrawImGui() override;
-            const char*     GetName() override;
+							PointLightComponent(Actor* actor);
+							PointLightComponent(const PointLightComponent&) = delete;
+							PointLightComponent(PointLightComponent&&) = delete;
+							~PointLightComponent() override = default;
 
-            PointLight*     GetPointLight() const;
+			void			operator=(const PointLightComponent&) = delete;
+			void			operator=(PointLightComponent&&) = delete;
 
-        public:
-            PointLight      _data;
-        };
-    }
+		public:
+
+			void			DrawImGui() override;
+			const char*		GetType() const override;
+
+			PointLight*		GetPointLight() const;
+
+		public:
+			PointLight		_data;
+		};
+	}
 }

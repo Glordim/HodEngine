@@ -2,21 +2,30 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        RendererComponent::RendererComponent(Actor* actor) : Component(actor)
-        {
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		RendererComponent::RendererComponent(Actor* actor) : Component(actor)
+		{
 
-        }
+		}
 
-        void RendererComponent::DrawImGui()
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void RendererComponent::DrawImGui()
+		{
 
-        }
+		}
 
-        const char* RendererComponent::GetName()
-        {
-            return "Renderer";
-        }
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		const char* RendererComponent::GetType() const
+		{
+			return "Renderer";
+		}
+	}
 }

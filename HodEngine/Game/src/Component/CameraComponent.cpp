@@ -16,80 +16,102 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        CameraComponent::CameraComponent(Actor* actor)
-            : Component(actor)
-            , _fov(60.0f)
-            , _aspect(1920.0f / 1080.0f)
-            , _fNear(0.01f)
-            , _fFar(1000.0f)
-            , _perspective(true)
-            , _dirtyFlag(true)
-            , _hdriMat(nullptr)
-            , _hdriTexture(nullptr)
-        {
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		CameraComponent::CameraComponent(Actor* actor)
+			: Component(actor)
+			, _fov(60.0f)
+			, _aspect(1920.0f / 1080.0f)
+			, _near(0.01f)
+			, _far(1000.0f)
+			, _perspective(true)
+			, _dirtyFlag(true)
+			, _hdriMat(nullptr)
+			, _hdriTexture(nullptr)
+		{
 			APPLICATION::Application* app = APPLICATION::Application::GetInstance();
 
 			int width = app->GetWidth();
 			int height = app->GetHeight();
 
 			_aspect = (float)width / (float)height;
-        }
+		}
 
-        void CameraComponent::DrawImGui()
-        {
-            //TwAddSeparator(tweakBar, "Camera", "");
-            //TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &this->fov, "");
-            //TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &this->fNear, "");
-            //TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &this->fFar, "");
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void CameraComponent::DrawImGui()
+		{
+			//TwAddSeparator(tweakBar, "Camera", "");
+			//TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &this->fov, "");
+			//TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &this->fNear, "");
+			//TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &this->fFar, "");
+		}
 
-        const char* CameraComponent::GetName()
-        {
-            return "Camera";
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		const char* CameraComponent::GetType() const
+		{
+			return "Camera";
+		}
 
-        void CameraComponent::SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture)
-        {
-            _hdriMat = hdriMat;
-            _hdriTexture = hdriTexture;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void CameraComponent::SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture)
+		{
+			_hdriMat = hdriMat;
+			_hdriTexture = hdriTexture;
+		}
 
-        const glm::mat4& CameraComponent::getProjectionMatrix()
-        {
-            if (_dirtyFlag == true)
-            {
-                if (_perspective == true)
-                    _projectionMatrix = glm::perspective(glm::radians(_fov), _aspect, _fNear, _fFar);
-                else
-                    _projectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, _fNear, _fFar);
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		const glm::mat4& CameraComponent::GetProjectionMatrix()
+		{
+			if (_dirtyFlag == true)
+			{
+				if (_perspective == true)
+				{
+					_projectionMatrix = glm::perspective(glm::radians(_fov), _aspect, _near, _far);
+				}
+				else
+				{
+					_projectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, _near, _far);
+				}
 
-                _dirtyFlag = false;
-            }
+				_dirtyFlag = false;
+			}
 
-            return _projectionMatrix;
-        }
+			return _projectionMatrix;
+		}
 
-        void CameraComponent::render(Scene& scene)
-        {
-            RenderQueue renderQueue;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void CameraComponent::Render(Scene& scene)
+		{
+			RenderQueue renderQueue;
 
-            renderQueue.SetCameraPos(GetActor()->getComponent<SceneComponent>()->getPosition());
-            renderQueue.SetViewMatrix(glm::inverse(GetActor()->getComponent<SceneComponent>()->getModelMatrix()));
-            renderQueue.SetProjMatrix(this->getProjectionMatrix());
+			renderQueue.SetCameraPos(GetActor()->GetComponent<SceneComponent>()->GetPosition());
+			renderQueue.SetViewMatrix(glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()));
+			renderQueue.SetProjMatrix(this->GetProjectionMatrix());
 
-            renderQueue.SetClearFlag(RenderQueue::ClearFlag::COLOR | RenderQueue::ClearFlag::DEPTH);
+			renderQueue.SetClearFlag(RenderQueue::ClearFlag::COLOR | RenderQueue::ClearFlag::DEPTH);
 
-            renderQueue.SetHdriMaterial(_hdriMat);
-            renderQueue.SetHdriTexture(_hdriTexture);
+			renderQueue.SetHdriMaterial(_hdriMat);
+			renderQueue.SetHdriTexture(_hdriTexture);
 
-            RenderQueueHelper::AddSceneComponent(renderQueue, scene.getRoot(), true);
-            RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
+			RenderQueueHelper::AddSceneComponent(renderQueue, scene.GetRoot(), true);
+			RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
 			RenderQueueHelper::AddDebugLines(renderQueue, &scene);
 
-            Renderer* renderer = Renderer::GetInstance();
-            renderer->SubmitRenderQueue(renderQueue);
-        }
-    }
+			Renderer* renderer = Renderer::GetInstance();
+			renderer->SubmitRenderQueue(renderQueue);
+		}
+	}
 }

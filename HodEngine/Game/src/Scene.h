@@ -23,56 +23,59 @@ namespace HOD
 		class Actor;
 	}
 
-    namespace GAME
-    {
-        class SceneComponent;
-        class CameraComponent;
+	namespace GAME
+	{
+		class SceneComponent;
+		class CameraComponent;
 
-        class Scene
-        {
-        public:
-            Scene();
-            virtual ~Scene();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class Scene
+		{
+		public:
+														Scene();
+														Scene(const Scene&) = delete;
+														Scene(Scene&&) = delete;
+			virtual										~Scene();
 
-            template<typename T>
-            T* spawnActor(const std::string& name);
+			void										operator=(const Scene&) = delete;
+			void										operator=(Scene&&) = delete;
 
-            void simulatePhysic(float dt);
-            void update(float dt);
-			
-            bool raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration);
+		public:
 
-			PHYSICS::Actor* CreatePhysicActor(Actor* actor);
-            Actor* convertPxActor(PHYSICS::Actor* physicActor);
+			template<typename T>
+			T*											SpawnActor(const std::string& name);
 
-            void setAmbiantColor(CORE::Color& color);
-            SceneComponent* getRoot() const;
+			void										SimulatePhysic(float dt);
+			void										Update(float dt);
 
-			PHYSICS::Scene* GetPhysicScene() const;
+			bool										Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration);
 
-			void AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration);
-			void GetDebugLines(std::vector<Line_3P_3C>& lines);
+			PHYSICS::Actor*								CreatePhysicActor(Actor* actor);
+			Actor*										ConvertPxActor(PHYSICS::Actor* physicActor);
 
-        private:
-            CORE::Color ambiantColor;
-            Actor* root;
+			void										SetAmbiantColor(CORE::Color& color);
+			SceneComponent*								GetRoot() const;
 
-			PHYSICS::Scene* physicScene = nullptr;
+			PHYSICS::Scene*								GetPhysicScene() const;
 
-            std::vector<Actor*> actorList;
-            std::map<PHYSICS::Actor*, Actor*> physicActorToActorMap;
+			void										AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration);
+			void										GetDebugLines(std::vector<Line_3P_3C>& lines);
 
-			std::vector<std::pair<Line_3P_3C, float>> vDebugLines;
-        };
+		private:
 
-        template<typename T>
-        T* Scene::spawnActor(const std::string& name)
-        {
-            T* actor = new T(name, this);
+			CORE::Color									_ambiantColor;
+			Actor*										_root;
 
-            this->actorList.push_back(actor);
+			PHYSICS::Scene*								_physicScene = nullptr;
 
-            return actor;
-        }
-    }
+			std::vector<Actor*>							_actorList;
+			std::map<PHYSICS::Actor*, Actor*>			_physicActorToActorMap;
+
+			std::vector<std::pair<Line_3P_3C, float>>	_debugLines;
+		};
+	}
 }
+
+#include "Scene.inl"

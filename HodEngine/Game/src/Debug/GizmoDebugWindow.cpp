@@ -14,41 +14,50 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		GizmoDebugWindow::GizmoDebugWindow() : DebugWindow()
-        {
+		{
 
-        }
+		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		GizmoDebugWindow::~GizmoDebugWindow()
 		{
-            
-        }
 
-        void GizmoDebugWindow::Draw()
-        {
-            ImGui::Begin("Gizmo");
-            {
-                if (_pActor == nullptr)
-                {
-                    ImGui::Text("No selected actor...");
-                }
-                else
-                {
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void GizmoDebugWindow::Draw()
+		{
+			ImGui::Begin("Gizmo");
+			{
+				if (_actor == nullptr)
+				{
+					ImGui::Text("No selected actor...");
+				}
+				else
+				{
 					ImGui::BeginGroup();
 					{
-						if (ImGui::RadioButton("Translate", _eOperation == ImGuizmo::TRANSLATE) == true)
+						if (ImGui::RadioButton("Translate", _operation == ImGuizmo::TRANSLATE) == true)
 						{
-							_eOperation = ImGuizmo::TRANSLATE;
+							_operation = ImGuizmo::TRANSLATE;
 						}
-						if (ImGui::RadioButton("Rotate", _eOperation == ImGuizmo::ROTATE) == true)
+						if (ImGui::RadioButton("Rotate", _operation == ImGuizmo::ROTATE) == true)
 						{
-							_eOperation = ImGuizmo::ROTATE;
+							_operation = ImGuizmo::ROTATE;
 						}
-						if (ImGui::RadioButton("Scale", _eOperation == ImGuizmo::SCALE) == true)
+						if (ImGui::RadioButton("Scale", _operation == ImGuizmo::SCALE) == true)
 						{
-							_eOperation = ImGuizmo::SCALE;
+							_operation = ImGuizmo::SCALE;
 						}
 					}
 					ImGui::EndGroup();
@@ -57,26 +66,26 @@ namespace HOD
 
 					ImGui::BeginGroup();
 					{
-						if (ImGui::RadioButton("Local", _eMode == ImGuizmo::LOCAL) == true)
+						if (ImGui::RadioButton("Local", _mode == ImGuizmo::LOCAL) == true)
 						{
-							_eMode = ImGuizmo::LOCAL;
+							_mode = ImGuizmo::LOCAL;
 						}
-						if (ImGui::RadioButton("World", _eMode == ImGuizmo::WORLD) == true)
+						if (ImGui::RadioButton("World", _mode == ImGuizmo::WORLD) == true)
 						{
-							_eMode = ImGuizmo::WORLD;
+							_mode = ImGuizmo::WORLD;
 						}
 					}
 					ImGui::EndGroup();
 
-					GAME::SceneComponent* pSceneComponent = _pActor->getComponent<GAME::SceneComponent>();
+					GAME::SceneComponent* pSceneComponent = _actor->GetComponent<GAME::SceneComponent>();
 
-					glm::mat4 modelMatrix = pSceneComponent->getModelMatrix();
+					glm::mat4 modelMatrix = pSceneComponent->GetModelMatrix();
 					const glm::mat4& viewMatrix = DEBUG_LAYER::DebugLayer::GetInstance()->GetViewMatrix();
 					const glm::mat4& projectionMatrix = DEBUG_LAYER::DebugLayer::GetInstance()->GetProjectionMatrix();
 
 					ImGuiIO& io = ImGui::GetIO();
 					ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-					ImGuizmo::Manipulate(&viewMatrix[0][0], &projectionMatrix[0][0], _eOperation, _eMode, &modelMatrix[0][0], nullptr, nullptr);
+					ImGuizmo::Manipulate(&viewMatrix[0][0], &projectionMatrix[0][0], _operation, _mode, &modelMatrix[0][0], nullptr, nullptr);
 
 					glm::vec3 skew;
 					glm::vec4 perspective;
@@ -86,17 +95,20 @@ namespace HOD
 
 					glm::decompose(modelMatrix, scale, rotation, position, skew, perspective);
 
-					pSceneComponent->setPosition(position);
-					pSceneComponent->setRotation(rotation);
-					pSceneComponent->setScale(scale);
-                }
-            }
-            ImGui::End();
-        }
+					pSceneComponent->SetPosition(position);
+					pSceneComponent->SetRotation(rotation);
+					pSceneComponent->SetScale(scale);
+				}
+			}
+			ImGui::End();
+		}
 
-        void GizmoDebugWindow::SetActor(Actor* pActor)
-        {
-            _pActor = pActor;
-        }
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void GizmoDebugWindow::SetActor(Actor* actor)
+		{
+			_actor = actor;
+		}
+	}
 }

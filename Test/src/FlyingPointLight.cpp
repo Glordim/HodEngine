@@ -11,7 +11,7 @@ namespace HOD
 	//-----------------------------------------------------------------------------
     FlyingPointLight::FlyingPointLight(const std::string& name, GAME::Scene* scene) : GAME::Actor(name, scene)
     {
-        this->sceneComponent = this->addComponent<GAME::SceneComponent>();
+        this->sceneComponent = this->AddComponent<GAME::SceneComponent>();
     }
 
 	//-----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-    void FlyingPointLight::start()
+    void FlyingPointLight::Start()
     {
         
     }
@@ -32,11 +32,11 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-    void FlyingPointLight::update(float dt)
+    void FlyingPointLight::Update(float dt)
     {
         Uint32 ticks = SDL_GetTicks();
         float time = ticks / 1000.0f;
 
-        this->sceneComponent->setPosition(this->sceneComponent->getPosition() + glm::vec3(0.0f, 1.0f, 0.0f) * sin((float)time) * dt);
+        this->sceneComponent->SetPosition(this->sceneComponent->GetPosition() + glm::vec3(0.0f, 1.0f, 0.0f) * sin((float)time) * dt);
     }
 }

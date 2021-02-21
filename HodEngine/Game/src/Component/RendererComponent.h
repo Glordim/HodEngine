@@ -6,20 +6,30 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class CameraComponent;
-        class PointLightComponent;
+	namespace GAME
+	{
+		class CameraComponent;
+		class PointLightComponent;
 
-        class RendererComponent : public Component
-        {
-        public:
-            RendererComponent(Actor* actor);
-            RendererComponent(const RendererComponent& copy) = delete;
-            ~RendererComponent() override = default;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class RendererComponent : public Component
+		{
+		public:
 
-            void        DrawImGui() override;
-            const char* GetName() override;
-        };
-    }
+							RendererComponent(Actor* actor);
+							RendererComponent(const RendererComponent&) = delete;
+							RendererComponent(RendererComponent&&) = delete;
+							~RendererComponent() override = default;
+
+			void			operator=(const RendererComponent&) = delete;
+			void			operator=(RendererComponent&&) = delete;
+
+		public:
+
+			void			DrawImGui() override;
+			const char*		GetType() const override;
+		};
+	}
 }

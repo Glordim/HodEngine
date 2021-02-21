@@ -6,50 +6,62 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
+	namespace GAME
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		ActorDebugWindow::ActorDebugWindow() : DebugWindow()
-        {
+		{
 
-        }
+		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		ActorDebugWindow::~ActorDebugWindow()
 		{
-            
-        }
 
-        void ActorDebugWindow::Draw()
-        {
-            ImGui::Begin("Selected Actor");
-            {
-                if (_pActor == nullptr)
-                {
-                    ImGui::Text("No selected actor...");
-                }
-                else
-                {
-                    ImGui::Separator();
-                    ImGui::Text("Name: %s", _pActor->getName().c_str());
-                    ImGui::Separator();
+		}
 
-					_pActor->DrawImGui();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void ActorDebugWindow::Draw()
+		{
+			ImGui::Begin("Selected Actor");
+			{
+				if (_actor == nullptr)
+				{
+					ImGui::Text("No selected actor...");
+				}
+				else
+				{
+					ImGui::Separator();
+					ImGui::Text("Name: %s", _actor->GetName().c_str());
+					ImGui::Separator();
 
-                    std::vector<GAME::Component*> vComponent = _pActor->getAllComponent();
-                    for (GAME::Component* pComponent : vComponent)
-                    {
-                        if (ImGui::CollapsingHeader(pComponent->GetName(), _actorComponentCollapseMap[pComponent->GetName()]) == true)
-                        {
-                            pComponent->DrawImGui();
-                        }
-                    }
-                }
-            }
-            ImGui::End();
-        }
+					_actor->DrawImGui();
 
-        void ActorDebugWindow::SetActor(Actor* pActor)
-        {
-            _pActor = pActor;
-        }
-    }
+					std::vector<GAME::Component*> vComponent = _actor->GetAllComponent();
+					for (GAME::Component* pComponent : vComponent)
+					{
+						if (ImGui::CollapsingHeader(pComponent->GetType(), _actorComponentCollapseMap[pComponent->GetType()]) == true)
+						{
+							pComponent->DrawImGui();
+						}
+					}
+				}
+			}
+			ImGui::End();
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void ActorDebugWindow::SetActor(Actor* actor)
+		{
+			_actor = actor;
+		}
+	}
 }

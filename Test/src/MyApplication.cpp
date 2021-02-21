@@ -268,134 +268,134 @@ bool MyApplication::PreRun()
 
     scene = pGame->CreateScene();
 
-    FreeCam* freeCam = scene->spawnActor<FreeCam>("FreeCam");
+    FreeCam* freeCam = scene->SpawnActor<FreeCam>("FreeCam");
     {
-        HOD::GAME::SceneComponent* sceneComponent = freeCam->getComponent<HOD::GAME::SceneComponent>();
+        HOD::GAME::SceneComponent* sceneComponent = freeCam->GetComponent<HOD::GAME::SceneComponent>();
 
-        sceneComponent->setPosition(glm::vec3(0.0f, 10.0f, 9.0f));
-        sceneComponent->lookAt(sceneComponent->getPosition(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        sceneComponent->setParent(scene->getRoot());
+        sceneComponent->SetPosition(glm::vec3(0.0f, 10.0f, 9.0f));
+        sceneComponent->LookAt(sceneComponent->GetPosition(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        sceneComponent->SetParent(scene->GetRoot());
 
         //freeCam->setupInputListener(application.GetInputListenner());
 
-        HOD::GAME::SpotLightComponent* spotLightComponent = freeCam->addComponent<HOD::GAME::SpotLightComponent>();
+        HOD::GAME::SpotLightComponent* spotLightComponent = freeCam->AddComponent<HOD::GAME::SpotLightComponent>();
         spotLightComponent->_data.radius = 15.0f;
         spotLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
         spotLightComponent->_data.intensity = 1.0f;
         spotLightComponent->_data.outer = 10.0f;
 
-        freeCam->getComponent<GAME::CameraComponent>()->SetHdriMaterial(materialHdriInstance, hdriTexture);
+        freeCam->GetComponent<GAME::CameraComponent>()->SetHdriMaterial(materialHdriInstance, hdriTexture);
     }
 
-    GAME::Actor* wall1 = scene->spawnActor<GAME::Actor>("wall1");
+    GAME::Actor* wall1 = scene->SpawnActor<GAME::Actor>("wall1");
     {
-        HOD::GAME::SceneComponent* sceneComponent = wall1->addComponent<HOD::GAME::SceneComponent>();
-        sceneComponent->position = glm::vec3(-3.5f, 3.0f, 0.0f);
-        sceneComponent->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
-        sceneComponent->setParent(scene->getRoot());
+        HOD::GAME::SceneComponent* sceneComponent = wall1->AddComponent<HOD::GAME::SceneComponent>();
+        sceneComponent->_position = glm::vec3(-3.5f, 3.0f, 0.0f);
+        sceneComponent->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+        sceneComponent->_scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
+        sceneComponent->SetParent(scene->GetRoot());
 
-        HOD::GAME::StaticMeshComponent* staticMeshComponent = wall1->addComponent<HOD::GAME::StaticMeshComponent>();
-        staticMeshComponent->setMesh(wallMesh);
-        staticMeshComponent->setMaterialInstance(materialLitSpecularNormalInstance);
+        HOD::GAME::StaticMeshComponent* staticMeshComponent = wall1->AddComponent<HOD::GAME::StaticMeshComponent>();
+        staticMeshComponent->SetMesh(wallMesh);
+        staticMeshComponent->SetMaterialInstance(materialLitSpecularNormalInstance);
         staticMeshComponent->EnableDebugTangent(true);
 
-        HOD::GAME::ColliderComponent* colliderComponent = wall1->addComponent<HOD::GAME::ColliderComponent>();
+        HOD::GAME::ColliderComponent* colliderComponent = wall1->AddComponent<HOD::GAME::ColliderComponent>();
         colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
     }
 
-    Actor* wall2 = scene->spawnActor<Actor>("wall2");
+    Actor* wall2 = scene->SpawnActor<Actor>("wall2");
     {
-        HOD::GAME::SceneComponent* sceneComponent = wall2->addComponent<HOD::GAME::SceneComponent>();
-        sceneComponent->position = glm::vec3(3.5f, 3.0f, 0.0f);
-        sceneComponent->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
-        sceneComponent->setParent(scene->getRoot());
+        HOD::GAME::SceneComponent* sceneComponent = wall2->AddComponent<HOD::GAME::SceneComponent>();
+        sceneComponent->_position = glm::vec3(3.5f, 3.0f, 0.0f);
+        sceneComponent->SetRotation(glm::vec3(0.0f, -90.0f, 0.0f));
+        sceneComponent->_scale = glm::vec3(1.0f, 1.0f, 1.0f) * 3.0f;
+        sceneComponent->SetParent(scene->GetRoot());
 
-        HOD::GAME::StaticMeshComponent* staticMeshComponent = wall2->addComponent<HOD::GAME::StaticMeshComponent>();
-        staticMeshComponent->setMesh(wallMesh);
-        staticMeshComponent->setMaterialInstance(materialLitSpecularNormalInstance);
+        HOD::GAME::StaticMeshComponent* staticMeshComponent = wall2->AddComponent<HOD::GAME::StaticMeshComponent>();
+        staticMeshComponent->SetMesh(wallMesh);
+        staticMeshComponent->SetMaterialInstance(materialLitSpecularNormalInstance);
         staticMeshComponent->EnableDebugTangent(true);
 
-        HOD::GAME::ColliderComponent* colliderComponent = wall2->addComponent<HOD::GAME::ColliderComponent>();
+        HOD::GAME::ColliderComponent* colliderComponent = wall2->AddComponent<HOD::GAME::ColliderComponent>();
         colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
     }
 
-    Actor* sphereActor = scene->spawnActor<FlyingPointLight>("FlyingPointLight");
+    Actor* sphereActor = scene->SpawnActor<FlyingPointLight>("FlyingPointLight");
     {
-        HOD::GAME::SceneComponent* sceneComponent = sphereActor->getComponent<HOD::GAME::SceneComponent>();
-        sceneComponent->position = glm::vec3(0.0f, 3.0f, 0.0f);
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
-        sceneComponent->setParent(scene->getRoot());
+        HOD::GAME::SceneComponent* sceneComponent = sphereActor->GetComponent<HOD::GAME::SceneComponent>();
+        sceneComponent->_position = glm::vec3(0.0f, 3.0f, 0.0f);
+        sceneComponent->_scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
+        sceneComponent->SetParent(scene->GetRoot());
 
-        HOD::GAME::StaticMeshComponent* staticMeshComponent = sphereActor->addComponent<HOD::GAME::StaticMeshComponent>();
-        staticMeshComponent->setMesh(sphereMesh);
-        staticMeshComponent->setMaterialInstance(pRenderer->CreateMaterialInstance(materialUnlit));
+        HOD::GAME::StaticMeshComponent* staticMeshComponent = sphereActor->AddComponent<HOD::GAME::StaticMeshComponent>();
+        staticMeshComponent->SetMesh(sphereMesh);
+        staticMeshComponent->SetMaterialInstance(pRenderer->CreateMaterialInstance(materialUnlit));
 
-        HOD::GAME::ColliderComponent* colliderComponent = sphereActor->addComponent<HOD::GAME::ColliderComponent>();
+        HOD::GAME::ColliderComponent* colliderComponent = sphereActor->AddComponent<HOD::GAME::ColliderComponent>();
         colliderComponent->SetShape(PHYSICS::SHAPE::SPHERE);
 
-        HOD::GAME::PointLightComponent* pointLightComponent = sphereActor->addComponent<HOD::GAME::PointLightComponent>();
+        HOD::GAME::PointLightComponent* pointLightComponent = sphereActor->AddComponent<HOD::GAME::PointLightComponent>();
         pointLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
         pointLightComponent->_data.intensity = 1.0f;
         pointLightComponent->_data.range = 2.5f;
 
-        sphereActor->start();
+        sphereActor->Start();
     }
 
-    Actor* dirLight = scene->spawnActor<Actor>("dirLight");
+    Actor* dirLight = scene->SpawnActor<Actor>("dirLight");
     {
-        HOD::GAME::SceneComponent* sceneComponent = dirLight->addComponent<HOD::GAME::SceneComponent>();
-        sceneComponent->setPosition(glm::vec3(-10.0f, 5.0f, -10.0f));
-        sceneComponent->rotate(45.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
-        sceneComponent->setParent(scene->getRoot());
+        HOD::GAME::SceneComponent* sceneComponent = dirLight->AddComponent<HOD::GAME::SceneComponent>();
+        sceneComponent->SetPosition(glm::vec3(-10.0f, 5.0f, -10.0f));
+        sceneComponent->Rotate(45.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        sceneComponent->_scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f;
+        sceneComponent->SetParent(scene->GetRoot());
 
-        HOD::GAME::StaticMeshComponent* staticMeshComponent = dirLight->addComponent<HOD::GAME::StaticMeshComponent>();
-        staticMeshComponent->setMesh(sphereMesh);
-        staticMeshComponent->setMaterialInstance(pRenderer->CreateMaterialInstance(materialUnlit));
+        HOD::GAME::StaticMeshComponent* staticMeshComponent = dirLight->AddComponent<HOD::GAME::StaticMeshComponent>();
+        staticMeshComponent->SetMesh(sphereMesh);
+        staticMeshComponent->SetMaterialInstance(pRenderer->CreateMaterialInstance(materialUnlit));
 
-        HOD::GAME::ColliderComponent* colliderComponent = dirLight->addComponent<HOD::GAME::ColliderComponent>();
+        HOD::GAME::ColliderComponent* colliderComponent = dirLight->AddComponent<HOD::GAME::ColliderComponent>();
         colliderComponent->SetShape(PHYSICS::SHAPE::SPHERE);
 
-        HOD::GAME::DirLightComponent* dirLightComponent = dirLight->addComponent<HOD::GAME::DirLightComponent>();
+        HOD::GAME::DirLightComponent* dirLightComponent = dirLight->AddComponent<HOD::GAME::DirLightComponent>();
         dirLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
         dirLightComponent->_data.intensity = 1.0f;
 
-        dirLight->start();
+        dirLight->Start();
     }
 
-    Actor* box = scene->spawnActor<Actor>("box");
+    Actor* box = scene->SpawnActor<Actor>("box");
     {
-        HOD::GAME::SceneComponent* sceneComponent = box->addComponent<HOD::GAME::SceneComponent>();
-        sceneComponent->position = glm::vec3(0.0f, 0.0f, -5.0f);
-        sceneComponent->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.03f;
-        sceneComponent->setParent(scene->getRoot());
+        HOD::GAME::SceneComponent* sceneComponent = box->AddComponent<HOD::GAME::SceneComponent>();
+        sceneComponent->_position = glm::vec3(0.0f, 0.0f, -5.0f);
+        sceneComponent->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+        sceneComponent->_scale = glm::vec3(1.0f, 1.0f, 1.0f) * 0.03f;
+        sceneComponent->SetParent(scene->GetRoot());
 
-        HOD::GAME::StaticMeshComponent* staticMeshComponent = box->addComponent<HOD::GAME::StaticMeshComponent>();
-        staticMeshComponent->setMesh(boxMesh);
-        staticMeshComponent->setMaterialInstance(boxMaterialLitSpecularNormalInstance);
+        HOD::GAME::StaticMeshComponent* staticMeshComponent = box->AddComponent<HOD::GAME::StaticMeshComponent>();
+        staticMeshComponent->SetMesh(boxMesh);
+        staticMeshComponent->SetMaterialInstance(boxMaterialLitSpecularNormalInstance);
         //staticMeshComponent->EnableDebugTangent(true);
 
-        HOD::GAME::ColliderComponent* colliderComponent = box->addComponent<HOD::GAME::ColliderComponent>();
+        HOD::GAME::ColliderComponent* colliderComponent = box->AddComponent<HOD::GAME::ColliderComponent>();
         colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
     }
 
-    Actor* ground = scene->spawnActor<Actor>("ground");
+    Actor* ground = scene->SpawnActor<Actor>("ground");
     {
-        HOD::GAME::SceneComponent* sceneComponent = ground->addComponent<HOD::GAME::SceneComponent>();
-        sceneComponent->position = glm::vec3(0.0f, 0.0f, 0.0f);
-        sceneComponent->setRotation(glm::vec3(-90.0f, 0.0f, 0.0f));
-        sceneComponent->scale = glm::vec3(1.0f, 1.0f, 1.0f) * 10.0f;
-        sceneComponent->setParent(scene->getRoot());
+        HOD::GAME::SceneComponent* sceneComponent = ground->AddComponent<HOD::GAME::SceneComponent>();
+        sceneComponent->_position = glm::vec3(0.0f, 0.0f, 0.0f);
+        sceneComponent->SetRotation(glm::vec3(-90.0f, 0.0f, 0.0f));
+        sceneComponent->_scale = glm::vec3(1.0f, 1.0f, 1.0f) * 10.0f;
+        sceneComponent->SetParent(scene->GetRoot());
 
-        HOD::GAME::StaticMeshComponent* staticMeshComponent = ground->addComponent<HOD::GAME::StaticMeshComponent>();
-        staticMeshComponent->setMesh(wallMesh);
-        staticMeshComponent->setMaterialInstance(groundMaterialLitSpecularNormalInstance);
+        HOD::GAME::StaticMeshComponent* staticMeshComponent = ground->AddComponent<HOD::GAME::StaticMeshComponent>();
+        staticMeshComponent->SetMesh(wallMesh);
+        staticMeshComponent->SetMaterialInstance(groundMaterialLitSpecularNormalInstance);
         //staticMeshComponent->EnableDebugTangent(true);
 
-        HOD::GAME::ColliderComponent* colliderComponent = ground->addComponent<HOD::GAME::ColliderComponent>();
+        HOD::GAME::ColliderComponent* colliderComponent = ground->AddComponent<HOD::GAME::ColliderComponent>();
         colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
     }
 
@@ -404,14 +404,14 @@ bool MyApplication::PreRun()
 
 bool MyApplication::Loop(float deltaTime)
 {
-    scene->simulatePhysic(deltaTime);
+    scene->SimulatePhysic(deltaTime);
 
-    scene->update(deltaTime);
+    scene->Update(deltaTime);
 
-	CameraComponent* pCamera = scene->getRoot()->GetActor()->getAllComponent<CameraComponent>()[0];
+	CameraComponent* pCamera = scene->GetRoot()->GetActor()->GetAllComponent<CameraComponent>()[0];
 
-	glm::mat4 viewMatrix = glm::inverse(pCamera->GetActor()->getComponent<SceneComponent>()->getModelMatrix());
-	glm::mat4 projectionMatrix = pCamera->getProjectionMatrix();
+	glm::mat4 viewMatrix = glm::inverse(pCamera->GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
+	glm::mat4 projectionMatrix = pCamera->GetProjectionMatrix();
 
 	DEBUG_LAYER::DebugLayer::GetInstance()->SetCameraMatrice(viewMatrix, projectionMatrix);
 
@@ -419,7 +419,7 @@ bool MyApplication::Loop(float deltaTime)
 
     ImGui::Render();
 
-	pCamera->render(*scene);
+	pCamera->Render(*scene);
 
     if (Renderer::GetInstance()->AcquireNextImageIndex() == true)
     {
