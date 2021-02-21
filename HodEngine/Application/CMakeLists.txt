@@ -34,7 +34,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 "../../SDK/tinyobjloader"
 "../../SDK/stb"
 "../../SDK/SPIRV-Cross"
-"C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/include"
+"C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/include"
 )
 	
 add_library(Application ${Srcs})

@@ -81,7 +81,7 @@ optimized "../SDK/Build/PhysX_lib/release/PhysX_64" debug "../SDK/Build/PhysX_li
 optimized "../SDK/Build/PhysX_lib/release/PhysXCommon_64" debug "../SDK/Build/PhysX_lib/debug/PhysXCommon_64"
 optimized "../SDK/Build/PhysX_lib/release/PhysXExtensions_static_64" debug "../SDK/Build/PhysX_lib/debug/PhysXExtensions_static_64"
 optimized "../SDK/Build/PhysX_lib/release/PhysXFoundation_64" debug "../SDK/Build/PhysX_lib/debug/PhysXFoundation_64"
-optimized "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/release/libfbxsdk.lib" debug "C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/debug/libfbxsdk.lib"
+optimized "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/release/libfbxsdk.lib" debug "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/libfbxsdk.lib"
 optimized "d3d12.lib" debug "d3d12.lib"
 optimized "DXGI.lib" debug "DXGI.lib"
 )
@@ -91,7 +91,7 @@ add_custom_command(TARGET HodEngine POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"../SDK/Build/PhysX_lib/debug/PhysX_64.dll">$<$<CONFIG:release>:"../SDK/Build/PhysX_lib/release/PhysX_64.dll"> $<TARGET_FILE_DIR:HodEngine>
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"../SDK/Build/PhysX_lib/debug/PhysXCommon_64.dll">$<$<CONFIG:release>:"../SDK/Build/PhysX_lib/release/PhysXCommon_64.dll"> $<TARGET_FILE_DIR:HodEngine>
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"../SDK/Build/PhysX_lib/debug/PhysXFoundation_64.dll">$<$<CONFIG:release>:"../SDK/Build/PhysX_lib/release/PhysXFoundation_64.dll"> $<TARGET_FILE_DIR:HodEngine>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/debug/libfbxsdk.dll">$<$<CONFIG:release>:"C:/Program Files/Autodesk/FBX/FBX SDK/2019.2/lib/vs2017/x64/release/libfbxsdk.dll"> $<TARGET_FILE_DIR:HodEngine>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/libfbxsdk.dll">$<$<CONFIG:release>:"C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/release/libfbxsdk.dll"> $<TARGET_FILE_DIR:HodEngine>
 )
 
 find_package(Vulkan)
