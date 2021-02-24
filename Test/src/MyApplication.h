@@ -4,25 +4,26 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class Scene;
-    }
+	namespace GAME
+	{
+		class Scene;
+	}
 }
 
 class MyApplication : public HOD::APPLICATION::Application
 {
 public:
-    MyApplication();
-    ~MyApplication() override;
+
+						MyApplication();
+						~MyApplication() override;
 
 protected:
 
-    bool PreRun() override;
-    bool Loop(float deltaTime) override;
-    bool PostRun() override;
+	bool				PreRun() override;
+	bool				Loop(float deltaTime) override;
+	bool				PostRun() override;
 
 private:
 
-    HOD::GAME::Scene* scene;
+	HOD::GAME::Scene*	_scene;
 };

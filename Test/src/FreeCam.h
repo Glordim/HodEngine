@@ -6,49 +6,49 @@
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/vec3.hpp"
 
-typedef struct CTwBar TwBar;
-
 namespace HOD
 {
-    namespace GAME
-    {
-        class SceneComponent;
-        class CameraComponent;
-    }
-    
+	namespace GAME
+	{
+		class SceneComponent;
+		class CameraComponent;
+	}
+
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-    class FreeCam : public GAME::Actor
-    {
-    public:
-        FreeCam() = delete;
-        FreeCam(const std::string& name, GAME::Scene* scene);
-        FreeCam(const FreeCam&) = delete;
-        ~FreeCam() override;
+	class FreeCam : public GAME::Actor
+	{
+	public:
 
-        void Update(float dt) override;
+								FreeCam() = delete;
+								FreeCam(const std::string& name, GAME::Scene* scene);
+								FreeCam(const FreeCam&) = delete;
+								~FreeCam() override;
 
-    private:
+		void					Update(float dt) override;
 
-		void selectObject(int mouseX, int mouseY);
+	private:
 
-        void rotateView(int x, int y);
+		void					SelectObject(int mouseX, int mouseY);
+		void					RotateView(int x, int y);
 
-        GAME::SceneComponent* sceneComponent;
-        GAME::CameraComponent* cameraComponent;
+	private:
 
-        glm::vec3 movement;
-        glm::vec3 view;
+		GAME::SceneComponent*	_sceneComponent;
+		GAME::CameraComponent*	_cameraComponent;
 
-        glm::quat tmpQuat;
+		glm::vec3				_movement;
+		glm::vec3				_view;
 
-        float mouseX;
-        float mouseY;
+		glm::quat				_tmpQuat;
 
-		bool move = false;
-		bool released = true;
+		float					_mouseX;
+		float					_mouseY;
 
-        float speed = 5.0f;
-    };
+		bool					_move = false;
+		bool					_released = true;
+
+		float					_speed = 5.0f;
+	};
 }

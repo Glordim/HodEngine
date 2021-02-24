@@ -8,26 +8,32 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class SceneComponent;
-    }
+	namespace GAME
+	{
+		class SceneComponent;
+	}
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-    class FlyingPointLight : public GAME::Actor
-    {
-    public:
-        FlyingPointLight() = delete;
-        FlyingPointLight(const std::string& name, GAME::Scene* scene);
-        FlyingPointLight(const FlyingPointLight& copy) = delete;
-        virtual ~FlyingPointLight();
+	class FlyingPointLight : public GAME::Actor
+	{
+	public:
+								FlyingPointLight(const std::string& name, GAME::Scene* scene);
+								FlyingPointLight(const FlyingPointLight&) = delete;
+								FlyingPointLight(FlyingPointLight&&) = delete;
+								~FlyingPointLight() override;
 
-        virtual void Start() override;
-        virtual void Update(float dt) override;
+		void					operator=(const FlyingPointLight&) = delete;
+		void					operator=(FlyingPointLight&&) = delete;
 
-    private:
-        GAME::SceneComponent* sceneComponent;
-    };
+	public:
+
+		void					Start() override;
+		void					Update(float dt) override;
+
+	private:
+
+		GAME::SceneComponent*	_sceneComponent;
+	};
 }
