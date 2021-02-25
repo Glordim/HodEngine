@@ -2,27 +2,30 @@
 
 namespace HOD
 {
-    namespace CORE
-    {
-        template<class T>
-        class Singleton
-        {
-        protected:
+	namespace CORE
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		template<class T>
+		class Singleton
+		{
+		protected:
 
-            Singleton() = default;
-            virtual         ~Singleton() = default;
+							Singleton() = default;
+			virtual			~Singleton() = default;
 
-        public:
+		public:
 
-            static T*       CreateInstance();
-            static T*       GetInstance();
-            static void     DestroyInstance();
+			static T*		CreateInstance();
+			static T*		GetInstance();
+			static void		DestroyInstance();
 
-        protected:
+		protected:
 
-            static T*       _instance;
-        };
-    }
+			static T*		_instance;
+		};
+	}
 }
 
 #include "Singleton.inl"
