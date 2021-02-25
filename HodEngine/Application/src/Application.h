@@ -14,38 +14,45 @@ VK_DEFINE_HANDLE(VkSurfaceKHR)
 
 namespace HOD
 {
-    namespace APPLICATION
-    {
-        struct VideoSettings;
+	namespace APPLICATION
+	{
+		struct VideoSettings;
 
-        class Application : public CORE::Singleton<Application>
-        {
-        public:
-                    Application();
-            virtual ~Application();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class Application : public CORE::Singleton<Application>
+		{
+		protected:
 
-            bool    Init();
-            bool    CreateWindowAndContext(const std::string& name, const VideoSettings& videoSettings);
-            bool    Run();
+							Application();
+							~Application() override;
 
-            void*   GetHwnd();
+		public:
 
-			int		GetWidth();
-			int		GetHeight();
+			bool			Init();
+			bool			CreateWindowAndContext(const std::string& name, const VideoSettings& videoSettings);
+			bool			Run();
 
-            bool    GetExtensionRequiredToCreateVulkanSurface(std::vector<const char*>* extensionsRequiredBySDL);
-            bool    CreateVulkanSurface(VkInstance instance, VkSurfaceKHR* surface);
+			void*			GetHwnd();
 
-            void    SetCursorPosition(int x, int y);
+			int				GetWidth();
+			int				GetHeight();
 
-        protected:
+			bool			GetExtensionRequiredToCreateVulkanSurface(std::vector<const char*>* extensionsRequiredBySDL);
+			bool			CreateVulkanSurface(VkInstance instance, VkSurfaceKHR* surface);
 
-            virtual bool PreRun() = 0;
-            virtual bool Loop(float deltaTime) = 0;
-            virtual bool PostRun() = 0;
+			void			SetCursorPosition(int x, int y);
 
-        private:
-            SDL_Window* window = nullptr;
-        };
-    }
+		protected:
+
+			virtual bool	PreRun() = 0;
+			virtual bool	Loop(float deltaTime) = 0;
+			virtual bool	PostRun() = 0;
+
+		private:
+
+			SDL_Window*		_window = nullptr;
+		};
+	}
 }
