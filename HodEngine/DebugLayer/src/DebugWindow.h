@@ -7,25 +7,27 @@
 
 namespace HOD
 {
-    namespace DEBUG_LAYER
-    {
+	namespace DEBUG_LAYER
+	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class DebugWindow
-        {
-        public:
+		class DebugWindow
+		{
+		public:
 
-							DebugWindow();
+			DebugWindow();
 			virtual			~DebugWindow();
 
-            virtual void	Draw() = 0;
+		public:
 
-			void			SetVisible(bool bVisible);
+			virtual void	Draw() = 0;
 
-        private:
+			void			SetVisible(bool visible);
 
-			bool			_bIsVisible = false;
-        };
-    }
+		private:
+
+			bool			_isVisible = false;
+		};
+	}
 }

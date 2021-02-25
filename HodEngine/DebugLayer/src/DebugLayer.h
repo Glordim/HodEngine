@@ -13,32 +13,32 @@
 
 namespace HOD
 {
-    namespace GAME
-    {
-        class Actor;
+	namespace GAME
+	{
+		class Actor;
 		class CameraComponent;
-    }
+	}
 
-    namespace DEBUG_LAYER
-    {
+	namespace DEBUG_LAYER
+	{
 		class DebugWindow;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class DebugLayer : public CORE::Singleton<DebugLayer>
-        {
-            friend class CORE::Singleton<DebugLayer>;
+		class DebugLayer : public CORE::Singleton<DebugLayer>
+		{
+			friend class CORE::Singleton<DebugLayer>;
 
-        protected:
+		protected:
 
-                                            DebugLayer();
-                                            ~DebugLayer() override;
+											DebugLayer();
+											~DebugLayer() override;
 
-        public:
+		public:
 
-            bool                            Init();
-            void                            Clear();
+			bool							Init();
+			void							Clear();
 
 			void							RegisterDebugWindow(DebugWindow* pDebugWindow);
 			void							UnregisterDebugWindow(DebugWindow* pDebugWindow);
@@ -47,14 +47,14 @@ namespace HOD
 			const glm::mat4&				GetProjectionMatrix() const;
 			const glm::mat4&				GetViewMatrix() const;
 
-            void                            Draw();
+			void							Draw();
 
-        private:
+		private:
 
 			std::vector<DebugWindow*>		_vDebugWindows;
 
 			glm::mat4						_viewMatrix;
 			glm::mat4						_projectionMatrix;
-        };
-    }
+		};
+	}
 }

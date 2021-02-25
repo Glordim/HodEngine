@@ -7,54 +7,81 @@
 
 namespace HOD
 {
-    DEBUG_LAYER::DebugLayer* CORE::Singleton<DEBUG_LAYER::DebugLayer>::_instance = nullptr;
+	DEBUG_LAYER::DebugLayer* CORE::Singleton<DEBUG_LAYER::DebugLayer>::_instance = nullptr;
 
-    namespace DEBUG_LAYER
-    {
-        DebugLayer::DebugLayer() : Singleton()
-        {
+	namespace DEBUG_LAYER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		DebugLayer::DebugLayer() : Singleton()
+		{
 
-        }
+		}
 
-        DebugLayer::~DebugLayer()
-        {
-            
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		DebugLayer::~DebugLayer()
+		{
 
-        bool DebugLayer::Init()
-        {
-            return true;
-        }
+		}
 
-        void DebugLayer::Clear()
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool DebugLayer::Init()
+		{
+			return true;
+		}
 
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void DebugLayer::Clear()
+		{
 
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void DebugLayer::SetCameraMatrice(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 		{
 			_projectionMatrix = projectionMatrix;
 			_viewMatrix = viewMatrix;
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		const glm::mat4& DebugLayer::GetProjectionMatrix() const
 		{
 			return _projectionMatrix;
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		const glm::mat4& DebugLayer::GetViewMatrix() const
 		{
 			return _viewMatrix;
 		}
 
-        void DebugLayer::Draw()
-        {
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void DebugLayer::Draw()
+		{
 			for (DebugWindow* pDebugWindow : _vDebugWindows)
 			{
 				pDebugWindow->Draw();
 			}
-        }
+		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void DebugLayer::RegisterDebugWindow(DebugWindow* pDebugWindow)
 		{
 			auto it = _vDebugWindows.begin();
@@ -73,6 +100,9 @@ namespace HOD
 			_vDebugWindows.push_back(pDebugWindow);
 		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void DebugLayer::UnregisterDebugWindow(DebugWindow* pDebugWindow)
 		{
 			auto it = _vDebugWindows.begin();
@@ -89,5 +119,5 @@ namespace HOD
 				++it;
 			}
 		}
-    }
+	}
 }
