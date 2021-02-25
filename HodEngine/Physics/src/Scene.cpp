@@ -10,16 +10,16 @@
 
 namespace HOD
 {
-    namespace PHYSICS
-    {
+	namespace PHYSICS
+	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        Scene::Scene(physx::PxScene* pxScene)
-            : _pxScene(pxScene)
-        {
-            
-        }
+		Scene::Scene(physx::PxScene* pxScene)
+			: _pxScene(pxScene)
+		{
+
+		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -69,16 +69,16 @@ namespace HOD
 			if (bHit == true)
 			{
 				// Fill raycast result
-                physx::PxActor* pxActor = pxRaycastBuffer.block.actor;
+				physx::PxActor* pxActor = pxRaycastBuffer.block.actor;
 
-                for (Actor* actor : _actors)
-                {
-                    if (actor->GetPxActor() == pxActor)
-                    {
-                        result._actorCollided = actor;
-                        break;
-                    }
-                }
+				for (Actor* actor : _actors)
+				{
+					if (actor->GetPxActor() == pxActor)
+					{
+						result._actorCollided = actor;
+						break;
+					}
+				}
 			}
 
 			return bHit;
@@ -176,5 +176,5 @@ namespace HOD
 				actor->SetVisualizationFlag(visualization);
 			}
 		}
-    }
+	}
 }

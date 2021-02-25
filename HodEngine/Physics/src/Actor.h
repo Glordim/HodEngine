@@ -6,47 +6,49 @@
 
 namespace physx
 {
-    class PxActor;
+	class PxActor;
 }
 
 namespace HOD
 {
-    struct BoundingBox;
+	struct BoundingBox;
 
-    namespace PHYSICS
-    {
+	namespace PHYSICS
+	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        enum SHAPE
-        {
-            BOX,
-            CYLINDER,
-            CAPSULE,
-            SPHERE
-        };
+		enum SHAPE
+		{
+			BOX,
+			CYLINDER,
+			CAPSULE,
+			SPHERE
+		};
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class Actor
-        {
-        public:
+		class Actor
+		{
+		public:
 								Actor(physx::PxActor* pxActor);
 								~Actor() = default;
 
-            void				SetShape(SHAPE shape, const BoundingBox& boundingBox, const glm::vec3& scale);
+		public:
 
-            void				SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
+			void				SetShape(SHAPE shape, const BoundingBox& boundingBox, const glm::vec3& scale);
+
+			void				SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 
 			physx::PxActor*		GetPxActor() const;
 
 			void				SetShapesVisualizationFlag(bool visualization);
 			void				SetVisualizationFlag(bool visualization);
 
-        private:
+		private:
 
-            physx::PxActor*		_pxActor = nullptr;
-        };
-    }
+			physx::PxActor*		_pxActor = nullptr;
+		};
+	}
 }

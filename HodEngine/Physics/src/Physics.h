@@ -8,62 +8,62 @@
 
 namespace physx
 {
-    class PxShape;
-    class PxFoundation;
-    class PxPhysics;
-    class PxGeometry;
-    class PxMaterial;
+	class PxShape;
+	class PxFoundation;
+	class PxPhysics;
+	class PxGeometry;
+	class PxMaterial;
 
-    class PxDefaultAllocator;
-    class PxDefaultErrorCallback;
+	class PxDefaultAllocator;
+	class PxDefaultErrorCallback;
 }
 
 namespace HOD
 {
-    namespace PHYSICS
-    {
+	namespace PHYSICS
+	{
 		class Actor;
 		class Scene;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        class Physics : public CORE::Singleton<Physics>
-        {
-            friend class CORE::Singleton<Physics>;
+		class Physics : public CORE::Singleton<Physics>
+		{
+			friend class CORE::Singleton<Physics>;
 
-        protected:
+		protected:
 
-                                            Physics();
-                                            ~Physics() override;
+											Physics();
+											~Physics() override;
 
-        public:
+		public:
 
-            bool                            Init();
-            void                            Clear();
+			bool							Init();
+			void							Clear();
 
-            const physx::PxMaterial&        GetDefaultMaterial() const;
+			const physx::PxMaterial&		GetDefaultMaterial() const;
 
 			Scene*							CreateScene();
-            void                            DestroyScene(Scene* scene);
+			void							DestroyScene(Scene* scene);
 
-			Actor*							CreateActor();
+			Actor* CreateActor();
 
-            physx::PxShape*                 CreateShape(physx::PxGeometry& pxGeometry, physx::PxMaterial* pxMaterial = nullptr);
+			physx::PxShape*					CreateShape(physx::PxGeometry& pxGeometry, physx::PxMaterial* pxMaterial = nullptr);
 
-        private:
+		private:
 
-            physx::PxDefaultAllocator*      _pxDefaultAllocator = nullptr;
-            physx::PxDefaultErrorCallback*  _pxDefaultErrorCallback = nullptr;
+			physx::PxDefaultAllocator*		_pxDefaultAllocator = nullptr;
+			physx::PxDefaultErrorCallback*	_pxDefaultErrorCallback = nullptr;
 
-            physx::PxFoundation*            _pxFoundation = nullptr;
-            physx::PxPhysics*               _pxPhysics = nullptr;
+			physx::PxFoundation*			_pxFoundation = nullptr;
+			physx::PxPhysics*				_pxPhysics = nullptr;
 
-            physx::PxMaterial*              _pxDefaultMaterial = nullptr;
+			physx::PxMaterial*				_pxDefaultMaterial = nullptr;
 
-            std::vector<Scene*>				_scenes;
+			std::vector<Scene*>				_scenes;
 
-		// Debug
+			// Debug
 		public:
 
 			void							SetShapeVisualizationFlag(bool visualization);
@@ -78,6 +78,6 @@ namespace HOD
 			bool							_visualizeActor = false;
 
 			PhysicsDebugWindow				_physicDebugWindow;
-        };
-    }
+		};
+	}
 }
