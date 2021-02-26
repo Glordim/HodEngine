@@ -16,7 +16,7 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void RenderQueueHelper::AddSceneComponent(RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive)
+	void RenderQueueHelper::AddSceneComponent(RENDERER::RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive)
 	{
 		size_t childCount = sceneComponent->GetChildCount();
 		for (size_t i = 0; i < childCount; ++i)
@@ -35,11 +35,11 @@ namespace HOD
 
 				if (staticMeshComponent->IsDebugTangentEnabled() == true)
 				{
-					const std::vector<Vertex_3P_3C_3N_2UV_3TA>& vertices = staticMeshComponent->GetMesh()->GetVertices();
+					const std::vector<RENDERER::Vertex_3P_3C_3N_2UV_3TA>& vertices = staticMeshComponent->GetMesh()->GetVertices();
 
 					size_t verticesCount = vertices.size();
 
-					std::vector<Line_3P_3C> tangentLines;
+					std::vector<RENDERER::Line_3P_3C> tangentLines;
 					tangentLines.reserve(verticesCount);
 
 					float red[3] = { 1.0f, 0.0f, 0.0f };
@@ -48,9 +48,9 @@ namespace HOD
 
 					for (size_t vertexIndex = 0; vertexIndex < verticesCount; ++vertexIndex)
 					{
-						const Vertex_3P_3C_3N_2UV_3TA& vertex = vertices[vertexIndex];
+						const RENDERER::Vertex_3P_3C_3N_2UV_3TA& vertex = vertices[vertexIndex];
 
-						Line_3P_3C lineX;
+						RENDERER::Line_3P_3C lineX;
 						memcpy(lineX.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
 						memcpy(lineX.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
 						lineX.vertices[1].pos[0] += vertex.tangent[0] * 0.1f;
@@ -60,7 +60,7 @@ namespace HOD
 						memcpy(lineX.vertices[0].color, red, sizeof(red));
 						memcpy(lineX.vertices[1].color, red, sizeof(red));
 
-						Line_3P_3C lineY;
+						RENDERER::Line_3P_3C lineY;
 						memcpy(lineY.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
 						memcpy(lineY.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
 						lineY.vertices[1].pos[0] += vertex.bitangent[0] * 0.1f;
@@ -70,7 +70,7 @@ namespace HOD
 						memcpy(lineY.vertices[0].color, green, sizeof(green));
 						memcpy(lineY.vertices[1].color, green, sizeof(green));
 
-						Line_3P_3C lineZ;
+						RENDERER::Line_3P_3C lineZ;
 						memcpy(lineZ.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
 						memcpy(lineZ.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
 						lineZ.vertices[1].pos[0] += vertex.normal[0] * 0.1f;
@@ -112,10 +112,10 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void RenderQueueHelper::AddScenePhysicsDebug(RenderQueue& renderQueue, GAME::Scene* scene)
+	void RenderQueueHelper::AddScenePhysicsDebug(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene)
 	{
-		std::vector<Line_3P_3C> lines;
-		std::vector<Tri_3P_3C> tris;
+		std::vector<RENDERER::Line_3P_3C> lines;
+		std::vector<RENDERER::Tri_3P_3C> tris;
 		scene->GetPhysicScene()->GetDebugGeometry(lines, tris);
 
 		if (lines.empty() == false)
@@ -131,9 +131,9 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void RenderQueueHelper::AddDebugLines(RenderQueue& renderQueue, GAME::Scene* scene)
+	void RenderQueueHelper::AddDebugLines(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene)
 	{
-		std::vector<Line_3P_3C> lines;
+		std::vector<RENDERER::Line_3P_3C> lines;
 
 		scene->GetDebugLines(lines);
 

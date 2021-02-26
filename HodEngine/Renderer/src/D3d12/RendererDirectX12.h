@@ -16,48 +16,56 @@ using namespace Microsoft::WRL;
 
 namespace HOD
 {
-    class RendererDirectX12 : public Renderer
-    {
-    public:
-        RendererDirectX12();
-        virtual ~RendererDirectX12();
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class RendererDirectX12 : public Renderer
+		{
+		public:
 
-        virtual bool Init(APPLICATION::Application* pApplication, bool enableValidationLayers) override;
-        virtual bool SetupImGui() override;
+												RendererDirectX12();
+			virtual								~RendererDirectX12();
 
-        virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
+			bool								Init(APPLICATION::Application* pApplication, bool enableValidationLayers) override;
+			bool								SetupImGui() override;
 
-        virtual bool BuildPipeline(GpuDevice* gpuDevice) override;
+			bool								GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
 
-        virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
+			bool								BuildPipeline(GpuDevice* gpuDevice) override;
 
-        virtual bool ResizeSwapChain() override;
+			bool								SubmitRenderQueue(RenderQueue& renderQueue) override;
 
-        virtual bool AcquireNextImageIndex() override;
-        virtual bool SwapBuffer() override;
+			bool								ResizeSwapChain() override;
 
-        virtual Mesh* CreateMesh(const std::string& path) override;
-        virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
-        virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
-        virtual MaterialInstance* CreateMaterialInstance(Material* material) override;
-        virtual Texture* CreateTexture(const std::string& path) override;
+			bool								AcquireNextImageIndex() override;
+			bool								SwapBuffer() override;
 
-    private:
-        RECT g_WindowRect;
+			Mesh*								CreateMesh(const std::string& path) override;
+			Shader*								CreateShader(const std::string& path, Shader::ShaderType type) override;
+			Material*							CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+			MaterialInstance*					CreateMaterialInstance(Material* material) override;
+			Texture*							CreateTexture(const std::string& path) override;
 
-        HWND hWnd;
+		private:
 
-        D3d12GpuDevice* selectedGpu;
-        std::vector<D3d12GpuDevice> availableGpu;
+			RECT								_g_WindowRect;
 
-        // DirectX 12 Objects
-        ComPtr<ID3D12Debug> debugInterface;
-        ComPtr<IDXGIFactory7> dxgiFactory;
-        ComPtr<ID3D12Device5> device;
-        ComPtr<ID3D12CommandQueue> commandQueue;
-        ComPtr<ID3D12CommandAllocator> commandAllocator;
-        ComPtr<IDXGISwapChain4> swapChain;
-        ComPtr<ID3D12DescriptorHeap> descriptorHeap;
-        std::vector<ComPtr<ID3D12Resource>> backBuffers;
-    };
+			HWND								_hWnd;
+
+			D3d12GpuDevice*						_selectedGpu;
+			std::vector<D3d12GpuDevice>			_availableGpu;
+
+			// DirectX 12 Objects
+			ComPtr<ID3D12Debug>					_debugInterface;
+			ComPtr<IDXGIFactory7>				_dxgiFactory;
+			ComPtr<ID3D12Device5>				_device;
+			ComPtr<ID3D12CommandQueue>			_commandQueue;
+			ComPtr<ID3D12CommandAllocator>		_commandAllocator;
+			ComPtr<IDXGISwapChain4>				_swapChain;
+			ComPtr<ID3D12DescriptorHeap>		_descriptorHeap;
+			std::vector<ComPtr<ID3D12Resource>>	_backBuffers;
+		};
+	}
 }

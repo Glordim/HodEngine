@@ -2,9 +2,15 @@
 
 namespace HOD
 {
-    struct Vertex_3P_3C
-    {
-        float pos[3];
-        float color[3];
-    };
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct Vertex_3P_3C
+		{
+			float pos[3];
+			float color[3];
+		};
+	}
 }

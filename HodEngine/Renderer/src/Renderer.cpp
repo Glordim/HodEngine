@@ -4,41 +4,62 @@
 
 namespace HOD
 {
-    Renderer* CORE::Singleton<Renderer>::_instance = nullptr;
+	RENDERER::Renderer* CORE::Singleton<RENDERER::Renderer>::_instance = nullptr;
 
-    Renderer::Renderer()
-    {
-        Renderer::_instance = this;
-    }
-
-    Renderer::~Renderer()
-    {
-        Renderer::_instance = nullptr;
-    }
-
-	bool Renderer::Init()
+	namespace RENDERER
 	{
-		DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Renderer::Renderer()
+		{
+			Renderer::_instance = this;
+		}
 
-		pDebugLayer->RegisterDebugWindow(&_rendererDebugWindow);
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Renderer::~Renderer()
+		{
+			Renderer::_instance = nullptr;
+		}
 
-		return true;
-	}
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool Renderer::Init()
+		{
+			DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
 
-	void Renderer::Clear()
-	{
-		DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
+			pDebugLayer->RegisterDebugWindow(&_rendererDebugWindow);
 
-		pDebugLayer->UnregisterDebugWindow(&_rendererDebugWindow);
-	}
+			return true;
+		}
 
-	bool Renderer::GetVisualizationMode() const
-	{
-		return _bVisualize3D;
-	}
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Renderer::Clear()
+		{
+			DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
 
-	void Renderer::SetVisualizationMode(bool bVisualize3D)
-	{
-		_bVisualize3D = bVisualize3D;
+			pDebugLayer->UnregisterDebugWindow(&_rendererDebugWindow);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool Renderer::GetVisualizationMode() const
+		{
+			return _bVisualize3D;
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Renderer::SetVisualizationMode(bool bVisualize3D)
+		{
+			_bVisualize3D = bVisualize3D;
+		}
 	}
 }

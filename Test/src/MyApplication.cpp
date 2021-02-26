@@ -25,12 +25,12 @@
 #include <HodEngine/DebugLayer/src/DebugLayer.h>
 #include <HodEngine/ImGui/src/imgui.h>
 
-
 #include "FreeCam.h"
 #include "FlyingPointLight.h"
 
 using namespace HOD;
 using namespace GAME;
+using namespace RENDERER;
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -208,9 +208,9 @@ bool MyApplication::PreRun()
 	//}
 
 
-	MaterialManager* materialManager = MaterialManager::getInstance();
+	MaterialManager* materialManager = MaterialManager::GetInstance();
 
-	Material* materialHdri = materialManager->getMaterial("Hdri", false);
+	Material* materialHdri = materialManager->GetMaterial("Hdri", false);
 	if (materialHdri == nullptr)
 	{
 		return 1;
@@ -225,7 +225,7 @@ bool MyApplication::PreRun()
 	materialHdriInstance->SetTexture("textureSampler", *hdriTexture);
 	materialHdriInstance->SetFloat("exposure", 1.0f);
 
-	Material* materialLit = materialManager->getMaterial("Lit");
+	Material* materialLit = materialManager->GetMaterial("Lit");
 	if (materialLit == nullptr)
 	{
 		return 1;
@@ -239,7 +239,7 @@ bool MyApplication::PreRun()
 
 	materialLitInstance->SetTexture("textureSampler", *wallTexture);
 
-	Material* materialLitSpecular = materialManager->getMaterial("LitSpecular");
+	Material* materialLitSpecular = materialManager->GetMaterial("LitSpecular");
 	if (materialLitSpecular == nullptr)
 	{
 		return 1;
@@ -257,7 +257,7 @@ bool MyApplication::PreRun()
 	materialLitSpecularInstance->SetFloat("matUbo.specularStrength", 1.5f);
 	materialLitSpecularInstance->SetFloat("matUbo.shininess", 16.0f);
 
-	Material* materialLitSpecularNormal = materialManager->getMaterial("LitSpecularNormal");
+	Material* materialLitSpecularNormal = materialManager->GetMaterial("LitSpecularNormal");
 	if (materialLitSpecularNormal == nullptr)
 	{
 		return 1;
@@ -276,7 +276,7 @@ bool MyApplication::PreRun()
 	materialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
 	materialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(1.0f, 1.0f, 0.0f, 0.0f));
 
-	Material* materialUnlit = materialManager->getMaterial("UnlitColor");
+	Material* materialUnlit = materialManager->GetMaterial("UnlitColor");
 	if (materialUnlit == nullptr)
 	{
 		return 1;
@@ -290,7 +290,7 @@ bool MyApplication::PreRun()
 
 	materialUnlitInstance->SetVec4("matUbo.color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-	Material* materialUnlitTexture = materialManager->getMaterial("UnlitTexture");
+	Material* materialUnlitTexture = materialManager->GetMaterial("UnlitTexture");
 	if (materialUnlitTexture == nullptr)
 	{
 		return 1;

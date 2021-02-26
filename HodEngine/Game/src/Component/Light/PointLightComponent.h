@@ -17,23 +17,24 @@ namespace HOD
 		{
 		public:
 
-							PointLightComponent(Actor* actor);
-							PointLightComponent(const PointLightComponent&) = delete;
-							PointLightComponent(PointLightComponent&&) = delete;
-							~PointLightComponent() override = default;
+									PointLightComponent(Actor* actor);
+									PointLightComponent(const PointLightComponent&) = delete;
+									PointLightComponent(PointLightComponent&&) = delete;
+									~PointLightComponent() override = default;
 
-			void			operator=(const PointLightComponent&) = delete;
-			void			operator=(PointLightComponent&&) = delete;
+			void					operator=(const PointLightComponent&) = delete;
+			void					operator=(PointLightComponent&&) = delete;
+
+		public:
+
+			void					DrawImGui() override;
+			const char*				GetType() const override;
+
+			RENDERER::PointLight*	GetPointLight() const;
 
 		public:
 
-			void			DrawImGui() override;
-			const char*		GetType() const override;
-
-			PointLight*		GetPointLight() const;
-
-		public:
-			PointLight		_data;
+			RENDERER::PointLight	_data;
 		};
 	}
 }

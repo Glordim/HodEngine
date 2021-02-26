@@ -87,7 +87,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::GetDebugGeometry(std::vector<Line_3P_3C>& lines, std::vector<Tri_3P_3C>& tris)
+		void Scene::GetDebugGeometry(std::vector<RENDERER::Line_3P_3C>& lines, std::vector<RENDERER::Tri_3P_3C>& tris)
 		{
 			const physx::PxRenderBuffer& rb = _pxScene->getRenderBuffer();
 			physx::PxU32 lineCount = rb.getNbLines();
@@ -100,7 +100,7 @@ namespace HOD
 				{
 					const physx::PxDebugLine& pxLine = rb.getLines()[i];
 
-					Line_3P_3C& line = lines[i];
+					RENDERER::Line_3P_3C& line = lines[i];
 
 					line.vertices[0].pos[0] = pxLine.pos0.x;
 					line.vertices[0].pos[1] = pxLine.pos0.y;
@@ -129,7 +129,7 @@ namespace HOD
 					const physx::PxDebugTriangle& pxTri = rb.getTriangles()[i];
 					// render the line
 
-					Tri_3P_3C& tri = tris[i];
+					RENDERER::Tri_3P_3C& tri = tris[i];
 
 					tri.vertices[2].pos[0] = pxTri.pos0.x;
 					tri.vertices[2].pos[1] = pxTri.pos0.y;

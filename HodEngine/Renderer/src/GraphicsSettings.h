@@ -2,25 +2,31 @@
 
 namespace HOD
 {
-    struct GraphicsSettings
-    {
-        enum API
-        {
-            Vulkan,
-            D3d12
-        };
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct GraphicsSettings
+		{
+			enum API
+			{
+				Vulkan,
+				D3d12
+			};
 
-        enum FullscreenType
-        {
-            Fullscreen,
-            FullscreenWindow,
-            Window
-        };
+			enum FullscreenType
+			{
+				Fullscreen,
+				FullscreenWindow,
+				Window
+			};
 
-        API api;
-        size_t monitor;
-        size_t width;
-        size_t height;
-        FullscreenType fullscreenType;
-    };
+			API api;
+			size_t monitor;
+			size_t width;
+			size_t height;
+			FullscreenType fullscreenType;
+		};
+	}
 }

@@ -8,7 +8,10 @@ namespace HOD
 		class Scene;
 	}
 
-	class RenderQueue;
+	namespace RENDERER
+	{
+		class RenderQueue;
+	}
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
@@ -27,8 +30,8 @@ namespace HOD
 
 	public:
 
-		static void		AddSceneComponent(RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive);
-		static void		AddScenePhysicsDebug(RenderQueue& renderQueue, GAME::Scene* scene);
-		static void		AddDebugLines(RenderQueue& renderQueue, GAME::Scene* scene);
+		static void		AddSceneComponent(RENDERER::RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive);
+		static void		AddScenePhysicsDebug(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene);
+		static void		AddDebugLines(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene);
 	};
 }

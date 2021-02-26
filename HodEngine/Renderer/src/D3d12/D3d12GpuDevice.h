@@ -9,8 +9,14 @@ using namespace Microsoft::WRL;
 
 namespace HOD
 {
-    struct D3d12GpuDevice : public GpuDevice
-    {
-        ComPtr<IDXGIAdapter1> adapter;
-    };
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct D3d12GpuDevice : public GpuDevice
+		{
+			ComPtr<IDXGIAdapter1> adapter;
+		};
+	}
 }

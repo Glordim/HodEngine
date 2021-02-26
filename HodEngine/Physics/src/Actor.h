@@ -11,7 +11,10 @@ namespace physx
 
 namespace HOD
 {
-	struct BoundingBox;
+	namespace RENDERER
+	{
+		struct BoundingBox;
+	}
 
 	namespace PHYSICS
 	{
@@ -37,7 +40,7 @@ namespace HOD
 
 		public:
 
-			void				SetShape(SHAPE shape, const BoundingBox& boundingBox, const glm::vec3& scale);
+			void				SetShape(SHAPE shape, const RENDERER::BoundingBox& boundingBox, const glm::vec3& scale);
 
 			void				SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 

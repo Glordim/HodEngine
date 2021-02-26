@@ -2,5 +2,7 @@
 
 namespace HOD
 {
-
+	namespace RENDERER
+	{
+	}
 }

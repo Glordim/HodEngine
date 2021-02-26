@@ -26,7 +26,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetShape(SHAPE shape, const BoundingBox& boundingBox, const glm::vec3& scale)
+		void Actor::SetShape(SHAPE shape, const RENDERER::BoundingBox& boundingBox, const glm::vec3& scale)
 		{
 			physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pxActor);
 

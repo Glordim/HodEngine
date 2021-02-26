@@ -30,10 +30,10 @@ namespace HOD
 			void				DrawImGui() override;
 			const char*			GetType() const override;
 
-			DirLight*			GetDirLight() const;
+			RENDERER::DirLight*	GetDirLight() const;
 
 		public:
-			DirLight			_data;
+			RENDERER::DirLight	_data;
 		};
 	}
 }

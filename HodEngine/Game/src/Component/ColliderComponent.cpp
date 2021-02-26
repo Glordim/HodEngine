@@ -69,7 +69,7 @@ namespace HOD
 			}
 			else
 			{
-				physicActor->SetShape(eShape, BoundingBox(), pSceneComponent->GetScale());
+				physicActor->SetShape(eShape, RENDERER::BoundingBox(), pSceneComponent->GetScale());
 			}
 		}
 	}

@@ -17,24 +17,24 @@ namespace HOD
 		{
 		public:
 
-							SpotLightComponent(Actor* actor);
-							SpotLightComponent(const SpotLightComponent&) = delete;
-							SpotLightComponent(SpotLightComponent&&) = delete;
-							~SpotLightComponent() override = default;
+									SpotLightComponent(Actor* actor);
+									SpotLightComponent(const SpotLightComponent&) = delete;
+									SpotLightComponent(SpotLightComponent&&) = delete;
+									~SpotLightComponent() override = default;
 
-			void			operator=(const SpotLightComponent&) = delete;
-			void			operator=(SpotLightComponent&&) = delete;
-
-		public:
-
-			void			DrawImGui() override;
-			const char*		GetType() const override;
-
-			SpotLight*		GetSpotLight() const;
+			void					operator=(const SpotLightComponent&) = delete;
+			void					operator=(SpotLightComponent&&) = delete;
 
 		public:
 
-			SpotLight		_data;
+			void					DrawImGui() override;
+			const char*				GetType() const override;
+
+			RENDERER::SpotLight*	GetSpotLight() const;
+
+		public:
+
+			RENDERER::SpotLight		_data;
 		};
 	}
 }
