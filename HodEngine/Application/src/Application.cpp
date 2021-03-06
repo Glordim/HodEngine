@@ -2,6 +2,8 @@
 
 #include "VideoSettings.h"
 
+#include <Core/Src/Output.h>
+
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/imgui_impl_sdl.h>
 #include <ImGui/src/ImGuizmo.h>
@@ -52,7 +54,7 @@ namespace HOD
 		{
 			if (SDL_Init(SDL_INIT_VIDEO) != 0)
 			{
-				fprintf(stderr, "SDL: Unable to initialize SDL: %s", SDL_GetError());
+				OUTPUT_ERROR("SDL: Unable to initialize SDL: %s", SDL_GetError());
 				return false;
 			}
 
@@ -97,7 +99,7 @@ namespace HOD
 
 			if (_window == nullptr)
 			{
-				fprintf(stderr, "SDL: Unable to create Window: %s", SDL_GetError());
+				OUTPUT_ERROR("SDL: Unable to create Window: %s", SDL_GetError());
 				return false;
 			}
 
@@ -171,7 +173,7 @@ namespace HOD
 			SDL_VERSION(&wmInfo.version);
 			if (SDL_GetWindowWMInfo(_window, &wmInfo) == SDL_FALSE)
 			{
-				fprintf(stderr, "SDL: Unable to get native Window instance!\n");
+				OUTPUT_ERROR("SDL: Unable to get native Window instance!\n");
 				return nullptr;
 			}
 
@@ -212,14 +214,14 @@ namespace HOD
 			unsigned int extensionsRequiredBySDLCount = 0;
 			if (SDL_Vulkan_GetInstanceExtensions(_window, &extensionsRequiredBySDLCount, nullptr) == SDL_FALSE)
 			{
-				fprintf(stderr, "SDL: Unable to get Extensions required to create VulkanSurface: %s\n", SDL_GetError());
+				OUTPUT_ERROR("SDL: Unable to get Extensions required to create VulkanSurface: %s\n", SDL_GetError());
 				return false;
 			}
 
 			extensionsRequiredBySDL->resize(extensionsRequiredBySDLCount);
 			if (SDL_Vulkan_GetInstanceExtensions(_window, &extensionsRequiredBySDLCount, extensionsRequiredBySDL->data()) == SDL_FALSE)
 			{
-				fprintf(stderr, "SDL: Unable to get Extensions required to create VulkanSurface: %s\n", SDL_GetError());
+				OUTPUT_ERROR("SDL: Unable to get Extensions required to create VulkanSurface: %s\n", SDL_GetError());
 				return false;
 			}
 
@@ -233,7 +235,7 @@ namespace HOD
 		{
 			if (SDL_Vulkan_CreateSurface(_window, instance, surface) == SDL_FALSE)
 			{
-				fprintf(stderr, "SDL: Unable to create Vulkan surface for SDL Window: %s\n", SDL_GetError());
+				OUTPUT_ERROR("SDL: Unable to create Vulkan surface for SDL Window: %s\n", SDL_GetError());
 				return false;
 			}
 

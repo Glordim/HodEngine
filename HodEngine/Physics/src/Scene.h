@@ -12,9 +12,16 @@ namespace physx
 
 namespace HOD
 {
-	struct Line_3P_3C;
-	struct Tri_3P_3C;
-	struct Color;
+	namespace CORE
+	{
+		struct Color;
+	}
+
+	namespace RENDERER
+	{
+		struct Line_3P_3C;
+		struct Tri_3P_3C;
+	}
 
 	namespace PHYSICS
 	{
@@ -39,7 +46,7 @@ namespace HOD
 
 			Actor*				CreateActor();
 
-			void				GetDebugGeometry(std::vector<Line_3P_3C>& lines, std::vector<Tri_3P_3C>& tris);
+			void				GetDebugGeometry(std::vector<RENDERER::Line_3P_3C>& lines, std::vector<RENDERER::Tri_3P_3C>& tris);
 
 			void				Update(float dt);
 

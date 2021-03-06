@@ -55,9 +55,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		PointLight* PointLightComponent::GetPointLight() const
+		RENDERER::PointLight* PointLightComponent::GetPointLight() const
 		{
-			return (PointLight*)(&_data);
+			return (RENDERER::PointLight*)(&_data);
 		}
 	}
 }

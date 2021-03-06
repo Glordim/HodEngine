@@ -4,14 +4,20 @@
 
 namespace HOD
 {
-    struct DirLight
-    {
-        DirLight()
-        {
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct DirLight
+		{
+			DirLight()
+			{
 
-        }
+			}
 
-        CORE::Color color;
-        float intensity;
-    };
+			CORE::Color color;
+			float intensity;
+		};
+	}
 }

@@ -30,7 +30,7 @@ namespace HOD
 
 			if (SDL_GetDesktopDisplayMode(monitor, &desktopMode) != 0)
 			{
-				fprintf(stderr, "SDL: SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+				OUTPUT_ERROR("SDL: SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
 				return false;
 			}
 
@@ -67,7 +67,7 @@ namespace HOD
 
 				if (SDL_GetDisplayMode(monitor, i, &mode) != 0)
 				{
-					fprintf(stderr, "SDL: SDL_GetDisplayMode failed: %s", SDL_GetError());
+					OUTPUT_ERROR("SDL: SDL_GetDisplayMode failed: %s", SDL_GetError());
 					return 1;
 				}
 

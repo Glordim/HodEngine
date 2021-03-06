@@ -15,63 +15,81 @@ namespace spirv_cross
 
 namespace HOD
 {
-    class DescriptorSetLayout
-    {
-    public:
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class DescriptorSetLayout
+		{
+		public:
 
-        struct Block
-        {
-            enum Type
-            {
-                Ubo,
-                Texture
-            };
+			//-----------------------------------------------------------------------------
+			//! @brief		
+			//-----------------------------------------------------------------------------
+			struct Block
+			{
+				enum Type
+				{
+					Ubo,
+					Texture
+				};
 
-            uint32_t binding;
-            std::string name;
-        };
+				uint32_t	_binding;
+				std::string	_name;
+			};
 
-        struct BlockUbo : Block
-        {
-            struct Member
-            {
-                std::string name;
-                size_t size;
-                size_t count;
-                size_t offset;
+			//-----------------------------------------------------------------------------
+			//! @brief		
+			//-----------------------------------------------------------------------------
+			struct BlockUbo : Block
+			{
+				//-----------------------------------------------------------------------------
+				//! @brief		
+				//-----------------------------------------------------------------------------
+				struct Member
+				{
+					std::string						_name;
+					size_t							_size;
+					size_t							_count;
+					size_t							_offset;
 
-                std::map<std::string, Member> childsMap;
-            };
+					std::map<std::string, Member>	_childsMap;
+				};
 
-            Member rootMember;
-        };
+				Member	_rootMember;
+			};
 
-        struct BlockTexture : Block
-        {
-        };
+			//-----------------------------------------------------------------------------
+			//! @brief		
+			//-----------------------------------------------------------------------------
+			struct BlockTexture : Block
+			{
+			};
 
-    public:
+		public:
 
-        DescriptorSetLayout();
-        virtual ~DescriptorSetLayout();
+												DescriptorSetLayout();
+			virtual								~DescriptorSetLayout();
 
-        VkDescriptorSetLayout GetDescriptorSetLayout() const;
+			VkDescriptorSetLayout				GetDescriptorSetLayout() const;
 
-        void ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
-        void ExtractUboSubMembers(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& type, BlockUbo::Member& member);
+			void								ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
+			void								ExtractUboSubMembers(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& type, BlockUbo::Member& member);
 
-        void ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
+			void								ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
 
-        bool BuildDescriptorSetLayout();
+			bool								BuildDescriptorSetLayout();
 
-        const std::vector<BlockUbo>& GetUboBlocks() const;
-        const std::vector<BlockTexture>& GetTextureBlocks() const;
+			const std::vector<BlockUbo>&		GetUboBlocks() const;
+			const std::vector<BlockTexture>&	GetTextureBlocks() const;
 
-    private:
+		private:
 
-        VkDescriptorSetLayout descriptorSetLayout;
+			VkDescriptorSetLayout				_descriptorSetLayout;
 
-        std::vector<BlockUbo> uboBlockVector;
-        std::vector<BlockTexture> textureBlockVector;
-    };
+			std::vector<BlockUbo>				_uboBlockVector;
+			std::vector<BlockTexture>			_textureBlockVector;
+		};
+	}
 }

@@ -2,81 +2,111 @@
 
 #include "RendererVulkan.h"
 
+#include <Core/Src/Output.h>
+
 namespace HOD
 {
-    VkMesh::VkMesh()
-    {
-        this->vertexBuffer = VK_NULL_HANDLE;
-        this->vertexBufferMemory = VK_NULL_HANDLE;
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		VkMesh::VkMesh()
+		{
+			_vertexBuffer = VK_NULL_HANDLE;
+			_vertexBufferMemory = VK_NULL_HANDLE;
 
-        this->indiceBuffer = VK_NULL_HANDLE;
-        this->indiceBufferMemory = VK_NULL_HANDLE;
-    }
+			_indiceBuffer = VK_NULL_HANDLE;
+			_indiceBufferMemory = VK_NULL_HANDLE;
+		}
 
-    VkMesh::~VkMesh()
-    {
-        RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		VkMesh::~VkMesh()
+		{
+			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-        if (this->vertexBuffer != VK_NULL_HANDLE)
-            vkDestroyBuffer(renderer->GetVkDevice(), this->vertexBuffer, nullptr);
-        if (this->vertexBufferMemory != VK_NULL_HANDLE)
-            vkFreeMemory(renderer->GetVkDevice(), this->vertexBufferMemory, nullptr);
+			if (_vertexBuffer != VK_NULL_HANDLE)
+			{
+				vkDestroyBuffer(renderer->GetVkDevice(), _vertexBuffer, nullptr);
+			}
+			if (_vertexBufferMemory != VK_NULL_HANDLE)
+			{
+				vkFreeMemory(renderer->GetVkDevice(), _vertexBufferMemory, nullptr);
+			}
 
-        if (this->indiceBuffer != VK_NULL_HANDLE)
-            vkDestroyBuffer(renderer->GetVkDevice(), this->indiceBuffer, nullptr);
-        if (this->indiceBufferMemory != VK_NULL_HANDLE)
-            vkFreeMemory(renderer->GetVkDevice(), this->indiceBufferMemory, nullptr);
-    }
+			if (_indiceBuffer != VK_NULL_HANDLE)
+			{
+				vkDestroyBuffer(renderer->GetVkDevice(), _indiceBuffer, nullptr);
+			}
+			if (_indiceBufferMemory != VK_NULL_HANDLE)
+			{
+				vkFreeMemory(renderer->GetVkDevice(), _indiceBufferMemory, nullptr);
+			}
+		}
 
-    VkBuffer VkMesh::GetVertexBuffer() const
-    {
-        return this->vertexBuffer;
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		VkBuffer VkMesh::GetVertexBuffer() const
+		{
+			return _vertexBuffer;
+		}
 
-    VkBuffer VkMesh::GetIndiceBuffer() const
-    {
-        return this->indiceBuffer;
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		VkBuffer VkMesh::GetIndiceBuffer() const
+		{
+			return _indiceBuffer;
+		}
 
-    bool VkMesh::BuildBuffers()
-    {
-        RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool VkMesh::BuildBuffers()
+		{
+			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-        VkDeviceSize bufferSize = sizeof(this->vertices[0]) * this->vertices.size();
+			VkDeviceSize bufferSize = sizeof(_vertices[0]) * _vertices.size();
 
-        if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->vertexBuffer, &this->vertexBufferMemory) == false)
-            return false;
+			if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &_vertexBuffer, &_vertexBufferMemory) == false)
+				return false;
 
-        void* data = nullptr;
+			void* data = nullptr;
 
-        if (vkMapMemory(renderer->GetVkDevice(), this->vertexBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
-        {
-            fprintf(stderr, "Vulkan: Unable to map vertex buffer memory!\n");
-            return false;
-        }
-        memcpy(data, this->vertices.data(), (size_t)bufferSize);
-        vkUnmapMemory(renderer->GetVkDevice(), this->vertexBufferMemory);
+			if (vkMapMemory(renderer->GetVkDevice(), _vertexBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: Unable to map vertex buffer memory!\n");
+				return false;
+			}
+			memcpy(data, _vertices.data(), (size_t)bufferSize);
+			vkUnmapMemory(renderer->GetVkDevice(), _vertexBufferMemory);
 
-        // ---------------
+			// ---------------
 
-        if (this->indices.empty() == false)
-        {
-            bufferSize = sizeof(this->indices[0]) * this->indices.size();
+			if (_indices.empty() == false)
+			{
+				bufferSize = sizeof(_indices[0]) * _indices.size();
 
-            if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->indiceBuffer, &this->indiceBufferMemory) == false)
-                return false;
+				if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &_indiceBuffer, &_indiceBufferMemory) == false)
+				{
+					return false;
+				}
 
-            data = nullptr;
+				data = nullptr;
 
-            if (vkMapMemory(renderer->GetVkDevice(), this->indiceBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
-            {
-                fprintf(stderr, "Vulkan: Unable to map indice buffer memory!\n");
-                return false;
-            }
-            memcpy(data, this->indices.data(), (size_t)bufferSize);
-            vkUnmapMemory(renderer->GetVkDevice(), this->indiceBufferMemory);
-        }
+				if (vkMapMemory(renderer->GetVkDevice(), _indiceBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+				{
+					OUTPUT_ERROR("Vulkan: Unable to map indice buffer memory!\n");
+					return false;
+				}
+				memcpy(data, _indices.data(), (size_t)bufferSize);
+				vkUnmapMemory(renderer->GetVkDevice(), _indiceBufferMemory);
+			}
 
-        return true;
-    }
+			return true;
+		}
+	}
 }

@@ -6,24 +6,32 @@
 
 namespace HOD
 {
-    class VkMesh : public Mesh
-    {
-    public:
-        VkMesh();
-        virtual ~VkMesh();
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class VkMesh : public Mesh
+		{
+		public:
 
-        VkBuffer GetVertexBuffer() const;
-        VkBuffer GetIndiceBuffer() const;
+							VkMesh();
+			virtual			~VkMesh();
 
-    protected:
-        virtual bool BuildBuffers() override;
+			VkBuffer		GetVertexBuffer() const;
+			VkBuffer		GetIndiceBuffer() const;
 
-    private:
+		protected:
 
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
+			virtual bool	BuildBuffers() override;
 
-        VkBuffer indiceBuffer;
-        VkDeviceMemory indiceBufferMemory;
-    };
+		private:
+
+			VkBuffer		_vertexBuffer;
+			VkDeviceMemory	_vertexBufferMemory;
+
+			VkBuffer		_indiceBuffer;
+			VkDeviceMemory	_indiceBufferMemory;
+		};
+	}
 }

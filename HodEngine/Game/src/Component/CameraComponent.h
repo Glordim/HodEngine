@@ -12,8 +12,11 @@
 
 namespace HOD
 {
-	class MaterialInstance;
-	class Texture;
+	namespace RENDERER
+	{
+		class MaterialInstance;
+		class Texture;
+	}
 
 	namespace GAME
 	{
@@ -26,38 +29,38 @@ namespace HOD
 		{
 		public:
 
-								CameraComponent(Actor* actor);
-								CameraComponent(const CameraComponent&) = delete;
-								CameraComponent(CameraComponent&&) = delete;
-								~CameraComponent() override = default;
+										CameraComponent(Actor* actor);
+										CameraComponent(const CameraComponent&) = delete;
+										CameraComponent(CameraComponent&&) = delete;
+										~CameraComponent() override = default;
 
-			void				operator=(const CameraComponent&) = delete;
-			void				operator=(CameraComponent&&) = delete;
+			void						operator=(const CameraComponent&) = delete;
+			void						operator=(CameraComponent&&) = delete;
 
 		public:
 
-			void				DrawImGui() override;
-			const char*			GetType() const override;
+			void						DrawImGui() override;
+			const char*					GetType() const override;
 
-			void				Render(Scene& scene);
+			void						Render(Scene& scene);
 
-			const glm::mat4&	GetProjectionMatrix();
+			const glm::mat4&			GetProjectionMatrix();
 
-			void				SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture);
+			void						SetHdriMaterial(RENDERER::MaterialInstance* hdriMat, RENDERER::Texture* hdriTexture);
 
 		private:
 
-			float				_fov;
-			float				_aspect;
-			float				_near;
-			float				_far;
-			bool				_perspective;
-			bool				_dirtyFlag;
+			float						_fov;
+			float						_aspect;
+			float						_near;
+			float						_far;
+			bool						_perspective;
+			bool						_dirtyFlag;
 
-			MaterialInstance*	_hdriMat;
-			Texture*			_hdriTexture;
+			RENDERER::MaterialInstance*	_hdriMat;
+			RENDERER::Texture*			_hdriTexture;
 
-			glm::mat4			_projectionMatrix;
+			glm::mat4					_projectionMatrix;
 		};
 	}
 }

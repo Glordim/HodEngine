@@ -23,8 +23,8 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	FreeCam::FreeCam(const std::string& name, GAME::Scene* scene) : GAME::Actor(name, scene)
 	{
-		_sceneComponent = this->AddComponent<GAME::SceneComponent>();
-		_cameraComponent = this->AddComponent<GAME::CameraComponent>();
+		_sceneComponent = AddComponent<GAME::SceneComponent>();
+		_cameraComponent = AddComponent<GAME::CameraComponent>();
 
 		_view = glm::vec3(0.0f, 0.0f, 0.0f);
 	}

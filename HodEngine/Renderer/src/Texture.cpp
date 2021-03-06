@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include <Core/Src/Output.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -8,34 +10,48 @@
 
 namespace HOD
 {
-    Texture::Texture()
-    {
-    }
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Texture::Texture()
+		{
+		}
 
-    Texture::~Texture()
-    {
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		Texture::~Texture()
+		{
+		}
 
-    bool Texture::LoadFromPath(const char* path)
-    {
-        int width;
-        int height;
-        int channel;
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool Texture::LoadFromPath(const char* path)
+		{
+			int width;
+			int height;
+			int channel;
 
-        stbi_set_flip_vertically_on_load(true);
+			stbi_set_flip_vertically_on_load(true);
 
-        unsigned char* buffer = stbi_load(path, &width, &height, &channel, 4);
-        if (buffer == nullptr)
-        {
-            fprintf(stderr, "Texture : Failed to load Texture \"%s\"\n", path);
-            return false; // Todo Memleak
-        }
+			unsigned char* buffer = stbi_load(path, &width, &height, &channel, 4);
+			if (buffer == nullptr)
+			{
+				OUTPUT_ERROR("Texture : Failed to load Texture \"%s\"\n", path);
+				return false; // Todo Memleak
+			}
 
-        if (this->BuildBuffer(width, height, buffer) == false)
-            return false; // Todo Memleak
+			if (BuildBuffer(width, height, buffer) == false)
+			{
+				return false; // Todo Memleak
+			}
 
-        stbi_image_free(buffer);
+			stbi_image_free(buffer);
 
-        return true;
-    }
+			return true;
+		}
+	}
 }

@@ -5,25 +5,31 @@
 
 namespace HOD
 {
-    class Material;
+	namespace RENDERER
+	{
+		class Material;
 
-    class MaterialManager
-    {
-    public:
-        static MaterialManager* getInstance();
-        static void destroyInstance();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class MaterialManager
+		{
+		public:
+			static MaterialManager*						GetInstance();
+			static void									DestroyInstance();
 
-        Material* getMaterial(const std::string& shaderName, bool useDepth = true);
-        void destroyMaterial(const std::string& shaderName);
+			Material*									GetMaterial(const std::string& shaderName, bool useDepth = true);
+			void										DestroyMaterial(const std::string& shaderName);
 
-    private:
-        MaterialManager();
-        MaterialManager(const MaterialManager& copy) = delete;
-        void operator=(const MaterialManager& right) = delete;
-        virtual ~MaterialManager();
+		private:
+														MaterialManager();
+														MaterialManager(const MaterialManager& copy) = delete;
+			void										operator=(const MaterialManager& right) = delete;
+			virtual										~MaterialManager();
 
-        static MaterialManager* instance;
+			static MaterialManager*						_instance;
 
-        std::unordered_map<std::string, Material*> shaderNameToMaterialMap;
-    };
+			std::unordered_map<std::string, Material*>	_shaderNameToMaterialMap;
+		};
+	}
 }

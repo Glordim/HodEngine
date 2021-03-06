@@ -4,15 +4,21 @@
 
 namespace HOD
 {
-    struct PointLight
-    {
-        PointLight()
-        {
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct PointLight
+		{
+			PointLight()
+			{
 
-        }
+			}
 
-        CORE::Color color;
-        float intensity;
-        float range;
-    };
+			CORE::Color color;
+			float intensity;
+			float range;
+		};
+	}
 }

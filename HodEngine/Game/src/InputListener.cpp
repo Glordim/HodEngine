@@ -92,7 +92,7 @@ namespace HOD
 	void InputListener::InjectKeyInput(int key, int scancode, int action, int mods)
 	{
 		auto it = _axisCallbackList.begin();
-		auto itEnd = this->_axisCallbackList.end();
+		auto itEnd = _axisCallbackList.end();
 
 		if (action == SDL_RELEASED)
 		{
@@ -104,14 +104,14 @@ namespace HOD
 					/*
 					if (it->first->usingPositive == false)
 					{
-						auto itUsed = this->usedAxis.begin();
-						auto itUsedEnd = this->usedAxis.begin();
+						auto itUsed = usedAxis.begin();
+						auto itUsedEnd = usedAxis.begin();
 
 						while (itUsed != itUsedEnd)
 						{
 							if (*itUsed == it->first)
 							{
-								this->usedAxis.erase(itUsed);
+								usedAxis.erase(itUsed);
 								break;
 							}
 
@@ -126,14 +126,14 @@ namespace HOD
 					/*
 					if (it->first->usingNegative == false)
 					{
-						auto itUsed = this->usedAxis.begin();
-						auto itUsedEnd = this->usedAxis.begin();
+						auto itUsed = usedAxis.begin();
+						auto itUsedEnd = usedAxis.begin();
 
 						while (itUsed != itUsedEnd)
 						{
 							if (*itUsed == it->first)
 							{
-								this->usedAxis.erase(itUsed);
+								>usedAxis.erase(itUsed);
 								break;
 							}
 
@@ -154,8 +154,8 @@ namespace HOD
 				{
 					it->first->_usingNegative = true;
 					/*
-					auto itUsed = this->usedAxis.begin();
-					auto itUsedEnd = this->usedAxis.begin();
+					auto itUsed = usedAxis.begin();
+					auto itUsedEnd = usedAxis.begin();
 
 					bool exist = false;
 
@@ -172,7 +172,7 @@ namespace HOD
 
 					if (exist == false)
 					{
-						this->usedAxis.push_back(it->first);
+						usedAxis.push_back(it->first);
 					}
 					*/
 				}
@@ -180,8 +180,8 @@ namespace HOD
 				{
 					it->first->_usingPositive = true;
 					/*
-					auto itUsed = this->usedAxis.begin();
-					auto itUsedEnd = this->usedAxis.begin();
+					auto itUsed = usedAxis.begin();
+					auto itUsedEnd = usedAxis.begin();
 
 					bool exist = false;
 
@@ -198,7 +198,7 @@ namespace HOD
 
 					if (exist == false)
 					{
-						this->usedAxis.push_back(it->first);
+						usedAxis.push_back(it->first);
 					}
 					*/
 				}

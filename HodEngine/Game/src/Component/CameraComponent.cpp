@@ -46,9 +46,9 @@ namespace HOD
 		void CameraComponent::DrawImGui()
 		{
 			//TwAddSeparator(tweakBar, "Camera", "");
-			//TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &this->fov, "");
-			//TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &this->fNear, "");
-			//TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &this->fFar, "");
+			//TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &_fov, "");
+			//TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &_near, "");
+			//TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &_far, "");
 		}
 
 		//-----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CameraComponent::SetHdriMaterial(MaterialInstance* hdriMat, Texture* hdriTexture)
+		void CameraComponent::SetHdriMaterial(RENDERER::MaterialInstance* hdriMat, RENDERER::Texture* hdriTexture)
 		{
 			_hdriMat = hdriMat;
 			_hdriTexture = hdriTexture;
@@ -95,13 +95,13 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void CameraComponent::Render(Scene& scene)
 		{
-			RenderQueue renderQueue;
+			RENDERER::RenderQueue renderQueue;
 
 			renderQueue.SetCameraPos(GetActor()->GetComponent<SceneComponent>()->GetPosition());
 			renderQueue.SetViewMatrix(glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()));
-			renderQueue.SetProjMatrix(this->GetProjectionMatrix());
+			renderQueue.SetProjMatrix(GetProjectionMatrix());
 
-			renderQueue.SetClearFlag(RenderQueue::ClearFlag::COLOR | RenderQueue::ClearFlag::DEPTH);
+			renderQueue.SetClearFlag(RENDERER::RenderQueue::ClearFlag::COLOR | RENDERER::RenderQueue::ClearFlag::DEPTH);
 
 			renderQueue.SetHdriMaterial(_hdriMat);
 			renderQueue.SetHdriTexture(_hdriTexture);
@@ -110,7 +110,7 @@ namespace HOD
 			RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
 			RenderQueueHelper::AddDebugLines(renderQueue, &scene);
 
-			Renderer* renderer = Renderer::GetInstance();
+			RENDERER::Renderer* renderer = RENDERER::Renderer::GetInstance();
 			renderer->SubmitRenderQueue(renderQueue);
 		}
 	}

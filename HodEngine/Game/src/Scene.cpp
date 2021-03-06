@@ -148,7 +148,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Scene::AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration)
 		{
-			Line_3P_3C line;
+			RENDERER::Line_3P_3C line;
 			line.vertices[0].pos[0] = start.x;
 			line.vertices[0].pos[1] = start.y;
 			line.vertices[0].pos[2] = start.z;
@@ -168,9 +168,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::GetDebugLines(std::vector<Line_3P_3C>& lines)
+		void Scene::GetDebugLines(std::vector<RENDERER::Line_3P_3C>& lines)
 		{
-			for (std::pair<Line_3P_3C, float> line : _debugLines)
+			for (std::pair<RENDERER::Line_3P_3C, float> line : _debugLines)
 			{
 				lines.push_back(line.first);
 			}

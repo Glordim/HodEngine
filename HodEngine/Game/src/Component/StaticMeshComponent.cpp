@@ -44,7 +44,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void StaticMeshComponent::SetMesh(Mesh* mesh)
+		void StaticMeshComponent::SetMesh(RENDERER::Mesh* mesh)
 		{
 			_mesh = mesh;
 		}
@@ -52,7 +52,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Mesh* StaticMeshComponent::GetMesh() const
+		RENDERER::Mesh* StaticMeshComponent::GetMesh() const
 		{
 			return _mesh;
 		}
@@ -60,7 +60,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void StaticMeshComponent::SetMaterialInstance(MaterialInstance* materialInstance)
+		void StaticMeshComponent::SetMaterialInstance(RENDERER::MaterialInstance* materialInstance)
 		{
 			_materialInstance = materialInstance;
 		}
@@ -68,7 +68,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		MaterialInstance* StaticMeshComponent::GetMaterialInstance() const
+		RENDERER::MaterialInstance* StaticMeshComponent::GetMaterialInstance() const
 		{
 			return _materialInstance;
 		}

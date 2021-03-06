@@ -8,21 +8,29 @@
 
 namespace HOD
 {
-    class VkShader : public Shader
-    {
-    public:
-        VkShader(ShaderType type);
-        virtual ~VkShader();
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class VkShader : public Shader
+		{
+		public:
 
-        virtual bool LoadFromFile(const std::string& path) override;
+											VkShader(ShaderType type);
+			virtual							~VkShader();
 
-        VkShaderModule GetShaderModule() const;
+			virtual bool					LoadFromFile(const std::string& path) override;
 
-        const std::vector<uint32_t>& GetShaderBytecode() const;
+			VkShaderModule					GetShaderModule() const;
 
-    private:
-        VkShaderModule shaderModule;
+			const std::vector<uint32_t>&	GetShaderBytecode() const;
 
-        std::vector<uint32_t> buffer;
-    };
+		private:
+
+			VkShaderModule					_shaderModule;
+
+			std::vector<uint32_t>			_buffer;
+		};
+	}
 }

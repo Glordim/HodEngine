@@ -4,24 +4,31 @@
 
 namespace HOD
 {
-    class Shader
-    {
-    public:
-        enum ShaderType
-        {
-            Vertex,
-            Geometry,
-            Fragment,
-            Compute
-        };
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class Shader
+		{
+		public:
 
-    public:
-        Shader(ShaderType type);
-        virtual ~Shader();
+			enum ShaderType
+			{
+				Vertex,
+				Geometry,
+				Fragment,
+				Compute
+			};
 
-        virtual bool LoadFromFile(const std::string& path) = 0;
+		public:
+							Shader(ShaderType type);
+			virtual			~Shader();
 
-    private:
-        ShaderType type;
-    };
+			virtual bool	LoadFromFile(const std::string& path) = 0;
+
+		private:
+			ShaderType		_type;
+		};
+	}
 }

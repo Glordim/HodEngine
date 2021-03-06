@@ -6,22 +6,31 @@
 
 namespace HOD
 {
-    //namespace PHYSIC
-    //{
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		RendererDebugWindow::RendererDebugWindow() : DebugWindow()
-        {
+		{
 
-        }
+		}
 
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		RendererDebugWindow::~RendererDebugWindow()
 		{
-            
-        }
 
-        void RendererDebugWindow::Draw()
-        {
-            ImGui::Begin("Renderer");
-            {
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void RendererDebugWindow::Draw()
+		{
+			ImGui::Begin("Renderer");
+			{
 				Renderer* pRenderer = Renderer::GetInstance();
 
 				bool bVisualize3D = pRenderer->GetVisualizationMode();
@@ -30,8 +39,8 @@ namespace HOD
 				{
 					pRenderer->SetVisualizationMode(bVisualize3D);
 				}
-            }
-            ImGui::End();
-        }
-    //}
+			}
+			ImGui::End();
+		}
+	}
 }

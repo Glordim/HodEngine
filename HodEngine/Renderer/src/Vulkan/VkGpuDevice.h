@@ -6,12 +6,18 @@
 
 namespace HOD
 {
-    struct VkGpuDevice : public GpuDevice
-    {
-        VkPhysicalDevice physicalDevice;
-        uint32_t graphicsAndPresentQueueFamilyIndex;
-        VkPhysicalDeviceMemoryProperties memProperties;
-        uint32_t hostMemoryTypeIndex;
-        uint32_t deviceMemoryTypeIndex;
-    };
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct VkGpuDevice : public GpuDevice
+		{
+			VkPhysicalDevice physicalDevice;
+			uint32_t graphicsAndPresentQueueFamilyIndex;
+			VkPhysicalDeviceMemoryProperties memProperties;
+			uint32_t hostMemoryTypeIndex;
+			uint32_t deviceMemoryTypeIndex;
+		};
+	}
 }

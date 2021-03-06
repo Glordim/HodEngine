@@ -6,30 +6,37 @@
 
 namespace HOD
 {
-    class DescriptorSetLayout;
-    class VkTexture;
+	namespace RENDERER
+	{
+		class DescriptorSetLayout;
+		class VkTexture;
 
-    class DescriptorSet
-    {
-    public:
-        DescriptorSet();
-        virtual ~DescriptorSet();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		class DescriptorSet
+		{
+		public:
 
-        bool SetLayout(const DescriptorSetLayout* layout);
-        const DescriptorSetLayout* GetLayout() const;
+										DescriptorSet();
+			virtual						~DescriptorSet();
 
-        VkDescriptorSet GetDescriptorSet() const;
+			bool						SetLayout(const DescriptorSetLayout* layout);
+			const DescriptorSetLayout*	GetLayout() const;
 
-        void SetUboValue(const std::string& memberName, const void* value, size_t valueSize);
-        void SetTexture(const std::string& name, const VkTexture* textureSampler);
+			VkDescriptorSet				GetDescriptorSet() const;
 
-    private:
+			void						SetUboValue(const std::string& memberName, const void* value, size_t valueSize);
+			void						SetTexture(const std::string& name, const VkTexture* textureSampler);
 
-        const DescriptorSetLayout* descriptorSetLayout;
+		private:
 
-        VkDescriptorSet descriptorSet;
+			const DescriptorSetLayout*	_descriptorSetLayout;
 
-        std::vector<VkBuffer> uboBuffers;
-        std::vector<VkDeviceMemory> uboBufferMemories;
-    };
+			VkDescriptorSet				_descriptorSet;
+
+			std::vector<VkBuffer>		_uboBuffers;
+			std::vector<VkDeviceMemory>	_uboBufferMemories;
+		};
+	}
 }

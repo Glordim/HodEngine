@@ -4,8 +4,11 @@
 
 namespace HOD
 {
-	class Mesh;
-	class MaterialInstance;
+	namespace RENDERER
+	{
+		class Mesh;
+		class MaterialInstance;
+	}
 
 	namespace GAME
 	{
@@ -16,35 +19,35 @@ namespace HOD
 		{
 		public:
 
-								StaticMeshComponent(Actor* actor);
-								StaticMeshComponent(const StaticMeshComponent&) = delete;
-								StaticMeshComponent(StaticMeshComponent&&) = delete;
-								~StaticMeshComponent() override;
+										StaticMeshComponent(Actor* actor);
+										StaticMeshComponent(const StaticMeshComponent&) = delete;
+										StaticMeshComponent(StaticMeshComponent&&) = delete;
+										~StaticMeshComponent() override;
 
-			void				operator=(const StaticMeshComponent&) = delete;
-			void				operator=(StaticMeshComponent&&) = delete;
-
-		public:
-
-			void				DrawImGui() override;
-			const char*			GetType() const override;
+			void						operator=(const StaticMeshComponent&) = delete;
+			void						operator=(StaticMeshComponent&&) = delete;
 
 		public:
-			Mesh*				GetMesh() const;
-			void				SetMesh(Mesh* mesh);
 
-			MaterialInstance*	GetMaterialInstance() const;
-			void				SetMaterialInstance(MaterialInstance* materialInstance);
+			void						DrawImGui() override;
+			const char*					GetType() const override;
 
-			bool				IsDebugTangentEnabled() const;
-			void				EnableDebugTangent(bool enable);
+		public:
+			RENDERER::Mesh*				GetMesh() const;
+			void						SetMesh(RENDERER::Mesh* mesh);
+
+			RENDERER::MaterialInstance*	GetMaterialInstance() const;
+			void						SetMaterialInstance(RENDERER::MaterialInstance* materialInstance);
+
+			bool						IsDebugTangentEnabled() const;
+			void						EnableDebugTangent(bool enable);
 
 		private:
 
-			Mesh*				_mesh;
-			MaterialInstance*	_materialInstance;
+			RENDERER::Mesh*				_mesh;
+			RENDERER::MaterialInstance*	_materialInstance;
 
-			bool				_debugTangent;
+			bool						_debugTangent;
 		};
 	}
 }

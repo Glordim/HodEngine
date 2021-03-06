@@ -6,62 +6,84 @@
 
 #include "RendererVulkan.h"
 
+#include <Core/Src/Output.h>
+
 namespace HOD
 {
-    VkShader::VkShader(ShaderType type) : Shader(type)
-    {
-        this->shaderModule = VK_NULL_HANDLE;
-    }
+	namespace RENDERER
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		VkShader::VkShader(ShaderType type) : Shader(type)
+		{
+			_shaderModule = VK_NULL_HANDLE;
+		}
 
-    VkShader::~VkShader()
-    {
-        RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		VkShader::~VkShader()
+		{
+			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-        if (this->shaderModule != VK_NULL_HANDLE)
-            vkDestroyShaderModule(renderer->GetVkDevice(), this->shaderModule, nullptr);
-    }
+			if (_shaderModule != VK_NULL_HANDLE)
+			{
+				vkDestroyShaderModule(renderer->GetVkDevice(), _shaderModule, nullptr);
+			}
+		}
 
-    bool VkShader::LoadFromFile(const std::string& path)
-    {
-        std::ifstream file(path, std::ios::ate | std::ios::binary);
-        if (file.is_open() == false)
-        {
-            fprintf(stderr, "VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
-            return false;
-        }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool VkShader::LoadFromFile(const std::string& path)
+		{
+			std::ifstream file(path, std::ios::ate | std::ios::binary);
+			if (file.is_open() == false)
+			{
+				OUTPUT_ERROR("VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
+				return false;
+			}
 
-        size_t fileSize = file.tellg();
+			size_t fileSize = file.tellg();
 
-        this->buffer.clear();
-        this->buffer.resize(fileSize / sizeof(uint32_t));
+			_buffer.clear();
+			_buffer.resize(fileSize / sizeof(uint32_t));
 
-        file.seekg(0);
-        file.read(reinterpret_cast<char*>(this->buffer.data()), fileSize);
-        file.close();
+			file.seekg(0);
+			file.read(reinterpret_cast<char*>(_buffer.data()), fileSize);
+			file.close();
 
-        VkShaderModuleCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = fileSize;
-        createInfo.pCode = this->buffer.data();
+			VkShaderModuleCreateInfo createInfo = {};
+			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+			createInfo.codeSize = fileSize;
+			createInfo.pCode = _buffer.data();
 
-        RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-        if (vkCreateShaderModule(renderer->GetVkDevice(), &createInfo, nullptr, &this->shaderModule) != VK_SUCCESS)
-        {
-            fprintf(stderr, "VkShader : Failed to create Shader Module\n");
-            return false;
-        }
+			if (vkCreateShaderModule(renderer->GetVkDevice(), &createInfo, nullptr, &_shaderModule) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("VkShader : Failed to create Shader Module\n");
+				return false;
+			}
 
-        return true;
-    }
+			return true;
+		}
 
-    VkShaderModule VkShader::GetShaderModule() const
-    {
-        return this->shaderModule;
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		VkShaderModule VkShader::GetShaderModule() const
+		{
+			return _shaderModule;
+		}
 
-    const std::vector<uint32_t>& VkShader::GetShaderBytecode() const
-    {
-        return this->buffer;
-    }
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		const std::vector<uint32_t>& VkShader::GetShaderBytecode() const
+		{
+			return _buffer;
+		}
+	}
 }
