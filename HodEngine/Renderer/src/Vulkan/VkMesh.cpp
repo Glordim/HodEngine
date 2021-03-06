@@ -2,6 +2,8 @@
 
 #include "RendererVulkan.h"
 
+#include <Core/Src/Output.h>
+
 namespace HOD
 {
 	namespace RENDERER
@@ -76,7 +78,7 @@ namespace HOD
 
 			if (vkMapMemory(renderer->GetVkDevice(), _vertexBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to map vertex buffer memory!\n");
+				OUTPUT_ERROR("Vulkan: Unable to map vertex buffer memory!\n");
 				return false;
 			}
 			memcpy(data, _vertices.data(), (size_t)bufferSize);
@@ -97,7 +99,7 @@ namespace HOD
 
 				if (vkMapMemory(renderer->GetVkDevice(), _indiceBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
 				{
-					fprintf(stderr, "Vulkan: Unable to map indice buffer memory!\n");
+					OUTPUT_ERROR("Vulkan: Unable to map indice buffer memory!\n");
 					return false;
 				}
 				memcpy(data, _indices.data(), (size_t)bufferSize);

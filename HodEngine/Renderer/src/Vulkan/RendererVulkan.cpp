@@ -14,6 +14,8 @@
 
 #include <Application/src/Application.h>
 
+#include <Core/Src/Output.h>
+
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/imgui_impl_vulkan.h>
 
@@ -31,7 +33,7 @@ namespace HOD
 			if (_device != VK_NULL_HANDLE)
 			{
 				if (vkDeviceWaitIdle(_device) != VK_SUCCESS)
-					fprintf(stderr, "Vulkan: DeviceWaitIdel failed!\n");
+					OUTPUT_ERROR("Vulkan: DeviceWaitIdel failed!\n");
 			}
 
 			if (_acquireNextImageFence != VK_NULL_HANDLE)
@@ -160,20 +162,20 @@ namespace HOD
 
 			if (RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredByEngine, availableExtensions) == false)
 			{
-				fprintf(stderr, "Vulkan: Extensions required by the Engine are not available, try to update 'Vulkan Runtime'\n");
+				OUTPUT_ERROR("Vulkan: Extensions required by the Engine are not available, try to update 'Vulkan Runtime'\n");
 				return false;
 			}
 
 			if (RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredBySDL, availableExtensions) == false)
 			{
-				fprintf(stderr, "Vulkan: Extensions required by SDL are not available, try to update 'Vulkan Runtime'\n");
+				OUTPUT_ERROR("Vulkan: Extensions required by SDL are not available, try to update 'Vulkan Runtime'\n");
 				return false;
 			}
 
 			if (enableValidationLayers == true && RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredByValidationLayers, availableExtensions) == false)
 			{
-				fprintf(stderr, "Vulkan: Extensions required by ValidationLayers are not available, try to update 'Vulkan Runtime'\n");
-				fprintf(stderr, "Vulkan: ValidationLayers have been disabled\n");
+				OUTPUT_ERROR("Vulkan: Extensions required by ValidationLayers are not available, try to update 'Vulkan Runtime'\n");
+				OUTPUT_ERROR("Vulkan: ValidationLayers have been disabled\n");
 				enableValidationLayers = false;
 			}
 
@@ -186,8 +188,8 @@ namespace HOD
 
 			if (enableValidationLayers == true && RendererVulkan::CheckValidationLayerSupport(validationLayers) == false)
 			{
-				fprintf(stderr, "Vulkan: ValidationLayers are not available, try to update 'Vulkan Runtime'\n");
-				fprintf(stderr, "Vulkan: ValidationLayers have been disabled\n");
+				OUTPUT_ERROR("Vulkan: ValidationLayers are not available, try to update 'Vulkan Runtime'\n");
+				OUTPUT_ERROR("Vulkan: ValidationLayers have been disabled\n");
 				enableValidationLayers = false;
 			}
 
@@ -259,7 +261,7 @@ namespace HOD
 
 			if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create a Vulkan instance !\n");
+				OUTPUT_ERROR("Vulkan: Unable to create a Vulkan instance !\n");
 				return false;
 			}
 
@@ -360,7 +362,7 @@ namespace HOD
 			(void)messageType;
 			(void)pUserData;
 
-			fprintf(stderr, "Validation Layer: %s\n", pCallbackData->pMessage);
+			OUTPUT_ERROR("Validation Layer: %s\n", pCallbackData->pMessage);
 
 			return VK_FALSE;
 		}
@@ -442,7 +444,7 @@ namespace HOD
 							VkBool32 presentSupport = VK_FALSE;
 							if (vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, (uint32_t)j, _surface, &presentSupport) != VK_SUCCESS)
 							{
-								fprintf(stderr, "Vulkan: Unable to check present support on FamilyQueue !\n");
+								OUTPUT_ERROR("Vulkan: Unable to check present support on FamilyQueue !\n");
 							}
 							else if (presentSupport == VK_TRUE)
 							{
@@ -477,7 +479,7 @@ namespace HOD
 
 						if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, _surface, &capabilities) != VK_SUCCESS)
 						{
-							fprintf(stderr, "Vulkan: Unable to get Surface capabilities !\n");
+							OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !\n");
 							device.compatible = false;
 						}
 						else
@@ -485,7 +487,7 @@ namespace HOD
 							uint32_t formatCount;
 							if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, _surface, &formatCount, nullptr) != VK_SUCCESS)
 							{
-								fprintf(stderr, "Vulkan: Unable to get Surface formats !\n");
+								OUTPUT_ERROR("Vulkan: Unable to get Surface formats !\n");
 								device.compatible = false;
 							}
 
@@ -494,7 +496,7 @@ namespace HOD
 								formats.resize(formatCount);
 								if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, _surface, &formatCount, formats.data()) != VK_SUCCESS)
 								{
-									fprintf(stderr, "Vulkan: Unable to get Surface formats !\n");
+									OUTPUT_ERROR("Vulkan: Unable to get Surface formats !\n");
 									device.compatible = false;
 								}
 
@@ -516,14 +518,14 @@ namespace HOD
 							}
 							else
 							{
-								fprintf(stderr, "Vulkan: No Surface formats !\n");
+								OUTPUT_ERROR("Vulkan: No Surface formats !\n");
 								device.compatible = false;
 							}
 
 							uint32_t presentModeCount;
 							if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, _surface, &presentModeCount, nullptr) != VK_SUCCESS)
 							{
-								fprintf(stderr, "Vulkan: Unable to get Surface present modes !\n");
+								OUTPUT_ERROR("Vulkan: Unable to get Surface present modes !\n");
 								device.compatible = false;
 							}
 
@@ -532,13 +534,13 @@ namespace HOD
 								presentModes.resize(presentModeCount);
 								if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, _surface, &presentModeCount, presentModes.data()) != VK_SUCCESS)
 								{
-									fprintf(stderr, "Vulkan: Unable to get Surface present modes !\n");
+									OUTPUT_ERROR("Vulkan: Unable to get Surface present modes !\n");
 									device.compatible = false;
 								}
 							}
 							else
 							{
-								fprintf(stderr, "Vulkan: No Surface present modes !\n");
+								OUTPUT_ERROR("Vulkan: No Surface present modes !\n");
 								device.compatible = false;
 							}
 						}
@@ -722,7 +724,7 @@ namespace HOD
 
 			if (vkCreateDevice(_selectedGpu->physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create logical device !\n");
+				OUTPUT_ERROR("Vulkan: Unable to create logical device !\n");
 				return false;
 			}
 
@@ -763,7 +765,7 @@ namespace HOD
 
 			if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_selectedGpu->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to get Surface capabilities !\n");
+				OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !\n");
 				return false;
 			}
 
@@ -819,7 +821,7 @@ namespace HOD
 
 			if (vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapChain) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create SwapChain !\n");
+				OUTPUT_ERROR("Vulkan: Unable to create SwapChain !\n");
 				return false;
 			}
 
@@ -869,7 +871,7 @@ namespace HOD
 
 			if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create render pass!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create render pass!\n");
 				return false;
 			}
 
@@ -904,7 +906,7 @@ namespace HOD
 
 				if (vkCreateImageView(_device, &imageCreateInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS)
 				{
-					fprintf(stderr, "Vulkan: Unable to create Image Views !\n");
+					OUTPUT_ERROR("Vulkan: Unable to create Image Views !\n");
 					return false;
 				}
 			}
@@ -929,7 +931,7 @@ namespace HOD
 
 				if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS)
 				{
-					fprintf(stderr, "Vulkan: Unable to create Framebuffer !\n");
+					OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !\n");
 					return false;
 				}
 			}
@@ -949,7 +951,7 @@ namespace HOD
 
 			if (vkCreateCommandPool(_device, &poolInfo, nullptr, &_commandPool) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create command pool!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create command pool!\n");
 				return false;
 			}
 
@@ -970,7 +972,7 @@ namespace HOD
 
 			if (vkCreateDescriptorPool(_device, &descriptorPoolInfo, nullptr, &_descriptorPool) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create descriptor pool!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create descriptor pool!\n");
 				return false;
 			}
 
@@ -987,13 +989,13 @@ namespace HOD
 
 			if (vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_imageAvailableSemaphore) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create semaphores!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create semaphores!\n");
 				return false;
 			}
 
 			if (vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_renderFinishedSemaphore) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create semaphores!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create semaphores!\n");
 				return false;
 			}
 
@@ -1004,7 +1006,7 @@ namespace HOD
 
 			if (vkCreateFence(_device, &fenceCreateInfo, nullptr, &_acquireNextImageFence) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create fence!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create fence!\n");
 				return false;
 			}
 
@@ -1024,7 +1026,7 @@ namespace HOD
 
 			if (vkCreateBuffer(_device, &bufferInfo, nullptr, buffer) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create buffer!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create buffer!\n");
 				return false;
 			}
 
@@ -1034,7 +1036,7 @@ namespace HOD
 			uint32_t memoryTypeIndex = 0;
 			if (FindMemoryTypeIndex(memRequirements.memoryTypeBits, memoryProperties, &memoryTypeIndex) == false)
 			{
-				fprintf(stderr, "Vulkan: Unable to find memory type for this buffer!\n");
+				OUTPUT_ERROR("Vulkan: Unable to find memory type for this buffer!\n");
 				return false;
 			}
 
@@ -1045,13 +1047,13 @@ namespace HOD
 
 			if (vkAllocateMemory(_device, &allocInfo, nullptr, bufferMemory) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to allocate buffer memory!\n");
+				OUTPUT_ERROR("Vulkan: Unable to allocate buffer memory!\n");
 				return false;
 			}
 
 			if (vkBindBufferMemory(_device, *buffer, *bufferMemory, 0) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to bind buffer and buffer memory!\n");
+				OUTPUT_ERROR("Vulkan: Unable to bind buffer and buffer memory!\n");
 				return false;
 			}
 
@@ -1080,7 +1082,7 @@ namespace HOD
 
 			if (vkCreateImage(_device, &imageInfo, nullptr, image) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create image!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create image!\n");
 				return false;
 			}
 
@@ -1101,13 +1103,13 @@ namespace HOD
 
 			if (vkAllocateMemory(_device, &allocInfo, nullptr, imageMemory) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to allocate image memory!\n");
+				OUTPUT_ERROR("Vulkan: Unable to allocate image memory!\n");
 				return false;
 			}
 
 			if (vkBindImageMemory(_device, *image, *imageMemory, 0) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to bind image and image memory!\n");
+				OUTPUT_ERROR("Vulkan: Unable to bind image and image memory!\n");
 				return false;
 			}
 
@@ -1134,7 +1136,7 @@ namespace HOD
 
 			if (vkCreateImageView(_device, &viewInfo, nullptr, imageView) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Failed to create texture image view!\n");
+				OUTPUT_ERROR("Vulkan: Failed to create texture image view!\n");
 				return false;
 			}
 
@@ -1168,7 +1170,7 @@ namespace HOD
 
 			if (vkCreateSampler(_device, &samplerInfo, nullptr, sampler) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Failed to create texture sampler!\n");
+				OUTPUT_ERROR("Vulkan: Failed to create texture sampler!\n");
 				return false;
 			}
 
@@ -1304,7 +1306,7 @@ namespace HOD
 			}
 			else
 			{
-				fprintf(stderr, "Vulkan: TransitionImageLayout, unsupported layout transition!\n");
+				OUTPUT_ERROR("Vulkan: TransitionImageLayout, unsupported layout transition!\n");
 				return false;
 			}
 
@@ -1399,7 +1401,7 @@ namespace HOD
 
 			if (vkAllocateCommandBuffers(_device, &allocInfo, commandBuffer) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create Command Buffer!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create Command Buffer!\n");
 				return false;
 			}
 
@@ -1410,7 +1412,7 @@ namespace HOD
 
 			if (vkBeginCommandBuffer(*commandBuffer, &beginInfo) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to begin recording command buffer!\n");
+				OUTPUT_ERROR("Vulkan: Unable to begin recording command buffer!\n");
 				return false;
 			}
 
@@ -1722,7 +1724,7 @@ namespace HOD
 
 			if (vkEndCommandBuffer(*commandBuffer) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to recording command buffer!\n");
+				OUTPUT_ERROR("Vulkan: Unable to recording command buffer!\n");
 				return false;
 			}
 
@@ -1753,7 +1755,7 @@ namespace HOD
 
 			if (vkCreateFence(_device, &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create Fence!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create Fence!\n");
 				return false;
 			}
 
@@ -1769,14 +1771,14 @@ namespace HOD
 
 			if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, fence) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to submit draw command buffer!\n");
+				OUTPUT_ERROR("Vulkan: Unable to submit draw command buffer!\n");
 				vkDestroyFence(_device, fence, nullptr);
 				return false;
 			}
 
 			if (vkWaitForFences(_device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to wait fence\n");
+				OUTPUT_ERROR("Vulkan: Unable to wait fence\n");
 				vkDestroyFence(_device, fence, nullptr);
 				return false;
 			}
@@ -1812,23 +1814,23 @@ namespace HOD
 
 			if (vkResetFences(_device, 1, &_acquireNextImageFence) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to reset fence!\n");
+				OUTPUT_ERROR("Vulkan: Unable to reset fence!\n");
 				return false;
 			}
 
 			VkResult result = vkAcquireNextImageKHR(_device, _swapChain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, _acquireNextImageFence, &_currentImageIndex);
 			if (result != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to acquire next image!\n");
+				OUTPUT_ERROR("Vulkan: Unable to acquire next image!\n");
 
 				if (result == VK_ERROR_OUT_OF_DATE_KHR)
 				{
-					fprintf(stderr, "Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
+					OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
 					ResizeSwapChain();
 				}
 				else if (result == VK_SUBOPTIMAL_KHR)
 				{
-					fprintf(stderr, "Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
+					OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
 					ResizeSwapChain();
 				}
 
@@ -1837,7 +1839,7 @@ namespace HOD
 
 			if (vkWaitForFences(_device, 1, &_acquireNextImageFence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to wait fence\n");
+				OUTPUT_ERROR("Vulkan: Unable to wait fence\n");
 				return false;
 			}
 
@@ -1866,16 +1868,16 @@ namespace HOD
 			VkResult result = vkQueuePresentKHR(_presentQueue, &presentInfo);
 			if (result != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to present frame!\n");
+				OUTPUT_ERROR("Vulkan: Unable to present frame!\n");
 
 				if (result == VK_ERROR_OUT_OF_DATE_KHR)
 				{
-					fprintf(stderr, "Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
+					OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
 					ResizeSwapChain();
 				}
 				else if (result == VK_SUBOPTIMAL_KHR)
 				{
-					fprintf(stderr, "Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
+					OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
 					ResizeSwapChain();
 				}
 

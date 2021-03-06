@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include <Core/Src/Output.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -38,7 +40,7 @@ namespace HOD
 			unsigned char* buffer = stbi_load(path, &width, &height, &channel, 4);
 			if (buffer == nullptr)
 			{
-				fprintf(stderr, "Texture : Failed to load Texture \"%s\"\n", path);
+				OUTPUT_ERROR("Texture : Failed to load Texture \"%s\"\n", path);
 				return false; // Todo Memleak
 			}
 

@@ -7,6 +7,8 @@
 
 #include "spirv_cross.hpp"
 
+#include <Core/Src/Output.h>
+
 namespace HOD
 {
 	namespace RENDERER
@@ -298,7 +300,7 @@ namespace HOD
 
 			if (vkCreatePipelineLayout(renderer->GetVkDevice(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create pipeline layout!");
+				OUTPUT_ERROR("Vulkan: Unable to create pipeline layout!");
 				return false;
 			}
 
@@ -322,7 +324,7 @@ namespace HOD
 
 			if (vkCreateGraphicsPipelines(renderer->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to create graphics pipeline!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create graphics pipeline!\n");
 				return false;
 			}
 

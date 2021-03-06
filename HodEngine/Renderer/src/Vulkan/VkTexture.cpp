@@ -2,6 +2,8 @@
 
 #include "RendererVulkan.h"
 
+#include <Core/Src/Output.h>
+
 namespace HOD
 {
 	namespace RENDERER
@@ -148,7 +150,7 @@ namespace HOD
 
 			if (vkMapMemory(renderer->GetVkDevice(), bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Texture, unable to map memory\n");
+				OUTPUT_ERROR("Vulkan: Texture, unable to map memory\n");
 				goto exit;
 			}
 			memcpy(data, pixels, static_cast<size_t>(bufferSize));

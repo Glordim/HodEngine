@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include <Core/Src/Output.h>
+
 #include <iostream>
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -50,7 +52,7 @@ namespace HOD
 
 			if (fbxImporter->Initialize(path, -1, fbxManager->GetIOSettings()) == false)
 			{
-				fprintf(stderr, "Mesh load Fbx : FbxImporter::Initialize() failed.\nError returned: %s\n\n", fbxImporter->GetStatus().GetErrorString());
+				OUTPUT_ERROR("Mesh load Fbx : FbxImporter::Initialize() failed.\nError returned: %s\n\n", fbxImporter->GetStatus().GetErrorString());
 				return false;
 			}
 
@@ -69,7 +71,7 @@ namespace HOD
 			fbxsdk::FbxNode* fbxRootNode = fbxScene->GetRootNode();
 			if (fbxRootNode == nullptr)
 			{
-				fprintf(stderr, "Mesh load Fbx : empty\n");
+				OUTPUT_ERROR("Mesh load Fbx : empty\n");
 				return false;
 			}
 

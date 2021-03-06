@@ -5,6 +5,8 @@
 
 #include "RendererVulkan.h"
 
+#include <Core/Src/Output.h>
+
 namespace HOD
 {
 	namespace RENDERER
@@ -60,7 +62,7 @@ namespace HOD
 
 			if (vkAllocateDescriptorSets(renderer->GetVkDevice(), &allocInfo, &_descriptorSet) != VK_SUCCESS)
 			{
-				fprintf(stderr, "Vulkan: Unable to allocate descriptor sets!\n");
+				OUTPUT_ERROR("Vulkan: Unable to allocate descriptor sets!\n");
 				return false;
 			}
 
@@ -173,7 +175,7 @@ namespace HOD
 
 					if (member->_size != valueSize)
 					{
-						fprintf(stderr, "SetUboValue: member->size != valueSize !\n");
+						OUTPUT_ERROR("SetUboValue: member->size != valueSize !\n");
 					}
 
 					RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -182,7 +184,7 @@ namespace HOD
 
 					if (vkMapMemory(renderer->GetVkDevice(), _uboBufferMemories[i], 0, ubo._rootMember._size * ubo._rootMember._count, 0, &data) != VK_SUCCESS)
 					{
-						fprintf(stderr, "Vulkan: Unable to map ubo buffer memory!\n");
+						OUTPUT_ERROR("Vulkan: Unable to map ubo buffer memory!\n");
 						return;
 					}
 					memcpy(((char*)data) + offset, value, valueSize);

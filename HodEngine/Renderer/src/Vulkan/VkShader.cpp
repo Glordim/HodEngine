@@ -6,6 +6,8 @@
 
 #include "RendererVulkan.h"
 
+#include <Core/Src/Output.h>
+
 namespace HOD
 {
 	namespace RENDERER
@@ -39,7 +41,7 @@ namespace HOD
 			std::ifstream file(path, std::ios::ate | std::ios::binary);
 			if (file.is_open() == false)
 			{
-				fprintf(stderr, "VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
+				OUTPUT_ERROR("VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
 				return false;
 			}
 
@@ -61,7 +63,7 @@ namespace HOD
 
 			if (vkCreateShaderModule(renderer->GetVkDevice(), &createInfo, nullptr, &_shaderModule) != VK_SUCCESS)
 			{
-				fprintf(stderr, "VkShader : Failed to create Shader Module\n");
+				OUTPUT_ERROR("VkShader : Failed to create Shader Module\n");
 				return false;
 			}
 
