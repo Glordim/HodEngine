@@ -362,7 +362,18 @@ namespace HOD
 			(void)messageType;
 			(void)pUserData;
 
-			OUTPUT_ERROR("Validation Layer: %s\n", pCallbackData->pMessage);
+			if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+			{
+				OUTPUT_ERROR("Validation Layer: %s", pCallbackData->pMessage);
+			}
+			else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+			{
+				OUTPUT_WARNING("Validation Layer: %s", pCallbackData->pMessage);
+			}
+			else
+			{
+				OUTPUT_MESSAGE("Validation Layer: %s", pCallbackData->pMessage);
+			}
 
 			return VK_FALSE;
 		}
