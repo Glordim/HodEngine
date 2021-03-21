@@ -76,6 +76,19 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
+echo SDL...
+if not exist "./Build/rapidjson" (
+	echo Create rapidjson Build Dir
+	mkdir "./Build/rapidjson"
+)
+cmake -A x64 -B./Build/rapidjson ./rapidjson
+if %errorlevel% neq 0 (
+	echo Fail
+	pause
+	exit 1
+)
+echo Done
+echo *******
 echo PhysX...
 
 call PhysX\physx\generate_projects.bat vc19win64
@@ -156,6 +169,21 @@ if %errorlevel% neq 0 (
 	exit 1
 )
 cmake --build ./Build/tinyobjloader --config Debug
+if %errorlevel% neq 0 (
+	echo Fail
+	pause
+	exit 1
+)
+echo Done
+echo *******
+echo rapidjson...
+cmake --build ./Build/rapidjson --config Release
+if %errorlevel% neq 0 (
+	echo Fail
+	pause
+	exit 1
+)
+cmake --build ./Build/rapidjson --config Debug
 if %errorlevel% neq 0 (
 	echo Fail
 	pause

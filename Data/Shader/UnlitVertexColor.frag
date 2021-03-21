@@ -62,8 +62,12 @@ layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
 	mat4 model;
 } modelUbo;
 
+layout(set = 2, binding = 0) uniform MatUniformBufferObject {
+	vec4 color;
+} matUbo;
+
 void main()
 {
-	frag_color = vec4(color_out, 1.0f);
+	frag_color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 }
 

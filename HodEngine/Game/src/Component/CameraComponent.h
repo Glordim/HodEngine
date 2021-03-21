@@ -16,6 +16,7 @@ namespace HOD
 	{
 		class MaterialInstance;
 		class Texture;
+		class RenderQueue;
 	}
 
 	namespace GAME
@@ -47,6 +48,8 @@ namespace HOD
 			const glm::mat4&			GetProjectionMatrix();
 
 			void						SetHdriMaterial(RENDERER::MaterialInstance* hdriMat, RENDERER::Texture* hdriTexture);
+
+			void						PushToRenderQueue(RENDERER::RenderQueue* renderQueue = nullptr);
 
 		private:
 

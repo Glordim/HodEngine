@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Mesh.h"
+#include "RHI/Mesh.h"
 #include "Line_3P_3C.h"
 #include "Tri_3P_3C.h"
 #include "Light/DirLight.h"
@@ -13,14 +13,14 @@
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/mat4x4.hpp"
 
-#include "Renderer.h"
-
 namespace HOD
 {
 	namespace RENDERER
 	{
 		class MaterialInstance;
 		class MaterialInstance;
+
+		class RenderCommand;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -64,10 +64,12 @@ namespace HOD
 					, _materialInstance(materialInstance)
 					, _matrix(matrix)
 				{
+					/*
 					Renderer* renderer = Renderer::GetInstance();
 
 					_mesh = renderer->CreateMesh("");
 					_mesh->LoadFromLines(lines);
+					*/
 				}
 
 				~LineData()
@@ -93,10 +95,12 @@ namespace HOD
 					, _materialInstance(materialInstance)
 					, _matrix(matrix)
 				{
+					/*
 					Renderer* renderer = Renderer::GetInstance();
 
 					_mesh = renderer->CreateMesh("");
 					_mesh->LoadFromTriangles(triangles);
+					*/
 				}
 
 				~TriangleData()
@@ -220,7 +224,11 @@ namespace HOD
 				return _spotLightList;
 			}
 
+			void							PushRenderCommand(RenderCommand* renderCommand);
+			void							Execute();
+
 		private:
+
 			glm::mat4x4						_viewMatrix;
 			glm::mat4x4						_projMatrix;
 			glm::vec3						_cameraPos;
@@ -235,6 +243,8 @@ namespace HOD
 			std::vector<DirLightData*>		_dirLightList;
 			std::vector<PointLightData*>	_pointLightList;
 			std::vector<SpotLightData*>		_spotLightList;
+
+			std::vector<RenderCommand*>		_renderCommands;
 		};
 	}
 }

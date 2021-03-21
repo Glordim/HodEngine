@@ -8,7 +8,7 @@
 #include "../Scene.h"
 #include "StaticMeshComponent.h"
 
-#include <Renderer/src/Mesh.h>
+#include <Renderer/src/RHI/Mesh.h>
 
 #include <Physics/src/Actor.h>
 

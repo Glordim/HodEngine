@@ -8,9 +8,12 @@
 #include <Physics/src/Actor.h>
 #include <Physics/src/Scene.h>
 
-#include <Renderer/src/Shader.h>
-#include <Renderer/src/Material.h>
+#include <Renderer/src/RHI/Shader.h>
+#include <Renderer/src/RHI/Material.h>
 #include <Renderer/src/MaterialManager.h>
+
+#include <Renderer/src/Renderer.h>
+#include <Renderer/src/RenderQueue.h>
 
 #include <Renderer/src/Line_3P_3C.h>
 
@@ -174,6 +177,19 @@ namespace HOD
 			{
 				lines.push_back(line.first);
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Scene::PushToRenderQueue(RENDERER::RenderQueue* renderQueue)
+		{
+			if (renderQueue == nullptr)
+			{
+				renderQueue = RENDERER::Renderer::GetInstance()->GetRenderQueue();
+			}
+
+			_root->PushToRenderQueue(*renderQueue, true);
 		}
 	}
 }

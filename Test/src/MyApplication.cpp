@@ -3,13 +3,16 @@
 #include <HodEngine/Physics/src/Physics.h>
 #include <HodEngine/Physics/src/Actor.h>
 #include <HodEngine/Renderer/src/Renderer.h>
-#include <HodEngine/Renderer/src/Vulkan/RendererVulkan.h>
+#include <HodEngine/Renderer/src/RHI/Vulkan/RendererVulkan.h>
 #include <HodEngine/Renderer/src/GpuDeviceHelper.h>
 #include <HodEngine/Renderer/src/MaterialManager.h>
-#include <HodEngine/Renderer/src/Material.h>
-#include <HodEngine/Renderer/src/MaterialInstance.h>
-#include <HodEngine/Renderer/src/Texture.h>
-#include <HodEngine/Renderer/src/Mesh.h>
+#include <HodEngine/Renderer/src/RHI/Material.h>
+#include <HodEngine/Renderer/src/RHI/MaterialInstance.h>
+#include <HodEngine/Renderer/src/RHI/Texture.h>
+#include <HodEngine/Renderer/src/RHI/Mesh.h>
+#include <HodEngine/Renderer/src/RenderQueue.h>
+#include <HodEngine/Renderer/src/SpriteAtlas.h>
+#include <HodEngine/Renderer/src/Sprite.h>
 #include <HodEngine/Game/src/Debug/ActorDebugWindow.h>
 #include <HodEngine/Game/src/Game.h>
 #include <HodEngine/Game/src/Scene.h>
@@ -18,6 +21,7 @@
 #include <HodEngine/Game/src/Component/CameraComponent.h>
 #include <HodEngine/Game/src/Component/ColliderComponent.h>
 #include <HodEngine/Game/src/Component/StaticMeshComponent.h>
+#include <HodEngine/Game/src/Component/SpriteComponent.h>
 #include <HodEngine/Game/src/Component/Light/PointLightComponent.h>
 #include <HodEngine/Game/src/Component/Light/DirLightComponent.h>
 #include <HodEngine/Game/src/Component/Light/SpotLightComponent.h>
@@ -105,6 +109,30 @@ bool MyApplication::PreRun()
 		return false;
 	}
 
+	MaterialManager* materialManager = MaterialManager::GetInstance();
+
+	_scene = pGame->CreateScene();
+
+	FreeCam* freeCam = _scene->SpawnActor<FreeCam>("FreeCam");
+	{
+		SceneComponent* sceneComponent = freeCam->GetComponent<SceneComponent>();
+
+		sceneComponent->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		//sceneComponent->LookAt(sceneComponent->GetPosition(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		sceneComponent->SetParent(_scene->GetRoot());
+
+		//freeCam->setupInputListener(application.GetInputListenner());
+
+		SpotLightComponent* spotLightComponent = freeCam->AddComponent<SpotLightComponent>();
+		spotLightComponent->_data.radius = 15.0f;
+		spotLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
+		spotLightComponent->_data.intensity = 1.0f;
+		spotLightComponent->_data.outer = 10.0f;
+
+		//freeCam->GetComponent<GAME::CameraComponent>()->SetHdriMaterial(materialHdriInstance, hdriTexture);
+	}
+
+	/*
 	Mesh* sphereMesh = pRenderer->CreateMesh("Mesh/sphere.fbx");
 	if (sphereMesh == nullptr)
 	{
@@ -206,9 +234,6 @@ bool MyApplication::PreRun()
 	//{
 	//	return 1;
 	//}
-
-
-	MaterialManager* materialManager = MaterialManager::GetInstance();
 
 	Material* materialHdri = materialManager->GetMaterial("Hdri", false);
 	if (materialHdri == nullptr)
@@ -341,27 +366,6 @@ bool MyApplication::PreRun()
 	marbreMaterialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
 	marbreMaterialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(1.0f, 1.0f, 0.0f, 0.0f));
 
-	_scene = pGame->CreateScene();
-
-	FreeCam* freeCam = _scene->SpawnActor<FreeCam>("FreeCam");
-	{
-		SceneComponent* sceneComponent = freeCam->GetComponent<SceneComponent>();
-
-		sceneComponent->SetPosition(glm::vec3(0.0f, 10.0f, 9.0f));
-		sceneComponent->LookAt(sceneComponent->GetPosition(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		sceneComponent->SetParent(_scene->GetRoot());
-
-		//freeCam->setupInputListener(application.GetInputListenner());
-
-		SpotLightComponent* spotLightComponent = freeCam->AddComponent<SpotLightComponent>();
-		spotLightComponent->_data.radius = 15.0f;
-		spotLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
-		spotLightComponent->_data.intensity = 1.0f;
-		spotLightComponent->_data.outer = 10.0f;
-
-		freeCam->GetComponent<GAME::CameraComponent>()->SetHdriMaterial(materialHdriInstance, hdriTexture);
-	}
-
 	Actor* wall1 = _scene->SpawnActor<Actor>("wall1");
 	{
 		SceneComponent* sceneComponent = wall1->AddComponent<SceneComponent>();
@@ -473,6 +477,58 @@ bool MyApplication::PreRun()
 		ColliderComponent* colliderComponent = ground->AddComponent<ColliderComponent>();
 		colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
 	}
+	*/
+	Material* spriteMaterialUnlit = materialManager->GetMaterial("SpriteUnlitTextureColor");
+	if (spriteMaterialUnlit == nullptr)
+	{
+		return 1;
+	}
+
+	MaterialInstance* spriteMaterialUnlitInstance = pRenderer->CreateMaterialInstance(spriteMaterialUnlit);
+	if (spriteMaterialUnlitInstance == nullptr)
+	{
+		return 1;
+	}
+
+	SpriteAtlas* spriteAtlas = new SpriteAtlas(); // TODO SpriteAltasManager like to MaterialManager
+	spriteAtlas->LoadFromFile("Texture/Trampo/Trampo.json");
+
+	spriteMaterialUnlitInstance->SetVec4("matUbo.color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	//spriteMaterialUnlitInstance->SetTexture("textureSampler", *wallTexture);
+
+	Actor* sprite = _scene->SpawnActor<Actor>("sprite");
+	{
+		SceneComponent* sceneComponent = sprite->AddComponent<SceneComponent>();
+		sceneComponent->SetPosition(glm::vec3(0.1f, 0.1f, 0.0f));
+		sceneComponent->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		sceneComponent->SetParent(_scene->GetRoot());
+
+		SpriteComponent* spriteComponent = sprite->AddComponent<SpriteComponent>();
+		spriteComponent->SetMaterialInstance(spriteMaterialUnlitInstance);
+		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-2.png"));
+		//spriteComponent->SetMesh(wallMesh);
+		//staticMeshComponent->EnableDebugTangent(true);
+
+		//ColliderComponent* colliderComponent = ground->AddComponent<ColliderComponent>();
+		//colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
+	}
+
+	Actor* sprite2 = _scene->SpawnActor<Actor>("sprite2");
+	{
+		SceneComponent* sceneComponent = sprite2->AddComponent<SceneComponent>();
+		sceneComponent->SetPosition(glm::vec3(0.15f, 0.15f, 0.0f));
+		sceneComponent->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		sceneComponent->SetParent(_scene->GetRoot());
+
+		SpriteComponent* spriteComponent = sprite2->AddComponent<SpriteComponent>();
+		spriteComponent->SetMaterialInstance(spriteMaterialUnlitInstance);
+		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-2.png"));
+		//spriteComponent->SetMesh(wallMesh);
+		//staticMeshComponent->EnableDebugTangent(true);
+
+		//ColliderComponent* colliderComponent = ground->AddComponent<ColliderComponent>();
+		//colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
+	}
 
 	return true;
 }
@@ -490,14 +546,20 @@ bool MyApplication::Loop(float deltaTime)
 
 	glm::mat4 viewMatrix = glm::inverse(pCamera->GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
 	glm::mat4 projectionMatrix = pCamera->GetProjectionMatrix();
+	glm::vec4 viewport = glm::vec4(0, 1, 0, 1);
 
 	DEBUG_LAYER::DebugLayer::GetInstance()->SetCameraMatrice(viewMatrix, projectionMatrix);
-
 	DEBUG_LAYER::DebugLayer::GetInstance()->Draw();
 
 	ImGui::Render();
 
-	pCamera->Render(*_scene);
+	//pCamera->Render(*_scene);
+
+	RenderQueue* renderQueue = Renderer::GetInstance()->GetRenderQueue();
+	pCamera->PushToRenderQueue(renderQueue);
+	_scene->PushToRenderQueue(renderQueue);
+
+	renderQueue->Execute();
 
 	if (Renderer::GetInstance()->AcquireNextImageIndex() == true)
 	{

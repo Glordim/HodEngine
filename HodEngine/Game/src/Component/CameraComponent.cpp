@@ -1,5 +1,7 @@
 #include "CameraComponent.h"
 
+#include <Core/Src/Rect.h>
+
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/gtc/matrix_transform.hpp"
@@ -10,6 +12,7 @@
 
 #include <Renderer/src/Renderer.h>
 #include <Renderer/src/RenderQueue.h>
+#include <Renderer/src/RenderCommand/RenderCommandSetCameraSettings.h>
 #include "../RenderQueueHelper.h"
 
 #include <Application/src/Application.h>
@@ -25,9 +28,9 @@ namespace HOD
 			: Component(actor)
 			, _fov(60.0f)
 			, _aspect(1920.0f / 1080.0f)
-			, _near(0.01f)
-			, _far(1000.0f)
-			, _perspective(true)
+			, _near(-100.0f)
+			, _far(100.0f)
+			, _perspective(false)
 			, _dirtyFlag(true)
 			, _hdriMat(nullptr)
 			, _hdriTexture(nullptr)
@@ -112,6 +115,24 @@ namespace HOD
 
 			RENDERER::Renderer* renderer = RENDERER::Renderer::GetInstance();
 			renderer->SubmitRenderQueue(renderQueue);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void CameraComponent::PushToRenderQueue(RENDERER::RenderQueue* renderQueue)
+		{
+			if (renderQueue == nullptr)
+			{
+				renderQueue = RENDERER::Renderer::GetInstance()->GetRenderQueue();
+			}
+
+			CORE::Rect viewport;
+			viewport._position.x = 0;
+			viewport._position.y = 0;
+			viewport._size.x = 1.0f;
+			viewport._size.y = 1.0f;
+			renderQueue->PushRenderCommand(new RENDERER::RenderCommandSetCameraSettings(GetProjectionMatrix(), glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()), viewport));
 		}
 	}
 }

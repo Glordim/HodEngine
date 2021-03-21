@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 	// For Debug
 	if (APPLICATION::ScreenHelper::GetMonitorCount() > 1)
 	{
-		selectedMonitor = 1;
+		//selectedMonitor = 1;
 	}
 
 	APPLICATION::Resolution nativeResolution;

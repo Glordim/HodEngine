@@ -244,15 +244,15 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		size_t SceneComponent::GetChildCount() const
+		uint32_t SceneComponent::GetChildCount() const
 		{
-			return _childs.size();
+			return static_cast<uint32_t>(_childs.size());
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		SceneComponent* SceneComponent::GetChild(size_t index)
+		SceneComponent* SceneComponent::GetChild(uint32_t index)
 		{
 			return _childs[index];
 		}

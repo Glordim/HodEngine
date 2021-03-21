@@ -1,8 +1,7 @@
 #include "MaterialManager.h"
 
-#include "Shader.h"
-
-#include "Material.h"
+#include "RHI/Shader.h"
+#include "RHI/Material.h"
 
 #include "Renderer.h"
 
@@ -54,7 +53,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Material* MaterialManager::GetMaterial(const std::string& shaderName, bool useDepth)
+		Material* MaterialManager::GetMaterial(const std::string& shaderName, Material::Topololy topololy, bool useDepth)
 		{
 			auto it = _shaderNameToMaterialMap.find(shaderName);
 			if (it != _shaderNameToMaterialMap.end() && it->second != nullptr)
@@ -76,7 +75,7 @@ namespace HOD
 				return nullptr;
 			}
 
-			Material* material = renderer->CreateMaterial(vertexShader, fragmentShader, Material::Topololy::TRIANGLE, useDepth);
+			Material* material = renderer->CreateMaterial(vertexShader, fragmentShader, topololy, useDepth);
 			if (material == nullptr)
 			{
 				return nullptr;

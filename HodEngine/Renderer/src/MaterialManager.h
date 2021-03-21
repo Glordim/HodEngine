@@ -18,7 +18,7 @@ namespace HOD
 			static MaterialManager*						GetInstance();
 			static void									DestroyInstance();
 
-			Material*									GetMaterial(const std::string& shaderName, bool useDepth = true);
+			Material*									GetMaterial(const std::string& shaderName, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
 			void										DestroyMaterial(const std::string& shaderName);
 
 		private:

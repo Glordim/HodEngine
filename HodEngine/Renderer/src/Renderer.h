@@ -5,8 +5,10 @@
 
 #include "Debug/RendererDebugWindow.h"
 
-#include "Shader.h"
-#include "Material.h"
+#include "RHI/Shader.h"
+#include "RHI/Material.h"
+#include "RHI/Buffer.h"
+#include "RenderQueue.h"
 
 #include <Core/Src/Singleton.h>
 
@@ -22,6 +24,9 @@ namespace HOD
 		struct GpuDevice;
 		class RenderQueue;
 		class Mesh;
+		class Buffer;
+		class CommandBuffer;
+		class Material;
 		class MaterialInstance;
 		class Texture;
 
@@ -34,6 +39,17 @@ namespace HOD
 
 		public:
 
+			enum VisualizationMode
+			{
+				Normal = 0,
+				NormalWithWireframe,
+				Wireframe,
+				Overdraw,
+				Count
+			};
+
+		public:
+
 			Renderer();
 			virtual						~Renderer();
 
@@ -43,6 +59,8 @@ namespace HOD
 			virtual bool				Init(APPLICATION::Application* pApplication, bool enableValidationLayers) = 0;
 			virtual bool				SetupImGui() = 0;
 
+			RenderQueue*				GetRenderQueue();
+
 			virtual bool				GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;
 
 			virtual bool				BuildPipeline(GpuDevice* gpuDevice) = 0;
@@ -51,26 +69,40 @@ namespace HOD
 
 			virtual bool				AcquireNextImageIndex() = 0;
 			virtual bool				SubmitRenderQueue(RenderQueue& renderQueue) = 0;
+			virtual bool				SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount) = 0;
 
 			virtual bool				SwapBuffer() = 0;
 
-			virtual Mesh* CreateMesh(const std::string& path) = 0;
-			virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) = 0;
-			virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) = 0;
-			virtual MaterialInstance* CreateMaterialInstance(Material* material) = 0;
-			virtual Texture* CreateTexture(const std::string& path) = 0;
+			virtual CommandBuffer*		CreateCommandBuffer() = 0;
+			virtual Buffer*				CreateBuffer(Buffer::Usage usage) = 0;
+			virtual Mesh*				CreateMesh(const std::string& path) = 0;
+			virtual Shader*				CreateShader(const std::string& path, Shader::ShaderType type) = 0;
+			virtual Material*			CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) = 0;
+			virtual MaterialInstance*	CreateMaterialInstance(const Material* material) = 0;
+			virtual Texture*			CreateTexture(const std::string& path) = 0;
 
 			//Debug
 		public:
 
-			bool						GetVisualizationMode() const;
-			void						SetVisualizationMode(bool bVisualize3D);
+			VisualizationMode			GetVisualizationMode() const;
+			void						SetVisualizationMode(VisualizationMode visualizationMode);
+
+			MaterialInstance*			GetOverdrawMaterialInstance();
+			MaterialInstance*			GetWireframeMaterialInstance();
 
 		private:
 
-			bool						_bVisualize3D = true;
+			Material*					_overdrawnMaterial = nullptr;
+			MaterialInstance*			_overdrawnMaterialInstance = nullptr;
+
+			Material*					_wireframeMaterial = nullptr;
+			MaterialInstance*			_wireframeMaterialInstance = nullptr;
+
+			VisualizationMode			_visualizationMode = VisualizationMode::Normal;
 
 			RendererDebugWindow			_rendererDebugWindow;
+
+			RenderQueue					_renderQueue;
 		};
 	}
 }

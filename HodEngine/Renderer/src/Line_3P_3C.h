@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Mesh.h"
+#include "RHI/Mesh.h"
 
 namespace HOD
 {

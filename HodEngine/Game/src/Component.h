@@ -2,6 +2,11 @@
 
 namespace HOD
 {
+	namespace RENDERER
+	{
+		class RenderQueue;
+	}
+
 	namespace GAME
 	{
 		class Actor;
@@ -18,6 +23,7 @@ namespace HOD
 			Actor*				GetActor() const;
 			virtual const char*	GetType() const = 0;
 
+			virtual void		PushToRenderQueue(RENDERER::RenderQueue& renderQueue);
 			virtual void		DrawImGui() = 0;
 
 		protected:

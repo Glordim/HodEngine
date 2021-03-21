@@ -1,7 +1,7 @@
 #include "StaticMeshComponent.h"
 
-#include <Renderer/src/Material.h>
-#include <Renderer/src/Mesh.h>
+#include <Renderer/src/RHI/Material.h>
+#include <Renderer/src/RHI/Mesh.h>
 
 #include "../Actor.h"
 

@@ -5,7 +5,7 @@
 #include "../../Actor.h"
 #include "../StaticMeshComponent.h"
 
-#include <Renderer/src/MaterialInstance.h>
+#include <Renderer/src/RHI/MaterialInstance.h>
 
 namespace HOD
 {

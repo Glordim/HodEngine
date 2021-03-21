@@ -56,6 +56,8 @@ namespace HOD
 			PHYSICS::Actor*					GetPhysicActor() const;
 			void							SetPhysicActor(PHYSICS::Actor* physicActor);
 
+			void							PushToRenderQueue(RENDERER::RenderQueue& renderQueue, bool recursive);
+
 		protected:
 
 			std::string						_name;

@@ -36,8 +36,8 @@ namespace HOD
 
 		public:
 
-			size_t							GetChildCount() const;
-			SceneComponent*					GetChild(size_t index);
+			uint32_t						GetChildCount() const;
+			SceneComponent*					GetChild(uint32_t index);
 			void							SetParent(SceneComponent* parent);
 
 			void							LookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up);
@@ -56,11 +56,6 @@ namespace HOD
 			void							SetScale(glm::vec3 scale);
 			glm::vec3						GetScale() const;
 
-		public:
-
-			glm::vec3						_position;
-			glm::vec3						_scale;
-
 		private:
 
 			void							SyncPxActor();
@@ -70,6 +65,8 @@ namespace HOD
 			bool							_modelMatrixDirty;
 			glm::mat4						_modelMatrix;
 
+			glm::vec3						_position;
+			glm::vec3						_scale;
 			glm::quat						_rotation;
 
 			std::vector<SceneComponent*>	_childs;

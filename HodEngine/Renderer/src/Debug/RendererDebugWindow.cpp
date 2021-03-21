@@ -33,11 +33,19 @@ namespace HOD
 			{
 				Renderer* pRenderer = Renderer::GetInstance();
 
-				bool bVisualize3D = pRenderer->GetVisualizationMode();
+				Renderer::VisualizationMode visualizationMode = pRenderer->GetVisualizationMode();
 
-				if (ImGui::Checkbox("Visualize 3D", &bVisualize3D) == true)
+				const char* visualizationModeLabel[] = { "Normal", "Normal + Wireframe", "Wireframe", "Overdraw" };
+				if (ImGui::BeginCombo("VisualizationMode", visualizationModeLabel[visualizationMode]) == true)
 				{
-					pRenderer->SetVisualizationMode(bVisualize3D);
+					for (uint32_t visualizationModeIndex = 0; visualizationModeIndex < Renderer::VisualizationMode::Count; ++visualizationModeIndex)
+					{
+						if (ImGui::Selectable(visualizationModeLabel[visualizationModeIndex]) == true)
+						{
+							pRenderer->SetVisualizationMode(static_cast<Renderer::VisualizationMode>(visualizationModeIndex));
+						}
+					}
+					ImGui::EndCombo();
 				}
 			}
 			ImGui::End();

@@ -24,3 +24,6 @@
 [submodule "SDK/imgui"]
 	path = SDK/imgui
 	url = https://github.com/Glordim/imgui
+[submodule "SDK/rapidjson"]
+	path = SDK/rapidjson
+	url = https://github.com/Glordim/rapidjson

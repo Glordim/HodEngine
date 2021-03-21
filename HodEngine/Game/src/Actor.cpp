@@ -97,5 +97,40 @@ namespace HOD
 
 			return vComponents;
 		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Actor::PushToRenderQueue(RENDERER::RenderQueue& renderQueue, bool recursive)
+		{
+			auto it = _componentMapping.begin();
+			auto itEnd = _componentMapping.end();
+
+			SceneComponent* sceneComponent = nullptr;
+
+			while (it != itEnd)
+			{
+				it->second->PushToRenderQueue(renderQueue);
+				
+				if (it->first == typeid(SceneComponent).hash_code())
+				{
+					sceneComponent = static_cast<SceneComponent*>(it->second);
+				}
+
+				++it;
+			}
+
+			if (recursive == true)
+			{
+				if (sceneComponent != nullptr)
+				{
+					uint32_t childCount = sceneComponent->GetChildCount();
+					for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
+					{
+						sceneComponent->GetChild(childIndex)->GetActor()->PushToRenderQueue(renderQueue, recursive);
+					}
+				}
+			}
+		}
 	}
 }

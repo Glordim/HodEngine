@@ -68,6 +68,8 @@ namespace HOD
 			void												AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration);
 			void												GetDebugLines(std::vector<RENDERER::Line_3P_3C>& lines);
 
+			void												PushToRenderQueue(RENDERER::RenderQueue* renderQueue = nullptr);
+
 		private:
 
 			CORE::Color											_ambiantColor;

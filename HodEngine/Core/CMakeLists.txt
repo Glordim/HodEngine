@@ -23,7 +23,15 @@ file(GLOB_RECURSE Srcs
         )
 
 assign_source_group(${Srcs})
-		
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
+".."
+"../../SDK"
+"../../SDK/glm"
+)
 
 add_library(Core ${Srcs})
+
+target_link_libraries(Core
+optimized "../../../SDK/Build/glm/glm/Release/glm_static" debug "../../../SDK/Build/glm/glm/Debug/glm_static"
+)

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "GpuDevice.h"
+#include "RHI/GpuDevice.h"
 
 namespace HOD
 {
