@@ -80,7 +80,7 @@ namespace HOD
 			{
 				if (_overdrawnMaterial == nullptr)
 				{
-					_overdrawnMaterial = MaterialManager::GetInstance()->GetMaterial("SpriteOverdraw");
+					_overdrawnMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteOverdraw"));
 				}
 
 				_overdrawnMaterialInstance = CreateMaterialInstance(_overdrawnMaterial);
@@ -98,7 +98,7 @@ namespace HOD
 			{
 				if (_wireframeMaterial == nullptr)
 				{
-					_wireframeMaterial = MaterialManager::GetInstance()->GetMaterial("SpriteWireframe", Material::Topololy::TRIANGLE_LINE);
+					_wireframeMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::Topololy::TRIANGLE_LINE));
 				}
 
 				_wireframeMaterialInstance = CreateMaterialInstance(_wireframeMaterial);

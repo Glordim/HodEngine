@@ -6,35 +6,35 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<class T>
-		inline T* Singleton<T>::CreateInstance()
+		template<class T, class Tname>
+		inline Tname* Singleton<T, Tname>::CreateInstance()
 		{
-			if (T::_instance == nullptr)
+			if (Tname::_instance == nullptr)
 			{
-				T::_instance = new T();
+				Tname::_instance = (T*)new Tname();
 			}
-			return T::_instance;
+			return (Tname*)Tname::_instance;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<class T>
-		inline T* Singleton<T>::GetInstance()
+		template<class T, class Tname>
+		inline Tname* Singleton<T, Tname>::GetInstance()
 		{
-			return T::_instance;
+			return (Tname*)Tname::_instance;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<class T>
-		inline void Singleton<T>::DestroyInstance()
+		template<class T, class Tname>
+		inline void Singleton<T, Tname>::DestroyInstance()
 		{
-			if (T::_instance != nullptr)
+			if (Tname::_instance != nullptr)
 			{
-				delete T::_instance;
-				T::_instance = nullptr;
+				delete Tname::_instance;
+				Tname::_instance = nullptr;
 			}
 		}
 	}

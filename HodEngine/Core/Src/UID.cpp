@@ -1,5 +1,6 @@
 
 #include "UID.h"
+#include "Output.h"
 
 #include <Windows.h>
 #include <rpcdce.h>
@@ -39,15 +40,16 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		UID UID::GenerateUID()
 		{
-			UuidConverter uuid;
-			if (UuidCreate(&uuid.uuid) != RPC_S_OK)
+			UuidConverter uuidConverter;
+			if (UuidCreate(&uuidConverter.uuid) != RPC_S_OK)
 			{
+				OUTPUT_ERROR("Fail to generate UID");
 				return INVALID_UID;
 			}
 
 			UID uid;
-			uid._low = uuid.low;
-			uid._high = uuid.high;
+			uid._low = uuidConverter.low;
+			uid._high = uuidConverter.high;
 
 			return uid;
 		}
@@ -57,15 +59,16 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		UID UID::FromString(const char* uuidStr)
 		{
-			UuidConverter uuid;
-			if (UuidFromString((RPC_CSTR)uuidStr, &uuid.uuid) != RPC_S_OK)
+			UuidConverter uuidConverter;
+			if (UuidFromString((RPC_CSTR)uuidStr, &uuidConverter.uuid) != RPC_S_OK)
 			{
+				OUTPUT_ERROR("UID: Fail to generate UID from %s", uuidStr);
 				return INVALID_UID;
 			}
 
 			UID uid;
-			uid._low = uuid.low;
-			uid._high = uuid.high;
+			uid._low = uuidConverter.low;
+			uid._high = uuidConverter.high;
 
 			return uid;
 		}
@@ -75,13 +78,14 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		std::string UID::ToString() const
 		{
-			UuidConverter uuid;
-			uuid.low = _low;
-			uuid.high = _high;
+			UuidConverter uuidConverter;
+			uuidConverter.low = _low;
+			uuidConverter.high = _high;
 
 			RPC_CSTR stringTmp;
-			if (UuidToString(&uuid.uuid, &stringTmp) != RPC_S_OK)
+			if (UuidToString(&uuidConverter.uuid, &stringTmp) != RPC_S_OK)
 			{
+				OUTPUT_ERROR("UID: Fail to generate string from %ull - %ull", _low, _high);
 				return INVALID_UID.ToString();
 			}
 
