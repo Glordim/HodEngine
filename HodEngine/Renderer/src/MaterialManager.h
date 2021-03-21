@@ -3,6 +3,9 @@
 #include <string>
 #include <unordered_map>
 
+#include <Core/Src/GenericManager.h>
+#include <Core/Src/Singleton.h>
+
 namespace HOD
 {
 	namespace RENDERER
@@ -12,24 +15,19 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class MaterialManager
+		class MaterialManager : public CORE::GenericManager<Material>, public CORE::Singleton<CORE::GenericManager<Material>, MaterialManager>
 		{
-		public:
-			static MaterialManager*						GetInstance();
-			static void									DestroyInstance();
+			friend class CORE::Singleton<CORE::GenericManager<Material>, MaterialManager>;
 
-			Material*									GetMaterial(const std::string& shaderName, bool useDepth = true);
-			void										DestroyMaterial(const std::string& shaderName);
+		public:
+
+			CORE::UID									CreateMaterial(const std::string& shaderName, bool useDepth = true);
 
 		private:
 														MaterialManager();
 														MaterialManager(const MaterialManager& copy) = delete;
 			void										operator=(const MaterialManager& right) = delete;
 			virtual										~MaterialManager();
-
-			static MaterialManager*						_instance;
-
-			std::unordered_map<std::string, Material*>	_shaderNameToMaterialMap;
 		};
 	}
 }

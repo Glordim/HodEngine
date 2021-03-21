@@ -1,5 +1,6 @@
 #include "MyApplication.h"
 
+#include <HodEngine/Core/Src/UID.h>
 #include <HodEngine/Physics/src/Physics.h>
 #include <HodEngine/Physics/src/Actor.h>
 #include <HodEngine/Renderer/src/Renderer.h>
@@ -64,6 +65,8 @@ bool MyApplication::PreRun()
 	{
 		return false;
 	}
+
+	MaterialManager* materialManager = MaterialManager::CreateInstance();
 
 #ifdef NDEBUG
 	bool bEnableValidationLayer = false;
@@ -207,10 +210,9 @@ bool MyApplication::PreRun()
 	//	return 1;
 	//}
 
+	HOD::CORE::UID materialHdriUID = materialManager->CreateMaterial("Hdri", false);
+	Material* materialHdri = materialManager->GetData(materialHdriUID);
 
-	MaterialManager* materialManager = MaterialManager::GetInstance();
-
-	Material* materialHdri = materialManager->GetMaterial("Hdri", false);
 	if (materialHdri == nullptr)
 	{
 		return 1;
@@ -225,7 +227,8 @@ bool MyApplication::PreRun()
 	materialHdriInstance->SetTexture("textureSampler", *hdriTexture);
 	materialHdriInstance->SetFloat("exposure", 1.0f);
 
-	Material* materialLit = materialManager->GetMaterial("Lit");
+	HOD::CORE::UID materialLitUID = materialManager->CreateMaterial("Lit");
+	Material* materialLit = materialManager->GetData(materialLitUID);
 	if (materialLit == nullptr)
 	{
 		return 1;
@@ -239,7 +242,8 @@ bool MyApplication::PreRun()
 
 	materialLitInstance->SetTexture("textureSampler", *wallTexture);
 
-	Material* materialLitSpecular = materialManager->GetMaterial("LitSpecular");
+	HOD::CORE::UID materialLitSpecularUID = materialManager->CreateMaterial("LitSpecular");
+	Material* materialLitSpecular = materialManager->GetData(materialLitSpecularUID);
 	if (materialLitSpecular == nullptr)
 	{
 		return 1;
@@ -257,7 +261,8 @@ bool MyApplication::PreRun()
 	materialLitSpecularInstance->SetFloat("matUbo.specularStrength", 1.5f);
 	materialLitSpecularInstance->SetFloat("matUbo.shininess", 16.0f);
 
-	Material* materialLitSpecularNormal = materialManager->GetMaterial("LitSpecularNormal");
+	HOD::CORE::UID materialLitSpecularNormalUID = materialManager->CreateMaterial("LitSpecularNormal");
+	Material* materialLitSpecularNormal = materialManager->GetData(materialLitSpecularNormalUID);
 	if (materialLitSpecularNormal == nullptr)
 	{
 		return 1;
@@ -276,7 +281,8 @@ bool MyApplication::PreRun()
 	materialLitSpecularNormalInstance->SetFloat("matUbo.shininess", 16.0f);
 	materialLitSpecularNormalInstance->SetVec4("matUbo.tilingOffset", glm::vec4(1.0f, 1.0f, 0.0f, 0.0f));
 
-	Material* materialUnlit = materialManager->GetMaterial("UnlitColor");
+	HOD::CORE::UID materialUnlitUID = materialManager->CreateMaterial("UnlitColor");
+	Material* materialUnlit = materialManager->GetData(materialUnlitUID);
 	if (materialUnlit == nullptr)
 	{
 		return 1;
@@ -290,7 +296,8 @@ bool MyApplication::PreRun()
 
 	materialUnlitInstance->SetVec4("matUbo.color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-	Material* materialUnlitTexture = materialManager->GetMaterial("UnlitTexture");
+	HOD::CORE::UID materialUnlitTextureUID = materialManager->CreateMaterial("UnlitColor");
+	Material* materialUnlitTexture = materialManager->GetData(materialUnlitTextureUID);
 	if (materialUnlitTexture == nullptr)
 	{
 		return 1;

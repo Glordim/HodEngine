@@ -28,7 +28,7 @@ namespace HOD
 		template<typename T>
 		T* GenericManager<T>::GetData(const UID& uid) const
 		{
-			for (const std::pair<CORE::UID, char>& pair : _uidToDataMap)
+			for (const std::pair<CORE::UID, T*>& pair : _uidToDataMap)
 			{
 				if (pair.first == uid)
 				{

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Singleton.h"
 #include "UID.h"
 #include "Signal.h"
 #include <map>
@@ -13,7 +12,7 @@ namespace HOD
 		//! @brief		
 		//-----------------------------------------------------------------------------
 		template<typename T>
-		class GenericManager : public Singleton<GenericManager<T>>
+		class GenericManager
         {
 		public:
 

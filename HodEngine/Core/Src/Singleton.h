@@ -7,7 +7,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<class T>
+		template<class T, class Tname = T>
 		class Singleton
 		{
 		protected:
@@ -17,8 +17,8 @@ namespace HOD
 
 		public:
 
-			static T*		CreateInstance();
-			static T*		GetInstance();
+			static Tname*	CreateInstance();
+			static Tname*	GetInstance();
 			static void		DestroyInstance();
 
 		protected:
