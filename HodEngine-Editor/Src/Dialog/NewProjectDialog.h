@@ -1,27 +1,31 @@
 #pragma once
 
-#include <QDockWidget>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
-	class Contents;
+	class NewProjectDialog;
 }
 QT_END_NAMESPACE
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-class Contents : public QDockWidget
+class NewProjectDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-
-					Contents(QWidget* parent = nullptr);
-					~Contents();
+							NewProjectDialog(QWidget* parent = nullptr);
+							~NewProjectDialog();
 
 private:
 
-	Ui::Contents*	_ui;
+	bool					CreateProject();
+
+private:
+
+	Ui::NewProjectDialog*	_ui;
 };
+

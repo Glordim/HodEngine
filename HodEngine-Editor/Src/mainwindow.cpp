@@ -2,6 +2,8 @@
 #include "./ui_Mainwindow.h"
 
 #include "DockableWindow/Contents.h"
+#include "Dialog/NewProjectDialog.h"
+#include "Project.h"
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -26,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent)
 	RegisterDockableWindow<Contents>("Contents");
 
 	_ui->actionDefault->trigger();
+
+	Refresh();
 }
 
 //-----------------------------------------------------------------------------
@@ -41,7 +45,9 @@ MainWindow::~MainWindow()
 //-----------------------------------------------------------------------------
 void MainWindow::NewProject()
 {
-
+	// Todo check dirty for save
+	NewProjectDialog* newProjectDialog = new NewProjectDialog(this);
+	newProjectDialog->show();
 }
 
 //-----------------------------------------------------------------------------
@@ -65,7 +71,10 @@ void MainWindow::RecentsProject()
 //-----------------------------------------------------------------------------
 void MainWindow::SaveProject()
 {
-
+	if (_project->IsDirty() == true)
+	{
+		_project->SaveAtPath(_project->GetSavePath());
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -73,7 +82,12 @@ void MainWindow::SaveProject()
 //-----------------------------------------------------------------------------
 void MainWindow::CloseProject()
 {
+	// Todo check dirty for save
 
+	delete _project;
+	_project = nullptr;
+
+	Refresh();
 }
 
 //-----------------------------------------------------------------------------
@@ -100,4 +114,48 @@ void MainWindow::SetDefaultLayout()
 	Contents* contents = new Contents(this);
 	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, contents);
 	_dockWidgets.push_back(contents);
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void MainWindow::Refresh()
+{
+	bool projectOpened = (_project != nullptr);
+	
+	_ui->actionSave->setEnabled(projectOpened);
+	_ui->actionClose_project->setEnabled(projectOpened);
+
+	_ui->actionUndo->setEnabled(projectOpened);
+	_ui->actionRedo->setEnabled(projectOpened);
+	_ui->actionCut->setEnabled(projectOpened);
+	_ui->actionCopy->setEnabled(projectOpened);
+	_ui->actionPaste->setEnabled(projectOpened);
+	_ui->actionDelete->setEnabled(projectOpened);
+	_ui->actionSelect_all->setEnabled(projectOpened);
+
+	if (projectOpened == true)
+	{
+		setWindowTitle("HodEngine - " + _project->GetName());
+	}
+	else
+	{
+		setWindowTitle("HodEngine");
+	}
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+bool MainWindow::LoadProjectAtPath(const QString& projectFilePath)
+{
+	// Todo check dirty for save
+
+	_project = new Project();
+	if (_project->LoadFromFile(projectFilePath) == false)
+	{
+		return false;
+	}
+
+	Refresh();
 }

@@ -9,6 +9,8 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
+class Project;
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -17,8 +19,11 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
+
 							MainWindow(QWidget* parent = nullptr);
 							~MainWindow();
+
+	bool					LoadProjectAtPath(const QString& projectFilePath);
 
 private:
 
@@ -36,10 +41,14 @@ private:
 
 	void					SetDefaultLayout();
 
+	void					Refresh();
+
 private:
 
 	Ui::MainWindow*			_ui;
 	QVector<QDockWidget*>	_dockWidgets;
+
+	Project*				_project = nullptr;
 };
 
 #include "Mainwindow.inl"
