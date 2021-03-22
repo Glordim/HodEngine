@@ -1,3 +1,4 @@
+#include "Content.h"
 
 namespace HOD
 {
@@ -6,103 +7,88 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		Signal<Types...>::~Signal()
+		inline const UID& Content::GetUID() const
 		{
-			DisconnectAllSlots();
+			return _uid;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		void Signal<Types...>::Emit(Types... args)
+		inline const std::string& Content::GetName() const
 		{
-			for (Slot* slot : _slots)
-			{
-				slot->CallFunction(args...);
-			}
+			return _name;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		void Signal<Types...>::Connect(Slot& slot)
+		inline const std::string& Content::GetAssetPath() const
 		{
-			_slots.push_back(&slot);
+			return _assetPath;
+		}
+
+		inline bool Content::IsDirty() const
+		{
+			return _isDirty;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		void Signal<Types...>::Disconnect(Slot& slot)
+		inline void Content::RegisterAddDependency(typename AddDependencySignal::Slot& slot)
 		{
-			size_t slotCount = _slots.size();
-			for (int index = 0; index < slotCount; ++index)
-			{
-				Slot* currentSlot = _slots[index];
-				if (currentSlot == &slot)
-				{
-					currentSlot->_signal = nullptr;
-
-					std::iter_swap(_slots.begin() + index, _slots.end() - 1);
-					_slots.pop_back();
-				}
-			}
+			_addDependencySignal.Connect(slot);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		void Signal<Types...>::DisconnectAllSlots()
+		inline void Content::UnRegisterAddDependency(typename AddDependencySignal::Slot& slot)
 		{
-			for (Slot* slot : _slots)
-			{
-				slot->_signal = nullptr;
-			}
-			_slots.clear();
+			_addDependencySignal.Disconnect(slot);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		Signal<Types...>::Slot::Slot(std::function<void(Types...)> function)
+		inline void Content::RegisterRemoveDependency(typename RemoveDependencySignal::Slot& slot)
 		{
-			_function = function;
+			_removeDependencySignal.Connect(slot);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		void Signal<Types...>::Slot::Disconnect()
+		inline void Content::UnRegisterRemoveDependency(typename RemoveDependencySignal::Slot& slot)
 		{
-			if (_signal != nullptr)
-			{
-				_signal->Disconnect(*this);
-			}
+			_removeDependencySignal.Disconnect(slot);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		bool Signal<Types...>::Slot::IsConnected() const
+		inline void Content::SetName(const std::string& name)
 		{
-			return (_signal != nullptr);
+			_name = std::string(name);
+			SetDirty();
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		template<typename ...Types>
-		void Signal<Types...>::Slot::CallFunction(Types... args)
+		inline void Content::SetAssetPath(const std::string& assetPath)
 		{
-			_function(args...);
+			_assetPath = std::string(assetPath);
+			SetDirty();
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		inline void Content::SetDirty()
+		{
+			_isDirty = true;
 		}
 	}
 }
