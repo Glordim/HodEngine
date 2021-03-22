@@ -6,9 +6,9 @@
 //-----------------------------------------------------------------------------
 Contents::Contents(QWidget *parent)
 	: QDockWidget(parent)
-	, ui(new Ui::Contents)
+	, _ui(new Ui::Contents)
 {
-	ui->setupUi(this);
+	_ui->setupUi(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -16,5 +16,5 @@ Contents::Contents(QWidget *parent)
 //-----------------------------------------------------------------------------
 Contents::~Contents()
 {
-	delete ui;
+	delete _ui;
 }

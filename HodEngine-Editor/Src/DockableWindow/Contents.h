@@ -17,9 +17,9 @@ class Contents : public QDockWidget
 	Q_OBJECT
 
 public:
-	Contents(QWidget* parent = nullptr);
-	~Contents();
+					Contents(QWidget* parent = nullptr);
+					~Contents();
 
 private:
-	Ui::Contents* ui;
+	Ui::Contents*	_ui;
 };
