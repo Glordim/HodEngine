@@ -9,14 +9,37 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget* parent = nullptr);
-	~MainWindow();
+							MainWindow(QWidget* parent = nullptr);
+							~MainWindow();
 
 private:
-	Ui::MainWindow* ui;
+
+	template<typename __Type__>
+	void					RegisterDockableWindow(const char* label);
+
+	void					NewProject();
+	void					OpenProject();
+	void					RecentsProject();
+
+	void					SaveProject();
+	void					CloseProject();
+
+	void					Exit();
+
+	void					SetDefaultLayout();
+
+private:
+
+	Ui::MainWindow*			_ui;
+	QVector<QDockWidget*>	_dockWidgets;
 };
+
+#include "Mainwindow.inl"
