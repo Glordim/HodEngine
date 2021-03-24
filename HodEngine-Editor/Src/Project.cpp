@@ -35,6 +35,7 @@ bool Project::LoadFromFile(const QString& projectFilePath)
 	}
 
 	QByteArray saveData = file.readAll();
+	file.close();
 
 	QJsonDocument jsonDocument = QJsonDocument::fromJson(saveData);
 	QJsonObject root = jsonDocument.object();
@@ -62,6 +63,7 @@ bool Project::SaveAtPath(const QString& projectFilePath)
 	}
 
 	file.write(QJsonDocument(root).toJson());
+	file.close();
 
 	return true;
 }

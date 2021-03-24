@@ -6,8 +6,13 @@
 #include "Project.h"
 
 #include <QFileDialog>
-#include <QSettings>
+#include <QStandardPaths>
 #include <QMenu>
+
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -158,29 +163,37 @@ void MainWindow::Refresh()
 		setWindowTitle("HodEngine");
 	}
 
-	QSettings mySettings(QSettings::Scope::UserScope, "HodEngine", "HodEngine-Editor");
-	int size = mySettings.beginReadArray("Recents");
-	
-	_ui->menuRecent->setEnabled(size != 0);
-	_ui->menuRecent->clear();
+	QString userPreferencesPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
 
-	for (int i = 0; i < size; ++i)
+	QFile file(userPreferencesPath);
+	if (file.open(QIODevice::ReadOnly) == true)
 	{
-		mySettings.setArrayIndex(i);
-		QString projectPath = mySettings.value("path").toString();
+		QByteArray saveData = file.readAll();
+		file.close();
 
-		QFile file(projectPath);
-		if (file.exists() == true)
+		QJsonDocument jsonDocument = QJsonDocument::fromJson(saveData);
+		QJsonObject root = jsonDocument.object();
+		QJsonArray recentsArray = root["Recents"].toArray();
+
+		_ui->menuRecent->setEnabled(recentsArray.size());
+		_ui->menuRecent->clear();
+
+		for (qsizetype i = 0; i < recentsArray.size(); ++i)
 		{
-			QAction* action = _ui->menuRecent->addAction(file.fileName(), [this, projectPath]()
-			{
-				LoadProjectAtPath(projectPath);
-			});
+			QString projectPath = recentsArray[i].toString();
 
-			action->setToolTip(projectPath);
+			QFile file(projectPath);
+			if (file.exists() == true)
+			{
+				QAction* action = _ui->menuRecent->addAction(file.fileName(), [this, projectPath]()
+				{
+					LoadProjectAtPath(projectPath);
+				});
+
+				action->setToolTip(projectPath);
+			}
 		}
 	}
-	mySettings.endArray();
 }
 
 //-----------------------------------------------------------------------------
@@ -190,6 +203,8 @@ bool MainWindow::LoadProjectAtPath(const QString& projectFilePath)
 {
 	// Todo check dirty for save
 
+	CloseProject();
+
 	_project = new Project();
 	if (_project->LoadFromFile(projectFilePath) == false)
 	{
@@ -198,15 +213,38 @@ bool MainWindow::LoadProjectAtPath(const QString& projectFilePath)
 
 	QList<QAction*> actions = _ui->menuRecent->actions();
 
-	QSettings mySettings(QSettings::Scope::UserScope, "HodEngine", "HodEngine-Editor");
-	mySettings.beginWriteArray("Recents");
-	for (int i = 0; i < actions.size(); ++i)
+	QString userPreferencesPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+
+	QJsonObject root;
+	QJsonArray recentsArray;
+	recentsArray.append(projectFilePath);
+	for (qsizetype i = 0; i < actions.size() && i < 5; ++i)
 	{
-		mySettings.setArrayIndex(i);
-		mySettings.setValue("path", actions[i]->toolTip());
+		QString projectPath = actions[i]->toolTip();
+
+		bool alreadyExist = false;
+		for (qsizetype j = 0; j < recentsArray.size(); ++j)
+		{
+			if (recentsArray[j].toString() == projectPath)
+			{
+				alreadyExist = true;
+				break;
+			}
+		}
+
+		if (alreadyExist == false)
+		{
+			recentsArray.append(actions[i]->toolTip());
+		}
 	}
-	mySettings.endArray();
-	mySettings.sync();
+	root["Recents"] = recentsArray;
+
+	QFile file(userPreferencesPath);
+	if (file.open(QIODevice::WriteOnly) == true)
+	{
+		file.write(QJsonDocument(root).toJson());
+		file.close();
+	}
 
 	Refresh();
 }
