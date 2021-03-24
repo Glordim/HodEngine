@@ -4,6 +4,8 @@
 #include "../Project.h"
 #include "../Mainwindow.h"
 
+#include <QFileDialog>
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -13,6 +15,7 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
 {
 	_ui->setupUi(this);
 
+	QObject::connect(_ui->pushButton, &QPushButton::clicked, this, &NewProjectDialog::OpenFileBrowser);
 	QObject::connect(_ui->okButton, &QPushButton::clicked, this, &NewProjectDialog::CreateProject);
 }
 
@@ -27,11 +30,20 @@ NewProjectDialog::~NewProjectDialog()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
+void NewProjectDialog::OpenFileBrowser()
+{
+	_ui->lineEdit_2->setText(QFileDialog::getExistingDirectory(this));
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 bool NewProjectDialog::CreateProject()
 {
 	Project project;
 	project.SetName(_ui->lineEdit->text());
 	project.SaveAtPath(_ui->lineEdit_2->text() + "/" + project.GetName() + ".hod");
+	QDir(_ui->lineEdit_2->text()).mkdir("Contents");
 
 	// Hum parent ? Prefer a MainWindow Singleton
 	if (static_cast<MainWindow*>(parentWidget())->LoadProjectAtPath(project.GetSavePath()) == false)

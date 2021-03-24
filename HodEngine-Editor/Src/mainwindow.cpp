@@ -5,6 +5,10 @@
 #include "Dialog/NewProjectDialog.h"
 #include "Project.h"
 
+#include <QFileDialog>
+#include <QSettings>
+#include <QMenu>
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -16,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 	QObject::connect(_ui->actionNew_project, &QAction::triggered, this, &MainWindow::NewProject);
 	QObject::connect(_ui->actionOpen_project, &QAction::triggered, this, &MainWindow::OpenProject);
-	QObject::connect(_ui->actionRecent, &QAction::triggered, this, &MainWindow::RecentsProject);
 
 	QObject::connect(_ui->actionSave, &QAction::triggered, this, &MainWindow::SaveProject);
 	QObject::connect(_ui->actionClose_project, &QAction::triggered, this, &MainWindow::CloseProject);
@@ -55,7 +58,12 @@ void MainWindow::NewProject()
 //-----------------------------------------------------------------------------
 void MainWindow::OpenProject()
 {
+	QString projectFilePath = QFileDialog::getOpenFileName(this, QString(), QString(), "*.hod");
 
+	if (projectFilePath.isEmpty() == false)
+	{
+		LoadProjectAtPath(projectFilePath);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -112,6 +120,8 @@ void MainWindow::SetDefaultLayout()
 	_dockWidgets.clear();
 
 	Contents* contents = new Contents(this);
+	bool projectOpened = (_project != nullptr);
+	contents->setEnabled(projectOpened);
 	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, contents);
 	_dockWidgets.push_back(contents);
 }
@@ -134,6 +144,11 @@ void MainWindow::Refresh()
 	_ui->actionDelete->setEnabled(projectOpened);
 	_ui->actionSelect_all->setEnabled(projectOpened);
 
+	for (QDockWidget* dockWidget : _dockWidgets)
+	{
+		dockWidget->setEnabled(projectOpened);
+	}
+
 	if (projectOpened == true)
 	{
 		setWindowTitle("HodEngine - " + _project->GetName());
@@ -142,6 +157,30 @@ void MainWindow::Refresh()
 	{
 		setWindowTitle("HodEngine");
 	}
+
+	QSettings mySettings(QSettings::Scope::UserScope, "HodEngine", "HodEngine-Editor");
+	int size = mySettings.beginReadArray("Recents");
+	
+	_ui->menuRecent->setEnabled(size != 0);
+	_ui->menuRecent->clear();
+
+	for (int i = 0; i < size; ++i)
+	{
+		mySettings.setArrayIndex(i);
+		QString projectPath = mySettings.value("path").toString();
+
+		QFile file(projectPath);
+		if (file.exists() == true)
+		{
+			QAction* action = _ui->menuRecent->addAction(file.fileName(), [this, projectPath]()
+			{
+				LoadProjectAtPath(projectPath);
+			});
+
+			action->setToolTip(projectPath);
+		}
+	}
+	mySettings.endArray();
 }
 
 //-----------------------------------------------------------------------------
@@ -156,6 +195,18 @@ bool MainWindow::LoadProjectAtPath(const QString& projectFilePath)
 	{
 		return false;
 	}
+
+	QList<QAction*> actions = _ui->menuRecent->actions();
+
+	QSettings mySettings(QSettings::Scope::UserScope, "HodEngine", "HodEngine-Editor");
+	mySettings.beginWriteArray("Recents");
+	for (int i = 0; i < actions.size(); ++i)
+	{
+		mySettings.setArrayIndex(i);
+		mySettings.setValue("path", actions[i]->toolTip());
+	}
+	mySettings.endArray();
+	mySettings.sync();
 
 	Refresh();
 }
