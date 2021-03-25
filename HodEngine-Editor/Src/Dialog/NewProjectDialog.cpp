@@ -5,6 +5,7 @@
 #include "../Mainwindow.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -15,8 +16,7 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
 {
 	_ui->setupUi(this);
 
-	QObject::connect(_ui->pushButton, &QPushButton::clicked, this, &NewProjectDialog::OpenFileBrowser);
-	QObject::connect(_ui->okButton, &QPushButton::clicked, this, &NewProjectDialog::CreateProject);
+	QObject::connect(_ui->formLocationBrowseButton, &QToolButton::clicked, this, &NewProjectDialog::OpenFileBrowser);
 }
 
 //-----------------------------------------------------------------------------
@@ -32,25 +32,35 @@ NewProjectDialog::~NewProjectDialog()
 //-----------------------------------------------------------------------------
 void NewProjectDialog::OpenFileBrowser()
 {
-	_ui->lineEdit_2->setText(QFileDialog::getExistingDirectory(this));
+	_ui->formLocationLineEdit->setText(QFileDialog::getExistingDirectory(this));
 }
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-bool NewProjectDialog::CreateProject()
+void NewProjectDialog::accept()
 {
-	Project project;
-	project.SetName(_ui->lineEdit->text());
-	project.SaveAtPath(_ui->lineEdit_2->text() + "/" + project.GetName() + ".hod");
-	QDir(_ui->lineEdit_2->text()).mkdir("Contents");
-
-	// Hum parent ? Prefer a MainWindow Singleton
-	if (static_cast<MainWindow*>(parentWidget())->LoadProjectAtPath(project.GetSavePath()) == false)
+	QString name = _ui->formNameLineEdit->text();
+	if (name.isEmpty() == true)
 	{
-		return false;
+		QMessageBox::critical(this, "New Project", "Please enter a valid project Name");
+		return;
 	}
 
-	close();
-	return true;
+	QString location = _ui->formLocationLineEdit->text();
+	if (location.isEmpty() == true)
+	{
+		QMessageBox::critical(this, "New Project", "Please enter a valid project Location");
+		return;
+	}
+
+	if (Project::CreateOnDisk(name, location) == true)
+	{
+		close();
+
+		QString projectFilePath = location + "/" + name + ".hod";
+
+		// Hum parent ? Prefer a MainWindow Singleton
+		static_cast<MainWindow*>(parentWidget())->LoadProjectAtPath(projectFilePath);
+	}
 }

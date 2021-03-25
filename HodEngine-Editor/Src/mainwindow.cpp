@@ -45,6 +45,11 @@ MainWindow::MainWindow(QWidget *parent)
 //-----------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
+	if (_project != nullptr)
+	{
+		delete _project;
+	}
+
 	delete _ui;
 }
 

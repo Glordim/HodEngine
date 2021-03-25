@@ -9,8 +9,15 @@ class Project
 {
 public:
 
-					Project();
-					~Project();
+					Project() = default;
+					Project(const Project&) = delete;
+					Project(Project&&) = delete;
+					~Project() = default;
+
+	void			operator=(const Project&) = delete;
+	void			operator=(Project&&) = delete;
+
+public:
 
 	bool			LoadFromFile(const QString& projectFilePath);
 	bool			SaveAtPath(const QString& projectFilePath);
@@ -21,6 +28,10 @@ public:
 	const QString&	GetName() const;
 	void			SetName(const QString& name);
 
+public:
+
+	static bool		CreateOnDisk(const QString& name, const QString& location);
+
 private:
 
 	QString			_name;
@@ -28,3 +39,5 @@ private:
 
 	bool			_isDirty = false;
 };
+
+#include "Project.inl"

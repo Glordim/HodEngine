@@ -21,7 +21,14 @@ class MainWindow : public QMainWindow
 public:
 
 							MainWindow(QWidget* parent = nullptr);
-							~MainWindow();
+							MainWindow(const MainWindow&) = delete;
+							MainWindow(MainWindow&&) = delete;
+							~MainWindow() override;
+
+	void					operator=(const MainWindow&) = delete;
+	void					operator=(MainWindow&&) = delete;
+
+public:
 
 	bool					LoadProjectAtPath(const QString& projectFilePath);
 

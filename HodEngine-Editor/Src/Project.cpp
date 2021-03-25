@@ -1,24 +1,11 @@
 
 #include "Project.h"
 
+#include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-Project::Project()
-{
-
-}
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-Project::~Project()
-{
-}
+#include <QMessageBox>
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -71,32 +58,28 @@ bool Project::SaveAtPath(const QString& projectFilePath)
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-const QString& Project::GetSavePath() const
+bool Project::CreateOnDisk(const QString& name, const QString& location)
 {
-	return _filePath;
-}
+	QDir dir(location);
+	if (dir.exists() == false)
+	{
+		QMessageBox::critical(nullptr, "Project", "Unable to create project\n'" + dir.path() + "' directory does'nt exist");
+		return false;
+	}
 
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-bool Project::IsDirty() const
-{
-	return _isDirty;
-}
+	Project project;
+	project.SetName(name);
+	if (project.SaveAtPath(dir.path() + "/" + name + ".hod") == false)
+	{
+		QMessageBox::critical(nullptr, "Project", "Unable to create project file\nPath : '" + project.GetSavePath() + "'");
+		return false;
+	}
 
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-const QString& Project::GetName() const
-{
-	return _name;
-}
+	if (dir.mkdir("Contents") == false)
+	{
+		QMessageBox::critical(nullptr, "Project", "Unable to create 'Contents' directory\nPath : '" + dir.path() + "'");
+		return false;
+	}
 
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-void Project::SetName(const QString& name)
-{
-	_name = name;
-	_isDirty = true;
+	return true;
 }
