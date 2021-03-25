@@ -29,10 +29,10 @@ private:
 
 	template<typename __Type__>
 	void					RegisterDockableWindow(const char* label);
+	void					AddDocakbleWindow(QDockWidget* dockWidget);
 
 	void					NewProject();
 	void					OpenProject();
-	void					RecentsProject();
 
 	void					SaveProject();
 	void					CloseProject();

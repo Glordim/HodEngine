@@ -74,14 +74,6 @@ void MainWindow::OpenProject()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void MainWindow::RecentsProject()
-{
-
-}
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
 void MainWindow::SaveProject()
 {
 	if (_project->IsDirty() == true)
@@ -115,6 +107,17 @@ void MainWindow::Exit()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
+void MainWindow::AddDocakbleWindow(QDockWidget* dockWidget)
+{
+	bool projectOpened = (_project != nullptr);
+	dockWidget->setEnabled(projectOpened);
+	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, dockWidget);
+	_dockWidgets.push_back(dockWidget);
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 void MainWindow::SetDefaultLayout()
 {
 	for (QDockWidget* dockWidget : _dockWidgets)
@@ -125,10 +128,7 @@ void MainWindow::SetDefaultLayout()
 	_dockWidgets.clear();
 
 	Contents* contents = new Contents(this);
-	bool projectOpened = (_project != nullptr);
-	contents->setEnabled(projectOpened);
-	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, contents);
-	_dockWidgets.push_back(contents);
+	AddDocakbleWindow(contents);
 }
 
 //-----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ void MainWindow::Refresh()
 		QJsonObject root = jsonDocument.object();
 		QJsonArray recentsArray = root["Recents"].toArray();
 
-		_ui->menuRecent->setEnabled(recentsArray.size());
+		_ui->menuRecent->setEnabled(recentsArray.size() > 0);
 		_ui->menuRecent->clear();
 
 		for (qsizetype i = 0; i < recentsArray.size(); ++i)
@@ -193,6 +193,10 @@ void MainWindow::Refresh()
 				action->setToolTip(projectPath);
 			}
 		}
+	}
+	else
+	{
+		_ui->menuRecent->setEnabled(false);
 	}
 }
 
@@ -247,4 +251,6 @@ bool MainWindow::LoadProjectAtPath(const QString& projectFilePath)
 	}
 
 	Refresh();
+
+	return true;
 }
