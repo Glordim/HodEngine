@@ -1,5 +1,7 @@
 
 #include "Mainwindow.h"
+#include "ContentDatabase.h"
+
 
 #include <QApplication>
 
@@ -9,6 +11,9 @@ int main(int argc, char *argv[])
 
 	MainWindow mainWindow;
 	mainWindow.show();
+	/*
+	ContentDataBase base;
+	base.GenerateContentFolder();*/
 
 	return application.exec();
 }
