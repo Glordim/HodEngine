@@ -1,39 +1,32 @@
-﻿
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-inline const QString& Project::GetSavePath() const
+inline bool UID::IsValid() const
 {
-	return _filePath;
-}
-
-inline const QString& Project::GetContentsFolderPath() const
-{
-	return _filePath + "/Contents/";
-    // TODO: insérer une instruction return ici
+	return (*this != INVALID_UID);
 }
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-inline bool Project::IsDirty() const
+inline bool UID::Compare(const UID& other) const
 {
-	return _isDirty;
+	return (_low == other._low && _high == other._high);
 }
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-inline const QString& Project::GetName() const
+inline bool operator==(const UID& left, const UID& right)
 {
-	return _name;
+	return left.Compare(right);
 }
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-inline void Project::SetName(const QString& name)
+inline bool operator!=(const UID& left, const UID& right)
 {
-	_name = name;
-	_isDirty = true;
+	return (left.Compare(right) == false);
 }

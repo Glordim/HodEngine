@@ -224,6 +224,8 @@ bool MainWindow::LoadProjectAtPath(const QString& projectFilePath)
 		return false;
 	}
 
+	Project::SetCurrentProjet(_project);
+
 	QList<QAction*> actions = _ui->menuRecent->actions();
 
 	QString userPreferencesPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);

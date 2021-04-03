@@ -7,6 +7,13 @@
 #include <QJsonObject>
 #include <QMessageBox>
 
+#include <filesystem>
+
+Project* Project::_currentPojet = nullptr;
+Project::LoadProjectSignal Project::_loadProjectSignal;
+Project::UnLoadProjectSignal Project::_unloadProjectSignal;
+
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -82,4 +89,51 @@ bool Project::CreateOnDisk(const QString& name, const QString& location)
 	}
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+Project* Project::GetCurrentProjet()
+{
+	return _currentPojet;
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void Project::SetCurrentProjet(Project* project)
+{
+	_currentPojet = project;
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void Project::RegisterLoadProject(typename LoadProjectSignal::Slot& slot)
+{
+	_loadProjectSignal.Connect(slot);
+}
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void Project::UnRegisterLoadProject(typename LoadProjectSignal::Slot& slot)
+{
+	_loadProjectSignal.Disconnect(slot);
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void Project::RegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot)
+{
+	_unloadProjectSignal.Connect(slot);
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void Project::UnRegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot)
+{
+	_unloadProjectSignal.Disconnect(slot);
 }

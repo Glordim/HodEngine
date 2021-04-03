@@ -18,8 +18,13 @@ class Contents : public QDockWidget
 
 public:
 
-					Contents(QWidget* parent = nullptr);
-					~Contents();
+							Contents(QWidget* parent = nullptr);
+							~Contents();
+
+private:
+
+	void					CustomMenuRequested(const QPoint& position);
+	void					CustomMenuActionrequested();
 
 private:
 
