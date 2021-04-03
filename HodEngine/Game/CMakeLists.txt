@@ -52,8 +52,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 ".."
 "../../SDK/SDL/include"
 "../../SDK/glm"
+"../../SDK/rapidjson/include"
 )
-		
+
 add_library(Game ${Srcs})
 
 add_dependencies(Game Core DebugLayer ImGui Application Physics Renderer)

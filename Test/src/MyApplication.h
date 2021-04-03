@@ -4,6 +4,11 @@
 
 namespace HOD
 {
+	namespace CORE
+	{
+		class UID;
+	}
+
 	namespace GAME
 	{
 		class Scene;
@@ -22,6 +27,8 @@ protected:
 	bool				PreRun() override;
 	bool				Loop(float deltaTime) override;
 	bool				PostRun() override;
+
+	bool				LoadStartingScene(const HOD::CORE::UID& startingSceneUid) override;
 
 private:
 

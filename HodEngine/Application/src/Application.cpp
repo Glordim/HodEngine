@@ -3,6 +3,7 @@
 #include "VideoSettings.h"
 
 #include <Core/Src/Output.h>
+#include <Core/Src/UID.h>
 
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/imgui_impl_sdl.h>
@@ -50,8 +51,13 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Application::Init()
+		bool Application::Init(int argc, char** argv)
 		{
+			if (argc > 1)
+			{
+				//MessageBox(NULL, "Attach debugger ?", "AttachMe", MB_OK);
+			}
+
 			if (SDL_Init(SDL_INIT_VIDEO) != 0)
 			{
 				OUTPUT_ERROR("SDL: Unable to initialize SDL: %s", SDL_GetError());
@@ -69,7 +75,43 @@ namespace HOD
 			ImGui::StyleColorsDark();
 			//ImGui::StyleColorsClassic();
 
+			if (argc >= 3)
+			{
+				if (strcmp(argv[1], "-Editor") == 0)
+				{
+					_parentHwnd = (HWND)atoll(argv[2]);
+				}
+				if (strcmp(argv[3], "-Port") == 0)
+				{
+					_editorPort = atoi(argv[4]);
+				}
+			}
+
 			return true;
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		bool Application::IsRunningInEditor() const
+		{
+			return _parentHwnd != 0;
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		uint16_t Application::GetEditorPort() const
+		{
+			return _editorPort;
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void* Application::GetHwnd() const
+		{
+			return _hwnd;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -79,22 +121,42 @@ namespace HOD
 		{
 			Uint32 flags = 0;
 
-			if (videoSettings.fullscreenMode == FullscreenMode::FullscreenWindowed)
+			Uint32 posX;
+			Uint32 posY;
+			Uint32 width;
+			Uint32 height;
+
+			if (IsRunningInEditor() == true)
 			{
-				flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+				posX = 0;
+				posY = 0;
+				width = 2;
+				height = 2;
 			}
-			else if (videoSettings.fullscreenMode == FullscreenMode::Fullscreen)
+			else
 			{
-				flags |= SDL_WINDOW_FULLSCREEN;
+				posX = SDL_WINDOWPOS_CENTERED_DISPLAY((int)videoSettings.monitor);
+				posY = SDL_WINDOWPOS_CENTERED_DISPLAY((int)videoSettings.monitor);
+				width = videoSettings.resolution.width;
+				height = videoSettings.resolution.height;
+
+				if (videoSettings.fullscreenMode == FullscreenMode::FullscreenWindowed)
+				{
+					flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+				}
+				else if (videoSettings.fullscreenMode == FullscreenMode::Fullscreen)
+				{
+					flags |= SDL_WINDOW_FULLSCREEN;
+				}
 			}
 
 			flags |= SDL_WINDOW_VULKAN;
 
 			_window = SDL_CreateWindow("Toto",
-				SDL_WINDOWPOS_CENTERED_DISPLAY((int)videoSettings.monitor),
-				SDL_WINDOWPOS_CENTERED_DISPLAY((int)videoSettings.monitor),
-				(int)videoSettings.resolution.width,
-				(int)videoSettings.resolution.height,
+				posX,
+				posY,
+				width,
+				height,
 				flags);
 
 			if (_window == nullptr)
@@ -102,6 +164,16 @@ namespace HOD
 				OUTPUT_ERROR("SDL: Unable to create Window: %s", SDL_GetError());
 				return false;
 			}
+
+			SDL_SysWMinfo wmInfo;
+			SDL_VERSION(&wmInfo.version);
+			if (SDL_GetWindowWMInfo(_window, &wmInfo) == SDL_FALSE)
+			{
+				OUTPUT_ERROR("SDL: Unable to get native Window instance!\n");
+				return nullptr;
+			}
+
+			_hwnd = wmInfo.info.win.window;
 
 			ImGui_ImplSDL2_InitForVulkan(_window);
 
@@ -111,12 +183,14 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Application::Run()
+		bool Application::Run(const CORE::UID& startingSceneUid)
 		{
 			if (PreRun() == false)
 			{
 				return 1;
 			}
+
+			LoadStartingScene(startingSceneUid);
 
 			float dt = 0.0f;
 			Uint32 lastTicks = SDL_GetTicks();
@@ -162,22 +236,6 @@ namespace HOD
 			}
 
 			return true;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void* Application::GetHwnd()
-		{
-			SDL_SysWMinfo wmInfo;
-			SDL_VERSION(&wmInfo.version);
-			if (SDL_GetWindowWMInfo(_window, &wmInfo) == SDL_FALSE)
-			{
-				OUTPUT_ERROR("SDL: Unable to get native Window instance!\n");
-				return nullptr;
-			}
-
-			return wmInfo.info.win.window;
 		}
 
 		//-----------------------------------------------------------------------------

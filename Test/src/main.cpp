@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 {
 	MyApplication app;
 
-	if (app.Init() == false)
+	if (app.Init(argc, argv) == false)
 	{
 		return false;
 	}
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	if (app.Run() == false)
+	if (app.Run(CORE::UID::INVALID_UID) == false)
 	{
 		return 1;
 	}

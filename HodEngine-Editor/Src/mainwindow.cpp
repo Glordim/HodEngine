@@ -2,6 +2,7 @@
 #include "./ui_Mainwindow.h"
 
 #include "DockableWindow/Contents.h"
+#include "DockableWindow/Viewport.h"
 #include "Dialog/NewProjectDialog.h"
 #include "Project.h"
 
@@ -134,6 +135,9 @@ void MainWindow::SetDefaultLayout()
 
 	Contents* contents = new Contents(this);
 	AddDocakbleWindow(contents);
+
+	Viewport* viewport = new Viewport(this);
+	setCentralWidget(viewport);
 }
 
 //-----------------------------------------------------------------------------

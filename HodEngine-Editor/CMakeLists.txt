@@ -39,8 +39,8 @@ set(CMAKE_PREFIX_PATH "C:\\Qt\\6.0.2\\msvc2019_64")
 #    endif()
 #endif()
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Network REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Network REQUIRED)
 
 file(GLOB_RECURSE Srcs
         "${PROJECT_SOURCE_DIR}/Src/*.cpp"
@@ -69,12 +69,13 @@ endif()
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodEngine-Editor)
 
-target_link_libraries(HodEngine-Editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(HodEngine-Editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 
 add_custom_command(TARGET HodEngine-Editor POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"${CMAKE_PREFIX_PATH}/bin/Qt6Cored.dll">$<$<CONFIG:release>:"${CMAKE_PREFIX_PATH}/bin/Qt6Core.dll"> $<TARGET_FILE_DIR:HodEngine-Editor>
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"${CMAKE_PREFIX_PATH}/bin/Qt6Widgetsd.dll">$<$<CONFIG:release>:"${CMAKE_PREFIX_PATH}/bin/Qt6Widgets.dll"> $<TARGET_FILE_DIR:HodEngine-Editor>
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"${CMAKE_PREFIX_PATH}/bin/Qt6Guid.dll">$<$<CONFIG:release>:"${CMAKE_PREFIX_PATH}/bin/Qt6Gui.dll"> $<TARGET_FILE_DIR:HodEngine-Editor>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"${CMAKE_PREFIX_PATH}/bin/Qt6Networkd.dll">$<$<CONFIG:release>:"${CMAKE_PREFIX_PATH}/bin/Qt6Network.dll"> $<TARGET_FILE_DIR:HodEngine-Editor>
 	
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:HodEngine-Editor>/platforms"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"${CMAKE_PREFIX_PATH}/plugins/platforms/qminimald.dll">$<$<CONFIG:release>:"${CMAKE_PREFIX_PATH}/plugins/platforms/qminimal.dll"> "$<TARGET_FILE_DIR:HodEngine-Editor>/platforms"

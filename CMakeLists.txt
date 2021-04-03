@@ -62,6 +62,7 @@ include_directories(
 "${PROJECT_SOURCE_DIR}/src"
 "HodEngine"
 "SDK/glm"
+"SDK/rapidjson/include"
 )
 
 target_link_libraries(HodEngine

@@ -14,6 +14,11 @@ VK_DEFINE_HANDLE(VkSurfaceKHR)
 
 namespace HOD
 {
+	namespace CORE
+	{
+		class UID;
+	}
+
 	namespace APPLICATION
 	{
 		struct VideoSettings;
@@ -30,11 +35,13 @@ namespace HOD
 
 		public:
 
-			bool			Init();
+			bool			Init(int argc, char** argv);
 			bool			CreateWindowAndContext(const std::string& name, const VideoSettings& videoSettings);
-			bool			Run();
+			bool			Run(const CORE::UID& startingSceneUid);
 
-			void*			GetHwnd();
+			void*			GetHwnd() const;
+			bool			IsRunningInEditor() const;
+			uint16_t		GetEditorPort() const;
 
 			int				GetWidth();
 			int				GetHeight();
@@ -50,9 +57,17 @@ namespace HOD
 			virtual bool	Loop(float deltaTime) = 0;
 			virtual bool	PostRun() = 0;
 
+			virtual bool	LoadStartingScene(const CORE::UID& startingSceneUid) = 0;
+
 		private:
 
 			SDL_Window*		_window = nullptr;
+
+		protected:
+
+			uint16_t		_editorPort = 0;
+			void*			_parentHwnd = 0;
+			void*			_hwnd = 0;
 		};
 	}
 }

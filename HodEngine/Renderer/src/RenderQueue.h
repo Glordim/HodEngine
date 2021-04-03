@@ -21,6 +21,7 @@ namespace HOD
 		class MaterialInstance;
 
 		class RenderCommand;
+		class Texture;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
