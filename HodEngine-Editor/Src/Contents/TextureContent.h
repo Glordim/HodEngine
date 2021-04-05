@@ -5,23 +5,27 @@
 
 #include "../UID.h"
 #include "../Signal.h"
-#include "../Contents/Content.h"
+#include "Content.h"
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
 class TextureContent : public Content
 {
+	CONTENT_META_TYPE(TextureContent)
+
 public:
 
 				TextureContent();
 				TextureContent(const TextureContent& copy) = delete;
 				TextureContent(TextureContent&&) = delete;
-	virtual		~TextureContent() = default;
+				~TextureContent() override = default;
 
-	void		operator=(const TextureContent& right) = delete;
-	void		operator=(TextureContent&& right) = delete;
+	void		operator=(const TextureContent&) = delete;
+	void		operator=(TextureContent&&) = delete;
 
-	bool		Serialize();
-	bool		Deserialize();
+public:
+
+	bool		Serialize() override;
+	bool		Deserialize() override;
 };

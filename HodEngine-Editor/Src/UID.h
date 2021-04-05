@@ -24,7 +24,7 @@ public:
 	QString			ToString() const;
 	bool			IsValid() const;
 
-	bool			Compare(const UID& other) const;
+	int				Compare(const UID& other) const;
 
 public:
 
@@ -40,5 +40,6 @@ private:
 
 bool				operator==(const UID& left, const UID& right);
 bool				operator!=(const UID& left, const UID& right);
+bool				operator<(const UID& left, const UID& right);
 
 #include "UID.inl"

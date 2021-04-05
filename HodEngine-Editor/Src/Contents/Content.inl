@@ -90,6 +90,11 @@ inline void Content::SetAssetPath(const QString& assetPath)
 	SetDirty();
 }
 
+inline void Content::SetUid(const UID& uid)
+{
+	_uid = uid;
+}
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------

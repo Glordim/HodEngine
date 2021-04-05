@@ -8,6 +8,7 @@
 
 #include "../UID.h"
 #include "../Signal.h"
+#include "Hash.h"
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -16,18 +17,19 @@ class Content
 {
 public:
 
+	using Type = uint64_t;
 	using AddDependencySignal = Signal<Content*>;
 	using RemoveDependencySignal = Signal<Content*>;
 
 public:
 
 								Content();
-								Content(const Content& copy) = delete;
+								Content(const Content&) = delete;
 								Content(Content&&) = delete;
 	virtual						~Content() = default;
 
-	void						operator=(const Content& right) = delete;
-	void						operator=(Content&& right) = delete;
+	void						operator=(const Content&) = delete;
+	void						operator=(Content&&) = delete;
 
 public:
 
@@ -49,8 +51,12 @@ public:
 
 	void						SetName(const QString& name);
 	void						SetAssetPath(const QString& assetPath);
+	void						SetUid(const UID& uid);
 
 public:
+
+	virtual Type				GetType() const = 0;
+	virtual const char*			GetTypeName() const = 0;
 
 	virtual bool				Serialize() = 0;
 	virtual bool				Deserialize() = 0;
@@ -74,5 +80,20 @@ private:
 	AddDependencySignal			_addDependencySignal;
 	RemoveDependencySignal		_removeDependencySignal;
 };
+
+#define CONTENT_META_TYPE(__ClassName__)						\
+public:															\
+Content::Type __ClassName__::GetType() const override			\
+{																\
+	return Hash::CompilationTimeFnv64(#__ClassName__);			\
+}																\
+																\
+const char* __ClassName__::GetTypeName() const override			\
+{																\
+	return #__ClassName__;										\
+}																\
+private:														\
+																\
+
 
 #include "Content.inl"

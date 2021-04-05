@@ -9,10 +9,7 @@
 
 #include <filesystem>
 
-Project* Project::_currentPojet = nullptr;
-Project::LoadProjectSignal Project::_loadProjectSignal;
-Project::UnLoadProjectSignal Project::_unloadProjectSignal;
-
+Project* Singleton<Project>::_instance = nullptr;
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -89,22 +86,6 @@ bool Project::CreateOnDisk(const QString& name, const QString& location)
 	}
 
 	return true;
-}
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-Project* Project::GetCurrentProjet()
-{
-	return _currentPojet;
-}
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-void Project::SetCurrentProjet(Project* project)
-{
-	_currentPojet = project;
 }
 
 //-----------------------------------------------------------------------------

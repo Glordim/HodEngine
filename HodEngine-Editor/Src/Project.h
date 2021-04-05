@@ -3,18 +3,25 @@
 #include <QString>
 
 #include "Signal.h"
+#include "Singleton.h"
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-class Project
+class Project : public Singleton<Project>
 {
+	friend class Singleton<Project>;
+
 public:
 
 	using LoadProjectSignal = Signal<Project*>;
 	using UnLoadProjectSignal = Signal<Project*>;
 
 public:
+
+	static bool					CreateOnDisk(const QString& name, const QString& location);
+
+protected:
 
 								Project() = default;
 								Project(const Project&) = delete;
@@ -37,22 +44,15 @@ public:
 
 	void						SetName(const QString& name);
 
-public:
+	void						RegisterLoadProject(typename LoadProjectSignal::Slot& slot);
+	void						UnRegisterLoadProject(typename LoadProjectSignal::Slot& slot);
+	void						RegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot);
+	void						UnRegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot);
 
-	static bool					CreateOnDisk(const QString& name, const QString& location);
-	static Project*				GetCurrentProjet();
-	static void					SetCurrentProjet(Project* project);
+private:
 
-	static void					RegisterLoadProject(typename LoadProjectSignal::Slot& slot);
-	static void					UnRegisterLoadProject(typename LoadProjectSignal::Slot& slot);
-	static void					RegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot);
-	static void					UnRegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot);
-
-private :
-
-	static Project*				_currentPojet;
-	static LoadProjectSignal	_loadProjectSignal;
-	static UnLoadProjectSignal	_unloadProjectSignal;
+	LoadProjectSignal			_loadProjectSignal;
+	UnLoadProjectSignal			_unloadProjectSignal;
 
 private:
 

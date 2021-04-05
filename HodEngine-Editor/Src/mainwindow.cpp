@@ -46,11 +46,6 @@ MainWindow::MainWindow(QWidget *parent)
 //-----------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
-	if (_project != nullptr)
-	{
-		delete _project;
-	}
-
 	delete _ui;
 }
 
@@ -82,9 +77,11 @@ void MainWindow::OpenProject()
 //-----------------------------------------------------------------------------
 void MainWindow::SaveProject()
 {
-	if (_project->IsDirty() == true)
+	Project* project = Project::GetInstance();
+
+	if (project->IsDirty() == true)
 	{
-		_project->SaveAtPath(_project->GetSavePath());
+		project->SaveAtPath(project->GetSavePath());
 	}
 }
 
@@ -95,8 +92,7 @@ void MainWindow::CloseProject()
 {
 	// Todo check dirty for save
 
-	delete _project;
-	_project = nullptr;
+	Project::GetInstance()->DestroyInstance();
 
 	Refresh();
 }
@@ -115,7 +111,7 @@ void MainWindow::Exit()
 //-----------------------------------------------------------------------------
 void MainWindow::AddDocakbleWindow(QDockWidget* dockWidget)
 {
-	bool projectOpened = (_project != nullptr);
+	bool projectOpened = (Project::GetInstance() != nullptr);
 	dockWidget->setEnabled(projectOpened);
 	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, dockWidget);
 	_dockWidgets.push_back(dockWidget);
@@ -145,7 +141,7 @@ void MainWindow::SetDefaultLayout()
 //-----------------------------------------------------------------------------
 void MainWindow::Refresh()
 {
-	bool projectOpened = (_project != nullptr);
+	bool projectOpened = (Project::GetInstance() != nullptr);
 	
 	_ui->actionSave->setEnabled(projectOpened);
 	_ui->actionClose_project->setEnabled(projectOpened);
@@ -165,7 +161,7 @@ void MainWindow::Refresh()
 
 	if (projectOpened == true)
 	{
-		setWindowTitle("HodEngine - " + _project->GetName());
+		setWindowTitle("HodEngine - " + Project::GetInstance()->GetName());
 	}
 	else
 	{
@@ -218,13 +214,11 @@ bool MainWindow::LoadProjectAtPath(const QString& projectFilePath)
 
 	CloseProject();
 
-	_project = new Project();
-	if (_project->LoadFromFile(projectFilePath) == false)
+	Project::CreateInstance();
+	if (Project::GetInstance()->LoadFromFile(projectFilePath) == false)
 	{
 		return false;
 	}
-
-	Project::SetCurrentProjet(_project);
 
 	QList<QAction*> actions = _ui->menuRecent->actions();
 

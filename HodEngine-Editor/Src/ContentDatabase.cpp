@@ -4,6 +4,9 @@
 
 #include "ContentDatabase.h"
 #include "Project.h"
+#include "UID.h"
+
+ContentDataBase* Singleton<ContentDataBase>::_instance = nullptr;
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -47,17 +50,45 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 	return true;
 }
 
-
-Content* ContentDataBase::GetContent(UID& uid) const
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void ContentDataBase::AddContent(Content* content)
 {
+	if (_contents.contains(content->GetUID()) == false)
+	{
+		_contents.insert(content->GetUID(), content);
+
+		_addContentSignal.Emit(content);
+	}
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+Content* ContentDataBase::GetContent(const UID& uid) const
+{
+	QMap<UID, Content*>::ConstIterator it = _contents.find(uid);
+
+	if (it != _contents.end())
+	{
+		return _contents.find(uid).value();
+	}
+
 	return nullptr;
 }
 
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 void ContentDataBase::OnLoadProjectAction(Project* project)
 {
 
 }
 
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 void ContentDataBase::OnUnLoadProjectAction(Project* project)
 {
 }

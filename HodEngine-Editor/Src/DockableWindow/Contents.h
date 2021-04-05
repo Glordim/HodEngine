@@ -9,6 +9,8 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
+#include "../ContentDatabase.h"
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -18,15 +20,22 @@ class Contents : public QDockWidget
 
 public:
 
-							Contents(QWidget* parent = nullptr);
-							~Contents();
+												Contents(QWidget* parent = nullptr);
+												~Contents();
 
 private:
 
-	void					CustomMenuRequested(const QPoint& position);
-	void					CustomMenuActionrequested();
+	void										CustomMenuRequested(const QPoint& position);
+
+	void										OnAddContent(Content* content);
+	void										OnRemoveContent(Content* content);
+	void										OnContentChange(Content* content);
 
 private:
 
-	Ui::Contents*	_ui;
+	Ui::Contents*								_ui;
+
+	ContentDataBase::AddContentSignal::Slot		_onAddContentSlot;
+	ContentDataBase::RemoveContentSignal::Slot	_onRemoveContentSlot;
+	ContentDataBase::ContentChangeSignal::Slot	_onContentChangeSlot;
 };

@@ -10,9 +10,27 @@ inline bool UID::IsValid() const
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-inline bool UID::Compare(const UID& other) const
+inline int UID::Compare(const UID& other) const
 {
-	return (_low == other._low && _high == other._high);
+	if (_high < other._high)
+	{
+		return -1;
+	}
+	if (_high > other._high)
+	{
+		return 1;
+	}
+
+	if (_low < other._low)
+	{
+		return -1;
+	}
+	if (_low > other._low)
+	{
+		return 1;
+	}
+
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -29,4 +47,9 @@ inline bool operator==(const UID& left, const UID& right)
 inline bool operator!=(const UID& left, const UID& right)
 {
 	return (left.Compare(right) == false);
+}
+
+inline bool operator<(const UID& left, const UID& right)
+{
+	return (left.Compare(right) == -1);
 }

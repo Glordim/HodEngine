@@ -9,8 +9,6 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
-class Project;
-
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -54,8 +52,6 @@ private:
 
 	Ui::MainWindow*			_ui;
 	QVector<QDockWidget*>	_dockWidgets;
-
-	Project*				_project = nullptr;
 };
 
 #include "Mainwindow.inl"

@@ -1,4 +1,5 @@
 #include "TextureContent.h"
+#include "Hash.h"
 
 #include <QFile>
 #include <QJsonDocument>
@@ -12,6 +13,9 @@ TextureContent::TextureContent()
 {
 }
 
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 bool TextureContent::Serialize()
 {
 	QJsonObject root;
@@ -42,6 +46,9 @@ bool TextureContent::Serialize()
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 bool TextureContent::Deserialize()
 {
 	QFile file(_path);
