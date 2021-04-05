@@ -47,7 +47,7 @@ void Contents::CustomMenuRequested(const QPoint& position)
 	QMenu* import = menu->addMenu("Import");
 	import->addAction("Texture", [this]()
 	{
-		QString textureFilePath = QFileDialog::getOpenFileName(this);
+		QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
 
 		ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
 	});

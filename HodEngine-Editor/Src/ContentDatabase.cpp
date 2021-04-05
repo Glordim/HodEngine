@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QMessageBox>
 
+#include "Contents/ContentFactory.h"
 #include "ContentDatabase.h"
 #include "Project.h"
 #include "UID.h"
@@ -15,8 +16,8 @@ ContentDataBase::ContentDataBase()
 	: _onLoadProjectSlot(std::bind(&ContentDataBase::OnLoadProjectAction, this, std::placeholders::_1))
 	, _onUnLoadProjectSlot(std::bind(&ContentDataBase::OnUnLoadProjectAction, this, std::placeholders::_1))
 {
-	Project::LoadProjectSignal().Connect(_onLoadProjectSlot);
-	Project::UnLoadProjectSignal().Connect(_onUnLoadProjectSlot);
+	Project::GetInstance()->RegisterLoadProject(_onLoadProjectSlot);
+	Project::GetInstance()->RegisterUnLoadProject(_onUnLoadProjectSlot);
 }
 
 //-----------------------------------------------------------------------------
@@ -24,8 +25,8 @@ ContentDataBase::ContentDataBase()
 //-----------------------------------------------------------------------------
 ContentDataBase::~ContentDataBase()
 {
-	Project::LoadProjectSignal().Disconnect(_onLoadProjectSlot);
-	Project::UnLoadProjectSignal().Disconnect(_onUnLoadProjectSlot);
+	Project::GetInstance()->UnRegisterLoadProject(_onLoadProjectSlot);
+	Project::GetInstance()->UnRegisterUnLoadProject(_onUnLoadProjectSlot);
 }
 
 //-----------------------------------------------------------------------------
@@ -45,6 +46,13 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 	for (QFileInfo fileInfo : dir.entryInfoList())
 	{
 		qDebug() << fileInfo.filePath();
+
+		Content* content = ContentFactory::LoadFromPath(fileInfo.filePath());
+		if (content != nullptr)
+		{
+			AddContent(content);
+		}
+		// read content here, construct and add it in Content map
 	}
 
 	return true;
@@ -83,7 +91,7 @@ Content* ContentDataBase::GetContent(const UID& uid) const
 //-----------------------------------------------------------------------------
 void ContentDataBase::OnLoadProjectAction(Project* project)
 {
-
+	Load(project->GetContentsFolderPath());
 }
 
 //-----------------------------------------------------------------------------
@@ -91,4 +99,5 @@ void ContentDataBase::OnLoadProjectAction(Project* project)
 //-----------------------------------------------------------------------------
 void ContentDataBase::OnUnLoadProjectAction(Project* project)
 {
+
 }

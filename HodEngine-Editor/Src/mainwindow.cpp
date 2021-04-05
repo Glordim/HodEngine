@@ -92,7 +92,7 @@ void MainWindow::CloseProject()
 {
 	// Todo check dirty for save
 
-	Project::GetInstance()->DestroyInstance();
+	Project::GetInstance()->Close();
 
 	Refresh();
 }
@@ -111,7 +111,7 @@ void MainWindow::Exit()
 //-----------------------------------------------------------------------------
 void MainWindow::AddDocakbleWindow(QDockWidget* dockWidget)
 {
-	bool projectOpened = (Project::GetInstance() != nullptr);
+	bool projectOpened = Project::GetInstance()->IsOpened();
 	dockWidget->setEnabled(projectOpened);
 	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, dockWidget);
 	_dockWidgets.push_back(dockWidget);
@@ -141,7 +141,7 @@ void MainWindow::SetDefaultLayout()
 //-----------------------------------------------------------------------------
 void MainWindow::Refresh()
 {
-	bool projectOpened = (Project::GetInstance() != nullptr);
+	bool projectOpened = Project::GetInstance()->IsOpened();
 	
 	_ui->actionSave->setEnabled(projectOpened);
 	_ui->actionClose_project->setEnabled(projectOpened);
@@ -214,7 +214,6 @@ bool MainWindow::LoadProjectAtPath(const QString& projectFilePath)
 
 	CloseProject();
 
-	Project::CreateInstance();
 	if (Project::GetInstance()->LoadFromFile(projectFilePath) == false)
 	{
 		return false;

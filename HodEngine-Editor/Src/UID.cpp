@@ -76,7 +76,7 @@ UID UID::FromString(const char* uuidStr)
 UID UID::FromString(const QString uuidStr)
 {
 	UuidConverter uuidConverter;
-	if (UuidFromString((RPC_WSTR)uuidStr.toStdString().c_str() , &uuidConverter.uuid) != RPC_S_OK)
+	if (UuidFromStringA((RPC_CSTR)uuidStr.toStdString().c_str() , &uuidConverter.uuid) != RPC_S_OK)
 	{
 		qCritical("UID: Fail to generate UID from %s", uuidStr);
 		return INVALID_UID;
@@ -98,8 +98,8 @@ QString UID::ToString() const
 	uuidConverter.low = _low;
 	uuidConverter.high = _high;
 
-	RPC_WSTR stringTmp;
-	if (UuidToString(&uuidConverter.uuid, &stringTmp) != RPC_S_OK)
+	RPC_CSTR stringTmp;
+	if (UuidToStringA(&uuidConverter.uuid, &stringTmp) != RPC_S_OK)
 	{
 		qCritical("UID: Fail to generate string from %ull - %ull", _low, _high);
 		return INVALID_UID.ToString();
@@ -107,7 +107,7 @@ QString UID::ToString() const
 
 	QString string((const char*)stringTmp);
 
-	RpcStringFree(&stringTmp);
+	RpcStringFreeA(&stringTmp);
 
 	return string;
 }

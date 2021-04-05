@@ -7,12 +7,6 @@ inline const QString& Project::GetSavePath() const
 	return _filePath;
 }
 
-inline const QString& Project::GetContentsFolderPath() const
-{
-	return _filePath + "/Contents/";
-    // TODO: insérer une instruction return ici
-}
-
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------

@@ -1,5 +1,11 @@
 #include "Content.h"
 
+#include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QMessageBox>
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -66,4 +72,78 @@ void Content::RemoveDependency(const UID& uid)
 const QVector<Content*>& Content::GetAllDependencies() const
 {
 	return _dependencies;
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+bool Content::SaveAtPath(const QString& filepath)
+{
+	_path = filepath;
+	_isDirty = false;
+
+	QJsonObject root;
+
+	QJsonObject header;
+	SerializeHeader(header);
+	root.insert("Header", header);
+
+	QJsonObject data;
+	Serialize(data);
+	root.insert("Data", data);
+
+	QFile file(_path);
+	if (file.open(QIODevice::WriteOnly) == false)
+	{
+		qWarning("Couldn't open save file.");
+		return false;
+	}
+
+	file.write(QJsonDocument(root).toJson());
+	file.close();
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+bool Content::SerializeHeader(QJsonObject& header)
+{
+	header["Uid"] = _uid.ToString();
+	header["Name"] = _name;
+	header["Type"] = GetTypeName();
+	header["Asset"] = GetAssetPath();
+
+	QJsonArray dependenciesArray;
+
+	for (Content* dependency : _dependencies)
+	{
+		dependenciesArray.append(dependency->GetUID().ToString());
+	}
+
+	header["Dependencies"] = dependenciesArray;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+bool Content::DeserializeHeader(const QJsonObject& header)
+{
+	_uid = UID::FromString(header["Uid"].toString());
+	_name = header["Name"].toString();
+	_assetPath = header["Asset"].toString();
+
+	QJsonArray dependencies = header["Dependencies"].toArray();
+
+	for (qsizetype i = 0; i < dependencies.count(); ++i)
+	{
+		UID dependencyUID = UID::FromString(dependencies[i].toString());
+		//Demande a la databse l'asset si il ne le trouve pas le charge sinon null
+		// _dependencies
+	}
+
+	return true;
 }

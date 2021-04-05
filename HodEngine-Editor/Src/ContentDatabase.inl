@@ -8,12 +8,15 @@ bool ContentDataBase::Import(const QString& filepath)
 	__ContentType__* content = new __ContentType__();
 	content->SetAssetPath(filepath);
 	content->SetUid(UID::GenerateUID());
+	content->SetName("EditMe");
 
 	if (content->IsValid() == false)
 	{
 		delete content;
 		return false;
 	}
+
+	content->SaveAtPath(Project::GetInstance()->GetContentsFolderPath() + "/" + content->GetName() + ".content");
 
 	AddContent(content);
 

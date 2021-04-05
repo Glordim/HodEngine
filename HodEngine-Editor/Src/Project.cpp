@@ -14,6 +14,22 @@ Project* Singleton<Project>::_instance = nullptr;
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
+bool Project::IsOpened() const
+{
+	return _isOpened;
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void Project::Close()
+{
+	_isOpened = false;
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 bool Project::LoadFromFile(const QString& projectFilePath)
 {
 	_filePath = projectFilePath;
@@ -31,6 +47,9 @@ bool Project::LoadFromFile(const QString& projectFilePath)
 	QJsonDocument jsonDocument = QJsonDocument::fromJson(saveData);
 	QJsonObject root = jsonDocument.object();
 	_name = root["Name"].toString();
+
+	_isOpened = true;
+	_loadProjectSignal.Emit(this);
 
 	return true;
 }
@@ -79,9 +98,21 @@ bool Project::CreateOnDisk(const QString& name, const QString& location)
 		return false;
 	}
 
+	if (dir.mkdir("Assets") == false)
+	{
+		QMessageBox::critical(nullptr, "Project", "Unable to create 'Assets' directory\nPath : '" + dir.path() + "'");
+		return false;
+	}
+
 	if (dir.mkdir("Contents") == false)
 	{
 		QMessageBox::critical(nullptr, "Project", "Unable to create 'Contents' directory\nPath : '" + dir.path() + "'");
+		return false;
+	}
+
+	if (dir.mkdir("Resources") == false)
+	{
+		QMessageBox::critical(nullptr, "Project", "Unable to create 'Resources' directory\nPath : '" + dir.path() + "'");
 		return false;
 	}
 
@@ -117,4 +148,20 @@ void Project::RegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot)
 void Project::UnRegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot)
 {
 	_unloadProjectSignal.Disconnect(slot);
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+QString Project::GetAssetsFolderPath() const
+{
+	return _filePath.left(_filePath.lastIndexOf('/')) + "/Assets";
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+QString Project::GetContentsFolderPath() const
+{
+	return _filePath.left(_filePath.lastIndexOf('/')) + "/Contents";
 }
