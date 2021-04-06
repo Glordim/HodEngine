@@ -9,6 +9,10 @@ bool ContentDataBase::Import(const QString& filepath)
 	content->SetAssetPath(filepath);
 	content->SetUid(UID::GenerateUID());
 
+	QString name = filepath.section ("/", -1);
+
+	content->SetName(name);
+
 	if (content->IsValid() == false)
 	{
 		delete content;

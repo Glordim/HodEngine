@@ -10,6 +10,7 @@ namespace Ui
 QT_END_NAMESPACE
 
 #include "../ContentDatabase.h"
+#include <QStandardItemModel>
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -34,6 +35,8 @@ private:
 private:
 
 	Ui::Contents*								_ui;
+	QStandardItemModel*							_treeViewModel;
+
 
 	ContentDataBase::AddContentSignal::Slot		_onAddContentSlot;
 	ContentDataBase::RemoveContentSignal::Slot	_onRemoveContentSlot;

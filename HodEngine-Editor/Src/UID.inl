@@ -46,7 +46,7 @@ inline bool operator==(const UID& left, const UID& right)
 //-----------------------------------------------------------------------------
 inline bool operator!=(const UID& left, const UID& right)
 {
-	return (left.Compare(right) == false);
+	return (left.Compare(right) != 0);
 }
 
 inline bool operator<(const UID& left, const UID& right)

@@ -7,11 +7,17 @@
 
 #include <QMenu>
 #include <QFileDialog>
+#include <QTreeWidgetItem>
+#include <QStandardItem>
+
+#include <QListView>
+#include <QTableView>
+#include <QSplitter>
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-Contents::Contents(QWidget *parent)
+Contents::Contents(QWidget* parent)
 	: QDockWidget(parent)
 	, _ui(new Ui::Contents)
 	, _onAddContentSlot(std::bind(&Contents::OnAddContent, this, std::placeholders::_1))
@@ -21,6 +27,9 @@ Contents::Contents(QWidget *parent)
 	_ui->setupUi(this);
 
 	_ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+	_treeViewModel = new QStandardItemModel(_ui->treeView);
+	_ui->treeView->setModel(_treeViewModel);
+	_treeViewModel->setColumnCount(1);
 
 	QObject::connect(_ui->treeView, &QTreeView::customContextMenuRequested, this, &Contents::CustomMenuRequested);
 
@@ -60,7 +69,11 @@ void Contents::CustomMenuRequested(const QPoint& position)
 //-----------------------------------------------------------------------------
 void Contents::OnAddContent(Content* content)
 {
-	// refresh view
+	_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+	QStandardItem* item = new QStandardItem(content->GetName());
+
+	_treeViewModel->appendRow(item);
 }
 
 //-----------------------------------------------------------------------------
