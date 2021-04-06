@@ -26,6 +26,6 @@ public:
 
 public:
 
-	bool		Serialize() override;
-	bool		Deserialize() override;
+	bool		Serialize(QJsonObject& data) override;
+	bool		Deserialize(const QJsonObject& data) override;
 };

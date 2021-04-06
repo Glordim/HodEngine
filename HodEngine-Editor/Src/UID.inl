@@ -38,7 +38,7 @@ inline int UID::Compare(const UID& other) const
 //-----------------------------------------------------------------------------
 inline bool operator==(const UID& left, const UID& right)
 {
-	return left.Compare(right);
+	return (left.Compare(right) == 0);
 }
 
 //-----------------------------------------------------------------------------

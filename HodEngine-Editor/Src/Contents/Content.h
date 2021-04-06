@@ -5,6 +5,7 @@
 #include <QString>
 #include <QVector>
 #include <QPair>
+#include <QJsonObject>
 
 #include "../UID.h"
 #include "../Signal.h"
@@ -53,13 +54,18 @@ public:
 	void						SetAssetPath(const QString& assetPath);
 	void						SetUid(const UID& uid);
 
+	bool						SaveAtPath(const QString& filepath);
+
+	bool						SerializeHeader(QJsonObject& header);
+	bool						DeserializeHeader(const QJsonObject& header);
+
 public:
 
 	virtual Type				GetType() const = 0;
 	virtual const char*			GetTypeName() const = 0;
 
-	virtual bool				Serialize() = 0;
-	virtual bool				Deserialize() = 0;
+	virtual bool				Serialize(QJsonObject& data) = 0;
+	virtual bool				Deserialize(const QJsonObject& data) = 0;
 
 protected:
 
@@ -83,15 +89,22 @@ private:
 
 #define CONTENT_META_TYPE(__ClassName__)						\
 public:															\
-Content::Type __ClassName__::GetType() const override			\
+																\
+Type GetType() const override									\
 {																\
 	return Hash::CompilationTimeFnv64(#__ClassName__);			\
 }																\
 																\
-const char* __ClassName__::GetTypeName() const override			\
+const char* GetTypeName() const override						\
 {																\
 	return #__ClassName__;										\
 }																\
+																\
+static const char* GetTypeNameStatic()							\
+{																\
+	return #__ClassName__;										\
+}																\
+																\
 private:														\
 																\
 

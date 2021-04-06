@@ -33,10 +33,14 @@ protected:
 
 public:
 
+	bool						IsOpened() const;
+	void						Close();
+
 	bool						LoadFromFile(const QString& projectFilePath);
 	bool						SaveAtPath(const QString& projectFilePath);
 	const QString&				GetSavePath() const;
-	const QString&				GetContentsFolderPath() const;
+	QString						GetAssetsFolderPath() const;
+	QString						GetContentsFolderPath() const;
 
 	bool						IsDirty() const;
 
@@ -58,6 +62,8 @@ private:
 
 	QString						_name;
 	QString						_filePath;
+
+	bool						_isOpened = false;
 
 	bool						_isDirty = false;
 };
