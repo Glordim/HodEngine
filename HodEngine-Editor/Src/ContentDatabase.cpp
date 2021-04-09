@@ -45,7 +45,7 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 
 	for (QFileInfo fileInfo : dir.entryInfoList())
 	{
-		qDebug() << fileInfo.filePath();
+		qDebug() << "F: " + fileInfo.filePath();
 
 		Content* content = ContentFactory::LoadFromPath(fileInfo.filePath());
 		if (content != nullptr)
@@ -53,6 +53,21 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 			AddContent(content);
 		}
 		// read content here, construct and add it in Content map
+	}
+
+	dir.setFilter(QDir::Dirs);
+
+	for (QFileInfo dirInfo : dir.entryInfoList())
+	{
+		qDebug() << "D: " + dirInfo.filePath();
+		qDebug() << "D: " + dirInfo.fileName();
+
+		if (dirInfo.fileName() == "." || dirInfo.fileName() == "..")
+		{
+			continue;
+		}
+
+		Load(dirInfo.filePath());
 	}
 
 	return true;
