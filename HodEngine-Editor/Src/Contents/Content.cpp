@@ -77,6 +77,18 @@ const QVector<Content*>& Content::GetAllDependencies() const
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
+void Content::RemoveFile()
+{
+	QFile file(_path);
+	if (file.remove() == false)
+	{
+		qWarning("Couldn't remove save file.");
+	}
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 bool Content::SaveAtPath(const QString& filepath)
 {
 	_path = filepath;

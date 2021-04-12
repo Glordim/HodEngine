@@ -55,14 +55,34 @@ Contents::~Contents()
 void Contents::CustomMenuRequested(const QPoint& position)
 {
 	QMenu* menu = new QMenu(_ui->treeView);
-	QMenu* create = menu->addMenu("Create");
-	QMenu* import = menu->addMenu("Import");
-	import->addAction("Texture", [this]()
-		{
-			QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
+	QModelIndex index = _ui->treeView->indexAt(position);
+	QStandardItem* item = __nullptr;
 
-			ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
-		});
+	if (index.isValid())
+	{
+		item = _treeViewModel->itemFromIndex(index);
+
+		if (item != nullptr)
+		{
+			menu->addAction("Delete", [this]()
+			{
+				//ContentDataBase::GetInstance()->GetContent()
+			});
+		}
+	}
+	else
+	{
+		QMenu* create = menu->addMenu("Create");
+		QMenu* import = menu->addMenu("Import");
+		import->addAction("Texture", [this]()
+			{
+				QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
+
+				ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
+			});
+	}
+
+
 
 	menu->popup(_ui->treeView->viewport()->mapToGlobal(position));
 }

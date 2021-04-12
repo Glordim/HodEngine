@@ -38,7 +38,7 @@ public:
 	bool								Import(const QString& filepath);
 
 	Content*							GetContent(const UID& uid) const;
-
+	Content*							GetContent(const QString path) const;
 	AddContentSignal&					GetAddContentSignal();
 	RemoveContentSignal&				GetRemoveContentSignal();
 	ContentChangeSignal&				GetContentChangeSignal();
@@ -49,6 +49,7 @@ private:
 	void								OnUnLoadProjectAction(Project* project);
 
 	void								AddContent(Content* content);
+	void								RemoveContent(Content* content);
 
 private:
 

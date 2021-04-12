@@ -54,6 +54,7 @@ public:
 	void						SetAssetPath(const QString& assetPath);
 	void						SetUid(const UID& uid);
 
+	void						RemoveFile();
 	bool						SaveAtPath(const QString& filepath);
 
 	bool						SerializeHeader(QJsonObject& header);
