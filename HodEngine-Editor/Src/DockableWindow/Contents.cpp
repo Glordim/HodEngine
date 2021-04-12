@@ -28,10 +28,12 @@ Contents::Contents(QWidget* parent)
 {
 	_ui->setupUi(this);
 
-	_ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-	_treeViewModel = new QStandardItemModel(_ui->treeView);
-	_ui->treeView->setModel(_treeViewModel);
+	_treeViewModel = new QStandardItemModel();
 	_treeViewModel->setColumnCount(1);
+
+	_ui->treeView->setHeaderHidden(true);
+	_ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+	_ui->treeView->setModel(_treeViewModel);
 	_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	QObject::connect(_ui->treeView, &QTreeView::customContextMenuRequested, this, &Contents::CustomMenuRequested);
@@ -75,15 +77,12 @@ void Contents::CustomMenuRequested(const QPoint& position)
 		QMenu* create = menu->addMenu("Create");
 		QMenu* import = menu->addMenu("Import");
 		import->addAction("Texture", [this]()
-			{
-				QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
+		{
+			QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
 
-				ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
-			});
+			ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
+		});
 	}
-
-
-
 	menu->popup(_ui->treeView->viewport()->mapToGlobal(position));
 }
 
@@ -92,85 +91,49 @@ void Contents::CustomMenuRequested(const QPoint& position)
 //-----------------------------------------------------------------------------
 void Contents::OnAddContent(Content* content)
 {
-	QStringList splitPath = content->GetPath().split("/");
-
-	QStandardItem* parentFolder = nullptr;
-	QStandardItem* item = nullptr;
-
-	qsizetype contentFolderIndex = -1;
-	bool isFolderFind;
-
-	// Recherche de l'index du dossier content
-	for (qsizetype i = 0; i < splitPath.length(); ++i)
-	{
-		if (splitPath.value(i) == "Contents")
-		{
-			contentFolderIndex = i;
-			break;
-		}
-	}
-
-	if (contentFolderIndex == -1)
+	const QString& contentPath = content->GetPath();
+	qsizetype offset = contentPath.indexOf("/Contents/");
+	if (offset == -1)
 	{
 		qWarning("Contents::OnAddContent::Content out of folder Contents");
 		return;
 	}
 
-	parentFolder = _treeViewModel->invisibleRootItem();
+	QStringList splitPath = contentPath.mid(offset + strlen("/Contents/")).split('/');
 
-	for (qsizetype i = 1; contentFolderIndex + i < splitPath.length(); ++i)
+	QStandardItem* folder = _treeViewModel->invisibleRootItem();
+
+	qsizetype splitPathCount = splitPath.length();
+	for (qsizetype splitPathIndex = 0; splitPathIndex < splitPathCount - 1; ++splitPathIndex) // -1 to iterate only on intermediate folders
 	{
-		isFolderFind = false;
-		const QString name = splitPath.value(contentFolderIndex + i);
+		const QString& name = splitPath.at(splitPathIndex);
 
+		QStandardItem* childFolder = nullptr;
 
-		// Fin de chaine
-		if (contentFolderIndex + i == splitPath.length() - 1)
+		int childCount = folder->rowCount();
+		for (int childIndex = 0; childIndex < childCount; ++childIndex)
 		{
-			item = new QStandardItem(name);
-			if (parentFolder != nullptr)
+			QStandardItem* child = folder->child(childIndex);
+			if (child->text() == name)
 			{
-				parentFolder->appendRow(item);
-			}
-			else	// Fichier à la racine de Content
-			{
-				_treeViewModel->appendRow(item);
-			}
-			return;
-		}
-
-		if (parentFolder != nullptr)
-		{
-			for (int i = 0; i < parentFolder->rowCount(); ++i)
-			{
-				for (int j = 0; j < parentFolder->columnCount(); ++j)
-				{
-					if (parentFolder->child(i, j)->text() == name)
-					{
-						parentFolder = parentFolder->child(i, j);
-						isFolderFind = true;
-						break;
-						break;
-					}
-				}
+				childFolder = child;
+				break;
 			}
 		}
 
-		if (isFolderFind == false)
+		if (childFolder == nullptr) // if sub dir does'nt exist, create it
 		{
-			item = new QStandardItem(name);
-			if (parentFolder != nullptr)
-			{
-				parentFolder->appendRow(item);
-			}
-			else
-			{
-				_treeViewModel->appendRow(item);
-			}
-			parentFolder = item;
+			childFolder = new QStandardItem(name);
+			folder->appendRow(childFolder);
 		}
+
+		folder = childFolder;
 	}
+
+	QStandardItem* item = new QStandardItem(splitPath.last());
+	folder->appendRow(item);
 }
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------

@@ -39,6 +39,7 @@ Content* ContentFactory::LoadFromPath(const QString& filepath)
 	QString type = header["Type"].toString();
 
 	Content* content = _typenameToCreateFunction[type]();
+	content->SetPath(filepath);
 	content->DeserializeHeader(header);
 	content->Deserialize(root["Data"].toObject());
 

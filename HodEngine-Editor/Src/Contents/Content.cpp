@@ -77,7 +77,7 @@ const QVector<Content*>& Content::GetAllDependencies() const
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-	void Content::RemoveFile()
+void Content::RemoveFile()
 {
 	QFile file(_path);
 	if (file.remove() == false)
