@@ -55,6 +55,7 @@ public:
 	void						SetUid(const UID& uid);
 
 	void						RemoveFile();
+	void						SetPath(const QString& filepath);
 	bool						SaveAtPath(const QString& filepath);
 
 	bool						SerializeHeader(QJsonObject& header);

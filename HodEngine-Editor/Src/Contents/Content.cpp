@@ -77,13 +77,21 @@ const QVector<Content*>& Content::GetAllDependencies() const
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Content::RemoveFile()
+	void Content::RemoveFile()
 {
 	QFile file(_path);
 	if (file.remove() == false)
 	{
 		qWarning("Couldn't remove save file.");
 	}
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void Content::SetPath(const QString& filepath)
+{
+	_path = filepath;
 }
 
 //-----------------------------------------------------------------------------
@@ -126,7 +134,6 @@ bool Content::SerializeHeader(QJsonObject& header)
 	header["Name"] = _name;
 	header["Type"] = GetTypeName();
 	header["Asset"] = GetAssetPath();
-	header["Path"] = GetPath();
 
 	QJsonArray dependenciesArray;
 
@@ -148,7 +155,6 @@ bool Content::DeserializeHeader(const QJsonObject& header)
 	_uid = UID::FromString(header["Uid"].toString());
 	_name = header["Name"].toString();
 	_assetPath = header["Asset"].toString();
-	_path = header["Path"].toString();
 
 	QJsonArray dependencies = header["Dependencies"].toArray();
 
