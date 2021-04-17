@@ -6,9 +6,6 @@
 
 #include "../Actor.h"
 #include "../Scene.h"
-#include "StaticMeshComponent.h"
-
-#include <Renderer/src/RHI/Mesh.h>
 
 #include <Physics/src/Actor.h>
 
@@ -59,7 +56,7 @@ namespace HOD
 		{
 			Actor* actor = GetActor();
 			PHYSICS::Actor* physicActor = actor->GetPhysicActor();
-
+/*
 			StaticMeshComponent* pStaticMeshComponent = actor->GetComponent<StaticMeshComponent>();
 			SceneComponent* pSceneComponent = actor->GetComponent<SceneComponent>();
 
@@ -71,6 +68,7 @@ namespace HOD
 			{
 				physicActor->SetShape(eShape, RENDERER::BoundingBox(), pSceneComponent->GetScale());
 			}
+			*/
 		}
 	}
 }

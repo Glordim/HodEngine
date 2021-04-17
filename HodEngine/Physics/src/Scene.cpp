@@ -3,9 +3,6 @@
 #include "Actor.h"
 #include "Physics.h"
 
-#include <Renderer/src/Line_3P_3C.h>
-#include <Renderer/src/Tri_3P_3C.h>
-
 #include <PxPhysicsAPI.h>
 
 namespace HOD
@@ -94,12 +91,13 @@ namespace HOD
 
 			if (lineCount != 0)
 			{
-				lines.resize(lineCount);
+				//lines.resize(lineCount);
 
 				for (physx::PxU32 i = 0; i < lineCount; i++)
 				{
 					const physx::PxDebugLine& pxLine = rb.getLines()[i];
 
+					/*
 					RENDERER::Line_3P_3C& line = lines[i];
 
 					line.vertices[0].pos[0] = pxLine.pos0.x;
@@ -115,6 +113,7 @@ namespace HOD
 					line.vertices[1].color[0] = (float)((pxLine.color1 & 0x00FF0000) >> 16);
 					line.vertices[1].color[1] = (float)((pxLine.color1 & 0x0000FF00) >> 8);
 					line.vertices[1].color[2] = (float)((pxLine.color1 & 0x000000FF) >> 0);
+					*/
 				}
 			}
 
@@ -122,13 +121,14 @@ namespace HOD
 
 			if (triCount != 0)
 			{
-				tris.resize(triCount);
+				//tris.resize(triCount);
 
 				for (physx::PxU32 i = 0; i < triCount; i++)
 				{
 					const physx::PxDebugTriangle& pxTri = rb.getTriangles()[i];
 					// render the line
 
+					/*
 					RENDERER::Tri_3P_3C& tri = tris[i];
 
 					tri.vertices[2].pos[0] = pxTri.pos0.x;
@@ -151,6 +151,7 @@ namespace HOD
 					tri.vertices[0].color[0] = (float)((pxTri.color2 & 0x00FF0000) >> 16);
 					tri.vertices[0].color[1] = (float)((pxTri.color2 & 0x0000FF00) >> 8);
 					tri.vertices[0].color[2] = (float)((pxTri.color2 & 0x000000FF) >> 0);
+					*/
 				}
 			}
 		}

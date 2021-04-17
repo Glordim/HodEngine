@@ -2,7 +2,6 @@
 
 #include <Renderer/src/RenderQueue.h>
 #include "Component/SceneComponent.h"
-#include "Component/StaticMeshComponent.h"
 #include "Component/Light/DirLightComponent.h"
 #include "Component/Light/PointLightComponent.h"
 #include "Component/Light/SpotLightComponent.h"
@@ -18,6 +17,7 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	void RenderQueueHelper::AddSceneComponent(RENDERER::RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive)
 	{
+		/*
 		size_t childCount = sceneComponent->GetChildCount();
 		for (size_t i = 0; i < childCount; ++i)
 		{
@@ -107,6 +107,7 @@ namespace HOD
 				renderQueue.AddSpotLight(child->GetPosition(), child->GetRotation() * glm::vec3(0.0f, 0.0f, 1.0f), spotLightComponent->GetSpotLight());
 			}
 		}
+		*/
 	}
 
 	//-----------------------------------------------------------------------------
@@ -114,6 +115,7 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	void RenderQueueHelper::AddScenePhysicsDebug(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene)
 	{
+		/*
 		std::vector<RENDERER::Line_3P_3C> lines;
 		std::vector<RENDERER::Tri_3P_3C> tris;
 		scene->GetPhysicScene()->GetDebugGeometry(lines, tris);
@@ -126,6 +128,7 @@ namespace HOD
 		{
 			renderQueue.AddTriangles(tris, nullptr, glm::identity<glm::mat4x4>());
 		}
+		*/
 	}
 
 	//-----------------------------------------------------------------------------
@@ -133,6 +136,7 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	void RenderQueueHelper::AddDebugLines(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene)
 	{
+		/*
 		std::vector<RENDERER::Line_3P_3C> lines;
 
 		scene->GetDebugLines(lines);
@@ -141,5 +145,6 @@ namespace HOD
 		{
 			renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
 		}
+		*/
 	}
 }

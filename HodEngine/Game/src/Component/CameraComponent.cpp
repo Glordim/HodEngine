@@ -98,6 +98,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void CameraComponent::Render(Scene& scene)
 		{
+			/*
 			RENDERER::RenderQueue renderQueue;
 
 			renderQueue.SetCameraPos(GetActor()->GetComponent<SceneComponent>()->GetPosition());
@@ -115,6 +116,7 @@ namespace HOD
 
 			RENDERER::Renderer* renderer = RENDERER::Renderer::GetInstance();
 			renderer->SubmitRenderQueue(renderQueue);
+			*/
 		}
 
 		//-----------------------------------------------------------------------------

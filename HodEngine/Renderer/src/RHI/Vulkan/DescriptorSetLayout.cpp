@@ -2,6 +2,8 @@
 
 #include "RendererVulkan.h"
 
+#include <Core/Src/Output.h>
+
 #include <spirv_cross.hpp>
 
 namespace HOD

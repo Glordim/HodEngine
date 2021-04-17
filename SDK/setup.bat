@@ -63,19 +63,6 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
-echo tinyobjloader...
-if not exist "./Build/tinyobjloader" (
-	echo Create tinyobjloader Build Dir
-	mkdir "./Build/tinyobjloader"
-)
-cmake -A x64 -B./Build/tinyobjloader ./tinyobjloader
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
 echo SDL...
 if not exist "./Build/rapidjson" (
 	echo Create rapidjson Build Dir
@@ -154,21 +141,6 @@ if %errorlevel% neq 0 (
 	exit 1
 )
 cmake --build ./Build/SPIRV-CROSS --config Debug
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
-echo tinyobjloader...
-cmake --build ./Build/tinyobjloader --config Release
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-cmake --build ./Build/tinyobjloader --config Debug
 if %errorlevel% neq 0 (
 	echo Fail
 	pause

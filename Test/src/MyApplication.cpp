@@ -10,7 +10,6 @@
 #include <HodEngine/Renderer/src/RHI/Material.h>
 #include <HodEngine/Renderer/src/RHI/MaterialInstance.h>
 #include <HodEngine/Renderer/src/RHI/Texture.h>
-#include <HodEngine/Renderer/src/RHI/Mesh.h>
 #include <HodEngine/Renderer/src/RenderQueue.h>
 #include <HodEngine/Renderer/src/SpriteAtlas.h>
 #include <HodEngine/Renderer/src/Sprite.h>
@@ -21,7 +20,6 @@
 #include <HodEngine/Game/src/Component/SceneComponent.h>
 #include <HodEngine/Game/src/Component/CameraComponent.h>
 #include <HodEngine/Game/src/Component/ColliderComponent.h>
-#include <HodEngine/Game/src/Component/StaticMeshComponent.h>
 #include <HodEngine/Game/src/Component/SpriteComponent.h>
 #include <HodEngine/Game/src/Component/Light/PointLightComponent.h>
 #include <HodEngine/Game/src/Component/Light/DirLightComponent.h>

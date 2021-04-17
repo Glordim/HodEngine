@@ -3,8 +3,6 @@
 
 #include "RendererVulkan.h"
 
-#include "../Mesh.h"
-
 #include "spirv_cross.hpp"
 
 #include <Core/Src/Output.h>
@@ -60,50 +58,6 @@ namespace HOD
 			fragShaderStageInfo.pName = "main";
 
 			VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-			/*
-			VkVertexInputBindingDescription bindingDescription = {};
-			bindingDescription.binding = 0;
-			bindingDescription.stride = sizeof(Vertex_3P_3C_3N_2UV_3TA);
-			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-			VkVertexInputAttributeDescription posAttribute;
-			posAttribute.binding = 0;
-			posAttribute.location = 0;
-			posAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-			posAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, pos);
-
-			VkVertexInputAttributeDescription colorAttribute;
-			colorAttribute.binding = 0;
-			colorAttribute.location = 1;
-			colorAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-			colorAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, color);
-
-			VkVertexInputAttributeDescription normalAttribute;
-			normalAttribute.binding = 0;
-			normalAttribute.location = 2;
-			normalAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-			normalAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, normal);
-
-			VkVertexInputAttributeDescription uvAttribute;
-			uvAttribute.binding = 0;
-			uvAttribute.location = 3;
-			uvAttribute.format = VK_FORMAT_R32G32_SFLOAT;
-			uvAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, uv);
-
-			VkVertexInputAttributeDescription tangentAttribute;
-			tangentAttribute.binding = 0;
-			tangentAttribute.location = 4;
-			tangentAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-			tangentAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, tangent);
-
-			VkVertexInputAttributeDescription bitangentAttribute;
-			bitangentAttribute.binding = 0;
-			bitangentAttribute.location = 5;
-			bitangentAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-			bitangentAttribute.offset = offsetof(Vertex_3P_3C_3N_2UV_3TA, bitangent);
-
-			VkVertexInputAttributeDescription vertexAttributes[] = { posAttribute, colorAttribute, normalAttribute, uvAttribute, tangentAttribute, bitangentAttribute };
-			*/
 
 			VkVertexInputBindingDescription bindingDescription = {};
 			bindingDescription.binding = 0;

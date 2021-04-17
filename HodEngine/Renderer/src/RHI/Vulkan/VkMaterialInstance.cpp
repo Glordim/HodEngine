@@ -4,8 +4,6 @@
 
 #include "RendererVulkan.h"
 
-#include "../Mesh.h"
-
 namespace HOD
 {
 	namespace RENDERER

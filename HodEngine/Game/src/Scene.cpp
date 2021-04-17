@@ -15,8 +15,6 @@
 #include <Renderer/src/Renderer.h>
 #include <Renderer/src/RenderQueue.h>
 
-#include <Renderer/src/Line_3P_3C.h>
-
 #include "Component/CameraComponent.h"
 
 namespace HOD
@@ -67,6 +65,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Scene::Update(float dt)
 		{
+			/*
 			auto it = _debugLines.begin();
 			auto itEnd = _debugLines.end();
 			while (it != itEnd)
@@ -83,6 +82,7 @@ namespace HOD
 					++it;
 				}
 			}
+			*/
 
 			size_t actorCount = _actorList.size();
 			for (size_t i = 0; i < actorCount; ++i)
@@ -151,6 +151,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Scene::AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration)
 		{
+			/*
 			RENDERER::Line_3P_3C line;
 			line.vertices[0].pos[0] = start.x;
 			line.vertices[0].pos[1] = start.y;
@@ -166,6 +167,7 @@ namespace HOD
 			line.vertices[1].color[2] = color.b;
 
 			_debugLines.push_back(std::make_pair(line, duration));
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -173,10 +175,12 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Scene::GetDebugLines(std::vector<RENDERER::Line_3P_3C>& lines)
 		{
+			/*
 			for (std::pair<RENDERER::Line_3P_3C, float> line : _debugLines)
 			{
 				lines.push_back(line.first);
 			}
+			*/
 		}
 
 		//-----------------------------------------------------------------------------

@@ -1,7 +1,6 @@
 #include "SpriteComponent.h"
 
 #include <Renderer/src/RHI/Material.h>
-#include <Renderer/src/RHI/Mesh.h>
 #include <Renderer/src/RenderQueue.h>
 #include <Renderer/src/RenderCommand/RenderCommandMesh.h>
 #include <Renderer/src/RHI/MaterialInstance.h>

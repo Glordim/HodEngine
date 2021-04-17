@@ -35,14 +35,11 @@ namespace HOD
 
 			bool								BuildPipeline(GpuDevice* gpuDevice) override;
 
-			bool								SubmitRenderQueue(RenderQueue& renderQueue) override;
-
 			bool								ResizeSwapChain() override;
 
 			bool								AcquireNextImageIndex() override;
 			bool								SwapBuffer() override;
 
-			Mesh*								CreateMesh(const std::string& path) override;
 			Shader*								CreateShader(const std::string& path, Shader::ShaderType type) override;
 			Material*							CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 			MaterialInstance*					CreateMaterialInstance(const Material* material) override;
