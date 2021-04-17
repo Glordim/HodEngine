@@ -86,6 +86,20 @@ void ContentDataBase::AddContent(Content* content)
 	}
 }
 
+void ContentDataBase::RemoveContent(Content* content)
+{
+	if (_contents.contains(content->GetUID()) == false)
+	{
+		qWarning("ContentDataBases::RemoveContent::Content is null");
+		return;
+	}
+	
+	_contents.remove(content->GetUID());
+	_removeContentSignal.Emit(content);
+
+	content->RemoveFile();
+}
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -96,6 +110,19 @@ Content* ContentDataBase::GetContent(const UID& uid) const
 	if (it != _contents.end())
 	{
 		return _contents.find(uid).value();
+	}
+
+	return nullptr;
+}
+
+Content* ContentDataBase::GetContent(const QString path) const
+{
+	for (Content* content : _contents.values())
+	{
+		if (content != nullptr && content->GetPath() == path)
+		{
+			return content;
+		}
 	}
 
 	return nullptr;
