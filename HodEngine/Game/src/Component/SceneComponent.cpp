@@ -25,9 +25,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		SceneComponent::SceneComponent(Actor* actor) : Component(actor)
 		{
-			_position = glm::vec3(0.0f, 0.0f, 0.0f);
-			_rotation = glm::identity<glm::mat4x4>();
-			_scale = glm::vec3(1.0f, 1.0f, 1.0f);
+			_position = glm::vec2(0.0f, 0.0f);
+			_rotation = 0.0f;
+			_scale = glm::vec2(1.0f, 1.0f);
 			_parent = nullptr;
 
 			_modelMatrixDirty = true;
@@ -46,21 +46,21 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void SceneComponent::DrawImGui()
 		{
-			glm::vec3 pos = _position;
+			glm::vec2 pos = _position;
 
 			if (ImGui::DragFloat3("Position", &pos[0]) == true)
 			{
 				SetPosition(pos);
 			}
 
-			glm::vec3 euler = glm::degrees(glm::eulerAngles(_rotation));
+			float rotation = _rotation;
 
-			if (ImGui::DragFloat3("Rotation", &euler[0]) == true)
+			if (ImGui::DragFloat("Rotation", &rotation) == true)
 			{
-				SetRotation(euler);
+				SetRotation(rotation);
 			}
 
-			glm::vec3 scale = _scale;
+			glm::vec2 scale = _scale;
 
 			if (ImGui::DragFloat3("Scale", &scale[0]) == true)
 			{
@@ -79,46 +79,10 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SceneComponent::twGetPos(void* value, void* clientData)
-		{
-			SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
-			glm::vec3* pos = static_cast<glm::vec3*>(value);
-			*pos = thiz->GetPosition();
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void SceneComponent::twSetPos(const void* value, void* clientData)
-		{
-			SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
-			thiz->SetPosition(*(static_cast<const glm::vec3*>(value)));
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void SceneComponent::twGetRot(void* value, void* clientData)
-		{
-			SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
-			glm::quat* pos = static_cast<glm::quat*>(value);
-			*pos = thiz->GetRotation();
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void SceneComponent::twSetRot(const void* value, void* clientData)
-		{
-			SceneComponent* thiz = static_cast<SceneComponent*>(clientData);
-			thiz->SetRotation(*(static_cast<const glm::quat*>(value)));
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		void SceneComponent::LookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up)
 		{
+			// TODO
+			/*
 			_modelMatrix = glm::lookAt(eye, target, up);
 
 			glm::vec3 skew;
@@ -131,20 +95,25 @@ namespace HOD
 
 			std::cout << std::to_string(_position.x) << " " << std::to_string(_position.y) << " " << std::to_string(_position.z) << std::endl;
 			std::cout << std::to_string(GetRotationEuler().x) << " " << std::to_string(GetRotationEuler().y) << " " << std::to_string(GetRotationEuler().z) << std::endl;
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		glm::mat4 SceneComponent::GetModelMatrix()
+		const glm::mat4& SceneComponent::GetModelMatrix()
 		{
 			if (_modelMatrixDirty == true)
 			{
+				/*
 				glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), _position);
 				glm::mat4 rot = glm::mat4_cast(_rotation);
 				glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), _scale);
 
 				_modelMatrix = pos * rot * scale;
+				*/
+
+				// TODO
 			}
 
 			return _modelMatrix;
@@ -153,7 +122,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SceneComponent::SetPosition(glm::vec3 position)
+		void SceneComponent::SetPosition(const glm::vec2& position)
 		{
 			_position = position;
 			_modelMatrixDirty = true;
@@ -164,7 +133,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		glm::vec3 SceneComponent::GetPosition() const
+		const glm::vec2& SceneComponent::GetPosition() const
 		{
 			return _position;
 		}
@@ -172,9 +141,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SceneComponent::Rotate(float angle, glm::vec3 axis)
+		void SceneComponent::Rotate(float angle)
 		{
-			_rotation = glm::rotate(_rotation, angle, axis);
+			_rotation += angle;
 			_modelMatrixDirty = true;
 
 			SyncPxActor();
@@ -183,9 +152,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SceneComponent::SetRotation(glm::quat rot)
+		void SceneComponent::SetRotation(float angle)
 		{
-			_rotation = rot;
+			_rotation = angle;
 			_modelMatrixDirty = true;
 
 			SyncPxActor();
@@ -194,22 +163,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SceneComponent::SetRotation(glm::vec3 rot)
-		{
-			rot.x = fmod(rot.x, 360.0f);
-			rot.y = fmod(rot.y, 360.0f);
-			rot.z = fmod(rot.z, 360.0f);
-
-			_rotation = glm::quat(glm::radians(rot));
-			_modelMatrixDirty = true;
-
-			SyncPxActor();
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		glm::quat SceneComponent::GetRotation() const
+		float SceneComponent::GetRotation() const
 		{
 			return _rotation;
 		}
@@ -217,15 +171,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		glm::vec3 SceneComponent::GetRotationEuler() const
-		{
-			return glm::degrees(glm::eulerAngles(_rotation));
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void SceneComponent::SetScale(glm::vec3 scale)
+		void SceneComponent::SetScale(const glm::vec2& scale)
 		{
 			_scale = scale;
 			_modelMatrixDirty = true;
@@ -236,7 +182,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		glm::vec3 SceneComponent::GetScale() const
+		const glm::vec2& SceneComponent::GetScale() const
 		{
 			return _scale;
 		}

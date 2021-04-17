@@ -96,7 +96,7 @@ namespace HOD
 					glm::decompose(modelMatrix, scale, rotation, position, skew, perspective);
 
 					pSceneComponent->SetPosition(position);
-					pSceneComponent->SetRotation(rotation);
+					//pSceneComponent->SetRotation(rotation); // TODO
 					pSceneComponent->SetScale(scale);
 				}
 			}

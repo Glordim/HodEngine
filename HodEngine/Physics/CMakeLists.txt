@@ -33,8 +33,7 @@ assign_source_group(${Srcs})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 ".."
 "../../SDK/glm"
-"../../SDK/PhysX/physx/include"
-"../../SDK/PhysX/pxshared/include"
+"../../SDK/box2d/include"
 )
 
 add_library(Physics ${Srcs})
@@ -44,8 +43,5 @@ add_dependencies(Physics Core DebugLayer)
 target_link_libraries(Physics
 optimized "../../../Build/HodEngine/Core/Release/Core" debug "../../../Build/HodEngine/Core/Debug/Core"
 optimized "../../../Build/HodEngine/DebugLayer/Release/DebugLayer" debug "../../../Build/HodEngine/DebugLayer/Debug/DebugLayer"
-optimized "../../../SDK/Build/PhysX_lib/release/PhysX_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysX_64"
-optimized "../../../SDK/Build/PhysX_lib/release/PhysXCommon_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysXCommon_64"
-optimized "../../../SDK/Build/PhysX_lib/release/PhysXExtensions_static_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysXExtensions_static_64"
-optimized "../../../SDK/Build/PhysX_lib/release/PhysXFoundation_64" debug "../../../SDK/Build/PhysX_lib/debug/PhysXFoundation_64"
+optimized "../../../SDK/Build/box2d/bin/Release/box2d" debug "../../../SDK/Build/box2d/bin/Debug/box2d"
 )

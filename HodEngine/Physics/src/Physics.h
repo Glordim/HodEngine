@@ -42,24 +42,14 @@ namespace HOD
 			bool							Init();
 			void							Clear();
 
-			const physx::PxMaterial&		GetDefaultMaterial() const;
-
 			Scene*							CreateScene();
 			void							DestroyScene(Scene* scene);
 
-			Actor* CreateActor();
+			Actor*							CreateActor();
 
 			physx::PxShape*					CreateShape(physx::PxGeometry& pxGeometry, physx::PxMaterial* pxMaterial = nullptr);
 
 		private:
-
-			physx::PxDefaultAllocator*		_pxDefaultAllocator = nullptr;
-			physx::PxDefaultErrorCallback*	_pxDefaultErrorCallback = nullptr;
-
-			physx::PxFoundation*			_pxFoundation = nullptr;
-			physx::PxPhysics*				_pxPhysics = nullptr;
-
-			physx::PxMaterial*				_pxDefaultMaterial = nullptr;
 
 			std::vector<Scene*>				_scenes;
 

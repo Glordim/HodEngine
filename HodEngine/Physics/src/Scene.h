@@ -4,11 +4,7 @@
 
 #include <vector>
 
-namespace physx
-{
-	class PxScene;
-	class PxMaterial;
-}
+class b2World;
 
 namespace HOD
 {
@@ -41,10 +37,10 @@ namespace HOD
 		class Scene
 		{
 		public:
-								Scene(physx::PxScene* pxScene);
+								Scene();
 								~Scene();
 
-			Actor*				CreateActor();
+			Actor*				CreateBody();
 
 			void				GetDebugGeometry(std::vector<RENDERER::Line_3P_3C>& lines, std::vector<RENDERER::Tri_3P_3C>& tris);
 
@@ -59,8 +55,11 @@ namespace HOD
 			void				ApplyActorVisualizationFlag(bool visualization);
 
 		private:
-			physx::PxScene*		_pxScene = nullptr;
-			physx::PxMaterial*	_pxDefaultMaterial = nullptr;
+
+			b2World*			_world = nullptr;
+
+			int32_t				_velocityIterations = 8;
+			int32_t				_positionIterations = 3;
 
 			std::vector<Actor*>	_actors;
 		};

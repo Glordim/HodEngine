@@ -6,31 +6,31 @@
 
 namespace HOD
 {
-    namespace PHYSICS
-    {
+	namespace PHYSICS
+	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
 		PhysicsDebugWindow::PhysicsDebugWindow() : DebugWindow()
-        {
+		{
 
-        }
+		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
 		PhysicsDebugWindow::~PhysicsDebugWindow()
 		{
-            
-        }
+
+		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-        void PhysicsDebugWindow::Draw()
-        {
-            ImGui::Begin("Physics");
-            {
+		void PhysicsDebugWindow::Draw()
+		{
+			ImGui::Begin("Physics");
+			{
 				Physics* physics = Physics::GetInstance();
 
 				bool visualizeShape = physics->GetShapeVisualizationFlag();
@@ -44,8 +44,8 @@ namespace HOD
 				{
 					physics->SetActorVisualizationFlag(visualizeActor);
 				}
-            }
-            ImGui::End();
-        }
-    }
+			}
+			ImGui::End();
+		}
+	}
 }

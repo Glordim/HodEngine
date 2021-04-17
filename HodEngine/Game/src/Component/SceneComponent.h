@@ -42,19 +42,17 @@ namespace HOD
 
 			void							LookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up);
 
-			glm::mat4						GetModelMatrix();
+			const glm::mat4&				GetModelMatrix();
 
-			void							SetPosition(glm::vec3 position);
-			glm::vec3						GetPosition() const;
+			void							SetPosition(const glm::vec2& position);
+			const glm::vec2&				GetPosition() const;
 
-			void							SetRotation(glm::quat rot);
-			void							SetRotation(glm::vec3 rotation);
-			glm::quat						GetRotation() const;
-			glm::vec3						GetRotationEuler() const;
-			void							Rotate(float angle, glm::vec3 axis);
+			void							SetRotation(float rot);
+			float							GetRotation() const;
+			void							Rotate(float angle);
 
-			void							SetScale(glm::vec3 scale);
-			glm::vec3						GetScale() const;
+			void							SetScale(const glm::vec2& scale);
+			const glm::vec2&				GetScale() const;
 
 		private:
 
@@ -65,20 +63,12 @@ namespace HOD
 			bool							_modelMatrixDirty;
 			glm::mat4						_modelMatrix;
 
-			glm::vec3						_position;
-			glm::vec3						_scale;
-			glm::quat						_rotation;
+			glm::vec2						_position;
+			glm::vec2						_scale;
+			float							_rotation;
 
 			std::vector<SceneComponent*>	_childs;
 			SceneComponent*					_parent;
-
-		private:
-
-			static void						twSetPos(const void* value, void* clientData);
-			static void						twGetPos(void* value, void* clientData);
-
-			static void						twSetRot(const void* value, void* clientData);
-			static void						twGetRot(void* value, void* clientData);
 		};
 	}
 }

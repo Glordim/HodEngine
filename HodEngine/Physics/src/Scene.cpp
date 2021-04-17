@@ -3,7 +3,9 @@
 #include "Actor.h"
 #include "Physics.h"
 
-#include <PxPhysicsAPI.h>
+#include <box2d/b2_world.h>
+#include <box2d/b2_math.h>
+#include <box2d/b2_body.h>
 
 namespace HOD
 {
@@ -12,10 +14,11 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Scene::Scene(physx::PxScene* pxScene)
-			: _pxScene(pxScene)
+		Scene::Scene()
 		{
+			b2Vec2 defaultGravity(0.0f, 9.8f);
 
+			_world = new b2World(defaultGravity);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -23,17 +26,17 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		Scene::~Scene()
 		{
-
+			delete _world;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Actor* Scene::CreateActor()
+		Actor* Scene::CreateBody()
 		{
-			Actor* actor = Physics::GetInstance()->CreateActor();
+			b2BodyDef bodyDef;
 
-			_pxScene->addActor(*actor->GetPxActor());
+			Actor* actor = new Actor(_world->CreateBody(&bodyDef));
 
 			_actors.push_back(actor);
 
@@ -45,8 +48,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Scene::Update(float dt)
 		{
-			_pxScene->simulate(dt);
-			_pxScene->fetchResults(true);
+			_world->Step(dt, _velocityIterations, _positionIterations);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -54,31 +56,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result)
 		{
-			physx::PxVec3 pxOrigin(origin.x, origin.y, origin.z);
-			physx::PxVec3 pxDir(dir.x, dir.y, dir.z);
-
-			pxDir.normalize();
-
-			physx::PxRaycastBuffer pxRaycastBuffer;
-
-			bool bHit = _pxScene->raycast(pxOrigin, pxDir, distance, pxRaycastBuffer);
-
-			if (bHit == true)
-			{
-				// Fill raycast result
-				physx::PxActor* pxActor = pxRaycastBuffer.block.actor;
-
-				for (Actor* actor : _actors)
-				{
-					if (actor->GetPxActor() == pxActor)
-					{
-						result._actorCollided = actor;
-						break;
-					}
-				}
-			}
-
-			return bHit;
+			// TODO
+			//_world->RayCast();
+			return false;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -86,18 +66,18 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Scene::GetDebugGeometry(std::vector<RENDERER::Line_3P_3C>& lines, std::vector<RENDERER::Tri_3P_3C>& tris)
 		{
+			/*
 			const physx::PxRenderBuffer& rb = _pxScene->getRenderBuffer();
 			physx::PxU32 lineCount = rb.getNbLines();
 
 			if (lineCount != 0)
 			{
-				//lines.resize(lineCount);
+				lines.resize(lineCount);
 
 				for (physx::PxU32 i = 0; i < lineCount; i++)
 				{
 					const physx::PxDebugLine& pxLine = rb.getLines()[i];
 
-					/*
 					RENDERER::Line_3P_3C& line = lines[i];
 
 					line.vertices[0].pos[0] = pxLine.pos0.x;
@@ -113,7 +93,6 @@ namespace HOD
 					line.vertices[1].color[0] = (float)((pxLine.color1 & 0x00FF0000) >> 16);
 					line.vertices[1].color[1] = (float)((pxLine.color1 & 0x0000FF00) >> 8);
 					line.vertices[1].color[2] = (float)((pxLine.color1 & 0x000000FF) >> 0);
-					*/
 				}
 			}
 
@@ -121,14 +100,13 @@ namespace HOD
 
 			if (triCount != 0)
 			{
-				//tris.resize(triCount);
+				tris.resize(triCount);
 
 				for (physx::PxU32 i = 0; i < triCount; i++)
 				{
 					const physx::PxDebugTriangle& pxTri = rb.getTriangles()[i];
 					// render the line
 
-					/*
 					RENDERER::Tri_3P_3C& tri = tris[i];
 
 					tri.vertices[2].pos[0] = pxTri.pos0.x;
@@ -151,9 +129,9 @@ namespace HOD
 					tri.vertices[0].color[0] = (float)((pxTri.color2 & 0x00FF0000) >> 16);
 					tri.vertices[0].color[1] = (float)((pxTri.color2 & 0x0000FF00) >> 8);
 					tri.vertices[0].color[2] = (float)((pxTri.color2 & 0x000000FF) >> 0);
-					*/
 				}
 			}
+			*/
 		}
 
 		//-----------------------------------------------------------------------------

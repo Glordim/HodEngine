@@ -111,7 +111,7 @@ namespace HOD
 		{
 			SceneComponent* actorSceneComponent = actor->GetComponent<SceneComponent>();
 
-			PHYSICS::Actor* physicActor = _physicScene->CreateActor();
+			PHYSICS::Actor* physicActor = _physicScene->CreateBody();
 
 			physicActor->SetTransform(actorSceneComponent->GetPosition(), actorSceneComponent->GetRotation(), glm::vec3(1.0f, 1.0f, 1.0f));
 

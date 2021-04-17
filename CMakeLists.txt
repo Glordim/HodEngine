@@ -76,21 +76,14 @@ optimized "HodEngine/DebugLayer/Release/DebugLayer" debug "HodEngine/DebugLayer/
 optimized "../SDK/Build/SDL/Release/SDL2" debug "../SDK/Build/SDL/Debug/SDL2d"
 optimized "../SDK/Build/SDL/Release/SDL2main" debug "../SDK/Build/SDL/Debug/SDL2maind"
 optimized "../SDK/Build/SPIRV-Cross/Release/spirv-cross-core" debug "../SDK/Build/SPIRV-Cross/Debug/spirv-cross-core"
-optimized "../SDK/Build/tinyobjloader/Release/tinyobjloader" debug "../SDK/Build/tinyobjloader/Debug/tinyobjloader"
 optimized "../SDK/Build/glm/glm/Release/glm_static" debug "../SDK/Build/glm/glm/Debug/glm_static"
-optimized "../SDK/Build/PhysX_lib/release/PhysX_64" debug "../SDK/Build/PhysX_lib/debug/PhysX_64"
-optimized "../SDK/Build/PhysX_lib/release/PhysXCommon_64" debug "../SDK/Build/PhysX_lib/debug/PhysXCommon_64"
-optimized "../SDK/Build/PhysX_lib/release/PhysXExtensions_static_64" debug "../SDK/Build/PhysX_lib/debug/PhysXExtensions_static_64"
-optimized "../SDK/Build/PhysX_lib/release/PhysXFoundation_64" debug "../SDK/Build/PhysX_lib/debug/PhysXFoundation_64"
+optimized "../SDK/Build/box2d/bin/Release/box2d" debug "../SDK/Build/box2d/bin/Debug/box2d"
 optimized "d3d12.lib" debug "d3d12.lib"
 optimized "DXGI.lib" debug "DXGI.lib"
 )
 
 add_custom_command(TARGET HodEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"../SDK/Build/SDL/Debug/SDL2d.dll">$<$<CONFIG:release>:"../SDK/Build/SDL/Release/SDL2.dll"> $<TARGET_FILE_DIR:HodEngine>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"../SDK/Build/PhysX_lib/debug/PhysX_64.dll">$<$<CONFIG:release>:"../SDK/Build/PhysX_lib/release/PhysX_64.dll"> $<TARGET_FILE_DIR:HodEngine>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"../SDK/Build/PhysX_lib/debug/PhysXCommon_64.dll">$<$<CONFIG:release>:"../SDK/Build/PhysX_lib/release/PhysXCommon_64.dll"> $<TARGET_FILE_DIR:HodEngine>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"../SDK/Build/PhysX_lib/debug/PhysXFoundation_64.dll">$<$<CONFIG:release>:"../SDK/Build/PhysX_lib/release/PhysXFoundation_64.dll"> $<TARGET_FILE_DIR:HodEngine>
 )
 
 find_package(Vulkan)

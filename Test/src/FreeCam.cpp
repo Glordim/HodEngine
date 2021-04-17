@@ -69,7 +69,7 @@ namespace HOD
 		dir.z *= dir.w;
 
 		dir = glm::normalize(dir);
-
+		/*
 		glm::vec3 finalPos = _sceneComponent->GetPosition() + glm::vec3(dir * 100.0f);
 
 		PHYSICS::RaycastResult result;
@@ -84,6 +84,7 @@ namespace HOD
 				GAME::Game::GetInstance()->DebugActor(actor);
 			}
 		}
+		*/
 	}
 
 	//-----------------------------------------------------------------------------
@@ -105,9 +106,7 @@ namespace HOD
 		_view.x += angleX;
 		_view.y += angleY;
 
-		_sceneComponent->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-		_sceneComponent->Rotate(_view.x, glm::vec3(0.0f, 1.0f, 0.0f));
-		_sceneComponent->Rotate(_view.y, glm::vec3(1.0f, 0.0f, 0.0f));
+		_sceneComponent->SetRotation(0.0f);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -183,7 +182,7 @@ namespace HOD
 					_movement.y = 0.0f;
 				}
 
-				_sceneComponent->SetPosition(_sceneComponent->GetPosition() + (_sceneComponent->GetRotation() * _movement * dt * _speed));
+				//_sceneComponent->SetPosition(_sceneComponent->GetPosition() + (_sceneComponent->GetRotation() * _movement * dt * _speed));
 			}
 			else
 			{

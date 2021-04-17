@@ -24,9 +24,9 @@ namespace HOD
 
 			if (physicActor == nullptr)
 			{
-				glm::vec3 position = actor->GetComponent<SceneComponent>()->GetPosition();
-				glm::quat rotation = actor->GetComponent<SceneComponent>()->GetRotation();
-				glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+				glm::vec2 position = actor->GetComponent<SceneComponent>()->GetPosition();
+				float rotation = actor->GetComponent<SceneComponent>()->GetRotation();
+				glm::vec2 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 				physicActor = scene->CreatePhysicActor(actor);
 				physicActor->SetTransform(position, rotation, scale);

@@ -5,7 +5,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include <PxPhysicsAPI.h>
+#include <box2d/b2_body.h>
+#include <box2d/b2_edge_shape.h>
+#include <box2d/b2_circle_shape.h>
+#include <box2d/b2_polygon_shape.h>
 
 #include <Renderer/src/BoundingBox.h>
 
@@ -18,53 +21,73 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Actor::Actor(physx::PxActor* pxActor) : _pxActor(pxActor)
+		Actor::Actor(b2Body* b2Body) : _b2Body(b2Body)
 		{
-			_pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, Physics::GetInstance()->GetActorVisualizationFlag());
+			//_pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, Physics::GetInstance()->GetActorVisualizationFlag());
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetShape(SHAPE shape, const RENDERER::BoundingBox& boundingBox, const glm::vec3& scale)
+		void Actor::AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition)
 		{
-			physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pxActor);
+			b2EdgeShape shape;
+			shape.SetTwoSided(b2Vec2(startPosition.x, startPosition.y), b2Vec2(endPosition.x, endPosition.y));
 
-			glm::vec3 halfSize = glm::max(glm::abs((boundingBox.max - boundingBox.min) * scale), 0.001f) * 0.5f;
-
-			physx::PxShape* pxShape = Physics::GetInstance()->CreateShape(physx::PxBoxGeometry(halfSize.x, halfSize.y, halfSize.z));
-			if (pxShape != nullptr)
-			{
-				pxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, Physics::GetInstance()->GetShapeVisualizationFlag());
-
-				glm::vec3 pos = boundingBox.center * scale;
-
-				pxShape->setLocalPose(physx::PxTransform(pos.x, pos.y, pos.z));
-
-				rigidActor->attachShape(*pxShape);
-			}
+			_b2Body->CreateFixture(&shape, 0.0f);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale)
+		void Actor::AddCircleShape(const glm::vec2& position, float radius)
 		{
-			physx::PxTransform pxTransform(physx::PxVec3(position.x, position.y, position.z));
-			pxTransform.q = physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
-			//pxTransform.sca
+			b2CircleShape shape;
+			shape.m_p.x = position.x;
+			shape.m_p.y = position.y;
+			shape.m_radius = radius;
 
-			physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pxActor);
-
-			rigidActor->setGlobalPose(pxTransform);
+			_b2Body->CreateFixture(&shape, 0.0f);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		physx::PxActor* Actor::GetPxActor() const
+		void Actor::AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle)
 		{
-			return _pxActor;
+			b2PolygonShape shape;
+			shape.SetAsBox(size.x, size.y, b2Vec2(position.x, position.y), angle);
+
+			_b2Body->CreateFixture(&shape, 0.0f);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Actor::AddConvexShape(const std::vector<const glm::vec2>& vertices)
+		{
+			b2PolygonShape shape;
+			// todo
+			//shape.Set(vertices.data(), vertices.size());
+
+			_b2Body->CreateFixture(&shape, 0.0f);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void Actor::SetTransform(const glm::vec2& position, float rotation, const glm::vec2& scale)
+		{
+			// todo scale
+			_b2Body->SetTransform(b2Vec2(position.x, position.y), rotation);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		b2Body* Actor::GetB2Actor() const
+		{
+			return _b2Body;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -72,20 +95,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Actor::SetShapesVisualizationFlag(bool visualization)
 		{
-			physx::PxRigidActor* rigidActor = static_cast<physx::PxRigidActor*>(_pxActor);
-
-			physx::PxShape** shapes = new physx::PxShape * [rigidActor->getNbShapes()];
-
-			size_t shapeCount = rigidActor->getShapes(shapes, rigidActor->getNbShapes(), 0);
-
-			for (size_t shapeIndex = 0; shapeIndex < shapeCount; ++shapeIndex)
-			{
-				rigidActor->detachShape(*shapes[shapeIndex]);
-
-				shapes[shapeIndex]->setFlag(physx::PxShapeFlag::eVISUALIZATION, visualization);
-
-				rigidActor->attachShape(*shapes[shapeIndex]);
-			}
+			
 		}
 
 		//-----------------------------------------------------------------------------
@@ -93,7 +103,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Actor::SetVisualizationFlag(bool visualization)
 		{
-			_pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, visualization);
+
 		}
 	}
 }
