@@ -3,6 +3,8 @@
 #include "Actor.h"
 #include "Physics.h"
 
+#include "DebugDrawer.h"
+
 #include <box2d/b2_world.h>
 #include <box2d/b2_math.h>
 #include <box2d/b2_body.h>
@@ -16,9 +18,12 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		Scene::Scene()
 		{
+			_debugDrawer = new DebugDrawer();
+
 			b2Vec2 defaultGravity(0.0f, 9.8f);
 
-			_world = new b2World(defaultGravity);
+			_b2World = new b2World(defaultGravity);
+			_b2World->SetDebugDraw(_debugDrawer);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -26,7 +31,8 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		Scene::~Scene()
 		{
-			delete _world;
+			delete _b2World;
+			delete _debugDrawer;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -36,7 +42,7 @@ namespace HOD
 		{
 			b2BodyDef bodyDef;
 
-			Actor* actor = new Actor(_world->CreateBody(&bodyDef));
+			Actor* actor = new Actor(_b2World->CreateBody(&bodyDef));
 
 			_actors.push_back(actor);
 
@@ -48,7 +54,12 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Scene::Update(float dt)
 		{
-			_world->Step(dt, _velocityIterations, _positionIterations);
+			_b2World->Step(dt, _velocityIterations, _positionIterations);
+
+			if (_useDebugDraw == true)
+			{
+				_b2World->DebugDraw();
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -137,23 +148,28 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::ApplyShapeVisualizationFlag(bool visualization)
+		void Scene::SetDebugDraw(bool debugDraw)
 		{
-			for (Actor* actor : _actors)
-			{
-				actor->SetShapesVisualizationFlag(visualization);
-			}
+			_useDebugDraw = debugDraw;
 		}
-
+		
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::ApplyActorVisualizationFlag(bool visualization)
+		void Scene::SetDebugDrawFlags(DebugDrawFlag flag, bool enabled)
 		{
-			for (Actor* actor : _actors)
+			uint32_t mask = _debugDrawer->GetFlags();
+
+			if (enabled == true)
 			{
-				actor->SetVisualizationFlag(visualization);
+				mask |= (1 << flag);
 			}
+			else
+			{
+				mask &= ~(1 << flag);
+			}
+
+			_debugDrawer->SetFlags(mask);
 		}
 	}
 }

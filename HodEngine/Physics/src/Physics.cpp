@@ -75,47 +75,5 @@ namespace HOD
 
 			delete scene;
 		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Physics::SetShapeVisualizationFlag(bool visualization)
-		{
-			_visualizeShape = visualization;
-
-			for (Scene* scene : _scenes)
-			{
-				scene->ApplyShapeVisualizationFlag(visualization);
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Physics::SetActorVisualizationFlag(bool visualization)
-		{
-			_visualizeActor = visualization;
-
-			for (Scene* scene : _scenes)
-			{
-				scene->ApplyActorVisualizationFlag(visualization);
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool Physics::GetShapeVisualizationFlag() const
-		{
-			return _visualizeShape;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool Physics::GetActorVisualizationFlag() const
-		{
-			return _visualizeActor;
-		}
 	}
 }

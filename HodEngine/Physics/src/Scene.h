@@ -22,6 +22,7 @@ namespace HOD
 	namespace PHYSICS
 	{
 		class Actor;
+		class DebugDrawer;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -37,6 +38,17 @@ namespace HOD
 		class Scene
 		{
 		public:
+
+			enum DebugDrawFlag
+			{
+				Shape = 0,
+				Join,
+				AABB,
+				Pair,
+				CenterOfMass
+			};
+
+		public:
 								Scene();
 								~Scene();
 
@@ -48,15 +60,18 @@ namespace HOD
 
 			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result);
 
-			// Debug
+		// Debug
 		public:
 
-			void				ApplyShapeVisualizationFlag(bool visualization);
-			void				ApplyActorVisualizationFlag(bool visualization);
+			void				SetDebugDraw(bool debugDraw);
+			void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
 
 		private:
 
-			b2World*			_world = nullptr;
+			b2World*			_b2World = nullptr;
+
+			bool				_useDebugDraw = false;
+			DebugDrawer*		_debugDrawer = nullptr;
 
 			int32_t				_velocityIterations = 8;
 			int32_t				_positionIterations = 3;

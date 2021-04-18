@@ -33,17 +33,7 @@ namespace HOD
 			{
 				Physics* physics = Physics::GetInstance();
 
-				bool visualizeShape = physics->GetShapeVisualizationFlag();
-				bool visualizeActor = physics->GetActorVisualizationFlag();
-
-				if (ImGui::Checkbox("Visualize Shape", &visualizeShape) == true)
-				{
-					physics->SetShapeVisualizationFlag(visualizeShape);
-				}
-				if (ImGui::Checkbox("Visualize Actor", &visualizeActor) == true)
-				{
-					physics->SetActorVisualizationFlag(visualizeActor);
-				}
+				
 			}
 			ImGui::End();
 		}

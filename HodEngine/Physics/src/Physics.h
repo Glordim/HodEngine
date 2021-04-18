@@ -6,18 +6,6 @@
 
 #include <vector>
 
-namespace physx
-{
-	class PxShape;
-	class PxFoundation;
-	class PxPhysics;
-	class PxGeometry;
-	class PxMaterial;
-
-	class PxDefaultAllocator;
-	class PxDefaultErrorCallback;
-}
-
 namespace HOD
 {
 	namespace PHYSICS
@@ -45,27 +33,11 @@ namespace HOD
 			Scene*							CreateScene();
 			void							DestroyScene(Scene* scene);
 
-			Actor*							CreateActor();
-
-			physx::PxShape*					CreateShape(physx::PxGeometry& pxGeometry, physx::PxMaterial* pxMaterial = nullptr);
-
 		private:
 
 			std::vector<Scene*>				_scenes;
 
-			// Debug
-		public:
-
-			void							SetShapeVisualizationFlag(bool visualization);
-			void							SetActorVisualizationFlag(bool visualization);
-
-			bool							GetShapeVisualizationFlag() const;
-			bool							GetActorVisualizationFlag() const;
-
 		private:
-
-			bool							_visualizeShape = false;
-			bool							_visualizeActor = false;
 
 			PhysicsDebugWindow				_physicDebugWindow;
 		};

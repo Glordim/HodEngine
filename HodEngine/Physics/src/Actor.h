@@ -20,16 +20,6 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		enum SHAPE
-		{
-			BOX,
-			CAPSULE,
-			SPHERE
-		};
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		class Actor
 		{
 		public:
@@ -46,9 +36,6 @@ namespace HOD
 			void				SetTransform(const glm::vec2& position, float angle, const glm::vec2& scale);
 
 			b2Body*				GetB2Actor() const;
-
-			void				SetShapesVisualizationFlag(bool visualization);
-			void				SetVisualizationFlag(bool visualization);
 
 		private:
 

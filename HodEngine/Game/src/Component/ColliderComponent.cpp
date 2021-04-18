@@ -26,7 +26,7 @@ namespace HOD
 			{
 				glm::vec2 position = actor->GetComponent<SceneComponent>()->GetPosition();
 				float rotation = actor->GetComponent<SceneComponent>()->GetRotation();
-				glm::vec2 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+				glm::vec2 scale = glm::vec2(1.0f, 1.0f);
 
 				physicActor = scene->CreatePhysicActor(actor);
 				physicActor->SetTransform(position, rotation, scale);
@@ -52,23 +52,33 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void ColliderComponent::SetShape(PHYSICS::SHAPE eShape)
+		void ColliderComponent::AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition)
 		{
-			Actor* actor = GetActor();
-			PHYSICS::Actor* physicActor = actor->GetPhysicActor();
-/*
-			StaticMeshComponent* pStaticMeshComponent = actor->GetComponent<StaticMeshComponent>();
-			SceneComponent* pSceneComponent = actor->GetComponent<SceneComponent>();
+			GetActor()->GetPhysicActor()->AddEdgeShape(startPosition, endPosition);
+		}
 
-			if (pStaticMeshComponent != nullptr && pStaticMeshComponent->GetMesh() != nullptr)
-			{
-				physicActor->SetShape(eShape, pStaticMeshComponent->GetMesh()->GetBoundingBox(), pSceneComponent->GetScale());
-			}
-			else
-			{
-				physicActor->SetShape(eShape, RENDERER::BoundingBox(), pSceneComponent->GetScale());
-			}
-			*/
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void ColliderComponent::AddCircleShape(const glm::vec2& position, float radius)
+		{
+			GetActor()->GetPhysicActor()->AddCircleShape(position, radius);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void ColliderComponent::AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle)
+		{
+			GetActor()->GetPhysicActor()->AddBoxShape(position, size, angle);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void ColliderComponent::AddConvexShape(const std::vector<const glm::vec2>& vertices)
+		{
+			GetActor()->GetPhysicActor()->AddConvexShape(vertices);
 		}
 	}
 }

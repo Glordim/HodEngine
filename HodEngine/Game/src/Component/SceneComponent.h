@@ -40,8 +40,6 @@ namespace HOD
 			SceneComponent*					GetChild(uint32_t index);
 			void							SetParent(SceneComponent* parent);
 
-			void							LookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up);
-
 			const glm::mat4&				GetModelMatrix();
 
 			void							SetPosition(const glm::vec2& position);

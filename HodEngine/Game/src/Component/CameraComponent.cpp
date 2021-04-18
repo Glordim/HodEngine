@@ -8,8 +8,6 @@
 
 #include "SceneComponent.h"
 
-//#include "AntTweakBar.h"
-
 #include <Renderer/src/Renderer.h>
 #include <Renderer/src/RenderQueue.h>
 #include <Renderer/src/RenderCommand/RenderCommandSetCameraSettings.h>
@@ -48,10 +46,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void CameraComponent::DrawImGui()
 		{
-			//TwAddSeparator(tweakBar, "Camera", "");
-			//TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &_fov, "");
-			//TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &_near, "");
-			//TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &_far, "");
+
 		}
 
 		//-----------------------------------------------------------------------------

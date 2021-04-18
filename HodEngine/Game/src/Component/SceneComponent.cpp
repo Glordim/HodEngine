@@ -9,8 +9,6 @@
 #include <iostream>
 #include <string>
 
-//#include <AntTweakBar.h>
-
 #include "../Actor.h"
 #include <Physics/src/Actor.h>
 
@@ -48,7 +46,7 @@ namespace HOD
 		{
 			glm::vec2 pos = _position;
 
-			if (ImGui::DragFloat3("Position", &pos[0]) == true)
+			if (ImGui::DragFloat2("Position", &pos[0]) == true)
 			{
 				SetPosition(pos);
 			}
@@ -62,7 +60,7 @@ namespace HOD
 
 			glm::vec2 scale = _scale;
 
-			if (ImGui::DragFloat3("Scale", &scale[0]) == true)
+			if (ImGui::DragFloat2("Scale", &scale[0]) == true)
 			{
 				SetScale(scale);
 			}
@@ -79,41 +77,15 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SceneComponent::LookAt(const glm::vec3& eye, const glm::vec3 target, const glm::vec3 up)
-		{
-			// TODO
-			/*
-			_modelMatrix = glm::lookAt(eye, target, up);
-
-			glm::vec3 skew;
-			glm::vec4 perspective;
-
-			glm::decompose(_modelMatrix, _scale, _rotation, _position, skew, perspective);
-			_rotation = glm::conjugate(_rotation);
-
-			_modelMatrixDirty = false;
-
-			std::cout << std::to_string(_position.x) << " " << std::to_string(_position.y) << " " << std::to_string(_position.z) << std::endl;
-			std::cout << std::to_string(GetRotationEuler().x) << " " << std::to_string(GetRotationEuler().y) << " " << std::to_string(GetRotationEuler().z) << std::endl;
-			*/
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		const glm::mat4& SceneComponent::GetModelMatrix()
 		{
 			if (_modelMatrixDirty == true)
 			{
-				/*
-				glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), _position);
-				glm::mat4 rot = glm::mat4_cast(_rotation);
-				glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), _scale);
+				glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), glm::vec3(_position, 0.0f));
+				glm::quat rot = glm::rotate(glm::identity<glm::quat>(), _rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+				glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), glm::vec3(_scale, 1.0f));
 
-				_modelMatrix = pos * rot * scale;
-				*/
-
-				// TODO
+				_modelMatrix = pos * glm::mat4_cast(rot) * scale;
 			}
 
 			return _modelMatrix;
