@@ -17,22 +17,22 @@ endfunction(assign_source_group)
 project(ImGui)
 
 file(GLOB_RECURSE Srcs
-        "${PROJECT_SOURCE_DIR}/src/*.cpp"
-        "${PROJECT_SOURCE_DIR}/src/*.h"
-		"${PROJECT_SOURCE_DIR}/src/*.inl"
-        )
+	"${PROJECT_SOURCE_DIR}/src/*.cpp"
+	"${PROJECT_SOURCE_DIR}/src/*.h"
+	"${PROJECT_SOURCE_DIR}/src/*.inl"
+)
 
 assign_source_group(${Srcs})
 		
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 ".."
-"../../SDK/SDL/include"
+"${SDK_DIR}/SDL/include"
 )
 
 add_library(ImGui ${Srcs})
 
 target_link_libraries(ImGui
-optimized "../../../SDK/Build/SDL/Release/SDL2" debug "../../../SDK/Build/SDL/Debug/SDL2d"
+optimized "${SDK_DIR}/Build/SDL/Release/SDL2.lib" debug "${SDK_DIR}/Build/SDL/Debug/SDL2d.lib"
 )
 
 find_package(Vulkan)
