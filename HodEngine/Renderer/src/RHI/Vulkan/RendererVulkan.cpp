@@ -712,13 +712,13 @@ namespace HOD
 			_viewLayout.BuildDescriptorSetLayout();
 			_modelLayout.BuildDescriptorSetLayout();
 
-			_unlitVertexColorMaterial = CreateMaterial(vertexShader, fragmentShader, Material::Topololy::TRIANGLE);
+			_unlitVertexColorMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 			_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
 
-			_unlitVertexColorLineMaterial = CreateMaterial(vertexShader, fragmentShader, Material::Topololy::LINE);
+			_unlitVertexColorLineMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Line, Material::Topololy::LINE);
 			_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
 
-			_sharedMinimalMaterial = CreateMaterial(vertexShader, fragmentShader, Material::Topololy::TRIANGLE, false);
+			_sharedMinimalMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false);
 
 			return true;
 		}
@@ -738,6 +738,7 @@ namespace HOD
 
 			VkPhysicalDeviceFeatures deviceFeatures = {};
 			deviceFeatures.samplerAnisotropy = VK_TRUE;
+			deviceFeatures.fillModeNonSolid = VK_TRUE;
 
 			VkDeviceCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -1596,11 +1597,11 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy, bool useDepth)
+		Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			VkMaterial* mat = new VkMaterial();
 
-			if (mat->Build(vertexShader, fragmentShader, topololy, useDepth) == false)
+			if (mat->Build(vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
 			{
 				delete mat;
 				return nullptr;

@@ -21,18 +21,26 @@ namespace HOD
 		class Material
 		{
 		public:
+
+			enum PolygonMode
+			{
+				Fill,
+				Line,
+				Point,
+			};
+
 			enum Topololy
 			{
 				POINT,
 				LINE,
 				TRIANGLE,
-				TRIANGLE_LINE
+				TRIANGLE_FAN,
 			};
 
 			Material();
 			virtual ~Material();
 
-			virtual bool Build(Shader* vertexShader, Shader* fragmentShader, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
+			virtual bool Build(Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
 
 			bool link(Shader* vertexShader, Shader* fragmentShader);
 			void use();

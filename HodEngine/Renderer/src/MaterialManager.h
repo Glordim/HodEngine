@@ -21,7 +21,7 @@ namespace HOD
 
 		public:
 
-			CORE::UID									CreateMaterial(const std::string& shaderName, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
+			CORE::UID									CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
 
 		private:
 														MaterialManager();

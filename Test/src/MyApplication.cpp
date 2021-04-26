@@ -168,7 +168,7 @@ bool MyApplication::LoadStartingScene(const CORE::UID& startingSceneUid)
 	{
 		SceneComponent* sceneComponent = sprite->AddComponent<SceneComponent>();
 		sceneComponent->SetPosition(glm::vec3(0.1f, 0.1f, 0.0f));
-		sceneComponent->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		sceneComponent->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 		sceneComponent->SetParent(_scene->GetRoot());
 
 		SpriteComponent* spriteComponent = sprite->AddComponent<SpriteComponent>();
@@ -183,7 +183,7 @@ bool MyApplication::LoadStartingScene(const CORE::UID& startingSceneUid)
 	{
 		SceneComponent* sceneComponent = sprite2->AddComponent<SceneComponent>();
 		sceneComponent->SetPosition(glm::vec3(0.15f, 0.15f, 0.0f));
-		sceneComponent->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		sceneComponent->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 		sceneComponent->SetParent(_scene->GetRoot());
 
 		SpriteComponent* spriteComponent = sprite2->AddComponent<SpriteComponent>();

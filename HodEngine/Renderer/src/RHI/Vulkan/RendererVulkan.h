@@ -47,7 +47,7 @@ namespace HOD
 			virtual CommandBuffer* CreateCommandBuffer() override;
 			virtual Buffer* CreateBuffer(Buffer::Usage usage) override;
 			virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
-			virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+			virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 			virtual MaterialInstance* CreateMaterialInstance(const Material* material) override;
 			virtual Texture* CreateTexture(const std::string& path) override;
 

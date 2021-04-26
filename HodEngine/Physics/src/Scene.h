@@ -15,8 +15,7 @@ namespace HOD
 
 	namespace RENDERER
 	{
-		struct Line_3P_3C;
-		struct Tri_3P_3C;
+		class RenderQueue;
 	}
 
 	namespace PHYSICS
@@ -54,9 +53,9 @@ namespace HOD
 
 			Actor*				CreateBody();
 
-			void				GetDebugGeometry(std::vector<RENDERER::Line_3P_3C>& lines, std::vector<RENDERER::Tri_3P_3C>& tris);
-
 			void				Update(float dt);
+
+			void				PushToRenderQueue(RENDERER::RenderQueue& renderQueue);
 
 			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result);
 

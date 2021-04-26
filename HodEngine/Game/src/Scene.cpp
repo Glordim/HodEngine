@@ -194,6 +194,8 @@ namespace HOD
 			}
 
 			_root->PushToRenderQueue(*renderQueue, true);
+
+			_physicScene->PushToRenderQueue(*renderQueue);
 		}
 	}
 }

@@ -79,7 +79,7 @@ namespace HOD
 				}
 				else
 				{
-					_projectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, _near, _far);
+					_projectionMatrix = glm::ortho(-_aspect * 0.5f, _aspect * 0.5f, -0.5f, 0.5f, _near, _far);
 				}
 
 				_dirtyFlag = false;

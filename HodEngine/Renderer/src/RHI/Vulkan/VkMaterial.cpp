@@ -45,7 +45,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy, bool useDepth)
+		bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -131,9 +131,13 @@ namespace HOD
 			// Input assembly
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 			inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-			if (topololy == Topololy::TRIANGLE || topololy == Topololy::TRIANGLE_LINE)
+			if (topololy == Topololy::TRIANGLE)
 			{
 				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			}
+			else if (topololy == Topololy::TRIANGLE_FAN)
+			{
+				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 			}
 			else if (topololy == Topololy::LINE)
 			{
@@ -162,13 +166,17 @@ namespace HOD
 			rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 			rasterizer.depthClampEnable = VK_FALSE;
 			rasterizer.rasterizerDiscardEnable = VK_FALSE;
-			if (topololy == Topololy::TRIANGLE_LINE)
+			if (polygonMode == PolygonMode::Fill)
+			{
+				rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+			}
+			else if (polygonMode == PolygonMode::Line)
 			{
 				rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
 			}
 			else
 			{
-				rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+				rasterizer.polygonMode = VK_POLYGON_MODE_POINT;
 			}
 			rasterizer.lineWidth = 1.0f;
 			rasterizer.cullMode = VK_CULL_MODE_NONE;//VK_CULL_MODE_BACK_BIT;
