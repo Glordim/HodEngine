@@ -24,6 +24,11 @@ namespace HOD
 
 			_b2World = new b2World(defaultGravity);
 			_b2World->SetDebugDraw(_debugDrawer);
+			SetDebugDrawFlags(DebugDrawFlag::Shape, true);
+			SetDebugDrawFlags(DebugDrawFlag::Join, true);
+			SetDebugDrawFlags(DebugDrawFlag::AABB, true);
+			SetDebugDrawFlags(DebugDrawFlag::CenterOfMass, true);
+			SetDebugDrawFlags(DebugDrawFlag::Pair, true);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -58,6 +63,7 @@ namespace HOD
 
 			if (_useDebugDraw == true)
 			{
+				_debugDrawer->PurgePreviousFrame();
 				_b2World->DebugDraw();
 			}
 		}

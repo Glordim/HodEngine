@@ -70,7 +70,7 @@ namespace HOD
 
 			b2World*			_b2World = nullptr;
 
-			bool				_useDebugDraw = false;
+			bool				_useDebugDraw = true;
 			DebugDrawer*		_debugDrawer = nullptr;
 
 			int32_t				_velocityIterations = 8;

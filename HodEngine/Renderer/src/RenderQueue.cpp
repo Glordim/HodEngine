@@ -29,7 +29,7 @@ namespace HOD
 			commandBuffer->StartRecord();
 			for (RenderCommand* renderCommand : _renderCommands)
 			{
-				renderCommand->Execute(commandBuffer);
+				//renderCommand->Execute(commandBuffer);
 				delete renderCommand;
 			}
 
@@ -38,6 +38,7 @@ namespace HOD
 			_renderCommands.clear();
 
 			renderer->SubmitCommandBuffers(&commandBuffer, 1);
+			delete commandBuffer;
 		}
 	}
 }

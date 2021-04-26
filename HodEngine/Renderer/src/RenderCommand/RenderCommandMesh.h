@@ -22,7 +22,7 @@ namespace HOD
 		{
 		public:
 
-									RenderCommandMesh(const P2fT2f* vertices, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const glm::mat4x4& modelMatrix, MaterialInstance* materialInstance);
+									RenderCommandMesh(const void* vertices, uint32_t vertexCount, uint32_t vertexSize, const uint16_t* indices, uint32_t indexCount, const glm::mat4x4& modelMatrix, MaterialInstance* materialInstance, bool ignoreVisualisationMode = false);
 									RenderCommandMesh(const RenderCommandMesh&) = delete;
 									RenderCommandMesh(RenderCommandMesh&&) = delete;
 									~RenderCommandMesh() override = default;
@@ -36,10 +36,14 @@ namespace HOD
 
 		private:
 
-			std::vector<P2fT2f>		_vertices;
+			std::vector<uint8_t>	_vertices;
+			uint32_t				_vertexCount;
+			uint32_t				_vertexSize;
+
 			std::vector<uint16_t>	_indices;
 			glm::mat4x4				_modelMatrix;
 			MaterialInstance*		_materialInstance = nullptr;
+			bool					_ignoreVisualisationMode;
 		};
 	}
 }

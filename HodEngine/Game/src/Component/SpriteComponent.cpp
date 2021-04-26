@@ -98,7 +98,7 @@ namespace HOD
 			vertices[2]._textCoord[0] = 1.0f;
 			vertices[2]._textCoord[1] = 0.0f;
 			*/
-			renderQueue.PushRenderCommand(new RENDERER::RenderCommandMesh(_sprite->GetVertices().data(), _sprite->GetVertices().size(), _sprite->GetIndices().data(), _sprite->GetIndices().size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(), _materialInstance));
+			renderQueue.PushRenderCommand(new RENDERER::RenderCommandMesh(_sprite->GetVertices().data(), _sprite->GetVertices().size(), sizeof(RENDERER::P2fT2f), _sprite->GetIndices().data(), _sprite->GetIndices().size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(), _materialInstance));
 		}
 	}
 }

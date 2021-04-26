@@ -32,10 +32,14 @@ namespace HOD
 			_descriptorSetLayoutMap.clear();
 
 			if (_pipelineLayout != VK_NULL_HANDLE)
+			{
 				vkDestroyPipelineLayout(renderer->GetVkDevice(), _pipelineLayout, nullptr);
+			}
 
 			if (_graphicsPipeline != VK_NULL_HANDLE)
+			{
 				vkDestroyPipeline(renderer->GetVkDevice(), _graphicsPipeline, nullptr);
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -59,44 +63,90 @@ namespace HOD
 
 			VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+			// Extract descriptorSet definition from shader bytecode
+			spirv_cross::Compiler compVert(((VkShader*)vertexShader)->GetShaderBytecode());
+			spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
+
+			size_t inputCount = resourcesVert.stage_inputs.size();
+
+			std::vector<VkVertexInputAttributeDescription> vertexAttributeDecriptions;
+			vertexAttributeDecriptions.resize(inputCount);
+
+			for (size_t i = 0; i < inputCount; ++i)
+			{
+				spirv_cross::Resource& resource = resourcesVert.stage_inputs[i];
+				const spirv_cross::SPIRType& type = compVert.get_type_from_variable(resource.id);
+
+				uint32_t location = compVert.get_decoration(resource.id, spv::DecorationLocation);
+
+				VkVertexInputAttributeDescription& vertexAttributeDescription = vertexAttributeDecriptions[location];
+				vertexAttributeDescription.binding = 0;
+				vertexAttributeDescription.location = location;
+				if (type.vecsize == 1)
+				{
+					vertexAttributeDescription.format = VK_FORMAT_R32_SFLOAT;
+				}
+				else if (type.vecsize == 2)
+				{
+					vertexAttributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+				}
+				else if (type.vecsize == 3)
+				{
+					vertexAttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+				}
+				else if (type.vecsize == 4)
+				{
+					vertexAttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+				}
+				else
+				{
+					vertexAttributeDescription.format = VK_FORMAT_UNDEFINED;
+				}
+				vertexAttributeDescription.offset = (type.width / 8) * type.vecsize;
+			}
+
+			uint32_t offset = 0;
+
+			for (size_t i = 0; i < inputCount; ++i)
+			{
+				uint32_t size = vertexAttributeDecriptions[i].offset;
+				vertexAttributeDecriptions[i].offset = offset;
+
+				offset += size;
+			}
+
 			VkVertexInputBindingDescription bindingDescription = {};
 			bindingDescription.binding = 0;
-			bindingDescription.stride = sizeof(P2fT2f);
+			bindingDescription.stride = offset;
 			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-			VkVertexInputAttributeDescription posAttribute;
-			posAttribute.binding = 0;
-			posAttribute.location = 0;
-			posAttribute.format = VK_FORMAT_R32G32_SFLOAT;
-			posAttribute.offset = offsetof(P2fT2f, _position);
-
-			VkVertexInputAttributeDescription uvAttribute;
-			uvAttribute.binding = 0;
-			uvAttribute.location = 1;
-			uvAttribute.format = VK_FORMAT_R32G32_SFLOAT;
-			uvAttribute.offset = offsetof(P2fT2f, _textCoord);
-
-			VkVertexInputAttributeDescription vertexAttributes[] = { posAttribute, uvAttribute };
 
 			// Vertex input
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 			vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 			vertexInputInfo.vertexBindingDescriptionCount = 1;
 			vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-			vertexInputInfo.vertexAttributeDescriptionCount = 2;
-			vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes;
+			vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributeDecriptions.size();
+			vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDecriptions.data();
 
 			// Input assembly
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 			inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 			if (topololy == Topololy::TRIANGLE || topololy == Topololy::TRIANGLE_LINE)
+			{
 				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			}
 			else if (topololy == Topololy::LINE)
+			{
 				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			}
 			else if (topololy == Topololy::POINT)
+			{
 				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+			}
 			else
+			{
 				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			}
 			inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 			// Viewports and scissors
@@ -187,8 +237,8 @@ namespace HOD
 			dynamicState.pDynamicStates = dynamicStates;
 
 			// Extract descriptorSet definition from shader bytecode
-			spirv_cross::Compiler compVert(((VkShader*)vertexShader)->GetShaderBytecode());
-			spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
+			//spirv_cross::Compiler compVert(((VkShader*)vertexShader)->GetShaderBytecode());
+			//spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
 
 			size_t uniformBufferCount = resourcesVert.uniform_buffers.size();
 			for (size_t i = 0; i < uniformBufferCount; ++i)
