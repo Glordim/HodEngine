@@ -23,7 +23,6 @@ namespace HOD
 	{
 		struct GpuDevice;
 		class RenderQueue;
-		class Mesh;
 		class Buffer;
 		class CommandBuffer;
 		class Material;
@@ -68,16 +67,14 @@ namespace HOD
 			virtual bool				ResizeSwapChain() = 0;
 
 			virtual bool				AcquireNextImageIndex() = 0;
-			virtual bool				SubmitRenderQueue(RenderQueue& renderQueue) = 0;
 			virtual bool				SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount) = 0;
 
 			virtual bool				SwapBuffer() = 0;
 
 			virtual CommandBuffer*		CreateCommandBuffer() = 0;
 			virtual Buffer*				CreateBuffer(Buffer::Usage usage) = 0;
-			virtual Mesh*				CreateMesh(const std::string& path) = 0;
 			virtual Shader*				CreateShader(const std::string& path, Shader::ShaderType type) = 0;
-			virtual Material*			CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) = 0;
+			virtual Material*			CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) = 0;
 			virtual MaterialInstance*	CreateMaterialInstance(const Material* material) = 0;
 			virtual Texture*			CreateTexture(const std::string& path) = 0;
 

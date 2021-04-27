@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace HOD
 {
 	namespace RENDERER
@@ -7,10 +9,10 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct Vertex_3P_3C
+		struct P2fC4f
 		{
-			float pos[3];
-			float color[3];
+			float	_position[2];
+			float	_color[4];
 		};
 	}
 }

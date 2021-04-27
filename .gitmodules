@@ -13,17 +13,12 @@
 	path = SDK/stb
 	url = https://github.com/Glordim/stb
 	branch = master
-[submodule "SDK/tinyobjloader"]
-	path = SDK/tinyobjloader
-	url = https://github.com/Glordim/tinyobjloader
-	branch = master
-[submodule "SDK/PhysX"]
-	path = SDK/PhysX
-	url = https://github.com/Glordim/PhysX
-	branch = 4.1
 [submodule "SDK/imgui"]
 	path = SDK/imgui
 	url = https://github.com/Glordim/imgui
 [submodule "SDK/rapidjson"]
 	path = SDK/rapidjson
 	url = https://github.com/Glordim/rapidjson
+[submodule "SDK/box2d"]
+	path = SDK/box2d
+	url = https://github.com/Glordim/box2d.git

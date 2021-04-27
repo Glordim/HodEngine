@@ -3,9 +3,6 @@
 #include <Core/src/Color.h>
 #include "Actor.h"
 
-#include <Renderer/src/Line_3P_3C.h>
-#include <Renderer/src/Tri_3P_3C.h>
-
 #include <vector>
 #include <utility>
 
@@ -80,7 +77,7 @@ namespace HOD
 			std::vector<Actor*>									_actorList;
 			std::map<PHYSICS::Actor*, Actor*>					_physicActorToActorMap;
 
-			std::vector<std::pair<RENDERER::Line_3P_3C, float>>	_debugLines;
+			//std::vector<std::pair<RENDERER::Line_3P_3C, float>>	_debugLines;
 		};
 	}
 }

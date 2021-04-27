@@ -275,88 +275,80 @@ namespace HOD
 			return true;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool RendererDirectX12::SubmitRenderQueue(RenderQueue& renderQueue)
-		{
-			ComPtr<ID3D12GraphicsCommandList> commandList = nullptr;
+		/*
+					ComPtr<ID3D12GraphicsCommandList> commandList = nullptr;
 
-			if (FAILED(_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList))) == true)
-			{
-				OUTPUT_ERROR("D3d12: Unable to creare Command List!\n");
-				return false;
-			}
+					if (FAILED(_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList))) == true)
+					{
+						OUTPUT_ERROR("D3d12: Unable to creare Command List!\n");
+						return false;
+					}
 
-			/*
-			commandList->SetGraphicsRootSignature(m_rootSignature.Get());
-			commandList->RSSetViewports(1, &viewport);
-			commandList->RSSetScissorRects(1, &scissor);
-			*/
+					//commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+					//commandList->RSSetViewports(1, &viewport);
+					//commandList->RSSetScissorRects(1, &scissor);
 
-			D3D12_RESOURCE_TRANSITION_BARRIER transition;
-			transition.pResource = _backBuffers[0].Get();
-			transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-			transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+					D3D12_RESOURCE_TRANSITION_BARRIER transition;
+					transition.pResource = _backBuffers[0].Get();
+					transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+					transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-			D3D12_RESOURCE_BARRIER barrier;
-			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Transition = transition;
-			commandList->ResourceBarrier(1, &barrier);
+					D3D12_RESOURCE_BARRIER barrier;
+					barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+					barrier.Transition = transition;
+					commandList->ResourceBarrier(1, &barrier);
 
-			D3D12_CPU_DESCRIPTOR_HANDLE rtv(_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+					D3D12_CPU_DESCRIPTOR_HANDLE rtv(_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-			commandList->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
+					commandList->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
 
-			FLOAT clearColor[] = { 0.4f, 0.6f, 0.9f, 1.0f };
+					FLOAT clearColor[] = { 0.4f, 0.6f, 0.9f, 1.0f };
 
-			commandList->ClearRenderTargetView(rtv, clearColor, 0, nullptr);
+					commandList->ClearRenderTargetView(rtv, clearColor, 0, nullptr);
 
-			transition.pResource = _backBuffers[0].Get();
-			transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+					transition.pResource = _backBuffers[0].Get();
+					transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+					transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 
-			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Transition = transition;
-			commandList->ResourceBarrier(1, &barrier);
+					barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+					barrier.Transition = transition;
+					commandList->ResourceBarrier(1, &barrier);
 
-			if (FAILED(commandList->Close()) == true)
-			{
-				OUTPUT_ERROR("D3d12: Unable to close Command List!\n");
-				return false;
-			}
+					if (FAILED(commandList->Close()) == true)
+					{
+						OUTPUT_ERROR("D3d12: Unable to close Command List!\n");
+						return false;
+					}
 
-			ID3D12CommandList* const commandLists[] = {
-				commandList.Get()
-			};
-			_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+					ID3D12CommandList* const commandLists[] = {
+						commandList.Get()
+					};
+					_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
-			_swapChain->Present(0, 0);
+					_swapChain->Present(0, 0);
 
-			ComPtr<ID3D12Fence> fence = nullptr;
-			if (FAILED(_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))) == true)
-			{
-				OUTPUT_ERROR("D3d12: Unable to create Fence!\n");
-				return false;
-			}
+					ComPtr<ID3D12Fence> fence = nullptr;
+					if (FAILED(_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))) == true)
+					{
+						OUTPUT_ERROR("D3d12: Unable to create Fence!\n");
+						return false;
+					}
 
-			HANDLE fenceEvent = nullptr;
-			fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-			if (fenceEvent == nullptr)
-			{
-				OUTPUT_ERROR("D3d12: Unable to create Fence Event!\n");
-				return false;
-			}
+					HANDLE fenceEvent = nullptr;
+					fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+					if (fenceEvent == nullptr)
+					{
+						OUTPUT_ERROR("D3d12: Unable to create Fence Event!\n");
+						return false;
+					}
 
-			_commandQueue->Signal(fence.Get(), 1);
-			fence->SetEventOnCompletion(1, fenceEvent);
+					_commandQueue->Signal(fence.Get(), 1);
+					fence->SetEventOnCompletion(1, fenceEvent);
 
-			//WaitForSingleObject(fenceEvent, static_cast<DWORD>(std::numeric_limits<Uint32>().max()));
+					//WaitForSingleObject(fenceEvent, static_cast<DWORD>(std::numeric_limits<Uint32>().max()));
 
-			_swapChain->Present1(0, 0, nullptr);
-
-			return true;
-		}
+					_swapChain->Present1(0, 0, nullptr);
+					*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -393,7 +385,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Material* RendererDirectX12::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy, bool useDepth)
+		Material* RendererDirectX12::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			return nullptr;
 		}
@@ -402,14 +394,6 @@ namespace HOD
 		//! @brief		
 		//-----------------------------------------------------------------------------
 		MaterialInstance* RendererDirectX12::CreateMaterialInstance(const Material* material)
-		{
-			return nullptr;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		Mesh* RendererDirectX12::CreateMesh(const std::string& path)
 		{
 			return nullptr;
 		}

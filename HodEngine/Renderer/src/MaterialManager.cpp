@@ -28,7 +28,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		CORE::UID MaterialManager::CreateMaterial(const std::string& shaderName, Material::Topololy topololy, bool useDepth)
+		CORE::UID MaterialManager::CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			Renderer* renderer = Renderer::GetInstance();
 
@@ -44,7 +44,7 @@ namespace HOD
 				return CORE::UID::INVALID_UID;
 			}
 
-			Material* material = renderer->CreateMaterial(vertexShader, fragmentShader, topololy, useDepth);
+			Material* material = renderer->CreateMaterial(vertexShader, fragmentShader, polygonMode, topololy, useDepth);
 			if (material == nullptr)
 			{
 				return CORE::UID::INVALID_UID;

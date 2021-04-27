@@ -1,13 +1,12 @@
 #pragma once
 
+#include <vector>
+
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
 #include <glm/glm.hpp>
 
-namespace physx
-{
-	class PxActor;
-}
+class b2Body;
 
 namespace HOD
 {
@@ -21,37 +20,26 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		enum SHAPE
-		{
-			BOX,
-			CYLINDER,
-			CAPSULE,
-			SPHERE
-		};
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		class Actor
 		{
 		public:
-								Actor(physx::PxActor* pxActor);
+								Actor(b2Body* b2Body);
 								~Actor() = default;
 
 		public:
 
-			void				SetShape(SHAPE shape, const RENDERER::BoundingBox& boundingBox, const glm::vec3& scale);
+			void				AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition);
+			void				AddCircleShape(const glm::vec2& position, float radius);
+			void				AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle);
+			void				AddConvexShape(const std::vector<const glm::vec2>& vertices);
 
-			void				SetTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
+			void				SetTransform(const glm::vec2& position, float angle, const glm::vec2& scale);
 
-			physx::PxActor*		GetPxActor() const;
-
-			void				SetShapesVisualizationFlag(bool visualization);
-			void				SetVisualizationFlag(bool visualization);
+			b2Body*				GetB2Actor() const;
 
 		private:
 
-			physx::PxActor*		_pxActor = nullptr;
+			b2Body*				_b2Body = nullptr;
 		};
 	}
 }

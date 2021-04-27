@@ -10,7 +10,6 @@
 #include <HodEngine/Renderer/src/RHI/Material.h>
 #include <HodEngine/Renderer/src/RHI/MaterialInstance.h>
 #include <HodEngine/Renderer/src/RHI/Texture.h>
-#include <HodEngine/Renderer/src/RHI/Mesh.h>
 #include <HodEngine/Renderer/src/RenderQueue.h>
 #include <HodEngine/Renderer/src/SpriteAtlas.h>
 #include <HodEngine/Renderer/src/Sprite.h>
@@ -21,7 +20,6 @@
 #include <HodEngine/Game/src/Component/SceneComponent.h>
 #include <HodEngine/Game/src/Component/CameraComponent.h>
 #include <HodEngine/Game/src/Component/ColliderComponent.h>
-#include <HodEngine/Game/src/Component/StaticMeshComponent.h>
 #include <HodEngine/Game/src/Component/SpriteComponent.h>
 #include <HodEngine/Game/src/Component/Light/PointLightComponent.h>
 #include <HodEngine/Game/src/Component/Light/DirLightComponent.h>
@@ -137,18 +135,13 @@ bool MyApplication::LoadStartingScene(const CORE::UID& startingSceneUid)
 		SceneComponent* sceneComponent = freeCam->GetComponent<SceneComponent>();
 
 		sceneComponent->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-		//sceneComponent->LookAt(sceneComponent->GetPosition(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		sceneComponent->SetParent(_scene->GetRoot());
-
-		//freeCam->setupInputListener(application.GetInputListenner());
 
 		SpotLightComponent* spotLightComponent = freeCam->AddComponent<SpotLightComponent>();
 		spotLightComponent->_data.radius = 15.0f;
 		spotLightComponent->_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);
 		spotLightComponent->_data.intensity = 1.0f;
 		spotLightComponent->_data.outer = 10.0f;
-
-		//freeCam->GetComponent<GAME::CameraComponent>()->SetHdriMaterial(materialHdriInstance, hdriTexture);
 	}
 
 	MaterialManager* materialManager = MaterialManager::GetInstance();
@@ -175,34 +168,30 @@ bool MyApplication::LoadStartingScene(const CORE::UID& startingSceneUid)
 	{
 		SceneComponent* sceneComponent = sprite->AddComponent<SceneComponent>();
 		sceneComponent->SetPosition(glm::vec3(0.1f, 0.1f, 0.0f));
-		sceneComponent->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		sceneComponent->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 		sceneComponent->SetParent(_scene->GetRoot());
 
 		SpriteComponent* spriteComponent = sprite->AddComponent<SpriteComponent>();
 		spriteComponent->SetMaterialInstance(spriteMaterialUnlitInstance);
 		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-2.png"));
-		//spriteComponent->SetMesh(wallMesh);
-		//staticMeshComponent->EnableDebugTangent(true);
 
-		//ColliderComponent* colliderComponent = ground->AddComponent<ColliderComponent>();
-		//colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
+		ColliderComponent* colliderComponent = sprite->AddComponent<ColliderComponent>();
+		colliderComponent->AddBoxShape(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), 0.0f);
 	}
 
 	Actor* sprite2 = _scene->SpawnActor<Actor>("sprite2");
 	{
 		SceneComponent* sceneComponent = sprite2->AddComponent<SceneComponent>();
 		sceneComponent->SetPosition(glm::vec3(0.15f, 0.15f, 0.0f));
-		sceneComponent->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		sceneComponent->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 		sceneComponent->SetParent(_scene->GetRoot());
 
 		SpriteComponent* spriteComponent = sprite2->AddComponent<SpriteComponent>();
 		spriteComponent->SetMaterialInstance(spriteMaterialUnlitInstance);
 		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-2.png"));
-		//spriteComponent->SetMesh(wallMesh);
-		//staticMeshComponent->EnableDebugTangent(true);
 
-		//ColliderComponent* colliderComponent = ground->AddComponent<ColliderComponent>();
-		//colliderComponent->SetShape(PHYSICS::SHAPE::BOX);
+		ColliderComponent* colliderComponent = sprite2->AddComponent<ColliderComponent>();
+		colliderComponent->AddCircleShape(glm::vec2(0.0f, 0.0f), 1.0f);
 	}
 
 	return true;

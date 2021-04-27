@@ -37,6 +37,6 @@ namespace HOD
 		Uint32 ticks = SDL_GetTicks();
 		float time = ticks / 1000.0f;
 
-		_sceneComponent->SetPosition(_sceneComponent->GetPosition() + glm::vec3(0.0f, 1.0f, 0.0f) * sin((float)time) * dt);
+		_sceneComponent->SetPosition(_sceneComponent->GetPosition() + glm::vec2(0.0f, 1.0f) * sin((float)time) * dt);
 	}
 }

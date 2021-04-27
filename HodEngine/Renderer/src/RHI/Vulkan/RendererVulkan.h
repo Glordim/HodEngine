@@ -38,8 +38,6 @@ namespace HOD
 			bool CreateCommandPool();
 			bool CreateSemaphores();
 
-			virtual bool SubmitRenderQueue(RenderQueue& renderQueue) override;
-
 			virtual bool ResizeSwapChain() override;
 
 			virtual bool AcquireNextImageIndex() override;
@@ -48,9 +46,8 @@ namespace HOD
 
 			virtual CommandBuffer* CreateCommandBuffer() override;
 			virtual Buffer* CreateBuffer(Buffer::Usage usage) override;
-			virtual Mesh* CreateMesh(const std::string& path) override;
 			virtual Shader* CreateShader(const std::string& path, Shader::ShaderType type) override;
-			virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+			virtual Material* CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 			virtual MaterialInstance* CreateMaterialInstance(const Material* material) override;
 			virtual Texture* CreateTexture(const std::string& path) override;
 
@@ -84,8 +81,6 @@ namespace HOD
 
 		private:
 
-			bool GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer, std::vector<DescriptorSet*>& descriptorSetToCleanAfterRender);
-
 			static void GetAvailableExtensions(std::vector<VkExtensionProperties>* availableExtensions);
 			static bool CheckExtensionsIsAvailable(const std::vector<const char*>& extensions, const std::vector<VkExtensionProperties>& availableExtensions);
 			static bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
@@ -109,24 +104,22 @@ namespace HOD
 			VkSemaphore                 _renderFinishedSemaphore = VK_NULL_HANDLE;
 			VkFence                     _acquireNextImageFence = VK_NULL_HANDLE;
 
-			VkGpuDevice* _selectedGpu = nullptr;
-			std::vector<VkGpuDevice>    _availableGpu;
+			VkGpuDevice*				_selectedGpu = nullptr;
+			std::vector<VkGpuDevice>	_availableGpu;
 
-			VkExtent2D                  _swapChainExtent;
+			VkExtent2D					_swapChainExtent;
 
-			uint32_t                    _currentImageIndex = 0;
+			uint32_t					_currentImageIndex = 0;
 
-			Material* _unlitVertexColorMaterial = nullptr;
-			MaterialInstance* _unlitVertexColorMaterialInstance = nullptr;
+			Material*					_unlitVertexColorMaterial = nullptr;
+			MaterialInstance*			_unlitVertexColorMaterialInstance = nullptr;
 
-			Material* _unlitVertexColorLineMaterial = nullptr;
-			MaterialInstance* _unlitVertexColorLineMaterialInstance = nullptr;
+			Material*					_unlitVertexColorLineMaterial = nullptr;
+			MaterialInstance*			_unlitVertexColorLineMaterialInstance = nullptr;
 
-			DescriptorSetLayout         _viewLayout;
-			DescriptorSetLayout         _modelLayout;
+			DescriptorSetLayout			_viewLayout;
+			DescriptorSetLayout			_modelLayout;
 			Material*					_sharedMinimalMaterial = nullptr;
-
-			Mesh* _skyboxMesh = nullptr;
 		};
 	}
 }

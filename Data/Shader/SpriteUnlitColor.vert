@@ -61,6 +61,6 @@ layout(set = 1, binding = 0) uniform ModelUniformBufferObject {
 
 void main()
 {
-	gl_Position = modelUbo.model * vec4(pos.xy, 0.0f, 1.0f);
+	gl_Position = modelUbo.mvp * vec4(pos.xy, 0.0f, 1.0f);
 }
 

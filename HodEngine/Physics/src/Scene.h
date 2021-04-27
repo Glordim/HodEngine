@@ -4,11 +4,7 @@
 
 #include <vector>
 
-namespace physx
-{
-	class PxScene;
-	class PxMaterial;
-}
+class b2World;
 
 namespace HOD
 {
@@ -19,13 +15,13 @@ namespace HOD
 
 	namespace RENDERER
 	{
-		struct Line_3P_3C;
-		struct Tri_3P_3C;
+		class RenderQueue;
 	}
 
 	namespace PHYSICS
 	{
 		class Actor;
+		class DebugDrawer;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -41,26 +37,43 @@ namespace HOD
 		class Scene
 		{
 		public:
-								Scene(physx::PxScene* pxScene);
+
+			enum DebugDrawFlag
+			{
+				Shape = 0,
+				Join,
+				AABB,
+				Pair,
+				CenterOfMass
+			};
+
+		public:
+								Scene();
 								~Scene();
 
-			Actor*				CreateActor();
-
-			void				GetDebugGeometry(std::vector<RENDERER::Line_3P_3C>& lines, std::vector<RENDERER::Tri_3P_3C>& tris);
+			Actor*				CreateBody();
 
 			void				Update(float dt);
 
+			void				PushToRenderQueue(RENDERER::RenderQueue& renderQueue);
+
 			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result);
 
-			// Debug
+		// Debug
 		public:
 
-			void				ApplyShapeVisualizationFlag(bool visualization);
-			void				ApplyActorVisualizationFlag(bool visualization);
+			void				SetDebugDraw(bool debugDraw);
+			void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
 
 		private:
-			physx::PxScene*		_pxScene = nullptr;
-			physx::PxMaterial*	_pxDefaultMaterial = nullptr;
+
+			b2World*			_b2World = nullptr;
+
+			bool				_useDebugDraw = true;
+			DebugDrawer*		_debugDrawer = nullptr;
+
+			int32_t				_velocityIterations = 8;
+			int32_t				_positionIterations = 3;
 
 			std::vector<Actor*>	_actors;
 		};

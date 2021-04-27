@@ -63,19 +63,6 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
-echo tinyobjloader...
-if not exist "./Build/tinyobjloader" (
-	echo Create tinyobjloader Build Dir
-	mkdir "./Build/tinyobjloader"
-)
-cmake -A x64 -B./Build/tinyobjloader ./tinyobjloader
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
 echo SDL...
 if not exist "./Build/rapidjson" (
 	echo Create rapidjson Build Dir
@@ -89,24 +76,17 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
-echo PhysX...
-
-call PhysX\physx\generate_projects.bat vc19win64
+echo box2d...
+if not exist "./Build/box2d" (
+	echo Create box2d Build Dir
+	mkdir "./Build/box2d"
+)
+cmake -A x64 -B./Build/box2d ./box2d
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
 	exit 1
 )
-
-if not exist "./Build/PhysX_proj" (
-	echo Create SymLink to PhysX_proj Dir
-	mklink /J "%CD%\Build\PhysX_proj" "%CD%\PhysX\physx\compiler\vc19win64"
-)
-if not exist "./Build/PhysX_lib" (
-	echo Create SymLink to PhysX_lib Dir
-	mklink /J "%CD%\Build\PhysX_lib" "%CD%\PhysX\physx\bin\win.x86_64.vc141.md"
-)
-
 echo Done
 echo *******
 
@@ -161,21 +141,6 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
-echo tinyobjloader...
-cmake --build ./Build/tinyobjloader --config Release
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-cmake --build ./Build/tinyobjloader --config Debug
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
 echo rapidjson...
 cmake --build ./Build/rapidjson --config Release
 if %errorlevel% neq 0 (
@@ -191,10 +156,19 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
-echo PhysX...
-cmake --build ./Build/PhysX_proj --config Release
-cmake --build ./Build/PhysX_proj --config Debug
-
+echo box2d...
+cmake --build ./Build/box2d --config Release
+if %errorlevel% neq 0 (
+	echo Fail
+	pause
+	exit 1
+)
+cmake --build ./Build/box2d --config Debug
+if %errorlevel% neq 0 (
+	echo Fail
+	pause
+	exit 1
+)
 echo Done
 echo *******
 

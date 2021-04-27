@@ -2,6 +2,10 @@
 
 #include "../Component.h"
 
+#define GLM_DEPTH_ZERO_TO_ONE 1
+#define GLM_FORCE_LEFT_HANDED 1
+#include <glm/glm.hpp>
+
 namespace HOD
 {
 	namespace PHYSICS
@@ -40,7 +44,10 @@ namespace HOD
 			void			DrawImGui() override;
 			const char*		GetType() const override;
 
-			void			SetShape(PHYSICS::SHAPE eShape);
+			void			AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition);
+			void			AddCircleShape(const glm::vec2& position, float radius);
+			void			AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle);
+			void			AddConvexShape(const std::vector<const glm::vec2>& vertices);
 		};
 	}
 }

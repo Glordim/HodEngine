@@ -35,7 +35,9 @@ namespace HOD
 			}
 
 			if (_descriptorSet != VK_NULL_HANDLE)
+			{
 				vkFreeDescriptorSets(renderer->GetVkDevice(), renderer->GetDescriptorPool(), 1, &_descriptorSet);
+			}
 		}
 
 		//-----------------------------------------------------------------------------

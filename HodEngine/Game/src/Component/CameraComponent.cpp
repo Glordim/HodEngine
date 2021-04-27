@@ -8,8 +8,6 @@
 
 #include "SceneComponent.h"
 
-//#include "AntTweakBar.h"
-
 #include <Renderer/src/Renderer.h>
 #include <Renderer/src/RenderQueue.h>
 #include <Renderer/src/RenderCommand/RenderCommandSetCameraSettings.h>
@@ -48,10 +46,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void CameraComponent::DrawImGui()
 		{
-			//TwAddSeparator(tweakBar, "Camera", "");
-			//TwAddVarRW(tweakBar, "fov", TW_TYPE_FLOAT, &_fov, "");
-			//TwAddVarRW(tweakBar, "near", TW_TYPE_FLOAT, &_near, "");
-			//TwAddVarRW(tweakBar, "far", TW_TYPE_FLOAT, &_far, "");
+
 		}
 
 		//-----------------------------------------------------------------------------
@@ -84,7 +79,7 @@ namespace HOD
 				}
 				else
 				{
-					_projectionMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, _near, _far);
+					_projectionMatrix = glm::ortho(-_aspect * 0.5f, _aspect * 0.5f, -0.5f, 0.5f, _near, _far);
 				}
 
 				_dirtyFlag = false;
@@ -98,6 +93,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void CameraComponent::Render(Scene& scene)
 		{
+			/*
 			RENDERER::RenderQueue renderQueue;
 
 			renderQueue.SetCameraPos(GetActor()->GetComponent<SceneComponent>()->GetPosition());
@@ -115,6 +111,7 @@ namespace HOD
 
 			RENDERER::Renderer* renderer = RENDERER::Renderer::GetInstance();
 			renderer->SubmitRenderQueue(renderQueue);
+			*/
 		}
 
 		//-----------------------------------------------------------------------------

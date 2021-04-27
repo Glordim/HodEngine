@@ -98,7 +98,7 @@ namespace HOD
 			{
 				if (_wireframeMaterial == nullptr)
 				{
-					_wireframeMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::Topololy::TRIANGLE_LINE));
+					_wireframeMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
 				}
 
 				_wireframeMaterialInstance = CreateMaterialInstance(_wireframeMaterial);

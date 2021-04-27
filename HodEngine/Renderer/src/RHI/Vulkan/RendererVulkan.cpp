@@ -8,7 +8,6 @@
 
 #include "BufferVk.h"
 #include "CommandBufferVk.h"
-#include "VkMesh.h"
 #include "VkTexture.h"
 #include "VkShader.h"
 #include "VkMaterial.h"
@@ -713,16 +712,13 @@ namespace HOD
 			_viewLayout.BuildDescriptorSetLayout();
 			_modelLayout.BuildDescriptorSetLayout();
 
-			_unlitVertexColorMaterial = CreateMaterial(vertexShader, fragmentShader, Material::Topololy::TRIANGLE);
+			_unlitVertexColorMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 			_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
 
-			_unlitVertexColorLineMaterial = CreateMaterial(vertexShader, fragmentShader, Material::Topololy::LINE);
+			_unlitVertexColorLineMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Line, Material::Topololy::LINE);
 			_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
 
-			_sharedMinimalMaterial = CreateMaterial(vertexShader, fragmentShader, Material::Topololy::TRIANGLE, false);
-
-			_skyboxMesh = new VkMesh();
-			_skyboxMesh->LoadSkybox();
+			_sharedMinimalMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false);
 
 			return true;
 		}
@@ -742,6 +738,7 @@ namespace HOD
 
 			VkPhysicalDeviceFeatures deviceFeatures = {};
 			deviceFeatures.samplerAnisotropy = VK_TRUE;
+			deviceFeatures.fillModeNonSolid = VK_TRUE;
 
 			VkDeviceCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -926,6 +923,8 @@ namespace HOD
 			_swapChainImageViews.resize(imageCount, VK_NULL_HANDLE);
 			for (size_t i = 0; i < imageCount; ++i)
 			{
+				TransitionImageLayout(swapChainImages[i], VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
 				// TODO use CreateImageView here ?
 
 				VkImageViewCreateInfo imageCreateInfo = {};
@@ -1343,6 +1342,14 @@ namespace HOD
 				sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 				destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 			}
+			else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+			{
+				barrier.srcAccessMask = 0;
+				barrier.dstAccessMask = 0;
+
+				sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+				destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+			}
 			else
 			{
 				OUTPUT_ERROR("Vulkan: TransitionImageLayout, unsupported layout transition!\n");
@@ -1425,434 +1432,6 @@ namespace HOD
 			}
 
 			return false;
-		}
-
-		/*
-		CommandBuffer* RendererVulkan::GenerateCommandBuffer()
-		{
-			VkCommandBufferAllocateInfo allocInfo = {};
-			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.commandPool = _commandPool;
-			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandBufferCount = 1;
-
-			if (vkAllocateCommandBuffers(_device, &allocInfo, commandBuffer) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to create Command Buffer!\n");
-				return false;
-			}
-
-			return 
-		}
-		*/
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool RendererVulkan::GenerateCommandBufferFromRenderQueue(RenderQueue& renderQueue, VkCommandBuffer* commandBuffer, std::vector<DescriptorSet*>& descriptorSetToCleanAfterRender)
-		{
-			/*
-			VkCommandBufferAllocateInfo allocInfo = {};
-			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.commandPool = _commandPool;
-			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandBufferCount = 1;
-
-			if (vkAllocateCommandBuffers(_device, &allocInfo, commandBuffer) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to create Command Buffer!\n");
-				return false;
-			}
-
-			VkCommandBufferBeginInfo beginInfo = {};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			beginInfo.pInheritanceInfo = nullptr;
-
-			if (vkBeginCommandBuffer(*commandBuffer, &beginInfo) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to begin recording command buffer!\n");
-				return false;
-			}
-
-			VkClearValue clearColor[2];
-			clearColor[0] = { 0.0f, 0.0f, 0.0f, 1.0f };
-			clearColor[1] = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-			VkRenderPassBeginInfo renderPassInfo = {};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = _renderPass;
-			renderPassInfo.framebuffer = _swapChainFramebuffers[_currentImageIndex];
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = _swapChainExtent;
-			renderPassInfo.clearValueCount = 2;
-			renderPassInfo.pClearValues = clearColor;
-
-			vkCmdBeginRenderPass(*commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-			VkViewport viewport = {};
-			viewport.x = 0.0f;
-			viewport.y = (float)_swapChainExtent.height;
-			viewport.width = (float)_swapChainExtent.width;
-			viewport.height = -(float)_swapChainExtent.height;
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-
-			vkCmdSetViewport(*commandBuffer, 0, 1, &viewport);
-
-			VkRect2D scissor = {};
-			scissor.offset = { 0, 0 };
-			scissor.extent = _swapChainExtent;
-
-			vkCmdSetScissor(*commandBuffer, 0, 1, &scissor);
-
-			const glm::mat4x4& projMatrix = renderQueue.GetProjMatrix();
-			const glm::mat4x4& viewMatrix = renderQueue.GetViewMatrix();
-			glm::mat4x4 staticViewMatrix = renderQueue.GetViewMatrix();
-			staticViewMatrix[3].x = 0.0f;
-			staticViewMatrix[3].y = 0.0f;
-			staticViewMatrix[3].z = 0.0f;
-			glm::mat4x4 vp = projMatrix * viewMatrix;
-
-			DescriptorSet* viewDescriptorSet = new DescriptorSet();
-			viewDescriptorSet->SetLayout(&_viewLayout);
-			viewDescriptorSet->SetUboValue("viewUbo.view", &staticViewMatrix, sizeof(glm::mat4x4));
-			viewDescriptorSet->SetUboValue("viewUbo.proj", &projMatrix, sizeof(glm::mat4x4));
-			viewDescriptorSet->SetUboValue("viewUbo.vp", &vp, sizeof(glm::mat4x4));
-
-			if (GetVisualizationMode() == true)
-			{
-				VkTexture* hdriTexture = (VkTexture*)renderQueue.GetHdriTexture();
-
-				viewDescriptorSet->SetTexture("skyboxSampler", hdriTexture);
-
-				glm::vec4 ambiantColor = glm::vec4(0.10f, 0.10f, 0.10f, 1.0f);
-				glm::vec3 eyePos = renderQueue.GetCameraPos();
-
-				viewDescriptorSet->SetUboValue("lightUbo.ambiantColor", &ambiantColor, sizeof(ambiantColor));
-				viewDescriptorSet->SetUboValue("lightUbo.eyePos", &eyePos, sizeof(eyePos));
-
-				const std::vector<RenderQueue::DirLightData*>& dirLightDatas = renderQueue.GetDirLightDatas();
-				uint32_t dirLightCount = (uint32_t)dirLightDatas.size();
-
-				viewDescriptorSet->SetUboValue("lightUbo.dirLightCount", &dirLightCount, sizeof(dirLightCount));
-
-				for (size_t i = 0; i < dirLightCount; ++i)
-				{
-					RenderQueue::DirLightData* dirLightData = dirLightDatas[i];
-
-					glm::vec4 color;
-					color.x = dirLightData->_dirLight->color.r;
-					color.y = dirLightData->_dirLight->color.g;
-					color.z = dirLightData->_dirLight->color.b;
-					color.w = dirLightData->_dirLight->color.a;
-
-					viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].dir", &dirLightData->_dir, sizeof(glm::vec3));
-					viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
-					viewDescriptorSet->SetUboValue("lightUbo.dirLight[" + std::to_string(i) + "].intensity", &dirLightData->_dirLight->intensity, sizeof(float));
-				}
-
-				const std::vector<RenderQueue::PointLightData*>& pointLightDatas = renderQueue.GetPointLightDatas();
-				uint32_t pointLightCount = (uint32_t)pointLightDatas.size();
-
-				viewDescriptorSet->SetUboValue("lightUbo.pointLightCount", &pointLightCount, sizeof(pointLightCount));
-
-				float constant = 1.0f;
-				float linear = 0.14f;
-				float quadratic = 0.07f;
-
-				for (size_t i = 0; i < pointLightCount; ++i)
-				{
-					RenderQueue::PointLightData* pointLightData = pointLightDatas[i];
-
-					glm::vec4 color;
-					color.x = pointLightData->_pointLight->color.r;
-					color.y = pointLightData->_pointLight->color.g;
-					color.z = pointLightData->_pointLight->color.b;
-					color.w = pointLightData->_pointLight->color.a;
-
-					viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].pos", &pointLightData->_pos, sizeof(glm::vec3));
-					viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
-					viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].intensity", &pointLightData->_pointLight->intensity, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].constant", &constant, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.pointLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
-				}
-
-				const std::vector<RenderQueue::SpotLightData*>& spotLightDatas = renderQueue.GetSpotLightDatas();
-				uint32_t spotLightCount = (uint32_t)spotLightDatas.size();
-
-				viewDescriptorSet->SetUboValue("lightUbo.spotLightCount", &spotLightCount, sizeof(spotLightCount));
-
-				constant = 1.0f;
-				linear = 0.045f;
-				quadratic = 0.0075f;
-
-				for (size_t i = 0; i < spotLightCount; ++i)
-				{
-					RenderQueue::SpotLightData* spotLightData = spotLightDatas[i];
-
-					glm::vec4 color;
-					color.x = spotLightData->_spotLight->color.r;
-					color.y = spotLightData->_spotLight->color.g;
-					color.z = spotLightData->_spotLight->color.b;
-					color.w = spotLightData->_spotLight->color.a;
-
-					float cosRadius = glm::cos(glm::radians(spotLightData->_spotLight->radius));
-					float cosOuter = glm::cos(glm::radians(spotLightData->_spotLight->outer));
-
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].pos", &spotLightData->_pos, sizeof(glm::vec3));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].dir", &spotLightData->_dir, sizeof(glm::vec3));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].color", &color, sizeof(glm::vec4));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].intensity", &spotLightData->_spotLight->intensity, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].constant", &constant, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].linear", &linear, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].quadratic", &quadratic, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].radius", &cosRadius, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].outer", &cosOuter, sizeof(float));
-					viewDescriptorSet->SetUboValue("lightUbo.spotLight[" + std::to_string(i) + "].inner", &spotLightData->_spotLight->inner, sizeof(float));
-				}
-
-				VkDescriptorSet vkViewDescriptorSet = viewDescriptorSet->GetDescriptorSet();
-
-				descriptorSetToCleanAfterRender.push_back(viewDescriptorSet);
-
-				VkMaterialInstance* hdriMatInstance = (VkMaterialInstance*)renderQueue.GetHdriMaterial();
-				VkMaterial* hdriMat = (VkMaterial*)hdriMatInstance->GetMaterial();
-
-				vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
-				vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 0, 1, &vkViewDescriptorSet, 0, nullptr);
-
-				std::vector<VkDescriptorSet> descriptorSets = hdriMatInstance->GetDescriptorSets();
-
-				vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetGraphicsPipeline());
-				if (descriptorSets.empty() == false)
-					vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hdriMat->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
-
-				VkMesh* mesh = (VkMesh*)_skyboxMesh;
-				VkBuffer vertexBuffer = mesh->GetVertexBuffer();
-				VkDeviceSize offsets[] = { 0 };
-
-				vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-				vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
-
-				VkMaterial* defaultMat = ((VkMaterialInstance*)_unlitVertexColorMaterialInstance)->GetMaterial();
-
-				vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMat->GetGraphicsPipeline());
-				vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMat->GetPipelineLayout(), 0, 1, &vkViewDescriptorSet, 0, nullptr);
-
-				const std::vector<RenderQueue::MeshData*>& meshDatas = renderQueue.GetMeshDatas();
-
-				size_t meshCount = meshDatas.size();
-				for (size_t i = 0; i < meshCount; ++i)
-				{
-					const RenderQueue::MeshData* meshData = meshDatas[i];
-
-					VkMaterialInstance* materialInstance = (VkMaterialInstance*)meshData->_materialInstance;
-					if (materialInstance == nullptr)
-					{
-						materialInstance = (VkMaterialInstance*)_unlitVertexColorMaterialInstance;
-					}
-
-					VkMaterial* material = materialInstance->GetMaterial();
-
-					std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
-
-					vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-					if (descriptorSets.empty() == false)
-						vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
-
-
-					// Model descriptor set
-
-					glm::mat4x4 mvp = vp * meshData->_matrix;
-
-					DescriptorSet* modelDescriptorSet = new DescriptorSet();
-					modelDescriptorSet->SetLayout(&_modelLayout);
-					modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
-					modelDescriptorSet->SetUboValue("modelUbo.model", &meshData->_matrix, sizeof(meshData->_matrix));
-					VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
-
-					descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
-
-					vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
-
-					VkMesh* mesh = (VkMesh*)meshData->_mesh;
-					VkBuffer vertexBuffer = mesh->GetVertexBuffer();
-					VkBuffer indiceBuffer = mesh->GetIndiceBuffer();
-					VkDeviceSize offsets[] = { 0 };
-
-					vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-					vkCmdBindIndexBuffer(*commandBuffer, indiceBuffer, 0, VK_INDEX_TYPE_UINT16);
-
-					vkCmdDrawIndexed(*commandBuffer, static_cast<uint32_t>(mesh->GetIndiceCount()), 1, 0, 0, 0);
-				}
-			}
-
-			const std::vector<RenderQueue::LineData*>& lineDatas = renderQueue.GetLineDatas();
-
-			size_t lineCount = lineDatas.size();
-			for (size_t i = 0; i < lineCount; ++i)
-			{
-				const RenderQueue::LineData* lineData = lineDatas[i];
-
-				VkMaterialInstance* materialInstance = (VkMaterialInstance*)lineData->_materialInstance;
-				if (materialInstance == nullptr)
-				{
-					materialInstance = (VkMaterialInstance*)_unlitVertexColorLineMaterialInstance;
-				}
-
-				VkMaterial* material = materialInstance->GetMaterial();
-
-				std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
-
-				vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-				if (descriptorSets.empty() == false)
-					vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
-
-
-				// Model descriptor set
-
-				glm::mat4x4 mvp = vp * lineData->_matrix;
-
-				DescriptorSet* modelDescriptorSet = new DescriptorSet();
-				modelDescriptorSet->SetLayout(&_modelLayout);
-				modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
-				modelDescriptorSet->SetUboValue("modelUbo.model", &lineData->_matrix, sizeof(lineData->_matrix));
-				VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
-
-				descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
-
-				vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
-
-				VkMesh* mesh = (VkMesh*)lineData->_mesh;
-				VkBuffer vertexBuffer = mesh->GetVertexBuffer();
-				VkDeviceSize offsets[] = { 0 };
-
-				vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-				vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
-			}
-
-			const std::vector<RenderQueue::TriangleData*>& triangleDatas = renderQueue.GetTriangleDatas();
-
-			size_t triangleCount = triangleDatas.size();
-			for (size_t i = 0; i < triangleCount; ++i)
-			{
-				const RenderQueue::TriangleData* triangleData = triangleDatas[i];
-
-				VkMaterialInstance* materialInstance = (VkMaterialInstance*)triangleData->_materialInstance;
-				if (materialInstance == nullptr)
-				{
-					materialInstance = (VkMaterialInstance*)_unlitVertexColorMaterialInstance;
-				}
-
-				VkMaterial* material = materialInstance->GetMaterial();
-
-				std::vector<VkDescriptorSet> descriptorSets = materialInstance->GetDescriptorSets();
-
-				vkCmdBindPipeline(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
-				if (descriptorSets.empty() == false)
-					vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 2, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
-
-
-				// Model descriptor set
-
-				glm::mat4x4 mvp = vp * triangleData->_matrix;
-
-				DescriptorSet* modelDescriptorSet = new DescriptorSet();
-				modelDescriptorSet->SetLayout(&_modelLayout);
-				modelDescriptorSet->SetUboValue("modelUbo.mvp", &mvp, sizeof(mvp));
-				modelDescriptorSet->SetUboValue("modelUbo.model", &triangleData->_matrix, sizeof(triangleData->_matrix));
-				VkDescriptorSet vkModelDescriptorSet = modelDescriptorSet->GetDescriptorSet();
-
-				descriptorSetToCleanAfterRender.push_back(modelDescriptorSet);
-
-				vkCmdBindDescriptorSets(*commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), 1, 1, &vkModelDescriptorSet, 0, nullptr);
-
-				VkMesh* mesh = (VkMesh*)triangleData->_mesh;
-				VkBuffer vertexBuffer = mesh->GetVertexBuffer();
-				VkDeviceSize offsets[] = { 0 };
-
-				vkCmdBindVertexBuffers(*commandBuffer, 0, 1, &vertexBuffer, offsets);
-				vkCmdDraw(*commandBuffer, (uint32_t)mesh->GetVertexCount(), 1, 0, 0);
-			}
-
-			ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
-
-			vkCmdEndRenderPass(*commandBuffer);
-
-			if (vkEndCommandBuffer(*commandBuffer) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to recording command buffer!\n");
-				return false;
-			}
-			*/
-			return true;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool RendererVulkan::SubmitRenderQueue(RenderQueue& renderQueue)
-		{
-			VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-
-			std::vector<DescriptorSet*> descriptorSetToCleanAfterRender;
-			descriptorSetToCleanAfterRender.reserve(renderQueue.GetMeshDatas().size() + renderQueue.GetLineDatas().size() + renderQueue.GetTriangleDatas().size() + 1);
-
-			if (GenerateCommandBufferFromRenderQueue(renderQueue, &commandBuffer, descriptorSetToCleanAfterRender) == false)
-			{
-				return false;
-			}
-
-			VkFence fence = VK_NULL_HANDLE;
-
-			VkFenceCreateInfo fenceCreateInfo = {};
-			fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-			fenceCreateInfo.flags = 0;
-			fenceCreateInfo.pNext = nullptr;
-
-			if (vkCreateFence(_device, &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to create Fence!\n");
-				return false;
-			}
-
-			VkSubmitInfo submitInfo = {};
-			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			submitInfo.signalSemaphoreCount = 0;
-			submitInfo.pSignalSemaphores = nullptr;
-			submitInfo.waitSemaphoreCount = 0;
-			submitInfo.pWaitSemaphores = nullptr;
-			submitInfo.pWaitDstStageMask = nullptr;
-			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &commandBuffer;
-
-			if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, fence) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to submit draw command buffer!\n");
-				vkDestroyFence(_device, fence, nullptr);
-				return false;
-			}
-
-			if (vkWaitForFences(_device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to wait fence\n");
-				vkDestroyFence(_device, fence, nullptr);
-				return false;
-			}
-
-			vkDestroyFence(_device, fence, nullptr);
-
-			vkFreeCommandBuffers(_device, _commandPool, 1, &commandBuffer);
-
-			size_t descriptorSetToCleanAfterRenderCount = descriptorSetToCleanAfterRender.size();
-			for (size_t i = 0; i < descriptorSetToCleanAfterRenderCount; ++i)
-			{
-				delete descriptorSetToCleanAfterRender[i];
-			}
-
-			return true;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -2018,11 +1597,11 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::Topololy topololy, bool useDepth)
+		Material* RendererVulkan::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			VkMaterial* mat = new VkMaterial();
 
-			if (mat->Build(vertexShader, fragmentShader, topololy, useDepth) == false)
+			if (mat->Build(vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
 			{
 				delete mat;
 				return nullptr;
@@ -2053,42 +1632,6 @@ namespace HOD
 		Buffer* RendererVulkan::CreateBuffer(Buffer::Usage usage)
 		{
 			return new BufferVk(usage);
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		Mesh* RendererVulkan::CreateMesh(const std::string& path)
-		{
-			VkMesh* mesh = new VkMesh();
-
-			if (path.find(".fbx") != std::string::npos)
-			{
-				if (mesh->loadFbx(path.c_str()) == false)
-				{
-					delete mesh;
-					return nullptr;
-				}
-			}
-			else if (path.find(".obj") != std::string::npos)
-			{
-				if (mesh->loadObj(path.c_str()) == false)
-				{
-					delete mesh;
-					return nullptr;
-				}
-			}
-			else if (path == "")
-			{
-				// Do nothing
-			}
-			else
-			{
-				delete mesh;
-				return nullptr;
-			}
-
-			return mesh;
 		}
 
 		//-----------------------------------------------------------------------------
