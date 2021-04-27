@@ -89,26 +89,28 @@ private:
 	RemoveDependencySignal		_removeDependencySignal;
 };
 
-#define CONTENT_META_TYPE(__ClassName__)						\
-public:															\
-																\
-Type GetType() const override									\
-{																\
-	return Hash::CompilationTimeFnv64(#__ClassName__);			\
-}																\
-																\
-const char* GetTypeName() const override						\
-{																\
-	return #__ClassName__;										\
-}																\
-																\
-static const char* GetTypeNameStatic()							\
-{																\
-	return #__ClassName__;										\
-}																\
-																\
-private:														\
-																\
+#define CONTENT_META_TYPE(__ClassName__)									\
+public:																		\
+																			\
+static constexpr Type _type = Hash::CompilationTimeFnv64(#__ClassName__);	\
+Type GetType() const override												\
+{																			\
+	return Hash::CompilationTimeFnv64(#__ClassName__);						\
+}																			\
+																			\
+const char* GetTypeName() const override									\
+{																			\
+																			\
+	return #__ClassName__;													\
+}																			\
+																			\
+static const char* GetTypeNameStatic()										\
+{																			\
+	return #__ClassName__;													\
+}																			\
+																			\
+private:																	\
+																			\
 
 
 #include "Content.inl"

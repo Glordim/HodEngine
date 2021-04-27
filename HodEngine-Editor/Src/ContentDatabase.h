@@ -43,13 +43,14 @@ public:
 	RemoveContentSignal&				GetRemoveContentSignal();
 	ContentChangeSignal&				GetContentChangeSignal();
 
+	void								RemoveContent(Content* content);
+
 private:
 
 	void								OnLoadProjectAction(Project* project);
 	void								OnUnLoadProjectAction(Project* project);
 
 	void								AddContent(Content* content);
-	void								RemoveContent(Content* content);
 
 private:
 
