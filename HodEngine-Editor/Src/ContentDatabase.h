@@ -39,6 +39,7 @@ public:
 
 	Content*							GetContent(const UID& uid) const;
 	Content*							GetContent(const QString path) const;
+
 	AddContentSignal&					GetAddContentSignal();
 	RemoveContentSignal&				GetRemoveContentSignal();
 	ContentChangeSignal&				GetContentChangeSignal();

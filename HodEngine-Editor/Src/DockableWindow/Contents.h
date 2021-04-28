@@ -32,6 +32,8 @@ private:
 	void										OnRemoveContent(Content* content);
 	void										OnContentChange(Content* content);
 
+	void										CreateContentDirectory(QString& path);
+
 private:
 
 	Ui::Contents*								_ui;

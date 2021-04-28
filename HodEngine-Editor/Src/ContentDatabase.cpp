@@ -86,6 +86,9 @@ void ContentDataBase::AddContent(Content* content)
 	}
 }
 
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
 void ContentDataBase::RemoveContent(Content* content)
 {
 	if (_contents.contains(content->GetUID()) == false)

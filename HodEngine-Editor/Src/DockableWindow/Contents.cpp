@@ -11,7 +11,7 @@
 #include <QFileDialog>
 #include <QTreeWidgetItem>
 #include <QStandardItem>
-
+#include <Qmessagebox>
 #include <QListView>
 #include <QTableView>
 #include <QStringList>
@@ -104,6 +104,11 @@ void Contents::CustomMenuRequested(const QPoint& position)
 	else
 	{
 		QMenu* create = menu->addMenu("Create");
+		menu->addAction("Folder", [this]()
+			{
+
+			});
+
 		QMenu* import = menu->addMenu("Import");
 		import->addAction("Texture", [this]()
 		{
@@ -227,4 +232,19 @@ void Contents::OnRemoveContent(Content* content)
 void Contents::OnContentChange(Content* content)
 {
 	// refresh view
+}
+
+//-----------------------------------------------------------------------------
+//! @brief		
+//-----------------------------------------------------------------------------
+void Contents::CreateContentDirectory(QString& path)
+{
+	QDir dir(path);
+	if (dir.exists() == true)
+	{
+		QMessageBox::critical(nullptr, "ContentDataBase", "Unable to create folder\n'" + dir.path() + "' folder exist");
+		return;
+	}
+
+	dir.mkdir(path);
 }
