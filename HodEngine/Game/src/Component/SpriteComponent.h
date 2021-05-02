@@ -19,33 +19,33 @@ namespace HOD
 		{
 		public:
 
-										SpriteComponent(Actor* actor);
-										SpriteComponent(const SpriteComponent&) = delete;
-										SpriteComponent(SpriteComponent&&) = delete;
-										~SpriteComponent() override;
+											SpriteComponent(Actor* actor);
+											SpriteComponent(const SpriteComponent&) = delete;
+											SpriteComponent(SpriteComponent&&) = delete;
+											~SpriteComponent() override;
 
-			void						operator=(const SpriteComponent&) = delete;
-			void						operator=(SpriteComponent&&) = delete;
-
-		public:
-
-			void						DrawImGui() override;
-			const char*					GetType() const override;
+			void							operator=(const SpriteComponent&) = delete;
+			void							operator=(SpriteComponent&&) = delete;
 
 		public:
 
-			const RENDERER::Sprite*		GetSprite() const;
-			void						SetSprite(const RENDERER::Sprite* sprite);
+			void							DrawImGui() override;
+			const char*						GetType() const override;
 
-			RENDERER::MaterialInstance*	GetMaterialInstance() const;
-			void						SetMaterialInstance(RENDERER::MaterialInstance* materialInstance);
+		public:
 
-			void						PushToRenderQueue(RENDERER::RenderQueue& renderQueue) override;
+			const RENDERER::Sprite*			GetSprite() const;
+			void							SetSprite(const RENDERER::Sprite* sprite);
+
+			RENDERER::MaterialInstance*		GetMaterialInstance() const;
+			void							SetMaterialInstance(RENDERER::MaterialInstance* materialInstance);
+
+			void							PushToRenderQueue(RENDERER::RenderQueue& renderQueue) override;
 
 		private:
 
-			const RENDERER::Sprite*		_sprite = nullptr;
-			RENDERER::MaterialInstance*	_materialInstance;
+			const RENDERER::Sprite*			_sprite = nullptr;
+			RENDERER::MaterialInstance*		_materialInstance;
 		};
 	}
 }

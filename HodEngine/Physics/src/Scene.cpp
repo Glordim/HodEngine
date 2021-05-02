@@ -20,15 +20,15 @@ namespace HOD
 		{
 			_debugDrawer = new DebugDrawer();
 
-			b2Vec2 defaultGravity(0.0f, 9.8f);
+			b2Vec2 defaultGravity(0.0f, -9.8f * 0.05f);
 
 			_b2World = new b2World(defaultGravity);
 			_b2World->SetDebugDraw(_debugDrawer);
 			SetDebugDrawFlags(DebugDrawFlag::Shape, true);
-			SetDebugDrawFlags(DebugDrawFlag::Join, true);
-			SetDebugDrawFlags(DebugDrawFlag::AABB, true);
-			SetDebugDrawFlags(DebugDrawFlag::CenterOfMass, true);
-			SetDebugDrawFlags(DebugDrawFlag::Pair, true);
+			//SetDebugDrawFlags(DebugDrawFlag::Join, true);
+			//SetDebugDrawFlags(DebugDrawFlag::AABB, true);
+			//SetDebugDrawFlags(DebugDrawFlag::CenterOfMass, true);
+			//SetDebugDrawFlags(DebugDrawFlag::Pair, true);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -46,6 +46,7 @@ namespace HOD
 		Actor* Scene::CreateBody()
 		{
 			b2BodyDef bodyDef;
+			bodyDef.type = b2_dynamicBody;
 
 			Actor* actor = new Actor(_b2World->CreateBody(&bodyDef));
 

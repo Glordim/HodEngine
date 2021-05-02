@@ -167,31 +167,69 @@ bool MyApplication::LoadStartingScene(const CORE::UID& startingSceneUid)
 	Actor* sprite = _scene->SpawnActor<Actor>("sprite");
 	{
 		SceneComponent* sceneComponent = sprite->AddComponent<SceneComponent>();
-		sceneComponent->SetPosition(glm::vec3(0.1f, 0.1f, 0.0f));
+		sceneComponent->SetPosition(glm::vec3(-0.25f, -0.15f, 0.0f));
+		sceneComponent->SetRotation(-25);
 		sceneComponent->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 		sceneComponent->SetParent(_scene->GetRoot());
 
 		SpriteComponent* spriteComponent = sprite->AddComponent<SpriteComponent>();
 		spriteComponent->SetMaterialInstance(spriteMaterialUnlitInstance);
-		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-2.png"));
+		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-0.png"));
 
 		ColliderComponent* colliderComponent = sprite->AddComponent<ColliderComponent>();
-		colliderComponent->AddBoxShape(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), 0.0f);
+		const BoundingBox& boundingBox = spriteComponent->GetSprite()->GetBoundingBox();
+		colliderComponent->AddBoxShape(glm::vec2(boundingBox.center.x, boundingBox.center.y), glm::vec2(boundingBox.size.x, boundingBox.size.y) * 0.5f, 0.0f, 0.0f);
+
+		sprite->GetPhysicActor()->SetType(PHYSICS::Actor::TYPE::Static);
 	}
 
-	Actor* sprite2 = _scene->SpawnActor<Actor>("sprite2");
+	Actor* ball = _scene->SpawnActor<Actor>("ball");
 	{
-		SceneComponent* sceneComponent = sprite2->AddComponent<SceneComponent>();
-		sceneComponent->SetPosition(glm::vec3(0.15f, 0.15f, 0.0f));
+		SceneComponent* sceneComponent = ball->AddComponent<SceneComponent>();
+		sceneComponent->SetPosition(glm::vec3(-0.25f, 0.35f, 0.0f));
 		sceneComponent->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 		sceneComponent->SetParent(_scene->GetRoot());
 
-		SpriteComponent* spriteComponent = sprite2->AddComponent<SpriteComponent>();
+		SpriteComponent* spriteComponent = ball->AddComponent<SpriteComponent>();
 		spriteComponent->SetMaterialInstance(spriteMaterialUnlitInstance);
-		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-2.png"));
+		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-0.png"));
 
-		ColliderComponent* colliderComponent = sprite2->AddComponent<ColliderComponent>();
-		colliderComponent->AddCircleShape(glm::vec2(0.0f, 0.0f), 1.0f);
+		ColliderComponent* colliderComponent = ball->AddComponent<ColliderComponent>();
+		const BoundingBox& boundingBox = spriteComponent->GetSprite()->GetBoundingBox();
+		colliderComponent->AddBoxShape(glm::vec2(boundingBox.center.x, boundingBox.center.y), glm::vec2(boundingBox.size.x, boundingBox.size.y) * 0.5f, 0.0f, 1.0f);
+
+		ball->GetPhysicActor()->SetType(PHYSICS::Actor::TYPE::Dynamic);
+	}
+	Actor* ball2 = _scene->SpawnActor<Actor>("ball");
+	{
+		SceneComponent* sceneComponent = ball2->AddComponent<SceneComponent>();
+		sceneComponent->SetPosition(glm::vec3(-0.27f, 0.48f, 0.0f));
+		sceneComponent->SetRotation(95);
+		sceneComponent->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+		sceneComponent->SetParent(_scene->GetRoot());
+
+		SpriteComponent* spriteComponent = ball2->AddComponent<SpriteComponent>();
+		spriteComponent->SetMaterialInstance(spriteMaterialUnlitInstance);
+		spriteComponent->SetSprite(spriteAtlas->FindSprite("Jump (28x28)-0.png"));
+
+		ColliderComponent* colliderComponent = ball2->AddComponent<ColliderComponent>();
+		const BoundingBox& boundingBox = spriteComponent->GetSprite()->GetBoundingBox();
+		colliderComponent->AddBoxShape(glm::vec2(boundingBox.center.x, boundingBox.center.y), glm::vec2(boundingBox.size.x, boundingBox.size.y) * 0.5f, 0.0f, 1.0f);
+
+		ball2->GetPhysicActor()->SetType(PHYSICS::Actor::TYPE::Dynamic);
+	}
+
+	Actor* ground = _scene->SpawnActor<Actor>("ground");
+	{
+		SceneComponent* sceneComponent = ground->AddComponent<SceneComponent>();
+		sceneComponent->SetPosition(glm::vec3(0.0f, -0.45f, 0.0f));
+		sceneComponent->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+		sceneComponent->SetParent(_scene->GetRoot());
+
+		ColliderComponent* colliderComponent = ground->AddComponent<ColliderComponent>();
+		colliderComponent->AddEdgeShape(glm::vec2(-1.0f, 0.0f), glm::vec2(1.0f, 0.0f));
+
+		ground->GetPhysicActor()->SetType(PHYSICS::Actor::TYPE::Static);
 	}
 
 	return true;

@@ -68,9 +68,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void ColliderComponent::AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle)
+		void ColliderComponent::AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle, float density)
 		{
-			GetActor()->GetPhysicActor()->AddBoxShape(position, size, angle);
+			GetActor()->GetPhysicActor()->AddBoxShape(position, size, angle, density);
 		}
 
 		//-----------------------------------------------------------------------------

@@ -82,7 +82,7 @@ namespace HOD
 			if (_modelMatrixDirty == true)
 			{
 				glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), glm::vec3(_position, 0.0f));
-				glm::quat rot = glm::rotate(glm::identity<glm::quat>(), _rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+				glm::quat rot = glm::rotate(glm::identity<glm::quat>(), glm::radians<float>(_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 				glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), glm::vec3(_scale, 1.0f));
 
 				_modelMatrix = pos * glm::mat4_cast(rot) * scale;
@@ -195,7 +195,7 @@ namespace HOD
 
 			if (physicActor != nullptr)
 			{
-				physicActor->SetTransform(_position, _rotation, _scale);
+				//physicActor->SetTransform(_position, _rotation, _scale);
 			}
 		}
 	}

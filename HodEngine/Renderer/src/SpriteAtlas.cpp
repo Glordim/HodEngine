@@ -77,8 +77,12 @@ namespace HOD
 				for (uint32_t vertexIndex = 0; vertexIndex < sprite._vertices.size(); ++vertexIndex)
 				{
 					P2fT2f& vertex = sprite._vertices[vertexIndex];
-					vertex._position[0] = static_cast<float>(verticeArray[vertexIndex].GetArray()[0].GetInt()) * 0.01f;
-					vertex._position[1] = static_cast<float>(-verticeArray[vertexIndex].GetArray()[1].GetInt()) * 0.01f;
+					vertex._position[0] = static_cast<float>(verticeArray[vertexIndex].GetArray()[0].GetInt());
+					vertex._position[1] = static_cast<float>(-verticeArray[vertexIndex].GetArray()[1].GetInt());
+					vertex._position[0] -= sprite._size.x * sprite._pivot.x;
+					vertex._position[1] += sprite._size.y * sprite._pivot.y;
+					vertex._position[0] *= 0.01f;
+					vertex._position[1] *= 0.01f;
 					vertex._textCoord[0] = static_cast<float>(verticeUvArray[vertexIndex].GetArray()[0].GetInt() / static_cast<float>(_texture->GetWidth()));
 					vertex._textCoord[1] = static_cast<float>(-verticeUvArray[vertexIndex].GetArray()[1].GetInt() / static_cast<float>(_texture->GetHeight()));
 				}
@@ -94,6 +98,7 @@ namespace HOD
 				}
 
 				sprite._spriteAtlas = this;
+				sprite.RebuildBoundingBox();
 			}
 
 			return true;

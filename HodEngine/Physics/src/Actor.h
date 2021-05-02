@@ -23,6 +23,15 @@ namespace HOD
 		class Actor
 		{
 		public:
+
+			enum TYPE
+			{
+				Static,
+				Kinematic,
+				Dynamic,
+			};
+
+		public:
 								Actor(b2Body* b2Body);
 								~Actor() = default;
 
@@ -30,10 +39,16 @@ namespace HOD
 
 			void				AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition);
 			void				AddCircleShape(const glm::vec2& position, float radius);
-			void				AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle);
+			void				AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle, float density);
 			void				AddConvexShape(const std::vector<const glm::vec2>& vertices);
 
 			void				SetTransform(const glm::vec2& position, float angle, const glm::vec2& scale);
+
+			glm::vec2			GetPosition() const;
+			float				GetRotation() const;
+
+			TYPE				GetType() const;
+			void				SetType(TYPE type);
 
 			b2Body*				GetB2Actor() const;
 

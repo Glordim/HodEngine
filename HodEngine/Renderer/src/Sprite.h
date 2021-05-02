@@ -2,6 +2,7 @@
 
 #include <Core/Src/Rect.h>
 #include "P2fT2f.h"
+#include "BoundingBox.h"
 
 #include <vector>
 #include <string>
@@ -41,6 +42,9 @@ namespace HOD
 			const std::vector<P2fT2f>&		GetVertices() const;
 			const std::vector<uint16_t>&	GetIndices() const;
 
+			const BoundingBox&				GetBoundingBox() const;
+			void							RebuildBoundingBox();
+
 		private:
 
 			SpriteAtlas*					_spriteAtlas = nullptr;
@@ -52,6 +56,8 @@ namespace HOD
 
 			std::vector<P2fT2f>				_vertices;
 			std::vector<uint16_t>			_indices;
+
+			BoundingBox						_boundingBox;
 		};
 	}
 }

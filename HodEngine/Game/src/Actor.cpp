@@ -1,5 +1,7 @@
 #include "Actor.h"
 
+#include <Physics/src/Actor.h>
+
 namespace HOD
 {
 	namespace GAME
@@ -35,7 +37,14 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Actor::Update(float dt)
 		{
-
+			if (_physicActor != nullptr)
+			{
+				if (_physicActor->GetType() != PHYSICS::Actor::TYPE::Static)
+				{
+					GetComponent<SceneComponent>()->SetPosition(_physicActor->GetPosition());
+					GetComponent<SceneComponent>()->SetRotation(_physicActor->GetRotation());
+				}
+			}
 		}
 
 		//-----------------------------------------------------------------------------
