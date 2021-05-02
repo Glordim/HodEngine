@@ -3,6 +3,7 @@
 #include "./ui_Contents.h"
 #include <windows.h>
 
+#include "HODContentStandardItem.h"
 #include "../ContentDatabase.h"
 #include "../Contents/TextureContent.h"
 
@@ -59,17 +60,45 @@ void Contents::CustomMenuRequested(const QPoint& position)
 	QMenu* menu = new QMenu(_ui->treeView);
 	QModelIndex index = _ui->treeView->indexAt(position);
 	QStandardItem* item = __nullptr;
+	HODStandardItem* castItem = __nullptr;
 
 	if (index.isValid())
 	{
 		item = _treeViewModel->itemFromIndex(index);
+		castItem = dynamic_cast<HODStandardItem*>(item);
 
-		if (item != nullptr)
+		if (castItem != nullptr)
 		{
-			menu->addAction("Delete", [this]()
+			if (castItem->GetType() == HODContentStandardItem::_type)
 			{
-				//ContentDataBase::GetInstance()->GetContent()
-			});
+				HODContentStandardItem* contentItem = dynamic_cast<HODContentStandardItem*>(item);
+
+				if (contentItem != nullptr)
+				{
+					
+					menu->addAction("Delete Content", [content = contentItem->GetContent()]()
+						{
+							ContentDataBase::GetInstance()->RemoveContent(content);
+								//ContentDataBase::GetInstance()->GetContent()
+						});
+					menu->addAction("Move To", [this]()
+						{
+
+						});
+				}
+
+			}
+			else // classe dossier a faire
+			{
+				menu->addAction("Delete Folder", [this]()
+					{
+						//ContentDataBase::GetInstance()->GetContent()
+					});
+				menu->addAction("Move To", [this]()
+					{
+
+					});
+			}
 		}
 	}
 	else
@@ -130,7 +159,8 @@ void Contents::OnAddContent(Content* content)
 		folder = childFolder;
 	}
 
-	QStandardItem* item = new QStandardItem(splitPath.last());
+	HODContentStandardItem* item = new HODContentStandardItem(content);
+
 	folder->appendRow(item);
 }
 
@@ -139,7 +169,56 @@ void Contents::OnAddContent(Content* content)
 //-----------------------------------------------------------------------------
 void Contents::OnRemoveContent(Content* content)
 {
-	// refresh view
+	const QString& contentPath = content->GetPath();
+	qsizetype offset = contentPath.indexOf("/Contents/");
+	if (offset == -1)
+	{
+		qWarning("Contents::OnAddContent::Content out of folder Contents");
+		return;
+	}
+
+	QStringList splitPath = contentPath.mid(offset + strlen("/Contents/")).split('/');
+
+	QStandardItem* folder = _treeViewModel->invisibleRootItem();
+
+	qsizetype splitPathCount = splitPath.length();
+	for (qsizetype splitPathIndex = 0; splitPathIndex < splitPathCount - 1; ++splitPathIndex) // -1 to iterate only on intermediate folders
+	{
+		const QString& name = splitPath.at(splitPathIndex);
+
+		QStandardItem* childFolder = nullptr;
+
+		int childCount = folder->rowCount();
+		for (int childIndex = 0; childIndex < childCount; ++childIndex)
+		{
+			QStandardItem* child = folder->child(childIndex);
+			if (child->text() == name)
+			{
+				childFolder = child;
+				break;
+			}
+		}
+
+		if (childFolder == nullptr) // if sub dir does'nt exist, create it
+		{
+			return;
+		}
+
+		folder = childFolder;
+	}
+
+	int childCount = folder->rowCount();
+	const QString& contentName = content->GetName();
+
+	for (qsizetype childIndex = 0; childIndex < childCount; ++childIndex)
+	{
+		if (folder->child(childIndex)->text() == contentName)
+		{
+			folder->removeRow(childIndex);
+			return;
+		}
+	}
+
 }
 
 //-----------------------------------------------------------------------------
