@@ -1,9 +1,11 @@
 
 #include "Contents.h"
 #include "./ui_Contents.h"
+#include "../Project.h"
 #include <windows.h>
 
 #include "HODContentStandardItem.h"
+#include "HODDirectoryStandardItem.h"
 #include "../ContentDatabase.h"
 #include "../Contents/TextureContent.h"
 
@@ -75,7 +77,6 @@ void Contents::CustomMenuRequested(const QPoint& position)
 
 				if (contentItem != nullptr)
 				{
-					
 					menu->addAction("Delete Content", [content = contentItem->GetContent()]()
 						{
 							ContentDataBase::GetInstance()->RemoveContent(content);
@@ -88,16 +89,25 @@ void Contents::CustomMenuRequested(const QPoint& position)
 				}
 
 			}
-			else // classe dossier a faire
+			else if (castItem->GetType() == HODDirectoryStandardItem::_type)
 			{
-				menu->addAction("Delete Folder", [this]()
-					{
-						//ContentDataBase::GetInstance()->GetContent()
-					});
-				menu->addAction("Move To", [this]()
-					{
+				HODDirectoryStandardItem* directotyItem = dynamic_cast<HODDirectoryStandardItem*>(item);
 
-					});
+				if (directotyItem != nullptr)
+				{
+					menu->addAction("Folder", [this]()
+						{
+							//CreateContentDirectory(
+						});
+					menu->addAction("Delete Folder", [directory = directotyItem->GetDir()]()
+						{
+							directory->removeRecursively();
+						});
+					menu->addAction("Move To", [this]()
+						{
+
+						});
+				}
 			}
 		}
 	}
@@ -105,17 +115,20 @@ void Contents::CustomMenuRequested(const QPoint& position)
 	{
 		QMenu* create = menu->addMenu("Create");
 		menu->addAction("Folder", [this]()
-			{
-
+			{		
+				QStandardItem* folder = _treeViewModel->invisibleRootItem();
+				QString path = Project::GetInstance()->GetContentsFolderPath();
+				path += "/Folder";
+				folder->appendRow(new HODDirectoryStandardItem(path));
 			});
 
 		QMenu* import = menu->addMenu("Import");
 		import->addAction("Texture", [this]()
-		{
-			QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
+			{
+				QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
 
-			ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
-		});
+				ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
+			});
 	}
 	menu->popup(_ui->treeView->viewport()->mapToGlobal(position));
 }
