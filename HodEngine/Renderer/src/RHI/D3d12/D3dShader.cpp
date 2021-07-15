@@ -1,5 +1,7 @@
 #include "D3dShader.h"
 
+#if defined(_WIN32)
+
 namespace HOD
 {
 	namespace RENDERER
@@ -27,3 +29,5 @@ namespace HOD
 		}
 	}
 }
+
+#endif

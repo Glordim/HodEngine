@@ -9,12 +9,13 @@
 #include <ImGui/src/imgui_impl_sdl.h>
 #include <ImGui/src/ImGuizmo.h>
 
-#include <SDL.h>
-#include <SDL_syswm.h>
-#include <SDL_vulkan.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL_vulkan.h>
 
 namespace HOD
 {
+	template<>
 	APPLICATION::Application* CORE::Singleton<APPLICATION::Application>::_instance = nullptr;
 
 	namespace APPLICATION
@@ -79,7 +80,7 @@ namespace HOD
 			{
 				if (strcmp(argv[1], "-Editor") == 0)
 				{
-					_parentHwnd = (HWND)atoll(argv[2]);
+					_parentHwnd = (void*)atoll(argv[2]);
 				}
 				if (strcmp(argv[3], "-Port") == 0)
 				{
@@ -170,10 +171,14 @@ namespace HOD
 			if (SDL_GetWindowWMInfo(_window, &wmInfo) == SDL_FALSE)
 			{
 				OUTPUT_ERROR("SDL: Unable to get native Window instance!\n");
-				return nullptr;
+				return false;
 			}
 
+		#if defined(_WIN32)
 			_hwnd = wmInfo.info.win.window;
+		#elif defined(__linux__)
+			// TODO
+		#endif
 
 			ImGui_ImplSDL2_InitForVulkan(_window);
 

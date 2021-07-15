@@ -7,6 +7,7 @@
 
 namespace HOD
 {
+	template<>
 	DEBUG_LAYER::DebugLayer* CORE::Singleton<DEBUG_LAYER::DebugLayer>::_instance = nullptr;
 
 	namespace DEBUG_LAYER

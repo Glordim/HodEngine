@@ -26,7 +26,7 @@ if not exist "./Build" (
 echo *******
 echo SDL...
 if not exist "./Build/SDL" (
-	echo Create SDK Build Dir
+	echo Create SDL Build Dir
 	mkdir "./Build/SDL"
 )
 cmake -A x64 -B./Build/SDL ./SDL
@@ -50,12 +50,12 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
-echo SPIRV-CROSS...
-if not exist "./Build/SPIRV-CROSS" (
-	echo Create SPIRV-CROSS Build Dir
-	mkdir "./Build/SPIRV-CROSS"
+echo SPIRV-Cross...
+if not exist "./Build/SPIRV-Cross" (
+	echo Create SPIRV-Cross Build Dir
+	mkdir "./Build/SPIRV-Cross"
 )
-cmake -A x64 -B./Build/SPIRV-CROSS ./SPIRV-CROSS
+cmake -A x64 -B./Build/SPIRV-Cross ./SPIRV-Cross
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
@@ -126,14 +126,14 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
-echo SPIRV-CROSS...
-cmake --build ./Build/SPIRV-CROSS --config Release
+echo SPIRV-Cross...
+cmake --build ./Build/SPIRV-Cross --config Release
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
 	exit 1
 )
-cmake --build ./Build/SPIRV-CROSS --config Debug
+cmake --build ./Build/SPIRV-Cross --config Debug
 if %errorlevel% neq 0 (
 	echo Fail
 	pause

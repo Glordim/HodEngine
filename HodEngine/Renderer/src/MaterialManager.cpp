@@ -7,6 +7,7 @@
 
 namespace HOD
 {
+	template<>
 	CORE::GenericManager<RENDERER::Material>* CORE::Singleton<CORE::GenericManager<RENDERER::Material>, RENDERER::MaterialManager>::_instance = nullptr;
 
 	namespace RENDERER

@@ -6,11 +6,14 @@
 
 #include <rapidjson/writer.h>
 
-// Need to link with Ws2_32.lib
-#pragma comment(lib, "ws2_32.lib")
+#if defined(_WIN32)
+	// Need to link with Ws2_32.lib
+	#pragma comment(lib, "ws2_32.lib")
+#endif
 
 namespace HOD
 {
+	template<>
 	GAME::EditorBridge* CORE::Singleton<GAME::EditorBridge>::_instance = nullptr;
 
 	namespace GAME
@@ -35,6 +38,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		bool EditorBridge::Init()
 		{
+		#if defined(_WIN32)
 			WSADATA wsaData;
 
 			int iResult;
@@ -78,6 +82,9 @@ namespace HOD
 			SendSetWindowHandle();
 
 			return true;
+		#elif (__linux__)
+			return false; // TODO
+		#endif
 		};
 
 		//-----------------------------------------------------------------------------

@@ -2,17 +2,26 @@
 #include "UID.h"
 #include "Output.h"
 
-#include <Windows.h>
-#include <rpcdce.h>
+#if defined(_WIN32)
+	#include <Windows.h>
+	#include <rpcdce.h>
 
-#pragma comment(lib, "Rpcrt4.lib")
+	#pragma comment(lib, "Rpcrt4.lib")
+
+	using Uuid = UUID;
+
+#elif defined(__linux__)
+	#include <uuid/uuid.h>
+
+	using Uuid = uuid_t;
+#endif
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
 union UuidConverter
 {
-	UUID uuid;
+	Uuid uuid;
 	struct
 	{
 		uint64_t	low;
@@ -41,11 +50,16 @@ namespace HOD
 		UID UID::GenerateUID()
 		{
 			UuidConverter uuidConverter;
+
+		#if defined(_WIN32)
 			if (UuidCreate(&uuidConverter.uuid) != RPC_S_OK)
 			{
 				OUTPUT_ERROR("Fail to generate UID");
 				return INVALID_UID;
 			}
+		#elif defined(__linux__)
+			uuid_generate(uuidConverter.uuid);
+		#endif
 
 			UID uid;
 			uid._low = uuidConverter.low;
@@ -60,11 +74,16 @@ namespace HOD
 		UID UID::FromString(const char* uuidStr)
 		{
 			UuidConverter uuidConverter;
+
+		#if defined(_WIN32)
 			if (UuidFromString((RPC_CSTR)uuidStr, &uuidConverter.uuid) != RPC_S_OK)
 			{
 				OUTPUT_ERROR("UID: Fail to generate UID from %s", uuidStr);
 				return INVALID_UID;
 			}
+		#elif defined(__linux__)
+			// TODO
+		#endif
 
 			UID uid;
 			uid._low = uuidConverter.low;
@@ -82,6 +101,9 @@ namespace HOD
 			uuidConverter.low = _low;
 			uuidConverter.high = _high;
 
+			std::string str;
+
+		#if defined(_WIN32)
 			RPC_CSTR stringTmp;
 			if (UuidToString(&uuidConverter.uuid, &stringTmp) != RPC_S_OK)
 			{
@@ -89,11 +111,13 @@ namespace HOD
 				return INVALID_UID.ToString();
 			}
 
-			std::string string((const char*)stringTmp);
-
+			str = (const char*)stringTmp;
 			RpcStringFree(&stringTmp);
+		#elif defined(__linux__)
+			// TODO
+		#endif
 
-			return string;
+			return str;
 		}
 	}
 }

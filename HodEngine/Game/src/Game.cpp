@@ -6,6 +6,7 @@
 
 namespace HOD
 {
+	template<>
 	GAME::Game* CORE::Singleton<GAME::Game>::_instance = nullptr;
 
 	namespace GAME

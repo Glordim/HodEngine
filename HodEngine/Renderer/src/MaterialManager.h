@@ -6,12 +6,12 @@
 #include <Core/Src/GenericManager.h>
 #include <Core/Src/Singleton.h>
 
+#include "RHI/Material.h"
+
 namespace HOD
 {
 	namespace RENDERER
 	{
-		class Material;
-
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -21,13 +21,13 @@ namespace HOD
 
 		public:
 
-			CORE::UID									CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
+			CORE::UID	CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
 
 		private:
-														MaterialManager();
-														MaterialManager(const MaterialManager& copy) = delete;
-			void										operator=(const MaterialManager& right) = delete;
-			virtual										~MaterialManager();
+						MaterialManager();
+						MaterialManager(const MaterialManager& copy) = delete;
+			void		operator=(const MaterialManager& right) = delete;
+			virtual		~MaterialManager();
 		};
 	}
 }

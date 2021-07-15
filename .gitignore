@@ -32,12 +32,14 @@
 *.out
 *.app
 
+*.spirv
+
 x64/
 .vs/
 obj/
 bin/
 
 SDK/Build
-Build
+[Bb]uild
 
 !Data/**/*.obj

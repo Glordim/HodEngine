@@ -1,5 +1,7 @@
 #include "RendererDirectX12.h"
 
+#if defined(_WIN32)
+
 #include <Core/Src/Output.h>
 #include <Application/src/Application.h>
 
@@ -415,3 +417,5 @@ namespace HOD
 		}
 	}
 }
+
+#endif

@@ -2,7 +2,9 @@
 
 #include "VideoSettings.h"
 
-#include <SDL.h>
+#include <Core/Src/Output.h>
+
+#include <SDL2/SDL.h>
 
 namespace HOD
 {

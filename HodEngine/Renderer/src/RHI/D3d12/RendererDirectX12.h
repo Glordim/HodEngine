@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(_WIN32)
+
 #include "../../Renderer.h"
 
 #include <vector>
@@ -66,3 +68,5 @@ namespace HOD
 		};
 	}
 }
+
+#endif

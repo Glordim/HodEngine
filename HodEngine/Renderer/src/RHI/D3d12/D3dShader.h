@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(_WIN32)
+
 #include "../Shader.h"
 
 namespace HOD
@@ -19,3 +21,5 @@ namespace HOD
 		};
 	}
 }
+
+#endif

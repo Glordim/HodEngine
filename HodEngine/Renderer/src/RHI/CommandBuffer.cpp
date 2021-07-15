@@ -28,7 +28,7 @@ namespace HOD
 		{
 			for (void* pointer : pointerToDelete)
 			{
-				delete[] pointer;
+				delete pointer;
 			}
 		}
 	}

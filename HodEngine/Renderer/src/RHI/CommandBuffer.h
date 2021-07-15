@@ -6,7 +6,7 @@
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/mat4x4.hpp"
 
-#include <Core\Src\Rect.h>
+#include <Core/Src/Rect.h>
 #include <vector>
 
 namespace HOD

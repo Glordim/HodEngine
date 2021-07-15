@@ -6,13 +6,10 @@
 #define GLM_FORCE_LEFT_HANDED 1
 #include <glm/glm.hpp>
 
+#include <vector>
+
 namespace HOD
 {
-	namespace PHYSICS
-	{
-		enum SHAPE;
-	}
-
 	namespace GAME
 	{
 		//-----------------------------------------------------------------------------

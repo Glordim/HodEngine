@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 namespace HOD
 {
 	namespace CORE
@@ -13,7 +15,7 @@ namespace HOD
 			Color(float r, float g, float b, float a);
 			virtual ~Color();
 
-			float&	operator[](size_t index)
+			float& operator[](size_t index)
 			{
 				if (index == 0) return r;
 				if (index == 1) return g;

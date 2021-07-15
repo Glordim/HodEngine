@@ -4,7 +4,7 @@
 
 #include <Core/Src/Output.h>
 
-#include <spirv_cross.hpp>
+#include <SPIRV-Cross/spirv_cross.hpp>
 
 namespace HOD
 {

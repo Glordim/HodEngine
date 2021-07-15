@@ -5,6 +5,7 @@
 
 namespace HOD
 {
+	template<>
 	RENDERER::Renderer* CORE::Singleton<RENDERER::Renderer>::_instance = nullptr;
 
 	namespace RENDERER

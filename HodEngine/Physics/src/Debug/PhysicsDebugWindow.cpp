@@ -1,5 +1,5 @@
 #include "PhysicsDebugWindow.h"
-#include "Physics.h"
+#include "../Physics.h"
 
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/ImGuizmo.h>

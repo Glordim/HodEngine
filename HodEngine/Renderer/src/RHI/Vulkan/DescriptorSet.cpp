@@ -8,6 +8,8 @@
 
 #include <Core/Src/Output.h>
 
+#include <cstring>
+
 namespace HOD
 {
 	namespace RENDERER

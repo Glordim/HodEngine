@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(_WIN32)
+
 #include "../GpuDevice.h"
 
 #include <dxgi1_5.h>
@@ -20,3 +22,5 @@ namespace HOD
 		};
 	}
 }
+
+#endif

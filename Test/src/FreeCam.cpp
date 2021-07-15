@@ -8,7 +8,7 @@
 
 #include <HodEngine/Physics/src/Scene.h>
 
-#include <SDK/SDL/include/SDL.h>
+#include <SDL2/SDL.h>
 
 #include "HodEngine/DebugLayer/src/DebugLayer.h"
 

@@ -3,7 +3,9 @@
 #include <cstdio>
 #include <cstdarg>
 
-#include <Windows.h>
+#if defined(_WIN32)
+	#include <Windows.h>
+#endif
 
 namespace HOD
 {
@@ -41,10 +43,12 @@ namespace HOD
 				fprintf(stderr, finalBuffer);
 			}
 
+#if defined(_WIN32)
 			if (IsDebuggerPresent() == TRUE)
 			{
 				OutputDebugString(finalBuffer);
 			}
+#endif
 		}
 
 		//-----------------------------------------------------------------------------

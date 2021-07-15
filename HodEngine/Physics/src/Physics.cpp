@@ -7,6 +7,7 @@
 
 namespace HOD
 {
+	template<>
 	PHYSICS::Physics* CORE::Singleton<PHYSICS::Physics>::_instance = nullptr;
 
 	namespace PHYSICS

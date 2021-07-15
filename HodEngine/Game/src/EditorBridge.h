@@ -1,10 +1,18 @@
 #pragma once
 
-#include <Core/src/Singleton.h>
+#include <Core/Src/Singleton.h>
 
 #include <cstdint>
 
-#include <winsock.h>
+#if defined(_WIN32)
+	#include <winsock.h>
+
+	using Socket = SOCKET;
+#elif defined(__linux__)
+	#include <sys/socket.h>
+
+	using Socket = int;
+#endif
 
 #include <rapidjson/stringbuffer.h>
 
@@ -38,8 +46,7 @@ namespace HOD
 
 		private:
 
-			SOCKET				_socket = 0;
-
+			Socket				_socket = 0;
 		};
 	}
 }
