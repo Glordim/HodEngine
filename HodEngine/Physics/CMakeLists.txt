@@ -4,6 +4,7 @@ project(Physics)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../CMake)
 find_package(Box2d REQUIRED)
+find_package(Glm REQUIRED)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -15,6 +16,7 @@ assign_source_group(${Srcs})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 	".."
 	${Box2d_INCLUDE_DIRS}
+	${Glm_INCLUDE_DIRS}
 )
 
 add_library(Physics STATIC ${Srcs})

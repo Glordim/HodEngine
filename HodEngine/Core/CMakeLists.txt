@@ -13,8 +13,8 @@ file(GLOB_RECURSE Srcs
 assign_source_group(${Srcs})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
-	".."
-	${Glm_INCLUDE_DIRS}
+	PRIVATE ".."
+	PUBLIC ${Glm_INCLUDE_DIRS}
 )
 
 add_library(Core ${Srcs})

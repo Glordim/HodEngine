@@ -9,9 +9,9 @@
 #include <ImGui/src/imgui_impl_sdl.h>
 #include <ImGui/src/ImGuizmo.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
-#include <SDL2/SDL_vulkan.h>
+#include <SDL.h>
+#include <SDL_syswm.h>
+#include <SDL_vulkan.h>
 
 namespace HOD
 {

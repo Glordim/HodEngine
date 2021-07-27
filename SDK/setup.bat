@@ -37,38 +37,12 @@ if %errorlevel% neq 0 (
 )
 echo Done
 echo *******
-echo glm...
-if not exist "./Build/glm" (
-	echo Create glm Build Dir
-	mkdir "./Build/glm"
-)
-cmake -A x64 -B./Build/glm ./glm
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
 echo SPIRV-Cross...
 if not exist "./Build/SPIRV-Cross" (
 	echo Create SPIRV-Cross Build Dir
 	mkdir "./Build/SPIRV-Cross"
 )
-cmake -A x64 -B./Build/SPIRV-Cross ./SPIRV-Cross
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
-echo SDL...
-if not exist "./Build/rapidjson" (
-	echo Create rapidjson Build Dir
-	mkdir "./Build/rapidjson"
-)
-cmake -A x64 -B./Build/rapidjson ./rapidjson
+cmake -A x64 -B./Build/SPIRV-Cross ./SPIRV-Cross -DSPIRV_CROSS_CLI=OFF -DSPIRV_CROSS_ENABLE_TESTS=OFF
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
@@ -81,7 +55,7 @@ if not exist "./Build/box2d" (
 	echo Create box2d Build Dir
 	mkdir "./Build/box2d"
 )
-cmake -A x64 -B./Build/box2d ./box2d
+cmake -A x64 -B./Build/box2d ./box2d -DBOX2D_BUILD_UNIT_TESTS=OFF -DBOX2D_BUILD_TESTBED=OFF
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
@@ -103,52 +77,10 @@ if %errorlevel% neq 0 (
 	pause
 	exit 1
 )
-cmake --build ./Build/SDL --config Debug
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
-echo glm...
-cmake --build ./Build/glm --config Release
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-cmake --build ./Build/glm --config Debug
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
 echo Done
 echo *******
 echo SPIRV-Cross...
 cmake --build ./Build/SPIRV-Cross --config Release
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-cmake --build ./Build/SPIRV-Cross --config Debug
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
-echo rapidjson...
-cmake --build ./Build/rapidjson --config Release
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-cmake --build ./Build/rapidjson --config Debug
 if %errorlevel% neq 0 (
 	echo Fail
 	pause
@@ -163,13 +95,6 @@ if %errorlevel% neq 0 (
 	pause
 	exit 1
 )
-cmake --build ./Build/box2d --config Debug
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
 echo *******
 
 echo ====================

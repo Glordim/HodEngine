@@ -7,6 +7,7 @@ find_package(Vulkan REQUIRED)
 find_package(RapidJSON REQUIRED)
 find_package(SpirvCross REQUIRED)
 find_package(Stb REQUIRED)
+find_package(Glm REQUIRED)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -21,6 +22,7 @@ include_directories("./src"
   ${SpirvCross_INCLUDE_DIRS}
   ${RapidJSON_INCLUDE_DIRS}
   ${Vulkan_INCLUDE_DIRS}
+  ${Glm_INCLUDE_DIRS}
 )
 
 add_library(Renderer ${Srcs})

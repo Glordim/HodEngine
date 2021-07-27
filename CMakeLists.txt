@@ -58,6 +58,12 @@ set_property(TARGET HodEngine-Application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY
 
 add_dependencies(HodEngine-Application Core DebugLayer ImGui Physics Application Renderer Game)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
+find_package(Glm REQUIRED)
+find_package(SDL2 REQUIRED)
+find_package(Vulkan REQUIRED)
+find_package(RapidJSON REQUIRED)
+
 #if(MSVC)
 #	target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
 #else()
@@ -68,6 +74,10 @@ include_directories(
 	"${PROJECT_SOURCE_DIR}"
 	"${PROJECT_SOURCE_DIR}/src"
 	"HodEngine"
+	${Glm_INCLUDE_DIRS}
+	${SDL2_INCLUDE_DIRS}
+	${Vulkan_INCLUDE_DIRS}
+	${RapidJSON_INCLUDE_DIRS}
 )
 
 target_link_libraries(HodEngine-Application

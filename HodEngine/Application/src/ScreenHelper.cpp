@@ -4,7 +4,7 @@
 
 #include <Core/Src/Output.h>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 namespace HOD
 {

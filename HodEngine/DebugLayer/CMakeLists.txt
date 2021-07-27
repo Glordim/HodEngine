@@ -9,14 +9,16 @@ file(GLOB_RECURSE Srcs
 )
 assign_source_group(${Srcs})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
-    ".."
-)
-
 add_library(DebugLayer ${Srcs})
-
-add_dependencies(DebugLayer Core)
 
 target_link_libraries(
 	Core
+)
+
+add_dependencies(DebugLayer Core)
+get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
+    ".."
+	${Core_INCLUDES}
 )

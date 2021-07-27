@@ -28,19 +28,7 @@ if [ ! -d "./Build/SDL" ]; then
 	echo "Create SDL Build Dir"
 	mkdir "./Build/SDL"
 fi
-cmake -B./Build/SDL ./SDL
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-echo "Done"
-echo "*******"
-echo "glm..."
-if [ ! -d "./Build/glm" ]; then
-	echo "Create glm Build Dir"
-	mkdir "./Build/glm"
-fi
-cmake -B./Build/glm ./glm
+cmake -B ./Build/SDL ./SDL
 if [ $? -ne 0 ]; then
 	echo "Fail"
 	exit 1
@@ -52,19 +40,7 @@ if [ ! -d "./Build/SPIRV-Cross" ]; then
 	echo "Create SPIRV-CROSS Build Dir"
 	mkdir "./Build/SPIRV-Cross"
 fi
-cmake -B./Build/SPIRV-Cross ./SPIRV-Cross
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-echo "Done"
-echo "*******"
-echo "SDL..."
-if [ ! -d "./Build/rapidjson" ]; then
-	echo "Create rapidjson Build Dir"
-	mkdir "./Build/rapidjson"
-fi
-cmake -B./Build/rapidjson ./rapidjson
+cmake -B ./Build/SPIRV-Cross ./SPIRV-Cross -DSPIRV_CROSS_CLI=OFF -DSPIRV_CROSS_ENABLE_TESTS=OFF
 if [ $? -ne 0 ]; then
 	echo "Fail"
 	exit 1
@@ -76,7 +52,7 @@ if [ ! -d "./Build/box2d" ]; then
 	echo "Create box2d Build Dir"
 	mkdir "./Build/box2d"
 fi
-cmake -B./Build/box2d ./box2d
+cmake -B ./Build/box2d ./box2d -DBOX2D_BUILD_UNIT_TESTS=OFF -DBOX2D_BUILD_TESTBED=OFF
 if [ $? -ne 0 ]; then
 	echo "Fail"
 	exit 1
@@ -91,25 +67,7 @@ echo "Build projects..."
 
 echo "*******"
 echo "SDL..."
-#cmake --build ./Build/SDL --config Release
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-#cmake --build ./Build/SDL --config Debug
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-echo "Done"
-echo "*******"
-echo "glm..."
-#cmake --build ./Build/glm --config Release
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-#cmake --build ./Build/glm --config Debug
+cmake --build ./Build/SDL --config Release
 if [ $? -ne 0 ]; then
 	echo "Fail"
 	exit 1
@@ -122,33 +80,10 @@ if [ $? -ne 0 ]; then
 	echo "Fail"
 	exit 1
 fi
-cmake --build ./Build/SPIRV-Cross --config Debug
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-echo "Done"
-echo "*******"
-echo "rapidjson..."
-cmake --build ./Build/rapidjson --config Release
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-cmake --build ./Build/rapidjson --config Debug
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
 echo "Done"
 echo "*******"
 echo "box2d..."
 cmake --build ./Build/box2d --config Release
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-cmake --build ./Build/box2d --config Debug
 if [ $? -ne 0 ]; then
 	echo "Fail"
 	exit 1

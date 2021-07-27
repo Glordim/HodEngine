@@ -5,6 +5,7 @@ project(Game)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../CMake)
 find_package(SDL2 REQUIRED)
 find_package(RapidJSON REQUIRED)
+find_package(Glm REQUIRED)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -15,7 +16,7 @@ assign_source_group(${Srcs})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 	".."
-	${GLM_INCLUDE_DIR}
+	${Glm_INCLUDE_DIRS}
 	${SDL2_INCLUDE_DIRS}
 	${RapidJSON_INCLUDE_DIRS}
 )

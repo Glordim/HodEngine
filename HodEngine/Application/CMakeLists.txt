@@ -12,14 +12,16 @@ file(GLOB_RECURSE Srcs
 )
 assign_source_group(${Srcs})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
-	".."
-	${SDL2_INCLUDE_DIRS}
-)
-
 add_library(Application ${Srcs})
 
 add_dependencies(Application Core)
+get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
+	".."
+	${SDL2_INCLUDE_DIRS}
+	${Core_INCLUDES}
+)
 
 target_link_libraries(Application
 	Core
