@@ -47,6 +47,7 @@ file(GLOB_RECURSE Srcs
         "${PROJECT_SOURCE_DIR}/Src/*.h"
 		"${PROJECT_SOURCE_DIR}/Src/*.inl"
 		"${PROJECT_SOURCE_DIR}/Src/*.ui"
+		"${PROJECT_SOURCE_DIR}/Src/*.qrc"
         )
 		
 assign_source_group(${Srcs})
