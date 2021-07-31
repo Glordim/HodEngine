@@ -90,7 +90,12 @@
 		"ios": "cpp",
 		"locale": "cpp",
 		"queue": "cpp",
-		"stack": "cpp"
+		"stack": "cpp",
+		"qtreeview": "cpp",
+		"xhash": "cpp",
+		"xiosbase": "cpp",
+		"xstring": "cpp",
+		"xtree": "cpp"
 	},
 	"cmake.debugConfig": {
 		"cwd": "${workspaceFolder}/Data"

@@ -30,6 +30,8 @@ public:
 
 	bool					LoadProjectAtPath(const QString& projectFilePath);
 
+	void					Refresh();
+
 private:
 
 	template<typename __Type__>
@@ -45,8 +47,6 @@ private:
 	void					Exit();
 
 	void					SetDefaultLayout();
-
-	void					Refresh();
 
 private:
 

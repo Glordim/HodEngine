@@ -11,11 +11,49 @@
 #include "../Signal.h"
 #include "Hash.h"
 
+#define BASE_META_TYPE(__ClassName__)										\
+public:																		\
+																			\
+using Type = uint64_t;														\
+																			\
+virtual Type		GetType() const = 0;									\
+virtual const char*	GetTypeName() const = 0;								\
+																			\
+private:																	\
+																			\
+
+#define CONTENT_META_TYPE(__ClassName__)									\
+public:																		\
+																			\
+using Type = uint64_t;														\
+																			\
+static constexpr Type _type = Hash::CompilationTimeFnv64(#__ClassName__);	\
+Type GetType() const override												\
+{																			\
+	return Hash::CompilationTimeFnv64(#__ClassName__);						\
+}																			\
+																			\
+const char* GetTypeName() const override									\
+{																			\
+																			\
+	return #__ClassName__;													\
+}																			\
+																			\
+static const char* GetTypeNameStatic()										\
+{																			\
+	return #__ClassName__;													\
+}																			\
+																			\
+private:																	\
+																			\
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
 class Content
 {
+	BASE_META_TYPE(Content);
+
 public:
 
 	using Type = uint64_t;
@@ -63,9 +101,6 @@ public:
 
 public:
 
-	virtual Type				GetType() const = 0;
-	virtual const char*			GetTypeName() const = 0;
-
 	virtual bool				Serialize(QJsonObject& data) = 0;
 	virtual bool				Deserialize(const QJsonObject& data) = 0;
 
@@ -88,29 +123,5 @@ private:
 	AddDependencySignal			_addDependencySignal;
 	RemoveDependencySignal		_removeDependencySignal;
 };
-
-#define CONTENT_META_TYPE(__ClassName__)									\
-public:																		\
-																			\
-static constexpr Type _type = Hash::CompilationTimeFnv64(#__ClassName__);	\
-Type GetType() const override												\
-{																			\
-	return Hash::CompilationTimeFnv64(#__ClassName__);						\
-}																			\
-																			\
-const char* GetTypeName() const override									\
-{																			\
-																			\
-	return #__ClassName__;													\
-}																			\
-																			\
-static const char* GetTypeNameStatic()										\
-{																			\
-	return #__ClassName__;													\
-}																			\
-																			\
-private:																	\
-																			\
-
 
 #include "Content.inl"

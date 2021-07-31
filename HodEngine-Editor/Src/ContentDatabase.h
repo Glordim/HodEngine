@@ -33,6 +33,9 @@ protected:
 public:
 
 	bool								Load(const QString& contentFolderPath);
+	void								Unload();
+
+	void								CreateFolder();
 
 	template<typename __ContentType__>
 	bool								Import(const QString& filepath);
@@ -59,9 +62,6 @@ private:
 	AddContentSignal					_addContentSignal;
 	RemoveContentSignal					_removeContentSignal;
 	ContentChangeSignal					_contentChangeSignal;
-
-	Project::LoadProjectSignal::Slot	_onLoadProjectSlot;
-	Project::UnLoadProjectSignal::Slot	_onUnLoadProjectSlot;
 };
 
 #include "ContentDatabase.inl"

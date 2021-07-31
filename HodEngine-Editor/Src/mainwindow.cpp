@@ -1,7 +1,7 @@
 #include "Mainwindow.h"
 #include "./ui_Mainwindow.h"
 
-#include "DockableWindow/Contents.h"
+#include "DockableWindow/Contents/Contents.h"
 #include "DockableWindow/Viewport.h"
 #include "Dialog/NewProjectDialog.h"
 #include "Project.h"

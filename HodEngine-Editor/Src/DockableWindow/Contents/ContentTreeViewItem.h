@@ -7,23 +7,17 @@
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-class HODStandardItem : public QStandardItem
+class ContentTreeViewItem : public QStandardItem
 {
-public:
-
-	using Type = uint64_t;
+	BASE_META_TYPE(ContentTreeViewItem);
 
 public:
 
-						HODStandardItem() = default;
-						HODStandardItem(const QString& text);
-						~HODStandardItem() = default;
+						ContentTreeViewItem() = default;
+						ContentTreeViewItem(const ContentTreeViewItem&) = delete;
+						ContentTreeViewItem(ContentTreeViewItem&&) = delete;
+						~ContentTreeViewItem() = default;
 
 	void				operator=(const Content&) = delete;
 	void				operator=(Content&&) = delete;
-
-public:
-
-	virtual Type		GetType() const = 0;
-	virtual const char*	GetTypeName() const = 0;
 };

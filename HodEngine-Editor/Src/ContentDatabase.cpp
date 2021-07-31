@@ -13,11 +13,7 @@ ContentDataBase* Singleton<ContentDataBase>::_instance = nullptr;
 //! @brief		
 //-----------------------------------------------------------------------------
 ContentDataBase::ContentDataBase()
-	: _onLoadProjectSlot(std::bind(&ContentDataBase::OnLoadProjectAction, this, std::placeholders::_1))
-	, _onUnLoadProjectSlot(std::bind(&ContentDataBase::OnUnLoadProjectAction, this, std::placeholders::_1))
 {
-	Project::GetInstance()->RegisterLoadProject(_onLoadProjectSlot);
-	Project::GetInstance()->RegisterUnLoadProject(_onUnLoadProjectSlot);
 }
 
 //-----------------------------------------------------------------------------
@@ -25,8 +21,6 @@ ContentDataBase::ContentDataBase()
 //-----------------------------------------------------------------------------
 ContentDataBase::~ContentDataBase()
 {
-	Project::GetInstance()->UnRegisterLoadProject(_onLoadProjectSlot);
-	Project::GetInstance()->UnRegisterUnLoadProject(_onUnLoadProjectSlot);
 }
 
 //-----------------------------------------------------------------------------
@@ -45,7 +39,7 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 
 	for (QFileInfo fileInfo : dir.entryInfoList())
 	{
-		qDebug() << "F: " + fileInfo.filePath();
+		//qDebug() << "F: " + fileInfo.filePath();
 
 		Content* content = ContentFactory::LoadFromPath(fileInfo.filePath());
 		if (content != nullptr)
@@ -55,17 +49,12 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 		// read content here, construct and add it in Content map
 	}
 
-	dir.setFilter(QDir::Dirs);
+	dir.setFilter(QDir::Dirs | QDir::Filter::NoDotAndDotDot);
 
 	for (QFileInfo dirInfo : dir.entryInfoList())
 	{
-		qDebug() << "D: " + dirInfo.filePath();
-		qDebug() << "D: " + dirInfo.fileName();
-
-		if (dirInfo.fileName() == "." || dirInfo.fileName() == "..")
-		{
-			continue;
-		}
+		//qDebug() << "D: " + dirInfo.filePath();
+		//qDebug() << "D: " + dirInfo.fileName();
 
 		Load(dirInfo.filePath());
 	}
@@ -73,17 +62,51 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 	return true;
 }
 
+///
+///@brief 
+///
+///
+void ContentDataBase::Unload()
+{
+	_contents.clear();
+}
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
 void ContentDataBase::AddContent(Content* content)
 {
-	if (_contents.contains(content->GetUID()) == false)
+	auto existingContent = _contents.find(content->GetUID());
+
+	if (existingContent != _contents.end())
+	{
+		QString contentsRootPath = Project::GetInstance()->GetContentsFolderPath();
+		QString newContentPath = content->GetPath().mid(contentsRootPath.size() + 1);
+		QString existingContentPath = (*existingContent)->GetPath().mid(contentsRootPath.size() + 1);
+
+		int choice = QMessageBox::question(nullptr, "ContentDatabase - Duplicate UID",
+		"A duplication of UIDs has been detected !\n\n'A' = " + newContentPath + "\n'B' = " + existingContentPath + "\n\nPlease indicate the content whose UID you want to preserve.\nThe other content will be assigned a new UID.",
+		"Keep A",
+		"Keep B");
+
+		if (choice == 0)
+		{
+			content->SetUid(UID::GenerateUID());
+			_contents.insert(content->GetUID(), content);
+		}
+		else
+		{
+			(*existingContent)->SetUid(UID::GenerateUID());
+			_contents.insert((*existingContent)->GetUID(), (*existingContent));
+			_contents[content->GetUID()] = content;
+		}
+	}
+	else
 	{
 		_contents.insert(content->GetUID(), content);
-
-		_addContentSignal.Emit(content);
 	}
+
+	_addContentSignal.Emit(content);
 }
 
 void ContentDataBase::RemoveContent(Content* content)
@@ -131,15 +154,8 @@ Content* ContentDataBase::GetContent(const QString path) const
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void ContentDataBase::OnLoadProjectAction(Project* project)
+void ContentDataBase::CreateFolder()
 {
-	Load(project->GetContentsFolderPath());
-}
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-void ContentDataBase::OnUnLoadProjectAction(Project* project)
-{
-
+	QDir dir;
+	dir.mkdir(Project::GetInstance()->GetContentsFolderPath() + "/Folder");
 }

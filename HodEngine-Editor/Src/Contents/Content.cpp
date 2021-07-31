@@ -1,6 +1,7 @@
 #include "Content.h"
 
 #include <QDir>
+#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -91,7 +92,10 @@ void Content::RemoveFile()
 //-----------------------------------------------------------------------------
 void Content::SetPath(const QString& filepath)
 {
+	QFileInfo file(filepath);
+
 	_path = filepath;
+	_name = file.completeBaseName();
 }
 
 //-----------------------------------------------------------------------------
@@ -131,7 +135,6 @@ bool Content::SaveAtPath(const QString& filepath)
 bool Content::SerializeHeader(QJsonObject& header)
 {
 	header["Uid"] = _uid.ToString();
-	header["Name"] = _name;
 	header["Type"] = GetTypeName();
 	header["Asset"] = GetAssetPath();
 
@@ -153,7 +156,6 @@ bool Content::SerializeHeader(QJsonObject& header)
 bool Content::DeserializeHeader(const QJsonObject& header)
 {
 	_uid = UID::FromString(header["Uid"].toString());
-	_name = header["Name"].toString();
 	_assetPath = header["Asset"].toString();
 
 	QJsonArray dependencies = header["Dependencies"].toArray();

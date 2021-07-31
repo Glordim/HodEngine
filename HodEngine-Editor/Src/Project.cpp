@@ -1,5 +1,6 @@
 
 #include "Project.h"
+#include "ContentDatabase.h"
 
 #include <QDir>
 #include <QFile>
@@ -25,6 +26,10 @@ bool Project::IsOpened() const
 void Project::Close()
 {
 	_isOpened = false;
+
+	ContentDataBase::GetInstance()->Unload();
+
+	_unloadProjectSignal.Emit(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -49,6 +54,9 @@ bool Project::LoadFromFile(const QString& projectFilePath)
 	_name = root["Name"].toString();
 
 	_isOpened = true;
+
+	ContentDataBase::GetInstance()->Load(GetContentsFolderPath());
+
 	_loadProjectSignal.Emit(this);
 
 	return true;
@@ -129,7 +137,7 @@ void Project::RegisterLoadProject(typename LoadProjectSignal::Slot& slot)
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Project::UnRegisterLoadProject(typename LoadProjectSignal::Slot& slot)
+void Project::UnregisterLoadProject(typename LoadProjectSignal::Slot& slot)
 {
 	_loadProjectSignal.Disconnect(slot);
 }
@@ -137,7 +145,7 @@ void Project::UnRegisterLoadProject(typename LoadProjectSignal::Slot& slot)
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Project::RegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot)
+void Project::RegisterUnloadProject(typename UnloadProjectSignal::Slot& slot)
 {
 	_unloadProjectSignal.Connect(slot);
 }
@@ -145,7 +153,7 @@ void Project::RegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot)
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Project::UnRegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot)
+void Project::UnregisterUnloadProject(typename UnloadProjectSignal::Slot& slot)
 {
 	_unloadProjectSignal.Disconnect(slot);
 }

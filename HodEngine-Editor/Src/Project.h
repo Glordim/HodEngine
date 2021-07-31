@@ -15,7 +15,7 @@ class Project : public Singleton<Project>
 public:
 
 	using LoadProjectSignal = Signal<Project*>;
-	using UnLoadProjectSignal = Signal<Project*>;
+	using UnloadProjectSignal = Signal<Project*>;
 
 public:
 
@@ -49,14 +49,15 @@ public:
 	void						SetName(const QString& name);
 
 	void						RegisterLoadProject(typename LoadProjectSignal::Slot& slot);
-	void						UnRegisterLoadProject(typename LoadProjectSignal::Slot& slot);
-	void						RegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot);
-	void						UnRegisterUnLoadProject(typename UnLoadProjectSignal::Slot& slot);
+	void						UnregisterLoadProject(typename LoadProjectSignal::Slot& slot);
+
+	void						RegisterUnloadProject(typename UnloadProjectSignal::Slot& slot);
+	void						UnregisterUnloadProject(typename UnloadProjectSignal::Slot& slot);
 
 private:
 
 	LoadProjectSignal			_loadProjectSignal;
-	UnLoadProjectSignal			_unloadProjectSignal;
+	UnloadProjectSignal			_unloadProjectSignal;
 
 private:
 

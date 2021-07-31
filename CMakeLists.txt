@@ -44,6 +44,10 @@ endif()
 if (NOT TARGET Game)
 	add_subdirectory(HodEngine/Game)
 endif()
+
+if (NOT TARGET HodEngine-Editor)
+	add_subdirectory(HodEngine-Editor)
+endif()
 	
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/Test/src/*.cpp"
