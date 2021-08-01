@@ -21,6 +21,8 @@
 #include <QStringList>
 #include <String>
 
+#include <QDesktopServices>
+
 ///
 ///@brief Construct a new Contents:: Contents object
 ///
@@ -94,9 +96,20 @@ void Contents::OnUnloadProject(Project* project)
 ///@param bottomRight 
 ///@param roles 
 ///
-void Contents::OnDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+void Contents::OnDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
 {
 	qDebug("Changed");
+
+	ContentTreeViewItem* item = static_cast<ContentTreeViewItem*>(_contentItemModel->itemFromIndex(topLeft));
+	if (item->GetType() == FolderItem::_type)
+	{
+		FolderItem* folderItem = static_cast<FolderItem*>(item);
+		folderItem->RenameDirWithCurrentText();
+	}
+	else
+	{
+
+	}
 }
 
 ///
@@ -107,114 +120,190 @@ void Contents::OnDataChanged(const QModelIndex &topLeft, const QModelIndex &bott
 void Contents::CustomMenuRequested(const QPoint& position)
 {
 	QMenu* menu = new QMenu(_ui->treeView);
+
+	bool isFolder = false;
+	bool isMultiselection = false;
+	QStandardItem* item = nullptr;
+
 	QModelIndexList indexList = _ui->treeView->selectionModel()->selectedIndexes();
-	if (indexList.empty() == false)
+	if (indexList.empty() == true)
 	{
-		if (indexList.count() == 1)
+		isFolder = true;
+		item = _contentItemModel->invisibleRootItem();
+	}
+	else if (indexList.count() == 1)
+	{
+		item = _contentItemModel->itemFromIndex(indexList[0]);
+		if (static_cast<ContentTreeViewItem*>(item)->GetType() == FolderItem::_type)
 		{
-			QModelIndex index = indexList[0];
-
-			menu->addAction("Rename", [this, index]()
-			{
-				_ui->treeView->edit(index);
-			});
+			isFolder = true;
 		}
-
-		menu->addAction("Delete", [this]()
-		{
-			
-		});
 	}
 	else
 	{
-		QMenu* create = menu->addMenu("Create");
-		create->addAction("Folder", [this]()
-		{
-			ContentDataBase::GetInstance()->CreateFolder();
-		});
-		QMenu* import = menu->addMenu("Import");
-		import->addAction("Texture", [this]()
-		{
-			QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
-
-			ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
-		});
-		/*
-		bool isFolder = false;
-	if (index.isValid() == true)
-	{
-		QVariant data = _ui->treeView->model->data(index);
-		data.
+		isMultiselection = true;
 	}
 
-	//QModelIndex index = _ui->treeView->indexAt(position);
-	QStandardItem* item = nullptr;
-	HODStandardItem* castItem = nullptr;
-
-	QMenu* create = menu->addMenu("Create");
-	create->addAction("Folder", [this]()
+	if (isFolder == true)
 	{
-			
-	})
-
-	if (index.isValid() == true)
+		AddMenuCreate(menu, item);
+		menu->addSeparator();
+	}
+	if (isMultiselection == false)
 	{
-		item = _treeViewModel->itemFromIndex(index);
-		castItem = dynamic_cast<HODStandardItem*>(item);
-
-		if (castItem != nullptr)
+		menu->addAction("Show in Explorer", [this, item]()
 		{
-			if (castItem->GetType() == HODContentStandardItem::_type)
+			ShowInExplorer(item);
+		});
+	}
+	if (item != _contentItemModel->invisibleRootItem())
+	{
+		if (isMultiselection == false)
+		{
+			menu->addAction("Rename", [this, item]()
 			{
-				HODContentStandardItem* contentItem = dynamic_cast<HODContentStandardItem*>(item);
+				_ui->treeView->edit(_contentItemModel->indexFromItem(item));
+			}, QKeySequence(Qt::Key_F2));
 
-				if (contentItem != nullptr)
+			menu->addAction("Duplicate", [this, item]()
+			{
+				ContentTreeViewItem* contentTreeViewItem = static_cast<ContentTreeViewItem*>(item);
+				if (contentTreeViewItem->GetType() == FolderItem::_type)
 				{
-					
-					menu->addAction("Delete Content", [content = contentItem->GetContent()]()
-						{
-							ContentDataBase::GetInstance()->RemoveContent(content);
-								//ContentDataBase::GetInstance()->GetContent()
-						});
-					menu->addAction("Move To", [this]()
-						{
-
-						});
+					QDir dstDir = static_cast<FolderItem*>(contentTreeViewItem)->GetDir();
+					dstDir.cdUp();
+					DuplicateFolder(static_cast<FolderItem*>(contentTreeViewItem)->GetDir(), dstDir);
+				}
+				else
+				{
+					//ContentDatabase::GetInstance()->DuplicateContent(static_cast<ContentItem*>(item)->GetContent());
 				}
 
-			}
-			else // classe dossier a faire
-			{
-				menu->addAction("Delete Folder", [this]()
-					{
-						//ContentDataBase::GetInstance()->GetContent()
-					});
-				menu->addAction("Move To", [this]()
-					{
-
-					});
-			}
+				OnUnloadProject(nullptr);
+				OnLoadProject(nullptr);
+			}, QKeySequence(Qt::CTRL | Qt::Key_D));
 		}
-	}
-	else
-	{
-		QMenu* create = menu->addMenu("Create");
-		create->addAction("Folder", [this]()
+		menu->addAction("Delete", [this, indexList]()
 		{
-			
-		})
-		QMenu* import = menu->addMenu("Import");
-		import->addAction("Texture", [this]()
-		{
-			QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
+			for (const QModelIndex& index : indexList)
+			{
+				ContentTreeViewItem* item = static_cast<ContentTreeViewItem*>(_contentItemModel->itemFromIndex(index));
+				if (item->GetType() == FolderItem::_type)
+				{
+					QDir dir = static_cast<FolderItem*>(item)->GetDir();
+					dir.removeRecursively();
+				}
+				else
+				{
+					QFile file(static_cast<ContentItem*>(item)->GetContent()->GetPath());
+					file.remove();
+				}
 
-			ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
-		});
-	}
-	*/
+				OnUnloadProject(nullptr);
+				OnLoadProject(nullptr);
+			}
+		}, QKeySequence(Qt::Key_Delete));
 	}
 
 	menu->popup(_ui->treeView->viewport()->mapToGlobal(position));
+}
+
+///
+///@brief 
+///
+///@param menu 
+///@param item 
+///
+void Contents::AddMenuCreate(QMenu* menu, QStandardItem* item)
+{
+	QMenu* create = menu->addMenu("Create");
+	create->addAction("Folder", [this, item]()
+	{
+		QDir dir = ItemToDir(item);
+		dir.mkdir("Folder");
+		dir.cd("Folder");
+
+		FolderItem* newItem = new FolderItem(dir);
+		item->appendRow(newItem);
+
+		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
+	});
+	create->addSeparator();
+	create->addAction("Texture", [this]()
+	{
+		QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
+
+		ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
+	});
+}
+
+///
+///@brief Open a native Explore window
+///
+///@param item TreeView to show in Explorer
+///
+void Contents::ShowInExplorer(QStandardItem* item)
+{
+	QDesktopServices::openUrl(QUrl::fromLocalFile(ItemToDir(item).absolutePath()));
+}
+
+///
+///@brief 
+///
+///@param dir 
+///
+void Contents::DuplicateFolder(const QDir& srcDir, const QDir& dstDir)
+{
+	dstDir.mkdir(srcDir.dirName() + " (copy)");
+	QDir newDir(dstDir.path() + "/" + srcDir.dirName() + " (copy)");
+
+	QFileInfoList fileInfoList = srcDir.entryInfoList(QDir::Filter::Dirs | QDir::Filter::Files | QDir::NoDotAndDotDot);
+
+	for (const QFileInfo& fileInfo : fileInfoList)
+	{
+		if (fileInfo.isDir() == true)
+		{
+			DuplicateFolder(fileInfo.dir(), newDir);
+		}
+		else if (fileInfo.isFile() == true)
+		{
+			if (fileInfo.suffix() == "content")
+			{
+				//ContentDataBase::GetInstance()->DuplicateContent(fileInfo.absoluteFilePath());
+			}
+		}
+	}
+}
+
+///
+///@brief 
+///
+///@param item 
+///@return QDir 
+///
+QDir Contents::ItemToDir(QStandardItem* item)
+{
+	QDir dir;
+
+	if (item == _contentItemModel->invisibleRootItem())
+	{
+		dir.setPath(Project::GetInstance()->GetContentsFolderPath());
+	}
+	else
+	{
+		ContentTreeViewItem* contentTreeViewItem = static_cast<ContentTreeViewItem*>(item);
+		if (contentTreeViewItem->GetType() == FolderItem::_type)
+		{
+			dir = static_cast<FolderItem*>(contentTreeViewItem)->GetDir();
+		}
+		else
+		{
+			QFileInfo fileInfo(static_cast<ContentItem*>(contentTreeViewItem)->GetContent()->GetPath());
+			dir = fileInfo.dir();
+		}
+	}
+
+	return dir;
 }
 
 ///

@@ -25,7 +25,9 @@ public:
 
 public:
 
-	const QDir&	GetDir() const;
+	const QDir&		GetDir() const;
+
+	void			RenameDirWithCurrentText();
 
 private:
 

@@ -35,10 +35,10 @@ public:
 	bool								Load(const QString& contentFolderPath);
 	void								Unload();
 
-	void								CreateFolder();
-
 	template<typename __ContentType__>
 	bool								Import(const QString& filepath);
+
+	void								DuplicateContent(const Content* content);
 
 	Content*							GetContent(const UID& uid) const;
 	Content*							GetContent(const QString path) const;

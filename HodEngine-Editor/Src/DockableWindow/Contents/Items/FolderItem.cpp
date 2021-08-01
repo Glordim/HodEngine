@@ -27,3 +27,15 @@ const QDir& FolderItem::GetDir() const
 {
 	return _dir;
 }
+
+///
+///@brief 
+///
+///
+void FolderItem::RenameDirWithCurrentText()
+{
+	QString currentName = _dir.dirName();
+	_dir.cdUp();
+	_dir.rename(currentName, text());
+	_dir.cd(text());
+}

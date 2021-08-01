@@ -151,11 +151,17 @@ Content* ContentDataBase::GetContent(const QString path) const
 	return nullptr;
 }
 
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-void ContentDataBase::CreateFolder()
+void ContentDataBase::DuplicateContent(const Content* content)
 {
-	QDir dir;
-	dir.mkdir(Project::GetInstance()->GetContentsFolderPath() + "/Folder");
+	/*
+	QFile file(content.GetPath());
+	QFileInfo fileInfo(content.GetPath());
+	file.copy(fileInfo.completeBaseName() + " (copy).content");
+
+	Content* content = ContentFactory::LoadFromPath(fileInfo.filePath());
+	if (content != nullptr)
+	{
+		AddContent(content);
+	}
+	*/
 }

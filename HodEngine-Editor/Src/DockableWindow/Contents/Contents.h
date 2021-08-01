@@ -11,7 +11,10 @@ QT_END_NAMESPACE
 
 #include "../../ContentDatabase.h"
 #include <QStandardItemModel>
+#include <QDir>
 
+class QMenu;
+class QStandardItem;
 class ContentItemModel;
 class ContentTreeViewItem;
 
@@ -30,6 +33,12 @@ public:
 private:
 
 	void										CustomMenuRequested(const QPoint& position);
+	void										AddMenuCreate(QMenu* menu, QStandardItem* item);
+	void										ShowInExplorer(QStandardItem* item);
+	void										DuplicateFolder(const QDir& srcDir, const QDir& dstDir);
+
+	QDir										ItemToDir(QStandardItem* item);
+
 	void										OnExpandFolderItem(const QModelIndex& index);
 	void										FetchChildItem(QStandardItem* parentItem);
 
