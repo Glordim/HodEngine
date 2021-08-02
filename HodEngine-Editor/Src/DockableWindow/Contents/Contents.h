@@ -53,6 +53,8 @@ private:
 
 	ContentTreeViewItem*						FindParentItem(Content* content);
 
+	QDir										CreateFolder(const QDir& dir, const QString& name);
+
 private:
 
 	Ui::Contents*								_ui;

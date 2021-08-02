@@ -220,12 +220,12 @@ void Contents::AddMenuCreate(QMenu* menu, QStandardItem* item)
 	create->addAction("Folder", [this, item]()
 	{
 		QDir dir = ItemToDir(item);
-		dir.mkdir("Folder");
-		dir.cd("Folder");
+		dir = CreateFolder(dir, "Folder");
 
 		FolderItem* newItem = new FolderItem(dir);
 		item->appendRow(newItem);
 
+		_ui->treeView->setExpanded(_contentItemModel->indexFromItem(item), true);
 		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
 	});
 	create->addSeparator();
@@ -235,6 +235,28 @@ void Contents::AddMenuCreate(QMenu* menu, QStandardItem* item)
 
 		ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
 	});
+}
+
+///
+///@brief 
+///
+///@param dir 
+///@param name 
+///@return QDir 
+///
+QDir Contents::CreateFolder(const QDir& parentDir, const QString& name)
+{
+	QDir dir = parentDir;
+
+	int i = 0;
+	QString folderName = name;
+	while (dir.mkdir(folderName) == false)
+	{
+		++i;
+		folderName = QString("%1 (%2)").arg(name, QString::number(i));
+	}
+	dir.cd(folderName);
+	return dir;
 }
 
 ///
@@ -359,9 +381,11 @@ void Contents::FetchChildItem(QStandardItem* parentItem)
 	}
 }
 
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
+///
+///@brief 
+///
+///@param content 
+///
 void Contents::OnAddContent(Content* content)
 {
 	/*
