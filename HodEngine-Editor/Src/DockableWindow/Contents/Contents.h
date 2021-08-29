@@ -15,7 +15,8 @@ QT_END_NAMESPACE
 
 class QMenu;
 class QStandardItem;
-class ContentItemModel;
+class FolderItem;
+class ContentItem;
 class ContentTreeViewItem;
 
 //-----------------------------------------------------------------------------
@@ -54,6 +55,10 @@ private:
 	ContentTreeViewItem*						FindParentItem(Content* content);
 
 	QDir										CreateFolder(const QDir& dir, const QString& name);
+	void										DeleteFolder(FolderItem* folderItem);
+
+	bool										CreateContent(const QDir& parentDir, Content* content);
+	void										DeleteContent(ContentItem* contentItem);
 
 private:
 

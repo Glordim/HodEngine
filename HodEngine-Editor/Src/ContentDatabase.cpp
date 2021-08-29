@@ -109,7 +109,12 @@ void ContentDataBase::AddContent(Content* content)
 	_addContentSignal.Emit(content);
 }
 
-void ContentDataBase::RemoveContent(Content* content)
+///
+///@brief 
+///
+///@param content 
+///
+void ContentDataBase::DeleteContent(Content* content)
 {
 	if (_contents.contains(content->GetUID()) == false)
 	{
@@ -121,6 +126,7 @@ void ContentDataBase::RemoveContent(Content* content)
 	_removeContentSignal.Emit(content);
 
 	content->RemoveFile();
+	delete content;
 }
 
 //-----------------------------------------------------------------------------

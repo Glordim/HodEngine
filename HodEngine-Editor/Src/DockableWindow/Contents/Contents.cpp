@@ -162,7 +162,7 @@ void Contents::CustomMenuRequested(const QPoint& position)
 		{
 			menu->addAction("Rename", [this, item]()
 			{
-				_ui->treeView->edit(_contentItemModel->indexFromItem(item));
+					_ui->treeView->edit(_contentItemModel->indexFromItem(item));
 			}, QKeySequence(Qt::Key_F2));
 
 			menu->addAction("Duplicate", [this, item]()
@@ -190,22 +190,70 @@ void Contents::CustomMenuRequested(const QPoint& position)
 				ContentTreeViewItem* item = static_cast<ContentTreeViewItem*>(_contentItemModel->itemFromIndex(index));
 				if (item->GetType() == FolderItem::_type)
 				{
-					QDir dir = static_cast<FolderItem*>(item)->GetDir();
-					dir.removeRecursively();
+					DeleteFolder(static_cast<FolderItem*>(item));
 				}
 				else
 				{
-					QFile file(static_cast<ContentItem*>(item)->GetContent()->GetPath());
-					file.remove();
+					DeleteContent(static_cast<ContentItem*>(item));
 				}
-
-				OnUnloadProject(nullptr);
-				OnLoadProject(nullptr);
 			}
 		}, QKeySequence(Qt::Key_Delete));
 	}
 
 	menu->popup(_ui->treeView->viewport()->mapToGlobal(position));
+}
+
+///
+///@brief 
+///
+///@param folderItem 
+///
+void Contents::DeleteFolder(FolderItem* folderItem)
+{
+	while (folderItem->rowCount() > 0)
+	{
+		ContentTreeViewItem* item = static_cast<ContentTreeViewItem*>(folderItem->child(0));
+		if (item->GetType() == FolderItem::_type)
+		{
+			DeleteFolder(static_cast<FolderItem*>(item));
+		}
+		else
+		{
+			DeleteContent(static_cast<ContentItem*>(item));
+		}
+	}
+
+	QDir dir = folderItem->GetDir();
+	dir.removeRecursively();
+
+	if (folderItem->parent() == nullptr)
+	{
+		_contentItemModel->invisibleRootItem()->removeRow(folderItem->row());
+	}
+	else
+	{
+		folderItem->parent()->removeRow(folderItem->row());
+	}
+	
+}
+
+///
+///@brief 
+///
+///@param contentItem 
+///
+void Contents::DeleteContent(ContentItem* contentItem)
+{
+	ContentDataBase::GetInstance()->DeleteContent(contentItem->GetContent());
+
+	if (contentItem->parent() == nullptr)
+	{
+		_contentItemModel->invisibleRootItem()->removeRow(contentItem->row());
+	}
+	else
+	{
+		contentItem->parent()->removeRow(contentItem->row());
+	}
 }
 
 ///
@@ -229,11 +277,26 @@ void Contents::AddMenuCreate(QMenu* menu, QStandardItem* item)
 		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
 	});
 	create->addSeparator();
-	create->addAction("Texture", [this]()
+	create->addAction("Texture", [this, item]()
 	{
 		QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
+		QFileInfo fileInfo(textureFilePath);
 
-		ContentDataBase::GetInstance()->Import<TextureContent>(textureFilePath);
+		TextureContent* textureContent = new TextureContent();
+		textureContent->SetAssetPath(textureFilePath);
+		textureContent->SetName(fileInfo.completeBaseName());
+		textureContent->SetUid(UID::GenerateUID());
+
+		QDir dir = ItemToDir(item);
+		CreateContent(dir, textureContent);
+
+		ContentDataBase::GetInstance()->AddContent(textureContent);
+
+		ContentItem* newItem = new ContentItem(textureContent);
+		item->appendRow(newItem);
+
+		_ui->treeView->setExpanded(_contentItemModel->indexFromItem(item), true);
+		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
 	});
 }
 
@@ -257,6 +320,36 @@ QDir Contents::CreateFolder(const QDir& parentDir, const QString& name)
 	}
 	dir.cd(folderName);
 	return dir;
+}
+
+///
+///@brief 
+///
+///@param parentDir 
+///@param name 
+///@return QDir 
+///
+bool Contents::CreateContent(const QDir& parentDir, Content* content)
+{
+	QDir dir = parentDir;
+
+	QString initialName = content->GetName();
+	QString contentName = initialName;
+
+	QFile file;
+	file.setFileName(dir.absoluteFilePath(contentName + ".content"));
+
+	int i = 0;
+	while (file.exists() == true)
+	{
+		++i;
+		contentName = QString("%1 (%2)").arg(initialName, QString::number(i));
+
+		file.setFileName(dir.absoluteFilePath(contentName + ".content"));
+		content->SetName(contentName);
+	}
+
+	return content->SaveAtPath(file.fileName());
 }
 
 ///

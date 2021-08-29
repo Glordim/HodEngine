@@ -35,9 +35,6 @@ public:
 	bool								Load(const QString& contentFolderPath);
 	void								Unload();
 
-	template<typename __ContentType__>
-	bool								Import(const QString& filepath);
-
 	void								DuplicateContent(const Content* content);
 
 	Content*							GetContent(const UID& uid) const;
@@ -46,14 +43,13 @@ public:
 	RemoveContentSignal&				GetRemoveContentSignal();
 	ContentChangeSignal&				GetContentChangeSignal();
 
-	void								RemoveContent(Content* content);
+	void								AddContent(Content* content);
+	void								DeleteContent(Content* content);
 
 private:
 
 	void								OnLoadProjectAction(Project* project);
 	void								OnUnLoadProjectAction(Project* project);
-
-	void								AddContent(Content* content);
 
 private:
 
