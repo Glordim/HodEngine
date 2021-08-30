@@ -23,6 +23,24 @@ ContentDataBase::~ContentDataBase()
 {
 }
 
+///
+///@brief 
+///
+///@param contentPath 
+///@return Content* 
+///
+Content* ContentDataBase::LoadContentAtPath(const QString& contentPath)
+{
+	Content* content = ContentFactory::LoadFromPath(contentPath);
+	if (content != nullptr)
+	{
+		AddContent(content);
+		return content;
+	}
+
+	return nullptr;
+}
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -40,12 +58,8 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 	for (QFileInfo fileInfo : dir.entryInfoList())
 	{
 		//qDebug() << "F: " + fileInfo.filePath();
-
-		Content* content = ContentFactory::LoadFromPath(fileInfo.filePath());
-		if (content != nullptr)
-		{
-			AddContent(content);
-		}
+		LoadContentAtPath(fileInfo.filePath());
+		
 		// read content here, construct and add it in Content map
 	}
 
@@ -80,6 +94,7 @@ void ContentDataBase::AddContent(Content* content)
 
 	if (existingContent != _contents.end())
 	{
+		/*
 		QString contentsRootPath = Project::GetInstance()->GetContentsFolderPath();
 		QString newContentPath = content->GetPath().mid(contentsRootPath.size() + 1);
 		QString existingContentPath = (*existingContent)->GetPath().mid(contentsRootPath.size() + 1);
@@ -90,6 +105,22 @@ void ContentDataBase::AddContent(Content* content)
 		"Keep B");
 
 		if (choice == 0)
+		{
+			content->SetUid(UID::GenerateUID());
+			_contents.insert(content->GetUID(), content);
+		}
+		else
+		{
+			(*existingContent)->SetUid(UID::GenerateUID());
+			_contents.insert((*existingContent)->GetUID(), (*existingContent));
+			_contents[content->GetUID()] = content;
+		}
+		*/
+
+		QFileInfo existingFile((*existingContent)->GetPath());
+		QFileInfo newFile(content->GetPath());
+
+		if (existingFile.birthTime() < newFile.birthTime())
 		{
 			content->SetUid(UID::GenerateUID());
 			_contents.insert(content->GetUID(), content);

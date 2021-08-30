@@ -32,6 +32,7 @@ protected:
 
 public:
 
+	Content*							LoadContentAtPath(const QString& contentPath);
 	bool								Load(const QString& contentFolderPath);
 	void								Unload();
 

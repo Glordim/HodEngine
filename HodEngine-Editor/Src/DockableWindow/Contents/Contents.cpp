@@ -20,7 +20,8 @@
 #include <QTreeView>
 #include <QStringList>
 #include <String>
-
+#include <QMessageBox>
+#include <QShortcut>
 #include <QDesktopServices>
 
 ///
@@ -38,6 +39,12 @@ Contents::Contents(QWidget* parent)
 , _onUnloadProjectSlot(std::bind(&Contents::OnUnloadProject, this, std::placeholders::_1))
 {
 	_ui->setupUi(this);
+
+	_deleteShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), _ui->treeView);
+	connect(_deleteShortcut, &QShortcut::activated, this, &Contents::DeleteSelectedItems);
+
+	_duplicateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_D), _ui->treeView);
+	connect(_duplicateShortcut, &QShortcut::activated, this, &Contents::DuplicateSelectedItems);
 
 	_contentItemModel = new QStandardItemModel();
 	_contentItemModel->setColumnCount(1);
@@ -162,45 +169,89 @@ void Contents::CustomMenuRequested(const QPoint& position)
 		{
 			menu->addAction("Rename", [this, item]()
 			{
-					_ui->treeView->edit(_contentItemModel->indexFromItem(item));
+				_ui->treeView->edit(_contentItemModel->indexFromItem(item));
 			}, QKeySequence(Qt::Key_F2));
 
-			menu->addAction("Duplicate", [this, item]()
-			{
-				ContentTreeViewItem* contentTreeViewItem = static_cast<ContentTreeViewItem*>(item);
-				if (contentTreeViewItem->GetType() == FolderItem::_type)
-				{
-					QDir dstDir = static_cast<FolderItem*>(contentTreeViewItem)->GetDir();
-					dstDir.cdUp();
-					DuplicateFolder(static_cast<FolderItem*>(contentTreeViewItem)->GetDir(), dstDir);
-				}
-				else
-				{
-					//ContentDatabase::GetInstance()->DuplicateContent(static_cast<ContentItem*>(item)->GetContent());
-				}
-
-				OnUnloadProject(nullptr);
-				OnLoadProject(nullptr);
-			}, QKeySequence(Qt::CTRL | Qt::Key_D));
+			menu->addAction("Duplicate", this, &Contents::DuplicateSelectedItems, _duplicateShortcut->key());
 		}
-		menu->addAction("Delete", [this, indexList]()
-		{
-			for (const QModelIndex& index : indexList)
-			{
-				ContentTreeViewItem* item = static_cast<ContentTreeViewItem*>(_contentItemModel->itemFromIndex(index));
-				if (item->GetType() == FolderItem::_type)
-				{
-					DeleteFolder(static_cast<FolderItem*>(item));
-				}
-				else
-				{
-					DeleteContent(static_cast<ContentItem*>(item));
-				}
-			}
-		}, QKeySequence(Qt::Key_Delete));
+		menu->addAction("Delete", this, &Contents::DeleteSelectedItems, _deleteShortcut->key());
 	}
 
 	menu->popup(_ui->treeView->viewport()->mapToGlobal(position));
+}
+
+///
+///@brief 
+///
+///
+void Contents::DeleteSelectedItems()
+{
+	QModelIndexList indexList = _ui->treeView->selectionModel()->selectedIndexes();
+	for (const QModelIndex& index : indexList)
+	{
+		ContentTreeViewItem* item = static_cast<ContentTreeViewItem*>(_contentItemModel->itemFromIndex(index));
+		if (item->GetType() == FolderItem::_type)
+		{
+			DeleteFolder(static_cast<FolderItem*>(item));
+		}
+		else
+		{
+			DeleteContent(static_cast<ContentItem*>(item));
+		}
+	}
+}
+
+///
+///@brief 
+///
+///
+void Contents::DuplicateSelectedItems()
+{
+	QModelIndexList indexList = _ui->treeView->selectionModel()->selectedIndexes();
+	if (indexList.size() == 0)
+	{
+		return;
+	}
+
+	ContentTreeViewItem* contentTreeViewItem = static_cast<ContentTreeViewItem*>(_contentItemModel->itemFromIndex(indexList[0]));
+	if (contentTreeViewItem->GetType() == FolderItem::_type)
+	{
+		QDir dstDir = static_cast<FolderItem*>(contentTreeViewItem)->GetDir();
+		dstDir.cdUp();
+		QDir newDir = DuplicateFolder(static_cast<FolderItem*>(contentTreeViewItem)->GetDir(), dstDir);
+
+		FolderItem* newItem = new FolderItem(newDir);
+		if (contentTreeViewItem->parent() != nullptr)
+		{
+			contentTreeViewItem->parent()->appendRow(newItem);
+		}
+		else
+		{
+			_contentItemModel->invisibleRootItem()->appendRow(newItem);
+		}
+
+		FetchChildItem(newItem);
+
+		_ui->treeView->setExpanded(_contentItemModel->indexFromItem(contentTreeViewItem), true);
+		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
+	}
+	else
+	{
+		Content* content = DuplicateContent(ItemToDir(contentTreeViewItem), static_cast<ContentItem*>(contentTreeViewItem)->GetContent());
+
+		ContentItem* newItem = new ContentItem(content);
+		if (contentTreeViewItem->parent() != nullptr)
+		{
+			contentTreeViewItem->parent()->appendRow(newItem);
+		}
+		else
+		{
+			_contentItemModel->invisibleRootItem()->appendRow(newItem);
+		}
+
+		_ui->treeView->setExpanded(_contentItemModel->indexFromItem(contentTreeViewItem), true);
+		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
+	}
 }
 
 ///
@@ -226,15 +277,14 @@ void Contents::DeleteFolder(FolderItem* folderItem)
 	QDir dir = folderItem->GetDir();
 	dir.removeRecursively();
 
-	if (folderItem->parent() == nullptr)
-	{
-		_contentItemModel->invisibleRootItem()->removeRow(folderItem->row());
-	}
-	else
+	if (folderItem->parent() != nullptr)
 	{
 		folderItem->parent()->removeRow(folderItem->row());
 	}
-	
+	else
+	{
+		_contentItemModel->invisibleRootItem()->removeRow(folderItem->row());
+	}	
 }
 
 ///
@@ -246,13 +296,13 @@ void Contents::DeleteContent(ContentItem* contentItem)
 {
 	ContentDataBase::GetInstance()->DeleteContent(contentItem->GetContent());
 
-	if (contentItem->parent() == nullptr)
+	if (contentItem->parent() != nullptr)
 	{
-		_contentItemModel->invisibleRootItem()->removeRow(contentItem->row());
+		contentItem->parent()->removeRow(contentItem->row());
 	}
 	else
 	{
-		contentItem->parent()->removeRow(contentItem->row());
+		_contentItemModel->invisibleRootItem()->removeRow(contentItem->row());
 	}
 }
 
@@ -305,6 +355,32 @@ void Contents::AddMenuCreate(QMenu* menu, QStandardItem* item)
 ///
 ///@param dir 
 ///@param name 
+///@return QString 
+///
+QString Contents::FindNextAvailableFilePath(const QDir& dir, const QString& name, const QString& extension)
+{
+	QString finalName = name;
+
+	QFile file;
+	file.setFileName(dir.absoluteFilePath(finalName + extension));
+
+	int i = 0;
+	while (file.exists() == true)
+	{
+		++i;
+		finalName = QString("%1 (%2)").arg(name, QString::number(i));
+
+		file.setFileName(dir.absoluteFilePath(finalName + extension));
+	}
+
+	return file.fileName();
+}
+
+///
+///@brief 
+///
+///@param dir 
+///@param name 
 ///@return QDir 
 ///
 QDir Contents::CreateFolder(const QDir& parentDir, const QString& name)
@@ -331,25 +407,29 @@ QDir Contents::CreateFolder(const QDir& parentDir, const QString& name)
 ///
 bool Contents::CreateContent(const QDir& parentDir, Content* content)
 {
-	QDir dir = parentDir;
+	QString filePath = FindNextAvailableFilePath(parentDir, content->GetName(), ".content");
+	QFileInfo fileInfo(filePath);
 
-	QString initialName = content->GetName();
-	QString contentName = initialName;
+	content->SetName(fileInfo.completeBaseName());
 
-	QFile file;
-	file.setFileName(dir.absoluteFilePath(contentName + ".content"));
+	return content->SaveAtPath(filePath);
+}
 
-	int i = 0;
-	while (file.exists() == true)
-	{
-		++i;
-		contentName = QString("%1 (%2)").arg(initialName, QString::number(i));
+///
+///@brief 
+///
+///@param content 
+///@return Content* 
+///
+Content* Contents::DuplicateContent(const QDir& dir, Content* content)
+{
+	QFileInfo fileInfo(content->GetPath());
+	QString filePath = FindNextAvailableFilePath(dir, content->GetName(), ".content");
 
-		file.setFileName(dir.absoluteFilePath(contentName + ".content"));
-		content->SetName(contentName);
-	}
+	QFile file(fileInfo.filePath());
+	file.copy(filePath);
 
-	return content->SaveAtPath(file.fileName());
+	return ContentDataBase::GetInstance()->LoadContentAtPath(filePath);
 }
 
 ///
@@ -367,10 +447,9 @@ void Contents::ShowInExplorer(QStandardItem* item)
 ///
 ///@param dir 
 ///
-void Contents::DuplicateFolder(const QDir& srcDir, const QDir& dstDir)
+QDir Contents::DuplicateFolder(const QDir& srcDir, const QDir& dstDir)
 {
-	dstDir.mkdir(srcDir.dirName() + " (copy)");
-	QDir newDir(dstDir.path() + "/" + srcDir.dirName() + " (copy)");
+	QDir newDir = CreateFolder(dstDir, srcDir.dirName());
 
 	QFileInfoList fileInfoList = srcDir.entryInfoList(QDir::Filter::Dirs | QDir::Filter::Files | QDir::NoDotAndDotDot);
 
@@ -378,16 +457,19 @@ void Contents::DuplicateFolder(const QDir& srcDir, const QDir& dstDir)
 	{
 		if (fileInfo.isDir() == true)
 		{
-			DuplicateFolder(fileInfo.dir(), newDir);
+			DuplicateFolder(fileInfo.filePath(), newDir);
 		}
 		else if (fileInfo.isFile() == true)
 		{
 			if (fileInfo.suffix() == "content")
 			{
-				//ContentDataBase::GetInstance()->DuplicateContent(fileInfo.absoluteFilePath());
+				Content* content = ContentDataBase::GetInstance()->GetContent(fileInfo.filePath());
+				DuplicateContent(newDir, content);
 			}
 		}
 	}
+
+	return newDir;
 }
 
 ///
@@ -466,6 +548,11 @@ void Contents::FetchChildItem(QStandardItem* parentItem)
 			if (fileInfo.suffix() == "content")
 			{
 				Content* content = ContentDataBase::GetInstance()->GetContent(fileInfo.absoluteFilePath());
+
+				if (content == nullptr)
+				{
+					QMessageBox::critical(this, "Error", "No content load at this path : " + fileInfo.absoluteFilePath());
+				}
 
 				ContentItem* newItem = new ContentItem(content);
 				parentItem->appendRow(newItem);

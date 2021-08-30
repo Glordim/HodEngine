@@ -14,6 +14,7 @@ QT_END_NAMESPACE
 #include <QDir>
 
 class QMenu;
+class QShortcut;
 class QStandardItem;
 class FolderItem;
 class ContentItem;
@@ -36,7 +37,6 @@ private:
 	void										CustomMenuRequested(const QPoint& position);
 	void										AddMenuCreate(QMenu* menu, QStandardItem* item);
 	void										ShowInExplorer(QStandardItem* item);
-	void										DuplicateFolder(const QDir& srcDir, const QDir& dstDir);
 
 	QDir										ItemToDir(QStandardItem* item);
 
@@ -54,17 +54,28 @@ private:
 
 	ContentTreeViewItem*						FindParentItem(Content* content);
 
+	QString										FindNextAvailableFilePath(const QDir& dir, const QString& name, const QString& extension);
+
 	QDir										CreateFolder(const QDir& dir, const QString& name);
+	QDir										DuplicateFolder(const QDir& srcDir, const QDir& dstDir);
 	void										DeleteFolder(FolderItem* folderItem);
 
 	bool										CreateContent(const QDir& parentDir, Content* content);
+	Content*									DuplicateContent(const QDir& dir, Content* content);
 	void										DeleteContent(ContentItem* contentItem);
+
+public slots:
+
+	void										DeleteSelectedItems();
+	void										DuplicateSelectedItems();
 
 private:
 
 	Ui::Contents*								_ui;
 	QStandardItemModel*							_contentItemModel;
 
+	QShortcut*									_deleteShortcut = nullptr;
+	QShortcut*									_duplicateShortcut = nullptr;
 
 	ContentDataBase::AddContentSignal::Slot		_onAddContentSlot;
 	ContentDataBase::RemoveContentSignal::Slot	_onRemoveContentSlot;
