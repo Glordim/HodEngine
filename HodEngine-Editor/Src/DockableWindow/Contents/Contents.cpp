@@ -186,6 +186,11 @@ void Contents::CustomMenuRequested(const QPoint& position)
 ///
 void Contents::DeleteSelectedItems()
 {
+	if (QMessageBox::warning(this, "Delete Confirmation", "Do tou really want to delete this file(s) ?", QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel) == QMessageBox::StandardButton::Cancel)
+	{
+		return;
+	}
+
 	QModelIndexList indexList = _ui->treeView->selectionModel()->selectedIndexes();
 	for (const QModelIndex& index : indexList)
 	{
@@ -232,7 +237,6 @@ void Contents::DuplicateSelectedItems()
 
 		FetchChildItem(newItem);
 
-		_ui->treeView->setExpanded(_contentItemModel->indexFromItem(contentTreeViewItem), true);
 		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
 	}
 	else
@@ -249,7 +253,6 @@ void Contents::DuplicateSelectedItems()
 			_contentItemModel->invisibleRootItem()->appendRow(newItem);
 		}
 
-		_ui->treeView->setExpanded(_contentItemModel->indexFromItem(contentTreeViewItem), true);
 		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
 	}
 }
