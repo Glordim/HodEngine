@@ -5,6 +5,7 @@
 #include "../Mainwindow.h"
 
 #include <QFileDialog>
+#include <QDir>
 #include <QMessageBox>
 
 //-----------------------------------------------------------------------------
@@ -53,6 +54,15 @@ void NewProjectDialog::accept()
 		QMessageBox::critical(this, "New Project", "Please enter a valid project Location");
 		return;
 	}
+
+	QDir projectDir(location);
+	if (projectDir.mkdir(name) == false)
+	{
+		QMessageBox::critical(this, "New Project", "Unable to create project directory (already exist ?)");
+		return;	
+	}
+
+	location += "/" + name;
 
 	if (Project::CreateOnDisk(name, location) == true)
 	{
