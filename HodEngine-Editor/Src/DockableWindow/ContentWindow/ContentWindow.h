@@ -5,13 +5,15 @@
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
-	class Contents;
+	class ContentWindow;
 }
 QT_END_NAMESPACE
 
 #include "../../ContentDatabase.h"
 #include <QStandardItemModel>
 #include <QDir>
+
+#include "../DockableWindow.h"
 
 class QMenu;
 class QShortcut;
@@ -23,20 +25,24 @@ class ContentTreeViewItem;
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-class Contents : public QDockWidget
+class ContentWindow : public DockableWindow
 {
 	Q_OBJECT
 
+	META_TYPE(ContentWindow)
+
 public:
 
-												Contents(QWidget* parent = nullptr);
-												~Contents();
+												ContentWindow(QWidget* parent = nullptr);
+												~ContentWindow();
 
 private:
 
 	void										CustomMenuRequested(const QPoint& position);
 	void										AddMenuCreate(QMenu* menu, QStandardItem* item);
 	void										ShowInExplorer(QStandardItem* item);
+
+	void										OnDoubleClick(const QModelIndex& index);
 
 	QDir										ItemToDir(QStandardItem* item);
 
@@ -71,7 +77,7 @@ public slots:
 
 private:
 
-	Ui::Contents*								_ui;
+	Ui::ContentWindow*							_ui;
 	QStandardItemModel*							_contentItemModel;
 
 	QShortcut*									_deleteShortcut = nullptr;

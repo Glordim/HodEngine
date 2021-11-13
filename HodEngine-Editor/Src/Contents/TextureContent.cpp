@@ -1,5 +1,4 @@
 #include "TextureContent.h"
-#include "Hash.h"
 
 #include <QFile>
 #include <QJsonDocument>

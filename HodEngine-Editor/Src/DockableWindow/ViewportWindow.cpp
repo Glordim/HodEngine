@@ -1,5 +1,5 @@
-#include "Viewport.h"
-#include "./ui_Viewport.h"
+#include "ViewportWindow.h"
+#include "./ui_ViewportWindow.h"
 
 #include <QProcess>
 #include <QThread>
@@ -13,15 +13,15 @@
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-Viewport::Viewport(QWidget *parent)
-	: QDockWidget(parent)
-	, _ui(new Ui::Viewport)
+ViewportWindow::ViewportWindow(QWidget *parent)
+	: DockableWindow(parent)
+	, _ui(new Ui::ViewportWindow)
 {
 	_ui->setupUi(this);
 
 	_tcpServer = new QTcpServer(this);
 	_tcpServer->listen();
-	QObject::connect(_tcpServer, &QTcpServer::newConnection, this, &Viewport::OnEngineConnect);
+	QObject::connect(_tcpServer, &QTcpServer::newConnection, this, &ViewportWindow::OnEngineConnect);
 
 	QStringList arguments;
 	arguments.push_back("-Editor");
@@ -33,9 +33,9 @@ Viewport::Viewport(QWidget *parent)
 	_engineProcess->setProgram("G:\\HodEngine\\Build\\Debug\\HodEngine.exe");
 	_engineProcess->setArguments(arguments);
 	_engineProcess->setWorkingDirectory("C:\\Users\\antho\\Desktop\\Hod\\Resources");
-	QObject::connect(_engineProcess, &QProcess::finished, this, &Viewport::OnEngineFinished);
+	QObject::connect(_engineProcess, &QProcess::finished, this, &ViewportWindow::OnEngineFinished);
 
-	QObject::connect(_ui->restartButton, &QToolButton::clicked, this, &Viewport::OnPlayStopEngineButtonClicked);
+	QObject::connect(_ui->restartButton, &QToolButton::clicked, this, &ViewportWindow::OnPlayStopEngineButtonClicked);
 
 	StartEngine();
 }
@@ -43,7 +43,7 @@ Viewport::Viewport(QWidget *parent)
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-Viewport::~Viewport()
+ViewportWindow::~ViewportWindow()
 {
 	if (_engineProcess != nullptr)
 	{
@@ -57,7 +57,7 @@ Viewport::~Viewport()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Viewport::OnPlayStopEngineButtonClicked()
+void ViewportWindow::OnPlayStopEngineButtonClicked()
 {
 	QProcess::ProcessState state = _engineProcess->state();
 
@@ -74,7 +74,7 @@ void Viewport::OnPlayStopEngineButtonClicked()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Viewport::StartEngine()
+void ViewportWindow::StartEngine()
 {
 	QProcess::ProcessState state = _engineProcess->state();
 
@@ -88,7 +88,7 @@ void Viewport::StartEngine()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Viewport::StopEngine()
+void ViewportWindow::StopEngine()
 {
 	QProcess::ProcessState state = _engineProcess->state();
 
@@ -102,22 +102,22 @@ void Viewport::StopEngine()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Viewport::OnEngineConnect()
+void ViewportWindow::OnEngineConnect()
 {
 	_ui->statusLabel->setText("Connected");
 
 	_engineSocket = _tcpServer->nextPendingConnection();
 
-	QObject::connect(_engineSocket, &QAbstractSocket::disconnected, this, &Viewport::StopEngine);
+	QObject::connect(_engineSocket, &QAbstractSocket::disconnected, this, &ViewportWindow::StopEngine);
 
-	_engineSocketThread = QThread::create(std::bind(&Viewport::EngineSocketLoop, this));
+	_engineSocketThread = QThread::create(std::bind(&ViewportWindow::EngineSocketLoop, this));
 	_engineSocketThread->start();
 }
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Viewport::EngineSocketLoop()
+void ViewportWindow::EngineSocketLoop()
 {
 	// May be setParent to engine window here ?
 	_quitThread = false;
@@ -163,7 +163,7 @@ void Viewport::EngineSocketLoop()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Viewport::OnEngineFinished()
+void ViewportWindow::OnEngineFinished()
 {
 	if (_engineSocketThread != nullptr)
 	{
@@ -190,7 +190,7 @@ void Viewport::OnEngineFinished()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Viewport::resizeEvent(QResizeEvent* event)
+void ViewportWindow::resizeEvent(QResizeEvent* event)
 {
 	QDockWidget::resizeEvent(event);
 

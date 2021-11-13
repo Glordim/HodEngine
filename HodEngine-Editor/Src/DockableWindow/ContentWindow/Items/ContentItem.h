@@ -10,7 +10,7 @@ class Content;
 ///
 class ContentItem : public ContentTreeViewItem
 {
-	CONTENT_META_TYPE(ContentItem)
+	META_TYPE(ContentItem)
 
 public:
 

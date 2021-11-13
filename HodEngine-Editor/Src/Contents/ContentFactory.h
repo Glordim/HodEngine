@@ -9,7 +9,6 @@
 
 #include "../UID.h"
 #include "../Signal.h"
-#include "Hash.h"
 
 class Content;
 

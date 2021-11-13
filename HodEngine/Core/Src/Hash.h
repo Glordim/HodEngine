@@ -22,5 +22,4 @@ private:
 
 	static uint64_t				ComputeFnv64(const std::string& string, uint64_t basis = FNV_64_BASIS);
 	static uint64_t				ComputeFnv64(const void* buffer, uint32_t size, uint64_t basis = FNV_64_BASIS);
-
 };

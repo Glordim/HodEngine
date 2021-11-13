@@ -11,7 +11,7 @@
 ///
 class FolderItem : public ContentTreeViewItem
 {
-	CONTENT_META_TYPE(FolderItem)
+	META_TYPE(FolderItem)
 
 public:
 

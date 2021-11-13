@@ -6,6 +6,7 @@
 #include <QJsonObject>
 
 #include "TextureContent.h"
+#include "SceneContent.h"
 
 QMap<QString, ContentFactory::CreateFunction> ContentFactory::_typenameToCreateFunction;
 
@@ -15,6 +16,7 @@ QMap<QString, ContentFactory::CreateFunction> ContentFactory::_typenameToCreateF
 void ContentFactory::Init()
 {
 	ContentFactory::_typenameToCreateFunction.insert(TextureContent::GetTypeNameStatic(), [](){ return new TextureContent(); });
+	ContentFactory::_typenameToCreateFunction.insert(SceneContent::GetTypeNameStatic(), [](){ return new SceneContent(); });
 }
 
 //-----------------------------------------------------------------------------

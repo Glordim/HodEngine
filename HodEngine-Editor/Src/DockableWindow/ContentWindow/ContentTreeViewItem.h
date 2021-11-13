@@ -2,7 +2,8 @@
 
 #include <QStandardItem>
 #include <Qstring>
-#include "Contents.h"
+
+#include "../../../../HodEngine/Core/Src/Type.h"
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -18,6 +19,6 @@ public:
 						ContentTreeViewItem(ContentTreeViewItem&&) = delete;
 						~ContentTreeViewItem() = default;
 
-	void				operator=(const Content&) = delete;
-	void				operator=(Content&&) = delete;
+	void				operator=(const ContentTreeViewItem&) = delete;
+	void				operator=(ContentTreeViewItem&&) = delete;
 };

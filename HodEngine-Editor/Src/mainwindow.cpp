@@ -1,8 +1,9 @@
 #include "Mainwindow.h"
 #include "./ui_Mainwindow.h"
 
-#include "DockableWindow/Contents/Contents.h"
-#include "DockableWindow/Viewport.h"
+#include "DockableWindow/ContentWindow/ContentWindow.h"
+#include "DockableWindow/SceneWindow/SceneWindow.h"
+#include "DockableWindow/ViewportWindow.h"
 #include "Dialog/NewProjectDialog.h"
 #include "Project.h"
 
@@ -15,6 +16,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+MainWindow* HOD::CORE::Singleton<MainWindow>::_instance = nullptr;
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -22,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, _ui(new Ui::MainWindow)
 {
+	HOD::CORE::Singleton<MainWindow>::_instance = this;
+
 	_ui->setupUi(this);
 
 	QObject::connect(_ui->actionNew_project, &QAction::triggered, this, &MainWindow::NewProject);
@@ -34,7 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 	QObject::connect(_ui->actionDefault, &QAction::triggered, this, &MainWindow::SetDefaultLayout);
 
-	RegisterDockableWindow<Contents>("Contents");
+	RegisterDockableWindow<ContentWindow>("Contents");
+	RegisterDockableWindow<SceneWindow>("Scene");
 
 	_ui->actionDefault->trigger();
 
@@ -109,12 +115,12 @@ void MainWindow::Exit()
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void MainWindow::AddDocakbleWindow(QDockWidget* dockWidget)
+void MainWindow::AddDocakbleWindow(DockableWindow* dockableWindow)
 {
 	bool projectOpened = Project::GetInstance()->IsOpened();
-	dockWidget->setEnabled(projectOpened);
-	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, dockWidget);
-	_dockWidgets.push_back(dockWidget);
+	dockableWindow->setEnabled(projectOpened);
+	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, dockableWindow);
+	_dockWidgets.push_back(dockableWindow);
 }
 
 //-----------------------------------------------------------------------------
@@ -129,11 +135,11 @@ void MainWindow::SetDefaultLayout()
 	}
 	_dockWidgets.clear();
 
-	Contents* contents = new Contents(this);
-	AddDocakbleWindow(contents);
+	ContentWindow* contentWindow = new ContentWindow(this);
+	AddDocakbleWindow(contentWindow);
 
-	Viewport* viewport = new Viewport(this);
-	setCentralWidget(viewport);
+	ViewportWindow* viewportWindow = new ViewportWindow(this);
+	setCentralWidget(viewportWindow);
 }
 
 //-----------------------------------------------------------------------------

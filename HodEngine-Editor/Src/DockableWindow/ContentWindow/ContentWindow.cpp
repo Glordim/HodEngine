@@ -1,6 +1,6 @@
 
-#include "Contents.h"
-#include "./ui_Contents.h"
+#include "ContentWindow.h"
+#include "./ui_ContentWindow.h"
 #include <windows.h>
 
 #include "ContentTreeViewItem.h"
@@ -9,7 +9,10 @@
 
 #include "../../ContentDatabase.h"
 #include "../../Contents/TextureContent.h"
+#include "../../Contents/SceneContent.h"
 
+#include "../../mainwindow.h"
+#include "../SceneWindow/SceneWindow.h"
 
 #include <QMenu>
 #include <QFileDialog>
@@ -29,22 +32,22 @@
 ///
 ///@param parent 
 ///
-Contents::Contents(QWidget* parent)
-: QDockWidget(parent)
-, _ui(new Ui::Contents)
-, _onAddContentSlot(std::bind(&Contents::OnAddContent, this, std::placeholders::_1))
-, _onRemoveContentSlot(std::bind(&Contents::OnRemoveContent, this, std::placeholders::_1))
-, _onContentChangeSlot(std::bind(&Contents::OnContentChange, this, std::placeholders::_1))
-, _onLoadProjectSlot(std::bind(&Contents::OnLoadProject, this, std::placeholders::_1))
-, _onUnloadProjectSlot(std::bind(&Contents::OnUnloadProject, this, std::placeholders::_1))
+ContentWindow::ContentWindow(QWidget* parent)
+: DockableWindow(parent)
+, _ui(new Ui::ContentWindow)
+, _onAddContentSlot(std::bind(&ContentWindow::OnAddContent, this, std::placeholders::_1))
+, _onRemoveContentSlot(std::bind(&ContentWindow::OnRemoveContent, this, std::placeholders::_1))
+, _onContentChangeSlot(std::bind(&ContentWindow::OnContentChange, this, std::placeholders::_1))
+, _onLoadProjectSlot(std::bind(&ContentWindow::OnLoadProject, this, std::placeholders::_1))
+, _onUnloadProjectSlot(std::bind(&ContentWindow::OnUnloadProject, this, std::placeholders::_1))
 {
 	_ui->setupUi(this);
 
 	_deleteShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), _ui->treeView);
-	connect(_deleteShortcut, &QShortcut::activated, this, &Contents::DeleteSelectedItems);
+	connect(_deleteShortcut, &QShortcut::activated, this, &ContentWindow::DeleteSelectedItems);
 
 	_duplicateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_D), _ui->treeView);
-	connect(_duplicateShortcut, &QShortcut::activated, this, &Contents::DuplicateSelectedItems);
+	connect(_duplicateShortcut, &QShortcut::activated, this, &ContentWindow::DuplicateSelectedItems);
 
 	_contentItemModel = new QStandardItemModel();
 	_contentItemModel->setColumnCount(1);
@@ -53,9 +56,10 @@ Contents::Contents(QWidget* parent)
 	_ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 	_ui->treeView->setModel(_contentItemModel);
 
-	QObject::connect(_ui->treeView, &QTreeView::customContextMenuRequested, this, &Contents::CustomMenuRequested);
-	QObject::connect(_ui->treeView, &QTreeView::expanded, this, &Contents::OnExpandFolderItem);
-	QObject::connect(_contentItemModel, &QStandardItemModel::dataChanged, this, &Contents::OnDataChanged);
+	QObject::connect(_ui->treeView, &QTreeView::customContextMenuRequested, this, &ContentWindow::CustomMenuRequested);
+	QObject::connect(_ui->treeView, &QTreeView::expanded, this, &ContentWindow::OnExpandFolderItem);
+	QObject::connect(_contentItemModel, &QStandardItemModel::dataChanged, this, &ContentWindow::OnDataChanged);
+	QObject::connect(_ui->treeView, &QTreeView::doubleClicked, this, &ContentWindow::OnDoubleClick);
 
 	ContentDataBase::GetInstance()->GetAddContentSignal().Connect(_onAddContentSlot);
 	ContentDataBase::GetInstance()->GetRemoveContentSignal().Connect(_onRemoveContentSlot);
@@ -69,7 +73,7 @@ Contents::Contents(QWidget* parent)
 ///@brief Destroy the Contents:: Contents object
 ///
 ///
-Contents::~Contents()
+ContentWindow::~ContentWindow()
 {
 	Project::GetInstance()->UnregisterLoadProject(_onLoadProjectSlot);
 	Project::GetInstance()->UnregisterUnloadProject(_onUnloadProjectSlot);
@@ -81,7 +85,7 @@ Contents::~Contents()
 ///@brief 
 ///
 ///
-void Contents::OnLoadProject(Project* project)
+void ContentWindow::OnLoadProject(Project* project)
 {
 	FetchChildItem(_contentItemModel->invisibleRootItem());
 }
@@ -91,7 +95,7 @@ void Contents::OnLoadProject(Project* project)
 ///
 ///@param project 
 ///
-void Contents::OnUnloadProject(Project* project)
+void ContentWindow::OnUnloadProject(Project* project)
 {
 	_contentItemModel->clear();
 }
@@ -103,7 +107,7 @@ void Contents::OnUnloadProject(Project* project)
 ///@param bottomRight 
 ///@param roles 
 ///
-void Contents::OnDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
+void ContentWindow::OnDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
 {
 	qDebug("Changed");
 
@@ -124,7 +128,7 @@ void Contents::OnDataChanged(const QModelIndex& topLeft, const QModelIndex& bott
 ///
 ///@param position 
 ///
-void Contents::CustomMenuRequested(const QPoint& position)
+void ContentWindow::CustomMenuRequested(const QPoint& position)
 {
 	QMenu* menu = new QMenu(_ui->treeView);
 
@@ -172,9 +176,9 @@ void Contents::CustomMenuRequested(const QPoint& position)
 				_ui->treeView->edit(_contentItemModel->indexFromItem(item));
 			}, QKeySequence(Qt::Key_F2));
 
-			menu->addAction("Duplicate", this, &Contents::DuplicateSelectedItems, _duplicateShortcut->key());
+			menu->addAction("Duplicate", this, &ContentWindow::DuplicateSelectedItems, _duplicateShortcut->key());
 		}
-		menu->addAction("Delete", this, &Contents::DeleteSelectedItems, _deleteShortcut->key());
+		menu->addAction("Delete", this, &ContentWindow::DeleteSelectedItems, _deleteShortcut->key());
 	}
 
 	menu->popup(_ui->treeView->viewport()->mapToGlobal(position));
@@ -184,7 +188,7 @@ void Contents::CustomMenuRequested(const QPoint& position)
 ///@brief 
 ///
 ///
-void Contents::DeleteSelectedItems()
+void ContentWindow::DeleteSelectedItems()
 {
 	if (QMessageBox::warning(this, "Delete Confirmation", "Do tou really want to delete this file(s) ?", QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel) == QMessageBox::StandardButton::Cancel)
 	{
@@ -210,7 +214,7 @@ void Contents::DeleteSelectedItems()
 ///@brief 
 ///
 ///
-void Contents::DuplicateSelectedItems()
+void ContentWindow::DuplicateSelectedItems()
 {
 	QModelIndexList indexList = _ui->treeView->selectionModel()->selectedIndexes();
 	if (indexList.size() == 0)
@@ -262,7 +266,7 @@ void Contents::DuplicateSelectedItems()
 ///
 ///@param folderItem 
 ///
-void Contents::DeleteFolder(FolderItem* folderItem)
+void ContentWindow::DeleteFolder(FolderItem* folderItem)
 {
 	while (folderItem->rowCount() > 0)
 	{
@@ -295,7 +299,7 @@ void Contents::DeleteFolder(FolderItem* folderItem)
 ///
 ///@param contentItem 
 ///
-void Contents::DeleteContent(ContentItem* contentItem)
+void ContentWindow::DeleteContent(ContentItem* contentItem)
 {
 	ContentDataBase::GetInstance()->DeleteContent(contentItem->GetContent());
 
@@ -315,7 +319,7 @@ void Contents::DeleteContent(ContentItem* contentItem)
 ///@param menu 
 ///@param item 
 ///
-void Contents::AddMenuCreate(QMenu* menu, QStandardItem* item)
+void ContentWindow::AddMenuCreate(QMenu* menu, QStandardItem* item)
 {
 	QMenu* create = menu->addMenu("Create");
 	create->addAction("Folder", [this, item]()
@@ -330,6 +334,23 @@ void Contents::AddMenuCreate(QMenu* menu, QStandardItem* item)
 		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
 	});
 	create->addSeparator();
+	create->addAction("Scene", [this, item]()
+	{
+		SceneContent* sceneContent = new SceneContent();
+		sceneContent->SetName("Scene");
+		sceneContent->SetUid(UID::GenerateUID());
+
+		QDir dir = ItemToDir(item);
+		CreateContent(dir, sceneContent);
+
+		ContentDataBase::GetInstance()->AddContent(sceneContent);
+
+		ContentItem* newItem = new ContentItem(sceneContent);
+		item->appendRow(newItem);
+
+		_ui->treeView->setExpanded(_contentItemModel->indexFromItem(item), true);
+		_ui->treeView->edit(_contentItemModel->indexFromItem(newItem));
+	});
 	create->addAction("Texture", [this, item]()
 	{
 		QString textureFilePath = QFileDialog::getOpenFileName(this, "Select a Texture file", Project::GetInstance()->GetAssetsFolderPath(), "*.png");
@@ -360,7 +381,7 @@ void Contents::AddMenuCreate(QMenu* menu, QStandardItem* item)
 ///@param name 
 ///@return QString 
 ///
-QString Contents::FindNextAvailableFilePath(const QDir& dir, const QString& name, const QString& extension)
+QString ContentWindow::FindNextAvailableFilePath(const QDir& dir, const QString& name, const QString& extension)
 {
 	QString finalName = name;
 
@@ -386,7 +407,7 @@ QString Contents::FindNextAvailableFilePath(const QDir& dir, const QString& name
 ///@param name 
 ///@return QDir 
 ///
-QDir Contents::CreateFolder(const QDir& parentDir, const QString& name)
+QDir ContentWindow::CreateFolder(const QDir& parentDir, const QString& name)
 {
 	QDir dir = parentDir;
 
@@ -408,7 +429,7 @@ QDir Contents::CreateFolder(const QDir& parentDir, const QString& name)
 ///@param name 
 ///@return QDir 
 ///
-bool Contents::CreateContent(const QDir& parentDir, Content* content)
+bool ContentWindow::CreateContent(const QDir& parentDir, Content* content)
 {
 	QString filePath = FindNextAvailableFilePath(parentDir, content->GetName(), ".content");
 	QFileInfo fileInfo(filePath);
@@ -424,7 +445,7 @@ bool Contents::CreateContent(const QDir& parentDir, Content* content)
 ///@param content 
 ///@return Content* 
 ///
-Content* Contents::DuplicateContent(const QDir& dir, Content* content)
+Content* ContentWindow::DuplicateContent(const QDir& dir, Content* content)
 {
 	QFileInfo fileInfo(content->GetPath());
 	QString filePath = FindNextAvailableFilePath(dir, content->GetName(), ".content");
@@ -440,7 +461,7 @@ Content* Contents::DuplicateContent(const QDir& dir, Content* content)
 ///
 ///@param item TreeView to show in Explorer
 ///
-void Contents::ShowInExplorer(QStandardItem* item)
+void ContentWindow::ShowInExplorer(QStandardItem* item)
 {
 	QDesktopServices::openUrl(QUrl::fromLocalFile(ItemToDir(item).absolutePath()));
 }
@@ -448,9 +469,30 @@ void Contents::ShowInExplorer(QStandardItem* item)
 ///
 ///@brief 
 ///
+///@param index 
+///
+void ContentWindow::OnDoubleClick(const QModelIndex& index)
+{
+	ContentTreeViewItem* item = static_cast<ContentTreeViewItem*>(_contentItemModel->itemFromIndex(index));
+	if (item->GetType() == ContentItem::_type)
+	{
+		Content* content = static_cast<ContentItem*>(item)->GetContent();
+		if (content->GetType() == SceneContent::_type)
+		{
+			MainWindow* mainWindow = MainWindow::GetInstance();
+
+			SceneWindow* sceneWindow = mainWindow->GetOrCreateDockableWindow<SceneWindow>();
+			sceneWindow->OpenSceneContent(static_cast<SceneContent*>(content));
+		}
+	}
+}
+
+///
+///@brief 
+///
 ///@param dir 
 ///
-QDir Contents::DuplicateFolder(const QDir& srcDir, const QDir& dstDir)
+QDir ContentWindow::DuplicateFolder(const QDir& srcDir, const QDir& dstDir)
 {
 	QDir newDir = CreateFolder(dstDir, srcDir.dirName());
 
@@ -481,7 +523,7 @@ QDir Contents::DuplicateFolder(const QDir& srcDir, const QDir& dstDir)
 ///@param item 
 ///@return QDir 
 ///
-QDir Contents::ItemToDir(QStandardItem* item)
+QDir ContentWindow::ItemToDir(QStandardItem* item)
 {
 	QDir dir;
 
@@ -511,7 +553,7 @@ QDir Contents::ItemToDir(QStandardItem* item)
 ///
 ///@param index 
 ///
-void Contents::OnExpandFolderItem(const QModelIndex& index)
+void ContentWindow::OnExpandFolderItem(const QModelIndex& index)
 {
 	//FetchChildItem(_contentItemModel->itemFromIndex(index));
 }
@@ -521,7 +563,7 @@ void Contents::OnExpandFolderItem(const QModelIndex& index)
 ///
 ///@param index 
 ///
-void Contents::FetchChildItem(QStandardItem* parentItem)
+void ContentWindow::FetchChildItem(QStandardItem* parentItem)
 {
 	QDir dir;
 
@@ -569,7 +611,7 @@ void Contents::FetchChildItem(QStandardItem* parentItem)
 ///
 ///@param content 
 ///
-void Contents::OnAddContent(Content* content)
+void ContentWindow::OnAddContent(Content* content)
 {
 	/*
 	ContentTreeViewItem* parentItem = FindParentItem(content);
@@ -585,7 +627,7 @@ void Contents::OnAddContent(Content* content)
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Contents::OnRemoveContent(Content* content)
+void ContentWindow::OnRemoveContent(Content* content)
 {
 	/*
 	const QString& contentPath = content->GetPath();
@@ -643,7 +685,7 @@ void Contents::OnRemoveContent(Content* content)
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-void Contents::OnContentChange(Content* content)
+void ContentWindow::OnContentChange(Content* content)
 {
 	// refresh view
 }
@@ -654,7 +696,7 @@ void Contents::OnContentChange(Content* content)
 ///@param content 
 ///@return ContentTreeViewItem* 
 ///
-ContentTreeViewItem* Contents::FindParentItem(Content* content)
+ContentTreeViewItem* ContentWindow::FindParentItem(Content* content)
 {
 	ContentTreeViewItem* parentItem = static_cast<ContentTreeViewItem*>(_contentItemModel->invisibleRootItem());
 

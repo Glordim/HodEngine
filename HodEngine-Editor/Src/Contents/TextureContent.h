@@ -12,12 +12,12 @@
 //-----------------------------------------------------------------------------
 class TextureContent : public Content
 {
-	CONTENT_META_TYPE(TextureContent)
+	META_TYPE(TextureContent)
 
 public:
 
 				TextureContent();
-				TextureContent(const TextureContent& copy) = delete;
+				TextureContent(const TextureContent&) = delete;
 				TextureContent(TextureContent&&) = delete;
 				~TextureContent() override = default;
 

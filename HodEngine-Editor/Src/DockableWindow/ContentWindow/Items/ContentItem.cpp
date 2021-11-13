@@ -1,4 +1,5 @@
 #include "ContentItem.h"
+#include "../../../Contents/Content.h"
 
 #include <QFileIconProvider>
 

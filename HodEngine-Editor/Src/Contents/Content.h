@@ -9,50 +9,15 @@
 
 #include "../UID.h"
 #include "../Signal.h"
-#include "Hash.h"
 
-#define BASE_META_TYPE(__ClassName__)										\
-public:																		\
-																			\
-using Type = uint64_t;														\
-																			\
-virtual Type		GetType() const = 0;									\
-virtual const char*	GetTypeName() const = 0;								\
-																			\
-private:																	\
-																			\
-
-#define CONTENT_META_TYPE(__ClassName__)									\
-public:																		\
-																			\
-using Type = uint64_t;														\
-																			\
-static constexpr Type _type = Hash::CompilationTimeFnv64(#__ClassName__);	\
-Type GetType() const override												\
-{																			\
-	return Hash::CompilationTimeFnv64(#__ClassName__);						\
-}																			\
-																			\
-const char* GetTypeName() const override									\
-{																			\
-																			\
-	return #__ClassName__;													\
-}																			\
-																			\
-static const char* GetTypeNameStatic()										\
-{																			\
-	return #__ClassName__;													\
-}																			\
-																			\
-private:																	\
-																			\
+#include "../../../HodEngine/Core/Src/Type.h"
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
 class Content
 {
-	BASE_META_TYPE(Content);
+	BASE_META_TYPE(Content)
 
 public:
 

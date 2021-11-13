@@ -2,6 +2,8 @@
 
 #include <QMainWindow>
 
+#include <../HodEngine/Core/Src/Singleton.h>
+
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
@@ -9,49 +11,54 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
+class DockableWindow;
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public HOD::CORE::Singleton<MainWindow>
 {
 	Q_OBJECT
 
 public:
 
-							MainWindow(QWidget* parent = nullptr);
-							MainWindow(const MainWindow&) = delete;
-							MainWindow(MainWindow&&) = delete;
-							~MainWindow() override;
+								MainWindow(QWidget* parent = nullptr);
+								MainWindow(const MainWindow&) = delete;
+								MainWindow(MainWindow&&) = delete;
+								~MainWindow() override;
 
-	void					operator=(const MainWindow&) = delete;
-	void					operator=(MainWindow&&) = delete;
+	void						operator=(const MainWindow&) = delete;
+	void						operator=(MainWindow&&) = delete;
 
 public:
 
-	bool					LoadProjectAtPath(const QString& projectFilePath);
+	bool						LoadProjectAtPath(const QString& projectFilePath);
 
-	void					Refresh();
+	template<typename __Type__>
+	__Type__*					GetOrCreateDockableWindow();
+
+	void						Refresh();
 
 private:
 
 	template<typename __Type__>
-	void					RegisterDockableWindow(const char* label);
-	void					AddDocakbleWindow(QDockWidget* dockWidget);
+	void						RegisterDockableWindow(const char* label);
+	void						AddDocakbleWindow(DockableWindow* dockableWindow);
 
-	void					NewProject();
-	void					OpenProject();
+	void						NewProject();
+	void						OpenProject();
 
-	void					SaveProject();
-	void					CloseProject();
+	void						SaveProject();
+	void						CloseProject();
 
-	void					Exit();
+	void						Exit();
 
-	void					SetDefaultLayout();
+	void						SetDefaultLayout();
 
 private:
 
-	Ui::MainWindow*			_ui;
-	QVector<QDockWidget*>	_dockWidgets;
+	Ui::MainWindow*				_ui;
+	QVector<DockableWindow*>	_dockWidgets;
 };
 
 #include "Mainwindow.inl"
