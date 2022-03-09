@@ -68,6 +68,8 @@ namespace HOD
 			uint16_t		_editorPort = 0;
 			void*			_parentHwnd = 0;
 			void*			_hwnd = 0;
+
+			std::string		_dumpReflectionLocation;
 		};
 	}
 }

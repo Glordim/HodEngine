@@ -5,7 +5,7 @@
 #include <string>
 
 #include "Component.h"
-#include "Component/SceneComponent.h"
+#include "Components/SceneComponent.h"
 
 namespace HOD
 {

@@ -78,6 +78,11 @@ namespace HOD
 
 			if (argc >= 3)
 			{
+				if (strcmp(argv[1], "-DumpReflection") == 0)
+				{
+					_dumpReflectionLocation = argv[2];
+				}
+
 				if (strcmp(argv[1], "-Editor") == 0)
 				{
 					_parentHwnd = (void*)atoll(argv[2]);

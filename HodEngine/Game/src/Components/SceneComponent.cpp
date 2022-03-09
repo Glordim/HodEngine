@@ -18,6 +18,13 @@ namespace HOD
 {
 	namespace GAME
 	{
+		DESCRIBE_COMPONENT(SceneComponent)
+		{
+			DescriptionProperty* positionProperty = REGISTER_PROPERTY(_position);
+			spriteProperty->SetSerializationName("position");
+			spriteProperty->SetDisplayName("Position");
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------

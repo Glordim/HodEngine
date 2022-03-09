@@ -1,8 +1,8 @@
 #include "GizmoDebugWindow.h"
 
 #include <Game/src/Actor.h>
-#include <Game/src/Component/CameraComponent.h>
-#include <Game/src/Component/SceneComponent.h>
+#include <Game/src/Components/CameraComponent.h>
+#include <Game/src/Components/SceneComponent.h>
 
 #include <DebugLayer/src/DebugLayer.h>
 

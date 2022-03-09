@@ -17,13 +17,13 @@
 #include <HodEngine/Game/src/Game.h>
 #include <HodEngine/Game/src/Scene.h>
 #include <HodEngine/Game/src/Actor.h>
-#include <HodEngine/Game/src/Component/SceneComponent.h>
-#include <HodEngine/Game/src/Component/CameraComponent.h>
-#include <HodEngine/Game/src/Component/ColliderComponent.h>
-#include <HodEngine/Game/src/Component/SpriteComponent.h>
-#include <HodEngine/Game/src/Component/Light/PointLightComponent.h>
-#include <HodEngine/Game/src/Component/Light/DirLightComponent.h>
-#include <HodEngine/Game/src/Component/Light/SpotLightComponent.h>
+#include <HodEngine/Game/src/Components/SceneComponent.h>
+#include <HodEngine/Game/src/Components/CameraComponent.h>
+#include <HodEngine/Game/src/Components/ColliderComponent.h>
+#include <HodEngine/Game/src/Components/SpriteComponent.h>
+#include <HodEngine/Game/src/Components/Light/PointLightComponent.h>
+#include <HodEngine/Game/src/Components/Light/DirLightComponent.h>
+#include <HodEngine/Game/src/Components/Light/SpotLightComponent.h>
 #include <HodEngine/Game/src/EditorBridge.h>
 
 #include <HodEngine/DebugLayer/src/DebugLayer.h>

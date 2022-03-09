@@ -1,8 +1,8 @@
 #include "FreeCam.h"
 
 #include "HodEngine/Game/src/Game.h"
-#include "HodEngine/Game/src/Component/SceneComponent.h"
-#include "HodEngine/Game/src/Component/CameraComponent.h"
+#include "HodEngine/Game/src/Components/SceneComponent.h"
+#include "HodEngine/Game/src/Components/CameraComponent.h"
 
 #include "HodEngine/Game/src/InputListener.h"
 

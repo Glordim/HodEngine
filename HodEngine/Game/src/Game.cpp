@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include "Scene.h"
+#include "Builtin.h"
 
 #include <DebugLayer/src/DebugLayer.h>
 
@@ -36,6 +37,8 @@ namespace HOD
 
 			pDebugLayer->RegisterDebugWindow(&_actorDebugWindow);
 			pDebugLayer->RegisterDebugWindow(&_gizmoDebugWindow);
+
+			RegisterBuiltin();
 
 			return true;
 		}

@@ -95,7 +95,23 @@
 		"xhash": "cpp",
 		"xiosbase": "cpp",
 		"xstring": "cpp",
-		"xtree": "cpp"
+		"xtree": "cpp",
+		"charconv": "cpp",
+		"format": "cpp",
+		"shared_mutex": "cpp",
+		"source_location": "cpp",
+		"xfacet": "cpp",
+		"xlocale": "cpp",
+		"xlocbuf": "cpp",
+		"xlocinfo": "cpp",
+		"xlocmes": "cpp",
+		"xlocmon": "cpp",
+		"xlocnum": "cpp",
+		"xloctime": "cpp",
+		"xmemory": "cpp",
+		"xstddef": "cpp",
+		"xtr1common": "cpp",
+		"xutility": "cpp"
 	},
 	"cmake.debugConfig": {
 		"cwd": "${workspaceFolder}/Data"

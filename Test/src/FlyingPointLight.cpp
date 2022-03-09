@@ -1,6 +1,6 @@
 #include "FlyingPointLight.h"
 
-#include "HodEngine/Game/src/Component/SceneComponent.h"
+#include "HodEngine/Game/src/Components/SceneComponent.h"
 
 #include <SDL.h>
 

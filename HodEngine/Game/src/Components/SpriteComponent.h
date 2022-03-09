@@ -17,6 +17,8 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		class SpriteComponent : public RendererComponent
 		{
+			REGISTER_COMPONENT(SpriteComponent, RendererComponent);
+
 		public:
 
 											SpriteComponent(Actor* actor);

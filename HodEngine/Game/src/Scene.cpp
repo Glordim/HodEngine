@@ -1,6 +1,6 @@
 #include "Scene.h"
 
-#include "Component/SceneComponent.h"
+#include "Components/SceneComponent.h"
 
 #include <Core/Src/Color.h>
 
@@ -15,7 +15,7 @@
 #include <Renderer/src/Renderer.h>
 #include <Renderer/src/RenderQueue.h>
 
-#include "Component/CameraComponent.h"
+#include "Components/CameraComponent.h"
 
 namespace HOD
 {
