@@ -115,5 +115,6 @@
 	},
 	"cmake.debugConfig": {
 		"cwd": "${workspaceFolder}/Data"
-	}
+	},
+	"C_Cpp.codeAnalysis.clangTidy.enabled": true
 }

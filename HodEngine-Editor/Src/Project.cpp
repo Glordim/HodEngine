@@ -10,6 +10,7 @@
 
 #include <filesystem>
 
+template<>
 Project* Singleton<Project>::_instance = nullptr;
 
 //-----------------------------------------------------------------------------

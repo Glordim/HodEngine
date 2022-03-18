@@ -13,6 +13,7 @@ virtual const char*	GetTypeName() const = 0;								\
 private:																	\
 																			\
 
+
 #define META_TYPE(__ClassName__)											\
 public:																		\
 																			\
@@ -26,7 +27,6 @@ Type GetType() const override												\
 																			\
 const char* GetTypeName() const override									\
 {																			\
-																			\
 	return #__ClassName__;													\
 }																			\
 																			\

@@ -78,7 +78,7 @@ UID UID::FromString(const QString uuidStr)
 	UuidConverter uuidConverter;
 	if (UuidFromStringA((RPC_CSTR)uuidStr.toStdString().c_str() , &uuidConverter.uuid) != RPC_S_OK)
 	{
-		qCritical("UID: Fail to generate UID from %s", uuidStr);
+		qCritical("UID: Fail to generate UID from %s", uuidStr.toStdString().c_str());
 		return INVALID_UID;
 	}
 
