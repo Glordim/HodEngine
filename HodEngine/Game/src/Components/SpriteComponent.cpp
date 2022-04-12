@@ -13,6 +13,7 @@ namespace HOD
 {
 	namespace GAME
 	{
+		/*
 		DESCRIBE_COMPONENT(SpriteComponent)
 		{
 			DescriptionProperty* spriteProperty = REGISTER_PROPERTY(_sprite);
@@ -20,6 +21,7 @@ namespace HOD
 			spriteProperty->SetDisplayName("Sprite");
 			spriteProperty->SetOption(Option::ResourceType, Sprite::_type);
 		}
+		*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		

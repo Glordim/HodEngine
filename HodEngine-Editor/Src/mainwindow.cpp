@@ -16,6 +16,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+template<>
 MainWindow* HOD::CORE::Singleton<MainWindow>::_instance = nullptr;
 
 //-----------------------------------------------------------------------------

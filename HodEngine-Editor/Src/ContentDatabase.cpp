@@ -7,6 +7,7 @@
 #include "Project.h"
 #include "UID.h"
 
+template<>
 ContentDataBase* Singleton<ContentDataBase>::_instance = nullptr;
 
 //-----------------------------------------------------------------------------
