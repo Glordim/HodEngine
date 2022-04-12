@@ -1,22 +1,52 @@
 #pragma once
 
-#include <cstddef>
+#include <vector>
+
+#include <rapidjson/document.h>
 
 namespace HOD
 {
 	namespace CORE
 	{
+		class ReflectionTrait;
+		class ReflectionProperty;
+
 		///@brief 
 		class ReflectionDescriptor
 		{
 		public:
 
-				ReflectionDescriptor(const char* typeName);
+													ReflectionDescriptor(const char* typeName);
+													ReflectionDescriptor(const ReflectionDescriptor& copy) = default;
+													ReflectionDescriptor(ReflectionDescriptor&& move) = default;
+													~ReflectionDescriptor() = default;
+
+			ReflectionDescriptor&					operator = (const ReflectionDescriptor& copy) = default;
+			ReflectionDescriptor&					operator = (ReflectionDescriptor&& move) = default;
+
+		public:
+
+			void									Serialize(rapidjson::Document& document) const;
+			void									Deserialize();
+
+			const std::vector<ReflectionTrait*>&	GetTraits() const;
+			const std::vector<ReflectionProperty*>&	GetProperties() const;
+
+		protected:
+
+			template<typename __TRAIT_TYPE__>
+			void									AddTrait(...);
+			void									AddTrait(ReflectionTrait* trait);
+
+			template<typename __PROPERTY_TYPE__>
+			void									AddProperty(...);
+			void									AddProperty(ReflectionProperty* property);
 
 		private:
 
-		
-
+			const char*								_typeName;
+			std::vector<ReflectionTrait*>			_traits;
+			std::vector<ReflectionProperty*>		_properties;
 		};
 	}
 }

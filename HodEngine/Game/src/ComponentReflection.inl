@@ -6,7 +6,12 @@ namespace HOD
 		template<typename __type__>
 		bool ComponentReflection::Register()
 		{
-			return false;
+			_dumpFunctions.push_back([](rapidjson::Document& document)
+			{
+				__type__::GetReflectionDescriptor()->Serialize(document);
+			});
+
+			return true;
 		}
 	}
 }

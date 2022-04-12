@@ -3,6 +3,9 @@
 #include <Core/Src/Singleton.h>
 
 #include <vector>
+#include <functional>
+
+#include <rapidjson/document.h>
 
 namespace HOD
 {
@@ -31,6 +34,7 @@ namespace HOD
 
 		private:
 
+			std::vector<std::function<void(rapidjson::Document&)>>	_dumpFunctions;
 		};
 	}
 }

@@ -4,6 +4,7 @@ project(Core)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../CMake)
 find_package(Glm REQUIRED)
+find_package(RapidJSON REQUIRED)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/Src/*.cpp"
@@ -15,6 +16,7 @@ assign_source_group(${Srcs})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 	PRIVATE ".."
 	PUBLIC ${Glm_INCLUDE_DIRS}
+	PUBLIC ${RapidJSON_INCLUDE_DIRS}
 )
 
 add_library(Core ${Srcs})

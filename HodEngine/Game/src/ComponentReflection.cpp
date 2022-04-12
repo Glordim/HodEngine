@@ -1,5 +1,7 @@
 #include "ComponentReflection.h"
 
+#include <rapidjson/document.h>
+
 namespace HOD
 {
 	template<>
@@ -15,7 +17,17 @@ namespace HOD
 		///
 		bool ComponentReflection::DumpToDir(const char* dirPath)
 		{
-			return false;
+			rapidjson::Document document;
+			document.StartArray();
+
+			for (const std::function<void(rapidjson::Document&)>& dumpFunction : _dumpFunctions)
+			{
+				dumpFunction(document);
+			}
+
+			document.End();
+
+			return true;
 		}
 	}
 }
