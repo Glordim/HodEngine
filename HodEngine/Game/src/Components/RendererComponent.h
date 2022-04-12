@@ -16,6 +16,8 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		class RendererComponent : public Component
 		{
+			REFLECTED_ABSTRACT_DERIVED_CLASS(RendererComponent, Component)
+
 		public:
 
 							RendererComponent(Actor* actor);

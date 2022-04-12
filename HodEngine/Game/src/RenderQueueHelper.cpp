@@ -1,10 +1,12 @@
 #include "RenderQueueHelper.h"
 
 #include <Renderer/src/RenderQueue.h>
+/*
 #include "Component/SceneComponent.h"
 #include "Component/Light/DirLightComponent.h"
 #include "Component/Light/PointLightComponent.h"
 #include "Component/Light/SpotLightComponent.h"
+*/
 #include "Actor.h"
 #include "Scene.h"
 

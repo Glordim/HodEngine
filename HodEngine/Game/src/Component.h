@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Src/ReflectionMacros.h>
+
 namespace HOD
 {
 	namespace RENDERER
@@ -11,11 +13,11 @@ namespace HOD
 	{
 		class Actor;
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		///@brief 
 		class Component
 		{
+			REFLECTED_ABSTRACT_CLASS(Component)
+
 			friend class Actor;
 
 		public:

@@ -19,6 +19,8 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		class SceneComponent : public Component
 		{
+			REFLECTED_DERIVED_CLASS(SceneComponent, Component);
+
 		public:
 
 											SceneComponent(Actor* actor);

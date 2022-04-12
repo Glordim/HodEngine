@@ -24,7 +24,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_PREFIX_PATH "C:\\Qt\\6.2.0\\msvc2019_64")
+set(CMAKE_PREFIX_PATH "C:\\Qt\\6.2.3\\msvc2019_64")
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
 # Check https://doc.qt.io/qt/deployment-android.html for more information.
