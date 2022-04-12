@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QStandardItem>
-#include <Qstring>
+#include <QString>
 
 #include "../../../../HodEngine/Core/Src/Type.h"
 

@@ -22,7 +22,7 @@
 #include <QTableView>
 #include <QTreeView>
 #include <QStringList>
-#include <String>
+#include <QString>
 #include <QMessageBox>
 #include <QShortcut>
 #include <QDesktopServices>
