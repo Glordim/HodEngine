@@ -1,0 +1,20 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "(Windows) Launch",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/build/HodEngine-Application.exe",
+			"args": ["--toolDump ./description.json"],
+			"stopAtEntry": false,
+			"cwd": "${fileDirname}",
+			"environment": [],
+			"console": "externalTerminal",
+			"visualizerFile": "c:\\Users\\antho\\AppData\\Roaming\\Code\\User\\workspaceStorage\\74568e6be30ebf519d8b63974796ed19\\tonka3000.qtvsctools\\qt.natvis.xml"
+		}
+	]
+}

@@ -1,6 +1,7 @@
 #include "ComponentReflection.h"
 
 #include <rapidjson/document.h>
+#include <fstream>
 
 namespace HOD
 {
@@ -25,7 +26,19 @@ namespace HOD
 				dumpFunction(document);
 			}
 
-			document.End();
+			document.EndArray(_dumpFunctions.size());
+
+			std::ofstream stream;
+			stream.open(dirPath, std::ofstream::out);
+			if (stream.is_open() == true)
+			{
+				stream.write(document.GetString(), document.GetStringLength());
+				stream.close();
+			}
+			else
+			{
+				// todo error
+			}
 
 			return true;
 		}
