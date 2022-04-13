@@ -19,11 +19,9 @@ namespace HOD
 	namespace GAME
 	{
 		/*
-		DESCRIBE_COMPONENT(SceneComponent)
+		DESCRIBE_REFLECTED_ABSTRACT_CLASS(SceneComponent)
 		{
-			DescriptionProperty* positionProperty = REGISTER_PROPERTY(_position);
-			spriteProperty->SetSerializationName("position");
-			spriteProperty->SetDisplayName("Position");
+			AddTrait<Traits::Type>(Traits::Type::Component);
 		}
 		*/
 

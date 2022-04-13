@@ -27,6 +27,9 @@ namespace HOD
 			virtual void							Deserialize() = 0;
 
 			const std::vector<ReflectionTrait*>&	GetTraits() const;
+
+			template<typename __TRAIT_TYPE__, typename... Args>
+			void									AddTrait(Args&&... args);
 			void									AddTrait(ReflectionTrait* trait);
 
 		private:
@@ -36,3 +39,5 @@ namespace HOD
 		};
 	}
 }
+
+#include "ReflectionProperty.inl"

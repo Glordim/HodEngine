@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.4)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 function(assign_source_group)
     foreach(_source IN ITEMS ${ARGN})
         if (IS_ABSOLUTE "${_source}")

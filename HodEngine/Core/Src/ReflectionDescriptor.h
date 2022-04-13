@@ -34,12 +34,12 @@ namespace HOD
 
 		protected:
 
-			template<typename __TRAIT_TYPE__>
-			void									AddTrait(...);
+			template<typename __TRAIT_TYPE__, typename... Args>
+			void									AddTrait(Args&&... args);
 			void									AddTrait(ReflectionTrait* trait);
 
-			template<typename __PROPERTY_TYPE__>
-			void									AddProperty(...);
+			template<typename __PROPERTY_TYPE__, typename... Args>
+			void									AddProperty(Args&&... args);
 			void									AddProperty(ReflectionProperty* property);
 
 		private:
@@ -50,3 +50,5 @@ namespace HOD
 		};
 	}
 }
+
+#include "ReflectionDescriptor.inl"

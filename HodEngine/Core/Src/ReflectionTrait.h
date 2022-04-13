@@ -22,7 +22,6 @@ namespace HOD
 		public:
 
 			virtual void		Serialize(rapidjson::Document& document) const = 0;
-			virtual void		Deserialize() = 0;
 
 		private:
 

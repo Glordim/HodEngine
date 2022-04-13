@@ -23,14 +23,16 @@ namespace HOD
 
 			ComponentReflection* componentReflection = ComponentReflection::GetInstance();
 			componentReflection->Register<Component>();
+			componentReflection->Register<SceneComponent>();
+			/*
 			componentReflection->Register<CameraComponent>();
 			componentReflection->Register<ColliderComponent>();
 			componentReflection->Register<RendererComponent>();
-			componentReflection->Register<SceneComponent>();
 			componentReflection->Register<SpriteComponent>();
 			componentReflection->Register<PointLightComponent>();
 			componentReflection->Register<DirLightComponent>();
 			componentReflection->Register<SpotLightComponent>();
+			*/
 		}
 	}
 }

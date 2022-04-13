@@ -7,12 +7,13 @@ namespace HOD
 		namespace Traits
 		{
 			Type::Type(TypeEnum type)
-			: _type(type)
+			: CORE::ReflectionTrait("Type")
+			, _type(type)
 			{
 
 			}
 
-			void Type::Serialize(rapidjson::Document& document)
+			void Type::Serialize(rapidjson::Document& document) const
 			{
 				document.StartObject();
 

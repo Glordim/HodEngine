@@ -19,7 +19,7 @@ public:																			\
 	{																			\
 		public:																	\
 																				\
-			__TYPE__##ReflectionDescriptor(const char* typeName);				\
+			__TYPE__##ReflectionDescriptor();									\
 	};																			\
 																				\
 	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)			\
@@ -35,7 +35,7 @@ public:																			\
 	{																			\
 		public:																	\
 																				\
-			__TYPE__##ReflectionDescriptor(const char* typeName);				\
+			__TYPE__##ReflectionDescriptor();									\
 	};																			\
 																				\
 	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)			\
@@ -51,7 +51,7 @@ public:																				\
 	{																				\
 		public:																		\
 																					\
-			__TYPE__##ReflectionDescriptor(const char* typeName);					\
+			__TYPE__##ReflectionDescriptor();										\
 	};																				\
 																					\
 	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
@@ -67,7 +67,7 @@ public:																				\
 	{																				\
 		public:																		\
 																					\
-			__TYPE__##ReflectionDescriptor(const char* typeName);					\
+			__TYPE__##ReflectionDescriptor();										\
 	};																				\
 																					\
 	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
@@ -75,7 +75,7 @@ public:																				\
 private:																			\
 
 ///@brief 
-#define DESCRIBE_REFLECTED_ABSTRACT_CLASS(__TYPE__)												\
-__TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor(const char* typeName)	\
+#define DESCRIBE_REFLECTED_ABSTRACT_CLASS(__TYPE__)									\
+__TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()			\
 : CORE::ReflectionDescriptor(#__TYPE__)
 

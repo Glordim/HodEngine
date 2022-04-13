@@ -8,7 +8,7 @@ namespace HOD
 	{
 		namespace Traits
 		{
-			class Type : public CORE::RefectionTrait
+			class Type : public CORE::ReflectionTrait
 			{
 			public:
 
@@ -18,7 +18,7 @@ namespace HOD
 					Actor,
 					Count
 				};
-				static const char* _typeLabels[TypeEnum::Count] = { "Component", "Actor" };
+				inline static const char* _typeLabels[TypeEnum::Count] = { "Component", "Actor" };
 
 			public:
 
@@ -26,7 +26,7 @@ namespace HOD
 
 			public:
 
-				void		Serialize(rapidjson::Document& document) override;
+				void		Serialize(rapidjson::Document& document) const override;
 
 			private:
 

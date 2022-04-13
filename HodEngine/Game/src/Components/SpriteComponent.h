@@ -17,7 +17,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		class SpriteComponent : public RendererComponent
 		{
-			REFLECTED_DERIVED_CLASS(SpriteComponent, RendererComponent);
+			//REFLECTED_DERIVED_CLASS(SpriteComponent, RendererComponent);
 
 		public:
 
