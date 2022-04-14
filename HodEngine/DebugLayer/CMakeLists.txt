@@ -15,6 +15,13 @@ target_link_libraries(
 	Core
 )
 
+if(MSVC)
+	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
+else()
+	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
+
 add_dependencies(DebugLayer Core)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 

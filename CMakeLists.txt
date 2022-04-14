@@ -71,11 +71,12 @@ find_package(SDL2 REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(RapidJSON REQUIRED)
 
-#if(MSVC)
-#	target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
-#else()
-#	target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
-#endif()
+if(MSVC)
+	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
+else()
+	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
 
 include_directories(
 	"${PROJECT_SOURCE_DIR}"
@@ -99,6 +100,6 @@ target_link_libraries(HodEngine-Application
 
 if (WIN32)
 	add_custom_command(TARGET HodEngine-Application POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:debug>:"${SDK_DIR}/Build/SDL/Debug/SDL2d.dll">$<$<CONFIG:release>:"${SDK_DIR}/Build/SDL/Release/SDL2.dll"> $<TARGET_FILE_DIR:HodEngine-Application>
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SDK_DIR}/Build/SDL/Release/SDL2.dll" $<TARGET_FILE_DIR:HodEngine-Application>
 	)
 endif (WIN32)

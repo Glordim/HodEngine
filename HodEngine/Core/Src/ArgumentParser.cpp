@@ -36,7 +36,7 @@ namespace HOD
 			}
 
 			_options.resize(_options.size() + 1);
-			Option& newOption = _options[_options.size()];
+			Option& newOption = _options[_options.size() - 1];
 			newOption._shortName = shortName;
 			newOption._longName = longName;
 			return true;
@@ -51,7 +51,7 @@ namespace HOD
 		///
 		bool ArgumentParser::Parse(int argc, char** argv)
 		{
-			for (uint8_t index = 0; index < argc; ++index)
+			for (uint8_t index = 1; index < argc; ++index)
 			{
 				char* arg = argv[index];
 				char* end = arg;
@@ -83,6 +83,10 @@ namespace HOD
 										option._value = arg;
 										++index;
 									}
+								}
+								else
+								{
+									
 								}
 								founded = true;
 								break;

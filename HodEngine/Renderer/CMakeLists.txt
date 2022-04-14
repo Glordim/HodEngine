@@ -25,6 +25,13 @@ include_directories("./src"
   ${Glm_INCLUDE_DIRS}
 )
 
+if(MSVC)
+	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
+else()
+	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
+
 add_library(Renderer ${Srcs})
 
 add_dependencies(Renderer Core DebugLayer Application)

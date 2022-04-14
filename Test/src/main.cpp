@@ -32,9 +32,9 @@ int main(int argc, char** argv)
 	void* toolParent = 0;
 
 	CORE::ArgumentParser argParser;
-	argParser.Register('\0', "toolDump", "Request dump reflection data (used by the editor) : [dir where store dumped files]");
-	argParser.Register('\0', "toolParent", "Embed the Application as child (used by the editor) : [parent window handle]");
-	argParser.Register('\0', "toolPort", "Run a Tcp server to comunicate with tools (used by the editor) : [port number]");
+	argParser.Register('\0', "toolDump", "Request dump reflection data (used by the editor) : [dir where store dumped files]", true);
+	argParser.Register('\0', "toolParent", "Embed the Application as child (used by the editor) : [parent window handle]", true);
+	argParser.Register('\0', "toolPort", "Run a Tcp server to comunicate with tools (used by the editor) : [port number]", true);
 	if (argParser.Parse(argc, argv) == true)
 	{
 		const char* dumpPath = argParser.GetValue("toolDump");

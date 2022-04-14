@@ -21,6 +21,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 	${RapidJSON_INCLUDE_DIRS}
 )
 
+if(MSVC)
+	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
+else()
+	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
+
 add_library(Game ${Srcs})
 
 add_dependencies(Game Core DebugLayer ImGui Application Physics Renderer)

@@ -5,16 +5,18 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "(Windows) Launch",
+			"name": "HodEngine App - dump",
 			"type": "cppvsdbg",
 			"request": "launch",
-			"program": "${workspaceFolder}/build/HodEngine-Application.exe",
-			"args": ["--toolDump ./description.json"],
+			"program": "${command:cmake.launchTargetPath}",
+			"args": [
+				"--toolDump ./description.json"
+			],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
 			"environment": [],
 			"console": "externalTerminal",
-			"visualizerFile": "c:\\Users\\antho\\AppData\\Roaming\\Code\\User\\workspaceStorage\\74568e6be30ebf519d8b63974796ed19\\tonka3000.qtvsctools\\qt.natvis.xml"
+			"visualizerFile": "c:\\Users\\atu\\AppData\\Roaming\\Code\\User\\workspaceStorage\\42237f10b4a4c7227829d2dfcc7ccf3a\\tonka3000.qtvsctools\\qt.natvis.xml"
 		}
 	]
 }
