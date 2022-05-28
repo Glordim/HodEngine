@@ -13,7 +13,7 @@ namespace HOD
 		///@param description Description printed with help command, can be nullptr
 		///@return True if the registration successful, False if invalid argument or if another option already have the same short or long name
 		///
-		bool ArgumentParser::Register(char shortName, const char* longName, const char* description)
+		bool ArgumentParser::Register(char shortName, const char* longName, const char* description, bool requireArgument)
 		{
 			if (longName == nullptr || std::strlen(longName) == 0)
 			{
@@ -39,6 +39,7 @@ namespace HOD
 			Option& newOption = _options[_options.size() - 1];
 			newOption._shortName = shortName;
 			newOption._longName = longName;
+			newOption._requireArgument = requireArgument;
 			return true;
 		}
 
@@ -75,7 +76,7 @@ namespace HOD
 									OUTPUT_ERROR("ArgumentParser: option used twice : \"%s\"", arg + 2);
 									return false;
 								}
-								if (index + 1 < argc)
+								if (index + 1 < argc) // todo verif que c'est pas l'argument d'apres - ou --
 								{
 									arg = argv[index + 1];
 									if (arg[0] != '-')
@@ -84,9 +85,9 @@ namespace HOD
 										++index;
 									}
 								}
-								else
+								else if (option._requireArgument == true)
 								{
-									
+									OUTPUT_ERROR("ArgumentParser: '%s' option require argument", arg + 2);
 								}
 								founded = true;
 								break;

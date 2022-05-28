@@ -36,6 +36,8 @@ public:
 	bool								Load(const QString& contentFolderPath);
 	void								Unload();
 
+	void								Save();
+
 	void								DuplicateContent(const Content* content);
 
 	Content*							GetContent(const UID& uid) const;
@@ -46,6 +48,8 @@ public:
 
 	void								AddContent(Content* content);
 	void								DeleteContent(Content* content);
+
+	void								OpenContent(Content* content);
 
 private:
 

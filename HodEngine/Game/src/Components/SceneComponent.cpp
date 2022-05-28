@@ -14,20 +14,23 @@
 
 #include <ImGui/src/imgui.h>
 
+#include <Core/Src/Reflection/Properties/ReflectionPropertyVariable.h>
+
 namespace HOD
 {
+	using namespace CORE::Reflection::Property;
+
 	namespace GAME
 	{
-		/*
-		DESCRIBE_REFLECTED_ABSTRACT_CLASS(SceneComponent)
+		DESCRIBE_REFLECTED_DERIVED_CLASS(SceneComponent, Component)
 		{
-			AddTrait<Traits::Type>(Traits::Type::Component);
+			AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _position), "Position");
+			AddProperty<Variable>(Variable::Type::Float32, offsetof(SceneComponent, _rotation), "Rotation");
+			AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _scale), "Scale");
 		}
-		*/
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param actor 
 		SceneComponent::SceneComponent(Actor* actor) : Component(actor)
 		{
 			_position = glm::vec2(0.0f, 0.0f);

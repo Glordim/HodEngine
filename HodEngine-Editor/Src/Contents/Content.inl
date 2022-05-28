@@ -102,3 +102,9 @@ inline void Content::SetDirty()
 {
 	_isDirty = true;
 }
+
+/// @brief 
+inline void Content::ClearDirty()
+{
+	_isDirty = false;
+}

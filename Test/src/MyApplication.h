@@ -32,5 +32,5 @@ protected:
 
 private:
 
-	HOD::GAME::Scene*	_scene;
+	HOD::GAME::Scene*	_scene = nullptr;
 };

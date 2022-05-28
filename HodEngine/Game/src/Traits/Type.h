@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Src/ReflectionTrait.h>
+#include <Core/Src/Reflection/ReflectionTrait.h>
 
 namespace HOD
 {
@@ -22,15 +22,15 @@ namespace HOD
 
 			public:
 
-				Type(TypeEnum type);
+									Type(TypeEnum type);
 
 			public:
 
-				void		Serialize(rapidjson::Document& document) const override;
+				rapidjson::Value	Serialize(rapidjson::Document::AllocatorType& allocator) const override;
 
 			private:
 
-				TypeEnum	_type;
+				TypeEnum			_type;
 			};
 		}
 	}

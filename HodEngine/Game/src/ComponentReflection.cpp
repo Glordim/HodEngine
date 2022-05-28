@@ -1,8 +1,5 @@
 #include "ComponentReflection.h"
 
-#include <rapidjson/document.h>
-#include <fstream>
-
 namespace HOD
 {
 	template<>
@@ -10,36 +7,22 @@ namespace HOD
 
 	namespace GAME
 	{
-		///
-		///@brief 
-		///
-		///@param dirPath 
-		///@return true 
-		///
-		bool ComponentReflection::DumpToDir(const char* dirPath)
+		/// @brief 
+		/// @param rootNode 
+		/// @param allocator 
+		/// @return 
+		bool ComponentReflection::Dump(rapidjson::Value& rootNode, rapidjson::Document::AllocatorType& allocator)
 		{
-			rapidjson::Document document;
-			document.StartArray();
+			rapidjson::Value array(rapidjson::kArrayType);
 
-			for (const std::function<void(rapidjson::Document&)>& dumpFunction : _dumpFunctions)
+			for (const std::function<rapidjson::Value(rapidjson::Document::AllocatorType&)>& dumpFunction : _dumpFunctions)
 			{
-				dumpFunction(document);
-			}
+				rapidjson::Value descriptor = dumpFunction(allocator);
 
-			document.EndArray(_dumpFunctions.size());
-
-			std::ofstream stream;
-			stream.open(dirPath, std::ofstream::out);
-			if (stream.is_open() == true)
-			{
-				stream.write(document.GetString(), document.GetStringLength());
-				stream.close();
+				array.PushBack(descriptor, allocator);
 			}
-			else
-			{
-				// todo error
-			}
-
+			
+			rootNode.AddMember("Components", array, allocator);
 			return true;
 		}
 	}

@@ -13,14 +13,15 @@ namespace HOD
 
 			}
 
-			void Type::Serialize(rapidjson::Document& document) const
+			rapidjson::Value Type::Serialize(rapidjson::Document::AllocatorType& allocator) const
 			{
-				document.StartObject();
+				rapidjson::Value trait;
+				trait.SetObject();
 
-				document.String("Type", 4, false);
-				document.String(_typeLabels[_type], std::strlen(_typeLabels[_type]), false);
+				trait.AddMember("TypeName", rapidjson::StringRef(_typeName), allocator);
+				trait.AddMember("Type", rapidjson::StringRef(_typeLabels[_type]), allocator);
 
-				document.EndObject(1);
+				return trait;
 			};
 		}
 	}

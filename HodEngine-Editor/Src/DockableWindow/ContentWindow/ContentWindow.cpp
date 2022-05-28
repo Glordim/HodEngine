@@ -38,8 +38,6 @@ ContentWindow::ContentWindow(QWidget* parent)
 , _onAddContentSlot(std::bind(&ContentWindow::OnAddContent, this, std::placeholders::_1))
 , _onRemoveContentSlot(std::bind(&ContentWindow::OnRemoveContent, this, std::placeholders::_1))
 , _onContentChangeSlot(std::bind(&ContentWindow::OnContentChange, this, std::placeholders::_1))
-, _onLoadProjectSlot(std::bind(&ContentWindow::OnLoadProject, this, std::placeholders::_1))
-, _onUnloadProjectSlot(std::bind(&ContentWindow::OnUnloadProject, this, std::placeholders::_1))
 {
 	_ui->setupUi(this);
 
@@ -55,6 +53,7 @@ ContentWindow::ContentWindow(QWidget* parent)
 	_ui->treeView->setHeaderHidden(true);
 	_ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 	_ui->treeView->setModel(_contentItemModel);
+	_ui->treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
 
 	QObject::connect(_ui->treeView, &QTreeView::customContextMenuRequested, this, &ContentWindow::CustomMenuRequested);
 	QObject::connect(_ui->treeView, &QTreeView::expanded, this, &ContentWindow::OnExpandFolderItem);
@@ -65,8 +64,11 @@ ContentWindow::ContentWindow(QWidget* parent)
 	ContentDataBase::GetInstance()->GetRemoveContentSignal().Connect(_onRemoveContentSlot);
 	ContentDataBase::GetInstance()->GetContentChangeSignal().Connect(_onContentChangeSlot);
 
-	Project::GetInstance()->RegisterLoadProject(_onLoadProjectSlot);
-	Project::GetInstance()->RegisterUnloadProject(_onUnloadProjectSlot);
+	Project* project = Project::GetInstance();
+	setEnabled(project->IsOpened());
+
+	QObject::connect(project, &Project::Loaded, this, &ContentWindow::OnLoadProject);
+	QObject::connect(project, &Project::Unloaded, this, &ContentWindow::OnUnloadProject);
 }
 
 ///
@@ -75,9 +77,6 @@ ContentWindow::ContentWindow(QWidget* parent)
 ///
 ContentWindow::~ContentWindow()
 {
-	Project::GetInstance()->UnregisterLoadProject(_onLoadProjectSlot);
-	Project::GetInstance()->UnregisterUnloadProject(_onUnloadProjectSlot);
-
 	delete _ui;
 }
 
@@ -85,9 +84,11 @@ ContentWindow::~ContentWindow()
 ///@brief 
 ///
 ///
-void ContentWindow::OnLoadProject(Project* project)
+void ContentWindow::OnLoadProject()
 {
 	FetchChildItem(_contentItemModel->invisibleRootItem());
+
+	setEnabled(true);
 }
 
 ///
@@ -95,9 +96,11 @@ void ContentWindow::OnLoadProject(Project* project)
 ///
 ///@param project 
 ///
-void ContentWindow::OnUnloadProject(Project* project)
+void ContentWindow::OnUnloadProject()
 {
 	_contentItemModel->clear();
+
+	setEnabled(false);
 }
 
 ///
@@ -477,13 +480,8 @@ void ContentWindow::OnDoubleClick(const QModelIndex& index)
 	if (item->GetType() == ContentItem::_type)
 	{
 		Content* content = static_cast<ContentItem*>(item)->GetContent();
-		if (content->GetType() == SceneContent::_type)
-		{
-			MainWindow* mainWindow = MainWindow::GetInstance();
 
-			SceneWindow* sceneWindow = mainWindow->GetOrCreateDockableWindow<SceneWindow>();
-			sceneWindow->OpenSceneContent(static_cast<SceneContent*>(content));
-		}
+		ContentDataBase::GetInstance()->OpenContent(content);
 	}
 }
 

@@ -44,6 +44,7 @@ Content* ContentFactory::LoadFromPath(const QString& filepath)
 	content->SetPath(filepath);
 	content->DeserializeHeader(header);
 	content->Deserialize(root["Data"].toObject());
+	content->ClearDirty();
 
 	return content;
 }

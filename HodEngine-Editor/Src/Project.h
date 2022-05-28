@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QObject>
 #include <QString>
 
 #include "Signal.h"
@@ -8,20 +9,22 @@
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
-class Project : public Singleton<Project>
+class Project : public QObject
 {
+	Q_OBJECT
+
 	friend class Singleton<Project>;
 
-public:
+signals:
 
-	using LoadProjectSignal = Signal<Project*>;
-	using UnloadProjectSignal = Signal<Project*>;
+	void						Loaded();
+	void						Unloaded();
 
 public:
 
 	static bool					CreateOnDisk(const QString& name, const QString& location);
 
-protected:
+private:
 
 								Project() = default;
 								Project(const Project&) = delete;
@@ -31,7 +34,12 @@ protected:
 	void						operator=(const Project&) = delete;
 	void						operator=(Project&&) = delete;
 
+	static Project*				_instance;
+
 public:
+
+	static void					CreateInstance();
+	static Project*				GetInstance();
 
 	bool						IsOpened() const;
 	void						Close();
@@ -47,17 +55,6 @@ public:
 	const QString&				GetName() const;
 
 	void						SetName(const QString& name);
-
-	void						RegisterLoadProject(typename LoadProjectSignal::Slot& slot);
-	void						UnregisterLoadProject(typename LoadProjectSignal::Slot& slot);
-
-	void						RegisterUnloadProject(typename UnloadProjectSignal::Slot& slot);
-	void						UnregisterUnloadProject(typename UnloadProjectSignal::Slot& slot);
-
-private:
-
-	LoadProjectSignal			_loadProjectSignal;
-	UnloadProjectSignal			_unloadProjectSignal;
 
 private:
 

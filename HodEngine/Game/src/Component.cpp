@@ -9,7 +9,6 @@ namespace HOD
 		DESCRIBE_REFLECTED_ABSTRACT_CLASS(Component)
 		{
 			AddTrait<Traits::Type>(Traits::Type::Component);
-			//AddTrait<Traits::Hidden>();
 		}
 
 		//-----------------------------------------------------------------------------

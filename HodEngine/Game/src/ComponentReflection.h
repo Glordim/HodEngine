@@ -25,16 +25,16 @@ namespace HOD
 			template<typename __type__>
 			bool				Register();
 
-			bool				DumpToDir(const char* dirPath);
+			bool				Dump(rapidjson::Value& rootNode, rapidjson::Document::AllocatorType& allocator);
 
 		protected:
 
-								ComponentReflection();
-								~ComponentReflection() override;
+								ComponentReflection() = default;
+								~ComponentReflection() override = default;
 
 		private:
 
-			std::vector<std::function<void(rapidjson::Document&)>>	_dumpFunctions;
+			std::vector<std::function<rapidjson::Value(rapidjson::Document::AllocatorType&)>>	_dumpFunctions;
 		};
 	}
 }

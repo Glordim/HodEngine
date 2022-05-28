@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include <rapidjson/document.h>
+
 namespace HOD
 {
 	namespace CORE
@@ -23,8 +25,8 @@ namespace HOD
 
 		public:
 
-			virtual void							Serialize() = 0;
-			virtual void							Deserialize() = 0;
+			virtual rapidjson::Value				Serialize(rapidjson::Document::AllocatorType& allocator) const = 0;
+			//virtual void							Deserialize() = 0;
 
 			const std::vector<ReflectionTrait*>&	GetTraits() const;
 
@@ -32,7 +34,7 @@ namespace HOD
 			void									AddTrait(Args&&... args);
 			void									AddTrait(ReflectionTrait* trait);
 
-		private:
+		protected:
 
 			const char*								_typeName;
 			std::vector<ReflectionTrait*>			_traits;

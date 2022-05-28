@@ -47,7 +47,7 @@ private:																		\
 																					\
 public:																				\
 																					\
-	class __TYPE__##ReflectionDescriptor : public __PARENT__##ReflectionDescriptor	\
+	class __TYPE__##ReflectionDescriptor : public CORE::ReflectionDescriptor		\
 	{																				\
 		public:																		\
 																					\
@@ -63,7 +63,7 @@ private:																			\
 																					\
 public:																				\
 																					\
-	class __TYPE__##ReflectionDescriptor : public __PARENT__##ReflectionDescriptor	\
+	class __TYPE__##ReflectionDescriptor : public CORE::ReflectionDescriptor		\
 	{																				\
 		public:																		\
 																					\
@@ -77,5 +77,20 @@ private:																			\
 ///@brief 
 #define DESCRIBE_REFLECTED_ABSTRACT_CLASS(__TYPE__)									\
 __TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()			\
-: CORE::ReflectionDescriptor(#__TYPE__)
+: CORE::ReflectionDescriptor(#__TYPE__, nullptr)									\
+
+///@brief 
+#define DESCRIBE_REFLECTED_CLASS(__TYPE__)											\
+__TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()			\
+: CORE::ReflectionDescriptor(#__TYPE__, nullptr)									\
+
+///@brief 
+#define DESCRIBE_REFLECTED_DERIVED_ABSTRACT_CLASS(__TYPE__, __PARENT__)				\
+__TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()			\
+: CORE::ReflectionDescriptor(#__TYPE__, __PARENT__::GetReflectionDescriptor())		\
+
+///@brief 
+#define DESCRIBE_REFLECTED_DERIVED_CLASS(__TYPE__, __PARENT__)						\
+__TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()			\
+: CORE::ReflectionDescriptor(#__TYPE__, __PARENT__::GetReflectionDescriptor())		\
 

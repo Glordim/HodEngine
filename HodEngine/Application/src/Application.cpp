@@ -5,13 +5,31 @@
 #include <Core/Src/Output.h>
 #include <Core/Src/UID.h>
 
+#include <Core/Src/GenericManager.h>
+#include <Core/Src/Output.h>
+#include <Core/Src/ArgumentParser.h>
+#include <Core/Src/StringConversion.h>
+
+#include <Game/Src/ActorReflection.h>
+#include <Game/Src/ComponentReflection.h>
+#include <Game/Src/Builtin.h>
+
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/prettywriter.h>
+#include <fstream>
+
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/imgui_impl_sdl.h>
+#include <ImGui/src/imgui_impl_vulkan.h>
 #include <ImGui/src/ImGuizmo.h>
 
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include <SDL_vulkan.h>
+
+#include <Game/src/EditorBridge.h>
 
 namespace HOD
 {
@@ -52,17 +70,82 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Application::Init(int argc, char** argv)
+		Application::InitResult Application::Init(int argc, char** argv)
 		{
-			if (argc > 1)
+			CORE::ArgumentParser argParser;
+			argParser.Register('\0', "toolDump", "Request dump reflection data (used by the editor) : [dir where store dumped files]", true);
+			argParser.Register('\0', "toolParent", "Embed the Application as child (used by the editor) : [parent window handle]", true);
+			argParser.Register('\0', "toolPort", "Run a Tcp server to comunicate with tools (used by the editor) : [port number]", true);
+			if (argParser.Parse(argc, argv) == true)
 			{
-				//MessageBox(NULL, "Attach debugger ?", "AttachMe", MB_OK);
+				const char* dumpPath = argParser.GetValue("toolDump");
+				if (dumpPath != nullptr)
+				{
+					GAME::RegisterBuiltin();
+
+					rapidjson::Document document;
+					rapidjson::Value& rootNode = document.SetObject();
+
+					rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+					document.AddMember("Version", rapidjson::StringRef("1.0"), allocator);
+
+					if (GAME::ComponentReflection::GetInstance()->Dump(rootNode, allocator) == false)
+					{
+						return InitResult::Failure;
+					}
+
+					rapidjson::StringBuffer buf;
+					rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf/*, &allocator*/);
+					document.Accept(writer);
+
+					std::ofstream stream;
+					stream.open(dumpPath, std::ofstream::out);
+					if (stream.is_open() == true)
+					{
+						const char* json = buf.GetString();
+						size_t jsonSize = buf.GetSize();
+						stream.write(json, jsonSize);
+						stream.flush();
+						stream.close();
+					}
+					else
+					{
+						// todo error
+					}
+
+					return InitResult::Quit;
+				}
+
+				const char* toolParentString = argParser.GetValue("toolParent");
+				if (toolParentString != nullptr)
+				{
+					int64_t toolParentId;
+					if (CORE::StringConversion::StringToInt64(toolParentString, toolParentId) == false)
+					{
+						return InitResult::Failure;
+					}
+					_editorHwnd = reinterpret_cast<void*>(toolParentId);
+				}
+
+				const char* toolPortString = argParser.GetValue("toolPort");
+				if (toolPortString != nullptr)
+				{
+					if (CORE::StringConversion::StringToUInt16(toolPortString, _editorPort) == false)
+					{
+						return InitResult::Failure;
+					}
+				}
+			}
+			else
+			{
+				return InitResult::Failure;
 			}
 
 			if (SDL_Init(SDL_INIT_VIDEO) != 0)
 			{
 				OUTPUT_ERROR("SDL: Unable to initialize SDL: %s", SDL_GetError());
-				return false;
+				return InitResult::Failure;
 			}
 
 			// Setup Dear ImGui context
@@ -76,24 +159,7 @@ namespace HOD
 			ImGui::StyleColorsDark();
 			//ImGui::StyleColorsClassic();
 
-			if (argc >= 3)
-			{
-				if (strcmp(argv[1], "-DumpReflection") == 0)
-				{
-					_dumpReflectionLocation = argv[2];
-				}
-
-				if (strcmp(argv[1], "-Editor") == 0)
-				{
-					_parentHwnd = (void*)atoll(argv[2]);
-				}
-				if (strcmp(argv[3], "-Port") == 0)
-				{
-					_editorPort = atoi(argv[4]);
-				}
-			}
-
-			return true;
+			return InitResult::Success;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -101,7 +167,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		bool Application::IsRunningInEditor() const
 		{
-			return _parentHwnd != 0;
+			return _editorHwnd != 0;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -200,7 +266,16 @@ namespace HOD
 				return 1;
 			}
 
-			LoadStartingScene(startingSceneUid);
+			if (IsRunningInEditor() == true)
+			{
+				GAME::EditorBridge* editorBridge = GAME::EditorBridge::CreateInstance();
+				if (editorBridge->Init() == false)
+				{
+					//return false;
+				}
+			}
+
+			//LoadStartingScene(startingSceneUid);
 
 			float dt = 0.0f;
 			Uint32 lastTicks = SDL_GetTicks();
@@ -231,6 +306,7 @@ namespace HOD
 				}
 
 				ImGui_ImplSDL2_NewFrame(_window);
+				ImGui_ImplVulkan_NewFrame();
 				ImGui::NewFrame();
 				ImGuizmo::BeginFrame();
 

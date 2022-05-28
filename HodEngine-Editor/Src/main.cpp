@@ -6,7 +6,10 @@
 
 #include <QApplication>
 #include "Style/DarkStyle.h"
-#include "Style/framelesswindow/framelesswindow.h"
+#include "ApplicationDescription.h"
+
+#include <QProcess>
+#include <QDir>
 
 int main(int argc, char** argv)
 {
@@ -17,20 +20,28 @@ int main(int argc, char** argv)
 	ContentDataBase::CreateInstance();
 	ContentFactory::Init();
 
-	FramelessWindow framelessWindow;
+	QString editorPath = QCoreApplication::applicationDirPath();
+	QString applicationDumpFilePath = editorPath + "/ApplicationDescription.json";
+
+	QDir engineDir(editorPath);
+	engineDir.cdUp();
+
+	QStringList arguments;
+	arguments.push_back("--toolDump");
+	arguments.push_back(applicationDumpFilePath);
+
+	QProcess* applicationProcess = new QProcess();
+	applicationProcess->setProgram(engineDir.absolutePath() + "/../Debug/HodEngine-Application.exe");
+	applicationProcess->setArguments(arguments);
+	applicationProcess->start();
+	applicationProcess->waitForFinished();
+
+	ApplicationDescription::CreateInstance();
+	ApplicationDescription::GetInstance()->LoadFromFile(applicationDumpFilePath);
 
 	MainWindow* mainWindow = new MainWindow();
 	mainWindow->setWindowIcon(application.style()->standardIcon(QStyle::SP_DesktopIcon));
 
-	QObject::connect(mainWindow, &MainWindow::windowTitleChanged, &framelessWindow, &FramelessWindow::setWindowTitle);
-	QObject::connect(mainWindow, &MainWindow::windowIconChanged, &framelessWindow, &FramelessWindow::setWindowIcon);
-
-	framelessWindow.setContent(mainWindow);
-	framelessWindow.show();
-
-	mainWindow->Refresh();
-	framelessWindow.setWindowTitle(mainWindow->windowTitle());
-	framelessWindow.setWindowIcon(mainWindow->windowIcon());
-
+	mainWindow->show();
 	return application.exec();
 }

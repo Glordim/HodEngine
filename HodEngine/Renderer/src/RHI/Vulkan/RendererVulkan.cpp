@@ -622,10 +622,11 @@ namespace HOD
 				return false;
 			}
 
+			/*
 			Shader* vertexShader = CreateShader("Shader/SpriteUnlitColor.vert.spirv", Shader::Vertex);
 			if (vertexShader == nullptr)
 			{
-				return false;
+				return false;*
 			}
 
 			Shader* fragmentShader = CreateShader("Shader/SpriteUnlitColor.frag.spirv", Shader::Fragment);
@@ -708,7 +709,7 @@ namespace HOD
 					_modelLayout.ExtractBlockTexture(compFrag, resource);
 				}
 			}
-
+			
 			_viewLayout.BuildDescriptorSetLayout();
 			_modelLayout.BuildDescriptorSetLayout();
 
@@ -719,6 +720,7 @@ namespace HOD
 			_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
 
 			_sharedMinimalMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false);
+			*/
 
 			return true;
 		}

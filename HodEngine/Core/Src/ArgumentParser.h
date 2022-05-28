@@ -24,7 +24,7 @@ namespace HOD
 
 		public:
 
-			bool					Register(char shortName, const char* longName, const char* description);
+			bool					Register(char shortName, const char* longName, const char* description, bool requireArgument);
 			bool					Parse(int argc, char** argv);
 
 			const char*				GetValue(const char* longName);
@@ -35,6 +35,7 @@ namespace HOD
 			{
 				char			_shortName = '\0';
 				std::string		_longName;
+				bool			_requireArgument;
 				const char*		_value = nullptr;
 			};
 

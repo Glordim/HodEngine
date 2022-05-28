@@ -23,11 +23,18 @@ namespace HOD
 	{
 		struct VideoSettings;
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		class Application : public CORE::Singleton<Application>
 		{
+		public:
+
+			enum class InitResult
+			{
+				Success,
+				Failure,
+				Quit
+			};
+
 		protected:
 
 							Application();
@@ -35,7 +42,7 @@ namespace HOD
 
 		public:
 
-			bool			Init(int argc, char** argv);
+			InitResult		Init(int argc, char** argv);
 			bool			CreateWindowAndContext(const std::string& name, const VideoSettings& videoSettings);
 			bool			Run(const CORE::UID& startingSceneUid);
 
@@ -66,7 +73,7 @@ namespace HOD
 		protected:
 
 			uint16_t		_editorPort = 0;
-			void*			_parentHwnd = 0;
+			void*			_editorHwnd = 0;
 			void*			_hwnd = 0;
 
 			std::string		_dumpReflectionLocation;

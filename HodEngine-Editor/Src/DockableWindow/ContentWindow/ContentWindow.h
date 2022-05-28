@@ -53,9 +53,6 @@ private:
 	void										OnRemoveContent(Content* content);
 	void										OnContentChange(Content* content);
 
-	void										OnLoadProject(Project* project);
-	void										OnUnloadProject(Project* project);
-
 	void										OnDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
 
 	ContentTreeViewItem*						FindParentItem(Content* content);
@@ -72,6 +69,9 @@ private:
 
 public slots:
 
+	void										OnLoadProject();
+	void										OnUnloadProject();
+
 	void										DeleteSelectedItems();
 	void										DuplicateSelectedItems();
 
@@ -86,7 +86,4 @@ private:
 	ContentDataBase::AddContentSignal::Slot		_onAddContentSlot;
 	ContentDataBase::RemoveContentSignal::Slot	_onRemoveContentSlot;
 	ContentDataBase::ContentChangeSignal::Slot	_onContentChangeSlot;
-
-	Project::LoadProjectSignal::Slot			_onLoadProjectSlot;
-	Project::UnloadProjectSignal::Slot			_onUnloadProjectSlot;
 };

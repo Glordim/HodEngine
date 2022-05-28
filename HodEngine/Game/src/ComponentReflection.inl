@@ -6,9 +6,9 @@ namespace HOD
 		template<typename __type__>
 		bool ComponentReflection::Register()
 		{
-			_dumpFunctions.push_back([](rapidjson::Document& document)
+			_dumpFunctions.push_back([](rapidjson::Document::AllocatorType& allocator)
 			{
-				__type__::GetReflectionDescriptor()->Serialize(document);
+				return __type__::GetReflectionDescriptor()->Serialize(allocator);
 			});
 
 			return true;

@@ -7,6 +7,11 @@
 #include "Project.h"
 #include "UID.h"
 
+#include "Contents/SceneContent.h"
+
+#include "mainwindow.h"
+#include "DockableWindow/SceneWindow/SceneWindow.h"
+
 template<>
 ContentDataBase* Singleton<ContentDataBase>::_instance = nullptr;
 
@@ -84,6 +89,22 @@ bool ContentDataBase::Load(const QString& contentFolderPath)
 void ContentDataBase::Unload()
 {
 	_contents.clear();
+}
+
+void ContentDataBase::Save()
+{
+	QMap<UID, Content*>::Iterator it = _contents.begin();
+	QMap<UID, Content*>::Iterator itEnd = _contents.end();
+
+	while (it != itEnd)
+	{
+		if (it.value()->IsDirty() == true)
+		{
+			it.value()->SaveAtPath(it.value()->GetPath());
+		}
+
+		++it;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -202,4 +223,21 @@ void ContentDataBase::DuplicateContent(const Content* content)
 		AddContent(content);
 	}
 	*/
+}
+
+/// @brief 
+/// @param content 
+void ContentDataBase::OpenContent(Content* content)
+{
+	MainWindow* mainWindow = MainWindow::GetInstance();
+
+	if (content->GetType() == SceneContent::_type)
+	{
+		if (content->GetType() == SceneContent::_type)
+		{
+			SceneWindow* sceneWindow = mainWindow->GetOrCreateDockableWindow<SceneWindow>();
+
+			sceneWindow->OpenSceneContent(static_cast<SceneContent*>(content));
+		}
+	}
 }

@@ -9,7 +9,6 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
-#include <QStandardItemModel>
 #include <QDir>
 
 #include "../DockableWindow.h"
@@ -23,6 +22,9 @@ class ContentItem;
 class ContentTreeViewItem;
 
 class SceneContent;
+class SceneModel;
+
+class QItemSelection;
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -39,35 +41,28 @@ public:
 												~SceneWindow();
 
 	void										OpenSceneContent(SceneContent* sceneContent);
+	void										CloseSceneContent();
 
 private:
 
 	void										CustomMenuRequested(const QPoint& position);
 
-	void										OnLoadProject(Project* project);
-	void										OnUnloadProject(Project* project);
-
 	void										OnDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
-
-	void										CreateEntity();
 
 public slots:
 
-	void										NewItem();
+	void										SelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+
+	void										NewEntity();
 	void										DeleteSelectedItems();
 	void										DuplicateSelectedItems();
 
 private:
 
 	Ui::SceneWindow*							_ui;
-	QStandardItemModel*							_sceneItemModel;
+	SceneModel*									_sceneModel;
 
 	QShortcut*									_newShortcut = nullptr;
 	QShortcut*									_deleteShortcut = nullptr;
 	QShortcut*									_duplicateShortcut = nullptr;
-
-	Project::LoadProjectSignal::Slot			_onLoadProjectSlot;
-	Project::UnloadProjectSignal::Slot			_onUnloadProjectSlot;
-
-	SceneContent*								_sceneContent = nullptr;
 };

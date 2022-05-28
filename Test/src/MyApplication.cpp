@@ -111,15 +111,6 @@ bool MyApplication::PreRun()
 		return false;
 	}
 
-	if (IsRunningInEditor() == true)
-	{
-		EditorBridge* editorBridge = EditorBridge::CreateInstance();
-		if (editorBridge->Init() == false)
-		{
-			return false;
-		}
-	}
-
 	return true;
 }
 
@@ -270,8 +261,14 @@ bool MyApplication::Loop(float deltaTime)
 	ImGui::Render();
 	
 	RenderQueue* renderQueue = Renderer::GetInstance()->GetRenderQueue();
-	pCamera->PushToRenderQueue(renderQueue);
-	_scene->PushToRenderQueue(renderQueue);
+	if (pCamera != nullptr)
+	{
+		pCamera->PushToRenderQueue(renderQueue);
+	}
+	if (_scene != nullptr)
+	{
+		_scene->PushToRenderQueue(renderQueue);
+	}
 
 	renderQueue->Execute();
 

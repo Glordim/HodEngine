@@ -26,14 +26,16 @@ namespace HOD
 
 			CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
 
-			commandBuffer->StartRecord();
-			for (RenderCommand* renderCommand : _renderCommands)
+			if (commandBuffer->StartRecord() == true)
 			{
-				renderCommand->Execute(commandBuffer);
-				delete renderCommand;
-			}
+				for (RenderCommand* renderCommand : _renderCommands)
+				{
+					renderCommand->Execute(commandBuffer);
+					delete renderCommand;
+				}
 
-			commandBuffer->EndRecord();
+				commandBuffer->EndRecord();
+			}
 
 			_renderCommands.clear();
 

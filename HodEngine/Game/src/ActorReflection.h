@@ -26,8 +26,8 @@ namespace HOD
 
 		protected:
 
-								ActorReflection();
-								~ActorReflection() override;
+								ActorReflection() = default;
+								~ActorReflection() override = default;
 
 		private:
 

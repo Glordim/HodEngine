@@ -16,7 +16,7 @@ namespace HOD
 		{
 		public:
 
-													ReflectionDescriptor(const char* typeName);
+													ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent);
 													ReflectionDescriptor(const ReflectionDescriptor& copy) = default;
 													ReflectionDescriptor(ReflectionDescriptor&& move) = default;
 													~ReflectionDescriptor() = default;
@@ -26,7 +26,7 @@ namespace HOD
 
 		public:
 
-			void									Serialize(rapidjson::Document& document) const;
+			rapidjson::Value						Serialize(rapidjson::Document::AllocatorType& allocator) const;
 			void									Deserialize();
 
 			const std::vector<ReflectionTrait*>&	GetTraits() const;
@@ -45,6 +45,8 @@ namespace HOD
 		private:
 
 			const char*								_typeName;
+			ReflectionDescriptor*					_parent;
+
 			std::vector<ReflectionTrait*>			_traits;
 			std::vector<ReflectionProperty*>		_properties;
 		};

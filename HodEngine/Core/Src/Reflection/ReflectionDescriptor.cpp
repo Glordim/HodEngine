@@ -1,6 +1,7 @@
 #include "ReflectionDescriptor.h"
 
 #include "ReflectionTrait.h"
+#include "ReflectionProperty.h"
 
 namespace HOD
 {
@@ -8,38 +9,45 @@ namespace HOD
 	{
 		///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
 		///@param typeName 
-		ReflectionDescriptor::ReflectionDescriptor(const char* typeName)
+		ReflectionDescriptor::ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent)
 		: _typeName(typeName)
+		, _parent(parent)
 		{
 
 		}
 
-		void ReflectionDescriptor::Serialize(rapidjson::Document& document) const
+		rapidjson::Value ReflectionDescriptor::Serialize(rapidjson::Document::AllocatorType& allocator) const
 		{
-			document.String("TypeName", static_cast<rapidjson::SizeType>(9), false);
-			document.String(_typeName, static_cast<rapidjson::SizeType>(std::strlen(_typeName)), false);
+			rapidjson::Value description;
+			description.SetObject();
 
-			document.String("Traits", static_cast<rapidjson::SizeType>(7), false);
-			document.StartArray();
-			int count = 0;
+			description.AddMember("TypeName", rapidjson::StringRef(_typeName), allocator);
+			if (_parent != nullptr)
+			{
+				description.AddMember("ParentTypeName", rapidjson::StringRef(_parent->_typeName), allocator);
+			}
+
+			rapidjson::Value traits;
+			traits.SetArray();
+
 			for (const ReflectionTrait* trait : _traits)
 			{
-				trait->Serialize(document);
-				count++;
+				traits.PushBack(trait->Serialize(allocator), allocator);
 			}
-			document.EndArray(count);
 
-/* PROPERYTY
-			document.String("Traits", static_cast<rapidjson::SizeType>(7), false);
-			document.StartArray();
-			int count = 0;
-			for (const ReflectionTrait* trait : _traits)
+			description.AddMember("Traits", traits, allocator);
+
+			rapidjson::Value properties;
+			properties.SetArray();
+
+			for (const ReflectionProperty* property : _properties)
 			{
-				trait->Serialize(document);
-				count++;
+				properties.PushBack(property->Serialize(allocator), allocator);
 			}
-			document.EndArray(count);
-*/
+
+			description.AddMember("Properties", properties, allocator);
+
+			return description;
 		}
 
 		void ReflectionDescriptor::Deserialize()

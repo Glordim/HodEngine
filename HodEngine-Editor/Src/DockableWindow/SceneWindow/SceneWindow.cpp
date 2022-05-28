@@ -3,7 +3,8 @@
 #include "./ui_SceneWindow.h"
 #include <windows.h>
 
-#include "SceneTreeViewItem.h"
+#include "../EntityWindow/EntityWindow.h"
+#include "../../mainwindow.h"
 
 #include <QMenu>
 #include <QFileDialog>
@@ -18,21 +19,26 @@
 #include <QShortcut>
 #include <QDesktopServices>
 
-///
-///@brief Construct a new SceneWindow:: SceneWindow object
-///
-///@param parent 
-///
+#include "../../Contents/SceneContent.h"
+
+#include "SceneModel.h"
+#include "SceneItem.h"
+#include "EntityItem.h"
+
+#include "../../mainwindow.h"
+#include "../../DockableWindow/SceneWindow/SceneWindow.h"
+#include "../../DockableWindow/ViewportWindow.h"
+
+/// @brief 
+/// @param parent 
 SceneWindow::SceneWindow(QWidget* parent)
 : DockableWindow(parent)
 , _ui(new Ui::SceneWindow)
-, _onLoadProjectSlot(std::bind(&SceneWindow::OnLoadProject, this, std::placeholders::_1))
-, _onUnloadProjectSlot(std::bind(&SceneWindow::OnUnloadProject, this, std::placeholders::_1))
 {
 	_ui->setupUi(this);
 
 	_newShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_N), _ui->treeView);
-	connect(_deleteShortcut, &QShortcut::activated, this, &SceneWindow::NewItem);
+	connect(_deleteShortcut, &QShortcut::activated, this, &SceneWindow::NewEntity);
 
 	_deleteShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), _ui->treeView);
 	connect(_deleteShortcut, &QShortcut::activated, this, &SceneWindow::DeleteSelectedItems);
@@ -40,18 +46,20 @@ SceneWindow::SceneWindow(QWidget* parent)
 	_duplicateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_D), _ui->treeView);
 	connect(_duplicateShortcut, &QShortcut::activated, this, &SceneWindow::DuplicateSelectedItems);
 
-	_sceneItemModel = new QStandardItemModel();
-	_sceneItemModel->setColumnCount(1);
+	_sceneModel = new SceneModel();
+	_sceneModel->setColumnCount(1);
 
 	_ui->treeView->setHeaderHidden(true);
 	_ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-	_ui->treeView->setModel(_sceneItemModel);
+	_ui->treeView->setModel(_sceneModel);
 
 	QObject::connect(_ui->treeView, &QTreeView::customContextMenuRequested, this, &SceneWindow::CustomMenuRequested);
-	QObject::connect(_sceneItemModel, &QStandardItemModel::dataChanged, this, &SceneWindow::OnDataChanged);
+	QObject::connect(_sceneModel, &QStandardItemModel::dataChanged, this, &SceneWindow::OnDataChanged);
+	QObject::connect(_ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &SceneWindow::SelectionChanged);
 
-	Project::GetInstance()->RegisterLoadProject(_onLoadProjectSlot);
-	Project::GetInstance()->RegisterUnloadProject(_onUnloadProjectSlot);
+	QObject::connect(Project::GetInstance(), &Project::Unloaded, this, &SceneWindow::CloseSceneContent);
+
+	setEnabled(false);
 }
 
 ///
@@ -60,34 +68,34 @@ SceneWindow::SceneWindow(QWidget* parent)
 ///
 SceneWindow::~SceneWindow()
 {
-	Project::GetInstance()->UnregisterLoadProject(_onLoadProjectSlot);
-	Project::GetInstance()->UnregisterUnloadProject(_onUnloadProjectSlot);
-
 	delete _ui;
 }
 
 void SceneWindow::OpenSceneContent(SceneContent* sceneContent)
 {
-	_sceneContent = sceneContent;
+	CloseSceneContent();
+
+	SceneItem* sceneItem = new SceneItem(sceneContent);
+	_sceneModel->invisibleRootItem()->appendRow(sceneItem);
+
+	QJsonObject sceneData;
+	sceneContent->Serialize(sceneData);
+
+	ViewportWindow* viewportWindow = MainWindow::GetInstance()->GetOrCreateDockableWindow<ViewportWindow>();
+	viewportWindow->SendEngineRequest("AddEntity", sceneData);
+
+	setEnabled(true);
 }
 
-///
-///@brief 
-///
-///
-void SceneWindow::OnLoadProject(Project* project)
+/// @brief 
+void SceneWindow::CloseSceneContent()
 {
-	
-}
+	_sceneModel->clear();
 
-///
-///@brief 
-///
-///@param project 
-///
-void SceneWindow::OnUnloadProject(Project* project)
-{
-	_sceneItemModel->clear();
+	ViewportWindow* viewportWindow = MainWindow::GetInstance()->GetOrCreateDockableWindow<ViewportWindow>();
+	viewportWindow->SendEngineRequest("Reset");
+
+	setEnabled(false);
 }
 
 ///
@@ -100,6 +108,27 @@ void SceneWindow::OnUnloadProject(Project* project)
 void SceneWindow::OnDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
 {
 	qDebug("Changed");
+}
+
+void SceneWindow::SelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+{
+	EntityItem* entityItem = nullptr;
+
+	if (selected.isEmpty() == false)
+	{
+		entityItem = dynamic_cast<EntityItem*>(_sceneModel->itemFromIndex(selected[0].indexes()[0]));
+	}
+
+	EntityWindow* entityWindow = MainWindow::GetInstance()->GetOrCreateDockableWindow<EntityWindow>();
+
+	if (entityItem != nullptr)
+	{
+		entityWindow->OpenEntity(entityItem->GetEntity());
+	}
+	else
+	{
+		entityWindow->CloseEntity();
+	}
 }
 
 ///
@@ -116,7 +145,7 @@ void SceneWindow::CustomMenuRequested(const QPoint& position)
 
 	if (indexList.count() <= 1)
 	{
-		menu->addAction("New", this, &SceneWindow::NewItem, _newShortcut->key());
+		menu->addAction("New", this, &SceneWindow::NewEntity, _newShortcut->key());
 
 		if (indexList.count() == 1)
 		{
@@ -139,20 +168,40 @@ void SceneWindow::CustomMenuRequested(const QPoint& position)
 	menu->popup(_ui->treeView->viewport()->mapToGlobal(position));
 }
 
-///
-///@brief 
-///
-///
-void SceneWindow::NewItem()
+/// @brief 
+void SceneWindow::NewEntity()
 {
-	//SceneTreeViewItem item = new SceneTreeViewItem();
-	//_sceneItemModel->appendRow(item);
+	QModelIndexList indexList = _ui->treeView->selectionModel()->selectedIndexes();
+	QModelIndex index = indexList[0];
+
+	QStandardItem* parent = _sceneModel->itemFromIndex(index);
+	while (parent->parent() != nullptr)
+	{
+		parent = parent->parent();
+	}
+
+	SceneItem* sceneItem = (SceneItem*)parent;
+	SceneContent::Entity* entity = sceneItem->GetSceneContent()->CreateEntity();
+
+	EntityItem* entityItem = new EntityItem(entity);
+	entityItem->setText("Entity");
+
+	parent = _sceneModel->itemFromIndex(index);
+	if (parent->parent() != _sceneModel->invisibleRootItem())
+	{
+		//entity->_components = 
+	}
+
+	parent->appendRow(entityItem);
+
+	_ui->treeView->setExpanded(index, true);
+
+	_ui->treeView->selectionModel()->clear();
+	_ui->treeView->selectionModel()->select(_sceneModel->indexFromItem(entityItem), QItemSelectionModel::Select);
+	_ui->treeView->edit(_sceneModel->indexFromItem(entityItem));
 }
 
-///
-///@brief 
-///
-///
+/// @brief 
 void SceneWindow::DeleteSelectedItems()
 {
 	if (QMessageBox::warning(this, "Delete Confirmation", "Do tou really want to delete this file(s) ?", QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel) == QMessageBox::StandardButton::Cancel)
@@ -160,18 +209,17 @@ void SceneWindow::DeleteSelectedItems()
 		return;
 	}
 
+	/*
 	QModelIndexList indexList = _ui->treeView->selectionModel()->selectedIndexes();
 	for (const QModelIndex& index : indexList)
 	{
-		SceneTreeViewItem* item = static_cast<SceneTreeViewItem*>(_sceneItemModel->itemFromIndex(index));
-		_sceneItemModel->removeRow(item->row());
+		SceneTreeViewItem* item = static_cast<SceneTreeViewItem*>(_sceneModel->itemFromIndex(index));
+		_sceneModel->removeRow(item->row());
 	}
+	*/
 }
 
-///
-///@brief 
-///
-///
+/// @brief 
 void SceneWindow::DuplicateSelectedItems()
 {
 	/*

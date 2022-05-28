@@ -1,6 +1,7 @@
 #include "Mainwindow.h"
 #include "./ui_Mainwindow.h"
 
+#include "DockableWindow/EntityWindow/EntityWindow.h"
 #include "DockableWindow/ContentWindow/ContentWindow.h"
 #include "DockableWindow/SceneWindow/SceneWindow.h"
 #include "DockableWindow/ViewportWindow.h"
@@ -15,6 +16,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+
+#include <QSettings>
 
 template<>
 MainWindow* HOD::CORE::Singleton<MainWindow>::_instance = nullptr;
@@ -42,8 +45,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 	RegisterDockableWindow<ContentWindow>("Contents");
 	RegisterDockableWindow<SceneWindow>("Scene");
+	RegisterDockableWindow<ViewportWindow>("Viewport");
+	RegisterDockableWindow<EntityWindow>("Entity");
+
+	setCentralWidget(nullptr);
 
 	_ui->actionDefault->trigger();
+
+	QSettings settings("HodEngineEditor");
+	QByteArray geometry = settings.value("geometry").toByteArray();
+	QByteArray state = settings.value("windowState").toByteArray();
+
+	restoreGeometry(geometry);
+	restoreState(state);
 
 	Refresh();
 }
@@ -90,6 +104,8 @@ void MainWindow::SaveProject()
 	{
 		project->SaveAtPath(project->GetSavePath());
 	}
+
+	ContentDataBase::GetInstance()->Save();
 }
 
 //-----------------------------------------------------------------------------
@@ -113,13 +129,28 @@ void MainWindow::Exit()
 	close();
 }
 
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+	QSettings settings("HodEngineEditor");
+	settings.setValue("geometry", saveGeometry());
+	settings.setValue("windowState", saveState());
+	QMainWindow::closeEvent(event);
+}
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
 void MainWindow::AddDocakbleWindow(DockableWindow* dockableWindow)
 {
+	setDockNestingEnabled(true);
+	setDockOptions(QMainWindow::AnimatedDocks | QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks | QMainWindow::GroupedDragging);
+
+	dockableWindow->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+	/*
 	bool projectOpened = Project::GetInstance()->IsOpened();
 	dockableWindow->setEnabled(projectOpened);
+	*/
 	addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, dockableWindow);
 	_dockWidgets.push_back(dockableWindow);
 }
@@ -140,8 +171,26 @@ void MainWindow::SetDefaultLayout()
 	AddDocakbleWindow(contentWindow);
 
 	ViewportWindow* viewportWindow = new ViewportWindow(this);
-	setCentralWidget(viewportWindow);
+	AddDocakbleWindow(viewportWindow);
+
+	SceneWindow* sceneWindow = new SceneWindow(this);
+	AddDocakbleWindow(sceneWindow);
+
+	EntityWindow* entityWindow = new EntityWindow(this);
+	AddDocakbleWindow(entityWindow);
 }
+
+void MainWindow::SaveLayout()
+{
+	QByteArray state = saveState();
+	QByteArray geometry = saveGeometry();
+}
+
+void MainWindow::LoadLayout()
+{
+
+}
+
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -161,10 +210,12 @@ void MainWindow::Refresh()
 	_ui->actionDelete->setEnabled(projectOpened);
 	_ui->actionSelect_all->setEnabled(projectOpened);
 
+	/*
 	for (QDockWidget* dockWidget : _dockWidgets)
 	{
 		dockWidget->setEnabled(projectOpened);
 	}
+	*/
 
 	if (projectOpened == true)
 	{

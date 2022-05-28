@@ -12,76 +12,32 @@
 
 #include <HodEngine/Core/Src/UID.h>
 
-#include <HodEngine/Core/Src/GenericManager.h>
-#include <HodEngine/Core/Src/Output.h>
-#include <HodEngine/Core/Src/ArgumentParser.h>
-#include <HodEngine/Core/Src/StringConversion.h>
-
-#include <HodEngine/Game/Src/ActorReflection.h>
-#include <HodEngine/Game/Src/ComponentReflection.h>
-
 using namespace HOD;
 
+#include <Windows.h>
 
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-	uint16_t toolPort = 0;
-	void* toolParent = 0;
+	MessageBox(
+		NULL,
+		(LPCSTR)L"Resource not available\nDo you want to try again?",
+		(LPCSTR)L"Account Details",
+		MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2
+	);
 
-	CORE::ArgumentParser argParser;
-	argParser.Register('\0', "toolDump", "Request dump reflection data (used by the editor) : [dir where store dumped files]", true);
-	argParser.Register('\0', "toolParent", "Embed the Application as child (used by the editor) : [parent window handle]", true);
-	argParser.Register('\0', "toolPort", "Run a Tcp server to comunicate with tools (used by the editor) : [port number]", true);
-	if (argParser.Parse(argc, argv) == true)
-	{
-		const char* dumpPath = argParser.GetValue("toolDump");
-		if (dumpPath != nullptr)
-		{
-			if (GAME::ActorReflection::GetInstance()->DumpToDir(dumpPath) == false)
-			{
-				return EXIT_FAILURE;
-			}
-			if (GAME::ComponentReflection::GetInstance()->DumpToDir(dumpPath) == false)
-			{
-				return EXIT_FAILURE;
-			}
-			return EXIT_SUCCESS;
-		}
+	MyApplication app;
+	MyApplication::InitResult initResult = app.Init(argc, argv);
 
-		const char* toolParentString = argParser.GetValue("toolParent");
-		if (toolParentString != nullptr)
-		{
-			int64_t toolParentId;
-			if (CORE::StringConversion::StringToInt64(toolParentString, toolParentId) == false)
-			{
-				return EXIT_FAILURE;
-			}
-			toolParent = reinterpret_cast<void*>(toolParentId);
-		}
-
-		const char* toolPortString = argParser.GetValue("toolPort");
-		if (toolPortString != nullptr)
-		{
-			if (CORE::StringConversion::StringToUInt16(toolParentString, toolPort) == false)
-			{
-				return EXIT_FAILURE;
-			}
-		}
-	}
-	else
+	if (initResult == MyApplication::InitResult::Failure)
 	{
 		return EXIT_FAILURE;
 	}
-
-
-	MyApplication app;
-
-	if (app.Init(argc, argv) == false)
+	if (initResult == MyApplication::InitResult::Quit)
 	{
-		return false;
+		return EXIT_SUCCESS;
 	}
 
 	int selectedMonitor = 0;

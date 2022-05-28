@@ -31,6 +31,8 @@ public:
 
 	void				ResizeEngineWindow(HWND hWnd);
 
+	void				SendEngineRequest(const QString& request, QJsonObject* serializedArgument);
+
 protected:	
 
 	void				resizeEvent(QResizeEvent* event) override;
@@ -46,6 +48,11 @@ private:
 	void				OnEngineDisconnect();
 	void				OnEngineFinished();
 	void				EngineSocketLoop();
+
+private slots:
+
+	void				OnProjectLoaded();
+	void				OnProjectUnloaded();
 
 private:
 

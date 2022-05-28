@@ -64,14 +64,13 @@ public:
 	bool						SerializeHeader(QJsonObject& header);
 	bool						DeserializeHeader(const QJsonObject& header);
 
+	void						SetDirty();// Bool ?
+	void						ClearDirty();
+
 public:
 
 	virtual bool				Serialize(QJsonObject& data) = 0;
 	virtual bool				Deserialize(const QJsonObject& data) = 0;
-
-protected:
-
-	void						SetDirty();// Bool ?
 
 protected:
 

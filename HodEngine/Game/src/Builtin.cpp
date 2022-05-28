@@ -18,6 +18,9 @@ namespace HOD
 	{
 		void RegisterBuiltin()
 		{
+			GAME::ComponentReflection::CreateInstance();
+			GAME::ActorReflection::CreateInstance();
+
 			ActorReflection* actorReflection = ActorReflection::GetInstance();
 			actorReflection->Register<Actor>();
 

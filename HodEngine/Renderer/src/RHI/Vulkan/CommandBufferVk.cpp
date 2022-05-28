@@ -71,9 +71,16 @@ namespace HOD
 		bool CommandBufferVk::StartRecord()
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+			VkRenderPass renderPass = renderer->GetRenderPass();
+			if (renderPass == nullptr)
+			{
+				return false;
+			}
 
+			/*
 			VkMaterial* material = (VkMaterial*)renderer->GetSharedMinimalMaterial();
 			_sharedMinimalMaterialInstance = (VkMaterialInstance*)renderer->CreateMaterialInstance(material);
+			*/
 
 			VkCommandBufferBeginInfo beginInfo = {};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -92,7 +99,7 @@ namespace HOD
 
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderer->GetRenderPass();
+			renderPassInfo.renderPass = renderPass;
 			renderPassInfo.framebuffer = renderer->GetSwapChainCurrentFrameBuffer();
 			renderPassInfo.renderArea.offset = { 0, 0 };
 			renderPassInfo.renderArea.extent = renderer->GetSwapChainExtent();
@@ -143,10 +150,12 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetProjectionMatrix(const glm::mat4x4& projectionMatrix)
 		{
+			/*
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.proj", projectionMatrix);
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", projectionMatrix * _sharedMinimalMaterialInstance->GetMat4("viewUbo.view"));
 
 			SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -154,10 +163,12 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetViewMatrix(const glm::mat4x4& viewMatrix)
 		{
+			/*
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.view", viewMatrix);
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.proj") * viewMatrix);
 
 			SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -165,11 +176,13 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetModelMatrix(const glm::mat4x4& modelMatrix)
 		{
+			/*
 			MaterialInstance* modelMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(&_sharedMinimalMaterialInstance->GetMaterial());
 			modelMaterialInstance->SetMat4("modelUbo.model", modelMatrix);
 			modelMaterialInstance->SetMat4("modelUbo.mvp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.vp") * modelMatrix);
 
 			SetMaterialInstance(modelMaterialInstance, 1, 1);
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -190,13 +203,17 @@ namespace HOD
 			vkViewport.maxDepth = 1.0f;
 
 			vkCmdSetViewport(_vkCommandBuffer, 0, 1, &vkViewport);
+		}
 
-			// Todo made dedicated command for scissor
-			VkRect2D scissor = {};
-			scissor.offset = { 0, 0 };
-			scissor.extent = extent;
+		/// @brief 
+		/// @param scissor 
+		void CommandBufferVk::SetScissor(const CORE::Rect& scissor)
+		{
+			VkRect2D vkScissor = {};
+			vkScissor.offset = { (int32_t)scissor._position.x, (int32_t)scissor._position.y };
+			vkScissor.extent = { (uint32_t)scissor._size.x, (uint32_t)scissor._size.y };
 
-			vkCmdSetScissor(_vkCommandBuffer, 0, 1, &scissor);
+			vkCmdSetScissor(_vkCommandBuffer, 0, 1, &vkScissor);
 		}
 
 		//-----------------------------------------------------------------------------

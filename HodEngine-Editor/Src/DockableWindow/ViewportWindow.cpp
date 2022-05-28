@@ -9,6 +9,9 @@
 #include <QJsonObject>
 
 #include <Windows.h>
+#include "../Project.h"
+
+#include <QDir>
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -24,18 +27,29 @@ ViewportWindow::ViewportWindow(QWidget *parent)
 	QObject::connect(_tcpServer, &QTcpServer::newConnection, this, &ViewportWindow::OnEngineConnect);
 
 	QStringList arguments;
-	arguments.push_back("-Editor");
+	arguments.push_back("--toolParent");
 	arguments.push_back(QString::number(_ui->frameContainer->winId()));
-	arguments.push_back("-Port");
+	arguments.push_back("--toolPort");
 	arguments.push_back(QString::number(_tcpServer->serverPort()));
 
+	QString editorPath = QCoreApplication::applicationDirPath();
+
+	QDir engineDir(editorPath);
+	engineDir.cdUp();
+
 	_engineProcess = new QProcess(this);
-	_engineProcess->setProgram("G:\\HodEngine\\Build\\Debug\\HodEngine.exe");
+	_engineProcess->setProgram(engineDir.absolutePath() + "/../Debug/HodEngine-Application.exe");
 	_engineProcess->setArguments(arguments);
-	_engineProcess->setWorkingDirectory("C:\\Users\\antho\\Desktop\\Hod\\Resources");
 	QObject::connect(_engineProcess, &QProcess::finished, this, &ViewportWindow::OnEngineFinished);
 
 	QObject::connect(_ui->restartButton, &QToolButton::clicked, this, &ViewportWindow::OnPlayStopEngineButtonClicked);
+
+	Project* project = Project::GetInstance();
+
+	setEnabled(project->IsOpened());
+
+	QObject::connect(project, &Project::Loaded, this, &ViewportWindow::OnProjectLoaded);
+	QObject::connect(project, &Project::Unloaded, this, &ViewportWindow::OnProjectUnloaded);
 
 	StartEngine();
 }
@@ -110,6 +124,7 @@ void ViewportWindow::OnEngineConnect()
 
 	QObject::connect(_engineSocket, &QAbstractSocket::disconnected, this, &ViewportWindow::StopEngine);
 
+	_quitThread = false;
 	_engineSocketThread = QThread::create(std::bind(&ViewportWindow::EngineSocketLoop, this));
 	_engineSocketThread->start();
 }
@@ -119,8 +134,6 @@ void ViewportWindow::OnEngineConnect()
 //-----------------------------------------------------------------------------
 void ViewportWindow::EngineSocketLoop()
 {
-	// May be setParent to engine window here ?
-	_quitThread = false;
 	while (_quitThread == false)
 	{
 		qint64 availableByte = _engineSocket->bytesAvailable();
@@ -168,11 +181,15 @@ void ViewportWindow::OnEngineFinished()
 	if (_engineSocketThread != nullptr)
 	{
 		_quitThread = true;
+		_engineSocketThread->requestInterruption();
+		_engineSocketThread->wait();
+		/*
+		
 		if (_engineSocketThread->wait(5000) == false)
 		{
-			_engineSocketThread->terminate();
-			_engineSocketThread->wait();
+			
 		}
+		*/
 		delete _engineSocketThread;
 		_engineSocketThread = nullptr;
 	}
@@ -180,7 +197,8 @@ void ViewportWindow::OnEngineFinished()
 	if (_engineSocket != nullptr)
 	{
 		_engineSocket->close();
-		delete _engineSocket;
+		_engineSocket->deleteLater();
+		//delete _engineSocket;
 		_engineSocket = nullptr;
 	}
 
@@ -199,4 +217,41 @@ void ViewportWindow::resizeEvent(QResizeEvent* event)
 	pos = _ui->frameContainer->pos();
 
 	SetWindowPos((HWND)_engineWindowHandle, NULL, 0, 0, size.width(), size.height(), 0);
+}
+
+/// @brief 
+void ViewportWindow::OnProjectLoaded()
+{
+	setEnabled(true);
+}
+
+/// @brief 
+void ViewportWindow::OnProjectUnloaded()
+{
+	setEnabled(false);
+}
+
+/// @brief 
+/// @param request 
+/// @param serializedArgument 
+void ViewportWindow::SendEngineRequest(const QString& request, QJsonObject* serializedArgument)
+{
+	if (_engineSocket != nullptr)
+	{
+		QJsonDocument document;
+		QJsonObject root = document.object();
+
+		/*
+		root["Command"] = request;
+		root += *serializedArgument;
+		if ()
+		{
+			root["Argument"] =
+		}
+		*/
+		
+		(*serializedArgument);
+
+		_engineSocket->write(document.toJson());
+	}
 }

@@ -39,6 +39,10 @@ public:
 
 	void						Refresh();
 
+protected:
+
+	void						closeEvent(QCloseEvent* event) override;
+
 private:
 
 	template<typename __Type__>
@@ -54,6 +58,8 @@ private:
 	void						Exit();
 
 	void						SetDefaultLayout();
+	void						SaveLayout();
+	void						LoadLayout();
 
 private:
 

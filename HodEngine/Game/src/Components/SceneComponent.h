@@ -14,12 +14,10 @@ namespace HOD
 {
 	namespace GAME
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		class SceneComponent : public Component
 		{
-			//REFLECTED_DERIVED_CLASS(SceneComponent, Component);
+			REFLECTED_DERIVED_CLASS(SceneComponent, Component);
 
 		public:
 

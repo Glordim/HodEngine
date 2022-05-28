@@ -10,8 +10,20 @@
 
 #include <filesystem>
 
-template<>
-Project* Singleton<Project>::_instance = nullptr;
+Project* Project::_instance = nullptr;
+
+/// @brief 
+void Project::CreateInstance()
+{
+	_instance = new Project();
+}
+
+/// @brief 
+/// @return 
+Project* Project::GetInstance()
+{
+	return _instance;
+}
 
 //-----------------------------------------------------------------------------
 //! @brief		
@@ -30,7 +42,7 @@ void Project::Close()
 
 	ContentDataBase::GetInstance()->Unload();
 
-	_unloadProjectSignal.Emit(this);
+	emit Unloaded();
 }
 
 //-----------------------------------------------------------------------------
@@ -58,7 +70,7 @@ bool Project::LoadFromFile(const QString& projectFilePath)
 
 	ContentDataBase::GetInstance()->Load(GetContentsFolderPath());
 
-	_loadProjectSignal.Emit(this);
+	emit Loaded();
 
 	return true;
 }
@@ -126,37 +138,6 @@ bool Project::CreateOnDisk(const QString& name, const QString& location)
 	}
 
 	return true;
-}
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-void Project::RegisterLoadProject(typename LoadProjectSignal::Slot& slot)
-{
-	_loadProjectSignal.Connect(slot);
-}
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-void Project::UnregisterLoadProject(typename LoadProjectSignal::Slot& slot)
-{
-	_loadProjectSignal.Disconnect(slot);
-}
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-void Project::RegisterUnloadProject(typename UnloadProjectSignal::Slot& slot)
-{
-	_unloadProjectSignal.Connect(slot);
-}
-
-//-----------------------------------------------------------------------------
-//! @brief		
-//-----------------------------------------------------------------------------
-void Project::UnregisterUnloadProject(typename UnloadProjectSignal::Slot& slot)
-{
-	_unloadProjectSignal.Disconnect(slot);
 }
 
 //-----------------------------------------------------------------------------
