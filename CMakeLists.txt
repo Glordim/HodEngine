@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 function(assign_source_group)
     foreach(_source IN ITEMS ${ARGN})
         if (IS_ABSOLUTE "${_source}")
@@ -16,90 +13,41 @@ function(assign_source_group)
     endforeach()
 endfunction(assign_source_group)
 
-project(HodEngine-Application)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set (SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release;Profile;Retail")
+set(CMAKE_EXE_LINKER_FLAGS_PROFILE "")
+set(CMAKE_EXE_LINKER_FLAGS_RETAIL "")
 
-if (NOT TARGET Core)
-	add_subdirectory(HodEngine/Core)
-endif()
+set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
-if (NOT TARGET DebugLayer)
-	add_subdirectory(HodEngine/DebugLayer)
-endif()
+#set(CMAKE_SUPPRESS_REGENERATION true)
 
-if (NOT TARGET ImGui)
-	add_subdirectory(HodEngine/ImGui)
-endif()
+project(HodEngine) # Rename
 
-if (NOT TARGET Physics)
-	add_subdirectory(HodEngine/Physics)
-endif()
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-if (NOT TARGET Application)
-	add_subdirectory(HodEngine/Application)
-endif()
-
-if (NOT TARGET Renderer)
-	add_subdirectory(HodEngine/Renderer)
-endif()
-
-if (NOT TARGET Game)
-	add_subdirectory(HodEngine/Game)
-endif()
-
-if (NOT TARGET HodEngine-Editor)
-	add_subdirectory(HodEngine-Editor)
-endif()
-	
-file(GLOB_RECURSE Srcs
-	"${PROJECT_SOURCE_DIR}/Test/src/*.cpp"
-	"${PROJECT_SOURCE_DIR}/Test/src/*.h"
-	"${PROJECT_SOURCE_DIR}/Test/src/*.inl"
-)
-assign_source_group(${Srcs})
-
-add_executable(HodEngine-Application ${Srcs})
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodEngine-Application)
-set_property(TARGET HodEngine-Application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "../Data")
-
-add_dependencies(HodEngine-Application Core DebugLayer ImGui Physics Application Renderer Game)
-
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
-find_package(Glm REQUIRED)
-find_package(SDL2 REQUIRED)
-find_package(Vulkan REQUIRED)
-find_package(RapidJSON REQUIRED)
-
-if(MSVC)
-	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
+if(WIN32)
+	set(PLATFORM_DEFINE "PLATFORM_WINDOWS")
+	set(RENDERER_DEFINE "RENDERER_VULKAN")
+elseif(APPLE)
+	if(IOS)
+		set(PLATFORM_DEFINE "PLATFORM_IOS")
+		set(RENDERER_DEFINE "RENDERER_METAL")
+	else()
+		set(PLATFORM_DEFINE "PLATFORM_MAC")
+		set(RENDERER_DEFINE "RENDERER_METAL")
+	endif()
+elseif(ANDROID)
+	set(PLATFORM_DEFINE "PLATFORM_ANDROID")
+	set(RENDERER_DEFINE "RENDERER_VULKAN")
 else()
-	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
+	set(PLATFORM_DEFINE "PLATFORM_LINUX")
+	set(RENDERER_DEFINE "RENDERER_VULKAN")
 endif()
 
-include_directories(
-	"${PROJECT_SOURCE_DIR}"
-	"${PROJECT_SOURCE_DIR}/src"
-	"HodEngine"
-	${Glm_INCLUDE_DIRS}
-	${SDL2_INCLUDE_DIRS}
-	${Vulkan_INCLUDE_DIRS}
-	${RapidJSON_INCLUDE_DIRS}
-)
-
-target_link_libraries(HodEngine-Application
-	Core
-	DebugLayer
-	ImGui
-	Physics
-	Application
-	Renderer
-	Game
-)
-
-if (WIN32)
-	add_custom_command(TARGET HodEngine-Application POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SDK_DIR}/Build/SDL/Release/SDL2.dll" $<TARGET_FILE_DIR:HodEngine-Application>
-	)
-endif (WIN32)
+add_subdirectory("Sources/HodEngine")
+add_subdirectory("Sources/Application")
+add_subdirectory("Sources/Editor")
