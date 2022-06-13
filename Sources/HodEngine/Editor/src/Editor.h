@@ -7,6 +7,8 @@
 
 namespace HOD
 {
+	class Window;
+
 	/// @brief 
 	class Editor : public Singleton<Editor>
 	{
@@ -14,11 +16,13 @@ namespace HOD
 
 	public:
 
+		bool							Init(Window* window);
 		void							Update();
 
 	protected:
 
 										Editor();
+										~Editor();
 
 	private:
 

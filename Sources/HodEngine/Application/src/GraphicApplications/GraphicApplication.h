@@ -22,6 +22,8 @@ namespace HOD
 		bool			Init(int argc, char** argv) override;
 		bool			Run() override;
 
+		Window*			GetWindow() const;
+
 	private:
 
 		Window*			_window = nullptr;

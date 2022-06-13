@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Debug/PhysicsDebugWindow.h"
-
 #include <HodEngine/Core/Src/Singleton.h>
 
 #include <vector>
@@ -36,10 +34,6 @@ namespace HOD
 		private:
 
 			std::vector<Scene*>				_scenes;
-
-		private:
-
-			PhysicsDebugWindow				_physicDebugWindow;
 		};
 	}
 }

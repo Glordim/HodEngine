@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Debug/ActorDebugWindow.h"
-#include "Debug/GizmoDebugWindow.h"
-
 #include <HodEngine/Core/Src/Singleton.h>
 
 #include <vector>
@@ -30,8 +27,6 @@ namespace HOD
 			Scene*				CreateScene();
 			void				DestroyScene(Scene* pScene);
 
-			void				DebugActor(Actor* pActor);
-
 		protected:
 
 								Game();
@@ -40,9 +35,6 @@ namespace HOD
 		private:
 
 			std::vector<Scene*>	_scenes;
-
-			ActorDebugWindow	_actorDebugWindow;
-			GizmoDebugWindow	_gizmoDebugWindow;
 		};
 	}
 }

@@ -3,8 +3,6 @@
 #include "Scene.h"
 #include "Builtin.h"
 
-#include <HodEngine/DebugLayer/src/DebugLayer.h>
-
 namespace HOD
 {
 	template<>
@@ -33,11 +31,6 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		bool Game::Init()
 		{
-			DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
-
-			pDebugLayer->RegisterDebugWindow(&_actorDebugWindow);
-			pDebugLayer->RegisterDebugWindow(&_gizmoDebugWindow);
-
 			RegisterBuiltin();
 
 			return true;
@@ -48,10 +41,6 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Game::Clear()
 		{
-			DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
-
-			pDebugLayer->UnregisterDebugWindow(&_actorDebugWindow);
-			pDebugLayer->UnregisterDebugWindow(&_gizmoDebugWindow);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -94,15 +83,6 @@ namespace HOD
 			{
 				pScene->Update(dt);
 			}
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Game::DebugActor(Actor* pActor)
-		{
-			_actorDebugWindow.SetActor(pActor);
-			_gizmoDebugWindow.SetActor(pActor);
 		}
 	}
 }

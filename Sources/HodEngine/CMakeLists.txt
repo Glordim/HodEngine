@@ -30,6 +30,10 @@ if (NOT TARGET Application)
 	add_subdirectory(Application)
 endif()
 
+if (NOT TARGET Editor)
+	add_subdirectory(Editor)
+endif()
+
 assign_source_group("")
 
 add_library(Engine STATIC $<TARGET_OBJECTS:Core>
@@ -38,7 +42,8 @@ add_library(Engine STATIC $<TARGET_OBJECTS:Core>
 						  $<TARGET_OBJECTS:Physics>
 						  $<TARGET_OBJECTS:Window>
 						  $<TARGET_OBJECTS:Renderer>
-						  $<TARGET_OBJECTS:Game>)
+						  $<TARGET_OBJECTS:Game>
+						  $<TARGET_OBJECTS:Editor>)
 
 target_link_libraries(Engine Core
 							 Window
@@ -46,7 +51,8 @@ target_link_libraries(Engine Core
 							 Physics
 							 Window
 							 Renderer
-							 Game)
+							 Game
+							 Editor)
 
 set_target_properties(Core PROPERTIES FOLDER "HodEngine")
 set_target_properties(Application PROPERTIES FOLDER "HodEngine")
@@ -55,3 +61,4 @@ set_target_properties(Physics PROPERTIES FOLDER "HodEngine")
 set_target_properties(Window PROPERTIES FOLDER "HodEngine")
 set_target_properties(Renderer PROPERTIES FOLDER "HodEngine")
 set_target_properties(Game PROPERTIES FOLDER "HodEngine")
+set_target_properties(Editor PROPERTIES FOLDER "HodEngine")

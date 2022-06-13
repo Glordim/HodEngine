@@ -48,8 +48,8 @@ namespace HOD
 			virtual void		SetScissor(const CORE::Rect& scissor) = 0;
 
 			virtual void		SetMaterialInstance(MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) = 0;
-			virtual void		SetVertexBuffer(Buffer* vertexBuffer) = 0;
-			virtual void		SetIndexBuffer(Buffer* indexBuffer) = 0;
+			virtual void		SetVertexBuffer(Buffer* vertexBuffer, uint32_t offset = 0) = 0;
+			virtual void		SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) = 0;
 
 			virtual void		Draw(uint32_t vertexCount) = 0;
 			virtual void		DrawIndexed(uint32_t indexCount) = 0;

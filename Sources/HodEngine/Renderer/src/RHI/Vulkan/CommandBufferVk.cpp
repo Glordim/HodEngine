@@ -231,10 +231,10 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::SetVertexBuffer(Buffer* vertexBuffer)
+		void CommandBufferVk::SetVertexBuffer(Buffer* vertexBuffer, uint32_t offset)
 		{
 			VkBuffer vkBuffer = static_cast<BufferVk*>(vertexBuffer)->GetVkBuffer();
-			VkDeviceSize offsets[] = { 0 };
+			VkDeviceSize offsets[] = { offset };
 
 			vkCmdBindVertexBuffers(_vkCommandBuffer, 0, 1, &vkBuffer, offsets);
 		}
@@ -242,9 +242,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::SetIndexBuffer(Buffer* indexBuffer)
+		void CommandBufferVk::SetIndexBuffer(Buffer* indexBuffer, uint32_t offset)
 		{
-			vkCmdBindIndexBuffer(_vkCommandBuffer, static_cast<BufferVk*>(indexBuffer)->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(_vkCommandBuffer, static_cast<BufferVk*>(indexBuffer)->GetVkBuffer(), offset, VK_INDEX_TYPE_UINT16);
 		}
 
 		//-----------------------------------------------------------------------------

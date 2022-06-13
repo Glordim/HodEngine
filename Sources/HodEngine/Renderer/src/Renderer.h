@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 
-#include "Debug/RendererDebugWindow.h"
-
 #include "RHI/Shader.h"
 #include "RHI/Material.h"
 #include "RHI/Buffer.h"
@@ -100,8 +98,6 @@ namespace HOD
 			MaterialInstance*			_wireframeMaterialInstance = nullptr;
 
 			VisualizationMode			_visualizationMode = VisualizationMode::Normal;
-
-			RendererDebugWindow			_rendererDebugWindow;
 
 			RenderQueue					_renderQueue;
 		};

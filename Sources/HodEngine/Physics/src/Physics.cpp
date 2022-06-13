@@ -3,8 +3,6 @@
 #include "Scene.h"
 #include "Actor.h"
 
-#include <HodEngine/DebugLayer/src/DebugLayer.h>
-
 namespace HOD
 {
 	template<>
@@ -33,8 +31,6 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		bool Physics::Init()
 		{
-			DEBUG_LAYER::DebugLayer::GetInstance()->RegisterDebugWindow(&_physicDebugWindow);
-
 			return true;
 		}
 
@@ -43,7 +39,6 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void Physics::Clear()
 		{
-			DEBUG_LAYER::DebugLayer::GetInstance()->UnregisterDebugWindow(&_physicDebugWindow);
 		}
 
 		//-----------------------------------------------------------------------------

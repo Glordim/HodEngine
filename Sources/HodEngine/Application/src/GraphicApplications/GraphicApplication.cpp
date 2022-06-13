@@ -54,4 +54,11 @@ namespace HOD
 		}
 		return true;
 	}
+
+	/// @brief 
+	/// @return 
+	Window* GraphicApplication::GetWindow() const
+	{
+		return _window;
+	}
 }

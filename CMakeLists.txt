@@ -49,5 +49,5 @@ else()
 endif()
 
 add_subdirectory("Sources/HodEngine")
-add_subdirectory("Sources/Application")
-add_subdirectory("Sources/Editor")
+add_subdirectory("Sources/GameApplication")
+add_subdirectory("Sources/EditorApplication")

@@ -1,5 +1,9 @@
 #include "EditorApplication.h"
 
+#include <HodEngine/Editor/src/Editor.h>
+
+using namespace HOD;
+
 /// @brief 
 /// @param argc 
 /// @param argv 
@@ -12,7 +16,11 @@ bool EditorApplication::Init(int argc, char** argv)
 		return false;
 	}
 
-	Editor::CreateIntance();
+	Editor::CreateInstance();
+	if (Editor::GetInstance()->Init(GetWindow()) == false)
+	{
+		return false;
+	}
 
 	return true;
 }
