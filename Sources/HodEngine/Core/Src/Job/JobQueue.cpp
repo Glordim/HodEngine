@@ -2,8 +2,10 @@
 
 #include "HodEngine/Core/Src/SystemInfo.h"
 #include "HodEngine/Core/Src/Job/Job.h"
+#include "HodEngine/Core/Src/Output.h"
 
 #include <string>
+
 
 namespace HOD
 {
@@ -28,7 +30,7 @@ namespace HOD
 	};
 
 	/// @brief 
-	/// @param  
+	/// @param 
 	/// @return 
 	int JobQueue::WorkerThreadFunction(void* parameters)
 	{
@@ -53,7 +55,7 @@ namespace HOD
 				job = workerThread->_jobQueue->PopNextJob();
 			}
 
-			workerThread->_thread.Sleep(1000);
+			workerThread->_thread.Sleep(10);
 		}
 
 		return 0;
@@ -103,7 +105,7 @@ namespace HOD
 		{
 			while (_jobs.Push(job) == false)
 			{
-				// Try while Queue works
+				OUTPUT_ERROR("JobQueue Full !");
 			}
 
 			job->SetQueued();
@@ -112,9 +114,12 @@ namespace HOD
 		{
 			for (uint32_t workerThreadIndex = 0; workerThreadIndex < _workerThreadCount; ++workerThreadIndex)
 			{
-				_workerThreads[workerThreadIndex]._dedicatedJobQueue.push(job);
-				job->SetQueued();
-				break;
+				if (_workerThreads[workerThreadIndex]._thread.GetId() == job->GetThreadId())
+				{
+					_workerThreads[workerThreadIndex]._dedicatedJobQueue.push(job);
+					job->SetQueued();
+					break;
+				}
 			}
 		}
 	}

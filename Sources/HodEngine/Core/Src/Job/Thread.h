@@ -49,6 +49,7 @@ namespace HOD
 		void		Join();
 		void		Yieldd();
 		void		Sleep(uint32_t millisecond);
+		Id			GetId() const;
 
 	private:
 

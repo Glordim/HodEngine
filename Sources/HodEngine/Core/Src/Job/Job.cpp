@@ -37,7 +37,7 @@ namespace HOD
 	/// @brief 
 	void Job::SetQueued()
 	{
-		_state |= State::Queued;
+		_state = State::Queued;
 	}
 
 	/// @brief 

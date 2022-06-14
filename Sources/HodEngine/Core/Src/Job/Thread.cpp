@@ -85,4 +85,11 @@ namespace HOD
 	{
 		::Sleep(millisecond);
 	}
+
+	/// @brief 
+	/// @return 
+	Thread::Id Thread::GetId() const
+	{
+		return _id;
+	}
 }

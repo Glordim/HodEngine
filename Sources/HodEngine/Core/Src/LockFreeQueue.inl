@@ -8,21 +8,24 @@ namespace HOD
 	template<typename Type, uint32_t Capacity>
 	bool LockFreeQueue<Type, Capacity>::Push(const Type& value)
 	{
-		uint32_t pushStartIndex = _pushStartIndex.load();
-		uint32_t popEndIndex = _popEndIndex.load();
-
-		if ((pushStartIndex + 1) % Capacity == popEndIndex)
+		while (true)
 		{
-			return false;
-		}
+			uint32_t expectedPushStartIndex = _pushStartIndex.load();
+			uint32_t desiredPushStartIndex = (expectedPushStartIndex + 1) % Capacity;
 
-		if (_pushStartIndex.compare_exchange_weak(pushStartIndex, (pushStartIndex + 1) % Capacity) == true)
-		{
-			new (&_values[pushStartIndex])Type(value);
+			if (desiredPushStartIndex == _popEndIndex.load()) // Full
+			{
+				return false;
+			}
 
-			while (_pushEndIndex.compare_exchange_weak(pushStartIndex, (pushStartIndex + 1) % Capacity) == false)
+			if (_pushStartIndex.compare_exchange_weak(expectedPushStartIndex, desiredPushStartIndex) == true)
+			{
+				new (&_values[expectedPushStartIndex])Type(value);
 
-			return true;
+				while (_pushEndIndex.compare_exchange_weak(expectedPushStartIndex, desiredPushStartIndex) == false);
+
+				return true;
+			}
 		}
 	}
 
@@ -33,22 +36,25 @@ namespace HOD
 	template<typename Type, uint32_t Capacity>
 	bool LockFreeQueue<Type, Capacity>::Pop(Type& value)
 	{
-		uint32_t popStartIndex = _popStartIndex.load();
-		uint32_t pushEndIndex = _pushEndIndex.load();
-
-		if (popStartIndex == pushEndIndex)
+		while (true)
 		{
-			return false;
-		}
+			uint32_t expectedPopStartIndex = _popStartIndex.load();
+			uint32_t desiredPopStartIndex = (expectedPopStartIndex + 1) % Capacity;
 
-		if (_popStartIndex.compare_exchange_weak(popStartIndex, (popStartIndex + 1) % Capacity) == true)
-		{
-			value = std::move(_values[popStartIndex]);
-			(&_values[popStartIndex])->~Type();
+			if (expectedPopStartIndex == _pushEndIndex.load()) // Empty
+			{
+				return false;
+			}
 
-			while (_popEndIndex.compare_exchange_weak(popStartIndex, (popStartIndex + 1) % Capacity) != false);
+			if (_popStartIndex.compare_exchange_weak(expectedPopStartIndex, desiredPopStartIndex) == true)
+			{
+				value = std::move(_values[expectedPopStartIndex]);
+				(&_values[expectedPopStartIndex])->~Type();
 
-			return true;
+				while (_popEndIndex.compare_exchange_weak(expectedPopStartIndex, desiredPopStartIndex) != false);
+
+				return true;
+			}
 		}
 	}
 
@@ -70,6 +76,6 @@ namespace HOD
 		uint32_t popStartIndex = _popStartIndex.load();
 		uint32_t pushEndIndex = _pushEndIndex.load();
 
-		return (pushEndIndex >= popStartIndex) ? pushEndIndex - popStartIndex : N - popStartIndex + pushEndIndex;
+		return (pushEndIndex >= popStartIndex) ? pushEndIndex - popStartIndex : Capacity - popStartIndex + pushEndIndex;
 	}
 }
