@@ -14,10 +14,10 @@ namespace HOD
 		class D3dShader : public Shader
 		{
 		public:
-			D3dShader(ShaderType type);
-			virtual ~D3dShader();
+											D3dShader(ShaderType type);
+											~D3dShader() override;
 
-			virtual bool LoadFromFile(const std::string& path) override;
+			bool							LoadFromMemory(void* data, uint32_t size) override;
 		};
 	}
 }

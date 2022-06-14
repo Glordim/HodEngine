@@ -1622,17 +1622,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Shader* RendererVulkan::CreateShader(const std::string& path, Shader::ShaderType type)
+		Shader* RendererVulkan::CreateShader(Shader::ShaderType type)
 		{
-			VkShader* shader = new VkShader(type);
-
-			if (shader->LoadFromFile(path) == false)
-			{
-				delete shader;
-				return nullptr;
-			}
-
-			return shader;
+			return new VkShader(type);
 		}
 
 		//-----------------------------------------------------------------------------

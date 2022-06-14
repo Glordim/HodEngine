@@ -23,7 +23,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool D3dShader::LoadFromFile(const std::string& path)
+		bool D3dShader::LoadFromMemory(void* data, uint32_t size)
 		{
 			return false;
 		}

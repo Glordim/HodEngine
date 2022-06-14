@@ -1,8 +1,6 @@
 #include "VkShader.h"
 
 #include <vector>
-#include <fstream>
-#include <iostream>
 
 #include "RendererVulkan.h"
 
@@ -17,7 +15,6 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		VkShader::VkShader(ShaderType type) : Shader(type)
 		{
-			_shaderModule = VK_NULL_HANDLE;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -36,36 +33,25 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkShader::LoadFromFile(const std::string& path)
+		bool VkShader::LoadFromMemory(void* data, uint32_t size)
 		{
-			std::ifstream file(path, std::ios::ate | std::ios::binary);
-			if (file.is_open() == false)
-			{
-				OUTPUT_ERROR("VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
-				return false;
-			}
-
-			size_t fileSize = file.tellg();
-
-			_buffer.clear();
-			_buffer.resize(fileSize / sizeof(uint32_t));
-
-			file.seekg(0);
-			file.read(reinterpret_cast<char*>(_buffer.data()), fileSize);
-			file.close();
-
 			VkShaderModuleCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-			createInfo.codeSize = fileSize;
-			createInfo.pCode = _buffer.data();
+			createInfo.flags = 0;
+			createInfo.pNext = nullptr;
+			createInfo.codeSize = size;
+			createInfo.pCode = reinterpret_cast<uint32_t*>(data);
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
 			if (vkCreateShaderModule(renderer->GetVkDevice(), &createInfo, nullptr, &_shaderModule) != VK_SUCCESS)
 			{
-				OUTPUT_ERROR("VkShader : Failed to create Shader Module\n");
+				OUTPUT_ERROR("VkShader : Failed to create Shader Module");
 				return false;
 			}
+
+			_buffer.resize(size);
+			memcpy(_buffer.data(), data, size);
 
 			return true;
 		}
@@ -76,14 +62,6 @@ namespace HOD
 		VkShaderModule VkShader::GetShaderModule() const
 		{
 			return _shaderModule;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		const std::vector<uint32_t>& VkShader::GetShaderBytecode() const
-		{
-			return _buffer;
 		}
 	}
 }

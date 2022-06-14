@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace HOD
 {
@@ -22,13 +23,21 @@ namespace HOD
 			};
 
 		public:
-							Shader(ShaderType type);
-			virtual			~Shader();
+											Shader(ShaderType type);
+			virtual							~Shader();
 
-			virtual bool	LoadFromFile(const std::string& path) = 0;
+			bool							LoadFromFile(const std::string& path);
+			virtual bool					LoadFromMemory(void* data, uint32_t size) = 0;
+
+			const std::vector<uint8_t>&		GetShaderBytecode() const;
+
+		protected:
+
+			std::vector<uint8_t>			_buffer;
 
 		private:
-			ShaderType		_type;
+
+			ShaderType						_type;
 		};
 	}
 }

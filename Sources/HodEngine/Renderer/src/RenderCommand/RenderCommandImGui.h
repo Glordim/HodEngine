@@ -14,6 +14,7 @@ namespace HOD
 	namespace RENDERER
 	{
 		class Texture;
+		class Material;
 		class MaterialInstance;
 
 		//-----------------------------------------------------------------------------
@@ -48,21 +49,24 @@ namespace HOD
 
 		public:
 
-									RenderCommandImGui(const std::vector<DrawList*>& drawLists);
-									RenderCommandImGui(const RenderCommandImGui&) = delete;
-									RenderCommandImGui(RenderCommandImGui&&) = delete;
-									~RenderCommandImGui() override = default;
+										RenderCommandImGui(const std::vector<DrawList*>& drawLists);
+										RenderCommandImGui(const RenderCommandImGui&) = delete;
+										RenderCommandImGui(RenderCommandImGui&&) = delete;
+										~RenderCommandImGui() override = default;
 
-			void					operator=(const RenderCommandImGui&) = delete;
-			void					operator=(RenderCommandImGui&&) = delete;
+			void						operator=(const RenderCommandImGui&) = delete;
+			void						operator=(RenderCommandImGui&&) = delete;
 
 		public:
 
-			void					Execute(CommandBuffer* commandBuffer) override;
+			void						Execute(CommandBuffer* commandBuffer) override;
 
 		private:
 
-			std::vector<DrawList*>	_drawLists;
+			static Material*			_material;
+			static MaterialInstance*	_materialInstance;
+
+			std::vector<DrawList*>		_drawLists;
 		};
 	}
 }

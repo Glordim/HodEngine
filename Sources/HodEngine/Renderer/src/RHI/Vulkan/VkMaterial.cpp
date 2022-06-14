@@ -64,7 +64,8 @@ namespace HOD
 			VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
 			// Extract descriptorSet definition from shader bytecode
-			spirv_cross::Compiler compVert(((VkShader*)vertexShader)->GetShaderBytecode());
+			const std::vector<uint8_t>& byteCode = vertexShader->GetShaderBytecode();
+			spirv_cross::Compiler compVert(reinterpret_cast<const uint32_t*>(byteCode.data()), byteCode.size() / sizeof(uint32_t));
 			spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
 
 			size_t inputCount = resourcesVert.stage_inputs.size();
@@ -279,7 +280,8 @@ namespace HOD
 			}
 
 			// Same thing for FragShader
-			spirv_cross::Compiler compFrag(((VkShader*)fragmentShader)->GetShaderBytecode());
+			const std::vector<uint8_t>& byteCodeFrag = fragmentShader->GetShaderBytecode();
+			spirv_cross::Compiler compFrag(reinterpret_cast<const uint32_t*>(byteCodeFrag.data()), byteCodeFrag.size() / sizeof(uint32_t));
 			spirv_cross::ShaderResources resourcesFrag = compFrag.get_shader_resources();
 
 			uniformBufferCount = resourcesFrag.uniform_buffers.size();

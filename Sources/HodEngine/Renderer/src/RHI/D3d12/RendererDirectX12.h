@@ -42,7 +42,7 @@ namespace HOD
 			bool								AcquireNextImageIndex() override;
 			bool								SwapBuffer() override;
 
-			Shader*								CreateShader(const std::string& path, Shader::ShaderType type) override;
+			Shader*								CreateShader(Shader::ShaderType type) override;
 			Material*							CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 			MaterialInstance*					CreateMaterialInstance(const Material* material) override;
 			Texture*							CreateTexture(const std::string& path) override;

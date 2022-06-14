@@ -380,7 +380,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Shader* RendererDirectX12::CreateShader(const std::string& path, Shader::ShaderType type)
+		Shader* RendererDirectX12::CreateShader(Shader::ShaderType type)
 		{
 			return nullptr;
 		}
