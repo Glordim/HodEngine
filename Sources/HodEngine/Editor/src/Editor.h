@@ -1,13 +1,12 @@
 #pragma once
 
-#include <HodEngine/Core/Src/Singleton.h>
-#include <HodEngine/Core/Src/Job/MemberFunctionJob.h>
-
 #include <stdint.h>
 
-namespace HOD
+#include <HodEngine/Core/Src/Singleton.h>
+
+namespace hod::editor
 {
-	class Window;
+	class MainBar;
 
 	/// @brief 
 	class Editor : public Singleton<Editor>
@@ -16,17 +15,15 @@ namespace HOD
 
 	public:
 
-		bool							Init(Window* window);
-		void							Update();
+		bool		Init();
 
 	protected:
 
-										Editor();
-										~Editor();
+					Editor();
+					~Editor();
 
 	private:
 
-		MemberFunctionJob<Editor>		_updateJob;
-
+		MainBar*	_mainBar = nullptr;
 	};
 }

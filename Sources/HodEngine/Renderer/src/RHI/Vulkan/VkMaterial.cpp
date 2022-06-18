@@ -9,10 +9,22 @@
 
 #include "../../P2fT2f.h"
 
-namespace HOD
+#include "HodEngine/Renderer/src/RHI/VertexInput.h"
+
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
+		VkFormat FormatToVkFormat[VertexInput::Format::Count] = {
+			VK_FORMAT_R32G32_SFLOAT,
+			VK_FORMAT_A8B8G8R8_UNORM_PACK32,
+		};
+
+		uint32_t FormatToSize[VertexInput::Format::Count] = {
+			2 * sizeof(float),
+			1 * sizeof(uint32_t),
+		};
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -45,7 +57,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkMaterial::Build(Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+		bool VkMaterial::Build(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -68,57 +80,75 @@ namespace HOD
 			spirv_cross::Compiler compVert(reinterpret_cast<const uint32_t*>(byteCode.data()), byteCode.size() / sizeof(uint32_t));
 			spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
 
-			size_t inputCount = resourcesVert.stage_inputs.size();
-
 			std::vector<VkVertexInputAttributeDescription> vertexAttributeDecriptions;
-			vertexAttributeDecriptions.resize(inputCount);
 
-			for (size_t i = 0; i < inputCount; ++i)
+			uint32_t stride = 0;
+
+			if (vertexInputs != nullptr)
 			{
-				spirv_cross::Resource& resource = resourcesVert.stage_inputs[i];
-				const spirv_cross::SPIRType& type = compVert.get_type_from_variable(resource.id);
+				vertexAttributeDecriptions.resize(vertexInputCount);
+				for (size_t i = 0; i < vertexInputCount; ++i)
+				{
+					VkVertexInputAttributeDescription& vertexAttributeDescription = vertexAttributeDecriptions[i];
+					vertexAttributeDescription.binding = 0;
+					vertexAttributeDescription.location = i;
+					vertexAttributeDescription.format = FormatToVkFormat[vertexInputs[i]._format];
+					vertexAttributeDescription.offset = stride;
 
-				uint32_t location = compVert.get_decoration(resource.id, spv::DecorationLocation);
-
-				VkVertexInputAttributeDescription& vertexAttributeDescription = vertexAttributeDecriptions[location];
-				vertexAttributeDescription.binding = 0;
-				vertexAttributeDescription.location = location;
-				if (type.vecsize == 1)
-				{
-					vertexAttributeDescription.format = VK_FORMAT_R32_SFLOAT;
+					stride += FormatToSize[vertexInputs[i]._format];
 				}
-				else if (type.vecsize == 2)
-				{
-					vertexAttributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
-				}
-				else if (type.vecsize == 3)
-				{
-					vertexAttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-				}
-				else if (type.vecsize == 4)
-				{
-					vertexAttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-				}
-				else
-				{
-					vertexAttributeDescription.format = VK_FORMAT_UNDEFINED;
-				}
-				vertexAttributeDescription.offset = (type.width / 8) * type.vecsize;
 			}
-
-			uint32_t offset = 0;
-
-			for (size_t i = 0; i < inputCount; ++i)
+			else
 			{
-				uint32_t size = vertexAttributeDecriptions[i].offset;
-				vertexAttributeDecriptions[i].offset = offset;
+				size_t inputCount = resourcesVert.stage_inputs.size();
+				vertexAttributeDecriptions.resize(inputCount);
 
-				offset += size;
+				for (size_t i = 0; i < inputCount; ++i)
+				{
+					spirv_cross::Resource& resource = resourcesVert.stage_inputs[i];
+					const spirv_cross::SPIRType& type = compVert.get_type_from_variable(resource.id);
+
+					uint32_t location = compVert.get_decoration(resource.id, spv::DecorationLocation);
+
+					VkVertexInputAttributeDescription& vertexAttributeDescription = vertexAttributeDecriptions[location];
+					vertexAttributeDescription.binding = 0;
+					vertexAttributeDescription.location = location;
+					if (type.vecsize == 1)
+					{
+						vertexAttributeDescription.format = VK_FORMAT_R32_SFLOAT;
+					}
+					else if (type.vecsize == 2)
+					{
+						vertexAttributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+					}
+					else if (type.vecsize == 3)
+					{
+						vertexAttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+					}
+					else if (type.vecsize == 4)
+					{
+						vertexAttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+					}
+					else
+					{
+						vertexAttributeDescription.format = VK_FORMAT_UNDEFINED;
+					}
+
+					vertexAttributeDescription.offset = (type.width / 8) * type.vecsize;
+				}
+
+				for (size_t i = 0; i < inputCount; ++i)
+				{
+					uint32_t size = vertexAttributeDecriptions[i].offset;
+					vertexAttributeDecriptions[i].offset = stride;
+
+					stride += size;
+				}
 			}
 
 			VkVertexInputBindingDescription bindingDescription = {};
 			bindingDescription.binding = 0;
-			bindingDescription.stride = offset;
+			bindingDescription.stride = stride;
 			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 			// Vertex input
@@ -126,7 +156,7 @@ namespace HOD
 			vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 			vertexInputInfo.vertexBindingDescriptionCount = 1;
 			vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-			vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributeDecriptions.size();
+			vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)vertexAttributeDecriptions.size();
 			vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDecriptions.data();
 
 			// Input assembly
@@ -333,13 +363,57 @@ namespace HOD
 				++it;
 			}
 
+			std::vector<VkPushConstantRange> constants;
+
+			size_t constantBufferCount = resourcesVert.push_constant_buffers.size();
+			for (size_t i = 0; i < constantBufferCount; ++i)
+			{
+				uint32_t size = 0;
+
+				spirv_cross::Resource& resource = resourcesVert.push_constant_buffers[i];
+
+				spirv_cross::SmallVector<spirv_cross::BufferRange> ranges = compVert.get_active_buffer_ranges(resource.id);
+				for (const spirv_cross::BufferRange& range : ranges)
+				{
+					size += unsigned(range.range);
+				}
+
+				VkPushConstantRange vkPushConstantRange;
+				vkPushConstantRange.stageFlags = VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
+				vkPushConstantRange.offset = 0;
+				vkPushConstantRange.size = size;
+
+				constants.push_back(vkPushConstantRange);
+			}
+
+			constantBufferCount = resourcesFrag.push_constant_buffers.size();
+			for (size_t i = 0; i < constantBufferCount; ++i)
+			{
+				uint32_t size = 0;
+
+				spirv_cross::Resource& resource = resourcesFrag.push_constant_buffers[i];
+
+				spirv_cross::SmallVector<spirv_cross::BufferRange> ranges = compFrag.get_active_buffer_ranges(resource.id);
+				for (const spirv_cross::BufferRange& range : ranges)
+				{
+					size += unsigned(range.range);
+				}
+
+				VkPushConstantRange vkPushConstantRange;
+				vkPushConstantRange.stageFlags = VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
+				vkPushConstantRange.offset = 0;
+				vkPushConstantRange.size = size;
+
+				constants.push_back(vkPushConstantRange);
+			}
+
 			// Pipeline layout
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 			pipelineLayoutInfo.setLayoutCount = (uint32_t)layouts.size();
 			pipelineLayoutInfo.pSetLayouts = layouts.data();
-			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-			pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+			pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)constants.size();
+			pipelineLayoutInfo.pPushConstantRanges = constants.data();
 
 			if (vkCreatePipelineLayout(renderer->GetVkDevice(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
 			{

@@ -8,12 +8,13 @@
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class Shader;
 		class Texture;
+		class VertexInput;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -40,7 +41,7 @@ namespace HOD
 			Material();
 			virtual ~Material();
 
-			virtual bool Build(Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
+			virtual bool Build(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
 
 			bool link(Shader* vertexShader, Shader* fragmentShader);
 			void use();

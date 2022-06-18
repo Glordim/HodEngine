@@ -4,9 +4,9 @@
 
 #include "../Component.h"
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		class CameraComponent;
 		class PointLightComponent;

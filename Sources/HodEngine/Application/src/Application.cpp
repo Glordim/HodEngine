@@ -3,7 +3,7 @@
 #include <HodEngine/Core/Src/Job/JobSqueduler.h>
 #include <HodEngine/Core/Src/Frame/FrameSequencer.h>
 
-namespace HOD
+namespace hod::application
 {
 	_SingletonInstance(Application)
 
@@ -31,5 +31,11 @@ namespace HOD
 		}
 
 		return true;
+	}
+
+	/// @brief 
+	void Application::Quit()
+	{
+		_shouldQuit = true;
 	}
 }

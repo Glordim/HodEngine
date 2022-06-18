@@ -13,9 +13,9 @@ namespace spirv_cross
     struct SPIRType;
 }
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

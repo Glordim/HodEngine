@@ -2,9 +2,9 @@
 
 #include <HodEngine/Core/Src/Reflection/ReflectionTrait.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		namespace Traits
 		{

@@ -2,15 +2,15 @@
 
 #include "RendererComponent.h"
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class Sprite;
 		class MaterialInstance;
 	}
 
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -36,18 +36,18 @@ namespace HOD
 
 		public:
 
-			const RENDERER::Sprite*			GetSprite() const;
-			void							SetSprite(const RENDERER::Sprite* sprite);
+			const renderer::Sprite*			GetSprite() const;
+			void							SetSprite(const renderer::Sprite* sprite);
 
-			RENDERER::MaterialInstance*		GetMaterialInstance() const;
-			void							SetMaterialInstance(RENDERER::MaterialInstance* materialInstance);
+			renderer::MaterialInstance*		GetMaterialInstance() const;
+			void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
 
-			void							PushToRenderQueue(RENDERER::RenderQueue& renderQueue) override;
+			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
 
 		private:
 
-			const RENDERER::Sprite*			_sprite = nullptr;
-			RENDERER::MaterialInstance*		_materialInstance;
+			const renderer::Sprite*			_sprite = nullptr;
+			renderer::MaterialInstance*		_materialInstance;
 		};
 	}
 }

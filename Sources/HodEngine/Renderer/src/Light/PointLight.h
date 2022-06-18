@@ -2,9 +2,9 @@
 
 #include <HodEngine/Core/Src/Color.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

@@ -1,6 +1,6 @@
 #include "Color.h"
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

@@ -1,8 +1,8 @@
 #pragma once
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		void RegisterBuiltin();
 	}

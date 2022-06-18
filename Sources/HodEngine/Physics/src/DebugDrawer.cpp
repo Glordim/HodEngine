@@ -13,14 +13,14 @@
 #define M_PI 3.14159265358979323846
 #define DEGREE_TO_RADIAN (M_PI / 180.0f)
 
-namespace HOD
+namespace hod
 {
-	namespace PHYSICS
+	namespace physics
 	{
-		RENDERER::MaterialInstance* DebugDrawer::_pointMaterialInstance = nullptr;
-		RENDERER::MaterialInstance* DebugDrawer::_lineMaterialInstance = nullptr;
-		RENDERER::MaterialInstance* DebugDrawer::_wireframePolygonMaterialInstance = nullptr;
-		RENDERER::MaterialInstance* DebugDrawer::_solidPolygonMaterialInstance = nullptr;
+		renderer::MaterialInstance* DebugDrawer::_pointMaterialInstance = nullptr;
+		renderer::MaterialInstance* DebugDrawer::_lineMaterialInstance = nullptr;
+		renderer::MaterialInstance* DebugDrawer::_wireframePolygonMaterialInstance = nullptr;
+		renderer::MaterialInstance* DebugDrawer::_solidPolygonMaterialInstance = nullptr;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -29,21 +29,21 @@ namespace HOD
 		{
 			if (DebugDrawer::_solidPolygonMaterialInstance == nullptr)
 			{
-				RENDERER::MaterialManager* materialManager = RENDERER::MaterialManager::GetInstance();
-				RENDERER::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", RENDERER::Material::PolygonMode::Fill, RENDERER::Material::Topololy::TRIANGLE_FAN));
-				_solidPolygonMaterialInstance = RENDERER::Renderer::GetInstance()->CreateMaterialInstance(material);
+				renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
+				renderer::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", renderer::Material::PolygonMode::Fill, renderer::Material::Topololy::TRIANGLE_FAN));
+				_solidPolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
 			if (DebugDrawer::_wireframePolygonMaterialInstance == nullptr)
 			{
-				RENDERER::MaterialManager* materialManager = RENDERER::MaterialManager::GetInstance();
-				RENDERER::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", RENDERER::Material::PolygonMode::Line, RENDERER::Material::Topololy::TRIANGLE_FAN));
-				_wireframePolygonMaterialInstance = RENDERER::Renderer::GetInstance()->CreateMaterialInstance(material);
+				renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
+				renderer::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", renderer::Material::PolygonMode::Line, renderer::Material::Topololy::TRIANGLE_FAN));
+				_wireframePolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
 			if (DebugDrawer::_lineMaterialInstance == nullptr)
 			{
-				RENDERER::MaterialManager* materialManager = RENDERER::MaterialManager::GetInstance();
-				RENDERER::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", RENDERER::Material::PolygonMode::Line, RENDERER::Material::Topololy::LINE));
-				_lineMaterialInstance = RENDERER::Renderer::GetInstance()->CreateMaterialInstance(material);
+				renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
+				renderer::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", renderer::Material::PolygonMode::Line, renderer::Material::Topololy::LINE));
+				_lineMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
 		}
 
@@ -57,9 +57,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::PushToRenderQueue(RENDERER::RenderQueue& renderQueue)
+		void DebugDrawer::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
-			for (RENDERER::RenderCommand* renderCommand : _renderCommands)
+			for (renderer::RenderCommand* renderCommand : _renderCommands)
 			{
 				renderQueue.PushRenderCommand(renderCommand);
 			}
@@ -80,10 +80,10 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void DebugDrawer::DrawPolygon(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
 		{
-			RENDERER::P2fC4f* vertices = BuildPolygonVertices(b2Vertices, vertexCount, color);
+			renderer::P2fC4f* vertices = BuildPolygonVertices(b2Vertices, vertexCount, color);
 
 			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new RENDERER::RenderCommandMesh(vertices, vertexCount, sizeof(RENDERER::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_wireframePolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_wireframePolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
@@ -91,18 +91,18 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void DebugDrawer::DrawSolidPolygon(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
 		{
-			RENDERER::P2fC4f* vertices = BuildPolygonVertices(b2Vertices, vertexCount, color);
+			renderer::P2fC4f* vertices = BuildPolygonVertices(b2Vertices, vertexCount, color);
 
 			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new RENDERER::RenderCommandMesh(vertices, vertexCount, sizeof(RENDERER::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_solidPolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_solidPolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RENDERER::P2fC4f* DebugDrawer::BuildPolygonVertices(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
+		renderer::P2fC4f* DebugDrawer::BuildPolygonVertices(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
 		{
-			RENDERER::P2fC4f* vertices = new RENDERER::P2fC4f[vertexCount];
+			renderer::P2fC4f* vertices = new renderer::P2fC4f[vertexCount];
 
 			for (uint32_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
 			{
@@ -122,10 +122,10 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void DebugDrawer::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
 		{
-			RENDERER::P2fC4f* vertices = BuildCircleVertices(center, radius, color, 32);
+			renderer::P2fC4f* vertices = BuildCircleVertices(center, radius, color, 32);
 
 			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new RENDERER::RenderCommandMesh(vertices, 32 * 3, sizeof(RENDERER::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_wireframePolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_wireframePolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
@@ -133,20 +133,20 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void DebugDrawer::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color)
 		{
-			RENDERER::P2fC4f* vertices = BuildCircleVertices(center, radius, color, 32);
+			renderer::P2fC4f* vertices = BuildCircleVertices(center, radius, color, 32);
 
 			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new RENDERER::RenderCommandMesh(vertices, 32 * 3, sizeof(RENDERER::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_solidPolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_solidPolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RENDERER::P2fC4f* DebugDrawer::BuildCircleVertices(const b2Vec2& center, float radius, const b2Color& color, uint32_t segmentCount)
+		renderer::P2fC4f* DebugDrawer::BuildCircleVertices(const b2Vec2& center, float radius, const b2Color& color, uint32_t segmentCount)
 		{
 			const float angleStep = 360.0f / segmentCount;
 
-			RENDERER::P2fC4f* vertices = new RENDERER::P2fC4f[segmentCount * 3];
+			renderer::P2fC4f* vertices = new renderer::P2fC4f[segmentCount * 3];
 
 			for (uint32_t currentSegment = 0; currentSegment < segmentCount; ++currentSegment)
 			{
@@ -188,7 +188,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void DebugDrawer::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
 		{
-			RENDERER::P2fC4f* vertices = new RENDERER::P2fC4f[2];
+			renderer::P2fC4f* vertices = new renderer::P2fC4f[2];
 
 			vertices[0]._position[0] = p1.x;
 			vertices[0]._position[1] = p1.y;
@@ -205,7 +205,7 @@ namespace HOD
 			vertices[1]._color[3] = 0.1f;
 
 			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new RENDERER::RenderCommandMesh(vertices, 2, sizeof(RENDERER::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_lineMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 2, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_lineMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------

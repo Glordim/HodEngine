@@ -7,7 +7,7 @@
 #include <string>
 
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	const char* jobQueueNames[JobQueue::Queue::Count] = {

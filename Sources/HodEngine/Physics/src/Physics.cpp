@@ -3,12 +3,12 @@
 #include "Scene.h"
 #include "Actor.h"
 
-namespace HOD
+namespace hod
 {
 	template<>
-	PHYSICS::Physics* Singleton<PHYSICS::Physics>::_instance = nullptr;
+	physics::Physics* Singleton<physics::Physics>::_instance = nullptr;
 
-	namespace PHYSICS
+	namespace physics
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

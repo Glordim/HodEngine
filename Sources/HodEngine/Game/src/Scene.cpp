@@ -17,9 +17,9 @@
 
 #include "Components/CameraComponent.h"
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -30,7 +30,7 @@ namespace HOD
 			_root = SpawnActor<Actor>("Root");
 			_root->AddComponent<SceneComponent>();
 
-			_physicScene = PHYSICS::Physics::GetInstance()->CreateScene();
+			_physicScene = physics::Physics::GetInstance()->CreateScene();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -38,13 +38,13 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		Scene::~Scene()
 		{
-			PHYSICS::Physics::GetInstance()->DestroyScene(_physicScene);
+			physics::Physics::GetInstance()->DestroyScene(_physicScene);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		PHYSICS::Scene* Scene::GetPhysicScene() const
+		physics::Scene* Scene::GetPhysicScene() const
 		{
 			return _physicScene;
 		}
@@ -94,7 +94,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration)
+		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration)
 		{
 			if (drawDebug == true)
 			{
@@ -107,11 +107,11 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		PHYSICS::Actor* Scene::CreatePhysicActor(Actor* actor)
+		physics::Actor* Scene::CreatePhysicActor(Actor* actor)
 		{
 			SceneComponent* actorSceneComponent = actor->GetComponent<SceneComponent>();
 
-			PHYSICS::Actor* physicActor = _physicScene->CreateBody();
+			physics::Actor* physicActor = _physicScene->CreateBody();
 
 			physicActor->SetTransform(actorSceneComponent->GetPosition(), actorSceneComponent->GetRotation(), glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -125,7 +125,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Actor* Scene::ConvertPxActor(PHYSICS::Actor* physicActor)
+		Actor* Scene::ConvertPxActor(physics::Actor* physicActor)
 		{
 			return _physicActorToActorMap[physicActor];
 		}
@@ -152,7 +152,7 @@ namespace HOD
 		void Scene::AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration)
 		{
 			/*
-			RENDERER::Line_3P_3C line;
+			renderer::Line_3P_3C line;
 			line.vertices[0].pos[0] = start.x;
 			line.vertices[0].pos[1] = start.y;
 			line.vertices[0].pos[2] = start.z;
@@ -173,10 +173,10 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::GetDebugLines(std::vector<RENDERER::Line_3P_3C>& lines)
+		void Scene::GetDebugLines(std::vector<renderer::Line_3P_3C>& lines)
 		{
 			/*
-			for (std::pair<RENDERER::Line_3P_3C, float> line : _debugLines)
+			for (std::pair<renderer::Line_3P_3C, float> line : _debugLines)
 			{
 				lines.push_back(line.first);
 			}
@@ -186,11 +186,11 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::PushToRenderQueue(RENDERER::RenderQueue* renderQueue)
+		void Scene::PushToRenderQueue(renderer::RenderQueue* renderQueue)
 		{
 			if (renderQueue == nullptr)
 			{
-				renderQueue = RENDERER::Renderer::GetInstance()->GetRenderQueue();
+				renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 			}
 
 			_root->PushToRenderQueue(*renderQueue, true);

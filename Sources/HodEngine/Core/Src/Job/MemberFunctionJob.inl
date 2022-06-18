@@ -1,5 +1,5 @@
 
-namespace HOD
+namespace hod
 {
 	template<typename Type, typename Function>
 	MemberFunctionJob<Type, Function>::MemberFunctionJob(Type* instance, Function memberFunction, JobQueue::Queue queue, bool deleteAfterCompletion, Thread::Id threadId)

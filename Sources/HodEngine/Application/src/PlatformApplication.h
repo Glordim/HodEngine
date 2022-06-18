@@ -3,7 +3,7 @@
 #if defined(PLATFORM_WINDOWS)
 
 	#include "GraphicApplications/DesktopApplications/WindowsApplication.h"
-	#define PlatformApplication HOD::WindowsApplication
+	#define PlatformApplication hod::application::WindowsApplication
 
 #elif defined(PLATFORM_MAC)
 

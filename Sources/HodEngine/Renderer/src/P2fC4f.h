@@ -2,9 +2,9 @@
 
 #include <cstdint>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

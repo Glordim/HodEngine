@@ -6,9 +6,9 @@
 #include <HodEngine/Core/Src/Color.h>
 #include <HodEngine/Renderer/src/Light/DirLight.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -30,10 +30,10 @@ namespace HOD
 			void				DrawImGui() override;
 			const char*			GetType() const override;
 
-			RENDERER::DirLight*	GetDirLight() const;
+			renderer::DirLight*	GetDirLight() const;
 
 		public:
-			RENDERER::DirLight	_data;
+			renderer::DirLight	_data;
 		};
 	}
 }

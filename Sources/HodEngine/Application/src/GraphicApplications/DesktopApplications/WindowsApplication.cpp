@@ -1,6 +1,6 @@
 #include "WindowsApplication.h"
 
-namespace HOD
+namespace hod::application
 {
 	_SingletonInstance(WindowsApplication)
 }

@@ -4,9 +4,9 @@
 
 #include <vector>
 
-namespace HOD
+namespace hod
 {
-	namespace PHYSICS
+	namespace physics
 	{
 		class Actor;
 		class Scene;

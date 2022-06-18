@@ -12,36 +12,36 @@
 #include <HodEngine/Renderer/src/RenderQueue.h>
 #include <HodEngine/Physics/src/Scene.h>
 
-namespace HOD
+namespace hod
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void RenderQueueHelper::AddSceneComponent(RENDERER::RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive)
+	void RenderQueueHelper::AddSceneComponent(renderer::RenderQueue& renderQueue, game::SceneComponent* sceneComponent, bool recursive)
 	{
 		/*
 		size_t childCount = sceneComponent->GetChildCount();
 		for (size_t i = 0; i < childCount; ++i)
 		{
-			GAME::SceneComponent* child = sceneComponent->GetChild(i);
+			game::SceneComponent* child = sceneComponent->GetChild(i);
 
 			if (recursive == true)
 			{
 				RenderQueueHelper::AddSceneComponent(renderQueue, child, recursive);
 			}
 
-			GAME::StaticMeshComponent* staticMeshComponent = child->GetActor()->GetComponent<GAME::StaticMeshComponent>();
+			game::StaticMeshComponent* staticMeshComponent = child->GetActor()->GetComponent<game::StaticMeshComponent>();
 			if (staticMeshComponent != nullptr)
 			{
 				renderQueue.AddMesh(staticMeshComponent->GetMesh(), staticMeshComponent->GetMaterialInstance(), child->GetModelMatrix());
 
 				if (staticMeshComponent->IsDebugTangentEnabled() == true)
 				{
-					const std::vector<RENDERER::Vertex_3P_3C_3N_2UV_3TA>& vertices = staticMeshComponent->GetMesh()->GetVertices();
+					const std::vector<renderer::Vertex_3P_3C_3N_2UV_3TA>& vertices = staticMeshComponent->GetMesh()->GetVertices();
 
 					size_t verticesCount = vertices.size();
 
-					std::vector<RENDERER::Line_3P_3C> tangentLines;
+					std::vector<renderer::Line_3P_3C> tangentLines;
 					tangentLines.reserve(verticesCount);
 
 					float red[3] = { 1.0f, 0.0f, 0.0f };
@@ -50,9 +50,9 @@ namespace HOD
 
 					for (size_t vertexIndex = 0; vertexIndex < verticesCount; ++vertexIndex)
 					{
-						const RENDERER::Vertex_3P_3C_3N_2UV_3TA& vertex = vertices[vertexIndex];
+						const renderer::Vertex_3P_3C_3N_2UV_3TA& vertex = vertices[vertexIndex];
 
-						RENDERER::Line_3P_3C lineX;
+						renderer::Line_3P_3C lineX;
 						memcpy(lineX.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
 						memcpy(lineX.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
 						lineX.vertices[1].pos[0] += vertex.tangent[0] * 0.1f;
@@ -62,7 +62,7 @@ namespace HOD
 						memcpy(lineX.vertices[0].color, red, sizeof(red));
 						memcpy(lineX.vertices[1].color, red, sizeof(red));
 
-						RENDERER::Line_3P_3C lineY;
+						renderer::Line_3P_3C lineY;
 						memcpy(lineY.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
 						memcpy(lineY.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
 						lineY.vertices[1].pos[0] += vertex.bitangent[0] * 0.1f;
@@ -72,7 +72,7 @@ namespace HOD
 						memcpy(lineY.vertices[0].color, green, sizeof(green));
 						memcpy(lineY.vertices[1].color, green, sizeof(green));
 
-						RENDERER::Line_3P_3C lineZ;
+						renderer::Line_3P_3C lineZ;
 						memcpy(lineZ.vertices[0].pos, vertex.pos, sizeof(vertex.pos));
 						memcpy(lineZ.vertices[1].pos, vertex.pos, sizeof(vertex.pos));
 						lineZ.vertices[1].pos[0] += vertex.normal[0] * 0.1f;
@@ -91,19 +91,19 @@ namespace HOD
 				}
 			}
 
-			GAME::DirLightComponent* dirLightComponent = child->GetActor()->GetComponent<GAME::DirLightComponent>();
+			game::DirLightComponent* dirLightComponent = child->GetActor()->GetComponent<game::DirLightComponent>();
 			if (dirLightComponent != nullptr)
 			{
 				renderQueue.AddDirLight(child->GetRotationEuler(), dirLightComponent->GetDirLight());
 			}
 
-			GAME::PointLightComponent* pointLightComponent = child->GetActor()->GetComponent<GAME::PointLightComponent>();
+			game::PointLightComponent* pointLightComponent = child->GetActor()->GetComponent<game::PointLightComponent>();
 			if (pointLightComponent != nullptr)
 			{
 				renderQueue.AddPointLight(child->GetPosition(), pointLightComponent->GetPointLight());
 			}
 
-			GAME::SpotLightComponent* spotLightComponent = child->GetActor()->GetComponent<GAME::SpotLightComponent>();
+			game::SpotLightComponent* spotLightComponent = child->GetActor()->GetComponent<game::SpotLightComponent>();
 			if (spotLightComponent != nullptr)
 			{
 				renderQueue.AddSpotLight(child->GetPosition(), child->GetRotation() * glm::vec3(0.0f, 0.0f, 1.0f), spotLightComponent->GetSpotLight());
@@ -115,11 +115,11 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void RenderQueueHelper::AddScenePhysicsDebug(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene)
+	void RenderQueueHelper::AddScenePhysicsDebug(renderer::RenderQueue& renderQueue, game::Scene* scene)
 	{
 		/*
-		std::vector<RENDERER::Line_3P_3C> lines;
-		std::vector<RENDERER::Tri_3P_3C> tris;
+		std::vector<renderer::Line_3P_3C> lines;
+		std::vector<renderer::Tri_3P_3C> tris;
 		scene->GetPhysicScene()->GetDebugGeometry(lines, tris);
 
 		if (lines.empty() == false)
@@ -136,10 +136,10 @@ namespace HOD
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void RenderQueueHelper::AddDebugLines(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene)
+	void RenderQueueHelper::AddDebugLines(renderer::RenderQueue& renderQueue, game::Scene* scene)
 	{
 		/*
-		std::vector<RENDERER::Line_3P_3C> lines;
+		std::vector<renderer::Line_3P_3C> lines;
 
 		scene->GetDebugLines(lines);
 

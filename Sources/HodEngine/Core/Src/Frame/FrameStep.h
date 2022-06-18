@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace HOD
+namespace hod
 {
 	class Job;
 

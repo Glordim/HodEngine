@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

@@ -24,10 +24,10 @@
 #include <dwmapi.h>
 
 // Configuration flags to add in your imconfig.h file:
-//#define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD              // Disable gamepad support. This was meaningful before <1.81 but we now load XInput dynamically so the option is now less relevant.
+//#define IMGUI_IMPL_WIN32_DISABLE_gamePAD              // Disable gamepad support. This was meaningful before <1.81 but we now load XInput dynamically so the option is now less relevant.
 
 // Using XInput for gamepad (will load DLL dynamically)
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#ifndef IMGUI_IMPL_WIN32_DISABLE_gamePAD
 #include <xinput.h>
 typedef DWORD (WINAPI *PFN_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*);
 typedef DWORD (WINAPI *PFN_XInputGetState)(DWORD, XINPUT_STATE*);
@@ -56,7 +56,7 @@ typedef DWORD (WINAPI *PFN_XInputGetState)(DWORD, XINPUT_STATE*);
 //  2020-12-04: Misc: Fixed setting of io.DisplaySize to invalid/uninitialized data when after hwnd has been closed.
 //  2020-03-03: Inputs: Calling AddInputCharacterUTF16() to support surrogate pairs leading to codepoint >= 0x10000 (for more complete CJK inputs)
 //  2020-02-17: Added ImGui_ImplWin32_EnableDpiAwareness(), ImGui_ImplWin32_GetDpiScaleForHwnd(), ImGui_ImplWin32_GetDpiScaleForMonitor() helper functions.
-//  2020-01-14: Inputs: Added support for #define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD/IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT.
+//  2020-01-14: Inputs: Added support for #define IMGUI_IMPL_WIN32_DISABLE_gamePAD/IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT.
 //  2019-12-05: Inputs: Added support for ImGuiMouseCursor_NotAllowed mouse cursor.
 //  2019-05-11: Inputs: Don't filter value from WM_CHAR before calling AddInputCharacter().
 //  2019-01-17: Misc: Using GetForegroundWindow()+IsChild() instead of GetActiveWindow() to be compatible with windows created in a different thread or parent.
@@ -96,7 +96,7 @@ struct ImGui_ImplWin32_Data
     bool                        WantUpdateHasGamepad;
     bool                        WantUpdateMonitors;
 
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#ifndef IMGUI_IMPL_WIN32_DISABLE_gamePAD
     HMODULE                     XInputDLL;
     PFN_XInputGetCapabilities   XInputGetCapabilities;
     PFN_XInputGetState          XInputGetState;
@@ -149,7 +149,7 @@ bool    ImGui_ImplWin32_Init(void* hwnd)
         ImGui_ImplWin32_InitPlatformInterface();
 
     // Dynamically load XInput library
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#ifndef IMGUI_IMPL_WIN32_DISABLE_gamePAD
     const char* xinput_dll_names[] =
     {
         "xinput1_4.dll",   // Windows 8+
@@ -166,7 +166,7 @@ bool    ImGui_ImplWin32_Init(void* hwnd)
             bd->XInputGetState = (PFN_XInputGetState)::GetProcAddress(dll, "XInputGetState");
             break;
         }
-#endif // IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#endif // IMGUI_IMPL_WIN32_DISABLE_gamePAD
 
     return true;
 }
@@ -180,10 +180,10 @@ void    ImGui_ImplWin32_Shutdown()
     ImGui_ImplWin32_ShutdownPlatformInterface();
 
     // Unload XInput library
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#ifndef IMGUI_IMPL_WIN32_DISABLE_gamePAD
     if (bd->XInputDLL)
         ::FreeLibrary(bd->XInputDLL);
-#endif // IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#endif // IMGUI_IMPL_WIN32_DISABLE_gamePAD
 
     io.BackendPlatformName = NULL;
     io.BackendPlatformUserData = NULL;
@@ -317,7 +317,7 @@ static void ImGui_ImplWin32_UpdateMouseData()
 // Gamepad navigation mapping
 static void ImGui_ImplWin32_UpdateGamepads()
 {
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#ifndef IMGUI_IMPL_WIN32_DISABLE_gamePAD
     ImGuiIO& io = ImGui::GetIO();
     ImGui_ImplWin32_Data* bd = ImGui_ImplWin32_GetBackendData();
     if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
@@ -328,13 +328,13 @@ static void ImGui_ImplWin32_UpdateGamepads()
     if (bd->WantUpdateHasGamepad)
     {
         XINPUT_CAPABILITIES caps = {};
-        bd->HasGamepad = bd->XInputGetCapabilities ? (bd->XInputGetCapabilities(0, XINPUT_FLAG_GAMEPAD, &caps) == ERROR_SUCCESS) : false;
+        bd->HasGamepad = bd->XInputGetCapabilities ? (bd->XInputGetCapabilities(0, XINPUT_FLAG_gamePAD, &caps) == ERROR_SUCCESS) : false;
         bd->WantUpdateHasGamepad = false;
     }
 
     io.BackendFlags &= ~ImGuiBackendFlags_HasGamepad;
     XINPUT_STATE xinput_state;
-    XINPUT_GAMEPAD& gamepad = xinput_state.Gamepad;
+    XINPUT_gamePAD& gamepad = xinput_state.Gamepad;
     if (!bd->HasGamepad || bd->XInputGetState == NULL || bd->XInputGetState(0, &xinput_state) != ERROR_SUCCESS)
         return;
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
@@ -342,33 +342,33 @@ static void ImGui_ImplWin32_UpdateGamepads()
     #define IM_SATURATE(V)                      (V < 0.0f ? 0.0f : V > 1.0f ? 1.0f : V)
     #define MAP_BUTTON(KEY_NO, BUTTON_ENUM)     { io.AddKeyEvent(KEY_NO, (gamepad.wButtons & BUTTON_ENUM) != 0); }
     #define MAP_ANALOG(KEY_NO, VALUE, V0, V1)   { float vn = (float)(VALUE - V0) / (float)(V1 - V0); io.AddKeyAnalogEvent(KEY_NO, vn > 0.10f, IM_SATURATE(vn)); }
-    MAP_BUTTON(ImGuiKey_GamepadStart,           XINPUT_GAMEPAD_START);
-    MAP_BUTTON(ImGuiKey_GamepadBack,            XINPUT_GAMEPAD_BACK);
-    MAP_BUTTON(ImGuiKey_GamepadFaceDown,        XINPUT_GAMEPAD_A);
-    MAP_BUTTON(ImGuiKey_GamepadFaceRight,       XINPUT_GAMEPAD_B);
-    MAP_BUTTON(ImGuiKey_GamepadFaceLeft,        XINPUT_GAMEPAD_X);
-    MAP_BUTTON(ImGuiKey_GamepadFaceUp,          XINPUT_GAMEPAD_Y);
-    MAP_BUTTON(ImGuiKey_GamepadDpadLeft,        XINPUT_GAMEPAD_DPAD_LEFT);
-    MAP_BUTTON(ImGuiKey_GamepadDpadRight,       XINPUT_GAMEPAD_DPAD_RIGHT);
-    MAP_BUTTON(ImGuiKey_GamepadDpadUp,          XINPUT_GAMEPAD_DPAD_UP);
-    MAP_BUTTON(ImGuiKey_GamepadDpadDown,        XINPUT_GAMEPAD_DPAD_DOWN);
-    MAP_BUTTON(ImGuiKey_GamepadL1,              XINPUT_GAMEPAD_LEFT_SHOULDER);
-    MAP_BUTTON(ImGuiKey_GamepadR1,              XINPUT_GAMEPAD_RIGHT_SHOULDER);
-    MAP_ANALOG(ImGuiKey_GamepadL2,              gamepad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
-    MAP_ANALOG(ImGuiKey_GamepadR2,              gamepad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD, 255);
-    MAP_BUTTON(ImGuiKey_GamepadL3,              XINPUT_GAMEPAD_LEFT_THUMB);
-    MAP_BUTTON(ImGuiKey_GamepadR3,              XINPUT_GAMEPAD_RIGHT_THUMB);
-    MAP_ANALOG(ImGuiKey_GamepadLStickLeft,      gamepad.sThumbLX, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
-    MAP_ANALOG(ImGuiKey_GamepadLStickRight,     gamepad.sThumbLX, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
-    MAP_ANALOG(ImGuiKey_GamepadLStickUp,        gamepad.sThumbLY, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
-    MAP_ANALOG(ImGuiKey_GamepadLStickDown,      gamepad.sThumbLY, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
-    MAP_ANALOG(ImGuiKey_GamepadRStickLeft,      gamepad.sThumbRX, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
-    MAP_ANALOG(ImGuiKey_GamepadRStickRight,     gamepad.sThumbRX, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
-    MAP_ANALOG(ImGuiKey_GamepadRStickUp,        gamepad.sThumbRY, +XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, +32767);
-    MAP_ANALOG(ImGuiKey_GamepadRStickDown,      gamepad.sThumbRY, -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, -32768);
+    MAP_BUTTON(ImGuiKey_GamepadStart,           XINPUT_gamePAD_START);
+    MAP_BUTTON(ImGuiKey_GamepadBack,            XINPUT_gamePAD_BACK);
+    MAP_BUTTON(ImGuiKey_GamepadFaceDown,        XINPUT_gamePAD_A);
+    MAP_BUTTON(ImGuiKey_GamepadFaceRight,       XINPUT_gamePAD_B);
+    MAP_BUTTON(ImGuiKey_GamepadFaceLeft,        XINPUT_gamePAD_X);
+    MAP_BUTTON(ImGuiKey_GamepadFaceUp,          XINPUT_gamePAD_Y);
+    MAP_BUTTON(ImGuiKey_GamepadDpadLeft,        XINPUT_gamePAD_DPAD_LEFT);
+    MAP_BUTTON(ImGuiKey_GamepadDpadRight,       XINPUT_gamePAD_DPAD_RIGHT);
+    MAP_BUTTON(ImGuiKey_GamepadDpadUp,          XINPUT_gamePAD_DPAD_UP);
+    MAP_BUTTON(ImGuiKey_GamepadDpadDown,        XINPUT_gamePAD_DPAD_DOWN);
+    MAP_BUTTON(ImGuiKey_GamepadL1,              XINPUT_gamePAD_LEFT_SHOULDER);
+    MAP_BUTTON(ImGuiKey_GamepadR1,              XINPUT_gamePAD_RIGHT_SHOULDER);
+    MAP_ANALOG(ImGuiKey_GamepadL2,              gamepad.bLeftTrigger, XINPUT_gamePAD_TRIGGER_THRESHOLD, 255);
+    MAP_ANALOG(ImGuiKey_GamepadR2,              gamepad.bRightTrigger, XINPUT_gamePAD_TRIGGER_THRESHOLD, 255);
+    MAP_BUTTON(ImGuiKey_GamepadL3,              XINPUT_gamePAD_LEFT_THUMB);
+    MAP_BUTTON(ImGuiKey_GamepadR3,              XINPUT_gamePAD_RIGHT_THUMB);
+    MAP_ANALOG(ImGuiKey_GamepadLStickLeft,      gamepad.sThumbLX, -XINPUT_gamePAD_LEFT_THUMB_DEADZONE, -32768);
+    MAP_ANALOG(ImGuiKey_GamepadLStickRight,     gamepad.sThumbLX, +XINPUT_gamePAD_LEFT_THUMB_DEADZONE, +32767);
+    MAP_ANALOG(ImGuiKey_GamepadLStickUp,        gamepad.sThumbLY, +XINPUT_gamePAD_LEFT_THUMB_DEADZONE, +32767);
+    MAP_ANALOG(ImGuiKey_GamepadLStickDown,      gamepad.sThumbLY, -XINPUT_gamePAD_LEFT_THUMB_DEADZONE, -32768);
+    MAP_ANALOG(ImGuiKey_GamepadRStickLeft,      gamepad.sThumbRX, -XINPUT_gamePAD_LEFT_THUMB_DEADZONE, -32768);
+    MAP_ANALOG(ImGuiKey_GamepadRStickRight,     gamepad.sThumbRX, +XINPUT_gamePAD_LEFT_THUMB_DEADZONE, +32767);
+    MAP_ANALOG(ImGuiKey_GamepadRStickUp,        gamepad.sThumbRY, +XINPUT_gamePAD_LEFT_THUMB_DEADZONE, +32767);
+    MAP_ANALOG(ImGuiKey_GamepadRStickDown,      gamepad.sThumbRY, -XINPUT_gamePAD_LEFT_THUMB_DEADZONE, -32768);
     #undef MAP_BUTTON
     #undef MAP_ANALOG
-#endif // #ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#endif // #ifndef IMGUI_IMPL_WIN32_DISABLE_gamePAD
 }
 
 static BOOL CALLBACK ImGui_ImplWin32_UpdateMonitors_EnumFunc(HMONITOR monitor, HDC, LPRECT, LPARAM)

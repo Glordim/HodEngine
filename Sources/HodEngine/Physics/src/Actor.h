@@ -8,14 +8,14 @@
 
 class b2Body;
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		struct BoundingBox;
 	}
 
-	namespace PHYSICS
+	namespace physics
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

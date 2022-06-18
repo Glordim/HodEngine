@@ -2,7 +2,7 @@
 
 #include "HodEngine/Window/src/Window.h"
 
-namespace HOD
+namespace hod::window
 {
 	/// @brief 
 	class DesktopWindow : public Window

@@ -3,7 +3,7 @@
 #if defined(PLATFORM_WINDOWS)
 
 	#include "HodEngine/Renderer/src/RHI/Vulkan/RendererVulkan.h"
-	#define PlatformRenderer HOD::RENDERER::RendererVulkan
+	#define PlatformRenderer hod::renderer::RendererVulkan
 
 #elif defined(PLATFORM_MAC)
 

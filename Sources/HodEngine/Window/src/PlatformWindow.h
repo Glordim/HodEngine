@@ -3,7 +3,7 @@
 #if defined(PLATFORM_WINDOWS)
 
 	#include "HodEngine/Window/src/DesktopWindow/Win32/Win32Window.h"
-	#define PlatformWindow HOD::Win32Window
+	#define PlatformWindow hod::window::Win32Window
 
 #elif defined(PLATFORM_MAC)
 

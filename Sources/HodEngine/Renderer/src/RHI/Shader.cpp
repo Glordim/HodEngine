@@ -6,9 +6,9 @@
 
 #include <HodEngine/Core/Src/Output.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		/// @brief 
 		/// @param type 

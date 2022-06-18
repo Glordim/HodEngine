@@ -5,9 +5,9 @@
 
 #include "Renderer.h"
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		_SingletonInstance(MaterialManager)
 
@@ -33,7 +33,7 @@ namespace HOD
 				return CORE::UID::INVALID_UID;
 			}
 
-			Material* material = renderer->CreateMaterial(vertexShader, fragmentShader, polygonMode, topololy, useDepth);
+			Material* material = renderer->CreateMaterial(nullptr, 0, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
 			if (material == nullptr)
 			{
 				delete vertexShader;

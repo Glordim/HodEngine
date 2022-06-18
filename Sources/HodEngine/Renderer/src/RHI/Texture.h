@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -25,7 +25,7 @@ namespace HOD
 			virtual bool BuildDepth(size_t width, size_t height) = 0;
 			virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer) = 0;
 
-		private:
+		protected:
 
 			uint32_t	_width = 0;
 			uint32_t	_height = 0;

@@ -7,14 +7,11 @@
 
 #include "RendererVulkan.h"
 
-#include <HodEngine/ImGui/src/imgui.h>
-#include <HodEngine/ImGui/src/imgui_impl_vulkan.h>
-
 #include <HodEngine/Core/Src/Output.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -106,16 +103,16 @@ namespace HOD
 			renderPassInfo.pClearValues = clearColor;
 
 			vkCmdBeginRenderPass(_vkCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			
+			VkViewport vkViewport = {};
+			vkViewport.x = 0;
+			vkViewport.y = 0;
+			vkViewport.width = renderPassInfo.renderArea.extent.width;
+			vkViewport.height = renderPassInfo.renderArea.extent.height;
+			vkViewport.minDepth = 0.0f;
+			vkViewport.maxDepth = 1.0f;
 
-			VkViewport viewport = {};
-			viewport.x = 0.0f;
-			viewport.y = (float)renderPassInfo.renderArea.extent.height;
-			viewport.width = (float)renderPassInfo.renderArea.extent.width;
-			viewport.height = -(float)renderPassInfo.renderArea.extent.height;
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-
-			vkCmdSetViewport(_vkCommandBuffer, 0, 1, &viewport);
+			vkCmdSetViewport(_vkCommandBuffer, 0, 1, &vkViewport);
 
 			VkRect2D scissor = {};
 			scissor.offset = { 0, 0 };
@@ -142,6 +139,21 @@ namespace HOD
 			}
 
 			return true;
+		}
+
+		/// @brief 
+		/// @param constant 
+		/// @param size 
+		/// @param shaderType 
+		void CommandBufferVk::SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType)
+		{
+			VkShaderStageFlags shaderStage = VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
+			if (shaderType == Shader::ShaderType::Fragment)
+			{
+				shaderStage = VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
+			}
+
+			vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), shaderStage, 0, size, constant);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -218,13 +230,17 @@ namespace HOD
 			VkMaterialInstance* vkMaterialInstance = static_cast<VkMaterialInstance*>(materialInstance);
 
 			const VkMaterial* material = static_cast<const VkMaterial*>(&vkMaterialInstance->GetMaterial());
+			if (_material != material)
+			{
+				_material = material;
+				vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetGraphicsPipeline());
+			}
 
 			std::vector<VkDescriptorSet> descriptorSets = vkMaterialInstance->GetDescriptorSets(setOffset, setCount);
 
-			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetGraphicsPipeline());
 			if (descriptorSets.empty() == false)
 			{
-				vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, material->GetPipelineLayout(), setOffset, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+				vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetPipelineLayout(), setOffset, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
 			}
 		}
 
@@ -258,9 +274,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::DrawIndexed(uint32_t indexCount)
+		void CommandBufferVk::DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset)
 		{
-			vkCmdDrawIndexed(_vkCommandBuffer, indexCount, 1, 0, 0, 0);
+			vkCmdDrawIndexed(_vkCommandBuffer, indexCount, 1, indexOffset, vertexOffset, 0);
 		}
 	}
 }

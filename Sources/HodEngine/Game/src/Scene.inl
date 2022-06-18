@@ -1,7 +1,7 @@
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		template<typename T>
 		T* Scene::SpawnActor(const std::string& name)

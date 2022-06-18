@@ -6,9 +6,9 @@
 
 #include <HodEngine/Renderer/src/Light/PointLight.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -30,11 +30,11 @@ namespace HOD
 			void					DrawImGui() override;
 			const char*				GetType() const override;
 
-			RENDERER::PointLight*	GetPointLight() const;
+			renderer::PointLight*	GetPointLight() const;
 
 		public:
 
-			RENDERER::PointLight	_data;
+			renderer::PointLight	_data;
 		};
 	}
 }

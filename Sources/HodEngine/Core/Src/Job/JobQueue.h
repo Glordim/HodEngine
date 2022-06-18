@@ -5,7 +5,7 @@
 
 #include <queue>
 
-namespace HOD
+namespace hod
 {
 	class Job;
 

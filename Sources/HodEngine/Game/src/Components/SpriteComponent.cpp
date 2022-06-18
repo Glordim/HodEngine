@@ -9,9 +9,9 @@
 
 #include "../Actor.h"
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		/*
 		DESCRIBE_COMPONENT(SpriteComponent)
@@ -57,17 +57,17 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SpriteComponent::SetSprite(const RENDERER::Sprite* sprite)
+		void SpriteComponent::SetSprite(const renderer::Sprite* sprite)
 		{
 			_sprite = sprite;
 
-			_materialInstance->SetTexture("textureSampler", *_sprite->GetSpriteAtlas()->GetTexture());
+			_materialInstance->SetTexture("textureSampler", _sprite->GetSpriteAtlas()->GetTexture());
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const RENDERER::Sprite* SpriteComponent::GetSprite() const
+		const renderer::Sprite* SpriteComponent::GetSprite() const
 		{
 			return _sprite;
 		}
@@ -75,7 +75,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SpriteComponent::SetMaterialInstance(RENDERER::MaterialInstance* materialInstance)
+		void SpriteComponent::SetMaterialInstance(renderer::MaterialInstance* materialInstance)
 		{
 			_materialInstance = materialInstance;
 		}
@@ -83,7 +83,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RENDERER::MaterialInstance* SpriteComponent::GetMaterialInstance() const
+		renderer::MaterialInstance* SpriteComponent::GetMaterialInstance() const
 		{
 			return _materialInstance;
 		}
@@ -91,10 +91,10 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SpriteComponent::PushToRenderQueue(RENDERER::RenderQueue& renderQueue)
+		void SpriteComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
 			/*
-			std::vector<RENDERER::P2fT2f> vertices(6);
+			std::vector<renderer::P2fT2f> vertices(6);
 			vertices[0]._position[0] = -0.5f;
 			vertices[0]._position[1] = -0.5f;
 			vertices[0]._textCoord[0] = 0.0f;
@@ -108,7 +108,7 @@ namespace HOD
 			vertices[2]._textCoord[0] = 1.0f;
 			vertices[2]._textCoord[1] = 0.0f;
 			*/
-			renderQueue.PushRenderCommand(new RENDERER::RenderCommandMesh(_sprite->GetVertices().data(), _sprite->GetVertices().size(), sizeof(RENDERER::P2fT2f), _sprite->GetIndices().data(), _sprite->GetIndices().size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(), _materialInstance));
+			renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_sprite->GetVertices().data(), _sprite->GetVertices().size(), sizeof(renderer::P2fT2f), _sprite->GetIndices().data(), _sprite->GetIndices().size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(), _materialInstance));
 		}
 	}
 }

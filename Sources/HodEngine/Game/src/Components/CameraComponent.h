@@ -10,16 +10,16 @@
 
 #include "../Scene.h"
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class MaterialInstance;
 		class Texture;
 		class RenderQueue;
 	}
 
-	namespace GAME
+	namespace game
 	{
 		class PointLightComponent;
 
@@ -47,9 +47,9 @@ namespace HOD
 
 			const glm::mat4&			GetProjectionMatrix();
 
-			void						SetHdriMaterial(RENDERER::MaterialInstance* hdriMat, RENDERER::Texture* hdriTexture);
+			void						SetHdriMaterial(renderer::MaterialInstance* hdriMat, renderer::Texture* hdriTexture);
 
-			void						PushToRenderQueue(RENDERER::RenderQueue* renderQueue = nullptr);
+			void						PushToRenderQueue(renderer::RenderQueue* renderQueue = nullptr);
 
 		private:
 
@@ -60,8 +60,8 @@ namespace HOD
 			bool						_perspective;
 			bool						_dirtyFlag;
 
-			RENDERER::MaterialInstance*	_hdriMat;
-			RENDERER::Texture*			_hdriTexture;
+			renderer::MaterialInstance*	_hdriMat;
+			renderer::Texture*			_hdriTexture;
 
 			glm::mat4					_projectionMatrix;
 		};

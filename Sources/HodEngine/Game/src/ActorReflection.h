@@ -4,9 +4,9 @@
 
 #include <vector>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		class Scene;
 

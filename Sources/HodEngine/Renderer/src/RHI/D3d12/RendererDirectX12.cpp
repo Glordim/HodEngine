@@ -4,9 +4,9 @@
 
 #include <HodEngine/Core/Src/Output.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -28,7 +28,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool RendererDirectX12::Init(Window* mainWindow, uint32_t physicalDeviceIdentifier)
+		bool RendererDirectX12::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 		{
 			/*
 			if (enableValidationLayers == true)
@@ -388,7 +388,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Material* RendererDirectX12::CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+		Material* RendererDirectX12::CreateMaterial(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			return nullptr;
 		}
@@ -404,17 +404,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Texture* RendererDirectX12::CreateTexture(const std::string& path)
+		Texture* RendererDirectX12::CreateTexture()
 		{
 			return nullptr;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool RendererDirectX12::SetupImGui()
-		{
-			return false;
 		}
 	}
 }

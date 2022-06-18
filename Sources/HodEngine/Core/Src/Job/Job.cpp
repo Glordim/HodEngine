@@ -1,6 +1,6 @@
 #include "Job.h"
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	/// @param queue 

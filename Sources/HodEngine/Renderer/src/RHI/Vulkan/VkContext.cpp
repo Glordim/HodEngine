@@ -4,9 +4,9 @@
 
 #include <HodEngine/Core/Src/Output.h>
 
-using namespace HOD::RENDERER;
+using namespace hod::renderer;
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	VkContext::VkContext(VkSurfaceKHR surface)

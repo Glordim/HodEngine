@@ -2,9 +2,9 @@
 
 #if defined(_WIN32)
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 	}
 }

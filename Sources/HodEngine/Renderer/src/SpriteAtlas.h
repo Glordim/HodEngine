@@ -5,9 +5,9 @@
 
 #include "Sprite.h"
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class Texture;
 

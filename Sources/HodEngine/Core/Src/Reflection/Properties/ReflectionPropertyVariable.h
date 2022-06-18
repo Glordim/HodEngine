@@ -8,7 +8,7 @@
 
 #include "../ReflectionProperty.h"
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

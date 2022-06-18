@@ -9,9 +9,11 @@
 #include <HodEngine/Core/Src/Rect.h>
 #include <vector>
 
-namespace HOD
+#include "HodEngine/Renderer/src/RHI/Shader.h"
+
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class MaterialInstance;
 		class Buffer;
@@ -40,6 +42,8 @@ namespace HOD
 			virtual bool		StartRecord(Context* context = nullptr) = 0;
 			virtual bool		EndRecord() = 0;
 
+			virtual void		SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) = 0;
+
 			virtual void		SetProjectionMatrix(const glm::mat4x4& projectionMatrix) = 0;
 			virtual void		SetViewMatrix(const glm::mat4x4& viewMatrix) = 0;
 			virtual void		SetModelMatrix(const glm::mat4x4& modelMatrix) = 0;
@@ -52,7 +56,7 @@ namespace HOD
 			virtual void		SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) = 0;
 
 			virtual void		Draw(uint32_t vertexCount) = 0;
-			virtual void		DrawIndexed(uint32_t indexCount) = 0;
+			virtual void		DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset) = 0;
 
 		private:
 

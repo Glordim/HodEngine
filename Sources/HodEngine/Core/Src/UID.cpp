@@ -29,7 +29,7 @@ union UuidConverter
 	};
 };
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

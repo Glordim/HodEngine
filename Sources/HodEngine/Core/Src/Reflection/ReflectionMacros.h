@@ -3,7 +3,7 @@
 #include "ReflectionDescriptor.h"
 
 ///@brief Implement Getter method to retreive ReflectionDescriptor
-#define GET_REFLECTION_DESCRIPTOR_METHOD(__REFLECTION_DESCRIPTOR_TYPE__)		\
+#define GET_REFLECTION_DESCRIPTOR_METhod(__REFLECTION_DESCRIPTOR_TYPE__)		\
 static __REFLECTION_DESCRIPTOR_TYPE__*	GetReflectionDescriptor()				\
 {																				\
 	static __REFLECTION_DESCRIPTOR_TYPE__ reflectionDescriptor;					\
@@ -22,7 +22,7 @@ public:																			\
 			__TYPE__##ReflectionDescriptor();									\
 	};																			\
 																				\
-	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)			\
+	GET_REFLECTION_DESCRIPTOR_METhod(__TYPE__##ReflectionDescriptor)			\
 																				\
 private:																		\
 
@@ -38,7 +38,7 @@ public:																			\
 			__TYPE__##ReflectionDescriptor();									\
 	};																			\
 																				\
-	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)			\
+	GET_REFLECTION_DESCRIPTOR_METhod(__TYPE__##ReflectionDescriptor)			\
 																				\
 private:																		\
 
@@ -54,7 +54,7 @@ public:																				\
 			__TYPE__##ReflectionDescriptor();										\
 	};																				\
 																					\
-	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
+	GET_REFLECTION_DESCRIPTOR_METhod(__TYPE__##ReflectionDescriptor)				\
 																					\
 private:																			\
 
@@ -70,7 +70,7 @@ public:																				\
 			__TYPE__##ReflectionDescriptor();										\
 	};																				\
 																					\
-	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
+	GET_REFLECTION_DESCRIPTOR_METhod(__TYPE__##ReflectionDescriptor)				\
 																					\
 private:																			\
 

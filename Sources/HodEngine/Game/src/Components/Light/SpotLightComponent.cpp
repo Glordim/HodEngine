@@ -1,14 +1,12 @@
 #include "SpotLightComponent.h"
 
-#include <HodEngine/ImGui/src/imgui.h>
-
 #include "../../Actor.h"
 
 #include <HodEngine/Renderer/src/RHI/MaterialInstance.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -33,7 +31,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void SpotLightComponent::DrawImGui()
 		{
-			if (ImGui::ColorPicker3("Color", &_data.color[0]) == true)
+			//if (ImGui::ColorPicker3("Color", &_data.color[0]) == true)
 			{
 				/*
 				StaticMeshComponent* pStaticMesh = GetActor()->GetComponent<StaticMeshComponent>();
@@ -43,8 +41,8 @@ namespace HOD
 				}
 				*/
 			}
-			ImGui::SliderFloat("Intensity", &_data.intensity, 0.0f, 100.0f);
-			ImGui::SliderFloat("Radius", &_data.radius, 0.0f, 180.0f);
+			//ImGui::SliderFloat("Intensity", &_data.intensity, 0.0f, 100.0f);
+			//ImGui::SliderFloat("Radius", &_data.radius, 0.0f, 180.0f);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -58,9 +56,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RENDERER::SpotLight* SpotLightComponent::GetSpotLight() const
+		renderer::SpotLight* SpotLightComponent::GetSpotLight() const
 		{
-			return (RENDERER::SpotLight*)(&_data);
+			return (renderer::SpotLight*)(&_data);
 		}
 	}
 }

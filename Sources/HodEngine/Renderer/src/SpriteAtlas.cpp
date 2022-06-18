@@ -9,9 +9,9 @@
 #include <sstream>
 #include <rapidjson/document.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -51,7 +51,8 @@ namespace HOD
 			size_t lastSlash = texturePath.find_last_of('/');
 			texturePath = texturePath.substr(0, lastSlash + 1) + metaElement["image"].GetString();
 
-			_texture = Renderer::GetInstance()->CreateTexture(texturePath);
+			_texture = Renderer::GetInstance()->CreateTexture();
+			_texture->LoadFromPath(texturePath.data());
 
 			auto frameArray = documentJson["frames"].GetArray();
 			_sprites.resize(frameArray.Size());

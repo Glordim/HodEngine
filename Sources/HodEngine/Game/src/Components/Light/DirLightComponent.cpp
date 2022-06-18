@@ -1,13 +1,11 @@
 #include "DirLightComponent.h"
 
-#include <HodEngine/ImGui/src/imgui.h>
-
 #include "../../Actor.h"
 #include <HodEngine/Renderer/src/RHI/MaterialInstance.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -31,7 +29,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void DirLightComponent::DrawImGui()
 		{
-			if (ImGui::ColorPicker3("Color", &_data.color[0]) == true)
+			//if (ImGui::ColorPicker3("Color", &_data.color[0]) == true)
 			{
 				/*
 				StaticMeshComponent* pStaticMesh = GetActor()->GetComponent<StaticMeshComponent>();
@@ -41,7 +39,7 @@ namespace HOD
 				}
 				*/
 			}
-			ImGui::SliderFloat("Intensity", &_data.intensity, 0.0f, 100.0f);
+			//ImGui::SliderFloat("Intensity", &_data.intensity, 0.0f, 100.0f);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -55,9 +53,9 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RENDERER::DirLight* DirLightComponent::GetDirLight() const
+		renderer::DirLight* DirLightComponent::GetDirLight() const
 		{
-			return (RENDERER::DirLight*)(&_data);
+			return (renderer::DirLight*)(&_data);
 		}
 	}
 }

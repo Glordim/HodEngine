@@ -2,9 +2,9 @@
 
 #include <HodEngine/Physics/src/Actor.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -39,7 +39,7 @@ namespace HOD
 		{
 			if (_physicActor != nullptr)
 			{
-				if (_physicActor->GetType() != PHYSICS::Actor::TYPE::Static)
+				if (_physicActor->GetType() != physics::Actor::TYPE::Static)
 				{
 					GetComponent<SceneComponent>()->SetPosition(_physicActor->GetPosition());
 					GetComponent<SceneComponent>()->SetRotation(_physicActor->GetRotation());
@@ -74,7 +74,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		PHYSICS::Actor* Actor::GetPhysicActor() const
+		physics::Actor* Actor::GetPhysicActor() const
 		{
 			return _physicActor;
 		}
@@ -82,7 +82,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetPhysicActor(PHYSICS::Actor* physicActor)
+		void Actor::SetPhysicActor(physics::Actor* physicActor)
 		{
 			_physicActor = physicActor;
 		}
@@ -110,7 +110,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::PushToRenderQueue(RENDERER::RenderQueue& renderQueue, bool recursive)
+		void Actor::PushToRenderQueue(renderer::RenderQueue& renderQueue, bool recursive)
 		{
 			auto it = _componentMapping.begin();
 			auto itEnd = _componentMapping.end();

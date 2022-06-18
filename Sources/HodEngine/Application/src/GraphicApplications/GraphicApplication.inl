@@ -1,5 +1,5 @@
 
-namespace HOD
+namespace hod::application
 {
 
 }

@@ -4,7 +4,7 @@
 
 #include "HodEngine/Core/Src/Job/JobQueue.h"
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	class Job

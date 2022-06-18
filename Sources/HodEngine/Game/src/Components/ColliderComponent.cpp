@@ -9,9 +9,9 @@
 
 #include <HodEngine/Physics/src/Actor.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -20,7 +20,7 @@ namespace HOD
 		{
 			Scene* scene = actor->GetScene();
 
-			PHYSICS::Actor* physicActor = actor->GetPhysicActor();
+			physics::Actor* physicActor = actor->GetPhysicActor();
 
 			if (physicActor == nullptr)
 			{

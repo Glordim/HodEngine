@@ -6,10 +6,10 @@
 
 #include <vulkan/vulkan.h>
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
-	class VkContext : public RENDERER::Context
+	class VkContext : public renderer::Context
 	{
 	public:
 

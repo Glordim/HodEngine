@@ -9,9 +9,9 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

@@ -2,7 +2,7 @@
 
 #include "HodEngine/Core/Src/Job/Job.h"
 
-namespace HOD
+namespace hod
 {
 	//bSqueduler* JobSqueduler::_instance = nullptr;
 

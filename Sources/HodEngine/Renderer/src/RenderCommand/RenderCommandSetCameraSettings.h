@@ -11,9 +11,9 @@
 
 #include <HodEngine/Core/Src/Rect.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class MaterialInstance;
 

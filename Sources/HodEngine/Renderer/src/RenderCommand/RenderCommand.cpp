@@ -2,9 +2,9 @@
 
 #include "RenderCommand.h"
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		
 	}

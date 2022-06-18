@@ -2,21 +2,12 @@ cmake_minimum_required(VERSION 3.4)
 
 project(ImGui)
 
-find_package(SDL2 REQUIRED)
-find_package(Vulkan REQUIRED)
-
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/src/*.cpp"
 	"${PROJECT_SOURCE_DIR}/src/*.h"
 	"${PROJECT_SOURCE_DIR}/src/*.inl"
 )
 assign_source_group(${Srcs})
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
-  "../.."
-  ${SDL2_INCLUDE_DIRS}
-  ${Vulkan_INCLUDE_DIRS}
-)
 
 if(MSVC)
 	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
@@ -27,7 +18,22 @@ endif()
 
 add_library(ImGui OBJECT ${Srcs})
 
-target_link_libraries(ImGui
-  ${SDL2_LIBRARIES}
-  ${Vulkan_LIBRARIES}
+add_dependencies(ImGui Core ImGui Window Renderer)
+get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
+get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
+get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
+  "../.."
+  ${Core_INCLUDES}
+  ${Window_INCLUDES}
+  ${Renderer_INCLUDES}
 )
+
+target_link_libraries(ImGui
+  Core
+  Renderer
+  Window
+)
+
+target_compile_definitions(ImGui PUBLIC ${PLATFORM_DEFINE})

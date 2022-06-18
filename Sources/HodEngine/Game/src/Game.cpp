@@ -3,12 +3,12 @@
 #include "Scene.h"
 #include "Builtin.h"
 
-namespace HOD
+namespace hod
 {
 	template<>
-	GAME::Game* Singleton<GAME::Game>::_instance = nullptr;
+	game::Game* Singleton<game::Game>::_instance = nullptr;
 
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

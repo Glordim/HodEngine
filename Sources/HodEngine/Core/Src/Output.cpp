@@ -7,7 +7,7 @@
 	#include <Windows.h>
 #endif
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

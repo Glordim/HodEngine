@@ -4,7 +4,7 @@
 #define GLM_FORCE_LEFT_HANDED 1
 #include <glm/vec2.hpp>
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

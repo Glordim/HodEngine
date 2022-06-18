@@ -6,9 +6,9 @@
 
 #include <SPIRV-Cross/spirv_cross.hpp>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

@@ -6,7 +6,7 @@
 	#include <Windows.h>
 #endif
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	class Thread

@@ -16,9 +16,9 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -30,8 +30,7 @@ namespace HOD
 												RendererDirectX12();
 			virtual								~RendererDirectX12();
 
-			bool								Init(Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
-			bool								SetupImGui() override;
+			bool								Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
 
 			bool								GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
 
@@ -43,9 +42,9 @@ namespace HOD
 			bool								SwapBuffer() override;
 
 			Shader*								CreateShader(Shader::ShaderType type) override;
-			Material*							CreateMaterial(Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+			Material*							CreateMaterial(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 			MaterialInstance*					CreateMaterialInstance(const Material* material) override;
-			Texture*							CreateTexture(const std::string& path) override;
+			Texture*							CreateTexture() override;
 
 		private:
 

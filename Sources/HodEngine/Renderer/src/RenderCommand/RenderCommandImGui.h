@@ -6,12 +6,13 @@
 #include <HodEngine/Core/Src/Rect.h>
 
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 #include <vector>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class Texture;
 		class Material;
@@ -42,6 +43,9 @@ namespace HOD
 
 			struct DrawList
 			{
+				glm::vec2				_displayPosition;
+				glm::vec2				_displaySize;
+
 				std::vector<Vertex>		_vertices;
 				std::vector<uint16_t>	_indices;
 				std::vector<Command>	_commands;
@@ -64,7 +68,6 @@ namespace HOD
 		private:
 
 			static Material*			_material;
-			static MaterialInstance*	_materialInstance;
 
 			std::vector<DrawList*>		_drawLists;
 		};

@@ -1,6 +1,6 @@
 #include "DesktopWindow.h"
 
-namespace HOD
+namespace hod::window
 {
 	
 }

@@ -1,11 +1,11 @@
 #include "ActorReflection.h"
 
-namespace HOD
+namespace hod
 {
 	template<>
-	GAME::ActorReflection* Singleton<GAME::ActorReflection>::_instance = nullptr;
+	game::ActorReflection* Singleton<game::ActorReflection>::_instance = nullptr;
 
-	namespace GAME
+	namespace game
 	{
 		///
 		///@brief 

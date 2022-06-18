@@ -7,9 +7,9 @@
 
 #include <rapidjson/document.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		class Scene;
 

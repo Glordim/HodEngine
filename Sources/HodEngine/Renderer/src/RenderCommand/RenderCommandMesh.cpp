@@ -14,9 +14,9 @@
 
 #include <cstring>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -105,7 +105,7 @@ namespace HOD
 
 			if (_indices.empty() == false)
 			{
-				commandBuffer->DrawIndexed(_indices.size());
+				commandBuffer->DrawIndexed(_indices.size(), 0, 0);
 			}
 			else
 			{
@@ -117,7 +117,7 @@ namespace HOD
 				if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
 				{
 					commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetWireframeMaterialInstance());
-					commandBuffer->DrawIndexed(_indices.size());
+					commandBuffer->DrawIndexed(_indices.size(), 0, 0);
 				}
 			}
 		}

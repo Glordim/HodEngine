@@ -1,13 +1,14 @@
 #include "Renderer.h"
 
 #include "MaterialManager.h"
+#include "HodEngine/Renderer/src/RHI/Texture.h"
 
-namespace HOD
+namespace hod
 {
 	template<>
-	RENDERER::Renderer* Singleton<RENDERER::Renderer>::_instance = nullptr;
+	renderer::Renderer* Singleton<renderer::Renderer>::_instance = nullptr;
 
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -106,6 +107,23 @@ namespace HOD
 			}
 
 			return _wireframeMaterialInstance;
+		}
+
+		/// @brief 
+		/// @return 
+		Texture* Renderer::GetDefaultWhiteTexture()
+		{
+			if (_defaultWhiteTexture == nullptr)
+			{
+				uint8_t pixels[4*2*2] = { 255, 255, 255, 255,
+										  255, 255, 255, 255,
+										  255, 255, 255, 255,
+										  255, 255, 255, 255 };
+
+				_defaultWhiteTexture = CreateTexture();
+				_defaultWhiteTexture->BuildBuffer(2, 2, pixels);
+			}
+			return _defaultWhiteTexture;
 		}
 	}
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class CommandBuffer;
 

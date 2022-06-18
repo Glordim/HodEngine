@@ -1,6 +1,6 @@
 #include "Window.h"
 
-namespace HOD
+namespace hod::window
 {
 	/// @brief 
 	Window::~Window()
@@ -16,14 +16,14 @@ namespace HOD
 
 	/// @brief 
 	/// @return 
-	RENDERER::Context* Window::GetContext() const
+	renderer::Context* Window::GetContext() const
 	{
 		return _context;
 	}
 
 	/// @brief 
 	/// @param context 
-	void Window::SetContext(RENDERER::Context* context)
+	void Window::SetContext(renderer::Context* context)
 	{
 		_context = context;
 	}

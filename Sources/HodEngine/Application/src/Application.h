@@ -2,7 +2,7 @@
 
 #include <HodEngine/Core/Src/Singleton.h>
 
-namespace HOD
+namespace hod::application
 {
 	/// @brief 
 	class Application
@@ -15,6 +15,8 @@ namespace HOD
 
 		virtual bool	Init(int argc, char** argv);
 		virtual bool	Run();
+
+		void			Quit();
 
 	private:
 

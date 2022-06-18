@@ -4,7 +4,7 @@
 
 #include <rapidjson/document.h>
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

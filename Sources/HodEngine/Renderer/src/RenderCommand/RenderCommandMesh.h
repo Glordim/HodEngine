@@ -9,9 +9,9 @@
 
 #include <vector>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class MaterialInstance;
 

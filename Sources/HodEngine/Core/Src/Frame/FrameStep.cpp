@@ -5,7 +5,7 @@
 
 #include <assert.h>
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	/// @param job 

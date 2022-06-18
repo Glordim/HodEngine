@@ -7,9 +7,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class VkMaterial;
 

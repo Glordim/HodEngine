@@ -12,14 +12,14 @@
 #include "Components/Light/DirLightComponent.h"
 #include "Components/Light/SpotLightComponent.h"
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		void RegisterBuiltin()
 		{
-			GAME::ComponentReflection::CreateInstance();
-			GAME::ActorReflection::CreateInstance();
+			game::ComponentReflection::CreateInstance();
+			game::ActorReflection::CreateInstance();
 
 			ActorReflection* actorReflection = ActorReflection::GetInstance();
 			actorReflection->Register<Actor>();

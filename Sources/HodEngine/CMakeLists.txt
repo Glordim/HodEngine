@@ -6,10 +6,6 @@ if (NOT TARGET Core)
 	add_subdirectory(Core)
 endif()
 
-if (NOT TARGET ImGui)
-	add_subdirectory(ImGui)
-endif()
-
 if (NOT TARGET Physics)
 	add_subdirectory(Physics)
 endif()
@@ -24,6 +20,10 @@ endif()
 
 if (NOT TARGET Game)
 	add_subdirectory(Game)
+endif()
+
+if (NOT TARGET ImGui)
+	add_subdirectory(ImGui)
 endif()
 
 if (NOT TARGET Application)

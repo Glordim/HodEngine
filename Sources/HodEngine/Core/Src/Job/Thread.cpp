@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-namespace HOD
+namespace hod
 {
 	int priorities[Thread::Priority::Count] = { THREAD_PRIORITY_BELOW_NORMAL, THREAD_PRIORITY_NORMAL, THREAD_PRIORITY_ABOVE_NORMAL };
 

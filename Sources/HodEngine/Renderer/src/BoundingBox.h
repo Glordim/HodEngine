@@ -2,9 +2,9 @@
 
 #include <glm/vec3.hpp>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

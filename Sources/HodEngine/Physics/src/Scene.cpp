@@ -9,9 +9,9 @@
 #include <box2d/b2_math.h>
 #include <box2d/b2_body.h>
 
-namespace HOD
+namespace hod
 {
-	namespace PHYSICS
+	namespace physics
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -72,7 +72,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result)
+		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result)
 		{
 			// TODO
 			//_world->RayCast();
@@ -82,7 +82,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::PushToRenderQueue(RENDERER::RenderQueue& renderQueue)
+		void Scene::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
 			if (_useDebugDraw == true)
 			{

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	FrameSequencer::FrameSequencer()

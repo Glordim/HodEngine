@@ -1,6 +1,6 @@
 #include "DesktopApplication.h"
 
-namespace HOD
+namespace hod::application
 {
 	_SingletonInstance(DesktopApplication)
 

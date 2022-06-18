@@ -6,9 +6,9 @@
 
 #include <cstring>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -225,6 +225,11 @@ namespace HOD
 					vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
 					_textureImageMemory = VK_NULL_HANDLE;
 				}
+			}
+			else
+			{
+				_width = width;
+				_height = height;
 			}
 
 			return ret;

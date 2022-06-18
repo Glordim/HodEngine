@@ -12,15 +12,13 @@
 #include "../Actor.h"
 #include <HodEngine/Physics/src/Actor.h>
 
-#include <HodEngine/ImGui/src/imgui.h>
-
 #include <HodEngine/Core/Src/Reflection/Properties/ReflectionPropertyVariable.h>
 
-namespace HOD
+namespace hod
 {
 	using namespace CORE::Reflection::Property;
 
-	namespace GAME
+	namespace game
 	{
 		DESCRIBE_REFLECTED_DERIVED_CLASS(SceneComponent, Component)
 		{
@@ -54,6 +52,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void SceneComponent::DrawImGui()
 		{
+			/*
 			glm::vec2 pos = _position;
 
 			if (ImGui::DragFloat2("Position", &pos[0]) == true)
@@ -74,6 +73,7 @@ namespace HOD
 			{
 				SetScale(scale);
 			}
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		void SceneComponent::SyncPxActor()
 		{
-			PHYSICS::Actor* physicActor = GetActor()->GetPhysicActor();
+			physics::Actor* physicActor = GetActor()->GetPhysicActor();
 
 			if (physicActor != nullptr)
 			{

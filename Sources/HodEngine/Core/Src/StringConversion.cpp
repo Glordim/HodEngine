@@ -1,7 +1,7 @@
 #include "StringConversion.h"
 #include "Output.h"
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

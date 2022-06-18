@@ -14,9 +14,12 @@
 
 #include <cstring>
 
-namespace HOD
+#include "HodEngine/Renderer/src/RHI/VertexInput.h"
+#include "HodEngine/Renderer/src/RHI/MaterialInstance.h"
+
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		// glsl_shader.vert, compiled with:
 		// # glslangValidator -V -x -o glsl_shader.vert.u32 glsl_shader.vert
@@ -124,7 +127,6 @@ namespace HOD
 		};
 
 		Material* RenderCommandImGui::_material = nullptr;
-		MaterialInstance* RenderCommandImGui::_materialInstance = nullptr;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -146,18 +148,26 @@ namespace HOD
 
 			if (_material == nullptr)
 			{
+				VertexInput vertexInput[3] = {
+					{ 0, VertexInput::Format::R32G32_SFloat },
+					{ 8, VertexInput::Format::R32G32_SFloat },
+					{ 16, VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
+				};
+
 				Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
 				vertexShader->LoadFromMemory((void*)__glsl_shader_vert_spv, sizeof(__glsl_shader_vert_spv));
 
 				Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
 				fragmentShader->LoadFromMemory((void*)__glsl_shader_frag_spv, sizeof(__glsl_shader_frag_spv));
 
-				_material = renderer->CreateMaterial(vertexShader, fragmentShader);
-				_materialInstance = renderer->CreateMaterialInstance(_material);
+				_material = renderer->CreateMaterial(vertexInput, 3, vertexShader, fragmentShader);
 			}
 
-			commandBuffer->SetMaterialInstance(_materialInstance, 0);
-			commandBuffer->SetPushConstant();
+			struct Constant
+			{
+				glm::vec2	_scale;
+				glm::vec2	_translate;
+			};
 
 			for (int drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
 			{
@@ -165,7 +175,7 @@ namespace HOD
 
 				Buffer* vertexBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex);
 
-				uint32_t vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.size());
+				uint32_t vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.size() * sizeof(Vertex));
 				if (vertexBuffer->Resize(vertexBufferSize) == false)
 				{
 					delete vertexBuffer;
@@ -197,15 +207,28 @@ namespace HOD
 				}
 				commandBuffer->DeleteAfterRender(indexBuffer);
 
+				commandBuffer->SetVertexBuffer(vertexBuffer, 0);
+				commandBuffer->SetIndexBuffer(indexBuffer, 0);
+
+				Constant constant;
+				constant._scale.x = 2.0f / drawList->_displaySize.x;
+				constant._scale.y = 2.0f / drawList->_displaySize.y;
+				constant._translate.x = -1.0f - drawList->_displayPosition.x * constant._scale.x;
+				constant._translate.y = -1.0f - drawList->_displayPosition.y * constant._scale.y;
+
 				for (int commandIndex = 0; commandIndex < drawList->_commands.size(); ++commandIndex)
 				{
 					Command& command = drawList->_commands[commandIndex];
 
-					commandBuffer->SetIndexBuffer(indexBuffer, command._vertexOffset);
-					commandBuffer->SetVertexBuffer(vertexBuffer, command._indexOffset);
+					MaterialInstance* materialInstance = renderer->CreateMaterialInstance(_material);
+
+					materialInstance->SetTexture("sTexture", command._texture);
+					commandBuffer->SetMaterialInstance(materialInstance, 0);
+					commandBuffer->SetConstant(&constant, sizeof(constant), Shader::ShaderType::Vertex);
+					commandBuffer->DeleteAfterRender(materialInstance);
+
 					commandBuffer->SetScissor(command._clipRect);
-					//commandBuffer->SetMaterialInstance(_materialInstance, 0);
-					commandBuffer->DrawIndexed(command._elementCount);
+					commandBuffer->DrawIndexed(command._elementCount, command._indexOffset, command._vertexOffset);
 				}
 			}
 		}

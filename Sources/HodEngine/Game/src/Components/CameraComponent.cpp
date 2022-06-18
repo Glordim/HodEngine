@@ -16,9 +16,9 @@
 
 //#include <HodEngine/Window/src/Applications/GraphicApplications/GraphicApplication.h>
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -63,7 +63,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CameraComponent::SetHdriMaterial(RENDERER::MaterialInstance* hdriMat, RENDERER::Texture* hdriTexture)
+		void CameraComponent::SetHdriMaterial(renderer::MaterialInstance* hdriMat, renderer::Texture* hdriTexture)
 		{
 			_hdriMat = hdriMat;
 			_hdriTexture = hdriTexture;
@@ -97,13 +97,13 @@ namespace HOD
 		void CameraComponent::Render(Scene& scene)
 		{
 			/*
-			RENDERER::RenderQueue renderQueue;
+			renderer::RenderQueue renderQueue;
 
 			renderQueue.SetCameraPos(GetActor()->GetComponent<SceneComponent>()->GetPosition());
 			renderQueue.SetViewMatrix(glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()));
 			renderQueue.SetProjMatrix(GetProjectionMatrix());
 
-			renderQueue.SetClearFlag(RENDERER::RenderQueue::ClearFlag::COLOR | RENDERER::RenderQueue::ClearFlag::DEPTH);
+			renderQueue.SetClearFlag(renderer::RenderQueue::ClearFlag::COLOR | renderer::RenderQueue::ClearFlag::DEPTH);
 
 			renderQueue.SetHdriMaterial(_hdriMat);
 			renderQueue.SetHdriTexture(_hdriTexture);
@@ -112,7 +112,7 @@ namespace HOD
 			RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
 			RenderQueueHelper::AddDebugLines(renderQueue, &scene);
 
-			RENDERER::Renderer* renderer = RENDERER::Renderer::GetInstance();
+			renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 			renderer->SubmitRenderQueue(renderQueue);
 			*/
 		}
@@ -120,11 +120,11 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CameraComponent::PushToRenderQueue(RENDERER::RenderQueue* renderQueue)
+		void CameraComponent::PushToRenderQueue(renderer::RenderQueue* renderQueue)
 		{
 			if (renderQueue == nullptr)
 			{
-				renderQueue = RENDERER::Renderer::GetInstance()->GetRenderQueue();
+				renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 			}
 
 			CORE::Rect viewport;
@@ -132,7 +132,7 @@ namespace HOD
 			viewport._position.y = 0;
 			viewport._size.x = 1.0f;
 			viewport._size.y = 1.0f;
-			renderQueue->PushRenderCommand(new RENDERER::RenderCommandSetCameraSettings(GetProjectionMatrix(), glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()), viewport));
+			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(GetProjectionMatrix(), glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()), viewport));
 		}
 	}
 }

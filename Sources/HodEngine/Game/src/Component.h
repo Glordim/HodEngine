@@ -2,14 +2,14 @@
 
 #include <HodEngine/Core/Src/Reflection/ReflectionMacros.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class RenderQueue;
 	}
 
-	namespace GAME
+	namespace game
 	{
 		class Actor;
 
@@ -25,7 +25,7 @@ namespace HOD
 			Actor*				GetActor() const;
 			virtual const char*	GetType() const = 0;
 
-			virtual void		PushToRenderQueue(RENDERER::RenderQueue& renderQueue);
+			virtual void		PushToRenderQueue(renderer::RenderQueue& renderQueue);
 			virtual void		DrawImGui() = 0;
 
 		protected:

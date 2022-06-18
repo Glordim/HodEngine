@@ -2,9 +2,9 @@
 
 #include "Traits/Type.h"
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		DESCRIBE_REFLECTED_ABSTRACT_CLASS(Component)
 		{
@@ -22,7 +22,7 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Component::PushToRenderQueue(RENDERER::RenderQueue& renderQueue)
+		void Component::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
 
 		}

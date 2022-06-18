@@ -1,6 +1,6 @@
 #include "ReflectionPropertyVariable.h"
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

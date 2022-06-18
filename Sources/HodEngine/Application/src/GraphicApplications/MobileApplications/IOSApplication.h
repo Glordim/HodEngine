@@ -2,7 +2,7 @@
 
 #include "HodEngine/Application/src/GraphicApplications/GraphicApplication.h"
 
-namespace HOD
+namespace hod::application
 {
 	/// @brief 
 	class IOSApplication : public GraphicApplication

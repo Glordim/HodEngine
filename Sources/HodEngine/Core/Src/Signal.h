@@ -3,7 +3,7 @@
 #include <vector>
 #include <functional>
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

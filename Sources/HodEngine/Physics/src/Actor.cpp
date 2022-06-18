@@ -15,9 +15,9 @@
 
 #include <algorithm>
 
-namespace HOD
+namespace hod
 {
-	namespace PHYSICS
+	namespace physics
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		

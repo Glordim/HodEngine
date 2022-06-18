@@ -1,11 +1,11 @@
 #include "ComponentReflection.h"
 
-namespace HOD
+namespace hod
 {
 	template<>
-	GAME::ComponentReflection* Singleton<GAME::ComponentReflection>::_instance = nullptr;
+	game::ComponentReflection* Singleton<game::ComponentReflection>::_instance = nullptr;
 
-	namespace GAME
+	namespace game
 	{
 		/// @brief 
 		/// @param rootNode 

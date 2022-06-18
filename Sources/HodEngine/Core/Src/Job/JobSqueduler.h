@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-namespace HOD
+namespace hod
 {
 	class Job;
 

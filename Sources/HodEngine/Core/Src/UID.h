@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

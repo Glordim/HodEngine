@@ -24,7 +24,7 @@
 
 #define _SingletonInstance(T) T* T::_instance = nullptr;
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	/// @tparam T 

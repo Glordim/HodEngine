@@ -7,9 +7,9 @@
 #include <vector>
 #include <string>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class SpriteAtlas;
 

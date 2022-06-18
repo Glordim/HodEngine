@@ -3,7 +3,7 @@
 #include "HodEngine/Core/Src/Singleton.h"
 #include "HodEngine/Core/Src/Frame/FrameStep.h"
 
-namespace HOD
+namespace hod
 {
 	class Job;
 

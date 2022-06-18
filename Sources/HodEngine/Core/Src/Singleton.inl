@@ -1,5 +1,5 @@
 
-namespace HOD
+namespace hod
 {
 	template<typename T>
 	T* Singleton<T>::_instance = nullptr;

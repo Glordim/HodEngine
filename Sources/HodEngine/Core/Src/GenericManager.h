@@ -4,7 +4,7 @@
 #include "Signal.h"
 #include <map>
 
-namespace HOD
+namespace hod
 {
     namespace CORE
     {

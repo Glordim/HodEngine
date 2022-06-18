@@ -7,14 +7,14 @@
 #include "Component.h"
 #include "Components/SceneComponent.h"
 
-namespace HOD
+namespace hod
 {
-	namespace PHYSICS
+	namespace physics
 	{
 		class Actor;
 	}
 
-	namespace GAME
+	namespace game
 	{
 		class Scene;
 
@@ -53,15 +53,15 @@ namespace HOD
 			const std::string&				GetName() const;
 			Scene*							GetScene() const;
 
-			PHYSICS::Actor*					GetPhysicActor() const;
-			void							SetPhysicActor(PHYSICS::Actor* physicActor);
+			physics::Actor*					GetPhysicActor() const;
+			void							SetPhysicActor(physics::Actor* physicActor);
 
-			void							PushToRenderQueue(RENDERER::RenderQueue& renderQueue, bool recursive);
+			void							PushToRenderQueue(renderer::RenderQueue& renderQueue, bool recursive);
 
 		protected:
 
 			std::string						_name;
-			PHYSICS::Actor*					_physicActor = nullptr;
+			physics::Actor*					_physicActor = nullptr;
 			Scene*							_scene = nullptr;
 
 		private:

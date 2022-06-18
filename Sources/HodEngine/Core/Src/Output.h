@@ -4,7 +4,7 @@
 #define OUTPUT_WARNING(...)		CORE::Output::AddOutput(__FILE__, __LINE__, CORE::Output::Type::Warning, __VA_ARGS__);
 #define OUTPUT_ERROR(...)		CORE::Output::AddOutput(__FILE__, __LINE__, CORE::Output::Type::Error, __VA_ARGS__);
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{

@@ -8,9 +8,11 @@
 
 #include <iostream>
 
-namespace HOD
+#include "HodEngine/Renderer/src/Renderer.h"
+
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -76,10 +78,18 @@ namespace HOD
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void MaterialInstance::SetTexture(const std::string& memberName, const Texture& value)
+		void MaterialInstance::SetTexture(const std::string& memberName, const Texture* value)
 		{
-			_textureMap[memberName] = &value;
-			ApplyTexture(memberName, value);
+			_textureMap[memberName] = value;
+
+			if (value != nullptr)
+			{
+				ApplyTexture(memberName, *value);
+			}
+			else
+			{
+				ApplyTexture(memberName, *Renderer::GetInstance()->GetDefaultWhiteTexture());
+			}
 		}
 
 		//-----------------------------------------------------------------------------

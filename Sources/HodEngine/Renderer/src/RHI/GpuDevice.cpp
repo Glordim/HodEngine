@@ -1,8 +1,8 @@
 #include "GpuDevice.h"
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 	}
 }

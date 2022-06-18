@@ -8,9 +8,9 @@
 
 #include <HodEngine/Renderer/src/RHI/Context.h>
 
-using namespace HOD::RENDERER;
+using namespace hod::renderer;
 
-namespace HOD
+namespace hod::window
 {
 	constexpr const char* className = "DesktopWindow";
 
@@ -37,6 +37,8 @@ namespace HOD
 	/// @return 
 	LRESULT Win32Window::InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		_winProcEvent.Emit(_hWnd, msg, wParam, lParam);
+
 		if (msg == WM_SIZE)
 		{
 			UINT width = LOWORD(lParam);
@@ -182,5 +184,12 @@ namespace HOD
 	HINSTANCE Win32Window::GetInstanceHandle() const
 	{
 		return _hInstance;
+	}
+
+	/// @brief 
+	/// @return 
+	Win32Window::WinProcEvent& Win32Window::GetWinProcEvent()
+	{
+		return _winProcEvent;
 	}
 }

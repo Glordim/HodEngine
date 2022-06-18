@@ -8,9 +8,9 @@
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class Texture;
 		class Material;
@@ -37,7 +37,7 @@ namespace HOD
 			void									SetFloat(const std::string& memberName, float value);
 			void									SetVec4(const std::string& memberName, const glm::vec4& value);
 			void									SetMat4(const std::string& memberName, const glm::mat4& value);
-			void									SetTexture(const std::string& memberName, const Texture& value);
+			void									SetTexture(const std::string& memberName, const Texture* value);
 
 			int										GetInt(const std::string& memberName);
 			float									GetFloat(const std::string& memberName);

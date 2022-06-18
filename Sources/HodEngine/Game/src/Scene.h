@@ -6,26 +6,26 @@
 #include <vector>
 #include <utility>
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{
 		struct Color;
 	}
 
-	namespace RENDERER
+	namespace renderer
 	{
 		struct Line_3P_3C;
 	}
 
-	namespace PHYSICS
+	namespace physics
 	{
 		struct RaycastResult;
 		class Scene;
 		class Actor;
 	}
 
-	namespace GAME
+	namespace game
 	{
 		class SceneComponent;
 		class CameraComponent;
@@ -52,32 +52,32 @@ namespace HOD
 			void												SimulatePhysic(float dt);
 			void												Update(float dt);
 
-			bool												Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration);
+			bool												Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration);
 
-			PHYSICS::Actor*										CreatePhysicActor(Actor* actor);
-			Actor*												ConvertPxActor(PHYSICS::Actor* physicActor);
+			physics::Actor*										CreatePhysicActor(Actor* actor);
+			Actor*												ConvertPxActor(physics::Actor* physicActor);
 
 			void												SetAmbiantColor(CORE::Color& color);
 			SceneComponent*										GetRoot() const;
 
-			PHYSICS::Scene*										GetPhysicScene() const;
+			physics::Scene*										GetPhysicScene() const;
 
 			void												AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration);
-			void												GetDebugLines(std::vector<RENDERER::Line_3P_3C>& lines);
+			void												GetDebugLines(std::vector<renderer::Line_3P_3C>& lines);
 
-			void												PushToRenderQueue(RENDERER::RenderQueue* renderQueue = nullptr);
+			void												PushToRenderQueue(renderer::RenderQueue* renderQueue = nullptr);
 
 		private:
 
 			CORE::Color											_ambiantColor;
 			Actor*												_root;
 
-			PHYSICS::Scene*										_physicScene = nullptr;
+			physics::Scene*										_physicScene = nullptr;
 
 			std::vector<Actor*>									_actorList;
-			std::map<PHYSICS::Actor*, Actor*>					_physicActorToActorMap;
+			std::map<physics::Actor*, Actor*>					_physicActorToActorMap;
 
-			//std::vector<std::pair<RENDERER::Line_3P_3C, float>>	_debugLines;
+			//std::vector<std::pair<renderer::Line_3P_3C, float>>	_debugLines;
 		};
 	}
 }

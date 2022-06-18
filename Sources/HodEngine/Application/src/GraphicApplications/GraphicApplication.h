@@ -6,10 +6,13 @@
 
 #include <HodEngine/Renderer/src/RHI/Context.h>
 
-namespace HOD
+namespace hod::window
 {
 	class Window;
+}
 
+namespace hod::application
+{
 	/// @brief 
 	class GraphicApplication : public Application
 	{
@@ -22,11 +25,11 @@ namespace HOD
 		bool			Init(int argc, char** argv) override;
 		bool			Run() override;
 
-		Window*			GetWindow() const;
+		window::Window*	GetWindow() const;
 
 	private:
 
-		Window*			_window = nullptr;
+		window::Window*	_window = nullptr;
 	};
 }
 

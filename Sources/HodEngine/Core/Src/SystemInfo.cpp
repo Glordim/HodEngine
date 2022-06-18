@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-namespace HOD
+namespace hod
 {
 	namespace SystemInfo
 	{

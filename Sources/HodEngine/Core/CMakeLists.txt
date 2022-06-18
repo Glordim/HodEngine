@@ -41,4 +41,4 @@ target_link_libraries(
 	${Uuid_LIB}
 )
 
-target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
+target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE} ${RENDERER_ENABLE_VALIDATION_LAYER_DEFINE})

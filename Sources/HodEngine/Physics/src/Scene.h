@@ -6,19 +6,19 @@
 
 class b2World;
 
-namespace HOD
+namespace hod
 {
 	namespace CORE
 	{
 		struct Color;
 	}
 
-	namespace RENDERER
+	namespace renderer
 	{
 		class RenderQueue;
 	}
 
-	namespace PHYSICS
+	namespace physics
 	{
 		class Actor;
 		class DebugDrawer;
@@ -55,9 +55,9 @@ namespace HOD
 
 			void				Update(float dt);
 
-			void				PushToRenderQueue(RENDERER::RenderQueue& renderQueue);
+			void				PushToRenderQueue(renderer::RenderQueue& renderQueue);
 
-			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, PHYSICS::RaycastResult& result);
+			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result);
 
 		// Debug
 		public:

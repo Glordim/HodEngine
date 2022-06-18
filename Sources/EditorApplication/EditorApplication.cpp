@@ -2,7 +2,7 @@
 
 #include <HodEngine/Editor/src/Editor.h>
 
-using namespace HOD;
+using namespace hod;
 
 /// @brief 
 /// @param argc 
@@ -16,8 +16,8 @@ bool EditorApplication::Init(int argc, char** argv)
 		return false;
 	}
 
-	Editor::CreateInstance();
-	if (Editor::GetInstance()->Init(GetWindow()) == false)
+	editor::Editor::CreateInstance();
+	if (editor::Editor::GetInstance()->Init() == false)
 	{
 		return false;
 	}

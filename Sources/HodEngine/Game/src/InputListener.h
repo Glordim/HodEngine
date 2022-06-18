@@ -3,7 +3,7 @@
 #include <functional>
 #include <unordered_map>
 
-namespace HOD
+namespace hod
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

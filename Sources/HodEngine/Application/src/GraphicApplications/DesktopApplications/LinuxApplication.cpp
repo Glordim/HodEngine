@@ -30,7 +30,7 @@
 #include <SDL_syswm.h>
 #include <SDL_vulkan.h>
 
-namespace HOD
+namespace hod
 {
 	template<>
 	APPLICATION::Application* CORE::Singleton<APPLICATION::Application>::_instance = nullptr;
@@ -80,7 +80,7 @@ namespace HOD
 				const char* dumpPath = argParser.GetValue("toolDump");
 				if (dumpPath != nullptr)
 				{
-					GAME::RegisterBuiltin();
+					game::RegisterBuiltin();
 
 					rapidjson::Document document;
 					rapidjson::Value& rootNode = document.SetObject();
@@ -89,7 +89,7 @@ namespace HOD
 
 					document.AddMember("Version", rapidjson::StringRef("1.0"), allocator);
 
-					if (GAME::ComponentReflection::GetInstance()->Dump(rootNode, allocator) == false)
+					if (game::ComponentReflection::GetInstance()->Dump(rootNode, allocator) == false)
 					{
 						return InitResult::Failure;
 					}

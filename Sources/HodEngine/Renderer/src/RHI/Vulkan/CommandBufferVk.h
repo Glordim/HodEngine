@@ -4,10 +4,11 @@
 
 #include <vulkan/vulkan.h>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
+		class VkMaterial;
 		class VkMaterialInstance;
 
 		//-----------------------------------------------------------------------------
@@ -32,6 +33,8 @@ namespace HOD
 			bool				StartRecord(Context* context = nullptr) override;
 			bool				EndRecord() override;
 
+			void				SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) override;
+
 			void				SetProjectionMatrix(const glm::mat4x4& projectionMatrix) override;
 			void				SetViewMatrix(const glm::mat4x4& viewMatrix) override;
 			void				SetModelMatrix(const glm::mat4x4& modelMatrix) override;
@@ -44,13 +47,15 @@ namespace HOD
 			void				SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) override;
 
 			void				Draw(uint32_t vertexCount) override;
-			void				DrawIndexed(uint32_t indexCount) override;
+			void				DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset) override;
 
 		private:
 
 			void				Release();
 
 		private:
+
+			const VkMaterial*	_material = nullptr;
 
 			VkCommandBuffer		_vkCommandBuffer = VK_NULL_HANDLE;
 

@@ -46,7 +46,7 @@ DOCUMENTATION
   - GETTING STARTED WITH INTEGRATING DEAR IMGUI IN YOUR CODE/ENGINE
   - HOW A SIMPLE APPLICATION MAY LOOK LIKE
   - HOW A SIMPLE RENDERING FUNCTION MAY LOOK LIKE
-  - USING GAMEPAD/KEYBOARD NAVIGATION CONTROLS
+  - USING gamePAD/KEYBOARD NAVIGATION CONTROLS
 - API BREAKING CHANGES (read me when you update!)
 - FREQUENTLY ASKED QUESTIONS (FAQ)
   - Read all answers online: https://www.dearimgui.org/faq, or in docs/FAQ.md (with a Markdown viewer)
@@ -76,7 +76,7 @@ CODE
 // [SECTION] SCROLLING
 // [SECTION] TOOLTIPS
 // [SECTION] POPUPS
-// [SECTION] KEYBOARD/GAMEPAD NAVIGATION
+// [SECTION] KEYBOARD/gamePAD NAVIGATION
 // [SECTION] DRAG AND DROP
 // [SECTION] LOGGING/CAPTURING
 // [SECTION] SETTINGS
@@ -342,7 +342,7 @@ CODE
     }
 
 
- USING GAMEPAD/KEYBOARD NAVIGATION CONTROLS
+ USING gamePAD/KEYBOARD NAVIGATION CONTROLS
  ------------------------------------------
  - The gamepad/keyboard navigation is fairly functional and keeps being improved.
  - Gamepad support is particularly useful to use Dear ImGui on a console system (e.g. PS4, Switch, XB1) without a mouse!
@@ -10204,7 +10204,7 @@ ImVec2 ImGui::FindBestWindowPosForPopup(ImGuiWindow* window)
 }
 
 //-----------------------------------------------------------------------------
-// [SECTION] KEYBOARD/GAMEPAD NAVIGATION
+// [SECTION] KEYBOARD/gamePAD NAVIGATION
 //-----------------------------------------------------------------------------
 
 // FIXME-NAV: The existence of SetNavID vs SetFocusID properly needs to be clarified/reworked.

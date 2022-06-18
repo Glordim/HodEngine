@@ -1,14 +1,14 @@
 #pragma once
 
-namespace HOD
+namespace hod
 {
-	namespace GAME
+	namespace game
 	{
 		class SceneComponent;
 		class Scene;
 	}
 
-	namespace RENDERER
+	namespace renderer
 	{
 		class RenderQueue;
 	}
@@ -30,8 +30,8 @@ namespace HOD
 
 	public:
 
-		static void		AddSceneComponent(RENDERER::RenderQueue& renderQueue, GAME::SceneComponent* sceneComponent, bool recursive);
-		static void		AddScenePhysicsDebug(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene);
-		static void		AddDebugLines(RENDERER::RenderQueue& renderQueue, GAME::Scene* scene);
+		static void		AddSceneComponent(renderer::RenderQueue& renderQueue, game::SceneComponent* sceneComponent, bool recursive);
+		static void		AddScenePhysicsDebug(renderer::RenderQueue& renderQueue, game::Scene* scene);
+		static void		AddDebugLines(renderer::RenderQueue& renderQueue, game::Scene* scene);
 	};
 }

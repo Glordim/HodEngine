@@ -10,7 +10,9 @@
 #include <HodEngine/Renderer/src/PlatformRenderer.h>
 #include <HodEngine/Window/src/PlatformWindow.h>
 
-namespace HOD
+#include <HodEngine/ImGui/src/ImGuiManager.h>
+
+namespace hod::application
 {
 	_SingletonInstance(GraphicApplication)
 
@@ -27,6 +29,12 @@ namespace HOD
 
 		PlatformRenderer::CreateInstance();
 		if (PlatformRenderer::GetInstance()->Init(_window) == false)
+		{
+			return false;
+		}
+
+		imgui::ImGuiManager::CreateInstance();
+		if (imgui::ImGuiManager::GetInstance()->Init(_window) == false)
 		{
 			return false;
 		}
@@ -57,7 +65,7 @@ namespace HOD
 
 	/// @brief 
 	/// @return 
-	Window* GraphicApplication::GetWindow() const
+	window::Window* GraphicApplication::GetWindow() const
 	{
 		return _window;
 	}

@@ -3,9 +3,9 @@
 #include <box2d/b2_draw.h>
 #include <vector>
 
-namespace HOD
+namespace hod
 {
-	namespace RENDERER
+	namespace renderer
 	{
 		class MaterialInstance;
 		class RenderQueue;
@@ -13,7 +13,7 @@ namespace HOD
 		struct P2fC4f;
 	}
 
-	namespace PHYSICS
+	namespace physics
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -26,7 +26,7 @@ namespace HOD
 
 		public:
 
-			void									PushToRenderQueue(RENDERER::RenderQueue& renderQueue);
+			void									PushToRenderQueue(renderer::RenderQueue& renderQueue);
 			bool									HasRenderCommand() const;
 
 			void									DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;
@@ -41,19 +41,19 @@ namespace HOD
 
 		private:
 
-			static RENDERER::P2fC4f*				BuildPolygonVertices(const b2Vec2* vertices, int32 vertexCount, const b2Color& color);
-			static RENDERER::P2fC4f*				BuildCircleVertices(const b2Vec2& center, float radius, const b2Color& color, uint32_t segmentCount);
+			static renderer::P2fC4f*				BuildPolygonVertices(const b2Vec2* vertices, int32 vertexCount, const b2Color& color);
+			static renderer::P2fC4f*				BuildCircleVertices(const b2Vec2& center, float radius, const b2Color& color, uint32_t segmentCount);
 
 		private:
 
-			std::vector<RENDERER::RenderCommand*>	_renderCommands;
+			std::vector<renderer::RenderCommand*>	_renderCommands;
 
 		private:
 
-			static RENDERER::MaterialInstance*		_pointMaterialInstance;
-			static RENDERER::MaterialInstance*		_lineMaterialInstance;
-			static RENDERER::MaterialInstance*		_wireframePolygonMaterialInstance;
-			static RENDERER::MaterialInstance*		_solidPolygonMaterialInstance;
+			static renderer::MaterialInstance*		_pointMaterialInstance;
+			static renderer::MaterialInstance*		_lineMaterialInstance;
+			static renderer::MaterialInstance*		_wireframePolygonMaterialInstance;
+			static renderer::MaterialInstance*		_solidPolygonMaterialInstance;
 		};
 	}
 }

@@ -2,7 +2,7 @@
 
 #include "HodEngine/Application/src/GraphicApplications/DesktopApplications/DesktopApplication.h"
 
-namespace HOD
+namespace hod::application
 {
 	/// @brief 
 	class LinuxApplication : public DesktopApplication

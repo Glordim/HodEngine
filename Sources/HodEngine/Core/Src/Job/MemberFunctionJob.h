@@ -2,7 +2,7 @@
 
 #include "HodEngine/Core/Src/Job/Job.h"
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	template<typename Type, typename Function = void (Type::*)()>

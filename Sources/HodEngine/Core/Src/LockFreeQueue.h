@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <atomic>
 
-namespace HOD
+namespace hod
 {
 	/// @brief 
 	/// @tparam T 
