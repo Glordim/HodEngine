@@ -4,9 +4,12 @@
 
 #include <HodEngine/Core/Src/Singleton.h>
 
+#include <filesystem>
+
 namespace hod::editor
 {
 	class MainBar;
+	class Project;
 
 	/// @brief 
 	class Editor : public Singleton<Editor>
@@ -17,6 +20,12 @@ namespace hod::editor
 
 		bool		Init();
 
+		bool		CreateProject(const std::filesystem::path& path);
+		bool		OpenProject(const std::filesystem::path& path);
+		bool		CloseProject();
+
+		Project*	GetProject();
+
 	protected:
 
 					Editor();
@@ -25,5 +34,6 @@ namespace hod::editor
 	private:
 
 		MainBar*	_mainBar = nullptr;
+		Project*	_project = nullptr;
 	};
 }

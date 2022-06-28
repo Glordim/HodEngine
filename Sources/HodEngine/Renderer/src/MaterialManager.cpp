@@ -14,7 +14,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		CORE::UID MaterialManager::CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+		UID MaterialManager::CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			Renderer* renderer = Renderer::GetInstance();
 
@@ -22,7 +22,7 @@ namespace hod
 			if (vertexShader->LoadFromFile("Shader/" + shaderName + ".vert.spirv") == false)
 			{
 				delete vertexShader;
-				return CORE::UID::INVALID_UID;
+				return UID::INVALID_UID;
 			}
 
 			Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
@@ -30,7 +30,7 @@ namespace hod
 			{
 				delete vertexShader;
 				delete fragmentShader;
-				return CORE::UID::INVALID_UID;
+				return UID::INVALID_UID;
 			}
 
 			Material* material = renderer->CreateMaterial(nullptr, 0, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
@@ -38,10 +38,10 @@ namespace hod
 			{
 				delete vertexShader;
 				delete fragmentShader;
-				return CORE::UID::INVALID_UID;
+				return UID::INVALID_UID;
 			}
 
-			CORE::UID uid = CORE::UID::GenerateUID();
+			UID uid = UID::GenerateUID();
 
 			this->AddData(uid, material);
 

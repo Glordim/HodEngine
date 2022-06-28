@@ -70,6 +70,7 @@ namespace hod::imgui
 		fontTexture->BuildBuffer(out_width, out_height, out_pixels);
 
 		ImGui::GetIO().Fonts->SetTexID((ImTextureID)fontTexture);
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_Init(static_cast<window::Win32Window*>(window)->GetWindowHandle());
@@ -110,8 +111,15 @@ namespace hod::imgui
 			}
 		}
 
+		ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+
 		for (Window* window : _windows)
 		{
+			/*
+			ImGuiWindowClass window_class;
+			window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+			ImGui::SetNextWindowClass(&window_class);
+			*/
 			window->Draw();
 		}
 
