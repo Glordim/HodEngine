@@ -3,8 +3,11 @@
 #include <stdint.h>
 
 #include <HodEngine/Core/Src/Singleton.h>
+#include <HodEngine/Core/Src/Signal.h>
 
 #include <filesystem>
+
+#include "HodEngine/Editor/src/AssetDatabase.h"
 
 namespace hod::editor
 {
@@ -18,22 +21,30 @@ namespace hod::editor
 
 	public:
 
-		bool		Init();
+		bool			Init();
 
-		bool		CreateProject(const std::filesystem::path& path);
-		bool		OpenProject(const std::filesystem::path& path);
-		bool		CloseProject();
+		bool			CreateProject(const std::filesystem::path& path);
+		bool			OpenProject(const std::filesystem::path& path);
+		bool			CloseProject();
 
-		Project*	GetProject();
+		Project*		GetProject();
+		AssetDatabase&	GetAssetDatabase();
+
+		CORE::Signal<Project*>&	GetOnProjectOpenedSignal();
+		CORE::Signal<Project*>&	GetOnProjectClosedSignal();
 
 	protected:
 
-					Editor();
-					~Editor();
+						Editor();
+						~Editor();
 
 	private:
 
-		MainBar*	_mainBar = nullptr;
-		Project*	_project = nullptr;
+		MainBar*		_mainBar = nullptr;
+		Project*		_project = nullptr;
+		AssetDatabase	_assetDatabase;
+
+		CORE::Signal<Project*>	_onProjectOpenedSignal;
+		CORE::Signal<Project*>	_onProjectClosedSignal;
 	};
 }

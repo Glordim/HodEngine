@@ -6,6 +6,8 @@
 
 #include <fstream>
 
+#include "HodEngine/Editor/src/Editor.h"
+
 namespace hod::editor
 {
 	/// @brief 
@@ -16,5 +18,12 @@ namespace hod::editor
 	/// @brief 
 	AssetDatabase::~AssetDatabase()
 	{
+	}
+
+	/// @brief 
+	/// @return 
+	bool AssetDatabase::Init()
+	{
+		Editor::GetInstance()->GetOnProjectOpenedSignal().Connect();
 	}
 }

@@ -18,6 +18,8 @@ namespace hod::editor
 								AssetDatabase();
 								~AssetDatabase();
 
+		bool					Init();
+
 	private:
 
 		std::map<UID, Asset*>	_uidToAssetMap;

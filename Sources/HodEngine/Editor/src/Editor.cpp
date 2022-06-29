@@ -26,6 +26,8 @@ namespace hod::editor
 		_mainBar = new MainBar();
 		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
 
+		_assetDatabase.Init();
+
 		return true;
 	}
 
@@ -40,6 +42,7 @@ namespace hod::editor
 
 		_project = new Project(projectFilePath);
 		_project->Save();
+
 		return true;
 	}
 
@@ -68,5 +71,26 @@ namespace hod::editor
 	Project* Editor::GetProject()
 	{
 		return _project;
+	}
+
+	/// @brief 
+	/// @return 
+	AssetDatabase& Editor::GetAssetDatabase()
+	{
+		return _assetDatabase;
+	}
+
+	/// @brief 
+	/// @return 
+	CORE::Signal<Project*>& Editor::GetOnProjectOpenedSignal()
+	{
+		return _onProjectOpenedSignal;
+	}
+
+	/// @brief 
+	/// @return 
+	CORE::Signal<Project*>& Editor::GetOnProjectClosedSignal()
+	{
+		return _onProjectClosedSignal;
 	}
 }
