@@ -37,7 +37,7 @@ namespace hod::window
 	/// @return 
 	LRESULT Win32Window::InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		_winProcEvent.Emit(_hWnd, msg, wParam, lParam);
+		OnWinProc.Emit(_hWnd, msg, wParam, lParam);
 
 		if (msg == WM_SIZE)
 		{
@@ -184,12 +184,5 @@ namespace hod::window
 	HINSTANCE Win32Window::GetInstanceHandle() const
 	{
 		return _hInstance;
-	}
-
-	/// @brief 
-	/// @return 
-	Win32Window::WinProcEvent& Win32Window::GetWinProcEvent()
-	{
-		return _winProcEvent;
 	}
 }

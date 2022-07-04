@@ -43,6 +43,8 @@ namespace hod::editor
 		_project = new Project(projectFilePath);
 		_project->Save();
 
+		OnProjectLoaded.Emit(_project);
+
 		return true;
 	}
 
@@ -53,6 +55,9 @@ namespace hod::editor
 	{
 		_project = new Project(path);
 		_project->Load();
+
+		OnProjectLoaded.Emit(_project);
+
 		return true;
 	}
 
@@ -60,6 +65,8 @@ namespace hod::editor
 	/// @return 
 	bool Editor::CloseProject()
 	{
+		OnProjectClosed.Emit(_project);
+
 		delete _project;
 		_project = nullptr;
 
@@ -78,19 +85,5 @@ namespace hod::editor
 	AssetDatabase& Editor::GetAssetDatabase()
 	{
 		return _assetDatabase;
-	}
-
-	/// @brief 
-	/// @return 
-	CORE::Signal<Project*>& Editor::GetOnProjectOpenedSignal()
-	{
-		return _onProjectOpenedSignal;
-	}
-
-	/// @brief 
-	/// @return 
-	CORE::Signal<Project*>& Editor::GetOnProjectClosedSignal()
-	{
-		return _onProjectClosedSignal;
 	}
 }

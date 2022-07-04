@@ -1,23 +1,23 @@
 #pragma once
 
 #include "UID.h"
-#include "Signal.h"
+#include "Event.h"
 #include <map>
 
 namespace hod
 {
-    namespace CORE
-    {
+	namespace CORE
+	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
 		template<typename T>
 		class GenericManager
-        {
+		{
 		public:
 
-			using AddDataSignal = Signal<T*>;
-			using RemoveDataSignal = Signal<T*>;
+			Event<T*>							OnDataAdded;
+			Event<T*>							OnDataRemoved;
 
 		public:
 
@@ -34,20 +34,14 @@ namespace hod
 			T*									GetData(const UID& uid) const;
 			void								RemoveData(const UID& uid);
 
-			void								RegisterAddData(typename AddDataSignal::Slot& slot);
-			void								UnRegisterAddData(typename AddDataSignal::Slot& slot);
-			void								RegisterRemoveData(typename RemoveDataSignal::Slot& slot);
-			void								UnRegisterRemoveData(typename RemoveDataSignal::Slot& slot);
-
 		public:
 
 			void								AddData(const UID& uid, const T* data);
 
 		private:
+
 			std::vector<std::pair<UID, T*>>		_uidToDataMap;
-			AddDataSignal						_addDataSignal;
-			RemoveDataSignal					_removeDataSignal;
-        };
+		};
 	}
 }
 

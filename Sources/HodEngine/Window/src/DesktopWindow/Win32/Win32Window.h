@@ -6,14 +6,16 @@
 
 #include <HodEngine/Core/Src/Job/MemberFunctionJob.h>
 
-#include "HodEngine/Core/Src/Signal.h"
+#include "HodEngine/Core/Src/Event.h"
 
 namespace hod::window
 {
 	/// @brief 
 	class Win32Window : public DesktopWindow
 	{
-		using WinProcEvent = CORE::Signal<HWND, UINT, WPARAM, LPARAM>;
+	public:
+
+		Event<HWND, UINT, WPARAM, LPARAM>	OnWinProc;
 
 	public:
 											Win32Window();
@@ -23,8 +25,6 @@ namespace hod::window
 
 		HWND								GetWindowHandle() const;
 		HINSTANCE							GetInstanceHandle() const;
-
-		WinProcEvent&						GetWinProcEvent();
 
 	private:
 
@@ -40,7 +40,5 @@ namespace hod::window
 		MemberFunctionJob<Win32Window>		_updateJob;
 
 		Thread::Id							_hWndThreadId;
-
-		WinProcEvent						_winProcEvent;
 	};
 }

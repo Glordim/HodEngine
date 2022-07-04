@@ -14,10 +14,10 @@ namespace hod::editor
 	{
 		_name = _projectPath.stem().string();
 
-		_assetPath = _projectPath.parent_path();
-		_assetPath.append("Assets");
+		_assetDirPath = _projectPath.parent_path();
+		_assetDirPath.append("Assets");
 
-		std::filesystem::create_directory(_assetPath);
+		std::filesystem::create_directory(_assetDirPath);
 	}
 
 	/// @brief 
@@ -70,5 +70,12 @@ namespace hod::editor
 		file << sb.GetString();
 		file.close();
 		return true;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::filesystem::path& Project::GetAssetDirPath() const
+	{
+		return _assetDirPath;
 	}
 }

@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #include <HodEngine/Core/Src/Singleton.h>
-#include <HodEngine/Core/Src/Signal.h>
+#include <HodEngine/Core/Src/Event.h>
 
 #include <filesystem>
 
@@ -21,6 +21,11 @@ namespace hod::editor
 
 	public:
 
+		Event<Project*>	OnProjectLoaded;
+		Event<Project*>	OnProjectClosed;
+
+	public:
+
 		bool			Init();
 
 		bool			CreateProject(const std::filesystem::path& path);
@@ -29,9 +34,6 @@ namespace hod::editor
 
 		Project*		GetProject();
 		AssetDatabase&	GetAssetDatabase();
-
-		CORE::Signal<Project*>&	GetOnProjectOpenedSignal();
-		CORE::Signal<Project*>&	GetOnProjectClosedSignal();
 
 	protected:
 
@@ -43,8 +45,5 @@ namespace hod::editor
 		MainBar*		_mainBar = nullptr;
 		Project*		_project = nullptr;
 		AssetDatabase	_assetDatabase;
-
-		CORE::Signal<Project*>	_onProjectOpenedSignal;
-		CORE::Signal<Project*>	_onProjectClosedSignal;
 	};
 }

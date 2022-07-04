@@ -2,7 +2,7 @@
 
 #include <HodEngine/Core/Src/Singleton.h>
 #include <HodEngine/Core/Src/Job/MemberFunctionJob.h>
-#include <HodEngine/Core/Src/Signal.h>
+#include <HodEngine/Core/Src/Event.h>
 
 #include <stdint.h>
 
@@ -45,7 +45,7 @@ namespace hod::imgui
 
 #if defined (PLATFORM_WINDOWS)
 		void							OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-		CORE::Signal<HWND, UINT, WPARAM, LPARAM>::Slot _winProcSlot;
+		Event<HWND, UINT, WPARAM, LPARAM>::Slot _winProcSlot;
 #endif
 
 	private:

@@ -74,7 +74,7 @@ namespace hod::imgui
 
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_Init(static_cast<window::Win32Window*>(window)->GetWindowHandle());
-		static_cast<window::Win32Window*>(window)->GetWinProcEvent().Connect(_winProcSlot);
+		static_cast<window::Win32Window*>(window)->OnWinProc.Connect(_winProcSlot);
 #endif
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);

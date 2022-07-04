@@ -12,17 +12,19 @@ namespace hod::editor
 	class Project
 	{
 	public:
-								Project(const std::filesystem::path& projectPath);
-								~Project();
+										Project(const std::filesystem::path& projectPath);
+										~Project();
 
-		bool					Load();
-		bool					Save();
+		bool							Load();
+		bool							Save();
+
+		const std::filesystem::path&	GetAssetDirPath() const;
 
 	private:
 
-		std::filesystem::path	_projectPath;
-		std::filesystem::path	_assetPath;
+		std::filesystem::path			_projectPath;
+		std::filesystem::path			_assetDirPath;
 
-		std::string				_name;
+		std::string						_name;
 	};
 }
