@@ -19,6 +19,11 @@ namespace hod
 
 		void								operator=(const UID& right);
 
+		bool								operator<(const UID& rhs) const
+		{
+			return _high <= rhs._high && _low < rhs._low;
+		}
+
 	public:
 
 		std::string							ToString() const;
@@ -39,6 +44,12 @@ namespace hod
 
 	bool									operator==(const UID& left, const UID& right);
 	bool									operator!=(const UID& left, const UID& right);
+
+	/*
+	* 	bool								operator<(const UID& lhs, const UID& rhs)
+	{
+		return lhs._high <= rhs._high && lhs._low < rhs._low;
+	}*/
 }
 
 #include "UID.inl"

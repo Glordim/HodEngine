@@ -29,24 +29,30 @@ namespace hod::editor
 		void					OnProjectLoaded(Project* project);
 		void					OnProjectClosed(Project* project);
 
-		void					ExploreAndDetectAsset(const std::filesystem::path dir);
+		//void					ExploreAndDetectAsset(const std::filesystem::path dir);
 		void					FilesystemWatcherJob();
 
 	private:
 
-		struct FileSystem
+		struct FileSystemMapping
 		{
-			std::filesystem::path	_path;
-			Asset*					_asset;
+			std::filesystem::path			_path;
+			Asset* _asset;
 
-			std::vector<FileSystemMapping>	_children;
+			std::vector<FileSystemMapping*>	_children;
 		};
 
-		std::map<UID, Asset*>			_uidToAssetMap;
-		std::vector<FileSystemMapping>	_filesystem;
+	private:
 
-		Event<Project*>::Slot	_onProjectLoadedSlot;
-		Event<Project*>::Slot	_onProjectClosedSlot;
+		void					ExploreAndDetectAsset(FileSystemMapping* fileSystemMapping);
+
+	private:
+
+		std::map<UID, Asset*>				_uidToAssetMap;
+		FileSystemMapping					_rootFileSystemMapping;
+
+		Event<Project*>::Slot				_onProjectLoadedSlot;
+		Event<Project*>::Slot				_onProjectClosedSlot;
 
 		void*								_filesystemWatcherHandle;
 		MemberFunctionJob<AssetDatabase>	_filesystemWatcherJob;

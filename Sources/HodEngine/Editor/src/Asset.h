@@ -12,14 +12,15 @@ namespace hod::editor
 	class Asset
 	{
 	public:
-								Asset(const UID& uid, const std::filesystem::path& path);
+								Asset(const std::filesystem::path& path);
 								~Asset();
 
 		bool					Load();
 		bool					Save();
 
-	private:
+		const UID&				GetUid() const;
 
+	private:
 
 		UID						_uid;
 		std::string				_name;
