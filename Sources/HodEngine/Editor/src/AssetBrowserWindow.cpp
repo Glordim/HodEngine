@@ -6,6 +6,9 @@
 
 #include <HodEngine/ImGui/src/ImGuiManager.h>
 
+#include "HodEngine/Editor/src/Editor.h"
+#include "HodEngine/Editor/src/Project.h"
+
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
 {
 	using namespace ImGui;
@@ -20,6 +23,18 @@ bool Splitter(bool split_vertically, float thickness, float* size1, float* size2
 
 namespace hod::editor
 {
+	/// @brief 
+	AssetBrowserWindow::AssetBrowserWindow()
+	{
+		Project* project = Editor::GetInstance()->GetProject();
+		if (project != nullptr)
+		{
+			_folderTree._path = project->GetAssetDirPath();
+		}
+
+		ResyncFolderTree(&_folderTree);
+	}
+
 	/// @brief 
 	void AssetBrowserWindow::Draw()
 	{
@@ -44,6 +59,16 @@ namespace hod::editor
 	void AssetBrowserWindow::DrawFolderTree()
 	{
 
+	}
+
+	/// @brief 
+	void AssetBrowserWindow::ResyncFolderTree(FolderItem* folderItem)
+	{
+		/*
+		Editor::GetInstance()->GetAssetDatabase()->Get
+
+		folderItem.
+		*/
 	}
 
 	/// @brief 

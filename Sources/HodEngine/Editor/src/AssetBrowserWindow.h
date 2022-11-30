@@ -2,6 +2,9 @@
 
 #include <HodEngine/ImGui/src/Window.h>
 
+#include <vector>
+#include <filesystem>
+
 namespace hod::editor
 {
 	/// @brief 
@@ -9,7 +12,7 @@ namespace hod::editor
 	{
 	public:
 
-					AssetBrowserWindow() = default;
+					AssetBrowserWindow();
 					~AssetBrowserWindow() override = default;
 
 	public:
@@ -18,14 +21,24 @@ namespace hod::editor
 
 	private:
 
+		struct FolderItem
+		{
+			std::filesystem::path		_path;
+			bool						_expanded = false;
+
+			std::vector<FolderItem*>	_children;
+		};
+
+	private:
+
 		void		DrawFolderTree();
-		void		ResyncFolderTree();
+		void		ResyncFolderTree(FolderItem* folderItem);
 
 		void		DrawFolderExplorer();
 		void		ResyncFolderExplorer();
 
 	private:
 
-
+		FolderItem	_folderTree;
 	};
 }
