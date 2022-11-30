@@ -41,7 +41,7 @@ namespace hod::editor
 			Type							_type;
 			UID								_uid;
 
-			std::shared_ptr<Asset*>			_asset = nullptr;
+			std::shared_ptr<Asset>			_asset = nullptr;
 			
 			std::vector<FileSystemMapping*>	_children;
 		};
@@ -51,7 +51,7 @@ namespace hod::editor
 		void								OnProjectLoaded(Project* project);
 		void								OnProjectClosed(Project* project);
 
-		void								ExploreAndDetectAsset(const std::filesystem::path dir, FileSystemMapping* parentFileSystemMapping);
+		void								ExploreAndDetectAsset(FileSystemMapping* parentFileSystemMapping);
 		void								FilesystemWatcherJob();
 
 		const std::filesystem::path&		UIDToAssetPath(const UID& uid) const;
@@ -65,8 +65,8 @@ namespace hod::editor
 
 	private:
 
-		std::map<UID, Asset*>				_uidToAssetMap;
-		std::vector<FileSystemMapping*>		_filesystemMapping;
+		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
+		FileSystemMapping					_rootFileSystemMapping;
 
 		Event<Project*>::Slot				_onProjectLoadedSlot;
 		Event<Project*>::Slot				_onProjectClosedSlot;

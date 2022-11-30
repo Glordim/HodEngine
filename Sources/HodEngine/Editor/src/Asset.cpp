@@ -9,9 +9,8 @@
 namespace hod::editor
 {
 	/// @brief 
-	Asset::Asset(const UID& uid, const std::filesystem::path& path)
-		: _uid(uid)
-		, _path(path)
+	Asset::Asset(const std::filesystem::path& path)
+		: _path(path)
 	{
 		_name = _path.stem().string();
 	}
@@ -70,5 +69,12 @@ namespace hod::editor
 		file.close();
 		*/
 		return true;
+	}
+
+	/// @brief 
+	/// @return 
+	const UID& Asset::GetUid() const
+	{
+		return _uid;
 	}
 }

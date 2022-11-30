@@ -34,11 +34,12 @@ namespace hod::editor
 		file.seekg(0, std::ios::end);
 		
 		int size = (int)file.tellg();
-		char* buffer = new char[size + 1];
+		char* buffer = new char[size];
 		file.seekg(0, std::ios::beg);
 		file.read(buffer, size);
 		file.close();
-		buffer[size] = '\0';
+		buffer[size - 1] = '\0';
+		buffer[size - 2] = '\0';
 
 		rapidjson::Document document;
 		document.Parse(buffer);

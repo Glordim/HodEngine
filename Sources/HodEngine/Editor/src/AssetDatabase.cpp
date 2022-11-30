@@ -8,10 +8,12 @@
 
 #include "HodEngine/Editor/src/Editor.h"
 #include "HodEngine/Editor/src/Project.h"
+#include "HodEngine/Editor/src/Asset.h"
 
 #include <HodEngine/Core/Src/Frame/FrameSequencer.h>
 
 #include <Windows.h>
+#include <vector>
 
 namespace hod::editor
 {
@@ -67,7 +69,9 @@ namespace hod::editor
 			FILE_NOTIFY_CHANGE_LAST_WRITE |
 			FILE_NOTIFY_CHANGE_SECURITY);
 
-		ExploreAndDetectAsset(project->GetAssetDirPath(), nullptr);
+		_rootFileSystemMapping._asset = nullptr;
+		_rootFileSystemMapping._path = project->GetAssetDirPath();
+		ExploreAndDetectAsset(&_rootFileSystemMapping);
 
 		FrameSequencer::GetInstance()->InsertJob(&_filesystemWatcherJob, FrameSequencer::Step::PreRender);
 	}
@@ -95,7 +99,7 @@ namespace hod::editor
 
 		for (auto pair : _uidToAssetMap)
 		{
-			delete pair.second;
+			//delete pair.second;
 		}
 
 		_uidToAssetMap.clear();
@@ -103,36 +107,32 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param dir 
-	void AssetDatabase::ExploreAndDetectAsset(const std::filesystem::path dir, FileSystemMapping* parentFileSystemMapping)
+	void AssetDatabase::ExploreAndDetectAsset(FileSystemMapping* fileSystemMapping)
 	{
-		std::filesystem::directory_iterator entries(dir);
+		std::filesystem::directory_iterator entries(fileSystemMapping->_path);
 
 		for (const std::filesystem::directory_entry& entry : entries)
 		{
-			FileSystemMapping* fileSystemMapping = new FileSystemMapping();
-			fileSystemMapping->_path = entry.path();
-			fileSystemMapping->_lastWriteTime = entry.last_write_time();
+			FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
+			childFileSystemMapping->_path = entry.path();
+			childFileSystemMapping->_lastWriteTime = entry.last_write_time();
+
 			if (entry.is_directory() == true)
 			{
-				fileSystemMapping->_type = FileSystemMapping::Type::FolderType;
-				fileSystemMapping->_uid = UID::INVALID_UID;
-
-				ExploreAndDetectAsset(entry.path(), fileSystemMapping);
+				childFileSystemMapping->_asset = nullptr;
+				ExploreAndDetectAsset(childFileSystemMapping);
 			}
 			else
 			{
-				fileSystemMapping->_type = FileSystemMapping::Type::AssetType;
-				fileSystemMapping->_uid = UID::INVALID_UID;
+				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
+				if (asset->Load() == true)
+				{
+					childFileSystemMapping->_asset = asset;
+					_uidToAssetMap.emplace(asset->GetUid(), asset);
+				}
 			}
 
-			if (parentFileSystemMapping != nullptr)
-			{
-				parentFileSystemMapping->_children.push_back(fileSystemMapping);
-			}
-			else
-			{
-				_filesystemMapping.push_back(fileSystemMapping);
-			}
+			fileSystemMapping->_children.push_back(childFileSystemMapping);
 		}
 	}
 
