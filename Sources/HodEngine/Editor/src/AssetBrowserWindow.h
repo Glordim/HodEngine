@@ -1,5 +1,5 @@
 #pragma once
-
+#include "AssetDatabase.h"
 #include <HodEngine/ImGui/src/Window.h>
 
 #include <vector>
@@ -32,6 +32,7 @@ namespace hod::editor
 	private:
 
 		void		DrawFolderTree();
+		void		DrawFolderTreeNode(const AssetDatabase::FileSystemMapping* node);
 		void		ResyncFolderTree(FolderItem* folderItem);
 
 		void		DrawFolderExplorer();
@@ -40,5 +41,6 @@ namespace hod::editor
 	private:
 
 		FolderItem	_folderTree;
+		const AssetDatabase::FileSystemMapping* _currentFolderTreeNode = nullptr;
 	};
 }

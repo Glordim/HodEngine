@@ -1,4 +1,6 @@
 #include "AssetBrowserWindow.h"
+#include "AssetDatabase.h"
+#include "Editor.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/src/DearImGui/imgui.h>
@@ -58,22 +60,87 @@ namespace hod::editor
 	/// @brief 
 	void AssetBrowserWindow::DrawFolderTree()
 	{
+		const AssetDatabase::FileSystemMapping& root = Editor::GetInstance()->GetAssetDatabase().GetAssetRootNode();
+		if (_currentFolderTreeNode == nullptr)
+		{
+			_currentFolderTreeNode = &root;
+		}
+		DrawFolderTreeNode(&root);
+	}
 
+	/// @brief 
+	void AssetBrowserWindow::DrawFolderTreeNode(const AssetDatabase::FileSystemMapping* node)
+	{
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
+		if (node->_childrenFolder.size() == 0)
+		{
+			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
+		}
+		if (node->_parentFolder == nullptr)
+		{
+			treeNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+		}
+		if (node == _currentFolderTreeNode)
+		{
+			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
+		}
+
+		bool opened = ImGui::TreeNodeEx(node->_path.filename().string().c_str(), treeNodeFlags);
+		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
+		{
+			_currentFolderTreeNode = node;
+		}
+
+		if (opened == true)
+		{
+			for (const AssetDatabase::FileSystemMapping* child : node->_childrenFolder)
+			{
+				DrawFolderTreeNode(child);
+			}
+			ImGui::TreePop();
+		}
 	}
 
 	/// @brief 
 	void AssetBrowserWindow::ResyncFolderTree(FolderItem* folderItem)
 	{
 		/*
-		Editor::GetInstance()->GetAssetDatabase()->Get
+		const AssetDatabase::FileSystemMapping& root = Editor::GetInstance()->GetAssetDatabase().GetAssetRootNode();
 
-		folderItem.
+		_folderTree._path = root._path;
+		_folderTree._expanded = true;
+		_folderTree.
+
+		DrawFolderItem(&root);
 		*/
 	}
 
 	/// @brief 
 	void AssetBrowserWindow::DrawFolderExplorer()
 	{
+		std::vector<const AssetDatabase::FileSystemMapping*> pathSplit;
+		const AssetDatabase::FileSystemMapping* pathNode = _currentFolderTreeNode;
+		while (pathNode != nullptr)
+		{
+			pathSplit.insert(pathSplit.begin(), pathNode);
+			pathNode = pathNode->_parentFolder;
+		}
+		
+		uint32_t pathSplitSize = pathSplit.size();
+		for (uint32_t i = 0; i < pathSplitSize; ++i)
+		{
+			const AssetDatabase::FileSystemMapping* pathNode = pathSplit[i];
+			if (ImGui::Button(pathNode->_path.filename().string().c_str()) == true)
+			{
+				_currentFolderTreeNode = pathNode;
+			}
 
+			if (i < pathSplitSize - 1)
+			{
+				ImGui::SameLine(0.0f, 1.0f);
+				ImGui::TextUnformatted("/");
+				ImGui::SameLine(0.0f, 1.0f);
+			}
+		}
 	}
 }

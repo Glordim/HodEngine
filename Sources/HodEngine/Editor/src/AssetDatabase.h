@@ -19,14 +19,6 @@ namespace hod::editor
 	class AssetDatabase
 	{
 	public:
-											AssetDatabase();
-											~AssetDatabase();
-
-		bool								Init();
-
-		std::vector<std::filesystem::path>	GetSubFolder(const std::filesystem::path folder) const;
-
-	private:
 
 		struct FileSystemMapping
 		{
@@ -42,9 +34,19 @@ namespace hod::editor
 			UID								_uid;
 
 			std::shared_ptr<Asset>			_asset = nullptr;
-			
-			std::vector<FileSystemMapping*>	_children;
+
+			std::vector<FileSystemMapping*>	_childrenAsset;
+			std::vector<FileSystemMapping*>	_childrenFolder;
+			FileSystemMapping*				_parentFolder = nullptr;
 		};
+
+	public:
+											AssetDatabase();
+											~AssetDatabase();
+
+		bool								Init();
+
+		const FileSystemMapping&			GetAssetRootNode() const;
 
 	private:
 

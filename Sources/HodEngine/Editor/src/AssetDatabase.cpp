@@ -70,6 +70,7 @@ namespace hod::editor
 			FILE_NOTIFY_CHANGE_SECURITY);
 
 		_rootFileSystemMapping._asset = nullptr;
+		_rootFileSystemMapping._type = FileSystemMapping::FolderType;
 		_rootFileSystemMapping._path = project->GetAssetDirPath();
 		ExploreAndDetectAsset(&_rootFileSystemMapping);
 
@@ -116,11 +117,15 @@ namespace hod::editor
 			FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
 			childFileSystemMapping->_path = entry.path();
 			childFileSystemMapping->_lastWriteTime = entry.last_write_time();
+			childFileSystemMapping->_parentFolder = fileSystemMapping;
 
 			if (entry.is_directory() == true)
 			{
 				childFileSystemMapping->_asset = nullptr;
+				childFileSystemMapping->_type = FileSystemMapping::Type::FolderType;
 				ExploreAndDetectAsset(childFileSystemMapping);
+
+				fileSystemMapping->_childrenFolder.push_back(childFileSystemMapping);
 			}
 			else
 			{
@@ -128,11 +133,12 @@ namespace hod::editor
 				if (asset->Load() == true)
 				{
 					childFileSystemMapping->_asset = asset;
+					childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
 					_uidToAssetMap.emplace(asset->GetUid(), asset);
+
+					fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
 				}
 			}
-
-			fileSystemMapping->_children.push_back(childFileSystemMapping);
 		}
 	}
 
@@ -155,9 +161,8 @@ namespace hod::editor
 	/// @brief 
 	/// @param folder 
 	/// @return 
-	std::vector<std::filesystem::path> AssetDatabase::GetSubFolder(const std::filesystem::path folder) const
+	const AssetDatabase::FileSystemMapping& AssetDatabase::GetAssetRootNode() const
 	{
-		return std::vector<std::filesystem::path>();
-		//_filesystemMapping
+		return _rootFileSystemMapping;
 	}
 }
