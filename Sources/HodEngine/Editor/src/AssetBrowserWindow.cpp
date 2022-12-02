@@ -142,5 +142,72 @@ namespace hod::editor
 				ImGui::SameLine(0.0f, 1.0f);
 			}
 		}
+
+		ImGui::Separator();
+
+		for (const AssetDatabase::FileSystemMapping* folder : _currentFolderTreeNode->_childrenFolder)
+		{
+			if (DrawExplorerItem(folder) == true)
+			{
+				_currentFolderTreeNode = folder;
+			}
+			ImGui::SameLine();
+		}
+
+		for (const AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
+		{
+			if (DrawExplorerItem(asset) == true)
+			{
+				
+			}
+		}
+	}
+
+	/// @brief 
+	/// @param item 
+	bool AssetBrowserWindow::DrawExplorerItem(const AssetDatabase::FileSystemMapping* item)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems == true)
+		{
+			return false;
+		}
+
+		ImGuiContext& g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		const ImGuiID id = window->GetID(item);
+
+		ImVec2 size(100, 100 + ImGui::GetTextLineHeightWithSpacing());
+		float padding = 10.0f;
+
+		ImVec2 cursorPosition = window->DC.CursorPos;
+		ImRect boundingBox(cursorPosition.x, cursorPosition.y, cursorPosition.x + size.x, cursorPosition.y + size.y);
+		ImGui::ItemSize(boundingBox.GetSize());
+		if (ImGui::ItemAdd(boundingBox, id) == false)
+		{
+			return false;
+		}
+
+		bool hovered;
+		bool held;
+		bool pressed = ImGui::ButtonBehavior(boundingBox, id, &hovered, &held, 0);
+
+		// Render
+		const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		ImGui::RenderNavHighlight(boundingBox, id);
+		ImGui::RenderFrame(boundingBox.Min, boundingBox.Max, col, true, style.FrameRounding);
+		ImGui::RenderFrame(ImVec2(cursorPosition.x + padding * 0.5f, cursorPosition.y + padding * 0.5f),
+						   ImVec2(cursorPosition.x + size.x - padding * 0.5f, cursorPosition.y + size.x - padding * 0.5f),
+						   IM_COL32(255, 0.0f, 0.0f, 255), true, 0.0f);
+
+		if (g.LogEnabled == true)
+		{
+			ImGui::LogSetNextTextDecoration("[", "]");
+		}
+		ImGui::RenderTextClipped(ImVec2(cursorPosition.x + 2, cursorPosition.y + size.x),
+								 ImVec2(cursorPosition.x + size.x - 2, cursorPosition.y + size.y),
+								 item->_path.filename().string().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+
+		return pressed;
 	}
 }

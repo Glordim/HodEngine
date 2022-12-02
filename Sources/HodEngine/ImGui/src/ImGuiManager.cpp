@@ -113,6 +113,12 @@ namespace hod::imgui
 
 		ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
+		static bool showDemo = true;
+		if (showDemo == true)
+		{
+			ImGui::ShowDemoWindow(&showDemo);
+		}
+
 		for (Window* window : _windows)
 		{
 			/*

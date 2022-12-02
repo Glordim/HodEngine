@@ -36,6 +36,7 @@ namespace hod::editor
 		void		ResyncFolderTree(FolderItem* folderItem);
 
 		void		DrawFolderExplorer();
+		bool		DrawExplorerItem(const AssetDatabase::FileSystemMapping* item);
 		void		ResyncFolderExplorer();
 
 	private:
