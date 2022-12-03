@@ -157,7 +157,10 @@ namespace hod::imgui
 				ImDrawCmd& imCommand = imDrawList->CmdBuffer[cmdIndex];
 				renderer::RenderCommandImGui::Command& command = drawList->_commands[cmdIndex];
 
-				memcpy(&command._clipRect, &imCommand.ClipRect, sizeof(CORE::Rect));
+				command._clipRect._position.x = imCommand.ClipRect.x;
+				command._clipRect._position.y = imCommand.ClipRect.y;
+				command._clipRect._size.x = imCommand.ClipRect.z - imCommand.ClipRect.x;
+				command._clipRect._size.y = imCommand.ClipRect.w - imCommand.ClipRect.y;
 				command._texture = reinterpret_cast<renderer::Texture*>(imCommand.TextureId);
 				command._vertexOffset = imCommand.VtxOffset;
 				command._indexOffset = imCommand.IdxOffset;
