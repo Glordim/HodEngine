@@ -37,7 +37,7 @@ namespace hod::editor
 
 			std::vector<FileSystemMapping*>	_childrenAsset;
 			std::vector<FileSystemMapping*>	_childrenFolder;
-			FileSystemMapping*				_parentFolder = nullptr;
+			const FileSystemMapping*		_parentFolder = nullptr;
 		};
 
 	public:
@@ -47,6 +47,9 @@ namespace hod::editor
 		bool								Init();
 
 		const FileSystemMapping&			GetAssetRootNode() const;
+		const FileSystemMapping*			FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
+
+		std::filesystem::path				CreateFolder(const std::filesystem::path path);
 
 	private:
 
@@ -59,7 +62,7 @@ namespace hod::editor
 		const std::filesystem::path&		UIDToAssetPath(const UID& uid) const;
 		const UID&							AssetPathToUID(const std::filesystem::path& path) const;
 
-		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path path) const;
+		
 
 	private:
 

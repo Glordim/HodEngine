@@ -71,7 +71,7 @@ namespace hod::editor
 	/// @brief 
 	void AssetBrowserWindow::DrawFolderTreeNode(const AssetDatabase::FileSystemMapping* node)
 	{
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap;
 		if (node->_childrenFolder.size() == 0)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
@@ -85,10 +85,52 @@ namespace hod::editor
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
 
-		bool opened = ImGui::TreeNodeEx(node->_path.filename().string().c_str(), treeNodeFlags);
+		bool opened = ImGui::TreeNodeEx((std::string("##") + node->_path.filename().string()).c_str(), treeNodeFlags);
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
 			_currentFolderTreeNode = node;
+		}
+		if (ImGui::BeginPopupContextItem(node->_path.filename().string().c_str()) == true)
+		{
+			if (ImGui::Button("New Folder") == true)
+			{
+				std::filesystem::path newFolderPath = Editor::GetInstance()->GetAssetDatabase().CreateFolder(node->_path / "Folder");
+				const AssetDatabase::FileSystemMapping* newFolderNode = Editor::GetInstance()->GetAssetDatabase().FindFileSystemMappingFromPath(newFolderPath);
+				if (newFolderNode != nullptr)
+				{
+					_currentFolderTreeNode = newFolderNode;
+					_treeNodeToEdit = newFolderNode;
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			ImGui::EndPopup();
+		}
+
+		// TreeNode render
+		ImGui::SameLine();
+		if (_treeNodeToEdit == node)
+		{
+			std::string buffer = std::string(node->_path.filename().string().c_str());
+			if (ImGui::InputText("###rename", buffer.data(), buffer.size(), ImGuiInputTextFlags_AutoSelectAll))
+			{
+				//node->setName(buffer);
+			}
+
+			if (ImGui::IsItemFocused())
+			{
+				// What to do here?
+				// ImGui::SetKeyboardFocusHere(); 
+			}
+			else
+			{
+				// What to do here?
+				// m_nodeToRename = nullptr;
+			}
+		}
+		else
+		{
+			ImGui::Text("%s", node->_path.filename().string().c_str());
 		}
 
 		if (opened == true)

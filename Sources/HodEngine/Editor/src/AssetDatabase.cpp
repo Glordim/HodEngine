@@ -29,6 +29,7 @@ namespace hod::editor
 		{
 			uniquePath = path;
 			uniquePath.replace_filename(path.stem().string() + " " + std::to_string(count) + path.extension().string());
+			++count;
 		}
 
 		return uniquePath;
@@ -145,17 +146,54 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	AssetDatabase::FileSystemMapping* AssetDatabase::FindFileSystemMappingFromPath(const std::filesystem::path path) const
+	const AssetDatabase::FileSystemMapping* AssetDatabase::FindFileSystemMappingFromPath(const std::filesystem::path& path) const
 	{
-		std::filesystem::path rootPath = path.root_path();
-		//path.relative_path();
-		/*
-		for (FileSystemMapping* fileSystemMapping : _filesystemMapping)
+		int deep = 0;
+		std::filesystem::path splitPath = path;
+		while (splitPath != _rootFileSystemMapping._path)
 		{
-			if (fileSystemMapping->_path. )
+			if (splitPath.has_parent_path() == false)
+			{
+				return nullptr;
+			}
+			splitPath = splitPath.parent_path();
+			++deep;
 		}
-		*/
-		return nullptr;
+
+		const AssetDatabase::FileSystemMapping* currentNode = &_rootFileSystemMapping;
+		while (currentNode->_path != path)
+		{
+			splitPath = path;
+			for (int i = 0; i < deep - 1; ++i)
+			{
+				splitPath = splitPath.parent_path();
+			}
+			--deep;
+
+			bool founded = false;
+			for (const AssetDatabase::FileSystemMapping* childNode : currentNode->_childrenFolder)
+			{
+				if (splitPath == childNode->_path)
+				{
+					founded = true;
+					currentNode = childNode;
+					break;
+				}
+			}
+
+			if (founded == false && deep == 0)
+			{
+				for (const AssetDatabase::FileSystemMapping* childNode : currentNode->_childrenFolder)
+				{
+					if (splitPath != childNode->_path)
+					{
+						return childNode;
+					}
+				}
+			}
+		}
+
+		return currentNode;
 	}
 
 	/// @brief 
@@ -164,5 +202,29 @@ namespace hod::editor
 	const AssetDatabase::FileSystemMapping& AssetDatabase::GetAssetRootNode() const
 	{
 		return _rootFileSystemMapping;
+	}
+
+	/// @brief 
+	/// @param path 
+	std::filesystem::path AssetDatabase::CreateFolder(const std::filesystem::path path)
+	{
+		std::filesystem::path finalPath = GenerateUniqueAssetPath(path);
+
+		if (std::filesystem::create_directory(finalPath) == true)
+		{
+			AssetDatabase::FileSystemMapping* parentNode = (AssetDatabase::FileSystemMapping*)FindFileSystemMappingFromPath(finalPath.parent_path());
+			if (parentNode != nullptr)
+			{
+				FileSystemMapping* newFolderFileSystemMapping = new FileSystemMapping;
+				newFolderFileSystemMapping->_path = finalPath;
+				//newFolderFileSystemMapping->_lastWriteTime = entry.last_write_time();
+				newFolderFileSystemMapping->_parentFolder = parentNode;
+				newFolderFileSystemMapping->_asset = nullptr;
+				newFolderFileSystemMapping->_type = FileSystemMapping::Type::FolderType;
+				parentNode->_childrenFolder.push_back(newFolderFileSystemMapping);
+			}
+		}
+
+		return finalPath;
 	}
 }

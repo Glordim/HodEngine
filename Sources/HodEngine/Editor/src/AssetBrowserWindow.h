@@ -43,5 +43,6 @@ namespace hod::editor
 
 		FolderItem	_folderTree;
 		const AssetDatabase::FileSystemMapping* _currentFolderTreeNode = nullptr;
+		const AssetDatabase::FileSystemMapping* _treeNodeToEdit = nullptr;
 	};
 }
