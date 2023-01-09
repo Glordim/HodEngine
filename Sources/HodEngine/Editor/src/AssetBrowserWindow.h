@@ -39,10 +39,16 @@ namespace hod::editor
 		bool		DrawExplorerItem(const AssetDatabase::FileSystemMapping* item);
 		void		ResyncFolderExplorer();
 
+		void		EditNodeName(const AssetDatabase::FileSystemMapping* node);
+
 	private:
 
-		FolderItem	_folderTree;
-		const AssetDatabase::FileSystemMapping* _currentFolderTreeNode = nullptr;
-		const AssetDatabase::FileSystemMapping* _treeNodeToEdit = nullptr;
+		FolderItem								_folderTree;
+		const AssetDatabase::FileSystemMapping*	_currentFolderTreeNode = nullptr;
+		const AssetDatabase::FileSystemMapping*	_treeNodeToEdit = nullptr;
+		std::string								_renameBuffer;
+		bool									_focus = false;
+
+		const AssetDatabase::FileSystemMapping* _nodeToDelete = nullptr;
 	};
 }

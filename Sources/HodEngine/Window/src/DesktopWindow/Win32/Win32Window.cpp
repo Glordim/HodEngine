@@ -8,6 +8,8 @@
 
 #include <HodEngine/Renderer/src/RHI/Context.h>
 
+#include <cstdlib>
+
 using namespace hod::renderer;
 
 namespace hod::window
@@ -45,6 +47,12 @@ namespace hod::window
 			UINT height = HIWORD(lParam);
 
 			//_context->Resize(width, height);
+		}
+		else if (msg == WM_CLOSE)
+		{
+			::DestroyWindow(_hWnd);
+			_hWnd = nullptr;
+			exit(0);
 		}
 
 		return ::DefWindowProc(_hWnd, msg, wParam, lParam);

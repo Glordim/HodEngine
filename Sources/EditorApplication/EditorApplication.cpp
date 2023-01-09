@@ -22,5 +22,10 @@ bool EditorApplication::Init(int argc, char** argv)
 		return false;
 	}
 
+	if (argc > 1)
+	{
+		editor::Editor::GetInstance()->OpenProject(argv[1]);
+	}
+
 	return true;
 }

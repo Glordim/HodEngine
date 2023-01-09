@@ -18,7 +18,7 @@ namespace hod::application
 
 		void			Quit();
 
-	private:
+	protected:
 
 		bool			_shouldQuit = false;
 	};

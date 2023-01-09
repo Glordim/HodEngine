@@ -19,6 +19,7 @@ namespace hod::editor
 		bool					Save();
 
 		const UID&				GetUid() const;
+		virtual const char*		GetType() const = 0;
 
 	private:
 

@@ -13,6 +13,7 @@ namespace hod::editor
 		: _path(path)
 	{
 		_name = _path.stem().string();
+		_uid = UID::GenerateUID();
 	}
 
 	/// @brief 
@@ -50,24 +51,23 @@ namespace hod::editor
 	/// @return 
 	bool Asset::Save()
 	{
-		/*
 		rapidjson::Document document;
 		document.SetObject();
 
 		rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
 
 		document.AddMember("Name", rapidjson::StringRef(_name.c_str(), _name.size()), allocator);
-		//document["Name"].SetString(_name.c_str(), _name.size());
+		document.AddMember("Type", rapidjson::StringRef(GetType(), strlen(GetType())), allocator);
+		document.AddMember("UID", rapidjson::StringRef(_uid.ToString().c_str(), _uid.ToString().size()), allocator);
 
 		rapidjson::StringBuffer sb;
 		rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
 		document.Accept(writer);
 
 		std::ofstream file;
-		file.open(_projectPath, std::ios::out | std::ios::trunc);
+		file.open(_path, std::ios::out | std::ios::trunc);
 		file << sb.GetString();
 		file.close();
-		*/
 		return true;
 	}
 

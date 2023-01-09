@@ -7,7 +7,7 @@
 
 #include <HodEngine/Core/Src/UID.h>
 #include <HodEngine/Core/Src/Event.h>
-
+#include <HodEngine/Core/Src/LinkedList.h>
 #include <HodEngine/Core/Src/Job/MemberFunctionJob.h>
 
 namespace hod::editor
@@ -22,7 +22,7 @@ namespace hod::editor
 
 		struct FileSystemMapping
 		{
-			enum Type
+			enum class Type
 			{
 				AssetType,
 				FolderType,
@@ -37,7 +37,17 @@ namespace hod::editor
 
 			std::vector<FileSystemMapping*>	_childrenAsset;
 			std::vector<FileSystemMapping*>	_childrenFolder;
-			const FileSystemMapping*		_parentFolder = nullptr;
+
+			//const FileSystemMapping*		_firstChildrenAsset = nullptr;
+			//const FileSystemMapping*		_nextChildrenAsset = nullptr;
+
+			//const FileSystemMapping*		_firstChildrenFolder = nullptr;
+			//const FileSystemMapping*		_nextChildrenFolder = nullptr;
+
+			//LinkedList<FileSystemMapping>	_childrenAsset;
+			//LinkedList<FileSystemMapping>	_childrenFolder;
+
+			FileSystemMapping*				_parentFolder = nullptr;
 		};
 
 	public:
@@ -47,9 +57,15 @@ namespace hod::editor
 		bool								Init();
 
 		const FileSystemMapping&			GetAssetRootNode() const;
-		const FileSystemMapping*			FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
+		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
 
-		std::filesystem::path				CreateFolder(const std::filesystem::path path);
+		std::filesystem::path				CreateFolder(const std::filesystem::path& path);
+
+		template<typename Type>
+		std::filesystem::path				CreateAsset(const std::filesystem::path& path);
+
+		void								Rename(const FileSystemMapping& node, const std::string& newName);
+		void								Delete(const FileSystemMapping& node);
 
 	private:
 
@@ -80,3 +96,5 @@ namespace hod::editor
 		MemberFunctionJob<AssetDatabase>	_filesystemWatcherJob;
 	};
 }
+
+#include "AssetDatabase.inl"

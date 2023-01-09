@@ -11,6 +11,10 @@
 #include "HodEngine/Editor/src/Editor.h"
 #include "HodEngine/Editor/src/Project.h"
 
+#include "HodEngine/Editor/src/Assets/SceneAsset.h"
+
+#include <HodEngine/Application/src/PlatformDialog.h>
+
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
 {
 	using namespace ImGui;
@@ -66,6 +70,16 @@ namespace hod::editor
 			_currentFolderTreeNode = &root;
 		}
 		DrawFolderTreeNode(&root);
+
+		if (_nodeToDelete != nullptr)
+		{
+			if (_currentFolderTreeNode == _nodeToDelete)
+			{
+				_currentFolderTreeNode = _nodeToDelete->_parentFolder;
+			}
+			Editor::GetInstance()->GetAssetDatabase().Delete(*_nodeToDelete);
+			_nodeToDelete = nullptr;
+		}
 	}
 
 	/// @brief 
@@ -73,6 +87,7 @@ namespace hod::editor
 	{
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap;
 		if (node->_childrenFolder.size() == 0)
+		//if (node->_childrenFolder.Next() != nullptr)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
@@ -92,16 +107,36 @@ namespace hod::editor
 		}
 		if (ImGui::BeginPopupContextItem(node->_path.filename().string().c_str()) == true)
 		{
-			if (ImGui::Button("New Folder") == true)
+			if (ImGui::MenuItem("New Folder") == true)
 			{
 				std::filesystem::path newFolderPath = Editor::GetInstance()->GetAssetDatabase().CreateFolder(node->_path / "Folder");
 				const AssetDatabase::FileSystemMapping* newFolderNode = Editor::GetInstance()->GetAssetDatabase().FindFileSystemMappingFromPath(newFolderPath);
 				if (newFolderNode != nullptr)
 				{
-					_currentFolderTreeNode = newFolderNode;
-					_treeNodeToEdit = newFolderNode;
+					EditNodeName(newFolderNode);
 					ImGui::CloseCurrentPopup();
 				}
+			}
+
+			const AssetDatabase::FileSystemMapping& root = Editor::GetInstance()->GetAssetDatabase().GetAssetRootNode();
+			if (node != &root)
+			{
+				if (ImGui::MenuItem("Rename") == true)
+				{
+					EditNodeName(node);
+					ImGui::CloseCurrentPopup();
+				}
+				if (ImGui::MenuItem("Delete") == true)
+				{
+					_nodeToDelete = node;
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (ImGui::MenuItem("Show in Explorer") == true)
+			{
+				application::dialog::OpenExplorerAtPath(node->_path);
+				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndPopup();
@@ -111,21 +146,16 @@ namespace hod::editor
 		ImGui::SameLine();
 		if (_treeNodeToEdit == node)
 		{
-			std::string buffer = std::string(node->_path.filename().string().c_str());
-			if (ImGui::InputText("###rename", buffer.data(), buffer.size(), ImGuiInputTextFlags_AutoSelectAll))
+			if (_focus == true)
 			{
-				//node->setName(buffer);
+				ImGui::SetKeyboardFocusHere();
+				_focus = false;
 			}
-
-			if (ImGui::IsItemFocused())
+			if (ImGui::InputText("###rename", _renameBuffer.data(), _renameBuffer.capacity(), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue) == true)
 			{
-				// What to do here?
-				// ImGui::SetKeyboardFocusHere(); 
-			}
-			else
-			{
-				// What to do here?
-				// m_nodeToRename = nullptr;
+				_renameBuffer = _renameBuffer.c_str();
+				Editor::GetInstance()->GetAssetDatabase().Rename(*node, _renameBuffer);
+				_treeNodeToEdit = nullptr;
 			}
 		}
 		else
@@ -141,6 +171,17 @@ namespace hod::editor
 			}
 			ImGui::TreePop();
 		}
+	}
+
+	/// @brief 
+	/// @param node 
+	void AssetBrowserWindow::EditNodeName(const AssetDatabase::FileSystemMapping* node)
+	{
+		_currentFolderTreeNode = node;
+		_treeNodeToEdit = node;
+		_renameBuffer = _treeNodeToEdit->_path.filename().string();
+		_renameBuffer.reserve(256);
+		_focus = true;
 	}
 
 	/// @brief 
@@ -186,6 +227,7 @@ namespace hod::editor
 		}
 
 		ImGui::Separator();
+		ImVec2 cursor = ImGui::GetCursorPos();
 
 		for (const AssetDatabase::FileSystemMapping* folder : _currentFolderTreeNode->_childrenFolder)
 		{
@@ -202,6 +244,46 @@ namespace hod::editor
 			{
 				
 			}
+		}
+
+		ImGui::SetCursorPos(cursor);
+		ImVec2 cursorPosition = ImGui::GetCurrentWindow()->DC.CursorPos;
+		ImRect boundingBox(cursorPosition.x, cursorPosition.y, cursorPosition.x + ImGui::GetCurrentWindow()->Size.x, cursorPosition.y + ImGui::GetCurrentWindow()->Size.y);
+		ImGui::ItemSize(boundingBox.GetSize());
+		if (ImGui::ItemAdd(boundingBox, ImGui::GetCurrentWindow()->GetID("FolderExplorerBackground")) == false)
+		{
+			return;
+		}
+
+		if (ImGui::BeginPopupContextItem("FolderExplorer") == true)
+		{
+			if (ImGui::MenuItem("New Folder") == true)
+			{
+				std::filesystem::path newFolderPath = Editor::GetInstance()->GetAssetDatabase().CreateFolder(_currentFolderTreeNode->_path / "Folder");
+				const AssetDatabase::FileSystemMapping* newFolderNode = Editor::GetInstance()->GetAssetDatabase().FindFileSystemMappingFromPath(newFolderPath);
+				if (newFolderNode != nullptr)
+				{
+					EditNodeName(newFolderNode);
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (ImGui::BeginMenu("Create") == true)
+			{
+				if (ImGui::MenuItem("Scene") == true)
+				{
+					std::filesystem::path newAssetPath = Editor::GetInstance()->GetAssetDatabase().CreateAsset<SceneAsset>(_currentFolderTreeNode->_path / "Scene");
+					const AssetDatabase::FileSystemMapping* newAssetNode = Editor::GetInstance()->GetAssetDatabase().FindFileSystemMappingFromPath(newAssetPath);
+					if (newAssetNode != nullptr)
+					{
+						EditNodeName(newAssetNode);
+						ImGui::CloseCurrentPopup();
+					}
+				}
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndPopup();
 		}
 	}
 

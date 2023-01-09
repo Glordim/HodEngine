@@ -5,6 +5,8 @@
 
 #include <HodEngine/ImGui/src/ImGuiManager.h>
 
+#include "HodEngine/Editor/src/AssetBrowserWindow.h"
+
 namespace hod::editor
 {
 	/// @brief 
@@ -27,6 +29,8 @@ namespace hod::editor
 		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
 
 		_assetDatabase.Init();
+
+		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 
 		return true;
 	}

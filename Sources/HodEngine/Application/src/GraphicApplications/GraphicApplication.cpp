@@ -48,7 +48,7 @@ namespace hod::application
 	{
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
 
-		while (true)
+		while (_shouldQuit == false)
 		{
 			_window->Update();
 

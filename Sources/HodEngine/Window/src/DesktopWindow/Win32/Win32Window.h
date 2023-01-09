@@ -33,9 +33,9 @@ namespace hod::window
 
 	private:
 
-		HINSTANCE							_hInstance = NULL;
+		HINSTANCE							_hInstance = nullptr;
 		ATOM								_class = 0;
-		HWND								_hWnd = NULL;
+		HWND								_hWnd = nullptr;
 
 		MemberFunctionJob<Win32Window>		_updateJob;
 

@@ -29,6 +29,7 @@ namespace hod::application::dialog
 	}
 
 	/// @brief 
+	/// @return 
 	std::filesystem::path GetSaveFileDialog()
 	{
 		char buffer[4096] = { '\0' };
@@ -49,5 +50,19 @@ namespace hod::application::dialog
 		GetSaveFileName(&openFileName);
 
 		return buffer;
+	}
+
+	/// @brief 
+	/// @param path 
+	void OpenExplorerAtPath(const std::filesystem::path& path)
+	{
+		STARTUPINFO startupInfo;
+		ZeroMemory(&startupInfo, sizeof(startupInfo));
+		startupInfo.cb = sizeof(startupInfo);
+
+		PROCESS_INFORMATION processInformation;
+		ZeroMemory(&processInformation, sizeof(processInformation));
+
+		CreateProcess(NULL, (LPSTR)(std::string("explorer.exe ") + path.string()).c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInformation);
 	}
 }

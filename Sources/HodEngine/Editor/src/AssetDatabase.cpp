@@ -71,7 +71,7 @@ namespace hod::editor
 			FILE_NOTIFY_CHANGE_SECURITY);
 
 		_rootFileSystemMapping._asset = nullptr;
-		_rootFileSystemMapping._type = FileSystemMapping::FolderType;
+		_rootFileSystemMapping._type = FileSystemMapping::Type::FolderType;
 		_rootFileSystemMapping._path = project->GetAssetDirPath();
 		ExploreAndDetectAsset(&_rootFileSystemMapping);
 
@@ -126,10 +126,12 @@ namespace hod::editor
 				childFileSystemMapping->_type = FileSystemMapping::Type::FolderType;
 				ExploreAndDetectAsset(childFileSystemMapping);
 
+				//fileSystemMapping->_childrenFolder.PushBack(&childFileSystemMapping->_childrenFolder);
 				fileSystemMapping->_childrenFolder.push_back(childFileSystemMapping);
 			}
 			else
 			{
+				/*
 				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 				if (asset->Load() == true)
 				{
@@ -137,8 +139,10 @@ namespace hod::editor
 					childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
 					_uidToAssetMap.emplace(asset->GetUid(), asset);
 
+					//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
 					fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
 				}
+				*/
 			}
 		}
 	}
@@ -146,7 +150,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	const AssetDatabase::FileSystemMapping* AssetDatabase::FindFileSystemMappingFromPath(const std::filesystem::path& path) const
+	AssetDatabase::FileSystemMapping* AssetDatabase::FindFileSystemMappingFromPath(const std::filesystem::path& path) const
 	{
 		int deep = 0;
 		std::filesystem::path splitPath = path;
@@ -160,7 +164,7 @@ namespace hod::editor
 			++deep;
 		}
 
-		const AssetDatabase::FileSystemMapping* currentNode = &_rootFileSystemMapping;
+		AssetDatabase::FileSystemMapping* currentNode = (AssetDatabase::FileSystemMapping*) & _rootFileSystemMapping;
 		while (currentNode->_path != path)
 		{
 			splitPath = path;
@@ -171,7 +175,7 @@ namespace hod::editor
 			--deep;
 
 			bool founded = false;
-			for (const AssetDatabase::FileSystemMapping* childNode : currentNode->_childrenFolder)
+			for (AssetDatabase::FileSystemMapping* childNode : currentNode->_childrenFolder)
 			{
 				if (splitPath == childNode->_path)
 				{
@@ -183,7 +187,7 @@ namespace hod::editor
 
 			if (founded == false && deep == 0)
 			{
-				for (const AssetDatabase::FileSystemMapping* childNode : currentNode->_childrenFolder)
+				for (AssetDatabase::FileSystemMapping* childNode : currentNode->_childrenFolder)
 				{
 					if (splitPath != childNode->_path)
 					{
@@ -206,7 +210,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param path 
-	std::filesystem::path AssetDatabase::CreateFolder(const std::filesystem::path path)
+	std::filesystem::path AssetDatabase::CreateFolder(const std::filesystem::path& path)
 	{
 		std::filesystem::path finalPath = GenerateUniqueAssetPath(path);
 
@@ -222,9 +226,70 @@ namespace hod::editor
 				newFolderFileSystemMapping->_asset = nullptr;
 				newFolderFileSystemMapping->_type = FileSystemMapping::Type::FolderType;
 				parentNode->_childrenFolder.push_back(newFolderFileSystemMapping);
+				//parentNode->_childrenFolder.PushBack(&newFolderFileSystemMapping->_childrenFolder);
 			}
 		}
 
 		return finalPath;
+	}
+
+	/// @brief 
+	/// @param node 
+	/// @param newName 
+	void AssetDatabase::Rename(const FileSystemMapping& node, const std::string& newName)
+	{
+		AssetDatabase::FileSystemMapping* realNode = (AssetDatabase::FileSystemMapping*)FindFileSystemMappingFromPath(node._path);
+		if (realNode == nullptr)
+		{
+			return;
+		}
+
+		std::filesystem::path newPath = realNode->_path;
+		newPath = newPath.replace_filename(newName);
+		newPath = GenerateUniqueAssetPath(newPath);
+
+		if (realNode->_type == FileSystemMapping::Type::FolderType)
+		{
+			std::filesystem::rename(realNode->_path, newPath);
+			// todo update all child node path
+		}
+		else
+		{
+			if (realNode->_asset == nullptr)
+			{
+				return;
+			}
+
+			std::filesystem::rename(realNode->_path, newPath);
+		}
+
+		realNode->_path = newPath;
+	}
+
+	/// @brief 
+	/// @param node 
+	void AssetDatabase::Delete(const FileSystemMapping& node)
+	{
+		AssetDatabase::FileSystemMapping* realNode = (AssetDatabase::FileSystemMapping*)FindFileSystemMappingFromPath(node._path);
+		if (realNode == nullptr)
+		{
+			return;
+		}
+
+		std::filesystem::remove_all(realNode->_path);
+
+		if (realNode->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
+		{
+			std::vector<FileSystemMapping*>::const_iterator it = std::find(realNode->_parentFolder->_childrenAsset.begin(), realNode->_parentFolder->_childrenAsset.end(), realNode);
+			realNode->_parentFolder->_childrenAsset.erase(it);
+		}
+
+		if (realNode->_type == AssetDatabase::FileSystemMapping::Type::FolderType)
+		{
+			std::vector<FileSystemMapping*>::const_iterator it = std::find(realNode->_parentFolder->_childrenFolder.begin(), realNode->_parentFolder->_childrenFolder.end(), realNode);
+			realNode->_parentFolder->_childrenFolder.erase(it);
+		}
+
+		delete realNode;
 	}
 }
