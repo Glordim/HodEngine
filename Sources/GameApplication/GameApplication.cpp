@@ -4,9 +4,9 @@
 /// @param argc 
 /// @param argv 
 /// @return 
-bool GameApplication::Init(int argc, char** argv)
+bool GameApplication::Init(const hod::core::ArgumentParser& argumentParser)
 {
-	bool platformApplicationResult = PlatformApplication::Init(argc, argv);
+	bool platformApplicationResult = PlatformApplication::Init(argumentParser);
 	if (platformApplicationResult == false)
 	{
 		return false;

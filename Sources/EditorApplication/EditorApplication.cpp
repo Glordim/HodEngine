@@ -8,23 +8,18 @@ using namespace hod;
 /// @param argc 
 /// @param argv 
 /// @return 
-bool EditorApplication::Init(int argc, char** argv)
+bool EditorApplication::Init(const hod::core::ArgumentParser& argumentParser)
 {
-	bool platformApplicationResult = PlatformApplication::Init(argc, argv);
+	bool platformApplicationResult = PlatformApplication::Init(argumentParser);
 	if (platformApplicationResult == false)
 	{
 		return false;
 	}
 
 	editor::Editor::CreateInstance();
-	if (editor::Editor::GetInstance()->Init() == false)
+	if (editor::Editor::GetInstance()->Init(argumentParser) == false)
 	{
 		return false;
-	}
-
-	if (argc > 1)
-	{
-		editor::Editor::GetInstance()->OpenProject(argv[1]);
 	}
 
 	return true;

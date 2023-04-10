@@ -22,7 +22,7 @@ namespace hod::application
 
 	public:
 
-		bool			Init(int argc, char** argv) override;
+		bool			Init(const core::ArgumentParser& argumentParser) override;
 		bool			Run() override;
 
 		window::Window*	GetWindow() const;

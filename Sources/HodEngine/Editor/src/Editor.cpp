@@ -7,6 +7,8 @@
 
 #include "HodEngine/Editor/src/AssetBrowserWindow.h"
 
+#include "HodEngine/Core/Src/ArgumentParser.h"
+
 namespace hod::editor
 {
 	/// @brief 
@@ -23,14 +25,24 @@ namespace hod::editor
 	/// @brief 
 	/// @param window 
 	/// @return 
-	bool Editor::Init()
+	bool Editor::Init(const core::ArgumentParser& argumentParser)
 	{
-		_mainBar = new MainBar();
-		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
+		const core::Argument* argument = argumentParser.GetArgument('p', "project");
+		if (argument == nullptr)
+		{
+			// TODO create open project
+		}
+		else
+		{
+			_mainBar = new MainBar();
+			imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
 
-		_assetDatabase.Init();
+			_assetDatabase.Init();
 
-		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+			imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+
+			OpenProject(argument->_values[0]); // todo verif if value
+		}
 
 		return true;
 	}

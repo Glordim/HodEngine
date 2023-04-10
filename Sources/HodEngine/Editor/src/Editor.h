@@ -9,6 +9,11 @@
 
 #include "HodEngine/Editor/src/AssetDatabase.h"
 
+namespace hod::core
+{
+	class ArgumentParser;
+}
+
 namespace hod::editor
 {
 	class MainBar;
@@ -26,7 +31,7 @@ namespace hod::editor
 
 	public:
 
-		bool			Init();
+		bool			Init(const core::ArgumentParser& argumentParser);
 
 		bool			CreateProject(const std::filesystem::path& path);
 		bool			OpenProject(const std::filesystem::path& path);

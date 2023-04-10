@@ -2,6 +2,11 @@
 
 #include <HodEngine/Core/Src/Singleton.h>
 
+namespace hod::core
+{
+	class ArgumentParser;
+}
+
 namespace hod::application
 {
 	/// @brief 
@@ -13,7 +18,7 @@ namespace hod::application
 
 	public:
 
-		virtual bool	Init(int argc, char** argv);
+		virtual bool	Init(const core::ArgumentParser& argumentParser);
 		virtual bool	Run();
 
 		void			Quit();
