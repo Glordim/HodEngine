@@ -7,12 +7,7 @@ namespace hod::application
 	/// @brief 
 	class DesktopApplication : public GraphicApplication
 	{
-		_Singleton(DesktopApplication)
-
-						DesktopApplication() = default;
-
-	public:
-
+		_SingletonOverride(DesktopApplication)
 	};
 }
 

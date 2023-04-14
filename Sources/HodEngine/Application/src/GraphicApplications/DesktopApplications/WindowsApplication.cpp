@@ -2,5 +2,4 @@
 
 namespace hod::application
 {
-	_SingletonInstance(WindowsApplication)
 }

@@ -14,8 +14,6 @@ namespace hod::application
 	{
 		_Singleton(Application)
 
-						Application() = default;
-
 	public:
 
 		virtual bool	Init(const core::ArgumentParser& argumentParser);

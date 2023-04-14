@@ -10,8 +10,8 @@ using namespace hod;
 /// @return 
 bool EditorApplication::Init(const hod::core::ArgumentParser& argumentParser)
 {
-	bool platformApplicationResult = PlatformApplication::Init(argumentParser);
-	if (platformApplicationResult == false)
+	bool result = PlatformApplication::Init(argumentParser);
+	if (result == false)
 	{
 		return false;
 	}

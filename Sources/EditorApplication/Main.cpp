@@ -11,15 +11,17 @@
 /// @return 
 int main(int argc, char** argv)
 {
-	hod::core::ArgumentParser argumentParser(argc, argv);
+	EditorApplication* app = EditorApplication::CreateInstance();
 
-	EditorApplication app;
-	if (app.Init(argumentParser) == false)
+	hod::core::ArgumentParser argumentParser(argc, argv);
+	if (app->Init(argumentParser) == false)
 	{
 		return 1;
 	}
 
-	app.Run();
+	app->Run();
+
+	EditorApplication::DestroyInstance();
 
 	return 0;
 }

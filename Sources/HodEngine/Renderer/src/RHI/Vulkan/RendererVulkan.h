@@ -25,11 +25,10 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	class RendererVulkan : public Renderer
 	{
-		_Singleton(RendererVulkan)
+		_SingletonOverride(RendererVulkan)
 
 	protected:
 
-		RendererVulkan() = default;
 		~RendererVulkan() override;
 
 	public:

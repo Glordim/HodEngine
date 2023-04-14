@@ -19,8 +19,6 @@ namespace hod
 		{
 			_Singleton(MaterialManager)
 
-				MaterialManager() = default;
-
 		public:
 
 			UID	CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);

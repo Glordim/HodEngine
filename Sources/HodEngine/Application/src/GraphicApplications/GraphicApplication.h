@@ -16,9 +16,7 @@ namespace hod::application
 	/// @brief 
 	class GraphicApplication : public Application
 	{
-		_Singleton(GraphicApplication)
-
-						GraphicApplication() = default;
+		_SingletonOverride(GraphicApplication)
 
 	public:
 

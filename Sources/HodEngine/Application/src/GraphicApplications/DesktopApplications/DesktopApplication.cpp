@@ -2,7 +2,4 @@
 
 namespace hod::application
 {
-	_SingletonInstance(DesktopApplication)
-
-
 }

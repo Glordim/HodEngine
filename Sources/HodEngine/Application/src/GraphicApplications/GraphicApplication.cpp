@@ -14,8 +14,6 @@
 
 namespace hod::application
 {
-	_SingletonInstance(GraphicApplication)
-
 	/// @brief 
 	/// @param argc 
 	/// @param argv 

@@ -5,9 +5,13 @@
 
 #include <HodEngine/ImGui/src/ImGuiManager.h>
 
+#include "HodEngine/Editor/src/ProjectBrowser.h"
 #include "HodEngine/Editor/src/AssetBrowserWindow.h"
 
 #include "HodEngine/Core/Src/ArgumentParser.h"
+
+#include "HodEngine/Application/src/GraphicApplications/DesktopApplications/DesktopApplication.h"
+#include "HodEngine/Window/src/DesktopWindow/DesktopWindow.h"
 
 namespace hod::editor
 {
@@ -30,17 +34,15 @@ namespace hod::editor
 		const core::Argument* argument = argumentParser.GetArgument('p', "project");
 		if (argument == nullptr)
 		{
-			// TODO create open project
+			application::DesktopApplication* application = application::DesktopApplication::GetInstance();
+			window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
+			mainWindow->SetSize(600, 320);
+			mainWindow->CenterToScreen();
+
+			imgui::ImGuiManager::GetInstance()->OpenWindow<ProjectBrowser>();
 		}
 		else
 		{
-			_mainBar = new MainBar();
-			imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
-
-			_assetDatabase.Init();
-
-			imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
-
 			OpenProject(argument->_values[0]); // todo verif if value
 		}
 
@@ -69,6 +71,13 @@ namespace hod::editor
 	/// @return 
 	bool Editor::OpenProject(const std::filesystem::path& path)
 	{
+		_mainBar = new MainBar();
+		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
+
+		_assetDatabase.Init();
+
+		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+
 		_project = new Project(path);
 		_project->Load();
 

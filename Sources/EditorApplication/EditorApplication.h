@@ -10,6 +10,8 @@ namespace hod::core
 /// @brief 
 class EditorApplication : public PlatformApplication
 {
+	_SingletonOverride(EditorApplication)
+
 public:
 
 	bool			Init(const hod::core::ArgumentParser& argumentParser);

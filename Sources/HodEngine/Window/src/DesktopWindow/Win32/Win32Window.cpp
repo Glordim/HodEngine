@@ -193,4 +193,14 @@ namespace hod::window
 	{
 		return _hInstance;
 	}
+
+	void Win32Window::SetSize(uint16_t width, uint16_t height)
+	{
+		SetWindowPos(_hWnd, nullptr, 0, 0, width, height, SWP_NOMOVE);
+	}
+
+	void Win32Window::CenterToScreen()
+	{
+
+	}
 }

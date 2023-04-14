@@ -7,6 +7,10 @@
 		static T*		GetInstance() { return _instance; }								\
 		static void		DestroyInstance() { delete _instance; _instance = nullptr; }	\
 																						\
+	protected:																			\
+																						\
+						T() = default;													\
+																						\
 	public:																				\
 																						\
 						T(const T&) = delete;											\
@@ -15,12 +19,34 @@
 		T&				operator = (const T&) = delete;									\
 		T&				operator = (T&&) = delete;										\
 																						\
-	private:																			\
+	protected:																			\
 																						\
 		static T*		_instance;														\
 																						\
-	protected:																			\
+	private:																			\
 																						
+
+#define _SingletonOverride(T)																			\
+	public:																								\
+																										\
+		static T*		CreateInstance() { _instance = new T(); return static_cast<T*>(_instance); }	\
+		static T*		GetInstance() { return static_cast<T*>(_instance); }							\
+		static void		DestroyInstance() { delete _instance; _instance = nullptr; }					\
+																										\
+	protected:																							\
+																										\
+						T() = default;																	\
+																										\
+	public:																								\
+																										\
+						T(const T&) = delete;															\
+						T(T&&) = delete;																\
+																										\
+		T&				operator = (const T&) = delete;													\
+		T&				operator = (T&&) = delete;														\
+																										\
+	private:																							\
+
 
 #define _SingletonInstance(T) T* T::_instance = nullptr;
 

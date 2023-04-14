@@ -26,6 +26,9 @@ namespace hod::window
 		HWND								GetWindowHandle() const;
 		HINSTANCE							GetInstanceHandle() const;
 
+		void								SetSize(uint16_t width, uint16_t height) override;
+		void								CenterToScreen() override;
+
 	private:
 
 		static LRESULT						WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

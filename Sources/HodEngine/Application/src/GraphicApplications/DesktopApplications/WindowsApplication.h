@@ -7,10 +7,6 @@ namespace hod::application
 	/// @brief 
 	class WindowsApplication : public DesktopApplication
 	{
-		_Singleton(WindowsApplication)
-
-						WindowsApplication() = default;
-
-	public:
+		_SingletonOverride(WindowsApplication)
 	};
 }
