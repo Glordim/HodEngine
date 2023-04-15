@@ -30,14 +30,14 @@ namespace hod::window
 
 	/// @brief 
 	/// @return 
-	uint32_t Window::GetWidth() const
+	uint16_t Window::GetWidth() const
 	{
 		return _width;
 	}
 
 	/// @brief 
 	/// @return 
-	uint32_t Window::GetHeight() const
+	uint16_t Window::GetHeight() const
 	{
 		return _height;
 	}

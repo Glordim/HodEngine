@@ -28,6 +28,9 @@ namespace hod::window
 
 		void								SetSize(uint16_t width, uint16_t height) override;
 		void								CenterToScreen() override;
+		void								Maximize() override;
+
+		void								RunOnWin32Thread(std::function<void()> codeToRun);
 
 	private:
 
@@ -43,5 +46,7 @@ namespace hod::window
 		MemberFunctionJob<Win32Window>		_updateJob;
 
 		Thread::Id							_hWndThreadId;
+
+		std::vector<std::function<void()>>	_runOnWin32Thread;
 	};
 }

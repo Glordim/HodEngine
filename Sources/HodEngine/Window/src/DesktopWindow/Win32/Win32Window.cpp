@@ -46,6 +46,8 @@ namespace hod::window
 			UINT width = LOWORD(lParam);
 			UINT height = HIWORD(lParam);
 
+			_width = width;
+			_height = height;
 			//_context->Resize(width, height);
 		}
 		else if (msg == WM_CLOSE)
@@ -170,6 +172,12 @@ namespace hod::window
 			return;
 		}
 
+		for (const std::function<void()> function : _runOnWin32Thread)
+		{
+			function();
+		}
+		_runOnWin32Thread.clear();
+
 		::MSG msg;
 		::ZeroMemory(&msg, sizeof(msg));
 
@@ -196,11 +204,48 @@ namespace hod::window
 
 	void Win32Window::SetSize(uint16_t width, uint16_t height)
 	{
-		SetWindowPos(_hWnd, nullptr, 0, 0, width, height, SWP_NOMOVE);
+		_width = width;
+		_height = height;
+
+		RunOnWin32Thread(
+			[this]()
+			{
+				SetWindowPos(_hWnd, nullptr, 0, 0, _width, _height, SWP_NOMOVE);
+			}
+		);
 	}
 
 	void Win32Window::CenterToScreen()
 	{
+		RunOnWin32Thread(
+			[this]()
+			{
+				int x = GetSystemMetrics(SM_CXSCREEN) * 0.5f - _width * 0.5f;
+				int y = GetSystemMetrics(SM_CYSCREEN) * 0.5f - _height * 0.5f;
+				SetWindowPos(_hWnd, nullptr, x, y, 0, 0, SWP_NOSIZE);
+			}
+		);
+	}
 
+	void Win32Window::Maximize()
+	{
+		RunOnWin32Thread(
+			[this]()
+			{
+				ShowWindow(_hWnd, SW_MAXIMIZE);
+			}
+		);
+	}
+
+	void Win32Window::RunOnWin32Thread(std::function<void()> codeToRun)
+	{
+		if (_hWndThreadId == Thread::GetCurrentThreadId())
+		{
+			codeToRun();
+		}
+		else
+		{
+			_runOnWin32Thread.push_back(codeToRun);
+		}
 	}
 }

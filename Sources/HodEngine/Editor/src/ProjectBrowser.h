@@ -18,5 +18,9 @@ namespace hod::editor
 	public:
 
 		void		Draw() override;
+
+	private:
+
+		std::vector<std::filesystem::path>	_projectsPath;
 	};
 }

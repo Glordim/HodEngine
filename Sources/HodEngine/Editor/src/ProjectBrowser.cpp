@@ -15,12 +15,44 @@
 
 #include <HodEngine/Application/src/PlatformDialog.h>
 
+#include "HodEngine/Core/Src/FileSystem.h"
+
+#include <fstream>
+#include <rapidjson/document.h>
+
 namespace hod::editor
 {
 	/// @brief 
 	ProjectBrowser::ProjectBrowser()
 	{
+		std::filesystem::path projectsPath = core::FileSystem::GetUserSettingsPath();
+		projectsPath /= ("HodEngine");
+		projectsPath /= ("Project.json");
 
+		std::ifstream file;
+		file.open(projectsPath, std::ios::in);
+		if (file.is_open() == true)
+		{
+			file.seekg(0, std::ios::end);
+
+			int size = (int)file.tellg();
+			char* buffer = new char[size + 1];
+			file.seekg(0, std::ios::beg);
+			file.read(buffer, size);
+			file.close();
+			buffer[size] = '\0';
+
+			rapidjson::Document document;
+			document.Parse(buffer);
+
+			auto projects = document["Projects"].GetArray();
+			for (const auto& project : projects)
+			{
+				_projectsPath.push_back(project.GetString());
+			}
+
+			delete[] buffer;
+		}
 	}
 
 	/// @brief 
@@ -57,12 +89,12 @@ namespace hod::editor
 				ImGui::TableSetupColumn("##OpenDelete", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 100.0f);
 				ImGui::TableHeadersRow();
 
-				for (int index = 0; index < 3; ++index)
+				for (int index = 0; index < _projectsPath.size(); ++index)
 				{
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					ImGui::Text("Toto");
+					ImGui::Text(_projectsPath[index].string().c_str());
 					//ImGui::Text("C:\\users\\glordim\\Desltop\\Dev\\Toto");
 
 					ImGui::TableNextColumn();
@@ -71,7 +103,7 @@ namespace hod::editor
 					ImGui::TableNextColumn();
 					if (ImGui::Button("Open") == true)
 					{
-
+						Editor::GetInstance()->OpenProject(_projectsPath[index]);
 					}
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(150, 0, 0, 255));

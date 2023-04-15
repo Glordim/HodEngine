@@ -36,6 +36,8 @@ namespace hod::imgui
 		template<typename _Window_>
 		_Window_*						OpenWindow();
 
+		void							CloseAllWindow();
+
 	protected:
 
 										ImGuiManager();

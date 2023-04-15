@@ -13,6 +13,13 @@
 #include "HodEngine/Application/src/GraphicApplications/DesktopApplications/DesktopApplication.h"
 #include "HodEngine/Window/src/DesktopWindow/DesktopWindow.h"
 
+#include "HodEngine/Core/Src/FileSystem.h"
+#include <fstream>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/prettywriter.h>
+
 namespace hod::editor
 {
 	/// @brief 
@@ -71,6 +78,90 @@ namespace hod::editor
 	/// @return 
 	bool Editor::OpenProject(const std::filesystem::path& path)
 	{
+		std::filesystem::path projectsPath = core::FileSystem::GetUserSettingsPath();
+		projectsPath /= ("HodEngine");
+		projectsPath /= ("Project.json");
+
+		rapidjson::Document document;
+		rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+		rapidjson::Value projects(rapidjson::kArrayType);
+		projects.SetArray();
+		bool alreadyExist = false;
+		char* buffer = nullptr;
+
+		std::ifstream file;
+		file.open(projectsPath, std::ios::in);
+		if (file.is_open() == true)
+		{
+			file.seekg(0, std::ios::end);
+
+			int size = (int)file.tellg();
+			buffer = new char[size + 1];
+			file.seekg(0, std::ios::beg);
+			file.read(buffer, size);
+			file.close();
+			buffer[size] = '\0';
+
+			document.Parse(buffer);
+			projects = document["Projects"].GetArray();
+
+			for (const auto& project : projects.GetArray())
+			{
+				if (project.GetString() == path.string())
+				{
+					alreadyExist = true;
+					break;
+				}
+			}
+
+			if (alreadyExist == false)
+			{
+				rapidjson::Value strVal;
+				strVal.SetString(path.string().c_str(), path.string().size(), allocator);
+				projects.PushBack(strVal, allocator);
+			}
+		}
+		else
+		{
+			document.SetObject();
+			rapidjson::Value strVal;
+			strVal.SetString(path.string().c_str(), path.string().size(), allocator);
+			projects.PushBack(strVal, allocator);
+			document.AddMember("Projects", projects, allocator);
+		}
+
+		if (alreadyExist == false)
+		{
+			rapidjson::StringBuffer buf;
+			rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
+			document.Accept(writer);
+
+			const char* json = buf.GetString();
+			size_t jsonSize = buf.GetSize();
+
+			std::filesystem::create_directories(projectsPath.parent_path());
+
+			std::ofstream file;
+			file.open(projectsPath, std::ios::out);
+			if (file.is_open() == true)
+			{
+				file.seekp(0, std::ios::beg);
+				file.write(json, jsonSize);
+				file.flush();
+				file.close();
+			}
+		}
+		if (buffer != nullptr)
+		{
+			delete[] buffer;
+		}
+
+		imgui::ImGuiManager::GetInstance()->CloseAllWindow();
+		application::DesktopApplication* application = application::DesktopApplication::GetInstance();
+		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
+		mainWindow->Maximize();
+
 		_mainBar = new MainBar();
 		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
 

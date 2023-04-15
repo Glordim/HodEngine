@@ -97,6 +97,15 @@ namespace hod::imgui
 	}
 
 	/// @brief 
+	void ImGuiManager::CloseAllWindow()
+	{
+		for (Window* window : _windows)
+		{
+			window->Close();
+		}
+	}
+
+	/// @brief 
 	void ImGuiManager::Update()
 	{
 		ImGui_ImplWin32_NewFrame();
@@ -117,6 +126,22 @@ namespace hod::imgui
 		if (showDemo == true)
 		{
 			ImGui::ShowDemoWindow(&showDemo);
+		}
+
+		std::vector<Window*>::iterator windowIt = _windows.begin();
+		std::vector<Window*>::iterator windowItEnd = _windows.end();
+		while (windowIt != windowItEnd)
+		{
+			if ((*windowIt)->IsClosed() == true)
+			{
+				delete *windowIt;
+				windowIt = _windows.erase(windowIt);
+				windowItEnd = _windows.end();
+			}
+			else
+			{
+				++windowIt;
+			}
 		}
 
 		for (Window* window : _windows)

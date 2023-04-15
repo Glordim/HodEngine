@@ -23,14 +23,16 @@ namespace hod::window
 		renderer::Context*	GetContext() const;
 		void				SetContext(renderer::Context* context);
 
-		uint32_t			GetWidth() const;
-		uint32_t			GetHeight() const;
+		uint16_t			GetWidth() const;
+		uint16_t			GetHeight() const;
+
+	protected:
+
+		uint16_t			_width = 0;
+		uint16_t			_height = 0;
 
 	private:
 
 		renderer::Context*	_context = nullptr;
-
-		uint32_t			_width = 0;
-		uint32_t			_height = 0;
 	};
 }
