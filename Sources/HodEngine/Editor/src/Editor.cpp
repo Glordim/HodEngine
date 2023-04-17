@@ -7,6 +7,9 @@
 
 #include "HodEngine/Editor/src/ProjectBrowser.h"
 #include "HodEngine/Editor/src/AssetBrowserWindow.h"
+#include "HodEngine/Editor/src/HierachyWindow.h"
+#include "HodEngine/Editor/src/InspectorWindow.h"
+#include "HodEngine/Editor/src/ViewportWindow.h"
 
 #include "HodEngine/Core/Src/ArgumentParser.h"
 
@@ -102,6 +105,14 @@ namespace hod::editor
 			file.read(buffer, size);
 			file.close();
 			buffer[size] = '\0';
+			for (int i = size - 1; i >= 0; --i)
+			{
+				if (buffer[i] == '\0' || buffer[i] == 4)
+				{
+					buffer[i] = '\0';
+					break;
+				}
+			}
 
 			document.Parse(buffer);
 			projects = document["Projects"].GetArray();
@@ -168,6 +179,9 @@ namespace hod::editor
 		_assetDatabase.Init();
 
 		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+		imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
+		imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
+		imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 
 		_project = new Project(path);
 		_project->Load();

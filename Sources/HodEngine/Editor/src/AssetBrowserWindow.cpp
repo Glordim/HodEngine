@@ -276,7 +276,7 @@ namespace hod::editor
 					const AssetDatabase::FileSystemMapping* newAssetNode = Editor::GetInstance()->GetAssetDatabase().FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)
 					{
-						EditNodeName(newAssetNode);
+						//EditNodeName(newAssetNode);
 						ImGui::CloseCurrentPopup();
 					}
 				}
