@@ -67,6 +67,8 @@ namespace hod::editor
 		void								Rename(const FileSystemMapping& node, const std::string& newName);
 		void								Delete(const FileSystemMapping& node);
 
+		bool								Import(const std::filesystem::path& path);
+
 	private:
 
 		void								OnProjectLoaded(Project* project);

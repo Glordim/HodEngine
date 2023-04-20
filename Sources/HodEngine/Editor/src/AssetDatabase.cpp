@@ -11,6 +11,7 @@
 #include "HodEngine/Editor/src/Asset.h"
 
 #include <HodEngine/Core/Src/Frame/FrameSequencer.h>
+#include <HodEngine/Core/Src/Output.h>
 
 #include <Windows.h>
 #include <vector>
@@ -289,5 +290,41 @@ namespace hod::editor
 		}
 
 		delete realNode;
+	}
+
+	/// @brief 
+	/// @param path 
+	/// @return 
+	bool AssetDatabase::Import(const std::filesystem::path& path)
+	{
+		static std::map<std::string, Importer> importerMap(
+			"png", TextureImporter
+		);
+
+		std::ifstream file;
+		file.open(path, std::ios::in);
+		if (file.is_open() == false)
+		{
+			OUTPUT_ERROR("AssetDatabase::Import: Unable to open file %s", path.string().c_str());
+			return false;
+		}
+
+		file.seekg(0, std::ios::end);
+		int size = (int)file.tellg();
+		char* buffer = new char[size + 1];
+		file.seekg(0, std::ios::beg);
+		file.read(buffer, size);
+		file.close();
+		buffer[size] = '\0';
+		for (int i = size - 1; i >= 0; --i)
+		{
+			if (buffer[i] == '\0' || buffer[i] == '\x4')
+			{
+				buffer[i] = '\0';
+				break;
+			}
+		}
+
+
 	}
 }

@@ -6,6 +6,9 @@
 
 #include <fstream>
 
+#include "AssetDatabase.h"
+#include "Editor.h"
+
 namespace hod::editor
 {
 	/// @brief 
@@ -32,10 +35,12 @@ namespace hod::editor
 		if (file.is_open() == false)
 		{
 			// TODO generate new meta if not exist
+			Editor::GetInstance()->GetAssetDatabase()->Import(_path);
 			return false;
 		}
+
 		file.seekg(0, std::ios::end);
-		
+
 		int size = (int)file.tellg();
 		char* buffer = new char[size + 1];
 		file.seekg(0, std::ios::beg);
