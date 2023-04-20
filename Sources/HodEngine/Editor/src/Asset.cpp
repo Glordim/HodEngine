@@ -25,9 +25,15 @@ namespace hod::editor
 	/// @return 
 	bool Asset::Load()
 	{
-		/*
+		std::filesystem::path metaPath = _path / ".meta";
+
 		std::ifstream file;
-		file.open(_projectPath, std::ios::in);
+		file.open(metaPath, std::ios::in);
+		if (file.is_open() == false)
+		{
+			// TODO generate new meta if not exist
+			return false;
+		}
 		file.seekg(0, std::ios::end);
 		
 		int size = (int)file.tellg();
@@ -36,14 +42,19 @@ namespace hod::editor
 		file.read(buffer, size);
 		file.close();
 		buffer[size] = '\0';
+		for (int i = size - 1; i >= 0; --i)
+		{
+			if (buffer[i] == '\0' || buffer[i] == '\x4')
+			{
+				buffer[i] = '\0';
+				break;
+			}
+		}
 
 		rapidjson::Document document;
 		document.Parse(buffer);
 
-		_name = document["Name"].GetString();
-
 		delete[] buffer;
-		*/
 		return true;
 	}
 

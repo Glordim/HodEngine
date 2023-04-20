@@ -131,7 +131,6 @@ namespace hod::editor
 			}
 			else
 			{
-				/*
 				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 				if (asset->Load() == true)
 				{
@@ -142,7 +141,6 @@ namespace hod::editor
 					//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
 					fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
 				}
-				*/
 			}
 		}
 	}

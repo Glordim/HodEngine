@@ -38,8 +38,14 @@ namespace hod::editor
 		file.seekg(0, std::ios::beg);
 		file.read(buffer, size);
 		file.close();
-		buffer[size - 1] = '\0';
-		buffer[size - 2] = '\0';
+		for (int i = size - 1; i >= 0; --i)
+		{
+			if (buffer[i] == '\0' || buffer[i] == 4)
+			{
+				buffer[i] = '\0';
+				break;
+			}
+		}
 
 		rapidjson::Document document;
 		document.Parse(buffer);
