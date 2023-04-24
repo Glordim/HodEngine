@@ -7,10 +7,11 @@
 #include <glm/vec2.hpp>
 
 #include "../ReflectionProperty.h"
+#include "HodEngine/Core/Src/Document/Document.h"
 
 namespace hod
 {
-	namespace CORE
+	namespace core
 	{
 		namespace Reflection
 		{
@@ -23,6 +24,7 @@ namespace hod
 
 					enum Type
 					{
+						Bool,
 						Int8,
 						UInt8,
 						Int16,
@@ -36,7 +38,7 @@ namespace hod
 						Vector2f32,
 						Count
 					};
-					inline static const char* _typeLabels[Type::Count] = { "Int8", "UInt8", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", "Float32", "Float64", "Vector2f32" };
+					inline static const char* _typeLabels[Type::Count] = { "Bool", "Int8", "UInt8", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", "Float32", "Float64", "Vector2f32" };
 
 				public:
 
@@ -50,6 +52,12 @@ namespace hod
 
 				public:
 
+					template<typename T>
+					void									Serialize(const T& instance, Document::Element& element);
+
+					template<typename T>
+					void									Deserialize(T& instance, const Document::Element& element);
+
 					rapidjson::Value						Serialize(rapidjson::Document::AllocatorType& allocator) const override;
 
 				private:
@@ -62,3 +70,5 @@ namespace hod
 		}
 	}
 }
+
+#include "ReflectionPropertyVariable.inl"

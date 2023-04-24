@@ -11,8 +11,6 @@
 #include "HodEngine/Editor/src/Editor.h"
 #include "HodEngine/Editor/src/Project.h"
 
-#include "HodEngine/Editor/src/Assets/SceneAsset.h"
-
 #include <HodEngine/Application/src/PlatformDialog.h>
 
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
@@ -32,11 +30,7 @@ namespace hod::editor
 	/// @brief 
 	AssetBrowserWindow::AssetBrowserWindow()
 	{
-		Project* project = Editor::GetInstance()->GetProject();
-		if (project != nullptr)
-		{
-			_folderTree._path = project->GetAssetDirPath();
-		}
+		_folderTree._path = Project::GetInstance()->GetAssetDirPath();
 
 		ResyncFolderTree(&_folderTree);
 	}
@@ -64,7 +58,7 @@ namespace hod::editor
 	/// @brief 
 	void AssetBrowserWindow::DrawFolderTree()
 	{
-		const AssetDatabase::FileSystemMapping& root = Editor::GetInstance()->GetAssetDatabase().GetAssetRootNode();
+		const AssetDatabase::FileSystemMapping& root = AssetDatabase::GetInstance()->GetAssetRootNode();
 		if (_currentFolderTreeNode == nullptr)
 		{
 			_currentFolderTreeNode = &root;
@@ -77,7 +71,7 @@ namespace hod::editor
 			{
 				_currentFolderTreeNode = _nodeToDelete->_parentFolder;
 			}
-			Editor::GetInstance()->GetAssetDatabase().Delete(*_nodeToDelete);
+			AssetDatabase::GetInstance()->Delete(*_nodeToDelete);
 			_nodeToDelete = nullptr;
 		}
 	}
@@ -109,8 +103,8 @@ namespace hod::editor
 		{
 			if (ImGui::MenuItem("New Folder") == true)
 			{
-				std::filesystem::path newFolderPath = Editor::GetInstance()->GetAssetDatabase().CreateFolder(node->_path / "Folder");
-				const AssetDatabase::FileSystemMapping* newFolderNode = Editor::GetInstance()->GetAssetDatabase().FindFileSystemMappingFromPath(newFolderPath);
+				std::filesystem::path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(node->_path / "Folder");
+				const AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
 				if (newFolderNode != nullptr)
 				{
 					EditNodeName(newFolderNode);
@@ -118,7 +112,7 @@ namespace hod::editor
 				}
 			}
 
-			const AssetDatabase::FileSystemMapping& root = Editor::GetInstance()->GetAssetDatabase().GetAssetRootNode();
+			const AssetDatabase::FileSystemMapping& root = AssetDatabase::GetInstance()->GetAssetRootNode();
 			if (node != &root)
 			{
 				if (ImGui::MenuItem("Rename") == true)
@@ -154,7 +148,7 @@ namespace hod::editor
 			if (ImGui::InputText("###rename", _renameBuffer.data(), _renameBuffer.capacity(), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue) == true)
 			{
 				_renameBuffer = _renameBuffer.c_str();
-				Editor::GetInstance()->GetAssetDatabase().Rename(*node, _renameBuffer);
+				AssetDatabase::GetInstance()->Rename(*node, _renameBuffer);
 				_treeNodeToEdit = nullptr;
 			}
 		}
@@ -259,8 +253,8 @@ namespace hod::editor
 		{
 			if (ImGui::MenuItem("New Folder") == true)
 			{
-				std::filesystem::path newFolderPath = Editor::GetInstance()->GetAssetDatabase().CreateFolder(_currentFolderTreeNode->_path / "Folder");
-				const AssetDatabase::FileSystemMapping* newFolderNode = Editor::GetInstance()->GetAssetDatabase().FindFileSystemMappingFromPath(newFolderPath);
+				std::filesystem::path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(_currentFolderTreeNode->_path / "Folder");
+				const AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
 				if (newFolderNode != nullptr)
 				{
 					EditNodeName(newFolderNode);
@@ -272,13 +266,15 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("Scene") == true)
 				{
-					std::filesystem::path newAssetPath = Editor::GetInstance()->GetAssetDatabase().CreateAsset<SceneAsset>(_currentFolderTreeNode->_path / "Scene");
-					const AssetDatabase::FileSystemMapping* newAssetNode = Editor::GetInstance()->GetAssetDatabase().FindFileSystemMappingFromPath(newAssetPath);
+					/*
+					std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<SceneAsset>(_currentFolderTreeNode->_path / "Scene");
+					const AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)
 					{
 						//EditNodeName(newAssetNode);
 						ImGui::CloseCurrentPopup();
 					}
+					*/
 				}
 				ImGui::EndMenu();
 			}

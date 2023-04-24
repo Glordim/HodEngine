@@ -9,7 +9,7 @@
 																						\
 	protected:																			\
 																						\
-						T() = default;													\
+						T();															\
 																						\
 	public:																				\
 																						\
@@ -26,6 +26,11 @@
 	private:																			\
 																						
 
+#define _SingletonConstructor(T)	\
+	T* T::_instance = nullptr;		\
+									\
+	T::T()							
+
 #define _SingletonOverride(T)																			\
 	public:																								\
 																										\
@@ -35,7 +40,7 @@
 																										\
 	protected:																							\
 																										\
-						T() = default;																	\
+						T();																			\
 																										\
 	public:																								\
 																										\
@@ -48,7 +53,8 @@
 	private:																							\
 
 
-#define _SingletonInstance(T) T* T::_instance = nullptr;
+#define _SingletonOverrideConstructor(T)	\
+	T::T()									
 
 namespace hod
 {

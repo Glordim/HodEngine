@@ -4,6 +4,11 @@
 
 using namespace hod;
 
+_SingletonOverrideConstructor(EditorApplication)
+{
+
+}
+
 /// @brief 
 /// @param argc 
 /// @param argv 

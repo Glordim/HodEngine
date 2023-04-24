@@ -4,21 +4,25 @@
 
 #include <filesystem>
 
+#include <HodEngine/Core/Src/Singleton.h>
+
 namespace hod::editor
 {
-	class MainBar;
-
 	/// @brief 
 	class Project
 	{
+		_Singleton(Project)
+
 	public:
-										Project(const std::filesystem::path& projectPath);
-										~Project();
+
+		bool							Create(const std::filesystem::path& directory);
+		bool							Open(const std::filesystem::path& projectPath);
 
 		bool							Load();
 		bool							Save();
 
-		const std::filesystem::path&	GetAssetDirPath() const;
+		const std::filesystem::path&	GetProjectPath();
+		const std::filesystem::path&	GetAssetDirPath();
 
 	private:
 

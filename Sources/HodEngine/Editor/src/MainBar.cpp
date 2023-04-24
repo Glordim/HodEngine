@@ -20,27 +20,6 @@ namespace hod::editor
 	{
 		if (ImGui::BeginMenu("File") == true)
 		{
-			bool projectOpen = Editor::GetInstance()->GetProject() != nullptr;
-
-			if (ImGui::MenuItem("New Project", nullptr, nullptr, projectOpen == false) == true)
-			{
-				std::filesystem::path path = application::dialog::GetSaveFileDialog();
-				Editor::GetInstance()->CreateProject(path);
-			}
-			if (ImGui::MenuItem("Open Project", nullptr, nullptr, projectOpen == false) == true)
-			{
-				std::filesystem::path path = application::dialog::GetOpenFileDialog();
-				Editor::GetInstance()->OpenProject(path);
-			}
-			if (ImGui::BeginMenu("Recent Project", projectOpen == false) == true)
-			{
-				ImGui::EndMenu();
-			}
-			if (ImGui::MenuItem("Close Project", nullptr, nullptr, projectOpen == true) == true)
-			{
-				Editor::GetInstance()->CloseProject();
-			}
-			ImGui::Separator();
 			if (ImGui::MenuItem("Quit") == true)
 			{
 				application::Application::GetInstance()->Quit();

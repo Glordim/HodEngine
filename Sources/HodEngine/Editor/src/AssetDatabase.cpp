@@ -36,12 +36,10 @@ namespace hod::editor
 		return uniquePath;
 	}
 
-	/// @brief 
-	AssetDatabase::AssetDatabase()
-		: _onProjectLoadedSlot(std::bind(&AssetDatabase::OnProjectLoaded, this, std::placeholders::_1))
-		, _onProjectClosedSlot(std::bind(&AssetDatabase::OnProjectClosed, this, std::placeholders::_1))
-		, _filesystemWatcherJob(this, &AssetDatabase::FilesystemWatcherJob, JobQueue::FramedLowPriority)
+	_SingletonConstructor(AssetDatabase)
+		: _filesystemWatcherJob(this, &AssetDatabase::FilesystemWatcherJob, JobQueue::FramedLowPriority)
 	{
+
 	}
 
 	/// @brief 
@@ -53,9 +51,6 @@ namespace hod::editor
 	/// @return 
 	bool AssetDatabase::Init()
 	{
-		Editor::GetInstance()->OnProjectLoaded += _onProjectLoadedSlot;
-		Editor::GetInstance()->OnProjectClosed += _onProjectClosedSlot;
-
 		return true;
 	}
 
@@ -297,9 +292,14 @@ namespace hod::editor
 	/// @return 
 	bool AssetDatabase::Import(const std::filesystem::path& path)
 	{
+		/*
+		ImporterFactory importers;
+		importers
+
 		static std::map<std::string, Importer> importerMap(
 			"png", TextureImporter
 		);
+		*/
 
 		std::ifstream file;
 		file.open(path, std::ios::in);

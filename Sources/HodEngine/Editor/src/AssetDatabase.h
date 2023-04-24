@@ -9,6 +9,7 @@
 #include <HodEngine/Core/Src/Event.h>
 #include <HodEngine/Core/Src/LinkedList.h>
 #include <HodEngine/Core/Src/Job/MemberFunctionJob.h>
+#include <HodEngine/Core/Src/Singleton.h>
 
 namespace hod::editor
 {
@@ -18,6 +19,8 @@ namespace hod::editor
 	/// @brief 
 	class AssetDatabase
 	{
+		_Singleton(AssetDatabase)
+
 	public:
 
 		struct FileSystemMapping
@@ -51,7 +54,6 @@ namespace hod::editor
 		};
 
 	public:
-											AssetDatabase();
 											~AssetDatabase();
 
 		bool								Init();
@@ -90,9 +92,6 @@ namespace hod::editor
 
 		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
 		FileSystemMapping					_rootFileSystemMapping;
-
-		Event<Project*>::Slot				_onProjectLoadedSlot;
-		Event<Project*>::Slot				_onProjectClosedSlot;
 
 		void*								_filesystemWatcherHandle;
 		MemberFunctionJob<AssetDatabase>	_filesystemWatcherJob;

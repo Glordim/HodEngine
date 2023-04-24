@@ -16,7 +16,7 @@
 
 namespace hod
 {
-	using namespace CORE::Reflection::Property;
+	using namespace core::Reflection::Property;
 
 	namespace game
 	{

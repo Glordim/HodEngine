@@ -5,7 +5,10 @@
 
 namespace hod::application
 {
-	_SingletonInstance(Application)
+	_SingletonConstructor(Application)
+	{
+
+	}
 
 	/// @brief 
 	/// @param argc 

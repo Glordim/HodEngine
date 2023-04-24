@@ -2,7 +2,7 @@
 
 namespace hod
 {
-	namespace CORE
+	namespace core
 	{
 		///@brief Construct a new ReflectionTrait::ReflectionTrait object
 		///@param typeName 

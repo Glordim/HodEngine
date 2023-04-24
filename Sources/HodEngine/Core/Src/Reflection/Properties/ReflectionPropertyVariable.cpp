@@ -2,7 +2,7 @@
 
 namespace hod
 {
-	namespace CORE
+	namespace core
 	{
 		namespace Reflection
 		{

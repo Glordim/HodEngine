@@ -5,6 +5,8 @@
 #include <vector>
 #include <filesystem>
 
+#include "RecentProjects.h"
+
 namespace hod::editor
 {
 	/// @brief 
@@ -21,6 +23,7 @@ namespace hod::editor
 
 	private:
 
+		RecentProjects _recentProjects;
 		std::vector<std::filesystem::path>	_projectsPath;
 	};
 }

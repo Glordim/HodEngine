@@ -35,7 +35,7 @@ namespace hod::editor
 		if (file.is_open() == false)
 		{
 			// TODO generate new meta if not exist
-			Editor::GetInstance()->GetAssetDatabase()->Import(_path);
+			AssetDatabase::GetInstance()->Import(_path);
 			return false;
 		}
 
@@ -73,7 +73,6 @@ namespace hod::editor
 		rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
 
 		document.AddMember("Name", rapidjson::StringRef(_name.c_str(), _name.size()), allocator);
-		document.AddMember("Type", rapidjson::StringRef(GetType(), strlen(GetType())), allocator);
 		document.AddMember("UID", rapidjson::StringRef(_uid.ToString().c_str(), _uid.ToString().size()), allocator);
 
 		rapidjson::StringBuffer sb;

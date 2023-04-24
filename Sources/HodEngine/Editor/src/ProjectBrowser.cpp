@@ -11,14 +11,13 @@
 #include "HodEngine/Editor/src/Editor.h"
 #include "HodEngine/Editor/src/Project.h"
 
-#include "HodEngine/Editor/src/Assets/SceneAsset.h"
-
 #include <HodEngine/Application/src/PlatformDialog.h>
 
 #include "HodEngine/Core/Src/FileSystem.h"
-
-#include <fstream>
-#include <rapidjson/document.h>
+#include "HodEngine/Core/Src/Stream/FileStream.h"
+#include "HodEngine/Core/Src/Document/Document.h"
+#include "HodEngine/Core/Src/Document/DocumentReaderJson.h"
+#include "HodEngine/Core/Src/Document/DocumentWriterJson.h"
 
 namespace hod::editor
 {
@@ -29,30 +28,11 @@ namespace hod::editor
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("Project.json");
 
-		std::ifstream file;
-		file.open(projectsPath, std::ios::in);
-		if (file.is_open() == true)
-		{
-			file.seekg(0, std::ios::end);
+		core::Document document;
+		core::DocumentReaderJson jsonReader;
+		jsonReader.Read(document, projectsPath);
 
-			int size = (int)file.tellg();
-			char* buffer = new char[size + 1];
-			file.seekg(0, std::ios::beg);
-			file.read(buffer, size);
-			file.close();
-			buffer[size] = '\0';
-
-			rapidjson::Document document;
-			document.Parse(buffer);
-
-			auto projects = document["Projects"].GetArray();
-			for (const auto& project : projects)
-			{
-				_projectsPath.push_back(project.GetString());
-			}
-
-			delete[] buffer;
-		}
+		RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(_recentProjects, document.GetRootElement());
 	}
 
 	/// @brief 

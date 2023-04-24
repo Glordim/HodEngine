@@ -8,7 +8,7 @@ namespace hod
 	{
 		namespace Traits
 		{
-			class Type : public CORE::ReflectionTrait
+			class Type : public core::ReflectionTrait
 			{
 			public:
 

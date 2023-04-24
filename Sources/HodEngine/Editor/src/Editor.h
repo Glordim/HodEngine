@@ -20,14 +20,13 @@ namespace hod::editor
 	class Project;
 
 	/// @brief 
-	class Editor : public Singleton<Editor>
+	class Editor
 	{
-		friend class Singleton<Editor>;
+		_Singleton(Editor)
 
 	public:
 
-		Event<Project*>	OnProjectLoaded;
-		Event<Project*>	OnProjectClosed;
+						~Editor();
 
 	public:
 
@@ -35,20 +34,13 @@ namespace hod::editor
 
 		bool			CreateProject(const std::filesystem::path& path);
 		bool			OpenProject(const std::filesystem::path& path);
-		bool			CloseProject();
 
-		Project*		GetProject();
-		AssetDatabase&	GetAssetDatabase();
+	private:
 
-	protected:
-
-						Editor();
-						~Editor();
+		bool			AddProjectInRecentProject(const std::filesystem::path& path) const;
 
 	private:
 
 		MainBar*		_mainBar = nullptr;
-		Project*		_project = nullptr;
-		AssetDatabase	_assetDatabase;
 	};
 }

@@ -1,7 +1,7 @@
 
 namespace hod
 {
-	namespace CORE
+	namespace core
 	{
 		template<typename __TRAIT_TYPE__, typename... Args>
 		void ReflectionProperty::AddTrait(Args&&... args)

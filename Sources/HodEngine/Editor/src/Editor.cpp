@@ -17,16 +17,19 @@
 #include "HodEngine/Window/src/DesktopWindow/DesktopWindow.h"
 
 #include "HodEngine/Core/Src/FileSystem.h"
-#include <fstream>
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/prettywriter.h>
+#include "HodEngine/Core/Src/Stream/FileStream.h"
+#include "HodEngine/Core/Src/Document/Document.h"
+#include "HodEngine/Core/Src/Document/DocumentReaderJson.h"
+#include "HodEngine/Core/Src/Document/DocumentWriterJson.h"
+#include "HodEngine/Core/Src/Reflection/ReflectionMacros.h"
+#include "HodEngine/Core/Src/Reflection/ReflectionProperty.h"
+#include "HodEngine/Core/Src/Reflection/Properties/ReflectionPropertyVariable.h"
+
+#include "RecentProjects.h"
 
 namespace hod::editor
 {
-	/// @brief 
-	Editor::Editor()
+	_SingletonConstructor(Editor)
 	{
 	}
 
@@ -41,6 +44,8 @@ namespace hod::editor
 	/// @return 
 	bool Editor::Init(const core::ArgumentParser& argumentParser)
 	{
+		Project::CreateInstance();
+
 		const core::Argument* argument = argumentParser.GetArgument('p', "project");
 		if (argument == nullptr)
 		{
@@ -50,10 +55,81 @@ namespace hod::editor
 			mainWindow->CenterToScreen();
 
 			imgui::ImGuiManager::GetInstance()->OpenWindow<ProjectBrowser>();
+			return true;
 		}
 		else
 		{
-			OpenProject(argument->_values[0]); // todo verif if value
+			if (argument->_valueCount == 1)
+			{
+				return OpenProject(argument->_values[0]);
+			}
+		}
+
+		return false;
+	}
+
+	/// @brief 
+	/// @param path 
+	/// @return 
+	bool Editor::OpenProject(const std::filesystem::path& path)
+	{
+		if (Project::GetInstance()->Open(path) == false)
+		{
+			return false;
+		}
+		AddProjectInRecentProject(path);
+
+		AssetDatabase::CreateInstance();
+		AssetDatabase::GetInstance()->Init();
+
+		_mainBar = new MainBar();
+		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
+
+		imgui::ImGuiManager::GetInstance()->CloseAllWindow();
+		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+		imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
+		imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
+		imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
+
+		application::DesktopApplication* application = application::DesktopApplication::GetInstance();
+		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
+		mainWindow->Maximize();
+
+		return true;
+	}
+
+	bool Editor::AddProjectInRecentProject(const std::filesystem::path& path) const
+	{
+		std::filesystem::path projectsPath = core::FileSystem::GetUserSettingsPath();
+		projectsPath /= ("HodEngine");
+		projectsPath /= ("Project.json");
+
+		core::Document document;
+		core::DocumentReaderJson jsonReader;
+		jsonReader.Read(document, projectsPath);
+
+		RecentProjects recentProjects;
+		RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(recentProjects, document.GetRootElement());
+
+		bool alreadyExist = false;
+		for (const std::string& projectPath : recentProjects._projectsPath)
+		{
+			if (projectPath == path.string())
+			{
+				alreadyExist = true;
+				break;
+			}
+		}
+
+		if (alreadyExist == false)
+		{
+			recentProjects._projectsPath.push_back(path.string());
+
+			RecentProjects::GetReflectionDescriptor()->SerializeInDocument(recentProjects, document.GetRootElement());
+
+			std::filesystem::create_directories(projectsPath.parent_path());
+			core::DocumentWriterJson jsonWriter;
+			jsonWriter.Write(document, projectsPath);
 		}
 
 		return true;
@@ -64,156 +140,10 @@ namespace hod::editor
 	/// @return 
 	bool Editor::CreateProject(const std::filesystem::path& directory)
 	{
-		std::filesystem::create_directory(directory);
-		std::filesystem::path projectFilePath = directory;
-		projectFilePath.append(directory.filename().string() + ".hod");
-
-		_project = new Project(projectFilePath);
-		_project->Save();
-
-		OnProjectLoaded.Emit(_project);
-
-		return true;
-	}
-
-	/// @brief 
-	/// @param path 
-	/// @return 
-	bool Editor::OpenProject(const std::filesystem::path& path)
-	{
-		std::filesystem::path projectsPath = core::FileSystem::GetUserSettingsPath();
-		projectsPath /= ("HodEngine");
-		projectsPath /= ("Project.json");
-
-		rapidjson::Document document;
-		rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
-
-		rapidjson::Value projects(rapidjson::kArrayType);
-		projects.SetArray();
-		bool alreadyExist = false;
-		char* buffer = nullptr;
-
-		std::ifstream file;
-		file.open(projectsPath, std::ios::in);
-		if (file.is_open() == true)
+		if (Project::GetInstance()->Create(directory) == true)
 		{
-			file.seekg(0, std::ios::end);
-
-			int size = (int)file.tellg();
-			buffer = new char[size + 1];
-			file.seekg(0, std::ios::beg);
-			file.read(buffer, size);
-			file.close();
-			buffer[size] = '\0';
-			for (int i = size - 1; i >= 0; --i)
-			{
-				if (buffer[i] == '\0' || buffer[i] == 4)
-				{
-					buffer[i] = '\0';
-					break;
-				}
-			}
-
-			document.Parse(buffer);
-			projects = document["Projects"].GetArray();
-
-			for (const auto& project : projects.GetArray())
-			{
-				if (project.GetString() == path.string())
-				{
-					alreadyExist = true;
-					break;
-				}
-			}
-
-			if (alreadyExist == false)
-			{
-				rapidjson::Value strVal;
-				strVal.SetString(path.string().c_str(), path.string().size(), allocator);
-				projects.PushBack(strVal, allocator);
-			}
+			return OpenProject(Project::GetInstance()->GetProjectPath());
 		}
-		else
-		{
-			document.SetObject();
-			rapidjson::Value strVal;
-			strVal.SetString(path.string().c_str(), path.string().size(), allocator);
-			projects.PushBack(strVal, allocator);
-			document.AddMember("Projects", projects, allocator);
-		}
-
-		if (alreadyExist == false)
-		{
-			rapidjson::StringBuffer buf;
-			rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
-			document.Accept(writer);
-
-			const char* json = buf.GetString();
-			size_t jsonSize = buf.GetSize();
-
-			std::filesystem::create_directories(projectsPath.parent_path());
-
-			std::ofstream file;
-			file.open(projectsPath, std::ios::out);
-			if (file.is_open() == true)
-			{
-				file.seekp(0, std::ios::beg);
-				file.write(json, jsonSize);
-				file.flush();
-				file.close();
-			}
-		}
-		if (buffer != nullptr)
-		{
-			delete[] buffer;
-		}
-
-		imgui::ImGuiManager::GetInstance()->CloseAllWindow();
-		application::DesktopApplication* application = application::DesktopApplication::GetInstance();
-		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
-		mainWindow->Maximize();
-
-		_mainBar = new MainBar();
-		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
-
-		_assetDatabase.Init();
-
-		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
-		imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
-		imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
-		imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
-
-		_project = new Project(path);
-		_project->Load();
-
-		OnProjectLoaded.Emit(_project);
-
-		return true;
-	}
-
-	/// @brief 
-	/// @return 
-	bool Editor::CloseProject()
-	{
-		OnProjectClosed.Emit(_project);
-
-		delete _project;
-		_project = nullptr;
-
-		return true;
-	}
-
-	/// @brief 
-	/// @return 
-	Project* Editor::GetProject()
-	{
-		return _project;
-	}
-
-	/// @brief 
-	/// @return 
-	AssetDatabase& Editor::GetAssetDatabase()
-	{
-		return _assetDatabase;
+		return false;
 	}
 }

@@ -7,7 +7,7 @@ namespace hod
 		namespace Traits
 		{
 			Type::Type(TypeEnum type)
-			: CORE::ReflectionTrait("Type")
+			: core::ReflectionTrait("Type")
 			, _type(type)
 			{
 

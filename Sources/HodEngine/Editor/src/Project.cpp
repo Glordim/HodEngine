@@ -8,21 +8,42 @@
 
 namespace hod::editor
 {
-	/// @brief 
-	Project::Project(const std::filesystem::path& projectPath)
-		: _projectPath(projectPath)
+	_SingletonConstructor(Project)
 	{
-		_name = _projectPath.stem().string();
 
-		_assetDirPath = _projectPath.parent_path();
-		_assetDirPath.append("Assets");
-
-		std::filesystem::create_directory(_assetDirPath);
 	}
 
 	/// @brief 
-	Project::~Project()
+	/// @param directory 
+	/// @return 
+	bool Project::Create(const std::filesystem::path& directory)
 	{
+		if (std::filesystem::create_directories(directory) == false)
+		{
+			return false;
+		}
+
+		_projectPath = directory / (directory.filename().string() + ".hod");
+		_name = _projectPath.stem().string();
+
+		return Save();
+	}
+
+	/// @brief 
+	/// @param projectPath 
+	/// @return 
+	bool Project::Open(const std::filesystem::path& projectPath)
+	{
+		_projectPath = projectPath;
+		_name = _projectPath.stem().string();
+
+		_assetDirPath = _projectPath.parent_path() / "Assets";
+		if (std::filesystem::exists(_assetDirPath) == false && std::filesystem::create_directory(_assetDirPath) == false)
+		{
+			return false;
+		}
+
+		return Load();
 	}
 
 	/// @brief 
@@ -34,10 +55,11 @@ namespace hod::editor
 		file.seekg(0, std::ios::end);
 		
 		int size = (int)file.tellg();
-		char* buffer = new char[size];
+		char* buffer = new char[size + 1];
 		file.seekg(0, std::ios::beg);
 		file.read(buffer, size);
 		file.close();
+		buffer[size] == '\0';
 		for (int i = size - 1; i >= 0; --i)
 		{
 			if (buffer[i] == '\0' || buffer[i] == 4)
@@ -81,7 +103,14 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	const std::filesystem::path& Project::GetAssetDirPath() const
+	const std::filesystem::path& Project::GetProjectPath()
+	{
+		return _projectPath;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::filesystem::path& Project::GetAssetDirPath()
 	{
 		return _assetDirPath;
 	}

@@ -9,7 +9,10 @@ namespace hod
 {
 	namespace renderer
 	{
-		_SingletonInstance(MaterialManager)
+		_SingletonConstructor(MaterialManager)
+		{
+
+		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		

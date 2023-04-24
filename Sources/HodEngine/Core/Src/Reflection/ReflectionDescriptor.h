@@ -4,9 +4,13 @@
 
 #include <rapidjson/document.h>
 
+#include "HodEngine/Core/Src/Document/Document.h"
+
+#include "Properties/ReflectionPropertyVariable.h"
+
 namespace hod
 {
-	namespace CORE
+	namespace core
 	{
 		class ReflectionTrait;
 		class ReflectionProperty;
@@ -28,6 +32,11 @@ namespace hod
 
 			rapidjson::Value						Serialize(rapidjson::Document::AllocatorType& allocator) const;
 			void									Deserialize();
+
+			template<typename T>
+			bool									SerializeInDocument(const T& instance, Document::Element& documentElement);
+			template<typename T>
+			bool									DeserializeFromDocument(T& instance, const Document::Element& documentElement);
 
 			const std::vector<ReflectionTrait*>&	GetTraits() const;
 			const std::vector<ReflectionProperty*>&	GetProperties() const;

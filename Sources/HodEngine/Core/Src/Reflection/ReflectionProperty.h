@@ -6,7 +6,7 @@
 
 namespace hod
 {
-	namespace CORE
+	namespace core
 	{
 		class ReflectionTrait;
 
@@ -33,6 +33,8 @@ namespace hod
 			template<typename __TRAIT_TYPE__, typename... Args>
 			void									AddTrait(Args&&... args);
 			void									AddTrait(ReflectionTrait* trait);
+
+			const char*								GetTypeName() const { return _typeName; }
 
 		protected:
 

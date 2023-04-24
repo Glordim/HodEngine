@@ -5,7 +5,7 @@
 
 namespace hod
 {
-	namespace CORE
+	namespace core
 	{
 		///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
 		///@param typeName 

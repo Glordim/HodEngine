@@ -14,6 +14,11 @@
 
 namespace hod::application
 {
+	_SingletonOverrideConstructor(GraphicApplication)
+	{
+
+	}
+
 	/// @brief 
 	/// @param argc 
 	/// @param argv 

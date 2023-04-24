@@ -4,7 +4,7 @@
 
 namespace hod
 {
-	namespace CORE
+	namespace core
 	{
 		///@brief 
 		class ReflectionTrait
