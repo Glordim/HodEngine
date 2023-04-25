@@ -27,7 +27,7 @@ namespace hod
 
 		private:
 
-			const char*				ParseNode(const char* json, Document::Element& element);
+			const char*				ParseNode(const char* json, Document::Node& node);
 		};
 	}
 }

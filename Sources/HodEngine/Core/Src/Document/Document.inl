@@ -1,0 +1,7 @@
+
+namespace hod
+{
+	namespace core
+	{
+	}
+}

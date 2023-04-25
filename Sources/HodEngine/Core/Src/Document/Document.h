@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace hod
@@ -13,106 +14,104 @@ namespace hod
 		{
 		public:
 
-			class Element
+			class Node
 			{
 				friend class Document;
 
 			public:
 
-				Element&	AddChild(const char* key);
-				Element&	AddChild(const char* key, uint32_t size);
+				Node&	AddChild(const std::string_view& name);
+				const Node*	GetChild(const std::string_view& name) const;
+				Node&	GetOrAddChild(const std::string_view& name);
 
-				Element*	GetFirstChild() const;
-				Element*	GetNextSibling() const;
-				Element*	GetParent() const;
+				Node*	GetFirstChild() const;
+				Node*	GetNextSibling() const;
+				Node*	GetParent() const;
 
 				const char* GetName() const;
 				bool		IsValid() const;
 				bool		IsObject() const;
 				bool		IsArray() const;
 
-				Element*	AddArray(const char* name);
+				Node*		AddArray(const char* name);
 
 				template<typename T>
 				void		SetValues(std::vector<T> values);
 
-				template<typename T>
-				void		SetValue(const char* key, T value);
-				void		SetBool(const char* key, bool value);
-				void		SetInt8(const char* key, int8_t value);
-				void		SetInt16(const char* key, int16_t value);
-				void		SetInt32(const char* key, int32_t value);
-				void		SetInt64(const char* key, int64_t value);
-				void		SetUInt8(const char* key, uint8_t value);
-				void		SetUInt16(const char* key, uint16_t value);
-				void		SetUInt32(const char* key, uint32_t value);
-				void		SetUInt64(const char* key, uint64_t value);
-				void		SetFloat32(const char* key, float value);
-				void		SetFloat64(const char* key, double value);
-				void		SetString(const char* key, const char* value);
+				void		SetBool(bool value);
+				void		SetInt8(int8_t value);
+				void		SetInt16(int16_t value);
+				void		SetInt32(int32_t value);
+				void		SetInt64(int64_t value);
+				void		SetUInt8(uint8_t value);
+				void		SetUInt16(uint16_t value);
+				void		SetUInt32(uint32_t value);
+				void		SetUInt64(uint64_t value);
+				void		SetFloat32(float value);
+				void		SetFloat64(double value);
+				void		SetString(const std::string_view& value);
 
-				template<typename T>
-				T			GetValue(const char* key, T defaultValue) const;
-				bool		GetBool(const char* key, bool defaultValue) const;
-				int8_t		GetInt8(const char* key, int8_t defaultValue) const;
-				int16_t		GetInt16(const char* key, int16_t defaultValue) const;
-				int32_t		GetInt32(const char* key, int32_t defaultValue) const;
-				int64_t		GetInt64(const char* key, int64_t defaultValue) const;
-				uint8_t		GetUInt8(const char* key, uint8_t defaultValue) const;
-				uint16_t	GetUInt16(const char* key, uint16_t defaultValue) const;
-				uint32_t	GetUInt32(const char* key, uint32_t defaultValue) const;
-				uint64_t	GetUInt64(const char* key, uint64_t defaultValue) const;
-				float		GetFloat32(const char* key, float defaultValue) const;
-				double		GetFloat64(const char* key, double defaultValue) const;
-				const char*	GetString(const char* key, const char* defaultValue) const;
+				bool		GetBool() const;
+				int8_t		GetInt8() const;
+				int16_t		GetInt16() const;
+				int32_t		GetInt32() const;
+				int64_t		GetInt64() const;
+				uint8_t		GetUInt8() const;
+				uint16_t	GetUInt16() const;
+				uint32_t	GetUInt32() const;
+				uint64_t	GetUInt64() const;
+				float		GetFloat32() const;
+				double		GetFloat64() const;
+				const std::string_view& GetString() const;
 
 				template<typename T>
 				T*			GetValues() const;
+
+				Node&		operator [] (const std::string_view& name);
 
 			private:
 
 				union Value
 				{
-					bool		_bool;
-					int8_t		_sint8;
-					int16_t		_sint16;
-					int32_t		_sint32;
-					int64_t		_sint64;
-					uint8_t		_uint8;
-					uint16_t	_uint16;
-					uint32_t	_uint32;
-					uint64_t	_uint64;
-					float		_float32;
-					double		_float64;
-					const char* _string;
+					bool				_bool;
+					int8_t				_sint8;
+					int16_t				_sint16;
+					int32_t				_sint32;
+					int64_t				_sint64;
+					uint8_t				_uint8;
+					uint16_t			_uint16;
+					uint32_t			_uint32;
+					uint64_t			_uint64;
+					float				_float32;
+					double				_float64;
+					std::string_view	_string = "";
 				};
 
 			private:
 
-							Element(const char* name);
-							Element(const char* name, uint32_t size);
-							Element(const Element&) = delete;
-							Element(Element&&) = delete;
-							~Element() = default;
+							Node(const std::string_view& name);
+							Node(const Node&) = delete;
+							Node(Node&&) = delete;
+							~Node() = default;
 
-				Element&	operator = (const Element&) = delete;
-				Element&	operator = (Element&&) = delete;
+				Node&	operator = (const Node&) = delete;
+				Node&	operator = (Node&&) = delete;
 
 			private:
 
 				void		Detach();
-				void		Detach(Element& element);
-				void		Attach(Element& element);
-				Element*	FindChild(const char* key) const;
+				void		Detach(Node& node);
+				void		Attach(Node& node);
+				Node*		FindChild(const std::string_view&) const;
 
 			private:
 
-				Element*	_firstChild = nullptr;
-				Element*	_nextSibling = nullptr;
-				Element*	_parent = nullptr;
+				Node*			_firstChild = nullptr;
+				Node*			_nextSibling = nullptr;
+				Node*			_parent = nullptr;
 
-				std::string	_name = nullptr;
-				Value		_value;
+				std::string_view	_name = nullptr;
+				Value				_value;
 			};
 
 		public:
@@ -127,7 +126,7 @@ namespace hod
 
 		public:
 
-			Element&	GetRootElement() const;
+			Node&	GetRootNode() const;
 
 			/*
 			bool		Parse(const char* buffer, uint32_t size);
@@ -138,7 +137,9 @@ namespace hod
 
 		private:
 
-			Element		_root = Element("Root");
+			Node		_root = Node("Root");
 		};
 	}
 }
+
+#include "Document.inl"

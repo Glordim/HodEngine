@@ -34,9 +34,9 @@ namespace hod
 			void									Deserialize();
 
 			template<typename T>
-			bool									SerializeInDocument(const T& instance, Document::Element& documentElement);
+			bool									SerializeInDocument(const T& instance, Document::Node& documentNode);
 			template<typename T>
-			bool									DeserializeFromDocument(T& instance, const Document::Element& documentElement);
+			bool									DeserializeFromDocument(T& instance, const Document::Node& documentNode);
 
 			const std::vector<ReflectionTrait*>&	GetTraits() const;
 			const std::vector<ReflectionProperty*>&	GetProperties() const;

@@ -6,23 +6,15 @@ namespace hod
 	{
 		/// @brief 
 		/// @param name 
-		Document::Element::Element(const char* name)
+		Document::Node::Node(const std::string_view& name)
 			: _name(name)
 		{
 
 		}
 
 		/// @brief 
-		/// @param name 
-		Document::Element::Element(const char* name, uint32_t size)
-			: _name(name, size)
-		{
-
-		}
-
-		/// @brief 
-		/// @param element 
-		void Document::Element::Detach()
+		/// @param node 
+		void Document::Node::Detach()
 		{
 			if (_parent != nullptr)
 			{
@@ -31,17 +23,17 @@ namespace hod
 		}
 
 		/// @brief 
-		/// @param element 
-		void Document::Element::Detach(Element& element)
+		/// @param node 
+		void Document::Node::Detach(Node& node)
 		{
-			Element* child = _firstChild;
+			Node* child = _firstChild;
 			while (child != nullptr)
 			{
-				if (child == &element)
+				if (child == &node)
 				{
-					child = element._nextSibling;
-					element._parent = nullptr;
-					element._nextSibling = nullptr;
+					child = node._nextSibling;
+					node._parent = nullptr;
+					node._nextSibling = nullptr;
 					return;
 				}
 				child = child->_nextSibling;
@@ -49,80 +41,97 @@ namespace hod
 		}
 
 		/// @brief 
-		/// @param element 
-		void Document::Element::Attach(Element& element)
+		/// @param node 
+		void Document::Node::Attach(Node& node)
 		{
-			element.Detach();
-			element._parent = this;
+			node.Detach();
+			node._parent = this;
 
 			if (_firstChild == nullptr)
 			{
-				_firstChild = &element;
+				_firstChild = &node;
 			}
 			else
 			{
-				Element* child = _firstChild;
+				Node* child = _firstChild;
 				while (child->_nextSibling != nullptr)
 				{
 					child = child->_nextSibling;
 				}
-				child->_nextSibling = &element;
+				child->_nextSibling = &node;
 			}
 		}
 
 		/// @brief 
-		/// @param key 
+		/// @param name 
 		/// @return 
-		Document::Element& Document::Element::AddChild(const char* key)
+		Document::Node& Document::Node::AddChild(const std::string_view& name)
 		{
 			// TODO check if an other child if same name exist
 
-			Element* element = new Element(key);
-			Attach(*element);
+			Node* node = new Node(name);
+			Attach(*node);
+			return *node;
 		}
 
 		/// @brief 
-		/// @param key 
-		/// @param size 
+		/// @param name 
 		/// @return 
-		Document::Element& Document::Element::AddChild(const char* key, uint32_t size)
+		const Document::Node* Document::Node::GetChild(const std::string_view& name) const
+		{
+			return FindChild(name);
+		}
+
+		/// @brief 
+		/// @param name 
+		/// @return 
+		Document::Node& Document::Node::GetOrAddChild(const std::string_view& name)
 		{
 			// TODO check if an other child if same name exist
 
-			Element* element = new Element(key, size);
-			Attach(*element);
+			Node* node = new Node(name);
+			Attach(*node);
+			return *node;
+		}
+
+		/// @brief 
+		/// @param name 
+		/// @return 
+		Document::Node& Document::Node::operator [] (const std::string_view& name)
+		{
+			return GetOrAddChild(name);
 		}
 
 		/// @brief 
 		/// @return 
-		Document::Element* Document::Element::GetFirstChild() const
+		Document::Node* Document::Node::GetFirstChild() const
 		{
 			return _firstChild;
 		}
 
 		/// @brief 
 		/// @return 
-		Document::Element* Document::Element::GetNextSibling() const
+		Document::Node* Document::Node::GetNextSibling() const
 		{
 			return _nextSibling;
 		}
 
 		/// @brief 
 		/// @return 
-		Document::Element* Document::Element::GetParent() const
+		Document::Node* Document::Node::GetParent() const
 		{
 			return _parent;
 		}
 
 		/// @brief 
-		/// @param key 
+		/// @param name 
 		/// @return 
-		Document::Element* Document::Element::FindChild(const char* key) const
+		Document::Node* Document::Node::FindChild(const std::string_view& name) const
 		{
-			Element* child = _firstChild;
+			Node* child = _firstChild;
 			while (child != nullptr)
 			{
-				if (std::strcmp(child->_name, key) == 0)
+				if (child->_name == name)
 				{
 					return child;
 				}
@@ -132,239 +141,131 @@ namespace hod
 			return nullptr;
 		}
 
-		void Document::Element::SetBool(const char* key, bool value)
+		void Document::Node::SetBool(bool value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._bool = value;
-			}
+			_value._bool = value;
 		}
 
-		void Document::Element::SetInt8(const char* key, int8_t value)
+		void Document::Node::SetInt8(int8_t value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._sint8 = value;
-			}
+			_value._sint8 = value;
 		}
 
-		void Document::Element::SetInt16(const char* key, int16_t value)
+		void Document::Node::SetInt16(int16_t value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._sint16 = value;
-			}
+			_value._sint16 = value;
 		}
 
-		void Document::Element::SetInt32(const char* key, int32_t value)
+		void Document::Node::SetInt32(int32_t value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._sint32 = value;
-			}
+			_value._sint32 = value;
 		}
 
-		void Document::Element::SetInt64(const char* key, int64_t value)
+		void Document::Node::SetInt64(int64_t value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._sint64 = value;
-			}
+			_value._sint64 = value;
 		}
 
-		void Document::Element::SetUInt8(const char* key, uint8_t value)
+		void Document::Node::SetUInt8(uint8_t value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._uint8 = value;
-			}
+			_value._uint8 = value;
 		}
 
-		void Document::Element::SetUInt16(const char* key, uint16_t value)
+		void Document::Node::SetUInt16(uint16_t value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._uint16 = value;
-			}
+			_value._uint16 = value;
 		}
 
-		void Document::Element::SetUInt32(const char* key, uint32_t value)
+		void Document::Node::SetUInt32(uint32_t value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._uint32 = value;
-			}
+			_value._uint32 = value;
 		}
 
-		void Document::Element::SetUInt64(const char* key, uint64_t value)
+		void Document::Node::SetUInt64(uint64_t value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._uint64 = value;
-			}
+			_value._uint64 = value;
 		}
 
-		void Document::Element::SetFloat32(const char* key, float value)
+		void Document::Node::SetFloat32(float value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._float32 = value;
-			}
+			_value._float32 = value;
 		}
 
-		void Document::Element::SetFloat64(const char* key, double value)
+		void Document::Node::SetFloat64(double value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._float64 = value;
-			}
+			_value._float64 = value;
 		}
 
-		void Document::Element::SetString(const char* key, const char* value)
+		void Document::Node::SetString(const std::string_view& value)
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				child->_value._string = value;
-			}
+			_value._string = value;
 		}
 
-		bool Document::Element::GetBool(const char* key, bool defaultValue) const
+		bool Document::Node::GetBool() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._bool;
-			}
-			return defaultValue;
+			return _value._bool;
 		}
 
-		int8_t Document::Element::GetInt8(const char* key, int8_t defaultValue) const
+		int8_t Document::Node::GetInt8() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._sint8;
-			}
-			return defaultValue;
+			return _value._sint8;
 		}
 
-		int16_t Document::Element::GetInt16(const char* key, int16_t defaultValue) const
+		int16_t Document::Node::GetInt16() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._sint16;
-			}
-			return defaultValue;
+			return _value._sint16;
 		}
 
-		int32_t Document::Element::GetInt32(const char* key, int32_t defaultValue) const
+		int32_t Document::Node::GetInt32() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._sint32;
-			}
-			return defaultValue;
+			return _value._sint32;
 		}
 
-		int64_t Document::Element::GetInt64(const char* key, int64_t defaultValue) const
+		int64_t Document::Node::GetInt64() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._sint64;
-			}
-			return defaultValue;
+			return _value._sint64;
 		}
 
-		uint8_t Document::Element::GetUInt8(const char* key, uint8_t defaultValue) const
+		uint8_t Document::Node::GetUInt8() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._uint8;
-			}
-			return defaultValue;
+			return _value._uint8;
 		}
 
-		uint16_t Document::Element::GetUInt16(const char* key, uint16_t defaultValue) const
+		uint16_t Document::Node::GetUInt16() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._uint16;
-			}
-			return defaultValue;
+			return _value._uint16;
 		}
 
-		uint32_t Document::Element::GetUInt32(const char* key, uint32_t defaultValue) const
+		uint32_t Document::Node::GetUInt32() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._uint32;
-			}
-			return defaultValue;
+			return _value._uint32;
 		}
 
-		uint64_t Document::Element::GetUInt64(const char* key, uint64_t defaultValue) const
+		uint64_t Document::Node::GetUInt64() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._uint64;
-			}
-			return defaultValue;
+			return _value._uint64;
 		}
 
-		float Document::Element::GetFloat32(const char* key, float defaultValue) const
+		float Document::Node::GetFloat32() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._float32;
-			}
-			return defaultValue;
+			return _value._float32;
 		}
 
-		double Document::Element::GetFloat64(const char* key, double defaultValue) const
+		double Document::Node::GetFloat64() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._float64;
-			}
-			return defaultValue;
+			return _value._float64;
 		}
 
-		const char* Document::Element::GetString(const char* key, const char* defaultValue) const
+		const std::string_view& Document::Node::GetString() const
 		{
-			Element* child = FindChild(key);
-			if (child != nullptr)
-			{
-				return child->_value._string;
-			}
-			return defaultValue;
+			return _value._string;
 		}
 
 		/// @brief 
 		/// @return 
-		Document::Element& Document::GetRootElement() const
+		Document::Node& Document::GetRootNode() const
 		{
-			return const_cast<Document::Element&>(_root);
+			return const_cast<Document::Node&>(_root);
 		}
 	}
 }

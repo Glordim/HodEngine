@@ -109,7 +109,7 @@ namespace hod::editor
 		jsonReader.Read(document, projectsPath);
 
 		RecentProjects recentProjects;
-		RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(recentProjects, document.GetRootElement());
+		RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(recentProjects, document.GetRootNode());
 
 		bool alreadyExist = false;
 		for (const std::string& projectPath : recentProjects._projectsPath)
@@ -125,7 +125,7 @@ namespace hod::editor
 		{
 			recentProjects._projectsPath.push_back(path.string());
 
-			RecentProjects::GetReflectionDescriptor()->SerializeInDocument(recentProjects, document.GetRootElement());
+			RecentProjects::GetReflectionDescriptor()->SerializeInDocument(recentProjects, document.GetRootNode());
 
 			std::filesystem::create_directories(projectsPath.parent_path());
 			core::DocumentWriterJson jsonWriter;

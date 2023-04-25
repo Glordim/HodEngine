@@ -32,7 +32,7 @@ namespace hod
 				return false;
 			}
 
-			if (document.GetRootElement().GetFirstChild() == nullptr)
+			if (document.GetRootNode().GetFirstChild() == nullptr)
 			{
 				OUTPUT_ERROR("Document is empty");
 				return false;

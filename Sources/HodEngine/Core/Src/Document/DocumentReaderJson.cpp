@@ -8,6 +8,11 @@ namespace hod
 {
 	namespace core
 	{
+		const char* SkipWhiteSpace(const char* str)
+		{
+			return str + std::strspn(str, " \t\n\r");
+		}
+
 		/// @brief 
 		/// @param document 
 		/// @param stream 
@@ -34,23 +39,18 @@ namespace hod
 				delete[] buffer;
 				return nullptr;
 			}
-			const char* parsingResult = ParseNode(json + 1, document.GetRootElement());
+			const char* parsingResult = ParseNode(json + 1, document.GetRootNode());
 
 			delete[] buffer;
 
 			return (parsingResult != nullptr);
 		}
 
-		const char* SkipWhiteSpace(const char* str)
-		{
-			return str + std::strspn(str, " \t\n\r");
-		}
-
 		/// @brief 
 		/// @param json 
-		/// @param element 
+		/// @param node 
 		/// @return 
-		const char* DocumentReaderJson::ParseNode(const char* json, Document::Element& element)
+		const char* DocumentReaderJson::ParseNode(const char* json, Document::Node& node)
 		{
 			json = SkipWhiteSpace(json);
 
@@ -66,7 +66,7 @@ namespace hod
 				const char* keyEnd = json - 1;
 				json = SkipWhiteSpace(json + 1);
 
-				Document::Element& child = element.AddChild(keyStart, keyEnd - keyStart);
+				Document::Node& child = node.AddChild(std::string_view(keyStart, (keyEnd - keyStart)));
 
 				if (*json != ':')
 				{
@@ -82,22 +82,25 @@ namespace hod
 				}
 				else if (*json == '\"') // string
 				{
-					const char* valueEnd = std::strstr(json + 1, "\"");
+					const char* valueStart = json + 1;
+					const char* valueEnd = std::strstr(valueStart, "\"");
 					while (valueEnd != nullptr && valueEnd[-1] == '\\')
 					{
 						valueEnd = std::strstr(valueEnd + 1, "\"");
 					}
 
-					child.SetValue(std::move(std::string(valueStart, valueEnd)));
+					child.SetString(std::string_view(valueStart, valueEnd - valueStart));
 				}
 				else if (std::strncmp(json, "null", sizeof("null")) == 0) // null
 				{
 				}
 				else if (std::strncmp(json, "true", sizeof("true")) == 0) // true (bool)
 				{
+					child.SetBool(true);
 				}
 				else if (std::strncmp(json, "false", sizeof("false")) == 0)
 				{
+					child.SetBool(false);
 				}
 				else if (*json == '[') // array
 				{
