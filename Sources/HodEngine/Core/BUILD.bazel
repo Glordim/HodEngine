@@ -1,0 +1,16 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+BAZEL_CXXOPTS="-std=c++17"
+
+cc_library(
+    name = "core",
+    srcs = glob(["**/*.cpp"]),
+    includes = [
+        "//Sources",
+        "//SDK/rapidjson/include",
+    ],
+    copts = [
+        "-std=c++17",
+        "/std:c++17",
+    ],
+)

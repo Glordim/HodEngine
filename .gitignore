@@ -1,4 +1,6 @@
 
+bazel-*
+
 # Prerequisites
 *.d
 
