@@ -2,11 +2,11 @@
 
 #include <vector>
 
-#include <rapidjson/document.h>
+//#include <rapidjson/document.h>
 
-#include "HodEngine/Core/Src/Document/Document.h"
+#include "Core/Document/Document.h"
 
-#include "Properties/ReflectionPropertyVariable.h"
+#include "Core/Reflection/Properties/ReflectionPropertyVariable.h"
 
 namespace hod
 {
@@ -30,8 +30,8 @@ namespace hod
 
 		public:
 
-			rapidjson::Value						Serialize(rapidjson::Document::AllocatorType& allocator) const;
-			void									Deserialize();
+			//rapidjson::Value						Serialize(rapidjson::Document::AllocatorType& allocator) const;
+			//void									Deserialize();
 
 			template<typename T>
 			bool									SerializeInDocument(const T& instance, Document::Node& documentNode);

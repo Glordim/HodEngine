@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Stream.h"
+#include "Core/Stream/Stream.h"
 #include <filesystem>
 
 namespace hod

@@ -1,14 +1,42 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build core",
-            "type": "shell",
-            "command": "bazel",
-            "args": ["build", "//Sources/HodEngine/Core:core"],
-            "group": "build"
-        }
-    ]
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build Core",
+			"type": "shell",
+			"command": "bazel",
+			"args": ["build", "//Sources/HodEngine/Core:Core"],
+			"group": "build"
+		},
+		{
+			"label": "build Window",
+			"type": "shell",
+			"command": "bazel",
+			"args": ["build", "//Sources/HodEngine/Window:Window"],
+			"group": "build"
+		},
+		{
+			"label": "build ImGui",
+			"type": "shell",
+			"command": "bazel",
+			"args": ["build", "//Sources/HodEngine/ImGui:ImGui"],
+			"group": "build"
+		},
+		{
+			"label": "clean core",
+			"type": "shell",
+			"command": "bazel",
+			"args": ["clean"],
+			"group": "build"
+		},
+		{
+			"label": "build rapidjson",
+			"type": "shell",
+			"command": "bazel",
+			"args": ["build", "//SDK:rapidjson"],
+			"group": "build"
+		}
+	]
 }

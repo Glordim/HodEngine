@@ -2,7 +2,7 @@
 
 #if defined(PLATFORM_WINDOWS)
 
-	#include "HodEngine/Window/src/DesktopWindow/Win32/Win32Window.h"
+	#include "Window/DesktopWindow/Win32/Win32Window.h"
 	#define PlatformWindow hod::window::Win32Window
 
 #elif defined(PLATFORM_MAC)

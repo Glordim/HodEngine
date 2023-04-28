@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HodEngine/Core/Src/Singleton.h"
-#include "HodEngine/Core/Src/Frame/FrameStep.h"
+#include "Core/Singleton.h"
+#include "Core/Frame/FrameStep.h"
 
 namespace hod
 {

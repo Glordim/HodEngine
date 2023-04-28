@@ -1,7 +1,7 @@
-#include "FrameStep.h"
+#include "Core/Frame/FrameStep.h"
 
-#include "HodEngine/Core/Src/Job/JobSqueduler.h"
-#include "HodEngine/Core/Src/Job/Job.h"
+#include "Core/Job/JobSqueduler.h"
+#include "Core/Job/Job.h"
 
 #include <assert.h>
 

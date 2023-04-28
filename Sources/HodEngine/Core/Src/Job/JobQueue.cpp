@@ -1,11 +1,10 @@
-#include "JobQueue.h"
+#include "Core/Job/JobQueue.h"
+#include "Core/Job/Job.h"
 
-#include "HodEngine/Core/Src/SystemInfo.h"
-#include "HodEngine/Core/Src/Job/Job.h"
-#include "HodEngine/Core/Src/Output.h"
+#include "Core/SystemInfo.h"
+#include "Core/Output.h"
 
 #include <string>
-
 
 namespace hod
 {

@@ -1,4 +1,4 @@
-#include "FrameSequencer.h"
+#include "Core/Frame/FrameSequencer.h"
 
 #include <stdint.h>
 

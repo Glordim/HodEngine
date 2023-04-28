@@ -1,7 +1,7 @@
-#include "ReflectionDescriptor.h"
+#include "Core/Reflection/ReflectionDescriptor.h"
 
-#include "ReflectionTrait.h"
-#include "ReflectionProperty.h"
+#include "Core/Reflection/ReflectionTrait.h"
+#include "Core/Reflection/ReflectionProperty.h"
 
 namespace hod
 {
@@ -16,6 +16,7 @@ namespace hod
 
 		}
 
+/*
 		rapidjson::Value ReflectionDescriptor::Serialize(rapidjson::Document::AllocatorType& allocator) const
 		{
 			rapidjson::Value description;
@@ -54,6 +55,7 @@ namespace hod
 		{
 			// TODO
 		}
+		*/
 
 		///@brief 
 		///@return const std::vector<ReflectionTrait*>& 

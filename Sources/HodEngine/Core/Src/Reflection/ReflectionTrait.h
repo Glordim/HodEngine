@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rapidjson/document.h>
+//#include <rapidjson/document.h>
 
 namespace hod
 {
@@ -21,7 +21,7 @@ namespace hod
 
 		public:
 
-			virtual rapidjson::Value	Serialize(rapidjson::Document::AllocatorType& allocator) const = 0;
+			//virtual rapidjson::Value	Serialize(rapidjson::Document::AllocatorType& allocator) const = 0;
 
 		protected:
 

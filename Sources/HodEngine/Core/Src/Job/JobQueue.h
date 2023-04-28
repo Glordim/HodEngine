@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HodEngine/Core/Src/LockFreeQueue.h"
-#include "HodEngine/Core/Src/Job/Thread.h"
+#include "Core/LockFreeQueue.h"
+#include "Core/Job/Thread.h"
 
 #include <queue>
 

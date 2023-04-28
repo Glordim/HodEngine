@@ -2,11 +2,11 @@
 
 #include <Windows.h>
 
-#include "HodEngine/Window/src/DesktopWindow/DesktopWindow.h"
+#include "Window/DesktopWindow/DesktopWindow.h"
 
-#include <HodEngine/Core/Src/Job/MemberFunctionJob.h>
+#include <Core/Job/MemberFunctionJob.h>
 
-#include "HodEngine/Core/Src/Event.h"
+#include "Core/Event.h"
 
 namespace hod::window
 {

@@ -1,6 +1,6 @@
 
-#include "UID.h"
-#include "Output.h"
+#include "Core/UID.h"
+#include "Core/Output.h"
 
 #if defined(_WIN32)
 	#include <Windows.h>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "UID.h"
-#include "Event.h"
+#include "Core/UID.h"
+#include "Core/Event.h"
 #include <map>
 
 namespace hod

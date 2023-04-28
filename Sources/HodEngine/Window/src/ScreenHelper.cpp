@@ -2,7 +2,7 @@
 
 #include "VideoSettings.h"
 
-#include <HodEngine/Core/Src/Output.h>
+#include <Core/Output.h>
 
 namespace hod::window
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DocumentWriter.h"
+#include "Core/Document/DocumentWriter.h"
 
 namespace hod
 {

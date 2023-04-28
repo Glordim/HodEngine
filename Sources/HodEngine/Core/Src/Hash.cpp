@@ -1,4 +1,4 @@
-#include "Hash.h"
+#include "Core/Hash.h"
 
 //-----------------------------------------------------------------------------
 //! @fn			UInt64 HASH::ComputeFnv64(const QDT_STRING& sString, UInt64 uiBasis = FNV_64_BASIS)

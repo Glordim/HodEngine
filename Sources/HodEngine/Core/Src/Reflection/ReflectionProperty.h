@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <rapidjson/document.h>
+//#include <rapidjson/document.h>
 
 namespace hod
 {
@@ -25,7 +25,7 @@ namespace hod
 
 		public:
 
-			virtual rapidjson::Value				Serialize(rapidjson::Document::AllocatorType& allocator) const = 0;
+			//virtual rapidjson::Value				Serialize(rapidjson::Document::AllocatorType& allocator) const = 0;
 			//virtual void							Deserialize() = 0;
 
 			const std::vector<ReflectionTrait*>&	GetTraits() const;

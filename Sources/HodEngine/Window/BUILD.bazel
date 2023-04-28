@@ -3,15 +3,16 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 PlatformDefine = "PLATFORM_WINDOWS"
 
 cc_library(
-	name = "Core",
-	srcs = glob(["Src/**/*.cpp"]),
-	hdrs = glob(["Src/**/*.h", "Src/**/*.inl"]),
+	name = "Window",
+	srcs = glob(["**/*.cpp"]),
+	hdrs = glob(["**/*.h", "**/*.inl"]),
+	deps = ["//Sources/HodEngine/Core:Core"],
+	#includes = ["//Sources"],
 	defines = [PlatformDefine],
 	copts = [
 		#"-std=c++17",
 		"/std:c++17",
 	],
-	visibility = ["//visibility:public"],
-	include_prefix = "Core",
+	include_prefix = "Window",
 	strip_include_prefix = "Src",
 )

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HodEngine/Window/src/Window.h"
+#include "Window/Window.h"
 
 namespace hod::window
 {

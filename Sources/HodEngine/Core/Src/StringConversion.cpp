@@ -1,5 +1,5 @@
-#include "StringConversion.h"
-#include "Output.h"
+#include "Core/StringConversion.h"
+#include "Core/Output.h"
 
 namespace hod
 {

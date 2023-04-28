@@ -1,0 +1,15 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+PlatformDefine = "PLATFORM_WINDOWS"
+
+cc_library(
+	name = "ImGui",
+	srcs = glob(["**/*.cpp"]),
+	hdrs = glob(["**/*.h", "**/*.inl"]),
+	deps = ["//SDK:rapidjson"],
+	defines = [PlatformDefine],
+	copts = [
+		#"-std=c++17",
+		"/std:c++17",
+	],
+)

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HodEngine/Core/Src/Singleton.h"
-#include "HodEngine/Core/Src/Job/JobQueue.h"
+#include "Core/Singleton.h"
+#include "Core/Job/JobQueue.h"
 
 #include <stdint.h>
 

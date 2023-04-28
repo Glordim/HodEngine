@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReflectionDescriptor.h"
+#include "Core/Reflection/ReflectionDescriptor.h"
 
 ///@brief Implement Getter method to retreive ReflectionDescriptor
 #define GET_REFLECTION_DESCRIPTOR_METhod(__REFLECTION_DESCRIPTOR_TYPE__)		\

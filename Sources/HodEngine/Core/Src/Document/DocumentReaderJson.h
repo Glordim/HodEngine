@@ -1,8 +1,7 @@
 #pragma once
 
-#include "DocumentReader.h"
-
-#include "HodEngine/Core/Src/Document/Document.h"
+#include "Core/Document/DocumentReader.h"
+#include "Core/Document/Document.h"
 
 namespace hod
 {

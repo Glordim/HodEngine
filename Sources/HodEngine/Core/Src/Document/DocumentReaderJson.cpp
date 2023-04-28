@@ -1,8 +1,8 @@
-#include "DocumentReaderJson.h"
+#include "Core/Document/DocumentReaderJson.h"
 
-#include "HodEngine/Core/Src/Stream/Stream.h"
+#include "Core/Stream/Stream.h"
 
-#include "HodEngine/Core/Src/Output.h"
+#include "Core/Output.h"
 
 namespace hod
 {
@@ -78,7 +78,12 @@ namespace hod
 
 				if (*json >= '0' || *json <= '9') // Number
 				{
-
+					const char* valueStart = json;
+					json += std::strspn(valueStart, "0123456789");
+					if (*json == '.')
+					{
+						json += std::strspn(json, "0123456789");
+					}
 				}
 				else if (*json == '\"') // string
 				{

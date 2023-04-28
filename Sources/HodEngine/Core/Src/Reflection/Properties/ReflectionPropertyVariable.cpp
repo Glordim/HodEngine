@@ -1,4 +1,4 @@
-#include "ReflectionPropertyVariable.h"
+#include "Core/Reflection/Properties/ReflectionPropertyVariable.h"
 
 namespace hod
 {
@@ -17,6 +17,7 @@ namespace hod
 
 				}
 
+/*
 				rapidjson::Value Variable::Serialize(rapidjson::Document::AllocatorType& allocator) const
 				{
 					rapidjson::Value descriptor;
@@ -29,6 +30,7 @@ namespace hod
 
 					return descriptor;
 				}
+				*/
 			}
 		}
 	}

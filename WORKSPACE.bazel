@@ -1,1 +1,9 @@
 BAZEL_CXXOPTS="-std=c++17"
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+	name = "rapidjson",
+	url = "https://github.com/Tencent/rapidjson/archive/refs/heads/master.zip",
+	build_file = "@//:rapidjson.BUILD",
+)
