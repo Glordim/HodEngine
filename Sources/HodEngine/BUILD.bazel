@@ -1,0 +1,44 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+platform_define = "PLATFORM_WINDOWS"
+platform_lib = "-DEFAULTLIB:Kernel32.lib -DEFAULTLIB:Advapi32.lib -DEFAULTLIB:Comdlg32.lib"
+
+cc_library(
+	name = "HodEngine",
+	srcs = glob([
+		"Core/**/*.cpp",
+		"Application/**/*.cpp",
+		"Editor/**/*.cpp",
+		"ImGui/**/*.cpp",
+		"Renderer/**/*.cpp",
+		"Window/**/*.cpp"
+	]),
+	hdrs = glob([
+		"Core/**/*.h",
+		"Core/**/*.inl",
+		"Application/**/*.h",
+		"Application/**/*.inl",
+		"Editor/**/*.h",
+		"Editor/**/*.inl",
+		"ImGui/**/*.h",
+		"ImGui/**/*.inl",
+		"Renderer/**/*.h",
+		"Renderer/**/*.inl",
+		"Window/**/*.h",
+		"Window/**/*.inl"
+	]),
+	deps = [
+		"@rapidjson//:rapidjson",
+		"@glm//:glm",
+		"@stb//:stb",
+		"@vulkan//:vulkan"
+	],
+	defines = [platform_define],
+	linkopts = [platform_lib],
+	copts = [
+		#"-std=c++17",
+		"/std:c++17",
+	],
+	visibility = ["//visibility:public"],
+	include_prefix = "HodEngine",
+)

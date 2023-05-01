@@ -4,28 +4,28 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build Core",
+			"label": "Build HodEngine",
 			"type": "shell",
 			"command": "bazel",
-			"args": ["build", "//Sources/HodEngine/Core:Core"],
+			"args": ["build", "Sources/HodEngine:HodEngine"],
 			"group": "build"
 		},
 		{
-			"label": "build Window",
+			"label": "Build HodGame",
 			"type": "shell",
 			"command": "bazel",
-			"args": ["build", "//Sources/HodEngine/Window:Window"],
+			"args": ["build", "Sources/GameApplication:HodGame"],
 			"group": "build"
 		},
 		{
-			"label": "build ImGui",
+			"label": "Build HodEditor",
 			"type": "shell",
 			"command": "bazel",
-			"args": ["build", "//Sources/HodEngine/ImGui:ImGui"],
+			"args": ["build", "Sources/EditorApplication:HodEditor"],
 			"group": "build"
 		},
 		{
-			"label": "clean core",
+			"label": "Clean",
 			"type": "shell",
 			"command": "bazel",
 			"args": ["clean"],

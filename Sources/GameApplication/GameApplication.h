@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HodEngine/Application/src/PlatformApplication.h>
+#include <HodEngine/Application/PlatformApplication.h>
 
 namespace hod::core
 {

@@ -1,6 +1,6 @@
 #include "EditorApplication.h"
 
-#include <HodEngine/Editor/src/Editor.h>
+#include <HodEngine/Editor/Editor.h>
 
 using namespace hod;
 
