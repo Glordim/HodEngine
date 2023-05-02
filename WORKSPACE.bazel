@@ -3,19 +3,19 @@
 #http_archive(
 #	name = "rapidjson",
 #	url = "https://github.com/Tencent/rapidjson/archive/refs/heads/master.zip",
-#	build_file = "@//:sdk.BUILD",
+#	build_file = "SDK/BUILD.rapidjson",
 #)
 #
 #http_archive(
 #	name = "glm",
 #	url = "https://github.com/g-truc/glm/archive/refs/tags/0.9.9.8.zip",
-#	build_file = "@//:sdk.BUILD",
+#	build_file = "SDK/BUILD.glm",
 #)
 #
 #http_archive(
 #	name = "stb",
 #	url = "https://github.com/nothings/stb/archive/refs/heads/master.zip",
-#	build_file = "@//:sdk.BUILD",
+#	build_file = "SDK/BUILD.stb",
 #)
 #
 

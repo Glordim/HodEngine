@@ -3,6 +3,7 @@
 #include "HodEngine/Core/Stream/Stream.h"
 
 #include "HodEngine/Core/Output.h"
+#include "HodEngine/Core/StringConversion.h"
 
 namespace hod
 {
@@ -78,11 +79,27 @@ namespace hod
 
 				if (*json >= '0' || *json <= '9') // Number
 				{
+					bool isFloat = false;
 					const char* valueStart = json;
 					json += std::strspn(valueStart, "0123456789");
 					if (*json == '.')
 					{
+						isFloat = true;
 						json += std::strspn(json, "0123456789");
+					}
+					const char* valueEnd = json;
+					if (isFloat == true)
+					{
+						double value;
+						if (StringConversion::StringToFloat64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+						{
+							OUTPUT_ERROR("Json syntax error");
+							return nullptr;
+						}
+					}
+					else
+					{
+						
 					}
 				}
 				else if (*json == '\"') // string
