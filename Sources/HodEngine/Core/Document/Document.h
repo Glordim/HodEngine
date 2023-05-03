@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <span>
 
 namespace hod
 {
@@ -20,13 +21,13 @@ namespace hod
 
 			public:
 
-				Node&	AddChild(const std::string_view& name);
+				Node&		AddChild(const std::string_view& name);
 				const Node*	GetChild(const std::string_view& name) const;
-				Node&	GetOrAddChild(const std::string_view& name);
+				Node&		GetOrAddChild(const std::string_view& name);
 
-				Node*	GetFirstChild() const;
-				Node*	GetNextSibling() const;
-				Node*	GetParent() const;
+				Node*		GetFirstChild() const;
+				Node*		GetNextSibling() const;
+				Node*		GetParent() const;
 
 				const char* GetName() const;
 				bool		IsValid() const;
@@ -36,8 +37,10 @@ namespace hod
 				Node*		AddArray(const char* name);
 
 				template<typename T>
-				void		SetValues(std::vector<T> values);
+				void		SetValues(std::span<T>& values);
 
+				template<typename T>
+				void		SetValue(const T& value);
 				void		SetBool(bool value);
 				void		SetInt8(int8_t value);
 				void		SetInt16(int16_t value);
@@ -62,7 +65,7 @@ namespace hod
 				uint64_t	GetUInt64() const;
 				float		GetFloat32() const;
 				double		GetFloat64() const;
-				const std::string_view& GetString() const;
+				const std::string& GetString() const;
 
 				template<typename T>
 				T*			GetValues() const;
@@ -70,6 +73,13 @@ namespace hod
 				Node&		operator [] (const std::string_view& name);
 
 			private:
+
+				enum class Type
+				{
+					Object,
+					Array,
+					Value,
+				};
 
 				union Value
 				{
@@ -84,7 +94,7 @@ namespace hod
 					uint64_t			_uint64;
 					float				_float32;
 					double				_float64;
-					std::string_view	_string = "";
+					std::string			_string;
 				};
 
 			private:
@@ -94,23 +104,24 @@ namespace hod
 							Node(Node&&) = delete;
 							~Node() = default;
 
-				Node&	operator = (const Node&) = delete;
-				Node&	operator = (Node&&) = delete;
+				Node&		operator = (const Node&) = delete;
+				Node&		operator = (Node&&) = delete;
 
 			private:
 
 				void		Detach();
 				void		Detach(Node& node);
 				void		Attach(Node& node);
-				Node*		FindChild(const std::string_view&) const;
+				Node*		FindChild(const std::string_view& name) const;
 
 			private:
 
-				Node*			_firstChild = nullptr;
-				Node*			_nextSibling = nullptr;
-				Node*			_parent = nullptr;
+				Node*				_firstChild = nullptr;
+				Node*				_nextSibling = nullptr;
+				Node*				_parent = nullptr;
 
-				std::string_view	_name = nullptr;
+				Type				_type;
+				std::string			_name;
 				Value				_value;
 			};
 

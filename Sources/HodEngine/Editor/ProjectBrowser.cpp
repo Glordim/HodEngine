@@ -30,9 +30,10 @@ namespace hod::editor
 
 		core::Document document;
 		core::DocumentReaderJson jsonReader;
-		jsonReader.Read(document, projectsPath);
-
-		RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(_recentProjects, document.GetRootNode());
+		if (jsonReader.Read(document, projectsPath) == true)
+		{
+			RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(_recentProjects, document.GetRootNode());
+		}
 	}
 
 	/// @brief 

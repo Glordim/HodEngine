@@ -1,13 +1,19 @@
 #include "HodEngine/Editor/Project.h"
-
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/prettywriter.h>
+#include "HodEngine/Core/Stream/FileStream.h"
+#include "HodEngine/Core/Document/Document.h"
+#include "HodEngine/Core/Document/DocumentReaderJson.h"
+#include "HodEngine/Core/Document/DocumentWriterJson.h"
 
 #include <fstream>
 
 namespace hod::editor
 {
+	DESCRIBE_REFLECTED_CLASS(Project)
+	{
+		core::Reflection::Property::Variable* name = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::String, offsetof(Project, _name), "Name");
+		AddProperty(name);
+	}
+
 	_SingletonConstructor(Project)
 	{
 
@@ -50,31 +56,12 @@ namespace hod::editor
 	/// @return 
 	bool Project::Load()
 	{
-		std::ifstream file;
-		file.open(_projectPath, std::ios::in);
-		file.seekg(0, std::ios::end);
-		
-		int size = (int)file.tellg();
-		char* buffer = new char[size + 1];
-		file.seekg(0, std::ios::beg);
-		file.read(buffer, size);
-		file.close();
-		buffer[size] = '\0';
-		for (int i = size - 1; i >= 0; --i)
-		{
-			if (buffer[i] == '\0' || buffer[i] == 4)
-			{
-				buffer[i] = '\0';
-				break;
-			}
-		}
+		core::Document document;
+		core::DocumentReaderJson reader;
+		reader.Read(document, _projectPath);
 
-		rapidjson::Document document;
-		document.Parse(buffer);
+		_name = document.GetRootNode()["Name"].GetString();
 
-		_name = document["Name"].GetString();
-
-		delete[] buffer;
 		return true;
 	}
 
@@ -82,22 +69,12 @@ namespace hod::editor
 	/// @return 
 	bool Project::Save()
 	{
-		rapidjson::Document document;
-		document.SetObject();
+		core::Document document;
+		document.GetRootNode().AddChild("Name").SetString(_name);
 
-		rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+		core::DocumentWriterJson writer;
+		writer.Write(document, _projectPath);
 
-		document.AddMember("Name", rapidjson::StringRef(_name.c_str(), _name.size()), allocator);
-		//document["Name"].SetString(_name.c_str(), _name.size());
-
-		rapidjson::StringBuffer sb;
-		rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-		document.Accept(writer);
-
-		std::ofstream file;
-		file.open(_projectPath, std::ios::out | std::ios::trunc);
-		file << sb.GetString();
-		file.close();
 		return true;
 	}
 

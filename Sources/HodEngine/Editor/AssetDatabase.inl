@@ -1,6 +1,7 @@
 
 namespace hod::editor
 {
+	/*
 	template<typename Type>
 	std::filesystem::path AssetDatabase::CreateAsset(const std::filesystem::path& path)
 	{
@@ -22,4 +23,5 @@ namespace hod::editor
 
 		return childFileSystemMapping->_path;
 	}
+	*/
 }

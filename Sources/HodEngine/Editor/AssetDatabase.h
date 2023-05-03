@@ -62,9 +62,10 @@ namespace hod::editor
 		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
 
 		std::filesystem::path				CreateFolder(const std::filesystem::path& path);
-
+/*
 		template<typename Type>
 		std::filesystem::path				CreateAsset(const std::filesystem::path& path);
+		*/
 
 		void								Rename(const FileSystemMapping& node, const std::string& newName);
 		void								Delete(const FileSystemMapping& node);

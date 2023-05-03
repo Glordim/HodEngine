@@ -197,7 +197,7 @@ namespace hod
 			///@param base Base to use (default base 10)
 			///@return True if conversion is valid, False if out of type limits or if str contain not digit characters
 			///
-			bool StringToUInt64(const std::string_view& str, uint64_t& value, uint8_t base, uint8_t precomputedStrLen)
+			bool StringToUInt64(const std::string_view& str, uint64_t& value, uint8_t base)
 			{
 				const char* strEnd = str.data() + str.size();
 				char* readedEnd = nullptr;

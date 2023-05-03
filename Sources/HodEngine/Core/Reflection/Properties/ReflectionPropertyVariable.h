@@ -33,9 +33,10 @@ namespace hod
 						UInt64,
 						Float32,
 						Float64,
+						String,
 						Count
 					};
-					inline static const char* _typeLabels[Type::Count] = { "Bool", "Int8", "UInt8", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", "Float32", "Float64" };
+					inline static const char* _typeLabels[Type::Count] = { "Bool", "Int8", "UInt8", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", "Float32", "Float64", "String" };
 
 				public:
 

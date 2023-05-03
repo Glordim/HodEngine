@@ -5,12 +5,15 @@
 #include <filesystem>
 
 #include <HodEngine/Core/Singleton.h>
+#include <HodEngine/Core/Reflection/ReflectionMacros.h>
 
 namespace hod::editor
 {
 	/// @brief 
 	class Project
 	{
+		REFLECTED_CLASS(Project)
+
 		_Singleton(Project)
 
 	public:

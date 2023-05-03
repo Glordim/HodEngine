@@ -113,7 +113,11 @@ namespace hod
 		/// @return 
 		bool FileStream::Close()
 		{
-			return (fclose(_fileHandle) == 0);
+			if (_fileHandle != nullptr)
+			{
+				return (fclose(_fileHandle) == 0);
+			}
+			return true;
 		}
 
 		/// @brief 

@@ -34,10 +34,10 @@ namespace hod
 	template<typename T>
 	inline void Singleton<T>::DestroyInstance()
 	{
-		if (Tname::_instance != nullptr)
+		if (T::_instance != nullptr)
 		{
-			delete Tname::_instance;
-			Tname::_instance = nullptr;
+			delete T::_instance;
+			T::_instance = nullptr;
 		}
 	}
 }

@@ -38,7 +38,7 @@ namespace hod
 			{
 				OUTPUT_ERROR("Json syntax error");
 				delete[] buffer;
-				return nullptr;
+				return false;
 			}
 			const char* parsingResult = ParseNode(json + 1, document.GetRootNode());
 
@@ -77,8 +77,21 @@ namespace hod
 
 				json = SkipWhiteSpace(json + 1);
 
-				if (*json >= '0' || *json <= '9') // Number
+				if ((*json >= '0' && *json <= '9') || *json == '-') // Number
 				{
+					bool isNegative = false;
+					if (*json == '-')
+					{
+						isNegative = true;
+						++json;
+					}
+
+					if (*json < '0' || *json > '9')
+					{
+						OUTPUT_ERROR("Json syntax error");
+						return nullptr;
+					}
+
 					bool isFloat = false;
 					const char* valueStart = json;
 					json += std::strspn(valueStart, "0123456789");
@@ -96,10 +109,30 @@ namespace hod
 							OUTPUT_ERROR("Json syntax error");
 							return nullptr;
 						}
+						child.SetFloat64(value);
 					}
 					else
 					{
-						
+						if (isNegative == false)
+						{
+							uint64_t value;
+							if (StringConversion::StringToUInt64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+							{
+								OUTPUT_ERROR("Json syntax error");
+								return nullptr;
+							}
+							child.SetUInt64(value);
+						}
+						else
+						{
+							int64_t value;
+							if (StringConversion::StringToInt64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+							{
+								OUTPUT_ERROR("Json syntax error");
+								return nullptr;
+							}
+							child.SetInt64(value);
+						}
 					}
 				}
 				else if (*json == '\"') // string
