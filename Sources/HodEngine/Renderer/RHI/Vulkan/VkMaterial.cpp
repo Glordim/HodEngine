@@ -3,6 +3,8 @@
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
 
+#undef min
+#undef max
 #include <spirv_cross/spirv_cross.hpp>
 
 #include <HodEngine/Core/Output.h>

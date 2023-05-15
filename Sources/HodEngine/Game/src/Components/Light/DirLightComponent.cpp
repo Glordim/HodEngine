@@ -1,7 +1,7 @@
 #include "DirLightComponent.h"
 
 #include "../../Actor.h"
-#include <HodEngine/Renderer/src/RHI/MaterialInstance.h>
+#include <HodEngine/Renderer/RHI/MaterialInstance.h>
 
 namespace hod
 {

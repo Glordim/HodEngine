@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HodEngine/Core/Src/Reflection/ReflectionMacros.h>
+#include <HodEngine/Core/Reflection/ReflectionMacros.h>
 
 namespace hod
 {

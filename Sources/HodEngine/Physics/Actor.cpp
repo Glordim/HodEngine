@@ -11,7 +11,7 @@
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_polygon_shape.h>
 
-#include <HodEngine/Renderer/src/BoundingBox.h>
+#include <HodEngine/Renderer/BoundingBox.h>
 
 #include <algorithm>
 

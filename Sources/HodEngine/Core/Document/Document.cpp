@@ -1,13 +1,16 @@
 #include "HodEngine/Core/Document/Document.h"
 
+#include "HodEngine/Core/Hash.h"
+
 namespace hod
 {
 	namespace core
 	{
 		/// @brief 
 		/// @param name 
-		Document::Node::Node(const std::string_view& name)
-			: _name(name)
+		Document::Node::Node(Document& document, const std::string_view& name)
+			: _document(document)
+			, _name(name)
 		{
 
 		}
@@ -69,7 +72,7 @@ namespace hod
 		{
 			// TODO check if an other child if same name exist
 
-			Node* node = new Node(name);
+			Node* node = new Node(_document, name);
 			Attach(*node);
 			return *node;
 		}
@@ -89,7 +92,7 @@ namespace hod
 		{
 			// TODO check if an other child if same name exist
 
-			Node* node = new Node(name);
+			Node* node = new Node(_document, name);
 			Attach(*node);
 			return *node;
 		}
@@ -196,9 +199,16 @@ namespace hod
 			_value._float64 = value;
 		}
 
+		void Document::Node::SetString(const std::string& value)
+		{
+			_type = Type::String;
+			_value._uint64 = _document.AddString(value);
+		}
+
 		void Document::Node::SetString(const std::string_view& value)
 		{
-			_value._string = value;
+			_type = Type::String;
+			_value._uint64 = _document.AddString(value);
 		}
 
 		template<>
@@ -268,6 +278,12 @@ namespace hod
 		}
 
 		template<>
+		void Document::Node::SetValue(const std::string& value)
+		{
+			SetString(value);
+		}
+
+		template<>
 		void Document::Node::SetValue(const std::string_view& value)
 		{
 			SetString(value);
@@ -327,10 +343,10 @@ namespace hod
 		{
 			return _value._float64;
 		}
-
-		const std::string_view& Document::Node::GetString() const
+		
+		const std::string& Document::Node::GetString() const
 		{
-			return _value._string;
+			return _document.GetString(_value._uint64);
 		}
 
 		/// @brief 
@@ -338,6 +354,24 @@ namespace hod
 		Document::Node& Document::GetRootNode() const
 		{
 			return const_cast<Document::Node&>(_root);
+		}
+
+		/// @brief 
+		/// @param str 
+		/// @return 
+		uint64_t Document::AddString(const std::string_view& str)
+		{
+			uint64_t hash = Hash::CompilationTimeFnv64(str);
+			_stringTable[hash] = str;
+			return hash;
+		}
+
+		/// @brief 
+		/// @param hash 
+		/// @return 
+		const std::string& Document::GetString(uint64_t hash)
+		{
+			return _stringTable[hash];
 		}
 	}
 }

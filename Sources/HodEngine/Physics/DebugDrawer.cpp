@@ -1,12 +1,12 @@
 
 #include "DebugDrawer.h"
 
-#include "HodEngine/Renderer/src/P2fC4f.h"
+#include "HodEngine/Renderer/P2fC4f.h"
 
-#include "HodEngine/Renderer/src/Renderer.h"
-#include "HodEngine/Renderer/src/RenderCommand/RenderCommandMesh.h"
+#include "HodEngine/Renderer/Renderer.h"
+#include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.h"
 
-#include "HodEngine/Renderer/src/MaterialManager.h"
+#include "HodEngine/Renderer/MaterialManager.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 

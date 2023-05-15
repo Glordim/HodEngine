@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.4)
 project(Window)
 
 file(GLOB_RECURSE Srcs
-	"${PROJECT_SOURCE_DIR}/src/*.cpp"
-	"${PROJECT_SOURCE_DIR}/src/*.h"
-	"${PROJECT_SOURCE_DIR}/src/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/*.h"
+	"${PROJECT_SOURCE_DIR}/*.inl"
 )
 assign_source_group(${Srcs})
 
@@ -21,7 +21,7 @@ endif()
 add_dependencies(Window Core)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
 	${Core_INCLUDES}
 )

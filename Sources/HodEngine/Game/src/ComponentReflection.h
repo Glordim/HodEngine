@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HodEngine/Core/Src/Singleton.h>
+#include <HodEngine/Core/Singleton.h>
 
 #include <vector>
 #include <functional>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HodEngine/Core/Src/Reflection/ReflectionTrait.h>
+#include <HodEngine/Core/Reflection/ReflectionTrait.h>
 
 namespace hod
 {
@@ -26,7 +26,7 @@ namespace hod
 
 			public:
 
-				rapidjson::Value	Serialize(rapidjson::Document::AllocatorType& allocator) const override;
+				//rapidjson::Value	Serialize(rapidjson::Document::AllocatorType& allocator) const override;
 
 			private:
 

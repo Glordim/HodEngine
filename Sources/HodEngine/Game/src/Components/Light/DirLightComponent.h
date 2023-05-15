@@ -3,8 +3,8 @@
 
 #include "../../Component.h"
 
-#include <HodEngine/Core/Src/Color.h>
-#include <HodEngine/Renderer/src/Light/DirLight.h>
+#include <HodEngine/Core/Color.h>
+#include <HodEngine/Renderer/Light/DirLight.h>
 
 namespace hod
 {

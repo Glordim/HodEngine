@@ -5,6 +5,7 @@
 #include <string_view>
 #include <vector>
 #include <span>
+#include <map>
 
 namespace hod
 {
@@ -37,7 +38,7 @@ namespace hod
 				Node*		AddArray(const char* name);
 
 				template<typename T>
-				void		SetValues(std::span<T>& values);
+				void		SetValues(const std::span<const T>& values);
 
 				template<typename T>
 				void		SetValue(const T& value);
@@ -52,6 +53,7 @@ namespace hod
 				void		SetUInt64(uint64_t value);
 				void		SetFloat32(float value);
 				void		SetFloat64(double value);
+				void		SetString(const std::string& value);
 				void		SetString(const std::string_view& value);
 
 				bool		GetBool() const;
@@ -79,6 +81,7 @@ namespace hod
 					Object,
 					Array,
 					Value,
+					String,
 				};
 
 				union Value
@@ -94,12 +97,11 @@ namespace hod
 					uint64_t			_uint64;
 					float				_float32;
 					double				_float64;
-					std::string			_string;
 				};
 
 			private:
 
-							Node(const std::string_view& name);
+							Node(Document& document, const std::string_view& name);
 							Node(const Node&) = delete;
 							Node(Node&&) = delete;
 							~Node() = default;
@@ -119,6 +121,7 @@ namespace hod
 				Node*				_firstChild = nullptr;
 				Node*				_nextSibling = nullptr;
 				Node*				_parent = nullptr;
+				Document&			_document;
 
 				Type				_type;
 				std::string			_name;
@@ -148,7 +151,14 @@ namespace hod
 
 		private:
 
-			Node		_root = Node("Root");
+			uint64_t			AddString(const std::string_view& str);
+			const std::string&	GetString(uint64_t hash);
+
+		private:
+
+			Node		_root = Node(*this, "Root");
+
+			std::map<uint64_t, std::string>	_stringTable;
 		};
 	}
 }

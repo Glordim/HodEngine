@@ -2,18 +2,18 @@
 
 #include "Components/SceneComponent.h"
 
-#include <HodEngine/Core/Src/Color.h>
+#include <HodEngine/Core/Color.h>
 
-#include <HodEngine/Physics/src/Physics.h>
-#include <HodEngine/Physics/src/Actor.h>
-#include <HodEngine/Physics/src/Scene.h>
+#include <HodEngine/Physics/Physics.h>
+#include <HodEngine/Physics/Actor.h>
+#include <HodEngine/Physics/Scene.h>
 
-#include <HodEngine/Renderer/src/RHI/Shader.h>
-#include <HodEngine/Renderer/src/RHI/Material.h>
-#include <HodEngine/Renderer/src/MaterialManager.h>
+#include <HodEngine/Renderer/RHI/Shader.h>
+#include <HodEngine/Renderer/RHI/Material.h>
+#include <HodEngine/Renderer/MaterialManager.h>
 
-#include <HodEngine/Renderer/src/Renderer.h>
-#include <HodEngine/Renderer/src/RenderQueue.h>
+#include <HodEngine/Renderer/Renderer.h>
+#include <HodEngine/Renderer/RenderQueue.h>
 
 #include "Components/CameraComponent.h"
 

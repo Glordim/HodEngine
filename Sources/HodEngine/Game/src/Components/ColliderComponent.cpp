@@ -7,7 +7,7 @@
 #include "../Actor.h"
 #include "../Scene.h"
 
-#include <HodEngine/Physics/src/Actor.h>
+#include <HodEngine/Physics/Actor.h>
 
 namespace hod
 {

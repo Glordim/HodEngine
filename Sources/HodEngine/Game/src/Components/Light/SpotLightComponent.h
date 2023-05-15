@@ -1,10 +1,10 @@
 #pragma once
 
-#include <HodEngine/Core/Src/Color.h>
+#include <HodEngine/Core/Color.h>
 
 #include "../../Component.h"
 
-#include <HodEngine/Renderer/src/Light/SpotLight.h>
+#include <HodEngine/Renderer/Light/SpotLight.h>
 
 namespace hod
 {

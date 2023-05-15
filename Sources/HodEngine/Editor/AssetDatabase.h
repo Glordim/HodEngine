@@ -74,9 +74,6 @@ namespace hod::editor
 
 	private:
 
-		void								OnProjectLoaded(Project* project);
-		void								OnProjectClosed(Project* project);
-
 		void								ExploreAndDetectAsset(FileSystemMapping* parentFileSystemMapping);
 		void								FilesystemWatcherJob();
 

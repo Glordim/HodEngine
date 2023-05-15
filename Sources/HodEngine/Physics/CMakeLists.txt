@@ -6,13 +6,13 @@ find_package(Box2d REQUIRED)
 find_package(Glm REQUIRED)
 
 file(GLOB_RECURSE Srcs
-	"${PROJECT_SOURCE_DIR}/src/*.cpp"
-	"${PROJECT_SOURCE_DIR}/src/*.h"
-	"${PROJECT_SOURCE_DIR}/src/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/*.h"
+	"${PROJECT_SOURCE_DIR}/*.inl"
 )
 assign_source_group(${Srcs})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
 	${Box2d_INCLUDE_DIRS}
 	${Glm_INCLUDE_DIRS}

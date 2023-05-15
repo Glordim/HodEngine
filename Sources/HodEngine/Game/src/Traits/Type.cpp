@@ -12,7 +12,7 @@ namespace hod
 			{
 
 			}
-
+			/*
 			rapidjson::Value Type::Serialize(rapidjson::Document::AllocatorType& allocator) const
 			{
 				rapidjson::Value trait;
@@ -23,6 +23,7 @@ namespace hod
 
 				return trait;
 			};
+			*/
 		}
 	}
 }

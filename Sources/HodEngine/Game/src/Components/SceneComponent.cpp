@@ -10,9 +10,9 @@
 #include <string>
 
 #include "../Actor.h"
-#include <HodEngine/Physics/src/Actor.h>
+#include <HodEngine/Physics/Actor.h>
 
-#include <HodEngine/Core/Src/Reflection/Properties/ReflectionPropertyVariable.h>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h>
 
 namespace hod
 {
@@ -22,9 +22,9 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_DERIVED_CLASS(SceneComponent, Component)
 		{
-			AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _position), "Position");
+			//AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _position), "Position");
 			AddProperty<Variable>(Variable::Type::Float32, offsetof(SceneComponent, _rotation), "Rotation");
-			AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _scale), "Scale");
+			//AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _scale), "Scale");
 		}
 
 		/// @brief 

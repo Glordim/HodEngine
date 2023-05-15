@@ -1,11 +1,11 @@
 #include "SpriteComponent.h"
 
-#include <HodEngine/Renderer/src/RHI/Material.h>
-#include <HodEngine/Renderer/src/RenderQueue.h>
-#include <HodEngine/Renderer/src/RenderCommand/RenderCommandMesh.h>
-#include <HodEngine/Renderer/src/RHI/MaterialInstance.h>
-#include <HodEngine/Renderer/src/Sprite.h>
-#include <HodEngine/Renderer/src/SpriteAtlas.h>
+#include <HodEngine/Renderer/RHI/Material.h>
+#include <HodEngine/Renderer/RenderQueue.h>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.h>
+#include <HodEngine/Renderer/RHI/MaterialInstance.h>
+#include <HodEngine/Renderer/Sprite.h>
+#include <HodEngine/Renderer/SpriteAtlas.h>
 
 #include "../Actor.h"
 

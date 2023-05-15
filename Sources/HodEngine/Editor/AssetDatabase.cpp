@@ -45,19 +45,25 @@ namespace hod::editor
 	/// @brief 
 	AssetDatabase::~AssetDatabase()
 	{
+		FrameSequencer::GetInstance()->RemoveJob(&_filesystemWatcherJob, FrameSequencer::Step::PreRender);
+
+		FindCloseChangeNotification(_filesystemWatcherHandle);
+		_filesystemWatcherHandle = INVALID_HANDLE_VALUE;
+
+		for (auto pair : _uidToAssetMap)
+		{
+			//delete pair.second;
+		}
+
+		_uidToAssetMap.clear();
 	}
 
 	/// @brief 
 	/// @return 
 	bool AssetDatabase::Init()
 	{
-		return true;
-	}
+		Project* project = Project::GetInstance();
 
-	/// @brief 
-	/// @param project  
-	void AssetDatabase::OnProjectLoaded(Project* project) 
-	{
 		_filesystemWatcherHandle = ::FindFirstChangeNotification(project->GetAssetDirPath().string().c_str(), TRUE,
 			FILE_NOTIFY_CHANGE_FILE_NAME |
 			FILE_NOTIFY_CHANGE_DIR_NAME |
@@ -72,6 +78,8 @@ namespace hod::editor
 		ExploreAndDetectAsset(&_rootFileSystemMapping);
 
 		FrameSequencer::GetInstance()->InsertJob(&_filesystemWatcherJob, FrameSequencer::Step::PreRender);
+
+		return true;
 	}
 
 	/// @brief 
@@ -84,23 +92,6 @@ namespace hod::editor
 			// https://docs.microsoft.com/en-us/windows/win32/fileio/obtaining-directory-change-notifications
 			// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
 		}
-	}
-
-	/// @brief 
-	/// @param project 
-	void AssetDatabase::OnProjectClosed(Project* project)
-	{
-		FrameSequencer::GetInstance()->RemoveJob(&_filesystemWatcherJob, FrameSequencer::Step::PreRender);
-
-		FindCloseChangeNotification(_filesystemWatcherHandle);
-		_filesystemWatcherHandle = INVALID_HANDLE_VALUE;
-
-		for (auto pair : _uidToAssetMap)
-		{
-			//delete pair.second;
-		}
-
-		_uidToAssetMap.clear();
 	}
 
 	/// @brief 

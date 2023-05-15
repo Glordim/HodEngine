@@ -1,6 +1,6 @@
 #include "CameraComponent.h"
 
-#include <HodEngine/Core/Src/Rect.h>
+#include <HodEngine/Core/Rect.h>
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -8,9 +8,9 @@
 
 #include "SceneComponent.h"
 
-#include <HodEngine/Renderer/src/Renderer.h>
-#include <HodEngine/Renderer/src/RenderQueue.h>
-#include <HodEngine/Renderer/src/RenderCommand/RenderCommandSetCameraSettings.h>
+#include <HodEngine/Renderer/Renderer.h>
+#include <HodEngine/Renderer/RenderQueue.h>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.h>
 #include "../RenderQueueHelper.h"
 
 

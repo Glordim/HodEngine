@@ -9,8 +9,8 @@
 #include "Actor.h"
 #include "Scene.h"
 
-#include <HodEngine/Renderer/src/RenderQueue.h>
-#include <HodEngine/Physics/src/Scene.h>
+#include <HodEngine/Renderer/RenderQueue.h>
+#include <HodEngine/Physics/Scene.h>
 
 namespace hod
 {

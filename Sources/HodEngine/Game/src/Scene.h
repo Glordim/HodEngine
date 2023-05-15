@@ -2,7 +2,7 @@
 
 #include "Actor.h"
 
-#include <HodEngine/Core/Src/Color.h>
+#include <HodEngine/Core/Color.h>
 #include <vector>
 #include <utility>
 

@@ -4,7 +4,7 @@ namespace hod
 	namespace core
 	{
 		template<typename T>
-		void Document::Node::SetValues(std::span<T>& values)
+		void Document::Node::SetValues(const std::span<const T>& values)
 		{
 			// TODO ensure no child
 

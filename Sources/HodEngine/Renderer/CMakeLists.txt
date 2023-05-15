@@ -9,13 +9,13 @@ find_package(Stb REQUIRED)
 find_package(Glm REQUIRED)
 
 file(GLOB_RECURSE Srcs
-	"${PROJECT_SOURCE_DIR}/src/*.cpp"
-	"${PROJECT_SOURCE_DIR}/src/*.h"
-	"${PROJECT_SOURCE_DIR}/src/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/*.h"
+	"${PROJECT_SOURCE_DIR}/*.inl"
 )
 assign_source_group(${Srcs})
 
-include_directories("./src"
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   "../.."
   ${Stb_INCLUDE_DIRS}
   ${SpirvCross_INCLUDE_DIRS}
