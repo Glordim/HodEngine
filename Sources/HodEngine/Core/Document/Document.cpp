@@ -11,6 +11,7 @@ namespace hod
 		Document::Node::Node(Document& document, const std::string_view& name)
 			: _document(document)
 			, _name(name)
+			, _type(Type::Object)
 		{
 
 		}
@@ -107,6 +108,20 @@ namespace hod
 
 		/// @brief 
 		/// @return 
+		Document::Node::Type Document::Node::GetType() const
+		{
+			return _type;
+		}
+
+		/// @brief 
+		/// @return 
+		const std::string& Document::Node::GetName() const
+		{
+			return _name;
+		}
+
+		/// @brief 
+		/// @return 
 		Document::Node* Document::Node::GetFirstChild() const
 		{
 			return _firstChild;
@@ -146,69 +161,80 @@ namespace hod
 
 		void Document::Node::SetBool(bool value)
 		{
+			_type = Type::Bool;
 			_value._bool = value;
 		}
 
 		void Document::Node::SetInt8(int8_t value)
 		{
+			_type = Type::SInt8;
 			_value._sint8 = value;
 		}
 
 		void Document::Node::SetInt16(int16_t value)
 		{
+			_type = Type::SInt16;
 			_value._sint16 = value;
 		}
 
 		void Document::Node::SetInt32(int32_t value)
 		{
+			_type = Type::SInt32;
 			_value._sint32 = value;
 		}
 
 		void Document::Node::SetInt64(int64_t value)
 		{
+			_type = Type::SInt64;
 			_value._sint64 = value;
 		}
 
 		void Document::Node::SetUInt8(uint8_t value)
 		{
+			_type = Type::UInt8;
 			_value._uint8 = value;
 		}
 
 		void Document::Node::SetUInt16(uint16_t value)
 		{
+			_type = Type::UInt16;
 			_value._uint16 = value;
 		}
 
 		void Document::Node::SetUInt32(uint32_t value)
 		{
+			_type = Type::UInt32;
 			_value._uint32 = value;
 		}
 
 		void Document::Node::SetUInt64(uint64_t value)
 		{
+			_type = Type::UInt64;
 			_value._uint64 = value;
 		}
 
 		void Document::Node::SetFloat32(float value)
 		{
+			_type = Type::Float32;
 			_value._float32 = value;
 		}
 
 		void Document::Node::SetFloat64(double value)
 		{
+			_type = Type::Float64;
 			_value._float64 = value;
 		}
 
 		void Document::Node::SetString(const std::string& value)
 		{
 			_type = Type::String;
-			_value._uint64 = _document.AddString(value);
+			_value._stringId = _document.AddString(value);
 		}
 
 		void Document::Node::SetString(const std::string_view& value)
 		{
 			_type = Type::String;
-			_value._uint64 = _document.AddString(value);
+			_value._stringId = _document.AddString(value);
 		}
 
 		template<>
@@ -359,9 +385,9 @@ namespace hod
 		/// @brief 
 		/// @param str 
 		/// @return 
-		uint64_t Document::AddString(const std::string_view& str)
+		Document::StringId Document::AddString(const std::string_view& str)
 		{
-			uint64_t hash = Hash::CompilationTimeFnv64(str);
+			StringId hash = Hash::CompilationTimeFnv64(str);
 			_stringTable[hash] = str;
 			return hash;
 		}
@@ -369,7 +395,7 @@ namespace hod
 		/// @brief 
 		/// @param hash 
 		/// @return 
-		const std::string& Document::GetString(uint64_t hash)
+		const std::string& Document::GetString(StringId hash)
 		{
 			return _stringTable[hash];
 		}

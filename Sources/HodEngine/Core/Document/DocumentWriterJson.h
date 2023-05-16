@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HodEngine/Core/Document/DocumentWriter.h"
+#include "HodEngine/Core/Document/Document.h"
 
 namespace hod
 {
@@ -22,6 +23,10 @@ namespace hod
 		protected:
 
 			bool				WriteDocument(Document& document, Stream& stream) override;
+
+		private:
+
+			bool				WriteNode(const Document::Node& node, Stream& stream);
 		};
 	}
 }

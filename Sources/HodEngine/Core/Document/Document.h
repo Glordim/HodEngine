@@ -14,11 +14,35 @@ namespace hod
 		/// @brief 
 		class Document
 		{
+		private:
+
+			using StringId = uint64_t;
+
 		public:
 
 			class Node
 			{
 				friend class Document;
+
+			public:
+
+				enum class Type
+				{
+					Object,
+					Array,
+					Bool,
+					SInt8,
+					SInt16,
+					SInt32,
+					SInt64,
+					UInt8,
+					UInt16,
+					UInt32,
+					UInt64,
+					Float32,
+					Float64,
+					String,
+				};
 
 			public:
 
@@ -30,7 +54,8 @@ namespace hod
 				Node*		GetNextSibling() const;
 				Node*		GetParent() const;
 
-				const char* GetName() const;
+				const std::string& GetName() const;
+				Type 		GetType() const;
 				bool		IsValid() const;
 				bool		IsObject() const;
 				bool		IsArray() const;
@@ -76,14 +101,6 @@ namespace hod
 
 			private:
 
-				enum class Type
-				{
-					Object,
-					Array,
-					Value,
-					String,
-				};
-
 				union Value
 				{
 					bool				_bool;
@@ -97,6 +114,7 @@ namespace hod
 					uint64_t			_uint64;
 					float				_float32;
 					double				_float64;
+					StringId			_stringId;
 				};
 
 			private:
@@ -151,12 +169,12 @@ namespace hod
 
 		private:
 
-			uint64_t			AddString(const std::string_view& str);
-			const std::string&	GetString(uint64_t hash);
+			StringId			AddString(const std::string_view& str);
+			const std::string&	GetString(StringId hash);
 
 		private:
 
-			Node		_root = Node(*this, "Root");
+			Node		_root = Node(*this, "");
 
 			std::map<uint64_t, std::string>	_stringTable;
 		};

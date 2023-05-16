@@ -106,11 +106,14 @@ namespace hod::editor
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("Project.json");
 
-		core::Document document;
-		core::DocumentReaderJson jsonReader;
-		if (jsonReader.Read(document, projectsPath) == true)
+		// Read and deserialize existing file
 		{
-			RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(recentProjects, document.GetRootNode());
+			core::Document document;
+			core::DocumentReaderJson jsonReader;
+			if (jsonReader.Read(document, projectsPath) == true)
+			{
+				RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(recentProjects, document.GetRootNode());
+			}
 		}
 
 		bool alreadyExist = false;
@@ -128,7 +131,7 @@ namespace hod::editor
 			recentProjects._projectsPath.push_back(path.string());
 
 			core::Document writeDocument;
-			RecentProjects::GetReflectionDescriptor()->SerializeInDocument(recentProjects, document.GetRootNode());
+			RecentProjects::GetReflectionDescriptor()->SerializeInDocument(recentProjects, writeDocument.GetRootNode());
 
 			std::filesystem::create_directories(projectsPath.parent_path());
 			core::DocumentWriterJson jsonWriter;
