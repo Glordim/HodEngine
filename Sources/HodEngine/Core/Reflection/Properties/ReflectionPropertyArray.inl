@@ -15,18 +15,16 @@ namespace hod
 
 					Document::Node& arrayNode = node.GetOrAddChild(_name);
 
+/*
 						const std::vector<int8_t>* vec = reinterpret_cast<const std::vector<int8_t>*>(arrayAddress);
 						auto valu = vec->data();
 						const int8_t* val = vec->data();
 						arrayNode.SetValues(std::span<const int8_t>(val, vec->size()));
+						*/
 
 					switch (_type)
 					{
-					case Variable::Type::Bool:
-					{
-						
-					}
-					break;
+					//case Variable::Type::Bool: arrayNode.SetValues(std::span<const bool>(*reinterpret_cast<const std::vector<bool>*>(arrayAddress))); break;
 					case Variable::Type::Int8: arrayNode.SetValues(std::span<const int8_t>(*reinterpret_cast<const std::vector<int8_t>*>(arrayAddress))); break;
 					case Variable::Type::Int16: arrayNode.SetValues(std::span<const int16_t>(*reinterpret_cast<const std::vector<int16_t>*>(arrayAddress))); break;
 					case Variable::Type::Int32: arrayNode.SetValues(std::span<const int32_t>(*reinterpret_cast<const std::vector<int32_t>*>(arrayAddress))); break;

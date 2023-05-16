@@ -159,8 +159,10 @@ namespace hod
 
 				case Document::Node::Type::String:
 				{
-					const std::string value = node.GetString();
+					const std::string& value = node.GetString();
+					stream.Write((void*)"\"", 1);
 					stream.Write((void*)value.data(), value.size());
+					stream.Write((void*)"\"", 1);
 				}
 				break;
 			
