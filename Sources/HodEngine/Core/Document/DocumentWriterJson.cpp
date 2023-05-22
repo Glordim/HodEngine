@@ -1,6 +1,8 @@
 #include "HodEngine/Core/Document/DocumentWriterJson.h"
 #include "HodEngine/Core/Stream/Stream.h"
 
+#include <algorithm>
+
 namespace hod
 {
 	namespace core
@@ -159,9 +161,26 @@ namespace hod
 
 				case Document::Node::Type::String:
 				{
-					const std::string& value = node.GetString();
 					stream.Write((void*)"\"", 1);
-					stream.Write((void*)value.data(), value.size());
+					const std::string& value = node.GetString();
+					const char* pos = std::strpbrk(value.data(), "\t\n\r\f\b\"\\");
+					if (pos != nullptr)
+					{
+						std::string escapedValue = value;
+						pos = std::strpbrk(escapedValue.data(), "\t\n\r\f\b\"\\");
+
+						while (pos != nullptr)
+						{
+							uint32_t offset = pos - escapedValue.data();
+							escapedValue.insert(offset, "\\");
+							pos = std::strpbrk(escapedValue.data() + offset + 2, "\t\n\r\f\b\"\\");
+						}
+						stream.Write((void*)escapedValue.data(), escapedValue.size());
+					}
+					else
+					{
+						stream.Write((void*)value.data(), value.size());
+					}
 					stream.Write((void*)"\"", 1);
 				}
 				break;

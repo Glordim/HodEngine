@@ -26,7 +26,12 @@ namespace hod
 
 		private:
 
-			const char*				ParseNode(const char* json, Document::Node& node);
+			bool					ParseNode(Document::Node& node);
+			Document::Node*			ParseKeyAndCreateChildNode(Document::Node& node);
+
+		private:
+
+			const char*				_cursor = nullptr;
 		};
 	}
 }

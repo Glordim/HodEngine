@@ -33,38 +33,40 @@ namespace hod
 			}
 			buffer[size] = '\0';
 
-			const char* json = SkipWhiteSpace(buffer);
-			if (*json != '{')
+			_cursor = SkipWhiteSpace(buffer);
+			if (*_cursor != '{')
 			{
 				OUTPUT_ERROR("Json syntax error");
 				delete[] buffer;
 				return false;
 			}
-			const char* parsingResult = ParseNode(json + 1, document.GetRootNode());
+			++_cursor;
+			bool parsingResult = ParseNode(document.GetRootNode());
 
 			delete[] buffer;
+			_cursor = nullptr;
 
-			return (parsingResult != nullptr);
+			return parsingResult;
 		}
 
 		/// @brief 
 		/// @param json 
 		/// @param node 
 		/// @return 
-		const char* DocumentReaderJson::ParseNode(const char* json, Document::Node& node)
+		bool DocumentReaderJson::ParseNode(Document::Node& node)
 		{
 			json = SkipWhiteSpace(json);
 
 			while (*json == '\"')
 			{
 				const char* keyStart = json + 1;
-				json = json + std::strspn(keyStart, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-");
+				json = json + std::strspn(keyStart, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") + 1;
 				if (*json != '\"')
 				{
 					OUTPUT_ERROR("Json syntax error");
 					return nullptr;
 				}
-				const char* keyEnd = json - 1;
+				const char* keyEnd = json;
 				json = SkipWhiteSpace(json + 1);
 
 				Document::Node& child = node.AddChild(std::string_view(keyStart, (keyEnd - keyStart)));
@@ -159,11 +161,27 @@ namespace hod
 				}
 				else if (*json == '[') // array
 				{
-
+					json = SkipWhiteSpace(json + 1);
+					while (*json != ']')
+					{
+						Document::Node& arrayItem = child.AddChild("");
+						json = ParseNode(json, arrayItem);
+						json = SkipWhiteSpace(json + 1);
+					}
 				}
 				else if (*json == '{') // object
 				{
-
+					json = ParseNode(json + 1, child);
+					json = SkipWhiteSpace(json);
+					if (*json == '}')
+					{
+						json = json + 1;
+					}
+					else
+					{
+						OUTPUT_ERROR("Json syntax error");
+						return nullptr;
+					}
 				}
 				else
 				{
@@ -191,6 +209,24 @@ namespace hod
 			}
 
 			return json + 1;
+		}
+
+		/// @brief 
+		/// @param node 
+		/// @return 
+		Document::Node* DocumentReaderJson::ParseKeyAndCreateChildNode(Document::Node& node)
+		{
+			const char* keyStart = _cursor + 1;
+			_cursor = _cursor + std::strspn(keyStart, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") + 1;
+			if (*_cursor != '\"')
+			{
+				OUTPUT_ERROR("Json syntax error");
+				return nullptr;
+			}
+			const char* keyEnd = _cursor;
+
+			Document::Node& child = node.AddChild(std::string_view(keyStart, (keyEnd - keyStart)));
+			return &child;
 		}
 	}
 }
