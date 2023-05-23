@@ -27,7 +27,12 @@ namespace hod
 		private:
 
 			bool					ParseNode(Document::Node& node);
+			bool					ParseObject(Document::Node& node);
+			bool					ParseArray(Document::Node& node);
 			Document::Node*			ParseKeyAndCreateChildNode(Document::Node& node);
+			bool					ParseValue(Document::Node& node);
+
+			void					SkipWhiteSpace();
 
 		private:
 

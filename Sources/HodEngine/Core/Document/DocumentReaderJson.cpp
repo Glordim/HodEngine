@@ -9,9 +9,10 @@ namespace hod
 {
 	namespace core
 	{
-		const char* SkipWhiteSpace(const char* str)
+		/// @brief 
+		void DocumentReaderJson::SkipWhiteSpace()
 		{
-			return str + std::strspn(str, " \t\n\r");
+			_cursor += std::strspn(_cursor, " \t\n\r");
 		}
 
 		/// @brief 
@@ -33,15 +34,9 @@ namespace hod
 			}
 			buffer[size] = '\0';
 
-			_cursor = SkipWhiteSpace(buffer);
-			if (*_cursor != '{')
-			{
-				OUTPUT_ERROR("Json syntax error");
-				delete[] buffer;
-				return false;
-			}
-			++_cursor;
-			bool parsingResult = ParseNode(document.GetRootNode());
+			_cursor = buffer;
+			SkipWhiteSpace();
+			bool parsingResult = ParseObject(document.GetRootNode());
 
 			delete[] buffer;
 			_cursor = nullptr;
@@ -53,162 +48,217 @@ namespace hod
 		/// @param json 
 		/// @param node 
 		/// @return 
-		bool DocumentReaderJson::ParseNode(Document::Node& node)
+		bool DocumentReaderJson::ParseObject(Document::Node& node)
 		{
-			json = SkipWhiteSpace(json);
-
-			while (*json == '\"')
+			if (*_cursor != '{')
 			{
-				const char* keyStart = json + 1;
-				json = json + std::strspn(keyStart, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") + 1;
-				if (*json != '\"')
+				OUTPUT_ERROR("Json syntax error");
+				return false;
+			}
+			++_cursor;
+			SkipWhiteSpace();
+
+			while (*_cursor != '}')
+			{
+				Document::Node* child = ParseKeyAndCreateChildNode(node);
+				if (child == nullptr)
+				{
+					return false;
+				}
+
+				SkipWhiteSpace();
+
+				if (*_cursor != ':')
 				{
 					OUTPUT_ERROR("Json syntax error");
-					return nullptr;
+					return false;
 				}
-				const char* keyEnd = json;
-				json = SkipWhiteSpace(json + 1);
+				++_cursor;
 
-				Document::Node& child = node.AddChild(std::string_view(keyStart, (keyEnd - keyStart)));
+				SkipWhiteSpace();
 
-				if (*json != ':')
+				if (ParseValue(*child) == false)
 				{
-					OUTPUT_ERROR("Json syntax error");
-					return nullptr;
+					return false;
 				}
 
-				json = SkipWhiteSpace(json + 1);
+				SkipWhiteSpace();
 
-				if ((*json >= '0' && *json <= '9') || *json == '-') // Number
-				{
-					bool isNegative = false;
-					if (*json == '-')
-					{
-						isNegative = true;
-						++json;
-					}
-
-					if (*json < '0' || *json > '9')
-					{
-						OUTPUT_ERROR("Json syntax error");
-						return nullptr;
-					}
-
-					bool isFloat = false;
-					const char* valueStart = json;
-					json += std::strspn(valueStart, "0123456789");
-					if (*json == '.')
-					{
-						isFloat = true;
-						json += std::strspn(json, "0123456789");
-					}
-					const char* valueEnd = json;
-					if (isFloat == true)
-					{
-						double value;
-						if (StringConversion::StringToFloat64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
-						{
-							OUTPUT_ERROR("Json syntax error");
-							return nullptr;
-						}
-						child.SetFloat64(value);
-					}
-					else
-					{
-						if (isNegative == false)
-						{
-							uint64_t value;
-							if (StringConversion::StringToUInt64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
-							{
-								OUTPUT_ERROR("Json syntax error");
-								return nullptr;
-							}
-							child.SetUInt64(value);
-						}
-						else
-						{
-							int64_t value;
-							if (StringConversion::StringToInt64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
-							{
-								OUTPUT_ERROR("Json syntax error");
-								return nullptr;
-							}
-							child.SetInt64(value);
-						}
-					}
-				}
-				else if (*json == '\"') // string
-				{
-					const char* valueStart = json + 1;
-					const char* valueEnd = std::strstr(valueStart, "\"");
-					while (valueEnd != nullptr && valueEnd[-1] == '\\')
-					{
-						valueEnd = std::strstr(valueEnd + 1, "\"");
-					}
-
-					child.SetString(std::string_view(valueStart, valueEnd - valueStart));
-				}
-				else if (std::strncmp(json, "null", sizeof("null")) == 0) // null
-				{
-				}
-				else if (std::strncmp(json, "true", sizeof("true")) == 0) // true (bool)
-				{
-					child.SetBool(true);
-				}
-				else if (std::strncmp(json, "false", sizeof("false")) == 0)
-				{
-					child.SetBool(false);
-				}
-				else if (*json == '[') // array
-				{
-					json = SkipWhiteSpace(json + 1);
-					while (*json != ']')
-					{
-						Document::Node& arrayItem = child.AddChild("");
-						json = ParseNode(json, arrayItem);
-						json = SkipWhiteSpace(json + 1);
-					}
-				}
-				else if (*json == '{') // object
-				{
-					json = ParseNode(json + 1, child);
-					json = SkipWhiteSpace(json);
-					if (*json == '}')
-					{
-						json = json + 1;
-					}
-					else
-					{
-						OUTPUT_ERROR("Json syntax error");
-						return nullptr;
-					}
-				}
-				else
-				{
-					OUTPUT_ERROR("Json syntax error");
-					return nullptr;
-				}
-
-				json = SkipWhiteSpace(json + 1);
-
-				if (*json == ',')
-				{
-					json = SkipWhiteSpace(json + 1);
-					continue;
-				}
-				else if (*json == '}')
+				if (*_cursor == '}')
 				{
 					break;
 				}
+
+				if (*_cursor == ',')
+				{
+					++_cursor;
+					SkipWhiteSpace();
+				}
+				else
+				{
+					OUTPUT_ERROR("DocumentReaderJson::ParseObject Syntax error");
+					return false;
+				}
 			}
 
-			if (*json != '}')
+			++_cursor;
+
+			return true;
+		}
+
+		/// @brief 
+		/// @param json 
+		/// @param node 
+		/// @return 
+		bool DocumentReaderJson::ParseArray(Document::Node& node)
+		{
+			if (*_cursor != '[')
 			{
 				OUTPUT_ERROR("Json syntax error");
-				return nullptr;
+				return false;
+			}
+			++_cursor;
+			SkipWhiteSpace();
+
+			while (*_cursor != ']')
+			{
+				Document::Node& child = node.AddChild("");
+
+				if (ParseValue(child) == false)
+				{
+					return false;
+				}
+
+				SkipWhiteSpace();
+
+				if (*_cursor == ']')
+				{
+					break;
+				}
+
+				if (*_cursor == ',')
+				{
+					++_cursor;
+					SkipWhiteSpace();
+				}
+				else
+				{
+					OUTPUT_ERROR("DocumentReaderJson::ParseArray Syntax error");
+					return false;
+				}
 			}
 
-			return json + 1;
+			++_cursor;
+
+			return true;
+		}
+
+		/// @brief 
+		/// @param node 
+		/// @return 
+		bool DocumentReaderJson::ParseValue(Document::Node& node)
+		{
+			if (*_cursor == '{') // object
+			{
+				return ParseObject(node);
+			}
+			else if (*_cursor == '[') // array
+			{
+				return ParseArray(node);
+			}
+			else if ((*_cursor >= '0' && *_cursor <= '9') || *_cursor == '-') // Number
+			{
+				bool isNegative = false;
+				if (*_cursor == '-')
+				{
+					isNegative = true;
+					++_cursor;
+
+					if (*_cursor < '0' || *_cursor > '9')
+					{
+						OUTPUT_ERROR("Json syntax error");
+						return false;
+					}
+				}
+
+				bool isFloat = false;
+				const char* valueStart = _cursor;
+				_cursor += std::strspn(valueStart, "0123456789");
+				if (*_cursor == '.')
+				{
+					isFloat = true;
+					_cursor += std::strspn(_cursor, "0123456789");
+				}
+				const char* valueEnd = _cursor;
+				if (isFloat == true)
+				{
+					double value;
+					if (StringConversion::StringToFloat64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+					{
+						OUTPUT_ERROR("Json syntax error");
+						return false;
+					}
+					node.SetFloat64(value);
+					return true;
+				}
+				else
+				{
+					if (isNegative == false)
+					{
+						uint64_t value;
+						if (StringConversion::StringToUInt64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+						{
+							OUTPUT_ERROR("Json syntax error");
+							return false;
+						}
+						node.SetUInt64(value);
+						return true;
+					}
+					else
+					{
+						int64_t value;
+						if (StringConversion::StringToInt64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+						{
+							OUTPUT_ERROR("Json syntax error");
+							return false;
+						}
+						node.SetInt64(value);
+						return true;
+					}
+				}
+			}
+			else if (*_cursor == '\"') // string
+			{
+				++_cursor;
+				const char* valueStart = _cursor;
+				const char* valueEnd = std::strstr(valueStart, "\"");
+				while (valueEnd != nullptr && valueEnd[-1] == '\\')
+				{
+					valueEnd = std::strstr(valueEnd + 1, "\"");
+				}
+				_cursor = valueEnd;
+				++_cursor;
+
+				node.SetString(std::string_view(valueStart, valueEnd - valueStart));
+				return true;
+			}
+			else if (std::strncmp(_cursor, "null", sizeof("null")) == 0) // null
+			{
+				return false;
+			}
+			else if (std::strncmp(_cursor, "true", sizeof("true")) == 0) // true (bool)
+			{
+				node.SetBool(true);
+				return true;
+			}
+			else if (std::strncmp(_cursor, "false", sizeof("false")) == 0) // false (bool)
+			{
+				node.SetBool(false);
+				return true;
+			}
+
+			OUTPUT_ERROR("Json syntax error");
+			return false;
 		}
 
 		/// @brief 
@@ -216,14 +266,22 @@ namespace hod
 		/// @return 
 		Document::Node* DocumentReaderJson::ParseKeyAndCreateChildNode(Document::Node& node)
 		{
-			const char* keyStart = _cursor + 1;
-			_cursor = _cursor + std::strspn(keyStart, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-") + 1;
+			if (*_cursor != '\"')
+			{
+				OUTPUT_ERROR("Json syntax error");
+				return nullptr;
+			}
+			++_cursor;
+
+			const char* keyStart = _cursor;
+			_cursor += std::strspn(keyStart, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-");
 			if (*_cursor != '\"')
 			{
 				OUTPUT_ERROR("Json syntax error");
 				return nullptr;
 			}
 			const char* keyEnd = _cursor;
+			++_cursor;
 
 			Document::Node& child = node.AddChild(std::string_view(keyStart, (keyEnd - keyStart)));
 			return &child;

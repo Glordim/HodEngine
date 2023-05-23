@@ -74,6 +74,10 @@ namespace hod
 			// TODO check if an other child if same name exist
 
 			Node* node = new Node(_document, name);
+			if (node->GetName().empty() == true)
+			{
+				_type = Type::Array;
+			}
 			Attach(*node);
 			return *node;
 		}
