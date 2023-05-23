@@ -24,6 +24,5 @@ namespace hod::editor
 	private:
 
 		RecentProjects _recentProjects;
-		std::vector<std::filesystem::path>	_projectsPath;
 	};
 }

@@ -70,12 +70,12 @@ namespace hod::editor
 				ImGui::TableSetupColumn("##OpenDelete", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 100.0f);
 				ImGui::TableHeadersRow();
 
-				for (int index = 0; index < _projectsPath.size(); ++index)
+				for (int index = 0; index < _recentProjects._projectsPath.size(); ++index)
 				{
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					ImGui::Text(_projectsPath[index].string().c_str());
+					ImGui::Text(_recentProjects._projectsPath[index].data());
 					//ImGui::Text("C:\\users\\glordim\\Desltop\\Dev\\Toto");
 
 					ImGui::TableNextColumn();
@@ -84,7 +84,7 @@ namespace hod::editor
 					ImGui::TableNextColumn();
 					if (ImGui::Button("Open") == true)
 					{
-						Editor::GetInstance()->OpenProject(_projectsPath[index]);
+						Editor::GetInstance()->OpenProject(_recentProjects._projectsPath[index]);
 					}
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(150, 0, 0, 255));
