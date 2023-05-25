@@ -269,7 +269,7 @@ namespace hod::editor
 				if (ImGui::MenuItem("Scene") == true)
 				{
 					std::shared_ptr<game::Scene> scene = std::make_shared<game::Scene>();
-					
+
 					std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(scene, _currentFolderTreeNode->_path / "Scene");
 					const AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)

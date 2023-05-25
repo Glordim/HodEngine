@@ -1,22 +1,26 @@
 #include "HodEngine/Editor/Asset.h"
 
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/prettywriter.h>
-
-#include <fstream>
-
 #include "HodEngine/Editor/AssetDatabase.h"
 #include "HodEngine/Editor/Editor.h"
 
+#include "HodEngine/Core/Stream/FileStream.h"
+#include "HodEngine/Core/Document/DocumentReaderJson.h"
+#include "HodEngine/Core/Document/DocumentWriterJson.h"
+
 namespace hod::editor
 {
+	DESCRIBE_REFLECTED_CLASS(Meta)
+	{
+		core::Reflection::Property::Variable* uid = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::UInt64, offsetof(Meta, _uid), "UID");
+		AddProperty(uid);
+	}
+
 	/// @brief 
 	Asset::Asset(const std::filesystem::path& path)
 		: _path(path)
 	{
 		_name = _path.stem().string();
-		_uid = UID::GenerateUID();
+		_meta._uid = UID::GenerateUID();
 	}
 
 	/// @brief 
@@ -30,36 +34,26 @@ namespace hod::editor
 	{
 		std::filesystem::path metaPath = _path / ".meta";
 
-		std::ifstream file;
-		file.open(metaPath, std::ios::in);
-		if (file.is_open() == false)
+		core::FileStream fileStream(metaPath, core::FileMode::Read);
+		if (fileStream.CanRead() == true)
 		{
 			// TODO generate new meta if not exist
 			AssetDatabase::GetInstance()->Import(_path);
 			return false;
 		}
 
-		file.seekg(0, std::ios::end);
-
-		int size = (int)file.tellg();
-		char* buffer = new char[size + 1];
-		file.seekg(0, std::ios::beg);
-		file.read(buffer, size);
-		file.close();
-		buffer[size] = '\0';
-		for (int i = size - 1; i >= 0; --i)
+		core::Document document;
+		core::DocumentReaderJson documentReader;
+		if (documentReader.Read(document, metaPath) == false)
 		{
-			if (buffer[i] == '\0' || buffer[i] == '\x4')
-			{
-				buffer[i] = '\0';
-				break;
-			}
+			return false;
 		}
 
-		rapidjson::Document document;
-		document.Parse(buffer);
+		if (Meta::GetReflectionDescriptor()->DeserializeFromDocument(_meta, document.GetRootNode()) == false)
+		{
+			return false;
+		}
 
-		delete[] buffer;
 		return true;
 	}
 
@@ -67,22 +61,20 @@ namespace hod::editor
 	/// @return 
 	bool Asset::Save()
 	{
-		rapidjson::Document document;
-		document.SetObject();
+		core::Document document;
+		if (Meta::GetReflectionDescriptor()->SerializeInDocument(_meta, document.GetRootNode()) == false)
+		{
+			return false;
+		}
 
-		rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+		std::filesystem::path metaPath = _path / ".meta";
 
-		document.AddMember("Name", rapidjson::StringRef(_name.c_str(), _name.size()), allocator);
-		document.AddMember("UID", rapidjson::StringRef(_uid.ToString().c_str(), _uid.ToString().size()), allocator);
-
-		rapidjson::StringBuffer sb;
-		rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-		document.Accept(writer);
-
-		std::ofstream file;
-		file.open(_path, std::ios::out | std::ios::trunc);
-		file << sb.GetString();
-		file.close();
+		core::DocumentWriterJson documentWriter;
+		if (documentWriter.Write(document, metaPath) == false)
+		{
+			return false;
+		}
+		
 		return true;
 	}
 
@@ -90,6 +82,6 @@ namespace hod::editor
 	/// @return 
 	const UID& Asset::GetUid() const
 	{
-		return _uid;
+		return _meta._uid;
 	}
 }
