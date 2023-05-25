@@ -12,6 +12,7 @@
 
 #include <HodEngine/Core/Frame/FrameSequencer.h>
 #include <HodEngine/Core/Output.h>
+#include "HodEngine/Core/Asset.h"
 
 #include <Windows.h>
 #include <vector>
@@ -118,6 +119,7 @@ namespace hod::editor
 			}
 			else
 			{
+				/*
 				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 				if (asset->Load() == true)
 				{
@@ -128,6 +130,7 @@ namespace hod::editor
 					//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
 					fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
 				}
+				*/
 			}
 		}
 	}
@@ -216,6 +219,29 @@ namespace hod::editor
 		}
 
 		return finalPath;
+	}
+
+	/// @brief 
+	/// @param asset 
+	/// @param path 
+	/// @return 
+	std::filesystem::path AssetDatabase::CreateAsset(std::shared_ptr<core::Asset> asset, const std::filesystem::path& path)
+	{
+		FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
+		childFileSystemMapping->_path = path;
+		childFileSystemMapping->_path.replace_extension(".asset");
+		childFileSystemMapping->_path = GenerateUniqueAssetPath(childFileSystemMapping->_path);
+		//childFileSystemMapping->_lastWriteTime = 0;
+		childFileSystemMapping->_parentFolder = FindFileSystemMappingFromPath(path.parent_path());
+		childFileSystemMapping->_uid = UID::GenerateUID();
+		childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
+		childFileSystemMapping->_asset = asset;
+
+		_uidToAssetMap.emplace(childFileSystemMapping->_uid, asset);
+
+		childFileSystemMapping->_parentFolder->_childrenAsset.push_back(childFileSystemMapping);
+
+		return childFileSystemMapping->_path;
 	}
 
 	/// @brief 

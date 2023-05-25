@@ -11,9 +11,13 @@
 #include <HodEngine/Core/Job/MemberFunctionJob.h>
 #include <HodEngine/Core/Singleton.h>
 
-namespace hod::editor
+namespace hod::core
 {
 	class Asset;
+}
+
+namespace hod::editor
+{
 	class Project;
 
 	/// @brief 
@@ -36,7 +40,7 @@ namespace hod::editor
 			Type							_type;
 			UID								_uid;
 
-			std::shared_ptr<Asset>			_asset = nullptr;
+			std::shared_ptr<core::Asset>	_asset = nullptr;
 
 			std::vector<FileSystemMapping*>	_childrenAsset;
 			std::vector<FileSystemMapping*>	_childrenFolder;
@@ -62,10 +66,7 @@ namespace hod::editor
 		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
 
 		std::filesystem::path				CreateFolder(const std::filesystem::path& path);
-/*
-		template<typename Type>
-		std::filesystem::path				CreateAsset(const std::filesystem::path& path);
-		*/
+		std::filesystem::path				CreateAsset(std::shared_ptr<core::Asset> asset, const std::filesystem::path& path);
 
 		void								Rename(const FileSystemMapping& node, const std::string& newName);
 		void								Delete(const FileSystemMapping& node);
@@ -88,7 +89,7 @@ namespace hod::editor
 
 	private:
 
-		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
+		std::map<UID, std::shared_ptr<core::Asset>> _uidToAssetMap;
 		FileSystemMapping					_rootFileSystemMapping;
 
 		void*								_filesystemWatcherHandle;

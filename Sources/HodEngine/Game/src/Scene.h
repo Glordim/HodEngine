@@ -6,6 +6,8 @@
 #include <vector>
 #include <utility>
 
+#include "HodEngine/Core/Asset.h"
+
 namespace hod
 {
 	namespace CORE
@@ -33,7 +35,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class Scene
+		class Scene : public core::Asset
 		{
 		public:
 																Scene();

@@ -13,6 +13,8 @@
 
 #include <HodEngine/Application/PlatformDialog.h>
 
+#include "HodEngine/Game/src/Scene.h"
+
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
 {
 	using namespace ImGui;
@@ -266,15 +268,15 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("Scene") == true)
 				{
-					/*
-					std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<SceneAsset>(_currentFolderTreeNode->_path / "Scene");
+					std::shared_ptr<game::Scene> scene = std::make_shared<game::Scene>();
+					
+					std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(scene, _currentFolderTreeNode->_path / "Scene");
 					const AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)
 					{
 						//EditNodeName(newAssetNode);
 						ImGui::CloseCurrentPopup();
 					}
-					*/
 				}
 				ImGui::EndMenu();
 			}
