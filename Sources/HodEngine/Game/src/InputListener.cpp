@@ -1,6 +1,6 @@
 #include "InputListener.h"
 
-#include <SDL.h>
+//#include <SDL.h>
 
 namespace hod
 {
@@ -53,7 +53,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	void InputListener::InjectMouseButtonInput(int mouseButtonId, int action, int mods)
 	{
-		if (action == SDL_PRESSED)
+		//if (action == SDL_PRESSED)
 		{
 			size_t callbackCount = _mouseButtonPressCallbackList[mouseButtonId].size();
 
@@ -62,7 +62,7 @@ namespace hod
 				_mouseButtonPressCallbackList[mouseButtonId][i]();
 			}
 		}
-		else if (action == SDL_RELEASED)
+		//else if (action == SDL_RELEASED)
 		{
 			size_t callbackCount = _mouseButtonReleaseCallbackList[mouseButtonId].size();
 
@@ -94,7 +94,7 @@ namespace hod
 		auto it = _axisCallbackList.begin();
 		auto itEnd = _axisCallbackList.end();
 
-		if (action == SDL_RELEASED)
+		//if (action == SDL_RELEASED)
 		{
 			while (it != itEnd)
 			{
@@ -146,7 +146,7 @@ namespace hod
 				++it;
 			}
 		}
-		else if (action == SDL_PRESSED)
+		//else if (action == SDL_PRESSED)
 		{
 			while (it != itEnd)
 			{
@@ -213,11 +213,11 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	void InputListener::RegisterMouseButtonEvent(int mouseButtonId, int action, std::function<void()> callback)
 	{
-		if (action == SDL_PRESSED)
+		//if (action == SDL_PRESSED)
 		{
 			_mouseButtonPressCallbackList[mouseButtonId].push_back(callback);
 		}
-		else if (action == SDL_RELEASED)
+		//else if (action == SDL_RELEASED)
 		{
 			_mouseButtonReleaseCallbackList[mouseButtonId].push_back(callback);
 		}
