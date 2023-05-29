@@ -42,7 +42,7 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		int64_t FileStream::GetSize() const
+		int64_t FileStream::GetSize()
 		{
 			int64_t position = Tell();
 			Seek(0, SeekOrigin::End);
@@ -55,14 +55,14 @@ namespace hod
 		/// @return 
 		int64_t FileStream::Tell() const
 		{
-			return ftell(_fileHandle);
+			return std::ftell(_fileHandle);
 		}
 
 		/// @brief 
 		/// @param position 
 		/// @param origin 
 		/// @return 
-		bool FileStream::Seek(int64_t position, SeekOrigin origin) const
+		bool FileStream::Seek(int64_t position, SeekOrigin origin)
 		{
 			static int fopenSeek[static_cast<uint8_t>(SeekOrigin::Count)] = {
 				SEEK_SET,
@@ -70,7 +70,7 @@ namespace hod
 				SEEK_END
 			};
 
-			return (fseek(_fileHandle, position, static_cast<uint8_t>(origin)) == 0);
+			return (std::fseek(_fileHandle, position, static_cast<uint8_t>(origin)) == 0);
 		}
 
 		/// @brief 
@@ -80,9 +80,9 @@ namespace hod
 		bool FileStream::Open(const std::filesystem::path& path, FileMode fileMode)
 		{
 			static const char* fopenModes[static_cast<uint8_t>(FileMode::Count)] = {
-				"r",
-				"w",
-				"a"
+				"rb",
+				"wb",
+				"ab"
 			};
 
 			_fileHandle = std::fopen(path.string().c_str(), fopenModes[static_cast<uint8_t>(fileMode)]);
@@ -97,16 +97,17 @@ namespace hod
 		/// @return 
 		bool FileStream::Read(void* buffer, uint32_t size)
 		{
-			return (fread(buffer, sizeof(char), size, _fileHandle) == size);
+			size_t readResult = std::fread(buffer, sizeof(char), size, _fileHandle);
+			return (readResult == size);
 		}
 
 		/// @brief 
 		/// @param buffer 
 		/// @param size 
 		/// @return 
-		bool FileStream::Write(void* buffer, uint32_t size)
+		bool FileStream::Write(const void* buffer, uint32_t size)
 		{
-			return (fwrite(buffer, sizeof(char), size, _fileHandle) == size);
+			return (std::fwrite(buffer, sizeof(char), size, _fileHandle) == size);
 		}
 
 		/// @brief 
@@ -115,7 +116,7 @@ namespace hod
 		{
 			if (_fileHandle != nullptr)
 			{
-				return (fclose(_fileHandle) == 0);
+				return (std::fclose(_fileHandle) == 0);
 			}
 			return true;
 		}

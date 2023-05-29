@@ -36,13 +36,13 @@ namespace hod
 			bool				CanWrite() const override;
 			bool				CanSeek() const override;
 
-			int64_t				GetSize() const override;
+			int64_t				GetSize() override;
 			int64_t				Tell() const override;
-			bool				Seek(int64_t position, SeekOrigin origin) const override;
+			bool				Seek(int64_t position, SeekOrigin origin) override;
 
 			bool				Open(const std::filesystem::path& path, FileMode fileMode);
 			bool				Read(void* buffer, uint32_t size) override;
-			bool				Write(void* buffer, uint32_t size) override;
+			bool				Write(const void* buffer, uint32_t size) override;
 			bool				Close();
 
 			Stream&				operator << (bool value) override;

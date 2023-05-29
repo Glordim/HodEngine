@@ -39,12 +39,12 @@ namespace hod
 			virtual bool		CanSeek() const = 0; // TODO Naze a remplacer par un is opened
 
 			// TODO rename GetSize / GetPosition / SetPosition ou GetSize() -> Size()
-			virtual int64_t		GetSize() const = 0;
+			virtual int64_t		GetSize() = 0;
 			virtual int64_t		Tell() const = 0;
-			virtual bool		Seek(int64_t position, SeekOrigin origin) const = 0;
+			virtual bool		Seek(int64_t position, SeekOrigin origin) = 0;
 
 			virtual bool		Read(void* buffer, uint32_t size) = 0;
-			virtual bool		Write(void* buffer, uint32_t size) = 0;
+			virtual bool		Write(const void* buffer, uint32_t size) = 0;
 
 			virtual Stream&		operator << (bool value) = 0;
 			virtual Stream&		operator << (int8_t value) = 0;
