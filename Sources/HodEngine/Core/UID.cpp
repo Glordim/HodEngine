@@ -1,4 +1,3 @@
-
 #include "HodEngine/Core/UID.h"
 #include "HodEngine/Core/Output.h"
 
@@ -31,6 +30,15 @@ union UuidConverter
 
 namespace hod
 {
+	DESCRIBE_REFLECTED_CLASS(UID)
+	{
+		core::Reflection::Property::Variable* low = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::UInt64, offsetof(UID, _low), "low");
+		AddProperty(low);
+
+		core::Reflection::Property::Variable* high = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::UInt64, offsetof(UID, _high), "high");
+		AddProperty(high);
+	}
+
 	UID UID::INVALID_UID;
 
 	//-----------------------------------------------------------------------------

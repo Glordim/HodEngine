@@ -1,5 +1,15 @@
 
 namespace hod::editor
 {
-	
+	/// @brief 
+	/// @tparam _Importer_ 
+	/// @return 
+	template<typename _Importer_>
+	bool AssetDatabase::RegisterImporter()
+	{
+		// TODO check duplicate
+		_Importer_* importer = new _Importer_();
+		_importers.push_back(importer);
+		return true;
+	}
 }

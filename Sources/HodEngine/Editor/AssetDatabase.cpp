@@ -6,13 +6,17 @@
 
 #include <fstream>
 
+#include "HodEngine/Core/Stream/FileStream.h"
+
 #include "HodEngine/Editor/Editor.h"
 #include "HodEngine/Editor/Project.h"
 #include "HodEngine/Editor/Asset.h"
+#include "HodEngine/Editor/Importer/Importer.h"
+#include "HodEngine/Editor/Importer/DefaultImporter.h"
+#include "HodEngine/Editor/Importer/TextureImporter.h"
 
 #include <HodEngine/Core/Frame/FrameSequencer.h>
 #include <HodEngine/Core/Output.h>
-#include "HodEngine/Core/Asset.h"
 
 #include <Windows.h>
 #include <vector>
@@ -40,7 +44,8 @@ namespace hod::editor
 	_SingletonConstructor(AssetDatabase)
 		: _filesystemWatcherJob(this, &AssetDatabase::FilesystemWatcherJob, JobQueue::FramedLowPriority)
 	{
-
+		RegisterImporter<DefaultImporter>();
+		RegisterImporter<TextureImporter>();
 	}
 
 	/// @brief 
@@ -119,7 +124,6 @@ namespace hod::editor
 			}
 			else
 			{
-				/*
 				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 				if (asset->Load() == true)
 				{
@@ -130,7 +134,6 @@ namespace hod::editor
 					//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
 					fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
 				}
-				*/
 			}
 		}
 	}
@@ -225,7 +228,7 @@ namespace hod::editor
 	/// @param asset 
 	/// @param path 
 	/// @return 
-	std::filesystem::path AssetDatabase::CreateAsset(std::shared_ptr<core::Asset> asset, const std::filesystem::path& path)
+	std::filesystem::path AssetDatabase::CreateAsset(std::shared_ptr<Asset> asset, const std::filesystem::path& path)
 	{
 		FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
 		childFileSystemMapping->_path = path;
@@ -240,6 +243,8 @@ namespace hod::editor
 		_uidToAssetMap.emplace(childFileSystemMapping->_uid, asset);
 
 		childFileSystemMapping->_parentFolder->_childrenAsset.push_back(childFileSystemMapping);
+
+		
 
 		return childFileSystemMapping->_path;
 	}
@@ -309,39 +314,32 @@ namespace hod::editor
 	/// @return 
 	bool AssetDatabase::Import(const std::filesystem::path& path)
 	{
-		/*
-		ImporterFactory importers;
-		importers
-
-		static std::map<std::string, Importer> importerMap(
-			"png", TextureImporter
-		);
-		*/
-
-		std::ifstream file;
-		file.open(path, std::ios::in);
-		if (file.is_open() == false)
+		for (Importer* importer : _importers)
 		{
-			OUTPUT_ERROR("AssetDatabase::Import: Unable to open file %s", path.string().c_str());
-			return false;
-		}
-
-		file.seekg(0, std::ios::end);
-		int size = (int)file.tellg();
-		char* buffer = new char[size + 1];
-		file.seekg(0, std::ios::beg);
-		file.read(buffer, size);
-		file.close();
-		buffer[size] = '\0';
-		for (int i = size - 1; i >= 0; --i)
-		{
-			if (buffer[i] == '\0' || buffer[i] == '\x4')
+			if (importer->CanImport(path) == true)
 			{
-				buffer[i] = '\0';
-				break;
+				return importer->Import(path);
 			}
 		}
 
-		return true;
+		OUTPUT_ERROR("Can't import \"%s\", not importer support it", path.string().c_str());
+		return false;
+	}
+
+	/// @brief 
+	/// @param asset 
+	/// @return 
+	bool AssetDatabase::ReimportAssetIfNecessary(std::shared_ptr<Asset> asset)
+	{
+		std::filesystem::path resourceFilePath = Project::GetInstance()->GetResourceDirPath() / asset->GetUid().ToString();
+		resourceFilePath += ".resource";
+
+		core::FileStream resourceFile(resourceFilePath, core::FileMode::Read);
+		if (resourceFile.CanRead() == false)
+		{
+			return Import(asset->GetPath());
+		}
+
+		return false;
 	}
 }

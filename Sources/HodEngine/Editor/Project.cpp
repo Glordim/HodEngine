@@ -49,6 +49,12 @@ namespace hod::editor
 			return false;
 		}
 
+		_resourceDirPath = _projectPath.parent_path() / "Generated" / "Resources";
+		if (std::filesystem::exists(_resourceDirPath) == false && std::filesystem::create_directories(_resourceDirPath) == false)
+		{
+			return false;
+		}
+
 		return Load();
 	}
 
@@ -80,15 +86,22 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	const std::filesystem::path& Project::GetProjectPath()
+	const std::filesystem::path& Project::GetProjectPath() const
 	{
 		return _projectPath;
 	}
 
 	/// @brief 
 	/// @return 
-	const std::filesystem::path& Project::GetAssetDirPath()
+	const std::filesystem::path& Project::GetAssetDirPath() const
 	{
 		return _assetDirPath;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::filesystem::path& Project::GetResourceDirPath() const
+	{
+		return _resourceDirPath;
 	}
 }

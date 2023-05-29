@@ -11,7 +11,7 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(Meta)
 	{
-		core::Reflection::Property::Variable* uid = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::UInt64, offsetof(Meta, _uid), "UID");
+		core::Reflection::Property::Variable* uid = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Object, offsetof(Meta, _uid), "uid");
 		AddProperty(uid);
 	}
 
@@ -32,10 +32,11 @@ namespace hod::editor
 	/// @return 
 	bool Asset::Load()
 	{
-		std::filesystem::path metaPath = _path / ".meta";
+		std::filesystem::path metaPath = _path;
+		metaPath += ".meta";
 
 		core::FileStream fileStream(metaPath, core::FileMode::Read);
-		if (fileStream.CanRead() == true)
+		if (fileStream.CanRead() == false)
 		{
 			// TODO generate new meta if not exist
 			AssetDatabase::GetInstance()->Import(_path);
@@ -54,6 +55,8 @@ namespace hod::editor
 			return false;
 		}
 
+		AssetDatabase::GetInstance()->ReimportAssetIfNecessary(shared_from_this());
+
 		return true;
 	}
 
@@ -67,7 +70,8 @@ namespace hod::editor
 			return false;
 		}
 
-		std::filesystem::path metaPath = _path / ".meta";
+		std::filesystem::path metaPath = _path;
+		metaPath += ".meta";
 
 		core::DocumentWriterJson documentWriter;
 		if (documentWriter.Write(document, metaPath) == false)
@@ -83,5 +87,19 @@ namespace hod::editor
 	const UID& Asset::GetUid() const
 	{
 		return _meta._uid;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::filesystem::path& Asset::GetPath() const
+	{
+		return _path;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::string& Asset::GetName() const
+	{
+		return _name;
 	}
 }

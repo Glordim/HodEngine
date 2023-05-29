@@ -24,13 +24,15 @@ namespace hod::editor
 		bool							Load();
 		bool							Save();
 
-		const std::filesystem::path&	GetProjectPath();
-		const std::filesystem::path&	GetAssetDirPath();
+		const std::filesystem::path&	GetProjectPath() const;
+		const std::filesystem::path&	GetAssetDirPath() const;
+		const std::filesystem::path&	GetResourceDirPath() const;
 
 	private:
 
 		std::filesystem::path			_projectPath;
 		std::filesystem::path			_assetDirPath;
+		std::filesystem::path			_resourceDirPath;
 
 		std::string						_name;
 	};

@@ -24,6 +24,8 @@ public:																			\
 																				\
 	GET_REFLECTION_DESCRIPTOR_METhod(__TYPE__##ReflectionDescriptor)			\
 																				\
+	virtual core::ReflectionDescriptor* GetReflectionDescriptorV() const = 0;	\
+																				\
 private:																		\
 
 ///@brief Declare sub class used for Reflection
@@ -39,6 +41,11 @@ public:																			\
 	};																			\
 																				\
 	GET_REFLECTION_DESCRIPTOR_METhod(__TYPE__##ReflectionDescriptor)			\
+																				\
+	virtual core::ReflectionDescriptor* GetReflectionDescriptorV() const		\
+	{																			\
+		return __TYPE__::GetReflectionDescriptor();								\
+	}																			\
 																				\
 private:																		\
 
@@ -56,6 +63,8 @@ public:																				\
 																					\
 	GET_REFLECTION_DESCRIPTOR_METhod(__TYPE__##ReflectionDescriptor)				\
 																					\
+	core::ReflectionDescriptor* GetReflectionDescriptorV() const override = 0;		\
+																					\
 private:																			\
 
 ///@brief Declare sub class used for Reflection
@@ -71,6 +80,11 @@ public:																				\
 	};																				\
 																					\
 	GET_REFLECTION_DESCRIPTOR_METhod(__TYPE__##ReflectionDescriptor)				\
+																					\
+	core::ReflectionDescriptor* GetReflectionDescriptorV() const override			\
+	{																				\
+		return __TYPE__::GetReflectionDescriptor();									\
+	}																				\
 																					\
 private:																			\
 

@@ -20,7 +20,7 @@ namespace hod::editor
 	};
 
 	/// @brief 
-	class Asset
+	class Asset : public std::enable_shared_from_this<Asset>
 	{
 	public:
 								Asset(const std::filesystem::path& path);
@@ -29,7 +29,9 @@ namespace hod::editor
 		bool					Load();
 		bool					Save();
 
-		const UID&				GetUid() const;
+		const UID&						GetUid() const;
+		const std::filesystem::path&	GetPath() const;
+		const std::string&				GetName() const;
 
 	private:
 

@@ -27,10 +27,12 @@ namespace hod
 		Scene::Scene()
 			: _ambiantColor(0.25f, 0.25f, 0.25f, 1.0f)
 		{
+			/*
 			_root = SpawnActor<Actor>("Root");
 			_root->AddComponent<SceneComponent>();
 
 			_physicScene = physics::Physics::GetInstance()->CreateScene();
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -38,7 +40,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Scene::~Scene()
 		{
-			physics::Physics::GetInstance()->DestroyScene(_physicScene);
+			//physics::Physics::GetInstance()->DestroyScene(_physicScene);
 		}
 
 		//-----------------------------------------------------------------------------

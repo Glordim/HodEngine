@@ -1,21 +1,25 @@
 #pragma once
 
 #include <string>
+#include "HodEngine/Core/Reflection/ReflectionMacros.h"
 
 namespace hod
 {
 	/// @brief 
 	class UID final
 	{
+		REFLECTED_CLASS(UID)
+		
 	public:
 
 		static UID							INVALID_UID;
 
 	public:
 
-		UID() = default;
-		UID(const UID& copy) = default;
-		~UID() = default;
+											UID() = default;
+											UID(const UID&) = default;
+											UID(UID&&) = default;
+											~UID() = default;
 
 		void								operator=(const UID& right);
 
