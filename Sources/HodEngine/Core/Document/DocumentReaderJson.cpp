@@ -239,20 +239,75 @@ namespace hod
 				_cursor = valueEnd;
 				++_cursor;
 
-				node.SetString(std::string_view(valueStart, valueEnd - valueStart));
+				std::string value(valueStart, valueEnd - valueStart);
+
+				std::size_t index = value.find("\\t");
+				while (index != std::string::npos)
+				{
+					value.replace(index, 2, "\t");
+					index = value.find("\\t");
+				}
+
+				index = value.find("\\n");
+				while (index != std::string::npos)
+				{
+					value.replace(index, 2, "\n");
+					index = value.find("\\n");
+				}
+
+				index = value.find("\\r");
+				while (index != std::string::npos)
+				{
+					value.replace(index, 2, "\r");
+					index = value.find("\\r");
+				}
+
+				index = value.find("\\f");
+				while (index != std::string::npos)
+				{
+					value.replace(index, 2, "\f");
+					index = value.find("\\f");
+				}
+
+				index = value.find("\\b");
+				while (index != std::string::npos)
+				{
+					value.replace(index, 2, "\b");
+					index = value.find("\\b");
+				}
+
+				index = value.find("\\\"");
+				while (index != std::string::npos)
+				{
+					value.replace(index, 2, "\"");
+					index = value.find("\\\"");
+				}
+
+				index = value.find("\\\\");
+				while (index != std::string::npos)
+				{
+					value.replace(index, 2, "\\");
+					index = value.find("\\\\");
+				}
+
+				node.SetString(std::string_view(value.data(), value.size()));
+
 				return true;
 			}
-			else if (std::strncmp(_cursor, "null", sizeof("null")) == 0) // null
+			else if (std::strncmp(_cursor, "null", sizeof("null") - 1) == 0) // null
 			{
+				_cursor += sizeof("null") - 1;
 				return false;
 			}
-			else if (std::strncmp(_cursor, "true", sizeof("true")) == 0) // true (bool)
+			else if (std::strncmp(_cursor, "true", sizeof("true") - 1) == 0) // true (bool)
 			{
+				_cursor += sizeof("true") - 1;
 				node.SetBool(true);
 				return true;
 			}
-			else if (std::strncmp(_cursor, "false", sizeof("false")) == 0) // false (bool)
+			else if (std::strncmp(_cursor, "false", sizeof("false") - 1) == 0) // false (bool)
 			{
+				_cursor += sizeof("false") - 1;
 				node.SetBool(false);
 				return true;
 			}
