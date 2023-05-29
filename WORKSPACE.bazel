@@ -22,29 +22,29 @@
 new_local_repository(
     name = "rapidjson",
     path = "SDK/rapidjson",
-    build_file = "SDK/BUILD.rapidjson",
+    build_file = "SDK/rapidjson.bazel",
 )
 
 new_local_repository(
     name = "glm",
     path = "SDK/glm",
-    build_file = "SDK/BUILD.glm",
+    build_file = "SDK/glm.bazel",
 )
 
 new_local_repository(
     name = "stb",
     path = "SDK/stb",
-    build_file = "SDK/BUILD.stb",
+    build_file = "SDK/stb.bazel",
 )
 
 new_local_repository(
     name = "vulkan",
     path = "C:\\VulkanSDK\\1.3.243.0\\",
-    build_file = "SDK/BUILD.vulkan",
+    build_file = "SDK/vulkan.bazel",
 )
 
 new_local_repository(
     name = "box2d",
     path = "SDK/box2d",
-    build_file = "SDK/BUILD.box2d",
+    build_file = "SDK/box2d.bazel",
 )
