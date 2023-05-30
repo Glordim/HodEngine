@@ -5,7 +5,7 @@
 //#include <rapidjson/document.h>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
 #include "HodEngine/Core/Document/Document.h"
 
 namespace hod
@@ -17,18 +17,18 @@ namespace hod
 			namespace Property
 			{
 				///@brief 
-				class Array : public ReflectionProperty
+				template<typename _object_>
+				class Object : public ReflectionProperty
 				{
-
 				public:
 
-															Array(Variable::Type type, uint32_t offset, const char* name);
-															Array(const Array& copy) = default;
-															Array(Array&& move) = default;
-															~Array() = default;
+															Object(uint32_t offset, const char* name);
+															Object(const Object&) = default;
+															Object(Object&&) = default;
+															~Object() = default;
 
-					Array&									operator = (const Array& copy) = default;
-					Array&									operator = (Array&& move) = default;
+					Object&									operator = (const Object&) = default;
+					Object&									operator = (Object&&) = default;
 
 				public:
 
@@ -37,7 +37,6 @@ namespace hod
 
 				private:
 
-					Variable::Type							_type;
 					uint32_t								_offset;
 					const char*								_name;
 				};
@@ -46,4 +45,4 @@ namespace hod
 	}
 }
 
-#include "ReflectionPropertyArray.inl"
+#include "ReflectionPropertyObject.inl"

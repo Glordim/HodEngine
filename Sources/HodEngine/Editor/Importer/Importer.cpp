@@ -63,13 +63,12 @@ namespace hod::editor
 			return false;
 		}
 
-		const core::Document::Node* uidNode = document.GetRootNode().GetChild("uid");
-		if (uidNode == nullptr)
+		Meta meta;
+		if (meta.GetReflectionDescriptorV()->DeserializeFromDocument(meta, document.GetRootNode()) == false)
 		{
 			// TODO output reason
 			return false;
 		}
-		UID uid = UID::FromString(uidNode->GetString().c_str()); // TODO stringview for uid remove c_str
 
 		const core::Document::Node* importerNode = document.GetRootNode().GetChild("importer");
 		if (importerNode == nullptr)
@@ -93,7 +92,7 @@ namespace hod::editor
 
 		Project* project = Project::GetInstance();
 
-		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / uid.ToString();
+		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
 		resourceFilePath += ".resource";
 
 		core::FileStream resourceFile(resourceFilePath, core::FileMode::Write);

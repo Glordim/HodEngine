@@ -376,7 +376,8 @@ namespace hod
 		
 		const std::string& Document::Node::GetString() const
 		{
-			return _document.GetString(_value._uint64);
+			// TODO add assert if doesn't match with type
+			return _document.GetString(_value._stringId);
 		}
 
 		/// @brief 

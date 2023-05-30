@@ -2,12 +2,8 @@
 
 #include <vector>
 
-//#include <rapidjson/document.h>
-
 #include "HodEngine/Core/Document/Document.h"
-
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
+#include "HodEngine/Core/Reflection/ReflectionProperty.h"
 
 namespace hod
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-
+#include "HodEngine/Core/Document/Document.h"
 //#include <rapidjson/document.h>
 
 namespace hod
@@ -25,8 +25,8 @@ namespace hod
 
 		public:
 
-			//virtual rapidjson::Value				Serialize(rapidjson::Document::AllocatorType& allocator) const = 0;
-			//virtual void							Deserialize() = 0;
+			virtual void							Serialize(const void* instance, Document::Node& node) = 0;
+			virtual void							Deserialize(void* instance, const Document::Node& node) = 0;
 
 			const std::vector<ReflectionTrait*>&	GetTraits() const;
 

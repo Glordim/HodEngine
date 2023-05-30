@@ -6,6 +6,8 @@
 
 #include <fstream>
 
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+
 namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(Project)

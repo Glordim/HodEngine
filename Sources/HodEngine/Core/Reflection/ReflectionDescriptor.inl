@@ -20,16 +20,7 @@ namespace hod
 		{
 			for (ReflectionProperty* property : _properties)
 			{
-				if (std::strcmp(property->GetTypeName(), "Variable") == 0)
-				{
-					Reflection::Property::Variable* variable = static_cast<Reflection::Property::Variable*>(property);
-					variable->Serialize(instance, documentNode);
-				}
-				else if (std::strcmp(property->GetTypeName(), "Array") == 0)
-				{
-					Reflection::Property::Array* array = static_cast<Reflection::Property::Array*>(property);
-					array->Serialize(instance, documentNode);
-				}
+				property->Serialize(&instance, documentNode);
 			}
 			return true;
 		}
@@ -39,16 +30,7 @@ namespace hod
 		{
 			for (ReflectionProperty* property : _properties)
 			{
-				if (std::strcmp(property->GetTypeName(), "Variable") == 0)
-				{
-					Reflection::Property::Variable* variable = static_cast<Reflection::Property::Variable*>(property);
-					variable->Deserialize(instance, documentNode);
-				}
-				else if (std::strcmp(property->GetTypeName(), "Array") == 0)
-				{
-					Reflection::Property::Array* array = static_cast<Reflection::Property::Array*>(property);
-					array->Deserialize(instance, documentNode);
-				}
+				property->Deserialize(&instance, documentNode);
 			}
 			return true;
 		}

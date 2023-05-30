@@ -7,6 +7,8 @@
 
 #include "HodEngine/Renderer/Resource/TextureResource.h"
 
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 

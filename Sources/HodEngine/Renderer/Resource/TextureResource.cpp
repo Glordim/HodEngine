@@ -1,5 +1,8 @@
 #include "HodEngine/Renderer/Resource/TextureResource.h"
 
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
+
 namespace hod::renderer
 {
 	DESCRIBE_REFLECTED_CLASS(TextureInfo)

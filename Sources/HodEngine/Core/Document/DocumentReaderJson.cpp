@@ -241,53 +241,85 @@ namespace hod
 
 				std::string value(valueStart, valueEnd - valueStart);
 
-				std::size_t index = value.find("\\t");
+				std::size_t offset = 0;
+				std::size_t index = value.find("\\t", offset);
 				while (index != std::string::npos)
 				{
-					value.replace(index, 2, "\t");
-					index = value.find("\\t");
+					offset = index + 1;
+					if (index > 0 && value[index - 1] != '\\')
+					{
+						value.replace(index, 2, "\t");
+					}
+					index = value.find("\\t", offset);
 				}
 
-				index = value.find("\\n");
+				offset = 0;
+				index = value.find("\\n", offset);
 				while (index != std::string::npos)
 				{
-					value.replace(index, 2, "\n");
-					index = value.find("\\n");
+					offset = index + 1;
+					if (index > 0 && value[index - 1] != '\\')
+					{
+						value.replace(index, 2, "\n");
+					}
+					index = value.find("\\n", offset);
 				}
 
-				index = value.find("\\r");
+				offset = 0;
+				index = value.find("\\r", offset);
 				while (index != std::string::npos)
 				{
-					value.replace(index, 2, "\r");
-					index = value.find("\\r");
+					offset = index + 1;
+					if (index > 0 && value[index - 1] != '\\')
+					{
+						value.replace(index, 2, "\r");
+					}
+					index = value.find("\\r", offset);
 				}
 
-				index = value.find("\\f");
+				offset = 0;
+				index = value.find("\\f", offset);
 				while (index != std::string::npos)
 				{
-					value.replace(index, 2, "\f");
-					index = value.find("\\f");
+					offset = index + 1;
+					if (index > 0 && value[index - 1] != '\\')
+					{
+						value.replace(index, 2, "\f");
+					}
+					index = value.find("\\f", offset);
 				}
 
-				index = value.find("\\b");
+				offset = 0;
+				index = value.find("\\b", offset);
 				while (index != std::string::npos)
 				{
-					value.replace(index, 2, "\b");
-					index = value.find("\\b");
+					offset = index + 1;
+					if (index > 0 && value[index - 1] != '\\')
+					{
+						value.replace(index, 2, "\b");
+					}
+					index = value.find("\\b", offset);
 				}
 
-				index = value.find("\\\"");
+				offset = 0;
+				index = value.find("\\\"", offset);
 				while (index != std::string::npos)
 				{
-					value.replace(index, 2, "\"");
-					index = value.find("\\\"");
+					offset = index + 1;
+					if (index > 0 && value[index - 1] != '\\')
+					{
+						value.replace(index, 2, "\"");
+					}
+					index = value.find("\\\"", offset);
 				}
 
-				index = value.find("\\\\");
+				offset = 0;
+				index = value.find("\\\\", offset);
 				while (index != std::string::npos)
 				{
+					offset = index + 1;
 					value.replace(index, 2, "\\");
-					index = value.find("\\\\");
+					index = value.find("\\\\", offset);
 				}
 
 				node.SetString(std::string_view(value.data(), value.size()));

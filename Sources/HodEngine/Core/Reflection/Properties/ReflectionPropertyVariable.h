@@ -66,13 +66,8 @@ namespace hod
 
 				public:
 
-					template<typename T>
-					void									Serialize(const T& instance, Document::Node& node);
-
-					template<typename T>
-					void									Deserialize(T& instance, const Document::Node& node);
-
-					//rapidjson::Value						Serialize(rapidjson::Document::AllocatorType& allocator) const override;
+					void									Serialize(const void* instance, Document::Node& node) override;
+					void									Deserialize(void* instance, const Document::Node& node) override;
 
 				private:
 

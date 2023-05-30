@@ -9,6 +9,6 @@ cc_binary(
 	defines = [platform_define],
 	copts = [
 		#"-std=c++17",
-		"/std:c++17",
+		"/std:c++20",
 	],
 )

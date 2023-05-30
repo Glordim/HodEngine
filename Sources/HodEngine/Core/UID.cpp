@@ -1,6 +1,8 @@
 #include "HodEngine/Core/UID.h"
 #include "HodEngine/Core/Output.h"
 
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+
 #if defined(_WIN32)
 	#include <Windows.h>
 	#include <rpcdce.h>
@@ -77,7 +79,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	UID UID::FromString(const char* uuidStr)
+	UID UID::FromString(const char* uuidStr) // TODO stringview
 	{
 		UuidConverter uuidConverter;
 
