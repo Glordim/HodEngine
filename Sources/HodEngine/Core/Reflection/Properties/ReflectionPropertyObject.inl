@@ -26,7 +26,7 @@ namespace hod
 
 					Document::Node& objectNode = node.GetOrAddChild(_name);
 					
-					_object_::GetReflectionDescriptor()->SerializeInDocument(objectInstance, objectNode);
+					_object_::GetReflectionDescriptor()->SerializeInDocument((const void*)objectInstance, objectNode);
 				}
 
 				template<typename _object_>
@@ -41,7 +41,7 @@ namespace hod
 					
 					if (objectNode != nullptr)
 					{
-						_object_::GetReflectionDescriptor()->DeserializeFromDocument(objectInstance, *objectNode);
+						_object_::GetReflectionDescriptor()->DeserializeFromDocument((void*)objectInstance, *objectNode);
 					}
 				}
 			}
