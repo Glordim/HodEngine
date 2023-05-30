@@ -16,6 +16,32 @@ namespace hod
 
 		}
 
+		/// @brief 
+		/// @param instance 
+		/// @param documentNode 
+		/// @return 
+		bool ReflectionDescriptor::SerializeInDocument(const void* instance, Document::Node& documentNode)
+		{
+			for (ReflectionProperty* property : _properties)
+			{
+				property->Serialize(instance, documentNode);
+			}
+			return true;
+		}
+		
+		/// @brief 
+		/// @param instance 
+		/// @param documentNode 
+		/// @return 
+		bool ReflectionDescriptor::DeserializeFromDocument(void* instance, const Document::Node& documentNode)
+		{
+			for (ReflectionProperty* property : _properties)
+			{
+				property->Deserialize(instance, documentNode);
+			}
+			return true;
+		}
+
 /*
 		rapidjson::Value ReflectionDescriptor::Serialize(rapidjson::Document::AllocatorType& allocator) const
 		{

@@ -30,6 +30,9 @@ namespace hod
 			//rapidjson::Value						Serialize(rapidjson::Document::AllocatorType& allocator) const;
 			//void									Deserialize();
 
+			bool									SerializeInDocument(const void* instance, Document::Node& documentNode);
+			bool									DeserializeFromDocument(void* instance, const Document::Node& documentNode);
+
 			template<typename T>
 			bool									SerializeInDocument(const T& instance, Document::Node& documentNode);
 			template<typename T>

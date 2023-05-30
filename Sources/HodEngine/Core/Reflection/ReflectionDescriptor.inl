@@ -18,21 +18,13 @@ namespace hod
 		template<typename T>
 		bool ReflectionDescriptor::SerializeInDocument(const T& instance, Document::Node& documentNode)
 		{
-			for (ReflectionProperty* property : _properties)
-			{
-				property->Serialize(&instance, documentNode);
-			}
-			return true;
+			return SerializeInDocument(reinterpret_cast<const void*>(&instance), documentNode);
 		}
 
 		template<typename T>
 		bool ReflectionDescriptor::DeserializeFromDocument(T& instance, const Document::Node& documentNode)
 		{
-			for (ReflectionProperty* property : _properties)
-			{
-				property->Deserialize(&instance, documentNode);
-			}
-			return true;
+			return DeserializeFromDocument(reinterpret_cast<void*>(&instance), documentNode);
 		}
 	}
 }
