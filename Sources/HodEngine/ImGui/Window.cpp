@@ -2,6 +2,8 @@
 
 namespace hod::imgui
 {
+	std::vector<WindowDescription*>	WindowDescription::_descriptions;
+
 	Window::Window()
 	{
 		
@@ -19,9 +21,7 @@ namespace hod::imgui
 
 	const char* Window::GetIdentifier()
 	{
-		Type type = GetType();
-		_identifier = std::to_string(type);
-
+		_identifier = GetDescription()->GetName();
 		return _identifier.c_str();
 	}
 }

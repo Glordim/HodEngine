@@ -9,6 +9,8 @@
 
 namespace hod::editor
 {
+	DECLARE_WINDOW_DESCRIPTION(InspectorWindow, "Inspector", true)
+
 	/// @brief 
 	void InspectorWindow::Draw()
 	{

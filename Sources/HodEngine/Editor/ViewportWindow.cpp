@@ -6,6 +6,8 @@
 
 namespace hod::editor
 {
+	DECLARE_WINDOW_DESCRIPTION(ViewportWindow, "Viewport", true)
+
 	/// @brief 
 	void ViewportWindow::Draw()
 	{

@@ -21,6 +21,8 @@
 
 namespace hod::editor
 {
+	DECLARE_WINDOW_DESCRIPTION(ProjectBrowser, "Project Browser", true)
+
 	/// @brief 
 	ProjectBrowser::ProjectBrowser()
 	{

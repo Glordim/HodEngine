@@ -30,13 +30,6 @@
 			"command": "bazel",
 			"args": ["clean"],
 			"group": "build"
-		},
-		{
-			"label": "build rapidjson",
-			"type": "shell",
-			"command": "bazel",
-			"args": ["build", "//SDK:rapidjson"],
-			"group": "build"
 		}
 	]
 }

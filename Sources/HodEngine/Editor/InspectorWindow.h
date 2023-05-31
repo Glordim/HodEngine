@@ -8,6 +8,7 @@ namespace hod::editor
 	class InspectorWindow : public imgui::Window
 	{
 		META_TYPE(InspectorWindow);
+		WINDOW_DESCRIPTION()
 
 	public:
 

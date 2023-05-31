@@ -8,6 +8,7 @@ namespace hod::editor
 	class ViewportWindow : public imgui::Window
 	{
 		META_TYPE(ViewportWindow);
+		WINDOW_DESCRIPTION()
 
 	public:
 

@@ -11,6 +11,7 @@ namespace hod::editor
 	class AssetBrowserWindow : public imgui::Window
 	{
 		META_TYPE(AssetBrowserWindow);
+		WINDOW_DESCRIPTION()
 
 	public:
 

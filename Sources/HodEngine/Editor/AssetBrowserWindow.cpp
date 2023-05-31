@@ -29,6 +29,8 @@ bool Splitter(bool split_vertically, float thickness, float* size1, float* size2
 
 namespace hod::editor
 {
+	DECLARE_WINDOW_DESCRIPTION(AssetBrowserWindow, "Asset Browser", true)
+
 	/// @brief 
 	AssetBrowserWindow::AssetBrowserWindow()
 	{

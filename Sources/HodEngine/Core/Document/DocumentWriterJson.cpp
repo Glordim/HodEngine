@@ -34,7 +34,7 @@ namespace hod
 			{
 				case Document::Node::Type::Object:
 				{
-					stream.Write((void*)"{", 1);	
+					stream.Write((void*)"{", 1);
 					Document::Node* child = node.GetFirstChild();
 					while (child != nullptr)
 					{

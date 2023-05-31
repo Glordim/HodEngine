@@ -6,6 +6,8 @@
 
 namespace hod::editor
 {
+	DECLARE_WINDOW_DESCRIPTION(HierachyWindow, "Hierachy", true)
+
 	/// @brief 
 	void HierachyWindow::Draw()
 	{

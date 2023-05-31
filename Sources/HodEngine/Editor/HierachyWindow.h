@@ -8,6 +8,7 @@ namespace hod::editor
 	class HierachyWindow : public imgui::Window
 	{
 		META_TYPE(HierachyWindow);
+		WINDOW_DESCRIPTION()
 
 	public:
 
