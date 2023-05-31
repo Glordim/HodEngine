@@ -36,7 +36,12 @@ namespace hod::imgui
 		template<typename _Window_>
 		_Window_*						OpenWindow();
 
+		//template<typename _Window_>
+		//_Window_*						GetWindow();
+
 		void							CloseAllWindow();
+
+		Window*							GetActiveWindow() const;
 
 	protected:
 
@@ -56,6 +61,8 @@ namespace hod::imgui
 
 		MainBar*						_mainBar = nullptr;
 		std::vector<Window*>			_windows;
+
+		Window*							_activeWindow = nullptr;
 	};
 }
 

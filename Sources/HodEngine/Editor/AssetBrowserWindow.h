@@ -10,6 +10,8 @@ namespace hod::editor
 	/// @brief 
 	class AssetBrowserWindow : public imgui::Window
 	{
+		META_TYPE(AssetBrowserWindow);
+
 	public:
 
 					AssetBrowserWindow();
@@ -50,5 +52,6 @@ namespace hod::editor
 		bool									_focus = false;
 
 		const AssetDatabase::FileSystemMapping* _nodeToDelete = nullptr;
+		const AssetDatabase::FileSystemMapping*	_currentExplorerNode = nullptr;
 	};
 }

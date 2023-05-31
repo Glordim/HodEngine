@@ -40,21 +40,16 @@ namespace hod::editor
 	/// @brief 
 	void AssetBrowserWindow::Draw()
 	{
-		static bool open = true;
-		if (ImGui::Begin("Asset Browser", &open) == true)
-		{
-			static float size1 = 300;
-			static float size2 = 300;
-			Splitter(true, 4.0f, &size1, &size2, 10.0f, 10.0f);
-			ImGui::BeginChild("FolderTree", ImVec2(size1, -1), true);
-			DrawFolderTree();
-			ImGui::EndChild();
-			ImGui::SameLine();
-			ImGui::BeginChild("FolderExplorer", ImVec2(-1, -1), true);
-			DrawFolderExplorer();
-			ImGui::EndChild();
-		}
-		ImGui::End();
+		static float size1 = 300;
+		static float size2 = 300;
+		Splitter(true, 4.0f, &size1, &size2, 10.0f, 10.0f);
+		ImGui::BeginChild("FolderTree", ImVec2(size1, -1), true);
+		DrawFolderTree();
+		ImGui::EndChild();
+		ImGui::SameLine();
+		ImGui::BeginChild("FolderExplorer", ImVec2(-1, -1), true);
+		DrawFolderExplorer();
+		ImGui::EndChild();
 	}
 
 	/// @brief 
@@ -238,7 +233,7 @@ namespace hod::editor
 		{
 			if (DrawExplorerItem(asset) == true)
 			{
-				
+				_currentExplorerNode = asset;
 			}
 		}
 
@@ -317,9 +312,21 @@ namespace hod::editor
 		bool pressed = ImGui::ButtonBehavior(boundingBox, id, &hovered, &held, 0);
 
 		// Render
-		const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		ImU32 color;
+		if (_currentExplorerNode == item || held == true || pressed == true)
+		{
+			color = ImGui::GetColorU32(ImGuiCol_ButtonActive);
+		}
+		else if (hovered == true)
+		{
+			color = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+		}
+		else
+		{
+			color = ImGui::GetColorU32(ImGuiCol_Button);
+		}
 		ImGui::RenderNavHighlight(boundingBox, id);
-		ImGui::RenderFrame(boundingBox.Min, boundingBox.Max, col, true, style.FrameRounding);
+		ImGui::RenderFrame(boundingBox.Min, boundingBox.Max, color, true, style.FrameRounding);
 		ImGui::RenderFrame(ImVec2(cursorPosition.x + padding * 0.5f, cursorPosition.y + padding * 0.5f),
 						   ImVec2(cursorPosition.x + size.x - padding * 0.5f, cursorPosition.y + size.x - padding * 0.5f),
 						   IM_COL32(255, 0.0f, 0.0f, 255), true, 0.0f);

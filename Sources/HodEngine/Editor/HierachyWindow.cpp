@@ -9,11 +9,6 @@ namespace hod::editor
 	/// @brief 
 	void HierachyWindow::Draw()
 	{
-		static bool open = true;
-		if (ImGui::Begin("Hierachy", &open) == true)
-		{
 
-		}
-		ImGui::End();
 	}
 }

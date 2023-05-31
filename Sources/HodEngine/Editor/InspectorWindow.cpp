@@ -4,16 +4,25 @@
 
 #include <HodEngine/ImGui/ImGuiManager.h>
 
+#include "HodEngine/Editor/AssetBrowserWindow.h"
+#include "HodEngine/Editor/HierachyWindow.h"
+
 namespace hod::editor
 {
 	/// @brief 
 	void InspectorWindow::Draw()
 	{
-		static bool open = true;
-		if (ImGui::Begin("Inspector", &open) == true)
+		imgui::Window* activeWindow = imgui::ImGuiManager::GetInstance()->GetActiveWindow();
+		if (activeWindow != nullptr)
 		{
-
+			if (activeWindow->GetType() == AssetBrowserWindow::_type)
+			{
+				ImGui::Text("Asset");
+			}
+			else if (activeWindow->GetType() == HierachyWindow::_type)
+			{
+				ImGui::Text("Scene");
+			}
 		}
-		ImGui::End();
 	}
 }

@@ -163,7 +163,20 @@ namespace hod::imgui
 			window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
 			ImGui::SetNextWindowClass(&window_class);
 			*/
-			window->Draw();
+			bool open = true;
+			if (ImGui::Begin(window->GetIdentifier(), &open) == true)
+			{
+				window->Draw();
+			}
+			if (open == false)
+			{
+				window->Close();
+			}
+			else if (ImGui::IsWindowFocused() == true)
+			{
+				_activeWindow = window;
+			}
+			ImGui::End();
 		}
 
 		ImGui::Render();
@@ -211,5 +224,12 @@ namespace hod::imgui
 
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 		renderer->GetRenderQueue()->PushRenderCommand(renderCommand);
+	}
+
+	/// @brief 
+	/// @return 
+	Window* ImGuiManager::GetActiveWindow() const
+	{
+		return _activeWindow;
 	}
 }

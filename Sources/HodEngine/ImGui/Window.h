@@ -1,13 +1,19 @@
 #pragma once
 
+#include "HodEngine/Core/Type.h"
+
+#include <string>
+
 namespace hod::imgui
 {
 	/// @brief 
 	class Window
 	{
+		BASE_META_TYPE(Window);
+
 	public:
 
-							Window() = default;
+							Window();
 		virtual				~Window() = default;
 
 	public:
@@ -17,8 +23,12 @@ namespace hod::imgui
 		bool				IsClosed() const;
 		void				Close();
 
+		const char*			GetIdentifier();
+
 	private:
 
 		bool				_closed = false;
+
+		std::string			_identifier;
 	};
 }
