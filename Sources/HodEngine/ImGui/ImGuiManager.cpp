@@ -20,8 +20,11 @@
 #include <HodEngine/Renderer/RHI/Texture.h>
 
 #include <HodEngine/Core/Frame/FrameSequencer.h>
+#include <HodEngine/Core/FileSystem.h>
 
 #include <HodEngine/Application/Application.h>
+
+#include <filesystem>
 
 #if defined(PLATFORM_WINDOWS)
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -57,6 +60,15 @@ namespace hod::imgui
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
+
+		std::filesystem::path projectsPath = core::FileSystem::GetUserSettingsPath();
+		projectsPath /= ("HodEngine");
+		projectsPath /= ("ImGui.ini");
+
+		static char iniFileName[4096] = {'\0'};
+		std::strcpy(iniFileName, projectsPath.string().c_str());
+
+		ImGui::GetIO().IniFilename = iniFileName;
 
 		//ImGui::GetIO().Fonts->AddFontDefault();
 
