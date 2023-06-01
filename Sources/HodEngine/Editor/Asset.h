@@ -40,6 +40,8 @@ namespace hod::editor
 		const std::filesystem::path&	GetPath() const;
 		const std::string&				GetName() const;
 
+		Meta&							GetMeta();
+
 	private:
 
 		Meta					_meta;

@@ -41,6 +41,7 @@ namespace hod::editor
 			std::shared_ptr<Asset> asset = selection->_asset;
 			ImGui::Text(asset->GetName().c_str()); // same line add button to open (and later VersionControl)
 			ImGui::Separator();
+			DrawDefaultInspector(*asset->GetMeta()._importerSettings);
 			//asset-> // TODO display ImporterSettings
 		}
 	}
@@ -50,5 +51,17 @@ namespace hod::editor
 	void InspectorWindow::DrawSceneSelection(void* selection)
 	{
 		ImGui::Text("Scene");
+	}
+
+	/// @brief 
+	/// @param object 
+	void InspectorWindow::DrawDefaultInspector(Object& object)
+	{
+		core::ReflectionDescriptor* reflectionDescriptor = object.GetReflectionDescriptorV();
+
+		for (core::ReflectionProperty* property : reflectionDescriptor->GetProperties())
+		{
+			DrawProperty(property);
+		}
 	}
 }

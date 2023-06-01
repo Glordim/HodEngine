@@ -114,6 +114,13 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	/// @return 
+	Meta& Asset::GetMeta()
+	{
+		return _meta;
+	}
+
+	/// @brief 
 	/// @param documentNode 
 	/// @return 
 	bool Meta::LoadImporterConfig(const core::Document::Node& documentNode)

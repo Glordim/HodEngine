@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.h"
+#include "HodEngine/Core/Object.h"
 
 namespace hod::core
 {
@@ -11,9 +12,9 @@ namespace hod::core
 
 namespace hod::editor
 {
-	class ImporterSettings // TODO struct
+	class ImporterSettings : public Object // TODO struct
 	{
-		REFLECTED_ABSTRACT_CLASS(ImporterSettings)
+		REFLECTED_ABSTRACT_DERIVED_CLASS(ImporterSettings, Object)
 
 	public:
 

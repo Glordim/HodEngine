@@ -25,5 +25,7 @@ namespace hod::editor
 
 		void		DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 		void		DrawSceneSelection(void* selection);
+
+		void		DrawDefaultInspector(Object& object);
 	};
 }
