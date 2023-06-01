@@ -35,6 +35,12 @@ namespace hod::editor
 		bool			CreateProject(const std::filesystem::path& path);
 		bool			OpenProject(const std::filesystem::path& path);
 
+		void									SetSceneSelection(void* selection);
+		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
+
+		void*									GetSceneSelection() const;
+		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
+
 	private:
 
 		bool			AddProjectInRecentProject(const std::filesystem::path& path) const;
@@ -42,5 +48,8 @@ namespace hod::editor
 	private:
 
 		MainBar*		_mainBar = nullptr;
+
+		void* 									_sceneSelection = nullptr;
+		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
 	};
 }

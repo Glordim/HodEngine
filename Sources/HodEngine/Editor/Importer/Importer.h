@@ -11,11 +11,28 @@ namespace hod::core
 
 namespace hod::editor
 {
+	class ImporterSettings // TODO struct
+	{
+		REFLECTED_ABSTRACT_CLASS(ImporterSettings)
+
+	public:
+
+							ImporterSettings() = default;
+							ImporterSettings(const ImporterSettings&) = delete;
+							ImporterSettings(ImporterSettings&&) = delete;
+		virtual				~ImporterSettings() = default;
+
+		ImporterSettings&	operator = (const ImporterSettings&) = delete;
+		ImporterSettings&	operator = (ImporterSettings&&) = delete;
+
+	public:
+
+
+	};
+
 	/// @brief 
 	class Importer
 	{
-		REFLECTED_ABSTRACT_CLASS(Importer)
-
 	public:
 
 						Importer() = default;
@@ -31,11 +48,16 @@ namespace hod::editor
 		bool			CanImport(const std::filesystem::path& path);
 		bool			Import(const std::filesystem::path& path);
 
+	public:
+
+		virtual ImporterSettings*	AllocateSettings() = 0; // TODO macro IMPORTER
+		virtual const char*			GetTypeName() = 0;
+
 	protected:
 
 		bool			GenerateNewMeta(const std::filesystem::path& metaFilePath);
 
-		virtual bool	WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource) = 0;
+		virtual bool	WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, ImporterSettings& settings) = 0;
 
 		template<typename... Args>
 		void			SetSupportedDataFileExtensions(Args... args);

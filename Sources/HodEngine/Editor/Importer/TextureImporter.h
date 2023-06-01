@@ -4,10 +4,17 @@
 
 namespace hod::editor
 {
+	class TextureImporterSettings : public ImporterSettings
+	{
+		REFLECTED_DERIVED_CLASS(TextureImporterSettings, ImporterSettings)
+
+	public:
+
+		bool				_generateMipmap = false;
+	};
+
 	class TextureImporter : public Importer
 	{
-		REFLECTED_DERIVED_CLASS(TextureImporter, Importer)
-
 	public:
 
 							TextureImporter();
@@ -18,12 +25,13 @@ namespace hod::editor
 		TextureImporter&	operator = (const TextureImporter&) = delete;
 		TextureImporter&	operator = (TextureImporter&&) = delete;
 
+	public:
+
+		ImporterSettings*	AllocateSettings() override;
+		const char*			GetTypeName() override;
+
 	protected:
 
-		bool				WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource) override;
-
-	private:
-
-		bool				_generateMipmap = false;
+		bool				WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, ImporterSettings& settings) override;
 	};
 }

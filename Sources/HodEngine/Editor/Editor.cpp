@@ -152,4 +152,34 @@ namespace hod::editor
 		}
 		return false;
 	}
+
+	/// @brief 
+	/// @param asset 
+	void Editor::SetSceneSelection(void* selection)
+	{
+		_assetSelection = nullptr;
+		_sceneSelection = selection;
+	}
+
+	/// @brief 
+	/// @param asset 
+	void Editor::SetAssetSelection(const AssetDatabase::FileSystemMapping* selection)
+	{
+		_assetSelection = selection;
+		_sceneSelection = nullptr;
+	}
+
+	/// @brief 
+	/// @return 
+	void* Editor::GetSceneSelection() const
+	{
+		return _sceneSelection;
+	}
+
+	/// @brief 
+	/// @return 
+	const AssetDatabase::FileSystemMapping* Editor::GetAssetSelection() const
+	{
+		return _assetSelection;
+	}
 }

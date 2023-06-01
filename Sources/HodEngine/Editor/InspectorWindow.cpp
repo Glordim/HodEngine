@@ -4,8 +4,8 @@
 
 #include <HodEngine/ImGui/ImGuiManager.h>
 
-#include "HodEngine/Editor/AssetBrowserWindow.h"
-#include "HodEngine/Editor/HierachyWindow.h"
+#include "HodEngine/Editor/Editor.h"
+#include "HodEngine/Editor/Asset.h"
 
 namespace hod::editor
 {
@@ -14,17 +14,41 @@ namespace hod::editor
 	/// @brief 
 	void InspectorWindow::Draw()
 	{
-		imgui::Window* activeWindow = imgui::ImGuiManager::GetInstance()->GetActiveWindow();
-		if (activeWindow != nullptr)
+		Editor* editor = Editor::GetInstance();
+		void* sceneSelection = editor->GetSceneSelection();
+		if (sceneSelection != nullptr)
 		{
-			if (activeWindow->GetType() == AssetBrowserWindow::_type)
+			DrawSceneSelection(sceneSelection);
+		}
+		else
+		{
+			const AssetDatabase::FileSystemMapping* assetSelection = editor->GetAssetSelection();
+			if (assetSelection != nullptr)
 			{
-				ImGui::Text("Asset");
-			}
-			else if (activeWindow->GetType() == HierachyWindow::_type)
-			{
-				ImGui::Text("Scene");
+				DrawAssetSelection(assetSelection);
 			}
 		}
+	}
+
+	/// @brief 
+	/// @param selection 
+	void InspectorWindow::DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection)
+	{
+		ImGui::Text("Asset");
+
+		if (selection->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
+		{
+			std::shared_ptr<Asset> asset = selection->_asset;
+			ImGui::Text(asset->GetName().c_str()); // same line add button to open (and later VersionControl)
+			ImGui::Separator();
+			//asset-> // TODO display ImporterSettings
+		}
+	}
+
+	/// @brief 
+	/// @param selection 
+	void InspectorWindow::DrawSceneSelection(void* selection)
+	{
+		ImGui::Text("Scene");
 	}
 }

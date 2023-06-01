@@ -6,6 +6,7 @@
 
 #include <HodEngine/Core/UID.h>
 #include "HodEngine/Core/Reflection/ReflectionMacros.h"
+#include "HodEngine/Editor/Importer/Importer.h"
 
 namespace hod::editor
 {
@@ -16,7 +17,13 @@ namespace hod::editor
 
 	public:
 
-		UID	_uid;
+		bool			LoadImporterConfig(const core::Document::Node& documentNode);
+
+	public:
+
+		UID						_uid;
+		std::string				_importerType;
+		ImporterSettings*		_importerSettings = nullptr;
 	};
 
 	/// @brief 

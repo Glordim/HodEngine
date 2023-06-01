@@ -345,4 +345,20 @@ namespace hod::editor
 
 		return false;
 	}
+
+	/// @brief 
+	/// @param name 
+	/// @return 
+	Importer* AssetDatabase::GetImporter(const std::string_view& name) const
+	{
+		for (Importer* importer : _importers)
+		{
+			if (importer->GetTypeName() == name)
+			{
+				return importer;
+			}
+		}
+
+		return nullptr;
+	}
 }

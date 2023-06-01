@@ -17,9 +17,9 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_DERIVED_CLASS(TextureImporter, Importer)
+	DESCRIBE_REFLECTED_DERIVED_CLASS(TextureImporterSettings, ImporterSettings)
 	{
-		core::Reflection::Property::Variable* generateMipmap = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Bool, offsetof(TextureImporter, _generateMipmap), "GenerateMimap");
+		core::Reflection::Property::Variable* generateMipmap = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Bool, offsetof(TextureImporterSettings, _generateMipmap), "GenerateMimap");
 		AddProperty(generateMipmap);
 	}
 
@@ -32,8 +32,10 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool TextureImporter::WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource)
+	bool TextureImporter::WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, ImporterSettings& settings)
 	{
+		TextureImporterSettings& textureSettings = (TextureImporterSettings&)settings;
+
 		uint32_t dataSize = data.GetSize();
 		uint8_t* dataBuffer = new uint8_t[dataSize];
 		if (data.Read(dataBuffer, dataSize) == false)
@@ -98,5 +100,17 @@ namespace hod::editor
 		}
 
 		return true;
+	}
+
+	/// @brief 
+	/// @return 
+	const char* TextureImporter::GetTypeName()
+	{
+		return "TextureImporter";
+	}
+
+	ImporterSettings* TextureImporter::AllocateSettings()
+	{
+		return new TextureImporterSettings();
 	}
 }

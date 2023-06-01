@@ -4,10 +4,13 @@
 
 namespace hod::editor
 {
+	class DefaultImporterSettings : public ImporterSettings
+	{
+		REFLECTED_DERIVED_CLASS(DefaultImporterSettings, ImporterSettings)
+	};
+
 	class DefaultImporter : public Importer
 	{
-		REFLECTED_DERIVED_CLASS(DefaultImporter, Importer)
-
 	public:
 
 							DefaultImporter() = default;
@@ -18,8 +21,13 @@ namespace hod::editor
 		DefaultImporter&	operator = (DefaultImporter&) = delete;
 		DefaultImporter&	operator = (DefaultImporter&&) = delete;
 
+	public:
+
+		ImporterSettings*	AllocateSettings() override;
+		const char*			GetTypeName() override;
+
 	protected:
 
-		bool				WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource) override;
+		bool				WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, ImporterSettings& settings) override;
 	};
 }

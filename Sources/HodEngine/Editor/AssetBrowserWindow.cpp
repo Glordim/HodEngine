@@ -227,6 +227,7 @@ namespace hod::editor
 			if (DrawExplorerItem(folder) == true)
 			{
 				_currentFolderTreeNode = folder;
+				Editor::GetInstance()->SetAssetSelection(folder);
 			}
 			ImGui::SameLine();
 		}
@@ -236,6 +237,7 @@ namespace hod::editor
 			if (DrawExplorerItem(asset) == true)
 			{
 				_currentExplorerNode = asset;
+				Editor::GetInstance()->SetAssetSelection(asset);
 			}
 		}
 

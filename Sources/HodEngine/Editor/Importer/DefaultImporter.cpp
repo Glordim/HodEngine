@@ -2,7 +2,7 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_DERIVED_CLASS(DefaultImporter, Importer)
+	DESCRIBE_REFLECTED_DERIVED_CLASS(DefaultImporterSettings, ImporterSettings)
 	{
 
 	}
@@ -10,8 +10,20 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool DefaultImporter::WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource)
+	bool DefaultImporter::WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, ImporterSettings& settings)
 	{
 		return false;
+	}
+
+	/// @brief 
+	/// @return 
+	const char* DefaultImporter::GetTypeName()
+	{
+		return "DefaultImporter";
+	}
+
+	ImporterSettings* DefaultImporter::AllocateSettings()
+	{
+		return new DefaultImporterSettings();
 	}
 }

@@ -72,6 +72,7 @@ namespace hod::editor
 
 		template<typename _Importer_>
 		bool								RegisterImporter();
+		Importer*							GetImporter(const std::string_view& name) const;
 
 		bool								ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 

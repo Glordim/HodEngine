@@ -10,7 +10,7 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(Importer)
+	DESCRIBE_REFLECTED_CLASS(ImporterSettings)
 	{
 		
 	}
@@ -70,14 +70,15 @@ namespace hod::editor
 			return false;
 		}
 
-		const core::Document::Node* importerNode = document.GetRootNode().GetChild("importer");
+		const core::Document::Node* importerNode = document.GetRootNode().GetChild("importerSettings");
 		if (importerNode == nullptr)
 		{
 			// TODO output reason
 			return false;
 		}
 
-		if (GetReflectionDescriptorV()->DeserializeFromDocument(*this, *importerNode) == false)
+		meta._importerSettings = AllocateSettings();
+		if (meta._importerSettings->GetReflectionDescriptorV()->DeserializeFromDocument(meta._importerSettings, *importerNode) == false)
 		{
 			// TODO output reason
 			return false;
@@ -102,7 +103,7 @@ namespace hod::editor
 			return false;
 		}
 
-		return WriteResource(dataFile, metaFile, resourceFile);
+		return WriteResource(dataFile, metaFile, resourceFile, *meta._importerSettings);
 	}
 
 	/// @brief 
@@ -115,6 +116,7 @@ namespace hod::editor
 		{
 			Meta meta;
 			meta._uid = UID::GenerateUID();
+			meta._importerType = GetTypeName();
 
 			core::Document document;
 			if (meta.GetReflectionDescriptorV()->SerializeInDocument(meta, document.GetRootNode()) == false)
@@ -122,10 +124,12 @@ namespace hod::editor
 				return false;
 			}
 
-			if (GetReflectionDescriptorV()->SerializeInDocument(*this, document.GetRootNode().AddChild("importer")) == false)
+			ImporterSettings* settings = AllocateSettings();
+			if (settings->GetReflectionDescriptorV()->SerializeInDocument(settings, document.GetRootNode().AddChild("importerSettings")) == false)
 			{
 				return false;
 			}
+			delete settings;
 
 			core::DocumentWriterJson documentWriter;
 			return documentWriter.Write(document, metaFile);

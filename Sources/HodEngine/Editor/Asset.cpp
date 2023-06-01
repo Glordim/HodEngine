@@ -8,6 +8,7 @@
 #include "HodEngine/Core/Document/DocumentWriterJson.h"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
 
 namespace hod::editor
 {
@@ -15,6 +16,9 @@ namespace hod::editor
 	{
 		core::Reflection::Property::Object<UID>* uid = new core::Reflection::Property::Object<UID>(offsetof(Meta, _uid), "uid");
 		AddProperty(uid);
+
+		core::Reflection::Property::Variable* importerType = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::String, offsetof(Meta, _importerType), "importerType");
+		AddProperty(importerType);
 	}
 
 	/// @brief 
@@ -53,6 +57,10 @@ namespace hod::editor
 		}
 
 		if (Meta::GetReflectionDescriptor()->DeserializeFromDocument(_meta, document.GetRootNode()) == false)
+		{
+			return false;
+		}
+		if (_meta.LoadImporterConfig(document.GetRootNode()) == false) // TODO improve reflection
 		{
 			return false;
 		}
@@ -103,5 +111,34 @@ namespace hod::editor
 	const std::string& Asset::GetName() const
 	{
 		return _name;
+	}
+
+	/// @brief 
+	/// @param documentNode 
+	/// @return 
+	bool Meta::LoadImporterConfig(const core::Document::Node& documentNode)
+	{
+		Importer* importer = AssetDatabase::GetInstance()->GetImporter(_importerType);
+		if (importer == nullptr)
+		{
+			// TODO message;
+			return false;
+		}
+
+		// TODO Ensure _importerSettings == nullptr
+
+		_importerSettings = importer->AllocateSettings();
+		if (_importerSettings == nullptr)
+		{
+			// TODO message;
+			return false;
+		}
+
+		if (_importerSettings->GetReflectionDescriptorV()->DeserializeFromDocument(_importerSettings, documentNode) == false)
+		{
+			// TODO message;
+			return false;
+		}
+		return true;
 	}
 }
