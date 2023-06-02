@@ -1,8 +1,0 @@
-
-cc_library(
-	name = "rapidjson",
-	hdrs = glob(["include/**/*.h"]),
-	includes = [ "rapidjson" ],
-	visibility = ["//visibility:public"],
-	strip_include_prefix = "include",
-)

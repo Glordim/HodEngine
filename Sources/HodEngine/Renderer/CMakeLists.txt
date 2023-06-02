@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.4)
 project(Renderer)
 
 find_package(Vulkan REQUIRED)
-find_package(RapidJSON REQUIRED)
 find_package(SpirvCross REQUIRED)
 find_package(Stb REQUIRED)
 find_package(Glm REQUIRED)
@@ -19,7 +18,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   "../.."
   ${Stb_INCLUDE_DIRS}
   ${SpirvCross_INCLUDE_DIRS}
-  ${RapidJSON_INCLUDE_DIRS}
   ${Vulkan_INCLUDE_DIRS}
   ${Glm_INCLUDE_DIRS}
 )

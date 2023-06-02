@@ -24,10 +24,6 @@ namespace hod
 
 									Type(TypeEnum type);
 
-			public:
-
-				//rapidjson::Value	Serialize(rapidjson::Document::AllocatorType& allocator) const override;
-
 			private:
 
 				TypeEnum			_type;

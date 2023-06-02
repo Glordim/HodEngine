@@ -42,47 +42,6 @@ namespace hod
 			return true;
 		}
 
-/*
-		rapidjson::Value ReflectionDescriptor::Serialize(rapidjson::Document::AllocatorType& allocator) const
-		{
-			rapidjson::Value description;
-			description.SetObject();
-
-			description.AddMember("TypeName", rapidjson::StringRef(_typeName), allocator);
-			if (_parent != nullptr)
-			{
-				description.AddMember("ParentTypeName", rapidjson::StringRef(_parent->_typeName), allocator);
-			}
-
-			rapidjson::Value traits;
-			traits.SetArray();
-
-			for (const ReflectionTrait* trait : _traits)
-			{
-				traits.PushBack(trait->Serialize(allocator), allocator);
-			}
-
-			description.AddMember("Traits", traits, allocator);
-
-			rapidjson::Value properties;
-			properties.SetArray();
-
-			for (const ReflectionProperty* property : _properties)
-			{
-				properties.PushBack(property->Serialize(allocator), allocator);
-			}
-
-			description.AddMember("Properties", properties, allocator);
-
-			return description;
-		}
-
-		void ReflectionDescriptor::Deserialize()
-		{
-			// TODO
-		}
-		*/
-
 		///@brief 
 		///@return const std::vector<ReflectionTrait*>& 
 		const std::vector<ReflectionTrait*>& ReflectionDescriptor::GetTraits() const

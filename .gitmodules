@@ -16,9 +16,6 @@
 [submodule "SDK/imgui"]
 	path = SDK/imgui
 	url = https://github.com/Glordim/imgui
-[submodule "SDK/rapidjson"]
-	path = SDK/rapidjson
-	url = https://github.com/Glordim/rapidjson
 [submodule "SDK/box2d"]
 	path = SDK/box2d
 	url = https://github.com/Glordim/box2d.git

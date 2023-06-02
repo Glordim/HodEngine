@@ -15,12 +15,6 @@
 #include <Game/Src/ComponentReflection.h>
 #include <Game/Src/Builtin.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/prettywriter.h>
-#include <fstream>
-
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/imgui_impl_sdl.h>
 #include <ImGui/src/imgui_impl_vulkan.h>

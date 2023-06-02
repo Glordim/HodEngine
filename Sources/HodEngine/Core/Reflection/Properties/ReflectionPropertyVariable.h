@@ -2,8 +2,6 @@
 
 #include <vector>
 
-//#include <rapidjson/document.h>
-
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 #include "HodEngine/Core/Document/Document.h"
 

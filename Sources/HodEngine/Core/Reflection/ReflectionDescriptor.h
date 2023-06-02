@@ -27,9 +27,6 @@ namespace hod
 
 		public:
 
-			//rapidjson::Value						Serialize(rapidjson::Document::AllocatorType& allocator) const;
-			//void									Deserialize();
-
 			bool									SerializeInDocument(const void* instance, Document::Node& documentNode);
 			bool									DeserializeFromDocument(void* instance, const Document::Node& documentNode);
 

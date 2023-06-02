@@ -7,7 +7,6 @@
 
 #include <fstream>
 #include <sstream>
-#include <rapidjson/document.h>
 
 namespace hod
 {
@@ -29,6 +28,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool SpriteAtlas::LoadFromFile(const std::string& spriteAltasJsonPath)
 		{
+			return false;
+			/*
 			std::ifstream jsonFile;
 			jsonFile.open(spriteAltasJsonPath, std::ifstream::in);
 			if (jsonFile.is_open() == false)
@@ -103,6 +104,7 @@ namespace hod
 			}
 
 			return true;
+			*/
 		}
 
 		//-----------------------------------------------------------------------------

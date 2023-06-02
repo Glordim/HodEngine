@@ -5,8 +5,6 @@
 #include <vector>
 #include <functional>
 
-#include <rapidjson/document.h>
-
 namespace hod
 {
 	namespace game
@@ -25,16 +23,10 @@ namespace hod
 			template<typename __type__>
 			bool				Register();
 
-			bool				Dump(rapidjson::Value& rootNode, rapidjson::Document::AllocatorType& allocator);
-
 		protected:
 
 								ComponentReflection() = default;
 								~ComponentReflection() override = default;
-
-		private:
-
-			std::vector<std::function<rapidjson::Value(rapidjson::Document::AllocatorType&)>>	_dumpFunctions;
 		};
 	}
 }

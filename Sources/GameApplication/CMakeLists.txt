@@ -22,7 +22,6 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT G
 #find_package(Glm REQUIRED)
 #find_package(SDL2 REQUIRED)
 #find_package(Vulkan REQUIRED)
-#find_package(RapidJSON REQUIRED)
 
 if(MSVC)
 	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
@@ -35,7 +34,6 @@ include_directories(
 	".."
 	${Glm_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
-	${RapidJSON_INCLUDE_DIRS}
 )
 
 target_link_libraries(GameApplication

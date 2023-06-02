@@ -34,7 +34,6 @@ cc_library(
 		"Window/**/*.inl"
 	]),
 	deps = [
-		"@rapidjson//:rapidjson",
 		"@glm//:glm",
 		"@stb//:stb",
 		"@box2d//:box2d",

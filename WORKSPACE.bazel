@@ -1,12 +1,6 @@
 #load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 #http_archive(
-#	name = "rapidjson",
-#	url = "https://github.com/Tencent/rapidjson/archive/refs/heads/master.zip",
-#	build_file = "SDK/BUILD.rapidjson",
-#)
-#
-#http_archive(
 #	name = "glm",
 #	url = "https://github.com/g-truc/glm/archive/refs/tags/0.9.9.8.zip",
 #	build_file = "SDK/BUILD.glm",
@@ -18,12 +12,6 @@
 #	build_file = "SDK/BUILD.stb",
 #)
 #
-
-new_local_repository(
-    name = "rapidjson",
-    path = "SDK/rapidjson",
-    build_file = "SDK/rapidjson.bazel",
-)
 
 new_local_repository(
     name = "glm",

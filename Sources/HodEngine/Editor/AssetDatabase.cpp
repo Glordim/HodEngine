@@ -1,11 +1,5 @@
 #include "HodEngine/Editor/AssetDatabase.h"
 
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/prettywriter.h>
-
-#include <fstream>
-
 #include "HodEngine/Core/Stream/FileStream.h"
 
 #include "HodEngine/Editor/Editor.h"

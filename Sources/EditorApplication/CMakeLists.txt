@@ -23,7 +23,6 @@ include_directories(
 	".."
 	${Glm_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
-	${RapidJSON_INCLUDE_DIRS}
 )
 
 target_link_libraries(EditorApplication
