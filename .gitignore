@@ -41,7 +41,4 @@ x64/
 obj/
 bin/
 
-SDK/Build
-[Bb]uild
-
 !Data/**/*.obj

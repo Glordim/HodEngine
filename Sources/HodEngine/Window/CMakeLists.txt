@@ -28,7 +28,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 
 target_link_libraries(Window
 	Core
-	${SDL2MAIN_LIBRARY}
 )
 
 target_compile_definitions(Window PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})

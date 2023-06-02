@@ -20,7 +20,6 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT G
 
 #set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
 #find_package(Glm REQUIRED)
-#find_package(SDL2 REQUIRED)
 #find_package(Vulkan REQUIRED)
 
 if(MSVC)
@@ -39,9 +38,3 @@ include_directories(
 target_link_libraries(GameApplication
 	Engine
 )
-
-#if (WIN32)
-#	add_custom_command(TARGET HodEngine-Application POST_BUILD
-#		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SDK_DIR}/Build/SDL/Release/SDL2.dll" $<TARGET_FILE_DIR:HodEngine-Application>
-#	)
-#endif (WIN32)

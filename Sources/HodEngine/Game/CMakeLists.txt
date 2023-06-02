@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.4)
 
 project(Game)
 
-find_package(SDL2 REQUIRED)
 find_package(Glm REQUIRED)
 
 file(GLOB_RECURSE Srcs
@@ -15,7 +14,6 @@ assign_source_group(${Srcs})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Src
 	"../.."
 	${Glm_INCLUDE_DIRS}
-	${SDL2_INCLUDE_DIRS}
 )
 
 if(MSVC)
@@ -35,5 +33,4 @@ target_link_libraries(Game
 	Window
 	Physics
 	Renderer
-	${SDL2_LIBRARIES}
 )
