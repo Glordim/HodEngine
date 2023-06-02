@@ -24,19 +24,6 @@ if not exist "./Build" (
 )
 
 echo *******
-echo SDL...
-if not exist "./Build/SDL" (
-	echo Create SDL Build Dir
-	mkdir "./Build/SDL"
-)
-cmake -A x64 -B./Build/SDL ./SDL
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
-echo *******
 echo SPIRV-Cross...
 if not exist "./Build/SPIRV-Cross" (
 	echo Create SPIRV-Cross Build Dir
@@ -69,15 +56,6 @@ echo ====================
 ::Build projects
 echo Build projects...
 
-echo *******
-echo SDL...
-cmake --build ./Build/SDL --config Release
-if %errorlevel% neq 0 (
-	echo Fail
-	pause
-	exit 1
-)
-echo Done
 echo *******
 echo SPIRV-Cross...
 cmake --build ./Build/SPIRV-Cross --config Release

@@ -23,18 +23,6 @@ if [ ! -d "./Build" ]; then
 fi
 
 echo "*******"
-echo "SDL..."
-if [ ! -d "./Build/SDL" ]; then
-	echo "Create SDL Build Dir"
-	mkdir "./Build/SDL"
-fi
-cmake -B ./Build/SDL ./SDL
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-echo "Done"
-echo "*******"
 echo "SPIRV-Cross..."
 if [ ! -d "./Build/SPIRV-Cross" ]; then
 	echo "Create SPIRV-CROSS Build Dir"
@@ -65,14 +53,6 @@ echo "===================="
 #Build projects
 echo "Build projects..."
 
-echo "*******"
-echo "SDL..."
-cmake --build ./Build/SDL --config Release
-if [ $? -ne 0 ]; then
-	echo "Fail"
-	exit 1
-fi
-echo "Done"
 echo "*******"
 echo "SPIRV-Cross..."
 cmake --build ./Build/SPIRV-Cross --config Release
