@@ -9,7 +9,7 @@ namespace hod
 			namespace Property
 			{
 				Variable::Variable(Type type, uint32_t offset, const char* name)
-					: ReflectionProperty("Variable")
+					: ReflectionProperty()
 					, _type(type)
 					, _offset(offset)
 					, _name(name)
@@ -66,6 +66,13 @@ namespace hod
 						case Type::String: *reinterpret_cast<std::string*>(variableAddress) = varNode->GetString(); break;
 						}
 					}
+				}
+
+				/// @brief 
+				/// @return 
+				Variable::Type Variable::GetType() const
+				{
+					return _type;
 				}
 			}
 		}

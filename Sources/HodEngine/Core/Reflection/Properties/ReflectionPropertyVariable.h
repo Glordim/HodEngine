@@ -18,9 +18,11 @@ namespace hod
 				///@brief 
 				class Variable : public ReflectionProperty
 				{
+					META_TYPE(Variable)
+
 				public:
 
-					enum Type
+					enum class Type : uint8_t
 					{
 						Bool,
 						Int8,
@@ -38,7 +40,7 @@ namespace hod
 
 						Count
 					};
-					inline static const char* _typeLabels[Type::Count] = {
+					inline static const char* _typeLabels[(uint8_t)Type::Count] = {
 						"Bool",
 						"Int8",
 						"UInt8",
@@ -68,6 +70,8 @@ namespace hod
 
 					void									Serialize(const void* instance, Document::Node& node) override;
 					void									Deserialize(void* instance, const Document::Node& node) override;
+
+					Type									GetType() const;
 
 				private:
 

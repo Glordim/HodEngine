@@ -2,7 +2,8 @@
 
 #include <vector>
 #include "HodEngine/Core/Document/Document.h"
-//#include <rapidjson/document.h>
+
+#include "HodEngine/Core/Type.h"
 
 namespace hod
 {
@@ -13,9 +14,11 @@ namespace hod
 		///@brief 
 		class ReflectionProperty
 		{
+			BASE_META_TYPE(ReflectionProperty)
+
 		public:
 
-													ReflectionProperty(const char* typeName);
+													ReflectionProperty() = default;
 													ReflectionProperty(const ReflectionProperty& copy) = default;
 													ReflectionProperty(ReflectionProperty&& move) = default;
 													~ReflectionProperty() = default;
@@ -34,11 +37,8 @@ namespace hod
 			void									AddTrait(Args&&... args);
 			void									AddTrait(ReflectionTrait* trait);
 
-			const char*								GetTypeName() const { return _typeName; }
-
 		protected:
 
-			const char*								_typeName;
 			std::vector<ReflectionTrait*>			_traits;
 		};
 	}

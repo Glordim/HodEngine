@@ -5,35 +5,42 @@
 #define BASE_META_TYPE(__ClassName__)										\
 public:																		\
 																			\
-using Type = uint64_t;														\
+using MetaType = uint64_t;													\
 																			\
-virtual Type		GetType() const = 0;									\
-virtual const char*	GetTypeName() const = 0;								\
+virtual MetaType	GetMetaType() const = 0;								\
+virtual const char*	GetMetaTypeName() const = 0;							\
 																			\
 private:																	\
 																			\
 
 
-#define META_TYPE(__ClassName__)											\
-public:																		\
-																			\
-using Type = uint64_t;														\
-																			\
-static constexpr Type _type = Hash::CompilationTimeFnv64(#__ClassName__);	\
-Type GetType() const override												\
-{																			\
-	return Hash::CompilationTimeFnv64(#__ClassName__);						\
-}																			\
-																			\
-const char* GetTypeName() const override									\
-{																			\
-	return #__ClassName__;													\
-}																			\
-																			\
-static const char* GetTypeNameStatic()										\
-{																			\
-	return #__ClassName__;													\
-}																			\
-																			\
-private:																	\
-																			\
+// TODO constexpr + rename Mete to Class
+
+#define META_TYPE(__ClassName__)												\
+public:																			\
+																				\
+using MetaType = uint64_t;														\
+																				\
+static constexpr MetaType _metaType = Hash::CompilationTimeFnv64(#__ClassName__);	\
+MetaType GetMetaType() const override												\
+{																				\
+	return GetMetaTypeStatic();													\
+}																				\
+																				\
+const char* GetMetaTypeName() const override									\
+{																				\
+	return GetMetaTypeNameStatic();												\
+}																				\
+																				\
+static MetaType GetMetaTypeStatic()												\
+{																				\
+	return Hash::CompilationTimeFnv64(#__ClassName__);							\
+}																				\
+																				\
+static const char* GetMetaTypeNameStatic()										\
+{																				\
+	return #__ClassName__;														\
+}																				\
+																				\
+private:																		\
+																				\

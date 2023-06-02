@@ -6,6 +6,7 @@
 
 #include "HodEngine/Editor/Editor.h"
 #include "HodEngine/Editor/Asset.h"
+#include "HodEngine/Editor/PropertyDrawer.h"
 
 namespace hod::editor
 {
@@ -61,7 +62,7 @@ namespace hod::editor
 
 		for (core::ReflectionProperty* property : reflectionDescriptor->GetProperties())
 		{
-			DrawProperty(property);
+			PropertyDrawer::DrawProperty(property);
 		}
 	}
 }

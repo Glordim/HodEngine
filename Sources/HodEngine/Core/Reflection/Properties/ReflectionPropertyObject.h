@@ -2,8 +2,6 @@
 
 #include <vector>
 
-//#include <rapidjson/document.h>
-
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
 #include "HodEngine/Core/Document/Document.h"
@@ -20,6 +18,8 @@ namespace hod
 				template<typename _object_>
 				class Object : public ReflectionProperty
 				{
+					META_TYPE(Object)
+
 				public:
 
 															Object(uint32_t offset, const char* name);

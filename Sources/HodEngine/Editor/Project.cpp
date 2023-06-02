@@ -12,7 +12,7 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(Project)
 	{
-		core::Reflection::Property::Variable* name = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::String, offsetof(Project, _name), "Name");
+		core::Reflection::Property::Variable* name = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::String, offsetof(Project, _name), "Name");
 		AddProperty(name);
 	}
 

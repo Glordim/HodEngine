@@ -4,6 +4,11 @@
 
 #include "HodEngine/Editor/AssetDatabase.h"
 
+namespace hod
+{
+	class Object;
+}
+
 namespace hod::editor
 {
 	/// @brief 
@@ -26,6 +31,6 @@ namespace hod::editor
 		void		DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 		void		DrawSceneSelection(void* selection);
 
-		void		DrawDefaultInspector(Object& object);
+		void		DrawDefaultInspector(hod::Object& object);
 	};
 }

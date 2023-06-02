@@ -9,7 +9,7 @@ namespace hod
 			namespace Property
 			{
 				Array::Array(Variable::Type type, uint32_t offset, const char* name)
-					: ReflectionProperty("Array")
+					: ReflectionProperty()
 					, _type(type)
 					, _offset(offset)
 					, _name(name)

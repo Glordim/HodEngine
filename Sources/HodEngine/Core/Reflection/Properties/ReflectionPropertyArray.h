@@ -2,8 +2,6 @@
 
 #include <vector>
 
-//#include <rapidjson/document.h>
-
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
 #include "HodEngine/Core/Document/Document.h"
@@ -19,6 +17,7 @@ namespace hod
 				///@brief 
 				class Array : public ReflectionProperty
 				{
+					META_TYPE(Array)
 
 				public:
 

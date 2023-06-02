@@ -9,7 +9,7 @@ namespace hod
 			{
 				template<typename _object_>
 				Object<_object_>::Object(uint32_t offset, const char* name)
-					: ReflectionProperty("Object")
+					: ReflectionProperty()
 					, _offset(offset)
 					, _name(name)
 				{
