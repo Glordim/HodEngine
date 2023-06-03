@@ -58,6 +58,7 @@ namespace hod::editor
 											~AssetDatabase();
 
 		bool								Init();
+		bool								Save();
 
 		const FileSystemMapping&			GetAssetRootNode() const;
 		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path& path) const;

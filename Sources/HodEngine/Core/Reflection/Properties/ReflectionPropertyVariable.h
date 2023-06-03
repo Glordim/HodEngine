@@ -70,6 +70,13 @@ namespace hod
 					void									Deserialize(void* instance, const Document::Node& node) override;
 
 					Type									GetType() const;
+					const char*								GetName() const;
+
+					template<typename _type_>
+					_type_									GetValue(const void* instance) const;
+
+					template<typename _type_>
+					void									SetValue(void* instance, _type_ value);
 
 				private:
 

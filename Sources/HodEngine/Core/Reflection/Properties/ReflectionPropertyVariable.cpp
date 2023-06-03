@@ -74,6 +74,13 @@ namespace hod
 				{
 					return _type;
 				}
+
+				/// @brief 
+				/// @return 
+				const char* Variable::GetName() const
+				{
+					return _name;
+				}
 			}
 		}
 	}

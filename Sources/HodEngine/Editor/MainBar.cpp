@@ -20,6 +20,11 @@ namespace hod::editor
 	{
 		if (ImGui::BeginMenu("File") == true)
 		{
+			if (ImGui::MenuItem("Save", "CTRL+S") == true)
+			{
+				Editor::GetInstance()->Save();
+			}
+
 			if (ImGui::MenuItem("Quit") == true)
 			{
 				application::Application::GetInstance()->Quit();

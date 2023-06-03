@@ -1,5 +1,10 @@
 #pragma once
 
+namespace hod
+{
+	class Object;
+}
+
 namespace hod::core
 {
     class ReflectionProperty;
@@ -27,9 +32,9 @@ namespace hod::editor
 
     public:
 
-        static void     DrawProperty(core::ReflectionProperty* property);
-		static void     DrawPropertyVariable(core::Reflection::Property::Variable* property);
-		static void     DrawPropertyArray(core::Reflection::Property::Array* property);
+        static bool     DrawProperty(Object& object, core::ReflectionProperty* property);
+		static bool     DrawPropertyVariable(Object& object, core::Reflection::Property::Variable* property);
+		static bool     DrawPropertyArray(Object& object, core::Reflection::Property::Array* property);
         // static void  RegisterCustomDrawer(); //TODO
     };
 }

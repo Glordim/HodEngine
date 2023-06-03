@@ -35,6 +35,8 @@ namespace hod::editor
 		bool			CreateProject(const std::filesystem::path& path);
 		bool			OpenProject(const std::filesystem::path& path);
 
+		bool			Save();
+
 		void									SetSceneSelection(void* selection);
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 

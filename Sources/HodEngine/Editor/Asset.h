@@ -18,6 +18,7 @@ namespace hod::editor
 	public:
 
 		bool			LoadImporterConfig(const core::Document::Node& documentNode);
+		bool			SaveImporterConfig(core::Document::Node& documentNode) const;
 
 	public:
 
@@ -42,7 +43,12 @@ namespace hod::editor
 
 		Meta&							GetMeta();
 
+		bool							IsDirty() const;
+		void							SetDirty();
+
 	private:
+
+		bool					_dirty = false;
 
 		Meta					_meta;
 

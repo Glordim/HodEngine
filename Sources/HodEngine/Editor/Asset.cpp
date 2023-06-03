@@ -79,6 +79,10 @@ namespace hod::editor
 		{
 			return false;
 		}
+		if (_meta.SaveImporterConfig(document.GetRootNode()) == false) // TODO improve reflection
+		{
+			return false;
+		}
 
 		std::filesystem::path metaPath = _path;
 		metaPath += ".meta";
@@ -88,7 +92,8 @@ namespace hod::editor
 		{
 			return false;
 		}
-		
+
+		_dirty = false;
 		return true;
 	}
 
@@ -111,6 +116,19 @@ namespace hod::editor
 	const std::string& Asset::GetName() const
 	{
 		return _name;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Asset::IsDirty() const
+	{
+		return _dirty;
+	}
+	
+	/// @brief 
+	void Asset::SetDirty()
+	{
+		_dirty = true;
 	}
 
 	/// @brief 
@@ -141,7 +159,22 @@ namespace hod::editor
 			return false;
 		}
 
-		if (_importerSettings->GetReflectionDescriptorV()->DeserializeFromDocument(_importerSettings, documentNode) == false)
+		if (_importerSettings->GetReflectionDescriptorV()->DeserializeFromDocument((void*)_importerSettings, documentNode) == false)
+		{
+			// TODO message;
+			return false;
+		}
+		return true;
+	}
+
+	/// @brief 
+	/// @param documentNode 
+	/// @return 
+	bool Meta::SaveImporterConfig(core::Document::Node& documentNode) const
+	{
+		// TODO Ensure _importerSettings == nullptr
+
+		if (_importerSettings->GetReflectionDescriptorV()->SerializeInDocument((const void*)_importerSettings, documentNode) == false)
 		{
 			// TODO message;
 			return false;

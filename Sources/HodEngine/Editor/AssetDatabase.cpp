@@ -355,4 +355,22 @@ namespace hod::editor
 
 		return nullptr;
 	}
+
+	/// @brief 
+	/// @return 
+	bool AssetDatabase::Save()
+	{
+		for (auto& assetPair : _uidToAssetMap)
+		{
+			if (assetPair.second->IsDirty() == true)
+			{
+				if (assetPair.second->Save() == false)
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
 }

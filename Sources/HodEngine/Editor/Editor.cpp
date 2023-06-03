@@ -182,4 +182,11 @@ namespace hod::editor
 	{
 		return _assetSelection;
 	}
+
+	/// @brief 
+	/// @return 
+	bool Editor::Save()
+	{
+		return AssetDatabase::GetInstance()->Save();
+	}
 }
