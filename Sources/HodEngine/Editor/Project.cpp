@@ -57,6 +57,12 @@ namespace hod::editor
 			return false;
 		}
 
+		_thumbnailDirPath = _projectPath.parent_path() / "Generated" / "Thumbnails";
+		if (std::filesystem::exists(_thumbnailDirPath) == false && std::filesystem::create_directories(_thumbnailDirPath) == false)
+		{
+			return false;
+		}
+
 		return Load();
 	}
 
@@ -105,5 +111,12 @@ namespace hod::editor
 	const std::filesystem::path& Project::GetResourceDirPath() const
 	{
 		return _resourceDirPath;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::filesystem::path& Project::GetThumbnailDirPath() const
+	{
+		return _thumbnailDirPath;
 	}
 }

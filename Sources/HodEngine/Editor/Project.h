@@ -27,12 +27,14 @@ namespace hod::editor
 		const std::filesystem::path&	GetProjectPath() const;
 		const std::filesystem::path&	GetAssetDirPath() const;
 		const std::filesystem::path&	GetResourceDirPath() const;
+		const std::filesystem::path&	GetThumbnailDirPath() const;
 
 	private:
 
 		std::filesystem::path			_projectPath;
 		std::filesystem::path			_assetDirPath;
 		std::filesystem::path			_resourceDirPath;
+		std::filesystem::path			_thumbnailDirPath;
 
 		std::string						_name;
 	};

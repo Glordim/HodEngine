@@ -2,6 +2,7 @@
 
 #include "HodEngine/Editor/AssetDatabase.h"
 #include "HodEngine/Editor/Editor.h"
+#include "HodEngine/Editor/Project.h"
 
 #include "HodEngine/Core/Stream/FileStream.h"
 #include "HodEngine/Core/Document/DocumentReaderJson.h"
@@ -9,6 +10,9 @@
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+
+#include "HodEngine/Renderer/RHI/Texture.h"
+#include "HodEngine/Renderer/Renderer.h"
 
 namespace hod::editor
 {
@@ -27,11 +31,14 @@ namespace hod::editor
 	{
 		_name = _path.stem().string();
 		_meta._uid = UID::GenerateUID();
+
+		_thumbnail = renderer::Renderer::GetInstance()->CreateTexture();
 	}
 
 	/// @brief 
 	Asset::~Asset()
 	{
+		delete _thumbnail;
 	}
 
 	/// @brief 
@@ -66,6 +73,12 @@ namespace hod::editor
 		}
 
 		AssetDatabase::GetInstance()->ReimportAssetIfNecessary(shared_from_this());
+
+		Project* project = Project::GetInstance();
+		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / _meta._uid.ToString();
+		thumbnailFilePath += ".png";
+
+		_thumbnail->LoadFromPath(thumbnailFilePath.string().c_str());
 
 		return true;
 	}
@@ -136,6 +149,13 @@ namespace hod::editor
 	Meta& Asset::GetMeta()
 	{
 		return _meta;
+	}
+
+	/// @brief 
+	/// @return 
+	renderer::Texture* Asset::GetThumbnail() const
+	{
+		return _thumbnail;
 	}
 
 	/// @brief 

@@ -93,6 +93,16 @@ namespace hod::editor
 
 		Project* project = Project::GetInstance();
 
+		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString();
+		thumbnailFilePath += ".png";
+
+		core::FileStream thumbnailFile(thumbnailFilePath, core::FileMode::Write);
+		if (thumbnailFile.CanWrite() == false)
+		{
+			// TODO output reason
+			return false;
+		}
+
 		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
 		resourceFilePath += ".resource";
 
@@ -103,7 +113,7 @@ namespace hod::editor
 			return false;
 		}
 
-		return WriteResource(dataFile, metaFile, resourceFile, *meta._importerSettings);
+		return WriteResource(dataFile, metaFile, resourceFile, thumbnailFile, *meta._importerSettings);
 	}
 
 	/// @brief 

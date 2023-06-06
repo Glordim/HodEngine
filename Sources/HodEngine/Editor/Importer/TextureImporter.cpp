@@ -15,6 +15,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <stb_image_resize.h>
+
 namespace hod::editor
 {
 	DESCRIBE_REFLECTED_DERIVED_CLASS(TextureImporterSettings, ImporterSettings)
@@ -32,7 +35,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool TextureImporter::WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, ImporterSettings& settings)
+	bool TextureImporter::WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, core::FileStream& thumbnail, ImporterSettings& settings)
 	{
 		TextureImporterSettings& textureSettings = (TextureImporterSettings&)settings;
 
@@ -47,10 +50,38 @@ namespace hod::editor
 		int x;
 		int y;
 		int componentCount;
-		uint8_t* pixels = stbi_load_from_memory(dataBuffer, dataSize, &x, &y, &componentCount, 4);
+		uint8_t* pixels = stbi_load_from_memory(dataBuffer, dataSize, &x, &y, &componentCount, 3); // TODO rgba
 		if (pixels == nullptr)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't load Texture data");
+			return false;
+		}
+
+		int thumbnailWidth = 256;
+		int thumbnailHeight = 256;
+		if (y > x)
+		{
+			thumbnailWidth = ((float)x / (float)y) * thumbnailHeight;
+		}
+		else if (x > y)
+		{
+			thumbnailHeight = ((float)y / (float)x) * thumbnailWidth;
+		}
+		uint8_t* thumbnailPixels = new uint8_t[thumbnailHeight * thumbnailWidth * componentCount];
+		stbir_resize_uint8(pixels, x, y, 0, thumbnailPixels, thumbnailWidth, thumbnailHeight, 0, componentCount);
+
+		stbi_write_png_compression_level = 9;
+
+		int writeResult = stbi_write_png_to_func([](void *context, void *data, int len)
+		{
+			core::FileStream* thumbnailStream = static_cast<core::FileStream*>(context);
+			thumbnailStream->Write(data, len);
+		}, &thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
+		stbi_image_free(thumbnailPixels);
+
+		if (writeResult == 0)
+		{
+			OUTPUT_ERROR("TextureImporter : Can't write Thumbnail");
 			return false;
 		}
 
@@ -58,11 +89,11 @@ namespace hod::editor
 		// For now always use png
 
 		core::MemoryStream textureStream;
-		int writeResult = stbi_write_png_to_func([](void *context, void *data, int len)
+		writeResult = stbi_write_png_to_func([](void *context, void *data, int len)
 		{
 			core::MemoryStream* textureStream = static_cast<core::MemoryStream*>(context);
 			textureStream->Write(data, len);
-		}, &textureStream, x, y, componentCount, pixels, x * 4);
+		}, &textureStream, x, y, componentCount, pixels, 0);
 		stbi_image_free(pixels);
 
 		if (writeResult == 0)

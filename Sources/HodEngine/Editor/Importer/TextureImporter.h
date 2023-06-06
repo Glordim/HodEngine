@@ -32,6 +32,6 @@ namespace hod::editor
 
 	protected:
 
-		bool				WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, ImporterSettings& settings) override;
+		bool				WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, core::FileStream& thumbnail, ImporterSettings& settings) override;
 	};
 }

@@ -22,7 +22,8 @@
 			"type": "shell",
 			"command": "bazel",
 			"args": ["build", "Sources/EditorApplication:HodEditor"],
-			"group": "build"
+			"group": "build",
+			"problemMatcher": ["$msCompile"],
 		},
 		{
 			"label": "Clean",

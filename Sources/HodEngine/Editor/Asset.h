@@ -8,6 +8,11 @@
 #include "HodEngine/Core/Reflection/ReflectionMacros.h"
 #include "HodEngine/Editor/Importer/Importer.h"
 
+namespace hod::renderer
+{
+	class Texture;
+}
+
 namespace hod::editor
 {
 	// TODO embed in Asset when reflection support it
@@ -43,6 +48,8 @@ namespace hod::editor
 
 		Meta&							GetMeta();
 
+		renderer::Texture*				GetThumbnail() const;
+
 		bool							IsDirty() const;
 		void							SetDirty();
 
@@ -54,5 +61,7 @@ namespace hod::editor
 
 		std::string				_name;
 		std::filesystem::path	_path;
+
+		renderer::Texture*		_thumbnail;
 	};
 }

@@ -10,6 +10,7 @@
 
 #include "HodEngine/Editor/Editor.h"
 #include "HodEngine/Editor/Project.h"
+#include "HodEngine/Editor/Asset.h"
 
 #include <HodEngine/Application/PlatformDialog.h>
 
@@ -331,9 +332,19 @@ namespace hod::editor
 		}
 		ImGui::RenderNavHighlight(boundingBox, id);
 		ImGui::RenderFrame(boundingBox.Min, boundingBox.Max, color, true, style.FrameRounding);
-		ImGui::RenderFrame(ImVec2(cursorPosition.x + padding * 0.5f, cursorPosition.y + padding * 0.5f),
-						   ImVec2(cursorPosition.x + size.x - padding * 0.5f, cursorPosition.y + size.x - padding * 0.5f),
-						   IM_COL32(255, 0.0f, 0.0f, 255), true, 0.0f);
+		if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
+		{
+			std::shared_ptr<Asset> asset = item->_asset;
+			ImGui::Image(asset->GetThumbnail(), size);
+
+			//ImGui::GetWindowDrawList()->AddImage() // TODO
+		}
+		else
+		{
+			ImGui::RenderFrame(ImVec2(cursorPosition.x + padding * 0.5f, cursorPosition.y + padding * 0.5f),
+			   ImVec2(cursorPosition.x + size.x - padding * 0.5f, cursorPosition.y + size.x - padding * 0.5f),
+			   IM_COL32(255, 0.0f, 0.0f, 255), true, 0.0f);
+		}
 
 		if (g.LogEnabled == true)
 		{

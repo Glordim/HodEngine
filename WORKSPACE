@@ -11,7 +11,6 @@ http_archive(
 http_archive(
 	name = "stb",
 	url = "https://github.com/nothings/stb/archive/refs/heads/master.zip",
-	sha256 = "10ab9ed5defe6e4adbc16d2aab58bbddaa4bd754c23eff37fe593e2ef8ebe51a",
 	build_file = "stb.BUILD",
 	strip_prefix = "stb-master",
 )
