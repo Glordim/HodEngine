@@ -12,6 +12,8 @@
 #include "HodEngine/Editor/Project.h"
 #include "HodEngine/Editor/Asset.h"
 
+#include "HodEngine/Renderer/RHI/Texture.h"
+
 #include <HodEngine/Application/PlatformDialog.h>
 
 #include "HodEngine/Game/src/Scene.h"
@@ -335,9 +337,29 @@ namespace hod::editor
 		if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
 		{
 			std::shared_ptr<Asset> asset = item->_asset;
-			ImGui::Image(asset->GetThumbnail(), size);
 
-			//ImGui::GetWindowDrawList()->AddImage() // TODO
+			renderer::Texture* thumbnailTexture = asset->GetThumbnail();
+			ImVec2 imageSize = size;
+			imageSize.x -= padding;
+			imageSize.y -= padding;
+			ImVec2 imageOffset;
+			imageOffset.x = 0;
+			imageOffset.y = 0;
+			if (thumbnailTexture->GetWidth() > thumbnailTexture->GetHeight())
+			{
+				imageSize.y =  imageSize.x * ((float)thumbnailTexture->GetHeight() / (float)thumbnailTexture->GetWidth());
+				imageOffset.y = (imageSize.x - imageSize.y) * 0.5f;
+			}
+			else
+			{
+				imageSize.x =  imageSize.y * ((float)thumbnailTexture->GetWidth() / (float)thumbnailTexture->GetHeight());
+				imageOffset.x = (imageSize.y - imageSize.x) * 0.5f;
+			}
+
+			ImGui::GetWindowDrawList()->AddImage(asset->GetThumbnail(),
+				ImVec2(cursorPosition.x + imageOffset.x + padding * 0.5f, cursorPosition.y + imageOffset.y + padding * 0.5f),
+				ImVec2(cursorPosition.x + imageOffset.x + (imageSize.x - padding * 0.5f), cursorPosition.y + imageOffset.y + (imageSize.y - padding * 0.5f))
+			);
 		}
 		else
 		{
