@@ -40,7 +40,7 @@ namespace hod::editor
 								~Asset();
 
 		bool					Load();
-		bool					Save();
+		bool					Save(Object* object = nullptr);
 
 		const UID&						GetUid() const;
 		const std::filesystem::path&	GetPath() const;

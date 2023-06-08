@@ -227,9 +227,13 @@ namespace hod::editor
 
 		for (const AssetDatabase::FileSystemMapping* folder : _currentFolderTreeNode->_childrenFolder)
 		{
-			if (DrawExplorerItem(folder) == true)
+			if (DrawExplorerItem(folder) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
 			{
-				_currentFolderTreeNode = folder;
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) == true)
+				{
+					_currentFolderTreeNode = folder;
+				}
+				_currentExplorerNode = folder;
 				Editor::GetInstance()->SetAssetSelection(folder);
 			}
 			ImGui::SameLine();
@@ -237,10 +241,17 @@ namespace hod::editor
 
 		for (const AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
 		{
-			if (DrawExplorerItem(asset) == true)
+			if (DrawExplorerItem(asset) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
 			{
 				_currentExplorerNode = asset;
-				Editor::GetInstance()->SetAssetSelection(asset);
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) == true)
+				{
+					Editor::GetInstance()->OpenAsset(*asset->_asset);
+				}
+				else
+				{					
+					Editor::GetInstance()->SetAssetSelection(asset);
+				}
 			}
 		}
 
@@ -270,17 +281,13 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("Scene") == true)
 				{
-					/*
-					std::shared_ptr<game::Scene> scene = std::make_shared<game::Scene>();
-
-					std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(scene, _currentFolderTreeNode->_path / "Scene");
+					std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Scene>(_currentFolderTreeNode->_path / "Asset.scene");
 					const AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)
 					{
-						//EditNodeName(newAssetNode);
+						EditNodeName(newAssetNode);
 						ImGui::CloseCurrentPopup();
 					}
-					*/
 				}
 				ImGui::EndMenu();
 			}
@@ -376,6 +383,6 @@ namespace hod::editor
 								 ImVec2(cursorPosition.x + size.x - 2, cursorPosition.y + size.y),
 								 item->_path.filename().string().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
 
-		return pressed;
+		return hovered;
 	}
 }

@@ -17,12 +17,12 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	const char* DefaultImporter::GetTypeName()
+	const char* DefaultImporter::GetTypeName() const
 	{
 		return "DefaultImporter";
 	}
 
-	ImporterSettings* DefaultImporter::AllocateSettings()
+	ImporterSettings* DefaultImporter::AllocateSettings() const
 	{
 		return new DefaultImporterSettings();
 	}

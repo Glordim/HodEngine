@@ -21,6 +21,11 @@ namespace hod
 {
 	namespace game
 	{
+		DESCRIBE_REFLECTED_DERIVED_CLASS(Scene, Object)
+		{
+			// TODO register CreateAsset
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -198,6 +203,20 @@ namespace hod
 			_root->PushToRenderQueue(*renderQueue, true);
 
 			_physicScene->PushToRenderQueue(*renderQueue);
+		}
+
+		/// @brief 
+		/// @param documentNode 
+		void Scene::SerializeInDocument(core::Document::Node& documentNode) const
+		{
+			
+		}
+
+		/// @brief 
+		/// @param documentNode 
+		void Scene::DeserializeFromDocument(const core::Document::Node& documentNode)
+		{
+
 		}
 	}
 }

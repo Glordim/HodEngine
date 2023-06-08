@@ -135,12 +135,12 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	const char* TextureImporter::GetTypeName()
+	const char* TextureImporter::GetTypeName() const
 	{
 		return "TextureImporter";
 	}
 
-	ImporterSettings* TextureImporter::AllocateSettings()
+	ImporterSettings* TextureImporter::AllocateSettings() const
 	{
 		return new TextureImporterSettings();
 	}

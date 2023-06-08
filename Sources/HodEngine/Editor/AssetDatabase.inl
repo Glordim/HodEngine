@@ -12,4 +12,15 @@ namespace hod::editor
 		_importers.push_back(importer);
 		return true;
 	}
+
+	/// @brief 
+	/// @tparam _Object_ 
+	/// @param path 
+	/// @return 
+	template<typename _Object_>
+	std::filesystem::path AssetDatabase::CreateAsset(const std::filesystem::path& path)
+	{
+		_Object_ object;
+		return CreateAsset(object, path);
+	}
 }

@@ -51,8 +51,8 @@ namespace hod::editor
 
 	public:
 
-		virtual ImporterSettings*	AllocateSettings() = 0; // TODO macro IMPORTER
-		virtual const char*			GetTypeName() = 0;
+		virtual ImporterSettings*	AllocateSettings() const = 0; // TODO macro IMPORTER
+		virtual const char*			GetTypeName() const = 0;
 
 	protected:
 

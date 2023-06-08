@@ -27,8 +27,8 @@ namespace hod::editor
 
 	public:
 
-		ImporterSettings*	AllocateSettings() override;
-		const char*			GetTypeName() override;
+		ImporterSettings*	AllocateSettings() const override;
+		const char*			GetTypeName() const override;
 
 	protected:
 

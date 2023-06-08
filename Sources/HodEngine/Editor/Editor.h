@@ -18,6 +18,7 @@ namespace hod::editor
 {
 	class MainBar;
 	class Project;
+	class Asset;
 
 	/// @brief 
 	class Editor
@@ -42,6 +43,8 @@ namespace hod::editor
 
 		void*									GetSceneSelection() const;
 		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
+
+		void									OpenAsset(Asset& asset);
 
 	private:
 

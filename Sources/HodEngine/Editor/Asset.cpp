@@ -33,6 +33,8 @@ namespace hod::editor
 		_meta._uid = UID::GenerateUID();
 
 		_thumbnail = renderer::Renderer::GetInstance()->CreateTexture();
+
+		_meta._importerSettings = AssetDatabase::GetInstance()->GetDefaultImporter().AllocateSettings();
 	}
 
 	/// @brief 
@@ -85,14 +87,14 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	bool Asset::Save()
+	bool Asset::Save(Object* object)
 	{
-		core::Document document;
-		if (Meta::GetReflectionDescriptor()->SerializeInDocument(_meta, document.GetRootNode()) == false)
+		core::Document metaDocument;
+		if (Meta::GetReflectionDescriptor()->SerializeInDocument(_meta, metaDocument.GetRootNode()) == false)
 		{
 			return false;
 		}
-		if (_meta.SaveImporterConfig(document.GetRootNode()) == false) // TODO improve reflection
+		if (_meta.SaveImporterConfig(metaDocument.GetRootNode()) == false) // TODO improve reflection
 		{
 			return false;
 		}
@@ -101,9 +103,23 @@ namespace hod::editor
 		metaPath += ".meta";
 
 		core::DocumentWriterJson documentWriter;
-		if (documentWriter.Write(document, metaPath) == false)
+		if (documentWriter.Write(metaDocument, metaPath) == false)
 		{
 			return false;
+		}
+
+		if (object != nullptr)
+		{
+			core::Document objectDocument;
+			if (object->GetReflectionDescriptorV()->SerializeInDocument((const void*)object, objectDocument.GetRootNode()) == false)
+			{
+				return false;
+			}
+
+			if (documentWriter.Write(objectDocument, _path) == false)
+			{
+				return false;
+			}
 		}
 
 		_dirty = false;

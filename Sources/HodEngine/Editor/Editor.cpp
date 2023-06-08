@@ -189,4 +189,9 @@ namespace hod::editor
 	{
 		return AssetDatabase::GetInstance()->Save();
 	}
+
+	void Editor::OpenAsset(Asset& asset)
+	{
+		// TODO
+	}
 }

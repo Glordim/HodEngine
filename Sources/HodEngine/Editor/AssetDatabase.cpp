@@ -6,7 +6,6 @@
 #include "HodEngine/Editor/Project.h"
 #include "HodEngine/Editor/Asset.h"
 #include "HodEngine/Editor/Importer/Importer.h"
-#include "HodEngine/Editor/Importer/DefaultImporter.h"
 #include "HodEngine/Editor/Importer/TextureImporter.h"
 
 #include <HodEngine/Core/Frame/FrameSequencer.h>
@@ -38,7 +37,8 @@ namespace hod::editor
 	_SingletonConstructor(AssetDatabase)
 		: _filesystemWatcherJob(this, &AssetDatabase::FilesystemWatcherJob, JobQueue::FramedLowPriority)
 	{
-		RegisterImporter<DefaultImporter>();
+		_importers.push_back(&_defaultImporter);
+		
 		RegisterImporter<TextureImporter>();
 	}
 
@@ -225,23 +225,27 @@ namespace hod::editor
 	/// @param asset 
 	/// @param path 
 	/// @return 
-	std::filesystem::path AssetDatabase::CreateAsset(std::shared_ptr<Asset> asset, const std::filesystem::path& path)
+	std::filesystem::path AssetDatabase::CreateAsset(Object& object, const std::filesystem::path& path)
 	{
 		FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
 		childFileSystemMapping->_path = path;
-		childFileSystemMapping->_path.replace_extension(".asset");
+		//childFileSystemMapping->_path.replace_extension(".asset");
 		childFileSystemMapping->_path = GenerateUniqueAssetPath(childFileSystemMapping->_path);
 		//childFileSystemMapping->_lastWriteTime = 0;
 		childFileSystemMapping->_parentFolder = FindFileSystemMappingFromPath(path.parent_path());
 		childFileSystemMapping->_uid = UID::GenerateUID();
 		childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
-		childFileSystemMapping->_asset = asset;
+		childFileSystemMapping->_asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 
-		_uidToAssetMap.emplace(childFileSystemMapping->_uid, asset);
+		if (childFileSystemMapping->_asset->Save(&object) == false)
+		{
+			// TODO message better return value
+			return childFileSystemMapping->_path;
+		}
+
+		_uidToAssetMap.emplace(childFileSystemMapping->_uid, childFileSystemMapping->_asset);
 
 		childFileSystemMapping->_parentFolder->_childrenAsset.push_back(childFileSystemMapping);
-
-		
 
 		return childFileSystemMapping->_path;
 	}
@@ -319,8 +323,11 @@ namespace hod::editor
 			}
 		}
 
+		return _defaultImporter.Import(path);
+/*
 		OUTPUT_ERROR("Can't import \"%s\", not importer support it", path.string().c_str());
 		return false;
+*/
 	}
 
 	/// @brief 
@@ -354,6 +361,13 @@ namespace hod::editor
 		}
 
 		return nullptr;
+	}
+
+	/// @brief 
+	/// @return 
+	const DefaultImporter& AssetDatabase::GetDefaultImporter() const
+	{
+		return _defaultImporter;
 	}
 
 	/// @brief 

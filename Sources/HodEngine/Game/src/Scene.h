@@ -3,6 +3,7 @@
 #include "Actor.h"
 
 #include <HodEngine/Core/Color.h>
+#include <HodEngine/Core/Object.h>
 #include <vector>
 #include <utility>
 
@@ -33,8 +34,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class Scene
+		class Scene : public Object
 		{
+			REFLECTED_DERIVED_CLASS(Scene, Object)
+
 		public:
 																Scene();
 																Scene(const Scene&) = delete;
@@ -66,6 +69,9 @@ namespace hod
 			void												GetDebugLines(std::vector<renderer::Line_3P_3C>& lines);
 
 			void												PushToRenderQueue(renderer::RenderQueue* renderQueue = nullptr);
+
+			void												SerializeInDocument(core::Document::Node& documentNode) const;
+			void												DeserializeFromDocument(const core::Document::Node& documentNode);
 
 		private:
 
