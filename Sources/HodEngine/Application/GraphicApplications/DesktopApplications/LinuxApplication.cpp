@@ -11,9 +11,9 @@
 #include <Core/Src/ArgumentParser.h>
 #include <Core/Src/StringConversion.h>
 
-#include <Game/Src/ActorReflection.h>
-#include <Game/Src/ComponentReflection.h>
-#include <Game/Src/Builtin.h>
+#include <World/Src/ActorReflection.h>
+#include <World/Src/ComponentReflection.h>
+#include <World/Src/Builtin.h>
 
 #include <ImGui/src/imgui.h>
 #include <ImGui/src/imgui_impl_sdl.h>

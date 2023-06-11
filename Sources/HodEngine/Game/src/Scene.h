@@ -39,7 +39,7 @@ namespace hod
 			REFLECTED_DERIVED_CLASS(Scene, Object)
 
 		public:
-																Scene();
+																Scene(const std::string_view& name);
 																Scene(const Scene&) = delete;
 																Scene(Scene&&) = delete;
 			virtual												~Scene();
@@ -73,6 +73,8 @@ namespace hod
 			void												SerializeInDocument(core::Document::Node& documentNode) const;
 			void												DeserializeFromDocument(const core::Document::Node& documentNode);
 
+			const std::string&									GetName() const;
+
 		private:
 
 			CORE::Color											_ambiantColor;
@@ -82,6 +84,8 @@ namespace hod
 
 			std::vector<Actor*>									_actorList;
 			std::map<physics::Actor*, Actor*>					_physicActorToActorMap;
+
+			std::string											_name;
 
 			//std::vector<std::pair<renderer::Line_3P_3C, float>>	_debugLines;
 		};

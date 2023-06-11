@@ -26,6 +26,9 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
 
 #include "HodEngine/Editor/RecentProjects.h"
+#include "HodEngine/Editor/Asset.h"
+#include "HodEngine/Game/src/Scene.h"
+#include "HodEngine/Game/src/World.h"
 
 namespace hod::editor
 {
@@ -192,6 +195,20 @@ namespace hod::editor
 
 	void Editor::OpenAsset(Asset& asset)
 	{
-		// TODO
+		core::Document document;
+		core::DocumentReaderJson documentReader;
+		if (documentReader.Read(document, asset.GetPath()) == false)
+		{
+			return; // todo message + bool
+		}
+
+		game::Scene* scene = new game::Scene(asset.GetName());
+		if (scene->GetReflectionDescriptorV()->DeserializeFromDocument((void*)scene, document.GetRootNode()) == false)
+		{
+			return; // todo message + bool
+		}
+
+		game::World* world = game::World::GetInstance();
+		world->AddScene(scene);
 	}
 }

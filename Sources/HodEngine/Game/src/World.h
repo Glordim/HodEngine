@@ -13,9 +13,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class Game : public Singleton<Game>
+		class World : public Singleton<World>
 		{
-			friend class Singleton<Game>;
+			friend class Singleton<World>;
 
 		public:
 
@@ -27,10 +27,15 @@ namespace hod
 			Scene*				CreateScene();
 			void				DestroyScene(Scene* pScene);
 
+			bool				AddScene(Scene* scene);
+			bool				RemoveScene(Scene* scene);
+
+			const std::vector<Scene*>&	GetScenes() const;
+
 		protected:
 
-								Game();
-								~Game() override;
+								World();
+								~World() override;
 
 		private:
 

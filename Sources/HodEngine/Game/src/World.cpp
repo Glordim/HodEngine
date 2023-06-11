@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "World.h"
 
 #include "Scene.h"
 #include "Builtin.h"
@@ -6,14 +6,14 @@
 namespace hod
 {
 	template<>
-	game::Game* Singleton<game::Game>::_instance = nullptr;
+	game::World* Singleton<game::World>::_instance = nullptr;
 
 	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Game::Game() : Singleton()
+		World::World() : Singleton()
 		{
 
 		}
@@ -21,7 +21,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Game::~Game()
+		World::~World()
 		{
 			Clear();
 		}
@@ -29,7 +29,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Game::Init()
+		bool World::Init()
 		{
 			RegisterBuiltin();
 
@@ -39,16 +39,16 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Game::Clear()
+		void World::Clear()
 		{
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Scene* Game::CreateScene()
+		Scene* World::CreateScene()
 		{
-			Scene* pScene = new Scene();
+			Scene* pScene = new Scene("No name");
 
 			_scenes.push_back(pScene);
 
@@ -58,7 +58,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Game::DestroyScene(Scene* pScene)
+		void World::DestroyScene(Scene* pScene)
 		{
 			auto it = _scenes.begin();
 			auto itEnd = _scenes.end();
@@ -74,15 +74,61 @@ namespace hod
 			delete pScene;
 		}
 
+		/// @brief 
+		/// @param scene 
+		/// @return 
+		bool World::AddScene(Scene* scene)
+		{
+			auto it = _scenes.begin();
+			auto itEnd = _scenes.end();
+			while (it != itEnd)
+			{
+				if (*it == scene)
+				{
+					// Todo message already
+					return false;
+				}
+			}
+
+			_scenes.push_back(scene);
+			return true;
+		}
+
+		/// @brief 
+		/// @param scene 
+		/// @return 
+		bool World::RemoveScene(Scene* scene)
+		{
+			auto it = _scenes.begin();
+			auto itEnd = _scenes.end();
+			while (it != itEnd)
+			{
+				if (*it == scene)
+				{
+					_scenes.erase(it);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Game::Update(float dt)
+		void World::Update(float dt)
 		{
 			for (Scene* pScene : _scenes)
 			{
 				pScene->Update(dt);
 			}
+		}
+
+		/// @brief 
+		/// @return 
+		const std::vector<Scene*>& World::GetScenes() const
+		{
+			return _scenes;
 		}
 	}
 }

@@ -25,8 +25,10 @@ namespace hod::application
 	/// @return 
 	bool GraphicApplication::Init(const core::ArgumentParser& argumentParser)
 	{
-		JobSqueduler::CreateInstance();
-		FrameSequencer::CreateInstance();
+		if (Application::Init(argumentParser) == false)
+		{
+			return false;
+		}
 
 		_window = new PlatformWindow();
 

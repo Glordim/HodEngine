@@ -17,6 +17,9 @@
 
 #include "Components/CameraComponent.h"
 
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
+
 namespace hod
 {
 	namespace game
@@ -24,13 +27,20 @@ namespace hod
 		DESCRIBE_REFLECTED_DERIVED_CLASS(Scene, Object)
 		{
 			// TODO register CreateAsset
+
+			core::Reflection::Property::Variable* name = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::String, offsetof(Scene, _name), "Name");
+			AddProperty(name);
+
+			//core::Reflection::Property::Object* rootGameObject = new core::Reflection::Property::Object(core::Reflection::Property::Variable::Type::String, offsetof(Scene, _name), "Name");
+			//AddProperty(rootGameObject);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Scene::Scene()
+		Scene::Scene(const std::string_view& name)
 			: _ambiantColor(0.25f, 0.25f, 0.25f, 1.0f)
+			, _name(name)
 		{
 			/*
 			_root = SpawnActor<Actor>("Root");
@@ -217,6 +227,13 @@ namespace hod
 		void Scene::DeserializeFromDocument(const core::Document::Node& documentNode)
 		{
 
+		}
+
+		/// @brief 
+		/// @return 
+		const std::string& Scene::GetName() const
+		{
+			return _name;
 		}
 	}
 }

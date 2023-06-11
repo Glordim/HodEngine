@@ -3,6 +3,8 @@
 #include <HodEngine/Core/Job/JobSqueduler.h>
 #include <HodEngine/Core/Frame/FrameSequencer.h>
 
+#include "HodEngine/Game/src/World.h"
+
 namespace hod::application
 {
 	_SingletonConstructor(Application)
@@ -18,6 +20,8 @@ namespace hod::application
 	{
 		JobSqueduler::CreateInstance();
 		FrameSequencer::CreateInstance();
+
+		game::World::CreateInstance();
 
 		return true;
 	}

@@ -80,7 +80,7 @@ namespace hod
 		{
 			_textureMap[memberName] = value;
 
-			if (value != nullptr)
+			if (value != nullptr && value->GetWidth() != 0)
 			{
 				ApplyTexture(memberName, *value);
 			}
