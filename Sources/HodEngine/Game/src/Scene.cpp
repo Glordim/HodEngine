@@ -235,5 +235,12 @@ namespace hod
 		{
 			return _name;
 		}
+
+		/// @brief 
+		/// @return 
+		const std::vector<Actor*>& Scene::GetActors() const
+		{
+			return _actorList;
+		}
 	}
 }

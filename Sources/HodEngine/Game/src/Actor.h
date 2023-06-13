@@ -3,6 +3,7 @@
 #include <map>
 #include <typeinfo>
 #include <string>
+#include <string_view>
 
 #include "Component.h"
 #include "Components/SceneComponent.h"
@@ -50,6 +51,7 @@ namespace hod
 			std::vector<T*>					GetAllComponent() const;
 			std::vector<Component*>			GetAllComponent() const;
 
+			void							SetName(const std::string_view& name);
 			const std::string&				GetName() const;
 			Scene*							GetScene() const;
 

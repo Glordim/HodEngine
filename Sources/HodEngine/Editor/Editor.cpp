@@ -158,10 +158,10 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param asset 
-	void Editor::SetSceneSelection(void* selection)
+	void Editor::SetActorSelection(game::Actor* selection)
 	{
 		_assetSelection = nullptr;
-		_sceneSelection = selection;
+		_actorSelection = selection;
 	}
 
 	/// @brief 
@@ -169,14 +169,14 @@ namespace hod::editor
 	void Editor::SetAssetSelection(const AssetDatabase::FileSystemMapping* selection)
 	{
 		_assetSelection = selection;
-		_sceneSelection = nullptr;
+		_actorSelection = nullptr;
 	}
 
 	/// @brief 
 	/// @return 
-	void* Editor::GetSceneSelection() const
+	game::Actor* Editor::GetActorSelection() const
 	{
-		return _sceneSelection;
+		return _actorSelection;
 	}
 
 	/// @brief 

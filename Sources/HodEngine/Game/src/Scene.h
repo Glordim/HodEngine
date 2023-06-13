@@ -75,6 +75,8 @@ namespace hod
 
 			const std::string&									GetName() const;
 
+			const std::vector<Actor*>&							GetActors() const;
+
 		private:
 
 			CORE::Color											_ambiantColor;

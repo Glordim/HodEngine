@@ -2,6 +2,11 @@
 
 #include <HodEngine/ImGui/Window.h>
 
+namespace hod::game
+{
+	class Actor;
+}
+
 namespace hod::editor
 {
 	/// @brief 
@@ -18,5 +23,9 @@ namespace hod::editor
 	public:
 
 		void		Draw() override;
+
+	private:
+
+		game::Actor*	_selection = nullptr;
 	};
 }

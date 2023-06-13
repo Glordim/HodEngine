@@ -14,6 +14,11 @@ namespace hod::core
 	class ArgumentParser;
 }
 
+namespace hod::game
+{
+	class Actor;
+}
+
 namespace hod::editor
 {
 	class MainBar;
@@ -38,10 +43,10 @@ namespace hod::editor
 
 		bool			Save();
 
-		void									SetSceneSelection(void* selection);
+		void									SetActorSelection(game::Actor* selection);
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 
-		void*									GetSceneSelection() const;
+		game::Actor*							GetActorSelection() const;
 		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
 
 		void									OpenAsset(Asset& asset);
@@ -54,7 +59,7 @@ namespace hod::editor
 
 		MainBar*		_mainBar = nullptr;
 
-		void* 									_sceneSelection = nullptr;
+		game::Actor* 							_actorSelection = nullptr;
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
 	};
 }

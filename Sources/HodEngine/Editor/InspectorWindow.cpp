@@ -8,6 +8,8 @@
 #include "HodEngine/Editor/Asset.h"
 #include "HodEngine/Editor/PropertyDrawer.h"
 
+#include "HodEngine/Game/src/Actor.h"
+
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(InspectorWindow, "Inspector", true)
@@ -16,7 +18,7 @@ namespace hod::editor
 	void InspectorWindow::Draw()
 	{
 		Editor* editor = Editor::GetInstance();
-		void* sceneSelection = editor->GetSceneSelection();
+		game::Actor* sceneSelection = editor->GetActorSelection();
 		if (sceneSelection != nullptr)
 		{
 			DrawSceneSelection(sceneSelection);
@@ -51,9 +53,16 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param selection 
-	void InspectorWindow::DrawSceneSelection(void* selection)
+	void InspectorWindow::DrawSceneSelection(game::Actor* selection)
 	{
-		ImGui::Text("Scene");
+		ImGui::Text("Actor");
+
+		char buffer[256] = { '\0' };
+		std::strcpy(buffer, selection->GetName().c_str());
+		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
+		{
+			selection->SetName(buffer);
+		}
 	}
 
 	/// @brief 
