@@ -2,7 +2,10 @@
 
 #include <HodEngine/Core/Singleton.h>
 
+#include "HodEngine/Game/Entity.h"
+
 #include <vector>
+#include <unordered_map>
 
 namespace hod
 {
@@ -32,6 +35,9 @@ namespace hod
 
 			const std::vector<Scene*>&	GetScenes() const;
 
+			Entity*				CreateEntity(const std::string_view& name = "");
+			Entity*				GetEntities();
+
 		protected:
 
 								World();
@@ -40,6 +46,7 @@ namespace hod
 		private:
 
 			std::vector<Scene*>	_scenes;
+			std::unordered_map<Entity::Id, Entity>	_entities;
 		};
 	}
 }

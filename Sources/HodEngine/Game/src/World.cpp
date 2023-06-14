@@ -130,5 +130,13 @@ namespace hod
 		{
 			return _scenes;
 		}
+
+		/// @brief 
+		/// @param name 
+		/// @return 
+		Entity* World::CreateEntity(const std::string_view& name)
+		{
+			
+		}
 	}
 }
