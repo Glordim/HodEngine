@@ -134,9 +134,16 @@ namespace hod
 		/// @brief 
 		/// @param name 
 		/// @return 
-		Entity* World::CreateEntity(const std::string_view& name)
+		std::weak_ptr<Entity> World::CreateEntity(const std::string_view& name)
 		{
-			
+			std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
+			_entities.emplace(entity->GetId(), entity);
+			return entity;
+		}
+
+		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& World::GetEntities() const
+		{
+			return _entities;
 		}
 	}
 }

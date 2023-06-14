@@ -18,8 +18,10 @@ namespace hod::editor
 	{
 		game::World* world = game::World::GetInstance();
 
-		for (game::Actor* actor : world->GetEntities())
+		for (const std::pair<game::Entity::Id, game::Entity>& entityPair : world->GetEntities())
 		{
+			const game::Entity& entity = entityPair.second;
+
 			ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Leaf;
 			if (actor == _selection)
 			{

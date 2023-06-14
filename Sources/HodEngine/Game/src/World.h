@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <memory>
 
 namespace hod
 {
@@ -35,8 +36,8 @@ namespace hod
 
 			const std::vector<Scene*>&	GetScenes() const;
 
-			Entity*				CreateEntity(const std::string_view& name = "");
-			Entity*				GetEntities();
+			std::weak_ptr<Entity> CreateEntity(const std::string_view& name = "");
+			const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 
 		protected:
 
@@ -46,7 +47,7 @@ namespace hod
 		private:
 
 			std::vector<Scene*>	_scenes;
-			std::unordered_map<Entity::Id, Entity>	_entities;
+			std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
 		};
 	}
 }

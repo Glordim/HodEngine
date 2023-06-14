@@ -5,32 +5,32 @@
 
 namespace hod::game
 {
-    class Entity final
-    {
-    public:
+	class Entity final
+	{
+	public:
 
-        using Id = uint64_t;
+		using Id = uint64_t;
 
-    public:
+	public:
 
-                        Entity() = default;
-                        Entity(const Entity&) = delete;
-                        Entity(Entity&&) = delete;
-                        ~Entity() = default;
+						Entity(const std::string_view& name);
+						Entity(const Entity&) = default;
+						Entity(Entity&&) = default;
+						~Entity() = default;
 
-        const Entity&   operator = (const Entity&) = delete;
-        const Entity&   operator = (Entity&&) = delete;
+		const Entity&	operator = (const Entity& copy);
+		const Entity&	operator = (Entity&& move);
 
-    public:
+	public:
 
-        Id                  GetId() const;
-        const std::string&  GetName() const;
-        bool                GetActive() const;
+		Id					GetId() const;
+		const std::string&	GetName() const;
+		bool				GetActive() const;
 
-    private:
+	private:
 
-        Id              _id;
-        std::string     _name;
-        bool            _active;
-    };
+		Id				_id;
+		std::string		_name;
+		bool			_active;
+	};
 }

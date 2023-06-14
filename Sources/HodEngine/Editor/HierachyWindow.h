@@ -4,7 +4,7 @@
 
 namespace hod::game
 {
-	class Actor;
+	class Entity;
 }
 
 namespace hod::editor
@@ -26,6 +26,6 @@ namespace hod::editor
 
 	private:
 
-		game::Actor*	_selection = nullptr;
+		std::weak_ptr<game::Entity>	_selection;
 	};
 }
