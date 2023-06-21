@@ -158,10 +158,10 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param asset 
-	void Editor::SetActorSelection(game::Actor* selection)
+	void Editor::SetEntitySelection(std::weak_ptr<game::Entity> selection)
 	{
 		_assetSelection = nullptr;
-		_actorSelection = selection;
+		_entitySelection = selection;
 	}
 
 	/// @brief 
@@ -169,14 +169,14 @@ namespace hod::editor
 	void Editor::SetAssetSelection(const AssetDatabase::FileSystemMapping* selection)
 	{
 		_assetSelection = selection;
-		_actorSelection = nullptr;
+		_entitySelection.reset();
 	}
 
 	/// @brief 
 	/// @return 
-	game::Actor* Editor::GetActorSelection() const
+	const std::weak_ptr<game::Entity>& Editor::GetEntitySelection() const
 	{
-		return _actorSelection;
+		return _entitySelection;
 	}
 
 	/// @brief 

@@ -43,10 +43,10 @@ namespace hod::editor
 
 		bool			Save();
 
-		void									SetActorSelection(game::Actor* selection);
+		void									SetEntitySelection(std::weak_ptr<game::Entity> selection);
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 
-		game::Actor*							GetActorSelection() const;
+		const std::weak_ptr<game::Entity>&		GetEntitySelection() const;
 		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
 
 		void									OpenAsset(Asset& asset);
@@ -59,7 +59,7 @@ namespace hod::editor
 
 		MainBar*		_mainBar = nullptr;
 
-		game::Actor* 							_actorSelection = nullptr;
+		std::weak_ptr<game::Entity> 			_entitySelection;
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
 	};
 }

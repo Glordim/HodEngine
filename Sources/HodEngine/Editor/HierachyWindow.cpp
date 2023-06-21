@@ -18,22 +18,24 @@ namespace hod::editor
 	{
 		game::World* world = game::World::GetInstance();
 
-		for (const std::pair<game::Entity::Id, game::Entity>& entityPair : world->GetEntities())
+		std::shared_ptr<game::Entity> selectionLock = _selection.lock();
+
+		for (const std::weak_ptr<game::Entity>& entity : world->GetEntities())
 		{
-			const game::Entity& entity = entityPair.second;
+			std::shared_ptr<game::Entity> entityLock = entity.lock();
 
 			ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Leaf;
-			if (actor == _selection)
+			if (entityLock == selectionLock)
 			{
 				treeNodeFlags|= ImGuiTreeNodeFlags_Selected;
 			}
 
-			ImGui::PushID(actor);
-			bool opened = ImGui::TreeNodeEx(actor->GetName().c_str(), treeNodeFlags);
+			ImGui::PushID(entityLock.get());
+			bool opened = ImGui::TreeNodeEx(entityLock->GetName().c_str(), treeNodeFlags);
 			if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 			{
-				_selection = actor;
-				Editor::GetInstance()->SetActorSelection(_selection);
+				_selection = entityLock;
+				Editor::GetInstance()->SetEntitySelection(_selection);
 			}
 			ImGui::PopID();
 			if (opened == true)
@@ -46,7 +48,7 @@ namespace hod::editor
 		{
 			if (ImGui::MenuItem("Create GameObject") == true)
 			{
-				game::Actor* actor = scene->SpawnActor<game::Actor>("EditMe");
+				std::weak_ptr<game::Entity> entity = world->CreateEntity("EditMe");
 			}
 			/*
 			if (ImGui::MenuItem("Create GameObject") == true)
