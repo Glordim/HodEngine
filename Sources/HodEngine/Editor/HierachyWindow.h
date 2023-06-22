@@ -1,6 +1,9 @@
 #pragma once
 
 #include <HodEngine/ImGui/Window.h>
+#include <memory>
+
+#include "HodEngine/Core/Event.h"
 
 namespace hod::game
 {
@@ -37,13 +40,15 @@ namespace hod::editor
 
 	private:
 
+		void		DrawEntityNode(EntityNode* entityNode);
+
 		void		OnNewEntityCallback(std::weak_ptr<game::Entity> entity);
 		void		OnRemoveEntityCallback(std::weak_ptr<game::Entity> entity);
 		void		OnRenameEntityCallback(std::weak_ptr<game::Entity> entity);
 
 	private:
 
-		std::weak_ptr<game::Entity>	_selection;
+		std::weak_ptr<game::Entity>					_selection;
 
 		EntityNode									_rootEntityNode;
 

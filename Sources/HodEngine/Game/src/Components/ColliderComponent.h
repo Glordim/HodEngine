@@ -38,7 +38,6 @@ namespace hod
 
 		public:
 
-			void			DrawImGui() override;
 			const char*		GetType() const override;
 
 			void			AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition);

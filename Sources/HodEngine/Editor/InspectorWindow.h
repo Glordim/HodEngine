@@ -12,6 +12,7 @@ namespace hod
 namespace hod::game
 {
 	class Actor;
+	class Entity;
 }
 
 namespace hod::editor
@@ -34,7 +35,7 @@ namespace hod::editor
 	private:
 
 		void		DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection);
-		void		DrawSceneSelection(game::Actor* selection);
+		void		DrawSceneSelection(game::Entity* selection);
 
 		bool		DrawDefaultInspector(hod::Object& object);
 	};

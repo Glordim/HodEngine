@@ -9,6 +9,8 @@
 #include "HodEngine/Game/src/Scene.h"
 #include "HodEngine/Game/src/Actor.h"
 
+#include "HodEngine/Game/src/Components/NodeComponent.h"
+
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(HierachyWindow, "Hierachy", true)
@@ -30,12 +32,32 @@ namespace hod::editor
 	/// @param entity 
 	void HierachyWindow::OnNewEntityCallback(std::weak_ptr<game::Entity> entity)
 	{
-		EntityNode* entityNode = new EntityNode();
-		entityNode->_entity = entity;
+		std::shared_ptr<game::Entity> entityLock = entity.lock();
+		if (entityLock != nullptr)
+		{
+			EntityNode* entityNode = new EntityNode();
+			entityNode->_entity = entity;
 
-		
+			std::shared_ptr<game::NodeComponent> parentLock;
+			{
+				std::weak_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>();
+				std::shared_ptr<game::NodeComponent> nodeComponentLock = nodeComponent.lock();
+				if (nodeComponentLock != nullptr)
+				{
+					std::weak_ptr<game::NodeComponent> parent = nodeComponentLock->GetParent();
+					parentLock = parent.lock();
+				}
+			}
 
-		_rootEntityNode.(entityNode);
+			if (parentLock != nullptr)
+			{
+				// TODO Find
+			}
+			else
+			{
+				_rootEntityNode._children.push_back(entityNode);
+			}
+		}
 	}
 
 	/// @brief 
@@ -55,36 +77,44 @@ namespace hod::editor
 	/// @brief 
 	void HierachyWindow::Draw()
 	{
+		for (EntityNode* entityNode : _rootEntityNode._children)
+		{
+			DrawEntityNode(entityNode);
+		}
+	}
+
+	/// @brief 
+	/// @param entityNode 
+	void HierachyWindow::DrawEntityNode(EntityNode* entityNode)
+	{
 		std::shared_ptr<game::Entity> selectionLock = _selection.lock();
 
-		for (const std::weak_ptr<game::Entity>& entity : world->GetEntities())
+		std::shared_ptr<game::Entity> entityLock = entityNode->_entity.lock();
+
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Leaf;
+		if (entityLock == selectionLock)
 		{
-			std::shared_ptr<game::Entity> entityLock = entity.lock();
+			treeNodeFlags|= ImGuiTreeNodeFlags_Selected;
+		}
 
-			ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Leaf;
-			if (entityLock == selectionLock)
-			{
-				treeNodeFlags|= ImGuiTreeNodeFlags_Selected;
-			}
-
-			ImGui::PushID(entityLock.get());
-			bool opened = ImGui::TreeNodeEx(entityLock->GetName().c_str(), treeNodeFlags);
-			if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
-			{
-				_selection = entityLock;
-				Editor::GetInstance()->SetEntitySelection(_selection);
-			}
-			ImGui::PopID();
-			if (opened == true)
-			{
-				ImGui::TreePop();
-			}
+		ImGui::PushID(entityLock.get());
+		bool opened = ImGui::TreeNodeEx(entityLock->GetName().c_str(), treeNodeFlags);
+		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
+		{
+			_selection = entityLock;
+			Editor::GetInstance()->SetEntitySelection(_selection);
+		}
+		ImGui::PopID();
+		if (opened == true)
+		{
+			ImGui::TreePop();
 		}
 
 		if (ImGui::BeginPopupContextItem("ContextPopup") == true)
 		{
 			if (ImGui::MenuItem("Create GameObject") == true)
 			{
+				game::World* world = game::World::GetInstance();
 				std::weak_ptr<game::Entity> entity = world->CreateEntity("EditMe");
 			}
 			/*
@@ -128,12 +158,6 @@ namespace hod::editor
 					{
 						game::Actor* actor = scene->SpawnActor<game::Actor>("EditMe");
 					}
-					/*
-					if (ImGui::MenuItem("Create GameObject") == true)
-					{
-						
-					}
-					*/
 					ImGui::EndPopup();
 				}
 			}

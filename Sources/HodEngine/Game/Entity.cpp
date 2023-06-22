@@ -56,6 +56,13 @@ namespace hod::game
 	}
 
 	/// @brief 
+	/// @param name 
+	void Entity::SetName(const std::string_view& name)
+	{
+		_name = name;
+	}
+
+	/// @brief 
 	/// @return 
 	bool Entity::GetActive() const
 	{

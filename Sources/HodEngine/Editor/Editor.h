@@ -17,6 +17,7 @@ namespace hod::core
 namespace hod::game
 {
 	class Actor;
+	class Entity;
 }
 
 namespace hod::editor

@@ -9,6 +9,7 @@
 #include "HodEngine/Editor/PropertyDrawer.h"
 
 #include "HodEngine/Game/src/Actor.h"
+#include "HodEngine/Game/Entity.h"
 
 namespace hod::editor
 {
@@ -18,10 +19,10 @@ namespace hod::editor
 	void InspectorWindow::Draw()
 	{
 		Editor* editor = Editor::GetInstance();
-		game::Actor* sceneSelection = editor->GetActorSelection();
+		std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
 		if (sceneSelection != nullptr)
 		{
-			DrawSceneSelection(sceneSelection);
+			DrawSceneSelection(sceneSelection.get());
 		}
 		else
 		{
@@ -53,7 +54,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param selection 
-	void InspectorWindow::DrawSceneSelection(game::Actor* selection)
+	void InspectorWindow::DrawSceneSelection(game::Entity* selection)
 	{
 		ImGui::Text("Actor");
 

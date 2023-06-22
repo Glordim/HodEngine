@@ -28,25 +28,6 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void PointLightComponent::DrawImGui()
-		{
-			//if (ImGui::ColorPicker3("Color", &_data.color[0]) == true)
-			{
-				/*
-				StaticMeshComponent* pStaticMesh = GetActor()->GetComponent<StaticMeshComponent>();
-				if (pStaticMesh != nullptr)
-				{
-					pStaticMesh->GetMaterialInstance()->SetVec4("matUbo.color", glm::vec4(_data.color.r, _data.color.g, _data.color.b, _data.color.a));
-				}
-				*/
-			}
-			//ImGui::SliderFloat("Intensity", &_data.intensity, 0.0f, 100.0f);
-			//ImGui::SliderFloat("Range", &_data.range, 0.0f, 100.0f);
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		const char* PointLightComponent::GetType() const
 		{
 			return "Point Light";

@@ -23,7 +23,6 @@ namespace hod
 		/// @param actor 
 		NodeComponent::NodeComponent(Actor* actor) : Component(actor)
 		{
-			_parent = nullptr;
 			_localMatrixDirty = true;
 		}
 
@@ -63,32 +62,43 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		uint32_t NodeComponent::GetChildCount() const
 		{
-			return static_cast<uint32_t>(_childs.size());
+			return static_cast<uint32_t>(_children.size());
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		NodeComponent* NodeComponent::GetChild(uint32_t index)
+		std::weak_ptr<NodeComponent> NodeComponent::GetChild(uint32_t index)
 		{
-			return _childs[index];
+			return _children[index];
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void NodeComponent::SetParent(NodeComponent* parent)
+		void NodeComponent::SetParent(const std::weak_ptr<NodeComponent>& parent)
 		{
 			// TODO retirer du vector childs du precedent parent
 
-			_parent = parent;
-			_parent->_childs.push_back(this);
+			std::shared_ptr<NodeComponent> parentLock = parent.lock();
+			if (parentLock != nullptr)
+			{
+				_parent = parent;
+				parentLock->_children.push_back(std::static_pointer_cast<NodeComponent>(shared_from_this()));
+			}
 		}
 
 		/// @brief 
 		void NodeComponent::SetLocalMatrixDirty()
 		{
 			_localMatrixDirty = true;
+		}
+
+		/// @brief 
+		/// @return 
+		std::weak_ptr<NodeComponent> NodeComponent::GetParent() const
+		{
+			return _parent;
 		}
 	}
 }

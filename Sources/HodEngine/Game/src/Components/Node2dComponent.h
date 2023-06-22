@@ -15,7 +15,8 @@ namespace hod
 		/// @brief 
 		class Node2dComponent : public NodeComponent
 		{
-			REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent);
+			REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent)
+			META_TYPE(Node2dComponent)
 
 		public:
 

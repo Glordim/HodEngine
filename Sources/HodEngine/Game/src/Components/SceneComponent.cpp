@@ -50,35 +50,6 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SceneComponent::DrawImGui()
-		{
-			/*
-			glm::vec2 pos = _position;
-
-			if (ImGui::DragFloat2("Position", &pos[0]) == true)
-			{
-				SetPosition(pos);
-			}
-
-			float rotation = _rotation;
-
-			if (ImGui::DragFloat("Rotation", &rotation) == true)
-			{
-				SetRotation(rotation);
-			}
-
-			glm::vec2 scale = _scale;
-
-			if (ImGui::DragFloat2("Scale", &scale[0]) == true)
-			{
-				SetScale(scale);
-			}
-			*/
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		const char* SceneComponent::GetType() const
 		{
 			return "Scene";

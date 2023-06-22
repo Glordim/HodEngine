@@ -1,6 +1,9 @@
 #pragma once
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.h>
+#include <memory>
+
+#include "HodEngine/Core/Type.h"
 
 namespace hod
 {
@@ -14,9 +17,10 @@ namespace hod
 		class Actor;
 
 		///@brief 
-		class Component
+		class Component : public std::enable_shared_from_this<Component>
 		{
 			REFLECTED_ABSTRACT_CLASS(Component)
+			BASE_META_TYPE(Component)
 
 			friend class Actor;
 

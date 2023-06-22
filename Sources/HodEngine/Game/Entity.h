@@ -2,9 +2,13 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+#include <memory>
 
 namespace hod::game
 {
+	class Component;
+
 	class Entity final
 	{
 	public:
@@ -25,12 +29,23 @@ namespace hod::game
 
 		Id					GetId() const;
 		const std::string&	GetName() const;
+		void				SetName(const std::string_view& name);
 		bool				GetActive() const;
+
+		template<typename _Component_>
+		std::weak_ptr<_Component_>	GetComponent();
+
+		template<typename _Component_>
+		std::weak_ptr<_Component_>	AddComponent();
 
 	private:
 
 		Id				_id;
 		std::string		_name;
 		bool			_active;
+
+		std::vector<std::shared_ptr<Component>>	_components; // map ?
 	};
 }
+
+#include "Entity.inl"

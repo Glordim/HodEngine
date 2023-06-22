@@ -29,25 +29,6 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SpotLightComponent::DrawImGui()
-		{
-			//if (ImGui::ColorPicker3("Color", &_data.color[0]) == true)
-			{
-				/*
-				StaticMeshComponent* pStaticMesh = GetActor()->GetComponent<StaticMeshComponent>();
-				if (pStaticMesh != nullptr)
-				{
-					pStaticMesh->GetMaterialInstance()->SetVec4("matUbo.color", glm::vec4(_data.color.r, _data.color.g, _data.color.b, _data.color.a));
-				}
-				*/
-			}
-			//ImGui::SliderFloat("Intensity", &_data.intensity, 0.0f, 100.0f);
-			//ImGui::SliderFloat("Radius", &_data.radius, 0.0f, 180.0f);
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		const char* SpotLightComponent::GetType() const
 		{
 			return "Spot Light";

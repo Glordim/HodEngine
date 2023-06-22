@@ -14,7 +14,7 @@ private:																	\
 																			\
 
 
-// TODO constexpr + rename Mete to Class
+// TODO constexpr + rename Meta to Class
 
 #define META_TYPE(__ClassName__)												\
 public:																			\

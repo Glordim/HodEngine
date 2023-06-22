@@ -30,7 +30,6 @@ namespace hod
 
 		public:
 
-			void			DrawImGui() override;
 			const char*		GetType() const override;
 		};
 	}

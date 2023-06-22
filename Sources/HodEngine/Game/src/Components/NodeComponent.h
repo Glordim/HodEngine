@@ -9,6 +9,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include <vector>
+#include <memory>
 
 namespace hod
 {
@@ -17,7 +18,8 @@ namespace hod
 		/// @brief 
 		class NodeComponent : public Component
 		{
-			REFLECTED_DERIVED_CLASS(NodeComponent, Component);
+			REFLECTED_DERIVED_CLASS(NodeComponent, Component)
+			META_TYPE(NodeComponent)
 
 		public:
 
@@ -36,8 +38,10 @@ namespace hod
 		public:
 
 			uint32_t						GetChildCount() const;
-			NodeComponent*					GetChild(uint32_t index);
-			void							SetParent(NodeComponent* parent);
+			std::weak_ptr<NodeComponent>	GetChild(uint32_t index);
+
+			std::weak_ptr<NodeComponent>	GetParent() const;
+			void							SetParent(const std::weak_ptr<NodeComponent>& parent);
 
 			const glm::mat4&				GetLocalMatrix();
 			const glm::mat4&				GetWorldMatrix();
@@ -53,12 +57,12 @@ namespace hod
 
 		private:
 
-			bool							_localMatrixDirty = true;
-			glm::mat4						_localMatrix;
-			glm::mat4						_worldMatrix;
+			bool										_localMatrixDirty = true;
+			glm::mat4									_localMatrix;
+			glm::mat4									_worldMatrix;
 
-			std::vector<NodeComponent*>		_childs;
-			NodeComponent*					_parent = nullptr;
+			std::vector<std::weak_ptr<NodeComponent>>	_children;
+			std::weak_ptr<NodeComponent>				_parent;
 		};
 	}
 }
