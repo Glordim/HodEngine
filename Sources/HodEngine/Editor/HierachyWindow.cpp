@@ -14,10 +14,47 @@ namespace hod::editor
 	DECLARE_WINDOW_DESCRIPTION(HierachyWindow, "Hierachy", true)
 
 	/// @brief 
-	void HierachyWindow::Draw()
+	HierachyWindow::HierachyWindow()
+	: _onNewEntityCallback(std::bind(&HierachyWindow::OnNewEntityCallback, this, std::placeholders::_1))
+	, _onRemoveEntityCallback(std::bind(&HierachyWindow::OnRemoveEntityCallback, this, std::placeholders::_1))
+	, _onRenameEntityCallback(std::bind(&HierachyWindow::OnRenameEntityCallback, this, std::placeholders::_1))
 	{
 		game::World* world = game::World::GetInstance();
 
+		world->GetNewEntityEvent() += _onNewEntityCallback;
+		world->GetRemoveEntityEvent() += _onRemoveEntityCallback;
+		world->GetRenameEntityEvent() += _onRenameEntityCallback;
+	}
+
+	/// @brief 
+	/// @param entity 
+	void HierachyWindow::OnNewEntityCallback(std::weak_ptr<game::Entity> entity)
+	{
+		EntityNode* entityNode = new EntityNode();
+		entityNode->_entity = entity;
+
+		
+
+		_rootEntityNode.(entityNode);
+	}
+
+	/// @brief 
+	/// @param entity 
+	void HierachyWindow::OnRemoveEntityCallback(std::weak_ptr<game::Entity> entity)
+	{
+
+	}
+
+	/// @brief 
+	/// @param entity 
+	void HierachyWindow::OnRenameEntityCallback(std::weak_ptr<game::Entity> entity)
+	{
+
+	}
+
+	/// @brief 
+	void HierachyWindow::Draw()
+	{
 		std::shared_ptr<game::Entity> selectionLock = _selection.lock();
 
 		for (const std::weak_ptr<game::Entity>& entity : world->GetEntities())

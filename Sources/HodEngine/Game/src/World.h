@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <memory>
 
+#include "HodEngine/Core/Event.h"
+
 namespace hod
 {
 	namespace game
@@ -39,6 +41,10 @@ namespace hod
 			std::weak_ptr<Entity> CreateEntity(const std::string_view& name = "");
 			const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 
+			Event<std::weak_ptr<Entity>>&	GetNewEntityEvent() { return _newEntityEvent; }
+			Event<std::weak_ptr<Entity>>&	GetRemoveEntityEvent() { return _removeEntityEvent; }
+			Event<std::weak_ptr<Entity>>&	GetRenameEntityEvent() { return _renameEntityEvent; }
+
 		protected:
 
 								World();
@@ -48,6 +54,10 @@ namespace hod
 
 			std::vector<Scene*>	_scenes;
 			std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
+
+			Event<std::weak_ptr<Entity>>	_newEntityEvent;
+			Event<std::weak_ptr<Entity>>	_removeEntityEvent;
+			Event<std::weak_ptr<Entity>>	_renameEntityEvent;
 		};
 	}
 }

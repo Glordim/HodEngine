@@ -17,7 +17,7 @@ namespace hod::editor
 
 	public:
 
-					HierachyWindow() = default;
+					HierachyWindow();
 					~HierachyWindow() override = default;
 
 	public:
@@ -26,6 +26,29 @@ namespace hod::editor
 
 	private:
 
+		struct EntityNode
+		{
+			std::weak_ptr<game::Entity> _entity;
+			bool						_collapsed = true;
+
+			std::vector<EntityNode*>	_children;
+			EntityNode*					_parent = nullptr;
+		};
+
+	private:
+
+		void		OnNewEntityCallback(std::weak_ptr<game::Entity> entity);
+		void		OnRemoveEntityCallback(std::weak_ptr<game::Entity> entity);
+		void		OnRenameEntityCallback(std::weak_ptr<game::Entity> entity);
+
+	private:
+
 		std::weak_ptr<game::Entity>	_selection;
+
+		EntityNode									_rootEntityNode;
+
+		Event<std::weak_ptr<game::Entity>>::Slot	_onNewEntityCallback;
+		Event<std::weak_ptr<game::Entity>>::Slot	_onRemoveEntityCallback;
+		Event<std::weak_ptr<game::Entity>>::Slot	_onRenameEntityCallback;
 	};
 }

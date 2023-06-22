@@ -26,7 +26,6 @@ namespace hod
 			virtual const char*	GetType() const = 0;
 
 			virtual void		PushToRenderQueue(renderer::RenderQueue& renderQueue);
-			virtual void		DrawImGui() = 0;
 
 		protected:
 
