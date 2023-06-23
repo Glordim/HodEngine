@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "HodEngine/Core/Type.h"
+#include "HodEngine/Core/Object.h"
 
 namespace hod
 {
@@ -15,17 +16,19 @@ namespace hod
 	namespace game
 	{
 		class Actor;
+		class Entity;
 
 		///@brief 
-		class Component : public std::enable_shared_from_this<Component>
+		class Component : public Object, public std::enable_shared_from_this<Component>
 		{
-			REFLECTED_ABSTRACT_CLASS(Component)
+			REFLECTED_ABSTRACT_DERIVED_CLASS(Component, Object)
 			BASE_META_TYPE(Component)
 
 			friend class Actor;
 
 		public:
 
+			const std::weak_ptr<Entity>&	GetEntity() const;
 			Actor*				GetActor() const;
 			virtual const char*	GetType() const = 0;
 
@@ -33,7 +36,8 @@ namespace hod
 
 		protected:
 
-								Component(Actor* actor);
+								Component(Actor* actor); // todo remove
+								Component(const std::weak_ptr<Entity>& entity);
 								Component(const Component&) = delete;
 								Component(Component&&) = delete;
 			virtual				~Component() = default;
@@ -44,6 +48,7 @@ namespace hod
 		private:
 
 			Actor*				_actor = nullptr;
+			std::weak_ptr<Entity>	_entity;
 		};
 	}
 }

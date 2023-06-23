@@ -26,6 +26,14 @@ namespace hod
 			_localMatrixDirty = true;
 		}
 
+		/// @brief 
+		/// @param entity 
+		NodeComponent::NodeComponent(const std::weak_ptr<Entity>& entity)
+		: Component(entity)
+		{
+
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------

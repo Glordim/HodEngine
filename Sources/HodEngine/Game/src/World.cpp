@@ -88,6 +88,7 @@ namespace hod
 					// Todo message already
 					return false;
 				}
+				++it;
 			}
 
 			_scenes.push_back(scene);
@@ -138,6 +139,9 @@ namespace hod
 		{
 			std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
 			_entities.emplace(entity->GetId(), entity);
+
+			_newEntityEvent.Emit(entity);
+
 			return entity;
 		}
 

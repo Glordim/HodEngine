@@ -23,7 +23,8 @@ namespace hod
 
 		public:
 
-											NodeComponent(Actor* actor);
+											NodeComponent(Actor* actor); // todo remove
+											NodeComponent(const std::weak_ptr<Entity>& entity);
 											NodeComponent(const NodeComponent&) = delete;
 											NodeComponent(NodeComponent&&) = delete;
 											~NodeComponent() override;
@@ -48,7 +49,7 @@ namespace hod
 
 		protected:
 
-			virtual void					ComputeLocalMatrix(glm::mat4& localMatrix) = 0;
+			virtual void					ComputeLocalMatrix(glm::mat4& localMatrix) { /* todo identity */ };
 			void							SetLocalMatrixDirty();
 
 		private:

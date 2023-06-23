@@ -81,6 +81,35 @@ namespace hod::editor
 		{
 			DrawEntityNode(entityNode);
 		}
+
+		if (ImGui::IsWindowHovered() == true && ImGui::IsAnyItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
+		{
+			ImGui::OpenPopup("ContextualMenu");
+		}
+
+		if (ImGui::BeginPopup("ContextualMenu") == true)
+		{
+			if (ImGui::MenuItem("Create Entity") == true)
+			{
+				game::World* world = game::World::GetInstance();
+				std::weak_ptr<game::Entity> entity = world->CreateEntity("EditMe");
+
+				std::shared_ptr<game::Entity> selectionLock = _selection.lock();
+				if (selectionLock != nullptr)
+				{
+					std::shared_ptr<game::NodeComponent> selectionNodeComponentLock = selectionLock->GetComponent<game::NodeComponent>().lock();
+					if (selectionNodeComponentLock != nullptr)
+					{
+						std::shared_ptr<game::Entity> entityLock = entity.lock();
+						std::shared_ptr<game::NodeComponent> nodeComponentLock = entityLock->AddComponent<game::NodeComponent>().lock();
+						nodeComponentLock->SetParent(selectionNodeComponentLock);
+					}
+				}
+
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
 	}
 
 	/// @brief 
@@ -110,58 +139,12 @@ namespace hod::editor
 			ImGui::TreePop();
 		}
 
-		if (ImGui::BeginPopupContextItem("ContextPopup") == true)
+		if (ImGui::IsWindowHovered() == true && ImGui::IsItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
-			if (ImGui::MenuItem("Create GameObject") == true)
-			{
-				game::World* world = game::World::GetInstance();
-				std::weak_ptr<game::Entity> entity = world->CreateEntity("EditMe");
-			}
-			/*
-			if (ImGui::MenuItem("Create GameObject") == true)
-			{
-				
-			}
-			*/
-			ImGui::EndPopup();
-		}
-/*
-		for (game::Scene* scene : world->GetScenes())
-		{
-			if (ImGui::CollapsingHeader(scene->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen) == true)
-			{
-				for (game::Actor* actor : scene->GetActors())
-				{
-					ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Leaf;
-					if (actor == _selection)
-					{
-						treeNodeFlags|= ImGuiTreeNodeFlags_Selected;
-					}
+			_selection = entityLock;
+			Editor::GetInstance()->SetEntitySelection(_selection);
 
-					ImGui::PushID(actor);
-					bool opened = ImGui::TreeNodeEx(actor->GetName().c_str(), treeNodeFlags);
-					if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
-					{
-						_selection = actor;
-						Editor::GetInstance()->SetActorSelection(_selection);
-					}
-					ImGui::PopID();
-					if (opened == true)
-					{
-						ImGui::TreePop();
-					}
-				}
-
-				if (ImGui::BeginPopupContextItem("ContextPopup") == true)
-				{
-					if (ImGui::MenuItem("Create GameObject") == true)
-					{
-						game::Actor* actor = scene->SpawnActor<game::Actor>("EditMe");
-					}
-					ImGui::EndPopup();
-				}
-			}
+			ImGui::OpenPopup("ContextualMenu");
 		}
-*/
 	}
 }

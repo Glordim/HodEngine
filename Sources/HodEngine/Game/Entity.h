@@ -9,7 +9,7 @@ namespace hod::game
 {
 	class Component;
 
-	class Entity final
+	class Entity final : public std::enable_shared_from_this<Entity>
 	{
 	public:
 
@@ -31,6 +31,8 @@ namespace hod::game
 		const std::string&	GetName() const;
 		void				SetName(const std::string_view& name);
 		bool				GetActive() const;
+
+		std::vector<std::weak_ptr<game::Component>>	GetComponents() const;
 
 		template<typename _Component_>
 		std::weak_ptr<_Component_>	GetComponent();

@@ -10,6 +10,7 @@
 
 #include "HodEngine/Game/src/Actor.h"
 #include "HodEngine/Game/Entity.h"
+#include "HodEngine/Game/src/Components/NodeComponent.h"
 
 namespace hod::editor
 {
@@ -63,6 +64,29 @@ namespace hod::editor
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
 			selection->SetName(buffer);
+		}
+		ImGui::Separator();
+
+		std::vector<std::weak_ptr<game::Component>> components = selection->GetComponents();
+		for (const std::weak_ptr<game::Component>& component : components)
+		{
+			std::shared_ptr<game::Component> componentLock = component.lock();
+			if (componentLock != nullptr)
+			{
+				ImGui::TextUnformatted(componentLock->GetMetaTypeName());
+
+				if (DrawDefaultInspector(*componentLock.get()) == true)
+				{
+					//selection->_asset->SetDirty(); // TODO
+				}
+			}
+		}
+
+		ImGui::Separator();
+
+		if (ImGui::Button("Add component") == true)
+		{
+			selection->AddComponent<game::NodeComponent>();
 		}
 	}
 
