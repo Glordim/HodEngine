@@ -140,14 +140,24 @@ namespace hod
 			std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
 			_entities.emplace(entity->GetId(), entity);
 
-			_newEntityEvent.Emit(entity);
+			_addEntityEvent.Emit(entity);
 
 			return entity;
 		}
 
+		/// @brief 
+		/// @return 
 		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& World::GetEntities() const
 		{
 			return _entities;
+		}
+
+		/// @brief 
+		/// @param entityId 
+		/// @return 
+		std::weak_ptr<Entity> World::FindEntity(Entity::Id entityId)
+		{
+			return _entities[entityId];
 		}
 	}
 }

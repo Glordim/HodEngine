@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+#include "HodEngine/Core/Event.h"
+
 namespace hod::game
 {
 	class Component;
@@ -40,6 +42,9 @@ namespace hod::game
 		template<typename _Component_>
 		std::weak_ptr<_Component_>	AddComponent();
 
+		Event<std::weak_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
+		Event<std::weak_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }
+
 	private:
 
 		Id				_id;
@@ -47,6 +52,9 @@ namespace hod::game
 		bool			_active;
 
 		std::vector<std::shared_ptr<Component>>	_components; // map ?
+
+		Event<std::weak_ptr<Component>>	_onAddComponentEvent;
+		Event<std::weak_ptr<Component>>	_onRemoveComponentEvent;
 	};
 }
 

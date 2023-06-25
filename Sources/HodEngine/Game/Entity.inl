@@ -37,6 +37,8 @@ namespace hod::game
 		std::shared_ptr<_Component_> component = std::make_shared<_Component_>(weak_from_this());
 		_components.push_back(component);
 
+		_onAddComponentEvent.Emit(component);
+
 		return component;
 	}
 }

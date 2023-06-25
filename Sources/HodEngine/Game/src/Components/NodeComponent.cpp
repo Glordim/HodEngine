@@ -86,14 +86,29 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void NodeComponent::SetParent(const std::weak_ptr<NodeComponent>& parent)
 		{
-			// TODO retirer du vector childs du precedent parent
-
-			std::shared_ptr<NodeComponent> parentLock = parent.lock();
+			std::shared_ptr<NodeComponent> parentLock = _parent.lock();
 			if (parentLock != nullptr)
 			{
-				_parent = parent;
+				std::shared_ptr<NodeComponent> thiz = std::static_pointer_cast<NodeComponent>(shared_from_this());
+
+				auto itEnd = parentLock->_children.end();
+				for (auto it = parentLock->_children.begin(); it != itEnd; ++it)
+				{
+					if (it->lock() == thiz)
+					{
+						parentLock->_children.erase(it);
+						break;
+					}
+				}
+				// todo assert
+			}
+
+			parentLock = parent.lock();
+			if (parentLock != nullptr)
+			{
 				parentLock->_children.push_back(std::static_pointer_cast<NodeComponent>(shared_from_this()));
 			}
+			_parent = parent;
 		}
 
 		/// @brief 
