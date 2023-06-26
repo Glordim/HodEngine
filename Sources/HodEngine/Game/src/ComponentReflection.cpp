@@ -3,7 +3,7 @@
 namespace hod
 {
 	template<>
-	game::ComponentReflection* Singleton<game::ComponentReflection>::_instance = nullptr;
+	game::ComponentFactory* Singleton<game::ComponentFactory>::_instance = nullptr;
 
 	namespace game
 	{

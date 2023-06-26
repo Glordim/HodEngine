@@ -14,9 +14,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class ComponentReflection : public Singleton<ComponentReflection>
+		class ComponentFactory : public Singleton<ComponentFactory>
 		{
-			friend class Singleton<ComponentReflection>;
+			friend class Singleton<ComponentFactory>;
 
 		public:
 
@@ -25,10 +25,10 @@ namespace hod
 
 		protected:
 
-								ComponentReflection() = default;
-								~ComponentReflection() override = default;
+								ComponentFactory() = default;
+								~ComponentFactory() override = default;
 		};
 	}
 }
 
-#include "ComponentReflection.inl"
+#include "ComponentFactory.inl"

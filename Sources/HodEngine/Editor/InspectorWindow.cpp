@@ -12,6 +12,8 @@
 #include "HodEngine/Game/Entity.h"
 #include "HodEngine/Game/src/Components/NodeComponent.h"
 
+#include "HodEngine/Game/src/ComponentReflection.h"
+
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(InspectorWindow, "Inspector", true)
@@ -86,7 +88,19 @@ namespace hod::editor
 
 		if (ImGui::Button("Add component") == true)
 		{
-			selection->AddComponent<game::NodeComponent>();
+			ImGui::OpenPopup("AddComponent");
+		}
+		if (ImGui::BeginPopup("AddComponent") == true)
+		{
+			for (const ComponentDescriptor& componentDescriptor : ComponentFactory::GetInstance()->GetDescriptors())
+			{
+				if (ImGui::MenuItem(componentDescriptor.GetDisplayName()) == true)
+				{
+					selection->AddComponent(componentDescriptor);
+				}
+			}
+
+			ImGui::EndPopup();
 		}
 	}
 

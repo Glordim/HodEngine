@@ -4,7 +4,7 @@ namespace hod
 	namespace game
 	{
 		template<typename __type__>
-		bool ComponentReflection::Register()
+		bool ComponentFactory::Register()
 		{
 			return true;
 		}
