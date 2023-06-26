@@ -17,6 +17,8 @@
 #include "HodEngine/Renderer/RHI/VertexInput.h"
 #include "HodEngine/Renderer/RHI/MaterialInstance.h"
 
+#include "HodEngine/Core/Rect.h"
+
 namespace hod
 {
 	namespace renderer
@@ -131,9 +133,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RenderCommandImGui::RenderCommandImGui(const std::vector<DrawList*>& drawLists)
+		RenderCommandImGui::RenderCommandImGui(const std::vector<DrawList*>& drawLists, const CORE::Rect& viewport)
 			: RenderCommand()
 			, _drawLists(drawLists)
+			, _viewport(viewport)
 		{
 		}
 
@@ -145,6 +148,8 @@ namespace hod
 		void RenderCommandImGui::Execute(CommandBuffer* commandBuffer)
 		{
 			Renderer* renderer = Renderer::GetInstance();
+
+			commandBuffer->SetViewport(_viewport);
 
 			if (_material == nullptr)
 			{

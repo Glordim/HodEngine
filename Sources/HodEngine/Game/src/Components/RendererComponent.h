@@ -16,7 +16,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class RendererComponent : public Component
 		{
-			//REFLECTED_ABSTRACT_DERIVED_CLASS(RendererComponent, Component)
+			REFLECTED_ABSTRACT_DERIVED_CLASS(RendererComponent, Component)
+			META_TYPE(RendererComponent)
 
 		public:
 
@@ -31,6 +32,8 @@ namespace hod
 		public:
 
 			const char*		GetType() const override;
+
+			virtual void	Render() = 0;
 		};
 	}
 }

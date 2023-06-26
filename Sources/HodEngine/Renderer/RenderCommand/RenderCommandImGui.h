@@ -53,7 +53,7 @@ namespace hod
 
 		public:
 
-										RenderCommandImGui(const std::vector<DrawList*>& drawLists);
+										RenderCommandImGui(const std::vector<DrawList*>& drawLists, const CORE::Rect& viewport);
 										RenderCommandImGui(const RenderCommandImGui&) = delete;
 										RenderCommandImGui(RenderCommandImGui&&) = delete;
 										~RenderCommandImGui() override = default;
@@ -69,6 +69,7 @@ namespace hod
 
 			static Material*			_material;
 
+			CORE::Rect					_viewport;
 			std::vector<DrawList*>		_drawLists;
 		};
 	}

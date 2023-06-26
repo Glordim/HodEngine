@@ -220,7 +220,13 @@ namespace hod::imgui
 			drawLists[drawListIndex] = drawList;
 		}
 
-		renderer::RenderCommandImGui* renderCommand = new renderer::RenderCommandImGui(drawLists);
+		CORE::Rect viewport;
+		viewport._position.x = 0.0f;
+		viewport._position.y = 0.0f;
+		viewport._size.x = ImGui::GetIO().DisplaySize.x;
+		viewport._size.y = ImGui::GetIO().DisplaySize.y;
+		
+		renderer::RenderCommandImGui* renderCommand = new renderer::RenderCommandImGui(drawLists, viewport);
 
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 		renderer->GetRenderQueue()->PushRenderCommand(renderCommand);
