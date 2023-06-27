@@ -18,15 +18,15 @@ namespace hod
 	{
 		void RegisterBuiltin()
 		{
-			game::ComponentReflection::CreateInstance();
+			//game::ComponentReflection::CreateInstance();
 			game::ActorReflection::CreateInstance();
 
 			ActorReflection* actorReflection = ActorReflection::GetInstance();
 			actorReflection->Register<Actor>();
 
-			ComponentReflection* componentReflection = ComponentReflection::GetInstance();
-			componentReflection->Register<Component>();
-			componentReflection->Register<SceneComponent>();
+			//ComponentReflection* componentReflection = ComponentReflection::GetInstance();
+			//componentReflection->Register<Component>();
+			//componentReflection->Register<SceneComponent>();
 			/*
 			componentReflection->Register<CameraComponent>();
 			componentReflection->Register<ColliderComponent>();

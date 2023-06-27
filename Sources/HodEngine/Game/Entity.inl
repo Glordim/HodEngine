@@ -26,19 +26,12 @@ namespace hod::game
 	{
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use AddComponent()");
 
-		for (const std::shared_ptr<Component>& component : _components)
+		std::shared_ptr<_Component_> existingComponent = GetComponent<_Component_>().lock();
+		if (existingComponent != nullptr)
 		{
-			if (component->GetMetaType() == _Component_::GetMetaTypeStatic())
-			{
-				return std::static_pointer_cast<_Component_>(component);
-			}
+			return existingComponent;
 		}
 
-		std::shared_ptr<_Component_> component = std::make_shared<_Component_>(weak_from_this());
-		_components.push_back(component);
-
-		_onAddComponentEvent.Emit(component);
-
-		return component;
+		return std::static_pointer_cast<_Component_>(AddComponent(std::make_shared<_Component_>(weak_from_this())).lock());
 	}
 }

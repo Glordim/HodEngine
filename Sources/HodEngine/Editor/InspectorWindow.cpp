@@ -92,9 +92,11 @@ namespace hod::editor
 		}
 		if (ImGui::BeginPopup("AddComponent") == true)
 		{
-			for (const ComponentDescriptor& componentDescriptor : ComponentFactory::GetInstance()->GetDescriptors())
+			for (const auto& componentDescriptorPair : game::ComponentDescriptor::GetAllDescriptors())
 			{
-				if (ImGui::MenuItem(componentDescriptor.GetDisplayName()) == true)
+				const game::ComponentDescriptor& componentDescriptor = *componentDescriptorPair.second;
+
+				if (ImGui::MenuItem(componentDescriptor.GetDisplayName().c_str()) == true)
 				{
 					selection->AddComponent(componentDescriptor);
 				}

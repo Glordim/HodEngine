@@ -15,12 +15,14 @@ namespace hod
 		/// @brief 
 		class Node2dComponent : public NodeComponent
 		{
-			REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent)
-			META_TYPE(Node2dComponent)
+			HOD_COMPONENT(Node2dComponent, NodeComponent)
+			//REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent)
+			//META_TYPE(Node2dComponent)
 
 		public:
 
-											Node2dComponent(Actor* actor);
+											Node2dComponent(Actor* actor); // todo remove
+											Node2dComponent(const std::weak_ptr<Entity>& entity);
 											Node2dComponent(const Node2dComponent&) = delete;
 											Node2dComponent(Node2dComponent&&) = delete;
 											~Node2dComponent() override;

@@ -14,6 +14,8 @@ namespace hod
 
 	namespace game
 	{
+		DECLARE_HOD_COMPONENT(Node2dComponent, NodeComponent)
+
 		DESCRIBE_REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent)
 		{
 			//AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(Node2dComponent, _position), "Position");
@@ -24,6 +26,16 @@ namespace hod
 		/// @brief 
 		/// @param actor 
 		Node2dComponent::Node2dComponent(Actor* actor) : NodeComponent(actor)
+		{
+			_position = glm::vec2(0.0f, 0.0f);
+			_rotation = 0.0f;
+			_scale = glm::vec2(1.0f, 1.0f);
+		}
+
+		/// @brief 
+		/// @param entity 
+		Node2dComponent::Node2dComponent(const std::weak_ptr<Entity>& entity)
+		: NodeComponent(entity)
 		{
 			_position = glm::vec2(0.0f, 0.0f);
 			_rotation = 0.0f;

@@ -2,10 +2,10 @@
 
 #include "Hash.h"
 
+using MetaType = uint64_t;
+
 #define BASE_META_TYPE(__ClassName__)										\
 public:																		\
-																			\
-using MetaType = uint64_t;													\
 																			\
 virtual MetaType	GetMetaType() const = 0;								\
 virtual const char*	GetMetaTypeName() const = 0;							\
@@ -18,8 +18,6 @@ private:																	\
 
 #define META_TYPE(__ClassName__)												\
 public:																			\
-																				\
-using MetaType = uint64_t;														\
 																				\
 static constexpr MetaType _metaType = Hash::CompilationTimeFnv64(#__ClassName__);	\
 MetaType GetMetaType() const override												\

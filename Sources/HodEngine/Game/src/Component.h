@@ -2,6 +2,7 @@
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.h>
 #include <memory>
+#include <functional>
 
 #include "HodEngine/Core/Type.h"
 #include "HodEngine/Core/Object.h"
@@ -9,6 +10,20 @@
 #define HOD_COMPONENT(Component, ParentComponent)				\
 REFLECTED_DERIVED_CLASS(Component, ParentComponent)				\
 META_TYPE(Component)											\
+private:														\
+	static ComponentDescriptor _descriptor;						\
+public:															\
+	const ComponentDescriptor& GetDescriptor() override			\
+	{															\
+		return _descriptor;										\
+	}															\
+private:														\
+
+// todo inheritance override static ?													
+
+#define DECLARE_HOD_COMPONENT(Component, ParentComponent)																											\
+ComponentDescriptor Component::_descriptor(Component::GetMetaTypeStatic(), Component::GetMetaTypeNameStatic(), [](std::weak_ptr<Entity> entity){ return std::make_shared<Component>(entity); }); // todo return null is type abstract		\
+
 
 namespace hod
 {
@@ -21,21 +36,58 @@ namespace hod
 	{
 		class Actor;
 		class Entity;
+		class Component;
 
-		template<typename _Component_>
+		/// @brief 
+		/// @tparam _Component_ 
 		class ComponentDescriptor
 		{
-			
+		public:
+
+				using CreateFunction = std::function<std::shared_ptr<Component>(std::weak_ptr<Entity> entity)>;
+
+		public:
+
+									ComponentDescriptor(MetaType metaType, const std::string_view& displayName, const CreateFunction& createFunction);
+									ComponentDescriptor(const ComponentDescriptor&) = delete;
+									ComponentDescriptor(ComponentDescriptor&&) = delete;
+									~ComponentDescriptor() = default;
+
+			ComponentDescriptor&	operator = (const ComponentDescriptor&) = delete;
+			ComponentDescriptor&	operator = (ComponentDescriptor&&) = delete;
+
+		public:
+
+			std::shared_ptr<Component>	CreateInstance(std::weak_ptr<Entity> entity) const { return _createFunction(entity); } 
+			MetaType					GetMetaType() const { return _metaType; }
+			const std::string&			GetDisplayName() const { return _displayName; }
+
+		public:
+
+			static const std::map<MetaType, ComponentDescriptor*>&	GetAllDescriptors() { return _descriptors; }
+
+		private:
+
+			CreateFunction				_createFunction;
+			MetaType					_metaType;
+			std::string					_displayName;
+
+		private:
+
+			static std::map<MetaType, ComponentDescriptor*>	_descriptors;
 		};
 
 		///@brief 
 		class Component : public Object, public std::enable_shared_from_this<Component>
 		{
-			HOD_COMPONENT(Component)
 			REFLECTED_ABSTRACT_DERIVED_CLASS(Component, Object)
 			BASE_META_TYPE(Component)
 
 			friend class Actor;
+
+		public:
+
+			virtual const ComponentDescriptor& GetDescriptor() = 0;	// todo base macro ?
 
 		public:
 

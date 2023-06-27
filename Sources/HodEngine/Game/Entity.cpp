@@ -1,4 +1,5 @@
 #include "HodEngine/Game/Entity.h"
+#include "HodEngine/Game/src/Component.h"
 
 namespace hod::game
 {
@@ -80,5 +81,46 @@ namespace hod::game
 		}
 
 		return components;
+	}
+
+	/// @brief 
+	/// @param descriptor 
+	/// @return 
+	std::weak_ptr<Component> Entity::GetComponent(MetaType metaType)
+	{
+		for (const std::shared_ptr<Component>& component : _components)
+		{
+			if (component->GetMetaType() == metaType)
+			{
+				return component;
+			}
+		}
+		return std::weak_ptr<Component>();
+	}
+
+	/// @brief 
+	/// @param descriptor 
+	/// @return 
+	std::weak_ptr<Component> Entity::AddComponent(const ComponentDescriptor& descriptor)
+	{
+		std::shared_ptr<Component> existingComponent = GetComponent(descriptor.GetMetaType()).lock();
+		if (existingComponent != nullptr)
+		{
+			return existingComponent;
+		}
+
+		return AddComponent(descriptor.CreateInstance(weak_from_this()));
+	}
+
+	/// @brief 
+	/// @param component 
+	/// @return 
+	std::weak_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component)
+	{
+		_components.push_back(component);
+
+		_onAddComponentEvent.Emit(component);
+
+		return component;
 	}
 }

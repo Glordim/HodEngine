@@ -6,10 +6,12 @@
 #include <memory>
 
 #include "HodEngine/Core/Event.h"
+#include "HodEngine/Core/Type.h"
 
 namespace hod::game
 {
 	class Component;
+	class ComponentDescriptor;
 
 	class Entity final : public std::enable_shared_from_this<Entity>
 	{
@@ -38,12 +40,18 @@ namespace hod::game
 
 		template<typename _Component_>
 		std::weak_ptr<_Component_>	GetComponent();
+		std::weak_ptr<Component>	GetComponent(MetaType metaType);
 
 		template<typename _Component_>
 		std::weak_ptr<_Component_>	AddComponent();
+		std::weak_ptr<Component>	AddComponent(const ComponentDescriptor& descriptor);
 
 		Event<std::weak_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
 		Event<std::weak_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }
+
+	private:
+
+		std::weak_ptr<Component>	AddComponent(std::shared_ptr<Component> instance);
 
 	private:
 

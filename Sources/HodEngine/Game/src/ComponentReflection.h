@@ -31,4 +31,4 @@ namespace hod
 	}
 }
 
-#include "ComponentFactory.inl"
+#include "ComponentReflection.inl"

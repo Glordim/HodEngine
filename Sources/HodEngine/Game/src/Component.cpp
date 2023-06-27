@@ -6,6 +6,19 @@ namespace hod
 {
 	namespace game
 	{
+		std::map<MetaType, ComponentDescriptor*>	ComponentDescriptor::_descriptors;
+
+		/// @brief 
+		/// @param metaType 
+		/// @param createFunction 
+		ComponentDescriptor::ComponentDescriptor(MetaType metaType, const std::string_view& displayName, const CreateFunction& createFunction)
+		: _createFunction(createFunction)
+		, _metaType(metaType)
+		, _displayName(displayName)
+		{
+			_descriptors[metaType] = this;
+		}
+
 		DESCRIBE_REFLECTED_DERIVED_ABSTRACT_CLASS(Component, Object)
 		{
 			AddTrait<Traits::Type>(Traits::Type::Component);
