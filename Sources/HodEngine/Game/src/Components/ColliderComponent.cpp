@@ -1,11 +1,11 @@
-#include "ColliderComponent.h"
+#include "HodEngine/Game/src/Components/ColliderComponent.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/vec3.hpp"
 
-#include "../Actor.h"
-#include "../Scene.h"
+#include "HodEngine/Game/src/Actor.h"
+#include "HodEngine/Game/src/Scene.h"
 
 #include <HodEngine/Physics/Actor.h>
 
@@ -16,8 +16,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		ColliderComponent::ColliderComponent(Actor* actor) : Component(actor)
+		ColliderComponent::ColliderComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
 		{
+			/*
 			Scene* scene = actor->GetScene();
 
 			physics::Actor* physicActor = actor->GetPhysicActor();
@@ -31,6 +32,7 @@ namespace hod
 				physicActor = scene->CreatePhysicActor(actor);
 				physicActor->SetTransform(position, rotation, scale);
 			}
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -46,7 +48,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition)
 		{
-			GetActor()->GetPhysicActor()->AddEdgeShape(startPosition, endPosition);
+			//GetActor()->GetPhysicActor()->AddEdgeShape(startPosition, endPosition);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -54,7 +56,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddCircleShape(const glm::vec2& position, float radius)
 		{
-			GetActor()->GetPhysicActor()->AddCircleShape(position, radius);
+			//GetActor()->GetPhysicActor()->AddCircleShape(position, radius);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -62,7 +64,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle, float density)
 		{
-			GetActor()->GetPhysicActor()->AddBoxShape(position, size, angle, density);
+			//GetActor()->GetPhysicActor()->AddBoxShape(position, size, angle, density);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -70,7 +72,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddConvexShape(const std::vector<const glm::vec2>& vertices)
 		{
-			GetActor()->GetPhysicActor()->AddConvexShape(vertices);
+			//GetActor()->GetPhysicActor()->AddConvexShape(vertices);
 		}
 	}
 }

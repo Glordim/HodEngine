@@ -1,7 +1,6 @@
 #pragma once
 
-
-#include "../../Component.h"
+#include "HodEngine/Game/src/Component.h"
 
 #include <HodEngine/Core/Color.h>
 #include <HodEngine/Renderer/Light/DirLight.h>
@@ -17,7 +16,7 @@ namespace hod
 		{
 		public:
 
-								DirLightComponent(Actor* actor);
+								DirLightComponent(const std::weak_ptr<Entity>& entity);
 								DirLightComponent(const DirLightComponent&) = delete;
 								DirLightComponent(DirLightComponent&&) = delete;
 								~DirLightComponent() override = default;

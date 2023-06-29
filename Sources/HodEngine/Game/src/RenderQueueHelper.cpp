@@ -1,13 +1,13 @@
-#include "RenderQueueHelper.h"
+#include "HodEngine/Game/src/RenderQueueHelper.h"
 
 /*
-#include "Component/SceneComponent.h"
-#include "Component/Light/DirLightComponent.h"
-#include "Component/Light/PointLightComponent.h"
-#include "Component/Light/SpotLightComponent.h"
+#include "HodEngine/Game/src/Component/SceneComponent.h"
+#include "HodEngine/Game/src/Component/Light/DirLightComponent.h"
+#include "HodEngine/Game/src/Component/Light/PointLightComponent.h"
+#include "HodEngine/Game/src/Component/Light/SpotLightComponent.h"
 */
-#include "Actor.h"
-#include "Scene.h"
+#include "HodEngine/Game/src/Actor.h"
+#include "HodEngine/Game/src/Scene.h"
 
 #include <HodEngine/Renderer/RenderQueue.h>
 #include <HodEngine/Physics/Scene.h>

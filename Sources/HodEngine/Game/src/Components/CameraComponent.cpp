@@ -1,4 +1,4 @@
-#include "CameraComponent.h"
+#include "HodEngine/Game/src/Components/CameraComponent.h"
 
 #include <HodEngine/Core/Rect.h>
 
@@ -6,7 +6,7 @@
 #define GLM_FORCE_LEFT_HANDED 1
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "SceneComponent.h"
+#include "HodEngine/Game/src/Components/SceneComponent.h"
 
 #include <HodEngine/Renderer/Renderer.h>
 #include <HodEngine/Renderer/RenderQueue.h>
@@ -23,8 +23,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		CameraComponent::CameraComponent(Actor* actor)
-			: Component(actor)
+		CameraComponent::CameraComponent(const std::weak_ptr<Entity>& entity)
+			: Component(entity)
 			, _fov(60.0f)
 			, _aspect(1920.0f / 1080.0f)
 			, _near(-100.0f)
@@ -124,7 +124,7 @@ namespace hod
 			viewport._position.y = 0;
 			viewport._size.x = 1.0f;
 			viewport._size.y = 1.0f;
-			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(GetProjectionMatrix(), glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()), viewport));
+			//renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(GetProjectionMatrix(), glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()), viewport));
 		}
 	}
 }

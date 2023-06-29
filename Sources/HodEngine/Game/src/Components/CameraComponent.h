@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../Component.h"
+#include "HodEngine/Game/src/Component.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -30,7 +30,7 @@ namespace hod
 		{
 		public:
 
-										CameraComponent(Actor* actor);
+										CameraComponent(const std::weak_ptr<Entity>& entity);
 										CameraComponent(const CameraComponent&) = delete;
 										CameraComponent(CameraComponent&&) = delete;
 										~CameraComponent() override = default;

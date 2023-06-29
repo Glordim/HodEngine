@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Component.h"
+#include "HodEngine/Game/src/Component.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -24,7 +24,6 @@ namespace hod
 
 		public:
 
-											NodeComponent(Actor* actor); // todo remove
 											NodeComponent(const std::weak_ptr<Entity>& entity);
 											NodeComponent(const NodeComponent&) = delete;
 											NodeComponent(NodeComponent&&) = delete;

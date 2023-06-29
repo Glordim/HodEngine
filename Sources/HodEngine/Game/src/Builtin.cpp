@@ -1,16 +1,19 @@
-#include "Builtin.h"
+#include "HodEngine/Game/src/Builtin.h"
 
-#include "ActorReflection.h"
-#include "ComponentReflection.h"
+#include "HodEngine/Game/src/ActorReflection.h"
+#include "HodEngine/Game/src/ComponentFactory.h"
 
-#include "Components/CameraComponent.h"
-#include "Components/ColliderComponent.h"
-#include "Components/RendererComponent.h"
-#include "Components/SceneComponent.h"
-#include "Components/SpriteComponent.h"
-#include "Components/Light/PointLightComponent.h"
-#include "Components/Light/DirLightComponent.h"
-#include "Components/Light/SpotLightComponent.h"
+#include "HodEngine/Game/src/Components/CameraComponent.h"
+#include "HodEngine/Game/src/Components/ColliderComponent.h"
+#include "HodEngine/Game/src/Components/RendererComponent.h"
+#include "HodEngine/Game/src/Components/SceneComponent.h"
+#include "HodEngine/Game/src/Components/SpriteComponent.h"
+#include "HodEngine/Game/src/Components/Light/PointLightComponent.h"
+#include "HodEngine/Game/src/Components/Light/DirLightComponent.h"
+#include "HodEngine/Game/src/Components/Light/SpotLightComponent.h"
+
+#include "HodEngine/Game/src/Components/NodeComponent.h"
+#include "HodEngine/Game/src/Components/Node2dComponent.h"
 
 namespace hod
 {
@@ -18,15 +21,15 @@ namespace hod
 	{
 		void RegisterBuiltin()
 		{
-			//game::ComponentReflection::CreateInstance();
+			game::ComponentFactory::CreateInstance();
 			game::ActorReflection::CreateInstance();
 
 			ActorReflection* actorReflection = ActorReflection::GetInstance();
 			actorReflection->Register<Actor>();
 
-			//ComponentReflection* componentReflection = ComponentReflection::GetInstance();
-			//componentReflection->Register<Component>();
-			//componentReflection->Register<SceneComponent>();
+			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
+			componentFactory->Register<NodeComponent>();
+			componentFactory->Register<Node2dComponent>();
 			/*
 			componentReflection->Register<CameraComponent>();
 			componentReflection->Register<ColliderComponent>();

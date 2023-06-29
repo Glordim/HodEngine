@@ -1,4 +1,4 @@
-#include "ComponentReflection.h"
+#include "HodEngine/Game/src/ComponentFactory.h"
 
 namespace hod
 {

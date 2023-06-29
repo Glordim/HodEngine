@@ -12,7 +12,7 @@
 #include "HodEngine/Game/Entity.h"
 #include "HodEngine/Game/src/Components/NodeComponent.h"
 
-#include "HodEngine/Game/src/ComponentReflection.h"
+#include "HodEngine/Game/src/ComponentFactory.h"
 
 namespace hod::editor
 {
@@ -92,7 +92,7 @@ namespace hod::editor
 		}
 		if (ImGui::BeginPopup("AddComponent") == true)
 		{
-			for (const auto& componentDescriptorPair : game::ComponentDescriptor::GetAllDescriptors())
+			for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
 			{
 				const game::ComponentDescriptor& componentDescriptor = *componentDescriptorPair.second;
 

@@ -1,4 +1,4 @@
-#include "SpriteComponent.h"
+#include "HodEngine/Game/src/Components/SpriteComponent.h"
 
 #include <HodEngine/Renderer/RHI/Material.h>
 #include <HodEngine/Renderer/RenderQueue.h>
@@ -7,7 +7,7 @@
 #include <HodEngine/Renderer/Sprite.h>
 #include <HodEngine/Renderer/SpriteAtlas.h>
 
-#include "../Actor.h"
+#include "HodEngine/Game/src/Actor.h"
 
 namespace hod
 {
@@ -26,7 +26,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		SpriteComponent::SpriteComponent(Actor* actor) : RendererComponent(actor)
+		SpriteComponent::SpriteComponent(const std::weak_ptr<Entity>& entity) : RendererComponent(entity)
 		{
 		}
 
@@ -100,7 +100,7 @@ namespace hod
 			vertices[2]._textCoord[0] = 1.0f;
 			vertices[2]._textCoord[1] = 0.0f;
 			*/
-			renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_sprite->GetVertices().data(), _sprite->GetVertices().size(), sizeof(renderer::P2fT2f), _sprite->GetIndices().data(), _sprite->GetIndices().size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(), _materialInstance));
+			//renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_sprite->GetVertices().data(), _sprite->GetVertices().size(), sizeof(renderer::P2fT2f), _sprite->GetIndices().data(), _sprite->GetIndices().size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(), _materialInstance));
 		}
 	}
 }

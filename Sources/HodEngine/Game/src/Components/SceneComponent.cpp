@@ -1,4 +1,4 @@
-#include "SceneComponent.h"
+#include "HodEngine/Game/src/Components/SceneComponent.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 
-#include "../Actor.h"
+#include "HodEngine/Game/src/Actor.h"
 #include <HodEngine/Physics/Actor.h>
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h>
@@ -29,7 +29,7 @@ namespace hod
 
 		/// @brief 
 		/// @param actor 
-		SceneComponent::SceneComponent(Actor* actor) : Component(actor)
+		SceneComponent::SceneComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
 		{
 			_position = glm::vec2(0.0f, 0.0f);
 			_rotation = 0.0f;
@@ -172,9 +172,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void SceneComponent::SyncPxActor()
 		{
-			physics::Actor* physicActor = GetActor()->GetPhysicActor();
+			//	physics::Actor* physicActor = GetActor()->GetPhysicActor();
 
-			if (physicActor != nullptr)
+			//if (physicActor != nullptr)
 			{
 				//physicActor->SetTransform(_position, _rotation, _scale);
 			}

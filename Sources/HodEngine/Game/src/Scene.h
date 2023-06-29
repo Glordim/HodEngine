@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor.h"
+#include "HodEngine/Game/src/Actor.h"
 
 #include <HodEngine/Core/Color.h>
 #include <HodEngine/Core/Object.h>

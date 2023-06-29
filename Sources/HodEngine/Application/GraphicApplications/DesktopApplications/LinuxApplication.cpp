@@ -12,7 +12,7 @@
 #include <Core/Src/StringConversion.h>
 
 #include <World/Src/ActorReflection.h>
-#include <World/Src/ComponentReflection.h>
+#include <World/Src/ComponentFactory.h>
 #include <World/Src/Builtin.h>
 
 #include <ImGui/src/imgui.h>

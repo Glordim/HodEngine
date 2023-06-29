@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../Component.h"
+#include "HodEngine/Game/src/Component.h"
 
 namespace hod
 {
@@ -21,7 +21,7 @@ namespace hod
 
 		public:
 
-							RendererComponent(Actor* actor);
+							RendererComponent(const std::weak_ptr<Entity>& entity);
 							RendererComponent(const RendererComponent&) = delete;
 							RendererComponent(RendererComponent&&) = delete;
 							~RendererComponent() override = default;

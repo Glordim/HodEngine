@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Component.h"
+#include "HodEngine/Game/src/Component.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -28,7 +28,7 @@ namespace hod
 
 		public:
 
-							ColliderComponent(Actor* actor);
+							ColliderComponent(const std::weak_ptr<Entity>& entity);
 							ColliderComponent(const ColliderComponent&) = delete;
 							ColliderComponent(ColliderComponent&&) = delete;
 							~ColliderComponent() override = default;

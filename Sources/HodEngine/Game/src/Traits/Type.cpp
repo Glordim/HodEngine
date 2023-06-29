@@ -1,4 +1,4 @@
-#include "Type.h"
+#include "HodEngine/Game/src/Traits/Type.h"
 
 namespace hod
 {

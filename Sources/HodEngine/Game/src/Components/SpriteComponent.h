@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RendererComponent.h"
+#include "HodEngine/Game/src/Components/RendererComponent.h"
 
 namespace hod
 {
@@ -21,7 +21,7 @@ namespace hod
 
 		public:
 
-											SpriteComponent(Actor* actor);
+											SpriteComponent(const std::weak_ptr<Entity>& entity);
 											SpriteComponent(const SpriteComponent&) = delete;
 											SpriteComponent(SpriteComponent&&) = delete;
 											~SpriteComponent() override;

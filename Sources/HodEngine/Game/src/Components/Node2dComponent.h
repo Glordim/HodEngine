@@ -21,7 +21,6 @@ namespace hod
 
 		public:
 
-											Node2dComponent(Actor* actor); // todo remove
 											Node2dComponent(const std::weak_ptr<Entity>& entity);
 											Node2dComponent(const Node2dComponent&) = delete;
 											Node2dComponent(Node2dComponent&&) = delete;

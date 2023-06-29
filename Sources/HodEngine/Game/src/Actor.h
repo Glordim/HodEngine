@@ -5,8 +5,8 @@
 #include <string>
 #include <string_view>
 
-#include "Component.h"
-#include "Components/SceneComponent.h"
+#include "HodEngine/Game/src/Component.h"
+#include "HodEngine/Game/src/Components/SceneComponent.h"
 
 namespace hod
 {

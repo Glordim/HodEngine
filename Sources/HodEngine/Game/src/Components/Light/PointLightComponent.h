@@ -2,7 +2,7 @@
 
 #include <HodEngine/Core/Color.h>
 
-#include "../../Component.h"
+#include "HodEngine/Game/src/Component.h"
 
 #include <HodEngine/Renderer/Light/PointLight.h>
 
@@ -17,7 +17,7 @@ namespace hod
 		{
 		public:
 
-									PointLightComponent(Actor* actor);
+									PointLightComponent(const std::weak_ptr<Entity>& entity);
 									PointLightComponent(const PointLightComponent&) = delete;
 									PointLightComponent(PointLightComponent&&) = delete;
 									~PointLightComponent() override = default;

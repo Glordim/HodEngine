@@ -1,6 +1,6 @@
-#include "Scene.h"
+#include "HodEngine/Game/src/Scene.h"
 
-#include "Components/SceneComponent.h"
+#include "HodEngine/Game/src/Components/SceneComponent.h"
 
 #include <HodEngine/Core/Color.h>
 
@@ -15,7 +15,7 @@
 #include <HodEngine/Renderer/Renderer.h>
 #include <HodEngine/Renderer/RenderQueue.h>
 
-#include "Components/CameraComponent.h"
+#include "HodEngine/Game/src/Components/CameraComponent.h"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"

@@ -1,6 +1,6 @@
-#include "PointLightComponent.h"
+#include "HodEngine/Game/src/Components/Light/PointLightComponent.h"
 
-#include "../../Actor.h"
+#include "HodEngine/Game/src/Actor.h"
 #include <HodEngine/Renderer/RHI/MaterialInstance.h>
 
 namespace hod
@@ -10,7 +10,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		PointLightComponent::PointLightComponent(Actor* actor) : Component(actor)
+		PointLightComponent::PointLightComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
 		{
 			_data.intensity = 1.0f;
 			_data.range = 2.5f;

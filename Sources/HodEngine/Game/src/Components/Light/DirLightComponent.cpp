@@ -1,6 +1,6 @@
-#include "DirLightComponent.h"
+#include "HodEngine/Game/src/Components/Light/DirLightComponent.h"
 
-#include "../../Actor.h"
+#include "HodEngine/Game/src/Actor.h"
 #include <HodEngine/Renderer/RHI/MaterialInstance.h>
 
 namespace hod
@@ -10,7 +10,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		DirLightComponent::DirLightComponent(Actor* actor) : Component(actor)
+		DirLightComponent::DirLightComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
 		{
 			_data.intensity = 1.0f;
 			_data.color = CORE::Color(1.0f, 1.0f, 1.0f, 1.0f);

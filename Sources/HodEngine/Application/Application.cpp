@@ -4,6 +4,8 @@
 #include <HodEngine/Core/Frame/FrameSequencer.h>
 
 #include "HodEngine/Game/src/World.h"
+#include "HodEngine/Game/src/Builtin.h"
+#include "HodEngine/Game/src/ComponentFactory.h"
 
 namespace hod::application
 {
@@ -20,6 +22,9 @@ namespace hod::application
 	{
 		JobSqueduler::CreateInstance();
 		FrameSequencer::CreateInstance();
+
+		game::ComponentFactory::CreateInstance();
+		game::RegisterBuiltin();
 
 		game::World::CreateInstance();
 

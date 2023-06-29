@@ -1,7 +1,6 @@
-#include "SpotLightComponent.h"
+#include "HodEngine/Game/src/Components/Light/SpotLightComponent.h"
 
-#include "../../Actor.h"
-
+#include "HodEngine/Game/src/Actor.h"
 #include <HodEngine/Renderer/RHI/MaterialInstance.h>
 
 namespace hod
@@ -11,7 +10,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		SpotLightComponent::SpotLightComponent(Actor* actor) : Component(actor)
+		SpotLightComponent::SpotLightComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
 		{
 			_data.intensity = 1.0f;
 			_data.radius = 2.5f;

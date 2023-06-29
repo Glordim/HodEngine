@@ -1,4 +1,4 @@
-#include "Actor.h"
+#include "HodEngine/Game/src/Actor.h"
 
 #include <HodEngine/Physics/Actor.h>
 
@@ -143,7 +143,7 @@ namespace hod
 					uint32_t childCount = sceneComponent->GetChildCount();
 					for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
 					{
-						sceneComponent->GetChild(childIndex)->GetActor()->PushToRenderQueue(renderQueue, recursive);
+						//sceneComponent->GetChild(childIndex)->GetActor()->PushToRenderQueue(renderQueue, recursive);
 					}
 				}
 			}

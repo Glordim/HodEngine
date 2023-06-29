@@ -1,7 +1,7 @@
-#include "World.h"
+#include "HodEngine/Game/src/World.h"
 
-#include "Scene.h"
-#include "Builtin.h"
+#include "HodEngine/Game/src/Scene.h"
+#include "HodEngine/Game/src/Builtin.h"
 
 namespace hod
 {

@@ -1,4 +1,4 @@
-#include "RendererComponent.h"
+#include "HodEngine/Game/src/Components/RendererComponent.h"
 
 namespace hod
 {
@@ -7,7 +7,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RendererComponent::RendererComponent(Actor* actor) : Component(actor)
+		RendererComponent::RendererComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
 		{
 
 		}

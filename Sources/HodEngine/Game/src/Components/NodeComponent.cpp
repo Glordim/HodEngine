@@ -1,4 +1,4 @@
-#include "NodeComponent.h"
+#include "HodEngine/Game/src/Components/NodeComponent.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -22,18 +22,11 @@ namespace hod
 		}
 
 		/// @brief 
-		/// @param actor 
-		NodeComponent::NodeComponent(Actor* actor) : Component(actor)
-		{
-			_localMatrixDirty = true;
-		}
-
-		/// @brief 
 		/// @param entity 
 		NodeComponent::NodeComponent(const std::weak_ptr<Entity>& entity)
 		: Component(entity)
 		{
-
+			_localMatrixDirty = true;
 		}
 
 		//-----------------------------------------------------------------------------

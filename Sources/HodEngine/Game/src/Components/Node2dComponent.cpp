@@ -24,15 +24,6 @@ namespace hod
 		}
 
 		/// @brief 
-		/// @param actor 
-		Node2dComponent::Node2dComponent(Actor* actor) : NodeComponent(actor)
-		{
-			_position = glm::vec2(0.0f, 0.0f);
-			_rotation = 0.0f;
-			_scale = glm::vec2(1.0f, 1.0f);
-		}
-
-		/// @brief 
 		/// @param entity 
 		Node2dComponent::Node2dComponent(const std::weak_ptr<Entity>& entity)
 		: NodeComponent(entity)
