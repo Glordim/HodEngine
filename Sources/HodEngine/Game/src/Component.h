@@ -7,22 +7,24 @@
 #include "HodEngine/Core/Type.h"
 #include "HodEngine/Core/Object.h"
 
-#define HOD_COMPONENT(Component, ParentComponent)				\
-REFLECTED_DERIVED_CLASS(Component, ParentComponent)				\
-META_TYPE(Component)											\
+#define HOD_COMPONENT(_Component_, _ParentComponent_)			\
+REFLECTED_DERIVED_CLASS(_Component_, _ParentComponent_)			\
+META_TYPE(_Component_)											\
 private:														\
 	static ComponentDescriptor _descriptor;						\
 public:															\
 	const ComponentDescriptor& GetDescriptor() override			\
 	{															\
-		return _descriptor;										\
+		return _Component_::GetDescriptorStatic();				\
 	}															\
-private:														\
+	static const ComponentDescriptor& GetDescriptorStatic()		\
+	{															\
+		return _Component_::_descriptor;						\
+	}															\
+private:
 
-// todo inheritance override static ?													
-
-#define DECLARE_HOD_COMPONENT(Component, ParentComponent)																											\
-ComponentDescriptor Component::_descriptor(Component::GetMetaTypeStatic(), Component::GetMetaTypeNameStatic(), [](std::weak_ptr<Entity> entity){ return std::make_shared<Component>(entity); }); // todo return null is type abstract		\
+#define DECLARE_HOD_COMPONENT(_Component_, _ParentComponent_)																											\
+ComponentDescriptor _Component_::_descriptor(_Component_::GetMetaTypeStatic(), _Component_::GetMetaTypeNameStatic(), [](std::weak_ptr<Entity> entity){ return std::make_shared<_Component_>(entity); }); // todo return null is type abstract		\
 
 
 namespace hod
