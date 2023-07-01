@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
@@ -34,11 +35,25 @@ namespace hod
 					void									Serialize(const void* instance, Document::Node& node) override;
 					void									Deserialize(void* instance, const Document::Node& node) override;
 
+					Variable::Type							GetType() const;
+					const char*								GetName() const;
+
+					template<typename _type_>
+					_type_									GetValue(const void* instance, uint32_t index) const;
+
+					template<typename _type_>
+					void									SetValue(void* instance, uint32_t index, _type_ value);
+
+				private:
+
+					static void*							GetElementAddress(void* instance, uint32_t index);
+
 				private:
 
 					Variable::Type							_type;
 					uint32_t								_offset;
 					const char*								_name;
+					std::function<void*(void*, uint32_t)>	_getElementAddressFunction;
 				};
 			}
 		}

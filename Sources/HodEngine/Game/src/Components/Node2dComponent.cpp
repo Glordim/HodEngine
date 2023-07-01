@@ -7,6 +7,8 @@
 #include "glm/gtx/matrix_decompose.hpp"
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.h>
 
 namespace hod
 {
@@ -18,9 +20,9 @@ namespace hod
 
 		DESCRIBE_REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent)
 		{
-			//AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(Node2dComponent, _position), "Position");
+			AddProperty<Array>(Variable::Type::Float32, offsetof(Node2dComponent, _position), "Position")->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
 			AddProperty<Variable>(Variable::Type::Float32, offsetof(Node2dComponent, _rotation), "Rotation");
-			//AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(Node2dComponent, _scale), "Scale");
+			AddProperty<Array>(Variable::Type::Float32, offsetof(Node2dComponent, _scale), "Scale")->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
 		}
 
 		/// @brief 

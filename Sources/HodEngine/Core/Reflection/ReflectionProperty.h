@@ -32,9 +32,12 @@ namespace hod
 			virtual void							Deserialize(void* instance, const Document::Node& node) = 0;
 
 			const std::vector<ReflectionTrait*>&	GetTraits() const;
+			template<typename _Trait_>
+			_Trait_*								FindTrait() const;
+			ReflectionTrait*						FindTrait(MetaType metaType) const;
 
 			template<typename __TRAIT_TYPE__, typename... Args>
-			void									AddTrait(Args&&... args);
+			__TRAIT_TYPE__*							AddTrait(Args&&... args);
 			void									AddTrait(ReflectionTrait* trait);
 
 		protected:

@@ -41,11 +41,11 @@ namespace hod
 		protected:
 
 			template<typename __TRAIT_TYPE__, typename... Args>
-			void									AddTrait(Args&&... args);
+			__TRAIT_TYPE__*							AddTrait(Args&&... args);
 			void									AddTrait(ReflectionTrait* trait);
 
 			template<typename __PROPERTY_TYPE__, typename... Args>
-			void									AddProperty(Args&&... args);
+			__PROPERTY_TYPE__*						AddProperty(Args&&... args);
 			void									AddProperty(ReflectionProperty* property);
 
 		private:

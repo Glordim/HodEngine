@@ -10,6 +10,8 @@ namespace hod
 		{
 			class Type : public core::ReflectionTrait
 			{
+				META_TYPE(Type)
+
 			public:
 
 				enum TypeEnum

@@ -14,7 +14,17 @@ namespace hod
 					, _offset(offset)
 					, _name(name)
 				{
+					_getElementAddressFunction = &Array::GetElementAddress;
+				}
 
+				/// @brief 
+				/// @param instance 
+				/// @param index 
+				/// @return 
+				void* Array::GetElementAddress(void* instance, uint32_t index)
+				{
+					uint8_t* address = reinterpret_cast<uint8_t*>(instance) + index;
+					return reinterpret_cast<void*>(address);
 				}
 
 				void Array::Serialize(const void* instance, Document::Node& node)
@@ -80,6 +90,20 @@ namespace hod
 							varNode = varNode->GetNextSibling();
 						}
 					}
+				}
+
+				/// @brief 
+				/// @return 
+				Variable::Type Array::GetType() const
+				{
+					return _type;
+				}
+
+				/// @brief 
+				/// @return 
+				const char* Array::GetName() const
+				{
+					return _name;
 				}
 			}
 		}

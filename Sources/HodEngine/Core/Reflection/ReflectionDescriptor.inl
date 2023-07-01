@@ -4,15 +4,19 @@ namespace hod
 	namespace core
 	{
 		template<typename __TRAIT_TYPE__, typename... Args>
-		void ReflectionDescriptor::AddTrait(Args&&... args)
+		__TRAIT_TYPE__* ReflectionDescriptor::AddTrait(Args&&... args)
 		{
-			AddTrait(new __TRAIT_TYPE__(std::forward<Args>(args)...));
+			__TRAIT_TYPE__* trait = new __TRAIT_TYPE__(std::forward<Args>(args)...);
+			AddTrait(trait);
+			return trait;
 		}
 
 		template<typename __PROPERTY_TYPE__, typename... Args>
-		void ReflectionDescriptor::AddProperty(Args&&... args)
+		__PROPERTY_TYPE__* ReflectionDescriptor::AddProperty(Args&&... args)
 		{
-			AddProperty(new __PROPERTY_TYPE__(std::forward<Args>(args)...));
+			__PROPERTY_TYPE__* property = new __PROPERTY_TYPE__(std::forward<Args>(args)...);
+			AddProperty(property);
+			return property;
 		}
 
 		template<typename T>

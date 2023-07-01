@@ -1,5 +1,7 @@
 #pragma once
 
+#include "HodEngine/Core/Type.h"
+
 namespace hod
 {
 	namespace core
@@ -7,19 +9,17 @@ namespace hod
 		///@brief 
 		class ReflectionTrait
 		{
+			BASE_META_TYPE(ReflectionTrait)
+
 		public:
 
-										ReflectionTrait(const char* typeName);
+										ReflectionTrait();
 										ReflectionTrait(const ReflectionTrait& copy) = default;
 										ReflectionTrait(ReflectionTrait&& move) = default;
 										~ReflectionTrait() = default;
 
 			ReflectionTrait&			operator = (const ReflectionTrait& copy) = default;
 			ReflectionTrait&			operator = (ReflectionTrait&& move) = default;
-
-		protected:
-
-			const char*					_typeName;
 		};
 	}
 }
