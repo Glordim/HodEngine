@@ -13,6 +13,7 @@ namespace hod::core
 	{
 		class Variable;
 		class Array;
+		class Object;
 	}
 }
 
@@ -35,6 +36,7 @@ namespace hod::editor
         static bool     DrawProperty(Object& object, core::ReflectionProperty* property);
 		static bool     DrawPropertyVariable(Object& object, core::Reflection::Property::Variable* property);
 		static bool     DrawPropertyArray(Object& object, core::Reflection::Property::Array* property);
+		static bool     DrawPropertyObject(Object& object, core::Reflection::Property::Object* property);
         // static void  RegisterCustomDrawer(); //TODO
     };
 }

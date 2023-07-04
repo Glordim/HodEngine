@@ -38,8 +38,6 @@ namespace hod
 			const std::vector<ReflectionTrait*>&	GetTraits() const;
 			const std::vector<ReflectionProperty*>&	GetProperties() const;
 
-		protected:
-
 			template<typename __TRAIT_TYPE__, typename... Args>
 			__TRAIT_TYPE__*							AddTrait(Args&&... args);
 			void									AddTrait(ReflectionTrait* trait);

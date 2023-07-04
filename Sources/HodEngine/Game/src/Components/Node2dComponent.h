@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HodEngine/Game/src/Components/NodeComponent.h"
+#include "HodEngine/Core/Math/Vector2.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -33,15 +34,15 @@ namespace hod
 
 			const char*						GetType() const override;
 
-			void							SetPosition(const glm::vec2& position);
-			const glm::vec2&				GetPosition() const;
+			void							SetPosition(const Vector2& position);
+			const Vector2&					GetPosition() const;
 
 			void							SetRotation(float rot);
 			float							GetRotation() const;
 			void							Rotate(float angle);
 
-			void							SetScale(const glm::vec2& scale);
-			const glm::vec2&				GetScale() const;
+			void							SetScale(const Vector2& scale);
+			const Vector2&					GetScale() const;
 
 		protected:
 
@@ -49,8 +50,8 @@ namespace hod
 
 		private:
 
-			glm::vec2						_position;
-			glm::vec2						_scale;
+			Vector2							_position;
+			Vector2							_scale;
 			float							_rotation;
 		};
 	}

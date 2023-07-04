@@ -15,7 +15,6 @@ namespace hod
 			namespace Property
 			{
 				///@brief 
-				template<typename _object_>
 				class Object : public ReflectionProperty
 				{
 					META_TYPE(Object)
@@ -31,6 +30,8 @@ namespace hod
 					Object&									operator = (Object&&) = default;
 
 				public:
+
+					const char*								GetName() const;
 
 					void									Serialize(const void* instance, Document::Node& node) override;
 					void									Deserialize(void* instance, const Document::Node& node) override;

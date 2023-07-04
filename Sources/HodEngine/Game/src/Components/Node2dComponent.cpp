@@ -18,21 +18,33 @@ namespace hod
 	{
 		DECLARE_HOD_COMPONENT(Node2dComponent, NodeComponent)
 
+		#define AddProperty(Class, Member) core::ReflectionHelper::AddProperty<decltype(Class::Member)>(Class::GetReflectionDescriptor(), #Member, offsetof(Class, Member))
+
 		DESCRIBE_REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent)
 		{
+			AddProperty(Node2dComponent, _position); // todo << ReflectionTraitFixedSizeArray(2);
+			AddProperty(Node2dComponent, _rotation);
+			AddProperty(Node2dComponent, _scale);
+			/*
+			core::ReflectionHelper::AddProperty<decltype(Node2dComponent::_position)>("Position", offsetof(Node2dComponent, _position))->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
+			core::ReflectionHelper::AddProperty<decltype(Node2dComponent::_rotation)>("Rotation", offsetof(Node2dComponent, _rotation));
+			core::ReflectionHelper::AddProperty<decltype(Node2dComponent::_scale)>("Scale", offsetof(Node2dComponent, _scale))->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
+			*/
+			/*
 			AddProperty<Array>(Variable::Type::Float32, offsetof(Node2dComponent, _position), "Position")->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
 			AddProperty<Variable>(Variable::Type::Float32, offsetof(Node2dComponent, _rotation), "Rotation");
 			AddProperty<Array>(Variable::Type::Float32, offsetof(Node2dComponent, _scale), "Scale")->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
+			*/
 		}
 
 		/// @brief 
 		/// @param entity 
 		Node2dComponent::Node2dComponent(const std::weak_ptr<Entity>& entity)
 		: NodeComponent(entity)
+		, _position(Vector2::Zero)
+		, _scale(Vector2::One)
+		, _rotation(0.0f)
 		{
-			_position = glm::vec2(0.0f, 0.0f);
-			_rotation = 0.0f;
-			_scale = glm::vec2(1.0f, 1.0f);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -56,17 +68,19 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void Node2dComponent::ComputeLocalMatrix(glm::mat4& localMatrix)
 		{
+			/*
 			glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), glm::vec3(_position, 0.0f));
 			glm::quat rot = glm::rotate(glm::identity<glm::quat>(), glm::radians<float>(_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 			glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), glm::vec3(_scale, 1.0f));
 
 			localMatrix = pos * glm::mat4_cast(rot) * scale;
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Node2dComponent::SetPosition(const glm::vec2& position)
+		void Node2dComponent::SetPosition(const Vector2& position)
 		{
 			_position = position;
 			SetLocalMatrixDirty();
@@ -75,7 +89,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const glm::vec2& Node2dComponent::GetPosition() const
+		const Vector2& Node2dComponent::GetPosition() const
 		{
 			return _position;
 		}
@@ -109,7 +123,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Node2dComponent::SetScale(const glm::vec2& scale)
+		void Node2dComponent::SetScale(const Vector2& scale)
 		{
 			_scale = scale;
 			SetLocalMatrixDirty();
@@ -118,7 +132,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const glm::vec2& Node2dComponent::GetScale() const
+		const Vector2& Node2dComponent::GetScale() const
 		{
 			return _scale;
 		}

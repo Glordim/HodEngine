@@ -3,6 +3,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
+#include "HodEngine/Core/Object.h"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.h"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.h"
@@ -25,9 +26,11 @@ namespace hod::editor
 
 			return DrawPropertyArray(object, arrayProperty);
 		}
-		//else if (property->GetType() == core::Reflection::Property::Object::_type)
+		else if (property->GetMetaType() == core::Reflection::Property::Object::GetMetaTypeStatic())
 		{
-			//core::Reflection::Property::Object* objectProperty = static_cast<core::Reflection::Property::Object*>(property); // TODO
+			core::Reflection::Property::Object* objectProperty = static_cast<core::Reflection::Property::Object*>(property);
+
+			return DrawPropertyObject(object, objectProperty);
 		}
 
 		return false;
@@ -141,6 +144,27 @@ namespace hod::editor
 		else
 		{
 			// todo
+		}
+
+		return false;
+	}
+
+	/// @brief 
+	/// @param property 
+	bool PropertyDrawer::DrawPropertyObject(Object& object, core::Reflection::Property::Object* property)
+	{
+		if (ImGui::CollapsingHeader(property->GetName()) == true)
+		{
+			core::ReflectionDescriptor* reflectionDescriptor = object.GetReflectionDescriptorV();
+
+			bool changed = false;
+
+			for (core::ReflectionProperty* property : reflectionDescriptor->GetProperties())
+			{
+				changed |= PropertyDrawer::DrawProperty(object, property);
+			}
+
+			return changed;
 		}
 
 		return false;

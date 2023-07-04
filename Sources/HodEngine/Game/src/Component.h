@@ -1,6 +1,7 @@
 #pragma once
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.h>
+#include <HodEngine/Core/Reflection/ReflectionHelper.h>
 #include <memory>
 #include <functional>
 
