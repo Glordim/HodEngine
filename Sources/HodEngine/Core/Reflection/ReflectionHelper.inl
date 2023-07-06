@@ -70,7 +70,13 @@ namespace hod::core
 		{
 			return descriptor->AddProperty<Reflection::Property::Variable>(GetVariableType<_MemberVariable_>(), offset, name.data()); // TODO remove data, descriptor must use string view
 		}
+		/*
 		else if constexpr (std::is_base_of<Object, _MemberVariable_>::value)
+		{
+			return descriptor->AddProperty<Reflection::Property::Object>(offset, name.data());
+		}
+		*/
+		else if constexpr (std::is_class<_MemberVariable_>::value)
 		{
 			return descriptor->AddProperty<Reflection::Property::Object>(offset, name.data());
 		}

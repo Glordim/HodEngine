@@ -2,6 +2,12 @@
 
 namespace hod
 {
+	DESCRIBE_REFLECTED_CLASS(Vector2, void)
+	{
+		ADD_PROPERTY(Vector2, _x);
+		ADD_PROPERTY(Vector2, _y);
+	}
+
 	Vector2 Vector2::Zero(0.0f, 0.0f);
 	Vector2 Vector2::One(1.0f, 1.0f);
 

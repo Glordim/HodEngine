@@ -18,13 +18,13 @@ namespace hod
 	{
 		//DECLARE_HOD_COMPONENT(Node2dComponent, NodeComponent)
 
-		#define AddProperty(Class, Member) core::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member))
+		//#define AddProperty(Class, Member) core::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member))
 
 		DESCRIBE_REFLECTED_CLASS(Node2dComponent, NodeComponent)
 		{
-			AddProperty(Node2dComponent, _position); // todo << ReflectionTraitFixedSizeArray(2);
-			AddProperty(Node2dComponent, _rotation);
-			AddProperty(Node2dComponent, _scale);
+			ADD_PROPERTY(Node2dComponent, _position); // todo << ReflectionTraitFixedSizeArray(2);
+			ADD_PROPERTY(Node2dComponent, _rotation);
+			ADD_PROPERTY(Node2dComponent, _scale);
 			/*
 			core::ReflectionHelper::AddProperty<decltype(Node2dComponent::_position)>("Position", offsetof(Node2dComponent, _position))->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
 			core::ReflectionHelper::AddProperty<decltype(Node2dComponent::_rotation)>("Rotation", offsetof(Node2dComponent, _rotation));

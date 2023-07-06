@@ -59,6 +59,19 @@ namespace hod
 				{
 					return _name;
 				}
+
+				/// @brief 
+				/// @param instance 
+				/// @return 
+				hod::Object* Object::GetInstance(void* instance) // todo use it on deserialize
+				{
+					uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
+					uint8_t* objectAddress = instanceAddress + _offset;
+
+					hod::Object* objectInstance = reinterpret_cast<hod::Object*>(objectAddress);
+
+					return objectInstance;
+				}
 			}
 		}
 	}

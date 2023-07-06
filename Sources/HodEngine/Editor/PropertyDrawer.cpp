@@ -14,26 +14,26 @@ namespace hod::editor
 {
 	bool PropertyDrawer::DrawProperty(Object& object, core::ReflectionProperty* property)
 	{
+		ImGui::PushID(&object);
+		bool changed = false;
 		if (property->GetMetaType() == core::Reflection::Property::Variable::GetMetaTypeStatic())
 		{
 			core::Reflection::Property::Variable* variableProperty = static_cast<core::Reflection::Property::Variable*>(property);
-
-			return DrawPropertyVariable(object, variableProperty);
+			changed = DrawPropertyVariable(object, variableProperty);
 		}
 		else if (property->GetMetaType() == core::Reflection::Property::Array::GetMetaTypeStatic())
 		{
 			core::Reflection::Property::Array* arrayProperty = static_cast<core::Reflection::Property::Array*>(property);
-
-			return DrawPropertyArray(object, arrayProperty);
+			changed = DrawPropertyArray(object, arrayProperty);
 		}
 		else if (property->GetMetaType() == core::Reflection::Property::Object::GetMetaTypeStatic())
 		{
 			core::Reflection::Property::Object* objectProperty = static_cast<core::Reflection::Property::Object*>(property);
-
-			return DrawPropertyObject(object, objectProperty);
+			changed = DrawPropertyObject(object, objectProperty);
 		}
+		ImGui::PopID();
 
-		return false;
+		return changed;
 	}
 
 	/// @brief 
@@ -155,13 +155,14 @@ namespace hod::editor
 	{
 		if (ImGui::CollapsingHeader(property->GetName()) == true)
 		{
-			core::ReflectionDescriptor* reflectionDescriptor = object.GetReflectionDescriptorV();
+			Object* instance = property->GetInstance((void*)&object);
+			core::ReflectionDescriptor* instanceDescriptor = instance->GetReflectionDescriptorV();
 
 			bool changed = false;
 
-			for (core::ReflectionProperty* property : reflectionDescriptor->GetProperties())
+			for (core::ReflectionProperty* property : instanceDescriptor->GetProperties())
 			{
-				changed |= PropertyDrawer::DrawProperty(object, property);
+				changed |= PropertyDrawer::DrawProperty(*instance, property);
 			}
 
 			return changed;

@@ -1,5 +1,3 @@
-#pragma once
-
 #include "HodEngine/Core/Object.h"
 
 namespace hod

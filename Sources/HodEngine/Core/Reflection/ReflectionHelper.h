@@ -3,7 +3,6 @@
 #include <type_traits>
 #include <string_view>
 
-#include "HodEngine/Core/Object.h"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"

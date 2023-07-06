@@ -1,9 +1,13 @@
 #pragma once
 
+#include "HodEngine/Core/Reflection/ReflectionMacros.h"
+
 namespace hod
 {
 	class Vector2 final
 	{
+		REFLECTED_CLASS_NO_PARENT(Vector2)
+
 	public:
 
 		static Vector2 Zero;

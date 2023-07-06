@@ -8,6 +8,8 @@
 
 namespace hod
 {
+	class Object;
+
 	namespace core
 	{
 		namespace Reflection
@@ -15,7 +17,7 @@ namespace hod
 			namespace Property
 			{
 				///@brief 
-				class Object : public ReflectionProperty
+				class Object : public ReflectionProperty // todo rename remove namespace
 				{
 					META_TYPE(Object)
 
@@ -32,6 +34,7 @@ namespace hod
 				public:
 
 					const char*								GetName() const;
+					hod::Object*							GetInstance(void* instance);
 
 					void									Serialize(const void* instance, Document::Node& node) override;
 					void									Deserialize(void* instance, const Document::Node& node) override;
