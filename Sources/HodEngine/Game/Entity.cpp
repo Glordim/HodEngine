@@ -1,6 +1,9 @@
 #include "HodEngine/Game/Entity.h"
 #include "HodEngine/Game/src/Component.h"
 
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
+
+
 namespace hod::game
 {
 	/// @brief 
@@ -101,7 +104,7 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::weak_ptr<Component> Entity::AddComponent(const ComponentDescriptor& descriptor)
+	std::weak_ptr<Component> Entity::AddComponent(const core::ReflectionDescriptor& descriptor)
 	{
 		std::shared_ptr<Component> existingComponent = GetComponent(descriptor.GetMetaType()).lock();
 		if (existingComponent != nullptr)
@@ -109,7 +112,7 @@ namespace hod::game
 			return existingComponent;
 		}
 
-		return AddComponent(descriptor.CreateInstance(weak_from_this()));
+		return AddComponent(std::static_pointer_cast<Component>(descriptor.CreateSharedInstance()));
 	}
 
 	/// @brief 
@@ -118,6 +121,7 @@ namespace hod::game
 	std::weak_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component)
 	{
 		_components.push_back(component);
+		component->SetEntity(weak_from_this());
 
 		_onAddComponentEvent.Emit(component);
 

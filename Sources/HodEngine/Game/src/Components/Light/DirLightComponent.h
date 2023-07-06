@@ -16,7 +16,7 @@ namespace hod
 		{
 		public:
 
-								DirLightComponent(const std::weak_ptr<Entity>& entity);
+								DirLightComponent() = default;
 								DirLightComponent(const DirLightComponent&) = delete;
 								DirLightComponent(DirLightComponent&&) = delete;
 								~DirLightComponent() override = default;

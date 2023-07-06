@@ -16,7 +16,7 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(Meta)
+	DESCRIBE_REFLECTED_CLASS(Meta, void)
 	{
 		core::Reflection::Property::Object* uid = new core::Reflection::Property::Object(offsetof(Meta, _uid), "uid");
 		AddProperty(uid);

@@ -16,11 +16,11 @@ namespace hod
 
 	namespace game
 	{
-		DECLARE_HOD_COMPONENT(Node2dComponent, NodeComponent)
+		//DECLARE_HOD_COMPONENT(Node2dComponent, NodeComponent)
 
-		#define AddProperty(Class, Member) core::ReflectionHelper::AddProperty<decltype(Class::Member)>(Class::GetReflectionDescriptor(), #Member, offsetof(Class, Member))
+		#define AddProperty(Class, Member) core::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member))
 
-		DESCRIBE_REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent)
+		DESCRIBE_REFLECTED_CLASS(Node2dComponent, NodeComponent)
 		{
 			AddProperty(Node2dComponent, _position); // todo << ReflectionTraitFixedSizeArray(2);
 			AddProperty(Node2dComponent, _rotation);
@@ -35,24 +35,6 @@ namespace hod
 			AddProperty<Variable>(Variable::Type::Float32, offsetof(Node2dComponent, _rotation), "Rotation");
 			AddProperty<Array>(Variable::Type::Float32, offsetof(Node2dComponent, _scale), "Scale")->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
 			*/
-		}
-
-		/// @brief 
-		/// @param entity 
-		Node2dComponent::Node2dComponent(const std::weak_ptr<Entity>& entity)
-		: NodeComponent(entity)
-		, _position(Vector2::Zero)
-		, _scale(Vector2::One)
-		, _rotation(0.0f)
-		{
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		Node2dComponent::~Node2dComponent()
-		{
-
 		}
 
 		//-----------------------------------------------------------------------------

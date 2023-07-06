@@ -16,12 +16,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class RendererComponent : public Component
 		{
-			REFLECTED_ABSTRACT_DERIVED_CLASS(RendererComponent, Component)
-			META_TYPE(RendererComponent)
+			REFLECTED_CLASS(RendererComponent)
 
 		public:
 
-							RendererComponent(const std::weak_ptr<Entity>& entity);
+							RendererComponent() = default;
 							RendererComponent(const RendererComponent&) = delete;
 							RendererComponent(RendererComponent&&) = delete;
 							~RendererComponent() override = default;

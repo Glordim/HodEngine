@@ -23,6 +23,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
+			/*
 		CameraComponent::CameraComponent(const std::weak_ptr<Entity>& entity)
 			: Component(entity)
 			, _fov(60.0f)
@@ -34,15 +35,14 @@ namespace hod
 			, _hdriMat(nullptr)
 			, _hdriTexture(nullptr)
 		{
-			/*
 			GraphicApplication* graphicApplication = GraphicApplication::GetInstance();
 
 			int width = graphicApplication->GetWidth();
 			int height = graphicApplication->GetHeight();
 
 			_aspect = (float)width / (float)height;
-			*/
 		}
+			*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		

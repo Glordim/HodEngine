@@ -48,7 +48,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Scene* World::CreateScene()
 		{
-			Scene* pScene = new Scene("No name");
+			Scene* pScene = new Scene();
 
 			_scenes.push_back(pScene);
 

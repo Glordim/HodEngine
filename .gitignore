@@ -42,3 +42,4 @@ obj/
 bin/
 
 !Data/**/*.obj
+.vscode/settings.json

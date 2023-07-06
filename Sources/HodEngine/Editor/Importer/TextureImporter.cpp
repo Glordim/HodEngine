@@ -20,7 +20,7 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_DERIVED_CLASS(TextureImporterSettings, ImporterSettings)
+	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
 	{
 		core::Reflection::Property::Variable* generateMipmap = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::Bool, offsetof(TextureImporterSettings, _generateMipmap), "GenerateMimap");
 		AddProperty(generateMipmap);

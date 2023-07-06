@@ -3,71 +3,101 @@
 #include "HodEngine/Core/Reflection/ReflectionTrait.h"
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 
-namespace hod
+namespace hod::core
 {
-	namespace core
+	///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
+	///@param typeName 
+	ReflectionDescriptor::ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent)
+	: _typeName(typeName)
+	, _parent(parent)
 	{
-		///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
-		///@param typeName 
-		ReflectionDescriptor::ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent)
-		: _typeName(typeName)
-		, _parent(parent)
-		{
 
-		}
+	}
 
-		/// @brief 
-		/// @param instance 
-		/// @param documentNode 
-		/// @return 
-		bool ReflectionDescriptor::SerializeInDocument(const void* instance, Document::Node& documentNode)
-		{
-			for (ReflectionProperty* property : _properties)
-			{
-				property->Serialize(instance, documentNode);
-			}
-			return true;
-		}
-		
-		/// @brief 
-		/// @param instance 
-		/// @param documentNode 
-		/// @return 
-		bool ReflectionDescriptor::DeserializeFromDocument(void* instance, const Document::Node& documentNode)
-		{
-			for (ReflectionProperty* property : _properties)
-			{
-				property->Deserialize(instance, documentNode);
-			}
-			return true;
-		}
+	/// @brief 
+	/// @param data 
+	ReflectionDescriptor::ReflectionDescriptor(const Data& data)
+	: _typeName(data._name.data()) // todo
+	, _metaType(data._metaType)
+	, _parent(data._parent)
+	, _allocateFunction(data._allocateFunction)
+	, _sharedAllocateFunction(data._sharedAllocateFunction)
+	{
 
-		///@brief 
-		///@return const std::vector<ReflectionTrait*>& 
-		const std::vector<ReflectionTrait*>& ReflectionDescriptor::GetTraits() const
-		{
-			return _traits;
-		}
+	}
 
-		///@brief 
-		///@return const std::vector<ReflectionProperty*>& 
-		const std::vector<ReflectionProperty*>& ReflectionDescriptor::GetProperties() const
-		{
-			return _properties;
-		}
+	/// @brief 
+	/// @return 
+	void* ReflectionDescriptor::CreateInstance() const
+	{
+		return _allocateFunction();
+	}
 
-		///@brief 
-		///@param trait 
-		void ReflectionDescriptor::AddTrait(ReflectionTrait* trait)
-		{
-			_traits.push_back(trait);
-		}
+	/// @brief 
+	/// @return 
+	std::shared_ptr<void> ReflectionDescriptor::CreateSharedInstance() const
+	{
+		return _sharedAllocateFunction();
+	}
 
-		///@brief 
-		///@param property 
-		void ReflectionDescriptor::AddProperty(ReflectionProperty* property)
+	/// @brief 
+	/// @return 
+	MetaType ReflectionDescriptor::GetMetaType() const
+	{
+		return _metaType;
+	}
+
+	/// @brief 
+	/// @param instance 
+	/// @param documentNode 
+	/// @return 
+	bool ReflectionDescriptor::SerializeInDocument(const void* instance, Document::Node& documentNode)
+	{
+		for (ReflectionProperty* property : _properties)
 		{
-			_properties.push_back(property);
+			property->Serialize(instance, documentNode);
 		}
+		return true;
+	}
+	
+	/// @brief 
+	/// @param instance 
+	/// @param documentNode 
+	/// @return 
+	bool ReflectionDescriptor::DeserializeFromDocument(void* instance, const Document::Node& documentNode)
+	{
+		for (ReflectionProperty* property : _properties)
+		{
+			property->Deserialize(instance, documentNode);
+		}
+		return true;
+	}
+
+	///@brief 
+	///@return const std::vector<ReflectionTrait*>& 
+	const std::vector<ReflectionTrait*>& ReflectionDescriptor::GetTraits() const
+	{
+		return _traits;
+	}
+
+	///@brief 
+	///@return const std::vector<ReflectionProperty*>& 
+	const std::vector<ReflectionProperty*>& ReflectionDescriptor::GetProperties() const
+	{
+		return _properties;
+	}
+
+	///@brief 
+	///@param trait 
+	void ReflectionDescriptor::AddTrait(ReflectionTrait* trait)
+	{
+		_traits.push_back(trait);
+	}
+
+	///@brief 
+	///@param property 
+	void ReflectionDescriptor::AddProperty(ReflectionProperty* property)
+	{
+		_properties.push_back(property);
 	}
 }

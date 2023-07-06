@@ -281,7 +281,7 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("Scene") == true)
 				{
-					game::Scene scene("Asset");
+					game::Scene scene;
 					std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(scene, _currentFolderTreeNode->_path / "Asset.scene");
 					const AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)

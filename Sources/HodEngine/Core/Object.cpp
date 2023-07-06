@@ -4,7 +4,7 @@
 
 namespace hod
 {
-	DESCRIBE_REFLECTED_ABSTRACT_CLASS(Object)
+	DESCRIBE_REFLECTED_CLASS(Object, void)
 	{
 		
 	}

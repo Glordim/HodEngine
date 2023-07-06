@@ -14,7 +14,7 @@ namespace hod::editor
 {
 	class ImporterSettings : public Object // TODO struct
 	{
-		REFLECTED_ABSTRACT_DERIVED_CLASS(ImporterSettings, Object)
+		REFLECTED_CLASS(ImporterSettings)
 
 	public:
 

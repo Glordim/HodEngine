@@ -6,17 +6,9 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_DERIVED_ABSTRACT_CLASS(Component, Object)
+		DESCRIBE_REFLECTED_CLASS(Component, Object)
 		{
 			AddTrait<Traits::Type>(Traits::Type::Component);
-		}
-
-		/// @brief 
-		/// @param entity 
-		Component::Component(const std::weak_ptr<Entity>& entity)
-		: _entity(entity)
-		{
-
 		}
 
 		//-----------------------------------------------------------------------------
@@ -25,6 +17,13 @@ namespace hod
 		void Component::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
 
+		}
+
+		/// @brief 
+		/// @param entity 
+		void Component::SetEntity(const std::weak_ptr<Entity>& entity)
+		{
+			_entity = entity;
 		}
 
 		/// @brief 

@@ -17,11 +17,11 @@ namespace hod
 		/// @brief 
 		class SceneComponent : public Component
 		{
-			REFLECTED_DERIVED_CLASS(SceneComponent, Component);
+			REFLECTED_CLASS(SceneComponent)
 
 		public:
 
-											SceneComponent(const std::weak_ptr<Entity>& entity);
+											SceneComponent();
 											SceneComponent(const SceneComponent&) = delete;
 											SceneComponent(SceneComponent&&) = delete;
 											~SceneComponent() override;

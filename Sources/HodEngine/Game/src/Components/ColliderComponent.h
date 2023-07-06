@@ -28,7 +28,7 @@ namespace hod
 
 		public:
 
-							ColliderComponent(const std::weak_ptr<Entity>& entity);
+							ColliderComponent() = default;
 							ColliderComponent(const ColliderComponent&) = delete;
 							ColliderComponent(ColliderComponent&&) = delete;
 							~ColliderComponent() override = default;

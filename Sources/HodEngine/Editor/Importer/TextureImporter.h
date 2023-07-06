@@ -6,7 +6,7 @@ namespace hod::editor
 {
 	class TextureImporterSettings : public ImporterSettings
 	{
-		REFLECTED_DERIVED_CLASS(TextureImporterSettings, ImporterSettings)
+		REFLECTED_CLASS(TextureImporterSettings)
 
 	public:
 

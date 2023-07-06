@@ -4,10 +4,7 @@ namespace hod
 {
 	namespace game
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		RendererComponent::RendererComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
+		DESCRIBE_REFLECTED_CLASS(RendererComponent, Component)
 		{
 
 		}

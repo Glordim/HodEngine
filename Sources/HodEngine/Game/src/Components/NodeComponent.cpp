@@ -14,19 +14,11 @@ namespace hod
 
 	namespace game
 	{
-		DECLARE_HOD_COMPONENT(NodeComponent, Component)
+		//DECLARE_HOD_COMPONENT(NodeComponent, Component)
 
-		DESCRIBE_REFLECTED_DERIVED_CLASS(NodeComponent, Component)
+		DESCRIBE_REFLECTED_CLASS(NodeComponent, Component)
 		{
 			//AddProperty<Variable>(Variable::Type::Float32, offsetof(NodeComponent, _rotation), "Rotation"); // parent
-		}
-
-		/// @brief 
-		/// @param entity 
-		NodeComponent::NodeComponent(const std::weak_ptr<Entity>& entity)
-		: Component(entity)
-		{
-			_localMatrixDirty = true;
 		}
 
 		//-----------------------------------------------------------------------------

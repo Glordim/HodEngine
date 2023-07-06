@@ -24,15 +24,11 @@ namespace hod
 		///@brief 
 		class Component : public Object, public std::enable_shared_from_this<Component>
 		{
-			REFLECTED_ABSTRACT_DERIVED_CLASS(Component, Object)
-			BASE_META_TYPE(Component)
+			REFLECTED_CLASS(Component)
 
 		public:
 
-			virtual const ComponentDescriptor& GetDescriptor() = 0;	// todo base macro ?
-
-		public:
-
+			void							SetEntity(const std::weak_ptr<Entity>& entity);
 			const std::weak_ptr<Entity>&	GetEntity() const;
 			virtual const char*				GetType() const = 0;
 
@@ -40,7 +36,7 @@ namespace hod
 
 		protected:
 
-								Component(const std::weak_ptr<Entity>& entity);
+								Component() = default;
 								Component(const Component&) = delete;
 								Component(Component&&) = delete;
 			virtual				~Component() = default;

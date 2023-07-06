@@ -17,11 +17,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class SpriteComponent : public RendererComponent
 		{
-			//REFLECTED_DERIVED_CLASS(SpriteComponent, RendererComponent);
+			//REFLECTED_CLASS(SpriteComponent, RendererComponent);
 
 		public:
 
-											SpriteComponent(const std::weak_ptr<Entity>& entity);
+											SpriteComponent() = default;
 											SpriteComponent(const SpriteComponent&) = delete;
 											SpriteComponent(SpriteComponent&&) = delete;
 											~SpriteComponent() override;

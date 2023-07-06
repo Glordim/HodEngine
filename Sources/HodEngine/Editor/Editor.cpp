@@ -202,7 +202,7 @@ namespace hod::editor
 			return; // todo message + bool
 		}
 
-		game::Scene* scene = new game::Scene(asset.GetName());
+		game::Scene* scene = new game::Scene();
 		if (scene->GetReflectionDescriptorV()->DeserializeFromDocument((void*)scene, document.GetRootNode()) == false)
 		{
 			return; // todo message + bool

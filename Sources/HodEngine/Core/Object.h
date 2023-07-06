@@ -6,6 +6,6 @@ namespace hod
 {
     class Object
     {
-        REFLECTED_ABSTRACT_CLASS(Object)
+        REFLECTED_CLASS_NO_PARENT(Object)
     };
 }

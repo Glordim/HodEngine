@@ -36,10 +36,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class Scene : public Object
 		{
-			REFLECTED_DERIVED_CLASS(Scene, Object)
+			REFLECTED_CLASS(Scene)
 
 		public:
-																Scene(const std::string_view& name);
+																Scene();
 																Scene(const Scene&) = delete;
 																Scene(Scene&&) = delete;
 			virtual												~Scene();

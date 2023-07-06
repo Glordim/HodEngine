@@ -8,7 +8,7 @@ namespace hod
 	/// @brief 
 	class UID final
 	{
-		REFLECTED_CLASS(UID)
+		REFLECTED_CLASS_NO_PARENT(UID)
 		
 	public:
 

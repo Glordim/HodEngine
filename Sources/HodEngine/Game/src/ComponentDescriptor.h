@@ -46,8 +46,8 @@ namespace hod
 	}
 }
 
-#define HOD_COMPONENT(_Component_, _ParentComponent_)			\
-REFLECTED_DERIVED_CLASS(_Component_, _ParentComponent_)			\
+#define HOD_COMPONENT(_Component_)			\
+REFLECTED_CLASS(_Component_)			\
 META_TYPE(_Component_)											\
 private:														\
 	static ComponentDescriptor _descriptor;						\
@@ -63,5 +63,5 @@ public:															\
 private:
 
 #define DECLARE_HOD_COMPONENT(_Component_, _ParentComponent_)																											\
-ComponentDescriptor _Component_::_descriptor(_Component_::GetMetaTypeStatic(), _Component_::GetMetaTypeNameStatic(), [](std::weak_ptr<Entity> entity){ return std::make_shared<_Component_>(entity); }); // todo return null is type abstract		\
+ComponentDescriptor _Component_::_descriptor(_Component_::GetMetaTypeStatic(), _Component_::GetMetaTypeNameStatic(), [](std::weak_ptr<Entity> entity){ return nullptr;/*std::make_shared<_Component_>(entity);*/ }); // todo return null is type abstract		\
 

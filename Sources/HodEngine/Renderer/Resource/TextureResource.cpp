@@ -5,7 +5,7 @@
 
 namespace hod::renderer
 {
-	DESCRIBE_REFLECTED_CLASS(TextureInfo)
+	DESCRIBE_REFLECTED_CLASS(TextureInfo, void)
 	{
 		core::Reflection::Property::Variable* offset = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::UInt32, offsetof(TextureInfo, _offset), "offset");
 		AddProperty(offset);
@@ -14,7 +14,7 @@ namespace hod::renderer
 		AddProperty(size);
 	}
 
-	DESCRIBE_REFLECTED_DERIVED_CLASS(TextureResource, Resource)
+	DESCRIBE_REFLECTED_CLASS(TextureResource, Resource)
 	{
 		core::Reflection::Property::Variable* width = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::UInt16, offsetof(TextureResource, _width), "width");
 		AddProperty(width);

@@ -6,7 +6,7 @@ namespace hod::core
 {
 	class Resource
 	{
-		REFLECTED_ABSTRACT_CLASS(Resource)
+		REFLECTED_CLASS_NO_PARENT(Resource)
 
 	public:
 

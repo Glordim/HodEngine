@@ -17,7 +17,7 @@ namespace hod
 		{
 		public:
 
-									PointLightComponent(const std::weak_ptr<Entity>& entity);
+									PointLightComponent() = default;
 									PointLightComponent(const PointLightComponent&) = delete;
 									PointLightComponent(PointLightComponent&&) = delete;
 									~PointLightComponent() override = default;

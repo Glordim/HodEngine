@@ -30,7 +30,7 @@ namespace hod
 		{
 		public:
 
-										CameraComponent(const std::weak_ptr<Entity>& entity);
+										CameraComponent() = default;
 										CameraComponent(const CameraComponent&) = delete;
 										CameraComponent(CameraComponent&&) = delete;
 										~CameraComponent() override = default;

@@ -11,7 +11,7 @@ namespace hod::editor
 {
 	struct RecentProjects
 	{
-		REFLECTED_CLASS(RecentProjects)
+		REFLECTED_CLASS_NO_PARENT(RecentProjects)
 
 	public:
 

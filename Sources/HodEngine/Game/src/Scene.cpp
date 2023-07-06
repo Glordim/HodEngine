@@ -24,7 +24,7 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_DERIVED_CLASS(Scene, Object)
+		DESCRIBE_REFLECTED_CLASS(Scene, Object)
 		{
 			// TODO register CreateAsset
 
@@ -38,9 +38,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Scene::Scene(const std::string_view& name)
+		Scene::Scene()
 			: _ambiantColor(0.25f, 0.25f, 0.25f, 1.0f)
-			, _name(name)
+			, _name("NoName")
 		{
 			/*
 			_root = SpawnActor<Actor>("Root");

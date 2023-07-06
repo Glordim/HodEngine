@@ -2,7 +2,7 @@
 
 namespace hod::core
 {
-	DESCRIBE_REFLECTED_ABSTRACT_CLASS(Resource)
+	DESCRIBE_REFLECTED_CLASS(Resource, void)
 	{
 		
 	}

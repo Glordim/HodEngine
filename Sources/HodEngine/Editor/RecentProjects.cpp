@@ -5,7 +5,7 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(RecentProjects)
+	DESCRIBE_REFLECTED_CLASS(RecentProjects, void)
 	{
 		core::Reflection::Property::Array* projectsPath = new core::Reflection::Property::Array(core::Reflection::Property::Variable::Type::String, offsetof(RecentProjects, _projectsPath), "ProjectsPath");
 		AddProperty(projectsPath);

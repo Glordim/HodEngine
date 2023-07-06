@@ -8,10 +8,13 @@
 
 namespace hod
 {
+	namespace core
+	{
+		class ReflectionDescriptor;
+	}
+
 	namespace game
 	{
-		class ComponentDescriptor;
-
 		/// @brief 
 		class ComponentFactory : public Singleton<ComponentFactory>
 		{
@@ -22,7 +25,7 @@ namespace hod
 			template<typename _Component_>
 			bool				Register();
 
-			const std::map<MetaType, ComponentDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
+			const std::map<MetaType, core::ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
 
 		protected:
 
@@ -31,7 +34,7 @@ namespace hod
 
 		private:
 
-			std::map<MetaType, ComponentDescriptor*>	_metaTypeToDescriptors;
+			std::map<MetaType, core::ReflectionDescriptor*>	_metaTypeToDescriptors;
 		};
 	}
 }

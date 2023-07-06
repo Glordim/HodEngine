@@ -32,7 +32,7 @@ union UuidConverter
 
 namespace hod
 {
-	DESCRIBE_REFLECTED_CLASS(UID)
+	DESCRIBE_REFLECTED_CLASS(UID, void)
 	{
 		core::Reflection::Property::Variable* low = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::UInt64, offsetof(UID, _low), "low");
 		AddProperty(low);

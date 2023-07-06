@@ -18,13 +18,11 @@ namespace hod
 		/// @brief 
 		class NodeComponent : public Component
 		{
-			HOD_COMPONENT(NodeComponent, Component)
-			//REFLECTED_DERIVED_CLASS(NodeComponent, Component)
-			//META_TYPE(NodeComponent)
+			REFLECTED_CLASS(NodeComponent)
 
 		public:
 
-											NodeComponent(const std::weak_ptr<Entity>& entity);
+											NodeComponent() = default;
 											NodeComponent(const NodeComponent&) = delete;
 											NodeComponent(NodeComponent&&) = delete;
 											~NodeComponent() override;

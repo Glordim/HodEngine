@@ -20,7 +20,7 @@ namespace hod
 
 	namespace game
 	{
-		DESCRIBE_REFLECTED_DERIVED_CLASS(SceneComponent, Component)
+		DESCRIBE_REFLECTED_CLASS(SceneComponent, Component)
 		{
 			//AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _position), "Position");
 			AddProperty<Variable>(Variable::Type::Float32, offsetof(SceneComponent, _rotation), "Rotation");
@@ -29,7 +29,7 @@ namespace hod
 
 		/// @brief 
 		/// @param actor 
-		SceneComponent::SceneComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
+		SceneComponent::SceneComponent() : Component()
 		{
 			_position = glm::vec2(0.0f, 0.0f);
 			_rotation = 0.0f;

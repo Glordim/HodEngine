@@ -12,7 +12,7 @@ namespace hod::editor
 	/// @brief 
 	class Project
 	{
-		REFLECTED_CLASS(Project)
+		REFLECTED_CLASS_NO_PARENT(Project)
 
 		_Singleton(Project)
 

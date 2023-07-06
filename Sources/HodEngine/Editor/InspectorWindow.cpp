@@ -13,6 +13,7 @@
 #include "HodEngine/Game/src/Components/NodeComponent.h"
 
 #include "HodEngine/Game/src/ComponentFactory.h"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
 
 namespace hod::editor
 {
@@ -94,9 +95,9 @@ namespace hod::editor
 		{
 			for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
 			{
-				const game::ComponentDescriptor& componentDescriptor = *componentDescriptorPair.second;
+				const core::ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
 
-				if (ImGui::MenuItem(componentDescriptor.GetDisplayName().c_str()) == true)
+				if (ImGui::MenuItem(/*componentDescriptor. GetDisplayName().c_str()*/"truc") == true)
 				{
 					selection->AddComponent(componentDescriptor);
 				}

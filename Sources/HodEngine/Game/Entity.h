@@ -8,10 +8,14 @@
 #include "HodEngine/Core/Event.h"
 #include "HodEngine/Core/Type.h"
 
+namespace hod::core
+{
+	class ReflectionDescriptor;
+}
+
 namespace hod::game
 {
 	class Component;
-	class ComponentDescriptor;
 
 	class Entity final : public std::enable_shared_from_this<Entity>
 	{
@@ -44,7 +48,7 @@ namespace hod::game
 
 		template<typename _Component_>
 		std::weak_ptr<_Component_>	AddComponent();
-		std::weak_ptr<Component>	AddComponent(const ComponentDescriptor& descriptor);
+		std::weak_ptr<Component>	AddComponent(const core::ReflectionDescriptor& descriptor);
 
 		Event<std::weak_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
 		Event<std::weak_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }

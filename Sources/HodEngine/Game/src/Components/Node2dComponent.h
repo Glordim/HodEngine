@@ -16,16 +16,14 @@ namespace hod
 		/// @brief 
 		class Node2dComponent : public NodeComponent
 		{
-			HOD_COMPONENT(Node2dComponent, NodeComponent)
-			//REFLECTED_DERIVED_CLASS(Node2dComponent, NodeComponent)
-			//META_TYPE(Node2dComponent)
+			REFLECTED_CLASS(Node2dComponent)
 
 		public:
 
-											Node2dComponent(const std::weak_ptr<Entity>& entity);
+											Node2dComponent() = default;
 											Node2dComponent(const Node2dComponent&) = delete;
 											Node2dComponent(Node2dComponent&&) = delete;
-											~Node2dComponent() override;
+											~Node2dComponent() override = default;
 
 			void							operator=(const Node2dComponent&) = delete;
 			void							operator=(Node2dComponent&&) = delete;
@@ -50,9 +48,9 @@ namespace hod
 
 		private:
 
-			Vector2							_position;
-			Vector2							_scale;
-			float							_rotation;
+			Vector2							_position = Vector2::Zero;
+			Vector2							_scale = Vector2::One;
+			float							_rotation = 0.0f;
 		};
 	}
 }

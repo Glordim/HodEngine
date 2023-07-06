@@ -32,6 +32,6 @@ namespace hod::game
 			return existingComponent;
 		}
 
-		return std::static_pointer_cast<_Component_>(AddComponent(std::make_shared<_Component_>(weak_from_this())).lock());
+		return std::static_pointer_cast<_Component_>(AddComponent(std::make_shared<_Component_>(/*weak_from_this()*/)).lock());
 	}
 }

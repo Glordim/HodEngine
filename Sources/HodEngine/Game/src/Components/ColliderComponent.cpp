@@ -16,9 +16,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
+			/*
 		ColliderComponent::ColliderComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
 		{
-			/*
 			Scene* scene = actor->GetScene();
 
 			physics::Actor* physicActor = actor->GetPhysicActor();
@@ -32,8 +32,8 @@ namespace hod
 				physicActor = scene->CreatePhysicActor(actor);
 				physicActor->SetTransform(position, rotation, scale);
 			}
-			*/
 		}
+			*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
