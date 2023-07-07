@@ -12,10 +12,11 @@ namespace hod
 				/// @brief 
 				/// @param offset 
 				/// @param name 
-				Object::Object(uint32_t offset, const char* name)
+				Object::Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor)
 					: ReflectionProperty()
 					, _offset(offset)
 					, _name(name)
+					, _reflectionDesceriptor(reflectionDesceriptor)
 				{
 
 				}
@@ -63,14 +64,19 @@ namespace hod
 				/// @brief 
 				/// @param instance 
 				/// @return 
-				hod::Object* Object::GetInstance(void* instance) // todo use it on deserialize
+				void* Object::GetInstance(void* instance) const // todo use it on deserialize
 				{
 					uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
 					uint8_t* objectAddress = instanceAddress + _offset;
 
-					hod::Object* objectInstance = reinterpret_cast<hod::Object*>(objectAddress);
+					return reinterpret_cast<void*>(objectAddress);
+				}
 
-					return objectInstance;
+				/// @brief 
+				/// @return 
+				ReflectionDescriptor* Object::GetReflectionDescriptor() const
+				{
+					return _reflectionDesceriptor;
 				}
 			}
 		}

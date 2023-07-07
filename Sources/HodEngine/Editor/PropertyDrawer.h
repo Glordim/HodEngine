@@ -33,10 +33,10 @@ namespace hod::editor
 
     public:
 
-        static bool     DrawProperty(Object& object, core::ReflectionProperty* property);
-		static bool     DrawPropertyVariable(Object& object, core::Reflection::Property::Variable* property);
-		static bool     DrawPropertyArray(Object& object, core::Reflection::Property::Array* property);
-		static bool     DrawPropertyObject(Object& object, core::Reflection::Property::Object* property);
+        static bool     DrawProperty(void* object, core::ReflectionProperty* property);
+		static bool     DrawPropertyVariable(void* object, core::Reflection::Property::Variable* property);
+		static bool     DrawPropertyArray(void* object, core::Reflection::Property::Array* property);
+		static bool     DrawPropertyObject(void* object, core::Reflection::Property::Object* property);
         // static void  RegisterCustomDrawer(); //TODO
     };
 }

@@ -9,6 +9,11 @@ namespace hod
 	class Object;
 }
 
+namespace hod::core
+{
+	class ReflectionDescriptor;
+}
+
 namespace hod::game
 {
 	class Actor;
@@ -37,6 +42,6 @@ namespace hod::editor
 		void		DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 		void		DrawSceneSelection(game::Entity* selection);
 
-		bool		DrawDefaultInspector(hod::Object& object);
+		bool		DrawDefaultInspector(void* object, core::ReflectionDescriptor* reflectionDescriptor);
 	};
 }

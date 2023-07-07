@@ -12,9 +12,9 @@
 
 namespace hod::editor
 {
-	bool PropertyDrawer::DrawProperty(Object& object, core::ReflectionProperty* property)
+	bool PropertyDrawer::DrawProperty(void* object, core::ReflectionProperty* property)
 	{
-		ImGui::PushID(&object);
+		ImGui::PushID(object);
 		bool changed = false;
 		if (property->GetMetaType() == core::Reflection::Property::Variable::GetMetaTypeStatic())
 		{
@@ -38,7 +38,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyVariable(Object& object, core::Reflection::Property::Variable* property)
+	bool PropertyDrawer::DrawPropertyVariable(void* object, core::Reflection::Property::Variable* property)
 	{
 		ImGui::TextUnformatted(property->GetName());
 		ImGui::SameLine();
@@ -50,11 +50,11 @@ namespace hod::editor
 		case core::Reflection::Property::Variable::Type::Bool:
 		{
 			ImGui::PushID(property);
-			bool value = property->GetValue<bool>(&object);
+			bool value = property->GetValue<bool>(object);
 			bool changed = ImGui::Checkbox("", &value);
 			if (changed == true)
 			{
-				property->SetValue<bool>(&object, value);
+				property->SetValue<bool>(object, value);
 			}
 			ImGui::PopID();
 			return changed;
@@ -64,11 +64,11 @@ namespace hod::editor
 		case core::Reflection::Property::Variable::Type::Int8:
 		{
 			ImGui::PushID(property);
-			int32_t value = property->GetValue<int8_t>(&object);
+			int32_t value = property->GetValue<int8_t>(object);
 			bool changed = ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f);
 			if (changed == true)
 			{
-				property->SetValue<int8_t>(&object, (int8_t)value);
+				property->SetValue<int8_t>(object, (int8_t)value);
 			}
 			ImGui::PopID();
 			return changed;
@@ -78,11 +78,11 @@ namespace hod::editor
 		case core::Reflection::Property::Variable::Type::Float32:
 		{
 			ImGui::PushID(property);
-			float value = property->GetValue<float>(&object);
+			float value = property->GetValue<float>(object);
 			bool changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
 			if (changed == true)
 			{
-				property->SetValue<float>(&object, (float)value);
+				property->SetValue<float>(object, (float)value);
 			}
 			ImGui::PopID();
 			return changed;
@@ -98,7 +98,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyArray(Object& object, core::Reflection::Property::Array* property)
+	bool PropertyDrawer::DrawPropertyArray(void* object, core::Reflection::Property::Array* property)
 	{
 		ImGui::TextUnformatted(property->GetName());
 		ImGui::SameLine();
@@ -120,11 +120,11 @@ namespace hod::editor
 						ImGui::Text("%i", index);
 						ImGui::SameLine();
 						ImGui::PushID(index);
-						float value = property->GetValue<float>(&object, index);
+						float value = property->GetValue<float>(object, index);
 						bool elementChanged = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
 						if (elementChanged == true)
 						{
-							property->SetValue<float>(&object, index, (float)value);
+							property->SetValue<float>(object, index, (float)value);
 							changed = true;
 						}
 						ImGui::PopID();
@@ -151,18 +151,18 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyObject(Object& object, core::Reflection::Property::Object* property)
+	bool PropertyDrawer::DrawPropertyObject(void* object, core::Reflection::Property::Object* property)
 	{
 		if (ImGui::CollapsingHeader(property->GetName()) == true)
 		{
-			Object* instance = property->GetInstance((void*)&object);
-			core::ReflectionDescriptor* instanceDescriptor = instance->GetReflectionDescriptorV();
+			void* instance = property->GetInstance(object);
+			core::ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
 
 			bool changed = false;
 
 			for (core::ReflectionProperty* property : instanceDescriptor->GetProperties())
 			{
-				changed |= PropertyDrawer::DrawProperty(*instance, property);
+				changed |= PropertyDrawer::DrawProperty(instance, property);
 			}
 
 			return changed;

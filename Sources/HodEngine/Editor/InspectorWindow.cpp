@@ -49,7 +49,7 @@ namespace hod::editor
 			std::shared_ptr<Asset> asset = selection->_asset;
 			ImGui::Text(asset->GetName().c_str()); // same line add button to open (and later VersionControl)
 			ImGui::Separator();
-			if (DrawDefaultInspector(*asset->GetMeta()._importerSettings) == true)
+			if (DrawDefaultInspector(asset->GetMeta()._importerSettings, asset->GetMeta()._importerSettings->GetReflectionDescriptorV()) == true)
 			{
 				selection->_asset->SetDirty();
 			}
@@ -78,7 +78,7 @@ namespace hod::editor
 			{
 				ImGui::TextUnformatted(componentLock->GetMetaTypeName());
 
-				if (DrawDefaultInspector(*componentLock.get()) == true)
+				if (DrawDefaultInspector(componentLock.get(), componentLock->GetReflectionDescriptorV()) == true)
 				{
 					//selection->_asset->SetDirty(); // TODO
 				}
@@ -109,10 +109,8 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param object 
-	bool InspectorWindow::DrawDefaultInspector(Object& object)
+	bool InspectorWindow::DrawDefaultInspector(void* object, core::ReflectionDescriptor* reflectionDescriptor)
 	{
-		core::ReflectionDescriptor* reflectionDescriptor = object.GetReflectionDescriptorV();
-
 		bool changed = false;
 
 		for (core::ReflectionProperty* property : reflectionDescriptor->GetProperties())

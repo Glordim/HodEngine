@@ -16,25 +16,11 @@ namespace hod
 
 	namespace game
 	{
-		//DECLARE_HOD_COMPONENT(Node2dComponent, NodeComponent)
-
-		//#define AddProperty(Class, Member) core::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member))
-
 		DESCRIBE_REFLECTED_CLASS(Node2dComponent, NodeComponent)
 		{
 			ADD_PROPERTY(Node2dComponent, _position); // todo << ReflectionTraitFixedSizeArray(2);
 			ADD_PROPERTY(Node2dComponent, _rotation);
 			ADD_PROPERTY(Node2dComponent, _scale);
-			/*
-			core::ReflectionHelper::AddProperty<decltype(Node2dComponent::_position)>("Position", offsetof(Node2dComponent, _position))->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
-			core::ReflectionHelper::AddProperty<decltype(Node2dComponent::_rotation)>("Rotation", offsetof(Node2dComponent, _rotation));
-			core::ReflectionHelper::AddProperty<decltype(Node2dComponent::_scale)>("Scale", offsetof(Node2dComponent, _scale))->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
-			*/
-			/*
-			AddProperty<Array>(Variable::Type::Float32, offsetof(Node2dComponent, _position), "Position")->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
-			AddProperty<Variable>(Variable::Type::Float32, offsetof(Node2dComponent, _rotation), "Rotation");
-			AddProperty<Array>(Variable::Type::Float32, offsetof(Node2dComponent, _scale), "Scale")->AddTrait<core::ReflectionTraitFixedSizeArray>(2);
-			*/
 		}
 
 		//-----------------------------------------------------------------------------

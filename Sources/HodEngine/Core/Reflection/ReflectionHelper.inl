@@ -78,7 +78,7 @@ namespace hod::core
 		*/
 		else if constexpr (std::is_class<_MemberVariable_>::value)
 		{
-			return descriptor->AddProperty<Reflection::Property::Object>(offset, name.data());
+			return descriptor->AddProperty<Reflection::Property::Object>(offset, name.data(), _MemberVariable_::GetReflectionDescriptor());
 		}
 		else
 		{

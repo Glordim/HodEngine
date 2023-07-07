@@ -23,7 +23,7 @@ namespace hod
 
 				public:
 
-															Object(uint32_t offset, const char* name);
+															Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor);
 															Object(const Object&) = default;
 															Object(Object&&) = default;
 															~Object() = default;
@@ -34,7 +34,8 @@ namespace hod
 				public:
 
 					const char*								GetName() const;
-					hod::Object*							GetInstance(void* instance);
+					void*									GetInstance(void* instance) const;
+					ReflectionDescriptor*					GetReflectionDescriptor() const;
 
 					void									Serialize(const void* instance, Document::Node& node) override;
 					void									Deserialize(void* instance, const Document::Node& node) override;
@@ -43,6 +44,7 @@ namespace hod
 
 					uint32_t								_offset;
 					const char*								_name;
+					ReflectionDescriptor*					_reflectionDesceriptor;
 				};
 			}
 		}
