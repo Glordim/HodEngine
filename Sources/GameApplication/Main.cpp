@@ -11,7 +11,7 @@
 /// @return 
 int main(int argc, char** argv)
 {
-	hod::core::ArgumentParser argumentParser(argc, argv);
+	hod::ArgumentParser argumentParser(argc, argv);
 
 	GameApplication app;
 	if (app.Init(argumentParser) == false)

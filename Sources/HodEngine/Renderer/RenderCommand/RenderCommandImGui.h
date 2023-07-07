@@ -34,7 +34,7 @@ namespace hod
 
 			struct Command
 			{
-				CORE::Rect	_clipRect;
+				Rect	_clipRect;
 				Texture*	_texture;
 				uint32_t	_vertexOffset;
 				uint32_t	_indexOffset;
@@ -53,7 +53,7 @@ namespace hod
 
 		public:
 
-										RenderCommandImGui(const std::vector<DrawList*>& drawLists, const CORE::Rect& viewport);
+										RenderCommandImGui(const std::vector<DrawList*>& drawLists, const Rect& viewport);
 										RenderCommandImGui(const RenderCommandImGui&) = delete;
 										RenderCommandImGui(RenderCommandImGui&&) = delete;
 										~RenderCommandImGui() override = default;
@@ -69,7 +69,7 @@ namespace hod
 
 			static Material*			_material;
 
-			CORE::Rect					_viewport;
+			Rect						_viewport;
 			std::vector<DrawList*>		_drawLists;
 		};
 	}

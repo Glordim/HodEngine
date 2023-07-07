@@ -5,38 +5,35 @@
 
 namespace hod
 {
-	namespace core
+	/// @brief 
+	class DocumentReaderJson : public DocumentReader
 	{
-		/// @brief 
-		class DocumentReaderJson : public DocumentReader
-		{
-		public:
+	public:
 
-									DocumentReaderJson() = default;
-									DocumentReaderJson(const DocumentReaderJson&) = delete;
-									DocumentReaderJson(DocumentReaderJson&&) = delete;
-									~DocumentReaderJson() override = default;
+								DocumentReaderJson() = default;
+								DocumentReaderJson(const DocumentReaderJson&) = delete;
+								DocumentReaderJson(DocumentReaderJson&&) = delete;
+								~DocumentReaderJson() override = default;
 
-			DocumentReaderJson&		operator = (const DocumentReaderJson&) = delete;
-			DocumentReaderJson&		operator = (DocumentReaderJson&&) = delete;
+		DocumentReaderJson&		operator = (const DocumentReaderJson&) = delete;
+		DocumentReaderJson&		operator = (DocumentReaderJson&&) = delete;
 
-		protected:
+	protected:
 
-			bool					PopulateDocument(Document& document, Stream& stream, uint32_t size) override;
+		bool					PopulateDocument(Document& document, Stream& stream, uint32_t size) override;
 
-		private:
+	private:
 
-			bool					ParseNode(Document::Node& node);
-			bool					ParseObject(Document::Node& node);
-			bool					ParseArray(Document::Node& node);
-			Document::Node*			ParseKeyAndCreateChildNode(Document::Node& node);
-			bool					ParseValue(Document::Node& node);
+		bool					ParseNode(Document::Node& node);
+		bool					ParseObject(Document::Node& node);
+		bool					ParseArray(Document::Node& node);
+		Document::Node*			ParseKeyAndCreateChildNode(Document::Node& node);
+		bool					ParseValue(Document::Node& node);
 
-			void					SkipWhiteSpace();
+		void					SkipWhiteSpace();
 
-		private:
+	private:
 
-			const char*				_cursor = nullptr;
-		};
-	}
+		const char*				_cursor = nullptr;
+	};
 }

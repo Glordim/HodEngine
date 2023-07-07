@@ -26,7 +26,7 @@ namespace hod
 			template<typename _Component_>
 			bool				Register();
 
-			const std::map<MetaType, core::ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
+			const std::map<MetaType, ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
 
 		protected:
 
@@ -35,7 +35,7 @@ namespace hod
 
 		private:
 
-			std::map<MetaType, core::ReflectionDescriptor*>	_metaTypeToDescriptors;
+			std::map<MetaType, ReflectionDescriptor*>	_metaTypeToDescriptors;
 		};
 	}
 }

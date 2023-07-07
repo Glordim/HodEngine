@@ -12,23 +12,23 @@
 
 namespace hod::editor
 {
-	bool PropertyDrawer::DrawProperty(void* object, core::ReflectionProperty* property)
+	bool PropertyDrawer::DrawProperty(void* object, ReflectionProperty* property)
 	{
 		ImGui::PushID(object);
 		bool changed = false;
-		if (property->GetMetaType() == core::Reflection::Property::Variable::GetMetaTypeStatic())
+		if (property->GetMetaType() == Reflection::Property::Variable::GetMetaTypeStatic())
 		{
-			core::Reflection::Property::Variable* variableProperty = static_cast<core::Reflection::Property::Variable*>(property);
+			Reflection::Property::Variable* variableProperty = static_cast<Reflection::Property::Variable*>(property);
 			changed = DrawPropertyVariable(object, variableProperty);
 		}
-		else if (property->GetMetaType() == core::Reflection::Property::Array::GetMetaTypeStatic())
+		else if (property->GetMetaType() == Reflection::Property::Array::GetMetaTypeStatic())
 		{
-			core::Reflection::Property::Array* arrayProperty = static_cast<core::Reflection::Property::Array*>(property);
+			Reflection::Property::Array* arrayProperty = static_cast<Reflection::Property::Array*>(property);
 			changed = DrawPropertyArray(object, arrayProperty);
 		}
-		else if (property->GetMetaType() == core::Reflection::Property::Object::GetMetaTypeStatic())
+		else if (property->GetMetaType() == Reflection::Property::Object::GetMetaTypeStatic())
 		{
-			core::Reflection::Property::Object* objectProperty = static_cast<core::Reflection::Property::Object*>(property);
+			Reflection::Property::Object* objectProperty = static_cast<Reflection::Property::Object*>(property);
 			changed = DrawPropertyObject(object, objectProperty);
 		}
 		ImGui::PopID();
@@ -38,16 +38,16 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyVariable(void* object, core::Reflection::Property::Variable* property)
+	bool PropertyDrawer::DrawPropertyVariable(void* object, Reflection::Property::Variable* property)
 	{
 		ImGui::TextUnformatted(property->GetName());
 		ImGui::SameLine();
 
-		core::Reflection::Property::Variable::Type type = property->GetType();
+		Reflection::Property::Variable::Type type = property->GetType();
 
 		switch (type)
 		{
-		case core::Reflection::Property::Variable::Type::Bool:
+		case Reflection::Property::Variable::Type::Bool:
 		{
 			ImGui::PushID(property);
 			bool value = property->GetValue<bool>(object);
@@ -61,7 +61,7 @@ namespace hod::editor
 		}
 		break;
 
-		case core::Reflection::Property::Variable::Type::Int8:
+		case Reflection::Property::Variable::Type::Int8:
 		{
 			ImGui::PushID(property);
 			int32_t value = property->GetValue<int8_t>(object);
@@ -75,7 +75,7 @@ namespace hod::editor
 		}
 		break;
 
-		case core::Reflection::Property::Variable::Type::Float32:
+		case Reflection::Property::Variable::Type::Float32:
 		{
 			ImGui::PushID(property);
 			float value = property->GetValue<float>(object);
@@ -98,19 +98,19 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyArray(void* object, core::Reflection::Property::Array* property)
+	bool PropertyDrawer::DrawPropertyArray(void* object, Reflection::Property::Array* property)
 	{
 		ImGui::TextUnformatted(property->GetName());
 		ImGui::SameLine();
 
-		core::Reflection::Property::Variable::Type type = property->GetType();
-		core::ReflectionTraitFixedSizeArray* fixedSizeArrayTrait = property->FindTrait<core::ReflectionTraitFixedSizeArray>();
+		Reflection::Property::Variable::Type type = property->GetType();
+		ReflectionTraitFixedSizeArray* fixedSizeArrayTrait = property->FindTrait<ReflectionTraitFixedSizeArray>();
 
 		if (fixedSizeArrayTrait != nullptr) // Fixed size
 		{
 			switch (type)
 			{
-				case core::Reflection::Property::Variable::Type::Float32:
+				case Reflection::Property::Variable::Type::Float32:
 				{
 					bool changed = false;
 
@@ -151,16 +151,16 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyObject(void* object, core::Reflection::Property::Object* property)
+	bool PropertyDrawer::DrawPropertyObject(void* object, Reflection::Property::Object* property)
 	{
 		if (ImGui::CollapsingHeader(property->GetName()) == true)
 		{
 			void* instance = property->GetInstance(object);
-			core::ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
+			ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
 
 			bool changed = false;
 
-			for (core::ReflectionProperty* property : instanceDescriptor->GetProperties())
+			for (ReflectionProperty* property : instanceDescriptor->GetProperties())
 			{
 				changed |= PropertyDrawer::DrawProperty(instance, property);
 			}

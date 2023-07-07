@@ -5,28 +5,25 @@
 
 namespace hod
 {
-	namespace core
+	/// @brief 
+	class DocumentWriterJson : public DocumentWriter
 	{
-		/// @brief 
-		class DocumentWriterJson : public DocumentWriter
-		{
-		public:
+	public:
 
-								DocumentWriterJson() = default;
-								DocumentWriterJson(const DocumentWriterJson&) = delete;
-								DocumentWriterJson(DocumentWriterJson&&) = delete;
-								~DocumentWriterJson() override = default;
+							DocumentWriterJson() = default;
+							DocumentWriterJson(const DocumentWriterJson&) = delete;
+							DocumentWriterJson(DocumentWriterJson&&) = delete;
+							~DocumentWriterJson() override = default;
 
-			DocumentWriterJson&	operator = (const DocumentWriterJson&) = delete;
-			DocumentWriterJson&	operator = (DocumentWriterJson&&) = delete;
+		DocumentWriterJson&	operator = (const DocumentWriterJson&) = delete;
+		DocumentWriterJson&	operator = (DocumentWriterJson&&) = delete;
 
-		protected:
+	protected:
 
-			bool				WriteDocument(Document& document, Stream& stream) override;
+		bool				WriteDocument(Document& document, Stream& stream) override;
 
-		private:
+	private:
 
-			bool				WriteNode(const Document::Node& node, Stream& stream);
-		};
-	}
+		bool				WriteNode(const Document::Node& node, Stream& stream);
+	};
 }

@@ -338,7 +338,7 @@ namespace hod::editor
 		std::filesystem::path resourceFilePath = Project::GetInstance()->GetResourceDirPath() / asset->GetUid().ToString();
 		resourceFilePath += ".resource";
 
-		core::FileStream resourceFile(resourceFilePath, core::FileMode::Read);
+		FileStream resourceFile(resourceFilePath, FileMode::Read);
 		if (resourceFile.CanRead() == false)
 		{
 			return Import(asset->GetPath());

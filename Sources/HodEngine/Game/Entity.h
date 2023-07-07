@@ -8,7 +8,7 @@
 #include "HodEngine/Core/Event.h"
 #include "HodEngine/Core/Type.h"
 
-namespace hod::core
+namespace hod
 {
 	class ReflectionDescriptor;
 }
@@ -48,7 +48,7 @@ namespace hod::game
 
 		template<typename _Component_>
 		std::weak_ptr<_Component_>	AddComponent();
-		std::weak_ptr<Component>	AddComponent(const core::ReflectionDescriptor& descriptor);
+		std::weak_ptr<Component>	AddComponent(const ReflectionDescriptor& descriptor);
 
 		Event<std::weak_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
 		Event<std::weak_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }

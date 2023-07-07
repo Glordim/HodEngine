@@ -8,7 +8,7 @@ namespace hod
 	{
 		namespace Traits
 		{
-			class Type : public core::ReflectionTrait
+			class Type : public ReflectionTrait
 			{
 				META_TYPE(Type)
 

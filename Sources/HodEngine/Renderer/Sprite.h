@@ -35,7 +35,7 @@ namespace hod
 			SpriteAtlas*					GetSpriteAtlas() const;
 
 			const std::string&				GetName() const;
-			const CORE::Rect&				GetFrame() const;
+			const Rect&						GetFrame() const;
 			const glm::vec2&				GetSize() const;
 			const glm::vec2&				GetPivot() const;
 
@@ -50,7 +50,7 @@ namespace hod
 			SpriteAtlas*					_spriteAtlas = nullptr;
 
 			std::string						_name;
-			CORE::Rect						_frame;
+			Rect							_frame;
 			glm::vec2						_size;
 			glm::vec2						_pivot;
 

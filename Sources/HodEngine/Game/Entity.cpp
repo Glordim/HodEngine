@@ -104,7 +104,7 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::weak_ptr<Component> Entity::AddComponent(const core::ReflectionDescriptor& descriptor)
+	std::weak_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor)
 	{
 		std::shared_ptr<Component> existingComponent = GetComponent(descriptor.GetMetaType()).lock();
 		if (existingComponent != nullptr)

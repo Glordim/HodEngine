@@ -18,7 +18,7 @@ namespace hod::application
 	/// @param argc 
 	/// @param argv 
 	/// @return 
-	bool Application::Init(const core::ArgumentParser& argumentParser)
+	bool Application::Init(const ArgumentParser& argumentParser)
 	{
 		JobSqueduler::CreateInstance();
 		FrameSequencer::CreateInstance();

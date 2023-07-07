@@ -18,7 +18,7 @@ static __REFLECTION_DESCRIPTOR_TYPE__*	GetReflectionDescriptor()				\
 																					\
 public:																				\
 																					\
-	class __TYPE__##ReflectionDescriptor : public core::ReflectionDescriptor		\
+	class __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor			\
 	{																				\
 		public:																		\
 																					\
@@ -27,7 +27,7 @@ public:																				\
 																					\
 	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
 																					\
-	virtual core::ReflectionDescriptor* GetReflectionDescriptorV() const			\
+	virtual hod::ReflectionDescriptor* GetReflectionDescriptorV() const				\
 	{																				\
 		return __TYPE__::GetReflectionDescriptor();									\
 	}																				\
@@ -41,7 +41,7 @@ private:																			\
 																					\
 public:																				\
 																					\
-	class __TYPE__##ReflectionDescriptor : public core::ReflectionDescriptor		\
+	class __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor			\
 	{																				\
 		public:																		\
 																					\
@@ -50,7 +50,7 @@ public:																				\
 																					\
 	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
 																					\
-	core::ReflectionDescriptor* GetReflectionDescriptorV() const override			\
+	hod::ReflectionDescriptor* GetReflectionDescriptorV() const override			\
 	{																				\
 		return __TYPE__::GetReflectionDescriptor();									\
 	}																				\
@@ -60,11 +60,11 @@ private:																			\
 ///@brief 
 #define DESCRIBE_REFLECTED_CLASS_NO_PARENT(__TYPE__)														\
 __TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()									\
-: core::ReflectionDescriptor(core::ReflectionDescriptor::GenerateReflectionData<__TYPE__, void>(#__TYPE__))	\
+: hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<__TYPE__, void>(#__TYPE__))	\
 
 ///@brief 
 #define DESCRIBE_REFLECTED_CLASS(__TYPE__, __PARENT__)																\
 __TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()											\
-: core::ReflectionDescriptor(core::ReflectionDescriptor::GenerateReflectionData<__TYPE__, __PARENT__>(#__TYPE__))	\
+: hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<__TYPE__, __PARENT__>(#__TYPE__))		\
 
-#define ADD_PROPERTY(Class, Member) core::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member))
+#define ADD_PROPERTY(Class, Member) hod::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member))

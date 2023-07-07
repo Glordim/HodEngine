@@ -5,75 +5,71 @@
 
 namespace hod
 {
-	namespace core
+	// TODO must be a part of IO and FileSystem
+	enum class FileMode
 	{
-		// TODO must be a part of IO and FileSystem
-		enum class FileMode
-		{
-			Read,
-			Write,
-			Append,
+		Read,
+		Write,
+		Append,
 
-			Count
-		};
+		Count
+	};
 
-		/// @brief 
-		class FileStream : public Stream
-		{
-		public:
+	/// @brief 
+	class FileStream : public Stream
+	{
+	public:
 
-								FileStream(const std::filesystem::path& path, FileMode fileMode);
-								FileStream(const FileStream&) = delete;
-								FileStream(FileStream&&) = delete;
-								~FileStream() override;
+							FileStream(const std::filesystem::path& path, FileMode fileMode);
+							FileStream(const FileStream&) = delete;
+							FileStream(FileStream&&) = delete;
+							~FileStream() override;
 
-			FileStream&			operator = (const FileStream&) = delete;
-			FileStream&			operator = (FileStream&&) = delete;
+		FileStream&			operator = (const FileStream&) = delete;
+		FileStream&			operator = (FileStream&&) = delete;
 
-		public:
+	public:
 
-			bool				CanRead() const override;
-			bool				CanWrite() const override;
-			bool				CanSeek() const override;
+		bool				CanRead() const override;
+		bool				CanWrite() const override;
+		bool				CanSeek() const override;
 
-			int64_t				GetSize() override;
-			int64_t				Tell() const override;
-			bool				Seek(int64_t position, SeekOrigin origin) override;
+		int64_t				GetSize() override;
+		int64_t				Tell() const override;
+		bool				Seek(int64_t position, SeekOrigin origin) override;
 
-			bool				Open(const std::filesystem::path& path, FileMode fileMode);
-			bool				Read(void* buffer, uint32_t size) override;
-			bool				Write(const void* buffer, uint32_t size) override;
-			bool				Close();
+		bool				Open(const std::filesystem::path& path, FileMode fileMode);
+		bool				Read(void* buffer, uint32_t size) override;
+		bool				Write(const void* buffer, uint32_t size) override;
+		bool				Close();
 
-			Stream&				operator << (bool value) override;
-			Stream&				operator << (int8_t value) override;
-			Stream&				operator << (int16_t value) override;
-			Stream&				operator << (int32_t value) override;
-			Stream&				operator << (int64_t value) override;
-			Stream&				operator << (uint8_t value) override;
-			Stream&				operator << (uint16_t value) override;
-			Stream&				operator << (uint32_t value) override;
-			Stream&				operator << (uint64_t value) override;
-			Stream&				operator << (float value) override;
-			Stream&				operator << (double value) override;
+		Stream&				operator << (bool value) override;
+		Stream&				operator << (int8_t value) override;
+		Stream&				operator << (int16_t value) override;
+		Stream&				operator << (int32_t value) override;
+		Stream&				operator << (int64_t value) override;
+		Stream&				operator << (uint8_t value) override;
+		Stream&				operator << (uint16_t value) override;
+		Stream&				operator << (uint32_t value) override;
+		Stream&				operator << (uint64_t value) override;
+		Stream&				operator << (float value) override;
+		Stream&				operator << (double value) override;
 
-			Stream&				operator >> (bool& value) override;
-			Stream&				operator >> (int8_t& value) override;
-			Stream&				operator >> (int16_t& value) override;
-			Stream&				operator >> (int32_t& value) override;
-			Stream&				operator >> (int64_t& value) override;
-			Stream&				operator >> (uint8_t& value) override;
-			Stream&				operator >> (uint16_t& value) override;
-			Stream&				operator >> (uint32_t& value) override;
-			Stream&				operator >> (uint64_t& value) override;
-			Stream&				operator >> (float& value) override;
-			Stream&				operator >> (double& value) override;
+		Stream&				operator >> (bool& value) override;
+		Stream&				operator >> (int8_t& value) override;
+		Stream&				operator >> (int16_t& value) override;
+		Stream&				operator >> (int32_t& value) override;
+		Stream&				operator >> (int64_t& value) override;
+		Stream&				operator >> (uint8_t& value) override;
+		Stream&				operator >> (uint16_t& value) override;
+		Stream&				operator >> (uint32_t& value) override;
+		Stream&				operator >> (uint64_t& value) override;
+		Stream&				operator >> (float& value) override;
+		Stream&				operator >> (double& value) override;
 
-		private:
+	private:
 
-			FILE*				_fileHandle = nullptr;
-			FileMode			_fileMode;
-		};
-	}
+		FILE*				_fileHandle = nullptr;
+		FileMode			_fileMode;
+	};
 }
-

@@ -22,8 +22,8 @@ namespace hod::editor
 
 	public:
 
-		bool			LoadImporterConfig(const core::Document::Node& documentNode);
-		bool			SaveImporterConfig(core::Document::Node& documentNode) const;
+		bool			LoadImporterConfig(const Document::Node& documentNode);
+		bool			SaveImporterConfig(Document::Node& documentNode) const;
 
 	public:
 

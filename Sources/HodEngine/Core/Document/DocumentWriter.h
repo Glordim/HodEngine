@@ -5,32 +5,29 @@
 
 namespace hod
 {
-	namespace core
+	class Stream;
+	class Document;
+
+	/// @brief 
+	class DocumentWriter
 	{
-		class Stream;
-		class Document;
+	public:
 
-		/// @brief 
-		class DocumentWriter
-		{
-		public:
+							DocumentWriter() = default;
+							DocumentWriter(const DocumentWriter&) = delete;
+							DocumentWriter(DocumentWriter&&) = delete;
+		virtual				~DocumentWriter() = default;
 
-								DocumentWriter() = default;
-								DocumentWriter(const DocumentWriter&) = delete;
-								DocumentWriter(DocumentWriter&&) = delete;
-			virtual				~DocumentWriter() = default;
+		DocumentWriter&		operator = (const DocumentWriter&) = delete;
+		DocumentWriter&		operator = (DocumentWriter&&) = delete;
 
-			DocumentWriter&		operator = (const DocumentWriter&) = delete;
-			DocumentWriter&		operator = (DocumentWriter&&) = delete;
+	public:
 
-		public:
+		bool				Write(Document& document, const std::filesystem::path& path);
+		bool				Write(Document& document, Stream& stream);
 
-			bool				Write(Document& document, const std::filesystem::path& path);
-			bool				Write(Document& document, Stream& stream);
+	protected:
 
-		protected:
-
-			virtual bool		WriteDocument(Document& document, Stream& stream) = 0;
-		};
-	}
+		virtual bool		WriteDocument(Document& document, Stream& stream) = 0;
+	};
 }

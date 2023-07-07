@@ -16,7 +16,7 @@ namespace hod
 
 			}
 
-			CORE::Color color;
+			Color color;
 			float intensity;
 			float range;
 		};

@@ -1,19 +1,16 @@
 
 namespace hod
 {
-	namespace core
+	template<typename T>
+	void Document::Node::SetValues(const std::span<const T>& values)
 	{
-		template<typename T>
-		void Document::Node::SetValues(const std::span<const T>& values)
-		{
-			// TODO ensure no child
-			_type = Type::Array;
+		// TODO ensure no child
+		_type = Type::Array;
 
-			for (const T& value : values)
-			{
-				Node& child = AddChild("");
-				child.SetValue(value);
-			}
+		for (const T& value : values)
+		{
+			Node& child = AddChild("");
+			child.SetValue(value);
 		}
 	}
 }

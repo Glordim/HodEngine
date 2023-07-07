@@ -2,18 +2,17 @@
 
 namespace hod
 {
-	namespace core
+	///@brief 
+	ReflectionTraitFixedSizeArray::ReflectionTraitFixedSizeArray(uint32_t size)
+	: ReflectionTrait()
+	, _fixedSize(size)
 	{
-		///@brief 
-		ReflectionTraitFixedSizeArray::ReflectionTraitFixedSizeArray(uint32_t size)
-		: ReflectionTrait()
-		, _fixedSize(size)
-		{
-		}
-		
-		uint32_t ReflectionTraitFixedSizeArray::GetFixedSize() const
-		{
-			return _fixedSize;
-		}
+	}
+	
+	/// @brief 
+	/// @return 
+	uint32_t ReflectionTraitFixedSizeArray::GetFixedSize() const
+	{
+		return _fixedSize;
 	}
 }

@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Reflection/ReflectionMacros.h"
 #include "HodEngine/Core/Object.h"
 
-namespace hod::core
+namespace hod
 {
 	class FileStream;
 }
@@ -58,7 +58,7 @@ namespace hod::editor
 
 		bool			GenerateNewMeta(const std::filesystem::path& metaFilePath);
 
-		virtual bool	WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, core::FileStream& thumbnail, ImporterSettings& settings) = 0;
+		virtual bool	WriteResource(FileStream& data, FileStream& meta, FileStream& resource, FileStream& thumbnail, ImporterSettings& settings) = 0;
 
 		template<typename... Args>
 		void			SetSupportedDataFileExtensions(Args... args);

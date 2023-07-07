@@ -47,7 +47,7 @@ namespace hod::editor
 		std::filesystem::path metaPath = _path;
 		metaPath += ".meta";
 
-		core::FileStream fileStream(metaPath, core::FileMode::Read);
+		FileStream fileStream(metaPath, FileMode::Read);
 		if (fileStream.CanRead() == false)
 		{
 			// TODO generate new meta if not exist
@@ -55,8 +55,8 @@ namespace hod::editor
 			return false;
 		}
 
-		core::Document document;
-		core::DocumentReaderJson documentReader;
+		Document document;
+		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, metaPath) == false)
 		{
 			return false;
@@ -86,7 +86,7 @@ namespace hod::editor
 	/// @return 
 	bool Asset::Save(Object* object)
 	{
-		core::Document metaDocument;
+		Document metaDocument;
 		if (Meta::GetReflectionDescriptor()->SerializeInDocument(_meta, metaDocument.GetRootNode()) == false)
 		{
 			return false;
@@ -99,7 +99,7 @@ namespace hod::editor
 		std::filesystem::path metaPath = _path;
 		metaPath += ".meta";
 
-		core::DocumentWriterJson documentWriter;
+		DocumentWriterJson documentWriter;
 		if (documentWriter.Write(metaDocument, metaPath) == false)
 		{
 			return false;
@@ -107,7 +107,7 @@ namespace hod::editor
 
 		if (object != nullptr)
 		{
-			core::Document objectDocument;
+			Document objectDocument;
 			if (object->GetReflectionDescriptorV()->SerializeInDocument((const void*)object, objectDocument.GetRootNode()) == false)
 			{
 				return false;
@@ -174,7 +174,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param documentNode 
 	/// @return 
-	bool Meta::LoadImporterConfig(const core::Document::Node& documentNode)
+	bool Meta::LoadImporterConfig(const Document::Node& documentNode)
 	{
 		Importer* importer = AssetDatabase::GetInstance()->GetImporter(_importerType);
 		if (importer == nullptr)
@@ -203,7 +203,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param documentNode 
 	/// @return 
-	bool Meta::SaveImporterConfig(core::Document::Node& documentNode) const
+	bool Meta::SaveImporterConfig(Document::Node& documentNode) const
 	{
 		// TODO Ensure _importerSettings == nullptr
 

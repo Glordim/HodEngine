@@ -3,7 +3,7 @@
 #include "HodEngine/Core/Reflection/ReflectionTrait.h"
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 
-namespace hod::core
+namespace hod
 {
 	///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
 	///@param typeName 

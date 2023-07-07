@@ -27,7 +27,7 @@
 namespace hod
 {
 	template<>
-	APPLICATION::Application* CORE::Singleton<APPLICATION::Application>::_instance = nullptr;
+	APPLICATION::Application* Singleton<APPLICATION::Application>::_instance = nullptr;
 
 	namespace APPLICATION
 	{
@@ -65,7 +65,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Application::InitResult Application::Init(int argc, char** argv)
 		{
-			CORE::ArgumentParser argParser;
+			ArgumentParser argParser;
 			argParser.Register('\0', "toolDump", "Request dump reflection data (used by the editor) : [dir where store dumped files]", true);
 			argParser.Register('\0', "toolParent", "Embed the Application as child (used by the editor) : [parent window handle]", true);
 			argParser.Register('\0', "toolPort", "Run a Tcp server to comunicate with tools (used by the editor) : [port number]", true);
@@ -114,7 +114,7 @@ namespace hod
 				if (toolParentString != nullptr)
 				{
 					int64_t toolParentId;
-					if (CORE::StringConversion::StringToInt64(toolParentString, toolParentId) == false)
+					if (StringConversion::StringToInt64(toolParentString, toolParentId) == false)
 					{
 						return InitResult::Failure;
 					}
@@ -124,7 +124,7 @@ namespace hod
 				const char* toolPortString = argParser.GetValue("toolPort");
 				if (toolPortString != nullptr)
 				{
-					if (CORE::StringConversion::StringToUInt16(toolPortString, _editorPort) == false)
+					if (StringConversion::StringToUInt16(toolPortString, _editorPort) == false)
 					{
 						return InitResult::Failure;
 					}
@@ -226,7 +226,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Application::Run(const CORE::UID& startingSceneUid)
+		bool Application::Run(const UID& startingSceneUid)
 		{
 			if (PreRun() == false)
 			{

@@ -23,7 +23,7 @@ namespace hod::application
 	/// @param argc 
 	/// @param argv 
 	/// @return 
-	bool GraphicApplication::Init(const core::ArgumentParser& argumentParser)
+	bool GraphicApplication::Init(const ArgumentParser& argumentParser)
 	{
 		if (Application::Init(argumentParser) == false)
 		{

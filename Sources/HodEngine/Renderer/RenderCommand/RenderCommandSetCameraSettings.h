@@ -24,7 +24,7 @@ namespace hod
 		{
 		public:
 
-							RenderCommandSetCameraSettings(const glm::mat4x4& projectionMatrix, const glm::mat4x4& viewMatrix, const CORE::Rect& viewport);
+							RenderCommandSetCameraSettings(const glm::mat4x4& projectionMatrix, const glm::mat4x4& viewMatrix, const Rect& viewport);
 							RenderCommandSetCameraSettings(const RenderCommandSetCameraSettings&) = delete;
 							RenderCommandSetCameraSettings(RenderCommandSetCameraSettings&&) = delete;
 							~RenderCommandSetCameraSettings() override = default;
@@ -40,7 +40,7 @@ namespace hod
 
 			glm::mat4x4		_projectionMatrix;
 			glm::mat4x4		_viewMatrix;
-			CORE::Rect		_viewport;
+			Rect			_viewport;
 		};
 	}
 }

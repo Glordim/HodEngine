@@ -13,7 +13,7 @@ _SingletonOverrideConstructor(EditorApplication)
 /// @param argc 
 /// @param argv 
 /// @return 
-bool EditorApplication::Init(const hod::core::ArgumentParser& argumentParser)
+bool EditorApplication::Init(const hod::ArgumentParser& argumentParser)
 {
 	bool result = PlatformApplication::Init(argumentParser);
 	if (result == false)

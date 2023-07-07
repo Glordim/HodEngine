@@ -41,7 +41,7 @@ namespace hod::editor
 		std::filesystem::path metaFilePath = path;
 		metaFilePath += ".meta";
 
-		core::FileStream metaFile(metaFilePath, core::FileMode::Read);
+		FileStream metaFile(metaFilePath, FileMode::Read);
 		if (metaFile.CanRead() == false)
 		{
 			metaFile.Close();
@@ -49,14 +49,14 @@ namespace hod::editor
 			{
 				return false;
 			}
-			if (metaFile.Open(metaFilePath, core::FileMode::Read) == false || metaFile.CanRead() == false)
+			if (metaFile.Open(metaFilePath, FileMode::Read) == false || metaFile.CanRead() == false)
 			{
 				return false;
 			}
 		}
 		
-		core::Document document;
-		core::DocumentReaderJson documentReader;
+		Document document;
+		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, metaFile) == false)
 		{
 			// TODO output reason
@@ -70,7 +70,7 @@ namespace hod::editor
 			return false;
 		}
 
-		const core::Document::Node* importerNode = document.GetRootNode().GetChild("importerSettings");
+		const Document::Node* importerNode = document.GetRootNode().GetChild("importerSettings");
 		if (importerNode == nullptr)
 		{
 			// TODO output reason
@@ -84,7 +84,7 @@ namespace hod::editor
 			return false;
 		}
 
-		core::FileStream dataFile(path, core::FileMode::Read);
+		FileStream dataFile(path, FileMode::Read);
 		if (dataFile.CanRead() == false)
 		{
 			// TODO output reason
@@ -96,7 +96,7 @@ namespace hod::editor
 		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString();
 		thumbnailFilePath += ".png";
 
-		core::FileStream thumbnailFile(thumbnailFilePath, core::FileMode::Write);
+		FileStream thumbnailFile(thumbnailFilePath, FileMode::Write);
 		if (thumbnailFile.CanWrite() == false)
 		{
 			// TODO output reason
@@ -106,7 +106,7 @@ namespace hod::editor
 		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
 		resourceFilePath += ".resource";
 
-		core::FileStream resourceFile(resourceFilePath, core::FileMode::Write);
+		FileStream resourceFile(resourceFilePath, FileMode::Write);
 		if (resourceFile.CanWrite() == false)
 		{
 			// TODO output reason
@@ -121,14 +121,14 @@ namespace hod::editor
 	/// @return 
 	bool Importer::GenerateNewMeta(const std::filesystem::path& metaFilePath)
 	{
-		core::FileStream metaFile(metaFilePath, core::FileMode::Write);
+		FileStream metaFile(metaFilePath, FileMode::Write);
 		if (metaFile.CanWrite() == true)
 		{
 			Meta meta;
 			meta._uid = UID::GenerateUID();
 			meta._importerType = GetTypeName();
 
-			core::Document document;
+			Document document;
 			if (meta.GetReflectionDescriptorV()->SerializeInDocument(meta, document.GetRootNode()) == false)
 			{
 				return false;
@@ -141,7 +141,7 @@ namespace hod::editor
 			}
 			delete settings;
 
-			core::DocumentWriterJson documentWriter;
+			DocumentWriterJson documentWriter;
 			return documentWriter.Write(document, metaFile);
 		}
 

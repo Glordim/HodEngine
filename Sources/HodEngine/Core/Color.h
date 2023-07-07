@@ -4,30 +4,27 @@
 
 namespace hod
 {
-	namespace CORE
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	struct Color
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		struct Color
+		Color();
+		Color(float r, float g, float b, float a);
+		virtual ~Color();
+
+		float& operator[](size_t index)
 		{
-			Color();
-			Color(float r, float g, float b, float a);
-			virtual ~Color();
+			if (index == 0) return r;
+			if (index == 1) return g;
+			if (index == 2) return b;
+			if (index == 3) return a;
+			return r;
+		}
 
-			float& operator[](size_t index)
-			{
-				if (index == 0) return r;
-				if (index == 1) return g;
-				if (index == 2) return b;
-				if (index == 3) return a;
-				return r;
-			}
-
-			float r;
-			float g;
-			float b;
-			float a;
-		};
-	}
+		float r;
+		float g;
+		float b;
+		float a;
+	};
 }

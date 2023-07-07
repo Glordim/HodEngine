@@ -198,7 +198,7 @@ namespace hod
 
 		/// @brief 
 		/// @param viewport 
-		void CommandBufferVk::SetViewport(const CORE::Rect& viewport)
+		void CommandBufferVk::SetViewport(const Rect& viewport)
 		{
 			VkViewport vkViewport = {};
 			vkViewport.x = viewport._position.x;
@@ -213,7 +213,7 @@ namespace hod
 
 		/// @brief 
 		/// @param scissor 
-		void CommandBufferVk::SetScissor(const CORE::Rect& scissor)
+		void CommandBufferVk::SetScissor(const Rect& scissor)
 		{
 			VkRect2D vkScissor = {};
 			vkScissor.offset = { (int32_t)scissor._position.x, (int32_t)scissor._position.y };

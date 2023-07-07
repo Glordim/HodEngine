@@ -15,7 +15,7 @@ namespace hod::renderer
 		uint32_t	_size;
 	};
 	
-	class TextureResource : public core::Resource
+	class TextureResource : public Resource
 	{
 		REFLECTED_CLASS(TextureResource)
 

@@ -2,7 +2,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.h"
 
-namespace hod::core
+namespace hod
 {
 	class Resource
 	{
@@ -17,8 +17,5 @@ namespace hod::core
 
 		Resource&	operator = (const Resource&) = delete;
 		Resource&	operator = (Resource&&) = delete;
-
-	public:
-	
 	};
 }

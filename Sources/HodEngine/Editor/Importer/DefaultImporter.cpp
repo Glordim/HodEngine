@@ -10,7 +10,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool DefaultImporter::WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, core::FileStream& thumbnail, ImporterSettings& settings)
+	bool DefaultImporter::WriteResource(FileStream& data, FileStream& meta, FileStream& resource, FileStream& thumbnail, ImporterSettings& settings)
 	{
 		return false;
 	}

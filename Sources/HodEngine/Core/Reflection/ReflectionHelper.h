@@ -8,7 +8,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
 
-namespace hod::core
+namespace hod
 {
 	///@brief 
 	class ReflectionHelper

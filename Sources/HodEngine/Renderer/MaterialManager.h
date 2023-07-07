@@ -15,7 +15,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class MaterialManager : public CORE::GenericManager<Material>
+		class MaterialManager : public GenericManager<Material>
 		{
 			_Singleton(MaterialManager)
 

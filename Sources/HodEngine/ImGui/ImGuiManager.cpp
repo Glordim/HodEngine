@@ -61,7 +61,7 @@ namespace hod::imgui
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 
-		std::filesystem::path projectsPath = core::FileSystem::GetUserSettingsPath();
+		std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("ImGui.ini");
 
@@ -220,7 +220,7 @@ namespace hod::imgui
 			drawLists[drawListIndex] = drawList;
 		}
 
-		CORE::Rect viewport;
+		Rect viewport;
 		viewport._position.x = 0.0f;
 		viewport._position.y = 0.0f;
 		viewport._size.x = ImGui::GetIO().DisplaySize.x;

@@ -9,7 +9,7 @@ namespace hod
 	class Object;
 }
 
-namespace hod::core
+namespace hod
 {
 	class ReflectionDescriptor;
 }
@@ -42,6 +42,6 @@ namespace hod::editor
 		void		DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 		void		DrawSceneSelection(game::Entity* selection);
 
-		bool		DrawDefaultInspector(void* object, core::ReflectionDescriptor* reflectionDescriptor);
+		bool		DrawDefaultInspector(void* object, ReflectionDescriptor* reflectionDescriptor);
 	};
 }

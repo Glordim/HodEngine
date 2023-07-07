@@ -96,9 +96,9 @@ namespace hod::editor
 		{
 			for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
 			{
-				const core::ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
+				const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
 
-				core::ReflectionTraitDisplayName* displayNameTrait = componentDescriptor.FindTrait<core::ReflectionTraitDisplayName>();
+				ReflectionTraitDisplayName* displayNameTrait = componentDescriptor.FindTrait<ReflectionTraitDisplayName>();
 				if (ImGui::MenuItem(displayNameTrait->GetValue().c_str()) == true)
 				{
 					selection->AddComponent(componentDescriptor);
@@ -111,11 +111,11 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param object 
-	bool InspectorWindow::DrawDefaultInspector(void* object, core::ReflectionDescriptor* reflectionDescriptor)
+	bool InspectorWindow::DrawDefaultInspector(void* object, ReflectionDescriptor* reflectionDescriptor)
 	{
 		bool changed = false;
 
-		for (core::ReflectionProperty* property : reflectionDescriptor->GetProperties())
+		for (ReflectionProperty* property : reflectionDescriptor->GetProperties())
 		{
 			changed |= PropertyDrawer::DrawProperty(object, property);
 		}

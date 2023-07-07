@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 {
 	EditorApplication* app = EditorApplication::CreateInstance();
 
-	hod::core::ArgumentParser argumentParser(argc, argv);
+	hod::ArgumentParser argumentParser(argc, argv);
 	if (app->Init(argumentParser) == false)
 	{
 		return 1;

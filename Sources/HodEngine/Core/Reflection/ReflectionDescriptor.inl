@@ -1,5 +1,5 @@
 
-namespace hod::core
+namespace hod
 {
 	template<typename _Class_, typename _ParentClass_>
 	ReflectionDescriptor::Data ReflectionDescriptor::GenerateReflectionData(const std::string_view& name)

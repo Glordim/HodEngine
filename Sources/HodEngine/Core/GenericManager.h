@@ -6,43 +6,40 @@
 
 namespace hod
 {
-	namespace CORE
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	template<typename T>
+	class GenericManager
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		template<typename T>
-		class GenericManager
-		{
-		public:
+	public:
 
-			Event<T*>							OnDataAdded;
-			Event<T*>							OnDataRemoved;
+		Event<T*>							OnDataAdded;
+		Event<T*>							OnDataRemoved;
 
-		public:
+	public:
 
-												GenericManager() = default;
-												GenericManager(const GenericManager& copy) = delete;
-			virtual								~GenericManager() = default;
+											GenericManager() = default;
+											GenericManager(const GenericManager& copy) = delete;
+		virtual								~GenericManager() = default;
 
-			void								operator=(const GenericManager& right) = delete;
+		void								operator=(const GenericManager& right) = delete;
 
-		public:
+	public:
 
-			uint32_t							Count() const;
-			bool								IsEmpty() const;
-			T*									GetData(const UID& uid) const;
-			void								RemoveData(const UID& uid);
+		uint32_t							Count() const;
+		bool								IsEmpty() const;
+		T*									GetData(const UID& uid) const;
+		void								RemoveData(const UID& uid);
 
-		public:
+	public:
 
-			void								AddData(const UID& uid, const T* data);
+		void								AddData(const UID& uid, const T* data);
 
-		private:
+	private:
 
-			std::vector<std::pair<UID, T*>>		_uidToDataMap;
-		};
-	}
+		std::vector<std::pair<UID, T*>>		_uidToDataMap;
+	};
 }
 
 #include "GenericManager.inl"

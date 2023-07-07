@@ -4,22 +4,19 @@
 
 namespace hod
 {
-	namespace core
+	///@brief 
+	class ReflectionTrait
 	{
-		///@brief 
-		class ReflectionTrait
-		{
-			BASE_META_TYPE(ReflectionTrait)
+		BASE_META_TYPE(ReflectionTrait)
 
-		public:
+	public:
 
-										ReflectionTrait();
-										ReflectionTrait(const ReflectionTrait& copy) = default;
-										ReflectionTrait(ReflectionTrait&& move) = default;
-										~ReflectionTrait() = default;
+							ReflectionTrait() = default;
+							ReflectionTrait(const ReflectionTrait& copy) = default;
+							ReflectionTrait(ReflectionTrait&& move) = default;
+							~ReflectionTrait() = default;
 
-			ReflectionTrait&			operator = (const ReflectionTrait& copy) = default;
-			ReflectionTrait&			operator = (ReflectionTrait&& move) = default;
-		};
-	}
+		ReflectionTrait&	operator = (const ReflectionTrait& copy) = default;
+		ReflectionTrait&	operator = (ReflectionTrait&& move) = default;
+	};
 }

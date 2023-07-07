@@ -119,7 +119,7 @@ namespace hod
 				renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 			}
 
-			CORE::Rect viewport;
+			Rect viewport;
 			viewport._position.x = 0;
 			viewport._position.y = 0;
 			viewport._size.x = 1.0f;

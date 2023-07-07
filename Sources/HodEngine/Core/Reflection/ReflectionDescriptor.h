@@ -8,7 +8,7 @@
 #include "HodEngine/Core/Document/Document.h"
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 
-namespace hod::core
+namespace hod
 {
 	class ReflectionTrait;
 	class ReflectionProperty;

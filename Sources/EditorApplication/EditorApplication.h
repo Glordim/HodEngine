@@ -2,7 +2,7 @@
 
 #include <HodEngine/Application/PlatformApplication.h>
 
-namespace hod::core
+namespace hod
 {
 	class ArgumentParser;
 }
@@ -14,6 +14,6 @@ class EditorApplication : public PlatformApplication
 
 public:
 
-	bool			Init(const hod::core::ArgumentParser& argumentParser);
+	bool			Init(const hod::ArgumentParser& argumentParser);
 };
 

@@ -45,11 +45,11 @@ namespace hod::editor
 	/// @brief 
 	/// @param window 
 	/// @return 
-	bool Editor::Init(const core::ArgumentParser& argumentParser)
+	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
 		Project::CreateInstance();
 
-		const core::Argument* argument = argumentParser.GetArgument('p', "project");
+		const Argument* argument = argumentParser.GetArgument('p', "project");
 		if (argument == nullptr)
 		{
 			application::DesktopApplication* application = application::DesktopApplication::GetInstance();
@@ -105,14 +105,14 @@ namespace hod::editor
 	{
 		RecentProjects recentProjects;
 
-		std::filesystem::path projectsPath = core::FileSystem::GetUserSettingsPath();
+		std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("Project.json");
 
 		// Read and deserialize existing file
 		{
-			core::Document document;
-			core::DocumentReaderJson jsonReader;
+			Document document;
+			DocumentReaderJson jsonReader;
 			if (jsonReader.Read(document, projectsPath) == true)
 			{
 				RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(recentProjects, document.GetRootNode());
@@ -133,11 +133,11 @@ namespace hod::editor
 		{
 			recentProjects._projectsPath.push_back(path.string());
 
-			core::Document writeDocument;
+			Document writeDocument;
 			RecentProjects::GetReflectionDescriptor()->SerializeInDocument(recentProjects, writeDocument.GetRootNode());
 
 			std::filesystem::create_directories(projectsPath.parent_path());
-			core::DocumentWriterJson jsonWriter;
+			DocumentWriterJson jsonWriter;
 			jsonWriter.Write(writeDocument, projectsPath);
 		}
 
@@ -195,8 +195,8 @@ namespace hod::editor
 
 	void Editor::OpenAsset(Asset& asset)
 	{
-		core::Document document;
-		core::DocumentReaderJson documentReader;
+		Document document;
+		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, asset.GetPath()) == false)
 		{
 			return; // todo message + bool

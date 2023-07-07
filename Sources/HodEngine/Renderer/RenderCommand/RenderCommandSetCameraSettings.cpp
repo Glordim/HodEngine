@@ -13,7 +13,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RenderCommandSetCameraSettings::RenderCommandSetCameraSettings(const glm::mat4x4& projectionMatrix, const glm::mat4x4& viewMatrix, const CORE::Rect& viewport)
+		RenderCommandSetCameraSettings::RenderCommandSetCameraSettings(const glm::mat4x4& projectionMatrix, const glm::mat4x4& viewMatrix, const Rect& viewport)
 			: RenderCommand()
 			, _projectionMatrix(projectionMatrix)
 			, _viewMatrix(viewMatrix)

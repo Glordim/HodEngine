@@ -4,30 +4,27 @@
 
 namespace hod
 {
-	namespace core
+	///@brief 
+	class ReflectionTraitFixedSizeArray : public ReflectionTrait
 	{
-		///@brief 
-		class ReflectionTraitFixedSizeArray : public ReflectionTrait
-		{
-			META_TYPE(ReflectionTraitFixedSizeArray)
+		META_TYPE(ReflectionTraitFixedSizeArray)
 
-		public:
+	public:
 
-											ReflectionTraitFixedSizeArray(uint32_t size);
-											ReflectionTraitFixedSizeArray(const ReflectionTraitFixedSizeArray& copy) = default;
-											ReflectionTraitFixedSizeArray(ReflectionTraitFixedSizeArray&& move) = default;
-											~ReflectionTraitFixedSizeArray() = default;
+										ReflectionTraitFixedSizeArray(uint32_t size);
+										ReflectionTraitFixedSizeArray(const ReflectionTraitFixedSizeArray& copy) = default;
+										ReflectionTraitFixedSizeArray(ReflectionTraitFixedSizeArray&& move) = default;
+										~ReflectionTraitFixedSizeArray() = default;
 
-			ReflectionTraitFixedSizeArray&	operator = (const ReflectionTraitFixedSizeArray& copy) = default;
-			ReflectionTraitFixedSizeArray&	operator = (ReflectionTraitFixedSizeArray&& move) = default;
+		ReflectionTraitFixedSizeArray&	operator = (const ReflectionTraitFixedSizeArray& copy) = default;
+		ReflectionTraitFixedSizeArray&	operator = (ReflectionTraitFixedSizeArray&& move) = default;
 
-		public:
+	public:
 
-			uint32_t						GetFixedSize() const;
+		uint32_t						GetFixedSize() const;
 
-		protected:
+	protected:
 
-			uint32_t						_fixedSize;
-		};
-	}
+		uint32_t						_fixedSize;
+	};
 }

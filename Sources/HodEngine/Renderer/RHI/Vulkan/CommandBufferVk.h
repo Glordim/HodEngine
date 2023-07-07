@@ -39,8 +39,8 @@ namespace hod
 			void				SetViewMatrix(const glm::mat4x4& viewMatrix) override;
 			void				SetModelMatrix(const glm::mat4x4& modelMatrix) override;
 
-			void				SetViewport(const CORE::Rect& viewport) override;
-			void				SetScissor(const CORE::Rect& scissor) override;
+			void				SetViewport(const Rect& viewport) override;
+			void				SetScissor(const Rect& scissor) override;
 
 			void				SetMaterialInstance(MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) override;
 			void				SetVertexBuffer(Buffer* vertexBuffer, uint32_t offset = 0) override;

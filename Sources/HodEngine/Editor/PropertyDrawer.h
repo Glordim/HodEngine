@@ -5,9 +5,9 @@ namespace hod
 	class Object;
 }
 
-namespace hod::core
+namespace hod
 {
-    class ReflectionProperty;
+	class ReflectionProperty;
 
 	namespace Reflection::Property
 	{
@@ -33,10 +33,10 @@ namespace hod::editor
 
     public:
 
-        static bool     DrawProperty(void* object, core::ReflectionProperty* property);
-		static bool     DrawPropertyVariable(void* object, core::Reflection::Property::Variable* property);
-		static bool     DrawPropertyArray(void* object, core::Reflection::Property::Array* property);
-		static bool     DrawPropertyObject(void* object, core::Reflection::Property::Object* property);
+        static bool     DrawProperty(void* object, ReflectionProperty* property);
+		static bool     DrawPropertyVariable(void* object, Reflection::Property::Variable* property);
+		static bool     DrawPropertyArray(void* object, Reflection::Property::Array* property);
+		static bool     DrawPropertyObject(void* object, Reflection::Property::Object* property);
         // static void  RegisterCustomDrawer(); //TODO
     };
 }

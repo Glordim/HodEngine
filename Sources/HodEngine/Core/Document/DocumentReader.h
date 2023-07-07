@@ -5,32 +5,29 @@
 
 namespace hod
 {
-	namespace core
+	class Stream;
+	class Document;
+
+	/// @brief 
+	class DocumentReader
 	{
-		class Stream;
-		class Document;
+	public:
 
-		/// @brief 
-		class DocumentReader
-		{
-		public:
+							DocumentReader() = default;
+							DocumentReader(const DocumentReader&) = delete;
+							DocumentReader(DocumentReader&&) = delete;
+		virtual				~DocumentReader() = default;
 
-								DocumentReader() = default;
-								DocumentReader(const DocumentReader&) = delete;
-								DocumentReader(DocumentReader&&) = delete;
-			virtual				~DocumentReader() = default;
+		DocumentReader&		operator = (const DocumentReader&) = delete;
+		DocumentReader&		operator = (DocumentReader&&) = delete;
 
-			DocumentReader&		operator = (const DocumentReader&) = delete;
-			DocumentReader&		operator = (DocumentReader&&) = delete;
+	public:
 
-		public:
+		bool				Read(Document& document, const std::filesystem::path& path);
+		bool				Read(Document& document, Stream& stream, uint32_t size = 0);
 
-			bool				Read(Document& document, const std::filesystem::path& path);
-			bool				Read(Document& document, Stream& stream, uint32_t size = 0);
+	protected:
 
-		protected:
-
-			virtual bool		PopulateDocument(Document& document, Stream& stream, uint32_t size) = 0;
-		};
-	}
+		virtual bool		PopulateDocument(Document& document, Stream& stream, uint32_t size) = 0;
+	};
 }

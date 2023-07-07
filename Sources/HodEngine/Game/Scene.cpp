@@ -26,13 +26,7 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(Scene, Object)
 		{
-			// TODO register CreateAsset
-
-			core::Reflection::Property::Variable* name = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::String, offsetof(Scene, _name), "Name");
-			AddProperty(name);
-
-			//core::Reflection::Property::Object* rootGameObject = new core::Reflection::Property::Object(core::Reflection::Property::Variable::Type::String, offsetof(Scene, _name), "Name");
-			//AddProperty(rootGameObject);
+			ADD_PROPERTY(Scene, _name);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -111,7 +105,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration)
+		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration)
 		{
 			if (drawDebug == true)
 			{
@@ -158,7 +152,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::SetAmbiantColor(CORE::Color& color)
+		void Scene::SetAmbiantColor(Color& color)
 		{
 			_ambiantColor = color;
 		}
@@ -166,7 +160,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Scene::AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration)
+		void Scene::AddDebugLine(const glm::vec3& start, const glm::vec3& end, const Color& color, float duration)
 		{
 			/*
 			renderer::Line_3P_3C line;
@@ -217,14 +211,14 @@ namespace hod
 
 		/// @brief 
 		/// @param documentNode 
-		void Scene::SerializeInDocument(core::Document::Node& documentNode) const
+		void Scene::SerializeInDocument(Document::Node& documentNode) const
 		{
 			
 		}
 
 		/// @brief 
 		/// @param documentNode 
-		void Scene::DeserializeFromDocument(const core::Document::Node& documentNode)
+		void Scene::DeserializeFromDocument(const Document::Node& documentNode)
 		{
 
 		}

@@ -4,30 +4,27 @@
 
 namespace hod
 {
-	namespace core
+	///@brief 
+	class ReflectionTraitDisplayName : public ReflectionTrait
 	{
-		///@brief 
-		class ReflectionTraitDisplayName : public ReflectionTrait
-		{
-			META_TYPE(ReflectionTraitDisplayName)
+		META_TYPE(ReflectionTraitDisplayName)
 
-		public:
+	public:
 
-											ReflectionTraitDisplayName(const std::string_view& name);
-											ReflectionTraitDisplayName(const ReflectionTraitDisplayName& copy) = default;
-											ReflectionTraitDisplayName(ReflectionTraitDisplayName&& move) = default;
-											~ReflectionTraitDisplayName() = default;
+										ReflectionTraitDisplayName(const std::string_view& name);
+										ReflectionTraitDisplayName(const ReflectionTraitDisplayName& copy) = default;
+										ReflectionTraitDisplayName(ReflectionTraitDisplayName&& move) = default;
+										~ReflectionTraitDisplayName() = default;
 
-			ReflectionTraitDisplayName&		operator = (const ReflectionTraitDisplayName& copy) = default;
-			ReflectionTraitDisplayName&		operator = (ReflectionTraitDisplayName&& move) = default;
+		ReflectionTraitDisplayName&		operator = (const ReflectionTraitDisplayName& copy) = default;
+		ReflectionTraitDisplayName&		operator = (ReflectionTraitDisplayName&& move) = default;
 
-		public:
+	public:
 
-			const std::string&				GetValue() const;
+		const std::string&				GetValue() const;
 
-		private:
+	private:
 
-			std::string						_name;
-		};
-	}
+		std::string						_name;
+	};
 }

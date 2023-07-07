@@ -4,8 +4,6 @@
 
 namespace hod
 {
-	//bSqueduler* JobSqueduler::_instance = nullptr;
-
 	/// @brief 
 	JobSqueduler::JobSqueduler()
 	{

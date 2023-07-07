@@ -1,5 +1,5 @@
 
-namespace hod::core
+namespace hod
 {
 	template<typename _MemberVariable_>
 	constexpr Reflection::Property::Variable::Type GetVariableType()

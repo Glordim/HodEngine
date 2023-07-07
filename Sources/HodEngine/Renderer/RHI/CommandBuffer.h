@@ -48,8 +48,8 @@ namespace hod
 			virtual void		SetViewMatrix(const glm::mat4x4& viewMatrix) = 0;
 			virtual void		SetModelMatrix(const glm::mat4x4& modelMatrix) = 0;
 
-			virtual void		SetViewport(const CORE::Rect& viewport) = 0;
-			virtual void		SetScissor(const CORE::Rect& scissor) = 0;
+			virtual void		SetViewport(const Rect& viewport) = 0;
+			virtual void		SetScissor(const Rect& scissor) = 0;
 
 			virtual void		SetMaterialInstance(MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) = 0;
 			virtual void		SetVertexBuffer(Buffer* vertexBuffer, uint32_t offset = 0) = 0;

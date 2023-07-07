@@ -24,7 +24,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const CORE::Rect& Sprite::GetFrame() const
+		const Rect& Sprite::GetFrame() const
 		{
 			return _frame;
 		}

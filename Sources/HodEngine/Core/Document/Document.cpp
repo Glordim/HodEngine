@@ -4,405 +4,402 @@
 
 namespace hod
 {
-	namespace core
+	/// @brief 
+	/// @param name 
+	Document::Node::Node(Document& document, const std::string_view& name)
+		: _document(document)
+		, _name(name)
+		, _type(Type::Object)
 	{
-		/// @brief 
-		/// @param name 
-		Document::Node::Node(Document& document, const std::string_view& name)
-			: _document(document)
-			, _name(name)
-			, _type(Type::Object)
-		{
 
+	}
+
+	/// @brief 
+	/// @param node 
+	void Document::Node::Detach()
+	{
+		if (_parent != nullptr)
+		{
+			_parent->Detach(*this);
 		}
+	}
 
-		/// @brief 
-		/// @param node 
-		void Document::Node::Detach()
+	/// @brief 
+	/// @param node 
+	void Document::Node::Detach(Node& node)
+	{
+		Node* child = _firstChild;
+		while (child != nullptr)
 		{
-			if (_parent != nullptr)
+			if (child == &node)
 			{
-				_parent->Detach(*this);
+				child = node._nextSibling;
+				node._parent = nullptr;
+				node._nextSibling = nullptr;
+				return;
 			}
+			child = child->_nextSibling;
 		}
+	}
 
-		/// @brief 
-		/// @param node 
-		void Document::Node::Detach(Node& node)
+	/// @brief 
+	/// @param node 
+	void Document::Node::Attach(Node& node)
+	{
+		node.Detach();
+		node._parent = this;
+
+		if (_firstChild == nullptr)
+		{
+			_firstChild = &node;
+		}
+		else
 		{
 			Node* child = _firstChild;
-			while (child != nullptr)
+			while (child->_nextSibling != nullptr)
 			{
-				if (child == &node)
-				{
-					child = node._nextSibling;
-					node._parent = nullptr;
-					node._nextSibling = nullptr;
-					return;
-				}
 				child = child->_nextSibling;
 			}
+			child->_nextSibling = &node;
 		}
+	}
 
-		/// @brief 
-		/// @param node 
-		void Document::Node::Attach(Node& node)
+	/// @brief 
+	/// @param name 
+	/// @return 
+	Document::Node& Document::Node::AddChild(const std::string_view& name)
+	{
+		// TODO check if an other child if same name exist
+
+		Node* node = new Node(_document, name);
+		if (node->GetName().empty() == true)
 		{
-			node.Detach();
-			node._parent = this;
+			_type = Type::Array;
+		}
+		Attach(*node);
+		return *node;
+	}
 
-			if (_firstChild == nullptr)
+	/// @brief 
+	/// @param name 
+	/// @return 
+	const Document::Node* Document::Node::GetChild(const std::string_view& name) const
+	{
+		return FindChild(name);
+	}
+
+	/// @brief 
+	/// @param name 
+	/// @return 
+	Document::Node& Document::Node::GetOrAddChild(const std::string_view& name)
+	{
+		// TODO check if an other child if same name exist
+
+		Node* node = new Node(_document, name);
+		Attach(*node);
+		return *node;
+	}
+
+	/// @brief 
+	/// @param name 
+	/// @return 
+	Document::Node& Document::Node::operator [] (const std::string_view& name)
+	{
+		return GetOrAddChild(name);
+	}
+
+	/// @brief 
+	/// @return 
+	Document::Node::Type Document::Node::GetType() const
+	{
+		return _type;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::string& Document::Node::GetName() const
+	{
+		return _name;
+	}
+
+	/// @brief 
+	/// @return 
+	Document::Node* Document::Node::GetFirstChild() const
+	{
+		return _firstChild;
+	}
+
+	/// @brief 
+	/// @return 
+	Document::Node* Document::Node::GetNextSibling() const
+	{
+		return _nextSibling;
+	}
+
+	/// @brief 
+	/// @return 
+	Document::Node* Document::Node::GetParent() const
+	{
+		return _parent;
+	}
+
+	/// @brief 
+	/// @param name 
+	/// @return 
+	Document::Node* Document::Node::FindChild(const std::string_view& name) const
+	{
+		Node* child = _firstChild;
+		while (child != nullptr)
+		{
+			if (child->_name == name)
 			{
-				_firstChild = &node;
+				return child;
 			}
-			else
-			{
-				Node* child = _firstChild;
-				while (child->_nextSibling != nullptr)
-				{
-					child = child->_nextSibling;
-				}
-				child->_nextSibling = &node;
-			}
+			child = child->_nextSibling;
 		}
 
-		/// @brief 
-		/// @param name 
-		/// @return 
-		Document::Node& Document::Node::AddChild(const std::string_view& name)
-		{
-			// TODO check if an other child if same name exist
+		return nullptr;
+	}
 
-			Node* node = new Node(_document, name);
-			if (node->GetName().empty() == true)
-			{
-				_type = Type::Array;
-			}
-			Attach(*node);
-			return *node;
-		}
+	void Document::Node::SetBool(bool value)
+	{
+		_type = Type::Bool;
+		_value._bool = value;
+	}
 
-		/// @brief 
-		/// @param name 
-		/// @return 
-		const Document::Node* Document::Node::GetChild(const std::string_view& name) const
-		{
-			return FindChild(name);
-		}
+	void Document::Node::SetInt8(int8_t value)
+	{
+		_type = Type::SInt8;
+		_value._sint8 = value;
+	}
 
-		/// @brief 
-		/// @param name 
-		/// @return 
-		Document::Node& Document::Node::GetOrAddChild(const std::string_view& name)
-		{
-			// TODO check if an other child if same name exist
+	void Document::Node::SetInt16(int16_t value)
+	{
+		_type = Type::SInt16;
+		_value._sint16 = value;
+	}
 
-			Node* node = new Node(_document, name);
-			Attach(*node);
-			return *node;
-		}
+	void Document::Node::SetInt32(int32_t value)
+	{
+		_type = Type::SInt32;
+		_value._sint32 = value;
+	}
 
-		/// @brief 
-		/// @param name 
-		/// @return 
-		Document::Node& Document::Node::operator [] (const std::string_view& name)
-		{
-			return GetOrAddChild(name);
-		}
+	void Document::Node::SetInt64(int64_t value)
+	{
+		_type = Type::SInt64;
+		_value._sint64 = value;
+	}
 
-		/// @brief 
-		/// @return 
-		Document::Node::Type Document::Node::GetType() const
-		{
-			return _type;
-		}
+	void Document::Node::SetUInt8(uint8_t value)
+	{
+		_type = Type::UInt8;
+		_value._uint8 = value;
+	}
 
-		/// @brief 
-		/// @return 
-		const std::string& Document::Node::GetName() const
-		{
-			return _name;
-		}
+	void Document::Node::SetUInt16(uint16_t value)
+	{
+		_type = Type::UInt16;
+		_value._uint16 = value;
+	}
 
-		/// @brief 
-		/// @return 
-		Document::Node* Document::Node::GetFirstChild() const
-		{
-			return _firstChild;
-		}
+	void Document::Node::SetUInt32(uint32_t value)
+	{
+		_type = Type::UInt32;
+		_value._uint32 = value;
+	}
 
-		/// @brief 
-		/// @return 
-		Document::Node* Document::Node::GetNextSibling() const
-		{
-			return _nextSibling;
-		}
+	void Document::Node::SetUInt64(uint64_t value)
+	{
+		_type = Type::UInt64;
+		_value._uint64 = value;
+	}
 
-		/// @brief 
-		/// @return 
-		Document::Node* Document::Node::GetParent() const
-		{
-			return _parent;
-		}
+	void Document::Node::SetFloat32(float value)
+	{
+		_type = Type::Float32;
+		_value._float32 = value;
+	}
 
-		/// @brief 
-		/// @param name 
-		/// @return 
-		Document::Node* Document::Node::FindChild(const std::string_view& name) const
-		{
-			Node* child = _firstChild;
-			while (child != nullptr)
-			{
-				if (child->_name == name)
-				{
-					return child;
-				}
-				child = child->_nextSibling;
-			}
+	void Document::Node::SetFloat64(double value)
+	{
+		_type = Type::Float64;
+		_value._float64 = value;
+	}
 
-			return nullptr;
-		}
+	void Document::Node::SetString(const std::string& value)
+	{
+		_type = Type::String;
+		_value._stringId = _document.AddString(value);
+	}
 
-		void Document::Node::SetBool(bool value)
-		{
-			_type = Type::Bool;
-			_value._bool = value;
-		}
+	void Document::Node::SetString(const std::string_view& value)
+	{
+		_type = Type::String;
+		_value._stringId = _document.AddString(value);
+	}
 
-		void Document::Node::SetInt8(int8_t value)
-		{
-			_type = Type::SInt8;
-			_value._sint8 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const bool& value)
+	{
+		SetBool(value);
+	}
 
-		void Document::Node::SetInt16(int16_t value)
-		{
-			_type = Type::SInt16;
-			_value._sint16 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const int8_t& value)
+	{
+		SetInt8(value);
+	}
 
-		void Document::Node::SetInt32(int32_t value)
-		{
-			_type = Type::SInt32;
-			_value._sint32 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const int16_t& value)
+	{
+		SetInt16(value);
+	}
 
-		void Document::Node::SetInt64(int64_t value)
-		{
-			_type = Type::SInt64;
-			_value._sint64 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const int32_t& value)
+	{
+		SetInt32(value);
+	}
 
-		void Document::Node::SetUInt8(uint8_t value)
-		{
-			_type = Type::UInt8;
-			_value._uint8 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const int64_t& value)
+	{
+		SetInt64(value);
+	}
 
-		void Document::Node::SetUInt16(uint16_t value)
-		{
-			_type = Type::UInt16;
-			_value._uint16 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const uint8_t& value)
+	{
+		SetUInt8(value);
+	}
 
-		void Document::Node::SetUInt32(uint32_t value)
-		{
-			_type = Type::UInt32;
-			_value._uint32 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const uint16_t& value)
+	{
+		SetUInt16(value);
+	}
 
-		void Document::Node::SetUInt64(uint64_t value)
-		{
-			_type = Type::UInt64;
-			_value._uint64 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const uint32_t& value)
+	{
+		SetUInt32(value);
+	}
 
-		void Document::Node::SetFloat32(float value)
-		{
-			_type = Type::Float32;
-			_value._float32 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const uint64_t& value)
+	{
+		SetUInt64(value);
+	}
 
-		void Document::Node::SetFloat64(double value)
-		{
-			_type = Type::Float64;
-			_value._float64 = value;
-		}
+	template<>
+	void Document::Node::SetValue(const float& value)
+	{
+		SetFloat32(value);
+	}
 
-		void Document::Node::SetString(const std::string& value)
-		{
-			_type = Type::String;
-			_value._stringId = _document.AddString(value);
-		}
+	template<>
+	void Document::Node::SetValue(const double& value)
+	{
+		SetFloat64(value);
+	}
 
-		void Document::Node::SetString(const std::string_view& value)
-		{
-			_type = Type::String;
-			_value._stringId = _document.AddString(value);
-		}
+	template<>
+	void Document::Node::SetValue(const std::string& value)
+	{
+		SetString(value);
+	}
 
-		template<>
-		void Document::Node::SetValue(const bool& value)
-		{
-			SetBool(value);
-		}
+	template<>
+	void Document::Node::SetValue(const std::string_view& value)
+	{
+		SetString(value);
+	}
 
-		template<>
-		void Document::Node::SetValue(const int8_t& value)
-		{
-			SetInt8(value);
-		}
+	bool Document::Node::GetBool() const
+	{
+		return _value._bool;
+	}
 
-		template<>
-		void Document::Node::SetValue(const int16_t& value)
-		{
-			SetInt16(value);
-		}
+	int8_t Document::Node::GetInt8() const
+	{
+		return _value._sint8;
+	}
 
-		template<>
-		void Document::Node::SetValue(const int32_t& value)
-		{
-			SetInt32(value);
-		}
+	int16_t Document::Node::GetInt16() const
+	{
+		return _value._sint16;
+	}
 
-		template<>
-		void Document::Node::SetValue(const int64_t& value)
-		{
-			SetInt64(value);
-		}
+	int32_t Document::Node::GetInt32() const
+	{
+		return _value._sint32;
+	}
 
-		template<>
-		void Document::Node::SetValue(const uint8_t& value)
-		{
-			SetUInt8(value);
-		}
+	int64_t Document::Node::GetInt64() const
+	{
+		return _value._sint64;
+	}
 
-		template<>
-		void Document::Node::SetValue(const uint16_t& value)
-		{
-			SetUInt16(value);
-		}
+	uint8_t Document::Node::GetUInt8() const
+	{
+		return _value._uint8;
+	}
 
-		template<>
-		void Document::Node::SetValue(const uint32_t& value)
-		{
-			SetUInt32(value);
-		}
+	uint16_t Document::Node::GetUInt16() const
+	{
+		return _value._uint16;
+	}
 
-		template<>
-		void Document::Node::SetValue(const uint64_t& value)
-		{
-			SetUInt64(value);
-		}
+	uint32_t Document::Node::GetUInt32() const
+	{
+		return _value._uint32;
+	}
 
-		template<>
-		void Document::Node::SetValue(const float& value)
-		{
-			SetFloat32(value);
-		}
+	uint64_t Document::Node::GetUInt64() const
+	{
+		return _value._uint64;
+	}
 
-		template<>
-		void Document::Node::SetValue(const double& value)
-		{
-			SetFloat64(value);
-		}
+	float Document::Node::GetFloat32() const
+	{
+		return _value._float32;
+	}
 
-		template<>
-		void Document::Node::SetValue(const std::string& value)
-		{
-			SetString(value);
-		}
+	double Document::Node::GetFloat64() const
+	{
+		return _value._float64;
+	}
+	
+	const std::string& Document::Node::GetString() const
+	{
+		// TODO add assert if doesn't match with type
+		return _document.GetString(_value._stringId);
+	}
 
-		template<>
-		void Document::Node::SetValue(const std::string_view& value)
-		{
-			SetString(value);
-		}
+	/// @brief 
+	/// @return 
+	Document::Node& Document::GetRootNode() const
+	{
+		return const_cast<Document::Node&>(_root);
+	}
 
-		bool Document::Node::GetBool() const
-		{
-			return _value._bool;
-		}
+	/// @brief 
+	/// @param str 
+	/// @return 
+	Document::StringId Document::AddString(const std::string_view& str)
+	{
+		StringId hash = Hash::CompilationTimeFnv64(str);
+		_stringTable[hash] = str;
+		return hash;
+	}
 
-		int8_t Document::Node::GetInt8() const
-		{
-			return _value._sint8;
-		}
-
-		int16_t Document::Node::GetInt16() const
-		{
-			return _value._sint16;
-		}
-
-		int32_t Document::Node::GetInt32() const
-		{
-			return _value._sint32;
-		}
-
-		int64_t Document::Node::GetInt64() const
-		{
-			return _value._sint64;
-		}
-
-		uint8_t Document::Node::GetUInt8() const
-		{
-			return _value._uint8;
-		}
-
-		uint16_t Document::Node::GetUInt16() const
-		{
-			return _value._uint16;
-		}
-
-		uint32_t Document::Node::GetUInt32() const
-		{
-			return _value._uint32;
-		}
-
-		uint64_t Document::Node::GetUInt64() const
-		{
-			return _value._uint64;
-		}
-
-		float Document::Node::GetFloat32() const
-		{
-			return _value._float32;
-		}
-
-		double Document::Node::GetFloat64() const
-		{
-			return _value._float64;
-		}
-		
-		const std::string& Document::Node::GetString() const
-		{
-			// TODO add assert if doesn't match with type
-			return _document.GetString(_value._stringId);
-		}
-
-		/// @brief 
-		/// @return 
-		Document::Node& Document::GetRootNode() const
-		{
-			return const_cast<Document::Node&>(_root);
-		}
-
-		/// @brief 
-		/// @param str 
-		/// @return 
-		Document::StringId Document::AddString(const std::string_view& str)
-		{
-			StringId hash = Hash::CompilationTimeFnv64(str);
-			_stringTable[hash] = str;
-			return hash;
-		}
-
-		/// @brief 
-		/// @param hash 
-		/// @return 
-		const std::string& Document::GetString(StringId hash)
-		{
-			return _stringTable[hash];
-		}
+	/// @brief 
+	/// @param hash 
+	/// @return 
+	const std::string& Document::GetString(StringId hash)
+	{
+		return _stringTable[hash];
 	}
 }

@@ -10,45 +10,40 @@ namespace hod
 {
 	class Object;
 
-	namespace core
+	namespace Reflection
 	{
-		namespace Reflection
+		namespace Property
 		{
-			namespace Property
+			///@brief 
+			class Object : public ReflectionProperty // todo rename remove namespace
 			{
-				///@brief 
-				class Object : public ReflectionProperty // todo rename remove namespace
-				{
-					META_TYPE(Object)
+				META_TYPE(Object)
 
-				public:
+			public:
 
-															Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor);
-															Object(const Object&) = default;
-															Object(Object&&) = default;
-															~Object() = default;
+														Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor);
+														Object(const Object&) = default;
+														Object(Object&&) = default;
+														~Object() = default;
 
-					Object&									operator = (const Object&) = default;
-					Object&									operator = (Object&&) = default;
+				Object&									operator = (const Object&) = default;
+				Object&									operator = (Object&&) = default;
 
-				public:
+			public:
 
-					const char*								GetName() const;
-					void*									GetInstance(void* instance) const;
-					ReflectionDescriptor*					GetReflectionDescriptor() const;
+				const char*								GetName() const;
+				void*									GetInstance(void* instance) const;
+				ReflectionDescriptor*					GetReflectionDescriptor() const;
 
-					void									Serialize(const void* instance, Document::Node& node) override;
-					void									Deserialize(void* instance, const Document::Node& node) override;
+				void									Serialize(const void* instance, Document::Node& node) override;
+				void									Deserialize(void* instance, const Document::Node& node) override;
 
-				private:
+			private:
 
-					uint32_t								_offset;
-					const char*								_name;
-					ReflectionDescriptor*					_reflectionDesceriptor;
-				};
-			}
+				uint32_t								_offset;
+				const char*								_name;
+				ReflectionDescriptor*					_reflectionDesceriptor;
+			};
 		}
 	}
 }
-
-#include "ReflectionPropertyObject.inl"

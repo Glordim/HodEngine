@@ -20,7 +20,7 @@ namespace hod::application
 
 	public:
 
-		bool			Init(const core::ArgumentParser& argumentParser) override;
+		bool			Init(const ArgumentParser& argumentParser) override;
 		bool			Run() override;
 
 		window::Window*	GetWindow() const;

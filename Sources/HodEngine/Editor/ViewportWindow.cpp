@@ -27,7 +27,7 @@ namespace hod::editor
 
 		renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 
-		CORE::Rect viewport;
+		Rect viewport;
 		viewport._size.x = ImGui::GetWindowWidth();
 		viewport._size.y = ImGui::GetWindowHeight();
 		viewport._position.x = ImGui::GetWindowPos().x;

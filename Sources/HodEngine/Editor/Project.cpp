@@ -69,8 +69,8 @@ namespace hod::editor
 	/// @return 
 	bool Project::Load()
 	{
-		core::Document document;
-		core::DocumentReaderJson reader;
+		Document document;
+		DocumentReaderJson reader;
 		reader.Read(document, _projectPath);
 
 		_name = document.GetRootNode()["Name"].GetString();
@@ -82,10 +82,10 @@ namespace hod::editor
 	/// @return 
 	bool Project::Save()
 	{
-		core::Document document;
+		Document document;
 		document.GetRootNode().AddChild("Name").SetString(_name);
 
-		core::DocumentWriterJson writer;
+		DocumentWriterJson writer;
 		writer.Write(document, _projectPath);
 
 		return true;

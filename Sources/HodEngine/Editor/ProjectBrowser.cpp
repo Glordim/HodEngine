@@ -26,12 +26,12 @@ namespace hod::editor
 	/// @brief 
 	ProjectBrowser::ProjectBrowser()
 	{
-		std::filesystem::path projectsPath = core::FileSystem::GetUserSettingsPath();
+		std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("Project.json");
 
-		core::Document document;
-		core::DocumentReaderJson jsonReader;
+		Document document;
+		DocumentReaderJson jsonReader;
 		if (jsonReader.Read(document, projectsPath) == true)
 		{
 			RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(_recentProjects, document.GetRootNode());

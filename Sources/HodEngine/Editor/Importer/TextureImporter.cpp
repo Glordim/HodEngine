@@ -34,7 +34,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool TextureImporter::WriteResource(core::FileStream& data, core::FileStream& meta, core::FileStream& resource, core::FileStream& thumbnail, ImporterSettings& settings)
+	bool TextureImporter::WriteResource(FileStream& data, FileStream& meta, FileStream& resource, FileStream& thumbnail, ImporterSettings& settings)
 	{
 		TextureImporterSettings& textureSettings = (TextureImporterSettings&)settings;
 
@@ -73,7 +73,7 @@ namespace hod::editor
 
 		int writeResult = stbi_write_png_to_func([](void *context, void *data, int len)
 		{
-			core::FileStream* thumbnailStream = static_cast<core::FileStream*>(context);
+			FileStream* thumbnailStream = static_cast<FileStream*>(context);
 			thumbnailStream->Write(data, len);
 		}, &thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
 		stbi_image_free(thumbnailPixels);
@@ -87,10 +87,10 @@ namespace hod::editor
 		// TODO use https://github.com/GPUOpen-Tools/compressonator and compress to the most adapted format related to platform's capabilities
 		// For now always use png
 
-		core::MemoryStream textureStream;
+		MemoryStream textureStream;
 		writeResult = stbi_write_png_to_func([](void *context, void *data, int len)
 		{
-			core::MemoryStream* textureStream = static_cast<core::MemoryStream*>(context);
+			MemoryStream* textureStream = static_cast<MemoryStream*>(context);
 			textureStream->Write(data, len);
 		}, &textureStream, x, y, componentCount, pixels, 0);
 		stbi_image_free(pixels);
@@ -109,20 +109,20 @@ namespace hod::editor
 		textureResource._textureInfos[0]._offset = 0;
 		textureResource._textureInfos[0]._size = textureStream.GetSize();
 
-		core::Document document;
+		Document document;
 		if (renderer::TextureResource::GetReflectionDescriptor()->SerializeInDocument(textureResource, document.GetRootNode()) == false)
 		{
 			// TODO message
 			return false;
 		}
 
-		core::DocumentWriterJson documentWriter;
+		DocumentWriterJson documentWriter;
 		if (documentWriter.Write(document, resource) == false)
 		{
 			// TODO message
 			return false;
 		}
-		textureStream.Seek(0, core::Stream::SeekOrigin::Begin);
+		textureStream.Seek(0, Stream::SeekOrigin::Begin);
 		if (resource.Write(textureStream.GetData(), textureStream.GetSize()) == false)
 		{
 			// TODO message

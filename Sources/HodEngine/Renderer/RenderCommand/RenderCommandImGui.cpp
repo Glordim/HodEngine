@@ -133,7 +133,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RenderCommandImGui::RenderCommandImGui(const std::vector<DrawList*>& drawLists, const CORE::Rect& viewport)
+		RenderCommandImGui::RenderCommandImGui(const std::vector<DrawList*>& drawLists, const Rect& viewport)
 			: RenderCommand()
 			, _drawLists(drawLists)
 			, _viewport(viewport)

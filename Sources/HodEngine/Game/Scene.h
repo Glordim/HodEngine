@@ -55,23 +55,23 @@ namespace hod
 			void												SimulatePhysic(float dt);
 			void												Update(float dt);
 
-			bool												Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const CORE::Color& debugColor, float debugDuration);
+			bool												Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
 			physics::Actor*										CreatePhysicActor(Actor* actor);
 			Actor*												ConvertPxActor(physics::Actor* physicActor);
 
-			void												SetAmbiantColor(CORE::Color& color);
+			void												SetAmbiantColor(Color& color);
 			SceneComponent*										GetRoot() const;
 
 			physics::Scene*										GetPhysicScene() const;
 
-			void												AddDebugLine(const glm::vec3& start, const glm::vec3& end, const CORE::Color& color, float duration);
+			void												AddDebugLine(const glm::vec3& start, const glm::vec3& end, const Color& color, float duration);
 			void												GetDebugLines(std::vector<renderer::Line_3P_3C>& lines);
 
 			void												PushToRenderQueue(renderer::RenderQueue* renderQueue = nullptr);
 
-			void												SerializeInDocument(core::Document::Node& documentNode) const;
-			void												DeserializeFromDocument(const core::Document::Node& documentNode);
+			void												SerializeInDocument(Document::Node& documentNode) const;
+			void												DeserializeFromDocument(const Document::Node& documentNode);
 
 			const std::string&									GetName() const;
 
@@ -79,7 +79,7 @@ namespace hod
 
 		private:
 
-			CORE::Color											_ambiantColor;
+			Color												_ambiantColor;
 			Actor*												_root;
 
 			physics::Scene*										_physicScene = nullptr;
