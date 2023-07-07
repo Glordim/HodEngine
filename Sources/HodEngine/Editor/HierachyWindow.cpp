@@ -5,11 +5,11 @@
 
 #include <HodEngine/ImGui/ImGuiManager.h>
 
-#include "HodEngine/Game/src/World.h"
-#include "HodEngine/Game/src/Scene.h"
-#include "HodEngine/Game/src/Actor.h"
+#include "HodEngine/Game/World.h"
+#include "HodEngine/Game/Scene.h"
+#include "HodEngine/Game/Actor.h"
 
-#include "HodEngine/Game/src/Components/NodeComponent.h"
+#include "HodEngine/Game/Components/NodeComponent.h"
 
 namespace hod::editor
 {

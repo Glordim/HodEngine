@@ -3,9 +3,9 @@
 #include <HodEngine/Core/Job/JobSqueduler.h>
 #include <HodEngine/Core/Frame/FrameSequencer.h>
 
-#include "HodEngine/Game/src/World.h"
-#include "HodEngine/Game/src/Builtin.h"
-#include "HodEngine/Game/src/ComponentFactory.h"
+#include "HodEngine/Game/World.h"
+#include "HodEngine/Game/Builtin.h"
+#include "HodEngine/Game/ComponentFactory.h"
 
 namespace hod::application
 {

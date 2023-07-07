@@ -27,8 +27,8 @@
 
 #include "HodEngine/Editor/RecentProjects.h"
 #include "HodEngine/Editor/Asset.h"
-#include "HodEngine/Game/src/Scene.h"
-#include "HodEngine/Game/src/World.h"
+#include "HodEngine/Game/Scene.h"
+#include "HodEngine/Game/World.h"
 
 namespace hod::editor
 {

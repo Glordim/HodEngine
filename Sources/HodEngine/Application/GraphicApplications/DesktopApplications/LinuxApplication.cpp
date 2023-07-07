@@ -3,22 +3,22 @@
 
 #include "VideoSettings.h"
 
-#include <Core/Src/Output.h>
-#include <Core/Src/UID.h>
+#include <Core/Output.h>
+#include <Core/UID.h>
 
-#include <Core/Src/GenericManager.h>
-#include <Core/Src/Output.h>
-#include <Core/Src/ArgumentParser.h>
-#include <Core/Src/StringConversion.h>
+#include <Core/GenericManager.h>
+#include <Core/Output.h>
+#include <Core/ArgumentParser.h>
+#include <Core/StringConversion.h>
 
-#include <World/Src/ActorReflection.h>
-#include <World/Src/ComponentFactory.h>
-#include <World/Src/Builtin.h>
+#include <World/ActorReflection.h>
+#include <World/ComponentFactory.h>
+#include <World/Builtin.h>
 
-#include <ImGui/src/imgui.h>
-#include <ImGui/src/imgui_impl_sdl.h>
-#include <ImGui/src/imgui_impl_vulkan.h>
-#include <ImGui/src/ImGuizmo.h>
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_sdl.h>
+#include <ImGui/imgui_impl_vulkan.h>
+#include <ImGui/ImGuizmo.h>
 
 #include <SDL.h>
 #include <SDL_syswm.h>

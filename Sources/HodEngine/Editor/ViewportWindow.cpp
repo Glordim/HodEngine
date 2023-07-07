@@ -4,8 +4,8 @@
 
 #include <HodEngine/ImGui/ImGuiManager.h>
 
-#include "HodEngine/Game/src/World.h"
-#include "HodEngine/Game/src/Components/RendererComponent.h"
+#include "HodEngine/Game/World.h"
+#include "HodEngine/Game/Components/RendererComponent.h"
 #include <HodEngine/Renderer/Renderer.h>
 #include <HodEngine/Renderer/RenderQueue.h>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.h>

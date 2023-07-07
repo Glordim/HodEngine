@@ -1,5 +1,5 @@
 #include "HodEngine/Game/Entity.h"
-#include "HodEngine/Game/src/Component.h"
+#include "HodEngine/Game/Component.h"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
 

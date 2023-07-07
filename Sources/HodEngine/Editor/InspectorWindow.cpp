@@ -8,11 +8,11 @@
 #include "HodEngine/Editor/Asset.h"
 #include "HodEngine/Editor/PropertyDrawer.h"
 
-#include "HodEngine/Game/src/Actor.h"
+#include "HodEngine/Game/Actor.h"
 #include "HodEngine/Game/Entity.h"
-#include "HodEngine/Game/src/Components/NodeComponent.h"
+#include "HodEngine/Game/Components/NodeComponent.h"
 
-#include "HodEngine/Game/src/ComponentFactory.h"
+#include "HodEngine/Game/ComponentFactory.h"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.h"
 
