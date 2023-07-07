@@ -62,13 +62,18 @@ namespace hod::core
 		__PROPERTY_TYPE__*						AddProperty(Args&&... args);
 		void									AddProperty(ReflectionProperty* property);
 
+		template<typename _Trait_>
+		_Trait_*								FindTrait() const;
+		ReflectionTrait*						FindTrait(MetaType metaType) const;
+
 		void*									CreateInstance() const;
 		std::shared_ptr<void>					CreateSharedInstance() const;
 		MetaType								GetMetaType() const;
+		const std::string&						GetTypeName() const;
 
 	private:
 
-		const char*								_typeName;
+		std::string								_typeName;
 		ReflectionDescriptor*					_parent;
 		std::function<void*()>					_allocateFunction = nullptr;
 		std::function<std::shared_ptr<void>()>	_sharedAllocateFunction = nullptr;

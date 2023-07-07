@@ -3,6 +3,7 @@
 #include <HodEngine/Core/Singleton.h>
 #include "HodEngine/Core/Type.h"
 #include "HodEngine/Game/src/Component.h"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.h"
 
 #include <map>
 

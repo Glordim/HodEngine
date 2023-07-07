@@ -48,6 +48,13 @@ namespace hod::core
 	}
 
 	/// @brief 
+	/// @return 
+	const std::string& ReflectionDescriptor::GetTypeName() const
+	{
+		return _typeName;
+	}
+
+	/// @brief 
 	/// @param instance 
 	/// @param documentNode 
 	/// @return 
@@ -92,6 +99,21 @@ namespace hod::core
 	void ReflectionDescriptor::AddTrait(ReflectionTrait* trait)
 	{
 		_traits.push_back(trait);
+	}
+
+	/// @brief 
+	/// @param metaType 
+	/// @return 
+	ReflectionTrait* ReflectionDescriptor::FindTrait(MetaType metaType) const
+	{
+		for (uint32_t index = 0; index < _traits.size(); ++index)
+		{
+			if (_traits[index]->GetMetaType() == metaType)
+			{
+				return _traits[index];
+			}
+		}
+		return nullptr;
 	}
 
 	///@brief 

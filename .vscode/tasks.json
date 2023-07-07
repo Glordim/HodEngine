@@ -6,21 +6,21 @@
 		{
 			"label": "Build HodEngine",
 			"type": "shell",
-			"command": "bazel",
+			"command": "bazelisk",
 			"args": ["build", "Sources/HodEngine:HodEngine"],
 			"group": "build"
 		},
 		{
 			"label": "Build HodGame",
 			"type": "shell",
-			"command": "bazel",
+			"command": "bazelisk",
 			"args": ["build", "Sources/GameApplication:HodGame"],
 			"group": "build"
 		},
 		{
 			"label": "Build HodEditor",
 			"type": "shell",
-			"command": "bazel",
+			"command": "bazelisk",
 			"args": ["build", "Sources/EditorApplication:HodEditor"],
 			"group": "build",
 			"problemMatcher": ["$msCompile"],
@@ -28,7 +28,7 @@
 		{
 			"label": "Clean",
 			"type": "shell",
-			"command": "bazel",
+			"command": "bazelisk",
 			"args": ["clean"],
 			"group": "build"
 		}

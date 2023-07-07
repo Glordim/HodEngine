@@ -39,6 +39,15 @@ namespace hod::core
 		return trait;
 	}
 
+	/// @brief 
+	/// @tparam _Trait_ 
+	/// @return 
+	template<typename _Trait_>
+	_Trait_* ReflectionDescriptor::FindTrait() const
+	{
+		return static_cast<_Trait_*>(FindTrait(_Trait_::GetMetaTypeStatic()));
+	}
+
 	template<typename __PROPERTY_TYPE__, typename... Args>
 	__PROPERTY_TYPE__* ReflectionDescriptor::AddProperty(Args&&... args)
 	{

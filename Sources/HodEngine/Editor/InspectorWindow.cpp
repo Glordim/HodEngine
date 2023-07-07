@@ -14,6 +14,7 @@
 
 #include "HodEngine/Game/src/ComponentFactory.h"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.h"
 
 namespace hod::editor
 {
@@ -97,7 +98,8 @@ namespace hod::editor
 			{
 				const core::ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
 
-				if (ImGui::MenuItem(/*componentDescriptor. GetDisplayName().c_str()*/"truc") == true)
+				core::ReflectionTraitDisplayName* displayNameTrait = componentDescriptor.FindTrait<core::ReflectionTraitDisplayName>();
+				if (ImGui::MenuItem(displayNameTrait->GetValue().c_str()) == true)
 				{
 					selection->AddComponent(componentDescriptor);
 				}
