@@ -7,25 +7,15 @@ namespace hod::renderer
 {
 	DESCRIBE_REFLECTED_CLASS(TextureInfo, void)
 	{
-		core::Reflection::Property::Variable* offset = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::UInt32, offsetof(TextureInfo, _offset), "offset");
-		AddProperty(offset);
-
-		core::Reflection::Property::Variable* size = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::UInt32, offsetof(TextureInfo, _size), "size");
-		AddProperty(size);
+		ADD_PROPERTY(TextureInfo, _offset);
+		ADD_PROPERTY(TextureInfo, _size);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(TextureResource, Resource)
 	{
-		core::Reflection::Property::Variable* width = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::UInt16, offsetof(TextureResource, _width), "width");
-		AddProperty(width);
-
-		core::Reflection::Property::Variable* height = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::UInt16, offsetof(TextureResource, _height), "height");
-		AddProperty(height);
-
-		core::Reflection::Property::Variable* componentCount = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::UInt8, offsetof(TextureResource, _componentCount), "componentCount");
-		AddProperty(componentCount);
-
-		core::Reflection::Property::Array* textureInfos = new core::Reflection::Property::Array(core::Reflection::Property::Variable::Type::Object, offsetof(TextureResource, _textureInfos), "textureInfos");
-		AddProperty(textureInfos);
+		ADD_PROPERTY(TextureResource, _width);
+		ADD_PROPERTY(TextureResource, _height);
+		ADD_PROPERTY(TextureResource, _componentCount);
+		//ADD_PROPERTY(TextureResource, _textureInfos);
 	}
 }

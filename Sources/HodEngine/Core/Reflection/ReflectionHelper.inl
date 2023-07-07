@@ -48,6 +48,10 @@ namespace hod::core
 		{
 			return Reflection::Property::Variable::Type::Float64;
 		}
+		else if constexpr (std::is_same<_MemberVariable_, std::string>::value)
+		{
+			return Reflection::Property::Variable::Type::String;
+		}
 		else
 		{
 			[]<bool flag = false>()
@@ -62,23 +66,17 @@ namespace hod::core
 	{
 		//static_assert(std::is_member_object_pointer<T>::value
 
-		if constexpr (std::is_array<_MemberVariable_>::value)
+		if constexpr (std::is_array<_MemberVariable_>::value) // todo support std::vector
 		{
-			return descriptor->AddProperty<Reflection::Property::Array>(GetVariableType<_MemberVariable_>(), offset, name.data()); // TODO il manque le ReflectionDescriptor, le this quoi
+			return descriptor->AddProperty<Reflection::Property::Array>(GetVariableType<_MemberVariable_>(), offset, name.data()); // TODO remove data, descriptor must use string view
 		}
-		else if constexpr (std::is_arithmetic<_MemberVariable_>::value)
+		else if constexpr (std::is_arithmetic<_MemberVariable_>::value || std::is_same<_MemberVariable_, std::string>::value)
 		{
 			return descriptor->AddProperty<Reflection::Property::Variable>(GetVariableType<_MemberVariable_>(), offset, name.data()); // TODO remove data, descriptor must use string view
 		}
-		/*
-		else if constexpr (std::is_base_of<Object, _MemberVariable_>::value)
-		{
-			return descriptor->AddProperty<Reflection::Property::Object>(offset, name.data());
-		}
-		*/
 		else if constexpr (std::is_class<_MemberVariable_>::value)
 		{
-			return descriptor->AddProperty<Reflection::Property::Object>(offset, name.data(), _MemberVariable_::GetReflectionDescriptor());
+			return descriptor->AddProperty<Reflection::Property::Object>(offset, name.data(), _MemberVariable_::GetReflectionDescriptor()); // TODO remove data, descriptor must use string view
 		}
 		else
 		{

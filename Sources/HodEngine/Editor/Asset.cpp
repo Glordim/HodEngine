@@ -18,11 +18,8 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(Meta, void)
 	{
-		core::Reflection::Property::Object* uid = new core::Reflection::Property::Object(offsetof(Meta, _uid), "uid", decltype(Meta::_uid)::GetReflectionDescriptor());
-		AddProperty(uid);
-
-		core::Reflection::Property::Variable* importerType = new core::Reflection::Property::Variable(core::Reflection::Property::Variable::Type::String, offsetof(Meta, _importerType), "importerType");
-		AddProperty(importerType);
+		ADD_PROPERTY(Meta, _uid);
+		ADD_PROPERTY(Meta, _importerType);
 	}
 
 	/// @brief 
