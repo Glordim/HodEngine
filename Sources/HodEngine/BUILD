@@ -37,7 +37,7 @@ cc_library(
 		"@glm//:glm",
 		"@stb//:stb",
 		"@box2d//:box2d",
-		"@vulkan//:vulkan"
+		"@rules_vulkan//vulkan:vulkan_cc_library"
 	],
 	defines = [platform_define],
 	linkopts = [platform_lib],

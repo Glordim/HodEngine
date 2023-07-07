@@ -23,9 +23,23 @@ http_archive(
 	strip_prefix = "box2d-2.4.1",
 )
 
-# TODO omg Windows only
-new_local_repository(
-    name = "vulkan",
-    path = "C:\\VulkanSDK\\1.3.243.0\\",
-    build_file = "external/vulkan.BUILD",
+#http_archive(
+#	name = "rules_vulkan",
+#	url = "https://github.com/jadarve/rules_vulkan/archive/refs/tags/v0.0.9.zip",
+#	sha256 = "9ea074c1de07bd41b0705dcb96e7cc50bf3a087fc5604ce2befd24ac70d6da32",
+#	strip_prefix = "rules_vulkan-0.0.9",
+#	#build_file = "BUILD",
+#	#strip_prefix = "box2d-2.4.1",
+#)
+
+local_repository(
+    name = "rules_vulkan",
+    path = "rules_vulkan",
+    #build_file = "external/rules_vulkan.BUILD",
+)
+
+load("@rules_vulkan//vulkan:repositories.bzl", "vulkan_repositories")
+vulkan_repositories(
+	sdk_path = "",
+	android_use_host_vulkan_sdk = False
 )

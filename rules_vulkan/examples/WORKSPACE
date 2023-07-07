@@ -1,0 +1,11 @@
+workspace(
+    name = "rules_vulkan_examples"
+)
+
+local_repository(
+    name = "rules_vulkan",
+    path = ".."
+)
+
+load("@rules_vulkan//vulkan:repositories.bzl", "vulkan_repositories")
+vulkan_repositories()
