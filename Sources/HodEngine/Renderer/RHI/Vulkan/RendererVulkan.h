@@ -56,6 +56,7 @@ namespace hod::renderer
 		virtual Material* CreateMaterial(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 		virtual MaterialInstance* CreateMaterialInstance(const Material* material) override;
 		virtual Texture* CreateTexture() override;
+		virtual RenderTarget* CreateRenderTarget() override;
 
 		VkInstance GetVkInstance() const;
 		VkDevice GetVkDevice() const;

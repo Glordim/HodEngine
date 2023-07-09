@@ -1,0 +1,97 @@
+#include "HodEngine/Renderer/RHI/RenderTarget.h"
+#include "HodEngine/Renderer/RHI/Texture.h"
+#include "HodEngine/Renderer/Renderer.h"
+
+#include <HodEngine/Core/Output.h>
+
+//#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
+#include <iostream>
+#include <string>
+
+namespace hod
+{
+	namespace renderer
+	{
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		RenderTarget::RenderTarget()
+		{
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		RenderTarget::~RenderTarget()
+		{
+			Clear();
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		uint32_t RenderTarget::GetWidth() const
+		{
+			return _width;
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		uint32_t RenderTarget::GetHeight() const
+		{
+			return _height;
+		}
+
+		/// @brief 
+		/// @param width 
+		/// @param height 
+		/// @return 
+		bool RenderTarget::Init(size_t width, size_t height)
+		{
+			_width = width;
+			_height = height;
+
+			_color = Renderer::GetInstance()->CreateTexture();
+			if (_color->BuildBuffer(_width, _height, nullptr) == false)
+			{
+				Clear();
+				return false;
+			}
+			_depth = Renderer::GetInstance()->CreateTexture();
+			if (_depth->BuildDepth(_width, _height) == false)
+			{
+				Clear();
+				return false;
+			}
+
+			return true;
+		}
+
+		/// @brief 
+		void RenderTarget::Clear()
+		{
+			delete _color;
+			_color = nullptr;
+
+			delete _depth;
+			_depth = nullptr;
+		}
+
+		/// @brief 
+		/// @return 
+		Texture* RenderTarget::GetColorTexture() const
+		{
+			return _color;
+		}
+
+		/// @brief 
+		/// @return 
+		Texture* RenderTarget::GetDepthTexture() const
+		{
+			return _depth;
+		}
+	}
+}

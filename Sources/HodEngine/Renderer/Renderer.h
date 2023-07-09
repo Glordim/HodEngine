@@ -31,6 +31,7 @@ namespace hod::renderer
 	class Texture;
 	class Context;
 	class VertexInput;
+	class RenderTarget;
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
@@ -79,6 +80,7 @@ namespace hod::renderer
 		virtual Material*			CreateMaterial(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) = 0;
 		virtual MaterialInstance*	CreateMaterialInstance(const Material* material) = 0;
 		virtual Texture*			CreateTexture() = 0;
+		virtual RenderTarget*		CreateRenderTarget() = 0;
 
 		//Debug
 	public:

@@ -2,6 +2,11 @@
 
 #include <HodEngine/ImGui/Window.h>
 
+namespace hod::renderer
+{
+	class RenderTarget;
+}
+
 namespace hod::editor
 {
 	/// @brief 
@@ -12,11 +17,15 @@ namespace hod::editor
 
 	public:
 
-					ViewportWindow() = default;
-					~ViewportWindow() override = default;
+					ViewportWindow();
+					~ViewportWindow() override;
 
 	public:
 
 		void		Draw() override;
+
+	private:
+
+		renderer::RenderTarget* _renderTarget = nullptr;
 	};
 }

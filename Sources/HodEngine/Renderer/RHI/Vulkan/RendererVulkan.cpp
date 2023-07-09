@@ -9,6 +9,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.h"
 #include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.h"
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.h"
+#include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.h"
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.h"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.h"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.h"
@@ -1673,5 +1674,13 @@ namespace hod::renderer
 	Texture* RendererVulkan::CreateTexture()
 	{
 		return new VkTexture();
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	RenderTarget* RendererVulkan::CreateRenderTarget()
+	{
+		return new VkRenderTarget();
 	}
 }

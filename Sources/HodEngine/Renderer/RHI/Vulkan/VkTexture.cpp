@@ -150,13 +150,16 @@ namespace hod
 				goto exit;
 			}
 
-			if (vkMapMemory(renderer->GetVkDevice(), bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+			if (pixels != nullptr)
 			{
-				OUTPUT_ERROR("Vulkan: Texture, unable to map memory\n");
-				goto exit;
+				if (vkMapMemory(renderer->GetVkDevice(), bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+				{
+					OUTPUT_ERROR("Vulkan: Texture, unable to map memory\n");
+					goto exit;
+				}
+				memcpy(data, pixels, static_cast<size_t>(bufferSize));
+				vkUnmapMemory(renderer->GetVkDevice(), bufferMemory);
 			}
-			memcpy(data, pixels, static_cast<size_t>(bufferSize));
-			vkUnmapMemory(renderer->GetVkDevice(), bufferMemory);
 
 			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &_textureImage, &_textureImageMemory) == false)
 			{
