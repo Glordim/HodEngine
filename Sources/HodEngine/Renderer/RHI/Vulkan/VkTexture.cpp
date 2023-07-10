@@ -135,6 +135,86 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
+		bool VkTexture::BuildColor(size_t width, size_t height)
+		{
+			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+			VkBuffer buffer = VK_NULL_HANDLE;
+			VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
+			VkDeviceSize bufferSize = width * height * 4;
+			void* data = nullptr;
+			bool ret = false;
+
+			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &_textureImage, &_textureImageMemory) == false)
+			{
+				goto exit;
+			}
+
+			if (renderer->TransitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
+			{
+				goto exit;
+			}
+
+			if (renderer->CreateImageView(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, &_textureImageView) == false)
+			{
+				goto exit;
+			}
+
+			if (renderer->CreateSampler(&_textureSampler) == false)
+			{
+				goto exit;
+			}
+
+			ret = true;
+
+		exit:
+			if (buffer != VK_NULL_HANDLE)
+			{
+				vkDestroyBuffer(renderer->GetVkDevice(), buffer, nullptr);
+			}
+			if (bufferMemory != VK_NULL_HANDLE)
+			{
+				vkFreeMemory(renderer->GetVkDevice(), bufferMemory, nullptr);
+			}
+
+			if (ret == false)
+			{
+				if (_textureSampler != VK_NULL_HANDLE)
+				{
+					vkDestroySampler(renderer->GetVkDevice(), _textureSampler, nullptr);
+					_textureSampler = VK_NULL_HANDLE;
+				}
+
+				if (_textureImageView != VK_NULL_HANDLE)
+				{
+					vkDestroyImageView(renderer->GetVkDevice(), _textureImageView, nullptr);
+					_textureImageView = VK_NULL_HANDLE;
+				}
+
+				if (_textureImage != VK_NULL_HANDLE)
+				{
+					vkDestroyImage(renderer->GetVkDevice(), _textureImage, nullptr);
+					_textureImage = VK_NULL_HANDLE;
+				}
+
+				if (_textureImageMemory != VK_NULL_HANDLE)
+				{
+					vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+					_textureImageMemory = VK_NULL_HANDLE;
+				}
+			}
+			else
+			{
+				_width = width;
+				_height = height;
+			}
+
+			return ret;
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		bool VkTexture::BuildBuffer(size_t width, size_t height, unsigned char* pixels)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();

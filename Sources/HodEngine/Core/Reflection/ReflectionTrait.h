@@ -14,7 +14,7 @@ namespace hod
 							ReflectionTrait() = default;
 							ReflectionTrait(const ReflectionTrait& copy) = default;
 							ReflectionTrait(ReflectionTrait&& move) = default;
-							~ReflectionTrait() = default;
+		virtual				~ReflectionTrait() = default;
 
 		ReflectionTrait&	operator = (const ReflectionTrait& copy) = default;
 		ReflectionTrait&	operator = (ReflectionTrait&& move) = default;

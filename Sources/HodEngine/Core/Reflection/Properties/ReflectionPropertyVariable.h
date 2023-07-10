@@ -14,7 +14,7 @@ namespace hod
 			///@brief 
 			class Variable : public ReflectionProperty
 			{
-				META_TYPE(Variable)
+				META_TYPE(Variable, ReflectionProperty)
 
 			public:
 

@@ -18,7 +18,7 @@ namespace hod
 		/// @brief 
 		class NodeComponent : public Component
 		{
-			REFLECTED_CLASS(NodeComponent)
+			REFLECTED_CLASS(NodeComponent, Component)
 
 		public:
 
@@ -43,7 +43,7 @@ namespace hod
 			void							SetParent(const std::weak_ptr<NodeComponent>& parent);
 
 			const glm::mat4&				GetLocalMatrix();
-			const glm::mat4&				GetWorldMatrix();
+			const glm::mat4&				GetWorldMatrix() { return _worldMatrix; }
 
 		protected:
 
@@ -57,8 +57,8 @@ namespace hod
 		private:
 
 			bool										_localMatrixDirty = true;
-			glm::mat4									_localMatrix;
-			glm::mat4									_worldMatrix;
+			glm::mat4									_localMatrix = glm::identity<glm::mat4>();
+			glm::mat4									_worldMatrix = glm::identity<glm::mat4>();
 
 			std::vector<std::weak_ptr<NodeComponent>>	_children;
 			std::weak_ptr<NodeComponent>				_parent;

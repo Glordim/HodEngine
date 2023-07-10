@@ -20,8 +20,8 @@ namespace hod
 										BufferVk(BufferVk&&) = delete;
 										~BufferVk() override;
 
-			void						operator=(const BufferVk&) = delete;
-			void						operator=(BufferVk&&) = delete;
+			BufferVk&					operator=(const BufferVk&) = delete;
+			BufferVk&					operator=(BufferVk&&) = delete;
 
 		public:
 

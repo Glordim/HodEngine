@@ -23,6 +23,9 @@ namespace hod
 			VkRenderPass	GetRenderPass() const;
 			VkFramebuffer	GetFrameBuffer() const;
 
+			void			PrepareForWrite() override;
+			void			PrepareForRead() override;
+
 		protected:
 
 			void			Clear() override;

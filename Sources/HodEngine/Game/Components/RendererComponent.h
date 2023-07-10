@@ -16,7 +16,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class RendererComponent : public Component
 		{
-			REFLECTED_CLASS(RendererComponent)
+			REFLECTED_CLASS(RendererComponent, Component)
 
 		public:
 
@@ -32,7 +32,7 @@ namespace hod
 
 			const char*		GetType() const override;
 
-			virtual void	Render() = 0;
+			//virtual void	Render() = 0;
 		};
 	}
 }

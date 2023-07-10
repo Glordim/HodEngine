@@ -22,6 +22,7 @@ namespace hod
 			uint32_t	GetWidth() const;
 			uint32_t	GetHeight() const;
 
+			virtual bool BuildColor(size_t width, size_t height) = 0;
 			virtual bool BuildDepth(size_t width, size_t height) = 0;
 			virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer) = 0;
 

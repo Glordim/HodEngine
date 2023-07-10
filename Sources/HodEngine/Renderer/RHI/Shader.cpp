@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <HodEngine/Core/Output.h>
+#include "HodEngine/Core/Stream/FileStream.h"
 
 namespace hod
 {
@@ -28,23 +29,22 @@ namespace hod
 		/// @return 
 		bool Shader::LoadFromFile(const std::string& path)
 		{
-			std::ifstream file(path, std::ios::ate | std::ios::binary);
-			if (file.is_open() == false)
+			FileStream fileStream(path, FileMode::Read);
+			if (fileStream.CanRead() == false)
 			{
 				OUTPUT_ERROR("VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
 				return false;
 			}
+			
+			size_t fileSize = fileStream.GetSize();
+			_buffer.resize(fileSize);
 
-			size_t fileSize = file.tellg();
-
-			std::vector<uint8_t> buffer;
-
-			buffer.clear();
-			buffer.resize(fileSize);
-
-			file.seekg(0);
-			file.read(reinterpret_cast<char*>(_buffer.data()), fileSize);
-			file.close();
+			if (fileStream.Read(reinterpret_cast<char*>(_buffer.data()), fileSize) == false)
+			{
+				OUTPUT_ERROR("VkShader : Failed to read Shader at path: \"%s\"\n", path.c_str());
+				return false;
+			}
+			fileStream.Close();
 
 			return LoadFromMemory(_buffer.data(), _buffer.size());
 		}

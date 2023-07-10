@@ -13,6 +13,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.h"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.h"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.h"
+#include "HodEngine/Renderer/MaterialManager.h"
 
 #include <HodEngine/Core/Output.h>
 
@@ -205,6 +206,14 @@ namespace hod::renderer
 
 		_context = new VkContext(surface);
 		mainWindow->SetGraphicsContext(_context);
+
+		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
+		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Line, Material::Topololy::LINE));
+		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false));
+
+		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
+		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
+
 		return true;
 	}
 
@@ -241,7 +250,7 @@ namespace hod::renderer
 
 		// === Validation Layers ===
 
-#if defined(renderer_ENABLE_VALIDATION_LAYER)
+#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 
 		bool enableValidationLayers = true;
 
@@ -272,7 +281,7 @@ namespace hod::renderer
 
 		std::vector<const char*> extensions;
 
-#if defined(renderer_ENABLE_VALIDATION_LAYER)
+#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		if (enableValidationLayers == true)
 		{
 			extensions.reserve(extensionsRequiredByEngine.size() + extensionsRequiredByContext.size() + extensionsRequiredByValidationLayers.size());
@@ -305,13 +314,19 @@ namespace hod::renderer
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
-#if defined(renderer_ENABLE_VALIDATION_LAYER)
+#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		if (enableValidationLayers == true)
 		{
 			VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = {};
 			debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-			debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-			debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+			debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+													   VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+													   VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+													   VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+			debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+												   VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+												   VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
+												   VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT;
 			debugMessengerCreateInfo.pfnUserCallback = &RendererVulkan::DebugCallback;
 			debugMessengerCreateInfo.pUserData = nullptr;
 
@@ -380,7 +395,7 @@ namespace hod::renderer
 		return true;
 	}
 
-#if defined(renderer_ENABLE_VALIDATION_LAYER)
+#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 	/// @brief 
 	/// @param validationLayers 
 	/// @param validationLayerCount 
@@ -514,105 +529,12 @@ namespace hod::renderer
 
 		_context = (VkContext*)context;
 
-		/*
-		Shader* vertexShader = CreateShader("Shader/SpriteUnlitColor.vert.spirv", Shader::Vertex);
-		if (vertexShader == nullptr)
-		{
-			return false;*
-		}
+		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
+		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Line, Material::Topololy::LINE));
+		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false));
 
-		Shader* fragmentShader = CreateShader("Shader/SpriteUnlitColor.frag.spirv", Shader::Fragment);
-		if (fragmentShader == nullptr)
-		{
-			return false;
-		}
-
-		// Extract descriptorSet definition from shader bytecode
-		spirv_cross::Compiler compVert(((VkShader*)vertexShader)->GetShaderBytecode());
-		spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
-
-		size_t uniformBufferCount = resourcesVert.uniform_buffers.size();
-		for (size_t i = 0; i < uniformBufferCount; ++i)
-		{
-			spirv_cross::Resource& resource = resourcesVert.uniform_buffers[i];
-
-			size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
-
-			if (set == 0)
-			{
-				_viewLayout.ExtractBlockUbo(compVert, resource);
-			}
-			else if (set == 1)
-			{
-				_modelLayout.ExtractBlockUbo(compVert, resource);
-			}
-		}
-
-		size_t textureCount = resourcesVert.sampled_images.size();
-		for (size_t i = 0; i < textureCount; ++i)
-		{
-			spirv_cross::Resource& resource = resourcesVert.sampled_images[i];
-
-			size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
-
-			if (set == 0)
-			{
-				_viewLayout.ExtractBlockTexture(compVert, resource);
-			}
-			else if (set == 1)
-			{
-				_modelLayout.ExtractBlockTexture(compVert, resource);
-			}
-		}
-
-		spirv_cross::Compiler compFrag(((VkShader*)fragmentShader)->GetShaderBytecode());
-		spirv_cross::ShaderResources resourcesFrag = compFrag.get_shader_resources();
-
-		uniformBufferCount = resourcesFrag.uniform_buffers.size();
-		for (size_t i = 0; i < uniformBufferCount; ++i)
-		{
-			spirv_cross::Resource& resource = resourcesFrag.uniform_buffers[i];
-
-			size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
-
-			if (set == 0)
-			{
-				_viewLayout.ExtractBlockUbo(compFrag, resource);
-			}
-			else if (set == 1)
-			{
-				_modelLayout.ExtractBlockUbo(compFrag, resource);
-			}
-		}
-
-		textureCount = resourcesFrag.sampled_images.size();
-		for (size_t i = 0; i < textureCount; ++i)
-		{
-			spirv_cross::Resource& resource = resourcesFrag.sampled_images[i];
-
-			size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
-
-			if (set == 0)
-			{
-				_viewLayout.ExtractBlockTexture(compFrag, resource);
-			}
-			else if (set == 1)
-			{
-				_modelLayout.ExtractBlockTexture(compFrag, resource);
-			}
-		}
-
-		_viewLayout.BuildDescriptorSetLayout();
-		_modelLayout.BuildDescriptorSetLayout();
-
-		_unlitVertexColorMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
-
-		_unlitVertexColorLineMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Line, Material::Topololy::LINE);
 		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
-
-		_sharedMinimalMaterial = CreateMaterial(vertexShader, fragmentShader, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false);
-		*/
 
 		return true;
 	}
@@ -925,22 +847,6 @@ namespace hod::renderer
 		vkGetDeviceQueue(_device, _selectedGpu->graphicsAndPresentQueueFamilyIndex, 0, &_presentQueue);
 
 		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	VkDescriptorSetLayout RendererVulkan::GetVkViewDescriptorSet() const
-	{
-		return _viewLayout.GetDescriptorSetLayout();
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	VkDescriptorSetLayout RendererVulkan::GetVkModelDescriptorSet() const
-	{
-		return _modelLayout.GetDescriptorSetLayout();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -1466,6 +1372,30 @@ namespace hod::renderer
 
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+		{
+			barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+		{
+			barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
 		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
 		{

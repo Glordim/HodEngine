@@ -36,7 +36,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class Scene : public Object
 		{
-			REFLECTED_CLASS(Scene)
+			REFLECTED_CLASS(Scene, Object)
 
 		public:
 																Scene();

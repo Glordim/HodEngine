@@ -2,6 +2,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
 #include "HodEngine/Core/Reflection/ReflectionHelper.h"
+#include "HodEngine/Game/Traits/ReflectionTraitCustomEditor.h" // todo move
 
 ///@brief Implement Getter method to retreive ReflectionDescriptor
 #define GET_REFLECTION_DESCRIPTOR_METHOD(__REFLECTION_DESCRIPTOR_TYPE__)		\
@@ -35,9 +36,9 @@ public:																				\
 private:																			\
 
 ///@brief Declare sub class used for Reflection
-#define REFLECTED_CLASS(__TYPE__)													\
+#define REFLECTED_CLASS(__TYPE__, __PARENT__)										\
 																					\
-	META_TYPE(__TYPE__)																\
+	META_TYPE(__TYPE__, __PARENT__)													\
 																					\
 public:																				\
 																					\
@@ -68,3 +69,10 @@ __TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()						
 : hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<__TYPE__, __PARENT__>(#__TYPE__))		\
 
 #define ADD_PROPERTY(Class, Member) hod::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member))
+
+ // todo move
+#if defined(HOD_EDITOR)
+#define ADD_CUSTOM_EDITOR(Class) AddTrait<ReflectionTraitCustomEditor>(new Class())
+#else
+#define ADD_CUSTOM_EDITOR(Class) 
+#endif

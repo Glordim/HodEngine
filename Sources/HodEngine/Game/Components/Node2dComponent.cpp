@@ -9,6 +9,7 @@
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.h>
+#include <HodEngine/Game/Components/Node2dComponentCustomEditor.h>
 
 namespace hod
 {
@@ -21,6 +22,8 @@ namespace hod
 			ADD_PROPERTY(Node2dComponent, _position); // todo << ReflectionTraitFixedSizeArray(2);
 			ADD_PROPERTY(Node2dComponent, _rotation);
 			ADD_PROPERTY(Node2dComponent, _scale);
+			
+			ADD_CUSTOM_EDITOR(Node2dComponentCustomEditor);
 		}
 
 		//-----------------------------------------------------------------------------

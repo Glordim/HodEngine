@@ -17,7 +17,7 @@ namespace hod
 		/// @brief 
 		class SceneComponent : public Component
 		{
-			REFLECTED_CLASS(SceneComponent)
+			REFLECTED_CLASS(SceneComponent, Component)
 
 		public:
 

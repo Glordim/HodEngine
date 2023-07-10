@@ -32,7 +32,12 @@ namespace hod
 			, _ignoreVisualisationMode(ignoreVisualisationMode)
 		{
 			memcpy(_vertices.data(), vertices, vertexCount * vertexSize);
-			memcpy(_indices.data(), indices, sizeof(uint16_t) * indexCount);
+			memcpy(_indices.data(), indices, indexCount * sizeof(uint16_t));
+
+			if (materialInstance == nullptr)
+			{
+				_materialInstance = Renderer::GetInstance()->GetDefaultMaterialInstance();
+			}
 		}
 
 		//-----------------------------------------------------------------------------

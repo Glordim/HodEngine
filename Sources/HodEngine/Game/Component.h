@@ -22,7 +22,7 @@ namespace hod
 		///@brief 
 		class Component : public Object, public std::enable_shared_from_this<Component>
 		{
-			REFLECTED_CLASS(Component)
+			REFLECTED_CLASS(Component, Object)
 
 		public:
 

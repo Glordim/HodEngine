@@ -15,6 +15,8 @@
 #include "HodEngine/Game/Components/NodeComponent.h"
 #include "HodEngine/Game/Components/Node2dComponent.h"
 
+#include "HodEngine/Game/Components/Primitive/BoxComponent.h"
+
 namespace hod
 {
 	namespace game
@@ -30,6 +32,8 @@ namespace hod
 			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 			componentFactory->Register<NodeComponent>();
 			componentFactory->Register<Node2dComponent>();
+			componentFactory->Register<BoxComponent>();
+			//componentFactory->Register<SpriteComponent>();
 			/*
 			componentReflection->Register<CameraComponent>();
 			componentReflection->Register<ColliderComponent>();

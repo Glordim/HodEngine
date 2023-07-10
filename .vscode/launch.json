@@ -11,7 +11,7 @@
 			"program": "${workspaceFolder}/bazel-bin/Sources/EditorApplication/HodEditor.exe",
 			"args": [],
 			"stopAtEntry": false,
-			//"cwd": "${fileDirname}",
+			"cwd": "${workspaceFolder}/Data",
 			"environment": [],
 			"console": "externalTerminal",
 			"preLaunchTask": "Build HodEditor",

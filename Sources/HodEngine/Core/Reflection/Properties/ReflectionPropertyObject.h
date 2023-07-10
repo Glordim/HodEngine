@@ -17,7 +17,7 @@ namespace hod
 			///@brief 
 			class Object : public ReflectionProperty // todo rename remove namespace
 			{
-				META_TYPE(Object)
+				META_TYPE(Object, ReflectionProperty)
 
 			public:
 

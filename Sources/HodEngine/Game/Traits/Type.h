@@ -10,7 +10,7 @@ namespace hod
 		{
 			class Type : public ReflectionTrait
 			{
-				META_TYPE(Type)
+				META_TYPE(Type, ReflectionTrait)
 
 			public:
 

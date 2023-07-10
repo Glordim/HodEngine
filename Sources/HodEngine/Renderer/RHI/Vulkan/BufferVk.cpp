@@ -1,4 +1,3 @@
-
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.h"
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
 
@@ -41,12 +40,16 @@ namespace hod
 			if (_vkBuffer != VK_NULL_HANDLE)
 			{
 				vkDestroyBuffer(renderer->GetVkDevice(), _vkBuffer, nullptr);
+				_vkBuffer = VK_NULL_HANDLE;
 			}
 
 			if (_vkDeviceMemory != VK_NULL_HANDLE)
 			{
 				vkFreeMemory(renderer->GetVkDevice(), _vkDeviceMemory, nullptr);
+				_vkDeviceMemory = VK_NULL_HANDLE;
 			}
+			
+			_size = 0;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -63,7 +66,6 @@ namespace hod
 		bool BufferVk::Resize(uint32_t size)
 		{
 			Release();
-			_size = 0;
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 

@@ -81,9 +81,6 @@ namespace hod::renderer
 		bool TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
 		bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
-		VkDescriptorSetLayout GetVkViewDescriptorSet() const;
-		VkDescriptorSetLayout GetVkModelDescriptorSet() const;
-
 		bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
 
 	private:
@@ -100,7 +97,7 @@ namespace hod::renderer
 		static void GetAvailableExtensions(std::vector<VkExtensionProperties>& availableExtensions);
 		static bool CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const std::vector<VkExtensionProperties>& availableExtensions);
 
-#if defined(renderer_ENABLE_VALIDATION_LAYER)
+#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		static bool CheckValidationLayerSupport(const char** validationLayers, size_t validationLayerCount);
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 #endif
@@ -128,8 +125,6 @@ namespace hod::renderer
 		Material* _unlitVertexColorLineMaterial = nullptr;
 		MaterialInstance* _unlitVertexColorLineMaterialInstance = nullptr;
 
-		DescriptorSetLayout			_viewLayout;
-		DescriptorSetLayout			_modelLayout;
 		Material* _sharedMinimalMaterial = nullptr;
 
 		VkContext* _context = nullptr;

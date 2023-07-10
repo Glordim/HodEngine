@@ -1,5 +1,7 @@
-
 #include "HodEngine/Renderer/RHI/CommandBuffer.h"
+#include "HodEngine/Core/Output.h"
+#include "HodEngine/Renderer/RHI/Buffer.h"
+#include "HodEngine/Renderer/RHI/MaterialInstance.h"
 
 namespace hod
 {
@@ -16,9 +18,17 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBuffer::DeleteAfterRender(void* pointer)
+		void CommandBuffer::DeleteAfterRender(MaterialInstance* materialInstance)
 		{
-			pointerToDelete.push_back(pointer);
+			_materialInstanceToDelete.push_back(materialInstance);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		void CommandBuffer::DeleteAfterRender(Buffer* buffer)
+		{
+			_bufferToDelete.push_back(buffer);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -26,10 +36,17 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void CommandBuffer::PurgePointerToDelete()
 		{
-			for (void* pointer : pointerToDelete)
+			for (MaterialInstance* materialInstance : _materialInstanceToDelete)
 			{
-				delete pointer;
+				delete materialInstance;
 			}
+			_materialInstanceToDelete.clear();
+
+			for (Buffer* buffer : _bufferToDelete)
+			{
+				delete buffer;
+			}
+			_bufferToDelete.clear();
 		}
 	}
 }

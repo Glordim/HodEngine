@@ -7,7 +7,7 @@ namespace hod
 	///@brief 
 	class ReflectionTraitFixedSizeArray : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitFixedSizeArray)
+		META_TYPE(ReflectionTraitFixedSizeArray, ReflectionTrait)
 
 	public:
 

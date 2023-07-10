@@ -55,7 +55,7 @@ namespace hod
 			_height = height;
 
 			_color = Renderer::GetInstance()->CreateTexture();
-			if (_color->BuildBuffer(_width, _height, nullptr) == false)
+			if (_color->BuildColor(_width, _height) == false)
 			{
 				Clear();
 				return false;

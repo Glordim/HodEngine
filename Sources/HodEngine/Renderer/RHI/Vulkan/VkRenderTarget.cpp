@@ -36,17 +36,19 @@ namespace hod
 			{
 				return false;
 			}
+			
+			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
 			// Render pass
 			VkAttachmentDescription colorAttachment = {};
-			colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
+			colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
 			colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 			VkAttachmentReference colorAttachmentRef = {};
 			colorAttachmentRef.attachment = 0;
@@ -83,8 +85,6 @@ namespace hod
 			renderPassInfo.subpassCount = 1;
 			renderPassInfo.pSubpasses = &subpass;
 
-			RendererVulkan* renderer = RendererVulkan::GetInstance();
-
 			if (vkCreateRenderPass(renderer->GetVkDevice(), &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
 			{
 				OUTPUT_ERROR("Vulkan: Unable to create render pass!");
@@ -112,6 +112,8 @@ namespace hod
 				Clear();
 				return false;
 			}
+
+			return true;
 		}
 
 		/// @brief 
@@ -146,6 +148,28 @@ namespace hod
 		VkFramebuffer VkRenderTarget::GetFrameBuffer() const
 		{
 			return _frameBuffer;
+		}
+
+		/// @brief 
+		void VkRenderTarget::PrepareForWrite()
+		{
+			RendererVulkan* renderer = RendererVulkan::GetInstance();
+
+			if (renderer->TransitionImageLayout(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
+			{
+				return; // todo bool ?
+			}
+		}
+
+		/// @brief 
+		void VkRenderTarget::PrepareForRead()
+		{
+			RendererVulkan* renderer = RendererVulkan::GetInstance();
+
+			if (renderer->TransitionImageLayout(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
+			{
+				return; // todo bool ?
+			}
 		}
 	}
 }

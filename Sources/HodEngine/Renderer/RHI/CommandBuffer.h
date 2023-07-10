@@ -38,7 +38,8 @@ namespace hod
 		public:
 
 			void				PurgePointerToDelete();
-			void				DeleteAfterRender(void* pointer);
+			void				DeleteAfterRender(MaterialInstance* materialInstance);
+			void				DeleteAfterRender(Buffer* buffer);
 
 			virtual bool		StartRecord(RenderTarget* renderTarget = nullptr, Context* context = nullptr) = 0;
 			virtual bool		EndRecord() = 0;
@@ -61,7 +62,8 @@ namespace hod
 
 		private:
 
-			std::vector<void*>	pointerToDelete;
+			std::vector<MaterialInstance*>	_materialInstanceToDelete;
+			std::vector<Buffer*>			_bufferToDelete;
 		};
 	}
 }

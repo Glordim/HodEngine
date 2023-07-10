@@ -29,13 +29,18 @@ static const char* GetMetaTypeNameStatic()											\
 	return #__ClassName__;															\
 }																					\
 																					\
+virtual bool HasCompatibleMetaType(MetaType otherMetaType)							\
+{																					\
+	return (__ClassName__::GetMetaTypeStatic() == otherMetaType);					\
+}																					\
+																					\
 private:																			\
 																					\
 
 
 // TODO constexpr + rename Meta to Class
 
-#define META_TYPE(__ClassName__)													\
+#define META_TYPE(__ClassName__, __ParentClass__)									\
 private:																			\
 static constexpr MetaType _metaType = Hash::CompilationTimeFnv64(#__ClassName__);	\
 public:																				\
@@ -58,6 +63,12 @@ static MetaType GetMetaTypeStatic()													\
 static const char* GetMetaTypeNameStatic()											\
 {																					\
 	return #__ClassName__;															\
+}																					\
+																					\
+bool HasCompatibleMetaType(MetaType otherMetaType) override							\
+{																					\
+	return (__ClassName__::GetMetaTypeStatic() == otherMetaType ||					\
+			__ParentClass__::HasCompatibleMetaType(otherMetaType) == true);			\
 }																					\
 																					\
 private:																			\

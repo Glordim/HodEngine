@@ -17,7 +17,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class SpriteComponent : public RendererComponent
 		{
-			//REFLECTED_CLASS(SpriteComponent, RendererComponent);
+			REFLECTED_CLASS(SpriteComponent, RendererComponent)
 
 		public:
 
@@ -46,7 +46,7 @@ namespace hod
 		private:
 
 			const renderer::Sprite*			_sprite = nullptr;
-			renderer::MaterialInstance*		_materialInstance;
+			renderer::MaterialInstance*		_materialInstance = nullptr;
 		};
 	}
 }

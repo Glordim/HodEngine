@@ -27,6 +27,9 @@ namespace hod
 			Texture*		GetColorTexture() const;
 			Texture*		GetDepthTexture() const;
 
+			virtual void	PrepareForWrite() = 0;
+			virtual void	PrepareForRead() = 0;
+
 		protected:
 
 			virtual void	Clear();

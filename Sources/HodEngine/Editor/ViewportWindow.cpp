@@ -44,29 +44,24 @@ namespace hod::editor
 			_renderTarget->GetHeight() != windowHeight)
 		{
 			_renderTarget->Init(windowWidth, windowHeight); // todo error
+			_renderTarget->PrepareForRead(); // todo automate ?
 		}
 
 		// todo check if visible (docking tab) ?
 
 		renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 
-/*
 		Rect viewport;
 		viewport._size.x = windowWidth;
 		viewport._size.y = windowHeight;
-		viewport._position.x = ImGui::GetWindowPos().x;
-		viewport._position.y = ImGui::GetWindowPos().y;
+		viewport._position.x = 0;
+		viewport._position.y = 0;
 
 		float aspect = windowWidth / windowHeight;
-		glm::mat4 projection = glm::ortho(-aspect * 0.5f, aspect * 0.5f, -0.5f, 0.5f, 0.0f, 1000.0f);
-		glm::mat4 view = glm::mat4(1.0f);//glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
-*/
-		/*
-		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
-		renderer->Render();
-		*/
+		glm::mat4 projection = glm::ortho(-aspect * 0.5f, aspect * 0.5f, -0.5f, 0.5f, -10.0f, 1000.0f);
+		glm::mat4 view = glm::identity<glm::mat4>();//glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
 
-//		renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+		renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
 
 		game::World* world = game::World::GetInstance();
 		for (const auto& pair : world->GetEntities())
@@ -79,7 +74,11 @@ namespace hod::editor
 			}
 		}
 
+		_renderTarget->PrepareForWrite(); // todo automate ?
+
 		renderQueue->Execute(_renderTarget);
+
+		_renderTarget->PrepareForRead(); // todo automate ?
 
 		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2(windowWidth, windowHeight));
 	}

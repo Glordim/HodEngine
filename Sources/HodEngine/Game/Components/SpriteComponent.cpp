@@ -13,15 +13,11 @@ namespace hod
 {
 	namespace game
 	{
-		/*
-		DESCRIBE_COMPONENT(SpriteComponent)
+		DESCRIBE_REFLECTED_CLASS(SpriteComponent, RendererComponent)
 		{
-			DescriptionProperty* spriteProperty = REGISTER_PROPERTY(_sprite);
-			spriteProperty->SetSerializationName("sprite");
-			spriteProperty->SetDisplayName("Sprite");
-			spriteProperty->SetOption(Option::ResourceType, Sprite::_type);
+			//ADD_PROPERTY(SpriteComponent, _sprite);
+			//ADD_PROPERTY(SpriteComponent, _materialInstance);
 		}
-		*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		

@@ -17,7 +17,7 @@ namespace hod::renderer
 	
 	class TextureResource : public Resource
 	{
-		REFLECTED_CLASS(TextureResource)
+		REFLECTED_CLASS(TextureResource, Resource)
 
 	public:
 

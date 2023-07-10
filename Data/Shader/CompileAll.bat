@@ -2,7 +2,7 @@
 @call :CLEAN_EXIT
 echo off
 
-set GLSL_VALIDATOR=C:\VulkanSDK\1.1.114.0\Bin\glslangValidator.exe
+set GLSL_VALIDATOR=C:\VulkanSDK\1.3.250.1\Bin\glslangValidator.exe
 
 for %%f in (*.vert) do (echo %%f & %GLSL_VALIDATOR% -Od --target-env vulkan1.1 -o %%f.spirv %%f)
 

@@ -16,7 +16,7 @@ namespace hod::editor
 	/// @brief 
 	class HierachyWindow : public imgui::Window
 	{
-		META_TYPE(HierachyWindow);
+		META_TYPE(HierachyWindow, imgui::Window);
 		WINDOW_DESCRIPTION()
 
 	public:

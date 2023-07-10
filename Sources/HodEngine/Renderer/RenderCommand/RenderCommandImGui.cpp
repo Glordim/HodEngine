@@ -177,7 +177,6 @@ namespace hod
 			for (int drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
 			{
 				DrawList* drawList = _drawLists[drawListIndex];
-
 				Buffer* vertexBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex);
 
 				uint32_t vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.size() * sizeof(Vertex));
@@ -194,6 +193,7 @@ namespace hod
 					vertexBuffer->Unlock();
 				}
 				commandBuffer->DeleteAfterRender(vertexBuffer);
+				commandBuffer->SetVertexBuffer(vertexBuffer, 0);
 
 				Buffer* indexBuffer = renderer->CreateBuffer(Buffer::Usage::Index);
 
@@ -211,8 +211,6 @@ namespace hod
 					indexBuffer->Unlock();
 				}
 				commandBuffer->DeleteAfterRender(indexBuffer);
-
-				commandBuffer->SetVertexBuffer(vertexBuffer, 0);
 				commandBuffer->SetIndexBuffer(indexBuffer, 0);
 
 				Constant constant;

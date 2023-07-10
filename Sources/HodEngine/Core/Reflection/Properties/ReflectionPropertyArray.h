@@ -16,7 +16,7 @@ namespace hod
 			///@brief 
 			class Array : public ReflectionProperty
 			{
-				META_TYPE(Array)
+				META_TYPE(Array, ReflectionProperty)
 
 			public:
 

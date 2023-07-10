@@ -39,7 +39,7 @@ cc_library(
 		"@box2d//:box2d",
 		"@rules_vulkan//vulkan:vulkan_cc_library"
 	],
-	defines = [platform_define],
+	defines = [platform_define, "RENDERER_ENABLE_VALIDATION_LAYER"],
 	linkopts = [platform_lib],
 	copts = [
 		#"-std=c++17",

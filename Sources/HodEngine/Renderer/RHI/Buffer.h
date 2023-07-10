@@ -28,8 +28,8 @@ namespace hod
 							Buffer(Buffer&&) = delete;
 			virtual			~Buffer() = default;
 
-			void			operator=(const Buffer&) = delete;
-			void			operator=(Buffer&&) = delete;
+			Buffer&			operator=(const Buffer&) = delete;
+			Buffer&			operator=(Buffer&&) = delete;
 
 		public:
 

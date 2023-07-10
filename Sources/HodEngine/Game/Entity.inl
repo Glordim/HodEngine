@@ -12,7 +12,7 @@ namespace hod::game
 
 		for (const std::shared_ptr<Component>& component : _components)
 		{
-			if (component->GetMetaType() == _Component_::GetMetaTypeStatic())
+			if (component->HasCompatibleMetaType(_Component_::GetMetaTypeStatic()) == true)
 			{
 				return std::static_pointer_cast<_Component_>(component);
 			}

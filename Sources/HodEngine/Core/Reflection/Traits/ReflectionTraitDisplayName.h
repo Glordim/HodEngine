@@ -7,7 +7,7 @@ namespace hod
 	///@brief 
 	class ReflectionTraitDisplayName : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitDisplayName)
+		META_TYPE(ReflectionTraitDisplayName, ReflectionTrait)
 
 	public:
 

@@ -350,9 +350,6 @@ namespace hod
 			// And build each DescriptorSetLayout
 			std::vector<VkDescriptorSetLayout> layouts;
 
-			//layouts.push_back(renderer->GetVkViewDescriptorSet());
-			//layouts.push_back(renderer->GetVkModelDescriptorSet());
-
 			auto it = _descriptorSetLayoutMap.begin();
 			auto itEnd = _descriptorSetLayoutMap.end();
 

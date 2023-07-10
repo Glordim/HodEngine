@@ -18,6 +18,7 @@ namespace hod
 							VkTexture();
 			virtual			~VkTexture();
 
+			virtual bool	BuildColor(size_t width, size_t height) override;
 			virtual bool	BuildDepth(size_t width, size_t height) override;
 			virtual bool	BuildBuffer(size_t width, size_t height, unsigned char* buffer) override;
 

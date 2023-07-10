@@ -16,6 +16,8 @@ namespace hod
 		Renderer::Renderer()
 		{
 			Renderer::_instance = this;
+
+			MaterialManager::CreateInstance();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -71,6 +73,24 @@ namespace hod
 		void Renderer::SetVisualizationMode(VisualizationMode visualizationMode)
 		{
 			_visualizationMode = visualizationMode;
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		MaterialInstance* Renderer::GetDefaultMaterialInstance()
+		{
+			if (_defaultMaterialInstance == nullptr)
+			{
+				if (_defaultMaterial == nullptr)
+				{
+					_defaultMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("Default"));
+				}
+
+				_defaultMaterialInstance = CreateMaterialInstance(_defaultMaterial);
+			}
+
+			return _defaultMaterialInstance;
 		}
 
 		//-----------------------------------------------------------------------------

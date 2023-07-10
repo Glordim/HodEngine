@@ -88,6 +88,7 @@ namespace hod::renderer
 		VisualizationMode			GetVisualizationMode() const;
 		void						SetVisualizationMode(VisualizationMode visualizationMode);
 
+		MaterialInstance*			GetDefaultMaterialInstance();
 		MaterialInstance*			GetOverdrawMaterialInstance();
 		MaterialInstance*			GetWireframeMaterialInstance();
 
@@ -100,6 +101,9 @@ namespace hod::renderer
 
 		Material*					_wireframeMaterial = nullptr;
 		MaterialInstance*			_wireframeMaterialInstance = nullptr;
+
+		Material*					_defaultMaterial = nullptr;
+		MaterialInstance*			_defaultMaterialInstance = nullptr;
 
 		VisualizationMode			_visualizationMode = VisualizationMode::Normal;
 
