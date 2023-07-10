@@ -6,6 +6,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.h"
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
+#include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.h"
 
 #include <HodEngine/Core/Output.h>
 
@@ -64,7 +65,7 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		bool CommandBufferVk::StartRecord(Context* context)
+		bool CommandBufferVk::StartRecord(RenderTarget* renderTarget, Context* context)
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
@@ -95,10 +96,23 @@ namespace hod
 
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = vkContext->GetRenderPass();
-			renderPassInfo.framebuffer = vkContext->GetSwapChainCurrentFrameBuffer();
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = vkContext->GetSwapChainExtent();
+			if (renderTarget == nullptr)
+			{
+				renderPassInfo.renderPass = vkContext->GetRenderPass();
+				renderPassInfo.framebuffer = vkContext->GetSwapChainCurrentFrameBuffer();
+				renderPassInfo.renderArea.offset = { 0, 0 };
+				renderPassInfo.renderArea.extent = vkContext->GetSwapChainExtent();
+			}
+			else
+			{
+				VkRenderTarget* vkRenderTarget = static_cast<VkRenderTarget*>(renderTarget);
+
+				renderPassInfo.renderPass = vkRenderTarget->GetRenderPass();
+				renderPassInfo.framebuffer = vkRenderTarget->GetFrameBuffer();
+				renderPassInfo.renderArea.offset = { 0, 0 };
+				renderPassInfo.renderArea.extent.width = vkRenderTarget->GetWidth();
+				renderPassInfo.renderArea.extent.height = vkRenderTarget->GetHeight();
+			}
 			renderPassInfo.clearValueCount = 1;
 			renderPassInfo.pClearValues = clearColor;
 

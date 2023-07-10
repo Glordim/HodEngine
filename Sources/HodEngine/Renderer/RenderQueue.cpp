@@ -20,13 +20,13 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void RenderQueue::Execute()
+		void RenderQueue::Execute(RenderTarget* renderTarget)
 		{
 			Renderer* renderer = Renderer::GetInstance();
 
 			CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
 
-			if (commandBuffer->StartRecord() == true)
+			if (commandBuffer->StartRecord(renderTarget) == true)
 			{
 				for (RenderCommand* renderCommand : _renderCommands)
 				{

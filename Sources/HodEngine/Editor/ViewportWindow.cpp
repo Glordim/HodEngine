@@ -50,6 +50,7 @@ namespace hod::editor
 
 		renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 
+/*
 		Rect viewport;
 		viewport._size.x = windowWidth;
 		viewport._size.y = windowHeight;
@@ -59,13 +60,13 @@ namespace hod::editor
 		float aspect = windowWidth / windowHeight;
 		glm::mat4 projection = glm::ortho(-aspect * 0.5f, aspect * 0.5f, -0.5f, 0.5f, 0.0f, 1000.0f);
 		glm::mat4 view = glm::mat4(1.0f);//glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
-
+*/
 		/*
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 		renderer->Render();
 		*/
 
-		renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+//		renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
 
 		game::World* world = game::World::GetInstance();
 		for (const auto& pair : world->GetEntities())
@@ -74,9 +75,11 @@ namespace hod::editor
 			std::shared_ptr<game::RendererComponent> rendererComponent = entity->GetComponent<game::RendererComponent>().lock();
 			if (rendererComponent != nullptr)
 			{
-				rendererComponent->Render();
+				rendererComponent->PushToRenderQueue(*renderQueue);
 			}
 		}
+
+		renderQueue->Execute(_renderTarget);
 
 		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2(windowWidth, windowHeight));
 	}

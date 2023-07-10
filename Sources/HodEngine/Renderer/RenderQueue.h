@@ -7,6 +7,7 @@ namespace hod
 	namespace renderer
 	{
 		class RenderCommand;
+		class RenderTarget;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -16,7 +17,7 @@ namespace hod
 		public:
 
 			void							PushRenderCommand(RenderCommand* renderCommand);
-			void							Execute();
+			void							Execute(RenderTarget* renderTarget = nullptr);
 
 		private:
 

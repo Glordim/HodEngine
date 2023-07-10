@@ -133,5 +133,19 @@ namespace hod
 				_renderPass = VK_NULL_HANDLE;
 			}
 		}
+
+		/// @brief 
+		/// @return 
+		VkRenderPass VkRenderTarget::GetRenderPass() const
+		{
+			return _renderPass;
+		}
+		
+		/// @brief 
+		/// @return 
+		VkFramebuffer VkRenderTarget::GetFrameBuffer() const
+		{
+			return _frameBuffer;
+		}
 	}
 }

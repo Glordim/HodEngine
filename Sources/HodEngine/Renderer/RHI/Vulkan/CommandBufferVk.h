@@ -30,7 +30,7 @@ namespace hod
 
 			VkCommandBuffer		GetVkCommandBuffer() const;
 
-			bool				StartRecord(Context* context = nullptr) override;
+			bool				StartRecord(RenderTarget* renderTarget = nullptr, Context* context = nullptr) override;
 			bool				EndRecord() override;
 
 			void				SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) override;

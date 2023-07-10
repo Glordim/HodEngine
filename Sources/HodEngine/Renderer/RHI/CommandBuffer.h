@@ -18,6 +18,7 @@ namespace hod
 		class MaterialInstance;
 		class Buffer;
 		class Context;
+		class RenderTarget;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -39,7 +40,7 @@ namespace hod
 			void				PurgePointerToDelete();
 			void				DeleteAfterRender(void* pointer);
 
-			virtual bool		StartRecord(Context* context = nullptr) = 0;
+			virtual bool		StartRecord(RenderTarget* renderTarget = nullptr, Context* context = nullptr) = 0;
 			virtual bool		EndRecord() = 0;
 
 			virtual void		SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) = 0;

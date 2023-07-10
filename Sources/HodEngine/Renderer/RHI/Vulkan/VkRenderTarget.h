@@ -20,9 +20,8 @@ namespace hod
 
 			bool			Init(size_t width, size_t height) override;
 
-			VkImage			GetTextureImage() const;
-			VkImageView		GetTextureImageView() const;
-			VkSampler		GetTextureSampler() const;
+			VkRenderPass	GetRenderPass() const;
+			VkFramebuffer	GetFrameBuffer() const;
 
 		protected:
 
