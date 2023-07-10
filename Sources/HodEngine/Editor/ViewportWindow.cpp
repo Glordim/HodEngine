@@ -57,8 +57,10 @@ namespace hod::editor
 		viewport._position.x = 0;
 		viewport._position.y = 0;
 
-		float aspect = windowWidth / windowHeight;
-		glm::mat4 projection = glm::ortho(-aspect * 0.5f, aspect * 0.5f, -0.5f, 0.5f, -10.0f, 1000.0f);
+		float size = 5.0f;
+		float aspect = viewport._size.x / viewport._size.y;
+
+		glm::mat4x4 projection = glm::ortho(0.0f, viewport._size.x, 0.0f, viewport._size.y, -1024.0f, 1024.0f);
 		glm::mat4 view = glm::identity<glm::mat4>();//glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
 
 		renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
