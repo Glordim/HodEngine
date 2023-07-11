@@ -44,7 +44,7 @@ namespace hod
 
 		protected:
 
-			void							ComputeLocalMatrix(glm::mat4& localMatrix) override;
+			void							ComputeLocalMatrix(Matrix4& localMatrix) override;
 
 		private:
 

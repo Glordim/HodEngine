@@ -67,7 +67,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void MaterialInstance::SetMat4(const std::string& memberName, const glm::mat4& value)
+		void MaterialInstance::SetMat4(const std::string& memberName, const Matrix4& value)
 		{
 			_mat4Map[memberName] = value;
 			ApplyMat4(memberName, value);
@@ -117,7 +117,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const glm::mat4& MaterialInstance::GetMat4(const std::string& memberName)
+		const Matrix4& MaterialInstance::GetMat4(const std::string& memberName)
 		{
 			return _mat4Map[memberName];
 		}

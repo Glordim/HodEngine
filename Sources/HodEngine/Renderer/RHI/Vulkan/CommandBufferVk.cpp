@@ -171,7 +171,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::SetProjectionMatrix(const glm::mat4x4& projectionMatrix)
+		void CommandBufferVk::SetProjectionMatrix(const Matrix4& projectionMatrix)
 		{
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.proj", projectionMatrix);
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", projectionMatrix * _sharedMinimalMaterialInstance->GetMat4("viewUbo.view"));
@@ -182,7 +182,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::SetViewMatrix(const glm::mat4x4& viewMatrix)
+		void CommandBufferVk::SetViewMatrix(const Matrix4& viewMatrix)
 		{
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.view", viewMatrix);
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.proj") * viewMatrix);
@@ -193,7 +193,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::SetModelMatrix(const glm::mat4x4& modelMatrix)
+		void CommandBufferVk::SetModelMatrix(const Matrix4& modelMatrix)
 		{
 			MaterialInstance* modelMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(&_sharedMinimalMaterialInstance->GetMaterial());
 			modelMaterialInstance->SetMat4("modelUbo.model", modelMatrix);

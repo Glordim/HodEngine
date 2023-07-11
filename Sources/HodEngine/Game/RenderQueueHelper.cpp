@@ -124,11 +124,11 @@ namespace hod
 
 		if (lines.empty() == false)
 		{
-			renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
+			renderQueue.AddLines(lines, nullptr, Matrix4::Identity);
 		}
 		if (tris.empty() == false)
 		{
-			renderQueue.AddTriangles(tris, nullptr, glm::identity<glm::mat4x4>());
+			renderQueue.AddTriangles(tris, nullptr, Matrix4::Identity);
 		}
 		*/
 	}
@@ -145,7 +145,7 @@ namespace hod
 
 		if (lines.empty() == false)
 		{
-			renderQueue.AddLines(lines, nullptr, glm::identity<glm::mat4x4>());
+			renderQueue.AddLines(lines, nullptr, Matrix4::Identity);
 		}
 		*/
 	}

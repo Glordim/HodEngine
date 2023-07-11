@@ -12,6 +12,7 @@
 #include <HodEngine/Renderer/RenderQueue.h>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.h>
 #include "HodEngine/Core/Rect.h"
+#include "HodEngine/Core/Math/Matrix4.h"
 
 #define GLM_DEPTH_ZERO_TO_ONE 1
 #define GLM_FORCE_LEFT_HANDED 1
@@ -60,8 +61,8 @@ namespace hod::editor
 		float size = 5.0f;
 		float aspect = viewport._size.x / viewport._size.y;
 
-		glm::mat4x4 projection = glm::ortho(0.0f, viewport._size.x, 0.0f, viewport._size.y, -1024.0f, 1024.0f);
-		glm::mat4 view = glm::identity<glm::mat4>();//glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
+		Matrix4 projection = Matrix4::OrthogonalProjection(-1 * aspect, 1 * aspect, -1, 1, -1024.0f, 1024.0f);
+		Matrix4 view = Matrix4::Identity; //glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
 
 		renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
 

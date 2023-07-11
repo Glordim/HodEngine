@@ -35,9 +35,9 @@ namespace hod
 
 			void				SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) override;
 
-			void				SetProjectionMatrix(const glm::mat4x4& projectionMatrix) override;
-			void				SetViewMatrix(const glm::mat4x4& viewMatrix) override;
-			void				SetModelMatrix(const glm::mat4x4& modelMatrix) override;
+			void				SetProjectionMatrix(const Matrix4& projectionMatrix) override;
+			void				SetViewMatrix(const Matrix4& viewMatrix) override;
+			void				SetModelMatrix(const Matrix4& modelMatrix) override;
 
 			void				SetViewport(const Rect& viewport) override;
 			void				SetScissor(const Rect& scissor) override;

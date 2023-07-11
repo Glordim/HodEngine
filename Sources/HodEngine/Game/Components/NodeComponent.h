@@ -8,6 +8,8 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "HodEngine/Core/Math/Matrix4.h"
+
 #include <vector>
 #include <memory>
 
@@ -42,12 +44,12 @@ namespace hod
 			std::weak_ptr<NodeComponent>	GetParent() const;
 			void							SetParent(const std::weak_ptr<NodeComponent>& parent);
 
-			const glm::mat4&				GetLocalMatrix();
-			const glm::mat4&				GetWorldMatrix() { return _worldMatrix; }
+			const Matrix4&					GetLocalMatrix();
+			const Matrix4&					GetWorldMatrix() { return _worldMatrix; }
 
 		protected:
 
-			virtual void					ComputeLocalMatrix(glm::mat4& localMatrix) { /* todo identity */ };
+			virtual void					ComputeLocalMatrix(Matrix4& localMatrix) { localMatrix = Matrix4::Identity; }
 			void							SetLocalMatrixDirty();
 
 		private:
@@ -57,8 +59,8 @@ namespace hod
 		private:
 
 			bool										_localMatrixDirty = true;
-			glm::mat4									_localMatrix = glm::identity<glm::mat4>();
-			glm::mat4									_worldMatrix = glm::identity<glm::mat4>();
+			Matrix4										_localMatrix = Matrix4::Identity;
+			Matrix4										_worldMatrix = Matrix4::Identity;
 
 			std::vector<std::weak_ptr<NodeComponent>>	_children;
 			std::weak_ptr<NodeComponent>				_parent;

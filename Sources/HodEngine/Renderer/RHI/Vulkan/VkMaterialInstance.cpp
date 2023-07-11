@@ -103,7 +103,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void VkMaterialInstance::ApplyMat4(const std::string& memberName, const glm::mat4& value)
+		void VkMaterialInstance::ApplyMat4(const std::string& memberName, const Matrix4& value)
 		{
 			size_t descriptorSetCount = _descriptorSets.size();
 			for (size_t i = 0; i < descriptorSetCount; ++i)

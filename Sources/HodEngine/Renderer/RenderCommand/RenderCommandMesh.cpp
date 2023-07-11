@@ -21,7 +21,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		RenderCommandMesh::RenderCommandMesh(const void* vertices, uint32_t vertexCount, uint32_t vertexSize, const uint16_t* indices, uint32_t indexCount, const glm::mat4x4& modelMatrix, MaterialInstance* materialInstance, bool ignoreVisualisationMode)
+		RenderCommandMesh::RenderCommandMesh(const void* vertices, uint32_t vertexCount, uint32_t vertexSize, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, MaterialInstance* materialInstance, bool ignoreVisualisationMode)
 			: RenderCommand()
 			, _vertices(vertexCount * vertexSize)
 			, _vertexCount(vertexCount)

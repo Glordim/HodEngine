@@ -40,7 +40,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const glm::mat4& NodeComponent::GetLocalMatrix()
+		const Matrix4& NodeComponent::GetLocalMatrix()
 		{
 			if (_localMatrixDirty == true)
 			{

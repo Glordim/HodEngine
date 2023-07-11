@@ -7,6 +7,7 @@
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.h"
 
 #include "HodEngine/Renderer/MaterialManager.h"
+#include "HodEngine/Core/Math/Matrix4.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -82,8 +83,7 @@ namespace hod
 		{
 			renderer::P2fC4f* vertices = BuildPolygonVertices(b2Vertices, vertexCount, color);
 
-			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_wireframePolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_wireframePolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
@@ -93,8 +93,7 @@ namespace hod
 		{
 			renderer::P2fC4f* vertices = BuildPolygonVertices(b2Vertices, vertexCount, color);
 
-			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_solidPolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_solidPolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
@@ -124,8 +123,7 @@ namespace hod
 		{
 			renderer::P2fC4f* vertices = BuildCircleVertices(center, radius, color, 32);
 
-			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_wireframePolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_wireframePolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
@@ -135,8 +133,7 @@ namespace hod
 		{
 			renderer::P2fC4f* vertices = BuildCircleVertices(center, radius, color, 32);
 
-			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_solidPolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_solidPolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
@@ -204,8 +201,7 @@ namespace hod
 			vertices[1]._color[2] = color.b;
 			vertices[1]._color[3] = 0.1f;
 
-			glm::mat4 modelMatrix = glm::identity<glm::mat4>();
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 2, sizeof(renderer::P2fC4f), nullptr, 0, modelMatrix, DebugDrawer::_lineMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 2, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_lineMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------

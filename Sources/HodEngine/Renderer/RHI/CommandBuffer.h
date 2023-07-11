@@ -2,10 +2,6 @@
 
 #include <cstdint>
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include "glm/mat4x4.hpp"
-
 #include <HodEngine/Core/Rect.h>
 #include <vector>
 
@@ -13,6 +9,8 @@
 
 namespace hod
 {
+	class Matrix4;
+
 	namespace renderer
 	{
 		class MaterialInstance;
@@ -46,9 +44,9 @@ namespace hod
 
 			virtual void		SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) = 0;
 
-			virtual void		SetProjectionMatrix(const glm::mat4x4& projectionMatrix) = 0;
-			virtual void		SetViewMatrix(const glm::mat4x4& viewMatrix) = 0;
-			virtual void		SetModelMatrix(const glm::mat4x4& modelMatrix) = 0;
+			virtual void		SetProjectionMatrix(const Matrix4& projectionMatrix) = 0;
+			virtual void		SetViewMatrix(const Matrix4& viewMatrix) = 0;
+			virtual void		SetModelMatrix(const Matrix4& modelMatrix) = 0;
 
 			virtual void		SetViewport(const Rect& viewport) = 0;
 			virtual void		SetScissor(const Rect& scissor) = 0;

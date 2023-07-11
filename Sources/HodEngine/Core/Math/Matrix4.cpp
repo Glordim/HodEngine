@@ -4,15 +4,15 @@
 
 namespace hod
 {
-	Matrix4 Matrix4::Identity(float[]={1.0f, 0.0f, 0.0f, 0.0f,
-							   0.0f, 1.0f, 0.0f, 0.0f
-							   0.0f, 0.0f, 1.0f, 0.0f
-							   0.0f, 0.0f, 0.0f, 1.0f});
+	Matrix4 Matrix4::Identity;
 
 	/// @brief 
 	Matrix4::Matrix4()
+	: _values{1.0f, 0.0f, 0.0f, 0.0f,
+			  0.0f, 1.0f, 0.0f, 0.0f,
+			  0.0f, 0.0f, 1.0f, 0.0f,
+			  0.0f, 0.0f, 0.0f, 1.0f}
 	{
-		*this = Matrix4::Identity;
 	}
 
 	/// @brief 
@@ -27,7 +27,7 @@ namespace hod
 	/// @return 
 	float& Matrix4::operator [] (uint32_t index)
 	{
-		return _values[index];
+		return _values[index / 4][index % 4];
 	}
 
 	/// @brief 
@@ -35,34 +35,66 @@ namespace hod
 	/// @return 
 	float Matrix4::operator [] (uint32_t index) const
 	{
-		return _values[index];
+		return _values[index / 4][index % 4];
 	}
 
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Matrix4 Matrix4::operator * (const Matrix4 right) const
+	Matrix4 Matrix4::operator * (const Matrix4& right) const
 	{
 		Matrix4 result;
 		for (uint32_t index = 0; index < 4; ++index)
 		{
-			result._m1[0] = _m1[0] * right._m1[0] + _m1[1] * right._m2[0] + _m1[2] * right._m3[0] + _m1[3] * right._m4[0];
-			result._m1[1] = _m1[0] * right._m1[1] + _m1[1] * right._m2[1] + _m1[2] * right._m3[1] + _m1[3] * right._m4[1];
-			result._m1[2] = _m1[0] * right._m1[2] + _m1[1] * right._m2[2] + _m1[2] * right._m3[2] + _m1[3] * right._m4[2];
-			result._m1[3] = _m1[0] * right._m1[3] + _m1[1] * right._m2[3] + _m1[2] * right._m3[3] + _m1[3] * right._m4[3];
-
-			result._m2[0] = _m1[0] * right._m2[0] + _m1[1] * right._m2[0] + _m2[2] * right._m3[0] + _m2[3] * right._m4[0];
-			result._m2[1] = _m1[0] * right._m2[1] + _m1[1] * right._m2[1] + _m2[2] * right._m3[1] + _m2[3] * right._m4[1];
-			result._m2[2] = _m1[0] * right._m2[2] + _m1[1] * right._m2[2] + _m2[2] * right._m3[2] + _m2[3] * right._m4[2];
-			result._m2[3] = _m1[0] * right._m2[3] + _m1[1] * right._m2[3] + _m2[2] * right._m3[3] + _m2[3] * right._m4[3];
+			result._values[index][0] = (_values[index][0] * right._values[0][0]) + (_values[index][1] * right._values[1][0]) + (_values[index][2] * right._values[2][0]) + (_values[index][3] * right._values[3][0]);
+			result._values[index][1] = (_values[index][0] * right._values[0][1]) + (_values[index][1] * right._values[1][1]) + (_values[index][2] * right._values[2][1]) + (_values[index][3] * right._values[3][1]);
+			result._values[index][2] = (_values[index][0] * right._values[0][2]) + (_values[index][1] * right._values[1][2]) + (_values[index][2] * right._values[2][2]) + (_values[index][3] * right._values[3][2]);
+			result._values[index][3] = (_values[index][0] * right._values[0][3]) + (_values[index][1] * right._values[1][3]) + (_values[index][2] * right._values[2][3]) + (_values[index][3] * right._values[3][3]);
 		}
+		return result;
 	}
 
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Matrix4& Matrix4::operator *= (const Matrix4 right)
+	Matrix4& Matrix4::operator *= (const Matrix4& right)
 	{
+		*this = *this * right;
+		return *this;
+	}
 
+	/// @brief 
+	/// @param left 
+	/// @param right 
+	/// @param bottom 
+	/// @param top 
+	/// @param near 
+	/// @param top 
+	/// @return 
+	Matrix4 Matrix4::OrthogonalProjection(float left, float right, float bottom, float top, float near, float far)
+	{
+		Matrix4 projection;
+
+		projection._values[0][0] = 2.0f / (right - left);
+		projection._values[0][1] = 0.0f;
+		projection._values[0][2] = 0.0f;
+		projection._values[0][3] = 0.0f;
+
+		projection._values[1][0] = 0.0f;
+		projection._values[1][1] = 2.0f / (top - bottom);
+		projection._values[1][2] = 0.0f;
+		projection._values[1][3] = 0.0f;
+
+		projection._values[2][0] = 0.0f;
+		projection._values[2][1] = 0.0f;
+		projection._values[2][2] = 1.0f;
+		projection._values[2][3] = 0.0f;
+
+		projection._values[3][0] = 0.0f;
+		projection._values[3][1] = 0.0f;
+		projection._values[3][2] = 0.0f;
+		projection._values[3][3] = 1.0f;
+
+		return projection;
 	}
 }

@@ -26,15 +26,16 @@ namespace hod
 		float&		operator [] (uint32_t index);
 		float		operator [] (uint32_t index) const;
 
-		Matrix4		operator * (const Matrix4 right) const;
+		Matrix4		operator * (const Matrix4& right) const;
 
-		Matrix4&	operator *= (const Matrix4 right);
+		Matrix4&	operator *= (const Matrix4& right);
+
+	public:
+
+		static Matrix4	OrthogonalProjection(float left, float right, float bottom, float top, float near, float far);
 
 	private:
 
-		float 		_m1[4];
-		float 		_m2[4];
-		float 		_m3[4];
-		float 		_m4[4];
+		float 		_values[4][4];
 	};
 }

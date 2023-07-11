@@ -5,11 +5,8 @@
 
 #include <vector>
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include "glm/mat4x4.hpp"
-
 #include <HodEngine/Core/Rect.h>
+#include "HodEngine/Core/Math/Matrix4.h"
 
 namespace hod
 {
@@ -24,7 +21,7 @@ namespace hod
 		{
 		public:
 
-							RenderCommandSetCameraSettings(const glm::mat4x4& projectionMatrix, const glm::mat4x4& viewMatrix, const Rect& viewport);
+							RenderCommandSetCameraSettings(const Matrix4& projectionMatrix, const Matrix4& viewMatrix, const Rect& viewport);
 							RenderCommandSetCameraSettings(const RenderCommandSetCameraSettings&) = delete;
 							RenderCommandSetCameraSettings(RenderCommandSetCameraSettings&&) = delete;
 							~RenderCommandSetCameraSettings() override = default;
@@ -38,8 +35,8 @@ namespace hod
 
 		private:
 
-			glm::mat4x4		_projectionMatrix;
-			glm::mat4x4		_viewMatrix;
+			Matrix4			_projectionMatrix;
+			Matrix4			_viewMatrix;
 			Rect			_viewport;
 		};
 	}

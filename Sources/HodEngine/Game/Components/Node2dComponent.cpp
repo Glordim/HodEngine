@@ -37,7 +37,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Node2dComponent::ComputeLocalMatrix(glm::mat4& localMatrix)
+		void Node2dComponent::ComputeLocalMatrix(Matrix4& localMatrix)
 		{
 			/*
 			glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), glm::vec3(_position, 0.0f));
