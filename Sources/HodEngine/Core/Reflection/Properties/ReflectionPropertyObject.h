@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
@@ -21,7 +22,7 @@ namespace hod
 
 			public:
 
-														Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor);
+														Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod = nullptr);
 														Object(const Object&) = default;
 														Object(Object&&) = default;
 														~Object() = default;
@@ -33,6 +34,9 @@ namespace hod
 
 				const char*								GetName() const;
 				void*									GetInstance(void* instance) const;
+
+				// todo set value
+
 				ReflectionDescriptor*					GetReflectionDescriptor() const;
 
 				void									Serialize(const void* instance, Document::Node& node) override;
@@ -43,6 +47,7 @@ namespace hod
 				uint32_t								_offset;
 				const char*								_name;
 				ReflectionDescriptor*					_reflectionDesceriptor;
+				std::function<void(void*, void*)>		_setMethod;
 			};
 		}
 	}

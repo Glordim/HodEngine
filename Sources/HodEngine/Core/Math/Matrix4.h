@@ -4,6 +4,8 @@
 
 namespace hod
 {
+	class Vector2;
+	
 	class Matrix4 final
 	{
 	public:
@@ -33,6 +35,9 @@ namespace hod
 	public:
 
 		static Matrix4	OrthogonalProjection(float left, float right, float bottom, float top, float near, float far);
+		static Matrix4	Translation(const Vector2& translation);
+		static Matrix4	Rotation(float rotation);
+		static Matrix4	Scale(const Vector2& scale);
 
 	private:
 

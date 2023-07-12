@@ -11,6 +11,11 @@
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.h>
 #include <HodEngine/Game/Components/Node2dComponentCustomEditor.h>
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+constexpr float pi = 3.14159265358979323846f;
+
 namespace hod
 {
 	using namespace Reflection::Property;
@@ -19,9 +24,9 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(Node2dComponent, NodeComponent)
 		{
-			ADD_PROPERTY(Node2dComponent, _position); // todo << ReflectionTraitFixedSizeArray(2);
-			ADD_PROPERTY(Node2dComponent, _rotation);
-			ADD_PROPERTY(Node2dComponent, _scale);
+			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _position, SetPosition); // todo << ReflectionTraitFixedSizeArray(2);
+			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _rotation, SetRotation);
+			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _scale, SetScale);
 			
 			ADD_CUSTOM_EDITOR(Node2dComponentCustomEditor);
 		}
@@ -39,13 +44,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void Node2dComponent::ComputeLocalMatrix(Matrix4& localMatrix)
 		{
-			/*
-			glm::mat4 pos = glm::translate(glm::identity<glm::mat4>(), glm::vec3(_position, 0.0f));
-			glm::quat rot = glm::rotate(glm::identity<glm::quat>(), glm::radians<float>(_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-			glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), glm::vec3(_scale, 1.0f));
-
-			localMatrix = pos * glm::mat4_cast(rot) * scale;
-			*/
+			localMatrix = Matrix4::Translation(_position) * Matrix4::Rotation(_rotation * (pi / 180)) * Matrix4::Scale(_scale);
 		}
 
 		//-----------------------------------------------------------------------------

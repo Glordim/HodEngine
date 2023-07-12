@@ -10,11 +10,12 @@ namespace hod
 			/// @param type 
 			/// @param offset 
 			/// @param name 
-			Variable::Variable(Type type, uint32_t offset, const char* name)
+			Variable::Variable(Type type, uint32_t offset, const char* name, std::function<void(void*, void*)> setMethod)
 				: ReflectionProperty()
 				, _type(type)
 				, _offset(offset)
 				, _name(name)
+				, _setMethod(setMethod)
 			{
 
 			}

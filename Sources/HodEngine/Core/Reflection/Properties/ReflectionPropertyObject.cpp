@@ -10,11 +10,12 @@ namespace hod
 			/// @brief 
 			/// @param offset 
 			/// @param name 
-			Object::Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor)
+			Object::Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod)
 				: ReflectionProperty()
 				, _offset(offset)
 				, _name(name)
 				, _reflectionDesceriptor(reflectionDesceriptor)
+				, _setMethod(setMethod)
 			{
 
 			}

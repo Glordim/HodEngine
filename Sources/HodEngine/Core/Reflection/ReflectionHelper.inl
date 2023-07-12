@@ -62,7 +62,7 @@ namespace hod
 	}
 
 	template<typename _MemberVariable_>
-	ReflectionProperty* ReflectionHelper::AddProperty(ReflectionDescriptor* descriptor, const std::string_view& name, uint32_t offset)
+	ReflectionProperty* ReflectionHelper::AddProperty(ReflectionDescriptor* descriptor, const std::string_view& name, uint32_t offset, std::function<void(void*, void*)> setMethod)
 	{
 		//static_assert(std::is_member_object_pointer<T>::value
 
@@ -72,7 +72,7 @@ namespace hod
 		}
 		else if constexpr (std::is_arithmetic<_MemberVariable_>::value || std::is_same<_MemberVariable_, std::string>::value)
 		{
-			return descriptor->AddProperty<Reflection::Property::Variable>(GetVariableType<_MemberVariable_>(), offset, name.data()); // TODO remove data, descriptor must use string view
+			return descriptor->AddProperty<Reflection::Property::Variable>(GetVariableType<_MemberVariable_>(), offset, name.data(), setMethod); // TODO remove data, descriptor must use string view
 		}
 		else if constexpr (std::is_class<_MemberVariable_>::value)
 		{

@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <string_view>
+#include <functional>
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
@@ -16,7 +17,7 @@ namespace hod
 	public:
 
 		template<typename _MemberVariable_>
-		static ReflectionProperty*	AddProperty(ReflectionDescriptor* descriptor, const std::string_view& name, uint32_t offset);
+		static ReflectionProperty*	AddProperty(ReflectionDescriptor* descriptor, const std::string_view& name, uint32_t offset, std::function<void(void*, void*)> = nullptr);
 	};
 }
 

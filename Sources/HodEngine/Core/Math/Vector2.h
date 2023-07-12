@@ -26,6 +26,20 @@ namespace hod
 
 	public:
 
+		Vector2&	operator += (const Vector2& right);
+		Vector2&	operator -= (const Vector2& right);
+		Vector2&	operator *= (const Vector2& right);
+		Vector2&	operator /= (const Vector2& right);
+
+		Vector2		operator + (const Vector2& right);
+		Vector2		operator - (const Vector2& right);
+		Vector2		operator * (const Vector2& right);
+		Vector2		operator / (const Vector2& right);
+
+		bool		operator == (const Vector2& right);
+
+	public:
+
 		float		GetX() const;
 		void		SetX(float x);
 

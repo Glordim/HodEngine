@@ -45,7 +45,7 @@ namespace hod
 			void							SetParent(const std::weak_ptr<NodeComponent>& parent);
 
 			const Matrix4&					GetLocalMatrix();
-			const Matrix4&					GetWorldMatrix() { return _worldMatrix; }
+			const Matrix4&					GetWorldMatrix() { return GetLocalMatrix(); }
 
 		protected:
 

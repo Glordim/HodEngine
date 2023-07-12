@@ -48,4 +48,96 @@ namespace hod
 	{
 		_y = y;
 	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector2& Vector2::operator += (const Vector2& right)
+	{
+		_x += right._x;
+		_y += right._y;
+		return *this;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector2& Vector2::operator -= (const Vector2& right)
+	{
+		_x -= right._x;
+		_y -= right._y;
+		return *this;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector2& Vector2::operator *= (const Vector2& right)
+	{
+		_x *= right._x;
+		_y *= right._y;
+		return *this;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector2& Vector2::operator /= (const Vector2& right)
+	{
+		_x /= right._x;
+		_y /= right._y;
+		return *this;
+	}
+	
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector2 Vector2::operator + (const Vector2& right)
+	{
+		Vector2 result;
+		result._x = _x + right._x;
+		result._y = _y + right._y;
+		return result;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector2 Vector2::operator - (const Vector2& right)
+	{
+		Vector2 result;
+		result._x = _x - right._x;
+		result._y = _y - right._y;
+		return result;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector2 Vector2::operator * (const Vector2& right)
+	{
+		Vector2 result;
+		result._x = _x * right._x;
+		result._y = _y * right._y;
+		return result;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector2 Vector2::operator / (const Vector2& right)
+	{
+		Vector2 result;
+		result._x = _x / right._x;
+		result._y = _y / right._y;
+		return result;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	bool Vector2::operator == (const Vector2& right)
+	{
+		return (_x == right._x && _y == right._y);
+	}
 }

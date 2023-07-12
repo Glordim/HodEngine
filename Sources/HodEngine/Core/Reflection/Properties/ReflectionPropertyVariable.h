@@ -5,6 +5,8 @@
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 #include "HodEngine/Core/Document/Document.h"
 
+#include <functional>
+
 namespace hod
 {
 	namespace Reflection
@@ -54,7 +56,7 @@ namespace hod
 
 			public:
 
-														Variable(Type type, uint32_t offset, const char* name);
+														Variable(Type type, uint32_t offset, const char* name, std::function<void(void*, void*)> setMethod = nullptr);
 														Variable(const Variable& copy) = default;
 														Variable(Variable&& move) = default;
 														~Variable() = default;
@@ -81,6 +83,7 @@ namespace hod
 				Type									_type;
 				uint32_t								_offset;
 				const char*								_name;
+				std::function<void(void*, void*)>		_setMethod;
 			};
 		}
 	}

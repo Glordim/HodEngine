@@ -1,4 +1,5 @@
 #include "HodEngine/Core/Math/Matrix4.h"
+#include "HodEngine/Core/Math/Vector2.h"
 
 #include <cstring>
 
@@ -96,5 +97,40 @@ namespace hod
 		projection._values[3][3] = 1.0f;
 
 		return projection;
+	}
+
+	/// @brief 
+	/// @param translation 
+	/// @return 
+	Matrix4 Matrix4::Translation(const Vector2& translation)
+	{
+		Matrix4 result;
+		result._values[0][3] = translation.GetX();
+		result._values[1][3] = translation.GetY();
+		return result;
+	}
+
+	/// @brief 
+	/// @param rotation 
+	/// @return 
+	Matrix4 Matrix4::Rotation(float rotation)
+	{
+		Matrix4 result;
+		result._values[0][0] = std::cos(rotation);
+		result._values[0][1] = -std::sin(rotation);
+		result._values[1][0] = std::sin(rotation);
+		result._values[1][1] = std::cos(rotation);
+		return result;
+	}
+
+	/// @brief 
+	/// @param scale 
+	/// @return 
+	Matrix4 Matrix4::Scale(const Vector2& scale)
+	{
+		Matrix4 result;
+		result._values[0][0] = scale.GetX();
+		result._values[1][1] = scale.GetY();
+		return result;
 	}
 }
