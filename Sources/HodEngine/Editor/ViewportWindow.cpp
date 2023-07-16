@@ -50,39 +50,42 @@ namespace hod::editor
 
 		// todo check if visible (docking tab) ?
 
-		renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
-
-		Rect viewport;
-		viewport._size.x = windowWidth;
-		viewport._size.y = windowHeight;
-		viewport._position.x = 0;
-		viewport._position.y = 0;
-
-		float size = 5.0f;
-		float aspect = viewport._size.x / viewport._size.y;
-
-		Matrix4 projection = Matrix4::OrthogonalProjection(-1 * aspect, 1 * aspect, -1, 1, -1024.0f, 1024.0f);
-		Matrix4 view = Matrix4::Identity; //glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
-
-		renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
-
-		game::World* world = game::World::GetInstance();
-		for (const auto& pair : world->GetEntities())
+		if (_renderTarget->IsValid() == true)
 		{
-			std::shared_ptr<game::Entity> entity = pair.second;
-			std::shared_ptr<game::RendererComponent> rendererComponent = entity->GetComponent<game::RendererComponent>().lock();
-			if (rendererComponent != nullptr)
+			renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
+
+			Rect viewport;
+			viewport._size.x = windowWidth;
+			viewport._size.y = windowHeight;
+			viewport._position.x = 0;
+			viewport._position.y = 0;
+
+			float size = 5.0f;
+			float aspect = viewport._size.x / viewport._size.y;
+
+			Matrix4 projection = Matrix4::OrthogonalProjection(-1 * aspect, 1 * aspect, -1, 1, -1024.0f, 1024.0f);
+			Matrix4 view = Matrix4::Identity; //glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
+
+			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+
+			game::World* world = game::World::GetInstance();
+			for (const auto& pair : world->GetEntities())
 			{
-				rendererComponent->PushToRenderQueue(*renderQueue);
+				std::shared_ptr<game::Entity> entity = pair.second;
+				std::shared_ptr<game::RendererComponent> rendererComponent = entity->GetComponent<game::RendererComponent>().lock();
+				if (rendererComponent != nullptr)
+				{
+					rendererComponent->PushToRenderQueue(*renderQueue);
+				}
 			}
+
+			_renderTarget->PrepareForWrite(); // todo automate ?
+
+			renderQueue->Execute(_renderTarget);
+
+			_renderTarget->PrepareForRead(); // todo automate ?
+
+			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2(windowWidth, windowHeight));
 		}
-
-		_renderTarget->PrepareForWrite(); // todo automate ?
-
-		renderQueue->Execute(_renderTarget);
-
-		_renderTarget->PrepareForRead(); // todo automate ?
-
-		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2(windowWidth, windowHeight));
 	}
 }

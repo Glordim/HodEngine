@@ -30,6 +30,8 @@ namespace hod
 			virtual void	PrepareForWrite() = 0;
 			virtual void	PrepareForRead() = 0;
 
+			bool			IsValid() const;
+
 		protected:
 
 			virtual void	Clear();

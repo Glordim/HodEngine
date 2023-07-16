@@ -4,9 +4,6 @@
 
 #include <HodEngine/Core/Output.h>
 
-//#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
 #include <iostream>
 #include <string>
 
@@ -54,6 +51,11 @@ namespace hod
 			_width = width;
 			_height = height;
 
+			if (_width == 0 || _height == 0)
+			{
+				return false;
+			}
+
 			_color = Renderer::GetInstance()->CreateTexture();
 			if (_color->BuildColor(_width, _height) == false)
 			{
@@ -92,6 +94,13 @@ namespace hod
 		Texture* RenderTarget::GetDepthTexture() const
 		{
 			return _depth;
+		}
+
+		/// @brief 
+		/// @return 
+		bool RenderTarget::IsValid() const
+		{
+			return (_color != nullptr);
 		}
 	}
 }

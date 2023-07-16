@@ -155,7 +155,7 @@ namespace hod
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
-			if (renderer->TransitionImageLayout(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
+			if (_color != nullptr && renderer->TransitionImageLayout(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
 			{
 				return; // todo bool ?
 			}
@@ -166,7 +166,7 @@ namespace hod
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
-			if (renderer->TransitionImageLayout(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
+			if (_color != nullptr && renderer->TransitionImageLayout(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
 			{
 				return; // todo bool ?
 			}
