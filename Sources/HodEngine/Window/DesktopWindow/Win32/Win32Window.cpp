@@ -6,7 +6,7 @@
 #include <HodEngine/Core/Job/JobQueue.h>
 #include <HodEngine/Core/Frame/FrameSequencer.h>
 
-//#include <Renderer/RHI/Context.h>
+#include <HodEngine/Renderer/RHI/Context.h>
 
 #include <cstdlib>
 
@@ -48,7 +48,12 @@ namespace hod::window
 
 			_width = width;
 			_height = height;
-			//_context->Resize(width, height);
+
+			renderer::Context* context = GetGraphicsContext();
+			if (context != nullptr)
+			{
+				context->Resize(width, height);
+			}
 		}
 		else if (msg == WM_CLOSE)
 		{

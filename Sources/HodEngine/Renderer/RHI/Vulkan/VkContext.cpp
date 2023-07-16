@@ -63,6 +63,8 @@ namespace hod
 
 		DestroySwapChain();
 
+		_currentImageIndex = 0;
+
 		VkSurfaceCapabilitiesKHR capabilities;
 		std::vector<VkSurfaceFormatKHR> formats;
 		std::vector<VkPresentModeKHR> presentModes;
