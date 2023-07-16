@@ -52,7 +52,10 @@ namespace hod::editor
 			if (ImGui::Button("Open") == true)
 			{
 				std::filesystem::path path = application::dialog::GetOpenFileDialog();
-				Editor::GetInstance()->OpenProject(path);
+				if (path.empty() == false)
+				{
+					Editor::GetInstance()->OpenProject(path);
+				}
 			}
 			ImGui::SameLine();
 			ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 150, 0, 255));
@@ -60,7 +63,11 @@ namespace hod::editor
 			ImGui::PopStyleColor(1);
 			if (newProjectButtonClicked == true)
 			{
-
+				std::filesystem::path path = application::dialog::GetFolderDialog();
+				if (path.empty() == false)
+				{
+					Editor::GetInstance()->CreateProject(path);
+				}
 			}
 
 			ImGui::Separator();

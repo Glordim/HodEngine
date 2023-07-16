@@ -1,7 +1,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 platform_define = "PLATFORM_WINDOWS"
-platform_lib = "-DEFAULTLIB:Kernel32.lib -DEFAULTLIB:Advapi32.lib -DEFAULTLIB:Comdlg32.lib"
+platform_lib = "-DEFAULTLIB:Kernel32.lib -DEFAULTLIB:Advapi32.lib -DEFAULTLIB:Comdlg32.lib -DEFAULTLIB:Ole32.lib -DEFAULTLIB:Shell32.lib"
 
 cc_library(
 	name = "HodEngine",

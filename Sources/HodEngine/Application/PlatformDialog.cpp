@@ -1,6 +1,7 @@
 #include <HodEngine/Application/PlatformDialog.h>
 
 #include <Windows.h>
+#include <shlobj_core.h>
 
 namespace hod::application::dialog
 {
@@ -50,6 +51,33 @@ namespace hod::application::dialog
 		GetSaveFileNameA(&openFileName);
 
 		return buffer;
+	}
+
+	/// @brief 
+	/// @return 
+	std::filesystem::path GetFolderDialog()
+	{
+		char buffer[MAX_PATH] = { '\0' }; 
+
+		BROWSEINFOA browseInfo;
+		browseInfo.hwndOwner = NULL;
+		browseInfo.pidlRoot = NULL;
+		browseInfo.pszDisplayName = buffer;
+		browseInfo.lpszTitle = "Select a folder";
+		browseInfo.ulFlags = BIF_NEWDIALOGSTYLE;
+		browseInfo.lpfn = NULL;
+		browseInfo.lParam = 0;
+		browseInfo.iImage = -1;
+		LPITEMIDLIST itemIdLists = SHBrowseForFolderA(&browseInfo);
+		if (itemIdLists != NULL)
+		{
+			CHAR dirPaths[MAX_PATH];
+			SHGetPathFromIDListA(itemIdLists, dirPaths);
+			CoTaskMemFree(itemIdLists);
+			return dirPaths;
+		}
+
+		return std::filesystem::path();
 	}
 
 	/// @brief 

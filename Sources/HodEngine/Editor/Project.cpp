@@ -25,7 +25,7 @@ namespace hod::editor
 	/// @return 
 	bool Project::Create(const std::filesystem::path& directory)
 	{
-		if (std::filesystem::create_directories(directory) == false)
+		if (std::filesystem::exists(directory) == false && std::filesystem::create_directories(directory) == false)
 		{
 			return false;
 		}
