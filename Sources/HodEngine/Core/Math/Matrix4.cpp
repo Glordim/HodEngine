@@ -105,8 +105,8 @@ namespace hod
 	Matrix4 Matrix4::Translation(const Vector2& translation)
 	{
 		Matrix4 result;
-		result._values[0][3] = translation.GetX();
-		result._values[1][3] = translation.GetY();
+		result._values[3][0] = translation.GetX();
+		result._values[3][1] = translation.GetY();
 		return result;
 	}
 
@@ -117,8 +117,8 @@ namespace hod
 	{
 		Matrix4 result;
 		result._values[0][0] = std::cos(rotation);
-		result._values[0][1] = -std::sin(rotation);
-		result._values[1][0] = std::sin(rotation);
+		result._values[1][0] = -std::sin(rotation);
+		result._values[0][1] = std::sin(rotation);
 		result._values[1][1] = std::cos(rotation);
 		return result;
 	}

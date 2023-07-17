@@ -30,6 +30,11 @@ namespace hod::editor
 		{
 			Reflection::Property::Object* objectProperty = static_cast<Reflection::Property::Object*>(property);
 			changed = DrawPropertyObject(object, objectProperty);
+
+			if (changed == true)
+			{
+				objectProperty->SetValue(object, objectProperty->GetValue(object));
+			}
 		}
 		ImGui::PopID();
 
@@ -79,7 +84,7 @@ namespace hod::editor
 		{
 			ImGui::PushID(property);
 			float value = property->GetValue<float>(object);
-			bool changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
+			bool changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f);
 			if (changed == true)
 			{
 				property->SetValue<float>(object, (float)value);

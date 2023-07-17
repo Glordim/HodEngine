@@ -72,6 +72,28 @@ namespace hod
 			}
 
 			/// @brief 
+			/// @param instance 
+			/// @return 
+			void* Object::GetValue(const void* instance) const
+			{
+				const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
+				const uint8_t* objectAddress = instanceAddress + _offset;
+
+				return (void*)reinterpret_cast<const void*>(objectAddress);
+			}
+
+			/// @brief 
+			/// @param instance 
+			/// @param value 
+			void Object::SetValue(void* instance, void* value)
+			{
+				if (_setMethod != nullptr)
+				{
+					_setMethod(reinterpret_cast<void*>(instance), value);
+				}
+			}
+
+			/// @brief 
 			/// @return 
 			ReflectionDescriptor* Object::GetReflectionDescriptor() const
 			{

@@ -56,7 +56,7 @@ namespace hod
 
 			public:
 
-														Variable(Type type, uint32_t offset, const char* name, std::function<void(void*, void*)> setMethod = nullptr);
+														Variable(Type type, uint32_t offset, const char* name, std::function<void(void*, void*)> setMethod);
 														Variable(const Variable& copy) = default;
 														Variable(Variable&& move) = default;
 														~Variable() = default;

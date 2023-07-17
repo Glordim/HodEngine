@@ -22,7 +22,7 @@ namespace hod
 
 			public:
 
-														Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod = nullptr);
+														Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod);
 														Object(const Object&) = default;
 														Object(Object&&) = default;
 														~Object() = default;
@@ -35,7 +35,8 @@ namespace hod
 				const char*								GetName() const;
 				void*									GetInstance(void* instance) const;
 
-				// todo set value
+				void*									GetValue(const void* instance) const;
+				void									SetValue(void* instance, void* value);
 
 				ReflectionDescriptor*					GetReflectionDescriptor() const;
 

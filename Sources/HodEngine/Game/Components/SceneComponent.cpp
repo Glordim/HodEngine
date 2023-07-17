@@ -23,7 +23,7 @@ namespace hod
 		DESCRIBE_REFLECTED_CLASS(SceneComponent, Component)
 		{
 			//AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _position), "Position");
-			AddProperty<Variable>(Variable::Type::Float32, offsetof(SceneComponent, _rotation), "Rotation");
+			AddProperty<Variable>(Variable::Type::Float32, offsetof(SceneComponent, _rotation), "Rotation", nullptr);
 			//AddProperty<Variable>(Variable::Type::Vector2f32, offsetof(SceneComponent, _scale), "Scale");
 		}
 
