@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.4...3.27)
+
+include(Global)
 
 project(Renderer)
 
@@ -11,24 +13,22 @@ file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.h"
 	"${PROJECT_SOURCE_DIR}/*.inl"
 )
-assign_source_group(${Srcs})
+
+file(GLOB_RECURSE Includes
+"${PROJECT_SOURCE_DIR}/*.h"
+"${PROJECT_SOURCE_DIR}/*.inl"
+)
+
+assign_source_group(${Srcs}) # for VS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   "../.."
   ${Stb_INCLUDE_DIRS}
   ${SpirvCross_INCLUDE_DIRS}
   ${Vulkan_INCLUDE_DIRS}
-  ${Glm_INCLUDE_DIRS}
 )
 
-if(MSVC)
-	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
-else()
-	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
-
-add_library(Renderer OBJECT ${Srcs})
+add_library(Renderer OBJECT ${Srcs} ${Includes})
 
 add_dependencies(Renderer Core Window)
 

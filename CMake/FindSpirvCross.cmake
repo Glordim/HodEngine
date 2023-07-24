@@ -1,16 +1,20 @@
 
 if (NOT SpirvCross_FOUND)
 
-	set(VC_LIB_PATH_SUFFIX Release)
+  if(WIN32)
+    set(SPIRVCross_DIR $ENV{VULKAN_SDK})
+  endif()
+
+  message(STATUS "SPIRVCross_DIR = ${SPIRVCross_DIR}")
 
   find_path(SpirvCross_INCLUDE_DIRS
-    NAMES SPIRV-Cross/spirv_cross.hpp
-    HINTS ${SDK_DIR}
+    NAMES spirv_cross/spirv_cross.hpp
+    HINTS ${SPIRVCross_DIR}/Include
   )
   
   find_library(SpirvCross_LIBRARIES NAMES spirv-cross-core libspirv-cross-core
-    HINTS ${SDK_DIR}/Build/SPIRV-Cross
-	PATH_SUFFIXES lib bin ${VC_LIB_PATH_SUFFIX}
+    HINTS ${SPIRVCross_DIR}/Lib
+	PATH_SUFFIXES lib bin
   )
 
   message(STATUS "SpirvCross_INCLUDE_DIRS = ${SpirvCross_INCLUDE_DIRS}")

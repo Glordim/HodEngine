@@ -2,8 +2,8 @@
 if (NOT Stb_FOUND)
 
   find_path (Stb_INCLUDE_DIRS
-    NAMES stb/stb_image.h
-    HINTS ${SDK_DIR}
+    NAMES stb_image.h
+    HINTS ${stb_SOURCE_DIR}
   )
 
   message(STATUS "Stb_INCLUDE_DIRS = ${Stb_INCLUDE_DIRS}")
