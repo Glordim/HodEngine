@@ -30,6 +30,8 @@
 #include "HodEngine/Game/Scene.h"
 #include "HodEngine/Game/World.h"
 
+#include "HodEngine/Application/PlatformDialog.h"
+
 namespace hod::editor
 {
 	_SingletonConstructor(Editor)
@@ -191,6 +193,42 @@ namespace hod::editor
 	bool Editor::Save()
 	{
 		return AssetDatabase::GetInstance()->Save();
+	}
+
+	/// @brief 
+	/// @return 
+	bool Editor::SaveSceneAs()
+	{
+		std::filesystem::path saveLocation = application::dialog::GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
+		if (saveLocation.empty() == true)
+		{
+			return false;
+		}
+
+		Document worldDocument;
+
+		game::World* world = game::World::GetInstance();
+		if (world->SaveToDocument(worldDocument.GetRootNode()) == false)
+		{
+			return false;
+		}
+
+		game::Scene scene;
+		if (scene.DeserializeFromDocument(worldDocument.GetRootNode()) == false)
+		{
+			return false;
+		}
+
+		AssetDatabase::GetInstance()->CreateAsset(&scene, scene.GetReflectionDescriptorV(), saveLocation);
+		// Todo return value is unique path no way if failure ?
+		if (true == false)
+		{
+			return false;
+		}
+
+		// todo open it
+
+		return true;
 	}
 
 	void Editor::OpenAsset(Asset& asset)

@@ -47,6 +47,10 @@ namespace hod
 			Event<std::weak_ptr<Entity>>&	GetRemoveEntityEvent() { return _removeEntityEvent; }
 			Event<std::weak_ptr<Entity>>&	GetRenameEntityEvent() { return _renameEntityEvent; }
 
+//			bool							Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
+
+			bool							SaveToDocument(Document::Node& documentNode);
+
 		protected:
 
 								World();

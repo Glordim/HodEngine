@@ -25,6 +25,11 @@ namespace hod::editor
 				Editor::GetInstance()->Save();
 			}
 
+			if (ImGui::MenuItem("Save scene As", "CTRL+S") == true)
+			{
+				Editor::GetInstance()->SaveSceneAs();
+			}
+
 			if (ImGui::MenuItem("Quit") == true)
 			{
 				application::Application::GetInstance()->Quit();

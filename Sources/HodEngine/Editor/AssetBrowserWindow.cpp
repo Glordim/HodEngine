@@ -279,6 +279,7 @@ namespace hod::editor
 
 			if (ImGui::BeginMenu("Create") == true)
 			{
+				/*
 				if (ImGui::MenuItem("Scene") == true)
 				{
 					game::Scene scene;
@@ -290,6 +291,7 @@ namespace hod::editor
 						ImGui::CloseCurrentPopup();
 					}
 				}
+				*/
 				ImGui::EndMenu();
 			}
 

@@ -3,6 +3,8 @@
 #include "HodEngine/Game/Scene.h"
 #include "HodEngine/Game/Builtin.h"
 
+#include "HodEngine/Game/Component.h"
+
 namespace hod
 {
 	template<>
@@ -158,6 +160,36 @@ namespace hod
 		std::weak_ptr<Entity> World::FindEntity(Entity::Id entityId)
 		{
 			return _entities[entityId];
+		}
+
+		/// @brief 
+		/// @param documentNode 
+		/// @return 
+		bool World::SaveToDocument(Document::Node& documentNode)
+		{
+			Document::Node& entitiesNode = documentNode.AddChild("Entities");
+
+			for (const auto& entityPair : _entities)
+			{
+				std::shared_ptr<Entity> entity = entityPair.second;
+
+				Document::Node& entityNode = entitiesNode.AddChild("");
+
+				entityNode.AddChild("Name").SetString(entity->GetName());
+				entityNode.AddChild("Active").SetBool(entity->GetActive());
+
+				Document::Node& componentsNode = entityNode.AddChild("Components");
+
+				const std::vector<std::weak_ptr<Component>> components =  entity->GetComponents();
+				for (const std::weak_ptr<Component>& component : components)
+				{
+					std::shared_ptr<Component> componentLock = component.lock();
+
+					componentLock->GetReflectionDescriptorV()->SerializeInDocument(reinterpret_cast<void*>(&componentLock), componentsNode.AddChild(""));
+				}
+			}
+
+			return true;
 		}
 	}
 }

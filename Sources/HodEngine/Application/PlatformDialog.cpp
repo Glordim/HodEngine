@@ -31,9 +31,17 @@ namespace hod::application::dialog
 
 	/// @brief 
 	/// @return 
-	std::filesystem::path GetSaveFileDialog()
+	std::filesystem::path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const std::filesystem::path& initialFolder)
 	{
 		char buffer[4096] = { '\0' };
+		strcpy(buffer, "EditMe.");
+		strcat(buffer, typeExtension.data());
+
+		char filter[4096] = { '\0' };
+		strcpy(filter, typeName.data());
+		strcpy(filter + typeName.size() + 1, typeExtension.data());
+
+		std::string initialFolderPath = initialFolder.string();
 
 		OPENFILENAMEA openFileName;
 		ZeroMemory(&openFileName, sizeof(openFileName));
@@ -41,12 +49,19 @@ namespace hod::application::dialog
 		openFileName.hwndOwner = NULL;
 		openFileName.lpstrFile = buffer;
 		openFileName.nMaxFile = sizeof(buffer);
-		openFileName.lpstrFilter = "Hod Project\0*.hod\0";
+		openFileName.lpstrFilter = filter;
 		openFileName.nFilterIndex = 1;
 		openFileName.lpstrFileTitle = NULL;
 		openFileName.nMaxFileTitle = 0;
-		openFileName.lpstrInitialDir = NULL;
-		openFileName.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+		if (initialFolder.empty() == true)
+		{
+			openFileName.lpstrInitialDir = NULL;
+		}
+		else
+		{
+			openFileName.lpstrInitialDir = initialFolderPath.c_str();
+		}
+		openFileName.Flags = 0;//OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 		GetSaveFileNameA(&openFileName);
 

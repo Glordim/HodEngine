@@ -97,6 +97,8 @@ namespace hod
 
 			Node&		operator [] (const std::string_view& name);
 
+
+
 		private:
 
 			union Value
@@ -125,6 +127,10 @@ namespace hod
 			Node&		operator = (const Node&) = delete;
 			Node&		operator = (Node&&) = delete;
 
+		public:
+
+			void		Copy(const Node& source);
+
 		private:
 
 			void		Detach();
@@ -151,7 +157,7 @@ namespace hod
 					Document(Document&&) = delete;
 					~Document() = default;
 
-		Document&	operator = (const Document&) = delete;
+		Document&	operator = (const Document& right);
 		Document&	operator = (Document&&) = delete;
 
 	public:

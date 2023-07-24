@@ -72,6 +72,7 @@ namespace hod::editor
 
 		std::filesystem::path				CreateFolder(const std::filesystem::path& path);
 		std::filesystem::path				CreateAsset(Object& object, const std::filesystem::path& path);
+		std::filesystem::path				CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, const std::filesystem::path& path);
 
 		template<typename _Object_>
 		std::filesystem::path				CreateAsset(const std::filesystem::path& path);

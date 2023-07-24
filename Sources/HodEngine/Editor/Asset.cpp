@@ -86,6 +86,15 @@ namespace hod::editor
 	/// @return 
 	bool Asset::Save(Object* object)
 	{
+		return Save(object, object->GetReflectionDescriptorV());
+	}
+
+	/// @brief 
+	/// @param instance 
+	/// @param reflectionDescriptor 
+	/// @return 
+	bool Asset::Save(void* instance, ReflectionDescriptor* reflectionDescriptor)
+	{
 		Document metaDocument;
 		if (Meta::GetReflectionDescriptor()->SerializeInDocument(_meta, metaDocument.GetRootNode()) == false)
 		{

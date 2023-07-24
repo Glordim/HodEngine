@@ -43,6 +43,7 @@ namespace hod::editor
 		bool			OpenProject(const std::filesystem::path& path);
 
 		bool			Save();
+		bool			SaveSceneAs();
 
 		void									SetEntitySelection(std::weak_ptr<game::Entity> selection);
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);

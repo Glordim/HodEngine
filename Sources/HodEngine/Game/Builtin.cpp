@@ -27,7 +27,7 @@ namespace hod
 			game::ActorReflection::CreateInstance();
 
 			ActorReflection* actorReflection = ActorReflection::GetInstance();
-			actorReflection->Register<Actor>();
+			//actorReflection->Register<Actor>();
 
 			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 			componentFactory->Register<NodeComponent>();

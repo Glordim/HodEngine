@@ -379,6 +379,41 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @param right 
+	/// @return 
+	Document& Document::operator = (const Document& right)
+	{
+		_root.Copy(right._root);
+		return *this;
+	}
+
+	/// @brief 
+	/// @param source 
+	void Document::Node::Copy(const Document::Node& source)
+	{
+		_name = source._name;
+		_type = source._type;
+
+		if (_type == Type::String)
+		{
+			SetString(source.GetString());
+		}
+		else
+		{
+			_value = source._value;
+		}
+
+		Document::Node* sourceChild = source._firstChild;
+		while (sourceChild != nullptr)
+		{
+			Document::Node& child = AddChild("");
+			child.Copy(*sourceChild);
+
+			sourceChild = sourceChild->_nextSibling;
+		}
+	}
+
+	/// @brief 
 	/// @return 
 	Document::Node& Document::GetRootNode() const
 	{

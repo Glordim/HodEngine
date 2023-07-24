@@ -227,6 +227,16 @@ namespace hod::editor
 	/// @return 
 	std::filesystem::path AssetDatabase::CreateAsset(Object& object, const std::filesystem::path& path)
 	{
+		return CreateAsset(&object, object.GetReflectionDescriptorV(), path);
+	}
+
+	/// @brief 
+	/// @param instance 
+	/// @param reflectionDescriptor 
+	/// @param path 
+	/// @return 
+	std::filesystem::path AssetDatabase::CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, const std::filesystem::path& path)
+	{
 		FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
 		childFileSystemMapping->_path = path;
 		//childFileSystemMapping->_path.replace_extension(".asset");
@@ -237,7 +247,7 @@ namespace hod::editor
 		childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
 		childFileSystemMapping->_asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 
-		if (childFileSystemMapping->_asset->Save(&object) == false)
+		if (childFileSystemMapping->_asset->Save(instance, reflectionDescriptor) == false)
 		{
 			// TODO message better return value
 			return childFileSystemMapping->_path;
