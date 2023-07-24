@@ -19,6 +19,7 @@ project(HodEngine) # Rename
 add_subdirectory("Sources/HodEngine/Core")
 add_subdirectory("Sources/HodEngine/Window")
 add_subdirectory("Sources/HodEngine/Renderer")
+add_subdirectory("Sources/HodEngine/ImGui")
 
 #add_subdirectory("Sources/HodEngine")
 #add_subdirectory("Sources/GameApplication")

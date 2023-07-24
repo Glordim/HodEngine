@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.4...3.27)
+
+include(Global)
 
 project(ImGui)
 
@@ -7,18 +9,17 @@ file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.h"
 	"${PROJECT_SOURCE_DIR}/*.inl"
 )
-assign_source_group(${Srcs})
 
-if(MSVC)
-	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
-else()
-	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
+file(GLOB_RECURSE Includes
+"${PROJECT_SOURCE_DIR}/*.h"
+"${PROJECT_SOURCE_DIR}/*.inl"
+)
 
-add_library(ImGui OBJECT ${Srcs})
+assign_source_group(${Srcs}) # for VS
 
-add_dependencies(ImGui Core ImGui Window Renderer)
+add_library(ImGui OBJECT ${Srcs} ${Includes})
+
+add_dependencies(ImGui Core Window Renderer)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
 get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)

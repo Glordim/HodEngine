@@ -14,8 +14,6 @@
 #include "HodEngine/ImGui/Window.h"
 #include "HodEngine/ImGui/MainBar.h"
 
-#include <glm/vec2.hpp>
-
 #include <HodEngine/Renderer/Renderer.h>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandImGui.h>
 #include <HodEngine/Renderer/RHI/Texture.h>
@@ -194,8 +192,8 @@ namespace hod::imgui
 
 			renderer::RenderCommandImGui::DrawList* drawList = new renderer::RenderCommandImGui::DrawList();
 
-			memcpy(&drawList->_displayPosition, &drawData->DisplayPos, sizeof(glm::vec2));
-			memcpy(&drawList->_displaySize, &drawData->DisplaySize, sizeof(glm::vec2));
+			memcpy(&drawList->_displayPosition, &drawData->DisplayPos, sizeof(Vector2));
+			memcpy(&drawList->_displaySize, &drawData->DisplaySize, sizeof(Vector2));
 
 			drawList->_vertices.resize(imDrawList->VtxBuffer.Size);
 			memcpy(drawList->_vertices.data(), imDrawList->VtxBuffer.Data, imDrawList->VtxBuffer.Size * sizeof(renderer::RenderCommandImGui::Vertex));
@@ -209,10 +207,10 @@ namespace hod::imgui
 				ImDrawCmd& imCommand = imDrawList->CmdBuffer[cmdIndex];
 				renderer::RenderCommandImGui::Command& command = drawList->_commands[cmdIndex];
 
-				command._clipRect._position.x = imCommand.ClipRect.x;
-				command._clipRect._position.y = imCommand.ClipRect.y;
-				command._clipRect._size.x = imCommand.ClipRect.z - imCommand.ClipRect.x;
-				command._clipRect._size.y = imCommand.ClipRect.w - imCommand.ClipRect.y;
+				command._clipRect._position.SetX(imCommand.ClipRect.x);
+				command._clipRect._position.SetY(imCommand.ClipRect.y);
+				command._clipRect._size.SetX(imCommand.ClipRect.z - imCommand.ClipRect.x);
+				command._clipRect._size.SetY(imCommand.ClipRect.w - imCommand.ClipRect.y);
 				command._texture = reinterpret_cast<renderer::Texture*>(imCommand.TextureId);
 				command._vertexOffset = imCommand.VtxOffset;
 				command._indexOffset = imCommand.IdxOffset;
@@ -223,10 +221,10 @@ namespace hod::imgui
 		}
 
 		Rect viewport;
-		viewport._position.x = 0.0f;
-		viewport._position.y = 0.0f;
-		viewport._size.x = ImGui::GetIO().DisplaySize.x;
-		viewport._size.y = ImGui::GetIO().DisplaySize.y;
+		viewport._position.SetX(0.0f);
+		viewport._position.SetY(0.0f);
+		viewport._size.SetX(ImGui::GetIO().DisplaySize.x);
+		viewport._size.SetY(ImGui::GetIO().DisplaySize.y);
 		
 		renderer::RenderCommandImGui* renderCommand = new renderer::RenderCommandImGui(drawLists, viewport);
 
