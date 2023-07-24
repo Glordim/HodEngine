@@ -1,8 +1,6 @@
 #pragma once
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include <glm/vec2.hpp>
+#include "HodEngine/Core/Math/Vector2.h"
 
 namespace hod
 {
@@ -11,7 +9,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	struct Rect
 	{
-		glm::vec2	_position;
-		glm::vec2	_size;
+		Vector2	_position;
+		Vector2	_size;
 	};
 }

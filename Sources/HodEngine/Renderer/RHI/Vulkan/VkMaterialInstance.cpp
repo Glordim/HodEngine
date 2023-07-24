@@ -91,7 +91,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void VkMaterialInstance::ApplyVec4(const std::string& memberName, const glm::vec4& value)
+		void VkMaterialInstance::ApplyVec4(const std::string& memberName, const Vector4& value)
 		{
 			size_t descriptorSetCount = _descriptorSets.size();
 			for (size_t i = 0; i < descriptorSetCount; ++i)

@@ -3,11 +3,6 @@
 #include <map>
 #include <string>
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include "glm/vec4.hpp"
-#include "glm/mat4x4.hpp"
-
 namespace hod
 {
 	namespace renderer

@@ -1,9 +1,5 @@
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include "glm/glm.hpp"
-
 #include "HodEngine/Renderer/RenderQueue.h"
 
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.h"
@@ -473,7 +469,7 @@ namespace hod::renderer
 		VkWin32SurfaceCreateInfoKHR createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.flags = 0;
-		createInfo.hwnd = win32Window->GetWindowHandle();
+		createInfo.hwnd = (HWND)win32Window->GetWindowHandle();
 		createInfo.hinstance = win32Window->GetInstanceHandle();
 		createInfo.pNext = nullptr;
 

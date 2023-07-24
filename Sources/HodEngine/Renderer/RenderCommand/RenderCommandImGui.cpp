@@ -6,12 +6,6 @@
 
 #include "HodEngine/Renderer/Renderer.h"
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
-
 #include <cstring>
 
 #include "HodEngine/Renderer/RHI/VertexInput.h"
@@ -170,8 +164,8 @@ namespace hod
 
 			struct Constant
 			{
-				glm::vec2	_scale;
-				glm::vec2	_translate;
+				Vector2	_scale;
+				Vector2	_translate;
 			};
 
 			for (int drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
@@ -214,10 +208,10 @@ namespace hod
 				commandBuffer->SetIndexBuffer(indexBuffer, 0);
 
 				Constant constant;
-				constant._scale.x = 2.0f / drawList->_displaySize.x;
-				constant._scale.y = 2.0f / drawList->_displaySize.y;
-				constant._translate.x = -1.0f - drawList->_displayPosition.x * constant._scale.x;
-				constant._translate.y = -1.0f - drawList->_displayPosition.y * constant._scale.y;
+				constant._scale.SetX(2.0f / drawList->_displaySize.GetX());
+				constant._scale.SetY(2.0f / drawList->_displaySize.GetY());
+				constant._translate.SetX(-1.0f - drawList->_displayPosition.GetX() * constant._scale.GetX());
+				constant._translate.SetY(-1.0f - drawList->_displayPosition.GetY() * constant._scale.GetY());
 
 				for (int commandIndex = 0; commandIndex < drawList->_commands.size(); ++commandIndex)
 				{

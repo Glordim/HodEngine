@@ -5,9 +5,6 @@
 
 #include <HodEngine/Core/Rect.h>
 
-#include <glm/vec2.hpp>
-#include <glm/vec4.hpp>
-
 #include <vector>
 
 namespace hod
@@ -27,14 +24,14 @@ namespace hod
 
 			struct Vertex
 			{
-				glm::vec2	_position;
-				glm::vec2	_uv;
+				Vector2		_position;
+				Vector2		_uv;
 				uint32_t	_color;
 			};
 
 			struct Command
 			{
-				Rect	_clipRect;
+				Rect		_clipRect;
 				Texture*	_texture;
 				uint32_t	_vertexOffset;
 				uint32_t	_indexOffset;
@@ -43,8 +40,8 @@ namespace hod
 
 			struct DrawList
 			{
-				glm::vec2				_displayPosition;
-				glm::vec2				_displaySize;
+				Vector2				_displayPosition;
+				Vector2				_displaySize;
 
 				std::vector<Vertex>		_vertices;
 				std::vector<uint16_t>	_indices;

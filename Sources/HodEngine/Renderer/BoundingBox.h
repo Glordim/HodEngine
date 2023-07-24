@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/vec3.hpp>
+#include "HodEngine/Core/Math/Vector2.h"
 
 namespace hod
 {
@@ -11,10 +11,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		struct BoundingBox
 		{
-			glm::vec3 center;
-			glm::vec3 size;
-			glm::vec3 min;
-			glm::vec3 max;
+			Vector2 center;
+			Vector2 size;
+			Vector2 min;
+			Vector2 max;
 		};
 	}
 }

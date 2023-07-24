@@ -58,7 +58,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void MaterialInstance::SetVec4(const std::string& memberName, const glm::vec4& value)
+		void MaterialInstance::SetVec4(const std::string& memberName, const Vector4& value)
 		{
 			_vec4Map[memberName] = value;
 			ApplyVec4(memberName, value);
@@ -109,7 +109,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const glm::vec4& MaterialInstance::GetVec4(const std::string& memberName)
+		const Vector4& MaterialInstance::GetVec4(const std::string& memberName)
 		{
 			return _vec4Map[memberName];
 		}

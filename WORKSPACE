@@ -1,14 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
-	name = "glm",
-	url = "https://github.com/g-truc/glm/archive/refs/tags/0.9.9.8.zip",
-	sha256 = "4605259c22feadf35388c027f07b345ad3aa3b12631a5a316347f7566c6f1839",
-	build_file = "@//bazel:glm.BUILD",
-	strip_prefix = "glm-0.9.9.8",
-)
-
-http_archive(
 	name = "stb",
 	url = "https://github.com/nothings/stb/archive/refs/heads/master.zip",
 	build_file = "@//bazel:stb.BUILD",

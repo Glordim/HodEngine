@@ -207,10 +207,10 @@ namespace hod
 		void CommandBufferVk::SetViewport(const Rect& viewport)
 		{
 			VkViewport vkViewport = {};
-			vkViewport.x = viewport._position.x;
-			vkViewport.y = viewport._position.y;
-			vkViewport.width = viewport._size.x;
-			vkViewport.height = viewport._size.y;
+			vkViewport.x = viewport._position.GetX();
+			vkViewport.y = viewport._position.GetY();
+			vkViewport.width = viewport._size.GetX();
+			vkViewport.height = viewport._size.GetY();
 			vkViewport.minDepth = 0.0f;
 			vkViewport.maxDepth = 1.0f;
 
@@ -222,8 +222,8 @@ namespace hod
 		void CommandBufferVk::SetScissor(const Rect& scissor)
 		{
 			VkRect2D vkScissor = {};
-			vkScissor.offset = { (int32_t)scissor._position.x, (int32_t)scissor._position.y };
-			vkScissor.extent = { (uint32_t)scissor._size.x, (uint32_t)scissor._size.y };
+			vkScissor.offset = { (int32_t)scissor._position.GetX(), (int32_t)scissor._position.GetY() };
+			vkScissor.extent = { (uint32_t)scissor._size.GetX(), (uint32_t)scissor._size.GetY() };
 
 			vkCmdSetScissor(_vkCommandBuffer, 0, 1, &vkScissor);
 		}

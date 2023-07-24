@@ -32,7 +32,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const glm::vec2& Sprite::GetSize() const
+		const Vector2& Sprite::GetSize() const
 		{
 			return _size;
 		}
@@ -40,7 +40,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const glm::vec2& Sprite::GetPivot() const
+		const Vector2& Sprite::GetPivot() const
 		{
 			return _pivot;
 		}
@@ -74,39 +74,39 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void Sprite::RebuildBoundingBox()
 		{
-			_boundingBox.min.x = std::numeric_limits<float>().max();
-			_boundingBox.min.y = std::numeric_limits<float>().max();
-			_boundingBox.max.x = std::numeric_limits<float>().lowest();
-			_boundingBox.max.y = std::numeric_limits<float>().lowest();
+			_boundingBox.min.SetX(std::numeric_limits<float>().max());
+			_boundingBox.min.SetY(std::numeric_limits<float>().max());
+			_boundingBox.max.SetX(std::numeric_limits<float>().lowest());
+			_boundingBox.max.SetY(std::numeric_limits<float>().lowest());
 
 			for (const P2fT2f& vertex : _vertices)
 			{
 				float x = vertex._position[0];
 				float y = vertex._position[1];
 
-				if (x < _boundingBox.min.x)
+				if (x < _boundingBox.min.GetX())
 				{
-					_boundingBox.min.x = x;
+					_boundingBox.min.SetX(x);
 				}
-				if (x > _boundingBox.max.x)
+				if (x > _boundingBox.max.GetX())
 				{
-					_boundingBox.max.x = x;
+					_boundingBox.max.SetX(x);
 				}
 
-				if (y < _boundingBox.min.y)
+				if (y < _boundingBox.min.GetY())
 				{
-					_boundingBox.min.y = y;
+					_boundingBox.min.SetY(y);
 				}
-				if (y > _boundingBox.max.y)
+				if (y > _boundingBox.max.GetY())
 				{
-					_boundingBox.max.y = y;
+					_boundingBox.max.SetY(y);
 				}
 			}
 
-			_boundingBox.size.x = _boundingBox.max.x - _boundingBox.min.x;
-			_boundingBox.size.y = _boundingBox.max.y - _boundingBox.min.y;
-			_boundingBox.center.x = _boundingBox.min.x + _boundingBox.size.x * 0.5f;
-			_boundingBox.center.y = _boundingBox.min.y + _boundingBox.size.y * 0.5f;
+			_boundingBox.size.SetX(_boundingBox.max.GetX() - _boundingBox.min.GetX());
+			_boundingBox.size.SetY(_boundingBox.max.GetY() - _boundingBox.min.GetY());
+			_boundingBox.center.SetX(_boundingBox.min.GetX() + _boundingBox.size.GetX() * 0.5f);
+			_boundingBox.center.SetY(_boundingBox.min.GetY() + _boundingBox.size.GetY() * 0.5f);
 		}
 	}
 }
