@@ -3,16 +3,15 @@
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
 
-#if defined(_WIN32)
+#if defined(PLATFORM_WINDOWS)
 	#include <Windows.h>
 	#include <rpcdce.h>
 
 	#pragma comment(lib, "Rpcrt4.lib")
 
 	using Uuid = UUID;
-
-#elif defined(__linux__)
-	#include <uuid/uuid.h>
+#elif defined(PLATFORM_LINUX)
+	#include <uuid/uuid.h> // install uuid-dev package (libuuid)
 
 	using Uuid = uuid_t;
 #endif

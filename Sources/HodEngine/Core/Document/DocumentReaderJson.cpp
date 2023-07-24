@@ -5,6 +5,8 @@
 #include "HodEngine/Core/Output.h"
 #include "HodEngine/Core/StringConversion.h"
 
+#include <cstring>
+
 namespace hod
 {
 	/// @brief 

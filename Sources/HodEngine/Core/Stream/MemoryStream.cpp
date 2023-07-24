@@ -1,6 +1,7 @@
 #include "HodEngine/Core/Stream/MemoryStream.h"
 
 #include <cstdio>
+#include <cstring>
 
 namespace hod
 {

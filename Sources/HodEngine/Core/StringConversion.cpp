@@ -1,6 +1,9 @@
 #include "HodEngine/Core/StringConversion.h"
 #include "HodEngine/Core/Output.h"
 
+#include <cstdlib>
+#include <limits>
+
 namespace hod
 {
 	namespace StringConversion

@@ -2,6 +2,7 @@
 #include "HodEngine/Core/Math/Vector2.h"
 
 #include <cstring>
+#include <cmath>
 
 namespace hod
 {

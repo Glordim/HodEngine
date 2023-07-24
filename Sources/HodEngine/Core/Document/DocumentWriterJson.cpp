@@ -2,6 +2,7 @@
 #include "HodEngine/Core/Stream/Stream.h"
 
 #include <algorithm>
+#include <cstring>
 
 namespace hod
 {

@@ -5,7 +5,6 @@ project(Renderer)
 find_package(Vulkan REQUIRED)
 find_package(SpirvCross REQUIRED)
 find_package(Stb REQUIRED)
-find_package(Glm REQUIRED)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.cpp"

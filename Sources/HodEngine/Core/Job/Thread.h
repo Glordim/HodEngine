@@ -1,9 +1,12 @@
 #pragma once
 
 #include <vector>
+#include <cstdint>
 
 #if defined(PLATFORM_WINDOWS)
 	#include <Windows.h>
+#elif defined(PLATFORM_LINUX)
+	#include <pthread.h>
 #endif
 
 namespace hod
@@ -15,6 +18,9 @@ namespace hod
 
 #if defined(PLATFORM_WINDOWS)
 		using Id = DWORD;
+		static constexpr Id InvalidId = 0;
+#elif defined(PLATFORM_LINUX)
+		using Id = pthread_t;
 		static constexpr Id InvalidId = 0;
 #endif
 

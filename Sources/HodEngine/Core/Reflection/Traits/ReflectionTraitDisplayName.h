@@ -2,6 +2,8 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.h"
 
+#include <string>
+
 namespace hod
 {
 	///@brief 

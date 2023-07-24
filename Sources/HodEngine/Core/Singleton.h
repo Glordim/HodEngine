@@ -64,7 +64,7 @@ namespace hod
 	template<typename T>
 	class Singleton
 	{
-		friend typename T;
+		friend T;
 
 	public:
 
