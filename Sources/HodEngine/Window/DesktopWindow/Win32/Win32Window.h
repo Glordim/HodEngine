@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(PLATFORM_WINDOWS)
+
 #include <Windows.h>
 
 #include "HodEngine/Window/DesktopWindow/DesktopWindow.h"
@@ -23,7 +25,7 @@ namespace hod::window
 
 		void								Update() override;
 
-		HWND								GetWindowHandle() const;
+		WindowHandle						GetWindowHandle() const override;
 		HINSTANCE							GetInstanceHandle() const;
 
 		void								SetSize(uint16_t width, uint16_t height) override;
@@ -50,3 +52,5 @@ namespace hod::window
 		std::vector<std::function<void()>>	_runOnWin32Thread;
 	};
 }
+
+#endif

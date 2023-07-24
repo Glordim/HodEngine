@@ -1,3 +1,5 @@
+#if defined(PLATFORM_WINDOWS)
+
 #include "Win32Window.h"
 
 #include <string>
@@ -195,9 +197,9 @@ namespace hod::window
 
 	/// @brief 
 	/// @return 
-	HWND Win32Window::GetWindowHandle() const
+	DesktopWindow::WindowHandle Win32Window::GetWindowHandle() const
 	{
-		return _hWnd;
+		return (DesktopWindow::WindowHandle)_hWnd;
 	}
 
 	/// @brief 
@@ -254,3 +256,5 @@ namespace hod::window
 		}
 	}
 }
+
+#endif

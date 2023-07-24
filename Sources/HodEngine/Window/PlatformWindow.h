@@ -12,8 +12,8 @@
 
 #elif defined(PLATFORM_LINUX)
 
-	//#include "GraphicApplications/DesktopApplications/LinuxApplication.h"
-	//#define PlatformApplication LinuxApplication
+	#include "HodEngine/Window/DesktopWindow/Wayland/WaylandWindow.h"
+	#define PlatformWindow hod::window::WaylandWindow
 
 #elif defined(PLATFORM_ANDROID)
 

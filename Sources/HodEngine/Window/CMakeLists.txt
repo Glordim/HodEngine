@@ -1,22 +1,27 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.4...3.27)
+
+include(Global)
 
 project(Window)
+
+if(UNIX)
+	find_package(Wayland REQUIRED)
+endif()
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.cpp"
 	"${PROJECT_SOURCE_DIR}/*.h"
 	"${PROJECT_SOURCE_DIR}/*.inl"
 )
-assign_source_group(${Srcs})
 
-add_library(Window OBJECT ${Srcs})
+file(GLOB_RECURSE Includes
+	"${PROJECT_SOURCE_DIR}/*.h"
+	"${PROJECT_SOURCE_DIR}/*.inl"
+)
 
-if(MSVC)
-	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
-else()
-	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
+assign_source_group(${Srcs}) # for VS
+
+add_library(Window OBJECT ${Srcs} ${Includes})
 
 add_dependencies(Window Core)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
@@ -24,10 +29,12 @@ get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
 	${Core_INCLUDES}
+	${WAYLAND_CLIENT_INCLUDE_DIR}
 )
 
 target_link_libraries(Window
 	Core
+	${WAYLAND_CLIENT_LIBRARIES}
 )
 
-target_compile_definitions(Window PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+target_compile_definitions(Window PUBLIC ${PLATFORM_DEFINE})
