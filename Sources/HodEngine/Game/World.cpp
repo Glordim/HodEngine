@@ -123,7 +123,7 @@ namespace hod
 		{
 			for (Scene* pScene : _scenes)
 			{
-				pScene->Update(dt);
+				//pScene->Update(dt);
 			}
 		}
 

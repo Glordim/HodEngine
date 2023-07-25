@@ -3,10 +3,7 @@
 #include <vector>
 
 #include "HodEngine/Game/Component.h"
-
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include "glm/mat4x4.hpp"
+#include "HodEngine/Core/Math/Matrix4.h"
 
 #include "../Scene.h"
 
@@ -21,8 +18,6 @@ namespace hod
 
 	namespace game
 	{
-		class PointLightComponent;
-
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -44,7 +39,7 @@ namespace hod
 
 			void						Render(Scene& scene);
 
-			const glm::mat4&			GetProjectionMatrix();
+			const Matrix4&				GetProjectionMatrix();
 
 			void						SetHdriMaterial(renderer::MaterialInstance* hdriMat, renderer::Texture* hdriTexture);
 
@@ -62,7 +57,7 @@ namespace hod
 			renderer::MaterialInstance*	_hdriMat;
 			renderer::Texture*			_hdriTexture;
 
-			glm::mat4					_projectionMatrix;
+			Matrix4						_projectionMatrix;
 		};
 	}
 }

@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "HodEngine/Core/Event.h"
+#include "HodEngine/Core/Document/Document.h"
 
 namespace hod
 {

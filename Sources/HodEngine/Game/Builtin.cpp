@@ -6,7 +6,6 @@
 #include "HodEngine/Game/Components/CameraComponent.h"
 #include "HodEngine/Game/Components/ColliderComponent.h"
 #include "HodEngine/Game/Components/RendererComponent.h"
-#include "HodEngine/Game/Components/SceneComponent.h"
 #include "HodEngine/Game/Components/SpriteComponent.h"
 #include "HodEngine/Game/Components/Light/PointLightComponent.h"
 #include "HodEngine/Game/Components/Light/DirLightComponent.h"

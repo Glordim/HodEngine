@@ -1,10 +1,7 @@
 #pragma once
 
 #include "HodEngine/Game/Component.h"
-
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include <glm/glm.hpp>
+#include "HodEngine/Core/Math/Vector2.h"
 
 #include <vector>
 
@@ -40,10 +37,10 @@ namespace hod
 
 			const char*		GetType() const override;
 
-			void			AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition);
-			void			AddCircleShape(const glm::vec2& position, float radius);
-			void			AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle, float density);
-			void			AddConvexShape(const std::vector<const glm::vec2>& vertices);
+			void			AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition);
+			void			AddCircleShape(const Vector2& position, float radius);
+			void			AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density);
+			void			AddConvexShape(const std::vector<const Vector2>& vertices);
 		};
 	}
 }

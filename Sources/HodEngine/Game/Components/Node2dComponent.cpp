@@ -8,6 +8,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+#include "HodEngine/Core/Math/Math.h"
+
 namespace hod
 {
 	using namespace Reflection::Property;
@@ -36,7 +38,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void Node2dComponent::ComputeLocalMatrix(Matrix4& localMatrix)
 		{
-			localMatrix = Matrix4::Translation(_position) * Matrix4::Rotation(_rotation * (pi / 180)) * Matrix4::Scale(_scale);
+			localMatrix = Matrix4::Translation(_position) * Matrix4::Rotation(math::DegreeToRadian(_rotation)) * Matrix4::Scale(_scale);
 		}
 
 		//-----------------------------------------------------------------------------

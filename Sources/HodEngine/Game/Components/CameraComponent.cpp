@@ -2,19 +2,10 @@
 
 #include <HodEngine/Core/Rect.h>
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include "glm/gtc/matrix_transform.hpp"
-
-#include "HodEngine/Game/Components/SceneComponent.h"
-
 #include <HodEngine/Renderer/Renderer.h>
 #include <HodEngine/Renderer/RenderQueue.h>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.h>
 #include "../RenderQueueHelper.h"
-
-
-//#include <HodEngine/Window/Applications/GraphicApplications/GraphicApplication.h>
 
 namespace hod
 {
@@ -64,17 +55,17 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const glm::mat4& CameraComponent::GetProjectionMatrix()
+		const Matrix4& CameraComponent::GetProjectionMatrix()
 		{
 			if (_dirtyFlag == true)
 			{
 				if (_perspective == true)
 				{
-					_projectionMatrix = glm::perspective(glm::radians(_fov), _aspect, _near, _far);
+					_projectionMatrix = Matrix4::Identity;//glm::perspective(glm::radians(_fov), _aspect, _near, _far);
 				}
 				else
 				{
-					_projectionMatrix = glm::ortho(-_aspect * 0.5f, _aspect * 0.5f, -0.5f, 0.5f, _near, _far);
+					_projectionMatrix = Matrix4::OrthogonalProjection(-_aspect * 0.5f, _aspect * 0.5f, -0.5f, 0.5f, _near, _far);
 				}
 
 				_dirtyFlag = false;
@@ -120,10 +111,10 @@ namespace hod
 			}
 
 			Rect viewport;
-			viewport._position.x = 0;
-			viewport._position.y = 0;
-			viewport._size.x = 1.0f;
-			viewport._size.y = 1.0f;
+			viewport._position.SetX(0);
+			viewport._position.SetY(0);
+			viewport._size.SetX(1.0f);
+			viewport._size.SetY(1.0f);
 			//renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(GetProjectionMatrix(), glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()), viewport));
 		}
 	}

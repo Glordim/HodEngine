@@ -1,10 +1,5 @@
 #include "HodEngine/Game/Components/ColliderComponent.h"
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include "glm/vec3.hpp"
-
-#include "HodEngine/Game/Actor.h"
 #include "HodEngine/Game/Scene.h"
 
 #include <HodEngine/Physics/Actor.h>
@@ -46,7 +41,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void ColliderComponent::AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition)
+		void ColliderComponent::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
 		{
 			//GetActor()->GetPhysicActor()->AddEdgeShape(startPosition, endPosition);
 		}
@@ -54,7 +49,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void ColliderComponent::AddCircleShape(const glm::vec2& position, float radius)
+		void ColliderComponent::AddCircleShape(const Vector2& position, float radius)
 		{
 			//GetActor()->GetPhysicActor()->AddCircleShape(position, radius);
 		}
@@ -62,7 +57,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void ColliderComponent::AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle, float density)
+		void ColliderComponent::AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density)
 		{
 			//GetActor()->GetPhysicActor()->AddBoxShape(position, size, angle, density);
 		}
@@ -70,7 +65,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void ColliderComponent::AddConvexShape(const std::vector<const glm::vec2>& vertices)
+		void ColliderComponent::AddConvexShape(const std::vector<const Vector2>& vertices)
 		{
 			//GetActor()->GetPhysicActor()->AddConvexShape(vertices);
 		}

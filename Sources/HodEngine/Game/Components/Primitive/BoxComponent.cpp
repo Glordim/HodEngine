@@ -10,8 +10,6 @@
 #include <HodEngine/Renderer/SpriteAtlas.h>
 #include <HodEngine/Renderer/P2fT2f.h>
 
-#include "HodEngine/Game/Actor.h"
-
 #include <array>
 
 namespace hod

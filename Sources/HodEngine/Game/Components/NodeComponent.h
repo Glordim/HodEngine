@@ -2,12 +2,6 @@
 
 #include "HodEngine/Game/Component.h"
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 #include "HodEngine/Core/Math/Matrix4.h"
 
 #include <vector>
@@ -54,7 +48,7 @@ namespace hod
 
 		private:
 
-			void							ComputeWorldMatrix(const glm::mat4& parentMatrix);
+			void							ComputeWorldMatrix(const Matrix4& parentMatrix);
 
 		private:
 

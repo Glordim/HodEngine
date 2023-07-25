@@ -6,7 +6,6 @@
 #include "HodEngine/Game/Component/Light/PointLightComponent.h"
 #include "HodEngine/Game/Component/Light/SpotLightComponent.h"
 */
-#include "HodEngine/Game/Actor.h"
 #include "HodEngine/Game/Scene.h"
 
 #include <HodEngine/Renderer/RenderQueue.h>

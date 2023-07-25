@@ -4,8 +4,6 @@ include(Global)
 
 project(Physics)
 
-#find_package(Box2d REQUIRED)
-
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.cpp"
 	"${PROJECT_SOURCE_DIR}/*.h"
@@ -24,7 +22,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	${box2d_INCLUDE_DIRS}
 )
 
-add_library(Physics OBJECT ${Srcs})
+add_library(Physics OBJECT ${Srcs} ${Includes})
 
 add_dependencies(Physics Core Renderer)
 

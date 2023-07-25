@@ -7,8 +7,6 @@
 #include <HodEngine/Renderer/Sprite.h>
 #include <HodEngine/Renderer/SpriteAtlas.h>
 
-#include "HodEngine/Game/Actor.h"
-
 namespace hod
 {
 	namespace game
