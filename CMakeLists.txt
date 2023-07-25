@@ -52,6 +52,6 @@ add_subdirectory("Sources/HodEngine/Game")
 add_subdirectory("Sources/HodEngine/Editor")
 add_subdirectory("Sources/HodEngine/Application")
 
-#add_subdirectory("Sources/HodEngine")
+add_subdirectory("Sources/HodEngine")
 #add_subdirectory("Sources/GameApplication")
 #add_subdirectory("Sources/EditorApplication")
