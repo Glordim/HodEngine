@@ -49,6 +49,7 @@ add_subdirectory("Sources/HodEngine/Renderer")
 add_subdirectory("Sources/HodEngine/ImGui")
 add_subdirectory("Sources/HodEngine/Physics")
 add_subdirectory("Sources/HodEngine/Game")
+add_subdirectory("Sources/HodEngine/Editor")
 
 #add_subdirectory("Sources/HodEngine")
 #add_subdirectory("Sources/GameApplication")

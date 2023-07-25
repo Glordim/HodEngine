@@ -14,11 +14,6 @@
 #include "HodEngine/Core/Rect.h"
 #include "HodEngine/Core/Math/Matrix4.h"
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#include "glm/mat4x4.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(ViewportWindow, "Viewport", true)
@@ -55,13 +50,13 @@ namespace hod::editor
 			renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 
 			Rect viewport;
-			viewport._size.x = windowWidth;
-			viewport._size.y = windowHeight;
-			viewport._position.x = 0;
-			viewport._position.y = 0;
+			viewport._size.SetX(windowWidth);
+			viewport._size.SetY(windowHeight);
+			viewport._position.SetX(0);
+			viewport._position.SetY(0);
 
 			float size = 5.0f;
-			float aspect = viewport._size.x / viewport._size.y;
+			float aspect = viewport._size.GetX() / viewport._size.GetY();
 
 			Matrix4 projection = Matrix4::OrthogonalProjection(-1 * aspect, 1 * aspect, -1, 1, -1024.0f, 1024.0f);
 			Matrix4 view = Matrix4::Identity; //glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());

@@ -8,7 +8,6 @@
 #include "HodEngine/Editor/Asset.h"
 #include "HodEngine/Editor/PropertyDrawer.h"
 
-#include "HodEngine/Game/Actor.h"
 #include "HodEngine/Game/Entity.h"
 #include "HodEngine/Game/Components/NodeComponent.h"
 

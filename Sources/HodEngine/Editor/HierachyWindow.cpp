@@ -7,7 +7,6 @@
 
 #include "HodEngine/Game/World.h"
 #include "HodEngine/Game/Scene.h"
-#include "HodEngine/Game/Actor.h"
 
 #include "HodEngine/Game/Components/NodeComponent.h"
 

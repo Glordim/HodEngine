@@ -114,10 +114,10 @@ namespace hod::editor
 			return false;
 		}
 
-		if (object != nullptr)
+		if (instance != nullptr)
 		{
 			Document objectDocument;
-			if (object->GetReflectionDescriptorV()->SerializeInDocument((const void*)object, objectDocument.GetRootNode()) == false)
+			if (reflectionDescriptor->SerializeInDocument((const void*)instance, objectDocument.GetRootNode()) == false)
 			{
 				return false;
 			}
