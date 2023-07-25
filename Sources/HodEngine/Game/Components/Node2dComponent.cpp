@@ -1,11 +1,5 @@
 #include "Node2dComponent.h"
 
-#define GLM_DEPTH_ZERO_TO_ONE 1
-#define GLM_FORCE_LEFT_HANDED 1
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
-
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.h>
@@ -13,8 +7,6 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-
-constexpr float pi = 3.14159265358979323846f;
 
 namespace hod
 {

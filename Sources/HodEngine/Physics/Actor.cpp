@@ -2,9 +2,6 @@
 
 #include "Physics.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 #include <box2d/b2_body.h>
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_edge_shape.h>
@@ -14,6 +11,8 @@
 #include <HodEngine/Renderer/BoundingBox.h>
 
 #include <algorithm>
+
+#include "HodEngine/Core/Math/Math.h"
 
 namespace hod
 {
@@ -30,10 +29,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::AddEdgeShape(const glm::vec2& startPosition, const glm::vec2& endPosition)
+		void Actor::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
 		{
 			b2EdgeShape shape;
-			shape.SetTwoSided(b2Vec2(startPosition.x, startPosition.y), b2Vec2(endPosition.x, endPosition.y));
+			shape.SetTwoSided(b2Vec2(startPosition.GetX(), startPosition.GetY()), b2Vec2(endPosition.GetX(), endPosition.GetY()));
 			shape.m_radius *= 0.25f;
 
 			_b2Body->CreateFixture(&shape, 1.0f);
@@ -42,11 +41,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::AddCircleShape(const glm::vec2& position, float radius)
+		void Actor::AddCircleShape(const Vector2& position, float radius)
 		{
 			b2CircleShape shape;
-			shape.m_p.x = position.x;
-			shape.m_p.y = position.y;
+			shape.m_p.x = position.GetX();
+			shape.m_p.y = position.GetY();
 			shape.m_radius = radius;
 
 			_b2Body->CreateFixture(&shape, 1.0f);
@@ -55,10 +54,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::AddBoxShape(const glm::vec2& position, const glm::vec2& size, float angle, float density)
+		void Actor::AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density)
 		{
 			b2PolygonShape shape;
-			shape.SetAsBox(size.x, size.y, b2Vec2(position.x, position.y), angle);
+			shape.SetAsBox(size.GetX(), size.GetY(), b2Vec2(position.GetX(), position.GetY()), angle);
 			shape.m_radius *= 0.25f;
 
 			b2FixtureDef fixtureDef;
@@ -71,7 +70,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::AddConvexShape(const std::vector<const glm::vec2>& vertices)
+		void Actor::AddConvexShape(const std::vector<const Vector2>& vertices)
 		{
 			b2PolygonShape shape;
 			// todo
@@ -83,18 +82,18 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetTransform(const glm::vec2& position, float rotation, const glm::vec2& scale)
+		void Actor::SetTransform(const Vector2& position, float rotation, const Vector2& scale)
 		{
 			// todo scale
-			_b2Body->SetTransform(b2Vec2(position.x, position.y), glm::radians<float>(rotation));
+			_b2Body->SetTransform(b2Vec2(position.GetX(), position.GetY()), math::DegreeToRadian(rotation));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		glm::vec2 Actor::GetPosition() const
+		Vector2 Actor::GetPosition() const
 		{
-			return glm::vec2(_b2Body->GetPosition().x, _b2Body->GetPosition().y);
+			return Vector2(_b2Body->GetPosition().x, _b2Body->GetPosition().y);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -102,7 +101,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		float Actor::GetRotation() const
 		{
-			return glm::degrees(_b2Body->GetAngle());
+			return math::RadianToDegree(_b2Body->GetAngle());
 		}
 
 		//-----------------------------------------------------------------------------

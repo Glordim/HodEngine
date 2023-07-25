@@ -1,29 +1,28 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.4...3.27)
+
+include(Global)
 
 project(Physics)
 
-find_package(Box2d REQUIRED)
-find_package(Glm REQUIRED)
+#find_package(Box2d REQUIRED)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.cpp"
 	"${PROJECT_SOURCE_DIR}/*.h"
 	"${PROJECT_SOURCE_DIR}/*.inl"
 )
-assign_source_group(${Srcs})
+
+file(GLOB_RECURSE Includes
+"${PROJECT_SOURCE_DIR}/*.h"
+"${PROJECT_SOURCE_DIR}/*.inl"
+)
+
+assign_source_group(${Srcs}) # for VS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
-	${Box2d_INCLUDE_DIRS}
-	${Glm_INCLUDE_DIRS}
+	${box2d_INCLUDE_DIRS}
 )
-
-if(MSVC)
-	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
-else()
-	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
 
 add_library(Physics OBJECT ${Srcs})
 
@@ -32,5 +31,5 @@ add_dependencies(Physics Core Renderer)
 target_link_libraries(Physics
 	Core
 	Renderer
-	${Box2d_LIBRARIES}
+	${box2d_LIBRARIES}
 )

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 #include <vector>
+
+#include "HodEngine/Core/Math/Vector4.h"
 
 class b2World;
 
@@ -57,7 +57,7 @@ namespace hod
 
 			void				PushToRenderQueue(renderer::RenderQueue& renderQueue);
 
-			bool				Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result);
+			bool				Raycast(const Vector4& origin, const Vector4& dir, float distance, physics::RaycastResult& result);
 
 		// Debug
 		public:

@@ -8,11 +8,7 @@
 
 #include "HodEngine/Renderer/MaterialManager.h"
 #include "HodEngine/Core/Math/Matrix4.h"
-
-#include "glm/gtc/matrix_transform.hpp"
-
-#define M_PI 3.14159265358979323846
-#define DEGREE_TO_RADIAN (M_PI / 180.0f)
+#include "HodEngine/Core/Math/Math.h"
 
 namespace hod
 {
@@ -157,7 +153,7 @@ namespace hod
 				vertices[offset + 0]._color[3] = 0.1f;
 
 				float angle = angleStep * currentSegment;
-				angle *= DEGREE_TO_RADIAN;
+				angle = math::DegreeToRadian(angle);
 
 				vertices[offset + 1]._position[0] = center.x + (radius * cos(angle));
 				vertices[offset + 1]._position[1] = center.y + (radius * sin(angle));
@@ -167,7 +163,7 @@ namespace hod
 				vertices[offset + 1]._color[3] = 0.1f;
 
 				angle = angleStep * (currentSegment + 1);
-				angle *= DEGREE_TO_RADIAN;
+				angle = math::DegreeToRadian(angle);
 
 				vertices[offset + 2]._position[0] = center.x + (radius * cos(angle));
 				vertices[offset + 2]._position[1] = center.y + (radius * sin(angle));

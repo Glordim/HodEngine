@@ -72,7 +72,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool Scene::Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result)
+		bool Scene::Raycast(const Vector4& origin, const Vector4& dir, float distance, physics::RaycastResult& result)
 		{
 			// TODO
 			//_world->RayCast();
