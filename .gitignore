@@ -2,6 +2,8 @@
 bazel-*
 build
 
+*.spirv
+
 # Prerequisites
 *.d
 
