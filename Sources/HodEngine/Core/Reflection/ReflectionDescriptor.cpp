@@ -3,6 +3,8 @@
 #include "HodEngine/Core/Reflection/ReflectionTrait.h"
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.h"
+
 namespace hod
 {
 	///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
@@ -60,10 +62,19 @@ namespace hod
 	/// @return 
 	bool ReflectionDescriptor::SerializeInDocument(const void* instance, Document::Node& documentNode)
 	{
-		for (ReflectionProperty* property : _properties)
+		ReflectionTraitCustomSerialization* customSerialization = FindTrait<ReflectionTraitCustomSerialization>();
+		if (customSerialization != nullptr)
 		{
-			property->Serialize(instance, documentNode);
+			customSerialization->Serialize(instance, documentNode);
 		}
+		else
+		{
+			for (ReflectionProperty* property : _properties)
+			{
+				property->Serialize(instance, documentNode);
+			}
+		}
+		
 		return true;
 	}
 	
@@ -73,10 +84,19 @@ namespace hod
 	/// @return 
 	bool ReflectionDescriptor::DeserializeFromDocument(void* instance, const Document::Node& documentNode)
 	{
-		for (ReflectionProperty* property : _properties)
+		ReflectionTraitCustomSerialization* customSerialization = FindTrait<ReflectionTraitCustomSerialization>();
+		if (customSerialization != nullptr)
 		{
-			property->Deserialize(instance, documentNode);
+			customSerialization->Deserialize(instance, documentNode);
 		}
+		else
+		{
+			for (ReflectionProperty* property : _properties)
+			{
+				property->Deserialize(instance, documentNode);
+			}
+		}
+
 		return true;
 	}
 

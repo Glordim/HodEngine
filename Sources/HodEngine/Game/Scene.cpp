@@ -1,11 +1,21 @@
 #include "HodEngine/Game/Scene.h"
 
 #include "HodEngine/Core/Reflection/ReflectionHelper.h"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.h"
 
 namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS_NO_PARENT(Scene)
 	{
+		AddTrait<ReflectionTraitCustomSerialization>(
+		[](const void* instance, Document::Node& documentNode)
+		{
+			static_cast<const Scene*>(instance)->SerializeInDocument(documentNode);
+		},
+		[](void* instance, const Document::Node& documentNode)
+		{
+			static_cast<Scene*>(instance)->DeserializeFromDocument(documentNode);
+		});
 	}
 
 	/// @brief 
