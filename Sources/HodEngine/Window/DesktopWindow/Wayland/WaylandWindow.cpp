@@ -96,10 +96,15 @@ namespace hod::window
 	}
 
 	/// @brief 
-	/// @return 
-	DesktopWindow::WindowHandle WaylandWindow::GetWindowHandle() const
+	struct wl_display* WaylandWindow::GetWaylandDisplay() const
 	{
-		return nullptr;
+		return _display;
+	}
+
+	/// @brief 
+	struct wl_surface* WaylandWindow::GetWaylandSurface() const
+	{
+		return _surface;
 	}
 
 	/// @brief 

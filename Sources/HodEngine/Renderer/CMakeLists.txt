@@ -36,8 +36,8 @@ add_dependencies(Renderer Core Window)
 target_link_libraries(Renderer
   Core
   Window
-  optimized "d3d12.lib" debug "d3d12.lib"
-  optimized "DXGI.lib" debug "DXGI.lib"
+  #optimized "d3d12.lib" debug "d3d12.lib"
+  #optimized "DXGI.lib" debug "DXGI.lib"
   ${Vulkan_LIBRARIES}
   ${SpirvCross_LIBRARIES}
 )

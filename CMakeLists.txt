@@ -30,7 +30,11 @@ ExternalProject_Add(box2d
 )
 
 set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
-set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/Release/box2d.lib)
+if(WIN32)
+  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/Release/box2d.lib)
+elseif(UNIX)
+  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/libbox2d.a)
+endif()
 
 message(STATUS "box2d is available in " ${box2d_INCLUDE_DIRS})
 message(STATUS "box2d is available in " ${box2d_LIBRARIES})

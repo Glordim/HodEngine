@@ -24,7 +24,7 @@ namespace hod
 						Job(JobQueue::Queue queue, bool deleteAfterCompletion, Thread::Id threadId = Thread::InvalidId);
 						Job(const Job&) = delete;
 						Job(Job&&) = delete;
-						~Job() = default;
+		virtual			~Job() = default;
 
 		Job&			operator = (const Job&) = delete;
 		Job&			operator = (Job&&) = delete;

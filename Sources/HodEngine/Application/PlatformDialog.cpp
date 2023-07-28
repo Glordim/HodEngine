@@ -1,7 +1,9 @@
 #include <HodEngine/Application/PlatformDialog.h>
 
+#if defined(PLATFORM_WINDOWS)
 #include <Windows.h>
 #include <shlobj_core.h>
+#endif
 
 namespace hod::application::dialog
 {
@@ -11,6 +13,7 @@ namespace hod::application::dialog
 	{
 		char buffer[4096] = { '\0' };
 
+#if defined(PLATFORM_WINDOWS)
 		OPENFILENAMEA openFileName;
 		ZeroMemory(&openFileName, sizeof(openFileName));
 		openFileName.lStructSize = sizeof(openFileName);
@@ -25,6 +28,7 @@ namespace hod::application::dialog
 		openFileName.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 		GetOpenFileNameA(&openFileName);
+#endif
 
 		return buffer;
 	}
@@ -34,6 +38,7 @@ namespace hod::application::dialog
 	std::filesystem::path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const std::filesystem::path& initialFolder)
 	{
 		char buffer[4096] = { '\0' };
+#if defined(PLATFORM_WINDOWS)
 		strcpy(buffer, "EditMe.");
 		strcat(buffer, typeExtension.data());
 
@@ -64,6 +69,7 @@ namespace hod::application::dialog
 		openFileName.Flags = 0;//OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 		GetSaveFileNameA(&openFileName);
+#endif
 
 		return buffer;
 	}
@@ -72,8 +78,8 @@ namespace hod::application::dialog
 	/// @return 
 	std::filesystem::path GetFolderDialog()
 	{
+#if defined(PLATFORM_WINDOWS)
 		char buffer[MAX_PATH] = { '\0' }; 
-
 		BROWSEINFOA browseInfo;
 		browseInfo.hwndOwner = NULL;
 		browseInfo.pidlRoot = NULL;
@@ -91,7 +97,7 @@ namespace hod::application::dialog
 			CoTaskMemFree(itemIdLists);
 			return dirPaths;
 		}
-
+#endif
 		return std::filesystem::path();
 	}
 
@@ -99,6 +105,7 @@ namespace hod::application::dialog
 	/// @param path 
 	void OpenExplorerAtPath(const std::filesystem::path& path)
 	{
+#if defined(PLATFORM_WINDOWS)
 		STARTUPINFOA startupInfo;
 		ZeroMemory(&startupInfo, sizeof(startupInfo));
 		startupInfo.cb = sizeof(startupInfo);
@@ -107,5 +114,6 @@ namespace hod::application::dialog
 		ZeroMemory(&processInformation, sizeof(processInformation));
 
 		CreateProcessA(NULL, (LPSTR)(std::string("explorer.exe ") + path.string()).c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInformation);
+#endif
 	}
 }

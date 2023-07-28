@@ -1,6 +1,8 @@
 
 #include "Sprite.h"
 
+#include <limits>
+
 namespace hod
 {
 	namespace renderer

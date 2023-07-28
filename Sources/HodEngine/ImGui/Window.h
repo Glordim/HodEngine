@@ -3,6 +3,7 @@
 #include "HodEngine/Core/Type.h"
 
 #include <string>
+#include <cstring>
 #include <functional>
 
 namespace hod::imgui

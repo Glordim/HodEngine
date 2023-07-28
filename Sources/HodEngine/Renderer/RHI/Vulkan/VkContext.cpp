@@ -3,6 +3,8 @@
 
 #include <HodEngine/Core/Output.h>
 
+#include <limits>
+
 using namespace hod::renderer;
 
 namespace hod

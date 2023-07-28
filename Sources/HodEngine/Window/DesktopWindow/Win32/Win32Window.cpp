@@ -197,9 +197,9 @@ namespace hod::window
 
 	/// @brief 
 	/// @return 
-	DesktopWindow::WindowHandle Win32Window::GetWindowHandle() const
+	HWND Win32Window::GetWindowHandle() const
 	{
-		return (DesktopWindow::WindowHandle)_hWnd;
+		return _hWnd;
 	}
 
 	/// @brief 

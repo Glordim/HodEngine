@@ -1,4 +1,5 @@
 #pragma once
+#if defined(PLATFORM_LINUX)
 
 #include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.h"
 
@@ -7,9 +8,8 @@ namespace hod::application
 	/// @brief 
 	class LinuxApplication : public DesktopApplication
 	{
-	public:
-
-		bool			Init(int argc, char** argv);
-		bool			Run();
+		_SingletonOverride(LinuxApplication)
 	};
 }
+
+#endif

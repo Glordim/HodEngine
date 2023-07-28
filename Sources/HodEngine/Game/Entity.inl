@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 
+#include "HodEngine/Game/Component.h"
+
 namespace hod::game
 {
 	template<typename _Component_>

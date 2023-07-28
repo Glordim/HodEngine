@@ -12,8 +12,8 @@
 
 #elif defined(PLATFORM_LINUX)
 
-	//#include "GraphicApplications/DesktopApplications/LinuxApplication.h"
-	//#define PlatformApplication LinuxApplication
+	#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
+	#define PlatformRenderer hod::renderer::RendererVulkan
 
 #elif defined(PLATFORM_ANDROID)
 

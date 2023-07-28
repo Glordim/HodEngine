@@ -25,7 +25,7 @@ namespace hod::window
 
 		void								Update() override;
 
-		WindowHandle						GetWindowHandle() const override;
+		HWND								GetWindowHandle() const;
 		HINSTANCE							GetInstanceHandle() const;
 
 		void								SetSize(uint16_t width, uint16_t height) override;

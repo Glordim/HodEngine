@@ -24,6 +24,9 @@
 #if defined(PLATFORM_WINDOWS)
 	#include <vulkan/vulkan_win32.h>
 	#include <HodEngine/Window/DesktopWindow/Win32/Win32Window.h>
+#elif defined(PLATFORM_LINUX)
+	#include <vulkan/vulkan_wayland.h>
+	#include <HodEngine/Window/DesktopWindow/Wayland/WaylandWindow.h>
 #endif
 
 namespace hod::renderer
@@ -235,7 +238,11 @@ namespace hod::renderer
 		// TODO move in Context
 		std::array<const char*, 2> extensionsRequiredByContext {
 			VK_KHR_SURFACE_EXTENSION_NAME,
+#if defined(PLATFORM_WINDOWS)
 			VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+#elif defined(PLATFORM_LINUX)
+			VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+#endif
 		};
 
 		if (RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredByContext.data(), extensionsRequiredByContext.size(), availableExtensions) == false)
@@ -321,8 +328,11 @@ namespace hod::renderer
 													   VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 			debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
 												   VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-												   VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
-												   VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT;
+												   VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+#if defined(PLATFORM_WINDOWS)
+												   | VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT
+#endif
+												   ;
 			debugMessengerCreateInfo.pfnUserCallback = &RendererVulkan::DebugCallback;
 			debugMessengerCreateInfo.pUserData = nullptr;
 
@@ -469,7 +479,7 @@ namespace hod::renderer
 		VkWin32SurfaceCreateInfoKHR createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.flags = 0;
-		createInfo.hwnd = (HWND)win32Window->GetWindowHandle();
+		createInfo.hwnd = win32Window->GetWindowHandle();
 		createInfo.hinstance = win32Window->GetInstanceHandle();
 		createInfo.pNext = nullptr;
 
@@ -482,8 +492,30 @@ namespace hod::renderer
 
 		return surface;
 	}
-#else
-	#pragma error
+#elif defined(PLATFORM_LINUX)
+	/// @brief 
+	/// @param window 
+	/// @return 
+	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
+	{
+		window::WaylandWindow* waylandWindow = static_cast<window::WaylandWindow*>(window);
+
+		VkWaylandSurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		createInfo.flags = 0;
+		createInfo.display = waylandWindow->GetWaylandDisplay();
+		createInfo.surface = waylandWindow->GetWaylandSurface();
+		createInfo.pNext = nullptr;
+
+		VkSurfaceKHR surface;
+		if (vkCreateWaylandSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Wayland Surface !");
+			return nullptr;
+		}
+
+		return surface;
+	}
 #endif
 
 	/// @brief 

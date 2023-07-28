@@ -18,15 +18,14 @@ namespace hod::window
 
 		void								Update() override;
 
-		WindowHandle						GetWindowHandle() const override;
+		struct wl_display*					GetWaylandDisplay() const;
+		struct wl_surface*					GetWaylandSurface() const;
 
 		void								SetSize(uint16_t width, uint16_t height) override;
 		void								CenterToScreen() override;
 		void								Maximize() override;
 
 	private:
-
-		WindowHandle						_hWnd = nullptr;
 
 		struct wl_surface*					_surface = nullptr;
 		struct wl_shell_surface*			_shellSurface = nullptr;

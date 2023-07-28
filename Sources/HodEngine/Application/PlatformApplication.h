@@ -12,8 +12,8 @@
 
 #elif defined(PLATFORM_LINUX)
 
-	#include "HodEngine/ApplicationGraphicApplications/DesktopApplications/LinuxApplication.h"
-	#define PlatformApplication LinuxApplication
+	#include "HodEngine/Application/GraphicApplications/DesktopApplications/LinuxApplication.h"
+	#define PlatformApplication hod::application::LinuxApplication
 
 #elif defined(PLATFORM_ANDROID)
 

@@ -1,3 +1,16 @@
+#if defined(PLATFORM_LINUX)
+
+#include "HodEngine/Application/GraphicApplications/DesktopApplications/LinuxApplication.h"
+
+namespace hod::application
+{
+	_SingletonOverrideConstructor(LinuxApplication)
+	{
+	}
+}
+
+#endif
+
 /*
 #include "Application.h"
 

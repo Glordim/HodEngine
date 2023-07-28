@@ -11,7 +11,9 @@
 #include <HodEngine/Core/Frame/FrameSequencer.h>
 #include <HodEngine/Core/Output.h>
 
+#if defined(PLATFORM_WINDOWS)
 #include <Windows.h>
+#endif
 #include <vector>
 
 namespace hod::editor
@@ -47,8 +49,10 @@ namespace hod::editor
 	{
 		FrameSequencer::GetInstance()->RemoveJob(&_filesystemWatcherJob, FrameSequencer::Step::PreRender);
 
-		FindCloseChangeNotification(_filesystemWatcherHandle);
+#if defined(PLATFORM_WINDOWS)
+		::FindCloseChangeNotification(_filesystemWatcherHandle);
 		_filesystemWatcherHandle = INVALID_HANDLE_VALUE;
+#endif
 
 		for (auto pair : _uidToAssetMap)
 		{
@@ -64,6 +68,7 @@ namespace hod::editor
 	{
 		Project* project = Project::GetInstance();
 
+#if defined(PLATFORM_WINDOWS)
 		_filesystemWatcherHandle = ::FindFirstChangeNotification(project->GetAssetDirPath().string().c_str(), TRUE,
 			FILE_NOTIFY_CHANGE_FILE_NAME |
 			FILE_NOTIFY_CHANGE_DIR_NAME |
@@ -71,6 +76,7 @@ namespace hod::editor
 			FILE_NOTIFY_CHANGE_SIZE |
 			FILE_NOTIFY_CHANGE_LAST_WRITE |
 			FILE_NOTIFY_CHANGE_SECURITY);
+#endif
 
 		_rootFileSystemMapping._asset = nullptr;
 		_rootFileSystemMapping._type = FileSystemMapping::Type::FolderType;
@@ -85,6 +91,7 @@ namespace hod::editor
 	/// @brief 
 	void AssetDatabase::FilesystemWatcherJob()
 	{
+#if defined(PLATFORM_WINDOWS)
 		if (WaitForSingleObject(_filesystemWatcherHandle, 0) == WAIT_OBJECT_0)
 		{
 			FindNextChangeNotification(_filesystemWatcherHandle);
@@ -92,6 +99,7 @@ namespace hod::editor
 			// https://docs.microsoft.com/en-us/windows/win32/fileio/obtaining-directory-change-notifications
 			// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
 		}
+#endif
 	}
 
 	/// @brief 

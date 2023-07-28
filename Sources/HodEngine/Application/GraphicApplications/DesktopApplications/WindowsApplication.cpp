@@ -1,3 +1,5 @@
+#if defined(PLATFORM_WINDOWS)
+
 #include "HodEngine/Application/GraphicApplications/DesktopApplications/WindowsApplication.h"
 
 #include <ole2.h>
@@ -9,3 +11,5 @@ namespace hod::application
 		OleInitialize(NULL); // TODO Call unintialize
 	}
 }
+
+#endif

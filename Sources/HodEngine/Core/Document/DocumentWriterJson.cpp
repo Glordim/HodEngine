@@ -105,8 +105,16 @@ namespace hod
 			case Document::Node::Type::SInt64:
 			{
 				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%lli", node.GetInt64());
-				stream.Write(buffer, bufferSize);
+				if constexpr (sizeof(int64_t) == sizeof(long))
+				{
+					int bufferSize = std::sprintf(buffer, "%li", node.GetInt64());
+					stream.Write(buffer, bufferSize);
+				}
+				else
+				{
+					int bufferSize = std::sprintf(buffer, "%lli", node.GetInt64());
+					stream.Write(buffer, bufferSize);
+				}
 			}
 			break;
 
@@ -137,8 +145,16 @@ namespace hod
 			case Document::Node::Type::UInt64:
 			{
 				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%llu", node.GetUInt64());
-				stream.Write(buffer, bufferSize);
+				if constexpr (sizeof(uint64_t) == sizeof(long))
+				{
+					int bufferSize = std::sprintf(buffer, "%lu", node.GetUInt64());
+					stream.Write(buffer, bufferSize);
+				}
+				else
+				{
+					int bufferSize = std::sprintf(buffer, "%llu", node.GetUInt64());
+					stream.Write(buffer, bufferSize);
+				}
 			}
 			break;
 

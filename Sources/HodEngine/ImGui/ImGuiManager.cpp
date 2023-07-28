@@ -24,6 +24,7 @@
 #include <HodEngine/Application/Application.h>
 
 #include <filesystem>
+#include <cstring>
 
 #if defined(PLATFORM_WINDOWS)
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -119,7 +120,9 @@ namespace hod::imgui
 	/// @brief 
 	void ImGuiManager::Update()
 	{
+#if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_NewFrame();
+#endif
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
 

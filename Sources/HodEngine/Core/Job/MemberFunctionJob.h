@@ -13,7 +13,7 @@ namespace hod
 							MemberFunctionJob(Type* instance, Function memberFunction, JobQueue::Queue queue, bool deleteAfterCompletion = false, Thread::Id threadId = Thread::InvalidId);
 							MemberFunctionJob(const Job&) = delete;
 							MemberFunctionJob(Job&&) = delete;
-							~MemberFunctionJob() = default;
+							~MemberFunctionJob() override = default;
 
 		MemberFunctionJob&	operator = (const MemberFunctionJob&) = delete;
 		MemberFunctionJob&	operator = (MemberFunctionJob&&) = delete;

@@ -14,6 +14,8 @@
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 #pragma once
+#if defined(PLATFORM_WINDOWS)
+
 #include "imgui.h"      // IMGUI_IMPL_API
 
 #define IMGUI_IMPL_WIN32_DISABLE_gamePAD
@@ -45,3 +47,5 @@ IMGUI_IMPL_API float    ImGui_ImplWin32_GetDpiScaleForMonitor(void* monitor); //
 // - Use to enable alpha compositing transparency with the desktop.
 // - Use together with e.g. clearing your framebuffer with zero-alpha.
 IMGUI_IMPL_API void     ImGui_ImplWin32_EnableAlphaCompositing(void* hwnd);   // HWND hwnd
+
+#endif

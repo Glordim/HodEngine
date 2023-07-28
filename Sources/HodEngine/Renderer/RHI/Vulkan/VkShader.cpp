@@ -1,6 +1,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.h"
 
 #include <vector>
+#include <cstring>
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
 
