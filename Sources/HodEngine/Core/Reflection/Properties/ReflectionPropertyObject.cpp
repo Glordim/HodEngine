@@ -1,5 +1,4 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
-#include "HodEngine/Core/Object.h"
 
 namespace hod
 {
@@ -28,11 +27,11 @@ namespace hod
 				const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
 				const uint8_t* objectAddress = instanceAddress + _offset;
 
-				const hod::Object* objectInstance = reinterpret_cast<const hod::Object*>(objectAddress);
+				const void* objectInstance = reinterpret_cast<const void*>(objectAddress);
 
 				Document::Node& objectNode = node.GetOrAddChild(_name);
 				
-				objectInstance->GetReflectionDescriptorV()->SerializeInDocument((const void*)objectInstance, objectNode);
+				_reflectionDesceriptor->SerializeInDocument(objectInstance, objectNode);
 			}
 
 			/// @brief 
@@ -43,13 +42,13 @@ namespace hod
 				uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
 				uint8_t* objectAddress = instanceAddress + _offset;
 
-				hod::Object* objectInstance = reinterpret_cast<hod::Object*>(objectAddress);
+				void* objectInstance = reinterpret_cast<void*>(objectAddress);
 
 				const Document::Node* objectNode = node.GetChild(_name);
 				
 				if (objectNode != nullptr)
 				{
-					objectInstance->GetReflectionDescriptorV()->DeserializeFromDocument((void*)objectInstance, *objectNode);
+					_reflectionDesceriptor->DeserializeFromDocument(objectInstance, *objectNode);
 				}
 			}
 
