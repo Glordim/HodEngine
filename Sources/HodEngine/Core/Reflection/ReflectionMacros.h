@@ -13,6 +13,29 @@ static __REFLECTION_DESCRIPTOR_TYPE__*	GetReflectionDescriptor()				\
 }																				\
 
 ///@brief Declare sub class used for Reflection
+#define REFLECTED_CLASS_NO_VIRTUAL(__TYPE__)										\
+																					\
+	META_TYPE_NO_VIRTUAL(__TYPE__)													\
+																					\
+public:																				\
+																					\
+	class __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor			\
+	{																				\
+		public:																		\
+																					\
+			__TYPE__##ReflectionDescriptor();										\
+	};																				\
+																					\
+	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
+																					\
+	hod::ReflectionDescriptor* GetReflectionDescriptorV() const						\
+	{																				\
+		return __TYPE__::GetReflectionDescriptor();									\
+	}																				\
+																					\
+private:																			\
+
+///@brief Declare sub class used for Reflection
 #define REFLECTED_CLASS_NO_PARENT(__TYPE__)											\
 																					\
 	BASE_META_TYPE(__TYPE__)														\

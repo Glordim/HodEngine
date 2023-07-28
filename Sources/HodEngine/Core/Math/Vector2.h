@@ -6,7 +6,7 @@ namespace hod
 {
 	class Vector2 final
 	{
-		REFLECTED_CLASS_NO_PARENT(Vector2)
+		REFLECTED_CLASS_NO_VIRTUAL(Vector2)
 
 	public:
 

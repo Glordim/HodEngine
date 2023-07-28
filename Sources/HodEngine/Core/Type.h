@@ -38,6 +38,39 @@ private:																			\
 																					\
 
 
+#define META_TYPE_NO_VIRTUAL(__ClassName__)											\
+private:																			\
+static constexpr MetaType _metaType = Hash::CompilationTimeFnv64(#__ClassName__);	\
+public:																				\
+																					\
+MetaType GetMetaType() const														\
+{																					\
+	return GetMetaTypeStatic();														\
+}																					\
+																					\
+const char* GetMetaTypeName() const													\
+{																					\
+	return GetMetaTypeNameStatic();													\
+}																					\
+																					\
+static MetaType GetMetaTypeStatic()													\
+{																					\
+	return Hash::CompilationTimeFnv64(#__ClassName__);								\
+}																					\
+																					\
+static const char* GetMetaTypeNameStatic()											\
+{																					\
+	return #__ClassName__;															\
+}																					\
+																					\
+bool HasCompatibleMetaType(MetaType otherMetaType)									\
+{																					\
+	return (__ClassName__::GetMetaTypeStatic() == otherMetaType);					\
+}																					\
+																					\
+private:																			\
+																					\
+
 // TODO constexpr + rename Meta to Class
 
 #define META_TYPE(__ClassName__, __ParentClass__)									\
