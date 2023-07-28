@@ -77,7 +77,9 @@ namespace hod::game
 	/// @return 
 	std::vector<std::weak_ptr<game::Component>> Entity::GetComponents() const
 	{
-		std::vector<std::weak_ptr<game::Component>> components(_components.size());
+		std::vector<std::weak_ptr<game::Component>> components;
+		components.reserve(_components.size());
+ 
 		for (std::weak_ptr<game::Component> component : _components)
 		{
 			components.push_back(component);

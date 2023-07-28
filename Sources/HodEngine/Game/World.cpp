@@ -185,7 +185,9 @@ namespace hod
 				{
 					std::shared_ptr<Component> componentLock = component.lock();
 
-					componentLock->GetReflectionDescriptorV()->SerializeInDocument(reinterpret_cast<void*>(&componentLock), componentsNode.AddChild(""));
+					Document::Node& componentNode = componentsNode.AddChild("");
+					componentNode.AddChild("MetaType").SetValue(componentLock->GetMetaType());
+					componentLock->GetReflectionDescriptorV()->SerializeInDocument(reinterpret_cast<void*>(&componentLock), componentNode);
 				}
 			}
 
