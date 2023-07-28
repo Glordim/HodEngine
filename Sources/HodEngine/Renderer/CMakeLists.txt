@@ -22,13 +22,14 @@ file(GLOB_RECURSE Includes
 assign_source_group(${Srcs}) # for VS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-  "../.."
-  ${Stb_INCLUDE_DIRS}
-  ${SpirvCross_INCLUDE_DIRS}
-  ${Vulkan_INCLUDE_DIRS}
+"../.."
+${Stb_INCLUDE_DIRS}
+${SpirvCross_INCLUDE_DIRS}
+${Vulkan_INCLUDE_DIRS}
 )
 
 add_library(Renderer OBJECT ${Srcs} ${Includes})
+set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Renderer Core Window)
 

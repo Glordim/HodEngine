@@ -8,13 +8,15 @@
 			"name": "(Windows) Launch",
 			"type": "cppvsdbg",
 			"request": "launch",
-			"program": "${workspaceFolder}/bazel-bin/Sources/EditorApplication/HodEditor.exe",
+			//"program": "${workspaceFolder}/bazel-bin/Sources/EditorApplication/HodEditor.exe",
+			"program": "${command:cmake.launchTargetPath}",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}/Data",
 			"environment": [],
 			"console": "externalTerminal",
-			"preLaunchTask": "Build HodEditor",
+			//"preLaunchTask": "Build HodEditor",
+			"preLaunchTask": "Build target",
 		}
 	]
 }

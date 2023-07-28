@@ -22,6 +22,7 @@ file(GLOB_RECURSE Includes
 assign_source_group(${Srcs}) # for VS
 
 add_library(Window OBJECT ${Srcs} ${Includes})
+set_property(TARGET Window PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Window Core)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)

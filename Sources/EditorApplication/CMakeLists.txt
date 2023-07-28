@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.4...3.27)
+
+include(Global)
 
 project(EditorApplication)
 
@@ -7,17 +9,16 @@ file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.h"
 	"${PROJECT_SOURCE_DIR}/*.inl"
 )
-assign_source_group(${Srcs})
 
-add_executable(EditorApplication ${Srcs})
+file(GLOB_RECURSE Includes
+"${PROJECT_SOURCE_DIR}/*.h"
+"${PROJECT_SOURCE_DIR}/*.inl"
+)
 
+assign_source_group(${Srcs}) # for VS
 
-if(MSVC)
-	#target_compile_options(HodEngine-Application PRIVATE /W4 /WX)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
-else()
-	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
+add_executable(EditorApplication ${Srcs} ${Includes})
+set_property(TARGET EditorApplication PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 include_directories(
 	".."
@@ -25,6 +26,10 @@ include_directories(
 	${Vulkan_INCLUDE_DIRS}
 )
 
+add_dependencies(EditorApplication Engine)
+
 target_link_libraries(EditorApplication
 	Engine
 )
+
+target_compile_definitions(EditorApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})

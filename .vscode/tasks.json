@@ -4,6 +4,12 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "Build target",
+			"type": "cmake",
+			"command": "build",
+			"group": "build"
+		},
+		{
 			"label": "Build HodEngine",
 			"type": "shell",
 			"command": "bazelisk",

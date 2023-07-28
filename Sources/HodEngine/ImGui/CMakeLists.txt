@@ -18,6 +18,7 @@ file(GLOB_RECURSE Includes
 assign_source_group(${Srcs}) # for VS
 
 add_library(ImGui OBJECT ${Srcs} ${Includes})
+set_property(TARGET ImGui PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(ImGui Core Window Renderer)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
