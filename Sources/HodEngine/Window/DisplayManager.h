@@ -1,9 +1,24 @@
 #pragma once
 
+#include "HodEngine/Core/Singleton.h"
+
+namespace hod::window
+{
+    class DisplayManager
+    {
+        //_Singleton(DisplayManager)
+
+    public:
+
+        virtual bool    Initialize() = 0;
+        virtual void    Terminate() = 0;
+    };
+}
+
 #if defined(PLATFORM_WINDOWS)
 
-	#include "HodEngine/Window/DesktopWindow/Win32/Win32Window.h"
-	#define PlatformWindow hod::window::Win32Window
+	#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.h"
+	#define PlatformDisplayManager hod::window::Win32DisplayManager
 
 #elif defined(PLATFORM_MAC)
 
@@ -12,8 +27,8 @@
 
 #elif defined(PLATFORM_LINUX)
 
-	#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.h"
-	#define PlatformWindow hod::window::WaylandWindow
+	#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.h"
+	#define PlatformDisplayManager hod::window::WaylandDisplayManager
 
 #elif defined(PLATFORM_ANDROID)
 

@@ -14,7 +14,7 @@
 #include "HodEngine/Core/ArgumentParser.h"
 
 #include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.h"
-#include "HodEngine/Window/DesktopWindow/DesktopWindow.h"
+#include "HodEngine/Window/Desktop/DesktopWindow.h"
 
 #include "HodEngine/Core/FileSystem.h"
 #include "HodEngine/Core/Stream/FileStream.h"

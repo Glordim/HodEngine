@@ -28,8 +28,8 @@ namespace hod::window
 
 	protected:
 
-		uint16_t			_width = 0;
-		uint16_t			_height = 0;
+		uint16_t			_width = 800;
+		uint16_t			_height = 600;
 
 	private:
 

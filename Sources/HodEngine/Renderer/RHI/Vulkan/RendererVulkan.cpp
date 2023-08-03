@@ -26,7 +26,8 @@
 	#include <HodEngine/Window/DesktopWindow/Win32/Win32Window.h>
 #elif defined(PLATFORM_LINUX)
 	#include <vulkan/vulkan_wayland.h>
-	#include <HodEngine/Window/DesktopWindow/Wayland/WaylandWindow.h>
+	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.h>
+	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.h>
 #endif
 
 namespace hod::renderer
@@ -499,11 +500,12 @@ namespace hod::renderer
 	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
 	{
 		window::WaylandWindow* waylandWindow = static_cast<window::WaylandWindow*>(window);
+		window::WaylandDisplayManager* waylandDisplayManager = window::WaylandDisplayManager::GetInstance();
 
 		VkWaylandSurfaceCreateInfoKHR createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.flags = 0;
-		createInfo.display = waylandWindow->GetWaylandDisplay();
+		createInfo.display = waylandDisplayManager->GetDisplay();
 		createInfo.surface = waylandWindow->GetWaylandSurface();
 		createInfo.pNext = nullptr;
 

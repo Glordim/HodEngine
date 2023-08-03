@@ -9,6 +9,7 @@
 
 #include <HodEngine/Renderer/PlatformRenderer.h>
 #include <HodEngine/Window/PlatformWindow.h>
+#include <HodEngine/Window/DisplayManager.h>
 
 #include <HodEngine/ImGui/ImGuiManager.h>
 
@@ -30,7 +31,13 @@ namespace hod::application
 			return false;
 		}
 
-		_window = new PlatformWindow();
+		PlatformDisplayManager* platformDisplayManager = PlatformDisplayManager::CreateInstance();
+		if (platformDisplayManager->Initialize() == false)
+		{
+			return false;
+		}
+
+		_window = platformDisplayManager->CreateWindow();
 
 		PlatformRenderer::CreateInstance();
 		if (PlatformRenderer::GetInstance()->Init(_window) == false)
@@ -58,12 +65,13 @@ namespace hod::application
 			_window->Update();
 
 			frameSequencer->EnqueueAndWaitJobs();
-
+/*
 			_window->GetGraphicsContext()->AcquireNextImageIndex();
 
 			PlatformRenderer::GetInstance()->GetRenderQueue()->Execute();
 
 			_window->GetGraphicsContext()->SwapBuffer();
+*/
 		}
 		return true;
 	}

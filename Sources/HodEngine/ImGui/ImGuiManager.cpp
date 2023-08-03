@@ -122,6 +122,8 @@ namespace hod::imgui
 	{
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_NewFrame();
+#else
+		return;
 #endif
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();

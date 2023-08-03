@@ -6,6 +6,7 @@ namespace hod::application
 {
 	_SingletonOverrideConstructor(LinuxApplication)
 	{
+		
 	}
 }
 
