@@ -1,5 +1,29 @@
 #pragma once
 
+#define _SingletonAbstract(T)															\
+	public:																				\
+																						\
+		static T*		GetInstance() { return _instance; }								\
+																						\
+	protected:																			\
+																						\
+						T();															\
+																						\
+	public:																				\
+																						\
+						T(const T&) = delete;											\
+						T(T&&) = delete;												\
+																						\
+		T&				operator = (const T&) = delete;									\
+		T&				operator = (T&&) = delete;										\
+																						\
+	protected:																			\
+																						\
+		static T*		_instance;														\
+																						\
+	private:																			\
+																						
+
 #define _Singleton(T)																	\
 	public:																				\
 																						\

@@ -7,15 +7,12 @@
 
 namespace hod
 {
-	template<>
-	game::World* Singleton<game::World>::_instance = nullptr;
-
 	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		World::World() : Singleton()
+		_SingletonConstructor(World)
 		{
 
 		}

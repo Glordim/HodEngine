@@ -105,4 +105,4 @@ bool HasCompatibleMetaType(MetaType otherMetaType) override							\
 }																					\
 																					\
 private:																			\
-																					\
+																					

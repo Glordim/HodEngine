@@ -36,8 +36,10 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class Renderer : public Singleton<Renderer>
+	class Renderer
 	{
+		_SingletonAbstract(Renderer)
+
 	public:
 
 		enum VisualizationMode
@@ -51,7 +53,6 @@ namespace hod::renderer
 
 	public:
 
-									Renderer();
 		virtual						~Renderer();
 
 		/*

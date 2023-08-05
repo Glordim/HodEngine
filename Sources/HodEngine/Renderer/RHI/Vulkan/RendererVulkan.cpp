@@ -33,6 +33,7 @@
 namespace hod::renderer
 {
 	_SingletonOverrideConstructor(RendererVulkan)
+	: Renderer()
 	{
 
 	}

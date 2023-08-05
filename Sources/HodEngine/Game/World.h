@@ -20,9 +20,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class World : public Singleton<World>
+		class World
 		{
-			friend class Singleton<World>;
+			_Singleton(World)
 
 		public:
 
@@ -54,8 +54,7 @@ namespace hod
 
 		protected:
 
-								World();
-								~World() override;
+								~World();
 
 		private:
 

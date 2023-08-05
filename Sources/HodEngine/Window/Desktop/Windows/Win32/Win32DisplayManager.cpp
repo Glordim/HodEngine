@@ -2,13 +2,15 @@
 
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.h"
 
+#include <ole2.h>
+
 namespace hod::window
 {
     /// @brief 
     /// @return 
     bool Win32DisplayManager::Initialize()
     {
-        
+        OleInitialize(nullptr);
     }
 
     /// @brief 

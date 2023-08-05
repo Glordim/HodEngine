@@ -5,18 +5,11 @@
 
 namespace hod
 {
-	template<>
-	renderer::Renderer* Singleton<renderer::Renderer>::_instance = nullptr;
-
 	namespace renderer
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		Renderer::Renderer()
+		/// @brief 
+		_SingletonConstructor(Renderer)
 		{
-			Renderer::_instance = this;
-
 			MaterialManager::CreateInstance();
 		}
 
@@ -25,7 +18,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Renderer::~Renderer()
 		{
-			Renderer::_instance = nullptr;
+			MaterialManager::DestroyInstance();
 		}
 
 		//-----------------------------------------------------------------------------
