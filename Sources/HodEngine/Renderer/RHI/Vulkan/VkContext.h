@@ -30,7 +30,7 @@ namespace hod
 
 	private:
 
-		bool						CreateSwapChain();
+		bool						CreateSwapChain(uint32_t width, uint32_t height);
 		void						DestroySwapChain();
 
 		bool						CreateSemaphores();

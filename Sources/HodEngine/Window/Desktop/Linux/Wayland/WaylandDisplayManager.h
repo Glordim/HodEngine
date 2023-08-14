@@ -6,11 +6,19 @@
 #include "HodEngine/Core/Job/MemberFunctionJob.h"
 
 #include <wayland-client.h>
-#include <libdecor-0/libdecor.h>
 #include <xkbcommon/xkbcommon.h>
+
+#include <libdecor-0/libdecor.h>
+
+#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-decoration-protocol.h"
+#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-shell-client-protocol.h"
+
+#include <map>
 
 namespace hod::window
 {
+    class WaylandWindow;
+
     class WaylandDisplayManager : public DesktopDisplayManager
     {
         _Singleton(WaylandDisplayManager)
@@ -27,6 +35,7 @@ namespace hod::window
         wl_compositor*  GetCompositor() const;
         wl_shm*         GetShm() const;
         libdecor*       GetLibDecorContext() const;
+        xdg_wm_base*    GetXdgWmBase() const;
 
     private:
 
@@ -84,12 +93,17 @@ namespace hod::window
 
         static void     LibDecorErrorHandler(libdecor* context, libdecor_error error, const char* message);
 
+        static void     XdgWmBasePing(void* userData, xdg_wm_base* xdg_wm_base, uint32_t serial);
+
     private:
 
         wl_display*     _wlDisplay = nullptr;
 	    wl_compositor*  _wlCompositor = nullptr;
         wl_shm*         _wlShm = nullptr;
+
         libdecor*       _libDecorContext = nullptr;
+        zxdg_decoration_manager_v1* _zxdgDecorationManager = nullptr;
+        xdg_wm_base*    _xdgWmBase = nullptr;
 
         std::vector<Output*>    _outputs;
 
@@ -113,6 +127,8 @@ namespace hod::window
         xkb_state*      _xkbState = nullptr;
 
         MemberFunctionJob<WaylandDisplayManager>    _updateJob;
+
+        std::map<wl_surface*, WaylandWindow*>   _surfaceToWindowMap;
     };
 }
 

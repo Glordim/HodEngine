@@ -9,7 +9,7 @@
 
 #include <HodEngine/Renderer/PlatformRenderer.h>
 #include <HodEngine/Window/PlatformWindow.h>
-#include <HodEngine/Window/DisplayManager.h>
+#include <HodEngine/Window/PlatformDisplayManager.h>
 
 #include <HodEngine/ImGui/ImGuiManager.h>
 
@@ -65,13 +65,14 @@ namespace hod::application
 			_window->Update();
 
 			frameSequencer->EnqueueAndWaitJobs();
-/*
-			_window->GetGraphicsContext()->AcquireNextImageIndex();
 
-			PlatformRenderer::GetInstance()->GetRenderQueue()->Execute();
+			if (_window->GetGraphicsContext()->AcquireNextImageIndex() == true)
+			{
+				PlatformRenderer::GetInstance()->GetRenderQueue()->Execute();
 
-			_window->GetGraphicsContext()->SwapBuffer();
-*/
+				_window->GetGraphicsContext()->SwapBuffer();
+			}
+
 		}
 		return true;
 	}

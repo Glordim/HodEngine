@@ -20,7 +20,8 @@ static const char* hodTag = "wlHodTag";
 namespace hod::window
 {
     _SingletonConstructor(WaylandDisplayManager)
-    : _updateJob(this, &WaylandDisplayManager::Update, JobQueue::Queue::FramedNormalPriority)
+    : DesktopDisplayManager()
+    , _updateJob(this, &WaylandDisplayManager::Update, JobQueue::Queue::FramedNormalPriority)
     {
 
     }
@@ -70,18 +71,20 @@ namespace hod::window
 
         wl_display_sync(_wlDisplay);
 
-        ///*
-        libdecor_interface libDecorInterface = {
-			.error = &WaylandDisplayManager::LibDecorErrorHandler,
-		};
+        // If the compositor doesn't support server side decoration (gnome or other), use libdecor for client side decoration
+        if (_zxdgDecorationManager == nullptr)
+        {
+            static libdecor_interface libDecorInterface = {
+                .error = &WaylandDisplayManager::LibDecorErrorHandler,
+            };
 
-		_libDecorContext = libdecor_new(_wlDisplay, &libDecorInterface);
-		if (_libDecorContext == nullptr)
-		{
-			OUTPUT_ERROR("WaylandDisplayManager: Can't create LibDecor context");
-			return false;
-		}
-        //*/
+		    _libDecorContext = libdecor_new(_wlDisplay, &libDecorInterface);
+            if (_libDecorContext == nullptr)
+            {
+                OUTPUT_ERROR("WaylandDisplayManager: Can't create LibDecor context");
+                return false;
+            }
+        }
 
         FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreLogic);
 
@@ -168,22 +171,22 @@ namespace hod::window
                 thiz->CreateOutput(wlOutput, id);
             }
         }
-        /*
 		else if (std::strcmp(interface, xdg_wm_base_interface.name) == 0)
 		{
-			_xdgWmBase = (struct xdg_wm_base*)wl_registry_bind(registry, id, &xdg_wm_base_interface, 1);
+            WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
+			thiz->_xdgWmBase = (xdg_wm_base*)wl_registry_bind(registry, id, &xdg_wm_base_interface, 1);
 
-			static const struct xdg_wm_base_listener xdg_wm_base_listener = {
-				.ping = xdg_wm_base_ping,
+			static const xdg_wm_base_listener xdgWmBaseListener = {
+				.ping = &WaylandDisplayManager::XdgWmBasePing,
 			};
 
-			xdg_wm_base_add_listener(_xdgWmBase, &xdg_wm_base_listener, nullptr);
+			xdg_wm_base_add_listener(thiz->_xdgWmBase, &xdgWmBaseListener, thiz);
  		}
 		else if (std::strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
 		{
-			_wlDecorationManager = (struct zxdg_decoration_manager_v1*)wl_registry_bind(registry, id, &zxdg_decoration_manager_v1_interface, 1);
+            WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
+			thiz->_zxdgDecorationManager = (zxdg_decoration_manager_v1*)wl_registry_bind(registry, id, &zxdg_decoration_manager_v1_interface, 1);
 		}
-        */
 	}
 
 	/// @brief 
@@ -322,8 +325,12 @@ namespace hod::window
     void WaylandDisplayManager::PointerMotion(void* userData, wl_pointer* wlPointer, uint32_t time, wl_fixed_t surfaceX, wl_fixed_t surfaceY)
     {
         WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-        thiz->_pointerX = surfaceX;
-        thiz->_pointerY = surfaceY;
+
+        if (thiz->_surfaceToWindowMap.contains(thiz->_pointerFocus) == true)
+        {
+            WaylandWindow* waylandWindow = thiz->_surfaceToWindowMap[thiz->_pointerFocus];
+            waylandWindow->SetMousePosition(Vector2(wl_fixed_to_double(surfaceX), wl_fixed_to_double(surfaceY)));
+        }
     }
 
     /// @brief 
@@ -337,6 +344,30 @@ namespace hod::window
     {
         WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 
+        if (thiz->_surfaceToWindowMap.contains(thiz->_pointerFocus) == true)
+        {
+            WaylandWindow* waylandWindow = thiz->_surfaceToWindowMap[thiz->_pointerFocus];
+
+            DesktopWindow::MouseButton mouseButton;
+            if (button == BTN_LEFT)
+            {
+                mouseButton = DesktopWindow::MouseButton::Left;
+            }
+            else if (button == BTN_MIDDLE)
+            {
+                mouseButton = DesktopWindow::MouseButton::Middle;
+            }
+            else if (button == BTN_RIGHT)
+            {
+                mouseButton = DesktopWindow::MouseButton::Right;
+            }
+            else
+            {
+                return; // todo ?
+            }
+
+            waylandWindow->SetMouseButton(mouseButton, state == WL_POINTER_BUTTON_STATE_PRESSED);
+        }
         /*
         if (seat->_pointerFocus != window->wl_surface)
         {
@@ -562,18 +593,37 @@ namespace hod::window
 		OUTPUT_ERROR("LibDecor: Caught error (%d): %s\n", error, message);
 	}
 
+	/// @brief 
+	/// @param data 
+	/// @param xdg_wm_base 
+	/// @param serial 
+	void WaylandDisplayManager::XdgWmBasePing(void* userData, xdg_wm_base* xdg_wm_base, uint32_t serial)
+	{
+		xdg_wm_base_pong(xdg_wm_base, serial);
+	}
+
     /// @brief 
     void WaylandDisplayManager::Update()
     {
-        //wl_display_dispatch(_wlDisplay);
-		libdecor_dispatch(_libDecorContext, -1);
+        if (_libDecorContext != nullptr)
+        {
+		    libdecor_dispatch(_libDecorContext, 0);
+        }
+        else
+        {
+            wl_display_roundtrip(_wlDisplay);
+        }
     }
 
     /// @brief 
     /// @return 
     Window* WaylandDisplayManager::CreateWindow()
     {
-        return new WaylandWindow();
+        WaylandWindow* window = new WaylandWindow();
+
+        _surfaceToWindowMap[window->GetWaylandSurface()] =  window;
+
+        return window;
     }
 
     /// @brief 
@@ -609,6 +659,13 @@ namespace hod::window
     libdecor* WaylandDisplayManager::GetLibDecorContext() const
     {
         return _libDecorContext;
+    }
+
+    /// @brief 
+    /// @return 
+    xdg_wm_base* WaylandDisplayManager::GetXdgWmBase() const
+    {
+        return _xdgWmBase;
     }
 
     /// @brief 

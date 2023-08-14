@@ -8,7 +8,7 @@ namespace hod::window
 
     class DesktopDisplayManager : public DisplayManager
     {
-        //_SingletonOverride(DesktopDisplayManager)
+        _SingletonAbstract(DesktopDisplayManager)
 
     public:
 

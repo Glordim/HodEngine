@@ -15,7 +15,7 @@ namespace hod
 		, _surface(surface)
 	{
 		CreateSemaphores();
-		CreateSwapChain();
+		CreateSwapChain(800, 600);
 	}
 
 	/// @brief 
@@ -49,12 +49,12 @@ namespace hod
 	/// @param height 
 	void VkContext::Resize(uint32_t width, uint32_t height)
 	{
-		CreateSwapChain();
+		CreateSwapChain(width, height);
 	}
 
 	/// @brief 
 	/// @return 
-	bool VkContext::CreateSwapChain()
+	bool VkContext::CreateSwapChain(uint32_t width, uint32_t height)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 		if (device == nullptr)
@@ -86,14 +86,15 @@ namespace hod
 
 		VkExtent2D extent;
 
-		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() &&
+			capabilities.currentExtent.height != std::numeric_limits<uint32_t>::max())
 		{
 			extent = capabilities.currentExtent;
 		}
 		else
 		{
-			extent.width = 800;
-			extent.height = 600;
+			extent.width = width;
+			extent.height = height;
 
 			// TODO Replace by clamp
 			if (extent.width > capabilities.maxImageExtent.width)
@@ -115,13 +116,12 @@ namespace hod
 				extent.height = capabilities.minImageExtent.height;
 			}
 		}
-
 		_swapChainExtent = extent;
 
 		uint32_t imageCount = capabilities.minImageCount + 1;
 
 		// TODO Replace by max
-		if (imageCount > capabilities.maxImageCount)
+		if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount)
 		{
 			imageCount = capabilities.maxImageCount;
 		}
@@ -209,6 +209,8 @@ namespace hod
 		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, swapChainImages.data());
 
 		_swapchainImageViews.resize(imageCount, VK_NULL_HANDLE);
+		_swapchainFramebuffers.resize(imageCount, VK_NULL_HANDLE);
+
 		for (size_t i = 0; i < imageCount; ++i)
 		{
 			RendererVulkan::GetInstance()->TransitionImageLayout(swapChainImages[i], VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
@@ -235,12 +237,7 @@ namespace hod
 				OUTPUT_ERROR("Vulkan: Unable to create Image Views !");
 				return false;
 			}
-		}
 
-		// Framebuffers
-		_swapchainFramebuffers.resize(imageCount);
-		for (size_t i = 0; i < imageCount; i++)
-		{
 			VkImageView attachments[] = {
 				_swapchainImageViews[i],
 				//_depthTexture.GetTextureImageView()
@@ -385,12 +382,12 @@ namespace hod
 			if (result == VK_ERROR_OUT_OF_DATE_KHR)
 			{
 				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
-				CreateSwapChain();
+				//CreateSwapChain();
 			}
 			else if (result == VK_SUBOPTIMAL_KHR)
 			{
 				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
-				CreateSwapChain();
+				//CreateSwapChain();
 			}
 
 			return false;
@@ -434,12 +431,12 @@ namespace hod
 			if (result == VK_ERROR_OUT_OF_DATE_KHR)
 			{
 				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
-				CreateSwapChain();
+				//CreateSwapChain();
 			}
 			else if (result == VK_SUBOPTIMAL_KHR)
 			{
 				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
-				CreateSwapChain();
+				//CreateSwapChain();
 			}
 
 			return false;

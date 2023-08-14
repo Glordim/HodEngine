@@ -22,6 +22,10 @@
 #include <HodEngine/Core/FileSystem.h>
 
 #include <HodEngine/Application/Application.h>
+#include <HodEngine/Application/GraphicApplications/GraphicApplication.h>
+
+#include <HodEngine/Window/Desktop/DesktopWindow.h>
+#include <HodEngine/Window/Desktop/DesktopDisplayManager.h>
 
 #include <filesystem>
 #include <cstring>
@@ -122,6 +126,15 @@ namespace hod::imgui
 	{
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_NewFrame();
+#elif defined(PLATFORM_LINUX)
+		window::DesktopWindow* window = (window::DesktopWindow*)application::GraphicApplication::GetInstance()->GetWindow();
+
+		ImGui::GetIO().DisplaySize.x = window->GetWidth();
+		ImGui::GetIO().DisplaySize.y = window->GetHeight();
+		ImGui::GetIO().AddMousePosEvent(window->GetMousePosition().GetX(), window->GetMousePosition().GetY());
+		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Left, window->GetMouseButton(window::DesktopWindow::MouseButton::Left));
+		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Middle, window->GetMouseButton(window::DesktopWindow::MouseButton::Middle));
+		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Right, window->GetMouseButton(window::DesktopWindow::MouseButton::Right));
 #else
 		return;
 #endif
@@ -139,7 +152,7 @@ namespace hod::imgui
 
 		ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
-		static bool showDemo = true;
+		static bool showDemo = false;
 		if (showDemo == true)
 		{
 			ImGui::ShowDemoWindow(&showDemo);

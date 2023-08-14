@@ -28,6 +28,23 @@ namespace hod::window
 		void								CenterToScreen() override;
 		void								Maximize() override;
 
+		Vector2								ConvertToLocalMousePosition(const Vector2& globalMousePosition) override;
+
+	private:
+
+		enum RequestFlag
+		{
+			NeedResize = (1 << 0),
+			NeedResizeReady = (1 << 1),
+		};
+
+		struct Buffer
+		{
+			wl_buffer*	_wlBuffer = nullptr;
+			void*		_data = nullptr;
+			size_t		_size = 0;
+		};		
+
 	private:
 
 		bool								SetupBuffer();
@@ -37,11 +54,17 @@ namespace hod::window
 		static void							xdg_toplevel_close(void* data, xdg_toplevel* toplevel);
 		static void							handle_configure(libdecor_frame* frame, libdecor_configuration* configuration, void* data);
 
+		static void							BufferRelease(void* userData, wl_buffer* wl_buffer);
+
 	private:
 
 		wl_surface*					_wlSurface = nullptr;
 		wl_buffer*					_wlBuffer = nullptr;
 		xdg_surface*				_xdgSurface = nullptr;
+
+		uint32_t					_requestFlags = 0;
+		uint32_t					_requestedWidth = 0;
+		uint32_t					_requestedHeight = 0;
 	};
 }
 

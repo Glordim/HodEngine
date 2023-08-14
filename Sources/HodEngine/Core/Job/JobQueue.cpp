@@ -76,6 +76,7 @@ namespace hod
 	void JobQueue::Init(Queue queue)
 	{
 		uint32_t count = SystemInfo::GetLogicalCoreCount();
+		count = 1; // TODO
 		_workerThreads = new WorkerThread[count];
 
 		for (uint32_t index = 0; index < count; ++index)
