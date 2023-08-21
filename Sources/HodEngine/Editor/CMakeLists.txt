@@ -18,6 +18,7 @@ file(GLOB_RECURSE Includes
 assign_source_group(${Srcs}) # for VS
 
 find_package(Stb REQUIRED)
+find_package(PortableFileDialog REQUIRED)
 
 add_library(Editor OBJECT ${Srcs} ${Includes})
 set_property(TARGET Editor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
@@ -29,6 +30,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
 	${Core_INCLUDES}
 	${Stb_INCLUDE_DIRS}
+	${PortableFileDialog_INCLUDE_DIRS}
 )
 
 target_link_libraries(Editor

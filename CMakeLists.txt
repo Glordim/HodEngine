@@ -15,6 +15,12 @@ FetchContent_MakeAvailable(stb)
 #FetchContent_Populate(box2d)
 message(STATUS "stb is available in " ${stb_SOURCE_DIR})
 
+FetchContent_Declare(
+  portable_file_dialogs
+  URL https://github.com/samhocevar/portable-file-dialogs/archive/refs/heads/main.zip)
+FetchContent_MakeAvailable(portable_file_dialogs)
+message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_SOURCE_DIR})
+
 include(ExternalProject)
 ExternalProject_Add(box2d
   URL https://github.com/erincatto/box2d/archive/refs/tags/v2.4.1.zip

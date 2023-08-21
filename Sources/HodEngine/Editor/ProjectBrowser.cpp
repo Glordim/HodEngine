@@ -19,6 +19,8 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.h"
 #include "HodEngine/Core/Document/DocumentWriterJson.h"
 
+#include "portable-file-dialogs.h"
+
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(ProjectBrowser, "Project Browser", true)
@@ -51,10 +53,21 @@ namespace hod::editor
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 140.0f);
 			if (ImGui::Button("Open") == true)
 			{
-				std::filesystem::path path = application::dialog::GetOpenFileDialog();
-				if (path.empty() == false)
+				pfd::settings::verbose(true);
+				bool test = pfd::settings::available();
+				pfd::open_file dialog("Open HodProject");
+				//while (dialog.ready() == false)
 				{
-					Editor::GetInstance()->OpenProject(path);
+				}
+				auto result = dialog.result();
+				if (result.empty() == false)
+				{
+					std::filesystem::path path = result[0];
+					//std::filesystem::path path = application::dialog::GetOpenFileDialog();
+					if (path.empty() == false)
+					{
+						Editor::GetInstance()->OpenProject(path);
+					}
 				}
 			}
 			ImGui::SameLine();
