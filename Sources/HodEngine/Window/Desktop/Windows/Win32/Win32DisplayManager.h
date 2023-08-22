@@ -13,10 +13,11 @@ namespace hod::window
 
     public:
 
-        bool    Initialize() override;
+        bool            Initialize() override;
+        void            Terminate() override;
 
-        Window* CreateWindow() override;
-        void    DestroyWindow(Window* window) override;
+        Window*         CreateWindow() override;
+        void            DestroyWindow(Window* window) override;
     };
 }
 

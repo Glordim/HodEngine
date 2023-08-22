@@ -2,7 +2,7 @@
 
 #if defined(PLATFORM_WINDOWS)
 
-	#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.h"
+	#include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.h"
 	#define PlatformDisplayManager hod::window::Win32DisplayManager
 
 #elif defined(PLATFORM_MAC)

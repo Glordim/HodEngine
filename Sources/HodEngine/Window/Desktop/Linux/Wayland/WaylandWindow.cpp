@@ -280,15 +280,6 @@ namespace hod::window
 	{
 
 	}
-
-	/// @brief 
-	/// @param globalMousePosition 
-	/// @return 
-	Vector2 WaylandWindow::ConvertToLocalMousePosition(const Vector2& globalMousePosition)
-	{
-		//wl_surface_from_global();
-		return globalMousePosition;
-	}
 	
 	/// @brief 
 	bool WaylandWindow::SetupBuffer()

@@ -4,6 +4,8 @@
 
 #include "HodEngine/Core/Math/Vector2.h"
 
+#include <array>
+
 namespace hod::window
 {
 	/// @brief 
@@ -25,8 +27,6 @@ namespace hod::window
 		virtual void			SetSize(uint16_t width, uint16_t height) = 0;
 		virtual void			CenterToScreen() = 0;
 		virtual void			Maximize() = 0;
-
-		virtual Vector2			ConvertToLocalMousePosition(const Vector2& globalMousePosition) = 0;
 
 		const Vector2&			GetMousePosition() const;
 		bool					GetMouseButton(MouseButton button) const;

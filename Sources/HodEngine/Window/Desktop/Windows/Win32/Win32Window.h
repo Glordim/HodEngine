@@ -4,7 +4,7 @@
 
 #include <Windows.h>
 
-#include "HodEngine/Window/DesktopWindow/DesktopWindow.h"
+#include "HodEngine/Window/Desktop/DesktopWindow.h"
 
 #include <HodEngine/Core/Job/MemberFunctionJob.h>
 

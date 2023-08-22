@@ -28,8 +28,6 @@ namespace hod::window
 		void								CenterToScreen() override;
 		void								Maximize() override;
 
-		Vector2								ConvertToLocalMousePosition(const Vector2& globalMousePosition) override;
-
 	private:
 
 		enum RequestFlag

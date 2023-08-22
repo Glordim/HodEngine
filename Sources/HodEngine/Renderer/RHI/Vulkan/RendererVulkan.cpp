@@ -23,7 +23,7 @@
 
 #if defined(PLATFORM_WINDOWS)
 	#include <vulkan/vulkan_win32.h>
-	#include <HodEngine/Window/DesktopWindow/Win32/Win32Window.h>
+	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.h>
 #elif defined(PLATFORM_LINUX)
 	#include <vulkan/vulkan_wayland.h>
 	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.h>

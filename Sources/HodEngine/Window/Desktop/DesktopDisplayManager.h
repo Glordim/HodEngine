@@ -2,6 +2,8 @@
 
 #include "HodEngine/Window/DisplayManager.h"
 
+#undef CreateWindow
+
 namespace hod::window
 {
     class Window;

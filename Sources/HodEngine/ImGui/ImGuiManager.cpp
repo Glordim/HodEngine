@@ -3,7 +3,7 @@
 #include <HodEngine/Core/Job/Job.h>
 
 #if defined(PLATFORM_WINDOWS)
-	#include <HodEngine/Window/DesktopWindow/Win32/Win32Window.h>
+	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.h>
 #endif
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
