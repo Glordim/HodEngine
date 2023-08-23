@@ -209,8 +209,20 @@ namespace hod::renderer
 		mainWindow->SetGraphicsContext(_context);
 
 		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
+		if (_unlitVertexColorMaterial == nullptr)
+		{
+			return false;
+		}
 		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Line, Material::Topololy::LINE));
+		if (_unlitVertexColorLineMaterial == nullptr)
+		{
+			return false;
+		}
 		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false));
+		if (_sharedMinimalMaterial == nullptr)
+		{
+			return false;
+		}
 
 		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
 		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
@@ -1610,6 +1622,12 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	MaterialInstance* RendererVulkan::CreateMaterialInstance(const Material* material)
 	{
+		if (material == nullptr)
+		{
+			// todo message, why not use ref ?
+			return nullptr;
+		}
+
 		return new VkMaterialInstance(*material);
 	}
 
