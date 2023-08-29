@@ -33,3 +33,10 @@ target_link_libraries(EditorApplication
 )
 
 target_compile_definitions(EditorApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+
+add_custom_command(
+        TARGET EditorApplication  POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_SOURCE_DIR}/EditorData
+                $<TARGET_FILE_DIR:EditorApplication>/Data)
+				
