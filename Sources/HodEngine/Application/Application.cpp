@@ -1,5 +1,7 @@
 #include "HodEngine/Application/Application.h"
 
+#include "HodEngine/Core/FileSystem.h"
+
 #include <HodEngine/Core/Job/JobSqueduler.h>
 #include <HodEngine/Core/Frame/FrameSequencer.h>
 
@@ -20,6 +22,8 @@ namespace hod::application
 	/// @return 
 	bool Application::Init(const ArgumentParser& argumentParser)
 	{
+		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
+
 		JobSqueduler::CreateInstance();
 		FrameSequencer::CreateInstance();
 
