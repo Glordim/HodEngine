@@ -50,3 +50,38 @@ if (RENDERER_ENABLE_VALIDATION_LAYER)
 endif ()
 
 target_compile_definitions(Renderer PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE} ${RENDERER_ENABLE_VALIDATION_LAYER_DEFINE})
+
+# Creates C resources file from files in given directory
+function(create_resources dir output)
+    # Create empty output file
+    file(WRITE ${output} "")
+    # Collect input files
+    file(GLOB bins ${dir}/*)
+    # Iterate through input files
+    foreach(bin ${bins})
+        # Get short filename
+        string(REGEX MATCH "([^/]+)$" filename ${bin})
+        # Replace filename spaces & extension separator for C compatibility
+        string(REGEX REPLACE "\\.| |-" "_" filename ${filename})
+        # Read hex data from file
+        file(READ ${bin} filedata HEX)
+        # Convert hex data for C compatibility
+        string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
+        # Append data to output file
+        file(APPEND ${output} "const unsigned char ${filename}[] = {${filedata}};\nconst unsigned ${filename}_size = sizeof(${filename});\n")
+    endforeach()
+endfunction()
+
+foreach(shader_source "Shader")
+    get_filename_component(file_c ${shader_source} NAME_WE)
+    set(file_c "${file_c}.c")
+    add_custom_command(
+            OUTPUT ${file_c}
+            COMMAND gsc -c ${CMAKE_CURRENT_SOURCE_DIR}/${scm_source}
+            DEPENDS ${scm_source}
+            VERBATIM
+    )
+    list(APPEND scm_c_files ${file_c})
+endforeach()
+
+add_custom_command(OUTPUT "foo" "Shader/imgui.grag/src/buildDate.h")

@@ -13,27 +13,11 @@
 
 #include "HodEngine/Core/Rect.h"
 
+#include "HodEngine/ImGui/Shader/imgui.vert.ir"
+#include "HodEngine/ImGui/Shader/imgui.frag.ir"
+
 namespace hod::imgui
 {
-	// glsl_shader.vert, compiled with:
-	// # glslangValidator -V -x -o glsl_shader.vert.u32 glsl_shader.vert
-	/*
-	#version 450 core
-	layout(location = 0) in vec2 aPos;
-	layout(location = 1) in vec2 aUV;
-	layout(location = 2) in vec4 aColor;
-	layout(push_constant) uniform uPushConstant { vec2 uScale; vec2 uTranslate; } pc;
-
-	out gl_PerVertex { vec4 gl_Position; };
-	layout(location = 0) out struct { vec4 Color; vec2 UV; } Out;
-
-	void main()
-	{
-		Out.Color = aColor;
-		Out.UV = aUV;
-		gl_Position = vec4(aPos * pc.uScale + pc.uTranslate, 0, 1);
-	}
-	*/
 	static uint32_t __glsl_shader_vert_spv[] =
 	{
 		0x07230203,0x00010300,0x0008000a,0x0000002e,0x00000000,0x00020011,0x00000001,0x0006000b,
@@ -79,18 +63,6 @@ namespace hod::imgui
 		0x0000002d,0x0000002c,0x000100fd,0x00010038
 	};
 
-	// glsl_shader.frag, compiled with:
-	// # glslangValidator -V -x -o glsl_shader.frag.u32 glsl_shader.frag
-	/*
-	#version 450 core
-	layout(location = 0) out vec4 fColor;
-	layout(set=0, binding=0) uniform sampler2D sTexture;
-	layout(location = 0) in struct { vec4 Color; vec2 UV; } In;
-	void main()
-	{
-		fColor = In.Color * texture(sTexture, In.UV.st);
-	}
-	*/
 	static uint32_t __glsl_shader_frag_spv[] =
 	{
 		0x07230203,0x00010300,0x0008000a,0x0000001e,0x00000000,0x00020011,0x00000001,0x0006000b,
