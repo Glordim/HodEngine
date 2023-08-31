@@ -10,12 +10,12 @@
 #include "HodEngine/ImGui/DearImGui/imgui_impl_win32.h"
 //#include "HodEngine/ImGui/imgui_impl_vulkan.h"
 #include "HodEngine/ImGui/DearImGui/ImGuizmo.h"
+#include "HodEngine/ImGui/RenderCommandImGui.h"
 
 #include "HodEngine/ImGui/Window.h"
 #include "HodEngine/ImGui/MainBar.h"
 
 #include <HodEngine/Renderer/Renderer.h>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandImGui.h>
 #include <HodEngine/Renderer/RHI/Texture.h>
 
 #include <HodEngine/Core/Frame/FrameSequencer.h>
@@ -201,20 +201,20 @@ namespace hod::imgui
 
 		ImDrawData* drawData = ImGui::GetDrawData();
 
-		std::vector<renderer::RenderCommandImGui::DrawList*> drawLists;
+		std::vector<RenderCommandImGui::DrawList*> drawLists;
 		drawLists.resize(drawData->CmdListsCount);
 
 		for (int drawListIndex = 0; drawListIndex < drawData->CmdListsCount; ++drawListIndex)
 		{
 			ImDrawList* imDrawList = drawData->CmdLists[drawListIndex];
 
-			renderer::RenderCommandImGui::DrawList* drawList = new renderer::RenderCommandImGui::DrawList();
+			RenderCommandImGui::DrawList* drawList = new RenderCommandImGui::DrawList();
 
 			memcpy(&drawList->_displayPosition, &drawData->DisplayPos, sizeof(Vector2));
 			memcpy(&drawList->_displaySize, &drawData->DisplaySize, sizeof(Vector2));
 
 			drawList->_vertices.resize(imDrawList->VtxBuffer.Size);
-			memcpy(drawList->_vertices.data(), imDrawList->VtxBuffer.Data, imDrawList->VtxBuffer.Size * sizeof(renderer::RenderCommandImGui::Vertex));
+			memcpy(drawList->_vertices.data(), imDrawList->VtxBuffer.Data, imDrawList->VtxBuffer.Size * sizeof(RenderCommandImGui::Vertex));
 
 			drawList->_indices.resize(imDrawList->IdxBuffer.Size);
 			memcpy(drawList->_indices.data(), imDrawList->IdxBuffer.Data, imDrawList->IdxBuffer.Size * sizeof(uint16_t));
@@ -223,7 +223,7 @@ namespace hod::imgui
 			for (int cmdIndex = 0; cmdIndex < imDrawList->CmdBuffer.Size; ++cmdIndex)
 			{
 				ImDrawCmd& imCommand = imDrawList->CmdBuffer[cmdIndex];
-				renderer::RenderCommandImGui::Command& command = drawList->_commands[cmdIndex];
+				RenderCommandImGui::Command& command = drawList->_commands[cmdIndex];
 
 				command._clipRect._position.SetX(imCommand.ClipRect.x);
 				command._clipRect._position.SetY(imCommand.ClipRect.y);
@@ -244,7 +244,7 @@ namespace hod::imgui
 		viewport._size.SetX(ImGui::GetIO().DisplaySize.x);
 		viewport._size.SetY(ImGui::GetIO().DisplaySize.y);
 		
-		renderer::RenderCommandImGui* renderCommand = new renderer::RenderCommandImGui(drawLists, viewport);
+		RenderCommandImGui* renderCommand = new RenderCommandImGui(drawLists, viewport);
 
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 		renderer->GetRenderQueue()->PushRenderCommand(renderCommand);
