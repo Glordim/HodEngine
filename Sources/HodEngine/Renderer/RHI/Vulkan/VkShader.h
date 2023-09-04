@@ -3,6 +3,7 @@
 #include "HodEngine/Renderer/RHI/Shader.h"
 
 #include <vulkan/vulkan.h>
+#include <string>
 
 namespace hod
 {
@@ -21,6 +22,10 @@ namespace hod
 			bool							LoadFromMemory(void* data, uint32_t size) override;
 
 			VkShaderModule					GetShaderModule() const;
+
+		public:
+
+			static bool						ConvertSourceToGlsl(const std::string_view& source, std::string& result);
 
 		private:
 
