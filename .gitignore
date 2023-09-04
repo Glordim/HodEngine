@@ -2,6 +2,8 @@
 bazel-*
 build
 
+Generated
+
 *.spirv
 
 WaylandGenerated

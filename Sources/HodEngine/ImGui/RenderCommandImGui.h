@@ -63,8 +63,6 @@ namespace hod::imgui
 
 	private:
 
-		static renderer::Material*	_material;
-
 		Rect						_viewport;
 		std::vector<DrawList*>		_drawLists;
 	};

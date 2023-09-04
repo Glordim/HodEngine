@@ -16,6 +16,12 @@ namespace hod::window
 	class Window;
 }
 
+namespace hod::renderer
+{
+	class Material;
+	class Shader;
+}
+
 namespace hod::imgui
 {
 	class MainBar;
@@ -43,12 +49,16 @@ namespace hod::imgui
 
 		Window*							GetActiveWindow() const;
 
+		renderer::Material*				GetMaterial() const;
+
 	protected:
 
 										ImGuiManager();
 										~ImGuiManager();
 
 	private:
+
+		bool							CreateMaterial();
 
 #if defined (PLATFORM_WINDOWS)
 		void							OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -63,6 +73,10 @@ namespace hod::imgui
 		std::vector<Window*>			_windows;
 
 		Window*							_activeWindow = nullptr;
+
+		renderer::Material*				_material = nullptr;
+		renderer::Shader*				_vertexShader = nullptr;
+		renderer::Shader*				_fragmentShader = nullptr;
 	};
 }
 
