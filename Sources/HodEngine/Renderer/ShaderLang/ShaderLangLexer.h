@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
-#include <variant>
 #include <string>
+#include <variant>
+#include <vector>
 
 namespace hod
 {
@@ -78,8 +78,8 @@ namespace hod::renderer
 			While,
 		};
 
-		Type											_type;
-		std::variant<double, long long, std::string>	_data;
+		Type                                         _type;
+		std::variant<double, long long, std::string> _data;
 	};
 
 	class ShaderLangLexer
@@ -90,10 +90,10 @@ namespace hod::renderer
 		ShaderLangLexer(ShaderLangLexer&&) = delete;
 		~ShaderLangLexer() = default;
 
-		const ShaderLangLexer&	operator = (const ShaderLangLexer&) = delete;
-		const ShaderLangLexer&	operator = (ShaderLangLexer&&) = delete;
+		const ShaderLangLexer& operator=(const ShaderLangLexer&) = delete;
+		const ShaderLangLexer& operator=(ShaderLangLexer&&) = delete;
 
 	public:
-		bool	Tokenize(Stream& stream, std::vector<ShaderLangToken>& tokens);
+		bool Tokenize(Stream& stream, std::vector<ShaderLangToken>& tokens);
 	};
 }
