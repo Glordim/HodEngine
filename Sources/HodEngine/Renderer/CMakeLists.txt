@@ -50,3 +50,25 @@ if (RENDERER_ENABLE_VALIDATION_LAYER)
 endif ()
 
 target_compile_definitions(Renderer PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE} ${RENDERER_ENABLE_VALIDATION_LAYER_DEFINE})
+
+# Creates C resources file from files in given directory
+function(create_resources dir output)
+	file(MAKE_DIRECTORY ${output})
+	# Collect input files
+	file(GLOB bins ${dir}/*)
+	# Iterate through input files
+	foreach(bin ${bins})
+		string(REGEX MATCH "([^/]+)$" filename ${bin})
+		# Replace filename spaces & extension separator for C compatibility
+		string(REGEX REPLACE "\\.| |-" "_" variablename ${filename})
+		# Read hex data from file
+		file(READ ${bin} filedata HEX)
+		# Convert hex data for C compatibility
+		string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
+		# Create output file
+		file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tconst uint8_t ${variablename}[] = {${filedata}};\n\tconst uint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
+		file(WRITE "${output}/${filename}.h" "#include <cstdint>\n\nnamespace hod\n{\n\tstatic uint8_t* ${variablename};\n\tstatic const uint32_t ${variablename}_size;\n}\n")
+	endforeach()
+endfunction()
+
+create_resources("Shader/Sources" "Shader/Generated")

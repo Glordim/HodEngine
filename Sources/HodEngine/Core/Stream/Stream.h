@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <functional>
 
 namespace hod
 {
@@ -43,6 +44,10 @@ namespace hod
 
 		virtual bool		Read(void* buffer, uint32_t size) = 0;
 		virtual bool		Write(const void* buffer, uint32_t size) = 0;
+
+		virtual char		Peek() = 0;
+		virtual void		Ignore() = 0;
+		virtual bool		ReadUntil(char* buffer, uint32_t bufferSize, std::function<bool(char)> untilCondition) = 0;
 
 		virtual Stream&		operator << (bool value) = 0;
 		virtual Stream&		operator << (int8_t value) = 0;

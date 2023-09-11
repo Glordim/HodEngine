@@ -66,7 +66,7 @@ namespace hod::renderer
 		VkQueue GetPresentQueue() const { return _presentQueue; }
 		VkContext* GetContext() const { return _context; }
 
-		Material* GetSharedMinimalMaterial() const;
+		//Material* GetSharedMinimalMaterial() const;
 
 		bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
 		bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
@@ -118,14 +118,6 @@ namespace hod::renderer
 		const VkGpuDevice* _selectedGpu = nullptr;
 		const VkGpuDevice* _recommandedGpu = nullptr;
 		std::vector<VkGpuDevice>	_availableGpu;
-
-		Material* _unlitVertexColorMaterial = nullptr;
-		MaterialInstance* _unlitVertexColorMaterialInstance = nullptr;
-
-		Material* _unlitVertexColorLineMaterial = nullptr;
-		MaterialInstance* _unlitVertexColorLineMaterialInstance = nullptr;
-
-		Material* _sharedMinimalMaterial = nullptr;
 
 		VkContext* _context = nullptr;
 	};

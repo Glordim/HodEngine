@@ -18,15 +18,19 @@ namespace hod::renderer
 
 		while (true)
 		{
-			char current = stream.Peek();
-			if (current == ' ' || current == '\r' || current == '\t')
+			char c = stream.Peek();
+			if (IsWhitespace(c) == true)
 			{
-				current.Ignore();
+				stream.Ignore();
 			}
 			else if (IsAlphabetic(c) == true)
 			{
 				std::array<char, 255> tokenName;
-				stream.ReadUntil(tokenName, &IsAlphanumeric);
+				if (stream.ReadUntil(tokenName.data(), tokenName.max_size(), &IsAlphanumeric) == false)
+				{
+					OUTPUT_ERROR("ShaderLangLexer: Invalid token (too long)");
+					return false;
+				}
 			}
 		}
 		return true;

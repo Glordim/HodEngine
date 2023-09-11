@@ -6,6 +6,8 @@
 
 #include <HodEngine/Core/Output.h>
 #include "HodEngine/Core/Stream/FileStream.h"
+#include "HodEngine/Core/Stream/MemoryStream.h"
+#include "HodEngine/Renderer/ShaderLang/ShaderLangLexer.h"
 
 namespace hod
 {
@@ -30,6 +32,7 @@ namespace hod
 		bool Shader::LoadFromFile(const std::string& path)
 		{
 			FileStream fileStream(path, FileMode::Read);
+			/*
 			if (fileStream.CanRead() == false)
 			{
 				OUTPUT_ERROR("VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
@@ -45,8 +48,35 @@ namespace hod
 				return false;
 			}
 			fileStream.Close();
+			*/
 
-			return LoadFromMemory(_buffer.data(), _buffer.size());
+			return LoadFromStream(fileStream);
+			//
+		}
+
+		/// @brief 
+		/// @param data 
+		/// @param size 
+		/// @return 
+		bool Shader::LoadFromMemory(void* data, uint32_t size)
+		{
+			MemoryStream memoryStream(data, size);
+			return LoadFromStream(memoryStream);
+		}
+
+		/// @brief 
+		/// @param stream 
+		/// @return 
+		bool Shader::LoadFromStream(Stream& stream)
+		{
+			std::vector<ShaderLangToken> tokens;
+
+			ShaderLangLexer lexer;
+			if (lexer.Tokenize(stream, tokens) == false)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		/// @brief 

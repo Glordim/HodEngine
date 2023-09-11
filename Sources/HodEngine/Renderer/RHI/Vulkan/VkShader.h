@@ -19,7 +19,7 @@ namespace hod
 											VkShader(ShaderType type);
 											~VkShader() override;
 
-			bool							LoadFromMemory(void* data, uint32_t size) override;
+			//bool							LoadFromMemory(void* data, uint32_t size) override;
 
 			VkShaderModule					GetShaderModule() const;
 

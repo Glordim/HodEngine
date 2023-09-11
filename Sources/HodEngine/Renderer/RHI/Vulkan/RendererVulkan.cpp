@@ -165,6 +165,7 @@ namespace hod::renderer
 		return _commandPool;
 	}
 
+	/*
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
@@ -172,6 +173,7 @@ namespace hod::renderer
 	{
 		return _sharedMinimalMaterial;
 	}
+	*/
 
 	/// @brief 
 	/// @return 
@@ -207,7 +209,7 @@ namespace hod::renderer
 
 		_context = new VkContext(surface);
 		mainWindow->SetGraphicsContext(_context);
-
+		/*
 		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
 		if (_unlitVertexColorMaterial == nullptr)
 		{
@@ -226,6 +228,7 @@ namespace hod::renderer
 
 		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
 		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
+		*/
 
 		return true;
 	}
@@ -572,12 +575,14 @@ namespace hod::renderer
 
 		_context = (VkContext*)context;
 
+		/*
 		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
 		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Line, Material::Topololy::LINE));
 		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false));
 
 		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
 		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
+		*/
 
 		return true;
 	}

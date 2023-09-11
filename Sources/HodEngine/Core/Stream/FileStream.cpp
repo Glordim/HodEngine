@@ -125,6 +125,48 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @return 
+	char FileStream::Peek()
+	{
+		char c;
+		Read(&c, 1);
+		Seek(-1, SeekOrigin::Current);
+		return c;
+	}
+
+	/// @brief 
+	void FileStream::Ignore()
+	{
+		Seek(1, SeekOrigin::Current);
+	}
+
+	/// @brief 
+	/// @param buffer 
+	/// @param bufferSize 
+	/// @param untilCondition 
+	/// @return 
+	bool FileStream::ReadUntil(char* buffer, uint32_t bufferSize, std::function<bool(char)> untilCondition)
+	{
+		uint32_t offset = 0;
+
+		while (offset < (bufferSize - 1))
+		{
+			char c = Peek();
+			if (untilCondition(c) == true)
+			{
+				buffer[offset] = c;
+				Ignore();
+				++offset;
+			}
+			else
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief 
 	/// @param value 
 	/// @return 
 	Stream& FileStream::operator << (bool value)

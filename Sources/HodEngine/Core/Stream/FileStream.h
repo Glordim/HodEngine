@@ -43,6 +43,10 @@ namespace hod
 		bool				Write(const void* buffer, uint32_t size) override;
 		bool				Close();
 
+		char				Peek() override;
+		void				Ignore() override;
+		bool				ReadUntil(char* buffer, uint32_t bufferSize, std::function<bool(char)> untilCondition) override;
+
 		Stream&				operator << (bool value) override;
 		Stream&				operator << (int8_t value) override;
 		Stream&				operator << (int16_t value) override;

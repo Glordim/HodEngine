@@ -17,7 +17,7 @@ namespace hod
 											D3dShader(ShaderType type);
 											~D3dShader() override;
 
-			bool							LoadFromMemory(void* data, uint32_t size) override;
+			//bool							LoadFromMemory(void* data, uint32_t size) override;
 		};
 	}
 }

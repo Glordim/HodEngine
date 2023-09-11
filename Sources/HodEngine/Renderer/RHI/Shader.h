@@ -5,6 +5,8 @@
 
 namespace hod
 {
+	class Stream;
+
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
@@ -27,9 +29,14 @@ namespace hod
 			virtual							~Shader();
 
 			bool							LoadFromFile(const std::string& path);
-			virtual bool					LoadFromMemory(void* data, uint32_t size) = 0;
+			bool							LoadFromMemory(void* data, uint32_t size);
+			bool							LoadFromStream(Stream& stream);
 
 			const std::vector<uint8_t>&		GetShaderBytecode() const;
+
+		protected:
+
+			//virtual bool					LoadFromTokens();
 
 		protected:
 

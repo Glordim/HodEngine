@@ -10,6 +10,13 @@ namespace hod
 	{
 	}
 
+	MemoryStream::MemoryStream(void* buffer, uint32_t size) // Nop nop nop create a ReadOnlyMemoryStream
+	: _buffer(reinterpret_cast<uint8_t*>(buffer))
+	, _size(size)
+	{
+
+	}
+
 	/// @brief 
 	MemoryStream::~MemoryStream()
 	{
@@ -112,6 +119,45 @@ namespace hod
 	const void* MemoryStream::GetData() const
 	{
 		return _buffer;
+	}
+
+	/// @brief 
+	/// @return 
+	char MemoryStream::Peek()
+	{
+		return *(reinterpret_cast<char*>(_buffer) + _cursor);
+	}
+
+	/// @brief 
+	void MemoryStream::Ignore()
+	{
+		Seek(1, SeekOrigin::Current);
+	}
+
+	/// @brief 
+	/// @param buffer 
+	/// @param bufferSize 
+	/// @param untilCondition 
+	/// @return 
+	bool MemoryStream::ReadUntil(char* buffer, uint32_t bufferSize, std::function<bool(char)> untilCondition)
+	{
+		uint32_t offset = 0;
+
+		while (offset < (bufferSize - 1))
+		{
+			char c = Peek();
+			if (untilCondition(c) == true)
+			{
+				buffer[offset] = c;
+				Ignore();
+				++offset;
+			}
+			else
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/// @brief 

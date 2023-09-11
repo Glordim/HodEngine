@@ -74,7 +74,7 @@ namespace hod
 			{
 				vkContext = renderer->GetContext();
 			}
-			VkMaterial* material = (VkMaterial*)renderer->GetSharedMinimalMaterial();
+			VkMaterial* material = nullptr;//(VkMaterial*)renderer->GetSharedMinimalMaterial(); // todo
 			_sharedMinimalMaterialInstance = (VkMaterialInstance*)renderer->CreateMaterialInstance(material);
 
 			VkCommandBufferBeginInfo beginInfo = {};

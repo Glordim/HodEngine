@@ -106,6 +106,16 @@ namespace hod::renderer
 		Material*					_defaultMaterial = nullptr;
 		MaterialInstance*			_defaultMaterialInstance = nullptr;
 
+		/*
+		Material* _unlitVertexColorMaterial = nullptr;
+		MaterialInstance* _unlitVertexColorMaterialInstance = nullptr;
+
+		Material* _unlitVertexColorLineMaterial = nullptr;
+		MaterialInstance* _unlitVertexColorLineMaterialInstance = nullptr;
+
+		Material* _sharedMinimalMaterial = nullptr;
+		*/
+
 		VisualizationMode			_visualizationMode = VisualizationMode::Normal;
 
 		RenderQueue					_renderQueue;
