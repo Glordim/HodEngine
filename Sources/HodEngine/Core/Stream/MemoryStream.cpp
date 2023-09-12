@@ -10,8 +10,8 @@ namespace hod
 	{
 	}
 
-	MemoryStream::MemoryStream(void* buffer, uint32_t size) // Nop nop nop create a ReadOnlyMemoryStream
-	: _buffer(reinterpret_cast<uint8_t*>(buffer))
+	MemoryStream::MemoryStream(const void* buffer, uint32_t size) // Nop nop nop create a ReadOnlyMemoryStream
+	: _buffer(reinterpret_cast<uint8_t*>((void*)buffer))
 	, _size(size)
 	{
 

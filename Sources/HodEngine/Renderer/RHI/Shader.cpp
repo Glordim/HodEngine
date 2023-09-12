@@ -58,7 +58,7 @@ namespace hod
 		/// @param data 
 		/// @param size 
 		/// @return 
-		bool Shader::LoadFromMemory(void* data, uint32_t size)
+		bool Shader::LoadFromMemory(const void* data, uint32_t size)
 		{
 			MemoryStream memoryStream(data, size);
 			return LoadFromStream(memoryStream);

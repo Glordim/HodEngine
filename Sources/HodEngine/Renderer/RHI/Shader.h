@@ -29,7 +29,7 @@ namespace hod
 			virtual							~Shader();
 
 			bool							LoadFromFile(const std::string& path);
-			bool							LoadFromMemory(void* data, uint32_t size);
+			bool							LoadFromMemory(const void* data, uint32_t size);
 			bool							LoadFromStream(Stream& stream);
 
 			const std::vector<uint8_t>&		GetShaderBytecode() const;

@@ -11,7 +11,7 @@ namespace hod
 	public:
 
 							MemoryStream();
-							MemoryStream(void* buffer, uint32_t size);
+							MemoryStream(const void* buffer, uint32_t size);
 							MemoryStream(const MemoryStream&) = delete;
 							MemoryStream(MemoryStream&&) = delete;
 							~MemoryStream() override;
