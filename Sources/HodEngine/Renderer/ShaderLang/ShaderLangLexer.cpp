@@ -25,12 +25,35 @@ namespace hod::renderer
 			}
 			else if (IsAlphabetic(c) == true)
 			{
-				std::array<char, 255> tokenName;
-				if (stream.ReadUntil(tokenName.data(), tokenName.max_size(), &IsAlphanumeric) == false)
+				std::array<char, 255> tokenBuffer;
+				if (stream.ReadUntil(tokenBuffer.data(), tokenBuffer.max_size(), &IsAlphanumeric) == false)
 				{
 					OUTPUT_ERROR("ShaderLangLexer: Invalid token (too long)");
 					return false;
 				}
+				std::string_view tokenName(tokenBuffer.data());
+				if (tokenName == "struct")
+				{
+					ShaderLangToken token;
+					token._type = ShaderLangToken::Struct;
+					tokens.push_back(token);
+				}
+			}
+			else if (c == '{')
+			{
+				stream.Ignore();
+
+				ShaderLangToken token;
+				token._type = ShaderLangToken::OpenCurlyBracket;
+				tokens.push_back(token);
+			}
+			else if (c == '}')
+			{
+				stream.Ignore();
+				
+				ShaderLangToken token;
+				token._type = ShaderLangToken::ClosingCurlyBracket;
+				tokens.push_back(token);
 			}
 		}
 		return true;
