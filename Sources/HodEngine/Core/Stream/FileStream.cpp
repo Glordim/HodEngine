@@ -4,42 +4,42 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @param path 
+	/// @brief
+	/// @param path
 	FileStream::FileStream(const std::filesystem::path& path, FileMode fileMode)
 	{
 		Open(path, fileMode);
 	}
 
-	/// @brief 
+	/// @brief
 	FileStream::~FileStream()
 	{
 		Close();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool FileStream::CanRead() const
 	{
 		return (_fileHandle != nullptr) && (_fileMode == FileMode::Read);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool FileStream::CanWrite() const
 	{
 		return (_fileHandle != nullptr) && (_fileMode == FileMode::Write);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool FileStream::CanSeek() const
 	{
 		return (_fileHandle != nullptr);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	int64_t FileStream::GetSize()
 	{
 		int64_t position = Tell();
@@ -49,39 +49,31 @@ namespace hod
 		return size;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	int64_t FileStream::Tell() const
 	{
 		return std::ftell(_fileHandle);
 	}
 
-	/// @brief 
-	/// @param position 
-	/// @param origin 
-	/// @return 
+	/// @brief
+	/// @param position
+	/// @param origin
+	/// @return
 	bool FileStream::Seek(int64_t position, SeekOrigin origin)
 	{
-		static int fopenSeek[static_cast<uint8_t>(SeekOrigin::Count)] = {
-			SEEK_SET,
-			SEEK_CUR,
-			SEEK_END
-		};
+		static int fopenSeek[static_cast<uint8_t>(SeekOrigin::Count)] = {SEEK_SET, SEEK_CUR, SEEK_END};
 
 		return (std::fseek(_fileHandle, position, static_cast<uint8_t>(origin)) == 0);
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @param fileMode 
-	/// @return 
+	/// @brief
+	/// @param path
+	/// @param fileMode
+	/// @return
 	bool FileStream::Open(const std::filesystem::path& path, FileMode fileMode)
 	{
-		static const char* fopenModes[static_cast<uint8_t>(FileMode::Count)] = {
-			"rb",
-			"wb",
-			"ab"
-		};
+		static const char* fopenModes[static_cast<uint8_t>(FileMode::Count)] = {"rb", "wb", "ab"};
 
 		_fileHandle = std::fopen(path.string().c_str(), fopenModes[static_cast<uint8_t>(fileMode)]);
 		_fileMode = fileMode;
@@ -89,27 +81,27 @@ namespace hod
 		return (_fileHandle != nullptr);
 	}
 
-	/// @brief 
-	/// @param buffer 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param buffer
+	/// @param size
+	/// @return
 	bool FileStream::Read(void* buffer, uint32_t size)
 	{
 		size_t readResult = std::fread(buffer, sizeof(char), size, _fileHandle);
 		return (readResult == size);
 	}
 
-	/// @brief 
-	/// @param buffer 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param buffer
+	/// @param size
+	/// @return
 	bool FileStream::Write(const void* buffer, uint32_t size)
 	{
 		return (std::fwrite(buffer, sizeof(char), size, _fileHandle) == size);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool FileStream::Close()
 	{
 		bool result = false;
@@ -124,8 +116,8 @@ namespace hod
 		return result;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	char FileStream::Peek()
 	{
 		char c;
@@ -134,29 +126,29 @@ namespace hod
 		return c;
 	}
 
-	/// @brief 
+	/// @brief
 	void FileStream::Ignore()
 	{
 		Seek(1, SeekOrigin::Current);
 	}
 
-	/// @brief 
-	/// @param buffer 
-	/// @param bufferSize 
-	/// @param untilCondition 
-	/// @return 
-	bool FileStream::ReadUntil(char* buffer, uint32_t bufferSize, std::function<bool(char)> untilCondition)
+	/// @brief
+	/// @param buffer
+	/// @param bufferSize
+	/// @param untilCondition
+	/// @return
+	bool FileStream::ReadUntil(char* buffer, uint32_t bufferSize, uint32_t& readedBytes, std::function<bool(char)> untilCondition)
 	{
-		uint32_t offset = 0;
+		readedBytes = 0;
 
-		while (offset < (bufferSize - 1))
+		while (readedBytes < (bufferSize - 1))
 		{
 			char c = Peek();
 			if (untilCondition(c) == true)
 			{
-				buffer[offset] = c;
+				buffer[readedBytes] = c;
 				Ignore();
-				++offset;
+				++readedBytes;
 			}
 			else
 			{
@@ -166,178 +158,178 @@ namespace hod
 		return false;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (bool value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(bool value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (int8_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(int8_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (int16_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(int16_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (int32_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(int32_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (int64_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(int64_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (uint8_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(uint8_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (uint16_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(uint16_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (uint32_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(uint32_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (uint64_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(uint64_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (float value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(float value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator << (double value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator<<(double value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (bool& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(bool& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (int8_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(int8_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (int16_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(int16_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (int32_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(int32_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (int64_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(int64_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (uint8_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(uint8_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (uint16_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(uint16_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (uint32_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(uint32_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (uint64_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(uint64_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (float& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(float& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& FileStream::operator >> (double& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& FileStream::operator>>(double& value)
 	{
 		return *this;
 	}

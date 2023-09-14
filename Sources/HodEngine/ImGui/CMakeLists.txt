@@ -20,7 +20,7 @@ function(create_resources dir output)
 		string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
 		# Create output file
 		file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tuint8_t ${variablename}[] = {${filedata}};\n\tuint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
-		file(WRITE "${output}/${filename}.h" "#pragma once\n#include <cstdint>\n\nnamespace hod\n{\n\textern uint8_t* ${variablename};\n\textern uint32_t ${variablename}_size;\n}\n")
+		file(WRITE "${output}/${filename}.h" "#pragma once\n#include <cstdint>\n\nnamespace hod\n{\n\textern uint8_t ${variablename}[];\n\textern uint32_t ${variablename}_size;\n}\n")
 	endforeach()
 endfunction()
 

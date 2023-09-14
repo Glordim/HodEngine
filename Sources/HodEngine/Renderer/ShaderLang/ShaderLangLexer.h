@@ -23,6 +23,7 @@ namespace hod::renderer
 			BoolFalse,
 			BoolTrue,
 			Break,
+			CBuffer,
 			ClosingParenthesis,
 			ClosingCurlyBracket,
 			ClosingSquareBracket,

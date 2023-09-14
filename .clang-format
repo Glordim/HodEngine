@@ -1,9 +1,9 @@
 ---
-ColumnLimit: 100
+ColumnLimit: 180
 ---
 Language: Cpp
 BasedOnStyle: LLVM
-ColumnLimit: 100
+ColumnLimit: 180
 AccessModifierOffset: -4
 AlignArrayOfStructure: Left
 AlignConsecutiveDeclarations:

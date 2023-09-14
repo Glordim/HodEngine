@@ -5,63 +5,59 @@
 
 namespace hod
 {
-	/// @brief 
-	MemoryStream::MemoryStream()
-	{
-	}
+	/// @brief
+	MemoryStream::MemoryStream() {}
 
 	MemoryStream::MemoryStream(const void* buffer, uint32_t size) // Nop nop nop create a ReadOnlyMemoryStream
 	: _buffer(reinterpret_cast<uint8_t*>((void*)buffer))
 	, _size(size)
-	{
+	{}
 
-	}
-
-	/// @brief 
+	/// @brief
 	MemoryStream::~MemoryStream()
 	{
 		delete[] _buffer;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool MemoryStream::CanRead() const
 	{
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool MemoryStream::CanWrite() const
 	{
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool MemoryStream::CanSeek() const
 	{
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	int64_t MemoryStream::GetSize()
 	{
 		return _size;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	int64_t MemoryStream::Tell() const
 	{
 		return _cursor;
 	}
 
-	/// @brief 
-	/// @param position 
-	/// @param origin 
-	/// @return 
+	/// @brief
+	/// @param position
+	/// @param origin
+	/// @return
 	bool MemoryStream::Seek(int64_t position, SeekOrigin origin)
 	{
 		if (origin == SeekOrigin::Begin)
@@ -79,10 +75,10 @@ namespace hod
 		return true;
 	}
 
-	/// @brief 
-	/// @param buffer 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param buffer
+	/// @param size
+	/// @return
 	bool MemoryStream::Read(void* buffer, uint32_t size)
 	{
 		if (size <= _size - _cursor)
@@ -93,10 +89,10 @@ namespace hod
 		return false;
 	}
 
-	/// @brief 
-	/// @param buffer 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param buffer
+	/// @param size
+	/// @return
 	bool MemoryStream::Write(const void* buffer, uint32_t size)
 	{
 		if (size >= _size - _cursor)
@@ -108,49 +104,49 @@ namespace hod
 			_buffer = newBuffer;
 			_size = newSize;
 		}
-		
+
 		std::memcpy(_buffer + _cursor, buffer, size);
 		_cursor += size;
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const void* MemoryStream::GetData() const
 	{
 		return _buffer;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	char MemoryStream::Peek()
 	{
 		return *(reinterpret_cast<char*>(_buffer) + _cursor);
 	}
 
-	/// @brief 
+	/// @brief
 	void MemoryStream::Ignore()
 	{
 		Seek(1, SeekOrigin::Current);
 	}
 
-	/// @brief 
-	/// @param buffer 
-	/// @param bufferSize 
-	/// @param untilCondition 
-	/// @return 
-	bool MemoryStream::ReadUntil(char* buffer, uint32_t bufferSize, std::function<bool(char)> untilCondition)
+	/// @brief
+	/// @param buffer
+	/// @param bufferSize
+	/// @param untilCondition
+	/// @return
+	bool MemoryStream::ReadUntil(char* buffer, uint32_t bufferSize, uint32_t& readedBytes, std::function<bool(char)> untilCondition)
 	{
-		uint32_t offset = 0;
+		readedBytes = 0;
 
-		while (offset < (bufferSize - 1))
+		while (readedBytes < (bufferSize - 1))
 		{
 			char c = Peek();
 			if (untilCondition(c) == true)
 			{
-				buffer[offset] = c;
+				buffer[readedBytes] = c;
 				Ignore();
-				++offset;
+				++readedBytes;
 			}
 			else
 			{
@@ -160,178 +156,178 @@ namespace hod
 		return false;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (bool value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(bool value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (int8_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(int8_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (int16_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(int16_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (int32_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(int32_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (int64_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(int64_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (uint8_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(uint8_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (uint16_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(uint16_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (uint32_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(uint32_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (uint64_t value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(uint64_t value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (float value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(float value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator << (double value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator<<(double value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (bool& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(bool& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (int8_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(int8_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (int16_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(int16_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (int32_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(int32_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (int64_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(int64_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (uint8_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(uint8_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (uint16_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(uint16_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (uint32_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(uint32_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (uint64_t& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(uint64_t& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (float& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(float& value)
 	{
 		return *this;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
-	Stream& MemoryStream::operator >> (double& value)
+	/// @brief
+	/// @param value
+	/// @return
+	Stream& MemoryStream::operator>>(double& value)
 	{
 		return *this;
 	}
