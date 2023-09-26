@@ -1,19 +1,19 @@
-#include "HodEngine/Renderer/ShaderLang/ShaderLangLexer.h"
+#include "Lexer.h"
 
-#include "HodEngine/Core/CharHelper.h"
-#include "HodEngine/Core/Output.h"
-#include "HodEngine/Core/Stream/Stream.h"
+#include <HodEngine/Core/CharHelper.h>
+#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Stream/Stream.h>
 
 #include <array>
 #include <charconv>
 
-namespace hod::renderer
+namespace hod
 {
-	bool ShaderLangLexer::Tokenize(Stream& stream, std::vector<ShaderLangToken>& tokens)
+	bool Lexer::Tokenize(Stream& stream, std::vector<ShaderLangToken>& tokens)
 	{
 		if (stream.CanRead() == false)
 		{
-			OUTPUT_ERROR("ShaderLangLexer: Unable to read stream");
+			OUTPUT_ERROR("Lexer: Unable to read stream");
 			return false;
 		}
 
@@ -31,7 +31,7 @@ namespace hod::renderer
 
 				if (stream.ReadUntil(tokenBuffer.data(), tokenBuffer.max_size(), readedBytes, [](char c) { return IsAlphanumeric(c) || c == '_' || c == '-'; }) == false)
 				{
-					OUTPUT_ERROR("ShaderLangLexer: Invalid token (too long)");
+					OUTPUT_ERROR("Lexer: Invalid token (too long)");
 					return false;
 				}
 				std::string_view tokenName(tokenBuffer.data(), readedBytes);
@@ -68,7 +68,7 @@ namespace hod::renderer
 
 				if (stream.ReadUntil(tokenBuffer.data(), tokenBuffer.max_size(), readedBytes, &IsNumeric) == false)
 				{
-					OUTPUT_ERROR("ShaderLangLexer: Invalid token (too long)");
+					OUTPUT_ERROR("Lexer: Invalid token (too long)");
 					return false;
 				}
 				ShaderLangToken token;

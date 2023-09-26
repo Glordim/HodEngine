@@ -54,6 +54,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 project(HodEngine) # Rename
 
 add_subdirectory("Sources/HodEngine/Core")
+
+add_subdirectory("Sources/HodShaderConverter")
+
 add_subdirectory("Sources/HodEngine/Window")
 add_subdirectory("Sources/HodEngine/Renderer")
 add_subdirectory("Sources/HodEngine/ImGui")

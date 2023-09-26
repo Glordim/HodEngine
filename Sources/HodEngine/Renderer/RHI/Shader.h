@@ -28,6 +28,8 @@ namespace hod
 											Shader(ShaderType type);
 			virtual							~Shader();
 
+			bool							LoadFromSource(Stream& stream);
+
 			bool							LoadFromFile(const std::string& path);
 			bool							LoadFromMemory(const void* data, uint32_t size);
 			bool							LoadFromStream(Stream& stream);

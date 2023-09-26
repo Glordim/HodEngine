@@ -1,10 +1,10 @@
-struct VertexInput
+struct IN
 {
 	float2 pos : POSITION;
 	float2 uv : TEXCOORD;
 }
 
-struct VertexOutput
+struct OUT
 {
 	float2 pos : POSITION;
 	float2 uv : TEXCOORD;
@@ -26,10 +26,8 @@ struct ModelUniformBufferObject
 ViewUniformBufferObject viewUbo;
 ModelUniformBufferObject modelUbo;
 
-VertexOutput main(VertexInput input)
+void main()
 {
-	VertexOutput output;
-	output.position = input.position * modelUbo.mvp;
-	output.uv = input.uv;
-	return output;
+	OUT.position = IN.position * modelUbo.mvp;
+	OUT.uv = IN.uv;
 }

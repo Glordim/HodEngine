@@ -8,10 +8,7 @@
 namespace hod
 {
 	class Stream;
-}
 
-namespace hod::renderer
-{
 	struct ShaderLangToken
 	{
 		enum Type
@@ -83,16 +80,16 @@ namespace hod::renderer
 		std::variant<double, long long, std::string> _data;
 	};
 
-	class ShaderLangLexer
+	class Lexer
 	{
 	public:
-		ShaderLangLexer() = default;
-		ShaderLangLexer(const ShaderLangLexer&) = delete;
-		ShaderLangLexer(ShaderLangLexer&&) = delete;
-		~ShaderLangLexer() = default;
+		Lexer() = default;
+		Lexer(const Lexer&) = delete;
+		Lexer(Lexer&&) = delete;
+		~Lexer() = default;
 
-		const ShaderLangLexer& operator=(const ShaderLangLexer&) = delete;
-		const ShaderLangLexer& operator=(ShaderLangLexer&&) = delete;
+		const Lexer& operator=(const Lexer&) = delete;
+		const Lexer& operator=(Lexer&&) = delete;
 
 	public:
 		bool Tokenize(Stream& stream, std::vector<ShaderLangToken>& tokens);

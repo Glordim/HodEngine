@@ -7,7 +7,6 @@
 #include <HodEngine/Core/Output.h>
 #include "HodEngine/Core/Stream/FileStream.h"
 #include "HodEngine/Core/Stream/MemoryStream.h"
-#include "HodEngine/Renderer/ShaderLang/ShaderLangLexer.h"
 
 namespace hod
 {
@@ -24,6 +23,27 @@ namespace hod
 		Shader::~Shader()
 		{
 
+		}
+
+		/// @brief 
+		/// @param stream 
+		/// @return 
+		bool Shader::LoadFromSource(Stream& stream)
+		{
+			/*
+			std::vector<ShaderLangToken> tokens;
+
+			ShaderLangLexer lexer;
+			if (lexer.Tokenize(stream, tokens) == false)
+			{
+				return false;
+			}
+*/
+			//std::string platformSource = ConvertToPlatformSource(tokens);
+
+			
+
+			return true;
 		}
 
 		/// @brief 
@@ -69,6 +89,7 @@ namespace hod
 		/// @return 
 		bool Shader::LoadFromStream(Stream& stream)
 		{
+			/*
 			std::vector<ShaderLangToken> tokens;
 
 			ShaderLangLexer lexer;
@@ -76,6 +97,9 @@ namespace hod
 			{
 				return false;
 			}
+*/
+			//Convert(tokens);
+
 			return true;
 		}
 

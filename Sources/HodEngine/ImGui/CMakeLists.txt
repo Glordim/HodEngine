@@ -21,10 +21,21 @@ function(create_resources dir output)
 		# Create output file
 		file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tuint8_t ${variablename}[] = {${filedata}};\n\tuint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
 		file(WRITE "${output}/${filename}.h" "#pragma once\n#include <cstdint>\n\nnamespace hod\n{\n\textern uint8_t ${variablename}[];\n\textern uint32_t ${variablename}_size;\n}\n")
+
+		message("Pack shader ${bin}")
+
+		execute_process(COMMAND ${CMAKE_COMMAND} --build . --target HodShaderConverter --input ${bin} --output ${output}/${filename} --embeddedSource WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/HodShaderConverter RESULT_VARIABLE CommandResult)
+
+		if(CommandResult EQUAL 0)
+			#message(STATUS "Liste des fichiers : ${FILE_LIST}")
+			message(STATUS "Done")
+		else()
+			message(FATAL_ERROR "Fail: '${CommandResult}'")
+		endif()
 	endforeach()
 endfunction()
 
-create_resources("Shader/Sources" "Shader/Generated")
+#create_resources("Shader/Sources" "Shader/Generated")
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.cpp"
@@ -42,7 +53,14 @@ assign_source_group(${Srcs}) # for VS
 add_library(ImGui OBJECT ${Srcs} ${Includes})
 set_property(TARGET ImGui PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(ImGui Core Window Renderer)
+add_custom_target(ImGui_GenerateEmbeddedShader
+    COMMAND HodShaderConverter --input Shader/Sources --output Shader/Generated
+    DEPENDS HodShaderConverter
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMENT "Generating shader source files"
+)
+
+add_dependencies(ImGui Core Window Renderer ImGui_GenerateEmbeddedShader)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
 get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
