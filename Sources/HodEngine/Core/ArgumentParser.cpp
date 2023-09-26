@@ -35,7 +35,7 @@ namespace hod
 					currentArgument = _arguments + _argumentCount;
 					++_argumentCount;
 
-					currentArgument->_longName = arg;
+					currentArgument->_longName = arg + 2;
 				}
 			}
 			else if (currentArgument != nullptr)
