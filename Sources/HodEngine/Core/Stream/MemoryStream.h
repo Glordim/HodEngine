@@ -47,6 +47,7 @@ namespace hod
 		Stream& operator<<(uint64_t value) override;
 		Stream& operator<<(float value) override;
 		Stream& operator<<(double value) override;
+		Stream& operator<<(const std::string& value) override;
 
 		Stream& operator>>(bool& value) override;
 		Stream& operator>>(int8_t& value) override;

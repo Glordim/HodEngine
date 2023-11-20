@@ -243,6 +243,11 @@ namespace hod
 	{
 		return *this;
 	}
+	
+	Stream& MemoryStream::operator<<(const std::string& value)
+	{
+		return *this;
+	}
 
 	/// @brief
 	/// @param value

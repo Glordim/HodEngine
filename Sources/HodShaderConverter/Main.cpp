@@ -5,6 +5,11 @@
 #include <filesystem>
 
 #include "Lexer.h"
+#include "Converter.h"
+#include "ConverterGLSL.h"
+#include "ConverterHLSL.h"
+
+#include <fstream>
 
 namespace hod
 {
@@ -31,42 +36,62 @@ namespace hod
 			return false;
 		}
 
+		ConverterGLSL converter;
+		if (converter.Convert(tokens) == false)
+		{
+			return false;
+		}
+
 		std::filesystem::path headerOutputFilePath = outputFile;
 		headerOutputFilePath += ".h";
 
-		FileStream headerOutputStream(headerOutputFilePath, FileMode::Write);
-		if (headerOutputStream.CanWrite() == false)
+		std::ofstream headerOutputStream(headerOutputFilePath, 0);
+		if (headerOutputStream.is_open() == false)
 		{
 			OUTPUT_ERROR("Unable to write output file : %s", headerOutputFilePath.string().c_str());
 			return false;
 		}
+		/*FileStream headerOutputStream(headerOutputFilePath, FileMode::Write);
+		if (headerOutputStream.CanWrite() == false)
+		{
+			OUTPUT_ERROR("Unable to write output file : %s", headerOutputFilePath.string().c_str());
+			return false;
+		}*/
 
 		headerOutputStream << "#pragma once\n\n";
 		headerOutputStream << "#include <cstdint>\n\n";
 		headerOutputStream << "namespace hod\n";
 		headerOutputStream << "{\n";
-		headerOutputStream << "\textern uint8_t " << outputFile.string().c_str() << "[];\n";
-		headerOutputStream << "\textern uint32_t " << outputFile.string().c_str() << "_size;\n";
+		headerOutputStream << "\textern uint8_t " << outputFile.stem().string() << "[];\n";
+		headerOutputStream << "\textern uint32_t " << outputFile.stem().string() << "_size;\n";
 		headerOutputStream << "}\n";
-		headerOutputStream.Close();
+		//headerOutputStream.Close();
 
 		std::filesystem::path sourceOutputFilePath = outputFile;
 		sourceOutputFilePath += ".cpp";
 
+		std::ofstream sourceOutputStream(sourceOutputFilePath, 0);
+		if (sourceOutputStream.is_open() == false)
+		{
+			OUTPUT_ERROR("Unable to write output file : %s", headerOutputFilePath.string().c_str());
+			return false;
+		}
+		/*
 		FileStream sourceOutputStream(sourceOutputFilePath, FileMode::Write);
 		if (sourceOutputStream.CanWrite() == false)
 		{
 			OUTPUT_ERROR("Unable to write output file : %s", sourceOutputFilePath.string().c_str());
 			return false;
 		}
+		*/
 
 		sourceOutputStream << "#include <cstdint>\n\n";
 		sourceOutputStream << "namespace hod\n";
 		sourceOutputStream << "{\n";
-		sourceOutputStream << "\tuint8_t " << outputFile.string().c_str() << "[] = {};\n";
-		sourceOutputStream << "\tuint32_t " << outputFile.string().c_str() << "_size = sizeof(" << outputFile.string().c_str() << ");\n";
+		sourceOutputStream << "\tuint8_t " << outputFile.stem().string() << "[] = \"" << converter.GetResult().c_str() << "\";\n";
+		sourceOutputStream << "\tuint32_t " << outputFile.stem().string() << "_size = sizeof(" << outputFile.stem().string() << ");\n";
 		sourceOutputStream << "}\n";
-		sourceOutputStream.Close();
+		//sourceOutputStream.Close();
 
 		return true;
 	}

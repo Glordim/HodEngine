@@ -67,6 +67,20 @@
 			"console": "externalTerminal",
 			//"preLaunchTask": "Build HodEditor",
 			"preLaunchTask": "Build target",
+		},
+		{
+			"name": "(Windows) Shader Converter",
+			"type": "cppvsdbg",
+			"request": "launch",
+			//"program": "${workspaceFolder}/bazel-bin/Sources/EditorApplication/HodEditor.exe",
+			"program": "${command:cmake.launchTargetPath}",
+			"args": ["--input", "${workspaceFolder}\\Sources\\HodEngine\\ImGui\\Shader\\Sources", "--output", "${workspaceFolder}/Sources/HodEngine/ImGui/Shader/Generated"],
+			"stopAtEntry": false,
+			//"cwd": "${workspaceFolder}/Data",
+			"environment": [],
+			"console": "externalTerminal",
+			//"preLaunchTask": "Build HodEditor",
+			"preLaunchTask": "Build target",
 		}
 	]
 }

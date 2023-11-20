@@ -163,6 +163,7 @@ namespace hod
 	/// @return
 	Stream& FileStream::operator<<(bool value)
 	{
+
 		return *this;
 	}
 
@@ -227,6 +228,12 @@ namespace hod
 	/// @return
 	Stream& FileStream::operator<<(uint64_t value)
 	{
+		return *this;
+	}
+
+	Stream& FileStream::operator<<(const std::string& value)
+	{
+		Write(value.c_str(), value.size());
 		return *this;
 	}
 

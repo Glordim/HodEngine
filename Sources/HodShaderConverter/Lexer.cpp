@@ -5,10 +5,66 @@
 #include <HodEngine/Core/Stream/Stream.h>
 
 #include <array>
+#include <string_view>
 #include <charconv>
 
 namespace hod
 {
+	std::array<std::string_view, ShaderLangToken::Type::Count> ShaderLangToken::_tokenLabel = {
+		"->", 		// Arrow
+		"=", 		// Assign
+		"false", 	// BoolFalse
+		"true", 	// BoolTrue
+		"break",	// Break
+		"cbuffer",	// CBuffer
+		")",		// ClosingParenthesis
+		"}",		// ClosingCurlyBracket
+		"]",		// ClosingSquareBracket
+		":",		// Colon
+		",",		// Comma
+		"const",	// Const
+		"continue",	// Continue
+		"discard",	// Discard
+		"/",		// Divide
+		"/=",		// DivideAssign
+		".",		// Dot
+		"==",		// Equal
+		"else",		// Else
+		"",			// EndOfStream
+		"",			// FloatingPointValue
+		"for",		// For
+		">",		// GreaterThan
+		">=",		// GreaterThanEqual
+		"",			// IntegerValue
+		"",			// Identifier
+		"if",		// If
+		"<",		// LessThan
+		"<=",		// LessThanEqual
+		"&",		// LogicalAnd
+		"&=",		// LogicalAndAssign
+		"|",		// LogicalOr
+		"|=",		// LogicalOrAssign
+		"*",		// Multiply
+		"*=",		// MultiplyAssign
+		"-",		// Minus
+		"-=",		// MinusAssign
+		"%",		// Modulo
+		"%=",		// ModuloAssign
+		"!",		// Not
+		"!=",		// NotEqual
+		"+",		// Plus
+		"+=",		// PlusAssign
+		"{",		// OpenCurlyBracket
+		"[",		// OpenSquareBracket
+		"(",		// OpenParenthesis
+		"return",	// Return
+		";",		// Semicolon
+		" ",		// Space
+		"",			// StringValue
+		"struct",	// Struct
+		"while"		// While
+	};
+
 	bool Lexer::Tokenize(Stream& stream, std::vector<ShaderLangToken>& tokens)
 	{
 		if (stream.CanRead() == false)
@@ -17,12 +73,26 @@ namespace hod
 			return false;
 		}
 
-		while (true)
+		auto size = stream.GetSize();
+		while (stream.Tell() < size)
 		{
+			auto tell = stream.Tell();
+			if (tell >= size)
+			{
+				return true;
+			}
+
 			char c = stream.Peek();
 			if (IsWhitespace(c) == true)
 			{
 				stream.Ignore();
+
+				if (tokens.empty() == false && tokens.back()._type != ShaderLangToken::Space)
+				{
+					ShaderLangToken token;
+					token._type = ShaderLangToken::Space;
+					tokens.push_back(token);
+				}
 			}
 			else if (IsAlphabetic(c) == true)
 			{
@@ -35,19 +105,19 @@ namespace hod
 					return false;
 				}
 				std::string_view tokenName(tokenBuffer.data(), readedBytes);
-				if (tokenName == "struct")
+				if (tokenName == ShaderLangToken::_tokenLabel[ShaderLangToken::Struct])
 				{
 					ShaderLangToken token;
 					token._type = ShaderLangToken::Struct;
 					tokens.push_back(token);
 				}
-				else if (tokenName == "cbuffer")
+				else if (tokenName == ShaderLangToken::_tokenLabel[ShaderLangToken::CBuffer])
 				{
 					ShaderLangToken token;
 					token._type = ShaderLangToken::CBuffer;
 					tokens.push_back(token);
 				}
-				else if (tokenName == "return")
+				else if (tokenName == ShaderLangToken::_tokenLabel[ShaderLangToken::Return])
 				{
 					ShaderLangToken token;
 					token._type = ShaderLangToken::Return;
@@ -179,7 +249,7 @@ namespace hod
 				stream.Ignore();
 
 				ShaderLangToken token;
-				token._type = ShaderLangToken::Equal;
+				token._type = ShaderLangToken::Assign;
 				tokens.push_back(token);
 			}
 			else if (c == '<')
@@ -213,5 +283,7 @@ namespace hod
 				return false;
 			}
 		}
+
+		return true;
 	}
 }

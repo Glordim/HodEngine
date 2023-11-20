@@ -57,6 +57,7 @@ namespace hod
 		virtual Stream& operator<<(uint64_t value) = 0;
 		virtual Stream& operator<<(float value) = 0;
 		virtual Stream& operator<<(double value) = 0;
+		virtual Stream& operator<<(const std::string& value) = 0;
 
 		virtual Stream& operator>>(bool& value) = 0;
 		virtual Stream& operator>>(int8_t& value) = 0;

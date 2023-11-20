@@ -4,6 +4,9 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <map>
+#include <array>
+#include <string_view>
 
 namespace hod
 {
@@ -13,9 +16,7 @@ namespace hod
 	{
 		enum Type
 		{
-			Alias,
-			Arrow,
-			As,
+			Arrow = 0,
 			Assign,
 			BoolFalse,
 			BoolTrue,
@@ -27,7 +28,6 @@ namespace hod
 			Colon,
 			Comma,
 			Const,
-			ConstSelect,
 			Continue,
 			Discard,
 			Divide,
@@ -36,20 +36,15 @@ namespace hod
 			Equal,
 			Else,
 			EndOfStream,
-			External,
 			FloatingPointValue,
 			For,
-			FunctionDeclaration,
 			GreaterThan,
 			GreaterThanEqual,
-			Include,
 			IntegerValue,
 			Identifier,
 			If,
-			In,
 			LessThan,
 			LessThanEqual,
-			Let,
 			LogicalAnd,
 			LogicalAndAssign,
 			LogicalOr,
@@ -58,7 +53,6 @@ namespace hod
 			MultiplyAssign,
 			Minus,
 			MinusAssign,
-			Module,
 			Modulo,
 			ModuloAssign,
 			Not,
@@ -68,16 +62,20 @@ namespace hod
 			OpenCurlyBracket,
 			OpenSquareBracket,
 			OpenParenthesis,
-			Option,
 			Return,
 			Semicolon,
+			Space,
 			StringValue,
 			Struct,
 			While,
+
+			Count
 		};
 
-		Type                                         _type;
-		std::variant<double, long long, std::string> _data;
+		static std::array<std::string_view, Type::Count> _tokenLabel;
+
+		Type                                        _type;
+		std::variant<int, float, std::string> 		_data;
 	};
 
 	class Lexer
@@ -88,8 +86,8 @@ namespace hod
 		Lexer(Lexer&&) = delete;
 		~Lexer() = default;
 
-		const Lexer& operator=(const Lexer&) = delete;
-		const Lexer& operator=(Lexer&&) = delete;
+		Lexer& operator=(const Lexer&) = delete;
+		Lexer& operator=(Lexer&&) = delete;
 
 	public:
 		bool Tokenize(Stream& stream, std::vector<ShaderLangToken>& tokens);
