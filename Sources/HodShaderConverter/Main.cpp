@@ -11,6 +11,8 @@
 
 #include <fstream>
 
+#include <Windows.h> // TODO create Processus class in Core lib
+
 namespace hod
 {
 	/// @brief 
@@ -41,6 +43,88 @@ namespace hod
 		{
 			return false;
 		}
+
+		std::filesystem::path convertedOutputFilePath = outputFile;
+		convertedOutputFilePath += ".glsl";
+
+		std::ofstream convertedOutputStream(convertedOutputFilePath, 0);
+		if (convertedOutputStream.is_open() == false)
+		{
+			OUTPUT_ERROR("Unable to write output file : %s", convertedOutputFilePath.string().c_str());
+			return false;
+		}
+
+		convertedOutputStream << converter.GetResult();
+		return true;
+	}
+
+	/// @brief 
+	/// @param inputFile 
+	/// @param outputFile 
+	/// @return 
+	bool CompileShader(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile)
+	{
+		std::filesystem::path finalInputFile = inputFile;
+		finalInputFile += ".glsl";
+
+		// TODO create Processus class in Core lib
+
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+
+		ZeroMemory( &si, sizeof(si) );
+		si.cb = sizeof(si);
+		ZeroMemory( &pi, sizeof(pi) );
+
+		std::string program = "%VULKAN_SDK%/Bin/glslangValidator.exe";
+		std::string commandLine = program;
+		/*
+		commandLine += " -Od --target-env vulkan1.1 -o ";
+		commandLine += finalInputFile.string();
+		commandLine += ".spirv ";
+		commandLine += finalInputFile.string();
+		*/
+
+		// Start the child process. 
+		if( !CreateProcess( NULL,   // No module name (use command line)
+			(char*)commandLine.c_str(),// Command line
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			0,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory 
+			&si,            // Pointer to STARTUPINFO structure
+			&pi )           // Pointer to PROCESS_INFORMATION structure
+		) 
+		{
+			printf( "CreateProcess failed (%d).\n", GetLastError() );
+			return false;
+		}
+
+		// Wait until child process exits.
+		WaitForSingleObject( pi.hProcess, INFINITE );
+
+		// Close process and thread handles. 
+		CloseHandle( pi.hProcess );
+		CloseHandle( pi.hThread );
+		return true;
+	}
+
+	/// @brief 
+	/// @param inputFile 
+	/// @param outputFile 
+	/// @return 
+	bool EmbeedInSource(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile)
+	{
+		FileStream inputStream(inputFile, FileMode::Read);
+		if (inputStream.CanRead() == false)
+		{
+			OUTPUT_ERROR("Unable to read input file : %s", inputFile.string().c_str());
+			return false;
+		}
+
+		// todo
 
 		std::filesystem::path headerOutputFilePath = outputFile;
 		headerOutputFilePath += ".h";
@@ -88,7 +172,7 @@ namespace hod
 		sourceOutputStream << "#include <cstdint>\n\n";
 		sourceOutputStream << "namespace hod\n";
 		sourceOutputStream << "{\n";
-		sourceOutputStream << "\tuint8_t " << outputFile.stem().string() << "[] = \"" << converter.GetResult().c_str() << "\";\n";
+		sourceOutputStream << "\tuint8_t " << outputFile.stem().string() << "[] = \"" << /*converter.GetResult().c_str() <<*/ "\";\n";
 		sourceOutputStream << "\tuint32_t " << outputFile.stem().string() << "_size = sizeof(" << outputFile.stem().string() << ");\n";
 		sourceOutputStream << "}\n";
 		//sourceOutputStream.Close();
@@ -170,6 +254,11 @@ namespace hod
 			}
 
 			if (ConvertShader(entry.path(), outputDirectory / entry.path().stem()) == false)
+			{
+				return 1;
+			}
+
+			if (CompileShader(entry.path().stem(), entry.path().stem()) == false)
 			{
 				return 1;
 			}
