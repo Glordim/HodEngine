@@ -34,10 +34,10 @@ namespace hod
 			char executablePath[MAX_PATH];
 			if (GetModuleFileNameA(nullptr, executablePath, MAX_PATH) != 0)
 			{
-				FileSystem::_userSettingsPath = executablePath;
+				FileSystem::_executablePath = executablePath;
 			}
 		}
-		return FileSystem::_userSettingsPath;
+		return FileSystem::_executablePath;
 	}
 
 	bool FileSystem::SetWorkingDirectory(const std::filesystem::path& path)

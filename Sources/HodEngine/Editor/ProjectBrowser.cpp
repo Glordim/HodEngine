@@ -32,11 +32,14 @@ namespace hod::editor
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("Project.json");
 
-		Document document;
-		DocumentReaderJson jsonReader;
-		if (jsonReader.Read(document, projectsPath) == true)
+		if (std::filesystem::exists(projectsPath) == true)
 		{
-			RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(_recentProjects, document.GetRootNode());
+			Document document;
+			DocumentReaderJson jsonReader;
+			if (jsonReader.Read(document, projectsPath) == true)
+			{
+				RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(_recentProjects, document.GetRootNode());
+			}
 		}
 	}
 
