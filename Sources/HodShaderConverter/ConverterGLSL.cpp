@@ -1,5 +1,8 @@
 #include "ConverterGLSL.h"
-#include "Lexer.h"
+
+#include <map>
+#include <string>
+#include <string_view>
 
 namespace hod
 {
@@ -32,63 +35,25 @@ namespace hod
 		{ "bool3", "bvec3" },
 		{ "bool4", "bvec4" },
 		{ "Texture1D", "sampler1D" },
-		{ "Texture2D", "sampler2D" },
+		{ "Texture2D", "texture2D " },
 		{ "Texture3D", "sampler3D" },
 		{ "Texture1DArray", "sampler1DArray" },
 		{ "Texture2DArray", "sampler2DArray" },
 		{ "TextureCube", "samplerCube" },
+		{ "SamplerState", "sampler" },
 	};
-
-	bool NextTokensAre(const std::vector<ShaderLangToken>& tokens, uint32_t& index, const std::vector<ShaderLangToken>& expectedTokens, std::vector<std::string>* identifiers = nullptr)
-	{
-		if (identifiers != nullptr)
-		{
-			identifiers->clear();
-		}
-		
-		uint32_t currentTokenIndex = index;
-		uint32_t expectedTokenIndex = 0;
-
-		uint32_t expectedTokenCount = expectedTokens.size();
-		while (expectedTokenIndex < expectedTokenCount)
-		{
-			const ShaderLangToken& expectedToken = expectedTokens[expectedTokenIndex];
-
-			while (tokens[currentTokenIndex]._type == ShaderLangToken::Space)
-			{
-				++currentTokenIndex;
-			}
-			const ShaderLangToken& currentToken = tokens[currentTokenIndex];
-
-			if (currentToken._type != expectedToken._type)
-			{
-				return false;
-			}
-
-			if (expectedToken._type == ShaderLangToken::Identifier && std::get<std::string>(expectedToken._data) != "" && std::get<std::string>(expectedToken._data) != std::get<std::string>(currentToken._data))
-			{
-				return false;
-			}
-
-			if (identifiers != nullptr && currentToken._type == ShaderLangToken::Identifier)
-			{
-				identifiers->push_back(std::get<std::string>(currentToken._data));
-			}
-
-			++currentTokenIndex;
-			++expectedTokenIndex;
-		}
-
-		index = currentTokenIndex - 1;
-		return true;
-	}
 
 	/// @brief 
 	/// @param tokens 
 	/// @return 
-	bool ConverterGLSL::Convert(const std::vector<ShaderLangToken>& tokens)
+	bool ConverterGLSL::Convert(const std::vector<Token>& inTokens, std::vector<Token>& outTokens)
 	{
-		int curvyBracketDeep = 0;
+		outTokens.emplace_back(Token::Type::Identifier, "#version");
+		outTokens.emplace_back(Token::Type::IntegerValue, 450);
+		outTokens.emplace_back(Token::Type::Identifier, "core");
+		outTokens.emplace_back(Token::Type::NewLine, 0);
+		outTokens.emplace_back(Token::Type::NewLine, 0);
+
 		bool inMainFuction = false;
 		bool inInStruct = false;
 		bool inOutStruct = false;
@@ -100,38 +65,47 @@ namespace hod
 		std::map<std::string, std::string> inVariableToQualifier;
 		std::map<std::string, std::string> outVariableToQualifier;
 
-		for (uint32_t index = 0; index < tokens.size(); ++index)
+		for (uint32_t index = 0; index < inTokens.size(); ++index)
 		{
-			const ShaderLangToken& token = tokens[index];
+			const Token& token = inTokens[index];
 
-			if (NextTokensAre(tokens, index, {{ShaderLangToken::Type::Struct, 0}, {ShaderLangToken::Type::Identifier, "IN"}, {ShaderLangToken::Type::OpenCurlyBracket, 0}}))
+			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "IN"}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
 				inInStruct = true;
 				locationIndex = 0;
 				nextMustBeAnType = true;
 				continue;
 			}
-			else if (inInStruct == true && NextTokensAre(tokens, index, {{ShaderLangToken::Type::ClosingCurlyBracket, 0}, {ShaderLangToken::Type::Semicolon, 0}}))
+			else if (inInStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
 			{
-				_result += " ";
 				inInStruct = false;
+				outTokens.emplace_back(Token::Type::NewLine, 0);
 				continue;
 			}
-			else if (inInStruct == true && NextTokensAre(tokens, index, {{ShaderLangToken::Type::Identifier, ""}, {ShaderLangToken::Type::Identifier, ""}, {ShaderLangToken::Type::Colon, 0}, {ShaderLangToken::Type::Identifier, ""}, {ShaderLangToken::Type::Semicolon, 0}}, &identifiers))
+			else if (inInStruct == true && NextTokensAre(inTokens, index, {{Token::Type::Identifier, ""}, {Token::Type::Identifier, ""}, {Token::Type::Colon, 0}, {Token::Type::Identifier, ""}, {Token::Type::Semicolon, 0}}, &identifiers))
 			{
-				if (identifiers[2] != "SV_POSITION" && identifiers[2] != "SV_TARGET")
+				if (identifiers[2] != "SV_POSITION"/* && identifiers[2] != "SV_TARGET"*/)
 				{
-					_result += "layout (location = ";
-					_result += std::to_string(locationIndex);
-					_result += ") in ";
+					outTokens.emplace_back(Token::Type::Identifier, "layout");
+					outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+					outTokens.emplace_back(Token::Type::Identifier, "location");
+					outTokens.emplace_back(Token::Type::Assign, 0);
+					outTokens.emplace_back(Token::Type::IntegerValue, locationIndex);
+					outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+					outTokens.emplace_back(Token::Type::Identifier, "in");
+					
 					auto it = _identifierMap.find(identifiers[0]);
 					if (it != _identifierMap.end())
 					{
-						_result += it->second;
+						outTokens.emplace_back(Token::Type::Identifier, std::string(it->second));
 					}
-					_result += " in_";
-					_result += identifiers[1];
-					_result += ";";
+					else
+					{
+						return false;
+					}
+
+					outTokens.emplace_back(Token::Type::Identifier, "in_" + identifiers[1]);
+					outTokens.emplace_back(Token::Type::Semicolon, 0);
 
 					++locationIndex;
 				}
@@ -140,34 +114,43 @@ namespace hod
 				continue;
 			}
 
-			if (NextTokensAre(tokens, index, {{ShaderLangToken::Type::Struct, 0}, {ShaderLangToken::Type::Identifier, "OUT"}, {ShaderLangToken::Type::OpenCurlyBracket, 0}}))
+			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "OUT"}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
 				inOutStruct = true;
 				locationIndex = 0;
 				nextMustBeAnType = true;
 				continue;
 			}
-			else if (inOutStruct == true && NextTokensAre(tokens, index, {{ShaderLangToken::Type::ClosingCurlyBracket, 0}, {ShaderLangToken::Type::Semicolon, 0}}))
+			else if (inOutStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
 			{
-				_result += " ";
 				inOutStruct = false;
+				outTokens.emplace_back(Token::Type::NewLine, 0);
 				continue;
 			}
-			else if (inOutStruct == true && NextTokensAre(tokens, index, {{ShaderLangToken::Type::Identifier, ""}, {ShaderLangToken::Type::Identifier, ""}, {ShaderLangToken::Type::Colon, 0}, {ShaderLangToken::Type::Identifier, ""}, {ShaderLangToken::Type::Semicolon, 0}}, &identifiers))
+			else if (inOutStruct == true && NextTokensAre(inTokens, index, {{Token::Type::Identifier, ""}, {Token::Type::Identifier, ""}, {Token::Type::Colon, 0}, {Token::Type::Identifier, ""}, {Token::Type::Semicolon, 0}}, &identifiers))
 			{
-				if (identifiers[2] != "SV_POSITION" && identifiers[2] != "SV_TARGET")
+				if (identifiers[2] != "SV_POSITION"/* && identifiers[2] != "SV_TARGET"*/)
 				{
-					_result += "layout (location = ";
-					_result += std::to_string(locationIndex);
-					_result += ") out ";
+					outTokens.emplace_back(Token::Type::Identifier, "layout");
+					outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+					outTokens.emplace_back(Token::Type::Identifier, "location");
+					outTokens.emplace_back(Token::Type::Assign, 0);
+					outTokens.emplace_back(Token::Type::IntegerValue, locationIndex);
+					outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+					outTokens.emplace_back(Token::Type::Identifier, "out");
+					
 					auto it = _identifierMap.find(identifiers[0]);
 					if (it != _identifierMap.end())
 					{
-						_result += it->second;
+						outTokens.emplace_back(Token::Type::Identifier, std::string(it->second));
 					}
-					_result += " out_";
-					_result += identifiers[1];
-					_result += ";";
+					else
+					{
+						return false;
+					}
+
+					outTokens.emplace_back(Token::Type::Identifier, "out_" + identifiers[1]);
+					outTokens.emplace_back(Token::Type::Semicolon, 0);
 
 					++locationIndex;
 				}
@@ -176,116 +159,148 @@ namespace hod
 				continue;
 			}
 
-			if (NextTokensAre(tokens, index, {{ShaderLangToken::Type::Identifier, "void"}, {ShaderLangToken::Type::Identifier, "main"}, {ShaderLangToken::Type::OpenParenthesis, 0}, {ShaderLangToken::Type::ClosingParenthesis, 0}, {ShaderLangToken::Type::OpenCurlyBracket, 0}}))
+			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, ""}, {Token::Type::Identifier, ""}, {Token::Type::Colon, 0}, {Token::Type::Identifier, "register"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::Identifier, ""}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::Semicolon, 0}}, &identifiers))
 			{
-				_result += "void main() {";
+				int binding = 0;
+				if (identifiers[3][0] == 't') // texture
+				{
+					binding = 0;
+				}
+				else if (identifiers[3][0] == 's') // sampler
+				{
+					binding = 1;
+				}
+
+				int set = std::atoi(identifiers[3].c_str() + 1);
+
+				outTokens.emplace_back(Token::Type::Identifier, "layout");
+				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "set");
+				outTokens.emplace_back(Token::Type::Assign, 0);
+				outTokens.emplace_back(Token::Type::IntegerValue, set);
+				outTokens.emplace_back(Token::Type::Comma, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "binding");
+				outTokens.emplace_back(Token::Type::Assign, 0);
+				outTokens.emplace_back(Token::Type::IntegerValue, binding);
+				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "uniform");
+
+				auto it = _identifierMap.find(identifiers[0]);
+				if (it != _identifierMap.end())
+				{
+					outTokens.emplace_back(Token::Type::Identifier, std::string(it->second));
+				}
+				else
+				{
+					return false;
+				}
+
+				outTokens.emplace_back(Token::Type::Identifier, identifiers[1]);
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+				continue;
+			}
+
+			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, ""}, {Token::Type::Dot, 0}, {Token::Type::Identifier, "Sample"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::Identifier, ""}}, &identifiers))
+			{
+				outTokens.emplace_back(Token::Type::Identifier, "texture");
+				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "sampler2D");
+				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+				outTokens.emplace_back(Token::Type::Identifier, identifiers[0]);
+				outTokens.emplace_back(Token::Type::Comma, 0);
+				outTokens.emplace_back(Token::Type::Identifier, identifiers[2]);
+				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+				continue;
+			}
+
+			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, "void"}, {Token::Type::Identifier, "main"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::OpenCurlyBracket, 0}}))
+			{
+				outTokens.emplace_back(Token::Type::Identifier, "void");
+				outTokens.emplace_back(Token::Type::Identifier, "main");
+				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
 
 				inMainFuction = true;
 				continue;
 			}
-			else if (inMainFuction == true && token._type == ShaderLangToken::Type::ClosingCurlyBracket && inMainFuction == true && curvyBracketDeep == 0)
+			else if (inMainFuction == true && token._type == Token::Type::ClosingCurlyBracket)
 			{
-				_result += "}";
+				outTokens.emplace_back(Token::Type::ClosingCurlyBracket, 0);
 				inMainFuction = false;
 				continue;
 			}
-			else if (inMainFuction == true && NextTokensAre(tokens, index, {{ShaderLangToken::Type::Identifier, "IN"}, {ShaderLangToken::Type::Dot, 0}, {ShaderLangToken::Type::Identifier, ""}}, &identifiers))
+			else if (inMainFuction == true && NextTokensAre(inTokens, index, {{Token::Type::Identifier, "IN"}, {Token::Type::Dot, 0}, {Token::Type::Identifier, ""}}, &identifiers))
 			{
 				auto it = inVariableToQualifier.find(identifiers[1]);
 				if (it != inVariableToQualifier.end())
 				{
 					if (it->second == "SV_POSITION")
 					{
-						_result += "gl_Position";
+						outTokens.emplace_back(Token::Type::Identifier, "gl_Position");
 					}
 					else
 					{
-						_result += "in_";
-						_result += it->first;
+						outTokens.emplace_back(Token::Type::Identifier, "in_" + it->first);
 					}
 				}
 				else
 				{
-					_result += "ERROR"; // todo
+					return false;
 				}
 				continue;
 			}
-			else if (inMainFuction == true && NextTokensAre(tokens, index, {{ShaderLangToken::Type::Identifier, "OUT"}, {ShaderLangToken::Type::Dot, 0}, {ShaderLangToken::Type::Identifier, ""}}, &identifiers))
+			else if (inMainFuction == true && NextTokensAre(inTokens, index, {{Token::Type::Identifier, "OUT"}, {Token::Type::Dot, 0}, {Token::Type::Identifier, ""}}, &identifiers))
 			{
 				auto it = outVariableToQualifier.find(identifiers[1]);
 				if (it != outVariableToQualifier.end())
 				{
 					if (it->second == "SV_POSITION")
 					{
-						_result += "gl_Position";
+						outTokens.emplace_back(Token::Type::Identifier, "gl_Position");
 					}
 					else
 					{
-						_result += "out_";
-						_result += it->first;
+						outTokens.emplace_back(Token::Type::Identifier, "out_" + it->first);
 					}
 				}
 				else
 				{
-					_result += "ERROR"; // todo
+					return false;
 				}
 				continue;
 			}
 
 			switch (token._type)
 			{
-				case ShaderLangToken::Type::CBuffer:
+				case Token::Type::CBuffer:
 				{
-					_result += "layout(push_constant) uniform";
+					outTokens.emplace_back(Token::Type::Identifier, "layout");
+					outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+					outTokens.emplace_back(Token::Type::Identifier, "push_constant");
+					outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+					outTokens.emplace_back(Token::Type::Identifier, "uniform");
 				}
 				break;
 
-				case ShaderLangToken::Type::Identifier:
+				case Token::Type::Identifier:
 				{
 					std::string value = std::get<std::string>(token._data);
 					auto it = _identifierMap.find(value);
 					if (it != _identifierMap.end())
 					{
-						_result += it->second;
+						outTokens.emplace_back(Token::Type::Identifier, std::string(it->second));
 					}
 					else
 					{
-						_result += value;
+						outTokens.emplace_back(Token::Type::Identifier, value);
 					}
-				}
-				break;
-
-				case ShaderLangToken::Type::IntegerValue:
-				{
-					int value = std::get<int>(token._data);
-					_result += std::to_string(value);
-				}
-				break;
-
-				case ShaderLangToken::Type::FloatingPointValue:
-				{
-					float value = std::get<float>(token._data);
-					_result += std::to_string(value);
-				}
-				break;
-
-				case ShaderLangToken::Type::OpenCurlyBracket:
-				{
-					++curvyBracketDeep;
-					_result += "{";
-				}
-				break;
-
-				case ShaderLangToken::Type::ClosingCurlyBracket:
-				{
-					--curvyBracketDeep;
-					_result += "}";
 				}
 				break;
 
 				default:
 				{
-					_result += ShaderLangToken::_tokenLabel[token._type];
+					outTokens.push_back(token);
 				}
 				break;
 			}

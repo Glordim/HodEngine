@@ -1,18 +1,13 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
 #include <variant>
-#include <vector>
-#include <map>
 #include <array>
+#include <string>
 #include <string_view>
 
 namespace hod
 {
-	class Stream;
-
-	struct ShaderLangToken
+    struct Token
 	{
 		enum Type
 		{
@@ -55,6 +50,7 @@ namespace hod
 			MinusAssign,
 			Modulo,
 			ModuloAssign,
+			NewLine,
 			Not,
 			NotEqual,
 			Plus,
@@ -72,24 +68,9 @@ namespace hod
 			Count
 		};
 
-		static std::array<std::string_view, Type::Count> _tokenLabel;
+		Type                                                _type;
+		std::variant<int, float, std::string> 		        _data;
 
-		Type                                        _type;
-		std::variant<int, float, std::string> 		_data;
-	};
-
-	class Lexer
-	{
-	public:
-		Lexer() = default;
-		Lexer(const Lexer&) = delete;
-		Lexer(Lexer&&) = delete;
-		~Lexer() = default;
-
-		Lexer& operator=(const Lexer&) = delete;
-		Lexer& operator=(Lexer&&) = delete;
-
-	public:
-		bool Tokenize(Stream& stream, std::vector<ShaderLangToken>& tokens);
+		static std::array<std::string_view, Type::Count>    _labels;
 	};
 }

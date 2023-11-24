@@ -7,13 +7,13 @@ struct IN
 struct OUT
 {
 	float4 color : SV_TARGET;
-}
+};
 
-Texture2D<float4> texture : register(t0);
-SamplerState textureSampler : register(s0);
+Texture2D image : register(t0);
+SamplerState imageSampler : register(s0);
 
 void main()
 {
-	float4 textureColor = texture.Sample(textureSampler, IN.texCoord);
+	float4 textureColor = image.Sample(imageSampler, IN.texCoord);
 	OUT.color = textureColor * IN.color;
 }

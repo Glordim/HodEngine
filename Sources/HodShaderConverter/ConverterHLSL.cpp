@@ -1,5 +1,8 @@
 #include "ConverterHLSL.h"
-#include "Lexer.h"
+
+#include <map>
+#include <string>
+#include <string_view>
 
 namespace hod
 {
@@ -42,14 +45,16 @@ namespace hod
 	/// @brief 
 	/// @param tokens 
 	/// @return 
-	bool ConverterHLSL::Convert(const std::vector<ShaderLangToken>& tokens)
+	bool ConverterHLSL::Convert(const std::vector<Token>& inTokens, std::vector<Token>& outTokens)
 	{
+		return false;
+		/*
 		int curvyBracketDeep = 0;
 		bool inMainFuction = false;
 
-		for (uint32_t index = 0; index < tokens.size(); ++index)
+		for (uint32_t index = 0; index < inTokens.size(); ++index)
 		{
-			const ShaderLangToken& token = tokens[index];
+			const ShaderLangToken& token = inTokens[index];
 
 			if (token._type == ShaderLangToken::Type::Identifier
 				&& std::get<std::string>(token._data) == "void"
@@ -131,5 +136,6 @@ namespace hod
 		}
 
 		return true;
+		*/
 	}
 }

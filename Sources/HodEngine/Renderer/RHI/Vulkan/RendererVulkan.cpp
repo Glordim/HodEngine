@@ -325,7 +325,7 @@ namespace hod::renderer
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); // TODO ?
 		appInfo.pEngineName = "HodEngine";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0); // TODO ?
-		appInfo.apiVersion = VK_API_VERSION_1_1;
+		appInfo.apiVersion = VK_API_VERSION_1_3;
 
 		VkInstanceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -1106,7 +1106,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		VkDescriptorPoolSize poolSizes[2];
+		VkDescriptorPoolSize poolSizes[4];
 
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		poolSizes[0].descriptorCount = 150000; // TODO
@@ -1114,9 +1114,15 @@ namespace hod::renderer
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		poolSizes[1].descriptorCount = 150; // TODO
 
+		poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+		poolSizes[2].descriptorCount = 150; // TODO
+
+		poolSizes[3].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+		poolSizes[3].descriptorCount = 150; // TODO
+
 		VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
 		descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		descriptorPoolInfo.poolSizeCount = 2;
+		descriptorPoolInfo.poolSizeCount = 4;
 		descriptorPoolInfo.pPoolSizes = poolSizes;
 		descriptorPoolInfo.maxSets = 150000; // TODO
 		descriptorPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;

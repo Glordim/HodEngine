@@ -90,7 +90,7 @@ namespace hod::imgui
 
 				renderer::MaterialInstance* materialInstance = renderer->CreateMaterialInstance(ImGuiManager::GetInstance()->GetMaterial());
 
-				materialInstance->SetTexture("sTexture", command._texture);
+				materialInstance->SetTexture("image", command._texture);
 				commandBuffer->SetMaterialInstance(materialInstance, 0);
 				commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
 				commandBuffer->DeleteAfterRender(materialInstance);

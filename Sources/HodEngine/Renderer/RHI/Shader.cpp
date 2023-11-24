@@ -30,19 +30,6 @@ namespace hod
 		/// @return 
 		bool Shader::LoadFromSource(Stream& stream)
 		{
-			/*
-			std::vector<ShaderLangToken> tokens;
-
-			ShaderLangLexer lexer;
-			if (lexer.Tokenize(stream, tokens) == false)
-			{
-				return false;
-			}
-*/
-			//std::string platformSource = ConvertToPlatformSource(tokens);
-
-			
-
 			return true;
 		}
 
@@ -80,8 +67,7 @@ namespace hod
 		/// @return 
 		bool Shader::LoadFromMemory(const void* data, uint32_t size)
 		{
-			MemoryStream memoryStream(data, size);
-			return LoadFromStream(memoryStream);
+			return LoadInternal(data, size);
 		}
 
 		/// @brief 
@@ -89,16 +75,6 @@ namespace hod
 		/// @return 
 		bool Shader::LoadFromStream(Stream& stream)
 		{
-			/*
-			std::vector<ShaderLangToken> tokens;
-
-			ShaderLangLexer lexer;
-			if (lexer.Tokenize(stream, tokens) == false)
-			{
-				return false;
-			}
-*/
-			//Convert(tokens);
 
 			return true;
 		}

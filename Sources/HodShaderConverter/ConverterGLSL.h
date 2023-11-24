@@ -17,6 +17,6 @@ namespace hod
 
     public:
 
-        bool Convert(const std::vector<ShaderLangToken>& tokens) override;
+        bool Convert(const std::vector<Token>& inTokens, std::vector<Token>& outTokens) override;
     };
 }

@@ -110,13 +110,14 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DescriptorSetLayout::ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource)
+		void DescriptorSetLayout::ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource, VkDescriptorType type)
 		{
 			BlockTexture texture;
 
 			texture._binding = comp.get_decoration(resource.id, spv::DecorationBinding);
 			texture._name = comp.get_name(resource.id);
-
+			texture._type = type;
+			
 			_textureBlockVector.push_back(std::move(texture));
 		}
 
@@ -165,7 +166,7 @@ namespace hod
 
 				VkDescriptorSetLayoutBinding textureLayoutBinding = {};
 				textureLayoutBinding.binding = texture._binding;
-				textureLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				textureLayoutBinding.descriptorType = texture._type;
 				textureLayoutBinding.descriptorCount = 1;
 				textureLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 				textureLayoutBinding.pImmutableSamplers = nullptr;

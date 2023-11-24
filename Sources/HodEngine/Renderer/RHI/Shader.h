@@ -38,7 +38,7 @@ namespace hod
 
 		protected:
 
-			//virtual bool					LoadFromTokens();
+			virtual bool					LoadInternal(const void* data, uint32_t size) = 0;
 
 		protected:
 

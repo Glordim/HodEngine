@@ -78,4 +78,8 @@ target_link_libraries(ImGui
   Window
 )
 
+if(MSVC)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
+
 target_compile_definitions(ImGui PUBLIC ${PLATFORM_DEFINE})

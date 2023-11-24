@@ -65,6 +65,7 @@ namespace hod
 			//-----------------------------------------------------------------------------
 			struct BlockTexture : Block
 			{
+				VkDescriptorType	_type;
 			};
 
 		public:
@@ -77,7 +78,7 @@ namespace hod
 			void								ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
 			void								ExtractUboSubMembers(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& type, BlockUbo::Member& member);
 
-			void								ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
+			void								ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource, VkDescriptorType type);
 
 			bool								BuildDescriptorSetLayout();
 

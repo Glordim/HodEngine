@@ -4,12 +4,16 @@
 
 #include <filesystem>
 
-#include "Lexer.h"
+#include "TokenReader.h"
+#include "TokenWritter.h"
+
 #include "Converter.h"
 #include "ConverterGLSL.h"
 #include "ConverterHLSL.h"
 
 #include <fstream>
+#include <iomanip>
+#include <format>
 
 #include <Windows.h> // TODO create Processus class in Core lib
 
@@ -23,23 +27,26 @@ namespace hod
 	{
 		OUTPUT_MESSAGE("Convert '%s'...", inputFile.string().c_str());
 
-		FileStream inputStream(inputFile, FileMode::Read);
-		if (inputStream.CanRead() == false)
+		std::ifstream inputStream(inputFile, 0);
+		if (inputStream.is_open() == false)
 		{
 			OUTPUT_ERROR("Unable to read input file : %s", inputFile.string().c_str());
 			return false;
 		}
 
-		std::vector<ShaderLangToken> tokens;
+		std::vector<Token> tokens;
 
-		Lexer lexer;
-		if (lexer.Tokenize(inputStream, tokens) == false)
+		TokenReader tokenReader;
+		if (tokenReader.Parse(inputStream, tokens) == false)
 		{
 			return false;
 		}
 
+		std::vector<Token> convertedTokens;
+		convertedTokens.reserve(tokens.size());
+
 		ConverterGLSL converter;
-		if (converter.Convert(tokens) == false)
+		if (converter.Convert(tokens, convertedTokens) == false)
 		{
 			return false;
 		}
@@ -54,7 +61,12 @@ namespace hod
 			return false;
 		}
 
-		convertedOutputStream << converter.GetResult();
+		TokenWritter tokenWritter;
+		if (tokenWritter.PrettyWrite(convertedOutputStream, convertedTokens) == false)
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -77,13 +89,15 @@ namespace hod
 		ZeroMemory( &pi, sizeof(pi) );
 
 		std::string program = "%VULKAN_SDK%/Bin/glslangValidator.exe";
-		std::string commandLine = program;
-		/*
-		commandLine += " -Od --target-env vulkan1.1 -o ";
+
+		CHAR resolvedProgram[MAX_PATH];
+		ExpandEnvironmentStrings(program.c_str(), resolvedProgram, MAX_PATH);
+
+		std::string commandLine = resolvedProgram;
+		commandLine += " -Od --target-env vulkan1.3 -o ";
 		commandLine += finalInputFile.string();
 		commandLine += ".spirv ";
 		commandLine += finalInputFile.string();
-		*/
 
 		// Start the child process. 
 		if( !CreateProcess( NULL,   // No module name (use command line)
@@ -117,14 +131,16 @@ namespace hod
 	/// @return 
 	bool EmbeedInSource(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile)
 	{
-		FileStream inputStream(inputFile, FileMode::Read);
-		if (inputStream.CanRead() == false)
+		std::filesystem::path finalInputFile = inputFile;
+		finalInputFile += ".glsl";
+		finalInputFile += ".spirv";
+
+		std::ifstream inputStream(finalInputFile, std::ios::binary);
+		if (inputStream.is_open() == false)
 		{
-			OUTPUT_ERROR("Unable to read input file : %s", inputFile.string().c_str());
+			OUTPUT_ERROR("Unable to read output file : %s", finalInputFile.string().c_str());
 			return false;
 		}
-
-		// todo
 
 		std::filesystem::path headerOutputFilePath = outputFile;
 		headerOutputFilePath += ".h";
@@ -142,12 +158,15 @@ namespace hod
 			return false;
 		}*/
 
+		std::string identifier = outputFile.filename().string();
+		std::replace(identifier.begin(), identifier.end(), '.', '_');
+
 		headerOutputStream << "#pragma once\n\n";
 		headerOutputStream << "#include <cstdint>\n\n";
 		headerOutputStream << "namespace hod\n";
 		headerOutputStream << "{\n";
-		headerOutputStream << "\textern uint8_t " << outputFile.stem().string() << "[];\n";
-		headerOutputStream << "\textern uint32_t " << outputFile.stem().string() << "_size;\n";
+		headerOutputStream << "\textern uint8_t " << identifier << "[];\n";
+		headerOutputStream << "\textern uint32_t " << identifier << "_size;\n";
 		headerOutputStream << "}\n";
 		//headerOutputStream.Close();
 
@@ -172,8 +191,30 @@ namespace hod
 		sourceOutputStream << "#include <cstdint>\n\n";
 		sourceOutputStream << "namespace hod\n";
 		sourceOutputStream << "{\n";
-		sourceOutputStream << "\tuint8_t " << outputFile.stem().string() << "[] = \"" << /*converter.GetResult().c_str() <<*/ "\";\n";
-		sourceOutputStream << "\tuint32_t " << outputFile.stem().string() << "_size = sizeof(" << outputFile.stem().string() << ");\n";
+		sourceOutputStream << "\tuint8_t " << identifier << "[] = {\n\t\t";
+
+		int count = 0;
+		char value;
+		while (inputStream.get(value))
+		{
+			//std::stringstream stream;
+			//stream << "0x";
+         	//stream << std::setfill ('0') << std::setw(sizeof(value)*2);
+         	//stream << std::hex << i;
+			//stream << std::hex << static_cast<uint8_t>(value);//std::to_string(static_cast<uint8_t>(value));
+			//sourceOutputStream << stream.str();
+			sourceOutputStream << std::format("0x{:02X}", static_cast<uint8_t>(value));
+			sourceOutputStream << ", ";
+			++count;
+
+			if (count > 32)
+			{
+				sourceOutputStream << "\n\t\t";
+				count = 0;
+			}
+		}
+		sourceOutputStream << "\n\t};\n";
+		sourceOutputStream << "\tuint32_t " << identifier << "_size = sizeof(" << identifier << ");\n";
 		sourceOutputStream << "}\n";
 		//sourceOutputStream.Close();
 
@@ -196,12 +237,12 @@ namespace hod
 			if (inputArgument->_valueCount == 0)
 			{
 				OUTPUT_ERROR("--input argument is empty, please insert a valid path");
-				return 1;
+				return false;
 			}
 			else if (inputArgument->_valueCount > 1)
 			{
 				OUTPUT_ERROR("--input argument support only one path");
-				return 1;
+				return false;
 			}
 			inputDirectory = inputArgument->_values[0];
 		}
@@ -209,7 +250,7 @@ namespace hod
 		if (std::filesystem::exists(inputDirectory) == false)
 		{
 			OUTPUT_ERROR("Input directory doesn't exist : %s", inputDirectory.string().c_str());
-			return 1;
+			return false;
 		}
 		OUTPUT_MESSAGE("Input '%s'", inputDirectory.string().c_str());
 
@@ -221,12 +262,12 @@ namespace hod
 			if (outputArgument->_valueCount == 0)
 			{
 				OUTPUT_ERROR("--output argument is empty, please insert a valid path");
-				return 1;
+				return false;
 			}
 			else if (outputArgument->_valueCount > 1)
 			{
 				OUTPUT_ERROR("--output argument support only one path");
-				return 1;
+				return false;
 			}
 			outputDirectory = outputArgument->_values[0];
 		}
@@ -236,7 +277,7 @@ namespace hod
 			if (std::filesystem::create_directories(outputDirectory) == false)
 			{
 				OUTPUT_ERROR("Unable to create Output directory : %s", outputDirectory.string().c_str());
-				return 1;
+				return false;
 			}
 		}
 		OUTPUT_MESSAGE("Output '%s'", outputDirectory.string().c_str());
@@ -253,18 +294,23 @@ namespace hod
 				continue;
 			}
 
-			if (ConvertShader(entry.path(), outputDirectory / entry.path().stem()) == false)
+			if (ConvertShader(entry.path(), outputDirectory / entry.path().filename()) == false)
 			{
-				return 1;
+				return false;
 			}
 
-			if (CompileShader(entry.path().stem(), entry.path().stem()) == false)
+			if (CompileShader(outputDirectory / entry.path().filename(), outputDirectory / entry.path().filename()) == false)
 			{
-				return 1;
+				return false;
+			}
+
+			if (EmbeedInSource(outputDirectory / entry.path().filename(), outputDirectory / entry.path().filename()) == false)
+			{
+				return false;
 			}
 		}
 
-		return 0;
+		return true;
 	}
 }
 

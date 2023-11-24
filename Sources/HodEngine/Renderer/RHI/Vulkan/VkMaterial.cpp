@@ -308,7 +308,37 @@ namespace hod
 
 				DescriptorSetLayout& descriptorSetLayout = _descriptorSetLayoutMap[(uint32_t)set];
 
-				descriptorSetLayout.ExtractBlockTexture(compVert, resource);
+				descriptorSetLayout.ExtractBlockTexture(compVert, resource, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+			}
+
+			textureCount = resourcesVert.separate_samplers.size();
+			for (size_t i = 0; i < textureCount; ++i)
+			{
+				spirv_cross::Resource& resource = resourcesVert.separate_samplers[i];
+
+				size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+				//if (set <= 1)
+				//	continue;
+
+				DescriptorSetLayout& descriptorSetLayout = _descriptorSetLayoutMap[(uint32_t)set];
+
+				descriptorSetLayout.ExtractBlockTexture(compVert, resource, VK_DESCRIPTOR_TYPE_SAMPLER);
+			}
+
+			textureCount = resourcesVert.separate_images.size();
+			for (size_t i = 0; i < textureCount; ++i)
+			{
+				spirv_cross::Resource& resource = resourcesVert.separate_images[i];
+
+				size_t set = compVert.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+				//if (set <= 1)
+				//	continue;
+
+				DescriptorSetLayout& descriptorSetLayout = _descriptorSetLayoutMap[(uint32_t)set];
+
+				descriptorSetLayout.ExtractBlockTexture(compVert, resource, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 			}
 
 			// Same thing for FragShader
@@ -343,7 +373,37 @@ namespace hod
 
 				DescriptorSetLayout& descriptorSetLayout = _descriptorSetLayoutMap[(uint32_t)set];
 
-				descriptorSetLayout.ExtractBlockTexture(compFrag, resource);
+				descriptorSetLayout.ExtractBlockTexture(compFrag, resource, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+			}
+
+			textureCount = resourcesFrag.separate_samplers.size();
+			for (size_t i = 0; i < textureCount; ++i)
+			{
+				spirv_cross::Resource& resource = resourcesFrag.separate_samplers[i];
+
+				size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+				//if (set <= 1)
+				//	continue;
+
+				DescriptorSetLayout& descriptorSetLayout = _descriptorSetLayoutMap[(uint32_t)set];
+
+				descriptorSetLayout.ExtractBlockTexture(compFrag, resource, VK_DESCRIPTOR_TYPE_SAMPLER);
+			}
+
+			textureCount = resourcesFrag.separate_images.size();
+			for (size_t i = 0; i < textureCount; ++i)
+			{
+				spirv_cross::Resource& resource = resourcesFrag.separate_images[i];
+
+				size_t set = compFrag.get_decoration(resource.id, spv::DecorationDescriptorSet);
+
+				//if (set <= 1)
+				//	continue;
+
+				DescriptorSetLayout& descriptorSetLayout = _descriptorSetLayoutMap[(uint32_t)set];
+
+				descriptorSetLayout.ExtractBlockTexture(compFrag, resource, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 			}
 
 

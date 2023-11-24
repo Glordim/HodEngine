@@ -32,36 +32,17 @@ namespace hod
 			}
 		}
 
-		/// @brief 
-		/// @param data 
-		/// @param size 
-		/// @param result 
-		/// @return 
-		bool VkShader::ConvertSourceToGlsl(const std::string_view& source, std::string& result)
-		{
-			result.clear();
-			// todo
-			return false;
-		}
-
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		/*
-		bool VkShader::LoadFromMemory(void* data, uint32_t size)
+		bool VkShader::LoadInternal(const void* data, uint32_t size)
 		{
-			std::string glsl;
-			if (VkShader::ConvertSourceToGlsl(std::string_view((const char*)data, size), glsl) == false)
-			{
-				return false;
-			}
-
 			VkShaderModuleCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 			createInfo.flags = 0;
 			createInfo.pNext = nullptr;
 			createInfo.codeSize = size;
-			createInfo.pCode = reinterpret_cast<uint32_t*>(data);
+			createInfo.pCode = reinterpret_cast<const uint32_t*>(data);
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -76,7 +57,6 @@ namespace hod
 
 			return true;
 		}
-		*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		

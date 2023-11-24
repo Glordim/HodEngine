@@ -27,8 +27,8 @@
 #include <HodEngine/Window/Desktop/DesktopWindow.h>
 #include <HodEngine/Window/Desktop/DesktopDisplayManager.h>
 
-#include "HodEngine/ImGui/Shader/Generated/imgui.vert.hlsl.h"
-#include "HodEngine/ImGui/Shader/Generated/imgui.frag.hlsl.h"
+#include "HodEngine/ImGui/Shader/Generated/imgui.vert.h"
+#include "HodEngine/ImGui/Shader/Generated/imgui.frag.h"
 
 #include "HodEngine/Renderer/RHI/VertexInput.h"
 
@@ -368,7 +368,7 @@ namespace hod::imgui
 
 			_vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
 			//if (_vertexShader->LoadFromMemory((void*)__glsl_shader_vert_spv, sizeof(__glsl_shader_vert_spv)) == false)
-			if (_vertexShader->LoadFromMemory(imgui_vert_hlsl, imgui_vert_hlsl_size) == false)
+			if (_vertexShader->LoadFromMemory(imgui_vert, imgui_vert_size) == false)
 			{
 				delete _vertexShader;
 				_vertexShader = nullptr;
@@ -376,7 +376,7 @@ namespace hod::imgui
 			}
 
 			_fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
-			if (_fragmentShader->LoadFromMemory(imgui_frag_hlsl, imgui_frag_hlsl_size) == false)
+			if (_fragmentShader->LoadFromMemory(imgui_frag, imgui_frag_size) == false)
 			{
 				delete _vertexShader;
 				_vertexShader = nullptr;

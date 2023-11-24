@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "Lexer.h"
+#include "Token.h"
 
 namespace hod
 {
@@ -20,12 +20,10 @@ namespace hod
 
 	public:
 	
-		virtual bool Convert(const std::vector<ShaderLangToken>& tokens) = 0;
+		virtual bool	Convert(const std::vector<Token>& inTokens, std::vector<Token>& outTokens) = 0;
 
-		const std::string& GetResult() const { return _result; }
+	protected:
 
-    protected:
-
-        std::string _result;
+		bool			NextTokensAre(const std::vector<Token>& tokens, uint32_t& index, const std::vector<Token>& expectedTokens, std::vector<std::string>* identifiers = nullptr);
     };
 }

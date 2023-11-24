@@ -221,35 +221,59 @@ namespace hod
 			const std::vector<DescriptorSetLayout::BlockTexture>& textures = _descriptorSetLayout->GetTextureBlocks();
 			size_t textureCount = textures.size();
 
+			bool founded = false;
 			for (size_t i = 0; i < textureCount; ++i)
 			{
 				const DescriptorSetLayout::BlockTexture& texture = textures[i];
 
 				if (texture._name == name)
 				{
-					RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+					founded = true;
+					break;
+				}
+			}
 
-					VkDescriptorImageInfo imageInfo = {};
+			if (founded == false)
+			{
+				return;
+			}
+
+			for (size_t i = 0; i < textureCount; ++i)
+			{
+				const DescriptorSetLayout::BlockTexture& texture = textures[i];
+
+				RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+				VkDescriptorImageInfo imageInfo = {};
+				if (texture._type == VK_DESCRIPTOR_TYPE_SAMPLER)
+				{
+					imageInfo.sampler = textureSampler->GetTextureSampler();
+				}
+				else if (texture._type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE)
+				{
+					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+					imageInfo.imageView = textureSampler->GetTextureImageView();
+				}
+				else
+				{
 					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 					imageInfo.imageView = textureSampler->GetTextureImageView();
 					imageInfo.sampler = textureSampler->GetTextureSampler();
-
-					VkWriteDescriptorSet descriptorWrite = {};
-					descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-					descriptorWrite.dstSet = _descriptorSet;
-					descriptorWrite.dstBinding = texture._binding;
-					descriptorWrite.dstArrayElement = 0;
-					descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-					descriptorWrite.descriptorCount = 1;
-					descriptorWrite.pBufferInfo = nullptr;
-					descriptorWrite.pImageInfo = &imageInfo;
-					descriptorWrite.pTexelBufferView = nullptr;
-					descriptorWrite.pNext = nullptr;
-
-					vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
-
-					break;
 				}
+
+				VkWriteDescriptorSet descriptorWrite = {};
+				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				descriptorWrite.dstSet = _descriptorSet;
+				descriptorWrite.dstBinding = texture._binding;
+				descriptorWrite.dstArrayElement = 0;
+				descriptorWrite.descriptorType = texture._type;
+				descriptorWrite.descriptorCount = 1;
+				descriptorWrite.pBufferInfo = nullptr;
+				descriptorWrite.pImageInfo = &imageInfo;
+				descriptorWrite.pTexelBufferView = nullptr;
+				descriptorWrite.pNext = nullptr;
+
+				vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
 			}
 		}
 	}
