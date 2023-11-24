@@ -59,7 +59,7 @@ namespace hod
 
 			VkCommandBuffer		_vkCommandBuffer = VK_NULL_HANDLE;
 
-			VkMaterialInstance* _sharedMinimalMaterialInstance = nullptr;
+			//VkMaterialInstance* _sharedMinimalMaterialInstance = nullptr;
 		};
 	}
 }

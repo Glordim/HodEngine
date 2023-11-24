@@ -34,13 +34,6 @@ namespace hod
 			else if (IsWhitespace(c) == true)
 			{
 				stream.ignore();
-
-				if (tokens.empty() == false && tokens.back()._type != Token::Space)
-				{
-					Token token;
-					token._type = Token::Space;
-					tokens.push_back(token);
-				}
 			}
 			else if (IsAlphabetic(c) == true)
 			{

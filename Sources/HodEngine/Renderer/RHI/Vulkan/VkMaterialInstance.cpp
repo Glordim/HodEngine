@@ -49,6 +49,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		std::vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets(uint32_t setOffset, uint32_t setCount) const
 		{
+			if (setOffset > _descriptorSets.size())
+			{
+				return std::vector<VkDescriptorSet>();
+			}
+
 			if (setCount > _descriptorSets.size() - setOffset)
 			{
 				setCount = _descriptorSets.size() - setOffset;

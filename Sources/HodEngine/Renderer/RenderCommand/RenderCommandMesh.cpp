@@ -102,6 +102,15 @@ namespace hod
 				commandBuffer->SetMaterialInstance(_materialInstance);
 			}
 
+			struct Constant
+			{
+				Matrix4	_mvp;
+			};
+
+			Constant constant;
+			constant._mvp = commandBuffer->_projection * commandBuffer->_view * _modelMatrix;
+			commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
+
 			if (_indices.empty() == false)
 			{
 				commandBuffer->DrawIndexed(_indices.size(), 0, 0);

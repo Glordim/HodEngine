@@ -3,6 +3,11 @@
 #include "HodEngine/Renderer/MaterialManager.h"
 #include "HodEngine/Renderer/RHI/Texture.h"
 
+#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.vert.h"
+#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.frag.h"
+
+#include "HodEngine/Renderer/RHI/VertexInput.h"
+
 namespace hod
 {
 	namespace renderer
@@ -77,7 +82,36 @@ namespace hod
 			{
 				if (_defaultMaterial == nullptr)
 				{
-					_defaultMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("Default"));
+					Renderer* renderer = Renderer::GetInstance();
+
+					renderer::VertexInput vertexInput[1] = {
+						{ 0, renderer::VertexInput::Format::R32G32_SFloat },
+						//{ 8, renderer::VertexInput::Format::R32G32_SFloat },
+						//{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
+					};
+
+					Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
+					if (vertexShader->LoadFromMemory(SpriteUnlitColor_vert, SpriteUnlitColor_vert_size) == false)
+					{
+						delete vertexShader;
+						return nullptr;
+					}
+
+					Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
+					if (fragmentShader->LoadFromMemory(SpriteUnlitColor_frag, SpriteUnlitColor_frag_size) == false)
+					{
+						delete vertexShader;
+						delete fragmentShader;
+						return nullptr;
+					}
+
+					_defaultMaterial = renderer->CreateMaterial(vertexInput, 1, vertexShader, fragmentShader);
+					if (_defaultMaterial == nullptr)
+					{
+						delete vertexShader;
+						delete fragmentShader;
+						return nullptr;
+					}
 				}
 
 				_defaultMaterialInstance = CreateMaterialInstance(_defaultMaterial);

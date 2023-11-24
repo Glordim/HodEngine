@@ -31,7 +31,14 @@ ${Vulkan_INCLUDE_DIRS}
 add_library(Renderer OBJECT ${Srcs} ${Includes})
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(Renderer Core Window)
+add_custom_target(Renderer_GenerateEmbeddedShader
+    COMMAND HodShaderConverter --input Shader/Sources --output Shader/Generated
+    DEPENDS HodShaderConverter
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMENT "Generating shader source files"
+)
+
+add_dependencies(Renderer Core Window Renderer_GenerateEmbeddedShader)
 
 target_link_libraries(Renderer
   Core
@@ -71,4 +78,4 @@ function(create_resources dir output)
 	endforeach()
 endfunction()
 
-create_resources("Shader/Sources" "Shader/Generated")
+#create_resources("Shader/Sources" "Shader/Generated")

@@ -47,8 +47,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::Release()
 		{
-			delete _sharedMinimalMaterialInstance;
-			_sharedMinimalMaterialInstance = nullptr;
+			//delete _sharedMinimalMaterialInstance;
+			//_sharedMinimalMaterialInstance = nullptr;
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -74,8 +74,8 @@ namespace hod
 			{
 				vkContext = renderer->GetContext();
 			}
-			VkMaterial* material = nullptr;//(VkMaterial*)renderer->GetSharedMinimalMaterial(); // todo
-			_sharedMinimalMaterialInstance = (VkMaterialInstance*)renderer->CreateMaterialInstance(material);
+			//VkMaterial* material = nullptr;//(VkMaterial*)renderer->GetSharedMinimalMaterial(); // todo
+			//_sharedMinimalMaterialInstance = (VkMaterialInstance*)renderer->CreateMaterialInstance(material);
 
 			VkCommandBufferBeginInfo beginInfo = {};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -173,10 +173,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetProjectionMatrix(const Matrix4& projectionMatrix)
 		{
-			_sharedMinimalMaterialInstance->SetMat4("viewUbo.proj", projectionMatrix);
-			_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", projectionMatrix * _sharedMinimalMaterialInstance->GetMat4("viewUbo.view"));
+			_projection = projectionMatrix;
+			//_sharedMinimalMaterialInstance->SetMat4("viewUbo.proj", projectionMatrix);
+			//_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", projectionMatrix * _sharedMinimalMaterialInstance->GetMat4("viewUbo.view"));
 
-			SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
+			//SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -184,10 +185,13 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetViewMatrix(const Matrix4& viewMatrix)
 		{
+			_view = viewMatrix;
+			/*
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.view", viewMatrix);
 			_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.proj") * viewMatrix);
 
 			SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
+			*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -195,11 +199,13 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetModelMatrix(const Matrix4& modelMatrix)
 		{
+			/*
 			MaterialInstance* modelMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(&_sharedMinimalMaterialInstance->GetMaterial());
 			modelMaterialInstance->SetMat4("modelUbo.model", modelMatrix);
 			modelMaterialInstance->SetMat4("modelUbo.mvp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.vp") * modelMatrix);
 
 			SetMaterialInstance(modelMaterialInstance, 1, 1);
+			*/
 		}
 
 		/// @brief 

@@ -37,18 +37,24 @@ namespace hod
 			newLine = false;
 
 			if (index > 0)
-			{/*
+			{
 				const Token& prevToken = tokens[index - 1];
-				if (prevToken._type == Token::Type::Identifier ||
-					prevToken._type == Token::Type::Comma ||
+				bool prevNeedSpace = (
 					prevToken._type == Token::Type::Identifier ||
-					prevToken._type == Token::Type::Identifier ||
-					prevToken._type == Token::Type::Identifier ||
-					prevToken._type == Token::Type::Identifier ||
-					prevToken._type == Token::Type::Identifier ||)
-				 > 0 && tokens[index]._type != Token::Type::OpenParenthesis && tokens[index]._type != Token::Type::ClosingParenthesis && (tokens[index - 1]._type != Token::Type::OpenParenthesis && tokens[index - 1]._type != Token::Type::ClosingParenthesis)
-				 */
-				stream << " ";
+					prevToken._type == Token::Type::IntegerValue ||
+					prevToken._type == Token::Type::FloatingPointValue
+				);
+
+				bool currentNeedSpace = (
+					token._type == Token::Type::Identifier ||
+					token._type == Token::Type::IntegerValue ||
+					token._type == Token::Type::FloatingPointValue
+				);
+				
+				if (prevNeedSpace == true && currentNeedSpace == true)
+				{
+					stream << " ";
+				}
 			}
 
 			switch (token._type)
