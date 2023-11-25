@@ -130,7 +130,7 @@ namespace hod
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.surface = _surface;
 		createInfo.minImageCount = imageCount;
-		createInfo.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+		createInfo.imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
 		createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 		createInfo.imageExtent = _swapChainExtent;
 		createInfo.imageArrayLayers = 1;
@@ -152,7 +152,7 @@ namespace hod
 
 		// Render pass
 		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
+		colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -213,7 +213,7 @@ namespace hod
 
 		for (size_t i = 0; i < imageCount; ++i)
 		{
-			RendererVulkan::GetInstance()->TransitionImageLayout(swapChainImages[i], VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+			RendererVulkan::GetInstance()->TransitionImageLayout(swapChainImages[i], VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 			// TODO use CreateImageView here ?
 
@@ -221,7 +221,7 @@ namespace hod
 			imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			imageCreateInfo.image = swapChainImages[i];
 			imageCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			imageCreateInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
+			imageCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
 			imageCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
 			imageCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
 			imageCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
