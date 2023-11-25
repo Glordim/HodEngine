@@ -186,15 +186,11 @@ namespace hod::editor
 	bool Meta::LoadImporterConfig(const Document::Node& documentNode)
 	{
 		Importer* importer = AssetDatabase::GetInstance()->GetImporter(_importerType);
-		if (importer == nullptr)
+		if (importer != nullptr)
 		{
-			// TODO message;
-			return false;
+			_importerSettings = importer->AllocateSettings();
 		}
 
-		// TODO Ensure _importerSettings == nullptr
-
-		_importerSettings = importer->AllocateSettings();
 		if (_importerSettings == nullptr)
 		{
 			// TODO message;

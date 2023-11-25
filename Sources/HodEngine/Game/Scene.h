@@ -24,6 +24,8 @@ namespace hod::game
 		bool			SerializeInDocument(Document::Node& documentNode) const;
 		bool			DeserializeFromDocument(const Document::Node& documentNode);
 
+		const Document&	GetDocument() const { return _document; }
+
 	private:
 
 		Document		_document;

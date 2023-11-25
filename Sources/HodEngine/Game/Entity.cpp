@@ -74,6 +74,13 @@ namespace hod::game
 	}
 
 	/// @brief 
+	/// @param active 
+	void Entity::SetActive(bool active)
+	{
+		_active = active;
+	}
+
+	/// @brief 
 	/// @return 
 	std::vector<std::weak_ptr<game::Component>> Entity::GetComponents() const
 	{

@@ -4,6 +4,9 @@
 #include "HodEngine/Game/Builtin.h"
 
 #include "HodEngine/Game/Component.h"
+#include "HodEngine/Game/ComponentFactory.h"
+
+#include "HodEngine/Core/Output.h"
 
 namespace hod
 {
@@ -184,8 +187,54 @@ namespace hod
 
 					Document::Node& componentNode = componentsNode.AddChild("");
 					componentNode.AddChild("MetaType").SetValue(componentLock->GetMetaType());
-					componentLock->GetReflectionDescriptorV()->SerializeInDocument(reinterpret_cast<void*>(&componentLock), componentNode);
+					componentLock->GetReflectionDescriptorV()->SerializeInDocument(reinterpret_cast<const void*>(componentLock.get()), componentNode);
 				}
+			}
+
+			return true;
+		}
+
+		/// @brief 
+		/// @param documentNode 
+		/// @return 
+		bool World::LoadFromDocument(const Document::Node& documentNode)
+		{
+			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
+
+			const Document::Node* entitiesNode = documentNode.GetChild("Entities");
+			const Document::Node* entityNode = entitiesNode->GetFirstChild();
+			while (entityNode != nullptr)
+			{
+				const std::string& name = entityNode->GetChild("Name")->GetString();
+
+				std::weak_ptr<Entity> entity = CreateEntity(name);
+				std::shared_ptr<Entity> entityLock = entity.lock();
+
+				bool active = entityNode->GetChild("Active")->GetBool();
+				entityLock->SetActive(active);
+
+				const Document::Node* componentsNode = entityNode->GetChild("Components");
+				const Document::Node* componentNode = componentsNode->GetFirstChild();
+				while (componentNode != nullptr)
+				{
+					MetaType metaType = componentNode->GetChild("MetaType")->GetUInt64();
+
+					auto it = componentFactory->GetAllDescriptors().find(metaType);
+					if (it != componentFactory->GetAllDescriptors().end())
+					{
+						const ReflectionDescriptor& componentDescriptor = *it->second;
+						std::weak_ptr<Component> component = entityLock->AddComponent(componentDescriptor);
+						//componentDescriptor.DeserializeFromDocument(reinterpret_cast<void*>(component.lock().get()), componentNode);
+					}
+					else
+					{
+						OUTPUT_ERROR("Unknown component !"); // TODO dangerous !!! user lost data
+					}					
+
+					componentNode = componentNode->GetNextSibling();
+				}
+
+				entityNode = entityNode->GetNextSibling();
 			}
 
 			return true;

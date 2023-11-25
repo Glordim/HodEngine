@@ -51,6 +51,7 @@ namespace hod
 //			bool							Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
 			bool							SaveToDocument(Document::Node& documentNode);
+			bool							LoadFromDocument(const Document::Node& documentNode);
 
 		protected:
 

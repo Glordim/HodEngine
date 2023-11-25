@@ -247,6 +247,6 @@ namespace hod::editor
 		}
 
 		game::World* world = game::World::GetInstance();
-		world->AddScene(scene);
+		world->LoadFromDocument(scene->GetDocument().GetRootNode());
 	}
 }

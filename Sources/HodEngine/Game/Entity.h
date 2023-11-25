@@ -39,6 +39,7 @@ namespace hod::game
 		const std::string&	GetName() const;
 		void				SetName(const std::string_view& name);
 		bool				GetActive() const;
+		void				SetActive(bool active);
 
 		std::vector<std::weak_ptr<game::Component>>	GetComponents() const;
 
