@@ -138,6 +138,10 @@ namespace hod::editor
 						//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
 						fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
 					}
+					else
+					{
+						OUTPUT_ERROR("Unable to load Asset : %s", childFileSystemMapping->_path.string().c_str());
+					}
 				}
 			}
 		}

@@ -186,6 +186,7 @@ namespace hod
 			_cursor += std::strspn(valueStart, "0123456789");
 			if (*_cursor == '.')
 			{
+				++_cursor;
 				isFloat = true;
 				_cursor += std::strspn(_cursor, "0123456789");
 			}

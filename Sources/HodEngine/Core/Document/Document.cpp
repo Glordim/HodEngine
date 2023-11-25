@@ -391,6 +391,15 @@ namespace hod
 	/// @param source 
 	void Document::Node::Copy(const Document::Node& source)
 	{
+		Document::Node* sourceChild = source._firstChild;
+		while (sourceChild != nullptr)
+		{
+			Document::Node& child = AddChild("");
+			child.Copy(*sourceChild);
+
+			sourceChild = sourceChild->_nextSibling;
+		}
+
 		_name = source._name;
 		_type = source._type;
 
@@ -401,15 +410,6 @@ namespace hod
 		else
 		{
 			_value = source._value;
-		}
-
-		Document::Node* sourceChild = source._firstChild;
-		while (sourceChild != nullptr)
-		{
-			Document::Node& child = AddChild("");
-			child.Copy(*sourceChild);
-
-			sourceChild = sourceChild->_nextSibling;
 		}
 	}
 

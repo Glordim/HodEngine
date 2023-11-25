@@ -149,7 +149,6 @@ namespace hod::editor
 		{
 			if (ImGui::MenuItem("Create Entity") == true)
 			{
-				
 				std::weak_ptr<game::Entity> entity = world->CreateEntity("EditMe");
 
 				std::shared_ptr<game::Entity> selectionLock = _selection.lock();

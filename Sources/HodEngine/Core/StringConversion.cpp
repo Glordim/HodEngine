@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <limits>
+#include <locale>
 
 namespace hod
 {
@@ -201,6 +202,7 @@ namespace hod
 		{
 			const char* strEnd = str.data() + str.size();
 			char* readedEnd = nullptr;
+			std::locale::global(std::locale::classic());
 			float readedValue = std::strtof(str.data(), &readedEnd);
 			if (readedEnd != strEnd)
 			{
@@ -224,6 +226,7 @@ namespace hod
 		{
 			const char* strEnd = str.data() + str.size();
 			char* readedEnd = nullptr;
+			std::locale::global(std::locale::classic());
 			double readedValue = std::strtod(str.data(), &readedEnd);
 			if (readedEnd != strEnd)
 			{
