@@ -8,8 +8,6 @@
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_impl_win32.h"
-//#include "HodEngine/ImGui/imgui_impl_vulkan.h"
-#include "HodEngine/ImGui/DearImGui/ImGuizmo.h"
 #include "HodEngine/ImGui/RenderCommandImGui.h"
 
 #include "HodEngine/ImGui/Window.h"
@@ -153,7 +151,6 @@ namespace hod::imgui
 		return;
 #endif
 		ImGui::NewFrame();
-		ImGuizmo::BeginFrame();
 
 		if (_mainBar != nullptr)
 		{
