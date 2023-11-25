@@ -19,6 +19,28 @@ file(GLOB_RECURSE Includes
 "${PROJECT_SOURCE_DIR}/*.inl"
 )
 
+file(GLOB_RECURSE ShaderSources
+	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"
+	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.frag"
+)
+
+set(ShaderGenerated "")
+foreach(file ${ShaderSources})
+	string(REPLACE "${PROJECT_SOURCE_DIR}/Shader/Sources/" "${PROJECT_SOURCE_DIR}/Shader/Generated/" relocated_file "${file}")
+    list(APPEND ShaderGenerated "${relocated_file}.cpp")
+    list(APPEND ShaderGenerated "${relocated_file}.h")
+	list(APPEND Srcs "${relocated_file}.cpp")
+	list(APPEND Srcs "${relocated_file}.h")
+	list(APPEND Includes "${relocated_file}.h")
+endforeach()
+
+add_custom_command(OUTPUT ${ShaderGenerated}
+    COMMAND HodShaderConverter --input Shader/Sources --output Shader/Generated
+    DEPENDS HodShaderConverter ${ShaderSources}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMENT "Generating shader source files"
+)
+
 assign_source_group(${Srcs}) # for VS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
@@ -31,14 +53,7 @@ ${Vulkan_INCLUDE_DIRS}
 add_library(Renderer OBJECT ${Srcs} ${Includes})
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_custom_target(Renderer_GenerateEmbeddedShader
-    COMMAND HodShaderConverter --input Shader/Sources --output Shader/Generated
-    DEPENDS HodShaderConverter
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    COMMENT "Generating shader source files"
-)
-
-add_dependencies(Renderer Core Window Renderer_GenerateEmbeddedShader)
+add_dependencies(Renderer Core Window)
 
 target_link_libraries(Renderer
   Core

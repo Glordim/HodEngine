@@ -44,8 +44,30 @@ file(GLOB_RECURSE Srcs
 )
 
 file(GLOB_RECURSE Includes
-"${PROJECT_SOURCE_DIR}/*.h"
-"${PROJECT_SOURCE_DIR}/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.h"
+	"${PROJECT_SOURCE_DIR}/*.inl"
+)
+
+file(GLOB_RECURSE ShaderSources
+	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"
+	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.frag"
+)
+
+set(ShaderGenerated "")
+foreach(file ${ShaderSources})
+	string(REPLACE "${PROJECT_SOURCE_DIR}/Shader/Sources/" "${PROJECT_SOURCE_DIR}/Shader/Generated/" relocated_file "${file}")
+    list(APPEND ShaderGenerated "${relocated_file}.cpp")
+    list(APPEND ShaderGenerated "${relocated_file}.h")
+	list(APPEND Srcs "${relocated_file}.cpp")
+	list(APPEND Srcs "${relocated_file}.h")
+	list(APPEND Includes "${relocated_file}.h")
+endforeach()
+
+add_custom_command(OUTPUT ${ShaderGenerated}
+    COMMAND HodShaderConverter --input Shader/Sources --output Shader/Generated
+    DEPENDS HodShaderConverter ${ShaderSources}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMENT "Generating shader source files"
 )
 
 assign_source_group(${Srcs}) # for VS
@@ -53,14 +75,7 @@ assign_source_group(${Srcs}) # for VS
 add_library(ImGui OBJECT ${Srcs} ${Includes})
 set_property(TARGET ImGui PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_custom_target(ImGui_GenerateEmbeddedShader
-    COMMAND HodShaderConverter --input Shader/Sources --output Shader/Generated
-    DEPENDS HodShaderConverter
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    COMMENT "Generating shader source files"
-)
-
-add_dependencies(ImGui Core Window Renderer ImGui_GenerateEmbeddedShader)
+add_dependencies(ImGui Core Window Renderer)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
 get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
