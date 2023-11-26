@@ -192,6 +192,32 @@ namespace hod::editor
 	/// @return 
 	bool Editor::Save()
 	{
+		if (_currentScene == nullptr)
+		{
+			if (SaveSceneAs() == false)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			Document worldDocument;
+
+			game::World* world = game::World::GetInstance();
+			if (world->SaveToDocument(worldDocument.GetRootNode()) == false)
+			{
+				return false;
+			}
+
+			game::Scene scene;
+			if (scene.DeserializeFromDocument(worldDocument.GetRootNode()) == false)
+			{
+				return false;
+			}
+
+			_currentScene->Save(&scene, scene.GetReflectionDescriptorV());
+		}
+
 		return AssetDatabase::GetInstance()->Save();
 	}
 
@@ -248,5 +274,7 @@ namespace hod::editor
 
 		game::World* world = game::World::GetInstance();
 		world->LoadFromDocument(scene->GetDocument().GetRootNode());
+
+		_currentScene = &asset;
 	}
 }

@@ -63,5 +63,7 @@ namespace hod::editor
 
 		std::weak_ptr<game::Entity> 			_entitySelection;
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
+
+		Asset*									_currentScene = nullptr;
 	};
 }

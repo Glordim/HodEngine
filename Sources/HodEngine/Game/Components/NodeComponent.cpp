@@ -12,7 +12,7 @@ namespace hod
 
 		DESCRIBE_REFLECTED_CLASS(NodeComponent, Component)
 		{
-			//AddProperty<Variable>(Variable::Type::Float32, offsetof(NodeComponent, _rotation), "Rotation"); // parent
+			//AddProperty<Variable>(Variable::Type::UInt64, offsetof(NodeComponent, _parent), "Parent");
 		}
 
 		//-----------------------------------------------------------------------------
