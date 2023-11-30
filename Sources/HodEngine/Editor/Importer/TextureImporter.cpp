@@ -16,7 +16,7 @@
 #include <stb_image_write.h>
 
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include <stb_image_resize.h>
+#include <stb_image_resize2.h>
 
 namespace hod::editor
 {
@@ -67,7 +67,7 @@ namespace hod::editor
 			thumbnailHeight = ((float)y / (float)x) * thumbnailWidth;
 		}
 		uint8_t* thumbnailPixels = new uint8_t[thumbnailHeight * thumbnailWidth * componentCount];
-		stbir_resize_uint8(pixels, x, y, 0, thumbnailPixels, thumbnailWidth, thumbnailHeight, 0, componentCount);
+		stbir_resize_uint8_linear(pixels, x, y, 0, thumbnailPixels, thumbnailWidth, thumbnailHeight, 0, (stbir_pixel_layout)componentCount);
 
 		stbi_write_png_compression_level = 9;
 
