@@ -103,13 +103,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CameraComponent::PushToRenderQueue(renderer::RenderQueue* renderQueue)
+		void CameraComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
-			if (renderQueue == nullptr)
-			{
-				renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
-			}
-
 			Rect viewport;
 			viewport._position.SetX(0);
 			viewport._position.SetY(0);

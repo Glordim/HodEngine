@@ -144,6 +144,8 @@ namespace hod::editor
 					return changed;
 				}
 				break;
+
+				default: break;
 			}
 		}
 		else

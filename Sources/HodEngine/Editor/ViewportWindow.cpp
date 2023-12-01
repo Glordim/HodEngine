@@ -55,7 +55,6 @@ namespace hod::editor
 			viewport._position.SetX(0);
 			viewport._position.SetY(0);
 
-			float size = 5.0f;
 			float aspect = viewport._size.GetX() / viewport._size.GetY();
 
 			Matrix4 projection = Matrix4::OrthogonalProjection(-1 * aspect, 1 * aspect, -1, 1, -1024.0f, 1024.0f);

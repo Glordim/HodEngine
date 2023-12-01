@@ -47,7 +47,7 @@ namespace hod::editor
 		if (selection->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
 		{
 			std::shared_ptr<Asset> asset = selection->_asset;
-			ImGui::Text(asset->GetName().c_str()); // same line add button to open (and later VersionControl)
+			ImGui::TextUnformatted(asset->GetName().c_str()); // same line add button to open (and later VersionControl)
 			ImGui::Separator();
 			if (DrawDefaultInspector(asset->GetMeta()._importerSettings, asset->GetMeta()._importerSettings->GetReflectionDescriptorV()) == true)
 			{

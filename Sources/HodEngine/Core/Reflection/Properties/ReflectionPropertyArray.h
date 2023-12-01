@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <functional>
+#include <cassert>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"

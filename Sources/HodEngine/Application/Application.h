@@ -16,6 +16,8 @@ namespace hod::application
 
 	public:
 
+		virtual			~Application() = default;
+
 		virtual bool	Init(const ArgumentParser& argumentParser);
 		virtual bool	Run();
 

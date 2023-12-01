@@ -121,10 +121,12 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void World::Update(float dt)
 		{
-			for (Scene* pScene : _scenes)
+			/*
+			for (Scene* scene : _scenes)
 			{
-				//pScene->Update(dt);
+				sScene->Update(dt);
 			}
+			*/
 		}
 
 		/// @brief 

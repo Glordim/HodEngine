@@ -18,34 +18,6 @@ namespace hod::game
 	}
 
 	/// @brief 
-	/// @param copy 
-	/// @return 
-	const Entity& Entity::operator = (const Entity& copy)
-	{
-		_id = copy._id;
-		_name = copy._name;
-		_active = copy._active;
-
-		return *this;
-	}
-
-	/// @brief 
-	/// @param move 
-	/// @return 
-	const Entity& Entity::operator = (Entity&& move)
-	{
-		_id = move._id;
-		_name = move._name;
-		_active = move._active;
-
-		move._id = 0;
-		move._name.clear();
-		move._active = false;
-
-		return *this;
-	}
-
-	/// @brief 
 	/// @return 
 	Entity::Id Entity::GetId() const
 	{

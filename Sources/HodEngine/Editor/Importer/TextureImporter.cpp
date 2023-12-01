@@ -36,8 +36,6 @@ namespace hod::editor
 	/// @return 
 	bool TextureImporter::WriteResource(FileStream& data, FileStream& meta, FileStream& resource, FileStream& thumbnail, ImporterSettings& settings)
 	{
-		TextureImporterSettings& textureSettings = (TextureImporterSettings&)settings;
-
 		uint32_t dataSize = data.GetSize();
 		uint8_t* dataBuffer = new uint8_t[dataSize];
 		if (data.Read(dataBuffer, dataSize) == false)

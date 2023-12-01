@@ -1,14 +1,11 @@
 #include "HodEngine/Game/Component.h"
 
-#include "HodEngine/Game/Traits/Type.h"
-
 namespace hod
 {
 	namespace game
 	{
 		DESCRIBE_REFLECTED_CLASS(Component, Object)
 		{
-			AddTrait<Traits::Type>(Traits::Type::Component);
 		}
 
 		//-----------------------------------------------------------------------------

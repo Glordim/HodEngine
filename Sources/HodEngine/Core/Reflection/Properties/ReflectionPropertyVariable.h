@@ -6,6 +6,7 @@
 #include "HodEngine/Core/Document/Document.h"
 
 #include <functional>
+#include <cassert>
 
 namespace hod
 {

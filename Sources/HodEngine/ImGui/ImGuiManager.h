@@ -62,7 +62,6 @@ namespace hod::imgui
 
 #if defined (PLATFORM_WINDOWS)
 		void							OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-		Event<HWND, UINT, WPARAM, LPARAM>::Slot _winProcSlot;
 #endif
 
 	private:
@@ -77,6 +76,10 @@ namespace hod::imgui
 		renderer::Material*				_material = nullptr;
 		renderer::Shader*				_vertexShader = nullptr;
 		renderer::Shader*				_fragmentShader = nullptr;
+
+#if defined (PLATFORM_WINDOWS)
+		Event<HWND, UINT, WPARAM, LPARAM>::Slot _winProcSlot;
+#endif
 	};
 }
 

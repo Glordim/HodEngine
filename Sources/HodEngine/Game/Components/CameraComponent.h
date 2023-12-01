@@ -43,11 +43,10 @@ namespace hod
 
 			void						SetHdriMaterial(renderer::MaterialInstance* hdriMat, renderer::Texture* hdriTexture);
 
-			void						PushToRenderQueue(renderer::RenderQueue* renderQueue = nullptr);
+			void						PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
 
 		private:
 
-			float						_fov;
 			float						_aspect;
 			float						_near;
 			float						_far;

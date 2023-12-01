@@ -57,7 +57,6 @@ namespace hod::editor
 			if (ImGui::Button("Open") == true)
 			{
 				pfd::settings::verbose(true);
-				bool test = pfd::settings::available();
 				pfd::open_file dialog("Open HodProject");
 				//while (dialog.ready() == false)
 				{
@@ -100,11 +99,11 @@ namespace hod::editor
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					ImGui::Text(_recentProjects._projectsPath[index].data());
+					ImGui::TextUnformatted(_recentProjects._projectsPath[index].data());
 					//ImGui::Text("C:\\users\\glordim\\Desltop\\Dev\\Toto");
 
 					ImGui::TableNextColumn();
-					ImGui::Text("a month ago");
+					ImGui::TextUnformatted("a month ago");
 
 					ImGui::TableNextColumn();
 					if (ImGui::Button("Open") == true)

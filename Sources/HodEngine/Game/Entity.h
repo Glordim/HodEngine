@@ -26,12 +26,12 @@ namespace hod::game
 	public:
 
 						Entity(const std::string_view& name);
-						Entity(const Entity&) = default;
-						Entity(Entity&&) = default;
+						Entity(const Entity&) = delete;
+						Entity(Entity&&) = delete;
 						~Entity() = default;
 
-		const Entity&	operator = (const Entity& copy);
-		const Entity&	operator = (Entity&& move);
+		const Entity&	operator = (const Entity&) = delete;
+		const Entity&	operator = (Entity&&) = delete;
 
 	public:
 

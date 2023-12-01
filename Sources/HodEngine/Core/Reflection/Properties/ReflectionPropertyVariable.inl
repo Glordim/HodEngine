@@ -25,6 +25,8 @@ namespace hod
 				case Type::Float32: return *reinterpret_cast<const float*>(variableAddress); break;
 				case Type::Float64: return *reinterpret_cast<const double*>(variableAddress); break;
 				//case Type::String: return *reinterpret_cast<const std::string*>(variableAddress); break;
+
+				default: assert(false); break;
 				}
 
 				return _type_();
@@ -56,6 +58,8 @@ namespace hod
 					case Type::Float32: *reinterpret_cast<float*>(variableAddress) = value; break;
 					case Type::Float64: *reinterpret_cast<double*>(variableAddress) = value; break;
 					//case Type::String: *reinterpret_cast<std::string*>(variableAddress) = value; break;
+
+					default: assert(false); break;
 					}
 				}
 			}
