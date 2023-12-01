@@ -179,7 +179,7 @@ namespace hod::window
 			return;
 		}
 
-		for (const std::function<void()> function : _runOnWin32Thread)
+		for (const std::function<void()>& function : _runOnWin32Thread)
 		{
 			function();
 		}

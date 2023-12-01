@@ -10,6 +10,8 @@ namespace hod::window
 
     public:
 
+        virtual         ~DisplayManager() = default;
+
         virtual bool    Initialize() = 0;
         virtual void    Terminate() = 0;
     };
