@@ -1,5 +1,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
 
+#include <cassert>
+
 namespace hod
 {
 	namespace Reflection
@@ -57,6 +59,8 @@ namespace hod
 				case Variable::Type::Float32: arrayNode.SetValues(std::span<const float>(*reinterpret_cast<const std::vector<float>*>(arrayAddress))); break;
 				case Variable::Type::Float64: arrayNode.SetValues(std::span<const double>(*reinterpret_cast<const std::vector<double>*>(arrayAddress))); break;
 				case Variable::Type::String: arrayNode.SetValues(std::span<const std::string>(*reinterpret_cast<const std::vector<std::string>*>(arrayAddress))); break;
+
+				default: assert(false); break;
 				}
 			}
 
@@ -87,6 +91,8 @@ namespace hod
 						case Variable::Type::Float32: reinterpret_cast<std::vector<float>*>(arrayAddress)->push_back(varNode->GetFloat32()); break;
 						case Variable::Type::Float64: reinterpret_cast<std::vector<double>*>(arrayAddress)->push_back(varNode->GetFloat64()); break;
 						case Variable::Type::String: reinterpret_cast<std::vector<std::string>*>(arrayAddress)->push_back(varNode->GetString()); break;
+
+						default: assert(false); break;
 						}
 						
 						varNode = varNode->GetNextSibling();

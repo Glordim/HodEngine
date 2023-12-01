@@ -8,8 +8,8 @@ namespace hod
 	/// @param name 
 	Document::Node::Node(Document& document, const std::string_view& name)
 		: _document(document)
-		, _name(name)
 		, _type(Type::Object)
+		, _name(name)
 	{
 
 	}

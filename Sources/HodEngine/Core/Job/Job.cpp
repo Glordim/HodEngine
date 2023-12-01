@@ -6,9 +6,9 @@ namespace hod
 	/// @param queue 
 	/// @param deleteAfterCompletion 
 	Job::Job(JobQueue::Queue queue, bool deleteAfterCompletion, Thread::Id threadId)
-		: _queue(queue)
+		: _threadId(threadId)
+		, _queue(queue)
 		, _isDeleteAfterCompletion(deleteAfterCompletion)
-		, _threadId(threadId)
 	{
 
 	}

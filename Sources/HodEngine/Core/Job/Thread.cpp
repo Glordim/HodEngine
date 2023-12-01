@@ -1,5 +1,8 @@
 #include "HodEngine/Core/Job/Thread.h"
 
+#if defined(PLATFORM_WINDOWS)
+#include "HodEngine/Core/StringConversion.h"
+#endif
 #if defined(PLATFORM_LINUX)
 #include <unistd.h>
 #endif
@@ -84,14 +87,11 @@ namespace hod
 		::SetThreadPriority(_handle, priorities[priority]);
 		// TODO set affinity ?
 
-		size_t nameLen = strlen(name);
-		size_t wNameLen = mbstowcs(NULL, name, nameLen);
-		wchar_t* wName = new wchar_t[wNameLen + 1];
-		mbstowcs(wName, name, nameLen);
-		wName[wNameLen] = '\0';
-
-		::SetThreadDescription(_handle, wName);
-		delete[] wName;
+		std::wstring wideName;
+		if (StringConversion::StringToWString(name, wideName) == true)
+		{
+			::SetThreadDescription(_handle, wideName.c_str());
+		}		
 #elif defined(PLATFORM_LINUX)
 		pthread_attr_t attributes;
 		if (pthread_attr_init(&attributes) != 0)

@@ -11,7 +11,7 @@ namespace hod
 	///@param typeName 
 	ReflectionDescriptor::ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent)
 	: _typeName(typeName)
-	, _parent(parent)
+	//, _parent(parent)
 	{
 
 	}
@@ -20,10 +20,10 @@ namespace hod
 	/// @param data 
 	ReflectionDescriptor::ReflectionDescriptor(const Data& data)
 	: _typeName(data._name.data()) // todo
-	, _metaType(data._metaType)
-	, _parent(data._parent)
+	//, _parent(data._parent)
 	, _allocateFunction(data._allocateFunction)
 	, _sharedAllocateFunction(data._sharedAllocateFunction)
+	, _metaType(data._metaType)
 	{
 
 	}

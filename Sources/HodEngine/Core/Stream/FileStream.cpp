@@ -64,7 +64,7 @@ namespace hod
 	{
 		static int fopenSeek[static_cast<uint8_t>(SeekOrigin::Count)] = {SEEK_SET, SEEK_CUR, SEEK_END};
 
-		return (std::fseek(_fileHandle, position, static_cast<uint8_t>(origin)) == 0);
+		return (std::fseek(_fileHandle, position, fopenSeek[static_cast<uint8_t>(origin)]) == 0);
 	}
 
 	/// @brief

@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <limits>
 #include <locale>
+#include <codecvt>
 
 namespace hod
 {
@@ -239,6 +240,28 @@ namespace hod
 				value = static_cast<double>(readedValue);
 				return true;
 			}
+		}
+
+		/// @brief 
+		/// @param str 
+		/// @param result 
+		/// @return 
+		bool StringToWString(const std::string_view& str, std::wstring& result)
+		{
+			size_t utf8Size = str.size() + 1;
+    		result.resize(utf8Size, L'\0');
+
+    		std::mbstate_t state = std::mbstate_t();
+			const std::codecvt<wchar_t, char, std::mbstate_t>& codecvtFacet = std::use_facet<std::codecvt<wchar_t, char, std::mbstate_t>>(std::locale());
+
+			const char* strPtr = str.data();
+			wchar_t* endResultPtr = &result[utf8Size];
+			if (codecvtFacet.in(state, strPtr, strPtr + utf8Size, strPtr, &result[0], &result[0] + utf8Size, endResultPtr) != std::codecvt_base::ok)
+			{
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

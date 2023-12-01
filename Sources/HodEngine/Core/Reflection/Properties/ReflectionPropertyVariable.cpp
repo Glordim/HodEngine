@@ -1,5 +1,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
 
+#include <cassert>
+
 namespace hod
 {
 	namespace Reflection
@@ -45,6 +47,8 @@ namespace hod
 				case Type::Float64: varNode.SetFloat64(*reinterpret_cast<const double*>(variableAddress)); break;
 				case Type::String: varNode.SetString(*reinterpret_cast<const std::string*>(variableAddress)); break;
 				case Type::Object: varNode.SetString(*reinterpret_cast<const std::string*>(variableAddress)); break;
+
+				default: assert(false); break;
 				}
 			}
 
@@ -70,6 +74,8 @@ namespace hod
 					case Type::Float32: *reinterpret_cast<float*>(variableAddress) = varNode->GetFloat32(); break;
 					case Type::Float64: *reinterpret_cast<double*>(variableAddress) = varNode->GetFloat64(); break;
 					case Type::String: *reinterpret_cast<std::string*>(variableAddress) = varNode->GetString(); break;
+
+					default: assert(false); break;
 					}
 				}
 			}

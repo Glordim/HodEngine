@@ -18,6 +18,8 @@ namespace hod
 		bool	StringToFloat32(const std::string_view& str, float& value);
 		bool	StringToFloat64(const std::string_view& str, double& value);
 
+		bool	StringToWString(const std::string_view& str, std::wstring& result);
+
 		template<typename ... Args>
 		std::string StringFormat(const std::string_view& format, Args ... args )
 		{

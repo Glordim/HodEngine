@@ -34,11 +34,11 @@ namespace hod
 
 		if (type == Type::Message)
 		{
-			fprintf(stdout, finalBuffer);
+			fputs(finalBuffer, stdout);
 		}
 		else
 		{
-			fprintf(stderr, finalBuffer);
+			fputs(finalBuffer, stderr);
 		}
 
 #if defined(_WIN32)
