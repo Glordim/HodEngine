@@ -89,8 +89,11 @@ namespace hod
 			}
 
 			VkClearValue clearColor[1];
-			clearColor[0] = { 0.1f, 0.1f, 0.1f, 1.0f };
-			//clearColor[1] = { 1.0f, 0.0f, 0.0f, 1.0f };
+			clearColor[0].color.float32[0] = 0.1f;
+			clearColor[0].color.float32[1] = 0.0f;
+			clearColor[0].color.float32[2] = 0.0f;
+			clearColor[0].color.float32[3] = 1.0f;
+			//clearColor[1].color = { { 1.0f, 0.0f, 0.0f, 1.0f } };
 
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

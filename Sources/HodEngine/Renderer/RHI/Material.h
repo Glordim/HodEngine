@@ -47,8 +47,6 @@ namespace hod
 
 			std::map<std::string, uint32_t> nameToLocationMap;
 			std::map<uint32_t, uint32_t> locationToTextureId;
-
-			uint32_t programId;
 		};
 	}
 }

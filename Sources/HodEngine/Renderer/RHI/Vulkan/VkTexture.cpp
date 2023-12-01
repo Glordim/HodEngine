@@ -141,8 +141,6 @@ namespace hod
 
 			VkBuffer buffer = VK_NULL_HANDLE;
 			VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
-			VkDeviceSize bufferSize = width * height * 4;
-			void* data = nullptr;
 			bool ret = false;
 
 			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &_textureImage, &_textureImageMemory) == false)

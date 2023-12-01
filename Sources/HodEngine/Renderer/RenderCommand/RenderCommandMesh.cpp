@@ -19,10 +19,9 @@ namespace hod
 			: RenderCommand()
 			, _vertices(vertexCount * vertexSize)
 			, _vertexCount(vertexCount)
-			, _vertexSize(vertexSize)
 			, _indices(indexCount)
-			, _materialInstance(materialInstance)
 			, _modelMatrix(modelMatrix)
+			, _materialInstance(materialInstance)
 			, _ignoreVisualisationMode(ignoreVisualisationMode)
 		{
 			memcpy(_vertices.data(), vertices, vertexCount * vertexSize);

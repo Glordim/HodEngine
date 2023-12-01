@@ -7,7 +7,7 @@ namespace hod::renderer
 	// TODO nest in TextureResource when reflection support it :(
 	struct TextureInfo
 	{
-		REFLECTED_CLASS_NO_PARENT(TextureInfo)
+		REFLECTED_CLASS_NO_VIRTUAL(TextureInfo)
 
 	public:
 	

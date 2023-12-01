@@ -48,9 +48,6 @@ namespace hod
 
 		private:
 
-			RECT								_g_WindowRect;
-
-			D3d12GpuDevice*						_selectedGpu;
 			std::vector<D3d12GpuDevice>			_availableGpu;
 
 			// DirectX 12 Objects

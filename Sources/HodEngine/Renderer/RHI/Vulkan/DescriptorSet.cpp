@@ -111,8 +111,6 @@ namespace hod
 		void DescriptorSet::SetUboValue(const std::string& memberName, const void* value, size_t valueSize)
 		{
 			std::string varIdentifier;
-
-			int index = 1;
 			std::string target;
 
 			size_t len = memberName.find_first_of(".[");

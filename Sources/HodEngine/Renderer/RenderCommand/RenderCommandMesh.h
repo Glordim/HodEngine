@@ -35,7 +35,6 @@ namespace hod
 
 			std::vector<uint8_t>	_vertices;
 			uint32_t				_vertexCount;
-			uint32_t				_vertexSize;
 
 			std::vector<uint16_t>	_indices;
 			Matrix4					_modelMatrix;
