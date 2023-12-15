@@ -18,6 +18,7 @@
 #include "HodEngine/Core/Document/Document.h"
 #include "HodEngine/Core/Document/DocumentReaderJson.h"
 #include "HodEngine/Core/Document/DocumentWriterJson.h"
+#include "HodEngine/Core/Serialization/Serializer.h"
 
 #include "portable-file-dialogs.h"
 
@@ -38,7 +39,7 @@ namespace hod::editor
 			DocumentReaderJson jsonReader;
 			if (jsonReader.Read(document, projectsPath) == true)
 			{
-				RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(_recentProjects, document.GetRootNode());
+				Serializer::Deserialize(_recentProjects, document.GetRootNode());
 			}
 		}
 	}

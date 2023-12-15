@@ -7,6 +7,7 @@
 #include "HodEngine/Core/Document/DocumentWriterJson.h"
 #include "HodEngine/Core/Stream/FileStream.h"
 #include "HodEngine/Core/UID.h"
+#include "HodEngine/Core/Serialization/Serializer.h"
 
 namespace hod::editor
 {
@@ -64,7 +65,7 @@ namespace hod::editor
 		}
 
 		Meta meta;
-		if (meta.GetReflectionDescriptorV()->DeserializeFromDocument(meta, document.GetRootNode()) == false)
+		if (Serializer::Deserialize(meta, document.GetRootNode()) == false)
 		{
 			// TODO output reason
 			return false;
@@ -78,7 +79,7 @@ namespace hod::editor
 		}
 
 		meta._importerSettings = AllocateSettings();
-		if (meta._importerSettings->GetReflectionDescriptorV()->DeserializeFromDocument(meta._importerSettings, *importerNode) == false)
+		if (Serializer::Deserialize(meta._importerSettings, *importerNode) == false)
 		{
 			// TODO output reason
 			return false;
@@ -129,13 +130,13 @@ namespace hod::editor
 			meta._importerType = GetTypeName();
 
 			Document document;
-			if (meta.GetReflectionDescriptorV()->SerializeInDocument(meta, document.GetRootNode()) == false)
+			if (Serializer::Serialize(meta, document.GetRootNode()) == false)
 			{
 				return false;
 			}
 
 			ImporterSettings* settings = AllocateSettings();
-			if (settings->GetReflectionDescriptorV()->SerializeInDocument(settings, document.GetRootNode().AddChild("importerSettings")) == false)
+			if (Serializer::Serialize(settings, document.GetRootNode().AddChild("importerSettings")) == false)
 			{
 				return false;
 			}

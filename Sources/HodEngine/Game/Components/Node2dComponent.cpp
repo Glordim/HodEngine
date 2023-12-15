@@ -12,8 +12,6 @@
 
 namespace hod
 {
-	using namespace Reflection::Property;
-
 	namespace game
 	{
 		DESCRIBE_REFLECTED_CLASS(Node2dComponent, NodeComponent)

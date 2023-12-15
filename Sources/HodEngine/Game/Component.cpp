@@ -6,6 +6,13 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(Component, Object)
 		{
+			ADD_PROPERTY(Component, _uid);
+		}
+
+		/// @brief 
+		Component::Component()
+		: _uid(UID::GenerateUID())
+		{
 		}
 
 		//-----------------------------------------------------------------------------

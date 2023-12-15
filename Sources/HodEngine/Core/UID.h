@@ -23,10 +23,14 @@ namespace hod
 
 		void								operator=(const UID& right);
 
-		bool								operator<(const UID& rhs) const
+		std::strong_ordering				operator<=>(const UID& other) const
 		{
-			return _high <= rhs._high && _low < rhs._low;
-		}
+        	if (_high < other._high) return std::strong_ordering::less;
+        	if (_high > other._high) return std::strong_ordering::greater;
+        	if (_low < other._low) return std::strong_ordering::less;
+        	if (_low > other._low) return std::strong_ordering::greater;
+        	return std::strong_ordering::equal;
+    	}
 
 	public:
 

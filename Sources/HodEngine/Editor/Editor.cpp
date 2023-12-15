@@ -32,6 +32,8 @@
 
 #include "HodEngine/Application/PlatformDialog.h"
 
+#include "HodEngine/Core/Serialization/Serializer.h"
+
 namespace hod::editor
 {
 	_SingletonConstructor(Editor)
@@ -117,7 +119,7 @@ namespace hod::editor
 			DocumentReaderJson jsonReader;
 			if (jsonReader.Read(document, projectsPath) == true)
 			{
-				RecentProjects::GetReflectionDescriptor()->DeserializeFromDocument(recentProjects, document.GetRootNode());
+				Serializer::Deserialize(recentProjects, document.GetRootNode());
 			}
 		}
 
@@ -136,7 +138,7 @@ namespace hod::editor
 			recentProjects._projectsPath.push_back(path.string());
 
 			Document writeDocument;
-			RecentProjects::GetReflectionDescriptor()->SerializeInDocument(recentProjects, writeDocument.GetRootNode());
+			Serializer::Serialize(recentProjects, writeDocument.GetRootNode());
 
 			std::filesystem::create_directories(projectsPath.parent_path());
 			DocumentWriterJson jsonWriter;
@@ -267,7 +269,7 @@ namespace hod::editor
 		}
 
 		game::Scene* scene = new game::Scene();
-		if (scene->GetReflectionDescriptorV()->DeserializeFromDocument((void*)scene, document.GetRootNode()) == false)
+		if (Serializer::Deserialize(scene, document.GetRootNode()) == false)
 		{
 			return; // todo message + bool
 		}

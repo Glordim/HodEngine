@@ -3,15 +3,13 @@
 #include "HodEngine/Core/Reflection/ReflectionTrait.h"
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.h"
-
 namespace hod
 {
 	///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
 	///@param typeName 
 	ReflectionDescriptor::ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent)
 	: _typeName(typeName)
-	//, _parent(parent)
+	, _parent(parent)
 	{
 
 	}
@@ -20,7 +18,7 @@ namespace hod
 	/// @param data 
 	ReflectionDescriptor::ReflectionDescriptor(const Data& data)
 	: _typeName(data._name.data()) // todo
-	//, _parent(data._parent)
+	, _parent(data._parent)
 	, _allocateFunction(data._allocateFunction)
 	, _sharedAllocateFunction(data._sharedAllocateFunction)
 	, _metaType(data._metaType)
@@ -54,50 +52,6 @@ namespace hod
 	const std::string& ReflectionDescriptor::GetTypeName() const
 	{
 		return _typeName;
-	}
-
-	/// @brief 
-	/// @param instance 
-	/// @param documentNode 
-	/// @return 
-	bool ReflectionDescriptor::SerializeInDocument(const void* instance, Document::Node& documentNode)
-	{
-		ReflectionTraitCustomSerialization* customSerialization = FindTrait<ReflectionTraitCustomSerialization>();
-		if (customSerialization != nullptr)
-		{
-			customSerialization->Serialize(instance, documentNode);
-		}
-		else
-		{
-			for (ReflectionProperty* property : _properties)
-			{
-				property->Serialize(instance, documentNode);
-			}
-		}
-		
-		return true;
-	}
-	
-	/// @brief 
-	/// @param instance 
-	/// @param documentNode 
-	/// @return 
-	bool ReflectionDescriptor::DeserializeFromDocument(void* instance, const Document::Node& documentNode)
-	{
-		ReflectionTraitCustomSerialization* customSerialization = FindTrait<ReflectionTraitCustomSerialization>();
-		if (customSerialization != nullptr)
-		{
-			customSerialization->Deserialize(instance, documentNode);
-		}
-		else
-		{
-			for (ReflectionProperty* property : _properties)
-			{
-				property->Deserialize(instance, documentNode);
-			}
-		}
-
-		return true;
 	}
 
 	///@brief 
@@ -141,5 +95,12 @@ namespace hod
 	void ReflectionDescriptor::AddProperty(ReflectionProperty* property)
 	{
 		_properties.push_back(property);
+	}
+
+	/// @brief 
+	/// @return 
+	ReflectionDescriptor* ReflectionDescriptor::GetParent() const
+	{
+		return _parent;
 	}
 }

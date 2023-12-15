@@ -10,6 +10,7 @@
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+#include "HodEngine/Core/Serialization/Serializer.h"
 
 #include "HodEngine/Renderer/RHI/Texture.h"
 #include "HodEngine/Renderer/Renderer.h"
@@ -62,7 +63,7 @@ namespace hod::editor
 			return false;
 		}
 
-		if (Meta::GetReflectionDescriptor()->DeserializeFromDocument(_meta, document.GetRootNode()) == false)
+		if (Serializer::Deserialize(_meta, document.GetRootNode()) == false)
 		{
 			return false;
 		}
@@ -93,10 +94,10 @@ namespace hod::editor
 	/// @param instance 
 	/// @param reflectionDescriptor 
 	/// @return 
-	bool Asset::Save(void* instance, ReflectionDescriptor* reflectionDescriptor)
+	bool Asset::Save(const void* instance, ReflectionDescriptor* reflectionDescriptor)
 	{
 		Document metaDocument;
-		if (Meta::GetReflectionDescriptor()->SerializeInDocument(_meta, metaDocument.GetRootNode()) == false)
+		if (Serializer::Serialize(_meta, metaDocument.GetRootNode()) == false)
 		{
 			return false;
 		}
@@ -117,7 +118,7 @@ namespace hod::editor
 		if (instance != nullptr)
 		{
 			Document objectDocument;
-			if (reflectionDescriptor->SerializeInDocument((const void*)instance, objectDocument.GetRootNode()) == false)
+			if (Serializer::Serialize(reflectionDescriptor, instance, objectDocument.GetRootNode()) == false)
 			{
 				return false;
 			}
@@ -197,7 +198,7 @@ namespace hod::editor
 			return false;
 		}
 
-		if (_importerSettings->GetReflectionDescriptorV()->DeserializeFromDocument((void*)_importerSettings, documentNode) == false)
+		if (Serializer::Deserialize(_importerSettings, documentNode) == false)
 		{
 			// TODO message;
 			return false;
@@ -212,7 +213,7 @@ namespace hod::editor
 	{
 		// TODO Ensure _importerSettings == nullptr
 
-		if (_importerSettings->GetReflectionDescriptorV()->SerializeInDocument((const void*)_importerSettings, documentNode) == false)
+		if (Serializer::Serialize(_importerSettings, documentNode) == false)
 		{
 			// TODO message;
 			return false;

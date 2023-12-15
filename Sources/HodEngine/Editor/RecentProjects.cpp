@@ -8,7 +8,7 @@ namespace hod::editor
 	DESCRIBE_REFLECTED_CLASS(RecentProjects, void)
 	{
 		//ADD_PROPERTY(RecentProjects, _projectsPath);
-		Reflection::Property::Array* projectsPath = new Reflection::Property::Array(Reflection::Property::Variable::Type::String, offsetof(RecentProjects, _projectsPath), "ProjectsPath");
+		ReflectionPropertyArray* projectsPath = new ReflectionPropertyArray(ReflectionPropertyVariable::Type::String, offsetof(RecentProjects, _projectsPath), "ProjectsPath");
 		AddProperty(projectsPath);
 	}
 }

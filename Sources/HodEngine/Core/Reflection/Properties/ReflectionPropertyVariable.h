@@ -3,91 +3,79 @@
 #include <vector>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
-#include "HodEngine/Core/Document/Document.h"
 
 #include <functional>
 #include <cassert>
 
 namespace hod
 {
-	namespace Reflection
+	///@brief 
+	class ReflectionPropertyVariable : public ReflectionProperty
 	{
-		namespace Property
+		META_TYPE(ReflectionPropertyVariable, ReflectionProperty)
+
+	public:
+
+		enum class Type : uint8_t
 		{
-			///@brief 
-			class Variable : public ReflectionProperty
-			{
-				META_TYPE(Variable, ReflectionProperty)
+			Bool,
+			Int8,
+			Int16,
+			Int32,
+			Int64,
+			UInt8,
+			UInt16,
+			UInt32,
+			UInt64,
+			Float32,
+			Float64,
+			String,
+			Object,
 
-			public:
+			Count
+		};
+		inline static const char* _typeLabels[(uint8_t)Type::Count] = {
+			"Bool",
+			"Int8",
+			"UInt8",
+			"Int16",
+			"UInt16",
+			"Int32",
+			"UInt32",
+			"Int64",
+			"UInt64",
+			"Float32",
+			"Float64",
+			"String",
+			"Object"
+		};
 
-				enum class Type : uint8_t
-				{
-					Bool,
-					Int8,
-					Int16,
-					Int32,
-					Int64,
-					UInt8,
-					UInt16,
-					UInt32,
-					UInt64,
-					Float32,
-					Float64,
-					String,
-					Object,
+	public:
 
-					Count
-				};
-				inline static const char* _typeLabels[(uint8_t)Type::Count] = {
-					"Bool",
-					"Int8",
-					"UInt8",
-					"Int16",
-					"UInt16",
-					"Int32",
-					"UInt32",
-					"Int64",
-					"UInt64",
-					"Float32",
-					"Float64",
-					"String",
-					"Object"
-				};
+												ReflectionPropertyVariable(Type type, uint32_t offset, const char* name, std::function<void(void*, void*)> setMethod, std::function<void*(const void*)> getMethod);
+												ReflectionPropertyVariable(const ReflectionPropertyVariable& copy) = default;
+												ReflectionPropertyVariable(ReflectionPropertyVariable&& move) = default;
+												~ReflectionPropertyVariable() = default;
 
-			public:
+		ReflectionPropertyVariable&				operator = (const ReflectionPropertyVariable& copy) = default;
+		ReflectionPropertyVariable&				operator = (ReflectionPropertyVariable&& move) = default;
 
-														Variable(Type type, uint32_t offset, const char* name, std::function<void(void*, void*)> setMethod);
-														Variable(const Variable& copy) = default;
-														Variable(Variable&& move) = default;
-														~Variable() = default;
+	public:
 
-				Variable&								operator = (const Variable& copy) = default;
-				Variable&								operator = (Variable&& move) = default;
+		Type									GetType() const;
 
-			public:
+		template<typename _type_>
+		_type_									GetValue(const void* instance) const;
 
-				void									Serialize(const void* instance, Document::Node& node) override;
-				void									Deserialize(void* instance, const Document::Node& node) override;
+		template<typename _type_>
+		void									SetValue(void* instance, _type_ value);
 
-				Type									GetType() const;
-				const char*								GetName() const;
+	private:
 
-				template<typename _type_>
-				_type_									GetValue(const void* instance) const;
-
-				template<typename _type_>
-				void									SetValue(void* instance, _type_ value);
-
-			private:
-
-				Type									_type;
-				uint32_t								_offset;
-				const char*								_name;
-				std::function<void(void*, void*)>		_setMethod;
-			};
-		}
-	}
+		Type									_type;
+		std::function<void(void*, void*)>		_setMethod;
+		std::function<void*(const void*)>		_getMethod;
+	};
 }
 
 #include "ReflectionPropertyVariable.inl"

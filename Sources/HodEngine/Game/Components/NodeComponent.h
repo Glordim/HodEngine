@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HodEngine/Game/Component.h"
+#include "HodEngine/Game/WeakComponent.h"
 
 #include "HodEngine/Core/Math/Matrix4.h"
 
@@ -28,27 +29,29 @@ namespace hod
 
 		public:
 
-			const char*						GetType() const override;
+			const char*							GetType() const override;
 
 		public:
 
-			uint32_t						GetChildCount() const;
-			std::weak_ptr<NodeComponent>	GetChild(uint32_t index);
+			uint32_t							GetChildCount() const;
+			const WeakComponent<NodeComponent>&	GetChild(uint32_t index);
 
-			std::weak_ptr<NodeComponent>	GetParent() const;
-			void							SetParent(const std::weak_ptr<NodeComponent>& parent);
+			const WeakComponent<NodeComponent>&	GetParent() const;
+			void								SetParent(const WeakComponent<NodeComponent>& parent);
 
-			const Matrix4&					GetLocalMatrix();
-			const Matrix4&					GetWorldMatrix() { return GetLocalMatrix(); }
+			const Matrix4&						GetLocalMatrix();
+			const Matrix4&						GetWorldMatrix() { return GetLocalMatrix(); }
 
 		protected:
 
-			virtual void					ComputeLocalMatrix(Matrix4& localMatrix) { localMatrix = Matrix4::Identity; }
-			void							SetLocalMatrixDirty();
+			virtual void						ComputeLocalMatrix(Matrix4& localMatrix) { localMatrix = Matrix4::Identity; }
+			void								SetLocalMatrixDirty();
+
+			void								OnConstruct() override;
 
 		private:
 
-			void							ComputeWorldMatrix(const Matrix4& parentMatrix);
+			void								ComputeWorldMatrix(const Matrix4& parentMatrix);
 
 		private:
 
@@ -56,8 +59,8 @@ namespace hod
 			Matrix4										_localMatrix = Matrix4::Identity;
 			Matrix4										_worldMatrix = Matrix4::Identity;
 
-			std::vector<std::weak_ptr<NodeComponent>>	_children;
-			std::weak_ptr<NodeComponent>				_parent;
+			std::vector<WeakComponent<NodeComponent>>	_children;
+			WeakComponent<NodeComponent>				_parent;
 		};
 	}
 }

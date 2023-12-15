@@ -55,16 +55,4 @@ namespace hod
 		AddProperty(property);
 		return property;
 	}
-
-	template<typename T>
-	bool ReflectionDescriptor::SerializeInDocument(const T& instance, Document::Node& documentNode)
-	{
-		return SerializeInDocument(reinterpret_cast<const void*>(&instance), documentNode);
-	}
-
-	template<typename T>
-	bool ReflectionDescriptor::DeserializeFromDocument(T& instance, const Document::Node& documentNode)
-	{
-		return DeserializeFromDocument(reinterpret_cast<void*>(&instance), documentNode);
-	}
 }

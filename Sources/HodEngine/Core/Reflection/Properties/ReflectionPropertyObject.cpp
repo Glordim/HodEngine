@@ -2,102 +2,60 @@
 
 namespace hod
 {
-	namespace Reflection
+	/// @brief 
+	/// @param offset 
+	/// @param name 
+	ReflectionPropertyObject::ReflectionPropertyObject(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod, std::function<void*(const void*)> getMethod)
+		: ReflectionProperty(offset, name)
+		, _reflectionDesceriptor(reflectionDesceriptor)
+		, _setMethod(setMethod)
+		, _getMethod(getMethod)
 	{
-		namespace Property
+
+	}
+
+	/// @brief 
+	/// @param instance 
+	/// @return 
+	void* ReflectionPropertyObject::GetInstance(void* instance) const // todo use it on deserialize
+	{
+		uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
+		uint8_t* objectAddress = instanceAddress + _offset;
+
+		return reinterpret_cast<void*>(objectAddress);
+	}
+
+	/// @brief 
+	/// @param instance 
+	/// @return 
+	void* ReflectionPropertyObject::GetValue(const void* instance) const
+	{
+		if (_getMethod != nullptr)
 		{
-			/// @brief 
-			/// @param offset 
-			/// @param name 
-			Object::Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod)
-				: ReflectionProperty()
-				, _offset(offset)
-				, _name(name)
-				, _reflectionDesceriptor(reflectionDesceriptor)
-				, _setMethod(setMethod)
-			{
-
-			}
-			
-			/// @brief 
-			/// @param instance 
-			/// @param node 
-			void Object::Serialize(const void* instance, Document::Node& node)
-			{
-				const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
-				const uint8_t* objectAddress = instanceAddress + _offset;
-
-				const void* objectInstance = reinterpret_cast<const void*>(objectAddress);
-
-				Document::Node& objectNode = node.GetOrAddChild(_name);
-				
-				_reflectionDesceriptor->SerializeInDocument(objectInstance, objectNode);
-			}
-
-			/// @brief 
-			/// @param instance 
-			/// @param node 
-			void Object::Deserialize(void* instance, const Document::Node& node)
-			{
-				uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
-				uint8_t* objectAddress = instanceAddress + _offset;
-
-				void* objectInstance = reinterpret_cast<void*>(objectAddress);
-
-				const Document::Node* objectNode = node.GetChild(_name);
-				
-				if (objectNode != nullptr)
-				{
-					_reflectionDesceriptor->DeserializeFromDocument(objectInstance, *objectNode);
-				}
-			}
-
-			/// @brief 
-			/// @return 
-			const char* Object::GetName() const
-			{
-				return _name;
-			}
-
-			/// @brief 
-			/// @param instance 
-			/// @return 
-			void* Object::GetInstance(void* instance) const // todo use it on deserialize
-			{
-				uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
-				uint8_t* objectAddress = instanceAddress + _offset;
-
-				return reinterpret_cast<void*>(objectAddress);
-			}
-
-			/// @brief 
-			/// @param instance 
-			/// @return 
-			void* Object::GetValue(const void* instance) const
-			{
-				const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
-				const uint8_t* objectAddress = instanceAddress + _offset;
-
-				return (void*)reinterpret_cast<const void*>(objectAddress);
-			}
-
-			/// @brief 
-			/// @param instance 
-			/// @param value 
-			void Object::SetValue(void* instance, void* value)
-			{
-				if (_setMethod != nullptr)
-				{
-					_setMethod(reinterpret_cast<void*>(instance), value);
-				}
-			}
-
-			/// @brief 
-			/// @return 
-			ReflectionDescriptor* Object::GetReflectionDescriptor() const
-			{
-				return _reflectionDesceriptor;
-			}
+			return _getMethod(instance);
 		}
+
+		const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
+		const uint8_t* objectAddress = instanceAddress + _offset;
+
+		return (void*)reinterpret_cast<const void*>(objectAddress);
+	}
+
+	/// @brief 
+	/// @param instance 
+	/// @param value 
+	void ReflectionPropertyObject::SetValue(void* instance, void* value)
+	{
+		if (_setMethod != nullptr)
+		{
+			_setMethod(instance, value);
+		}
+	}
+
+	/// @brief 
+	/// @return 
+	ReflectionDescriptor* ReflectionPropertyObject::GetReflectionDescriptor() const
+	{
+		return _reflectionDesceriptor;
 	}
 }

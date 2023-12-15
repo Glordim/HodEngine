@@ -5,6 +5,16 @@
 
 namespace hod
 {
+	/// @brief 
+	/// @param offset 
+	/// @param name 
+	ReflectionProperty::ReflectionProperty(uint32_t offset, const char* name)
+	: _offset(offset)
+	, _name(name)
+	{
+
+	}
+
 	///@brief 
 	///@return const std::vector<ReflectionTrait>& 
 	const std::vector<ReflectionTrait*>& ReflectionProperty::GetTraits() const
@@ -32,5 +42,19 @@ namespace hod
 			}
 		}
 		return nullptr;
+	}
+
+	/// @brief 
+	/// @return 
+	uint32_t ReflectionProperty::GetOffset() const
+	{
+		return _offset;
+	}
+
+	/// @brief 
+	/// @return 
+	const char* ReflectionProperty::GetName() const
+	{
+		return _name;
 	}
 }

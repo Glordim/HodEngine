@@ -5,51 +5,37 @@
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
-#include "HodEngine/Core/Document/Document.h"
 
 namespace hod
 {
-	class Object;
-
-	namespace Reflection
+	///@brief 
+	class ReflectionPropertyObject : public ReflectionProperty // todo rename remove namespace
 	{
-		namespace Property
-		{
-			///@brief 
-			class Object : public ReflectionProperty // todo rename remove namespace
-			{
-				META_TYPE(Object, ReflectionProperty)
+		META_TYPE(ReflectionPropertyObject, ReflectionProperty)
 
-			public:
+	public:
 
-														Object(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod);
-														Object(const Object&) = default;
-														Object(Object&&) = default;
-														~Object() = default;
+												ReflectionPropertyObject(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod, std::function<void*(const void*)> getMethod);
+												ReflectionPropertyObject(const ReflectionPropertyObject&) = default;
+												ReflectionPropertyObject(ReflectionPropertyObject&&) = default;
+												~ReflectionPropertyObject() = default;
 
-				Object&									operator = (const Object&) = default;
-				Object&									operator = (Object&&) = default;
+		ReflectionPropertyObject&				operator = (const ReflectionPropertyObject&) = default;
+		ReflectionPropertyObject&				operator = (ReflectionPropertyObject&&) = default;
 
-			public:
+	public:
 
-				const char*								GetName() const;
-				void*									GetInstance(void* instance) const;
+		void*									GetInstance(void* instance) const;
 
-				void*									GetValue(const void* instance) const;
-				void									SetValue(void* instance, void* value);
+		void*									GetValue(const void* instance) const;
+		void									SetValue(void* instance, void* value);
 
-				ReflectionDescriptor*					GetReflectionDescriptor() const;
+		ReflectionDescriptor*					GetReflectionDescriptor() const;
 
-				void									Serialize(const void* instance, Document::Node& node) override;
-				void									Deserialize(void* instance, const Document::Node& node) override;
+	private:
 
-			private:
-
-				uint32_t								_offset;
-				const char*								_name;
-				ReflectionDescriptor*					_reflectionDesceriptor;
-				std::function<void(void*, void*)>		_setMethod;
-			};
-		}
-	}
+		ReflectionDescriptor*					_reflectionDesceriptor;
+		std::function<void(void*, void*)>		_setMethod;
+		std::function<void* (const void*)>		_getMethod;
+	};
 }

@@ -16,7 +16,7 @@ namespace hod
 
 	public:
 
-												ReflectionProperty() = default;
+												ReflectionProperty(uint32_t offset, const char* name);
 												ReflectionProperty(const ReflectionProperty& copy) = default;
 												ReflectionProperty(ReflectionProperty&& move) = default;
 												~ReflectionProperty() = default;
@@ -25,9 +25,6 @@ namespace hod
 		ReflectionProperty&						operator = (ReflectionProperty&& move) = default;
 
 	public:
-
-		virtual void							Serialize(const void* instance, Document::Node& node) = 0;
-		virtual void							Deserialize(void* instance, const Document::Node& node) = 0;
 
 		const std::vector<ReflectionTrait*>&	GetTraits() const;
 		template<typename _Trait_>
@@ -38,9 +35,15 @@ namespace hod
 		__TRAIT_TYPE__*							AddTrait(Args&&... args);
 		void									AddTrait(ReflectionTrait* trait);
 
+		uint32_t								GetOffset() const;
+		const char*								GetName() const;
+
 	protected:
 
 		std::vector<ReflectionTrait*>			_traits;
+
+		uint32_t								_offset = 0;
+		const char*								_name = nullptr;
 	};
 }
 

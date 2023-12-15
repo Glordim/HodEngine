@@ -121,7 +121,7 @@ namespace hod::editor
 			bool hasParent = false;
 			if (nodeComponent != nullptr)
 			{
-				std::shared_ptr<game::NodeComponent> parentNodeComponent = nodeComponent->GetParent().lock();
+				std::shared_ptr<game::NodeComponent> parentNodeComponent = nodeComponent->GetParent().Lock();
 				if (parentNodeComponent != nullptr)
 				{
 					hasParent = true;
@@ -211,7 +211,7 @@ namespace hod::editor
 						std::shared_ptr<game::NodeComponent> siblingNodeComponentLock = entityLock->GetComponent<game::NodeComponent>().lock();
 						if (siblingNodeComponentLock != nullptr)
 						{
-							parentNodeComponentLock = siblingNodeComponentLock->GetParent().lock();
+							parentNodeComponentLock = siblingNodeComponentLock->GetParent().Lock();
 						}
 
 						// todo get or add component
@@ -314,7 +314,7 @@ namespace hod::editor
 				uint32_t childCount = nodeComponent->GetChildCount();
 				for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
 				{
-					std::shared_ptr<game::NodeComponent> childNodeComponent = nodeComponent->GetChild(childIndex).lock();
+					std::shared_ptr<game::NodeComponent> childNodeComponent = nodeComponent->GetChild(childIndex).Lock();
 					if (childNodeComponent != nullptr)
 					{
 						DrawEntity(childNodeComponent->GetEntity());

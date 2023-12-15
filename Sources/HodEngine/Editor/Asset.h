@@ -40,7 +40,7 @@ namespace hod::editor
 								~Asset();
 
 		bool					Load();
-		bool					Save(void* instance, ReflectionDescriptor* reflectionDescriptor);
+		bool					Save(const void* instance, ReflectionDescriptor* reflectionDescriptor);
 		bool					Save(Object* object = nullptr);
 
 		const UID&						GetUid() const;

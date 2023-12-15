@@ -19,12 +19,12 @@ virtual const char* GetMetaTypeName() const											\
 	return GetMetaTypeNameStatic();													\
 }																					\
 																					\
-static MetaType GetMetaTypeStatic()													\
+static constexpr MetaType GetMetaTypeStatic()										\
 {																					\
 	return Hash::CompilationTimeFnv64(#__ClassName__);								\
 }																					\
 																					\
-static const char* GetMetaTypeNameStatic()											\
+static constexpr const char* GetMetaTypeNameStatic()								\
 {																					\
 	return #__ClassName__;															\
 }																					\
@@ -53,12 +53,12 @@ const char* GetMetaTypeName() const													\
 	return GetMetaTypeNameStatic();													\
 }																					\
 																					\
-static MetaType GetMetaTypeStatic()													\
+static constexpr MetaType GetMetaTypeStatic()										\
 {																					\
 	return Hash::CompilationTimeFnv64(#__ClassName__);								\
 }																					\
 																					\
-static const char* GetMetaTypeNameStatic()											\
+static constexpr const char* GetMetaTypeNameStatic()								\
 {																					\
 	return #__ClassName__;															\
 }																					\
@@ -88,12 +88,12 @@ const char* GetMetaTypeName() const override										\
 	return GetMetaTypeNameStatic();													\
 }																					\
 																					\
-static MetaType GetMetaTypeStatic()													\
+static constexpr MetaType GetMetaTypeStatic()										\
 {																					\
 	return Hash::CompilationTimeFnv64(#__ClassName__);								\
 }																					\
 																					\
-static const char* GetMetaTypeNameStatic()											\
+static constexpr const char* GetMetaTypeNameStatic()								\
 {																					\
 	return #__ClassName__;															\
 }																					\

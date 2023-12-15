@@ -5,7 +5,6 @@
 #include <string_view>
 #include <memory>
 
-#include "HodEngine/Core/Document/Document.h"
 #include "HodEngine/Core/Reflection/ReflectionProperty.h"
 
 namespace hod
@@ -43,14 +42,6 @@ namespace hod
 
 	public:
 
-		bool									SerializeInDocument(const void* instance, Document::Node& documentNode);
-		bool									DeserializeFromDocument(void* instance, const Document::Node& documentNode);
-
-		template<typename T>
-		bool									SerializeInDocument(const T& instance, Document::Node& documentNode);
-		template<typename T>
-		bool									DeserializeFromDocument(T& instance, const Document::Node& documentNode);
-
 		const std::vector<ReflectionTrait*>&	GetTraits() const;
 		const std::vector<ReflectionProperty*>&	GetProperties() const;
 
@@ -71,10 +62,12 @@ namespace hod
 		MetaType								GetMetaType() const;
 		const std::string&						GetTypeName() const;
 
+		ReflectionDescriptor*					GetParent() const;
+
 	private:
 
 		std::string								_typeName;
-		//ReflectionDescriptor*					_parent = nullptr;
+		ReflectionDescriptor*					_parent = nullptr;
 		std::function<void*()>					_allocateFunction = nullptr;
 		std::function<std::shared_ptr<void>()>	_sharedAllocateFunction = nullptr;
 		MetaType								_metaType;

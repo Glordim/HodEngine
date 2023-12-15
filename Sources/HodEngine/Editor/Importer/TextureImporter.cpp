@@ -8,6 +8,7 @@
 #include "HodEngine/Renderer/Resource/TextureResource.h"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+#include "HodEngine/Core/Serialization/Serializer.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -108,7 +109,7 @@ namespace hod::editor
 		textureResource._textureInfos[0]._size = textureStream.GetSize();
 
 		Document document;
-		if (renderer::TextureResource::GetReflectionDescriptor()->SerializeInDocument(textureResource, document.GetRootNode()) == false)
+		if (Serializer::Serialize(textureResource, document.GetRootNode()) == false)
 		{
 			// TODO message
 			return false;

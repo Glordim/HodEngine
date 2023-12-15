@@ -4,15 +4,13 @@
 
 namespace hod
 {
-	using namespace Reflection::Property;
-
 	namespace game
 	{
 		//DECLARE_HOD_COMPONENT(NodeComponent, Component)
 
 		DESCRIBE_REFLECTED_CLASS(NodeComponent, Component)
 		{
-			//AddProperty<Variable>(Variable::Type::UInt64, offsetof(NodeComponent, _parent), "Parent");
+			ADD_PROPERTY_WITH_SET_METHOD(NodeComponent, _parent, SetParent);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -29,6 +27,12 @@ namespace hod
 		const char* NodeComponent::GetType() const
 		{
 			return "Node";
+		}
+
+		/// @brief 
+		void NodeComponent::OnConstruct()
+		{
+			SetParent(_parent);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -57,7 +61,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		std::weak_ptr<NodeComponent> NodeComponent::GetChild(uint32_t index)
+		const WeakComponent<NodeComponent>& NodeComponent::GetChild(uint32_t index)
 		{
 			return _children[index];
 		}
@@ -65,9 +69,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void NodeComponent::SetParent(const std::weak_ptr<NodeComponent>& parent)
+		void NodeComponent::SetParent(const WeakComponent<NodeComponent>& parent)
 		{
-			std::shared_ptr<NodeComponent> parentLock = _parent.lock();
+			std::shared_ptr<NodeComponent> parentLock = _parent.Lock();
 			if (parentLock != nullptr)
 			{
 				std::shared_ptr<NodeComponent> thiz = std::static_pointer_cast<NodeComponent>(shared_from_this());
@@ -75,7 +79,7 @@ namespace hod
 				auto itEnd = parentLock->_children.end();
 				for (auto it = parentLock->_children.begin(); it != itEnd; ++it)
 				{
-					if (it->lock() == thiz)
+					if (it->Lock() == thiz)
 					{
 						parentLock->_children.erase(it);
 						break;
@@ -84,10 +88,10 @@ namespace hod
 				// todo assert
 			}
 
-			parentLock = parent.lock();
+			parentLock = parent.Lock();
 			if (parentLock != nullptr)
 			{
-				parentLock->_children.push_back(std::static_pointer_cast<NodeComponent>(shared_from_this()));
+				parentLock->_children.emplace_back(std::static_pointer_cast<NodeComponent>(shared_from_this()));
 			}
 			_parent = parent;
 		}
@@ -100,7 +104,7 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		std::weak_ptr<NodeComponent> NodeComponent::GetParent() const
+		const WeakComponent<NodeComponent>& NodeComponent::GetParent() const
 		{
 			return _parent;
 		}

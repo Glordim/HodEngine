@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "HodEngine/Core/Type.h"
+#include "HodEngine/Core/UID.h"
 #include "HodEngine/Core/Object.h"
 
 namespace hod
@@ -18,11 +19,14 @@ namespace hod
 	namespace game
 	{
 		class Entity;
+		class World;
 
 		///@brief 
 		class Component : public Object, public std::enable_shared_from_this<Component>
 		{
 			REFLECTED_CLASS(Component, Object)
+
+			friend class World;
 
 		public:
 
@@ -32,9 +36,11 @@ namespace hod
 
 			virtual void		PushToRenderQueue(renderer::RenderQueue& renderQueue);
 
+			const UID&			GetUid() const { return _uid; }
+
 		protected:
 
-								Component() = default;
+								Component();
 								Component(const Component&) = delete;
 								Component(Component&&) = delete;
 			virtual				~Component() = default;
@@ -42,8 +48,15 @@ namespace hod
 			void				operator=(const Component&) = delete;
 			void				operator=(Component&&) = delete;
 
+			virtual void		OnConstruct() {};
+
 		private:
 
+			void				Construct() { OnConstruct(); };
+
+		private:
+
+			UID						_uid;
 			std::weak_ptr<Entity>	_entity;
 		};
 	}

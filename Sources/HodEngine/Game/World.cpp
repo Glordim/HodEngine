@@ -5,8 +5,11 @@
 
 #include "HodEngine/Game/Component.h"
 #include "HodEngine/Game/ComponentFactory.h"
+#include "HodEngine/Game/WeakComponent.h"
 
 #include "HodEngine/Core/Output.h"
+
+#include "HodEngine/Core/Serialization/Serializer.h"
 
 namespace hod
 {
@@ -189,7 +192,7 @@ namespace hod
 
 					Document::Node& componentNode = componentsNode.AddChild("");
 					componentNode.AddChild("MetaType").SetValue(componentLock->GetMetaType());
-					componentLock->GetReflectionDescriptorV()->SerializeInDocument(reinterpret_cast<const void*>(componentLock.get()), componentNode);
+					Serializer::Serialize(componentLock.get(), componentNode);
 				}
 			}
 
@@ -226,17 +229,28 @@ namespace hod
 					{
 						const ReflectionDescriptor& componentDescriptor = *it->second;
 						std::weak_ptr<Component> component = entityLock->AddComponent(componentDescriptor);
-						//componentDescriptor.DeserializeFromDocument(reinterpret_cast<void*>(component.lock().get()), componentNode);
+						std::shared_ptr<Component> componentLock = component.lock();
+						Component* rawComponent = componentLock.get();
+						Serializer::Deserialize(rawComponent, *componentNode); // todo lvalue...
+						WeakComponentMapping::Insert(componentLock->GetUid(), component);
 					}
 					else
 					{
 						OUTPUT_ERROR("Unknown component !"); // TODO dangerous !!! user lost data
-					}					
+					}
 
 					componentNode = componentNode->GetNextSibling();
 				}
 
 				entityNode = entityNode->GetNextSibling();
+			}
+
+			for (const auto& entity : _entities)
+			{
+				for (std::weak_ptr<Component> component : entity.second->GetComponents())
+				{
+					component.lock()->Construct();
+				}
 			}
 
 			return true;

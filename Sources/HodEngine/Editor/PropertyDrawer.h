@@ -8,13 +8,9 @@ namespace hod
 namespace hod
 {
 	class ReflectionProperty;
-
-	namespace Reflection::Property
-	{
-		class Variable;
-		class Array;
-		class Object;
-	}
+    class ReflectionPropertyVariable;
+    class ReflectionPropertyArray;
+    class ReflectionPropertyObject;
 }
 
 namespace hod::editor
@@ -34,9 +30,9 @@ namespace hod::editor
     public:
 
         static bool     DrawProperty(void* object, ReflectionProperty* property);
-		static bool     DrawPropertyVariable(void* object, Reflection::Property::Variable* property);
-		static bool     DrawPropertyArray(void* object, Reflection::Property::Array* property);
-		static bool     DrawPropertyObject(void* object, Reflection::Property::Object* property);
+		static bool     DrawPropertyVariable(void* object, ReflectionPropertyVariable* property);
+		static bool     DrawPropertyArray(void* object, ReflectionPropertyArray* property);
+		static bool     DrawPropertyObject(void* object, ReflectionPropertyObject* property);
         // static void  RegisterCustomDrawer(); //TODO
     };
 }
