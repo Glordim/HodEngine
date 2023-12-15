@@ -1,8 +1,8 @@
-#include "TokenReader.h"
+#include "TokenReader.hpp"
 
-#include <HodEngine/Core/CharHelper.h>
-#include <HodEngine/Core/Output.h>
-//#include <HodEngine/Core/Stream/Stream.h>
+#include <HodEngine/Core/CharHelper.hpp>
+#include <HodEngine/Core/Output.hpp>
+//#include <HodEngine/Core/Stream/Stream.hpp>
 
 #include <array>
 #include <string_view>

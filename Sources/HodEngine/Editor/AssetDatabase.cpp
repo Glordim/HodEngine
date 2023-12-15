@@ -1,15 +1,15 @@
-#include "HodEngine/Editor/AssetDatabase.h"
+#include "HodEngine/Editor/AssetDatabase.hpp"
 
-#include "HodEngine/Core/Stream/FileStream.h"
+#include "HodEngine/Core/Stream/FileStream.hpp"
 
-#include "HodEngine/Editor/Editor.h"
-#include "HodEngine/Editor/Project.h"
-#include "HodEngine/Editor/Asset.h"
-#include "HodEngine/Editor/Importer/Importer.h"
-#include "HodEngine/Editor/Importer/TextureImporter.h"
+#include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Importer/Importer.hpp"
+#include "HodEngine/Editor/Importer/TextureImporter.hpp"
 
-#include <HodEngine/Core/Frame/FrameSequencer.h>
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/Core/Output.hpp>
 
 #if defined(PLATFORM_WINDOWS)
 #include <Windows.h>

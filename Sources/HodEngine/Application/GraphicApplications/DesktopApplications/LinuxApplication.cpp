@@ -1,6 +1,6 @@
 #if defined(PLATFORM_LINUX)
 
-#include "HodEngine/Application/GraphicApplications/DesktopApplications/LinuxApplication.h"
+#include "HodEngine/Application/GraphicApplications/DesktopApplications/LinuxApplication.hpp"
 
 namespace hod::application
 {
@@ -13,30 +13,30 @@ namespace hod::application
 #endif
 
 /*
-#include "Application.h"
+#include "Application.hpp"
 
-#include "VideoSettings.h"
+#include "VideoSettings.hpp"
 
-#include <Core/Output.h>
-#include <Core/UID.h>
+#include <Core/Output.hpp>
+#include <Core/UID.hpp>
 
-#include <Core/GenericManager.h>
-#include <Core/Output.h>
-#include <Core/ArgumentParser.h>
-#include <Core/StringConversion.h>
+#include <Core/GenericManager.hpp>
+#include <Core/Output.hpp>
+#include <Core/ArgumentParser.hpp>
+#include <Core/StringConversion.hpp>
 
-#include <World/ActorReflection.h>
-#include <World/ComponentFactory.h>
-#include <World/Builtin.h>
+#include <World/ActorReflection.hpp>
+#include <World/ComponentFactory.hpp>
+#include <World/Builtin.hpp>
 
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_impl_sdl.h>
-#include <ImGui/imgui_impl_vulkan.h>
-#include <ImGui/ImGuizmo.h>
+#include <ImGui/imgui.hpp>
+#include <ImGui/imgui_impl_sdl.hpp>
+#include <ImGui/imgui_impl_vulkan.hpp>
+#include <ImGui/ImGuizmo.hpp>
 
-#include <SDL.h>
-#include <SDL_syswm.h>
-#include <SDL_vulkan.h>
+#include <SDL.hpp>
+#include <SDL_syswm.hpp>
+#include <SDL_vulkan.hpp>
 
 namespace hod
 {

@@ -6,13 +6,15 @@ project(HodShaderConverter)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.cpp"
-	"${PROJECT_SOURCE_DIR}/*.h"
+	"${PROJECT_SOURCE_DIR}/*.hpp"
 	"${PROJECT_SOURCE_DIR}/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.h"
 )
 
 file(GLOB_RECURSE Includes
-"${PROJECT_SOURCE_DIR}/*.h"
-"${PROJECT_SOURCE_DIR}/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.hpp"
+	"${PROJECT_SOURCE_DIR}/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.h"
 )
 
 assign_source_group(${Srcs}) # for VS

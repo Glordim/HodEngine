@@ -1,5 +1,5 @@
-#include "HodEngine/Core/Document/DocumentWriterJson.h"
-#include "HodEngine/Core/Stream/Stream.h"
+#include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/Stream/Stream.hpp"
 
 #include <algorithm>
 #include <cstring>

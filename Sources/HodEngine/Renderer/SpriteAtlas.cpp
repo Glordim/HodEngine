@@ -1,9 +1,9 @@
-#include "HodEngine/Renderer/SpriteAtlas.h"
+#include "HodEngine/Renderer/SpriteAtlas.hpp"
 
-#include "HodEngine/Renderer/Renderer.h"
-#include "HodEngine/Renderer/RHI/Texture.h"
+#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 #include <fstream>
 #include <sstream>

@@ -1,9 +1,9 @@
-#include "HodEngine/Core/Document/DocumentReader.h"
+#include "HodEngine/Core/Document/DocumentReader.hpp"
 
-#include "HodEngine/Core/Output.h"
-#include "HodEngine/Core/Stream/Stream.h"
-#include "HodEngine/Core/Stream/FileStream.h"
-#include "HodEngine/Core/Document/Document.h"
+#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Stream/Stream.hpp"
+#include "HodEngine/Core/Stream/FileStream.hpp"
+#include "HodEngine/Core/Document/Document.hpp"
 
 namespace hod
 {

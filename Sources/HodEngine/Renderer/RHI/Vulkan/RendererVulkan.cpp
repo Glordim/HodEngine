@@ -1,19 +1,19 @@
-#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
+#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
-#include "HodEngine/Renderer/RenderQueue.h"
+#include "HodEngine/Renderer/RenderQueue.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/BufferVk.h"
-#include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkTexture.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkShader.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.h"
-#include "HodEngine/Renderer/MaterialManager.h"
+#include "HodEngine/Renderer/RHI/Vulkan/BufferVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
+#include "HodEngine/Renderer/MaterialManager.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
-#include <HodEngine/Window/Window.h>
+#include <HodEngine/Window/Window.hpp>
 
 #undef min
 #undef max
@@ -23,11 +23,11 @@
 
 #if defined(PLATFORM_WINDOWS)
 	#include <vulkan/vulkan_win32.h>
-	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.h>
+	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
 #elif defined(PLATFORM_LINUX)
 	#include <vulkan/vulkan_wayland.h>
-	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.h>
-	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.h>
+	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp>
+	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp>
 #endif
 
 namespace hod::renderer

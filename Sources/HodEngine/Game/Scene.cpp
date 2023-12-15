@@ -1,7 +1,7 @@
-#include "HodEngine/Game/Scene.h"
+#include "HodEngine/Game/Scene.hpp"
 
-#include "HodEngine/Core/Reflection/ReflectionHelper.h"
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.h"
+#include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 
 namespace hod::game
 {

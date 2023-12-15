@@ -1,8 +1,8 @@
-#include "HodEngine/Renderer/RHI/D3d12/RendererDirectX12.h"
+#include "HodEngine/Renderer/RHI/D3d12/RendererDirectX12.hpp"
 
 #if defined(_WIN32)
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 namespace hod
 {

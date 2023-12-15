@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-#include "HodEngine/Game/Component.h"
+#include "HodEngine/Game/Component.hpp"
 
 namespace hod::game
 {

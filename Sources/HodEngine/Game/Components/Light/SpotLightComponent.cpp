@@ -1,6 +1,6 @@
-#include "HodEngine/Game/Components/Light/SpotLightComponent.h"
+#include "HodEngine/Game/Components/Light/SpotLightComponent.hpp"
 
-#include <HodEngine/Renderer/RHI/MaterialInstance.h>
+#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 
 namespace hod
 {

@@ -1,12 +1,12 @@
-#include "HodEngine/Editor/Project.h"
-#include "HodEngine/Core/Stream/FileStream.h"
-#include "HodEngine/Core/Document/Document.h"
-#include "HodEngine/Core/Document/DocumentReaderJson.h"
-#include "HodEngine/Core/Document/DocumentWriterJson.h"
+#include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Core/Stream/FileStream.hpp"
+#include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 
 #include <fstream>
 
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 
 namespace hod::editor
 {

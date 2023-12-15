@@ -1,17 +1,17 @@
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkShader.h"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
+#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
 #undef min
 #undef max
 #include <spirv_cross/spirv_cross.hpp>
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
-#include "HodEngine/Renderer/P2fT2f.h"
+#include "HodEngine/Renderer/P2fT2f.hpp"
 
-#include "HodEngine/Renderer/RHI/VertexInput.h"
+#include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
 namespace hod
 {

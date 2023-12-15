@@ -1,15 +1,15 @@
-#include "HodEngine/Game/World.h"
+#include "HodEngine/Game/World.hpp"
 
-#include "HodEngine/Game/Scene.h"
-#include "HodEngine/Game/Builtin.h"
+#include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/Builtin.hpp"
 
-#include "HodEngine/Game/Component.h"
-#include "HodEngine/Game/ComponentFactory.h"
-#include "HodEngine/Game/WeakComponent.h"
+#include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/ComponentFactory.hpp"
+#include "HodEngine/Game/WeakComponent.hpp"
 
-#include "HodEngine/Core/Output.h"
+#include "HodEngine/Core/Output.hpp"
 
-#include "HodEngine/Core/Serialization/Serializer.h"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 namespace hod
 {

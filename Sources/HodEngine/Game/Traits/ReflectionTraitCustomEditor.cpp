@@ -1,7 +1,7 @@
 #if defined(HOD_EDITOR)
 
-#include "HodEngine/Game/Traits/ReflectionTraitCustomEditor.h"
-#include "HodEngine/Game/Traits/ComponentCustomEditor.h"
+#include "HodEngine/Game/Traits/ReflectionTraitCustomEditor.hpp"
+#include "HodEngine/Game/Traits/ComponentCustomEditor.hpp"
 
 namespace hod
 {

@@ -1,7 +1,7 @@
-#include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
-#include "HodEngine/Core/Reflection/ReflectionTrait.h"
-#include "HodEngine/Core/Reflection/ReflectionProperty.h"
+#include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
+#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 
 namespace hod
 {

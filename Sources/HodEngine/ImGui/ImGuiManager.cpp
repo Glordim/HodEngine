@@ -1,34 +1,34 @@
-#include "HodEngine/ImGui/ImGuiManager.h"
+#include "HodEngine/ImGui/ImGuiManager.hpp"
 
-#include <HodEngine/Core/Job/Job.h>
+#include <HodEngine/Core/Job/Job.hpp>
 
 #if defined(PLATFORM_WINDOWS)
-	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.h>
+	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
 #endif
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_impl_win32.h"
-#include "HodEngine/ImGui/RenderCommandImGui.h"
+#include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
-#include "HodEngine/ImGui/Window.h"
-#include "HodEngine/ImGui/MainBar.h"
+#include "HodEngine/ImGui/Window.hpp"
+#include "HodEngine/ImGui/MainBar.hpp"
 
-#include <HodEngine/Renderer/Renderer.h>
-#include <HodEngine/Renderer/RHI/Texture.h>
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RHI/Texture.hpp>
 
-#include <HodEngine/Core/Frame/FrameSequencer.h>
-#include <HodEngine/Core/FileSystem.h>
+#include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/Core/FileSystem.hpp>
 
-#include <HodEngine/Application/Application.h>
-#include <HodEngine/Application/GraphicApplications/GraphicApplication.h>
+#include <HodEngine/Application/Application.hpp>
+#include <HodEngine/Application/GraphicApplications/GraphicApplication.hpp>
 
-#include <HodEngine/Window/Desktop/DesktopWindow.h>
-#include <HodEngine/Window/Desktop/DesktopDisplayManager.h>
+#include <HodEngine/Window/Desktop/DesktopWindow.hpp>
+#include <HodEngine/Window/Desktop/DesktopDisplayManager.hpp>
 
-#include "HodEngine/ImGui/Shader/Generated/imgui.vert.h"
-#include "HodEngine/ImGui/Shader/Generated/imgui.frag.h"
+#include "HodEngine/ImGui/Shader/Generated/imgui.vert.hpp"
+#include "HodEngine/ImGui/Shader/Generated/imgui.frag.hpp"
 
-#include "HodEngine/Renderer/RHI/VertexInput.h"
+#include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
 #include <filesystem>
 #include <cstring>

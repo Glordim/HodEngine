@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Resource.h"
+#include "HodEngine/Core/Resource.hpp"
 
 namespace hod
 {

@@ -1,9 +1,9 @@
-#include "Scene.h"
+#include "Scene.hpp"
 
-#include "Actor.h"
-#include "Physics.h"
+#include "Actor.hpp"
+#include "Physics.hpp"
 
-#include "DebugDrawer.h"
+#include "DebugDrawer.hpp"
 
 #include <box2d/b2_world.h>
 #include <box2d/b2_math.h>

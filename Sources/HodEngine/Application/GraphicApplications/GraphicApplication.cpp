@@ -1,17 +1,17 @@
-#include "HodEngine/Application/GraphicApplications/GraphicApplication.h"
+#include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
 
-#include <HodEngine/Core/Job/JobSqueduler.h>
-#include <HodEngine/Core/Frame/FrameSequencer.h>
-#include <HodEngine/Renderer/Renderer.h>
-#include <HodEngine/Renderer/PlatformRenderer.h>
-#include <HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h>
-#include <HodEngine/Renderer/RHI/Vulkan/VkContext.h>
+#include <HodEngine/Core/Job/JobSqueduler.hpp>
+#include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/PlatformRenderer.hpp>
+#include <HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp>
+#include <HodEngine/Renderer/RHI/Vulkan/VkContext.hpp>
 
-#include <HodEngine/Renderer/PlatformRenderer.h>
-#include <HodEngine/Window/PlatformWindow.h>
-#include <HodEngine/Window/PlatformDisplayManager.h>
+#include <HodEngine/Renderer/PlatformRenderer.hpp>
+#include <HodEngine/Window/PlatformWindow.hpp>
+#include <HodEngine/Window/PlatformDisplayManager.hpp>
 
-#include <HodEngine/ImGui/ImGuiManager.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
 namespace hod::application
 {

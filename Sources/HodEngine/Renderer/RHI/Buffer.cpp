@@ -1,5 +1,5 @@
 
-#include "HodEngine/Renderer/RHI/Buffer.h"
+#include "HodEngine/Renderer/RHI/Buffer.hpp"
 
 namespace hod
 {

@@ -1,7 +1,7 @@
-#include "Physics.h"
+#include "Physics.hpp"
 
-#include "Scene.h"
-#include "Actor.h"
+#include "Scene.hpp"
+#include "Actor.hpp"
 
 namespace hod
 {

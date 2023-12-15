@@ -1,14 +1,14 @@
-#include "HodEngine/Editor/Importer/TextureImporter.h"
-#include "HodEngine/Core/Stream/FileStream.h"
-#include "HodEngine/Core/Stream/MemoryStream.h"
-#include "HodEngine/Core/Document/Document.h"
-#include "HodEngine/Core/Document/DocumentWriterJson.h"
-#include "HodEngine/Core/Output.h"
+#include "HodEngine/Editor/Importer/TextureImporter.hpp"
+#include "HodEngine/Core/Stream/FileStream.hpp"
+#include "HodEngine/Core/Stream/MemoryStream.hpp"
+#include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/Output.hpp"
 
-#include "HodEngine/Renderer/Resource/TextureResource.h"
+#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
-#include "HodEngine/Core/Serialization/Serializer.h"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

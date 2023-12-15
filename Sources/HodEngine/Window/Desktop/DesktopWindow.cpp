@@ -1,4 +1,4 @@
-#include "DesktopWindow.h"
+#include "DesktopWindow.hpp"
 
 namespace hod::window
 {

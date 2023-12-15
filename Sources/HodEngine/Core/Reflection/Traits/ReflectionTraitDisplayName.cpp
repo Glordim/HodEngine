@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.h"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 
 namespace hod
 {

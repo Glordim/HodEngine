@@ -1,8 +1,8 @@
-#include "HodEngine/Renderer/RHI/Vulkan/DescriptorSetLayout.h"
+#include "HodEngine/Renderer/RHI/Vulkan/DescriptorSetLayout.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
+#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 #undef min
 #undef max

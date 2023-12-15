@@ -1,7 +1,7 @@
 #if defined(PLATFORM_WINDOWS)
 
-#include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.h"
-#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.h"
+#include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
+#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
 
 #include <ole2.h>
 

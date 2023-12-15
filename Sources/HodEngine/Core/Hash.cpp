@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Hash.h"
+#include "HodEngine/Core/Hash.hpp"
 
 namespace hod
 {

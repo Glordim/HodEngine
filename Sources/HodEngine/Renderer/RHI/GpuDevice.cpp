@@ -1,4 +1,4 @@
-#include "GpuDevice.h"
+#include "GpuDevice.hpp"
 
 namespace hod
 {

@@ -1,6 +1,6 @@
-#include "Actor.h"
+#include "Actor.hpp"
 
-#include "Physics.h"
+#include "Physics.hpp"
 
 #include <box2d/b2_body.h>
 #include <box2d/b2_fixture.h>
@@ -8,11 +8,11 @@
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_polygon_shape.h>
 
-#include <HodEngine/Renderer/BoundingBox.h>
+#include <HodEngine/Renderer/BoundingBox.hpp>
 
 #include <algorithm>
 
-#include "HodEngine/Core/Math/Math.h"
+#include "HodEngine/Core/Math/Math.hpp"
 
 namespace hod
 {

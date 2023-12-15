@@ -1,8 +1,8 @@
-#include "HodEngine/Renderer/RHI/RenderTarget.h"
-#include "HodEngine/Renderer/RHI/Texture.h"
-#include "HodEngine/Renderer/Renderer.h"
+#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 #include <iostream>
 #include <string>

@@ -1,8 +1,8 @@
-#include "HodEngine/Game/Components/ColliderComponent.h"
+#include "HodEngine/Game/Components/ColliderComponent.hpp"
 
-#include "HodEngine/Game/Scene.h"
+#include "HodEngine/Game/Scene.hpp"
 
-#include <HodEngine/Physics/Actor.h>
+#include <HodEngine/Physics/Actor.hpp>
 
 namespace hod
 {

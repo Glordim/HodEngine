@@ -1,22 +1,22 @@
-#include "HodEngine/Editor/AssetBrowserWindow.h"
-#include "HodEngine/Editor/AssetDatabase.h"
-#include "HodEngine/Editor/Editor.h"
+#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 
-#include <HodEngine/ImGui/ImGuiManager.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/Editor.h"
-#include "HodEngine/Editor/Project.h"
-#include "HodEngine/Editor/Asset.h"
+#include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/Asset.hpp"
 
-#include "HodEngine/Renderer/RHI/Texture.h"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include <HodEngine/Application/PlatformDialog.h>
+#include <HodEngine/Application/PlatformDialog.hpp>
 
-#include "HodEngine/Game/Scene.h"
+#include "HodEngine/Game/Scene.hpp"
 
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
 {

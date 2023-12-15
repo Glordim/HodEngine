@@ -1,7 +1,7 @@
-#include "HodEngine/Core/UID.h"
-#include "HodEngine/Core/Output.h"
+#include "HodEngine/Core/UID.hpp"
+#include "HodEngine/Core/Output.hpp"
 
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 
 #if defined(PLATFORM_WINDOWS)
 	#include <Windows.h>

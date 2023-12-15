@@ -1,6 +1,6 @@
-#include "HodEngine/Renderer/GpuDeviceHelper.h"
+#include "HodEngine/Renderer/GpuDeviceHelper.hpp"
 
-#include "HodEngine/Renderer/Renderer.h"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 namespace hod
 {

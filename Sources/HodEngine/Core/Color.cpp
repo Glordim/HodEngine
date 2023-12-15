@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Color.h"
+#include "HodEngine/Core/Color.hpp"
 
 namespace hod
 {

@@ -1,5 +1,5 @@
-#include "HodEngine/Core/Reflection/ReflectionProperty.h"
-#include "HodEngine/Core/Reflection/ReflectionTrait.h"
+#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
 #include <algorithm>
 

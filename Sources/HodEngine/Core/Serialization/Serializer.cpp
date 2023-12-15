@@ -1,12 +1,12 @@
-#include "Serializer.h"
+#include "Serializer.hpp"
 
-#include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.h"
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.h"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp"
 
 namespace hod
 {

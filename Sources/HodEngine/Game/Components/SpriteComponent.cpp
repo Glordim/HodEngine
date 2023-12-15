@@ -1,11 +1,11 @@
-#include "HodEngine/Game/Components/SpriteComponent.h"
+#include "HodEngine/Game/Components/SpriteComponent.hpp"
 
-#include <HodEngine/Renderer/RHI/Material.h>
-#include <HodEngine/Renderer/RenderQueue.h>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.h>
-#include <HodEngine/Renderer/RHI/MaterialInstance.h>
-#include <HodEngine/Renderer/Sprite.h>
-#include <HodEngine/Renderer/SpriteAtlas.h>
+#include <HodEngine/Renderer/RHI/Material.hpp>
+#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/Sprite.hpp>
+#include <HodEngine/Renderer/SpriteAtlas.hpp>
 
 namespace hod
 {

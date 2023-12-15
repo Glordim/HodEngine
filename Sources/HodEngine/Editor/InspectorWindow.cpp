@@ -1,19 +1,19 @@
-#include "HodEngine/Editor/InspectorWindow.h"
+#include "HodEngine/Editor/InspectorWindow.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/ImGui/ImGuiManager.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/Editor.h"
-#include "HodEngine/Editor/Asset.h"
-#include "HodEngine/Editor/PropertyDrawer.h"
+#include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
 
-#include "HodEngine/Game/Entity.h"
-#include "HodEngine/Game/Components/NodeComponent.h"
+#include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/Components/NodeComponent.hpp"
 
-#include "HodEngine/Game/ComponentFactory.h"
-#include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.h"
+#include "HodEngine/Game/ComponentFactory.hpp"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 
 namespace hod::editor
 {

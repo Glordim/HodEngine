@@ -1,17 +1,17 @@
-#include "HodEngine/Editor/MainBar.h"
+#include "HodEngine/Editor/MainBar.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
-#include <HodEngine/Application/Application.h>
+#include <HodEngine/Application/Application.hpp>
 
-#include <HodEngine/ImGui/ImGuiManager.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/AssetBrowserWindow.h"
-#include "HodEngine/Editor/InspectorWindow.h"
-#include "HodEngine/Editor/ViewportWindow.h"
-#include "HodEngine/Editor/HierachyWindow.h"
-#include "HodEngine/Editor/Editor.h"
+#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/InspectorWindow.hpp"
+#include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Editor/HierachyWindow.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 
-#include <HodEngine/Application/PlatformDialog.h>
+#include <HodEngine/Application/PlatformDialog.hpp>
 
 namespace hod::editor
 {

@@ -1,4 +1,4 @@
-#include "HodEngine/Core/SystemInfo.h"
+#include "HodEngine/Core/SystemInfo.hpp"
 
 #if defined(PLATFORM_WINDOWS)
 #include <Windows.h>

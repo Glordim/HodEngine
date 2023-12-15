@@ -1,6 +1,6 @@
-#include "HodEngine/Game/Components/NodeComponent.h"
+#include "HodEngine/Game/Components/NodeComponent.hpp"
 
-#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
 
 namespace hod
 {

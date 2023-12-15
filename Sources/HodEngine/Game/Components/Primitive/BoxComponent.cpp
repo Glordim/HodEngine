@@ -1,14 +1,14 @@
-#include "HodEngine/Game/Components/Primitive/BoxComponent.h"
-#include "HodEngine/Game/Components/Node2dComponent.h"
-#include "HodEngine/Game/Entity.h"
+#include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
+#include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/Entity.hpp"
 
-#include <HodEngine/Renderer/RHI/Material.h>
-#include <HodEngine/Renderer/RenderQueue.h>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.h>
-#include <HodEngine/Renderer/RHI/MaterialInstance.h>
-#include <HodEngine/Renderer/Sprite.h>
-#include <HodEngine/Renderer/SpriteAtlas.h>
-#include <HodEngine/Renderer/P2fT2f.h>
+#include <HodEngine/Renderer/RHI/Material.hpp>
+#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/Sprite.hpp>
+#include <HodEngine/Renderer/SpriteAtlas.hpp>
+#include <HodEngine/Renderer/P2fT2f.hpp>
 
 #include <array>
 

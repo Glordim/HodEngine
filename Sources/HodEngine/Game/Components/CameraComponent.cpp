@@ -1,11 +1,11 @@
-#include "HodEngine/Game/Components/CameraComponent.h"
+#include "HodEngine/Game/Components/CameraComponent.hpp"
 
-#include <HodEngine/Core/Rect.h>
+#include <HodEngine/Core/Rect.hpp>
 
-#include <HodEngine/Renderer/Renderer.h>
-#include <HodEngine/Renderer/RenderQueue.h>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.h>
-#include "../RenderQueueHelper.h"
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
+#include "../RenderQueueHelper.hpp"
 
 namespace hod
 {

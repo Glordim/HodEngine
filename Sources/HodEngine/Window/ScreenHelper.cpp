@@ -1,7 +1,7 @@
-#include "HodEngine/Window/ScreenHelper.h"
-#include "HodEngine/Window/VideoSettings.h"
+#include "HodEngine/Window/ScreenHelper.hpp"
+#include "HodEngine/Window/VideoSettings.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 namespace hod::window
 {

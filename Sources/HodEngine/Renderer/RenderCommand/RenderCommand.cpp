@@ -1,5 +1,5 @@
-#include "HodEngine/Renderer/RenderQueue.h"
-#include "HodEngine/Renderer/RenderCommand/RenderCommand.h"
+#include "HodEngine/Renderer/RenderQueue.hpp"
+#include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 
 namespace hod
 {

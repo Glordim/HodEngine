@@ -1,14 +1,14 @@
 #if defined(PLATFORM_WINDOWS)
 
-#include "Win32Window.h"
+#include "Win32Window.hpp"
 
 #include <string>
 
-#include <HodEngine/Core/Output.h>
-#include <HodEngine/Core/Job/JobQueue.h>
-#include <HodEngine/Core/Frame/FrameSequencer.h>
+#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Job/JobQueue.hpp>
+#include <HodEngine/Core/Frame/FrameSequencer.hpp>
 
-#include <HodEngine/Renderer/RHI/Context.h>
+#include <HodEngine/Renderer/RHI/Context.hpp>
 
 #include <cstdlib>
 

@@ -1,5 +1,5 @@
-#include "HodEngine/Core/ArgumentParser.h"
-#include "HodEngine/Core/Output.h"
+#include "HodEngine/Core/ArgumentParser.hpp"
+#include "HodEngine/Core/Output.hpp"
 
 #include <cstring>
 

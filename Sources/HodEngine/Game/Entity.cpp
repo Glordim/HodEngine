@@ -1,7 +1,7 @@
-#include "HodEngine/Game/Entity.h"
-#include "HodEngine/Game/Component.h"
+#include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/Component.hpp"
 
-#include "HodEngine/Core/Reflection/ReflectionDescriptor.h"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
 
 namespace hod::game

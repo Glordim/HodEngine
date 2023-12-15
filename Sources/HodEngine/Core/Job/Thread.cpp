@@ -1,7 +1,7 @@
-#include "HodEngine/Core/Job/Thread.h"
+#include "HodEngine/Core/Job/Thread.hpp"
 
 #if defined(PLATFORM_WINDOWS)
-#include "HodEngine/Core/StringConversion.h"
+#include "HodEngine/Core/StringConversion.hpp"
 #endif
 #if defined(PLATFORM_LINUX)
 #include <unistd.h>

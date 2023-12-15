@@ -1,10 +1,10 @@
 
-#include "HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.h"
+#include "HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp"
 
-#include "HodEngine/Renderer/RHI/Buffer.h"
-#include "HodEngine/Renderer/RHI/CommandBuffer.h"
+#include "HodEngine/Renderer/RHI/Buffer.hpp"
+#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 
-#include "HodEngine/Renderer/Renderer.h"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 namespace hod
 {

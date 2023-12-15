@@ -1,7 +1,7 @@
-#include "HodEngine/Renderer/RHI/MaterialInstance.h"
-#include "HodEngine/Renderer/RHI/Shader.h"
-#include "HodEngine/Renderer/RHI/Texture.h"
-#include "HodEngine/Renderer/Renderer.h"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Shader.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 #include <vector>
 

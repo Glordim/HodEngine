@@ -1,14 +1,14 @@
-#include "Node2dComponent.h"
+#include "Node2dComponent.hpp"
 
-#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h>
-#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h>
-#include <HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.h>
-#include <HodEngine/Game/Components/Node2dComponentCustomEditor.h>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.hpp>
+#include <HodEngine/Game/Components/Node2dComponentCustomEditor.hpp>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include "HodEngine/Core/Math/Math.h"
+#include "HodEngine/Core/Math/Math.hpp"
 
 namespace hod
 {

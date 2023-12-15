@@ -1,6 +1,6 @@
-#include "HodEngine/Renderer/RHI/Texture.h"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 //#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

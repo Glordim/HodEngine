@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.h"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 
 namespace hod
 {

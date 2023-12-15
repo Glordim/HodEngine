@@ -1,13 +1,13 @@
-#include "HodEngine/Editor/Importer/Importer.h"
-#include "HodEngine/Editor/Project.h"
-#include "HodEngine/Editor/Asset.h"
+#include "HodEngine/Editor/Importer/Importer.hpp"
+#include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/Asset.hpp"
 
-#include "HodEngine/Core/Document/Document.h"
-#include "HodEngine/Core/Document/DocumentReaderJson.h"
-#include "HodEngine/Core/Document/DocumentWriterJson.h"
-#include "HodEngine/Core/Stream/FileStream.h"
-#include "HodEngine/Core/UID.h"
-#include "HodEngine/Core/Serialization/Serializer.h"
+#include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/Stream/FileStream.hpp"
+#include "HodEngine/Core/UID.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 namespace hod::editor
 {

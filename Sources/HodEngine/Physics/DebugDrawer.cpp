@@ -1,14 +1,14 @@
 
-#include "DebugDrawer.h"
+#include "DebugDrawer.hpp"
 
-#include "HodEngine/Renderer/P2fC4f.h"
+#include "HodEngine/Renderer/P2fC4f.hpp"
 
-#include "HodEngine/Renderer/Renderer.h"
-#include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.h"
+#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 
-#include "HodEngine/Renderer/MaterialManager.h"
-#include "HodEngine/Core/Math/Matrix4.h"
-#include "HodEngine/Core/Math/Math.h"
+#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Core/Math/Matrix4.hpp"
+#include "HodEngine/Core/Math/Math.hpp"
 
 namespace hod
 {

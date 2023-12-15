@@ -1,6 +1,6 @@
-#include "Window.h"
+#include "Window.hpp"
 
-#include "HodEngine/Renderer/RHI/Context.h"
+#include "HodEngine/Renderer/RHI/Context.hpp"
 
 namespace hod::window
 {

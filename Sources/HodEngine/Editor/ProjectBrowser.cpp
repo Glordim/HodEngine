@@ -1,24 +1,24 @@
-#include "HodEngine/Editor/ProjectBrowser.h"
-#include "HodEngine/Editor/AssetDatabase.h"
-#include "HodEngine/Editor/Editor.h"
+#include "HodEngine/Editor/ProjectBrowser.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 
-#include <HodEngine/ImGui/ImGuiManager.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/Editor.h"
-#include "HodEngine/Editor/Project.h"
+#include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Project.hpp"
 
-#include <HodEngine/Application/PlatformDialog.h>
+#include <HodEngine/Application/PlatformDialog.hpp>
 
-#include "HodEngine/Core/FileSystem.h"
-#include "HodEngine/Core/Stream/FileStream.h"
-#include "HodEngine/Core/Document/Document.h"
-#include "HodEngine/Core/Document/DocumentReaderJson.h"
-#include "HodEngine/Core/Document/DocumentWriterJson.h"
-#include "HodEngine/Core/Serialization/Serializer.h"
+#include "HodEngine/Core/FileSystem.hpp"
+#include "HodEngine/Core/Stream/FileStream.hpp"
+#include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include "portable-file-dialogs.h"
 

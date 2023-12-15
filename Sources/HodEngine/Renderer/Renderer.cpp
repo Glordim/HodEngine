@@ -1,12 +1,12 @@
-#include "HodEngine/Renderer/Renderer.h"
+#include "HodEngine/Renderer/Renderer.hpp"
 
-#include "HodEngine/Renderer/MaterialManager.h"
-#include "HodEngine/Renderer/RHI/Texture.h"
+#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.vert.h"
-#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.frag.h"
+#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.vert.hpp"
+#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.frag.hpp"
 
-#include "HodEngine/Renderer/RHI/VertexInput.h"
+#include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
 namespace hod
 {

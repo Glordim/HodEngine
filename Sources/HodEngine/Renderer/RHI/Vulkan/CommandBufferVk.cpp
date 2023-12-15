@@ -1,14 +1,14 @@
 
-#include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.h"
+#include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.h"
-#include "HodEngine/Renderer/RHI/Vulkan/BufferVk.h"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/BufferVk.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.h"
+#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 namespace hod
 {

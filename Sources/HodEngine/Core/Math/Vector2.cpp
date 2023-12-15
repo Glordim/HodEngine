@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Math/Vector2.h"
+#include "HodEngine/Core/Math/Vector2.hpp"
 
 namespace hod
 {

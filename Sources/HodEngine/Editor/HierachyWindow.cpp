@@ -1,14 +1,14 @@
-#include "HodEngine/Editor/HierachyWindow.h"
-#include "HodEngine/Editor/Editor.h"
+#include "HodEngine/Editor/HierachyWindow.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/ImGui/ImGuiManager.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Game/World.h"
-#include "HodEngine/Game/Scene.h"
+#include "HodEngine/Game/World.hpp"
+#include "HodEngine/Game/Scene.hpp"
 
-#include "HodEngine/Game/Components/NodeComponent.h"
+#include "HodEngine/Game/Components/NodeComponent.hpp"
 
 namespace hod::editor
 {

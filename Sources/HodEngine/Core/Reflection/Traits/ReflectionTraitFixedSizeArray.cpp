@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.h"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.hpp"
 
 namespace hod
 {

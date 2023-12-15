@@ -1,4 +1,4 @@
-#include "HodEngine/Window/DisplayManager.h"
+#include "HodEngine/Window/DisplayManager.hpp"
 
 namespace hod::window
 {

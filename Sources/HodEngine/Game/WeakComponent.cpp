@@ -1,4 +1,4 @@
-#include "WeakComponent.h"
+#include "WeakComponent.hpp"
 
 namespace hod::game
 {

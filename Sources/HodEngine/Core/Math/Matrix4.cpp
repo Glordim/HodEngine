@@ -1,5 +1,5 @@
-#include "HodEngine/Core/Math/Matrix4.h"
-#include "HodEngine/Core/Math/Vector2.h"
+#include "HodEngine/Core/Math/Matrix4.hpp"
+#include "HodEngine/Core/Math/Vector2.hpp"
 
 #include <cstring>
 #include <cmath>

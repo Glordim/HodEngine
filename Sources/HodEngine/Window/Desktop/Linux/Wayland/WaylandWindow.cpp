@@ -1,11 +1,11 @@
 #if defined(PLATFORM_LINUX)
 
-#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.h"
-#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.h"
-#include "HodEngine/Core/Output.h"
-#include "HodEngine/Core/StringConversion.h"
+#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
+#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp"
+#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/StringConversion.hpp"
 
-#include "HodEngine/Renderer/RHI/Context.h"
+#include "HodEngine/Renderer/RHI/Context.hpp"
 
 #include <string>
 #include <cstring>

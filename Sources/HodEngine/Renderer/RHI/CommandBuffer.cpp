@@ -1,7 +1,7 @@
-#include "HodEngine/Renderer/RHI/CommandBuffer.h"
-#include "HodEngine/Core/Output.h"
-#include "HodEngine/Renderer/RHI/Buffer.h"
-#include "HodEngine/Renderer/RHI/MaterialInstance.h"
+#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
+#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Renderer/RHI/Buffer.hpp"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 namespace hod
 {

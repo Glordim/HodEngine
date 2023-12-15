@@ -1,4 +1,4 @@
-#include <HodEngine/Application/PlatformDialog.h>
+#include <HodEngine/Application/PlatformDialog.hpp>
 
 #if defined(PLATFORM_WINDOWS)
 #include <Windows.h>

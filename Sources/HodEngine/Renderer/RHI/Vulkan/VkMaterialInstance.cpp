@@ -1,8 +1,8 @@
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.h"
-#include "HodEngine/Renderer/RHI/Vulkan/VkShader.h"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
+#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
 namespace hod
 {

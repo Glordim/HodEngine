@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 
 #include <cassert>
 

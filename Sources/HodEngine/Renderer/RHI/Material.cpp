@@ -1,6 +1,6 @@
-#include "HodEngine/Renderer/RHI/Material.h"
-#include "HodEngine/Renderer/RHI/Shader.h"
-#include "HodEngine/Renderer/RHI/Texture.h"
+#include "HodEngine/Renderer/RHI/Material.hpp"
+#include "HodEngine/Renderer/RHI/Shader.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
 #include <vector>
 

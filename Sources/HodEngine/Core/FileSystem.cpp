@@ -1,5 +1,5 @@
-#include "HodEngine/Core/FileSystem.h"
-#include "HodEngine/Core/Output.h"
+#include "HodEngine/Core/FileSystem.hpp"
+#include "HodEngine/Core/Output.hpp"
 
 #if defined(PLATFORM_WINDOWS)
 #include <Windows.h>

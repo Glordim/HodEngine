@@ -1,8 +1,8 @@
-#include "HodEngine/Renderer/RHI/Vulkan/VkTexture.h"
+#include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
+#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 #include <cstring>
 

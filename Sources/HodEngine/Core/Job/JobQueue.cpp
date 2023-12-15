@@ -1,8 +1,8 @@
-#include "HodEngine/Core/Job/JobQueue.h"
-#include "HodEngine/Core/Job/Job.h"
+#include "HodEngine/Core/Job/JobQueue.hpp"
+#include "HodEngine/Core/Job/Job.hpp"
 
-#include "HodEngine/Core/SystemInfo.h"
-#include "HodEngine/Core/Output.h"
+#include "HodEngine/Core/SystemInfo.hpp"
+#include "HodEngine/Core/Output.hpp"
 
 #include <string>
 

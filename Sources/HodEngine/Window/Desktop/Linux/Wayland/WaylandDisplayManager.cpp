@@ -1,11 +1,11 @@
 #if defined(PLATFORM_LINUX)
 
-#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.h"
-#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.h"
+#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp"
+#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
 
-#include "HodEngine/Core/Output.h"
-#include "HodEngine/Core/Job/JobQueue.h"
-#include "HodEngine/Core/Frame/FrameSequencer.h"
+#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Job/JobQueue.hpp"
+#include "HodEngine/Core/Frame/FrameSequencer.hpp"
 
 #include <linux/input.h>
 #include <unistd.h>

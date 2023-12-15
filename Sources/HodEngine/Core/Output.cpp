@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Output.h"
+#include "HodEngine/Core/Output.hpp"
 
 #include <cstdio>
 #include <cstdarg>

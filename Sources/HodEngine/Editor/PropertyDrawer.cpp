@@ -1,12 +1,12 @@
-#include "HodEngine/Editor/PropertyDrawer.h"
-#include "HodEngine/Core/Reflection/ReflectionProperty.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.h"
-#include "HodEngine/Core/Object.h"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
+#include "HodEngine/Core/Object.hpp"
 
-#include "HodEngine/Core/Reflection/ReflectionTrait.h"
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.h"
+#include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 

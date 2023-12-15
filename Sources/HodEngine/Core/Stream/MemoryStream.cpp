@@ -1,4 +1,4 @@
-#include "HodEngine/Core/Stream/MemoryStream.h"
+#include "HodEngine/Core/Stream/MemoryStream.hpp"
 
 #include <cstdio>
 #include <cstring>

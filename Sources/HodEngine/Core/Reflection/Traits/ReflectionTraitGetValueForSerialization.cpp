@@ -1,4 +1,4 @@
-#include "ReflectionTraitGetValueForSerialization.h"
+#include "ReflectionTraitGetValueForSerialization.hpp"
 
 namespace hod
 {

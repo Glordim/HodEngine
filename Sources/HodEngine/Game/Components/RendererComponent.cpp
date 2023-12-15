@@ -1,4 +1,4 @@
-#include "HodEngine/Game/Components/RendererComponent.h"
+#include "HodEngine/Game/Components/RendererComponent.hpp"
 
 namespace hod
 {

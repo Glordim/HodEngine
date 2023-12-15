@@ -1,6 +1,6 @@
 #if defined(HOD_EDITOR)
 
-#include "Node2dComponentCustomEditor.h"
+#include "Node2dComponentCustomEditor.hpp"
 
 namespace hod
 {

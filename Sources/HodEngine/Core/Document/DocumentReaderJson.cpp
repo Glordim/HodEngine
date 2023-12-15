@@ -1,9 +1,9 @@
-#include "HodEngine/Core/Document/DocumentReaderJson.h"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 
-#include "HodEngine/Core/Stream/Stream.h"
+#include "HodEngine/Core/Stream/Stream.hpp"
 
-#include "HodEngine/Core/Output.h"
-#include "HodEngine/Core/StringConversion.h"
+#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/StringConversion.hpp"
 
 #include <cstring>
 

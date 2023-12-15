@@ -1,20 +1,20 @@
-#include "HodEngine/Game/Builtin.h"
+#include "HodEngine/Game/Builtin.hpp"
 
-#include "HodEngine/Game/ActorReflection.h"
-#include "HodEngine/Game/ComponentFactory.h"
+#include "HodEngine/Game/ActorReflection.hpp"
+#include "HodEngine/Game/ComponentFactory.hpp"
 
-#include "HodEngine/Game/Components/CameraComponent.h"
-#include "HodEngine/Game/Components/ColliderComponent.h"
-#include "HodEngine/Game/Components/RendererComponent.h"
-#include "HodEngine/Game/Components/SpriteComponent.h"
-#include "HodEngine/Game/Components/Light/PointLightComponent.h"
-#include "HodEngine/Game/Components/Light/DirLightComponent.h"
-#include "HodEngine/Game/Components/Light/SpotLightComponent.h"
+#include "HodEngine/Game/Components/CameraComponent.hpp"
+#include "HodEngine/Game/Components/ColliderComponent.hpp"
+#include "HodEngine/Game/Components/RendererComponent.hpp"
+#include "HodEngine/Game/Components/SpriteComponent.hpp"
+#include "HodEngine/Game/Components/Light/PointLightComponent.hpp"
+#include "HodEngine/Game/Components/Light/DirLightComponent.hpp"
+#include "HodEngine/Game/Components/Light/SpotLightComponent.hpp"
 
-#include "HodEngine/Game/Components/NodeComponent.h"
-#include "HodEngine/Game/Components/Node2dComponent.h"
+#include "HodEngine/Game/Components/NodeComponent.hpp"
+#include "HodEngine/Game/Components/Node2dComponent.hpp"
 
-#include "HodEngine/Game/Components/Primitive/BoxComponent.h"
+#include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 
 namespace hod
 {

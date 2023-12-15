@@ -1,12 +1,12 @@
-#include "HodEngine/Renderer/RHI/Vulkan/VkShader.h"
+#include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 
 #include <vector>
 #include <cstring>
 #include <string_view>
 
-#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.h"
+#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
-#include <HodEngine/Core/Output.h>
+#include <HodEngine/Core/Output.hpp>
 
 namespace hod
 {

@@ -1,15 +1,15 @@
-#include <HodEngine/Core/ArgumentParser.h>
-#include <HodEngine/Core/Output.h>
-#include <HodEngine/Core/Stream/FileStream.h>
+#include <HodEngine/Core/ArgumentParser.hpp>
+#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Stream/FileStream.hpp>
 
 #include <filesystem>
 
-#include "TokenReader.h"
-#include "TokenWritter.h"
+#include "TokenReader.hpp"
+#include "TokenWritter.hpp"
 
-#include "Converter.h"
-#include "ConverterGLSL.h"
-#include "ConverterHLSL.h"
+#include "Converter.hpp"
+#include "ConverterGLSL.hpp"
+#include "ConverterHLSL.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -143,7 +143,7 @@ namespace hod
 		}
 
 		std::filesystem::path headerOutputFilePath = outputFile;
-		headerOutputFilePath += ".h";
+		headerOutputFilePath += ".hpp";
 
 		std::ofstream headerOutputStream(headerOutputFilePath, 0);
 		if (headerOutputStream.is_open() == false)

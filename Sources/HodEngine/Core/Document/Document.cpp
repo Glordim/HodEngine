@@ -1,6 +1,6 @@
-#include "HodEngine/Core/Document/Document.h"
+#include "HodEngine/Core/Document/Document.hpp"
 
-#include "HodEngine/Core/Hash.h"
+#include "HodEngine/Core/Hash.hpp"
 
 namespace hod
 {

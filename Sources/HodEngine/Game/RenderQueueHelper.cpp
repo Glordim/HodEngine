@@ -1,15 +1,15 @@
-#include "HodEngine/Game/RenderQueueHelper.h"
+#include "HodEngine/Game/RenderQueueHelper.hpp"
 
 /*
-#include "HodEngine/Game/Component/SceneComponent.h"
-#include "HodEngine/Game/Component/Light/DirLightComponent.h"
-#include "HodEngine/Game/Component/Light/PointLightComponent.h"
-#include "HodEngine/Game/Component/Light/SpotLightComponent.h"
+#include "HodEngine/Game/Component/SceneComponent.hpp"
+#include "HodEngine/Game/Component/Light/DirLightComponent.hpp"
+#include "HodEngine/Game/Component/Light/PointLightComponent.hpp"
+#include "HodEngine/Game/Component/Light/SpotLightComponent.hpp"
 */
-#include "HodEngine/Game/Scene.h"
+#include "HodEngine/Game/Scene.hpp"
 
-#include <HodEngine/Renderer/RenderQueue.h>
-#include <HodEngine/Physics/Scene.h>
+#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Physics/Scene.hpp>
 
 namespace hod
 {

@@ -1,6 +1,6 @@
-#include "GameApplication.h"
+#include "GameApplication.hpp"
 
-#include <HodEngine/Core/ArgumentParser.h>
+#include <HodEngine/Core/ArgumentParser.hpp>
 
 //#include <stdint.h>
 //#include <stdlib.h>

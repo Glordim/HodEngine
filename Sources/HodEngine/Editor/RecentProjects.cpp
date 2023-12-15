@@ -1,7 +1,7 @@
-#include "HodEngine/Editor/RecentProjects.h"
+#include "HodEngine/Editor/RecentProjects.hpp"
 
-#include "HodEngine/Core/Reflection/ReflectionProperty.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
+#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 
 namespace hod::editor
 {

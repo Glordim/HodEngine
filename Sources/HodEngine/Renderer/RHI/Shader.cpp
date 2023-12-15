@@ -1,12 +1,12 @@
-#include "HodEngine/Renderer/RHI/Shader.h"
+#include "HodEngine/Renderer/RHI/Shader.hpp"
 
 #include <vector>
 #include <fstream>
 #include <iostream>
 
-#include <HodEngine/Core/Output.h>
-#include "HodEngine/Core/Stream/FileStream.h"
-#include "HodEngine/Core/Stream/MemoryStream.h"
+#include <HodEngine/Core/Output.hpp>
+#include "HodEngine/Core/Stream/FileStream.hpp"
+#include "HodEngine/Core/Stream/MemoryStream.hpp"
 
 namespace hod
 {

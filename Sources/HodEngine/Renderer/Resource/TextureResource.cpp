@@ -1,7 +1,7 @@
-#include "HodEngine/Renderer/Resource/TextureResource.h"
+#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.h"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.h"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 
 namespace hod::renderer
 {

@@ -1,9 +1,9 @@
-#include "HodEngine/Renderer/RenderQueue.h"
+#include "HodEngine/Renderer/RenderQueue.hpp"
 
-#include "HodEngine/Renderer/RenderCommand/RenderCommand.h"
-#include "HodEngine/Renderer/RHI/CommandBuffer.h"
+#include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
+#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 
-#include "HodEngine/Renderer/Renderer.h"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 namespace hod
 {

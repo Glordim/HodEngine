@@ -1,9 +1,9 @@
-#include "HodEngine/Renderer/MaterialManager.h"
+#include "HodEngine/Renderer/MaterialManager.hpp"
 
-#include "HodEngine/Renderer/RHI/Shader.h"
-#include "HodEngine/Renderer/RHI/Material.h"
+#include "HodEngine/Renderer/RHI/Shader.hpp"
+#include "HodEngine/Renderer/RHI/Material.hpp"
 
-#include "HodEngine/Renderer/Renderer.h"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 namespace hod
 {
