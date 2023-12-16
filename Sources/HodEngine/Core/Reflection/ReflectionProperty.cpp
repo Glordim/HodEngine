@@ -24,8 +24,6 @@ namespace hod
 		std::string displayName;
 		displayName.reserve(name.size());
 
-		printf("%s\n", name.data());
-
 		bool nextWord = true;
 		for (char c : name)
 		{
@@ -52,8 +50,6 @@ namespace hod
 				nextWord = false;
 				displayName += c;
 			}
-
-			printf("%s\n", displayName.c_str());
 		}
 
 		return displayName;
