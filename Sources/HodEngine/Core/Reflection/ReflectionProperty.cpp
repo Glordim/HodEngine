@@ -1,5 +1,6 @@
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
+#include "HodEngine/Core/CharHelper.hpp"
 
 #include <algorithm>
 
@@ -12,8 +13,57 @@ namespace hod
 	: _offset(offset)
 	, _name(name)
 	{
-
+#if defined(HOD_EDITOR)
+		_displayName = GenerateDisplayName(_name);
+#endif
 	}
+
+#if defined(HOD_EDITOR)
+	std::string ReflectionProperty::GenerateDisplayName(const std::string_view& name)
+	{
+		std::string displayName;
+		displayName.reserve(name.size());
+
+		printf("%s\n", name.data());
+
+		bool nextWord = true;
+		for (char c : name)
+		{
+			if (c == '_')
+			{
+				if (displayName.empty() == false)
+				{
+					displayName += ' ';
+					nextWord = true;
+				}
+				continue;
+			}
+			else if (nextWord == false && IsUpper(c) == true)
+			{
+				displayName += ' ';
+				displayName += c;
+			}
+			else
+			{
+				if (nextWord == true && IsLower(c) == true)
+				{
+					c = ToUpper(c);
+				}
+				nextWord = false;
+				displayName += c;
+			}
+
+			printf("%s\n", displayName.c_str());
+		}
+
+		return displayName;
+	}
+
+	const std::string& ReflectionProperty::GetDisplayName() const
+	{
+		return _displayName;
+	}
+#endif
 
 	///@brief 
 	///@return const std::vector<ReflectionTrait>& 

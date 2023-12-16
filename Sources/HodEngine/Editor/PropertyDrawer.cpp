@@ -51,7 +51,7 @@ namespace hod::editor
 		bool changed = false;
 
 		ImGui::Columns(2);
-		ImGui::TextUnformatted(property->GetName());
+		ImGui::TextUnformatted(property->GetDisplayName().c_str());
 		ImGui::NextColumn();
 
 		ReflectionPropertyVariable::Type type = property->GetType();
@@ -111,7 +111,7 @@ namespace hod::editor
 	/// @param property 
 	bool PropertyDrawer::DrawPropertyArray(void* object, ReflectionPropertyArray* property)
 	{
-		ImGui::TextUnformatted(property->GetName());
+		ImGui::TextUnformatted(property->GetDisplayName().c_str());
 		ImGui::SameLine();
 
 		ReflectionPropertyVariable::Type type = property->GetType();
@@ -178,7 +178,7 @@ namespace hod::editor
 		}
 		else
 		{
-			if (ImGui::CollapsingHeader(property->GetName()) == true)
+			if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()) == true)
 			{
 				for (ReflectionProperty* property : instanceDescriptor->GetProperties())
 				{

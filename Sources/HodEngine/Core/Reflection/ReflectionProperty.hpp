@@ -38,12 +38,25 @@ namespace hod
 		uint32_t								GetOffset() const;
 		const char*								GetName() const;
 
+#if defined(HOD_EDITOR)
+		const std::string&						GetDisplayName() const;
+#endif
+
+	private:
+
+#if defined(HOD_EDITOR)
+		static std::string						GenerateDisplayName(const std::string_view& name);
+#endif
+
 	protected:
 
 		std::vector<ReflectionTrait*>			_traits;
 
 		uint32_t								_offset = 0;
 		const char*								_name = nullptr;
+#if defined(HOD_EDITOR)
+		std::string								_displayName;
+#endif
 	};
 }
 

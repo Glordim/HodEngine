@@ -21,4 +21,24 @@ namespace hod
 	{
 		return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
 	}
+
+	constexpr bool IsUpper(char c)
+	{
+		return (c >= 'A' && c <= 'Z');
+	}
+
+	constexpr bool IsLower(char c)
+	{
+		return (c >= 'a' && c <= 'z');
+	}
+
+	constexpr char ToUpper(char c)
+	{
+		return c + ('A' - 'a');
+	}
+
+	constexpr char ToLower(char c)
+	{
+		return c + ('a' - 'A');
+	}
 }

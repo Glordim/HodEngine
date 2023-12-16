@@ -22,7 +22,7 @@ namespace hod::editor
 
 		ImGui::PushID(property->GetValue(instance));
 		ImGui::Columns(2);
-		ImGui::TextUnformatted(property->GetName());
+		ImGui::TextUnformatted(property->GetDisplayName().c_str());
 		ImGui::NextColumn();
 		
 		ImGui::TextUnformatted("X");
