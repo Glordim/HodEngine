@@ -4,29 +4,26 @@
 
 #include "HodEngine/Game/Traits/ComponentCustomEditor.hpp"
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	/// @brief 
+	class Node2dComponentCustomEditor : public ComponentCustomEditor
 	{
-		/// @brief 
-		class Node2dComponentCustomEditor : public ComponentCustomEditor
-		{
-		public:
+	public:
 
-											Node2dComponentCustomEditor() = default;
-											Node2dComponentCustomEditor(const Node2dComponentCustomEditor&) = delete;
-											Node2dComponentCustomEditor(Node2dComponentCustomEditor&&) = delete;
-											~Node2dComponentCustomEditor() override = default;
+										Node2dComponentCustomEditor() = default;
+										Node2dComponentCustomEditor(const Node2dComponentCustomEditor&) = delete;
+										Node2dComponentCustomEditor(Node2dComponentCustomEditor&&) = delete;
+										~Node2dComponentCustomEditor() override = default;
 
-			Node2dComponentCustomEditor		operator = (const Node2dComponentCustomEditor&) = delete;
-			Node2dComponentCustomEditor		operator = (Node2dComponentCustomEditor&&) = delete;
+		Node2dComponentCustomEditor		operator = (const Node2dComponentCustomEditor&) = delete;
+		Node2dComponentCustomEditor		operator = (Node2dComponentCustomEditor&&) = delete;
 
-		public:
+	public:
 
-			void							OnDrawInspector() override;
-			void							OnDrawGizmo() override;
-		};
-	}
+		void							OnDrawInspector() override;
+		void							OnDrawGizmo() override;
+	};
 }
 
 #endif

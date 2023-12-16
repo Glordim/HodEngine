@@ -20,7 +20,7 @@ namespace hod
 			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _rotation, SetRotation);
 			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _scale, SetScale);
 			
-			ADD_CUSTOM_EDITOR(Node2dComponentCustomEditor);
+			//ADD_CUSTOM_EDITOR(Node2dComponentCustomEditor);
 		}
 
 		//-----------------------------------------------------------------------------

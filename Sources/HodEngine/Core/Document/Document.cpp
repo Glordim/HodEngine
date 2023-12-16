@@ -364,6 +364,10 @@ namespace hod
 
 	float Document::Node::GetFloat32() const
 	{
+		if (_type == Type::Float64)
+		{
+			return static_cast<float>(_value._float64); // todo
+		}
 		return _value._float32;
 	}
 

@@ -10,6 +10,9 @@
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 
+#include "HodEngine/Game/Traits/ReflectionTraitCustomPropertyDrawer.hpp"
+#include "HodEngine/Game/Traits/PropertyDrawer.hpp"
+
 namespace hod::editor
 {
 	bool PropertyDrawer::DrawProperty(void* object, ReflectionProperty* property)
@@ -45,8 +48,11 @@ namespace hod::editor
 	/// @param property 
 	bool PropertyDrawer::DrawPropertyVariable(void* object, ReflectionPropertyVariable* property)
 	{
+		bool changed = false;
+
+		ImGui::Columns(2);
 		ImGui::TextUnformatted(property->GetName());
-		ImGui::SameLine();
+		ImGui::NextColumn();
 
 		ReflectionPropertyVariable::Type type = property->GetType();
 
@@ -56,13 +62,12 @@ namespace hod::editor
 		{
 			ImGui::PushID(property);
 			bool value = property->GetValue<bool>(object);
-			bool changed = ImGui::Checkbox("", &value);
+			changed = ImGui::Checkbox("", &value);
 			if (changed == true)
 			{
 				property->SetValue<bool>(object, value);
 			}
 			ImGui::PopID();
-			return changed;
 		}
 		break;
 
@@ -70,13 +75,12 @@ namespace hod::editor
 		{
 			ImGui::PushID(property);
 			int32_t value = property->GetValue<int8_t>(object);
-			bool changed = ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f);
+			changed = ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f);
 			if (changed == true)
 			{
 				property->SetValue<int8_t>(object, (int8_t)value);
 			}
 			ImGui::PopID();
-			return changed;
 		}
 		break;
 
@@ -84,21 +88,23 @@ namespace hod::editor
 		{
 			ImGui::PushID(property);
 			float value = property->GetValue<float>(object);
-			bool changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f);
+			changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f);
 			if (changed == true)
 			{
 				property->SetValue<float>(object, (float)value);
 			}
 			ImGui::PopID();
-			return changed;
 		}
 		break;
 		
 		default:
 			break;
 		}
+		ImGui::NextColumn();
 
-		return false;
+		ImGui::Columns(1);
+
+		return changed;
 	}
 
 	/// @brief 
@@ -160,21 +166,26 @@ namespace hod::editor
 	/// @param property 
 	bool PropertyDrawer::DrawPropertyObject(void* object, ReflectionPropertyObject* property)
 	{
-		if (ImGui::CollapsingHeader(property->GetName()) == true)
+		bool changed = false;
+
+		void* instance = property->GetInstance(object);
+		ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
+
+		game::ReflectionTraitCustomPropertyDrawer* customPropertyDrawer = instanceDescriptor->FindTrait<game::ReflectionTraitCustomPropertyDrawer>();
+		if (customPropertyDrawer != nullptr)
 		{
-			void* instance = property->GetInstance(object);
-			ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
-
-			bool changed = false;
-
-			for (ReflectionProperty* property : instanceDescriptor->GetProperties())
-			{
-				changed |= PropertyDrawer::DrawProperty(instance, property);
-			}
-
-			return changed;
+			changed = customPropertyDrawer->GetPropertyDrawer()->Draw(object, property);
 		}
-
-		return false;
+		else
+		{
+			if (ImGui::CollapsingHeader(property->GetName()) == true)
+			{
+				for (ReflectionProperty* property : instanceDescriptor->GetProperties())
+				{
+					changed |= PropertyDrawer::DrawProperty(instance, property);
+				}
+			}
+		}
+		return changed;
 	}
 }

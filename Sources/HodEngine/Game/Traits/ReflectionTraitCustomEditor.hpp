@@ -4,14 +4,14 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
-namespace hod
+namespace hod::game
 {
 	class ComponentCustomEditor;
 
 	///@brief 
 	class ReflectionTraitCustomEditor : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitDisplayName, ReflectionTrait)
+		META_TYPE(ReflectionTraitCustomEditor, ReflectionTrait)
 
 	public:
 

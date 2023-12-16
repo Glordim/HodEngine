@@ -2,7 +2,7 @@
 
 #include "HodEngine/Game/Traits/ComponentCustomEditor.hpp"
 
-namespace hod
+namespace hod::game
 {
 	/// @brief 
 	void ComponentCustomEditor::OnDrawInspector()

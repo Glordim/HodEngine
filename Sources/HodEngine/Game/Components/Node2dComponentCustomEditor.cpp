@@ -2,21 +2,18 @@
 
 #include "Node2dComponentCustomEditor.hpp"
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	/// @brief 
+	void Node2dComponentCustomEditor::OnDrawInspector()
 	{
-		/// @brief 
-		void Node2dComponentCustomEditor::OnDrawInspector()
-		{
 
-		}
+	}
 
-		/// @brief 
-		void Node2dComponentCustomEditor::OnDrawGizmo()
-		{
+	/// @brief 
+	void Node2dComponentCustomEditor::OnDrawGizmo()
+	{
 
-		}
 	}
 }
 

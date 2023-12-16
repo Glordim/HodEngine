@@ -2,7 +2,7 @@
 
 #if defined(HOD_EDITOR)
 
-namespace hod
+namespace hod::game
 {
 	///@brief 
 	class ComponentCustomEditor

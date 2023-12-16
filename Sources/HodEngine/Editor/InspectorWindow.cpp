@@ -76,11 +76,12 @@ namespace hod::editor
 			std::shared_ptr<game::Component> componentLock = component.lock();
 			if (componentLock != nullptr)
 			{
-				ImGui::TextUnformatted(componentLock->GetMetaTypeName());
-
-				if (DrawDefaultInspector(componentLock.get(), componentLock->GetReflectionDescriptorV()) == true)
+				if (ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen) == true)
 				{
-					//selection->_asset->SetDirty(); // TODO
+					if (DrawDefaultInspector(componentLock.get(), componentLock->GetReflectionDescriptorV()) == true)
+					{
+						//selection->_asset->SetDirty(); // TODO
+					}
 				}
 			}
 		}

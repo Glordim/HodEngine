@@ -3,7 +3,7 @@
 #include "HodEngine/Game/Traits/ReflectionTraitCustomEditor.hpp"
 #include "HodEngine/Game/Traits/ComponentCustomEditor.hpp"
 
-namespace hod
+namespace hod::game
 {
 	///@brief 
 	ReflectionTraitCustomEditor::ReflectionTraitCustomEditor(ComponentCustomEditor* customEditor)
