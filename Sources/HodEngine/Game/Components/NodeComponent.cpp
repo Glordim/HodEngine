@@ -50,6 +50,18 @@ namespace hod
 			return _localMatrix;
 		}
 
+		/// @brief 
+		/// @return 
+		Matrix4 NodeComponent::GetWorldMatrix()
+		{
+			if (_parent.Lock() == nullptr)
+			{
+				return GetLocalMatrix();
+			}
+			
+			return _parent.Lock()->GetWorldMatrix() * GetLocalMatrix();
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------

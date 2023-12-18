@@ -40,7 +40,7 @@ namespace hod
 			void								SetParent(const WeakComponent<NodeComponent>& parent);
 
 			const Matrix4&						GetLocalMatrix();
-			const Matrix4&						GetWorldMatrix() { return GetLocalMatrix(); }
+			Matrix4								GetWorldMatrix();
 
 		protected:
 
