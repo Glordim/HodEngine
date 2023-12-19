@@ -1,4 +1,4 @@
-#include "GameApplication.hpp"
+#include "HodApplication.hpp"
 
 #include <HodEngine/Core/ArgumentParser.hpp>
 
@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 {
 	hod::ArgumentParser argumentParser(argc, argv);
 
-	GameApplication app;
+	HodApplication app;
 	if (app.Init(argumentParser) == false)
 	{
 		return 1;

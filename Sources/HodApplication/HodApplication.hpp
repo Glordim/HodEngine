@@ -7,11 +7,10 @@ namespace hod
 	class ArgumentParser;
 }
 
-/// @brief 
-class GameApplication : public PlatformApplication
+/// @brief
+class HodApplication : public PlatformApplication
 {
 public:
 
 	bool			Init(const hod::ArgumentParser& argumentParser);
 };
-

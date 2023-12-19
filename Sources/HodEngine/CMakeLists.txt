@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4...3.27)
 
-project(Engine)
+project(HodEngine)
 
 if (NOT TARGET Core)
 	add_subdirectory(Core)
@@ -36,7 +36,7 @@ endif()
 
 assign_source_group("")
 
-add_library(Engine STATIC $<TARGET_OBJECTS:Core>
+add_library(HodEngine STATIC $<TARGET_OBJECTS:Core>
 						  $<TARGET_OBJECTS:Application>
 						  $<TARGET_OBJECTS:ImGui>
 						  $<TARGET_OBJECTS:Physics>
@@ -45,14 +45,14 @@ add_library(Engine STATIC $<TARGET_OBJECTS:Core>
 						  $<TARGET_OBJECTS:Game>
 						  $<TARGET_OBJECTS:Editor>)
 
-target_link_libraries(Engine Core
-							 Window
-							 ImGui
-							 Physics
-							 Window
-							 Renderer
-							 Game
-							 Editor)
+target_link_libraries(HodEngine Core
+							 	Window
+							 	ImGui
+							 	Physics
+							 	Window
+							 	Renderer
+							 	Game
+							 	Editor)
 
 set_target_properties(Core PROPERTIES FOLDER "HodEngine")
 set_target_properties(Application PROPERTIES FOLDER "HodEngine")
