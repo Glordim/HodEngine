@@ -2,6 +2,11 @@
 
 #include <HodEngine/Editor/Editor.hpp>
 
+_SingletonOverrideConstructor(HodApplication)
+{
+
+}
+
 /// @brief 
 /// @param argc 
 /// @param argv 

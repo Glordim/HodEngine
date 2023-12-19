@@ -13,13 +13,15 @@ int main(int argc, char** argv)
 {
 	hod::ArgumentParser argumentParser(argc, argv);
 
-	HodApplication app;
-	if (app.Init(argumentParser) == false)
+	HodApplication* app = HodApplication::CreateInstance();
+	if (app->Init(argumentParser) == false)
 	{
 		return 1;
 	}
 
-	app.Run();
+	app->Run();
+
+	HodApplication::DestroyInstance();
 
 	return 0;
 }

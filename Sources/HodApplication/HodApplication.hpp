@@ -10,6 +10,8 @@ namespace hod
 /// @brief
 class HodApplication : public PlatformApplication
 {
+	_SingletonOverride(HodApplication)
+
 public:
 
 	bool			Init(const hod::ArgumentParser& argumentParser);
