@@ -39,7 +39,8 @@ namespace hod
 
 			const std::vector<Scene*>&	GetScenes() const;
 
-			std::weak_ptr<Entity> CreateEntity(const std::string_view& name = "");
+			std::weak_ptr<Entity>			CreateEntity(const std::string_view& name = "");
+			void							DestroyEntity(std::shared_ptr<Entity> entity);
 			const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 
 			std::weak_ptr<Entity> FindEntity(Entity::Id entityId);

@@ -153,6 +153,13 @@ namespace hod
 		}
 
 		/// @brief 
+		/// @param entity 
+		void World::DestroyEntity(std::shared_ptr<Entity> entity)
+		{
+			_entities.erase(_entities.find(entity->GetId()));
+		}
+
+		/// @brief 
 		/// @return 
 		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& World::GetEntities() const
 		{

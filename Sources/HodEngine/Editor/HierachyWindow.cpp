@@ -140,18 +140,20 @@ namespace hod::editor
 		}
 		*/
 
-		if (ImGui::IsWindowHovered() == true && ImGui::IsAnyItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
+		if (_openContextualMenu == true || (ImGui::IsWindowHovered() == true && ImGui::IsAnyItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true))
 		{
+			_openContextualMenu = false;
 			ImGui::OpenPopup("ContextualMenu");
 		}
 
 		if (ImGui::BeginPopup("ContextualMenu") == true)
 		{
+			std::shared_ptr<game::Entity> selectionLock = _selection.lock();
+
 			if (ImGui::MenuItem("Create Entity") == true)
 			{
 				std::weak_ptr<game::Entity> entity = world->CreateEntity("EditMe");
 
-				std::shared_ptr<game::Entity> selectionLock = _selection.lock();
 				if (selectionLock != nullptr)
 				{
 					std::shared_ptr<game::NodeComponent> selectionNodeComponentLock = selectionLock->GetComponent<game::NodeComponent>().lock();
@@ -164,6 +166,14 @@ namespace hod::editor
 				}
 
 				ImGui::CloseCurrentPopup();
+			}
+
+			if (selectionLock != nullptr)
+			{
+				if (ImGui::MenuItem("Delete") == true)
+				{
+					world->DestroyEntity(selectionLock);
+				}
 			}
 			ImGui::EndPopup();
 		}
@@ -233,7 +243,7 @@ namespace hod::editor
 
 		std::shared_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>().lock();
 
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding;
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
 		if (nodeComponent == nullptr || nodeComponent->GetChildCount() == 0)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
@@ -251,15 +261,15 @@ namespace hod::editor
 			_selection = entityLock;
 			Editor::GetInstance()->SetEntitySelection(_selection);
 		}
+		bool hovered = ImGui::IsItemHovered();
 		ImGui::PopStyleVar();
 		ImGui::PopID();
 
-		if (ImGui::IsWindowHovered() == true && ImGui::IsItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
+		if (ImGui::IsWindowHovered() == true && hovered == true && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
 			_selection = entityLock;
 			Editor::GetInstance()->SetEntitySelection(_selection);
-
-			ImGui::OpenPopup("ContextualMenu");
+			_openContextualMenu = true;
 		}
 
 		if (ImGui::BeginDragDropTarget() == true)
