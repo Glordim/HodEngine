@@ -51,6 +51,10 @@ namespace hod::game
 		std::weak_ptr<_Component_>	AddComponent();
 		std::weak_ptr<Component>	AddComponent(const ReflectionDescriptor& descriptor);
 
+		template<typename _Component_>
+		void						RemoveComponent();
+		void						RemoveComponent(std::weak_ptr<Component> component);
+
 		Event<std::weak_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
 		Event<std::weak_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }
 

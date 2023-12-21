@@ -108,4 +108,15 @@ namespace hod::game
 
 		return component;
 	}
+
+	/// @brief 
+	/// @param component 
+	void Entity::RemoveComponent(std::weak_ptr<Component> component)
+	{
+		auto it = std::find(_components.begin(), _components.end(), component.lock());
+		if (it != _components.end())
+		{
+			_components.erase(it);
+		}
+	}
 }

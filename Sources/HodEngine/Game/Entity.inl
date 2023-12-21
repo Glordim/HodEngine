@@ -36,4 +36,17 @@ namespace hod::game
 
 		return std::static_pointer_cast<_Component_>(AddComponent(std::make_shared<_Component_>(/*weak_from_this()*/)).lock());
 	}
+
+	template<typename _Component_>
+	void Entity::RemoveComponent()
+	{
+		auto it = std::find(_components.begin(), _components.end(), [](std::shared_ptr<Component> component)
+		{
+			return component->HasCompatibleMetaType(_Component_::GetMetaTypeStatic());
+		});
+		if (it != _components.end())
+		{
+			_components.erase(it);
+		}
+	}
 }

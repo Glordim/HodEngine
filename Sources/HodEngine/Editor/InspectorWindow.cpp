@@ -76,7 +76,17 @@ namespace hod::editor
 			std::shared_ptr<game::Component> componentLock = component.lock();
 			if (componentLock != nullptr)
 			{
-				if (ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen) == true)
+				bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
+				if (ImGui::BeginPopupContextItem() == true)
+				{
+					if (ImGui::Button("Delete") == true)
+					{
+						selection->RemoveComponent(componentLock);
+					}
+					ImGui::EndPopup();
+				}
+
+				if (opened == true)
 				{
 					if (DrawDefaultInspector(componentLock.get(), componentLock->GetReflectionDescriptorV()) == true)
 					{
