@@ -30,8 +30,6 @@ namespace hod
 
 		public:
 
-			const char*		GetType() const override;
-
 			//virtual void	Render() = 0;
 		};
 	}

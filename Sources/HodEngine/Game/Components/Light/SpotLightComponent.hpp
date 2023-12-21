@@ -27,8 +27,6 @@ namespace hod
 
 		public:
 
-			const char*				GetType() const override;
-
 			renderer::SpotLight*	GetSpotLight() const;
 
 		public:

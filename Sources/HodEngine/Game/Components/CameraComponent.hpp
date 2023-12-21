@@ -35,8 +35,6 @@ namespace hod
 
 		public:
 
-			const char*					GetType() const override;
-
 			void						Render(Scene& scene);
 
 			const Matrix4&				GetProjectionMatrix();

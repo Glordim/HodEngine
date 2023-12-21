@@ -29,10 +29,6 @@ namespace hod
 
 		public:
 
-			const char*							GetType() const override;
-
-		public:
-
 			uint32_t							GetChildCount() const;
 			const WeakComponent<NodeComponent>&	GetChild(uint32_t index);
 

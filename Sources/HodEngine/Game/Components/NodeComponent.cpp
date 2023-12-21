@@ -21,14 +21,6 @@ namespace hod
 
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		const char* NodeComponent::GetType() const
-		{
-			return "Node";
-		}
-
 		/// @brief 
 		void NodeComponent::OnConstruct()
 		{

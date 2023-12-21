@@ -26,8 +26,6 @@ namespace hod
 
 		public:
 
-			const char*			GetType() const override;
-
 			renderer::DirLight*	GetDirLight() const;
 
 		public:

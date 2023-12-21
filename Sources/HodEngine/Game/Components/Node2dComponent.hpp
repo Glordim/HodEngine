@@ -24,8 +24,6 @@ namespace hod
 
 		public:
 
-			const char*						GetType() const override;
-
 			void							SetPosition(const Vector2& position);
 			const Vector2&					GetPosition() const;
 

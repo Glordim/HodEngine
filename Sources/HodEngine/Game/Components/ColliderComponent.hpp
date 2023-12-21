@@ -35,8 +35,6 @@ namespace hod
 
 		public:
 
-			const char*		GetType() const override;
-
 			void			AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition);
 			void			AddCircleShape(const Vector2& position, float radius);
 			void			AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density);

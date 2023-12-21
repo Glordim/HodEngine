@@ -33,14 +33,6 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const char* ColliderComponent::GetType() const
-		{
-			return "Collider";
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
 		{
 			//GetActor()->GetPhysicActor()->AddEdgeShape(startPosition, endPosition);

@@ -32,7 +32,6 @@ namespace hod
 
 			void							SetEntity(const std::weak_ptr<Entity>& entity);
 			const std::weak_ptr<Entity>&	GetEntity() const;
-			virtual const char*				GetType() const = 0;
 
 			virtual void		PushToRenderQueue(renderer::RenderQueue& renderQueue);
 

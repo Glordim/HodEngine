@@ -38,14 +38,6 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const char* CameraComponent::GetType() const
-		{
-			return "Camera";
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		void CameraComponent::SetHdriMaterial(renderer::MaterialInstance* hdriMat, renderer::Texture* hdriTexture)
 		{
 			_hdriMat = hdriMat;

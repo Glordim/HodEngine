@@ -243,7 +243,7 @@ namespace hod::editor
 
 		std::shared_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>().lock();
 
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth;
 		if (nodeComponent == nullptr || nodeComponent->GetChildCount() == 0)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;

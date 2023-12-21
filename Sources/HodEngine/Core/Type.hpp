@@ -6,7 +6,7 @@ using MetaType = uint64_t;
 
 #define BASE_META_TYPE(__ClassName__)												\
 private:																			\
-static constexpr MetaType _metaType = Hash::CompilationTimeFnv64(#__ClassName__);	\
+static constexpr MetaType _metaType = hod::Hash::CompilationTimeFnv64(#__ClassName__);	\
 public:																				\
 																					\
 virtual MetaType GetMetaType() const												\
@@ -21,7 +21,7 @@ virtual const char* GetMetaTypeName() const											\
 																					\
 static constexpr MetaType GetMetaTypeStatic()										\
 {																					\
-	return Hash::CompilationTimeFnv64(#__ClassName__);								\
+	return hod::Hash::CompilationTimeFnv64(#__ClassName__);								\
 }																					\
 																					\
 static constexpr const char* GetMetaTypeNameStatic()								\
@@ -40,7 +40,7 @@ private:																			\
 
 #define META_TYPE_NO_VIRTUAL(__ClassName__)											\
 private:																			\
-static constexpr MetaType _metaType = Hash::CompilationTimeFnv64(#__ClassName__);	\
+static constexpr MetaType _metaType = hod::Hash::CompilationTimeFnv64(#__ClassName__);	\
 public:																				\
 																					\
 MetaType GetMetaType() const														\
@@ -55,7 +55,7 @@ const char* GetMetaTypeName() const													\
 																					\
 static constexpr MetaType GetMetaTypeStatic()										\
 {																					\
-	return Hash::CompilationTimeFnv64(#__ClassName__);								\
+	return hod::Hash::CompilationTimeFnv64(#__ClassName__);								\
 }																					\
 																					\
 static constexpr const char* GetMetaTypeNameStatic()								\
@@ -75,7 +75,7 @@ private:																			\
 
 #define META_TYPE(__ClassName__, __ParentClass__)									\
 private:																			\
-static constexpr MetaType _metaType = Hash::CompilationTimeFnv64(#__ClassName__);	\
+static constexpr MetaType _metaType = hod::Hash::CompilationTimeFnv64(#__ClassName__);	\
 public:																				\
 																					\
 MetaType GetMetaType() const override												\
@@ -90,7 +90,7 @@ const char* GetMetaTypeName() const override										\
 																					\
 static constexpr MetaType GetMetaTypeStatic()										\
 {																					\
-	return Hash::CompilationTimeFnv64(#__ClassName__);								\
+	return hod::Hash::CompilationTimeFnv64(#__ClassName__);								\
 }																					\
 																					\
 static constexpr const char* GetMetaTypeNameStatic()								\

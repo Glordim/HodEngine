@@ -31,10 +31,6 @@ namespace hod
 
 		public:
 
-			const char*						GetType() const override;
-
-		public:
-
 			const renderer::Sprite*			GetSprite() const;
 			void							SetSprite(const renderer::Sprite* sprite);
 
