@@ -10,6 +10,7 @@
 
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
+#include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 
 namespace hod
 {
@@ -29,7 +30,7 @@ namespace hod
 			bool				Init();
 			void				Clear();
 
-			void				Update(float dt);
+			void				Update();
 
 			Scene*				CreateScene();
 			void				DestroyScene(Scene* pScene);
@@ -59,6 +60,8 @@ namespace hod
 								~World();
 
 		private:
+
+			MemberFunctionJob<World>	_updateJob;
 
 			std::vector<Scene*>	_scenes;
 			std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;

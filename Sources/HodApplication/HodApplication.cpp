@@ -1,6 +1,9 @@
 #include "HodApplication.hpp"
 
 #include <HodEngine/Editor/Editor.hpp>
+#include <HodEngine/Game/ComponentFactory.hpp>
+
+#include "AutoRotateComponent.hpp"
 
 _SingletonOverrideConstructor(HodApplication)
 {
@@ -18,6 +21,9 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	{
 		return false;
 	}
+
+	hod::game::ComponentFactory* componentFactory = hod::game::ComponentFactory::GetInstance();
+	componentFactory->Register<AutoRotateComponent>();
 
 #if defined(HOD_EDITOR)
 	hod::editor::Editor::CreateInstance();

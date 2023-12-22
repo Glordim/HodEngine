@@ -30,7 +30,7 @@ namespace hod::application
 		game::ComponentFactory::CreateInstance();
 		game::RegisterBuiltin();
 
-		game::World::CreateInstance();
+		game::World::CreateInstance()->Init();
 
 		return true;
 	}

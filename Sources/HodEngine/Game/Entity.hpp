@@ -66,7 +66,8 @@ namespace hod::game
 
 		Id				_id;
 		std::string		_name;
-		bool			_active;
+		bool			_active = false;
+		bool			_started = false;
 
 		std::vector<std::shared_ptr<Component>>	_components; // map ?
 

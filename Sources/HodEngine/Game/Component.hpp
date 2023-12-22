@@ -37,6 +37,10 @@ namespace hod
 
 			const UID&			GetUid() const { return _uid; }
 
+			virtual void OnAwake() {};
+			virtual void OnStart() {};
+			virtual void OnUpdate() {};
+
 		protected:
 
 								Component();

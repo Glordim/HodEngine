@@ -10,6 +10,7 @@
 #include "HodEngine/Core/Output.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include <HodEngine/Core/Frame/FrameSequencer.hpp>
 
 namespace hod
 {
@@ -19,6 +20,7 @@ namespace hod
 		//! @brief		
 		//-----------------------------------------------------------------------------
 		_SingletonConstructor(World)
+		: _updateJob(this, &World::Update, JobQueue::Queue::FramedNormalPriority)
 		{
 
 		}
@@ -36,7 +38,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool World::Init()
 		{
-			RegisterBuiltin();
+			FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::Logic);
 
 			return true;
 		}
@@ -46,6 +48,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void World::Clear()
 		{
+			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -122,7 +125,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void World::Update(float dt)
+		void World::Update()
 		{
 			/*
 			for (Scene* scene : _scenes)
@@ -130,6 +133,13 @@ namespace hod
 				sScene->Update(dt);
 			}
 			*/
+			for (auto entityPair : _entities)
+			{
+				for (std::weak_ptr<Component> component : entityPair.second->GetComponents())
+				{
+					component.lock()->OnUpdate();
+				}
+			}
 		}
 
 		/// @brief 
@@ -258,6 +268,11 @@ namespace hod
 				{
 					component.lock()->Construct();
 				}
+			}
+
+			for (const auto& entity : _entities)
+			{
+				entity.second->SetActive(true);
 			}
 
 			return true;

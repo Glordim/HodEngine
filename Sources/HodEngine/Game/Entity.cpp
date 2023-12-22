@@ -49,7 +49,22 @@ namespace hod::game
 	/// @param active 
 	void Entity::SetActive(bool active)
 	{
-		_active = active;
+		if (_active != active)
+		{
+			_active = active;
+			if (active == true && _started == false)
+			{
+				_started = true;
+				for (std::weak_ptr<Component> component : _components)
+				{
+					component.lock()->OnAwake();
+				}
+				for (std::weak_ptr<Component> component : _components)
+				{
+					component.lock()->OnStart();
+				}
+			}
+		}
 	}
 
 	/// @brief 
@@ -105,6 +120,12 @@ namespace hod::game
 		component->SetEntity(weak_from_this());
 
 		_onAddComponentEvent.Emit(component);
+
+		if (_active == true)
+		{
+			component->OnAwake();
+			component->OnStart();
+		}
 
 		return component;
 	}
