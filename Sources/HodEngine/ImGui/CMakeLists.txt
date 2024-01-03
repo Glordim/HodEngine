@@ -4,51 +4,7 @@ include(Global)
 
 project(ImGui)
 
-# Creates C resources file from files in given directory
-function(create_resources dir output)
-	file(MAKE_DIRECTORY ${output})
-	# Collect input files
-	file(GLOB bins ${dir}/*)
-	# Iterate through input files
-	foreach(bin ${bins})
-		string(REGEX MATCH "([^/]+)$" filename ${bin})
-		# Replace filename spaces & extension separator for C compatibility
-		string(REGEX REPLACE "\\.| |-" "_" variablename ${filename})
-		# Read hex data from file
-		file(READ ${bin} filedata HEX)
-		# Convert hex data for C compatibility
-		string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
-		# Create output file
-		file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tuint8_t ${variablename}[] = {${filedata}};\n\tuint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
-		file(WRITE "${output}/${filename}.h" "#pragma once\n#include <cstdint>\n\nnamespace hod\n{\n\textern uint8_t ${variablename}[];\n\textern uint32_t ${variablename}_size;\n}\n")
-
-		message("Pack shader ${bin}")
-
-		execute_process(COMMAND ${CMAKE_COMMAND} --build . --target HodShaderConverter --input ${bin} --output ${output}/${filename} --embeddedSource WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/HodShaderConverter RESULT_VARIABLE CommandResult)
-
-		if(CommandResult EQUAL 0)
-			#message(STATUS "Liste des fichiers : ${FILE_LIST}")
-			message(STATUS "Done")
-		else()
-			message(FATAL_ERROR "Fail: '${CommandResult}'")
-		endif()
-	endforeach()
-endfunction()
-
-#create_resources("Shader/Sources" "Shader/Generated")
-
-file(GLOB_RECURSE Srcs
-	"${PROJECT_SOURCE_DIR}/*.cpp"
-	"${PROJECT_SOURCE_DIR}/*.hpp"
-	"${PROJECT_SOURCE_DIR}/*.inl"
-	"${PROJECT_SOURCE_DIR}/*.h"
-)
-
-file(GLOB_RECURSE Includes
-	"${PROJECT_SOURCE_DIR}/*.hpp"
-	"${PROJECT_SOURCE_DIR}/*.inl"
-	"${PROJECT_SOURCE_DIR}/*.h"
-)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 file(GLOB_RECURSE ShaderSources
 	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"

@@ -8,18 +8,7 @@ find_package(Vulkan REQUIRED)
 find_package(SpirvCross REQUIRED)
 find_package(Stb REQUIRED)
 
-file(GLOB_RECURSE Srcs
-	"${PROJECT_SOURCE_DIR}/*.cpp"
-	"${PROJECT_SOURCE_DIR}/*.hpp"
-	"${PROJECT_SOURCE_DIR}/*.inl"
-	"${PROJECT_SOURCE_DIR}/*.h"
-)
-
-file(GLOB_RECURSE Includes
-	"${PROJECT_SOURCE_DIR}/*.hpp"
-	"${PROJECT_SOURCE_DIR}/*.inl"
-	"${PROJECT_SOURCE_DIR}/*.h"
-)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 file(GLOB_RECURSE ShaderSources
 	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"
@@ -80,25 +69,3 @@ target_compile_definitions(Renderer PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_
 target_compile_definitions(Renderer PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>")
 target_compile_definitions(Renderer PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>")
 target_compile_definitions(Renderer PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>")
-
-# Creates C resources file from files in given directory
-function(create_resources dir output)
-	file(MAKE_DIRECTORY ${output})
-	# Collect input files
-	file(GLOB bins ${dir}/*)
-	# Iterate through input files
-	foreach(bin ${bins})
-		string(REGEX MATCH "([^/]+)$" filename ${bin})
-		# Replace filename spaces & extension separator for C compatibility
-		string(REGEX REPLACE "\\.| |-" "_" variablename ${filename})
-		# Read hex data from file
-		file(READ ${bin} filedata HEX)
-		# Convert hex data for C compatibility
-		string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
-		# Create output file
-		file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tconst uint8_t ${variablename}[] = {${filedata}};\n\tconst uint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
-		file(WRITE "${output}/${filename}.h" "#include <cstdint>\n\nnamespace hod\n{\n\tstatic uint8_t* ${variablename};\n\tstatic const uint32_t ${variablename}_size;\n}\n")
-	endforeach()
-endfunction()
-
-#create_resources("Shader/Sources" "Shader/Generated")
