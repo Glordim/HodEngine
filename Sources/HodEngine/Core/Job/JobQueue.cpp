@@ -53,8 +53,6 @@ namespace hod
 				job->Execute();
 				job = workerThread->_jobQueue->PopNextJob();
 			}
-
-			workerThread->_thread.Sleep(10);
 		}
 
 		return 0;

@@ -1,37 +1,38 @@
 cmake_minimum_required(VERSION 3.4...3.27)
 
-function(CollectSourceFiles ProjectSourceDir Srcs Includes)
+function(CollectSourceFiles ProjectSourceDir SourcesVar IncludesVar)
 
-	file(GLOB_RECURSE Srcs
+	file(GLOB_RECURSE Sources
 		"${ProjectSourceDir}/*.cpp"
 		"${ProjectSourceDir}/*.hpp"
 		"${ProjectSourceDir}/*.inl"
 		"${ProjectSourceDir}/*.h"
 	)
 
-	foreach(item ${Srcs})
+	foreach(item ${Sources})
 		if(${item} MATCHES ".+\\..+\\.cpp")
-			list(REMOVE_ITEM Srcs ${item})
+			list(REMOVE_ITEM Sources ${item})
 		endif()
 	endforeach()
 
 	if(WIN32)
-		file(GLOB_RECURSE PlatformSrcs
+		file(GLOB_RECURSE PlatformSources
 			"${ProjectSourceDir}/*.windows.cpp"
 		)
 	else()
-		file(GLOB_RECURSE PlatformSrcs
+		file(GLOB_RECURSE PlatformSources
 			"${ProjectSourceDir}/*.linux.cpp"
 		)
 	endif()
 
-	list (APPEND Srcs ${PlatformSrcs})
+	set(${SourcesVar} ${Sources} ${PlatformSources} PARENT_SCOPE)
 
 	file(GLOB_RECURSE Includes
 		"${ProjectSourceDir}/*.hpp"
 		"${ProjectSourceDir}/*.inl"
 		"${ProjectSourceDir}/*.h"
 	)
+	set(${IncludesVar} ${Includes} PARENT_SCOPE)
 endfunction()
 
 function(assign_source_group)

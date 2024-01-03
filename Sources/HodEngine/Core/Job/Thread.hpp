@@ -4,7 +4,9 @@
 #include <cstdint>
 
 #if defined(PLATFORM_WINDOWS)
+	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
+	#undef Yield
 #elif defined(PLATFORM_LINUX)
 	#include <pthread.h>
 #endif
@@ -53,8 +55,6 @@ namespace hod
 
 		void		Start(const Function& function, void* parameter = nullptr, Priority priority = Priority::Normal, const char* name = nullptr);
 		void		Join();
-		void		Yieldd();
-		void		Sleep(uint32_t millisecond);
 		Id			GetId() const;
 
 	private:
@@ -64,5 +64,13 @@ namespace hod
 #if defined(PLATFORM_WINDOWS)
 		HANDLE		_handle;
 #endif
+	};
+
+	/// @brief 
+	class ThisThread
+	{
+	public:
+		static void		Yield();
+		static void		Sleep(uint32_t millisecond);
 	};
 }
