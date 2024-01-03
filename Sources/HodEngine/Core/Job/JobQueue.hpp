@@ -40,10 +40,10 @@ namespace hod
 
 		struct WorkerThread
 		{
-			Thread				_thread;
-			bool				_shouldExit = false;
-			std::queue<Job*>	_dedicatedJobQueue;
-			JobQueue*			_jobQueue = nullptr;
+			Thread						_thread;
+			bool						_shouldExit = false;
+			LockFreeQueue<Job*, 256>	_dedicatedJobQueue;
+			JobQueue*					_jobQueue = nullptr;
 		};
 
 	private:

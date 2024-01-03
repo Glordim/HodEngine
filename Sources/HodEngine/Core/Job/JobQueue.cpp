@@ -39,11 +39,8 @@ namespace hod
 
 		while (workerThread->_shouldExit == false)
 		{
-			while (workerThread->_dedicatedJobQueue.empty() == false)
+			while (workerThread->_dedicatedJobQueue.Dequeue(job) == true)
 			{
-				job = workerThread->_dedicatedJobQueue.front();
-				workerThread->_dedicatedJobQueue.pop();
-
 				job->Execute();
 			}
 
@@ -101,7 +98,7 @@ namespace hod
 	{
 		if (job->GetThreadId() == Thread::InvalidId)
 		{
-			while (_jobs.Push(job) == false)
+			while (_jobs.Enqueue(job) == false)
 			{
 				OUTPUT_ERROR("JobQueue Full !");
 			}
@@ -114,7 +111,10 @@ namespace hod
 			{
 				if (_workerThreads[workerThreadIndex]._thread.GetId() == job->GetThreadId())
 				{
-					_workerThreads[workerThreadIndex]._dedicatedJobQueue.push(job);
+					while (_workerThreads[workerThreadIndex]._dedicatedJobQueue.Enqueue(job) == false)
+					{
+						OUTPUT_ERROR("JobQueue Full !");
+					}
 					job->SetQueued();
 					break;
 				}
@@ -127,7 +127,7 @@ namespace hod
 	Job* JobQueue::PopNextJob()
 	{
 		Job* job = nullptr;
-		_jobs.Pop(job);
+		_jobs.Dequeue(job);
 		return job;
 	}
 }

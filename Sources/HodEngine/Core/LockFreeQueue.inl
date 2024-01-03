@@ -2,80 +2,85 @@
 namespace hod
 {
 	/// @brief 
-	/// @tparam Type 
-	/// @param data 
-	/// @return 
-	template<typename Type, uint32_t Capacity>
-	bool LockFreeQueue<Type, Capacity>::Push(const Type& value)
+	/// @tparam _Type_ 
+	/// @tparam _Capacity_ 
+	template<typename _Type_, uint32_t _Capacity_>
+	LockFreeQueue<_Type_, _Capacity_>::LockFreeQueue()
+	: _head(0)
+	, _tail(0)
 	{
-		while (true)
+
+	}
+
+	/// @brief 
+	/// @tparam _Type_ 
+	/// @tparam _Capacity_ 
+	/// @param value 
+	/// @return 
+	template<typename _Type_, uint32_t _Capacity_>
+	bool LockFreeQueue<_Type_, _Capacity_>::Enqueue(const _Type_& value)
+	{
+		uint32_t currentTail = _tail.load(std::memory_order_relaxed);
+		uint32_t nextTail = (currentTail + 1) % _Capacity_;
+
+		if (nextTail == _head.load(std::memory_order_acquire)) // Full
 		{
-			uint32_t expectedPushStartIndex = _pushStartIndex.load();
-			uint32_t desiredPushStartIndex = (expectedPushStartIndex + 1) % Capacity;
-
-			if (desiredPushStartIndex == _popEndIndex.load()) // Full
-			{
-				return false;
-			}
-
-			if (_pushStartIndex.compare_exchange_weak(expectedPushStartIndex, desiredPushStartIndex) == true)
-			{
-				new (&_values[expectedPushStartIndex])Type(value);
-
-				while (_pushEndIndex.compare_exchange_weak(expectedPushStartIndex, desiredPushStartIndex) == false);
-
-				return true;
-			}
+			return false;
 		}
+
+		_buffer[currentTail] = value;
+
+		_tail.store(nextTail, std::memory_order_release);
+		return true;
 	}
 
 	/// @brief 
-	/// @tparam Type 
-	/// @param data 
+	/// @tparam _Type_ 
+	/// @tparam _Capacity_ 
+	/// @param result 
 	/// @return 
-	template<typename Type, uint32_t Capacity>
-	bool LockFreeQueue<Type, Capacity>::Pop(Type& value)
+	template<typename _Type_, uint32_t _Capacity_>
+	bool LockFreeQueue<_Type_, _Capacity_>::Dequeue(_Type_& result)
 	{
-		while (true)
+		uint32_t currentHead = _head.load(std::memory_order_relaxed);
+
+		if (currentHead == _tail.load(std::memory_order_acquire)) // Empty
 		{
-			uint32_t expectedPopStartIndex = _popStartIndex.load();
-			uint32_t desiredPopStartIndex = (expectedPopStartIndex + 1) % Capacity;
-
-			if (expectedPopStartIndex == _pushEndIndex.load()) // Empty
-			{
-				return false;
-			}
-
-			if (_popStartIndex.compare_exchange_weak(expectedPopStartIndex, desiredPopStartIndex) == true)
-			{
-				value = std::move(_values[expectedPopStartIndex]);
-				(&_values[expectedPopStartIndex])->~Type();
-
-				while (_popEndIndex.compare_exchange_weak(expectedPopStartIndex, desiredPopStartIndex) != false);
-
-				return true;
-			}
+			return false;
 		}
+
+		result = _buffer[currentHead];
+		_head.store((currentHead + 1) % _Capacity_, std::memory_order_release);
+		return true;
 	}
 
 	/// @brief 
-	/// @tparam Type 
+	/// @tparam _Type_ 
+	/// @tparam _Capacity_ 
 	/// @return 
-	template<typename Type, uint32_t Capacity>
-	inline uint32_t LockFreeQueue<Type, Capacity>::GetCapacity() const
+	template<typename _Type_, uint32_t _Capacity_>
+	constexpr uint32_t LockFreeQueue<_Type_, _Capacity_>::GetCapacity() const
 	{
-		return Capacity;
+		return _Capacity_;
 	}
 
 	/// @brief 
-	/// @tparam Type 
+	/// @tparam _Type_ 
+	/// @tparam _Capacity_ 
 	/// @return 
-	template<typename Type, uint32_t Capacity>
-	uint32_t LockFreeQueue<Type, Capacity>::GetSize() const
+	template<typename _Type_, uint32_t _Capacity_>
+	uint32_t LockFreeQueue<_Type_, _Capacity_>::GetSize() const
 	{
-		uint32_t popStartIndex = _popStartIndex.load();
-		uint32_t pushEndIndex = _pushEndIndex.load();
+		uint32_t currentHead = _head.load(std::memory_order_relaxed);
+        uint32_t currentTail = _tail.load(std::memory_order_relaxed);
 
-		return (pushEndIndex >= popStartIndex) ? pushEndIndex - popStartIndex : Capacity - popStartIndex + pushEndIndex;
+        if (currentTail >= currentHead)
+		{
+            return currentTail - currentHead;
+        }
+		else
+		{
+            return _Capacity_ - (currentHead - currentTail);
+        }
 	}
 }
