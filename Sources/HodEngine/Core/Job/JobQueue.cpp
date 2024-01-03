@@ -50,6 +50,9 @@ namespace hod
 				job->Execute();
 				job = workerThread->_jobQueue->PopNextJob();
 			}
+
+			//ThisThread::Yield();
+			ThisThread::Sleep(1); // TODO use condition variable or atomic flag
 		}
 
 		return 0;

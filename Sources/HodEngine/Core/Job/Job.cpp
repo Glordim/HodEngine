@@ -1,5 +1,7 @@
 #include "HodEngine/Core/Job/Job.hpp"
 
+#include <cassert>
+
 namespace hod
 {
 	/// @brief 
@@ -43,6 +45,7 @@ namespace hod
 	/// @brief 
 	void Job::Execute()
 	{
+		while (_state != State::Queued);
 		_state &= ~State::Queued;
 		if ((_state & State::Canceled) == 0)
 		{

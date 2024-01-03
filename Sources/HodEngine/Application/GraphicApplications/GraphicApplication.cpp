@@ -13,6 +13,8 @@
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
+#include "HodEngine/Core/Time/SystemTime.hpp"
+
 namespace hod::application
 {
 	_SingletonOverrideConstructor(GraphicApplication)
@@ -60,6 +62,9 @@ namespace hod::application
 	{
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
 
+		constexpr double targetTimeStep = (1.0 / 120.0) * 1000.0;
+
+		SystemTime::TimeStamp last = SystemTime::Now();
 		while (_shouldQuit == false)
 		{
 			_window->Update();
@@ -73,6 +78,15 @@ namespace hod::application
 				_window->GetGraphicsContext()->SwapBuffer();
 			}
 
+			SystemTime::TimeStamp now = SystemTime::Now();
+			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
+			last = now;
+
+			double sleepTime = targetTimeStep - elapsedTime;
+			if (sleepTime > 0.0)
+			{
+				ThisThread::Sleep(static_cast<uint32_t>(sleepTime));
+			}
 		}
 		return true;
 	}
