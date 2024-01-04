@@ -14,6 +14,8 @@
 #include "HodEngine/Core/Rect.hpp"
 #include "HodEngine/Core/Math/Matrix4.hpp"
 
+#include <cmath>
+
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(ViewportWindow, "Viewport", true)
@@ -35,6 +37,9 @@ namespace hod::editor
 	{
 		float windowWidth = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
 		float windowHeight = ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
+
+		windowWidth = std::fmax(2, windowWidth);
+		windowHeight = std::fmax(2, windowHeight);
 
 		if (_renderTarget->GetWidth() != windowWidth ||
 			_renderTarget->GetHeight() != windowHeight)
