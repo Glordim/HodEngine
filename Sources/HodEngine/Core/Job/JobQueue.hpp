@@ -3,7 +3,7 @@
 #include "HodEngine/Core/LockFreeQueue.hpp"
 #include "HodEngine/Core/Job/Thread.hpp"
 
-#include <queue>
+#include <atomic>
 
 namespace hod
 {
@@ -44,6 +44,7 @@ namespace hod
 			bool						_shouldExit = false;
 			LockFreeQueue<Job*, 256>	_dedicatedJobQueue;
 			JobQueue*					_jobQueue = nullptr;
+			std::atomic_flag			_wakeUpFlag;
 		};
 
 	private:

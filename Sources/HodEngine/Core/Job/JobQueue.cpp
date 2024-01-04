@@ -5,6 +5,7 @@
 #include "HodEngine/Core/Output.hpp"
 
 #include <string>
+#include <atomic>
 
 namespace hod
 {
@@ -51,10 +52,9 @@ namespace hod
 				job = workerThread->_jobQueue->PopNextJob();
 			}
 
-			//ThisThread::Yield();
-			ThisThread::Sleep(1); // TODO use condition variable or atomic flag
+			workerThread->_wakeUpFlag.wait(false);
+			workerThread->_wakeUpFlag.clear();
 		}
-
 		return 0;
 	}
 
@@ -74,7 +74,8 @@ namespace hod
 	void JobQueue::Init(Queue queue)
 	{
 		uint32_t count = SystemInfo::GetLogicalCoreCount();
-		count = 1; // TODO
+		count = 1; // TODO REMOVE
+		_workerThreadCount = count;
 		_workerThreads = new WorkerThread[count];
 
 		for (uint32_t index = 0; index < count; ++index)
@@ -105,8 +106,15 @@ namespace hod
 			{
 				OUTPUT_ERROR("JobQueue Full !");
 			}
-
 			job->SetQueued();
+			for (uint32_t workerThreadIndex = 0; workerThreadIndex < _workerThreadCount; ++workerThreadIndex)
+			{
+				if (_workerThreads[workerThreadIndex]._wakeUpFlag.test_and_set() == false)
+				{
+					_workerThreads[workerThreadIndex]._wakeUpFlag.notify_all();
+					break;
+				}
+			}
 		}
 		else
 		{
@@ -119,6 +127,8 @@ namespace hod
 						OUTPUT_ERROR("JobQueue Full !");
 					}
 					job->SetQueued();
+					_workerThreads[workerThreadIndex]._wakeUpFlag.test_and_set();
+					_workerThreads[workerThreadIndex]._wakeUpFlag.notify_all();
 					break;
 				}
 			}
