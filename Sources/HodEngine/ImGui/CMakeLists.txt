@@ -28,6 +28,33 @@ add_custom_command(OUTPUT ${ShaderGenerated}
     COMMENT "Generating shader source files"
 )
 
+# Creates C resources file from files in given directory
+function(create_resources input output SourcesVar IncludeVar)
+	file(MAKE_DIRECTORY ${output})
+	# Iterate through input files
+  string(REGEX MATCH "([^/]+)$" filename ${input})
+  # Replace filename spaces & extension separator for C compatibility
+  string(REGEX REPLACE "\\.| |-" "_" variablename ${filename})
+  # Read hex data from file
+  file(READ ${input} filedata HEX)
+  # Convert hex data for C compatibility
+  string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
+  # Create output file
+  file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tuint8_t ${variablename}[] = {${filedata}};\n\tuint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
+  file(WRITE "${output}/${filename}.h" "#pragma once\n#include <cstdint>\n\nnamespace hod\n{\n\textern uint8_t ${variablename}[];\n\textern uint32_t ${variablename}_size;\n}\n")
+
+  set(${SourcesVar} "${output}/${filename}.cpp" PARENT_SCOPE)
+  set(${IncludeVar} "${output}/${filename}.h" PARENT_SCOPE)
+
+  message("Pack shader ${input}")
+endfunction()
+
+create_resources("Font/MaterialIcons-Regular.ttf" "Font" FontSrcs FontIncludes)
+list(APPEND Srcs ${FontSrcs})
+list(APPEND Srcs ${FontIncludes})
+list(APPEND Includes ${FontIncludes})
+
+
 assign_source_group(${Srcs}) # for VS
 
 add_library(ImGui OBJECT ${Srcs} ${Includes})

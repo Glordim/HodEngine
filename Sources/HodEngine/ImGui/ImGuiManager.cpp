@@ -7,6 +7,7 @@
 #endif
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
+#include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 #include "HodEngine/ImGui/DearImGui/imgui_impl_win32.h"
 #include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
@@ -27,6 +28,8 @@
 
 #include "HodEngine/ImGui/Shader/Generated/imgui.vert.hpp"
 #include "HodEngine/ImGui/Shader/Generated/imgui.frag.hpp"
+#include "HodEngine/ImGui/Font/MaterialIcons-Regular.ttf.h"
+#include "HodEngine/ImGui/Font/IconsMaterialDesign.h"
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
@@ -87,6 +90,23 @@ namespace hod::imgui
 		ImGui::GetIO().IniFilename = iniFileName;
 
 		//ImGui::GetIO().Fonts->AddFontDefault();
+		ImFontConfig icons_configProggyClean;
+		icons_configProggyClean.SizePixels = 13.0f;
+		icons_configProggyClean.OversampleH = 1;
+		icons_configProggyClean.OversampleV = 1;
+		icons_configProggyClean.PixelSnapH = true;
+		ImGui::GetIO().Fonts->AddFontDefault(&icons_configProggyClean);
+
+		const ImWchar iconsRangesMDI[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
+		ImFontConfig icons_configMDI;
+		icons_configMDI.MergeMode = true;
+		icons_configMDI.PixelSnapH = true;
+		icons_configMDI.GlyphOffset.y = 2;
+		icons_configMDI.GlyphOffset.x = -0.5;
+		icons_configMDI.GlyphMaxAdvanceX = 13;
+
+		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(MaterialIcons_Regular_ttf, MaterialIcons_Regular_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
+		ImGui::GetIO().Fonts->Build();
 
 		unsigned char* out_pixels;
 		int out_width;
@@ -154,13 +174,38 @@ namespace hod::imgui
 
 		if (_mainBar != nullptr)
 		{
+			float mainbarhieght = ImGui::GetStyle().FramePadding.y;
+			ImGui::GetStyle().FramePadding.y = 16;
 			if (ImGui::BeginMainMenuBar() == true)
 			{
+				ImGui::GetStyle().FramePadding.y = mainbarhieght;
 				_mainBar->Draw();
 				ImGui::EndMainMenuBar();
 			}
 		}
+/*
+		{
+			ImGuiViewport* viewport = (ImGuiViewport*)(void*)ImGui::GetMainViewport();
 
+			// For the main menu bar, which cannot be moved, we honor g.Style.DisplaySafeAreaPadding to ensure text can be visible on a TV set.
+			// FIXME: This could be generalized as an opt-in way to clamp window->DC.CursorStartPos to avoid SafeArea?
+			// FIXME: Consider removing support for safe area down the line... it's messy. Nowadays consoles have support for TV calibration in OS settings.
+			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+			float height = ImGui::GetFrameHeight();
+			bool is_open = ImGui::BeginViewportSideBar("##PlayMenuBar", viewport, ImGuiDir_Up, height, window_flags);
+
+			if (is_open)
+			{
+        		ImGui::BeginMenuBar();
+				ImGui::EndMenuBar();
+				ImGui::End();
+			}
+    		else
+			{
+        		ImGui::End();
+			}
+		}
+*/
 		ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
 		static bool showDemo = false;
