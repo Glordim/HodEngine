@@ -284,4 +284,68 @@ namespace hod::editor
 
 		_currentScene = &asset;
 	}
+
+	/// @brief 
+	void Editor::Play()
+	{
+		if (_playing == true)
+		{
+			return;
+		}
+
+		_playing = true;
+	}
+
+	/// @brief 
+	void Editor::Stop()
+	{
+		if (_playing == false)
+		{
+			return;
+		}
+
+		_playing = false;
+	}
+	
+	/// @brief 
+	void Editor::Pause()
+	{
+		if (_paused == true)
+		{
+			return;
+		}
+
+		_paused = true;
+	}
+
+	/// @brief 
+	void Editor::Resume()
+	{
+		if (_paused == false)
+		{
+			return;
+		}
+
+		_paused = false;
+	}
+
+	/// @brief 
+	void Editor::PlayNextFrame()
+	{
+		
+	}
+
+	/// @brief 
+	/// @return 
+	bool Editor::IsPlaying() const
+	{
+		return _playing;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Editor::IsPaused() const
+	{
+		return _paused;
+	}
 }

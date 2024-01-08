@@ -48,8 +48,8 @@ namespace hod::game
 		std::weak_ptr<Component>	GetComponent(MetaType metaType);
 
 		template<typename _Component_>
-		std::weak_ptr<_Component_>	AddComponent();
-		std::weak_ptr<Component>	AddComponent(const ReflectionDescriptor& descriptor);
+		std::weak_ptr<_Component_>	AddComponent(bool awakeAndStart = true);
+		std::weak_ptr<Component>	AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart = true);
 
 		template<typename _Component_>
 		void						RemoveComponent();
@@ -60,7 +60,7 @@ namespace hod::game
 
 	private:
 
-		std::weak_ptr<Component>	AddComponent(std::shared_ptr<Component> instance);
+		std::weak_ptr<Component>	AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
 
 	private:
 

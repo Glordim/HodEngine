@@ -100,7 +100,7 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::weak_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor)
+	std::weak_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart)
 	{
 		std::shared_ptr<Component> existingComponent = GetComponent(descriptor.GetMetaType()).lock();
 		if (existingComponent != nullptr)
@@ -108,20 +108,20 @@ namespace hod::game
 			return existingComponent;
 		}
 
-		return AddComponent(std::static_pointer_cast<Component>(descriptor.CreateSharedInstance()));
+		return AddComponent(std::static_pointer_cast<Component>(descriptor.CreateSharedInstance()), awakeAndStart);
 	}
 
 	/// @brief 
 	/// @param component 
 	/// @return 
-	std::weak_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component)
+	std::weak_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component, bool awakeAndStart)
 	{
 		_components.push_back(component);
 		component->SetEntity(weak_from_this());
 
 		_onAddComponentEvent.Emit(component);
 
-		if (_active == true)
+		if (_active == true && awakeAndStart == true)
 		{
 			component->OnAwake();
 			component->OnStart();

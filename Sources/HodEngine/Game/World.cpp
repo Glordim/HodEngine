@@ -245,7 +245,7 @@ namespace hod
 					if (it != componentFactory->GetAllDescriptors().end())
 					{
 						const ReflectionDescriptor& componentDescriptor = *it->second;
-						std::weak_ptr<Component> component = entityLock->AddComponent(componentDescriptor);
+						std::weak_ptr<Component> component = entityLock->AddComponent(componentDescriptor, false);
 						std::shared_ptr<Component> componentLock = component.lock();
 						Component* rawComponent = componentLock.get();
 						Serializer::Deserialize(rawComponent, *componentNode); // todo lvalue...

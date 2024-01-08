@@ -1,9 +1,11 @@
 #include "HodEngine/Editor/MainBar.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesign.h>
 #include <HodEngine/Application/Application.hpp>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Helper.hpp>
 
 #include "HodEngine/Editor/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
@@ -66,5 +68,47 @@ namespace hod::editor
 			}
 			ImGui::EndMenu();
 		}
+
+		const ImGuiStyle& style = ImGui::GetStyle();
+		float groupWidth = CalculateButtonSize(ICON_MD_PLAY_ARROW).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MD_PAUSE).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MD_SKIP_NEXT).x;
+		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x * 0.5f - groupWidth * 0.5f);
+
+		Editor* editor = Editor::GetInstance();
+		if (editor->IsPlaying() == true)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+			bool pressed = ImGui::Button(ICON_MD_PLAY_ARROW, ImVec2(0, 42));
+			ImGui::PopStyleColor();
+			if (pressed == true)
+			{
+				editor->Stop();
+			}
+		}
+		else if (ImGui::Button(ICON_MD_PLAY_ARROW, ImVec2(0, 42)) == true)
+		{
+			editor->Play();
+		}
+
+		if (editor->IsPaused() == true)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+			bool pressed = ImGui::Button(ICON_MD_PAUSE, ImVec2(0, 42));
+			ImGui::PopStyleColor();
+			if (pressed == true)
+			{
+				editor->Resume();
+			}
+		}
+		else if (ImGui::Button(ICON_MD_PAUSE, ImVec2(0, 42)) == true)
+		{
+			editor->Pause();
+		}
+
+		ImGui::BeginDisabled(editor->IsPlaying() == false);
+		if (ImGui::Button(ICON_MD_SKIP_NEXT, ImVec2(0, 42)) == true)
+		{
+			editor->PlayNextFrame();
+		}
+		ImGui::EndDisabled();
 	}
 }

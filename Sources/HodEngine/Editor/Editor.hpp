@@ -53,6 +53,15 @@ namespace hod::editor
 
 		void									OpenAsset(Asset& asset);
 
+		void									Play();
+		void									Stop();
+		void									Pause();
+		void									Resume();
+		void									PlayNextFrame();
+
+		bool									IsPlaying() const;
+		bool									IsPaused() const;
+
 	private:
 
 		bool			AddProjectInRecentProject(const std::filesystem::path& path) const;
@@ -65,5 +74,8 @@ namespace hod::editor
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
 
 		Asset*									_currentScene = nullptr;
+
+		bool									_playing = false;
+		bool									_paused = false;
 	};
 }

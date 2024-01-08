@@ -111,7 +111,7 @@ namespace hod::editor
 				ReflectionTraitDisplayName* displayNameTrait = componentDescriptor.FindTrait<ReflectionTraitDisplayName>();
 				if (ImGui::MenuItem(displayNameTrait->GetValue().c_str()) == true)
 				{
-					selection->AddComponent(componentDescriptor);
+					selection->AddComponent(componentDescriptor, Editor::GetInstance()->IsPlaying());
 				}
 			}
 
