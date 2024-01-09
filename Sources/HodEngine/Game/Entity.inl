@@ -34,7 +34,9 @@ namespace hod::game
 			return existingComponent;
 		}
 
-		return std::static_pointer_cast<_Component_>(AddComponent(std::make_shared<_Component_>(/*weak_from_this()*/)).lock(), awakeAndStart);
+		std::shared_ptr newComponent = std::make_shared<_Component_>();
+		AddComponent(newComponent, awakeAndStart);
+		return std::static_pointer_cast<_Component_>(newComponent);
 	}
 
 	template<typename _Component_>

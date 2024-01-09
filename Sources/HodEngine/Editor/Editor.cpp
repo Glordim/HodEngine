@@ -305,6 +305,7 @@ namespace hod::editor
 		}
 
 		_playing = false;
+		_paused = false;
 	}
 	
 	/// @brief 
