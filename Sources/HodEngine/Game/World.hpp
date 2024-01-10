@@ -30,6 +30,14 @@ namespace hod
 			bool				Init();
 			void				Clear();
 
+#if defined(HOD_EDITOR)
+			void				SetEditorPlaying(bool editorPlaying);
+			bool				GetEditorPlaying() const;
+
+			void				SetEditorPaused(bool editorPaused);
+			bool				GetEditorPaused() const;
+#endif
+
 			void				Update();
 
 			Scene*				CreateScene();
@@ -60,7 +68,10 @@ namespace hod
 								~World();
 
 		private:
-
+#if defined(HOD_EDITOR)
+			bool						_editorPlaying = false;
+			bool						_editorPaused = false;
+#endif
 			MemberFunctionJob<World>	_updateJob;
 
 			std::vector<Scene*>	_scenes;

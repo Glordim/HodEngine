@@ -1,5 +1,6 @@
 #include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
@@ -52,17 +53,48 @@ namespace hod::game
 		if (_active != active)
 		{
 			_active = active;
-			if (active == true && _started == false)
+			if (active == true)
 			{
-				_started = true;
-				for (std::weak_ptr<Component> component : _components)
-				{
-					component.lock()->OnAwake();
-				}
-				for (std::weak_ptr<Component> component : _components)
-				{
-					component.lock()->OnStart();
-				}
+				Awake();
+				Start();
+			}
+		 }
+	 }
+	 
+	 void Entity::Awake()
+	 {
+		#if defined(HOD_EDITOR)
+		if (World::GetInstance()->GetEditorPlaying() == false)
+		{
+			return;
+		}
+		#endif
+		if (_awaked == false)
+		{
+			_awaked = true;
+
+			for (std::weak_ptr<Component> component : _components)
+			{
+				component.lock()->OnAwake();
+			}
+		}
+	 }
+
+	 void Entity::Start()
+	 {
+		#if defined(HOD_EDITOR)
+		if (World::GetInstance()->GetEditorPlaying() == false)
+		{
+			return;
+		}
+		#endif
+		if (_started == false)
+		{
+			_started = true;
+
+			for (std::weak_ptr<Component> component : _components)
+			{
+				component.lock()->OnStart();
 			}
 		}
 	}
@@ -121,6 +153,9 @@ namespace hod::game
 
 		_onAddComponentEvent.Emit(component);
 
+#if defined(HOD_EDITOR)
+		awakeAndStart = World::GetInstance()->GetEditorPlaying();
+#endif
 		if (_active == true && awakeAndStart == true)
 		{
 			component->OnAwake();

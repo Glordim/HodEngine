@@ -16,6 +16,39 @@ namespace hod
 {
 	namespace game
 	{
+#if defined(HOD_EDITOR)
+		void World::SetEditorPlaying(bool editorPlaying)
+		{
+			_editorPlaying = editorPlaying;
+			if (editorPlaying == true)
+			{
+				for (const auto& entity : _entities)
+				{
+					entity.second->Awake();
+				}
+				for (const auto& entity : _entities)
+				{
+					entity.second->Start();
+				}
+			}
+		}
+
+		bool World::GetEditorPlaying() const
+		{
+			return _editorPlaying;
+		}
+
+		void World::SetEditorPaused(bool editorPaused)
+		{
+			_editorPaused = editorPaused;
+		}
+
+		bool World::GetEditorPaused() const
+		{
+			return _editorPaused;
+		}
+#endif
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -30,7 +63,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		World::~World()
 		{
-			Clear();
+			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -48,7 +81,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void World::Clear()
 		{
-			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
+			_entities.clear();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -133,6 +166,13 @@ namespace hod
 				sScene->Update(dt);
 			}
 			*/
+#if defined(HOD_EDITOR)
+			if (_editorPlaying == false || _editorPaused == true)
+			{
+				return;
+			}
+#endif
+
 			for (auto entityPair : _entities)
 			{
 				for (std::weak_ptr<Component> component : entityPair.second->GetComponents())

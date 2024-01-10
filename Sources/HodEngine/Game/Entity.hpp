@@ -41,6 +41,9 @@ namespace hod::game
 		bool				GetActive() const;
 		void				SetActive(bool active);
 
+		void				Awake();
+		void				Start();
+
 		std::vector<std::weak_ptr<game::Component>>	GetComponents() const;
 
 		template<typename _Component_>
@@ -67,6 +70,7 @@ namespace hod::game
 		Id				_id;
 		std::string		_name;
 		bool			_active = false;
+		bool			_awaked = false;
 		bool			_started = false;
 
 		std::vector<std::shared_ptr<Component>>	_components; // map ?

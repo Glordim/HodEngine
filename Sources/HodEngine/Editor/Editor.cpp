@@ -280,6 +280,7 @@ namespace hod::editor
 		}
 
 		game::World* world = game::World::GetInstance();
+		world->Clear();
 		world->LoadFromDocument(scene->GetDocument().GetRootNode());
 
 		_currentScene = &asset;
@@ -292,6 +293,8 @@ namespace hod::editor
 		{
 			return;
 		}
+
+		game::World::GetInstance()->SetEditorPlaying(true);
 
 		_playing = true;
 	}
@@ -306,6 +309,11 @@ namespace hod::editor
 
 		_playing = false;
 		_paused = false;
+
+		game::World::GetInstance()->SetEditorPlaying(_playing);
+		game::World::GetInstance()->SetEditorPaused(_paused);
+
+		OpenAsset(*_currentScene);
 	}
 	
 	/// @brief 
@@ -317,6 +325,8 @@ namespace hod::editor
 		}
 
 		_paused = true;
+
+		game::World::GetInstance()->SetEditorPaused(_paused);
 	}
 
 	/// @brief 
@@ -328,6 +338,8 @@ namespace hod::editor
 		}
 
 		_paused = false;
+
+		game::World::GetInstance()->SetEditorPaused(_paused);
 	}
 
 	/// @brief 
