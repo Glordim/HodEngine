@@ -9,6 +9,117 @@
 
 namespace hod
 {
+	class ReflectionDescriptor;
+
+	template <typename T>
+	struct ElementType;
+
+	template <typename T, std::size_t N>
+	struct ElementType<T[N]> {
+		using type = T;
+	};
+
+	struct Adapter
+	{
+	public:
+
+		template<typename _type_>
+		void AsRaw()
+		{
+			_getElementCountFunction = [](const void* instance) -> uint32_t
+			{
+				return sizeof(_type_) / sizeof(ElementType<_type_>::type);
+			};
+
+			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*
+			{
+				const ElementType<_type_>::type* address = static_cast<const ElementType<_type_>::type*>(instance);
+				return address + index;
+			};
+
+			_insertElementFunction = nullptr;
+			_removeElementFunction = nullptr;
+		}
+
+		template<typename _array_>
+		void AsArray()
+		{
+			_getElementCountFunction = [](const void* instance) -> uint32_t
+			{
+				const _array_* array = static_cast<const _array_*>(instance);
+				return array->size();
+			};
+
+			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*
+			{
+				const _array_* array = static_cast<const _array_*>(instance);
+				return (void*)(array->data() + index);
+			};
+
+			_insertElementFunction = nullptr;
+			_removeElementFunction = nullptr;
+		}
+
+		template<typename _vector_>
+		void AsVectror()
+		{
+			_getElementCountFunction = [](const void* instance) -> uint32_t
+			{
+				const _vector_* array = static_cast<const _vector_*>(instance);
+				return array->size();
+			};
+
+			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*
+			{
+				const _vector_* array = static_cast<const _vector_*>(instance);
+				return (void*)(array->data() + index);
+			};
+
+			_insertElementFunction = [](void* instance, uint32_t index)
+			{
+				_vector_* array = static_cast<_vector_*>(instance);
+				typename _vector_::value_type item;
+				array->insert(array->begin() + index, item);
+			};
+
+			_removeElementFunction = [](void* instance, uint32_t index)
+			{
+				_vector_* array = static_cast<_vector_*>(instance);
+				array->erase(array->begin() + index);
+			};
+		}
+
+	public:
+
+		std::function<uint32_t(const void*)>		_getElementCountFunction;
+		std::function<void*(const void*, uint32_t)>	_getElementAddressFunction;
+		std::function<void(void*, uint32_t)>		_insertElementFunction;
+		std::function<void(void*, uint32_t)>		_removeElementFunction;
+	};
+
+	template<typename _container_>
+	Adapter MakeAdapter()
+	{
+		Adapter adapter;
+		if constexpr (std::is_array_v<_container_>)
+		{
+			adapter.AsRaw<_container_>();
+		}
+		else if constexpr (IsArray<_container_>::value)
+		{
+			adapter.AsArray<_container_>();
+		}
+		else if constexpr (IsVector<_container_>::value)
+		{
+			adapter.AsVectror<_container_>();
+		}
+		else
+		{
+			assert(false);
+		}
+		return adapter;
+	}
+
 	///@brief 
 	class ReflectionPropertyArray : public ReflectionProperty
 	{
@@ -16,7 +127,7 @@ namespace hod
 
 	public:
 
-												ReflectionPropertyArray(ReflectionPropertyVariable::Type type, uint32_t offset, const char* name);
+												ReflectionPropertyArray(Adapter adapter, ReflectionPropertyVariable::Type type, uint32_t offset, const char* name, ReflectionDescriptor* elementReflectionDescriptor = nullptr);
 												ReflectionPropertyArray(const ReflectionPropertyArray& copy) = default;
 												ReflectionPropertyArray(ReflectionPropertyArray&& move) = default;
 												~ReflectionPropertyArray() = default;
@@ -34,14 +145,19 @@ namespace hod
 		template<typename _type_>
 		void									SetValue(void* instance, uint32_t index, _type_ value);
 
-	private:
+		ReflectionDescriptor*					GetElementReflectionDescriptor() const;
 
-		static void*							GetElementAddress(void* instance, uint32_t index);
+		uint32_t								GetElementCount(const void* instance) const;
+		void									InsertElement(void* instance, uint32_t index) const;
+		void									RemoveElement(void* instance, uint32_t index) const;
 
 	private:
 
 		ReflectionPropertyVariable::Type		_type;
-		std::function<void*(void*, uint32_t)>	_getElementAddressFunction;
+
+		ReflectionDescriptor*					_elementReflectionDescriptor = nullptr;
+
+		Adapter									_adapter;
 	};
 }
 

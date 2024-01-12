@@ -52,6 +52,10 @@ namespace hod
 		{
 			return ReflectionPropertyVariable::Type::String;
 		}
+		else if constexpr (std::is_class<_MemberVariable_>::value)
+		{
+			return ReflectionPropertyVariable::Type::Object;
+		}
 		else
 		{
 			[]<bool flag = false>()
@@ -66,9 +70,22 @@ namespace hod
 	{
 		//static_assert(std::is_member_object_pointer<T>::value
 
-		if constexpr (std::is_array<_MemberVariable_>::value) // todo support std::vector
+		if constexpr (std::is_array<_MemberVariable_>::value)
 		{
-			return descriptor->AddProperty<ReflectionPropertyArray>(GetVariableType<_MemberVariable_>(), offset, name.data()); // TODO remove data, descriptor must use string view
+			ReflectionPropertyVariable::Type type = GetVariableType<_MemberVariable_>();
+			return descriptor->AddProperty<ReflectionPropertyArray>(MakeAdapter<_MemberVariable_>(), GetVariableType<_MemberVariable_>(), offset, name.data(), type == ReflectionPropertyVariable::Type::Object ? _MemberVariable_::GetReflectionDescriptor() : nullptr); // TODO remove data, descriptor must use string view
+		}
+		else if constexpr (IsVector<_MemberVariable_>::value)
+		{
+			constexpr ReflectionPropertyVariable::Type type = GetVariableType<typename _MemberVariable_::value_type>();
+			if constexpr (type == ReflectionPropertyVariable::Type::Object)
+			{
+				return descriptor->AddProperty<ReflectionPropertyArray>(MakeAdapter<_MemberVariable_>(), type, offset, name.data(), _MemberVariable_::value_type::GetReflectionDescriptor()); // TODO remove data, descriptor must use string view
+			}
+			else
+			{
+				return descriptor->AddProperty<ReflectionPropertyArray>(MakeAdapter<_MemberVariable_>(), type, offset, name.data(), nullptr);
+			}
 		}
 		else if constexpr (std::is_arithmetic<_MemberVariable_>::value || std::is_same<_MemberVariable_, std::string>::value)
 		{

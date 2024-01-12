@@ -123,13 +123,6 @@ namespace hod::editor
 	/// @param object 
 	bool InspectorWindow::DrawDefaultInspector(void* object, ReflectionDescriptor* reflectionDescriptor)
 	{
-		bool changed = false;
-
-		for (ReflectionProperty* property : reflectionDescriptor->GetProperties())
-		{
-			changed |= PropertyDrawer::DrawProperty(object, property);
-		}
-
-		return changed;
+		return PropertyDrawer::DrawDescriptor(object, reflectionDescriptor);
 	}
 }

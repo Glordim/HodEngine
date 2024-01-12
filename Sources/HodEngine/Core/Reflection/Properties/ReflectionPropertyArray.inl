@@ -11,27 +11,73 @@ namespace hod
 	{
 		const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
 		const void* arrayAddress = reinterpret_cast<const void*>(instanceAddress + _offset);
-		const void* variableAddress = _getElementAddressFunction((void*)arrayAddress, index);
+		const void* variableAddress = _adapter._getElementAddressFunction((void*)arrayAddress, index);
 
-		switch (_type)
+		if constexpr (std::is_same<std::remove_cv_t<_type_>, bool>::value)
 		{
-		case ReflectionPropertyVariable::Type::Bool: return *reinterpret_cast<const bool*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::Int8: return *reinterpret_cast<const int8_t*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::Int16: return *reinterpret_cast<const int16_t*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::Int32: return *reinterpret_cast<const int32_t*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::Int64: return *reinterpret_cast<const int64_t*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::UInt8: return *reinterpret_cast<const uint8_t*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::UInt16: return *reinterpret_cast<const uint16_t*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::UInt32: return *reinterpret_cast<const uint32_t*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::UInt64: return *reinterpret_cast<const uint64_t*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::Float32: return *reinterpret_cast<const float*>(variableAddress); break;
-		case ReflectionPropertyVariable::Type::Float64: return *reinterpret_cast<const double*>(variableAddress); break;
-		//case ReflectionPropertyVariable::Type::String: return *reinterpret_cast<const std::string*>(variableAddress); break;
-
-		default: assert(false); break;
+			assert(_type == ReflectionPropertyVariable::Type::Bool);
+			return *reinterpret_cast<const bool*>(variableAddress);
 		}
-
-		return _type_();
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, int8_t>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::Int8);
+			return *reinterpret_cast<const int8_t*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, int16_t>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::Int16);
+			return *reinterpret_cast<const int16_t*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, int32_t>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::Int32);
+			return *reinterpret_cast<const int32_t*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, int64_t>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::Int64);
+			return *reinterpret_cast<const int64_t*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, uint8_t>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::UInt8);
+			return *reinterpret_cast<const uint8_t*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, uint16_t>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::UInt16);
+			return *reinterpret_cast<const uint16_t*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, uint32_t>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::UInt32);
+			return *reinterpret_cast<const uint32_t*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, uint64_t>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::UInt64);
+			return *reinterpret_cast<const uint64_t*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, float>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::Float32);
+			return *reinterpret_cast<const float*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, double>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::Float64);
+			return *reinterpret_cast<const double*>(variableAddress);
+		}
+		else if constexpr (std::is_same<std::remove_cv_t<_type_>, void*>::value)
+		{
+			assert(_type == ReflectionPropertyVariable::Type::Object);
+			return (_type_)(variableAddress);
+		}
+		else
+		{
+			assert(false);
+			return _type_();
+		}
 	}
 
 	/// @brief 
@@ -44,7 +90,7 @@ namespace hod
 	{
 		uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
 		void* arrayAddress = reinterpret_cast<void*>(instanceAddress + _offset);
-		void* variableAddress = _getElementAddressFunction(arrayAddress, index);
+		void* variableAddress = _adapter._getElementAddressFunction(arrayAddress, index);
 
 		switch (_type)
 		{

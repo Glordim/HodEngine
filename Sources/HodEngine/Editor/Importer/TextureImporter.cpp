@@ -24,6 +24,14 @@ namespace hod::editor
 	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
 	{
 		ADD_PROPERTY(TextureImporterSettings, _generateMipmap);
+		ADD_PROPERTY(TextureImporterSettings, _spriteDatas);
+	}
+
+	DESCRIBE_REFLECTED_CLASS_NO_PARENT(SpriteData)
+	{
+		ADD_PROPERTY(SpriteData, _uid);
+		ADD_PROPERTY(SpriteData, _rect);
+		ADD_PROPERTY(SpriteData, _meshType);
 	}
 
 	/// @brief 

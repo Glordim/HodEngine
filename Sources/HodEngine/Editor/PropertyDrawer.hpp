@@ -7,6 +7,7 @@ namespace hod
 
 namespace hod
 {
+    class ReflectionDescriptor;
 	class ReflectionProperty;
     class ReflectionPropertyVariable;
     class ReflectionPropertyArray;
@@ -29,6 +30,7 @@ namespace hod::editor
 
     public:
 
+        static bool     DrawDescriptor(void* object, ReflectionDescriptor* descriptor);
         static bool     DrawProperty(void* object, ReflectionProperty* property);
 		static bool     DrawPropertyVariable(void* object, ReflectionPropertyVariable* property);
 		static bool     DrawPropertyArray(void* object, ReflectionPropertyArray* property);

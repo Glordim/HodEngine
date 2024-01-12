@@ -1,4 +1,5 @@
 #include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
@@ -15,6 +16,18 @@
 
 namespace hod::editor
 {
+	bool PropertyDrawer::DrawDescriptor(void* object, ReflectionDescriptor* descriptor)
+	{
+		bool changed = false;
+
+		for (ReflectionProperty* property : descriptor->GetProperties())
+		{
+			changed |= PropertyDrawer::DrawProperty(object, property);
+		}
+
+		return changed;
+	}
+
 	bool PropertyDrawer::DrawProperty(void* object, ReflectionProperty* property)
 	{
 		ImGui::PushID(object);
@@ -117,49 +130,53 @@ namespace hod::editor
 		ReflectionPropertyVariable::Type type = property->GetType();
 		ReflectionTraitFixedSizeArray* fixedSizeArrayTrait = property->FindTrait<ReflectionTraitFixedSizeArray>();
 
-		if (fixedSizeArrayTrait != nullptr) // Fixed size
+		uint32_t elementCount = property->GetElementCount(object);
+
+		bool changed = false;
+
+		ImGui::PushID(property);
+		for (uint32_t index = 0; index < elementCount; ++index)
 		{
+			ImGui::Text("%i", index);
+			ImGui::SameLine();
+			ImGui::PushID(index);
 			switch (type)
 			{
 				case ReflectionPropertyVariable::Type::Float32:
 				{
-					bool changed = false;
-
-					ImGui::PushID(property);
-					for (uint32_t index = 0; index < fixedSizeArrayTrait->GetFixedSize(); ++index)
+					float value = property->GetValue<float>(object, index);
+					bool elementChanged = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
+					if (elementChanged == true)
 					{
-						ImGui::Text("%i", index);
-						ImGui::SameLine();
-						ImGui::PushID(index);
-						float value = property->GetValue<float>(object, index);
-						bool elementChanged = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
-						if (elementChanged == true)
-						{
-							property->SetValue<float>(object, index, (float)value);
-							changed = true;
-						}
-						ImGui::PopID();
-
-						if (index < fixedSizeArrayTrait->GetFixedSize() - 1)
-						{
-							ImGui::SameLine();
-						}
+						property->SetValue<float>(object, index, (float)value);
+						changed = true;
 					}
-					
-					ImGui::PopID();
-					return changed;
 				}
 				break;
 
-				default: break;
+				case ReflectionPropertyVariable::Type::Object:
+				{
+					void* value = property->GetValue<void*>(object, index);
+					changed |= PropertyDrawer::DrawDescriptor(value, property->GetElementReflectionDescriptor());
+				}
+				break;
+
+				default: assert(false); break;
+			}
+			ImGui::PopID();
+
+			if (index < elementCount - 1)
+			{
+				ImGui::SameLine();
 			}
 		}
-		else
+		if (ImGui::Button("+") == true)
 		{
-			// todo
+			property->InsertElement(object, elementCount);
+			changed = true;
 		}
-
-		return false;
+		ImGui::PopID();
+		return changed;
 	}
 
 	/// @brief 
