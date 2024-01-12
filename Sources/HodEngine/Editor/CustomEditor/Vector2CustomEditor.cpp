@@ -26,14 +26,17 @@ namespace hod::editor
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
 
+			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(property->GetDisplayName().c_str());
 			ImGui::TableNextColumn();
 			
+			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("X");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(ImGui::GetColumnWidth() * 0.35f);
 			changed |= ImGui::DragFloat("##x", &x);
 			ImGui::SameLine();
+			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Y");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(ImGui::GetColumnWidth() * 0.35f);

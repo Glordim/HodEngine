@@ -67,6 +67,7 @@ namespace hod::editor
 		{
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
+			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(property->GetDisplayName().c_str());
 			ImGui::TableNextColumn();
 
@@ -132,6 +133,7 @@ namespace hod::editor
 		{
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
+			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(property->GetDisplayName().c_str());
 			ImGui::TableNextColumn();
 
@@ -150,6 +152,7 @@ namespace hod::editor
 				{
 					ImGui::TableNextRow();
 					ImGui::TableNextColumn();
+					ImGui::AlignTextToFramePadding();
 					ImGui::Text("%i", index);
 					ImGui::TableNextColumn();
 					ImGui::PushID(index);
@@ -171,8 +174,10 @@ namespace hod::editor
 						{
 							if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
 							{
+								ImGui::Indent();
 								void* value = property->GetValue<void*>(object, index);
 								changed |= PropertyDrawer::DrawDescriptor(value, property->GetElementReflectionDescriptor());
+								ImGui::Unindent();
 							}
 						}
 						break;
