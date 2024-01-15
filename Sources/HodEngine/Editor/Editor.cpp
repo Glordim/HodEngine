@@ -37,6 +37,10 @@
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
 
+#include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
+#include "HodEngine/Editor/ImporterCustomEditor/TextureImporterCustomEditor.hpp"
+#include "HodEngine/Editor/Importer/TextureImporter.hpp"
+
 namespace hod::editor
 {
 	_SingletonConstructor(Editor)
@@ -55,6 +59,7 @@ namespace hod::editor
 	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
 		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
+		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 
 		Project::CreateInstance();
 
