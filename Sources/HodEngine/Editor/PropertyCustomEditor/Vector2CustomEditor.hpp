@@ -1,8 +1,6 @@
 #pragma once
 
-#if defined(HOD_EDITOR)
-
-#include "HodEngine/Game/Traits/PropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
 namespace hod
 {
@@ -12,7 +10,7 @@ namespace hod
 namespace hod::editor
 {
 	/// @brief 
-	class Vector2CustomEditor : public game::PropertyDrawer
+	class Vector2CustomEditor : public CustomPropertyDrawer
 	{
 	public:
 
@@ -29,5 +27,3 @@ namespace hod::editor
 		bool					Draw(void* instance, ReflectionPropertyObject* property) override;
 	};
 }
-
-#endif

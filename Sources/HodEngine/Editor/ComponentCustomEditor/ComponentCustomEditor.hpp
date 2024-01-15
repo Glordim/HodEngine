@@ -1,8 +1,11 @@
 #pragma once
 
-#if defined(HOD_EDITOR)
+namespace hod
+{
+	class ReflectionDescriptor;
+}
 
-namespace hod::game
+namespace hod::editor
 {
 	///@brief 
 	class ComponentCustomEditor
@@ -19,9 +22,7 @@ namespace hod::game
 
 	public:
 
-		virtual void				OnDrawInspector();
-		virtual void				OnDrawGizmo();
+		virtual bool				OnDrawInspector(void* object, ReflectionDescriptor* reflectionDescriptor);
+		virtual bool				OnDrawGizmo(void* object, ReflectionDescriptor* reflectionDescriptor);
 	};
 }
-
-#endif

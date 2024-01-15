@@ -11,8 +11,8 @@
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 
-#include "HodEngine/Game/Traits/ReflectionTraitCustomPropertyDrawer.hpp"
-#include "HodEngine/Game/Traits/PropertyDrawer.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
 namespace hod::editor
 {
@@ -214,10 +214,10 @@ namespace hod::editor
 		void* instance = property->GetInstance(object);
 		ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
 
-		game::ReflectionTraitCustomPropertyDrawer* customPropertyDrawer = instanceDescriptor->FindTrait<game::ReflectionTraitCustomPropertyDrawer>();
-		if (customPropertyDrawer != nullptr)
+		ReflectionTraitCustomPropertyDrawer* customPropertyDrawerTrait = instanceDescriptor->FindTrait<ReflectionTraitCustomPropertyDrawer>();
+		if (customPropertyDrawerTrait != nullptr)
 		{
-			changed = customPropertyDrawer->GetPropertyDrawer()->Draw(object, property);
+			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(object, property);
 		}
 		else
 		{

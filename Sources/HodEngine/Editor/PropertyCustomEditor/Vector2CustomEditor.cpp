@@ -1,5 +1,3 @@
-#if defined(HOD_EDITOR)
-
 #include "Vector2CustomEditor.hpp"
 
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -56,5 +54,3 @@ namespace hod::editor
 		return changed;
 	}
 }
-
-#endif

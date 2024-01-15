@@ -14,6 +14,10 @@
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
 
 namespace hod::editor
 {
@@ -49,7 +53,18 @@ namespace hod::editor
 			std::shared_ptr<Asset> asset = selection->_asset;
 			ImGui::TextUnformatted(asset->GetName().c_str()); // same line add button to open (and later VersionControl)
 			ImGui::Separator();
-			if (DrawDefaultInspector(asset->GetMeta()._importerSettings, asset->GetMeta()._importerSettings->GetReflectionDescriptorV()) == true)
+			bool changed = false;
+			ReflectionDescriptor* reflectionDescriptor = asset->GetMeta()._importerSettings->GetReflectionDescriptorV();
+			ReflectionTraitImporterCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitImporterCustomEditor>();
+			if (componentCustomEditorTrait != nullptr)
+			{
+				changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(asset->GetMeta()._importerSettings, reflectionDescriptor);
+			}
+			else
+			{
+				changed = DrawDefaultInspector(asset->GetMeta()._importerSettings, reflectionDescriptor);
+			}
+			if (changed == true)
 			{
 				selection->_asset->SetDirty();
 			}
@@ -88,7 +103,18 @@ namespace hod::editor
 
 				if (opened == true)
 				{
-					if (DrawDefaultInspector(componentLock.get(), componentLock->GetReflectionDescriptorV()) == true)
+					bool changed = false;
+					ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
+					ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitComponentCustomEditor>();
+					if (componentCustomEditorTrait != nullptr)
+					{
+						changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(componentLock.get(), reflectionDescriptor);
+					}
+					else
+					{
+						changed = DrawDefaultInspector(componentLock.get(), reflectionDescriptor);
+					}
+					if (changed == true)
 					{
 						//selection->_asset->SetDirty(); // TODO
 					}

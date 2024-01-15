@@ -1,12 +1,10 @@
 #pragma once
 
-#if defined(HOD_EDITOR)
-
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
-namespace hod::game
+namespace hod::editor
 {
-	class PropertyDrawer;
+	class CustomPropertyDrawer;
 
 	///@brief 
 	class ReflectionTraitCustomPropertyDrawer : public ReflectionTrait
@@ -15,7 +13,7 @@ namespace hod::game
 
 	public:
 
-												ReflectionTraitCustomPropertyDrawer(PropertyDrawer* propertyDrawer);
+												ReflectionTraitCustomPropertyDrawer(CustomPropertyDrawer* propertyDrawer);
 												ReflectionTraitCustomPropertyDrawer(const ReflectionTraitCustomPropertyDrawer& copy) = default;
 												ReflectionTraitCustomPropertyDrawer(ReflectionTraitCustomPropertyDrawer&& move) = default;
 												~ReflectionTraitCustomPropertyDrawer() override;
@@ -25,12 +23,10 @@ namespace hod::game
 
 	public:
 
-		PropertyDrawer*							GetPropertyDrawer() const;
+		CustomPropertyDrawer*					GetPropertyDrawer() const;
 
 	private:
 
-		PropertyDrawer*							_propertyDrawer = nullptr;
+		CustomPropertyDrawer*					_propertyDrawer = nullptr;
 	};
 }
-
-#endif

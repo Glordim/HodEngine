@@ -1,10 +1,8 @@
 #pragma once
 
-#if defined(HOD_EDITOR)
+#include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 
-#include "HodEngine/Game/Traits/ComponentCustomEditor.hpp"
-
-namespace hod::game
+namespace hod::editor
 {
 	/// @brief 
 	class Node2dComponentCustomEditor : public ComponentCustomEditor
@@ -21,9 +19,7 @@ namespace hod::game
 
 	public:
 
-		void							OnDrawInspector() override;
-		void							OnDrawGizmo() override;
+		bool							OnDrawInspector(void* object, ReflectionDescriptor* reflectionDescriptor) override;
+		bool							OnDrawGizmo(void* object, ReflectionDescriptor* reflectionDescriptor) override;
 	};
 }
-
-#endif

@@ -34,8 +34,8 @@
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include "HodEngine/Game/Traits/ReflectionTraitCustomPropertyDrawer.hpp"
-#include "HodEngine/Editor/CustomEditor/Vector2CustomEditor.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
 
 namespace hod::editor
 {
@@ -54,7 +54,7 @@ namespace hod::editor
 	/// @return 
 	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
-		Vector2::GetReflectionDescriptor()->AddTrait<game::ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
+		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
 
 		Project::CreateInstance();
 
