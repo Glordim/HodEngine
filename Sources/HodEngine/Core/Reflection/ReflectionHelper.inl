@@ -58,10 +58,7 @@ namespace hod
 		}
 		else
 		{
-			[]<bool flag = false>()
-			{
-				static_assert(flag, "no match");
-			}();
+			static_assert(always_false<_MemberVariable_>);
 		}
 	}
 

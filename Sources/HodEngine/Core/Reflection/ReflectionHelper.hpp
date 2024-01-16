@@ -8,25 +8,10 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
+#include "HodEngine/Core/Reflection/TypeTrait.hpp"
 
 namespace hod
 {
-	// Structure générique
-	template <typename T>
-	struct IsArray : std::false_type {};
-
-	// Spécialisation partielle pour std::array
-	template <typename T, size_t size>
-	struct IsArray<std::array<T, size>> : std::true_type {};
-
-	// Structure générique
-	template <typename T>
-	struct IsVector : std::false_type {};
-
-	// Spécialisation partielle pour std::vector
-	template <typename T, typename Allocator>
-	struct IsVector<std::vector<T, Allocator>> : std::true_type {};
-	
 	///@brief 
 	class ReflectionHelper
 	{

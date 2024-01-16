@@ -1,0 +1,31 @@
+#pragma once
+
+#include <array>
+#include <vector>
+#include <type_traits>
+
+namespace hod
+{
+    template <class...> constexpr std::false_type always_false{};
+
+    template <typename T>
+    struct IsArray : std::false_type {};
+
+    template <typename T, size_t size>
+    struct IsArray<std::array<T, size>> : std::true_type {};
+
+    template <typename T>
+    struct IsVector : std::false_type {};
+
+    template <typename T, typename Allocator>
+    struct IsVector<std::vector<T, Allocator>> : std::true_type {};
+
+    template <typename T>
+    struct ElementType;
+
+    template <typename T, std::size_t N>
+    struct ElementType<T[N]>
+    {
+        using type = T;
+    };
+}

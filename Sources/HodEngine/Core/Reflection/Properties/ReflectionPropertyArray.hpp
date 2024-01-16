@@ -6,18 +6,11 @@
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Reflection/TypeTrait.hpp"
 
 namespace hod
 {
 	class ReflectionDescriptor;
-
-	template <typename T>
-	struct ElementType;
-
-	template <typename T, std::size_t N>
-	struct ElementType<T[N]> {
-		using type = T;
-	};
 
 	struct Adapter
 	{
@@ -61,7 +54,7 @@ namespace hod
 		}
 
 		template<typename _vector_>
-		void AsVectror()
+		void AsVector()
 		{
 			_getElementCountFunction = [](const void* instance) -> uint32_t
 			{
@@ -111,11 +104,11 @@ namespace hod
 		}
 		else if constexpr (IsVector<_container_>::value)
 		{
-			adapter.AsVectror<_container_>();
+			adapter.AsVector<_container_>();
 		}
 		else
 		{
-			assert(false);
+			static_assert(always_false<_container_>);
 		}
 		return adapter;
 	}
