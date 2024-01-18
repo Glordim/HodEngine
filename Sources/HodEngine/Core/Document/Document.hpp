@@ -54,6 +54,8 @@ namespace hod
 
 			const std::string& GetName() const;
 			Type 		GetType() const;
+			void		SetTye(Type type);
+
 			bool		IsValid() const;
 			bool		IsObject() const;
 			bool		IsArray() const;

@@ -116,6 +116,14 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @param type 
+	void Document::Node::SetTye(Type type)
+	{
+		// TODO verify if _type is unset otherwise the value will be corrupted
+		_type = type;
+	}
+
+	/// @brief 
 	/// @return 
 	const std::string& Document::Node::GetName() const
 	{
