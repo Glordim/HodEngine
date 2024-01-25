@@ -52,8 +52,14 @@ namespace hod::editor
 		if (fileStream.CanRead() == false)
 		{
 			// TODO generate new meta if not exist
-			AssetDatabase::GetInstance()->Import(_path);
-			return false;
+			if (AssetDatabase::GetInstance()->Import(_path) == false)
+			{
+				return false;
+			}
+			if (fileStream.Open(metaPath, FileMode::Read) == false ||fileStream.CanRead() == false)
+			{
+				return false;
+			}
 		}
 
 		Document document;
