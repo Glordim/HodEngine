@@ -35,8 +35,6 @@ namespace hod
 			int height;
 			int channel;
 
-			stbi_set_flip_vertically_on_load(true);
-
 			unsigned char* buffer = stbi_load(path, &width, &height, &channel, 4);
 			if (buffer == nullptr)
 			{

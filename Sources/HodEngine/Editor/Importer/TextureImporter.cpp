@@ -56,7 +56,7 @@ namespace hod::editor
 		int x;
 		int y;
 		int componentCount;
-		uint8_t* pixels = stbi_load_from_memory(dataBuffer, dataSize, &x, &y, &componentCount, 3); // TODO rgba
+		uint8_t* pixels = stbi_load_from_memory(dataBuffer, dataSize, &x, &y, &componentCount, 0); // TODO rgba
 		if (pixels == nullptr)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't load Texture data");
@@ -83,7 +83,7 @@ namespace hod::editor
 			FileStream* thumbnailStream = static_cast<FileStream*>(context);
 			thumbnailStream->Write(data, len);
 		}, &thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
-		stbi_image_free(thumbnailPixels);
+		delete[] thumbnailPixels;
 
 		if (writeResult == 0)
 		{
