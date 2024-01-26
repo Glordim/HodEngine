@@ -215,7 +215,26 @@ namespace hod
         case ReflectionPropertyVariable::Type::Float32: arrayNode.SetValues(std::span<const float>(*reinterpret_cast<const std::vector<float>*>(arrayAddress))); break;
         case ReflectionPropertyVariable::Type::Float64: arrayNode.SetValues(std::span<const double>(*reinterpret_cast<const std::vector<double>*>(arrayAddress))); break;
         case ReflectionPropertyVariable::Type::String: arrayNode.SetValues(std::span<const std::string>(*reinterpret_cast<const std::vector<std::string>*>(arrayAddress))); break;
-        //case ReflectionPropertyVariable::Type::Object: arrayNode.SetValues(std::span<const std::string>(*reinterpret_cast<const std::vector<std::string>*>(arrayAddress))); break; // TODO
+        case ReflectionPropertyVariable::Type::Object:
+        {
+            uint32_t elementCount = property->GetElementCount(instance);
+            if (elementCount == 0)
+            {
+                arrayNode.SetTye(Document::Node::Type::Array);
+            }
+            else
+            {
+                for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
+                {
+                    void* element = property->GetValue<void*>(instance, elementIndex);
+                    if (Serializer::Serialize(property->GetElementReflectionDescriptor(), element, arrayNode.AddChild("")) == false)
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        break;
 
         default: assert(false); break;
         }
@@ -254,7 +273,16 @@ namespace hod
                 case ReflectionPropertyVariable::Type::Float32: reinterpret_cast<std::vector<float>*>(arrayAddress)->push_back(varNode->GetFloat32()); break;
                 case ReflectionPropertyVariable::Type::Float64: reinterpret_cast<std::vector<double>*>(arrayAddress)->push_back(varNode->GetFloat64()); break;
                 case ReflectionPropertyVariable::Type::String: reinterpret_cast<std::vector<std::string>*>(arrayAddress)->push_back(varNode->GetString()); break;
-                //case ReflectionPropertyVariable::Type::Object: reinterpret_cast<std::vector<std::string>*>(arrayAddress)->push_back(varNode->GetString()); break; // TODO
+                case ReflectionPropertyVariable::Type::Object:
+                {
+                    property->InsertElement(instance, property->GetElementCount(instance));
+                    void* element = property->GetValue<void*>(instance, property->GetElementCount(instance) - 1);
+                    if (Serializer::Deserialize(property->GetElementReflectionDescriptor(), element, *varNode) == false)
+                    {
+                        return false;
+                    }
+                }
+                break;
 
                 default: assert(false); break;
                 }

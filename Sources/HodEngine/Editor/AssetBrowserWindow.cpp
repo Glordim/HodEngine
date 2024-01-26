@@ -238,7 +238,7 @@ namespace hod::editor
 			}
 			ImGui::SameLine();
 		}
-
+		ImGui::SameLine();
 		for (const AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
 		{
 			if (DrawExplorerItem(asset) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
@@ -253,6 +253,7 @@ namespace hod::editor
 					Editor::GetInstance()->SetAssetSelection(asset);
 				}
 			}
+			ImGui::SameLine();
 		}
 
 		ImGui::SetCursorPos(cursor);

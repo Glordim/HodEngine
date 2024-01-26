@@ -83,7 +83,7 @@ namespace hod::editor
 			FileStream* thumbnailStream = static_cast<FileStream*>(context);
 			thumbnailStream->Write(data, len);
 		}, &thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
-		stbi_image_free(thumbnailPixels);
+		delete[] thumbnailPixels;
 
 		if (writeResult == 0)
 		{
