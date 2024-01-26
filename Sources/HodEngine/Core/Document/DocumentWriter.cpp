@@ -22,6 +22,28 @@ namespace hod
 	/// @param stream 
 	/// @param size 
 	/// @return 
+	bool DocumentWriter::Write(Document& document, std::ostream& stream)
+	{
+		if (stream.fail())
+		{
+			OUTPUT_ERROR("Can't write document");
+			return false;
+		}
+
+		if (document.GetRootNode().GetFirstChild() == nullptr)
+		{
+			OUTPUT_ERROR("Document is empty");
+			return false;
+		}
+
+		return WriteDocument(document, stream);
+	}
+
+	/// @brief 
+	/// @param document 
+	/// @param stream 
+	/// @param size 
+	/// @return 
 	bool DocumentWriter::Write(Document& document, Stream& stream)
 	{
 		if (stream.CanWrite() == false)

@@ -21,9 +21,11 @@ namespace hod
 	protected:
 
 		bool				WriteDocument(Document& document, Stream& stream) override;
+		bool				WriteDocument(Document& document, std::ostream& stream) override;
 
 	private:
 
 		bool				WriteNode(const Document::Node& node, Stream& stream);
+		bool				WriteNode(const Document::Node& node, std::ostream& stream);
 	};
 }

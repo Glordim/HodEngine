@@ -24,11 +24,44 @@ namespace hod
 	{
 		if (size == 0)
 		{
-			size = stream.GetSize();
+			size = stream.GetSize(); // todo see istrem implementation
 		}
 
 		char* buffer = new char[size + 1];
 		if (stream.Read((void*)buffer, size) == false)
+		{
+			return false;
+		}
+		buffer[size] = '\0';
+
+		_cursor = buffer;
+		SkipWhiteSpace();
+		bool parsingResult = ParseObject(document.GetRootNode());
+
+		delete[] buffer;
+		_cursor = nullptr;
+
+		return parsingResult;
+	}
+
+	/// @brief 
+	/// @param document 
+	/// @param stream 
+	/// @param size 
+	/// @return 
+	bool DocumentReaderJson::PopulateDocument(Document& document, std::istream& stream, uint32_t size)
+	{
+		if (size == 0)
+		{
+			std::streampos initialPos = stream.tellg();
+			stream.seekg(0, std::ios::end);
+			size = stream.tellg() - initialPos;
+			stream.seekg(initialPos, std::ios::beg);
+		}
+
+		char* buffer = new char[size + 1];
+		stream.read(buffer, size);
+		if (stream.fail())
 		{
 			return false;
 		}

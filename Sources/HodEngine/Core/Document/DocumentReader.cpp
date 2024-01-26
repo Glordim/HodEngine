@@ -17,6 +17,23 @@ namespace hod
 		return Read(document, fileStream);
 	}
 
+	bool DocumentReader::Read(Document& document, std::istream& stream, uint32_t size)
+	{
+		if (stream.fail())
+		{
+			OUTPUT_ERROR("Can't read document");
+			return false;
+		}
+
+		if (document.GetRootNode().GetFirstChild() != nullptr)
+		{
+			OUTPUT_ERROR("Document not empty");
+			return false;
+		}
+
+		return PopulateDocument(document, stream, size);
+	}
+
 	/// @brief 
 	/// @param document 
 	/// @param stream 
