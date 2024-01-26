@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
 
 namespace hod::editor
-{	
+{
 	///@brief 
 	class TextureImporterCustomEditor : public ImporterCustomEditor
 	{
@@ -18,6 +18,6 @@ namespace hod::editor
 
 	public:
 
-		bool						OnDrawInspector(void* object, ReflectionDescriptor* reflectionDescriptor) override;
+		bool						OnDrawInspector(std::shared_ptr<Asset> asset) override;
 	};
 }

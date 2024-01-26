@@ -1,12 +1,16 @@
 #pragma once
 
+#include <memory>
+
 namespace hod
 {
 	class ReflectionDescriptor;
 }
 
 namespace hod::editor
-{	
+{
+	class Asset;
+	
 	///@brief 
 	class ImporterCustomEditor
 	{
@@ -22,6 +26,6 @@ namespace hod::editor
 
 	public:
 
-		virtual bool				OnDrawInspector(void* object, ReflectionDescriptor* reflectionDescriptor);
+		virtual bool				OnDrawInspector(std::shared_ptr<Asset> asset);
 	};
 }
