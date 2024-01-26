@@ -10,6 +10,7 @@
 #include "HodEngine/Game/ComponentFactory.hpp"
 
 #include "HodEngine/Core/Time/SystemTime.hpp"
+#include "HodEngine/Core/ResourceManager.hpp"
 
 #include <thread>
 
@@ -30,6 +31,8 @@ namespace hod::application
 
 		JobSqueduler::CreateInstance();
 		FrameSequencer::CreateInstance();
+
+		ResourceManager::CreateInstance();
 
 		game::ComponentFactory::CreateInstance();
 		game::RegisterBuiltin();

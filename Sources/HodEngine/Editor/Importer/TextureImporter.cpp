@@ -56,7 +56,7 @@ namespace hod::editor
 		int x;
 		int y;
 		int componentCount;
-		uint8_t* pixels = stbi_load_from_memory(dataBuffer, dataSize, &x, &y, &componentCount, 3); // TODO rgba
+		uint8_t* pixels = stbi_load_from_memory(dataBuffer, dataSize, &x, &y, &componentCount, 0); // TODO rgba
 		if (pixels == nullptr)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't load Texture data");
@@ -88,53 +88,57 @@ namespace hod::editor
 		if (writeResult == 0)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't write Thumbnail");
+			stbi_image_free(pixels);
 			return false;
 		}
 
 		// TODO use https://github.com/GPUOpen-Tools/compressonator and compress to the most adapted format related to platform's capabilities
 		// For now always use png
 
-		MemoryStream textureStream;
-		writeResult = stbi_write_png_to_func([](void *context, void *data, int len)
-		{
-			MemoryStream* textureStream = static_cast<MemoryStream*>(context);
-			textureStream->Write(data, len);
-		}, &textureStream, x, y, componentCount, pixels, 0);
-		stbi_image_free(pixels);
-
-		if (writeResult == 0)
-		{
-			OUTPUT_ERROR("TextureImporter : Can't write Texture data");
-			return false;
-		}
-
 		renderer::TextureResource textureResource;
 		textureResource._width = x;
 		textureResource._height = y;
 		textureResource._componentCount = componentCount;
-		textureResource._textureInfos.resize(1);
-		textureResource._textureInfos[0]._offset = 0;
-		textureResource._textureInfos[0]._size = textureStream.GetSize();
 
 		Document document;
 		if (Serializer::Serialize(textureResource, document.GetRootNode()) == false)
 		{
 			// TODO message
+			stbi_image_free(pixels);
 			return false;
 		}
 
+		document.GetRootNode().AddChild("DataOffset").SetUInt32(0);
+		document.GetRootNode().AddChild("DataSize").SetUInt32(x * y * componentCount);
+
+		std::stringstream documentStringStream;
+
 		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(document, documentStringStream) == false)
+		{
+			// TODO message
+			stbi_image_free(pixels);
+			return false;
+		}
+
+		resource.Write("HodResource", 11);
+		uint32_t documentLen = documentStringStream.str().size();
+		resource.Write(&documentLen, sizeof(documentLen));
+
 		if (documentWriter.Write(document, resource) == false)
 		{
 			// TODO message
+			stbi_image_free(pixels);
 			return false;
 		}
-		textureStream.Seek(0, Stream::SeekOrigin::Begin);
-		if (resource.Write(textureStream.GetData(), textureStream.GetSize()) == false)
+		if (resource.Write(pixels, x * y * componentCount) == false)
 		{
 			// TODO message
+			stbi_image_free(pixels);
 			return false;
 		}
+
+		stbi_image_free(pixels);
 
 		return true;
 	}

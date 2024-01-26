@@ -105,7 +105,7 @@ namespace hod::editor
 		}
 
 		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
-		resourceFilePath += ".resource";
+		resourceFilePath += ".dat";
 
 		FileStream resourceFile(resourceFilePath, FileMode::Write);
 		if (resourceFile.CanWrite() == false)

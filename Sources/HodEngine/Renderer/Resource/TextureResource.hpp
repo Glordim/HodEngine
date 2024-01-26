@@ -2,19 +2,10 @@
 
 #include "HodEngine/Core/Resource.hpp"
 
-namespace hod::renderer
-{
-	// TODO nest in TextureResource when reflection support it :(
-	struct TextureInfo
-	{
-		REFLECTED_CLASS_NO_VIRTUAL(TextureInfo)
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
-	public:
-	
-		uint32_t	_offset;
-		uint32_t	_size;
-	};
-	
+namespace hod::renderer
+{	
 	class TextureResource : public Resource
 	{
 		REFLECTED_CLASS(TextureResource, Resource)
@@ -31,10 +22,17 @@ namespace hod::renderer
 
 	public:
 
+		bool				Initialize(const Document::Node& documentNode, std::istream& stream) override;
+		void				Destroy() override;
+
+		Texture*			GetTexture() const;
+
+	public:
+
 		uint16_t					_width;
 		uint16_t					_height;
 		uint8_t						_componentCount;
 
-		std::vector<TextureInfo>	_textureInfos;
+		Texture*					_texture = nullptr;
 	};
 }

@@ -3,6 +3,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/ResourceManager.hpp"
 
 #include <fstream>
 
@@ -61,6 +62,8 @@ namespace hod::editor
 		{
 			return false;
 		}
+
+		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
 		return Load();
 	}

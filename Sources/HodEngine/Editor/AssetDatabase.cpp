@@ -358,7 +358,7 @@ namespace hod::editor
 	bool AssetDatabase::ReimportAssetIfNecessary(std::shared_ptr<Asset> asset)
 	{
 		std::filesystem::path resourceFilePath = Project::GetInstance()->GetResourceDirPath() / asset->GetUid().ToString();
-		resourceFilePath += ".resource";
+		resourceFilePath += ".dat";
 
 		FileStream resourceFile(resourceFilePath, FileMode::Read);
 		if (resourceFile.CanRead() == false)
