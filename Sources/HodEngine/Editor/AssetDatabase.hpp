@@ -89,6 +89,8 @@ namespace hod::editor
 
 		bool								ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 
+		void								ListAsset(std::vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor);
+
 	private:
 
 		void								ExploreAndDetectAsset(FileSystemMapping* parentFileSystemMapping);

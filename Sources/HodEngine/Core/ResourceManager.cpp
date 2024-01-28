@@ -100,4 +100,26 @@ namespace hod
 
 		return resource->Initialize(rootNode, stream);
 	}
+
+	/// @brief 
+	/// @param reflectionDescriptor 
+	/// @param uid 
+	/// @return 
+	std::shared_ptr<Resource> ResourceManager::GetResource(ReflectionDescriptor* reflectionDescriptor, const UID& uid)
+	{
+		std::shared_ptr<Resource> existingResource = FindResource(uid);
+		if (existingResource != nullptr)
+		{
+			return existingResource;
+		}
+
+		reflectionDescriptor->CreateSharedInstance();
+		std::shared_ptr<Resource> resource = reflectionDescriptor->CreateSharedInstance<Resource>();
+		if (Load(resource.get(), uid) == false)
+		{
+			return nullptr;
+		}
+		_resources[uid] = resource;
+		return resource;
+	}
 }

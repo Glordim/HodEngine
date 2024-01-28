@@ -26,4 +26,9 @@ namespace hod::editor
 	{
 		return new DefaultImporterSettings();
 	}
+
+	ReflectionDescriptor* DefaultImporter::GetResourceDescriptor() const
+	{
+		return nullptr;
+	}
 }

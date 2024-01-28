@@ -3,6 +3,7 @@
 #include <HodEngine/Core/Rect.hpp>
 #include "HodEngine/Renderer/P2fT2f.hpp"
 #include "HodEngine/Renderer/BoundingBox.hpp"
+#include "HodEngine/Core/Resource.hpp"
 
 #include <vector>
 #include <string>
@@ -16,7 +17,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class Sprite
+		class Sprite : public Resource
 		{
 			friend class SpriteAtlas;
 

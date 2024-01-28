@@ -1,4 +1,4 @@
-#include "HodEngine/Game/Components/SpriteComponent.hpp"
+#include "HodEngine/Game/Components/SpriteRendererComponent.hpp"
 
 #include <HodEngine/Renderer/RHI/Material.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
@@ -11,24 +11,25 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS(SpriteComponent, RendererComponent)
+		DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent, RendererComponent)
 		{
-			//ADD_PROPERTY(SpriteComponent, _sprite);
-			//ADD_PROPERTY(SpriteComponent, _materialInstance);
+			ADD_PROPERTY(SpriteRendererComponent, _sprite);
+			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		SpriteComponent::~SpriteComponent()
+		SpriteRendererComponent::~SpriteRendererComponent()
 		{
 
 		}
 
+		/*
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SpriteComponent::SetSprite(const renderer::Sprite* sprite)
+		void SpriteRendererComponent::SetSprite(std::shared_ptr<renderer::Sprite> sprite)
 		{
 			_sprite = sprite;
 
@@ -38,15 +39,16 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const renderer::Sprite* SpriteComponent::GetSprite() const
+		const renderer::Sprite* SpriteRendererComponent::GetSprite() const
 		{
 			return _sprite;
 		}
+		*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SpriteComponent::SetMaterialInstance(renderer::MaterialInstance* materialInstance)
+		void SpriteRendererComponent::SetMaterialInstance(renderer::MaterialInstance* materialInstance)
 		{
 			_materialInstance = materialInstance;
 		}
@@ -54,7 +56,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		renderer::MaterialInstance* SpriteComponent::GetMaterialInstance() const
+		renderer::MaterialInstance* SpriteRendererComponent::GetMaterialInstance() const
 		{
 			return _materialInstance;
 		}
@@ -62,7 +64,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SpriteComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+		void SpriteRendererComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
 			/*
 			std::vector<renderer::P2fT2f> vertices(6);

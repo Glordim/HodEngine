@@ -19,8 +19,8 @@ namespace hod::editor
 								Vector2CustomEditor(Vector2CustomEditor&&) = delete;
 								~Vector2CustomEditor() override = default;
 
-		Vector2CustomEditor		operator = (const Vector2CustomEditor&) = delete;
-		Vector2CustomEditor		operator = (Vector2CustomEditor&&) = delete;
+		Vector2CustomEditor&	operator = (const Vector2CustomEditor&) = delete;
+		Vector2CustomEditor&	operator = (Vector2CustomEditor&&) = delete;
 
 	public:
 

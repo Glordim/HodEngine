@@ -1,3 +1,4 @@
+#pragma once
 #include <memory>
 
 #include <HodEngine/Core/UID.hpp>
@@ -137,7 +138,7 @@ namespace hod::game
     };
 
     template<typename _Component_>
-    WeakComponent<_Component_>::WeakComponentReflectionDescriptor::WeakComponentReflectionDescriptor::WeakComponentReflectionDescriptor()
+    WeakComponent<_Component_>::WeakComponentReflectionDescriptor::WeakComponentReflectionDescriptor()
     : hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<WeakComponent, void>("WeakComponent"))
     {
         ReflectionProperty* property = ADD_PROPERTY(WeakComponent, _uid);

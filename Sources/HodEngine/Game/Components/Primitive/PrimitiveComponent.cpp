@@ -13,8 +13,6 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(PrimitiveComponent, RendererComponent)
 		{
-			//ADD_PROPERTY(SpriteComponent, _sprite);
-			//ADD_PROPERTY(SpriteComponent, _materialInstance);
 		}
 
 		//-----------------------------------------------------------------------------

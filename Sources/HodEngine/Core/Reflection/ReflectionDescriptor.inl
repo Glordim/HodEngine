@@ -55,4 +55,16 @@ namespace hod
 		AddProperty(property);
 		return property;
 	}
+
+	template<typename _Type_>
+	_Type_* ReflectionDescriptor::CreateInstance() const
+	{
+		return static_cast<_Type_*>(CreateInstance());
+	}
+
+	template<typename _Type_>
+	std::shared_ptr<_Type_> ReflectionDescriptor::CreateSharedInstance() const
+	{
+		return std::static_pointer_cast<_Type_>(CreateSharedInstance());
+	}
 }

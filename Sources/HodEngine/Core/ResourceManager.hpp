@@ -19,6 +19,8 @@ namespace hod
 
 		void	SetResourceDirectory(const std::filesystem::path& directory);
 
+		std::shared_ptr<Resource> 	GetResource(ReflectionDescriptor* reflectionDescriptor, const UID& uid);
+
 		template<typename _Resource_>
 		std::shared_ptr<_Resource_> GetResource(const UID& uid);
 

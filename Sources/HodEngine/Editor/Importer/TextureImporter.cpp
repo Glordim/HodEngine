@@ -143,11 +143,18 @@ namespace hod::editor
 		return true;
 	}
 
+	// TODO Move all virtual in Ctor const init ?
+
 	/// @brief 
 	/// @return 
 	const char* TextureImporter::GetTypeName() const
 	{
 		return "TextureImporter";
+	}
+
+	ReflectionDescriptor* TextureImporter::GetResourceDescriptor() const
+	{
+		return renderer::TextureResource::GetReflectionDescriptor();
 	}
 
 	ImporterSettings* TextureImporter::AllocateSettings() const

@@ -87,7 +87,24 @@ namespace hod
 				return _traits[index];
 			}
 		}
+
+		if (_fallbackTraitOnParent)
+		{
+			ReflectionDescriptor* parent = GetParent();
+			if (parent != nullptr)
+			{
+				return parent->FindTrait(metaType);
+			}
+		}
+
 		return nullptr;
+	}
+
+	/// @brief 
+	/// @param fallbackOnParent 
+	void ReflectionDescriptor::SetFallbackTraitOnParent(bool fallbackTraitOnParent)
+	{
+		_fallbackTraitOnParent = fallbackTraitOnParent;
 	}
 
 	///@brief 

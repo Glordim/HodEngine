@@ -409,4 +409,25 @@ namespace hod::editor
 
 		return true;
 	}
+
+	/// @brief 
+	/// @param result 
+	/// @param from 
+	/// @param resourceDescriptor 
+	void AssetDatabase::ListAsset(std::vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor)
+	{
+		for (FileSystemMapping* assetNode : from._childrenAsset)
+		{
+			Importer* importer = GetImporter(assetNode->_asset->GetMeta()._importerType);
+			if (importer != nullptr && resourceDescriptor == importer->GetResourceDescriptor()) // TODO default import can't be listed
+			{
+				result.push_back(assetNode);
+			}
+		}
+
+		for (FileSystemMapping* folderNode : from._childrenFolder)
+		{
+			ListAsset(result, *folderNode, resourceDescriptor);
+		}
+	}
 }
