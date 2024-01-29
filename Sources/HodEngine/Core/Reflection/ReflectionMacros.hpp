@@ -90,6 +90,15 @@ __TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()						
 __TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()											\
 : hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<__TYPE__, __PARENT__>(#__TYPE__))		\
 
+namespace hod
+{
+	template<typename T, typename MemberType>
+	ReflectionProperty* AddPropertyT(MemberType T::*member, std::function<void(const MemberType&)> setFunction = nullptr, std::function<const MemberType&(void) const> getFunction = nullptr)
+	{
+		return hod::ReflectionHelper::AddProperty<MemberType>(T::GetReflectionDescriptor(), "toto", offsetof(T, *member), setFunction, getFunction);
+	}
+}
+
 #define ADD_PROPERTY(Class, Member) hod::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member), nullptr, nullptr)
 
 #define ADD_PROPERTY_WITH_SET_METHOD(Class, Member, SetMethod) hod::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member), [](void* instance, void* value){static_cast<Class*>(instance)->SetMethod(*reinterpret_cast<decltype(Class::Member)*>(value));})

@@ -59,7 +59,7 @@ namespace hod::game
     /// @param pointer 
     WeakResourceBase& WeakResourceBase::operator = (const std::weak_ptr<Resource>& pointer)
     {
-        _pointer = pointer;
+        _pointer = pointer.lock();
         return *this;
     }
 
@@ -67,13 +67,11 @@ namespace hod::game
     /// @return 
     std::shared_ptr<Resource> WeakResourceBase::Lock() const
     {
-        std::shared_ptr<Resource> lock = _pointer.lock();
-        if (lock == nullptr)
+        if (_pointer == nullptr)
         {
             _pointer = ResourceManager::GetInstance()->GetResource(_resourceDescriptor, _uid);
-            lock = _pointer.lock();
         }
-        return lock;
+        return _pointer;
     }
 
     /// @brief 

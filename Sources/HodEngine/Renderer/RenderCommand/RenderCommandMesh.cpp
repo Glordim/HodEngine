@@ -85,7 +85,7 @@ namespace hod
 			{
 				if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Normal || renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
 				{
-					commandBuffer->SetMaterialInstance(_materialInstance);
+					commandBuffer->SetMaterialInstance(_materialInstance, 0);
 				}
 				else if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Wireframe)
 				{
@@ -98,7 +98,7 @@ namespace hod
 			}
 			else
 			{
-				commandBuffer->SetMaterialInstance(_materialInstance);
+				commandBuffer->SetMaterialInstance(_materialInstance, 0);
 			}
 
 			struct Constant

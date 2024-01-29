@@ -8,6 +8,8 @@
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
 
+#include <utility>
+
 namespace hod
 {
 	namespace renderer
@@ -21,7 +23,22 @@ namespace hod
 
 		public:
 
+			enum class BuiltinMaterial : uint32_t
+			{
+				P2fT2f_Texture_Unlit,
+
+				Count,
+			};
+
+		public:
+
+			const Material*	GetBuiltinMaterial(BuiltinMaterial buildMaterial);
+
 			UID	CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
+
+		private:
+
+			std::array<Material*, static_cast<uint32_t>(BuiltinMaterial::Count)>	_builtinMaterials = { nullptr }; // c++23 std::to_underlying
 		};
 	}
 }

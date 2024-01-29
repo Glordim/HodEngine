@@ -40,8 +40,8 @@ namespace hod::game
 
         ReflectionDescriptor*           _resourceDescriptor = nullptr;
         
-        UID                              _uid;
-        mutable std::weak_ptr<Resource>  _pointer;
+        UID                                 _uid;
+        mutable std::shared_ptr<Resource>   _pointer;
     };
 
     /// @brief 
@@ -81,7 +81,7 @@ namespace hod::game
         /// @return 
         std::shared_ptr<_Resource_> Lock() const
         {
-            return WeakResourceBase::Lock();
+            return std::static_pointer_cast<_Resource_>(WeakResourceBase::Lock());
         }
     };
 

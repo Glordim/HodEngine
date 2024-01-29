@@ -19,10 +19,10 @@ set(ShaderGenerated "")
 foreach(file ${ShaderSources})
 	string(REPLACE "${PROJECT_SOURCE_DIR}/Shader/Sources/" "${PROJECT_SOURCE_DIR}/Shader/Generated/" relocated_file "${file}")
     list(APPEND ShaderGenerated "${relocated_file}.cpp")
-    list(APPEND ShaderGenerated "${relocated_file}.h")
+    list(APPEND ShaderGenerated "${relocated_file}.hpp")
 	list(APPEND Srcs "${relocated_file}.cpp")
-	list(APPEND Srcs "${relocated_file}.h")
-	list(APPEND Includes "${relocated_file}.h")
+	list(APPEND Srcs "${relocated_file}.hpp")
+	list(APPEND Includes "${relocated_file}.hpp")
 endforeach()
 
 add_custom_command(OUTPUT ${ShaderGenerated}

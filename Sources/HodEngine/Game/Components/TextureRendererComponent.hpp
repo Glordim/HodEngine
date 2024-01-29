@@ -36,6 +36,8 @@ namespace hod
 			const renderer::Sprite*			GetSprite() const;
 			void							SetSprite(std::shared_ptr<renderer::Sprite> sprite);
 			*/
+			void							OnConstruct() override;
+
 			renderer::MaterialInstance*		GetMaterialInstance() const;
 			void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
 
