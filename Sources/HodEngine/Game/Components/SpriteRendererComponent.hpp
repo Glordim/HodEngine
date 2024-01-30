@@ -2,12 +2,12 @@
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/WeakResource.hpp"
+#include "HodEngine/Renderer/Sprite.hpp"
 
 namespace hod
 {
 	namespace renderer
 	{
-		class Sprite;
 		class MaterialInstance;
 	}
 

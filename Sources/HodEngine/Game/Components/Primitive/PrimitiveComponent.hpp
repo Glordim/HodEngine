@@ -6,7 +6,6 @@ namespace hod
 {
 	namespace renderer
 	{
-		class Sprite;
 		class MaterialInstance;
 	}
 

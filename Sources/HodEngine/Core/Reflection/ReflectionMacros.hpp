@@ -92,10 +92,19 @@ __TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()						
 
 namespace hod
 {
+	//std::function<void(T::*)(const MemberType&)> setFunction = nullptr
+
 	template<typename T, typename MemberType>
-	ReflectionProperty* AddPropertyT(MemberType T::*member, std::function<void(const MemberType&)> setFunction = nullptr, std::function<const MemberType&(void) const> getFunction = nullptr)
+	ReflectionProperty* AddPropertyT(ReflectionDescriptor* descriptor,  MemberType T::*member, void(T::*setFunction)(const MemberType&) = nullptr/*, std::function<const MemberType&(void) const> getFunction = nullptr*/)
 	{
-		return hod::ReflectionHelper::AddProperty<MemberType>(T::GetReflectionDescriptor(), "toto", offsetof(T, *member), setFunction, getFunction);
+		uint32_t offset = OffsetOf(member);
+		ReflectionProperty* property = ReflectionHelper::AddProperty<MemberType>(descriptor, "toto", offset, [setFunction](void* instance, void* value)
+		{
+			T* instanceClass = static_cast<T*>(instance);
+			const MemberType& valueRef = *static_cast<MemberType*>(value);
+			(instanceClass->*setFunction)(valueRef);
+		}, nullptr);
+		return property;
 	}
 }
 

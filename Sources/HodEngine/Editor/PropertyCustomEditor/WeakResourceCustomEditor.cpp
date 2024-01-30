@@ -65,6 +65,7 @@ namespace hod::editor
 					if (ImGui::Selectable(assetNode->_asset->GetName().c_str(), false, 0, ImVec2(0, itemHeight)))
 					{
 						value->SetUid(assetNode->_asset->GetUid());
+						property->SetValue(instance, value); // Set to itself for call SetFunction
 					}
 					ImGui::PopStyleVar();
 					ImGui::PopID();

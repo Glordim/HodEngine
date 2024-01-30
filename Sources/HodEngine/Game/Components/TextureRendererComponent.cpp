@@ -18,7 +18,7 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, RendererComponent)
 		{
-			AddPropertyT(&TextureRendererComponent::_textureResource);
+			AddPropertyT(this, &TextureRendererComponent::_textureResource, &TextureRendererComponent::SetTexture);
 			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
@@ -35,11 +35,7 @@ namespace hod
 		{
 			const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 			_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
-			std::shared_ptr<renderer::TextureResource> textureResourceLock = _textureResource.Lock();
-			if (textureResourceLock != nullptr)
-			{
-				_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
-			}
+			SetTexture(_textureResource);
 		}
 
 		/*
@@ -103,6 +99,18 @@ namespace hod
 				{
 					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), _vertices.size(), sizeof(renderer::P2fT2f), _indices.data(), _indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
 				}
+			}
+		}
+
+		/// @brief 
+		/// @param texture 
+		void TextureRendererComponent::SetTexture(const WeakResource<renderer::TextureResource>& texture)
+		{
+			_textureResource = texture;
+			std::shared_ptr<renderer::TextureResource> textureResourceLock = _textureResource.Lock();
+			if (textureResourceLock != nullptr)
+			{
+				_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
 			}
 		}
 	}
