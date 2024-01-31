@@ -1,8 +1,6 @@
-#include <HodEngine/Core/ArgumentParser.hpp>
-#include <HodEngine/Core/Output.hpp>
-#include <HodEngine/Core/Stream/FileStream.hpp>
-
 #include <filesystem>
+
+#include "ArgumentParser.hpp"
 
 #include "TokenReader.hpp"
 #include "TokenWritter.hpp"
@@ -14,6 +12,7 @@
 #include <fstream>
 #include <iomanip>
 #include <format>
+#include <iostream>
 
 #include <Windows.h> // TODO create Processus class in Core lib
 
@@ -25,12 +24,12 @@ namespace hod
 	/// @return 
 	bool ConvertShader(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile)
 	{
-		OUTPUT_MESSAGE("Convert '%s'...", inputFile.string().c_str());
+		std::cout << std::format("Convert '{}'...\n", inputFile.string());
 
 		std::ifstream inputStream(inputFile, 0);
 		if (inputStream.is_open() == false)
 		{
-			OUTPUT_ERROR("Unable to read input file : %s", inputFile.string().c_str());
+			std::cerr << std::format("Unable to read input file : {}\n", inputFile.string());
 			return false;
 		}
 
@@ -57,7 +56,7 @@ namespace hod
 		std::ofstream convertedOutputStream(convertedOutputFilePath, 0);
 		if (convertedOutputStream.is_open() == false)
 		{
-			OUTPUT_ERROR("Unable to write output file : %s", convertedOutputFilePath.string().c_str());
+			std::cerr << std::format("Unable to write output file : {}\n", convertedOutputFilePath.string());
 			return false;
 		}
 
@@ -112,7 +111,7 @@ namespace hod
 			&pi )           // Pointer to PROCESS_INFORMATION structure
 		) 
 		{
-			printf( "CreateProcess failed (%d).\n", GetLastError() );
+			std::cerr << std::format("CreateProcess failed ({})\n", GetLastError());
 			return false;
 		}
 
@@ -138,7 +137,7 @@ namespace hod
 		std::ifstream inputStream(finalInputFile, std::ios::binary);
 		if (inputStream.is_open() == false)
 		{
-			OUTPUT_ERROR("Unable to read output file : %s", finalInputFile.string().c_str());
+			std::cerr << std::format("Unable to read output file : {}\n", finalInputFile.string());
 			return false;
 		}
 
@@ -148,13 +147,13 @@ namespace hod
 		std::ofstream headerOutputStream(headerOutputFilePath, 0);
 		if (headerOutputStream.is_open() == false)
 		{
-			OUTPUT_ERROR("Unable to write output file : %s", headerOutputFilePath.string().c_str());
+			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath.string());
 			return false;
 		}
 		/*FileStream headerOutputStream(headerOutputFilePath, FileMode::Write);
 		if (headerOutputStream.CanWrite() == false)
 		{
-			OUTPUT_ERROR("Unable to write output file : %s", headerOutputFilePath.string().c_str());
+			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath);
 			return false;
 		}*/
 
@@ -176,14 +175,14 @@ namespace hod
 		std::ofstream sourceOutputStream(sourceOutputFilePath, 0);
 		if (sourceOutputStream.is_open() == false)
 		{
-			OUTPUT_ERROR("Unable to write output file : %s", headerOutputFilePath.string().c_str());
+			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath.string());
 			return false;
 		}
 		/*
 		FileStream sourceOutputStream(sourceOutputFilePath, FileMode::Write);
 		if (sourceOutputStream.CanWrite() == false)
 		{
-			OUTPUT_ERROR("Unable to write output file : %s", sourceOutputFilePath.string().c_str());
+			std::cerr << std::format("Unable to write output file : {}", sourceOutputFilePath);
 			return false;
 		}
 		*/
@@ -236,12 +235,12 @@ namespace hod
 		{
 			if (inputArgument->_valueCount == 0)
 			{
-				OUTPUT_ERROR("--input argument is empty, please insert a valid path");
+				std::cerr << "--input argument is empty, please insert a valid path\n";
 				return false;
 			}
 			else if (inputArgument->_valueCount > 1)
 			{
-				OUTPUT_ERROR("--input argument support only one path");
+				std::cerr << "--input argument support only one path\n";
 				return false;
 			}
 			inputDirectory = inputArgument->_values[0];
@@ -249,10 +248,10 @@ namespace hod
 
 		if (std::filesystem::exists(inputDirectory) == false)
 		{
-			OUTPUT_ERROR("Input directory doesn't exist : %s", inputDirectory.string().c_str());
+			std::cerr << std::format("Input directory doesn't exist : {}\n", inputDirectory.string());
 			return false;
 		}
-		OUTPUT_MESSAGE("Input '%s'", inputDirectory.string().c_str());
+		std::cout << std::format("Input '{}'\n", inputDirectory.string());
 
 		std::filesystem::path outputDirectory = std::filesystem::current_path();
 
@@ -261,12 +260,12 @@ namespace hod
 		{
 			if (outputArgument->_valueCount == 0)
 			{
-				OUTPUT_ERROR("--output argument is empty, please insert a valid path");
+				std::cerr << "--output argument is empty, please insert a valid path\n";
 				return false;
 			}
 			else if (outputArgument->_valueCount > 1)
 			{
-				OUTPUT_ERROR("--output argument support only one path");
+				std::cerr << "--output argument support only one path\n";
 				return false;
 			}
 			outputDirectory = outputArgument->_values[0];
@@ -276,11 +275,11 @@ namespace hod
 		{
 			if (std::filesystem::create_directories(outputDirectory) == false)
 			{
-				OUTPUT_ERROR("Unable to create Output directory : %s", outputDirectory.string().c_str());
+				std::cerr << std::format("Unable to create Output directory : {}\n", outputDirectory.string());
 				return false;
 			}
 		}
-		OUTPUT_MESSAGE("Output '%s'", outputDirectory.string().c_str());
+		std::cout << std::format("Output '{}'\n", outputDirectory.string());
 
 		for (const auto& entry : std::filesystem::directory_iterator(inputDirectory))
 		{

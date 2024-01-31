@@ -7,6 +7,8 @@
 #include <array>
 #include <string_view>
 #include <charconv>
+#include <iostream>
+#include <format>
 
 namespace hod
 {
@@ -42,7 +44,7 @@ namespace hod
 
 				if (ReadUntil(stream, tokenBuffer.data(), tokenBuffer.max_size(), readedBytes, [](char c) { return IsAlphanumeric(c) || c == '_' || c == '-'; }) == false)
 				{
-					OUTPUT_ERROR("Lexer: Invalid token (too long)");
+					std::cerr << "Lexer: Invalid token (too long)\n";
 					return false;
 				}
 				std::string_view tokenName(tokenBuffer.data(), readedBytes);
@@ -79,7 +81,7 @@ namespace hod
 
 				if (ReadUntil(stream, tokenBuffer.data(), tokenBuffer.max_size(), readedBytes, &IsNumeric) == false)
 				{
-					OUTPUT_ERROR("Lexer: Invalid token (too long)");
+					std::cerr << "Lexer: Invalid token (too long)\n";
 					return false;
 				}
 				Token token;
@@ -220,7 +222,7 @@ namespace hod
 			}
 			else
 			{
-				OUTPUT_ERROR("ShaderLexer: Unknow token '%c'", c);
+				std::cerr << std::format("ShaderLexer: Unknow token '{}'\n", c);
 				return false;
 			}
 		}

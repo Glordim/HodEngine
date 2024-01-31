@@ -26,11 +26,11 @@ include_directories(
 	".."
 )
 
-add_dependencies(HodShaderConverter Core)
+#add_dependencies(HodShaderConverter Core)
 
-target_link_libraries(HodShaderConverter
-	Core
-)
+#target_link_libraries(HodShaderConverter
+#	Core
+#)
 
 target_compile_definitions(HodShaderConverter PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(HodShaderConverter PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
