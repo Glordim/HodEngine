@@ -38,6 +38,16 @@ namespace hod
 
 		bool		operator == (const Vector4& right);
 
+		Vector4&	operator += (float value);
+		Vector4&	operator -= (float value);
+		Vector4&	operator *= (float value);
+		Vector4&	operator /= (float value);
+
+		Vector4		operator + (float value);
+		Vector4		operator - (float value);
+		Vector4		operator * (float value);
+		Vector4		operator / (float value);
+
 	public:
 
 		float		GetX() const;

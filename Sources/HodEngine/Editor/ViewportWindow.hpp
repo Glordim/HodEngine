@@ -1,6 +1,7 @@
 #pragma once
 
 #include <HodEngine/ImGui/Window.hpp>
+#include <HodEngine/Core/Math/Matrix4.hpp>
 
 namespace hod::renderer
 {
@@ -26,6 +27,8 @@ namespace hod::editor
 
 	private:
 
+		Matrix4					_view;
+		float					_size = 5.0f;
 		renderer::RenderTarget* _renderTarget = nullptr;
 	};
 }

@@ -1,5 +1,6 @@
 #include "HodEngine/Core/Math/Matrix4.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Core/Math/Vector4.hpp"
 
 #include <cstring>
 #include <cmath>
@@ -108,6 +109,19 @@ namespace hod
 		Matrix4 result;
 		result._values[0][3] = translation.GetX();
 		result._values[1][3] = translation.GetY();
+		return result;
+	}
+
+	/// @brief 
+	/// @param translation 
+	/// @return 
+	Matrix4 Matrix4::Translation(const Vector4& translation)
+	{
+		Matrix4 result;
+		result._values[0][3] = translation.GetX();
+		result._values[1][3] = translation.GetY();
+		result._values[2][3] = translation.GetZ();
+		result._values[3][3] = translation.GetW();
 		return result;
 	}
 

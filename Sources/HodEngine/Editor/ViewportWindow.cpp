@@ -11,8 +11,8 @@
 #include <HodEngine/Renderer/RHI/Texture.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
-#include "HodEngine/Core/Rect.hpp"
-#include "HodEngine/Core/Math/Matrix4.hpp"
+#include <HodEngine/Core/Rect.hpp>
+#include <HodEngine/Core/Math/Vector4.hpp>
 
 #include <cmath>
 
@@ -62,10 +62,21 @@ namespace hod::editor
 
 			float aspect = viewport._size.GetX() / viewport._size.GetY();
 
-			Matrix4 projection = Matrix4::OrthogonalProjection(-1 * aspect, 1 * aspect, -1, 1, -1024.0f, 1024.0f);
-			Matrix4 view = Matrix4::Identity; //glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
+			//_view = Matrix4::Identity; //glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
+			if (ImGui::GetIO().MouseWheel != 0.0f)
+			{
+				_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(_size);
+				//_view.Translation(Vector4(0.0f, 0.0f, 1.0f, 0.0f) * 0.016f * ImGui::GetIO().MouseWheel);
+			}
 
-			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
+			{
+				_view *= Matrix4::Translation(Vector2(ImGui::GetIO().MouseDelta.x * 0.01f, ImGui::GetIO().MouseDelta.y * 0.01f));
+			}
+
+			Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+
+			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, _view, viewport));
 
 			game::World* world = game::World::GetInstance();
 			for (const auto& pair : world->GetEntities())

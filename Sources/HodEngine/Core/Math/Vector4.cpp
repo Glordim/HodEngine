@@ -190,4 +190,104 @@ namespace hod
 	{
 		return (_x == right._x && _y == right._y && _z == right._z && _w == right._w);
 	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector4 Vector4::operator + (float value)
+	{
+		Vector4 result;
+		result._x = _x + value;
+		result._y = _y + value;
+		result._z = _z + value;
+		result._w = _w + value;
+		return result;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector4 Vector4::operator - (float value)
+	{
+		Vector4 result;
+		result._x = _x - value;
+		result._y = _y - value;
+		result._z = _z - value;
+		result._w = _w - value;
+		return result;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector4 Vector4::operator * (float value)
+	{
+		Vector4 result;
+		result._x = _x * value;
+		result._y = _y * value;
+		result._z = _z * value;
+		result._w = _w * value;
+		return result;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector4 Vector4::operator / (float value)
+	{
+		Vector4 result;
+		result._x = _x / value;
+		result._y = _y / value;
+		result._z = _z / value;
+		result._w = _w / value;
+		return result;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector4& Vector4::operator += (float value)
+	{
+		_x += value;
+		_y += value;
+		_z += value;
+		_w += value;
+		return *this;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector4& Vector4::operator -= (float value)
+	{
+		_x -= value;
+		_y -= value;
+		_z -= value;
+		_w -= value;
+		return *this;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector4& Vector4::operator *= (float value)
+	{
+		_x *= value;
+		_y *= value;
+		_z *= value;
+		_w *= value;
+		return *this;
+	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	Vector4& Vector4::operator /= (float value)
+	{
+		_x /= value;
+		_y /= value;
+		_z /= value;
+		_w /= value;
+		return *this;
+	}
 }
