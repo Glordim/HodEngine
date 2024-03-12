@@ -9,6 +9,7 @@
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 #include "HodEngine/ImGui/DearImGui/imgui_impl_win32.h"
+#include "HodEngine/ImGui/DearImGui/ImGuizmo.h"
 #include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
 #include "HodEngine/ImGui/Window.hpp"
@@ -171,6 +172,7 @@ namespace hod::imgui
 		return;
 #endif
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 
 		if (_mainBar != nullptr)
 		{
@@ -252,7 +254,7 @@ namespace hod::imgui
 			}
 			ImGui::End();
 		}
-
+		
 		ImGui::Render();
 
 		ImDrawData* drawData = ImGui::GetDrawData();

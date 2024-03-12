@@ -1,11 +1,14 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/DearImGui/ImGuizmo.h>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Components/RendererComponent.hpp"
+#include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
@@ -96,6 +99,16 @@ namespace hod::editor
 			_renderTarget->PrepareForRead(); // todo automate ?
 
 			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2(windowWidth, windowHeight));
+
+			Editor* editor = Editor::GetInstance();
+			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
+			if (sceneSelection != nullptr)
+			{
+				std::shared_ptr<game::Node2dComponent> node2D = sceneSelection->GetComponent<game::Node2dComponent>().lock();
+				Matrix4 localMatrix = node2D->GetLocalMatrix();
+				ImGuizmo::SetOrthographic(true);
+				ImGuizmo::Manipulate((float*)&_view, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, (float*)&localMatrix);
+			}
 		}
 	}
 }
