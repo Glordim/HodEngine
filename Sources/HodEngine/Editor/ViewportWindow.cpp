@@ -107,6 +107,8 @@ namespace hod::editor
 				std::shared_ptr<game::Node2dComponent> node2D = sceneSelection->GetComponent<game::Node2dComponent>().lock();
 				Matrix4 localMatrix = node2D->GetLocalMatrix();
 				ImGuizmo::SetOrthographic(true);
+				ImGuiIO& io = ImGui::GetIO();
+   				ImGuizmo::SetRect(ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMin().y, windowWidth, windowHeight);
 				ImGuizmo::Manipulate((float*)&_view, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, (float*)&localMatrix);
 			}
 		}
