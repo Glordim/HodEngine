@@ -109,7 +109,9 @@ namespace hod::editor
 				ImGuizmo::SetOrthographic(true);
 				ImGuiIO& io = ImGui::GetIO();
    				ImGuizmo::SetRect(ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMin().y, windowWidth, windowHeight);
+				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 				ImGuizmo::Manipulate((float*)&_view, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, (float*)&localMatrix);
+				node2D->SetLocalMatrix(localMatrix);
 			}
 		}
 	}
