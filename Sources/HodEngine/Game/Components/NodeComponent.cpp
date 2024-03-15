@@ -43,13 +43,6 @@ namespace hod
 		}
 
 		/// @brief 
-		void NodeComponent::SetLocalMatrix(const Matrix4& localMatrix)
-		{
-			_localMatrix = localMatrix;
-			_localMatrixDirty = false;
-		}
-
-		/// @brief 
 		/// @return 
 		Matrix4 NodeComponent::GetWorldMatrix()
 		{

@@ -105,13 +105,32 @@ namespace hod::editor
 			if (sceneSelection != nullptr)
 			{
 				std::shared_ptr<game::Node2dComponent> node2D = sceneSelection->GetComponent<game::Node2dComponent>().lock();
-				Matrix4 localMatrix = node2D->GetLocalMatrix();
+				float matrix[16];
+				float position[3];
+				position[0] = node2D->GetPosition().GetX();
+				position[1] = node2D->GetPosition().GetY();
+				position[2] = 0.0f;
+				float rotation[3];
+				rotation[0] = 0.0f;
+				rotation[1] = 0.0f;
+				rotation[2] = node2D->GetRotation();
+				float scale[3];
+				scale[0] = node2D->GetScale().GetX();
+				scale[1] = node2D->GetScale().GetY();
+				scale[2] = 1.0f;
+				ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, matrix);
+
 				ImGuizmo::SetOrthographic(true);
 				ImGuiIO& io = ImGui::GetIO();
    				ImGuizmo::SetRect(ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMin().y, windowWidth, windowHeight);
 				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-				ImGuizmo::Manipulate((float*)&_view, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, (float*)&localMatrix);
-				node2D->SetLocalMatrix(localMatrix);
+				if (ImGuizmo::Manipulate((float*)&_view, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, matrix))
+				{
+					ImGuizmo::DecomposeMatrixToComponents(matrix, position, rotation, scale);
+					node2D->SetPosition(Vector2(position[0], position[1]));
+					node2D->SetRotation(rotation[2]);
+					node2D->SetScale(Vector2(scale[0], scale[1]));
+				}
 			}
 		}
 	}
