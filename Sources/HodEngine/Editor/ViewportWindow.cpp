@@ -102,6 +102,7 @@ namespace hod::editor
 
 			_renderTarget->PrepareForRead(); // todo automate ?
 
+			ImVec2 origin = ImGui::GetCursorScreenPos();
 			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2(windowWidth, windowHeight));
 
 			Editor* editor = Editor::GetInstance();
@@ -134,7 +135,7 @@ namespace hod::editor
 
 				ImGuizmo::SetOrthographic(true);
 				ImGuiIO& io = ImGui::GetIO();
-   				ImGuizmo::SetRect(ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMin().y, windowWidth, windowHeight);
+   				ImGuizmo::SetRect(origin.x, origin.y, windowWidth, windowHeight);
 				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 				if (ImGuizmo::Manipulate(viewMatrix, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, matrix))
 				{
