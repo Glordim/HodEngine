@@ -1,9 +1,6 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 
-#include <HodEngine/ImGui/DearImGui/imgui.h>
-#include <HodEngine/ImGui/DearImGui/ImGuizmo.h>
-
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include "HodEngine/Game/World.hpp"
@@ -38,6 +35,22 @@ namespace hod::editor
 	/// @brief 
 	void ViewportWindow::Draw()
 	{
+		if (ImGui::IsWindowFocused() == true)
+		{
+			if (ImGui::IsKeyPressed(ImGuiKey_T))
+			{
+				_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_R))
+			{
+				_gizmoOperation = ImGuizmo::OPERATION::ROTATE_Z;
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_S))
+			{
+				_gizmoOperation = ImGuizmo::OPERATION::SCALE;
+			}
+		}
+
 		float windowWidth = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
 		float windowHeight = ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
 
@@ -137,7 +150,7 @@ namespace hod::editor
 				ImGuiIO& io = ImGui::GetIO();
    				ImGuizmo::SetRect(origin.x, origin.y, windowWidth, windowHeight);
 				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-				if (ImGuizmo::Manipulate(viewMatrix, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, matrix))
+				if (ImGuizmo::Manipulate(viewMatrix, (float*)&projection, _gizmoOperation, ImGuizmo::MODE::LOCAL, matrix))
 				{
 					ImGuizmo::DecomposeMatrixToComponents(matrix, position, rotation, scale);
 					node2D->SetPosition(Vector2(position[0], position[1]));
