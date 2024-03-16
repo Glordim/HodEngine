@@ -1,7 +1,7 @@
 #pragma once
 
 #include <HodEngine/ImGui/Window.hpp>
-#include <HodEngine/Core/Math/Matrix4.hpp>
+#include <HodEngine/Core/Math/Vector2.hpp>
 
 namespace hod::renderer
 {
@@ -27,7 +27,7 @@ namespace hod::editor
 
 	private:
 
-		Matrix4					_view;
+		Vector2					_cameraPosition;
 		float					_size = 5.0f;
 		renderer::RenderTarget* _renderTarget = nullptr;
 	};

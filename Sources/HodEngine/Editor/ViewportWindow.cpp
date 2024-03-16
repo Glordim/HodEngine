@@ -58,12 +58,13 @@ namespace hod::editor
 			renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 
 			Rect viewport;
-			viewport._size.SetX(windowWidth);
-			viewport._size.SetY(windowHeight);
 			viewport._position.SetX(0);
-			viewport._position.SetY(0);
+			viewport._position.SetY(windowHeight);
+			viewport._size.SetX(windowWidth);
+			viewport._size.SetY(-windowHeight);
+			// Vulkan specific Y inversion TODO move it in Vulkan part and probably readapt ImguiRenderer to aply this inversion because it need 2D bottom y axis
 
-			float aspect = viewport._size.GetX() / viewport._size.GetY();
+			float aspect = windowWidth / windowHeight;
 
 			//_view = Matrix4::Identity; //glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
 			if (ImGui::GetIO().MouseWheel != 0.0f)
@@ -74,12 +75,15 @@ namespace hod::editor
 
 			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 			{
-				_view *= Matrix4::Translation(Vector2(ImGui::GetIO().MouseDelta.x * 0.01f, ImGui::GetIO().MouseDelta.y * 0.01f));
+				Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
+				_cameraPosition.SetX(_cameraPosition.GetX() + movement.GetX());
+				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
 			}
 
 			Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+			Matrix4 view = Matrix4::Translation(_cameraPosition);
 
-			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, _view, viewport));
+			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
 
 			game::World* world = game::World::GetInstance();
 			for (const auto& pair : world->GetEntities())
@@ -120,11 +124,19 @@ namespace hod::editor
 				scale[2] = 1.0f;
 				ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, matrix);
 
+				float viewMatrix[16];
+				position[0] = _cameraPosition.GetX();
+				position[1] = _cameraPosition.GetY();
+				rotation[2] = 0.0f;
+				scale[0] = 1.0f;
+				scale[1] = 1.0f;
+				ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, viewMatrix);
+
 				ImGuizmo::SetOrthographic(true);
 				ImGuiIO& io = ImGui::GetIO();
    				ImGuizmo::SetRect(ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMin().y, windowWidth, windowHeight);
 				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-				if (ImGuizmo::Manipulate((float*)&_view, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, matrix))
+				if (ImGuizmo::Manipulate(viewMatrix, (float*)&projection, ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, matrix))
 				{
 					ImGuizmo::DecomposeMatrixToComponents(matrix, position, rotation, scale);
 					node2D->SetPosition(Vector2(position[0], position[1]));
