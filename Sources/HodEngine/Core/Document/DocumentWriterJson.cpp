@@ -3,10 +3,11 @@
 
 #include <algorithm>
 #include <cstring>
+#include <format>
 
 namespace hod
 {
-	/// @brief 
+/// @brief 
 	/// @param document 
 	/// @param stream 
 	/// @return 
@@ -89,80 +90,80 @@ namespace hod
 
 			case Document::Node::Type::SInt8:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%i", node.GetInt8());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt8()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::SInt16:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%i", node.GetInt16());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt16()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::SInt32:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%i", node.GetInt32());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt32()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::SInt64:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%lli", node.GetInt64());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt64()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::UInt8:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%u", node.GetUInt8());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetUInt8()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::UInt16:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%u", node.GetUInt16());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetUInt16()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::UInt32:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%u", node.GetUInt32());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetUInt32()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::UInt64:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%llu", node.GetUInt64());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetUInt64()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::Float32:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%f", node.GetFloat32());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetFloat32()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
 
 			case Document::Node::Type::Float64:
 			{
-				char buffer[4096] = { '\0' };
-				int bufferSize = std::sprintf(buffer, "%lf", node.GetFloat64());
+				char buffer[256];
+				int bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetFloat64()).size;
 				stream.write(buffer, bufferSize);
 			}
 			break;
