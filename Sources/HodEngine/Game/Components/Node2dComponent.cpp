@@ -2,7 +2,6 @@
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp>
-#include <HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.hpp>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -15,7 +14,7 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(Node2dComponent, NodeComponent)
 		{
-			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _position, SetPosition); // todo << ReflectionTraitFixedSizeArray(2);
+			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _position, SetPosition);
 			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _rotation, SetRotation);
 			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _scale, SetScale);
 		}

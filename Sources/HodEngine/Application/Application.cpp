@@ -9,6 +9,8 @@
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 
+#include "HodEngine/Physics/Physics.hpp"
+
 #include "HodEngine/Core/Time/SystemTime.hpp"
 #include "HodEngine/Core/ResourceManager.hpp"
 
@@ -33,6 +35,8 @@ namespace hod::application
 		FrameSequencer::CreateInstance();
 
 		ResourceManager::CreateInstance();
+
+		physics::Physics::CreateInstance()->Init();
 
 		game::ComponentFactory::CreateInstance();
 		game::RegisterBuiltin();

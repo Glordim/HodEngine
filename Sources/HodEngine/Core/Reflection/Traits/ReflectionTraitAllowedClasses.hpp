@@ -1,0 +1,44 @@
+#pragma once
+
+#include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
+
+#include <vector>
+
+namespace hod
+{
+	class ReflectionDescriptor;
+
+	///@brief 
+	class ReflectionTraitAllowedClasses : public ReflectionTrait
+	{
+		META_TYPE(ReflectionTraitAllowedClasses, ReflectionTrait)
+
+	public:
+
+										ReflectionTraitAllowedClasses() = default;
+										ReflectionTraitAllowedClasses(const ReflectionTraitAllowedClasses& copy) = default;
+										ReflectionTraitAllowedClasses(ReflectionTraitAllowedClasses&& move) = default;
+										~ReflectionTraitAllowedClasses() = default;
+
+		ReflectionTraitAllowedClasses&	operator = (const ReflectionTraitAllowedClasses& copy) = default;
+		ReflectionTraitAllowedClasses&	operator = (ReflectionTraitAllowedClasses&& move) = default;
+
+	public:
+
+		const std::vector<ReflectionDescriptor*>&	GetAllowedClasses() const;
+
+		template<typename T>
+		void										AddAllowedClass();
+		void										AddAllowedClass(ReflectionDescriptor* reflectionDescriptor);
+
+	protected:
+
+		std::vector<ReflectionDescriptor*>	_allowedClasses;
+	};
+
+	template<typename T>
+	void ReflectionTraitAllowedClasses::AddAllowedClass()
+	{
+		AddAllowedClass(T::GetReflectionDescriptor());
+	}
+}

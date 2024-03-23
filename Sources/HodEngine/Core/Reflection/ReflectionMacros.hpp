@@ -95,16 +95,23 @@ namespace hod
 	//std::function<void(T::*)(const MemberType&)> setFunction = nullptr
 
 	template<typename T, typename MemberType>
-	ReflectionProperty* AddPropertyT(ReflectionDescriptor* descriptor,  MemberType T::*member, void(T::*setFunction)(const MemberType&) = nullptr/*, std::function<const MemberType&(void) const> getFunction = nullptr*/)
+	ReflectionProperty* AddPropertyT(ReflectionDescriptor* descriptor,  MemberType T::*member, const char* name, void(T::*setFunction)(const MemberType&) = nullptr/*, std::function<const MemberType&(void) const> getFunction = nullptr*/)
 	{
 		uint32_t offset = OffsetOf(member);
-		ReflectionProperty* property = ReflectionHelper::AddProperty<MemberType>(descriptor, "toto", offset, [setFunction](void* instance, void* value)
+		if (setFunction != nullptr)
 		{
-			T* instanceClass = static_cast<T*>(instance);
-			const MemberType& valueRef = *static_cast<MemberType*>(value);
-			(instanceClass->*setFunction)(valueRef);
-		}, nullptr);
-		return property;
+			ReflectionProperty* property = ReflectionHelper::AddProperty<MemberType>(descriptor, name, offset, [setFunction](void* instance, void* value)
+			{
+				T* instanceClass = static_cast<T*>(instance);
+				const MemberType& valueRef = *static_cast<MemberType*>(value);
+				(instanceClass->*setFunction)(valueRef);
+			}, nullptr);
+			return property;
+		}
+		else
+		{
+			return ReflectionHelper::AddProperty<MemberType>(descriptor, name, offset);
+		}
 	}
 }
 

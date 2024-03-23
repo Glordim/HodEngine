@@ -56,6 +56,10 @@ namespace hod
 		{
 			return ReflectionPropertyVariable::Type::Object;
 		}
+		else if constexpr (std::is_pointer<_MemberVariable_>::value)
+		{
+			return ReflectionPropertyVariable::Type::Object;
+		}
 		else
 		{
 			static_assert(always_false<_MemberVariable_>);
@@ -77,7 +81,16 @@ namespace hod
 			constexpr ReflectionPropertyVariable::Type type = GetVariableType<typename _MemberVariable_::value_type>();
 			if constexpr (type == ReflectionPropertyVariable::Type::Object)
 			{
-				return descriptor->AddProperty<ReflectionPropertyArray>(MakeAdapter<_MemberVariable_>(), type, offset, name.data(), _MemberVariable_::value_type::GetReflectionDescriptor()); // TODO remove data, descriptor must use string view
+				ReflectionDescriptor* valueTypeDescriptor = nullptr;
+				if constexpr (std::is_pointer_v<typename _MemberVariable_::value_type>)
+				{
+					valueTypeDescriptor = std::remove_pointer_t<typename _MemberVariable_::value_type>::GetReflectionDescriptor();
+				}
+				else
+				{
+					valueTypeDescriptor = _MemberVariable_::value_type::GetReflectionDescriptor();
+				}
+				return descriptor->AddProperty<ReflectionPropertyArray>(MakeAdapter<_MemberVariable_>(), type, offset, name.data(), valueTypeDescriptor); // TODO remove data, descriptor must use string view
 			}
 			else
 			{

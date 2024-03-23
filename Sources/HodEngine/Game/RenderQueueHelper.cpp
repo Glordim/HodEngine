@@ -9,7 +9,6 @@
 #include "HodEngine/Game/Scene.hpp"
 
 #include <HodEngine/Renderer/RenderQueue.hpp>
-#include <HodEngine/Physics/Scene.hpp>
 
 namespace hod
 {

@@ -18,7 +18,7 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, RendererComponent)
 		{
-			AddPropertyT(this, &TextureRendererComponent::_textureResource, &TextureRendererComponent::SetTexture);
+			AddPropertyT(this, &TextureRendererComponent::_textureResource, "_textureResource", &TextureRendererComponent::SetTexture);
 			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}

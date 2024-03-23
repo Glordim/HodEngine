@@ -17,11 +17,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class Actor
+		class Body
 		{
 		public:
 
-			enum TYPE
+			enum Type
 			{
 				Static,
 				Kinematic,
@@ -29,8 +29,8 @@ namespace hod
 			};
 
 		public:
-								Actor(b2Body* b2Body);
-								~Actor() = default;
+								Body(b2Body* b2Body);
+								~Body() = default;
 
 		public:
 
@@ -44,14 +44,16 @@ namespace hod
 			Vector2				GetPosition() const;
 			float				GetRotation() const;
 
-			TYPE				GetType() const;
-			void				SetType(TYPE type);
+			Type				GetType() const;
+			void				SetType(Type type);
 
 			b2Body*				GetB2Actor() const;
 
 		private:
 
 			b2Body*				_b2Body = nullptr;
+			Type				_type = Type::Static;
+			
 		};
 	}
 }

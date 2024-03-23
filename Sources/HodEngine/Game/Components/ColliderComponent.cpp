@@ -1,41 +1,106 @@
 #include "HodEngine/Game/Components/ColliderComponent.hpp"
+#include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/Entity.hpp"
 
 #include "HodEngine/Game/Scene.hpp"
 
-#include <HodEngine/Physics/Actor.hpp>
+#include <HodEngine/Physics/Physics.hpp>
+#include <HodEngine/Physics/Body.hpp>
+
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitAllowedClasses.hpp>
 
 namespace hod
 {
 	namespace game
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-			/*
-		ColliderComponent::ColliderComponent(const std::weak_ptr<Entity>& entity) : Component(entity)
+		DESCRIBE_REFLECTED_CLASS_NO_PARENT(Shape)
 		{
-			Scene* scene = actor->GetScene();
+			
+		}
 
-			physics::Actor* physicActor = actor->GetPhysicActor();
+		DESCRIBE_REFLECTED_CLASS(EdgeShape, Shape)
+		{
+			/*
+			AddPropertyT(this, &EdgeShape::_start);
+			AddPropertyT(this, &EdgeShape::_end);
+			*/
+		}
 
-			if (physicActor == nullptr)
+		DESCRIBE_REFLECTED_CLASS(CircleShape, Shape)
+		{
+			/*
+			AddPropertyT(this, &CircleShape::_origin);
+			AddPropertyT(this, &CircleShape::_radius);
+			*/
+		}
+
+		DESCRIBE_REFLECTED_CLASS(BoxShape, Shape)
+		{
+			/*
+			AddPropertyT(this, &BoxShape::_origin);
+			AddPropertyT(this, &BoxShape::_size);
+			AddPropertyT(this, &BoxShape::_angle);
+			*/
+		}
+
+		DESCRIBE_REFLECTED_CLASS(ColliderComponent, Component)
+		{
+			ReflectionProperty* shapesProperty = AddPropertyT(this, &ColliderComponent::_shapes, "_shapes");
+			ReflectionTraitAllowedClasses* traitAllowedClasses = shapesProperty->AddTrait<ReflectionTraitAllowedClasses>();
+			traitAllowedClasses->AddAllowedClass<EdgeShape>();
+			traitAllowedClasses->AddAllowedClass<CircleShape>();
+			traitAllowedClasses->AddAllowedClass<BoxShape>();
+
+			AddPropertyT(this, &ColliderComponent::_dynamic, "_dynamic");
+		}
+
+		/// @brief 
+		void ColliderComponent::OnConstruct()
+		{
+			_body = physics::Physics::GetInstance()->CreateBody();
+		}
+
+		/// @brief 
+		void ColliderComponent::OnAwake()
+		{
+			_body->AddBoxShape(Vector2::Zero, Vector2::One, 0.0f, 1.0f); // TODO tmp
+			if (_dynamic)
 			{
-				glm::vec2 position = actor->GetComponent<SceneComponent>()->GetPosition();
-				float rotation = actor->GetComponent<SceneComponent>()->GetRotation();
-				glm::vec2 scale = glm::vec2(1.0f, 1.0f);
+				_body->SetType(physics::Body::Type::Dynamic);
+			}
 
-				physicActor = scene->CreatePhysicActor(actor);
-				physicActor->SetTransform(position, rotation, scale);
+			std::shared_ptr<Entity> entity = GetEntity().lock();
+			if (entity != nullptr)
+			{
+				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>().lock();
+				if (node2dComponent != nullptr)
+				{
+					_body->SetTransform(node2dComponent->GetPosition(), node2dComponent->GetRotation(), node2dComponent->GetScale());
+				}
 			}
 		}
-			*/
+
+		/// @brief 
+		void ColliderComponent::OnUpdate()
+		{
+			std::shared_ptr<Entity> entity = GetEntity().lock();
+			if (entity != nullptr)
+			{
+				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>().lock();
+				if (node2dComponent != nullptr)
+				{
+					node2dComponent->SetPosition(_body->GetPosition());
+					node2dComponent->SetRotation(_body->GetRotation());
+				}
+			}
+		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
 		{
-			//GetActor()->GetPhysicActor()->AddEdgeShape(startPosition, endPosition);
+			_body->AddEdgeShape(startPosition, endPosition);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -43,7 +108,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddCircleShape(const Vector2& position, float radius)
 		{
-			//GetActor()->GetPhysicActor()->AddCircleShape(position, radius);
+			_body->AddCircleShape(position, radius);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -51,7 +116,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density)
 		{
-			//GetActor()->GetPhysicActor()->AddBoxShape(position, size, angle, density);
+			_body->AddBoxShape(position, size, angle, density);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -59,7 +124,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void ColliderComponent::AddConvexShape(const std::vector<const Vector2>& vertices)
 		{
-			//GetActor()->GetPhysicActor()->AddConvexShape(vertices);
+			_body->AddConvexShape(vertices);
 		}
 	}
 }

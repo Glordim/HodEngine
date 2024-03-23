@@ -12,6 +12,8 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 
+#include <HodEngine/Physics/Physics.hpp>
+
 namespace hod
 {
 	namespace game
@@ -172,6 +174,8 @@ namespace hod
 				return;
 			}
 #endif
+
+			physics::Physics::GetInstance()->Update(0.016f);
 
 			for (auto entityPair : _entities)
 			{

@@ -24,24 +24,25 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		DebugDrawer::DebugDrawer()
 		{
+			/*
+			renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
+
 			if (DebugDrawer::_solidPolygonMaterialInstance == nullptr)
 			{
-				renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
-				renderer::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", renderer::Material::PolygonMode::Fill, renderer::Material::Topololy::TRIANGLE_FAN));
+				const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Fill_TriangleFan);
 				_solidPolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
 			if (DebugDrawer::_wireframePolygonMaterialInstance == nullptr)
 			{
-				renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
-				renderer::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", renderer::Material::PolygonMode::Line, renderer::Material::Topololy::TRIANGLE_FAN));
+				const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_TriangleFan);
 				_wireframePolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
 			if (DebugDrawer::_lineMaterialInstance == nullptr)
 			{
-				renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
-				renderer::Material* material = materialManager->GetData(materialManager->CreateMaterial("UnlitColor", renderer::Material::PolygonMode::Line, renderer::Material::Topololy::LINE));
+				const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line);
 				_lineMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
+			*/
 		}
 
 		//-----------------------------------------------------------------------------

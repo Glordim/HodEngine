@@ -42,7 +42,7 @@ namespace hod
 			bool								SwapBuffer() override;
 
 			Shader*								CreateShader(Shader::ShaderType type) override;
-			Material*							CreateMaterial(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+			Material*							CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 			MaterialInstance*					CreateMaterialInstance(const Material* material) override;
 			Texture*							CreateTexture() override;
 

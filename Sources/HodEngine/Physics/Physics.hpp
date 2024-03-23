@@ -4,12 +4,29 @@
 
 #include <vector>
 
+class b2World;
+
 namespace hod
 {
+	class Vector2;
+
+	namespace renderer
+	{
+		class RenderQueue;
+	}
+
 	namespace physics
 	{
-		class Actor;
-		class Scene;
+		class Body;
+		class DebugDrawer;
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
+		struct RaycastResult
+		{
+			Body* _bodyCollided = nullptr;
+		};
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -18,22 +35,49 @@ namespace hod
 		{
 			friend class Singleton<Physics>;
 
+		public:
+
+			enum DebugDrawFlag
+			{
+				Shape = 0,
+				Join,
+				AABB,
+				Pair,
+				CenterOfMass
+			};
+
 		protected:
 
-											Physics();
-											~Physics() override;
+								Physics();
+								~Physics() override;
 
 		public:
 
-			bool							Init();
-			void							Clear();
+			bool				Init();
+			void				Clear();
 
-			Scene*							CreateScene();
-			void							DestroyScene(Scene* scene);
+			Body*				CreateBody();
+
+			void				Update(float dt);
+
+			void				PushToRenderQueue(renderer::RenderQueue& renderQueue);
+
+			bool				Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result);
+
+			void				SetDebugDraw(bool debugDraw);
+			void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
 
 		private:
 
-			std::vector<Scene*>				_scenes;
+			b2World*			_b2World = nullptr;
+
+			bool				_useDebugDraw = false;
+			DebugDrawer*		_debugDrawer = nullptr;
+
+			int32_t				_velocityIterations = 8;
+			int32_t				_positionIterations = 3;
+
+			std::vector<Body*>	_bodies;
 		};
 	}
 }

@@ -30,8 +30,8 @@ namespace hod
     };
 
     template <typename _Class_, typename _Member_>
-	uint64_t OffsetOf(_Member_ _Class_::*M)
+	uint32_t OffsetOf(_Member_ _Class_::*M)
 	{
-		return reinterpret_cast<uint64_t>(&(((_Class_*)0)->*M));
+		return static_cast<uint32_t>(reinterpret_cast<uint64_t>(&(((_Class_*)0)->*M)));
 	};
 }

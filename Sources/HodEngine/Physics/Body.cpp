@@ -1,4 +1,4 @@
-#include "Actor.hpp"
+#include "Body.hpp"
 
 #include "Physics.hpp"
 
@@ -21,15 +21,15 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Actor::Actor(b2Body* b2Body) : _b2Body(b2Body)
+		Body::Body(b2Body* b2Body)
+		: _b2Body(b2Body)
 		{
-			//_pxActor->setActorFlag(physx::PxActorFlag::eVISUALIZATION, Physics::GetInstance()->GetActorVisualizationFlag());
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
+		void Body::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
 		{
 			b2EdgeShape shape;
 			shape.SetTwoSided(b2Vec2(startPosition.GetX(), startPosition.GetY()), b2Vec2(endPosition.GetX(), endPosition.GetY()));
@@ -41,7 +41,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::AddCircleShape(const Vector2& position, float radius)
+		void Body::AddCircleShape(const Vector2& position, float radius)
 		{
 			b2CircleShape shape;
 			shape.m_p.x = position.GetX();
@@ -54,7 +54,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density)
+		void Body::AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density)
 		{
 			b2PolygonShape shape;
 			shape.SetAsBox(size.GetX(), size.GetY(), b2Vec2(position.GetX(), position.GetY()), angle);
@@ -70,7 +70,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::AddConvexShape(const std::vector<const Vector2>& vertices)
+		void Body::AddConvexShape(const std::vector<const Vector2>& vertices)
 		{
 			b2PolygonShape shape;
 			// todo
@@ -82,7 +82,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetTransform(const Vector2& position, float rotation, const Vector2& scale)
+		void Body::SetTransform(const Vector2& position, float rotation, const Vector2& scale)
 		{
 			// todo scale
 			_b2Body->SetTransform(b2Vec2(position.GetX(), position.GetY()), math::DegreeToRadian(rotation));
@@ -91,7 +91,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Vector2 Actor::GetPosition() const
+		Vector2 Body::GetPosition() const
 		{
 			return Vector2(_b2Body->GetPosition().x, _b2Body->GetPosition().y);
 		}
@@ -99,7 +99,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		float Actor::GetRotation() const
+		float Body::GetRotation() const
 		{
 			return math::RadianToDegree(_b2Body->GetAngle());
 		}
@@ -107,15 +107,15 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Actor::TYPE Actor::GetType() const
+		Body::Type Body::GetType() const
 		{
-			return static_cast<TYPE>(_b2Body->GetType());
+			return static_cast<Type>(_b2Body->GetType());
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Actor::SetType(TYPE type)
+		void Body::SetType(Type type)
 		{
 			_b2Body->SetType(static_cast<b2BodyType>(type));
 		}
@@ -123,7 +123,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		b2Body* Actor::GetB2Actor() const
+		b2Body* Body::GetB2Actor() const
 		{
 			return _b2Body;
 		}

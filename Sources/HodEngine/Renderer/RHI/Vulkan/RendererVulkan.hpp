@@ -53,7 +53,7 @@ namespace hod::renderer
 		virtual CommandBuffer* CreateCommandBuffer() override;
 		virtual Buffer* CreateBuffer(Buffer::Usage usage) override;
 		virtual Shader* CreateShader(Shader::ShaderType type) override;
-		virtual Material* CreateMaterial(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+		virtual Material* CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 		virtual MaterialInstance* CreateMaterialInstance(const Material* material) override;
 		virtual Texture* CreateTexture() override;
 		virtual RenderTarget* CreateRenderTarget() override;

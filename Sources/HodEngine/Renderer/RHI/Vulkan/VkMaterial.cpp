@@ -19,11 +19,13 @@ namespace hod
 	{
 		VkFormat FormatToVkFormat[VertexInput::Format::Count] = {
 			VK_FORMAT_R32G32_SFLOAT,
+			VK_FORMAT_R32G32B32A32_SFLOAT,
 			VK_FORMAT_A8B8G8R8_UNORM_PACK32,
 		};
 
 		uint32_t FormatToSize[VertexInput::Format::Count] = {
 			2 * sizeof(float),
+			4 * sizeof(float),
 			1 * sizeof(uint32_t),
 		};
 
@@ -59,7 +61,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkMaterial::Build(VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+		bool VkMaterial::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 

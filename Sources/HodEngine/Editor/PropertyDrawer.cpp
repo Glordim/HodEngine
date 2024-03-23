@@ -7,7 +7,6 @@
 #include "HodEngine/Core/Object.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitFixedSizeArray.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 
@@ -138,7 +137,6 @@ namespace hod::editor
 			ImGui::TableNextColumn();
 
 			ReflectionPropertyVariable::Type type = property->GetType();
-			ReflectionTraitFixedSizeArray* fixedSizeArrayTrait = property->FindTrait<ReflectionTraitFixedSizeArray>();
 
 			uint32_t elementCount = property->GetElementCount(object);
 
