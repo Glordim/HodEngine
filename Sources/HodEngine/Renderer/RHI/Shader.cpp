@@ -5,8 +5,6 @@
 #include <iostream>
 
 #include <HodEngine/Core/Output.hpp>
-#include "HodEngine/Core/Stream/FileStream.hpp"
-#include "HodEngine/Core/Stream/MemoryStream.hpp"
 
 namespace hod
 {
@@ -28,7 +26,7 @@ namespace hod
 		/// @brief 
 		/// @param stream 
 		/// @return 
-		bool Shader::LoadFromSource(Stream& stream)
+		bool Shader::LoadFromSource(std::istream& stream)
 		{
 			return true;
 		}
@@ -38,7 +36,7 @@ namespace hod
 		/// @return 
 		bool Shader::LoadFromFile(const std::string& path)
 		{
-			FileStream fileStream(path, FileMode::Read);
+			std::ifstream fileStream(path);
 			/*
 			if (fileStream.CanRead() == false)
 			{
@@ -73,7 +71,7 @@ namespace hod
 		/// @brief 
 		/// @param stream 
 		/// @return 
-		bool Shader::LoadFromStream(Stream& stream)
+		bool Shader::LoadFromStream(std::istream& stream)
 		{
 
 			return true;

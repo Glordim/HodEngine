@@ -4,7 +4,6 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
-#include "HodEngine/Core/Stream/FileStream.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 
@@ -14,6 +13,8 @@
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+
+#include <fstream>
 
 namespace hod::editor
 {
@@ -48,15 +49,16 @@ namespace hod::editor
 		std::filesystem::path metaPath = _path;
 		metaPath += ".meta";
 
-		FileStream fileStream(metaPath, FileMode::Read);
-		if (fileStream.CanRead() == false)
+		std::ifstream fileStream(metaPath);
+		if (fileStream.is_open() == false)
 		{
 			// TODO generate new meta if not exist
 			if (AssetDatabase::GetInstance()->Import(_path) == false)
 			{
 				return false;
 			}
-			if (fileStream.Open(metaPath, FileMode::Read) == false ||fileStream.CanRead() == false)
+			fileStream.open(metaPath);
+			if (fileStream.is_open() == false)
 			{
 				return false;
 			}

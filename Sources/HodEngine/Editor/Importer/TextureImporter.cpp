@@ -1,6 +1,4 @@
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
-#include "HodEngine/Core/Stream/FileStream.hpp"
-#include "HodEngine/Core/Stream/MemoryStream.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output.hpp"
@@ -83,8 +81,8 @@ namespace hod::editor
 
 		int writeResult = stbi_write_png_to_func([](void *context, void *data, int len)
 		{
-			FileStream* thumbnailStream = static_cast<FileStream*>(context);
-			thumbnailStream->Write(data, len);
+			std::ofstream* thumbnailStream= static_cast<std::ofstream*>(context);
+			thumbnailStream->write(reinterpret_cast<char*>(data), len);
 		}, &thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
 		delete[] thumbnailPixels;
 

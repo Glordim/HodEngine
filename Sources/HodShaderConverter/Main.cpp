@@ -150,12 +150,6 @@ namespace hod
 			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath.string());
 			return false;
 		}
-		/*FileStream headerOutputStream(headerOutputFilePath, FileMode::Write);
-		if (headerOutputStream.CanWrite() == false)
-		{
-			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath);
-			return false;
-		}*/
 
 		std::string identifier = outputFile.filename().string();
 		std::replace(identifier.begin(), identifier.end(), '.', '_');
@@ -178,14 +172,6 @@ namespace hod
 			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath.string());
 			return false;
 		}
-		/*
-		FileStream sourceOutputStream(sourceOutputFilePath, FileMode::Write);
-		if (sourceOutputStream.CanWrite() == false)
-		{
-			std::cerr << std::format("Unable to write output file : {}", sourceOutputFilePath);
-			return false;
-		}
-		*/
 
 		sourceOutputStream << "#include <cstdint>\n\n";
 		sourceOutputStream << "namespace hod\n";

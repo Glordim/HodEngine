@@ -1,7 +1,5 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
-#include "HodEngine/Core/Stream/FileStream.hpp"
-
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/Asset.hpp"
@@ -360,8 +358,8 @@ namespace hod::editor
 		std::filesystem::path resourceFilePath = Project::GetInstance()->GetResourceDirPath() / asset->GetUid().ToString();
 		resourceFilePath += ".dat";
 
-		FileStream resourceFile(resourceFilePath, FileMode::Read);
-		if (resourceFile.CanRead() == false)
+		std::ifstream resourceFile(resourceFilePath);
+		if (resourceFile.is_open() == false) // TODO replace by filesystem::exist ?
 		{
 			return Import(asset->GetPath());
 		}

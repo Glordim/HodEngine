@@ -14,7 +14,6 @@
 #include <HodEngine/Application/PlatformDialog.hpp>
 
 #include "HodEngine/Core/FileSystem.hpp"
-#include "HodEngine/Core/Stream/FileStream.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
