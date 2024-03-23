@@ -64,7 +64,7 @@
 			"stopAtEntry": false,
 			//"cwd": "${workspaceFolder}/Data",
 			"environment": [],
-			"console": "externalTerminal",
+			"console": "integratedTerminal",
 			//"preLaunchTask": "Build HodEditor",
 			"preLaunchTask": "Build target",
 		},
@@ -78,7 +78,7 @@
 			"stopAtEntry": false,
 			//"cwd": "${workspaceFolder}/Data",
 			"environment": [],
-			"console": "externalTerminal",
+			"console": "integratedTerminal",
 			//"preLaunchTask": "Build HodEditor",
 			"preLaunchTask": "Build target",
 		}
