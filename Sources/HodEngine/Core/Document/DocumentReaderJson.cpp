@@ -20,35 +20,6 @@ namespace hod
 	/// @param stream 
 	/// @param size 
 	/// @return 
-	bool DocumentReaderJson::PopulateDocument(Document& document, Stream& stream, uint32_t size)
-	{
-		if (size == 0)
-		{
-			size = stream.GetSize(); // todo see istrem implementation
-		}
-
-		char* buffer = new char[size + 1];
-		if (stream.Read((void*)buffer, size) == false)
-		{
-			return false;
-		}
-		buffer[size] = '\0';
-
-		_cursor = buffer;
-		SkipWhiteSpace();
-		bool parsingResult = ParseObject(document.GetRootNode());
-
-		delete[] buffer;
-		_cursor = nullptr;
-
-		return parsingResult;
-	}
-
-	/// @brief 
-	/// @param document 
-	/// @param stream 
-	/// @param size 
-	/// @return 
 	bool DocumentReaderJson::PopulateDocument(Document& document, std::istream& stream, uint32_t size)
 	{
 		if (size == 0)

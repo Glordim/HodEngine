@@ -25,12 +25,10 @@ namespace hod
 	public:
 
 		bool				Write(Document& document, const std::filesystem::path& path);
-		bool				Write(Document& document, Stream& stream);
 		bool				Write(Document& document, std::ostream& stream);
 
 	protected:
 
-		virtual bool		WriteDocument(Document& document, Stream& stream) = 0;
 		virtual bool		WriteDocument(Document& document, std::ostream& stream) = 0;
 	};
 }

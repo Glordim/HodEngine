@@ -43,11 +43,14 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool TextureImporter::WriteResource(FileStream& data, FileStream& meta, FileStream& resource, FileStream& thumbnail, ImporterSettings& settings)
+	bool TextureImporter::WriteResource(std::ifstream& data, std::ifstream& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
-		uint32_t dataSize = data.GetSize();
+		data.seekg(0, std::ios::end);
+		std::streampos dataSize = data.tellg();
+		data.seekg(0, std::ios::beg);
 		uint8_t* dataBuffer = new uint8_t[dataSize];
-		if (data.Read(dataBuffer, dataSize) == false)
+		data.read(reinterpret_cast<char*>(dataBuffer), dataSize); // try ?
+		if (data.fail())
 		{
 			OUTPUT_ERROR("TextureImporter : Can't read Texture data");
 			return false;
@@ -121,9 +124,9 @@ namespace hod::editor
 			return false;
 		}
 
-		resource.Write("HodResource", 11);
+		resource.write("HodResource", 11);
 		uint32_t documentLen = documentStringStream.str().size();
-		resource.Write(&documentLen, sizeof(documentLen));
+		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
 
 		if (documentWriter.Write(document, resource) == false)
 		{
@@ -131,14 +134,15 @@ namespace hod::editor
 			stbi_image_free(pixels);
 			return false;
 		}
-		if (resource.Write(pixels, x * y * componentCount) == false)
-		{
-			// TODO message
-			stbi_image_free(pixels);
-			return false;
-		}
+		resource.write(reinterpret_cast<char*>(pixels), x * y * componentCount);
 
 		stbi_image_free(pixels);
+
+		if (resource.fail())
+		{
+			// TODO message
+			return false;
+		}
 
 		return true;
 	}

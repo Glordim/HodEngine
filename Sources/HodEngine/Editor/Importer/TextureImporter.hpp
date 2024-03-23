@@ -55,6 +55,6 @@ namespace hod::editor
 
 	protected:
 
-		bool				WriteResource(FileStream& data, FileStream& meta, FileStream& resource, FileStream& thumbnail, ImporterSettings& settings) override;
+		bool				WriteResource(std::ifstream& data, std::ifstream& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings) override;
 	};
 }

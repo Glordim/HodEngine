@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <fstream>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Core/Object.hpp"
@@ -59,7 +60,7 @@ namespace hod::editor
 
 		bool			GenerateNewMeta(const std::filesystem::path& metaFilePath);
 
-		virtual bool	WriteResource(FileStream& data, FileStream& meta, FileStream& resource, FileStream& thumbnail, ImporterSettings& settings) = 0;
+		virtual bool	WriteResource(std::ifstream& data, std::ifstream& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings) = 0;
 
 		template<typename... Args>
 		void			SetSupportedDataFileExtensions(Args... args);

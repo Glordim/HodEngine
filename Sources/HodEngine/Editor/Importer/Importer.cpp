@@ -9,6 +9,8 @@
 #include "HodEngine/Core/UID.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
+#include <fstream>
+
 namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(ImporterSettings, Object)
@@ -42,15 +44,16 @@ namespace hod::editor
 		std::filesystem::path metaFilePath = path;
 		metaFilePath += ".meta";
 
-		FileStream metaFile(metaFilePath, FileMode::Read);
-		if (metaFile.CanRead() == false)
+		std::ifstream metaFile(metaFilePath);
+		if (metaFile.is_open() == false)
 		{
-			metaFile.Close();
+			metaFile.close();
 			if (GenerateNewMeta(metaFilePath) == false)
 			{
 				return false;
 			}
-			if (metaFile.Open(metaFilePath, FileMode::Read) == false || metaFile.CanRead() == false)
+			metaFile.open(metaFilePath);
+			if (metaFile.is_open() == false)
 			{
 				return false;
 			}
@@ -85,8 +88,8 @@ namespace hod::editor
 			return false;
 		}
 
-		FileStream dataFile(path, FileMode::Read);
-		if (dataFile.CanRead() == false)
+		std::ifstream dataFile(path);
+		if (dataFile.is_open() == false)
 		{
 			// TODO output reason
 			return false;
@@ -97,8 +100,8 @@ namespace hod::editor
 		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString();
 		thumbnailFilePath += ".png";
 
-		FileStream thumbnailFile(thumbnailFilePath, FileMode::Write);
-		if (thumbnailFile.CanWrite() == false)
+		std::ofstream thumbnailFile(thumbnailFilePath);
+		if (thumbnailFile.is_open() == false)
 		{
 			// TODO output reason
 			return false;
@@ -107,8 +110,8 @@ namespace hod::editor
 		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
 		resourceFilePath += ".dat";
 
-		FileStream resourceFile(resourceFilePath, FileMode::Write);
-		if (resourceFile.CanWrite() == false)
+		std::ofstream resourceFile(resourceFilePath);
+		if (resourceFile.is_open() == false)
 		{
 			// TODO output reason
 			return false;
@@ -122,8 +125,8 @@ namespace hod::editor
 	/// @return 
 	bool Importer::GenerateNewMeta(const std::filesystem::path& metaFilePath)
 	{
-		FileStream metaFile(metaFilePath, FileMode::Write);
-		if (metaFile.CanWrite() == true)
+		std::ofstream metaFile(metaFilePath);
+		if (metaFile.is_open() == true)
 		{
 			Meta meta;
 			meta._uid = UID::GenerateUID();
