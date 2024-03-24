@@ -29,10 +29,10 @@ namespace hod
 				Object,
 				Array,
 				Bool,
-				SInt8,
-				SInt16,
-				SInt32,
-				SInt64,
+				Int8,
+				Int16,
+				Int32,
+				Int64,
 				UInt8,
 				UInt16,
 				UInt32,
@@ -52,6 +52,8 @@ namespace hod
 			Node*		GetNextSibling() const;
 			Node*		GetParent() const;
 
+			uint32_t	GetChildCount() const;
+
 			const std::string& GetName() const;
 			Type 		GetType() const;
 			void		SetTye(Type type);
@@ -60,10 +62,8 @@ namespace hod
 			bool		IsObject() const;
 			bool		IsArray() const;
 
-			Node*		AddArray(const char* name);
-
-			template<typename T>
-			void		SetValues(const std::span<const T>& values);
+			template<typename T, size_t Size>
+			void		SetValues(const std::span<T, Size>& values);
 
 			template<typename T>
 			void		SetValue(const T& value);
@@ -92,9 +92,6 @@ namespace hod
 			float		GetFloat32() const;
 			double		GetFloat64() const;
 			const std::string& GetString() const;
-
-			template<typename T>
-			T*			GetValues() const;
 
 			Node&		operator [] (const std::string_view& name);
 

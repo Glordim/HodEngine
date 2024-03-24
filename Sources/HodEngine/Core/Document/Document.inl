@@ -1,8 +1,8 @@
 
 namespace hod
 {
-	template<typename T>
-	void Document::Node::SetValues(const std::span<const T>& values)
+	template<typename T, size_t Size>
+	void Document::Node::SetValues(const std::span<T, Size>& values)
 	{
 		// TODO ensure no child
 		_type = Type::Array;

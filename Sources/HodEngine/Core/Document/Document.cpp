@@ -152,6 +152,21 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @return 
+	uint32_t  Document::Node::GetChildCount() const
+	{
+		uint32_t count = 0;
+
+		Document::Node* child = _firstChild;
+		while (child != nullptr)
+		{
+			++count;
+			child = child->_nextSibling;
+		}
+		return count;
+	}
+
+	/// @brief 
 	/// @param name 
 	/// @return 
 	Document::Node* Document::Node::FindChild(const std::string_view& name) const
@@ -177,25 +192,25 @@ namespace hod
 
 	void Document::Node::SetInt8(int8_t value)
 	{
-		_type = Type::SInt8;
+		_type = Type::Int8;
 		_value._sint8 = value;
 	}
 
 	void Document::Node::SetInt16(int16_t value)
 	{
-		_type = Type::SInt16;
+		_type = Type::Int16;
 		_value._sint16 = value;
 	}
 
 	void Document::Node::SetInt32(int32_t value)
 	{
-		_type = Type::SInt32;
+		_type = Type::Int32;
 		_value._sint32 = value;
 	}
 
 	void Document::Node::SetInt64(int64_t value)
 	{
-		_type = Type::SInt64;
+		_type = Type::Int64;
 		_value._sint64 = value;
 	}
 

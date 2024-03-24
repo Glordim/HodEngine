@@ -79,7 +79,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::SInt8:
+			case Document::Node::Type::Int8:
 			{
 				char buffer[256];
 				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt8()).size;
@@ -87,7 +87,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::SInt16:
+			case Document::Node::Type::Int16:
 			{
 				char buffer[256];
 				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt16()).size;
@@ -95,7 +95,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::SInt32:
+			case Document::Node::Type::Int32:
 			{
 				char buffer[256];
 				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt32()).size;
@@ -103,7 +103,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::SInt64:
+			case Document::Node::Type::Int64:
 			{
 				char buffer[256];
 				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt64()).size;
@@ -182,7 +182,7 @@ namespace hod
 						case '\\': *const_cast<char*>(pos) = '\\'; break;
 						default: assert(false); break;
 						}
-						uint32_t offset = pos - escapedValue.data();
+						size_t offset = pos - escapedValue.data();
 						escapedValue.insert(offset, "\\");
 						pos = std::strpbrk(escapedValue.data() + offset + 2, "\t\n\r\f\b\"\\");
 					}
