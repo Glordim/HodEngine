@@ -51,9 +51,9 @@ namespace hod
 			float64Node.AddChild("max").SetFloat64(std::numeric_limits<double>::max());
 		}
 
-		//document.GetRootNode().AddChild("string").SetString("a\tb\nc\bd\"e\rf");
+		document.GetRootNode().AddChild("string").SetString("a\tb\nc\bd\"e\rf\fg\\h");
 
-		static const char* expectedJson = "{\"integers\":{\"uint8\":{\"min\":0,\"max\":255},\"uint16\":{\"min\":0,\"max\":65535},\"uint32\":{\"min\":0,\"max\":4294967295},\"uint64\":{\"min\":0,\"max\":18446744073709551615},\"int8\":{\"min\":-128,\"max\":127},\"int16\":{\"min\":-32768,\"max\":32767},\"int32\":{\"min\":-2147483648,\"max\":2147483647},\"int64\":{\"min\":-9223372036854775808,\"max\":9223372036854775807}},\"floatings\":{\"float32\":{\"min\":1.1754944e-38,\"max\":3.4028235e+38},\"float64\":{\"min\":2.2250738585072014e-308,\"max\":1.7976931348623157e+308}}}";
+		static const char* expectedJson = "{\"integers\":{\"uint8\":{\"min\":0,\"max\":255},\"uint16\":{\"min\":0,\"max\":65535},\"uint32\":{\"min\":0,\"max\":4294967295},\"uint64\":{\"min\":0,\"max\":18446744073709551615},\"int8\":{\"min\":-128,\"max\":127},\"int16\":{\"min\":-32768,\"max\":32767},\"int32\":{\"min\":-2147483648,\"max\":2147483647},\"int64\":{\"min\":-9223372036854775808,\"max\":9223372036854775807}},\"floatings\":{\"float32\":{\"min\":1.1754944e-38,\"max\":3.4028235e+38},\"float64\":{\"min\":2.2250738585072014e-308,\"max\":1.7976931348623157e+308}},\"string\":\"a\\tb\\nc\\bd\\\"e\\rf\\fg\\\\h\"}";
 
 		std::stringstream output;
 

@@ -78,7 +78,6 @@ namespace hod
 			void		SetUInt64(uint64_t value);
 			void		SetFloat32(float value);
 			void		SetFloat64(double value);
-			void		SetString(const std::string& value);
 			void		SetString(const std::string_view& value);
 
 			bool		GetBool() const;

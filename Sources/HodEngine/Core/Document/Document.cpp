@@ -235,12 +235,6 @@ namespace hod
 		_value._float64 = value;
 	}
 
-	void Document::Node::SetString(const std::string& value)
-	{
-		_type = Type::String;
-		_value._stringId = _document.AddString(value);
-	}
-
 	void Document::Node::SetString(const std::string_view& value)
 	{
 		_type = Type::String;

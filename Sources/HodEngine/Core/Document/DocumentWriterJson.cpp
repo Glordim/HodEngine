@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <format>
+#include <cassert>
 
 namespace hod
 {
@@ -170,6 +171,17 @@ namespace hod
 
 					while (pos != nullptr)
 					{
+						switch (*pos)
+						{
+						case '\t': *const_cast<char*>(pos) = 't'; break;
+						case '\n': *const_cast<char*>(pos) = 'n'; break;
+						case '\r': *const_cast<char*>(pos) = 'r'; break;
+						case '\f': *const_cast<char*>(pos) = 'f'; break;
+						case '\b': *const_cast<char*>(pos) = 'b'; break;
+						case '\"': *const_cast<char*>(pos) = '"'; break;
+						case '\\': *const_cast<char*>(pos) = '\\'; break;
+						default: assert(false); break;
+						}
 						uint32_t offset = pos - escapedValue.data();
 						escapedValue.insert(offset, "\\");
 						pos = std::strpbrk(escapedValue.data() + offset + 2, "\t\n\r\f\b\"\\");
