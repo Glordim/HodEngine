@@ -2,12 +2,15 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
+#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 
 #include <limits>
 #include <sstream>
 
 namespace hod
 {
+	static const char* expectedJson = "{\"bools\":{\"true\":true,\"false\":false,\"array\":[true,false]},\"integers\":{\"uint8\":{\"min\":0,\"max\":255,\"array\":[0,255]},\"uint16\":{\"min\":0,\"max\":65535,\"array\":[0,65535]},\"uint32\":{\"min\":0,\"max\":4294967295,\"array\":[0,4294967295]},\"uint64\":{\"min\":0,\"max\":18446744073709551615,\"array\":[0,18446744073709551615]},\"int8\":{\"min\":-128,\"max\":127,\"array\":[-128,127]},\"int16\":{\"min\":-32768,\"max\":32767,\"array\":[-32768,32767]},\"int32\":{\"min\":-2147483648,\"max\":2147483647,\"array\":[-2147483648,2147483647]},\"int64\":{\"min\":-9223372036854775808,\"max\":9223372036854775807,\"array\":[-9223372036854775808,9223372036854775807]}},\"floatings\":{\"float32\":{\"min\":1.1754944e-38,\"max\":3.4028235e+38,\"array\":[1.1754944e-38,3.4028235e+38]},\"float64\":{\"min\":2.2250738585072014e-308,\"max\":1.7976931348623157e+308,\"array\":[2.2250738585072014e-308,1.7976931348623157e+308]}},\"strings\":{\"basic\":\"Hello World\",\"escaped\":\"a\\tb\\nc\\bd\\\"e\\rf\\fg\\\\h\",\"array\":[\"Item 0\",\"Item 1\"]},\"objects\":{\"toto\":{},\"tata\":{},\"array\":[{\"toto\":{},\"tata\":{}},{\"toto\":{},\"tata\":{}}]}}";
+
 	void FillDocument(Document& document)
 	{
 		Document::Node& boolsNode = document.GetRootNode().AddChild("bools");
@@ -137,36 +140,33 @@ namespace hod
 		}
 	}
 
-	TEST(Document, AddChild)
+	void VerifyDocument(const Document& document)
 	{
-		Document document;
-		FillDocument(document);
-
 		const Document::Node* boolsNode = document.GetRootNode().GetChild("bools");
 		EXPECT_TRUE(boolsNode);
 		{
 			const Document::Node* trueNode = boolsNode->GetChild("true");
 			EXPECT_TRUE(trueNode);
-			EXPECT_TRUE(trueNode->GetType() == Document::Node::Type::Bool);
-			EXPECT_TRUE(trueNode->GetBool() == true);
+			EXPECT_EQ(trueNode->GetType(), Document::Node::Type::Bool);
+			EXPECT_EQ(trueNode->GetBool(), true);
 
 			const Document::Node* falseNode = boolsNode->GetChild("false");
 			EXPECT_TRUE(falseNode);
-			EXPECT_TRUE(falseNode->GetType() == Document::Node::Type::Bool);
-			EXPECT_TRUE(falseNode->GetBool() == false);
+			EXPECT_EQ(falseNode->GetType(), Document::Node::Type::Bool);
+			EXPECT_EQ(falseNode->GetBool(), false);
 
 			const Document::Node* arrayNode = boolsNode->GetChild("array");
 			EXPECT_TRUE(arrayNode);
-			EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-			EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+			EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+			EXPECT_EQ(arrayNode->GetChildCount(), 2);
 			const Document::Node* child = arrayNode->GetFirstChild();
 			EXPECT_TRUE(child);
-			EXPECT_TRUE(child->GetType() == Document::Node::Type::Bool);
-			EXPECT_TRUE(child->GetBool() == true);
+			EXPECT_EQ(child->GetType(), Document::Node::Type::Bool);
+			EXPECT_EQ(child->GetBool(), true);
 			child = child->GetNextSibling();
 			EXPECT_TRUE(child);
-			EXPECT_TRUE(child->GetType() == Document::Node::Type::Bool);
-			EXPECT_TRUE(child->GetBool() == false);
+			EXPECT_EQ(child->GetType(), Document::Node::Type::Bool);
+			EXPECT_EQ(child->GetBool(), false);
 			child = child->GetNextSibling();
 			EXPECT_FALSE(child);
 		}
@@ -179,26 +179,26 @@ namespace hod
 			{
 				const Document::Node* minNode = uint8Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::UInt8);
-				EXPECT_TRUE(minNode->GetUInt8() == std::numeric_limits<uint8_t>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::UInt8);
+				EXPECT_EQ(minNode->GetUInt8(), std::numeric_limits<uint8_t>::min());
 
 				const Document::Node* maxNode = uint8Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::UInt8);
-				EXPECT_TRUE(maxNode->GetUInt8() == std::numeric_limits<uint8_t>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::UInt8);
+				EXPECT_EQ(maxNode->GetUInt8(), std::numeric_limits<uint8_t>::max());
 
 				const Document::Node* arrayNode = uint8Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::UInt8);
-				EXPECT_TRUE(child->GetUInt8() == std::numeric_limits<uint8_t>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::UInt8);
+				EXPECT_EQ(child->GetUInt8(), std::numeric_limits<uint8_t>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::UInt8);
-				EXPECT_TRUE(child->GetUInt8() == std::numeric_limits<uint8_t>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::UInt8);
+				EXPECT_EQ(child->GetUInt8(), std::numeric_limits<uint8_t>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -208,26 +208,26 @@ namespace hod
 			{
 				const Document::Node* minNode = uint16Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::UInt16);
-				EXPECT_TRUE(minNode->GetUInt16() == std::numeric_limits<uint16_t>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::UInt16);
+				EXPECT_EQ(minNode->GetUInt16(), std::numeric_limits<uint16_t>::min());
 
 				const Document::Node* maxNode = uint16Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::UInt16);
-				EXPECT_TRUE(maxNode->GetUInt16() == std::numeric_limits<uint16_t>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::UInt16);
+				EXPECT_EQ(maxNode->GetUInt16(), std::numeric_limits<uint16_t>::max());
 
 				const Document::Node* arrayNode = uint16Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::UInt16);
-				EXPECT_TRUE(child->GetUInt16() == std::numeric_limits<uint16_t>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::UInt16);
+				EXPECT_EQ(child->GetUInt16(), std::numeric_limits<uint16_t>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::UInt16);
-				EXPECT_TRUE(child->GetUInt16() == std::numeric_limits<uint16_t>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::UInt16);
+				EXPECT_EQ(child->GetUInt16(), std::numeric_limits<uint16_t>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -237,26 +237,26 @@ namespace hod
 			{
 				const Document::Node* minNode = uint32Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::UInt32);
-				EXPECT_TRUE(minNode->GetUInt32() == std::numeric_limits<uint32_t>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::UInt32);
+				EXPECT_EQ(minNode->GetUInt32(), std::numeric_limits<uint32_t>::min());
 
 				const Document::Node* maxNode = uint32Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::UInt32);
-				EXPECT_TRUE(maxNode->GetUInt32() == std::numeric_limits<uint32_t>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::UInt32);
+				EXPECT_EQ(maxNode->GetUInt32(), std::numeric_limits<uint32_t>::max());
 
 				const Document::Node* arrayNode = uint32Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::UInt32);
-				EXPECT_TRUE(child->GetUInt32() == std::numeric_limits<uint32_t>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::UInt32);
+				EXPECT_EQ(child->GetUInt32(), std::numeric_limits<uint32_t>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::UInt32);
-				EXPECT_TRUE(child->GetUInt32() == std::numeric_limits<uint32_t>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::UInt32);
+				EXPECT_EQ(child->GetUInt32(), std::numeric_limits<uint32_t>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -266,26 +266,26 @@ namespace hod
 			{
 				const Document::Node* minNode = uint64Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::UInt64);
-				EXPECT_TRUE(minNode->GetUInt64() == std::numeric_limits<uint64_t>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::UInt64);
+				EXPECT_EQ(minNode->GetUInt64(), std::numeric_limits<uint64_t>::min());
 
 				const Document::Node* maxNode = uint64Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::UInt64);
-				EXPECT_TRUE(maxNode->GetUInt64() == std::numeric_limits<uint64_t>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::UInt64);
+				EXPECT_EQ(maxNode->GetUInt64(), std::numeric_limits<uint64_t>::max());
 
 				const Document::Node* arrayNode = uint64Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::UInt64);
-				EXPECT_TRUE(child->GetUInt64() == std::numeric_limits<uint64_t>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::UInt64);
+				EXPECT_EQ(child->GetUInt64(), std::numeric_limits<uint64_t>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::UInt64);
-				EXPECT_TRUE(child->GetUInt64() == std::numeric_limits<uint64_t>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::UInt64);
+				EXPECT_EQ(child->GetUInt64(), std::numeric_limits<uint64_t>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -295,26 +295,26 @@ namespace hod
 			{
 				const Document::Node* minNode = int8Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::Int8);
-				EXPECT_TRUE(minNode->GetInt8() == std::numeric_limits<int8_t>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::Int8);
+				EXPECT_EQ(minNode->GetInt8(), std::numeric_limits<int8_t>::min());
 
 				const Document::Node* maxNode = int8Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::Int8);
-				EXPECT_TRUE(maxNode->GetInt8() == std::numeric_limits<int8_t>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::Int8);
+				EXPECT_EQ(maxNode->GetInt8(), std::numeric_limits<int8_t>::max());
 
 				const Document::Node* arrayNode = int8Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Int8);
-				EXPECT_TRUE(child->GetInt8() == std::numeric_limits<int8_t>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Int8);
+				EXPECT_EQ(child->GetInt8(), std::numeric_limits<int8_t>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Int8);
-				EXPECT_TRUE(child->GetInt8() == std::numeric_limits<int8_t>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Int8);
+				EXPECT_EQ(child->GetInt8(), std::numeric_limits<int8_t>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -324,26 +324,26 @@ namespace hod
 			{
 				const Document::Node* minNode = int16Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::Int16);
-				EXPECT_TRUE(minNode->GetInt16() == std::numeric_limits<int16_t>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::Int16);
+				EXPECT_EQ(minNode->GetInt16(), std::numeric_limits<int16_t>::min());
 
 				const Document::Node* maxNode = int16Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::Int16);
-				EXPECT_TRUE(maxNode->GetInt16() == std::numeric_limits<int16_t>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::Int16);
+				EXPECT_EQ(maxNode->GetInt16(), std::numeric_limits<int16_t>::max());
 
 				const Document::Node* arrayNode = int16Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Int16);
-				EXPECT_TRUE(child->GetInt16() == std::numeric_limits<int16_t>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Int16);
+				EXPECT_EQ(child->GetInt16(), std::numeric_limits<int16_t>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Int16);
-				EXPECT_TRUE(child->GetInt16() == std::numeric_limits<int16_t>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Int16);
+				EXPECT_EQ(child->GetInt16(), std::numeric_limits<int16_t>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -353,26 +353,26 @@ namespace hod
 			{
 				const Document::Node* minNode = int32Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::Int32);
-				EXPECT_TRUE(minNode->GetInt32() == std::numeric_limits<int32_t>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::Int32);
+				EXPECT_EQ(minNode->GetInt32(), std::numeric_limits<int32_t>::min());
 
 				const Document::Node* maxNode = int32Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::Int32);
-				EXPECT_TRUE(maxNode->GetInt32() == std::numeric_limits<int32_t>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::Int32);
+				EXPECT_EQ(maxNode->GetInt32(), std::numeric_limits<int32_t>::max());
 
 				const Document::Node* arrayNode = int32Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Int32);
-				EXPECT_TRUE(child->GetInt32() == std::numeric_limits<int32_t>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Int32);
+				EXPECT_EQ(child->GetInt32(), std::numeric_limits<int32_t>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Int32);
-				EXPECT_TRUE(child->GetInt32() == std::numeric_limits<int32_t>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Int32);
+				EXPECT_EQ(child->GetInt32(), std::numeric_limits<int32_t>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -382,26 +382,26 @@ namespace hod
 			{
 				const Document::Node* minNode = int64Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::Int64);
-				EXPECT_TRUE(minNode->GetInt64() == std::numeric_limits<int64_t>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::Int64);
+				EXPECT_EQ(minNode->GetInt64(), std::numeric_limits<int64_t>::min());
 
 				const Document::Node* maxNode = int64Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::Int64);
-				EXPECT_TRUE(maxNode->GetInt64() == std::numeric_limits<int64_t>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::Int64);
+				EXPECT_EQ(maxNode->GetInt64(), std::numeric_limits<int64_t>::max());
 
 				const Document::Node* arrayNode = int64Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Int64);
-				EXPECT_TRUE(child->GetInt64() == std::numeric_limits<int64_t>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Int64);
+				EXPECT_EQ(child->GetInt64(), std::numeric_limits<int64_t>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Int64);
-				EXPECT_TRUE(child->GetInt64() == std::numeric_limits<int64_t>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Int64);
+				EXPECT_EQ(child->GetInt64(), std::numeric_limits<int64_t>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -415,26 +415,26 @@ namespace hod
 			{
 				const Document::Node* minNode = float32Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::Float32);
-				EXPECT_TRUE(minNode->GetFloat32() == std::numeric_limits<float>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::Float32);
+				EXPECT_EQ(minNode->GetFloat32(), std::numeric_limits<float>::min());
 
 				const Document::Node* maxNode = float32Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::Float32);
-				EXPECT_TRUE(maxNode->GetFloat32() == std::numeric_limits<float>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::Float32);
+				EXPECT_EQ(maxNode->GetFloat32(), std::numeric_limits<float>::max());
 
 				const Document::Node* arrayNode = float32Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Float32);
-				EXPECT_TRUE(child->GetFloat32() == std::numeric_limits<float>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Float32);
+				EXPECT_EQ(child->GetFloat32(), std::numeric_limits<float>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Float32);
-				EXPECT_TRUE(child->GetFloat32() == std::numeric_limits<float>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Float32);
+				EXPECT_EQ(child->GetFloat32(), std::numeric_limits<float>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -444,26 +444,26 @@ namespace hod
 			{
 				const Document::Node* minNode = float64Node->GetChild("min");
 				EXPECT_TRUE(minNode);
-				EXPECT_TRUE(minNode->GetType() == Document::Node::Type::Float64);
-				EXPECT_TRUE(minNode->GetFloat64() == std::numeric_limits<double>::min());
+				EXPECT_EQ(minNode->GetType(), Document::Node::Type::Float64);
+				EXPECT_EQ(minNode->GetFloat64(), std::numeric_limits<double>::min());
 
 				const Document::Node* maxNode = float64Node->GetChild("max");
 				EXPECT_TRUE(maxNode);
-				EXPECT_TRUE(maxNode->GetType() == Document::Node::Type::Float64);
-				EXPECT_TRUE(maxNode->GetFloat64() == std::numeric_limits<double>::max());
+				EXPECT_EQ(maxNode->GetType(), Document::Node::Type::Float64);
+				EXPECT_EQ(maxNode->GetFloat64(), std::numeric_limits<double>::max());
 
 				const Document::Node* arrayNode = float64Node->GetChild("array");
 				EXPECT_TRUE(arrayNode);
-				EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-				EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+				EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+				EXPECT_EQ(arrayNode->GetChildCount(), 2);
 				const Document::Node* child = arrayNode->GetFirstChild();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Float64);
-				EXPECT_TRUE(child->GetFloat64() == std::numeric_limits<double>::min());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Float64);
+				EXPECT_EQ(child->GetFloat64(), std::numeric_limits<double>::min());
 				child = child->GetNextSibling();
 				EXPECT_TRUE(child);
-				EXPECT_TRUE(child->GetType() == Document::Node::Type::Float64);
-				EXPECT_TRUE(child->GetFloat64() == std::numeric_limits<double>::max());
+				EXPECT_EQ(child->GetType(), Document::Node::Type::Float64);
+				EXPECT_EQ(child->GetFloat64(), std::numeric_limits<double>::max());
 				child = child->GetNextSibling();
 				EXPECT_FALSE(child);
 			}
@@ -473,26 +473,26 @@ namespace hod
 		{
 			const Document::Node* basicNode = stringsNode->GetChild("basic");
 			EXPECT_TRUE(basicNode);
-			EXPECT_TRUE(basicNode->GetType() == Document::Node::Type::String);
-			EXPECT_TRUE(basicNode->GetString() == "Hello World");
+			EXPECT_EQ(basicNode->GetType(), Document::Node::Type::String);
+			EXPECT_EQ(basicNode->GetString(), "Hello World");
 
 			const Document::Node* escapedNode = stringsNode->GetChild("escaped");
 			EXPECT_TRUE(escapedNode);
-			EXPECT_TRUE(escapedNode->GetType() == Document::Node::Type::String);
-			EXPECT_TRUE(escapedNode->GetString() == "a\tb\nc\bd\"e\rf\fg\\h");
+			EXPECT_EQ(escapedNode->GetType(), Document::Node::Type::String);
+			EXPECT_EQ(escapedNode->GetString(), "a\tb\nc\bd\"e\rf\fg\\h");
 
 			const Document::Node* arrayNode = stringsNode->GetChild("array");
 			EXPECT_TRUE(arrayNode);
-			EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-			EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+			EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+			EXPECT_EQ(arrayNode->GetChildCount(), 2);
 			const Document::Node* child = arrayNode->GetFirstChild();
 			EXPECT_TRUE(child);
-			EXPECT_TRUE(child->GetType() == Document::Node::Type::String);
-			EXPECT_TRUE(child->GetString() == "Item 0");
+			EXPECT_EQ(child->GetType(), Document::Node::Type::String);
+			EXPECT_EQ(child->GetString(), "Item 0");
 			child = child->GetNextSibling();
 			EXPECT_TRUE(child);
-			EXPECT_TRUE(child->GetType() == Document::Node::Type::String);
-			EXPECT_TRUE(child->GetString() == "Item 1");
+			EXPECT_EQ(child->GetType(), Document::Node::Type::String);
+			EXPECT_EQ(child->GetString(), "Item 1");
 			child = child->GetNextSibling();
 			EXPECT_FALSE(child);
 		}
@@ -501,39 +501,55 @@ namespace hod
 		{
 			const Document::Node* totoNode = objectsNode->GetChild("toto");
 			EXPECT_TRUE(totoNode);
-			EXPECT_TRUE(totoNode->GetType() == Document::Node::Type::Object);
+			EXPECT_EQ(totoNode->GetType(), Document::Node::Type::Object);
 
 			const Document::Node* tataNode = objectsNode->GetChild("tata");
 			EXPECT_TRUE(tataNode);
-			EXPECT_TRUE(tataNode->GetType() == Document::Node::Type::Object);
+			EXPECT_EQ(tataNode->GetType(), Document::Node::Type::Object);
 
 			const Document::Node* arrayNode = objectsNode->GetChild("array");
 			EXPECT_TRUE(arrayNode);
-			EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
-			EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+			EXPECT_EQ(arrayNode->GetType(), Document::Node::Type::Array);
+			EXPECT_EQ(arrayNode->GetChildCount(), 2);
 			const Document::Node* child = arrayNode->GetFirstChild();
 			EXPECT_TRUE(child);
-			EXPECT_TRUE(child->GetType() == Document::Node::Type::Object);
+			EXPECT_EQ(child->GetType(), Document::Node::Type::Object);
 			child = child->GetNextSibling();
 			EXPECT_TRUE(child);
-			EXPECT_TRUE(child->GetType() == Document::Node::Type::Object);
+			EXPECT_EQ(child->GetType(), Document::Node::Type::Object);
 			child = child->GetNextSibling();
 			EXPECT_FALSE(child);
 		}
 	}
 
-	TEST(Document, WritterJson)
+	TEST(Document, PopulateDocument)
 	{
 		Document document;
 		FillDocument(document);
 
-		static const char* expectedJson = "{\"bools\":{\"true\":true,\"false\":false,\"array\":[true,false]},\"integers\":{\"uint8\":{\"min\":0,\"max\":255,\"array\":[0,255]},\"uint16\":{\"min\":0,\"max\":65535,\"array\":[0,65535]},\"uint32\":{\"min\":0,\"max\":4294967295,\"array\":[0,4294967295]},\"uint64\":{\"min\":0,\"max\":18446744073709551615,\"array\":[0,18446744073709551615]},\"int8\":{\"min\":-128,\"max\":127,\"array\":[-128,127]},\"int16\":{\"min\":-32768,\"max\":32767,\"array\":[-32768,32767]},\"int32\":{\"min\":-2147483648,\"max\":2147483647,\"array\":[-2147483648,2147483647]},\"int64\":{\"min\":-9223372036854775808,\"max\":9223372036854775807,\"array\":[-9223372036854775808,9223372036854775807]}},\"floatings\":{\"float32\":{\"min\":1.1754944e-38,\"max\":3.4028235e+38,\"array\":[1.1754944e-38,3.4028235e+38]},\"float64\":{\"min\":2.2250738585072014e-308,\"max\":1.7976931348623157e+308,\"array\":[2.2250738585072014e-308,1.7976931348623157e+308]}},\"strings\":{\"basic\":\"Hello World\",\"escaped\":\"a\\tb\\nc\\bd\\\"e\\rf\\fg\\\\h\",\"array\":[\"Item 0\",\"Item 1\"]},\"objects\":{\"toto\":{},\"tata\":{},\"array\":[{\"toto\":{},\"tata\":{}},{\"toto\":{},\"tata\":{}}]}}";
+		VerifyDocument(document);
+	}
+	TEST(Document, JsonWriter)
+	{
+		Document document;
+		FillDocument(document);
 
 		std::stringstream output;
 
-		DocumentWriterJson writter;
-		writter.Write(document, output);
+		DocumentWriterJson writer;
+		EXPECT_TRUE(writer.Write(document, output));
 
 		EXPECT_STREQ(output.str().c_str(), expectedJson);
+	}
+
+	TEST(Document, JsonReader)
+	{
+		std::stringstream input(expectedJson);
+
+		Document document;
+		DocumentReaderJson reader;
+		EXPECT_TRUE(reader.Read(document, input));
+
+		VerifyDocument(document);
 	}
 }

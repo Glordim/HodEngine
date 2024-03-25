@@ -24,7 +24,7 @@ namespace hod
 		{
 			std::streampos initialPos = stream.tellg();
 			stream.seekg(0, std::ios::end);
-			size = stream.tellg() - initialPos;
+			size = static_cast<uint32_t>(stream.tellg() - initialPos);
 			stream.seekg(initialPos, std::ios::beg);
 		}
 
@@ -190,7 +190,7 @@ namespace hod
 			{
 				++_cursor;
 				isFloat = true;
-				_cursor += std::strspn(_cursor, "0123456789");
+				_cursor += std::strspn(_cursor, "0123456789e-+");
 			}
 			const char* valueEnd = _cursor;
 			if (isFloat == true)
