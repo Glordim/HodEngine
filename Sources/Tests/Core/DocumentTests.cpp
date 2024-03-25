@@ -122,6 +122,19 @@ namespace hod
 			arrayNode.AddChild("").SetString("Item 0");
 			arrayNode.AddChild("").SetString("Item 1");
 		}
+
+		Document::Node& objectsNode = document.GetRootNode().AddChild("objects");
+		{
+			objectsNode.AddChild("toto");
+			objectsNode.AddChild("tata");
+			Document::Node& arrayNode = objectsNode.AddChild("array");
+			Document::Node& child0 = arrayNode.AddChild("");
+			child0.AddChild("toto");
+			child0.AddChild("tata");
+			Document::Node& child1 = arrayNode.AddChild("");
+			child1.AddChild("toto");
+			child1.AddChild("tata");
+		}
 	}
 
 	TEST(Document, AddChild)
@@ -484,7 +497,29 @@ namespace hod
 			EXPECT_FALSE(child);
 		}
 
-		// TODO add Object (and object array)
+		const Document::Node* objectsNode = document.GetRootNode().GetChild("objects");
+		{
+			const Document::Node* totoNode = objectsNode->GetChild("toto");
+			EXPECT_TRUE(totoNode);
+			EXPECT_TRUE(totoNode->GetType() == Document::Node::Type::Object);
+
+			const Document::Node* tataNode = objectsNode->GetChild("tata");
+			EXPECT_TRUE(tataNode);
+			EXPECT_TRUE(tataNode->GetType() == Document::Node::Type::Object);
+
+			const Document::Node* arrayNode = objectsNode->GetChild("array");
+			EXPECT_TRUE(arrayNode);
+			EXPECT_TRUE(arrayNode->GetType() == Document::Node::Type::Array);
+			EXPECT_TRUE(arrayNode->GetChildCount() == 2);
+			const Document::Node* child = arrayNode->GetFirstChild();
+			EXPECT_TRUE(child);
+			EXPECT_TRUE(child->GetType() == Document::Node::Type::Object);
+			child = child->GetNextSibling();
+			EXPECT_TRUE(child);
+			EXPECT_TRUE(child->GetType() == Document::Node::Type::Object);
+			child = child->GetNextSibling();
+			EXPECT_FALSE(child);
+		}
 	}
 
 	TEST(Document, WritterJson)
@@ -492,7 +527,7 @@ namespace hod
 		Document document;
 		FillDocument(document);
 
-		static const char* expectedJson = "{\"bools\":{\"true\":true,\"false\":false,\"array\":[true,false]},\"integers\":{\"uint8\":{\"min\":0,\"max\":255,\"array\":[0,255]},\"uint16\":{\"min\":0,\"max\":65535,\"array\":[0,65535]},\"uint32\":{\"min\":0,\"max\":4294967295,\"array\":[0,4294967295]},\"uint64\":{\"min\":0,\"max\":18446744073709551615,\"array\":[0,18446744073709551615]},\"int8\":{\"min\":-128,\"max\":127,\"array\":[-128,127]},\"int16\":{\"min\":-32768,\"max\":32767,\"array\":[-32768,32767]},\"int32\":{\"min\":-2147483648,\"max\":2147483647,\"array\":[-2147483648,2147483647]},\"int64\":{\"min\":-9223372036854775808,\"max\":9223372036854775807,\"array\":[-9223372036854775808,9223372036854775807]}},\"floatings\":{\"float32\":{\"min\":1.1754944e-38,\"max\":3.4028235e+38,\"array\":[1.1754944e-38,3.4028235e+38]},\"float64\":{\"min\":2.2250738585072014e-308,\"max\":1.7976931348623157e+308,\"array\":[2.2250738585072014e-308,1.7976931348623157e+308]}},\"strings\":{\"basic\":\"Hello World\",\"escaped\":\"a\\tb\\nc\\bd\\\"e\\rf\\fg\\\\h\",\"array\":[\"Item 0\",\"Item 1\"]}}";
+		static const char* expectedJson = "{\"bools\":{\"true\":true,\"false\":false,\"array\":[true,false]},\"integers\":{\"uint8\":{\"min\":0,\"max\":255,\"array\":[0,255]},\"uint16\":{\"min\":0,\"max\":65535,\"array\":[0,65535]},\"uint32\":{\"min\":0,\"max\":4294967295,\"array\":[0,4294967295]},\"uint64\":{\"min\":0,\"max\":18446744073709551615,\"array\":[0,18446744073709551615]},\"int8\":{\"min\":-128,\"max\":127,\"array\":[-128,127]},\"int16\":{\"min\":-32768,\"max\":32767,\"array\":[-32768,32767]},\"int32\":{\"min\":-2147483648,\"max\":2147483647,\"array\":[-2147483648,2147483647]},\"int64\":{\"min\":-9223372036854775808,\"max\":9223372036854775807,\"array\":[-9223372036854775808,9223372036854775807]}},\"floatings\":{\"float32\":{\"min\":1.1754944e-38,\"max\":3.4028235e+38,\"array\":[1.1754944e-38,3.4028235e+38]},\"float64\":{\"min\":2.2250738585072014e-308,\"max\":1.7976931348623157e+308,\"array\":[2.2250738585072014e-308,1.7976931348623157e+308]}},\"strings\":{\"basic\":\"Hello World\",\"escaped\":\"a\\tb\\nc\\bd\\\"e\\rf\\fg\\\\h\",\"array\":[\"Item 0\",\"Item 1\"]},\"objects\":{\"toto\":{},\"tata\":{},\"array\":[{\"toto\":{},\"tata\":{}},{\"toto\":{},\"tata\":{}}]}}";
 
 		std::stringstream output;
 
