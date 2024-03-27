@@ -13,16 +13,16 @@ namespace hod
 		struct P2fC4f;
 	}
 
-	namespace physics
+	namespace game
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class DebugDrawer : public b2Draw
+		class PhysicsDebugDrawer : public b2Draw
 		{
 		public:
-													DebugDrawer();
-													~DebugDrawer();
+													PhysicsDebugDrawer();
+													~PhysicsDebugDrawer();
 
 		public:
 

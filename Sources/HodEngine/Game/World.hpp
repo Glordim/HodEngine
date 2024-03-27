@@ -17,6 +17,7 @@ namespace hod
 	namespace game
 	{
 		class Scene;
+		class PhysicsDebugDrawer;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -63,6 +64,11 @@ namespace hod
 			bool							SaveToDocument(Document::Node& documentNode);
 			bool							LoadFromDocument(const Document::Node& documentNode);
 
+			void							EnablePhysicsDebugDrawer(bool enabled);
+			bool							IsPhysicsDebugDrawerEnabled(bool enabled) const;
+
+			void							Draw(renderer::RenderQueue* renderQueue);
+
 		protected:
 
 								~World();
@@ -80,6 +86,8 @@ namespace hod
 			Event<std::weak_ptr<Entity>>	_addEntityEvent;
 			Event<std::weak_ptr<Entity>>	_removeEntityEvent;
 			Event<std::weak_ptr<Entity>>	_renameEntityEvent;
+
+			PhysicsDebugDrawer*				_physicsDebugDrawer = nullptr;
 		};
 	}
 }

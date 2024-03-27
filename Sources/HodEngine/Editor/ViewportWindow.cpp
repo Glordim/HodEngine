@@ -24,6 +24,8 @@ namespace hod::editor
 	ViewportWindow::ViewportWindow()
 	{
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+
+		game::World::GetInstance()->EnablePhysicsDebugDrawer(true);
 	}
 
 	/// @brief 
@@ -108,6 +110,7 @@ namespace hod::editor
 					rendererComponent->PushToRenderQueue(*renderQueue);
 				}
 			}
+			world->Draw(renderQueue);
 
 			_renderTarget->PrepareForWrite(); // todo automate ?
 
@@ -123,39 +126,42 @@ namespace hod::editor
 			if (sceneSelection != nullptr)
 			{
 				std::shared_ptr<game::Node2dComponent> node2D = sceneSelection->GetComponent<game::Node2dComponent>().lock();
-				float matrix[16];
-				float position[3];
-				position[0] = node2D->GetPosition().GetX();
-				position[1] = node2D->GetPosition().GetY();
-				position[2] = 0.0f;
-				float rotation[3];
-				rotation[0] = 0.0f;
-				rotation[1] = 0.0f;
-				rotation[2] = node2D->GetRotation();
-				float scale[3];
-				scale[0] = node2D->GetScale().GetX();
-				scale[1] = node2D->GetScale().GetY();
-				scale[2] = 1.0f;
-				ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, matrix);
-
-				float viewMatrix[16];
-				position[0] = _cameraPosition.GetX();
-				position[1] = _cameraPosition.GetY();
-				rotation[2] = 0.0f;
-				scale[0] = 1.0f;
-				scale[1] = 1.0f;
-				ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, viewMatrix);
-
-				ImGuizmo::SetOrthographic(true);
-				ImGuiIO& io = ImGui::GetIO();
-   				ImGuizmo::SetRect(origin.x, origin.y, windowWidth, windowHeight);
-				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-				if (ImGuizmo::Manipulate(viewMatrix, (float*)&projection, _gizmoOperation, ImGuizmo::MODE::LOCAL, matrix))
+				if (node2D != nullptr)
 				{
-					ImGuizmo::DecomposeMatrixToComponents(matrix, position, rotation, scale);
-					node2D->SetPosition(Vector2(position[0], position[1]));
-					node2D->SetRotation(rotation[2]);
-					node2D->SetScale(Vector2(scale[0], scale[1]));
+					float matrix[16];
+					float position[3];
+					position[0] = node2D->GetPosition().GetX();
+					position[1] = node2D->GetPosition().GetY();
+					position[2] = 0.0f;
+					float rotation[3];
+					rotation[0] = 0.0f;
+					rotation[1] = 0.0f;
+					rotation[2] = node2D->GetRotation();
+					float scale[3];
+					scale[0] = node2D->GetScale().GetX();
+					scale[1] = node2D->GetScale().GetY();
+					scale[2] = 1.0f;
+					ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, matrix);
+
+					float viewMatrix[16];
+					position[0] = _cameraPosition.GetX();
+					position[1] = _cameraPosition.GetY();
+					rotation[2] = 0.0f;
+					scale[0] = 1.0f;
+					scale[1] = 1.0f;
+					ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, viewMatrix);
+
+					ImGuizmo::SetOrthographic(true);
+					ImGuiIO& io = ImGui::GetIO();
+					ImGuizmo::SetRect(origin.x, origin.y, windowWidth, windowHeight);
+					ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+					if (ImGuizmo::Manipulate(viewMatrix, (float*)&projection, _gizmoOperation, ImGuizmo::MODE::LOCAL, matrix))
+					{
+						ImGuizmo::DecomposeMatrixToComponents(matrix, position, rotation, scale);
+						node2D->SetPosition(Vector2(position[0], position[1]));
+						node2D->SetRotation(rotation[2]);
+						node2D->SetScale(Vector2(scale[0], scale[1]));
+					}
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 
-#include "DebugDrawer.hpp"
+#include "PhysicsDebugDrawer.hpp"
 
 #include "HodEngine/Renderer/P2fC4f.hpp"
 
@@ -12,50 +12,48 @@
 
 namespace hod
 {
-	namespace physics
+	namespace game
 	{
-		renderer::MaterialInstance* DebugDrawer::_pointMaterialInstance = nullptr;
-		renderer::MaterialInstance* DebugDrawer::_lineMaterialInstance = nullptr;
-		renderer::MaterialInstance* DebugDrawer::_wireframePolygonMaterialInstance = nullptr;
-		renderer::MaterialInstance* DebugDrawer::_solidPolygonMaterialInstance = nullptr;
+		renderer::MaterialInstance* PhysicsDebugDrawer::_pointMaterialInstance = nullptr;
+		renderer::MaterialInstance* PhysicsDebugDrawer::_lineMaterialInstance = nullptr;
+		renderer::MaterialInstance* PhysicsDebugDrawer::_wireframePolygonMaterialInstance = nullptr;
+		renderer::MaterialInstance* PhysicsDebugDrawer::_solidPolygonMaterialInstance = nullptr;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		DebugDrawer::DebugDrawer()
+		PhysicsDebugDrawer::PhysicsDebugDrawer()
 		{
-			/*
 			renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
 
-			if (DebugDrawer::_solidPolygonMaterialInstance == nullptr)
+			if (PhysicsDebugDrawer::_solidPolygonMaterialInstance == nullptr)
 			{
 				const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Fill_TriangleFan);
 				_solidPolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
-			if (DebugDrawer::_wireframePolygonMaterialInstance == nullptr)
+			if (PhysicsDebugDrawer::_wireframePolygonMaterialInstance == nullptr)
 			{
 				const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_TriangleFan);
 				_wireframePolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
-			if (DebugDrawer::_lineMaterialInstance == nullptr)
+			if (PhysicsDebugDrawer::_lineMaterialInstance == nullptr)
 			{
 				const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line);
 				_lineMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
-			*/
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		DebugDrawer::~DebugDrawer()
+		PhysicsDebugDrawer::~PhysicsDebugDrawer()
 		{
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+		void PhysicsDebugDrawer::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
 			for (renderer::RenderCommand* renderCommand : _renderCommands)
 			{
@@ -68,7 +66,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool DebugDrawer::HasRenderCommand() const
+		bool PhysicsDebugDrawer::HasRenderCommand() const
 		{
 			return (_renderCommands.empty() == false);
 		}
@@ -76,27 +74,27 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::DrawPolygon(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
+		void PhysicsDebugDrawer::DrawPolygon(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
 		{
 			renderer::P2fC4f* vertices = BuildPolygonVertices(b2Vertices, vertexCount, color);
 
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_wireframePolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, PhysicsDebugDrawer::_wireframePolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::DrawSolidPolygon(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
+		void PhysicsDebugDrawer::DrawSolidPolygon(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
 		{
 			renderer::P2fC4f* vertices = BuildPolygonVertices(b2Vertices, vertexCount, color);
 
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_solidPolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, vertexCount, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, PhysicsDebugDrawer::_solidPolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		renderer::P2fC4f* DebugDrawer::BuildPolygonVertices(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
+		renderer::P2fC4f* PhysicsDebugDrawer::BuildPolygonVertices(const b2Vec2* b2Vertices, int32 vertexCount, const b2Color& color)
 		{
 			renderer::P2fC4f* vertices = new renderer::P2fC4f[vertexCount];
 
@@ -107,7 +105,7 @@ namespace hod
 				vertices[vertexIndex]._color[0] = color.r;
 				vertices[vertexIndex]._color[1] = color.g;
 				vertices[vertexIndex]._color[2] = color.b;
-				vertices[vertexIndex]._color[3] = 0.1f;
+				vertices[vertexIndex]._color[3] = 0.5f;
 			}
 
 			return vertices;
@@ -116,27 +114,27 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
+		void PhysicsDebugDrawer::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
 		{
 			renderer::P2fC4f* vertices = BuildCircleVertices(center, radius, color, 32);
 
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_wireframePolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, PhysicsDebugDrawer::_wireframePolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color)
+		void PhysicsDebugDrawer::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color)
 		{
 			renderer::P2fC4f* vertices = BuildCircleVertices(center, radius, color, 32);
 
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_solidPolygonMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 32 * 3, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, PhysicsDebugDrawer::_solidPolygonMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		renderer::P2fC4f* DebugDrawer::BuildCircleVertices(const b2Vec2& center, float radius, const b2Color& color, uint32_t segmentCount)
+		renderer::P2fC4f* PhysicsDebugDrawer::BuildCircleVertices(const b2Vec2& center, float radius, const b2Color& color, uint32_t segmentCount)
 		{
 			const float angleStep = 360.0f / segmentCount;
 
@@ -151,7 +149,7 @@ namespace hod
 				vertices[offset + 0]._color[0] = color.r;
 				vertices[offset + 0]._color[1] = color.g;
 				vertices[offset + 0]._color[2] = color.b;
-				vertices[offset + 0]._color[3] = 0.1f;
+				vertices[offset + 0]._color[3] = 0.5f;
 
 				float angle = angleStep * currentSegment;
 				angle = math::DegreeToRadian(angle);
@@ -161,7 +159,7 @@ namespace hod
 				vertices[offset + 1]._color[0] = color.r;
 				vertices[offset + 1]._color[1] = color.g;
 				vertices[offset + 1]._color[2] = color.b;
-				vertices[offset + 1]._color[3] = 0.1f;
+				vertices[offset + 1]._color[3] = 0.5f;
 
 				angle = angleStep * (currentSegment + 1);
 				angle = math::DegreeToRadian(angle);
@@ -171,7 +169,7 @@ namespace hod
 				vertices[offset + 2]._color[0] = color.r;
 				vertices[offset + 2]._color[1] = color.g;
 				vertices[offset + 2]._color[2] = color.b;
-				vertices[offset + 2]._color[3] = 0.1f;
+				vertices[offset + 2]._color[3] = 0.5f;
 			}
 
 			return vertices;
@@ -180,7 +178,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
+		void PhysicsDebugDrawer::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
 		{
 			renderer::P2fC4f* vertices = new renderer::P2fC4f[2];
 
@@ -189,22 +187,22 @@ namespace hod
 			vertices[0]._color[0] = color.r;
 			vertices[0]._color[1] = color.g;
 			vertices[0]._color[2] = color.b;
-			vertices[0]._color[3] = 0.1f;
+			vertices[0]._color[3] = 0.5f;
 
 			vertices[1]._position[0] = p2.x;
 			vertices[1]._position[1] = p2.y;
 			vertices[1]._color[0] = color.r;
 			vertices[1]._color[1] = color.g;
 			vertices[1]._color[2] = color.b;
-			vertices[1]._color[3] = 0.1f;
+			vertices[1]._color[3] = 0.5f;
 
-			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 2, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, DebugDrawer::_lineMaterialInstance, true));
+			_renderCommands.push_back(new renderer::RenderCommandMesh(vertices, 2, sizeof(renderer::P2fC4f), nullptr, 0, Matrix4::Identity, PhysicsDebugDrawer::_lineMaterialInstance, true));
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::DrawTransform(const b2Transform& xf)
+		void PhysicsDebugDrawer::DrawTransform(const b2Transform& xf)
 		{
 			// Todo
 		}
@@ -212,7 +210,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void DebugDrawer::DrawPoint(const b2Vec2& p, float size, const b2Color& color)
+		void PhysicsDebugDrawer::DrawPoint(const b2Vec2& p, float size, const b2Color& color)
 		{
 			// Todo
 		}

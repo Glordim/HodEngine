@@ -2,11 +2,10 @@
 
 #include "Body.hpp"
 
-#include "DebugDrawer.hpp"
-
 #include <box2d/b2_world.h>
 #include <box2d/b2_math.h>
 #include <box2d/b2_body.h>
+#include <box2d/b2_draw.h>
 
 namespace hod
 {
@@ -36,13 +35,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool Physics::Init()
 		{
-			_debugDrawer = new DebugDrawer();
 
 			b2Vec2 defaultGravity(0.0f, -9.8f);
 
 			_b2World = new b2World(defaultGravity);
-			_b2World->SetDebugDraw(_debugDrawer);
-			SetDebugDrawFlags(DebugDrawFlag::Shape, true);
 
 			return true;
 		}
@@ -76,9 +72,8 @@ namespace hod
 		{
 			_b2World->Step(dt, _velocityIterations, _positionIterations);
 	
-			if (_useDebugDraw == true)
+			if (_debugDrawer != nullptr)
 			{
-				assert(_debugDrawer->HasRenderCommand() == false);
 				_b2World->DebugDraw();
 			}
 		}
@@ -96,20 +91,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Physics::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+		void Physics::SetDebugDrawer(b2Draw* debugDrawer)
 		{
-			if (_useDebugDraw == true)
-			{
-				_debugDrawer->PushToRenderQueue(renderQueue);
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Physics::SetDebugDraw(bool debugDraw)
-		{
-			_useDebugDraw = debugDraw;
+			_debugDrawer = debugDrawer;
+			_b2World->SetDebugDraw(_debugDrawer);
+			SetDebugDrawFlags(DebugDrawFlag::Shape, true);
 		}
 		
 		//-----------------------------------------------------------------------------
