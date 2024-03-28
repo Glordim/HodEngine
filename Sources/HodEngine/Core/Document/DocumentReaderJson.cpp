@@ -186,7 +186,7 @@ namespace hod
 			bool isFloat = false;
 			const char* valueStart = _cursor;
 			_cursor += std::strspn(valueStart, "0123456789");
-			if (*_cursor == '.')
+			if (*_cursor == '.' || *_cursor == 'e' || *_cursor == 'E')
 			{
 				++_cursor;
 				isFloat = true;
