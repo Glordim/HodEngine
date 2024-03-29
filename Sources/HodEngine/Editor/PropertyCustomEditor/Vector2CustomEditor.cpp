@@ -4,6 +4,8 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
+#include "HodEngine/ImGui/Widgets.hpp"
+#include "HodEngine/ImGui/Helper.hpp"
 
 namespace hod::editor
 {
@@ -26,22 +28,26 @@ namespace hod::editor
 		ImGui::TextUnformatted(property->GetDisplayName().c_str());
 
 		ImGui::SameLine(valuePos);
-			
+
 		float availableWidth = ImGui::GetColumnWidth();
-		availableWidth -= ImGui::CalcTextSize("X").x;
-		availableWidth -= ImGui::CalcTextSize("Y").x;
-		availableWidth -= ImGui::GetStyle().ItemSpacing.x * 3;
-		ImGui::AlignTextToFramePadding();
-		ImGui::Text("X");
-		ImGui::SameLine();
+		availableWidth -= CalculateButtonSize("X").x;
+		availableWidth -= CalculateButtonSize("Y").x;
+		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.0f, 0.0f, 1.0f));
+		FramedText("X", ImDrawFlags_RoundCornersLeft);
+		ImGui::PopStyleColor();
+		ImGui::SameLine(0.0f, 0.0f);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.5f);
-		changed |= ImGui::DragFloat("##x", &x);
+		changed |= DragScalar("##x", ImGuiDataType_Float, &x, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
 		ImGui::SameLine();
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted("Y");
-		ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.5f, 0.0f, 1.0f));
+		FramedText("Y", ImDrawFlags_RoundCornersLeft);
+		ImGui::PopStyleColor();
+		ImGui::SameLine(0.0f, 0.0f);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.5f);
-		changed |= ImGui::DragFloat("##y", &y);
+		changed |= DragScalar("##y", ImGuiDataType_Float, &y, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
 
 		ImGui::PopID();
 
