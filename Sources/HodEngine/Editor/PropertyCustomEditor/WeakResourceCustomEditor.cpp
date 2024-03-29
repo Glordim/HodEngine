@@ -24,57 +24,53 @@ namespace hod::editor
 		game::WeakResourceBase* value = static_cast<game::WeakResourceBase*>(property->GetValue(instance));
 
 		ImGui::PushID(value);
-		if (ImGui::BeginTable("Var", 2) == true)
+
+		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(property->GetDisplayName().c_str());
+
+		ImGui::SameLine(valuePos);
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(value->GetUid().ToString().c_str());
+		ImGui::SameLine(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize("Find").x + ImGui::GetStyle().FramePadding.x * 2.0f));
+		if (ImGui::Button("Find") == true)
 		{
-			ImGui::TableNextRow();
+			AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
+			assetList.clear();
+			assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
 
-			ImGui::TableNextColumn();
+			ImGui::OpenPopup("WeakResourceFindPopup");
+		}
+		if (ImGui::BeginPopup("WeakResourceFindPopup"))
+		{
 			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(property->GetDisplayName().c_str());
-			
-			ImGui::TableNextColumn();			
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(value->GetUid().ToString().c_str());
+			ImGui::TextUnformatted("Name:");
 			ImGui::SameLine();
-			if (ImGui::Button("Find") == true)
-			{
-				AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
-				assetList.clear();
-				assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
 
-				ImGui::OpenPopup("WeakResourceFindPopup");
-			}
-			if (ImGui::BeginPopup("WeakResourceFindPopup"))
+			static char inputTextBuffer[2048] = "";
+			ImGui::InputText("##Name", inputTextBuffer, sizeof(inputTextBuffer));
+			ImGui::Separator();
+
+			float itemHeight = 32; // todo max 32 - FontSize ?
+
+			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("Name:");
+				ImGui::PushID(assetNode);
+				ImGui::Image(assetNode->_asset->GetThumbnail(), ImVec2(itemHeight, itemHeight));
 				ImGui::SameLine();
-
-				static char inputTextBuffer[2048] = "";
-				ImGui::InputText("##Name", inputTextBuffer, sizeof(inputTextBuffer));
-				ImGui::Separator();
-
-				float itemHeight = 32; // todo max 32 - FontSize ?
-
-				for (AssetDatabase::FileSystemMapping* assetNode : assetList)
+				ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0, 0.5f));
+				if (ImGui::Selectable(assetNode->_asset->GetName().c_str(), false, 0, ImVec2(0, itemHeight)))
 				{
-					ImGui::PushID(assetNode);
-					ImGui::Image(assetNode->_asset->GetThumbnail(), ImVec2(itemHeight, itemHeight));
-					ImGui::SameLine();
-					ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0, 0.5f));
-					if (ImGui::Selectable(assetNode->_asset->GetName().c_str(), false, 0, ImVec2(0, itemHeight)))
-					{
-						value->SetUid(assetNode->_asset->GetUid());
-						property->SetValue(instance, value); // Set to itself for call SetFunction
-					}
-					ImGui::PopStyleVar();
-					ImGui::PopID();
+					value->SetUid(assetNode->_asset->GetUid());
+					property->SetValue(instance, value); // Set to itself for call SetFunction
 				}
-
-				ImGui::EndPopup();
+				ImGui::PopStyleVar();
+				ImGui::PopID();
 			}
 
-			ImGui::EndTable();
+			ImGui::EndPopup();
 		}
 
 		ImGui::PopID();

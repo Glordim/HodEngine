@@ -62,65 +62,61 @@ namespace hod::editor
 	{
 		bool changed = false;
 
-		if (ImGui::BeginTable("Var", 2) == true)
+		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(property->GetDisplayName().c_str());
+
+		ImGui::SameLine(valuePos);
+
+		ReflectionPropertyVariable::Type type = property->GetType();
+
+		switch (type)
 		{
-			ImGui::TableNextRow();
-			ImGui::TableNextColumn();
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(property->GetDisplayName().c_str());
-			ImGui::TableNextColumn();
-
-			ReflectionPropertyVariable::Type type = property->GetType();
-
-			switch (type)
+		case ReflectionPropertyVariable::Type::Bool:
+		{
+			ImGui::PushID(property);
+			bool value = property->GetValue<bool>(object);
+			ImGui::SetNextItemWidth(-1);
+			changed = ImGui::Checkbox("", &value);
+			if (changed == true)
 			{
-			case ReflectionPropertyVariable::Type::Bool:
-			{
-				ImGui::PushID(property);
-				bool value = property->GetValue<bool>(object);
-				ImGui::SetNextItemWidth(-1);
-				changed = ImGui::Checkbox("", &value);
-				if (changed == true)
-				{
-					property->SetValue<bool>(object, value);
-				}
-				ImGui::PopID();
+				property->SetValue<bool>(object, value);
 			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::Int8:
+		{
+			ImGui::PushID(property);
+			int32_t value = property->GetValue<int8_t>(object);
+			ImGui::SetNextItemWidth(-1);
+			changed = ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f);
+			if (changed == true)
+			{
+				property->SetValue<int8_t>(object, (int8_t)value);
+			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::Float32:
+		{
+			ImGui::PushID(property);
+			float value = property->GetValue<float>(object);
+			ImGui::SetNextItemWidth(-1);
+			changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f);
+			if (changed == true)
+			{
+				property->SetValue<float>(object, (float)value);
+			}
+			ImGui::PopID();
+		}
+		break;
+		
+		default:
 			break;
-
-			case ReflectionPropertyVariable::Type::Int8:
-			{
-				ImGui::PushID(property);
-				int32_t value = property->GetValue<int8_t>(object);
-				ImGui::SetNextItemWidth(-1);
-				changed = ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f);
-				if (changed == true)
-				{
-					property->SetValue<int8_t>(object, (int8_t)value);
-				}
-				ImGui::PopID();
-			}
-			break;
-
-			case ReflectionPropertyVariable::Type::Float32:
-			{
-				ImGui::PushID(property);
-				float value = property->GetValue<float>(object);
-				ImGui::SetNextItemWidth(-1);
-				changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f);
-				if (changed == true)
-				{
-					property->SetValue<float>(object, (float)value);
-				}
-				ImGui::PopID();
-			}
-			break;
-			
-			default:
-				break;
-			}
-
-			ImGui::EndTable();
 		}
 
 		return changed;
@@ -131,78 +127,77 @@ namespace hod::editor
 	bool PropertyDrawer::DrawPropertyArray(void* object, ReflectionPropertyArray* property)
 	{
 		bool changed = false;
-		if (ImGui::BeginTable("Var", 2) == true)
+		
+		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(property->GetDisplayName().c_str());
+
+		ImGui::SameLine(valuePos);
+
+		ReflectionPropertyVariable::Type type = property->GetType();
+
+		uint32_t elementCount = property->GetElementCount(object);
+
+		ImGui::PushID(property);
+		if (elementCount > 0 && ImGui::BeginTable("Items", 2) == true)
 		{
-			ImGui::TableNextRow();
-			ImGui::TableNextColumn();
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(property->GetDisplayName().c_str());
-			ImGui::TableNextColumn();
+			ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
+			ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize);
 
-			ReflectionPropertyVariable::Type type = property->GetType();
-
-			uint32_t elementCount = property->GetElementCount(object);
-
-			ImGui::PushID(property);
-			if (ImGui::BeginTable("Items", 2) == true)
+			for (uint32_t index = 0; index < elementCount; ++index)
 			{
-				ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
-				ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize);
-
-				for (uint32_t index = 0; index < elementCount; ++index)
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%i", index);
+				ImGui::TableNextColumn();
+				ImGui::PushID(index);
+				switch (type)
 				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					ImGui::AlignTextToFramePadding();
-					ImGui::Text("%i", index);
-					ImGui::TableNextColumn();
-					ImGui::PushID(index);
-					switch (type)
+					case ReflectionPropertyVariable::Type::Float32:
 					{
-						case ReflectionPropertyVariable::Type::Float32:
+						float value = property->GetValue<float>(object, index);
+						bool elementChanged = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
+						if (elementChanged == true)
 						{
-							float value = property->GetValue<float>(object, index);
-							bool elementChanged = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
-							if (elementChanged == true)
-							{
-								property->SetValue<float>(object, index, (float)value);
-								changed = true;
-							}
+							property->SetValue<float>(object, index, (float)value);
+							changed = true;
 						}
-						break;
-
-						case ReflectionPropertyVariable::Type::Object:
-						{
-							if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
-							{
-								ImGui::Indent();
-								void* value = property->GetValue<void*>(object, index);
-								changed |= PropertyDrawer::DrawDescriptor(value, property->GetElementReflectionDescriptor());
-								ImGui::Unindent();
-							}
-						}
-						break;
-
-						default: assert(false); break;
 					}
-					ImGui::PopID();
+					break;
 
-					if (index < elementCount - 1)
+					case ReflectionPropertyVariable::Type::Object:
 					{
-						ImGui::SameLine();
+						if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
+						{
+							ImGui::Indent();
+							void* value = property->GetValue<void*>(object, index);
+							changed |= PropertyDrawer::DrawDescriptor(value, property->GetElementReflectionDescriptor());
+							ImGui::Unindent();
+						}
 					}
+					break;
+
+					default: assert(false); break;
 				}
-				ImGui::EndTable();
-			}
-			if (ImGui::Button("+") == true)
-			{
-				property->InsertElement(object, elementCount);
-				changed = true;
-			}
-			ImGui::PopID();
+				ImGui::PopID();
 
+				if (index < elementCount - 1)
+				{
+					ImGui::SameLine();
+				}
+			}
 			ImGui::EndTable();
 		}
+		ImGui::SetCursorPosX(valuePos);
+		if (ImGui::Button("+") == true)
+		{
+			property->InsertElement(object, elementCount);
+			changed = true;
+		}
+		ImGui::PopID();
+
 		return changed;
 	}
 

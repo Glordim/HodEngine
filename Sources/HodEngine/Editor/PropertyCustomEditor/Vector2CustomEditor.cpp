@@ -19,33 +19,29 @@ namespace hod::editor
 		float y = value.GetY();
 
 		ImGui::PushID(property->GetValue(instance));
-		if (ImGui::BeginTable("Var", 2) == true)
-		{
-			ImGui::TableNextRow();
-			ImGui::TableNextColumn();
 
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(property->GetDisplayName().c_str());
-			ImGui::TableNextColumn();
+		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(property->GetDisplayName().c_str());
+
+		ImGui::SameLine(valuePos);
 			
-			float availableWidth = ImGui::GetColumnWidth();
-			availableWidth -= ImGui::CalcTextSize("X").x;
-			availableWidth -= ImGui::CalcTextSize("Y").x;
-			availableWidth -= ImGui::GetStyle().ItemSpacing.x * 3;
-			ImGui::AlignTextToFramePadding();
-			ImGui::Text("X");
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(availableWidth * 0.5f);
-			changed |= ImGui::DragFloat("##x", &x);
-			ImGui::SameLine();
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted("Y");
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(availableWidth * 0.5f);
-			changed |= ImGui::DragFloat("##y", &y);
-
-			ImGui::EndTable();
-		}
+		float availableWidth = ImGui::GetColumnWidth();
+		availableWidth -= ImGui::CalcTextSize("X").x;
+		availableWidth -= ImGui::CalcTextSize("Y").x;
+		availableWidth -= ImGui::GetStyle().ItemSpacing.x * 3;
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(availableWidth * 0.5f);
+		changed |= ImGui::DragFloat("##x", &x);
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Y");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(availableWidth * 0.5f);
+		changed |= ImGui::DragFloat("##y", &y);
 
 		ImGui::PopID();
 

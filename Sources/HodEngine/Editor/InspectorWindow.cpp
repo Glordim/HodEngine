@@ -124,7 +124,9 @@ namespace hod::editor
 
 		ImGui::Separator();
 
-		if (ImGui::Button("Add component") == true)
+		ImVec2 addComponentButtonSize = ImGui::CalcTextSize("  Add component  ") + ImVec2(35.0f, 15.0f);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x * 0.5f - addComponentButtonSize.x * 0.5f));
+		if (ImGui::Button("  Add component  ", addComponentButtonSize) == true)
 		{
 			ImGui::OpenPopup("AddComponent");
 		}
