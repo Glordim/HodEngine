@@ -131,4 +131,47 @@ namespace hod
 		IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | (temp_input_allowed ? ImGuiItemStatusFlags_Inputable : 0));
 		return value_changed;
 	}
+
+	bool ImageTextButton(ImTextureID image, ImVec2 imageSize, const char* label, ImVec2 size_arg, ImGuiButtonFlags flags, ImDrawFlags drawFlags)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
+		ImGuiContext& g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		const ImGuiID id = window->GetID(label);
+		const ImVec2 label_size = ImGui::CalcTextSize(label, NULL, true);
+
+		ImVec2 pos = window->DC.CursorPos;
+		if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+			pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+		ImVec2 size = ImGui::CalcItemSize(size_arg, imageSize.x + 3 + label_size.x + style.FramePadding.x * 2.0f, ImMax(label_size.y, imageSize.y) + style.FramePadding.y * 2.0f);
+
+		const ImRect bb(pos, pos + size);
+		ImGui::ItemSize(size, style.FramePadding.y);
+		if (!ImGui::ItemAdd(bb, id))
+			return false;
+
+		bool hovered, held;
+		bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
+
+		// Render
+		const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		ImGui::RenderNavHighlight(bb, id);
+		ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+
+		window->DrawList->AddImage(image, bb.Min + style.FramePadding, bb.Min + style.FramePadding + imageSize);
+
+		if (g.LogEnabled)
+			ImGui::LogSetNextTextDecoration("[", "]");
+		ImGui::RenderTextClipped(bb.Min + style.FramePadding + ImVec2(imageSize.x, 0) + ImVec2(3, 0), bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+
+		// Automatically close popups
+		//if (pressed && !(flags & ImGuiButtonFlags_DontClosePopups) && (window->Flags & ImGuiWindowFlags_Popup))
+		//    CloseCurrentPopup();
+
+		IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+		return pressed;		
+	}
 }

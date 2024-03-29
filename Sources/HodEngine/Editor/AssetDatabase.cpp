@@ -428,4 +428,17 @@ namespace hod::editor
 			ListAsset(result, *folderNode, resourceDescriptor);
 		}
 	}
+
+	/// @brief 
+	/// @param uid 
+	/// @return 
+	std::shared_ptr<Asset> AssetDatabase::Find(const UID& uid) const
+	{
+		auto it = _uidToAssetMap.find(uid);
+		if (it != _uidToAssetMap.end())
+		{
+			return it->second;
+		}
+		return nullptr; 
+	}
 }
