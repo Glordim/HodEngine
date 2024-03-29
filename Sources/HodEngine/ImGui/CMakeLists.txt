@@ -54,6 +54,10 @@ list(APPEND Srcs ${FontSrcs})
 list(APPEND Srcs ${FontIncludes})
 list(APPEND Includes ${FontIncludes})
 
+create_resources("Font/Roboto-Regular.ttf" "Font" FontSrcs FontIncludes)
+list(APPEND Srcs ${FontSrcs})
+list(APPEND Srcs ${FontIncludes})
+list(APPEND Includes ${FontIncludes})
 
 assign_source_group(${Srcs}) # for VS
 
