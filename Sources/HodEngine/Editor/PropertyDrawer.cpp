@@ -78,6 +78,7 @@ namespace hod::editor
 			{
 				ImGui::PushID(property);
 				bool value = property->GetValue<bool>(object);
+				ImGui::SetNextItemWidth(-1);
 				changed = ImGui::Checkbox("", &value);
 				if (changed == true)
 				{
@@ -91,6 +92,7 @@ namespace hod::editor
 			{
 				ImGui::PushID(property);
 				int32_t value = property->GetValue<int8_t>(object);
+				ImGui::SetNextItemWidth(-1);
 				changed = ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f);
 				if (changed == true)
 				{
@@ -104,6 +106,7 @@ namespace hod::editor
 			{
 				ImGui::PushID(property);
 				float value = property->GetValue<float>(object);
+				ImGui::SetNextItemWidth(-1);
 				changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f);
 				if (changed == true)
 				{

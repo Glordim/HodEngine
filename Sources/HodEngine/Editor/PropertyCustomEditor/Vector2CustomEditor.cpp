@@ -28,16 +28,20 @@ namespace hod::editor
 			ImGui::TextUnformatted(property->GetDisplayName().c_str());
 			ImGui::TableNextColumn();
 			
+			float availableWidth = ImGui::GetColumnWidth();
+			availableWidth -= ImGui::CalcTextSize("X").x;
+			availableWidth -= ImGui::CalcTextSize("Y").x;
+			availableWidth -= ImGui::GetStyle().ItemSpacing.x * 3;
 			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted("X");
+			ImGui::Text("X");
 			ImGui::SameLine();
-			ImGui::SetNextItemWidth(ImGui::GetColumnWidth() * 0.35f);
+			ImGui::SetNextItemWidth(availableWidth * 0.5f);
 			changed |= ImGui::DragFloat("##x", &x);
 			ImGui::SameLine();
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Y");
 			ImGui::SameLine();
-			ImGui::SetNextItemWidth(ImGui::GetColumnWidth() * 0.35f);
+			ImGui::SetNextItemWidth(availableWidth * 0.5f);
 			changed |= ImGui::DragFloat("##y", &y);
 
 			ImGui::EndTable();
