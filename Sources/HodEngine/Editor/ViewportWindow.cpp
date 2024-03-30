@@ -37,7 +37,7 @@ namespace hod::editor
 	/// @brief 
 	void ViewportWindow::Draw()
 	{
-		if (ImGui::IsWindowFocused() == true)
+		if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_T))
 			{
@@ -55,6 +55,13 @@ namespace hod::editor
 			if (ImGui::GetIO().MouseWheel != 0.0f)
 			{
 				_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(_size);
+			}
+
+			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
+			{
+				Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
+				_cameraPosition.SetX(_cameraPosition.GetX() + movement.GetX());
+				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
 			}
 		}
 
@@ -85,13 +92,6 @@ namespace hod::editor
 			// Vulkan specific Y inversion TODO move it in Vulkan part and probably readapt ImguiRenderer to aply this inversion because it need 2D bottom y axis
 
 			float aspect = windowWidth / windowHeight;
-
-			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
-			{
-				Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
-				_cameraPosition.SetX(_cameraPosition.GetX() + movement.GetX());
-				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
-			}
 
 			Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 			Matrix4 view = Matrix4::Translation(_cameraPosition);
