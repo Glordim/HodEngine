@@ -67,6 +67,8 @@ namespace hod::editor
 		bool								Init();
 		bool								Save();
 
+		std::shared_ptr<Asset>				Find(const UID& uid) const;
+
 		const FileSystemMapping&			GetAssetRootNode() const;
 		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
 
