@@ -369,4 +369,20 @@ namespace hod::editor
 	{
 		return _paused;
 	}
+
+	/// @brief 
+	/// @return 
+	Asset* Editor::GetCurrentScene() const
+	{
+		return _currentScene;
+	}
+
+	/// @brief 
+	void Editor::MarkCurrentSceneAsDirty()
+	{
+		if (_currentScene != nullptr)
+		{
+			_currentScene->SetDirty();
+		}
+	}
 }

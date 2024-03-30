@@ -165,6 +165,8 @@ namespace hod::editor
 					}
 				}
 
+				Editor::GetInstance()->MarkCurrentSceneAsDirty();
+
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -173,6 +175,7 @@ namespace hod::editor
 				if (ImGui::MenuItem("Delete") == true)
 				{
 					world->DestroyEntity(selectionLock);
+					Editor::GetInstance()->MarkCurrentSceneAsDirty();
 				}
 			}
 			ImGui::EndPopup();
@@ -302,6 +305,7 @@ namespace hod::editor
 							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>().lock();
 						}
 						dropNodeComponentLock->SetParent(parentNodeComponentLock);
+						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 				}
 			}

@@ -82,6 +82,7 @@ namespace hod::editor
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
 			selection->SetName(buffer);
+			Editor::GetInstance()->MarkCurrentSceneAsDirty();
 		}
 		ImGui::Separator();
 
@@ -97,6 +98,7 @@ namespace hod::editor
 					if (ImGui::Button("Delete") == true)
 					{
 						selection->RemoveComponent(componentLock);
+						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 					ImGui::EndPopup();
 				}
@@ -116,7 +118,7 @@ namespace hod::editor
 					}
 					if (changed == true)
 					{
-						//selection->_asset->SetDirty(); // TODO
+						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 				}
 			}
@@ -140,6 +142,7 @@ namespace hod::editor
 				if (ImGui::MenuItem(displayNameTrait->GetValue().c_str()) == true)
 				{
 					selection->AddComponent(componentDescriptor, Editor::GetInstance()->IsPlaying());
+					Editor::GetInstance()->MarkCurrentSceneAsDirty();
 				}
 			}
 

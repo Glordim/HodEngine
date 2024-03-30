@@ -62,6 +62,9 @@ namespace hod::editor
 		bool									IsPlaying() const;
 		bool									IsPaused() const;
 
+		Asset*									GetCurrentScene() const;
+		void									MarkCurrentSceneAsDirty();
+
 	private:
 
 		bool			AddProjectInRecentProject(const std::filesystem::path& path) const;

@@ -174,9 +174,8 @@ namespace hod
 			if (*_cursor == '-')
 			{
 				isNegative = true;
-				++_cursor;
 
-				if (*_cursor < '0' || *_cursor > '9')
+				if (*(_cursor + 1) < '0' || *(_cursor + 1) > '9')
 				{
 					OUTPUT_ERROR("Json syntax error");
 					return false;
@@ -185,7 +184,7 @@ namespace hod
 
 			bool isFloat = false;
 			const char* valueStart = _cursor;
-			_cursor += std::strspn(valueStart, "0123456789");
+			_cursor += std::strspn(valueStart, "-0123456789");
 			if (*_cursor == '.' || *_cursor == 'e' || *_cursor == 'E')
 			{
 				++_cursor;

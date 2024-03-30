@@ -159,6 +159,7 @@ namespace hod::editor
 						node2D->SetPosition(Vector2(position[0], position[1]));
 						node2D->SetRotation(rotation[2]);
 						node2D->SetScale(Vector2(scale[0], scale[1]));
+						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 				}
 			}
