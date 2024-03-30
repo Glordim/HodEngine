@@ -51,6 +51,11 @@ namespace hod::editor
 			{
 				_gizmoOperation = ImGuizmo::OPERATION::SCALE;
 			}
+
+			if (ImGui::GetIO().MouseWheel != 0.0f)
+			{
+				_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(_size);
+			}
 		}
 
 		float windowWidth = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
@@ -80,13 +85,6 @@ namespace hod::editor
 			// Vulkan specific Y inversion TODO move it in Vulkan part and probably readapt ImguiRenderer to aply this inversion because it need 2D bottom y axis
 
 			float aspect = windowWidth / windowHeight;
-
-			//_view = Matrix4::Identity; //glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix());
-			if (ImGui::GetIO().MouseWheel != 0.0f)
-			{
-				_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(_size);
-				//_view.Translation(Vector4(0.0f, 0.0f, 1.0f, 0.0f) * 0.016f * ImGui::GetIO().MouseWheel);
-			}
 
 			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 			{
