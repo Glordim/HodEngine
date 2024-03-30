@@ -75,10 +75,10 @@ namespace hod
 		}
 
 		static std::array<renderer::P2fT2f, 4> _vertices = {
-			renderer::P2fT2f(-0.5f, 0.5f, 0, 1),
-			renderer::P2fT2f(0.5f, 0.5f, 1, 1),
-			renderer::P2fT2f(0.5f, -0.5f, 1, 0),
-			renderer::P2fT2f(-0.5f, -0.5f, 0, 0),
+			renderer::P2fT2f(-0.5f, 0.5f, 0, 0),
+			renderer::P2fT2f(0.5f, 0.5f, 1, 0),
+			renderer::P2fT2f(0.5f, -0.5f, 1, 1),
+			renderer::P2fT2f(-0.5f, -0.5f, 0, 1),
 		};
 
 		static std::array<uint16_t, 3*2> _indices = {
