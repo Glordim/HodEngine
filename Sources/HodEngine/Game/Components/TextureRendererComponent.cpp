@@ -112,6 +112,10 @@ namespace hod
 			{
 				_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
 			}
+			else
+			{
+				_materialInstance->SetTexture("image", nullptr);
+			}
 		}
 	}
 }

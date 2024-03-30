@@ -67,7 +67,12 @@ namespace hod::game
     /// @return 
     std::shared_ptr<Resource> WeakResourceBase::Lock() const
     {
-        if (_pointer == nullptr || _pointer->GetUid() != _uid)
+        if (_uid == UID::INVALID_UID)
+        {
+            _pointer = nullptr;
+            return _pointer;
+        }
+        else if (_pointer == nullptr || _pointer->GetUid() != _uid)
         {
             _pointer = ResourceManager::GetInstance()->GetResource(_resourceDescriptor, _uid);
         }

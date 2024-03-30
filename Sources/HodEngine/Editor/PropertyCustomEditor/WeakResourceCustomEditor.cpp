@@ -39,42 +39,42 @@ namespace hod::editor
 		AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
 		std::shared_ptr<Asset> asset = assetDatabase->Find(value->GetUid());
 
-		ImGui::AlignTextToFramePadding();
-		if (asset == nullptr)
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_FrameBg));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetColorU32(ImGuiCol_FrameBgActive));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetColorU32(ImGuiCol_FrameBgHovered));
+		ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+		bool clicked = false;
+		if (asset != nullptr)
 		{
-			ImGui::TextUnformatted("!!! Missing !!!");
+			clicked = ImageTextButton(asset->GetThumbnail(), ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()), asset->GetName().c_str(), ImVec2(-1, 0));
 		}
 		else
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_FrameBg));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetColorU32(ImGuiCol_FrameBgActive));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetColorU32(ImGuiCol_FrameBgHovered));
-			ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
-			bool clicked = ImageTextButton(asset->GetThumbnail(), ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()), asset->GetName().c_str(), ImVec2(-1, 0));
-			ImGui::PopStyleVar();
-			ImGui::PopStyleColor(3);
-			if (clicked)
-			{
-				assetList.clear();
-				assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
-
-				ImGui::OpenPopup("WeakResourceFindPopup");
-			}
-			else if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
-			{
-				if (ImGui::BeginTooltip())
-				{
-					ImGui::Image(asset->GetThumbnail(), ImVec2(asset->GetThumbnail()->GetWidth() * 0.5f, asset->GetThumbnail()->GetHeight() * 0.5f));
-					ImGui::EndTooltip();
-				}
-			}
-			/*
-			ImGui::Image(asset->GetThumbnail(), ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
-			ImGui::SameLine();
-
-			ImGui::TextUnformatted(asset->GetName().c_str());
-			*/
+			clicked = ImageTextButton(nullptr, ImVec2(0.0f, 0.0f), "None", ImVec2(-1, 0));
 		}
+		ImGui::PopStyleVar();
+		ImGui::PopStyleColor(3);
+		if (clicked)
+		{
+			assetList.clear();
+			assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
+
+			ImGui::OpenPopup("WeakResourceFindPopup");
+		}
+		else if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && asset != nullptr)
+		{
+			if (ImGui::BeginTooltip())
+			{
+				ImGui::Image(asset->GetThumbnail(), ImVec2(asset->GetThumbnail()->GetWidth() * 0.5f, asset->GetThumbnail()->GetHeight() * 0.5f));
+				ImGui::EndTooltip();
+			}
+		}
+		/*
+		ImGui::Image(asset->GetThumbnail(), ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
+		ImGui::SameLine();
+
+		ImGui::TextUnformatted(asset->GetName().c_str());
+		*/
 		/*
 		ImGui::SameLine(ImGui::GetContentRegionMax().x - CalculateButtonSize("Find").x);
 		if (ImGui::Button("Find") == true)
@@ -96,6 +96,15 @@ namespace hod::editor
 			ImGui::Separator();
 
 			float itemHeight = 48; // todo max 32 - FontSize ?
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+			bool clicked = ImageTextButton(nullptr, ImVec2(0, itemHeight), "None", ImVec2(-1, 0));
+			ImGui::PopStyleVar();
+			if (clicked)
+			{
+				value->SetUid(UID::INVALID_UID);
+				property->SetValue(instance, value); // Set to itself for call SetFunction
+			}
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
