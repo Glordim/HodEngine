@@ -87,7 +87,7 @@ namespace hod::editor
 			return false;
 		}
 
-		std::ifstream dataFile(path);
+		std::ifstream dataFile(path, std::ios::binary);
 		if (dataFile.is_open() == false)
 		{
 			// TODO output reason
@@ -99,7 +99,7 @@ namespace hod::editor
 		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString();
 		thumbnailFilePath += ".png";
 
-		std::ofstream thumbnailFile(thumbnailFilePath);
+		std::ofstream thumbnailFile(thumbnailFilePath, std::ios::binary);
 		if (thumbnailFile.is_open() == false)
 		{
 			// TODO output reason
@@ -109,7 +109,7 @@ namespace hod::editor
 		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
 		resourceFilePath += ".dat";
 
-		std::ofstream resourceFile(resourceFilePath);
+		std::ofstream resourceFile(resourceFilePath, std::ios::binary);
 		if (resourceFile.is_open() == false)
 		{
 			// TODO output reason
