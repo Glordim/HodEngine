@@ -70,10 +70,10 @@ namespace hod
 
 		public:
 
-							ColliderComponent() = default;
+							ColliderComponent();
 							ColliderComponent(const ColliderComponent&) = delete;
 							ColliderComponent(ColliderComponent&&) = delete;
-							~ColliderComponent() override = default;
+							~ColliderComponent() override;
 
 			void			operator=(const ColliderComponent&) = delete;
 			void			operator=(ColliderComponent&&) = delete;

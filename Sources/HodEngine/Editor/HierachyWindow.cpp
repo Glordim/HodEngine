@@ -133,6 +133,12 @@ namespace hod::editor
 				DrawEntity(entity);
 			}
 		}
+
+		if (ImGui::IsWindowHovered() && ImGui::IsAnyItemHovered() == false && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)))
+		{
+			_selection.reset();
+			Editor::GetInstance()->SetEntitySelection(_selection);
+		}
 		/*
 		for (EntityNode* entityNode : _rootEntityNode._children)
 		{

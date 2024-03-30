@@ -54,16 +54,25 @@ namespace hod
 			AddPropertyT(this, &ColliderComponent::_dynamic, "_dynamic");
 		}
 
+		ColliderComponent::ColliderComponent()
+		{
+			_body = physics::Physics::GetInstance()->CreateBody();
+			_body->AddBoxShape(Vector2::Zero, Vector2::One * 0.5f, 0.0f, 1.0f); // TODO tmp
+		}
+
+		ColliderComponent::~ColliderComponent()
+		{
+			physics::Physics::GetInstance()->DeleteBody(_body);
+		}
+
 		/// @brief 
 		void ColliderComponent::OnConstruct()
 		{
-			_body = physics::Physics::GetInstance()->CreateBody();
 		}
 
 		/// @brief 
 		void ColliderComponent::OnAwake()
 		{
-			_body->AddBoxShape(Vector2::Zero, Vector2::One * 0.5f, 0.0f, 1.0f); // TODO tmp
 			if (_dynamic)
 			{
 				_body->SetType(physics::Body::Type::Dynamic);

@@ -22,7 +22,7 @@ namespace hod
 
 		public:
 
-											TextureRendererComponent() = default;
+											TextureRendererComponent();
 											TextureRendererComponent(const TextureRendererComponent&) = delete;
 											TextureRendererComponent(TextureRendererComponent&&) = delete;
 											~TextureRendererComponent() override;

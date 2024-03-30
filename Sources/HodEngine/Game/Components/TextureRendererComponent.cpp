@@ -23,6 +23,12 @@ namespace hod
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
 
+		TextureRendererComponent::TextureRendererComponent()
+		{
+			const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+			_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -33,8 +39,6 @@ namespace hod
 		/// @brief 
 		void TextureRendererComponent::OnConstruct()
 		{
-			const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
-			_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			SetTexture(_textureResource);
 		}
 

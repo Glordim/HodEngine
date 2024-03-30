@@ -58,6 +58,7 @@ namespace hod
 			void				Clear();
 
 			Body*				CreateBody();
+			void				DeleteBody(Body* body);
 
 			void				Update(float dt);
 

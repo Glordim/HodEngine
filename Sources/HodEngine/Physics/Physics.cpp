@@ -65,6 +65,17 @@ namespace hod
 			return body;
 		}
 
+		void Physics::DeleteBody(Body* body)
+		{
+			auto it = std::find(_bodies.begin(), _bodies.end(), body);
+			if (it != _bodies.end())
+			{
+				_bodies.erase(it); // todo swap and popback ?
+				_b2World->DestroyBody(body->GetB2Actor());
+				delete body;
+			}
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
