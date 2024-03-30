@@ -140,4 +140,44 @@ namespace hod
 	{
 		return (_x == right._x && _y == right._y);
 	}
+
+	Vector2& Vector2::operator += (float right)
+	{
+		return operator += (Vector2(right, right));
+	}
+
+	Vector2& Vector2::operator -= (float right)
+	{
+		return operator -= (Vector2(right, right));
+	}
+
+	Vector2& Vector2::operator *= (float right)
+	{
+		return operator *= (Vector2(right, right));
+	}
+	
+	Vector2& Vector2::operator /= (float right)
+	{
+		return operator /= (Vector2(right, right));
+	}
+
+	Vector2 Vector2::operator + (float right)
+	{
+		return operator + (Vector2(right, right));
+	}
+
+	Vector2 Vector2::operator - (float right)
+	{
+		return operator - (Vector2(right, right));
+	}
+	
+	Vector2 Vector2::operator * (float right)
+	{
+		return operator * (Vector2(right, right));
+	}
+
+	Vector2 Vector2::operator / (float right)
+	{
+		return operator / (Vector2(right, right));
+	}
 }
