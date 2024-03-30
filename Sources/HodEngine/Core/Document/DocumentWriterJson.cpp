@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <format>
+#include <charconv>
 #include <cassert>
 
 namespace hod
@@ -82,80 +82,90 @@ namespace hod
 			case Document::Node::Type::Int8:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt8()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt8());
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::Int16:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt16()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt16());
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::Int32:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt32()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt32());
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::Int64:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetInt64()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt64());
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::UInt8:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetUInt8()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt8());
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::UInt16:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetUInt16()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt16());
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::UInt32:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetUInt32()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt32());
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::UInt64:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetUInt64()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt64());
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::Float32:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetFloat32()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat32(), std::chars_format::scientific);
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case Document::Node::Type::Float64:
 			{
 				char buffer[256];
-				ptrdiff_t bufferSize = std::format_to_n(buffer, sizeof(buffer), "{}", node.GetFloat64()).size;
-				stream.write(buffer, bufferSize);
+				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat64(), std::chars_format::scientific);
+				assert(result.ec == std::errc());
+				stream.write(buffer, result.ptr - buffer);
 			}
 			break;
 

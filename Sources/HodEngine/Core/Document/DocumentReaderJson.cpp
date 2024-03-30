@@ -1,9 +1,9 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 
 #include "HodEngine/Core/Output.hpp"
-#include "HodEngine/Core/StringConversion.hpp"
 
 #include <cstring>
+#include <charconv>
 
 namespace hod
 {
@@ -195,7 +195,8 @@ namespace hod
 			if (isFloat == true)
 			{
 				double value;
-				if (StringConversion::StringToFloat64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+				std::from_chars_result result = std::from_chars(valueStart, valueEnd, value);
+				if (result.ec != std::errc())
 				{
 					OUTPUT_ERROR("Json syntax error");
 					return false;
@@ -208,7 +209,8 @@ namespace hod
 				if (isNegative == false)
 				{
 					uint64_t value;
-					if (StringConversion::StringToUInt64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+					std::from_chars_result result = std::from_chars(valueStart, valueEnd, value);
+					if (result.ec != std::errc())
 					{
 						OUTPUT_ERROR("Json syntax error");
 						return false;
@@ -219,7 +221,8 @@ namespace hod
 				else
 				{
 					int64_t value;
-					if (StringConversion::StringToInt64(std::string_view(valueStart, valueEnd - valueStart), value) == false)
+					std::from_chars_result result = std::from_chars(valueStart, valueEnd, value);
+					if (result.ec != std::errc())
 					{
 						OUTPUT_ERROR("Json syntax error");
 						return false;
