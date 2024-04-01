@@ -49,12 +49,16 @@ namespace hod::editor
 		static float size1 = 300;
 		static float size2 = 300;
 		Splitter(true, 4.0f, &size1, &size2, 10.0f, 10.0f);
-		ImGui::BeginChild("FolderTree", ImVec2(size1, -1), true);
-		DrawFolderTree();
+		if (ImGui::BeginChild("FolderTree", ImVec2(size1, -1), true))
+		{
+			DrawFolderTree();
+		}
 		ImGui::EndChild();
 		ImGui::SameLine();
-		ImGui::BeginChild("FolderExplorer", ImVec2(-1, -1), true);
-		DrawFolderExplorer();
+		if (ImGui::BeginChild("FolderExplorer", ImVec2(-1, -1), true))
+		{
+			DrawFolderExplorer();
+		}
 		ImGui::EndChild();
 	}
 
@@ -198,6 +202,11 @@ namespace hod::editor
 	/// @brief 
 	void AssetBrowserWindow::DrawFolderExplorer()
 	{
+		if (_currentFolderTreeNode == nullptr)
+		{
+			return;
+		}
+
 		std::vector<const AssetDatabase::FileSystemMapping*> pathSplit;
 		const AssetDatabase::FileSystemMapping* pathNode = _currentFolderTreeNode;
 		while (pathNode != nullptr)
@@ -228,6 +237,7 @@ namespace hod::editor
 
 		for (const AssetDatabase::FileSystemMapping* folder : _currentFolderTreeNode->_childrenFolder)
 		{
+			float available = ImGui::GetContentRegionAvail().x;
 			if (DrawExplorerItem(folder) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
 			{
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) == true)
@@ -237,11 +247,14 @@ namespace hod::editor
 				_currentExplorerNode = folder;
 				Editor::GetInstance()->SetAssetSelection(folder);
 			}
-			ImGui::SameLine();
+			if (available > 210)
+			{
+				ImGui::SameLine();
+			}
 		}
-		ImGui::SameLine();
 		for (const AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
 		{
+			float available = ImGui::GetContentRegionAvail().x;
 			if (DrawExplorerItem(asset) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
 			{
 				_currentExplorerNode = asset;
@@ -254,47 +267,64 @@ namespace hod::editor
 					Editor::GetInstance()->SetAssetSelection(asset);
 				}
 			}
-			ImGui::SameLine();
-		}
-
-		ImGui::SetCursorPos(cursor);
-		ImVec2 cursorPosition = ImGui::GetCurrentWindow()->DC.CursorPos;
-		ImRect boundingBox(cursorPosition.x, cursorPosition.y, cursorPosition.x + ImGui::GetCurrentWindow()->Size.x, cursorPosition.y + ImGui::GetCurrentWindow()->Size.y);
-		ImGui::ItemSize(boundingBox.GetSize());
-		if (ImGui::ItemAdd(boundingBox, ImGui::GetCurrentWindow()->GetID("FolderExplorerBackground")) == false)
-		{
-			return;
-		}
-
-		if (ImGui::BeginPopupContextItem("FolderExplorer") == true)
-		{
-			if (ImGui::MenuItem("New Folder") == true)
+			if (available > 210)
 			{
-				std::filesystem::path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(_currentFolderTreeNode->_path / "Folder");
-				const AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
-				if (newFolderNode != nullptr)
-				{
-					EditNodeName(newFolderNode);
-					ImGui::CloseCurrentPopup();
-				}
+				ImGui::SameLine();
 			}
+		}
 
-			if (ImGui::BeginMenu("Create") == true)
+		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		{
+			if (ImGui::IsAnyItemHovered() == false)
 			{
-				/*
-				if (ImGui::MenuItem("Scene") == true)
+				_currentExplorerNode = nullptr;
+			}
+			ImGui::OpenPopup("FolderExplorerContext");
+		}
+
+		if (ImGui::BeginPopup("FolderExplorerContext") == true)
+		{
+			if (_currentExplorerNode == nullptr)
+			{
+				if (ImGui::MenuItem("New Folder") == true)
 				{
-					game::Scene scene;
-					std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(scene, _currentFolderTreeNode->_path / "Asset.scene");
-					const AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-					if (newAssetNode != nullptr)
+					std::filesystem::path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(_currentFolderTreeNode->_path / "Folder");
+					const AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
+					if (newFolderNode != nullptr)
 					{
-						EditNodeName(newAssetNode);
+						EditNodeName(newFolderNode);
 						ImGui::CloseCurrentPopup();
 					}
 				}
-				*/
-				ImGui::EndMenu();
+
+				if (ImGui::BeginMenu("Create") == true)
+				{
+					/*
+					if (ImGui::MenuItem("Scene") == true)
+					{
+						game::Scene scene;
+						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(scene, _currentFolderTreeNode->_path / "Asset.scene");
+						const AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+						if (newAssetNode != nullptr)
+						{
+							EditNodeName(newAssetNode);
+							ImGui::CloseCurrentPopup();
+						}
+					}
+					*/
+					ImGui::EndMenu();
+				}
+			}
+			else
+			{
+				if (ImGui::MenuItem("Rename") == true)
+				{
+				
+				}
+				else if (ImGui::MenuItem("Delete") == true)
+				{
+
+				}
 			}
 
 			ImGui::EndPopup();
