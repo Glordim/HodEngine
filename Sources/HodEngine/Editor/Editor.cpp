@@ -43,6 +43,14 @@
 
 #include "HodEngine/Game/WeakResource.hpp"
 
+#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "stb_image.h"
+
+#include "Icons/folder.png.h"
+#include "Icons/folder-open.png.h"
+#include "Icons/landscape.png.h"
+
 namespace hod::editor
 {
 	_SingletonConstructor(Editor)
@@ -65,6 +73,24 @@ namespace hod::editor
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 
 		Project::CreateInstance();
+
+		int x;
+		int y;
+		int component;
+		stbi_uc* pixels = stbi_load_from_memory(folder_png, folder_png_size, &x, &y, &component, 0);
+
+		_folderTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_folderTexture->BuildBuffer(x, y, pixels);
+
+		pixels = stbi_load_from_memory(folder_open_png, folder_open_png_size, &x, &y, &component, 0);
+
+		_folderOpenTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_folderOpenTexture->BuildBuffer(x, y, pixels);
+
+		pixels = stbi_load_from_memory(landscape_png, landscape_png_size, &x, &y, &component, 0);
+
+		_sceneTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_sceneTexture->BuildBuffer(x, y, pixels);
 
 		const Argument* argument = argumentParser.GetArgument('p', "project");
 		if (argument == nullptr)

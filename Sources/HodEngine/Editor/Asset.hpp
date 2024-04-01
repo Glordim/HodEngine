@@ -63,6 +63,6 @@ namespace hod::editor
 		std::string				_name;
 		std::filesystem::path	_path;
 
-		renderer::Texture*		_thumbnail;
+		renderer::Texture*		_thumbnail = nullptr;
 	};
 }

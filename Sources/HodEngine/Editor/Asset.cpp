@@ -31,8 +31,6 @@ namespace hod::editor
 		_name = _path.stem().string();
 		_meta._uid = UID::GenerateUID();
 
-		_thumbnail = renderer::Renderer::GetInstance()->CreateTexture();
-
 		_meta._importerSettings = AssetDatabase::GetInstance()->GetDefaultImporter().AllocateSettings();
 	}
 
@@ -86,7 +84,18 @@ namespace hod::editor
 		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / _meta._uid.ToString();
 		thumbnailFilePath += ".png";
 
-		_thumbnail->LoadFromPath(thumbnailFilePath.string().c_str());
+		if (_thumbnail != nullptr)
+		{
+			delete _thumbnail;
+			_thumbnail = nullptr;
+		}
+		
+		_thumbnail = renderer::Renderer::GetInstance()->CreateTexture();
+		if (_thumbnail->LoadFromPath(thumbnailFilePath.string().c_str()) == false)
+		{
+			delete _thumbnail;
+			_thumbnail = nullptr;
+		}
 
 		return true;
 	}

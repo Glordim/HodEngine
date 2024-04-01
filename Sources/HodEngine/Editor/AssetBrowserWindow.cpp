@@ -5,6 +5,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesign.h>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
@@ -314,7 +315,7 @@ namespace hod::editor
 		const ImGuiStyle& style = g.Style;
 		const ImGuiID id = window->GetID(item);
 
-		ImVec2 size(100, 100 + ImGui::GetTextLineHeightWithSpacing());
+		ImVec2 size(100, 100 + ImGui::GetTextLineHeight());
 		float padding = 10.0f;
 
 		ImVec2 cursorPosition = window->DC.CursorPos;
@@ -350,9 +351,14 @@ namespace hod::editor
 			std::shared_ptr<Asset> asset = item->_asset;
 
 			renderer::Texture* thumbnailTexture = asset->GetThumbnail();
-			ImVec2 imageSize = size;
-			imageSize.x -= padding;
-			imageSize.y -= padding;
+			if (thumbnailTexture == nullptr)
+			{
+				thumbnailTexture = Editor::GetInstance()->GetSceneTexture();
+			}
+
+			ImVec2 imageSize;
+			imageSize.x = boundingBox.GetWidth() - padding * 2;
+			imageSize.y = boundingBox.GetWidth() - padding * 2;
 			ImVec2 imageOffset;
 			imageOffset.x = 0;
 			imageOffset.y = 0;
@@ -367,25 +373,54 @@ namespace hod::editor
 				imageOffset.x = (imageSize.y - imageSize.x) * 0.5f;
 			}
 
-			ImGui::GetWindowDrawList()->AddImage(asset->GetThumbnail(),
-				ImVec2(cursorPosition.x + imageOffset.x + padding * 0.5f, cursorPosition.y + imageOffset.y + padding * 0.5f),
-				ImVec2(cursorPosition.x + imageOffset.x + (imageSize.x - padding * 0.5f), cursorPosition.y + imageOffset.y + (imageSize.y - padding * 0.5f))
+			ImGui::GetWindowDrawList()->AddImage(thumbnailTexture,
+				ImVec2(cursorPosition.x + imageOffset.x + padding, cursorPosition.y + imageOffset.y + padding),
+				ImVec2(cursorPosition.x + imageOffset.x + padding + imageSize.x, cursorPosition.y + imageOffset.y + padding + imageSize.y)
 			);
 		}
 		else
 		{
-			ImGui::RenderFrame(ImVec2(cursorPosition.x + padding * 0.5f, cursorPosition.y + padding * 0.5f),
-			   ImVec2(cursorPosition.x + size.x - padding * 0.5f, cursorPosition.y + size.x - padding * 0.5f),
-			   IM_COL32(255, 0.0f, 0.0f, 255), true, 0.0f);
+			/*
+			ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + padding, boundingBox.Min.y + padding),
+			                         ImVec2(boundingBox.Max.x - padding, boundingBox.Min.y + boundingBox.GetWidth() - padding),
+			                         ICON_MD_FOLDER, nullptr, nullptr, ImVec2(0.5f, 0.5f), nullptr);
+			*/
+			ImTextureID texture = nullptr;
+			if (item->_childrenAsset.empty() == false || item->_childrenFolder.empty() == false)
+			{
+				texture = Editor::GetInstance()->GetFolderTexture();
+			}
+			else
+			{
+				texture = Editor::GetInstance()->GetFolderOpenTexture();
+			}
+
+			ImVec2 imageSize;
+			imageSize.x = boundingBox.GetWidth() - padding * 2;
+			imageSize.y = boundingBox.GetWidth() - padding * 2;
+			ImGui::GetWindowDrawList()->AddImage(texture,
+				ImVec2(cursorPosition.x + padding, cursorPosition.y + padding),
+				ImVec2(cursorPosition.x + padding + imageSize.x, cursorPosition.y + padding + imageSize.y)
+			);
 		}
 
 		if (g.LogEnabled == true)
 		{
 			ImGui::LogSetNextTextDecoration("[", "]");
 		}
-		ImGui::RenderTextClipped(ImVec2(cursorPosition.x + 2, cursorPosition.y + size.x),
-								 ImVec2(cursorPosition.x + size.x - 2, cursorPosition.y + size.y),
-								 item->_path.filename().string().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+
+		if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
+		{
+			ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
+									 ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y),
+									 item->_asset->GetName().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+		}
+		else
+		{
+			ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
+									 ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y),
+									 item->_path.filename().string().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+		}
 
 		return hovered;
 	}

@@ -20,6 +20,11 @@ namespace hod::game
 	class Entity;
 }
 
+namespace hod::renderer
+{
+	class Texture;
+}
+
 namespace hod::editor
 {
 	class MainBar;
@@ -33,17 +38,17 @@ namespace hod::editor
 
 	public:
 
-						~Editor();
+												~Editor();
 
-	public:
+	public:						
 
-		bool			Init(const ArgumentParser& argumentParser);
+		bool									Init(const ArgumentParser& argumentParser);
 
-		bool			CreateProject(const std::filesystem::path& path);
-		bool			OpenProject(const std::filesystem::path& path);
+		bool									CreateProject(const std::filesystem::path& path);
+		bool									OpenProject(const std::filesystem::path& path);
 
-		bool			Save();
-		bool			SaveSceneAs();
+		bool									Save();
+		bool									SaveSceneAs();
 
 		void									SetEntitySelection(std::weak_ptr<game::Entity> selection);
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
@@ -65,13 +70,17 @@ namespace hod::editor
 		Asset*									GetCurrentScene() const;
 		void									MarkCurrentSceneAsDirty();
 
+		renderer::Texture*						GetFolderTexture() const { return _folderTexture; }
+		renderer::Texture*						GetFolderOpenTexture() const  { return _folderOpenTexture; }
+		renderer::Texture*						GetSceneTexture() const  { return _sceneTexture; }
+
 	private:
 
-		bool			AddProjectInRecentProject(const std::filesystem::path& path) const;
+		bool									AddProjectInRecentProject(const std::filesystem::path& path) const;
 
 	private:
 
-		MainBar*		_mainBar = nullptr;
+		MainBar*								_mainBar = nullptr;
 
 		std::weak_ptr<game::Entity> 			_entitySelection;
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
@@ -80,5 +89,9 @@ namespace hod::editor
 
 		bool									_playing = false;
 		bool									_paused = false;
+
+		renderer::Texture*						_folderTexture = nullptr;
+		renderer::Texture*						_folderOpenTexture = nullptr;
+		renderer::Texture*						_sceneTexture = nullptr;
 	};
 }
