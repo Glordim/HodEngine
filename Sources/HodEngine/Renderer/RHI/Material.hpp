@@ -10,6 +10,7 @@ namespace hod
 		class Shader;
 		class Texture;
 		class VertexInput;
+		class MaterialInstance;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -33,20 +34,22 @@ namespace hod
 				TRIANGLE_FAN,
 			};
 
-			Material();
-			virtual ~Material();
+									Material();
+			virtual					~Material();
 
-			virtual bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
+			virtual bool			Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
 
-			bool link(Shader* vertexShader, Shader* fragmentShader);
-			void use();
+			//bool					link(Shader* vertexShader, Shader* fragmentShader);
+			//void					use();
+
+			void					CreateDefaultInstance();
+			const MaterialInstance*	GetDefaultInstance() const;
 
 		private:
 
-			uint32_t getLocationFromName(const std::string& name);
+			MaterialInstance*		_defaultInstance = nullptr;
 
-			std::map<std::string, uint32_t> nameToLocationMap;
-			std::map<uint32_t, uint32_t> locationToTextureId;
+		//uint32_t				getLocationFromName(const std::string& name);
 		};
 	}
 }

@@ -65,6 +65,11 @@ namespace hod
 															  { VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
+			static BuiltinMaterialSource P2fC4f_Unlit_Fill_Triangle(P2fC4f_Unlit_vert, P2fC4f_Unlit_vert_size,
+								  									P2fC4f_Unlit_frag, P2fC4f_Unlit_frag_size,
+								  									{ VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32B32A32_SFloat) },
+								  									Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
+
 			static BuiltinMaterialSource P2fC4f_Unlit_Fill_TriangleFan(P2fC4f_Unlit_vert, P2fC4f_Unlit_vert_size,
 								  									   P2fC4f_Unlit_frag, P2fC4f_Unlit_frag_size,
 								  									   { VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32B32A32_SFloat) },
@@ -82,6 +87,7 @@ namespace hod
 
 			static std::array<const BuiltinMaterialSource*, static_cast<uint32_t>(MaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = { // c++23 std::to_underlying
 				&P2fT2f_Texture_Unlit,
+				&P2fC4f_Unlit_Fill_Triangle,
 				&P2fC4f_Unlit_Fill_TriangleFan,
 				&P2fC4f_Unlit_Line_TriangleFan,
 				&P2fC4f_Unlit_Line_Line,
@@ -127,7 +133,9 @@ namespace hod
 					return nullptr;
 				}
 
-				_builtinMaterials[static_cast<uint32_t>(buildMaterial)] = material; // c++23 std::to_underlying 
+				_builtinMaterials[static_cast<uint32_t>(buildMaterial)] = material; // c++23 std::to_underlying
+
+				material->CreateDefaultInstance();
 			}
 			return material;
 		}

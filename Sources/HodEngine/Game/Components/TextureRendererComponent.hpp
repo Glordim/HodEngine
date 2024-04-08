@@ -40,6 +40,7 @@ namespace hod
 			void							SetTexture(const WeakResource<renderer::TextureResource>& texture);
 
 			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			void							PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId) override;
 
 		private:
 

@@ -28,11 +28,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkRenderTarget::Init(size_t width, size_t height)
+		bool VkRenderTarget::Init(size_t width, size_t height, bool allowReadWrite)
 		{
 			Clear();
 
-			if (RenderTarget::Init(width, height) == false)
+			if (RenderTarget::Init(width, height, allowReadWrite) == false)
 			{
 				return false;
 			}

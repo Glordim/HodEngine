@@ -22,7 +22,7 @@ namespace hod
 			uint32_t		GetWidth() const;
 			uint32_t		GetHeight() const;
 
-			virtual bool	Init(size_t width, size_t height);
+			virtual bool	Init(size_t width, size_t height, bool allowReadWrite = false);
 
 			Texture*		GetColorTexture() const;
 			Texture*		GetDepthTexture() const;

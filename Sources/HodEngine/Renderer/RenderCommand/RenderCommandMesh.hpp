@@ -19,7 +19,7 @@ namespace hod
 		{
 		public:
 
-									RenderCommandMesh(const void* vertices, uint32_t vertexCount, uint32_t vertexSize, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, MaterialInstance* materialInstance, bool ignoreVisualisationMode = false);
+									RenderCommandMesh(const void* vertices, uint32_t vertexCount, uint32_t vertexSize, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, bool ignoreVisualisationMode = false);
 									RenderCommandMesh(const RenderCommandMesh&) = delete;
 									RenderCommandMesh(RenderCommandMesh&&) = delete;
 									~RenderCommandMesh() override = default;
@@ -38,7 +38,7 @@ namespace hod
 
 			std::vector<uint16_t>	_indices;
 			Matrix4					_modelMatrix;
-			MaterialInstance*		_materialInstance = nullptr;
+			const MaterialInstance*	_materialInstance = nullptr;
 			bool					_ignoreVisualisationMode;
 		};
 	}

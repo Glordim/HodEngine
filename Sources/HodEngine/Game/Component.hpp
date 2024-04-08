@@ -11,6 +11,8 @@
 
 namespace hod
 {
+	struct Color;
+
 	namespace renderer
 	{
 		class RenderQueue;
@@ -33,13 +35,14 @@ namespace hod
 			void							SetEntity(const std::weak_ptr<Entity>& entity);
 			const std::weak_ptr<Entity>&	GetEntity() const;
 
-			virtual void		PushToRenderQueue(renderer::RenderQueue& renderQueue);
+			virtual void		PushToRenderQueue(renderer::RenderQueue& renderQueue) {}; // TODO move it in RendererComponent ?
+			virtual void		PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId) {}; // TODO move it in RendererComponent ?
 
 			const UID&			GetUid() const { return _uid; }
 
-			virtual void OnAwake() {};
-			virtual void OnStart() {};
-			virtual void OnUpdate() {};
+			virtual void		OnAwake() {};
+			virtual void		OnStart() {};
+			virtual void		OnUpdate() {};
 
 		protected:
 

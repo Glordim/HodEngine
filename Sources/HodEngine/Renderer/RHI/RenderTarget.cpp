@@ -46,7 +46,7 @@ namespace hod
 		/// @param width 
 		/// @param height 
 		/// @return 
-		bool RenderTarget::Init(size_t width, size_t height)
+		bool RenderTarget::Init(size_t width, size_t height, bool allowReadWrite)
 		{
 			_width = width;
 			_height = height;
@@ -57,7 +57,7 @@ namespace hod
 			}
 
 			_color = Renderer::GetInstance()->CreateTexture();
-			if (_color->BuildColor(_width, _height) == false)
+			if (_color->BuildColor(_width, _height, allowReadWrite) == false)
 			{
 				Clear();
 				return false;

@@ -15,14 +15,6 @@ namespace hod
 		{
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Component::PushToRenderQueue(renderer::RenderQueue& renderQueue)
-		{
-
-		}
-
 		/// @brief 
 		/// @param entity 
 		void Component::SetEntity(const std::weak_ptr<Entity>& entity)

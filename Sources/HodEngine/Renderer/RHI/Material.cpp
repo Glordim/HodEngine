@@ -1,10 +1,12 @@
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 #include <vector>
 
 #include <iostream>
+#include <cassert>
 
 namespace hod
 {
@@ -31,14 +33,29 @@ namespace hod
 			}
 
 			*/
+			delete _defaultInstance;
+		}
+
+		/// @brief 
+		void Material::CreateDefaultInstance()
+		{
+			assert(_defaultInstance == nullptr);
+			_defaultInstance = Renderer::GetInstance()->CreateMaterialInstance(this);
+		}
+
+		/// @brief 
+		/// @return 
+		const MaterialInstance*	Material::GetDefaultInstance() const
+		{
+			return _defaultInstance;
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
+		/*
 		bool Material::link(Shader* vertexShader, Shader* fragmentShader)
 		{
-			/*
 
 			programId = glCreateProgram();
 		   // glAttachShader(this->programId, vertexShader.getShaderId());
@@ -65,17 +82,17 @@ namespace hod
 				return false;
 			}
 
-			*/
 
 			return true;
 		}
+		*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
+		/*
 		void Material::use()
 		{
-			/*
 
 			glUseProgram(this->programId);
 
@@ -97,15 +114,15 @@ namespace hod
 				++it;
 			}
 
-			*/
 		}
+		*/
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
+		/*
 		uint32_t Material::getLocationFromName(const std::string& name)
 		{
-			/*
 
 			auto it = this->nameToLocationMap.find(name);
 			if (it == this->nameToLocationMap.end())
@@ -121,9 +138,9 @@ namespace hod
 				return it->second;
 			}
 
-			*/
 
 			return 0;
 		}
+		*/
 	}
 }

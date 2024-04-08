@@ -30,9 +30,13 @@ namespace hod::editor
 
 	private:
 
-		Vector2					_cameraPosition;
+		Vector2					_cameraPosition = Vector2::Zero;
 		float					_size = 5.0f;
 		renderer::RenderTarget* _renderTarget = nullptr;
+		renderer::RenderTarget* _pickingRenderTarget = nullptr;
 		ImGuizmo::OPERATION		_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+
+		bool					_pickingRequest = false;
+		Vector2					_pickingPosition = Vector2::Zero;
 	};
 }

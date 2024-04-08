@@ -11,6 +11,8 @@
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 #include <HodEngine/Renderer/P2fT2f.hpp>
+#include <HodEngine/Renderer/P2fC4f.hpp>
+#include <HodEngine/Core/Color.hpp>
 
 namespace hod
 {
@@ -102,6 +104,29 @@ namespace hod
 				if (node2dComponent != nullptr)
 				{
 					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), _vertices.size(), sizeof(renderer::P2fT2f), _indices.data(), _indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
+				}
+			}
+		}
+
+		/// @brief 
+		/// @param renderQueue 
+		void TextureRendererComponent::PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId)
+		{
+			std::shared_ptr<Entity> entity = GetEntity().lock();
+			if (entity != nullptr)
+			{
+				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>().lock();
+				if (node2dComponent != nullptr)
+				{
+					std::array<renderer::P2fC4f, 4> vertices = {
+						renderer::P2fC4f(-0.5f, 0.5f, colorId.r, colorId.g, colorId.b, colorId.a),
+						renderer::P2fC4f(0.5f, 0.5f, colorId.r, colorId.g, colorId.b, colorId.a),
+						renderer::P2fC4f(0.5f, -0.5f, colorId.r, colorId.g, colorId.b, colorId.a),
+						renderer::P2fC4f(-0.5f, -0.5f, colorId.r, colorId.g, colorId.b, colorId.a),
+					};
+
+					const renderer::Material* pickingMaterial = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Fill_Triangle);
+					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), vertices.size(), sizeof(renderer::P2fC4f), _indices.data(), _indices.size(), node2dComponent->GetWorldMatrix(), pickingMaterial->GetDefaultInstance()));
 				}
 			}
 		}

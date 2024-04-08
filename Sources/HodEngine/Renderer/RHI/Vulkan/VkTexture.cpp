@@ -6,6 +6,8 @@
 
 #include <cstring>
 
+#include <HodEngine/Core/Math/Vector2.hpp>
+
 namespace hod
 {
 	namespace renderer
@@ -135,7 +137,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkTexture::BuildColor(size_t width, size_t height)
+		bool VkTexture::BuildColor(size_t width, size_t height, bool allowReadWrite)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -143,7 +145,10 @@ namespace hod
 			VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
 			bool ret = false;
 
-			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &_textureImage, &_textureImageMemory) == false)
+			VkMemoryPropertyFlags memoryPropertyFlags = allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			VkImageTiling imageTiling = allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
+
+			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
 			{
 				goto exit;
 			}
@@ -314,6 +319,42 @@ namespace hod
 			}
 
 			return ret;
+		}
+
+		/// @brief 
+		/// @param position 
+		/// @return 
+		Color VkTexture::ReadPixel(const Vector2& position) const
+		{
+			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+			VkDeviceSize bufferSize = _width * _height * 4;
+			alignas(64) void* data;
+			if (vkMapMemory(renderer->GetVkDevice(), _textureImageMemory, 0, VK_WHOLE_SIZE, 0, &data) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: Texture, unable to map memory\n");
+				return Color(0.0f, 0.0f, 0.0f, 0.0f);
+			}
+			
+			VkDeviceSize alignment = 256;
+			VkDeviceSize lineSizeWithAlignment = 4 * _width;
+			lineSizeWithAlignment += alignment - (lineSizeWithAlignment % alignment);
+
+			VkDeviceSize bufferOffset = lineSizeWithAlignment * position.GetY() + 4 * position.GetX(); 
+
+			Color color;
+			color.r = reinterpret_cast<uint8_t*>(data)[bufferOffset + 0];
+			color.g = reinterpret_cast<uint8_t*>(data)[bufferOffset + 1];
+			color.b = reinterpret_cast<uint8_t*>(data)[bufferOffset + 2];
+			color.a = reinterpret_cast<uint8_t*>(data)[bufferOffset + 3];
+
+			color.r /= 255.0f;
+			color.g /= 255.0f;
+			color.b /= 255.0f;
+			color.a /= 255.0f;
+			vkUnmapMemory(renderer->GetVkDevice(), _textureImageMemory);
+
+			return color;
 		}
 	}
 }

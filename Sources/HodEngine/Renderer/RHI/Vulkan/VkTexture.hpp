@@ -16,11 +16,13 @@ namespace hod
 		public:
 
 							VkTexture();
-			virtual			~VkTexture();
+							~VkTexture() override;
 
-			virtual bool	BuildColor(size_t width, size_t height) override;
-			virtual bool	BuildDepth(size_t width, size_t height) override;
-			virtual bool	BuildBuffer(size_t width, size_t height, unsigned char* buffer) override;
+			bool			BuildColor(size_t width, size_t height, bool allowReadWrite = false) override;
+			bool			BuildDepth(size_t width, size_t height) override;
+			bool			BuildBuffer(size_t width, size_t height, unsigned char* buffer) override;
+
+			Color			ReadPixel(const Vector2& position) const override;
 
 			VkImage			GetTextureImage() const;
 			VkImageView		GetTextureImageView() const;

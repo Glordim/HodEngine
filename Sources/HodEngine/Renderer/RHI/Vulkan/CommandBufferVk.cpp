@@ -239,9 +239,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::SetMaterialInstance(MaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
+		void CommandBufferVk::SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
 		{
-			VkMaterialInstance* vkMaterialInstance = static_cast<VkMaterialInstance*>(materialInstance);
+			const VkMaterialInstance* vkMaterialInstance = static_cast<const VkMaterialInstance*>(materialInstance);
 
 			const VkMaterial* material = static_cast<const VkMaterial*>(&vkMaterialInstance->GetMaterial());
 			if (_material != material)
