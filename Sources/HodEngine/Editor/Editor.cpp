@@ -328,7 +328,13 @@ namespace hod::editor
 			return;
 		}
 
-		game::World::GetInstance()->SetEditorPlaying(true);
+		game::World* world = game::World::GetInstance();
+		_playedWorldDocument.GetRootNode().Clear();
+		if (world->SaveToDocument(_playedWorldDocument.GetRootNode()) == false)
+		{
+			return;
+		}
+		world->SetEditorPlaying(true);
 
 		_playing = true;
 	}
@@ -344,10 +350,14 @@ namespace hod::editor
 		_playing = false;
 		_paused = false;
 
-		game::World::GetInstance()->SetEditorPlaying(_playing);
-		game::World::GetInstance()->SetEditorPaused(_paused);
-
-		OpenAsset(*_currentScene);
+		game::World* world = game::World::GetInstance();
+		world->SetEditorPlaying(_playing);
+		world->SetEditorPaused(_paused);
+		world->Clear();
+		if (world->LoadFromDocument(_playedWorldDocument.GetRootNode()) == false)
+		{
+			return;
+		}
 	}
 	
 	/// @brief 

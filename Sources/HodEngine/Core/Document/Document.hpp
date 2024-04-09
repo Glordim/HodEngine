@@ -120,7 +120,7 @@ namespace hod
 						Node(Document& document, const std::string_view& name);
 						Node(const Node&) = delete;
 						Node(Node&&) = delete;
-						~Node() = default;
+						~Node();
 
 			Node&		operator = (const Node&) = delete;
 			Node&		operator = (Node&&) = delete;
@@ -128,6 +128,7 @@ namespace hod
 		public:
 
 			void		Copy(const Node& source);
+			void		Clear();
 
 		private:
 

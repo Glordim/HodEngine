@@ -93,5 +93,7 @@ namespace hod::editor
 		renderer::Texture*						_folderTexture = nullptr;
 		renderer::Texture*						_folderOpenTexture = nullptr;
 		renderer::Texture*						_sceneTexture = nullptr;
+
+		Document								_playedWorldDocument;
 	};
 }

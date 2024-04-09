@@ -15,6 +15,18 @@ namespace hod
 	}
 
 	/// @brief 
+	Document::Node::~Node()
+	{
+		Document::Node* child = _firstChild;
+		while (child != nullptr)
+		{
+			Document::Node* nextChild = child->_nextSibling;
+			delete child;
+			child = nextChild;
+		}
+	}
+
+	/// @brief 
 	/// @param node 
 	void Document::Node::Detach()
 	{
@@ -431,6 +443,20 @@ namespace hod
 		else
 		{
 			_value = source._value;
+		}
+	}
+
+	/// @brief 
+	void Document::Node::Clear()
+	{
+		Document::Node* child = _firstChild;
+		_firstChild = nullptr;
+
+		while (child != nullptr)
+		{
+			Document::Node* nextChild = child->_nextSibling;
+			delete child;
+			child = nextChild;
 		}
 	}
 
