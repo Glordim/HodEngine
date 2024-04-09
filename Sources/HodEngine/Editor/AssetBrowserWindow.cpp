@@ -258,6 +258,18 @@ namespace hod::editor
 				_currentExplorerNode = folder;
 				Editor::GetInstance()->SetAssetSelection(folder);
 			}
+			if (ImGui::IsWindowFocused() && _currentExplorerNode == folder)
+			{
+				if (ImGui::IsKeyPressed(ImGuiKey_F2))
+				{
+					_itemToRename = folder;
+					std::strcpy(_itemRenameBuffer, folder->_path.filename().string().c_str());
+				}
+				else if (ImGui::IsKeyPressed(ImGuiKey_Delete))
+				{
+					itemToDelete = folder;
+				}
+			}
 			if (ImGui::BeginPopupContextItem())
 			{
 				if (ImGui::MenuItem("Rename") == true)
@@ -290,6 +302,18 @@ namespace hod::editor
 				else
 				{					
 					Editor::GetInstance()->SetAssetSelection(asset);
+				}
+			}
+			if (ImGui::IsWindowFocused() && _currentExplorerNode == asset)
+			{
+				if (ImGui::IsKeyPressed(ImGuiKey_F2))
+				{
+					_itemToRename = asset;
+					std::strcpy(_itemRenameBuffer, asset->_asset->GetName().c_str());
+				}
+				else if (ImGui::IsKeyPressed(ImGuiKey_Delete))
+				{
+					itemToDelete = asset;
 				}
 			}
 			if (ImGui::BeginPopupContextItem())
