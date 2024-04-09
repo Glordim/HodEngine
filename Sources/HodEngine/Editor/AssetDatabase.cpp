@@ -275,6 +275,11 @@ namespace hod::editor
 	/// @param newName 
 	void AssetDatabase::Rename(const FileSystemMapping& node, const std::string& newName)
 	{
+		if (node._path.filename().stem() == newName)
+		{
+			return;
+		}
+
 		AssetDatabase::FileSystemMapping* realNode = (AssetDatabase::FileSystemMapping*)FindFileSystemMappingFromPath(node._path);
 		if (realNode == nullptr)
 		{
@@ -283,11 +288,17 @@ namespace hod::editor
 
 		std::filesystem::path newPath = realNode->_path;
 		newPath = newPath.replace_filename(newName);
+		if (realNode->_path.has_extension())
+		{
+			newPath.concat(realNode->_path.extension().string());
+		}
+
 		newPath = GenerateUniqueAssetPath(newPath);
 
 		if (realNode->_type == FileSystemMapping::Type::FolderType)
 		{
 			std::filesystem::rename(realNode->_path, newPath);
+			
 			// todo update all child node path
 		}
 		else
@@ -298,6 +309,13 @@ namespace hod::editor
 			}
 
 			std::filesystem::rename(realNode->_path, newPath);
+			std::filesystem::path metaPath = realNode->_path;
+			metaPath.concat(".meta");
+			std::filesystem::path newMetaPath = newPath;
+			newMetaPath.concat(".meta");
+			std::filesystem::rename(metaPath, newMetaPath);
+
+			realNode->_asset->SetPath(newPath);
 		}
 
 		realNode->_path = newPath;

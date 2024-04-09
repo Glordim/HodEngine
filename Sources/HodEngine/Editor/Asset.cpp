@@ -41,6 +41,14 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	/// @param path 
+	void Asset::SetPath(const std::filesystem::path& path)
+	{
+		_path = path;
+		_name = path.stem().string();
+	}
+
+	/// @brief 
 	/// @return 
 	bool Asset::Load()
 	{

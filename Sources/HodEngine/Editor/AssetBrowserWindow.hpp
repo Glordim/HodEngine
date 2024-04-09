@@ -54,5 +54,8 @@ namespace hod::editor
 
 		const AssetDatabase::FileSystemMapping* _nodeToDelete = nullptr;
 		const AssetDatabase::FileSystemMapping*	_currentExplorerNode = nullptr;
+
+		const AssetDatabase::FileSystemMapping* _itemToRename = nullptr;
+		char									_itemRenameBuffer[256] = { '\0' };
 	};
 }

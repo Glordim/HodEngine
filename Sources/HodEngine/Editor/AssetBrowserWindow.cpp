@@ -262,7 +262,8 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("Rename") == true)
 				{
-				
+					_itemToRename = folder;
+					std::strcpy(_itemRenameBuffer, folder->_path.filename().string().c_str());
 				}
 				else if (ImGui::MenuItem("Delete") == true)
 				{
@@ -295,7 +296,8 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("Rename") == true)
 				{
-				
+					_itemToRename = asset;
+					std::strcpy(_itemRenameBuffer, asset->_asset->GetName().c_str());
 				}
 				else if (ImGui::MenuItem("Delete") == true)
 				{
@@ -382,6 +384,11 @@ namespace hod::editor
 
 		ImVec2 size(100, 100 + ImGui::GetTextLineHeight());
 		float padding = 10.0f;
+
+		if (_itemToRename != nullptr)
+		{
+			ImGui::SetNextItemAllowOverlap();
+		}
 
 		ImVec2 cursorPosition = window->DC.CursorPos;
 		ImRect boundingBox(cursorPosition.x, cursorPosition.y, cursorPosition.x + size.x, cursorPosition.y + size.y);
@@ -474,18 +481,38 @@ namespace hod::editor
 			ImGui::LogSetNextTextDecoration("[", "]");
 		}
 
-		if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
+		if (_itemToRename == item)
 		{
-			ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
-									 ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y),
-									 item->_asset->GetName().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+			auto dc = window->DC;
+			ImGui::SetCursorScreenPos(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y * 2 - ImGui::GetTextLineHeight()));
+			ImGui::SetNextItemWidth((boundingBox.Max.x - style.FramePadding.x) - (boundingBox.Min.x + style.FramePadding.x));
+			ImGui::SetKeyboardFocusHere();
+			if (ImGui::InputText("##Rename", _itemRenameBuffer, sizeof(_itemRenameBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				AssetDatabase::GetInstance()->Rename(*_itemToRename, _itemRenameBuffer);
+				_itemToRename = nullptr;
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+			{
+				_itemToRename = nullptr;
+			}
+			window->DC = dc;
 		}
 		else
 		{
-			ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
-									 ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y),
-									 item->_path.filename().string().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
-		}
+			if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
+			{
+				ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
+										ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y),
+										item->_asset->GetName().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+			}
+			else
+			{
+				ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
+										ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y),
+										item->_path.filename().string().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+			}
+		}		
 
 		return hovered;
 	}

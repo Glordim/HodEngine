@@ -54,6 +54,8 @@ namespace hod::editor
 		bool							IsDirty() const;
 		void							SetDirty();
 
+		void							SetPath(const std::filesystem::path& path);
+
 	private:
 
 		bool					_dirty = false;
