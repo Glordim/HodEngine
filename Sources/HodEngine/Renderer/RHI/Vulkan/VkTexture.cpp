@@ -328,17 +328,18 @@ namespace hod
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-			VkDeviceSize bufferSize = _width * _height * 4;
-			alignas(64) void* data;
+			VkMemoryRequirements memRequirements;
+			vkGetImageMemoryRequirements(renderer->GetVkDevice(), _textureImage, &memRequirements);
+
+			void* data;
 			if (vkMapMemory(renderer->GetVkDevice(), _textureImageMemory, 0, VK_WHOLE_SIZE, 0, &data) != VK_SUCCESS)
 			{
 				OUTPUT_ERROR("Vulkan: Texture, unable to map memory\n");
 				return Color(0.0f, 0.0f, 0.0f, 0.0f);
 			}
 			
-			VkDeviceSize alignment = 256;
 			VkDeviceSize lineSizeWithAlignment = 4 * _width;
-			lineSizeWithAlignment += alignment - (lineSizeWithAlignment % alignment);
+			lineSizeWithAlignment += memRequirements.alignment - (lineSizeWithAlignment % memRequirements.alignment);
 
 			VkDeviceSize bufferOffset = lineSizeWithAlignment * position.GetY() + 4 * position.GetX(); 
 
