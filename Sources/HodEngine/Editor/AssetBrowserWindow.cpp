@@ -223,6 +223,15 @@ namespace hod::editor
 			{
 				_currentFolderTreeNode = pathNode;
 			}
+			if (ImGui::BeginPopupContextItem())
+			{
+				if (ImGui::MenuItem("Show in Explorer") == true)
+				{
+					application::dialog::OpenExplorerAtPath(pathNode->_path);
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
 
 			if (i < pathSplitSize - 1)
 			{
@@ -295,6 +304,12 @@ namespace hod::editor
 						EditNodeName(newFolderNode);
 						ImGui::CloseCurrentPopup();
 					}
+				}
+
+				if (ImGui::MenuItem("Show in Explorer") == true)
+				{
+					application::dialog::OpenExplorerAtPath(_currentFolderTreeNode->_path);
+					ImGui::CloseCurrentPopup();
 				}
 
 				if (ImGui::BeginMenu("Create") == true)
