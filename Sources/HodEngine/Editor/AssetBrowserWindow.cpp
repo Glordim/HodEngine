@@ -101,6 +101,7 @@ namespace hod::editor
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
 
+		ImGui::AlignTextToFramePadding();
 		bool opened = ImGui::TreeNodeEx((std::string("##") + node->_path.filename().string()).c_str(), treeNodeFlags);
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
@@ -161,7 +162,10 @@ namespace hod::editor
 		}
 		else
 		{
-			ImGui::Text("%s", node->_path.filename().string().c_str());
+			const char* icon = node->_childrenAsset.empty() == false || node->_childrenFolder.empty() == false ? ICON_MD_FOLDER : ICON_MD_FOLDER_OPEN;			
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 1.0f });
+			ImGui::Text("%s  %s", icon, node->_path.filename().string().c_str());
+			ImGui::PopStyleVar();
 		}
 
 		if (opened == true)
