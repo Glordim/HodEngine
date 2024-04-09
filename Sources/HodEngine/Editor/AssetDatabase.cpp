@@ -185,9 +185,9 @@ namespace hod::editor
 
 			if (founded == false && deep == 0)
 			{
-				for (AssetDatabase::FileSystemMapping* childNode : currentNode->_childrenFolder)
+				for (AssetDatabase::FileSystemMapping* childNode : currentNode->_childrenAsset)
 				{
-					if (splitPath != childNode->_path)
+					if (splitPath == childNode->_path)
 					{
 						return childNode;
 					}
@@ -314,6 +314,7 @@ namespace hod::editor
 		}
 
 		std::filesystem::remove_all(realNode->_path);
+		std::filesystem::remove_all(realNode->_path.concat(".meta"));
 
 		if (realNode->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
 		{

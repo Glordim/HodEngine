@@ -244,6 +244,8 @@ namespace hod::editor
 		ImGui::Separator();
 		ImVec2 cursor = ImGui::GetCursorPos();
 
+		const AssetDatabase::FileSystemMapping* itemToDelete = nullptr;
+
 		for (const AssetDatabase::FileSystemMapping* folder : _currentFolderTreeNode->_childrenFolder)
 		{
 			float available = ImGui::GetContentRegionAvail().x;
@@ -256,11 +258,24 @@ namespace hod::editor
 				_currentExplorerNode = folder;
 				Editor::GetInstance()->SetAssetSelection(folder);
 			}
+			if (ImGui::BeginPopupContextItem())
+			{
+				if (ImGui::MenuItem("Rename") == true)
+				{
+				
+				}
+				else if (ImGui::MenuItem("Delete") == true)
+				{
+					itemToDelete = folder;
+				}
+				ImGui::EndPopup();
+			}
 			if (available > 210)
 			{
 				ImGui::SameLine();
 			}
 		}
+		
 		for (const AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
 		{
 			float available = ImGui::GetContentRegionAvail().x;
@@ -276,10 +291,27 @@ namespace hod::editor
 					Editor::GetInstance()->SetAssetSelection(asset);
 				}
 			}
+			if (ImGui::BeginPopupContextItem())
+			{
+				if (ImGui::MenuItem("Rename") == true)
+				{
+				
+				}
+				else if (ImGui::MenuItem("Delete") == true)
+				{
+					itemToDelete = asset;
+				}
+				ImGui::EndPopup();
+			}
 			if (available > 210)
 			{
 				ImGui::SameLine();
 			}
+		}
+		if (itemToDelete != nullptr)
+		{
+			AssetDatabase::GetInstance()->Delete(*itemToDelete);
+			itemToDelete = nullptr;
 		}
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
@@ -330,18 +362,6 @@ namespace hod::editor
 					ImGui::EndMenu();
 				}
 			}
-			else
-			{
-				if (ImGui::MenuItem("Rename") == true)
-				{
-				
-				}
-				else if (ImGui::MenuItem("Delete") == true)
-				{
-
-				}
-			}
-
 			ImGui::EndPopup();
 		}
 	}
