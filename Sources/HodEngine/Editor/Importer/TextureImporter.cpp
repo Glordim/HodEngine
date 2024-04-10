@@ -22,6 +22,7 @@ namespace hod::editor
 	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
 	{
 		ADD_PROPERTY(TextureImporterSettings, _generateMipmap);
+		ADD_PROPERTY(TextureImporterSettings, _filtering);
 		ADD_PROPERTY(TextureImporterSettings, _spriteDatas);
 	}
 
@@ -96,10 +97,13 @@ namespace hod::editor
 		// TODO use https://github.com/GPUOpen-Tools/compressonator and compress to the most adapted format related to platform's capabilities
 		// For now always use png
 
+		TextureImporterSettings& textureSettings = (TextureImporterSettings&)settings;
+
 		renderer::TextureResource textureResource;
 		textureResource._width = x;
 		textureResource._height = y;
 		textureResource._componentCount = componentCount;
+		textureResource._filtering = textureSettings._filtering;
 
 		Document document;
 		if (Serializer::Serialize(textureResource, document.GetRootNode()) == false)

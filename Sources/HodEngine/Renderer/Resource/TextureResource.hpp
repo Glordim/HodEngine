@@ -12,6 +12,17 @@ namespace hod::renderer
 
 	public:
 
+		enum Filtering
+		{
+			Nearest,
+			Linear,
+			
+			Count,
+		};
+
+
+	public:
+
 							TextureResource() = default;
 							TextureResource(const TextureResource&) = delete;
 							TextureResource(TextureResource&&) = delete;
@@ -29,9 +40,10 @@ namespace hod::renderer
 
 	public:
 
-		uint16_t					_width;
-		uint16_t					_height;
-		uint8_t						_componentCount;
+		uint16_t					_width = 0;
+		uint16_t					_height = 0;
+		uint8_t						_componentCount = 0;
+		Filtering					_filtering = Filtering::Nearest;
 
 		Texture*					_texture = nullptr;
 	};

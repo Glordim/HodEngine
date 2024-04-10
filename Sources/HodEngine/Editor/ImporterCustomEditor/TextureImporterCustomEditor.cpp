@@ -21,8 +21,31 @@ namespace hod::editor
 
 		ImGui::TextUnformatted("Texture");
 		ImGui::Spacing();
-		changed |= ImGui::Checkbox("Generate mipmap", &textureImporterSettings->_generateMipmap);
-		ImGui::Image(texture->GetTexture(), ImVec2(256, 256));
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Generate mipmap");
+		ImGui::SameLine();
+		changed |= ImGui::Checkbox("##Generate mipmap", &textureImporterSettings->_generateMipmap);
+
+		static const char* filteringLabel[renderer::TextureResource::Filtering::Count] = { "Nearest", "Linear" };
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Filtering");
+		ImGui::SameLine();
+		if (ImGui::BeginCombo("##Filtering", filteringLabel[textureImporterSettings->_filtering]))
+		{
+			for (uint32_t filtering = renderer::TextureResource::Nearest; filtering < renderer::TextureResource::Count; ++filtering)
+			{
+				if (ImGui::MenuItem(filteringLabel[filtering]))
+				{
+					textureImporterSettings->_filtering = (renderer::TextureResource::Filtering)filtering;
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::EndCombo();
+		}
+		float width = ImGui::GetContentRegionAvail().x;
+		float height = width / (texture->GetTexture()->GetWidth() / texture->GetTexture()->GetHeight());
+		ImGui::Image(texture->GetTexture(), ImVec2(width, height));
 		ImGui::Spacing();
 		ImGui::Spacing();
 		ImGui::TextUnformatted("Sprite");
