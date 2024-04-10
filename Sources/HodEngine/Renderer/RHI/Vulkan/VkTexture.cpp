@@ -328,9 +328,6 @@ namespace hod
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-			VkMemoryRequirements memRequirements;
-			vkGetImageMemoryRequirements(renderer->GetVkDevice(), _textureImage, &memRequirements);
-
 			void* data;
 			if (vkMapMemory(renderer->GetVkDevice(), _textureImageMemory, 0, VK_WHOLE_SIZE, 0, &data) != VK_SUCCESS)
 			{
@@ -338,8 +335,12 @@ namespace hod
 				return Color(0.0f, 0.0f, 0.0f, 0.0f);
 			}
 			
+			//VkMemoryRequirements memRequirements;
+			//vkGetImageMemoryRequirements(renderer->GetVkDevice(), _textureImage, &memRequirements);
+			size_t alignment = renderer->GetVkGpuDevice()->deviceProperties.limits.minMemoryMapAlignment; // memRequirements.alignment
+
 			VkDeviceSize lineSizeWithAlignment = 4 * _width;
-			lineSizeWithAlignment += memRequirements.alignment - (lineSizeWithAlignment % memRequirements.alignment);
+			lineSizeWithAlignment += alignment - (lineSizeWithAlignment % alignment);
 
 			VkDeviceSize bufferOffset = lineSizeWithAlignment * position.GetY() + 4 * position.GetX(); 
 
