@@ -110,9 +110,9 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	bool Asset::Save(Object* object)
+	bool Asset::Save()
 	{
-		return Save(object, object->GetReflectionDescriptorV());
+		return Save(nullptr, nullptr);
 	}
 
 	/// @brief 

@@ -41,7 +41,7 @@ namespace hod::editor
 
 		bool					Load();
 		bool					Save(const void* instance, ReflectionDescriptor* reflectionDescriptor);
-		bool					Save(Object* object = nullptr);
+		bool					Save();
 
 		const UID&						GetUid() const;
 		const std::filesystem::path&	GetPath() const;
