@@ -21,17 +21,17 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
 	{
-		ADD_PROPERTY(TextureImporterSettings, _generateMipmap);
-		ADD_PROPERTY(TextureImporterSettings, _filterMode);
-		ADD_PROPERTY(TextureImporterSettings, _wrapMode);
-		ADD_PROPERTY(TextureImporterSettings, _spriteDatas);
+		AddPropertyT(this, &TextureImporterSettings::_generateMipmap, "GenerateMipmap");
+		AddPropertyT(this, &TextureImporterSettings::_filterMode, "FilterMode");
+		AddPropertyT(this, &TextureImporterSettings::_wrapMode, "WrapMode");
+		AddPropertyT(this, &TextureImporterSettings::_spriteDatas, "SpriteDatas");
 	}
 
 	DESCRIBE_REFLECTED_CLASS_NO_PARENT(SpriteData)
 	{
-		ADD_PROPERTY(SpriteData, _uid);
-		ADD_PROPERTY(SpriteData, _rect);
-		ADD_PROPERTY(SpriteData, _meshType);
+		AddPropertyT(this, &SpriteData::_uid, "Uid");
+		AddPropertyT(this, &SpriteData::_rect, "Rect");
+		AddPropertyT(this, &SpriteData::_meshType, "MeshType");
 	}
 
 	/// @brief 
