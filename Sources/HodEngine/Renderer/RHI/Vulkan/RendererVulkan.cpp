@@ -1270,17 +1270,20 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	bool RendererVulkan::CreateSampler(VkSampler* sampler)
+	bool RendererVulkan::CreateSampler(VkSampler* sampler, const SamplerCreateInfo& createInfo)
 	{
 		*sampler = VK_NULL_HANDLE;
 
+		VkSamplerAddressMode addressMode = createInfo._wrapMode == WrapMode::Clamp ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE : VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		VkFilter filter = createInfo._filterMode == FilterMode::Linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
+
 		VkSamplerCreateInfo samplerInfo = {};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		samplerInfo.magFilter = VK_FILTER_LINEAR;
-		samplerInfo.minFilter = VK_FILTER_LINEAR;
-		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.magFilter = filter;
+		samplerInfo.minFilter = filter;
+		samplerInfo.addressModeU = addressMode;
+		samplerInfo.addressModeV = addressMode;
+		samplerInfo.addressModeW = addressMode;
 		samplerInfo.anisotropyEnable = VK_TRUE;
 		samplerInfo.maxAnisotropy = 16;
 		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;

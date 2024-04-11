@@ -42,7 +42,8 @@ namespace hod
 				return false; // Todo Memleak
 			}
 
-			if (BuildBuffer(width, height, buffer) == false)
+			CreateInfo createInfo;
+			if (BuildBuffer(width, height, buffer, createInfo) == false)
 			{
 				return false; // Todo Memleak
 			}

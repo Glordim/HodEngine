@@ -12,6 +12,8 @@ namespace hod::renderer
 		ADD_PROPERTY(TextureResource, _width);
 		ADD_PROPERTY(TextureResource, _height);
 		ADD_PROPERTY(TextureResource, _componentCount);
+		ADD_PROPERTY(TextureResource, _filterMode);
+		ADD_PROPERTY(TextureResource, _wrapMode);
 	}
 
 	/// @brief 
@@ -47,10 +49,14 @@ namespace hod::renderer
 
 		stream.seekg(initialStreamPos + dataOffset, std::ios_base::beg);
 
+		Texture::CreateInfo createInfo;
+		createInfo._wrapMode = _wrapMode;
+		createInfo._filterMode = _filterMode;
+
 		char* data = new char[dataSize];
 		stream.read(data, dataSize);
 		_texture = Renderer::GetInstance()->CreateTexture();
-		if (_texture->BuildBuffer(_width, _height, (unsigned char*)data) == false) // todo BuildBuffer doesn't take void* ?
+		if (_texture->BuildBuffer(_width, _height, (unsigned char*)data, createInfo) == false) // todo BuildBuffer doesn't take void* ?
 		{
 			delete _texture;
 			_texture = nullptr;

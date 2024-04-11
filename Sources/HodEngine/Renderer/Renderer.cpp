@@ -168,7 +168,7 @@ namespace hod
 										  255, 255, 255, 255 };
 
 				_defaultWhiteTexture = CreateTexture();
-				_defaultWhiteTexture->BuildBuffer(2, 2, pixels);
+				_defaultWhiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
 			}
 			return _defaultWhiteTexture;
 		}

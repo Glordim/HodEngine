@@ -10,6 +10,7 @@
 
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
+#include "HodEngine/Renderer/Enums.hpp"
 
 #if defined(PLATFORM_WINDOWS)
 	#include <Windows.h>
@@ -19,6 +20,12 @@
 namespace hod::renderer
 {
 	class DescriptorSet;
+
+	struct SamplerCreateInfo
+	{
+		FilterMode 	_filterMode = FilterMode::Linear;
+		WrapMode 	_wrapMode = WrapMode::Clamp;
+	};
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
@@ -71,7 +78,7 @@ namespace hod::renderer
 		bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
 		bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory);
 		bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
-		bool CreateSampler(VkSampler* sampler);
+		bool CreateSampler(VkSampler* sampler, const SamplerCreateInfo& createInfo);
 
 		bool BeginSingleTimeCommands(VkCommandBuffer* commandBuffer);
 		bool EndSingleTimeCommands(VkCommandBuffer commandBuffer);

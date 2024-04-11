@@ -90,7 +90,9 @@ namespace hod::editor
 			if (_pickingRenderTarget->GetWidth() != windowWidth ||
 				_pickingRenderTarget->GetHeight() != windowHeight)
 			{
-				_pickingRenderTarget->Init(windowWidth, windowHeight, true); // todo error
+				renderer::Texture::CreateInfo createInfo;
+				createInfo._allowReadWrite = true;
+				_pickingRenderTarget->Init(windowWidth, windowHeight, createInfo); // todo error
 				_pickingRenderTarget->PrepareForRead(); // todo automate ?
 			}
 
@@ -179,7 +181,7 @@ namespace hod::editor
 		if (_renderTarget->GetWidth() != windowWidth ||
 			_renderTarget->GetHeight() != windowHeight)
 		{
-			_renderTarget->Init(windowWidth, windowHeight); // todo error
+			_renderTarget->Init(windowWidth, windowHeight, renderer::Texture::CreateInfo()); // todo error
 			_renderTarget->PrepareForRead(); // todo automate ?
 		}
 

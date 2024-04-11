@@ -18,7 +18,7 @@ namespace hod
 							VkRenderTarget();
 							~VkRenderTarget() override;
 
-			bool			Init(size_t width, size_t height, bool allowReadWrite = false) override;
+			bool			Init(size_t width, size_t height, const Texture::CreateInfo& createInfo) override;
 
 			VkRenderPass	GetRenderPass() const;
 			VkFramebuffer	GetFrameBuffer() const;

@@ -4,6 +4,7 @@
 #include <cstddef>
 
 #include <HodEngine/Core/Color.hpp>
+#include "HodEngine/Renderer/Enums.hpp"
 
 namespace hod
 {
@@ -18,6 +19,15 @@ namespace hod
 		{
 		public:
 
+			struct CreateInfo
+			{
+				WrapMode	_wrapMode = WrapMode::Clamp;
+				FilterMode	_filterMode = FilterMode::Linear;
+				bool		_allowReadWrite = false;
+			};
+
+		public:
+
 			Texture();
 			virtual ~Texture();
 
@@ -26,9 +36,9 @@ namespace hod
 			uint32_t	GetWidth() const;
 			uint32_t	GetHeight() const;
 
-			virtual bool BuildColor(size_t width, size_t height, bool allowReadWrite = false) = 0;
-			virtual bool BuildDepth(size_t width, size_t height) = 0;
-			virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer) = 0;
+			virtual bool BuildColor(size_t width, size_t height, const CreateInfo& createInfo) = 0;
+			virtual bool BuildDepth(size_t width, size_t height, const CreateInfo& createInfo) = 0;
+			virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer, const CreateInfo& createInfo) = 0;
 
 			virtual Color ReadPixel(const Vector2& position) const = 0;
 

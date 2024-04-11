@@ -33,7 +33,8 @@ namespace hod::editor
 	public:
 
 		bool									_generateMipmap = false;
-		renderer::TextureResource::Filtering	_filtering = renderer::TextureResource::Filtering::Nearest;
+		renderer::FilterMode					_filterMode = renderer::FilterMode::Linear;
+		renderer::WrapMode						_wrapMode = renderer::WrapMode::Clamp;
 		std::vector<SpriteData> 				_spriteDatas;
 	};
 

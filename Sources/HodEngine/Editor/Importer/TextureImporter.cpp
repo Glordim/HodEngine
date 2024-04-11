@@ -22,7 +22,8 @@ namespace hod::editor
 	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
 	{
 		ADD_PROPERTY(TextureImporterSettings, _generateMipmap);
-		ADD_PROPERTY(TextureImporterSettings, _filtering);
+		ADD_PROPERTY(TextureImporterSettings, _filterMode);
+		ADD_PROPERTY(TextureImporterSettings, _wrapMode);
 		ADD_PROPERTY(TextureImporterSettings, _spriteDatas);
 	}
 
@@ -103,7 +104,8 @@ namespace hod::editor
 		textureResource._width = x;
 		textureResource._height = y;
 		textureResource._componentCount = componentCount;
-		textureResource._filtering = textureSettings._filtering;
+		textureResource._filterMode = textureSettings._filterMode;
+		textureResource._wrapMode = textureSettings._wrapMode;
 
 		Document document;
 		if (Serializer::Serialize(textureResource, document.GetRootNode()) == false)

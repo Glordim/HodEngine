@@ -80,17 +80,17 @@ namespace hod::editor
 		stbi_uc* pixels = stbi_load_from_memory(folder_png, folder_png_size, &x, &y, &component, 0);
 
 		_folderTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_folderTexture->BuildBuffer(x, y, pixels);
+		_folderTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
 
 		pixels = stbi_load_from_memory(folder_open_png, folder_open_png_size, &x, &y, &component, 0);
 
 		_folderOpenTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_folderOpenTexture->BuildBuffer(x, y, pixels);
+		_folderOpenTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
 
 		pixels = stbi_load_from_memory(landscape_png, landscape_png_size, &x, &y, &component, 0);
 
 		_sceneTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_sceneTexture->BuildBuffer(x, y, pixels);
+		_sceneTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
 
 		const Argument* argument = argumentParser.GetArgument('p', "project");
 		if (argument == nullptr)

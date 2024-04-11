@@ -213,7 +213,7 @@ void embraceTheDarkness()
 		ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&out_pixels, &out_width, &out_height, &out_bytes_per_pixel);
 
 		renderer::Texture* fontTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		fontTexture->BuildBuffer(out_width, out_height, out_pixels);
+		fontTexture->BuildBuffer(out_width, out_height, out_pixels, renderer::Texture::CreateInfo());
 
 		ImGui::GetIO().Fonts->SetTexID((ImTextureID)fontTexture);
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;

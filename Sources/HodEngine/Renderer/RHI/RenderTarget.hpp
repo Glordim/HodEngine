@@ -3,48 +3,45 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace hod
+#include "HodEngine/Renderer/RHI/Texture.hpp"
+
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class RenderTarget
 	{
-		class Texture;
+	public:
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class RenderTarget
-		{
-		public:
+						RenderTarget();
+		virtual			~RenderTarget();
 
-							RenderTarget();
-			virtual			~RenderTarget();
+		uint32_t		GetWidth() const;
+		uint32_t		GetHeight() const;
 
-			uint32_t		GetWidth() const;
-			uint32_t		GetHeight() const;
+		virtual bool	Init(size_t width, size_t height, const Texture::CreateInfo& createInfo);
 
-			virtual bool	Init(size_t width, size_t height, bool allowReadWrite = false);
+		Texture*		GetColorTexture() const;
+		Texture*		GetDepthTexture() const;
 
-			Texture*		GetColorTexture() const;
-			Texture*		GetDepthTexture() const;
+		virtual void	PrepareForWrite() = 0;
+		virtual void	PrepareForRead() = 0;
 
-			virtual void	PrepareForWrite() = 0;
-			virtual void	PrepareForRead() = 0;
+		bool			IsValid() const;
 
-			bool			IsValid() const;
+	protected:
 
-		protected:
+		virtual void	Clear();
 
-			virtual void	Clear();
+	protected:
 
-		protected:
+		Texture*		_color = nullptr;
+		Texture*		_depth = nullptr;
 
-			Texture*		_color = nullptr;
-			Texture*		_depth = nullptr;
+	protected:
 
-		protected:
-
-			uint32_t		_width = 0;
-			uint32_t		_height = 0;
-		};
-	}
+		uint32_t		_width = 0;
+		uint32_t		_height = 0;
+	};
 }
