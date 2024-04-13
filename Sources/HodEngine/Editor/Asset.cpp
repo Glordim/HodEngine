@@ -126,7 +126,7 @@ namespace hod::editor
 		{
 			return false;
 		}
-		if (_meta.SaveImporterConfig(metaDocument.GetRootNode()) == false) // TODO improve reflection
+		if (_meta.SaveImporterConfig(metaDocument.GetRootNode().AddChild("importerSettings")) == false) // TODO improve reflection
 		{
 			return false;
 		}
