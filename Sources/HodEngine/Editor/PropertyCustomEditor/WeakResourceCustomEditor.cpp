@@ -54,7 +54,7 @@ namespace hod::editor
 		}
 		ImGui::PopStyleVar();
 		ImGui::PopStyleColor(3);
-		if (clicked)
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
 			assetList.clear();
 			assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
@@ -123,6 +123,10 @@ namespace hod::editor
 				{
 					value->SetUid(assetNode->_asset->GetUid());
 					property->SetValue(instance, value); // Set to itself for call SetFunction
+				}
+				else if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				{
+					ImGui::CloseCurrentPopup();
 				}
 				ImGui::PopID();
 			}
