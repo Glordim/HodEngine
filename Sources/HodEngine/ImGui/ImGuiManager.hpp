@@ -10,6 +10,7 @@
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
 	#undef max
+	#undef FindWindow
 #endif
 
 namespace hod::window
@@ -27,6 +28,7 @@ namespace hod::imgui
 {
 	class MainBar;
 	class Window;
+	class WindowDescription;
 
 	/// @brief 
 	class ImGuiManager : public Singleton<ImGuiManager>
@@ -40,11 +42,13 @@ namespace hod::imgui
 
 		void							SetMainBar(MainBar* mainBar);
 
-		template<typename _Window_>
-		_Window_*						OpenWindow();
+		template<typename Window_>
+		Window_*						OpenWindow();
+		void							OpenWindow(Window* window);
 
-		//template<typename _Window_>
-		//_Window_*						GetWindow();
+		template<typename Window_>
+		Window_*						FindWindow() const;
+		Window*							FindWindow(WindowDescription* windowDescription) const;
 
 		void							CloseAllWindow();
 

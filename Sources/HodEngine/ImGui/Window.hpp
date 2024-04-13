@@ -62,11 +62,11 @@ namespace hod::imgui
 	#define WINDOW_DESCRIPTION()										\
 	private:															\
 		static hod::imgui::WindowDescription _description;				\
+	public:																\
 		static hod::imgui::WindowDescription* GetStaticDescription()	\
 		{																\
 			return &_description;										\
 		}																\
-	public:																\
 		hod::imgui::WindowDescription* GetDescription() override		\
 		{																\
 			return GetStaticDescription();								\

@@ -14,6 +14,10 @@
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
+#include "HodEngine/ImGui/ImGuiManager.hpp"
+#include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+
 namespace hod::editor
 {
 	/// @brief 
@@ -61,7 +65,15 @@ namespace hod::editor
 
 			ImGui::OpenPopup("WeakResourceFindPopup");
 		}
-		else if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && asset != nullptr)
+		else if (clicked == true && asset != nullptr)
+		{
+			AssetBrowserWindow* assetBrowserWindow = imgui::ImGuiManager::GetInstance()->FindWindow<AssetBrowserWindow>();
+			if (assetBrowserWindow != nullptr)
+			{
+				assetBrowserWindow->PingAsset(*asset);
+			}
+		}
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && asset != nullptr)
 		{
 			if (ImGui::BeginTooltip())
 			{

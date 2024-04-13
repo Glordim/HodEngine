@@ -1,12 +1,22 @@
 namespace hod::imgui
 {
-	template<typename _Window_>
-	_Window_* ImGuiManager::OpenWindow()
+	/// @brief 
+	/// @tparam Window_ 
+	/// @return 
+	template<typename Window_>
+	Window_* ImGuiManager::OpenWindow()
 	{
-		_Window_* window = new _Window_();
-
-		_windows.push_back(window);
-
+		Window_* window = new Window_();
+		OpenWindow(window);
 		return window;
+	}
+
+	/// @brief 
+	/// @tparam Window_ 
+	/// @return 
+	template<typename Window_>
+	Window_* ImGuiManager::FindWindow() const
+	{
+		return static_cast<Window_*>(FindWindow(Window_::GetStaticDescription()));
 	}
 }

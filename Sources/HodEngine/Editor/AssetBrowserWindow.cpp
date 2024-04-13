@@ -548,4 +548,11 @@ namespace hod::editor
 
 		return hovered;
 	}
+
+	/// @brief 
+	/// @param asset 
+	void AssetBrowserWindow::PingAsset(Asset& asset)
+	{
+		// TODO
+	}
 }

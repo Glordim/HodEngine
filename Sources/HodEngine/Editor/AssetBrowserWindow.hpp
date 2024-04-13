@@ -22,6 +22,8 @@ namespace hod::editor
 
 		void		Draw() override;
 
+		void		PingAsset(Asset& asset);
+		
 	private:
 
 		struct FolderItem
@@ -43,6 +45,7 @@ namespace hod::editor
 		void		ResyncFolderExplorer();
 
 		void		EditNodeName(const AssetDatabase::FileSystemMapping* node);
+
 
 	private:
 

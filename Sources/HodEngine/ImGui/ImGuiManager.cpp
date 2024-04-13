@@ -458,4 +458,26 @@ void embraceTheDarkness()
 		}
 		return true;
 	}
+
+	/// @brief 
+	/// @param window 
+	void ImGuiManager::OpenWindow(Window* window)
+	{
+		_windows.push_back(window); // todo check uniq
+	}
+
+	/// @brief 
+	/// @param windowDescription 
+	/// @return 
+	Window* ImGuiManager::FindWindow(WindowDescription* windowDescription) const
+	{
+		for (Window* window : _windows)
+		{
+			if (window->GetDescription() == windowDescription)
+			{
+				return window;
+			}
+		}
+		return nullptr;
+	}
 }
