@@ -322,7 +322,11 @@ namespace hod::editor
 			}
 			if (ImGui::BeginPopupContextItem())
 			{
-				if (ImGui::MenuItem("Rename") == true)
+				if (ImGui::MenuItem("Reimport") == true)
+				{
+					AssetDatabase::GetInstance()->Import(asset->_path);
+				}
+				else if (ImGui::MenuItem("Rename") == true)
 				{
 					_itemToRename = asset;
 					std::strcpy(_itemRenameBuffer, asset->_asset->GetName().c_str());
