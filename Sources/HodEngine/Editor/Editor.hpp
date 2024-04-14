@@ -73,6 +73,7 @@ namespace hod::editor
 		renderer::Texture*						GetFolderTexture() const { return _folderTexture; }
 		renderer::Texture*						GetFolderOpenTexture() const  { return _folderOpenTexture; }
 		renderer::Texture*						GetSceneTexture() const  { return _sceneTexture; }
+		renderer::Texture*						GetCheckerTexture() const  { return _checkerTexture; }
 
 	private:
 
@@ -93,6 +94,7 @@ namespace hod::editor
 		renderer::Texture*						_folderTexture = nullptr;
 		renderer::Texture*						_folderOpenTexture = nullptr;
 		renderer::Texture*						_sceneTexture = nullptr;
+		renderer::Texture*						_checkerTexture = nullptr;
 
 		Document								_playedWorldDocument;
 	};

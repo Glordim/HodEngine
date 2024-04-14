@@ -92,6 +92,18 @@ namespace hod::editor
 		_sceneTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_sceneTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
 
+		static constexpr uint8_t primaryGrey = 71;
+		static constexpr uint8_t secondaryGrey = 102;
+		const uint8_t checkerBuffer[2 * 2 * 4] = {
+			primaryGrey, primaryGrey, primaryGrey, 255, secondaryGrey, secondaryGrey, secondaryGrey, 255,
+			secondaryGrey, secondaryGrey, secondaryGrey, 255, primaryGrey, primaryGrey, primaryGrey, 255,
+		};
+		renderer::Texture::CreateInfo textureCreateInfo;
+		textureCreateInfo._filterMode = renderer::FilterMode::Nearest;
+		textureCreateInfo._wrapMode = renderer::WrapMode::Repeat;
+		_checkerTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
+
 		const Argument* argument = argumentParser.GetArgument('p', "project");
 		if (argument == nullptr)
 		{

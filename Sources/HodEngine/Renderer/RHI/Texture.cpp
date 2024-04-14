@@ -35,7 +35,7 @@ namespace hod
 			int height;
 			int channel;
 
-			unsigned char* buffer = stbi_load(path, &width, &height, &channel, 4);
+			uint8_t* buffer = stbi_load(path, &width, &height, &channel, 4);
 			if (buffer == nullptr)
 			{
 				OUTPUT_ERROR("Texture : Failed to load Texture \"%s\"", path);

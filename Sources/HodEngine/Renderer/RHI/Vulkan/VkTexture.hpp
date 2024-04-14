@@ -20,7 +20,7 @@ namespace hod
 
 			bool			BuildColor(size_t width, size_t height, const CreateInfo& createInfo) override;
 			bool			BuildDepth(size_t width, size_t height, const CreateInfo& createInfo) override;
-			bool			BuildBuffer(size_t width, size_t height, unsigned char* buffer, const CreateInfo& createInfo) override;
+			bool			BuildBuffer(size_t width, size_t height, const uint8_t* buffer, const CreateInfo& createInfo) override;
 
 			Color			ReadPixel(const Vector2& position) const override;
 

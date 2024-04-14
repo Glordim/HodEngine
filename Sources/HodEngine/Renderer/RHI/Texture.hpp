@@ -38,7 +38,7 @@ namespace hod
 
 			virtual bool BuildColor(size_t width, size_t height, const CreateInfo& createInfo) = 0;
 			virtual bool BuildDepth(size_t width, size_t height, const CreateInfo& createInfo) = 0;
-			virtual bool BuildBuffer(size_t width, size_t height, unsigned char* buffer, const CreateInfo& createInfo) = 0;
+			virtual bool BuildBuffer(size_t width, size_t height, const uint8_t* buffer, const CreateInfo& createInfo) = 0;
 
 			virtual Color ReadPixel(const Vector2& position) const = 0;
 

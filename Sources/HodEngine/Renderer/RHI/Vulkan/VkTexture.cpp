@@ -225,7 +225,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkTexture::BuildBuffer(size_t width, size_t height, unsigned char* pixels, const CreateInfo& createInfo)
+		bool VkTexture::BuildBuffer(size_t width, size_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
