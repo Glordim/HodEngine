@@ -34,6 +34,12 @@ namespace hod::editor
 			std::vector<FolderItem*>	_children;
 		};
 
+		enum PingAnimState
+		{
+			In,
+			Out,
+		};
+
 	private:
 
 		void		DrawFolderTree();
@@ -60,5 +66,9 @@ namespace hod::editor
 
 		const AssetDatabase::FileSystemMapping* _itemToRename = nullptr;
 		char									_itemRenameBuffer[256] = { '\0' };
+
+		const AssetDatabase::FileSystemMapping* _itemToPing = nullptr;
+		PingAnimState							_pingAnimState;
+		float									_pingAnimValue;
 	};
 }

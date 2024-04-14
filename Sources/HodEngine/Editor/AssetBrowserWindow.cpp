@@ -19,6 +19,8 @@
 
 #include "HodEngine/Game/Scene.hpp"
 
+#include <cmath>
+
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
 {
 	using namespace ImGui;
@@ -296,6 +298,48 @@ namespace hod::editor
 		for (const AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
 		{
 			float available = ImGui::GetContentRegionAvail().x;
+			uint32_t pingAnimPopStyleCount = 0;
+			if (_itemToPing == asset)
+			{
+				if (_pingAnimState == PingAnimState::In)
+				{
+					_pingAnimValue += 0.016f * 3.0f; // TODO use deltatime
+					if (_pingAnimValue >= 1.0f)
+					{
+						_pingAnimValue = 1.0f;
+						_pingAnimState = PingAnimState::Out;
+					}
+				}
+				else
+				{
+					_pingAnimValue -= 0.016f * 3.0f; // TODO use deltatime
+					if (_pingAnimValue <= 0.0f)
+					{
+						_pingAnimValue = 0.0f;
+						_itemToPing = nullptr;
+					}
+				}
+
+				ImVec4 pingColor = ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
+
+				ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+				normalColor.x = std::lerp(normalColor.x, pingColor.x, _pingAnimValue);
+				normalColor.y = std::lerp(normalColor.y, pingColor.y, _pingAnimValue);
+				normalColor.z = std::lerp(normalColor.z, pingColor.z, _pingAnimValue);
+				normalColor.w = std::lerp(normalColor.w, pingColor.w, _pingAnimValue);
+
+				ImGui::PushStyleColor(ImGuiCol_Button, normalColor);
+				++pingAnimPopStyleCount;
+
+				ImVec4 activeColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+				activeColor.x = std::lerp(activeColor.x, pingColor.x, _pingAnimValue);
+				activeColor.y = std::lerp(activeColor.y, pingColor.y, _pingAnimValue);
+				activeColor.z = std::lerp(activeColor.z, pingColor.z, _pingAnimValue);
+				activeColor.w = std::lerp(activeColor.w, pingColor.w, _pingAnimValue);
+
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, activeColor);
+				++pingAnimPopStyleCount;
+			}
 			if (DrawExplorerItem(asset) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
 			{
 				_currentExplorerNode = asset;
@@ -308,6 +352,8 @@ namespace hod::editor
 					Editor::GetInstance()->SetAssetSelection(asset);
 				}
 			}
+			ImGui::PopStyleColor(pingAnimPopStyleCount);
+
 			if (ImGui::IsWindowFocused() && _currentExplorerNode == asset)
 			{
 				if (ImGui::IsKeyPressed(ImGuiKey_F2))
@@ -553,6 +599,13 @@ namespace hod::editor
 	/// @param asset 
 	void AssetBrowserWindow::PingAsset(Asset& asset)
 	{
-		// TODO
+		AssetDatabase::FileSystemMapping* fileSystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(asset.GetPath());
+		if (fileSystemMapping != nullptr)
+		{
+			_currentFolderTreeNode = fileSystemMapping->_parentFolder;
+			_itemToPing = fileSystemMapping;
+			_pingAnimState = PingAnimState::In;
+			_pingAnimValue = 0.0f;
+		}
 	}
 }
