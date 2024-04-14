@@ -105,6 +105,30 @@ namespace hod::editor
 
 		ImGui::AlignTextToFramePadding();
 		bool opened = ImGui::TreeNodeEx((std::string("##") + node->_path.filename().string()).c_str(), treeNodeFlags);
+		if (ImGui::BeginDragDropSource() == true)
+		{
+				// Some processing...
+				ImGui::TextUnformatted(node->_path.filename().string().c_str());
+				ImGui::SetDragDropPayload("FileSystemMapping", (void*)&node, sizeof(void*), ImGuiCond_Once);
+				ImGui::EndDragDropSource();
+		}
+		else if (ImGui::BeginDragDropTarget() == true)
+		{
+			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+			if (payload->IsDataType("FileSystemMapping") == true)
+			{
+				payload = ImGui::AcceptDragDropPayload("FileSystemMapping");
+				if ((payload) != nullptr)
+				{
+					// todo factorize
+					AssetDatabase::FileSystemMapping* asset = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
+
+					std::filesystem::path destinationPath = node->_path / asset->_path.filename();
+					AssetDatabase::GetInstance()->Move(*asset, destinationPath);
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
 			_currentFolderTreeNode = node;
@@ -234,6 +258,23 @@ namespace hod::editor
 			if (ImGui::Button(pathNode->_path.filename().string().c_str()) == true)
 			{
 				_currentFolderTreeNode = pathNode;
+			}
+			if (ImGui::BeginDragDropTarget() == true)
+			{
+				const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+				if (payload->IsDataType("FileSystemMapping") == true)
+				{
+					payload = ImGui::AcceptDragDropPayload("FileSystemMapping");
+					if ((payload) != nullptr)
+					{
+						// todo factorize
+						AssetDatabase::FileSystemMapping* asset = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
+
+						std::filesystem::path destinationPath = pathNode->_path / asset->_path.filename();
+						AssetDatabase::GetInstance()->Move(*asset, destinationPath);
+					}
+				}
+				ImGui::EndDragDropTarget();
 			}
 			if (ImGui::BeginPopupContextItem())
 			{
