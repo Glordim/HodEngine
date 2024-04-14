@@ -85,8 +85,8 @@ namespace hod
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-			VkMemoryPropertyFlags memoryPropertyFlags = createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-			VkImageTiling imageTiling = createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
+			VkMemoryPropertyFlags memoryPropertyFlags = /*createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : */VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			VkImageTiling imageTiling = /*createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : */VK_IMAGE_TILING_OPTIMAL;
 
 			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_D32_SFLOAT_S8_UINT, imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
 			{
