@@ -52,7 +52,7 @@ namespace hod::imgui
 									RenderCommandImGui(const std::vector<DrawList*>& drawLists, const Rect& viewport);
 									RenderCommandImGui(const RenderCommandImGui&) = delete;
 									RenderCommandImGui(RenderCommandImGui&&) = delete;
-									~RenderCommandImGui() override = default;
+									~RenderCommandImGui() override;
 
 		void						operator=(const RenderCommandImGui&) = delete;
 		void						operator=(RenderCommandImGui&&) = delete;

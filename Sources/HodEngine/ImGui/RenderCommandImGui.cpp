@@ -26,6 +26,15 @@ namespace hod::imgui
 	}
 
 	/// @brief 
+	RenderCommandImGui::~RenderCommandImGui()
+	{
+		for (DrawList* drawList : _drawLists)
+		{
+			delete drawList;
+		}
+	}
+
+	/// @brief 
 	/// @param commandBuffer 
 	void RenderCommandImGui::Execute(renderer::CommandBuffer* commandBuffer)
 	{
