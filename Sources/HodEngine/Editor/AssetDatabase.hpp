@@ -59,6 +59,8 @@ namespace hod::editor
 			//LinkedList<FileSystemMapping>	_childrenFolder;
 
 			FileSystemMapping*				_parentFolder = nullptr;
+
+			void							RefreshPathFromParent();
 		};
 
 	public:

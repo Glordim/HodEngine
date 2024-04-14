@@ -291,8 +291,6 @@ namespace hod::editor
 		if (node._type == FileSystemMapping::Type::FolderType)
 		{
 			std::filesystem::rename(node._path, finalPath);
-			
-			// todo update all child node path
 		}
 		else
 		{
@@ -342,6 +340,27 @@ namespace hod::editor
 			{
 				newParentNode->_childrenAsset.push_back(&node);
 			}
+		}
+
+		if (node._type == FileSystemMapping::Type::FolderType)
+		{
+			node.RefreshPathFromParent();
+		}
+	}
+
+	/// @brief 
+	void AssetDatabase::FileSystemMapping::RefreshPathFromParent()
+	{
+		_path = _parentFolder->_path / _path.filename();
+
+		for (AssetDatabase::FileSystemMapping* child : _childrenFolder)
+		{
+			child->RefreshPathFromParent();
+		}
+
+		for (AssetDatabase::FileSystemMapping* child : _childrenAsset)
+		{
+			child->RefreshPathFromParent();
 		}
 	}
 
