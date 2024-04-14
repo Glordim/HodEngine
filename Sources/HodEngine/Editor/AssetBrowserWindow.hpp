@@ -43,31 +43,31 @@ namespace hod::editor
 	private:
 
 		void		DrawFolderTree();
-		void		DrawFolderTreeNode(const AssetDatabase::FileSystemMapping* node);
+		void		DrawFolderTreeNode(AssetDatabase::FileSystemMapping* node);
 		void		ResyncFolderTree(FolderItem* folderItem);
 
 		void		DrawFolderExplorer();
-		bool		DrawExplorerItem(const AssetDatabase::FileSystemMapping* item);
+		bool		DrawExplorerItem(AssetDatabase::FileSystemMapping* item);
 		void		ResyncFolderExplorer();
 
-		void		EditNodeName(const AssetDatabase::FileSystemMapping* node);
+		void		EditNodeName(AssetDatabase::FileSystemMapping* node);
 
 
 	private:
 
 		FolderItem								_folderTree;
-		const AssetDatabase::FileSystemMapping*	_currentFolderTreeNode = nullptr;
-		const AssetDatabase::FileSystemMapping*	_treeNodeToEdit = nullptr;
+		AssetDatabase::FileSystemMapping*		_currentFolderTreeNode = nullptr;
+		AssetDatabase::FileSystemMapping*		_treeNodeToEdit = nullptr;
 		std::string								_renameBuffer;
 		bool									_focus = false;
 
-		const AssetDatabase::FileSystemMapping* _nodeToDelete = nullptr;
-		const AssetDatabase::FileSystemMapping*	_currentExplorerNode = nullptr;
+		AssetDatabase::FileSystemMapping* 		_nodeToDelete = nullptr;
+		AssetDatabase::FileSystemMapping*		_currentExplorerNode = nullptr;
 
-		const AssetDatabase::FileSystemMapping* _itemToRename = nullptr;
+		AssetDatabase::FileSystemMapping* 		_itemToRename = nullptr;
 		char									_itemRenameBuffer[256] = { '\0' };
 
-		const AssetDatabase::FileSystemMapping* _itemToPing = nullptr;
+		AssetDatabase::FileSystemMapping* 		_itemToPing = nullptr;
 		PingAnimState							_pingAnimState;
 		float									_pingAnimValue;
 	};

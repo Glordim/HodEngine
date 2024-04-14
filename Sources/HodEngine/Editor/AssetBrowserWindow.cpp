@@ -67,7 +67,7 @@ namespace hod::editor
 	/// @brief 
 	void AssetBrowserWindow::DrawFolderTree()
 	{
-		const AssetDatabase::FileSystemMapping& root = AssetDatabase::GetInstance()->GetAssetRootNode();
+		AssetDatabase::FileSystemMapping& root = AssetDatabase::GetInstance()->GetAssetRootNode();
 		if (_currentFolderTreeNode == nullptr)
 		{
 			_currentFolderTreeNode = &root;
@@ -86,7 +86,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void AssetBrowserWindow::DrawFolderTreeNode(const AssetDatabase::FileSystemMapping* node)
+	void AssetBrowserWindow::DrawFolderTreeNode(AssetDatabase::FileSystemMapping* node)
 	{
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap;
 		if (node->_childrenFolder.size() == 0)
@@ -114,7 +114,7 @@ namespace hod::editor
 			if (ImGui::MenuItem("New Folder") == true)
 			{
 				std::filesystem::path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(node->_path / "Folder");
-				const AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
+				AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
 				if (newFolderNode != nullptr)
 				{
 					EditNodeName(newFolderNode);
@@ -122,7 +122,7 @@ namespace hod::editor
 				}
 			}
 
-			const AssetDatabase::FileSystemMapping& root = AssetDatabase::GetInstance()->GetAssetRootNode();
+			AssetDatabase::FileSystemMapping& root = AssetDatabase::GetInstance()->GetAssetRootNode();
 			if (node != &root)
 			{
 				if (ImGui::MenuItem("Rename") == true)
@@ -158,7 +158,13 @@ namespace hod::editor
 			if (ImGui::InputText("###rename", _renameBuffer.data(), _renameBuffer.capacity(), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue) == true)
 			{
 				_renameBuffer = _renameBuffer.c_str();
-				AssetDatabase::GetInstance()->Rename(*node, _renameBuffer);
+				std::filesystem::path newPath = _treeNodeToEdit->_path;
+				newPath.replace_filename(_renameBuffer);
+				if (_treeNodeToEdit->_path.has_extension())
+				{
+					newPath.replace_extension(_treeNodeToEdit->_path.extension());
+				}
+				AssetDatabase::GetInstance()->Move(*node, newPath);
 				_treeNodeToEdit = nullptr;
 			}
 		}
@@ -172,7 +178,7 @@ namespace hod::editor
 
 		if (opened == true)
 		{
-			for (const AssetDatabase::FileSystemMapping* child : node->_childrenFolder)
+			for (AssetDatabase::FileSystemMapping* child : node->_childrenFolder)
 			{
 				DrawFolderTreeNode(child);
 			}
@@ -182,7 +188,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param node 
-	void AssetBrowserWindow::EditNodeName(const AssetDatabase::FileSystemMapping* node)
+	void AssetBrowserWindow::EditNodeName(AssetDatabase::FileSystemMapping* node)
 	{
 		_currentFolderTreeNode = node;
 		_treeNodeToEdit = node;
@@ -213,8 +219,8 @@ namespace hod::editor
 			return;
 		}
 
-		std::vector<const AssetDatabase::FileSystemMapping*> pathSplit;
-		const AssetDatabase::FileSystemMapping* pathNode = _currentFolderTreeNode;
+		std::vector<AssetDatabase::FileSystemMapping*> pathSplit;
+		AssetDatabase::FileSystemMapping* pathNode = _currentFolderTreeNode;
 		while (pathNode != nullptr)
 		{
 			pathSplit.insert(pathSplit.begin(), pathNode);
@@ -224,7 +230,7 @@ namespace hod::editor
 		uint32_t pathSplitSize = pathSplit.size();
 		for (uint32_t i = 0; i < pathSplitSize; ++i)
 		{
-			const AssetDatabase::FileSystemMapping* pathNode = pathSplit[i];
+			AssetDatabase::FileSystemMapping* pathNode = pathSplit[i];
 			if (ImGui::Button(pathNode->_path.filename().string().c_str()) == true)
 			{
 				_currentFolderTreeNode = pathNode;
@@ -250,9 +256,9 @@ namespace hod::editor
 		ImGui::Separator();
 		ImVec2 cursor = ImGui::GetCursorPos();
 
-		const AssetDatabase::FileSystemMapping* itemToDelete = nullptr;
+		AssetDatabase::FileSystemMapping* itemToDelete = nullptr;
 
-		for (const AssetDatabase::FileSystemMapping* folder : _currentFolderTreeNode->_childrenFolder)
+		for (AssetDatabase::FileSystemMapping* folder : _currentFolderTreeNode->_childrenFolder)
 		{
 			float available = ImGui::GetContentRegionAvail().x;
 			if (DrawExplorerItem(folder) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
@@ -289,13 +295,37 @@ namespace hod::editor
 				}
 				ImGui::EndPopup();
 			}
+			if (ImGui::BeginDragDropSource() == true)
+			{
+				// Some processing...
+				ImGui::TextUnformatted(folder->_path.filename().string().c_str());
+				ImGui::SetDragDropPayload("FileSystemMapping", (void*)&folder, sizeof(void*), ImGuiCond_Once);
+				ImGui::EndDragDropSource();
+			}
+			else if (ImGui::BeginDragDropTarget() == true)
+			{
+				const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+				if (payload->IsDataType("FileSystemMapping") == true)
+				{
+					payload = ImGui::AcceptDragDropPayload("FileSystemMapping");
+					if ((payload) != nullptr)
+					{
+						// todo factorize
+						AssetDatabase::FileSystemMapping* asset = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
+
+						std::filesystem::path destinationPath = folder->_path / asset->_path.filename();
+						AssetDatabase::GetInstance()->Move(*asset, destinationPath);
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
 			if (available > 210)
 			{
 				ImGui::SameLine();
 			}
 		}
 		
-		for (const AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
+		for (AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
 		{
 			float available = ImGui::GetContentRegionAvail().x;
 			uint32_t pingAnimPopStyleCount = 0;
@@ -354,6 +384,14 @@ namespace hod::editor
 			}
 			ImGui::PopStyleColor(pingAnimPopStyleCount);
 
+			if (ImGui::BeginDragDropSource() == true)
+			{
+				// Some processing...
+				ImGui::TextUnformatted(asset->_asset->GetName().c_str());
+				ImGui::SetDragDropPayload("FileSystemMapping", (void*)&asset, sizeof(void*), ImGuiCond_Once);
+				ImGui::EndDragDropSource();
+			}
+
 			if (ImGui::IsWindowFocused() && _currentExplorerNode == asset)
 			{
 				if (ImGui::IsKeyPressed(ImGuiKey_F2))
@@ -410,7 +448,7 @@ namespace hod::editor
 				if (ImGui::MenuItem("New Folder") == true)
 				{
 					std::filesystem::path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(_currentFolderTreeNode->_path / "Folder");
-					const AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
+					AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
 					if (newFolderNode != nullptr)
 					{
 						EditNodeName(newFolderNode);
@@ -448,7 +486,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param item 
-	bool AssetBrowserWindow::DrawExplorerItem(const AssetDatabase::FileSystemMapping* item)
+	bool AssetBrowserWindow::DrawExplorerItem(AssetDatabase::FileSystemMapping* item)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems == true)
@@ -567,7 +605,13 @@ namespace hod::editor
 			ImGui::SetKeyboardFocusHere();
 			if (ImGui::InputText("##Rename", _itemRenameBuffer, sizeof(_itemRenameBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
-				AssetDatabase::GetInstance()->Rename(*_itemToRename, _itemRenameBuffer);
+				std::filesystem::path newPath = _itemToRename->_path;
+				newPath.replace_filename(_itemRenameBuffer);
+				if (_itemToRename->_path.has_extension())
+				{
+					newPath.replace_extension(_itemToRename->_path.extension());
+				}
+				AssetDatabase::GetInstance()->Move(*_itemToRename, newPath);
 				_itemToRename = nullptr;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))

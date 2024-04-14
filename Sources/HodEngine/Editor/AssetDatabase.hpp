@@ -69,7 +69,7 @@ namespace hod::editor
 
 		std::shared_ptr<Asset>				Find(const UID& uid) const;
 
-		const FileSystemMapping&			GetAssetRootNode() const;
+		FileSystemMapping&					GetAssetRootNode();
 		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
 
 		std::filesystem::path				CreateFolder(const std::filesystem::path& path);
@@ -79,7 +79,7 @@ namespace hod::editor
 		template<typename _Object_>
 		std::filesystem::path				CreateAsset(const std::filesystem::path& path);
 
-		void								Rename(const FileSystemMapping& node, const std::string& newName);
+		void								Move(FileSystemMapping& node, const std::filesystem::path& newPath);
 		void								Delete(const FileSystemMapping& node);
 
 		bool								Import(const std::filesystem::path& path);

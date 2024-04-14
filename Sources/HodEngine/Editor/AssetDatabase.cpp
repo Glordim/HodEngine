@@ -201,7 +201,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param folder 
 	/// @return 
-	const AssetDatabase::FileSystemMapping& AssetDatabase::GetAssetRootNode() const
+	AssetDatabase::FileSystemMapping& AssetDatabase::GetAssetRootNode()
 	{
 		return _rootFileSystemMapping;
 	}
@@ -273,52 +273,76 @@ namespace hod::editor
 	/// @brief 
 	/// @param node 
 	/// @param newName 
-	void AssetDatabase::Rename(const FileSystemMapping& node, const std::string& newName)
+	void AssetDatabase::Move(FileSystemMapping& node, const std::filesystem::path& newPath)
 	{
-		if (node._path.filename().stem() == newName)
+		if (node._path == newPath)
 		{
 			return;
 		}
 
-		AssetDatabase::FileSystemMapping* realNode = (AssetDatabase::FileSystemMapping*)FindFileSystemMappingFromPath(node._path);
-		if (realNode == nullptr)
+		std::filesystem::path finalPath = GenerateUniqueAssetPath(newPath);
+
+		AssetDatabase::FileSystemMapping* parentNode = node._parentFolder;
+		if (parentNode == nullptr)
 		{
 			return;
 		}
 
-		std::filesystem::path newPath = realNode->_path;
-		newPath = newPath.replace_filename(newName);
-		if (realNode->_path.has_extension())
+		if (node._type == FileSystemMapping::Type::FolderType)
 		{
-			newPath.concat(realNode->_path.extension().string());
-		}
-
-		newPath = GenerateUniqueAssetPath(newPath);
-
-		if (realNode->_type == FileSystemMapping::Type::FolderType)
-		{
-			std::filesystem::rename(realNode->_path, newPath);
+			std::filesystem::rename(node._path, finalPath);
 			
 			// todo update all child node path
 		}
 		else
 		{
-			if (realNode->_asset == nullptr)
+			if (node._asset == nullptr)
 			{
 				return;
 			}
 
-			std::filesystem::rename(realNode->_path, newPath);
-			std::filesystem::path metaPath = realNode->_path;
+			std::filesystem::rename(node._path, finalPath);
+			std::filesystem::path metaPath = node._path;
 			metaPath.concat(".meta");
-			std::filesystem::path newMetaPath = newPath;
+			std::filesystem::path newMetaPath = finalPath;
 			newMetaPath.concat(".meta");
 			std::filesystem::rename(metaPath, newMetaPath);
 
-			realNode->_asset->SetPath(newPath);
+			node._asset->SetPath(finalPath);
 		}
 
-		realNode->_path = newPath;
+		node._path = finalPath;
+
+		AssetDatabase::FileSystemMapping* newParentNode = FindFileSystemMappingFromPath(finalPath.parent_path());
+		if (newParentNode == nullptr)
+		{
+			return;
+		}
+
+		if (newParentNode != parentNode)
+		{
+			auto it = std::find(node._parentFolder->_childrenFolder.begin(), node._parentFolder->_childrenFolder.end(), &node);
+			if (it != node._parentFolder->_childrenFolder.end())
+			{
+				node._parentFolder->_childrenFolder.erase(it);
+			}
+
+			it = std::find(node._parentFolder->_childrenAsset.begin(), node._parentFolder->_childrenAsset.end(), &node);
+			if (it != node._parentFolder->_childrenAsset.end())
+			{
+				node._parentFolder->_childrenAsset.erase(it);
+			}
+
+			node._parentFolder = newParentNode;
+			if (node._type == FileSystemMapping::Type::FolderType)
+			{
+				newParentNode->_childrenFolder.push_back(&node);
+			}
+			else
+			{
+				newParentNode->_childrenAsset.push_back(&node);
+			}
+		}
 	}
 
 	/// @brief 
