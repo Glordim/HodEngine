@@ -8,9 +8,11 @@
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/StringConversion.hpp>
 
 #if defined(PLATFORM_WINDOWS)
 #include <Windows.h>
+#include <WinBase.h>
 #endif
 #include <vector>
 
@@ -50,6 +52,8 @@ namespace hod::editor
 #if defined(PLATFORM_WINDOWS)
 		::FindCloseChangeNotification(_filesystemWatcherHandle);
 		_filesystemWatcherHandle = INVALID_HANDLE_VALUE;
+
+		::CloseHandle(_hDir);
 #endif
 
 		for (auto pair : _uidToAssetMap)
@@ -67,13 +71,18 @@ namespace hod::editor
 		Project* project = Project::GetInstance();
 
 #if defined(PLATFORM_WINDOWS)
-		_filesystemWatcherHandle = ::FindFirstChangeNotification(project->GetAssetDirPath().string().c_str(), TRUE,
+		std::wstring assetFolderPath;
+		StringConversion::StringToWString(project->GetAssetDirPath().string(), assetFolderPath);
+		_hDir = CreateFileW(assetFolderPath.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
+
+  		_overlapped.hEvent = CreateEventW(NULL, FALSE, 0, NULL);
+
+		::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL, &_overlapped, NULL);
+
+		_filesystemWatcherHandle = ::FindFirstChangeNotificationW(assetFolderPath.c_str(), TRUE,
 			FILE_NOTIFY_CHANGE_FILE_NAME |
 			FILE_NOTIFY_CHANGE_DIR_NAME |
-			FILE_NOTIFY_CHANGE_ATTRIBUTES |
-			FILE_NOTIFY_CHANGE_SIZE |
-			FILE_NOTIFY_CHANGE_LAST_WRITE |
-			FILE_NOTIFY_CHANGE_SECURITY);
+			FILE_NOTIFY_CHANGE_LAST_WRITE);
 #endif
 
 		_rootFileSystemMapping._asset = nullptr;
@@ -90,13 +99,100 @@ namespace hod::editor
 	void AssetDatabase::FilesystemWatcherJob()
 	{
 #if defined(PLATFORM_WINDOWS)
-		if (WaitForSingleObject(_filesystemWatcherHandle, 0) == WAIT_OBJECT_0)
+		DWORD result = WaitForSingleObject(_overlapped.hEvent, 0);
+
+		if (result == WAIT_OBJECT_0)
 		{
-			FindNextChangeNotification(_filesystemWatcherHandle);
-			// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationa
-			// https://docs.microsoft.com/en-us/windows/win32/fileio/obtaining-directory-change-notifications
-			// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
+			DWORD bytes_transferred;
+      		GetOverlappedResult(_hDir, &_overlapped, &bytes_transferred, FALSE);
+
+			std::filesystem::path oldFilePathToRename;
+
+			FILE_NOTIFY_INFORMATION& fni = *(FILE_NOTIFY_INFORMATION*)_changeBuf;
+			while (true)
+			{				
+				std::wstring result(fni.FileName, fni.FileNameLength / sizeof(wchar_t));
+				std::string relativefilePath;
+				StringConversion::StringWToString(result, relativefilePath);
+
+				std::filesystem::path filePath = Project::GetInstance()->GetAssetDirPath().string();
+				filePath /= relativefilePath;
+
+				switch (fni.Action)
+				{
+					case FILE_ACTION_ADDED:
+					{
+						FileSystemMapping* node = new FileSystemMapping();
+						node->_path = filePath;
+						node->_parentFolder = FindFileSystemMappingFromPath(filePath.parent_path());
+
+						if (std::filesystem::is_directory(filePath))
+						{
+							node->_parentFolder->_childrenFolder.push_back(node);
+							node->_type = FileSystemMapping::Type::FolderType;
+						}
+						else
+						{
+							node->_parentFolder->_childrenAsset.push_back(node);
+							node->_type = FileSystemMapping::Type::AssetType;
+							// todo create Asset?
+							Import(filePath);
+						}
+					}
+					break;
+
+					case FILE_ACTION_REMOVED:
+					{
+						FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(oldFilePathToRename);
+						if (nodeToMove != nullptr)
+						{
+							Delete(*nodeToMove);
+						}
+					}
+					break;
+
+					case FILE_ACTION_MODIFIED:
+					{
+						if (std::filesystem::is_directory(filePath) == false)
+						{
+							Import(filePath);
+						}
+					}
+					break;
+
+					case FILE_ACTION_RENAMED_OLD_NAME:
+					{
+						oldFilePathToRename = filePath;
+					}
+					break;
+
+					case FILE_ACTION_RENAMED_NEW_NAME:
+					{
+						FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(oldFilePathToRename);
+						if (nodeToMove != nullptr)
+						{
+							Move(*nodeToMove, filePath);
+						}
+					}
+					break;
+				}
+
+				if (fni.NextEntryOffset == 0)
+				{
+					break;
+				}
+				*((uint8_t**)&fni) += fni.NextEntryOffset;
+			}
+
+			::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL, &_overlapped, NULL);
 		}
+
+		//if (::WaitForSingleObject(_filesystemWatcherHandle, 0) == WAIT_OBJECT_0)
+
+		//::FindNextChangeNotification(_filesystemWatcherHandle);
+		// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationa
+		// https://docs.microsoft.com/en-us/windows/win32/fileio/obtaining-directory-change-notifications
+		// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
 #endif
 	}
 

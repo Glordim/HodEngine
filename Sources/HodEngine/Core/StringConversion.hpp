@@ -8,6 +8,7 @@ namespace hod
 	namespace StringConversion
 	{
 		bool	StringToWString(const std::string_view& str, std::wstring& result);
+		bool	StringWToString(const std::wstring& str, std::string& result);
 
 		template<typename ... Args>
 		std::string StringFormat(const std::string_view& format, Args ... args )

@@ -117,6 +117,12 @@ namespace hod::editor
 
 		std::vector<Importer*>				_importers;
 		DefaultImporter						_defaultImporter;
+
+#if defined(PLATFORM_WINDOWS)
+		HANDLE 								_hDir = NULL;
+		OVERLAPPED							_overlapped;
+		alignas(DWORD) uint8_t				_changeBuf[1024];
+#endif
 	};
 }
 

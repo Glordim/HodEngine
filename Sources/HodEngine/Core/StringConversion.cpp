@@ -31,5 +31,27 @@ namespace hod
 
 			return true;
 		}
+
+		/// @brief 
+		/// @param str 
+		/// @param result 
+		/// @return 
+		bool StringWToString(const std::wstring& str, std::string& result)
+		{
+			size_t utf8Size = str.size() + 1;
+    		result.resize(utf8Size, L'\0');
+
+    		std::mbstate_t state = std::mbstate_t();
+			const std::codecvt<char, wchar_t, std::mbstate_t>& codecvtFacet = std::use_facet<std::codecvt<char, wchar_t, std::mbstate_t>>(std::locale());
+
+			const wchar_t* strPtr = str.data();
+			char* endResultPtr = &result[utf8Size];
+			if (codecvtFacet.in(state, strPtr, strPtr + utf8Size, strPtr, &result[0], &result[0] + utf8Size, endResultPtr) != std::codecvt_base::ok)
+			{
+				return false;
+			}
+
+			return true;
+		}
 	}
 }
