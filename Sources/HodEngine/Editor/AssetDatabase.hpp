@@ -82,7 +82,7 @@ namespace hod::editor
 		std::filesystem::path				CreateAsset(const std::filesystem::path& path);
 
 		void								Move(FileSystemMapping& node, const std::filesystem::path& newPath);
-		void								Delete(const FileSystemMapping& node);
+		void								Delete(FileSystemMapping& node);
 
 		bool								Import(const std::filesystem::path& path);
 
@@ -102,6 +102,9 @@ namespace hod::editor
 
 		const std::filesystem::path&		UIDToAssetPath(const UID& uid) const;
 		const UID&							AssetPathToUID(const std::filesystem::path& path) const;
+
+		void								MoveNode(FileSystemMapping& node, const std::filesystem::path& newPath);
+		void								DeleteNode(FileSystemMapping& node);
 
 	private:
 

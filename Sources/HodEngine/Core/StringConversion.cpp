@@ -36,10 +36,10 @@ namespace hod
 		/// @param str 
 		/// @param result 
 		/// @return 
-		bool StringWToString(const std::wstring& str, std::string& result)
+		bool WStringToString(const std::wstring& str, std::string& result)
 		{
 			size_t utf8Size = str.size() + 1;
-    		result.resize(utf8Size, L'\0');
+    		result.resize(str.size(), L'\0');
 
     		std::mbstate_t state = std::mbstate_t();
 			const std::codecvt<char, wchar_t, std::mbstate_t>& codecvtFacet = std::use_facet<std::codecvt<char, wchar_t, std::mbstate_t>>(std::locale());
