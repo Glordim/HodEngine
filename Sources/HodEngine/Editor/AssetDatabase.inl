@@ -21,6 +21,6 @@ namespace hod::editor
 	std::filesystem::path AssetDatabase::CreateAsset(const std::filesystem::path& path)
 	{
 		_Object_ object;
-		return CreateAsset(object, path);
+		return CreateAsset(&object, _Object_::GetReflectionDescriptor(), path);
 	}
 }

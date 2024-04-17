@@ -124,21 +124,29 @@ namespace hod::editor
 				{
 					case FILE_ACTION_ADDED:
 					{
-						FileSystemMapping* node = new FileSystemMapping();
-						node->_path = filePath;
-						node->_parentFolder = FindFileSystemMappingFromPath(filePath.parent_path());
-
-						if (std::filesystem::is_directory(filePath))
+						if (filePath.has_extension() && filePath.extension().string() == ".meta")
 						{
-							node->_parentFolder->_childrenFolder.push_back(node);
-							node->_type = FileSystemMapping::Type::FolderType;
+							break;
 						}
-						else
+
+						if (FindFileSystemMappingFromPath(filePath) == nullptr)
 						{
-							node->_parentFolder->_childrenAsset.push_back(node);
-							node->_type = FileSystemMapping::Type::AssetType;
-							// todo create Asset?
-							Import(filePath);
+							FileSystemMapping* node = new FileSystemMapping();
+							node->_path = filePath;
+							node->_parentFolder = FindFileSystemMappingFromPath(filePath.parent_path());
+
+							if (std::filesystem::is_directory(filePath))
+							{
+								node->_parentFolder->_childrenFolder.push_back(node);
+								node->_type = FileSystemMapping::Type::FolderType;
+							}
+							else
+							{							
+								node->_parentFolder->_childrenAsset.push_back(node);
+								node->_type = FileSystemMapping::Type::AssetType;
+								// todo create Asset?
+								Import(filePath);
+							}
 						}
 					}
 					break;
@@ -157,7 +165,11 @@ namespace hod::editor
 					{
 						if (std::filesystem::is_directory(filePath) == false)
 						{
-							Import(filePath);
+							FileSystemMapping* nodeToReimport = FindFileSystemMappingFromPath(filePath);
+							if (nodeToReimport != nullptr)
+							{
+								Import(nodeToReimport->_path);
+							}
 						}
 					}
 					break;
@@ -206,8 +218,14 @@ namespace hod::editor
 
 		for (const std::filesystem::directory_entry& entry : entries)
 		{
+			const std::filesystem::path& path = entry.path();
+			if (path.has_extension() && path.extension().string() == ".meta")
+			{
+				continue;
+			}
+
 			FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
-			childFileSystemMapping->_path = entry.path();
+			childFileSystemMapping->_path = path;
 			childFileSystemMapping->_lastWriteTime = entry.last_write_time();
 			childFileSystemMapping->_parentFolder = fileSystemMapping;
 
@@ -222,22 +240,20 @@ namespace hod::editor
 			}
 			else
 			{
-				if (childFileSystemMapping->_path.extension().string() != ".meta")
+				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
+				if (asset->Load() == true)
 				{
-					std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
-					if (asset->Load() == true)
-					{
-						childFileSystemMapping->_asset = asset;
-						childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
-						_uidToAssetMap.emplace(asset->GetUid(), asset);
+					childFileSystemMapping->_asset = asset;
+					childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
+					_uidToAssetMap.emplace(asset->GetUid(), asset);
 
-						//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
-						fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
-					}
-					else
-					{
-						OUTPUT_ERROR("Unable to load Asset : %s", childFileSystemMapping->_path.string().c_str());
-					}
+					//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
+					fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
+				}
+				else
+				{
+					OUTPUT_ERROR("Unable to load Asset : %s", childFileSystemMapping->_path.string().c_str());
+					delete childFileSystemMapping;
 				}
 			}
 		}
@@ -359,7 +375,8 @@ namespace hod::editor
 		if (childFileSystemMapping->_asset->Save(instance, reflectionDescriptor) == false)
 		{
 			// TODO message better return value
-			return childFileSystemMapping->_path;
+			delete childFileSystemMapping;
+			return "";
 		}
 
 		_uidToAssetMap.emplace(childFileSystemMapping->_uid, childFileSystemMapping->_asset);

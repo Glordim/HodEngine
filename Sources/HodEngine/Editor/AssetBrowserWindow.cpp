@@ -18,6 +18,7 @@
 #include <HodEngine/Application/PlatformDialog.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/Prefab.hpp"
 
 #include <cmath>
 
@@ -505,19 +506,28 @@ namespace hod::editor
 
 				if (ImGui::BeginMenu("Create") == true)
 				{
-					/*
-					if (ImGui::MenuItem("Scene") == true)
+					if (ImGui::MenuItem("Prefab") == true)
 					{
-						game::Scene scene;
-						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(scene, _currentFolderTreeNode->_path / "Asset.scene");
-						const AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab>(_currentFolderTreeNode->_path / "Prefab.asset");
+						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 						if (newAssetNode != nullptr)
 						{
-							EditNodeName(newAssetNode);
+							_itemToRename = newAssetNode;
+							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
 							ImGui::CloseCurrentPopup();
 						}
 					}
-					*/
+					if (ImGui::MenuItem("Scene") == true)
+					{
+						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Scene>(_currentFolderTreeNode->_path / "Scene.asset");
+						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+						if (newAssetNode != nullptr)
+						{
+							_itemToRename = newAssetNode;
+							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
+							ImGui::CloseCurrentPopup();
+						}
+					}					
 					ImGui::EndMenu();
 				}
 			}
