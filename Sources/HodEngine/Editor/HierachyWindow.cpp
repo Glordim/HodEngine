@@ -21,116 +21,39 @@ namespace hod::editor
 
 	/// @brief 
 	HierachyWindow::HierachyWindow()
-	: _onAddEntityCallback(std::bind(&HierachyWindow::OnAddEntityCallback, this, std::placeholders::_1))
-	, _onRemoveEntityCallback(std::bind(&HierachyWindow::OnRemoveEntityCallback, this, std::placeholders::_1))
-	, _onRenameEntityCallback(std::bind(&HierachyWindow::OnRenameEntityCallback, this, std::placeholders::_1))
-	, _onAddComponentCallback(std::bind(&HierachyWindow::OnAddComponentCallback, this, std::placeholders::_1))
-	, _onRemoveComponentCallback(std::bind(&HierachyWindow::OnRemoveComponentCallback, this, std::placeholders::_1))
 	{
-		game::World* world = game::World::GetInstance();
-
-		world->GetAddEntityEvent() += _onAddEntityCallback;
-		world->GetRemoveEntityEvent() += _onRemoveEntityCallback;
-		world->GetRenameEntityEvent() += _onRenameEntityCallback;
-	}
-
-	/// @brief 
-	/// @param entity 
-	void HierachyWindow::OnAddEntityCallback(std::weak_ptr<game::Entity> entity)
-	{
-		/*
-		std::shared_ptr<game::Entity> entityLock = entity.lock();
-		if (entityLock != nullptr)
-		{
-			EntityNode* entityNode = new EntityNode();
-			entityNode->_entity = entity;
-
-			entityLock->GetAddComponentEvent() += _onAddComponentCallback;
-			entityLock->GetRemoveComponentEvent() += _onRemoveComponentCallback;
-
-			std::shared_ptr<game::NodeComponent> parentLock;
-			{
-				std::weak_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>();
-				std::shared_ptr<game::NodeComponent> nodeComponentLock = nodeComponent.lock();
-				if (nodeComponentLock != nullptr)
-				{
-					std::weak_ptr<game::NodeComponent> parent = nodeComponentLock->GetParent();
-					parentLock = parent.lock();
-				}
-			}
-
-			if (parentLock != nullptr)
-			{
-				// TODO Find
-			}
-			else
-			{
-				_rootEntityNode._children.push_back(entityNode);
-			}
-		}
-		*/
-	}
-
-	/// @brief 
-	/// @param entity 
-	void HierachyWindow::OnRemoveEntityCallback(std::weak_ptr<game::Entity> entity)
-	{
-
-	}
-
-	/// @brief 
-	/// @param entity 
-	void HierachyWindow::OnRenameEntityCallback(std::weak_ptr<game::Entity> entity)
-	{
-
-	}
-
-	/// @brief 
-	/// @param componenent 
-	void HierachyWindow::OnAddComponentCallback(std::weak_ptr<game::Component> componenent)
-	{
-		/*
-		std::shared_ptr<game::Component> componentLock = componenent.lock();
-		if (componentLock != nullptr)
-		{
-			if (componentLock->GetMetaType() == game::NodeComponent::GetMetaTypeStatic()) // todo or inherit !!!
-			{
-				std::shared_ptr<game::NodeComponent> nodeComponentLock = std::static_pointer_cast<game::NodeComponent>(componentLock);
-
-				nodeComponentLock->GetParentChangeEvent() += _onParentChangeCallback;
-			}
-		}
-		*/
-	}
-
-	/// @brief 
-	/// @param componenent 
-	void HierachyWindow::OnRemoveComponentCallback(std::weak_ptr<game::Component> componenent)
-	{
-
 	}
 
 	/// @brief 
 	void HierachyWindow::Draw()
 	{
 		game::World* world = game::World::GetInstance();
-		for (auto& pair : world->GetEntities())
+		for (game::Scene* scene : world->GetScenes())
 		{
-			std::shared_ptr<game::Entity> entity = pair.second;
-			std::shared_ptr<game::NodeComponent> nodeComponent = entity->GetComponent<game::NodeComponent>().lock();
-			bool hasParent = false;
-			if (nodeComponent != nullptr)
+			ImGui::PushID(scene);
+			bool open = ImGui::CollapsingHeader(scene->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+			ImGui::PopID();
+			if (open)
 			{
-				std::shared_ptr<game::NodeComponent> parentNodeComponent = nodeComponent->GetParent().Lock();
-				if (parentNodeComponent != nullptr)
+				for (auto& pair : scene->GetEntities())
 				{
-					hasParent = true;
-				}
-			}
+					std::shared_ptr<game::Entity> entity = pair.second;
+					std::shared_ptr<game::NodeComponent> nodeComponent = entity->GetComponent<game::NodeComponent>().lock();
+					bool hasParent = false;
+					if (nodeComponent != nullptr)
+					{
+						std::shared_ptr<game::NodeComponent> parentNodeComponent = nodeComponent->GetParent().Lock();
+						if (parentNodeComponent != nullptr)
+						{
+							hasParent = true;
+						}
+					}
 
-			if (hasParent == false)
-			{
-				DrawEntity(entity);
+					if (hasParent == false)
+					{
+						DrawEntity(entity);
+					}
+				}
 			}
 		}
 
@@ -156,9 +79,9 @@ namespace hod::editor
 		{
 			std::shared_ptr<game::Entity> selectionLock = _selection.lock();
 
-			if (ImGui::MenuItem("Create Entity") == true)
+			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().size() > 0)
 			{
-				std::weak_ptr<game::Entity> entity = world->CreateEntity("EditMe");
+				std::weak_ptr<game::Entity> entity = world->GetScenes()[0]->CreateEntity("EditMe");
 
 				if (selectionLock != nullptr)
 				{

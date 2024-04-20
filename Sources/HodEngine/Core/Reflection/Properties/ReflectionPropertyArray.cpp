@@ -57,4 +57,12 @@ namespace hod
 			_adapter._removeElementFunction(arrayAddress, index);
 		}
 	}
+
+	/// @brief 
+	/// @param sourceInstance 
+	/// @param destinationInstance 
+	void ReflectionPropertyArray::Copy(const void* sourceInstance, void* destinationInstance)
+	{
+		// TODO
+	}
 }

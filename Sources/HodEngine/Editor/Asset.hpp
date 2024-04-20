@@ -53,8 +53,11 @@ namespace hod::editor
 
 		bool							IsDirty() const;
 		void							SetDirty();
+		void							ResetDirty();
 
 		void							SetPath(const std::filesystem::path& path);
+
+		void							SetInstanceToSave(const void* instance, ReflectionDescriptor* reflectionDescriptor);
 
 	private:
 
@@ -66,5 +69,8 @@ namespace hod::editor
 		std::filesystem::path	_path;
 
 		renderer::Texture*		_thumbnail = nullptr;
+
+		const void*				_instanceToSave = nullptr;
+		ReflectionDescriptor*	_instanceToSaveReflectionDescriptor = nullptr;
 	};
 }

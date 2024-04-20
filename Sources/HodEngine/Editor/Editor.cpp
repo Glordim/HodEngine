@@ -42,6 +42,8 @@
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 
 #include "HodEngine/Game/WeakResource.hpp"
+#include "HodEngine/ImGui/ImGuiManager.hpp"
+#include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
@@ -245,6 +247,7 @@ namespace hod::editor
 	/// @return 
 	bool Editor::Save()
 	{
+			/*
 		if (_currentScene == nullptr)
 		{
 			if (SaveSceneAs() == false)
@@ -270,6 +273,7 @@ namespace hod::editor
 
 			_currentScene->Save(&scene, scene.GetReflectionDescriptorV());
 		}
+			*/
 
 		return AssetDatabase::GetInstance()->Save();
 	}
@@ -278,6 +282,7 @@ namespace hod::editor
 	/// @return 
 	bool Editor::SaveSceneAs()
 	{
+		/*
 		std::filesystem::path saveLocation = application::dialog::GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
 		if (saveLocation.empty() == true)
 		{
@@ -306,12 +311,15 @@ namespace hod::editor
 		}
 
 		// todo open it
-
+		*/
 		return true;
 	}
 
-	void Editor::OpenAsset(Asset& asset)
+	void Editor::OpenAsset(std::shared_ptr<Asset> asset)
 	{
+		ViewportWindow* vewportWindow = imgui::ImGuiManager::GetInstance()->FindWindow<ViewportWindow>();
+		vewportWindow->OpenTab(asset);
+		/*
 		Document document;
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, asset.GetPath()) == false)
@@ -327,9 +335,11 @@ namespace hod::editor
 
 		game::World* world = game::World::GetInstance();
 		world->Clear();
-		world->LoadFromDocument(scene->GetDocument().GetRootNode());
+		world->AddScene(scene);
+		//world->LoadFromDocument(scene->GetDocument().GetRootNode());
 
 		_currentScene = &asset;
+		*/
 	}
 
 	/// @brief 
@@ -341,11 +351,13 @@ namespace hod::editor
 		}
 
 		game::World* world = game::World::GetInstance();
+		/*
 		_playedWorldDocument.GetRootNode().Clear();
 		if (world->SaveToDocument(_playedWorldDocument.GetRootNode()) == false)
 		{
 			return;
 		}
+		*/
 		world->SetEditorPlaying(true);
 
 		_playing = true;
@@ -365,11 +377,13 @@ namespace hod::editor
 		game::World* world = game::World::GetInstance();
 		world->SetEditorPlaying(_playing);
 		world->SetEditorPaused(_paused);
+		/*
 		world->Clear();
 		if (world->LoadFromDocument(_playedWorldDocument.GetRootNode()) == false)
 		{
 			return;
 		}
+		*/
 	}
 	
 	/// @brief 
@@ -428,9 +442,7 @@ namespace hod::editor
 	/// @brief 
 	void Editor::MarkCurrentSceneAsDirty()
 	{
-		if (_currentScene != nullptr)
-		{
-			_currentScene->SetDirty();
-		}
+		ViewportWindow* vewportWindow = imgui::ImGuiManager::GetInstance()->FindWindow<ViewportWindow>();
+		vewportWindow->MarkCurrentSceneAsDirty();
 	}
 }

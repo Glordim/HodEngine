@@ -5,8 +5,8 @@
 #include "HodEngine/Game/Entity.hpp"
 
 #include <vector>
-#include <unordered_map>
 #include <memory>
+#include <map>
 
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
@@ -17,6 +17,7 @@ namespace hod
 	namespace game
 	{
 		class Scene;
+		class RendererComponent;
 		class PhysicsDebugDrawer;
 
 		//-----------------------------------------------------------------------------
@@ -28,66 +29,57 @@ namespace hod
 
 		public:
 
-			bool				Init();
-			void				Clear();
+			bool						Init();
+			void						Clear();
 
 #if defined(HOD_EDITOR)
-			void				SetEditorPlaying(bool editorPlaying);
-			bool				GetEditorPlaying() const;
+			void						SetEditorPlaying(bool editorPlaying);
+			bool						GetEditorPlaying() const;
 
-			void				SetEditorPaused(bool editorPaused);
-			bool				GetEditorPaused() const;
+			void						SetEditorPaused(bool editorPaused);
+			bool						GetEditorPaused() const;
 #endif
 
-			void				Update();
+			void						Update();
 
-			Scene*				CreateScene();
-			void				DestroyScene(Scene* pScene);
+			Scene*						CreateScene();
+			void						DestroyScene(Scene* pScene);
 
-			bool				AddScene(Scene* scene);
-			bool				RemoveScene(Scene* scene);
+			bool						AddScene(Scene* scene);
+			bool						RemoveScene(Scene* scene);
 
 			const std::vector<Scene*>&	GetScenes() const;
 
-			std::weak_ptr<Entity>			CreateEntity(const std::string_view& name = "");
-			void							DestroyEntity(std::shared_ptr<Entity> entity);
-			const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
+			std::weak_ptr<Entity>		CreateEntity(const std::string_view& name = "");
+			void						DestroyEntity(std::shared_ptr<Entity> entity);
+			
+			std::weak_ptr<Entity>		FindEntity(Entity::Id entityId);
 
-			std::weak_ptr<Entity> FindEntity(Entity::Id entityId);
+//			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
-			Event<std::weak_ptr<Entity>>&	GetAddEntityEvent() { return _addEntityEvent; }
-			Event<std::weak_ptr<Entity>>&	GetRemoveEntityEvent() { return _removeEntityEvent; }
-			Event<std::weak_ptr<Entity>>&	GetRenameEntityEvent() { return _renameEntityEvent; }
+			void						EnablePhysicsDebugDrawer(bool enabled);
+			bool						IsPhysicsDebugDrawerEnabled(bool enabled) const;
 
-//			bool							Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
-
-			bool							SaveToDocument(Document::Node& documentNode);
-			bool							LoadFromDocument(const Document::Node& documentNode);
-
-			void							EnablePhysicsDebugDrawer(bool enabled);
-			bool							IsPhysicsDebugDrawerEnabled(bool enabled) const;
-
-			void							Draw(renderer::RenderQueue* renderQueue);
+			void						Draw(renderer::RenderQueue* renderQueue);
+			void						DrawPicking(renderer::RenderQueue* renderQueue, std::map<uint32_t, std::shared_ptr<RendererComponent>>& colorIdToRendererComponentMap);
 
 		protected:
 
-								~World();
+										~World();
 
 		private:
 #if defined(HOD_EDITOR)
 			bool						_editorPlaying = false;
 			bool						_editorPaused = false;
+
+			std::vector<Scene*>			_backupedScenes;
 #endif
 			MemberFunctionJob<World>	_updateJob;
 
-			std::vector<Scene*>	_scenes;
-			std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
+			std::vector<Scene*>			_scenes;
+			Scene*						_persistanteScene = nullptr;
 
-			Event<std::weak_ptr<Entity>>	_addEntityEvent;
-			Event<std::weak_ptr<Entity>>	_removeEntityEvent;
-			Event<std::weak_ptr<Entity>>	_renameEntityEvent;
-
-			PhysicsDebugDrawer*				_physicsDebugDrawer = nullptr;
+			PhysicsDebugDrawer*			_physicsDebugDrawer = nullptr;
 		};
 	}
 }

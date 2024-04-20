@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Asset.hpp"
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
@@ -15,6 +16,12 @@
 #include <HodEngine/Core/Rect.hpp>
 #include <HodEngine/Core/Math/Vector4.hpp>
 #include <HodEngine/Core/Color.hpp>
+
+#include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <cmath>
 
@@ -41,6 +48,68 @@ namespace hod::editor
 	/// @brief 
 	void ViewportWindow::Draw()
 	{
+		if (ImGui::BeginTabBar("##TabBar"))
+		{
+			auto it = _tabs.begin();
+			auto itEnd = _tabs.end();
+			while (it != itEnd)
+			{
+				Tab* tab = *it;
+				bool open = true;
+
+				ImGuiTabItemFlags flags = 0;
+				if (_tabToSelect == tab)
+				{
+					_tabToSelect = nullptr;
+					flags = ImGuiTabItemFlags_SetSelected;
+				}
+
+				char tabName[256];
+				std::strcpy(tabName, tab->_asset->GetName().c_str());
+				if (tab->_asset->IsDirty())
+				{
+					std::strcat(tabName, "*");
+				}
+				ImGui::PushID(tab);
+				bool selected = ImGui::BeginTabItem(tabName, &open, flags);
+				ImGui::PopID();
+				if (selected == true)
+				{
+					if (tab != _selectedTab)
+					{
+						game::World* world = game::World::GetInstance();
+						if (_selectedTab != nullptr)
+						{
+							world->RemoveScene(_selectedTab->_scene);
+						}
+						world->AddScene(tab->_scene);
+
+						_selectedTab = tab;
+					}
+
+					DrawTab(tab);
+
+					ImGui::EndTabItem();
+				}
+
+				if (open == false)
+				{
+					it = CloseTab(it);
+					itEnd = _tabs.end();
+					continue;
+				}
+				
+				++it;
+			}
+
+			ImGui::EndTabBar();
+		}
+	}
+
+	/// @brief 
+	/// @param tab 
+	void ViewportWindow::DrawTab(Tab* tab)
+	{
 		if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_T))
@@ -58,27 +127,30 @@ namespace hod::editor
 
 			if (ImGui::GetIO().MouseWheel != 0.0f)
 			{
-				_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(_size);
+				tab->_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(tab->_size);
 			}
 
 			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 			{
 				Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
-				_cameraPosition.SetX(_cameraPosition.GetX() + movement.GetX());
-				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
+				tab->_cameraPosition.SetX(tab->_cameraPosition.GetX() + movement.GetX());
+				tab->_cameraPosition.SetY(tab->_cameraPosition.GetY() + movement.GetY());
 			}
 
 			if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered() && ImGuizmo::IsOver() == false && ImGuizmo::IsUsing() == false)
 			{
 				ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 
-				_pickingRequest = true;
-				_pickingPosition = Vector2(mousePos.x, mousePos.y);
+				if (mousePos.x > 0 && mousePos.x < -_pickingRenderTarget->GetWidth() && mousePos.y > 0 && mousePos.y < -_pickingRenderTarget->GetHeight())
+				{
+					_pickingRequest = true;
+					_pickingPosition = Vector2(mousePos.x, mousePos.y);
+				}
 			}
 		}
 
-		float windowWidth = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
-		float windowHeight = ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
+		float windowWidth = ImGui::GetContentRegionAvail().x;// ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
+		float windowHeight = ImGui::GetContentRegionAvail().y; //ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
 
 		windowWidth = std::fmax(2, windowWidth);
 		windowHeight = std::fmax(2, windowHeight);
@@ -109,44 +181,15 @@ namespace hod::editor
 
 				float aspect = windowWidth / windowHeight;
 
-				Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-				Matrix4 view = Matrix4::Translation(_cameraPosition);
+				Matrix4 projection = Matrix4::OrthogonalProjection(-tab->_size * aspect, tab->_size * aspect, -tab->_size, tab->_size, -1024, 1024);
+				Matrix4 view = Matrix4::Translation(tab->_cameraPosition);
 
 				renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
 
-				uint32_t id = 0;
-				union IdToColorConverter
-				{
-					uint32_t uint32;
-					uint8_t uint8[4];
-				};
-				IdToColorConverter idToColorConverter;
-
-				std::map<uint32_t, std::shared_ptr<game::RendererComponent>> _colorIdToRendererComponentMap;
+				std::map<uint32_t, std::shared_ptr<game::RendererComponent>> colorIdToRendererComponentMap;
 
 				game::World* world = game::World::GetInstance();
-				for (const auto& pair : world->GetEntities())
-				{
-					std::shared_ptr<game::Entity> entity = pair.second;
-					std::shared_ptr<game::RendererComponent> rendererComponent = entity->GetComponent<game::RendererComponent>().lock();
-					if (rendererComponent != nullptr)
-					{
-						idToColorConverter.uint32 = id;
-
-						Color colorId;
-						colorId.r = static_cast<float>(idToColorConverter.uint8[0]) / 255.0f;
-						colorId.g = static_cast<float>(idToColorConverter.uint8[1]) / 255.0f;
-						colorId.b = static_cast<float>(idToColorConverter.uint8[2]) / 255.0f;
-						colorId.a = 1.0f;
-
-						rendererComponent->PushPickingToRenderQueue(*renderQueue, colorId);
-
-						_colorIdToRendererComponentMap.emplace(idToColorConverter.uint32, rendererComponent);
-
-						id += 50;
-					}
-				}
-				world->Draw(renderQueue);
+				world->DrawPicking(renderQueue, colorIdToRendererComponentMap);
 
 				_pickingRenderTarget->PrepareForWrite(); // todo automate ?
 
@@ -156,13 +199,20 @@ namespace hod::editor
 
 				Color pixelColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(_pickingPosition);
 
+				union IdToColorConverter
+				{
+					uint32_t uint32;
+					uint8_t uint8[4];
+				};
+				IdToColorConverter idToColorConverter;
+
 				idToColorConverter.uint8[0] = pixelColor.r * 255.0f;
 				idToColorConverter.uint8[1] = pixelColor.g * 255.0f;
 				idToColorConverter.uint8[2] = pixelColor.b * 255.0f;
 				idToColorConverter.uint8[3] = 0;
 
-				auto it = _colorIdToRendererComponentMap.find(idToColorConverter.uint32);
-				if (it != _colorIdToRendererComponentMap.end())
+				auto it = colorIdToRendererComponentMap.find(idToColorConverter.uint32);
+				if (it != colorIdToRendererComponentMap.end())
 				{
 					Editor::GetInstance()->SetEntitySelection(it->second->GetEntity());
 				}
@@ -198,21 +248,12 @@ namespace hod::editor
 
 			float aspect = windowWidth / windowHeight;
 
-			Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-			Matrix4 view = Matrix4::Translation(_cameraPosition);
+			Matrix4 projection = Matrix4::OrthogonalProjection(-tab->_size * aspect, tab->_size * aspect, -tab->_size, tab->_size, -1024, 1024);
+			Matrix4 view = Matrix4::Translation(tab->_cameraPosition);
 
 			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
 
 			game::World* world = game::World::GetInstance();
-			for (const auto& pair : world->GetEntities())
-			{
-				std::shared_ptr<game::Entity> entity = pair.second;
-				std::shared_ptr<game::RendererComponent> rendererComponent = entity->GetComponent<game::RendererComponent>().lock();
-				if (rendererComponent != nullptr)
-				{
-					rendererComponent->PushToRenderQueue(*renderQueue);
-				}
-			}
 			world->Draw(renderQueue);
 
 			_renderTarget->PrepareForWrite(); // todo automate ?
@@ -247,8 +288,8 @@ namespace hod::editor
 					ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, matrix);
 
 					float viewMatrix[16];
-					position[0] = _cameraPosition.GetX();
-					position[1] = _cameraPosition.GetY();
+					position[0] = tab->_cameraPosition.GetX();
+					position[1] = tab->_cameraPosition.GetY();
 					rotation[2] = 0.0f;
 					scale[0] = 1.0f;
 					scale[1] = 1.0f;
@@ -269,5 +310,78 @@ namespace hod::editor
 				}
 			}
 		}
+	}
+
+	/// @brief 
+	/// @param asset 
+	void ViewportWindow::OpenTab(std::shared_ptr<Asset> asset)
+	{
+		for (Tab* tab : _tabs)
+		{
+			if (tab->_asset == asset)
+			{
+				_tabToSelect = tab;
+				return;
+			}
+		}
+
+		Tab* tab = new Tab(asset);
+
+		_tabs.push_back(tab);
+		_tabToSelect = tab;
+	}
+
+	/// @brief 
+	/// @param asset 
+	std::vector<ViewportWindow::Tab*>::iterator	ViewportWindow::CloseTab(std::vector<Tab*>::iterator it)
+	{
+		Tab* tab = *it;
+		if (tab == _selectedTab)
+		{
+			game::World* world = game::World::GetInstance();
+			world->RemoveScene(_selectedTab->_scene);
+			_selectedTab = nullptr;
+		}
+
+		delete tab;
+		return _tabs.erase(it);
+	}
+
+	/// @brief 
+	void ViewportWindow::MarkCurrentSceneAsDirty()
+	{
+		if (_selectedTab != nullptr)
+		{
+			_selectedTab->_asset->SetDirty();
+		}
+	}
+
+	/// @brief 
+	/// @param asset 
+	ViewportWindow::Tab::Tab(std::shared_ptr<Asset> asset)
+	: _asset(asset)
+	{
+		Document document;
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(document, asset->GetPath()) == false)
+		{
+			return; // todo message + bool
+		}
+
+		_scene = new game::Scene();
+		if (Serializer::Deserialize(_scene, document.GetRootNode()) == false)
+		{
+			return; // todo message + bool
+		}
+		_scene->SetName(asset->GetName());
+		asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
+	}
+
+	/// @brief 
+	ViewportWindow::Tab::~Tab()
+	{
+		_asset->SetInstanceToSave(nullptr, nullptr);
+		_asset->ResetDirty();
+		delete _scene;
 	}
 }

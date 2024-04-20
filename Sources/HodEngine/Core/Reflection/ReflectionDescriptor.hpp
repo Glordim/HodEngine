@@ -68,6 +68,8 @@ namespace hod
 		template<typename _Type_>
 		std::shared_ptr<_Type_>					CreateSharedInstance() const;
 
+		void									Copy(const void* sourceInstance, void* destinationInstance);
+
 		MetaType								GetMetaType() const;
 		const std::string&						GetTypeName() const;
 

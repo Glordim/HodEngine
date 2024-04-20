@@ -21,14 +21,15 @@ namespace hod
 	namespace game
 	{
 		class Entity;
-		class World;
+		class Scene;
 
 		///@brief 
 		class Component : public Object, public std::enable_shared_from_this<Component>
 		{
 			REFLECTED_CLASS(Component, Object)
 
-			friend class World;
+			friend class Scene;
+			friend class Entity;
 
 		public:
 

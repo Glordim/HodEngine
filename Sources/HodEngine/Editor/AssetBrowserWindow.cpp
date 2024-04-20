@@ -417,7 +417,7 @@ namespace hod::editor
 				_currentExplorerNode = asset;
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) == true)
 				{
-					Editor::GetInstance()->OpenAsset(*asset->_asset);
+					Editor::GetInstance()->OpenAsset(asset->_asset);
 				}
 				else
 				{					

@@ -41,6 +41,8 @@ namespace hod::game
 		bool				GetActive() const;
 		void				SetActive(bool active);
 
+		std::shared_ptr<Entity>	Clone();
+
 		void				Awake();
 		void				Start();
 
@@ -64,6 +66,10 @@ namespace hod::game
 	private:
 
 		std::weak_ptr<Component>	AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
+
+	private:
+
+		static Entity::Id	_nextId; // todo std::atomic ?
 
 	private:
 

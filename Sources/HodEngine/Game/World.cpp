@@ -22,56 +22,83 @@ namespace hod
 #if defined(HOD_EDITOR)
 		void World::SetEditorPlaying(bool editorPlaying)
 		{
-			_editorPlaying = editorPlaying;
-			if (editorPlaying == true)
+			if (_editorPlaying != editorPlaying)
 			{
-				for (const auto& entity : _entities)
+				_editorPlaying = editorPlaying;
+				if (editorPlaying == true)
 				{
-					entity.second->Awake();
+					_persistanteScene->Clear();
+					for (Scene* scene : _scenes)
+					{
+						Scene* clone = scene->Clone();
+						_backupedScenes.push_back(clone);
+					}
+
+					for (Scene* scene : _scenes)
+					{
+						scene->Awake();
+					}
+
+					for (Scene* scene : _scenes)
+					{
+						scene->Awake();
+					}
 				}
-				for (const auto& entity : _entities)
+				else
 				{
-					entity.second->Start();
+					Clear();
+
+					for (Scene* scene : _backupedScenes)
+					{
+						_scenes.push_back(scene);
+					}
+					_backupedScenes.clear();
 				}
 			}
 		}
 
+		/// @brief 
+		/// @return 
 		bool World::GetEditorPlaying() const
 		{
 			return _editorPlaying;
 		}
 
+		/// @brief 
+		/// @param editorPaused 
 		void World::SetEditorPaused(bool editorPaused)
 		{
 			_editorPaused = editorPaused;
 		}
 
+		/// @brief 
+		/// @return 
 		bool World::GetEditorPaused() const
 		{
 			return _editorPaused;
 		}
 #endif
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param  
 		_SingletonConstructor(World)
 		: _updateJob(this, &World::Update, JobQueue::Queue::FramedNormalPriority)
+		, _persistanteScene(new Scene())
 		{
-
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		World::~World()
 		{
 			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
+
+			Clear();
+
+			delete _persistanteScene;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @return 
 		bool World::Init()
 		{
 			FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::Logic);
@@ -79,17 +106,20 @@ namespace hod
 			return true;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		void World::Clear()
 		{
-			_entities.clear();
+			for (Scene* scene : _scenes)
+			{
+				delete scene;
+			}
+			_scenes.clear();
+
+			_persistanteScene->Clear();
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @return 
 		Scene* World::CreateScene()
 		{
 			Scene* pScene = new Scene();
@@ -99,9 +129,8 @@ namespace hod
 			return pScene;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param pScene 
 		void World::DestroyScene(Scene* pScene)
 		{
 			auto it = _scenes.begin();
@@ -111,11 +140,12 @@ namespace hod
 				if (*it == pScene)
 				{
 					_scenes.erase(it);
-					break;
+					delete pScene;
+					return;
 				}
 			}
 
-			delete pScene;
+			// Todo message not found
 		}
 
 		/// @brief 
@@ -155,20 +185,13 @@ namespace hod
 				}
 			}
 
+			// Todo message not found
 			return false;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		void World::Update()
 		{
-			/*
-			for (Scene* scene : _scenes)
-			{
-				sScene->Update(dt);
-			}
-			*/
 #if defined(HOD_EDITOR)
 			if (_editorPlaying == false || _editorPaused == true)
 			{
@@ -178,14 +201,40 @@ namespace hod
 
 			physics::Physics::GetInstance()->Update(0.016f);
 
-			for (auto entityPair : _entities)
+			for (Scene* scene : _scenes)
 			{
-				for (std::weak_ptr<Component> component : entityPair.second->GetComponents())
-				{
-					component.lock()->OnUpdate();
-				}
+				scene->Update();
 			}
 		}
+
+		/// @brief 
+		/// @param renderQueue 
+		void World::Draw(renderer::RenderQueue* renderQueue)
+		{
+			for (Scene* scene : _scenes)
+			{
+				scene->Draw(renderQueue);
+			}
+			_persistanteScene->Draw(renderQueue);
+
+			if (_physicsDebugDrawer != nullptr)
+			{
+				_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
+			}
+		}
+
+		/// @brief 
+		/// @param renderQueue 
+		void World::DrawPicking(renderer::RenderQueue* renderQueue, std::map<uint32_t, std::shared_ptr<RendererComponent>>& colorIdToRendererComponentMap)
+		{
+			uint32_t id = 0;
+			for (Scene* scene : _scenes)
+			{
+				scene->DrawPicking(renderQueue, colorIdToRendererComponentMap, id);
+			}
+			_persistanteScene->DrawPicking(renderQueue, colorIdToRendererComponentMap, id);
+		}
+
 
 		/// @brief 
 		/// @param enabled 
@@ -219,16 +268,6 @@ namespace hod
 		}
 
 		/// @brief 
-		/// @param renderQueue 
-		void World::Draw(renderer::RenderQueue* renderQueue)
-		{
-			if (_physicsDebugDrawer != nullptr)
-			{
-				_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
-			}
-		}
-
-		/// @brief 
 		/// @return 
 		const std::vector<Scene*>& World::GetScenes() const
 		{
@@ -240,26 +279,18 @@ namespace hod
 		/// @return 
 		std::weak_ptr<Entity> World::CreateEntity(const std::string_view& name)
 		{
-			std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
-			_entities.emplace(entity->GetId(), entity);
-
-			_addEntityEvent.Emit(entity);
-
-			return entity;
+			return _persistanteScene->CreateEntity(name);
 		}
 
 		/// @brief 
 		/// @param entity 
 		void World::DestroyEntity(std::shared_ptr<Entity> entity)
 		{
-			_entities.erase(_entities.find(entity->GetId()));
-		}
-
-		/// @brief 
-		/// @return 
-		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& World::GetEntities() const
-		{
-			return _entities;
+			for (Scene* scene : _scenes)
+			{
+				scene->DestroyEntity(entity);
+			}
+			_persistanteScene->DestroyEntity(entity);
 		}
 
 		/// @brief 
@@ -267,101 +298,17 @@ namespace hod
 		/// @return 
 		std::weak_ptr<Entity> World::FindEntity(Entity::Id entityId)
 		{
-			return _entities[entityId];
-		}
-
-		/// @brief 
-		/// @param documentNode 
-		/// @return 
-		bool World::SaveToDocument(Document::Node& documentNode)
-		{
-			Document::Node& entitiesNode = documentNode.AddChild("Entities");
-
-			for (const auto& entityPair : _entities)
+			std::weak_ptr<Entity> entity;
+			
+			for (Scene* scene : _scenes)
 			{
-				std::shared_ptr<Entity> entity = entityPair.second;
-
-				Document::Node& entityNode = entitiesNode.AddChild("");
-
-				entityNode.AddChild("Name").SetString(entity->GetName());
-				entityNode.AddChild("Active").SetBool(entity->GetActive());
-
-				Document::Node& componentsNode = entityNode.AddChild("Components");
-
-				const std::vector<std::weak_ptr<Component>> components =  entity->GetComponents();
-				for (const std::weak_ptr<Component>& component : components)
+				entity = scene->FindEntity(entityId);
+				if (entity.lock() != nullptr)
 				{
-					std::shared_ptr<Component> componentLock = component.lock();
-
-					Document::Node& componentNode = componentsNode.AddChild("");
-					componentNode.AddChild("MetaType").SetValue(componentLock->GetMetaType());
-					Serializer::Serialize(componentLock.get(), componentNode);
+					return entity;
 				}
 			}
-
-			return true;
-		}
-
-		/// @brief 
-		/// @param documentNode 
-		/// @return 
-		bool World::LoadFromDocument(const Document::Node& documentNode)
-		{
-			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
-
-			const Document::Node* entitiesNode = documentNode.GetChild("Entities");
-			const Document::Node* entityNode = entitiesNode->GetFirstChild();
-			while (entityNode != nullptr)
-			{
-				const std::string& name = entityNode->GetChild("Name")->GetString();
-
-				std::weak_ptr<Entity> entity = CreateEntity(name);
-				std::shared_ptr<Entity> entityLock = entity.lock();
-
-				bool active = entityNode->GetChild("Active")->GetBool();
-				entityLock->SetActive(active);
-
-				const Document::Node* componentsNode = entityNode->GetChild("Components");
-				const Document::Node* componentNode = componentsNode->GetFirstChild();
-				while (componentNode != nullptr)
-				{
-					MetaType metaType = componentNode->GetChild("MetaType")->GetUInt64();
-
-					auto it = componentFactory->GetAllDescriptors().find(metaType);
-					if (it != componentFactory->GetAllDescriptors().end())
-					{
-						const ReflectionDescriptor& componentDescriptor = *it->second;
-						std::weak_ptr<Component> component = entityLock->AddComponent(componentDescriptor, false);
-						std::shared_ptr<Component> componentLock = component.lock();
-						Component* rawComponent = componentLock.get();
-						Serializer::Deserialize(rawComponent, *componentNode); // todo lvalue...
-						WeakComponentMapping::Insert(componentLock->GetUid(), component);
-					}
-					else
-					{
-						OUTPUT_ERROR("Unknown component !"); // TODO dangerous !!! user lost data
-					}
-
-					componentNode = componentNode->GetNextSibling();
-				}
-
-				entityNode = entityNode->GetNextSibling();
-			}
-
-			for (const auto& entity : _entities)
-			{
-				for (std::weak_ptr<Component> component : entity.second->GetComponents())
-				{
-					component.lock()->Construct();
-				}
-			}
-
-			for (const auto& entity : _entities)
-			{
-				entity.second->SetActive(true);
-			}
-
-			return true;
+			return _persistanteScene->FindEntity(entityId);
 		}
 	}
 }

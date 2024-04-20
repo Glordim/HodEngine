@@ -70,6 +70,8 @@ namespace hod
 		template<typename _type_>
 		void									SetValue(void* instance, _type_ value);
 
+		void									Copy(const void* sourceInstance, void* destinationInstance) override;
+
 	private:
 
 		Type									_type;

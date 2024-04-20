@@ -26,15 +26,18 @@ namespace hod
 	public:
 
 		void*									GetInstance(void* instance) const;
+		const void*								GetInstance(const void* instance) const;
 
 		void*									GetValue(const void* instance) const;
 		void									SetValue(void* instance, void* value);
 
 		ReflectionDescriptor*					GetReflectionDescriptor() const;
 
+		void									Copy(const void* sourceInstance, void* destinationInstance) override;
+
 	private:
 
-		ReflectionDescriptor*					_reflectionDesceriptor;
+		ReflectionDescriptor*					_reflectionDescriptor = nullptr;
 		std::function<void(void*, void*)>		_setMethod;
 		std::function<void* (const void*)>		_getMethod;
 	};

@@ -3,8 +3,6 @@
 #include <HodEngine/ImGui/Window.hpp>
 #include <memory>
 
-#include "HodEngine/Core/Event.hpp"
-
 namespace hod::game
 {
 	class Entity;
@@ -59,12 +57,5 @@ namespace hod::editor
 		bool										_openContextualMenu = false;
 
 		//EntityNode									_rootEntityNode;
-
-		Event<std::weak_ptr<game::Entity>>::Slot	_onAddEntityCallback;
-		Event<std::weak_ptr<game::Entity>>::Slot	_onRemoveEntityCallback;
-		Event<std::weak_ptr<game::Entity>>::Slot	_onRenameEntityCallback;
-
-		Event<std::weak_ptr<game::Component>>::Slot	_onAddComponentCallback;
-		Event<std::weak_ptr<game::Component>>::Slot	_onRemoveComponentCallback;
 	};
 }

@@ -4,18 +4,40 @@
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
-
 namespace hod::game
 {
+	Entity::Id Entity::_nextId = 0;
+
 	/// @brief 
 	/// @param name 
 	Entity::Entity(const std::string_view& name)
 	: _name(name)
 	{
-		static Entity::Id nextId = 0;
-		++nextId;
+		++_nextId;
+		_id = _nextId;
+	}
 
-		_id = nextId;
+	/// @brief 
+	/// @param other 
+	std::shared_ptr<Entity> Entity::Clone()
+	{
+		std::shared_ptr<Entity> clone = std::make_shared<Entity>(_name);
+
+		clone->_components.reserve(_components.size());
+		for (std::shared_ptr<Component> component : _components)
+		{
+			ReflectionDescriptor* reflectionDescriptor = component->GetReflectionDescriptorV();
+			std::shared_ptr<Component> cloneComponent = std::static_pointer_cast<Component>(reflectionDescriptor->CreateSharedInstance());
+
+			reflectionDescriptor->Copy(component.get(), cloneComponent.get());
+
+			cloneComponent->SetEntity(clone);
+			cloneComponent->Construct();
+
+			clone->_components.push_back(cloneComponent);
+		}
+
+		return clone;
 	}
 
 	/// @brief 

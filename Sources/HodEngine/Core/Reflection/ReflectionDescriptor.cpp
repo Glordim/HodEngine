@@ -120,4 +120,20 @@ namespace hod
 	{
 		return _parent;
 	}
+
+	/// @brief 
+	/// @param sourceInstance 
+	/// @param destinationInstance 
+	void ReflectionDescriptor::Copy(const void* sourceInstance, void* destinationInstance)
+	{
+        if (_parent != nullptr)
+        {
+            _parent->Copy(sourceInstance, destinationInstance);
+        }
+
+		for (ReflectionProperty* reflectionProperty : _properties)
+		{
+			reflectionProperty->Copy(sourceInstance, destinationInstance);
+		}
+	}
 }

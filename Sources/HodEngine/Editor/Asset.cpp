@@ -49,6 +49,15 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	/// @param instance 
+	/// @param reflectionDescriptor 
+	void Asset::SetInstanceToSave(const void* instance, ReflectionDescriptor* reflectionDescriptor)
+	{
+		_instanceToSave = instance;
+		_instanceToSaveReflectionDescriptor = reflectionDescriptor;
+	}
+
+	/// @brief 
 	/// @return 
 	bool Asset::Load()
 	{
@@ -112,7 +121,7 @@ namespace hod::editor
 	/// @return 
 	bool Asset::Save()
 	{
-		return Save(nullptr, nullptr);
+		return Save(_instanceToSave, _instanceToSaveReflectionDescriptor);
 	}
 
 	/// @brief 
@@ -190,6 +199,12 @@ namespace hod::editor
 	void Asset::SetDirty()
 	{
 		_dirty = true;
+	}
+
+	/// @brief 
+	void Asset::ResetDirty()
+	{
+		_dirty = false;
 	}
 
 	/// @brief 

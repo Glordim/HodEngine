@@ -144,6 +144,8 @@ namespace hod
 		void									InsertElement(void* instance, uint32_t index) const;
 		void									RemoveElement(void* instance, uint32_t index) const;
 
+		void									Copy(const void* sourceInstance, void* destinationInstance) override;
+
 	private:
 
 		ReflectionPropertyVariable::Type		_type;
