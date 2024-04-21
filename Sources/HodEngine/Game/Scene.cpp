@@ -291,13 +291,13 @@ namespace hod::game
 				{
 					case ReflectionPropertyArray::GetMetaTypeStatic():
 					{
-						ReflectionPropertyArray* reflectionPropertyArray = static_cast<ReflectionPropertyArray*>(reflectionProperty);
+						//ReflectionPropertyArray* reflectionPropertyArray = static_cast<ReflectionPropertyArray*>(reflectionProperty);
 					}
 					break;
 
 					case ReflectionPropertyObject::GetMetaTypeStatic():
 					{
-						ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
+						//ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
 
 						//if (reflectionPropertyObject->GetReflectionDescriptor() == WeakComponent::)
 					}

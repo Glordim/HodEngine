@@ -17,8 +17,9 @@ namespace hod
 		struct Shape
 		{
 			REFLECTED_CLASS_NO_PARENT(Shape)
-
 		public:
+
+			virtual ~Shape() = default;
 
 			enum Type
 			{
@@ -33,8 +34,9 @@ namespace hod
 		struct EdgeShape : public Shape
 		{
 			REFLECTED_CLASS(EdgeShape, Shape)
-
 		public:
+
+			~EdgeShape() override = default;
 
 			Vector2 _start;
 			Vector2 _end;
@@ -43,8 +45,9 @@ namespace hod
 		struct CircleShape : public Shape
 		{
 			REFLECTED_CLASS(CircleShape, Shape)
-
 		public:
+
+			~CircleShape() override = default;
 
 			Vector2	_origin;
 			float	_radius;
@@ -53,8 +56,9 @@ namespace hod
 		struct BoxShape : public Shape
 		{
 			REFLECTED_CLASS(BoxShape, Shape)
-
 		public:
+
+			~BoxShape() override = default;
 
 			Vector2	_origin;
 			Vector2	_size;

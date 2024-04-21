@@ -77,7 +77,7 @@ if(NOT SET_UP_CONFIGURATIONS_DONE)
     endif()
 
 	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof -Werror")
+    	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof -Werror -D_CRT_SECURE_NO_WARNINGS")
 	elseif (MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /D_CRT_SECURE_NO_WARNINGS")
 	endif()

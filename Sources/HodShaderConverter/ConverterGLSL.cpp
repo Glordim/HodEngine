@@ -58,7 +58,6 @@ namespace hod
 		bool inInStruct = false;
 		bool inOutStruct = false;
 		int locationIndex = 0;
-		bool nextMustBeAnType = false;
 
 		std::vector<std::string> identifiers;
 
@@ -73,7 +72,6 @@ namespace hod
 			{
 				inInStruct = true;
 				locationIndex = 0;
-				nextMustBeAnType = true;
 				continue;
 			}
 			else if (inInStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
@@ -118,7 +116,6 @@ namespace hod
 			{
 				inOutStruct = true;
 				locationIndex = 0;
-				nextMustBeAnType = true;
 				continue;
 			}
 			else if (inOutStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))

@@ -71,7 +71,7 @@ namespace hod
 			_insertElementFunction = [](void* instance, uint32_t index)
 			{
 				_vector_* array = static_cast<_vector_*>(instance);
-				typename _vector_::value_type item;
+				typename _vector_::value_type item = typename _vector_::value_type();
 				array->insert(array->begin() + index, item);
 			};
 

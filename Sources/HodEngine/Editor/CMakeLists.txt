@@ -56,9 +56,10 @@ get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
 	${Core_INCLUDES}
-	${Stb_INCLUDE_DIRS}
 	${PortableFileDialog_INCLUDE_DIRS}
 )
+
+target_include_directories(Editor SYSTEM PRIVATE ${Stb_INCLUDE_DIRS})
 
 target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
 target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>")

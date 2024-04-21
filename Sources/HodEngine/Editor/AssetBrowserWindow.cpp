@@ -296,7 +296,6 @@ namespace hod::editor
 		}
 
 		ImGui::Separator();
-		ImVec2 cursor = ImGui::GetCursorPos();
 
 		AssetDatabase::FileSystemMapping* itemToDelete = nullptr;
 

@@ -296,7 +296,6 @@ namespace hod::editor
 					ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, viewMatrix);
 
 					ImGuizmo::SetOrthographic(true);
-					ImGuiIO& io = ImGui::GetIO();
 					ImGuizmo::SetRect(origin.x, origin.y, (float)windowWidth, (float)windowHeight);
 					ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 					if (ImGuizmo::Manipulate(viewMatrix, (float*)&projection, _gizmoOperation, ImGuizmo::MODE::LOCAL, matrix))

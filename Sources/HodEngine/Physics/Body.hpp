@@ -52,7 +52,6 @@ namespace hod
 		private:
 
 			b2Body*				_b2Body = nullptr;
-			Type				_type = Type::Static;
 			
 		};
 	}
