@@ -59,7 +59,7 @@ namespace hod
 			_getElementCountFunction = [](const void* instance) -> uint32_t
 			{
 				const _vector_* array = static_cast<const _vector_*>(instance);
-				return array->size();
+				return (uint32_t)array->size();
 			};
 
 			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*

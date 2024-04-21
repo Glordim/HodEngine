@@ -77,7 +77,9 @@ if(NOT SET_UP_CONFIGURATIONS_DONE)
     endif()
 
 	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
+    	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof -Werror")
+	elseif (MSVC)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /D_CRT_SECURE_NO_WARNINGS")
 	endif()
 
 	set(COMPILE_DEFINITIONS_GAME_DEBUG

@@ -94,17 +94,17 @@ namespace hod
 
 		switch (_type)
 		{
-		case ReflectionPropertyVariable::Type::Bool: *reinterpret_cast<bool*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::Int8: *reinterpret_cast<int8_t*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::Int16: *reinterpret_cast<int16_t*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::Int32: *reinterpret_cast<int32_t*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::Int64: *reinterpret_cast<int64_t*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::UInt8: *reinterpret_cast<uint8_t*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::UInt16: *reinterpret_cast<uint16_t*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::UInt32: *reinterpret_cast<uint32_t*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::UInt64: *reinterpret_cast<uint64_t*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::Float32: *reinterpret_cast<float*>(variableAddress) = value; break;
-		case ReflectionPropertyVariable::Type::Float64: *reinterpret_cast<double*>(variableAddress) = value; break;
+		case ReflectionPropertyVariable::Type::Bool: *reinterpret_cast<bool*>(variableAddress) = static_cast<bool>(value); break;
+		case ReflectionPropertyVariable::Type::Int8: *reinterpret_cast<int8_t*>(variableAddress) = static_cast<int8_t>(value); break;
+		case ReflectionPropertyVariable::Type::Int16: *reinterpret_cast<int16_t*>(variableAddress) = static_cast<int16_t>(value); break;
+		case ReflectionPropertyVariable::Type::Int32: *reinterpret_cast<int32_t*>(variableAddress) = static_cast<int32_t>(value); break;
+		case ReflectionPropertyVariable::Type::Int64: *reinterpret_cast<int64_t*>(variableAddress) = static_cast<int64_t>(value); break;
+		case ReflectionPropertyVariable::Type::UInt8: *reinterpret_cast<uint8_t*>(variableAddress) = static_cast<uint8_t>(value); break;
+		case ReflectionPropertyVariable::Type::UInt16: *reinterpret_cast<uint16_t*>(variableAddress) = static_cast<uint16_t>(value); break;
+		case ReflectionPropertyVariable::Type::UInt32: *reinterpret_cast<uint32_t*>(variableAddress) = static_cast<uint32_t>(value); break;
+		case ReflectionPropertyVariable::Type::UInt64: *reinterpret_cast<uint64_t*>(variableAddress) = static_cast<uint64_t>(value); break;
+		case ReflectionPropertyVariable::Type::Float32: *reinterpret_cast<float*>(variableAddress) = static_cast<float>(value); break;
+		case ReflectionPropertyVariable::Type::Float64: *reinterpret_cast<double*>(variableAddress) = static_cast<double>(value); break;
 		//case ReflectionPropertyVariable::Type::String: *reinterpret_cast<std::string*>(variableAddress) = value; break;
 
 		default: assert(false); break;

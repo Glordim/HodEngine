@@ -12,7 +12,7 @@ namespace hod
 		uint32_t currentTokenIndex = index;
 		uint32_t expectedTokenIndex = 0;
 
-		uint32_t expectedTokenCount = expectedTokens.size();
+		size_t expectedTokenCount = expectedTokens.size();
 		while (expectedTokenIndex < expectedTokenCount)
 		{
 			const Token& expectedToken = expectedTokens[expectedTokenIndex];

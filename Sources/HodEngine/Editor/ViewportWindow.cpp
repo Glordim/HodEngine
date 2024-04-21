@@ -141,7 +141,7 @@ namespace hod::editor
 			{
 				ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 
-				if (mousePos.x > 0 && mousePos.x < -_pickingRenderTarget->GetWidth() && mousePos.y > 0 && mousePos.y < -_pickingRenderTarget->GetHeight())
+				if (mousePos.x >= 0 && mousePos.x < _pickingRenderTarget->GetWidth() && mousePos.y >= 0 && mousePos.y < _pickingRenderTarget->GetHeight())
 				{
 					_pickingRequest = true;
 					_pickingPosition = Vector2(mousePos.x, mousePos.y);
@@ -149,11 +149,11 @@ namespace hod::editor
 			}
 		}
 
-		float windowWidth = ImGui::GetContentRegionAvail().x;// ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
-		float windowHeight = ImGui::GetContentRegionAvail().y; //ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
+		uint32_t windowWidth = (uint32_t)ImGui::GetContentRegionAvail().x;// ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
+		uint32_t windowHeight = (uint32_t)ImGui::GetContentRegionAvail().y; //ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
 
-		windowWidth = std::fmax(2, windowWidth);
-		windowHeight = std::fmax(2, windowHeight);
+		windowWidth = std::max(2u, windowWidth);
+		windowHeight = std::max(2u, windowHeight);
 
 		// todo check if visible (docking tab) ?
 
@@ -174,12 +174,12 @@ namespace hod::editor
 
 				Rect viewport;
 				viewport._position.SetX(0);
-				viewport._position.SetY(windowHeight);
-				viewport._size.SetX(windowWidth);
-				viewport._size.SetY(-windowHeight);
+				viewport._position.SetY((float)windowHeight);
+				viewport._size.SetX((float)windowWidth);
+				viewport._size.SetY(-(float)windowHeight);
 				// Vulkan specific Y inversion TODO move it in Vulkan part and probably readapt ImguiRenderer to aply this inversion because it need 2D bottom y axis
 
-				float aspect = windowWidth / windowHeight;
+				float aspect = (float)windowWidth / (float)windowHeight;
 
 				Matrix4 projection = Matrix4::OrthogonalProjection(-tab->_size * aspect, tab->_size * aspect, -tab->_size, tab->_size, -1024, 1024);
 				Matrix4 view = Matrix4::Translation(tab->_cameraPosition);
@@ -206,9 +206,9 @@ namespace hod::editor
 				};
 				IdToColorConverter idToColorConverter;
 
-				idToColorConverter.uint8[0] = pixelColor.r * 255.0f;
-				idToColorConverter.uint8[1] = pixelColor.g * 255.0f;
-				idToColorConverter.uint8[2] = pixelColor.b * 255.0f;
+				idToColorConverter.uint8[0] = static_cast<uint8_t>(pixelColor.r * 255.0f);
+				idToColorConverter.uint8[1] = static_cast<uint8_t>(pixelColor.g * 255.0f);
+				idToColorConverter.uint8[2] = static_cast<uint8_t>(pixelColor.b * 255.0f);
 				idToColorConverter.uint8[3] = 0;
 
 				auto it = colorIdToRendererComponentMap.find(idToColorConverter.uint32);
@@ -241,12 +241,12 @@ namespace hod::editor
 
 			Rect viewport;
 			viewport._position.SetX(0);
-			viewport._position.SetY(windowHeight);
-			viewport._size.SetX(windowWidth);
-			viewport._size.SetY(-windowHeight);
+			viewport._position.SetY((float)windowHeight);
+			viewport._size.SetX((float)windowWidth);
+			viewport._size.SetY(-(float)windowHeight);
 			// Vulkan specific Y inversion TODO move it in Vulkan part and probably readapt ImguiRenderer to aply this inversion because it need 2D bottom y axis
 
-			float aspect = windowWidth / windowHeight;
+			float aspect = (float)windowWidth / (float)windowHeight;
 
 			Matrix4 projection = Matrix4::OrthogonalProjection(-tab->_size * aspect, tab->_size * aspect, -tab->_size, tab->_size, -1024, 1024);
 			Matrix4 view = Matrix4::Translation(tab->_cameraPosition);
@@ -263,7 +263,7 @@ namespace hod::editor
 			_renderTarget->PrepareForRead(); // todo automate ?
 
 			ImVec2 origin = ImGui::GetCursorScreenPos();
-			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2(windowWidth, windowHeight));
+			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
 
 			Editor* editor = Editor::GetInstance();
 			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
@@ -297,7 +297,7 @@ namespace hod::editor
 
 					ImGuizmo::SetOrthographic(true);
 					ImGuiIO& io = ImGui::GetIO();
-					ImGuizmo::SetRect(origin.x, origin.y, windowWidth, windowHeight);
+					ImGuizmo::SetRect(origin.x, origin.y, (float)windowWidth, (float)windowHeight);
 					ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 					if (ImGuizmo::Manipulate(viewMatrix, (float*)&projection, _gizmoOperation, ImGuizmo::MODE::LOCAL, matrix))
 					{

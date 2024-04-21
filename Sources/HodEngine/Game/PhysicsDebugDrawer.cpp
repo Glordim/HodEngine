@@ -98,7 +98,7 @@ namespace hod
 		{
 			renderer::P2fC4f* vertices = new renderer::P2fC4f[vertexCount];
 
-			for (uint32_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+			for (int32 vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
 			{
 				vertices[vertexIndex]._position[0] = b2Vertices[vertexIndex].x;
 				vertices[vertexIndex]._position[1] = b2Vertices[vertexIndex].y;

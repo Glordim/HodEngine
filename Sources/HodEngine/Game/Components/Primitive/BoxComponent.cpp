@@ -56,7 +56,7 @@ namespace hod
 				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>().lock();
 				if (node2dComponent != nullptr)
 				{
-					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), _vertices.size(), sizeof(renderer::P2fT2f), _indices.data(), _indices.size(), node2dComponent->GetWorldMatrix(), nullptr));
+					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), (uint32_t)_vertices.size(), sizeof(renderer::P2fT2f), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), nullptr));
 				}
 			}
 		}

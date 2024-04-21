@@ -59,7 +59,7 @@ namespace hod::editor
 		int x;
 		int y;
 		int componentCount;
-		uint8_t* pixels = stbi_load_from_memory(dataBuffer, dataSize, &x, &y, &componentCount, 0); // TODO rgba
+		uint8_t* pixels = stbi_load_from_memory(dataBuffer, (int)dataSize, &x, &y, &componentCount, 0); // TODO rgba
 		if (pixels == nullptr)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't load Texture data");
@@ -70,11 +70,11 @@ namespace hod::editor
 		int thumbnailHeight = 256;
 		if (y > x)
 		{
-			thumbnailWidth = ((float)x / (float)y) * thumbnailHeight;
+			thumbnailWidth = (int)(((float)x / (float)y) * thumbnailHeight);
 		}
 		else if (x > y)
 		{
-			thumbnailHeight = ((float)y / (float)x) * thumbnailWidth;
+			thumbnailHeight = (int)(((float)y / (float)x) * thumbnailWidth);
 		}
 		uint8_t* thumbnailPixels = new uint8_t[thumbnailHeight * thumbnailWidth * componentCount];
 		stbir_resize_uint8_linear(pixels, x, y, 0, thumbnailPixels, thumbnailWidth, thumbnailHeight, 0, (stbir_pixel_layout)componentCount);
@@ -129,7 +129,7 @@ namespace hod::editor
 		}
 
 		resource.write("HodResource", 11);
-		uint32_t documentLen = documentStringStream.str().size();
+		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
 		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
 
 		if (documentWriter.Write(document, resource) == false)

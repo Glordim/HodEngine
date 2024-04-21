@@ -252,7 +252,7 @@ namespace hod::editor
 			pathNode = pathNode->_parentFolder;
 		}
 		
-		uint32_t pathSplitSize = pathSplit.size();
+		size_t pathSplitSize = pathSplit.size();
 		for (uint32_t i = 0; i < pathSplitSize; ++i)
 		{
 			AssetDatabase::FileSystemMapping* pathNode = pathSplit[i];

@@ -142,6 +142,6 @@ namespace hod::game
     : hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<WeakComponent, void>("WeakComponent"))
     {
         ReflectionProperty* property = ADD_PROPERTY(WeakComponent, _uid);
-        property->AddTrait<ReflectionTraitGetValueForSerialization>([](const void* instance, void* value){ *static_cast<UID*>(value) = static_cast<const WeakComponent*>(instance)->GetForSerialization(); }, sizeof(UID));
+        property->AddTrait<ReflectionTraitGetValueForSerialization>([](const void* instance, void* value){ *static_cast<UID*>(value) = static_cast<const WeakComponent*>(instance)->GetForSerialization(); }, (uint32_t)sizeof(UID));
     }
 }
