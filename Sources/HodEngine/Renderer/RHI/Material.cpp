@@ -1,4 +1,5 @@
 #include "HodEngine/Renderer/RHI/Material.hpp"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"

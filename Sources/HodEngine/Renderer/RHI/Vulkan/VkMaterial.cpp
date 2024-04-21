@@ -91,7 +91,7 @@ namespace hod
 			if (vertexInputs != nullptr)
 			{
 				vertexAttributeDecriptions.resize(vertexInputCount);
-				for (size_t i = 0; i < vertexInputCount; ++i)
+				for (uint32_t i = 0; i < vertexInputCount; ++i)
 				{
 					VkVertexInputAttributeDescription& vertexAttributeDescription = vertexAttributeDecriptions[i];
 					vertexAttributeDescription.binding = 0;

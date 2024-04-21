@@ -121,8 +121,8 @@ namespace hod
 			VkViewport vkViewport = {};
 			vkViewport.x = 0;
 			vkViewport.y = 0;
-			vkViewport.width = renderPassInfo.renderArea.extent.width;
-			vkViewport.height = renderPassInfo.renderArea.extent.height;
+			vkViewport.width = (float)renderPassInfo.renderArea.extent.width;
+			vkViewport.height = (float)renderPassInfo.renderArea.extent.height;
 			vkViewport.minDepth = 0.0f;
 			vkViewport.maxDepth = 1.0f;
 

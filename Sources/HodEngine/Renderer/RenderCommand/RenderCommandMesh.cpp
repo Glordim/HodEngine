@@ -112,7 +112,7 @@ namespace hod
 
 			if (_indices.empty() == false)
 			{
-				commandBuffer->DrawIndexed(_indices.size(), 0, 0);
+				commandBuffer->DrawIndexed((uint32_t)_indices.size(), 0, 0);
 			}
 			else
 			{
@@ -124,7 +124,7 @@ namespace hod
 				if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
 				{
 					commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetWireframeMaterialInstance());
-					commandBuffer->DrawIndexed(_indices.size(), 0, 0);
+					commandBuffer->DrawIndexed((uint32_t)_indices.size(), 0, 0);
 				}
 			}
 		}

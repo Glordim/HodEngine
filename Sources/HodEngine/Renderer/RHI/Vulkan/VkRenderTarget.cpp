@@ -28,7 +28,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkRenderTarget::Init(size_t width, size_t height, const Texture::CreateInfo& createInfo)
+		bool VkRenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo)
 		{
 			Clear();
 

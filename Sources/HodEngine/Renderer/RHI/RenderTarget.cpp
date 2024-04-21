@@ -46,7 +46,7 @@ namespace hod
 		/// @param width 
 		/// @param height 
 		/// @return 
-		bool RenderTarget::Init(size_t width, size_t height, const Texture::CreateInfo& createInfo)
+		bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo)
 		{
 			_width = width;
 			_height = height;

@@ -79,7 +79,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkTexture::BuildDepth(size_t width, size_t height, const CreateInfo& createInfo)
+		bool VkTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 		{
 			bool ret = false;
 
@@ -88,7 +88,7 @@ namespace hod
 			VkMemoryPropertyFlags memoryPropertyFlags = /*createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : */VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 			VkImageTiling imageTiling = /*createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : */VK_IMAGE_TILING_OPTIMAL;
 
-			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_D32_SFLOAT_S8_UINT, imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
+			if (renderer->CreateImage(width, height, VK_FORMAT_D32_SFLOAT_S8_UINT, imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
 			{
 				goto exit;
 			}
@@ -140,7 +140,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkTexture::BuildColor(size_t width, size_t height, const CreateInfo& createInfo)
+		bool VkTexture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -155,7 +155,7 @@ namespace hod
 			samplerCreateInfo._wrapMode = createInfo._wrapMode;
 			samplerCreateInfo._filterMode = createInfo._filterMode;
 
-			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
+			if (renderer->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
 			{
 				goto exit;
 			}
@@ -225,7 +225,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool VkTexture::BuildBuffer(size_t width, size_t height, const uint8_t* pixels, const CreateInfo& createInfo)
+		bool VkTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -258,7 +258,7 @@ namespace hod
 				vkUnmapMemory(renderer->GetVkDevice(), bufferMemory);
 			}
 
-			if (renderer->CreateImage((uint32_t)width, (uint32_t)height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
+			if (renderer->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
 			{
 				goto exit;
 			}
@@ -268,7 +268,7 @@ namespace hod
 				goto exit;
 			}
 
-			if (renderer->CopyBufferToImage(buffer, _textureImage, static_cast<uint32_t>(width), static_cast<uint32_t>(height)) == false)
+			if (renderer->CopyBufferToImage(buffer, _textureImage, width, height) == false)
 			{
 				goto exit;
 			}
@@ -356,7 +356,7 @@ namespace hod
 			VkDeviceSize lineSizeWithAlignment = 4 * _width;
 			lineSizeWithAlignment += alignment - (lineSizeWithAlignment % alignment);
 
-			VkDeviceSize bufferOffset = lineSizeWithAlignment * position.GetY() + 4 * position.GetX(); 
+			VkDeviceSize bufferOffset = lineSizeWithAlignment * (VkDeviceSize)position.GetY() + 4 * (VkDeviceSize)position.GetX(); 
 
 			Color color;
 			color.r = reinterpret_cast<uint8_t*>(data)[bufferOffset + 0];

@@ -125,7 +125,7 @@ namespace hod
 					return nullptr;
 				}
 
-				material = renderer->CreateMaterial(builtinMaterialSource._vertexInputs.data(), builtinMaterialSource._vertexInputs.size(), vertexShader, fragmentShader, builtinMaterialSource._polygonMode, builtinMaterialSource._topology, true);
+				material = renderer->CreateMaterial(builtinMaterialSource._vertexInputs.data(), (uint32_t)builtinMaterialSource._vertexInputs.size(), vertexShader, fragmentShader, builtinMaterialSource._polygonMode, builtinMaterialSource._topology, true);
 				if (material == nullptr)
 				{
 					delete vertexShader;

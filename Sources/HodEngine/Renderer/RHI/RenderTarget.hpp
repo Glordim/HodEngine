@@ -20,7 +20,7 @@ namespace hod::renderer
 		uint32_t		GetWidth() const;
 		uint32_t		GetHeight() const;
 
-		virtual bool	Init(size_t width, size_t height, const Texture::CreateInfo& createInfo);
+		virtual bool	Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo);
 
 		Texture*		GetColorTexture() const;
 		Texture*		GetDepthTexture() const;

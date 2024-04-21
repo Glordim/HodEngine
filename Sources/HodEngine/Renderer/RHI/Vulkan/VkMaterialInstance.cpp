@@ -56,7 +56,7 @@ namespace hod
 
 			if (setCount > _descriptorSets.size() - setOffset)
 			{
-				setCount = _descriptorSets.size() - setOffset;
+				setCount = (uint32_t)_descriptorSets.size() - setOffset;
 			}
 
 			std::vector<VkDescriptorSet> descriptorSets(setCount);
