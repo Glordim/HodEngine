@@ -7,7 +7,6 @@
 
 #include "HodEngine/Core/Type.hpp"
 #include "HodEngine/Core/UID.hpp"
-#include "HodEngine/Core/Object.hpp"
 
 namespace hod
 {
@@ -24,9 +23,9 @@ namespace hod
 		class Scene;
 
 		///@brief 
-		class Component : public Object, public std::enable_shared_from_this<Component>
+		class Component : public std::enable_shared_from_this<Component>
 		{
-			REFLECTED_CLASS(Component, Object)
+			REFLECTED_CLASS_NO_PARENT(Component)
 
 			friend class Scene;
 			friend class Entity;

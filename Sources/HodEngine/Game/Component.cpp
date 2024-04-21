@@ -4,7 +4,7 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS(Component, Object)
+		DESCRIBE_REFLECTED_CLASS_NO_PARENT(Component)
 		{
 			ADD_PROPERTY(Component, _uid);
 		}

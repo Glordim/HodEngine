@@ -4,7 +4,6 @@
 #include <fstream>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
-#include "HodEngine/Core/Object.hpp"
 
 namespace hod
 {
@@ -13,9 +12,9 @@ namespace hod
 
 namespace hod::editor
 {
-	class ImporterSettings : public Object // TODO struct
+	class ImporterSettings
 	{
-		REFLECTED_CLASS(ImporterSettings, Object)
+		REFLECTED_CLASS_NO_PARENT(ImporterSettings)
 
 	public:
 

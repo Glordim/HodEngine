@@ -12,7 +12,7 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(ImporterSettings, Object)
+	DESCRIBE_REFLECTED_CLASS_NO_PARENT(ImporterSettings)
 	{
 		
 	}

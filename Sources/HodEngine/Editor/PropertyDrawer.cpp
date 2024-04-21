@@ -4,7 +4,6 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
-#include "HodEngine/Core/Object.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
