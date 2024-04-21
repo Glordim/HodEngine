@@ -11,8 +11,8 @@ namespace hod
 		int indent = 0;
 		bool newLine = false;
 
-		int count = tokens.size();
-		for (int index = 0; index < count; ++index)
+		size_t count = tokens.size();
+		for (size_t index = 0; index < count; ++index)
 		{
 			const Token& token = tokens[index];
 
