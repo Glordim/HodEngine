@@ -227,8 +227,8 @@ namespace hod::window
 		RunOnWin32Thread(
 			[this]()
 			{
-				int x = GetSystemMetrics(SM_CXSCREEN) * 0.5f - _width * 0.5f;
-				int y = GetSystemMetrics(SM_CYSCREEN) * 0.5f - _height * 0.5f;
+				int x = static_cast<int>(GetSystemMetrics(SM_CXSCREEN) * 0.5f - _width * 0.5f);
+				int y = static_cast<int>(GetSystemMetrics(SM_CYSCREEN) * 0.5f - _height * 0.5f);
 				SetWindowPos(_hWnd, nullptr, x, y, 0, 0, SWP_NOSIZE);
 			}
 		);
