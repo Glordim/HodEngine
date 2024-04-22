@@ -3,6 +3,12 @@
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
 
+#include "HodEngine/Game/Entity.hpp"
+
+#include <map>
+#include <unordered_map>
+#include <memory>
+
 namespace hod::game
 {
 	/// @brief 
@@ -21,13 +27,34 @@ namespace hod::game
 
 	public:
 
+		void				SetName(const std::string_view& name);
+		const std::string&	GetName() const;
+
 		bool			SerializeInDocument(Document::Node& documentNode) const;
 		bool			DeserializeFromDocument(const Document::Node& documentNode);
 
-		const Document&	GetDocument() const { return _document; }
+		std::weak_ptr<Entity>			CreateEntity(const std::string_view& name = "");
+		void							DestroyEntity(std::shared_ptr<Entity> entity);
+		std::weak_ptr<Entity>			FindEntity(Entity::Id entityId);
+
+		Prefab*							Clone();
+		void							Clear();
+
+		std::shared_ptr<Entity>			GetRootEntity();
+
+#if defined(HOD_EDITOR)
+		void							SetRootInstance(std::shared_ptr<Entity>	rootInstance);
+#endif
+
+		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 
 	private:
 
-		Document		_document;
+		std::string												_name;
+		std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
+
+#if defined(HOD_EDITOR)
+		std::shared_ptr<Entity>									_rootInstance;
+#endif
 	};
 }

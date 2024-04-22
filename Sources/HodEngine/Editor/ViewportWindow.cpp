@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Importer/SceneImporter.hpp"
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
@@ -21,6 +22,7 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <cmath>
@@ -368,12 +370,28 @@ namespace hod::editor
 		}
 
 		_scene = new game::Scene();
-		if (Serializer::Deserialize(_scene, document.GetRootNode()) == false)
-		{
-			return; // todo message + bool
-		}
 		_scene->SetName(asset->GetName());
-		asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
+
+		SceneImporter sceneImporter;
+		if (asset->GetMeta()._importerType == sceneImporter.GetTypeName())
+		{
+			if (Serializer::Deserialize(_scene, document.GetRootNode()) == false)
+			{
+				return; // todo message + bool
+			}
+			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
+		}
+		else
+		{
+			_prefab = new game::Prefab();
+			if (Serializer::Deserialize(_prefab, document.GetRootNode()) == false)
+			{
+				return; // todo message + bool
+			}
+			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(_prefab);
+			_prefab->SetRootInstance(prefabRootEntity);
+			asset->SetInstanceToSave(_prefab, _prefab->GetReflectionDescriptorV());
+		}
 	}
 
 	/// @brief 

@@ -17,10 +17,11 @@ namespace hod::editor
 	/// @tparam _Object_ 
 	/// @param path 
 	/// @return 
-	template<typename _Object_>
+	template<typename _Object_, typename _Importer_>
 	std::filesystem::path AssetDatabase::CreateAsset(const std::filesystem::path& path)
 	{
 		_Object_ object;
-		return CreateAsset(&object, _Object_::GetReflectionDescriptor(), path);
+		_Importer_ importer;
+		return CreateAsset(&object, _Object_::GetReflectionDescriptor(), importer.AllocateSettings(), importer.GetTypeName(), path);
 	}
 }

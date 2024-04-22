@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
+#include "HodEngine/Editor/Importer/SceneImporter.hpp"
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Core/Output.hpp>
@@ -42,6 +43,7 @@ namespace hod::editor
 		_importers.push_back(&_defaultImporter);
 		
 		RegisterImporter<TextureImporter>();
+		RegisterImporter<SceneImporter>();
 	}
 
 	/// @brief 
@@ -347,20 +349,11 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	/// @param asset 
-	/// @param path 
-	/// @return 
-	std::filesystem::path AssetDatabase::CreateAsset(Object& object, const std::filesystem::path& path)
-	{
-		return CreateAsset(&object, object.GetReflectionDescriptorV(), path);
-	}
-
-	/// @brief 
 	/// @param instance 
 	/// @param reflectionDescriptor 
 	/// @param path 
 	/// @return 
-	std::filesystem::path AssetDatabase::CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, const std::filesystem::path& path)
+	std::filesystem::path AssetDatabase::CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, ImporterSettings* importerSettings, const char* importerType, const std::filesystem::path& path)
 	{
 		FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
 		childFileSystemMapping->_path = path;
@@ -371,6 +364,10 @@ namespace hod::editor
 		childFileSystemMapping->_uid = UID::GenerateUID();
 		childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
 		childFileSystemMapping->_asset = std::make_shared<Asset>(childFileSystemMapping->_path);
+		if (importerSettings != nullptr && importerType != nullptr)
+		{
+			childFileSystemMapping->_asset->GetMeta().SetImporterConfig(importerSettings, importerType);
+		}
 
 		if (childFileSystemMapping->_asset->Save(instance, reflectionDescriptor) == false)
 		{

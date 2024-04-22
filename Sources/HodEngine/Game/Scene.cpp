@@ -1,15 +1,20 @@
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/Prefab.hpp"
+#include "HodEngine/Game/Entity.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
 #include "HodEngine/Game/Components/RendererComponent.hpp"
+#include "HodEngine/Game/Components/NodeComponent.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/Output.hpp"
 #include "HodEngine/Core/Color.hpp"
+
+#include <unordered_map>
 
 namespace hod::game
 {
@@ -307,5 +312,86 @@ namespace hod::game
 		}
 
 		return clone;
+	}
+
+	/// @brief 
+	/// @param prefab 
+	/// @return 
+	std::shared_ptr<Entity> Scene::Instantiate(Prefab* prefab)
+	{
+		if (prefab == nullptr)
+		{
+			return nullptr;
+		}
+		return Instantiate(prefab->GetRootEntity());
+	}
+
+	/// @brief 
+	/// @param entity 
+	/// @param sourceToCloneEntitiesMap 
+	/// @param sourceToCloneComponentsMap 
+	/// @return 
+	std::shared_ptr<Entity> Scene::InstantiateInternal(std::shared_ptr<Entity> entity, std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>>& sourceToCloneEntitiesMap, std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>>& sourceToCloneComponentsMap)
+	{
+		std::shared_ptr<Entity> clonedEntity = entity->Clone();
+
+		_entities.emplace(clonedEntity->GetId(), clonedEntity);
+		sourceToCloneEntitiesMap.emplace(entity, clonedEntity);
+
+		for (size_t componentIndex = 0; componentIndex < entity->GetComponents().size(); ++componentIndex)
+		{
+			sourceToCloneComponentsMap.emplace(entity->GetComponents()[componentIndex], clonedEntity->GetComponents()[componentIndex]);
+		}
+		
+		std::shared_ptr<NodeComponent> nodeComponent = entity->GetComponent<NodeComponent>().lock();
+		uint32_t childCount = nodeComponent->GetChildCount();
+		for (uint32_t childIndex = 0; childIndex < childCount; ++childCount)
+		{
+			const std::shared_ptr<Entity> childEntity = nodeComponent->GetChild(childIndex).Lock()->GetEntity().lock();
+			InstantiateInternal(childEntity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
+		}
+		return clonedEntity;
+	}
+
+	/// @brief 
+	/// @param entity 
+	/// @return 
+	std::shared_ptr<Entity> Scene::Instantiate(std::shared_ptr<Entity> entity)
+	{
+		if (entity == nullptr)
+		{
+			return nullptr;
+		}
+
+		std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>> sourceToCloneEntitiesMap;		
+		std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>> sourceToCloneComponentsMap;
+
+		std::shared_ptr<Entity> clonedEntity = InstantiateInternal(entity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
+
+		for (const auto& componentPair : sourceToCloneComponentsMap)
+		{
+			ReflectionDescriptor* reflectionDescriptor = componentPair.second->GetReflectionDescriptorV();
+			for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
+			{
+				switch (reflectionProperty->GetMetaType())
+				{
+					case ReflectionPropertyArray::GetMetaTypeStatic():
+					{
+						//ReflectionPropertyArray* reflectionPropertyArray = static_cast<ReflectionPropertyArray*>(reflectionProperty);
+					}
+					break;
+
+					case ReflectionPropertyObject::GetMetaTypeStatic():
+					{
+						//ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
+
+						//if (reflectionPropertyObject->GetReflectionDescriptor() == WeakComponent::)
+					}
+					break;
+				}
+			}
+		}
+
+		return clonedEntity;
 	}
 }

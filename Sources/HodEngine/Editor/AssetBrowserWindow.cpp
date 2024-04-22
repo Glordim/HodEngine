@@ -12,6 +12,8 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
@@ -507,7 +509,7 @@ namespace hod::editor
 				{
 					if (ImGui::MenuItem("Prefab") == true)
 					{
-						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab>(_currentFolderTreeNode->_path / "Prefab.asset");
+						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
 						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 						if (newAssetNode != nullptr)
 						{
@@ -518,7 +520,7 @@ namespace hod::editor
 					}
 					if (ImGui::MenuItem("Scene") == true)
 					{
-						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Scene>(_currentFolderTreeNode->_path / "Scene.asset");
+						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
 						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 						if (newAssetNode != nullptr)
 						{
@@ -526,7 +528,7 @@ namespace hod::editor
 							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
 							ImGui::CloseCurrentPopup();
 						}
-					}					
+					}
 					ImGui::EndMenu();
 				}
 			}

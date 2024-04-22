@@ -2,11 +2,6 @@
 
 namespace hod
 {
-	class Object;
-}
-
-namespace hod
-{
     class ReflectionDescriptor;
 	class ReflectionProperty;
     class ReflectionPropertyVariable;

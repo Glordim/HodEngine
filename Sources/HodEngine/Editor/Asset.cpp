@@ -222,6 +222,15 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	/// @param importerSettings 
+	/// @param importerType 
+	void Meta::SetImporterConfig(ImporterSettings* importerSettings, const char* importerType)
+	{
+		_importerSettings = importerSettings;
+		_importerType = importerType;
+	}
+
+	/// @brief 
 	/// @param documentNode 
 	/// @return 
 	bool Meta::LoadImporterConfig(const Document::Node& documentNode)

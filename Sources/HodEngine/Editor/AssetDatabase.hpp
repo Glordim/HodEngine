@@ -13,11 +13,6 @@
 
 #include "HodEngine/Editor/Importer/DefaultImporter.hpp"
 
-namespace hod
-{
-	class Object;
-}
-
 namespace hod::editor
 {
 	class Asset;
@@ -75,10 +70,9 @@ namespace hod::editor
 		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
 
 		std::filesystem::path				CreateFolder(const std::filesystem::path& path);
-		std::filesystem::path				CreateAsset(Object& object, const std::filesystem::path& path);
-		std::filesystem::path				CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, const std::filesystem::path& path);
+		std::filesystem::path				CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, ImporterSettings* importerSettings, const char* importerType, const std::filesystem::path& path);
 
-		template<typename _Object_>
+		template<typename _Object_, typename _Importer_>
 		std::filesystem::path				CreateAsset(const std::filesystem::path& path);
 
 		void								Move(FileSystemMapping& node, const std::filesystem::path& newPath);

@@ -25,6 +25,8 @@ namespace hod::editor
 		bool			LoadImporterConfig(const Document::Node& documentNode);
 		bool			SaveImporterConfig(Document::Node& documentNode) const;
 
+		void			SetImporterConfig(ImporterSettings* importerSettings, const char* importerType);
+
 	public:
 
 		UID						_uid;

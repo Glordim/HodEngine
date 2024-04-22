@@ -14,6 +14,7 @@ namespace hod::renderer
 namespace hod::game
 {
 	class Scene;
+	class Prefab;
 }
 
 namespace hod::editor
@@ -54,10 +55,11 @@ namespace hod::editor
 
 		public:
 
-			Vector2					_cameraPosition = Vector2::Zero;
-			float					_size = 5.0f;
-			game::Scene*			_scene;
-			std::shared_ptr<Asset>	_asset;
+			Vector2							_cameraPosition = Vector2::Zero;
+			float							_size = 5.0f;
+			game::Scene*					_scene = nullptr;
+			game::Prefab*					_prefab = nullptr;
+			std::shared_ptr<Asset>			_asset;
 		};
 
 	private:

@@ -12,6 +12,9 @@
 namespace hod::game
 {
 	class RendererComponent;
+	class Prefab;
+	class Entity;
+	class Component;
 
 	/// @brief 
 	class Scene
@@ -42,6 +45,9 @@ namespace hod::game
 		Scene*							Clone();
 		void							Clear();
 
+		std::shared_ptr<Entity>			Instantiate(Prefab* prefab);
+		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<Entity> entity);
+
 		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 
 		void						Awake();
@@ -49,6 +55,10 @@ namespace hod::game
 		void						Update();
 		void						Draw(renderer::RenderQueue* renderQueue);
 		void						DrawPicking(renderer::RenderQueue* renderQueue, std::map<uint32_t, std::shared_ptr<RendererComponent>>& colorIdToRendererComponentMap, uint32_t& id);
+
+	private:
+
+		std::shared_ptr<Entity>		InstantiateInternal(std::shared_ptr<Entity> entity, std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>>& sourceToCloneEntitiesMap, std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>>& sourceToCloneComponentsMap);
 
 	private:
 
