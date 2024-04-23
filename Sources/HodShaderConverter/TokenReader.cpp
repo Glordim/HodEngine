@@ -42,7 +42,7 @@ namespace hod
 				uint32_t              readedBytes;
 				std::array<char, 255> tokenBuffer;
 
-				if (ReadUntil(stream, tokenBuffer.data(), tokenBuffer.max_size(), readedBytes, [](char c) { return IsAlphanumeric(c) || c == '_' || c == '-'; }) == false)
+				if (ReadUntil(stream, tokenBuffer.data(), (uint32_t)tokenBuffer.max_size(), readedBytes, [](char c) { return IsAlphanumeric(c) || c == '_' || c == '-'; }) == false)
 				{
 					std::cerr << "Lexer: Invalid token (too long)\n";
 					return false;
@@ -79,7 +79,7 @@ namespace hod
 				uint32_t              readedBytes;
 				std::array<char, 255> tokenBuffer;
 
-				if (ReadUntil(stream, tokenBuffer.data(), tokenBuffer.max_size(), readedBytes, &IsNumeric) == false)
+				if (ReadUntil(stream, tokenBuffer.data(), (uint32_t)tokenBuffer.max_size(), readedBytes, &IsNumeric) == false)
 				{
 					std::cerr << "Lexer: Invalid token (too long)\n";
 					return false;

@@ -389,8 +389,7 @@ namespace hod::editor
 				return; // todo message + bool
 			}
 			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(_prefab);
-			_prefab->SetRootInstance(prefabRootEntity);
-			asset->SetInstanceToSave(_prefab, _prefab->GetReflectionDescriptorV());
+			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
 		}
 	}
 

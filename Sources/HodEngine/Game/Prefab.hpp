@@ -42,19 +42,11 @@ namespace hod::game
 
 		std::shared_ptr<Entity>			GetRootEntity();
 
-#if defined(HOD_EDITOR)
-		void							SetRootInstance(std::shared_ptr<Entity>	rootInstance);
-#endif
-
 		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 
 	private:
 
 		std::string												_name;
 		std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
-
-#if defined(HOD_EDITOR)
-		std::shared_ptr<Entity>									_rootInstance;
-#endif
 	};
 }

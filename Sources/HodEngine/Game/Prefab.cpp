@@ -226,13 +226,4 @@ namespace hod::game
 		}
 		return _entities.begin()->second;
 	}
-
-#if defined(HOD_EDITOR)
-	/// @brief 
-	/// @param rootInstance 
-	void Prefab::SetRootInstance(std::shared_ptr<Entity> rootInstance)
-	{
-		_rootInstance = rootInstance;
-	}
-#endif
 }
