@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
@@ -266,6 +267,42 @@ namespace hod::editor
 
 			ImVec2 origin = ImGui::GetCursorScreenPos();
 			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+			if (ImGui::BeginDragDropTarget() == true)
+			{
+				const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+				if (payload->IsDataType("FileSystemMapping") == true)
+				{
+					payload = ImGui::AcceptDragDropPayload("FileSystemMapping");
+					if ((payload) != nullptr)
+					{
+						// todo factorize
+						AssetDatabase::FileSystemMapping* node = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
+						std::shared_ptr<Asset> asset = node->_asset;
+						if (asset != nullptr)
+						{
+							PrefabImporter prefabImporter;
+							if (asset->GetMeta()._importerType == prefabImporter.GetTypeName())
+							{
+								Document document;
+								DocumentReaderJson documentReader;
+								if (documentReader.Read(document, asset->GetPath()) == false)
+								{
+									return; // todo message + bool
+								}
+
+								game::Prefab* prefab = new game::Prefab();
+								if (Serializer::Deserialize(prefab, document.GetRootNode()) == false)
+								{
+									return; // todo message + bool
+								}
+
+								tab->_scene->Instantiate(prefab);
+							}
+						}
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
 
 			Editor* editor = Editor::GetInstance();
 			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
