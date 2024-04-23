@@ -6,6 +6,8 @@
 #include <sys/sysinfo.h>
 #endif
 
+#include <thread>
+
 namespace hod
 {
 	namespace SystemInfo
@@ -14,6 +16,8 @@ namespace hod
 		/// @return 
 		uint32_t ComputeLogicalCoreCount()
 		{
+			return (uint32_t)std::thread::hardware_concurrency();
+			/*
 #if defined(PLATFORM_WINDOWS)
 			SYSTEM_INFO system_info;
 			ZeroMemory(&system_info, sizeof(system_info));
@@ -24,6 +28,7 @@ namespace hod
 #elif defined(PLATFORM_LINUX)
 			return get_nprocs_conf();
 #endif
+			*/
 		}
 
 		/// @brief 

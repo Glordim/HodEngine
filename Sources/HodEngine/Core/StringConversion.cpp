@@ -10,6 +10,7 @@ namespace hod
 {
 	namespace StringConversion
 	{
+		#if defined(PLATFORM_WINDOWS)
 		/// @brief 
 		/// @param str 
 		/// @param result 
@@ -53,5 +54,6 @@ namespace hod
 
 			return true;
 		}
+		#endif
 	}
 }

@@ -7,7 +7,7 @@
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
 	#undef Yield
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
 	#include <pthread.h>
 #endif
 
@@ -21,7 +21,7 @@ namespace hod
 #if defined(PLATFORM_WINDOWS)
 		using Id = DWORD;
 		static constexpr Id InvalidId = 0;
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
 		using Id = pthread_t;
 		static constexpr Id InvalidId = 0;
 #endif

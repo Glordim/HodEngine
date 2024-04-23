@@ -7,8 +7,8 @@
 
 #elif defined(PLATFORM_MAC)
 
-	//#include "GraphicApplications/DesktopApplications/MacApplication.hpp"
-	//#define PlatformApplication MacApplication
+	#include "HodEngine/Window/Desktop/Windows/MacOs/MacOsWindow.hpp"
+	#define PlatformWindow hod::window::MacOsWindow
 
 #elif defined(PLATFORM_LINUX)
 

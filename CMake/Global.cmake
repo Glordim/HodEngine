@@ -19,6 +19,10 @@ function(CollectSourceFiles ProjectSourceDir SourcesVar IncludesVar)
 		file(GLOB_RECURSE PlatformSources
 			"${ProjectSourceDir}/*.windows.cpp"
 		)
+	elseif(APPLE)
+		file(GLOB_RECURSE PlatformSources
+			"${ProjectSourceDir}/*.macos.cpp"
+		)
 	else()
 		file(GLOB_RECURSE PlatformSources
 			"${ProjectSourceDir}/*.linux.cpp"
@@ -133,7 +137,7 @@ elseif(APPLE)
 		set(PLATFORM_DEFINE "PLATFORM_IOS")
 		set(RENDERER_DEFINE "RENDERER_METAL")
 	else()
-		set(PLATFORM_DEFINE "PLATFORM_MAC")
+		set(PLATFORM_DEFINE "PLATFORM_MACOS")
 		set(RENDERER_DEFINE "RENDERER_METAL")
 	endif()
 elseif(ANDROID)

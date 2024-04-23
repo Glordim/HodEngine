@@ -7,8 +7,10 @@ namespace hod
 {
 	namespace StringConversion
 	{
+		#if defined(PLATFORM_WINDOWS)
 		bool	StringToWString(const std::string_view& str, std::wstring& result);
 		bool	WStringToString(const std::wstring& str, std::string& result);
+		#endif
 
 		template<typename ... Args>
 		std::string StringFormat(const std::string_view& format, Args ... args )

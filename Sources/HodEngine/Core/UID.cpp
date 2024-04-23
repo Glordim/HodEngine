@@ -14,6 +14,10 @@
 	#include <uuid/uuid.h> // install uuid-dev package (libuuid)
 
 	using Uuid = uuid_t;
+#elif defined(PLATFORM_MACOS)
+	#include <CoreFoundation/CoreFoundation.h>
+
+	using Uuid = CFUUIDBytes;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -63,6 +67,10 @@ namespace hod
 		}
 	#elif defined(__linux__)
 		uuid_generate(uuidConverter.uuid);
+	#elif defined(PLATFORM_MACOS)
+		CFUUIDRef uuidRef = CFUUIDCreate(NULL);
+		uuidConverter.uuid = CFUUIDGetUUIDBytes(uuidRef);
+		CFRelease(uuidRef);
 	#endif
 
 		UID uid;

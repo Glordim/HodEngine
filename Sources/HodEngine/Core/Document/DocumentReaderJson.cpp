@@ -195,12 +195,16 @@ namespace hod
 			if (isFloat == true)
 			{
 				double value;
+				/* std::from_chars with Floating is not available for now on Clang 
 				std::from_chars_result result = std::from_chars(valueStart, valueEnd, value);
 				if (result.ec != std::errc())
 				{
 					OUTPUT_ERROR("Json syntax error");
 					return false;
 				}
+				*/
+				char* end = (char*)valueEnd;
+				value = std::strtod(valueStart, &end);
 				node.SetFloat64(value);
 				return true;
 			}

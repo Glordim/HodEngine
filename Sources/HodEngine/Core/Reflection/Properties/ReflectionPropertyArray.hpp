@@ -26,7 +26,7 @@ namespace hod
 
 			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*
 			{
-				const ElementType<_type_>::type* address = static_cast<const ElementType<_type_>::type*>(instance);
+				const typename ElementType<_type_>::type* address = static_cast<const typename ElementType<_type_>::type*>(instance);
 				return address + index;
 			};
 

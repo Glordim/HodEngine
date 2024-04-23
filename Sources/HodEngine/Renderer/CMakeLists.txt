@@ -4,8 +4,10 @@ include(Global)
 
 project(Renderer)
 
+if(NOT APPLE)
 find_package(Vulkan REQUIRED)
 find_package(SpirvCross REQUIRED)
+endif()
 find_package(Stb REQUIRED)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
