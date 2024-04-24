@@ -197,4 +197,20 @@ namespace hod::game
 			_components.erase(it);
 		}
 	}
+
+#if defined(HOD_EDITOR)
+	/// @brief 
+	/// @param prefab 
+	void Entity::SetPrefab(Prefab* prefab)
+	{
+		_prefab = prefab;
+	}
+
+	/// @brief 
+	/// @return 
+	Prefab* Entity::GetPrefab() const
+	{
+		return _prefab;
+	}
+#endif
 }

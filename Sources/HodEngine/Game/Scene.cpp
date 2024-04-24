@@ -323,7 +323,14 @@ namespace hod::game
 		{
 			return nullptr;
 		}
-		return Instantiate(prefab->GetRootEntity());
+		std::shared_ptr<Entity> instance = Instantiate(prefab->GetRootEntity());
+	#if defined(HOD_EDITOR)
+		if (instance != nullptr)
+		{
+			instance->SetPrefab(prefab);
+		}
+	#endif
+		return instance;
 	}
 
 	/// @brief 

@@ -17,6 +17,10 @@ namespace hod::game
 {
 	class Component;
 
+#if defined(HOD_EDITOR)
+	class Prefab;
+#endif
+
 	class Entity final : public std::enable_shared_from_this<Entity>
 	{
 	public:
@@ -63,6 +67,11 @@ namespace hod::game
 		Event<std::weak_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
 		Event<std::weak_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }
 
+#if defined(HOD_EDITOR)
+		void						SetPrefab(Prefab* prefab);
+		Prefab*						GetPrefab() const;
+#endif
+
 	private:
 
 		std::weak_ptr<Component>	AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
@@ -78,6 +87,10 @@ namespace hod::game
 		bool			_active = false;
 		bool			_awaked = false;
 		bool			_started = false;
+
+#if defined(HOD_EDITOR)
+		Prefab*			_prefab = nullptr;
+#endif
 
 		std::vector<std::shared_ptr<Component>>	_components; // map ?
 

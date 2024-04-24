@@ -10,6 +10,8 @@
 
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 
+#include "HodEngine/ImGui/Font/IconsMaterialDesign.h"
+
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(HierachyWindow, "Hierachy", true)
@@ -187,7 +189,7 @@ namespace hod::editor
 
 		ImGui::PushID(entityLock.get());
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-		bool opened = ImGui::TreeNodeEx(entityLock->GetName().c_str(), treeNodeFlags);
+		bool opened = ImGui::TreeNodeEx("", treeNodeFlags);
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
 			_selection = entityLock;
@@ -249,6 +251,21 @@ namespace hod::editor
 			ImGui::SetDragDropPayload("EntityId", (void*)&entityId, sizeof(entityId), ImGuiCond_Once);
 			ImGui::EndDragDropSource();
 		}
+
+		ImGui::SameLine(0.0f);
+		if (entityLock->GetPrefab() != nullptr)
+		{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(ICON_MD_CASINO);
+		}
+		else
+		{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(ICON_MD_CABIN);
+		}
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(entityLock->GetName().c_str());
 
 		if (opened == true)
 		{
