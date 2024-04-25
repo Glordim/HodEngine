@@ -5,7 +5,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
-#include <HodEngine/ImGui/Font/IconsMaterialDesign.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
@@ -197,7 +197,7 @@ namespace hod::editor
 		}
 		else
 		{
-			const char* icon = node->_childrenAsset.empty() == false || node->_childrenFolder.empty() == false ? ICON_MD_FOLDER : ICON_MD_FOLDER_OPEN;			
+			const char* icon = node->_childrenAsset.empty() == false || node->_childrenFolder.empty() == false ? ICON_MDI_FOLDER : ICON_MDI_FOLDER_OPEN;
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 1.0f });
 			ImGui::Text("%s  %s", icon, node->_path.filename().string().c_str());
 			ImGui::PopStyleVar();

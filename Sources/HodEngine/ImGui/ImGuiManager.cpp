@@ -29,9 +29,9 @@
 
 #include "HodEngine/ImGui/Shader/Generated/imgui.vert.hpp"
 #include "HodEngine/ImGui/Shader/Generated/imgui.frag.hpp"
-#include "HodEngine/ImGui/Font/MaterialIcons-Regular.ttf.h"
+#include "HodEngine/ImGui/Font/MaterialDesignIcons.ttf.h"
 #include "HodEngine/ImGui/Font/Roboto-Regular.ttf.h"
-#include "HodEngine/ImGui/Font/IconsMaterialDesign.h"
+#include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
@@ -195,7 +195,7 @@ void embraceTheDarkness()
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Roboto_Regular_ttf, Roboto_Regular_ttf_size, 16.0f, &icons_configProggyClean);
 		ImGui::GetIO().Fonts->Build();
 
-		const ImWchar iconsRangesMDI[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
+		const ImWchar iconsRangesMDI[] = { ICON_MIN_MDI, ICON_MAX_MDI, 0 };
 		ImFontConfig icons_configMDI;
 		icons_configMDI.MergeMode = true;
 		icons_configMDI.PixelSnapH = true;
@@ -203,7 +203,7 @@ void embraceTheDarkness()
 		icons_configMDI.GlyphOffset.x = -0.5;
 		icons_configMDI.GlyphMaxAdvanceX = 13;
 
-		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(MaterialIcons_Regular_ttf, MaterialIcons_Regular_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
+		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(MaterialDesignIcons_ttf, MaterialDesignIcons_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
 		ImGui::GetIO().Fonts->Build();
 
 		unsigned char* out_pixels;

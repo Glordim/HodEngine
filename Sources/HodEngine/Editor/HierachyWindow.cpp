@@ -10,7 +10,7 @@
 
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 
-#include "HodEngine/ImGui/Font/IconsMaterialDesign.h"
+#include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 
 namespace hod::editor
 {
@@ -256,12 +256,12 @@ namespace hod::editor
 		if (entityLock->GetPrefab() != nullptr)
 		{
 			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(ICON_MD_CASINO);
+			ImGui::TextUnformatted(ICON_MDI_CUBE);
 		}
 		else
 		{
 			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(ICON_MD_CABIN);
+			ImGui::TextUnformatted(ICON_MDI_CUBE_OUTLINE);
 		}
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();

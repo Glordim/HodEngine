@@ -49,7 +49,7 @@ function(create_resources input output SourcesVar IncludeVar)
   message("Pack shader ${input}")
 endfunction()
 
-create_resources("Font/MaterialIcons-Regular.ttf" "Font" FontSrcs FontIncludes)
+create_resources("Font/MaterialDesignIcons.ttf" "Font" FontSrcs FontIncludes)
 list(APPEND Srcs ${FontSrcs})
 list(APPEND Srcs ${FontIncludes})
 list(APPEND Includes ${FontIncludes})

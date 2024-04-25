@@ -8,7 +8,7 @@
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
-#include "HodEngine/ImGui/Font/IconsMaterialDesign.h"
+#include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
@@ -191,7 +191,7 @@ namespace hod::editor
 			ImGui::EndTable();
 		}
 		ImGui::SetCursorPosX(valuePos);
-		if (ImGui::Button(ICON_MD_ADD) == true)
+		if (ImGui::Button(ICON_MDI_PLUS) == true)
 		{
 			property->InsertElement(object, elementCount);
 			changed = true;

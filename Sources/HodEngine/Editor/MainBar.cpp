@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/MainBar.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
-#include <HodEngine/ImGui/Font/IconsMaterialDesign.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/Application/Application.hpp>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
@@ -70,21 +70,21 @@ namespace hod::editor
 		}
 
 		const ImGuiStyle& style = ImGui::GetStyle();
-		float groupWidth = CalculateButtonSize(ICON_MD_PLAY_ARROW).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MD_PAUSE).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MD_SKIP_NEXT).x;
+		float groupWidth = CalculateButtonSize(ICON_MDI_PLAY).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_PAUSE).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_SKIP_NEXT).x;
 		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x * 0.5f - groupWidth * 0.5f);
 
 		Editor* editor = Editor::GetInstance();
 		if (editor->IsPlaying() == true)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
-			bool pressed = ImGui::Button(ICON_MD_PLAY_ARROW, ImVec2(0, 42));
+			bool pressed = ImGui::Button(ICON_MDI_PLAY, ImVec2(0, 42));
 			ImGui::PopStyleColor();
 			if (pressed == true)
 			{
 				editor->Stop();
 			}
 		}
-		else if (ImGui::Button(ICON_MD_PLAY_ARROW, ImVec2(0, 42)) == true)
+		else if (ImGui::Button(ICON_MDI_PLAY, ImVec2(0, 42)) == true)
 		{
 			editor->Play();
 		}
@@ -92,20 +92,20 @@ namespace hod::editor
 		if (editor->IsPaused() == true)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
-			bool pressed = ImGui::Button(ICON_MD_PAUSE, ImVec2(0, 42));
+			bool pressed = ImGui::Button(ICON_MDI_PAUSE, ImVec2(0, 42));
 			ImGui::PopStyleColor();
 			if (pressed == true)
 			{
 				editor->Resume();
 			}
 		}
-		else if (ImGui::Button(ICON_MD_PAUSE, ImVec2(0, 42)) == true)
+		else if (ImGui::Button(ICON_MDI_PAUSE, ImVec2(0, 42)) == true)
 		{
 			editor->Pause();
 		}
 
 		ImGui::BeginDisabled(editor->IsPlaying() == false);
-		if (ImGui::Button(ICON_MD_SKIP_NEXT, ImVec2(0, 42)) == true)
+		if (ImGui::Button(ICON_MDI_SKIP_NEXT, ImVec2(0, 42)) == true)
 		{
 			editor->PlayNextFrame();
 		}
