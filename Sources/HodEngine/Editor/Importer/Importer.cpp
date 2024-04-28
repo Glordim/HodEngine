@@ -116,6 +116,7 @@ namespace hod::editor
 			return false;
 		}
 
+		resourceFile.write("HodResource", 11);
 		return WriteResource(dataFile, metaFile, resourceFile, thumbnailFile, *meta._importerSettings);
 	}
 

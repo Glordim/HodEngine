@@ -27,6 +27,21 @@ namespace hod::game
 	}
 
 	/// @brief 
+	/// @param uid 
+	Prefab::Prefab(const UID& uid)
+	: _uid(uid)
+	{
+
+	}
+
+	/// @brief 
+	/// @return 
+	const UID& Prefab::GetUid() const
+	{
+		return _uid;
+	}
+
+	/// @brief 
 	/// @param name 
 	void Prefab::SetName(const std::string_view& name)
 	{
@@ -54,8 +69,11 @@ namespace hod::game
 
 			Document::Node& entityNode = entitiesNode.AddChild("");
 
+			/*
 			entityNode.AddChild("Name").SetString(entity->GetName());
 			entityNode.AddChild("Active").SetBool(entity->GetActive());
+			*/
+			Serializer::Serialize(*entity.get(), entityNode);
 
 			Document::Node& componentsNode = entityNode.AddChild("Components");
 
@@ -89,13 +107,15 @@ namespace hod::game
 		const Document::Node* entityNode = entitiesNode->GetFirstChild();
 		while (entityNode != nullptr)
 		{
-			const std::string& name = entityNode->GetChild("Name")->GetString();
-
-			std::weak_ptr<Entity> entity = CreateEntity(name);
+			std::weak_ptr<Entity> entity = CreateEntity();
 			std::shared_ptr<Entity> entityLock = entity.lock();
 
+			/*
+			const std::string& name = entityNode->GetChild("Name")->GetString();
 			bool active = entityNode->GetChild("Active")->GetBool();
 			entityLock->SetActive(active);
+			*/
+			Serializer::Deserialize(*entity.lock().get(), *entityNode);
 
 			const Document::Node* componentsNode = entityNode->GetChild("Components");
 			const Document::Node* componentNode = componentsNode->GetFirstChild();
@@ -111,6 +131,7 @@ namespace hod::game
 					std::shared_ptr<Component> componentLock = component.lock();
 					Component* rawComponent = componentLock.get();
 					Serializer::Deserialize(rawComponent, *componentNode); // todo lvalue...
+					rawComponent->SetLocalId(rawComponent->GetUid());
 					WeakComponentMapping::Insert(componentLock->GetUid(), component);
 				}
 				else

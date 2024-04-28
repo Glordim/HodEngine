@@ -8,6 +8,12 @@ namespace hod::game
 {
 	Entity::Id Entity::_nextId = 0;
 
+	DESCRIBE_REFLECTED_CLASS_NO_PARENT(Entity)
+	{
+		ADD_PROPERTY(Entity, _name);
+		ADD_PROPERTY(Entity, _active);
+	}
+
 	/// @brief 
 	/// @param name 
 	Entity::Entity(const std::string_view& name)

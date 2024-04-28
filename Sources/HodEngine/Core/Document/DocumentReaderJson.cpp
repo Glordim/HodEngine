@@ -30,8 +30,9 @@ namespace hod
 
 		char* buffer = new char[size + 1];
 		stream.read(buffer, size);
-		if (stream.fail())
+		if (stream.eof() == false && stream.fail())
 		{
+			perror("Read fail:");
 			return false;
 		}
 		buffer[size] = '\0';

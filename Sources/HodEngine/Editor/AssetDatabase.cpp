@@ -6,6 +6,7 @@
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Core/Output.hpp>
@@ -44,6 +45,7 @@ namespace hod::editor
 		
 		RegisterImporter<TextureImporter>();
 		RegisterImporter<SceneImporter>();
+		RegisterImporter<PrefabImporter>();
 	}
 
 	/// @brief 
@@ -443,6 +445,16 @@ namespace hod::editor
 	/// @return 
 	bool AssetDatabase::Import(const std::filesystem::path& path)
 	{
+		FileSystemMapping* node = FindFileSystemMappingFromPath(path);
+		if (node != nullptr && node->_asset != nullptr)
+		{
+			Importer* importer = GetImporter(node->_asset->GetMeta()._importerType);
+			if (importer != nullptr)
+			{
+				return importer->Import(path);
+			}
+		}
+
 		for (Importer* importer : _importers)
 		{
 			if (importer->CanImport(path) == true)

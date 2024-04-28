@@ -18,6 +18,7 @@ namespace hod::game
 
 	public:
 						Prefab() = default;
+						Prefab(const UID& uid);
 						Prefab(const Prefab&) = delete;
 						Prefab(Prefab&&) = delete;
 		virtual			~Prefab() = default;
@@ -26,6 +27,8 @@ namespace hod::game
 		Prefab&			operator=(Prefab&&) = delete;
 
 	public:
+
+		const UID&			GetUid() const;
 
 		void				SetName(const std::string_view& name);
 		const std::string&	GetName() const;
@@ -46,6 +49,7 @@ namespace hod::game
 
 	private:
 
+		UID														_uid;
 		std::string												_name;
 		std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
 	};

@@ -23,6 +23,7 @@ namespace hod
 	public:
 
 		const UID&	GetUid() const { return _uid; }
+		void		SetUid(const UID& uid) { _uid = uid; }
 
 		virtual bool		Initialize(const Document::Node& documentNode, std::istream& stream) = 0;
 		virtual void		Destroy() = 0;

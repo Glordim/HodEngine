@@ -7,6 +7,7 @@ namespace hod
 		DESCRIBE_REFLECTED_CLASS_NO_PARENT(Component)
 		{
 			ADD_PROPERTY(Component, _uid);
+			ADD_PROPERTY(Component, _localId);
 		}
 
 		/// @brief 

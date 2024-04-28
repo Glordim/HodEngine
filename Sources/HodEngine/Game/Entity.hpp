@@ -8,6 +8,8 @@
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Type.hpp"
 
+#include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+
 namespace hod
 {
 	class ReflectionDescriptor;
@@ -23,6 +25,8 @@ namespace hod::game
 
 	class Entity final : public std::enable_shared_from_this<Entity>
 	{
+		REFLECTED_CLASS_NO_VIRTUAL(Entity);
+
 	public:
 
 		using Id = uint64_t;

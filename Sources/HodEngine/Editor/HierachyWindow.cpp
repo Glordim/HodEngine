@@ -123,7 +123,9 @@ namespace hod::editor
 		//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
 		//ImGui::Separator();
 		//ImGui::Button("", ImVec2(200, 25));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 0.0f });
 		ImGui::InvisibleButton("", ImVec2(200, 3));
+		ImGui::PopStyleVar();
 		//ImGui::PopStyleVar();
 		ImGui::PopID();
 
@@ -177,7 +179,7 @@ namespace hod::editor
 
 		std::shared_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>().lock();
 
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth;
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
 		if (nodeComponent == nullptr || nodeComponent->GetChildCount() == 0)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
@@ -253,10 +255,13 @@ namespace hod::editor
 		}
 
 		ImGui::SameLine(0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 0.0f });
 		if (entityLock->GetPrefab() != nullptr)
 		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.5f, 1.0f, 1.0f));
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(ICON_MDI_CUBE);
+			ImGui::PopStyleColor();
 		}
 		else
 		{
@@ -266,6 +271,7 @@ namespace hod::editor
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(entityLock->GetName().c_str());
+		ImGui::PopStyleVar();
 
 		if (opened == true)
 		{

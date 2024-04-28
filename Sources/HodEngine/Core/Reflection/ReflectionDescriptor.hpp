@@ -57,6 +57,10 @@ namespace hod
 		_Trait_*								FindTrait() const;
 		ReflectionTrait*						FindTrait(MetaType metaType) const;
 
+		template<typename _Property_>
+		_Property_*								FindProperty(const std::string_view& name) const;
+		ReflectionProperty*						FindProperty(const std::string_view& name) const;
+
 		void									SetFallbackTraitOnParent(bool fallbackOnParent);
 
 		void*									CreateInstance() const;

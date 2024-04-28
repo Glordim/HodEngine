@@ -45,8 +45,10 @@ namespace hod::game
 		Scene*							Clone();
 		void							Clear();
 
-		std::shared_ptr<Entity>			Instantiate(Prefab* prefab);
+		std::shared_ptr<Entity>			Instantiate(Prefab& prefab);
 		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<Entity> entity);
+
+		std::shared_ptr<Entity>			InstantiateWithOverrides(Prefab& prefab, const Document::Node& prefabNode);
 
 		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 

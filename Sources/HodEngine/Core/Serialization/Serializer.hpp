@@ -15,25 +15,34 @@ namespace hod
     {
     public:
 
-        static bool	Serialize(const ReflectionDescriptor* reflectionDescriptor, const void* instance, Document::Node& documentNode);
 		static bool	Deserialize(const ReflectionDescriptor* reflectionDescriptor, void* instance, const Document::Node& documentNode);
-
-        template<typename _InstanceType_>
-        static bool Serialize(const _InstanceType_& instance, Document::Node& documentNode);
+        static bool DeserializeWithPath(const std::string_view& path, const ReflectionDescriptor* reflectionDescriptor, void* instance, const Document::Node& documentNode);
+        static bool	Serialize(const ReflectionDescriptor* reflectionDescriptor, const void* instance, Document::Node& documentNode);
+        //static bool	SerializeDiff(const ReflectionDescriptor* reflectionDescriptor, const void* reference, const void* instance, Document::Node& documentNode);
 
         template<typename _InstanceType_>
         static bool Deserialize(_InstanceType_& instance, const Document::Node& documentNode);
 
-    private:
+        template<typename _InstanceType_>
+        static bool DeserializeWithPath(const std::string_view& path, _InstanceType_& instance, const Document::Node& documentNode);
 
-        static bool SerializeVariable(const ReflectionPropertyVariable* property, const void* instance, Document::Node& documentNode);
+        template<typename _InstanceType_>
+        static bool Serialize(const _InstanceType_& instance, Document::Node& documentNode);
+
+        //template<typename _InstanceType_>
+        //static bool SerializeDiff(const _InstanceType_& reference, const _InstanceType_& instance, Document::Node& documentNode);
+
+
         static bool DeserializeVariable(const ReflectionPropertyVariable* property, void* instance, const Document::Node& documentNode);
+        static bool SerializeVariable(const ReflectionPropertyVariable* property, const void* instance, Document::Node& documentNode);
+        //static bool SerializeDiffVariable(const ReflectionPropertyVariable* property, const void* reference, const void* instance, Document::Node& documentNode);
 
-        static bool SerializeArray(const ReflectionPropertyArray* property, const void* instance, Document::Node& documentNode);
         static bool DeserializeArray(const ReflectionPropertyArray* property, void* instance, const Document::Node& documentNode);
+        static bool SerializeArray(const ReflectionPropertyArray* property, const void* instance, Document::Node& documentNode);
 
-        static bool SerializeObject(const ReflectionPropertyObject* property, const void* instance, Document::Node& documentNode);
         static bool DeserializeObject(const ReflectionPropertyObject* property, void* instance, const Document::Node& documentNode);
+        static bool SerializeObject(const ReflectionPropertyObject* property, const void* instance, Document::Node& documentNode);
+        //static bool SerializeDiffObject(const ReflectionPropertyObject* property, const void* reference, const void* instance, Document::Node& documentNode);
     };
 }
 

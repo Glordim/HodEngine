@@ -39,6 +39,8 @@ namespace hod
 			virtual void		PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId) {}; // TODO move it in RendererComponent ?
 
 			const UID&			GetUid() const { return _uid; }
+			const UID&			GetLocalId() const { return _localId; }
+			void				SetLocalId(const UID& uid) { _localId = uid; }
 
 			virtual void		OnAwake() {};
 			virtual void		OnStart() {};
@@ -63,6 +65,7 @@ namespace hod
 		private:
 
 			UID						_uid;
+			UID						_localId;
 			std::weak_ptr<Entity>	_entity;
 		};
 	}

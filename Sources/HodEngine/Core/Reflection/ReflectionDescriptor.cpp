@@ -115,6 +115,21 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @param name 
+	/// @return 
+	ReflectionProperty* ReflectionDescriptor::FindProperty(const std::string_view& name) const
+	{
+		for (ReflectionProperty* property : _properties)
+		{
+			if (property->GetName() == name)
+			{
+				return property;
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief 
 	/// @return 
 	ReflectionDescriptor* ReflectionDescriptor::GetParent() const
 	{

@@ -290,13 +290,15 @@ namespace hod::editor
 									return; // todo message + bool
 								}
 
-								game::Prefab* prefab = new game::Prefab();
+								game::Prefab* prefab = new game::Prefab(asset->GetUid());
 								if (Serializer::Deserialize(prefab, document.GetRootNode()) == false)
 								{
 									return; // todo message + bool
 								}
 
-								tab->_scene->Instantiate(prefab);
+								tab->_scene->Instantiate(*prefab);
+
+								Editor::GetInstance()->MarkCurrentSceneAsDirty();
 							}
 						}
 					}
@@ -425,7 +427,7 @@ namespace hod::editor
 			{
 				return; // todo message + bool
 			}
-			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(_prefab);
+			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(*_prefab);
 			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
 		}
 	}

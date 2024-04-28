@@ -128,10 +128,10 @@ namespace hod::editor
 			return false;
 		}
 
-		resource.write("HodResource", 11);
 		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
 		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
 
+		// todo use documentStringStream ?
 		if (documentWriter.Write(document, resource) == false)
 		{
 			// TODO message
