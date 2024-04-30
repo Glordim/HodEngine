@@ -61,7 +61,7 @@ namespace hod
 	/// @brief 
 	/// @param sourceInstance 
 	/// @param destinationInstance 
-	void ReflectionPropertyArray::Copy(const void* sourceInstance, void* destinationInstance)
+	void ReflectionPropertyArray::Copy(const void* sourceInstance, void* destinationInstance) const
 	{
 		// TODO
 	}

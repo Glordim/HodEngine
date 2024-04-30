@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <cassert>
+#include <string>
 
 namespace hod
 {
@@ -68,9 +69,11 @@ namespace hod
 		_type_									GetValue(const void* instance) const;
 
 		template<typename _type_>
-		void									SetValue(void* instance, _type_ value);
+		void									SetValue(void* instance, _type_ value) const;
 
-		void									Copy(const void* sourceInstance, void* destinationInstance) override;
+		void									Copy(const void* sourceInstance, void* destinationInstance) const override;
+
+		bool									CompareInstance(const void* left, const void* right) const;
 
 	private:
 

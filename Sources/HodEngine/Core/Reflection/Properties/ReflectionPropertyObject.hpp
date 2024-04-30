@@ -33,7 +33,7 @@ namespace hod
 
 		ReflectionDescriptor*					GetReflectionDescriptor() const;
 
-		void									Copy(const void* sourceInstance, void* destinationInstance) override;
+		void									Copy(const void* sourceInstance, void* destinationInstance) const override;
 
 	private:
 

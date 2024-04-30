@@ -38,7 +38,7 @@ namespace hod
 		uint32_t								GetOffset() const;
 		const char*								GetName() const;
 
-		virtual void							Copy(const void* sourceInstance, void* destinationInstance) = 0;
+		virtual void							Copy(const void* sourceInstance, void* destinationInstance) const = 0;
 
 #if defined(HOD_EDITOR)
 		const std::string&						GetDisplayName() const;

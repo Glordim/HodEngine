@@ -73,7 +73,7 @@ namespace hod
 	/// @brief 
 	/// @param sourceInstance 
 	/// @param destinationInstance 
-	void ReflectionPropertyObject::Copy(const void* sourceInstance, void* destinationInstance)
+	void ReflectionPropertyObject::Copy(const void* sourceInstance, void* destinationInstance) const
 	{
 		_reflectionDescriptor->Copy(GetInstance(sourceInstance), GetInstance(destinationInstance));
 	}
