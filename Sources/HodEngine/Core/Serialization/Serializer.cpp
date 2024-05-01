@@ -187,7 +187,7 @@ namespace hod
     bool Serializer::DeserializeWithPath(const std::string_view& path, const ReflectionDescriptor* reflectionDescriptor, void* instance, const Document::Node& documentNode)
     {
         std::string propertyPath(path.data(), path.size());
-        char* next = std::strtok((char*)propertyPath.c_str(), "/");
+        char* next = std::strpbrk((char*)propertyPath.c_str(), "/");
         while (next != nullptr)
         {
             std::string_view elementName(propertyPath.c_str(), next);
@@ -198,10 +198,10 @@ namespace hod
                 reflectionDescriptor = property->GetReflectionDescriptor();
             }									
             propertyPath = next + 1; // skip '/'
-            next = std::strtok((char*)propertyPath.c_str(), "/");
+            next = std::strpbrk((char*)propertyPath.c_str(), "/");
         }
 
-        next = std::strtok((char*)propertyPath.c_str(), "[");
+        next = std::strpbrk((char*)propertyPath.c_str(), "[");
         if (next != nullptr) // array
         {
             /*

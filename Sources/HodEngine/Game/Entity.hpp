@@ -7,6 +7,7 @@
 
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/UID.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
@@ -42,6 +43,8 @@ namespace hod::game
 		const Entity&	operator = (Entity&&) = delete;
 
 	public:
+
+		UID					GetLocalId() const { return _localId; }
 
 		Id					GetId() const;
 		const std::string&	GetName() const;
@@ -85,6 +88,8 @@ namespace hod::game
 		static Entity::Id	_nextId; // todo std::atomic ?
 
 	private:
+
+		UID				_localId;
 
 		Id				_id;
 		std::string		_name;

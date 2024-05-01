@@ -53,22 +53,44 @@ namespace hod::game
 	{
 		struct Diff
 		{
+			enum class Type
+			{
+				Entity,
+				Component,	
+			};
+
 			Diff(ReflectionProperty* reflectionProperty, std::shared_ptr<Entity> source, std::shared_ptr<Entity> instance)
 			: _reflectionProperty(reflectionProperty)
-			, _source(source)
-			, _instance(instance)
+			, _source(source.get())
+			, _instance(instance.get())
+			, _type(Type::Entity)
 			{
 
 			}
 
-			ReflectionProperty* _reflectionProperty;
-			std::shared_ptr<Entity> _source;
-			std::shared_ptr<Entity> _instance;
+			Diff(ReflectionProperty* reflectionProperty, std::shared_ptr<Component> source, std::shared_ptr<Component> instance)
+			: _reflectionProperty(reflectionProperty)
+			, _source(source.get())
+			, _instance(instance.get())
+			, _type(Type::Component)
+			{
+
+			}
+
+			ReflectionProperty* _reflectionProperty = nullptr;
+			void* 				_source = nullptr;
+			void* 				_instance = nullptr;
+			Type				_type;
 		};
 
 		std::vector<Diff*> _diffs;
 
 		void Add(ReflectionProperty* reflectionProperty, std::shared_ptr<Entity> source, std::shared_ptr<Entity> instance)
+		{
+			_diffs.push_back(new Diff(reflectionProperty, source, instance));
+		}
+
+		void Add(ReflectionProperty* reflectionProperty, std::shared_ptr<Component> source, std::shared_ptr<Component> instance)
 		{
 			_diffs.push_back(new Diff(reflectionProperty, source, instance));
 		}
@@ -85,7 +107,7 @@ namespace hod::game
 		std::shared_ptr<Entity> source = prefab->GetRootEntity();
 		std::shared_ptr<Entity> instance = entity;
 
-		ReflectionDescriptor* reflectionDescriptor = entity->GetReflectionDescriptorV();
+		ReflectionDescriptor* reflectionDescriptor = source->GetReflectionDescriptorV();
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
 		{
 			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
@@ -94,6 +116,32 @@ namespace hod::game
 				if (reflectionPropertyVariable->CompareInstance(source.get(), instance.get()) == false)
 				{
 					diffs.Add(reflectionPropertyVariable, source, instance);
+				}
+			}
+		}
+
+		for (std::weak_ptr<Component> component : source->GetComponents())
+		{
+			std::shared_ptr<Component> componentLock = component.lock();
+
+			UID localId = componentLock->GetLocalId();
+			for (std::weak_ptr<Component> instanceComponent : instance->GetComponents())
+			{
+				std::shared_ptr<Component> instanceComponentLock = instanceComponent.lock();
+				if (instanceComponentLock->GetLocalId() == localId)
+				{
+					reflectionDescriptor = componentLock->GetReflectionDescriptorV();
+					for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
+					{
+						if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+						{
+							ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
+							if (reflectionPropertyVariable->CompareInstance(componentLock.get(), instanceComponentLock.get()) == false)
+							{
+								diffs.Add(reflectionPropertyVariable, componentLock, instanceComponentLock);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -129,7 +177,21 @@ namespace hod::game
 				for (EntityDiffs::Diff* diff : entityDiffs._diffs)
 				{
 					Document::Node& overrideNode = overridesNode.AddChild("");
-					Serializer::SerializeVariable((ReflectionPropertyVariable*)diff->_reflectionProperty, diff->_instance.get(), overrideNode);
+					Document::Node& overrideTargetNode = overrideNode.AddChild("Target");
+					if (diff->_type == EntityDiffs::Diff::Type::Entity)
+					{
+						overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(EntityDiffs::Diff::Type::Entity));
+						uid = static_cast<Entity*>(diff->_instance)->GetLocalId();
+						Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
+					}
+					else // Component
+					{
+						overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(EntityDiffs::Diff::Type::Component));
+						uid = static_cast<Component*>(diff->_instance)->GetLocalId();
+						Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
+					}
+					Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
+					Serializer::SerializeVariable((ReflectionPropertyVariable*)diff->_reflectionProperty, diff->_instance, overrideModificationNode);
 				}
 
 				//Serializer::SerializeDiff(prefab->GetRootEntity(), entity.get(), entityNode);
@@ -178,7 +240,14 @@ namespace hod::game
 				Serializer::Deserialize(uid, *prefabInstanceNode->GetChild("UID"));
 				
 				std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(uid);
-				InstantiateWithOverrides(prefabResource->GetPrefab(), *prefabInstanceNode->GetChild("Overrides"));
+				if (prefabResource != nullptr)
+				{
+					InstantiateWithOverrides(prefabResource->GetPrefab(), *prefabInstanceNode->GetChild("Overrides"));
+				}
+				else
+				{
+					// TODO missing prefab ?
+				}
 			}
 			else
 			{
@@ -534,35 +603,54 @@ namespace hod::game
 		const Document::Node* overrideNode = overridesNode.GetFirstChild();
 		while (overrideNode != nullptr)
 		{
-			UID localId;
-			Serializer::Deserialize(localId, *overrideNode->GetChild("UID"));
-			MetaType targetType = overrideNode->GetChild("Type")->GetUInt64();
-			const std::string& propertyPath = overrideNode->GetChild("PropertyPath")->GetString();
-			const Document::Node* valueNode = overrideNode->GetChild("Value");
-
-			if (Entity::GetMetaTypeStatic() == targetType)
+			const Document::Node* targetNode = overrideNode->GetChild("Target");
+			if (targetNode != nullptr)
 			{
-
-			}
-			else // Components
-			{
-				std::shared_ptr<Component> targetComponent;
-				for (auto componentPair : sourceToCloneComponentsMap)
+				const Document::Node* typeNode = targetNode->GetChild("Type");
+				if (targetNode != nullptr)
 				{
-					if (componentPair.second->GetLocalId() == localId)
+					EntityDiffs::Diff::Type type = static_cast<EntityDiffs::Diff::Type>(typeNode->GetInt64());
+					const Document::Node* uidNode = targetNode->GetChild("UID");
+					if (uidNode != nullptr)
 					{
-						targetComponent = componentPair.second;
-						break;
+						UID localId;
+						Serializer::Deserialize(localId, *uidNode);
+
+						const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
+						if (modificationsNode != nullptr)
+						{
+							if (type == EntityDiffs::Diff::Type::Entity)
+							{
+
+							}
+							else // Components
+							{
+								std::shared_ptr<Component> targetComponent;
+								for (auto componentPair : sourceToCloneComponentsMap)
+								{
+									if (componentPair.second->GetLocalId() == localId)
+									{
+										targetComponent = componentPair.second;
+										break;
+									}
+								}
+								if (targetComponent != nullptr)
+								{
+									Component* component = targetComponent.get();
+									const Document::Node* modificationNode = modificationsNode->GetFirstChild();
+									while (modificationNode != nullptr)
+									{
+										Serializer::DeserializeWithPath(modificationNode->GetName(), component, *modificationsNode);
+										modificationNode = modificationNode->GetNextSibling();
+									}
+								}
+								else
+								{
+									// todo
+								}
+							}
+						}
 					}
-				}
-				if (targetComponent != nullptr)
-				{
-					Component* component = targetComponent.get();
-					Serializer::DeserializeWithPath(propertyPath, component, *valueNode);
-				}
-				else
-				{
-					// todo
 				}
 			}
 
