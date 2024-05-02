@@ -428,6 +428,10 @@ namespace hod::editor
 				return; // todo message + bool
 			}
 			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(*_prefab);
+			if (prefabRootEntity != nullptr) // TODO a Prefab should not be empty
+			{
+				prefabRootEntity->SetPrefab(nullptr); // Unpack prefab for serialization, otherwise that will be serialize as PrefabInstance
+			}
 			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
 		}
 	}
