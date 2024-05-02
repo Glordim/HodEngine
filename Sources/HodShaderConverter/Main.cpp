@@ -14,7 +14,14 @@
 #include <format>
 #include <iostream>
 
+#include "Target.hpp"
+
+#if defined(PLATFORM_WINDOWS)
 #include <Windows.h> // TODO create Processus class in Core lib
+#elif defined(PLATFORM_MACOS)
+#include <spawn.h>
+#include <unistd.h>
+#endif
 
 namespace hod
 {
@@ -22,7 +29,7 @@ namespace hod
 	/// @param inputFile 
 	/// @param outputFile 
 	/// @return 
-	bool ConvertShader(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile)
+	bool ConvertShader(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile, Target target)
 	{
 		std::cout << std::format("Convert '{}'...\n", inputFile.string());
 
@@ -44,14 +51,30 @@ namespace hod
 		std::vector<Token> convertedTokens;
 		convertedTokens.reserve(tokens.size());
 
-		ConverterGLSL converter;
-		if (converter.Convert(tokens, convertedTokens) == false)
+		std::filesystem::path convertedOutputFilePath = outputFile;
+
+		if (target == Target::Vulkan)
+		{
+			convertedOutputFilePath += ".glsl";
+			ConverterGLSL converter;
+			if (converter.Convert(tokens, convertedTokens) == false)
+			{
+				return false;
+			}
+		}
+		else if (target == Target::Metal_MacOS || target == Target::Metal_IOS)
+		{
+			convertedOutputFilePath += ".metal";
+			ConverterMetal converter;
+			if (converter.Convert(tokens, convertedTokens) == false)
+			{
+				return false;
+			}
+		}
+		else
 		{
 			return false;
 		}
-
-		std::filesystem::path convertedOutputFilePath = outputFile;
-		convertedOutputFilePath += ".glsl";
 
 		std::ofstream convertedOutputStream(convertedOutputFilePath, 0);
 		if (convertedOutputStream.is_open() == false)
@@ -73,13 +96,25 @@ namespace hod
 	/// @param inputFile 
 	/// @param outputFile 
 	/// @return 
-	bool CompileShader(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile)
+	bool CompileShader(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile, Target target)
 	{
 		std::filesystem::path finalInputFile = inputFile;
-		finalInputFile += ".glsl";
 
+		if (target == Target::Vulkan)
+		{
+			finalInputFile += ".glsl";
+		}
+		else if (target == Target::Metal_MacOS || target == Target::Metal_IOS)
+		{
+			finalInputFile += ".metal";
+		}
+		else
+		{
+			return false;
+		}
+		
 		// TODO create Processus class in Core lib
-
+#if defined(PLATFORM_WINDOWS)
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
 
@@ -121,6 +156,36 @@ namespace hod
 		// Close process and thread handles. 
 		CloseHandle( pi.hProcess );
 		CloseHandle( pi.hThread );
+#elif defined(PLATFORM_MACOS)
+	// Définition des arguments du programme à exécuter
+		std::string inputFileStr = finalInputFile.string();
+		std::string outputFileStr = inputFileStr + ".ir";
+		const char *args[] = {"xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metal", "-o", outputFileStr.c_str(), "-c", inputFileStr.c_str(), nullptr};
+
+		// Initialiser les attributs de spawn
+		posix_spawnattr_t attr;
+		posix_spawnattr_init(&attr);
+
+		// Démarrer le processus fils
+		pid_t pid;
+		int status = posix_spawn(&pid, args[0], nullptr, &attr, (char* const*)args, NULL);
+		if (status == 0)
+		{
+			std::cout << "Processus lancé avec succès. PID : " << pid << std::endl;
+			// Attendre que le processus fils se termine
+			waitpid(pid, &status, 0);
+			std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
+		}
+		else
+		{
+			std::cerr << "Erreur lors du lancement du processus : " << strerror(status) << std::endl;
+		}
+
+		// Libérer les attributs de spawn
+		posix_spawnattr_destroy(&attr);
+#else
+	#pragma error
+#endif
 		return true;
 	}
 
@@ -128,11 +193,22 @@ namespace hod
 	/// @param inputFile 
 	/// @param outputFile 
 	/// @return 
-	bool EmbeedInSource(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile)
+	bool EmbeedInSource(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile, Target target)
 	{
 		std::filesystem::path finalInputFile = inputFile;
-		finalInputFile += ".glsl";
-		finalInputFile += ".spirv";
+
+		if (target == Target::Vulkan)
+		{
+			finalInputFile += ".glsl.spirv";
+		}
+		else if (target == Target::Metal_MacOS || target == Target::Metal_IOS)
+		{
+			finalInputFile += ".metal.ir";
+		}
+		else
+		{
+			return false;
+		}
 
 		std::ifstream inputStream(finalInputFile, std::ios::binary);
 		if (inputStream.is_open() == false)
@@ -267,6 +343,58 @@ namespace hod
 		}
 		std::cout << std::format("Output '{}'\n", outputDirectory.string());
 
+		Target target = Target::Count;
+		const hod::Argument* targetArgument = argumentParser.GetArgument('t', "target");
+		if (targetArgument != nullptr)
+		{
+			if (targetArgument->_valueCount == 0)
+			{
+				std::cerr << "--target argument is empty, please insert a valid path\n";
+				return false;
+			}
+			else if (targetArgument->_valueCount > 1)
+			{
+				std::cerr << "--target argument support only one path\n";
+				return false;
+			}
+
+			static std::array<std::pair<std::string_view, Target>, (uint8_t)Target::Count> targetEnumLabels = {
+				std::pair<std::string_view, Target>("Vulkan", Target::Vulkan),
+				std::pair<std::string_view, Target>("Metal_MacOS", Target::Metal_MacOS),
+				std::pair<std::string_view, Target>("Metal_IOS", Target::Metal_IOS),
+				std::pair<std::string_view, Target>("D3D12_Windows", Target::D3D12_Windows),
+			};
+
+			for (const std::pair<std::string_view, Target>& targetEnumLabel : targetEnumLabels)
+			{
+				if (targetEnumLabel.first == outputArgument->_values[0])
+				{
+					target = targetEnumLabel.second;
+					break;
+				}
+			}
+
+			if (target == Target::Count)
+			{
+				std::cerr << "--target incalid value\n";
+				return false;
+			}
+		}
+
+#if defined(PLATFORM_WINDOWS)
+		if (target != Target::Vulkan && target != Target::D3D12_Windows)
+#elif defined(PLATFORM_MACOS)
+		if (target != Target::Metal_MacOS && target != Target::Metal_IOS)
+#elif defined(PLATFORM_LINUX)
+		if (target != Target::Vulkan)
+#else
+		#pragma error
+#endif
+		{
+			std::cerr << "Target unavailable on  this platform\n";
+			return false;
+		}
+
 		for (const auto& entry : std::filesystem::directory_iterator(inputDirectory))
 		{
 			if (entry.is_directory() == true) // todo support recursivity ?
@@ -279,17 +407,17 @@ namespace hod
 				continue;
 			}
 
-			if (ConvertShader(entry.path(), outputDirectory / entry.path().filename()) == false)
+			if (ConvertShader(entry.path(), outputDirectory / entry.path().filename(), target) == false)
 			{
 				return false;
 			}
 
-			if (CompileShader(outputDirectory / entry.path().filename(), outputDirectory / entry.path().filename()) == false)
+			if (CompileShader(outputDirectory / entry.path().filename(), outputDirectory / entry.path().filename(), target) == false)
 			{
 				return false;
 			}
 
-			if (EmbeedInSource(outputDirectory / entry.path().filename(), outputDirectory / entry.path().filename()) == false)
+			if (EmbeedInSource(outputDirectory / entry.path().filename(), outputDirectory / entry.path().filename(), target) == false)
 			{
 				return false;
 			}
