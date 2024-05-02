@@ -1,6 +1,8 @@
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/SceneSerializer.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
+#include "HodEngine/Game/PrefabUtility.hpp"
 #include "HodEngine/Game/Entity.hpp"
 
 #include "HodEngine/Game/Component.hpp"
@@ -49,172 +51,20 @@ namespace hod::game
 		return _name;
 	}
 
-	struct EntityDiffs
-	{
-		struct Diff
-		{
-			enum class Type
-			{
-				Entity,
-				Component,	
-			};
-
-			Diff(ReflectionProperty* reflectionProperty, std::shared_ptr<Entity> source, std::shared_ptr<Entity> instance)
-			: _reflectionProperty(reflectionProperty)
-			, _source(source.get())
-			, _instance(instance.get())
-			, _type(Type::Entity)
-			{
-
-			}
-
-			Diff(ReflectionProperty* reflectionProperty, std::shared_ptr<Component> source, std::shared_ptr<Component> instance)
-			: _reflectionProperty(reflectionProperty)
-			, _source(source.get())
-			, _instance(instance.get())
-			, _type(Type::Component)
-			{
-
-			}
-
-			ReflectionProperty* _reflectionProperty = nullptr;
-			void* 				_source = nullptr;
-			void* 				_instance = nullptr;
-			Type				_type;
-		};
-
-		std::vector<Diff*> _diffs;
-
-		void Add(ReflectionProperty* reflectionProperty, std::shared_ptr<Entity> source, std::shared_ptr<Entity> instance)
-		{
-			_diffs.push_back(new Diff(reflectionProperty, source, instance));
-		}
-
-		void Add(ReflectionProperty* reflectionProperty, std::shared_ptr<Component> source, std::shared_ptr<Component> instance)
-		{
-			_diffs.push_back(new Diff(reflectionProperty, source, instance));
-		}
-	};
-
-	bool CollectDiff(std::shared_ptr<Entity> entity, EntityDiffs& diffs)
-	{
-		Prefab* prefab = entity->GetPrefab();
-		if (prefab == nullptr)
-		{
-			return false;
-		}
-
-		std::shared_ptr<Entity> source = prefab->GetRootEntity();
-		std::shared_ptr<Entity> instance = entity;
-
-		ReflectionDescriptor* reflectionDescriptor = source->GetReflectionDescriptorV();
-		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
-		{
-			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
-			{
-				ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
-				if (reflectionPropertyVariable->CompareInstance(source.get(), instance.get()) == false)
-				{
-					diffs.Add(reflectionPropertyVariable, source, instance);
-				}
-			}
-		}
-
-		for (std::weak_ptr<Component> component : source->GetComponents())
-		{
-			std::shared_ptr<Component> componentLock = component.lock();
-
-			UID localId = componentLock->GetLocalId();
-			for (std::weak_ptr<Component> instanceComponent : instance->GetComponents())
-			{
-				std::shared_ptr<Component> instanceComponentLock = instanceComponent.lock();
-				if (instanceComponentLock->GetLocalId() == localId)
-				{
-					reflectionDescriptor = componentLock->GetReflectionDescriptorV();
-					for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
-					{
-						if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
-						{
-							ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
-							if (reflectionPropertyVariable->CompareInstance(componentLock.get(), instanceComponentLock.get()) == false)
-							{
-								diffs.Add(reflectionPropertyVariable, componentLock, instanceComponentLock);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-
 	/// @brief 
 	/// @param documentNode 
 	bool Scene::SerializeInDocument(Document::Node& documentNode) const
 	{
 		documentNode.AddChild("Name").SetString(_name);
 
-		Document::Node& entitiesNode = documentNode.AddChild("Entities");
-
+		std::vector<std::shared_ptr<Entity>> entities;
+		entities.reserve(_entities.size());
 		for (const auto& entityPair : _entities)
 		{
-			std::shared_ptr<Entity> entity = entityPair.second;
-
-			Document::Node& entityNode = entitiesNode.AddChild("");
-
-			Prefab* prefab = entity->GetPrefab();
-			if (prefab != nullptr)
-			{
-				Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
-				UID uid = prefab->GetUid(); // TODO fix Serializa template lvalue
-				Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
-				Document::Node& overridesNode = prefabInstance.AddChild("Overrides");
-
-				EntityDiffs entityDiffs;
-				CollectDiff(entity, entityDiffs);
-
-				for (EntityDiffs::Diff* diff : entityDiffs._diffs)
-				{
-					Document::Node& overrideNode = overridesNode.AddChild("");
-					Document::Node& overrideTargetNode = overrideNode.AddChild("Target");
-					if (diff->_type == EntityDiffs::Diff::Type::Entity)
-					{
-						overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(EntityDiffs::Diff::Type::Entity));
-						uid = static_cast<Entity*>(diff->_instance)->GetLocalId();
-						Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
-					}
-					else // Component
-					{
-						overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(EntityDiffs::Diff::Type::Component));
-						uid = static_cast<Component*>(diff->_instance)->GetLocalId();
-						Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
-					}
-					Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
-					Serializer::SerializeVariable((ReflectionPropertyVariable*)diff->_reflectionProperty, diff->_instance, overrideModificationNode);
-				}
-
-				//Serializer::SerializeDiff(prefab->GetRootEntity(), entity.get(), entityNode);
-			}
-			else
-			{
-				Serializer::Serialize(entity.get(), entityNode);
-
-				Document::Node& componentsNode = entityNode.AddChild("Components");
-
-				const std::vector<std::weak_ptr<Component>> components =  entity->GetComponents();
-				for (const std::weak_ptr<Component>& component : components)
-				{
-					std::shared_ptr<Component> componentLock = component.lock();
-
-					Document::Node& componentNode = componentsNode.AddChild("");
-					componentNode.AddChild("MetaType").SetValue(componentLock->GetMetaType());
-					Serializer::Serialize(componentLock.get(), componentNode);
-				}
-			}			
+			entities.push_back(entityPair.second);
 		}
 
-		return true;
+		return SceneSerializer::SerializeEntities(entities, documentNode.AddChild("Entities"));
 	}
 
 	/// @brief 
@@ -609,7 +459,7 @@ namespace hod::game
 				const Document::Node* typeNode = targetNode->GetChild("Type");
 				if (targetNode != nullptr)
 				{
-					EntityDiffs::Diff::Type type = static_cast<EntityDiffs::Diff::Type>(typeNode->GetInt64());
+					PrefabUtility::EntityDiffs::Diff::Type type = static_cast<PrefabUtility::EntityDiffs::Diff::Type>(typeNode->GetInt64());
 					const Document::Node* uidNode = targetNode->GetChild("UID");
 					if (uidNode != nullptr)
 					{
@@ -619,7 +469,7 @@ namespace hod::game
 						const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
 						if (modificationsNode != nullptr)
 						{
-							if (type == EntityDiffs::Diff::Type::Entity)
+							if (type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
 							{
 
 							}

@@ -1,4 +1,5 @@
 #include "HodEngine/Game/Prefab.hpp"
+#include "HodEngine/Game/SceneSerializer.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
@@ -61,34 +62,14 @@ namespace hod::game
 	{
 		documentNode.AddChild("Name").SetString(_name);
 
-		Document::Node& entitiesNode = documentNode.AddChild("Entities");
-
+		std::vector<std::shared_ptr<Entity>> entities;
+		entities.reserve(_entities.size());
 		for (const auto& entityPair : _entities)
 		{
-			std::shared_ptr<Entity> entity = entityPair.second;
-
-			Document::Node& entityNode = entitiesNode.AddChild("");
-
-			/*
-			entityNode.AddChild("Name").SetString(entity->GetName());
-			entityNode.AddChild("Active").SetBool(entity->GetActive());
-			*/
-			Serializer::Serialize(*entity.get(), entityNode);
-
-			Document::Node& componentsNode = entityNode.AddChild("Components");
-
-			const std::vector<std::weak_ptr<Component>> components =  entity->GetComponents();
-			for (const std::weak_ptr<Component>& component : components)
-			{
-				std::shared_ptr<Component> componentLock = component.lock();
-
-				Document::Node& componentNode = componentsNode.AddChild("");
-				componentNode.AddChild("MetaType").SetValue(componentLock->GetMetaType());
-				Serializer::Serialize(componentLock.get(), componentNode);
-			}
+			entities.push_back(entityPair.second);
 		}
 
-		return true;
+		return SceneSerializer::SerializeEntities(entities, documentNode.AddChild("Entities"));
 	}
 
 	/// @brief 
