@@ -8,6 +8,9 @@
 
 #include "HodEngine/Core/Event.hpp"
 
+#include <string>
+#include "HodEngine/Window/Desktop/MacOs/MacOsWindow.swift.hpp"
+
 namespace hod::window
 {
 	/// @brief 
@@ -25,7 +28,7 @@ namespace hod::window
 
 	private:
 
-		MemberFunctionJob<Win32Window>		_updateJob;
+		hod_swift::MacOsNativeWindow			_nativeWinwdow;
 	};
 }
 

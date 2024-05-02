@@ -24,11 +24,16 @@ if (APPLE)
     # cmake/modules/AddSwift.cmake provides the function for creating the Swift to
     # C++ bridging header
     include(AddSwift)
+
+    _swift_generate_cxx_header_target(WindowSwiftCxxHeader hod_swift
+  "${PROJECT_SOURCE_DIR}/Desktop/MacOs/MacOsWindow.swift.hpp"
+  SOURCES "${PROJECT_SOURCE_DIR}/Desktop/MacOs/MacOsWindow.swift")
 else()
     project(Window LANGUAGES CXX)
 endif()
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+list(APPEND Includes "${PROJECT_SOURCE_DIR}/Desktop/MacOs/MacOsWindow.swift.hpp")
 
 assign_source_group(${Srcs}) # for VS
 
@@ -81,6 +86,10 @@ if(UNIX AND NOT APPLE)
     set(UNIX_LIBS ${WAYLAND_CLIENT_LIBRARIES} ${WAYLAND_EGL_LIBRARIES} ${XkbCommon_LIBRARIES} ${LibDecor_LIBRARIES})
 endif()
 
+if (APPLE)
+    add_dependencies(Window WindowSwiftCxxHeader)
+    target_compile_options(Window PUBLIC "$<$<COMPILE_LANGUAGE:Swift>:-cxx-interoperability-mode=default>")
+endif()
 add_dependencies(Window Core)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 

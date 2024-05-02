@@ -5,11 +5,22 @@
 //#include <stdint.h>
 //#include <stdlib.h>
 
+#include "Main.hpp"
+
 /// @brief 
 /// @param argc 
 /// @param argv 
 /// @return 
 int main(int argc, char** argv)
+{
+	return HodMain(argc, argv);
+}
+
+/// @brief 
+/// @param argc 
+/// @param argv 
+/// @return 
+int HodMain(int argc, char** argv)
 {
 	hod::ArgumentParser argumentParser(argc, argv);
 
