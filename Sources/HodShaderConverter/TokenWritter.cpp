@@ -83,6 +83,14 @@ namespace hod
 				}
 				break;
 
+				case Token::Type::Struct:
+				case Token::Type::Return:
+				{
+					stream << Token::_labels[token._type];
+					stream << " ";
+				}
+				break;
+
 				case Token::Type::OpenCurlyBracket:
 				{
 					stream << "\n";

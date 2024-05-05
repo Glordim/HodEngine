@@ -15,7 +15,7 @@ struct OUT
 	float4 color : COLOR;
 };
 
-void main()
+void VertexMain()
 {
 	OUT.position = float4(IN.position, 0, 1) * PushMatrices.mvp;
 	OUT.color = IN.color;

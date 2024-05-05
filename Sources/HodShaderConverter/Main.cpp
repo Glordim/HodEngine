@@ -8,6 +8,7 @@
 #include "Converter.hpp"
 #include "ConverterGLSL.hpp"
 #include "ConverterHLSL.hpp"
+#include "ConverterMetal.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -161,6 +162,17 @@ namespace hod
 		std::string inputFileStr = finalInputFile.string();
 		std::string outputFileStr = inputFileStr + ".ir";
 		const char *args[] = {"xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metal", "-o", outputFileStr.c_str(), "-c", inputFileStr.c_str(), nullptr};
+
+		int argIndex = 0;
+		const char* arg = args[argIndex];
+		while (arg)
+		{
+			std::cout << arg << " ";
+
+			++argIndex;
+			arg = args[argIndex];
+		}
+		std::cout << std::endl;
 
 		// Initialiser les attributs de spawn
 		posix_spawnattr_t attr;
@@ -343,7 +355,13 @@ namespace hod
 		}
 		std::cout << std::format("Output '{}'\n", outputDirectory.string());
 
-		Target target = Target::Count;
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
+		Target target = Target::Vulkan;
+#elif defined(PLATFORM_MACOS)
+		Target target = Target::Metal_MacOS;
+#else
+		#pragma error
+#endif
 		const hod::Argument* targetArgument = argumentParser.GetArgument('t', "target");
 		if (targetArgument != nullptr)
 		{

@@ -9,38 +9,38 @@ namespace hod
 	const std::map<const std::string_view, const std::string_view> _identifierMap = {
 		{ "void", "void" },
 		{ "float", "float" },
-		{ "float2", "vec2" },
-		{ "float3", "vec3" },
-		{ "float4", "vec4" },
-		{ "float2x2", "mat2" },
-		{ "float3x3", "mat3" },
-		{ "float4x4", "mat4" },
+		{ "float2", "float2" },
+		{ "float3", "float3" },
+		{ "float4", "float4" },
+		{ "float2x2", "float2x2" },
+		{ "float3x3", "float3x3" },
+		{ "float4x4", "float4x4" },
 		{ "double", "double" },
-		{ "double2", "dvec2" },
-		{ "double3", "dvec3" },
-		{ "double4", "dvec4" },
-		{ "double2x2", "dmat2" },
-		{ "double3x3", "dmat3" },
-		{ "double4x4", "dmat4" },
+		{ "double2", "double2" },
+		{ "double3", "double3" },
+		{ "double4", "double4" },
+		{ "double2x2", "double2x2" },
+		{ "double3x3", "double3x3" },
+		{ "double4x4", "double4x4" },
 		{ "int", "int" },
-		{ "int2", "ivec2" },
-		{ "int3", "ivec3" },
-		{ "int4", "ivec4" },
+		{ "int2", "int2" },
+		{ "int3", "int3" },
+		{ "int4", "int4" },
 		{ "uint", "uint" },
-		{ "uint2", "uvec2" },
-		{ "uint3", "uvec3" },
-		{ "uint4", "uvec4" },
+		{ "uint2", "uint2" },
+		{ "uint3", "uint3" },
+		{ "uint4", "uint4" },
 		{ "bool", "bool" },
-		{ "bool2", "bvec2" },
-		{ "bool3", "bvec3" },
-		{ "bool4", "bvec4" },
-		{ "Texture1D", "sampler1D" },
-		{ "Texture2D", "texture2D " },
-		{ "Texture3D", "sampler3D" },
-		{ "Texture1DArray", "sampler1DArray" },
-		{ "Texture2DArray", "sampler2DArray" },
-		{ "TextureCube", "samplerCube" },
-		{ "SamplerState", "sampler" },
+		{ "bool2", "bool2" },
+		{ "bool3", "bool3" },
+		{ "bool4", "bool4" },
+		{ "Texture1D", "Texture1D" },
+		{ "Texture2D", "Texture2D " },
+		{ "Texture3D", "Texture3D" },
+		{ "Texture1DArray", "Texture1DArray" },
+		{ "Texture2DArray", "Texture2DArray" },
+		{ "TextureCube", "TextureCube" },
+		{ "SamplerState", "SamplerState" },
 	};
 
 	/// @brief 
@@ -48,14 +48,22 @@ namespace hod
 	/// @return 
 	bool ConverterMetal::Convert(const std::vector<Token>& inTokens, std::vector<Token>& outTokens)
 	{
-		outTokens.emplace_back(Token::Type::Identifier, "#version");
-		outTokens.emplace_back(Token::Type::IntegerValue, 450);
-		outTokens.emplace_back(Token::Type::Identifier, "core");
+		outTokens.emplace_back(Token::Type::Identifier, "#include");
+		outTokens.emplace_back(Token::Type::Identifier, "<metal_stdlib>");
+		outTokens.emplace_back(Token::Type::NewLine, 0);
+		outTokens.emplace_back(Token::Type::Identifier, "#include");
+		outTokens.emplace_back(Token::Type::Identifier, "<metal_stdlib>");
+		outTokens.emplace_back(Token::Type::NewLine, 0);
+		outTokens.emplace_back(Token::Type::Identifier, "using");
+		outTokens.emplace_back(Token::Type::Identifier, "namespace");
+		outTokens.emplace_back(Token::Type::Identifier, "metal");
+		outTokens.emplace_back(Token::Type::Semicolon, 0);
 		outTokens.emplace_back(Token::Type::NewLine, 0);
 		outTokens.emplace_back(Token::Type::NewLine, 0);
 
 		bool inMainFuction = false;
 		bool inInStruct = false;
+		bool hasInStruct = false;
 		bool inOutStruct = false;
 		int locationIndex = 0;
 
@@ -71,12 +79,18 @@ namespace hod
 			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "IN"}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
 				inInStruct = true;
+				hasInStruct = true;
+				outTokens.emplace_back(Token::Type::Struct, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "IN");
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
 				locationIndex = 0;
 				continue;
 			}
 			else if (inInStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
 			{
 				inInStruct = false;
+				outTokens.emplace_back(Token::Type::ClosingCurlyBracket, 0);
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
 				outTokens.emplace_back(Token::Type::NewLine, 0);
 				continue;
 			}
@@ -84,14 +98,6 @@ namespace hod
 			{
 				if (identifiers[2] != "SV_POSITION"/* && identifiers[2] != "SV_TARGET"*/)
 				{
-					outTokens.emplace_back(Token::Type::Identifier, "layout");
-					outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
-					outTokens.emplace_back(Token::Type::Identifier, "location");
-					outTokens.emplace_back(Token::Type::Assign, 0);
-					outTokens.emplace_back(Token::Type::IntegerValue, locationIndex);
-					outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
-					outTokens.emplace_back(Token::Type::Identifier, "in");
-					
 					auto it = _identifierMap.find(identifiers[0]);
 					if (it != _identifierMap.end())
 					{
@@ -102,7 +108,15 @@ namespace hod
 						return false;
 					}
 
-					outTokens.emplace_back(Token::Type::Identifier, "in_" + identifiers[1]);
+					outTokens.emplace_back(Token::Type::Identifier, identifiers[1]);
+
+					outTokens.emplace_back(Token::Type::Identifier, "[[");
+					outTokens.emplace_back(Token::Type::Identifier, "attribute");
+					outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+					outTokens.emplace_back(Token::Type::IntegerValue, locationIndex);
+					outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+					outTokens.emplace_back(Token::Type::Identifier, "]]");
+
 					outTokens.emplace_back(Token::Type::Semicolon, 0);
 
 					++locationIndex;
@@ -115,42 +129,43 @@ namespace hod
 			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "OUT"}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
 				inOutStruct = true;
+				outTokens.emplace_back(Token::Type::Struct, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "OUT");
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
 				locationIndex = 0;
 				continue;
 			}
 			else if (inOutStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
 			{
 				inOutStruct = false;
+				outTokens.emplace_back(Token::Type::ClosingCurlyBracket, 0);
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
 				outTokens.emplace_back(Token::Type::NewLine, 0);
 				continue;
 			}
 			else if (inOutStruct == true && NextTokensAre(inTokens, index, {{Token::Type::Identifier, ""}, {Token::Type::Identifier, ""}, {Token::Type::Colon, 0}, {Token::Type::Identifier, ""}, {Token::Type::Semicolon, 0}}, &identifiers))
 			{
-				if (identifiers[2] != "SV_POSITION"/* && identifiers[2] != "SV_TARGET"*/)
+				auto it = _identifierMap.find(identifiers[0]);
+				if (it != _identifierMap.end())
 				{
-					outTokens.emplace_back(Token::Type::Identifier, "layout");
-					outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
-					outTokens.emplace_back(Token::Type::Identifier, "location");
-					outTokens.emplace_back(Token::Type::Assign, 0);
-					outTokens.emplace_back(Token::Type::IntegerValue, locationIndex);
-					outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
-					outTokens.emplace_back(Token::Type::Identifier, "out");
-					
-					auto it = _identifierMap.find(identifiers[0]);
-					if (it != _identifierMap.end())
-					{
-						outTokens.emplace_back(Token::Type::Identifier, std::string(it->second));
-					}
-					else
-					{
-						return false;
-					}
-
-					outTokens.emplace_back(Token::Type::Identifier, "out_" + identifiers[1]);
-					outTokens.emplace_back(Token::Type::Semicolon, 0);
-
-					++locationIndex;
+					outTokens.emplace_back(Token::Type::Identifier, std::string(it->second));
 				}
+				else
+				{
+					return false;
+				}
+
+				outTokens.emplace_back(Token::Type::Identifier, identifiers[1]);
+
+				if (identifiers[2] == "SV_POSITION")
+				{
+					outTokens.emplace_back(Token::Type::Identifier, "[[");
+					outTokens.emplace_back(Token::Type::Identifier, identifiers[2]);
+					outTokens.emplace_back(Token::Type::Identifier, "]]");
+				}
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+
+				++locationIndex;
 
 				outVariableToQualifier.emplace(identifiers[1], identifiers[2]);
 				continue;
@@ -210,19 +225,60 @@ namespace hod
 				continue;
 			}
 
-			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, "void"}, {Token::Type::Identifier, "main"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::OpenCurlyBracket, 0}}))
+			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, "void"}, {Token::Type::Identifier, "VertexMain"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
-				outTokens.emplace_back(Token::Type::Identifier, "void");
-				outTokens.emplace_back(Token::Type::Identifier, "main");
+				outTokens.emplace_back(Token::Type::Identifier, "vertex");
+				outTokens.emplace_back(Token::Type::Identifier, "OUT");
+				outTokens.emplace_back(Token::Type::Identifier, "VertexMain");
 				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+				if (hasInStruct)
+				{
+					outTokens.emplace_back(Token::Type::Identifier, "IN");
+					outTokens.emplace_back(Token::Type::Identifier, "in");
+					outTokens.emplace_back(Token::Type::Identifier, "[[");
+					outTokens.emplace_back(Token::Type::Identifier, "stage_in");
+					outTokens.emplace_back(Token::Type::Identifier, "]]");
+				}
 				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
 				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "OUT");
+				outTokens.emplace_back(Token::Type::Identifier, "out");
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+				outTokens.emplace_back(Token::Type::NewLine, 0);
+
+				inMainFuction = true;
+				continue;
+			}
+			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, "void"}, {Token::Type::Identifier, "FragMain"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::OpenCurlyBracket, 0}}))
+			{
+				outTokens.emplace_back(Token::Type::Identifier, "fragment");
+				outTokens.emplace_back(Token::Type::Identifier, "OUT");
+				outTokens.emplace_back(Token::Type::Identifier, "FragMain");
+				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+				if (hasInStruct)
+				{
+					outTokens.emplace_back(Token::Type::Identifier, "IN");
+					outTokens.emplace_back(Token::Type::Identifier, "in");
+					outTokens.emplace_back(Token::Type::Identifier, "[[");
+					outTokens.emplace_back(Token::Type::Identifier, "stage_in");
+					outTokens.emplace_back(Token::Type::Identifier, "]]");
+				}
+				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "OUT");
+				outTokens.emplace_back(Token::Type::Identifier, "out");
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+				outTokens.emplace_back(Token::Type::NewLine, 0);
 
 				inMainFuction = true;
 				continue;
 			}
 			else if (inMainFuction == true && token._type == Token::Type::ClosingCurlyBracket)
 			{
+				outTokens.emplace_back(Token::Type::Return, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "out");
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+
 				outTokens.emplace_back(Token::Type::ClosingCurlyBracket, 0);
 				inMainFuction = false;
 				continue;
@@ -232,14 +288,9 @@ namespace hod
 				auto it = inVariableToQualifier.find(identifiers[1]);
 				if (it != inVariableToQualifier.end())
 				{
-					if (it->second == "SV_POSITION")
-					{
-						outTokens.emplace_back(Token::Type::Identifier, "gl_Position");
-					}
-					else
-					{
-						outTokens.emplace_back(Token::Type::Identifier, "in_" + it->first);
-					}
+					outTokens.emplace_back(Token::Type::Identifier, "in");
+					outTokens.emplace_back(Token::Type::Dot, 0);
+					outTokens.emplace_back(Token::Type::Identifier, it->first);
 				}
 				else
 				{
@@ -252,14 +303,9 @@ namespace hod
 				auto it = outVariableToQualifier.find(identifiers[1]);
 				if (it != outVariableToQualifier.end())
 				{
-					if (it->second == "SV_POSITION")
-					{
-						outTokens.emplace_back(Token::Type::Identifier, "gl_Position");
-					}
-					else
-					{
-						outTokens.emplace_back(Token::Type::Identifier, "out_" + it->first);
-					}
+					outTokens.emplace_back(Token::Type::Identifier, "out");
+					outTokens.emplace_back(Token::Type::Dot, 0);
+					outTokens.emplace_back(Token::Type::Identifier, it->first);
 				}
 				else
 				{

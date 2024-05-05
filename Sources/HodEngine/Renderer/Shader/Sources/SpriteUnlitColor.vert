@@ -13,7 +13,7 @@ struct OUT
 	float4 position : SV_POSITION;
 };
 
-void main()
+void VertexMain()
 {
 	OUT.position = float4(IN.position, 0, 1) * PushMatrices.mvp;
 }

@@ -15,7 +15,7 @@ struct OUT
 	float2 uv : TEXTCOORD;
 };
 
-void main()
+void VertexMain()
 {
 	OUT.position = float4(IN.position, 0, 1) * PushMatrices.mvp;
 	OUT.uv = IN.uv;

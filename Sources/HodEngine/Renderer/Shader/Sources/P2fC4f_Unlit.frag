@@ -8,7 +8,7 @@ struct OUT
 	float4 color : SV_TARGET;
 };
 
-void main()
+void FragMain()
 {
 	OUT.color = IN.color;
 }
