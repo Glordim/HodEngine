@@ -1,7 +1,7 @@
-cbuffer Matrices
+cbuffer Matrices PushMatrices
 {
 	float4x4 mvp;
-} PushMatrices;
+};
 
 struct IN
 {

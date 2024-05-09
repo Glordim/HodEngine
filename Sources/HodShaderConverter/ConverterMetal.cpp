@@ -35,12 +35,12 @@ namespace hod
 		{ "bool3", "bool3" },
 		{ "bool4", "bool4" },
 		{ "Texture1D", "Texture1D" },
-		{ "Texture2D", "Texture2D " },
+		{ "Texture2D", "texture2d<float, access::sample>" },
 		{ "Texture3D", "Texture3D" },
 		{ "Texture1DArray", "Texture1DArray" },
 		{ "Texture2DArray", "Texture2DArray" },
 		{ "TextureCube", "TextureCube" },
-		{ "SamplerState", "SamplerState" },
+		{ "SamplerState", "sampler" },
 	};
 
 	/// @brief 
@@ -66,17 +66,43 @@ namespace hod
 		bool hasInStruct = false;
 		bool inOutStruct = false;
 		int locationIndex = 0;
+		int bufferIndex = 0;
 
 		std::vector<std::string> identifiers;
 
 		std::map<std::string, std::string> inVariableToQualifier;
 		std::map<std::string, std::string> outVariableToQualifier;
 
+		std::vector<Token> mainParameter;
+
 		for (uint32_t index = 0; index < inTokens.size(); ++index)
 		{
 			const Token& token = inTokens[index];
 
-			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "IN"}, {Token::Type::OpenCurlyBracket, 0}}))
+			if (NextTokensAre(inTokens, index, {{Token::Type::CBuffer, 0}, {Token::Type::Identifier, ""}, {Token::Type::Identifier, ""}, {Token::Type::OpenCurlyBracket, 0}}, &identifiers))
+			{
+				outTokens.emplace_back(Token::Type::Struct, 0);
+				outTokens.emplace_back(Token::Type::Identifier, identifiers[0]);
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
+
+				if (mainParameter.empty() == false)
+				{
+					mainParameter.emplace_back(Token::Type::Comma, 0);
+				}
+				mainParameter.emplace_back(Token::Type::Identifier, "constant");
+				mainParameter.emplace_back(Token::Type::Identifier, identifiers[0]);
+				mainParameter.emplace_back(Token::Type::Identifier, "&");
+				mainParameter.emplace_back(Token::Type::Identifier, identifiers[1]);
+				mainParameter.emplace_back(Token::Type::Identifier, "[[");
+				mainParameter.emplace_back(Token::Type::Identifier, "buffer");
+				mainParameter.emplace_back(Token::Type::OpenParenthesis, 0);
+				mainParameter.emplace_back(Token::Type::IntegerValue, bufferIndex);
+				mainParameter.emplace_back(Token::Type::ClosingParenthesis, 0);
+				mainParameter.emplace_back(Token::Type::Identifier, "]]");
+				++bufferIndex;
+				continue;
+			}
+			else if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "IN"}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
 				inInStruct = true;
 				hasInStruct = true;
@@ -160,7 +186,7 @@ namespace hod
 				if (identifiers[2] == "SV_POSITION")
 				{
 					outTokens.emplace_back(Token::Type::Identifier, "[[");
-					outTokens.emplace_back(Token::Type::Identifier, identifiers[2]);
+					outTokens.emplace_back(Token::Type::Identifier, "position");
 					outTokens.emplace_back(Token::Type::Identifier, "]]");
 				}
 				outTokens.emplace_back(Token::Type::Semicolon, 0);
@@ -173,55 +199,49 @@ namespace hod
 
 			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, ""}, {Token::Type::Identifier, ""}, {Token::Type::Colon, 0}, {Token::Type::Identifier, "register"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::Identifier, ""}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::Semicolon, 0}}, &identifiers))
 			{
-				int binding = 0;
+				const char* attributeType = nullptr;
 				if (identifiers[3][0] == 't') // texture
 				{
-					binding = 0;
+					attributeType = "texture";
 				}
 				else if (identifiers[3][0] == 's') // sampler
 				{
-					binding = 1;
+					attributeType = "sampler";
 				}
 
-				int set = std::atoi(identifiers[3].c_str() + 1);
+				int index = std::atoi(identifiers[3].c_str() + 1);
 
-				outTokens.emplace_back(Token::Type::Identifier, "layout");
-				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
-				outTokens.emplace_back(Token::Type::Identifier, "set");
-				outTokens.emplace_back(Token::Type::Assign, 0);
-				outTokens.emplace_back(Token::Type::IntegerValue, set);
-				outTokens.emplace_back(Token::Type::Comma, 0);
-				outTokens.emplace_back(Token::Type::Identifier, "binding");
-				outTokens.emplace_back(Token::Type::Assign, 0);
-				outTokens.emplace_back(Token::Type::IntegerValue, binding);
-				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
-				outTokens.emplace_back(Token::Type::Identifier, "uniform");
+				if (mainParameter.empty() == false)
+				{
+					mainParameter.emplace_back(Token::Type::Comma, 0);
+				}
 
 				auto it = _identifierMap.find(identifiers[0]);
 				if (it != _identifierMap.end())
 				{
-					outTokens.emplace_back(Token::Type::Identifier, std::string(it->second));
+					mainParameter.emplace_back(Token::Type::Identifier, std::string(it->second));
 				}
 				else
 				{
 					return false;
 				}
-
-				outTokens.emplace_back(Token::Type::Identifier, identifiers[1]);
-				outTokens.emplace_back(Token::Type::Semicolon, 0);
+				mainParameter.emplace_back(Token::Type::Identifier, identifiers[1]);
+				mainParameter.emplace_back(Token::Type::Identifier, "[[");
+				mainParameter.emplace_back(Token::Type::Identifier, attributeType);
+				mainParameter.emplace_back(Token::Type::OpenParenthesis, 0);
+				mainParameter.emplace_back(Token::Type::IntegerValue, index);
+				mainParameter.emplace_back(Token::Type::ClosingParenthesis, 0);
+				mainParameter.emplace_back(Token::Type::Identifier, "]]");
 				continue;
 			}
 
 			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, ""}, {Token::Type::Dot, 0}, {Token::Type::Identifier, "Sample"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::Identifier, ""}}, &identifiers))
 			{
-				outTokens.emplace_back(Token::Type::Identifier, "texture");
-				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
-				outTokens.emplace_back(Token::Type::Identifier, "sampler2D");
-				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
 				outTokens.emplace_back(Token::Type::Identifier, identifiers[0]);
-				outTokens.emplace_back(Token::Type::Comma, 0);
+				outTokens.emplace_back(Token::Type::Dot, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "sample");
+				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
 				outTokens.emplace_back(Token::Type::Identifier, identifiers[2]);
-				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
 				continue;
 			}
 
@@ -238,6 +258,14 @@ namespace hod
 					outTokens.emplace_back(Token::Type::Identifier, "[[");
 					outTokens.emplace_back(Token::Type::Identifier, "stage_in");
 					outTokens.emplace_back(Token::Type::Identifier, "]]");
+				}
+				if (mainParameter.empty() == false)
+				{
+					if (hasInStruct)
+					{
+						outTokens.emplace_back(Token::Type::Comma, 0);
+					}
+					outTokens.insert(outTokens.end(), mainParameter.begin(), mainParameter.end());
 				}
 				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
 				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
@@ -262,6 +290,14 @@ namespace hod
 					outTokens.emplace_back(Token::Type::Identifier, "[[");
 					outTokens.emplace_back(Token::Type::Identifier, "stage_in");
 					outTokens.emplace_back(Token::Type::Identifier, "]]");
+				}
+				if (mainParameter.empty() == false)
+				{
+					if (hasInStruct)
+					{
+						outTokens.emplace_back(Token::Type::Comma, 0);
+					}
+					outTokens.insert(outTokens.end(), mainParameter.begin(), mainParameter.end());
 				}
 				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
 				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
@@ -316,16 +352,6 @@ namespace hod
 
 			switch (token._type)
 			{
-				case Token::Type::CBuffer:
-				{
-					outTokens.emplace_back(Token::Type::Identifier, "layout");
-					outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
-					outTokens.emplace_back(Token::Type::Identifier, "push_constant");
-					outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
-					outTokens.emplace_back(Token::Type::Identifier, "uniform");
-				}
-				break;
-
 				case Token::Type::Identifier:
 				{
 					std::string value = std::get<std::string>(token._data);

@@ -113,6 +113,8 @@ namespace hod
 		{
 			return false;
 		}
+
+		bool result = false;
 		
 		// TODO create Processus class in Core lib
 #if defined(PLATFORM_WINDOWS)
@@ -157,11 +159,13 @@ namespace hod
 		// Close process and thread handles. 
 		CloseHandle( pi.hProcess );
 		CloseHandle( pi.hThread );
+
+		result = true;
 #elif defined(PLATFORM_MACOS)
 	// Définition des arguments du programme à exécuter
 		std::string inputFileStr = finalInputFile.string();
 		std::string outputFileStr = inputFileStr + ".ir";
-		const char *args[] = {"xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metal", "-o", outputFileStr.c_str(), "-c", inputFileStr.c_str(), nullptr};
+		const char *args[] = {"/usr/bin/xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metal", "-o", outputFileStr.c_str(), "-c", inputFileStr.c_str(), nullptr};
 
 		int argIndex = 0;
 		const char* arg = args[argIndex];
@@ -187,6 +191,7 @@ namespace hod
 			// Attendre que le processus fils se termine
 			waitpid(pid, &status, 0);
 			std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
+			result = true;
 		}
 		else
 		{
@@ -198,7 +203,7 @@ namespace hod
 #else
 	#pragma error
 #endif
-		return true;
+		return result;
 	}
 
 	/// @brief 
