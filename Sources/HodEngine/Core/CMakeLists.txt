@@ -18,7 +18,11 @@ set_property(TARGET Core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 set(UUID_LIB "")
 
 if(UNIX)
-	set(UUID_LIB uuid)
+	if (APPLE)
+		set (UUID_LIB "-framework CoreFoundation")
+	else()
+		set(UUID_LIB uuid)
+	endif()
 endif(UNIX)
 
 target_link_libraries(Core ${UUID_LIB})

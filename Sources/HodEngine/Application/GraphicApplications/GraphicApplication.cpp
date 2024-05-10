@@ -4,8 +4,6 @@
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
-#include <HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp>
-#include <HodEngine/Renderer/RHI/Vulkan/VkContext.hpp>
 
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
 #include <HodEngine/Window/PlatformWindow.hpp>
@@ -40,6 +38,7 @@ namespace hod::application
 		}
 
 		_window = platformDisplayManager->CreateWindow();
+
 
 		PlatformRenderer::CreateInstance();
 		if (PlatformRenderer::GetInstance()->Init(_window) == false)

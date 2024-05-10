@@ -63,12 +63,11 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT H
 #find_package(Glm REQUIRED)
 #find_package(Vulkan REQUIRED)
 
+endif()
+
 include_directories(
 	".."
-	${Vulkan_INCLUDE_DIRS}
 )
-
-endif()
 
 add_dependencies(HodApplication HodEngine)
 

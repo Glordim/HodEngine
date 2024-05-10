@@ -12,7 +12,7 @@ struct OUT
 Texture2D image : register(t0);
 SamplerState imageSampler : register(s0);
 
-void main()
+void FragMain()
 {
 	float4 textureColor = image.Sample(imageSampler, IN.texCoord);
 	OUT.color = textureColor * IN.color;

@@ -4,6 +4,10 @@ include(Global)
 
 project(ImGui)
 
+if(APPLE)
+enable_language(OBJCXX)
+endif()
+
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 file(GLOB_RECURSE ShaderSources
