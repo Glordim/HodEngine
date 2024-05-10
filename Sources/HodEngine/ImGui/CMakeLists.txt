@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.4...3.27)
 
 include(Global)
 
-project(ImGui)
 
 if(APPLE)
-enable_language(OBJCXX)
+project(ImGui LANGUAGES CXX OBJCXX)
+else()
+project(ImGui LANGUAGES CXX)
 endif()
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
@@ -85,6 +86,11 @@ target_link_libraries(ImGui
   Renderer
   Window
 )
+
+if (APPLE)
+target_link_libraries(ImGui "-framework GameController")
+target_link_libraries(ImGui "-framework AppKit")
+endif()
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)

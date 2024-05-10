@@ -9,7 +9,6 @@
 #if defined(PLATFORM_WINDOWS)
 #include "HodEngine/ImGui/DearImGui/imgui_impl_win32.h"
 #elif defined(PLATFORM_MACOS)
-#define IMGUI_IMPL_METAL_CPP_EXTENSIONS
 #include "HodEngine/ImGui/DearImGui/imgui_impl_osx.h"
 #endif
 #include "HodEngine/ImGui/DearImGui/ImGuizmo.h"
