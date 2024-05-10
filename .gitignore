@@ -50,3 +50,5 @@ bin/
 
 !Data/**/*.obj
 .vscode/settings.json
+
+.DS_Store
