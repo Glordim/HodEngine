@@ -68,6 +68,7 @@ namespace hod::application
 		{
 			_window->Update();
 
+			/*
 			frameSequencer->EnqueueAndWaitJobs();
 
 			if (_window->GetGraphicsContext()->AcquireNextImageIndex() == true)
@@ -76,6 +77,7 @@ namespace hod::application
 
 				_window->GetGraphicsContext()->SwapBuffer();
 			}
+			*/
 
 			SystemTime::TimeStamp now = SystemTime::Now();
 			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);

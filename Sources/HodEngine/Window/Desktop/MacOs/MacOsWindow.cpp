@@ -17,45 +17,6 @@ using namespace hod::renderer;
 namespace hod::window
 {
 	/// @brief 
-	MacOsWindow::MacOsWindow()
-		: DesktopWindow()
-	{
-	}
-
-	/// @brief 
-	MacOsWindow::~MacOsWindow()
-	{
-		
-	}
-
-	/// @brief 
-	void MacOsWindow::Update()
-	{
-		
-	}
-
-	/// @brief 
-	/// @param width 
-	/// @param height 
-	void MacOsWindow::SetSize(uint16_t width, uint16_t height)
-	{
-		_width = width;
-		_height = height;
-	}
-
-	/// @brief 
-	void MacOsWindow::CenterToScreen()
-	{
-		//_nativeWinwdow.Center();
-	}
-
-	/// @brief 
-	void MacOsWindow::Maximize()
-	{
-		//_nativeWinwdow.Maximize();
-	}
-
-	/// @brief 
 	/// @return 
 	NSView* MacOsWindow::GetNsView() const
 	{

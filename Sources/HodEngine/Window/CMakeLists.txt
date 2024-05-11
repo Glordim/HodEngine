@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.4...3.27)
 include(Global)
 
 if (APPLE)
-    project(Window LANGUAGES CXX Swift)
+    project(Window LANGUAGES CXX OBJCXX)
 else()
     project(Window LANGUAGES CXX)
 endif()

@@ -12,8 +12,10 @@
 
 #ifdef __OBJC__
 @class NSView;
+@class NSWindow;
 #else
 class NSView;
+class NSWindow;
 #endif
 
 namespace hod::window
@@ -36,6 +38,7 @@ namespace hod::window
 	private:
 
 		NSView*								_view = nullptr;
+		NSWindow*							_window = nullptr;
 	};
 }
 
