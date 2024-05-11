@@ -4,6 +4,13 @@
 
 #include <HodEngine/Core/Output.hpp>
 
+#include "HodEngine/Renderer/RHI/Metal/MetalBuffer.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalShader.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
+
 namespace hod
 {
 	namespace renderer
@@ -95,7 +102,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Shader* RendererMetal::CreateShader(Shader::ShaderType type)
 		{
-			return nullptr;
+			return new MetalShader(type);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -103,7 +110,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Material* RendererMetal::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
-			return nullptr;
+			return new MetalMaterial();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -111,7 +118,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		MaterialInstance* RendererMetal::CreateMaterialInstance(const Material* material)
 		{
-			return nullptr;
+			return new MetalMaterialInstance(*material);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -119,7 +126,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Texture* RendererMetal::CreateTexture()
 		{
-			return nullptr;
+			return new MetalTexture();
 		}
 	}
 }
