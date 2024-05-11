@@ -9,7 +9,6 @@
 #include "HodEngine/Core/Event.hpp"
 
 #include <string>
-#include "HodEngine/Window/Desktop/MacOs/MacOsWindow.swift.hpp"
 
 #ifdef __OBJC__
 @class NSView;
@@ -36,7 +35,7 @@ namespace hod::window
 
 	private:
 
-		hod_swift::MacOsNativeWindow			_nativeWinwdow;
+		NSView*								_view = nullptr;
 	};
 }
 

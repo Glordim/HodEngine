@@ -12,8 +12,6 @@
 
 #include <cstdlib>
 
-#include <swift/bridging>
-
 using namespace hod::renderer;
 
 namespace hod::window
@@ -21,12 +19,7 @@ namespace hod::window
 	/// @brief 
 	MacOsWindow::MacOsWindow()
 		: DesktopWindow()
-		, _nativeWinwdow(hod_swift::MacOsNativeWindow::init())
 	{
-		swift::String test = "Hello Swift world!";
-		hod_swift::printWelcomeMessage(test);
-
-		_nativeWinwdow.Show();
 	}
 
 	/// @brief 
@@ -53,13 +46,20 @@ namespace hod::window
 	/// @brief 
 	void MacOsWindow::CenterToScreen()
 	{
-		_nativeWinwdow.Center();
+		//_nativeWinwdow.Center();
 	}
 
 	/// @brief 
 	void MacOsWindow::Maximize()
 	{
-		_nativeWinwdow.Maximize();
+		//_nativeWinwdow.Maximize();
+	}
+
+	/// @brief 
+	/// @return 
+	NSView* MacOsWindow::GetNsView() const
+	{
+		return _view;
 	}
 }
 
