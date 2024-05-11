@@ -2,11 +2,12 @@ cmake_minimum_required(VERSION 3.4...3.27)
 
 include(Global)
 
-project(Renderer)
-
 if(NOT APPLE)
+project(Renderer LANGUAGES CXX)
 find_package(Vulkan REQUIRED)
 find_package(SpirvCross REQUIRED)
+else()
+project(Renderer LANGUAGES CXX OBJCXX)
 endif()
 find_package(Stb REQUIRED)
 
@@ -62,7 +63,7 @@ target_link_libraries(Renderer
 )
 
 if(NOT APPLE)
-target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${SpirvCross_LIBRARIES})
+  target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${SpirvCross_LIBRARIES})
   #optimized "d3d12.lib" debug "d3d12.lib"
   #optimized "DXGI.lib" debug "DXGI.lib"
   
@@ -72,6 +73,8 @@ target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${SpirvCross_LIBRARIES})
   if (RENDERER_ENABLE_VALIDATION_LAYER)
 	set(RENDERER_ENABLE_VALIDATION_LAYER_DEFINE "RENDERER_ENABLE_VALIDATION_LAYER")
   endif ()
+else()
+  target_link_libraries(Renderer "-framework Metal")
 endif()
 
 target_compile_definitions(Renderer PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE} ${RENDERER_ENABLE_VALIDATION_LAYER_DEFINE})

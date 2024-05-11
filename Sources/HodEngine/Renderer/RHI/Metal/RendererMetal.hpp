@@ -8,6 +8,8 @@ namespace hod
 {
 	namespace renderer
 	{
+		class MetalDevice;
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -41,6 +43,12 @@ namespace hod
 			virtual MaterialInstance* CreateMaterialInstance(const Material* material) override;
 			virtual Texture* CreateTexture() override;
 			virtual RenderTarget* CreateRenderTarget() override;
+
+			MetalDevice*	GetDevice() const;
+
+		private:
+
+			MetalDevice*	_device = nullptr;
 		};
 	}
 }

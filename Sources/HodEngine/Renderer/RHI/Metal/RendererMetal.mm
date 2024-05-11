@@ -1,15 +1,19 @@
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 
-#if defined(PLATFORM_MACOS)
-
 #include <HodEngine/Core/Output.hpp>
 
 #include "HodEngine/Renderer/RHI/Metal/MetalBuffer.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalDevice.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
+
+#include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
+
+#import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 
 namespace hod
 {
@@ -54,6 +58,20 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 		{
+			_device = new MetalDevice();
+
+/*
+			_layer = [CAMetalLayer layer];
+			_layer.device = _device->GetNativeDevice();
+			_layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+			_layer.framebufferOnly = YES;
+			_layer.frame = mainWindow->GetSize();
+
+			window::MacOsWindow* macOsWindow = static_cast<window::MacOsWindow*>(mainWindow);
+			NSView* view = macOsWindow->GetNSView();
+
+			[view.layer addSublayer:_layer];
+*/
 			return true;
 		}
 
@@ -128,7 +146,10 @@ namespace hod
 		{
 			return new MetalTexture();
 		}
+
+		MetalDevice* RendererMetal::GetDevice() const
+		{
+			return _device;
+		}
 	}
 }
-
-#endif
