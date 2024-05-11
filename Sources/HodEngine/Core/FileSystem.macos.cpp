@@ -5,6 +5,9 @@
 #include <sys/types.h>
 #include <pwd.h>
 
+#include <mach-o/dyld.h>
+#include <sys/param.h>
+
 namespace hod
 {
 	std::filesystem::path FileSystem::_userSettingsPath;
@@ -24,15 +27,11 @@ namespace hod
 	{
 		if (FileSystem::_executablePath.empty() == true)
 		{
-			char executablePath[PATH_MAX];
-			memset(executablePath, 0, sizeof(executablePath)); // readlink does not null terminate!
-			if (readlink("/proc/self/exe", executablePath, PATH_MAX) == -1)
+			char buffer[MAXPATHLEN];
+			uint32_t bufferSize = sizeof(buffer);
+			if (_NSGetExecutablePath(buffer, &bufferSize) == 0)
 			{
-				perror("readlink");
-			}
-			else
-			{
-				FileSystem::_executablePath = executablePath;
+				FileSystem::_executablePath = buffer;
 			}
 		}
 		return FileSystem::_executablePath;
