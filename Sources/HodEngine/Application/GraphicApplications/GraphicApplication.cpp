@@ -39,7 +39,6 @@ namespace hod::application
 
 		_window = platformDisplayManager->CreateWindow();
 
-
 		PlatformRenderer::CreateInstance();
 		if (PlatformRenderer::GetInstance()->Init(_window) == false)
 		{

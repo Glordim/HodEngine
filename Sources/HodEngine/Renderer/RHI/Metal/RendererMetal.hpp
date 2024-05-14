@@ -8,6 +8,7 @@ namespace hod
 {
 	namespace renderer
 	{
+		class MetalContext;
 		class MetalDevice;
 
 		//-----------------------------------------------------------------------------
@@ -49,6 +50,7 @@ namespace hod
 		private:
 
 			MetalDevice*	_device = nullptr;
+			MetalContext*	_context = nullptr;
 		};
 	}
 }

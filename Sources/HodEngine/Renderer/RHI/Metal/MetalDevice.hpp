@@ -2,7 +2,7 @@
 
 #include "HodEngine/Renderer/RHI/Device.hpp"
 
-#include <Metal/Metal.h>
+#include <Metal/Metal.hpp>
 
 namespace hod::renderer
 {
@@ -11,10 +11,10 @@ namespace hod::renderer
     public:
 
         MetalDevice();
-        id<MTLDevice>  GetNativeDevice() const;
+        MTL::Device*  GetNativeDevice() const;
 
     private:
 
-        id<MTLDevice>   _device;
+        MTL::Device*   _device;
     };
 }

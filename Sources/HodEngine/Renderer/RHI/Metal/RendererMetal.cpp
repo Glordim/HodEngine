@@ -3,6 +3,7 @@
 #include <HodEngine/Core/Output.hpp>
 
 #include "HodEngine/Renderer/RHI/Metal/MetalBuffer.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalDevice.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
@@ -11,9 +12,6 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
 
 #include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
-
-#import <Metal/Metal.h>
-#import <QuartzCore/CAMetalLayer.h>
 
 namespace hod
 {
@@ -59,6 +57,9 @@ namespace hod
 		bool RendererMetal::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 		{
 			_device = new MetalDevice();
+
+			_context = new MetalContext(static_cast<window::MacOsWindow*>(mainWindow));
+			mainWindow->SetGraphicsContext(_context);
 
 /*
 			_layer = [CAMetalLayer layer];

@@ -4,6 +4,6 @@ namespace hod::renderer
 {
     MetalDevice::MetalDevice()
     {
-        _device = MTLCreateSystemDefaultDevice();
+        _device = MTL::CreateSystemDefaultDevice();
     }
 }

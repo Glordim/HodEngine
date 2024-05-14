@@ -4,13 +4,15 @@
 
 #include <vector>
 
-#include <Metal/Metal.h>
-
-@class CAMetalLayer;
-
 namespace hod::window
 {
 	class MacOsWindow;
+}
+
+namespace CA
+{
+	class MetalLayer;
+	class MetalDrawable;
 }
 
 namespace hod::renderer
@@ -24,12 +26,14 @@ namespace hod::renderer
 									~MetalContext() override;
 
 	public:
-/*
-		void						Resize(uint32_t width, uint32_t height) override;
 
 		bool						AcquireNextImageIndex() override;
+		CA::MetalDrawable*			GetCurrentDrawable() const;
+
+		void						Resize(uint32_t width, uint32_t height) override;
 		bool						SwapBuffer() override;
 
+/*
 		VkSurfaceKHR				GetSurface() const;
 		VkRenderPass				GetRenderPass() const;
 		VkExtent2D					GetSwapChainExtent() const;
@@ -61,6 +65,7 @@ namespace hod::renderer
 */
 	private:
 
-		CAMetalLayer*				_layer = nullptr;
+		CA::MetalLayer*				_layer = nullptr;
+		CA::MetalDrawable*			_drawable = nullptr;
 	};
 }
