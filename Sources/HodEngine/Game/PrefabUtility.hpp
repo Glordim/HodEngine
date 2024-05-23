@@ -59,4 +59,5 @@ namespace hod::game::PrefabUtility
 	};
 
 	bool CollectDiff(std::shared_ptr<Entity> entity, EntityDiffs& diffs);
+	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, ReflectionDescriptor* reflectionDescriptor, const void* sourceAddr, const void* instanceAddr);
 }
