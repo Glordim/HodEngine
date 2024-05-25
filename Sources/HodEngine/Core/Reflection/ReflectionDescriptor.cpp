@@ -117,7 +117,7 @@ namespace hod
 	/// @brief 
 	/// @param name 
 	/// @return 
-	ReflectionProperty* ReflectionDescriptor::FindProperty(const std::string_view& name) const
+	ReflectionProperty* ReflectionDescriptor::FindProperty(const std::string_view& name, bool fallbackOnParent) const
 	{
 		for (ReflectionProperty* property : _properties)
 		{
@@ -125,6 +125,10 @@ namespace hod
 			{
 				return property;
 			}
+		}
+		if (fallbackOnParent == true && _parent != nullptr)
+		{
+			return _parent->FindProperty(name, true);
 		}
 		return nullptr;
 	}

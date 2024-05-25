@@ -73,6 +73,11 @@ namespace hod::game::PrefabUtility
 	/// @param instanceAddr 
 	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor* reflectionDescriptor, void* sourceAddr, void* instanceAddr)
 	{
+		if (reflectionDescriptor->GetParent() != nullptr)
+		{
+			CollectDiff(sourceComponent, instanceComponent, diffs, path, reflectionDescriptor->GetParent(), sourceAddr, instanceAddr);
+		}
+
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
 		{
 			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())

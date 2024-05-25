@@ -57,9 +57,9 @@ namespace hod
 	}
 
 	template<typename _Property_>
-	_Property_* ReflectionDescriptor::FindProperty(const std::string_view& name) const
+	_Property_* ReflectionDescriptor::FindProperty(const std::string_view& name, bool fallbackOnParent) const
 	{
-		return static_cast<_Property_*>(FindProperty(name));
+		return static_cast<_Property_*>(FindProperty(name, fallbackOnParent));
 	}
 
 	template<typename _Type_>
