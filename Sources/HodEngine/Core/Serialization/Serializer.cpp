@@ -187,7 +187,7 @@ namespace hod
     bool Serializer::DeserializeWithPath(const std::string_view& path, const ReflectionDescriptor* reflectionDescriptor, void* instance, const Document::Node& documentNode)
     {
         std::string propertyPath(path.data(), path.size());
-        char* next = std::strpbrk((char*)propertyPath.c_str(), "/");
+        char* next = std::strpbrk((char*)propertyPath.c_str(), ".");
         while (next != nullptr)
         {
             std::string_view elementName(propertyPath.c_str(), next);
@@ -198,7 +198,7 @@ namespace hod
                 reflectionDescriptor = property->GetReflectionDescriptor();
             }									
             propertyPath = next + 1; // skip '/'
-            next = std::strpbrk((char*)propertyPath.c_str(), "/");
+            next = std::strpbrk((char*)propertyPath.c_str(), ".");
         }
 
         next = std::strpbrk((char*)propertyPath.c_str(), "[");
@@ -206,14 +206,14 @@ namespace hod
         {
             /*
             ReflectionPropertyArray* arrayProperty = reflectionDescriptor->FindProperty<ReflectionPropertyVariable>(propertyPath.c_str());
-            Serializer::DeserializeArray(variableProperty, instance, documentNode);
+            Serializer::DeserializeArray(variableProperty, instance, documentNode, path);
             */
             return false;
         }
         else // variable
         {
             ReflectionPropertyVariable* variableProperty = reflectionDescriptor->FindProperty<ReflectionPropertyVariable>(propertyPath.c_str());
-            return Serializer::DeserializeVariable(variableProperty, instance, documentNode);
+            return Serializer::DeserializeVariable(variableProperty, instance, documentNode, path);
         }
     }
 
@@ -222,12 +222,16 @@ namespace hod
     /// @param instance 
     /// @param documentNode 
     /// @return 
-    bool Serializer::SerializeVariable(const ReflectionPropertyVariable* property, const void* instance, Document::Node& documentNode)
+    bool Serializer::SerializeVariable(const ReflectionPropertyVariable* property, const void* instance, Document::Node& documentNode, std::string_view overrideNodeName)
     {
         const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
         const uint8_t* variableAddress = instanceAddress + property->GetOffset();
 
-        Document::Node& varNode = documentNode.GetOrAddChild(property->GetName());
+        if (overrideNodeName.empty())
+        {
+            overrideNodeName = property->GetName();
+        }
+        Document::Node& varNode = documentNode.GetOrAddChild(overrideNodeName);
         
         switch (property->GetType())
         {
@@ -256,12 +260,16 @@ namespace hod
     /// @param instance 
     /// @param documentNode 
     /// @return 
-    bool Serializer::DeserializeVariable(const ReflectionPropertyVariable* property, void* instance, const Document::Node& documentNode)
+    bool Serializer::DeserializeVariable(const ReflectionPropertyVariable* property, void* instance, const Document::Node& documentNode, std::string_view overrideNodeName)
     {
         uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
         uint8_t* variableAddress = instanceAddress + property->GetOffset();
 
-        const Document::Node* varNode = documentNode.GetChild(property->GetName());
+        if (overrideNodeName.empty())
+        {
+            overrideNodeName = property->GetName();
+        }
+        const Document::Node* varNode = documentNode.GetChild(overrideNodeName);
         if (varNode != nullptr)
         {
             switch (property->GetType())
@@ -291,12 +299,16 @@ namespace hod
     /// @param instance 
     /// @param documentNode 
     /// @return 
-    bool Serializer::SerializeArray(const ReflectionPropertyArray* property, const void* instance, Document::Node& documentNode)
+    bool Serializer::SerializeArray(const ReflectionPropertyArray* property, const void* instance, Document::Node& documentNode, std::string_view overrideNodeName)
     {
         const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
         const uint8_t* arrayAddress = instanceAddress + property->GetOffset();
 
-        Document::Node& arrayNode = documentNode.GetOrAddChild(property->GetName());
+        if (overrideNodeName.empty())
+        {
+            overrideNodeName = property->GetName();
+        }
+        Document::Node& arrayNode = documentNode.GetOrAddChild(overrideNodeName);
 
         switch (property->GetType())
         {
@@ -343,12 +355,16 @@ namespace hod
     /// @param instance 
     /// @param documentNode 
     /// @return 
-    bool Serializer::DeserializeArray(const ReflectionPropertyArray* property, void* instance, const Document::Node& documentNode)
+    bool Serializer::DeserializeArray(const ReflectionPropertyArray* property, void* instance, const Document::Node& documentNode, std::string_view overrideNodeName)
     {
         uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
         uint8_t* arrayAddress = instanceAddress + property->GetOffset();
 
-        const Document::Node* arrayNode = documentNode.GetChild(property->GetName());
+        if (overrideNodeName.empty())
+        {
+            overrideNodeName = property->GetName();
+        }
+        const Document::Node* arrayNode = documentNode.GetChild(overrideNodeName);
         if (arrayNode != nullptr)
         {
             // TODO reserve
@@ -395,9 +411,13 @@ namespace hod
     /// @param instance 
     /// @param documentNode 
     /// @return 
-    bool Serializer::SerializeObject(const ReflectionPropertyObject* property, const void* instance, Document::Node& documentNode)
+    bool Serializer::SerializeObject(const ReflectionPropertyObject* property, const void* instance, Document::Node& documentNode, std::string_view overrideNodeName)
     {
-        Document::Node& objectNode = documentNode.GetOrAddChild(property->GetName());
+        if (overrideNodeName.empty())
+        {
+            overrideNodeName = property->GetName();
+        }
+        Document::Node& objectNode = documentNode.GetOrAddChild(overrideNodeName);
 
         const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
         const uint8_t* objectAddress = instanceAddress + property->GetOffset();
@@ -457,14 +477,18 @@ namespace hod
     /// @param instance 
     /// @param documentNode 
     /// @return 
-    bool Serializer::DeserializeObject(const ReflectionPropertyObject* property, void* instance, const Document::Node& documentNode)
+    bool Serializer::DeserializeObject(const ReflectionPropertyObject* property, void* instance, const Document::Node& documentNode, std::string_view overrideNodeName)
     {
         uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
         uint8_t* objectAddress = instanceAddress + property->GetOffset();
 
         void* objectInstance = reinterpret_cast<void*>(objectAddress);
 
-        const Document::Node* objectNode = documentNode.GetChild(property->GetName());
+        if (overrideNodeName.empty())
+        {
+            overrideNodeName = property->GetName();
+        }
+        const Document::Node* objectNode = documentNode.GetChild(overrideNodeName);
         
         if (objectNode != nullptr)
         {

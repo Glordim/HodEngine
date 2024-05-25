@@ -45,11 +45,10 @@ namespace hod::game
 						uid = static_cast<Component*>(diff->_instance)->GetLocalId();
 						Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
 					}
+					// TODO can be an array of modifcations to mutalize target description
 					Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
-					Serializer::SerializeVariable((ReflectionPropertyVariable*)diff->_reflectionProperty, diff->_instance, overrideModificationNode);
+					Serializer::SerializeVariable((ReflectionPropertyVariable*)diff->_reflectionProperty, diff->_effectiveInstanceAddr, overrideModificationNode, diff->_path);
 				}
-
-				//Serializer::SerializeDiff(prefab->GetRootEntity(), entity.get(), entityNode);
 			}
 			else
 			{

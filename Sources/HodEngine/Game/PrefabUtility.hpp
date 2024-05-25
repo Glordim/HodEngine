@@ -21,20 +21,26 @@ namespace hod::game::PrefabUtility
 				Component,	
 			};
 
-			Diff(ReflectionProperty* reflectionProperty, std::shared_ptr<Entity> source, std::shared_ptr<Entity> instance)
+			Diff(const std::string& path, ReflectionProperty* reflectionProperty, std::shared_ptr<Entity> source, std::shared_ptr<Entity> instance, void* effectiveSourceAddr, void* effectiveInstanceAddr)
 			: _reflectionProperty(reflectionProperty)
 			, _source(source.get())
 			, _instance(instance.get())
+			, _effectiveSourceAddr(effectiveSourceAddr)
+			, _effectiveInstanceAddr(effectiveInstanceAddr)
 			, _type(Type::Entity)
+			, _path(path)
 			{
 
 			}
 
-			Diff(ReflectionProperty* reflectionProperty, std::shared_ptr<Component> source, std::shared_ptr<Component> instance)
+			Diff(const std::string& path, ReflectionProperty* reflectionProperty, std::shared_ptr<Component> source, std::shared_ptr<Component> instance, void* effectiveSourceAddr, void* effectiveInstanceAddr)
 			: _reflectionProperty(reflectionProperty)
 			, _source(source.get())
 			, _instance(instance.get())
+			, _effectiveSourceAddr(effectiveSourceAddr)
+			, _effectiveInstanceAddr(effectiveInstanceAddr)
 			, _type(Type::Component)
+			, _path(path)
 			{
 
 			}
@@ -42,22 +48,25 @@ namespace hod::game::PrefabUtility
 			ReflectionProperty* _reflectionProperty = nullptr;
 			void* 				_source = nullptr;
 			void* 				_instance = nullptr;
+			void*				_effectiveSourceAddr = nullptr;
+			void*				_effectiveInstanceAddr = nullptr;
 			Type				_type;
+			std::string			_path;
 		};
 
 		std::vector<Diff*> _diffs;
 
-		void Add(ReflectionProperty* reflectionProperty, std::shared_ptr<Entity> source, std::shared_ptr<Entity> instance)
+		void Add(const std::string& path, ReflectionProperty* reflectionProperty, std::shared_ptr<Entity> source, std::shared_ptr<Entity> instance, void* effectiveSourceAddr, void* effectiveInstanceAddr)
 		{
-			_diffs.push_back(new Diff(reflectionProperty, source, instance));
+			_diffs.push_back(new Diff(path, reflectionProperty, source, instance, effectiveSourceAddr, effectiveInstanceAddr));
 		}
 
-		void Add(ReflectionProperty* reflectionProperty, std::shared_ptr<Component> source, std::shared_ptr<Component> instance)
+		void Add(const std::string& path, ReflectionProperty* reflectionProperty, std::shared_ptr<Component> source, std::shared_ptr<Component> instance, void* effectiveSourceAddr, void* effectiveInstanceAddr)
 		{
-			_diffs.push_back(new Diff(reflectionProperty, source, instance));
+			_diffs.push_back(new Diff(path, reflectionProperty, source, instance, effectiveSourceAddr, effectiveInstanceAddr));
 		}
 	};
 
 	bool CollectDiff(std::shared_ptr<Entity> entity, EntityDiffs& diffs);
-	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, ReflectionDescriptor* reflectionDescriptor, const void* sourceAddr, const void* instanceAddr);
+	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor* reflectionDescriptor, void* sourceAddr, void* instanceAddr);
 }

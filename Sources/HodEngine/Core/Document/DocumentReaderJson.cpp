@@ -371,8 +371,8 @@ namespace hod
 		++_cursor;
 
 		const char* keyStart = _cursor;
-		_cursor += std::strspn(keyStart, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-");
-		if (*_cursor != '\"')
+		_cursor = std::strchr(keyStart, '"');
+		if (_cursor == nullptr)
 		{
 			OUTPUT_ERROR("Json syntax error");
 			return nullptr;

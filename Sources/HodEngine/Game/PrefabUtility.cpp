@@ -37,7 +37,7 @@ namespace hod::game::PrefabUtility
 				ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
 				if (reflectionPropertyVariable->CompareInstance(source.get(), instance.get()) == false)
 				{
-					diffs.Add(reflectionPropertyVariable, source, instance);
+					diffs.Add("", reflectionPropertyVariable, source, instance, source.get(), instance.get()); // TODO uniformize with component, entity can have sub object too
 				}
 			}
 		}
@@ -53,9 +53,10 @@ namespace hod::game::PrefabUtility
 				if (instanceComponentLock->GetLocalId() == localId)
 				{
 					ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
-					const void* componentAddr = componentLock.get();
-					const void* instanceAddr = instanceComponentLock.get();
-					CollectDiff(componentLock, instanceComponentLock, diffs, reflectionDescriptor, componentAddr, instanceAddr);
+					void* componentAddr = componentLock.get();
+					void* instanceAddr = instanceComponentLock.get();
+					std::string path = "";
+					CollectDiff(componentLock, instanceComponentLock, diffs, path, reflectionDescriptor, componentAddr, instanceAddr);
 				}
 			}
 		}
@@ -70,7 +71,7 @@ namespace hod::game::PrefabUtility
 	/// @param reflectionDescriptor 
 	/// @param sourceAddr 
 	/// @param instanceAddr 
-	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, ReflectionDescriptor* reflectionDescriptor, const void* sourceAddr, const void* instanceAddr)
+	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor* reflectionDescriptor, void* sourceAddr, void* instanceAddr)
 	{
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
 		{
@@ -79,16 +80,17 @@ namespace hod::game::PrefabUtility
 				ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
 				if (reflectionPropertyVariable->CompareInstance(sourceAddr, instanceAddr) == false)
 				{
-					diffs.Add(reflectionPropertyVariable, sourceComponent, instanceComponent);
+					diffs.Add(path + reflectionPropertyVariable->GetName(), reflectionPropertyVariable, sourceComponent, instanceComponent, sourceAddr, instanceAddr);
 				}
 			}
 			else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
 			{
 				ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
-				const void* subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);
-				const void* subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
+				void* subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);
+				void* subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
+				std::string subObjecPath = path + reflectionPropertyObject->GetName() + ".";
 				ReflectionDescriptor* subObjectReflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
-				CollectDiff(sourceComponent, instanceComponent, diffs, subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
+				CollectDiff(sourceComponent, instanceComponent, diffs, subObjecPath, subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
 			}
 		}
 	}
