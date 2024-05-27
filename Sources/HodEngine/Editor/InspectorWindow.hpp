@@ -4,6 +4,8 @@
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
+#include <memory>
+
 namespace hod
 {
 	class ReflectionDescriptor;
@@ -35,7 +37,7 @@ namespace hod::editor
 	private:
 
 		void		DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection);
-		void		DrawSceneSelection(game::Entity* selection);
+		void		DrawSceneSelection(std::shared_ptr<game::Entity> selection);
 
 		bool		DrawDefaultInspector(void* object, ReflectionDescriptor* reflectionDescriptor);
 	};

@@ -3,6 +3,8 @@
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+#include <HodEngine/ImGui/Helper.hpp>
 
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
@@ -19,6 +21,8 @@
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
 
+#include "HodEngine/Game/PrefabUtility.hpp"
+
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(InspectorWindow, "Inspector", true)
@@ -30,7 +34,7 @@ namespace hod::editor
 		std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
 		if (sceneSelection != nullptr)
 		{
-			DrawSceneSelection(sceneSelection.get());
+			DrawSceneSelection(sceneSelection);
 		}
 		else
 		{
@@ -73,8 +77,65 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param selection 
-	void InspectorWindow::DrawSceneSelection(game::Entity* selection)
+	void InspectorWindow::DrawSceneSelection(std::shared_ptr<game::Entity> selection)
 	{
+		if (selection->GetPrefab() != nullptr)
+		{
+			// todo don't do that in play mode
+			game::PrefabUtility::EntityDiffs entityDiffs;
+			game::PrefabUtility::CollectDiff(selection, entityDiffs);
+			//
+
+			if (ImGui::BeginChild("PrefabInstance", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle) == true)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.5f, 1.0f, 1.0f));
+				ImGui::TextUnformatted(ICON_MDI_INFORMATION);
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted("This is an instance of");
+				ImGui::SameLine();
+				if (ImGui::Button("MyPrefab"))
+				{
+
+				}
+				ImGui::SameLine();
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted("prefab.");
+
+				// todo hide in play mode
+				ImGui::SameLine(ImGui::GetContentRegionMax().x - CalculateButtonSize(ICON_MDI_PENCIL).x, 0.0f);
+				ImGui::BeginDisabled(entityDiffs._diffs.empty());
+				if (ImGui::Button(ICON_MDI_PENCIL))
+				{
+					ImGui::OpenPopup("EditOverrides");
+				}
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && entityDiffs._diffs.empty())
+				{
+					ImGui::SetTooltip("%s", "No override detected");
+				}
+				ImGui::EndDisabled();
+
+				if (ImGui::BeginPopup("EditOverrides"))
+				{
+					if (ImGui::Button(ICON_MDI_RESTORE " Revert all"))
+					{
+						
+					}
+					ImGui::SameLine();
+					if (ImGui::Button(ICON_MDI_CONTENT_SAVE " Apply all"))
+					{
+						
+					}
+					ImGui::EndPopup();
+				}
+				//
+			}
+			ImGui::EndChild();
+			ImGui::Separator();
+		}
+
 		ImGui::Text("Actor");
 
 		char buffer[256] = { '\0' };
