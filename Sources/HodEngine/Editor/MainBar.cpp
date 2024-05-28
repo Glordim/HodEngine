@@ -20,6 +20,12 @@ namespace hod::editor
 	/// @brief 
 	void MainBar::Draw()
 	{
+		static bool ImguiDemo = false;
+		if (ImguiDemo)
+		{
+			ImGui::ShowDemoWindow(&ImguiDemo);
+		}
+
 		if (ImGui::BeginMenu("File") == true)
 		{
 			if (ImGui::MenuItem("Save", "CTRL+S") == true)
@@ -65,6 +71,10 @@ namespace hod::editor
 			if (ImGui::MenuItem("Hierachy") == true)
 			{
 				imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
+			}
+			if (ImGui::MenuItem("ImGui demo"))
+			{
+				ImguiDemo = !ImguiDemo;
 			}
 			ImGui::EndMenu();
 		}

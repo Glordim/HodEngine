@@ -79,10 +79,11 @@ namespace hod::editor
 	/// @param selection 
 	void InspectorWindow::DrawSceneSelection(std::shared_ptr<game::Entity> selection)
 	{
+		game::PrefabUtility::EntityDiffs entityDiffs;
+
 		if (selection->GetPrefab() != nullptr)
 		{
 			// todo don't do that in play mode
-			game::PrefabUtility::EntityDiffs entityDiffs;
 			game::PrefabUtility::CollectDiff(selection, entityDiffs);
 			//
 
@@ -153,6 +154,21 @@ namespace hod::editor
 			std::shared_ptr<game::Component> componentLock = component.lock();
 			if (componentLock != nullptr)
 			{
+				bool hasOverride = false;
+				std::vector<hod::game::PrefabUtility::EntityDiffs::Diff*> componentDiffs;
+				for (auto diff : entityDiffs._diffs)
+				{
+					if (diff->_instance == componentLock.get())
+					{
+						hasOverride = true;
+						componentDiffs.push_back(diff);
+					}
+				}
+				if (hasOverride == true)
+				{
+					float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
+					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetCursorScreenPos().x- 200, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetCursorScreenPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+				}
 				bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 				if (ImGui::BeginPopupContextItem() == true)
 				{
