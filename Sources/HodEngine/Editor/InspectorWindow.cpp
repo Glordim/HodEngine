@@ -167,7 +167,7 @@ namespace hod::editor
 				if (hasOverride == true)
 				{
 					float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
-					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetCursorScreenPos().x- 200, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetCursorScreenPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
 				}
 				bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 				if (ImGui::BeginPopupContextItem() == true)
