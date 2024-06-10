@@ -8,6 +8,8 @@
 #include "HodEngine/ImGui/Widgets.hpp"
 
 #include "HodEngine/Game/WeakResource.hpp"
+#include "HodEngine/Editor/EditorReflectedObject.hpp"
+#include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
@@ -23,20 +25,20 @@ namespace hod::editor
 	/// @brief 
 	/// @param instance 
 	/// @return 
-	bool WeakResourceCustomEditor::Draw(void* instance, ReflectionPropertyObject* property)
+	bool WeakResourceCustomEditor::Draw(EditorReflectedObject& reflectedObject)
 	{
 		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
 
 		bool changed = false;
 
-		game::WeakResourceBase* value = static_cast<game::WeakResourceBase*>(property->GetValue(instance));
+		game::WeakResourceBase* value = static_cast<game::WeakResourceBase*>(reflectedObject.GetInstance());
 
 		ImGui::PushID(value);
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
 
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(property->GetDisplayName().c_str());
+		ImGui::TextUnformatted(reflectedObject.GetSourceProperty()->GetReflectionProperty()->GetDisplayName().c_str());
 
 		ImGui::SameLine(valuePos);
 
@@ -114,8 +116,10 @@ namespace hod::editor
 			ImGui::PopStyleVar();
 			if (clicked)
 			{
+				ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
+				
 				value->SetUid(UID::INVALID_UID);
-				property->SetValue(instance, value); // Set to itself for call SetFunction
+				reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
 			}
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
@@ -133,8 +137,10 @@ namespace hod::editor
 				ImGui::PopStyleVar();
 				if (clicked)
 				{
+					ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
+
 					value->SetUid(assetNode->_asset->GetUid());
-					property->SetValue(instance, value); // Set to itself for call SetFunction
+					reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
 				}
 				else if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{

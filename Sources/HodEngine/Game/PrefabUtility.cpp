@@ -99,4 +99,34 @@ namespace hod::game::PrefabUtility
 			}
 		}
 	}
+
+	game::Prefab* GetPrefab(std::shared_ptr<Component> component)
+	{
+		std::shared_ptr<game::Entity> entity = component->GetEntity().lock();
+		if (entity != nullptr)
+		{
+			game::Prefab* prefab = entity->GetPrefab();
+			if (prefab != nullptr)
+			{
+				prefab
+			}
+		}
+	}
+
+	/// @brief 
+	/// @param sourceComponent 
+	/// @return 
+	std::shared_ptr<Component> GetCorrespondingComponent(std::shared_ptr<Component> component)
+	{
+		std::shared_ptr<game::Entity> entity = component->GetEntity().lock();
+		if (entity != nullptr)
+		{
+			game::Prefab* prefab = entity->GetPrefab();
+			if (prefab != nullptr)
+			{
+				prefab
+			}
+		}
+		return nullptr;
+	}
 }

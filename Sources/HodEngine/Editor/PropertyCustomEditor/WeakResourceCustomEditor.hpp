@@ -24,6 +24,6 @@ namespace hod::editor
 
 	public:
 
-		bool						Draw(void* instance, ReflectionPropertyObject* property) override;
+		bool						Draw(EditorReflectedObject& reflectedObject) override;
 	};
 }

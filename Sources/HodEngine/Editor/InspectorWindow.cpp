@@ -20,6 +20,8 @@
 #include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
+#include "HodEngine/Editor/EditorReflectedObject.hpp"
+#include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
 #include "HodEngine/Game/PrefabUtility.hpp"
 
@@ -66,7 +68,7 @@ namespace hod::editor
 			}
 			else
 			{
-				changed = DrawDefaultInspector(asset->GetMeta()._importerSettings, reflectionDescriptor);
+				//changed = DrawDefaultInspector(asset->GetMeta()._importerSettings, reflectionDescriptor);
 			}
 			if (changed == true)
 			{
@@ -184,7 +186,7 @@ namespace hod::editor
 
 				if (opened == true)
 				{
-					Property property(componentLock.get(), componentLock->GetReflectionDescriptorV());
+					EditorReflectedObject reflectedObject(componentLock);
 
 					bool changed = false;
 					ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
@@ -195,7 +197,7 @@ namespace hod::editor
 					}
 					else
 					{
-						changed = DrawDefaultInspector(property);
+						changed = DrawDefaultInspector(reflectedObject);
 					}
 					if (changed == true)
 					{
@@ -233,8 +235,8 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param object 
-	bool InspectorWindow::DrawDefaultInspector(Property& property)
+	bool InspectorWindow::DrawDefaultInspector(EditorReflectedObject& reflectedObject)
 	{
-		return PropertyDrawer::DrawProperty(property);
+		return PropertyDrawer::DrawDescriptor(reflectedObject);
 	}
 }

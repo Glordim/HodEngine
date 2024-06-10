@@ -13,42 +13,45 @@
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
+#include "HodEngine/Editor/EditorReflectedObject.hpp"
+#include "HodEngine/Editor/EditorReflectedProperty.hpp"
+
 namespace hod::editor
 {
-	bool PropertyDrawer::DrawDescriptor(void* object, ReflectionDescriptor* descriptor)
+	bool PropertyDrawer::DrawDescriptor(EditorReflectedObject& reflectedObject)
 	{
 		bool changed = false;
 
-		for (ReflectionProperty* property : descriptor->GetProperties())
+		for (EditorReflectedProperty* property : reflectedObject.GetProperties())
 		{
-			changed |= PropertyDrawer::DrawProperty(object, property);
+			changed |= PropertyDrawer::DrawProperty(*property);
 		}
 
 		return changed;
 	}
 
-	bool PropertyDrawer::DrawProperty(void* object, ReflectionProperty* property)
+	bool PropertyDrawer::DrawProperty(EditorReflectedProperty& reflectedProperty)
 	{
-		ImGui::PushID(object);
+		ImGui::PushID(reflectedProperty.GetReflectionProperty());
 		bool changed = false;
-		if (property->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+
+		ReflectionProperty* reflectionProperty = reflectedProperty.GetReflectionProperty();
+
+		if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
 		{
-			ReflectionPropertyVariable* variableProperty = static_cast<ReflectionPropertyVariable*>(property);
-			changed = DrawPropertyVariable(object, variableProperty);
+			changed = DrawPropertyVariable(reflectedProperty);
 		}
-		else if (property->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+		else if (reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
 		{
-			ReflectionPropertyArray* arrayProperty = static_cast<ReflectionPropertyArray*>(property);
-			changed = DrawPropertyArray(object, arrayProperty);
+			changed = DrawPropertyArray(reflectedProperty);
 		}
-		else if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+		else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
 		{
-			ReflectionPropertyObject* objectProperty = static_cast<ReflectionPropertyObject*>(property);
-			changed = DrawPropertyObject(object, objectProperty);
+			changed = DrawPropertyObject(reflectedProperty);
 
 			if (changed == true)
 			{
-				objectProperty->SetValue(object, objectProperty->GetValue(object));
+				//objectProperty->SetValue(object, objectProperty->GetValue(object));
 			}
 		}
 		ImGui::PopID();
@@ -58,8 +61,11 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyVariable(void* object, ReflectionPropertyVariable* property)
+	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& reflectedProperty)
 	{
+		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(reflectedProperty.GetReflectionProperty());
+		void* object = reflectedProperty.GetInstance();
+
 		bool changed = false;
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
@@ -124,8 +130,11 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyArray(void* object, ReflectionPropertyArray* property)
+	bool PropertyDrawer::DrawPropertyArray(EditorReflectedProperty& reflectedProperty)
 	{
+		ReflectionPropertyArray* property = static_cast<ReflectionPropertyArray*>(reflectedProperty.GetReflectionProperty());
+		void* object = reflectedProperty.GetInstance();
+
 		bool changed = false;
 		
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
@@ -167,6 +176,7 @@ namespace hod::editor
 					}
 					break;
 
+					/*
 					case ReflectionPropertyVariable::Type::Object:
 					{
 						if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
@@ -178,6 +188,7 @@ namespace hod::editor
 						}
 					}
 					break;
+					*/
 
 					default: assert(false); break;
 				}
@@ -203,25 +214,27 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyObject(void* object, ReflectionPropertyObject* property)
+	bool PropertyDrawer::DrawPropertyObject(EditorReflectedProperty& reflectedProperty)
 	{
-		bool changed = false;
+		EditorReflectedObject* subEditorReflectedObject = reflectedProperty.GetEditorReflectedObject();
 
-		void* instance = property->GetInstance(object);
+		ReflectionPropertyObject* property = static_cast<ReflectionPropertyObject*>(reflectedProperty.GetReflectionProperty());
+
+		bool changed = false;
 		ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
 
 		ReflectionTraitCustomPropertyDrawer* customPropertyDrawerTrait = instanceDescriptor->FindTrait<ReflectionTraitCustomPropertyDrawer>();
 		if (customPropertyDrawerTrait != nullptr)
 		{
-			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(object, property);
+			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(*subEditorReflectedObject);
 		}
 		else
 		{
 			if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()) == true)
 			{
-				for (ReflectionProperty* property : instanceDescriptor->GetProperties())
+				for (EditorReflectedProperty* subEditorReflectedProperty : subEditorReflectedObject->GetProperties())
 				{
-					changed |= PropertyDrawer::DrawProperty(instance, property);
+					changed |= PropertyDrawer::DrawProperty(*subEditorReflectedProperty);
 				}
 			}
 		}

@@ -19,6 +19,8 @@ namespace hod::game
 
 namespace hod::editor
 {
+	class EditorReflectedObject;
+
 	/// @brief 
 	class InspectorWindow : public imgui::Window
 	{
@@ -39,6 +41,6 @@ namespace hod::editor
 		void		DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 		void		DrawSceneSelection(std::shared_ptr<game::Entity> selection);
 
-		bool		DrawDefaultInspector(void* object, ReflectionDescriptor* reflectionDescriptor);
+		bool		DrawDefaultInspector(EditorReflectedObject& reflectedObject);
 	};
 }

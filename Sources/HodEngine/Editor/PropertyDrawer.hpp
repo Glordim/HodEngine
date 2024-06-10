@@ -11,6 +11,9 @@ namespace hod
 
 namespace hod::editor
 {
+    class EditorReflectedObject;
+    class EditorReflectedProperty;
+
     class PropertyDrawer
     {
     public:
@@ -25,10 +28,10 @@ namespace hod::editor
 
     public:
 
-        static bool     DrawDescriptor(void* object, ReflectionDescriptor* descriptor);
-        static bool     DrawProperty(void* object, ReflectionProperty* property);
-		static bool     DrawPropertyVariable(void* object, ReflectionPropertyVariable* property);
-		static bool     DrawPropertyArray(void* object, ReflectionPropertyArray* property);
-		static bool     DrawPropertyObject(void* object, ReflectionPropertyObject* property);
+        static bool     DrawDescriptor(EditorReflectedObject& reflectedObject);
+        static bool     DrawProperty(EditorReflectedProperty& reflectedProperty);
+		static bool     DrawPropertyVariable(EditorReflectedProperty& reflectedProperty);
+		static bool     DrawPropertyArray(EditorReflectedProperty& reflectedProperty);
+		static bool     DrawPropertyObject(EditorReflectedProperty& reflectedProperty);
     };
 }

@@ -7,6 +7,8 @@ namespace hod
 
 namespace hod::editor
 {
+	class EditorReflectedObject;
+
 	///@brief 
 	class CustomPropertyDrawer
 	{
@@ -22,6 +24,6 @@ namespace hod::editor
 
 	public:
 
-		virtual bool				Draw(void* instance, ReflectionPropertyObject* property) = 0;
+		virtual bool				Draw(EditorReflectedObject& reflectedObject) = 0;
 	};
 }

@@ -1,4 +1,6 @@
 #include "Vector2CustomEditor.hpp"
+#include "HodEngine/Editor/EditorReflectedObject.hpp"
+#include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
 #include "HodEngine/Core/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
@@ -12,20 +14,23 @@ namespace hod::editor
 	/// @brief 
 	/// @param instance 
 	/// @return 
-	bool Vector2CustomEditor::Draw(void* instance, ReflectionPropertyObject* property)
+	bool Vector2CustomEditor::Draw(EditorReflectedObject& reflectedObject)
 	{
 		bool changed = false;
+		void* instance = reflectedObject.GetInstance();
 
-		Vector2 value = *static_cast<Vector2*>(property->GetValue(instance));
+		Vector2 value = *static_cast<Vector2*>(instance);
 		float x = value.GetX();
 		float y = value.GetY();
 
-		ImGui::PushID(property->GetValue(instance));
+		ImGui::PushID(instance);
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
 
+		ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
+
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(property->GetDisplayName().c_str());
+		ImGui::TextUnformatted(reflectionProperty->GetDisplayName().c_str());
 
 		ImGui::SameLine(valuePos);
 
@@ -55,7 +60,7 @@ namespace hod::editor
 		{
 			value.SetX(x);
 			value.SetY(y);
-			property->SetValue(instance, &value);
+			reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), &value);
 		}
 		return changed;
 	}
