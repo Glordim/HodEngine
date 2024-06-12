@@ -39,7 +39,11 @@ namespace hod::application
 			return false;
 		}
 
-		_window = platformDisplayManager->CreateWindow();
+		bool hiddenWindow = false;
+		#if defined(HOD_EDITOR)
+			hiddenWindow = true;
+		#endif
+		_window = platformDisplayManager->CreateWindow(hiddenWindow);
 
 		PlatformRenderer::CreateInstance();
 		if (PlatformRenderer::GetInstance()->Init(_window) == false)

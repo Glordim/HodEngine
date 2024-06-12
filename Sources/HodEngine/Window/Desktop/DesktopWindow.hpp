@@ -28,6 +28,8 @@ namespace hod::window
 		virtual void			CenterToScreen() = 0;
 		virtual void			Maximize() = 0;
 
+		virtual void			SetVisible(bool visible) = 0;
+
 		const Vector2&			GetMousePosition() const;
 		bool					GetMouseButton(MouseButton button) const;
 

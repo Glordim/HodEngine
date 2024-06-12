@@ -35,9 +35,9 @@ namespace hod::window
 
     /// @brief 
     /// @return 
-    Window* Win32DisplayManager::CreateWindow()
+    Window* Win32DisplayManager::CreateWindow(bool hidden)
     {
-        return new Win32Window();
+        return new Win32Window(hidden);
     }
 
     /// @brief 

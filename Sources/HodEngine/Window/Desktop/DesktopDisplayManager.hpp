@@ -14,7 +14,7 @@ namespace hod::window
 
     public:
 
-        virtual Window* CreateWindow() = 0;
+        virtual Window* CreateWindow(bool hidden = false) = 0;
         virtual void    DestroyWindow(Window* window) = 0;
     };
 }

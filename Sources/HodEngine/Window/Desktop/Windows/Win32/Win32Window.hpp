@@ -21,7 +21,7 @@ namespace hod::window
 		Event<HWND, UINT, WPARAM, LPARAM>	OnWinProc;
 
 	public:
-											Win32Window();
+											Win32Window(bool hidden = false);
 											~Win32Window() override;
 
 		void								Update() override;
@@ -32,6 +32,8 @@ namespace hod::window
 		void								SetSize(uint16_t width, uint16_t height) override;
 		void								CenterToScreen() override;
 		void								Maximize() override;
+
+		void								SetVisible(bool visible) override;
 
 		void								RunOnWin32Thread(std::function<void()> codeToRun);
 

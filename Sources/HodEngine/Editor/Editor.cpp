@@ -113,6 +113,7 @@ namespace hod::editor
 			window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
 			mainWindow->SetSize(600, 320);
 			mainWindow->CenterToScreen();
+			mainWindow->SetVisible(true);
 
 			imgui::ImGuiManager::GetInstance()->OpenWindow<ProjectBrowser>();
 			return true;
