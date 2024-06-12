@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Components/RendererComponent.hpp"
@@ -71,7 +72,7 @@ namespace hod::editor
 				std::strcpy(tabName, tab->_asset->GetName().c_str());
 				if (tab->_asset->IsDirty())
 				{
-					std::strcat(tabName, "*");
+					std::strcat(tabName, ICON_MDI_RHOMBUS_MEDIUM);
 				}
 				ImGui::PushID(tab);
 				bool selected = ImGui::BeginTabItem(tabName, &open, flags);

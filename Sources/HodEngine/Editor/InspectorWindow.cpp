@@ -97,15 +97,12 @@ namespace hod::editor
 				ImGui::PopStyleColor();
 				ImGui::SameLine();
 				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("This is an instance of");
+				ImGui::TextUnformatted("Instance of");
 				ImGui::SameLine();
 				if (ImGui::Button("MyPrefab"))
 				{
 
 				}
-				ImGui::SameLine();
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("prefab.");
 
 				// todo hide in play mode
 				ImGui::SameLine(ImGui::GetContentRegionMax().x - CalculateButtonSize(ICON_MDI_PENCIL).x, 0.0f);
