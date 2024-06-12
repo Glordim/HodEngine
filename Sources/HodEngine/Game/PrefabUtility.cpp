@@ -123,6 +123,10 @@ namespace hod::game::PrefabUtility
 					{
 						entity = parentNodeComponent->GetEntity().lock();
 					}
+					else
+					{
+						entity = nullptr;
+					}
 				}
 			}
 		}
@@ -194,7 +198,7 @@ namespace hod::game::PrefabUtility
 		if (entity != nullptr)
 		{
 			std::shared_ptr<game::Entity> prefabInstanceEntity = GetPrefabInstance(entity);
-			if (entity != nullptr)
+			if (prefabInstanceEntity != nullptr)
 			{
 				std::string pathToComponent = GetRelativePath(prefabInstanceEntity, entity);
 				std::shared_ptr<Entity> correspondingEntity = FindChildByPath(prefabInstanceEntity->GetPrefab()->GetRootEntity(), pathToComponent);

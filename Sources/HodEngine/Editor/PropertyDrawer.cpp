@@ -66,6 +66,12 @@ namespace hod::editor
 		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(reflectedProperty.GetReflectionProperty());
 		void* object = reflectedProperty.GetInstance();
 
+		if (reflectedProperty.IsOverride() == true)
+		{
+			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+		}
+
 		bool changed = false;
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;

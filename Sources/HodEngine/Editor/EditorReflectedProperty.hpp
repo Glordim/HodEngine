@@ -15,16 +15,18 @@ namespace hod::editor
     {
     public:
 
-        EditorReflectedProperty(void* instance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent);
-        EditorReflectedProperty(const std::vector<void*>& instances, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent);
+        EditorReflectedProperty(void* instance, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent);
+        EditorReflectedProperty(const std::vector<void*>& instances, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent);
         ~EditorReflectedProperty();
 
     public:
 
         bool IsEditingMultipleInstance() const;
+        bool IsOverride() const;
 
         ReflectionProperty* GetReflectionProperty() const;
 
+        void*                       GetSourceInstance() const;
         void*                       GetInstance() const;
         const std::vector<void*>&   GetInstances() const;
 
@@ -33,6 +35,7 @@ namespace hod::editor
 
     private:
 
+        void*                   _sourceInstance = nullptr; 
         std::vector<void*>      _instances;
         ReflectionProperty*     _reflectionProperty = nullptr;
 

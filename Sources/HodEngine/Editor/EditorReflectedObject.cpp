@@ -16,6 +16,8 @@ namespace hod::editor
     {
         std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
 
+        _sourceInstance = sourceComponent.get();
+
         GeneratePropertiesFromReflectionDescriptor();
     }
 
@@ -44,6 +46,7 @@ namespace hod::editor
         ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(sourceProperty.GetReflectionProperty());
         _reflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
         _instances.reserve(sourceProperty.GetInstances().size());
+        _sourceInstance = reflectionPropertyObject->GetInstance(sourceProperty.GetSourceInstance());
         for (void* instance : sourceProperty.GetInstances())
         {
             _instances.push_back(reflectionPropertyObject->GetInstance(instance));
@@ -79,7 +82,7 @@ namespace hod::editor
     {
         for (ReflectionProperty* reflectionProperty : _reflectionDescriptor->GetProperties())
         {
-            EditorReflectedProperty* property = new EditorReflectedProperty(_instances, reflectionProperty, this);
+            EditorReflectedProperty* property = new EditorReflectedProperty(_instances, _sourceInstance, reflectionProperty, this);
             _properties.push_back(property);
         }
     }
