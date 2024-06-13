@@ -34,6 +34,7 @@ namespace hod
 		ReflectionDescriptor*					GetReflectionDescriptor() const;
 
 		void									Copy(const void* sourceInstance, void* destinationInstance) const override;
+		bool									CompareInstance(const void* left, const void* right) const;
 
 	private:
 

@@ -19,6 +19,12 @@ namespace hod::editor
 		bool changed = false;
 		void* instance = reflectedObject.GetInstance();
 
+		if (reflectedObject.IsOverride() == true)
+		{
+			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+		}
+
 		Vector2 value = *static_cast<Vector2*>(instance);
 		float x = value.GetX();
 		float y = value.GetY();

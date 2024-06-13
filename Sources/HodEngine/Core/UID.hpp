@@ -32,6 +32,8 @@ namespace hod
         	return std::strong_ordering::equal;
     	}
 
+		bool								operator==(const UID& other) const = default;
+
 	public:
 
 		std::string							ToString() const;
@@ -49,15 +51,6 @@ namespace hod
 		uint64_t							_low = 0;
 		uint64_t							_high = 0;
 	};
-
-	bool									operator==(const UID& left, const UID& right);
-	bool									operator!=(const UID& left, const UID& right);
-
-	/*
-	* 	bool								operator<(const UID& lhs, const UID& rhs)
-	{
-		return lhs._high <= rhs._high && lhs._low < rhs._low;
-	}*/
 }
 
 #include "UID.inl"

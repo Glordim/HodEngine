@@ -36,7 +36,7 @@ namespace hod
 		Vector4		operator * (const Vector4& right);
 		Vector4		operator / (const Vector4& right);
 
-		bool		operator == (const Vector4& right);
+		bool		operator == (const Vector4& right) const;
 
 		Vector4&	operator += (float value);
 		Vector4&	operator -= (float value);

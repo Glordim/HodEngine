@@ -77,4 +77,13 @@ namespace hod
 	{
 		_reflectionDescriptor->Copy(GetInstance(sourceInstance), GetInstance(destinationInstance));
 	}
+
+	/// @brief 
+	/// @param left 
+	/// @param right 
+	/// @return 
+	bool ReflectionPropertyObject::CompareInstance(const void* left, const void* right) const
+	{
+		return _reflectionDescriptor->Compare(left, right);
+	}
 }

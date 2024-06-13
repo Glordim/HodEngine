@@ -27,6 +27,12 @@ namespace hod::editor
 	/// @return 
 	bool WeakResourceCustomEditor::Draw(EditorReflectedObject& reflectedObject)
 	{
+		if (reflectedObject.IsOverride() == true)
+		{
+			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+		}
+
 		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
 
 		bool changed = false;

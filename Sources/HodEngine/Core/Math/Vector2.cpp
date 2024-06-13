@@ -136,7 +136,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	bool Vector2::operator == (const Vector2& right)
+	bool Vector2::operator == (const Vector2& right) const
 	{
 		return (_x == right._x && _y == right._y);
 	}

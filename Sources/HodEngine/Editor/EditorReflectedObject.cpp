@@ -46,7 +46,10 @@ namespace hod::editor
         ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(sourceProperty.GetReflectionProperty());
         _reflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
         _instances.reserve(sourceProperty.GetInstances().size());
-        _sourceInstance = reflectionPropertyObject->GetInstance(sourceProperty.GetSourceInstance());
+        if (sourceProperty.GetSourceInstance() != nullptr)
+        {
+            _sourceInstance = reflectionPropertyObject->GetInstance(sourceProperty.GetSourceInstance());
+        }
         for (void* instance : sourceProperty.GetInstances())
         {
             _instances.push_back(reflectionPropertyObject->GetInstance(instance));
@@ -61,6 +64,16 @@ namespace hod::editor
         {
             delete property; // avoid alloc ?
         }
+    }
+
+    bool EditorReflectedObject::IsOverride() const
+    {
+        if (_sourceInstance == nullptr)
+        {
+            return false;
+        }
+
+        return (_reflectionDescriptor->Compare(_instances[0], _sourceInstance) == false);
     }
 
     void* EditorReflectedObject::GetInstance() const

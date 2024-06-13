@@ -36,7 +36,7 @@ namespace hod
 		Vector2		operator * (const Vector2& right);
 		Vector2		operator / (const Vector2& right);
 
-		bool		operator == (const Vector2& right);
+		bool		operator == (const Vector2& right) const;
 
 		Vector2&	operator += (float right);
 		Vector2&	operator -= (float right);

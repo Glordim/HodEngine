@@ -26,6 +26,11 @@ namespace hod::game
         WeakResourceBase&   operator = (const WeakResourceBase& copy);
         WeakResourceBase&   operator = (const std::weak_ptr<Resource>& pointer);
 
+        bool                operator==(const WeakResourceBase& other) const
+        {
+            return _uid == other._uid;
+        }
+
     public:
 
         std::shared_ptr<Resource>   Lock() const;

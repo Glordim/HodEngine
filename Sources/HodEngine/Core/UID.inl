@@ -16,20 +16,4 @@ namespace hod
 	{
 		return (_low == other._low && _high == other._high);
 	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	inline bool operator==(const UID& left, const UID& right)
-	{
-		return left.Compare(right);
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	inline bool operator!=(const UID& left, const UID& right)
-	{
-		return (left.Compare(right) == false);
-	}
 }

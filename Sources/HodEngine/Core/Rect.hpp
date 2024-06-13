@@ -15,5 +15,7 @@ namespace hod
 	
 		Vector2	_position;
 		Vector2	_size;
+
+		bool operator==(const Rect& right) const = default;
 	};
 }
