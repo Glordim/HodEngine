@@ -35,8 +35,8 @@ namespace hod::editor
 
     private:
 
-        void*                   _sourceInstance = nullptr; 
         std::vector<void*>      _instances;
+        void*                   _sourceInstance = nullptr; 
         ReflectionProperty*     _reflectionProperty = nullptr;
 
         std::vector<EditorReflectedProperty*>    _properties;

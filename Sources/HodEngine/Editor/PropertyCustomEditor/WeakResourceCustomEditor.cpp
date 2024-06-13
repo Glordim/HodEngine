@@ -10,6 +10,7 @@
 #include "HodEngine/Game/WeakResource.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
@@ -27,24 +28,16 @@ namespace hod::editor
 	/// @return 
 	bool WeakResourceCustomEditor::Draw(EditorReflectedObject& reflectedObject)
 	{
-		if (reflectedObject.IsOverride() == true)
-		{
-			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
-		}
+		bool changed = false;
+		changed |= PropertyDrawer::BeginProperty(*reflectedObject.GetSourceProperty());
 
 		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
-
-		bool changed = false;
 
 		game::WeakResourceBase* value = static_cast<game::WeakResourceBase*>(reflectedObject.GetInstance());
 
 		ImGui::PushID(value);
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
-
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(reflectedObject.GetSourceProperty()->GetReflectionProperty()->GetDisplayName().c_str());
 
 		ImGui::SameLine(valuePos);
 

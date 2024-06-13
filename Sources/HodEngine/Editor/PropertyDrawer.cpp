@@ -63,21 +63,13 @@ namespace hod::editor
 	/// @param property 
 	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& reflectedProperty)
 	{
+		bool changed = false;
+		changed |= BeginProperty(reflectedProperty);
+
 		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(reflectedProperty.GetReflectionProperty());
 		void* object = reflectedProperty.GetInstance();
 
-		if (reflectedProperty.IsOverride() == true)
-		{
-			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
-		}
-
-		bool changed = false;
-
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
-
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(property->GetDisplayName().c_str());
 
 		ImGui::SameLine(valuePos);
 
@@ -245,5 +237,29 @@ namespace hod::editor
 			}
 		}
 		return changed;
+	}
+
+	bool PropertyDrawer::BeginProperty(EditorReflectedProperty& reflectedProperty)
+	{
+		bool isOverride = reflectedProperty.IsOverride();
+		if (isOverride)
+		{
+			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+		}
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(reflectedProperty.GetReflectionProperty()->GetDisplayName().c_str());
+		if (isOverride && ImGui::BeginPopupContextItem("OverrideContext") == true)
+		{
+			if (ImGui::Button("Revert") == true)
+			{
+				// todo
+				return true;
+			}
+			ImGui::EndPopup();
+		}
+
+		return false;
 	}
 }

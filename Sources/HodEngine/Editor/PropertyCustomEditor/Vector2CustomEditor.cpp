@@ -1,6 +1,7 @@
 #include "Vector2CustomEditor.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include "HodEngine/Core/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
@@ -17,13 +18,9 @@ namespace hod::editor
 	bool Vector2CustomEditor::Draw(EditorReflectedObject& reflectedObject)
 	{
 		bool changed = false;
-		void* instance = reflectedObject.GetInstance();
+		changed |= PropertyDrawer::BeginProperty(*reflectedObject.GetSourceProperty());
 
-		if (reflectedObject.IsOverride() == true)
-		{
-			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
-		}
+		void* instance = reflectedObject.GetInstance();
 
 		Vector2 value = *static_cast<Vector2*>(instance);
 		float x = value.GetX();
@@ -32,11 +29,6 @@ namespace hod::editor
 		ImGui::PushID(instance);
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
-
-		ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
-
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(reflectionProperty->GetDisplayName().c_str());
 
 		ImGui::SameLine(valuePos);
 
@@ -66,6 +58,7 @@ namespace hod::editor
 		{
 			value.SetX(x);
 			value.SetY(y);
+			ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
 			reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), &value);
 		}
 		return changed;

@@ -77,7 +77,7 @@ namespace hod::editor
         }
         else if (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
         {
-            return (static_cast<ReflectionPropertyObject*>(_reflectionProperty)->CompareInstance(_instances[0], _sourceInstance) == false);
+            return _reflectedObject->IsOverride();
         }
         return false;
     }
