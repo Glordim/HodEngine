@@ -28,6 +28,11 @@ namespace hod
 			data._sharedAllocateFunction = [](){ return std::make_shared<_Class_>(); };
 		}
 
+		if constexpr (HasEqualOperator<_Class_>::value)
+		{
+			data._compareFunction = [](const void* left, const void* right){ return *static_cast<const _Class_*>(left) == *static_cast<const _Class_*>(right); };
+		}
+
 		return data;
 	}
 

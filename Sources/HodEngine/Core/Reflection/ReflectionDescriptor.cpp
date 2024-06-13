@@ -3,6 +3,8 @@
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 
+#include <cassert>
+
 namespace hod
 {
 	///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
@@ -21,6 +23,7 @@ namespace hod
 	, _parent(data._parent)
 	, _allocateFunction(data._allocateFunction)
 	, _sharedAllocateFunction(data._sharedAllocateFunction)
+	, _compareFunction(data._compareFunction)
 	, _metaType(data._metaType)
 	{
 
@@ -154,5 +157,15 @@ namespace hod
 		{
 			reflectionProperty->Copy(sourceInstance, destinationInstance);
 		}
+	}
+
+	/// @brief 
+	/// @param left 
+	/// @param right 
+	/// @return 
+	bool ReflectionDescriptor::Compare(const void* left, const void* right) const
+	{
+		assert(_compareFunction != nullptr);
+		return _compareFunction(left, right);
 	}
 }

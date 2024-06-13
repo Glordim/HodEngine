@@ -20,6 +20,12 @@ namespace hod
     template <typename T, typename Allocator>
     struct IsVector<std::vector<T, Allocator>> : std::true_type {};
 
+    template <typename, typename = void>
+    struct HasEqualOperator : std::false_type {};
+
+    template <typename T>
+    struct HasEqualOperator<T, std::void_t<decltype(std::declval<T>() == std::declval<T>())>> : std::true_type {};
+
     template <typename T>
     struct ElementType;
 

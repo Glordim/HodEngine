@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/Reflection/TypeTrait.hpp"
 
 namespace hod
 {
@@ -23,6 +24,7 @@ namespace hod
 			ReflectionDescriptor*	_parent = nullptr;
 			std::function<void*()>	_allocateFunction = nullptr;
 			std::function<std::shared_ptr<void>()>	_sharedAllocateFunction = nullptr;
+			std::function<bool(const void*, const void*)>	_compareFunction = nullptr;
 			MetaType				_metaType;
 		};
 
@@ -74,6 +76,8 @@ namespace hod
 
 		void									Copy(const void* sourceInstance, void* destinationInstance);
 
+		bool									Compare(const void* left, const void* right) const;
+
 		MetaType								GetMetaType() const;
 		const std::string&						GetTypeName() const;
 
@@ -85,6 +89,7 @@ namespace hod
 		ReflectionDescriptor*					_parent = nullptr;
 		std::function<void*()>					_allocateFunction = nullptr;
 		std::function<std::shared_ptr<void>()>	_sharedAllocateFunction = nullptr;
+		std::function<bool(const void*, const void*)> _compareFunction = nullptr;
 		MetaType								_metaType;
 
 		std::vector<ReflectionTrait*>			_traits;
