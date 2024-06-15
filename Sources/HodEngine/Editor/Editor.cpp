@@ -52,6 +52,7 @@
 #include "Icons/folder.png.h"
 #include "Icons/folder-open.png.h"
 #include "Icons/landscape.png.h"
+#include "Icons/prefab.png.h"
 
 namespace hod::editor
 {
@@ -93,6 +94,11 @@ namespace hod::editor
 
 		_sceneTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_sceneTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+
+		pixels = stbi_load_from_memory(prefab_png, prefab_png_size, &x, &y, &component, 0);
+
+		_prefabTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_prefabTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
 
 		static constexpr uint8_t primaryGrey = 71;
 		static constexpr uint8_t secondaryGrey = 102;

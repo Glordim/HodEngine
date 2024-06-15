@@ -42,6 +42,11 @@ list(APPEND Srcs ${IconSrcs})
 list(APPEND Srcs ${IconIncludes})
 list(APPEND Includes ${IconIncludes})
 
+create_resources("Icons/prefab.png" "Icons" IconSrcs IconIncludes)
+list(APPEND Srcs ${IconSrcs})
+list(APPEND Srcs ${IconIncludes})
+list(APPEND Includes ${IconIncludes})
+
 assign_source_group(${Srcs}) # for VS
 
 find_package(Stb REQUIRED)

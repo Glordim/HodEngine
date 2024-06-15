@@ -593,7 +593,18 @@ namespace hod::editor
 			renderer::Texture* thumbnailTexture = asset->GetThumbnail();
 			if (thumbnailTexture == nullptr)
 			{
-				thumbnailTexture = Editor::GetInstance()->GetSceneTexture();
+				if (asset->GetMeta()._importerType == "PrefabImporter")
+				{
+					thumbnailTexture = Editor::GetInstance()->GetPrefabTexture();
+				}
+				else if (asset->GetMeta()._importerType == "SceneImporter")
+				{
+					thumbnailTexture = Editor::GetInstance()->GetSceneTexture();
+				}
+				else
+				{
+					thumbnailTexture = Editor::GetInstance()->GetCheckerTexture();
+				}
 			}
 
 			ImVec2 imageSize;
