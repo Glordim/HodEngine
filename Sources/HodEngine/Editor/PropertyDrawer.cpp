@@ -241,6 +241,7 @@ namespace hod::editor
 
 	bool PropertyDrawer::BeginProperty(EditorReflectedProperty& reflectedProperty)
 	{
+		bool changed = false;
 		bool isOverride = reflectedProperty.IsOverride();
 		if (isOverride)
 		{
@@ -254,12 +255,14 @@ namespace hod::editor
 		{
 			if (ImGui::Button("Revert") == true)
 			{
-				// todo
-				return true;
+				ReflectionProperty* reflectionProperty = reflectedProperty.GetReflectionProperty();
+				reflectionProperty->Copy(reflectedProperty.GetSourceInstance(), reflectedProperty.GetInstance());
+				changed = true;
+				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
 		}
 
-		return false;
+		return changed;
 	}
 }
