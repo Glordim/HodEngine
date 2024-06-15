@@ -1,6 +1,5 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalDevice.hpp"
 
 #include <HodEngine/Core/Output.hpp>
 
@@ -9,6 +8,10 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalLayer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalDrawable.hpp"
 
+#include <Metal/Metal.hpp>
+
+#include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
+
 namespace hod::renderer
 {
 	/// @brief 
@@ -16,12 +19,16 @@ namespace hod::renderer
 		: Context()
 	{
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
-		/*
-		_layer = new CA::MetalLayer;
-    	_layer->device = rendererMetal->GetDevice()->GetNativeDevice();
-		*/
-		//CreateSemaphores();
-		//CreateSwapChain(800, 600);
+
+		_layer = CA::MetalLayer::layer();
+		_layer->setDevice(rendererMetal->GetDevice());
+		_layer->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
+		_layer->setFramebufferOnly(true);
+
+		CGSize size;
+		size.width = window->GetWidth();
+		size.height = window->GetHeight();
+		_layer->setDrawableSize(size);
 	}
 
 	/// @brief 
@@ -44,11 +51,19 @@ namespace hod::renderer
 
 	void MetalContext::Resize(uint32_t width, uint32_t height)
 	{
-
+        CGSize size;
+        size.width = width;
+        size.height = height;
+        _layer->setDrawableSize(size);
 	}
 
 	bool MetalContext::SwapBuffer()
 	{
 		return false;
+	}
+
+	CA::MetalLayer* MetalContext::GetLayer() const
+	{
+		return _layer;
 	}
 }

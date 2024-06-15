@@ -164,42 +164,85 @@ namespace hod
 #elif defined(PLATFORM_MACOS)
 	// Définition des arguments du programme à exécuter
 		std::string inputFileStr = finalInputFile.string();
-		std::string outputFileStr = inputFileStr + ".ir";
-		const char *args[] = {"/usr/bin/xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metal", "-o", outputFileStr.c_str(), "-c", inputFileStr.c_str(), nullptr};
-
-		int argIndex = 0;
-		const char* arg = args[argIndex];
-		while (arg)
+		std::string irFileStr = inputFileStr + ".ir";
+        
 		{
-			std::cout << arg << " ";
+            const char *args[] = {"/usr/bin/xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metal", "-o", irFileStr.c_str(), "-c", inputFileStr.c_str(), nullptr};
 
-			++argIndex;
-			arg = args[argIndex];
-		}
-		std::cout << std::endl;
+            int argIndex = 0;
+            const char* arg = args[argIndex];
+            while (arg)
+            {
+                std::cout << arg << " ";
 
-		// Initialiser les attributs de spawn
-		posix_spawnattr_t attr;
-		posix_spawnattr_init(&attr);
+                ++argIndex;
+                arg = args[argIndex];
+            }
+            std::cout << std::endl;
 
-		// Démarrer le processus fils
-		pid_t pid;
-		int status = posix_spawn(&pid, args[0], nullptr, &attr, (char* const*)args, NULL);
-		if (status == 0)
-		{
-			std::cout << "Processus lancé avec succès. PID : " << pid << std::endl;
-			// Attendre que le processus fils se termine
-			waitpid(pid, &status, 0);
-			std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
-			result = true;
-		}
-		else
-		{
-			std::cerr << "Erreur lors du lancement du processus : " << strerror(status) << std::endl;
-		}
+            // Initialiser les attributs de spawn
+            posix_spawnattr_t attr;
+            posix_spawnattr_init(&attr);
 
-		// Libérer les attributs de spawn
-		posix_spawnattr_destroy(&attr);
+            // Démarrer le processus fils
+            pid_t pid;
+            int status = posix_spawn(&pid, args[0], nullptr, &attr, (char* const*)args, NULL);
+            if (status == 0)
+            {
+                std::cout << "Processus lancé avec succès. PID : " << pid << std::endl;
+                // Attendre que le processus fils se termine
+                waitpid(pid, &status, 0);
+                std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
+                result = true;
+            }
+            else
+            {
+                std::cerr << "Erreur lors du lancement du processus : " << strerror(status) << std::endl;
+            }
+
+            // Libérer les attributs de spawn
+            posix_spawnattr_destroy(&attr);
+        }
+        
+        std::string libFileStr = inputFileStr + ".metallib";
+        
+        {
+            const char *args[] = {"/usr/bin/xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metallib", irFileStr.c_str(), "-o", libFileStr.c_str(), nullptr};
+
+            int argIndex = 0;
+            const char* arg = args[argIndex];
+            while (arg)
+            {
+                std::cout << arg << " ";
+
+                ++argIndex;
+                arg = args[argIndex];
+            }
+            std::cout << std::endl;
+
+            // Initialiser les attributs de spawn
+            posix_spawnattr_t attr;
+            posix_spawnattr_init(&attr);
+
+            // Démarrer le processus fils
+            pid_t pid;
+            int status = posix_spawn(&pid, args[0], nullptr, &attr, (char* const*)args, NULL);
+            if (status == 0)
+            {
+                std::cout << "Processus lancé avec succès. PID : " << pid << std::endl;
+                // Attendre que le processus fils se termine
+                waitpid(pid, &status, 0);
+                std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
+                result = true;
+            }
+            else
+            {
+                std::cerr << "Erreur lors du lancement du processus : " << strerror(status) << std::endl;
+            }
+
+            // Libérer les attributs de spawn
+            posix_spawnattr_destroy(&attr);
+        }
 #else
 	#pragma error
 #endif
@@ -220,7 +263,7 @@ namespace hod
 		}
 		else if (target == Target::Metal_MacOS || target == Target::Metal_IOS)
 		{
-			finalInputFile += ".metal.ir";
+			finalInputFile += ".metal.metallib";
 		}
 		else
 		{

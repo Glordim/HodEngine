@@ -1,4 +1,7 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
+
+#include "HodEngine/Renderer/RHI/Metal/MetalCpp/Metal/Metal.hpp"
 
 namespace hod
 {
@@ -10,7 +13,10 @@ namespace hod
 		MetalMaterialInstance::MetalMaterialInstance(const Material& material)
 			: MaterialInstance(material)
 		{
-			
+            /*
+            static_cast<MetalMaterial*>(material);
+            MTL::RenderPipelineState* pipelineState = 
+             */
 		}
 
 		//-----------------------------------------------------------------------------
@@ -55,5 +61,18 @@ namespace hod
 		void MetalMaterialInstance::ApplyTexture(const std::string& name, const Texture& value)
 		{
 		}
+    
+        void MetalMaterialInstance::FillCommandEncoder(MTL::RenderCommandEncoder* renderCommandEncoder) const
+        {
+            const MetalMaterial& material = static_cast<const MetalMaterial&>(GetMaterial());
+            renderCommandEncoder->setRenderPipelineState(material.GetNativeRenderPipeline());
+            
+            const std::map<std::string, const Texture*>& textureMap = GetTextureMap();
+            for (const auto& texturePair : textureMap)
+            {
+                uint32_t index = 0;//material.GetTextureIndex(texturePair.first());
+                renderCommandEncoder->setFragmentTexture(nullptr, index);
+            }
+        }
 	}
 }

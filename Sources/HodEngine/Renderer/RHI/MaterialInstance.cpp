@@ -129,5 +129,30 @@ namespace hod
 		{
 			return _textureMap[memberName];
 		}
+    
+        const std::map<std::string, int>& MaterialInstance::GetIntMap() const
+        {
+            return _intMap;
+        }
+    
+        const std::map<std::string, float>& MaterialInstance::GetFloatMap() const
+        {
+            return _floatMap;
+        }
+    
+        const std::map<std::string, Vector4>& MaterialInstance::GetVec4Map() const
+        {
+            return _vec4Map;
+        }
+    
+        const std::map<std::string, Matrix4>& MaterialInstance::GetMat4Map() const
+        {
+            return _mat4Map;
+        }
+    
+        const std::map<std::string, const Texture*>& MaterialInstance::GetTextureMap() const
+        {
+            return _textureMap;
+        }
 	}
 }

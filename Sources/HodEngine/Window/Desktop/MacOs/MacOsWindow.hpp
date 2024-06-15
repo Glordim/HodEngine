@@ -37,6 +37,11 @@ namespace hod::window
 
 	private:
 
+		void								SetupLayer();
+		void								EventLoop();
+
+	private:
+
 		NSView*								_view = nullptr;
 		NSWindow*							_window = nullptr;
 	};

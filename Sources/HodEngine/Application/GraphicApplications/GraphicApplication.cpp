@@ -67,16 +67,14 @@ namespace hod::application
 		{
 			_window->Update();
 
-			/*
 			frameSequencer->EnqueueAndWaitJobs();
 
 			if (_window->GetGraphicsContext()->AcquireNextImageIndex() == true)
 			{
-				PlatformRenderer::GetInstance()->GetRenderQueue()->Execute();
+				PlatformRenderer::GetInstance()->GetRenderQueue()->Execute(_window->GetGraphicsContext());
 
-				_window->GetGraphicsContext()->SwapBuffer();
+				//_window->GetGraphicsContext()->SwapBuffer();
 			}
-			*/
 
 			SystemTime::TimeStamp now = SystemTime::Now();
 			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);

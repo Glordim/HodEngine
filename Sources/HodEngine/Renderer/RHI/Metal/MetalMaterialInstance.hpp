@@ -2,6 +2,11 @@
 
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
+namespace MTL
+{
+    class RenderCommandEncoder;
+}
+
 namespace hod
 {
 	namespace renderer
@@ -15,6 +20,8 @@ namespace hod
 
 											MetalMaterialInstance(const Material& material);
 											~MetalMaterialInstance() override;
+            
+            void                            FillCommandEncoder(MTL::RenderCommandEncoder* renderCommandEncoder) const;
 
 		protected:
 

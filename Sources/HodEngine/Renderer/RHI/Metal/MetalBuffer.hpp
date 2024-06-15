@@ -2,6 +2,11 @@
 
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 
+namespace MTL
+{
+    class Buffer;
+}
+
 namespace hod
 {
 	namespace renderer
@@ -13,7 +18,7 @@ namespace hod
 		{
 		public:
 
-										MetalBuffer(Usage usage);
+										MetalBuffer(Usage usage, uint32_t size);
 										MetalBuffer(const MetalBuffer&) = delete;
 										MetalBuffer(MetalBuffer&&) = delete;
 										~MetalBuffer() override;
@@ -26,6 +31,12 @@ namespace hod
 			bool						Resize(uint32_t size) override;
 			void*						Lock() override;
 			void						Unlock() override;
+            
+            MTL::Buffer*                GetNativeBuffer() const;
+            
+        private:
+            
+            MTL::Buffer*                _nativeBuffer;
 		};
 	}
 }

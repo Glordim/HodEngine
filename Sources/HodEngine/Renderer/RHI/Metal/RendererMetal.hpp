@@ -4,6 +4,12 @@
 
 #include "HodEngine/Renderer/Renderer.hpp"
 
+namespace MTL
+{
+	class Device;
+	class CommandQueue;
+}
+
 namespace hod
 {
 	namespace renderer
@@ -38,19 +44,22 @@ namespace hod
 			virtual bool SwapBuffer() override;
 
 			virtual CommandBuffer* CreateCommandBuffer() override;
-			virtual Buffer* CreateBuffer(Buffer::Usage usage) override;
+			virtual Buffer* CreateBuffer(Buffer::Usage usage, uint32_t size) override;
 			virtual Shader* CreateShader(Shader::ShaderType type) override;
 			virtual Material* CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
 			virtual MaterialInstance* CreateMaterialInstance(const Material* material) override;
 			virtual Texture* CreateTexture() override;
 			virtual RenderTarget* CreateRenderTarget() override;
 
-			MetalDevice*	GetDevice() const;
+			MTL::Device*		GetDevice() const;
+			MTL::CommandQueue*	GetCommandQueue() const;
 
 		private:
 
-			MetalDevice*	_device = nullptr;
-			MetalContext*	_context = nullptr;
+			MTL::Device*		_device = nullptr;
+			MTL::CommandQueue*	_commandQueue = nullptr;
+
+			MetalContext*		_context = nullptr;
 		};
 	}
 }

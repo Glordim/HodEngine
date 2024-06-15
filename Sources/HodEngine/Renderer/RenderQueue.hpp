@@ -8,6 +8,7 @@ namespace hod
 	{
 		class RenderCommand;
 		class RenderTarget;
+		class Context;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -18,6 +19,7 @@ namespace hod
 
 			void							PushRenderCommand(RenderCommand* renderCommand);
 			void							Execute(RenderTarget* renderTarget = nullptr);
+			void							Execute(Context* context);
 
 		private:
 

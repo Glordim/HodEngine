@@ -51,15 +51,9 @@ namespace hod::imgui
 		for (int drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
 		{
 			DrawList* drawList = _drawLists[drawListIndex];
-			renderer::Buffer* vertexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Vertex);
-
-			uint32_t vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.size() * sizeof(Vertex));
-			if (vertexBuffer->Resize(vertexBufferSize) == false)
-			{
-				delete vertexBuffer;
-				return;
-			}
-
+            
+            uint32_t vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.size() * sizeof(Vertex));
+			renderer::Buffer* vertexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Vertex, vertexBufferSize);
 			void* vertexBufferData = vertexBuffer->Lock();
 			if (vertexBufferData != nullptr)
 			{
@@ -69,15 +63,8 @@ namespace hod::imgui
 			commandBuffer->DeleteAfterRender(vertexBuffer);
 			commandBuffer->SetVertexBuffer(vertexBuffer, 0);
 
-			renderer::Buffer* indexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Index);
-
-			uint32_t indexBufferSize = static_cast<uint32_t>(drawList->_indices.size() * sizeof(uint16_t));
-			if (indexBuffer->Resize(indexBufferSize) == false)
-			{
-				delete indexBuffer;
-				return;
-			}
-
+            uint32_t indexBufferSize = static_cast<uint32_t>(drawList->_indices.size() * sizeof(uint16_t));
+			renderer::Buffer* indexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Index, indexBufferSize);
 			void* indexBufferData = indexBuffer->Lock();
 			if (indexBufferData != nullptr)
 			{

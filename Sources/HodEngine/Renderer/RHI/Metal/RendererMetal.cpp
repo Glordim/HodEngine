@@ -4,7 +4,6 @@
 
 #include "HodEngine/Renderer/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalDevice.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
@@ -12,6 +11,8 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
 
 #include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
+
+#include <Metal/Metal.hpp>
 
 namespace hod
 {
@@ -33,17 +34,24 @@ namespace hod
 
 		bool RendererMetal::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount)
 		{
+			for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
+			{
+				MetalCommandBuffer* commandBuffer = static_cast<MetalCommandBuffer*>(commandBuffers[commandBufferIndex]);
+				MTL::CommandBuffer* metalCommandBuffer = commandBuffer->GetNativeCommandBuffer();
+				metalCommandBuffer->commit();
+				metalCommandBuffer->waitUntilCompleted();
+			}
 			return false;
 		}
 
 		CommandBuffer* RendererMetal::CreateCommandBuffer()
 		{
-			return nullptr;
+			return new MetalCommandBuffer();
 		}
 
-		Buffer* RendererMetal::CreateBuffer(Buffer::Usage usage)
+		Buffer* RendererMetal::CreateBuffer(Buffer::Usage usage, uint32_t size)
 		{
-			return nullptr;
+			return new MetalBuffer(usage, size);
 		}
 
 		RenderTarget* RendererMetal::CreateRenderTarget()
@@ -56,7 +64,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 		{
-			_device = new MetalDevice();
+			_device = MTL::CreateSystemDefaultDevice();
+			_commandQueue = _device->newCommandQueue();
 
 			_context = new MetalContext(static_cast<window::MacOsWindow*>(mainWindow));
 			mainWindow->SetGraphicsContext(_context);
@@ -129,7 +138,13 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Material* RendererMetal::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
-			return new MetalMaterial();
+			MetalMaterial* material = new MetalMaterial();
+			if (material->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+			{
+				delete material;
+				return nullptr;
+			}
+			return material;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -148,9 +163,14 @@ namespace hod
 			return new MetalTexture();
 		}
 
-		MetalDevice* RendererMetal::GetDevice() const
+		MTL::Device* RendererMetal::GetDevice() const
 		{
 			return _device;
+		}
+
+		MTL::CommandQueue* RendererMetal::GetCommandQueue() const
+		{
+			return _commandQueue;
 		}
 	}
 }

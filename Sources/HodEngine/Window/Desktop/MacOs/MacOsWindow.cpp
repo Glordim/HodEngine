@@ -22,6 +22,19 @@ namespace hod::window
 	{
 		return _view;
 	}
+
+	/// @brief 
+	void MacOsWindow::Update()
+	{
+		static bool once = false;
+		if (once == false)
+		{
+			SetupLayer();
+			once = true;
+		}
+
+		EventLoop();
+	}
 }
 
 #endif

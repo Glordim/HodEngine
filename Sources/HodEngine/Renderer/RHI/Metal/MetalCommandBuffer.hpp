@@ -2,12 +2,17 @@
 
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 
+namespace MTL
+{
+	class CommandBuffer;
+	class RenderCommandEncoder;
+}
+
 namespace hod
 {
 	namespace renderer
 	{
-		class VkMaterial;
-		class VkMaterialInstance;
+		class MetalBuffer;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -44,6 +49,17 @@ namespace hod
 
 			void				Draw(uint32_t vertexCount) override;
 			void				DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset) override;
+
+			void				Present(Context* context) override;
+
+			MTL::CommandBuffer*	GetNativeCommandBuffer() const;
+
+		private:
+
+			MTL::CommandBuffer*	_commandBuffer = nullptr;
+			MTL::RenderCommandEncoder*	_renderCommandEncoder = nullptr;
+            MetalBuffer* _indexBuffer = nullptr;
+            uint32_t _indexBufferOffset = 0;
 		};
 	}
 }

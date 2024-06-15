@@ -1,4 +1,5 @@
 #include "MacOsWindow.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
 
 #include <Cocoa/Cocoa.h>
 
@@ -21,7 +22,7 @@ namespace hod::window
 	MacOsWindow::MacOsWindow()
 		: DesktopWindow()
 	{
-		NSRect frame = NSMakeRect(0, 0, 400, 300);
+		NSRect frame = NSMakeRect(0, 0, _width, _height);
         _window = [[NSWindow alloc] initWithContentRect:frame
                                                        styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
                                                          backing:NSBackingStoreBuffered
@@ -31,8 +32,10 @@ namespace hod::window
 
         CustomView *customView = [[CustomView alloc] initWithFrame:frame];
 		_view = customView;
+		_view.wantsLayer = YES;
 
-        [_window.contentView addSubview:customView];
+        //[_window.contentView addSubview:customView];
+		[_window setContentView:customView];
 
         [_window makeKeyAndOrderFront:nil];
 	}
@@ -44,16 +47,30 @@ namespace hod::window
 	}
 
 	/// @brief 
-	void MacOsWindow::Update()
+	void MacOsWindow::SetupLayer()
 	{
-		// Traiter les événements
-		NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
-												untilDate:[NSDate distantPast]
-												inMode:NSDefaultRunLoopMode
-												dequeue:YES];
-		if (event != nil) {
-			[NSApp sendEvent:event];
-		}
+		renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
+		[_view setLayer:(CALayer*)metalContext->GetLayer()];
+        [_view setWantsLayer:YES];
+		//[_view.layer setNeedsDisplay];
+	}
+
+	void MacOsWindow::EventLoop()
+	{
+        @autoreleasepool 
+        {
+            while (true)
+            {
+                NSEvent* event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                                    untilDate:[NSDate distantPast]
+                                                       inMode:NSDefaultRunLoopMode
+                                                      dequeue:YES];
+                if (event == nil)
+                    break;
+
+                [NSApp sendEvent:event];
+            }
+        } // autoreleasepool
 	}
 
 	/// @brief 
@@ -66,6 +83,9 @@ namespace hod::window
 
 		NSRect newFrame = NSMakeRect(0, 0, _width, _height);
         [_window setFrame:newFrame display:YES];
+        
+        renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
+        metalContext->Resize(width, height);
 	}
 
 	/// @brief 

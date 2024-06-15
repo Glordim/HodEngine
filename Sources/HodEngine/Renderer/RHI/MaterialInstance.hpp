@@ -50,6 +50,12 @@ namespace hod
 			virtual void							ApplyVec4(const std::string& memberName, const Vector4& value) = 0;
 			virtual void							ApplyMat4(const std::string& memberName, const Matrix4& value) = 0;
 			virtual void							ApplyTexture(const std::string& memberName, const Texture& value) = 0;
+            
+            const std::map<std::string, int>&               GetIntMap() const;
+            const std::map<std::string, float>&             GetFloatMap() const;
+            const std::map<std::string, Vector4>&           GetVec4Map() const;
+            const std::map<std::string, Matrix4>&           GetMat4Map() const;
+            const std::map<std::string, const Texture*>&    GetTextureMap() const;
 
 		private:
 

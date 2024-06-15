@@ -33,6 +33,10 @@ namespace hod::renderer
 		void						Resize(uint32_t width, uint32_t height) override;
 		bool						SwapBuffer() override;
 
+		void						Present();
+
+		CA::MetalLayer*				GetLayer() const;
+
 /*
 		VkSurfaceKHR				GetSurface() const;
 		VkRenderPass				GetRenderPass() const;

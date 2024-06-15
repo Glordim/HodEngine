@@ -40,15 +40,8 @@ namespace hod
 		{
 			Renderer* renderer = Renderer::GetInstance();
 
-			Buffer* vertexBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex);
-
-			uint32_t vertexBufferSize = static_cast<uint32_t>(_vertices.size());
-			if (vertexBuffer->Resize(vertexBufferSize) == false)
-			{
-				delete vertexBuffer;
-				return;
-			}
-
+            uint32_t vertexBufferSize = static_cast<uint32_t>(_vertices.size());
+			Buffer* vertexBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, vertexBufferSize);
 			void* vertexBufferData = vertexBuffer->Lock();
 			if (vertexBufferData != nullptr)
 			{
@@ -60,15 +53,8 @@ namespace hod
 
 			if (_indices.empty() == false)
 			{
-				Buffer* indexBuffer = renderer->CreateBuffer(Buffer::Usage::Index);
-
-				uint32_t indexBufferSize = static_cast<uint32_t>(_indices.size() * sizeof(uint16_t));
-				if (indexBuffer->Resize(indexBufferSize) == false)
-				{
-					delete indexBuffer;
-					return;
-				}
-
+                uint32_t indexBufferSize = static_cast<uint32_t>(_indices.size() * sizeof(uint16_t));
+				Buffer* indexBuffer = renderer->CreateBuffer(Buffer::Usage::Index, indexBufferSize);
 				void* indexBufferData = indexBuffer->Lock();
 				if (indexBufferData != nullptr)
 				{

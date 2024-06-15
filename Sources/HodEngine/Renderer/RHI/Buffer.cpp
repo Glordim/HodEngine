@@ -8,8 +8,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Buffer::Buffer(Usage usage)
+		Buffer::Buffer(Usage usage, uint32_t size)
 			: _usage(usage)
+            , _size(size)
 		{
 
 		}

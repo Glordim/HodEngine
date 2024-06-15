@@ -35,6 +35,8 @@ namespace hod
 			bool							LoadFromStream(std::istream& stream);
 
 			const std::vector<uint8_t>&		GetShaderBytecode() const;
+            
+            ShaderType                      GetShaderType() const;
 
 		protected:
 

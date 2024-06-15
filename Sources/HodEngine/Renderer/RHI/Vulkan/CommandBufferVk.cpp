@@ -292,5 +292,10 @@ namespace hod
 		{
 			vkCmdDrawIndexed(_vkCommandBuffer, indexCount, 1, indexOffset, vertexOffset, 0);
 		}
+
+		void CommandBufferVk::Present(Context* context)
+		{
+
+		}
 	}
 }
