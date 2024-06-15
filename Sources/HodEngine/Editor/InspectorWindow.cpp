@@ -23,7 +23,12 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
+#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+
 #include "HodEngine/Game/PrefabUtility.hpp"
+#include "HodEngine/Game/Prefab.hpp"
 
 namespace hod::editor
 {
@@ -83,7 +88,8 @@ namespace hod::editor
 	{
 		game::PrefabUtility::EntityDiffs entityDiffs;
 
-		if (selection->GetPrefab() != nullptr)
+		game::Prefab* prefab = selection->GetPrefab();
+		if (prefab != nullptr)
 		{
 			// todo don't do that in play mode
 			game::PrefabUtility::CollectDiff(selection, entityDiffs);
@@ -99,9 +105,17 @@ namespace hod::editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted("Instance of");
 				ImGui::SameLine();
-				if (ImGui::Button("MyPrefab"))
-				{
 
+				AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
+				std::shared_ptr<Asset> asset = assetDatabase->Find(prefab->GetUid());
+
+				if (ImGui::Button(asset->GetName().c_str()))
+				{
+					AssetBrowserWindow* assetBrowserWindow = imgui::ImGuiManager::GetInstance()->FindWindow<AssetBrowserWindow>();
+					if (assetBrowserWindow != nullptr)
+					{
+						assetBrowserWindow->PingAsset(*asset);
+					}
 				}
 
 				// todo hide in play mode

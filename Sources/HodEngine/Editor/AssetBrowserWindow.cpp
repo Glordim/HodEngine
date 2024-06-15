@@ -393,7 +393,7 @@ namespace hod::editor
 					}
 				}
 
-				ImVec4 pingColor = ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
+				ImVec4 pingColor = ImVec4(1.0f, 0.5f, 0.2f, 1.0f);
 
 				ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
 				normalColor.x = std::lerp(normalColor.x, pingColor.x, _pingAnimValue);
