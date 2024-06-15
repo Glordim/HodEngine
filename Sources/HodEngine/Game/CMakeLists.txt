@@ -13,7 +13,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	${box2d_INCLUDE_DIRS}
 )
 
-add_library(Game OBJECT ${Srcs} ${Includes})
+add_library(Game STATIC ${Srcs} ${Includes})
 set_property(TARGET Game PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 target_compile_definitions(Game PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})

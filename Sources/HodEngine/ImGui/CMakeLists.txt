@@ -66,7 +66,7 @@ list(APPEND Includes ${FontIncludes})
 
 assign_source_group(${Srcs}) # for VS
 
-add_library(ImGui OBJECT ${Srcs} ${Includes})
+add_library(ImGui STATIC ${Srcs} ${Includes})
 set_property(TARGET ImGui PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(ImGui Core Window Renderer)

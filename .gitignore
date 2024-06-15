@@ -1,6 +1,7 @@
 
 bazel-*
 build
+build_xcode
 
 Generated
 

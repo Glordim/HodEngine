@@ -47,7 +47,7 @@ assign_source_group(${Srcs}) # for VS
 find_package(Stb REQUIRED)
 find_package(PortableFileDialog REQUIRED)
 
-add_library(Editor OBJECT ${Srcs} ${Includes})
+add_library(Editor STATIC ${Srcs} ${Includes})
 set_property(TARGET Editor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Editor Core ImGui Window Physics Renderer)

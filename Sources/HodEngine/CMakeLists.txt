@@ -36,23 +36,18 @@ endif()
 
 assign_source_group("")
 
-add_library(HodEngine STATIC $<TARGET_OBJECTS:Core>
-						  $<TARGET_OBJECTS:Application>
-						  $<TARGET_OBJECTS:ImGui>
-						  $<TARGET_OBJECTS:Physics>
-						  $<TARGET_OBJECTS:Window>
-						  $<TARGET_OBJECTS:Renderer>
-						  $<TARGET_OBJECTS:Game>
-						  $<TARGET_OBJECTS:Editor>)
+add_library(HodEngine STATIC HodEngine.cpp)
 
-target_link_libraries(HodEngine Core
-							 	Window
-							 	ImGui
-							 	Physics
-							 	Window
-							 	Renderer
-							 	Game
-							 	Editor)
+target_link_libraries(HodEngine
+	Core
+	Application
+	ImGui
+	Physics
+	Window
+	Renderer
+	Game
+	Editor
+)
 
 set_target_properties(Core PROPERTIES FOLDER "HodEngine")
 set_target_properties(Application PROPERTIES FOLDER "HodEngine")

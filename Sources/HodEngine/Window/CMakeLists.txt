@@ -12,7 +12,7 @@ CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 assign_source_group(${Srcs}) # for VS
 
-add_library(Window OBJECT ${Srcs} ${Includes})
+add_library(Window STATIC ${Srcs} ${Includes})
 set_property(TARGET Window PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 set(UNIX_LIBS "")
