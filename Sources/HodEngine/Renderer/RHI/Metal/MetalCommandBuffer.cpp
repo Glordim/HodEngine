@@ -11,6 +11,8 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalLayer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalDrawable.hpp"
 
+#include <cstring>
+
 namespace hod
 {
 	namespace renderer
@@ -68,6 +70,23 @@ namespace hod
 		/// @param shaderType 
 		void MetalCommandBuffer::SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType)
 		{
+            Buffer* constantBuffer = RendererMetal::GetInstance()->CreateBuffer(renderer::Buffer::Usage::Vertex, size);
+            void* constantBufferData = constantBuffer->Lock();
+            if (constantBufferData != nullptr)
+            {
+                memcpy(constantBufferData, constant, size);
+                constantBuffer->Unlock();
+            }
+            DeleteAfterRender(constantBuffer);
+            
+            if (shaderType == Shader::ShaderType::Vertex)
+            {
+                _renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer(), 0, 1);
+            }
+            else if (shaderType == Shader::ShaderType::Fragment)
+            {
+                _renderCommandEncoder->setFragmentBuffer(static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer(), 0, 1);
+            }
 		}
 
 		//-----------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
 
 #include "HodEngine/Renderer/RHI/Metal/MetalCpp/Metal/Metal.hpp"
 
@@ -70,8 +71,11 @@ namespace hod
             const std::map<std::string, const Texture*>& textureMap = GetTextureMap();
             for (const auto& texturePair : textureMap)
             {
-                uint32_t index = 0;//material.GetTextureIndex(texturePair.first());
-                renderCommandEncoder->setFragmentTexture(nullptr, index);
+                uint32_t index = 0;//material.GetTextureIndex(texturePair.first);
+                
+                const MetalTexture* texture = static_cast<const MetalTexture*>(texturePair.second);
+                renderCommandEncoder->setFragmentTexture(texture->GetNativeTexture(), index);
+                renderCommandEncoder->setFragmentSamplerState(texture->GetNativeSampler(), index);
             }
         }
 	}

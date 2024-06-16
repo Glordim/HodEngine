@@ -66,7 +66,7 @@ namespace hod
 		bool hasInStruct = false;
 		bool inOutStruct = false;
 		int locationIndex = 0;
-		int bufferIndex = 0;
+		int bufferIndex = 1;
 
 		std::vector<std::string> identifiers;
 
