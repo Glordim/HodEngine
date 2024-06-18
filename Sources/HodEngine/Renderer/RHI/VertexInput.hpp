@@ -16,7 +16,7 @@ namespace hod
 			{
 				R32G32_SFloat = 0,
 				R32G32B32A32_SFloat,
-				A8B8G8R8_UNorm_Pack32,
+				R8G8B8A8_UNorm,
 				Count
 			};
 

@@ -20,7 +20,7 @@ namespace hod
 		VkFormat FormatToVkFormat[VertexInput::Format::Count] = {
 			VK_FORMAT_R32G32_SFLOAT,
 			VK_FORMAT_R32G32B32A32_SFLOAT,
-			VK_FORMAT_A8B8G8R8_UNORM_PACK32,
+			VK_FORMAT_R8G8B8A8_UNORM,
 		};
 
 		uint32_t FormatToSize[VertexInput::Format::Count] = {
