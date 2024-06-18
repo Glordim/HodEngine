@@ -81,8 +81,8 @@ namespace hod::window
 		_width = width;
 		_height = height;
 
-		NSRect newFrame = NSMakeRect(0, 0, _width, _height);
-        [_window setFrame:newFrame display:YES];
+		NSSize newSize = NSMakeSize(_width, _height);
+        [_window setContentSize:newSize];
         
         renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
         metalContext->Resize(width, height);

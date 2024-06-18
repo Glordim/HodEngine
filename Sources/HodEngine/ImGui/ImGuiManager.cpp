@@ -402,9 +402,9 @@ void embraceTheDarkness()
 
 		Rect viewport;
 		viewport._position.SetX(0.0f);
-		viewport._position.SetY(0.0f);
+		viewport._position.SetY(ImGui::GetIO().DisplaySize.y);
 		viewport._size.SetX(ImGui::GetIO().DisplaySize.x);
-		viewport._size.SetY(ImGui::GetIO().DisplaySize.y);
+		viewport._size.SetY(-ImGui::GetIO().DisplaySize.y);
 		
 		RenderCommandImGui* renderCommand = new RenderCommandImGui(drawLists, viewport);
 

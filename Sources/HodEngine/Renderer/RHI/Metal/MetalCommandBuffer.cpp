@@ -119,8 +119,8 @@ namespace hod
             mtlViewport.originY = viewport._position.GetY();
             mtlViewport.width = viewport._size.GetX();
             mtlViewport.height = viewport._size.GetY();
-            mtlViewport.znear = -1000;
-            mtlViewport.zfar = 1000;
+            mtlViewport.znear = 0;
+            mtlViewport.zfar = 1;
             _renderCommandEncoder->setViewport(mtlViewport);
 		}
 
