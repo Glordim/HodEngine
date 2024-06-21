@@ -28,7 +28,7 @@ namespace hod::input
 			float		_value;
 			uint8_t		_flags;
 			InputId		_inputId;
-			//KCORE::UID	_deviceUid;
+			//UID	_deviceUid;
 		};
 
 		enum Flag : uint8_t // Keep an order by Priority (see STATE::Merge)
