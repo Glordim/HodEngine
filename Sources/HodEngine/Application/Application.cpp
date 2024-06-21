@@ -2,7 +2,7 @@
 
 #include "HodEngine/Core/FileSystem.hpp"
 
-#include <HodEngine/Core/Job/JobSqueduler.hpp>
+#include <HodEngine/Core/Job/JobScheduler.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 
 #include "HodEngine/Game/World.hpp"
@@ -31,7 +31,7 @@ namespace hod::application
 	{
 		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
 
-		JobSqueduler::CreateInstance();
+		JobScheduler::CreateInstance();
 		FrameSequencer::CreateInstance();
 
 		ResourceManager::CreateInstance();

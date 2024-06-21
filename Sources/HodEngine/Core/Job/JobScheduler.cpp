@@ -1,11 +1,11 @@
-#include "HodEngine/Core/Job/JobSqueduler.hpp"
+#include "HodEngine/Core/Job/JobScheduler.hpp"
 
 #include "HodEngine/Core/Job/Job.hpp"
 
 namespace hod
 {
 	/// @brief 
-	JobSqueduler::JobSqueduler()
+	JobScheduler::JobScheduler()
 	{
 		for (uint32_t index = 0; index < JobQueue::Queue::Count; ++index)
 		{
@@ -15,7 +15,7 @@ namespace hod
 
 	/// @brief 
 	/// @param job 
-	void JobSqueduler::Push(Job* job)
+	void JobScheduler::Push(Job* job)
 	{
 		_queues[job->GetQueue()].Enqueue(job);
 	}

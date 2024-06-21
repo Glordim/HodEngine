@@ -10,9 +10,9 @@ namespace hod
 	class Job;
 
 	/// @brief 
-	class JobSqueduler : public Singleton<JobSqueduler>
+	class JobScheduler : public Singleton<JobScheduler>
 	{
-		friend class Singleton<JobSqueduler>;
+		friend class Singleton<JobScheduler>;
 
 	public:
 
@@ -20,7 +20,7 @@ namespace hod
 
 	protected:
 
-					JobSqueduler();
+					JobScheduler();
 
 	private:
 

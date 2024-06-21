@@ -1,6 +1,6 @@
 #include "HodEngine/Core/Frame/FrameStep.hpp"
 
-#include "HodEngine/Core/Job/JobSqueduler.hpp"
+#include "HodEngine/Core/Job/JobScheduler.hpp"
 #include "HodEngine/Core/Job/Job.hpp"
 
 #include <assert.h>
@@ -30,14 +30,14 @@ namespace hod
 	/// @brief 
 	void FrameStep::Enqueue()
 	{
-		JobSqueduler* jobSqueduler = JobSqueduler::GetInstance();
+		JobScheduler* jobScheduler = JobScheduler::GetInstance();
 
 		uint32_t jobCount = (uint32_t)_jobs.size();
 		for (uint32_t jobIndex = 0; jobIndex < jobCount; ++jobIndex)
 		{
 			Job* job = _jobs[jobIndex];
 
-			jobSqueduler->Push(job);
+			jobScheduler->Push(job);
 		}
 	}
 
