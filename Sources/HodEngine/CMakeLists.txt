@@ -6,6 +6,10 @@ if (NOT TARGET Core)
 	add_subdirectory(Core)
 endif()
 
+if (NOT TARGET Input)
+	add_subdirectory(Input)
+endif()
+
 if (NOT TARGET Physics)
 	add_subdirectory(Physics)
 endif()
@@ -38,6 +42,7 @@ assign_source_group("")
 
 add_library(HodEngine STATIC $<TARGET_OBJECTS:Core>
 						  $<TARGET_OBJECTS:Application>
+						  $<TARGET_OBJECTS:Input>
 						  $<TARGET_OBJECTS:ImGui>
 						  $<TARGET_OBJECTS:Physics>
 						  $<TARGET_OBJECTS:Window>
@@ -47,6 +52,7 @@ add_library(HodEngine STATIC $<TARGET_OBJECTS:Core>
 
 target_link_libraries(HodEngine Core
 							 	Window
+								Input
 							 	ImGui
 							 	Physics
 							 	Window
@@ -55,6 +61,7 @@ target_link_libraries(HodEngine Core
 							 	Editor)
 
 set_target_properties(Core PROPERTIES FOLDER "HodEngine")
+set_target_properties(Input PROPERTIES FOLDER "HodEngine")
 set_target_properties(Application PROPERTIES FOLDER "HodEngine")
 set_target_properties(ImGui PROPERTIES FOLDER "HodEngine")
 set_target_properties(Physics PROPERTIES FOLDER "HodEngine")

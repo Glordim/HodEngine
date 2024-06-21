@@ -17,6 +17,7 @@ namespace hod
 	public:
 
 											UID() = default;
+											UID(uint64_t low, uint64_t high);
 											UID(const UID&) = default;
 											UID(UID&&) = default;
 											~UID() = default;
