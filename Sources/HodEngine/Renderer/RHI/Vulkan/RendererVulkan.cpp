@@ -1657,9 +1657,9 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	Buffer* RendererVulkan::CreateBuffer(Buffer::Usage usage)
+	Buffer* RendererVulkan::CreateBuffer(Buffer::Usage usage, uint32_t size)
 	{
-		return new BufferVk(usage);
+		return new BufferVk(usage, size);
 	}
 
 	//-----------------------------------------------------------------------------

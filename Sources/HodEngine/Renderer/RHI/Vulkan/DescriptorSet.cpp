@@ -74,16 +74,19 @@ namespace hod
 			{
 				const DescriptorSetLayout::BlockUbo& ubo = ubos[i];
 
-				_uboBuffers[i] = static_cast<BufferVk*>(Renderer::GetInstance()->CreateBuffer(Buffer::Usage::Uniform));
+				uint32_t size = static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count);
+
+				_uboBuffers[i] = static_cast<BufferVk*>(Renderer::GetInstance()->CreateBuffer(Buffer::Usage::Uniform, size));
 				if (_uboBuffers[i] == nullptr)
 				{
 					return false;
 				}
-
+				/* TODO CreateBuffer now take the size, check error
 				if (_uboBuffers[i]->Resize(static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count)) == false)
 				{
 					return false;
 				}
+				*/
 			}
 
 			return true;

@@ -15,7 +15,7 @@ namespace hod
 		{
 		public:
 
-										BufferVk(Usage usage);
+										BufferVk(Usage usage, uint32_t size);
 										BufferVk(const BufferVk&) = delete;
 										BufferVk(BufferVk&&) = delete;
 										~BufferVk() override;
