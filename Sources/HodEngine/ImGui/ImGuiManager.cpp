@@ -305,7 +305,7 @@ void embraceTheDarkness()
 			}
 		}
 */
-		ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
 		static bool showDemo = false;
 		if (showDemo == true)
