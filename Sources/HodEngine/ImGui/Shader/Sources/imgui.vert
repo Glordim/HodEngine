@@ -1,4 +1,4 @@
-cbuffer Constant
+cbuffer Constant PushConstant
 {
 	float2 scale;
 	float2 translate;
@@ -18,9 +18,9 @@ struct OUT
 	float4 color : COLOR;
 };
 
-void main()
+void VertexMain()
 {
-	OUT.position = float4(IN.position * scale + translate, 0, 1);
+	OUT.position = float4(IN.position * PushConstant.scale + PushConstant.translate, 0, 1);
 	OUT.texCoord = IN.texCoord;
 	OUT.color = IN.color;
 }

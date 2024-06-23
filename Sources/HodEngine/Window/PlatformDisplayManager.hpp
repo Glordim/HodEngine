@@ -5,10 +5,10 @@
 	#include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
 	#define PlatformDisplayManager hod::window::Win32DisplayManager
 
-#elif defined(PLATFORM_MAC)
+#elif defined(PLATFORM_MACOS)
 
-	//#include "GraphicApplications/DesktopApplications/MacApplication.hpp"
-	//#define PlatformApplication MacApplication
+	#include "HodEngine/Window/Desktop/MacOs/CocoaDisplayManager.hpp"
+	#define PlatformDisplayManager hod::window::CocoaDisplayManager
 
 #elif defined(PLATFORM_LINUX)
 

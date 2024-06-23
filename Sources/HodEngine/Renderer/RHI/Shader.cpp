@@ -83,5 +83,11 @@ namespace hod
 		{
 			return _buffer;
 		}
+    
+        ///
+        Shader::ShaderType Shader::GetShaderType() const
+        {
+            return _type;
+        }
 	}
 }

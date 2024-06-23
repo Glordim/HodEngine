@@ -84,7 +84,7 @@ namespace hod
 	}
 
 	/// @brief 
-	void ThisThread::Yieldd()
+	void ThisThread::Yield()
 	{
 		pthread_yield(); // deprecated use sched_yield instead
 	}

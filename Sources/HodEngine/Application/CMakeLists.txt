@@ -8,7 +8,7 @@ CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 assign_source_group(${Srcs}) # for VS
 
-add_library(Application OBJECT ${Srcs} ${Includes})
+add_library(Application STATIC ${Srcs} ${Includes})
 set_property(TARGET Application PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Application Core Window Renderer)

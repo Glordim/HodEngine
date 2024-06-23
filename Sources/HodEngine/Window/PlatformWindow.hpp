@@ -5,9 +5,9 @@
 	#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
 	#define PlatformWindow hod::window::Win32Window
 
-#elif defined(PLATFORM_MAC)
+#elif defined(PLATFORM_MACOS)
 
-	#include "HodEngine/Window/Desktop/Windows/MacOs/MacOsWindow.hpp"
+	#include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
 	#define PlatformWindow hod::window::MacOsWindow
 
 #elif defined(PLATFORM_LINUX)

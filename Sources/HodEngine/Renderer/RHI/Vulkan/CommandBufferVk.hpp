@@ -49,6 +49,8 @@ namespace hod
 			void				Draw(uint32_t vertexCount) override;
 			void				DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset) override;
 
+			void				Present(Context* context) override;
+
 		private:
 
 			void				Release();

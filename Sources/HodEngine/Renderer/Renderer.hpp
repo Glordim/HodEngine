@@ -76,7 +76,7 @@ namespace hod::renderer
 		virtual bool				SwapBuffer() = 0;
 
 		virtual CommandBuffer*		CreateCommandBuffer() = 0;
-		virtual Buffer*				CreateBuffer(Buffer::Usage usage) = 0;
+		virtual Buffer*				CreateBuffer(Buffer::Usage usage, uint32_t size) = 0;
 		virtual Shader*				CreateShader(Shader::ShaderType type) = 0;
 		virtual Material*			CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) = 0;
 		virtual MaterialInstance*	CreateMaterialInstance(const Material* material) = 0;

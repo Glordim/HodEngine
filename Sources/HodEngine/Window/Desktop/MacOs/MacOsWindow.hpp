@@ -8,6 +8,16 @@
 
 #include "HodEngine/Core/Event.hpp"
 
+#include <string>
+
+#ifdef __OBJC__
+@class NSView;
+@class NSWindow;
+#else
+class NSView;
+class NSWindow;
+#endif
+
 namespace hod::window
 {
 	/// @brief 
@@ -23,9 +33,17 @@ namespace hod::window
 		void								CenterToScreen() override;
 		void								Maximize() override;
 
+		NSView* 							GetNsView() const;
+
 	private:
 
-		MemberFunctionJob<Win32Window>		_updateJob;
+		void								SetupLayer();
+		void								EventLoop();
+
+	private:
+
+		NSView*								_view = nullptr;
+		NSWindow*							_window = nullptr;
 	};
 }
 

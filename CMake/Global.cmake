@@ -2,12 +2,36 @@ cmake_minimum_required(VERSION 3.4...3.27)
 
 function(CollectSourceFiles ProjectSourceDir SourcesVar IncludesVar)
 
-	file(GLOB_RECURSE Sources
-		"${ProjectSourceDir}/*.cpp"
-		"${ProjectSourceDir}/*.hpp"
-		"${ProjectSourceDir}/*.inl"
-		"${ProjectSourceDir}/*.h"
-	)
+	cmake_parse_arguments(PARSED_ARGS "" "" "EXCLUDES" ${ARGN})
+
+	if (APPLE)
+		file(GLOB_RECURSE Sources
+			"${ProjectSourceDir}/*.cpp"
+			"${ProjectSourceDir}/*.mm"
+			"${ProjectSourceDir}/*.hpp"
+			"${ProjectSourceDir}/*.inl"
+			"${ProjectSourceDir}/*.h"
+		)
+	else()
+		file(GLOB_RECURSE Sources
+			"${ProjectSourceDir}/*.cpp"
+			"${ProjectSourceDir}/*.hpp"
+			"${ProjectSourceDir}/*.inl"
+			"${ProjectSourceDir}/*.h"
+		)
+	endif()
+
+	if(PARSED_ARGS_EXCLUDES)
+		foreach(Exclude ${PARSED_ARGS_EXCLUDES})
+			message(Exclude:${Exclude})
+			foreach(item ${Sources})
+				if(item MATCHES ${Exclude})
+					list(REMOVE_ITEM Sources ${item})
+					message(Remove:${item})
+				endif()
+			endforeach()
+		endforeach()
+	endif()
 
 	foreach(item ${Sources})
 		if(${item} MATCHES ".+\\..+\\.cpp")
@@ -59,6 +83,13 @@ else()
 	#target_compile_options(HodEngine-Application PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 
+
+if(APPLE)
+set(CMAKE_OBJCXX_STANDARD 20)
+set(CMAKE_OBJCXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 14)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
@@ -85,6 +116,13 @@ if(NOT SET_UP_CONFIGURATIONS_DONE)
 	elseif (MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /D_CRT_SECURE_NO_WARNINGS")
 	endif()
+
+	foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+		string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
+		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/${OUTPUTCONFIG}/lib)
+		set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/${OUTPUTCONFIG}/lib)
+		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/${OUTPUTCONFIG}/bin)
+	endforeach()
 
 	set(COMPILE_DEFINITIONS_GAME_DEBUG
 		HOD_GAME

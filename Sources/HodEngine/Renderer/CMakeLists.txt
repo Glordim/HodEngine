@@ -2,15 +2,20 @@ cmake_minimum_required(VERSION 3.4...3.27)
 
 include(Global)
 
-project(Renderer)
-
 if(NOT APPLE)
+project(Renderer LANGUAGES CXX)
 find_package(Vulkan REQUIRED)
 find_package(SpirvCross REQUIRED)
+else()
+project(Renderer LANGUAGES CXX OBJCXX)
 endif()
 find_package(Stb REQUIRED)
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+if(NOT APPLE)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES D3d12 Metal)
+else()
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ".*/RHI/Vulkan/.*")
+endif()
 
 file(GLOB_RECURSE ShaderSources
 	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"
@@ -39,11 +44,15 @@ assign_source_group(${Srcs}) # for VS
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 "../.."
 ${Stb_INCLUDE_DIRS}
-${SpirvCross_INCLUDE_DIRS}
-${Vulkan_INCLUDE_DIRS}
+"RHI/Metal/MetalCpp"
 )
 
-add_library(Renderer OBJECT ${Srcs} ${Includes})
+if(NOT APPLE)
+include_directories(${SpirvCross_INCLUDE_DIRS}
+${Vulkan_INCLUDE_DIRS})
+endif()
+
+add_library(Renderer STATIC ${Srcs} ${Includes})
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Renderer Core Window)
@@ -51,18 +60,22 @@ add_dependencies(Renderer Core Window)
 target_link_libraries(Renderer
   Core
   Window
-  #optimized "d3d12.lib" debug "d3d12.lib"
-  #optimized "DXGI.lib" debug "DXGI.lib"
-  ${Vulkan_LIBRARIES}
-  ${SpirvCross_LIBRARIES}
 )
 
-option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" True)
-#set(RENDERER_ENABLE_VALIDATION_LAYER True)
-
-if (RENDERER_ENABLE_VALIDATION_LAYER)
+if(NOT APPLE)
+  target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${SpirvCross_LIBRARIES})
+  #optimized "d3d12.lib" debug "d3d12.lib"
+  #optimized "DXGI.lib" debug "DXGI.lib"
+  
+  option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" True)
+  #set(RENDERER_ENABLE_VALIDATION_LAYER True)
+  
+  if (RENDERER_ENABLE_VALIDATION_LAYER)
 	set(RENDERER_ENABLE_VALIDATION_LAYER_DEFINE "RENDERER_ENABLE_VALIDATION_LAYER")
-endif ()
+  endif ()
+else()
+  target_link_libraries(Renderer "-framework Metal")
+endif()
 
 target_compile_definitions(Renderer PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE} ${RENDERER_ENABLE_VALIDATION_LAYER_DEFINE})
 target_compile_definitions(Renderer PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")

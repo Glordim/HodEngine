@@ -23,7 +23,7 @@ namespace hod
 
 		public:
 
-							Buffer(Usage usage);
+							Buffer(Usage usage, uint32_t size);
 							Buffer(const Buffer&) = delete;
 							Buffer(Buffer&&) = delete;
 			virtual			~Buffer() = default;

@@ -21,6 +21,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(portable_file_dialogs)
 message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_SOURCE_DIR})
 
+set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
+if(WIN32)
+  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/Release/box2d.lib)
+elseif(UNIX)
+  if (XCODE)
+    set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/Release/libbox2d.a)
+  else()
+    set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/libbox2d.a)
+  endif()
+endif()
+
 include(ExternalProject)
 ExternalProject_Add(box2d
   URL https://github.com/erincatto/box2d/archive/refs/tags/v2.4.1.zip
@@ -30,17 +41,12 @@ ExternalProject_Add(box2d
   CMAKE_ARGS
     -DBOX2D_BUILD_UNIT_TESTS=OFF
     -DBOX2D_BUILD_TESTBED=OFF
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=14
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release
   INSTALL_COMMAND ""
+  BUILD_BYPRODUCTS ${box2d_LIBRARIES}
 )
-
-set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
-if(WIN32)
-  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/Release/box2d.lib)
-elseif(UNIX)
-  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/libbox2d.a)
-endif()
 
 message(STATUS "box2d is available in " ${box2d_INCLUDE_DIRS})
 message(STATUS "box2d is available in " ${box2d_LIBRARIES})

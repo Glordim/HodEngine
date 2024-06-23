@@ -3,8 +3,6 @@
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
-#include <HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp>
-#include <HodEngine/Renderer/RHI/Vulkan/VkContext.hpp>
 
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
 #include <HodEngine/Window/PlatformWindow.hpp>
@@ -76,9 +74,9 @@ namespace hod::application
 
 			if (_window->GetGraphicsContext()->AcquireNextImageIndex() == true)
 			{
-				PlatformRenderer::GetInstance()->GetRenderQueue()->Execute();
+				PlatformRenderer::GetInstance()->GetRenderQueue()->Execute(_window->GetGraphicsContext());
 
-				_window->GetGraphicsContext()->SwapBuffer();
+				//_window->GetGraphicsContext()->SwapBuffer();
 			}
 
 			SystemTime::TimeStamp now = SystemTime::Now();

@@ -1,15 +1,15 @@
 #pragma once
+#if defined(PLATFORM_MACOS)
 
 #include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.hpp"
 
 namespace hod::application
 {
 	/// @brief 
-	class MacApplication : public DesktopApplication
+	class MacOsApplication : public DesktopApplication
 	{
-	public:
-
-		bool			Init(int argc, char** argv);
-		bool			Run();
+		_SingletonOverride(MacOsApplication)
 	};
 }
+
+#endif

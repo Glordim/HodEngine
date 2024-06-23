@@ -5,10 +5,10 @@
 	#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 	#define PlatformRenderer hod::renderer::RendererVulkan
 
-#elif defined(PLATFORM_MAC)
+#elif defined(PLATFORM_MACOS)
 
-	//#include "GraphicApplications/DesktopApplications/MacApplication.hpp"
-	//#define PlatformApplication MacApplication
+	#include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
+	#define PlatformRenderer hod::renderer::RendererMetal
 
 #elif defined(PLATFORM_LINUX)
 

@@ -59,6 +59,8 @@ namespace hod
 			virtual void		Draw(uint32_t vertexCount) = 0;
 			virtual void		DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset) = 0;
 
+			virtual void		Present(Context* context) = 0;
+
 			// TODO
 			Matrix4				_projection;
 			Matrix4				_view;

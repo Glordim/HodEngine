@@ -72,5 +72,13 @@ namespace hod
 		std::variant<int, float, std::string> 		        _data;
 
 		static std::array<std::string_view, Type::Count>    _labels;
+
+		Token() = default;
+		Token(Type type, std::variant<int, float, std::string> data)
+		: _type(type)
+		, _data(data)
+		{
+
+		}
 	};
 }

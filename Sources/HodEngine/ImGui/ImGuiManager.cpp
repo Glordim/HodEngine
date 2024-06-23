@@ -2,13 +2,15 @@
 
 #include <HodEngine/Core/Job/Job.hpp>
 
-#if defined(PLATFORM_WINDOWS)
-	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
-#endif
+#include "HodEngine/Window/PlatformWindow.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
+#if defined(PLATFORM_WINDOWS)
 #include "HodEngine/ImGui/DearImGui/imgui_impl_win32.h"
+#elif defined(PLATFORM_MACOS)
+#include "HodEngine/ImGui/DearImGui/imgui_impl_osx.h"
+#endif
 #include "HodEngine/ImGui/DearImGui/ImGuizmo.h"
 #include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
@@ -58,8 +60,8 @@ namespace hod::imgui
 	{
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_Shutdown();
+#elif defined(PLATFORM_MACOS)
 #endif
-		//ImGui_ImplVulkan_Shutdown();
 
 		ImGui::DestroyContext();
 
@@ -221,6 +223,8 @@ void embraceTheDarkness()
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_Init(static_cast<window::Win32Window*>(window)->GetWindowHandle());
 		static_cast<window::Win32Window*>(window)->OnWinProc.Connect(_winProcSlot);
+#elif defined(PLATFORM_MACOS)
+		ImGui_ImplOSX_Init(static_cast<window::MacOsWindow*>(window)->GetNsView());
 #endif
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
@@ -256,6 +260,9 @@ void embraceTheDarkness()
 	{
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_NewFrame();
+#elif defined(PLATFORM_MACOS)
+		window::DesktopWindow* window = (window::DesktopWindow*)application::GraphicApplication::GetInstance()->GetWindow();
+		ImGui_ImplOSX_NewFrame(static_cast<window::MacOsWindow*>(window)->GetNsView());
 #elif defined(PLATFORM_LINUX)
 		window::DesktopWindow* window = (window::DesktopWindow*)application::GraphicApplication::GetInstance()->GetWindow();
 
@@ -402,9 +409,9 @@ void embraceTheDarkness()
 
 		Rect viewport;
 		viewport._position.SetX(0.0f);
-		viewport._position.SetY(0.0f);
+		viewport._position.SetY(ImGui::GetIO().DisplaySize.y);
 		viewport._size.SetX(ImGui::GetIO().DisplaySize.x);
-		viewport._size.SetY(ImGui::GetIO().DisplaySize.y);
+		viewport._size.SetY(-ImGui::GetIO().DisplaySize.y);
 		
 		RenderCommandImGui* renderCommand = new RenderCommandImGui(drawLists, viewport);
 
