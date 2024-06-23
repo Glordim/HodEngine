@@ -120,9 +120,9 @@ namespace hod
 			
 			VkViewport vkViewport = {};
 			vkViewport.x = 0;
-			vkViewport.y = 0;
+			vkViewport.y = (float)renderPassInfo.renderArea.extent.height;
 			vkViewport.width = (float)renderPassInfo.renderArea.extent.width;
-			vkViewport.height = (float)renderPassInfo.renderArea.extent.height;
+			vkViewport.height = -(float)renderPassInfo.renderArea.extent.height;
 			vkViewport.minDepth = 0.0f;
 			vkViewport.maxDepth = 1.0f;
 
@@ -216,9 +216,9 @@ namespace hod
 		{
 			VkViewport vkViewport = {};
 			vkViewport.x = viewport._position.GetX();
-			vkViewport.y = viewport._position.GetY();
+			vkViewport.y = viewport._position.GetY() + viewport._size.GetY();
 			vkViewport.width = viewport._size.GetX();
-			vkViewport.height = viewport._size.GetY();
+			vkViewport.height = -viewport._size.GetY();
 			vkViewport.minDepth = 0.0f;
 			vkViewport.maxDepth = 1.0f;
 

@@ -245,10 +245,9 @@ namespace hod::editor
 
 			Rect viewport;
 			viewport._position.SetX(0);
-			viewport._position.SetY((float)windowHeight);
+			viewport._position.SetY(0);
 			viewport._size.SetX((float)windowWidth);
-			viewport._size.SetY(-(float)windowHeight);
-			// Vulkan specific Y inversion TODO move it in Vulkan part and probably readapt ImguiRenderer to aply this inversion because it need 2D bottom y axis
+			viewport._size.SetY((float)windowHeight);
 
 			float aspect = (float)windowWidth / (float)windowHeight;
 
