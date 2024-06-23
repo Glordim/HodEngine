@@ -231,7 +231,7 @@ namespace hod::game
 		for (const auto& pair : _entities)
 		{
 			std::shared_ptr<Entity> entity = pair.second;
-			std::shared_ptr<RendererComponent> rendererComponent = entity->GetComponent<RendererComponent>().lock();
+			std::shared_ptr<RendererComponent> rendererComponent = entity->GetComponent<RendererComponent>();
 			if (rendererComponent != nullptr)
 			{
 				rendererComponent->PushToRenderQueue(*renderQueue);
@@ -254,7 +254,7 @@ namespace hod::game
 		for (const auto& pair : _entities)
 		{
 			std::shared_ptr<Entity> entity = pair.second;
-			std::shared_ptr<RendererComponent> rendererComponent = entity->GetComponent<RendererComponent>().lock();
+			std::shared_ptr<RendererComponent> rendererComponent = entity->GetComponent<RendererComponent>();
 			if (rendererComponent != nullptr)
 			{
 				idToColorConverter.uint32 = id;
@@ -356,11 +356,11 @@ namespace hod::game
 			sourceToCloneComponentsMap.emplace(entity->GetComponents()[componentIndex], clonedEntity->GetComponents()[componentIndex]);
 		}
 		
-		std::shared_ptr<NodeComponent> nodeComponent = entity->GetComponent<NodeComponent>().lock();
+		std::shared_ptr<NodeComponent> nodeComponent = entity->GetComponent<NodeComponent>();
 		uint32_t childCount = nodeComponent->GetChildCount();
 		for (uint32_t childIndex = 0; childIndex < childCount; ++childCount)
 		{
-			const std::shared_ptr<Entity> childEntity = nodeComponent->GetChild(childIndex).Lock()->GetEntity().lock();
+			const std::shared_ptr<Entity> childEntity = nodeComponent->GetChild(childIndex).Lock()->GetEntity();
 			InstantiateInternal(childEntity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
 		}
 		return clonedEntity;

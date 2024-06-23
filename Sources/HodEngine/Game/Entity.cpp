@@ -145,7 +145,7 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::weak_ptr<Component> Entity::GetComponent(MetaType metaType)
+	std::shared_ptr<Component> Entity::GetComponent(MetaType metaType)
 	{
 		for (const std::shared_ptr<Component>& component : _components)
 		{
@@ -154,15 +154,15 @@ namespace hod::game
 				return component;
 			}
 		}
-		return std::weak_ptr<Component>();
+		return std::shared_ptr<Component>();
 	}
 
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::weak_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart)
+	std::shared_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart)
 	{
-		std::shared_ptr<Component> existingComponent = GetComponent(descriptor.GetMetaType()).lock();
+		std::shared_ptr<Component> existingComponent = GetComponent(descriptor.GetMetaType());
 		if (existingComponent != nullptr)
 		{
 			return existingComponent;
@@ -174,10 +174,10 @@ namespace hod::game
 	/// @brief 
 	/// @param component 
 	/// @return 
-	std::weak_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component, bool awakeAndStart)
+	std::shared_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component, bool awakeAndStart)
 	{
 		_components.push_back(component);
-		component->SetEntity(weak_from_this());
+		component->SetEntity(shared_from_this());
 
 		_onAddComponentEvent.Emit(component);
 
@@ -195,9 +195,9 @@ namespace hod::game
 
 	/// @brief 
 	/// @param component 
-	void Entity::RemoveComponent(std::weak_ptr<Component> component)
+	void Entity::RemoveComponent(std::shared_ptr<Component> component)
 	{
-		auto it = std::find(_components.begin(), _components.end(), component.lock());
+		auto it = std::find(_components.begin(), _components.end(), component);
 		if (it != _components.end())
 		{
 			_components.erase(it);

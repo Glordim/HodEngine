@@ -310,7 +310,7 @@ namespace hod::editor
 			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
 			if (sceneSelection != nullptr)
 			{
-				std::shared_ptr<game::Node2dComponent> node2D = sceneSelection->GetComponent<game::Node2dComponent>().lock();
+				std::shared_ptr<game::Node2dComponent> node2D = sceneSelection->GetComponent<game::Node2dComponent>();
 				if (node2D != nullptr)
 				{
 					float matrix[16];

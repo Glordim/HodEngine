@@ -60,19 +60,19 @@ namespace hod::game
 		std::vector<std::weak_ptr<game::Component>>	GetComponents() const;
 
 		template<typename _Component_>
-		std::weak_ptr<_Component_>	GetComponent();
-		std::weak_ptr<Component>	GetComponent(MetaType metaType);
+		std::shared_ptr<_Component_>	GetComponent();
+		std::shared_ptr<Component>		GetComponent(MetaType metaType);
 
 		template<typename _Component_>
-		std::weak_ptr<_Component_>	AddComponent(bool awakeAndStart = true);
-		std::weak_ptr<Component>	AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart = true);
+		std::shared_ptr<_Component_>	AddComponent(bool awakeAndStart = true);
+		std::shared_ptr<Component>		AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart = true);
 
 		template<typename _Component_>
 		void						RemoveComponent();
-		void						RemoveComponent(std::weak_ptr<Component> component);
+		void						RemoveComponent(std::shared_ptr<Component> component);
 
-		Event<std::weak_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
-		Event<std::weak_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }
+		Event<std::shared_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
+		Event<std::shared_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }
 
 #if defined(HOD_EDITOR)
 		void						SetPrefab(Prefab* prefab);
@@ -81,7 +81,7 @@ namespace hod::game
 
 	private:
 
-		std::weak_ptr<Component>	AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
+		std::shared_ptr<Component>	AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
 
 	private:
 
@@ -103,8 +103,8 @@ namespace hod::game
 
 		std::vector<std::shared_ptr<Component>>	_components; // map ?
 
-		Event<std::weak_ptr<Component>>	_onAddComponentEvent;
-		Event<std::weak_ptr<Component>>	_onRemoveComponentEvent;
+		Event<std::shared_ptr<Component>>	_onAddComponentEvent;
+		Event<std::shared_ptr<Component>>	_onRemoveComponentEvent;
 	};
 }
 

@@ -115,13 +115,13 @@ namespace hod::game::PrefabUtility
 			}
 			else
 			{
-				std::shared_ptr<game::NodeComponent> nodeComponent = entity->GetComponent<game::NodeComponent>().lock();
+				std::shared_ptr<game::NodeComponent> nodeComponent = entity->GetComponent<game::NodeComponent>();
 				if (nodeComponent != nullptr)
 				{
 					std::shared_ptr<game::NodeComponent> parentNodeComponent = nodeComponent->GetParent().Lock();
 					if (parentNodeComponent != nullptr)
 					{
-						entity = parentNodeComponent->GetEntity().lock();
+						entity = parentNodeComponent->GetEntity();
 					}
 					else
 					{
@@ -140,14 +140,14 @@ namespace hod::game::PrefabUtility
 	std::string GetRelativePath(std::shared_ptr<Entity> parent, std::shared_ptr<Entity> child)
 	{
 		std::string relativePath;
-		std::shared_ptr<game::NodeComponent> nodeComponent = child->GetComponent<game::NodeComponent>().lock();
-		while (nodeComponent != nullptr && nodeComponent->GetEntity().lock() != parent)
+		std::shared_ptr<game::NodeComponent> nodeComponent = child->GetComponent<game::NodeComponent>();
+		while (nodeComponent != nullptr && nodeComponent->GetEntity() != parent)
 		{
 			if (relativePath.empty() == false)
 			{
-				relativePath.insert('/', nodeComponent->GetEntity().lock()->GetName());
+				relativePath.insert('/', nodeComponent->GetEntity()->GetName());
 			}
-			relativePath.insert(0, nodeComponent->GetEntity().lock()->GetName());
+			relativePath.insert(0, nodeComponent->GetEntity()->GetName());
 
 			nodeComponent = nodeComponent->GetParent().Lock();
 		}
@@ -161,7 +161,7 @@ namespace hod::game::PrefabUtility
 	std::shared_ptr<Entity> FindChildByPath(std::shared_ptr<Entity> parent, std::string_view relativePath)
 	{
 		size_t offset = 0;
-		std::shared_ptr<game::NodeComponent> nodeComponent = parent->GetComponent<game::NodeComponent>().lock();
+		std::shared_ptr<game::NodeComponent> nodeComponent = parent->GetComponent<game::NodeComponent>();
 		while (offset < relativePath.size())
 		{
 			size_t separatorPos = relativePath.find('/', offset);
@@ -173,7 +173,7 @@ namespace hod::game::PrefabUtility
 			for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
 			{
 				std::shared_ptr<game::NodeComponent> childNodeComponent = nodeComponent->GetChild(childIndex).Lock();
-				if (childNodeComponent->GetEntity().lock()->GetName() == name)
+				if (childNodeComponent->GetEntity()->GetName() == name)
 				{
 					nodeComponent = childNodeComponent;
 					offset += separatorPos + 1;
@@ -186,7 +186,7 @@ namespace hod::game::PrefabUtility
 				return nullptr;
 			}
 		}
-		return nodeComponent->GetEntity().lock();
+		return nodeComponent->GetEntity();
 	}
 
 	/// @brief 
@@ -194,7 +194,7 @@ namespace hod::game::PrefabUtility
 	/// @return 
 	std::shared_ptr<Component> GetCorrespondingComponent(std::shared_ptr<Component> component)
 	{
-		std::shared_ptr<game::Entity> entity = component->GetEntity().lock();
+		std::shared_ptr<game::Entity> entity = component->GetEntity();
 		if (entity != nullptr)
 		{
 			std::shared_ptr<game::Entity> prefabInstanceEntity = GetPrefabInstance(entity);
@@ -204,7 +204,7 @@ namespace hod::game::PrefabUtility
 				std::shared_ptr<Entity> correspondingEntity = FindChildByPath(prefabInstanceEntity->GetPrefab()->GetRootEntity(), pathToComponent);
 				if (correspondingEntity != nullptr)
 				{
-					return correspondingEntity->GetComponent(component->GetMetaType()).lock();
+					return correspondingEntity->GetComponent(component->GetMetaType());
 				}
 			}
 		}

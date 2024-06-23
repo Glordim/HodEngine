@@ -32,8 +32,8 @@ namespace hod
 
 		public:
 
-			void							SetEntity(const std::weak_ptr<Entity>& entity);
-			const std::weak_ptr<Entity>&	GetEntity() const;
+			void					SetEntity(const std::shared_ptr<Entity>& entity);
+			std::shared_ptr<Entity>	GetEntity() const;
 
 			virtual void		PushToRenderQueue(renderer::RenderQueue& renderQueue) {}; // TODO move it in RendererComponent ?
 			virtual void		PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId) {}; // TODO move it in RendererComponent ?

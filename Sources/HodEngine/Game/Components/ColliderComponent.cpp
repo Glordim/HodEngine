@@ -78,10 +78,10 @@ namespace hod
 				_body->SetType(physics::Body::Type::Dynamic);
 			}
 
-			std::shared_ptr<Entity> entity = GetEntity().lock();
+			std::shared_ptr<Entity> entity = GetEntity();
 			if (entity != nullptr)
 			{
-				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>().lock();
+				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
 					_body->SetTransform(node2dComponent->GetPosition(), node2dComponent->GetRotation(), node2dComponent->GetScale());
@@ -92,10 +92,10 @@ namespace hod
 		/// @brief 
 		void ColliderComponent::OnUpdate()
 		{
-			std::shared_ptr<Entity> entity = GetEntity().lock();
+			std::shared_ptr<Entity> entity = GetEntity();
 			if (entity != nullptr)
 			{
-				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>().lock();
+				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
 					node2dComponent->SetPosition(_body->GetPosition());

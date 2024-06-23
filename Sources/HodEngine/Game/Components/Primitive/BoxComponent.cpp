@@ -50,10 +50,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void BoxComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
-			std::shared_ptr<Entity> entity = GetEntity().lock();
+			std::shared_ptr<Entity> entity = GetEntity();
 			if (entity != nullptr)
 			{
-				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>().lock();
+				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
 					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), (uint32_t)_vertices.size(), sizeof(renderer::P2fT2f), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), nullptr));

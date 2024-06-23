@@ -40,7 +40,7 @@ namespace hod::editor
 				for (auto& pair : scene->GetEntities())
 				{
 					std::shared_ptr<game::Entity> entity = pair.second;
-					std::shared_ptr<game::NodeComponent> nodeComponent = entity->GetComponent<game::NodeComponent>().lock();
+					std::shared_ptr<game::NodeComponent> nodeComponent = entity->GetComponent<game::NodeComponent>();
 					bool hasParent = false;
 					if (nodeComponent != nullptr)
 					{
@@ -87,11 +87,11 @@ namespace hod::editor
 
 				if (selectionLock != nullptr)
 				{
-					std::shared_ptr<game::NodeComponent> selectionNodeComponentLock = selectionLock->GetComponent<game::NodeComponent>().lock();
+					std::shared_ptr<game::NodeComponent> selectionNodeComponentLock = selectionLock->GetComponent<game::NodeComponent>();
 					if (selectionNodeComponentLock != nullptr)
 					{
 						std::shared_ptr<game::Entity> entityLock = entity.lock();
-						std::shared_ptr<game::NodeComponent> nodeComponentLock = entityLock->AddComponent<game::NodeComponent>().lock();
+						std::shared_ptr<game::NodeComponent> nodeComponentLock = entityLock->AddComponent<game::NodeComponent>();
 						nodeComponentLock->SetParent(selectionNodeComponentLock);
 					}
 				}
@@ -154,17 +154,17 @@ namespace hod::editor
 					{
 						// todo get or add component
 						std::shared_ptr<game::NodeComponent> parentNodeComponentLock;
-						std::shared_ptr<game::NodeComponent> siblingNodeComponentLock = entityLock->GetComponent<game::NodeComponent>().lock();
+						std::shared_ptr<game::NodeComponent> siblingNodeComponentLock = entityLock->GetComponent<game::NodeComponent>();
 						if (siblingNodeComponentLock != nullptr)
 						{
 							parentNodeComponentLock = siblingNodeComponentLock->GetParent().Lock();
 						}
 
 						// todo get or add component
-						std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>().lock();
+						std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>();
 						if (dropNodeComponentLock == nullptr)
 						{
-							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>().lock();
+							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>();
 						}
 						dropNodeComponentLock->SetParent(parentNodeComponentLock);
 						// todo sibling index
@@ -177,7 +177,7 @@ namespace hod::editor
 
 		std::shared_ptr<game::Entity> selectionLock = _selection.lock();
 
-		std::shared_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>().lock();
+		std::shared_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>();
 
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
 		if (nodeComponent == nullptr || nodeComponent->GetChildCount() == 0)
@@ -225,17 +225,17 @@ namespace hod::editor
 					if (dropEntityLock != nullptr)
 					{
 						// todo get or add component
-						std::shared_ptr<game::NodeComponent> parentNodeComponentLock = entityLock->GetComponent<game::NodeComponent>().lock();
+						std::shared_ptr<game::NodeComponent> parentNodeComponentLock = entityLock->GetComponent<game::NodeComponent>();
 						if (parentNodeComponentLock == nullptr)
 						{
-							parentNodeComponentLock = entityLock->AddComponent<game::NodeComponent>().lock();
+							parentNodeComponentLock = entityLock->AddComponent<game::NodeComponent>();
 						}
 
 						// todo get or add component
-						std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>().lock();
+						std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>();
 						if (dropNodeComponentLock == nullptr)
 						{
-							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>().lock();
+							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>();
 						}
 						dropNodeComponentLock->SetParent(parentNodeComponentLock);
 						Editor::GetInstance()->MarkCurrentSceneAsDirty();

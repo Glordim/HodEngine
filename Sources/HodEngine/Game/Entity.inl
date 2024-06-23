@@ -8,7 +8,7 @@
 namespace hod::game
 {
 	template<typename _Component_>
-	std::weak_ptr<_Component_> Entity::GetComponent()
+	std::shared_ptr<_Component_> Entity::GetComponent()
 	{
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use GetComponent()");
 
@@ -20,15 +20,15 @@ namespace hod::game
 			}
 		}
 
-		return std::weak_ptr<_Component_>();
+		return std::shared_ptr<_Component_>();
 	}
 
 	template<typename _Component_>
-	std::weak_ptr<_Component_> Entity::AddComponent(bool awakeAndStart)
+	std::shared_ptr<_Component_> Entity::AddComponent(bool awakeAndStart)
 	{
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use AddComponent()");
 
-		std::shared_ptr<_Component_> existingComponent = GetComponent<_Component_>().lock();
+		std::shared_ptr<_Component_> existingComponent = GetComponent<_Component_>();
 		if (existingComponent != nullptr)
 		{
 			return existingComponent;
