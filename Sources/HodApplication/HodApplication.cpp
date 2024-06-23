@@ -3,7 +3,8 @@
 #include <HodEngine/Editor/Editor.hpp>
 #include <HodEngine/Game/ComponentFactory.hpp>
 
-#include "AutoRotateComponent.hpp"
+#include "Components/BarComponent.hpp"
+#include "Components/PlayerControllerComponent.hpp"
 
 _SingletonOverrideConstructor(HodApplication)
 {
@@ -23,7 +24,8 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	}
 
 	hod::game::ComponentFactory* componentFactory = hod::game::ComponentFactory::GetInstance();
-	componentFactory->Register<AutoRotateComponent>();
+	componentFactory->Register<BarComponent>();
+	componentFactory->Register<PlayerControllerComponent>();
 
 #if defined(HOD_EDITOR)
 	hod::editor::Editor::CreateInstance();
