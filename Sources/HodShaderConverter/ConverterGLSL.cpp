@@ -57,18 +57,42 @@ namespace hod
 		bool inMainFuction = false;
 		bool inInStruct = false;
 		bool inOutStruct = false;
+		bool inCBufferStruct = false;
 		int locationIndex = 0;
 
 		std::vector<std::string> identifiers;
 
 		std::map<std::string, std::string> inVariableToQualifier;
 		std::map<std::string, std::string> outVariableToQualifier;
+		std::string cbufferIdentifier;
 
 		for (uint32_t index = 0; index < inTokens.size(); ++index)
 		{
 			const Token& token = inTokens[index];
 
-			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "IN"}, {Token::Type::OpenCurlyBracket, 0}}))
+			if (NextTokensAre(inTokens, index, {{Token::Type::CBuffer, 0}, {Token::Type::Identifier, ""}, {Token::Type::Identifier, ""}, {Token::Type::OpenCurlyBracket, 0}}, &identifiers))
+			{
+				outTokens.emplace_back(Token::Type::Identifier, "layout");
+				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "push_constant");
+				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "uniform");
+				outTokens.emplace_back(Token::Type::Identifier, identifiers[0]);
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
+				cbufferIdentifier = identifiers[1];
+				inCBufferStruct = true;
+				continue;
+			}
+			else if (inCBufferStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
+			{
+				inCBufferStruct = false;
+				outTokens.emplace_back(Token::Type::ClosingCurlyBracket, 0);
+				outTokens.emplace_back(Token::Type::Identifier, cbufferIdentifier);
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+				outTokens.emplace_back(Token::Type::NewLine, 0);
+				continue;
+			}
+			else if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "IN"}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
 				inInStruct = true;
 				locationIndex = 0;
@@ -210,7 +234,8 @@ namespace hod
 				continue;
 			}
 
-			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, "void"}, {Token::Type::Identifier, "main"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::OpenCurlyBracket, 0}}))
+			if (NextTokensAre(inTokens, index, {{Token::Type::Identifier, "void"}, {Token::Type::Identifier, "VertexMain"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::OpenCurlyBracket, 0}}) ||
+				NextTokensAre(inTokens, index, {{Token::Type::Identifier, "void"}, {Token::Type::Identifier, "FragMain"}, {Token::Type::OpenParenthesis, 0}, {Token::Type::ClosingParenthesis, 0}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
 				outTokens.emplace_back(Token::Type::Identifier, "void");
 				outTokens.emplace_back(Token::Type::Identifier, "main");
@@ -270,16 +295,6 @@ namespace hod
 
 			switch (token._type)
 			{
-				case Token::Type::CBuffer:
-				{
-					outTokens.emplace_back(Token::Type::Identifier, "layout");
-					outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
-					outTokens.emplace_back(Token::Type::Identifier, "push_constant");
-					outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
-					outTokens.emplace_back(Token::Type::Identifier, "uniform");
-				}
-				break;
-
 				case Token::Type::Identifier:
 				{
 					std::string value = std::get<std::string>(token._data);
