@@ -91,7 +91,7 @@ namespace hod::editor
 	/// @brief 
 	void AssetBrowserWindow::DrawFolderTreeNode(AssetDatabase::FileSystemMapping* node)
 	{
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap;
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowOverlap;
 		if (node->_childrenFolder.size() == 0)
 		//if (node->_childrenFolder.Next() != nullptr)
 		{
