@@ -36,6 +36,7 @@ namespace hod::window
 		void								SetVisible(bool visible) override;
 
 		void								RunOnWin32Thread(std::function<void()> codeToRun);
+		Thread::Id							GetMessageLoopThreadId() const;
 
 	private:
 

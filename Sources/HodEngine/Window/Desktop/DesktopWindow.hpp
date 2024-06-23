@@ -3,6 +3,7 @@
 #include "HodEngine/Window/Window.hpp"
 
 #include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Core/Event.hpp"
 
 #include <array>
 
@@ -30,6 +31,9 @@ namespace hod::window
 
 		virtual void			SetVisible(bool visible) = 0;
 
+		bool					IsFocused() const;
+		Event<bool>&			GetFocusedEvent();
+
 		const Vector2&			GetMousePosition() const;
 		bool					GetMouseButton(MouseButton button) const;
 
@@ -38,11 +42,18 @@ namespace hod::window
 
 		void					Close();
 
+	protected:
+
+		void					SetFocused(bool focused);
+
     private:
 
     	Vector2 								_mousePosition;
         std::array<bool, MouseButton::Count>	_mouseButtons;
 
 		bool					_close = false;
+		bool					_focused = false;
+
+		Event<bool>				_focusEvent;
 	};
 }

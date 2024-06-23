@@ -275,6 +275,13 @@ namespace hod::window
 			_runOnWin32Thread.push_back(codeToRun);
 		}
 	}
+
+	/// @brief 
+	/// @return 
+	Thread::Id Win32Window::GetMessageLoopThreadId() const
+	{
+		return _hWndThreadId;
+	}
 }
 
 #endif

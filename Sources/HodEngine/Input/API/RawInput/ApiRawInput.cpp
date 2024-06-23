@@ -8,7 +8,12 @@
 #include <WinUser.h>
 #include <hidusage.h>
 
-#include "HodEngine/Core/Output.hpp"
+#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Application/GraphicApplications/DesktopApplications/WindowsApplication.hpp>
+#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
+
+using namespace hod::application;
+using namespace hod::window;
 
 namespace hod::input
 {
@@ -50,7 +55,7 @@ namespace hod::input
 	/// @brief 
 	ApiRawInput::ApiRawInput()
 	: Api("RawInput")
-	, _onFocusChangeSlot(this, &ApiRawInput::OnFocusChange)
+	, _onFocusChangeSlot(std::bind(&ApiRawInput::OnFocusChange, this, std::placeholders::_1))
 	{
 	}
 
@@ -84,8 +89,10 @@ namespace hod::input
 		assert(ApiRawInput::_pInstance == nullptr);
 		ApiRawInput::_pInstance = this;
 
+		Win32Window* window = static_cast<Win32Window*>(WindowsApplication::GetInstance()->GetWindow());
+
 		assert(ApiRawInput::_hGetMessageHook == nullptr);
-		ApiRawInput::_hGetMessageHook = SetWindowsHookEx(WH_GETMESSAGE, ApiRawInput::GetMessageHook, NULL, WindowsApplication::GetInstance()->GetMessageLoopThreadId());
+		ApiRawInput::_hGetMessageHook = SetWindowsHookEx(WH_GETMESSAGE, ApiRawInput::GetMessageHook, NULL, window->GetMessageLoopThreadId());
 		if (ApiRawInput::_hGetMessageHook == nullptr)
 		{
 			std::string sErrorMessage;
@@ -94,7 +101,7 @@ namespace hod::input
 			OUTPUT_ERROR("Unable to set MessageHook (%s)", sErrorMessage.c_str());
 		}
 
-		WindowsApplication::GetInstance()->GetIsFocusedEvent().Connect(_onFocusChangeSlot);
+		window->GetFocusedEvent().Connect(_onFocusChangeSlot);
 
 		SetInitialized(true);
 
@@ -400,9 +407,10 @@ namespace hod::input
 		_inputChangesLock.lock();
 		if (_vInputChangeMessages.empty() == false)
 		{
-			if (WindowsApplication::GetInstance()->GetIsFocused() == true)
+			Win32Window* window = static_cast<Win32Window*>(WindowsApplication::GetInstance()->GetWindow());
+			if (window->IsFocused() == true)
 			{
-				bool isResizingOrMovingWindow = WindowsApplication::GetInstance()->GetIsResizingOrMoving();
+				bool isResizingOrMovingWindow = false; // TODO WindowsApplication::GetInstance()->GetIsResizingOrMoving();
 				if (isResizingOrMovingWindow == true)
 				{
 					_bIgnoreNextMouseMessage = true; // Windows do the sum of all movement at the end of the Resizing or Moving

@@ -48,12 +48,12 @@ namespace hod::input
 	public:
 
 										Input(InputId inputId);
-										Input(const Input& other) = default;
-										Input(Input&& other) = default;
+										Input(const Input& other) = delete;
+										Input(Input&& other) = delete;
 										~Input() = default;
 
-		Input&							operator = (const Input& other) = default;
-		Input&							operator = (Input&& other) = default;
+		Input&							operator = (const Input& other) = delete;
+		Input&							operator = (Input&& other) = delete;
 
 		InputId							GetInputId() const;
 		float							GetValue() const;

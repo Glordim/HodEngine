@@ -5,6 +5,8 @@
 #include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Input/InputId.hpp"
 
+#include "HodEngine/Core/Event.hpp"
+
 #include <mutex>
 
 #define REDIRECT_INJECTED_INPUT_TO_FIRST_DEVICE // Used to support TeamViewer and Parsec (they don't fill hDevice and need a redirection)

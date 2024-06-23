@@ -37,4 +37,29 @@ namespace hod::window
     {
         _close = true;
     }
+
+    /// @brief 
+    /// @return 
+    Event<bool>& DesktopWindow::GetFocusedEvent()
+    {
+        return _focusEvent;
+    }
+
+    /// @brief 
+    /// @return 
+    bool DesktopWindow::IsFocused() const
+    {
+        return _focused;
+    }
+
+    /// @brief 
+    /// @param focused 
+    void DesktopWindow::SetFocused(bool focused)
+    {
+        if (_focused != focused)
+        {
+            _focused = focused;
+            _focusEvent.Emit(focused);
+        }
+    }
 }

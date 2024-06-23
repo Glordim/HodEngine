@@ -603,7 +603,7 @@ namespace hod::input
 			default:
 			{
 				// TODO Get windows application
-				HKL hKeyboardLayout = GetKeyboardLayout(windowsApplication->GetMessageLoopThreadId());
+				HKL hKeyboardLayout = GetKeyboardLayout(0);
 
 				return static_cast<WINDOWS_SCAN_CODE>(MapVirtualKeyEx(virtualKey, MAPVK_VK_TO_VSC, hKeyboardLayout));
 			}
@@ -650,7 +650,7 @@ namespace hod::input
 			default:
 			{
 				// TODO Get windows application
-				HKL hKeyboardLayout = GetKeyboardLayout(windowsApplication->GetMessageLoopThreadId());
+				HKL hKeyboardLayout = GetKeyboardLayout(0);
 
 				return MapVirtualKeyEx(static_cast<UINT>(scanCode), MAPVK_VSC_TO_VK, hKeyboardLayout);
 			}
