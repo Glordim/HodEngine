@@ -21,6 +21,8 @@ namespace hod::input
 		bool							Initialize();
 		void							UpdateJob();
 
+		Input::State					GetInputState(InputId inputId) const;
+
 	private:
 
 										~InputManager();
@@ -30,8 +32,6 @@ namespace hod::input
 		template<typename __API__>
 		bool							CreateApi();
 		bool							CreateApi(Api* api);
-
-		Input::State					GetInputState(InputId inputId) const;
 
 	private:
 

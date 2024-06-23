@@ -52,7 +52,7 @@ namespace hod::window
         std::array<bool, MouseButton::Count>	_mouseButtons;
 
 		bool					_close = false;
-		bool					_focused = false;
+		bool					_focused = true;
 
 		Event<bool>				_focusEvent;
 	};

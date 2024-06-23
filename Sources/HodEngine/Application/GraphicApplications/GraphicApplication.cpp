@@ -8,6 +8,8 @@
 #include <HodEngine/Window/PlatformWindow.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
 
+#include <HodEngine/Input/InputManager.hpp>
+
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include "HodEngine/Core/Time/SystemTime.hpp"
@@ -41,6 +43,12 @@ namespace hod::application
 			hiddenWindow = true;
 		#endif
 		_window = platformDisplayManager->CreateWindow(hiddenWindow);
+
+		input::InputManager::CreateInstance();
+		if (input::InputManager::GetInstance()->Initialize() == false)
+		{
+			return false;
+		}
 
 		PlatformRenderer::CreateInstance();
 		if (PlatformRenderer::GetInstance()->Init(_window) == false)

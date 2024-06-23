@@ -92,7 +92,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector2 Vector2::operator + (const Vector2& right)
+	Vector2 Vector2::operator + (const Vector2& right) const
 	{
 		Vector2 result;
 		result._x = _x + right._x;
@@ -103,7 +103,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector2 Vector2::operator - (const Vector2& right)
+	Vector2 Vector2::operator - (const Vector2& right) const
 	{
 		Vector2 result;
 		result._x = _x - right._x;
@@ -114,7 +114,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector2 Vector2::operator * (const Vector2& right)
+	Vector2 Vector2::operator * (const Vector2& right) const
 	{
 		Vector2 result;
 		result._x = _x * right._x;
@@ -125,7 +125,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector2 Vector2::operator / (const Vector2& right)
+	Vector2 Vector2::operator / (const Vector2& right) const
 	{
 		Vector2 result;
 		result._x = _x / right._x;
@@ -161,22 +161,22 @@ namespace hod
 		return operator /= (Vector2(right, right));
 	}
 
-	Vector2 Vector2::operator + (float right)
+	Vector2 Vector2::operator + (float right) const
 	{
 		return operator + (Vector2(right, right));
 	}
 
-	Vector2 Vector2::operator - (float right)
+	Vector2 Vector2::operator - (float right) const
 	{
 		return operator - (Vector2(right, right));
 	}
 	
-	Vector2 Vector2::operator * (float right)
+	Vector2 Vector2::operator * (float right) const
 	{
 		return operator * (Vector2(right, right));
 	}
 
-	Vector2 Vector2::operator / (float right)
+	Vector2 Vector2::operator / (float right) const
 	{
 		return operator / (Vector2(right, right));
 	}

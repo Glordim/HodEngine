@@ -31,10 +31,10 @@ namespace hod
 		Vector4&	operator *= (const Vector4& right);
 		Vector4&	operator /= (const Vector4& right);
 
-		Vector4		operator + (const Vector4& right);
-		Vector4		operator - (const Vector4& right);
-		Vector4		operator * (const Vector4& right);
-		Vector4		operator / (const Vector4& right);
+		Vector4		operator + (const Vector4& right) const;
+		Vector4		operator - (const Vector4& right) const;
+		Vector4		operator * (const Vector4& right) const;
+		Vector4		operator / (const Vector4& right) const;
 
 		bool		operator == (const Vector4& right) const;
 
@@ -43,10 +43,10 @@ namespace hod
 		Vector4&	operator *= (float value);
 		Vector4&	operator /= (float value);
 
-		Vector4		operator + (float value);
-		Vector4		operator - (float value);
-		Vector4		operator * (float value);
-		Vector4		operator / (float value);
+		Vector4		operator + (float value) const;
+		Vector4		operator - (float value) const;
+		Vector4		operator * (float value) const;
+		Vector4		operator / (float value) const;
 
 	public:
 

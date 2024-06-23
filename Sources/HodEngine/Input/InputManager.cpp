@@ -7,10 +7,10 @@
 
 namespace hod::input
 {
-	/// @brief 
-	InputManager::InputManager()
+	_SingletonConstructor(InputManager)
 	: _updateJob(this, &InputManager::UpdateJob, JobQueue::FramedHighPriority, false)
 	{
+
 	}
 
 	/// @brief 

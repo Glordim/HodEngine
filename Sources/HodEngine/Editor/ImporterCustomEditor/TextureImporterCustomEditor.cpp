@@ -73,7 +73,7 @@ namespace hod::editor
 			}
 
 			float width = ImGui::GetContentRegionAvail().x;
-			float height = width / (texture->GetTexture()->GetWidth() / texture->GetTexture()->GetHeight());
+			float height = width / (static_cast<float>(texture->GetTexture()->GetWidth()) / static_cast<float>(texture->GetTexture()->GetHeight()));
 			ImVec2 cursor = ImGui::GetCursorPos();
 			ImGui::Image(Editor::GetInstance()->GetCheckerTexture(), ImVec2(width, height), ImVec2(0, 0), ImVec2(width / (4 * 8), height / (4 * 8)));
 			ImGui::SetCursorPos(cursor);

@@ -134,7 +134,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector4 Vector4::operator + (const Vector4& right)
+	Vector4 Vector4::operator + (const Vector4& right) const
 	{
 		Vector4 result;
 		result._x = _x + right._x;
@@ -147,7 +147,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector4 Vector4::operator - (const Vector4& right)
+	Vector4 Vector4::operator - (const Vector4& right) const
 	{
 		Vector4 result;
 		result._x = _x - right._x;
@@ -160,7 +160,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector4 Vector4::operator * (const Vector4& right)
+	Vector4 Vector4::operator * (const Vector4& right) const
 	{
 		Vector4 result;
 		result._x = _x * right._x;
@@ -173,7 +173,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector4 Vector4::operator / (const Vector4& right)
+	Vector4 Vector4::operator / (const Vector4& right) const
 	{
 		Vector4 result;
 		result._x = _x / right._x;
@@ -194,7 +194,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector4 Vector4::operator + (float value)
+	Vector4 Vector4::operator + (float value) const
 	{
 		Vector4 result;
 		result._x = _x + value;
@@ -207,7 +207,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector4 Vector4::operator - (float value)
+	Vector4 Vector4::operator - (float value) const
 	{
 		Vector4 result;
 		result._x = _x - value;
@@ -220,7 +220,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector4 Vector4::operator * (float value)
+	Vector4 Vector4::operator * (float value) const
 	{
 		Vector4 result;
 		result._x = _x * value;
@@ -233,7 +233,7 @@ namespace hod
 	/// @brief 
 	/// @param right 
 	/// @return 
-	Vector4 Vector4::operator / (float value)
+	Vector4 Vector4::operator / (float value) const
 	{
 		Vector4 result;
 		result._x = _x / value;

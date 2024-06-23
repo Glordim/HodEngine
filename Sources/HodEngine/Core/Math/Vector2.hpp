@@ -31,10 +31,10 @@ namespace hod
 		Vector2&	operator *= (const Vector2& right);
 		Vector2&	operator /= (const Vector2& right);
 
-		Vector2		operator + (const Vector2& right);
-		Vector2		operator - (const Vector2& right);
-		Vector2		operator * (const Vector2& right);
-		Vector2		operator / (const Vector2& right);
+		Vector2		operator + (const Vector2& right) const;
+		Vector2		operator - (const Vector2& right) const;
+		Vector2		operator * (const Vector2& right) const;
+		Vector2		operator / (const Vector2& right) const;
 
 		bool		operator == (const Vector2& right) const;
 
@@ -43,10 +43,10 @@ namespace hod
 		Vector2&	operator *= (float right);
 		Vector2&	operator /= (float right);
 
-		Vector2		operator + (float right);
-		Vector2		operator - (float right);
-		Vector2		operator * (float right);
-		Vector2		operator / (float right);
+		Vector2		operator + (float right) const;
+		Vector2		operator - (float right) const;
+		Vector2		operator * (float right) const;
+		Vector2		operator / (float right) const;
 
 	public:
 
