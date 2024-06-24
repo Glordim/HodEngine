@@ -10,7 +10,4 @@ public:
 
 	void OnAwake() override;
 	void OnUpdate() override;
-
-private:
-
 };

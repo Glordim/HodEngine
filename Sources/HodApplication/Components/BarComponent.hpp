@@ -19,7 +19,7 @@ public:
 
 private:
 
-	std::weak_ptr<hod::game::Node2dComponent>	_node;
+	std::weak_ptr<hod::game::Node2dComponent> _node;
 
-	float	_speed = 3.0f;
+	float _speed = 3.0f;
 };

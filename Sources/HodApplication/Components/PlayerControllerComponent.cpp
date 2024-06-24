@@ -26,12 +26,14 @@ void PlayerControllerComponent::OnUpdate()
 	Input::State upState = inputManager->GetInputState(InputId::KeyW);
 	if (upState.IsPressed())
 	{
-		std::static_pointer_cast<BarComponent>(GetPawn())->Move(upState._value);
+		std::shared_ptr<BarComponent> bar = std::static_pointer_cast<BarComponent>(GetPawn());
+		bar->Move(upState._value);
 	}
 
 	Input::State downState = inputManager->GetInputState(InputId::KeyS);
 	if (downState.IsPressed())
 	{
-		std::static_pointer_cast<BarComponent>(GetPawn())->Move(-downState._value);
+		std::shared_ptr<BarComponent> bar = std::static_pointer_cast<BarComponent>(GetPawn());
+		bar->Move(-downState._value);
 	}
 }

@@ -3,6 +3,7 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 
 using namespace hod;
+using namespace hod::game;
 
 DESCRIBE_REFLECTED_CLASS(BarComponent, PawnComponent)
 {
@@ -16,5 +17,6 @@ void BarComponent::OnAwake()
 
 void BarComponent::Move(float value)
 {
-	_node.lock()->SetPosition(_node.lock()->GetPosition() + Vector2(0.0f, value * _speed * 0.016f)); // TODO use SystemTime
+	std::shared_ptr<Node2dComponent> nodeLock = _node.lock();
+	nodeLock->SetPosition(nodeLock->GetPosition() + Vector2(0.0f, value * _speed * 0.016f)); // TODO use SystemTime
 }
