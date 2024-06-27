@@ -51,6 +51,36 @@ ExternalProject_Add(box2d
 message(STATUS "box2d is available in " ${box2d_INCLUDE_DIRS})
 message(STATUS "box2d is available in " ${box2d_LIBRARIES})
 
+set(msdfgen_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/msdfgen-src/include)
+if(WIN32)
+  set(msdfgen_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/msdfgen-build/Release/msdfgen-core.lib)
+elseif(UNIX)
+  if (XCODE)
+    set(msdfgen_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/msdfgen-build/Release/libmsdfgen-core.a)
+  else()
+    set(msdfgen_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/msdfgen-build/libmsdfgen-core.a)
+  endif()
+endif()
+
+ExternalProject_Add(msdfgen
+  URL https://github.com/Chlumsky/msdfgen/archive/refs/tags/v1.12.zip
+  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/msdfgen-src
+  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/msdfgen-build
+  CMAKE_ARGS
+    -DMSDFGEN_CORE_ONLY=ON
+    -DMSDFGEN_BUILD_STANDALONE=OFF
+    -DMSDFGEN_USE_VCPKG=OFF
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
+  BUILD_COMMAND 
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/msdfgen-build --config Release
+  INSTALL_COMMAND ""
+  BUILD_BYPRODUCTS ${msdfgen_LIBRARIES}
+)
+
+message(STATUS "msdfgen is available in " ${msdfgen_INCLUDE_DIRS})
+message(STATUS "msdfgen is available in " ${msdfgen_LIBRARIES})
+
 set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
