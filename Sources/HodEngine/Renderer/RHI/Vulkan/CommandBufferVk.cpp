@@ -230,7 +230,7 @@ namespace hod
 		void CommandBufferVk::SetScissor(const Rect& scissor)
 		{
 			VkRect2D vkScissor = {};
-			vkScissor.offset = { (int32_t)scissor._position.GetX(), (int32_t)scissor._position.GetY() };
+			vkScissor.offset = { std::max((int32_t)scissor._position.GetX(), 0), std::max((int32_t)scissor._position.GetY(), 0) };
 			vkScissor.extent = { (uint32_t)scissor._size.GetX(), (uint32_t)scissor._size.GetY() };
 
 			vkCmdSetScissor(_vkCommandBuffer, 0, 1, &vkScissor);
