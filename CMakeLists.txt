@@ -62,6 +62,36 @@ elseif(UNIX)
   endif()
 endif()
 
+set(freetype_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/freetype-src/include)
+if(WIN32)
+  set(freetype_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/freetype-build/Release/freetype.lib)
+elseif(UNIX)
+  if (XCODE)
+    set(freetype_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/freetype-build/Release/libfreetype.a)
+  else()
+    set(freetype_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/freetype-build/libfreetype.a)
+  endif()
+endif()
+
+ExternalProject_Add(freetype
+  URL https://github.com/freetype/freetype/archive/refs/tags/VER-2-13-2.zip
+  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/freetype-src
+  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/freetype-build
+  CMAKE_ARGS
+    -DMSDFGEN_CORE_ONLY=ON
+    -DMSDFGEN_BUILD_STANDALONE=OFF
+    -DMSDFGEN_USE_VCPKG=OFF
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
+  BUILD_COMMAND 
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/freetype-build --config Release
+  INSTALL_COMMAND ""
+  BUILD_BYPRODUCTS ${freetype_LIBRARIES}
+)
+
+message(STATUS "freetype is available in " ${freetype_INCLUDE_DIRS})
+message(STATUS "freetype is available in " ${freetype_LIBRARIES})
+
 ExternalProject_Add(msdfgen
   URL https://github.com/Chlumsky/msdfgen/archive/refs/tags/v1.12.zip
   DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
