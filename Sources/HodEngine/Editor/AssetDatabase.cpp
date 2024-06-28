@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
+#include "HodEngine/Editor/Importer/FontImporter.hpp"
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 
@@ -44,6 +45,7 @@ namespace hod::editor
 		_importers.push_back(&_defaultImporter);
 		
 		RegisterImporter<TextureImporter>();
+		RegisterImporter<FontImporter>();
 		RegisterImporter<SceneImporter>();
 		RegisterImporter<PrefabImporter>();
 	}
