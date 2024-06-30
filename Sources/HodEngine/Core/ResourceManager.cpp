@@ -39,7 +39,7 @@ namespace hod
 		std::filesystem::path path = _directory;
 		path /= uid.ToString() + ".dat";
 
-		std::ifstream stream(path);
+		std::ifstream stream(path, std::ios_base::binary);
 		if (stream.is_open() == false)
 		{
 			return false; // todo message

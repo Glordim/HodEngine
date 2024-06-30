@@ -3,7 +3,7 @@
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output.hpp"
 
-#include "HodEngine/Renderer/Resource/TextureResource.hpp"
+#include "HodEngine/Renderer/Resource/FontResource.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
@@ -43,7 +43,7 @@ namespace hod::editor
 
 		Document document;
 		document.GetRootNode().AddChild("DataOffset").SetUInt32(0);
-		document.GetRootNode().AddChild("DataSize").SetUInt32(dataSize);
+		document.GetRootNode().AddChild("DataSize").SetUInt32((uint32_t)dataSize);
 
 		std::stringstream documentStringStream;
 
@@ -85,7 +85,7 @@ namespace hod::editor
 
 	ReflectionDescriptor* FontImporter::GetResourceDescriptor() const
 	{
-		return renderer::TextureResource::GetReflectionDescriptor();
+		return renderer::FontResource::GetReflectionDescriptor();
 	}
 
 	ImporterSettings* FontImporter::AllocateSettings() const

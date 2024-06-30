@@ -7,6 +7,7 @@
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/Components/SpriteRendererComponent.hpp"
 #include "HodEngine/Game/Components/TextureRendererComponent.hpp"
+#include "HodEngine/Game/Components/TextRendererComponent.hpp"
 #include "HodEngine/Game/Components/Light/PointLightComponent.hpp"
 #include "HodEngine/Game/Components/Light/DirLightComponent.hpp"
 #include "HodEngine/Game/Components/Light/SpotLightComponent.hpp"
@@ -35,6 +36,7 @@ namespace hod
 			componentFactory->Register<Node2dComponent>();
 			componentFactory->Register<BoxComponent>();
 			componentFactory->Register<TextureRendererComponent>();
+			componentFactory->Register<TextRendererComponent>();			
 			componentFactory->Register<ColliderComponent>();
 			componentFactory->Register<BoxColliderComponent>();
 			componentFactory->Register<RigidbodyComponent>();
