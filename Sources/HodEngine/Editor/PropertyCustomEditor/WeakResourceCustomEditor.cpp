@@ -74,7 +74,7 @@ namespace hod::editor
 				assetBrowserWindow->PingAsset(*asset);
 			}
 		}
-		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && asset != nullptr)
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && asset != nullptr && asset->GetThumbnail() != nullptr)
 		{
 			if (ImGui::BeginTooltip())
 			{

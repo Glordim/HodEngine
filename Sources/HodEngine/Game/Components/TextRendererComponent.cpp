@@ -98,6 +98,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void TextRendererComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
+			if (_text.empty() || _fontResource.Lock() == nullptr)
+			{
+				return;
+			}
+
 			std::shared_ptr<Entity> entity = GetEntity();
 			if (entity != nullptr)
 			{
@@ -147,7 +152,10 @@ namespace hod
 						++str;
 					}
 
-					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(renderer::P2fT2f), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
+					if (vertices.empty() == false)
+					{
+						renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(renderer::P2fT2f), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
+					}
 				}
 			}
 		}
