@@ -118,6 +118,22 @@ namespace hod::editor
 			ImGui::PopID();
 		}
 		break;
+
+		case ReflectionPropertyVariable::Type::String:
+		{
+			ImGui::PushID(property);
+			std::string value = property->GetValue<std::string>(object);
+			value.reserve(512);
+			ImGui::SetNextItemWidth(-1);
+			changed = ImGui::InputText("", value.data(), value.capacity());
+			if (changed == true)
+			{
+				value = value.c_str();
+				property->SetValue<std::string>(object, value);
+			}
+			ImGui::PopID();
+		}
+		break;
 		
 		default:
 			break;
