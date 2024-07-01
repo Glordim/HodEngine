@@ -149,6 +149,14 @@ namespace hod::renderer
 		std::vector<CharacterData> characterDatas;
 		characterDatas.reserve(128);
 
+		_kernings.reserve(128);
+		_unknownKerning._code = 0;
+		_unknownKerning._baseline = 0;
+		_unknownKerning._offsetX = 0;
+		_unknownKerning._offsetY = 0;
+		_unknownKerning._sizeX = 0;
+		_unknownKerning._sizeY = 0;
+
 		for (uint8_t c = 0; c < 128; ++c)
 		{
 			FT_UInt charIndex = FT_Get_Char_Index(ftFace, c);
@@ -198,6 +206,15 @@ namespace hod::renderer
 				}
 
 				characterDatas.push_back(characterData);
+
+				Kerning kerning;
+				kerning._code = c;
+				kerning._baseline = ftBitmap.rows / 2;
+				kerning._sizeX = ftBitmap.width;
+				kerning._sizeY = ftBitmap.rows;
+				kerning._offsetX = 0;
+				kerning._offsetY = 0;
+				_kernings.push_back(kerning);
 			}
 		}
 
@@ -211,6 +228,9 @@ namespace hod::renderer
 		for (uint32_t characteIndex = 0; characteIndex < characterDatas.size(); ++characteIndex)
 		{
 			const CharacterData& characterData = characterDatas[characteIndex];
+			Kerning& kerning = _kernings[characteIndex];
+			kerning._offsetX = (characteIndex % characterByLine) * 48;
+			kerning._offsetY = (characteIndex / characterByLine) * 48;
 
 			uint32_t lineOffset = (characteIndex / characterByLine) * atlasWidth * 4 * 48;
 
@@ -253,5 +273,20 @@ namespace hod::renderer
 	Texture* FontResource::GetTexture() const
 	{
 		return _texture;
+	}
+
+	/// @brief 
+	/// @param code 
+	/// @return 
+	const FontResource::Kerning& FontResource::GetKerning(char32_t code) const
+	{
+		for (const Kerning& kerning : _kernings)
+		{
+			if (kerning._code == code)
+			{
+				return kerning;
+			}
+		}
+		return _unknownKerning;
 	}
 }

@@ -21,6 +21,7 @@ namespace hod
 		DESCRIBE_REFLECTED_CLASS(TextRendererComponent, RendererComponent)
 		{
 			AddPropertyT(this, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
+			AddPropertyT(this, &TextRendererComponent::_text, "_text"/*, &TextRendererComponent::SetText*/);
 			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
@@ -103,7 +104,50 @@ namespace hod
 				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
-					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), (uint32_t)_vertices.size(), sizeof(renderer::P2fT2f), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
+					float atlasWidth = (float)_fontResource.Lock()->GetTexture()->GetWidth();
+					float atlasHeight = (float)_fontResource.Lock()->GetTexture()->GetHeight();
+
+					std::vector<renderer::P2fT2f> vertices;
+					vertices.reserve(_text.size() * 4);
+
+					std::vector<uint16_t> indices;
+					indices.reserve(_text.size() * 6);
+
+					float offset = 0;
+
+					const char* str = _text.c_str();
+					while (*str != '\0')
+					{
+						renderer::FontResource::Kerning kerning = _fontResource.Lock()->GetKerning(*str);
+
+						uint16_t vertexCount = (uint16_t)vertices.size();
+
+						/*
+						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * -0.5f * 0.01f, (float)kerning._sizeY * 0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.5f * 0.01f, (float)kerning._sizeY * 0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)kerning._offsetY / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.5f * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * -0.5f * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
+						*/
+
+						vertices.push_back(renderer::P2fT2f(offset, (float)kerning._sizeY * 0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.01f, (float)kerning._sizeY * 0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)kerning._offsetY / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset, (float)kerning._sizeY * -0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
+
+						indices.push_back(vertexCount);
+						indices.push_back(vertexCount + 1);
+						indices.push_back(vertexCount + 2);
+
+						indices.push_back(vertexCount);
+						indices.push_back(vertexCount + 2);
+						indices.push_back(vertexCount + 3);
+
+						offset += (kerning._sizeX + 2) * 0.01f;
+
+						++str;
+					}
+
+					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(renderer::P2fT2f), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
 				}
 			}
 		}
