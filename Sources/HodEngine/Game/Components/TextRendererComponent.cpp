@@ -129,10 +129,10 @@ namespace hod
 						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * -0.5f * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
 						*/
 
-						vertices.push_back(renderer::P2fT2f(offset, (float)kerning._sizeY * 0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight));
-						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.01f, (float)kerning._sizeY * 0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)kerning._offsetY / atlasHeight));
-						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
-						vertices.push_back(renderer::P2fT2f(offset, (float)kerning._sizeY * -0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._sizeY * 0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._sizeY * 0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)kerning._offsetY / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._sizeY * -0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
+						vertices.push_back(renderer::P2fT2f(offset, (float)kerning._baseline * 0.5f * -0.01f + (float)kerning._sizeY * -0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
 
 						indices.push_back(vertexCount);
 						indices.push_back(vertexCount + 1);

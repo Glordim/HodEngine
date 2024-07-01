@@ -209,7 +209,7 @@ namespace hod::renderer
 
 				Kerning kerning;
 				kerning._code = c;
-				kerning._baseline = ftBitmap.rows / 2;
+				kerning._baseline = 48 - ftFace->glyph->bitmap_top;
 				kerning._sizeX = ftBitmap.width;
 				kerning._sizeY = ftBitmap.rows;
 				kerning._offsetX = 0;
