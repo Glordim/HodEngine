@@ -15,7 +15,7 @@ namespace hod::input
 	public:
 
 		/// @brief 
-		struct HOD_API State
+		struct State
 		{
 						State(float value = 0.0f, uint8_t flags = 0, InputId inputId = InputId::Unknown);
 			void		Merge(const State& state);

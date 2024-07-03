@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <string_view>
 #include <string>
@@ -15,7 +16,7 @@ namespace hod::input
 	class Device;
 
 	/// @brief 
-	class Api
+	class HOD_API Api
 	{
 	public:
 

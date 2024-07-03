@@ -1,11 +1,12 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Input/InputId.hpp"
 
 namespace hod::input
 {
 	/// @brief 
-	class InputIdHelper
+	class HOD_API InputIdHelper
 	{
 	public:
 

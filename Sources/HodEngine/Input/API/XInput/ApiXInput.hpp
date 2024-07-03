@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <Windows.h>
 #include <Xinput.h>
@@ -10,7 +11,7 @@ namespace hod::input
 	class DevicePadXbox;
 
 	/// @brief 
-	class ApiXInput : public Api
+	class HOD_API ApiXInput : public Api
 	{
 	private:
 

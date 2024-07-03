@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Input/Devices/DeviceMouse.hpp"
 #include "HodEngine/Input/Input.hpp"
@@ -8,7 +9,7 @@
 namespace hod::input
 {
 	/// @brief 
-	class DeviceMouseRawInput : public DeviceMouse
+	class HOD_API DeviceMouseRawInput : public DeviceMouse
 	{
 	public:
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <Windows.h>
 
@@ -17,7 +18,7 @@ namespace hod::input
 	class DeviceKeyboardRawInput;
 
 	/// @brief 
-	class ApiRawInput : public Api
+	class HOD_API ApiRawInput : public Api
 	{
 	public:
 

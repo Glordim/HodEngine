@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <string_view>
 #include <string>
@@ -13,7 +14,7 @@ namespace hod::input
 	class Feedback;
 
 	/// @brief 
-	class Device
+	class HOD_API Device
 	{
 		friend class Api;
 
