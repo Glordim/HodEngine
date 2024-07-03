@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 #if defined(PLATFORM_WINDOWS)
 
 #include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.hpp"

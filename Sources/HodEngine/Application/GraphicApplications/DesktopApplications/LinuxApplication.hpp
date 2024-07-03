@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 #if defined(PLATFORM_LINUX)
 
 #include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.hpp"
@@ -6,7 +7,7 @@
 namespace hod::application
 {
 	/// @brief 
-	class LinuxApplication : public DesktopApplication
+	class HOD_API LinuxApplication : public DesktopApplication
 	{
 		_SingletonOverride(LinuxApplication)
 	};

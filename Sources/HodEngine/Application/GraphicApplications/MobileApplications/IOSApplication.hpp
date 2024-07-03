@@ -1,11 +1,12 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
 
 namespace hod::application
 {
 	/// @brief 
-	class IOSApplication : public GraphicApplication
+	class HOD_API IOSApplication : public GraphicApplication
 	{
 	public:
 
