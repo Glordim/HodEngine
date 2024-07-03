@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vector>
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -17,7 +18,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class Body
+		class HOD_API Body
 		{
 		public:
 

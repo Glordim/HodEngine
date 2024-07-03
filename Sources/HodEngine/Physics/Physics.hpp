@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Singleton.hpp>
 
@@ -24,7 +25,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct RaycastResult
+		struct HOD_API RaycastResult
 		{
 			Body* _bodyCollided = nullptr;
 		};
@@ -32,9 +33,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class Physics : public Singleton<Physics>
+		class HOD_API Physics
 		{
-			friend class Singleton<Physics>;
+			_Singleton(Physics)
 
 		public:
 
@@ -49,8 +50,7 @@ namespace hod
 
 		protected:
 
-								Physics();
-								~Physics() override;
+								~Physics();
 
 		public:
 

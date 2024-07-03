@@ -9,15 +9,12 @@
 
 namespace hod
 {
-	template<>
-	physics::Physics* Singleton<physics::Physics>::_instance = nullptr;
-
 	namespace physics
 	{
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		Physics::Physics() : Singleton()
+		_SingletonConstructor(Physics)
 		{
 
 		}
