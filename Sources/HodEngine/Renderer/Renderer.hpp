@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <string>
 #include <vector>
@@ -36,7 +37,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class Renderer
+	class HOD_API Renderer
 	{
 		_SingletonAbstract(Renderer)
 

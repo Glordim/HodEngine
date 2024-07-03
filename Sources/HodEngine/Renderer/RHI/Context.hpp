@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <string>
 
@@ -7,7 +8,7 @@ namespace hod
 	namespace renderer
 	{
 		/// @brief 
-		class Context
+		class HOD_API Context
 		{
 		public:
 							Context();

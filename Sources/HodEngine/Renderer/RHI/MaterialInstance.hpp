@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <map>
 #include <string>
@@ -16,7 +17,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class MaterialInstance
+		class HOD_API MaterialInstance
 		{
 		public:
 													MaterialInstance(const Material& material);

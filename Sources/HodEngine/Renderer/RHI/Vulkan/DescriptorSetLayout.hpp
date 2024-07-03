@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vulkan/vulkan.h>
 
@@ -20,7 +21,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class DescriptorSetLayout
+		class HOD_API DescriptorSetLayout
 		{
 		public:
 

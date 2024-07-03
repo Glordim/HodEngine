@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Renderer/RHI/GpuDevice.hpp"
 
@@ -11,7 +12,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct VkGpuDevice : public GpuDevice
+		struct HOD_API VkGpuDevice : public GpuDevice
 		{
 			VkPhysicalDevice physicalDevice;
 			uint32_t graphicsAndPresentQueueFamilyIndex;

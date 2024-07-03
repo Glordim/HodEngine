@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 
@@ -11,7 +12,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class VkRenderTarget : public RenderTarget
+		class HOD_API VkRenderTarget : public RenderTarget
 		{
 		public:
 

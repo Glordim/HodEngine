@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -10,7 +11,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class RenderTarget
+	class HOD_API RenderTarget
 	{
 	public:
 

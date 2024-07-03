@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/P2fT2f.hpp"
@@ -15,7 +16,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class RenderCommandMesh : public RenderCommand
+		class HOD_API RenderCommandMesh : public RenderCommand
 		{
 		public:
 

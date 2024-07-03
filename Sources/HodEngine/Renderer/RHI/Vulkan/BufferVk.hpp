@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 
@@ -11,7 +12,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class BufferVk : public Buffer
+		class HOD_API BufferVk : public Buffer
 		{
 		public:
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
 
@@ -14,7 +15,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class MetalMaterial : public Material
+		class HOD_API MetalMaterial : public Material
 		{
 		public:
 

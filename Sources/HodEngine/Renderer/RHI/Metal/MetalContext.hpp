@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Renderer/RHI/Context.hpp"
 
@@ -18,7 +19,7 @@ namespace CA
 namespace hod::renderer
 {
 	/// @brief 
-	class MetalContext : public Context
+	class HOD_API MetalContext : public Context
 	{
 	public:
 

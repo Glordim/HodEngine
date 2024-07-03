@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #if defined(_WIN32)
 
@@ -16,7 +17,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct D3d12GpuDevice : public GpuDevice
+		struct HOD_API D3d12GpuDevice : public GpuDevice
 		{
 			ComPtr<IDXGIAdapter1> adapter;
 		};

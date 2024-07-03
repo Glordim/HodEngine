@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 
@@ -17,7 +18,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class MetalCommandBuffer : public CommandBuffer
+		class HOD_API MetalCommandBuffer : public CommandBuffer
 		{
 		public:
 

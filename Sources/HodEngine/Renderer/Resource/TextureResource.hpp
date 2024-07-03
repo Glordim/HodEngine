@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Resource.hpp"
 
@@ -6,7 +7,7 @@
 
 namespace hod::renderer
 {	
-	class TextureResource : public Resource
+	class HOD_API TextureResource : public Resource
 	{
 		REFLECTED_CLASS(TextureResource, Resource)
 
