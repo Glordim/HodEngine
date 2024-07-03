@@ -134,6 +134,7 @@ add_subdirectory("Sources/HodEngine/Input")
 
 add_subdirectory("Sources/HodEngine")
 add_subdirectory("Sources/HodApplication")
+add_subdirectory("Sources/Pong")
 
 include(FetchContent)
 FetchContent_Declare(
