@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <memory>
 
@@ -12,7 +13,7 @@ namespace hod::editor
 	class Asset;
 	
 	///@brief 
-	class ImporterCustomEditor
+	class HOD_API ImporterCustomEditor
 	{
 	public:
 

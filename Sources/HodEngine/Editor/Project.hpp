@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <stdint.h>
 
@@ -10,7 +11,7 @@
 namespace hod::editor
 {
 	/// @brief 
-	class Project
+	class HOD_API Project
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Project)
 

@@ -1,11 +1,12 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/ImGui/MainBar.hpp>
 
 namespace hod::editor
 {
 	/// @brief 
-	class MainBar : public imgui::MainBar
+	class HOD_API MainBar : public imgui::MainBar
 	{
 	public:
 

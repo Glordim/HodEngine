@@ -1,4 +1,6 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
+
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include <HodEngine/ImGui/Window.hpp>
 
@@ -10,7 +12,7 @@
 namespace hod::editor
 {
 	/// @brief 
-	class ProjectBrowser : public imgui::Window
+	class HOD_API ProjectBrowser : public imgui::Window
 	{
 		META_TYPE(ProjectBrowser, imgui::Window);
 		WINDOW_DESCRIPTION()

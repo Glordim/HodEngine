@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <stdint.h>
 
@@ -20,13 +21,13 @@ namespace hod::editor
 	class Importer;
 
 	/// @brief 
-	class AssetDatabase
+	class HOD_API AssetDatabase
 	{
 		_Singleton(AssetDatabase)
 
 	public:
 
-		struct FileSystemMapping
+		struct HOD_API FileSystemMapping
 		{
 			enum class Type
 			{

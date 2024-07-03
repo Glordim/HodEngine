@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <stdint.h>
 
@@ -16,7 +17,7 @@ namespace hod::renderer
 namespace hod::editor
 {
 	// TODO embed in Asset when reflection support it
-	struct Meta
+	struct HOD_API Meta
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Meta)
 
@@ -35,7 +36,7 @@ namespace hod::editor
 	};
 
 	/// @brief 
-	class Asset : public std::enable_shared_from_this<Asset>
+	class HOD_API Asset : public std::enable_shared_from_this<Asset>
 	{
 	public:
 								Asset(const std::filesystem::path& path);

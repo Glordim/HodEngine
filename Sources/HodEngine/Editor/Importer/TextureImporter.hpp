@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Core/UID.hpp"
@@ -13,7 +14,7 @@ namespace hod::editor
 		Tight,
 	};
 
-	struct SpriteData
+	struct HOD_API SpriteData
 	{
 		REFLECTED_CLASS_NO_PARENT(SpriteData)
 
@@ -26,7 +27,7 @@ namespace hod::editor
 		MeshType	_meshType = MeshType::Rect;
 	};
 
-	class TextureImporterSettings : public ImporterSettings
+	class HOD_API TextureImporterSettings : public ImporterSettings
 	{
 		REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
 
@@ -38,7 +39,7 @@ namespace hod::editor
 		std::vector<SpriteData> 				_spriteDatas;
 	};
 
-	class TextureImporter : public Importer
+	class HOD_API TextureImporter : public Importer
 	{
 	public:
 

@@ -1,15 +1,16 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Editor/Importer/Importer.hpp"
 
 namespace hod::editor
 {
-	class PrefabImporterSettings : public ImporterSettings
+	class HOD_API PrefabImporterSettings : public ImporterSettings
 	{
 		REFLECTED_CLASS(PrefabImporterSettings, ImporterSettings)
 	};
 
-	class PrefabImporter : public Importer
+	class HOD_API PrefabImporter : public Importer
 	{
 	public:
 

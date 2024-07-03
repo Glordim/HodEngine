@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -12,7 +13,7 @@ namespace hod
 
 namespace hod::editor
 {
-	class ImporterSettings
+	class HOD_API ImporterSettings
 	{
 		REFLECTED_CLASS_NO_PARENT(ImporterSettings)
 
@@ -32,7 +33,7 @@ namespace hod::editor
 	};
 
 	/// @brief 
-	class Importer
+	class HOD_API Importer
 	{
 	public:
 

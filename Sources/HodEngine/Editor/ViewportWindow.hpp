@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/ImGui/Window.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
@@ -22,7 +23,7 @@ namespace hod::editor
 	class Asset;
 
 	/// @brief 
-	class ViewportWindow : public imgui::Window
+	class HOD_API ViewportWindow : public imgui::Window
 	{
 		META_TYPE(ViewportWindow, imgui::Window);
 		WINDOW_DESCRIPTION()

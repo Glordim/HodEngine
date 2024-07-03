@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <stdint.h>
 
@@ -9,7 +10,7 @@
 
 namespace hod::editor
 {
-	struct RecentProjects
+	struct HOD_API RecentProjects
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(RecentProjects)
 

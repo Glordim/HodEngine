@@ -1,10 +1,12 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
+
 #include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
 
 namespace hod::editor
 {
 	///@brief 
-	class TextureImporterCustomEditor : public ImporterCustomEditor
+	class HOD_API TextureImporterCustomEditor : public ImporterCustomEditor
 	{
 	public:
 

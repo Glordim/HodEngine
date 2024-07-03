@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
@@ -10,7 +11,7 @@ namespace hod
 namespace hod::editor
 {
 	/// @brief 
-	class WeakResourceCustomEditor : public CustomPropertyDrawer
+	class HOD_API WeakResourceCustomEditor : public CustomPropertyDrawer
 	{
 	public:
 

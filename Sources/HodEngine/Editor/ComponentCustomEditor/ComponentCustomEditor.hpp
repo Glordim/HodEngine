@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 namespace hod
 {
@@ -8,7 +9,7 @@ namespace hod
 namespace hod::editor
 {
 	///@brief 
-	class ComponentCustomEditor
+	class HOD_API ComponentCustomEditor
 	{
 	public:
 

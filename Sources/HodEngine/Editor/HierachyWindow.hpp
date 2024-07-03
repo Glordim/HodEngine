@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/ImGui/Window.hpp>
 #include <memory>
@@ -12,7 +13,7 @@ namespace hod::game
 namespace hod::editor
 {
 	/// @brief 
-	class HierachyWindow : public imgui::Window
+	class HOD_API HierachyWindow : public imgui::Window
 	{
 		META_TYPE(HierachyWindow, imgui::Window);
 		WINDOW_DESCRIPTION()

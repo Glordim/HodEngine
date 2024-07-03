@@ -1,11 +1,12 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 
 namespace hod::editor
 {
 	/// @brief 
-	class Node2dComponentCustomEditor : public ComponentCustomEditor
+	class HOD_API Node2dComponentCustomEditor : public ComponentCustomEditor
 	{
 	public:
 

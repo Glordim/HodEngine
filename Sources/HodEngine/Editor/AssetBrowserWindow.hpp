@@ -1,4 +1,6 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
+
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include <HodEngine/ImGui/Window.hpp>
 
@@ -8,7 +10,7 @@
 namespace hod::editor
 {
 	/// @brief 
-	class AssetBrowserWindow : public imgui::Window
+	class HOD_API AssetBrowserWindow : public imgui::Window
 	{
 		META_TYPE(AssetBrowserWindow, imgui::Window);
 		WINDOW_DESCRIPTION()
@@ -26,7 +28,7 @@ namespace hod::editor
 		
 	private:
 
-		struct FolderItem
+		struct HOD_API FolderItem
 		{
 			std::filesystem::path		_path;
 			bool						_expanded = false;
