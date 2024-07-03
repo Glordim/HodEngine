@@ -12,7 +12,7 @@
 namespace hod
 {
 	///@brief 
-	class HODENGINE_API ReflectionPropertyVariable : public ReflectionProperty
+	class HOD_API ReflectionPropertyVariable : public ReflectionProperty
 	{
 		META_TYPE(ReflectionPropertyVariable, ReflectionProperty)
 

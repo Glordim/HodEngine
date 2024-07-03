@@ -14,7 +14,7 @@
 namespace hod
 {
 	///@brief 
-	class HODENGINE_API ReflectionHelper
+	class HOD_API ReflectionHelper
 	{
 	public:
 

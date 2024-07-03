@@ -16,7 +16,7 @@ namespace hod::core
 namespace hod::game
 {
 	/// @brief 
-	class HODENGINE_API ComponentFactory
+	class HOD_API ComponentFactory
 	{
 		_Singleton(ComponentFactory)
 

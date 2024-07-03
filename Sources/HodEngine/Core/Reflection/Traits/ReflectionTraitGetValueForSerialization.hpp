@@ -9,7 +9,7 @@
 namespace hod
 {
 	///@brief 
-	class HODENGINE_API ReflectionTraitGetValueForSerialization : public ReflectionTrait
+	class HOD_API ReflectionTraitGetValueForSerialization : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitGetValueForSerialization, ReflectionTrait)
 

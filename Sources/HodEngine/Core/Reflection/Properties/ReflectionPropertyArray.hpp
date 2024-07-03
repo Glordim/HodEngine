@@ -13,7 +13,7 @@ namespace hod
 {
 	class ReflectionDescriptor;
 
-	struct HODENGINE_API Adapter
+	struct HOD_API Adapter
 	{
 	public:
 
@@ -115,7 +115,7 @@ namespace hod
 	}
 
 	///@brief 
-	class HODENGINE_API ReflectionPropertyArray : public ReflectionProperty
+	class HOD_API ReflectionPropertyArray : public ReflectionProperty
 	{
 		META_TYPE(ReflectionPropertyArray, ReflectionProperty)
 

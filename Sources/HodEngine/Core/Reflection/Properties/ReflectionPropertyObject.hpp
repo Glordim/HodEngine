@@ -10,7 +10,7 @@
 namespace hod
 {
 	///@brief 
-	class HODENGINE_API ReflectionPropertyObject : public ReflectionProperty // todo rename remove namespace
+	class HOD_API ReflectionPropertyObject : public ReflectionProperty // todo rename remove namespace
 	{
 		META_TYPE(ReflectionPropertyObject, ReflectionProperty)
 

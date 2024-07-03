@@ -5,7 +5,7 @@
 namespace hod::application
 {
 	/// @brief 
-	class HODENGINE_API DesktopApplication : public GraphicApplication
+	class HOD_API DesktopApplication : public GraphicApplication
 	{
 		_SingletonOverride(DesktopApplication)
 	};

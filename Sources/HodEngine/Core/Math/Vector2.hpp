@@ -5,7 +5,7 @@
 
 namespace hod
 {
-	class HODENGINE_API Vector2 final
+	class HOD_API Vector2 final
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Vector2)
 

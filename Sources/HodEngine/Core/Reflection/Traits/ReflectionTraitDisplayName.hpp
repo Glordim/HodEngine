@@ -8,7 +8,7 @@
 namespace hod
 {
 	///@brief 
-	class HODENGINE_API ReflectionTraitDisplayName : public ReflectionTrait
+	class HOD_API ReflectionTraitDisplayName : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitDisplayName, ReflectionTrait)
 

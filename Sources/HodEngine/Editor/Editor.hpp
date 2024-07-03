@@ -33,7 +33,7 @@ namespace hod::editor
 	class Asset;
 
 	/// @brief 
-	class HODENGINE_API Editor
+	class HOD_API Editor
 	{
 		_Singleton(Editor)
 

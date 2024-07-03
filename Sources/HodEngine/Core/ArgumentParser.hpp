@@ -6,7 +6,7 @@
 namespace hod
 {
 	/// @brief 
-	struct HODENGINE_API Argument
+	struct HOD_API Argument
 	{
 		char		_shortName = '\0';
 		const char*	_longName = nullptr;
@@ -15,7 +15,7 @@ namespace hod
 	};
 
 	///@brief Utilty class to easly parse short and long option from argc/argv
-	class HODENGINE_API ArgumentParser
+	class HOD_API ArgumentParser
 	{
 	public:
 

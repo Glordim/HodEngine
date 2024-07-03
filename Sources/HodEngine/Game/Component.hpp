@@ -24,7 +24,7 @@ namespace hod
 		class Scene;
 
 		///@brief 
-		class HODENGINE_API Component : public std::enable_shared_from_this<Component>
+		class HOD_API Component : public std::enable_shared_from_this<Component>
 		{
 			REFLECTED_CLASS_NO_PARENT(Component)
 

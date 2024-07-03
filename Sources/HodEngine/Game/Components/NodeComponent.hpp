@@ -14,7 +14,7 @@ namespace hod
 	namespace game
 	{
 		/// @brief 
-		class HODENGINE_API NodeComponent : public Component
+		class HOD_API NodeComponent : public Component
 		{
 			REFLECTED_CLASS(NodeComponent, Component)
 

@@ -56,12 +56,12 @@ target_link_libraries(HodEngine PRIVATE
 )
 
 target_compile_definitions(HodEngine PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>" HODENGINE_EXPORTS)
-target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>" HODENGINE_EXPORTS)
-target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>" HODENGINE_EXPORTS)
-target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>" HODENGINE_EXPORTS)
-target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>" HODENGINE_EXPORTS)
-target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>" HODENGINE_EXPORTS)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>" HOD_EXPORT)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>" HOD_EXPORT)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>" HOD_EXPORT)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>" HOD_EXPORT)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>" HOD_EXPORT)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>" HOD_EXPORT)
 
 set_target_properties(Core PROPERTIES FOLDER "HodEngine-Libs")
 set_target_properties(Input PROPERTIES FOLDER "HodEngine-Libs")

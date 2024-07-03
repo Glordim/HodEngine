@@ -8,14 +8,14 @@ namespace hod::input
 	class Device;
 
 	/// @brief 
-	class HODENGINE_API Input
+	class HOD_API Input
 	{
 		friend class Device;
 
 	public:
 
 		/// @brief 
-		struct HODENGINE_API State
+		struct HOD_API State
 		{
 						State(float value = 0.0f, uint8_t flags = 0, InputId inputId = InputId::Unknown);
 			void		Merge(const State& state);

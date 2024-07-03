@@ -11,7 +11,7 @@ namespace hod
 namespace hod::application
 {
 	/// @brief 
-	class HODENGINE_API Application
+	class HOD_API Application
 	{
 		_Singleton(Application)
 

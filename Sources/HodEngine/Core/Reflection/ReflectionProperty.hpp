@@ -11,7 +11,7 @@ namespace hod
 	class ReflectionTrait;
 
 	///@brief 
-	class HODENGINE_API ReflectionProperty
+	class HOD_API ReflectionProperty
 	{
 		BASE_META_TYPE(ReflectionProperty)
 

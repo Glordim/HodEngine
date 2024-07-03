@@ -6,7 +6,7 @@
 namespace hod
 {
 	///@brief 
-	class HODENGINE_API ReflectionTrait
+	class HOD_API ReflectionTrait
 	{
 		BASE_META_TYPE(ReflectionTrait)
 

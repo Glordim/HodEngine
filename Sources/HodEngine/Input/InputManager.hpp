@@ -14,7 +14,7 @@ namespace hod::input
 	class Api;
 
 	/// @brief 
-	class HODENGINE_API InputManager
+	class HOD_API InputManager
 	{
 		_Singleton(InputManager)
 

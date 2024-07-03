@@ -10,7 +10,7 @@ namespace hod
 	class ReflectionDescriptor;
 
 	///@brief 
-	class HODENGINE_API ReflectionTraitAllowedClasses : public ReflectionTrait
+	class HOD_API ReflectionTraitAllowedClasses : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitAllowedClasses, ReflectionTrait)
 

@@ -15,7 +15,7 @@ namespace hod
 	class ReflectionProperty;
 
 	///@brief 
-	class HODENGINE_API ReflectionDescriptor
+	class HOD_API ReflectionDescriptor
 	{
 	public:
 
