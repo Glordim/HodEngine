@@ -1,9 +1,10 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 namespace hod::imgui
 {
 	/// @brief 
-	class MainBar
+	class HOD_API MainBar
 	{
 	public:
 

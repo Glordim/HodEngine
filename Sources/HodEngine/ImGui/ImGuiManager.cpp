@@ -47,7 +47,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 namespace hod::imgui
 {
 	/// @brief 
-	ImGuiManager::ImGuiManager()
+	_SingletonConstructor(ImGuiManager)
 		: _updateJob(this, &ImGuiManager::Update, JobQueue::Queue::FramedNormalPriority)
 #if defined (PLATFORM_WINDOWS)
 		, _winProcSlot(&ImGui_ImplWin32_WndProcHandler)

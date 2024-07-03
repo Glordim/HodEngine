@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Type.hpp"
 
@@ -10,7 +11,7 @@ namespace hod::imgui
 {
 	class Window;
 
-	class WindowDescription
+	class HOD_API WindowDescription
 	{
 	public:
 
@@ -80,7 +81,7 @@ namespace hod::imgui
 		);														\
 
 	/// @brief 
-	class Window
+	class HOD_API Window
 	{
 		BASE_META_TYPE(Window);
 
