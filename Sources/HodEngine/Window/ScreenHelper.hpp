@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vector>
 #include <cstddef>
@@ -10,7 +11,7 @@ namespace hod::window
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class ScreenHelper
+	class HOD_API ScreenHelper
 	{
 	public:
 
@@ -20,10 +21,10 @@ namespace hod::window
 
 	private:
 
-		ScreenHelper() = delete;
-		ScreenHelper(const ScreenHelper&) = delete;
-		ScreenHelper(ScreenHelper&&) = delete;
-		~ScreenHelper() = delete;
+						ScreenHelper() = delete;
+						ScreenHelper(const ScreenHelper&) = delete;
+						ScreenHelper(ScreenHelper&&) = delete;
+						~ScreenHelper() = delete;
 
 		void			operator=(const ScreenHelper&) = delete;
 		void			operator=(ScreenHelper&&) = delete;

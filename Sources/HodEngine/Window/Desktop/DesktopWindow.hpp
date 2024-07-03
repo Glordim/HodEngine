@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Window/Window.hpp"
 
@@ -10,7 +11,7 @@
 namespace hod::window
 {
 	/// @brief 
-	class DesktopWindow : public Window
+	class HOD_API DesktopWindow : public Window
 	{
 	public:
 

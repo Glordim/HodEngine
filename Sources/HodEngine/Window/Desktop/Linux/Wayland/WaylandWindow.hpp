@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #if defined(PLATFORM_LINUX)
 
@@ -14,7 +15,7 @@
 namespace hod::window
 {
 	/// @brief 
-	class WaylandWindow : public DesktopWindow
+	class HOD_API WaylandWindow : public DesktopWindow
 	{
 	public:
 											WaylandWindow();

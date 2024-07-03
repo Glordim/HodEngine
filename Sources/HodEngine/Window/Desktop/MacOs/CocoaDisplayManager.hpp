@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #if defined(PLATFORM_MACOS)
 
@@ -7,7 +8,7 @@
 
 namespace hod::window
 {
-    class CocoaDisplayManager : public DesktopDisplayManager
+    class HOD_API CocoaDisplayManager : public DesktopDisplayManager
     {
         _Singleton(CocoaDisplayManager)
 

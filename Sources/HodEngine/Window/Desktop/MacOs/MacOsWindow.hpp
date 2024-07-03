@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #if defined(PLATFORM_MACOS)
 
@@ -21,7 +22,7 @@ class NSWindow;
 namespace hod::window
 {
 	/// @brief 
-	class MacOsWindow : public DesktopWindow
+	class HOD_API MacOsWindow : public DesktopWindow
 	{
 	public:
 											MacOsWindow();

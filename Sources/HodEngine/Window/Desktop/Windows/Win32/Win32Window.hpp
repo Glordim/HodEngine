@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #if defined(PLATFORM_WINDOWS)
 
@@ -14,7 +15,7 @@
 namespace hod::window
 {
 	/// @brief 
-	class Win32Window : public DesktopWindow
+	class HOD_API Win32Window : public DesktopWindow
 	{
 	public:
 

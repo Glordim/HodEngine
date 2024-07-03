@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #if defined(PLATFORM_WINDOWS)
 
@@ -7,7 +8,7 @@
 
 namespace hod::window
 {
-    class Win32DisplayManager : public DesktopDisplayManager
+    class HOD_API Win32DisplayManager : public DesktopDisplayManager
     {
         _Singleton(Win32DisplayManager)
 
