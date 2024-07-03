@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Color.hpp>
 
@@ -13,7 +14,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class SpotLightComponent : public Component
+		class HOD_API SpotLightComponent : public Component
 		{
 		public:
 

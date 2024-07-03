@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
@@ -11,9 +12,9 @@
 
 namespace hod::game::PrefabUtility
 {
-	struct EntityDiffs
+	struct HOD_API EntityDiffs
 	{
-		struct Diff
+		struct HOD_API Diff
 		{
 			enum class Type
 			{
@@ -67,12 +68,12 @@ namespace hod::game::PrefabUtility
 		}
 	};
 
-	bool CollectDiff(std::shared_ptr<Entity> entity, EntityDiffs& diffs);
-	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor* reflectionDescriptor, void* sourceAddr, void* instanceAddr);
+	HOD_API bool CollectDiff(std::shared_ptr<Entity> entity, EntityDiffs& diffs);
+	HOD_API void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor* reflectionDescriptor, void* sourceAddr, void* instanceAddr);
 
-	std::shared_ptr<Entity> GetPrefabInstance(std::shared_ptr<Entity> entity);
-	std::string GetRelativePath(std::shared_ptr<Entity> parent, std::shared_ptr<Entity> child);
-	std::shared_ptr<Entity> FindChildByPath(std::shared_ptr<Entity> parent, std::string_view relativePath);
+	HOD_API std::shared_ptr<Entity> GetPrefabInstance(std::shared_ptr<Entity> entity);
+	HOD_API std::string GetRelativePath(std::shared_ptr<Entity> parent, std::shared_ptr<Entity> child);
+	HOD_API std::shared_ptr<Entity> FindChildByPath(std::shared_ptr<Entity> parent, std::string_view relativePath);
 
-	std::shared_ptr<Component> GetCorrespondingComponent(std::shared_ptr<Component> component);
+	HOD_API std::shared_ptr<Component> GetCorrespondingComponent(std::shared_ptr<Component> component);
 }

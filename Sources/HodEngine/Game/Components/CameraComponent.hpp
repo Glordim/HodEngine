@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vector>
 
@@ -21,7 +22,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class CameraComponent : public Component
+		class HOD_API CameraComponent : public Component
 		{
 		public:
 

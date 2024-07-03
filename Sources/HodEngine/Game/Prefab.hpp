@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
@@ -12,7 +13,7 @@
 namespace hod::game
 {
 	/// @brief 
-	class Prefab
+	class HOD_API Prefab
 	{
 		REFLECTED_CLASS_NO_PARENT(Prefab)
 

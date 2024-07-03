@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Singleton.hpp>
 
@@ -13,9 +14,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class ActorReflection : public Singleton<ActorReflection>
+		class HOD_API ActorReflection
 		{
-			friend class Singleton<ActorReflection>;
+			_Singleton(ActorReflection)
 
 		public:
 
@@ -25,12 +26,7 @@ namespace hod
 			bool				DumpToDir(const char* dirPath);
 
 		protected:
-
-								ActorReflection() = default;
-								~ActorReflection() override = default;
-
-		private:
-
+								~ActorReflection() = default;
 		};
 	}
 }

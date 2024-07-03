@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -14,7 +15,7 @@ namespace hod
 
 	namespace game
 	{
-		struct Shape
+		struct HOD_API Shape
 		{
 			REFLECTED_CLASS_NO_PARENT(Shape)
 		public:
@@ -31,7 +32,7 @@ namespace hod
 			Type _type;			
 		};
 
-		struct EdgeShape : public Shape
+		struct HOD_API EdgeShape : public Shape
 		{
 			REFLECTED_CLASS(EdgeShape, Shape)
 		public:
@@ -42,7 +43,7 @@ namespace hod
 			Vector2 _end;
 		};
 
-		struct CircleShape : public Shape
+		struct HOD_API CircleShape : public Shape
 		{
 			REFLECTED_CLASS(CircleShape, Shape)
 		public:
@@ -53,7 +54,7 @@ namespace hod
 			float	_radius;
 		};
 
-		struct BoxShape : public Shape
+		struct HOD_API BoxShape : public Shape
 		{
 			REFLECTED_CLASS(BoxShape, Shape)
 		public:
@@ -68,7 +69,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class ColliderComponent : public Component
+		class HOD_API ColliderComponent : public Component
 		{
 			REFLECTED_CLASS(ColliderComponent, Component)
 

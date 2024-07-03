@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vector>
 
@@ -14,7 +15,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class RendererComponent : public Component
+		class HOD_API RendererComponent : public Component
 		{
 			REFLECTED_CLASS(RendererComponent, Component)
 

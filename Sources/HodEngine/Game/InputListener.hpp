@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <functional>
 #include <unordered_map>
@@ -14,7 +15,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct KeyAxis
+		struct HOD_API KeyAxis
 		{
 			KeyAxis(int negative, int positive);
 
@@ -25,7 +26,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct InternalKeyAxis
+		struct HOD_API InternalKeyAxis
 		{
 			InternalKeyAxis(const KeyAxis& axis);
 

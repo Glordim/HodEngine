@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 #include <memory>
 
 #include <HodEngine/Core/UID.hpp>
@@ -12,7 +13,7 @@ namespace hod
 namespace hod::game
 {
     /// @brief 
-    class WeakResourceBase
+    class HOD_API WeakResourceBase
     {
         REFLECTED_CLASS_NO_PARENT(WeakResourceBase)
 

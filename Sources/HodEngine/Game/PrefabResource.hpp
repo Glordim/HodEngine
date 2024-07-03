@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Resource.hpp>
 #include "HodEngine/Game/Prefab.hpp"
@@ -6,7 +7,7 @@
 namespace hod::game
 {
 	/// @brief 
-	class PrefabResource : public Resource
+	class HOD_API PrefabResource : public Resource
 	{
 		REFLECTED_CLASS(PrefabResource, Resource)
 

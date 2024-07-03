@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 
@@ -14,7 +15,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class PrimitiveComponent : public RendererComponent
+		class HOD_API PrimitiveComponent : public RendererComponent
 		{
 			REFLECTED_CLASS(PrimitiveComponent, RendererComponent)
 

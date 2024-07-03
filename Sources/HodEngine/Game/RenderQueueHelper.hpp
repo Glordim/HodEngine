@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 namespace hod
 {
@@ -16,7 +17,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class RenderQueueHelper
+	class HOD_API RenderQueueHelper
 	{
 	public:
 

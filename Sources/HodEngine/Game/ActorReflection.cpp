@@ -2,11 +2,13 @@
 
 namespace hod
 {
-	template<>
-	game::ActorReflection* Singleton<game::ActorReflection>::_instance = nullptr;
-
 	namespace game
 	{
+		_SingletonConstructor(ActorReflection)
+		{
+			
+		}
+
 		///
 		///@brief 
 		///

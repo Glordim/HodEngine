@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 #include <memory>
 
 #include <HodEngine/Core/UID.hpp>
@@ -10,7 +11,7 @@ namespace hod::game
     class Component;
 
     /// @brief 
-    class WeakComponentMapping
+    class HOD_API WeakComponentMapping
     {
     public:
 

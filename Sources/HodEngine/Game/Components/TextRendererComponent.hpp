@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/WeakResource.hpp"
@@ -18,7 +19,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class TextRendererComponent : public RendererComponent
+		class HOD_API TextRendererComponent : public RendererComponent
 		{
 			REFLECTED_CLASS(TextRendererComponent, RendererComponent)
 

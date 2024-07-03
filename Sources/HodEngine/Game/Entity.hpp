@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <cstdint>
 #include <string>
@@ -24,7 +25,7 @@ namespace hod::game
 	class Prefab;
 #endif
 
-	class Entity final : public std::enable_shared_from_this<Entity>
+	class HOD_API Entity final : public std::enable_shared_from_this<Entity>
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Entity);
 
