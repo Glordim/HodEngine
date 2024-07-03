@@ -1,10 +1,11 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
 namespace hod
 {
-	class Vector2 final
+	class HODENGINE_API Vector2 final
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Vector2)
 

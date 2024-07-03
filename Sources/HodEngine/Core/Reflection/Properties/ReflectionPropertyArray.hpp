@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vector>
 #include <functional>
@@ -12,7 +13,7 @@ namespace hod
 {
 	class ReflectionDescriptor;
 
-	struct Adapter
+	struct HODENGINE_API Adapter
 	{
 	public:
 
@@ -114,7 +115,7 @@ namespace hod
 	}
 
 	///@brief 
-	class ReflectionPropertyArray : public ReflectionProperty
+	class HODENGINE_API ReflectionPropertyArray : public ReflectionProperty
 	{
 		META_TYPE(ReflectionPropertyArray, ReflectionProperty)
 

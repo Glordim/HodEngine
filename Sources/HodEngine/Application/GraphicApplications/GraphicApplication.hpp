@@ -14,7 +14,7 @@ namespace hod::window
 namespace hod::application
 {
 	/// @brief 
-	class GraphicApplication : public Application
+	class HODENGINE_API GraphicApplication : public Application
 	{
 		_SingletonOverride(GraphicApplication)
 

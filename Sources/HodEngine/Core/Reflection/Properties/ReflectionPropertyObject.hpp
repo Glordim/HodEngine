@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vector>
 #include <functional>
@@ -9,7 +10,7 @@
 namespace hod
 {
 	///@brief 
-	class ReflectionPropertyObject : public ReflectionProperty // todo rename remove namespace
+	class HODENGINE_API ReflectionPropertyObject : public ReflectionProperty // todo rename remove namespace
 	{
 		META_TYPE(ReflectionPropertyObject, ReflectionProperty)
 

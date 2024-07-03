@@ -130,6 +130,7 @@ add_subdirectory("Sources/HodEngine/Physics")
 add_subdirectory("Sources/HodEngine/Game")
 add_subdirectory("Sources/HodEngine/Editor")
 add_subdirectory("Sources/HodEngine/Application")
+add_subdirectory("Sources/HodEngine/Input")
 
 add_subdirectory("Sources/HodEngine")
 add_subdirectory("Sources/HodApplication")

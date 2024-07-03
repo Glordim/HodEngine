@@ -1,11 +1,9 @@
 #include "HodEngine/Game/ComponentFactory.hpp"
 
-namespace hod
+namespace hod::game
 {
-	template<>
-	game::ComponentFactory* Singleton<game::ComponentFactory>::_instance = nullptr;
-
-	namespace game
+	_SingletonConstructor(ComponentFactory)
 	{
+
 	}
 }

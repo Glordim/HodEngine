@@ -40,9 +40,10 @@ endif()
 
 assign_source_group("")
 
-add_library(HodEngine STATIC HodEngine.cpp)
+add_library(HodEngine SHARED HodEngine.cpp)
+set_property(TARGET HodEngine PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-target_link_libraries(HodEngine
+target_link_libraries(HodEngine PRIVATE
 	Core
 	Application
 	Input
@@ -54,12 +55,20 @@ target_link_libraries(HodEngine
 	Editor
 )
 
-set_target_properties(Core PROPERTIES FOLDER "HodEngine")
-set_target_properties(Input PROPERTIES FOLDER "HodEngine")
-set_target_properties(Application PROPERTIES FOLDER "HodEngine")
-set_target_properties(ImGui PROPERTIES FOLDER "HodEngine")
-set_target_properties(Physics PROPERTIES FOLDER "HodEngine")
-set_target_properties(Window PROPERTIES FOLDER "HodEngine")
-set_target_properties(Renderer PROPERTIES FOLDER "HodEngine")
-set_target_properties(Game PROPERTIES FOLDER "HodEngine")
-set_target_properties(Editor PROPERTIES FOLDER "HodEngine")
+target_compile_definitions(HodEngine PUBLIC ${PLATFORM_DEFINE})
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>" HODENGINE_EXPORTS)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>" HODENGINE_EXPORTS)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>" HODENGINE_EXPORTS)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>" HODENGINE_EXPORTS)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>" HODENGINE_EXPORTS)
+target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>" HODENGINE_EXPORTS)
+
+set_target_properties(Core PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(Input PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(Application PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(ImGui PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(Physics PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(Window PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(Renderer PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(Game PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(Editor PROPERTIES FOLDER "HodEngine-Libs")

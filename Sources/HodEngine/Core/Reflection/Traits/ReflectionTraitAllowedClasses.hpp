@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
@@ -9,7 +10,7 @@ namespace hod
 	class ReflectionDescriptor;
 
 	///@brief 
-	class ReflectionTraitAllowedClasses : public ReflectionTrait
+	class HODENGINE_API ReflectionTraitAllowedClasses : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitAllowedClasses, ReflectionTrait)
 

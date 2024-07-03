@@ -1,5 +1,7 @@
 #pragma once
 
+#include <HodEngine/HodEngine.hpp>
+
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 
@@ -12,7 +14,7 @@ namespace hod::input
 	class Api;
 
 	/// @brief 
-	class InputManager
+	class HODENGINE_API InputManager
 	{
 		_Singleton(InputManager)
 

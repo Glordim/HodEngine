@@ -66,12 +66,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 
 target_include_directories(Editor SYSTEM PRIVATE ${Stb_INCLUDE_DIRS})
 
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>")
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>")
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>")
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>")
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>")
+target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>" HODENGINE_EXPORTS)
+target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>" HODENGINE_EXPORTS)
+target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>" HODENGINE_EXPORTS)
+target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>" HODENGINE_EXPORTS)
+target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>" HODENGINE_EXPORTS)
+target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>" HODENGINE_EXPORTS)
 
 target_link_libraries(Editor
 	Core

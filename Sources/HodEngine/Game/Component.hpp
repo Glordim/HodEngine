@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
@@ -23,7 +24,7 @@ namespace hod
 		class Scene;
 
 		///@brief 
-		class Component : public std::enable_shared_from_this<Component>
+		class HODENGINE_API Component : public std::enable_shared_from_this<Component>
 		{
 			REFLECTED_CLASS_NO_PARENT(Component)
 

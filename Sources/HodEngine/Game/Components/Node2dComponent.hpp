@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -8,7 +9,7 @@ namespace hod
 	namespace game
 	{
 		/// @brief 
-		class Node2dComponent : public NodeComponent
+		class HODENGINE_API Node2dComponent : public NodeComponent
 		{
 			REFLECTED_CLASS(Node2dComponent, NodeComponent)
 

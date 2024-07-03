@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
@@ -13,7 +14,7 @@ namespace hod
 	namespace game
 	{
 		/// @brief 
-		class NodeComponent : public Component
+		class HODENGINE_API NodeComponent : public Component
 		{
 			REFLECTED_CLASS(NodeComponent, Component)
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Singleton.hpp>
 #include "HodEngine/Core/Type.hpp"
@@ -7,37 +8,33 @@
 
 #include <map>
 
-namespace hod
+namespace hod::core
 {
-	namespace core
+	class ReflectionDescriptor;
+}
+
+namespace hod::game
+{
+	/// @brief 
+	class HODENGINE_API ComponentFactory
 	{
-		class ReflectionDescriptor;
-	}
+		_Singleton(ComponentFactory)
 
-	namespace game
-	{
-		/// @brief 
-		class ComponentFactory : public Singleton<ComponentFactory>
-		{
-			friend class Singleton<ComponentFactory>;
+	public:
 
-		public:
+		template<typename _Component_>
+		bool				Register();
 
-			template<typename _Component_>
-			bool				Register();
+		const std::map<MetaType, ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
 
-			const std::map<MetaType, ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
+	protected:
 
-		protected:
+		~ComponentFactory() = default;
 
-								ComponentFactory() = default;
-								~ComponentFactory() override = default;
+	private:
 
-		private:
-
-			std::map<MetaType, ReflectionDescriptor*>	_metaTypeToDescriptors;
-		};
-	}
+		std::map<MetaType, ReflectionDescriptor*>	_metaTypeToDescriptors;
+	};
 }
 
 #include "ComponentFactory.inl"

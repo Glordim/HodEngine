@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <HodEngine/Core/Singleton.hpp>
 
@@ -10,7 +11,7 @@ namespace hod
 namespace hod::application
 {
 	/// @brief 
-	class Application
+	class HODENGINE_API Application
 	{
 		_Singleton(Application)
 

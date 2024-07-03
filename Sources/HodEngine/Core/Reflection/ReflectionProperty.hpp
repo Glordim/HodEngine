@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vector>
 #include "HodEngine/Core/Document/Document.hpp"
@@ -10,7 +11,7 @@ namespace hod
 	class ReflectionTrait;
 
 	///@brief 
-	class ReflectionProperty
+	class HODENGINE_API ReflectionProperty
 	{
 		BASE_META_TYPE(ReflectionProperty)
 

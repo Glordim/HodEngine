@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <type_traits>
 #include <string_view>
@@ -13,7 +14,7 @@
 namespace hod
 {
 	///@brief 
-	class ReflectionHelper
+	class HODENGINE_API ReflectionHelper
 	{
 	public:
 
