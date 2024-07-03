@@ -30,17 +30,7 @@ else()
 	add_executable(HodApplication ${Srcs} ${Includes})
 	set_property(TARGET HodApplication PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-#add_dependencies(HodEngine-Application Core DebugLayer ImGui Physics Application Renderer Game)
-#add_dependencies(HodEngine-Editor Core DebugLayer ImGui Physics Application Renderer Game)
-
-#add_executable(HodEngine-Application ${Srcs})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodApplication)
-#set_property(TARGET HodEngine-Application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "../Data")
-#add_dependencies(HodEngine-Application Core DebugLayer ImGui Physics Application Renderer Game)
-
-#set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
-#find_package(Glm REQUIRED)
-#find_package(Vulkan REQUIRED)
 
 endif()
 
@@ -53,6 +43,11 @@ add_dependencies(HodApplication HodEngine)
 target_link_libraries(HodApplication
 	HodEngine
 )
+
+add_custom_command(TARGET HodApplication POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		$<TARGET_FILE:HodEngine>
+        $<TARGET_FILE_DIR:HodApplication>)
 
 target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
