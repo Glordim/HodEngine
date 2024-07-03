@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <stdint.h>
 
@@ -6,6 +7,6 @@ namespace hod
 {
 	namespace SystemInfo
 	{
-		uint32_t	GetLogicalCoreCount();
+		HOD_API uint32_t GetLogicalCoreCount();
 	}
 }

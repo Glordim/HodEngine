@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <filesystem>
 #include <cstdint>
@@ -10,7 +11,7 @@ namespace hod
 	class Document;
 
 	/// @brief 
-	class DocumentWriter
+	class HOD_API DocumentWriter
 	{
 	public:
 

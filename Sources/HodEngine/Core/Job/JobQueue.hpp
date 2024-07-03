@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/LockFreeQueue.hpp"
 #include "HodEngine/Core/Job/Thread.hpp"
@@ -10,7 +11,7 @@ namespace hod
 	class Job;
 
 	/// @brief 
-	class JobQueue
+	class HOD_API JobQueue
 	{
 	public:
 

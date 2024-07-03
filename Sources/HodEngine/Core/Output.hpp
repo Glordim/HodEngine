@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #define OUTPUT_MESSAGE(...)		hod::Output::AddOutput(__FILE__, __LINE__, hod::Output::Type::Message, __VA_ARGS__);
 #define OUTPUT_WARNING(...)		hod::Output::AddOutput(__FILE__, __LINE__, hod::Output::Type::Warning, __VA_ARGS__);
@@ -9,7 +10,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class Output
+	class HOD_API Output
 	{
 	public:
 

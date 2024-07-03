@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <cstdint>
 #include <string>
@@ -10,7 +11,7 @@
 namespace hod
 {
 	/// @brief 
-	class Document
+	class HOD_API Document
 	{
 	private:
 

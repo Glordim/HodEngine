@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
 #include <time.h>
@@ -6,7 +7,7 @@
 
 namespace hod
 {
-	class SystemTime
+	class HOD_API SystemTime
 	{
 	public:
 #if defined(PLATFORM_WINDOWS)

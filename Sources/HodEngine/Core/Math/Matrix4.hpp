@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <cstdint>
 
@@ -7,7 +8,7 @@ namespace hod
 	class Vector2;
 	class Vector4;
 	
-	class Matrix4 final
+	class HOD_API Matrix4 final
 	{
 	public:
 

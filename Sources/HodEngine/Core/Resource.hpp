@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Core/UID.hpp"
@@ -6,7 +7,7 @@
 
 namespace hod
 {
-	class Resource
+	class HOD_API Resource
 	{
 		REFLECTED_CLASS_NO_PARENT(Resource)
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Singleton.hpp"
 #include "HodEngine/Core/Frame/FrameStep.hpp"
@@ -10,7 +11,7 @@ namespace hod
 	class Job;
 
 	/// @brief 
-	class FrameSequencer : public Singleton<FrameSequencer>
+	class HOD_API FrameSequencer : public Singleton<FrameSequencer>
 	{
 		friend class Singleton<FrameSequencer>;
 

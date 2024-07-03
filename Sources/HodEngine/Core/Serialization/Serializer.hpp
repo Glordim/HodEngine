@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Document/Document.hpp"
 
@@ -11,7 +12,7 @@ namespace hod
     class ReflectionPropertyArray;
     class ReflectionPropertyObject;
 
-    class Serializer
+    class HOD_API Serializer
     {
     public:
 

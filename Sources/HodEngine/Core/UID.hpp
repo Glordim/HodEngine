@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <string>
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
@@ -6,7 +7,7 @@
 namespace hod
 {
 	/// @brief 
-	class UID final
+	class HOD_API UID final
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(UID)
 		

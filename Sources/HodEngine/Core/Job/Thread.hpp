@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <vector>
 #include <cstdint>
@@ -14,7 +15,7 @@
 namespace hod
 {
 	/// @brief 
-	class Thread
+	class HOD_API Thread
 	{
 	public:
 

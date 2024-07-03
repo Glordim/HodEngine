@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include <stdint.h>
 #include <filesystem>
@@ -10,7 +11,7 @@ namespace hod
 	class Document;
 
 	/// @brief 
-	class DocumentReader
+	class HOD_API DocumentReader
 	{
 	public:
 

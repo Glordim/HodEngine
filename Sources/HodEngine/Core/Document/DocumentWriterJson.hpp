@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Document/DocumentWriter.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
@@ -6,7 +7,7 @@
 namespace hod
 {
 	/// @brief 
-	class DocumentWriterJson : public DocumentWriter
+	class HOD_API DocumentWriterJson : public DocumentWriter
 	{
 	public:
 
