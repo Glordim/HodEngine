@@ -5,6 +5,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
@@ -18,6 +19,10 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+
+#include <HodEngine/Core/Process/Process.hpp>
+#include <HodEngine/Core/FileSystem.hpp>
+#include <HodEngine/Application/Application.hpp>
 
 #include "portable-file-dialogs.h"
 
@@ -52,7 +57,7 @@ namespace hod::editor
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		if (ImGui::Begin("ProjectBrowser", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize) == true)
 		{
-			ImGui::Text("Projects");
+			ImGui::Text("Project Browser");
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 140.0f);
 			if (ImGui::Button("Open") == true)
 			{
@@ -85,8 +90,6 @@ namespace hod::editor
 				}
 			}
 
-			ImGui::Separator();
-
 			if (ImGui::BeginTable("ProjectListTable", 3, ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg) == true)
 			{
 				ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
@@ -94,30 +97,63 @@ namespace hod::editor
 				ImGui::TableSetupColumn("##OpenDelete", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 100.0f);
 				ImGui::TableHeadersRow();
 
-				for (int index = 0; index < _recentProjects._projectsPath.size(); ++index)
+				auto itEnd = _recentProjects._projectsPath.end();
+				auto it = _recentProjects._projectsPath.begin();
+				while (it != itEnd)
 				{
+					ImGui::PushID(it->c_str());
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					ImGui::TextUnformatted(_recentProjects._projectsPath[index].data());
+					std::filesystem::path path(it->data());
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted(path.stem().string().c_str());
+					ImGui::SetWindowFontScale(0.9f);
+					ImGui::BeginDisabled();
+					ImGui::TextUnformatted(it->data());
+					ImGui::EndDisabled();
+					ImGui::SetWindowFontScale(1.0f);
 					//ImGui::Text("C:\\users\\glordim\\Desltop\\Dev\\Toto");
 
 					ImGui::TableNextColumn();
+					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted("a month ago");
 
 					ImGui::TableNextColumn();
 					if (ImGui::Button("Open") == true)
 					{
-						Editor::GetInstance()->OpenProject(_recentProjects._projectsPath[index]);
+						//Editor::GetInstance()->OpenProject(_recentProjects._projectsPath[index]);
+						std::string arguments = "--ProjectPath ";
+						arguments += *it;
+						if (Process::Create(FileSystem::GetExecutablePath().string(), arguments, true) == true)
+						{
+							application::Application::GetInstance()->Quit();
+						}
 					}
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(150, 0, 0, 255));
-					bool deleteButtonClicked = ImGui::Button("Delete");
+					bool deleteButtonClicked = ImGui::Button(ICON_MDI_CLOSE);
 					ImGui::PopStyleColor(1);
 					if (deleteButtonClicked == true)
 					{
+						it = _recentProjects._projectsPath.erase(it);
 
+						std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
+						projectsPath /= ("HodEngine");
+						projectsPath /= ("Project.json");
+
+						Document writeDocument;
+						Serializer::Serialize(_recentProjects, writeDocument.GetRootNode());
+
+						std::filesystem::create_directories(projectsPath.parent_path());
+						DocumentWriterJson jsonWriter;
+						jsonWriter.Write(writeDocument, projectsPath);
 					}
+					else
+					{
+						++it;
+					}
+					ImGui::PopID();
 				}
 
 				ImGui::EndTable();

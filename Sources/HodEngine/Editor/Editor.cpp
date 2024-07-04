@@ -112,12 +112,12 @@ namespace hod::editor
 		_checkerTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
 
-		const Argument* argument = argumentParser.GetArgument('p', "project");
-		if (argument == nullptr)
+		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
+		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
 		{
 			application::DesktopApplication* application = application::DesktopApplication::GetInstance();
 			window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
-			mainWindow->SetSize(600, 320);
+			mainWindow->SetSize(800, 320);
 			mainWindow->CenterToScreen();
 			mainWindow->SetVisible(true);
 
@@ -126,10 +126,7 @@ namespace hod::editor
 		}
 		else
 		{
-			if (argument->_valueCount == 1)
-			{
-				return OpenProject(argument->_values[0]);
-			}
+			return OpenProject(projectPathArgument->_values[0]);
 		}
 
 		return false;
