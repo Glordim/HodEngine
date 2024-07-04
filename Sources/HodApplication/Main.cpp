@@ -30,6 +30,8 @@ int HodMain(int argc, char** argv)
 		return 1;
 	}
 
+	app->LoadDll();
+
 	app->Run();
 
 	HodApplication::DestroyInstance();

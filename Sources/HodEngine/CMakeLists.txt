@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.4...3.27)
 
+include(Global)
+
 project(HodEngine)
 
 if (NOT TARGET Core)

@@ -16,6 +16,10 @@
 
 #include <thread>
 
+#if defined(PLATFORM_WINDOWS)
+#include <Windows.h>
+#endif
+
 namespace hod::application
 {
 	_SingletonConstructor(Application)
@@ -77,5 +81,74 @@ namespace hod::application
 	void Application::Quit()
 	{
 		_shouldQuit = true;
+	}
+
+	bool Application::LoadDll()
+	{
+#if defined(PLATFORM_WINDOWS)
+		std::filesystem::path exeDirPath = FileSystem::GetExecutablePath().parent_path();
+		std::filesystem::copy_file(exeDirPath / "Pong.dll", exeDirPath / "Pong-Loaded.dll", std::filesystem::copy_options::update_existing);
+
+		_dll = LoadLibrary((exeDirPath / "Pong-Loaded.dll").string().c_str());
+		if (_dll == NULL)
+		{
+			//std::cout << "could not load the dynamic library" << std::endl;
+			return false;
+		}
+
+		using initFunction = int(*)();
+
+		// resolve function address here
+		initFunction initFunc = (initFunction)GetProcAddress(_dll, "Init");
+		if (initFunc == nullptr)
+		{
+			//std::cout << "could not locate the function" << std::endl;
+			return false;
+		}
+
+		initFunc();
+#endif
+		return true;
+	}
+
+	bool Application::UnloadDll()
+	{
+#if defined(PLATFORM_WINDOWS)
+		if (_dll)
+		{
+			using cleanFunction = int(*)();
+
+			cleanFunction cleanFunc = (cleanFunction)GetProcAddress(_dll, "Clean");
+			if (cleanFunc == nullptr)
+			{
+				//std::cout << "could not locate the function" << std::endl;
+				return false;
+			}
+
+			cleanFunc();
+		}
+
+		FreeLibrary(_dll);
+		_dll = NULL;
+
+		std::filesystem::path exeDirPath = FileSystem::GetExecutablePath().parent_path();
+		std::filesystem::remove((exeDirPath / "Pong-Loaded.dll").string().c_str());
+#endif
+		return true;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Application::ReloadDll()
+	{
+		if (UnloadDll() == false)
+		{
+			return false;
+		}
+		if (LoadDll() == false)
+		{
+			return false;
+		}
+		return true;
 	}
 }

@@ -44,11 +44,6 @@ target_link_libraries(HodApplication
 	HodEngine
 )
 
-add_custom_command(TARGET HodApplication POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		$<TARGET_FILE:HodEngine>
-        $<TARGET_FILE_DIR:HodApplication>)
-
 target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
 target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>")

@@ -78,6 +78,10 @@ namespace hod::editor
 			}
 			ImGui::EndMenu();
 		}
+		if (ImGui::MenuItem("Hot Reload") == true)
+		{
+			application::Application::GetInstance()->ReloadDll();
+		}
 
 		const ImGuiStyle& style = ImGui::GetStyle();
 		float groupWidth = CalculateButtonSize(ICON_MDI_PLAY).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_PAUSE).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_SKIP_NEXT).x;

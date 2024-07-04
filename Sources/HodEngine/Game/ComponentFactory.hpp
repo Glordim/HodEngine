@@ -25,6 +25,9 @@ namespace hod::game
 		template<typename _Component_>
 		bool				Register();
 
+		template<typename _Component_>
+		bool				Unregister();
+
 		const std::map<MetaType, ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
 
 	protected:
