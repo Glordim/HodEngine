@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include <HodEngine/Core/Singleton.hpp>
+#include <HodEngine/Core/Module/Module.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
 namespace hod::editor
@@ -30,6 +31,11 @@ namespace hod::editor
 		const std::filesystem::path&	GetResourceDirPath() const;
 		const std::filesystem::path&	GetThumbnailDirPath() const;
 
+		bool							GenerateGameModuleCMakeList() const;
+		bool							BuildGameModule() const;
+
+		bool							ReloadGameModule();
+
 	private:
 
 		std::filesystem::path			_projectPath;
@@ -38,5 +44,7 @@ namespace hod::editor
 		std::filesystem::path			_thumbnailDirPath;
 
 		std::string						_name;
+
+		Module							_gameModule;
 	};
 }

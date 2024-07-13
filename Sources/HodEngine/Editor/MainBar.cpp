@@ -12,6 +12,7 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Project.hpp"
 
 #include <HodEngine/Application/PlatformDialog.hpp>
 
@@ -80,7 +81,7 @@ namespace hod::editor
 		}
 		if (ImGui::MenuItem("Hot Reload") == true)
 		{
-			application::Application::GetInstance()->ReloadDll();
+			Project::GetInstance()->ReloadGameModule();
 		}
 
 		const ImGuiStyle& style = ImGui::GetStyle();

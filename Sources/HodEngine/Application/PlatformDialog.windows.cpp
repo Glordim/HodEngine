@@ -108,4 +108,15 @@ namespace hod::application::dialog
 
 		CreateProcessA(NULL, (LPSTR)(std::string("explorer.exe ") + path.string()).c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInformation);
 	}
+
+	/// @brief 
+	/// @param title 
+	/// @param description 
+	/// @param yesChoice 
+	/// @param noChoice 
+	/// @return 
+	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& yesChoice, const std::string_view& noChoice)
+	{
+		return MessageBox(NULL, description.data(), title.data(), MB_YESNO) == IDYES;
+	}
 }

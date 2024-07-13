@@ -47,6 +47,11 @@ list(APPEND Srcs ${IconSrcs})
 list(APPEND Srcs ${IconIncludes})
 list(APPEND Includes ${IconIncludes})
 
+create_resources("CMakeProjectTemplate/CMakeLists.txt" "CMakeProjectTemplate" CMakeTemplateSrcs CMakeTemplateIncludes)
+list(APPEND Srcs ${CMakeTemplateSrcs})
+list(APPEND Srcs ${CMakeTemplateIncludes})
+list(APPEND Includes ${CMakeTemplateIncludes})
+
 assign_source_group(${Srcs}) # for VS
 
 find_package(Stb REQUIRED)

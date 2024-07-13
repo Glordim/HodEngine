@@ -13,4 +13,6 @@ namespace hod::application::dialog
 	HOD_API std::filesystem::path	GetFolderDialog();
 
 	HOD_API void					OpenExplorerAtPath(const std::filesystem::path& path);
+
+	HOD_API bool					ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& yesChoice = "Yes", const std::string_view& noChoice = "No");
 }

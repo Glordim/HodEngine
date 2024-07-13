@@ -30,6 +30,12 @@ namespace hod
 			return false;
 		}
 
+		if (detach == false)
+		{
+			// Wait until child process exits.
+			WaitForSingleObject( pi.hProcess, INFINITE );
+		}
+
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 

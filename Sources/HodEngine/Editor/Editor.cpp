@@ -144,10 +144,16 @@ namespace hod::editor
 		AddProjectInRecentProject(path);
 
 		AssetDatabase::CreateInstance();
-		AssetDatabase::GetInstance()->Init();
 
 		_mainBar = new MainBar();
 		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
+
+		if (Project::GetInstance()->ReloadGameModule() == false)
+		{
+			return false;
+		}
+
+		AssetDatabase::GetInstance()->Init();
 
 		imgui::ImGuiManager::GetInstance()->CloseAllWindow();
 		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();

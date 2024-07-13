@@ -5,8 +5,19 @@
 #include "HodEngine/Core/ResourceManager.hpp"
 
 #include <fstream>
+#include <format>
 
+#include "HodEngine/Core/FileSystem.hpp"
+#include "HodEngine/Core/Process/Process.hpp"
+#include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Editor/CMakeProjectTemplate/CMakeLists.txt.h"
+#include "HodEngine/Application/PlatformDialog.hpp"
+
+// todo move ?
+#define STRINGIZE(x) #x
+#define STRINGIZE_VALUE_OF(x) STRINGIZE(x)
+//
 
 namespace hod::editor
 {
@@ -16,6 +27,7 @@ namespace hod::editor
 	}
 
 	_SingletonConstructor(Project)
+	: _gameModule("Game", true)
 	{
 
 	}
@@ -63,6 +75,8 @@ namespace hod::editor
 		}
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
+
+		_gameModule = Module(_projectPath.parent_path() / "build" / STRINGIZE_VALUE_OF(HOD_CONFIG) / "bin" / "Game", true);
 
 		return Load();
 	}
@@ -119,5 +133,98 @@ namespace hod::editor
 	const std::filesystem::path& Project::GetThumbnailDirPath() const
 	{
 		return _thumbnailDirPath;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Project::GenerateGameModuleCMakeList() const
+	{
+		constexpr std::string_view replaceByEnginePath = "REPLACE_ME_BY_ENGINE_PATH";
+
+		std::string cmakeLists(reinterpret_cast<const char*>(CMakeLists_txt), CMakeLists_txt_size);
+		size_t replaceByEnginePathIndex = cmakeLists.find(replaceByEnginePath);
+		if (replaceByEnginePathIndex == std::string::npos)
+		{
+			return false;
+		}
+
+		std::string enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().parent_path().string(); // todo...
+		
+#if defined(PLATFORM_WINDOWS)
+		// CMakeLists require portable path
+		for (char& c : enginePath)
+		{
+			if (c == '\\')
+			{
+				c = '/';
+			}
+        }
+#endif
+
+		cmakeLists.replace(replaceByEnginePathIndex, replaceByEnginePath.size(), enginePath);
+
+		std::ofstream cmakeListFileStream(_projectPath.parent_path() / "CMakeLists.txt", std::ios_base::trunc);
+		if (cmakeListFileStream.is_open() == false)
+		{
+			return false;
+		}
+
+		cmakeListFileStream.write(cmakeLists.c_str(), cmakeLists.size());
+		return true;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Project::BuildGameModule() const
+	{
+		std::filesystem::path gameModuleCMakeListsPath = _projectPath.parent_path() / "CMakeLists.txt";
+		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleCMakeListsPath.parent_path() / "build";
+		
+		if (std::filesystem::exists(gameModuleBuildDirectoryPath) == false)
+		{
+			std::filesystem::create_directory(gameModuleBuildDirectoryPath);
+		}
+
+		std::string arguments = std::format("-B {}", gameModuleBuildDirectoryPath.string());
+		if (Process::Create("cmake", arguments, false) == false)
+		{
+			return false;
+		}
+
+		const char* config = STRINGIZE_VALUE_OF(HOD_CONFIG);
+		arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount());
+		if (Process::Create("cmake", arguments, false) == false)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Project::ReloadGameModule()
+	{
+		if (std::filesystem::exists(_gameModule.GetPath()) == false)
+		{
+			if (hod::application::dialog::ShowYesNoDialog("Missing 'Game' module", "Do you want to generate it?"))
+			{
+				if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
+				{
+					return false;
+				}
+				if (Project::GetInstance()->BuildGameModule() == false)
+				{
+					return false;
+				}
+			}
+		}
+		
+		if (_gameModule.Reload() == false)
+		{
+			return false;
+		}
+
+		return true;
 	}
 }
