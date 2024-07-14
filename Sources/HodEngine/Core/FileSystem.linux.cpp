@@ -3,6 +3,7 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <linux/limits.h>
 #include <pwd.h>
 
 namespace hod
@@ -24,8 +25,7 @@ namespace hod
 	{
 		if (FileSystem::_executablePath.empty() == true)
 		{
-			char executablePath[PATH_MAX];
-			memset(executablePath, 0, sizeof(executablePath)); // readlink does not null terminate!
+			char executablePath[PATH_MAX] = { '\0' }; // init with 0 becausse readlink does not null terminate!
 			if (readlink("/proc/self/exe", executablePath, PATH_MAX) == -1)
 			{
 				perror("readlink");
