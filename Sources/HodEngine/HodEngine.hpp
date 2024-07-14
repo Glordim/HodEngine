@@ -1,7 +1,15 @@
 #pragma once
 
-#ifdef HOD_EXPORT
-    #define HOD_API __declspec(dllexport)
+#if defined(PLATFORM_WINDOWS)
+    #ifdef HOD_EXPORT
+        #define HOD_API __declspec(dllexport)
+    #else
+        #define HOD_API __declspec(dllimport)
+    #endif
 #else
-    #define HOD_API __declspec(dllimport)
+    #ifdef HOD_EXPORT
+        #define HOD_API __attribute__((visibility("default")))
+    #else
+        #define HOD_API
+    #endif
 #endif

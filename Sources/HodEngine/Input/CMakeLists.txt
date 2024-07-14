@@ -4,7 +4,11 @@ include(Global)
 
 project(Input)
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+if (_WIN32)
+  CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+else()
+	CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES RawInput XInput)
+endif()
 
 add_library(Input OBJECT ${Srcs} ${Includes})
 set_property(TARGET Input PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
