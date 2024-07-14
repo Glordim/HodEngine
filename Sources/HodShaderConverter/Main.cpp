@@ -22,6 +22,10 @@
 #elif defined(PLATFORM_MACOS)
 #include <spawn.h>
 #include <unistd.h>
+#elif defined(PLATFORM_LINUX)
+#include <sys/wait.h>
+#include <unistd.h>
+#include <string.h> // strerror
 #endif
 
 namespace hod
@@ -162,7 +166,7 @@ namespace hod
 
 		result = true;
 #elif defined(PLATFORM_MACOS)
-	// Définition des arguments du programme à exécuter
+		// Définition des arguments du programme à exécuter
 		std::string inputFileStr = finalInputFile.string();
 		std::string irFileStr = inputFileStr + ".ir";
         
@@ -243,8 +247,53 @@ namespace hod
             // Libérer les attributs de spawn
             posix_spawnattr_destroy(&attr);
         }
+#elif defined(PLATFORM_LINUX)
+		pid_t pid = fork(); // Crée un nouveau processus
+		if (pid == -1)
+		{
+			std::cerr << std::format("CreateProcess failed ({})\n", strerror(errno));
+			return false;
+		}
+
+		if (pid == 0) // Child
+		{
+			std::string strOutputFile = finalInputFile.string() + ".spirv";
+			std::string strInputFile = finalInputFile.string();
+			const char *argv[] = {"glslangValidator", "-Od", "--target-env", "vulkan1.3", "-o", strOutputFile.c_str(), strInputFile.c_str(), nullptr};
+
+			int argIndex = 0;
+            const char* arg = argv[argIndex];
+            while (arg)
+            {
+                std::cout << arg << " ";
+
+                ++argIndex;
+                arg = argv[argIndex];
+            }
+            std::cout << std::endl;
+
+			execvp(argv[0], (char *const *)argv);
+			std::cerr << "Exec failed" << std::endl;
+			return 1;
+		}
+		else // Parent
+		{
+			int status;
+			waitpid(pid, &status, 0);
+
+			if (WIFEXITED(status))
+			{
+				std::cout << "Child exited with status " << WEXITSTATUS(status) << std::endl;
+				result = true;
+			}
+			else
+			{
+				std::cerr << "Child did not exit normally" << std::endl;
+				result = false;
+			}
+		}
 #else
-	#pragma error
+		#error
 #endif
 		return result;
 	}
@@ -408,7 +457,7 @@ namespace hod
 #elif defined(PLATFORM_MACOS)
 		Target target = Target::Metal_MacOS;
 #else
-		#pragma error
+		#error
 #endif
 		const hod::Argument* targetArgument = argumentParser.GetArgument('t', "target");
 		if (targetArgument != nullptr)
@@ -454,7 +503,7 @@ namespace hod
 #elif defined(PLATFORM_LINUX)
 		if (target != Target::Vulkan)
 #else
-		#pragma error
+		#error
 #endif
 		{
 			std::cerr << "Target unavailable on  this platform\n";

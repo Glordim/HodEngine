@@ -2,6 +2,7 @@
 #include <HodEngine/HodEngine.hpp>
 
 #include <string>
+#include <cstdint>
 
 namespace hod
 {

@@ -4,6 +4,7 @@
 #include <HodEngine/Core/Singleton.hpp>
 
 #include <vector>
+#include <cstdint>
 
 class b2World;
 class b2Draw;

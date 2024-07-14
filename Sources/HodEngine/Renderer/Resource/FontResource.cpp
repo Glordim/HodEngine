@@ -7,6 +7,8 @@
 #include "HodEngine/Core/Output.hpp"
 
 #include <freetype/freetype.h>
+#include <cmath>
+#include <cstring>
 
 namespace hod::renderer
 {
