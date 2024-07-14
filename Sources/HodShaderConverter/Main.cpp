@@ -34,7 +34,7 @@ namespace hod
 	{
 		std::cout << std::format("Convert '{}'...\n", inputFile.string());
 
-		std::ifstream inputStream(inputFile, 0);
+		std::ifstream inputStream(inputFile);
 		if (inputStream.is_open() == false)
 		{
 			std::cerr << std::format("Unable to read input file : {}\n", inputFile.string());
@@ -77,7 +77,7 @@ namespace hod
 			return false;
 		}
 
-		std::ofstream convertedOutputStream(convertedOutputFilePath, 0);
+		std::ofstream convertedOutputStream(convertedOutputFilePath);
 		if (convertedOutputStream.is_open() == false)
 		{
 			std::cerr << std::format("Unable to write output file : {}\n", convertedOutputFilePath.string());
@@ -280,7 +280,7 @@ namespace hod
 		std::filesystem::path headerOutputFilePath = outputFile;
 		headerOutputFilePath += ".hpp";
 
-		std::ofstream headerOutputStream(headerOutputFilePath, 0);
+		std::ofstream headerOutputStream(headerOutputFilePath);
 		if (headerOutputStream.is_open() == false)
 		{
 			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath.string());
@@ -302,7 +302,7 @@ namespace hod
 		std::filesystem::path sourceOutputFilePath = outputFile;
 		sourceOutputFilePath += ".cpp";
 
-		std::ofstream sourceOutputStream(sourceOutputFilePath, 0);
+		std::ofstream sourceOutputStream(sourceOutputFilePath);
 		if (sourceOutputStream.is_open() == false)
 		{
 			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath.string());

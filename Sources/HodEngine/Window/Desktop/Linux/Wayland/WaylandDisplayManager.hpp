@@ -11,10 +11,11 @@
 
 #include <libdecor-0/libdecor.h>
 
-#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-decoration-protocol.hpp"
-#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-shell-client-protocol.hpp"
+#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-decoration-protocol.h"
+#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-shell-client-protocol.h"
 
 #include <map>
+#include <string>
 
 namespace hod::window
 {
@@ -29,7 +30,7 @@ namespace hod::window
         bool            Initialize() override;
         void            Terminate() override;
 
-        Window*         CreateWindow() override;
+        Window*         CreateWindow(bool hidden = false) override;
         void            DestroyWindow(Window* window) override;
 
         wl_display*     GetDisplay() const;

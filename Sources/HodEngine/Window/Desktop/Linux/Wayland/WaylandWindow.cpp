@@ -280,6 +280,11 @@ namespace hod::window
 	{
 
 	}
+
+	void WaylandWindow::SetVisible(bool visible)
+	{
+		// todo
+	}
 	
 	/// @brief 
 	bool WaylandWindow::SetupBuffer()

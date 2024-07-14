@@ -7,7 +7,7 @@
 
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
-#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-shell-client-protocol.hpp"
+#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-shell-client-protocol.h"
 #include <libdecor-0/libdecor.h>
 
 // todo avoid to use libDecor when it's possible, lot of compositor support server side decoration (except gnome...)
@@ -28,6 +28,8 @@ namespace hod::window
 		void								SetSize(uint16_t width, uint16_t height) override;
 		void								CenterToScreen() override;
 		void								Maximize() override;
+
+		void								SetVisible(bool visible) override;
 
 	private:
 
