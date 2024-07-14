@@ -39,4 +39,15 @@ namespace hod::application::dialog
 	{
 		// TODO
 	}
+
+	/// @brief 
+	/// @param title 
+	/// @param description 
+	/// @param yesChoice 
+	/// @param noChoice 
+	/// @return 
+	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& yesChoice, const std::string_view& noChoice)
+	{
+		return true; // todo
+	}
 }

@@ -261,17 +261,6 @@ namespace hod
 			std::string strInputFile = finalInputFile.string();
 			const char *argv[] = {"glslangValidator", "-Od", "--target-env", "vulkan1.3", "-o", strOutputFile.c_str(), strInputFile.c_str(), nullptr};
 
-			int argIndex = 0;
-            const char* arg = argv[argIndex];
-            while (arg)
-            {
-                std::cout << arg << " ";
-
-                ++argIndex;
-                arg = argv[argIndex];
-            }
-            std::cout << std::endl;
-
 			execvp(argv[0], (char *const *)argv);
 			std::cerr << "Exec failed" << std::endl;
 			return 1;
