@@ -22,6 +22,10 @@
 #elif defined(PLATFORM_MACOS)
 #include <spawn.h>
 #include <unistd.h>
+#elif defined(PLATFORM_LINUX)
+#include <sys/wait.h>
+#include <unistd.h>
+#include <string.h> // strerror
 #endif
 
 namespace hod
@@ -34,7 +38,7 @@ namespace hod
 	{
 		std::cout << std::format("Convert '{}'...\n", inputFile.string());
 
-		std::ifstream inputStream(inputFile, 0);
+		std::ifstream inputStream(inputFile);
 		if (inputStream.is_open() == false)
 		{
 			std::cerr << std::format("Unable to read input file : {}\n", inputFile.string());
@@ -77,7 +81,7 @@ namespace hod
 			return false;
 		}
 
-		std::ofstream convertedOutputStream(convertedOutputFilePath, 0);
+		std::ofstream convertedOutputStream(convertedOutputFilePath);
 		if (convertedOutputStream.is_open() == false)
 		{
 			std::cerr << std::format("Unable to write output file : {}\n", convertedOutputFilePath.string());
@@ -162,7 +166,7 @@ namespace hod
 
 		result = true;
 #elif defined(PLATFORM_MACOS)
-	// Définition des arguments du programme à exécuter
+		// Définition des arguments du programme à exécuter
 		std::string inputFileStr = finalInputFile.string();
 		std::string irFileStr = inputFileStr + ".ir";
         
@@ -243,8 +247,42 @@ namespace hod
             // Libérer les attributs de spawn
             posix_spawnattr_destroy(&attr);
         }
+#elif defined(PLATFORM_LINUX)
+		pid_t pid = fork(); // Crée un nouveau processus
+		if (pid == -1)
+		{
+			std::cerr << std::format("CreateProcess failed ({})\n", strerror(errno));
+			return false;
+		}
+
+		if (pid == 0) // Child
+		{
+			std::string strOutputFile = finalInputFile.string() + ".spirv";
+			std::string strInputFile = finalInputFile.string();
+			const char *argv[] = {"glslangValidator", "-Od", "--target-env", "vulkan1.3", "-o", strOutputFile.c_str(), strInputFile.c_str(), nullptr};
+
+			execvp(argv[0], (char *const *)argv);
+			std::cerr << "Exec failed" << std::endl;
+			return 1;
+		}
+		else // Parent
+		{
+			int status;
+			waitpid(pid, &status, 0);
+
+			if (WIFEXITED(status))
+			{
+				std::cout << "Child exited with status " << WEXITSTATUS(status) << std::endl;
+				result = true;
+			}
+			else
+			{
+				std::cerr << "Child did not exit normally" << std::endl;
+				result = false;
+			}
+		}
 #else
-	#pragma error
+		#error
 #endif
 		return result;
 	}
@@ -280,7 +318,7 @@ namespace hod
 		std::filesystem::path headerOutputFilePath = outputFile;
 		headerOutputFilePath += ".hpp";
 
-		std::ofstream headerOutputStream(headerOutputFilePath, 0);
+		std::ofstream headerOutputStream(headerOutputFilePath);
 		if (headerOutputStream.is_open() == false)
 		{
 			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath.string());
@@ -302,7 +340,7 @@ namespace hod
 		std::filesystem::path sourceOutputFilePath = outputFile;
 		sourceOutputFilePath += ".cpp";
 
-		std::ofstream sourceOutputStream(sourceOutputFilePath, 0);
+		std::ofstream sourceOutputStream(sourceOutputFilePath);
 		if (sourceOutputStream.is_open() == false)
 		{
 			std::cerr << std::format("Unable to write output file : {}\n", headerOutputFilePath.string());
@@ -408,7 +446,7 @@ namespace hod
 #elif defined(PLATFORM_MACOS)
 		Target target = Target::Metal_MacOS;
 #else
-		#pragma error
+		#error
 #endif
 		const hod::Argument* targetArgument = argumentParser.GetArgument('t', "target");
 		if (targetArgument != nullptr)
@@ -454,7 +492,7 @@ namespace hod
 #elif defined(PLATFORM_LINUX)
 		if (target != Target::Vulkan)
 #else
-		#pragma error
+		#error
 #endif
 		{
 			std::cerr << "Target unavailable on  this platform\n";

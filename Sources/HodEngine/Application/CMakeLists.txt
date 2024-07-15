@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.4...3.27)
 
 include(Global)
 
-project(Application)
+if (APPLE)
+    project(Application LANGUAGES CXX OBJCXX)
+else()
+    project(Application LANGUAGES CXX)
+endif()
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 

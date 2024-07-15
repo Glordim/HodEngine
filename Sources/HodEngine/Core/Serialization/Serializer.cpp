@@ -8,6 +8,8 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp"
 
+#include <cstring>
+
 namespace hod
 {
 	/// @brief 

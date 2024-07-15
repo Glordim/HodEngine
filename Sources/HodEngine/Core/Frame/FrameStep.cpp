@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Job/Job.hpp"
 
 #include <assert.h>
+#include <algorithm>
 
 namespace hod
 {

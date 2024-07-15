@@ -7,6 +7,8 @@
 #include "HodEngine/Core/Output.hpp"
 
 #include <freetype/freetype.h>
+#include <cmath>
+#include <cstring>
 
 namespace hod::renderer
 {
@@ -190,7 +192,7 @@ namespace hod::renderer
 			if (ftBitmap.buffer != nullptr && ftBitmap.rows > 0 && ftBitmap.width > 0)
 			{
 				CharacterData characterData;
-				characterData.pixels = new uint8_t[ftBitmap.rows * ftBitmap.width * 4](0);
+				characterData.pixels = new uint8_t[ftBitmap.rows * ftBitmap.width * 4];
 				characterData.width = ftBitmap.width;
 				characterData.height = ftBitmap.rows;
 				for (uint32_t y = 0; y < ftBitmap.rows; y++)
@@ -224,7 +226,7 @@ namespace hod::renderer
 
 		uint32_t characterByLine = (uint32_t)std::sqrt(characterDatas.size()) + 1;
 		uint32_t atlasWidth = nextPowerOf2(characterByLine * 48);
-		uint8_t* atlas = new uint8_t[atlasWidth * atlasWidth * 4](0);
+		uint8_t* atlas = new uint8_t[atlasWidth * atlasWidth * 4];
 		for (uint32_t characteIndex = 0; characteIndex < characterDatas.size(); ++characteIndex)
 		{
 			const CharacterData& characterData = characterDatas[characteIndex];

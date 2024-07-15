@@ -5,8 +5,13 @@
 
 extern "C"
 {
+#if defined(PLATFORM_WINDOWS)
 	__declspec(dllexport) int Init();
 	__declspec(dllexport) int Clean();
+#else
+	__attribute__((visibility("default"))) int Init();
+	__attribute__((visibility("default"))) int Clean();
+#endif
 }
 
 /// @brief 

@@ -83,6 +83,7 @@ ExternalProject_Add(freetype
     -DMSDFGEN_BUILD_STANDALONE=OFF
     -DMSDFGEN_USE_VCPKG=OFF
     -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/freetype-build --config Release
   INSTALL_COMMAND ""

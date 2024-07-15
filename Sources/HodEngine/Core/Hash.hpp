@@ -1,6 +1,7 @@
 #pragma once
 #include <HodEngine/HodEngine.hpp>
 
+#include <cstdint>
 #include <string_view>
 
 namespace hod

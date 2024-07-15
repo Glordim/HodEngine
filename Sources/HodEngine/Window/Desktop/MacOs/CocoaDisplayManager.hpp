@@ -17,7 +17,7 @@ namespace hod::window
         bool            Initialize() override;
         void            Terminate() override;
 
-        Window*         CreateWindow() override;
+        Window*         CreateWindow(bool hidden = false) override;
         void            DestroyWindow(Window* window) override;
     };
 }

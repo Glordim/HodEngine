@@ -100,4 +100,9 @@ namespace hod::window
 	{
 		//_nativeWinwdow.Maximize();
 	}
+
+	void MacOsWindow::SetVisible(bool visible)
+	{
+		// todo
+	}
 }

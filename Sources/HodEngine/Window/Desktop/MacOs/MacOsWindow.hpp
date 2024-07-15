@@ -34,6 +34,8 @@ namespace hod::window
 		void								CenterToScreen() override;
 		void								Maximize() override;
 
+		void								SetVisible(bool visible) override;
+
 		NSView* 							GetNsView() const;
 
 	private:

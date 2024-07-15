@@ -617,9 +617,9 @@ namespace hod::window
 
     /// @brief 
     /// @return 
-    Window* WaylandDisplayManager::CreateWindow()
+    Window* WaylandDisplayManager::CreateWindow(bool hidden)
     {
-        WaylandWindow* window = new WaylandWindow();
+        WaylandWindow* window = new WaylandWindow(); // todo use hidden
 
         _surfaceToWindowMap[window->GetWaylandSurface()] =  window;
 

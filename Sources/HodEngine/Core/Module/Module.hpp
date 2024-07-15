@@ -36,6 +36,8 @@ namespace hod
 
 #if defined(PLATFORM_WINDOWS)
 		HINSTANCE		_dll = NULL;
+#elif defined(PLATFORM_LINUX)
+		void*			_sharedLib = nullptr;
 #endif
 	};
 }
