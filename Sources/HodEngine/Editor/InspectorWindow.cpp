@@ -35,7 +35,7 @@ namespace hod::editor
 	DECLARE_WINDOW_DESCRIPTION(InspectorWindow, "Inspector", true)
 
 	/// @brief 
-	void InspectorWindow::Draw()
+	void InspectorWindow::DrawContent()
 	{
 		Editor* editor = Editor::GetInstance();
 		std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();

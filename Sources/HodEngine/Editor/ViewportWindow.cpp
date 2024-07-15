@@ -50,7 +50,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void ViewportWindow::Draw()
+	void ViewportWindow::DrawContent()
 	{
 		if (ImGui::BeginTabBar("##TabBar"))
 		{

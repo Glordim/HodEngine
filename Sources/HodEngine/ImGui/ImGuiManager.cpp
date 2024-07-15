@@ -14,7 +14,7 @@
 #include "HodEngine/ImGui/DearImGui/ImGuizmo.h"
 #include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
-#include "HodEngine/ImGui/Window.hpp"
+#include "HodEngine/ImGui/Window/Window.hpp"
 #include "HodEngine/ImGui/MainBar.hpp"
 
 #include <HodEngine/Renderer/Renderer.hpp>
@@ -343,6 +343,7 @@ void embraceTheDarkness()
 			window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
 			ImGui::SetNextWindowClass(&window_class);
 			*/
+			/*
 			bool open = true;
 			if (ImGui::Begin(window->GetIdentifier(), &open) == true)
 			{
@@ -364,6 +365,8 @@ void embraceTheDarkness()
 				_activeWindow = window;
 			}
 			ImGui::End();
+			*/
+			window->Draw();
 		}
 		
 		ImGui::Render();
@@ -417,13 +420,6 @@ void embraceTheDarkness()
 
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 		renderer->GetRenderQueue()->PushRenderCommand(renderCommand);
-	}
-
-	/// @brief 
-	/// @return 
-	Window* ImGuiManager::GetActiveWindow() const
-	{
-		return _activeWindow;
 	}
 
 	/// @brief 

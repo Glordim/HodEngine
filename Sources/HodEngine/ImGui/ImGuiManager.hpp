@@ -53,8 +53,6 @@ namespace hod::imgui
 
 		void							CloseAllWindow();
 
-		Window*							GetActiveWindow() const;
-
 		renderer::Material*				GetMaterial() const;
 
 	protected:
@@ -75,8 +73,6 @@ namespace hod::imgui
 
 		MainBar*						_mainBar = nullptr;
 		std::vector<Window*>			_windows;
-
-		Window*							_activeWindow = nullptr;
 
 		renderer::Material*				_material = nullptr;
 		renderer::Shader*				_vertexShader = nullptr;

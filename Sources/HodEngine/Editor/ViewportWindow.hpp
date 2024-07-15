@@ -1,7 +1,7 @@
 #pragma once
 #include <HodEngine/HodEngine.hpp>
 
-#include <HodEngine/ImGui/Window.hpp>
+#include <HodEngine/ImGui/Window/Window.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -35,7 +35,7 @@ namespace hod::editor
 
 	public:
 
-		void		Draw() override;
+		void		DrawContent() override;
 
 		void		OpenTab(std::shared_ptr<Asset> asset);
 

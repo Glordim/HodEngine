@@ -49,7 +49,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void AssetBrowserWindow::Draw()
+	void AssetBrowserWindow::DrawContent()
 	{
 		static float size1 = 300;
 		static float size2 = 300;

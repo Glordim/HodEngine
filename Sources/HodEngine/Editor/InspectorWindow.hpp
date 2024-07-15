@@ -1,7 +1,7 @@
 #pragma once
 #include <HodEngine/HodEngine.hpp>
 
-#include <HodEngine/ImGui/Window.hpp>
+#include <HodEngine/ImGui/Window/Window.hpp>
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
@@ -35,7 +35,7 @@ namespace hod::editor
 
 	public:
 
-		void		Draw() override;
+		void		DrawContent() override;
 
 	private:
 

@@ -49,7 +49,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void ProjectBrowser::Draw()
+	void ProjectBrowser::DrawContent()
 	{
 		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
 		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);

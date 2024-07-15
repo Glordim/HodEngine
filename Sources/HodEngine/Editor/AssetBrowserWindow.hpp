@@ -2,7 +2,7 @@
 #include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include <HodEngine/ImGui/Window.hpp>
+#include <HodEngine/ImGui/Window/Window.hpp>
 
 #include <vector>
 #include <filesystem>
@@ -22,7 +22,7 @@ namespace hod::editor
 
 	public:
 
-		void		Draw() override;
+		void		DrawContent() override;
 
 		void		PingAsset(Asset& asset);
 		

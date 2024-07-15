@@ -27,7 +27,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void HierachyWindow::Draw()
+	void HierachyWindow::DrawContent()
 	{
 		game::World* world = game::World::GetInstance();
 		for (game::Scene* scene : world->GetScenes())
