@@ -122,13 +122,15 @@ namespace hod::editor
 					ImGui::TableNextColumn();
 					if (ImGui::Button("Open") == true)
 					{
-						//Editor::GetInstance()->OpenProject(_recentProjects._projectsPath[index]);
+						Editor::GetInstance()->OpenProject(*it);
+						/*
 						std::string arguments = "--ProjectPath ";
 						arguments += *it;
 						if (Process::Create(FileSystem::GetExecutablePath().string(), arguments, true) == true)
 						{
 							application::Application::GetInstance()->Quit();
 						}
+						*/
 					}
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(150, 0, 0, 255));

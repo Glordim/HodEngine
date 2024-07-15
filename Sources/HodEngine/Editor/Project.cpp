@@ -12,7 +12,10 @@
 #include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Editor/CMakeProjectTemplate/CMakeLists.txt.h"
+#include "HodEngine/Editor/MissingGameModuleModal.hpp"
 #include "HodEngine/Application/PlatformDialog.hpp"
+
+#include "HodEngine/ImGui/ImGuiManager.hpp"
 
 // todo move ?
 #define STRINGIZE(x) #x
@@ -137,6 +140,13 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
+	bool Project::HasGameModule() const
+	{
+		return std::filesystem::exists(_gameModule.GetPath());
+	}
+
+	/// @brief 
+	/// @return 
 	bool Project::GenerateGameModuleCMakeList() const
 	{
 		constexpr std::string_view replaceByEnginePath = "REPLACE_ME_BY_ENGINE_PATH";
@@ -204,27 +214,7 @@ namespace hod::editor
 	/// @brief 
 	/// @return 
 	bool Project::ReloadGameModule()
-	{
-		if (std::filesystem::exists(_gameModule.GetPath()) == false)
-		{
-			if (hod::application::dialog::ShowYesNoDialog("Missing 'Game' module", "Do you want to generate it?"))
-			{
-				if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
-				{
-					return false;
-				}
-				if (Project::GetInstance()->BuildGameModule() == false)
-				{
-					return false;
-				}
-			}
-		}
-		
-		if (_gameModule.Reload() == false)
-		{
-			return false;
-		}
-
-		return true;
+	{		
+		return _gameModule.Reload();
 	}
 }

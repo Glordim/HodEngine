@@ -31,6 +31,8 @@ namespace hod::editor
 		const std::filesystem::path&	GetResourceDirPath() const;
 		const std::filesystem::path&	GetThumbnailDirPath() const;
 
+		bool							HasGameModule() const;
+
 		bool							GenerateGameModuleCMakeList() const;
 		bool							BuildGameModule() const;
 

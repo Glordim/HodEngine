@@ -54,6 +54,8 @@
 #include "Icons/landscape.png.h"
 #include "Icons/prefab.png.h"
 
+#include "HodEngine/Editor/MissingGameModuleModal.hpp"
+
 namespace hod::editor
 {
 	_SingletonConstructor(Editor)
@@ -143,6 +145,20 @@ namespace hod::editor
 		}
 		AddProjectInRecentProject(path);
 
+		if (Project::GetInstance()->HasGameModule() == false)
+		{
+			imgui::ImGuiManager::GetInstance()->CloseAllWindow();
+			imgui::ImGuiManager::GetInstance()->OpenWindow<MissingGameModuleModal>();
+			return true;
+		}
+		else
+		{
+			return LoadEditor();
+		}
+	}
+
+	bool Editor::LoadEditor()
+	{
 		AssetDatabase::CreateInstance();
 
 		_mainBar = new MainBar();
@@ -164,7 +180,6 @@ namespace hod::editor
 		application::DesktopApplication* application = application::DesktopApplication::GetInstance();
 		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
 		mainWindow->Maximize();
-
 		return true;
 	}
 

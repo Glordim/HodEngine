@@ -48,6 +48,8 @@ namespace hod::editor
 		bool									CreateProject(const std::filesystem::path& path);
 		bool									OpenProject(const std::filesystem::path& path);
 
+		bool									LoadEditor();
+
 		bool									Save();
 		bool									SaveSceneAs();
 
