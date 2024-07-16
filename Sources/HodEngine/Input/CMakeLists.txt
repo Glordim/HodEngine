@@ -4,7 +4,7 @@ include(Global)
 
 project(Input)
 
-if (_WIN32)
+if (WIN32)
   CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 else()
 	CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES RawInput XInput)
