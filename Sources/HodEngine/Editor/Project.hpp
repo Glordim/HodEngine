@@ -8,6 +8,7 @@
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/Module/Module.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
+#include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
 
 namespace hod::editor
 {
@@ -48,5 +49,6 @@ namespace hod::editor
 		std::string						_name;
 
 		Module							_gameModule;
+		FileSystemWatcher				_gameModuleFileSystemWatcher;
 	};
 }

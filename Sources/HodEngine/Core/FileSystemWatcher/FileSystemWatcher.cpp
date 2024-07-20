@@ -30,9 +30,19 @@ namespace hod
 		_onChangeFile = onChangeFile;
 		_onMoveFile = onMoveFile;
 
-		if (std::filesystem::exists(_path) == false)
+		if (std::filesystem::is_directory(_path))
 		{
-			return false; // todo output
+			if (std::filesystem::exists(_path) == false)
+			{
+				return false; // todo output
+			}
+		}
+		else
+		{
+			if (std::filesystem::exists(_path.parent_path()) == false)
+			{
+				return false; // todo output
+			}
 		}
 
 		return InternalInit();

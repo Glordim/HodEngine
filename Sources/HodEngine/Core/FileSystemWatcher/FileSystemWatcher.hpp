@@ -46,6 +46,8 @@ namespace hod
 		HANDLE 					_hDir = NULL;
 		OVERLAPPED				_overlapped;
 		alignas(DWORD) uint8_t	_changeBuf[1024];
+		bool					_isFile = false;
+		std::filesystem::path	_dirPath;
 #endif
 	};
 }

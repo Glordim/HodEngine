@@ -10,7 +10,16 @@ namespace hod
 	bool FileSystemWatcher::InternalInit()
 	{
 		std::wstring assetFolderPath;
-		StringConversion::StringToWString(_path.string(), assetFolderPath);
+		if (std::filesystem::is_directory(_path))
+		{
+			_dirPath = _path;			
+		}
+		else
+		{
+			_isFile = true;
+			_dirPath = _path.parent_path();
+		}
+		StringConversion::StringToWString(_dirPath.string(), assetFolderPath);
 		_hDir = CreateFileW(assetFolderPath.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
 
   		_overlapped.hEvent = CreateEventW(NULL, FALSE, 0, NULL);
@@ -45,39 +54,53 @@ namespace hod
 				std::string relativefilePath;
 				StringConversion::WStringToString(result, relativefilePath);
 
-				std::filesystem::path filePath = _path / relativefilePath;
-
-				switch (fni->Action)
+				std::filesystem::path filePath = _dirPath / relativefilePath;
+				if (_isFile == false || fni->Action == FILE_ACTION_RENAMED_NEW_NAME || _path == filePath)
 				{
-					case FILE_ACTION_ADDED:
+					switch (fni->Action)
 					{
-						_onCreateFile(filePath);
-					}
-					break;
+						case FILE_ACTION_ADDED:
+						{
+							if (_onCreateFile != nullptr)
+							{
+								_onCreateFile(filePath);
+							}
+						}
+						break;
 
-					case FILE_ACTION_REMOVED:
-					{
-						_onDeleteFile(filePath);
-					}
-					break;
+						case FILE_ACTION_REMOVED:
+						{
+							if (_onDeleteFile != nullptr)
+							{
+								_onDeleteFile(filePath);
+							}
+						}
+						break;
 
-					case FILE_ACTION_MODIFIED:
-					{
-						_onChangeFile(filePath);
-					}
-					break;
+						case FILE_ACTION_MODIFIED:
+						{
+							if (_onChangeFile != nullptr)
+							{
+								_onChangeFile(filePath);
+							}
+						}
+						break;
 
-					case FILE_ACTION_RENAMED_OLD_NAME:
-					{
-						oldFilePathToRename = filePath;
-					}
-					break;
+						case FILE_ACTION_RENAMED_OLD_NAME:
+						{
+							oldFilePathToRename = filePath;
+						}
+						break;
 
-					case FILE_ACTION_RENAMED_NEW_NAME:
-					{
-						_onMoveFile(oldFilePathToRename, filePath);
+						case FILE_ACTION_RENAMED_NEW_NAME:
+						{
+							if (_onMoveFile != nullptr)
+							{
+								_onMoveFile(oldFilePathToRename, filePath);
+							}							
+						}
+						break;
 					}
-					break;
 				}
 
 				if (fni->NextEntryOffset == 0)

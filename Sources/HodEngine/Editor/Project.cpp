@@ -80,6 +80,9 @@ namespace hod::editor
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
 		_gameModule = Module(_projectPath.parent_path() / "build" / STRINGIZE_VALUE_OF(HOD_CONFIG) / "bin" / "Game", true);
+		std::filesystem::create_directories(_gameModule.GetPath().parent_path());
+		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const std::filesystem::path&){ _gameModule.Reload(); }, nullptr);
+		_gameModuleFileSystemWatcher.RegisterUpdateJob();
 
 		return Load();
 	}
@@ -214,7 +217,7 @@ namespace hod::editor
 	/// @brief 
 	/// @return 
 	bool Project::ReloadGameModule()
-	{		
+	{
 		return _gameModule.Reload();
 	}
 }
