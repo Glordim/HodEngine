@@ -9,8 +9,8 @@
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/LinkedList.hpp>
-#include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 #include <HodEngine/Core/Singleton.hpp>
+#include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
 
 #include "HodEngine/Editor/Importer/DefaultImporter.hpp"
 
@@ -101,6 +101,11 @@ namespace hod::editor
 		void								MoveNode(FileSystemMapping& node, const std::filesystem::path& newPath);
 		void								DeleteNode(FileSystemMapping& node);
 
+		void								FileSystemWatcherOnCreateFile(const std::filesystem::path& path);
+		void								FileSystemWatcherOnDeleteFile(const std::filesystem::path& path);
+		void 								FileSystemWatcherOnChangeFile(const std::filesystem::path& path);
+		void								FileSystemWatcherOnMoveFile(const std::filesystem::path& oldPath, const std::filesystem::path& newPath);
+
 	private:
 
 		static std::filesystem::path		GenerateUniqueAssetPath(const std::filesystem::path& path);
@@ -110,17 +115,10 @@ namespace hod::editor
 		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
 		FileSystemMapping					_rootFileSystemMapping;
 
-		void*								_filesystemWatcherHandle;
-		MemberFunctionJob<AssetDatabase>	_filesystemWatcherJob;
+		FileSystemWatcher					_fileSystemWatcher;
 
 		std::vector<Importer*>				_importers;
 		DefaultImporter						_defaultImporter;
-
-#if defined(PLATFORM_WINDOWS)
-		HANDLE 								_hDir = NULL;
-		OVERLAPPED							_overlapped;
-		alignas(DWORD) uint8_t				_changeBuf[1024];
-#endif
 	};
 }
 

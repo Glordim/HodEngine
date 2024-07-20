@@ -9,14 +9,9 @@
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
-#include <HodEngine/Core/Output.hpp>
-#include <HodEngine/Core/StringConversion.hpp>
 
-#if defined(PLATFORM_WINDOWS)
-#include <Windows.h>
-#include <WinBase.h>
-#endif
+#include <HodEngine/Core/Output.hpp>
+
 #include <vector>
 
 namespace hod::editor
@@ -40,7 +35,6 @@ namespace hod::editor
 	}
 
 	_SingletonConstructor(AssetDatabase)
-		: _filesystemWatcherJob(this, &AssetDatabase::FilesystemWatcherJob, JobQueue::FramedLowPriority)
 	{
 		_importers.push_back(&_defaultImporter);
 		
@@ -53,15 +47,8 @@ namespace hod::editor
 	/// @brief 
 	AssetDatabase::~AssetDatabase()
 	{
-		FrameSequencer::GetInstance()->RemoveJob(&_filesystemWatcherJob, FrameSequencer::Step::PreRender);
-
-#if defined(PLATFORM_WINDOWS)
-		::FindCloseChangeNotification(_filesystemWatcherHandle);
-		_filesystemWatcherHandle = INVALID_HANDLE_VALUE;
-
-		::CloseHandle(_hDir);
-#endif
-
+		_fileSystemWatcher.Cleanup();
+		
 		for (auto pair : _uidToAssetMap)
 		{
 			//delete pair.second;
@@ -76,144 +63,22 @@ namespace hod::editor
 	{
 		Project* project = Project::GetInstance();
 
-#if defined(PLATFORM_WINDOWS)
-		std::wstring assetFolderPath;
-		StringConversion::StringToWString(project->GetAssetDirPath().string(), assetFolderPath);
-		_hDir = CreateFileW(assetFolderPath.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
-
-  		_overlapped.hEvent = CreateEventW(NULL, FALSE, 0, NULL);
-
-		::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL, &_overlapped, NULL);
-
-		/*/
-		_filesystemWatcherHandle = ::FindFirstChangeNotificationW(assetFolderPath.c_str(), TRUE,
-			FILE_NOTIFY_CHANGE_FILE_NAME |
-			FILE_NOTIFY_CHANGE_DIR_NAME |
-			FILE_NOTIFY_CHANGE_LAST_WRITE);
-		*/
-#endif
-
 		_rootFileSystemMapping._asset = nullptr;
 		_rootFileSystemMapping._type = FileSystemMapping::Type::FolderType;
 		_rootFileSystemMapping._path = project->GetAssetDirPath();
 		ExploreAndDetectAsset(&_rootFileSystemMapping);
 
-		FrameSequencer::GetInstance()->InsertJob(&_filesystemWatcherJob, FrameSequencer::Step::PreRender);
+		if (_fileSystemWatcher.Init(project->GetAssetDirPath(),
+		std::bind(&AssetDatabase::FileSystemWatcherOnCreateFile, this, std::placeholders::_1),
+		std::bind(&AssetDatabase::FileSystemWatcherOnDeleteFile, this, std::placeholders::_1),
+		std::bind(&AssetDatabase::FileSystemWatcherOnChangeFile, this, std::placeholders::_1),
+		std::bind(&AssetDatabase::FileSystemWatcherOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
+		{
+			return false;
+		}
+		_fileSystemWatcher.RegisterUpdateJob();
 
 		return true;
-	}
-
-	/// @brief 
-	void AssetDatabase::FilesystemWatcherJob()
-	{
-#if defined(PLATFORM_WINDOWS)
-		DWORD result = WaitForSingleObject(_overlapped.hEvent, 0);
-
-		if (result == WAIT_OBJECT_0)
-		{
-			DWORD bytes_transferred;
-      		GetOverlappedResult(_hDir, &_overlapped, &bytes_transferred, FALSE);
-
-			std::filesystem::path oldFilePathToRename;
-
-			FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)_changeBuf;
-			while (true)
-			{
-				std::wstring result(fni->FileName, fni->FileNameLength / sizeof(wchar_t));
-				std::string relativefilePath;
-				StringConversion::WStringToString(result, relativefilePath);
-
-				std::filesystem::path filePath = Project::GetInstance()->GetAssetDirPath().string();
-				filePath /= relativefilePath;
-
-				switch (fni->Action)
-				{
-					case FILE_ACTION_ADDED:
-					{
-						if (filePath.has_extension() && filePath.extension().string() == ".meta")
-						{
-							break;
-						}
-
-						if (FindFileSystemMappingFromPath(filePath) == nullptr)
-						{
-							FileSystemMapping* node = new FileSystemMapping();
-							node->_path = filePath;
-							node->_parentFolder = FindFileSystemMappingFromPath(filePath.parent_path());
-
-							if (std::filesystem::is_directory(filePath))
-							{
-								node->_parentFolder->_childrenFolder.push_back(node);
-								node->_type = FileSystemMapping::Type::FolderType;
-							}
-							else
-							{							
-								node->_parentFolder->_childrenAsset.push_back(node);
-								node->_type = FileSystemMapping::Type::AssetType;
-								// todo create Asset?
-								Import(filePath);
-							}
-						}
-					}
-					break;
-
-					case FILE_ACTION_REMOVED:
-					{
-						FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(filePath);
-						if (nodeToMove != nullptr)
-						{
-							DeleteNode(*nodeToMove);
-						}
-					}
-					break;
-
-					case FILE_ACTION_MODIFIED:
-					{
-						if (std::filesystem::is_directory(filePath) == false)
-						{
-							FileSystemMapping* nodeToReimport = FindFileSystemMappingFromPath(filePath);
-							if (nodeToReimport != nullptr)
-							{
-								Import(nodeToReimport->_path);
-							}
-						}
-					}
-					break;
-
-					case FILE_ACTION_RENAMED_OLD_NAME:
-					{
-						oldFilePathToRename = filePath;
-					}
-					break;
-
-					case FILE_ACTION_RENAMED_NEW_NAME:
-					{
-						FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(oldFilePathToRename);
-						if (nodeToMove != nullptr)
-						{
-							MoveNode(*nodeToMove, filePath);
-						}
-					}
-					break;
-				}
-
-				if (fni->NextEntryOffset == 0)
-				{
-					break;
-				}
-				fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>((uint8_t*)fni + fni->NextEntryOffset);
-			}
-
-			::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL, &_overlapped, NULL);
-		}
-
-		//if (::WaitForSingleObject(_filesystemWatcherHandle, 0) == WAIT_OBJECT_0)
-
-		//::FindNextChangeNotification(_filesystemWatcherHandle);
-		// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationa
-		// https://docs.microsoft.com/en-us/windows/win32/fileio/obtaining-directory-change-notifications
-		// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
-#endif
 	}
 
 	/// @brief 
@@ -638,5 +503,72 @@ namespace hod::editor
 		}
 
 		delete &node;
+	}
+
+	/// @brief 
+	/// @param path 
+	void AssetDatabase::FileSystemWatcherOnCreateFile(const std::filesystem::path& path)
+	{
+		if (path.has_extension() && path.extension().string() == ".meta")
+		{
+			return;
+		}
+
+		if (FindFileSystemMappingFromPath(path) == nullptr)
+		{
+			FileSystemMapping* node = new FileSystemMapping();
+			node->_path = path;
+			node->_parentFolder = FindFileSystemMappingFromPath(path.parent_path());
+
+			if (std::filesystem::is_directory(path))
+			{
+				node->_parentFolder->_childrenFolder.push_back(node);
+				node->_type = FileSystemMapping::Type::FolderType;
+			}
+			else
+			{							
+				node->_parentFolder->_childrenAsset.push_back(node);
+				node->_type = FileSystemMapping::Type::AssetType;
+				// todo create Asset?
+				Import(path);
+			}
+		}
+	}
+
+	/// @brief 
+	/// @param path 
+	void AssetDatabase::FileSystemWatcherOnDeleteFile(const std::filesystem::path& path)
+	{
+		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(path);
+		if (nodeToMove != nullptr)
+		{
+			DeleteNode(*nodeToMove);
+		}
+	}
+
+	/// @brief 
+	/// @param path 
+	void AssetDatabase::FileSystemWatcherOnChangeFile(const std::filesystem::path& path)
+	{
+		if (std::filesystem::is_directory(path) == false)
+		{
+			FileSystemMapping* nodeToReimport = FindFileSystemMappingFromPath(path);
+			if (nodeToReimport != nullptr)
+			{
+				Import(nodeToReimport->_path);
+			}
+		}
+	}
+
+	/// @brief 
+	/// @param oldPath 
+	/// @param newPath 
+	void AssetDatabase::FileSystemWatcherOnMoveFile(const std::filesystem::path& oldPath, const std::filesystem::path& newPath)
+	{
+		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(oldPath);
+		if (nodeToMove != nullptr)
+		{
+			MoveNode(*nodeToMove, newPath);
+		}
 	}
 }
