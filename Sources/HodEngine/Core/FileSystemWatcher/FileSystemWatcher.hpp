@@ -6,6 +6,13 @@
 #if defined(PLATFORM_WINDOWS)
 #include <Windows.h>
 #include <WinBase.h>
+#elif defined(PLATFORM_MACOS)
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #endif
 
 #include <functional>
@@ -48,6 +55,10 @@ namespace hod
 		alignas(DWORD) uint8_t	_changeBuf[1024];
 		bool					_isFile = false;
 		std::filesystem::path	_dirPath;
+#elif defined(PLATFORM_MACOS)
+		int						_fd = -1;
+		int						_kQueue = -1;
+		struct kevent			_change;
 #endif
 	};
 }

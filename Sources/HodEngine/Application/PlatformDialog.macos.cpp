@@ -4,17 +4,6 @@ namespace hod::application::dialog
 {
 	/// @brief 
 	/// @return 
-	std::filesystem::path GetOpenFileDialog()
-	{
-		char buffer[4096] = { '\0' };
-
-		// TODO
-
-		return buffer;
-	}
-
-	/// @brief 
-	/// @return 
 	std::filesystem::path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const std::filesystem::path& initialFolder)
 	{
 		char buffer[4096] = { '\0' };

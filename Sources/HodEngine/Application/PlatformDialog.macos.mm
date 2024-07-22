@@ -24,5 +24,7 @@ namespace hod::application::dialog
 			// Utilisez le chemin sélectionné (path) comme nécessaire
 			NSLog(@"Selected directory: %@", path);
 		}
+
+		return std::filesystem::path();
 	}
 }
