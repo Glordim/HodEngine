@@ -45,9 +45,7 @@ assign_source_group("")
 add_library(HodEngine SHARED HodEngine.cpp)
 set_property(TARGET HodEngine PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-target_link_libraries(HodEngine PRIVATE
-	"-Wl,--whole-archive"
-	"-Wl,--start-group"
+add_force_load_libs(HodEngine
 	Core
 	Application
 	Input
@@ -57,8 +55,6 @@ target_link_libraries(HodEngine PRIVATE
 	Renderer
 	Game
 	Editor
-	"-Wl,--end-group"
-	"-Wl,--no-whole-archive"
 )
 
 target_compile_definitions(HodEngine PUBLIC ${PLATFORM_DEFINE})
