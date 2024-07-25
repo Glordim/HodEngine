@@ -56,6 +56,12 @@ namespace hod::editor
 	/// @return 
 	bool Project::Open(const std::filesystem::path& projectPath)
 	{
+		if (std::filesystem::exists(projectPath) == false)
+		{
+			// todo
+			return false;
+		}
+
 		_projectPath = projectPath;
 		_name = _projectPath.stem().string();
 
@@ -190,15 +196,15 @@ namespace hod::editor
 	/// @return 
 	bool Project::BuildGameModule() const
 	{
-		std::filesystem::path gameModuleCMakeListsPath = _projectPath.parent_path() / "CMakeLists.txt";
-		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleCMakeListsPath.parent_path() / "build";
+		std::filesystem::path gameModuleSourceDirectoryPath = _projectPath.parent_path();
+		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 		
 		if (std::filesystem::exists(gameModuleBuildDirectoryPath) == false)
 		{
 			std::filesystem::create_directory(gameModuleBuildDirectoryPath);
 		}
 
-		std::string arguments = std::format("-B {}", gameModuleBuildDirectoryPath.string());
+		std::string arguments = std::format("-B {} -S {}", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string());
 		if (Process::Create("cmake", arguments, false) == false)
 		{
 			return false;

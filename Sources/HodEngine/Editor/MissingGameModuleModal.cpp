@@ -53,7 +53,10 @@ namespace hod::editor
 			{
 
 			}
-			Editor::GetInstance()->LoadEditor();
+			else
+			{
+				Editor::GetInstance()->LoadEditor();
+			}
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Exit"))
