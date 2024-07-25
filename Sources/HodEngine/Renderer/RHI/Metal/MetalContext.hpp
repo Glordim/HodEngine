@@ -72,5 +72,7 @@ namespace hod::renderer
 
 		CA::MetalLayer*				_layer = nullptr;
 		CA::MetalDrawable*			_drawable = nullptr;
+
+		window::MacOsWindow*		_window = nullptr;
 	};
 }

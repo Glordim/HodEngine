@@ -17,6 +17,7 @@ namespace hod::renderer
 	/// @brief 
 	MetalContext::MetalContext(window::MacOsWindow* window)
 		: Context()
+		, _window(window)
 	{
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
 
@@ -25,10 +26,7 @@ namespace hod::renderer
 		_layer->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
 		_layer->setFramebufferOnly(true);
 
-		CGSize size;
-		size.width = window->GetWidth();
-		size.height = window->GetHeight();
-		_layer->setDrawableSize(size);
+		Resize(window->GetWidth(), window->GetHeight());
 	}
 
 	/// @brief 
@@ -51,9 +49,13 @@ namespace hod::renderer
 
 	void MetalContext::Resize(uint32_t width, uint32_t height)
 	{
+		float scaleFactor = _window->GetScaleFactor();
+
+		//_layer->setContentsScale(scaleFactor);
+
         CGSize size;
-        size.width = width;
-        size.height = height;
+        size.width = width * scaleFactor;
+        size.height = height * scaleFactor;
         _layer->setDrawableSize(size);
 	}
 

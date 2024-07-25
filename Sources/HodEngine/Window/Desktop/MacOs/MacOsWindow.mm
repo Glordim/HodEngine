@@ -81,18 +81,22 @@ namespace hod::window
 		_width = width;
 		_height = height;
 
-		NSSize newSize = NSMakeSize(_width, _height);
-        [_window setContentSize:newSize];
-        
-        renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
-        metalContext->Resize(width, height);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSSize newSize = NSMakeSize(_width, _height);
+            [_window setContentSize:newSize];
+            
+            renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
+            metalContext->Resize(width, height);
+        });
 	}
 
 	/// @brief 
 	void MacOsWindow::CenterToScreen()
 	{
-		//_nativeWinwdow.Center();
-		[_window center];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //_nativeWinwdow.Center();
+            [_window center];
+        });
 	}
 
 	/// @brief 
@@ -104,5 +108,11 @@ namespace hod::window
 	void MacOsWindow::SetVisible(bool visible)
 	{
 		// todo
+	}
+
+	float MacOsWindow::GetScaleFactor() const
+	{
+		CGFloat scale = [_window.screen backingScaleFactor];
+		return scale;
 	}
 }

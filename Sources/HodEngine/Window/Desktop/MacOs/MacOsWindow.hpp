@@ -38,6 +38,8 @@ namespace hod::window
 
 		NSView* 							GetNsView() const;
 
+		float								GetScaleFactor() const;
+
 	private:
 
 		void								SetupLayer();

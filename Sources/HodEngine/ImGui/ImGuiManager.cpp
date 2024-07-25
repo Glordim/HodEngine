@@ -194,6 +194,10 @@ void embraceTheDarkness()
 		icons_configProggyClean.OversampleH = 1;
 		icons_configProggyClean.OversampleV = 1;
 		icons_configProggyClean.PixelSnapH = true;
+#if defined(PLATFORM_MACOS)
+		window::MacOsWindow* macOsWindow = static_cast<window::MacOsWindow*>(window);
+		icons_configProggyClean.RasterizerDensity = macOsWindow->GetScaleFactor();
+#endif
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Roboto_Regular_ttf, Roboto_Regular_ttf_size, 16.0f, &icons_configProggyClean);
 		ImGui::GetIO().Fonts->Build();
 
@@ -204,6 +208,9 @@ void embraceTheDarkness()
 		icons_configMDI.GlyphOffset.y = 2;
 		icons_configMDI.GlyphOffset.x = -0.5;
 		icons_configMDI.GlyphMaxAdvanceX = 13;
+#if defined(PLATFORM_MACOS)
+		icons_configProggyClean.RasterizerDensity = macOsWindow->GetScaleFactor();
+#endif
 
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(MaterialDesignIcons_ttf, MaterialDesignIcons_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
 		ImGui::GetIO().Fonts->Build();
@@ -372,6 +379,8 @@ void embraceTheDarkness()
 		ImGui::Render();
 
 		ImDrawData* drawData = ImGui::GetDrawData();
+		ImVec2 clipOffset = drawData->DisplayPos;
+ 		ImVec2 clipScale = drawData->FramebufferScale;
 
 		std::vector<RenderCommandImGui::DrawList*> drawLists;
 		drawLists.resize(drawData->CmdListsCount);
@@ -397,10 +406,14 @@ void embraceTheDarkness()
 				ImDrawCmd& imCommand = imDrawList->CmdBuffer[cmdIndex];
 				RenderCommandImGui::Command& command = drawList->_commands[cmdIndex];
 
-				command._clipRect._position.SetX(imCommand.ClipRect.x);
-				command._clipRect._position.SetY(imCommand.ClipRect.y);
-				command._clipRect._size.SetX(imCommand.ClipRect.z - imCommand.ClipRect.x);
-				command._clipRect._size.SetY(imCommand.ClipRect.w - imCommand.ClipRect.y);
+				// Project scissor/clipping rectangles into framebuffer space
+                ImVec2 clipMin((imCommand.ClipRect.x - clipOffset.x) * clipScale.x, (imCommand.ClipRect.y - clipOffset.y) * clipScale.y);
+                ImVec2 clipMax((imCommand.ClipRect.z - clipOffset.x) * clipScale.x, (imCommand.ClipRect.w - clipOffset.y) * clipScale.y);
+
+				command._clipRect._position.SetX(clipMin.x);
+				command._clipRect._position.SetY(clipMin.y);
+				command._clipRect._size.SetX(clipMax.x - clipMin.x);
+				command._clipRect._size.SetY(clipMax.y - clipMin.y);
 				command._texture = reinterpret_cast<renderer::Texture*>(imCommand.TextureId);
 				command._vertexOffset = imCommand.VtxOffset;
 				command._indexOffset = imCommand.IdxOffset;
@@ -412,9 +425,9 @@ void embraceTheDarkness()
 
 		Rect viewport;
 		viewport._position.SetX(0.0f);
-		viewport._position.SetY(ImGui::GetIO().DisplaySize.y);
-		viewport._size.SetX(ImGui::GetIO().DisplaySize.x);
-		viewport._size.SetY(-ImGui::GetIO().DisplaySize.y);
+		viewport._position.SetY(ImGui::GetIO().DisplaySize.y * ImGui::GetIO().DisplayFramebufferScale.y);
+		viewport._size.SetX(ImGui::GetIO().DisplaySize.x * ImGui::GetIO().DisplayFramebufferScale.x);
+		viewport._size.SetY(-ImGui::GetIO().DisplaySize.y * ImGui::GetIO().DisplayFramebufferScale.y);
 		
 		RenderCommandImGui* renderCommand = new RenderCommandImGui(drawLists, viewport);
 
