@@ -58,4 +58,11 @@ namespace hod
 	{
 		return ".dll";
 	}
+
+	/// @brief 
+	/// @return 
+	const char* Module::GetModulePrefix()
+	{
+		return "";
+	}
 }

@@ -27,6 +27,7 @@ namespace hod
 		bool	InternaUnload();
 
 		const char* GetModuleExtension();
+		const char* GetModulePrefix();
 
 	private:
 

@@ -60,4 +60,11 @@ namespace hod
 	{
 		return ".so";
 	}
+
+	/// @brief 
+	/// @return 
+	const char* Module::GetModulePrefix()
+	{
+		return "lib";
+	}
 }

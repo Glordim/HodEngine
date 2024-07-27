@@ -18,6 +18,8 @@ namespace hod
 			_path.replace_extension(GetModuleExtension());
 		}
 
+		_path.replace_filename(GetModulePrefix() + _path.filename().string());
+
 		_copyPath = _path;
 		if (_copyForSupportReload == true)
 		{
