@@ -3,6 +3,7 @@
 
 #include <HodEngine/ImGui/Window/Modal.hpp>
 #include <HodEngine/Editor/Project.hpp>
+#include <HodEngine/Core/Output.hpp>
 
 namespace hod::editor
 {
@@ -13,6 +14,16 @@ namespace hod::editor
 	{
 		META_TYPE(MissingGameModuleModal, imgui::Window);
 		WINDOW_DESCRIPTION()
+
+		enum class StepStatus
+		{
+			Pending,
+			Running,
+			Successed,
+			Failed,
+
+			Count
+		};
 
 	public:
 
@@ -26,6 +37,23 @@ namespace hod::editor
 
 	private:
 
-		
+		void		DrawStep(const char* step, StepStatus stepStatus);
+		void		DrawOutputs(const std::vector<Output>& outputs) const;
+
+		void		ConfigureJob();
+
+	private:
+
+		bool		_askForGeneration = true;
+
+		StepStatus	_prepareResult = StepStatus::Pending;
+		StepStatus	_configureResult = StepStatus::Pending;
+		StepStatus	_buildResult = StepStatus::Pending;
+
+		std::vector<Output> _output;
+
+		MemberFunctionJob<MissingGameModuleModal> _configureJob;
+
+		const char* _stepToOpen = nullptr;
 	};
 }

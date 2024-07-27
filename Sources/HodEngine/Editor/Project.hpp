@@ -9,6 +9,7 @@
 #include <HodEngine/Core/Module/Module.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
+#include <HodEngine/Core/Output.hpp>
 
 namespace hod::editor
 {
@@ -34,8 +35,9 @@ namespace hod::editor
 
 		bool							HasGameModule() const;
 
-		bool							GenerateGameModuleCMakeList() const;
-		bool							BuildGameModule() const;
+		bool							GenerateGameModuleCMakeList(std::vector<Output>* outputs = nullptr) const;
+		bool							ConfigureGameModule(std::vector<Output>* outputs = nullptr) const;
+		bool							BuildGameModule(std::vector<Output>* outputs = nullptr) const;
 
 		bool							ReloadGameModule();
 

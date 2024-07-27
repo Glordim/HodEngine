@@ -156,7 +156,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	bool Project::GenerateGameModuleCMakeList() const
+	bool Project::GenerateGameModuleCMakeList(std::vector<Output>* outputs) const
 	{
 		constexpr std::string_view replaceByEnginePath = "REPLACE_ME_BY_ENGINE_PATH";
 
@@ -182,36 +182,96 @@ namespace hod::editor
 
 		cmakeLists.replace(replaceByEnginePathIndex, replaceByEnginePath.size(), enginePath);
 
-		std::ofstream cmakeListFileStream(_projectPath.parent_path() / "CMakeLists.txt", std::ios_base::trunc);
-		if (cmakeListFileStream.is_open() == false)
+		std::filesystem::path path = _projectPath.parent_path() / "CMakeLists.txt";
+
+		try
+		{
+			std::ofstream cmakeListFileStream;
+			cmakeListFileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+			cmakeListFileStream.open(path, std::ios_base::trunc);
+			cmakeListFileStream.write(cmakeLists.c_str(), cmakeLists.size());
+			cmakeListFileStream.close();
+
+			if (outputs != nullptr)
+			{
+				outputs->push_back(Output(Output::Type::Message, "CMakeLists.txt genereated at {}", path.string()));
+			}
+			OUTPUT_MESSAGE("CMakeLists.txt genereated at %s", path.string().c_str());
+
+			return true;
+		}
+		catch (const std::ios_base::failure& e)
+		{
+			if (outputs != nullptr)
+			{
+				outputs->push_back(Output(Output::Type::Error, "CMakeLists.txt genereated at {}", e.what()));
+			}
+			OUTPUT_ERROR("Failed to generate CMakeLists.txt at %s", path.string().c_str());
+			return false; 
+		}
+	}
+
+	/// @brief 
+	/// @param outputs 
+	/// @return 
+	bool Project::ConfigureGameModule(std::vector<Output>* outputs) const
+	{
+		std::filesystem::path gameModuleSourceDirectoryPath = _projectPath.parent_path();
+		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
+		
+		try
+		{
+			if (std::filesystem::exists(gameModuleBuildDirectoryPath) == false)
+			{
+				std::filesystem::create_directory(gameModuleBuildDirectoryPath);
+				if (outputs != nullptr)
+				{
+					outputs->push_back(Output(Output::Type::Message, "Create Build directory at {}", gameModuleBuildDirectoryPath.string()));
+				}
+			}
+			else
+			{
+				if (outputs != nullptr)
+				{
+					outputs->push_back(Output(Output::Type::Message, "Build directory already exist at {}", gameModuleBuildDirectoryPath.string()));
+				}
+			}
+		}
+		catch (const std::exception& e)
+		{
+			if (outputs != nullptr)
+			{
+				outputs->push_back(Output(Output::Type::Error, "Failed to create Build directory at {} : ", gameModuleBuildDirectoryPath.string(), e.what()));
+			}
+			// todo output
+			return false;
+		}
+		
+		std::string arguments = std::format("-B {} -S {} -G \"Ninja Multi-Config\"", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string());
+		if (outputs != nullptr)
+		{
+			outputs->push_back(Output(Output::Type::Error, "Execute: {} {}", "cmake", arguments));
+		}
+		if (Process::Create("cmake", arguments, false) == false)
 		{
 			return false;
 		}
-
-		cmakeListFileStream.write(cmakeLists.c_str(), cmakeLists.size());
 		return true;
 	}
 
 	/// @brief 
 	/// @return 
-	bool Project::BuildGameModule() const
+	bool Project::BuildGameModule(std::vector<Output>* outputs) const
 	{
 		std::filesystem::path gameModuleSourceDirectoryPath = _projectPath.parent_path();
 		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
-		
-		if (std::filesystem::exists(gameModuleBuildDirectoryPath) == false)
-		{
-			std::filesystem::create_directory(gameModuleBuildDirectoryPath);
-		}
-
-		std::string arguments = std::format("-B {} -S {}", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string());
-		if (Process::Create("cmake", arguments, false) == false)
-		{
-			return false;
-		}
 
 		const char* config = STRINGIZE_VALUE_OF(HOD_CONFIG);
-		arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount());
+		std::string arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount());
+		if (outputs != nullptr)
+		{
+			outputs->push_back(Output(Output::Type::Error, "Execute: {} {}", "cmake", arguments));
+		}
 		if (Process::Create("cmake", arguments, false) == false)
 		{
 			return false;
