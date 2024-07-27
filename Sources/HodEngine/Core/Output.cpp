@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdarg>
 
-#if defined(_WIN32)
+#if defined(PLATFORM_WINDOWS)
 	#include <Windows.h>
 #endif
 
@@ -16,10 +16,23 @@ namespace hod
 		"Assert"
 	};
 
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	void Output::AddOutput(const char* fileName, int lineNumber, Type type, const char* format, ...)
+	/// @brief 
+	/// @param type 
+	/// @param content 
+	Output::Output(Type type, const std::string_view& content)
+	: _type(type)
+	, _content(content)
+	{
+
+	}
+
+	/// @brief 
+	/// @param fileName 
+	/// @param lineNumber 
+	/// @param type 
+	/// @param format 
+	/// @param  
+	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, const char* format, ...)
 	{
 		va_list va;
 		va_start(va, format);
@@ -32,7 +45,7 @@ namespace hod
 		char finalBuffer[4096];
 		snprintf(finalBuffer, sizeof(finalBuffer), "%s(%i) : %s : %s\n", fileName, lineNumber, Output::GetTypeName(type), buffer);
 
-		if (type == Type::Message)
+		if (type == Output::Type::Message)
 		{
 			fputs(finalBuffer, stdout);
 		}
@@ -41,7 +54,7 @@ namespace hod
 			fputs(finalBuffer, stderr);
 		}
 
-#if defined(_WIN32)
+#if defined(PLATFORM_WINDOWS)
 		if (IsDebuggerPresent() == TRUE)
 		{
 			OutputDebugString(finalBuffer);
@@ -49,9 +62,9 @@ namespace hod
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
+	/// @brief 
+	/// @param type 
+	/// @return 
 	const char* Output::GetTypeName(Type type)
 	{
 		return _typeNames[type];
