@@ -85,7 +85,7 @@ namespace hod::editor
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule = Module(_projectPath.parent_path() / "build" / STRINGIZE_VALUE_OF(HOD_CONFIG) / "bin" / "Game", true);
+		_gameModule = Module(_projectPath.parent_path() / "build" / STRINGIZE_VALUE_OF(HOD_CONFIG) / "Game", true);
 		std::filesystem::create_directories(_gameModule.GetPath().parent_path());
 		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const std::filesystem::path&){ _gameModule.Reload(); }, nullptr);
 		_gameModuleFileSystemWatcher.RegisterUpdateJob();
@@ -167,7 +167,7 @@ namespace hod::editor
 			return false;
 		}
 
-		std::string enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().parent_path().string(); // todo...
+		std::string enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string(); // todo...
 		
 #if defined(PLATFORM_WINDOWS)
 		// CMakeLists require portable path
