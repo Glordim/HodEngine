@@ -36,8 +36,8 @@ namespace hod
 				HRESULT result = D3D12GetDebugInterface(IID_PPV_ARGS(&_debugInterface));
 				if (FAILED(result) == true)
 				{
-					OUTPUT_ERROR("D3d12: Validation layers requested, but not available!\n");
-					OUTPUT_ERROR("D3d12: Validation layers have been disabled\n");
+					OUTPUT_ERROR("D3d12: Validation layers requested, but not available!");
+					OUTPUT_ERROR("D3d12: Validation layers have been disabled");
 					enableValidationLayers = false;
 				}
 				else
@@ -54,7 +54,7 @@ namespace hod
 			HRESULT result = CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&_dxgiFactory));
 			if (FAILED(result) == true)
 			{
-				OUTPUT_ERROR("D3d12: Unable to Create DXGI factory\n");
+				OUTPUT_ERROR("D3d12: Unable to Create DXGI factory");
 				return false;
 			}
 			*/
@@ -135,7 +135,7 @@ namespace hod
 			HRESULT result = D3D12CreateDevice(_selectedGpu->adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_device));
 			if (FAILED(result) == true)
 			{
-				OUTPUT_ERROR("D3d12: Unable to create Device!\n");
+				OUTPUT_ERROR("D3d12: Unable to create Device!");
 				return false;
 			}
 
@@ -172,7 +172,7 @@ namespace hod
 
 				if (FAILED(pInfoQueue->PushStorageFilter(&NewFilter)) == true)
 				{
-					OUTPUT_ERROR("D3d12: Unable to setup debug InfoQueue!\n");
+					OUTPUT_ERROR("D3d12: Unable to setup debug InfoQueue!");
 					return false;
 				}
 			}
@@ -185,7 +185,7 @@ namespace hod
 
 			if (FAILED(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_commandQueue))) == true)
 			{
-				OUTPUT_ERROR("D3d12: Unable to create Command queue!\n");
+				OUTPUT_ERROR("D3d12: Unable to create Command queue!");
 				return false;
 			}
 
@@ -224,7 +224,7 @@ namespace hod
 
 			if (FAILED(_dxgiFactory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &swapChainDesc, nullptr, nullptr, &swapChain1)) == true)
 			{
-				OUTPUT_ERROR("D3d12: Unable to create Swap Chain!\n");
+				OUTPUT_ERROR("D3d12: Unable to create Swap Chain!");
 				return false;
 			}
 
@@ -232,7 +232,7 @@ namespace hod
 			// will be handled manually.
 			if (FAILED(_dxgiFactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER)) == true)
 			{
-				OUTPUT_ERROR("D3d12: Unable to disable Alt+Enter for this Window!\n");
+				OUTPUT_ERROR("D3d12: Unable to disable Alt+Enter for this Window!");
 			}
 
 			swapChain1.As(&_swapChain);
@@ -243,7 +243,7 @@ namespace hod
 
 			if (FAILED(_device->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&_descriptorHeap))) == true)
 			{
-				OUTPUT_ERROR("D3d12: Unable to create Descriptor Heap!\n");
+				OUTPUT_ERROR("D3d12: Unable to create Descriptor Heap!");
 				return false;
 			}
 
@@ -258,7 +258,7 @@ namespace hod
 				ComPtr<ID3D12Resource> backBuffer = nullptr;
 				if (FAILED(_swapChain->GetBuffer((UINT)i, IID_PPV_ARGS(&backBuffer))) == true)
 				{
-					OUTPUT_ERROR("D3d12: Unable to retreive BackBuffer from SwapChain!\n");
+					OUTPUT_ERROR("D3d12: Unable to retreive BackBuffer from SwapChain!");
 					return false;
 				}
 
@@ -271,7 +271,7 @@ namespace hod
 
 			if (FAILED(_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator))) == true)
 			{
-				OUTPUT_ERROR("D3d12: Unable to creare Command Allocator!\n");
+				OUTPUT_ERROR("D3d12: Unable to creare Command Allocator!");
 				return false;
 			}
 			*/
@@ -283,7 +283,7 @@ namespace hod
 
 					if (FAILED(_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList))) == true)
 					{
-						OUTPUT_ERROR("D3d12: Unable to creare Command List!\n");
+						OUTPUT_ERROR("D3d12: Unable to creare Command List!");
 						return false;
 					}
 
@@ -319,7 +319,7 @@ namespace hod
 
 					if (FAILED(commandList->Close()) == true)
 					{
-						OUTPUT_ERROR("D3d12: Unable to close Command List!\n");
+						OUTPUT_ERROR("D3d12: Unable to close Command List!");
 						return false;
 					}
 
@@ -333,7 +333,7 @@ namespace hod
 					ComPtr<ID3D12Fence> fence = nullptr;
 					if (FAILED(_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))) == true)
 					{
-						OUTPUT_ERROR("D3d12: Unable to create Fence!\n");
+						OUTPUT_ERROR("D3d12: Unable to create Fence!");
 						return false;
 					}
 
@@ -341,7 +341,7 @@ namespace hod
 					fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 					if (fenceEvent == nullptr)
 					{
-						OUTPUT_ERROR("D3d12: Unable to create Fence Event!\n");
+						OUTPUT_ERROR("D3d12: Unable to create Fence Event!");
 						return false;
 					}
 

@@ -47,7 +47,7 @@ namespace hod::renderer
 		{
 			if (vkDeviceWaitIdle(_device) != VK_SUCCESS)
 			{
-				OUTPUT_ERROR("Vulkan: DeviceWaitIdel failed!\n");
+				OUTPUT_ERROR("Vulkan: DeviceWaitIdel failed!");
 			}
 		}
 
@@ -470,15 +470,15 @@ namespace hod::renderer
 
 		if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 		{
-			OUTPUT_ERROR("Validation Layer: %s", pCallbackData->pMessage);
+			OUTPUT_ERROR("Validation Layer: {}", pCallbackData->pMessage);
 		}
 		else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 		{
-			OUTPUT_WARNING("Validation Layer: %s", pCallbackData->pMessage);
+			OUTPUT_WARNING("Validation Layer: {}", pCallbackData->pMessage);
 		}
 		else
 		{
-			OUTPUT_MESSAGE("Validation Layer: %s", pCallbackData->pMessage);
+			OUTPUT_MESSAGE("Validation Layer: {}", pCallbackData->pMessage);
 		}
 
 		return VK_FALSE;
@@ -828,12 +828,12 @@ namespace hod::renderer
 			}
 			if (_selectedGpu == nullptr)
 			{
-				OUTPUT_ERROR("Vulkan: PhysicalDevice %u not found, fallback on recommanded physical device", physicalDeviceIdentifier);
+				OUTPUT_ERROR("Vulkan: PhysicalDevice {} not found, fallback on recommanded physical device", physicalDeviceIdentifier);
 				_selectedGpu = _recommandedGpu;
 			}
 			else if (_selectedGpu->compatible == false)
 			{
-				OUTPUT_ERROR("Vulkan: Selected PhysicalDevice %u is not compatible with GameEngine requierement, fallback on recommanded physical device", physicalDeviceIdentifier);
+				OUTPUT_ERROR("Vulkan: Selected PhysicalDevice {} is not compatible with GameEngine requirement, fallback on recommanded physical device", physicalDeviceIdentifier);
 				_selectedGpu = _recommandedGpu;
 			}
 		}
@@ -844,7 +844,7 @@ namespace hod::renderer
 
 		if (_selectedGpu == nullptr)
 		{
-			OUTPUT_ERROR("Vulkan: No PhysicalDevice compatible with GameEngine requierement... sorry");
+			OUTPUT_ERROR("Vulkan: No PhysicalDevice compatible with GameEngine requirement... sorry");
 			return false;
 		}
 
@@ -914,7 +914,7 @@ namespace hod::renderer
 
 		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_selectedGpu->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !\n");
+			OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !");
 			return false;
 		}
 
@@ -970,7 +970,7 @@ namespace hod::renderer
 
 		if (vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapChain) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !\n");
+			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !");
 			return false;
 		}
 

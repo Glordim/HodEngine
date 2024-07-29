@@ -34,7 +34,7 @@ namespace hod
 			jsonFile.open(spriteAltasJsonPath, std::ifstream::in);
 			if (jsonFile.is_open() == false)
 			{
-				OUTPUT_ERROR("Unable to open SpriteAtlas : %s", spriteAltasJsonPath.data());
+				OUTPUT_ERROR("Unable to open SpriteAtlas : {}", spriteAltasJsonPath.data());
 			}
 
 			std::ostringstream sstr;

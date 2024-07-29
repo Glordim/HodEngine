@@ -183,7 +183,7 @@ namespace hod
 
 			if (vkCreateDescriptorSetLayout(renderer->GetVkDevice(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS)
 			{
-				OUTPUT_ERROR("Vulkan: to create descriptor set layout!\n");
+				OUTPUT_ERROR("Vulkan: to create descriptor set layout!");
 				return false;
 			}
 

@@ -26,7 +26,7 @@ namespace hod
 		Output(Type type, const std::string_view& content);
 
 		template<typename... Args>
-		Output(Type type, const char* format, Args&&...);
+		Output(Type type, std::format_string<Args...> format, Args&&...);
 
 		static const char*	GetTypeName(Type type);
 		static const char*	_typeNames[Type::Count];
@@ -40,7 +40,10 @@ namespace hod
 	{
 	public:
 
-		static void			AddOutput(const char* fileName, int lineNumber, Output::Type type, const char* format, ...);
+		static void			AddOutput(const char* fileName, int lineNumber, Output::Type type, const char* format);
+
+		template<typename... Args>
+		static void			AddOutput(const char* fileName, int lineNumber, Output::Type type, std::format_string<Args...> format, Args&&... args);
 
 	private:
 
@@ -59,10 +62,24 @@ namespace hod
 	/// @param format 
 	/// @param ...args 
 	template<typename... Args>
-	Output::Output(Type type, const char* format, Args&&... args)
+	Output::Output(Type type, std::format_string<Args...> format, Args&&... args)
 	: _type(type)
-	, _content(std::vformat(format, std::make_format_args(args...)))
+	, _content(std::vformat(format.get(), std::make_format_args(args...)))
 	{
 
+	}
+
+	/// @brief 
+	/// @tparam ...Args 
+	/// @param fileName 
+	/// @param lineNumber 
+	/// @param type 
+	/// @param format 
+	/// @param ...args 
+	template<typename... Args>
+	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, std::format_string<Args...> format, Args&&... args)
+	{
+		std::string content = std::vformat(format.get(), std::make_format_args(args...));
+		AddOutput(fileName, lineNumber, type, content.c_str());
 	}
 }

@@ -127,7 +127,7 @@ namespace hod::window
 		{
 			if (version < 4)
 			{
-				OUTPUT_ERROR("WaylandDisplayManager: compositor version 4+ required but only version %i is available", version);
+				OUTPUT_ERROR("WaylandDisplayManager: compositor version 4+ required but only version {} is available", version);
 			}
             else
             {
@@ -144,7 +144,7 @@ namespace hod::window
         {
             if (version < 3)
             {
-                OUTPUT_ERROR("WaylandDisplayManager: seat version 3+ required but only version %i is available", version);
+                OUTPUT_ERROR("WaylandDisplayManager: seat version 3+ required but only version {} is available", version);
             }
             else
             {
@@ -161,7 +161,7 @@ namespace hod::window
         {
             if (version < 2)
             {
-                OUTPUT_ERROR("WaylandDisplayManager: output version 2+ required but only version %i is available", version);
+                OUTPUT_ERROR("WaylandDisplayManager: output version 2+ required but only version {} is available", version);
             }
             else
             {
@@ -429,7 +429,7 @@ namespace hod::window
         if (mapStr == MAP_FAILED)
         {
             close(fd);
-            OUTPUT_ERROR("Keymap mmap failed: %s", strerror(errno));
+            OUTPUT_ERROR("Keymap mmap failed: {}", strerror(errno));
             return;
         }
 
@@ -590,7 +590,7 @@ namespace hod::window
     /// @param message 
     void WaylandDisplayManager::LibDecorErrorHandler(libdecor* context, libdecor_error error, const char* message)
 	{
-		OUTPUT_ERROR("LibDecor: Caught error (%d): %s\n", error, message);
+		OUTPUT_ERROR("LibDecor: Caught error ({}): {}", error, message);
 	}
 
 	/// @brief 

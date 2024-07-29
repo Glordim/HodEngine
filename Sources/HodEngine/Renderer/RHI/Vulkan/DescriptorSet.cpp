@@ -61,7 +61,7 @@ namespace hod
 
 			if (vkAllocateDescriptorSets(renderer->GetVkDevice(), &allocInfo, &_descriptorSet) != VK_SUCCESS)
 			{
-				OUTPUT_ERROR("Vulkan: Unable to allocate descriptor sets!\n");
+				OUTPUT_ERROR("Vulkan: Unable to allocate descriptor sets!");
 				return false;
 			}
 
@@ -180,7 +180,7 @@ namespace hod
 
 					if (member->_size != valueSize)
 					{
-						OUTPUT_ERROR("SetUboValue: member->size != valueSize !\n");
+						OUTPUT_ERROR("SetUboValue: member->size != valueSize !");
 					}
 
 					RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();

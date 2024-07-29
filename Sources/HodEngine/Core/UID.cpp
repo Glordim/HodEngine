@@ -100,7 +100,7 @@ namespace hod
 	#if defined(_WIN32)
 		if (UuidFromString((RPC_CSTR)uuidStr, &uuidConverter.uuid) != RPC_S_OK)
 		{
-			OUTPUT_ERROR("UID: Fail to generate UID from %s", uuidStr);
+			OUTPUT_ERROR("UID: Fail to generate UID from {}", uuidStr);
 			return INVALID_UID;
 		}
 	#elif defined(__linux__)
@@ -129,7 +129,7 @@ namespace hod
 		RPC_CSTR stringTmp;
 		if (UuidToString(&uuidConverter.uuid, &stringTmp) != RPC_S_OK)
 		{
-			OUTPUT_ERROR("UID: Fail to generate string from %ull - %ull", _low, _high);
+			OUTPUT_ERROR("UID: Fail to generate string from {} - {}", _low, _high);
 			return INVALID_UID.ToString();
 		}
 

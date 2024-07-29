@@ -32,26 +32,17 @@ namespace hod
 	/// @param type 
 	/// @param format 
 	/// @param  
-	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, const char* format, ...)
+	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, const char* format)
 	{
-		va_list va;
-		va_start(va, format);
-
-		char buffer[4096];
-		vsnprintf(buffer, sizeof(buffer), format, va);
-
-		va_end(va);
-
-		char finalBuffer[4096];
-		snprintf(finalBuffer, sizeof(finalBuffer), "%s(%i) : %s : %s\n", fileName, lineNumber, Output::GetTypeName(type), buffer);
+		std::string content = std::format("{}({}) : {} : {}\n", fileName, lineNumber, Output::GetTypeName(type), format);
 
 		if (type == Output::Type::Message)
 		{
-			fputs(finalBuffer, stdout);
+			fputs(content.c_str(), stdout);
 		}
 		else
 		{
-			fputs(finalBuffer, stderr);
+			fputs(content.c_str(), stderr);
 		}
 
 #if defined(PLATFORM_WINDOWS)

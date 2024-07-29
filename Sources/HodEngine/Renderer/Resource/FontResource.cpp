@@ -103,7 +103,7 @@ namespace hod::renderer
     	error = FT_Init_FreeType(&ftLibrary);
     	if (error != 0)
 		{
-			OUTPUT_ERROR("FreeType::FT_Init_FreeType %s", FT_Error_String(error));
+			OUTPUT_ERROR("FreeType::FT_Init_FreeType {}", FT_Error_String(error));
 			return false;
 		}
 
@@ -117,7 +117,7 @@ namespace hod::renderer
 		{
 			delete[] data;
 			FT_Done_FreeType(ftLibrary);
-			OUTPUT_ERROR("FreeType::FT_New_Memory_Face %s", FT_Error_String(error));
+			OUTPUT_ERROR("FreeType::FT_New_Memory_Face {}", FT_Error_String(error));
 			return false;
 		}
 
@@ -127,14 +127,14 @@ namespace hod::renderer
 			FT_Done_Face(ftFace);
 			delete[] data;
 			FT_Done_FreeType(ftLibrary);
-			OUTPUT_ERROR("FreeType::FT_Select_Charmap %s", FT_Error_String(error));
+			OUTPUT_ERROR("FreeType::FT_Select_Charmap {}", FT_Error_String(error));
 			return false;
 		}
 
     	error = FT_Set_Pixel_Sizes(ftFace, 0, 48);
 		if (error != 0)
 		{
-			OUTPUT_ERROR("FreeType::FT_Set_Pixel_Sizes %s", FT_Error_String(error));
+			OUTPUT_ERROR("FreeType::FT_Set_Pixel_Sizes {}", FT_Error_String(error));
 			FT_Done_Face(ftFace);
 			delete[] data;
 			FT_Done_FreeType(ftLibrary);
@@ -170,7 +170,7 @@ namespace hod::renderer
 			error = FT_Load_Glyph(ftFace, charIndex, FT_LOAD_DEFAULT);
 			if (error != 0)
 			{
-				OUTPUT_ERROR("FreeType::FT_Load_Glyph %s", FT_Error_String(error));
+				OUTPUT_ERROR("FreeType::FT_Load_Glyph {}", FT_Error_String(error));
 				FT_Done_Face(ftFace);
 				delete[] data;
 				FT_Done_FreeType(ftLibrary);
@@ -181,7 +181,7 @@ namespace hod::renderer
 			error = FT_Render_Glyph(ftFace->glyph, FT_RENDER_MODE_NORMAL);
 			if (error != 0)
 			{
-				OUTPUT_ERROR("FreeType::FT_Render_Glyph %s\n", FT_Error_String(error));
+				OUTPUT_ERROR("FreeType::FT_Render_Glyph {}", FT_Error_String(error));
 				FT_Done_Face(ftFace);
 				delete[] data;
 				FT_Done_FreeType(ftLibrary);

@@ -40,7 +40,7 @@ namespace hod
 			/*
 			if (fileStream.CanRead() == false)
 			{
-				OUTPUT_ERROR("VkShader : Failed to load Shader at path: \"%s\"\n", path.c_str());
+				OUTPUT_ERROR("VkShader : Failed to load Shader at path: \"{}\"\n", path.c_str());
 				return false;
 			}
 			
@@ -49,7 +49,7 @@ namespace hod
 
 			if (fileStream.Read(reinterpret_cast<char*>(_buffer.data()), fileSize) == false)
 			{
-				OUTPUT_ERROR("VkShader : Failed to read Shader at path: \"%s\"\n", path.c_str());
+				OUTPUT_ERROR("VkShader : Failed to read Shader at path: \"{}\"\n", path.c_str());
 				return false;
 			}
 			fileStream.Close();

@@ -38,7 +38,7 @@ namespace hod
 			uint8_t* buffer = stbi_load(path, &width, &height, &channel, 4);
 			if (buffer == nullptr)
 			{
-				OUTPUT_ERROR("Texture : Failed to load Texture \"%s\"", path);
+				OUTPUT_ERROR("Texture : Failed to load Texture \"{}\"", path);
 				return false; // Todo Memleak
 			}
 

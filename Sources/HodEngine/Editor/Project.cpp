@@ -206,7 +206,7 @@ namespace hod::editor
 			{
 				outputs->push_back(Output(Output::Type::Error, "CMakeLists.txt genereated at {}", e.what()));
 			}
-			OUTPUT_ERROR("Failed to generate CMakeLists.txt at %s", path.string().c_str());
+			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {}", path.string().c_str());
 			return false; 
 		}
 	}

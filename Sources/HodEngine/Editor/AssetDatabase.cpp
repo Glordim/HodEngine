@@ -123,7 +123,7 @@ namespace hod::editor
 				}
 				else
 				{
-					OUTPUT_ERROR("Unable to load Asset : %s", childFileSystemMapping->_path.string().c_str());
+					OUTPUT_ERROR("Unable to load Asset : {}", childFileSystemMapping->_path.string().c_str());
 					delete childFileSystemMapping;
 				}
 			}
@@ -332,7 +332,7 @@ namespace hod::editor
 
 		return _defaultImporter.Import(path);
 /*
-		OUTPUT_ERROR("Can't import \"%s\", not importer support it", path.string().c_str());
+		OUTPUT_ERROR("Can't import \"{}\", not importer support it", path.string().c_str());
 		return false;
 */
 	}

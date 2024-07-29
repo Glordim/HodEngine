@@ -502,7 +502,7 @@ namespace hod
 
 			if (vkCreateGraphicsPipelines(renderer->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS)
 			{
-				OUTPUT_ERROR("Vulkan: Unable to create graphics pipeline!\n");
+				OUTPUT_ERROR("Vulkan: Unable to create graphics pipeline!");
 				return false;
 			}
 

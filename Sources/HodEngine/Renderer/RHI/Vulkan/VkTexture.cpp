@@ -251,7 +251,7 @@ namespace hod
 			{
 				if (vkMapMemory(renderer->GetVkDevice(), bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
 				{
-					OUTPUT_ERROR("Vulkan: Texture, unable to map memory\n");
+					OUTPUT_ERROR("Vulkan: Texture, unable to map memory");
 					goto exit;
 				}
 				memcpy(data, pixels, static_cast<size_t>(bufferSize));
@@ -345,7 +345,7 @@ namespace hod
 			void* data;
 			if (vkMapMemory(renderer->GetVkDevice(), _textureImageMemory, 0, VK_WHOLE_SIZE, 0, &data) != VK_SUCCESS)
 			{
-				OUTPUT_ERROR("Vulkan: Texture, unable to map memory\n");
+				OUTPUT_ERROR("Vulkan: Texture, unable to map memory");
 				return Color(0.0f, 0.0f, 0.0f, 0.0f);
 			}
 			

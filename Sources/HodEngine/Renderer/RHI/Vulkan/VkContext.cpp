@@ -75,7 +75,7 @@ namespace hod
 
 		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(selectedGpuDevice->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !\n");
+			OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !");
 			return false;
 		}
 
@@ -146,7 +146,7 @@ namespace hod
 
 		if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &_swapchain) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !\n");
+			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !");
 			return false;
 		}
 
@@ -333,13 +333,13 @@ namespace hod
 
 		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_imageAvailableSemaphore) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to create semaphores!\n");
+			OUTPUT_ERROR("Vulkan: Unable to create semaphores!");
 			return false;
 		}
 
 		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_renderFinishedSemaphore) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to create semaphores!\n");
+			OUTPUT_ERROR("Vulkan: Unable to create semaphores!");
 			return false;
 		}
 
@@ -350,7 +350,7 @@ namespace hod
 
 		if (vkCreateFence(device, &fenceCreateInfo, nullptr, &_acquireNextImageFence) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to create fence!\n");
+			OUTPUT_ERROR("Vulkan: Unable to create fence!");
 			return false;
 		}
 
@@ -370,23 +370,23 @@ namespace hod
 
 		if (vkResetFences(device, 1, &_acquireNextImageFence) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to reset fence!\n");
+			OUTPUT_ERROR("Vulkan: Unable to reset fence!");
 			return false;
 		}
 
 		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, _acquireNextImageFence, &_currentImageIndex);
 		if (result != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to acquire next image!\n");
+			OUTPUT_ERROR("Vulkan: Unable to acquire next image!");
 
 			if (result == VK_ERROR_OUT_OF_DATE_KHR)
 			{
-				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
+				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...");
 				//CreateSwapChain();
 			}
 			else if (result == VK_SUBOPTIMAL_KHR)
 			{
-				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
+				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...");
 				//CreateSwapChain();
 			}
 
@@ -395,7 +395,7 @@ namespace hod
 
 		if (vkWaitForFences(device, 1, &_acquireNextImageFence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to wait fence\n");
+			OUTPUT_ERROR("Vulkan: Unable to wait fence");
 			return false;
 		}
 
@@ -426,16 +426,16 @@ namespace hod
 		VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
 		if (result != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to present frame!\n");
+			OUTPUT_ERROR("Vulkan: Unable to present frame!");
 
 			if (result == VK_ERROR_OUT_OF_DATE_KHR)
 			{
-				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...\n");
+				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...");
 				//CreateSwapChain();
 			}
 			else if (result == VK_SUBOPTIMAL_KHR)
 			{
-				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...\n");
+				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...");
 				//CreateSwapChain();
 			}
 

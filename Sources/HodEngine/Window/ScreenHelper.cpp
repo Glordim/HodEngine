@@ -28,7 +28,7 @@ namespace hod::window
 
 		if (SDL_GetDesktopDisplayMode(monitor, &desktopMode) != 0)
 		{
-			OUTPUT_ERROR("SDL: SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+			OUTPUT_ERROR("SDL: SDL_GetDesktopDisplayMode failed: {}", SDL_GetError());
 			return false;
 		}
 
@@ -68,7 +68,7 @@ namespace hod::window
 
 			if (SDL_GetDisplayMode(monitor, i, &mode) != 0)
 			{
-				OUTPUT_ERROR("SDL: SDL_GetDisplayMode failed: %s", SDL_GetError());
+				OUTPUT_ERROR("SDL: SDL_GetDisplayMode failed: {}", SDL_GetError());
 				return 1;
 			}
 

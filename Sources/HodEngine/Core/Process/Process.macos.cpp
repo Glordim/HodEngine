@@ -22,20 +22,20 @@ namespace hod
 
 		if (pipe(stdout_pipe) == -1)
 		{
-			OUTPUT_ERROR("stdout pipe failed: %s", strerror(errno));
+			OUTPUT_ERROR("stdout pipe failed: {}", strerror(errno));
 			return 1;
 		}
 
 		if (pipe(stderr_pipe) == -1)
 		{
-			OUTPUT_ERROR("stderr pipe failed: %s", strerror(errno));
+			OUTPUT_ERROR("stderr pipe failed: {}", strerror(errno));
 			return 1;
 		}
 
 		pid_t pid = fork(); // Crée un nouveau processus
 		if (pid == -1)
 		{
-			OUTPUT_ERROR("CreateProcess failed (%s)", strerror(errno));
+			OUTPUT_ERROR("CreateProcess failed ({})", strerror(errno));
 			return false;
 		}
 
@@ -91,7 +91,7 @@ namespace hod
 
 			if (execvp(argv[0], (char *const *)argv.data()) == -1)
 			{
-				//OUTPUT_ERROR("Error executing program: %s", strerror(errno));
+				//OUTPUT_ERROR("Error executing program: {}", strerror(errno));
 				exit(EXIT_FAILURE);
        		}
 			exit(EXIT_SUCCESS);

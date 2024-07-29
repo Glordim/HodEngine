@@ -118,7 +118,7 @@ namespace hod::window
 		_class = ::RegisterClassEx(&windowClass);
 		if (_class == 0)
 		{
-			OUTPUT_ERROR("DesktopWindow: Unable to RegisterClass -> %s", GetLastErrorMessage().c_str());
+			OUTPUT_ERROR("DesktopWindow: Unable to RegisterClass -> {}", GetLastErrorMessage().c_str());
 			return;
 		}
 
@@ -139,7 +139,7 @@ namespace hod::window
 
 		if (_hWnd == NULL)
 		{
-			OUTPUT_ERROR("DesktopWindow: Unable to CreateWindow -> %s", GetLastErrorMessage().c_str());
+			OUTPUT_ERROR("DesktopWindow: Unable to CreateWindow -> {}", GetLastErrorMessage().c_str());
 			return;
 		}
 
