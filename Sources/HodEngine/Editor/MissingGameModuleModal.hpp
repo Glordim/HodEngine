@@ -19,7 +19,7 @@ namespace hod::editor
 		{
 			Pending,
 			Running,
-			Successed,
+			Succeeded,
 			Failed,
 
 			Count
@@ -38,9 +38,9 @@ namespace hod::editor
 	private:
 
 		void		DrawStep(const char* step, StepStatus stepStatus);
-		void		DrawOutputs(const std::vector<Output>& outputs) const;
+		void		DrawOutputs() const;
 
-		void		ConfigureJob();
+		void		GenerationJob();
 
 	private:
 
@@ -50,10 +50,8 @@ namespace hod::editor
 		StepStatus	_configureResult = StepStatus::Pending;
 		StepStatus	_buildResult = StepStatus::Pending;
 
-		std::vector<Output> _output;
+		OutputBucket _outputBucket;
 
-		MemberFunctionJob<MissingGameModuleModal> _configureJob;
-
-		const char* _stepToOpen = nullptr;
+		MemberFunctionJob<MissingGameModuleModal> _generationJob;
 	};
 }

@@ -16,7 +16,7 @@ namespace hod::editor
 
 	/// @brief 
 	MissingGameModuleModal::MissingGameModuleModal()
-	: _configureJob(this, &MissingGameModuleModal::ConfigureJob, JobQueue::UnframedHighPriority)
+	: _generationJob(this, &MissingGameModuleModal::GenerationJob, JobQueue::UnframedHighPriority)
 	{
 		application::DesktopApplication* application = application::DesktopApplication::GetInstance();
 		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
@@ -59,7 +59,7 @@ namespace hod::editor
 				mainWindow->SetSize(800, 600);
 				mainWindow->CenterToScreen();
 
-				JobScheduler::GetInstance()->Push(&_configureJob);
+				JobScheduler::GetInstance()->Push(&_generationJob);
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Exit"))
@@ -77,11 +77,11 @@ namespace hod::editor
 		
 			if (ImGui::BeginChild("Output", ImVec2(0.0f, -1.0f), ImGuiChildFlags_FrameStyle))
 			{
-				DrawOutputs(_output);
+				DrawOutputs();
 			}
 			ImGui::EndChild();
 
-			if (_buildResult == StepStatus::Successed)
+			if (_buildResult == StepStatus::Succeeded)
 			{
 				if (Editor::GetInstance()->LoadEditor() == false)
 				{
@@ -116,40 +116,43 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void MissingGameModuleModal::ConfigureJob()
+	void MissingGameModuleModal::GenerationJob()
 	{
+		_outputBucket.Clear();
+		ScopedEnableOutputBucket scopedEnableOutputBucket(_outputBucket);
+
 		_prepareResult = StepStatus::Pending;
 		_configureResult = StepStatus::Pending;
 		_buildResult = StepStatus::Pending;
 
 		_prepareResult = StepStatus::Running;
-		if (Project::GetInstance()->GenerateGameModuleCMakeList(&_output) == false)
+		if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
 		{
 			_prepareResult = StepStatus::Failed;
 			return;
 		}
-		_prepareResult = StepStatus::Successed;
+		_prepareResult = StepStatus::Succeeded;
 
 		_configureResult = StepStatus::Running;
-		if (Project::GetInstance()->ConfigureGameModule(&_output) == false)
+		if (Project::GetInstance()->ConfigureGameModule() == false)
 		{
 			_configureResult = StepStatus::Failed;
 			return;
 		}
-		_configureResult = StepStatus::Successed;
+		_configureResult = StepStatus::Succeeded;
 
 		_buildResult = StepStatus::Running;
-		if (Project::GetInstance()->BuildGameModule(&_output) == false)
+		if (Project::GetInstance()->BuildGameModule() == false)
 		{
 			_buildResult = StepStatus::Failed;
 			return;
 		}
-		_buildResult = StepStatus::Successed;
+		_buildResult = StepStatus::Succeeded;
 	}
 
 	/// @brief 
 	/// @param outputs 
-	void MissingGameModuleModal::DrawOutputs(const std::vector<Output>& outputs) const
+	void MissingGameModuleModal::DrawOutputs() const
 	{
 		static ImVec4 outputTypeToColor[Output::Type::Count] = {
 			ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
@@ -161,7 +164,9 @@ namespace hod::editor
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
 		ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0, 0, 0, 0));
-		for (const Output& output : outputs)
+
+		_outputBucket.GetLock().lock();
+		for (const Output& output : _outputBucket.GetOutputs())
 		{
 			ImGui::TextColored(outputTypeToColor[std::to_underlying(output._type)], "%s", output._content.c_str());
 			/*
@@ -173,6 +178,7 @@ namespace hod::editor
 			ImGui::PopStyleColor();
 			*/
 		}
+		_outputBucket.GetLock().unlock();
 		ImGui::PopStyleColor(3);
 	}
 }

@@ -35,9 +35,9 @@ namespace hod::editor
 
 		bool							HasGameModule() const;
 
-		bool							GenerateGameModuleCMakeList(std::vector<Output>* outputs = nullptr) const;
-		bool							ConfigureGameModule(std::vector<Output>* outputs = nullptr) const;
-		bool							BuildGameModule(std::vector<Output>* outputs = nullptr) const;
+		bool							GenerateGameModuleCMakeList() const;
+		bool							ConfigureGameModule() const;
+		bool							BuildGameModule() const;
 
 		bool							ReloadGameModule();
 
