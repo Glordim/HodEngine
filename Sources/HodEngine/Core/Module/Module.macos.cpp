@@ -1,6 +1,7 @@
+#include "HodEngine/Core/pch.hpp"
 #include "HodEngine/Core/Module/Module.hpp"
 
- #include <dlfcn.h>
+#include <dlfcn.h>
 
 namespace hod
 {

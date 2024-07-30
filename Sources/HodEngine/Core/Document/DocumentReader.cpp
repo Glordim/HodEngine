@@ -1,3 +1,4 @@
+#include "HodEngine/Core/pch.hpp"
 #include "HodEngine/Core/Document/DocumentReader.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"

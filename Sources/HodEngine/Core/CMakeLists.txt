@@ -13,6 +13,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(Core STATIC ${Srcs} ${Includes})
+target_precompile_headers(Core PRIVATE "pch.hpp")
 set_property(TARGET Core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 set(UUID_LIB "")

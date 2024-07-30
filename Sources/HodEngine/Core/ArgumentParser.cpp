@@ -1,3 +1,4 @@
+#include "HodEngine/Core/pch.hpp"
 #include "HodEngine/Core/ArgumentParser.hpp"
 
 #include <cstring>

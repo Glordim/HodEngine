@@ -1,3 +1,4 @@
+#include "HodEngine/Core/pch.hpp"
 #include "HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp"
 #include "HodEngine/Core/Frame/FrameSequencer.hpp"
 

@@ -1,3 +1,4 @@
+#include "HodEngine/Core/pch.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 #include "HodEngine/Core/CharHelper.hpp"

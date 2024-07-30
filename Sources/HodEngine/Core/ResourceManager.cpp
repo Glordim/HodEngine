@@ -1,3 +1,4 @@
+#include "HodEngine/Core/pch.hpp"
 #include "HodEngine/Core/ResourceManager.hpp"
 
 #include "HodEngine/Core/Resource.hpp"
