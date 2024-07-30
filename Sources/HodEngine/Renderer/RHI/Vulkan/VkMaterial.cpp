@@ -7,7 +7,7 @@
 #undef max
 #include <spirv_cross/spirv_cross.hpp>
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #include "HodEngine/Renderer/P2fT2f.hpp"
 

@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Job/Job.hpp"
 
 #include "HodEngine/Core/SystemInfo.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <string>
 #include <atomic>

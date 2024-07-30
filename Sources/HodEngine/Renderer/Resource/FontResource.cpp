@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <freetype/freetype.h>
 #include <cmath>

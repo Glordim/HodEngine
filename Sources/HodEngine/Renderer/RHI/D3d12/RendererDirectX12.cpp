@@ -2,7 +2,7 @@
 
 #if defined(_WIN32)
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 namespace hod
 {

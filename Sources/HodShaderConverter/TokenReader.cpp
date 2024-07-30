@@ -1,7 +1,7 @@
 #include "TokenReader.hpp"
 
 #include <HodEngine/Core/CharHelper.hpp>
-#include <HodEngine/Core/Output.hpp>
+#include "HodEngine/Core/Output/OutputService.hpp"
 //#include <HodEngine/Core/Stream/Stream.hpp>
 
 #include <array>

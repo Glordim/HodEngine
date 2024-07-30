@@ -11,7 +11,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <HodEngine/Window/Window.hpp>
 

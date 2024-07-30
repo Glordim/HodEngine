@@ -1,6 +1,6 @@
 #include "HodEngine/Core/Document/DocumentReader.hpp"
 
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 
 #include <fstream>

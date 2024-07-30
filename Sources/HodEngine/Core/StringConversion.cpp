@@ -1,5 +1,5 @@
 #include "HodEngine/Core/StringConversion.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <cstdlib>
 #include <limits>

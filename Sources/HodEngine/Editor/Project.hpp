@@ -9,7 +9,7 @@
 #include <HodEngine/Core/Module/Module.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 namespace hod::editor
 {

@@ -3,7 +3,7 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <fstream>
 #include <sstream>

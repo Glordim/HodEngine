@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 

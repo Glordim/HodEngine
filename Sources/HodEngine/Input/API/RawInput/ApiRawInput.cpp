@@ -8,7 +8,7 @@
 #include <WinUser.h>
 #include <hidusage.h>
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Application/GraphicApplications/DesktopApplications/WindowsApplication.hpp>
 #include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
 

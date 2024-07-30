@@ -1,5 +1,5 @@
 #include "HodEngine/Core/UID.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 

@@ -2,7 +2,7 @@
 
 #include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
 #include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/StringConversion.hpp"
 
 #include "HodEngine/Renderer/RHI/Context.hpp"

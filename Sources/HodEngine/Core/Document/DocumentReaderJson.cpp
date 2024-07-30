@@ -1,6 +1,6 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <cstring>
 #include <charconv>

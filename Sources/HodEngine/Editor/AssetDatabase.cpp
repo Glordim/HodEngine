@@ -10,7 +10,7 @@
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <vector>
 

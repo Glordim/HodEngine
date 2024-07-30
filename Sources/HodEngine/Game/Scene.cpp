@@ -14,7 +14,7 @@
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Color.hpp"
 
 #include "HodEngine/Core/ResourceManager.hpp"

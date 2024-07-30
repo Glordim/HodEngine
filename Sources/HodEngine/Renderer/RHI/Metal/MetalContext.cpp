@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 
-#include <HodEngine/Core/Output.hpp>
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <limits>
 

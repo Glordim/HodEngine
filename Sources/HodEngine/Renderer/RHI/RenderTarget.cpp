@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
-#include <HodEngine/Core/Output.hpp>
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <iostream>
 #include <string>

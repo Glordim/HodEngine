@@ -1,5 +1,5 @@
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 

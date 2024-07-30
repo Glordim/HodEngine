@@ -7,7 +7,7 @@
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
 
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>

@@ -3,7 +3,7 @@
 
 #include <HodEngine/ImGui/Window/Modal.hpp>
 #include <HodEngine/Editor/Project.hpp>
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputBucket.hpp>
 
 namespace hod::editor
 {

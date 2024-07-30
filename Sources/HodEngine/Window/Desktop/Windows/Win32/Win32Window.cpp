@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Job/JobQueue.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 

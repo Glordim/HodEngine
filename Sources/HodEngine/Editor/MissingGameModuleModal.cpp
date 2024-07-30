@@ -7,6 +7,7 @@
 #include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.hpp"
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 #include "HodEngine/Core/Job/JobScheduler.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <format>
 
@@ -154,7 +155,7 @@ namespace hod::editor
 	/// @param outputs 
 	void MissingGameModuleModal::DrawOutputs() const
 	{
-		static ImVec4 outputTypeToColor[Output::Type::Count] = {
+		static ImVec4 outputTypeToColor[std::to_underlying(Output::Type::Count)] = {
 			ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
 			ImVec4(1.0f, 1.0f, 0.0f, 1.0f),
 			ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
@@ -168,7 +169,7 @@ namespace hod::editor
 		_outputBucket.GetLock().lock();
 		for (const Output& output : _outputBucket.GetOutputs())
 		{
-			ImGui::TextColored(outputTypeToColor[std::to_underlying(output._type)], "%s", output._content.c_str());
+			ImGui::TextColored(outputTypeToColor[std::to_underlying(output.GetType())], "%s", output.GetContent().c_str());
 			/*
 			ImGui::PushStyleColor(ImGuiCol_Text, outputTypeToColor[std::to_underlying(output._type)]);
 			ImGui::PushID((void*)output._content.c_str());

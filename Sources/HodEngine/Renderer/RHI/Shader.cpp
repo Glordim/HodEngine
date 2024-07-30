@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 namespace hod
 {

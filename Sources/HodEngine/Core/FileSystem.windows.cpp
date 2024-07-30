@@ -1,5 +1,5 @@
 #include "HodEngine/Core/FileSystem.hpp"
-#include "HodEngine/Core/Output.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <Windows.h>
 

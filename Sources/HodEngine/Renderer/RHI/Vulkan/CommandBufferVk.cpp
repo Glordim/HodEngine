@@ -8,7 +8,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 namespace hod
 {

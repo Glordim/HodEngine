@@ -2,7 +2,7 @@
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
-#include <HodEngine/Core/Output.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #undef min
 #undef max
