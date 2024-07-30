@@ -27,7 +27,7 @@ namespace hod::window
     /// @return 
     Window* CocoaDisplayManager::CreateWindow(bool hidden)
     {
-        return new MacOsWindow(); // todo use hidden
+        return new MacOsWindow(hidden);
     }
 
     /// @brief 

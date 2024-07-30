@@ -27,7 +27,7 @@ namespace hod::window
 	class HOD_API MacOsWindow : public DesktopWindow
 	{
 	public:
-											MacOsWindow();
+											MacOsWindow(bool hidden);
 											~MacOsWindow() override;
 
 		void								Update() override;

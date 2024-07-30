@@ -46,7 +46,7 @@
 namespace hod::window
 {
 	/// @brief 
-	MacOsWindow::MacOsWindow()
+	MacOsWindow::MacOsWindow(bool hidden)
 		: DesktopWindow()
 	{
 		_delegate = [[MyWindowDelegate alloc] initWithWindow:this];
@@ -67,7 +67,7 @@ namespace hod::window
         //[_window.contentView addSubview:customView];
 		[_window setContentView:customView];
 
-        [_window makeKeyAndOrderFront:nil];
+		SetVisible(!hidden);
 	}
 
 	/// @brief 
@@ -121,7 +121,6 @@ namespace hod::window
 	void MacOsWindow::CenterToScreen()
 	{
         dispatch_async(dispatch_get_main_queue(), ^{
-            //_nativeWinwdow.Center();
             [_window center];
         });
 	}
@@ -129,12 +128,27 @@ namespace hod::window
 	/// @brief 
 	void MacOsWindow::Maximize()
 	{
-		//_nativeWinwdow.Maximize();
+		dispatch_async(dispatch_get_main_queue(), ^{
+			NSScreen *screen = [NSScreen mainScreen];
+			NSRect screenRect = [screen frame];
+			[_window setFrame:screenRect display:YES animate:YES];
+		});
 	}
 
 	void MacOsWindow::SetVisible(bool visible)
 	{
-		// todo
+		if (visible == false)
+		{
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[_window orderOut:nil];
+			});
+		}
+		else
+		{
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[_window makeKeyAndOrderFront:nil];
+			});
+		}
 	}
 
 	float MacOsWindow::GetScaleFactor() const
