@@ -14,9 +14,11 @@
 #ifdef __OBJC__
 @class NSView;
 @class NSWindow;
+@class MyWindowDelegate;
 #else
 class NSView;
 class NSWindow;
+class MyWindowDelegate;
 #endif
 
 namespace hod::window
@@ -40,6 +42,8 @@ namespace hod::window
 
 		float								GetScaleFactor() const;
 
+		void								ResizeContext();
+
 	private:
 
 		void								SetupLayer();
@@ -49,6 +53,7 @@ namespace hod::window
 
 		NSView*								_view = nullptr;
 		NSWindow*							_window = nullptr;
+		MyWindowDelegate*					_delegate = nullptr;
 	};
 }
 

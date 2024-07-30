@@ -3,18 +3,45 @@
 
 #include <Cocoa/Cocoa.h>
 
-	@interface CustomView : NSView
-	@end
+@interface CustomView : NSView
+@end
 
-	@implementation CustomView
+@implementation CustomView
 
-	- (void)drawRect:(NSRect)dirtyRect {
-		[[NSColor whiteColor] setFill];
-		NSRectFill(dirtyRect);
-		[super drawRect:dirtyRect];
-	}
+- (void)drawRect:(NSRect)dirtyRect {
+	[[NSColor whiteColor] setFill];
+	NSRectFill(dirtyRect);
+	[super drawRect:dirtyRect];
+}
 
-	@end
+@end
+
+@interface MyWindowDelegate : NSObject <NSWindowDelegate>
+{
+	hod::window::MacOsWindow* _window;
+}
+
+- (instancetype)initWithWindow:(hod::window::MacOsWindow*)initWindow;
+@end
+
+@implementation MyWindowDelegate
+
+- (instancetype)initWithWindow:(hod::window::MacOsWindow*)initWindow
+{
+	self = [super init];
+	if (self != nil)
+	{
+		_window = initWindow;
+	}	
+
+	return self;
+}
+
+- (void)windowDidResize:(NSNotification *)notification
+{
+	_window->ResizeContext();
+}
+@end
 
 namespace hod::window
 {
@@ -22,13 +49,16 @@ namespace hod::window
 	MacOsWindow::MacOsWindow()
 		: DesktopWindow()
 	{
+		_delegate = [[MyWindowDelegate alloc] initWithWindow:this];
+
 		NSRect frame = NSMakeRect(0, 0, _width, _height);
         _window = [[NSWindow alloc] initWithContentRect:frame
                                                        styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
                                                          backing:NSBackingStoreBuffered
                                                            defer:NO];
 
-        [_window setTitle:@"Window"];
+        [_window setDelegate:_delegate];
+		[_window setTitle:@"Window"];
 
         CustomView *customView = [[CustomView alloc] initWithFrame:frame];
 		_view = customView;
@@ -84,9 +114,6 @@ namespace hod::window
         dispatch_async(dispatch_get_main_queue(), ^{
             NSSize newSize = NSMakeSize(_width, _height);
             [_window setContentSize:newSize];
-            
-            renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
-            metalContext->Resize(width, height);
         });
 	}
 
@@ -114,5 +141,14 @@ namespace hod::window
 	{
 		CGFloat scale = [_window.screen backingScaleFactor];
 		return scale;
+	}
+
+	void MacOsWindow::ResizeContext()
+	{
+		NSRect contentRect = [_window contentRectForFrameRect:[_window frame]];
+    	NSSize contentSize = contentRect.size;
+
+		renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
+        metalContext->Resize(contentSize.width, contentSize.height);
 	}
 }
