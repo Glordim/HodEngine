@@ -36,10 +36,6 @@ namespace hod
 
 		OutputService&		operator=(const OutputService&) = delete;
 		OutputService&		operator=(OutputService&&) = delete;
-
-	private:
-
-		static thread_local std::vector<OutputBucket*> _buckets;
 	};
 
 	/// @brief 

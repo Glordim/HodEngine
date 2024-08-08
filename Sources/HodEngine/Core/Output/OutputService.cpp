@@ -8,7 +8,7 @@
 
 namespace hod
 {
-	thread_local std::vector<OutputBucket*> OutputService::_buckets;
+	static thread_local std::vector<OutputBucket*> _buckets;
 
 	/// @brief 
 	/// @param fileName 
@@ -37,7 +37,7 @@ namespace hod
 #if defined(PLATFORM_WINDOWS)
 		if (IsDebuggerPresent() == TRUE)
 		{
-			OutputDebugString(finalBuffer);
+			OutputDebugString(content.c_str());
 		}
 #endif
 	}

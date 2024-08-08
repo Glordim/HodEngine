@@ -198,7 +198,7 @@ namespace hod::editor
 		}
 		catch (const std::ios_base::failure& e)
 		{
-			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {}", path.string().c_str());
+			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {} : {}", path.string().c_str(), e.what());
 			return false; 
 		}
 	}

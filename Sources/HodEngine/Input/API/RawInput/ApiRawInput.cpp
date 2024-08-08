@@ -279,7 +279,7 @@ namespace hod::input
 				std::string sErrorMessage;
 				GetWinLastErrorMsg(sErrorMessage);
 
-				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", hDevice, sErrorMessage.c_str());
+				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, sErrorMessage.c_str());
 				return;
 			}
 
@@ -292,7 +292,7 @@ namespace hod::input
 				std::string sErrorMessage;
 				GetWinLastErrorMsg(sErrorMessage);
 
-				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", hDevice, sErrorMessage.c_str());
+				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, sErrorMessage.c_str());
 				return;
 			}
 		}
@@ -312,7 +312,7 @@ namespace hod::input
 			std::string sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
 
-			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", hRawInput, sErrorMessage.c_str());
+			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, sErrorMessage.c_str());
 			return;
 		}
 
@@ -327,7 +327,7 @@ namespace hod::input
 			std::string sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
 
-			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", hRawInput, sErrorMessage.c_str());
+			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, sErrorMessage.c_str());
 			return;
 		}
 
