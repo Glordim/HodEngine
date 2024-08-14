@@ -2,6 +2,7 @@
 #include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+#include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/UID.hpp"
 #include <istream>
 

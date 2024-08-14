@@ -5,6 +5,7 @@
 #include "HodEngine/Core/UID.hpp"
 #include <istream>
 #include <filesystem>
+#include <map>
 
 #include "HodEngine/Core/Singleton.hpp"
 
