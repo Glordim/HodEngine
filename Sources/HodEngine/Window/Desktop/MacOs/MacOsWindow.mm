@@ -1,5 +1,7 @@
 #include "MacOsWindow.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
+#include "HodEngine/Window/Surface.hpp"
+
+#include <HodEngine/Renderer/RHI/Metal/MetalContext.hpp>
 
 #include <Cocoa/Cocoa.h>
 
@@ -162,7 +164,7 @@ namespace hod::window
 		NSRect contentRect = [_window contentRectForFrameRect:[_window frame]];
     	NSSize contentSize = contentRect.size;
 
-		renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
-        metalContext->Resize(contentSize.width, contentSize.height);
+		Surface* surface = GetSurface();
+        surface->Resize(contentSize.width, contentSize.height);
 	}
 }

@@ -1,13 +1,13 @@
 #include "Window.hpp"
 
-#include "HodEngine/Renderer/RHI/Context.hpp"
+#include "HodEngine/Window/Surface.hpp"
 
 namespace hod::window
 {
 	/// @brief 
 	Window::~Window()
 	{
-		delete _graphicsContext;
+		delete _surface;
 	}
 
 	/// @brief 
@@ -18,16 +18,16 @@ namespace hod::window
 
 	/// @brief 
 	/// @return 
-	renderer::Context* Window::GetGraphicsContext() const
+	Surface* Window::GetSurface() const
 	{
-		return _graphicsContext;
+		return _surface;
 	}
 
 	/// @brief 
-	/// @param context 
-	void Window::SetGraphicsContext(renderer::Context* graphicsContext)
+	/// @param surface 
+	void Window::SetSurface(Surface* surface)
 	{
-		_graphicsContext = graphicsContext;
+		_surface = surface;
 	}
 
 	/// @brief 

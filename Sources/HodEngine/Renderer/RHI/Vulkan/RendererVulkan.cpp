@@ -208,7 +208,7 @@ namespace hod::renderer
 		}
 
 		_context = new VkContext(surface);
-		mainWindow->SetGraphicsContext(_context);
+		mainWindow->SetSurface(_context);
 		/*
 		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
 		if (_unlitVertexColorMaterial == nullptr)
@@ -547,7 +547,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		window->SetGraphicsContext(new VkContext(surface));
+		window->SetSurface(new VkContext(surface));
 		return true;
 	}
 

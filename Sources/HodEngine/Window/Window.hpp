@@ -3,13 +3,10 @@
 
 #include <stdint.h>
 
-namespace hod::renderer
-{
-	class Context;
-}
-
 namespace hod::window
 {
+	class Surface;
+
 	/// @brief 
 	class HOD_API Window
 	{
@@ -21,8 +18,8 @@ namespace hod::window
 
 		virtual void		Update();
 
-		renderer::Context*	GetGraphicsContext() const;
-		void				SetGraphicsContext(renderer::Context* graphicsContext);
+		Surface*			GetSurface() const;
+		void				SetSurface(Surface* surface);
 
 		uint16_t			GetWidth() const;
 		uint16_t			GetHeight() const;
@@ -34,6 +31,6 @@ namespace hod::window
 
 	private:
 
-		renderer::Context*	_graphicsContext = nullptr;
+		Surface*			_surface = nullptr;
 	};
 }

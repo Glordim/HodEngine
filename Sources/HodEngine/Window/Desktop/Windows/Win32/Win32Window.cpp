@@ -1,6 +1,7 @@
 #if defined(PLATFORM_WINDOWS)
 
 #include "Win32Window.hpp"
+#include "HodEngine/Window/Surface.hpp"
 
 #include <string>
 
@@ -8,11 +9,7 @@
 #include <HodEngine/Core/Job/JobQueue.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 
-#include <HodEngine/Renderer/RHI/Context.hpp>
-
 #include <cstdlib>
-
-using namespace hod::renderer;
 
 namespace hod::window
 {
@@ -51,10 +48,10 @@ namespace hod::window
 			_width = width;
 			_height = height;
 
-			renderer::Context* context = GetGraphicsContext();
-			if (context != nullptr)
+			Surface* surface = GetSurface();
+			if (surface != nullptr)
 			{
-				context->Resize(width, height);
+				surface->Resize(width, height);
 			}
 		}
 		else if (msg == WM_CLOSE)

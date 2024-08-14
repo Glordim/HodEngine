@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/StringConversion.hpp"
 
-#include "HodEngine/Renderer/RHI/Context.hpp"
+#include "HodEngine/Window/Surface.hpp"
 
 #include <string>
 #include <cstring>
@@ -262,7 +262,7 @@ namespace hod::window
 	void WaylandWindow::SetSize(uint16_t width, uint16_t height)
 	{
 		//SetupBuffer();
-		GetGraphicsContext()->Resize(width, height);
+		GetSurface()->Resize(width, height);
 		_width = width;
 		_height = height;
 
