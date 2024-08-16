@@ -32,14 +32,21 @@ namespace hod::renderer
 	/// @brief 
 	MetalContext::~MetalContext()
 	{
-		_drawable->release();
+		if (_drawable != nullptr)
+		{
+			_drawable->release();
+		}
 		_layer->release();
 	}
 
 	bool MetalContext::AcquireNextImageIndex()
 	{
+		if (_drawable != nullptr)
+		{
+			_drawable->release();
+		}
 		_drawable = _layer->nextDrawable();
-		return true;
+		return (_drawable != nullptr);
 	}
 
 	CA::MetalDrawable* MetalContext::GetCurrentDrawable() const

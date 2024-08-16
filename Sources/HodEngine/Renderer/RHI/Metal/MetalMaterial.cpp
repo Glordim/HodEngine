@@ -63,6 +63,7 @@ namespace hod
                     offset += FormatToSize[vertexInputs[i]._format];
                     
                     vertexDescriptor->attributes()->setObject(vertexAttribute, i);
+                    vertexAttribute->release();
                 }
             }
             else
@@ -93,17 +94,21 @@ namespace hod
                     }
                     
                     vertexDescriptor->attributes()->setObject(vertexAttribute, i);
+                    vertexAttribute->release();
                 }
             }
             MTL::VertexBufferLayoutDescriptor* layout = MTL::VertexBufferLayoutDescriptor::alloc()->init();
             layout->setStride(offset);
             vertexDescriptor->layouts()->setObject(layout, 0);
+            layout->release();
             
             // Create a pipeline descriptor
             MTL::RenderPipelineDescriptor* pipelineDescriptor = MTL::RenderPipelineDescriptor::alloc()->init();
             pipelineDescriptor->setVertexFunction(vertexFunction);
             pipelineDescriptor->setFragmentFunction(fragmentFunction);
+            fragmentFunction->release();
             pipelineDescriptor->setVertexDescriptor(vertexDescriptor);
+            vertexDescriptor->release();
             pipelineDescriptor->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
             pipelineDescriptor->colorAttachments()->object(0)->setBlendingEnabled(true);
             pipelineDescriptor->colorAttachments()->object(0)->setRgbBlendOperation(MTL::BlendOperationAdd);
@@ -117,6 +122,7 @@ namespace hod
             NS::Error* pipelineError = nil;
             RendererMetal* rendererMetal = RendererMetal::GetInstance();
             _renderPipelineState = rendererMetal->GetDevice()->newRenderPipelineState(pipelineDescriptor, &pipelineError);
+            pipelineDescriptor->release();
             if (_renderPipelineState == nullptr)
             {
                 std::cerr << "Failed to create render pipeline state: " << pipelineError->localizedDescription()->utf8String() << std::endl; // TODO Output
