@@ -41,7 +41,7 @@ include_directories(
 add_dependencies(HodApplication HodEngine)
 
 target_link_libraries(HodApplication
-	HodEngine
+	HodEngine Core Editor Application
 )
 
 target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})

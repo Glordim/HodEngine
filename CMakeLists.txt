@@ -106,6 +106,13 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 set(CMAKE_SUPPRESS_REGENERATION true)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+if (BUILD_SHARED_LIBS)
+  set(LIB_TYPE SHARED)
+else()
+  set(LIB_TYPE STATIC)
+endif()
+
 project(Hod) # Rename
 
 add_subdirectory("Sources/HodEngine/Core")

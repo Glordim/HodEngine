@@ -12,7 +12,7 @@ CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 assign_source_group(${Srcs}) # for VS
 
-add_library(Window STATIC ${Srcs} ${Includes})
+add_library(Window ${LIB_TYPE} ${Srcs} ${Includes})
 set_property(TARGET Window PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 set(UNIX_LIBS "")
@@ -61,6 +61,10 @@ if(UNIX AND NOT APPLE)
     set(UNIX_LIBS ${WAYLAND_CLIENT_LIBRARIES} ${WAYLAND_EGL_LIBRARIES} ${XkbCommon_LIBRARIES} ${LibDecor_LIBRARIES})
 endif()
 
+if (APPLE)
+    find_library(COCOA_LIBRARY Cocoa)
+endif()
+
 add_dependencies(Window Core)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 
@@ -73,6 +77,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 target_link_libraries(Window
 	Core
 	${UNIX_LIBS}
+    ${COCOA_LIBRARY}
 )
 
 target_compile_definitions(Window PUBLIC ${PLATFORM_DEFINE})

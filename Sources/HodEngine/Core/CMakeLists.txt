@@ -12,21 +12,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
 )
 
-add_library(Core STATIC ${Srcs} ${Includes})
+add_library(Core ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(Core PRIVATE "pch.hpp")
 set_property(TARGET Core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-set(UUID_LIB "")
+if(APPLE)
+	find_library(COREFOUNDATION_LIBRARY CoreFoundation)
+endif()
 
-if(UNIX)
-	if (APPLE)
-		set (UUID_LIB "-framework CoreFoundation")
-	else()
-		set(UUID_LIB uuid)
-	endif()
-endif(UNIX)
-
-target_link_libraries(Core ${UUID_LIB})
+target_link_libraries(Core ${COREFOUNDATION_LIBRARY})
 target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Core PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>" HOD_EXPORT)
 target_compile_definitions(Core PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>" HOD_EXPORT)

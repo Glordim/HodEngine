@@ -56,7 +56,7 @@ include_directories(${SpirvCross_INCLUDE_DIRS}
 ${Vulkan_INCLUDE_DIRS})
 endif()
 
-add_library(Renderer STATIC ${Srcs} ${Includes})
+add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Renderer Core Window msdfgen freetype)

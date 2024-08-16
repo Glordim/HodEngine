@@ -12,10 +12,10 @@ CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 assign_source_group(${Srcs}) # for VS
 
-add_library(Application STATIC ${Srcs} ${Includes})
+add_library(Application ${LIB_TYPE} ${Srcs} ${Includes})
 set_property(TARGET Application PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(Application Core Window Renderer)
+add_dependencies(Application Core Window Renderer Editor Input Physics)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
 get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
@@ -31,6 +31,9 @@ target_link_libraries(Application
 	Core
 	Window
 	Renderer
+	Editor
+	Input
+	Physics
 )
 
 target_compile_definitions(Application PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})

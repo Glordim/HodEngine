@@ -13,7 +13,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	${box2d_INCLUDE_DIRS}
 )
 
-add_library(Game STATIC ${Srcs} ${Includes})
+add_library(Game ${LIB_TYPE} ${Srcs} ${Includes})
 set_property(TARGET Game PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 target_compile_definitions(Game PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
@@ -24,11 +24,10 @@ target_compile_definitions(Game PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DE
 target_compile_definitions(Game PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>" HOD_EXPORT)
 target_compile_definitions(Game PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>" HOD_EXPORT)
 
-add_dependencies(Game Core ImGui Window Physics Renderer)
+add_dependencies(Game Core Window Physics Renderer)
 
 target_link_libraries(Game
 	Core
-	ImGui
 	Window
 	Physics
 	Renderer
