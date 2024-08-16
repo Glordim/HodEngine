@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include <HodEngine/Core/UID.hpp>
+#include <HodEngine/Core/Document/Document.hpp>
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 

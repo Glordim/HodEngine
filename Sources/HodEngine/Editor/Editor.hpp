@@ -5,6 +5,7 @@
 
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/Event.hpp>
+#include <HodEngine/Core/Document/Document.hpp>
 
 #include <filesystem>
 
