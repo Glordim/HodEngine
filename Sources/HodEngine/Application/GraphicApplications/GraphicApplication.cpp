@@ -80,9 +80,10 @@ namespace hod::application
 
 			frameSequencer->EnqueueAndWaitJobs();
 
-			if (_window->GetGraphicsContext()->AcquireNextImageIndex() == true)
+			renderer::Context* context = static_cast<renderer::Context*>(_window->GetSurface());
+			if (context->AcquireNextImageIndex() == true)
 			{
-				PlatformRenderer::GetInstance()->GetRenderQueue()->Execute(_window->GetGraphicsContext());
+				PlatformRenderer::GetInstance()->GetRenderQueue()->Execute(context);
 
 				//_window->GetGraphicsContext()->SwapBuffer();
 			}

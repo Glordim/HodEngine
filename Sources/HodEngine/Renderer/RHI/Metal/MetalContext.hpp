@@ -70,6 +70,10 @@ namespace hod::renderer
 */
 	private:
 
+		void						SetupLayer(window::MacOsWindow* window);
+
+	private:
+
 		CA::MetalLayer*				_layer = nullptr;
 		CA::MetalDrawable*			_drawable = nullptr;
 

@@ -46,7 +46,6 @@ namespace hod::window
 
 	private:
 
-		void								SetupLayer();
 		void								EventLoop();
 
 	private:

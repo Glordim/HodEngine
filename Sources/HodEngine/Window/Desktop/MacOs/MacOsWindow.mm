@@ -1,8 +1,6 @@
 #include "MacOsWindow.hpp"
 #include "HodEngine/Window/Surface.hpp"
 
-#include <HodEngine/Renderer/RHI/Metal/MetalContext.hpp>
-
 #include <Cocoa/Cocoa.h>
 
 @interface CustomView : NSView
@@ -76,15 +74,6 @@ namespace hod::window
 	MacOsWindow::~MacOsWindow()
 	{
 		
-	}
-
-	/// @brief 
-	void MacOsWindow::SetupLayer()
-	{
-		renderer::MetalContext* metalContext = static_cast<renderer::MetalContext*>(GetGraphicsContext());
-		[_view setLayer:(CALayer*)metalContext->GetLayer()];
-        [_view setWantsLayer:YES];
-		//[_view.layer setNeedsDisplay];
 	}
 
 	void MacOsWindow::EventLoop()

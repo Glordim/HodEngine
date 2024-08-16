@@ -10,8 +10,6 @@
 
 #include <cstdlib>
 
-using namespace hod::renderer;
-
 namespace hod::window
 {
 	/// @brief 
@@ -24,13 +22,6 @@ namespace hod::window
 	/// @brief 
 	void MacOsWindow::Update()
 	{
-		static bool once = false;
-		if (once == false)
-		{
-			SetupLayer();
-			once = true;
-		}
-
 		EventLoop();
 	}
 }

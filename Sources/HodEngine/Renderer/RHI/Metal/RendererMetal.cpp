@@ -68,7 +68,7 @@ namespace hod
 			_commandQueue = _device->newCommandQueue();
 
 			_context = new MetalContext(static_cast<window::MacOsWindow*>(mainWindow));
-			mainWindow->SetGraphicsContext(_context);
+			mainWindow->SetSurface(_context);
 
 /*
 			_layer = [CAMetalLayer layer];

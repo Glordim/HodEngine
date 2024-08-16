@@ -26,6 +26,8 @@ namespace hod::renderer
 		_layer->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
 		_layer->setFramebufferOnly(true);
 
+		SetupLayer(window);
+
 		Resize(window->GetWidth(), window->GetHeight());
 	}
 
