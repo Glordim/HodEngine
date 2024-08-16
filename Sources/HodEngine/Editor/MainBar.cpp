@@ -14,8 +14,6 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
-#include <HodEngine/Application/PlatformDialog.hpp>
-
 namespace hod::editor
 {
 	/// @brief 
@@ -41,7 +39,7 @@ namespace hod::editor
 
 			if (ImGui::MenuItem("Quit") == true)
 			{
-				application::Application::GetInstance()->Quit();
+				//application::Application::GetInstance()->Quit();
 			}
 			ImGui::EndMenu();
 		}

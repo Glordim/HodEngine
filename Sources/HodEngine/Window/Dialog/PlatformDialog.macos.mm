@@ -1,8 +1,8 @@
-#include <HodEngine/Application/PlatformDialog.hpp>
+#include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #import <Cocoa/Cocoa.h>
 
-namespace hod::application::dialog
+namespace hod::window
 {
 	/// @brief 
 	/// @return 

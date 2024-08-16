@@ -1,6 +1,6 @@
-#include <HodEngine/Application/PlatformDialog.hpp>
+#include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
-namespace hod::application::dialog
+namespace hod::window
 {
 	/// @brief 
 	/// @return 

@@ -17,7 +17,7 @@
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include <HodEngine/Application/PlatformDialog.hpp>
+#include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/Prefab.hpp"
@@ -166,7 +166,7 @@ namespace hod::editor
 
 			if (ImGui::MenuItem("Show in Explorer") == true)
 			{
-				application::dialog::OpenExplorerAtPath(node->_path);
+				window::OpenExplorerAtPath(node->_path);
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -283,7 +283,7 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("Show in Explorer") == true)
 				{
-					application::dialog::OpenExplorerAtPath(pathNode->_path);
+					window::OpenExplorerAtPath(pathNode->_path);
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::EndPopup();
@@ -501,7 +501,7 @@ namespace hod::editor
 
 				if (ImGui::MenuItem("Show in Explorer") == true)
 				{
-					application::dialog::OpenExplorerAtPath(_currentFolderTreeNode->_path);
+					window::OpenExplorerAtPath(_currentFolderTreeNode->_path);
 					ImGui::CloseCurrentPopup();
 				}
 

@@ -41,6 +41,8 @@ namespace hod::imgui
 		bool							Init(window::Window* window);
 		void							Update();
 
+		window::Window*					GetMainWindow() const;
+
 		void							SetMainBar(MainBar* mainBar);
 
 		template<typename Window_>

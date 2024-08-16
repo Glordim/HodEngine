@@ -12,7 +12,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
-#include <HodEngine/Application/PlatformDialog.hpp>
+#include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #include "HodEngine/Core/FileSystem.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
@@ -70,7 +70,7 @@ namespace hod::editor
 				if (result.empty() == false)
 				{
 					std::filesystem::path path = result[0];
-					//std::filesystem::path path = application::dialog::GetOpenFileDialog();
+					//std::filesystem::path path = window::GetOpenFileDialog();
 					if (path.empty() == false)
 					{
 						Editor::GetInstance()->OpenProject(path);
@@ -83,7 +83,7 @@ namespace hod::editor
 			ImGui::PopStyleColor(1);
 			if (newProjectButtonClicked == true)
 			{
-				std::filesystem::path path = application::dialog::GetFolderDialog();
+				std::filesystem::path path = window::GetFolderDialog();
 				if (path.empty() == false)
 				{
 					Editor::GetInstance()->CreateProject(path);

@@ -245,6 +245,13 @@ void embraceTheDarkness()
 #endif
 
 	/// @brief 
+	/// @return 
+	window::Window* ImGuiManager::GetMainWindow() const
+	{
+		return _mainWindow;
+	}
+
+	/// @brief 
 	/// @param mainBar 
 	void ImGuiManager::SetMainBar(MainBar* mainBar)
 	{

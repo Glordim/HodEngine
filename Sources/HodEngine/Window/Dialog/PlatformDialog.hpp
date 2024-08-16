@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-namespace hod::application::dialog
+namespace hod::window
 {
 	HOD_API std::filesystem::path	GetOpenFileDialog();
 	HOD_API std::filesystem::path	GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const std::filesystem::path& initialFolder = "");

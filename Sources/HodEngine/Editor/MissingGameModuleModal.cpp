@@ -3,8 +3,8 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.hpp"
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 #include "HodEngine/Core/Job/JobScheduler.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
@@ -19,8 +19,7 @@ namespace hod::editor
 	MissingGameModuleModal::MissingGameModuleModal()
 	: _generationJob(this, &MissingGameModuleModal::GenerationJob, JobQueue::UnframedHighPriority)
 	{
-		application::DesktopApplication* application = application::DesktopApplication::GetInstance();
-		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
+		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->SetSize(320, 200);
 		mainWindow->CenterToScreen();
 		mainWindow->SetVisible(true);
@@ -55,8 +54,7 @@ namespace hod::editor
 			{
 				_askForGeneration = false;
 				
-				application::DesktopApplication* application = application::DesktopApplication::GetInstance();
-				window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
+				window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
 				mainWindow->SetSize(800, 600);
 				mainWindow->CenterToScreen();
 
@@ -65,8 +63,8 @@ namespace hod::editor
 			ImGui::SameLine();
 			if (ImGui::Button("Exit"))
 			{
-				application::DesktopApplication* application = application::DesktopApplication::GetInstance();
-				application->Quit();
+				//application::DesktopApplication* application = application::DesktopApplication::GetInstance();
+				//application->Quit();
 			}
 		}
 		else

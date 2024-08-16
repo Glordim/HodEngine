@@ -1,9 +1,9 @@
-#include <HodEngine/Application/PlatformDialog.hpp>
+#include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #include <Windows.h>
 #include <shlobj_core.h>
 
-namespace hod::application::dialog
+namespace hod::window
 {
 	/// @brief 
 	/// @return 

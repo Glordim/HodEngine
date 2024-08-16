@@ -13,7 +13,6 @@
 
 #include "HodEngine/Core/ArgumentParser.hpp"
 
-#include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.hpp"
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
 #include "HodEngine/Core/FileSystem.hpp"
@@ -29,7 +28,7 @@
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
 
-#include "HodEngine/Application/PlatformDialog.hpp"
+#include "HodEngine/Window/Dialog/PlatformDialog.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
@@ -117,8 +116,7 @@ namespace hod::editor
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
 		{
-			application::DesktopApplication* application = application::DesktopApplication::GetInstance();
-			window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
+			window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
 			mainWindow->SetSize(800, 320);
 			mainWindow->CenterToScreen();
 			mainWindow->SetVisible(true);
@@ -177,8 +175,7 @@ namespace hod::editor
 		imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
 		imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 
-		application::DesktopApplication* application = application::DesktopApplication::GetInstance();
-		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(application->GetWindow());
+		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->Maximize();
 		return true;
 	}
@@ -308,7 +305,7 @@ namespace hod::editor
 	bool Editor::SaveSceneAs()
 	{
 		/*
-		std::filesystem::path saveLocation = application::dialog::GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
+		std::filesystem::path saveLocation = window::GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
 		if (saveLocation.empty() == true)
 		{
 			return false;

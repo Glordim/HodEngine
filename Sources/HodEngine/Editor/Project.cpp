@@ -13,7 +13,6 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Editor/CMakeProjectTemplate/CMakeLists.txt.h"
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
-#include "HodEngine/Application/PlatformDialog.hpp"
 
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
