@@ -23,9 +23,6 @@
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Core/FileSystem.hpp>
 
-#include <HodEngine/Application/Application.hpp>
-#include <HodEngine/Application/GraphicApplications/GraphicApplication.hpp>
-
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 #include <HodEngine/Window/Desktop/DesktopDisplayManager.hpp>
 
@@ -227,11 +224,12 @@ void embraceTheDarkness()
 		ImGui::GetIO().Fonts->SetTexID((ImTextureID)fontTexture);
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+		_mainWindow = window;
 #if defined(PLATFORM_WINDOWS)
-		ImGui_ImplWin32_Init(static_cast<window::Win32Window*>(window)->GetWindowHandle());
+		ImGui_ImplWin32_Init(static_cast<window::Win32Window*>(_mainWindow)->GetWindowHandle());
 		static_cast<window::Win32Window*>(window)->OnWinProc.Connect(_winProcSlot);
 #elif defined(PLATFORM_MACOS)
-		ImGui_ImplOSX_Init(static_cast<window::MacOsWindow*>(window)->GetNsView());
+		ImGui_ImplOSX_Init(static_cast<window::MacOsWindow*>(_mainWindow)->GetNsView());
 #endif
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
@@ -265,14 +263,12 @@ void embraceTheDarkness()
 	/// @brief 
 	void ImGuiManager::Update()
 	{
+		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(_mainWindow);
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_NewFrame();
 #elif defined(PLATFORM_MACOS)
-		window::DesktopWindow* window = (window::DesktopWindow*)application::GraphicApplication::GetInstance()->GetWindow();
 		ImGui_ImplOSX_NewFrame(static_cast<window::MacOsWindow*>(window)->GetNsView());
 #elif defined(PLATFORM_LINUX)
-		window::DesktopWindow* window = (window::DesktopWindow*)application::GraphicApplication::GetInstance()->GetWindow();
-
 		ImGui::GetIO().DisplaySize.x = window->GetWidth();
 		ImGui::GetIO().DisplaySize.y = window->GetHeight();
 		ImGui::GetIO().AddMousePosEvent(window->GetMousePosition().GetX(), window->GetMousePosition().GetY());

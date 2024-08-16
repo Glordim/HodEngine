@@ -78,6 +78,8 @@ namespace hod::imgui
 		renderer::Shader*				_vertexShader = nullptr;
 		renderer::Shader*				_fragmentShader = nullptr;
 
+		window::Window*					_mainWindow = nullptr;
+
 #if defined (PLATFORM_WINDOWS)
 		Event<HWND, UINT, WPARAM, LPARAM>::Slot _winProcSlot;
 #endif
