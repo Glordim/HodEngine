@@ -8,6 +8,11 @@
 
 #include <vector>
 
+namespace hod::window
+{
+	class Window;
+}
+
 namespace hod::input
 {
 	class Api;
@@ -19,7 +24,7 @@ namespace hod::input
 
 	public:
 
-		bool							Initialize();
+		bool							Initialize(window::Window* window);
 		void							UpdateJob();
 
 		Input::State					GetInputState(InputId inputId) const;
@@ -28,11 +33,11 @@ namespace hod::input
 
 										~InputManager();
 
-		bool							InitializeApis();
+		bool							InitializeApis(window::Window* window);
 
 		template<typename __API__>
-		bool							CreateApi();
-		bool							CreateApi(Api* api);
+		bool							CreateApi(window::Window* window);
+		bool							CreateApi(Api* api, window::Window* window);
 
 	private:
 
@@ -45,8 +50,8 @@ namespace hod::input
 	/// @tparam API_ 
 	/// @return 
 	template<typename API_>
-	bool InputManager::CreateApi()
+	bool InputManager::CreateApi(window::Window* window)
 	{
-		return CreateApi(new API_());
+		return CreateApi(new API_(), window);
 	}
 }

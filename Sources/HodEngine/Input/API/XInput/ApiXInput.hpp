@@ -33,7 +33,7 @@ namespace hod::input
 
 	public:
 
-		bool					Initialize() override;
+		bool					Initialize(window::Window* window) override;
 
 	protected:
 

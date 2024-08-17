@@ -9,10 +9,8 @@
 #include <hidusage.h>
 
 #include <HodEngine/Core/Output/OutputService.hpp>
-#include <HodEngine/Application/GraphicApplications/DesktopApplications/WindowsApplication.hpp>
 #include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
 
-using namespace hod::application;
 using namespace hod::window;
 
 namespace hod::input
@@ -61,7 +59,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	bool ApiRawInput::Initialize()
+	bool ApiRawInput::Initialize(window::Window* window)
 	{
 		HWND hwnd = NULL; // TODO
 
@@ -89,10 +87,10 @@ namespace hod::input
 		assert(ApiRawInput::_pInstance == nullptr);
 		ApiRawInput::_pInstance = this;
 
-		Win32Window* window = static_cast<Win32Window*>(WindowsApplication::GetInstance()->GetWindow());
+		_window = static_cast<Win32Window*>(window);
 
 		assert(ApiRawInput::_hGetMessageHook == nullptr);
-		ApiRawInput::_hGetMessageHook = SetWindowsHookEx(WH_GETMESSAGE, ApiRawInput::GetMessageHook, NULL, window->GetMessageLoopThreadId());
+		ApiRawInput::_hGetMessageHook = SetWindowsHookEx(WH_GETMESSAGE, ApiRawInput::GetMessageHook, NULL, _window->GetMessageLoopThreadId());
 		if (ApiRawInput::_hGetMessageHook == nullptr)
 		{
 			std::string sErrorMessage;
@@ -101,7 +99,7 @@ namespace hod::input
 			OUTPUT_ERROR("Unable to set MessageHook ({})", sErrorMessage.c_str());
 		}
 
-		window->GetFocusedEvent().Connect(_onFocusChangeSlot);
+		_window->GetFocusedEvent().Connect(_onFocusChangeSlot);
 
 		SetInitialized(true);
 
@@ -407,8 +405,7 @@ namespace hod::input
 		_inputChangesLock.lock();
 		if (_vInputChangeMessages.empty() == false)
 		{
-			Win32Window* window = static_cast<Win32Window*>(WindowsApplication::GetInstance()->GetWindow());
-			if (window->IsFocused() == true)
+			if (_window->IsFocused() == true)
 			{
 				bool isResizingOrMovingWindow = false; // TODO WindowsApplication::GetInstance()->GetIsResizingOrMoving();
 				if (isResizingOrMovingWindow == true)

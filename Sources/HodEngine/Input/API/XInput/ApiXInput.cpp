@@ -32,7 +32,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	bool ApiXInput::Initialize()
+	bool ApiXInput::Initialize(window::Window* window)
 	{
 		_hInstance = LoadLibrary(TEXT("xinput1_4.dll"));
 		if (_hInstance == nullptr)

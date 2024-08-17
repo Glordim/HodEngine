@@ -12,6 +12,11 @@
 
 #define REDIRECT_INJECTED_INPUT_TO_FIRST_DEVICE // Used to support TeamViewer and Parsec (they don't fill hDevice and need a redirection)
 
+namespace hod::window
+{
+	class Win32Window;
+}
+
 namespace hod::input
 {
 	class DeviceMouseRawInput;
@@ -32,7 +37,7 @@ namespace hod::input
 
 	public:
 
-		bool								Initialize() override;
+		bool								Initialize(window::Window* window) override;
 
 	protected:
 
@@ -99,5 +104,7 @@ namespace hod::input
 		bool										_bJustGainFocus = false;
 
 		Event<bool>::Slot							_onFocusChangeSlot;
+
+		window::Win32Window*						_window = nullptr;
 	};
 }

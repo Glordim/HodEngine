@@ -6,13 +6,13 @@ namespace hod::input
 {
 	/// @brief 
 	/// @return 
-	bool InputManager::InitializeApis()
+	bool InputManager::InitializeApis(window::Window* window)
 	{
-		if (CreateApi<ApiRawInput>() == false)
+		if (CreateApi<ApiRawInput>(window) == false)
 		{
 			return false;
 		}
-		if (CreateApi<ApiXInput>() == false)
+		if (CreateApi<ApiXInput>(window) == false)
 		{
 			return false;
 		}

@@ -45,7 +45,7 @@ namespace hod::application
 		_window = platformDisplayManager->CreateWindow(hiddenWindow);
 
 		input::InputManager::CreateInstance();
-		if (input::InputManager::GetInstance()->Initialize() == false)
+		if (input::InputManager::GetInstance()->Initialize(_window) == false)
 		{
 			return false;
 		}

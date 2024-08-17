@@ -11,6 +11,11 @@ namespace hod
 	class UID;
 }
 
+namespace hod::window
+{
+	class Window;
+}
+
 namespace hod::input
 {
 	class Device;
@@ -38,7 +43,7 @@ namespace hod::input
 		Api&							operator = (const Api&) = delete;
 		Api&							operator = (Api&&) = delete;
 
-		virtual bool					Initialize() = 0;
+		virtual bool					Initialize(window::Window* window) = 0;
 		bool							IsInitialized() const;
 
 		void							Update();
