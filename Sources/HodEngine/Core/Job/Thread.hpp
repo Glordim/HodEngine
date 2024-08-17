@@ -68,7 +68,7 @@ namespace hod
 	};
 
 	/// @brief 
-	class ThisThread
+	class HOD_CORE_API ThisThread
 	{
 	public:
 		static void		Yield();
