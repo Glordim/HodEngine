@@ -15,22 +15,18 @@ namespace hod::game
     /// @brief 
     class HOD_GAME_API WeakResourceBase
     {
-        REFLECTED_CLASS_NO_PARENT(WeakResourceBase, HOD_GAME_API)
+        REFLECTED_CLASS_NO_VIRTUAL(WeakResourceBase, HOD_GAME_API)
 
     public:
 
                             WeakResourceBase(ReflectionDescriptor* resourceDescriptor);
-                            WeakResourceBase(ReflectionDescriptor* resourceDescriptor, const std::weak_ptr<Resource>& pointer);
                             WeakResourceBase(ReflectionDescriptor* resourceDescriptor, const std::shared_ptr<Resource>& pointer);
         virtual             ~WeakResourceBase();
 
         WeakResourceBase&   operator = (const WeakResourceBase& copy);
         WeakResourceBase&   operator = (const std::weak_ptr<Resource>& pointer);
 
-        bool                operator==(const WeakResourceBase& other) const
-        {
-            return _uid == other._uid;
-        }
+        bool                operator==(const WeakResourceBase& other) const;
 
     public:
 
@@ -55,19 +51,10 @@ namespace hod::game
     template<typename _Resource_>
     class WeakResource : public WeakResourceBase
     {
-        REFLECTED_CLASS(WeakResource, WeakResourceBase, HOD_GAME_API)
-
     public:
 
         WeakResource()
         : WeakResourceBase(_Resource_::GetReflectionDescriptor())
-        {
-        }
-
-        /// @brief 
-        /// @param pointer 
-        WeakResource(const std::weak_ptr<_Resource_>& pointer)
-        : WeakResourceBase(_Resource_::GetReflectionDescriptor(), pointer)
         {
         }
 
@@ -90,11 +77,4 @@ namespace hod::game
             return std::static_pointer_cast<_Resource_>(WeakResourceBase::Lock());
         }
     };
-
-    template<typename _Resource_>
-    WeakResource<_Resource_>::WeakResourceReflectionDescriptor::WeakResourceReflectionDescriptor()
-    : hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<WeakResource, WeakResourceBase>("WeakResource"))
-    {
-        SetFallbackTraitOnParent(true);
-    }
 }

@@ -23,16 +23,6 @@ namespace hod::game
 
     /// @brief 
     /// @param pointer 
-    WeakResourceBase::WeakResourceBase(ReflectionDescriptor* resourceDescriptor, const std::weak_ptr<Resource>& pointer)
-    : _resourceDescriptor(resourceDescriptor)
-    , _uid(UID::INVALID_UID)
-    , _pointer(pointer)
-    {
-        
-    }
-
-    /// @brief 
-    /// @param pointer 
     WeakResourceBase::WeakResourceBase(ReflectionDescriptor* resourceDescriptor, const std::shared_ptr<Resource>& pointer)
     : _resourceDescriptor(resourceDescriptor)
     , _uid(UID::INVALID_UID)
@@ -61,6 +51,14 @@ namespace hod::game
     {
         _pointer = pointer.lock();
         return *this;
+    }
+
+    /// @brief 
+    /// @param other 
+    /// @return 
+    bool WeakResourceBase::operator==(const WeakResourceBase& other) const
+    {
+        return _uid == other._uid;
     }
 
     /// @brief 
