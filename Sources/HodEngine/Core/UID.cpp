@@ -42,7 +42,7 @@ namespace hod
 		ADD_PROPERTY(UID, _high);
 	}
 
-	UID UID::INVALID_UID;
+	HOD_CORE_API UID UID::INVALID_UID;
 
 	/// @brief 
 	/// @param low 

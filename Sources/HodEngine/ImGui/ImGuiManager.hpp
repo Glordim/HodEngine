@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/ImGui/Export.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
@@ -32,7 +32,7 @@ namespace hod::imgui
 	class WindowDescription;
 
 	/// @brief 
-	class HOD_API ImGuiManager
+	class HOD_IMGUI_API ImGuiManager
 	{
 		_Singleton(ImGuiManager)
 

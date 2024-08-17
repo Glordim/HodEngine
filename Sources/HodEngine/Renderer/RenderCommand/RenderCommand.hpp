@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 namespace hod
 {
@@ -10,7 +10,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API RenderCommand
+		class HOD_RENDERER_API RenderCommand
 		{
 		public:
 

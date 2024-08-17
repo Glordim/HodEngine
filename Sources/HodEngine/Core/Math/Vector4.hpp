@@ -1,13 +1,13 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
 namespace hod
 {
-	class HOD_API Vector4 final
+	class HOD_CORE_API Vector4 final
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Vector4)
+		REFLECTED_CLASS_NO_VIRTUAL(Vector4, HOD_CORE_API)
 
 	public:
 

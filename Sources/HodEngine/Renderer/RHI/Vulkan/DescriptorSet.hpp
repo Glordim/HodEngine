@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -17,7 +17,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API DescriptorSet
+		class HOD_RENDERER_API DescriptorSet
 		{
 		public:
 

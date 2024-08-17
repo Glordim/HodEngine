@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Input/Export.hpp"
 
 #include "HodEngine/Input/InputId.hpp"
 
@@ -8,14 +8,14 @@ namespace hod::input
 	class Device;
 
 	/// @brief 
-	class HOD_API Input
+	class HOD_INPUT_API Input
 	{
 		friend class Device;
 
 	public:
 
 		/// @brief 
-		struct HOD_API State
+		struct HOD_INPUT_API State
 		{
 						State(float value = 0.0f, uint8_t flags = 0, InputId inputId = InputId::Unknown);
 			void		Merge(const State& state);

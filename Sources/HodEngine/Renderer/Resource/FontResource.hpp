@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/Core/Resource.hpp"
 
@@ -8,9 +8,9 @@
 
 namespace hod::renderer
 {
-	class HOD_API FontResource : public Resource
+	class HOD_RENDERER_API FontResource : public Resource
 	{
-		REFLECTED_CLASS(FontResource, Resource)
+		REFLECTED_CLASS(FontResource, Resource, HOD_RENDERER_API)
 
 	public:
 

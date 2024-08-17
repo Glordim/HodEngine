@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include "HodEngine/Core/Document/DocumentReader.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
@@ -7,7 +7,7 @@
 namespace hod
 {
 	/// @brief 
-	class HOD_API DocumentReaderJson : public DocumentReader
+	class HOD_CORE_API DocumentReaderJson : public DocumentReader
 	{
 	public:
 

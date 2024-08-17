@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Window/Export.hpp"
 
 #include <string>
 #include <cstdint>
@@ -7,7 +7,7 @@
 namespace hod::window
 {
 	/// @brief 
-	class HOD_API Surface
+	class HOD_WINDOW_API Surface
 	{
 	public:
 						Surface() = default;

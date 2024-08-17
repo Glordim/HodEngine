@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <vector>
 
@@ -12,7 +12,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API GpuDeviceHelper
+		class HOD_RENDERER_API GpuDeviceHelper
 		{
 		public:
 			static bool GetAvailableDevices(std::vector<GpuDevice*>* availableDevices);

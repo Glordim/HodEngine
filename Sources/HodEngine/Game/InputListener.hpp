@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include <functional>
 #include <unordered_map>
@@ -15,7 +15,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct HOD_API KeyAxis
+		struct HOD_GAME_API KeyAxis
 		{
 			KeyAxis(int negative, int positive);
 
@@ -26,7 +26,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct HOD_API InternalKeyAxis
+		struct HOD_GAME_API InternalKeyAxis
 		{
 			InternalKeyAxis(const KeyAxis& axis);
 

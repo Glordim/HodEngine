@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
@@ -24,9 +24,9 @@ namespace hod
 		class Scene;
 
 		///@brief 
-		class HOD_API Component : public std::enable_shared_from_this<Component>
+		class HOD_GAME_API Component : public std::enable_shared_from_this<Component>
 		{
-			REFLECTED_CLASS_NO_PARENT(Component)
+			REFLECTED_CLASS_NO_PARENT(Component, HOD_GAME_API)
 
 			friend class Scene;
 			friend class Entity;

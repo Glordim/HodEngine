@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <vector>
 #include <cstdint>
@@ -15,7 +15,7 @@
 namespace hod
 {
 	/// @brief 
-	class HOD_API Thread
+	class HOD_CORE_API Thread
 	{
 	public:
 

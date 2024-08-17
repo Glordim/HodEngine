@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Components/Primitive/PrimitiveComponent.hpp"
 
@@ -15,9 +15,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API BoxComponent : public PrimitiveComponent
+		class HOD_GAME_API BoxComponent : public PrimitiveComponent
 		{
-			REFLECTED_CLASS(BoxComponent, PrimitiveComponent)
+			REFLECTED_CLASS(BoxComponent, PrimitiveComponent, HOD_GAME_API)
 
 		public:
 

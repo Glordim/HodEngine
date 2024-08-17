@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include <vector>
 #include <memory>
@@ -18,7 +18,7 @@ namespace hod::editor
 {
     class EditorReflectedProperty;
     
-    class HOD_API EditorReflectedObject
+    class HOD_EDITOR_API EditorReflectedObject
     {
     public:
 

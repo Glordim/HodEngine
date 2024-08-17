@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Core/UID.hpp"
@@ -8,12 +8,12 @@
 
 namespace hod::editor
 {
-	class HOD_API FontImporterSettings : public ImporterSettings
+	class HOD_EDITOR_API FontImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(FontImporterSettings, ImporterSettings)
+		REFLECTED_CLASS(FontImporterSettings, ImporterSettings, HOD_EDITOR_API)
 	};
 
-	class HOD_API FontImporter : public Importer
+	class HOD_EDITOR_API FontImporter : public Importer
 	{
 	public:
 

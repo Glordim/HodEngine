@@ -25,9 +25,5 @@ target_link_libraries(Physics
 )
 
 target_compile_definitions(Physics PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(Physics PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>" HOD_EXPORT)
-target_compile_definitions(Physics PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>" HOD_EXPORT)
-target_compile_definitions(Physics PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>" HOD_EXPORT)
-target_compile_definitions(Physics PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>" HOD_EXPORT)
-target_compile_definitions(Physics PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>" HOD_EXPORT)
-target_compile_definitions(Physics PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>" HOD_EXPORT)
+target_compile_definitions(Physics PRIVATE HOD_PHYSICS_EXPORT)
+add_compile_definitions_for_configs(Physics)

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
 
@@ -10,7 +10,7 @@ namespace hod::game
 {
     class Entity;
 
-    class HOD_API SceneSerializer
+    class HOD_GAME_API SceneSerializer
     {
     public:
         static bool SerializeEntities(const std::vector<std::shared_ptr<Entity>>& entities, Document::Node& entitiesNode);

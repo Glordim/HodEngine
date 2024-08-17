@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include "HodEngine/Core/Math/Vector2.hpp"
 
@@ -8,9 +8,9 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	struct HOD_API Rect
+	struct HOD_CORE_API Rect
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Rect)
+		REFLECTED_CLASS_NO_VIRTUAL(Rect, HOD_CORE_API)
 
 	public:
 	

@@ -71,12 +71,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 
 target_include_directories(Editor SYSTEM PRIVATE ${Stb_INCLUDE_DIRS})
 
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>" HOD_EXPORT)
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>" HOD_EXPORT)
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>" HOD_EXPORT)
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>" HOD_EXPORT)
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>" HOD_EXPORT)
-target_compile_definitions(Editor PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>" HOD_EXPORT)
+target_compile_definitions(Editor PRIVATE HOD_EDITOR_EXPORT)
+add_compile_definitions_for_configs(Editor)
 
 target_link_libraries(Editor
 	Core

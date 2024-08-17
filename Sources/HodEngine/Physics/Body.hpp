@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Physics/Export.hpp"
 
 #include <vector>
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -18,7 +18,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API Body
+		class HOD_PHYSICS_API Body
 		{
 		public:
 

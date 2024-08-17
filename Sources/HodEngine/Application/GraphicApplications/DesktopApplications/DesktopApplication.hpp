@@ -1,12 +1,12 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Application/Export.hpp"
 
 #include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
 
 namespace hod::application
 {
 	/// @brief 
-	class HOD_API DesktopApplication : public GraphicApplication
+	class HOD_APPLICATION_API DesktopApplication : public GraphicApplication
 	{
 		_SingletonOverride(DesktopApplication)
 	};

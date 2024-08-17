@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Window/Export.hpp"
 
 #if defined(PLATFORM_LINUX)
 
@@ -21,7 +21,7 @@ namespace hod::window
 {
     class WaylandWindow;
 
-    class HOD_API WaylandDisplayManager : public DesktopDisplayManager
+    class HOD_WINDOW_API WaylandDisplayManager : public DesktopDisplayManager
     {
         _Singleton(WaylandDisplayManager)
 

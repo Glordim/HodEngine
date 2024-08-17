@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
@@ -8,7 +8,7 @@ namespace hod::editor
 	class CustomPropertyDrawer;
 
 	///@brief 
-	class HOD_API ReflectionTraitCustomPropertyDrawer : public ReflectionTrait
+	class HOD_EDITOR_API ReflectionTraitCustomPropertyDrawer : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitCustomPropertyDrawer, ReflectionTrait)
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 #include <memory>
 #include <map>
 
@@ -12,7 +12,7 @@ namespace hod::game
     class Component;
 
     /// @brief 
-    class HOD_API WeakComponentMapping
+    class HOD_GAME_API WeakComponentMapping
     {
     public:
 
@@ -50,7 +50,7 @@ namespace hod::game
     template<typename _Component_>
     class WeakComponent
     {
-        REFLECTED_CLASS_NO_VIRTUAL(WeakComponent)
+        REFLECTED_CLASS_NO_VIRTUAL(WeakComponent, HOD_GAME_API)
 
         //DESCRIBE_REFLECTED_CLASS_NO_PARENT(WeakComponent)
 

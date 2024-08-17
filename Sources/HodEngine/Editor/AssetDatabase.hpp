@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include <stdint.h>
 
@@ -21,13 +21,13 @@ namespace hod::editor
 	class Importer;
 
 	/// @brief 
-	class HOD_API AssetDatabase
+	class HOD_EDITOR_API AssetDatabase
 	{
 		_Singleton(AssetDatabase)
 
 	public:
 
-		struct HOD_API FileSystemMapping
+		struct HOD_EDITOR_API FileSystemMapping
 		{
 			enum class Type
 			{

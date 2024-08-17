@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Window/Export.hpp"
 
 #include "HodEngine/Window/DisplayManager.hpp"
 
@@ -9,7 +9,7 @@ namespace hod::window
 {
     class Window;
 
-    class HOD_API DesktopDisplayManager : public DisplayManager
+    class HOD_WINDOW_API DesktopDisplayManager : public DisplayManager
     {
         _SingletonAbstract(DesktopDisplayManager)
 

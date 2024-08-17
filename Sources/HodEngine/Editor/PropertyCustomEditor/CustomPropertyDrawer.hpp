@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 namespace hod
 {
@@ -11,7 +11,7 @@ namespace hod::editor
 	class EditorReflectedObject;
 
 	///@brief 
-	class HOD_API CustomPropertyDrawer
+	class HOD_EDITOR_API CustomPropertyDrawer
 	{
 	public:
 

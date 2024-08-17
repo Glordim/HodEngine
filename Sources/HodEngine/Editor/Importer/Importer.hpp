@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -13,9 +13,9 @@ namespace hod
 
 namespace hod::editor
 {
-	class HOD_API ImporterSettings
+	class HOD_EDITOR_API ImporterSettings
 	{
-		REFLECTED_CLASS_NO_PARENT(ImporterSettings)
+		REFLECTED_CLASS_NO_PARENT(ImporterSettings, HOD_EDITOR_API)
 
 	public:
 
@@ -33,7 +33,7 @@ namespace hod::editor
 	};
 
 	/// @brief 
-	class HOD_API Importer
+	class HOD_EDITOR_API Importer
 	{
 	public:
 

@@ -1,16 +1,16 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Editor/Importer/Importer.hpp"
 
 namespace hod::editor
 {
-	class HOD_API SceneImporterSettings : public ImporterSettings
+	class HOD_EDITOR_API SceneImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(SceneImporterSettings, ImporterSettings)
+		REFLECTED_CLASS(SceneImporterSettings, ImporterSettings, HOD_EDITOR_API)
 	};
 
-	class HOD_API SceneImporter : public Importer
+	class HOD_EDITOR_API SceneImporter : public Importer
 	{
 	public:
 

@@ -30,9 +30,9 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	bool InputManager::Initialize()
+	bool InputManager::Initialize(window::Window* window)
 	{
-		if (InitializeApis() == false)
+		if (InitializeApis(window) == false)
 		{
 			return false;
 		}
@@ -44,9 +44,9 @@ namespace hod::input
 	/// @brief 
 	/// @param api 
 	/// @return 
-	bool InputManager::CreateApi(Api* api)
+	bool InputManager::CreateApi(Api* api, window::Window* window)
 	{
-		if (api->Initialize() == false)
+		if (api->Initialize(window) == false)
 		{
 			delete api;
 			return false;

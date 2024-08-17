@@ -1,10 +1,10 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 namespace hod
 {
 	namespace game
 	{
-		HOD_API void RegisterBuiltin();
+		HOD_GAME_API void RegisterBuiltin();
 	}
 }

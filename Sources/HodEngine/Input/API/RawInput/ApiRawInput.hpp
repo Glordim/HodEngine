@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Input/Export.hpp"
 
 #include <Windows.h>
 
@@ -23,7 +23,7 @@ namespace hod::input
 	class DeviceKeyboardRawInput;
 
 	/// @brief 
-	class HOD_API ApiRawInput : public Api
+	class HOD_INPUT_API ApiRawInput : public Api
 	{
 	public:
 

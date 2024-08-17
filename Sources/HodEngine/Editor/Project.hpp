@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include <stdint.h>
 
@@ -14,9 +14,9 @@
 namespace hod::editor
 {
 	/// @brief 
-	class HOD_API Project
+	class HOD_EDITOR_API Project
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Project)
+		REFLECTED_CLASS_NO_VIRTUAL(Project, HOD_EDITOR_API)
 
 		_Singleton(Project)
 

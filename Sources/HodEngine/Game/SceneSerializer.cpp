@@ -62,7 +62,7 @@ namespace hod::game
 					std::shared_ptr<Component> componentLock = component.lock();
 
 					Document::Node& componentNode = componentsNode.AddChild("");
-					componentNode.AddChild("MetaType").SetValue(componentLock->GetMetaType());
+					componentNode.AddChild("MetaType").SetUInt64(componentLock->GetMetaType());
 					Serializer::Serialize(componentLock.get(), componentNode);
 				}
 			}

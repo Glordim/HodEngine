@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #if defined(PLATFORM_MACOS)
 
@@ -21,7 +21,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API RendererMetal : public Renderer
+		class HOD_RENDERER_API RendererMetal : public Renderer
 		{
 			_SingletonOverride(RendererMetal)
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <type_traits>
 #include <string_view>
@@ -14,7 +14,7 @@
 namespace hod
 {
 	///@brief 
-	class HOD_API ReflectionHelper
+	class HOD_CORE_API ReflectionHelper
 	{
 	public:
 

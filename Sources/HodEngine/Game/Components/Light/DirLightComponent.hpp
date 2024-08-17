@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 
@@ -13,7 +13,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API DirLightComponent : public Component
+		class HOD_GAME_API DirLightComponent : public Component
 		{
 		public:
 

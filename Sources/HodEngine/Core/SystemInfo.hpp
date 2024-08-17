@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <stdint.h>
 
@@ -7,6 +7,6 @@ namespace hod
 {
 	namespace SystemInfo
 	{
-		HOD_API uint32_t GetLogicalCoreCount();
+		HOD_CORE_API uint32_t GetLogicalCoreCount();
 	}
 }

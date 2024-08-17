@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include <stdint.h>
 
@@ -34,7 +34,7 @@ namespace hod::editor
 	class Asset;
 
 	/// @brief 
-	class HOD_API Editor
+	class HOD_EDITOR_API Editor
 	{
 		_Singleton(Editor)
 

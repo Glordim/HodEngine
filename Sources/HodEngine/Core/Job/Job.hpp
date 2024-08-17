@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <vector>
 
@@ -8,7 +8,7 @@
 namespace hod
 {
 	/// @brief 
-	class HOD_API Job
+	class HOD_CORE_API Job
 	{
 	public:
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -15,9 +15,9 @@ namespace hod
 
 	namespace game
 	{
-		struct HOD_API Shape
+		struct HOD_GAME_API Shape
 		{
-			REFLECTED_CLASS_NO_PARENT(Shape)
+			REFLECTED_CLASS_NO_PARENT(Shape, HOD_GAME_API)
 		public:
 
 			virtual ~Shape() = default;
@@ -32,9 +32,9 @@ namespace hod
 			Type _type;			
 		};
 
-		struct HOD_API EdgeShape : public Shape
+		struct HOD_GAME_API EdgeShape : public Shape
 		{
-			REFLECTED_CLASS(EdgeShape, Shape)
+			REFLECTED_CLASS(EdgeShape, Shape, HOD_GAME_API)
 		public:
 
 			~EdgeShape() override = default;
@@ -43,9 +43,9 @@ namespace hod
 			Vector2 _end;
 		};
 
-		struct HOD_API CircleShape : public Shape
+		struct HOD_GAME_API CircleShape : public Shape
 		{
-			REFLECTED_CLASS(CircleShape, Shape)
+			REFLECTED_CLASS(CircleShape, Shape, HOD_GAME_API)
 		public:
 
 			~CircleShape() override = default;
@@ -54,9 +54,9 @@ namespace hod
 			float	_radius;
 		};
 
-		struct HOD_API BoxShape : public Shape
+		struct HOD_GAME_API BoxShape : public Shape
 		{
-			REFLECTED_CLASS(BoxShape, Shape)
+			REFLECTED_CLASS(BoxShape, Shape, HOD_GAME_API)
 		public:
 
 			~BoxShape() override = default;
@@ -69,9 +69,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API ColliderComponent : public Component
+		class HOD_GAME_API ColliderComponent : public Component
 		{
-			REFLECTED_CLASS(ColliderComponent, Component)
+			REFLECTED_CLASS(ColliderComponent, Component, HOD_GAME_API)
 
 		public:
 

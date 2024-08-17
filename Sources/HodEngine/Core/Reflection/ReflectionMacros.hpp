@@ -12,13 +12,13 @@ static __REFLECTION_DESCRIPTOR_TYPE__*	GetReflectionDescriptor()				\
 }																				\
 
 ///@brief Declare sub class used for Reflection
-#define REFLECTED_CLASS_NO_VIRTUAL(__TYPE__)										\
+#define REFLECTED_CLASS_NO_VIRTUAL(__TYPE__, __API__)								\
 																					\
 	META_TYPE_NO_VIRTUAL(__TYPE__)													\
 																					\
 public:																				\
 																					\
-	class __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor			\
+	class __API__ __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor	\
 	{																				\
 		public:																		\
 																					\
@@ -35,13 +35,13 @@ public:																				\
 private:																			\
 
 ///@brief Declare sub class used for Reflection
-#define REFLECTED_CLASS_NO_PARENT(__TYPE__)											\
+#define REFLECTED_CLASS_NO_PARENT(__TYPE__, __API__)								\
 																					\
 	BASE_META_TYPE(__TYPE__)														\
 																					\
 public:																				\
 																					\
-	class __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor			\
+	class __API__ __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor	\
 	{																				\
 		public:																		\
 																					\
@@ -58,13 +58,13 @@ public:																				\
 private:																			\
 
 ///@brief Declare sub class used for Reflection
-#define REFLECTED_CLASS(__TYPE__, __PARENT__)										\
+#define REFLECTED_CLASS(__TYPE__, __PARENT__, __API__)								\
 																					\
 	META_TYPE(__TYPE__, __PARENT__)													\
 																					\
 public:																				\
 																					\
-	class __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor			\
+	class __API__ __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor	\
 	{																				\
 		public:																		\
 																					\

@@ -1,12 +1,12 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <filesystem>
 
 namespace hod
 {
 	/// @brief 
-	class HOD_API FileSystem
+	class HOD_CORE_API FileSystem
 	{
 	public:
 

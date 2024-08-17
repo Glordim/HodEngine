@@ -1,12 +1,12 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include "HodEngine/Core/Type.hpp"
 
 namespace hod
 {
 	///@brief 
-	class HOD_API ReflectionTrait
+	class HOD_CORE_API ReflectionTrait
 	{
 		BASE_META_TYPE(ReflectionTrait)
 

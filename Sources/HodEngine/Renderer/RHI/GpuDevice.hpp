@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <string>
 
@@ -10,7 +10,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		struct HOD_API GpuDevice
+		struct HOD_RENDERER_API GpuDevice
 		{
 			std::wstring name;
 			size_t vram;

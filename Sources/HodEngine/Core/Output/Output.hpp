@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <HodEngine/Core/Type.hpp> // std::to_underlying
 
@@ -8,7 +8,7 @@
 namespace hod
 {
 	/// @brief 
-	struct HOD_API Output
+	struct HOD_CORE_API Output
     {
 		enum class Type
 		{

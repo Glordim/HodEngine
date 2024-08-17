@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #if defined(_WIN32)
 
@@ -12,7 +12,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API D3dShader : public Shader
+		class HOD_RENDERER_API D3dShader : public Shader
 		{
 		public:
 											D3dShader(ShaderType type);

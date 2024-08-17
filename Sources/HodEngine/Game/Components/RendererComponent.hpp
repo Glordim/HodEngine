@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include <vector>
 
@@ -15,9 +15,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API RendererComponent : public Component
+		class HOD_GAME_API RendererComponent : public Component
 		{
-			REFLECTED_CLASS(RendererComponent, Component)
+			REFLECTED_CLASS(RendererComponent, Component, HOD_GAME_API)
 
 		public:
 

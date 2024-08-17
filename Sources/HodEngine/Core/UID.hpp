@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <string>
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
@@ -7,9 +7,9 @@
 namespace hod
 {
 	/// @brief 
-	class HOD_API UID final
+	class HOD_CORE_API UID final
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(UID)
+		REFLECTED_CLASS_NO_VIRTUAL(UID, HOD_CORE_API)
 		
 	public:
 

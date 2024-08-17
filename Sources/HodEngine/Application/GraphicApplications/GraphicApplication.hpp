@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Application/Export.hpp"
 
 #include "HodEngine/Application/Application.hpp"
 
@@ -15,7 +15,7 @@ namespace hod::window
 namespace hod::application
 {
 	/// @brief 
-	class HOD_API GraphicApplication : public Application
+	class HOD_APPLICATION_API GraphicApplication : public Application
 	{
 		_SingletonOverride(GraphicApplication)
 

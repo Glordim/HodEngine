@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Window/Export.hpp"
 
 #if defined(PLATFORM_MACOS)
 
@@ -24,7 +24,7 @@ class MyWindowDelegate;
 namespace hod::window
 {
 	/// @brief 
-	class HOD_API MacOsWindow : public DesktopWindow
+	class HOD_WINDOW_API MacOsWindow : public DesktopWindow
 	{
 	public:
 											MacOsWindow(bool hidden);

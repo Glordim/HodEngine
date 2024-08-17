@@ -1,12 +1,12 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Input/Export.hpp"
 
 #include "HodEngine/Input/Device.hpp"
 
 namespace hod::input
 {
 	/// @brief 
-	class HOD_API DeviceKeyboard : public Device
+	class HOD_INPUT_API DeviceKeyboard : public Device
 	{
 	public:
 

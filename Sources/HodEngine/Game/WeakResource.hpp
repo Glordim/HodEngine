@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 #include <memory>
 
 #include <HodEngine/Core/UID.hpp>
@@ -13,9 +13,9 @@ namespace hod
 namespace hod::game
 {
     /// @brief 
-    class HOD_API WeakResourceBase
+    class HOD_GAME_API WeakResourceBase
     {
-        REFLECTED_CLASS_NO_PARENT(WeakResourceBase)
+        REFLECTED_CLASS_NO_PARENT(WeakResourceBase, HOD_GAME_API)
 
     public:
 
@@ -55,7 +55,7 @@ namespace hod::game
     template<typename _Resource_>
     class WeakResource : public WeakResourceBase
     {
-        REFLECTED_CLASS(WeakResource, WeakResourceBase)
+        REFLECTED_CLASS(WeakResource, WeakResourceBase, HOD_GAME_API)
 
     public:
 

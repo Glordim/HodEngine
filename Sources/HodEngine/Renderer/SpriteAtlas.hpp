@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <vector>
 #include <string>
@@ -15,7 +15,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API SpriteAtlas
+		class HOD_RENDERER_API SpriteAtlas
 		{
 		public:
 

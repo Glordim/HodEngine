@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 
@@ -13,7 +13,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API VkShader : public Shader
+		class HOD_RENDERER_API VkShader : public Shader
 		{
 		public:
 

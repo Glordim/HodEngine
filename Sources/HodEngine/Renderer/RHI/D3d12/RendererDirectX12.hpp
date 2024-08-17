@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #if defined(_WIN32)
 
@@ -24,7 +24,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API RendererDirectX12 : public Renderer
+		class HOD_RENDERER_API RendererDirectX12 : public Renderer
 		{
 		public:
 

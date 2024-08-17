@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <vector>
 #include <functional>
@@ -15,7 +15,7 @@ namespace hod
 	class ReflectionProperty;
 
 	///@brief 
-	class HOD_API ReflectionDescriptor
+	class HOD_CORE_API ReflectionDescriptor
 	{
 	public:
 

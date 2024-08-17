@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -32,7 +32,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class HOD_API RendererVulkan : public Renderer
+	class HOD_RENDERER_API RendererVulkan : public Renderer
 	{
 		_SingletonOverride(RendererVulkan)
 

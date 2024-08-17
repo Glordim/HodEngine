@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include <vector>
 
@@ -22,7 +22,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API CameraComponent : public Component
+		class HOD_GAME_API CameraComponent : public Component
 		{
 		public:
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include <memory>
 
@@ -13,7 +13,7 @@ namespace hod::editor
 	class Asset;
 	
 	///@brief 
-	class HOD_API ImporterCustomEditor
+	class HOD_EDITOR_API ImporterCustomEditor
 	{
 	public:
 

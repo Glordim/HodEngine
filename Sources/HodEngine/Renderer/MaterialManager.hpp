@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -18,7 +18,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API MaterialManager : public GenericManager<Material>
+		class HOD_RENDERER_API MaterialManager : public GenericManager<Material>
 		{
 			_Singleton(MaterialManager)
 

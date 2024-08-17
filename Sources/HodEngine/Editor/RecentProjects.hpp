@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include <stdint.h>
 
@@ -10,9 +10,9 @@
 
 namespace hod::editor
 {
-	struct HOD_API RecentProjects
+	struct HOD_EDITOR_API RecentProjects
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(RecentProjects)
+		REFLECTED_CLASS_NO_VIRTUAL(RecentProjects, HOD_EDITOR_API)
 
 	public:
 

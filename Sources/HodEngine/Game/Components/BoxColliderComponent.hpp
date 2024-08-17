@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Components/ColliderComponent.hpp"
 
@@ -12,9 +12,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API BoxColliderComponent : public ColliderComponent
+		class HOD_GAME_API BoxColliderComponent : public ColliderComponent
 		{
-			REFLECTED_CLASS(BoxColliderComponent, ColliderComponent)
+			REFLECTED_CLASS(BoxColliderComponent, ColliderComponent, HOD_GAME_API)
 
 		public:
 

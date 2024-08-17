@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <HodEngine/Window/Surface.hpp>
 
@@ -11,7 +11,7 @@ namespace hod
 	namespace renderer
 	{
 		/// @brief 
-		class HOD_API Context : public window::Surface
+		class HOD_RENDERER_API Context : public window::Surface
 		{
 		public:
 							Context();

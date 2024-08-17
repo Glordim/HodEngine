@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include <HodEngine/ImGui/Window/Window.hpp>
 
@@ -23,7 +23,7 @@ namespace hod::editor
 	class EditorReflectedObject;
 
 	/// @brief 
-	class HOD_API InspectorWindow : public imgui::Window
+	class HOD_EDITOR_API InspectorWindow : public imgui::Window
 	{
 		META_TYPE(InspectorWindow, imgui::Window);
 		WINDOW_DESCRIPTION()

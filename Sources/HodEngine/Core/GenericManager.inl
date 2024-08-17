@@ -42,9 +42,9 @@ namespace hod
 	template<typename T>
 	void GenericManager<T>::RemoveData(const UID& uid)
 	{
-		uint32_t vectorSize = _uidToDataMap.size();
+		uint32_t vectorSize = (uint32_t)_uidToDataMap.size();
 
-		for (int i = 0; i < vectorSize; ++i)
+		for (uint32_t i = 0; i < vectorSize; ++i)
 		{
 			if (_uidToDataMap[i].first == uid)
 			{

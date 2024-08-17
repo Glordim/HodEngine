@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
@@ -16,7 +16,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API MetalTexture : public Texture
+		class HOD_RENDERER_API MetalTexture : public Texture
 		{
 		public:
 

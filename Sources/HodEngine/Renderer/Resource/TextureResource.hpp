@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/Core/Resource.hpp"
 
@@ -7,9 +7,9 @@
 
 namespace hod::renderer
 {	
-	class HOD_API TextureResource : public Resource
+	class HOD_RENDERER_API TextureResource : public Resource
 	{
-		REFLECTED_CLASS(TextureResource, Resource)
+		REFLECTED_CLASS(TextureResource, Resource, HOD_RENDERER_API)
 
 	public:
 

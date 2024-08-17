@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <cstdint>
 #include <string_view>
@@ -9,7 +9,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class HOD_API Hash
+	class HOD_CORE_API Hash
 	{
 	public:
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -13,9 +13,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API RigidbodyComponent : public Component
+		class HOD_GAME_API RigidbodyComponent : public Component
 		{
-			REFLECTED_CLASS(RigidbodyComponent, Component)
+			REFLECTED_CLASS(RigidbodyComponent, Component, HOD_GAME_API)
 
 		public:
 

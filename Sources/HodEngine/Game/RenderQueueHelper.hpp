@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 namespace hod
 {
@@ -17,7 +17,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class HOD_API RenderQueueHelper
+	class HOD_GAME_API RenderQueueHelper
 	{
 	public:
 

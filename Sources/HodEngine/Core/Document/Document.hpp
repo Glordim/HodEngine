@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <cstdint>
 #include <string>
@@ -11,7 +11,7 @@
 namespace hod
 {
 	/// @brief 
-	class HOD_API Document
+	class HOD_CORE_API Document
 	{
 	private:
 
@@ -19,7 +19,7 @@ namespace hod
 
 	public:
 
-		class Node
+		class HOD_CORE_API Node
 		{
 			friend class Document;
 

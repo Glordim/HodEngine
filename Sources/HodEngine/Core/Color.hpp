@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <cstddef>
 
@@ -8,7 +8,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	struct HOD_API Color
+	struct HOD_CORE_API Color
 	{
 		Color();
 		Color(float r, float g, float b, float a);

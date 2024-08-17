@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Input/Export.hpp"
 
 #include <Windows.h>
 
@@ -9,7 +9,7 @@
 namespace hod::input
 {
 	/// @brief 
-	class HOD_API DeviceKeyboardRawInput : public DeviceKeyboard
+	class HOD_INPUT_API DeviceKeyboardRawInput : public DeviceKeyboard
 	{
 	public:
 											DeviceKeyboardRawInput(HANDLE handle, const std::string_view& sName, const RID_DEVICE_INFO_KEYBOARD& info);

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 
@@ -20,7 +20,7 @@
 
 namespace hod
 {
-	class HOD_API FileSystemWatcher
+	class HOD_CORE_API FileSystemWatcher
 	{
 	public:
 

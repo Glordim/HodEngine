@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
 #include "HodEngine/Core/Type.hpp"
@@ -16,7 +16,7 @@ namespace hod::core
 namespace hod::game
 {
 	/// @brief 
-	class HOD_API ComponentFactory
+	class HOD_GAME_API ComponentFactory
 	{
 		_Singleton(ComponentFactory)
 

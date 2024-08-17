@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <filesystem>
 
@@ -9,7 +9,7 @@
 
 namespace hod
 {
-	class HOD_API Module
+	class HOD_CORE_API Module
 	{
 	public:
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/ImGui/Export.hpp"
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/P2fT2f.hpp"
@@ -18,7 +18,7 @@ namespace hod::renderer
 namespace hod::imgui
 {
 	/// @brief 
-	class HOD_API RenderCommandImGui : public renderer::RenderCommand
+	class HOD_IMGUI_API RenderCommandImGui : public renderer::RenderCommand
 	{
 	public:
 

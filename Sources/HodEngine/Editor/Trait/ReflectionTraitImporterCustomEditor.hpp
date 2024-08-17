@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
@@ -8,7 +8,7 @@ namespace hod::editor
 	class ImporterCustomEditor;
 
 	///@brief 
-	class HOD_API ReflectionTraitImporterCustomEditor : public ReflectionTrait
+	class HOD_EDITOR_API ReflectionTraitImporterCustomEditor : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitImporterCustomEditor, ReflectionTrait)
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <HodEngine/Core/Output/Output.hpp>
 
@@ -9,7 +9,7 @@
 namespace hod
 {
 	/// @brief 
-	class HOD_API OutputBucket
+	class HOD_CORE_API OutputBucket
 	{
 	public:
 
@@ -36,7 +36,7 @@ namespace hod
 	};
 
 	/// @brief 
-	class HOD_API ScopedEnableOutputBucket
+	class HOD_CORE_API ScopedEnableOutputBucket
 	{
 	public:
 

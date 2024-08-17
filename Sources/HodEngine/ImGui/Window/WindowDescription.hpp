@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/ImGui/Export.hpp"
 
 #include "HodEngine/Core/Type.hpp"
 
@@ -11,7 +11,7 @@ namespace hod::imgui
 {
 	class Window;
 
-	class HOD_API WindowDescription
+	class HOD_IMGUI_API WindowDescription
 	{
 	public:
 

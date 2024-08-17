@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <HodEngine/Core/Rect.hpp>
 #include "HodEngine/Renderer/P2fT2f.hpp"
@@ -18,7 +18,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		class HOD_API Sprite : public Resource
+		class HOD_RENDERER_API Sprite : public Resource
 		{
 			friend class SpriteAtlas;
 

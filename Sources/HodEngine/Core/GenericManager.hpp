@@ -1,5 +1,4 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
 
 #include "HodEngine/Core/UID.hpp"
 #include "HodEngine/Core/Event.hpp"
@@ -11,7 +10,7 @@ namespace hod
 	//! @brief		
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	class HOD_API GenericManager
+	class GenericManager
 	{
 	public:
 

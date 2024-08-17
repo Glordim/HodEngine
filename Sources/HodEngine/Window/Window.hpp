@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Window/Export.hpp"
 
 #include <stdint.h>
 
@@ -8,7 +8,7 @@ namespace hod::window
 	class Surface;
 
 	/// @brief 
-	class HOD_API Window
+	class HOD_WINDOW_API Window
 	{
 	public:
 

@@ -1,12 +1,12 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Core/Export.hpp"
 
 #include <cstdint>
 
 namespace hod
 {
 	/// @brief 
-	struct HOD_API Argument
+	struct HOD_CORE_API Argument
 	{
 		char		_shortName = '\0';
 		const char*	_longName = nullptr;
@@ -15,7 +15,7 @@ namespace hod
 	};
 
 	///@brief Utilty class to easly parse short and long option from argc/argv
-	class HOD_API ArgumentParser
+	class HOD_CORE_API ArgumentParser
 	{
 	public:
 

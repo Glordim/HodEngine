@@ -1,11 +1,11 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Window/Export.hpp"
 
 #include "HodEngine/Core/Singleton.hpp"
 
 namespace hod::window
 {
-    class HOD_API DisplayManager
+    class HOD_WINDOW_API DisplayManager
     {
         _SingletonAbstract(DisplayManager)
 

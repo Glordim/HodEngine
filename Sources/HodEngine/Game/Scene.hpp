@@ -1,5 +1,5 @@
 #pragma once
-#include <HodEngine/HodEngine.hpp>
+#include "HodEngine/Game/Export.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
@@ -18,9 +18,9 @@ namespace hod::game
 	class Component;
 
 	/// @brief 
-	class HOD_API Scene
+	class HOD_GAME_API Scene
 	{
-		REFLECTED_CLASS_NO_PARENT(Scene)
+		REFLECTED_CLASS_NO_PARENT(Scene, HOD_GAME_API)
 
 	public:
 						Scene() = default;

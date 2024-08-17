@@ -4,7 +4,7 @@
 
 namespace hod::input
 {
-	class HOD_API FeedbackVibration : public Feedback
+	class HOD_INPUT_API FeedbackVibration : public Feedback
 	{
 		META_TYPE(FeedbackVibration, Feedback);
 
