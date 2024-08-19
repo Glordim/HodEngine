@@ -228,7 +228,17 @@ namespace hod::editor
 			return false;
 		}
 		
-		std::string arguments = std::format("-B {} -S {} -G \"Ninja Multi-Config\"", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string());
+		#if defined(PLATFORM_WINDOWS)
+		const char* generator = "Visual Studio 17 2022";
+		#elif defined(PLATFORM_MACOS)
+		const char* generator = "Xcode";
+		#elif defined(PLATFORM_LINUX)
+		const char* generator = "Ninja Multi-Config";
+		#else
+			#error
+		#endif
+
+		std::string arguments = std::format("-B {} -S {} -G \"{}\"", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator);
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{
