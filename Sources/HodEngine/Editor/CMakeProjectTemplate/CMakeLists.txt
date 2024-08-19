@@ -38,7 +38,14 @@ target_include_directories(Game PUBLIC
 )
 
 target_link_libraries(Game
-	${HodEngine_LIBRARIES}
+	${HodEngine_CORE_LIBRARY}
+	${HodEngine_WINDOW_LIBRARY}
+	${HodEngine_RENDERER_LIBRARY}
+	${HodEngine_INPUT_LIBRARY}
+	${HodEngine_PHYSICS_LIBRARY}
+	${HodEngine_GAME_LIBRARY}
+	${HodEngine_IMGUI_LIBRARY}
+	${HodEngine_EDITOR_LIBRARY}
 )
 
 target_compile_definitions(Game PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
