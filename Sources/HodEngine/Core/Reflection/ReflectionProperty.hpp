@@ -2,6 +2,7 @@
 #include "HodEngine/Core/Export.hpp"
 
 #include <vector>
+#include <string>
 
 #include "HodEngine/Core/Type.hpp"
 
