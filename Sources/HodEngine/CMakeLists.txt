@@ -8,6 +8,10 @@ if (NOT TARGET Core)
 	add_subdirectory(Core)
 endif()
 
+if (NOT TARGET Audio)
+	add_subdirectory(Audio)
+endif()
+
 if (NOT TARGET Input)
 	add_subdirectory(Input)
 endif()
@@ -66,6 +70,7 @@ target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE
 target_compile_definitions(HodEngine PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>" HOD_EXPORT)
 
 set_target_properties(Core PROPERTIES FOLDER "HodEngine-Libs")
+set_target_properties(Audio PROPERTIES FOLDER "HodEngine-Libs")
 set_target_properties(Input PROPERTIES FOLDER "HodEngine-Libs")
 set_target_properties(Application PROPERTIES FOLDER "HodEngine-Libs")
 set_target_properties(ImGui PROPERTIES FOLDER "HodEngine-Libs")

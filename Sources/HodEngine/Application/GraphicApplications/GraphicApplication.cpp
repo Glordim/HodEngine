@@ -4,9 +4,10 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
 
-#include <HodEngine/Renderer/PlatformRenderer.hpp>
 #include <HodEngine/Window/PlatformWindow.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
+
+#include <HodEngine/Audio/PlatformAudioManager.hpp>
 
 #include <HodEngine/Input/InputManager.hpp>
 
@@ -28,6 +29,12 @@ namespace hod::application
 	bool GraphicApplication::Init(const ArgumentParser& argumentParser)
 	{
 		if (Application::Init(argumentParser) == false)
+		{
+			return false;
+		}
+
+		PlatformAudioManager::CreateInstance();
+		if (PlatformAudioManager::GetInstance()->Initialize() == false)
 		{
 			return false;
 		}
