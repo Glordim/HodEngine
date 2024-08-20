@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.4...3.27)
 
+project(Game LANGUAGES CXX)
+
 set(HodEngine_DIR REPLACE_ME_BY_ENGINE_PATH)
 include(${HodEngine_DIR}/CMake/Global.cmake)
 include(${HodEngine_DIR}/CMake/FindHodEngine.cmake)
 FindHodEngine()
-
-project(Game LANGUAGES CXX)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/*.cpp"
@@ -34,6 +34,7 @@ else()
 endif()
 
 target_include_directories(Game PUBLIC
+	${CMAKE_SOURCE_DIR}/Sources
 	${HodEngine_INCLUDE_DIRS}
 )
 
@@ -49,6 +50,7 @@ target_link_libraries(Game
 )
 
 target_compile_definitions(Game PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+target_compile_definitions(Game PRIVATE PONG_EXPORT)
 target_compile_definitions(Game PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
 target_compile_definitions(Game PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>")
 target_compile_definitions(Game PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>")

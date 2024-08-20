@@ -122,7 +122,10 @@ namespace hod::editor
 					ImGui::TableNextColumn();
 					if (ImGui::Button("Open") == true)
 					{
-						Editor::GetInstance()->OpenProject(*it);
+						if (Editor::GetInstance()->OpenProject(*it) == false)
+						{
+							exit(-1);
+						}
 						/*
 						std::string arguments = "--ProjectPath ";
 						arguments += *it;

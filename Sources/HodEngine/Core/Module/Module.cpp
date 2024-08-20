@@ -1,6 +1,8 @@
 #include "HodEngine/Core/pch.hpp"
 #include "HodEngine/Core/Module/Module.hpp"
 
+#include "HodEngine/Core/Output/OutputService.hpp"
+
 namespace hod
 {
 	/// @brief 
@@ -44,7 +46,14 @@ namespace hod
 	{
 		if (_copyForSupportReload == true)
 		{
-			std::filesystem::copy_file(_path, _copyPath, std::filesystem::copy_options::update_existing);
+			try
+			{
+				std::filesystem::copy_file(_path, _copyPath, std::filesystem::copy_options::update_existing);
+			}
+			catch (std::exception& e)
+			{
+				OUTPUT_ERROR("Module::Load(): {}", e.what());
+			}
 			return InternalLoad(_copyPath);
 		}
 		else
@@ -64,7 +73,14 @@ namespace hod
 
 		if (_copyForSupportReload == true && std::filesystem::exists(_copyPath))
 		{
-			std::filesystem::remove(_copyPath);
+			try
+			{
+				std::filesystem::remove(_copyPath);
+			}
+			catch (...)
+			{
+
+			}
 		}
 
 		return true;
