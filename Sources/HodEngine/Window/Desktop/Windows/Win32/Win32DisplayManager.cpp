@@ -19,11 +19,7 @@ namespace hod::window
     /// @return 
     bool Win32DisplayManager::Initialize()
     {
-        if (OleInitialize(nullptr) != S_OK)
-        {
-            // todo output
-            return false;
-        }
+        OleInitialize(nullptr);
         return true;
     }
 
