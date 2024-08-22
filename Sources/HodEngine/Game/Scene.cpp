@@ -357,11 +357,14 @@ namespace hod::game
 		}
 		
 		std::shared_ptr<NodeComponent> nodeComponent = entity->GetComponent<NodeComponent>();
-		uint32_t childCount = nodeComponent->GetChildCount();
-		for (uint32_t childIndex = 0; childIndex < childCount; ++childCount)
+		if (nodeComponent != nullptr)
 		{
-			const std::shared_ptr<Entity> childEntity = nodeComponent->GetChild(childIndex).Lock()->GetEntity();
-			InstantiateInternal(childEntity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
+			uint32_t childCount = nodeComponent->GetChildCount();
+			for (uint32_t childIndex = 0; childIndex < childCount; ++childCount)
+			{
+				const std::shared_ptr<Entity> childEntity = nodeComponent->GetChild(childIndex).Lock()->GetEntity();
+				InstantiateInternal(childEntity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
+			}
 		}
 		return clonedEntity;
 	}
