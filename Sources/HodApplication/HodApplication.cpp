@@ -2,6 +2,7 @@
 
 #include <HodEngine/Editor/Editor.hpp>
 #include <HodEngine/Core/ArgumentParser.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 _SingletonOverrideConstructor(HodApplication)
 {
@@ -19,7 +20,14 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	if (projectPathArgument != nullptr && projectPathArgument->_values[0] != nullptr)
 	{
 		std::filesystem::path projectPath(projectPathArgument->_values[0]);
-		std::filesystem::current_path(projectPath.parent_path());
+		try
+		{
+			std::filesystem::current_path(projectPath.parent_path());
+		}
+		catch (const std::exception& e)
+		{
+			OUTPUT_ERROR(e.what());
+		}		
 	}
 #endif
 	
