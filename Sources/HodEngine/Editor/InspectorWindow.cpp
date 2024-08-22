@@ -119,7 +119,7 @@ namespace hod::editor
 				}
 
 				// todo hide in play mode
-				ImGui::SameLine(ImGui::GetContentRegionMax().x - CalculateButtonSize(ICON_MDI_PENCIL).x, 0.0f);
+				ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_PENCIL).x, 0.0f);
 				ImGui::BeginDisabled(entityDiffs._diffs.empty());
 				if (ImGui::Button(ICON_MDI_PENCIL))
 				{

@@ -58,7 +58,7 @@ namespace hod::editor
 		if (ImGui::Begin("ProjectBrowser", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize) == true)
 		{
 			ImGui::Text("Project Browser");
-			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 140.0f);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 140.0f, 0.0f);
 			if (ImGui::Button("Open") == true)
 			{
 				pfd::settings::verbose(true);
