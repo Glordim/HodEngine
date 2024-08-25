@@ -1,3 +1,4 @@
+#include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/D3d12/RendererDirectX12.hpp"
 
 #if defined(_WIN32)

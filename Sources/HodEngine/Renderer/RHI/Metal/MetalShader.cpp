@@ -1,3 +1,4 @@
+#include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 

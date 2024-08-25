@@ -1,3 +1,4 @@
+#include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalBuffer.hpp"
 

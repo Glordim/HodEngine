@@ -57,6 +57,7 @@ ${Vulkan_INCLUDE_DIRS})
 endif()
 
 add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
+target_precompile_headers(Renderer PRIVATE "Pch.hpp")
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Renderer Core Window msdfgen freetype)

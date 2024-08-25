@@ -1,3 +1,4 @@
+#include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/SpriteAtlas.hpp"
 
 #include "HodEngine/Renderer/Renderer.hpp"

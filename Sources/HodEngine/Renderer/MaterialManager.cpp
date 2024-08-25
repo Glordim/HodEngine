@@ -1,3 +1,4 @@
+#include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 
 #include "HodEngine/Renderer/RHI/Shader.hpp"
