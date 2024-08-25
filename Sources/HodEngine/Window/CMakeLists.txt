@@ -66,6 +66,7 @@ if (APPLE)
 endif()
 
 add_dependencies(Window Core)
+target_precompile_headers(Window PRIVATE "Pch.hpp")
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}

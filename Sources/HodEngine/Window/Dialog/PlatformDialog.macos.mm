@@ -1,3 +1,4 @@
+#include "HodEngine/Window/Pch.hpp"
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #import <Cocoa/Cocoa.h>

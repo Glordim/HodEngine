@@ -1,6 +1,7 @@
 #if defined(PLATFORM_WINDOWS)
 
-#include "Win32Window.hpp"
+#include "HodEngine/Window/Pch.hpp"
+#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
 #include "HodEngine/Window/Surface.hpp"
 
 #include <string>

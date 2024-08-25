@@ -1,5 +1,6 @@
 #if defined(PLATFORM_LINUX)
 
+#include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
 #include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
