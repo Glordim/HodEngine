@@ -1,3 +1,4 @@
+#include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/SpriteRendererComponent.hpp"
 
 #include <HodEngine/Renderer/RHI/Material.hpp>

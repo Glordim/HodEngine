@@ -1,3 +1,4 @@
+#include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
 
 namespace hod::game

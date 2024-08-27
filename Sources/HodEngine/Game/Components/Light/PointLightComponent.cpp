@@ -1,3 +1,4 @@
+#include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/Light/PointLightComponent.hpp"
 
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>

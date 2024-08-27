@@ -1,3 +1,4 @@
+#include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/CameraComponent.hpp"
 
 #include <HodEngine/Core/Rect.hpp>

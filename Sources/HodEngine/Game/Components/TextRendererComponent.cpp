@@ -1,3 +1,4 @@
+#include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/TextRendererComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"

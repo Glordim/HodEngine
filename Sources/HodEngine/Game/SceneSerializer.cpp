@@ -1,3 +1,4 @@
+#include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/SceneSerializer.hpp"
 
 #include "HodEngine/Game/Entity.hpp"

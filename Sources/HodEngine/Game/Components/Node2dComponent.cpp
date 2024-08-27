@@ -1,3 +1,4 @@
+#include "HodEngine/Game/Pch.hpp"
 #include "Node2dComponent.hpp"
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
