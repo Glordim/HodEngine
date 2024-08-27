@@ -1,3 +1,4 @@
+#include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>

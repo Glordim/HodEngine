@@ -1,3 +1,4 @@
+#include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"

@@ -1,3 +1,4 @@
+#include "HodEngine/Editor/Pch.hpp"
 #include "WeakResourceCustomEditor.hpp"
 
 #include "HodEngine/Core/Math/Vector2.hpp"

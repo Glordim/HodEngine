@@ -1,3 +1,4 @@
+#include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
 
