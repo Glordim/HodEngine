@@ -1,3 +1,4 @@
+#include "HodEngine/Audio/Pch.hpp"
 #include "HodEngine/Audio/Win32/Win32AudioManager.hpp"
 
 #include "Mmdeviceapi.h"

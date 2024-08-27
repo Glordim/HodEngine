@@ -13,6 +13,7 @@ CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 assign_source_group(${Srcs}) # for VS
 
 add_library(Audio ${LIB_TYPE} ${Srcs} ${Includes})
+target_precompile_headers(Audio PRIVATE "Pch.hpp")
 set_property(TARGET Audio PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Audio Core)

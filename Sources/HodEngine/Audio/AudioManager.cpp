@@ -1,3 +1,4 @@
+#include "HodEngine/Audio/Pch.hpp"
 #include "HodEngine/Audio/AudioManager.hpp"
 #include "HodEngine/Core/Frame/FrameSequencer.hpp"
 
