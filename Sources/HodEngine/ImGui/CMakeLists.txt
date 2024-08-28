@@ -67,6 +67,7 @@ list(APPEND Includes ${FontIncludes})
 assign_source_group(${Srcs}) # for VS
 
 add_library(ImGui ${LIB_TYPE} ${Srcs} ${Includes})
+target_precompile_headers(ImGui PRIVATE "Pch.hpp")
 set_property(TARGET ImGui PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(ImGui Core Window Renderer freetype)
