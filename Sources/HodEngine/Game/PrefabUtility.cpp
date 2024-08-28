@@ -129,6 +129,10 @@ namespace hod::game::PrefabUtility
 						entity = nullptr;
 					}
 				}
+				else
+				{
+					return nullptr;
+				}
 			}
 		}
 		return nullptr;
