@@ -13,6 +13,7 @@ CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 assign_source_group(${Srcs}) # for VS
 
 add_library(Application ${LIB_TYPE} ${Srcs} ${Includes})
+target_precompile_headers(Application PRIVATE "Pch.hpp")
 set_property(TARGET Application PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Application Core Audio Window Renderer Editor Input Physics)

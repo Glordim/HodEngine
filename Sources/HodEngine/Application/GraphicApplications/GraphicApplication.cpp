@@ -1,3 +1,4 @@
+#include "HodEngine/Application/Pch.hpp"
 #include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>

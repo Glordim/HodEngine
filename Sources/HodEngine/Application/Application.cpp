@@ -1,3 +1,4 @@
+#include "HodEngine/Application/Pch.hpp"
 #include "HodEngine/Application/Application.hpp"
 
 #include "HodEngine/Core/FileSystem.hpp"
