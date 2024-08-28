@@ -14,6 +14,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(Physics ${LIB_TYPE} ${Srcs} ${Includes})
+target_precompile_headers(Physics PRIVATE "Pch.hpp")
 set_property(TARGET Physics PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Physics Core Renderer box2d) #Remove Renderer dep
