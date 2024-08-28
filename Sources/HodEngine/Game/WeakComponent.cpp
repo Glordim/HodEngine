@@ -2,6 +2,9 @@
 #include "HodEngine/Game/WeakComponent.hpp"
 #include "HodEngine/Game/Component.hpp"
 
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp>
+#include <HodEngine/Core/Serialization/Serializer.hpp>
+
 namespace hod::game
 {
     std::map<UID, std::weak_ptr<Component>> WeakComponentMapping::_map;
@@ -31,8 +34,21 @@ namespace hod::game
 
     DESCRIBE_REFLECTED_CLASS_NO_PARENT(WeakComponentBase)
     {
-        ReflectionProperty* property = ADD_PROPERTY(WeakComponentBase, _uid);
-        property->AddTrait<ReflectionTraitGetValueForSerialization>([](const void* instance, void* value){ *static_cast<UID*>(value) = static_cast<const WeakComponentBase*>(instance)->GetForSerialization(); }, (uint32_t)sizeof(UID));
+        AddTrait<ReflectionTraitCustomSerialization>(
+            [](const void* instance, Document::Node& documentNode)
+            {
+                const WeakComponentBase* weakComponentBase = static_cast<const WeakComponentBase*>(instance);
+                UID uid = weakComponentBase->GetForSerialization();
+                Serializer::Serialize(uid, documentNode);
+            },
+            [](void* instance, const Document::Node& documentNode)
+            {
+                WeakComponentBase* weakComponentBase = static_cast<WeakComponentBase*>(instance);
+                UID uid;
+                Serializer::Deserialize(uid, documentNode);
+                weakComponentBase->SetUid(uid);
+            }
+        );
     }
 
     /// @brief 
