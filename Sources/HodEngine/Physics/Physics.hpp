@@ -6,77 +6,59 @@
 #include <vector>
 #include <cstdint>
 
-class b2World;
-class b2Draw;
-
 namespace hod
 {
 	class Vector2;
+}
 
-	namespace renderer
+namespace hod::physics
+{
+	class Body;
+	//class DebugDrawer;
+
+	/// @brief 
+	struct HOD_PHYSICS_API RaycastResult
 	{
-		class RenderQueue;
-	}
+		Body* _bodyCollided = nullptr;
+	};
 
-	namespace physics
+	/// @brief 
+	class HOD_PHYSICS_API Physics
 	{
-		class Body;
-		class DebugDrawer;
+		_SingletonAbstract(Physics)
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		struct HOD_PHYSICS_API RaycastResult
+	public:
+
+		enum DebugDrawFlag
 		{
-			Body* _bodyCollided = nullptr;
+			Shape = 0,
+			Join,
+			AABB,
+			Pair,
+			CenterOfMass
 		};
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_PHYSICS_API Physics
-		{
-			_Singleton(Physics)
+	protected:
 
-		public:
+		virtual				~Physics();
 
-			enum DebugDrawFlag
-			{
-				Shape = 0,
-				Join,
-				AABB,
-				Pair,
-				CenterOfMass
-			};
+	public:
 
-		protected:
+		virtual bool		Init() = 0;
+		void				Clear();
 
-								~Physics();
+		virtual Body*		CreateBody() = 0;
+		virtual void		DeleteBody(Body* body) = 0;
 
-		public:
+		virtual void		Update(float dt) = 0;
 
-			bool				Init();
-			void				Clear();
+		virtual bool		Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result) = 0;
 
-			Body*				CreateBody();
-			void				DeleteBody(Body* body);
+		//void				SetDebugDrawer(b2Draw* debugDrawer);
+		//void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
 
-			void				Update(float dt);
+	private:
 
-			bool				Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result);
-
-			void				SetDebugDrawer(b2Draw* debugDrawer);
-			void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
-
-		private:
-
-			b2World*			_b2World = nullptr;
-
-			int32_t				_velocityIterations = 8;
-			int32_t				_positionIterations = 3;
-
-			std::vector<Body*>	_bodies;
-			b2Draw*				_debugDrawer = nullptr;
-		};
-	}
+		std::vector<Body*>	_bodies;
+	};
 }

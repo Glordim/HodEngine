@@ -23,20 +23,21 @@ message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_
 
 set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
 if(WIN32)
-  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/Release/box2d.lib)
+  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/Release/box2d.lib)
 elseif(UNIX)
-  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/Release/libbox2d.a)
+  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/Release/libbox2d.a)
 endif()
 
 include(ExternalProject)
 ExternalProject_Add(box2d
-  URL https://github.com/erincatto/box2d/archive/refs/tags/v2.4.1.zip
+  URL https://github.com/erincatto/box2d/archive/refs/tags/v3.0.0.zip
   DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
   SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/box2d-src
   BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/box2d-build
   CMAKE_ARGS
-    -DBOX2D_BUILD_UNIT_TESTS=OFF
-    -DBOX2D_BUILD_TESTBED=OFF
+    -DBOX2D_SAMPLES=OFF
+    -DBOX2D_VALIDATE=OFF
+    -DBOX2D_UNIT_TESTS=OFF
     -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release
