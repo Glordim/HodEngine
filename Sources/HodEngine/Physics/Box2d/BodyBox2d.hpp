@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Physics/Export.hpp"
+#include "HodEngine/Physics/Body.hpp"
 
 #include <vector>
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -9,17 +10,8 @@
 namespace hod::physics
 {
 	/// @brief 
-	class HOD_PHYSICS_API BodyBox2d
+	class HOD_PHYSICS_API BodyBox2d : public Body
 	{
-	public:
-
-		enum Type
-		{
-			Static,
-			Kinematic,
-			Dynamic,
-		};
-
 	public:
 							BodyBox2d(b2BodyId b2BodyId);
 							~BodyBox2d();

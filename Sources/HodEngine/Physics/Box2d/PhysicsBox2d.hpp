@@ -22,14 +22,6 @@ namespace hod::physics
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	struct HOD_PHYSICS_API RaycastResult
-	{
-		Body* _bodyCollided = nullptr;
-	};
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
 	class HOD_PHYSICS_API PhysicsBox2d : public Physics
 	{
 		_SingletonOverride(PhysicsBox2d)
@@ -51,15 +43,14 @@ namespace hod::physics
 
 	public:
 
-		bool				Init();
-		void				Clear();
+		bool				Init() override;
 
-		Body*				CreateBody();
-		void				DeleteBody(Body* body);
+		Body*				CreateBody() override;
+		void				DeleteBody(Body* body) override;
 
-		void				Update(float dt);
+		void				Update(float dt) override;
 
-		bool				Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result);
+		bool				Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result) override;
 
 		//void				SetDebugDrawer(b2Draw* debugDrawer);
 		//void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
@@ -67,10 +58,5 @@ namespace hod::physics
 	private:
 
 		b2WorldId			_worldId = {};
-
-		int32_t				_velocityIterations = 8;
-		int32_t				_positionIterations = 3;
-
-		std::vector<Body*>	_bodies;
 	};
 }

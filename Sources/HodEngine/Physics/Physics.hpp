@@ -38,8 +38,6 @@ namespace hod::physics
 			CenterOfMass
 		};
 
-	protected:
-
 		virtual				~Physics();
 
 	public:
@@ -57,7 +55,7 @@ namespace hod::physics
 		//void				SetDebugDrawer(b2Draw* debugDrawer);
 		//void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
 
-	private:
+	protected:
 
 		std::vector<Body*>	_bodies;
 	};
