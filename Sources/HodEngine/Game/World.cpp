@@ -246,14 +246,12 @@ namespace hod
 				if (_physicsDebugDrawer == nullptr)
 				{
 					_physicsDebugDrawer = new PhysicsDebugDrawer();
-					physics::Physics::GetInstance()->SetDebugDrawer(_physicsDebugDrawer);
 				}
 			}
 			else
 			{
 				if (_physicsDebugDrawer != nullptr)
 				{
-					physics::Physics::GetInstance()->SetDebugDrawer(nullptr);
 					delete _physicsDebugDrawer;
 					_physicsDebugDrawer = nullptr;
 				}
