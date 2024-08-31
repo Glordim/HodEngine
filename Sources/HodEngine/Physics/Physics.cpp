@@ -3,8 +3,17 @@
 
 #include "HodEngine/Physics/Body.hpp"
 
+#include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
+
 namespace hod::physics
 {
+	/// @brief 
+	/// @return 
+	Physics* Physics::CreatePhysicsInstance()
+	{
+		return PhysicsBox2d::CreateInstance();
+	}
+
 	/// @brief 
 	/// @param  
 	_SingletonConstructor(Physics)

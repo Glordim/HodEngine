@@ -28,7 +28,7 @@ namespace hod::physics
 	bool PhysicsBox2d::Init()
 	{
 		b2WorldDef worldDef = b2DefaultWorldDef();
-		b2WorldId worldId = b2CreateWorld(&worldDef);
+		_worldId = b2CreateWorld(&worldDef);
 
 		_debugDrawer = new DebugDrawerBox2d();
 
@@ -57,8 +57,9 @@ namespace hod::physics
 		if (it != _bodies.end())
 		{
 			_bodies.erase(it); // todo swap and popback ?
-			b2DestroyBody(static_cast<BodyBox2d*>(body)->GetB2Actor());
+			b2BodyId bodyId =  static_cast<BodyBox2d*>(body)->GetB2Actor();
 			delete body;
+			b2DestroyBody(bodyId);
 		}
 	}
 

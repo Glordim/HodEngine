@@ -45,6 +45,10 @@ namespace hod::physics
 
 		DebugDrawer*		GetDebugDrawer();
 
+	public:
+
+		static Physics*		CreatePhysicsInstance();
+
 	protected:
 
 		std::vector<Body*>	_bodies;

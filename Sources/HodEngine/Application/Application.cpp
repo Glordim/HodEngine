@@ -41,7 +41,7 @@ namespace hod::application
 
 		ResourceManager::CreateInstance();
 
-		physics::Physics::CreateInstance()->Init();
+		physics::Physics::CreatePhysicsInstance()->Init();
 
 		game::ComponentFactory::CreateInstance();
 		game::RegisterBuiltin();
