@@ -52,8 +52,7 @@ namespace hod::physics
 
 		bool				Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result) override;
 
-		//void				SetDebugDrawer(b2Draw* debugDrawer);
-		//void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
+		b2WorldId			GetWorldId() const;
 
 	private:
 

@@ -14,7 +14,7 @@ namespace hod
 namespace hod::physics
 {
 	class Body;
-	//class DebugDrawer;
+	class DebugDrawer;
 
 	/// @brief 
 	struct HOD_PHYSICS_API RaycastResult
@@ -28,15 +28,6 @@ namespace hod::physics
 		_SingletonAbstract(Physics)
 
 	public:
-
-		enum DebugDrawFlag
-		{
-			Shape = 0,
-			Join,
-			AABB,
-			Pair,
-			CenterOfMass
-		};
 
 		virtual				~Physics();
 
@@ -52,11 +43,12 @@ namespace hod::physics
 
 		virtual bool		Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result) = 0;
 
-		//void				SetDebugDrawer(b2Draw* debugDrawer);
-		//void				SetDebugDrawFlags(DebugDrawFlag flag, bool enabled);
+		DebugDrawer*		GetDebugDrawer();
 
 	protected:
 
 		std::vector<Body*>	_bodies;
+
+		DebugDrawer*		_debugDrawer = nullptr;
 	};
 }

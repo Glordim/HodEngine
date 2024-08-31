@@ -12,6 +12,7 @@ namespace hod
 	{
 		Color();
 		Color(float r, float g, float b, float a);
+		Color(int32_t rgba);
 		virtual ~Color();
 
 		float& operator[](size_t index)

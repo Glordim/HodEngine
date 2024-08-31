@@ -1,6 +1,7 @@
 #include "HodEngine/Physics/Pch.hpp"
 #include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
 #include "HodEngine/Physics/Box2d/BodyBox2d.hpp"
+#include "HodEngine/Physics/Box2d/DebugDrawerBox2d.hpp"
 
 #include <box2d/box2d.h>
 
@@ -10,13 +11,14 @@ namespace hod::physics
 	/// @param  
 	_SingletonOverrideConstructor(PhysicsBox2d)
 	{
-
 	}
 
 	/// @brief 
 	PhysicsBox2d::~PhysicsBox2d()
 	{
 		Clear();
+
+		delete _debugDrawer;
 
 		b2DestroyWorld(_worldId);
 	}
@@ -27,6 +29,8 @@ namespace hod::physics
 	{
 		b2WorldDef worldDef = b2DefaultWorldDef();
 		b2WorldId worldId = b2CreateWorld(&worldDef);
+
+		_debugDrawer = new DebugDrawerBox2d();
 
 		return true;
 	}
@@ -85,34 +89,10 @@ namespace hod::physics
 		return false;
 	}
 
-	/*
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	void Physics::SetDebugDrawer(b2Draw* debugDrawer)
+	/// @brief 
+	/// @return 
+	b2WorldId PhysicsBox2d::GetWorldId() const
 	{
-		_debugDrawer = debugDrawer;
-		_b2World->SetDebugDraw(_debugDrawer);
-		SetDebugDrawFlags(DebugDrawFlag::Shape, true);
+		return _worldId;
 	}
-	
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	void Physics::SetDebugDrawFlags(DebugDrawFlag flag, bool enabled)
-	{
-		uint32_t mask = _debugDrawer->GetFlags();
-
-		if (enabled == true)
-		{
-			mask |= (1 << flag);
-		}
-		else
-		{
-			mask &= ~(1 << flag);
-		}
-
-		_debugDrawer->SetFlags(mask);
-	}
-	*/
 }

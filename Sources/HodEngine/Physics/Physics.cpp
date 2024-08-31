@@ -27,4 +27,11 @@ namespace hod::physics
 		}
 		_bodies.clear();
 	}
+
+	/// @brief 
+	/// @return 
+	DebugDrawer* Physics::GetDebugDrawer()
+	{
+		return _debugDrawer;
+	}
 }
