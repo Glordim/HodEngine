@@ -21,6 +21,7 @@ namespace hod::game
 namespace hod::editor
 {
 	class Asset;
+	class PhysicsDebugDrawer;
 
 	/// @brief 
 	class HOD_EDITOR_API ViewportWindow : public imgui::Window
@@ -56,11 +57,18 @@ namespace hod::editor
 
 		public:
 
+			void						EnablePhysicsDebugDrawer(bool enabled);
+			bool						IsPhysicsDebugDrawerEnabled(bool enabled) const;
+
+		public:
+
 			Vector2							_cameraPosition = Vector2::Zero;
 			float							_size = 5.0f;
 			game::Scene*					_scene = nullptr;
 			game::Prefab*					_prefab = nullptr;
 			std::shared_ptr<Asset>			_asset;
+
+			PhysicsDebugDrawer*				_physicsDebugDrawer = nullptr;
 		};
 
 	private:

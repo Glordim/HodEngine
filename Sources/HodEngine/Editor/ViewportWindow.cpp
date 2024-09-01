@@ -28,6 +28,10 @@
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
+#include "HodEngine/Editor/PhysicsDebugDrawer.hpp"
+#include <HodEngine/Physics/Physics.hpp>
+#include <HodEngine/Physics/DebugDrawer.hpp>
+
 #include <cmath>
 
 namespace hod::editor
@@ -39,8 +43,6 @@ namespace hod::editor
 	{
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-
-		game::World::GetInstance()->EnablePhysicsDebugDrawer(true);
 	}
 
 	/// @brief 
@@ -260,11 +262,45 @@ namespace hod::editor
 			game::World* world = game::World::GetInstance();
 			world->Draw(renderQueue);
 
+			if (tab->_physicsDebugDrawer != nullptr)
+			{
+				tab->_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
+			}
+
 			_renderTarget->PrepareForWrite(); // todo automate ?
 
 			renderQueue->Execute(_renderTarget);
 
 			_renderTarget->PrepareForRead(); // todo automate ?
+
+			bool enabled = tab->_physicsDebugDrawer != nullptr;
+			if (ImGui::Selectable("Debug Physics", &enabled, 0, ImVec2(200, 0.0f)) == true)
+			{
+				tab->EnablePhysicsDebugDrawer(enabled);
+			}
+			ImGui::SameLine();
+			if (ImGui::BeginMenu("V"))
+			{
+				uint32_t flags = physics::Physics::GetInstance()->GetDebugDrawer()->GetFlags();
+
+				for (const physics::DebugDrawer::Flag& flag : physics::Physics::GetInstance()->GetDebugDrawer()->GetAvailableFlags())
+				{
+					bool enabled = flags & flag._value;
+					if (ImGui::MenuItem(flag._label, nullptr, &enabled))
+					{
+						if (enabled)
+						{
+							flags |= flag._value;
+						}
+						else
+						{
+							flags &= ~(flag._value);
+						}
+						physics::Physics::GetInstance()->GetDebugDrawer()->SetFlags(flags);
+					}
+				}
+				ImGui::EndMenu();
+			}
 
 			ImVec2 origin = ImGui::GetCursorScreenPos();
 			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
@@ -443,5 +479,34 @@ namespace hod::editor
 		_asset->SetInstanceToSave(nullptr, nullptr);
 		_asset->ResetDirty();
 		delete _scene;
+	}
+
+	/// @brief 
+	/// @param enabled 
+	void ViewportWindow::Tab::EnablePhysicsDebugDrawer(bool enabled)
+	{
+		if (enabled == true)
+		{
+			if (_physicsDebugDrawer == nullptr)
+			{
+				_physicsDebugDrawer = new PhysicsDebugDrawer();
+			}
+		}
+		else
+		{
+			if (_physicsDebugDrawer != nullptr)
+			{
+				delete _physicsDebugDrawer;
+				_physicsDebugDrawer = nullptr;
+			}
+		}
+	}
+
+	/// @brief 
+	/// @param enabled 
+	/// @return 
+	bool ViewportWindow::Tab::IsPhysicsDebugDrawerEnabled(bool enabled) const
+	{
+		return (_physicsDebugDrawer != nullptr);
 	}
 }

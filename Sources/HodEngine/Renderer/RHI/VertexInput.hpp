@@ -14,7 +14,8 @@ namespace hod
 
 			enum Format
 			{
-				R32G32_SFloat = 0,
+				R32_SFloat = 0,
+				R32G32_SFloat,
 				R32G32B32A32_SFloat,
 				R8G8B8A8_UNorm,
 				Count

@@ -13,17 +13,19 @@ namespace hod::physics
 	DebugDrawerBox2d::DebugDrawerBox2d()
 	{
 		_debugDraw.drawingBounds = {};
-		_debugDraw.useDrawingBounds = true;
+		_debugDraw.useDrawingBounds = false;
+
 		_debugDraw.drawShapes = true;
-		_debugDraw.drawJoints = true;
-		_debugDraw.drawJointExtras = true;
-		_debugDraw.drawAABBs = true;
-		_debugDraw.drawMass = true;
-		_debugDraw.drawContacts = true;
-		_debugDraw.drawGraphColors = true;
-		_debugDraw.drawContactNormals = true;
-		_debugDraw.drawContactImpulses = true;
+		_debugDraw.drawJoints = false;
+		_debugDraw.drawJointExtras = false;
+		_debugDraw.drawAABBs = false;
+		_debugDraw.drawMass = false;
+		_debugDraw.drawContacts = false;
+		_debugDraw.drawGraphColors = false;
+		_debugDraw.drawContactNormals = false;
+		_debugDraw.drawContactImpulses = false;
 		_debugDraw.drawFrictionImpulses = true;
+		_flags = (1 << 0); // Shapes
 
 		_debugDraw.context = this;
 
@@ -37,6 +39,51 @@ namespace hod::physics
 		_debugDraw.DrawTransform = &DebugDrawerBox2d::DrawTransform;
 		_debugDraw.DrawPoint = &DebugDrawerBox2d::DrawPoint;
 		_debugDraw.DrawString = &DebugDrawerBox2d::DrawString;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::vector<DebugDrawer::Flag>& DebugDrawerBox2d::GetAvailableFlags() const
+	{
+		static std::vector<Flag> flags = {
+			Flag("Shapes", (1 << 0)),
+			Flag("Joints", (1 << 1)),
+			Flag("JointExtras", (1 << 2)),
+			Flag("AABBs", (1 << 3)),
+			Flag("Mass", (1 << 4)),
+			Flag("Contacts", (1 << 5)),
+			Flag("GraphColors", (1 << 6)),
+			Flag("ContactNormals", (1 << 7)),
+			Flag("ContactImpulses", (1 << 8)),
+			Flag("FrictionImpulses", (1 << 9)),
+		};
+
+		return flags;
+	}
+
+	/// @brief 
+	/// @param flags 
+	void  DebugDrawerBox2d::SetFlags(uint32_t flags)
+	{
+		_flags = flags;
+
+		_debugDraw.drawShapes = (_flags & (1 << 0));
+		_debugDraw.drawJoints = (_flags & (1 << 1));
+		_debugDraw.drawJointExtras = (_flags & (1 << 2));
+		_debugDraw.drawAABBs = (_flags & (1 << 3));
+		_debugDraw.drawMass = (_flags & (1 << 4));
+		_debugDraw.drawContacts = (_flags & (1 << 5));
+		_debugDraw.drawGraphColors = (_flags & (1 << 6));
+		_debugDraw.drawContactNormals = (_flags & (1 << 7));
+		_debugDraw.drawContactImpulses = (_flags & (1 << 8));
+		_debugDraw.drawFrictionImpulses = (_flags & (1 << 9));
+	}
+
+	/// @brief 
+	/// @return 
+	uint32_t DebugDrawerBox2d::GetFlags() const
+	{
+		return _flags;
 	}
 	
 	/// @brief 

@@ -13,6 +13,9 @@
 #include "HodEngine/Renderer/Shader/Generated/P2fC4f_Unlit.vert.hpp"
 #include "HodEngine/Renderer/Shader/Generated/P2fC4f_Unlit.frag.hpp"
 
+#include "HodEngine/Renderer/Shader/Generated/P2f_Unlit.vert.hpp"
+#include "HodEngine/Renderer/Shader/Generated/P2f_Unlit.frag.hpp"
+
 #include <span>
 #include <cstring>
 #include <vector>
@@ -61,6 +64,21 @@ namespace hod
 		/// @return 
 		const BuiltinMaterialSource& GetBuiltinMaterialSource(MaterialManager::BuiltinMaterial buildMaterial)
 		{
+			static BuiltinMaterialSource P2f_Unlit_Line(P2f_Unlit_vert, P2f_Unlit_vert_size,
+															  P2f_Unlit_frag, P2f_Unlit_frag_size,
+															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
+															  Material::PolygonMode::Fill, Material::Topololy::LINE);
+
+			static BuiltinMaterialSource P2f_Unlit_Triangle(P2f_Unlit_vert, P2f_Unlit_vert_size,
+															  P2f_Unlit_frag, P2f_Unlit_frag_size,
+															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
+															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE_FAN);
+
+			static BuiltinMaterialSource P2f_Unlit_Line_TriangleFan(P2f_Unlit_vert, P2f_Unlit_vert_size,
+															  P2f_Unlit_frag, P2f_Unlit_frag_size,
+															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
+															  Material::PolygonMode::Line, Material::Topololy::TRIANGLE_FAN);
+
 			static BuiltinMaterialSource P2fT2f_Texture_Unlit(P2fT2f_Texture_Unlit_vert, P2fT2f_Texture_Unlit_vert_size,
 															  P2fT2f_Texture_Unlit_frag, P2fT2f_Texture_Unlit_frag_size,
 															  { VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32_SFloat) },
@@ -86,7 +104,10 @@ namespace hod
 								  								{ VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  								Material::PolygonMode::Line, Material::Topololy::LINE);
 
-			static std::array<const BuiltinMaterialSource*, static_cast<uint32_t>(MaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = { // c++23 std::to_underlying
+			static std::array<const BuiltinMaterialSource*, std::to_underlying(MaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = {
+				&P2f_Unlit_Line, 
+				&P2f_Unlit_Triangle,
+				&P2f_Unlit_Line_TriangleFan,
 				&P2fT2f_Texture_Unlit,
 				&P2fC4f_Unlit_Fill_Triangle,
 				&P2fC4f_Unlit_Fill_TriangleFan,

@@ -14,7 +14,6 @@
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 
 #include <HodEngine/Physics/Physics.hpp>
-#include <HodEngine/Game/PhysicsDebugDrawer.hpp>
 
 namespace hod
 {
@@ -217,11 +216,6 @@ namespace hod
 				scene->Draw(renderQueue);
 			}
 			_persistanteScene->Draw(renderQueue);
-
-			if (_physicsDebugDrawer != nullptr)
-			{
-				_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
-			}
 		}
 
 		/// @brief 
@@ -234,36 +228,6 @@ namespace hod
 				scene->DrawPicking(renderQueue, colorIdToRendererComponentMap, id);
 			}
 			_persistanteScene->DrawPicking(renderQueue, colorIdToRendererComponentMap, id);
-		}
-
-
-		/// @brief 
-		/// @param enabled 
-		void World::EnablePhysicsDebugDrawer(bool enabled)
-		{
-			if (enabled == true)
-			{
-				if (_physicsDebugDrawer == nullptr)
-				{
-					_physicsDebugDrawer = new PhysicsDebugDrawer();
-				}
-			}
-			else
-			{
-				if (_physicsDebugDrawer != nullptr)
-				{
-					delete _physicsDebugDrawer;
-					_physicsDebugDrawer = nullptr;
-				}
-			}
-		}
-
-		/// @brief 
-		/// @param enabled 
-		/// @return 
-		bool World::IsPhysicsDebugDrawerEnabled(bool enabled) const
-		{
-			return (_physicsDebugDrawer != nullptr);
 		}
 
 		/// @brief 

@@ -26,6 +26,21 @@ namespace hod::physics
 	class HOD_PHYSICS_API DebugDrawer
 	{
 	public:
+
+		struct Flag
+		{
+			Flag(const char* label, uint32_t value)
+			: _label(label)
+			, _value(value)
+			{
+
+			}
+
+			const char* _label = nullptr;
+			uint32_t _value = 0;
+		};
+
+	public:
 										DebugDrawer() = default;
 		virtual							~DebugDrawer() = default;
 
@@ -33,6 +48,10 @@ namespace hod::physics
 
 		virtual void						Update() = 0;
 		const std::vector<RenderCommand>&	GetRenderCommands() const;
+
+		virtual const std::vector<Flag>&	GetAvailableFlags() const = 0;
+		virtual void						SetFlags(uint32_t flags) = 0;
+		virtual uint32_t					GetFlags() const = 0;
 
 	protected:
 

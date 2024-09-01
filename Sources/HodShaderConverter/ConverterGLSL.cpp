@@ -56,6 +56,7 @@ namespace hod
 
 		bool inMainFuction = false;
 		bool inInStruct = false;
+		bool inUboStruct = false;
 		bool inOutStruct = false;
 		bool inCBufferStruct = false;
 		int locationIndex = 0;
@@ -133,6 +134,37 @@ namespace hod
 				}
 				
 				inVariableToQualifier.emplace(identifiers[1], identifiers[2]);
+				continue;
+			}
+
+			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "UBO"}, {Token::Type::OpenCurlyBracket, 0}}))
+			{
+				inUboStruct = true;
+
+				outTokens.emplace_back(Token::Type::Identifier, "layout");
+				outTokens.emplace_back(Token::Type::OpenParenthesis, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "set");
+				outTokens.emplace_back(Token::Type::Assign, 0);
+				outTokens.emplace_back(Token::Type::IntegerValue, 0);
+				outTokens.emplace_back(Token::Type::Comma, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "binding");
+				outTokens.emplace_back(Token::Type::Assign, 0);
+				outTokens.emplace_back(Token::Type::IntegerValue, 0);
+				outTokens.emplace_back(Token::Type::ClosingParenthesis, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "uniform");
+				outTokens.emplace_back(Token::Type::Identifier, "UBO_STRUCT");
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
+
+				continue;
+			}
+			else if (inUboStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
+			{
+				outTokens.emplace_back(Token::Type::ClosingCurlyBracket, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "UBO");
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+
+				inUboStruct = false;
+				outTokens.emplace_back(Token::Type::NewLine, 0);
 				continue;
 			}
 

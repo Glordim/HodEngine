@@ -32,7 +32,7 @@ namespace hod
 
 			void					Execute(CommandBuffer* commandBuffer) override;
 
-		private:
+		protected:
 
 			std::vector<uint8_t>	_vertices;
 			uint32_t				_vertexCount;

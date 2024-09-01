@@ -17,7 +17,10 @@ namespace hod::physics
 
 	public:
 
-		void		Update() override;
+		void						Update() override;
+		const std::vector<Flag>&	GetAvailableFlags() const override;
+		void						SetFlags(uint32_t flags) override;
+		uint32_t					GetFlags() const override;
 
 	private:
 
@@ -37,5 +40,7 @@ namespace hod::physics
 	private:
 
 		b2DebugDraw _debugDraw;
+
+		uint32_t _flags = 0;
 	};
 }

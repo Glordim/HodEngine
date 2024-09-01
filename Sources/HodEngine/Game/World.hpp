@@ -19,7 +19,6 @@ namespace hod
 	{
 		class Scene;
 		class RendererComponent;
-		class PhysicsDebugDrawer;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -58,9 +57,6 @@ namespace hod
 
 //			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
-			void						EnablePhysicsDebugDrawer(bool enabled);
-			bool						IsPhysicsDebugDrawerEnabled(bool enabled) const;
-
 			void						Draw(renderer::RenderQueue* renderQueue);
 			void						DrawPicking(renderer::RenderQueue* renderQueue, std::map<uint32_t, std::shared_ptr<RendererComponent>>& colorIdToRendererComponentMap);
 
@@ -79,8 +75,6 @@ namespace hod
 
 			std::vector<Scene*>			_scenes;
 			Scene*						_persistanteScene = nullptr;
-
-			PhysicsDebugDrawer*			_physicsDebugDrawer = nullptr;
 		};
 	}
 }

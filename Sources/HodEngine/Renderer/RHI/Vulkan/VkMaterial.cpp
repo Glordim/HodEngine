@@ -19,12 +19,14 @@ namespace hod
 	namespace renderer
 	{
 		VkFormat FormatToVkFormat[VertexInput::Format::Count] = {
+			VK_FORMAT_R32_SFLOAT,
 			VK_FORMAT_R32G32_SFLOAT,
 			VK_FORMAT_R32G32B32A32_SFLOAT,
 			VK_FORMAT_R8G8B8A8_UNORM,
 		};
 
 		uint32_t FormatToSize[VertexInput::Format::Count] = {
+			1 * sizeof(float),
 			2 * sizeof(float),
 			4 * sizeof(float),
 			1 * sizeof(uint32_t),
