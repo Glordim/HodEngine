@@ -323,7 +323,7 @@ void embraceTheDarkness()
 			}
 		}
 */
-		ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+		_centralDockSpace = ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
 		static bool showDemo = false;
 		if (showDemo == true)
@@ -506,5 +506,30 @@ void embraceTheDarkness()
 			}
 		}
 		return nullptr;
+	}
+
+	/// @brief 
+	/// @param windowDescription 
+	/// @return 
+	std::vector<Window*> ImGuiManager::FindWindows(WindowDescription* windowDescription) const
+	{
+		std::vector<Window*> windows;
+
+		for (Window* window : _windows)
+		{
+			if (window->GetDescription() == windowDescription)
+			{
+				windows.push_back(window);
+			}
+		}
+
+		return windows;
+	}
+
+	/// @brief 
+	/// @return 
+	ImGuiID ImGuiManager::GetCentralDockSpace() const
+	{
+		return _centralDockSpace;
 	}
 }

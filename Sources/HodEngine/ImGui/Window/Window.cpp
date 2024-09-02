@@ -4,6 +4,8 @@
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 
+#include <format>
+
 namespace hod::imgui
 {
 	/// @brief 
@@ -30,7 +32,7 @@ namespace hod::imgui
 	bool Window::Draw()
 	{
 		bool open = true;
-		if (ImGui::Begin(GetIdentifier(), &open) == true)
+		if (ImGui::Begin(GetIdentifier(), &open, _flags) == true)
 		{
 			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
 			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
@@ -53,7 +55,51 @@ namespace hod::imgui
 	/// @return 
 	const char* Window::GetIdentifier()
 	{
-		_identifier = GetDescription()->GetName();
+		const char* title = nullptr;
+		if (_title.empty())
+		{
+			title = GetDescription()->GetName();
+		}
+		else
+		{
+			title = _title.c_str();
+		}
+		_identifier = std::format("{}##{}_{}", title, GetDescription()->GetName(), _id, GetDescription()->GetName());
 		return _identifier.c_str();
+	}
+
+	/// @brief 
+	/// @param id 
+	void Window::SetId(uint64_t id)
+	{
+		_id = id;
+	}
+
+	/// @brief 
+	/// @return 
+	uint64_t Window::GetId() const
+	{
+		return _id;
+	}
+
+	/// @brief 
+	/// @param flags 
+	void Window::SetFlags(ImGuiWindowFlags flags)
+	{
+		_flags = flags;
+	}
+	
+	/// @brief 
+	/// @return 
+	ImGuiWindowFlags Window::GetFlags() const
+	{
+		return _flags;
+	}
+
+	/// @brief 
+	/// @param title 
+	void Window::SetTitle(std::string_view title)
+	{
+		_title = title;
 	}
 }

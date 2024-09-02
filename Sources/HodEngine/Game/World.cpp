@@ -183,6 +183,7 @@ namespace hod
 					_scenes.erase(it);
 					return true;
 				}
+				++it;
 			}
 
 			// Todo message not found

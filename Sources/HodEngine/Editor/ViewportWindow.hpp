@@ -32,52 +32,22 @@ namespace hod::editor
 	public:
 
 					ViewportWindow();
+					ViewportWindow(std::shared_ptr<Asset> asset);
 					~ViewportWindow() override;
 
 	public:
 
+		bool		Draw() override;
 		void		DrawContent() override;
-
-		void		OpenTab(std::shared_ptr<Asset> asset);
 
 		void		MarkCurrentSceneAsDirty();
 
-	private:
-
-		class Tab final
-		{
-		public:
-									Tab(std::shared_ptr<Asset> asset);
-									Tab(const Tab&) = delete;
-									Tab(Tab&&) = delete;
-									~Tab();
-
-			Tab&					operator = (const Tab&) = delete;
-			Tab&					operator = (Tab&&) = delete;
-
-		public:
-
-			void						EnablePhysicsDebugDrawer(bool enabled);
-			bool						IsPhysicsDebugDrawerEnabled(bool enabled) const;
-
-		public:
-
-			Vector2							_cameraPosition = Vector2::Zero;
-			float							_size = 5.0f;
-			game::Scene*					_scene = nullptr;
-			game::Prefab*					_prefab = nullptr;
-			std::shared_ptr<Asset>			_asset;
-
-			PhysicsDebugDrawer*				_physicsDebugDrawer = nullptr;
-		};
+		std::shared_ptr<Asset> GetAsset() const;
 
 	private:
 
-		void					DrawTab(Tab* tab);
-
-		std::vector<Tab*>::iterator	CloseTab(std::vector<Tab*>::iterator it);
-
-	private:
+		void		EnablePhysicsDebugDrawer(bool enabled);
+		bool		IsPhysicsDebugDrawerEnabled(bool enabled) const;
 		
 		renderer::RenderTarget* _renderTarget = nullptr;
 		renderer::RenderTarget* _pickingRenderTarget = nullptr;
@@ -86,8 +56,12 @@ namespace hod::editor
 		bool					_pickingRequest = false;
 		Vector2					_pickingPosition = Vector2::Zero;
 
-		std::vector<Tab*>		_tabs;
-		Tab*					_selectedTab = nullptr;
-		Tab*					_tabToSelect = nullptr;
+					Vector2							_cameraPosition = Vector2::Zero;
+			float							_size = 5.0f;
+			game::Scene*					_scene = nullptr;
+			game::Prefab*					_prefab = nullptr;
+			std::shared_ptr<Asset>			_asset;
+
+			PhysicsDebugDrawer*				_physicsDebugDrawer = nullptr;
 	};
 }

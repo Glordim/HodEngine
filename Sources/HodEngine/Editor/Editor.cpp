@@ -340,8 +340,24 @@ namespace hod::editor
 
 	void Editor::OpenAsset(std::shared_ptr<Asset> asset)
 	{
-		ViewportWindow* vewportWindow = imgui::ImGuiManager::GetInstance()->FindWindow<ViewportWindow>();
-		vewportWindow->OpenTab(asset);
+		bool alreadyExist = false;
+		std::vector<imgui::Window*> viewportWindows = imgui::ImGuiManager::GetInstance()->FindWindows<ViewportWindow>();
+		for (imgui::Window* window : viewportWindows)
+		{
+			ViewportWindow* viewportWindows = static_cast<ViewportWindow*>(window);
+
+			if (viewportWindows->GetAsset() == asset)
+			{
+				// todo select tab if docking
+				alreadyExist = true;
+				break;
+			}
+		}
+		if (alreadyExist == false)
+		{
+			imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>(asset);
+			// todo with others ViewportWindows
+		}
 		/*
 		Document document;
 		DocumentReaderJson documentReader;

@@ -32,91 +32,183 @@
 #include <HodEngine/Physics/Physics.hpp>
 #include <HodEngine/Physics/DebugDrawer.hpp>
 
+#include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/DearImGui/imgui_internal.h>
+
 #include <cmath>
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(ViewportWindow, "Viewport", true)
+	DECLARE_WINDOW_DESCRIPTION(ViewportWindow, "Viewport", false)
 
 	/// @brief 
 	ViewportWindow::ViewportWindow()
 	{
+		SetFlags(ImGuiWindowFlags_MenuBar);
+
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+
+		_scene = new game::Scene();
+		SetId(reinterpret_cast<uint64_t>(_scene));
+
+		game::World* world = game::World::GetInstance();
+		world->AddScene(_scene);
+
+		SetTitle("New Scene");
+	}
+
+	/// @brief 
+	ViewportWindow::ViewportWindow(std::shared_ptr<Asset> asset)
+	{
+		_asset = asset;
+		SetTitle(asset->GetName());
+
+		SetFlags(ImGuiWindowFlags_MenuBar);
+
+		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+
+		Document document;
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(document, asset->GetPath()) == false)
+		{
+			return; // todo message + bool
+		}
+
+		_scene = new game::Scene();
+		_scene->SetName(asset->GetName());
+		SetId(reinterpret_cast<uint64_t>(_scene));
+
+		SceneImporter sceneImporter;
+		if (asset->GetMeta()._importerType == sceneImporter.GetTypeName())
+		{
+			if (Serializer::Deserialize(_scene, document.GetRootNode()) == false)
+			{
+				return; // todo message + bool
+			}
+			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
+		}
+		else
+		{
+			_prefab = new game::Prefab();
+			if (Serializer::Deserialize(_prefab, document.GetRootNode()) == false)
+			{
+				return; // todo message + bool
+			}
+			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(*_prefab);
+			if (prefabRootEntity != nullptr) // TODO a Prefab should not be empty
+			{
+				prefabRootEntity->SetPrefab(nullptr); // Unpack prefab for serialization, otherwise that will be serialize as PrefabInstance
+			}
+			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
+		}
+
+		game::World* world = game::World::GetInstance();
+		world->AddScene(_scene);
 	}
 
 	/// @brief 
 	ViewportWindow::~ViewportWindow()
 	{
+		game::World* world = game::World::GetInstance();
+		world->RemoveScene(_scene);
+
+		if (_asset != nullptr)
+		{
+			_asset->SetInstanceToSave(nullptr, nullptr);
+			_asset->ResetDirty();
+		}
+		delete _scene;
+
 		delete _renderTarget;
 		delete _pickingRenderTarget;
+	}
+
+	bool ViewportWindow::Draw()
+	{
+		bool open = true;
+
+		ImGui::SetNextWindowDockID(imgui::ImGuiManager::GetInstance()->GetCentralDockSpace(), ImGuiCond_Once);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		bool beginResult = ImGui::Begin(GetIdentifier(), &open, GetFlags());
+		ImGui::PopStyleVar();
+		if (beginResult)
+		{
+			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
+			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
+			cliprect.Min.y -= ImGui::GetStyle().WindowPadding.y * 0.5f;
+			cliprect.Max.x += ImGui::GetStyle().WindowPadding.x * 0.5f;
+			cliprect.Max.y += ImGui::GetStyle().WindowPadding.y * 0.5f;
+			ImGui::PopClipRect();
+			ImGui::PushClipRect(cliprect.Min, cliprect.Max, false);
+
+			if (ImGui::IsWindowAppearing())
+			{
+				game::World* world = game::World::GetInstance();
+				world->AddScene(_scene);
+			}
+			
+			DrawContent();
+		}
+		else
+		{
+			game::World* world = game::World::GetInstance();
+			world->RemoveScene(_scene);
+		}
+		if (open == false)
+		{
+			Close();
+		}
+		ImGui::End();
+		return open;
 	}
 
 	/// @brief 
 	void ViewportWindow::DrawContent()
 	{
-		if (ImGui::BeginTabBar("##TabBar"))
+		if (ImGui::BeginMenuBar())
 		{
-			auto it = _tabs.begin();
-			auto itEnd = _tabs.end();
-			while (it != itEnd)
+			bool enabled = _physicsDebugDrawer != nullptr;
+			if (ImGui::MenuItem("Debug Physics", nullptr, &enabled) == true)
 			{
-				Tab* tab = *it;
-				bool open = true;
-
-				ImGuiTabItemFlags flags = 0;
-				if (_tabToSelect == tab)
-				{
-					_tabToSelect = nullptr;
-					flags = ImGuiTabItemFlags_SetSelected;
-				}
-
-				char tabName[256];
-				std::strcpy(tabName, tab->_asset->GetName().c_str());
-				if (tab->_asset->IsDirty())
-				{
-					std::strcat(tabName, ICON_MDI_RHOMBUS_MEDIUM);
-				}
-				ImGui::PushID(tab);
-				bool selected = ImGui::BeginTabItem(tabName, &open, flags);
-				ImGui::PopID();
-				if (selected == true)
-				{
-					if (tab != _selectedTab)
-					{
-						game::World* world = game::World::GetInstance();
-						if (_selectedTab != nullptr)
-						{
-							world->RemoveScene(_selectedTab->_scene);
-						}
-						world->AddScene(tab->_scene);
-
-						_selectedTab = tab;
-					}
-
-					DrawTab(tab);
-
-					ImGui::EndTabItem();
-				}
-
-				if (open == false)
-				{
-					it = CloseTab(it);
-					itEnd = _tabs.end();
-					continue;
-				}
-				
-				++it;
+				EnablePhysicsDebugDrawer(enabled);
 			}
+			ImGui::SameLine();
+			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
+			{
+				uint32_t flags = physics::Physics::GetInstance()->GetDebugDrawer()->GetFlags();
 
-			ImGui::EndTabBar();
+				for (const physics::DebugDrawer::Flag& flag : physics::Physics::GetInstance()->GetDebugDrawer()->GetAvailableFlags())
+				{
+					bool enabled = flags & flag._value;
+					if (ImGui::MenuItem(flag._label, nullptr, &enabled))
+					{
+						if (enabled)
+						{
+							flags |= flag._value;
+						}
+						else
+						{
+							flags &= ~(flag._value);
+						}
+						physics::Physics::GetInstance()->GetDebugDrawer()->SetFlags(flags);
+					}
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
 		}
-	}
 
-	/// @brief 
-	/// @param tab 
-	void ViewportWindow::DrawTab(Tab* tab)
-	{
+		/*
+		game::World* world = game::World::GetInstance();
+		if (_selectedTab != nullptr)
+		{
+			world->RemoveScene(_selectedTab->_scene);
+		}
+		world->AddScene(tab->_scene);
+		*/
+
 		if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_T))
@@ -134,14 +226,14 @@ namespace hod::editor
 
 			if (ImGui::GetIO().MouseWheel != 0.0f)
 			{
-				tab->_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(tab->_size);
+				_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(_size);
 			}
 
 			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 			{
 				Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
-				tab->_cameraPosition.SetX(tab->_cameraPosition.GetX() + movement.GetX());
-				tab->_cameraPosition.SetY(tab->_cameraPosition.GetY() + movement.GetY());
+				_cameraPosition.SetX(_cameraPosition.GetX() + movement.GetX());
+				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
 			}
 
 			if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered() && ImGuizmo::IsOver() == false && ImGuizmo::IsUsing() == false)
@@ -156,11 +248,11 @@ namespace hod::editor
 			}
 		}
 
-		uint32_t windowWidth = (uint32_t)ImGui::GetContentRegionAvail().x;// ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
-		uint32_t windowHeight = (uint32_t)ImGui::GetContentRegionAvail().y; //ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
+		uint32_t windowWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
+		uint32_t windowHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
 
-		windowWidth = std::max(2u, windowWidth);
-		windowHeight = std::max(2u, windowHeight);
+		windowWidth = std::clamp(windowWidth, 2u, 16u * 1024u);
+		windowHeight = std::clamp(windowHeight, 2u, 16u * 1024u);
 
 		// todo check if visible (docking tab) ?
 
@@ -188,8 +280,8 @@ namespace hod::editor
 
 				float aspect = (float)windowWidth / (float)windowHeight;
 
-				Matrix4 projection = Matrix4::OrthogonalProjection(-tab->_size * aspect, tab->_size * aspect, -tab->_size, tab->_size, -1024, 1024);
-				Matrix4 view = Matrix4::Translation(tab->_cameraPosition);
+				Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+				Matrix4 view = Matrix4::Translation(_cameraPosition);
 
 				renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
 
@@ -254,17 +346,17 @@ namespace hod::editor
 
 			float aspect = (float)windowWidth / (float)windowHeight;
 
-			Matrix4 projection = Matrix4::OrthogonalProjection(-tab->_size * aspect, tab->_size * aspect, -tab->_size, tab->_size, -1024, 1024);
-			Matrix4 view = Matrix4::Translation(tab->_cameraPosition);
+			Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+			Matrix4 view = Matrix4::Translation(_cameraPosition);
 
 			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
 
 			game::World* world = game::World::GetInstance();
 			world->Draw(renderQueue);
 
-			if (tab->_physicsDebugDrawer != nullptr)
+			if (_physicsDebugDrawer != nullptr)
 			{
-				tab->_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
+				_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
 			}
 
 			_renderTarget->PrepareForWrite(); // todo automate ?
@@ -273,37 +365,9 @@ namespace hod::editor
 
 			_renderTarget->PrepareForRead(); // todo automate ?
 
-			bool enabled = tab->_physicsDebugDrawer != nullptr;
-			if (ImGui::Selectable("Debug Physics", &enabled, 0, ImVec2(200, 0.0f)) == true)
-			{
-				tab->EnablePhysicsDebugDrawer(enabled);
-			}
-			ImGui::SameLine();
-			if (ImGui::BeginMenu("V"))
-			{
-				uint32_t flags = physics::Physics::GetInstance()->GetDebugDrawer()->GetFlags();
-
-				for (const physics::DebugDrawer::Flag& flag : physics::Physics::GetInstance()->GetDebugDrawer()->GetAvailableFlags())
-				{
-					bool enabled = flags & flag._value;
-					if (ImGui::MenuItem(flag._label, nullptr, &enabled))
-					{
-						if (enabled)
-						{
-							flags |= flag._value;
-						}
-						else
-						{
-							flags &= ~(flag._value);
-						}
-						physics::Physics::GetInstance()->GetDebugDrawer()->SetFlags(flags);
-					}
-				}
-				ImGui::EndMenu();
-			}
-
 			ImVec2 origin = ImGui::GetCursorScreenPos();
 			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+			//ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth, (float)(windowHeight + menuBarHeight)));
 			if (ImGui::BeginDragDropTarget() == true)
 			{
 				const ImGuiPayload* payload = ImGui::GetDragDropPayload();
@@ -333,7 +397,7 @@ namespace hod::editor
 									return; // todo message + bool
 								}
 
-								tab->_scene->Instantiate(*prefab);
+								_scene->Instantiate(*prefab);
 
 								Editor::GetInstance()->MarkCurrentSceneAsDirty();
 							}
@@ -366,8 +430,8 @@ namespace hod::editor
 					ImGuizmo::RecomposeMatrixFromComponents(position, rotation, scale, matrix);
 
 					float viewMatrix[16];
-					position[0] = tab->_cameraPosition.GetX();
-					position[1] = tab->_cameraPosition.GetY();
+					position[0] = _cameraPosition.GetX();
+					position[1] = _cameraPosition.GetY();
 					rotation[2] = 0.0f;
 					scale[0] = 1.0f;
 					scale[1] = 1.0f;
@@ -390,100 +454,17 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	/// @param asset 
-	void ViewportWindow::OpenTab(std::shared_ptr<Asset> asset)
-	{
-		for (Tab* tab : _tabs)
-		{
-			if (tab->_asset == asset)
-			{
-				_tabToSelect = tab;
-				return;
-			}
-		}
-
-		Tab* tab = new Tab(asset);
-
-		_tabs.push_back(tab);
-		_tabToSelect = tab;
-	}
-
-	/// @brief 
-	/// @param asset 
-	std::vector<ViewportWindow::Tab*>::iterator	ViewportWindow::CloseTab(std::vector<Tab*>::iterator it)
-	{
-		Tab* tab = *it;
-		if (tab == _selectedTab)
-		{
-			game::World* world = game::World::GetInstance();
-			world->RemoveScene(_selectedTab->_scene);
-			_selectedTab = nullptr;
-		}
-
-		delete tab;
-		return _tabs.erase(it);
-	}
-
-	/// @brief 
 	void ViewportWindow::MarkCurrentSceneAsDirty()
 	{
-		if (_selectedTab != nullptr)
+		if (_asset != nullptr)
 		{
-			_selectedTab->_asset->SetDirty();
+			_asset->SetDirty();
 		}
-	}
-
-	/// @brief 
-	/// @param asset 
-	ViewportWindow::Tab::Tab(std::shared_ptr<Asset> asset)
-	: _asset(asset)
-	{
-		Document document;
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, asset->GetPath()) == false)
-		{
-			return; // todo message + bool
-		}
-
-		_scene = new game::Scene();
-		_scene->SetName(asset->GetName());
-
-		SceneImporter sceneImporter;
-		if (asset->GetMeta()._importerType == sceneImporter.GetTypeName())
-		{
-			if (Serializer::Deserialize(_scene, document.GetRootNode()) == false)
-			{
-				return; // todo message + bool
-			}
-			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
-		}
-		else
-		{
-			_prefab = new game::Prefab();
-			if (Serializer::Deserialize(_prefab, document.GetRootNode()) == false)
-			{
-				return; // todo message + bool
-			}
-			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(*_prefab);
-			if (prefabRootEntity != nullptr) // TODO a Prefab should not be empty
-			{
-				prefabRootEntity->SetPrefab(nullptr); // Unpack prefab for serialization, otherwise that will be serialize as PrefabInstance
-			}
-			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
-		}
-	}
-
-	/// @brief 
-	ViewportWindow::Tab::~Tab()
-	{
-		_asset->SetInstanceToSave(nullptr, nullptr);
-		_asset->ResetDirty();
-		delete _scene;
 	}
 
 	/// @brief 
 	/// @param enabled 
-	void ViewportWindow::Tab::EnablePhysicsDebugDrawer(bool enabled)
+	void ViewportWindow::EnablePhysicsDebugDrawer(bool enabled)
 	{
 		if (enabled == true)
 		{
@@ -505,8 +486,15 @@ namespace hod::editor
 	/// @brief 
 	/// @param enabled 
 	/// @return 
-	bool ViewportWindow::Tab::IsPhysicsDebugDrawerEnabled(bool enabled) const
+	bool ViewportWindow::IsPhysicsDebugDrawerEnabled(bool enabled) const
 	{
 		return (_physicsDebugDrawer != nullptr);
+	}
+
+	/// @brief 
+	/// @return 
+	std::shared_ptr<Asset> ViewportWindow::GetAsset() const
+	{
+		return _asset;
 	}
 }

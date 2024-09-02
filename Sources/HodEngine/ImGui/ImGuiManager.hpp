@@ -5,6 +5,8 @@
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 #include <HodEngine/Core/Event.hpp>
 
+#include <HodEngine/ImGui/DearImGui/imgui.h>
+
 #include <stdint.h>
 
 #if defined (PLATFORM_WINDOWS)
@@ -45,17 +47,23 @@ namespace hod::imgui
 
 		void							SetMainBar(MainBar* mainBar);
 
-		template<typename Window_>
-		Window_*						OpenWindow();
+		template<typename Window_, typename... Args>
+		Window_*						OpenWindow(Args&&... args);
 		void							OpenWindow(Window* window);
 
 		template<typename Window_>
 		Window_*						FindWindow() const;
 		Window*							FindWindow(WindowDescription* windowDescription) const;
 
+		template<typename Window_>
+		std::vector<Window*>			FindWindows() const;
+		std::vector<Window*>			FindWindows(WindowDescription* windowDescription) const;
+
 		void							CloseAllWindow();
 
 		renderer::Material*				GetMaterial() const;
+
+		ImGuiID							GetCentralDockSpace() const;
 
 	protected:
 
@@ -85,6 +93,8 @@ namespace hod::imgui
 #if defined (PLATFORM_WINDOWS)
 		Event<HWND, UINT, WPARAM, LPARAM>::Slot _winProcSlot;
 #endif
+
+		ImGuiID							_centralDockSpace;
 	};
 }
 
