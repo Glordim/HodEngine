@@ -1,5 +1,6 @@
 #include "HodEngine/Physics/Pch.hpp"
 #include "HodEngine/Physics/Box2d/BodyBox2d.hpp"
+#include "HodEngine/Physics/Box2d/ColliderBox2d.hpp"
 
 #include "Physics.hpp"
 
@@ -21,40 +22,39 @@ namespace hod::physics
 	}
 
 	/// @brief 
-	BodyBox2d::~BodyBox2d()
-	{
-		for (b2ShapeId shapeId : _shapeIds)
-		{
-			b2DestroyShape(shapeId);
-		}
-	}
-
-	/// @brief 
 	/// @param startPosition 
 	/// @param endPosition 
-	void BodyBox2d::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
+	Collider* BodyBox2d::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
 	{
-		b2Segment segment;
-		segment.point1 = { startPosition.GetX(), startPosition.GetY() };
-		segment.point2 = { endPosition.GetX(), endPosition.GetY() };
-
-		b2ShapeDef shapeDef = b2DefaultShapeDef();
-		b2ShapeId shapeId = b2CreateSegmentShape(_b2BodyId, &shapeDef, &segment);
-		_shapeIds.push_back(shapeId);
+		ColliderBox2d* collider = new ColliderBox2d(this);
+		collider->SetAsEdge(startPosition, endPosition);
+		_colliders.push_back(collider);
+		return collider;
 	}
 
 	/// @brief 
 	/// @param position 
 	/// @param radius 
-	void BodyBox2d::AddCircleShape(const Vector2& position, float radius)
+	Collider* BodyBox2d::AddCircleShape(const Vector2& position, float radius)
 	{
-		b2Circle circle;
-		circle.center = { position.GetX(), position.GetY() };
-		circle.radius = radius;
+		ColliderBox2d* collider = new ColliderBox2d(this);
+		collider->SetAsCircleShape(position, radius);
+		_colliders.push_back(collider);
+		return collider;
+	}
 
-		b2ShapeDef shapeDef = b2DefaultShapeDef();
-		b2ShapeId shapeId = b2CreateCircleShape(_b2BodyId, &shapeDef, &circle);
-		_shapeIds.push_back(shapeId);
+	/// @brief 
+	/// @param position 
+	/// @param height 
+	/// @param radius 
+	/// @param angle 
+	/// @return 
+	Collider* BodyBox2d::AddCapsuleShape(const Vector2& position, float height, float radius, float angle)
+	{
+		ColliderBox2d* collider = new ColliderBox2d(this);
+		collider->SetAsCapsuleShape(position, height, radius, angle);
+		_colliders.push_back(collider);
+		return collider;
 	}
 
 	/// @brief 
@@ -62,25 +62,22 @@ namespace hod::physics
 	/// @param size 
 	/// @param angle 
 	/// @param density 
-	void BodyBox2d::AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density)
+	Collider* BodyBox2d::AddBoxShape(const Vector2& position, const Vector2& size, float angle)
 	{
-		b2Polygon polygon = b2MakeBox(size.GetX(), size.GetY());
-		polygon.centroid = { position.GetX(), position.GetY() };
-
-		b2ShapeDef shapeDef = b2DefaultShapeDef();
-		b2ShapeId shapeId = b2CreatePolygonShape(_b2BodyId, &shapeDef, &polygon);
-		_shapeIds.push_back(shapeId);
+		ColliderBox2d* collider = new ColliderBox2d(this);
+		collider->SetAsBoxShape(position, size, angle);
+		_colliders.push_back(collider);
+		return collider;
 	}
 
 	/// @brief 
 	/// @param vertices 
-	void BodyBox2d::AddConvexShape(const std::vector<const Vector2>& vertices)
+	Collider* BodyBox2d::AddConvexShape(const std::vector<const Vector2>& vertices)
 	{
-		//b2PolygonShape shape;
-		// todo
-		//shape.Set(vertices.data(), vertices.size());
-
-		//_b2Body->CreateFixture(&shape, 1.0f);
+		ColliderBox2d* collider = new ColliderBox2d(this);
+		collider->SetAsConvexShape(vertices);
+		_colliders.push_back(collider);
+		return collider;
 	}
 
 	/// @brief 
@@ -121,6 +118,7 @@ namespace hod::physics
 	void BodyBox2d::SetType(Type type)
 	{
 		b2Body_SetType(_b2BodyId, static_cast<b2BodyType>(type));
+		b2Body_SetAwake(_b2BodyId, true);
 	}
 
 	/// @brief 

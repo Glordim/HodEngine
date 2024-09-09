@@ -14,14 +14,15 @@ namespace hod::physics
 	{
 	public:
 							BodyBox2d(b2BodyId b2BodyId);
-							~BodyBox2d();
+							~BodyBox2d() override = default;
 
 	public:
 
-		void				AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition) override;
-		void				AddCircleShape(const Vector2& position, float radius) override;
-		void				AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density) override;
-		void				AddConvexShape(const std::vector<const Vector2>& vertices) override;
+		Collider*			AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition) override;
+		Collider*			AddCircleShape(const Vector2& position, float radius) override;
+		Collider*			AddCapsuleShape(const Vector2& position, float height, float radius, float angle) override;
+		Collider*			AddBoxShape(const Vector2& position, const Vector2& size, float angle) override;
+		Collider*			AddConvexShape(const std::vector<const Vector2>& vertices) override;
 
 		void				SetTransform(const Vector2& position, float angle, const Vector2& scale) override;
 
@@ -35,8 +36,6 @@ namespace hod::physics
 
 	private:
 
-		b2BodyId			_b2BodyId = {};
-
-		std::vector<b2ShapeId> _shapeIds;			
+		b2BodyId			_b2BodyId = b2_nullBodyId;
 	};
 }

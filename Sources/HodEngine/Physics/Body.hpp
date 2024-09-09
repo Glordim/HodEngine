@@ -6,6 +6,8 @@
 
 namespace hod::physics
 {
+	class Collider;
+
 	/// @brief 
 	class HOD_PHYSICS_API Body
 	{
@@ -20,14 +22,15 @@ namespace hod::physics
 
 	public:
 							Body() = default;
-		virtual				~Body() = default;
+		virtual				~Body();
 
 	public:
 
-		virtual void		AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition) = 0;
-		virtual void		AddCircleShape(const Vector2& position, float radius) = 0;
-		virtual void		AddBoxShape(const Vector2& position, const Vector2& size, float angle, float density) = 0;
-		virtual void		AddConvexShape(const std::vector<const Vector2>& vertices) = 0;
+		virtual Collider*	AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition) = 0;
+		virtual Collider*	AddCircleShape(const Vector2& position, float radius) = 0;
+		virtual Collider*	AddCapsuleShape(const Vector2& position, float height, float radius, float angle) = 0;
+		virtual Collider*	AddBoxShape(const Vector2& position, const Vector2& size, float angle) = 0;
+		virtual Collider*	AddConvexShape(const std::vector<const Vector2>& vertices) = 0;
 
 		virtual void		SetTransform(const Vector2& position, float angle, const Vector2& scale) = 0;
 
@@ -36,5 +39,9 @@ namespace hod::physics
 
 		virtual Type		GetType() const = 0;
 		virtual void		SetType(Type type) = 0;
+
+	protected:
+
+		std::vector<Collider*> _colliders;
 	};
 }
