@@ -41,7 +41,7 @@ namespace hod
 
 					for (Scene* scene : _scenes)
 					{
-						scene->Awake();
+						scene->Start();
 					}
 				}
 				else
