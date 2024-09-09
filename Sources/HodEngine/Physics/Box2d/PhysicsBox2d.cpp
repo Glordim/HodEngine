@@ -28,6 +28,7 @@ namespace hod::physics
 	bool PhysicsBox2d::Init()
 	{
 		b2WorldDef worldDef = b2DefaultWorldDef();
+		worldDef.gravity.y = -9.8f;
 		_worldId = b2CreateWorld(&worldDef);
 
 		_debugDrawer = new DebugDrawerBox2d();

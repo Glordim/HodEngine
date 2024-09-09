@@ -128,10 +128,14 @@ namespace hod::physics
 		renderCommand._type = RenderCommand::Type::FillPolygon;
 		renderCommand._color = (color << 8) | 0xff;
 
-		// todo use transform ?
-
 		renderCommand._vertices.resize(vertexCount * 2);
-		std::memcpy(renderCommand._vertices.data(), vertices, sizeof(float) * vertexCount * 2);
+		for (int index = 0; index < vertexCount; ++index)
+		{
+			renderCommand._vertices[index * 2 + 0] = transform.p.x + vertices[index].x; // todo use transform.r
+			renderCommand._vertices[index * 2 + 1] = transform.p.y + vertices[index].y; // todo use transform.r
+		}
+
+		//std::memcpy(renderCommand._vertices.data(), vertices, sizeof(float) * vertexCount * 2);
 
 		thiz->_renderCommands.push_back(renderCommand);
 	}
@@ -216,7 +220,24 @@ namespace hod::physics
 	{
 		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
 
-		// todo
+		RenderCommand renderCommand;
+		renderCommand._type = RenderCommand::Type::FillPolygon;
+		renderCommand._color = (color << 8) | 0xff;
+
+		uint32_t segmentCount = 32;
+		renderCommand._vertices.resize(segmentCount * 6 * 2 + 8);
+		BuildCircleVertices(renderCommand._vertices.data(), p1, radius, segmentCount);
+		BuildCircleVertices(renderCommand._vertices.data() + segmentCount * 6, p2, radius, segmentCount);
+		renderCommand._vertices[segmentCount * 6 * 2 + 0] = p1.x - radius;
+		renderCommand._vertices[segmentCount * 6 * 2 + 1] = p1.y;
+		renderCommand._vertices[segmentCount * 6 * 2 + 2] = p2.x - radius;
+		renderCommand._vertices[segmentCount * 6 * 2 + 3] = p2.y;
+		renderCommand._vertices[segmentCount * 6 * 2 + 4] = p1.x + radius;
+		renderCommand._vertices[segmentCount * 6 * 2 + 5] = p1.y;
+		renderCommand._vertices[segmentCount * 6 * 2 + 6] = p2.x + radius;
+		renderCommand._vertices[segmentCount * 6 * 2 + 7] = p2.y;
+
+		thiz->_renderCommands.push_back(renderCommand);
 	}
 
 	/// @brief 
@@ -229,7 +250,24 @@ namespace hod::physics
 	{
 		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
 
-		// todo
+		RenderCommand renderCommand;
+		renderCommand._type = RenderCommand::Type::FillPolygon;
+		renderCommand._color = (color << 8) | 0xff;
+
+		uint32_t segmentCount = 32;
+		renderCommand._vertices.resize(segmentCount * 6 * 2 + 8);
+		BuildCircleVertices(renderCommand._vertices.data(), p1, radius, segmentCount);
+		BuildCircleVertices(renderCommand._vertices.data() + segmentCount * 6, p2, radius, segmentCount);
+		renderCommand._vertices[segmentCount * 6 * 2 + 0] = p1.x - radius;
+		renderCommand._vertices[segmentCount * 6 * 2 + 1] = p1.y;
+		renderCommand._vertices[segmentCount * 6 * 2 + 2] = p2.x - radius;
+		renderCommand._vertices[segmentCount * 6 * 2 + 3] = p2.y;
+		renderCommand._vertices[segmentCount * 6 * 2 + 4] = p1.x + radius;
+		renderCommand._vertices[segmentCount * 6 * 2 + 5] = p1.y;
+		renderCommand._vertices[segmentCount * 6 * 2 + 6] = p2.x + radius;
+		renderCommand._vertices[segmentCount * 6 * 2 + 7] = p2.y;
+
+		thiz->_renderCommands.push_back(renderCommand);
 	}
 
 	/// @brief 
@@ -246,7 +284,7 @@ namespace hod::physics
 		renderCommand._color = (color << 8) | 0xff;
 		renderCommand._vertices.resize(2 * 2);
 		std::memcpy(renderCommand._vertices.data(), &p1, 2 * sizeof(float));
-		std::memcpy(renderCommand._vertices.data() + 2 * sizeof(float), &p2, 2 * sizeof(float));
+		std::memcpy(renderCommand._vertices.data() + 2, &p2, 2 * sizeof(float));
 
 		thiz->_renderCommands.push_back(renderCommand);
 	}
