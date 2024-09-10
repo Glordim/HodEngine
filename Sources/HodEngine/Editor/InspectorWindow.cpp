@@ -229,18 +229,49 @@ namespace hod::editor
 		}
 		if (ImGui::BeginPopup("AddComponent") == true)
 		{
-			for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
-			{
-				const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(ICON_MDI_MAGNIFY);
+			ImGui::SameLine();
 
-				ReflectionTraitDisplayName* displayNameTrait = componentDescriptor.FindTrait<ReflectionTraitDisplayName>();
-				if (ImGui::MenuItem(displayNameTrait->GetValue().c_str()) == true)
+			static char nameBuffer[256] = { '\0' };
+			static std::string strName;
+			if (ImGui::IsWindowAppearing())
+			{
+				nameBuffer[0] = '\0';
+				strName.clear();
+				ImGui::SetKeyboardFocusHere();
+			}
+			if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
+			{
+				strName = nameBuffer;
+			}
+			ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextAlign, ImVec2(0.5f, 0.5f));
+			ImGui::SeparatorText("Components");
+			ImGui::PopStyleVar();
+
+			if (ImGui::BeginChild("ComponentList", ImVec2(0.0f, 350.0f), ImGuiChildFlags_FrameStyle))
+			{
+				for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
 				{
-					selection->AddComponent(componentDescriptor, Editor::GetInstance()->IsPlaying());
-					Editor::GetInstance()->MarkCurrentSceneAsDirty();
+					const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
+
+					ReflectionTraitDisplayName* displayNameTrait = componentDescriptor.FindTrait<ReflectionTraitDisplayName>();
+					auto it = std::search(displayNameTrait->GetValue().cbegin(), displayNameTrait->GetValue().cend(), strName.cbegin(), strName.cend(), [](char ch1, char ch2)
+					{
+						return std::tolower(ch1) == std::tolower(ch2);
+					});
+					if (it != displayNameTrait->GetValue().cend() || strName.empty())
+					{
+						if (ImGui::MenuItem(displayNameTrait->GetValue().c_str()) == true)
+						{
+							selection->AddComponent(componentDescriptor, Editor::GetInstance()->IsPlaying());
+							Editor::GetInstance()->MarkCurrentSceneAsDirty();
+							ImGui::CloseCurrentPopup();
+						}
+					}
 				}
 			}
-
+			ImGui::EndChild();
 			ImGui::EndPopup();
 		}
 	}
