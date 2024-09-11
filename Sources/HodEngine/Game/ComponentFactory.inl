@@ -11,7 +11,18 @@ namespace hod::game
 		ReflectionTraitDisplayName* reflectionTraitDisplayName = reflectionDescriptor->FindTrait<ReflectionTraitDisplayName>();
 		if (reflectionTraitDisplayName == nullptr)
 		{
-			reflectionDescriptor->AddTrait<ReflectionTraitDisplayName>(reflectionDescriptor->GetTypeName());
+			std::string prettyName = reflectionDescriptor->GetTypeName();
+			prettyName.erase(prettyName.rfind("Component"), -1);
+
+			for (uint32_t index = 0; index < prettyName.size(); ++index)
+			{
+				if (index != 0 && std::isupper(prettyName[index]))
+				{
+					prettyName.insert(index, 1, ' ');
+					++index;
+				}
+			}
+			reflectionDescriptor->AddTrait<ReflectionTraitDisplayName>(prettyName);
 		}
 		//
 
