@@ -160,7 +160,6 @@ namespace hod::editor
 			selection->SetName(buffer);
 			Editor::GetInstance()->MarkCurrentSceneAsDirty();
 		}
-		ImGui::Separator();
 
 		std::vector<std::weak_ptr<game::Component>> components = selection->GetComponents();
 		for (const std::weak_ptr<game::Component>& component : components)
@@ -185,7 +184,47 @@ namespace hod::editor
 					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
 				}
 				*/
-				bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
+				//bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
+
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+				ImGui::SetCursorPosX(0.0f);
+				ImGui::PopStyleVar(1);
+
+				ImVec2 min = ImGui::GetCursorScreenPos();
+				ImVec2 max = min;
+				max.x += ImGui::GetWindowWidth();
+				ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
+
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+				ImGui::SetCursorPosX(0.0f);
+				ImGui::Separator();
+				ImGui::SetCursorPosX(0.0f);
+				ImGui::PopStyleVar(2);
+
+				min = ImGui::GetCursorScreenPos();
+				max = min;
+				max.x += ImGui::GetWindowWidth();
+				max.y += ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 4;
+				ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)));
+
+				min.y += ImGui::GetStyle().FramePadding.y;
+				ImGui::SetCursorScreenPos(min);
+
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+				ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+				ImGui::ArrowButton("CollapseComponent", ImGuiDir_Down);
+				ImGui::PopStyleColor(4);
+
+				bool opened = true;
+				ImGui::SameLine();
+				ImGui::TextUnformatted(ICON_MDI_PUZZLE);
+				ImGui::SameLine();
+				ImGui::TextUnformatted(componentLock->GetMetaTypeName());
+
+				/*
 				if (ImGui::BeginPopupContextItem() == true)
 				{
 					if (ImGui::Button("Delete") == true)
@@ -195,6 +234,7 @@ namespace hod::editor
 					}
 					ImGui::EndPopup();
 				}
+				*/
 
 				if (opened == true)
 				{
@@ -219,7 +259,14 @@ namespace hod::editor
 			}
 		}
 
-		ImGui::Separator();
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::SetCursorPosX(0.0f);
+		ImGui::PopStyleVar(1);
+		ImVec2 min = ImGui::GetCursorScreenPos();
+		ImVec2 max = min;
+		max.x += ImGui::GetWindowWidth();
+		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
+		ImGui::Spacing();
 
 		ImVec2 addComponentButtonSize = ImGui::CalcTextSize("  Add component  ") + ImVec2(35.0f, 15.0f);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x * 0.5f - addComponentButtonSize.x * 0.5f));
