@@ -151,10 +151,13 @@ namespace hod::editor
 			ImGui::Separator();
 		}
 
-		ImGui::Text("Actor");
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Name");
+		ImGui::SameLine();
 
 		char buffer[256] = { '\0' };
 		std::strcpy(buffer, selection->GetName().c_str());
+		ImGui::SetNextItemWidth(-1);
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
 			selection->SetName(buffer);
@@ -186,86 +189,129 @@ namespace hod::editor
 				*/
 				//bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-				ImGui::SetCursorPosX(0.0f);
-				ImGui::PopStyleVar(1);
-
-				ImVec2 min = ImGui::GetCursorScreenPos();
-				ImVec2 max = min;
-				max.x += ImGui::GetWindowWidth();
-				ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
-
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-				ImGui::SetCursorPosX(0.0f);
-				ImGui::Separator();
-				ImGui::SetCursorPosX(0.0f);
-				ImGui::PopStyleVar(2);
-
-				min = ImGui::GetCursorScreenPos();
-				max = min;
-				max.x += ImGui::GetWindowWidth();
-				max.y += ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 4;
-				ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)));
-
-				min.y += ImGui::GetStyle().FramePadding.y;
-				ImGui::SetCursorScreenPos(min);
-
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-				ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-				ImGui::ArrowButton("CollapseComponent", ImGuiDir_Down);
-				ImGui::PopStyleColor(4);
-
-				bool opened = true;
-				ImGui::SameLine();
-				ImGui::TextUnformatted(ICON_MDI_PUZZLE);
-				ImGui::SameLine();
-				ImGui::TextUnformatted(componentLock->GetMetaTypeName());
-
-				/*
-				if (ImGui::BeginPopupContextItem() == true)
+				ImGui::PushID(componentLock->GetMetaTypeName());
+				if (ImGui::BeginChild("Component", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Border))
 				{
-					if (ImGui::Button("Delete") == true)
-					{
-						selection->RemoveComponent(componentLock);
-						Editor::GetInstance()->MarkCurrentSceneAsDirty();
-					}
-					ImGui::EndPopup();
-				}
-				*/
+					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+					ImGui::SetCursorPosX(0.0f);
+					ImGui::SetCursorPosY(0.0f);
+					ImGui::PopStyleVar(1);
 
-				if (opened == true)
-				{
-					EditorReflectedObject reflectedObject(componentLock);
+					ImVec2 min = ImGui::GetCursorScreenPos();
+					ImVec2 max = min;
+					max.x += ImGui::GetWindowWidth();
+					//ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
 
-					bool changed = false;
-					ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
-					ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitComponentCustomEditor>();
-					if (componentCustomEditorTrait != nullptr)
+					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+					ImGui::SetCursorPosX(0.0f);
+					ImGui::Separator();
+					ImGui::SetCursorPosX(0.0f);
+					ImGui::PopStyleVar(2);
+
+					min = ImGui::GetCursorScreenPos();
+					max = min;
+					max.x += ImGui::GetWindowWidth();
+					max.y += ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 4;
+					ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)));
+
+					min.y += ImGui::GetStyle().FramePadding.y;
+					ImGui::SetCursorScreenPos(min);
+
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+					ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+					ImGui::ArrowButton("CollapseComponent", ImGuiDir_Down);
+					ImGui::PopStyleColor(4);
+
+					bool opened = true;
+					ImGui::SameLine();
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted(ICON_MDI_PUZZLE);
+					ImGui::SameLine();
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted(componentLock->GetReflectionDescriptorV()->GetDisplayName().c_str());
+
+					ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_CLOSE).x + 10.0f, 0.0f);
+					ImVec2 buttonPos = ImGui::GetCursorScreenPos();
+					ImVec2 mousePos = ImGui::GetMousePos();
+
+					float distance = std::sqrt(std::powf(buttonPos.x - mousePos.x, 2) + std::powf(buttonPos.y - mousePos.y, 2));
+					distance = std::clamp(distance, 15.0f, 40.0f);
+					float alpha = 1.0f - ((distance - 15.0f) / (40.0f - 15.0f));
+
+					ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+					textColor.w = alpha;
+
+					ImVec4 buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+					buttonColor.w = alpha;
+
+					ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_Border);
+					borderColor.w = alpha;
+
+					ImGui::PushStyleColor(ImGuiCol_Border, borderColor);
+					ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+					ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+					bool mustBeDelete = (ImGui::Button(ICON_MDI_CLOSE));
+					ImGui::PopStyleColor(4);
+					if (mustBeDelete)
 					{
-						changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(componentLock.get(), reflectionDescriptor);
+
 					}
-					else
+
+					if (ImGui::IsWindowHovered())
 					{
-						changed = DrawDefaultInspector(reflectedObject);
+						
 					}
-					if (changed == true)
+
+					/*
+					if (ImGui::BeginPopupContextItem() == true)
 					{
-						Editor::GetInstance()->MarkCurrentSceneAsDirty();
+						if (ImGui::Button("Delete") == true)
+						{
+							selection->RemoveComponent(componentLock);
+							Editor::GetInstance()->MarkCurrentSceneAsDirty();
+						}
+						ImGui::EndPopup();
+					}
+					*/
+
+					{
+						min.y = max.y;
+						max.x += ImGui::GetWindowWidth();
+						ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
+					}
+					ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
+
+					if (opened == true)
+					{
+						EditorReflectedObject reflectedObject(componentLock);
+
+						bool changed = false;
+						ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
+						ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitComponentCustomEditor>();
+						if (componentCustomEditorTrait != nullptr)
+						{
+							changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(componentLock.get(), reflectionDescriptor);
+						}
+						else
+						{
+							changed = DrawDefaultInspector(reflectedObject);
+						}
+						if (changed == true)
+						{
+							Editor::GetInstance()->MarkCurrentSceneAsDirty();
+						}
 					}
 				}
+				ImGui::EndChild();
+
+				ImGui::PopID();
 			}
 		}
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::SetCursorPosX(0.0f);
-		ImGui::PopStyleVar(1);
-		ImVec2 min = ImGui::GetCursorScreenPos();
-		ImVec2 max = min;
-		max.x += ImGui::GetWindowWidth();
-		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
 		ImGui::Spacing();
 
 		ImVec2 addComponentButtonSize = ImGui::CalcTextSize("  Add component  ") + ImVec2(35.0f, 15.0f);
