@@ -45,12 +45,6 @@ namespace hod
 		const std::string&						GetDisplayName() const;
 #endif
 
-	private:
-
-#if defined(HOD_EDITOR)
-		static std::string						GenerateDisplayName(const std::string_view& name);
-#endif
-
 	protected:
 
 		std::vector<ReflectionTrait*>			_traits;

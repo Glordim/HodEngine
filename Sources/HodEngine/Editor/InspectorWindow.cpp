@@ -301,15 +301,15 @@ namespace hod::editor
 				for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
 				{
 					const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
+					const std::string& displayName = componentDescriptor.GetDisplayName();
 
-					ReflectionTraitDisplayName* displayNameTrait = componentDescriptor.FindTrait<ReflectionTraitDisplayName>();
-					auto it = std::search(displayNameTrait->GetValue().cbegin(), displayNameTrait->GetValue().cend(), strName.cbegin(), strName.cend(), [](char ch1, char ch2)
+					auto it = std::search(displayName.cbegin(), displayName.cend(), strName.cbegin(), strName.cend(), [](char ch1, char ch2)
 					{
 						return std::tolower(ch1) == std::tolower(ch2);
 					});
-					if (it != displayNameTrait->GetValue().cend() || strName.empty())
+					if (it != displayName.cend() || strName.empty())
 					{
-						if (ImGui::MenuItem(displayNameTrait->GetValue().c_str()) == true)
+						if (ImGui::MenuItem(displayName.c_str()) == true)
 						{
 							selection->AddComponent(componentDescriptor, Editor::GetInstance()->IsPlaying());
 							Editor::GetInstance()->MarkCurrentSceneAsDirty();

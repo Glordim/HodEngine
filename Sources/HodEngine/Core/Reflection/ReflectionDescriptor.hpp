@@ -84,6 +84,10 @@ namespace hod
 
 		ReflectionDescriptor*					GetParent() const;
 
+#if defined(HOD_EDITOR)
+		const std::string&						GetDisplayName() const;
+#endif
+
 	private:
 
 		std::string								_typeName;
@@ -97,6 +101,10 @@ namespace hod
 		std::vector<ReflectionProperty*>		_properties;
 
 		bool									_fallbackTraitOnParent = false;
+
+#if defined(HOD_EDITOR)
+		std::string								_displayName;
+#endif
 	};
 }
 

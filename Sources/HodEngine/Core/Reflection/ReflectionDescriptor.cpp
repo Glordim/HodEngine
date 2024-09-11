@@ -3,6 +3,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/CharHelper.hpp"
 
 #include <cassert>
 
@@ -14,7 +15,9 @@ namespace hod
 	: _typeName(typeName)
 	, _parent(parent)
 	{
-
+#if defined(HOD_EDITOR)
+		_displayName = GenerateDisplayName(_typeName);
+#endif
 	}
 
 	/// @brief 
@@ -27,8 +30,19 @@ namespace hod
 	, _compareFunction(data._compareFunction)
 	, _metaType(data._metaType)
 	{
-
+#if defined(HOD_EDITOR)
+		_displayName = GenerateDisplayName(_typeName);
+#endif
 	}
+
+#if defined(HOD_EDITOR)
+	/// @brief 
+	/// @return 
+	const std::string& ReflectionDescriptor::GetDisplayName() const
+	{
+		return _displayName;
+	}
+#endif
 
 	/// @brief 
 	/// @return 

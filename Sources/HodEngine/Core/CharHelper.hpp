@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <string_view>
+
 namespace hod
 {
 	constexpr bool IsNumeric(char c)
@@ -41,4 +44,6 @@ namespace hod
 	{
 		return c + ('a' - 'A');
 	}
+
+	std::string GenerateDisplayName(const std::string_view& name);
 }
