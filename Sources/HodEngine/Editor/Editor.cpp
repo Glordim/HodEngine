@@ -41,6 +41,10 @@
 #include "HodEngine/Editor/ImporterCustomEditor/TextureImporterCustomEditor.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/Node2dComponentCustomEditor.hpp"
+#include <HodEngine/Game/Components/Node2dComponent.hpp>
+
 #include "HodEngine/Game/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
@@ -76,6 +80,8 @@ namespace hod::editor
 		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
 		game::WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
+
+		game::Node2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
 
 		Project::CreateInstance();
 

@@ -294,7 +294,7 @@ namespace hod::editor
 						ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitComponentCustomEditor>();
 						if (componentCustomEditorTrait != nullptr)
 						{
-							changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(componentLock.get(), reflectionDescriptor);
+							changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(reflectedObject);
 						}
 						else
 						{
@@ -306,6 +306,7 @@ namespace hod::editor
 						}
 					}
 				}
+				ImGui::Dummy(ImVec2(0,0)); // todo
 				ImGui::EndChild();
 
 				ImGui::PopID();

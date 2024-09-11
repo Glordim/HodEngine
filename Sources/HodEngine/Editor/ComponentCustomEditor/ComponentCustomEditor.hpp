@@ -1,9 +1,19 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/Editor/EditorReflectedObject.hpp"
+#include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/DearImGui/ImGuizmo.h>
+#include <memory>
 
 namespace hod
 {
 	class ReflectionDescriptor;
+	class Matrix4;
+}
+
+namespace hod::game
+{
+	class Component;
 }
 
 namespace hod::editor
@@ -23,7 +33,7 @@ namespace hod::editor
 
 	public:
 
-		virtual bool				OnDrawInspector(void* object, ReflectionDescriptor* reflectionDescriptor);
-		virtual bool				OnDrawGizmo(void* object, ReflectionDescriptor* reflectionDescriptor);
+		virtual bool				OnDrawInspector(EditorReflectedObject &reflectedObject);
+		virtual bool				OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation);
 	};
 }

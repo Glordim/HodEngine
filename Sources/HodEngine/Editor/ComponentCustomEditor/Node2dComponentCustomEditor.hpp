@@ -20,7 +20,6 @@ namespace hod::editor
 
 	public:
 
-		bool							OnDrawInspector(void* object, ReflectionDescriptor* reflectionDescriptor) override;
-		bool							OnDrawGizmo(void* object, ReflectionDescriptor* reflectionDescriptor) override;
+		bool							OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation) override;
 	};
 }
