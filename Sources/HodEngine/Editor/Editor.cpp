@@ -43,7 +43,9 @@
 
 #include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/Node2dComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/BoxCollider2dComponentCustomEditor.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
+#include <HodEngine/Game/Components/Physics/2d/BoxCollider2dComponent.hpp>
 
 #include "HodEngine/Game/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -82,6 +84,7 @@ namespace hod::editor
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 
 		game::Node2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
+		game::BoxCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new BoxCollider2dComponentCustomEditor);
 
 		Project::CreateInstance();
 
