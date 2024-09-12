@@ -29,6 +29,7 @@ namespace hod
 				P2f_Unlit_Line,
 				P2f_Unlit_Triangle,
 				P2f_Unlit_Line_TriangleFan,
+				P2f_Unlit_Line_LineStrip,
 				P2fT2f_Texture_Unlit,
 				P2fC4f_Unlit_Fill_Triangle,
 				P2fC4f_Unlit_Fill_TriangleFan,

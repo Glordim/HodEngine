@@ -181,6 +181,10 @@ namespace hod
 			{
 				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 			}
+			else if (topololy == Topololy::LINE_STRIP)
+			{
+				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+			}
 			else if (topololy == Topololy::POINT)
 			{
 				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;

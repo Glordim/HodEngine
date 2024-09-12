@@ -32,6 +32,7 @@ namespace hod
 			{
 				POINT,
 				LINE,
+				LINE_STRIP,
 				TRIANGLE,
 				TRIANGLE_FAN,
 			};

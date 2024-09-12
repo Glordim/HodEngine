@@ -339,6 +339,7 @@ namespace hod::editor
 
 		if (_renderTarget->IsValid() == true)
 		{
+			ImVec2 origin = ImGui::GetCursorScreenPos();
 			renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
 
 			Rect viewport;
@@ -362,13 +363,41 @@ namespace hod::editor
 				_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
 			}
 
+			Editor* editor = Editor::GetInstance();
+			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
+			if (sceneSelection != nullptr)
+			{
+				ImGuizmo::SetOrthographic(true);
+				ImGuizmo::SetRect(origin.x, origin.y, (float)windowWidth, (float)windowHeight);
+				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+
+				for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
+				{
+					std::shared_ptr<game::Component> componentLock = component.lock();
+					if (componentLock != nullptr)
+					{
+						ReflectionTraitComponentCustomEditor* customEditorTrait = componentLock->GetReflectionDescriptorV()->FindTrait<ReflectionTraitComponentCustomEditor>();
+						if (customEditorTrait != nullptr)
+						{
+							ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
+							if (customEditor != nullptr)
+							{
+								if (customEditor->OnDrawGizmo(componentLock, projection, view, _gizmoOperation, *renderQueue))
+								{
+									Editor::GetInstance()->MarkCurrentSceneAsDirty();
+								}
+							}
+						}
+					}
+				}
+			}
+
 			_renderTarget->PrepareForWrite(); // todo automate ?
 
 			renderQueue->Execute(_renderTarget);
 
 			_renderTarget->PrepareForRead(); // todo automate ?
 
-			ImVec2 origin = ImGui::GetCursorScreenPos();
 			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
 			//ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth, (float)(windowHeight + menuBarHeight)));
 			if (ImGui::BeginDragDropTarget() == true)
@@ -408,35 +437,6 @@ namespace hod::editor
 					}
 				}
 				ImGui::EndDragDropTarget();
-			}
-
-			Editor* editor = Editor::GetInstance();
-			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
-			if (sceneSelection != nullptr)
-			{
-				ImGuizmo::SetOrthographic(true);
-				ImGuizmo::SetRect(origin.x, origin.y, (float)windowWidth, (float)windowHeight);
-				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-
-				for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
-				{
-					std::shared_ptr<game::Component> componentLock = component.lock();
-					if (componentLock != nullptr)
-					{
-						ReflectionTraitComponentCustomEditor* customEditorTrait = componentLock->GetReflectionDescriptorV()->FindTrait<ReflectionTraitComponentCustomEditor>();
-						if (customEditorTrait != nullptr)
-						{
-							ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
-							if (customEditor != nullptr)
-							{
-								if (customEditor->OnDrawGizmo(componentLock, projection, view, _gizmoOperation))
-								{
-									Editor::GetInstance()->MarkCurrentSceneAsDirty();
-								}
-							}
-						}
-					}
-				}
 			}
 		}
 	}

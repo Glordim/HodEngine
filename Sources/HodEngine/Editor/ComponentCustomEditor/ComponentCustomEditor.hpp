@@ -16,6 +16,11 @@ namespace hod::game
 	class Component;
 }
 
+namespace hod::renderer
+{
+	class RenderQueue;
+}
+
 namespace hod::editor
 {
 	///@brief 
@@ -34,6 +39,6 @@ namespace hod::editor
 	public:
 
 		virtual bool				OnDrawInspector(EditorReflectedObject &reflectedObject);
-		virtual bool				OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation);
+		virtual bool				OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation, renderer::RenderQueue& renderQueue);
 	};
 }

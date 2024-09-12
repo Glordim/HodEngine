@@ -3,6 +3,11 @@
 
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 
+namespace hod::renderer
+{
+	class MaterialInstance;
+}
+
 namespace hod::editor
 {
 	/// @brief 
@@ -20,6 +25,10 @@ namespace hod::editor
 
 	public:
 
-		bool								OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation) override;
+		bool								OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation, renderer::RenderQueue& renderQueue) override;
+
+	private:
+
+		renderer::MaterialInstance*			_materialInstance = nullptr;
 	};
 }

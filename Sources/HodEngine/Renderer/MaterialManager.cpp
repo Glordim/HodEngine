@@ -79,6 +79,11 @@ namespace hod
 															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Line, Material::Topololy::TRIANGLE_FAN);
 
+			static BuiltinMaterialSource P2f_Unlit_Line_LineStrip(P2f_Unlit_vert, P2f_Unlit_vert_size,
+															  P2f_Unlit_frag, P2f_Unlit_frag_size,
+															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
+															  Material::PolygonMode::Line, Material::Topololy::LINE_STRIP);
+
 			static BuiltinMaterialSource P2fT2f_Texture_Unlit(P2fT2f_Texture_Unlit_vert, P2fT2f_Texture_Unlit_vert_size,
 															  P2fT2f_Texture_Unlit_frag, P2fT2f_Texture_Unlit_frag_size,
 															  { VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32_SFloat) },
@@ -108,6 +113,7 @@ namespace hod
 				&P2f_Unlit_Line, 
 				&P2f_Unlit_Triangle,
 				&P2f_Unlit_Line_TriangleFan,
+				&P2f_Unlit_Line_LineStrip,
 				&P2fT2f_Texture_Unlit,
 				&P2fC4f_Unlit_Fill_Triangle,
 				&P2fC4f_Unlit_Fill_TriangleFan,
