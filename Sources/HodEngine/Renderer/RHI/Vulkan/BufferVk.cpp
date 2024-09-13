@@ -4,6 +4,8 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
+#include <vk_mem_alloc.h>
+
 namespace hod
 {
 	namespace renderer
@@ -40,14 +42,9 @@ namespace hod
 
 			if (_vkBuffer != VK_NULL_HANDLE)
 			{
-				vkDestroyBuffer(renderer->GetVkDevice(), _vkBuffer, nullptr);
+				vmaDestroyBuffer(renderer->GetVmaAllocator(), _vkBuffer, _vmaAllocation);
 				_vkBuffer = VK_NULL_HANDLE;
-			}
-
-			if (_vkDeviceMemory != VK_NULL_HANDLE)
-			{
-				vkFreeMemory(renderer->GetVkDevice(), _vkDeviceMemory, nullptr);
-				_vkDeviceMemory = VK_NULL_HANDLE;
+				_vmaAllocation = VK_NULL_HANDLE;
 			}
 			
 			_size = 0;
@@ -76,39 +73,12 @@ namespace hod
 			bufferInfo.usage = _usageMap[_usage];
 			bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-			if (vkCreateBuffer(renderer->GetVkDevice(), &bufferInfo, nullptr, &_vkBuffer) != VK_SUCCESS)
+			VmaAllocationCreateInfo allocInfo = {};
+			allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+
+			if (vmaCreateBuffer(renderer->GetVmaAllocator(), &bufferInfo, &allocInfo, &_vkBuffer, &_vmaAllocation, nullptr) != VK_SUCCESS)
 			{
 				OUTPUT_ERROR("Vulkan: Unable to create buffer!");
-				return false;
-			}
-
-			VkMemoryRequirements memRequirements;
-			vkGetBufferMemoryRequirements(renderer->GetVkDevice(), _vkBuffer, &memRequirements);
-
-			uint32_t memoryTypeIndex = 0;
-			if (renderer->FindMemoryTypeIndex(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &memoryTypeIndex) == false)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to find memory type for this buffer!");
-				Release();
-				return false;
-			}
-
-			VkMemoryAllocateInfo allocInfo = {};
-			allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-			allocInfo.allocationSize = memRequirements.size;
-			allocInfo.memoryTypeIndex = memoryTypeIndex;
-
-			if (vkAllocateMemory(renderer->GetVkDevice(), &allocInfo, nullptr, &_vkDeviceMemory) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to allocate buffer memory!");
-				Release();
-				return false;
-			}
-
-			if (vkBindBufferMemory(renderer->GetVkDevice(), _vkBuffer, _vkDeviceMemory, 0) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to bind buffer and buffer memory!");
-				Release();
 				return false;
 			}
 
@@ -122,9 +92,9 @@ namespace hod
 		void* BufferVk::Lock()
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
+			
 			void* data;
-			if (vkMapMemory(renderer->GetVkDevice(), _vkDeviceMemory, 0, _size, 0, &data) != VK_SUCCESS)
+			if (vmaMapMemory(renderer->GetVmaAllocator(), _vmaAllocation, &data) != VK_SUCCESS)
 			{
 				OUTPUT_ERROR("Vulkan: Unable to map buffer memory!");
 				return nullptr;
@@ -140,7 +110,7 @@ namespace hod
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-			vkUnmapMemory(renderer->GetVkDevice(), _vkDeviceMemory);
+			vmaUnmapMemory(renderer->GetVmaAllocator(), _vmaAllocation);
 		}
 	}
 }

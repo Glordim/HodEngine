@@ -101,6 +101,23 @@ ExternalProject_Add(msdfgen
 message(STATUS "msdfgen is available in " ${msdfgen_INCLUDE_DIRS})
 message(STATUS "msdfgen is available in " ${msdfgen_LIBRARIES})
 
+# TODO move in Renderer CmakeList (only with Vulkan) ? 
+ExternalProject_Add(VulkanMemoryAllocator
+  URL https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/archive/refs/tags/v3.1.0.zip
+  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-src
+  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-build
+  CMAKE_ARGS ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  BUILD_BYPRODUCTS ${VulkanMemoryAllocator_LIBRARIES}
+)
+
+set(VulkanMemoryAllocator_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-src/include)
+
+message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_INCLUDE_DIRS})
+message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_LIBRARIES})
+
 set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 

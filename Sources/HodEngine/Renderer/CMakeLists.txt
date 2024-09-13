@@ -48,6 +48,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 ${Stb_INCLUDE_DIRS}
 ${msdfgen_INCLUDE_DIRS}
 ${freetype_INCLUDE_DIRS}
+${VulkanMemoryAllocator_INCLUDE_DIRS}
 "RHI/Metal/MetalCpp"
 )
 
@@ -60,13 +61,14 @@ add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(Renderer PRIVATE "Pch.hpp")
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(Renderer Core Window msdfgen freetype)
+add_dependencies(Renderer Core Window msdfgen freetype VulkanMemoryAllocator)
 
 target_link_libraries(Renderer
   Core
   Window
   ${msdfgen_LIBRARIES}
   ${freetype_LIBRARIES}
+  ${VulkanMemoryAllocator_LIBRARIES}
 )
 
 if(NOT APPLE)
@@ -74,16 +76,17 @@ if(NOT APPLE)
   #optimized "d3d12.lib" debug "d3d12.lib"
   #optimized "DXGI.lib" debug "DXGI.lib"
   
-  option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" True)
+  unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
+  option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" OFF)
   #set(RENDERER_ENABLE_VALIDATION_LAYER True)
   
   if (RENDERER_ENABLE_VALIDATION_LAYER)
-	set(RENDERER_ENABLE_VALIDATION_LAYER_DEFINE "RENDERER_ENABLE_VALIDATION_LAYER")
+    target_compile_definitions(Renderer PUBLIC RENDERER_ENABLE_VALIDATION_LAYER)
   endif ()
 else()
   target_link_libraries(Renderer "-framework Metal" ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES})
 endif()
 
-target_compile_definitions(Renderer PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE} ${RENDERER_ENABLE_VALIDATION_LAYER_DEFINE})
+target_compile_definitions(Renderer PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(Renderer PRIVATE HOD_RENDERER_EXPORT)
 add_compile_definitions_for_configs(Renderer)

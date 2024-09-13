@@ -13,6 +13,8 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
 
+#include <vk_mem_alloc.h>
+
 #if defined(PLATFORM_WINDOWS)
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
@@ -74,6 +76,7 @@ namespace hod::renderer
 		VkCommandPool GetCommandPool() const;
 		VkQueue GetPresentQueue() const { return _presentQueue; }
 		VkContext* GetContext() const { return _context; }
+		VmaAllocator GetVmaAllocator() const { return _vmaAllocator; }
 
 		//Material* GetSharedMinimalMaterial() const;
 
@@ -129,5 +132,7 @@ namespace hod::renderer
 		std::vector<VkGpuDevice>	_availableGpu;
 
 		VkContext* _context = nullptr;
+
+		VmaAllocator	_vmaAllocator = VK_NULL_HANDLE;
 	};
 }

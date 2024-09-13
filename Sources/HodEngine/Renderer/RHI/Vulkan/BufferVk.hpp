@@ -4,6 +4,7 @@
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 
 #include <vulkan/vulkan.h>
+#include <vk_mem_alloc.h>
 
 namespace hod
 {
@@ -39,7 +40,7 @@ namespace hod
 		private:
 
 			VkBuffer					_vkBuffer = VK_NULL_HANDLE;
-			VkDeviceMemory				_vkDeviceMemory = VK_NULL_HANDLE;
+			VmaAllocation				_vmaAllocation = VK_NULL_HANDLE;
 
 		private:
 

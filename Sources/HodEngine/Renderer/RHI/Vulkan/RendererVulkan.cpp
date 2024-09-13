@@ -44,6 +44,8 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	RendererVulkan::~RendererVulkan()
 	{
+		vmaDestroyAllocator(_vmaAllocator);
+
 		if (_device != VK_NULL_HANDLE)
 		{
 			if (vkDeviceWaitIdle(_device) != VK_SUCCESS)
@@ -204,6 +206,16 @@ namespace hod::renderer
 		}
 
 		if (CreateCommandPool() == false)
+		{
+			return false;
+		}
+
+		VmaAllocatorCreateInfo vmaAllocatorInfo = {};
+		vmaAllocatorInfo.physicalDevice = _selectedGpu->physicalDevice;
+    	vmaAllocatorInfo.device = _device;
+    	vmaAllocatorInfo.instance = _vkInstance;
+    	vmaAllocatorInfo.vulkanApiVersion = VK_API_VERSION_1_3;
+		if (vmaCreateAllocator(&vmaAllocatorInfo, &_vmaAllocator) != VK_SUCCESS)
 		{
 			return false;
 		}
