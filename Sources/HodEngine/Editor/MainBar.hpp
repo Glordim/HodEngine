@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/Editor/FpsCounter.hpp"
 
 #include <HodEngine/ImGui/MainBar.hpp>
 
@@ -16,5 +17,9 @@ namespace hod::editor
 	public:
 
 		void		Draw() override;
+
+	private:
+
+		FpsCounter	_fpsCounter;
 	};
 }
