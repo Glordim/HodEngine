@@ -16,6 +16,13 @@
 namespace hod::editor
 {
 	/// @brief 
+	BoxCollider2dComponentCustomEditor::BoxCollider2dComponentCustomEditor()
+	{
+		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		_materialInstance->SetVec4("UBO.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+	}
+
+	/// @brief 
 	/// @param component 
 	/// @param projection 
 	/// @param view 
@@ -29,22 +36,18 @@ namespace hod::editor
 			std::shared_ptr<game::Node2dComponent> node2D = boxCollider2d->GetEntity()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				if (_materialInstance == nullptr)
-				{
-					_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-					_materialInstance->SetVec4("UBO.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-				}
-
-				std::array<float, 5 * 2> vertices = {
-					boxCollider2d->GetOffset().GetX() - boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetOffset().GetY() + boxCollider2d->GetSize().GetY() * 0.5f,
-					boxCollider2d->GetOffset().GetX() + boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetOffset().GetY() + boxCollider2d->GetSize().GetY() * 0.5f,
-					boxCollider2d->GetOffset().GetX() + boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetOffset().GetY() - boxCollider2d->GetSize().GetY() * 0.5f,
-					boxCollider2d->GetOffset().GetX() - boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetOffset().GetY() - boxCollider2d->GetSize().GetY() * 0.5f,
-					boxCollider2d->GetOffset().GetX() - boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetOffset().GetY() + boxCollider2d->GetSize().GetY() * 0.5f,
+				std::array<Vector2, 5> vertices = {
+					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
+					Vector2(boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
+					Vector2(boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
+					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
+					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
 				};
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size() / 2, sizeof(float) * 2, nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
-				renderQueue.PushRenderCommand(renderMeshCommand);		
+				Matrix4 localMatrix = Matrix4::Translation(boxCollider2d->GetOffset()) * Matrix4::Rotation(boxCollider2d->GetRotation());
+
+				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(Vector2), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance);
+				renderQueue.PushRenderCommand(renderMeshCommand);
 			}
 		}
 		return false;

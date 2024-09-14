@@ -44,8 +44,14 @@
 #include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/Node2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/BoxCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/CircleCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/CapsuleCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/EdgeCollider2dComponentCustomEditor.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/BoxCollider2dComponent.hpp>
+#include <HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp>
+#include <HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp>
+#include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
 
 #include "HodEngine/Game/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -85,6 +91,9 @@ namespace hod::editor
 
 		game::Node2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
 		game::BoxCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new BoxCollider2dComponentCustomEditor);
+		game::CircleCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CircleCollider2dComponentCustomEditor);
+		game::CapsuleCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CapsuleCollider2dComponentCustomEditor);
+		game::EdgeCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new EdgeCollider2dComponentCustomEditor);
 
 		Project::CreateInstance();
 

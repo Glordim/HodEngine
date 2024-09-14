@@ -15,7 +15,7 @@ namespace hod::editor
 	{
 	public:
 
-											BoxCollider2dComponentCustomEditor() = default;
+											BoxCollider2dComponentCustomEditor();
 											BoxCollider2dComponentCustomEditor(const BoxCollider2dComponentCustomEditor&) = delete;
 											BoxCollider2dComponentCustomEditor(BoxCollider2dComponentCustomEditor&&) = delete;
 											~BoxCollider2dComponentCustomEditor() override = default;

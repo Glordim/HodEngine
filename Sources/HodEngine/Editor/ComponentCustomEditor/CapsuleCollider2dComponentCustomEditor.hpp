@@ -1,0 +1,34 @@
+#pragma once
+#include "HodEngine/Editor/Export.hpp"
+
+#include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
+
+namespace hod::renderer
+{
+	class MaterialInstance;
+}
+
+namespace hod::editor
+{
+	/// @brief 
+	class HOD_EDITOR_API CapsuleCollider2dComponentCustomEditor : public ComponentCustomEditor
+	{
+	public:
+
+												CapsuleCollider2dComponentCustomEditor();
+												CapsuleCollider2dComponentCustomEditor(const CapsuleCollider2dComponentCustomEditor&) = delete;
+												CapsuleCollider2dComponentCustomEditor(CapsuleCollider2dComponentCustomEditor&&) = delete;
+												~CapsuleCollider2dComponentCustomEditor() override = default;
+
+		CapsuleCollider2dComponentCustomEditor	operator = (const CapsuleCollider2dComponentCustomEditor&) = delete;
+		CapsuleCollider2dComponentCustomEditor	operator = (CapsuleCollider2dComponentCustomEditor&&) = delete;
+
+	public:
+
+		bool									OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation, renderer::RenderQueue& renderQueue) override;
+
+	private:
+
+		renderer::MaterialInstance*				_materialInstance = nullptr;
+	};
+}
