@@ -81,11 +81,18 @@ namespace hod
 			return _materialInstance;
 		}
 
-		static std::array<renderer::P2fT2f, 4> _vertices = {
-			renderer::P2fT2f(-0.5f, 0.5f, 0, 0),
-			renderer::P2fT2f(0.5f, 0.5f, 1, 0),
-			renderer::P2fT2f(0.5f, -0.5f, 1, 1),
-			renderer::P2fT2f(-0.5f, -0.5f, 0, 1),
+		static std::array<Vector2, 4> _vertices = {
+			Vector2(-0.5f, 0.5f),
+			Vector2(0.5f, 0.5f),
+			Vector2(0.5f, -0.5f),
+			Vector2(-0.5f, -0.5f),
+		};
+
+		static std::array<Vector2, 4> _uvs = {
+			Vector2(0, 0),
+			Vector2(1, 0),
+			Vector2(1, 1),
+			Vector2(0, 1),
 		};
 
 		static std::array<uint16_t, 3*2> _indices = {
@@ -104,7 +111,7 @@ namespace hod
 				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
-					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), (uint32_t)_vertices.size(), sizeof(renderer::P2fT2f), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
+					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), _uvs.data(), nullptr, (uint32_t)_vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
 				}
 			}
 		}
@@ -113,6 +120,7 @@ namespace hod
 		/// @param renderQueue 
 		void TextureRendererComponent::PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId)
 		{
+			/*
 			std::shared_ptr<Entity> entity = GetEntity();
 			if (entity != nullptr)
 			{
@@ -130,6 +138,7 @@ namespace hod
 					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(renderer::P2fC4f), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), pickingMaterial->GetDefaultInstance()));
 				}
 			}
+			*/
 		}
 
 		/// @brief 

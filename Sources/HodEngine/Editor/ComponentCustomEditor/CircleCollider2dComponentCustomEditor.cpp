@@ -40,7 +40,7 @@ namespace hod::editor
 				std::array<Vector2, 65> vertices;
 				GeometryGenerator::CircleShape<64>(vertices, circleCollider2d->GetOffset(), circleCollider2d->GetRadius());
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(Vector2), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
+				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
 				renderQueue.PushRenderCommand(renderMeshCommand);		
 			}
 		}

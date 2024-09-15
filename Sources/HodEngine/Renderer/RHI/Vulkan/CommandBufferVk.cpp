@@ -9,6 +9,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
+#include <stdlib.h>
 
 namespace hod
 {
@@ -261,12 +262,17 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::SetVertexBuffer(Buffer* vertexBuffer, uint32_t offset)
+		void CommandBufferVk::SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset)
 		{
-			VkBuffer vkBuffer = static_cast<BufferVk*>(vertexBuffer)->GetVkBuffer();
-			VkDeviceSize offsets[] = { offset };
+			VkBuffer* vkBuffers = (VkBuffer*)alloca(sizeof(VkBuffer) * count);
+			VkDeviceSize* bufferOffsets = (VkDeviceSize*)alloca(sizeof(VkDeviceSize) * count);
+			for (uint32_t index = 0; index < count; ++index)
+			{
+				vkBuffers[index] = static_cast<BufferVk*>(vertexBuffer[index])->GetVkBuffer();
+				bufferOffsets[index] = offset;
+			}
 
-			vkCmdBindVertexBuffers(_vkCommandBuffer, 0, 1, &vkBuffer, offsets);
+			vkCmdBindVertexBuffers(_vkCommandBuffer, 0, count, vkBuffers, bufferOffsets);
 		}
 
 		//-----------------------------------------------------------------------------

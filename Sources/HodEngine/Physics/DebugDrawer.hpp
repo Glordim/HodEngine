@@ -2,6 +2,7 @@
 #include "HodEngine/Physics/Export.hpp"
 
 #include <HodEngine/Core/Color.hpp>
+#include <HodEngine/Core/Math/Vector2.hpp>
 
 #include <vector>
 
@@ -18,7 +19,7 @@ namespace hod::physics
 		};
 
 		Type					_type;
-		std::vector<float>		_vertices;
+		std::vector<Vector2>	_vertices;
 		Color					_color;
 	};
 

@@ -44,7 +44,7 @@ namespace hod
 			void				SetScissor(const Rect& scissor) override;
 
 			void				SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) override;
-			void				SetVertexBuffer(Buffer* vertexBuffer, uint32_t offset = 0) override;
+			void				SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset = 0) override;
 			void				SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) override;
 
 			void				Draw(uint32_t vertexCount) override;

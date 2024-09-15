@@ -52,7 +52,7 @@ namespace hod::imgui
 		for (int drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
 		{
 			DrawList* drawList = _drawLists[drawListIndex];
-            
+			
             uint32_t vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.size() * sizeof(Vertex));
 			renderer::Buffer* vertexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Vertex, vertexBufferSize);
 			void* vertexBufferData = vertexBuffer->Lock();
@@ -62,7 +62,7 @@ namespace hod::imgui
 				vertexBuffer->Unlock();
 			}
 			commandBuffer->DeleteAfterRender(vertexBuffer);
-			commandBuffer->SetVertexBuffer(vertexBuffer, 0);
+			commandBuffer->SetVertexBuffer(&vertexBuffer, 1);
 
             uint32_t indexBufferSize = static_cast<uint32_t>(drawList->_indices.size() * sizeof(uint16_t));
 			renderer::Buffer* indexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Index, indexBufferSize);

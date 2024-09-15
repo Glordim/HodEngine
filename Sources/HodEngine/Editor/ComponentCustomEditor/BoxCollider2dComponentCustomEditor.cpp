@@ -46,7 +46,7 @@ namespace hod::editor
 
 				Matrix4 localMatrix = Matrix4::Translation(boxCollider2d->GetOffset()) * Matrix4::Rotation(boxCollider2d->GetRotation());
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(Vector2), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance);
+				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance);
 				renderQueue.PushRenderCommand(renderMeshCommand);
 			}
 		}

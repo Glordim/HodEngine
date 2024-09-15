@@ -87,26 +87,50 @@ namespace hod
 			spirv_cross::Compiler compVert(reinterpret_cast<const uint32_t*>(byteCode.data()), byteCode.size() / sizeof(uint32_t));
 			spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
 
+			std::vector<uint32_t> strides;
 			std::vector<VkVertexInputAttributeDescription> vertexAttributeDecriptions;
-
-			uint32_t stride = 0;
+			std::vector<VkVertexInputBindingDescription> vertexBindingDescriptions;
 
 			if (vertexInputs != nullptr)
 			{
-				vertexAttributeDecriptions.resize(vertexInputCount);
+				uint32_t maxBinding = 0;
 				for (uint32_t i = 0; i < vertexInputCount; ++i)
 				{
+					maxBinding = std::max(maxBinding, vertexInputs[i]._binding);
+				}
+
+				++maxBinding;
+				strides.resize(maxBinding, 0);
+				vertexBindingDescriptions.resize(maxBinding);
+				for (uint32_t i = 0; i < vertexBindingDescriptions.size(); ++i)
+				{
+					VkVertexInputBindingDescription& vertexBindingDescription = vertexBindingDescriptions[i];
+					vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+					vertexBindingDescription.stride = 0;
+				}
+
+				vertexAttributeDecriptions.resize(vertexInputCount);
+
+				for (uint32_t i = 0; i < vertexInputCount; ++i)
+				{
+					uint32_t binding = vertexInputs[i]._binding;
+
 					VkVertexInputAttributeDescription& vertexAttributeDescription = vertexAttributeDecriptions[i];
-					vertexAttributeDescription.binding = 0;
+					vertexAttributeDescription.binding = binding;
 					vertexAttributeDescription.location = i;
 					vertexAttributeDescription.format = FormatToVkFormat[vertexInputs[i]._format];
-					vertexAttributeDescription.offset = stride;
+					vertexAttributeDescription.offset = strides[binding];
 
-					stride += FormatToSize[vertexInputs[i]._format];
+					VkVertexInputBindingDescription& vertexBindingDescription = vertexBindingDescriptions[binding];
+					vertexBindingDescription.binding = binding;
+					vertexBindingDescription.stride += FormatToSize[vertexInputs[i]._format];
+
+					strides[binding] += FormatToSize[vertexInputs[i]._format];
 				}
 			}
 			else
 			{
+				/*
 				size_t inputCount = resourcesVert.stage_inputs.size();
 				vertexAttributeDecriptions.resize(inputCount);
 
@@ -151,18 +175,21 @@ namespace hod
 
 					stride += size;
 				}
+				*/
 			}
 
+			/*
 			VkVertexInputBindingDescription bindingDescription = {};
 			bindingDescription.binding = 0;
 			bindingDescription.stride = stride;
 			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+			*/
 
 			// Vertex input
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 			vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-			vertexInputInfo.vertexBindingDescriptionCount = 1;
-			vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+			vertexInputInfo.vertexBindingDescriptionCount = (uint32_t)vertexBindingDescriptions.size();;
+			vertexInputInfo.pVertexBindingDescriptions = vertexBindingDescriptions.data();
 			vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)vertexAttributeDecriptions.size();
 			vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDecriptions.data();
 

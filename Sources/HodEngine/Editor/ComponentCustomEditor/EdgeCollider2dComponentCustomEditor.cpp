@@ -42,7 +42,7 @@ namespace hod::editor
 					edgeCollider2d->GetEnd(),
 				};
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(Vector2), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
+				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
 				renderQueue.PushRenderCommand(renderMeshCommand);		
 			}
 		}

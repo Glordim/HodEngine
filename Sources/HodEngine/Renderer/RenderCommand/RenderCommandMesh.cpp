@@ -7,111 +7,163 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 
 #include <cstring>
+#include <cassert>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	/// @brief 
+	/// @param positions 
+	/// @param uvs 
+	/// @param colors 
+	/// @param vertexCount 
+	/// @param indices 
+	/// @param indexCount 
+	/// @param modelMatrix 
+	/// @param materialInstance 
+	/// @param ignoreVisualisationMode 
+	RenderCommandMesh::RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, bool ignoreVisualisationMode)
+		: RenderCommand()
+		, _vertexCount(vertexCount)
+		, _indices(indexCount)
+		, _modelMatrix(modelMatrix)
+		, _materialInstance(materialInstance)
+		, _ignoreVisualisationMode(ignoreVisualisationMode)
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		RenderCommandMesh::RenderCommandMesh(const void* vertices, uint32_t vertexCount, uint32_t vertexSize, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, bool ignoreVisualisationMode)
-			: RenderCommand()
-			, _vertices(vertexCount * vertexSize)
-			, _vertexCount(vertexCount)
-			, _indices(indexCount)
-			, _modelMatrix(modelMatrix)
-			, _materialInstance(materialInstance)
-			, _ignoreVisualisationMode(ignoreVisualisationMode)
-		{
-			memcpy(_vertices.data(), vertices, vertexCount * vertexSize);
-			memcpy(_indices.data(), indices, indexCount * sizeof(uint16_t));
+		assert(positions != nullptr);
+		_positions.resize(vertexCount);
+		memcpy(_positions.data(), positions, sizeof(Vector2) * vertexCount);
 
-			if (materialInstance == nullptr)
-			{
-				_materialInstance = Renderer::GetInstance()->GetDefaultMaterialInstance();
-			}
+		if (uvs != nullptr)
+		{
+			_uvs.resize(vertexCount);
+			memcpy(_uvs.data(), uvs, sizeof(Vector2) * vertexCount);
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void RenderCommandMesh::Execute(CommandBuffer* commandBuffer)
+		if (colors != nullptr)
 		{
-			Renderer* renderer = Renderer::GetInstance();
+			_colors.resize(vertexCount);
+			memcpy(_colors.data(), uvs, sizeof(Color) * vertexCount);
+		}
 
-            uint32_t vertexBufferSize = static_cast<uint32_t>(_vertices.size());
-			Buffer* vertexBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, vertexBufferSize);
-			void* vertexBufferData = vertexBuffer->Lock();
-			if (vertexBufferData != nullptr)
+		if (indices != nullptr)
+		{
+			memcpy(_indices.data(), indices, indexCount * sizeof(uint16_t));
+		}
+
+		if (materialInstance == nullptr)
+		{
+			_materialInstance = Renderer::GetInstance()->GetDefaultMaterialInstance();
+		}
+	}
+
+	/// @brief 
+	/// @param commandBuffer 
+	void RenderCommandMesh::Execute(CommandBuffer* commandBuffer)
+	{
+		Renderer* renderer = Renderer::GetInstance();
+
+		std::array<Buffer*, 3> vertexBuffers = { nullptr, nullptr, nullptr };
+
+		vertexBuffers[0] = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_positions.size() * sizeof(Vector2));
+		void* positionsBufferData = vertexBuffers[0]->Lock();
+		if (positionsBufferData != nullptr)
+		{
+			memcpy(positionsBufferData, _positions.data(), _positions.size() * sizeof(Vector2));
+			vertexBuffers[0]->Unlock();
+		}
+		commandBuffer->DeleteAfterRender(vertexBuffers[0]);
+		uint32_t vertexBufferCount = 1;
+
+		if (_uvs.empty() == false)
+		{
+			Buffer* uvsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_uvs.size() * sizeof(Vector2));
+			void* uvsBufferData = uvsBuffer->Lock();
+			if (uvsBufferData != nullptr)
 			{
-				memcpy(vertexBufferData, _vertices.data(), vertexBufferSize);
-				vertexBuffer->Unlock();
+				memcpy(uvsBufferData, _uvs.data(), _uvs.size() * sizeof(Vector2));
+				uvsBuffer->Unlock();
 			}
-			commandBuffer->SetVertexBuffer(vertexBuffer);
-			commandBuffer->DeleteAfterRender(vertexBuffer);
+			commandBuffer->DeleteAfterRender(vertexBuffers[vertexBufferCount]);
+			vertexBuffers[vertexBufferCount] = uvsBuffer;
+			++vertexBufferCount;
+		}
 
-			if (_indices.empty() == false)
+		if (_colors.empty() == false)
+		{
+			Buffer* colorsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_colors.size() * sizeof(Color));
+			void* colorsBufferData = colorsBuffer->Lock();
+			if (colorsBufferData != nullptr)
 			{
-                uint32_t indexBufferSize = static_cast<uint32_t>(_indices.size() * sizeof(uint16_t));
-				Buffer* indexBuffer = renderer->CreateBuffer(Buffer::Usage::Index, indexBufferSize);
-				void* indexBufferData = indexBuffer->Lock();
-				if (indexBufferData != nullptr)
-				{
-					memcpy(indexBufferData, _indices.data(), indexBufferSize);
-					indexBuffer->Unlock();
-				}
-				commandBuffer->SetIndexBuffer(indexBuffer);
-				commandBuffer->DeleteAfterRender(indexBuffer);
+				memcpy(colorsBufferData, _uvs.data(), _uvs.size() * sizeof(Color));
+				colorsBuffer->Unlock();
 			}
+			commandBuffer->DeleteAfterRender(vertexBuffers[vertexBufferCount]);
+			vertexBuffers[vertexBufferCount] = colorsBuffer;
+			++vertexBufferCount;
+		}
 
-			commandBuffer->SetModelMatrix(_modelMatrix);
+		commandBuffer->SetVertexBuffer(vertexBuffers.data(), vertexBufferCount);
 
-			if (_ignoreVisualisationMode == false)
+		if (_indices.empty() == false)
+		{
+			uint32_t indexBufferSize = static_cast<uint32_t>(_indices.size() * sizeof(uint16_t));
+			Buffer* indexBuffer = renderer->CreateBuffer(Buffer::Usage::Index, indexBufferSize);
+			void* indexBufferData = indexBuffer->Lock();
+			if (indexBufferData != nullptr)
 			{
-				if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Normal || renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
-				{
-					commandBuffer->SetMaterialInstance(_materialInstance, 0);
-				}
-				else if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Wireframe)
-				{
-					commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetWireframeMaterialInstance());
-				}
-				else
-				{
-					commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetOverdrawMaterialInstance());
-				}
+				memcpy(indexBufferData, _indices.data(), indexBufferSize);
+				indexBuffer->Unlock();
 			}
-			else
+			commandBuffer->SetIndexBuffer(indexBuffer);
+			commandBuffer->DeleteAfterRender(indexBuffer);
+		}
+
+		commandBuffer->SetModelMatrix(_modelMatrix);
+
+		if (_ignoreVisualisationMode == false)
+		{
+			if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Normal || renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
 			{
 				commandBuffer->SetMaterialInstance(_materialInstance, 0);
 			}
-
-			struct Constant
+			else if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Wireframe)
 			{
-				Matrix4	_mvp;
-			};
-
-			Constant constant;
-			constant._mvp = commandBuffer->_projection * commandBuffer->_view * _modelMatrix;
-			commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
-
-			if (_indices.empty() == false)
-			{
-				commandBuffer->DrawIndexed((uint32_t)_indices.size(), 0, 0);
+				commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetWireframeMaterialInstance());
 			}
 			else
 			{
-				commandBuffer->Draw(_vertexCount);
+				commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetOverdrawMaterialInstance());
 			}
+		}
+		else
+		{
+			commandBuffer->SetMaterialInstance(_materialInstance, 0);
+		}
 
-			if (_ignoreVisualisationMode == false)
+		struct Constant
+		{
+			Matrix4	_mvp;
+		};
+
+		Constant constant;
+		constant._mvp = commandBuffer->_projection * commandBuffer->_view * _modelMatrix;
+		commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
+
+		if (_indices.empty() == false)
+		{
+			commandBuffer->DrawIndexed((uint32_t)_indices.size(), 0, 0);
+		}
+		else
+		{
+			commandBuffer->Draw(_vertexCount);
+		}
+
+		if (_ignoreVisualisationMode == false)
+		{
+			if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
 			{
-				if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
-				{
-					commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetWireframeMaterialInstance());
-					commandBuffer->DrawIndexed((uint32_t)_indices.size(), 0, 0);
-				}
+				commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetWireframeMaterialInstance());
+				commandBuffer->DrawIndexed((uint32_t)_indices.size(), 0, 0);
 			}
 		}
 	}

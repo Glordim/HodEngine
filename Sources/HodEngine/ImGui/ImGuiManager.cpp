@@ -455,9 +455,9 @@ void embraceTheDarkness()
 			renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 
 			renderer::VertexInput vertexInput[3] = {
-				{ 0, renderer::VertexInput::Format::R32G32_SFloat },
-				{ 8, renderer::VertexInput::Format::R32G32_SFloat },
-				{ 16, renderer::VertexInput::Format::R8G8B8A8_UNorm },
+				{ 0, 0, renderer::VertexInput::Format::R32G32_SFloat },
+				{ 0, 8, renderer::VertexInput::Format::R32G32_SFloat },
+				{ 0, 16, renderer::VertexInput::Format::R8G8B8A8_UNorm },
 			};
 
 			_vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);

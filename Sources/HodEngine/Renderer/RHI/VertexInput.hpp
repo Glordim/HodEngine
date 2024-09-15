@@ -32,8 +32,9 @@ namespace hod
 			/// @brief 
 			/// @param offset 
 			/// @param format 
-			VertexInput(uint32_t offset, Format format)
-			: _offset(offset)
+			VertexInput(uint32_t binding, uint32_t offset, Format format)
+			: _binding(binding)
+			, _offset(offset)
 			, _format(format)
 			{
 
@@ -41,6 +42,7 @@ namespace hod
 
 		public:
 			
+			uint32_t	_binding;
 			uint32_t	_offset;
 			Format		_format;
 		};

@@ -66,47 +66,47 @@ namespace hod
 		{
 			static BuiltinMaterialSource P2f_Unlit_Line(P2f_Unlit_vert, P2f_Unlit_vert_size,
 															  P2f_Unlit_frag, P2f_Unlit_frag_size,
-															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
+															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::LINE);
 
 			static BuiltinMaterialSource P2f_Unlit_Triangle(P2f_Unlit_vert, P2f_Unlit_vert_size,
 															  P2f_Unlit_frag, P2f_Unlit_frag_size,
-															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
+															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE_FAN);
 
 			static BuiltinMaterialSource P2f_Unlit_Line_TriangleFan(P2f_Unlit_vert, P2f_Unlit_vert_size,
 															  P2f_Unlit_frag, P2f_Unlit_frag_size,
-															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
+															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Line, Material::Topololy::TRIANGLE_FAN);
 
 			static BuiltinMaterialSource P2f_Unlit_Line_LineStrip(P2f_Unlit_vert, P2f_Unlit_vert_size,
 															  P2f_Unlit_frag, P2f_Unlit_frag_size,
-															  { VertexInput(0, VertexInput::Format::R32G32_SFloat) },
+															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Line, Material::Topololy::LINE_STRIP);
 
 			static BuiltinMaterialSource P2fT2f_Texture_Unlit(P2fT2f_Texture_Unlit_vert, P2fT2f_Texture_Unlit_vert_size,
 															  P2fT2f_Texture_Unlit_frag, P2fT2f_Texture_Unlit_frag_size,
-															  { VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32_SFloat) },
+															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
 			static BuiltinMaterialSource P2fC4f_Unlit_Fill_Triangle(P2fC4f_Unlit_vert, P2fC4f_Unlit_vert_size,
 								  									P2fC4f_Unlit_frag, P2fC4f_Unlit_frag_size,
-								  									{ VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32B32A32_SFloat) },
+								  									{ VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  									Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
 			static BuiltinMaterialSource P2fC4f_Unlit_Fill_TriangleFan(P2fC4f_Unlit_vert, P2fC4f_Unlit_vert_size,
 								  									   P2fC4f_Unlit_frag, P2fC4f_Unlit_frag_size,
-								  									   { VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32B32A32_SFloat) },
+								  									   { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  									   Material::PolygonMode::Fill, Material::Topololy::TRIANGLE_FAN);
 
 			static BuiltinMaterialSource P2fC4f_Unlit_Line_TriangleFan(P2fC4f_Unlit_vert, P2fC4f_Unlit_vert_size,
 								  									   P2fC4f_Unlit_frag, P2fC4f_Unlit_frag_size,
-								  									   { VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32B32A32_SFloat) },
+								  									   { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  									   Material::PolygonMode::Line, Material::Topololy::TRIANGLE_FAN);
 
 			static BuiltinMaterialSource P2fC4f_Unlit_Line_Line(P2fC4f_Unlit_vert, P2fC4f_Unlit_vert_size,
 								  								P2fC4f_Unlit_frag, P2fC4f_Unlit_frag_size,
-								  								{ VertexInput(0, VertexInput::Format::R32G32_SFloat), VertexInput(8, VertexInput::Format::R32G32B32A32_SFloat) },
+								  								{ VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  								Material::PolygonMode::Line, Material::Topololy::LINE);
 
 			static std::array<const BuiltinMaterialSource*, std::to_underlying(MaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = {

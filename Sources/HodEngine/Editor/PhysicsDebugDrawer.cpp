@@ -77,7 +77,7 @@ namespace hod::editor
 
 	/// @brief 
 	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const hod::physics::RenderCommand& renderCommand, const renderer::Material& material)
-	: RenderCommandMesh(renderCommand._vertices.data(), (uint32_t)renderCommand._vertices.size() / 2, sizeof(float) * 2, nullptr, 0, Matrix4::Identity, _materialInstance, true)
+	: RenderCommandMesh(renderCommand._vertices.data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.size(), nullptr, 0, Matrix4::Identity, _materialInstance, true)
 	{
 		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(&material);
 		materialInstance->SetVec4("UBO.color", Vector4(renderCommand._color.r, renderCommand._color.g, renderCommand._color.b, renderCommand._color.a));

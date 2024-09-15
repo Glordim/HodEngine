@@ -128,11 +128,11 @@ namespace hod::physics
 		renderCommand._type = RenderCommand::Type::FillPolygon;
 		renderCommand._color = (color << 8) | 0xff;
 
-		renderCommand._vertices.resize(vertexCount * 2);
+		renderCommand._vertices.resize(vertexCount);
 		for (int index = 0; index < vertexCount; ++index)
 		{
-			renderCommand._vertices[index * 2 + 0] = transform.p.x + vertices[index].x; // todo use transform.r
-			renderCommand._vertices[index * 2 + 1] = transform.p.y + vertices[index].y; // todo use transform.r
+			renderCommand._vertices[index].SetX(transform.p.x + vertices[index].x); // todo use transform.r
+			renderCommand._vertices[index].SetY(transform.p.y + vertices[index].y); // todo use transform.r
 		}
 
 		//std::memcpy(renderCommand._vertices.data(), vertices, sizeof(float) * vertexCount * 2);
@@ -154,7 +154,7 @@ namespace hod::physics
 		renderCommand._color = (color << 8) | 0xff;
 
 		uint32_t segmentCount = 32;
-		renderCommand._vertices.resize(segmentCount * 6);
+		renderCommand._vertices.resize(segmentCount * 3);
 		BuildCircleVertices(renderCommand._vertices.data(), center, radius, segmentCount);
 
 		thiz->_renderCommands.push_back(renderCommand);
@@ -174,7 +174,7 @@ namespace hod::physics
 		renderCommand._color = (color << 8) | 0xff;
 
 		uint32_t segmentCount = 32;
-		renderCommand._vertices.resize(segmentCount * 6);
+		renderCommand._vertices.resize(segmentCount * 3);
 		BuildCircleVertices(renderCommand._vertices.data(), transform.p, radius, segmentCount); // todo use transform.rot ?
 
 		thiz->_renderCommands.push_back(renderCommand);
@@ -185,28 +185,28 @@ namespace hod::physics
 	/// @param transform 
 	/// @param radius 
 	/// @param segmentCount 
-	void DebugDrawerBox2d::BuildCircleVertices(float* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
+	void DebugDrawerBox2d::BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
 	{
 		const float angleStep = 360.0f / segmentCount;
 
 		for (uint32_t currentSegment = 0; currentSegment < segmentCount; ++currentSegment)
 		{
-			uint32_t offset = currentSegment * 6;
+			uint32_t offset = currentSegment * 3;
 
-			vertices[offset + 0] = center.x + 0.0f;
-			vertices[offset + 1] = center.y + 0.0f;
+			vertices[offset].SetX(center.x + 0.0f);
+			vertices[offset].SetY(center.y + 0.0f);
 
 			float angle = angleStep * currentSegment;
 			angle = math::DegreeToRadian(angle);
 
-			vertices[offset + 2] = center.x + (radius * cosf(angle));
-			vertices[offset + 3] = center.y + (radius * sinf(angle));
+			vertices[offset + 1].SetX(center.x + (radius * cosf(angle)));
+			vertices[offset + 1].SetY(center.y + (radius * sinf(angle)));
 
 			angle = angleStep * (currentSegment + 1);
 			angle = math::DegreeToRadian(angle);
 
-			vertices[offset + 4] = center.x + (radius * cosf(angle));
-			vertices[offset + 5] = center.y + (radius * sinf(angle));
+			vertices[offset + 2].SetX(center.x + (radius * cosf(angle)));
+			vertices[offset + 2].SetY(center.y + (radius * sinf(angle)));
 		}
 	}
 
@@ -225,17 +225,17 @@ namespace hod::physics
 		renderCommand._color = (color << 8) | 0xff;
 
 		uint32_t segmentCount = 32;
-		renderCommand._vertices.resize(segmentCount * 6 * 2 + 8);
+		renderCommand._vertices.resize(segmentCount * 3 * 2 + 4);
 		BuildCircleVertices(renderCommand._vertices.data(), p1, radius, segmentCount);
-		BuildCircleVertices(renderCommand._vertices.data() + segmentCount * 6, p2, radius, segmentCount);
-		renderCommand._vertices[segmentCount * 6 * 2 + 0] = p1.x - radius;
-		renderCommand._vertices[segmentCount * 6 * 2 + 1] = p1.y;
-		renderCommand._vertices[segmentCount * 6 * 2 + 2] = p2.x - radius;
-		renderCommand._vertices[segmentCount * 6 * 2 + 3] = p2.y;
-		renderCommand._vertices[segmentCount * 6 * 2 + 4] = p1.x + radius;
-		renderCommand._vertices[segmentCount * 6 * 2 + 5] = p1.y;
-		renderCommand._vertices[segmentCount * 6 * 2 + 6] = p2.x + radius;
-		renderCommand._vertices[segmentCount * 6 * 2 + 7] = p2.y;
+		BuildCircleVertices(renderCommand._vertices.data() + segmentCount * 3, p2, radius, segmentCount);
+		renderCommand._vertices[segmentCount * 3 * 2 + 0].SetX(p1.x - radius);
+		renderCommand._vertices[segmentCount * 3 * 2 + 0].SetY(p1.y);
+		renderCommand._vertices[segmentCount * 3 * 2 + 1].SetX(p2.x - radius);
+		renderCommand._vertices[segmentCount * 3 * 2 + 1].SetY(p2.y);
+		renderCommand._vertices[segmentCount * 3 * 2 + 2].SetX(p1.x + radius);
+		renderCommand._vertices[segmentCount * 3 * 2 + 2].SetY(p1.y);
+		renderCommand._vertices[segmentCount * 3 * 2 + 3].SetX(p2.x + radius);
+		renderCommand._vertices[segmentCount * 3 * 2 + 3].SetY(p2.y);
 
 		thiz->_renderCommands.push_back(renderCommand);
 	}
@@ -255,17 +255,17 @@ namespace hod::physics
 		renderCommand._color = (color << 8) | 0xff;
 
 		uint32_t segmentCount = 32;
-		renderCommand._vertices.resize(segmentCount * 6 * 2 + 8);
+		renderCommand._vertices.resize(segmentCount * 3 * 2 + 4);
 		BuildCircleVertices(renderCommand._vertices.data(), p1, radius, segmentCount);
-		BuildCircleVertices(renderCommand._vertices.data() + segmentCount * 6, p2, radius, segmentCount);
-		renderCommand._vertices[segmentCount * 6 * 2 + 0] = p1.x - radius;
-		renderCommand._vertices[segmentCount * 6 * 2 + 1] = p1.y;
-		renderCommand._vertices[segmentCount * 6 * 2 + 2] = p2.x - radius;
-		renderCommand._vertices[segmentCount * 6 * 2 + 3] = p2.y;
-		renderCommand._vertices[segmentCount * 6 * 2 + 4] = p1.x + radius;
-		renderCommand._vertices[segmentCount * 6 * 2 + 5] = p1.y;
-		renderCommand._vertices[segmentCount * 6 * 2 + 6] = p2.x + radius;
-		renderCommand._vertices[segmentCount * 6 * 2 + 7] = p2.y;
+		BuildCircleVertices(renderCommand._vertices.data() + segmentCount * 3, p2, radius, segmentCount);
+		renderCommand._vertices[segmentCount * 3 * 2 + 0].SetX(p1.x - radius);
+		renderCommand._vertices[segmentCount * 3 * 2 + 0].SetY(p1.y);
+		renderCommand._vertices[segmentCount * 3 * 2 + 1].SetX(p2.x - radius);
+		renderCommand._vertices[segmentCount * 3 * 2 + 1].SetY(p2.y);
+		renderCommand._vertices[segmentCount * 3 * 2 + 2].SetX(p1.x + radius);
+		renderCommand._vertices[segmentCount * 3 * 2 + 2].SetY(p1.y);
+		renderCommand._vertices[segmentCount * 3 * 2 + 3].SetX(p2.x + radius);
+		renderCommand._vertices[segmentCount * 3 * 2 + 3].SetY(p2.y);
 
 		thiz->_renderCommands.push_back(renderCommand);
 	}
@@ -282,7 +282,7 @@ namespace hod::physics
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::Line;
 		renderCommand._color = (color << 8) | 0xff;
-		renderCommand._vertices.resize(2 * 2);
+		renderCommand._vertices.resize(2);
 		std::memcpy(renderCommand._vertices.data(), &p1, 2 * sizeof(float));
 		std::memcpy(renderCommand._vertices.data() + 2, &p2, 2 * sizeof(float));
 
@@ -309,7 +309,7 @@ namespace hod::physics
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::Point;
 		renderCommand._color = (color << 8) | 0xff;
-		renderCommand._vertices.resize(2);
+		renderCommand._vertices.resize(1);
 		std::memcpy(renderCommand._vertices.data(), &p, 2 * sizeof(float));
 
 		thiz->_renderCommands.push_back(renderCommand);

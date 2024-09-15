@@ -148,9 +148,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void MetalCommandBuffer::SetVertexBuffer(Buffer* vertexBuffer, uint32_t offset)
+		void MetalCommandBuffer::SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset)
 		{
-            _renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(vertexBuffer)->GetNativeBuffer(), offset, 0);
+			// todo count
+            _renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(vertexBuffer[0])->GetNativeBuffer(), offset, 0);
 		}
 
 		//-----------------------------------------------------------------------------
