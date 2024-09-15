@@ -6,6 +6,7 @@
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/PickingManager.hpp"
 
 #include <cstring>
 #include <cassert>
@@ -125,12 +126,10 @@ namespace hod::renderer
 		MaterialInstance* materialInstance = const_cast<MaterialInstance*>(_materialInstance);
 		if (overrideMaterial != nullptr)
 		{
-			float r = (_pickingId & 0xFF) / 255.0f;
-			float g = ((_pickingId >> 8) & 0xFF) / 255.0f;
-			float b = ((_pickingId >> 16) & 0xFF) / 255.0f;
+			Color color = renderer::PickingManager::ConvertIdToColor(_pickingId);
 
 			materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
-			materialInstance->SetVec4("UBO.color", Vector4(r, g, b, 1.0f));
+			materialInstance->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
 			commandBuffer->DeleteAfterRender(materialInstance);
 		}
 		else if (_ignoreVisualisationMode == false)

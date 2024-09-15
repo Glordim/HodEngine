@@ -260,7 +260,7 @@ namespace hod::editor
 		windowHeight = std::clamp(windowHeight, 2u, 16u * 1024u);
 
 		// todo check if visible (docking tab) ?
-
+		/*
 		if (_pickingRequest == true)
 		{
 			if (_pickingRenderTarget->GetWidth() != windowWidth ||
@@ -285,10 +285,10 @@ namespace hod::editor
 
 				float aspect = (float)windowWidth / (float)windowHeight;
 
-				Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-				Matrix4 view = Matrix4::Translation(_cameraPosition);
+				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+				_view = Matrix4::Translation(_cameraPosition);
 
-				renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+				renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
 
 				std::map<uint32_t, std::shared_ptr<game::RendererComponent>> colorIdToRendererComponentMap;
 
@@ -331,6 +331,7 @@ namespace hod::editor
 				_pickingRequest = false;
 			}
 		}
+		*/
 
 		if (_renderTarget->GetWidth() != windowWidth ||
 			_renderTarget->GetHeight() != windowHeight)
@@ -359,10 +360,10 @@ namespace hod::editor
 
 			float aspect = (float)windowWidth / (float)windowHeight;
 
-			Matrix4 projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-			Matrix4 view = Matrix4::Translation(_cameraPosition);
+			_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+			_view = Matrix4::Translation(_cameraPosition);
 
-			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
 
 			game::World* world = game::World::GetInstance();
 			world->Draw(renderQueue);
@@ -391,7 +392,7 @@ namespace hod::editor
 							ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
 							if (customEditor != nullptr)
 							{
-								if (customEditor->OnDrawGizmo(componentLock, projection, view, _gizmoOperation, *renderQueue))
+								if (customEditor->OnDrawGizmo(componentLock, *this))
 								{
 									Editor::GetInstance()->MarkCurrentSceneAsDirty();
 								}
@@ -502,5 +503,26 @@ namespace hod::editor
 	std::shared_ptr<Asset> ViewportWindow::GetAsset() const
 	{
 		return _asset;
+	}
+
+	/// @brief 
+	/// @return 
+	renderer::RenderTarget* ViewportWindow::GetPickingRenderTarget() const
+	{
+		return _pickingRenderTarget;
+	}
+
+	/// @brief 
+	/// @return 
+	const Matrix4& ViewportWindow::GetProjectionMatrix() const
+	{
+		return _projection;
+	}
+
+	/// @brief 
+	/// @return 
+	const Matrix4& ViewportWindow::GetViewMatrix() const
+	{
+		return _view;
 	}
 }

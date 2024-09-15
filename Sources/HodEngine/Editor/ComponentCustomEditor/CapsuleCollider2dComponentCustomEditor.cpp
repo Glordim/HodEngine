@@ -29,7 +29,7 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool CapsuleCollider2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation, renderer::RenderQueue& renderQueue)
+	bool CapsuleCollider2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
 	{
 		std::shared_ptr<game::CapsuleCollider2dComponent> capsuleCollider2d = std::static_pointer_cast<game::CapsuleCollider2dComponent>(component);
 		if (capsuleCollider2d != nullptr)
@@ -43,7 +43,7 @@ namespace hod::editor
 				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset()) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
 
 				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance);
-				renderQueue.PushRenderCommand(renderMeshCommand);		
+				renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);		
 			}
 		}
 		return false;

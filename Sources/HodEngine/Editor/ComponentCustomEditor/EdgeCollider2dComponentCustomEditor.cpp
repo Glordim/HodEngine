@@ -29,7 +29,7 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool EdgeCollider2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation, renderer::RenderQueue& renderQueue)
+	bool EdgeCollider2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
 	{
 		std::shared_ptr<game::EdgeCollider2dComponent> edgeCollider2d = std::static_pointer_cast<game::EdgeCollider2dComponent>(component);
 		if (edgeCollider2d != nullptr)
@@ -43,7 +43,7 @@ namespace hod::editor
 				};
 
 				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
-				renderQueue.PushRenderCommand(renderMeshCommand);		
+				renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);		
 			}
 		}
 		return false;

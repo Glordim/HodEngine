@@ -90,8 +90,9 @@ namespace hod::renderer
 
 		bool CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
-		bool TransitionImageLayout(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
+		bool TransitionImageLayout(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
 		bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+		bool CopyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height);
 
 		bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
 

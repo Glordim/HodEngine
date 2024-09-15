@@ -9,6 +9,8 @@
 
 #include <HodEngine/Core/Math/Vector2.hpp>
 
+#include "vk_mem_alloc.h"
+
 namespace hod
 {
 	namespace renderer
@@ -94,7 +96,7 @@ namespace hod
 				goto exit;
 			}
 
-			if (renderer->TransitionImageLayout(_textureImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
+			if (renderer->TransitionImageLayout(_textureImage, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
 			{
 				goto exit;
 			}
@@ -161,7 +163,7 @@ namespace hod
 				goto exit;
 			}
 
-			if (renderer->TransitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
+			if (renderer->TransitionImageLayout(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
 			{
 				goto exit;
 			}
@@ -264,7 +266,7 @@ namespace hod
 				goto exit;
 			}
 
-			if (renderer->TransitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) == false)
+			if (renderer->TransitionImageLayout(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) == false)
 			{
 				goto exit;
 			}
@@ -274,7 +276,7 @@ namespace hod
 				goto exit;
 			}
 
-			if (renderer->TransitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
+			if (renderer->TransitionImageLayout(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
 			{
 				goto exit;
 			}
@@ -341,35 +343,57 @@ namespace hod
 		/// @return 
 		Color VkTexture::ReadPixel(const Vector2& position) const
 		{
+			if (position.GetX() < 0 || position.GetX() > _width ||
+				position.GetY() < 0 || position.GetY() > _height)
+			{
+				return Color(0.0f, 0.0f, 0.0f, 0.0f);
+			}
+
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
+			VkBuffer stagingBuffer;
+			VmaAllocation stagingBufferAllocation;
+
+			VkBufferCreateInfo bufferCreateInfo = {};
+			bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+			bufferCreateInfo.size = _width * _height * 4;
+			bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+			VmaAllocationCreateInfo allocCreateInfo = {};
+			allocCreateInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+			if (vmaCreateBuffer(renderer->GetVmaAllocator(), &bufferCreateInfo, &allocCreateInfo, &stagingBuffer, &stagingBufferAllocation, nullptr) != VK_SUCCESS)
+			{
+				// todo output
+				return Color(0.0f, 0.0f, 0.0f, 0.0f);
+			}
+
+			renderer->TransitionImageLayout(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			if (renderer->CopyImageToBuffer(_textureImage, stagingBuffer, _width, _height) == false)
+			{
+				// todo ouput
+				return Color(0.0f, 0.0f, 0.0f, 0.0f);
+			}
+			renderer->TransitionImageLayout(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
 			void* data;
-			if (vkMapMemory(renderer->GetVkDevice(), _textureImageMemory, 0, VK_WHOLE_SIZE, 0, &data) != VK_SUCCESS)
+			if (vmaMapMemory(renderer->GetVmaAllocator(), stagingBufferAllocation, &data) != VK_SUCCESS)
 			{
 				OUTPUT_ERROR("Vulkan: Texture, unable to map memory");
 				return Color(0.0f, 0.0f, 0.0f, 0.0f);
 			}
 			
-			//VkMemoryRequirements memRequirements;
-			//vkGetImageMemoryRequirements(renderer->GetVkDevice(), _textureImage, &memRequirements);
-			size_t alignment = renderer->GetVkGpuDevice()->deviceProperties.limits.minMemoryMapAlignment; // memRequirements.alignment
+			uint8_t* pixelData = (uint8_t*)data + ((uint32_t)position.GetY() * _width + (uint32_t)position.GetX()) * 4;
 
-			VkDeviceSize lineSizeWithAlignment = 4 * _width;
-			lineSizeWithAlignment += alignment - (lineSizeWithAlignment % alignment);
+			Color color(
+				((float)pixelData[0]) / 255.0f,
+				((float)pixelData[1]) / 255.0f,
+				((float)pixelData[2]) / 255.0f,
+				((float)pixelData[3]) / 255.0f
+			);
 
-			VkDeviceSize bufferOffset = lineSizeWithAlignment * (VkDeviceSize)position.GetY() + 4 * (VkDeviceSize)position.GetX(); 
-
-			Color color;
-			color.r = reinterpret_cast<uint8_t*>(data)[bufferOffset + 0];
-			color.g = reinterpret_cast<uint8_t*>(data)[bufferOffset + 1];
-			color.b = reinterpret_cast<uint8_t*>(data)[bufferOffset + 2];
-			color.a = reinterpret_cast<uint8_t*>(data)[bufferOffset + 3];
-
-			color.r /= 255.0f;
-			color.g /= 255.0f;
-			color.b /= 255.0f;
-			color.a /= 255.0f;
-			vkUnmapMemory(renderer->GetVkDevice(), _textureImageMemory);
+			vmaUnmapMemory(renderer->GetVmaAllocator(), stagingBufferAllocation);
+			vmaDestroyBuffer(renderer->GetVmaAllocator(), stagingBuffer, stagingBufferAllocation);
 
 			return color;
 		}

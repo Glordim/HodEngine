@@ -214,7 +214,7 @@ namespace hod
 
 		for (size_t i = 0; i < imageCount; ++i)
 		{
-			RendererVulkan::GetInstance()->TransitionImageLayout(swapChainImages[i], VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+			RendererVulkan::GetInstance()->TransitionImageLayout(swapChainImages[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 			// TODO use CreateImageView here ?
 

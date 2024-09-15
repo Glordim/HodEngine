@@ -10,6 +10,9 @@
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/RHI/RenderTarget.hpp>
+
+#include "HodEngine/Editor/ViewportWindow.hpp"
 
 namespace hod::editor
 {
@@ -53,11 +56,12 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool Node2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation, renderer::RenderQueue& renderQueue)
+	bool Node2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
 	{
 		std::shared_ptr<game::Node2dComponent> node2D = std::static_pointer_cast<game::Node2dComponent>(component);
 		if (node2D != nullptr)
 		{
+			/*
 			float matrix[16];
 			float position[3];
 			position[0] = node2D->GetPosition().GetX();
@@ -81,11 +85,32 @@ namespace hod::editor
 				node2D->SetScale(Vector2(scale[0], scale[1]));
 				return true;
 			}
+			*/
+
+			ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
+			Vector2 mousePosition(mousePos.x, mousePos.y);
+			Color pickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
+			uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
+
+			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])
+			{
+				if (ImGui::GetIO().MouseDownDuration[ImGuiMouseButton_Left] == 0.0f && pickingId != 0 && _movingAxis == 0)
+				{
+					if (pickingId == _pickingIdAxisX || pickingId == _pickingIdAxisY || pickingId == _pickingIdAxisZ)
+					{
+						_movingAxis = pickingId;
+					}
+				}
+			}
+			else
+			{
+				_movingAxis = 0;
+			}
 
 			constexpr float thickness = 0.05f;
 			constexpr float length = 1.0f;
 			constexpr float headHeight = 0.15f;
-			constexpr float headLength = 0.15f;
+			constexpr float headLength = 0.25f;
 			constexpr float lineLength = length - headLength;
 			constexpr float squareSize = 0.25f;
 			constexpr float squareOffset = 0.5f;
@@ -106,8 +131,8 @@ namespace hod::editor
 
 			Matrix4 finalMatrix = Matrix4::Translation(node2D->GetWorldMatrix().GetTranslation());
 
-			renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(verticesX.data(), nullptr, nullptr, (uint32_t)verticesX.size(), nullptr, 0, finalMatrix, _materialInstanceAxisXNormal, _pickingIdAxisX);
-			renderQueue.PushRenderCommand(renderMeshCommand);
+			renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(verticesX.data(), nullptr, nullptr, (uint32_t)verticesX.size(), nullptr, 0, finalMatrix, pickingId != _pickingIdAxisX ? _materialInstanceAxisXNormal : _materialInstanceAxisXHightlight, _pickingIdAxisX);
+			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 9> verticesY = {
 				Vector2(thickness * 0.5f, 0.0f),
@@ -123,8 +148,8 @@ namespace hod::editor
 				Vector2(0.0f, length),
 			};
 
-			renderMeshCommand = new renderer::RenderCommandMesh(verticesY.data(), nullptr, nullptr, (uint32_t)verticesY.size(), nullptr, 0, finalMatrix, _materialInstanceAxisYNormal, _pickingIdAxisY);
-			renderQueue.PushRenderCommand(renderMeshCommand);
+			renderMeshCommand = new renderer::RenderCommandMesh(verticesY.data(), nullptr, nullptr, (uint32_t)verticesY.size(), nullptr, 0, finalMatrix, pickingId != _pickingIdAxisY ? _materialInstanceAxisYNormal : _materialInstanceAxisYHightlight, _pickingIdAxisY);
+			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 6> verticesZ = {
 				Vector2(squareOffset + -squareSize * 0.5f, squareOffset + squareSize * 0.5f),
@@ -136,8 +161,8 @@ namespace hod::editor
 				Vector2(squareOffset + squareSize * 0.5f, squareOffset + squareSize * 0.5f),
 			};
 
-			renderMeshCommand = new renderer::RenderCommandMesh(verticesZ.data(), nullptr, nullptr, (uint32_t)verticesZ.size(), nullptr, 0, finalMatrix, _materialInstanceAxisZNormal, _pickingIdAxisZ);
-			renderQueue.PushRenderCommand(renderMeshCommand);
+			renderMeshCommand = new renderer::RenderCommandMesh(verticesZ.data(), nullptr, nullptr, (uint32_t)verticesZ.size(), nullptr, 0, finalMatrix, pickingId != _pickingIdAxisZ ? _materialInstanceAxisZNormal : _materialInstanceAxisZHightlight, _pickingIdAxisZ);
+			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 6> verticesCenter = {
 				Vector2(-thickness * 0.5f, thickness * 0.5f),
@@ -150,9 +175,7 @@ namespace hod::editor
 			};
 
 			renderMeshCommand = new renderer::RenderCommandMesh(verticesCenter.data(), nullptr, nullptr, (uint32_t)verticesCenter.size(), nullptr, 0, finalMatrix, _materialInstanceCenterNormal);
-			renderQueue.PushRenderCommand(renderMeshCommand);
-
-			//renderQueue.GetPickingRenderTarget();
+			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
 		}
 
 		return false;

@@ -25,7 +25,7 @@ namespace hod::editor
 
 	public:
 
-		bool							OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation, renderer::RenderQueue& renderQueue) override;
+		bool							OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport) override;
 		
 	private:
 
@@ -43,5 +43,7 @@ namespace hod::editor
 		renderer::MaterialInstance*		_materialInstanceAxisZNormal = nullptr;
 		renderer::MaterialInstance*		_materialInstanceAxisZHightlight = nullptr;
 		uint32_t						_pickingIdAxisZ;
+
+		uint32_t						_movingAxis = 0;
 	};
 }

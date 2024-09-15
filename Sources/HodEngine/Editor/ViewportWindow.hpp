@@ -3,6 +3,7 @@
 
 #include <HodEngine/ImGui/Window/Window.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Core/Math/Matrix4.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/ImGuizmo.h>
@@ -44,6 +45,10 @@ namespace hod::editor
 
 		std::shared_ptr<Asset> GetAsset() const;
 
+		renderer::RenderTarget*		GetPickingRenderTarget() const;
+		const Matrix4&				GetProjectionMatrix() const;
+		const Matrix4&				GetViewMatrix() const;
+
 	private:
 
 		void		EnablePhysicsDebugDrawer(bool enabled);
@@ -52,6 +57,9 @@ namespace hod::editor
 		renderer::RenderTarget* 	_renderTarget = nullptr;
 		renderer::RenderTarget* 	_pickingRenderTarget = nullptr;
 		ImGuizmo::OPERATION			_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+
+		Matrix4						_projection;
+		Matrix4						_view;
 
 		bool						_pickingRequest = false;
 		Vector2						_pickingPosition = Vector2::Zero;
