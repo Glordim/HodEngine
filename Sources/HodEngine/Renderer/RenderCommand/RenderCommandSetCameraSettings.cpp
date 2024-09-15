@@ -24,7 +24,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void RenderCommandSetCameraSettings::Execute(CommandBuffer* commandBuffer)
+		void RenderCommandSetCameraSettings::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
 		{
 			commandBuffer->SetProjectionMatrix(_projectionMatrix);
 			commandBuffer->SetViewMatrix(_viewMatrix);

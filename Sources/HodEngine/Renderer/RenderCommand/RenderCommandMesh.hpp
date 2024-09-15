@@ -19,7 +19,7 @@ namespace hod::renderer
 	{
 	public:
 
-								RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, bool ignoreVisualisationMode = false);
+								RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t pickingId = 0, bool ignoreVisualisationMode = false);
 								RenderCommandMesh(const RenderCommandMesh&) = delete;
 								RenderCommandMesh(RenderCommandMesh&&) = delete;
 								~RenderCommandMesh() override = default;
@@ -29,7 +29,7 @@ namespace hod::renderer
 
 	public:
 
-		void					Execute(CommandBuffer* commandBuffer) override;
+		void					Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial) override;
 
 	protected:
 
@@ -37,6 +37,8 @@ namespace hod::renderer
 		std::vector<Vector2>	_uvs;
 		std::vector<Color>		_colors;
 		uint32_t				_vertexCount;
+
+		uint32_t				_pickingId;
 
 		std::vector<uint16_t>	_indices;
 		Matrix4					_modelMatrix;

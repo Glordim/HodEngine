@@ -1,6 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
+#include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
@@ -17,6 +18,8 @@ namespace hod
 		_SingletonConstructor(Renderer)
 		{
 			MaterialManager::CreateInstance();
+			PickingManager::CreateInstance();
+			RenderQueue::CreateInstance();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -24,15 +27,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Renderer::~Renderer()
 		{
+			RenderQueue::DestroyInstance();
+			PickingManager::DestroyInstance();
 			MaterialManager::DestroyInstance();
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		RenderQueue* Renderer::GetRenderQueue()
-		{
-			return &_renderQueue;
 		}
 
 		/*

@@ -32,7 +32,7 @@ namespace hod
 
 		public:
 
-			void			Execute(CommandBuffer* commandBuffer) override;
+			void			Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial) override;
 
 		private:
 

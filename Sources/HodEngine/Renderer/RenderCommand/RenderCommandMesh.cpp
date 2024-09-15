@@ -3,6 +3,7 @@
 
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 #include "HodEngine/Renderer/Renderer.hpp"
 
@@ -21,13 +22,14 @@ namespace hod::renderer
 	/// @param modelMatrix 
 	/// @param materialInstance 
 	/// @param ignoreVisualisationMode 
-	RenderCommandMesh::RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, bool ignoreVisualisationMode)
+	RenderCommandMesh::RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t pickingId, bool ignoreVisualisationMode)
 		: RenderCommand()
 		, _vertexCount(vertexCount)
 		, _indices(indexCount)
 		, _modelMatrix(modelMatrix)
 		, _materialInstance(materialInstance)
 		, _ignoreVisualisationMode(ignoreVisualisationMode)
+		, _pickingId(pickingId)
 	{
 		assert(positions != nullptr);
 		_positions.resize(vertexCount);
@@ -58,7 +60,7 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @param commandBuffer 
-	void RenderCommandMesh::Execute(CommandBuffer* commandBuffer)
+	void RenderCommandMesh::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
 	{
 		Renderer* renderer = Renderer::GetInstance();
 
@@ -120,25 +122,29 @@ namespace hod::renderer
 
 		commandBuffer->SetModelMatrix(_modelMatrix);
 
-		if (_ignoreVisualisationMode == false)
+		MaterialInstance* materialInstance = const_cast<MaterialInstance*>(_materialInstance);
+		if (overrideMaterial != nullptr)
 		{
-			if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Normal || renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
+			float r = (_pickingId & 0xFF) / 255.0f;
+			float g = ((_pickingId >> 8) & 0xFF) / 255.0f;
+			float b = ((_pickingId >> 16) & 0xFF) / 255.0f;
+
+			materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
+			materialInstance->SetVec4("UBO.color", Vector4(r, g, b, 1.0f));
+			commandBuffer->DeleteAfterRender(materialInstance);
+		}
+		else if (_ignoreVisualisationMode == false)
+		{
+			if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Wireframe)
 			{
-				commandBuffer->SetMaterialInstance(_materialInstance, 0);
+				materialInstance = Renderer::GetInstance()->GetWireframeMaterialInstance();
 			}
-			else if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Wireframe)
+			else if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
 			{
-				commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetWireframeMaterialInstance());
-			}
-			else
-			{
-				commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetOverdrawMaterialInstance());
+				materialInstance = (Renderer::GetInstance()->GetOverdrawMaterialInstance());
 			}
 		}
-		else
-		{
-			commandBuffer->SetMaterialInstance(_materialInstance, 0);
-		}
+		commandBuffer->SetMaterialInstance(materialInstance, 0);
 
 		struct Constant
 		{

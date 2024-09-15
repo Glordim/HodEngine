@@ -37,8 +37,13 @@ namespace hod::imgui
 
 	/// @brief 
 	/// @param commandBuffer 
-	void RenderCommandImGui::Execute(renderer::CommandBuffer* commandBuffer)
+	void RenderCommandImGui::Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial)
 	{
+		if (overrideMaterial != nullptr)
+		{
+			return;
+		}
+
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 
 		commandBuffer->SetViewport(_viewport);

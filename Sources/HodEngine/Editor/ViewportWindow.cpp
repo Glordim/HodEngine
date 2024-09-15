@@ -272,7 +272,7 @@ namespace hod::editor
 
 			if (_pickingRenderTarget->IsValid() == true)
 			{
-				renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
+				renderer::RenderQueue* renderQueue = renderer::RenderQueue::GetInstance();
 
 				Rect viewport;
 				viewport._position.SetX(0);
@@ -340,7 +340,7 @@ namespace hod::editor
 		if (_renderTarget->IsValid() == true)
 		{
 			ImVec2 origin = ImGui::GetCursorScreenPos();
-			renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
+			renderer::RenderQueue* renderQueue = renderer::RenderQueue::GetInstance();
 
 			Rect viewport;
 			viewport._position.SetX(0);

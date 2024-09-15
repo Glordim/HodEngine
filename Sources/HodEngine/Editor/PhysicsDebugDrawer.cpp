@@ -87,9 +87,9 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param commandBuffer 
-	void RenderCommandPhysicsDrawer::Execute(renderer::CommandBuffer* commandBuffer)
+	void RenderCommandPhysicsDrawer::Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial)
 	{
-		RenderCommandMesh::Execute(commandBuffer);
+		RenderCommandMesh::Execute(commandBuffer, overrideMaterial);
 		commandBuffer->DeleteAfterRender(const_cast<renderer::MaterialInstance*>(_materialInstance));
 	}
 }

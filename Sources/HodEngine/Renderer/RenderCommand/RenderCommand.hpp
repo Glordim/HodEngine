@@ -6,6 +6,7 @@ namespace hod
 	namespace renderer
 	{
 		class CommandBuffer;
+		class MaterialInstance;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -24,7 +25,7 @@ namespace hod
 
 		public:
 
-			virtual void	Execute(CommandBuffer* commandBuffer) = 0;
+			virtual void	Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial = nullptr) = 0;
 		};
 	}
 }

@@ -49,6 +49,6 @@ namespace hod::editor
 
 	public:
 
-		void					Execute(renderer::CommandBuffer* commandBuffer) override;
+		void					Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial) override;
 	};
 }

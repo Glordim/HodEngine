@@ -1,30 +1,35 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
+#include "HodEngine/Core/Singleton.hpp"
 
 #include <vector>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	class RenderCommand;
+	class RenderTarget;
+	class Context;
+	class MaterialInstance;
+
+	/// @brief 
+	class HOD_RENDERER_API RenderQueue
 	{
-		class RenderCommand;
-		class RenderTarget;
-		class Context;
+		_Singleton(RenderQueue)
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API RenderQueue
-		{
-		public:
+	public:
 
-			void							PushRenderCommand(RenderCommand* renderCommand);
-			void							Execute(RenderTarget* renderTarget = nullptr);
-			void							Execute(Context* context);
+										~RenderQueue();
 
-		private:
+		void							Init();
 
-			std::vector<RenderCommand*>		_renderCommands;
-		};
-	}
+		void							PushRenderCommand(RenderCommand* renderCommand);
+		void							Execute(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget = nullptr);
+		void							Execute(Context* context);
+
+	private:
+
+		std::vector<RenderCommand*>		_renderCommands;
+
+		MaterialInstance*				_pickingMaterialInstance = nullptr;
+	};
 }

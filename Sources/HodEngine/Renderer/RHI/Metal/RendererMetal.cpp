@@ -83,6 +83,9 @@ namespace hod
 
 			[view.layer addSublayer:_layer];
 */
+
+			RenderQueue::GetInstance()->Init();
+			
 			return true;
 		}
 

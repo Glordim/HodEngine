@@ -64,8 +64,6 @@ namespace hod::renderer
 		virtual bool				Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) = 0;
 		virtual bool				BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) = 0;
 
-		RenderQueue*				GetRenderQueue();
-
 		virtual bool				GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;
 
 
@@ -118,8 +116,6 @@ namespace hod::renderer
 		*/
 
 		VisualizationMode			_visualizationMode = VisualizationMode::Normal;
-
-		RenderQueue					_renderQueue;
 
 		Texture*					_defaultWhiteTexture = nullptr;
 	};

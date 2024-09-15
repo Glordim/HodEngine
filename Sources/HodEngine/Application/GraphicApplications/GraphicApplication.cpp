@@ -91,7 +91,7 @@ namespace hod::application
 			renderer::Context* context = static_cast<renderer::Context*>(_window->GetSurface());
 			if (context->AcquireNextImageIndex() == true)
 			{
-				PlatformRenderer::GetInstance()->GetRenderQueue()->Execute(context);
+				renderer::RenderQueue::GetInstance()->Execute(context);
 
 				//_window->GetGraphicsContext()->SwapBuffer();
 			}
