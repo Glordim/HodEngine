@@ -3,6 +3,11 @@
 
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 
+namespace hod::renderer
+{
+	class MaterialInstance;
+}
+
 namespace hod::editor
 {
 	/// @brief 
@@ -10,7 +15,7 @@ namespace hod::editor
 	{
 	public:
 
-										Node2dComponentCustomEditor() = default;
+										Node2dComponentCustomEditor();
 										Node2dComponentCustomEditor(const Node2dComponentCustomEditor&) = delete;
 										Node2dComponentCustomEditor(Node2dComponentCustomEditor&&) = delete;
 										~Node2dComponentCustomEditor() override = default;
@@ -21,5 +26,22 @@ namespace hod::editor
 	public:
 
 		bool							OnDrawGizmo(std::shared_ptr<game::Component> component, const Matrix4& projection, const Matrix4& view, ImGuizmo::OPERATION operation, renderer::RenderQueue& renderQueue) override;
+		
+	private:
+
+		renderer::MaterialInstance*		_materialInstanceCenterNormal = nullptr;
+		renderer::MaterialInstance*		_materialInstanceCenterHightlight = nullptr;
+
+		renderer::MaterialInstance*		_materialInstanceAxisXNormal = nullptr;
+		renderer::MaterialInstance*		_materialInstanceAxisXHightlight = nullptr;
+		uint32_t						_pickingIdAxisX;
+
+		renderer::MaterialInstance*		_materialInstanceAxisYNormal = nullptr;
+		renderer::MaterialInstance*		_materialInstanceAxisYHightlight = nullptr;
+		uint32_t						_pickingIdAxisY;
+
+		renderer::MaterialInstance*		_materialInstanceAxisZNormal = nullptr;
+		renderer::MaterialInstance*		_materialInstanceAxisZHightlight = nullptr;
+		uint32_t						_pickingIdAxisZ;
 	};
 }

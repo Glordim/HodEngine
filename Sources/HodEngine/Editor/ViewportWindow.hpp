@@ -49,19 +49,20 @@ namespace hod::editor
 		void		EnablePhysicsDebugDrawer(bool enabled);
 		bool		IsPhysicsDebugDrawerEnabled(bool enabled) const;
 		
-		renderer::RenderTarget* _renderTarget = nullptr;
-		renderer::RenderTarget* _pickingRenderTarget = nullptr;
-		ImGuizmo::OPERATION		_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+		renderer::RenderTarget* 	_renderTarget = nullptr;
+		renderer::RenderTarget* 	_pickingRenderTarget = nullptr;
+		ImGuizmo::OPERATION			_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 
-		bool					_pickingRequest = false;
-		Vector2					_pickingPosition = Vector2::Zero;
+		bool						_pickingRequest = false;
+		Vector2						_pickingPosition = Vector2::Zero;
 
-					Vector2							_cameraPosition = Vector2::Zero;
-			float							_size = 5.0f;
-			game::Scene*					_scene = nullptr;
-			game::Prefab*					_prefab = nullptr;
-			std::shared_ptr<Asset>			_asset;
+		Vector2						_cameraPosition = Vector2::Zero;
+		float						_size = 5.0f;
+		game::Scene*				_scene = nullptr;
+		game::Prefab*				_prefab = nullptr;
+		std::shared_ptr<Asset>		_asset;
 
-			PhysicsDebugDrawer*				_physicsDebugDrawer = nullptr;
+		PhysicsDebugDrawer*			_physicsDebugDrawer = nullptr;
+		bool						_debugPicker = false;
 	};
 }

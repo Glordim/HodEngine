@@ -34,6 +34,8 @@ namespace hod
 
 		Matrix4&	operator *= (const Matrix4& right);
 
+		Vector2		GetTranslation() const;
+
 	public:
 
 		static Matrix4	OrthogonalProjection(float left, float right, float bottom, float top, float near, float far);

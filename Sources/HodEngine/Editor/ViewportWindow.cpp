@@ -172,6 +172,8 @@ namespace hod::editor
 	{
 		if (ImGui::BeginMenuBar())
 		{
+			ImGui::MenuItem("Debug Picker", nullptr, &_debugPicker);
+			ImGui::SameLine();
 			bool enabled = _physicsDebugDrawer != nullptr;
 			if (ImGui::MenuItem("Debug Physics", nullptr, &enabled) == true)
 			{
@@ -333,8 +335,15 @@ namespace hod::editor
 		if (_renderTarget->GetWidth() != windowWidth ||
 			_renderTarget->GetHeight() != windowHeight)
 		{
-			_renderTarget->Init(windowWidth, windowHeight, renderer::Texture::CreateInfo()); // todo error
+			renderer::Texture::CreateInfo createInfo;
+
+			createInfo._allowReadWrite = false;
+			_renderTarget->Init(windowWidth, windowHeight, createInfo); // todo error
 			_renderTarget->PrepareForRead(); // todo automate ?
+
+			createInfo._allowReadWrite = true;
+			_pickingRenderTarget->Init(windowWidth, windowHeight, createInfo); // todo error
+			_pickingRenderTarget->PrepareForRead(); // todo automate ?
 		}
 
 		if (_renderTarget->IsValid() == true)
@@ -393,12 +402,21 @@ namespace hod::editor
 			}
 
 			_renderTarget->PrepareForWrite(); // todo automate ?
+			_pickingRenderTarget->PrepareForWrite(); // todo automate ?
 
-			renderQueue->Execute(_renderTarget);
+			renderQueue->Execute(_renderTarget, _pickingRenderTarget);
 
 			_renderTarget->PrepareForRead(); // todo automate ?
+			_pickingRenderTarget->PrepareForRead(); // todo automate ?
 
-			ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+			if (_debugPicker)
+			{
+				ImGui::Image(_pickingRenderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+			}
+			else
+			{
+				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+			}
 			//ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth, (float)(windowHeight + menuBarHeight)));
 			if (ImGui::BeginDragDropTarget() == true)
 			{

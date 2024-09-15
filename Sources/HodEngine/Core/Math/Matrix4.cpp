@@ -114,6 +114,13 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @return 
+	Vector2 Matrix4::GetTranslation() const
+	{
+		return Vector2(_values[0][3], _values[1][3]);
+	}
+
+	/// @brief 
 	/// @param translation 
 	/// @return 
 	Matrix4 Matrix4::Translation(const Vector4& translation)
