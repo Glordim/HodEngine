@@ -51,6 +51,11 @@ namespace hod
 
 	public:
 
+		static Vector4	Normalize(const Vector4& vector);
+		static float	Dot(const Vector4& vec1, const Vector4& vec2);
+
+	public:
+
 		float		GetX() const;
 		void		SetX(float x);
 

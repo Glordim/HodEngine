@@ -291,4 +291,34 @@ namespace hod
 		_w /= value;
 		return *this;
 	}
+
+	/// @brief 
+	/// @param vector 
+	/// @return 
+	Vector4 Vector4::Normalize(const Vector4& vector)
+	{
+		float magnitude = std::sqrt(vector._x * vector._x + 
+                                vector._y * vector._y + 
+                                vector._z * vector._z + 
+                                vector._w * vector._w);
+
+		if (magnitude == 0.0f)
+		{
+			return Vector4::Zero;
+		}
+
+		return vector / magnitude;
+	}
+
+	/// @brief 
+	/// @param vec1 
+	/// @param vec2 
+	/// @return 
+	float Vector4::Dot(const Vector4& vec1, const Vector4& vec2)
+	{
+    	return (vec1._x * vec2._x) +
+           (vec1._y * vec2._y) +
+           (vec1._z * vec2._z) +
+           (vec1._w * vec2._w);
+	}
 }

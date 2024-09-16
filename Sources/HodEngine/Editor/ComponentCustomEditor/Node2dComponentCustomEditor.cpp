@@ -58,6 +58,8 @@ namespace hod::editor
 	/// @return 
 	bool Node2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
 	{
+		bool changed = false;
+
 		std::shared_ptr<game::Node2dComponent> node2D = std::static_pointer_cast<game::Node2dComponent>(component);
 		if (node2D != nullptr)
 		{
@@ -99,12 +101,38 @@ namespace hod::editor
 					if (pickingId == _pickingIdAxisX || pickingId == _pickingIdAxisY || pickingId == _pickingIdAxisZ)
 					{
 						_movingAxis = pickingId;
+
+						Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
+						_pickingOffset = mouseWorldPos - node2D->GetPosition();
 					}
 				}
 			}
 			else
 			{
 				_movingAxis = 0;
+			}
+
+			Matrix4 finalMatrix = Matrix4::Translation(node2D->GetWorldMatrix().GetTranslation()); // Backup gizmo matrix before modification to avoid desync/lag
+			
+			if (_movingAxis != 0 && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
+			{
+				Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
+				Vector2 previousPosition = node2D->GetPosition();
+				Vector2 newPosition = mouseWorldPos - _pickingOffset;
+				if (_movingAxis == _pickingIdAxisX)
+				{
+					newPosition.SetY(previousPosition.GetY());
+				}
+				else if (_movingAxis == _pickingIdAxisY)
+				{
+					newPosition.SetX(previousPosition.GetX());
+				}
+
+				if (newPosition != previousPosition)
+				{
+					node2D->SetPosition(newPosition);
+					changed = true;
+				}				
 			}
 
 			constexpr float thickness = 0.05f;
@@ -129,9 +157,7 @@ namespace hod::editor
 				Vector2(length, 0.0f),
 			};
 
-			Matrix4 finalMatrix = Matrix4::Translation(node2D->GetWorldMatrix().GetTranslation());
-
-			renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(verticesX.data(), nullptr, nullptr, (uint32_t)verticesX.size(), nullptr, 0, finalMatrix, pickingId != _pickingIdAxisX ? _materialInstanceAxisXNormal : _materialInstanceAxisXHightlight, _pickingIdAxisX);
+			renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(verticesX.data(), nullptr, nullptr, (uint32_t)verticesX.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisX && pickingId != _pickingIdAxisX ? _materialInstanceAxisXNormal : _materialInstanceAxisXHightlight, _pickingIdAxisX);
 			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 9> verticesY = {
@@ -148,7 +174,7 @@ namespace hod::editor
 				Vector2(0.0f, length),
 			};
 
-			renderMeshCommand = new renderer::RenderCommandMesh(verticesY.data(), nullptr, nullptr, (uint32_t)verticesY.size(), nullptr, 0, finalMatrix, pickingId != _pickingIdAxisY ? _materialInstanceAxisYNormal : _materialInstanceAxisYHightlight, _pickingIdAxisY);
+			renderMeshCommand = new renderer::RenderCommandMesh(verticesY.data(), nullptr, nullptr, (uint32_t)verticesY.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisY && pickingId != _pickingIdAxisY ? _materialInstanceAxisYNormal : _materialInstanceAxisYHightlight, _pickingIdAxisY);
 			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 6> verticesZ = {
@@ -161,7 +187,7 @@ namespace hod::editor
 				Vector2(squareOffset + squareSize * 0.5f, squareOffset + squareSize * 0.5f),
 			};
 
-			renderMeshCommand = new renderer::RenderCommandMesh(verticesZ.data(), nullptr, nullptr, (uint32_t)verticesZ.size(), nullptr, 0, finalMatrix, pickingId != _pickingIdAxisZ ? _materialInstanceAxisZNormal : _materialInstanceAxisZHightlight, _pickingIdAxisZ);
+			renderMeshCommand = new renderer::RenderCommandMesh(verticesZ.data(), nullptr, nullptr, (uint32_t)verticesZ.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisZ &&  pickingId != _pickingIdAxisZ ? _materialInstanceAxisZNormal : _materialInstanceAxisZHightlight, _pickingIdAxisZ);
 			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 6> verticesCenter = {
@@ -178,6 +204,21 @@ namespace hod::editor
 			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
 		}
 
-		return false;
+		return changed;
+	}
+
+	/// @brief 
+	/// @param mousePosition 
+	/// @param viewport 
+	/// @return 
+	Vector2 Node2dComponentCustomEditor::GetMouseWorldPos(const Vector2& mousePosition, const ViewportWindow& viewport)
+	{
+		float ndcX = (2.0f * mousePosition.GetX()) / viewport.GetPickingRenderTarget()->GetWidth() - 1.0f;
+		float ndcY = 1.0f - (2.0f * mousePosition.GetY()) / viewport.GetPickingRenderTarget()->GetHeight();
+		
+		Vector4 mouseNDC = Vector4(ndcX, ndcY, 0.0f, 1.0f);
+		Vector4 mouseWorld = Matrix4::Inverse(viewport.GetProjectionMatrix() * viewport.GetViewMatrix()) * mouseNDC;
+
+		return Vector2(mouseWorld.GetX() / mouseWorld.GetW(), mouseWorld.GetY() / mouseWorld.GetW());
 	}
 }

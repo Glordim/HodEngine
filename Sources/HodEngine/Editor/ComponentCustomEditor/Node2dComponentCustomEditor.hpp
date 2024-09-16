@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
+#include <HodEngine/Core/Math/Vector2.hpp>
 
 namespace hod::renderer
 {
@@ -26,6 +27,10 @@ namespace hod::editor
 	public:
 
 		bool							OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport) override;
+
+	private:
+
+		static Vector2					GetMouseWorldPos(const Vector2& mousePosition, const ViewportWindow& viewport);
 		
 	private:
 
@@ -45,5 +50,6 @@ namespace hod::editor
 		uint32_t						_pickingIdAxisZ;
 
 		uint32_t						_movingAxis = 0;
+		Vector2							_pickingOffset;
 	};
 }

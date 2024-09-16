@@ -34,6 +34,8 @@ namespace hod
 
 		Matrix4&	operator *= (const Matrix4& right);
 
+		Vector4		operator * (const Vector4& vec) const;
+
 		Vector2		GetTranslation() const;
 
 	public:
@@ -43,6 +45,8 @@ namespace hod
 		static Matrix4	Translation(const Vector4& translation);
 		static Matrix4	Rotation(float rotation);
 		static Matrix4	Scale(const Vector2& scale);
+
+		static Matrix4	Inverse(const Matrix4& matrix);
 
 	private:
 
