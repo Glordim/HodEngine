@@ -12,7 +12,6 @@
 #elif defined(PLATFORM_MACOS)
 #include "HodEngine/ImGui/DearImGui/imgui_impl_osx.h"
 #endif
-#include "HodEngine/ImGui/DearImGui/ImGuizmo.h"
 #include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
 #include "HodEngine/ImGui/Window/Window.hpp"
@@ -287,7 +286,6 @@ void embraceTheDarkness()
 		return;
 #endif
 		ImGui::NewFrame();
-		ImGuizmo::BeginFrame();
 
 		if (_mainBar != nullptr)
 		{

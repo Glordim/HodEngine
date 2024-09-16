@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
-#include <HodEngine/ImGui/DearImGui/imgui.h>
-#include <HodEngine/ImGui/DearImGui/ImGuizmo.h>
 #include <memory>
 
 namespace hod

@@ -6,7 +6,6 @@
 #include <HodEngine/Core/Math/Matrix4.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
-#include <HodEngine/ImGui/DearImGui/ImGuizmo.h>
 
 namespace hod::renderer
 {
@@ -56,13 +55,9 @@ namespace hod::editor
 		
 		renderer::RenderTarget* 	_renderTarget = nullptr;
 		renderer::RenderTarget* 	_pickingRenderTarget = nullptr;
-		ImGuizmo::OPERATION			_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 
 		Matrix4						_projection;
 		Matrix4						_view;
-
-		bool						_pickingRequest = false;
-		Vector2						_pickingPosition = Vector2::Zero;
 
 		Vector2						_cameraPosition = Vector2::Zero;
 		float						_size = 5.0f;

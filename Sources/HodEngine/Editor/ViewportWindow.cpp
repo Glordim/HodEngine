@@ -218,15 +218,15 @@ namespace hod::editor
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_T))
 			{
-				_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+				//_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_R))
 			{
-				_gizmoOperation = ImGuizmo::OPERATION::ROTATE_Z;
+				//_gizmoOperation = ImGuizmo::OPERATION::ROTATE_Z;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_S))
 			{
-				_gizmoOperation = ImGuizmo::OPERATION::SCALE;
+				//_gizmoOperation = ImGuizmo::OPERATION::SCALE;
 			}
 
 			if (ImGui::GetIO().MouseWheel != 0.0f)
@@ -241,6 +241,7 @@ namespace hod::editor
 				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
 			}
 
+			/*
 			if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered() && ImGuizmo::IsOver() == false && ImGuizmo::IsUsing() == false)
 			{
 				ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
@@ -251,6 +252,7 @@ namespace hod::editor
 					_pickingPosition = Vector2(mousePos.x, mousePos.y);
 				}
 			}
+			*/
 		}
 
 		uint32_t windowWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
@@ -377,10 +379,6 @@ namespace hod::editor
 			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
 			if (sceneSelection != nullptr)
 			{
-				ImGuizmo::SetOrthographic(true);
-				ImGuizmo::SetRect(origin.x, origin.y, (float)windowWidth, (float)windowHeight);
-				ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-
 				for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
 				{
 					std::shared_ptr<game::Component> componentLock = component.lock();
