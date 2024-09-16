@@ -64,7 +64,7 @@ namespace hod::imgui
 		{
 			title = _title.c_str();
 		}
-		_identifier = std::format("{}##{}_{}", title, GetDescription()->GetName(), _id, GetDescription()->GetName());
+		_identifier = std::format("{}##{}_{}", title, GetDescription()->GetName(), _id);
 		return _identifier.c_str();
 	}
 

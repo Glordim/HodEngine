@@ -272,9 +272,9 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	const std::weak_ptr<game::Entity>& Editor::GetEntitySelection() const
+	std::shared_ptr<game::Entity> Editor::GetEntitySelection() const
 	{
-		return _entitySelection;
+		return _entitySelection.lock();
 	}
 
 	/// @brief 

@@ -41,6 +41,7 @@
 #include <HodEngine/Renderer/PickingManager.hpp>
 
 #include <cmath>
+#include <format>
 
 namespace hod::editor
 {
@@ -134,6 +135,14 @@ namespace hod::editor
 	{
 		bool open = true;
 
+		// todo override GetIdentifier ?
+		if (_asset != nullptr && _assetWasDirty == true && _asset->IsDirty() == false)
+		{
+			_assetWasDirty = false;
+			SetTitle(_asset->GetName());
+		}
+		//
+
 		ImGui::SetNextWindowDockID(imgui::ImGuiManager::GetInstance()->GetCentralDockSpace(), ImGuiCond_Once);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		bool beginResult = ImGui::Begin(GetIdentifier(), &open, GetFlags());
@@ -155,11 +164,21 @@ namespace hod::editor
 			}
 			
 			DrawContent();
+
+			if (_wasFocus == false && ImGui::IsWindowFocused())
+			{
+				_wasFocus = true;
+			}
 		}
 		else
 		{
 			game::World* world = game::World::GetInstance();
 			world->RemoveScene(_scene);
+			if (_wasFocus == true && Editor::GetInstance()->GetEntitySelection() != nullptr)
+			{
+				Editor::GetInstance()->SetEntitySelection(nullptr);
+			}
+			_wasFocus = false;
 		}
 		if (open == false)
 		{
@@ -317,7 +336,7 @@ namespace hod::editor
 			}
 
 			Editor* editor = Editor::GetInstance();
-			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
+			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection();
 			if (sceneSelection != nullptr)
 			{
 				for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
@@ -333,7 +352,7 @@ namespace hod::editor
 							{
 								if (customEditor->OnDrawGizmo(componentLock, *this))
 								{
-									Editor::GetInstance()->MarkCurrentSceneAsDirty();
+									MarkCurrentSceneAsDirty();
 								}
 							}
 						}
@@ -389,7 +408,7 @@ namespace hod::editor
 
 								_scene->Instantiate(*prefab);
 
-								Editor::GetInstance()->MarkCurrentSceneAsDirty();
+								MarkCurrentSceneAsDirty();
 							}
 						}
 					}
@@ -405,6 +424,10 @@ namespace hod::editor
 		if (_asset != nullptr)
 		{
 			_asset->SetDirty();
+			_assetWasDirty = true;
+
+			std::string title = std::format("{} " ICON_MDI_STAR_FOUR_POINTS_SMALL, _asset->GetName());
+			SetTitle(title);
 		}
 	}
 

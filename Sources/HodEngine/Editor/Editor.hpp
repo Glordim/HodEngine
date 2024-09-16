@@ -57,7 +57,7 @@ namespace hod::editor
 		void									SetEntitySelection(std::shared_ptr<game::Entity> selection);
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 
-		const std::weak_ptr<game::Entity>&		GetEntitySelection() const;
+		std::shared_ptr<game::Entity>			GetEntitySelection() const;
 		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
 
 		void									OpenAsset(std::shared_ptr<Asset> asset);

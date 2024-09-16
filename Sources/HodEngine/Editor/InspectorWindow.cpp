@@ -39,7 +39,7 @@ namespace hod::editor
 	void InspectorWindow::DrawContent()
 	{
 		Editor* editor = Editor::GetInstance();
-		std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection().lock();
+		std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection();
 		if (sceneSelection != nullptr)
 		{
 			DrawSceneSelection(sceneSelection);
