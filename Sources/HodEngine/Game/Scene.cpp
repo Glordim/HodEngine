@@ -166,7 +166,7 @@ namespace hod::game
 	/// @brief 
 	/// @param name 
 	/// @return 
-	std::weak_ptr<Entity> Scene::CreateEntity(const std::string_view& name)
+	std::shared_ptr<Entity> Scene::CreateEntity(const std::string_view& name)
 	{
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
 		_entities.emplace(entity->GetId(), entity);
@@ -184,9 +184,14 @@ namespace hod::game
 	/// @brief 
 	/// @param entityId 
 	/// @return 
-	std::weak_ptr<Entity> Scene::FindEntity(Entity::Id entityId)
+	std::shared_ptr<Entity> Scene::FindEntity(Entity::Id entityId)
 	{
-		return _entities[entityId];
+		auto it = _entities.find(entityId);
+		if (it != _entities.end())
+		{
+			return it->second;
+		}
+		return nullptr;
 	}
 
 	/// @brief 
@@ -236,41 +241,6 @@ namespace hod::game
 			if (rendererComponent != nullptr)
 			{
 				rendererComponent->PushToRenderQueue(*renderQueue);
-			}
-		}
-	}
-
-	/// @brief 
-	/// @param renderQueue 
-	/// @param colorIdToRendererComponentMap 
-	void Scene::DrawPicking(renderer::RenderQueue* renderQueue, std::map<uint32_t, std::shared_ptr<RendererComponent>>& colorIdToRendererComponentMap, uint32_t& id)
-	{
-		union IdToColorConverter
-		{
-			uint32_t uint32;
-			uint8_t uint8[4];
-		};
-		IdToColorConverter idToColorConverter;
-
-		for (const auto& pair : _entities)
-		{
-			std::shared_ptr<Entity> entity = pair.second;
-			std::shared_ptr<RendererComponent> rendererComponent = entity->GetComponent<RendererComponent>();
-			if (rendererComponent != nullptr)
-			{
-				idToColorConverter.uint32 = id;
-
-				Color colorId;
-				colorId.r = static_cast<float>(idToColorConverter.uint8[0]) / 255.0f;
-				colorId.g = static_cast<float>(idToColorConverter.uint8[1]) / 255.0f;
-				colorId.b = static_cast<float>(idToColorConverter.uint8[2]) / 255.0f;
-				colorId.a = 1.0f;
-
-				rendererComponent->PushPickingToRenderQueue(*renderQueue, colorId);
-
-				colorIdToRendererComponentMap.emplace(idToColorConverter.uint32, rendererComponent);
-
-				id += 50;
 			}
 		}
 	}

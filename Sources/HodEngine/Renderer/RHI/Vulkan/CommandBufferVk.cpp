@@ -66,7 +66,7 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		bool CommandBufferVk::StartRecord(RenderTarget* renderTarget, Context* context)
+		bool CommandBufferVk::StartRecord(RenderTarget* renderTarget, Context* context, const Color& color)
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
@@ -90,10 +90,10 @@ namespace hod
 			}
 
 			VkClearValue clearColor[1];
-			clearColor[0].color.float32[0] = 0.1f;
-			clearColor[0].color.float32[1] = 0.1f;
-			clearColor[0].color.float32[2] = 0.1f;
-			clearColor[0].color.float32[3] = 1.0f;
+			clearColor[0].color.float32[0] = color.r;
+			clearColor[0].color.float32[1] = color.g;
+			clearColor[0].color.float32[2] = color.b;
+			clearColor[0].color.float32[3] = color.a;
 
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

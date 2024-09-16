@@ -111,34 +111,9 @@ namespace hod
 				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
-					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), _uvs.data(), nullptr, (uint32_t)_vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance));
+					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), _uvs.data(), nullptr, (uint32_t)_vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetId()));
 				}
 			}
-		}
-
-		/// @brief 
-		/// @param renderQueue 
-		void TextureRendererComponent::PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId)
-		{
-			/*
-			std::shared_ptr<Entity> entity = GetEntity();
-			if (entity != nullptr)
-			{
-				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
-				if (node2dComponent != nullptr)
-				{
-					std::array<renderer::P2fC4f, 4> vertices = {
-						renderer::P2fC4f(-0.5f, 0.5f, colorId.r, colorId.g, colorId.b, colorId.a),
-						renderer::P2fC4f(0.5f, 0.5f, colorId.r, colorId.g, colorId.b, colorId.a),
-						renderer::P2fC4f(0.5f, -0.5f, colorId.r, colorId.g, colorId.b, colorId.a),
-						renderer::P2fC4f(-0.5f, -0.5f, colorId.r, colorId.g, colorId.b, colorId.a),
-					};
-
-					const renderer::Material* pickingMaterial = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Fill_Triangle);
-					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), (uint32_t)vertices.size(), sizeof(renderer::P2fC4f), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), pickingMaterial->GetDefaultInstance()));
-				}
-			}
-			*/
 		}
 
 		/// @brief 

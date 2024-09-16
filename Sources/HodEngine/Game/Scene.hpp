@@ -39,9 +39,9 @@ namespace hod::game
 		bool			SerializeInDocument(Document::Node& documentNode) const;
 		bool			DeserializeFromDocument(const Document::Node& documentNode);
 
-		std::weak_ptr<Entity>			CreateEntity(const std::string_view& name = "");
+		std::shared_ptr<Entity>			CreateEntity(const std::string_view& name = "");
 		void							DestroyEntity(std::shared_ptr<Entity> entity);
-		std::weak_ptr<Entity>			FindEntity(Entity::Id entityId);
+		std::shared_ptr<Entity>			FindEntity(Entity::Id entityId);
 
 		Scene*							Clone();
 		void							Clear();
@@ -57,7 +57,6 @@ namespace hod::game
 		void						Start();
 		void						Update();
 		void						Draw(renderer::RenderQueue* renderQueue);
-		void						DrawPicking(renderer::RenderQueue* renderQueue, std::map<uint32_t, std::shared_ptr<RendererComponent>>& colorIdToRendererComponentMap, uint32_t& id);
 
 	private:
 

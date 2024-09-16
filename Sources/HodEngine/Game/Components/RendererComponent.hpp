@@ -31,7 +31,7 @@ namespace hod
 
 		public:
 
-			//virtual void	Render() = 0;
+			virtual void	PushToRenderQueue(renderer::RenderQueue& renderQueue) {};
 		};
 	}
 }

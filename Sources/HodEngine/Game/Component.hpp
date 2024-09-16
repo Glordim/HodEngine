@@ -36,9 +36,6 @@ namespace hod
 			void					SetEntity(const std::shared_ptr<Entity>& entity);
 			std::shared_ptr<Entity>	GetEntity() const;
 
-			virtual void		PushToRenderQueue(renderer::RenderQueue& renderQueue) {}; // TODO move it in RendererComponent ?
-			virtual void		PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId) {}; // TODO move it in RendererComponent ?
-
 			const UID&			GetUid() const { return _uid; }
 			const UID&			GetLocalId() const { return _localId; }
 			void				SetLocalId(const UID& uid) { _localId = uid; }

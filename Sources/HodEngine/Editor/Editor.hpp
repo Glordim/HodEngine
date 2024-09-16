@@ -54,7 +54,7 @@ namespace hod::editor
 		bool									Save();
 		bool									SaveSceneAs();
 
-		void									SetEntitySelection(std::weak_ptr<game::Entity> selection);
+		void									SetEntitySelection(std::shared_ptr<game::Entity> selection);
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 
 		const std::weak_ptr<game::Entity>&		GetEntitySelection() const;

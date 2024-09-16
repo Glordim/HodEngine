@@ -220,18 +220,6 @@ namespace hod
 		}
 
 		/// @brief 
-		/// @param renderQueue 
-		void World::DrawPicking(renderer::RenderQueue* renderQueue, std::map<uint32_t, std::shared_ptr<RendererComponent>>& colorIdToRendererComponentMap)
-		{
-			uint32_t id = 0;
-			for (Scene* scene : _scenes)
-			{
-				scene->DrawPicking(renderQueue, colorIdToRendererComponentMap, id);
-			}
-			_persistanteScene->DrawPicking(renderQueue, colorIdToRendererComponentMap, id);
-		}
-
-		/// @brief 
 		/// @return 
 		const std::vector<Scene*>& World::GetScenes() const
 		{

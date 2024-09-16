@@ -256,7 +256,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param asset 
-	void Editor::SetEntitySelection(std::weak_ptr<game::Entity> selection)
+	void Editor::SetEntitySelection(std::shared_ptr<game::Entity> selection)
 	{
 		_assetSelection = nullptr;
 		_entitySelection = selection;

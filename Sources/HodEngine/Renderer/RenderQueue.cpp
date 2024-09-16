@@ -47,7 +47,7 @@ namespace hod::renderer
 		{
 			CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
 
-			if (commandBuffer->StartRecord(pickingRenderTarget) == true)
+			if (commandBuffer->StartRecord(pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f)) == true)
 			{
 				for (RenderCommand* renderCommand : _renderCommands)
 				{

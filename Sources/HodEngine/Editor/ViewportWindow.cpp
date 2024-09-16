@@ -38,6 +38,8 @@
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 
+#include <HodEngine/Renderer/PickingManager.hpp>
+
 #include <cmath>
 
 namespace hod::editor
@@ -241,18 +243,31 @@ namespace hod::editor
 				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
 			}
 
-			/*
-			if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered() && ImGuizmo::IsOver() == false && ImGuizmo::IsUsing() == false)
+			if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered())
 			{
 				ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 
 				if (mousePos.x >= 0 && mousePos.x < _pickingRenderTarget->GetWidth() && mousePos.y >= 0 && mousePos.y < _pickingRenderTarget->GetHeight())
 				{
-					_pickingRequest = true;
-					_pickingPosition = Vector2(mousePos.x, mousePos.y);
+					ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
+					Vector2 mousePosition(mousePos.x, mousePos.y);
+					Color pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
+					uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
+					if (pickingId == 0)
+					{
+						Editor::GetInstance()->SetEntitySelection(nullptr);
+					}
+					else
+					{
+						game::World* world = game::World::GetInstance();
+						std::shared_ptr<game::Entity> pickedEntity = world->FindEntity((game::Entity::Id)pickingId).lock();
+						if (pickedEntity != nullptr)
+						{
+							Editor::GetInstance()->SetEntitySelection(pickedEntity);
+						}
+					}					
 				}
 			}
-			*/
 		}
 
 		uint32_t windowWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
@@ -260,80 +275,6 @@ namespace hod::editor
 
 		windowWidth = std::clamp(windowWidth, 2u, 16u * 1024u);
 		windowHeight = std::clamp(windowHeight, 2u, 16u * 1024u);
-
-		// todo check if visible (docking tab) ?
-		/*
-		if (_pickingRequest == true)
-		{
-			if (_pickingRenderTarget->GetWidth() != windowWidth ||
-				_pickingRenderTarget->GetHeight() != windowHeight)
-			{
-				renderer::Texture::CreateInfo createInfo;
-				createInfo._allowReadWrite = true;
-				_pickingRenderTarget->Init(windowWidth, windowHeight, createInfo); // todo error
-				_pickingRenderTarget->PrepareForRead(); // todo automate ?
-			}
-
-			if (_pickingRenderTarget->IsValid() == true)
-			{
-				renderer::RenderQueue* renderQueue = renderer::RenderQueue::GetInstance();
-
-				Rect viewport;
-				viewport._position.SetX(0);
-				viewport._position.SetY((float)windowHeight);
-				viewport._size.SetX((float)windowWidth);
-				viewport._size.SetY(-(float)windowHeight);
-				// Vulkan specific Y inversion TODO move it in Vulkan part and probably readapt ImguiRenderer to aply this inversion because it need 2D bottom y axis
-
-				float aspect = (float)windowWidth / (float)windowHeight;
-
-				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-				_view = Matrix4::Translation(_cameraPosition);
-
-				renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
-
-				std::map<uint32_t, std::shared_ptr<game::RendererComponent>> colorIdToRendererComponentMap;
-
-				game::World* world = game::World::GetInstance();
-				world->DrawPicking(renderQueue, colorIdToRendererComponentMap);
-
-				_pickingRenderTarget->PrepareForWrite(); // todo automate ?
-
-				renderQueue->Execute(_pickingRenderTarget);
-
-				_pickingRenderTarget->PrepareForRead(); // todo automate ?
-
-				Color pixelColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(_pickingPosition);
-
-				union IdToColorConverter
-				{
-					uint32_t uint32;
-					uint8_t uint8[4];
-				};
-				IdToColorConverter idToColorConverter;
-
-				idToColorConverter.uint8[0] = static_cast<uint8_t>(pixelColor.r * 255.0f);
-				idToColorConverter.uint8[1] = static_cast<uint8_t>(pixelColor.g * 255.0f);
-				idToColorConverter.uint8[2] = static_cast<uint8_t>(pixelColor.b * 255.0f);
-				idToColorConverter.uint8[3] = 0;
-
-				auto it = colorIdToRendererComponentMap.find(idToColorConverter.uint32);
-				if (it != colorIdToRendererComponentMap.end())
-				{
-					Editor::GetInstance()->SetEntitySelection(it->second->GetEntity());
-				}
-				else
-				{
-					Editor::GetInstance()->SetEntitySelection(std::weak_ptr<game::Entity>());
-				}
-
-				//ImVec2 origin = ImGui::GetCursorScreenPos();
-				//ImGui::Image(_pickingRenderTarget->GetColorTexture(), ImVec2(windowWidth, windowHeight));
-				//return;
-				_pickingRequest = false;
-			}
-		}
-		*/
 
 		if (_renderTarget->GetWidth() != windowWidth ||
 			_renderTarget->GetHeight() != windowHeight)

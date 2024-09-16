@@ -42,7 +42,7 @@ namespace hod
 
 			void						SetHdriMaterial(renderer::MaterialInstance* hdriMat, renderer::Texture* hdriTexture);
 
-			void						PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			void						PushToRenderQueue(renderer::RenderQueue& renderQueue); // todo ?
 
 		private:
 

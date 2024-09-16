@@ -44,7 +44,6 @@ namespace hod
 			//void							SetText(const std::string_view& text);
 
 			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
-			void							PushPickingToRenderQueue(renderer::RenderQueue& renderQueue, const Color& colorId) override;
 
 		private:
 

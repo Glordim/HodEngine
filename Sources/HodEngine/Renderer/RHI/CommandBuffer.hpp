@@ -8,6 +8,7 @@
 
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Core/Math/Matrix4.hpp"
+#include "HodEngine/Core/Color.hpp"
 
 namespace hod
 {
@@ -41,7 +42,7 @@ namespace hod
 			void				DeleteAfterRender(MaterialInstance* materialInstance);
 			void				DeleteAfterRender(Buffer* buffer);
 
-			virtual bool		StartRecord(RenderTarget* renderTarget = nullptr, Context* context = nullptr) = 0;
+			virtual bool		StartRecord(RenderTarget* renderTarget = nullptr, Context* context = nullptr, const Color& color = Color(0.1f, 0.1f, 0.1f, 1.0f)) = 0;
 			virtual bool		EndRecord() = 0;
 
 			virtual void		SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) = 0;

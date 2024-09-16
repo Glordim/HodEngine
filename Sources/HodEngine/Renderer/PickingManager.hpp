@@ -30,6 +30,6 @@ namespace hod::renderer
 
 	private:
 
-		std::atomic<uint32_t>	_nextId = { 1 };
+		std::atomic<uint32_t>	_nextId = { (uint32_t)((1u << 24) - 1) };
 	};
 }

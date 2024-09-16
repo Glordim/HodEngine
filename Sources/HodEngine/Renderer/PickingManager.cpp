@@ -12,7 +12,7 @@ namespace hod::renderer
 	/// @return 
 	uint32_t PickingManager::GenerateId()
 	{
-		return _nextId.fetch_add(1);
+		return _nextId.fetch_sub(1);
 	}
 
 	/// @brief 

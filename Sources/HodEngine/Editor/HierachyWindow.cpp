@@ -63,7 +63,7 @@ namespace hod::editor
 		if (ImGui::IsWindowHovered() && ImGui::IsAnyItemHovered() == false && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)))
 		{
 			_selection.reset();
-			Editor::GetInstance()->SetEntitySelection(_selection);
+			Editor::GetInstance()->SetEntitySelection(_selection.lock());
 		}
 		/*
 		for (EntityNode* entityNode : _rootEntityNode._children)
@@ -196,7 +196,7 @@ namespace hod::editor
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
 			_selection = entityLock;
-			Editor::GetInstance()->SetEntitySelection(_selection);
+			Editor::GetInstance()->SetEntitySelection(_selection.lock());
 		}
 		bool hovered = ImGui::IsItemHovered();
 		ImGui::PopStyleVar();
@@ -205,7 +205,7 @@ namespace hod::editor
 		if (ImGui::IsWindowHovered() == true && hovered == true && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
 			_selection = entityLock;
-			Editor::GetInstance()->SetEntitySelection(_selection);
+			Editor::GetInstance()->SetEntitySelection(_selection.lock());
 			_openContextualMenu = true;
 		}
 
