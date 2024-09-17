@@ -9,6 +9,8 @@
 
 namespace hod::physics
 {
+	class ColliderBox2d;
+
 	/// @brief 
 	class HOD_PHYSICS_API BodyBox2d : public Body
 	{
@@ -29,10 +31,13 @@ namespace hod::physics
 		Vector2				GetPosition() const override;
 		float				GetRotation() const override;
 
+		void				GetCollisions(std::vector<Collision>& collisions) override;
+
 		Type				GetType() const override;
 		void				SetType(Type type) override;
 
 		b2BodyId			GetB2Actor() const;
+		ColliderBox2d*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;
 
 	private:
 

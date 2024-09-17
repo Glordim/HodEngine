@@ -18,6 +18,7 @@ namespace hod::physics
 {
 	class BodyBox2d;
 	class DebugDrawer;
+	class ColliderBox2d;
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
@@ -51,6 +52,8 @@ namespace hod::physics
 		void				Update(float dt) override;
 
 		bool				Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result) override;
+
+		ColliderBox2d*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;
 
 		b2WorldId			GetWorldId() const;
 

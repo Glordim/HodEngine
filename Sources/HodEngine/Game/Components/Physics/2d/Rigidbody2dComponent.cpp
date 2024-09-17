@@ -60,6 +60,14 @@ namespace hod::game
 				node2dComponent->SetRotation(_body->GetRotation());
 			}
 		}
+
+		// todo check if have slot connected ?
+		std::vector<physics::Collision> collisions;
+		_body->GetCollisions(collisions);
+		for (const physics::Collision& collision : collisions)
+		{
+			_onCollisionEnterEvent.Emit(collision);
+		}
 	}
 
 	/// @brief 
@@ -92,5 +100,12 @@ namespace hod::game
 	bool Rigidbody2dComponent::IsDynamic() const
 	{
 		return _dynamic;
+	}
+
+	/// @brief 
+	/// @return 
+	Event<const physics::Collision&>& Rigidbody2dComponent::GetOnCollisionEnterEvent()
+	{
+		return _onCollisionEnterEvent;
 	}
 }

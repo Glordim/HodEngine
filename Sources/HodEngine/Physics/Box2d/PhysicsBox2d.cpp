@@ -97,4 +97,21 @@ namespace hod::physics
 	{
 		return _worldId;
 	}
+
+	/// @brief 
+	/// @param shapeId 
+	/// @return 
+	ColliderBox2d* PhysicsBox2d::FindColliderByB2ShapeId(b2ShapeId shapeId) const
+	{
+		for (uint32_t index = 0; index < _bodies.size(); ++index)
+		{
+			BodyBox2d* body = (BodyBox2d*)_bodies[index];
+			ColliderBox2d* collider = body->FindColliderByB2ShapeId(shapeId);
+			if (collider != nullptr)
+			{
+				return collider;
+			}
+		}
+		return nullptr;
+	}
 }

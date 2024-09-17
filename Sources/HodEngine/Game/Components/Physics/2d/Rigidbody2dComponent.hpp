@@ -3,12 +3,14 @@
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Core/Event.hpp"
 
 #include <vector>
 
 namespace hod::physics
 {
 	class Body;
+	class Collision;
 }
 
 namespace hod::game
@@ -41,10 +43,18 @@ namespace hod::game
 		void			SetDynamic(bool dynamic);
 		bool			IsDynamic() const;
 
+		Event<const physics::Collision&>&		GetOnCollisionEnterEvent();
+		//Event<>&		GetOnCollisionStayEvent();
+		//Event<>&		GetOnCollisionExitEvent();
+
 	private:
 
 		physics::Body*	_body = nullptr;
 		
 		bool			_dynamic = false;
+
+		Event<const physics::Collision&>	_onCollisionEnterEvent;
+		//Event<>			_onCollisionStayEvent;
+		//Event<>			_onCollisionExitEvent;
 	};
 }

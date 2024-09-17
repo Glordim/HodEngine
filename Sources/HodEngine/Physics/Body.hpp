@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Physics/Export.hpp"
+#include "HodEngine/Physics/Collision.hpp"
 
 #include <vector>
 #include "HodEngine/Core/Math/Vector2.hpp"
@@ -36,6 +37,8 @@ namespace hod::physics
 
 		virtual Vector2		GetPosition() const = 0;
 		virtual float		GetRotation() const = 0;
+
+		virtual void		GetCollisions(std::vector<Collision>& collisions) = 0;
 
 		virtual Type		GetType() const = 0;
 		virtual void		SetType(Type type) = 0;

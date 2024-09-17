@@ -1,6 +1,8 @@
 #include "HodEngine/Physics/Pch.hpp"
 #include "HodEngine/Physics/Box2d/BodyBox2d.hpp"
 #include "HodEngine/Physics/Box2d/ColliderBox2d.hpp"
+#include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
+#include "HodEngine/Physics/Collision.hpp"
 
 #include "Physics.hpp"
 
@@ -9,6 +11,7 @@
 #include <HodEngine/Renderer/BoundingBox.hpp>
 
 #include <algorithm>
+#include <cstdlib>
 
 #include "HodEngine/Core/Math/Math.hpp"
 
@@ -126,5 +129,40 @@ namespace hod::physics
 	b2BodyId BodyBox2d::GetB2Actor() const
 	{
 		return _b2BodyId;
+	}
+
+	/// @brief 
+	/// @param shapeId 
+	/// @return 
+	ColliderBox2d* BodyBox2d::FindColliderByB2ShapeId(b2ShapeId shapeId) const
+	{
+		for (uint32_t index = 0; index < _colliders.size(); ++index)
+		{
+			ColliderBox2d* collider = (ColliderBox2d*)_colliders[index];
+			if (collider != nullptr)
+			{
+				return collider;
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief 
+	/// @param collision 
+	void BodyBox2d::GetCollisions(std::vector<Collision>& collisions)
+	{
+		int bodyContactCapacity = b2Body_GetContactCapacity(_b2BodyId);
+		b2ContactData* contactDatas = (b2ContactData*)alloca(bodyContactCapacity * sizeof(b2ContactData));
+		int bodyContactCount = b2Body_GetContactData(_b2BodyId, contactDatas, bodyContactCapacity);
+
+		collisions.resize(bodyContactCount);
+		for (int index = 0; index < bodyContactCount; ++index)
+		{
+			const b2ContactData& contactData = contactDatas[index];
+			Collision& collision = collisions[index];
+			collision._colliderA = PhysicsBox2d::GetInstance()->FindColliderByB2ShapeId(contactData.shapeIdA);
+			collision._colliderB = PhysicsBox2d::GetInstance()->FindColliderByB2ShapeId(contactData.shapeIdB);
+			collision._normal = Vector2(contactData.manifold.normal.x, contactData.manifold.normal.y);
+		}
 	}
 }
