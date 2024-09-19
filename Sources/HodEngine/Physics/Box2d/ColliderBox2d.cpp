@@ -17,6 +17,8 @@ namespace hod::physics
 
 		b2ShapeDef shapeDef = b2DefaultShapeDef();
 		_shape = b2CreateSegmentShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &segment);
+
+		b2Shape_SetUserData(_shape, this);
 	}
 
 	/// @brief 

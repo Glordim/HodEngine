@@ -22,6 +22,7 @@ namespace hod::physics
 	BodyBox2d::BodyBox2d(b2BodyId b2BodyId)
 	: _b2BodyId(b2BodyId)
 	{
+		b2Body_SetUserData(_b2BodyId, this);
 	}
 
 	/// @brief 
@@ -155,14 +156,16 @@ namespace hod::physics
 		b2ContactData* contactDatas = (b2ContactData*)alloca(bodyContactCapacity * sizeof(b2ContactData));
 		int bodyContactCount = b2Body_GetContactData(_b2BodyId, contactDatas, bodyContactCapacity);
 
-		collisions.resize(bodyContactCount);
+		//collisions.resize(bodyContactCount);
 		for (int index = 0; index < bodyContactCount; ++index)
 		{
+			/*
 			const b2ContactData& contactData = contactDatas[index];
 			Collision& collision = collisions[index];
 			collision._colliderA = PhysicsBox2d::GetInstance()->FindColliderByB2ShapeId(contactData.shapeIdA);
 			collision._colliderB = PhysicsBox2d::GetInstance()->FindColliderByB2ShapeId(contactData.shapeIdB);
 			collision._normal = Vector2(contactData.manifold.normal.x, contactData.manifold.normal.y);
+			*/
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #include "HodEngine/Physics/Collision.hpp"
 
 #include <vector>
+#include <functional>
 #include "HodEngine/Core/Math/Vector2.hpp"
 
 namespace hod::physics
@@ -27,6 +28,15 @@ namespace hod::physics
 
 	public:
 
+		void				SetMoveEventCallback(std::function<void(const Vector2& position, float rotation)> callback);
+		const std::function<void(const Vector2& position, float rotation)>& GetMoveEventCallback() const;
+
+		void				SetCollisionEnterCallback(std::function<void(const Collision& collision)> callback);
+		const std::function<void(const Collision& collision)>& GetCollisionEnterCallback() const;
+
+		void				SetCollisionExitCallback(std::function<void(const Collision& collision)> callback);
+		const std::function<void(const Collision& collision)>& GetCollisionExitCallback() const;
+
 		virtual Collider*	AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition) = 0;
 		virtual Collider*	AddCircleShape(const Vector2& position, float radius) = 0;
 		virtual Collider*	AddCapsuleShape(const Vector2& position, float height, float radius, float angle) = 0;
@@ -46,5 +56,9 @@ namespace hod::physics
 	protected:
 
 		std::vector<Collider*> _colliders;
+
+		std::function<void(const Vector2& position, float rotation)> _moveCallback;
+		std::function<void(const Collision& collision)> _collisionEnterCallback;
+		std::function<void(const Collision& collision)> _collisionExitCallback;
 	};
 }

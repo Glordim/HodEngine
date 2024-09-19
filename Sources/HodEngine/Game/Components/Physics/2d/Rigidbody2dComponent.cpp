@@ -24,6 +24,27 @@ namespace hod::game
 	void Rigidbody2dComponent::OnAwake()
 	{
 		_body = physics::Physics::GetInstance()->CreateBody();
+		_body->SetMoveEventCallback([this](const Vector2& position, float rotation)
+		{
+			std::shared_ptr<Entity> entity = GetEntity();
+			if (entity != nullptr)
+			{
+				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+				if (node2dComponent != nullptr)
+				{
+					node2dComponent->SetPosition(position);
+					node2dComponent->SetRotation(rotation);
+				}
+			}
+		});
+		_body->SetCollisionEnterCallback([this](const physics::Collision& collision)
+		{
+			_onCollisionEnterEvent.Emit(collision);
+		});
+		_body->SetCollisionExitCallback([this](const physics::Collision& collision)
+		{
+			_onCollisionExitEvent.Emit(collision);
+		});
 
 		std::shared_ptr<Entity> entity = GetEntity();
 		if (entity != nullptr)
@@ -50,6 +71,7 @@ namespace hod::game
 	/// @brief 
 	void Rigidbody2dComponent::OnUpdate()
 	{
+		/*
 		std::shared_ptr<Entity> entity = GetEntity();
 		if (entity != nullptr)
 		{
@@ -68,6 +90,7 @@ namespace hod::game
 		{
 			_onCollisionEnterEvent.Emit(collision);
 		}
+		*/
 	}
 
 	/// @brief 
@@ -107,5 +130,12 @@ namespace hod::game
 	Event<const physics::Collision&>& Rigidbody2dComponent::GetOnCollisionEnterEvent()
 	{
 		return _onCollisionEnterEvent;
+	}
+
+	/// @brief 
+	/// @return 
+	Event<const physics::Collision&>& Rigidbody2dComponent::GetOnCollisionExitEvent()
+	{
+		return _onCollisionExitEvent;
 	}
 }

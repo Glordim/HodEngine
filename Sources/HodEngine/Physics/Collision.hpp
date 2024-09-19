@@ -8,11 +8,10 @@ namespace hod::physics
 	class Collider;
 
 	/// @brief 
-	class HOD_PHYSICS_API Collision
+	struct HOD_PHYSICS_API Collision
 	{
-	public:
+		Collider&	_colliderA;
+		Collider&	_colliderB;
 		Vector2		_normal;
-		Collider*	_colliderA = nullptr;
-		Collider*	_colliderB = nullptr;
 	};
 }

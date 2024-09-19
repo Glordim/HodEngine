@@ -10,7 +10,7 @@
 namespace hod::physics
 {
 	class Body;
-	class Collision;
+	struct Collision;
 }
 
 namespace hod::game
@@ -44,8 +44,7 @@ namespace hod::game
 		bool			IsDynamic() const;
 
 		Event<const physics::Collision&>&		GetOnCollisionEnterEvent();
-		//Event<>&		GetOnCollisionStayEvent();
-		//Event<>&		GetOnCollisionExitEvent();
+		Event<const physics::Collision&>&		GetOnCollisionExitEvent();
 
 	private:
 
@@ -54,7 +53,6 @@ namespace hod::game
 		bool			_dynamic = false;
 
 		Event<const physics::Collision&>	_onCollisionEnterEvent;
-		//Event<>			_onCollisionStayEvent;
-		//Event<>			_onCollisionExitEvent;
+		Event<const physics::Collision&>	_onCollisionExitEvent;
 	};
 }

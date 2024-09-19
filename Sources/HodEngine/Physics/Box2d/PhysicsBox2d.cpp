@@ -2,6 +2,7 @@
 #include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
 #include "HodEngine/Physics/Box2d/BodyBox2d.hpp"
 #include "HodEngine/Physics/Box2d/DebugDrawerBox2d.hpp"
+#include "HodEngine/Core/Math/Math.hpp"
 
 #include <box2d/box2d.h>
 
@@ -70,12 +71,59 @@ namespace hod::physics
 	{
 		b2World_Step(_worldId, dt, 4);
 
-		/*
-		if (_debugDrawer != nullptr)
+		b2BodyEvents bodyEvents = b2World_GetBodyEvents(_worldId);
+		for (int32_t index = 0; index < bodyEvents.moveCount; ++index)
 		{
-			_b2World->DebugDraw();
+			const b2BodyMoveEvent& moveEvent = bodyEvents.moveEvents[index];
+
+			BodyBox2d* body = static_cast<BodyBox2d*>(moveEvent.userData);
+			Vector2 position(moveEvent.transform.p.x, moveEvent.transform.p.y);
+			float angle = math::RadianToDegree(b2Rot_GetAngle(moveEvent.transform.q));
+			body->GetMoveEventCallback()(position, angle);
 		}
-		*/
+
+		b2SensorEvents sensorEvents = b2World_GetSensorEvents(_worldId);
+		for (int32_t index = 0; index < sensorEvents.beginCount; ++index)
+		{
+			const b2SensorBeginTouchEvent& beginEvent = sensorEvents.beginEvents[index];
+		}
+		for (int32_t index = 0; index < sensorEvents.endCount; ++index)
+		{
+			const b2SensorEndTouchEvent& endEvent = sensorEvents.endEvents[index];
+		}
+
+		b2ContactEvents contactEvents = b2World_GetContactEvents(_worldId);
+		for (int32_t index = 0; index < contactEvents.beginCount; ++index)
+		{
+			const b2ContactBeginTouchEvent& beginEvent = contactEvents.beginEvents[index];
+			Collision collision {
+				*static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdA)),
+				*static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdB)),
+			};
+			BodyBox2d* bodyA = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.shapeIdA)));
+			BodyBox2d* bodyB = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.shapeIdB)));
+			bodyA->GetCollisionEnterCallback()(collision);
+			if (bodyB != bodyA)
+			{
+				bodyB->GetCollisionEnterCallback()(collision);
+			}
+		}
+		for (int32_t index = 0; index < contactEvents.endCount; ++index)
+		{
+			const b2ContactEndTouchEvent& endEvent = contactEvents.endEvents[index];
+
+			Collision collision {
+				*static_cast<Collider*>(b2Shape_GetUserData(endEvent.shapeIdA)),
+				*static_cast<Collider*>(b2Shape_GetUserData(endEvent.shapeIdB)),
+			};
+			BodyBox2d* bodyA = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(endEvent.shapeIdA)));
+			BodyBox2d* bodyB = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(endEvent.shapeIdB)));
+			bodyA->GetCollisionExitCallback()(collision);
+			if (bodyB != bodyA)
+			{
+				bodyB->GetCollisionExitCallback()(collision);
+			}
+		}
 	}
 
 	/// @brief 
