@@ -48,4 +48,20 @@ namespace hod::game
 	{
 		return _rigidbody.lock();
 	}
+
+	/// @brief 
+	/// @return 
+	Vector2 Collider2dComponent::GetScale() const
+	{
+		std::shared_ptr<Entity> entity = GetEntity();
+		if (entity != nullptr)
+		{
+			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+			if (node2dComponent != nullptr)
+			{
+				return node2dComponent->GetScale();
+			}
+		}
+		return Vector2::One;
+	}
 }

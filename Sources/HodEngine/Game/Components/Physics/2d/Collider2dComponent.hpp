@@ -72,6 +72,7 @@ namespace hod::game
 		void			OnAwake() override;
 
 		std::shared_ptr<Rigidbody2dComponent>	GetRigidbody() const;
+		Vector2									GetScale() const;
 
 	protected:
 

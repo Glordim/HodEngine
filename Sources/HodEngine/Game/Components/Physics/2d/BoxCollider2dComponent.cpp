@@ -21,7 +21,8 @@ namespace hod::game
 	{
 		Collider2dComponent::OnAwake();
 
-		_collider = GetRigidbody()->GetInternalBody()->AddBoxShape(_offset, _size, _rotation);
+		Vector2 scale = GetScale();
+		_collider = GetRigidbody()->GetInternalBody()->AddBoxShape(_offset * scale, _size * scale, _rotation);
 	}
 
 	/// @brief 
@@ -30,7 +31,8 @@ namespace hod::game
 		_offset = offset;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsBoxShape(_offset, _size, _rotation);
+			Vector2 scale = GetScale();
+			_collider->SetAsBoxShape(_offset * scale, _size * scale, _rotation);
 		}
 	}
 
@@ -47,7 +49,8 @@ namespace hod::game
 		_size = size;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsBoxShape(_offset, _size, _rotation);
+			Vector2 scale = GetScale();
+			_collider->SetAsBoxShape(_offset * scale, _size * scale, _rotation);
 		}
 	}
 
@@ -64,7 +67,8 @@ namespace hod::game
 		_rotation = rotation;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsBoxShape(_offset, _size, _rotation);
+			Vector2 scale = GetScale();
+			_collider->SetAsBoxShape(_offset * scale, _size * scale, _rotation);
 		}
 	}
 

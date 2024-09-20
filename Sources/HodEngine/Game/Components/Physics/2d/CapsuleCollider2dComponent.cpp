@@ -22,7 +22,8 @@ namespace hod::game
 	{
 		Collider2dComponent::OnAwake();
 
-		_collider = GetRigidbody()->GetInternalBody()->AddCapsuleShape(_offset, _height, _radius, _rotation);
+		Vector2 scale = GetScale();
+		_collider = GetRigidbody()->GetInternalBody()->AddCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 	}
 
 	/// @brief 
@@ -31,7 +32,8 @@ namespace hod::game
 		_offset = offset;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsCapsuleShape(_offset, _height, _radius, _rotation);
+			Vector2 scale = GetScale();
+			_collider->SetAsCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 		}
 	}
 
@@ -48,7 +50,8 @@ namespace hod::game
 		_height = height;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsCapsuleShape(_offset, _height, _radius, _rotation);
+			Vector2 scale = GetScale();
+			_collider->SetAsCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 		}
 	}
 
@@ -65,7 +68,8 @@ namespace hod::game
 		_radius = radius;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsCapsuleShape(_offset, _height, _radius, _rotation);
+			Vector2 scale = GetScale();
+			_collider->SetAsCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 		}
 	}
 
@@ -82,7 +86,8 @@ namespace hod::game
 		_rotation = rotation;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsCapsuleShape(_offset, _height, _radius, _rotation);
+			Vector2 scale = GetScale();
+			_collider->SetAsCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 		}
 	}
 

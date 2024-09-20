@@ -20,7 +20,8 @@ namespace hod::game
 	{
 		Collider2dComponent::OnAwake();
 
-		_collider = GetRigidbody()->GetInternalBody()->AddEdgeShape(_start, _end);
+		Vector2 scale = GetScale();
+		_collider = GetRigidbody()->GetInternalBody()->AddEdgeShape(_start * scale, _end * scale);
 	}
 
 	/// @brief 
@@ -30,7 +31,8 @@ namespace hod::game
 		_start = start;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsEdge(_start, _end);
+			Vector2 scale = GetScale();
+			_collider->SetAsEdge(_start * scale, _end * scale);
 		}
 	}
 
@@ -48,7 +50,8 @@ namespace hod::game
 		_end = end;
 		if (_collider != nullptr)
 		{
-			_collider->SetAsEdge(_start, _end);
+			Vector2 scale = GetScale();
+			_collider->SetAsEdge(_start * scale, _end * scale);
 		}
 	}
 
