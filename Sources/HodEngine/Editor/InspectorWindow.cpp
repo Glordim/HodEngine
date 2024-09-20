@@ -258,7 +258,8 @@ namespace hod::editor
 					ImGui::PopStyleColor(4);
 					if (mustBeDelete)
 					{
-
+						selection->RemoveComponent(componentLock);
+						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 
 					if (ImGui::IsWindowHovered())
