@@ -32,6 +32,7 @@ namespace hod::editor
 	class MainBar;
 	class Project;
 	class Asset;
+	class ViewportWindow;
 
 	/// @brief 
 	class HOD_EDITOR_API Editor
@@ -59,6 +60,9 @@ namespace hod::editor
 
 		std::shared_ptr<game::Entity>			GetEntitySelection() const;
 		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
+
+		ViewportWindow*							GetCurrentViewport() const;
+		void									SetCurrentViewport(ViewportWindow* viewportWindow);
 
 		void									OpenAsset(std::shared_ptr<Asset> asset);
 
@@ -90,6 +94,8 @@ namespace hod::editor
 
 		std::weak_ptr<game::Entity> 			_entitySelection;
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
+
+		ViewportWindow*							_currentViewport = nullptr;
 
 		Asset*									_currentScene = nullptr;
 

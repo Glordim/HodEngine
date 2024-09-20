@@ -167,6 +167,7 @@ namespace hod::editor
 
 			if (_wasFocus == false && ImGui::IsWindowFocused())
 			{
+				Editor::GetInstance()->SetCurrentViewport(this);
 				_wasFocus = true;
 			}
 		}
@@ -177,6 +178,10 @@ namespace hod::editor
 			if (_wasFocus == true && Editor::GetInstance()->GetEntitySelection() != nullptr)
 			{
 				Editor::GetInstance()->SetEntitySelection(nullptr);
+			}
+			if (Editor::GetInstance()->GetCurrentViewport() == this)
+			{
+				Editor::GetInstance()->SetCurrentViewport(nullptr);
 			}
 			_wasFocus = false;
 		}

@@ -286,6 +286,20 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
+	ViewportWindow* Editor::GetCurrentViewport() const
+	{
+		return _currentViewport;
+	}
+
+	/// @brief 
+	/// @param viewportWindow 
+	void Editor::SetCurrentViewport(ViewportWindow* viewportWindow)
+	{
+		_currentViewport = viewportWindow;
+	}
+
+	/// @brief 
+	/// @return 
 	bool Editor::Save()
 	{
 			/*
@@ -499,7 +513,9 @@ namespace hod::editor
 	/// @brief 
 	void Editor::MarkCurrentSceneAsDirty()
 	{
-		ViewportWindow* vewportWindow = imgui::ImGuiManager::GetInstance()->FindWindow<ViewportWindow>();
-		vewportWindow->MarkCurrentSceneAsDirty();
+		if (_currentViewport)
+		{
+			_currentViewport->MarkCurrentSceneAsDirty();
+		}
 	}
 }
