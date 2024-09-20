@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
+#include "HodEngine/Core/Math/Vector4.hpp"
 
 namespace hod::renderer
 {
@@ -50,5 +51,10 @@ namespace hod::editor
 	public:
 
 		void					Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial) override;
+
+	private:
+
+		const renderer::Material&	_material;
+		Vector4						_color;
 	};
 }

@@ -74,6 +74,11 @@ namespace hod
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
+			static BuiltinMaterialSource P2f_Unlit_TriangleFan(P2f_Unlit_vert, P2f_Unlit_vert_size,
+															  P2f_Unlit_frag, P2f_Unlit_frag_size,
+															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
+															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE_FAN);
+
 			static BuiltinMaterialSource P2f_Unlit_Line_TriangleFan(P2f_Unlit_vert, P2f_Unlit_vert_size,
 															  P2f_Unlit_frag, P2f_Unlit_frag_size,
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
@@ -112,6 +117,7 @@ namespace hod
 			static std::array<const BuiltinMaterialSource*, std::to_underlying(MaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = {
 				&P2f_Unlit_Line, 
 				&P2f_Unlit_Triangle,
+				&P2f_Unlit_TriangleFan,
 				&P2f_Unlit_Line_TriangleFan,
 				&P2f_Unlit_Line_LineStrip,
 				&P2fT2f_Texture_Unlit,

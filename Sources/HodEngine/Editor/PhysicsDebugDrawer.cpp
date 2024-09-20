@@ -30,7 +30,7 @@ namespace hod::editor
 
 		if (PhysicsDebugDrawer::_solidPolygonMaterialInstance == nullptr)
 		{
-			const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+			const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
 			_solidPolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 		}
 		if (PhysicsDebugDrawer::_wireframePolygonMaterialInstance == nullptr)
@@ -78,17 +78,22 @@ namespace hod::editor
 	/// @brief 
 	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const hod::physics::RenderCommand& renderCommand, const renderer::Material& material)
 	: RenderCommandMesh(renderCommand._vertices.data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.size(), nullptr, 0, Matrix4::Identity, _materialInstance, true)
+	, _material(material)
+	, _color(renderCommand._color.r, renderCommand._color.g, renderCommand._color.b, renderCommand._color.a)
 	{
-		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(&material);
-		materialInstance->SetVec4("UBO.color", Vector4(renderCommand._color.r, renderCommand._color.g, renderCommand._color.b, renderCommand._color.a));
-
-		_materialInstance = materialInstance;
 	}
 
 	/// @brief 
 	/// @param commandBuffer 
 	void RenderCommandPhysicsDrawer::Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial)
 	{
+		if (overrideMaterial != nullptr)
+		{
+			return;
+		}
+
+		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(&_material);
+		const_cast<renderer::MaterialInstance*>(_materialInstance)->SetVec4("UBO.color", _color);
 		RenderCommandMesh::Execute(commandBuffer, overrideMaterial);
 		commandBuffer->DeleteAfterRender(const_cast<renderer::MaterialInstance*>(_materialInstance));
 	}
