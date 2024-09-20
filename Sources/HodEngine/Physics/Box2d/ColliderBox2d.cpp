@@ -62,7 +62,7 @@ namespace hod::physics
 	/// @param density 
 	void ColliderBox2d::SetAsBoxShape(const Vector2& position, const Vector2& size, float angle)
 	{
-		b2Polygon polygon = b2MakeOffsetBox(size.GetX(), size.GetY(), { position.GetX(), position.GetY() }, angle);
+		b2Polygon polygon = b2MakeOffsetBox(size.GetX() * 0.5f, size.GetY() * 0.5f, { position.GetX(), position.GetY() }, angle);
 		b2Shape_SetPolygon(_shape, &polygon);
 	}
 
