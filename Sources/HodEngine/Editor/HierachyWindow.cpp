@@ -62,8 +62,7 @@ namespace hod::editor
 
 		if (ImGui::IsWindowHovered() && ImGui::IsAnyItemHovered() == false && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)))
 		{
-			_selection.reset();
-			Editor::GetInstance()->SetEntitySelection(_selection.lock());
+			Editor::GetInstance()->SetEntitySelection(nullptr);
 		}
 		/*
 		for (EntityNode* entityNode : _rootEntityNode._children)
@@ -80,7 +79,7 @@ namespace hod::editor
 
 		if (ImGui::BeginPopup("ContextualMenu") == true)
 		{
-			std::shared_ptr<game::Entity> selectionLock = _selection.lock();
+			std::shared_ptr<game::Entity> selectionLock = Editor::GetInstance()->GetEntitySelection();
 
 			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().size() > 0)
 			{
@@ -176,7 +175,7 @@ namespace hod::editor
 		}
 		ImGui::PopStyleVar();
 
-		std::shared_ptr<game::Entity> selectionLock = _selection.lock();
+		std::shared_ptr<game::Entity> selectionLock = Editor::GetInstance()->GetEntitySelection();
 
 		std::shared_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>();
 
@@ -195,8 +194,7 @@ namespace hod::editor
 		bool opened = ImGui::TreeNodeEx("", treeNodeFlags);
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
-			_selection = entityLock;
-			Editor::GetInstance()->SetEntitySelection(_selection.lock());
+			Editor::GetInstance()->SetEntitySelection(entityLock);
 		}
 		bool hovered = ImGui::IsItemHovered();
 		ImGui::PopStyleVar();
@@ -204,8 +202,7 @@ namespace hod::editor
 
 		if (ImGui::IsWindowHovered() == true && hovered == true && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
-			_selection = entityLock;
-			Editor::GetInstance()->SetEntitySelection(_selection.lock());
+			Editor::GetInstance()->SetEntitySelection(entityLock);
 			_openContextualMenu = true;
 		}
 

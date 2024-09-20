@@ -54,7 +54,6 @@ namespace hod::editor
 
 	private:
 
-		std::weak_ptr<game::Entity>					_selection;
 		bool										_openContextualMenu = false;
 
 		//EntityNode									_rootEntityNode;
