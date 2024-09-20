@@ -192,7 +192,7 @@ namespace hod::editor
 		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 		imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
 		imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
-		imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
+		//imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 
 		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->Maximize();
