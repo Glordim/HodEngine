@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Core/Reflection/EnumDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
@@ -61,6 +62,41 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	/// @tparam __TYPE__ 
+	/// @param value 
+	/// @return 
+	template<typename __TYPE__>
+	bool DrawEnum(__TYPE__& value, EnumDescriptor* enumDescriptor)
+	{
+		bool changed = false;
+
+		const char* label = "NotFound";
+		for (const std::pair<uint64_t, std::string>& enumValue : enumDescriptor->GetValues())
+		{
+			if (static_cast<__TYPE__>(enumValue.first) == value)
+			{
+				label = enumValue.second.c_str();
+				break;
+			}
+		}
+
+		if (ImGui::BeginCombo("", label))
+		{
+			for (const std::pair<uint64_t, std::string>& enumValue : enumDescriptor->GetValues())
+			{
+				if (ImGui::MenuItem(enumValue.second.c_str()) && static_cast<__TYPE__>(enumValue.first) != value)
+				{
+					value = static_cast<__TYPE__>(enumValue.first);
+					changed = true;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		return changed;
+	}
+
+	/// @brief 
 	/// @param property 
 	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& reflectedProperty)
 	{
@@ -83,10 +119,10 @@ namespace hod::editor
 			ImGui::PushID(property);
 			bool value = property->GetValue<bool>(object);
 			ImGui::SetNextItemWidth(-1);
-			changed = ImGui::Checkbox("", &value);
-			if (changed == true)
+			if (ImGui::Checkbox("", &value))
 			{
 				property->SetValue<bool>(object, value);
+				changed = true;
 			}
 			ImGui::PopID();
 		}
@@ -95,12 +131,48 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::Int8:
 		{
 			ImGui::PushID(property);
-			int32_t value = property->GetValue<int8_t>(object);
+			int8_t value = property->GetValue<int8_t>(object);
 			ImGui::SetNextItemWidth(-1);
-			changed = ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f);
-			if (changed == true)
+			if (property->GetEnumDescriptor() != nullptr)
 			{
-				property->SetValue<int8_t>(object, (int8_t)value);
+				if (DrawEnum(value, property->GetEnumDescriptor()))
+				{
+					property->SetValue<uint8_t>(object, (uint8_t)value);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (ImGui::DragScalar("", ImGuiDataType_S8, &value, 1.0f))
+				{
+					property->SetValue<uint8_t>(object, (uint8_t)value);
+					changed = true;
+				}
+			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::UInt8:
+		{
+			ImGui::PushID(property);
+			uint8_t value = property->GetValue<uint8_t>(object);
+			ImGui::SetNextItemWidth(-1);
+			if (property->GetEnumDescriptor() != nullptr)
+			{
+				if (DrawEnum(value, property->GetEnumDescriptor()))
+				{
+					property->SetValue<uint8_t>(object, (uint8_t)value);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (ImGui::DragScalar("", ImGuiDataType_U8, &value, 1.0f))
+				{
+					property->SetValue<uint8_t>(object, (uint8_t)value);
+					changed = true;
+				}
 			}
 			ImGui::PopID();
 		}
@@ -111,10 +183,10 @@ namespace hod::editor
 			ImGui::PushID(property);
 			float value = property->GetValue<float>(object);
 			ImGui::SetNextItemWidth(-1);
-			changed = ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f);
-			if (changed == true)
+			if (ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f))
 			{
 				property->SetValue<float>(object, (float)value);
+				changed = true;
 			}
 			ImGui::PopID();
 		}
@@ -126,18 +198,22 @@ namespace hod::editor
 			std::string value = property->GetValue<std::string>(object);
 			value.reserve(512);
 			ImGui::SetNextItemWidth(-1);
-			changed = ImGui::InputText("", value.data(), value.capacity());
-			if (changed == true)
+			if (ImGui::InputText("", value.data(), value.capacity()))
 			{
 				value = value.c_str();
 				property->SetValue<std::string>(object, value);
+				changed = true;
 			}
 			ImGui::PopID();
 		}
 		break;
 		
 		default:
-			break;
+		{
+			ImGui::TextUnformatted("Unsupported type");
+		}
+		break;
+
 		}
 
 		return changed;

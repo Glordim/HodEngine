@@ -20,7 +20,7 @@ namespace hod
 												ReflectionProperty(uint32_t offset, const char* name);
 												ReflectionProperty(const ReflectionProperty& copy) = default;
 												ReflectionProperty(ReflectionProperty&& move) = default;
-												~ReflectionProperty() = default;
+		virtual									~ReflectionProperty() = default;
 
 		ReflectionProperty&						operator = (const ReflectionProperty& copy) = default;
 		ReflectionProperty&						operator = (ReflectionProperty&& move) = default;

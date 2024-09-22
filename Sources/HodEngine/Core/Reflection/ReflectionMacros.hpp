@@ -95,7 +95,7 @@ namespace hod
 	//std::function<void(T::*)(const MemberType&)> setFunction = nullptr
 
 	template<typename T, typename MemberType>
-	requires std::is_fundamental_v<MemberType>
+	requires (std::is_fundamental_v<MemberType> || std::is_enum_v<MemberType>)
 	ReflectionProperty* AddPropertyT(ReflectionDescriptor* descriptor, MemberType T::*member, const char* name, void(T::*setFunction)(MemberType) = nullptr/*, std::function<MemberType(void) const> getFunction = nullptr*/)
 	{
 		uint32_t offset = OffsetOf(member);
@@ -118,7 +118,7 @@ namespace hod
 	}
 
 	template<typename T, typename MemberType>
-	requires (!std::is_fundamental_v<MemberType>)
+	requires (!std::is_fundamental_v<MemberType> && !std::is_enum_v<MemberType>)
 	ReflectionProperty* AddPropertyT(ReflectionDescriptor* descriptor,  MemberType T::*member, const char* name, void(T::*setFunction)(const MemberType&) = nullptr/*, std::function<const MemberType&(void) const> getFunction = nullptr*/)
 	{
 		uint32_t offset = OffsetOf(member);

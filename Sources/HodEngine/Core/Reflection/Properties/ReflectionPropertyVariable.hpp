@@ -11,6 +11,8 @@
 
 namespace hod
 {
+	class EnumDescriptor;
+
 	///@brief 
 	class HOD_CORE_API ReflectionPropertyVariable : public ReflectionProperty
 	{
@@ -57,7 +59,7 @@ namespace hod
 												ReflectionPropertyVariable(Type type, uint32_t offset, const char* name, std::function<void(void*, void*)> setMethod, std::function<void*(const void*)> getMethod);
 												ReflectionPropertyVariable(const ReflectionPropertyVariable& copy) = default;
 												ReflectionPropertyVariable(ReflectionPropertyVariable&& move) = default;
-												~ReflectionPropertyVariable() = default;
+												~ReflectionPropertyVariable() override;
 
 		ReflectionPropertyVariable&				operator = (const ReflectionPropertyVariable& copy) = default;
 		ReflectionPropertyVariable&				operator = (ReflectionPropertyVariable&& move) = default;
@@ -76,11 +78,16 @@ namespace hod
 
 		bool									CompareInstance(const void* left, const void* right) const;
 
+		void									SetEnumDescriptor(EnumDescriptor* enumDescriptor);
+		EnumDescriptor*							GetEnumDescriptor() const;
+
 	private:
 
 		Type									_type;
 		std::function<void(void*, void*)>		_setMethod;
 		std::function<void*(const void*)>		_getMethod;
+
+		EnumDescriptor*							_enumDescriptor = nullptr;
 	};
 }
 

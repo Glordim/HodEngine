@@ -103,7 +103,12 @@ namespace hod
 		}
 		else if constexpr (std::is_arithmetic<_MemberVariable_>::value || std::is_same<_MemberVariable_, std::string>::value || std::is_enum<_MemberVariable_>::value)
 		{
-			return descriptor->AddProperty<ReflectionPropertyVariable>(GetVariableType<_MemberVariable_>(), offset, name.data(), setMethod, getMethod); // TODO remove data, descriptor must use string view
+			ReflectionPropertyVariable* propertyVariable = descriptor->AddProperty<ReflectionPropertyVariable>(GetVariableType<_MemberVariable_>(), offset, name.data(), setMethod, getMethod); // TODO remove data, descriptor must use string view
+			if constexpr (std::is_enum<_MemberVariable_>::value)
+			{
+				propertyVariable->SetEnumDescriptor(EnumDescriptor::GenerateFromType<_MemberVariable_>());
+			}
+			return propertyVariable;
 		}
 		else if constexpr (std::is_class<_MemberVariable_>::value)
 		{

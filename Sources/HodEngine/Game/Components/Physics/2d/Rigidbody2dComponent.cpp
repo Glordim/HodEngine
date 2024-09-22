@@ -4,6 +4,7 @@
 
 #include <HodEngine/Physics/Physics.hpp>
 #include <HodEngine/Physics/Body.hpp>
+#include <HodEngine/Core/Reflection/EnumTrait.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
 
@@ -11,7 +12,7 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent, Component)
 	{
-		AddPropertyT(this, &Rigidbody2dComponent::_dynamic, "Dynamic", &Rigidbody2dComponent::SetDynamic);
+		AddPropertyT(this, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
 	}
 
 	/// @brief 
@@ -56,10 +57,7 @@ namespace hod::game
 			}
 		}
 
-		if (_dynamic)
-		{
-			_body->SetType(physics::Body::Type::Dynamic);
-		}
+		SetMode(GetMode());
 	}
 
 	/// @brief 
@@ -102,27 +100,26 @@ namespace hod::game
 
 	/// @brief 
 	/// @param dynamic 
-	void Rigidbody2dComponent::SetDynamic(bool dynamic)
+	void Rigidbody2dComponent::SetMode(Mode mode)
 	{
-		_dynamic = dynamic;
+		_mode = mode;
 		if (_body != nullptr)
 		{
-			if (_dynamic)
-			{
-				_body->SetType(physics::Body::Type::Dynamic);
-			}
-			else
-			{
-				_body->SetType(physics::Body::Type::Static);
-			}
+			static physics::Body::Type modeToTypeMapping[EnumTrait::GetCount<Mode>()] = {
+				physics::Body::Type::Static,
+				physics::Body::Type::Kinematic,
+				physics::Body::Type::Dynamic,
+			};
+
+			_body->SetType(modeToTypeMapping[std::to_underlying(_mode)]);
 		}
 	}
 
 	/// @brief 
 	/// @return 
-	bool Rigidbody2dComponent::IsDynamic() const
+	Rigidbody2dComponent::Mode Rigidbody2dComponent::GetMode() const
 	{
-		return _dynamic;
+		return _mode;
 	}
 
 	/// @brief 

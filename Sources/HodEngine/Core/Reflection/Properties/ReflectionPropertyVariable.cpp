@@ -1,5 +1,6 @@
 #include "HodEngine/Core/pch.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Reflection/EnumDescriptor.hpp"
 
 #include <cassert>
 
@@ -18,6 +19,12 @@ namespace hod
 		, _getMethod(getMethod)
 	{
 
+	}
+
+	/// @brief 
+	ReflectionPropertyVariable::~ReflectionPropertyVariable()
+	{
+		delete _enumDescriptor;
 	}
 
 	/// @brief 
@@ -74,5 +81,19 @@ namespace hod
 
 		default: assert(false); return false;
 		}
+	}
+
+	/// @brief 
+	/// @param enumDescriptor 
+	void ReflectionPropertyVariable::SetEnumDescriptor(EnumDescriptor* enumDescriptor)
+	{
+		_enumDescriptor = enumDescriptor;
+	}
+
+	/// @brief 
+	/// @return 
+	EnumDescriptor* ReflectionPropertyVariable::GetEnumDescriptor() const
+	{
+		return _enumDescriptor;
 	}
 }

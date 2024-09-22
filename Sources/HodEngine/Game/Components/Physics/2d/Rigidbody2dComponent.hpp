@@ -15,12 +15,20 @@ namespace hod::physics
 
 namespace hod::game
 {
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
+	/// @brief 
 	class HOD_GAME_API Rigidbody2dComponent : public Component
 	{
 		REFLECTED_CLASS(Rigidbody2dComponent, Component, HOD_GAME_API)
+
+	public:
+
+		enum class Mode : uint8_t
+		{
+			Static = 0,
+			Kinematic,
+			Dynamic,
+		};
+
 
 	public:
 
@@ -40,8 +48,8 @@ namespace hod::game
 
 		physics::Body*	GetInternalBody() const;
 
-		void			SetDynamic(bool dynamic);
-		bool			IsDynamic() const;
+		void			SetMode(Mode mode);
+		Mode			GetMode() const;
 
 		Event<const physics::Collision&>&		GetOnCollisionEnterEvent();
 		Event<const physics::Collision&>&		GetOnCollisionExitEvent();
@@ -50,7 +58,7 @@ namespace hod::game
 
 		physics::Body*	_body = nullptr;
 		
-		bool			_dynamic = false;
+		Mode			_mode = Mode::Static;
 
 		Event<const physics::Collision&>	_onCollisionEnterEvent;
 		Event<const physics::Collision&>	_onCollisionExitEvent;
