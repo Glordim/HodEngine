@@ -26,6 +26,8 @@ namespace hod::physics
 		void	SetAsBoxShape(const Vector2& position, const Vector2& size, float angle) override;
 		void	SetAsConvexShape(const std::vector<const Vector2>& vertices) override;
 
+		void	SetBounciness(float bounciness) override;
+
 	private:
 
 		b2ShapeId	_shape = b2_nullShapeId;

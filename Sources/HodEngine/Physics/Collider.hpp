@@ -23,6 +23,8 @@ namespace hod::physics
 		virtual void		SetAsBoxShape(const Vector2& position, const Vector2& size, float angle) = 0;
 		virtual void		SetAsConvexShape(const std::vector<const Vector2>& vertices) = 0;
 
+		virtual void		SetBounciness(float bounciness) = 0;		
+
 	private:
 
 		Body*				_body = nullptr;

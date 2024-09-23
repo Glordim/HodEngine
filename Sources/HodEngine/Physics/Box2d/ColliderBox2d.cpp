@@ -11,12 +11,24 @@ namespace hod::physics
 	ColliderBox2d::ColliderBox2d(Body* body)
 	: Collider(body)
 	{
+		/*
 		b2Segment segment;
 		segment.point1 = { 0.0f, 0.0f };
 		segment.point2 = { 1.0f, 0.0f };
+		*/
 
 		b2ShapeDef shapeDef = b2DefaultShapeDef();
-		_shape = b2CreateSegmentShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &segment);
+		shapeDef.isSensor = false;
+		shapeDef.restitution = 1.0f;
+		//shapeDef.density = 1.0f;
+		//shapeDef.friction = 0.0f;
+		//_shape = b2CreateSegmentShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &segment);
+
+		b2Circle circle;
+		circle.center = { 0.0f, 0.0f };
+		circle.radius = 0.5f;
+
+		_shape = b2CreateCircleShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &circle);
 
 		b2Shape_SetUserData(_shape, this);
 	}
@@ -90,5 +102,12 @@ namespace hod::physics
 
 		b2Shape_SetPolygon(_shape, &polygon);
 		*/
+	}
+
+	/// @brief 
+	/// @param bounciness 
+	void ColliderBox2d::SetBounciness(float bounciness)
+	{
+		b2Shape_SetRestitution(_shape, bounciness);
 	}
 }

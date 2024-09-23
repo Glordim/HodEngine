@@ -13,6 +13,7 @@ namespace hod::game
 	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent, Component)
 	{
 		AddPropertyT(this, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
+		AddPropertyT(this, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
 	}
 
 	/// @brief 
@@ -24,7 +25,28 @@ namespace hod::game
 	/// @brief 
 	void Rigidbody2dComponent::OnAwake()
 	{
-		_body = physics::Physics::GetInstance()->CreateBody();
+		static physics::Body::Type modeToTypeMapping[EnumTrait::GetCount<Mode>()] = {
+			physics::Body::Type::Static,
+			physics::Body::Type::Kinematic,
+			physics::Body::Type::Dynamic,
+		};
+
+		Vector2 position;
+		float rotation = 0.0f;
+
+		std::shared_ptr<Entity> entity = GetEntity();
+		if (entity != nullptr)
+		{
+			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+			if (node2dComponent != nullptr)
+			{
+				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
+				position = worldMatrix.GetTranslation();
+				rotation = worldMatrix.GetRotation().GetAngleZ();
+			}
+		}
+
+		_body = physics::Physics::GetInstance()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
 		_body->SetMoveEventCallback([this](const Vector2& position, float rotation)
 		{
 			std::shared_ptr<Entity> entity = GetEntity();
@@ -47,17 +69,8 @@ namespace hod::game
 			_onCollisionExitEvent.Emit(collision);
 		});
 
-		std::shared_ptr<Entity> entity = GetEntity();
-		if (entity != nullptr)
-		{
-			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
-			if (node2dComponent != nullptr)
-			{
-				_body->SetTransform(node2dComponent->GetPosition(), node2dComponent->GetRotation(), node2dComponent->GetScale());
-			}
-		}
-
 		SetMode(GetMode());
+		SetGravityScale(GetGravityScale());
 	}
 
 	/// @brief 
@@ -120,6 +133,48 @@ namespace hod::game
 	Rigidbody2dComponent::Mode Rigidbody2dComponent::GetMode() const
 	{
 		return _mode;
+	}
+
+	/// @brief 
+	/// @param gravityScale 
+	void Rigidbody2dComponent::SetGravityScale(float gravityScale)
+	{
+		_gravityScale = gravityScale;
+		if (_body != nullptr)
+		{
+			_body->SetGravityScale(_gravityScale);
+		}
+	}
+
+	/// @brief 
+	/// @return 
+	float Rigidbody2dComponent::GetGravityScale() const
+	{
+		return _gravityScale;
+	}
+
+	/// @brief 
+	/// @param velocity 
+	void Rigidbody2dComponent::SetVelocity(const Vector2& velocity)
+	{
+		if (_body != nullptr)
+		{
+			_body->SetVelocity(velocity);
+		}
+	}
+
+	/// @brief 
+	/// @return 
+	Vector2 Rigidbody2dComponent::GetVelocity() const
+	{
+		if (_body != nullptr)
+		{
+			return _body->GetVelocity();
+		}
+		else
+		{
+			return Vector2::Zero;
+		}
 	}
 
 	/// @brief 

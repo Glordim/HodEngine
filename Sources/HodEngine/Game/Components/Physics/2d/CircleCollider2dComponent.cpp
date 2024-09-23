@@ -13,6 +13,8 @@ namespace hod::game
 	{
 		AddPropertyT(this, &CircleCollider2dComponent::_offset, "Offset", &CircleCollider2dComponent::SetOffset);
 		AddPropertyT(this, &CircleCollider2dComponent::_radius, "Radius", &CircleCollider2dComponent::SetRadius);
+
+		AddPropertyT(this, &CircleCollider2dComponent::_bounciness, "Bounciness"); // tmp
 	}
 
 	/// @brief 
@@ -22,6 +24,7 @@ namespace hod::game
 
 		Vector2 scale = GetScale();
 		_collider = GetRigidbody()->GetInternalBody()->AddCircleShape(_offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
+		_collider->SetBounciness(_bounciness);
 	}
 
 	/// @brief 

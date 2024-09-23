@@ -37,12 +37,17 @@ namespace hod::editor
 			std::shared_ptr<game::Node2dComponent> node2D = capsuleCollider2d->GetEntity()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
+				Vector2 scale = node2D->GetScale();
+
 				std::array<Vector2, 65> vertices;
-				GeometryGenerator::CapsuleShape<64>(vertices, Vector2::Zero, capsuleCollider2d->GetHeight(), capsuleCollider2d->GetRadius());
+				GeometryGenerator::CapsuleShape<64>(vertices, Vector2::Zero, capsuleCollider2d->GetHeight() * scale.GetY(), capsuleCollider2d->GetRadius() * scale.GetX());
 
-				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset()) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
+				Matrix4 worldMatrix = node2D->GetWorldMatrix();				
+				worldMatrix.RemoveScale();
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance);
+				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset() * scale) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
+
+				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix * localMatrix, _materialInstance);
 				renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);		
 			}
 		}

@@ -51,6 +51,10 @@ namespace hod
 
 	public:
 
+		static Vector2	Normalize(const Vector2& vector);
+
+	public:
+
 		float		GetX() const;
 		void		SetX(float x);
 

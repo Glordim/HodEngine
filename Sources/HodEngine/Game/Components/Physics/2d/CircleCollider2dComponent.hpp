@@ -36,5 +36,7 @@ namespace hod::game
 
 		Vector2			_offset = Vector2::Zero;
 		float			_radius = 0.5f;
+
+		float			_bounciness = 0.0f; // tmp
 	};
 }

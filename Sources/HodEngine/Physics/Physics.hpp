@@ -2,6 +2,7 @@
 #include "HodEngine/Physics/Export.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
+#include "HodEngine/Physics/Body.hpp"
 
 #include <vector>
 #include <cstdint>
@@ -13,7 +14,6 @@ namespace hod
 
 namespace hod::physics
 {
-	class Body;
 	class DebugDrawer;
 
 	/// @brief 
@@ -36,7 +36,7 @@ namespace hod::physics
 		virtual bool		Init() = 0;
 		void				Clear();
 
-		virtual Body*		CreateBody() = 0;
+		virtual Body*		CreateBody(Body::Type type, const Vector2& position, float rotation) = 0;
 		virtual void		DeleteBody(Body* body) = 0;
 
 		virtual void		Update(float dt) = 0;

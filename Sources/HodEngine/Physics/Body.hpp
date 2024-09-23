@@ -48,10 +48,16 @@ namespace hod::physics
 		virtual Vector2		GetPosition() const = 0;
 		virtual float		GetRotation() const = 0;
 
+		virtual void		SetVelocity(const Vector2& velocity) = 0;
+		virtual Vector2		GetVelocity() const = 0;
+
 		virtual void		GetCollisions(std::vector<Collision>& collisions) = 0;
 
 		virtual Type		GetType() const = 0;
 		virtual void		SetType(Type type) = 0;
+
+		virtual float		GetGravityScale() const = 0;
+		virtual void		SetGravityScale(float gravityScale) = 0;
 
 	protected:
 

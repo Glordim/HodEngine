@@ -127,6 +127,35 @@ namespace hod::physics
 
 	/// @brief 
 	/// @return 
+	float BodyBox2d::GetGravityScale() const
+	{
+		return b2Body_GetGravityScale(_b2BodyId);
+	}
+
+	/// @brief 
+	/// @param gravityScale 
+	void BodyBox2d::SetGravityScale(float gravityScale)
+	{
+		b2Body_SetGravityScale(_b2BodyId, gravityScale);
+	}
+
+	/// @brief 
+	/// @param velocity 
+	void BodyBox2d::SetVelocity(const Vector2& velocity)
+	{
+		b2Body_SetLinearVelocity(_b2BodyId, { velocity.GetX(), velocity.GetY() });
+	}
+
+	/// @brief 
+	/// @return 
+	Vector2 BodyBox2d::GetVelocity() const
+	{
+		b2Vec2 velocity = b2Body_GetLinearVelocity(_b2BodyId);
+		return Vector2(velocity.x, velocity.y);
+	}
+
+	/// @brief 
+	/// @return 
 	b2BodyId BodyBox2d::GetB2Actor() const
 	{
 		return _b2BodyId;

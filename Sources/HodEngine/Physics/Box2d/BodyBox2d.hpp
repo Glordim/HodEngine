@@ -36,6 +36,12 @@ namespace hod::physics
 		Type				GetType() const override;
 		void				SetType(Type type) override;
 
+		float				GetGravityScale() const override;
+		void				SetGravityScale(float gravityScale) override;
+
+		void				SetVelocity(const Vector2& velocity) override;
+		Vector2				GetVelocity() const override;
+
 		b2BodyId			GetB2Actor() const;
 		ColliderBox2d*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;
 

@@ -46,7 +46,7 @@ namespace hod::physics
 
 		bool				Init() override;
 
-		Body*				CreateBody() override;
+		Body*				CreateBody(Body::Type type, const Vector2& position, float rotation) override;
 		void				DeleteBody(Body* body) override;
 
 		void				Update(float dt) override;

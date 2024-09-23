@@ -51,6 +51,12 @@ namespace hod::game
 		void			SetMode(Mode mode);
 		Mode			GetMode() const;
 
+		void			SetGravityScale(float gravityScale);
+		float			GetGravityScale() const;
+
+		void			SetVelocity(const Vector2& velocity);
+		Vector2			GetVelocity() const;
+
 		Event<const physics::Collision&>&		GetOnCollisionEnterEvent();
 		Event<const physics::Collision&>&		GetOnCollisionExitEvent();
 
@@ -59,6 +65,7 @@ namespace hod::game
 		physics::Body*	_body = nullptr;
 		
 		Mode			_mode = Mode::Static;
+		float			_gravityScale = 1.0f;
 
 		Event<const physics::Collision&>	_onCollisionEnterEvent;
 		Event<const physics::Collision&>	_onCollisionExitEvent;

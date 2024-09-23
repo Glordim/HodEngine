@@ -181,4 +181,21 @@ namespace hod
 	{
 		return operator / (Vector2(right, right));
 	}
+
+	/// @brief 
+	/// @param vector 
+	/// @return 
+	Vector2 Vector2::Normalize(const Vector2& vector)
+	{
+		float magnitude = std::sqrt(vector._x * vector._x + 
+                                vector._y * vector._y);
+
+		if (magnitude == 0.0f)
+		{
+			return Vector2::Zero;
+		}
+
+		return vector / magnitude;
+	}
+
 }

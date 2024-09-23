@@ -39,12 +39,26 @@ namespace hod::physics
 
 	/// @brief 
 	/// @return 
-	Body* PhysicsBox2d::CreateBody()
+	Body* PhysicsBox2d::CreateBody(Body::Type type, const Vector2& position, float rotation)
 	{
 		b2BodyDef bodyDef = b2DefaultBodyDef();
+		bodyDef.type = static_cast<b2BodyType>(type);
+		bodyDef.position = { position.GetX(), position.GetY() };
+		bodyDef.rotation = b2MakeRot(rotation);
+		bodyDef.enableSleep = true;
+		bodyDef.isAwake = true;
+		bodyDef.fixedRotation = true;
 		b2BodyId bodyId = b2CreateBody(_worldId, &bodyDef);
 
+		b2MassData myMassData;
+		myMassData.mass = 10.0f;
+		myMassData.center = { 0.0f, 0.0f };
+		myMassData.rotationalInertia = 100.0f;
+		b2Body_SetMassData(bodyId, myMassData);
+
 		BodyBox2d* body = new BodyBox2d(bodyId);
+
+		b2Body_ApplyMassFromShapes(bodyId);
 
 		_bodies.push_back(body);
 

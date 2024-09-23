@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
+#include "HodEngine/Core/Math/Quaternion.hpp"
 
 #include <cstdint>
 
@@ -37,6 +38,9 @@ namespace hod
 		Vector4		operator * (const Vector4& vec) const;
 
 		Vector2		GetTranslation() const;
+		Quaternion	GetRotation() const;
+
+		void		RemoveScale();
 
 	public:
 

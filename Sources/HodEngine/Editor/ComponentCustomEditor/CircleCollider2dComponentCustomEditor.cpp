@@ -37,8 +37,10 @@ namespace hod::editor
 			std::shared_ptr<game::Node2dComponent> node2D = circleCollider2d->GetEntity()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
+				Vector2 scale = node2D->GetScale();
+
 				std::array<Vector2, 65> vertices;
-				GeometryGenerator::CircleShape<64>(vertices, circleCollider2d->GetOffset(), circleCollider2d->GetRadius());
+				GeometryGenerator::CircleShape<64>(vertices, circleCollider2d->GetOffset() * scale, circleCollider2d->GetRadius() * std::max(scale.GetX(), scale.GetY()));
 
 				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
 				renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);		

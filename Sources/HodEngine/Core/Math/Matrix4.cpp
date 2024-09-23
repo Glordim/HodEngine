@@ -310,4 +310,88 @@ namespace hod
 
 		return inv;
 	}
+
+	/// @brief 
+	/// @return 
+	Quaternion Matrix4::GetRotation() const
+	{
+		float trace = _values[0][0] + _values[1][1] + _values[2][2];
+        float s;
+        Quaternion quaternion;
+
+        if (trace > 0)
+		{
+            s = sqrt(trace + 1.0f) * 2; // 4 * w
+            quaternion._w = 0.25f * s;
+            quaternion._x = (_values[2][1] - _values[1][2]) / s;
+            quaternion._y = (_values[0][2] - _values[2][0]) / s;
+            quaternion._z = (_values[1][0] - _values[0][1]) / s;
+        }
+		else
+		{
+            if (_values[0][0] > _values[1][1] && _values[0][0] > _values[2][2])
+			{
+                s = sqrt(1.0f + _values[0][0] - _values[1][1] - _values[2][2]) * 2; // 4 * x
+                quaternion._w = (_values[2][1] - _values[1][2]) / s;
+                quaternion._x = 0.25f * s;
+                quaternion._y = (_values[0][1] + _values[1][0]) / s;
+                quaternion._z = (_values[0][2] + _values[2][0]) / s;
+            }
+			else if (_values[1][1] > _values[2][2])
+			{
+                s = sqrt(1.0f + _values[1][1] - _values[0][0] - _values[2][2]) * 2; // 4 * y
+                quaternion._w = (_values[0][2] - _values[2][0]) / s;
+                quaternion._x = (_values[0][1] + _values[1][0]) / s;
+                quaternion._y = 0.25f * s;
+                quaternion._z = (_values[1][2] + _values[2][1]) / s;
+            }
+			else
+			{
+                s = sqrt(1.0f + _values[2][2] - _values[0][0] - _values[1][1]) * 2; // 4 * z
+                quaternion._w = (_values[1][0] - _values[0][1]) / s;
+                quaternion._x = (_values[0][2] + _values[2][0]) / s;
+                quaternion._y = (_values[1][2] + _values[2][1]) / s;
+                quaternion._z = 0.25f * s;
+            }
+        }
+
+        return quaternion;
+	}
+
+	/// @brief 
+	void Matrix4::RemoveScale()
+	{
+        float scaleX = std::sqrt(_values[0][0] * _values[0][0] +
+                                 _values[1][0] * _values[1][0] +
+                                 _values[2][0] * _values[2][0]);
+
+        float scaleY = std::sqrt(_values[0][1] * _values[0][1] +
+                                 _values[1][1] * _values[1][1] +
+                                 _values[2][1] * _values[2][1]);
+
+        float scaleZ = std::sqrt(_values[0][2] * _values[0][2] +
+                                 _values[1][2] * _values[1][2] +
+                                 _values[2][2] * _values[2][2]);
+
+        if (scaleX != 0.0f)
+		{
+            _values[0][0] /= scaleX;
+            _values[1][0] /= scaleX;
+            _values[2][0] /= scaleX;
+        }
+
+        if (scaleY != 0.0f)
+		{
+            _values[0][1] /= scaleY;
+            _values[1][1] /= scaleY;
+            _values[2][1] /= scaleY;
+        }
+
+        if (scaleZ != 0.0f)
+		{
+            _values[0][2] /= scaleZ;
+            _values[1][2] /= scaleZ;
+            _values[2][2] /= scaleZ;
+        }
+    }
 }
