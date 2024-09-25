@@ -114,12 +114,23 @@ namespace hod::physics
 				*static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdA)),
 				*static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdB)),
 			};
-			BodyBox2d* bodyA = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.shapeIdA)));
-			BodyBox2d* bodyB = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.shapeIdB)));
-			bodyA->GetCollisionEnterCallback()(collision);
-			if (bodyB != bodyA)
+			b2ContactData contactData[10];
+			int count = b2Shape_GetContactData(beginEvent.shapeIdA, contactData, 10);
+			for (b2ContactData& data : contactData)
 			{
-				bodyB->GetCollisionEnterCallback()(collision);
+				if (data.shapeIdA.index1 == beginEvent.shapeIdA.index1 &&
+					data.shapeIdB.index1 == beginEvent.shapeIdB.index1)
+				{
+					collision._normal = Vector2(data.manifold.normal.x, data.manifold.normal.y);
+					BodyBox2d* bodyA = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.shapeIdA)));
+					BodyBox2d* bodyB = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.shapeIdB)));
+					bodyA->GetCollisionEnterCallback()(collision);
+					if (bodyB != bodyA)
+					{
+						bodyB->GetCollisionEnterCallback()(collision);
+					}
+					break;
+				}
 			}
 		}
 		for (int32_t index = 0; index < contactEvents.endCount; ++index)
