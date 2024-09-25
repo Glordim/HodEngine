@@ -191,6 +191,16 @@ namespace hod
 		}
 
 		/// @brief 
+		/// @param start 
+		/// @param end 
+		/// @param color 
+		/// @param duration 
+		void World::DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration)
+		{
+			_debugDrawer.AddLine(start, end, color, duration);
+		}
+
+		/// @brief 
 		void World::Update()
 		{
 #if defined(HOD_EDITOR)
@@ -217,6 +227,8 @@ namespace hod
 				scene->Draw(renderQueue);
 			}
 			_persistanteScene->Draw(renderQueue);
+
+			_debugDrawer.Draw(*renderQueue);
 		}
 
 		/// @brief 

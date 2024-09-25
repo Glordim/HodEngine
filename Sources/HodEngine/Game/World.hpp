@@ -4,6 +4,7 @@
 #include <HodEngine/Core/Singleton.hpp>
 
 #include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/DebugDrawer.hpp"
 
 #include <vector>
 #include <memory>
@@ -15,6 +16,9 @@
 
 namespace hod
 {
+	class Vector2;
+	struct Color;
+
 	namespace game
 	{
 		class Scene;
@@ -60,6 +64,10 @@ namespace hod
 			void						Draw(renderer::RenderQueue* renderQueue);
 			void						DrawPicking(renderer::RenderQueue* renderQueue, std::map<uint32_t, std::shared_ptr<RendererComponent>>& colorIdToRendererComponentMap);
 
+			// todo #ifndef retail ?
+			void						DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
+			//
+
 		protected:
 
 										~World();
@@ -75,6 +83,8 @@ namespace hod
 
 			std::vector<Scene*>			_scenes;
 			Scene*						_persistanteScene = nullptr;
+
+			DebugDrawer					_debugDrawer;
 		};
 	}
 }

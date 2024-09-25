@@ -16,6 +16,20 @@
 
 #include "HodEngine/Core/Time/SystemTime.hpp"
 
+#include "HodEngine/Core/FileSystem.hpp"
+
+#include <HodEngine/Core/Job/JobScheduler.hpp>
+#include <HodEngine/Core/Frame/FrameSequencer.hpp>
+
+#include "HodEngine/Game/World.hpp"
+#include "HodEngine/Game/Builtin.hpp"
+#include "HodEngine/Game/ComponentFactory.hpp"
+
+#include "HodEngine/Physics/Physics.hpp"
+
+#include "HodEngine/Core/Time/SystemTime.hpp"
+#include "HodEngine/Core/ResourceManager.hpp"
+
 namespace hod::application
 {
 	_SingletonOverrideConstructor(GraphicApplication)
@@ -29,10 +43,14 @@ namespace hod::application
 	/// @return 
 	bool GraphicApplication::Init(const ArgumentParser& argumentParser)
 	{
-		if (Application::Init(argumentParser) == false)
-		{
-			return false;
-		}
+		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
+
+		JobScheduler::CreateInstance();
+		FrameSequencer::CreateInstance();
+
+		ResourceManager::CreateInstance();
+
+		physics::Physics::CreatePhysicsInstance()->Init();
 
 		PlatformAudioManager::CreateInstance();
 		if (PlatformAudioManager::GetInstance()->Initialize() == false)
@@ -69,6 +87,11 @@ namespace hod::application
 		{
 			return false;
 		}
+
+		game::ComponentFactory::CreateInstance();
+		game::RegisterBuiltin();
+
+		game::World::CreateInstance()->Init();
 
 		return true;
 	}
