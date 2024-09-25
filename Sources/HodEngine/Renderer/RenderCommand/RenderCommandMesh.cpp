@@ -45,7 +45,7 @@ namespace hod::renderer
 		if (colors != nullptr)
 		{
 			_colors.resize(vertexCount);
-			memcpy(_colors.data(), uvs, sizeof(Color) * vertexCount);
+			memcpy(_colors.data(), colors, sizeof(Color) * vertexCount);
 		}
 
 		if (indices != nullptr)
@@ -97,7 +97,7 @@ namespace hod::renderer
 			void* colorsBufferData = colorsBuffer->Lock();
 			if (colorsBufferData != nullptr)
 			{
-				memcpy(colorsBufferData, _uvs.data(), _uvs.size() * sizeof(Color));
+				memcpy(colorsBufferData, _colors.data(), _colors.size() * sizeof(Color));
 				colorsBuffer->Unlock();
 			}
 			commandBuffer->DeleteAfterRender(vertexBuffers[vertexBufferCount]);

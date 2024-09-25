@@ -8,12 +8,11 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	struct HOD_CORE_API Color
+	struct HOD_CORE_API Color final
 	{
 		Color();
 		Color(float r, float g, float b, float a);
 		Color(int32_t rgba);
-		virtual ~Color();
 
 		float& operator[](size_t index)
 		{
