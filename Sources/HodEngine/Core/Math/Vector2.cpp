@@ -198,4 +198,22 @@ namespace hod
 		return vector / magnitude;
 	}
 
+	/// @brief 
+	/// @param A 
+	/// @param B 
+	/// @return 
+	float Vector2::Dot(const Vector2& A, const Vector2& B)
+	{
+        return A._x * B._x + A._y * B._y;
+    }
+
+	/// @brief 
+	/// @param velocity 
+	/// @param normal 
+	/// @return 
+	Vector2 Vector2::Reflect(const Vector2& velocity, const Vector2& normal)
+	{
+        float dotProduct = Vector2::Dot(velocity, normal);
+		return velocity - (normal * dotProduct * 2);
+    }
 }
