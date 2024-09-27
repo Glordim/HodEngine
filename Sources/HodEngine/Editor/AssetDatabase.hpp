@@ -106,6 +106,8 @@ namespace hod::editor
 		void 								FileSystemWatcherOnChangeFile(const std::filesystem::path& path);
 		void								FileSystemWatcherOnMoveFile(const std::filesystem::path& oldPath, const std::filesystem::path& newPath);
 
+		void								ClearFilesystemMapping(FileSystemMapping& filesystemMapping);
+
 	private:
 
 		static std::filesystem::path		GenerateUniqueAssetPath(const std::filesystem::path& path);

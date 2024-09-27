@@ -34,6 +34,12 @@ namespace hod
 	}
 
 	/// @brief 
+	Module::~Module()
+	{
+		Unload();
+	}
+
+	/// @brief 
 	/// @return 
 	const std::filesystem::path& Module::GetPath() const
 	{
@@ -66,7 +72,7 @@ namespace hod
 	/// @return 
 	bool Module::Unload()
 	{
-		if (InternaUnload() == false)
+		if (InternalUnload() == false)
 		{
 			return false;
 		}

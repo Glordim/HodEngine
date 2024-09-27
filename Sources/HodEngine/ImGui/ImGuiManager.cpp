@@ -60,7 +60,7 @@ namespace hod::imgui
 #elif defined(PLATFORM_MACOS)
 #endif
 
-		ImGui::DestroyContext();
+		//ImGui::DestroyContext(); // todo
 
 		delete _material;
 		delete _vertexShader;

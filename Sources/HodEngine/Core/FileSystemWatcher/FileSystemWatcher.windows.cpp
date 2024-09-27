@@ -33,7 +33,10 @@ namespace hod
 	/// @brief 
 	void FileSystemWatcher::Cleanup()
 	{
-		::CloseHandle(_hDir);
+		if (_hDir != INVALID_HANDLE_VALUE)
+		{
+			// ::CloseHandle(_hDir); // todo
+		}
 	}
 
 	/// @brief 

@@ -44,4 +44,11 @@ namespace hod::window
 	{
 		return _height;
 	}
+
+	/// @brief 
+	/// @return 
+	bool Window::IsClose() const
+	{
+		return _close;
+	}
 }

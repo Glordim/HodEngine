@@ -24,9 +24,16 @@ namespace hod::renderer
 	}
 
 	/// @brief 
-	RenderQueue::~RenderQueue()
+	void RenderQueue::Terminate()
 	{
 		delete _pickingMaterialInstance;
+		_pickingMaterialInstance = nullptr;
+	}
+
+	/// @brief 
+	RenderQueue::~RenderQueue()
+	{
+		assert(_pickingMaterialInstance == nullptr);
 	}
 
 	/// @brief 

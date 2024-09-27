@@ -49,6 +49,8 @@ namespace hod::editor
 	AssetDatabase::~AssetDatabase()
 	{
 		_fileSystemWatcher.Cleanup();
+
+		ClearFilesystemMapping(_rootFileSystemMapping);
 		
 		for (auto pair : _uidToAssetMap)
 		{
@@ -56,6 +58,22 @@ namespace hod::editor
 		}
 
 		_uidToAssetMap.clear();
+	}
+
+	/// @brief 
+	void AssetDatabase::ClearFilesystemMapping(FileSystemMapping& filesystemMapping)
+	{
+		for (FileSystemMapping* child : filesystemMapping._childrenFolder)
+		{
+			ClearFilesystemMapping(*child);
+			delete child;
+		}
+
+		for (FileSystemMapping* child : filesystemMapping._childrenAsset)
+		{
+			ClearFilesystemMapping(*child);
+			delete child;
+		}
 	}
 
 	/// @brief 

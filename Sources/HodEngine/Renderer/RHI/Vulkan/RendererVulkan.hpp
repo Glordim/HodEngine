@@ -45,6 +45,7 @@ namespace hod::renderer
 	public:
 
 		bool		Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
+		
 		bool		BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) override;
 
 		bool		CreateContext(window::Window* window); // TODO virtual in Renderer ?

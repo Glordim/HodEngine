@@ -50,7 +50,7 @@ namespace hod
 		MemberFunctionJob<FileSystemWatcher>	_internalJob;
 
 #if defined(PLATFORM_WINDOWS)
-		HANDLE 					_hDir = NULL;
+		HANDLE 					_hDir = INVALID_HANDLE_VALUE;
 		OVERLAPPED				_overlapped;
 		alignas(DWORD) uint8_t	_changeBuf[1024];
 		bool					_isFile = false;

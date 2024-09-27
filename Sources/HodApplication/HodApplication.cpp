@@ -49,3 +49,11 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 
 	return true;
 }
+
+/// @brief 
+void HodApplication::Terminate()
+{
+	hod::editor::Editor::DestroyInstance();
+
+	PlatformApplication::Terminate();
+}

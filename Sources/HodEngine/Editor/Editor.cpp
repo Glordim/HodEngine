@@ -77,6 +77,8 @@ namespace hod::editor
 	/// @brief 
 	Editor::~Editor()
 	{
+		Project::DestroyInstance();
+		AssetDatabase::DestroyInstance();
 		delete _mainBar;
 	}
 

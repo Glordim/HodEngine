@@ -97,6 +97,27 @@ namespace hod::application
 	}
 
 	/// @brief 
+	void GraphicApplication::Terminate()
+	{
+		game::World::DestroyInstance();
+		game::ComponentFactory::DestroyInstance();
+		imgui::ImGuiManager::DestroyInstance();
+		renderer::RenderQueue::GetInstance()->Terminate(); // todo miror init process
+		delete _window;
+		PlatformRenderer::DestroyInstance();
+		input::InputManager::DestroyInstance();
+		PlatformDisplayManager::DestroyInstance();
+		PlatformAudioManager::DestroyInstance();
+
+		physics::Physics::CreatePhysicsInstance()->Init();
+
+		ResourceManager::DestroyInstance();
+
+		FrameSequencer::DestroyInstance();
+		JobScheduler::DestroyInstance();
+	}
+
+	/// @brief 
 	/// @return 
 	bool GraphicApplication::Run()
 	{
@@ -108,6 +129,10 @@ namespace hod::application
 		while (_shouldQuit == false)
 		{
 			_window->Update();
+			if (_window->IsClose())
+			{
+				Quit();
+			}
 
 			frameSequencer->EnqueueAndWaitJobs();
 

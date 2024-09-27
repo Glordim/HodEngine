@@ -36,12 +36,11 @@ namespace hod
 	DWORD WINAPI ThreadFunctionInternal(LPVOID param)
 	{
 		Descriptor* descriptor = static_cast<Descriptor*>(param);
-
-		DWORD exitCode = descriptor->_function(descriptor->_parameter);
-
+		Thread::Function function = descriptor->_function;
+		void* parameter = descriptor->_parameter;
 		delete descriptor;
 
-		return exitCode;
+		return function(parameter);
 	}
 
 	/// @brief 

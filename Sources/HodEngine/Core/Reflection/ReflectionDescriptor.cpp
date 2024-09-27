@@ -45,6 +45,20 @@ namespace hod
 #endif
 
 	/// @brief 
+	ReflectionDescriptor::~ReflectionDescriptor()
+	{
+		for (ReflectionProperty* property : _properties)
+		{
+			delete property;
+		}
+
+		for (ReflectionTrait* trait : _traits)
+		{
+			delete trait;
+		}
+	}
+
+	/// @brief 
 	/// @return 
 	void* ReflectionDescriptor::CreateInstance() const
 	{

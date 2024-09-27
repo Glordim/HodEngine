@@ -24,7 +24,7 @@ namespace hod
 	{
 		std::vector<Job*>::iterator jobIt = std::find(_jobs.begin(), _jobs.end(), job);
 
-		assert(jobIt == _jobs.end());
+		assert(jobIt != _jobs.end());
 
 		_jobs.erase(jobIt);
 	}

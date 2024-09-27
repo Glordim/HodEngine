@@ -52,7 +52,6 @@ namespace hod::window
     	Vector2 								_mousePosition;
         std::array<bool, MouseButton::Count>	_mouseButtons;
 
-		bool					_close = false;
 		bool					_focused = true;
 
 		Event<bool>				_focusEvent;

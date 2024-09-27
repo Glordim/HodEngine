@@ -32,6 +32,8 @@ int HodMain(int argc, char** argv)
 
 	app->Run();
 
+	app->Terminate();
+
 	HodApplication::DestroyInstance();
 
 	return 0;

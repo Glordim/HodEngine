@@ -59,7 +59,7 @@ namespace hod::window
 		{
 			::DestroyWindow(_hWnd);
 			_hWnd = nullptr;
-			exit(0);
+			_close = true;
 		}
 
 		return ::DefWindowProc(_hWnd, msg, wParam, lParam);

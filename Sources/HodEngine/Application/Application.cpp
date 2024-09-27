@@ -52,6 +52,20 @@ namespace hod::application
 	}
 
 	/// @brief 
+	void Application::Terminate()
+	{
+		game::World::DestroyInstance();
+		game::ComponentFactory::DestroyInstance();
+
+		physics::Physics::CreatePhysicsInstance()->Init();
+
+		ResourceManager::DestroyInstance();
+
+		FrameSequencer::DestroyInstance();
+		JobScheduler::DestroyInstance();
+	}
+
+	/// @brief 
 	/// @return 
 	bool Application::Run()
 	{

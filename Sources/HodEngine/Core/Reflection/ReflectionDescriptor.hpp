@@ -38,7 +38,7 @@ namespace hod
 												ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent);
 												ReflectionDescriptor(const ReflectionDescriptor& copy) = default;
 												ReflectionDescriptor(ReflectionDescriptor&& move) = default;
-												~ReflectionDescriptor() = default;
+												~ReflectionDescriptor();
 
 		ReflectionDescriptor&					operator = (const ReflectionDescriptor& copy) = default;
 		ReflectionDescriptor&					operator = (ReflectionDescriptor&& move) = default;

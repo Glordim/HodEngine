@@ -14,6 +14,7 @@ namespace hod
 	public:
 
 		Module(const std::filesystem::path& path, bool copyForSupportReload);
+		~Module();
 
 		bool	Load();
 		bool	Unload();
@@ -24,7 +25,7 @@ namespace hod
 	private:
 
 		bool	InternalLoad(const std::filesystem::path& path);
-		bool	InternaUnload();
+		bool	InternalUnload();
 
 		const char* GetModuleExtension();
 		const char* GetModulePrefix();

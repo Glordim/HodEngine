@@ -33,7 +33,7 @@ namespace hod
 	
 	/// @brief 
 	/// @return 
-	bool Module::InternaUnload()
+	bool Module::InternalUnload()
 	{
 		if (_sharedLib != nullptr)
 		{

@@ -20,6 +20,7 @@ namespace hod::application
 		virtual			~Application() = default;
 
 		virtual bool	Init(const ArgumentParser& argumentParser);
+		virtual void	Terminate();
 		virtual bool	Run();
 
 		bool			CheckIfGameSharedLibraryExist() const;

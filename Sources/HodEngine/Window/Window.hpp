@@ -24,10 +24,13 @@ namespace hod::window
 		uint16_t			GetWidth() const;
 		uint16_t			GetHeight() const;
 
+		bool				IsClose() const;
+
 	protected:
 
 		uint16_t			_width = 800;
 		uint16_t			_height = 600;
+		bool				_close = false;
 
 	private:
 

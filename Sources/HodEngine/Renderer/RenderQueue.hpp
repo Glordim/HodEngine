@@ -21,6 +21,7 @@ namespace hod::renderer
 										~RenderQueue();
 
 		void							Init();
+		void							Terminate();
 
 		void							PushRenderCommand(RenderCommand* renderCommand);
 		void							Execute(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget = nullptr);
