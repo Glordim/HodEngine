@@ -20,7 +20,11 @@ if(APPLE)
 	find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 endif()
 
-target_link_libraries(Core ${COREFOUNDATION_LIBRARY})
+if(WIN32)
+	set(DebugLib "Dbghelp.lib")
+endif()
+
+target_link_libraries(Core ${COREFOUNDATION_LIBRARY} ${DebugLib})
 target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)
 add_compile_definitions_for_configs(Core)
