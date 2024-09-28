@@ -18,7 +18,7 @@ namespace hod::editor
 												CapsuleCollider2dComponentCustomEditor();
 												CapsuleCollider2dComponentCustomEditor(const CapsuleCollider2dComponentCustomEditor&) = delete;
 												CapsuleCollider2dComponentCustomEditor(CapsuleCollider2dComponentCustomEditor&&) = delete;
-												~CapsuleCollider2dComponentCustomEditor() override = default;
+												~CapsuleCollider2dComponentCustomEditor() override;
 
 		CapsuleCollider2dComponentCustomEditor	operator = (const CapsuleCollider2dComponentCustomEditor&) = delete;
 		CapsuleCollider2dComponentCustomEditor	operator = (CapsuleCollider2dComponentCustomEditor&&) = delete;

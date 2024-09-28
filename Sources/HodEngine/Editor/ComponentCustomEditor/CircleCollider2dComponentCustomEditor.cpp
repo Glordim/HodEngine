@@ -24,6 +24,12 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	CircleCollider2dComponentCustomEditor::~CircleCollider2dComponentCustomEditor()
+	{
+		delete _materialInstance;
+	}
+
+	/// @brief 
 	/// @param component 
 	/// @param projection 
 	/// @param view 

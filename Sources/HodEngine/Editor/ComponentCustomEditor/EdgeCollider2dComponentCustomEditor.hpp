@@ -18,7 +18,7 @@ namespace hod::editor
 												EdgeCollider2dComponentCustomEditor();
 												EdgeCollider2dComponentCustomEditor(const EdgeCollider2dComponentCustomEditor&) = delete;
 												EdgeCollider2dComponentCustomEditor(EdgeCollider2dComponentCustomEditor&&) = delete;
-												~EdgeCollider2dComponentCustomEditor() override = default;
+												~EdgeCollider2dComponentCustomEditor() override;
 
 		EdgeCollider2dComponentCustomEditor		operator = (const EdgeCollider2dComponentCustomEditor&) = delete;
 		EdgeCollider2dComponentCustomEditor		operator = (EdgeCollider2dComponentCustomEditor&&) = delete;

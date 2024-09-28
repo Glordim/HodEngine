@@ -18,7 +18,7 @@ namespace hod::editor
 												CircleCollider2dComponentCustomEditor();
 												CircleCollider2dComponentCustomEditor(const CircleCollider2dComponentCustomEditor&) = delete;
 												CircleCollider2dComponentCustomEditor(CircleCollider2dComponentCustomEditor&&) = delete;
-												~CircleCollider2dComponentCustomEditor() override = default;
+												~CircleCollider2dComponentCustomEditor() override;
 
 		CircleCollider2dComponentCustomEditor	operator = (const CircleCollider2dComponentCustomEditor&) = delete;
 		CircleCollider2dComponentCustomEditor	operator = (CircleCollider2dComponentCustomEditor&&) = delete;

@@ -23,6 +23,12 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	BoxCollider2dComponentCustomEditor::~BoxCollider2dComponentCustomEditor()
+	{
+		delete _materialInstance;
+	}
+
+	/// @brief 
 	/// @param component 
 	/// @param projection 
 	/// @param view 

@@ -19,7 +19,7 @@ namespace hod::editor
 										Node2dComponentCustomEditor();
 										Node2dComponentCustomEditor(const Node2dComponentCustomEditor&) = delete;
 										Node2dComponentCustomEditor(Node2dComponentCustomEditor&&) = delete;
-										~Node2dComponentCustomEditor() override = default;
+										~Node2dComponentCustomEditor() override;
 
 		Node2dComponentCustomEditor		operator = (const Node2dComponentCustomEditor&) = delete;
 		Node2dComponentCustomEditor		operator = (Node2dComponentCustomEditor&&) = delete;

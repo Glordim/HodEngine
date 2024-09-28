@@ -24,6 +24,12 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	EdgeCollider2dComponentCustomEditor::~EdgeCollider2dComponentCustomEditor()
+	{
+		delete _materialInstance;
+	}
+
+	/// @brief 
 	/// @param component 
 	/// @param projection 
 	/// @param view 

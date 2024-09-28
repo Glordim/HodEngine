@@ -50,6 +50,19 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	Node2dComponentCustomEditor::~Node2dComponentCustomEditor()
+	{
+		delete _materialInstanceCenterNormal;
+		delete _materialInstanceCenterHightlight;
+		delete _materialInstanceAxisXNormal;
+		delete _materialInstanceAxisXHightlight;
+		delete _materialInstanceAxisYNormal;
+		delete _materialInstanceAxisYHightlight;
+		delete _materialInstanceAxisZNormal;
+		delete _materialInstanceAxisZHightlight;
+	}
+
+	/// @brief 
 	/// @param component 
 	/// @param projection 
 	/// @param view 

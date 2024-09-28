@@ -24,6 +24,12 @@ namespace hod::editor
 	}
 
 	/// @brief 
+	CapsuleCollider2dComponentCustomEditor::~CapsuleCollider2dComponentCustomEditor()
+	{
+		delete _materialInstance;
+	}
+
+	/// @brief 
 	/// @param component 
 	/// @param projection 
 	/// @param view 
