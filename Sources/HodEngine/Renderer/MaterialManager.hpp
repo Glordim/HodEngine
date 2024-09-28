@@ -42,6 +42,9 @@ namespace hod
 
 		public:
 
+			~MaterialManager();
+			void Clear();
+
 			const Material*	GetBuiltinMaterial(BuiltinMaterial buildMaterial);
 
 			UID	CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);

@@ -69,7 +69,12 @@ namespace hod
 			const std::vector<DescriptorSetLayout::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
 			size_t uboCount = ubos.size();
 
-			_uboBuffers.resize(uboCount);
+			for (BufferVk* buffer : _uboBuffers)
+			{
+				delete buffer;
+			}
+
+			_uboBuffers.resize(uboCount, nullptr);
 
 			for (size_t i = 0; i < uboCount; ++i)
 			{

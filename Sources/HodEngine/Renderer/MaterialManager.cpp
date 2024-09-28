@@ -29,6 +29,22 @@ namespace hod
 
 		}
 
+		/// @brief 
+		MaterialManager::~MaterialManager()
+		{
+			Clear();
+		}
+
+		/// @brief 
+		void MaterialManager::Clear()
+		{
+			for (uint32_t index = 0; index < _builtinMaterials.size(); ++index)
+			{
+				delete _builtinMaterials[index];
+				_builtinMaterials[index] = nullptr;
+			}
+		}
+
 		struct BuiltinMaterialSource
 		{
 			BuiltinMaterialSource(void* vertexShaderSource, uint32_t vertexShaderSize,

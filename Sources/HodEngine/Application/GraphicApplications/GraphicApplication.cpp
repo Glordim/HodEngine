@@ -102,8 +102,8 @@ namespace hod::application
 		game::World::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
 		imgui::ImGuiManager::DestroyInstance();
-		renderer::RenderQueue::GetInstance()->Terminate(); // todo miror init process
 		delete _window;
+		PlatformRenderer::GetInstance()->Clear();
 		PlatformRenderer::DestroyInstance();
 		input::InputManager::DestroyInstance();
 		PlatformDisplayManager::DestroyInstance();
@@ -132,6 +132,7 @@ namespace hod::application
 			if (_window->IsClose())
 			{
 				Quit();
+				break;
 			}
 
 			frameSequencer->EnqueueAndWaitJobs();

@@ -37,6 +37,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		TextureRendererComponent::~TextureRendererComponent()
 		{
+			delete _materialInstance;
 		}
 
 		/// @brief 

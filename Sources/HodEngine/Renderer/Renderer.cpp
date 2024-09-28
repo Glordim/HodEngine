@@ -4,6 +4,8 @@
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/Renderer/RHI/Material.hpp"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 #include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.vert.hpp"
 #include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.frag.hpp"
@@ -30,6 +32,28 @@ namespace hod
 			RenderQueue::DestroyInstance();
 			PickingManager::DestroyInstance();
 			MaterialManager::DestroyInstance();
+		}
+
+		/// @brief 
+		void Renderer::Clear()
+		{
+			RenderQueue::GetInstance()->Terminate();
+			MaterialManager::GetInstance()->Clear();
+
+			delete _overdrawnMaterialInstance;
+			_overdrawnMaterialInstance = nullptr;
+			delete _overdrawnMaterial;
+			_overdrawnMaterial = nullptr;
+
+			delete _wireframeMaterialInstance;
+			_wireframeMaterialInstance = nullptr;
+			delete _wireframeMaterial;
+			_wireframeMaterial = nullptr;
+
+			delete _defaultMaterialInstance;
+			_defaultMaterialInstance = nullptr;
+			delete _defaultMaterial;
+			_defaultMaterial = nullptr;
 		}
 
 		/*

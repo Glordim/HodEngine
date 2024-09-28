@@ -56,12 +56,9 @@ namespace hod::renderer
 
 		virtual						~Renderer();
 
-		/*
-		bool						Init();
-		void						Clear();
-		*/
-
 		virtual bool				Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) = 0;
+		virtual void				Clear();
+
 		virtual bool				BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) = 0;
 
 		virtual bool				GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;

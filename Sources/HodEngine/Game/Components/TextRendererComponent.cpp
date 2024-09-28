@@ -27,17 +27,17 @@ namespace hod
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
 
+		/// @brief 
 		TextRendererComponent::TextRendererComponent()
 		{
 			const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 			_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		TextRendererComponent::~TextRendererComponent()
 		{
+			delete _materialInstance;
 		}
 
 		/// @brief 

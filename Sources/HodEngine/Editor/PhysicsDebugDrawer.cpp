@@ -18,31 +18,28 @@
 
 namespace hod::editor
 {
-	renderer::MaterialInstance* PhysicsDebugDrawer::_pointMaterialInstance = nullptr;
-	renderer::MaterialInstance* PhysicsDebugDrawer::_lineMaterialInstance = nullptr;
-	renderer::MaterialInstance* PhysicsDebugDrawer::_wireframePolygonMaterialInstance = nullptr;
-	renderer::MaterialInstance* PhysicsDebugDrawer::_solidPolygonMaterialInstance = nullptr;
-
 	/// @brief 
 	PhysicsDebugDrawer::PhysicsDebugDrawer()
 	{
 		renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
 
-		if (PhysicsDebugDrawer::_solidPolygonMaterialInstance == nullptr)
-		{
-			const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
-			_solidPolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
-		}
-		if (PhysicsDebugDrawer::_wireframePolygonMaterialInstance == nullptr)
-		{
-			const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
-			_wireframePolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
-		}
-		if (PhysicsDebugDrawer::_lineMaterialInstance == nullptr)
-		{
-			const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line);
-			_lineMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
-		}
+		const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
+		_solidPolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+
+		material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
+		_wireframePolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+
+		material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line);
+		_lineMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+	}
+
+	/// @brief 
+	PhysicsDebugDrawer::~PhysicsDebugDrawer()
+	{
+		delete _solidPolygonMaterialInstance;
+		delete _wireframePolygonMaterialInstance;
+		delete _lineMaterialInstance;
+		delete _pointMaterialInstance;
 	}
 
 	/// @brief 

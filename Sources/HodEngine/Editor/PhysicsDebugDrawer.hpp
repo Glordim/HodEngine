@@ -22,7 +22,7 @@ namespace hod::editor
 	{
 	public:
 												PhysicsDebugDrawer();
-												~PhysicsDebugDrawer() = default;
+												~PhysicsDebugDrawer();
 
 	public:
 
@@ -30,10 +30,10 @@ namespace hod::editor
 
 	private:
 
-		static renderer::MaterialInstance*		_pointMaterialInstance;
-		static renderer::MaterialInstance*		_lineMaterialInstance;
-		static renderer::MaterialInstance*		_wireframePolygonMaterialInstance;
-		static renderer::MaterialInstance*		_solidPolygonMaterialInstance;
+		renderer::MaterialInstance*		_pointMaterialInstance = nullptr;
+		renderer::MaterialInstance*		_lineMaterialInstance = nullptr;
+		renderer::MaterialInstance*		_wireframePolygonMaterialInstance = nullptr;
+		renderer::MaterialInstance*		_solidPolygonMaterialInstance = nullptr;
 	};
 
 	class HOD_EDITOR_API RenderCommandPhysicsDrawer : public renderer::RenderCommandMesh
