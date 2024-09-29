@@ -133,6 +133,22 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @param metaType 
+	void ReflectionDescriptor::RemoveTrait(MetaType metaType)
+	{
+		for (uint32_t index = 0; index < _traits.size(); ++index)
+		{
+			if (_traits[index]->GetMetaType() == metaType)
+			{
+				ReflectionTrait* trait = _traits[index];
+				_traits.erase(_traits.begin() + index);
+				delete trait;
+				return;
+			}
+		}
+	}
+
+	/// @brief 
 	/// @param fallbackOnParent 
 	void ReflectionDescriptor::SetFallbackTraitOnParent(bool fallbackTraitOnParent)
 	{

@@ -80,6 +80,16 @@ namespace hod::editor
 		Project::DestroyInstance();
 		AssetDatabase::DestroyInstance();
 		delete _mainBar;
+
+		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		game::WeakResourceBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		TextureImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
+
+		game::Node2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::BoxCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::CircleCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::CapsuleCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::EdgeCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
 	}
 
 	/// @brief 

@@ -36,12 +36,18 @@ namespace hod
 		return data;
 	}
 
-	template<typename __TRAIT_TYPE__, typename... Args>
-	__TRAIT_TYPE__* ReflectionDescriptor::AddTrait(Args&&... args)
+	template<typename _Trait_, typename... Args>
+	_Trait_* ReflectionDescriptor::AddTrait(Args&&... args)
 	{
-		__TRAIT_TYPE__* trait = new __TRAIT_TYPE__(std::forward<Args>(args)...);
+		_Trait_* trait = new _Trait_(std::forward<Args>(args)...);
 		AddTrait(trait);
 		return trait;
+	}
+
+	template<typename _Trait_>
+	void ReflectionDescriptor::RemoveTrait()
+	{
+		RemoveTrait(_Trait_::GetMetaTypeStatic());
 	}
 
 	/// @brief 
@@ -53,10 +59,10 @@ namespace hod
 		return static_cast<_Trait_*>(FindTrait(_Trait_::GetMetaTypeStatic()));
 	}
 
-	template<typename __PROPERTY_TYPE__, typename... Args>
-	__PROPERTY_TYPE__* ReflectionDescriptor::AddProperty(Args&&... args)
+	template<typename _Property_, typename... Args>
+	_Property_* ReflectionDescriptor::AddProperty(Args&&... args)
 	{
-		__PROPERTY_TYPE__* property = new __PROPERTY_TYPE__(std::forward<Args>(args)...);
+		_Property_* property = new _Property_(std::forward<Args>(args)...);
 		AddProperty(property);
 		return property;
 	}
