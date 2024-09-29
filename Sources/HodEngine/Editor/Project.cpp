@@ -1,9 +1,11 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/ResourceManager.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <fstream>
 #include <format>
@@ -27,6 +29,7 @@ namespace hod::editor
 	DESCRIBE_REFLECTED_CLASS(Project, void)
 	{
 		ADD_PROPERTY(Project, _name);
+		ADD_PROPERTY(Project, _startupScene);
 	}
 
 	_SingletonConstructor(Project)
@@ -83,6 +86,12 @@ namespace hod::editor
 			return false;
 		}
 
+		_buildsDirPath = _projectPath.parent_path() / "Builds";
+		if (std::filesystem::exists(_buildsDirPath) == false && std::filesystem::create_directories(_buildsDirPath) == false)
+		{
+			return false;
+		}
+
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
 		_gameModule = Module(_projectPath.parent_path() / "build" / STRINGIZE_VALUE_OF(HOD_CONFIG) / "Game", true);
@@ -101,7 +110,7 @@ namespace hod::editor
 		DocumentReaderJson reader;
 		reader.Read(document, _projectPath);
 
-		_name = document.GetRootNode()["Name"].GetString();
+		Serializer::Deserialize(*this, document.GetRootNode());
 
 		return true;
 	}
@@ -111,12 +120,27 @@ namespace hod::editor
 	bool Project::Save()
 	{
 		Document document;
-		document.GetRootNode().AddChild("Name").SetString(_name);
+		Serializer::Serialize(*this, document.GetRootNode());
 
 		DocumentWriterJson writer;
 		writer.Write(document, _projectPath);
 
 		return true;
+	}
+
+	/// @brief 
+	/// @param asset 
+	void Project::SetStartupScene(std::shared_ptr<Asset> asset)
+	{
+		_startupScene = asset->GetMeta()._uid;
+		Save();
+	}
+
+	/// @brief 
+	/// @return 
+	const UID& Project::GetStartupScene() const
+	{
+		return _startupScene;
 	}
 
 	/// @brief 
@@ -145,6 +169,13 @@ namespace hod::editor
 	const std::filesystem::path& Project::GetThumbnailDirPath() const
 	{
 		return _thumbnailDirPath;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::filesystem::path& Project::GetBuildsDirPath() const
+	{
+		return _buildsDirPath;
 	}
 
 	/// @brief 

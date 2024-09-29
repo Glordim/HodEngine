@@ -38,6 +38,19 @@ namespace hod::editor
 				Editor::GetInstance()->SaveSceneAs();
 			}
 
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Build") == true)
+			{
+				Editor::GetInstance()->Build();
+			}
+			if (ImGui::MenuItem("Build and Run") == true)
+			{
+				Editor::GetInstance()->BuildAndRun();
+			}
+
+			ImGui::Separator();
+
 			if (ImGui::MenuItem("Quit") == true)
 			{
 				//application::Application::GetInstance()->Quit();

@@ -463,6 +463,11 @@ namespace hod::editor
 				{
 					itemToDelete = asset;
 				}
+
+				if (asset->_asset->GetMeta()._importerType == "SceneImporter" && ImGui::MenuItem("Set as startup scene"))
+				{
+					Project::GetInstance()->SetStartupScene(asset->_asset);
+				}
 				ImGui::EndPopup();
 			}
 			if (available > 210)

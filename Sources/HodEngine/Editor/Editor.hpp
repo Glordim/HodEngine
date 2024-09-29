@@ -55,6 +55,9 @@ namespace hod::editor
 		bool									Save();
 		bool									SaveSceneAs();
 
+		void									Build();
+		void									BuildAndRun();
+
 		void									SetEntitySelection(std::shared_ptr<game::Entity> selection);
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 

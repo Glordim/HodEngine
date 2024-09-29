@@ -68,6 +68,8 @@
 
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
+#include <HodEngine/Game/BootInfo.hpp>
+
 namespace hod::editor
 {
 	_SingletonConstructor(Editor)
@@ -535,5 +537,49 @@ namespace hod::editor
 		{
 			_currentViewport->MarkCurrentSceneAsDirty();
 		}
+	}
+
+	/// @brief 
+	void Editor::Build()
+	{
+		try
+		{
+			std::filesystem::path buildPath = Project::GetInstance()->GetBuildsDirPath() / "Latest";
+			std::filesystem::create_directories(buildPath);
+
+			std::filesystem::path dataDirPath = buildPath / "Datas";
+			std::filesystem::create_directories(dataDirPath);
+
+			game::BootInfo bootInfo;
+			bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
+
+			Document bootDocument;
+			Serializer::Serialize(bootInfo, bootDocument.GetRootNode());
+
+			DocumentWriterJson writer;
+			writer.Write(bootDocument, dataDirPath / "Boot.json");
+
+			for (const auto& entry : std::filesystem::directory_iterator(Project::GetInstance()->GetResourceDirPath()))
+			{
+				const std::filesystem::path& source = entry.path();
+				if (std::filesystem::is_regular_file(source))
+				{
+					std::filesystem::path destination = dataDirPath / source.filename();
+					std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);
+				}
+			}
+		}
+		catch (const std::exception& e)
+		{
+			OUTPUT_ERROR("Build error : {}", e.what());
+			return;
+		}
+	}
+
+	/// @brief 
+	void Editor::BuildAndRun()
+	{
+		Build();
+		// todo run
 	}
 }
