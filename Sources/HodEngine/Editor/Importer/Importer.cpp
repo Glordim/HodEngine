@@ -82,7 +82,7 @@ namespace hod::editor
 		}
 
 		meta._importerSettings = AllocateSettings();
-		if (Serializer::Deserialize(meta._importerSettings, *importerNode) == false)
+		if (Serializer::Deserialize(*meta._importerSettings.get(), *importerNode) == false)
 		{
 			// TODO output reason
 			return false;
@@ -139,12 +139,11 @@ namespace hod::editor
 				return false;
 			}
 
-			ImporterSettings* settings = AllocateSettings();
-			if (Serializer::Serialize(settings, document.GetRootNode().AddChild("importerSettings")) == false)
+			std::shared_ptr<ImporterSettings> settings = AllocateSettings();
+			if (Serializer::Serialize(settings.get(), document.GetRootNode().AddChild("importerSettings")) == false)
 			{
 				return false;
 			}
-			delete settings;
 
 			DocumentWriterJson documentWriter;
 			return documentWriter.Write(document, metaFile);

@@ -22,7 +22,8 @@
 		static T*		_instance;														\
 																						\
 	private:																			\
-																						
+
+// todo CreateInstance check if alreay exist #memleak
 
 #define _Singleton(T)																	\
 	public:																				\

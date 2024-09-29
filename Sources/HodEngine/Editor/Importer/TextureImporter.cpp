@@ -168,8 +168,8 @@ namespace hod::editor
 		return renderer::TextureResource::GetReflectionDescriptor();
 	}
 
-	ImporterSettings* TextureImporter::AllocateSettings() const
+	std::shared_ptr<ImporterSettings> TextureImporter::AllocateSettings() const
 	{
-		return new TextureImporterSettings();
+		return std::make_shared<TextureImporterSettings>();
 	}
 }

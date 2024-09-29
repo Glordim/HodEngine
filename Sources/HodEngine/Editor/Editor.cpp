@@ -81,6 +81,12 @@ namespace hod::editor
 		AssetDatabase::DestroyInstance();
 		delete _mainBar;
 
+		delete _folderTexture;
+		delete _folderOpenTexture;
+		delete _sceneTexture;
+		delete _prefabTexture;
+		delete _checkerTexture;
+
 		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		game::WeakResourceBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		TextureImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();

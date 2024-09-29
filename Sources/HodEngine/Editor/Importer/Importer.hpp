@@ -52,7 +52,7 @@ namespace hod::editor
 
 	public:
 
-		virtual ImporterSettings*		AllocateSettings() const = 0; // TODO macro IMPORTER
+		virtual std::shared_ptr<ImporterSettings> AllocateSettings() const = 0; // TODO macro IMPORTER
 		virtual const char*				GetTypeName() const = 0;
 		virtual ReflectionDescriptor*	GetResourceDescriptor() const = 0;
 

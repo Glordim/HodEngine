@@ -23,9 +23,9 @@ namespace hod::editor
 		return "DefaultImporter";
 	}
 
-	ImporterSettings* DefaultImporter::AllocateSettings() const
+	std::shared_ptr<ImporterSettings> DefaultImporter::AllocateSettings() const
 	{
-		return new DefaultImporterSettings();
+		return std::make_shared<DefaultImporterSettings>();
 	}
 
 	ReflectionDescriptor* DefaultImporter::GetResourceDescriptor() const

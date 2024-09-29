@@ -109,7 +109,7 @@ namespace hod::application
 		PlatformDisplayManager::DestroyInstance();
 		PlatformAudioManager::DestroyInstance();
 
-		physics::Physics::CreatePhysicsInstance()->Init();
+		physics::Physics::DestroyPhysicsInstance();
 
 		ResourceManager::DestroyInstance();
 

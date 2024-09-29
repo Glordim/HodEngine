@@ -23,9 +23,9 @@ namespace hod::editor
 		return "SceneImporter";
 	}
 
-	ImporterSettings* SceneImporter::AllocateSettings() const
+	std::shared_ptr<ImporterSettings> SceneImporter::AllocateSettings() const
 	{
-		return new SceneImporterSettings();
+		return std::make_shared<SceneImporterSettings>();
 	}
 
 	ReflectionDescriptor* SceneImporter::GetResourceDescriptor() const

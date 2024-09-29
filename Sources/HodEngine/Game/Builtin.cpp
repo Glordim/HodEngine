@@ -1,7 +1,6 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Builtin.hpp"
 
-#include "HodEngine/Game/ActorReflection.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 
 #include "HodEngine/Game/Components/CameraComponent.hpp"
@@ -31,9 +30,6 @@ namespace hod
 	{
 		void RegisterBuiltin()
 		{
-			game::ComponentFactory::CreateInstance();
-			game::ActorReflection::CreateInstance();
-
 			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 			componentFactory->Register<NodeComponent>();
 			componentFactory->Register<Node2dComponent>();

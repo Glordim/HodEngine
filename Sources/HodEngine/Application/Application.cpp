@@ -57,7 +57,7 @@ namespace hod::application
 		game::World::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
 
-		physics::Physics::CreatePhysicsInstance()->Init();
+		physics::Physics::DestroyPhysicsInstance();
 
 		ResourceManager::DestroyInstance();
 

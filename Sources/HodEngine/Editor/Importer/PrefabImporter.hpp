@@ -24,7 +24,7 @@ namespace hod::editor
 
 	public:
 
-		ImporterSettings*		AllocateSettings() const override;
+		std::shared_ptr<ImporterSettings> AllocateSettings() const override;
 		const char*				GetTypeName() const override;
 		ReflectionDescriptor*	GetResourceDescriptor() const override;
 

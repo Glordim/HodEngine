@@ -55,6 +55,11 @@ namespace hod::imgui
 	/// @brief 
 	ImGuiManager::~ImGuiManager()
 	{
+		for (Window* window : _windows)
+		{
+			delete window;
+		}
+
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_Shutdown();
 #elif defined(PLATFORM_MACOS)
@@ -62,9 +67,8 @@ namespace hod::imgui
 
 		//ImGui::DestroyContext(); // todo
 
+		delete _fontTexture;
 		delete _material;
-		delete _vertexShader;
-		delete _fragmentShader;
 	}
 
 void embraceTheDarkness()
@@ -218,10 +222,10 @@ void embraceTheDarkness()
 		int out_bytes_per_pixel;
 		ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&out_pixels, &out_width, &out_height, &out_bytes_per_pixel);
 
-		renderer::Texture* fontTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		fontTexture->BuildBuffer(out_width, out_height, out_pixels, renderer::Texture::CreateInfo());
+		_fontTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_fontTexture->BuildBuffer(out_width, out_height, out_pixels, renderer::Texture::CreateInfo());
 
-		ImGui::GetIO().Fonts->SetTexID((ImTextureID)fontTexture);
+		ImGui::GetIO().Fonts->SetTexID((ImTextureID)_fontTexture);
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		_mainWindow = window;
@@ -458,27 +462,26 @@ void embraceTheDarkness()
 				{ 0, 16, renderer::VertexInput::Format::R8G8B8A8_UNorm },
 			};
 
-			_vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
-			//if (_vertexShader->LoadFromMemory((void*)__glsl_shader_vert_spv, sizeof(__glsl_shader_vert_spv)) == false)
-			if (_vertexShader->LoadFromMemory(imgui_vert, imgui_vert_size) == false)
+			renderer::Shader* vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
+			//if (vertexShader->LoadFromMemory((void*)__glsl_shader_vert_spv, sizeof(__glsl_shader_vert_spv)) == false)
+			if (vertexShader->LoadFromMemory(imgui_vert, imgui_vert_size) == false)
 			{
-				delete _vertexShader;
-				_vertexShader = nullptr;
+				delete vertexShader;
 				return false;
 			}
 
-			_fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
-			if (_fragmentShader->LoadFromMemory(imgui_frag, imgui_frag_size) == false)
+			renderer::Shader* fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
+			if (fragmentShader->LoadFromMemory(imgui_frag, imgui_frag_size) == false)
 			{
-				delete _vertexShader;
-				_vertexShader = nullptr;
-
-				delete _fragmentShader;
-				_fragmentShader = nullptr;
+				delete vertexShader;
+				delete fragmentShader;
 				return false;
 			}
 
-			_material = renderer->CreateMaterial(vertexInput, 3, _vertexShader, _fragmentShader);
+			_material = renderer->CreateMaterial(vertexInput, 3, vertexShader, fragmentShader);
+
+			delete vertexShader;
+			delete fragmentShader;
 			// todo error handling ?
 		}
 		return true;

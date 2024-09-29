@@ -225,7 +225,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param importerSettings 
 	/// @param importerType 
-	void Meta::SetImporterConfig(ImporterSettings* importerSettings, const char* importerType)
+	void Meta::SetImporterConfig(std::shared_ptr<ImporterSettings> importerSettings, const char* importerType)
 	{
 		_importerSettings = importerSettings;
 		_importerType = importerType;
@@ -248,7 +248,7 @@ namespace hod::editor
 			return false;
 		}
 
-		if (Serializer::Deserialize(_importerSettings, documentNode) == false)
+		if (Serializer::Deserialize(*_importerSettings.get(), documentNode) == false)
 		{
 			// TODO message;
 			return false;
@@ -263,7 +263,7 @@ namespace hod::editor
 	{
 		// TODO Ensure _importerSettings == nullptr
 
-		if (Serializer::Serialize(_importerSettings, documentNode) == false)
+		if (Serializer::Serialize(_importerSettings.get(), documentNode) == false)
 		{
 			// TODO message;
 			return false;

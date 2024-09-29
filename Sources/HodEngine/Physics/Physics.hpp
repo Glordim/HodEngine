@@ -48,6 +48,7 @@ namespace hod::physics
 	public:
 
 		static Physics*		CreatePhysicsInstance();
+		static void			DestroyPhysicsInstance();
 
 	protected:
 

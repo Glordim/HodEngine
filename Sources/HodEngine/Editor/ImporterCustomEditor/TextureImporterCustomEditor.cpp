@@ -21,7 +21,7 @@ namespace hod::editor
 
 		std::shared_ptr<renderer::TextureResource> texture = ResourceManager::GetInstance()->GetResource<renderer::TextureResource>(asset->GetMeta()._uid);
 
-		TextureImporterSettings* textureImporterSettings = static_cast<TextureImporterSettings*>(asset->GetMeta()._importerSettings);
+		std::shared_ptr<TextureImporterSettings> textureImporterSettings = std::static_pointer_cast<TextureImporterSettings>(asset->GetMeta()._importerSettings);
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
 

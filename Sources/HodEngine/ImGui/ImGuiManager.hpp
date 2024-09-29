@@ -24,7 +24,7 @@ namespace hod::window
 namespace hod::renderer
 {
 	class Material;
-	class Shader;
+	class Texture;
 }
 
 namespace hod::imgui
@@ -84,9 +84,9 @@ namespace hod::imgui
 		MainBar*						_mainBar = nullptr;
 		std::vector<Window*>			_windows;
 
+		renderer::Texture*				_fontTexture = nullptr;
+
 		renderer::Material*				_material = nullptr;
-		renderer::Shader*				_vertexShader = nullptr;
-		renderer::Shader*				_fragmentShader = nullptr;
 
 		window::Window*					_mainWindow = nullptr;
 

@@ -27,13 +27,13 @@ namespace hod::editor
 		bool			LoadImporterConfig(const Document::Node& documentNode);
 		bool			SaveImporterConfig(Document::Node& documentNode) const;
 
-		void			SetImporterConfig(ImporterSettings* importerSettings, const char* importerType);
+		void			SetImporterConfig(std::shared_ptr<ImporterSettings> importerSettings, const char* importerType);
 
 	public:
 
 		UID						_uid;
 		std::string				_importerType;
-		ImporterSettings*		_importerSettings = nullptr;
+		std::shared_ptr<ImporterSettings>	_importerSettings;
 	};
 
 	/// @brief 

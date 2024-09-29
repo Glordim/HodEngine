@@ -52,9 +52,9 @@ namespace hod::editor
 		return "PrefabImporter";
 	}
 
-	ImporterSettings* PrefabImporter::AllocateSettings() const
+	std::shared_ptr<ImporterSettings> PrefabImporter::AllocateSettings() const
 	{
-		return new PrefabImporterSettings();
+		return std::make_shared<PrefabImporterSettings>();
 	}
 
 	ReflectionDescriptor* PrefabImporter::GetResourceDescriptor() const

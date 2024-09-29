@@ -176,10 +176,12 @@ namespace hod
 				}
 
 				material = renderer->CreateMaterial(builtinMaterialSource._vertexInputs.data(), (uint32_t)builtinMaterialSource._vertexInputs.size(), vertexShader, fragmentShader, builtinMaterialSource._polygonMode, builtinMaterialSource._topology, true);
+				delete vertexShader;
+				delete fragmentShader;
+
 				if (material == nullptr)
 				{
-					delete vertexShader;
-					delete fragmentShader;
+					
 					return nullptr;
 				}
 

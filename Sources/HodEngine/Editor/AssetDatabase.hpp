@@ -71,7 +71,7 @@ namespace hod::editor
 		FileSystemMapping*					FindFileSystemMappingFromPath(const std::filesystem::path& path) const;
 
 		std::filesystem::path				CreateFolder(const std::filesystem::path& path);
-		std::filesystem::path				CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, ImporterSettings* importerSettings, const char* importerType, const std::filesystem::path& path);
+		std::filesystem::path				CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, std::shared_ptr<ImporterSettings> importerSettings, const char* importerType, const std::filesystem::path& path);
 
 		template<typename _Object_, typename _Importer_>
 		std::filesystem::path				CreateAsset(const std::filesystem::path& path);

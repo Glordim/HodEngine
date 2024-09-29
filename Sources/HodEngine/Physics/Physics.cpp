@@ -15,6 +15,12 @@ namespace hod::physics
 	}
 
 	/// @brief 
+	void Physics::DestroyPhysicsInstance()
+	{
+		PhysicsBox2d::DestroyInstance();
+	}
+
+	/// @brief 
 	/// @param  
 	_SingletonConstructor(Physics)
 	{

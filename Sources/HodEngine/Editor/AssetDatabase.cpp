@@ -58,6 +58,14 @@ namespace hod::editor
 		}
 
 		_uidToAssetMap.clear();
+
+		for (Importer* importer : _importers)
+		{
+			if (importer != &_defaultImporter)
+			{
+				delete importer;
+			}
+		}
 	}
 
 	/// @brief 
@@ -241,7 +249,7 @@ namespace hod::editor
 	/// @param reflectionDescriptor 
 	/// @param path 
 	/// @return 
-	std::filesystem::path AssetDatabase::CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, ImporterSettings* importerSettings, const char* importerType, const std::filesystem::path& path)
+	std::filesystem::path AssetDatabase::CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, std::shared_ptr<ImporterSettings> importerSettings, const char* importerType, const std::filesystem::path& path)
 	{
 		FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
 		childFileSystemMapping->_path = path;
