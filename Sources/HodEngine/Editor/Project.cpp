@@ -92,7 +92,7 @@ namespace hod::editor
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule.Init(_projectPath.parent_path() / "build" / STRINGIZE_VALUE_OF(HOD_CONFIG) / "Game", true);
+		_gameModule.Init(_projectPath.parent_path() / "build" / "Release" / "Game", true);
 		std::filesystem::create_directories(_gameModule.GetPath().parent_path());
 		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const std::filesystem::path&){ _gameModule.Reload(); }, nullptr);
 		_gameModuleFileSystemWatcher.RegisterUpdateJob();
@@ -291,7 +291,7 @@ namespace hod::editor
 		std::filesystem::path gameModuleSourceDirectoryPath = _projectPath.parent_path();
 		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 
-		const char* config = STRINGIZE_VALUE_OF(HOD_CONFIG);
+		const char* config = "Release";
 		std::string arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount());
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
