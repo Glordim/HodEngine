@@ -9,6 +9,8 @@
 #include <Windows.h>
 #include <DbgHelp.h>
 
+#include <cassert>
+
 namespace hod
 {
     /// @brief 
@@ -122,6 +124,8 @@ namespace hod
 		_mutex.lock();
 		if (allocation->_index != _allocationCount - 1)
 		{
+			assert(allocation->_index < _allocationCount);
+			_allocations[_allocationCount - 1]->_index = allocation->_index;
 			std::swap(_allocations[allocation->_index], _allocations[_allocationCount - 1]);
 		}
 		--_allocationCount;
