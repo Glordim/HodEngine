@@ -547,9 +547,6 @@ namespace hod::editor
 			std::filesystem::path buildPath = Project::GetInstance()->GetBuildsDirPath() / "Latest";
 			std::filesystem::create_directories(buildPath);
 
-			std::filesystem::path dataDirPath = buildPath / "Datas";
-			std::filesystem::create_directories(dataDirPath);
-
 			game::BootInfo bootInfo;
 			bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
 
@@ -557,7 +554,13 @@ namespace hod::editor
 			Serializer::Serialize(bootInfo, bootDocument.GetRootNode());
 
 			DocumentWriterJson writer;
-			writer.Write(bootDocument, dataDirPath / "Boot.json");
+			writer.Write(bootDocument, buildPath / "Boot.json");
+
+			std::filesystem::copy(Project::GetInstance()->GetGameModulePath(), buildPath / Project::GetInstance()->GetGameModulePath().filename(), std::filesystem::copy_options::overwrite_existing);
+			// todo copy hodapplication.exe
+
+			std::filesystem::path dataDirPath = buildPath / "Datas";
+			std::filesystem::create_directories(dataDirPath);
 
 			for (const auto& entry : std::filesystem::directory_iterator(Project::GetInstance()->GetResourceDirPath()))
 			{
