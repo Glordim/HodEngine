@@ -41,9 +41,7 @@ namespace hod
 
 		virtual void							Copy(const void* sourceInstance, void* destinationInstance) const = 0;
 
-#if defined(HOD_EDITOR)
 		const std::string&						GetDisplayName() const;
-#endif
 
 	protected:
 
@@ -51,9 +49,6 @@ namespace hod
 
 		uint32_t								_offset = 0;
 		const char*								_name = nullptr;
-#if defined(HOD_EDITOR)
-		std::string								_displayName;
-#endif
 	};
 }
 

@@ -46,12 +46,6 @@ target_link_libraries(TestsCore
 )
 
 target_compile_definitions(TestsCore PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(TestsCore PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
-target_compile_definitions(TestsCore PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>")
-target_compile_definitions(TestsCore PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>")
-target_compile_definitions(TestsCore PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>")
-target_compile_definitions(TestsCore PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>")
-target_compile_definitions(TestsCore PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>")
 
 include(GoogleTest)
 gtest_discover_tests(TestsCore)

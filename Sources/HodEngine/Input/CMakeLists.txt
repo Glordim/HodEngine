@@ -36,4 +36,3 @@ endif()
 
 target_compile_definitions(Input PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Input PRIVATE HOD_INPUT_EXPORT)
-add_compile_definitions_for_configs(Input)

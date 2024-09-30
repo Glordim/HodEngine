@@ -83,4 +83,3 @@ target_link_libraries(Window
 
 target_compile_definitions(Window PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Window PRIVATE HOD_WINDOW_EXPORT)
-add_compile_definitions_for_configs(Window)

@@ -19,7 +19,6 @@ set_property(TARGET Game PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 target_compile_definitions(Game PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(Game PRIVATE HOD_GAME_EXPORT)
-add_compile_definitions_for_configs(Game)
 
 add_dependencies(Game Core Window Physics Renderer)
 

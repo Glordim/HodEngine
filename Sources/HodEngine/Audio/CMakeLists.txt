@@ -30,4 +30,3 @@ target_link_libraries(Audio
 
 target_compile_definitions(Audio PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Audio PRIVATE HOD_AUDIO_EXPORT)
-add_compile_definitions_for_configs(Audio)

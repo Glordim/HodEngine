@@ -15,9 +15,6 @@ namespace hod
 	: _typeName(typeName)
 	, _parent(parent)
 	{
-#if defined(HOD_EDITOR)
-		_displayName = GenerateDisplayName(_typeName);
-#endif
 	}
 
 	/// @brief 
@@ -30,19 +27,15 @@ namespace hod
 	, _compareFunction(data._compareFunction)
 	, _metaType(data._metaType)
 	{
-#if defined(HOD_EDITOR)
-		_displayName = GenerateDisplayName(_typeName);
-#endif
 	}
 
-#if defined(HOD_EDITOR)
 	/// @brief 
 	/// @return 
 	const std::string& ReflectionDescriptor::GetDisplayName() const
 	{
-		return _displayName;
+		static std::string displayName = GenerateDisplayName(_typeName);
+		return displayName;
 	}
-#endif
 
 	/// @brief 
 	ReflectionDescriptor::~ReflectionDescriptor()

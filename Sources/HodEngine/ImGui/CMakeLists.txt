@@ -102,4 +102,3 @@ endif()
 
 target_compile_definitions(ImGui PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(ImGui PRIVATE HOD_IMGUI_EXPORT)
-add_compile_definitions_for_configs(ImGui)

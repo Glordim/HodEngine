@@ -89,4 +89,3 @@ endif()
 
 target_compile_definitions(Renderer PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(Renderer PRIVATE HOD_RENDERER_EXPORT)
-add_compile_definitions_for_configs(Renderer)

@@ -14,19 +14,15 @@ namespace hod
 	: _offset(offset)
 	, _name(name)
 	{
-#if defined(HOD_EDITOR)
-		_displayName = GenerateDisplayName(_name);
-#endif
 	}
 
-#if defined(HOD_EDITOR)
 	/// @brief 
 	/// @return 
 	const std::string& ReflectionProperty::GetDisplayName() const
 	{
-		return _displayName;
+		static std::string displayName = GenerateDisplayName(_name);
+		return displayName;
 	}
-#endif
 
 	///@brief 
 	///@return const std::vector<ReflectionTrait>& 

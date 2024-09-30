@@ -40,19 +40,11 @@ include_directories(
 
 add_dependencies(HodApplication
 	Application
-	Editor
 )
 
 target_link_libraries(HodApplication
 	Application
-	$<$<OR:$<CONFIG:Editor_Debug>,$<CONFIG:Editor_Release>>:Editor>
 )
 
 target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
-target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
-target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>")
-target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>")
-target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>")
-target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>")
-target_compile_definitions(HodApplication PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>")
 

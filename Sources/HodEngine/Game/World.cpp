@@ -24,7 +24,7 @@ namespace hod
 {
 	namespace game
 	{
-#if defined(HOD_EDITOR)
+	// TODO
 		/// @brief
 		void World::DisableDrawJob()
 		{
@@ -88,7 +88,7 @@ namespace hod
 		{
 			return _editorPaused;
 		}
-#endif
+	//
 
 		/// @brief 
 		/// @param  
@@ -217,12 +217,12 @@ namespace hod
 		/// @brief 
 		void World::Update()
 		{
-#if defined(HOD_EDITOR)
+			// todo
 			if (_editorPlaying == false || _editorPaused == true)
 			{
 				return;
 			}
-#endif
+			//
 
 			physics::Physics::GetInstance()->Update(0.016f);
 

@@ -41,4 +41,3 @@ target_link_libraries(Application
 
 target_compile_definitions(Application PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(Application PRIVATE HOD_APPLICATION_EXPORT)
-add_compile_definitions_for_configs(Application)

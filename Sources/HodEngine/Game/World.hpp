@@ -36,7 +36,7 @@ namespace hod
 			bool						Init();
 			void						Clear();
 
-#if defined(HOD_EDITOR)
+// todo
 			void						DisableDrawJob();
 
 			void						SetEditorPlaying(bool editorPlaying);
@@ -44,7 +44,7 @@ namespace hod
 
 			void						SetEditorPaused(bool editorPaused);
 			bool						GetEditorPaused() const;
-#endif
+//
 
 			void						Update();
 			void						Draw();
@@ -76,12 +76,12 @@ namespace hod
 										~World();
 
 		private:
-#if defined(HOD_EDITOR)
+// todo
 			bool						_editorPlaying = false;
 			bool						_editorPaused = false;
 
 			std::vector<Scene*>			_backupedScenes;
-#endif
+///
 			MemberFunctionJob<World>	_updateJob;
 			MemberFunctionJob<World>	_drawJob;
 			bool						_drawJobEnabled = true;

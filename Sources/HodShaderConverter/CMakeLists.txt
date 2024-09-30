@@ -33,10 +33,4 @@ include_directories(
 #)
 
 target_compile_definitions(HodShaderConverter PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
-target_compile_definitions(HodShaderConverter PRIVATE "$<$<CONFIG:Game_Debug>:${COMPILE_DEFINITIONS_GAME_DEBUG}>")
-target_compile_definitions(HodShaderConverter PRIVATE "$<$<CONFIG:Game_Release>:${COMPILE_DEFINITIONS_GAME_RELEASE}>")
-target_compile_definitions(HodShaderConverter PRIVATE "$<$<CONFIG:Editor_Debug>:${COMPILE_DEFINITIONS_EDITOR_DEBUG}>")
-target_compile_definitions(HodShaderConverter PRIVATE "$<$<CONFIG:Editor_Release>:${COMPILE_DEFINITIONS_EDITOR_RELEASE}>")
-target_compile_definitions(HodShaderConverter PRIVATE "$<$<CONFIG:Server_Debug>:${COMPILE_DEFINITIONS_SERVER_DEBUG}>")
-target_compile_definitions(HodShaderConverter PRIVATE "$<$<CONFIG:Server_Release>:${COMPILE_DEFINITIONS_SERVER_RELEASE}>")
 				
