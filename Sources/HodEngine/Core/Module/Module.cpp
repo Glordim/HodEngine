@@ -8,10 +8,11 @@ namespace hod
 	/// @brief 
 	/// @param path 
 	/// @param copyForSupportReload 
-	Module::Module(const std::filesystem::path& path, bool copyForSupportReload)
-	: _path(path)
-	, _copyForSupportReload(copyForSupportReload)
+	void Module::Init(const std::filesystem::path& path, bool copyForSupportReload)
 	{
+		_path = path;
+		_copyForSupportReload = copyForSupportReload;
+
 		if (_path.has_extension() == false)
 		{
 			_path += GetModuleExtension();

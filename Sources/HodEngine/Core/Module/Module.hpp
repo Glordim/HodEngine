@@ -13,8 +13,10 @@ namespace hod
 	{
 	public:
 
-		Module(const std::filesystem::path& path, bool copyForSupportReload);
+		Module() = default;
 		~Module();
+
+		void	Init(const std::filesystem::path& path, bool copyForSupportReload);
 
 		bool	Load();
 		bool	Unload();

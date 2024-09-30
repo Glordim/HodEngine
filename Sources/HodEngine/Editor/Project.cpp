@@ -33,9 +33,7 @@ namespace hod::editor
 	}
 
 	_SingletonConstructor(Project)
-	: _gameModule("Game", true)
 	{
-
 	}
 
 	/// @brief 
@@ -94,7 +92,7 @@ namespace hod::editor
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule = Module(_projectPath.parent_path() / "build" / STRINGIZE_VALUE_OF(HOD_CONFIG) / "Game", true);
+		_gameModule.Init(_projectPath.parent_path() / "build" / STRINGIZE_VALUE_OF(HOD_CONFIG) / "Game", true);
 		std::filesystem::create_directories(_gameModule.GetPath().parent_path());
 		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const std::filesystem::path&){ _gameModule.Reload(); }, nullptr);
 		_gameModuleFileSystemWatcher.RegisterUpdateJob();
@@ -183,6 +181,13 @@ namespace hod::editor
 	bool Project::HasGameModule() const
 	{
 		return std::filesystem::exists(_gameModule.GetPath());
+	}
+
+	/// @brief 
+	/// @return 
+	std::filesystem::path Project::GetGameModulePath() const
+	{
+		return _gameModule.GetPath();
 	}
 
 	/// @brief 
