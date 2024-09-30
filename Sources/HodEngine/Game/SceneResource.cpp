@@ -8,6 +8,12 @@ namespace hod::game
 	}
 
 	/// @brief 
+	SceneResource::~SceneResource()
+	{
+		delete _scene;
+	}
+
+	/// @brief 
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
@@ -15,13 +21,6 @@ namespace hod::game
 	{
 		_scene = new Scene();
 		return _scene->DeserializeFromDocument(documentNode);
-	}
-
-	/// @brief 
-	void SceneResource::Destroy()
-	{
-		delete _scene;
-		_scene = nullptr;	
 	}
 
 	/// @brief 

@@ -29,7 +29,7 @@ namespace hod::renderer
 							FontResource() = default;
 							FontResource(const FontResource&) = delete;
 							FontResource(FontResource&&) = delete;
-							~FontResource() override = default;
+							~FontResource() override;
 
 		FontResource&		operator = (const FontResource&) = delete;
 		FontResource&		operator = (FontResource&&) = delete;
@@ -37,7 +37,6 @@ namespace hod::renderer
 	public:
 
 		bool				Initialize(const Document::Node& documentNode, std::istream& stream) override;
-		void				Destroy() override;
 
 		Texture*			GetTexture() const;
 		const Kerning&		GetKerning(char32_t code) const;

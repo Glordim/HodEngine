@@ -15,7 +15,7 @@ namespace hod::game
 						SceneResource() = default;
 						SceneResource(const SceneResource&) = delete;
 						SceneResource(SceneResource&&) = delete;
-						~SceneResource() override = default;
+						~SceneResource() override;
 
 		SceneResource&	operator=(const SceneResource&) = delete;
 		SceneResource&	operator=(SceneResource&&) = delete;
@@ -23,7 +23,6 @@ namespace hod::game
 	public:
 
 		bool			Initialize(const Document::Node& documentNode, std::istream& stream) override;
-		void			Destroy() override;
 
 		Scene&			GetScene();
 

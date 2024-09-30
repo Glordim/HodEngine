@@ -67,6 +67,12 @@ namespace hod::renderer
 	}
 
 	/// @brief 
+	FontResource::~FontResource()
+	{
+		delete _texture;
+	}
+
+	/// @brief 
 	/// @param document 
 	/// @param stream 
 	/// @return 
@@ -261,14 +267,6 @@ namespace hod::renderer
 		delete[] atlas;
 		
 		return true;
-	}
-
-	/// @brief 
-	/// @return 
-	void FontResource::Destroy()
-	{
-		delete _texture;
-		_texture = nullptr;
 	}
 
 	/// @brief 

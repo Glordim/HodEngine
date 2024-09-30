@@ -16,7 +16,7 @@ namespace hod::renderer
 							TextureResource() = default;
 							TextureResource(const TextureResource&) = delete;
 							TextureResource(TextureResource&&) = delete;
-							~TextureResource() override = default;
+							~TextureResource() override;
 
 		TextureResource&	operator = (const TextureResource&) = delete;
 		TextureResource&	operator = (TextureResource&&) = delete;
@@ -24,7 +24,6 @@ namespace hod::renderer
 	public:
 
 		bool				Initialize(const Document::Node& documentNode, std::istream& stream) override;
-		void				Destroy() override;
 
 		Texture*			GetTexture() const;
 

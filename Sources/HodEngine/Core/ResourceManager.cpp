@@ -118,7 +118,6 @@ namespace hod
 		resource->SetUid(uid);
 		if (Load(resource.get(), uid) == false)
 		{
-			resource->Destroy();
 			return nullptr;
 		}
 		_resources[uid] = resource;

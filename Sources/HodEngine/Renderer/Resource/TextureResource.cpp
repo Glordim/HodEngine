@@ -18,6 +18,13 @@ namespace hod::renderer
 	}
 
 	/// @brief 
+	/// @return 
+	TextureResource::~TextureResource()
+	{
+		delete _texture;
+	}
+
+	/// @brief 
 	/// @param document 
 	/// @param stream 
 	/// @return 
@@ -68,14 +75,6 @@ namespace hod::renderer
 		
 		delete[] data;
 		return true;
-	}
-
-	/// @brief 
-	/// @return 
-	void TextureResource::Destroy()
-	{
-		delete _texture;
-		_texture = nullptr;
 	}
 
 	/// @brief 

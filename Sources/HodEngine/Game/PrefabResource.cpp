@@ -8,6 +8,12 @@ namespace hod::game
 	}
 
 	/// @brief 
+	PrefabResource::~PrefabResource()
+	{
+		delete _prefab;
+	}
+
+	/// @brief 
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
@@ -15,13 +21,6 @@ namespace hod::game
 	{
 		_prefab = new Prefab(GetUid());
 		return _prefab->DeserializeFromDocument(documentNode);
-	}
-
-	/// @brief 
-	void PrefabResource::Destroy()
-	{
-		delete _prefab;
-		_prefab = nullptr;	
 	}
 
 	/// @brief 

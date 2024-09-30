@@ -30,7 +30,6 @@ namespace hod
 		void		SetUid(const UID& uid) { _uid = uid; }
 
 		virtual bool		Initialize(const Document::Node& documentNode, std::istream& stream) = 0;
-		virtual void		Destroy() = 0;
 
 	private:
 

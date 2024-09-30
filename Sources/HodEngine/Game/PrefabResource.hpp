@@ -15,7 +15,7 @@ namespace hod::game
 						PrefabResource() = default;
 						PrefabResource(const PrefabResource&) = delete;
 						PrefabResource(PrefabResource&&) = delete;
-						~PrefabResource() override = default;
+						~PrefabResource() override;
 
 		PrefabResource&	operator=(const PrefabResource&) = delete;
 		PrefabResource&	operator=(PrefabResource&&) = delete;
@@ -23,7 +23,6 @@ namespace hod::game
 	public:
 
 		bool			Initialize(const Document::Node& documentNode, std::istream& stream) override;
-		void			Destroy() override;
 
 		Prefab&			GetPrefab();
 
