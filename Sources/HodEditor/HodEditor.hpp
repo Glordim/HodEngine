@@ -1,7 +1,6 @@
 #pragma once
 
 #include <HodEngine/Application/PlatformApplication.hpp>
-#include <HodEngine/Core/Module/Module.hpp>
 
 namespace hod
 {
@@ -9,16 +8,12 @@ namespace hod
 }
 
 /// @brief
-class HodApplication : public PlatformApplication
+class HodEditor : public PlatformApplication
 {
-	_SingletonOverride(HodApplication)
+	_SingletonOverride(HodEditor)
 
 public:
 
 	bool			Init(const hod::ArgumentParser& argumentParser);
 	void			Terminate();
-
-private:
-
-	hod::Module		_gameModule;
 };

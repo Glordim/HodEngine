@@ -38,10 +38,14 @@ include_directories(
 	".."
 )
 
-add_dependencies(HodApplication Application Core Editor)
+add_dependencies(HodApplication
+	Application
+	Editor
+)
 
 target_link_libraries(HodApplication
-	Core Editor Application
+	Application
+	$<$<OR:$<CONFIG:Editor_Debug>,$<CONFIG:Editor_Release>>:Editor>
 )
 
 target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})

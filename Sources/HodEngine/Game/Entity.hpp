@@ -20,10 +20,7 @@ namespace hod
 namespace hod::game
 {
 	class Component;
-
-#if defined(HOD_EDITOR)
 	class Prefab;
-#endif
 
 	class HOD_GAME_API Entity final : public std::enable_shared_from_this<Entity>
 	{
@@ -75,10 +72,8 @@ namespace hod::game
 		Event<std::shared_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
 		Event<std::shared_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }
 
-#if defined(HOD_EDITOR)
 		void						SetPrefab(Prefab* prefab);
 		Prefab*						GetPrefab() const;
-#endif
 
 	private:
 
@@ -98,9 +93,7 @@ namespace hod::game
 		bool			_awaked = false;
 		bool			_started = false;
 
-#if defined(HOD_EDITOR)
 		Prefab*			_prefab = nullptr;
-#endif
 
 		std::vector<std::shared_ptr<Component>>	_components; // map ?
 

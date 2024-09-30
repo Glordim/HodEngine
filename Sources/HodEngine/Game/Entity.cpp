@@ -205,7 +205,6 @@ namespace hod::game
 		}
 	}
 
-#if defined(HOD_EDITOR)
 	/// @brief 
 	/// @param prefab 
 	void Entity::SetPrefab(Prefab* prefab)
@@ -219,5 +218,4 @@ namespace hod::game
 	{
 		return _prefab;
 	}
-#endif
 }

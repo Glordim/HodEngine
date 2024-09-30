@@ -37,6 +37,8 @@ namespace hod
 			void						Clear();
 
 #if defined(HOD_EDITOR)
+			void						DisableDrawJob();
+
 			void						SetEditorPlaying(bool editorPlaying);
 			bool						GetEditorPlaying() const;
 
@@ -45,6 +47,7 @@ namespace hod
 #endif
 
 			void						Update();
+			void						Draw();
 
 			Scene*						CreateScene();
 			void						DestroyScene(Scene* pScene);
@@ -80,6 +83,8 @@ namespace hod
 			std::vector<Scene*>			_backupedScenes;
 #endif
 			MemberFunctionJob<World>	_updateJob;
+			MemberFunctionJob<World>	_drawJob;
+			bool						_drawJobEnabled = true;
 
 			std::vector<Scene*>			_scenes;
 			Scene*						_persistanteScene = nullptr;

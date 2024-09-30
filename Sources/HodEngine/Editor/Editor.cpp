@@ -105,6 +105,8 @@ namespace hod::editor
 	/// @return 
 	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
+		game::World::GetInstance()->DisableDrawJob();
+
 		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
 		game::WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);

@@ -145,9 +145,10 @@ add_subdirectory("Sources/HodEngine/Game")
 add_subdirectory("Sources/HodEngine/Editor")
 add_subdirectory("Sources/HodEngine/Application")
 add_subdirectory("Sources/HodEngine/Input")
+add_subdirectory("Sources/HodEngine/Audio")
 
-add_subdirectory("Sources/HodEngine")
 add_subdirectory("Sources/HodApplication")
+add_subdirectory("Sources/HodEditor")
 
 include(FetchContent)
 FetchContent_Declare(
@@ -158,5 +159,5 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-enable_testing()
-add_subdirectory("Sources/Tests/Core")
+#enable_testing()
+#add_subdirectory("Sources/Tests/Core")

@@ -15,11 +15,22 @@
 
 #include <HodEngine/Physics/Physics.hpp>
 
+#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
+#include <HodEngine/Window/PlatformDisplayManager.hpp>
+#include <HodEngine/Window/Window.hpp>
+
 namespace hod
 {
 	namespace game
 	{
 #if defined(HOD_EDITOR)
+		/// @brief
+		void World::DisableDrawJob()
+		{
+			_drawJobEnabled = false;
+		}
+
 		void World::SetEditorPlaying(bool editorPlaying)
 		{
 			if (_editorPlaying != editorPlaying)
@@ -83,6 +94,7 @@ namespace hod
 		/// @param  
 		_SingletonConstructor(World)
 		: _updateJob(this, &World::Update, JobQueue::Queue::FramedNormalPriority)
+		, _drawJob(this, &World::Draw, JobQueue::Queue::FramedNormalPriority)
 		, _persistanteScene(new Scene())
 		{
 		}
@@ -91,6 +103,7 @@ namespace hod
 		World::~World()
 		{
 			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
+			FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
 
 			Clear();
 
@@ -102,6 +115,7 @@ namespace hod
 		bool World::Init()
 		{
 			FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::Logic);
+			FrameSequencer::GetInstance()->InsertJob(&_drawJob, FrameSequencer::Step::Render);
 
 			return true;
 		}
@@ -215,6 +229,32 @@ namespace hod
 			for (Scene* scene : _scenes)
 			{
 				scene->Update();
+			}
+		}
+
+		/// @brief 
+		void World::Draw()
+		{
+			if (_drawJobEnabled)
+			{
+				float size = 5.0f;
+
+				window::Window* mainWindow = PlatformDisplayManager::GetInstance()->GetMainWindow();
+
+				Rect viewport;
+				viewport._position.SetX(0);
+				viewport._position.SetY(0);
+				viewport._size.SetX((float)mainWindow->GetWidth());
+				viewport._size.SetY((float)mainWindow->GetHeight());
+
+				float aspect = (float)mainWindow->GetWidth() / (float)mainWindow->GetHeight();
+
+				Matrix4 projection = Matrix4::OrthogonalProjection(-size * aspect, size * aspect, -size, size, -1024, 1024);
+				Matrix4 view = Matrix4();
+
+				renderer::RenderQueue::GetInstance()->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+
+				Draw(renderer::RenderQueue::GetInstance());
 			}
 		}
 

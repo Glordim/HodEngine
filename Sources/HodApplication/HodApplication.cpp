@@ -1,8 +1,23 @@
 #include "HodApplication.hpp"
 
-#include <HodEngine/Editor/Editor.hpp>
 #include <HodEngine/Core/ArgumentParser.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
+
+#include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+
+#include <HodEngine/Core/Resource.hpp>
+#include <HodEngine/Core/ResourceManager.hpp>
+
+#include <HodEngine/Game/BootInfo.hpp>
+#include <HodEngine/Game/World.hpp>
+#include <HodEngine/Game/Scene.hpp>
+#include <HodEngine/Game/SceneResource.hpp>
+
+#include <HodEngine/Application/GraphicApplications/GraphicApplication.hpp>
+#include <HodEngine/Window/Window.hpp>
+#include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 
 _SingletonOverrideConstructor(HodApplication)
 {
@@ -15,37 +30,41 @@ _SingletonOverrideConstructor(HodApplication)
 /// @return 
 bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 {
-#if defined(HOD_EDITOR)
-	const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
-	if (projectPathArgument != nullptr && projectPathArgument->_values[0] != nullptr)
-	{
-		std::filesystem::path projectPath(projectPathArgument->_values[0]);
-		try
-		{
-			std::filesystem::current_path(projectPath.parent_path());
-		}
-		catch (const std::exception& e)
-		{
-			OUTPUT_ERROR(e.what());
-		}		
-	}
-#endif
-	
 	bool platformApplicationResult = PlatformApplication::Init(argumentParser);
 	if (platformApplicationResult == false)
 	{
 		return false;
 	}
 
-#if defined(HOD_EDITOR)
-	hod::editor::Editor::CreateInstance();
-	if (hod::editor::Editor::GetInstance()->Init(argumentParser) == false)
+	std::filesystem::path buildPath;
+
+	const hod::Argument* datasPathArgument = argumentParser.GetArgument('p', "BuildPath");
+	if (datasPathArgument != nullptr && datasPathArgument->_values[0] != nullptr)
+	{
+		buildPath = datasPathArgument->_values[0];
+	}
+
+	hod::ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
+	_gameModule.Init(buildPath / "Game", false);
+	if (_gameModule.Load() == false)
 	{
 		return false;
 	}
-#else
-	// Start game
-#endif
+
+	hod::Document document;
+	hod::DocumentReaderJson reader;
+	reader.Read(document, buildPath / "Boot.json");
+
+	hod::game::BootInfo bootInfo;
+	hod::Serializer::Deserialize(bootInfo, document.GetRootNode());
+
+	std::shared_ptr<hod::game::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::game::SceneResource>(bootInfo._startupScene);
+	hod::game::World::GetInstance()->AddScene(&sceneResource->GetScene());
+	hod::game::World::GetInstance()->SetEditorPlaying(true);
+
+	// todo remove
+	static_cast<hod::window::DesktopWindow*>(hod::application::GraphicApplication::GetInstance()->GetWindow())->SetVisible(true);
+	//
 
 	return true;
 }
@@ -53,7 +72,5 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 /// @brief 
 void HodApplication::Terminate()
 {
-	hod::editor::Editor::DestroyInstance();
-
 	PlatformApplication::Terminate();
 }

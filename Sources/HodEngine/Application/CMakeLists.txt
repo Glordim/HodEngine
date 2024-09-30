@@ -16,7 +16,7 @@ add_library(Application ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(Application PRIVATE "Pch.hpp")
 set_property(TARGET Application PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(Application Core Audio Window Renderer Editor Input Physics)
+add_dependencies(Application Core Audio Window Renderer Input Physics Game ImGui)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
 get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
@@ -33,9 +33,10 @@ target_link_libraries(Application
 	Audio
 	Window
 	Renderer
-	Editor
 	Input
 	Physics
+	Game
+	ImGui
 )
 
 target_compile_definitions(Application PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
