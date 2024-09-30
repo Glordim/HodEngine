@@ -66,7 +66,7 @@ namespace hod::game
         ReflectionDescriptor*           _componentDescriptor = nullptr;
         
         UID                                 _uid;
-        mutable std::shared_ptr<Component>   _pointer;
+        mutable std::weak_ptr<Component>   _pointer;
     };
 
     /// @brief 

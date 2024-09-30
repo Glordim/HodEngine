@@ -104,11 +104,11 @@ namespace hod::game
     /// @return 
     std::shared_ptr<Component> WeakComponentBase::Lock() const
     {
-        std::shared_ptr<Component> lock = _pointer;
+        std::shared_ptr<Component> lock = _pointer.lock();
         if (lock == nullptr)
         {
             _pointer = WeakComponentMapping::Resolve(_uid);
-            lock = _pointer;
+            lock = _pointer.lock();
         }
         return lock;
     }
@@ -134,7 +134,7 @@ namespace hod::game
     /// @return 
     const UID& WeakComponentBase::GetForSerialization() const
     {
-        std::shared_ptr<Component> lock = _pointer;
+        std::shared_ptr<Component> lock = _pointer.lock();
         if (lock == nullptr)
         {
             return this->_uid;
