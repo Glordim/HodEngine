@@ -66,16 +66,18 @@ namespace hod::renderer
 		Renderer* renderer = Renderer::GetInstance();
 
 		std::array<Buffer*, 3> vertexBuffers = { nullptr, nullptr, nullptr };
+		uint32_t vertexBufferCount = 0;
 
-		vertexBuffers[0] = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_positions.size() * sizeof(Vector2));
-		void* positionsBufferData = vertexBuffers[0]->Lock();
+		Buffer* positionsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_positions.size() * sizeof(Vector2));
+		void* positionsBufferData = positionsBuffer->Lock();
 		if (positionsBufferData != nullptr)
 		{
 			memcpy(positionsBufferData, _positions.data(), _positions.size() * sizeof(Vector2));
-			vertexBuffers[0]->Unlock();
+			positionsBuffer->Unlock();
 		}
-		commandBuffer->DeleteAfterRender(vertexBuffers[0]);
-		uint32_t vertexBufferCount = 1;
+		vertexBuffers[vertexBufferCount] = positionsBuffer;
+		commandBuffer->DeleteAfterRender(vertexBuffers[vertexBufferCount]);
+		++vertexBufferCount;
 
 		if (_uvs.empty() == false)
 		{
@@ -86,8 +88,8 @@ namespace hod::renderer
 				memcpy(uvsBufferData, _uvs.data(), _uvs.size() * sizeof(Vector2));
 				uvsBuffer->Unlock();
 			}
-			commandBuffer->DeleteAfterRender(vertexBuffers[vertexBufferCount]);
 			vertexBuffers[vertexBufferCount] = uvsBuffer;
+			commandBuffer->DeleteAfterRender(vertexBuffers[vertexBufferCount]);
 			++vertexBufferCount;
 		}
 
@@ -100,8 +102,8 @@ namespace hod::renderer
 				memcpy(colorsBufferData, _colors.data(), _colors.size() * sizeof(Color));
 				colorsBuffer->Unlock();
 			}
-			commandBuffer->DeleteAfterRender(vertexBuffers[vertexBufferCount]);
 			vertexBuffers[vertexBufferCount] = colorsBuffer;
+			commandBuffer->DeleteAfterRender(vertexBuffers[vertexBufferCount]);
 			++vertexBufferCount;
 		}
 
