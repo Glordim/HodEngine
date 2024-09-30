@@ -24,6 +24,7 @@ namespace hod
         {
             void* _ptr = nullptr;
             uint32_t _size = 0;
+            uint32_t _index = 0;
 
             std::array<void*, 64> _callstack;
             uint32_t _callstackSize = 0;
@@ -47,7 +48,7 @@ namespace hod
     private:
 
         std::mutex _mutex;
-        std::array<Allocation, 1024 * 1024> _allocations;
+        std::array<Allocation*, 1024 * 32> _allocations; // todo boost or use vector with custom allocator
         uint32_t _allocationCount = 0;
     };
 }
