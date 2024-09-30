@@ -16,6 +16,7 @@ namespace hod::window
     /// @return 
     bool CocoaDisplayManager::Initialize()
     {
+        _mainWindow = CreateWindow();
         return true;
     }
 

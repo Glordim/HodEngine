@@ -21,6 +21,9 @@ namespace hod::window
     bool Win32DisplayManager::Initialize()
     {
         OleInitialize(nullptr);
+
+        _mainWindow = CreateWindow();
+
         return true;
     }
 

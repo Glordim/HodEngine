@@ -10,6 +10,7 @@
 #include <hidusage.h>
 
 #include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp>
 #include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
 
 using namespace hod::window;
@@ -60,7 +61,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	bool ApiRawInput::Initialize(window::Window* window)
+	bool ApiRawInput::Initialize()
 	{
 		HWND hwnd = NULL; // TODO
 
@@ -88,7 +89,7 @@ namespace hod::input
 		assert(ApiRawInput::_pInstance == nullptr);
 		ApiRawInput::_pInstance = this;
 
-		_window = static_cast<Win32Window*>(window);
+		_window = static_cast<Win32Window*>(Win32DisplayManager::GetInstance()->GetMainWindow());
 
 		assert(ApiRawInput::_hGetMessageHook == nullptr);
 		ApiRawInput::_hGetMessageHook = SetWindowsHookEx(WH_GETMESSAGE, ApiRawInput::GetMessageHook, NULL, _window->GetMessageLoopThreadId());

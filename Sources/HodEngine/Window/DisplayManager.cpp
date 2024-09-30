@@ -7,4 +7,9 @@ namespace hod::window
 	{
 
 	}
+
+	Window* DisplayManager::GetMainWindow() const
+	{
+		return _mainWindow;
+	}
 }

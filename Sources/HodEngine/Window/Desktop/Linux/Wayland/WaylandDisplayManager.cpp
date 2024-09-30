@@ -95,6 +95,8 @@ namespace hod::window
             //libdecor_dispatch(_libDecorContext, -1);
         }
 
+        _mainWindow = CreateWindow();
+
         return true;
     }
 

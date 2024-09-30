@@ -5,7 +5,7 @@ namespace hod::input
 {
 	/// @brief 
 	/// @return 
-	bool InputManager::InitializeApis(window::Window* window)
+	bool InputManager::InitializeApis()
 	{
 		return true;
 	}

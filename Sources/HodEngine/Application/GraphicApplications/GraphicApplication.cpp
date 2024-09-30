@@ -64,14 +64,10 @@ namespace hod::application
 			return false;
 		}
 
-		bool hiddenWindow = false;
-		#if defined(HOD_EDITOR)
-			hiddenWindow = true;
-		#endif
-		_window = platformDisplayManager->CreateWindow(hiddenWindow);
+		_window = platformDisplayManager->GetMainWindow();
 
 		input::InputManager::CreateInstance();
-		if (input::InputManager::GetInstance()->Initialize(_window) == false)
+		if (input::InputManager::GetInstance()->Initialize() == false)
 		{
 			return false;
 		}
