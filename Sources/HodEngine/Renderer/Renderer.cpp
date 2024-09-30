@@ -54,6 +54,9 @@ namespace hod
 			_defaultMaterialInstance = nullptr;
 			delete _defaultMaterial;
 			_defaultMaterial = nullptr;
+
+			delete _defaultWhiteTexture;
+			_defaultWhiteTexture = nullptr;
 		}
 
 		/*
