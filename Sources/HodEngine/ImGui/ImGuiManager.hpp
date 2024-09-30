@@ -60,6 +60,7 @@ namespace hod::imgui
 		std::vector<Window*>			FindWindows(WindowDescription* windowDescription) const;
 
 		void							CloseAllWindow();
+		void							DestroyAllWindow();
 
 		renderer::Material*				GetMaterial() const;
 

@@ -55,10 +55,7 @@ namespace hod::imgui
 	/// @brief 
 	ImGuiManager::~ImGuiManager()
 	{
-		for (Window* window : _windows)
-		{
-			delete window;
-		}
+		DestroyAllWindow();
 
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_Shutdown();
@@ -269,6 +266,16 @@ void embraceTheDarkness()
 		{
 			window->Close();
 		}
+	}
+
+	/// @brief
+	void ImGuiManager::DestroyAllWindow()
+	{
+		for (Window* window : _windows)
+		{
+			delete window;
+		}
+		_windows.clear();
 	}
 
 	/// @brief 

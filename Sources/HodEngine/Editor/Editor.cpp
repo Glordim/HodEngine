@@ -79,6 +79,10 @@ namespace hod::editor
 	/// @brief 
 	Editor::~Editor()
 	{
+		imgui::ImGuiManager::GetInstance()->DestroyAllWindow();
+
+		game::WeakComponentMapping::Clear(); // must be clear before GameModule unload
+
 		Project::DestroyInstance();
 		AssetDatabase::DestroyInstance();
 		delete _mainBar;
