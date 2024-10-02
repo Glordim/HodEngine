@@ -34,10 +34,11 @@ namespace hod
 	void* ThreadFunctionInternal(void* param)
 	{
 		Descriptor* descriptor = static_cast<Descriptor*>(param);
-
-		int exitCode = descriptor->_function(descriptor->_parameter);
-
+		Thread::Function function = descriptor->_function;
+		void* parameter = descriptor->_parameter;
 		delete descriptor;
+
+		int exitCode = function(parameter);
 
 		pthread_exit(&exitCode);
 	}

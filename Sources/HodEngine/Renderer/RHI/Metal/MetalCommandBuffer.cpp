@@ -38,7 +38,7 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		bool MetalCommandBuffer::StartRecord(RenderTarget* renderTarget, Context* context)
+		bool MetalCommandBuffer::StartRecord(RenderTarget* renderTarget, Context* context, const Color& color)
 		{
 			MetalContext* metalContext = static_cast<MetalContext*>(context);
             CA::MetalDrawable* drawable = metalContext->GetCurrentDrawable();
@@ -48,7 +48,7 @@ namespace hod
 			renderPassDescriptor->colorAttachments()->object(0)->setTexture(drawableTexture);
 			renderPassDescriptor->colorAttachments()->object(0)->setLoadAction(MTL::LoadActionClear);
 			renderPassDescriptor->colorAttachments()->object(0)->setStoreAction(MTL::StoreActionStore);
-			renderPassDescriptor->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(1.0f, 0.0f, 0.0f, 1.0f));
+			renderPassDescriptor->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(color.r, color.g, color.b, color.a));
 			
 			_renderCommandEncoder = _commandBuffer->renderCommandEncoder(renderPassDescriptor);
 

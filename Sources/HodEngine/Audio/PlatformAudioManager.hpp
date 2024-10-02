@@ -7,8 +7,8 @@
 
 #elif defined(PLATFORM_MACOS)
 
-	//#include "HodEngine/Window/Desktop/MacOs/CocoaDisplayManager.hpp"
-	//#define PlatformDisplayManager hod::window::CocoaDisplayManager
+	#include "HodEngine/Audio/MacOs/MacOsAudioManager.hpp"
+	#define PlatformAudioManager hod::audio::MacOsAudioManager
 
 #elif defined(PLATFORM_LINUX)
 

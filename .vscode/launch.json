@@ -30,29 +30,18 @@
 			]
 		},
 		{
-			"name": "(Linux gdb) Launch",
-			"type": "cppdbg",
+			"name": "(Unix) Editor",
+			"type": "lldb",
 			"request": "launch",
-			"program": "${command:cmake.launchTargetPath}",
-			"preLaunchTask": "Build target",
-			"args": [],
+			//"program": "${workspaceFolder}/bazel-bin/Sources/EditorApplication/HodEditor.exe",
+			"program": "${command:cmake.launchTargetDirectory}/HodEditor",
+			"args": ["--ProjectPath", "E:/Pong/Pong.hod"],
 			"stopAtEntry": false,
-			//"cwd": "${workspaceFolder}/Data",
+			//"cwd": "E:/Pong/Pong.hod",
 			"environment": [],
-			"externalConsole": false,
-			"MIMode": "gdb",
-			"setupCommands": [
-				{
-					"description": "Enable pretty-printing for gdb",
-					"text": "-enable-pretty-printing",
-					"ignoreFailures": true
-				},
-				{
-					"description": "Set Disassembly Flavor to Intel",
-					"text": "-gdb-set disassembly-flavor intel",
-					"ignoreFailures": true
-				}
-			]
+			"console": "integratedTerminal",
+			//"preLaunchTask": "Build HodEditor",
+			"preLaunchTask": "Build target",
 		},
 		{
 			"name": "(Windows) Editor",

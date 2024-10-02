@@ -65,6 +65,7 @@ namespace hod
 		bool inInStruct = false;
 		bool hasInStruct = false;
 		bool inOutStruct = false;
+		bool inUboStruct = false;
 		int locationIndex = 0;
 		int bufferIndex = 1;
 
@@ -152,6 +153,39 @@ namespace hod
 				continue;
 			}
 
+			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "UBO"}, {Token::Type::OpenCurlyBracket, 0}}))
+			{
+				inUboStruct = true;
+
+				outTokens.emplace_back(Token::Type::Struct, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "UBO_STRUCT");
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
+
+				if (mainParameter.empty() == false)
+				{
+					mainParameter.emplace_back(Token::Type::Comma, 0);
+				}
+				mainParameter.emplace_back(Token::Type::Identifier, "const device UBO_STRUCT& UBO");
+				mainParameter.emplace_back(Token::Type::Identifier, "[[");
+				mainParameter.emplace_back(Token::Type::Identifier, "buffer");
+				mainParameter.emplace_back(Token::Type::OpenParenthesis, 0);
+				mainParameter.emplace_back(Token::Type::IntegerValue, bufferIndex);
+				mainParameter.emplace_back(Token::Type::ClosingParenthesis, 0);
+				mainParameter.emplace_back(Token::Type::Identifier, "]]");
+				++bufferIndex;
+
+				continue;
+			}
+			else if (inUboStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
+			{
+				outTokens.emplace_back(Token::Type::ClosingCurlyBracket, 0);
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+
+				inUboStruct = false;
+				outTokens.emplace_back(Token::Type::NewLine, 0);
+				continue;
+			}
+
 			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, "OUT"}, {Token::Type::OpenCurlyBracket, 0}}))
 			{
 				inOutStruct = true;
@@ -169,6 +203,7 @@ namespace hod
 				outTokens.emplace_back(Token::Type::NewLine, 0);
 				continue;
 			}
+			
 			else if (inOutStruct == true && NextTokensAre(inTokens, index, {{Token::Type::Identifier, ""}, {Token::Type::Identifier, ""}, {Token::Type::Colon, 0}, {Token::Type::Identifier, ""}, {Token::Type::Semicolon, 0}}, &identifiers))
 			{
 				auto it = _identifierMap.find(identifiers[0]);
@@ -194,6 +229,24 @@ namespace hod
 				++locationIndex;
 
 				outVariableToQualifier.emplace(identifiers[1], identifiers[2]);
+				continue;
+			}
+
+			if (NextTokensAre(inTokens, index, {{Token::Type::Struct, 0}, {Token::Type::Identifier, ""}, {Token::Type::OpenCurlyBracket, 0}}))
+			{
+				inOutStruct = true;
+				outTokens.emplace_back(Token::Type::Struct, 0);
+				outTokens.emplace_back(Token::Type::Identifier, "OUT");
+				outTokens.emplace_back(Token::Type::OpenCurlyBracket, 0);
+				locationIndex = 0;
+				continue;
+			}
+			else if (inOutStruct == true && NextTokensAre(inTokens, index, {{Token::Type::ClosingCurlyBracket, 0}, {Token::Type::Semicolon, 0}}))
+			{
+				inOutStruct = false;
+				outTokens.emplace_back(Token::Type::ClosingCurlyBracket, 0);
+				outTokens.emplace_back(Token::Type::Semicolon, 0);
+				outTokens.emplace_back(Token::Type::NewLine, 0);
 				continue;
 			}
 

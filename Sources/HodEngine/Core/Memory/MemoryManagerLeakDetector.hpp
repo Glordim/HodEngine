@@ -45,6 +45,9 @@ namespace hod
         void    InsertAllocation(void* ptr, uint32_t size);
         void    RemoveAllocation(void* ptr);
 
+        void        WriteCallstackInReport(FILE* report, const Allocation& allocation) const;
+        uint32_t    GetCallstack(std::array<void*, 64>& callstack) const;
+
     private:
 
         std::mutex _mutex;

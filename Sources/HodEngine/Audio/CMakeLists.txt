@@ -8,7 +8,11 @@ else()
     project(Window LANGUAGES CXX)
 endif()
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+if(NOT APPLE)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs)
+else()
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32)
+endif()
 
 assign_source_group(${Srcs}) # for VS
 

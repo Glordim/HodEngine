@@ -1,4 +1,3 @@
-#pragma once
 #include "HodEngine/Core/Export.hpp"
 #include "HodEngine/Core/Memory/MemoryManager.hpp"
 
