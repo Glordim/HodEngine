@@ -40,6 +40,8 @@ namespace hod::editor
 		bool		Draw() override;
 		void		DrawContent() override;
 
+		void		ReloadScene();
+
 		void		MarkCurrentSceneAsDirty();
 
 		std::shared_ptr<Asset> GetAsset() const;

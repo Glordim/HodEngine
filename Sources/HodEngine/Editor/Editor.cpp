@@ -474,6 +474,9 @@ namespace hod::editor
 		game::World* world = game::World::GetInstance();
 		world->SetEditorPlaying(_playing);
 		world->SetEditorPaused(_paused);
+		world->Clear();
+		_currentViewport->ReloadScene();
+		
 		/*
 		world->Clear();
 		if (world->LoadFromDocument(_playedWorldDocument.GetRootNode()) == false)

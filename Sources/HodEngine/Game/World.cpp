@@ -39,11 +39,13 @@ namespace hod
 				if (editorPlaying == true)
 				{
 					_persistanteScene->Clear();
+					std::vector<Scene*> clonedScene;
 					for (Scene* scene : _scenes)
 					{
 						Scene* clone = scene->Clone();
-						_backupedScenes.push_back(clone);
+						clonedScene.push_back(clone);
 					}
+					_scenes = clonedScene;					
 
 					for (Scene* scene : _scenes)
 					{
@@ -54,16 +56,6 @@ namespace hod
 					{
 						scene->Start();
 					}
-				}
-				else
-				{
-					Clear();
-
-					for (Scene* scene : _backupedScenes)
-					{
-						_scenes.push_back(scene);
-					}
-					_backupedScenes.clear();
 				}
 			}
 		}

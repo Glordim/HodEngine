@@ -109,9 +109,6 @@ namespace hod::editor
 			}
 			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
 		}
-
-		game::World* world = game::World::GetInstance();
-		world->AddScene(_scene);
 	}
 
 	/// @brief 
@@ -129,6 +126,14 @@ namespace hod::editor
 
 		delete _renderTarget;
 		delete _pickingRenderTarget;
+	}
+
+	/// @brief 
+	void ViewportWindow::ReloadScene()
+	{
+		game::World* world = game::World::GetInstance();
+		world->RemoveScene(_scene);
+		world->AddScene(_scene);
 	}
 
 	bool ViewportWindow::Draw()

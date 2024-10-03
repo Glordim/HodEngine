@@ -79,8 +79,6 @@ namespace hod
 // todo
 			bool						_editorPlaying = false;
 			bool						_editorPaused = false;
-
-			std::vector<Scene*>			_backupedScenes;
 ///
 			MemberFunctionJob<World>	_updateJob;
 			MemberFunctionJob<World>	_drawJob;
