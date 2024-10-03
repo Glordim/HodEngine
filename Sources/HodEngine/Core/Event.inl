@@ -46,6 +46,7 @@ namespace hod
 
 				std::iter_swap(_slots.begin() + index, _slots.end() - 1);
 				_slots.pop_back();
+				return;
 			}
 		}
 	}
@@ -96,6 +97,14 @@ namespace hod
 	Event<Types...>::Slot::Slot(std::function<void(Types...)> function)
 	{
 		_function = function;
+	}
+
+	/// @brief 
+	/// @tparam ...Types 
+	template<typename ...Types>
+	Event<Types...>::Slot::~Slot()
+	{
+		Disconnect();
 	}
 
 	/// @brief 

@@ -23,7 +23,7 @@ namespace hod
 											Slot(std::function<void(Types...)> function);
 											Slot(const Slot&) = delete;
 											Slot(Slot&&) = delete;
-											~Slot() = default;
+											~Slot();
 
 			void							operator=(const Slot&) = delete;
 			void							operator=(Slot&&) = delete;
