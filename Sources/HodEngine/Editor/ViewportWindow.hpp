@@ -64,7 +64,6 @@ namespace hod::editor
 		Vector2						_cameraPosition = Vector2::Zero;
 		float						_size = 5.0f;
 		game::Scene*				_scene = nullptr;
-		game::Prefab*				_prefab = nullptr;
 		std::shared_ptr<Asset>		_asset;
 
 		PhysicsDebugDrawer*			_physicsDebugDrawer = nullptr;
