@@ -356,8 +356,9 @@ void embraceTheDarkness()
 			}
 		}
 
-		for (Window* window : _windows)
+		for (uint32_t index = 0; index <_windows.size(); ++index)
 		{
+			Window* window = _windows[index];
 			/*
 			ImGuiWindowClass window_class;
 			window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
