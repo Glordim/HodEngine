@@ -62,6 +62,8 @@ namespace hod
         allocation->_size = size;
         allocation->_ptr = ptr;
 
+		std::memset(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) + sizeof(Allocation)), 0xA1, size);
+
 		_mutex.lock();
 		allocation->_index = _allocationCount;
         _allocations[_allocationCount] = allocation;
@@ -83,8 +85,11 @@ namespace hod
 			_allocations[_allocationCount - 1]->_index = allocation->_index;
 			std::swap(_allocations[allocation->_index], _allocations[_allocationCount - 1]);
 		}
+		_allocations[_allocationCount - 1] = nullptr;
 		--_allocationCount;
 		_mutex.unlock();
+
+		std::memset(ptr, 0xDE, allocation->_size);
 	}
 }
 
