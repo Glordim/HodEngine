@@ -27,9 +27,9 @@ namespace hod
 		symbol->MaxNameLen = maxFunctionNameSize;
 		symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
-		for (uint32_t currentFrame = 0; currentFrame < allocation->_callstackSize; ++currentFrame)
+		for (uint32_t currentFrame = 0; currentFrame < allocation._callstackSize; ++currentFrame)
 		{
-			if (SymFromAddr(hProcess, reinterpret_cast<DWORD64>(allocation->_callstack[currentFrame]), 0, symbol) == TRUE)
+			if (SymFromAddr(hProcess, reinterpret_cast<DWORD64>(allocation._callstack[currentFrame]), 0, symbol) == TRUE)
 			{
 				if (symbol->NameLen == symbol->MaxNameLen)
 				{
@@ -44,10 +44,12 @@ namespace hod
 		}
 	}
 
-	///
-    uint32_t MemoryManagerLeakDetector:::GetCallstack(std::array<void*, 64>& callstack) const
+    /// @brief 
+    /// @param callstack 
+    /// @return 
+    uint32_t MemoryManagerLeakDetector::GetCallstack(std::array<void*, 64>& callstack) const
 	{
-		return CaptureStackBackTrace(4, callstack.size(), callstack.data(), nullptr);
+		return CaptureStackBackTrace(4, (DWORD)callstack.size(), callstack.data(), nullptr);
 	}
 
 	/// @brief 
