@@ -167,7 +167,9 @@ namespace hod::editor
 							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>();
 						}
 						dropNodeComponentLock->SetParent(parentNodeComponentLock);
-						// todo sibling index
+
+						dropNodeComponentLock->SetSiblingIndex(siblingNodeComponentLock->GetSiblingIndex());
+						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 				}
 			}

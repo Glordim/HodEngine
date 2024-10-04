@@ -60,6 +60,7 @@ namespace hod::game
         ReflectionDescriptor*       GetComponentDescriptor() const;
 
         void                        SetUid(const UID& uid);
+        void                        SetPointer(std::shared_ptr<Component> pointer);
 
     private:
 
@@ -98,6 +99,11 @@ namespace hod::game
         std::shared_ptr<_Component_> Lock() const
         {
             return std::static_pointer_cast<_Component_>(WeakComponentBase::Lock());
+        }
+
+        void operator = (std::shared_ptr<_Component_> pointer)
+        {
+            SetPointer(pointer);
         }
     };
 }

@@ -120,11 +120,23 @@ namespace hod::game
         return _uid;
     }
 
+    /// @brief 
+    /// @param uid 
     void WeakComponentBase::SetUid(const UID& uid)
     {
         _uid = uid;
     }
 
+    /// @brief 
+    /// @param pointer 
+    void WeakComponentBase::SetPointer(std::shared_ptr<Component> pointer)
+    {
+        _uid = UID::INVALID_UID;
+        _pointer = pointer;
+    }
+
+    /// @brief 
+    /// @return 
     ReflectionDescriptor* WeakComponentBase::GetComponentDescriptor() const
     {
         return _componentDescriptor;

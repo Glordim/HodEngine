@@ -11,7 +11,8 @@ namespace hod
 
 		DESCRIBE_REFLECTED_CLASS(NodeComponent, Component)
 		{
-			ADD_PROPERTY_WITH_SET_METHOD(NodeComponent, _parent, SetParent);
+			AddPropertyT(this, &NodeComponent::_parent, "Parent", &NodeComponent::SetParent);
+			AddPropertyT(this, &NodeComponent::_children, "Children");
 		}
 
 		//-----------------------------------------------------------------------------
@@ -25,7 +26,7 @@ namespace hod
 		/// @brief 
 		void NodeComponent::OnConstruct()
 		{
-			SetParent(_parent);
+			//SetParent(_parent);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -69,6 +70,40 @@ namespace hod
 		const WeakComponent<NodeComponent>& NodeComponent::GetChild(uint32_t index)
 		{
 			return _children[index];
+		}
+
+		/// @brief 
+		/// @return 
+		uint32_t NodeComponent::GetSiblingIndex() const
+		{
+			std::shared_ptr<NodeComponent> parentLock = _parent.Lock();
+			if (parentLock != nullptr)
+			{
+				for (uint32_t index = 0; index < parentLock->GetChildCount(); ++index)
+				{
+					if (parentLock->GetChild(index).Lock().get() == this)
+					{
+						return index;
+					}
+				}
+			}
+			return 0;
+		}
+
+		/// @brief 
+		/// @param index 
+		void NodeComponent::SetSiblingIndex(uint32_t index)
+		{
+			std::shared_ptr<NodeComponent> parentLock = _parent.Lock();
+			if (parentLock != nullptr)
+			{
+				uint32_t initialIndex = GetSiblingIndex();
+				for (uint32_t i = initialIndex; i > index; --i)
+				{
+					parentLock->_children[i] = parentLock->_children[i - 1];
+				}
+				parentLock->_children[index] = std::static_pointer_cast<NodeComponent>(shared_from_this());
+			}
 		}
 
 		//-----------------------------------------------------------------------------

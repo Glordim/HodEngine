@@ -33,6 +33,9 @@ namespace hod
 			uint32_t							GetChildCount() const;
 			const WeakComponent<NodeComponent>&	GetChild(uint32_t index);
 
+			uint32_t							GetSiblingIndex() const;
+			void								SetSiblingIndex(uint32_t index);
+
 			const WeakComponent<NodeComponent>&	GetParent() const;
 			void								SetParent(const WeakComponent<NodeComponent>& parent);
 
