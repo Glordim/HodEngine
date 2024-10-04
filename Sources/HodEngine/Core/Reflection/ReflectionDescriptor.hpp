@@ -93,6 +93,8 @@ namespace hod
 	private:
 
 		std::string								_typeName;
+		mutable std::string						_displayName;
+
 		ReflectionDescriptor*					_parent = nullptr;
 		std::function<void*()>					_allocateFunction = nullptr;
 		std::function<std::shared_ptr<void>()>	_sharedAllocateFunction = nullptr;

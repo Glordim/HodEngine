@@ -33,8 +33,11 @@ namespace hod
 	/// @return 
 	const std::string& ReflectionDescriptor::GetDisplayName() const
 	{
-		static std::string displayName = GenerateDisplayName(_typeName);
-		return displayName;
+		if (_displayName.empty())
+		{
+			_displayName = GenerateDisplayName(_typeName);
+		}
+		return _displayName;
 	}
 
 	/// @brief 

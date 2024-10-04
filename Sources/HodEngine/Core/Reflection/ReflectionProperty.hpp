@@ -49,6 +49,7 @@ namespace hod
 
 		uint32_t								_offset = 0;
 		const char*								_name = nullptr;
+		mutable std::string						_displayName;
 	};
 }
 
