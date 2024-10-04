@@ -3,6 +3,11 @@
 
 #include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
 
+namespace hod::renderer
+{
+	class TextureResource;
+}
+
 namespace hod::editor
 {
 	///@brief 
@@ -21,5 +26,9 @@ namespace hod::editor
 	public:
 
 		bool						OnDrawInspector(std::shared_ptr<Asset> asset) override;
+
+	private:
+
+		std::shared_ptr<renderer::TextureResource>	_texture;
 	};
 }

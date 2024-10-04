@@ -19,7 +19,7 @@ namespace hod::editor
 	{
 		bool changed = false;
 
-		std::shared_ptr<renderer::TextureResource> texture = ResourceManager::GetInstance()->GetResource<renderer::TextureResource>(asset->GetMeta()._uid);
+		_texture = ResourceManager::GetInstance()->GetResource<renderer::TextureResource>(asset->GetMeta()._uid);
 
 		std::shared_ptr<TextureImporterSettings> textureImporterSettings = std::static_pointer_cast<TextureImporterSettings>(asset->GetMeta()._importerSettings);
 
@@ -73,12 +73,23 @@ namespace hod::editor
 				ImGui::EndCombo();
 			}
 
-			float width = ImGui::GetContentRegionAvail().x;
-			float height = width / (static_cast<float>(texture->GetTexture()->GetWidth()) / static_cast<float>(texture->GetTexture()->GetHeight()));
+			float width;
+			float height;
+			if (_texture->GetTexture()->GetWidth() > _texture->GetTexture()->GetHeight())
+			{
+				width = ImGui::GetContentRegionAvail().x;
+				height = width / (static_cast<float>(_texture->GetTexture()->GetWidth()) / static_cast<float>(_texture->GetTexture()->GetHeight()));
+			}
+			else
+			{
+				height = ImGui::GetContentRegionAvail().x;
+				width = height / (static_cast<float>(_texture->GetTexture()->GetHeight()) / static_cast<float>(_texture->GetTexture()->GetWidth()));
+			}
+			
 			ImVec2 cursor = ImGui::GetCursorPos();
 			ImGui::Image(Editor::GetInstance()->GetCheckerTexture(), ImVec2(width, height), ImVec2(0, 0), ImVec2(width / (4 * 8), height / (4 * 8)));
 			ImGui::SetCursorPos(cursor);
-			ImGui::Image(texture->GetTexture(), ImVec2(width, height));
+			ImGui::Image(_texture->GetTexture(), ImVec2(width, height));
 			ImGui::Spacing();
 
 			ImGui::BeginDisabled(asset->IsDirty() == false);

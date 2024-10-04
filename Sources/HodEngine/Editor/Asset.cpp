@@ -91,7 +91,8 @@ namespace hod::editor
 		{
 			return false;
 		}
-		if (_meta.LoadImporterConfig(document.GetRootNode()) == false) // TODO improve reflection
+		const Document::Node* importerSettingsNode = document.GetRootNode().GetChild("importerSettings");
+		if (importerSettingsNode != nullptr && _meta.LoadImporterConfig(*importerSettingsNode) == false) // TODO improve reflection
 		{
 			return false;
 		}
