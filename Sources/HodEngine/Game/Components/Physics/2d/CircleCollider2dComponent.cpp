@@ -23,7 +23,7 @@ namespace hod::game
 		Collider2dComponent::OnAwake();
 
 		Vector2 scale = GetScale();
-		_collider = GetRigidbody()->GetInternalBody()->AddCircleShape(_offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
+		_collider = GetRigidbody()->GetInternalBody()->AddCircleShape(_isTrigger, _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
 		_collider->SetBounciness(_bounciness);
 	}
 

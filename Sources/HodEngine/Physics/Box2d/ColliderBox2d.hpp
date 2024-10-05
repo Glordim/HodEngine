@@ -15,7 +15,7 @@ namespace hod::physics
 	class HOD_PHYSICS_API ColliderBox2d : public Collider
 	{
 	public:
-				ColliderBox2d(Body* body);
+				ColliderBox2d(Body* body, bool isTrigger);
 				~ColliderBox2d() override;
 
 	public:

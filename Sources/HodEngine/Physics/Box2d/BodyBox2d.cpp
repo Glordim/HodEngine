@@ -28,9 +28,9 @@ namespace hod::physics
 	/// @brief 
 	/// @param startPosition 
 	/// @param endPosition 
-	Collider* BodyBox2d::AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition)
+	Collider* BodyBox2d::AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this);
+		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
 		collider->SetAsEdge(startPosition, endPosition);
 		_colliders.push_back(collider);
 		return collider;
@@ -39,9 +39,9 @@ namespace hod::physics
 	/// @brief 
 	/// @param position 
 	/// @param radius 
-	Collider* BodyBox2d::AddCircleShape(const Vector2& position, float radius)
+	Collider* BodyBox2d::AddCircleShape(bool isTrigger, const Vector2& position, float radius)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this);
+		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
 		collider->SetAsCircleShape(position, radius);
 		_colliders.push_back(collider);
 		return collider;
@@ -53,9 +53,9 @@ namespace hod::physics
 	/// @param radius 
 	/// @param angle 
 	/// @return 
-	Collider* BodyBox2d::AddCapsuleShape(const Vector2& position, float height, float radius, float angle)
+	Collider* BodyBox2d::AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this);
+		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
 		collider->SetAsCapsuleShape(position, height, radius, angle);
 		_colliders.push_back(collider);
 		return collider;
@@ -66,9 +66,9 @@ namespace hod::physics
 	/// @param size 
 	/// @param angle 
 	/// @param density 
-	Collider* BodyBox2d::AddBoxShape(const Vector2& position, const Vector2& size, float angle)
+	Collider* BodyBox2d::AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this);
+		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
 		collider->SetAsBoxShape(position, size, angle);
 		_colliders.push_back(collider);
 		return collider;
@@ -76,9 +76,9 @@ namespace hod::physics
 
 	/// @brief 
 	/// @param vertices 
-	Collider* BodyBox2d::AddConvexShape(const std::vector<const Vector2>& vertices)
+	Collider* BodyBox2d::AddConvexShape(bool isTrigger, const std::vector<const Vector2>& vertices)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this);
+		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
 		collider->SetAsConvexShape(vertices);
 		_colliders.push_back(collider);
 		return collider;

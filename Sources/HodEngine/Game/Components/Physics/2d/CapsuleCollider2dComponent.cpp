@@ -23,7 +23,7 @@ namespace hod::game
 		Collider2dComponent::OnAwake();
 
 		Vector2 scale = GetScale();
-		_collider = GetRigidbody()->GetInternalBody()->AddCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
+		_collider = GetRigidbody()->GetInternalBody()->AddCapsuleShape(_isTrigger, _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 	}
 
 	/// @brief 

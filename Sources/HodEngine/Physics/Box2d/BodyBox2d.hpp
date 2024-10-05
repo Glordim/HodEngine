@@ -20,11 +20,11 @@ namespace hod::physics
 
 	public:
 
-		Collider*			AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition) override;
-		Collider*			AddCircleShape(const Vector2& position, float radius) override;
-		Collider*			AddCapsuleShape(const Vector2& position, float height, float radius, float angle) override;
-		Collider*			AddBoxShape(const Vector2& position, const Vector2& size, float angle) override;
-		Collider*			AddConvexShape(const std::vector<const Vector2>& vertices) override;
+		Collider*			AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition) override;
+		Collider*			AddCircleShape(bool isTrigger, const Vector2& position, float radius) override;
+		Collider*			AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) override;
+		Collider*			AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle) override;
+		Collider*			AddConvexShape(bool isTrigger, const std::vector<const Vector2>& vertices) override;
 
 		void				SetTransform(const Vector2& position, float angle, const Vector2& scale) override;
 

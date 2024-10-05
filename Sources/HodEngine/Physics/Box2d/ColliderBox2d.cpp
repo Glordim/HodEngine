@@ -8,7 +8,7 @@ namespace hod::physics
 {
 	/// @brief 
 	/// @param body 
-	ColliderBox2d::ColliderBox2d(Body* body)
+	ColliderBox2d::ColliderBox2d(Body* body, bool isTrigger)
 	: Collider(body)
 	{
 		/*
@@ -18,7 +18,7 @@ namespace hod::physics
 		*/
 
 		b2ShapeDef shapeDef = b2DefaultShapeDef();
-		shapeDef.isSensor = false;
+		shapeDef.isSensor = isTrigger;
 		shapeDef.restitution = 1.0f;
 		//shapeDef.density = 1.0f;
 		//shapeDef.friction = 0.0f;

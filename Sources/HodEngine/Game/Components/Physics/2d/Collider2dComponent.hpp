@@ -78,8 +78,6 @@ namespace hod::game
 
 		physics::Collider*	_collider = nullptr;
 
-	private:
-
 		bool			_isTrigger = false;
 		float			_friction = 0.5f;
 		float			_density = 1.0f;

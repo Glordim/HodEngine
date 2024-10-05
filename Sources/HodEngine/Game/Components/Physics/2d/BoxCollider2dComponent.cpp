@@ -22,7 +22,7 @@ namespace hod::game
 		Collider2dComponent::OnAwake();
 
 		Vector2 scale = GetScale();
-		_collider = GetRigidbody()->GetInternalBody()->AddBoxShape(_offset * scale, _size * scale, _rotation);
+		_collider = GetRigidbody()->GetInternalBody()->AddBoxShape(_isTrigger, _offset * scale, _size * scale, _rotation);
 	}
 
 	/// @brief 

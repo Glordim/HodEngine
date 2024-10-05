@@ -37,11 +37,11 @@ namespace hod::physics
 		void				SetCollisionExitCallback(std::function<void(const Collision& collision)> callback);
 		const std::function<void(const Collision& collision)>& GetCollisionExitCallback() const;
 
-		virtual Collider*	AddEdgeShape(const Vector2& startPosition, const Vector2& endPosition) = 0;
-		virtual Collider*	AddCircleShape(const Vector2& position, float radius) = 0;
-		virtual Collider*	AddCapsuleShape(const Vector2& position, float height, float radius, float angle) = 0;
-		virtual Collider*	AddBoxShape(const Vector2& position, const Vector2& size, float angle) = 0;
-		virtual Collider*	AddConvexShape(const std::vector<const Vector2>& vertices) = 0;
+		virtual Collider*	AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition) = 0;
+		virtual Collider*	AddCircleShape(bool isTrigger, const Vector2& position, float radius) = 0;
+		virtual Collider*	AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) = 0;
+		virtual Collider*	AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle) = 0;
+		virtual Collider*	AddConvexShape(bool isTrigger, const std::vector<const Vector2>& vertices) = 0;
 
 		virtual void		SetTransform(const Vector2& position, float angle, const Vector2& scale) = 0;
 
