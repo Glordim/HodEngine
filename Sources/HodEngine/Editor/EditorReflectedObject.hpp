@@ -45,7 +45,7 @@ namespace hod::editor
 
     private:
 
-        void GeneratePropertiesFromReflectionDescriptor();
+        void GeneratePropertiesFromReflectionDescriptor(ReflectionDescriptor* reflectionDescriptor);
 
     private:
 

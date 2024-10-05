@@ -267,19 +267,17 @@ namespace hod::editor
 					}
 					break;
 
-					/*
 					case ReflectionPropertyVariable::Type::Object:
 					{
 						if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
 						{
 							ImGui::Indent();
 							void* value = property->GetValue<void*>(object, index);
-							changed |= PropertyDrawer::DrawDescriptor(value, property->GetElementReflectionDescriptor());
+							//changed |= PropertyDrawer::DrawDescriptor(value, property->GetElementReflectionDescriptor());
 							ImGui::Unindent();
 						}
 					}
 					break;
-					*/
 
 					default: assert(false); break;
 				}

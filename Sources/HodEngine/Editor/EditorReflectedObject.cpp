@@ -19,7 +19,7 @@ namespace hod::editor
 
         _sourceInstance = sourceComponent.get();
 
-        GeneratePropertiesFromReflectionDescriptor();
+        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
     }
 
     EditorReflectedObject::EditorReflectedObject(const std::vector<std::shared_ptr<game::Component>>& components)
@@ -31,14 +31,14 @@ namespace hod::editor
     : _instances({ instance })
     , _reflectionDescriptor(reflectionDescriptor)
     {
-        GeneratePropertiesFromReflectionDescriptor();
+        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
     }
 
     EditorReflectedObject::EditorReflectedObject(const std::vector<void*>& instances, ReflectionDescriptor* reflectionDescriptor)
     : _instances(instances)
     , _reflectionDescriptor(reflectionDescriptor)
     {
-        GeneratePropertiesFromReflectionDescriptor();
+        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
     }
 
     EditorReflectedObject::EditorReflectedObject(EditorReflectedProperty& sourceProperty)
@@ -56,7 +56,7 @@ namespace hod::editor
             _instances.push_back(reflectionPropertyObject->GetInstance(instance));
         }
 
-        GeneratePropertiesFromReflectionDescriptor();
+        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
     }
 
     EditorReflectedObject::~EditorReflectedObject()
@@ -92,9 +92,15 @@ namespace hod::editor
         return _sourceProperty;
     }
 
-    void EditorReflectedObject::GeneratePropertiesFromReflectionDescriptor()
+    void EditorReflectedObject::GeneratePropertiesFromReflectionDescriptor(ReflectionDescriptor* reflectionDescriptor)
     {
-        for (ReflectionProperty* reflectionProperty : _reflectionDescriptor->GetProperties())
+        ReflectionDescriptor* parentReflectionDescriptor = reflectionDescriptor->GetParent();
+        if (parentReflectionDescriptor != nullptr)
+        {
+            GeneratePropertiesFromReflectionDescriptor(parentReflectionDescriptor);
+        }
+
+        for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
         {
             EditorReflectedProperty* property = new EditorReflectedProperty(_instances, _sourceInstance, reflectionProperty, this);
             _properties.push_back(property);
