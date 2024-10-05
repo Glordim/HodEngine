@@ -515,7 +515,8 @@ namespace hod::editor
 	/// @brief 
 	void Editor::PlayNextFrame()
 	{
-		
+		Pause();
+		game::World::GetInstance()->EditorNextFrame();
 	}
 
 	/// @brief 

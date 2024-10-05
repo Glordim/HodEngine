@@ -44,6 +44,8 @@ namespace hod
 
 			void						SetEditorPaused(bool editorPaused);
 			bool						GetEditorPaused() const;
+
+			void						EditorNextFrame();
 //
 
 			void						Update();
@@ -79,6 +81,7 @@ namespace hod
 // todo
 			bool						_editorPlaying = false;
 			bool						_editorPaused = false;
+			bool						_editorNextFrame = false;
 ///
 			MemberFunctionJob<World>	_updateJob;
 			MemberFunctionJob<World>	_drawJob;

@@ -80,6 +80,12 @@ namespace hod
 		{
 			return _editorPaused;
 		}
+
+		/// @brief 
+		void World::EditorNextFrame()
+		{
+			_editorNextFrame = true;
+		}
 	//
 
 		/// @brief 
@@ -210,10 +216,11 @@ namespace hod
 		void World::Update()
 		{
 			// todo
-			if (_editorPlaying == false || _editorPaused == true)
+			if (_editorPlaying == false || (_editorPaused == true && _editorNextFrame == false))
 			{
 				return;
 			}
+			_editorNextFrame = false;
 			//
 
 			physics::Physics::GetInstance()->Update(0.016f);

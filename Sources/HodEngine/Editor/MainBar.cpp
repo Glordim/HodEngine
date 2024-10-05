@@ -104,7 +104,7 @@ namespace hod::editor
 		if (editor->IsPlaying() == true)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
-			bool pressed = ImGui::Button(ICON_MDI_PLAY, ImVec2(0, 42));
+			bool pressed = ImGui::Button(ICON_MDI_STOP, ImVec2(0, 42));
 			ImGui::PopStyleColor();
 			if (pressed == true)
 			{
