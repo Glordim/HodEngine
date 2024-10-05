@@ -1,14 +1,16 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Component.hpp"
 
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
+
 namespace hod
 {
 	namespace game
 	{
 		DESCRIBE_REFLECTED_CLASS_NO_PARENT(Component)
 		{
-			ADD_PROPERTY(Component, _uid);
-			ADD_PROPERTY(Component, _localId);
+			AddPropertyT(this, &Component::_uid, "_uid")->AddTrait<ReflectionTraitHide>();
+			AddPropertyT(this, &Component::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
 		}
 
 		/// @brief 

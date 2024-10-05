@@ -6,6 +6,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
@@ -34,10 +35,14 @@ namespace hod::editor
 
 	bool PropertyDrawer::DrawProperty(EditorReflectedProperty& reflectedProperty)
 	{
-		ImGui::PushID(reflectedProperty.GetReflectionProperty());
-		bool changed = false;
-
 		ReflectionProperty* reflectionProperty = reflectedProperty.GetReflectionProperty();
+		if (reflectionProperty->FindTrait<ReflectionTraitHide>() != nullptr)
+		{
+			return false;
+		}
+
+		ImGui::PushID(reflectionProperty);
+		bool changed = false;
 
 		if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
 		{

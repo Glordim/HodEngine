@@ -2,6 +2,7 @@
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 
 namespace hod
 {
@@ -11,8 +12,8 @@ namespace hod
 
 		DESCRIBE_REFLECTED_CLASS(NodeComponent, Component)
 		{
-			AddPropertyT(this, &NodeComponent::_parent, "Parent", &NodeComponent::SetParent);
-			AddPropertyT(this, &NodeComponent::_children, "Children");
+			AddPropertyT(this, &NodeComponent::_parent, "Parent", &NodeComponent::SetParent)->AddTrait<ReflectionTraitHide>();
+			AddPropertyT(this, &NodeComponent::_children, "Children")->AddTrait<ReflectionTraitHide>();
 		}
 
 		//-----------------------------------------------------------------------------
