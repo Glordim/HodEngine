@@ -53,4 +53,32 @@ namespace hod::physics
 	{
 		_collisionExitCallback = callback;
 	}
+
+	/// @brief 
+	/// @return 
+	const std::function<void(const Collider& trigger, const Collider& visitor)>& Body::GetTriggerEnterCallback() const
+	{
+		return _triggerEnterCallback;
+	}
+
+	/// @brief 
+	/// @param callback 
+	void Body::SetTriggerEnterCallback(std::function<void(const Collider& trigger, const Collider& visitor)> callback)
+	{
+		_triggerEnterCallback = callback;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::function<void(const Collider& trigger, const Collider& visitor)>& Body::GetTriggerExitCallback() const
+	{
+		return _triggerExitCallback;
+	}
+
+	/// @brief 
+	/// @param callback 
+	void Body::SetTriggerExitCallback(std::function<void(const Collider& trigger, const Collider& visitor)> callback)
+	{
+		_triggerExitCallback = callback;
+	}
 }

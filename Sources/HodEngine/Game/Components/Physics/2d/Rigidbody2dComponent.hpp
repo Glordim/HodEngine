@@ -11,6 +11,7 @@ namespace hod::physics
 {
 	class Body;
 	struct Collision;
+	class Collider;
 }
 
 namespace hod::game
@@ -60,6 +61,9 @@ namespace hod::game
 		Event<const physics::Collision&>&		GetOnCollisionEnterEvent();
 		Event<const physics::Collision&>&		GetOnCollisionExitEvent();
 
+		Event<const physics::Collider&, const physics::Collider&>&		GetOnTriggerEnterEvent();
+		Event<const physics::Collider&, const physics::Collider&>&		GetOnTriggerExitEvent();
+
 	private:
 
 		physics::Body*	_body = nullptr;
@@ -69,5 +73,8 @@ namespace hod::game
 
 		Event<const physics::Collision&>	_onCollisionEnterEvent;
 		Event<const physics::Collision&>	_onCollisionExitEvent;
+
+		Event<const physics::Collider&, const physics::Collider&>	_onTriggerEnterEvent;
+		Event<const physics::Collider&, const physics::Collider&>	_onTriggerExitEvent;
 	};
 }

@@ -100,10 +100,22 @@ namespace hod::physics
 		for (int32_t index = 0; index < sensorEvents.beginCount; ++index)
 		{
 			const b2SensorBeginTouchEvent& beginEvent = sensorEvents.beginEvents[index];
+			Collider* sensor = static_cast<Collider*>(b2Shape_GetUserData(beginEvent.sensorShapeId));
+			Collider* visitor = static_cast<Collider*>(b2Shape_GetUserData(beginEvent.visitorShapeId));
+			BodyBox2d* sensorBody = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.sensorShapeId)));
+			BodyBox2d* visitorBody = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.visitorShapeId)));
+			sensorBody->GetTriggerEnterCallback()(*sensor, *visitor);
+			visitorBody->GetTriggerEnterCallback()(*sensor, *visitor);
 		}
 		for (int32_t index = 0; index < sensorEvents.endCount; ++index)
 		{
 			const b2SensorEndTouchEvent& endEvent = sensorEvents.endEvents[index];
+			Collider* sensor = static_cast<Collider*>(b2Shape_GetUserData(endEvent.sensorShapeId));
+			Collider* visitor = static_cast<Collider*>(b2Shape_GetUserData(endEvent.visitorShapeId));
+			BodyBox2d* sensorBody = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(endEvent.sensorShapeId)));
+			BodyBox2d* visitorBody = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(endEvent.visitorShapeId)));
+			sensorBody->GetTriggerExitCallback()(*sensor, *visitor);
+			visitorBody->GetTriggerExitCallback()(*sensor, *visitor);
 		}
 
 		b2ContactEvents contactEvents = b2World_GetContactEvents(_worldId);

@@ -37,6 +37,12 @@ namespace hod::physics
 		void				SetCollisionExitCallback(std::function<void(const Collision& collision)> callback);
 		const std::function<void(const Collision& collision)>& GetCollisionExitCallback() const;
 
+		void				SetTriggerEnterCallback(std::function<void(const Collider& trigger, const Collider& visitor)> callback);
+		const std::function<void(const Collider& trigger, const Collider& visitor)>& GetTriggerEnterCallback() const;
+
+		void				SetTriggerExitCallback(std::function<void(const Collider& trigger, const Collider& visitor)> callback);
+		const std::function<void(const Collider& trigger, const Collider& visitor)>& GetTriggerExitCallback() const;
+
 		virtual Collider*	AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition) = 0;
 		virtual Collider*	AddCircleShape(bool isTrigger, const Vector2& position, float radius) = 0;
 		virtual Collider*	AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) = 0;
@@ -66,5 +72,7 @@ namespace hod::physics
 		std::function<void(const Vector2& position, float rotation)> _moveCallback;
 		std::function<void(const Collision& collision)> _collisionEnterCallback;
 		std::function<void(const Collision& collision)> _collisionExitCallback;
+		std::function<void(const Collider& trigger, const Collider& visitor)> _triggerEnterCallback;
+		std::function<void(const Collider& trigger, const Collider& visitor)> _triggerExitCallback;
 	};
 }

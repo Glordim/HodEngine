@@ -68,6 +68,14 @@ namespace hod::game
 		{
 			_onCollisionExitEvent.Emit(collision);
 		});
+		_body->SetTriggerEnterCallback([this](const physics::Collider& trigger, const physics::Collider& visitor)
+		{
+			_onTriggerEnterEvent.Emit(trigger, visitor);
+		});
+		_body->SetTriggerExitCallback([this](const physics::Collider& trigger, const physics::Collider& visitor)
+		{
+			_onTriggerExitEvent.Emit(trigger, visitor);
+		});
 
 		SetMode(GetMode());
 		SetGravityScale(GetGravityScale());
@@ -189,5 +197,19 @@ namespace hod::game
 	Event<const physics::Collision&>& Rigidbody2dComponent::GetOnCollisionExitEvent()
 	{
 		return _onCollisionExitEvent;
+	}
+
+	/// @brief 
+	/// @return 
+	Event<const physics::Collider&, const physics::Collider&>& Rigidbody2dComponent::GetOnTriggerEnterEvent()
+	{
+		return _onTriggerEnterEvent;
+	}
+
+	/// @brief 
+	/// @return 
+	Event<const physics::Collider&, const physics::Collider&>& Rigidbody2dComponent::GetOnTriggerExitEvent()
+	{
+		return _onTriggerExitEvent;
 	}
 }
