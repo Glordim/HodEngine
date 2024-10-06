@@ -103,6 +103,7 @@ namespace hod
 	{
 		if (job->GetThreadId() == Thread::InvalidId)
 		{
+			job->Prepare();
 			while (_jobs.Enqueue(job) == false)
 			{
 				OUTPUT_ERROR("JobQueue Full !");
@@ -123,6 +124,7 @@ namespace hod
 			{
 				if (_workerThreads[workerThreadIndex]._thread.GetId() == job->GetThreadId())
 				{
+					job->Prepare();
 					while (_workerThreads[workerThreadIndex]._dedicatedJobQueue.Enqueue(job) == false)
 					{
 						OUTPUT_ERROR("JobQueue Full !");

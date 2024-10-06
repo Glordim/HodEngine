@@ -38,15 +38,21 @@ namespace hod
 	}
 
 	/// @brief 
+	void Job::Prepare()
+	{
+		_state = 0;
+	}
+
+	/// @brief 
 	void Job::SetQueued()
 	{
-		_state = State::Queued;
+		_state |= State::Queued;
 	}
 
 	/// @brief 
 	void Job::Execute()
 	{
-		while (_state != State::Queued);
+		while ((_state & State::Queued) == 0);
 		_state &= ~State::Queued;
 		if ((_state & State::Canceled) == 0)
 		{
@@ -55,6 +61,10 @@ namespace hod
 			Execution();
 
 			_state &= ~State::Executing;
+		}
+		else
+		{
+			_state &= ~State::Canceled;
 		}
 		_state |= State::Completed;
 
@@ -74,9 +84,6 @@ namespace hod
 	/// @brief 
 	void Job::Wait()
 	{
-		if (_state & (State::Queued | State::Executing))
-		{
-			while ((_state & State::Completed) == 0);
-		}
+		while ((_state & State::Completed) == 0);
 	}
 }

@@ -148,13 +148,13 @@ namespace hod::window
 			::ShowWindow(_hWnd, SW_NORMAL);
 		}
 
-		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreLogic);
+		//FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreLogic);
 	}
 
 	/// @brief 
 	Win32Window::~Win32Window()
 	{
-		FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::PreLogic);
+		//FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::PreLogic);
 
 		if (_updateJob.Cancel() == true)
 		{

@@ -38,7 +38,6 @@ namespace hod
 		for (uint32_t jobIndex = 0; jobIndex < jobCount; ++jobIndex)
 		{
 			Job* job = _jobs[jobIndex];
-
 			jobScheduler->Push(job);
 		}
 	}
