@@ -13,7 +13,7 @@ namespace hod
 #if defined(PLATFORM_WINDOWS)
 		using TimeStamp = __int64;
 		static constexpr TimeStamp INVALID_TIMESTAMP = 0;
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS) || defined(PLATFORM_ANDROID)
 		using TimeStamp = timespec;
 		static constexpr TimeStamp INVALID_TIMESTAMP = { 0, 0 };
 #endif

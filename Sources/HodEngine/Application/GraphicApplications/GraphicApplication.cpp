@@ -30,6 +30,8 @@
 #include "HodEngine/Core/Time/SystemTime.hpp"
 #include "HodEngine/Core/ResourceManager.hpp"
 
+#include "HodEngine/Window/Window.hpp"
+
 namespace hod::application
 {
 	_SingletonOverrideConstructor(GraphicApplication)

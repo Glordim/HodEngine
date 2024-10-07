@@ -22,7 +22,7 @@ namespace hod
 #if defined(PLATFORM_WINDOWS)
 		using Id = DWORD;
 		static constexpr Id InvalidId = 0;
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS) || defined(PLATFORM_ANDROID)
 		using Id = pthread_t;
 		static constexpr Id InvalidId = 0;
 #endif

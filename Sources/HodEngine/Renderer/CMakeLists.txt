@@ -4,7 +4,12 @@ include(Global)
 
 if(NOT APPLE)
 project(Renderer LANGUAGES CXX)
+if (NOT ANDROID)
   find_package(Vulkan REQUIRED)
+else()
+  set(Vulkan_INCLUDE_DIRS ${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include) # TODO
+  set(Vulkan_LIBRARIES ${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/33/libvulkan.so ${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/libz.a) # TODO
+endif()
 else()
 project(Renderer LANGUAGES CXX OBJCXX)
 find_package(BZip2 REQUIRED)

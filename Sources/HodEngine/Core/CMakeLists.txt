@@ -4,7 +4,11 @@ include(Global)
 
 project(Core)
 
+if (ANDROID)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES FileSystemWatcher)
+else()
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+endif()
 
 assign_source_group(${Srcs}) # for VS
 

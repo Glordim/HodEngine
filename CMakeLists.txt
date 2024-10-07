@@ -1,18 +1,19 @@
 cmake_minimum_required(VERSION 3.4...3.27)
 
+project(Hod) # Rename
+
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+
 include(FetchContent)
+include(ExternalProject)
 
 FetchContent_Declare(
   stb
   URL https://github.com/nothings/stb/archive/refs/heads/master.zip)
 
-  
-#FetchContent_Declare(
-#  box2d
-#  URL https://github.com/erincatto/box2d/archive/refs/tags/v2.4.1.zip)
-
 FetchContent_MakeAvailable(stb)
-#FetchContent_Populate(box2d)
 message(STATUS "stb is available in " ${stb_SOURCE_DIR})
 
 FetchContent_Declare(
@@ -28,7 +29,6 @@ elseif(UNIX)
   set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/Release/libbox2d.a)
 endif()
 
-include(ExternalProject)
 ExternalProject_Add(box2d
   URL https://github.com/erincatto/box2d/archive/refs/tags/v3.0.0.zip
   DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
@@ -39,6 +39,10 @@ ExternalProject_Add(box2d
     -DBOX2D_VALIDATE=OFF
     -DBOX2D_UNIT_TESTS=OFF
     -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DANDROID_ABI=${ANDROID_ABI}
+    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release
   INSTALL_COMMAND ""
@@ -73,6 +77,10 @@ ExternalProject_Add(freetype
     -DMSDFGEN_USE_VCPKG=OFF
     -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DANDROID_ABI=${ANDROID_ABI}
+    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/freetype-build --config Release
   INSTALL_COMMAND ""
@@ -92,6 +100,10 @@ ExternalProject_Add(msdfgen
     -DMSDFGEN_BUILD_STANDALONE=OFF
     -DMSDFGEN_USE_VCPKG=OFF
     -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DANDROID_ABI=${ANDROID_ABI}
+    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/msdfgen-build --config Release
   INSTALL_COMMAND ""
@@ -141,7 +153,11 @@ ExternalProject_Add(VulkanMemoryAllocator
   DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
   SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-src
   BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-build
-  CMAKE_ARGS ""
+  CMAKE_ARGS
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DANDROID_ABI=${ANDROID_ABI}
+    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -G ${CMAKE_GENERATOR}
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
   BUILD_BYPRODUCTS ${VulkanMemoryAllocator_LIBRARIES}
@@ -197,24 +213,22 @@ else()
   set(LIB_TYPE STATIC)
 endif()
 
-project(Hod) # Rename
-
 add_subdirectory("Sources/HodEngine/Core")
-
-add_subdirectory("Sources/HodShaderConverter")
-
 add_subdirectory("Sources/HodEngine/Window")
 add_subdirectory("Sources/HodEngine/Renderer")
 add_subdirectory("Sources/HodEngine/ImGui")
 add_subdirectory("Sources/HodEngine/Physics")
 add_subdirectory("Sources/HodEngine/Game")
-add_subdirectory("Sources/HodEngine/Editor")
-add_subdirectory("Sources/HodEngine/Application")
 add_subdirectory("Sources/HodEngine/Input")
 add_subdirectory("Sources/HodEngine/Audio")
+add_subdirectory("Sources/HodEngine/Application")
 
 add_subdirectory("Sources/HodApplication")
-add_subdirectory("Sources/HodEditor")
+
+if (NOT ANDROID)
+  add_subdirectory("Sources/HodEngine/Editor")
+  add_subdirectory("Sources/HodEditor")
+endif()
 
 include(FetchContent)
 FetchContent_Declare(

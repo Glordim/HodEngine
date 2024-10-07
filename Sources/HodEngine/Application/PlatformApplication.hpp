@@ -15,9 +15,9 @@
 		#define PlatformApplication hod::application::LinuxApplication
 	#elif defined(PLATFORM_ANDROID)
 		#include "HodEngine/Application/GraphicApplications/MobileApplications/AndroidApplication.hpp"
-		#define PlatformApplication AndroidApplication
+		#define PlatformApplication hod::application::AndroidApplication
 	#elif defined(PLATFORM_IOS)
 		#include "HodEngine/Application/GraphicApplications/MobileApplications/IOSApplication.hpp"
-		#define PlatformApplication IOSApplication
+		#define PlatformApplication hod::application::IOSApplication
 	#endif
 #endif

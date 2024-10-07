@@ -17,7 +17,7 @@ set_property(TARGET Window PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 set(UNIX_LIBS "")
 
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT ANDROID)
 	find_package(Wayland REQUIRED)
     find_package(XkbCommon REQUIRED)
     find_package(LibDecor REQUIRED)

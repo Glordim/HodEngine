@@ -30,6 +30,8 @@
 	#include <vulkan/vulkan_wayland.h>
 	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp>
 	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp>
+#elif defined(PLATFORM_ANDROID)
+	#include <vulkan/vulkan_android.h>
 #endif
 
 namespace hod::renderer
@@ -277,6 +279,8 @@ namespace hod::renderer
 			VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #elif defined(PLATFORM_LINUX)
 			VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+#elif defined(PLATFORM_ANDROID)
+			VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
 #endif
 		};
 
@@ -547,6 +551,32 @@ namespace hod::renderer
 		if (vkCreateWaylandSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create Wayland Surface !");
+			return nullptr;
+		}
+
+		return surface;
+	}
+#elif defined(PLATFORM_ANDROID)
+	/// @brief 
+	/// @param window 
+	/// @return 
+	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
+	{
+		/*
+		window::WaylandWindow* waylandWindow = static_cast<window::WaylandWindow*>(window);
+		window::WaylandDisplayManager* waylandDisplayManager = window::WaylandDisplayManager::GetInstance();
+		*/
+
+		VkAndroidSurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+		createInfo.flags = 0;
+		createInfo.window = nullptr; // TODO
+		createInfo.pNext = nullptr;
+
+		VkSurfaceKHR surface;
+		if (vkCreateAndroidSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Android Surface !");
 			return nullptr;
 		}
 

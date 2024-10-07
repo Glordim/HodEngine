@@ -17,8 +17,8 @@
 
 #elif defined(PLATFORM_ANDROID)
 
-	//#include "GraphicApplications/MobileApplications/AndroidApplication.hpp"
-	//#define PlatformApplication AndroidApplication
+	#include "HodEngine/Window/Android/AndroidDisplayManager.hpp"
+	#define PlatformDisplayManager hod::window::AndroidDisplayManager
 
 #elif defined(PLATFORM_IOS)
 

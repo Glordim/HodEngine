@@ -40,7 +40,7 @@ namespace hod
 
 #if defined(PLATFORM_WINDOWS)
 		HINSTANCE		_dll = NULL;
-#elif defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 		void*			_sharedLib = nullptr;
 #endif
 	};

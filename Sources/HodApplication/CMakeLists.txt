@@ -26,11 +26,14 @@ assign_source_group(${Srcs}) # for VS
 if (APPLE)
 	add_executable(HodApplication ${Srcs} ${Includes})
 	target_include_directories(HodApplication PRIVATE ${PROJECT_SOURCE_DIR})
+elseif(ANDROID)
+	add_library(HodApplication ${Srcs} ${Includes})
 else()
 	add_executable(HodApplication ${Srcs} ${Includes})
+		
 	set_property(TARGET HodApplication PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodApplication)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodApplication)
 
 endif()
 
@@ -47,4 +50,3 @@ target_link_libraries(HodApplication
 )
 
 target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
-

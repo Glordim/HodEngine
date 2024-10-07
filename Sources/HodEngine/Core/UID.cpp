@@ -15,6 +15,8 @@
 	#include <uuid/uuid.h> // install uuid-dev package (libuuid)
 
 	using Uuid = uuid_t;
+#elif defined(PLATFORM_ANDROID)
+	using Uuid = uint64_t;
 #elif defined(PLATFORM_MACOS)
 	#include <CoreFoundation/CoreFoundation.h>
 
@@ -76,7 +78,7 @@ namespace hod
 			OUTPUT_ERROR("Fail to generate UID");
 			return INVALID_UID;
 		}
-	#elif defined(__linux__)
+	#elif defined(PLATFORM_LINUX)
 		uuid_generate(uuidConverter.uuid);
 	#elif defined(PLATFORM_MACOS)
 		CFUUIDRef uuidRef = CFUUIDCreate(NULL);
@@ -104,7 +106,7 @@ namespace hod
 			OUTPUT_ERROR("UID: Fail to generate UID from {}", uuidStr);
 			return INVALID_UID;
 		}
-	#elif defined(__linux__)
+	#elif defined(PLATFORM_LINUX)
 		// TODO
 	#endif
 
@@ -136,7 +138,7 @@ namespace hod
 
 		str = (const char*)stringTmp;
 		RpcStringFree(&stringTmp);
-	#elif defined(__linux__)
+	#elif defined(PLATFORM_LINUX)
 		// TODO
 	#endif
 

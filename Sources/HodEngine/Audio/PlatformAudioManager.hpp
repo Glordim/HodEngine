@@ -17,8 +17,8 @@
 
 #elif defined(PLATFORM_ANDROID)
 
-	//#include "GraphicApplications/MobileApplications/AndroidApplication.hpp"
-	//#define PlatformApplication AndroidApplication
+	#include "HodEngine/Audio/Android/AndroidAudioManager.hpp"
+	#define PlatformAudioManager hod::audio::AndroidAudioManager
 
 #elif defined(PLATFORM_IOS)
 

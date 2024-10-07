@@ -8,9 +8,5 @@ namespace hod::application
 	/// @brief 
 	class HOD_APPLICATION_API AndroidApplication : public GraphicApplication
 	{
-	public:
-
-		bool			Init(int argc, char** argv);
-		bool			Run();
 	};
 }

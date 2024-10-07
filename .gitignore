@@ -1,5 +1,6 @@
 
 bazel-*
+build_*/
 build
 build_xcode
 
