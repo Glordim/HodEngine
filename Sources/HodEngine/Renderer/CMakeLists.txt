@@ -19,27 +19,33 @@ else()
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ".*/RHI/Vulkan/.*")
 endif()
 
+function(EmbeedShaderSource InputFile TemplateFile OutputDir OutputFile)
+  message(STATUS "Pack Shader: ${InputFile}")
+
+  get_filename_component(FILENAME "${InputFile}" NAME)
+  string(REPLACE "." "_" ESCAPED_FILE_NAME "${FILENAME}")
+
+  file(READ "${InputFile}" FILE_CONTENTS)
+  string(REPLACE "\"" "\\\"" ESCAPED_FILE_CONTENTS "${FILE_CONTENTS}")
+  string(REPLACE "\n" "\\n\"\n\"" ESCAPED_FILE_CONTENTS "${ESCAPED_FILE_CONTENTS}")
+
+  configure_file(
+      ${TemplateFile}
+      ${OutputDir}/${FILENAME}.hpp
+      @ONLY
+  )
+endfunction()
+
 file(GLOB_RECURSE ShaderSources
 	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"
 	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.frag"
 )
 
-set(ShaderGenerated "")
 foreach(file ${ShaderSources})
-	string(REPLACE "${PROJECT_SOURCE_DIR}/Shader/Sources/" "${PROJECT_SOURCE_DIR}/Shader/Generated/" relocated_file "${file}")
-    list(APPEND ShaderGenerated "${relocated_file}.cpp")
-    list(APPEND ShaderGenerated "${relocated_file}.hpp")
-	list(APPEND Srcs "${relocated_file}.cpp")
-	list(APPEND Srcs "${relocated_file}.hpp")
-	list(APPEND Includes "${relocated_file}.hpp")
+  EmbeedShaderSource(${file} ${PROJECT_SOURCE_DIR}/Shader/Template/ShaderSourceFileTemplate.hpp.in ${PROJECT_SOURCE_DIR}/Shader/Generated GeneratedFile)
+  list(APPEND Srcs ${GeneratedFile})
+  list(APPEND Includes ${GeneratedFile})
 endforeach()
-
-add_custom_command(OUTPUT ${ShaderGenerated}
-    COMMAND HodShaderConverter --input Shader/Sources --output Shader/Generated
-    DEPENDS HodShaderConverter ${ShaderSources}
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    COMMENT "Generating shader source files"
-)
 
 assign_source_group(${Srcs}) # for VS
 
@@ -51,11 +57,6 @@ ${freetype_INCLUDE_DIRS}
 ${VulkanMemoryAllocator_INCLUDE_DIRS}
 "RHI/Metal/MetalCpp"
 )
-
-if(NOT APPLE)
-include_directories(${SpirvCross_INCLUDE_DIRS}
-${Vulkan_INCLUDE_DIRS})
-endif()
 
 add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(Renderer PRIVATE "Pch.hpp")
@@ -72,7 +73,9 @@ target_link_libraries(Renderer
 )
 
 if(NOT APPLE)
-  target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${SpirvCross_LIBRARIES})
+  add_dependencies(Renderer glslang SpirvCross)
+  include_directories(${SpirvCross_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${glslang_INCLUDE_DIRS})
+  target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${SpirvCross_LIBRARIES} ${glslang_LIBRARIES})
   #optimized "d3d12.lib" debug "d3d12.lib"
   #optimized "DXGI.lib" debug "DXGI.lib"
   

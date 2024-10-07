@@ -102,6 +102,40 @@ message(STATUS "msdfgen is available in " ${msdfgen_INCLUDE_DIRS})
 message(STATUS "msdfgen is available in " ${msdfgen_LIBRARIES})
 
 # TODO move in Renderer CmakeList (only with Vulkan) ? 
+
+set(glslang_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/glslang-src)
+if(WIN32)
+  set(glslang_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/Release/glslang.lib ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/Release/glslang-default-resource-limits.lib)
+elseif(UNIX)
+  set(glslang_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/Release/libglslang.a ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/Release/libglslang-default-resource-limits.a)
+endif()
+
+ExternalProject_Add(glslang
+  URL https://github.com/KhronosGroup/glslang/archive/refs/tags/15.0.0.zip
+  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/glslang-src
+  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/glslang-build
+  CMAKE_ARGS
+    -DGLSLANG_TESTS=OFF
+    -DBUILD_EXTERNAL=OFF
+    -DENABLE_SPIRV=ON
+    -DENABLE_HLSL=OFF
+    -DENABLE_SPVREMAPPER=OFF
+    -DENABLE_GLSLANG_BINARIES=OFF
+    -DENABLE_OPT=OFF
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DANDROID_ABI=${ANDROID_ABI}
+    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -G ${CMAKE_GENERATOR}
+  BUILD_COMMAND 
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/glslang-build --config Release
+  INSTALL_COMMAND ""
+  BUILD_BYPRODUCTS ${glslang_LIBRARIES}
+)
+
+message(STATUS "glslang is available in " ${glslang_INCLUDE_DIRS})
+message(STATUS "glslang is available in " ${glslang_LIBRARIES})
+
 ExternalProject_Add(VulkanMemoryAllocator
   URL https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/archive/refs/tags/v3.1.0.zip
   DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}

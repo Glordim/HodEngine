@@ -19,6 +19,7 @@
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
+#include <HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp>
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Core/FileSystem.hpp>
@@ -470,16 +471,27 @@ void embraceTheDarkness()
 				{ 0, 16, renderer::VertexInput::Format::R8G8B8A8_UNorm },
 			};
 
+			std::vector<uint8_t> shaderByteCode;
+			shaderByteCode.reserve(2048);
+
+			if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, renderer::Shader::ShaderType::Vertex, imgui_vert) == false)
+			{
+				return false;
+			}
 			renderer::Shader* vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
-			//if (vertexShader->LoadFromMemory((void*)__glsl_shader_vert_spv, sizeof(__glsl_shader_vert_spv)) == false)
-			if (vertexShader->LoadFromMemory(imgui_vert, imgui_vert_size) == false)
+			if (vertexShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
 			{
 				delete vertexShader;
 				return false;
 			}
 
 			renderer::Shader* fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
-			if (fragmentShader->LoadFromMemory(imgui_frag, imgui_frag_size) == false)
+			if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, renderer::Shader::ShaderType::Fragment, imgui_frag) == false)
+			{
+				delete vertexShader;
+				return false;
+			}
+			if (fragmentShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
 			{
 				delete vertexShader;
 				delete fragmentShader;

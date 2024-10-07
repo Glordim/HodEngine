@@ -10,6 +10,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGeneratorGLSL.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -182,6 +183,8 @@ namespace hod::renderer
 	/// @return 
 	bool RendererVulkan::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
+		_shaderGenerator = new ShaderGeneratorGLSL();
+
 		if (CreateVkIntance() == false)
 		{
 			return false;
