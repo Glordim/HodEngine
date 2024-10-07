@@ -57,6 +57,11 @@ namespace hod
     /// @param ptr 
     void MemoryManagerLeakDetector::FreeAlign(void* ptr, uint32_t alignment)
     {
+		if (ptr == nullptr)
+		{
+			return;
+		}
+		
 		RemoveAllocation(ptr);
 		free(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) - sizeof(Allocation)));
     }

@@ -48,6 +48,11 @@ namespace hod
     /// @param ptr 
     void MemoryManagerLeakDetector::Free(void* ptr)
     {
+		if (ptr == nullptr)
+		{
+			return;
+		}
+
 		RemoveAllocation(ptr);
 		free(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) - sizeof(Allocation)));
     }
