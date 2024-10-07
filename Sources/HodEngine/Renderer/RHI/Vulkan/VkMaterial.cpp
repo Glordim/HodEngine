@@ -6,7 +6,7 @@
 
 #undef min
 #undef max
-#include <spirv_cross/spirv_cross.hpp>
+#include <spirv_cross.hpp>
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 

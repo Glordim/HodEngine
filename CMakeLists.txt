@@ -152,6 +152,38 @@ set(VulkanMemoryAllocator_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAll
 message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_INCLUDE_DIRS})
 message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_LIBRARIES})
 
+set(SpirvCross_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/SpirvCross-src)
+if(WIN32)
+  set(SpirvCross_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build/Release/spirv-cross-core.lib)
+elseif(UNIX)
+  set(SpirvCross_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build/Release/libspirv-cross-core.a)
+endif()
+
+ExternalProject_Add(SpirvCross
+  URL https://github.com/KhronosGroup/SPIRV-Cross/archive/refs/tags/vulkan-sdk-1.3.275.0.zip
+  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/SpirvCross-src
+  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build
+  CMAKE_ARGS
+    -DSPIRV_CROSS_CLI=OFF
+    -DSPIRV_CROSS_ENABLE_TESTS=OFF
+    -DSPIRV_CROSS_ENABLE_HLSL=OFF
+    -DSPIRV_CROSS_ENABLE_MSL=OFF
+    -DSPIRV_CROSS_ENABLE_CPP=OFF
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DANDROID_ABI=${ANDROID_ABI}
+    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -G ${CMAKE_GENERATOR}
+  BUILD_COMMAND
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build --config Release
+  INSTALL_COMMAND ""
+  BUILD_BYPRODUCTS ${SpirvCross_LIBRARIES}
+)
+
+message(STATUS "SpirvCross is available in " ${SpirvCross_INCLUDE_DIRS})
+message(STATUS "SpirvCross is available in " ${SpirvCross_LIBRARIES})
+#
+
 set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
