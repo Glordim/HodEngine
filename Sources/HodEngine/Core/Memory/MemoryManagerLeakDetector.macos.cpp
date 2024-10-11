@@ -44,7 +44,7 @@ namespace hod
     void* MemoryManagerLeakDetector::AllocateAlign(uint32_t size, uint32_t alignment)
     {
 		void* ptr = nullptr;
-		int result = posix_memalign(&ptr, alignment, size);
+		int result = posix_memalign(&ptr, alignment, sizeof(Allocation) + size);
 		if (result != 0)
 		{
 			return nullptr;

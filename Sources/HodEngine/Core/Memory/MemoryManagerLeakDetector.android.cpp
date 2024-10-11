@@ -61,7 +61,7 @@ namespace hod
     uint32_t MemoryManagerLeakDetector::GetCallstack(std::array<void*, 64>& callstack) const
 	{
 		BacktraceState state = { 0, callstack };
-    	_Unwind_Backtrace(unwindCallback, &callstack);
+    	_Unwind_Backtrace(unwindCallback, &state);
 		return state._currentIndex;
 	}
 
@@ -72,7 +72,7 @@ namespace hod
     void* MemoryManagerLeakDetector::AllocateAlign(uint32_t size, uint32_t alignment)
     {
 		void* ptr = nullptr;
-		int result = posix_memalign(&ptr, alignment, size);
+		int result = posix_memalign(&ptr, alignment, sizeof(Allocation) + size);
 		if (result != 0)
 		{
 			return nullptr;
