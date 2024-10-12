@@ -32,6 +32,7 @@
 	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp>
 #elif defined(PLATFORM_ANDROID)
 	#include <vulkan/vulkan_android.h>
+	#include <HodEngine/Window/Android/AndroidWindow.hpp>
 #endif
 
 namespace hod::renderer
@@ -562,15 +563,18 @@ namespace hod::renderer
 	/// @return 
 	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
 	{
-		/*
-		window::WaylandWindow* waylandWindow = static_cast<window::WaylandWindow*>(window);
-		window::WaylandDisplayManager* waylandDisplayManager = window::WaylandDisplayManager::GetInstance();
-		*/
+		window::AndroidWindow* androidWindow = static_cast<window::AndroidWindow*>(window);
+
+        if (window == nullptr)
+        {
+            OUTPUT_ERROR("Vulkan: Unable to create Android Surface, Windows is nullptr");
+            return nullptr;
+        }
 
 		VkAndroidSurfaceCreateInfoKHR createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
 		createInfo.flags = 0;
-		createInfo.window = nullptr; // TODO
+		createInfo.window = androidWindow->GetNativeWindow();
 		createInfo.pNext = nullptr;
 
 		VkSurfaceKHR surface;
