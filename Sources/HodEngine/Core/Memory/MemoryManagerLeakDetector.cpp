@@ -22,7 +22,7 @@ namespace hod
 			{
 				const Allocation* allocation = _allocations[index];
 
-				fprintf(memleakReport, "Ptr = %p\n", allocation->_ptr);
+				fprintf(memleakReport, "Ptr = %p\n", allocation->_userAddress);
 				fprintf(memleakReport, "Size = %u\n", allocation->_size);
 				fprintf(memleakReport, "Callstack :\n");
 
@@ -39,35 +39,71 @@ namespace hod
     /// @return 
     void* MemoryManagerLeakDetector::Allocate(uint32_t size)
     {
-		void* ptr = malloc(size + sizeof(Allocation));
-		InsertAllocation(ptr, size);
-        return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) + sizeof(Allocation));
+		void* realAddress = malloc(size + sizeof(Allocation));
+		void* userAddress = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(realAddress) + sizeof(Allocation));
+		InsertAllocation(userAddress, size, realAddress);
+        return userAddress;
     }
 
     /// @brief 
+    /// @param userAddress 
+    void MemoryManagerLeakDetector::Free(void* userAddress)
+    {
+		if (userAddress == nullptr)
+		{
+			return;
+		}
+
+		void* realAddress = RemoveAllocation(userAddress);
+		free(realAddress);
+    }
+
+	/// @brief 
+    /// @param size 
+    /// @param alignment 
+    /// @return 
+    void* MemoryManagerLeakDetector::AllocateAlign(uint32_t size, uint32_t alignment)
+    {
+		void* realAddress = malloc(size + alignment - 1 + sizeof(Allocation));
+
+		uintptr_t alignedAddressUInt = reinterpret_cast<uintptr_t>(realAddress) + sizeof(Allocation);
+		alignedAddressUInt = (alignedAddressUInt + alignment - 1) & ~((uintptr_t)alignment - 1);
+
+		void* alignedAddress = reinterpret_cast<void*>(alignedAddressUInt);
+		assert(reinterpret_cast<uintptr_t>(alignedAddress) % alignment == 0);
+
+		InsertAllocation(alignedAddress, size, realAddress);
+		return alignedAddress;
+    }
+
+	/// @brief 
     /// @param ptr 
-    void MemoryManagerLeakDetector::Free(void* ptr)
+    void MemoryManagerLeakDetector::FreeAlign(void* ptr, uint32_t alignment)
     {
 		if (ptr == nullptr)
 		{
 			return;
 		}
-
-		RemoveAllocation(ptr);
-		free(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) - sizeof(Allocation)));
+		
+		void* realAddress = RemoveAllocation(ptr);
+		free(realAddress);
     }
 
 	/// @brief 
-	/// @param ptr 
+	/// @param userAddress 
 	/// @param size 
-	void MemoryManagerLeakDetector::InsertAllocation(void* ptr, uint32_t size)
+	/// @param address 
+	void MemoryManagerLeakDetector::InsertAllocation(void* userAddress, uint32_t size, void* address)
 	{
-		Allocation* allocation = static_cast<Allocation*>(ptr);
+		uint32_t reservedSize = (uint32_t)(reinterpret_cast<uintptr_t>(userAddress) - reinterpret_cast<uintptr_t>(address));
+		std::memset(address, 0xCE, reservedSize);
+		std::memset(userAddress, 0xA1, size);
+
+		Allocation* allocation = reinterpret_cast<Allocation*>(reinterpret_cast<uintptr_t>(userAddress) - sizeof(Allocation));
         allocation->_callstackSize = GetCallstack(allocation->_callstack);
         allocation->_size = size;
-        allocation->_ptr = ptr;
-
-		std::memset(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) + sizeof(Allocation)), 0xA1, size);
+        allocation->_realAddress = address;
+		allocation->_userAddress = userAddress;
 
 		_mutex.lock();
 		allocation->_index = _allocationCount;
@@ -77,11 +113,13 @@ namespace hod
 	}
 
     /// @brief 
-    /// @param ptr 
-    void MemoryManagerLeakDetector::RemoveAllocation(void* ptr)
+    /// @param userAddress 
+    /// @return 
+    void* MemoryManagerLeakDetector::RemoveAllocation(void* userAddress)
 	{
-		void* realPtr = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) - sizeof(Allocation));
-		Allocation* allocation = static_cast<Allocation*>(realPtr);
+		void* allocationAddress = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(userAddress) - sizeof(Allocation));
+		Allocation* allocation = static_cast<Allocation*>(allocationAddress);
+		assert(allocation->_userAddress == userAddress);
 
 		_mutex.lock();
 		if (allocation->_index != _allocationCount - 1)
@@ -94,7 +132,8 @@ namespace hod
 		--_allocationCount;
 		_mutex.unlock();
 
-		std::memset(ptr, 0xDE, allocation->_size);
+		std::memset(userAddress, 0xDE, allocation->_size);
+		return allocation->_realAddress;
 	}
 }
 

@@ -22,7 +22,8 @@ namespace hod
 
         struct Allocation
         {
-            void* _ptr = nullptr;
+            void* _realAddress = nullptr;
+            void* _userAddress = nullptr;
             uint32_t _size = 0;
             uint32_t _index = 0;
 
@@ -42,8 +43,8 @@ namespace hod
 
     private:
 
-        void    InsertAllocation(void* ptr, uint32_t size);
-        void    RemoveAllocation(void* ptr);
+        void        InsertAllocation(void* userAddress, uint32_t size, void* address);
+        void*       RemoveAllocation(void* userAddress);
 
         void        WriteCallstackInReport(FILE* report, const Allocation& allocation) const;
         uint32_t    GetCallstack(std::array<void*, 64>& callstack) const;

@@ -36,35 +36,6 @@ namespace hod
 	{
 		return backtrace(callstack.data(), callstack.size());
 	}
-
-	/// @brief 
-    /// @param size 
-    /// @param alignment 
-    /// @return 
-    void* MemoryManagerLeakDetector::AllocateAlign(uint32_t size, uint32_t alignment)
-    {
-		void* ptr = nullptr;
-		int result = posix_memalign(&ptr, alignment, sizeof(Allocation) + size);
-		if (result != 0)
-		{
-			return nullptr;
-		}
-		InsertAllocation(ptr, size);
-        return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) + sizeof(Allocation));
-    }
-
-	/// @brief 
-    /// @param ptr 
-    void MemoryManagerLeakDetector::FreeAlign(void* ptr, uint32_t alignment)
-    {
-		if (ptr == nullptr)
-		{
-			return;
-		}
-		
-		RemoveAllocation(ptr);
-		free(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) - sizeof(Allocation)));
-    }
 }
 
 #endif

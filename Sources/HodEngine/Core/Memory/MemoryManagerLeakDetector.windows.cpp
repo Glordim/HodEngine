@@ -51,30 +51,6 @@ namespace hod
 	{
 		return CaptureStackBackTrace(4, (DWORD)callstack.size(), callstack.data(), nullptr);
 	}
-
-	/// @brief 
-    /// @param size 
-    /// @param alignment 
-    /// @return 
-    void* MemoryManagerLeakDetector::AllocateAlign(uint32_t size, uint32_t alignment)
-    {
-		void* ptr = _aligned_malloc(size + sizeof(Allocation), alignment);
-		InsertAllocation(ptr, size);
-        return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) + sizeof(Allocation));
-    }
-
-	/// @brief 
-    /// @param ptr 
-    void MemoryManagerLeakDetector::FreeAlign(void* ptr, uint32_t alignment)
-    {
-		if (ptr == nullptr)
-		{
-			return;
-		}
-		
-		RemoveAllocation(ptr);
-		_aligned_free(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(ptr) - sizeof(Allocation)));
-    }
 }
 
 #endif
