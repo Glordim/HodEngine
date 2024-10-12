@@ -23,6 +23,10 @@
 	using Uuid = CFUUIDBytes;
 #endif
 
+#include <iomanip>
+#include <sstream>
+#include <cstdint>
+
 //-----------------------------------------------------------------------------
 //! @brief		
 //-----------------------------------------------------------------------------
@@ -117,6 +121,18 @@ namespace hod
 		return uid;
 	}
 
+	uint64_t reverseBytes(uint64_t value, int byteCount)
+	{
+		uint64_t reversed = 0;
+		for (int i = 0; i < byteCount; ++i)
+		{
+			reversed <<= 8;
+			reversed |= (value & 0xFF);
+			value >>= 8;
+		}
+		return reversed;
+	}
+
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
@@ -138,8 +154,19 @@ namespace hod
 
 		str = (const char*)stringTmp;
 		RpcStringFree(&stringTmp);
-	#elif defined(PLATFORM_LINUX)
-		// TODO
+	#else
+		std::stringstream ss;
+
+		uint64_t reversedHigh = reverseBytes(_high, 8); // 8 octets pour les 64 bits
+    
+    	ss << std::hex << std::setfill('0')
+		<< std::setw(8) << (_low & 0xFFFFFFFF)               // 32 bits les moins significatifs de `low`
+		<< '-' << std::setw(4) << ((_low >> 32) & 0xFFFF)    // 16 bits suivants de `low`
+		<< '-' << std::setw(4) << ((_low >> 48) & 0xFFFF)    // 16 bits suivants de `low`
+		<< '-' << std::setw(4) << ((reversedHigh >> 48) & 0xFFFF)  // 16 bits les plus significatifs de `high` inversé
+       	<< '-' << std::setw(12) << (reversedHigh & 0xFFFFFFFFFFFF); // 48 bits les moins significatifs de `high` inversé
+
+		str = ss.str();
 	#endif
 
 		return str;
