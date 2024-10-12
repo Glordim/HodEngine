@@ -44,19 +44,19 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 		buildPath = datasPathArgument->_values[0];
 	}
 
-	hod::ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
-	_gameModule.Init(buildPath / "Game", false);
-	if (_gameModule.Load() == false)
-	{
-		return false;
-	}
-
 	hod::Document document;
 	hod::DocumentReaderJson reader;
 	reader.Read(document, buildPath / "Boot.json");
 
 	hod::game::BootInfo bootInfo;
 	hod::Serializer::Deserialize(bootInfo, document.GetRootNode());
+
+	hod::ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
+	_gameModule.Init(buildPath / bootInfo._gameModule, false);
+	if (_gameModule.Load() == false)
+	{
+		return false;
+	}
 
 	std::shared_ptr<hod::game::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::game::SceneResource>(bootInfo._startupScene);
 	hod::game::World::GetInstance()->AddScene(&sceneResource->GetScene());

@@ -6,5 +6,6 @@ namespace hod::game
 	DESCRIBE_REFLECTED_CLASS_NO_PARENT(BootInfo)
 	{
 		ADD_PROPERTY(BootInfo, _startupScene);
+		ADD_PROPERTY(BootInfo, _gameModule);
 	}
 }

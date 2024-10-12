@@ -559,6 +559,7 @@ namespace hod::editor
 
 			game::BootInfo bootInfo;
 			bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
+			bootInfo._gameModule = Project::GetInstance()->GetName();
 
 			Document bootDocument;
 			Serializer::Serialize(bootInfo, bootDocument.GetRootNode());

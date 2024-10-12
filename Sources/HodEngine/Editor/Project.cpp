@@ -92,7 +92,7 @@ namespace hod::editor
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule.Init(_projectPath.parent_path() / "build" / "Release" / "Game", true);
+		_gameModule.Init(_projectPath.parent_path() / "build" / "Release" / _name, true);
 		std::filesystem::create_directories(_gameModule.GetPath().parent_path());
 		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const std::filesystem::path&){ _gameModule.Reload(); }, nullptr);
 		_gameModuleFileSystemWatcher.RegisterUpdateJob();
@@ -139,6 +139,13 @@ namespace hod::editor
 	const UID& Project::GetStartupScene() const
 	{
 		return _startupScene;
+	}
+
+	/// @brief 
+	/// @return 
+	const std::string Project::GetName() const
+	{
+		return _name;
 	}
 
 	/// @brief 
@@ -213,6 +220,14 @@ namespace hod::editor
 		{
 			cmakeLists.replace(replaceIndex, enginePathTag.size(), enginePath);
 			replaceIndex = cmakeLists.find(enginePathTag);
+		}
+
+		constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
+		replaceIndex = cmakeLists.find(projectNameTag);
+		while (replaceIndex != std::string::npos)
+		{
+			cmakeLists.replace(replaceIndex, projectNameTag.size(), _name);
+			replaceIndex = cmakeLists.find(projectNameTag);
 		}
 
 		std::filesystem::path path = _projectPath.parent_path() / "CMakeLists.txt";

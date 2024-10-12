@@ -34,6 +34,8 @@ namespace hod::editor
 		void							SetStartupScene(std::shared_ptr<Asset> asset);
 		const UID&						GetStartupScene() const;
 
+		const std::string				GetName() const;
+
 		const std::filesystem::path&	GetProjectPath() const;
 		const std::filesystem::path&	GetAssetDirPath() const;
 		const std::filesystem::path&	GetResourceDirPath() const;

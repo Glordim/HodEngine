@@ -12,5 +12,6 @@ namespace hod::game
 	public:
 
 		UID _startupScene;
+		std::string _gameModule;
 	};
 }
