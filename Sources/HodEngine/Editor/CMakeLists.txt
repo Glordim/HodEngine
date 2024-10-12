@@ -47,10 +47,9 @@ list(APPEND Srcs ${IconSrcs})
 list(APPEND Srcs ${IconIncludes})
 list(APPEND Includes ${IconIncludes})
 
-create_resources("CMakeProjectTemplate/CMakeLists.txt" "CMakeProjectTemplate" CMakeTemplateSrcs CMakeTemplateIncludes)
-list(APPEND Srcs ${CMakeTemplateSrcs})
-list(APPEND Srcs ${CMakeTemplateIncludes})
-list(APPEND Includes ${CMakeTemplateIncludes})
+EmbeedTextInSource("CMakeProjectTemplate/CMakeLists.txt" ${PROJECT_SOURCE_DIR}/CMakeProjectTemplate/CMakeProjectTemplate.hpp.in ${PROJECT_SOURCE_DIR}/CMakeProjectTemplate/Generated GeneratedFile)
+list(APPEND Srcs ${GeneratedFile})
+list(APPEND Includes ${GeneratedFile})
 
 assign_source_group(${Srcs}) # for VS
 
