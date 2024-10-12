@@ -14,10 +14,10 @@
 		#include "HodEngine/Application/GraphicApplications/DesktopApplications/LinuxApplication.hpp"
 		#define PlatformApplication hod::application::LinuxApplication
 	#elif defined(PLATFORM_ANDROID)
-		#include "HodEngine/Application/GraphicApplications/MobileApplications/AndroidApplication.hpp"
+		#include "HodEngine/Application/GraphicApplications/MobileApplications/Android/AndroidApplication.hpp"
 		#define PlatformApplication hod::application::AndroidApplication
 	#elif defined(PLATFORM_IOS)
-		#include "HodEngine/Application/GraphicApplications/MobileApplications/IOSApplication.hpp"
+		#include "HodEngine/Application/GraphicApplications/MobileApplications/IOS/IOSApplication.hpp"
 		#define PlatformApplication hod::application::IOSApplication
 	#endif
 #endif

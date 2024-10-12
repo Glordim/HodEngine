@@ -9,7 +9,7 @@
 
 #include <HodEngine/Core/ArgumentParser.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
-#include <HodEngine/Application/GraphicApplications/MobileApplications/AndroidApplication.hpp>
+#include <HodEngine/Application/GraphicApplications/MobileApplications/Android/AndroidApplication.hpp>
 
 /*!
  * Handles commands sent to this Android application
