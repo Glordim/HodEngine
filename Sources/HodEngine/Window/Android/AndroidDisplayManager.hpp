@@ -3,7 +3,7 @@
 
 #include "HodEngine/Window/DisplayManager.hpp"
 
-#undef CreateWindow
+struct ANativeWindow;
 
 namespace hod::window
 {
@@ -15,7 +15,9 @@ namespace hod::window
 
     public:
 
-        bool    Initialize() override { return false; }
+        bool    Initialize() override { return true; }
         void    Terminate() override {}
+
+        Window* CreateMainWindow(ANativeWindow* nativeWindow);
     };
 }
