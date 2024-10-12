@@ -36,6 +36,10 @@ namespace hod
 
 		OutputService&		operator=(const OutputService&) = delete;
 		OutputService&		operator=(OutputService&&) = delete;
+
+	private:
+
+		static void			PlatformOutput(Output::Type type, const std::string& content);
 	};
 
 	/// @brief 

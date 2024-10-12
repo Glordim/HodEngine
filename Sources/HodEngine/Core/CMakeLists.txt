@@ -24,6 +24,11 @@ if(APPLE)
 	find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 endif()
 
+if(ANDROID)
+find_library(android-lib android)
+target_link_libraries(Core ${android-lib} log)
+endif()
+
 if(WIN32)
 	set(DebugLib "Dbghelp.lib")
 endif()

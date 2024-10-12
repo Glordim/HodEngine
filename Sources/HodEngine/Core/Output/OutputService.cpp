@@ -2,10 +2,6 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Output/OutputBucket.hpp"
 
-#if defined(PLATFORM_WINDOWS)
-	#include <Windows.h>
-#endif
-
 namespace hod
 {
 	static thread_local std::vector<OutputBucket*> _buckets;
@@ -25,21 +21,7 @@ namespace hod
 
 		std::string content = std::format("{}({}) : {} : {}\n", fileName, lineNumber, Output::GetTypeName(type), format);
 
-		if (type == Output::Type::Message)
-		{
-			fputs(content.c_str(), stdout);
-		}
-		else
-		{
-			fputs(content.c_str(), stderr);
-		}
-
-#if defined(PLATFORM_WINDOWS)
-		if (IsDebuggerPresent() == TRUE)
-		{
-			OutputDebugString(content.c_str());
-		}
-#endif
+		PlatformOutput(type, content);
 	}
 
 	/// @brief 
