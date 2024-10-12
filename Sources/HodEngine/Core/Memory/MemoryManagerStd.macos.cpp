@@ -9,15 +9,21 @@ namespace hod
 {
 	/// @brief 
 	/// @param size 
+	/// @param alignment 
 	/// @return 
-	void* MemoryManagerStd::Allocate(uint32_t size)
+	void* MemoryManagerStd::AllocateAlign(uint32_t size, uint32_t alignment)
 	{
-		return malloc(size);
+		void* ptr;
+		if (posix_memalign(&ptr, alignment, size) != 0)
+		{
+			return nullptr;
+		}
+		return ptr;
 	}
 
 	/// @brief 
 	/// @param ptr 
-	void MemoryManagerStd::Free(void* ptr)
+	void MemoryManagerStd::FreeAlign(void* ptr, uint32_t alignment)
 	{
 		free(ptr);
 	}
