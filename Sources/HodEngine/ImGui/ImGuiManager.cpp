@@ -22,7 +22,7 @@
 #include <HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp>
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
-#include <HodEngine/Core/FileSystem.hpp>
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 #include <HodEngine/Window/Desktop/DesktopDisplayManager.hpp>

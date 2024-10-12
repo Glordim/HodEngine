@@ -21,7 +21,7 @@ namespace hod
 
 	protected:
 
-		bool					PopulateDocument(Document& document, std::istream& stream, uint32_t size) override;
+		bool					PopulateDocument(Document& document, const char* buffer) override;
 
 	private:
 

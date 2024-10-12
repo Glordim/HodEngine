@@ -44,16 +44,16 @@ namespace hod::editor
 		std::filesystem::path metaFilePath = path;
 		metaFilePath += ".meta";
 
-		std::ifstream metaFile(metaFilePath);
-		if (metaFile.is_open() == false)
+		FileSystem::Handle metaFileHandle = FileSystem::GetInstance()->Open(metaFilePath);
+		if (metaFileHandle.IsOpen() == false)
 		{
-			metaFile.close();
+			FileSystem::GetInstance()->Close(metaFileHandle);
 			if (GenerateNewMeta(metaFilePath) == false)
 			{
 				return false;
 			}
-			metaFile.open(metaFilePath);
-			if (metaFile.is_open() == false)
+			metaFileHandle = FileSystem::GetInstance()->Open(metaFilePath);
+			if (metaFileHandle.IsOpen() == false)
 			{
 				return false;
 			}
@@ -61,7 +61,7 @@ namespace hod::editor
 		
 		Document document;
 		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, metaFile) == false)
+		if (documentReader.Read(document, metaFileHandle) == false)
 		{
 			// TODO output reason
 			return false;
@@ -88,8 +88,8 @@ namespace hod::editor
 			return false;
 		}
 
-		std::ifstream dataFile(path, std::ios::binary);
-		if (dataFile.is_open() == false)
+		FileSystem::Handle dataFile = FileSystem::GetInstance()->Open(path); //, std::ios::binary);
+		if (dataFile.IsOpen() == false)
 		{
 			// TODO output reason
 			return false;
@@ -118,7 +118,7 @@ namespace hod::editor
 		}
 
 		resourceFile.write("HodResource", 11);
-		return WriteResource(dataFile, metaFile, resourceFile, thumbnailFile, *meta._importerSettings);
+		return WriteResource(dataFile, metaFileHandle, resourceFile, thumbnailFile, *meta._importerSettings);
 	}
 
 	/// @brief 

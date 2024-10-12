@@ -76,7 +76,7 @@ namespace hod::renderer
 	/// @param document 
 	/// @param stream 
 	/// @return 
-	bool FontResource::Initialize(const Document::Node& documentNode, std::istream& stream)
+	bool FontResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
@@ -91,8 +91,8 @@ namespace hod::renderer
 			return false;
 		}
 
-		std::streampos initialStreamPos = stream.tellg();
-		std::streampos dataOffset = dataOffsetNode->GetUInt32();
+		uint32_t initialStreamPos = FileSystem::GetInstance()->GetOffset(fileHandle);
+		uint32_t dataOffset = dataOffsetNode->GetUInt32();
 
 		const Document::Node* dataSizeNode = documentNode.GetChild("DataSize");
 		if (dataSizeNode == nullptr)
@@ -103,7 +103,7 @@ namespace hod::renderer
 
 		uint32_t dataSize = dataSizeNode->GetUInt32();
 
-		stream.seekg(initialStreamPos + dataOffset, std::ios_base::beg);
+		FileSystem::GetInstance()->Seek(fileHandle, initialStreamPos + dataOffset, FileSystem::SeekMode::Begin);
 
 		FT_Error error;
 		FT_Library ftLibrary;
@@ -115,7 +115,11 @@ namespace hod::renderer
 		}
 
 		uint8_t* data = new uint8_t[dataSize];
-		stream.read((char*)data, dataSize);
+		if (FileSystem::GetInstance()->Read(fileHandle, (char*)data, dataSize) != dataSize)
+		{
+			delete[] data;
+			return false;
+		}
 
 		FT_Face ftFace;
 		error = FT_New_Memory_Face(ftLibrary, data, dataSize, 0, &ftFace);

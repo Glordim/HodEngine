@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
@@ -29,7 +30,7 @@ namespace hod
 		const UID&	GetUid() const { return _uid; }
 		void		SetUid(const UID& uid) { _uid = uid; }
 
-		virtual bool		Initialize(const Document::Node& documentNode, std::istream& stream) = 0;
+		virtual bool		Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) = 0;
 
 	private:
 

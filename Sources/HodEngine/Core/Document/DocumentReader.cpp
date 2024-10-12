@@ -4,8 +4,6 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 
-#include <fstream>
-
 namespace hod
 {
 	/// @brief 
@@ -14,13 +12,18 @@ namespace hod
 	/// @return 
 	bool DocumentReader::Read(Document& document, const std::filesystem::path& path)
 	{
-		std::ifstream fileStream(path);
-		return Read(document, fileStream);
+		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
+		return Read(document, fileHandle);
 	}
 
-	bool DocumentReader::Read(Document& document, std::istream& stream, uint32_t size)
+	/// @brief 
+	/// @param document 
+	/// @param fileHandle 
+	/// @param size 
+	/// @return 
+	bool DocumentReader::Read(Document& document, FileSystem::Handle& fileHandle, uint32_t size)
 	{
-		if (stream.fail())
+		if (fileHandle.IsOpen() == false)
 		{
 			OUTPUT_ERROR("Can't read document");
 			return false;
@@ -32,6 +35,21 @@ namespace hod
 			return false;
 		}
 
-		return PopulateDocument(document, stream, size);
+		if (size == 0)
+		{
+			size = FileSystem::GetInstance()->GetSize(fileHandle);
+		}
+
+		char* buffer = new char[size + 1];
+		if (FileSystem::GetInstance()->Read(fileHandle, buffer, size) != size)
+		{
+			return false;
+		}
+		buffer[size] = '\0';
+
+		bool result = PopulateDocument(document, buffer);
+		delete[] buffer;
+
+		return result;
 	}
 }

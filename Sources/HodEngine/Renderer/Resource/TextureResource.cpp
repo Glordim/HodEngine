@@ -28,7 +28,7 @@ namespace hod::renderer
 	/// @param document 
 	/// @param stream 
 	/// @return 
-	bool TextureResource::Initialize(const Document::Node& documentNode, std::istream& stream)
+	bool TextureResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
@@ -43,8 +43,8 @@ namespace hod::renderer
 			return false;
 		}
 
-		std::streampos initialStreamPos = stream.tellg();
-		std::streampos dataOffset = dataOffsetNode->GetUInt32();
+		uint32_t initialStreamPos = FileSystem::GetInstance()->GetOffset(fileHandle);
+		uint32_t dataOffset = dataOffsetNode->GetUInt32();
 
 		const Document::Node* dataSizeNode = documentNode.GetChild("DataSize");
 		if (dataSizeNode == nullptr)
@@ -55,14 +55,19 @@ namespace hod::renderer
 
 		uint32_t dataSize = dataSizeNode->GetUInt32();
 
-		stream.seekg(initialStreamPos + dataOffset, std::ios_base::beg);
+		FileSystem::GetInstance()->Seek(fileHandle, initialStreamPos + dataOffset, FileSystem::SeekMode::Begin);
 
 		Texture::CreateInfo createInfo;
 		createInfo._wrapMode = _wrapMode;
 		createInfo._filterMode = _filterMode;
 
 		char* data = new char[dataSize];
-		stream.read(data, dataSize);
+		if (FileSystem::GetInstance()->Read(fileHandle, data, dataSize) != dataSize)
+		{
+			delete[] data;
+			return false;
+		}
+
 		_texture = Renderer::GetInstance()->CreateTexture();
 		if (_texture->BuildBuffer(_width, _height, (unsigned char*)data, createInfo) == false) // todo BuildBuffer doesn't take void* ?
 		{

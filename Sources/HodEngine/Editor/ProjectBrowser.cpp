@@ -15,14 +15,14 @@
 
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
-#include "HodEngine/Core/FileSystem.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <HodEngine/Core/Process/Process.hpp>
-#include <HodEngine/Core/FileSystem.hpp>
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Application/Application.hpp>
 
 #include "portable-file-dialogs.h"

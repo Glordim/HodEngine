@@ -19,30 +19,11 @@ namespace hod
 	/// @param stream 
 	/// @param size 
 	/// @return 
-	bool DocumentReaderJson::PopulateDocument(Document& document, std::istream& stream, uint32_t size)
+	bool DocumentReaderJson::PopulateDocument(Document& document, const char* buffer)
 	{
-		if (size == 0)
-		{
-			std::streampos initialPos = stream.tellg();
-			stream.seekg(0, std::ios::end);
-			size = static_cast<uint32_t>(stream.tellg() - initialPos);
-			stream.seekg(initialPos, std::ios::beg);
-		}
-
-		char* buffer = new char[size + 1];
-		stream.read(buffer, size);
-		if (stream.eof() == false && stream.fail())
-		{
-			perror("Read fail:");
-			return false;
-		}
-		buffer[size] = '\0';
-
 		_cursor = buffer;
 		SkipWhiteSpace();
 		bool parsingResult = ParseObject(document.GetRootNode());
-
-		delete[] buffer;
 		_cursor = nullptr;
 
 		return parsingResult;

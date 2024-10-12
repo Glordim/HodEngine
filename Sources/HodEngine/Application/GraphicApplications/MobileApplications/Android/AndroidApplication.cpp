@@ -18,7 +18,7 @@
 
 #include "HodEngine/Core/Time/SystemTime.hpp"
 
-#include "HodEngine/Core/FileSystem.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include <HodEngine/Core/Job/JobScheduler.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
@@ -37,6 +37,20 @@
 #include <game-activity/GameActivity.h>
 #include <game-activity/native_app_glue/android_native_app_glue.h>
 
+#include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+
+#include <HodEngine/Core/Resource.hpp>
+#include <HodEngine/Core/ResourceManager.hpp>
+
+#include <HodEngine/Game/BootInfo.hpp>
+#include <HodEngine/Game/World.hpp>
+#include <HodEngine/Game/Scene.hpp>
+#include <HodEngine/Game/SceneResource.hpp>
+
+#include <HodEngine/Application/GraphicApplications/GraphicApplication.hpp>
+
 namespace hod::application
 {
 	/// @brief 
@@ -53,6 +67,11 @@ namespace hod::application
 		_androidApp = androidApp;
 		_androidApp->userData = this;
 		_androidApp->onAppCmd = &AndroidApplication::CommandHandleStatic;
+
+		if (FileSystem::CreateInstance()->Init(_androidApp->activity->assetManager) == false)
+		{
+			return false;
+		}
 
 		JobScheduler::CreateInstance();
 		FrameSequencer::CreateInstance();
@@ -117,6 +136,26 @@ namespace hod::application
 		game::RegisterBuiltin();
 
 		game::World::CreateInstance()->Init();
+
+		hod::Document document;
+		hod::DocumentReaderJson reader;
+		reader.Read(document, "Boot.json");
+
+		hod::game::BootInfo bootInfo;
+		hod::Serializer::Deserialize(bootInfo, document.GetRootNode());
+
+		hod::ResourceManager::GetInstance()->SetResourceDirectory("Datas");
+		/*
+		_gameModule.Init(buildPath.parent_path() / "libs" / "x86_64" / bootInfo._gameModule, false);
+		if (_gameModule.Load() == false)
+		{
+			return false;
+		}
+		*/
+
+		std::shared_ptr<hod::game::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::game::SceneResource>(bootInfo._startupScene);
+		hod::game::World::GetInstance()->AddScene(&sceneResource->GetScene());
+		hod::game::World::GetInstance()->SetEditorPlaying(true);
 
 		return true;
 	}

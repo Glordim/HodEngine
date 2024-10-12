@@ -2,6 +2,7 @@
 #include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/Core/Resource.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include <vector>
@@ -36,7 +37,7 @@ namespace hod::renderer
 
 	public:
 
-		bool				Initialize(const Document::Node& documentNode, std::istream& stream) override;
+		bool				Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) override;
 
 		Texture*			GetTexture() const;
 		const Kerning&		GetKerning(char32_t code) const;

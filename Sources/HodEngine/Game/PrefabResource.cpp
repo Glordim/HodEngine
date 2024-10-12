@@ -17,7 +17,7 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool PrefabResource::Initialize(const Document::Node& documentNode, std::istream& stream)
+	bool PrefabResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
 	{
 		_prefab = new Prefab(GetUid());
 		return _prefab->DeserializeFromDocument(documentNode);

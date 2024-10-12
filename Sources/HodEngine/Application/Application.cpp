@@ -1,7 +1,7 @@
 #include "HodEngine/Application/Pch.hpp"
 #include "HodEngine/Application/Application.hpp"
 
-#include "HodEngine/Core/FileSystem.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include <HodEngine/Core/Job/JobScheduler.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
@@ -63,6 +63,8 @@ namespace hod::application
 
 		FrameSequencer::DestroyInstance();
 		JobScheduler::DestroyInstance();
+
+		FileSystem::DestroyInstance();
 	}
 
 	/// @brief 

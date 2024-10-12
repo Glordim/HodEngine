@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 namespace hod
 {
@@ -60,7 +61,7 @@ namespace hod::editor
 
 		bool			GenerateNewMeta(const std::filesystem::path& metaFilePath);
 
-		virtual bool	WriteResource(std::ifstream& data, std::ifstream& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings) = 0;
+		virtual bool	WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings) = 0;
 
 		template<typename... Args>
 		void			SetSupportedDataFileExtensions(Args... args);

@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Resource.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include <fstream>
 #include <cstring>
@@ -40,16 +41,15 @@ namespace hod
 		std::filesystem::path path = _directory;
 		path /= uid.ToString() + ".dat";
 
-		std::ifstream stream(path, std::ios_base::binary);
-		if (stream.is_open() == false)
+		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
+		if (fileHandle.IsOpen() == false)
 		{
 			return false; // todo message
 		}
 
 		constexpr size_t signatureLen = 11; // HodResource
 		char signature[signatureLen];
-		stream.read(signature, signatureLen);
-		if (stream.fail()) // Read fail
+		if (FileSystem::GetInstance()->Read(fileHandle, signature, signatureLen) != signatureLen)
 		{
 			return false; // todo message
 		}
@@ -58,15 +58,14 @@ namespace hod
 			return false; // todo message
 		}
 		uint32_t documentLen = 0;
-		stream.read((char*)(&documentLen), sizeof(documentLen));
-		if (stream.fail())
+		if (FileSystem::GetInstance()->Read(fileHandle, (char*)(&documentLen), sizeof(documentLen)) != sizeof(documentLen))
 		{
 			return false; // todo message
 		}
 
 		Document document;
 		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, stream, documentLen) == false)
+		if (documentReader.Read(document, fileHandle, documentLen) == false)
 		{
 			return false; // todo message
 		}
@@ -99,7 +98,7 @@ namespace hod
 		}
 		*/
 
-		return resource->Initialize(rootNode, stream);
+		return resource->Initialize(rootNode, fileHandle);
 	}
 
 	/// @brief 

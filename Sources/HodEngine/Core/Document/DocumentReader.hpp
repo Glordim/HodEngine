@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include <stdint.h>
 #include <filesystem>
@@ -26,10 +27,10 @@ namespace hod
 	public:
 
 		bool				Read(Document& document, const std::filesystem::path& path);
-		bool				Read(Document& document, std::istream& stream, uint32_t size = 0);
+		bool				Read(Document& document, FileSystem::Handle& fileHandle, uint32_t size = 0);
 
 	protected:
 
-		virtual bool		PopulateDocument(Document& document, std::istream& stream, uint32_t size) = 0;
+		virtual bool		PopulateDocument(Document& document, const char* buffer) = 0;
 	};
 }

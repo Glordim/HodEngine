@@ -16,7 +16,7 @@
 
 #include "HodEngine/Core/Time/SystemTime.hpp"
 
-#include "HodEngine/Core/FileSystem.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include <HodEngine/Core/Job/JobScheduler.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
@@ -45,6 +45,10 @@ namespace hod::application
 	/// @return 
 	bool GraphicApplication::Init(const ArgumentParser& argumentParser)
 	{
+		if (FileSystem::CreateInstance()->Init() == false)
+		{
+			return false;
+		}
 		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
 
 		JobScheduler::CreateInstance();

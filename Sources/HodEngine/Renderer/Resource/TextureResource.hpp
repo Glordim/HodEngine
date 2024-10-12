@@ -23,7 +23,7 @@ namespace hod::renderer
 
 	public:
 
-		bool				Initialize(const Document::Node& documentNode, std::istream& stream) override;
+		bool				Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) override;
 
 		Texture*			GetTexture() const;
 
