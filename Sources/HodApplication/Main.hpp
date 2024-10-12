@@ -11,4 +11,5 @@
 extern "C"
 {
 	HOD_APP_EXPORT int HodMain(int argc, char** argv);
+	HOD_APP_EXPORT void android_main(struct android_app* app);
 }
