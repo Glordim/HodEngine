@@ -65,6 +65,11 @@ if (APPLE)
     find_library(COCOA_LIBRARY Cocoa)
 endif()
 
+if(ANDROID)
+    find_library(android-lib android)
+    target_link_libraries(Window ${android-lib})
+endif()
+
 add_dependencies(Window Core)
 target_precompile_headers(Window PRIVATE "Pch.hpp")
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)

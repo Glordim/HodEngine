@@ -10,6 +10,8 @@
 
 #include <cstdlib>
 
+#include <android/native_window.h>
+
 namespace hod::window
 {
 	/// @brief 
@@ -17,7 +19,8 @@ namespace hod::window
 	AndroidWindow::AndroidWindow(ANativeWindow* nativeWindow)
 	: _nativeWindow(nativeWindow)
 	{
-
+		_width = static_cast<uint16_t>(ANativeWindow_getWidth(_nativeWindow));
+		_height = static_cast<uint16_t>(ANativeWindow_getHeight(_nativeWindow));
 	}
 
 	/// @brief 
