@@ -14,7 +14,7 @@
 #include "HodEngine/Core/Process/Process.hpp"
 #include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Editor/CMakeProjectTemplate/CMakeLists.txt.h"
+#include "HodEngine/Editor/CMakeProjectTemplate/Generated/CMakeLists.txt.hpp"
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -194,17 +194,9 @@ namespace hod::editor
 	/// @return 
 	bool Project::GenerateGameModuleCMakeList() const
 	{
-		constexpr std::string_view replaceByEnginePath = "REPLACE_ME_BY_ENGINE_PATH";
-
-		std::string cmakeLists(reinterpret_cast<const char*>(CMakeLists_txt), CMakeLists_txt_size);
-		size_t replaceByEnginePathIndex = cmakeLists.find(replaceByEnginePath);
-		if (replaceByEnginePathIndex == std::string::npos)
-		{
-			return false;
-		}
-
-		std::string enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string(); // todo...
+		std::string cmakeLists(CMakeLists_txt);
 		
+		std::string enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string(); // todo...
 #if defined(PLATFORM_WINDOWS)
 		// CMakeLists require portable path
 		for (char& c : enginePath)
@@ -215,8 +207,13 @@ namespace hod::editor
 			}
         }
 #endif
-
-		cmakeLists.replace(replaceByEnginePathIndex, replaceByEnginePath.size(), enginePath);
+		constexpr std::string_view enginePathTag = "[[ENGINE_PATH]]";
+		size_t replaceIndex = cmakeLists.find(enginePathTag);
+		while (replaceIndex != std::string::npos)
+		{
+			cmakeLists.replace(replaceIndex, enginePathTag.size(), enginePath);
+			replaceIndex = cmakeLists.find(enginePathTag);
+		}
 
 		std::filesystem::path path = _projectPath.parent_path() / "CMakeLists.txt";
 

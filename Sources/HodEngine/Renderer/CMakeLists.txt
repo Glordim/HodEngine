@@ -23,30 +23,13 @@ else()
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ".*/RHI/Vulkan/.*")
 endif()
 
-function(EmbeedShaderSource InputFile TemplateFile OutputDir OutputFile)
-  message(STATUS "Pack Shader: ${InputFile}")
-
-  get_filename_component(FILENAME "${InputFile}" NAME)
-  string(REPLACE "." "_" ESCAPED_FILE_NAME "${FILENAME}")
-
-  file(READ "${InputFile}" FILE_CONTENTS)
-  string(REPLACE "\"" "\\\"" ESCAPED_FILE_CONTENTS "${FILE_CONTENTS}")
-  string(REPLACE "\n" "\\n\"\n\"" ESCAPED_FILE_CONTENTS "${ESCAPED_FILE_CONTENTS}")
-
-  configure_file(
-      ${TemplateFile}
-      ${OutputDir}/${FILENAME}.hpp
-      @ONLY
-  )
-endfunction()
-
 file(GLOB_RECURSE ShaderSources
 	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"
 	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.frag"
 )
 
 foreach(file ${ShaderSources})
-  EmbeedShaderSource(${file} ${PROJECT_SOURCE_DIR}/Shader/Template/ShaderSourceFileTemplate.hpp.in ${PROJECT_SOURCE_DIR}/Shader/Generated GeneratedFile)
+  EmbeedTextInSource(${file} ${PROJECT_SOURCE_DIR}/Shader/Template/ShaderSourceFileTemplate.hpp.in ${PROJECT_SOURCE_DIR}/Shader/Generated GeneratedFile)
   list(APPEND Srcs ${GeneratedFile})
   list(APPEND Includes ${GeneratedFile})
 endforeach()

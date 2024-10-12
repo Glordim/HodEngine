@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4...3.27)
 
 project(Game LANGUAGES CXX)
 
-set(HodEngine_DIR REPLACE_ME_BY_ENGINE_PATH)
+set(HodEngine_DIR [[ENGINE_PATH]])
 include(${HodEngine_DIR}/CMake/Global.cmake)
 include(${HodEngine_DIR}/CMake/FindHodEngine.cmake)
 FindHodEngine()
