@@ -27,7 +27,7 @@ namespace hod::application
 
 		window::Window*	GetWindow() const;
 
-	private:
+	protected:
 
 		window::Window*	_window = nullptr;
 	};
