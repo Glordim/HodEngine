@@ -17,7 +17,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(Core ${LIB_TYPE} ${Srcs} ${Includes})
-target_precompile_headers(Core PRIVATE "pch.hpp")
+target_precompile_headers(Core PRIVATE "Pch.hpp")
 set_property(TARGET Core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 if(APPLE)

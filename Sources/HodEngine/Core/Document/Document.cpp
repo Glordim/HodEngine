@@ -1,4 +1,4 @@
-#include "HodEngine/Core/pch.hpp"
+#include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 
 #include "HodEngine/Core/Hash.hpp"

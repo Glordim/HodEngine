@@ -1,4 +1,4 @@
-#include "HodEngine/Core/pch.hpp"
+#include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Frame/FrameSequencer.hpp"
 
 #include <stdint.h>

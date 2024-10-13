@@ -1,10 +1,10 @@
-#include "HodEngine/Core/pch.hpp"
+#include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Memory/MemoryManagerLeakDetector.hpp"
 
 #if defined(HOD_ENABLED_MEMLEAK_DETECTOR)
 
 #include <cstdlib>
-
+#include <cstring>
 #include <cassert>
 
 namespace hod
