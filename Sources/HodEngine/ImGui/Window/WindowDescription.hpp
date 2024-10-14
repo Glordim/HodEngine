@@ -46,11 +46,11 @@ namespace hod::imgui
 		hod::imgui::WindowDescription* GetDescription() override		\
 		{																\
 			return GetStaticDescription();								\
-		}																\
+		}																
 
 #define DECLARE_WINDOW_DESCRIPTION(Window, Name, Unique)	\
 	hod::imgui::WindowDescription Window::_description(		\
 		Name,												\
 		Unique,												\
 		[](){ return new Window; }							\
-	);														\
+	);														

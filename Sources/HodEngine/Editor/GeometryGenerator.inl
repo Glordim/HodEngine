@@ -1,5 +1,7 @@
 #include <HodEngine/Core/Math/Math.hpp>
 
+#include <cmath>
+
 namespace hod::editor
 {
 	/// @brief 

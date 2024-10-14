@@ -7,6 +7,8 @@
 
 #include <box2d/box2d.h>
 
+#include <cstring>
+
 namespace hod::physics
 {
 	/// @brief 

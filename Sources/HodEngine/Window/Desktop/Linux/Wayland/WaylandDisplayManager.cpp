@@ -593,7 +593,7 @@ namespace hod::window
     /// @param message 
     void WaylandDisplayManager::LibDecorErrorHandler(libdecor* context, libdecor_error error, const char* message)
 	{
-		OUTPUT_ERROR("LibDecor: Caught error ({}): {}", error, message);
+		OUTPUT_ERROR("LibDecor: Caught error ({}): {}", (int)error, message);
 	}
 
 	/// @brief 

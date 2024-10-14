@@ -6,6 +6,8 @@
 
 #include <box2d/box2d.h>
 
+#include <algorithm>
+
 namespace hod::physics
 {
 	/// @brief 

@@ -12,8 +12,8 @@
 
 #elif defined(PLATFORM_LINUX)
 
-	//#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp"
-	//#define PlatformDisplayManager hod::window::WaylandDisplayManager
+	#include "HodEngine/Audio/Linux/LinuxAudioManager.hpp"
+	#define PlatformAudioManager hod::audio::LinuxAudioManager
 
 #elif defined(PLATFORM_ANDROID)
 

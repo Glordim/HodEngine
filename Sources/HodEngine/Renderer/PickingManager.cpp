@@ -1,6 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 
+#include <cmath>
+
 namespace hod::renderer
 {
 	_SingletonConstructor(PickingManager)
