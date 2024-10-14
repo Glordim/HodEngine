@@ -13,7 +13,9 @@ namespace hod
 	bool DocumentReader::Read(Document& document, const std::filesystem::path& path)
 	{
 		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
-		return Read(document, fileHandle);
+		bool result = Read(document, fileHandle);
+		FileSystem::GetInstance()->Close(fileHandle);
+		return result;
 	}
 
 	/// @brief 

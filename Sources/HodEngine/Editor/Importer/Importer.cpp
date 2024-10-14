@@ -64,6 +64,7 @@ namespace hod::editor
 		if (documentReader.Read(document, metaFileHandle) == false)
 		{
 			// TODO output reason
+			FileSystem::GetInstance()->Close(metaFileHandle);
 			return false;
 		}
 
@@ -71,6 +72,7 @@ namespace hod::editor
 		if (Serializer::Deserialize(meta, document.GetRootNode()) == false)
 		{
 			// TODO output reason
+			FileSystem::GetInstance()->Close(metaFileHandle);
 			return false;
 		}
 
@@ -78,6 +80,7 @@ namespace hod::editor
 		if (importerNode == nullptr)
 		{
 			// TODO output reason
+			FileSystem::GetInstance()->Close(metaFileHandle);
 			return false;
 		}
 
@@ -85,6 +88,7 @@ namespace hod::editor
 		if (Serializer::Deserialize(*meta._importerSettings.get(), *importerNode) == false)
 		{
 			// TODO output reason
+			FileSystem::GetInstance()->Close(metaFileHandle);
 			return false;
 		}
 
@@ -92,6 +96,7 @@ namespace hod::editor
 		if (dataFile.IsOpen() == false)
 		{
 			// TODO output reason
+			FileSystem::GetInstance()->Close(metaFileHandle);
 			return false;
 		}
 
@@ -104,6 +109,8 @@ namespace hod::editor
 		if (thumbnailFile.is_open() == false)
 		{
 			// TODO output reason
+			FileSystem::GetInstance()->Close(metaFileHandle);
+			FileSystem::GetInstance()->Close(dataFile);
 			return false;
 		}
 
@@ -118,7 +125,10 @@ namespace hod::editor
 		}
 
 		resourceFile.write("HodResource", 11);
-		return WriteResource(dataFile, metaFileHandle, resourceFile, thumbnailFile, *meta._importerSettings);
+		bool result = WriteResource(dataFile, metaFileHandle, resourceFile, thumbnailFile, *meta._importerSettings);
+		FileSystem::GetInstance()->Close(metaFileHandle);
+		FileSystem::GetInstance()->Close(dataFile);
+		return result;
 	}
 
 	/// @brief 

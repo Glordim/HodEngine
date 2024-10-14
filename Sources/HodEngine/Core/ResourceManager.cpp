@@ -51,15 +51,18 @@ namespace hod
 		char signature[signatureLen];
 		if (FileSystem::GetInstance()->Read(fileHandle, signature, signatureLen) != signatureLen)
 		{
+			FileSystem::GetInstance()->Close(fileHandle);
 			return false; // todo message
 		}
 		if (std::strncmp(signature, "HodResource", signatureLen) != 0)
 		{
+			FileSystem::GetInstance()->Close(fileHandle);
 			return false; // todo message
 		}
 		uint32_t documentLen = 0;
 		if (FileSystem::GetInstance()->Read(fileHandle, (char*)(&documentLen), sizeof(documentLen)) != sizeof(documentLen))
 		{
+			FileSystem::GetInstance()->Close(fileHandle);
 			return false; // todo message
 		}
 
@@ -67,6 +70,7 @@ namespace hod
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, fileHandle, documentLen) == false)
 		{
+			FileSystem::GetInstance()->Close(fileHandle);
 			return false; // todo message
 		}
 
@@ -98,7 +102,9 @@ namespace hod
 		}
 		*/
 
-		return resource->Initialize(rootNode, fileHandle);
+		bool result = resource->Initialize(rootNode, fileHandle);
+		FileSystem::GetInstance()->Close(fileHandle);
+		return result;
 	}
 
 	/// @brief 
