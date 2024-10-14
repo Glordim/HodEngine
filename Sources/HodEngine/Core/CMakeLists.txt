@@ -33,6 +33,10 @@ if(WIN32)
 	set(DebugLib "Dbghelp.lib")
 endif()
 
+if(PLATFORM_LINUX)
+	target_link_libraries(Core uuid)
+endif()
+
 target_link_libraries(Core ${COREFOUNDATION_LIBRARY} ${DebugLib})
 target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)

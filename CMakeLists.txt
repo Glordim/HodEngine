@@ -6,8 +6,25 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+
+include(Global)
 include(FetchContent)
 include(ExternalProject)
+
+if(WIN32)
+  set(LIB_PREFIX "")
+  set(LIB_EXTENSION "lib")
+else()
+  set(LIB_PREFIX "lib")
+  set(LIB_EXTENSION "a")
+endif()
+
+if(PLATFORM_LINUX)
+  set(LIB_SUB_FOLDER "")
+else()
+  set(LIB_SUB_FOLDER "Release")
+endif()
 
 FetchContent_Declare(
   stb
@@ -23,11 +40,7 @@ FetchContent_MakeAvailable(portable_file_dialogs)
 message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_SOURCE_DIR})
 
 set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
-if(WIN32)
-  find_library(box2d_LIBRARIES NAMES box2d.lib HINTS ${CMAKE_BINARY_DIR}/_deps/box2d-build/src PATH_SUFFIXES Release)
-else()
-  find_library(box2d_LIBRARIES NAMES libbox2d.a HINTS ${CMAKE_BINARY_DIR}/_deps/box2d-build/src PATH_SUFFIXES Release)
-endif()
+set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/${LIB_SUB_FOLDER}/${LIB_PREFIX}box2d.${LIB_EXTENSION})
 
 ExternalProject_Add(box2d
   URL https://github.com/erincatto/box2d/archive/refs/tags/v3.0.0.zip
@@ -38,6 +51,7 @@ ExternalProject_Add(box2d
     -DBOX2D_SAMPLES=OFF
     -DBOX2D_VALIDATE=OFF
     -DBOX2D_UNIT_TESTS=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
@@ -52,19 +66,8 @@ ExternalProject_Add(box2d
 message(STATUS "box2d is available in " ${box2d_INCLUDE_DIRS})
 message(STATUS "box2d is available in " ${box2d_LIBRARIES})
 
-set(msdfgen_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/msdfgen-src/include)
-if(WIN32)
-  find_library(msdfgen_LIBRARIES NAMES msdfgen-core.lib HINTS ${CMAKE_BINARY_DIR}/_deps/msdfgen-build PATH_SUFFIXES Release)
-else()
-  find_library(msdfgen_LIBRARIES NAMES libmsdfgen-core.a HINTS ${CMAKE_BINARY_DIR}/_deps/msdfgen-build PATH_SUFFIXES Release)
-endif()
-
 set(freetype_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/freetype-src/include)
-if(WIN32)
-  find_library(msdfgen_LIBRARIES NAMES freetype.lib HINTS ${CMAKE_BINARY_DIR}/_deps/freetype-build PATH_SUFFIXES Release)
-else()
-  find_library(msdfgen_LIBRARIES NAMES libfreetype.a HINTS ${CMAKE_BINARY_DIR}/_deps/freetype-build PATH_SUFFIXES Release)
-endif()
+set(freetype_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/freetype-build/${LIB_SUB_FOLDER}/${LIB_PREFIX}freetype.${LIB_EXTENSION})
 
 ExternalProject_Add(freetype
   URL https://github.com/freetype/freetype/archive/refs/tags/VER-2-13-2.zip
@@ -72,9 +75,12 @@ ExternalProject_Add(freetype
   SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/freetype-src
   BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/freetype-build
   CMAKE_ARGS
-    -DMSDFGEN_CORE_ONLY=ON
-    -DMSDFGEN_BUILD_STANDALONE=OFF
-    -DMSDFGEN_USE_VCPKG=OFF
+    -DFT_DISABLE_BROTLI=ON
+    -DFT_DISABLE_HARFBUZZ=ON
+    -DFT_DISABLE_PNG=ON
+    -DFT_DISABLE_BZIP2=ON
+    -DFT_DISABLE_ZLIB=ON
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
@@ -90,6 +96,9 @@ ExternalProject_Add(freetype
 message(STATUS "freetype is available in " ${freetype_INCLUDE_DIRS})
 message(STATUS "freetype is available in " ${freetype_LIBRARIES})
 
+set(msdfgen_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/msdfgen-src/include)
+set(msdfgen_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/msdfgen-build/${LIB_SUB_FOLDER}/${LIB_PREFIX}msdfgen-core.${LIB_EXTENSION})
+
 ExternalProject_Add(msdfgen
   URL https://github.com/Chlumsky/msdfgen/archive/refs/tags/v1.12.zip
   DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
@@ -99,6 +108,7 @@ ExternalProject_Add(msdfgen
     -DMSDFGEN_CORE_ONLY=ON
     -DMSDFGEN_BUILD_STANDALONE=OFF
     -DMSDFGEN_USE_VCPKG=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
@@ -116,11 +126,7 @@ message(STATUS "msdfgen is available in " ${msdfgen_LIBRARIES})
 # TODO move in Renderer CmakeList (only with Vulkan) ? 
 
 set(glslang_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/glslang-src)
-if(WIN32)
-  find_library(box2d_LIBRARIES NAMES glslang.lib glslang-default-resource-limits.lib HINTS ${CMAKE_BINARY_DIR}/_deps/glslang-build PATH_SUFFIXES Release)
-else()
-  find_library(box2d_LIBRARIES NAMES libglslang.a libglslang-default-resource-limits.a HINTS ${CMAKE_BINARY_DIR}/_deps/glslang-build PATH_SUFFIXES Release)
-endif()
+set(glslang_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/${LIB_SUB_FOLDER}/${LIB_PREFIX}glslang.${LIB_EXTENSION} ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/${LIB_SUB_FOLDER}/${LIB_PREFIX}glslang-default-resource-limits.${LIB_EXTENSION})
 
 ExternalProject_Add(glslang
   URL https://github.com/KhronosGroup/glslang/archive/refs/tags/15.0.0.zip
@@ -135,6 +141,7 @@ ExternalProject_Add(glslang
     -DENABLE_SPVREMAPPER=OFF
     -DENABLE_GLSLANG_BINARIES=OFF
     -DENABLE_OPT=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
@@ -169,11 +176,7 @@ message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_
 message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_LIBRARIES})
 
 set(SpirvCross_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/SpirvCross-src)
-if(WIN32)
-  find_library(box2d_LIBRARIES NAMES spirv-cross-core.lib HINTS ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build PATH_SUFFIXES Release)
-else()
-  find_library(box2d_LIBRARIES NAMES libspirv-cross-core.a HINTS ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build PATH_SUFFIXES Release)
-endif()
+set(SpirvCross_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build/${LIB_SUB_FOLDER}/${LIB_PREFIX}spirv-cross-core.${LIB_EXTENSION})
 
 ExternalProject_Add(SpirvCross
   URL https://github.com/KhronosGroup/SPIRV-Cross/archive/refs/tags/vulkan-sdk-1.3.275.0.zip
@@ -186,6 +189,7 @@ ExternalProject_Add(SpirvCross
     -DSPIRV_CROSS_ENABLE_HLSL=OFF
     -DSPIRV_CROSS_ENABLE_MSL=OFF
     -DSPIRV_CROSS_ENABLE_CPP=OFF
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
@@ -201,7 +205,6 @@ message(STATUS "SpirvCross is available in " ${SpirvCross_LIBRARIES})
 #
 
 set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 set(CMAKE_SUPPRESS_REGENERATION true)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
