@@ -24,9 +24,9 @@ message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_
 
 set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
 if(WIN32)
-  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/Release/box2d.lib)
-elseif(UNIX)
-  set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/Release/libbox2d.a)
+  find_library(box2d_LIBRARIES NAMES box2d.lib HINTS ${CMAKE_BINARY_DIR}/_deps/box2d-build/src PATH_SUFFIXES Release)
+else()
+  find_library(box2d_LIBRARIES NAMES libbox2d.a HINTS ${CMAKE_BINARY_DIR}/_deps/box2d-build/src PATH_SUFFIXES Release)
 endif()
 
 ExternalProject_Add(box2d
@@ -54,16 +54,16 @@ message(STATUS "box2d is available in " ${box2d_LIBRARIES})
 
 set(msdfgen_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/msdfgen-src/include)
 if(WIN32)
-  set(msdfgen_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/msdfgen-build/Release/msdfgen-core.lib)
-elseif(UNIX)
-  set(msdfgen_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/msdfgen-build/Release/libmsdfgen-core.a)
+  find_library(msdfgen_LIBRARIES NAMES msdfgen-core.lib HINTS ${CMAKE_BINARY_DIR}/_deps/msdfgen-build PATH_SUFFIXES Release)
+else()
+  find_library(msdfgen_LIBRARIES NAMES libmsdfgen-core.a HINTS ${CMAKE_BINARY_DIR}/_deps/msdfgen-build PATH_SUFFIXES Release)
 endif()
 
 set(freetype_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/freetype-src/include)
 if(WIN32)
-  set(freetype_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/freetype-build/Release/freetype.lib)
-elseif(UNIX)
-  set(freetype_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/freetype-build/Release/libfreetype.a)
+  find_library(msdfgen_LIBRARIES NAMES freetype.lib HINTS ${CMAKE_BINARY_DIR}/_deps/freetype-build PATH_SUFFIXES Release)
+else()
+  find_library(msdfgen_LIBRARIES NAMES libfreetype.a HINTS ${CMAKE_BINARY_DIR}/_deps/freetype-build PATH_SUFFIXES Release)
 endif()
 
 ExternalProject_Add(freetype
@@ -117,9 +117,9 @@ message(STATUS "msdfgen is available in " ${msdfgen_LIBRARIES})
 
 set(glslang_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/glslang-src)
 if(WIN32)
-  set(glslang_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/Release/glslang.lib ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/Release/glslang-default-resource-limits.lib)
-elseif(UNIX)
-  set(glslang_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/Release/libglslang.a ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/Release/libglslang-default-resource-limits.a)
+  find_library(box2d_LIBRARIES NAMES glslang.lib glslang-default-resource-limits.lib HINTS ${CMAKE_BINARY_DIR}/_deps/glslang-build PATH_SUFFIXES Release)
+else()
+  find_library(box2d_LIBRARIES NAMES libglslang.a libglslang-default-resource-limits.a HINTS ${CMAKE_BINARY_DIR}/_deps/glslang-build PATH_SUFFIXES Release)
 endif()
 
 ExternalProject_Add(glslang
@@ -170,9 +170,9 @@ message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_
 
 set(SpirvCross_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/SpirvCross-src)
 if(WIN32)
-  set(SpirvCross_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build/Release/spirv-cross-core.lib)
-elseif(UNIX)
-  set(SpirvCross_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build/Release/libspirv-cross-core.a)
+  find_library(box2d_LIBRARIES NAMES spirv-cross-core.lib HINTS ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build PATH_SUFFIXES Release)
+else()
+  find_library(box2d_LIBRARIES NAMES libspirv-cross-core.a HINTS ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build PATH_SUFFIXES Release)
 endif()
 
 ExternalProject_Add(SpirvCross
