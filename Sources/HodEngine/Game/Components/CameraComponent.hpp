@@ -8,54 +8,59 @@
 
 #include "../Scene.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
-	{
-		class MaterialInstance;
-		class Texture;
-		class RenderQueue;
-	}
+	class MaterialInstance;
+	class Texture;
+	class RenderQueue;
+}
 
-	namespace game
+namespace hod::game
+{
+	/// @brief 
+	class HOD_GAME_API CameraComponent : public Component
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API CameraComponent : public Component
+		REFLECTED_CLASS(CameraComponent, Component, HOD_GAME_API)
+
+	public:
+
+		enum class Projection : uint8_t
 		{
-		public:
-
-										CameraComponent() = default;
-										CameraComponent(const CameraComponent&) = delete;
-										CameraComponent(CameraComponent&&) = delete;
-										~CameraComponent() override = default;
-
-			void						operator=(const CameraComponent&) = delete;
-			void						operator=(CameraComponent&&) = delete;
-
-		public:
-
-			void						Render(Scene& scene);
-
-			const Matrix4&				GetProjectionMatrix();
-
-			void						SetHdriMaterial(renderer::MaterialInstance* hdriMat, renderer::Texture* hdriTexture);
-
-			void						PushToRenderQueue(renderer::RenderQueue& renderQueue); // todo ?
-
-		private:
-
-			float						_aspect;
-			float						_near;
-			float						_far;
-			bool						_perspective;
-			bool						_dirtyFlag;
-
-			renderer::MaterialInstance*	_hdriMat;
-			renderer::Texture*			_hdriTexture;
-
-			Matrix4						_projectionMatrix;
+			Perpective,
+			Orthographic
 		};
-	}
+
+	public:
+
+									CameraComponent() = default;
+									CameraComponent(const CameraComponent&) = delete;
+									CameraComponent(CameraComponent&&) = delete;
+									~CameraComponent() override = default;
+
+		void						operator=(const CameraComponent&) = delete;
+		void						operator=(CameraComponent&&) = delete;
+
+	public:
+
+		void						Render(Scene& scene);
+
+		void						SetProjection(Projection projection);
+		Projection					GetProjection() const;
+
+		const Matrix4&				GetProjectionMatrix();
+
+		void						PushToRenderQueue(renderer::RenderQueue& renderQueue); // todo ?
+
+	private:
+
+		Projection					_projection = Projection::Perpective;
+		float						_size = 5.0f;
+		float						_near = -1.0f;
+		float						_far = 1.0f;
+		float						_fov = 60.0f;
+
+		bool						_dirtyFlag = true;
+
+		Matrix4						_projectionMatrix;
+	};
 }
