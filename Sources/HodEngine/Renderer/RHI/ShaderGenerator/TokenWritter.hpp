@@ -1,4 +1,5 @@
 #pragma once
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <vector>
 #include <string>
@@ -7,9 +8,9 @@
 
 #include <ostream>
 
-namespace hod
+namespace hod::renderer
 {
-    class TokenWritter
+    class HOD_RENDERER_API TokenWritter
     {
     public:
 		TokenWritter() = default;

@@ -1,4 +1,5 @@
 #pragma once
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -7,9 +8,9 @@
 
 #include "Token.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	class TokenReader
+	class HOD_RENDERER_API TokenReader
 	{
 	public:
 		TokenReader() = default;

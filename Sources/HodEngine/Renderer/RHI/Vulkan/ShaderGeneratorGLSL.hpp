@@ -1,10 +1,10 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
-#include "ShaderGenerator.hpp"
+#include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp"
 
 namespace hod::renderer
 {
-    class ShaderGeneratorGLSL : public ShaderGenerator
+    class HOD_RENDERER_API ShaderGeneratorGLSL : public ShaderGenerator
     {
     public:
 								ShaderGeneratorGLSL() = default;

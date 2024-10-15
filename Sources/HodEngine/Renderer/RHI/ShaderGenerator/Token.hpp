@@ -1,13 +1,14 @@
 #pragma once
+#include "HodEngine/Renderer/Export.hpp"
 
 #include <variant>
 #include <array>
 #include <string>
 #include <string_view>
 
-namespace hod
+namespace hod::renderer
 {
-    struct Token
+    struct HOD_RENDERER_API Token
 	{
 		enum Type
 		{
