@@ -9,6 +9,8 @@
 #include <fstream>
 #include <cstring>
 
+#undef FindResource
+
 namespace hod
 {
 	/// @brief 

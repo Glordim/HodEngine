@@ -3,6 +3,9 @@
 
 #include <limits>
 
+#undef max
+#undef min
+
 namespace hod
 {
 	namespace renderer
