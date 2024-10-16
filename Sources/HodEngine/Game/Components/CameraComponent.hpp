@@ -30,6 +30,8 @@ namespace hod::game
 			Orthographic
 		};
 
+		static CameraComponent*	_main;
+
 	public:
 
 									CameraComponent() = default;
@@ -41,6 +43,8 @@ namespace hod::game
 		void						operator=(CameraComponent&&) = delete;
 
 	public:
+
+		void						OnAwake() override;
 
 		void						Render(Scene& scene);
 

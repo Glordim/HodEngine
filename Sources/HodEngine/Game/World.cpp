@@ -7,6 +7,7 @@
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
+#include "HodEngine/Game/Components/CameraComponent.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
@@ -28,6 +29,7 @@ namespace hod
 		/// @brief
 		void World::DisableDrawJob()
 		{
+			FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
 			_drawJobEnabled = false;
 		}
 
@@ -234,27 +236,15 @@ namespace hod
 		/// @brief 
 		void World::Draw()
 		{
-			if (_drawJobEnabled)
+			CameraComponent* camera = CameraComponent::_main;
+			if (camera == nullptr)
 			{
-				float size = 5.0f;
-
-				window::Window* mainWindow = PlatformDisplayManager::GetInstance()->GetMainWindow();
-
-				Rect viewport;
-				viewport._position.SetX(0);
-				viewport._position.SetY(0);
-				viewport._size.SetX((float)mainWindow->GetWidth());
-				viewport._size.SetY((float)mainWindow->GetHeight());
-
-				float aspect = (float)mainWindow->GetWidth() / (float)mainWindow->GetHeight();
-
-				Matrix4 projection = Matrix4::OrthogonalProjection(-size * aspect, size * aspect, -size, size, -1024, 1024);
-				Matrix4 view = Matrix4();
-
-				renderer::RenderQueue::GetInstance()->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
-
-				Draw(renderer::RenderQueue::GetInstance());
+				return;
 			}
+
+			camera->PushToRenderQueue(*renderer::RenderQueue::GetInstance());
+
+			Draw(renderer::RenderQueue::GetInstance());
 		}
 
 		/// @brief 
