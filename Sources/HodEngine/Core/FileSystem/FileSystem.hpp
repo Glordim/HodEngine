@@ -7,6 +7,8 @@
 #if defined(PLATFORM_ANDROID)
 	struct AAssetManager;
 	struct AAsset;
+#elif defined(PLATFORM_WINDOWS)
+	#include <Windows.h>
 #else
 	#include <cstdio>
 #endif
@@ -30,6 +32,8 @@ namespace hod
 		{
 		#if defined(PLATFORM_ANDROID)
 			AAsset*	_asset = nullptr;
+		#elif defined(PLATFORM_WINDOWS)
+			HANDLE	_handle = INVALID_HANDLE_VALUE;
 		#else
 			FILE*	_file = nullptr;
 		#endif

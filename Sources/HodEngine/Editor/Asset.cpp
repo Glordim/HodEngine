@@ -65,16 +65,14 @@ namespace hod::editor
 		std::filesystem::path metaPath = _path;
 		metaPath += ".meta";
 
-		std::ifstream fileStream(metaPath);
-		if (fileStream.is_open() == false)
+		if (std::filesystem::exists(metaPath) == false)
 		{
 			// TODO generate new meta if not exist
 			if (AssetDatabase::GetInstance()->Import(_path) == false)
 			{
 				return false;
 			}
-			fileStream.open(metaPath);
-			if (fileStream.is_open() == false)
+			if (std::filesystem::exists(metaPath) == false)
 			{
 				return false;
 			}
