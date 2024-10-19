@@ -22,7 +22,7 @@ namespace hod
 		{
 			MaterialManager::CreateInstance();
 			PickingManager::CreateInstance();
-			RenderQueue::CreateInstance();
+			_renderQueue = new RenderQueue();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Renderer::~Renderer()
 		{
-			RenderQueue::DestroyInstance();
+			delete _renderQueue;
 			PickingManager::DestroyInstance();
 			MaterialManager::DestroyInstance();
 		}
@@ -38,7 +38,7 @@ namespace hod
 		/// @brief 
 		void Renderer::Clear()
 		{
-			RenderQueue::GetInstance()->Terminate();
+			_renderQueue->Terminate();
 			MaterialManager::GetInstance()->Clear();
 
 			delete _overdrawnMaterialInstance;
@@ -218,6 +218,13 @@ namespace hod
 		ShaderGenerator* Renderer::GetShaderGenerator() const
 		{
 			return _shaderGenerator;
+		}
+
+		/// @brief 
+		/// @return 
+		RenderQueue* Renderer::GetRenderQueue() const
+		{
+			return _renderQueue;
 		}
 	}
 }

@@ -16,6 +16,7 @@
 
 #include <HodEngine/Physics/Physics.hpp>
 
+#include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
@@ -103,7 +104,10 @@ namespace hod
 		World::~World()
 		{
 			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
-			FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
+			if (_drawJobEnabled == true)
+			{
+				FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
+			}
 
 			Clear();
 
@@ -236,21 +240,24 @@ namespace hod
 		/// @brief 
 		void World::Draw()
 		{
-			CameraComponent* camera = CameraComponent::_main;
-			if (camera == nullptr)
-			{
-				return;
-			}
-
-			camera->PushToRenderQueue(*renderer::RenderQueue::GetInstance());
-
-			Draw(renderer::RenderQueue::GetInstance());
+			renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
+			Draw(renderQueue);
 		}
 
 		/// @brief 
 		/// @param renderQueue 
 		void World::Draw(renderer::RenderQueue* renderQueue)
 		{
+			if (_editorPlaying == true)
+			{
+				CameraComponent* camera = CameraComponent::_main;
+				if (camera == nullptr)
+				{
+					return;
+				}
+				camera->PushToRenderQueue(*renderQueue);
+			}
+
 			for (Scene* scene : _scenes)
 			{
 				scene->Draw(renderQueue);

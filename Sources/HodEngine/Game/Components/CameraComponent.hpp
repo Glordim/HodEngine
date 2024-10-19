@@ -57,11 +57,16 @@ namespace hod::game
 
 	private:
 
+		void						SetAspect(float aspect);
+
+	private:
+
 		Projection					_projection = Projection::Perpective;
 		float						_size = 5.0f;
 		float						_near = -1.0f;
 		float						_far = 1.0f;
 		float						_fov = 60.0f;
+		float						_aspect = 1.0f;
 
 		bool						_dirtyFlag = true;
 

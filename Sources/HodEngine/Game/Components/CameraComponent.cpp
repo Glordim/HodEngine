@@ -34,21 +34,30 @@ namespace hod::game
 	{
 		if (_dirtyFlag == true)
 		{
-			float aspect = 16.0f / 9.0f; // todo
-
 			if (_projection == Projection::Perpective)
 			{
 				_projectionMatrix = Matrix4::Identity; // todo
 			}
 			else
 			{
-				_projectionMatrix = Matrix4::OrthogonalProjection(-aspect * _size, aspect * _size, -_size, _size, _near, _far);
+				_projectionMatrix = Matrix4::OrthogonalProjection(-_size * _aspect, _size * _aspect, -_size, _size, _near, _far);
 			}
 
 			_dirtyFlag = false;
 		}
 
 		return _projectionMatrix;
+	}
+
+	/// @brief 
+	/// @param aspect 
+	void CameraComponent::SetAspect(float aspect)
+	{
+		if (aspect != _aspect)
+		{
+			_aspect = aspect;
+			_dirtyFlag = true;
+		}
 	}
 
 	/// @brief 
@@ -82,17 +91,13 @@ namespace hod::game
 	{
 		float size = 5.0f;
 
-		//window::Window* mainWindow = PlatformDisplayManager::GetInstance()->GetMainWindow();
-
 		Rect viewport;
 		viewport._position.SetX(0);
 		viewport._position.SetY(0);
-		/*
-		viewport._size.SetX((float)mainWindow->GetWidth());
-		viewport._size.SetY((float)mainWindow->GetHeight());
-		*/
-		viewport._size.SetX(800.0f);
-		viewport._size.SetY(600.0f);
+		viewport._size.SetX((float)renderQueue.GetRenderWidth());
+		viewport._size.SetY((float)renderQueue.GetRenderHeight());
+
+		SetAspect((float)renderQueue.GetRenderWidth() / (float)renderQueue.GetRenderHeight());
 
 		Matrix4 projection = GetProjectionMatrix();
 		Matrix4 view = Matrix4::Identity;

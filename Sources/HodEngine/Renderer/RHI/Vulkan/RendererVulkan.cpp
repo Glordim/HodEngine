@@ -249,7 +249,7 @@ namespace hod::renderer
 		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
 		*/
 
-		RenderQueue::GetInstance()->Init();
+		_renderQueue->Init();
 
 		return true;
 	}

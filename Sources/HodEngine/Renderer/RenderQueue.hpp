@@ -14,23 +14,29 @@ namespace hod::renderer
 	/// @brief 
 	class HOD_RENDERER_API RenderQueue
 	{
-		_Singleton(RenderQueue)
-
 	public:
-
+										RenderQueue() = default;
 										~RenderQueue();
 
 		void							Init();
 		void							Terminate();
 
+		void							Prepare(Context* context);
+		void							Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget);
+		uint32_t						GetRenderWidth() const;
+		uint32_t						GetRenderHeight() const;
+
 		void							PushRenderCommand(RenderCommand* renderCommand);
-		void							Execute(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget = nullptr);
-		void							Execute(Context* context);
+		void							Execute();
 
 	private:
 
 		std::vector<RenderCommand*>		_renderCommands;
 
 		MaterialInstance*				_pickingMaterialInstance = nullptr;
+
+		Context*						_context = nullptr;
+		RenderTarget*					_renderTarget = nullptr;
+		RenderTarget*					_pickingRenderTarget = nullptr;
 	};
 }

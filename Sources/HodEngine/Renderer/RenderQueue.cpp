@@ -3,6 +3,7 @@
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
+#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Context.hpp"
 
@@ -11,12 +12,6 @@
 
 namespace hod::renderer
 {
-	/// @brief 
-	_SingletonConstructor(RenderQueue)
-	{
-
-	}
-
 	/// @brief 
 	void RenderQueue::Init()
 	{
@@ -33,7 +28,20 @@ namespace hod::renderer
 	/// @brief 
 	RenderQueue::~RenderQueue()
 	{
-		assert(_pickingMaterialInstance == nullptr);
+		Terminate();
+	}
+
+	void RenderQueue::Prepare(Context* context)
+	{
+		assert(_renderCommands.empty());
+		_context = context;
+	}
+
+	void RenderQueue::Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget)
+	{
+		assert(_renderCommands.empty());
+		_renderTarget = renderTarget;
+		_pickingRenderTarget = pickingRenderTarget;
 	}
 
 	/// @brief 
@@ -44,17 +52,17 @@ namespace hod::renderer
 	}
 
 	/// @brief 
-	/// @param renderTarget 
-	/// @param pickingRenderTarget 
-	void RenderQueue::Execute(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget)
+	void RenderQueue::Execute()
 	{
 		Renderer* renderer = Renderer::GetInstance();
 
-		if (pickingRenderTarget != nullptr)
+		if (_pickingRenderTarget != nullptr)
 		{
+			_pickingRenderTarget->PrepareForWrite();
+
 			CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
 
-			if (commandBuffer->StartRecord(pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f)) == true)
+			if (commandBuffer->StartRecord(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f)) == true)
 			{
 				for (RenderCommand* renderCommand : _renderCommands)
 				{
@@ -66,12 +74,19 @@ namespace hod::renderer
 
 			renderer->SubmitCommandBuffers(&commandBuffer, 1);
 			delete commandBuffer;
+
+			_pickingRenderTarget->PrepareForRead();
 		}
 
 		CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
 
-		if (commandBuffer->StartRecord(renderTarget) == true)
+		if (commandBuffer->StartRecord(_renderTarget, _context) == true)
 		{
+			if (_renderTarget != nullptr)
+			{
+				_renderTarget->PrepareForWrite();
+			}
+
 			for (RenderCommand* renderCommand : _renderCommands)
 			{
 				renderCommand->Execute(commandBuffer);
@@ -81,36 +96,62 @@ namespace hod::renderer
 			commandBuffer->EndRecord();
 		}
 
-		_renderCommands.clear();
+		if (_context != nullptr)
+		{
+			commandBuffer->Present(_context);
+		}
 
 		renderer->SubmitCommandBuffers(&commandBuffer, 1);
 		delete commandBuffer;
+
+		if (_context != nullptr)
+		{
+			_context->SwapBuffer();
+		}
+		if (_renderTarget != nullptr)
+		{
+			_renderTarget->PrepareForRead();
+		}
+
+		_renderCommands.clear();
+		_context = nullptr;
+		_renderTarget = nullptr;
+		_pickingRenderTarget = nullptr;
 	}
 
-	void RenderQueue::Execute(Context* context)
+	/// @brief 
+	/// @return 
+	uint32_t RenderQueue::GetRenderWidth() const
 	{
-		Renderer* renderer = Renderer::GetInstance();
-
-		CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
-
-		if (commandBuffer->StartRecord(nullptr, context) == true)
+		if (_context != nullptr)
 		{
-			for (RenderCommand* renderCommand : _renderCommands)
-			{
-				renderCommand->Execute(commandBuffer);
-				delete renderCommand;
-			}
-
-			commandBuffer->EndRecord();
+			return _context->GetWidth();
 		}
+		else if (_renderTarget != nullptr)
+		{
+			return _renderTarget->GetWidth();
+		}
+		else
+		{
+			return 0;
+		}
+	}
 
-		_renderCommands.clear();
-
-		commandBuffer->Present(context);
-
-		renderer->SubmitCommandBuffers(&commandBuffer, 1);
-		delete commandBuffer;
-
-		context->SwapBuffer();
+	/// @brief 
+	/// @return 
+	uint32_t RenderQueue::GetRenderHeight() const
+	{
+		if (_context != nullptr)
+		{
+			return _context->GetHeight();
+		}
+		else if (_renderTarget != nullptr)
+		{
+			return _renderTarget->GetHeight();
+		}
+		else
+		{
+			return 0;
+		}
 	}
 }

@@ -54,6 +54,7 @@ namespace hod::editor
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+		_renderQueue.Init();
 
 		_scene = new game::Scene();
 		SetId(reinterpret_cast<uint64_t>(_scene));
@@ -74,6 +75,7 @@ namespace hod::editor
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+		_renderQueue.Init();
 
 		Document document;
 		DocumentReaderJson documentReader;
@@ -323,7 +325,8 @@ namespace hod::editor
 		if (_renderTarget->IsValid() == true)
 		{
 			ImVec2 origin = ImGui::GetCursorScreenPos();
-			renderer::RenderQueue* renderQueue = renderer::RenderQueue::GetInstance();
+
+			_renderQueue.Prepare(_renderTarget, _pickingRenderTarget);
 
 			if (Editor::GetInstance()->IsPlaying() == false)
 			{
@@ -338,14 +341,14 @@ namespace hod::editor
 				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 				_view = Matrix4::Translation(_cameraPosition);
 
-				renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
+				_renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
 
 				game::World* world = game::World::GetInstance();
-				world->Draw(renderQueue);
+				world->Draw(&_renderQueue);
 
 				if (_physicsDebugDrawer != nullptr)
 				{
-					_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
+					_physicsDebugDrawer->PushToRenderQueue(_renderQueue);
 				}
 
 				Editor* editor = Editor::GetInstance();
@@ -376,16 +379,10 @@ namespace hod::editor
 			else
 			{
 				game::World* world = game::World::GetInstance();
-				world->Draw();
+				world->Draw(&_renderQueue);
 			}
 
-			_renderTarget->PrepareForWrite(); // todo automate ?
-			_pickingRenderTarget->PrepareForWrite(); // todo automate ?
-
-			renderQueue->Execute(_renderTarget, _pickingRenderTarget);
-
-			_renderTarget->PrepareForRead(); // todo automate ?
-			_pickingRenderTarget->PrepareForRead(); // todo automate ?
+			_renderQueue.Execute();
 
 			if (_debugPicker)
 			{
@@ -484,6 +481,13 @@ namespace hod::editor
 	std::shared_ptr<Asset> ViewportWindow::GetAsset() const
 	{
 		return _asset;
+	}
+
+	/// @brief 
+	/// @return 
+	renderer::RenderQueue* ViewportWindow::GetRenderQueue()
+	{
+		return &_renderQueue;
 	}
 
 	/// @brief 
