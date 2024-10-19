@@ -139,19 +139,16 @@ namespace hod::editor
 			else
 			{
 				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
-				if (asset->Load() == true)
-				{
-					childFileSystemMapping->_asset = asset;
-					childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
-					_uidToAssetMap.emplace(asset->GetUid(), asset);
+				childFileSystemMapping->_asset = asset;
+				childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
+				_uidToAssetMap.emplace(asset->GetUid(), asset);
 
-					//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
-					fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
-				}
-				else
+				//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
+				fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
+
+				if (asset->Load() == false)
 				{
 					OUTPUT_ERROR("Unable to load Asset : {}", childFileSystemMapping->_path.string().c_str());
-					delete childFileSystemMapping;
 				}
 			}
 		}
