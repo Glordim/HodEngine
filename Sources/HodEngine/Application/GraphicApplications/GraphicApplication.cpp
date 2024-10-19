@@ -117,6 +117,8 @@ namespace hod::application
 
 		FrameSequencer::DestroyInstance();
 		JobScheduler::DestroyInstance();
+
+		FileSystem::DestroyInstance();
 	}
 
 	/// @brief 

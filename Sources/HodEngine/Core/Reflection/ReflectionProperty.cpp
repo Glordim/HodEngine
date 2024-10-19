@@ -17,6 +17,16 @@ namespace hod
 	}
 
 	/// @brief 
+	ReflectionProperty::~ReflectionProperty()
+	{
+		for (ReflectionTrait* trait : _traits)
+		{
+			delete trait;
+		}
+	}
+	
+
+	/// @brief 
 	/// @return 
 	const std::string& ReflectionProperty::GetDisplayName() const
 	{
