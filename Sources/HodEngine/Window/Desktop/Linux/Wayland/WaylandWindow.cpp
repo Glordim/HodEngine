@@ -323,12 +323,14 @@ namespace hod::window
 	/// @brief 
 	void WaylandWindow::Maximize()
 	{
-
+		libdecor_frame_set_maximized(_frame);
 	}
 
+	/// @brief 
+	/// @param visible 
 	void WaylandWindow::SetVisible(bool visible)
 	{
-		// todo
+		libdecor_frame_set_visibility(_frame, visible);
 	}
 	
 	/// @brief 
