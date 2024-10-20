@@ -50,7 +50,7 @@ namespace hod::window
     private:
 
     	Vector2 								_mousePosition;
-        std::array<bool, MouseButton::Count>	_mouseButtons;
+        std::array<bool, MouseButton::Count>	_mouseButtons = { false, false, false };
 
 		bool					_focused = true;
 
