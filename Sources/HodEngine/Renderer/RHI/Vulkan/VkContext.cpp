@@ -55,6 +55,20 @@ namespace hod
 
 	/// @brief 
 	/// @return 
+	uint32_t VkContext::GetWidth()
+	{
+		return _swapChainExtent.width;
+	}
+
+	/// @brief 
+	/// @return 
+	uint32_t VkContext::GetHeight()
+	{
+		return _swapChainExtent.height;
+	}
+
+	/// @brief 
+	/// @return 
 	bool VkContext::CreateSwapChain(uint32_t width, uint32_t height)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();

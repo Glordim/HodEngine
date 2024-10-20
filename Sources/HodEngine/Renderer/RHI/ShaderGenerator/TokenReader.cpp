@@ -1,3 +1,4 @@
+#include "HodEngine/Renderer/Pch.hpp"
 #include "TokenReader.hpp"
 
 #include <HodEngine/Core/CharHelper.hpp>
@@ -10,7 +11,7 @@
 #include <iostream>
 #include <format>
 
-namespace hod
+namespace hod::renderer
 {
 	bool TokenReader::Parse(std::istream& stream, std::vector<Token>& tokens)
 	{

@@ -447,7 +447,7 @@ void embraceTheDarkness()
 		RenderCommandImGui* renderCommand = new RenderCommandImGui(drawLists, viewport);
 
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
-		renderer::RenderQueue::GetInstance()->PushRenderCommand(renderCommand);
+		renderer->GetRenderQueue()->PushRenderCommand(renderCommand);
 	}
 
 	/// @brief 

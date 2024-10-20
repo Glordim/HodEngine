@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "BoxCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/BoxCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -53,7 +54,7 @@ namespace hod::editor
 				Matrix4 localMatrix = Matrix4::Translation(boxCollider2d->GetOffset()) * Matrix4::Rotation(boxCollider2d->GetRotation());
 
 				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance);
-				renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
+				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 			}
 		}
 		return false;

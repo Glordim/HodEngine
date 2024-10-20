@@ -7,6 +7,7 @@
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
+#include "HodEngine/Game/Components/CameraComponent.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
@@ -15,6 +16,7 @@
 
 #include <HodEngine/Physics/Physics.hpp>
 
+#include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
@@ -28,6 +30,7 @@ namespace hod
 		/// @brief
 		void World::DisableDrawJob()
 		{
+			FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
 			_drawJobEnabled = false;
 		}
 
@@ -101,7 +104,10 @@ namespace hod
 		World::~World()
 		{
 			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
-			FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
+			if (_drawJobEnabled == true)
+			{
+				FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
+			}
 
 			Clear();
 
@@ -234,33 +240,24 @@ namespace hod
 		/// @brief 
 		void World::Draw()
 		{
-			if (_drawJobEnabled)
-			{
-				float size = 5.0f;
-
-				window::Window* mainWindow = PlatformDisplayManager::GetInstance()->GetMainWindow();
-
-				Rect viewport;
-				viewport._position.SetX(0);
-				viewport._position.SetY(0);
-				viewport._size.SetX((float)mainWindow->GetWidth());
-				viewport._size.SetY((float)mainWindow->GetHeight());
-
-				float aspect = (float)mainWindow->GetWidth() / (float)mainWindow->GetHeight();
-
-				Matrix4 projection = Matrix4::OrthogonalProjection(-size * aspect, size * aspect, -size, size, -1024, 1024);
-				Matrix4 view = Matrix4();
-
-				renderer::RenderQueue::GetInstance()->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
-
-				Draw(renderer::RenderQueue::GetInstance());
-			}
+			renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
+			Draw(renderQueue);
 		}
 
 		/// @brief 
 		/// @param renderQueue 
 		void World::Draw(renderer::RenderQueue* renderQueue)
 		{
+			if (_editorPlaying == true)
+			{
+				CameraComponent* camera = CameraComponent::_main;
+				if (camera == nullptr)
+				{
+					return;
+				}
+				camera->PushToRenderQueue(*renderQueue);
+			}
+
 			for (Scene* scene : _scenes)
 			{
 				scene->Draw(renderQueue);

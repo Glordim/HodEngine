@@ -94,7 +94,9 @@ namespace hod::renderer
 
 		ShaderGenerator*			GetShaderGenerator() const;
 
-	private:
+		RenderQueue*				GetRenderQueue() const;
+
+	protected:
 
 		Material*					_overdrawnMaterial = nullptr;
 		MaterialInstance*			_overdrawnMaterialInstance = nullptr;
@@ -104,6 +106,8 @@ namespace hod::renderer
 
 		Material*					_defaultMaterial = nullptr;
 		MaterialInstance*			_defaultMaterialInstance = nullptr;
+
+		RenderQueue*				_renderQueue = nullptr;
 
 		/*
 		Material* _unlitVertexColorMaterial = nullptr;
@@ -118,8 +122,6 @@ namespace hod::renderer
 		VisualizationMode			_visualizationMode = VisualizationMode::Normal;
 
 		Texture*					_defaultWhiteTexture = nullptr;
-
-	protected:
 
 		ShaderGenerator*			_shaderGenerator = nullptr;
 	};

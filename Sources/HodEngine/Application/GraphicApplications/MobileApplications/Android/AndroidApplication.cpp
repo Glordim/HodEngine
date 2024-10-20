@@ -145,13 +145,12 @@ namespace hod::application
 		hod::Serializer::Deserialize(bootInfo, document.GetRootNode());
 
 		hod::ResourceManager::GetInstance()->SetResourceDirectory("Datas");
-		/*
-		_gameModule.Init(buildPath.parent_path() / "libs" / "x86_64" / bootInfo._gameModule, false);
+		
+		_gameModule.Init(bootInfo._gameModule, false);
 		if (_gameModule.Load() == false)
 		{
 			return false;
 		}
-		*/
 
 		std::shared_ptr<hod::game::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::game::SceneResource>(bootInfo._startupScene);
 		hod::game::World::GetInstance()->AddScene(&sceneResource->GetScene());

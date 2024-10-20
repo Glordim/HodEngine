@@ -10,7 +10,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGeneratorGLSL.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/ShaderGeneratorGLSL.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -249,7 +249,7 @@ namespace hod::renderer
 		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
 		*/
 
-		RenderQueue::GetInstance()->Init();
+		_renderQueue->Init();
 
 		return true;
 	}

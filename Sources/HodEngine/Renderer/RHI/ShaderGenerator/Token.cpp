@@ -1,6 +1,7 @@
+#include "HodEngine/Renderer/Pch.hpp"
 #include "Token.hpp"
 
-namespace hod
+namespace hod::renderer
 {
     std::array<std::string_view, Token::Type::Count> Token::_labels = {
 		"->", 		// Arrow

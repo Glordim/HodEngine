@@ -178,7 +178,11 @@ namespace hod::game
 	/// @param entity 
 	void Scene::DestroyEntity(std::shared_ptr<Entity> entity)
 	{
-		_entities.erase(_entities.find(entity->GetId()));
+		auto it = _entities.find(entity->GetId());
+		if (it != _entities.end())
+		{
+			_entities.erase(it);
+		}
 	}
 
 	/// @brief 

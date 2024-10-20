@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "Node2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/ViewportWindow.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 
 #include <HodEngine/Renderer/Renderer.hpp>
@@ -144,7 +145,7 @@ namespace hod::editor
 			};
 
 			renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(verticesX.data(), nullptr, nullptr, (uint32_t)verticesX.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisX && pickingId != _pickingIdAxisX ? _materialInstanceAxisXNormal : _materialInstanceAxisXHightlight, _pickingIdAxisX);
-			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 9> verticesY = {
 				Vector2(thickness * 0.5f, 0.0f),
@@ -161,7 +162,7 @@ namespace hod::editor
 			};
 
 			renderMeshCommand = new renderer::RenderCommandMesh(verticesY.data(), nullptr, nullptr, (uint32_t)verticesY.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisY && pickingId != _pickingIdAxisY ? _materialInstanceAxisYNormal : _materialInstanceAxisYHightlight, _pickingIdAxisY);
-			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 6> verticesZ = {
 				Vector2(squareOffset + -squareSize * 0.5f, squareOffset + squareSize * 0.5f),
@@ -174,7 +175,7 @@ namespace hod::editor
 			};
 
 			renderMeshCommand = new renderer::RenderCommandMesh(verticesZ.data(), nullptr, nullptr, (uint32_t)verticesZ.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisZ &&  pickingId != _pickingIdAxisZ ? _materialInstanceAxisZNormal : _materialInstanceAxisZHightlight, _pickingIdAxisZ);
-			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 6> verticesCenter = {
 				Vector2(-thickness * 0.5f, thickness * 0.5f),
@@ -187,7 +188,7 @@ namespace hod::editor
 			};
 
 			renderMeshCommand = new renderer::RenderCommandMesh(verticesCenter.data(), nullptr, nullptr, (uint32_t)verticesCenter.size(), nullptr, 0, finalMatrix, _materialInstanceCenterNormal);
-			renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 		}
 
 		return changed;

@@ -9,6 +9,7 @@
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Job/JobQueue.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/Core/OS.hpp>
 
 #include <cstdlib>
 
@@ -66,30 +67,6 @@ namespace hod::window
 	}
 
 	/// @brief 
-	/// @return 
-	std::string GetLastErrorMessage()
-	{
-		LPVOID lpMsgBuf;
-		DWORD dw = GetLastError();
-
-		::FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER |
-			FORMAT_MESSAGE_FROM_SYSTEM |
-			FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
-			dw,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR)&lpMsgBuf,
-			0, NULL);
-
-		std::string message = (char*)lpMsgBuf;
-
-		::LocalFree(lpMsgBuf);
-
-		return message;
-	}
-
-	/// @brief 
 	Win32Window::Win32Window(bool hidden)
 		: DesktopWindow()
 		, _updateJob(this, &Win32Window::Update, JobQueue::Queue::FramedNormalPriority, false, Thread::GetCurrentThreadId())
@@ -116,7 +93,7 @@ namespace hod::window
 		_class = ::RegisterClassEx(&windowClass);
 		if (_class == 0)
 		{
-			OUTPUT_ERROR("DesktopWindow: Unable to RegisterClass -> {}", GetLastErrorMessage().c_str());
+			OUTPUT_ERROR("DesktopWindow: Unable to RegisterClass -> {}", OS::GetLastWin32ErrorMessage());
 			return;
 		}
 
@@ -137,7 +114,7 @@ namespace hod::window
 
 		if (_hWnd == NULL)
 		{
-			OUTPUT_ERROR("DesktopWindow: Unable to CreateWindow -> {}", GetLastErrorMessage().c_str());
+			OUTPUT_ERROR("DesktopWindow: Unable to CreateWindow -> {}", OS::GetLastWin32ErrorMessage());
 			return;
 		}
 

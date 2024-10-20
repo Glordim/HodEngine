@@ -100,14 +100,7 @@ namespace hod::window
 	/// @param path 
 	void OpenExplorerAtPath(const std::filesystem::path& path)
 	{
-		STARTUPINFOA startupInfo;
-		ZeroMemory(&startupInfo, sizeof(startupInfo));
-		startupInfo.cb = sizeof(startupInfo);
-
-		PROCESS_INFORMATION processInformation;
-		ZeroMemory(&processInformation, sizeof(processInformation));
-
-		CreateProcessA(NULL, (LPSTR)(std::string("explorer.exe ") + path.string()).c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInformation);
+		ShellExecute(NULL, "open", path.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 	}
 
 	/// @brief 

@@ -117,6 +117,8 @@ namespace hod::application
 
 		FrameSequencer::DestroyInstance();
 		JobScheduler::DestroyInstance();
+
+		FileSystem::DestroyInstance();
 	}
 
 	/// @brief 
@@ -137,15 +139,18 @@ namespace hod::application
 				break;
 			}
 
+			renderer::Context* context = static_cast<renderer::Context*>(_window->GetSurface());
+			if (context->AcquireNextImageIndex() == false)
+			{
+				return false;
+			}
+			renderer::Renderer::GetInstance()->GetRenderQueue()->Prepare(context);
+
 			frameSequencer->EnqueueAndWaitJobs();
 
-			renderer::Context* context = static_cast<renderer::Context*>(_window->GetSurface());
-			if (context->AcquireNextImageIndex() == true)
-			{
-				renderer::RenderQueue::GetInstance()->Execute(context);
+			renderer::Renderer::GetInstance()->GetRenderQueue()->Execute();
 
-				//_window->GetGraphicsContext()->SwapBuffer();
-			}
+			//_window->GetGraphicsContext()->SwapBuffer();
 
 			SystemTime::TimeStamp now = SystemTime::Now();
 			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);

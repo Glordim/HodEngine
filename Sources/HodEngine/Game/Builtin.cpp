@@ -42,9 +42,9 @@ namespace hod
 			componentFactory->Register<CapsuleCollider2dComponent>();
 			componentFactory->Register<EdgeCollider2dComponent>();
 			componentFactory->Register<Rigidbody2dComponent>();
+			componentFactory->Register<CameraComponent>();
 			//componentFactory->Register<SpriteRendererComponent>();
 			/*
-			componentReflection->Register<CameraComponent>();
 			componentReflection->Register<ColliderComponent>();
 			componentReflection->Register<RendererComponent>();
 			componentReflection->Register<SpriteRendererComponent>();

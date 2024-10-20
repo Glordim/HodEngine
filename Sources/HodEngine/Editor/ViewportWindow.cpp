@@ -54,6 +54,7 @@ namespace hod::editor
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+		_renderQueue.Init();
 
 		_scene = new game::Scene();
 		SetId(reinterpret_cast<uint64_t>(_scene));
@@ -74,6 +75,7 @@ namespace hod::editor
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+		_renderQueue.Init();
 
 		Document document;
 		DocumentReaderJson documentReader;
@@ -323,61 +325,64 @@ namespace hod::editor
 		if (_renderTarget->IsValid() == true)
 		{
 			ImVec2 origin = ImGui::GetCursorScreenPos();
-			renderer::RenderQueue* renderQueue = renderer::RenderQueue::GetInstance();
 
-			Rect viewport;
-			viewport._position.SetX(0);
-			viewport._position.SetY(0);
-			viewport._size.SetX((float)windowWidth);
-			viewport._size.SetY((float)windowHeight);
+			_renderQueue.Prepare(_renderTarget, _pickingRenderTarget);
 
-			float aspect = (float)windowWidth / (float)windowHeight;
-
-			_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-			_view = Matrix4::Translation(_cameraPosition);
-
-			renderQueue->PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
-
-			game::World* world = game::World::GetInstance();
-			world->Draw(renderQueue);
-
-			if (_physicsDebugDrawer != nullptr)
+			if (Editor::GetInstance()->IsPlaying() == false)
 			{
-				_physicsDebugDrawer->PushToRenderQueue(*renderQueue);
-			}
+				Rect viewport;
+				viewport._position.SetX(0);
+				viewport._position.SetY(0);
+				viewport._size.SetX((float)windowWidth);
+				viewport._size.SetY((float)windowHeight);
 
-			Editor* editor = Editor::GetInstance();
-			std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection();
-			if (sceneSelection != nullptr)
-			{
-				for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
+				float aspect = (float)windowWidth / (float)windowHeight;
+
+				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+				_view = Matrix4::Translation(_cameraPosition);
+
+				_renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
+
+				game::World* world = game::World::GetInstance();
+				world->Draw(&_renderQueue);
+
+				if (_physicsDebugDrawer != nullptr)
 				{
-					std::shared_ptr<game::Component> componentLock = component.lock();
-					if (componentLock != nullptr)
+					_physicsDebugDrawer->PushToRenderQueue(_renderQueue);
+				}
+
+				Editor* editor = Editor::GetInstance();
+				std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection();
+				if (sceneSelection != nullptr)
+				{
+					for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
 					{
-						ReflectionTraitComponentCustomEditor* customEditorTrait = componentLock->GetReflectionDescriptorV()->FindTrait<ReflectionTraitComponentCustomEditor>();
-						if (customEditorTrait != nullptr)
+						std::shared_ptr<game::Component> componentLock = component.lock();
+						if (componentLock != nullptr)
 						{
-							ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
-							if (customEditor != nullptr)
+							ReflectionTraitComponentCustomEditor* customEditorTrait = componentLock->GetReflectionDescriptorV()->FindTrait<ReflectionTraitComponentCustomEditor>();
+							if (customEditorTrait != nullptr)
 							{
-								if (customEditor->OnDrawGizmo(componentLock, *this))
+								ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
+								if (customEditor != nullptr)
 								{
-									MarkCurrentSceneAsDirty();
+									if (customEditor->OnDrawGizmo(componentLock, *this))
+									{
+										MarkCurrentSceneAsDirty();
+									}
 								}
 							}
 						}
 					}
 				}
 			}
+			else
+			{
+				game::World* world = game::World::GetInstance();
+				world->Draw(&_renderQueue);
+			}
 
-			_renderTarget->PrepareForWrite(); // todo automate ?
-			_pickingRenderTarget->PrepareForWrite(); // todo automate ?
-
-			renderQueue->Execute(_renderTarget, _pickingRenderTarget);
-
-			_renderTarget->PrepareForRead(); // todo automate ?
-			_pickingRenderTarget->PrepareForRead(); // todo automate ?
+			_renderQueue.Execute();
 
 			if (_debugPicker)
 			{
@@ -476,6 +481,13 @@ namespace hod::editor
 	std::shared_ptr<Asset> ViewportWindow::GetAsset() const
 	{
 		return _asset;
+	}
+
+	/// @brief 
+	/// @return 
+	renderer::RenderQueue* ViewportWindow::GetRenderQueue()
+	{
+		return &_renderQueue;
 	}
 
 	/// @brief 

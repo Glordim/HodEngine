@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/EdgeCollider2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/GeometryGenerator.hpp"
+#include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -49,7 +50,7 @@ namespace hod::editor
 				};
 
 				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
-				renderer::RenderQueue::GetInstance()->PushRenderCommand(renderMeshCommand);		
+				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);		
 			}
 		}
 		return false;

@@ -1,5 +1,6 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Memory/MemoryManagerLeakDetector.hpp"
+#include "HodEngine/Core/OS.hpp"
 
 #if defined(HOD_ENABLED_MEMLEAK_DETECTOR)
 
@@ -26,7 +27,10 @@ namespace hod
 				fprintf(memleakReport, "Size = %u\n", allocation->_size);
 				fprintf(memleakReport, "Callstack :\n");
 
-				WriteCallstackInReport(memleakReport, *allocation);
+				for (uint32_t index = 0; index < allocation->_callstackSize; ++index)
+				{
+					fprintf(memleakReport, "\t%s\n", OS::GetSymbol(allocation->_callstack[index]).c_str());
+				}
 
 				fprintf(memleakReport, "\n\n");
 			}
@@ -100,7 +104,7 @@ namespace hod
 		std::memset(userAddress, 0xA1, size);
 
 		Allocation* allocation = reinterpret_cast<Allocation*>(reinterpret_cast<uintptr_t>(userAddress) - sizeof(Allocation));
-        allocation->_callstackSize = GetCallstack(allocation->_callstack);
+        allocation->_callstackSize = OS::GetCallstack(allocation->_callstack.data(), allocation->_callstack.size());
         allocation->_size = size;
         allocation->_realAddress = address;
 		allocation->_userAddress = userAddress;
