@@ -543,7 +543,7 @@ namespace hod::editor
 	/// @brief 
 	void Editor::MarkCurrentSceneAsDirty()
 	{
-		if (_currentViewport)
+		if (_currentViewport && _playing == false)
 		{
 			_currentViewport->MarkCurrentSceneAsDirty();
 		}
