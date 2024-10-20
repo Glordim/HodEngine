@@ -62,6 +62,7 @@ namespace hod::window
 		wl_surface*					_wlSurface = nullptr;
 		wl_buffer*					_wlBuffer = nullptr;
 		xdg_surface*				_xdgSurface = nullptr;
+		libdecor_frame*				_frame = nullptr;
 
 		uint32_t					_requestFlags = 0;
 		uint32_t					_requestedWidth = 0;

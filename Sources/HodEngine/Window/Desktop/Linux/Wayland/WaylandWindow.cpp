@@ -25,13 +25,14 @@ namespace hod::window
 		WaylandWindow* waylandWindow = static_cast<WaylandWindow*>(userData);
 		if (width == 0 || height == 0)
 		{
-			/* Compositor is deferring to us */
+			// Compositor is deferring to us
 			return;
 		}
-		
+		/*	
 		waylandWindow->_requestedWidth = width;
 		waylandWindow->_requestedHeight = height;
 		waylandWindow->_requestFlags |= RequestFlag::NeedResize;
+		*/
 	}
 
 	void WaylandWindow::xdg_toplevel_close(void* data, xdg_toplevel* toplevel)
@@ -116,10 +117,11 @@ namespace hod::window
 			height = 600;
 		}
 		//waylandWindow->SetSize(width, height);
-
+		/*
 		waylandWindow->_requestedWidth = width;
 		waylandWindow->_requestedHeight = height;
 		waylandWindow->_requestFlags |= RequestFlag::NeedResizeReady;
+		*/
 /*
 		width = (width == 0) ? window->floating_width : width;
 		height = (height == 0) ? window->floating_height : height;
@@ -140,6 +142,15 @@ namespace hod::window
 		}
 */
 		waylandWindow->SetupBuffer();
+
+		waylandWindow->_width = width;
+		waylandWindow->_height = height;
+
+		Surface* surface = waylandWindow->GetSurface();
+		if (surface != nullptr)
+		{
+			surface->Resize(width, height);
+		}
 	}
 
 	static void handle_close(struct libdecor_frame* frame, void* data)
@@ -181,10 +192,10 @@ namespace hod::window
 				//handle_dismiss_popup,
 			};
 
-			libdecor_frame* frame = libdecor_decorate(displayManager->GetLibDecorContext(), _wlSurface, &libdecor_frame_iface, this);
-			libdecor_frame_set_title(frame, "HodEngine");
-			libdecor_frame_set_app_id(frame, "HodEngine");
-			libdecor_frame_map(frame);
+			_frame = libdecor_decorate(displayManager->GetLibDecorContext(), _wlSurface, &libdecor_frame_iface, this);
+			libdecor_frame_set_title(_frame, "HodEngine");
+			libdecor_frame_set_app_id(_frame, "HodEngine");
+			libdecor_frame_map(_frame);
 		}
 		else
 		{
@@ -244,11 +255,13 @@ namespace hod::window
 	/// @brief 
 	void WaylandWindow::Update()
 	{
+		/*
 		if (_requestFlags & RequestFlag::NeedResizeReady)
 		{
 			SetSize(_requestedWidth, _requestedHeight);
 			_requestFlags &= ~(RequestFlag::NeedResizeReady);
 		}
+		*/
 	}
 
 	/// @brief 
@@ -262,12 +275,43 @@ namespace hod::window
 	/// @param height 
 	void WaylandWindow::SetSize(uint16_t width, uint16_t height)
 	{
+		/*
+		wl_surface_set_buffer_scale(_wlSurface, 1);
+		wl_surface_attach(_wlSurface, _wlBuffer, 0, 0);
+		wl_surface_damage(_wlSurface, 0, 0, width, height);
+		wl_surface_commit(_wlSurface);
+		*/
+
+		struct libdecor_state *state;
+		state = libdecor_state_new(width, height);
+		libdecor_frame_commit(_frame, state, NULL);
+		libdecor_state_free(state);
+
+		SetupBuffer();
+
+		_width = width;
+		_height = height;
+
+		Surface* surface = GetSurface();
+		if (surface != nullptr)
+		{
+			surface->Resize(width, height);
+		}
+
+		/*
+		//wl_surface_set_buffer_scale(_wlSurface, 1);  // Exemple d'échelle
+		//wl_surface_attach(_wlSurface, _wlBuffer, 0, 0); // Attacher le buffer
+		wl_surface_damage(_wlSurface, 0, 0, width, height);
+		wl_surface_commit(_wlSurface);
 		//SetupBuffer();
 		GetSurface()->Resize(width, height);
 		_width = width;
 		_height = height;
+		_requestedWidth = width;
+		_requestedHeight = height;
 
 		wl_surface_commit(_wlSurface);
+		*/
 	}
 	
 	/// @brief 
