@@ -124,7 +124,7 @@ namespace hod::window
     /// @param version 
     void WaylandDisplayManager::RegistryHandler(void* userData, wl_registry* registry, uint32_t id, const char* interface, uint32_t version)
 	{
-		OUTPUT_MESSAGE("Got a registry event for %s id %d", interface, id);
+		OUTPUT_MESSAGE("Got a registry event for {} id {}", interface, id);
 
 		if (std::strcmp(interface, wl_compositor_interface.name) == 0)
 		{
