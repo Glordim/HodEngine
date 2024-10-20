@@ -34,7 +34,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"program": "${command:cmake.launchTargetDirectory}/HodEditor",
-			//"args": ["--ProjectPath", "E:/Pong/Pong.hod"],
+			"args": ["--ProjectPath", "/home/glordim/Dev/Pong/Pong.hod"],
 			"console": "integratedTerminal",
 			"preLaunchTask": "Build Target",
 		},

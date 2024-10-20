@@ -4,11 +4,17 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <linux/limits.h>
 #include <pwd.h>
+#include <fcntl.h>
 
 namespace hod
 {
+	static_assert(static_cast<int>(FileSystem::SeekMode::Begin) == SEEK_SET);
+	static_assert(static_cast<int>(FileSystem::SeekMode::Current) == SEEK_CUR);
+	static_assert(static_cast<int>(FileSystem::SeekMode::End) == SEEK_END);
+
 	std::filesystem::path FileSystem::_userSettingsPath;
 	std::filesystem::path FileSystem::_executablePath;
 
@@ -55,7 +61,7 @@ namespace hod
 	FileSystem::Handle FileSystem::Open(const char* path)
 	{
 		FileSystem::Handle handle;
-		handle._file = fopen(path, "r");
+		handle._fd = open(path, O_RDONLY);
 		return handle;
 	}
 
@@ -64,11 +70,12 @@ namespace hod
 	/// @return 
 	uint32_t FileSystem::GetSize(FileSystem::Handle handle)
 	{
-		uint32_t offset = ftell(handle._file);
-		fseek(handle._file, 0, SEEK_END);
-		uint32_t size = ftell(handle._file);
-		fseek(handle._file, offset, SEEK_SET);
-		return size;
+		struct stat fileStat;
+		if (fstat(handle._fd, &fileStat) == -1)
+		{
+			return 0;
+		}
+		return fileStat.st_size;
 	}
 
 	/// @brief 
@@ -76,7 +83,7 @@ namespace hod
 	/// @return 
 	uint32_t FileSystem::GetOffset(FileSystem::Handle handle)
 	{
-		return (uint32_t)ftell(handle._file);
+		return (uint32_t)lseek(handle._fd, 0, SEEK_CUR);
 	}
 
 	/// @brief 
@@ -85,7 +92,7 @@ namespace hod
 	/// @param mode 
 	void FileSystem::Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode)
 	{
-		fseek(handle._file, position, static_cast<int>(mode));
+		lseek(handle._fd, position, static_cast<int>(mode));
 	}
 
 	/// @brief 
@@ -95,7 +102,7 @@ namespace hod
 	/// @return 
 	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
 	{
-		return (int32_t)fread(buffer, 1, size, handle._file);
+		return (int32_t)read(handle._fd, buffer, size);
 	}
 
 	/// @brief 
@@ -103,9 +110,9 @@ namespace hod
 	/// @return 
 	bool FileSystem::Close(FileSystem::Handle& handle)
 	{
-		if (fclose(handle._file) == 0)
+		if (close(handle._fd) == 0)
 		{
-			handle._file = nullptr;
+			handle._fd = -1;
 			return true;
 		}
 		return false;
@@ -115,6 +122,6 @@ namespace hod
 	/// @return 
 	bool FileSystem::Handle::IsOpen() const
 	{
-		return _file != nullptr;
+		return _fd >= 0;
 	}
 }
