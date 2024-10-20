@@ -9,7 +9,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"program": "${command:cmake.launchTargetPath}",
-			"preLaunchTask": "Build target",
+			"preLaunchTask": "Build Target",
 			"args": [],
 			"stopAtEntry": false,
 			//"cwd": "${workspaceFolder}/Data",
@@ -35,11 +35,8 @@
 			"request": "launch",
 			"program": "${command:cmake.launchTargetDirectory}/HodEditor",
 			//"args": ["--ProjectPath", "E:/Pong/Pong.hod"],
-			"stopAtEntry": false,
-			//"cwd": "E:/Pong/Pong.hod",
-			"environment": [],
 			"console": "integratedTerminal",
-			"preLaunchTask": "Build target",
+			"preLaunchTask": "Build Target",
 		},
 		{
 			"name": "(Windows) Editor",
@@ -51,7 +48,7 @@
 			//"cwd": "E:/Pong/Pong.hod",
 			"environment": [],
 			"console": "integratedTerminal",
-			"preLaunchTask": "Build target",
+			"preLaunchTask": "Build Target",
 		},
 		{
 			"name": "(Windows) Game",
@@ -63,7 +60,7 @@
 			//"cwd": "E:/Pong/Pong.hod",
 			"environment": [],
 			"console": "integratedTerminal",
-			"preLaunchTask": "Build target",
+			"preLaunchTask": "Build Target",
 		}
 	]
 }

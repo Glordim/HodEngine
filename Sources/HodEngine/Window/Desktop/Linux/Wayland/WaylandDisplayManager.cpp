@@ -34,7 +34,7 @@ namespace hod::window
         _wlDisplay = wl_display_connect(nullptr);
 		if (_wlDisplay == nullptr)
 		{
-			OUTPUT_ERROR("WaylandDisplayManager: Can't connect to display");
+			OUTPUT_ERROR("WaylandDisplayManager: Can't connect to display ({})", strerror(errno));
 			return false;
 		}
 

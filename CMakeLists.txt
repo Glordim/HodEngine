@@ -21,7 +21,7 @@ else()
 endif()
 
 if(PLATFORM_LINUX)
-  set(LIB_SUB_FOLDER "")
+  set(LIB_SUB_FOLDER "Release")
 else()
   set(LIB_SUB_FOLDER "Release")
 endif()
