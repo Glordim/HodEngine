@@ -51,6 +51,8 @@ namespace hod::editor
 
 		bool							ReloadGameModule();
 
+		bool							CreateMinimalSourceForModule(const std::filesystem::path& directory);
+
 	private:
 
 		std::filesystem::path			_projectPath;

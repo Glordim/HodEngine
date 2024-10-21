@@ -9,12 +9,18 @@
 
 #include <fstream>
 #include <format>
+#include <functional>
+#include <algorithm>
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Process/Process.hpp"
 #include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Editor/CMakeProjectTemplate/Generated/CMakeLists.txt.hpp"
+#include "HodEngine/Editor/FileTemplate/Generated/CMakeLists.txt.hpp"
+#include "HodEngine/Editor/FileTemplate/Generated/Module.hpp.hpp"
+#include "HodEngine/Editor/FileTemplate/Generated/Module.cpp.hpp"
+#include "HodEngine/Editor/FileTemplate/Generated/Component.hpp.hpp"
+#include "HodEngine/Editor/FileTemplate/Generated/Component.cpp.hpp"
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -49,7 +55,101 @@ namespace hod::editor
 		_projectPath = directory / (directory.filename().string() + ".hod");
 		_name = _projectPath.stem().string();
 
+		if (CreateMinimalSourceForModule(directory) == false)
+		{
+			return false;
+		}
+
 		return Save();
+	}
+
+	/// @brief 
+	/// @return 
+	bool Project::CreateMinimalSourceForModule(const std::filesystem::path& directory)
+	{
+		std::filesystem::path sourcesDirPath = directory / "Sources";
+		std::filesystem::path sourcesComponentsDirPath = sourcesDirPath / "Components";
+		if (std::filesystem::exists(sourcesDirPath) == false && std::filesystem::create_directory(sourcesDirPath) == false)
+		{
+			return false;
+		}
+		if (std::filesystem::exists(sourcesComponentsDirPath) == false && std::filesystem::create_directory(sourcesComponentsDirPath) == false)
+		{
+			return false;
+		}
+
+		std::function<bool(const std::filesystem::path&, std::string_view, const std::string&)> writeFileFunc = [](const std::filesystem::path& path, std::string_view contentIn, const std::string& projectName)
+		{
+			std::string content(contentIn);
+
+			constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
+			size_t replaceIndex = content.find(projectNameTag);
+			while (replaceIndex != std::string::npos)
+			{
+				content.replace(replaceIndex, projectNameTag.size(), projectName);
+				replaceIndex = content.find(projectNameTag);
+			}
+
+			std::string projectExport = projectName + "_EXPORT";
+			std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
+			constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
+			replaceIndex = content.find(projectExportTag);
+			while (replaceIndex != std::string::npos)
+			{
+				content.replace(replaceIndex, projectExportTag.size(), projectExport);
+				replaceIndex = content.find(projectExportTag);
+			}
+
+			std::string api = projectName + "_API";
+			std::transform(api.begin(), api.end(), api.begin(), [](char c) { return std::toupper(c); });
+			constexpr std::string_view apiTag = "[[API]]";
+			replaceIndex = content.find(apiTag);
+			while (replaceIndex != std::string::npos)
+			{
+				content.replace(replaceIndex, apiTag.size(), api);
+				replaceIndex = content.find(apiTag);
+			}
+
+			try
+			{
+				std::ofstream fileStream;
+				fileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+				fileStream.open(path, std::ios_base::trunc);
+				fileStream.write(content.c_str(), content.size());
+				fileStream.close();
+
+				OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path.string().c_str());
+
+				return true;
+			}
+			catch (const std::ios_base::failure& e)
+			{
+				OUTPUT_ERROR("Failed to generate MinimalSourceForModule at {} : {}", path.string().c_str(), e.what());
+				return false; 
+			}
+		};
+
+		if (writeFileFunc(sourcesDirPath / (_name + ".hpp"), Module_hpp, _name) == false)
+		{
+			return false;
+		}
+
+		if (writeFileFunc(sourcesDirPath / (_name + ".cpp"), Module_cpp, _name) == false)
+		{
+			return false;
+		}
+
+		if (writeFileFunc(sourcesComponentsDirPath / "MyFirstComponent.hpp", Component_hpp, _name) == false)
+		{
+			return false;
+		}
+
+		if (writeFileFunc(sourcesComponentsDirPath / "MyFirstComponent.cpp", Component_cpp, _name) == false)
+		{
+			return false;
+		}
+
+		return true;		
 	}
 
 	/// @brief 
@@ -228,6 +328,16 @@ namespace hod::editor
 		{
 			cmakeLists.replace(replaceIndex, projectNameTag.size(), _name);
 			replaceIndex = cmakeLists.find(projectNameTag);
+		}
+
+		std::string projectExport = _name + "_EXPORT";
+		std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
+		constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
+		replaceIndex = cmakeLists.find(projectExportTag);
+		while (replaceIndex != std::string::npos)
+		{
+			cmakeLists.replace(replaceIndex, projectExportTag.size(), projectExport);
+			replaceIndex = cmakeLists.find(projectExportTag);
 		}
 
 		std::filesystem::path path = _projectPath.parent_path() / "CMakeLists.txt";

@@ -56,5 +56,5 @@ target_link_libraries([[PROJECT_NAME]]
 )
 
 target_compile_definitions([[PROJECT_NAME]] PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
-target_compile_definitions([[PROJECT_NAME]] PRIVATE PONG_EXPORT)
+target_compile_definitions([[PROJECT_NAME]] PRIVATE [[PROJECT_EXPORT]])
 

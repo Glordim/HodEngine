@@ -4,7 +4,7 @@ include(Global)
 
 project(Editor)
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES FileTemplate)
 
 # Creates C resources file from files in given directory
 function(create_resources input output SourcesVar IncludeVar)
@@ -47,7 +47,23 @@ list(APPEND Srcs ${IconSrcs})
 list(APPEND Srcs ${IconIncludes})
 list(APPEND Includes ${IconIncludes})
 
-EmbeedTextInSource("CMakeProjectTemplate/CMakeLists.txt" ${PROJECT_SOURCE_DIR}/CMakeProjectTemplate/CMakeProjectTemplate.hpp.in ${PROJECT_SOURCE_DIR}/CMakeProjectTemplate/Generated GeneratedFile)
+EmbeedTextInSource("FileTemplate/CMakeLists.txt" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
+list(APPEND Srcs ${GeneratedFile})
+list(APPEND Includes ${GeneratedFile})
+
+EmbeedTextInSource("FileTemplate/Module.hpp" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
+list(APPEND Srcs ${GeneratedFile})
+list(APPEND Includes ${GeneratedFile})
+
+EmbeedTextInSource("FileTemplate/Module.cpp" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
+list(APPEND Srcs ${GeneratedFile})
+list(APPEND Includes ${GeneratedFile})
+
+EmbeedTextInSource("FileTemplate/Component.hpp" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
+list(APPEND Srcs ${GeneratedFile})
+list(APPEND Includes ${GeneratedFile})
+
+EmbeedTextInSource("FileTemplate/Component.cpp" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
 list(APPEND Srcs ${GeneratedFile})
 list(APPEND Includes ${GeneratedFile})
 
