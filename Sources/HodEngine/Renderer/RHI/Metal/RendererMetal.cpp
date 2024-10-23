@@ -10,6 +10,7 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
+#include "HodEngine/Renderer/RHI/Metal/ShaderGeneratorMetal.hpp"
 
 #include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
 
@@ -65,6 +66,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 		{
+			_shaderGenerator = new ShaderGeneratorMetal();
+
 			_device = MTL::CreateSystemDefaultDevice();
 			_commandQueue = _device->newCommandQueue();
 
@@ -84,7 +87,7 @@ namespace hod
 			[view.layer addSublayer:_layer];
 */
 
-			RenderQueue::GetInstance()->Init();
+			_renderQueue->Init();
 			
 			return true;
 		}

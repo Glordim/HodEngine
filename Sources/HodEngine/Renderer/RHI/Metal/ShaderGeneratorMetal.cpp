@@ -47,7 +47,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param tokens 
 	/// @return 
-	bool ConverterMetal::Convert(const std::vector<Token>& inTokens, std::vector<Token>& outTokens)
+	bool ShaderGeneratorMetal::ConvertTokens(const std::vector<Token>& inTokens, std::vector<Token>& outTokens)
 	{
 		outTokens.emplace_back(Token::Type::Identifier, "#include");
 		outTokens.emplace_back(Token::Type::Identifier, "<metal_stdlib>");
@@ -430,5 +430,15 @@ namespace hod::renderer
 		}
 
 		return true;
+	}
+
+	/// @brief 
+	/// @param byteCode 
+	/// @param type 
+	/// @param source 
+	/// @return 
+	bool ShaderGeneratorMetal::CompileSource(std::vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source)
+	{
+		return false;
 	}
 }
