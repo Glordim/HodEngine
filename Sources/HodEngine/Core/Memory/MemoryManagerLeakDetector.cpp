@@ -117,11 +117,11 @@ namespace hod
         allocation->_realAddress = address;
 		allocation->_userAddress = userAddress;
 
-		_mutex.lock();
+		_spinLock.Lock();
 		allocation->_index = _allocationCount;
         _allocations[_allocationCount] = allocation;
 		++_allocationCount;
-		_mutex.unlock();
+		_spinLock.Unlock();
 	}
 
     /// @brief 
@@ -133,7 +133,7 @@ namespace hod
 		Allocation* allocation = static_cast<Allocation*>(allocationAddress);
 		assert(allocation->_userAddress == userAddress);
 
-		_mutex.lock();
+		_spinLock.Lock();
 		if (allocation->_index != _allocationCount - 1)
 		{
 			assert(allocation->_index < _allocationCount);
@@ -142,7 +142,7 @@ namespace hod
 		}
 		_allocations[_allocationCount - 1] = nullptr;
 		--_allocationCount;
-		_mutex.unlock();
+		_spinLock.Unlock();
 
 		std::memset(userAddress, 0xDE, allocation->_size);
 		return allocation->_realAddress;

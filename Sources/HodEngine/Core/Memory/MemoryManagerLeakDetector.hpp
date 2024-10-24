@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 #include "HodEngine/Core/Memory/Config.hpp"
+#include "HodEngine/Core/Concurency/SpinLock.hpp"
 
 #if defined(HOD_ENABLED_MEMLEAK_DETECTOR)
 
@@ -48,7 +49,7 @@ namespace hod
 
     private:
 
-        std::mutex _mutex;
+        SpinLock _spinLock;
         std::array<Allocation*, 1024 * 32> _allocations; // todo boost or use vector with custom allocator
         uint32_t _allocationCount = 0;
     };
