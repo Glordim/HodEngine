@@ -1,6 +1,14 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Metal/ShaderGeneratorMetal.hpp"
 
+#include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
+
+#include "Metal/Metal.hpp"
+#include "Foundation/Foundation.hpp"
+
+#include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
+
 #include <map>
 #include <string>
 #include <string_view>
@@ -439,6 +447,79 @@ namespace hod::renderer
 	/// @return 
 	bool ShaderGeneratorMetal::CompileSource(std::vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source)
 	{
-		return false;
+		NS::Error* error = nullptr;
+		RendererMetal* metalRenderer = RendererMetal::GetInstance();
+		MTL::CompileOptions* compileOption = MTL::CompileOptions::alloc()->init();
+		NS::String* nsStringSource = NS::String::string(source.data(), NS::StringEncoding::ASCIIStringEncoding);
+		MTL::Library* library = metalRenderer->GetDevice()->newLibrary(nsStringSource, compileOption, &error);
+		nsStringSource->release();
+
+		if (library != nullptr)
+		{
+			error = nullptr;
+			MTL::BinaryArchiveDescriptor* binaryArchiveDescriptor = MTL::BinaryArchiveDescriptor::alloc()->init();
+			MTL::BinaryArchive* binaryArchive = metalRenderer->GetDevice()->newBinaryArchive(binaryArchiveDescriptor, &error);
+			NS::String* nsStringFunctionName = nullptr;
+			if (type == Shader::ShaderType::Vertex)
+			{
+				nsStringFunctionName = NS::String::string("VertexMain", NS::StringEncoding::ASCIIStringEncoding);
+			}
+			else
+			{
+				nsStringFunctionName = NS::String::string("FragMain", NS::StringEncoding::ASCIIStringEncoding);
+			}
+			if (nsStringFunctionName != nullptr)
+			{
+				MTL::FunctionDescriptor* functionDescriptor = MTL::FunctionDescriptor::alloc()->init();
+				functionDescriptor->setName(nsStringFunctionName);
+				if (binaryArchive->addFunction(functionDescriptor, library, &error) == false)
+				{
+					OUTPUT_ERROR("MetalShader fail: {}", error->description()->utf8String());
+					binaryArchive->release();
+					nsStringFunctionName->release();
+					return false;
+				}
+
+				std::filesystem::path temporaryFilePath = FileSystem::GetInstance()->GenerateTemporaryFilePath();
+
+				NS::String* nsStringTmpFile = NS::String::alloc()->init(temporaryFilePath.string().c_str(), NS::StringEncoding::UTF8StringEncoding);
+				NS::URL* url = NS::URL::alloc()->initFileURLWithPath(nsStringTmpFile);
+				nsStringTmpFile->release();
+				if (binaryArchive->serializeToURL(url, &error) == false)
+				{
+					OUTPUT_ERROR("MetalShader fail: {}", error->description()->utf8String());
+					binaryArchive->release();
+					nsStringFunctionName->release();
+					return false;
+				}
+				binaryArchive->release();
+				nsStringFunctionName->release();
+
+				FileSystem::Handle binaryArchiveFileHandle = FileSystem::GetInstance()->Open(temporaryFilePath);
+				if (binaryArchiveFileHandle.IsOpen() == true)
+				{
+					uint32_t fileSize = FileSystem::GetInstance()->GetSize(binaryArchiveFileHandle);
+					byteCode.resize(fileSize);
+					if (FileSystem::GetInstance()->Read(binaryArchiveFileHandle, byteCode.data(), fileSize) != fileSize)
+					{
+						FileSystem::GetInstance()->Close(binaryArchiveFileHandle);
+						return false;
+					}
+					FileSystem::GetInstance()->Close(binaryArchiveFileHandle);
+					return true;
+				}
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			OUTPUT_ERROR("MetalShader fail: {}", error->description()->utf8String());
+			return false;
+		}
 	}
 }

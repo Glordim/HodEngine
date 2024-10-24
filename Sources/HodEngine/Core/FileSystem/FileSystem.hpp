@@ -47,11 +47,13 @@ namespace hod
 
 		static std::filesystem::path	GetUserSettingsPath();
 		static std::filesystem::path	GetExecutablePath();
+		static std::filesystem::path	GetTemporaryPath();
 		static bool						SetWorkingDirectory(const std::filesystem::path& path);
 
 	private:
 
 		static std::filesystem::path	_userSettingsPath;
+		static std::filesystem::path	_temporaryPath;
 		static std::filesystem::path	_executablePath;
 
 	public:
@@ -72,6 +74,8 @@ namespace hod
 		int32_t				Read(FileSystem::Handle handle, void* buffer, uint32_t size);
 
 		bool				Close(FileSystem::Handle& handle);
+
+		std::filesystem::path GenerateTemporaryFilePath() const;
 
 	private:
 

@@ -159,7 +159,7 @@ namespace hod::editor
 	{
 		if (std::filesystem::exists(projectPath) == false)
 		{
-			// todo
+			OUTPUT_ERROR("Project::Open fail: {} doesn't exist", projectPath.string());
 			return false;
 		}
 

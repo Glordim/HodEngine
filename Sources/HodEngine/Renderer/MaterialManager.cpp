@@ -144,29 +144,18 @@ namespace hod
 			if (material == nullptr)
 			{
 				Renderer* renderer = Renderer::GetInstance();
-				std::vector<uint8_t> shaderByteCode;
-				shaderByteCode.reserve(2048);
 
 				const BuiltinMaterialSource& builtinMaterialSource = GetBuiltinMaterialSource(buildMaterial);
 
-				if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, Shader::ShaderType::Vertex, builtinMaterialSource._vertexShaderSource) == false)
-				{
-					return nullptr;
-				}
 				Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
-				if (vertexShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
+				if (vertexShader->LoadFromSource(builtinMaterialSource._vertexShaderSource) == false)
 				{
 					delete vertexShader;
 					return nullptr;
 				}
 
-				if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, Shader::ShaderType::Fragment, builtinMaterialSource._fragmentShaderSource) == false)
-				{
-					delete vertexShader;
-					return nullptr;
-				}
 				Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
-				if (fragmentShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
+				if (fragmentShader->LoadFromSource(builtinMaterialSource._fragmentShaderSource) == false)
 				{
 					delete vertexShader;
 					delete fragmentShader;
@@ -174,12 +163,11 @@ namespace hod
 				}
 
 				material = renderer->CreateMaterial(builtinMaterialSource._vertexInputs.data(), (uint32_t)builtinMaterialSource._vertexInputs.size(), vertexShader, fragmentShader, builtinMaterialSource._polygonMode, builtinMaterialSource._topology, true);
-				delete vertexShader;
-				delete fragmentShader;
-
+				
 				if (material == nullptr)
 				{
-					
+					delete vertexShader;
+					delete fragmentShader;
 					return nullptr;
 				}
 
@@ -197,6 +185,11 @@ namespace hod
 		{
 			Renderer* renderer = Renderer::GetInstance();
 
+			// TODO ?
+
+			return UID::INVALID_UID;
+
+			/*
 			Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
 			if (vertexShader->LoadFromFile("Shader/" + shaderName + ".vert.spirv") == false)
 			{
@@ -225,6 +218,7 @@ namespace hod
 			this->AddData(uid, material);
 
 			return uid;
+			*/
 		}
 	}
 }

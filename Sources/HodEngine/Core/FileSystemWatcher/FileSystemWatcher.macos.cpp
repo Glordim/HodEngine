@@ -9,7 +9,8 @@ namespace hod
 	/// @param path 
 	/// @return 
 	bool FileSystemWatcher::InternalInit()
-	{	
+	{
+		/*
 		_fd = open(_path.string().c_str(), O_RDONLY);
 		if (_fd == -1)
 		{
@@ -26,7 +27,7 @@ namespace hod
 		}
 
 		EV_SET(&_change, _fd, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE, 0, NULL);
-
+		*/
 		return true;
 	}
 
@@ -40,6 +41,8 @@ namespace hod
 	/// @brief 
 	void FileSystemWatcher::Update()
 	{
+		return;
+		
 		struct kevent event;
         int nev = kevent(_kQueue, &_change, 1, &event, 1, NULL);
         if (nev == -1)

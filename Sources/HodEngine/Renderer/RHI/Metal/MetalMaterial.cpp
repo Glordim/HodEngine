@@ -12,7 +12,8 @@ namespace hod
 {
 	namespace renderer
 	{
-    MTL::VertexFormat FormatToMetalFormat[VertexInput::Format::Count] = {
+        MTL::VertexFormat FormatToMetalFormat[VertexInput::Format::Count] = {
+                MTL::VertexFormatFloat,
                 MTL::VertexFormatFloat2,
                 MTL::VertexFormatFloat4,
                 MTL::VertexFormatUChar4Normalized,
@@ -20,10 +21,12 @@ namespace hod
         };
 
         uint32_t FormatToSize[VertexInput::Format::Count] = {
+            1 * sizeof(float),
             2 * sizeof(float),
             4 * sizeof(float),
             1 * sizeof(uint32_t),
         };
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -107,9 +110,7 @@ namespace hod
             MTL::RenderPipelineDescriptor* pipelineDescriptor = MTL::RenderPipelineDescriptor::alloc()->init();
             pipelineDescriptor->setVertexFunction(vertexFunction);
             pipelineDescriptor->setFragmentFunction(fragmentFunction);
-            fragmentFunction->release();
             pipelineDescriptor->setVertexDescriptor(vertexDescriptor);
-            vertexDescriptor->release();
             pipelineDescriptor->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
             pipelineDescriptor->colorAttachments()->object(0)->setBlendingEnabled(true);
             pipelineDescriptor->colorAttachments()->object(0)->setRgbBlendOperation(MTL::BlendOperationAdd);

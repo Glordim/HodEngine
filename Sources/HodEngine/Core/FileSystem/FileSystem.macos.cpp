@@ -11,6 +11,7 @@
 
 namespace hod
 {
+	std::filesystem::path FileSystem::_temporaryPath;
 	std::filesystem::path FileSystem::_userSettingsPath;
 	std::filesystem::path FileSystem::_executablePath;
 
@@ -46,6 +47,15 @@ namespace hod
 			return false;
 		}
 		return true;
+	}
+
+	std::filesystem::path FileSystem::GetTemporaryPath()
+	{
+		if (FileSystem::_temporaryPath.empty() == true)
+		{
+			FileSystem::_temporaryPath = "/tmp";
+		}
+		return FileSystem::_temporaryPath;
 	}
 
 	/// @brief 

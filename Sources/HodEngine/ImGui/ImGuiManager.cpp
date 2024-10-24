@@ -471,27 +471,15 @@ void embraceTheDarkness()
 				{ 0, 16, renderer::VertexInput::Format::R8G8B8A8_UNorm },
 			};
 
-			std::vector<uint8_t> shaderByteCode;
-			shaderByteCode.reserve(2048);
-
-			if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, renderer::Shader::ShaderType::Vertex, imgui_vert) == false)
-			{
-				return false;
-			}
 			renderer::Shader* vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
-			if (vertexShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
+			if (vertexShader->LoadFromSource(imgui_vert) == false)
 			{
 				delete vertexShader;
 				return false;
 			}
 
 			renderer::Shader* fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
-			if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, renderer::Shader::ShaderType::Fragment, imgui_frag) == false)
-			{
-				delete vertexShader;
-				return false;
-			}
-			if (fragmentShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
+			if (fragmentShader->LoadFromSource(imgui_frag) == false)
 			{
 				delete vertexShader;
 				delete fragmentShader;
@@ -499,9 +487,13 @@ void embraceTheDarkness()
 			}
 
 			_material = renderer->CreateMaterial(vertexInput, 3, vertexShader, fragmentShader);
+			if (_material == nullptr)
+			{
+				delete vertexShader;
+				delete fragmentShader;
+				return false;
+			}
 
-			delete vertexShader;
-			delete fragmentShader;
 			// todo error handling ?
 		}
 		return true;

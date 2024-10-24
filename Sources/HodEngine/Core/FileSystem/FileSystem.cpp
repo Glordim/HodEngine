@@ -1,5 +1,6 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
+#include "HodEngine/Core/UID.hpp"
 
 namespace hod
 {
@@ -11,6 +12,11 @@ namespace hod
 	bool FileSystem::Init()
 	{
 		return true;
+	}
+
+	std::filesystem::path FileSystem::GenerateTemporaryFilePath() const
+	{
+		return GetTemporaryPath() / ("Hod_Tmp_" + UID::GenerateUID().ToString());
 	}
 
 	FileSystem::Handle FileSystem::Open(const std::filesystem::path& path)

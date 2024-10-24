@@ -30,19 +30,12 @@ namespace hod
 											Shader(ShaderType type);
 			virtual							~Shader();
 
-			bool							LoadFromSource(std::istream& stream);
-
-			bool							LoadFromFile(const std::string& path);
-			bool							LoadFromMemory(const void* data, uint32_t size);
-			bool							LoadFromStream(std::istream& stream);
-
 			const std::vector<uint8_t>&		GetShaderBytecode() const;
             
             ShaderType                      GetShaderType() const;
 
-		protected:
-
-			virtual bool					LoadInternal(const void* data, uint32_t size) = 0;
+			virtual bool					LoadFromIR(const void* data, uint32_t size) = 0;
+			virtual bool					LoadFromSource(std::string_view source) = 0;
 
 		protected:
 

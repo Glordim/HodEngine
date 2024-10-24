@@ -30,11 +30,20 @@
 			]
 		},
 		{
-			"name": "(Unix) Editor",
+			"name": "(Linux) Editor",
 			"type": "lldb",
 			"request": "launch",
 			"program": "${command:cmake.launchTargetDirectory}/HodEditor",
 			"args": ["--ProjectPath", "/home/glordim/Dev/Pong/Pong.hod"],
+			"console": "integratedTerminal",
+			"preLaunchTask": "Build Target",
+		},
+		{
+			"name": "(Mac) Editor",
+			"type": "lldb",
+			"request": "launch",
+			"program": "${command:cmake.launchTargetDirectory}/HodEditor",
+			"args": ["--ProjectPath", "/Users/anthony/Dev/Pong/Pong.hod"],
 			"console": "integratedTerminal",
 			"preLaunchTask": "Build Target",
 		},

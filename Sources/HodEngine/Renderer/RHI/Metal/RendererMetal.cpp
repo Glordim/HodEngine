@@ -31,7 +31,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		RendererMetal::~RendererMetal()
 		{
-
+			_commandQueue->release();
+			_device->release();
 		}
 
 		bool RendererMetal::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount)

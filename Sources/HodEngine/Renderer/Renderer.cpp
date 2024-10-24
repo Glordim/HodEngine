@@ -118,27 +118,15 @@ namespace hod
 						//{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
 					};
 
-					std::vector<uint8_t> shaderByteCode;
-					shaderByteCode.reserve(2048);
-
-					if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, Shader::ShaderType::Vertex, SpriteUnlitColor_vert) == false)
-					{
-						return nullptr;
-					}
 					Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
-					if (vertexShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
+					if (vertexShader->LoadFromSource(SpriteUnlitColor_vert) == false)
 					{
 						delete vertexShader;
 						return nullptr;
 					}
 
-					if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, Shader::ShaderType::Fragment, SpriteUnlitColor_frag) == false)
-					{
-						delete vertexShader;
-						return nullptr;
-					}
 					Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
-					if (fragmentShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
+					if (fragmentShader->LoadFromSource(SpriteUnlitColor_frag) == false)
 					{
 						delete vertexShader;
 						delete fragmentShader;

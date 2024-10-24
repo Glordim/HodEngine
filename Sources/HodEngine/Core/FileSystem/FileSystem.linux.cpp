@@ -15,6 +15,7 @@ namespace hod
 	static_assert(static_cast<int>(FileSystem::SeekMode::Current) == SEEK_CUR);
 	static_assert(static_cast<int>(FileSystem::SeekMode::End) == SEEK_END);
 
+	std::filesystem::path FileSystem::_temporaryPath;
 	std::filesystem::path FileSystem::_userSettingsPath;
 	std::filesystem::path FileSystem::_executablePath;
 
@@ -43,6 +44,15 @@ namespace hod
 			}
 		}
 		return FileSystem::_executablePath;
+	}
+
+	std::filesystem::path FileSystem::GetTemporaryPath()
+	{
+		if (FileSystem::_temporaryPath.empty() == true)
+		{
+			FileSystem::_temporaryPath = "/tmp";
+		}
+		return FileSystem::_temporaryPath;
 	}
 
 	bool FileSystem::SetWorkingDirectory(const std::filesystem::path& path)
