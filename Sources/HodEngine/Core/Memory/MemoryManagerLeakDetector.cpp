@@ -16,8 +16,16 @@ namespace hod
 		uint32_t memleakCount = _allocationCount;
 		if (memleakCount > 0)
 		{
+			uint32_t size = 0;
+			for (uint32_t index = 0; index < memleakCount; ++index)
+			{
+				const Allocation* allocation = _allocations[index];
+				size += allocation->_size;
+			}
+
 			FILE* memleakReport = fopen("MemleakReport.txt", "w");
-			fprintf(memleakReport, "Memleak count = %u\n\n", memleakCount);
+			fprintf(memleakReport, "Memleak count = %u\n", memleakCount);
+			fprintf(memleakReport, "Size = %u\n\n", size);
 
 			for (uint32_t index = 0; index < memleakCount; ++index)
 			{
