@@ -112,7 +112,7 @@ namespace hod
 		std::memset(userAddress, 0xA1, size);
 
 		Allocation* allocation = reinterpret_cast<Allocation*>(reinterpret_cast<uintptr_t>(userAddress) - sizeof(Allocation));
-        allocation->_callstackSize = OS::GetCallstack(allocation->_callstack.data(), allocation->_callstack.size());
+        allocation->_callstackSize = OS::GetCallstack(allocation->_callstack.data(), (uint32_t)allocation->_callstack.size());
         allocation->_size = size;
         allocation->_realAddress = address;
 		allocation->_userAddress = userAddress;

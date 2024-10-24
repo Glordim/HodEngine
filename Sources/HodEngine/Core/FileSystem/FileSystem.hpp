@@ -34,7 +34,7 @@ namespace hod
 			AAsset*	_asset = nullptr;
 		#elif defined(PLATFORM_WINDOWS)
 			HANDLE	_handle = INVALID_HANDLE_VALUE;
-		#elif defined(PLATFORM_LINUX)
+		#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
 			int		_fd = -1;
 		#else
 			FILE*	_file = nullptr;

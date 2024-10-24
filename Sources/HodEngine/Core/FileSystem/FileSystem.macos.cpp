@@ -4,8 +4,10 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <pwd.h>
 
+#include <fcntl.h>
 #include <mach-o/dyld.h>
 #include <sys/param.h>
 
@@ -58,72 +60,73 @@ namespace hod
 		return FileSystem::_temporaryPath;
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
-	FileSystem::Handle FileSystem::Open(const char* path)
-	{
-		FileSystem::Handle handle;
-		handle._file = fopen(path, "r");
-		return handle;
-	}
+    /// @brief
+    /// @param path
+    /// @return
+    FileSystem::Handle FileSystem::Open(const char* path)
+    {
+        FileSystem::Handle handle;
+        handle._fd = open(path, O_RDONLY);
+        return handle;
+    }
 
-	/// @brief 
-	/// @param handle 
-	/// @return 
-	uint32_t FileSystem::GetSize(FileSystem::Handle handle)
-	{
-		uint32_t offset = ftell(handle._file);
-		fseek(handle._file, 0, SEEK_END);
-		uint32_t size = ftell(handle._file);
-		fseek(handle._file, offset, SEEK_SET);
-		return size;
-	}
+    /// @brief
+    /// @param handle
+    /// @return
+    uint32_t FileSystem::GetSize(FileSystem::Handle handle)
+    {
+        struct stat fileStat;
+        if (fstat(handle._fd, &fileStat) == -1)
+        {
+            return 0;
+        }
+        return (uint32_t)fileStat.st_size;
+    }
 
-	/// @brief 
-	/// @param handle 
-	/// @return 
-	uint32_t FileSystem::GetOffset(FileSystem::Handle handle)
-	{
-		return (uint32_t)ftell(handle._file);
-	}
+    /// @brief
+    /// @param handle
+    /// @return
+    uint32_t FileSystem::GetOffset(FileSystem::Handle handle)
+    {
+        return (uint32_t)lseek(handle._fd, 0, SEEK_CUR);
+    }
 
-	/// @brief 
-	/// @param handle 
-	/// @param position 
-	/// @param mode 
-	void FileSystem::Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode)
-	{
-		fseek(handle._file, position, static_cast<int>(mode));
-	}
+    /// @brief
+    /// @param handle
+    /// @param position
+    /// @param mode
+    void FileSystem::Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode)
+    {
+        lseek(handle._fd, position, static_cast<int>(mode));
+    }
 
-	/// @brief 
-	/// @param handle 
-	/// @param buffer 
-	/// @param size 
-	/// @return 
-	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
-	{
-		return (int32_t)fread(buffer, 1, size, handle._file);
-	}
+    /// @brief
+    /// @param handle
+    /// @param buffer
+    /// @param size
+    /// @return
+    int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
+    {
+        return (int32_t)read(handle._fd, buffer, size);
+    }
 
-	/// @brief 
-	/// @param handle 
-	/// @return 
-	bool FileSystem::Close(FileSystem::Handle& handle)
-	{
-		if (fclose(handle._file) == 0)
-		{
-			handle._file = nullptr;
-			return true;
-		}
-		return false;
-	}
+    /// @brief
+    /// @param handle
+    /// @return
+    bool FileSystem::Close(FileSystem::Handle& handle)
+    {
+        if (close(handle._fd) == 0)
+        {
+            handle._fd = -1;
+            return true;
+        }
+        return false;
+    }
 
-	/// @brief 
-	/// @return 
-	bool FileSystem::Handle::IsOpen() const
-	{
-		return _file != nullptr;
-	}
+    /// @brief
+    /// @return
+    bool FileSystem::Handle::IsOpen() const
+    {
+        return _fd >= 0;
+    }
 }

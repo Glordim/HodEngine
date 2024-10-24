@@ -220,7 +220,7 @@ if(NOT SET_UP_CONFIGURATIONS_DONE)
 	endif()
 
 	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof -Wno-nullability-completeness -Werror -D_CRT_SECURE_NO_WARNINGS")
+    	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof -Wno-nullability-completeness -fobjc-arc -Werror -D_CRT_SECURE_NO_WARNINGS")
 	elseif (MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /D_CRT_SECURE_NO_WARNINGS /wd4251")
 	elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
