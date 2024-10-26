@@ -236,6 +236,27 @@ namespace hod::editor
 				}
 				ImGui::EndMenu();
 			}
+			
+			if (ImGui::BeginMenu("Resolution"))
+			{
+				if (ImGui::MenuItem("16:9 (landscapce)"))
+				{
+					_playRatio = Vector2(16.0f, 9.0f);
+				}
+				if (ImGui::MenuItem("21:9 (landscapce)"))
+				{
+					_playRatio = Vector2(21.0f, 9.0f);
+				}
+				if (ImGui::MenuItem("16:9 (portrait)"))
+				{
+					_playRatio = Vector2(9.0f, 16.0f);
+				}
+				if (ImGui::MenuItem("21:9 (portrait)"))
+				{
+					_playRatio = Vector2(9.0f, 21.0f);
+				}
+				ImGui::EndMenu();
+			}
 			ImGui::EndMenuBar();
 		}
 
@@ -302,23 +323,28 @@ namespace hod::editor
 			}
 		}
 
-		uint32_t windowWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
-		uint32_t windowHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
+		uint32_t resolutionWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
+		uint32_t resolutionHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
 
-		windowWidth = std::clamp(windowWidth, 2u, 16u * 1024u);
-		windowHeight = std::clamp(windowHeight, 2u, 16u * 1024u);
+		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
+		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
 
-		if (_renderTarget->GetWidth() != windowWidth ||
-			_renderTarget->GetHeight() != windowHeight)
+		if (Editor::GetInstance()->IsPlaying() == true)
+		{
+			resolutionWidth = static_cast<uint32_t>(static_cast<float>(resolutionHeight) * (_playRatio.GetX() / _playRatio.GetY()));
+		}
+
+		if (_renderTarget->GetWidth() != resolutionWidth ||
+			_renderTarget->GetHeight() != resolutionHeight)
 		{
 			renderer::Texture::CreateInfo createInfo;
 
 			createInfo._allowReadWrite = false;
-			_renderTarget->Init(windowWidth, windowHeight, createInfo); // todo error
+			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
 			_renderTarget->PrepareForRead(); // todo automate ?
 
 			createInfo._allowReadWrite = true;
-			_pickingRenderTarget->Init(windowWidth, windowHeight, createInfo); // todo error
+			_pickingRenderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
 			_pickingRenderTarget->PrepareForRead(); // todo automate ?
 		}
 
@@ -333,10 +359,10 @@ namespace hod::editor
 				Rect viewport;
 				viewport._position.SetX(0);
 				viewport._position.SetY(0);
-				viewport._size.SetX((float)windowWidth);
-				viewport._size.SetY((float)windowHeight);
+				viewport._size.SetX((float)resolutionWidth);
+				viewport._size.SetY((float)resolutionHeight);
 
-				float aspect = (float)windowWidth / (float)windowHeight;
+				float aspect = (float)resolutionWidth / (float)resolutionHeight;
 
 				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 				_view = Matrix4::Translation(_cameraPosition);
@@ -386,11 +412,13 @@ namespace hod::editor
 
 			if (_debugPicker)
 			{
-				ImGui::Image(_pickingRenderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
+				ImGui::Image(_pickingRenderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
 			else
 			{
-				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
+				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
 			//ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth, (float)(windowHeight + menuBarHeight)));
 			if (ImGui::BeginDragDropTarget() == true)
@@ -509,5 +537,12 @@ namespace hod::editor
 	const Matrix4& ViewportWindow::GetViewMatrix() const
 	{
 		return _view;
+	}
+
+	/// @brief 
+	/// @return 
+	const Vector2& ViewportWindow::GetPlayRatio() const
+	{
+		return _playRatio;
 	}
 }

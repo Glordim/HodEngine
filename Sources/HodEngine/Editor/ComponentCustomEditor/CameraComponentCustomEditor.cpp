@@ -43,7 +43,7 @@ namespace hod::editor
 			std::shared_ptr<game::Node2dComponent> node2D = cameraComponent->GetEntity()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				cameraComponent->SetAspect((float)viewport.GetRenderQueue()->GetRenderWidth() / (float)viewport.GetRenderQueue()->GetRenderHeight());
+				cameraComponent->SetAspect((float)viewport.GetPlayRatio().GetX() / (float)viewport.GetPlayRatio().GetY());
 				const hod::Matrix4& projectionMatrix = cameraComponent->GetProjectionMatrix();
 				
 				float width = 2.0f / projectionMatrix[0][0];

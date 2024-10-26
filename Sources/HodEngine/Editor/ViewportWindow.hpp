@@ -53,6 +53,8 @@ namespace hod::editor
 		const Matrix4&				GetProjectionMatrix() const;
 		const Matrix4&				GetViewMatrix() const;
 
+		const Vector2&				GetPlayRatio() const;
+
 	private:
 
 		void		EnablePhysicsDebugDrawer(bool enabled);
@@ -64,6 +66,8 @@ namespace hod::editor
 
 		Matrix4						_projection;
 		Matrix4						_view;
+
+		Vector2						_playRatio = Vector2(16.0f, 9.0f);
 
 		Vector2						_cameraPosition = Vector2::Zero;
 		float						_size = 5.0f;
