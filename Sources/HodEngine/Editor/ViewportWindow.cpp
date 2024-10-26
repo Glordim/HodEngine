@@ -271,8 +271,8 @@ namespace hod::editor
 			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 			{
 				Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
-				_cameraPosition.SetX(_cameraPosition.GetX() + movement.GetX());
-				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
+				_cameraPosition.SetX(_cameraPosition.GetX() - movement.GetX());
+				_cameraPosition.SetY(_cameraPosition.GetY() - movement.GetY());
 			}
 
 			if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered())

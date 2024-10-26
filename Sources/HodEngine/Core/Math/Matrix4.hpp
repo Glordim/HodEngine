@@ -28,8 +28,8 @@ namespace hod
 
 	public:
 
-		float&		operator [] (uint32_t index);
-		float		operator [] (uint32_t index) const;
+		float* 			operator[](uint32_t index);
+		const float*	operator[](uint32_t index) const;
 
 		Matrix4		operator * (const Matrix4& right) const;
 

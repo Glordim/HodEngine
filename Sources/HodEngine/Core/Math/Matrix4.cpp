@@ -29,17 +29,17 @@ namespace hod
 	/// @brief 
 	/// @param index 
 	/// @return 
-	float& Matrix4::operator [] (uint32_t index)
+	float* Matrix4::operator[](uint32_t index)
 	{
-		return _values[index / 4][index % 4];
+		return _values[index];
 	}
 
 	/// @brief 
 	/// @param index 
 	/// @return 
-	float Matrix4::operator [] (uint32_t index) const
+	const float* Matrix4::operator[](uint32_t index) const
 	{
-		return _values[index / 4][index % 4];
+		return _values[index];
 	}
 
 	/// @brief 

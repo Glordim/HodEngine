@@ -19,7 +19,7 @@ namespace hod::game
 		AddPropertyT(this, &CameraComponent::_near, "Near");
 		AddPropertyT(this, &CameraComponent::_far, "Far");
 		AddPropertyT(this, &CameraComponent::_fov, "Fov");
-		AddPropertyT(this, &CameraComponent::_size, "Size");
+		AddPropertyT(this, &CameraComponent::_size, "Size", &CameraComponent::SetSize);
 	}
 
 	/// @brief 
@@ -112,5 +112,23 @@ namespace hod::game
 			}
 		}
 		renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+	}
+
+	/// @brief 
+	/// @param size 
+	void CameraComponent::SetSize(float size)
+	{
+		if (size != _size)
+		{
+			_size = size;
+			_dirtyFlag = true;
+		}
+	}
+
+	/// @brief 
+	/// @return 
+	float CameraComponent::GetSize() const
+	{
+		return _size;
 	}
 }

@@ -16,7 +16,7 @@ namespace hod
 		RenderCommandSetCameraSettings::RenderCommandSetCameraSettings(const Matrix4& projectionMatrix, const Matrix4& viewMatrix, const Rect& viewport)
 			: RenderCommand()
 			, _projectionMatrix(projectionMatrix)
-			, _viewMatrix(viewMatrix)
+			, _viewMatrix(Matrix4::Inverse(viewMatrix))
 			, _viewport(viewport)
 		{
 		}

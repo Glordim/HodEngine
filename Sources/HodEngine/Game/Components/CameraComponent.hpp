@@ -55,7 +55,8 @@ namespace hod::game
 
 		void						PushToRenderQueue(renderer::RenderQueue& renderQueue); // todo ?
 
-	private:
+		void						SetSize(float size);
+		float						GetSize() const;
 
 		void						SetAspect(float aspect);
 
