@@ -6,30 +6,26 @@
 #include <vulkan/vulkan.h>
 #include <string>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	/// @brief 
+	class HOD_RENDERER_API VkShader : public Shader
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API VkShader : public Shader
-		{
-		public:
+	public:
 
-											VkShader(ShaderType type);
-											~VkShader() override;
+										VkShader(ShaderType type);
+										~VkShader() override;
 
 
-			VkShaderModule					GetShaderModule() const;
+		VkShaderModule					GetShaderModule() const;
 
-		protected:
+	protected:
 
-			bool							LoadInternal(const void* data, uint32_t size) override;
+		bool							LoadFromSource(std::string_view source) override;
+		bool							LoadFromIR(const void* data, uint32_t size) override;
 
-		private:
+	private:
 
-			VkShaderModule					_shaderModule = VK_NULL_HANDLE;
-		};
-	}
+		VkShaderModule					_shaderModule = VK_NULL_HANDLE;
+	};
 }
