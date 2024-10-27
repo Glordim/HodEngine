@@ -22,6 +22,12 @@
 
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/Prefab.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
+#include "HodEngine/Game/World.hpp"
+#include "HodEngine/Game/SceneSerializer.hpp"
+
+#include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/Core/ResourceManager.hpp>
 
 #include <cmath>
 
@@ -479,6 +485,58 @@ namespace hod::editor
 		{
 			AssetDatabase::GetInstance()->Delete(*itemToDelete);
 			itemToDelete = nullptr;
+		}
+
+		ImRect backgroundRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize());
+		if (ImGui::BeginDragDropTargetCustom(backgroundRect, ImGui::GetID("BackgroundDropTarget")) == true)
+		{
+			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+			if (payload->IsDataType("EntityId") == true)
+			{
+				payload = ImGui::AcceptDragDropPayload("EntityId");
+				if (payload != nullptr)
+				{
+					game::Entity::Id entityId = *reinterpret_cast<game::Entity::Id*>(payload->Data);
+					game::World* world = game::World::GetInstance();
+					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
+					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
+					if (dropEntityLock != nullptr)
+					{
+						Document prefabDocument;
+						prefabDocument.GetRootNode().AddChild("Name").SetString(dropEntityLock->GetName());
+						if (game::SceneSerializer::SerializeEntities({ dropEntityLock }, prefabDocument.GetRootNode().AddChild("Entities")) == false)
+						{
+							// todo output
+						}
+						else
+						{
+							game::Prefab* prefab = new game::Prefab();
+							if (Serializer::Deserialize(prefab, prefabDocument.GetRootNode()) == false)
+							{
+								// todo output
+							}
+							else
+							{
+								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path / (dropEntityLock->GetName() + ".asset"));
+								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+								if (newAssetNode != nullptr)
+								{
+									newAssetNode->_asset->Save(prefab, prefab->GetReflectionDescriptorV());
+									AssetDatabase::GetInstance()->Import(newAssetPath);
+									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<game::PrefabResource>(newAssetNode->_asset->GetUid()));
+									Editor::GetInstance()->MarkCurrentSceneAsDirty();
+								}
+								else
+								{
+									// todo output
+								}
+							}
+							delete prefab;
+						}
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
 		}
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
