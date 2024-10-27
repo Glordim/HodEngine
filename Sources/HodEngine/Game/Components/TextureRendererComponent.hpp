@@ -44,7 +44,7 @@ namespace hod
 
 		private:
 
-			WeakResource<renderer::TextureResource>	_textureResource;
+			WeakResource<renderer::TextureResource>	_texture;
 
 			
 			renderer::MaterialInstance*				_materialInstance = nullptr;

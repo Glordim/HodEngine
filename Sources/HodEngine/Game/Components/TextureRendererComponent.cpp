@@ -21,7 +21,7 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, RendererComponent)
 		{
-			AddPropertyT(this, &TextureRendererComponent::_textureResource, "_textureResource", &TextureRendererComponent::SetTexture);
+			AddPropertyT(this, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
 			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
@@ -43,7 +43,7 @@ namespace hod
 		/// @brief 
 		void TextureRendererComponent::OnConstruct()
 		{
-			SetTexture(_textureResource);
+			SetTexture(_texture);
 		}
 
 		/*
@@ -121,8 +121,8 @@ namespace hod
 		/// @param texture 
 		void TextureRendererComponent::SetTexture(const WeakResource<renderer::TextureResource>& texture)
 		{
-			_textureResource = texture;
-			std::shared_ptr<renderer::TextureResource> textureResourceLock = _textureResource.Lock();
+			_texture = texture;
+			std::shared_ptr<renderer::TextureResource> textureResourceLock = _texture.Lock();
 			if (textureResourceLock != nullptr)
 			{
 				_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
