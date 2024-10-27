@@ -19,7 +19,7 @@ namespace hod::game
 	/// @return 
 	bool PrefabResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
 	{
-		_prefab = new Prefab(GetUid());
+		_prefab = new Prefab();
 		return _prefab->DeserializeFromDocument(documentNode);
 	}
 

@@ -38,7 +38,6 @@ namespace hod::editor
 			std::filesystem::file_time_type	_lastWriteTime;
 			std::filesystem::path			_path;
 			Type							_type;
-			UID								_uid;
 
 			std::shared_ptr<Asset>			_asset = nullptr;
 

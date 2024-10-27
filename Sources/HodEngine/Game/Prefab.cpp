@@ -29,21 +29,6 @@ namespace hod::game
 	}
 
 	/// @brief 
-	/// @param uid 
-	Prefab::Prefab(const UID& uid)
-	: _uid(uid)
-	{
-
-	}
-
-	/// @brief 
-	/// @return 
-	const UID& Prefab::GetUid() const
-	{
-		return _uid;
-	}
-
-	/// @brief 
 	/// @param name 
 	void Prefab::SetName(const std::string_view& name)
 	{
@@ -167,56 +152,6 @@ namespace hod::game
 	void Prefab::Clear()
 	{
 		_entities.clear();
-	}
-
-	/// @brief 
-	/// @return 
-	Prefab* Prefab::Clone()
-	{
-		Prefab* clone = new Prefab();
-
-		std::map<std::shared_ptr<Entity>, std::shared_ptr<Entity>> sourceToCloneEntitiesMap;		
-		std::map<std::shared_ptr<Component>, std::shared_ptr<Component>> sourceToCloneComponentsMap;
-
-		clone->_entities.reserve(_entities.size());
-		for (const auto& entityPair : _entities)
-		{
-			std::shared_ptr<Entity> cloneEntity = entityPair.second->Clone();
-			sourceToCloneEntitiesMap.emplace(entityPair.second, cloneEntity);
-
-			for (size_t componentIndex = 0; componentIndex < cloneEntity->GetComponents().size(); ++componentIndex)
-			{
-				sourceToCloneComponentsMap.emplace(entityPair.second->GetComponents()[componentIndex], cloneEntity->GetComponents()[componentIndex]);
-			}
-
-			clone->_entities.emplace(cloneEntity->GetId(), cloneEntity);
-		}
-			
-		for (const auto& componentPair : sourceToCloneComponentsMap)
-		{
-			ReflectionDescriptor* reflectionDescriptor = componentPair.second->GetReflectionDescriptorV();
-			for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
-			{
-				switch (reflectionProperty->GetMetaType())
-				{
-					case ReflectionPropertyArray::GetMetaTypeStatic():
-					{
-						//ReflectionPropertyArray* reflectionPropertyArray = static_cast<ReflectionPropertyArray*>(reflectionProperty);
-					}
-					break;
-
-					case ReflectionPropertyObject::GetMetaTypeStatic():
-					{
-						//ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
-
-						//if (reflectionPropertyObject->GetReflectionDescriptor() == WeakComponent::)
-					}
-					break;
-				}
-			}
-		}
-
-		return clone;
 	}
 
 	/// @brief 

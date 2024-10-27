@@ -13,7 +13,7 @@
 namespace hod::game
 {
 	class RendererComponent;
-	class Prefab;
+	class PrefabResource;
 	class Entity;
 	class Component;
 
@@ -46,10 +46,10 @@ namespace hod::game
 		Scene*							Clone();
 		void							Clear();
 
-		std::shared_ptr<Entity>			Instantiate(Prefab& prefab);
+		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<PrefabResource> prefabResource);
 		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<Entity> entity);
 
-		std::shared_ptr<Entity>			InstantiateWithOverrides(Prefab& prefab, const Document::Node& prefabNode);
+		std::shared_ptr<Entity>			InstantiateWithOverrides(std::shared_ptr<PrefabResource> prefabResource, const Document::Node& prefabNode);
 
 		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 

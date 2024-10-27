@@ -93,7 +93,7 @@ namespace hod::game
 				std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(uid);
 				if (prefabResource != nullptr)
 				{
-					InstantiateWithOverrides(prefabResource->GetPrefab(), *prefabInstanceNode->GetChild("Overrides"));
+					InstantiateWithOverrides(prefabResource, *prefabInstanceNode->GetChild("Overrides"));
 				}
 				else
 				{
@@ -265,15 +265,15 @@ namespace hod::game
 	/// @brief 
 	/// @param prefab 
 	/// @return 
-	std::shared_ptr<Entity> Scene::Instantiate(Prefab& prefab)
+	std::shared_ptr<Entity> Scene::Instantiate(std::shared_ptr<PrefabResource> prefabResource)
 	{
-		std::shared_ptr<Entity> instance = Instantiate(prefab.GetRootEntity());
-	#if defined(HOD_EDITOR)
+		std::shared_ptr<Entity> instance = Instantiate(prefabResource->GetPrefab().GetRootEntity());
+
 		if (instance != nullptr)
 		{
-			instance->SetPrefab(&prefab);
+			instance->SetPrefabResource(prefabResource);
 		}
-	#endif
+
 		return instance;
 	}
 
@@ -353,12 +353,12 @@ namespace hod::game
 	/// @param prefab 
 	/// @param prefabNode 
 	/// @return 
-	std::shared_ptr<Entity> Scene::InstantiateWithOverrides(Prefab& prefab, const Document::Node& overridesNode)
+	std::shared_ptr<Entity> Scene::InstantiateWithOverrides(std::shared_ptr<PrefabResource> prefabResource, const Document::Node& overridesNode)
 	{
 		std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>> sourceToCloneEntitiesMap;		
 		std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>> sourceToCloneComponentsMap;
 
-		std::shared_ptr<Entity> clonedEntity = InstantiateInternal(prefab.GetRootEntity(), sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
+		std::shared_ptr<Entity> clonedEntity = InstantiateInternal(prefabResource->GetPrefab().GetRootEntity(), sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
 
 		for (const auto& componentPair : sourceToCloneComponentsMap)
 		{
@@ -384,12 +384,10 @@ namespace hod::game
 			}
 		}
 
-	#if defined(HOD_EDITOR)
 		if (clonedEntity != nullptr)
 		{
-			clonedEntity->SetPrefab(&prefab);
+			clonedEntity->SetPrefabResource(prefabResource);
 		}
-	#endif
 
 		const Document::Node* overrideNode = overridesNode.GetFirstChild();
 		while (overrideNode != nullptr)

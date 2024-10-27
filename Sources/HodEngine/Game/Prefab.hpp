@@ -29,8 +29,6 @@ namespace hod::game
 
 	public:
 
-		const UID&			GetUid() const;
-
 		void				SetName(const std::string_view& name);
 		const std::string&	GetName() const;
 
@@ -41,7 +39,6 @@ namespace hod::game
 		void							DestroyEntity(std::shared_ptr<Entity> entity);
 		std::weak_ptr<Entity>			FindEntity(Entity::Id entityId);
 
-		Prefab*							Clone();
 		void							Clear();
 
 		std::shared_ptr<Entity>			GetRootEntity();
@@ -50,7 +47,6 @@ namespace hod::game
 
 	private:
 
-		UID														_uid;
 		std::string												_name;
 		std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
 	};

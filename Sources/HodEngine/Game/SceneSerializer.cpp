@@ -4,6 +4,7 @@
 #include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Game/PrefabUtility.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
@@ -19,11 +20,11 @@ namespace hod::game
 		{
 			Document::Node& entityNode = entitiesNode.AddChild("");
 
-			Prefab* prefab = entity->GetPrefab();
-			if (prefab != nullptr)
+			std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
+			if (prefabResource != nullptr)
 			{
 				Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
-				UID uid = prefab->GetUid(); // TODO fix Serializa template lvalue
+				UID uid = prefabResource->GetUid(); // TODO fix Serializa template lvalue
 				Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
 				Document::Node& overridesNode = prefabInstance.AddChild("Overrides");
 

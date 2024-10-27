@@ -20,12 +20,14 @@
 #include <HodEngine/Core/Rect.hpp>
 #include <HodEngine/Core/Math/Vector4.hpp>
 #include <HodEngine/Core/Color.hpp>
+#include <HodEngine/Core/ResourceManager.hpp>
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/Prefab.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
@@ -99,17 +101,8 @@ namespace hod::editor
 		}
 		else
 		{
-			game::Prefab* prefab = new game::Prefab();
-			if (Serializer::Deserialize(prefab, document.GetRootNode()) == false)
-			{
-				return; // todo message + bool
-			}
-			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(*prefab);
-			if (prefabRootEntity != nullptr) // TODO a Prefab should not be empty
-			{
-				prefabRootEntity->SetPrefab(nullptr); // Unpack prefab for serialization, otherwise that will be serialize as PrefabInstance
-			}
-			delete prefab;
+			std::shared_ptr<game::PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<game::PrefabResource>(asset->GetUid());
+			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(prefabResource);
 			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
 		}
 	}
@@ -444,13 +437,9 @@ namespace hod::editor
 									return; // todo message + bool
 								}
 
-								game::Prefab* prefab = new game::Prefab(asset->GetUid());
-								if (Serializer::Deserialize(prefab, document.GetRootNode()) == false)
-								{
-									return; // todo message + bool
-								}
+								std::shared_ptr<game::PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<game::PrefabResource>(asset->GetUid());
 
-								_scene->Instantiate(*prefab);
+								_scene->Instantiate(prefabResource);
 
 								MarkCurrentSceneAsDirty();
 							}

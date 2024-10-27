@@ -1,6 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/PrefabUtility.hpp"
 #include "HodEngine/Game/Prefab.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
@@ -22,13 +23,13 @@ namespace hod::game::PrefabUtility
 	/// @return 
 	bool CollectDiff(std::shared_ptr<Entity> entity, EntityDiffs& diffs)
 	{
-		Prefab* prefab = entity->GetPrefab();
-		if (prefab == nullptr)
+		std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
+		if (prefabResource == nullptr)
 		{
 			return false;
 		}
 
-		std::shared_ptr<Entity> source = prefab->GetRootEntity();
+		std::shared_ptr<Entity> source = prefabResource->GetPrefab().GetRootEntity();
 		std::shared_ptr<Entity> instance = entity;
 
 		ReflectionDescriptor* reflectionDescriptor = source->GetReflectionDescriptorV();
@@ -109,8 +110,8 @@ namespace hod::game::PrefabUtility
 	{
 		while (entity != nullptr)
 		{
-			game::Prefab* prefab = entity->GetPrefab();
-			if (prefab != nullptr)
+			std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
+			if (prefabResource != nullptr)
 			{
 				return entity;
 			}
@@ -206,7 +207,7 @@ namespace hod::game::PrefabUtility
 			if (prefabInstanceEntity != nullptr)
 			{
 				std::string pathToComponent = GetRelativePath(prefabInstanceEntity, entity);
-				std::shared_ptr<Entity> correspondingEntity = FindChildByPath(prefabInstanceEntity->GetPrefab()->GetRootEntity(), pathToComponent);
+				std::shared_ptr<Entity> correspondingEntity = FindChildByPath(prefabInstanceEntity->GetPrefabResource()->GetPrefab().GetRootEntity(), pathToComponent);
 				if (correspondingEntity != nullptr)
 				{
 					return correspondingEntity->GetComponent(component->GetMetaType());

@@ -92,12 +92,11 @@ namespace hod::game
 	 
 	 void Entity::Awake()
 	 {
-		#if defined(HOD_EDITOR)
 		if (World::GetInstance()->GetEditorPlaying() == false)
 		{
 			return;
 		}
-		#endif
+
 		if (_awaked == false)
 		{
 			_awaked = true;
@@ -111,12 +110,11 @@ namespace hod::game
 
 	 void Entity::Start()
 	 {
-		#if defined(HOD_EDITOR)
 		if (World::GetInstance()->GetEditorPlaying() == false)
 		{
 			return;
 		}
-		#endif
+
 		if (_started == false)
 		{
 			_started = true;
@@ -182,9 +180,8 @@ namespace hod::game
 
 		_onAddComponentEvent.Emit(component);
 
-#if defined(HOD_EDITOR)
 		awakeAndStart = World::GetInstance()->GetEditorPlaying();
-#endif
+		
 		if (_active == true && awakeAndStart == true)
 		{
 			component->OnAwake();
@@ -207,15 +204,15 @@ namespace hod::game
 
 	/// @brief 
 	/// @param prefab 
-	void Entity::SetPrefab(Prefab* prefab)
+	void Entity::SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource)
 	{
-		_prefab = prefab;
+		_prefabResource = prefabResource;
 	}
 
 	/// @brief 
 	/// @return 
-	Prefab* Entity::GetPrefab() const
+	std::shared_ptr<PrefabResource> Entity::GetPrefabResource() const
 	{
-		return _prefab;
+		return _prefabResource;
 	}
 }

@@ -256,7 +256,7 @@ namespace hod::editor
 
 		ImGui::SameLine(0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 0.0f });
-		if (entityLock->GetPrefab() != nullptr)
+		if (entityLock->GetPrefabResource() != nullptr)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.5f, 1.0f, 1.0f));
 			ImGui::AlignTextToFramePadding();

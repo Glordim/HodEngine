@@ -141,14 +141,17 @@ namespace hod::editor
 				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 				childFileSystemMapping->_asset = asset;
 				childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
-				_uidToAssetMap.emplace(asset->GetUid(), asset);
-
+				
 				//fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
 				fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
 
 				if (asset->Load() == false)
 				{
 					OUTPUT_ERROR("Unable to load Asset : {}", childFileSystemMapping->_path.string().c_str());
+				}
+				else
+				{
+					_uidToAssetMap.emplace(asset->GetUid(), asset);
 				}
 			}
 		}
@@ -254,7 +257,6 @@ namespace hod::editor
 		childFileSystemMapping->_path = GenerateUniqueAssetPath(childFileSystemMapping->_path);
 		//childFileSystemMapping->_lastWriteTime = 0;
 		childFileSystemMapping->_parentFolder = FindFileSystemMappingFromPath(path.parent_path());
-		childFileSystemMapping->_uid = UID::GenerateUID();
 		childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
 		childFileSystemMapping->_asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 		if (importerSettings != nullptr && importerType != nullptr)
@@ -269,7 +271,7 @@ namespace hod::editor
 			return "";
 		}
 
-		_uidToAssetMap.emplace(childFileSystemMapping->_uid, childFileSystemMapping->_asset);
+		_uidToAssetMap.emplace(childFileSystemMapping->_asset->GetUid(), childFileSystemMapping->_asset);
 
 		childFileSystemMapping->_parentFolder->_childrenAsset.push_back(childFileSystemMapping);
 

@@ -29,6 +29,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 
 #include "HodEngine/Game/PrefabUtility.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 
 namespace hod::editor
@@ -89,8 +90,8 @@ namespace hod::editor
 	{
 		game::PrefabUtility::EntityDiffs entityDiffs;
 
-		game::Prefab* prefab = selection->GetPrefab();
-		if (prefab != nullptr)
+		std::shared_ptr<game::PrefabResource> prefabResource = selection->GetPrefabResource();
+		if (prefabResource != nullptr)
 		{
 			// todo don't do that in play mode
 			game::PrefabUtility::CollectDiff(selection, entityDiffs);
@@ -108,7 +109,7 @@ namespace hod::editor
 				ImGui::SameLine();
 
 				AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
-				std::shared_ptr<Asset> asset = assetDatabase->Find(prefab->GetUid());
+				std::shared_ptr<Asset> asset = assetDatabase->Find(prefabResource->GetUid());
 
 				if (ImGui::Button(asset->GetName().c_str()))
 				{
