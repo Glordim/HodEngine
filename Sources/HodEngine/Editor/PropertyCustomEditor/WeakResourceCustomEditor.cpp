@@ -141,6 +141,7 @@ namespace hod::editor
 
 					value->SetUid(assetNode->_asset->GetUid());
 					reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
+					changed = true;
 				}
 				else if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
