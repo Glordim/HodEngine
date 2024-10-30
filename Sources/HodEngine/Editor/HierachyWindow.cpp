@@ -108,6 +108,11 @@ namespace hod::editor
 					world->DestroyEntity(selectionLock);
 					Editor::GetInstance()->MarkCurrentSceneAsDirty();
 				}
+
+				if (selectionLock->GetPrefabResource() != nullptr && ImGui::MenuItem("Unpack Prefab"))
+				{
+					selectionLock->SetPrefabResource(nullptr);
+				}
 			}
 			ImGui::EndPopup();
 		}
