@@ -502,6 +502,12 @@ namespace hod::editor
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
 					if (dropEntityLock != nullptr)
 					{
+						std::shared_ptr<game::PrefabResource> prefabResource = dropEntityLock->GetPrefabResource();
+						if (prefabResource != nullptr)
+						{
+							dropEntityLock->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
+						}
+
 						Document prefabDocument;
 						prefabDocument.GetRootNode().AddChild("Name").SetString(dropEntityLock->GetName());
 						if (game::SceneSerializer::SerializeEntities({ dropEntityLock }, prefabDocument.GetRootNode().AddChild("Entities")) == false)
