@@ -25,6 +25,7 @@
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/SceneSerializer.hpp"
+#include "HodEngine/Game/SerializedDataFactory.hpp"
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/Core/ResourceManager.hpp>
@@ -598,6 +599,26 @@ namespace hod::editor
 							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
 							ImGui::CloseCurrentPopup();
 						}
+					}
+					if (ImGui::BeginMenu("Data") == true)
+					{						
+						for (const auto& pair : game::SerializedDataFactory::GetInstance()->GetAllDescriptors())
+						{
+							ImGui::PushID(pair.second);
+							if (ImGui::MenuItem(pair.second->GetDisplayName().c_str()))
+							{
+								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(_currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset"));
+								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+								if (newAssetNode != nullptr)
+								{
+									_itemToRename = newAssetNode;
+									std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
+									ImGui::CloseCurrentPopup();
+								}
+							}
+							ImGui::PopID();
+						}
+						ImGui::EndMenu();
 					}
 					ImGui::EndMenu();
 				}

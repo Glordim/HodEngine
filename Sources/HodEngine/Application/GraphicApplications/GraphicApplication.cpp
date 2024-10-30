@@ -24,6 +24,7 @@
 #include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
+#include "HodEngine/Game/SerializedDataFactory.hpp"
 
 #include "HodEngine/Physics/Physics.hpp"
 
@@ -91,6 +92,7 @@ namespace hod::application
 		}
 
 		game::ComponentFactory::CreateInstance();
+		game::SerializedDataFactory::CreateInstance();
 		game::RegisterBuiltin();
 
 		game::World::CreateInstance()->Init();
@@ -102,6 +104,7 @@ namespace hod::application
 	void GraphicApplication::Terminate()
 	{
 		game::World::DestroyInstance();
+		game::SerializedDataFactory::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
 		imgui::ImGuiManager::DestroyInstance();
 		delete _window;

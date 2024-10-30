@@ -9,6 +9,7 @@
 #include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
+#include "HodEngine/Game/SerializedDataFactory.hpp"
 
 #include "HodEngine/Physics/Physics.hpp"
 
@@ -44,6 +45,7 @@ namespace hod::application
 		physics::Physics::CreatePhysicsInstance()->Init();
 
 		game::ComponentFactory::CreateInstance();
+		game::SerializedDataFactory::CreateInstance();
 		game::RegisterBuiltin();
 
 		game::World::CreateInstance()->Init();
@@ -55,6 +57,7 @@ namespace hod::application
 	void Application::Terminate()
 	{
 		game::World::DestroyInstance();
+		game::SerializedDataFactory::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
 
 		physics::Physics::DestroyPhysicsInstance();
