@@ -103,6 +103,7 @@ namespace hod::editor
 		{
 			std::shared_ptr<game::PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<game::PrefabResource>(asset->GetUid());
 			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(prefabResource);
+			prefabRootEntity->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
 			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
 		}
 	}
