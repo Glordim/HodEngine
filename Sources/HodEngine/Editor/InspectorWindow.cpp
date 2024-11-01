@@ -71,7 +71,7 @@ namespace hod::editor
 			ReflectionTraitImporterCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitImporterCustomEditor>();
 			if (componentCustomEditorTrait != nullptr)
 			{
-				changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(asset);
+				changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector();
 			}
 			else
 			{

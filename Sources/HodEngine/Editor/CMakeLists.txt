@@ -47,6 +47,11 @@ list(APPEND Srcs ${IconSrcs})
 list(APPEND Srcs ${IconIncludes})
 list(APPEND Includes ${IconIncludes})
 
+create_resources("Icons/SerializedData.png" "Icons" IconSrcs IconIncludes)
+list(APPEND Srcs ${IconSrcs})
+list(APPEND Srcs ${IconIncludes})
+list(APPEND Includes ${IconIncludes})
+
 EmbeedTextInSource("FileTemplate/CMakeLists.txt" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
 list(APPEND Srcs ${GeneratedFile})
 list(APPEND Includes ${GeneratedFile})

@@ -4,7 +4,13 @@
 namespace hod::editor
 {
 	/// @brief 
-	bool ImporterCustomEditor::OnDrawInspector(std::shared_ptr<Asset> asset)
+	void ImporterCustomEditor::OnInit(std::shared_ptr<Asset> asset)
+	{
+		_asset = asset;
+	}
+
+	/// @brief 
+	bool ImporterCustomEditor::OnDrawInspector()
 	{
 		return false;
 	}

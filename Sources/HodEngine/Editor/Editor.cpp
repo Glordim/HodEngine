@@ -39,7 +39,9 @@
 
 #include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ImporterCustomEditor/TextureImporterCustomEditor.hpp"
+#include "HodEngine/Editor/ImporterCustomEditor/SerializedDataImporterCustomEditor.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
+#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/Node2dComponentCustomEditor.hpp"
@@ -67,6 +69,7 @@
 #include "Icons/folder-open.png.h"
 #include "Icons/landscape.png.h"
 #include "Icons/prefab.png.h"
+#include "Icons/SerializedData.png.h"
 
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
@@ -93,6 +96,7 @@ namespace hod::editor
 		delete _folderOpenTexture;
 		delete _sceneTexture;
 		delete _prefabTexture;
+		delete _serializedDataTexture;
 		delete _checkerTexture;
 
 		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
@@ -117,6 +121,7 @@ namespace hod::editor
 		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
 		game::WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
+		SerializedDataImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
 
 		game::Node2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
 		game::CameraComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CameraComponentCustomEditor);
@@ -149,6 +154,11 @@ namespace hod::editor
 
 		_prefabTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_prefabTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+
+		pixels = stbi_load_from_memory(SerializedData_png, SerializedData_png_size, &x, &y, &component, 0);
+
+		_serializedDataTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_serializedDataTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
 
 		static constexpr uint8_t primaryGrey = 71;
 		static constexpr uint8_t secondaryGrey = 102;
@@ -298,6 +308,17 @@ namespace hod::editor
 	{
 		_assetSelection = selection;
 		_entitySelection.reset();
+
+		std::shared_ptr<Asset> asset = selection->_asset;
+		if (asset != nullptr)
+		{
+			ReflectionDescriptor* reflectionDescriptor = asset->GetMeta()._importerSettings->GetReflectionDescriptorV();
+			ReflectionTraitImporterCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitImporterCustomEditor>();
+			if (componentCustomEditorTrait != nullptr)
+			{
+				componentCustomEditorTrait->GetCustomEditor()->OnInit(asset);
+			}
+		}
 	}
 
 	/// @brief 

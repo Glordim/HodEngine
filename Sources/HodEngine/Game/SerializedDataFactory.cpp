@@ -7,4 +7,17 @@ namespace hod::game
 	{
 
 	}
+
+	/// @brief 
+	/// @param type 
+	/// @return 
+	ReflectionDescriptor* SerializedDataFactory::FindReflectionDescriptor(MetaType type) const
+	{
+		auto it = _metaTypeToDescriptors.find(type);
+		if (it != _metaTypeToDescriptors.end())
+		{
+			return it->second;
+		}
+		return nullptr;
+	}
 }

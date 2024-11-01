@@ -15,13 +15,20 @@
 namespace hod::editor
 {
 	/// @brief 
-	bool TextureImporterCustomEditor::OnDrawInspector(std::shared_ptr<Asset> asset)
+	/// @param asset 
+	void TextureImporterCustomEditor::OnInit(std::shared_ptr<Asset> asset)
+	{
+		ImporterCustomEditor::OnInit(asset);
+
+		_texture = ResourceManager::GetInstance()->GetResource<renderer::TextureResource>(asset->GetMeta()._uid);
+	}
+
+	/// @brief 
+	bool TextureImporterCustomEditor::OnDrawInspector()
 	{
 		bool changed = false;
 
-		_texture = ResourceManager::GetInstance()->GetResource<renderer::TextureResource>(asset->GetMeta()._uid);
-
-		std::shared_ptr<TextureImporterSettings> textureImporterSettings = std::static_pointer_cast<TextureImporterSettings>(asset->GetMeta()._importerSettings);
+		std::shared_ptr<TextureImporterSettings> textureImporterSettings = std::static_pointer_cast<TextureImporterSettings>(_asset->GetMeta()._importerSettings);
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
 
@@ -92,11 +99,11 @@ namespace hod::editor
 			ImGui::Image(_texture->GetTexture(), ImVec2(width, height));
 			ImGui::Spacing();
 
-			ImGui::BeginDisabled(asset->IsDirty() == false);
+			ImGui::BeginDisabled(_asset->IsDirty() == false);
 			if (ImGui::Button("Apply"))
 			{
-				asset->Save();
-				AssetDatabase::GetInstance()->Import(asset->GetPath());
+				_asset->Save();
+				AssetDatabase::GetInstance()->Import(_asset->GetPath());
 			}
 			ImGui::EndDisabled();
 		}

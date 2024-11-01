@@ -9,7 +9,7 @@
 #include "HodEngine/Editor/Importer/FontImporter.hpp"
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
-
+#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -43,6 +43,7 @@ namespace hod::editor
 		RegisterImporter<FontImporter>();
 		RegisterImporter<SceneImporter>();
 		RegisterImporter<PrefabImporter>();
+		RegisterImporter<SerializedDataImporter>();
 	}
 
 	/// @brief 

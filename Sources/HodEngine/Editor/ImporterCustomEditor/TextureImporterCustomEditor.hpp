@@ -25,7 +25,8 @@ namespace hod::editor
 
 	public:
 
-		bool						OnDrawInspector(std::shared_ptr<Asset> asset) override;
+		void						OnInit(std::shared_ptr<Asset> asset) override;
+		bool						OnDrawInspector() override;
 
 	private:
 

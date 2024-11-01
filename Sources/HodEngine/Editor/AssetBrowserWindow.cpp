@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -607,7 +608,12 @@ namespace hod::editor
 							ImGui::PushID(pair.second);
 							if (ImGui::MenuItem(pair.second->GetDisplayName().c_str()))
 							{
-								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(_currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset"));
+								std::shared_ptr<game::SerializedData> serializedData = pair.second->CreateSharedInstance<game::SerializedData>();
+
+								SerializedDataAsset serializedDataAsset(serializedData.get());
+
+								Importer* importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
+								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, serializedDataAsset.GetReflectionDescriptor(), importer->AllocateSettings(), importer->GetTypeName(), _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset"));
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
@@ -692,6 +698,10 @@ namespace hod::editor
 				{
 					thumbnailTexture = Editor::GetInstance()->GetSceneTexture();
 				}
+				else if (asset->GetMeta()._importerType == "SerializedDataImporter")
+				{
+					thumbnailTexture = Editor::GetInstance()->GetSerializedDataTexture();
+				}
 				else
 				{
 					thumbnailTexture = Editor::GetInstance()->GetCheckerTexture();
@@ -766,11 +776,13 @@ namespace hod::editor
 					newPath.replace_extension(_itemToRename->_path.extension());
 				}
 				AssetDatabase::GetInstance()->Move(*_itemToRename, newPath);
+				Editor::GetInstance()->SetAssetSelection(_itemToRename);
 				_itemToRename = nullptr;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
 				_itemToRename = nullptr;
+
 			}
 			window->DC = dc;
 		}

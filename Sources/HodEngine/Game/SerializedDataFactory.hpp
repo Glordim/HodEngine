@@ -29,6 +29,7 @@ namespace hod::game
 		bool				Unregister();
 
 		const std::map<MetaType, ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
+		ReflectionDescriptor* FindReflectionDescriptor(MetaType type) const;
 
 	protected:
 

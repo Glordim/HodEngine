@@ -27,6 +27,11 @@ namespace hod::editor
 
 	public:
 
-		virtual bool				OnDrawInspector(std::shared_ptr<Asset> asset);
+		virtual void				OnInit(std::shared_ptr<Asset> asset);
+		virtual bool				OnDrawInspector();
+
+	protected:
+
+		std::shared_ptr<Asset>		_asset = nullptr;
 	};
 }
