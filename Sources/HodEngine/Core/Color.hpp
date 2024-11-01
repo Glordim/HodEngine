@@ -10,6 +10,9 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	struct HOD_CORE_API Color final
 	{
+		static Color White;
+		static Color Black;
+
 		Color();
 		Color(float r, float g, float b, float a);
 		Color(int32_t rgba);
