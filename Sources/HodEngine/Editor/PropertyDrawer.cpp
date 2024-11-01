@@ -142,7 +142,7 @@ namespace hod::editor
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<uint8_t>(object, (uint8_t)value);
+					property->SetValue<int8_t>(object, (int8_t)value);
 					changed = true;
 				}
 			}
@@ -150,7 +150,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_S8, &value, 1.0f))
 				{
-					property->SetValue<uint8_t>(object, (uint8_t)value);
+					property->SetValue<int8_t>(object, (int8_t)value);
 					changed = true;
 				}
 			}
@@ -183,6 +183,156 @@ namespace hod::editor
 		}
 		break;
 
+		case ReflectionPropertyVariable::Type::Int16:
+		{
+			ImGui::PushID(property);
+			int16_t value = property->GetValue<int16_t>(object);
+			ImGui::SetNextItemWidth(-1);
+			if (property->GetEnumDescriptor() != nullptr)
+			{
+				if (DrawEnum(value, property->GetEnumDescriptor()))
+				{
+					property->SetValue<int16_t>(object, (int16_t)value);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (ImGui::DragScalar("", ImGuiDataType_S16, &value, 1.0f))
+				{
+					property->SetValue<int16_t>(object, (int16_t)value);
+					changed = true;
+				}
+			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::UInt16:
+		{
+			ImGui::PushID(property);
+			uint16_t value = property->GetValue<uint16_t>(object);
+			ImGui::SetNextItemWidth(-1);
+			if (property->GetEnumDescriptor() != nullptr)
+			{
+				if (DrawEnum(value, property->GetEnumDescriptor()))
+				{
+					property->SetValue<uint16_t>(object, (uint16_t)value);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (ImGui::DragScalar("", ImGuiDataType_U16, &value, 1.0f))
+				{
+					property->SetValue<uint16_t>(object, (uint16_t)value);
+					changed = true;
+				}
+			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::Int32:
+		{
+			ImGui::PushID(property);
+			int32_t value = property->GetValue<int32_t>(object);
+			ImGui::SetNextItemWidth(-1);
+			if (property->GetEnumDescriptor() != nullptr)
+			{
+				if (DrawEnum(value, property->GetEnumDescriptor()))
+				{
+					property->SetValue<int32_t>(object, (int32_t)value);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f))
+				{
+					property->SetValue<int32_t>(object, (int32_t)value);
+					changed = true;
+				}
+			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::UInt32:
+		{
+			ImGui::PushID(property);
+			uint32_t value = property->GetValue<uint32_t>(object);
+			ImGui::SetNextItemWidth(-1);
+			if (property->GetEnumDescriptor() != nullptr)
+			{
+				if (DrawEnum(value, property->GetEnumDescriptor()))
+				{
+					property->SetValue<uint32_t>(object, (uint32_t)value);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (ImGui::DragScalar("", ImGuiDataType_U32, &value, 1.0f))
+				{
+					property->SetValue<uint32_t>(object, (uint32_t)value);
+					changed = true;
+				}
+			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::Int64:
+		{
+			ImGui::PushID(property);
+			int64_t value = property->GetValue<int64_t>(object);
+			ImGui::SetNextItemWidth(-1);
+			if (property->GetEnumDescriptor() != nullptr)
+			{
+				if (DrawEnum(value, property->GetEnumDescriptor()))
+				{
+					property->SetValue<int64_t>(object, (int64_t)value);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (ImGui::DragScalar("", ImGuiDataType_S64, &value, 1.0f))
+				{
+					property->SetValue<int64_t>(object, (int64_t)value);
+					changed = true;
+				}
+			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::UInt64:
+		{
+			ImGui::PushID(property);
+			uint64_t value = property->GetValue<uint64_t>(object);
+			ImGui::SetNextItemWidth(-1);
+			if (property->GetEnumDescriptor() != nullptr)
+			{
+				if (DrawEnum(value, property->GetEnumDescriptor()))
+				{
+					property->SetValue<uint64_t>(object, (uint64_t)value);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (ImGui::DragScalar("", ImGuiDataType_U64, &value, 1.0f))
+				{
+					property->SetValue<uint64_t>(object, (uint64_t)value);
+					changed = true;
+				}
+			}
+			ImGui::PopID();
+		}
+		break;
+
 		case ReflectionPropertyVariable::Type::Float32:
 		{
 			ImGui::PushID(property);
@@ -191,6 +341,20 @@ namespace hod::editor
 			if (ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f))
 			{
 				property->SetValue<float>(object, (float)value);
+				changed = true;
+			}
+			ImGui::PopID();
+		}
+		break;
+
+		case ReflectionPropertyVariable::Type::Float64:
+		{
+			ImGui::PushID(property);
+			double value = property->GetValue<double>(object);
+			ImGui::SetNextItemWidth(-1);
+			if (ImGui::DragScalar("", ImGuiDataType_Double, &value, 0.01f))
+			{
+				property->SetValue<double>(object, (double)value);
 				changed = true;
 			}
 			ImGui::PopID();
