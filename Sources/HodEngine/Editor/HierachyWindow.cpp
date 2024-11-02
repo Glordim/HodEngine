@@ -84,17 +84,19 @@ namespace hod::editor
 			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().size() > 0)
 			{
 				std::weak_ptr<game::Entity> entity = world->GetScenes()[0]->CreateEntity("EditMe");
+				std::shared_ptr<game::Entity> entityLock = entity.lock();
 
 				if (selectionLock != nullptr)
 				{
 					std::shared_ptr<game::NodeComponent> selectionNodeComponentLock = selectionLock->GetComponent<game::NodeComponent>();
 					if (selectionNodeComponentLock != nullptr)
 					{
-						std::shared_ptr<game::Entity> entityLock = entity.lock();
-						std::shared_ptr<game::NodeComponent> nodeComponentLock = entityLock->AddComponent<game::NodeComponent>();
+						std::shared_ptr<game::NodeComponent> nodeComponentLock = std::static_pointer_cast<game::NodeComponent>(entityLock->AddComponent(*selectionNodeComponentLock->GetReflectionDescriptorV()));
 						nodeComponentLock->SetParent(selectionNodeComponentLock);
 					}
 				}
+
+				Editor::GetInstance()->SetEntitySelection(entityLock);
 
 				Editor::GetInstance()->MarkCurrentSceneAsDirty();
 
