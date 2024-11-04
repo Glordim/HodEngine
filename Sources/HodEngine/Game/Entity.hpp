@@ -54,6 +54,8 @@ namespace hod::game
 
 		void				Awake();
 		void				Start();
+		void				OnEnable();
+		void				OnDisable();
 
 		std::vector<std::weak_ptr<game::Component>>	GetComponents() const;
 

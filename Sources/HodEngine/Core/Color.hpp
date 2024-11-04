@@ -1,7 +1,10 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
+#include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+
 #include <cstddef>
+#include <cstdint>
 
 namespace hod
 {
@@ -10,6 +13,10 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	struct HOD_CORE_API Color final
 	{
+		REFLECTED_CLASS_NO_VIRTUAL(Color, HOD_CORE_API)
+
+	public:
+
 		static Color White;
 		static Color Black;
 

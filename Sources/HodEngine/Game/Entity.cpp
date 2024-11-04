@@ -85,6 +85,7 @@ namespace hod::game
 			if (active == true)
 			{
 				Awake();
+				OnEnable();
 				Start();
 			}
 		 }
@@ -122,6 +123,42 @@ namespace hod::game
 			for (std::weak_ptr<Component> component : _components)
 			{
 				component.lock()->OnStart();
+			}
+		}
+	}
+
+	void Entity::OnEnable()
+	 {
+		if (World::GetInstance()->GetEditorPlaying() == false)
+		{
+			return;
+		}
+
+		if (_started == false)
+		{
+			_started = true;
+
+			for (std::weak_ptr<Component> component : _components)
+			{
+				component.lock()->OnEnable();
+			}
+		}
+	}
+
+	void Entity::OnDisable()
+	 {
+		if (World::GetInstance()->GetEditorPlaying() == false)
+		{
+			return;
+		}
+
+		if (_started == false)
+		{
+			_started = true;
+
+			for (std::weak_ptr<Component> component : _components)
+			{
+				component.lock()->OnDisable();
 			}
 		}
 	}

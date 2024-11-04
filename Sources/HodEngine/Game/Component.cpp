@@ -32,5 +32,32 @@ namespace hod
 		{
 			return _entity.lock();
 		}
+
+		/// @brief 
+		/// @param enable 
+		void Component::SetEnable(bool enable)
+		{
+			if (_enable != enable)
+			{
+				_enable = enable;
+				if (_wasEnable != false && _enable == true)
+				{
+					OnEnable();
+					_wasEnable = true;
+				}
+				else if (_wasEnable != true && _enable == false)
+				{
+					OnDisable();
+					_wasEnable = false;
+				}
+			}
+		}
+
+		/// @brief 
+		/// @return 
+		bool Component::GetEnable() const
+		{
+			return _enable;
+		}
 	}
 }

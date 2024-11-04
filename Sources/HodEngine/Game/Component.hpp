@@ -36,12 +36,17 @@ namespace hod
 			void					SetEntity(const std::shared_ptr<Entity>& entity);
 			std::shared_ptr<Entity>	GetEntity() const;
 
+			void					SetEnable(bool enable);
+			bool					GetEnable() const;
+
 			const UID&			GetUid() const { return _uid; }
 			const UID&			GetLocalId() const { return _localId; }
 			void				SetLocalId(const UID& uid) { _localId = uid; }
 
 			virtual void		OnAwake() {};
 			virtual void		OnStart() {};
+			virtual void		OnEnable() {};
+			virtual void		OnDisable() {};
 			virtual void		OnUpdate() {};
 
 		protected:
@@ -65,6 +70,9 @@ namespace hod
 			UID						_uid;
 			UID						_localId;
 			std::weak_ptr<Entity>	_entity;
+
+			bool					_enable = true;
+			bool					_wasEnable = false;
 		};
 	}
 }

@@ -74,40 +74,10 @@ namespace hod::game
 		const Document::Node* entityNode = entitiesNode->GetFirstChild();
 		while (entityNode != nullptr)
 		{
-			std::weak_ptr<Entity> entity = CreateEntity();
-			std::shared_ptr<Entity> entityLock = entity.lock();
-
-			/*
-			const std::string& name = entityNode->GetChild("Name")->GetString();
-			bool active = entityNode->GetChild("Active")->GetBool();
-			entityLock->SetActive(active);
-			*/
-			Serializer::Deserialize(*entity.lock().get(), *entityNode);
-
-			const Document::Node* componentsNode = entityNode->GetChild("Components");
-			const Document::Node* componentNode = componentsNode->GetFirstChild();
-			while (componentNode != nullptr)
-			{
-				MetaType metaType = componentNode->GetChild("MetaType")->GetUInt64();
-
-				auto it = componentFactory->GetAllDescriptors().find(metaType);
-				if (it != componentFactory->GetAllDescriptors().end())
-				{
-					const ReflectionDescriptor& componentDescriptor = *it->second;
-					std::weak_ptr<Component> component = entityLock->AddComponent(componentDescriptor, false);
-					std::shared_ptr<Component> componentLock = component.lock();
-					Component* rawComponent = componentLock.get();
-					Serializer::Deserialize(rawComponent, *componentNode); // todo lvalue...
-					rawComponent->SetLocalId(rawComponent->GetUid());
-					WeakComponentMapping::Insert(componentLock->GetUid(), component);
-				}
-				else
-				{
-					OUTPUT_ERROR("Unknown component !"); // TODO dangerous !!! user lost data
-				}
-
-				componentNode = componentNode->GetNextSibling();
-			}
+			std::vector<std::shared_ptr<Entity>> entities;
+			std::vector<std::shared_ptr<Component>> components;
+			std::shared_ptr<Entity> entity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
+			_entities.emplace(entity->GetId(), entity);
 
 			entityNode = entityNode->GetNextSibling();
 		}

@@ -6,6 +6,14 @@ namespace hod
 	Color Color::White(1.0f, 1.0f, 1.0f, 1.0f);
 	Color Color::Black(0.0f, 0.0f, 0.0f, 1.0f);
 
+	DESCRIBE_REFLECTED_CLASS(Color, void)
+	{
+		ADD_PROPERTY(Color, r);
+		ADD_PROPERTY(Color, g);
+		ADD_PROPERTY(Color, b);
+		ADD_PROPERTY(Color, a);
+	}
+
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
