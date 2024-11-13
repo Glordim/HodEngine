@@ -12,6 +12,8 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
+#include "HodEngine/Game/WeakEntity.hpp"
+
 namespace hod
 {
 	class ReflectionDescriptor;
@@ -41,6 +43,15 @@ namespace hod::game
 		const Entity&	operator = (Entity&&) = delete;
 
 	public:
+
+		uint32_t							GetChildCount() const;
+		const WeakEntity&					GetChild(uint32_t index);
+
+		uint32_t							GetSiblingIndex() const;
+		void								SetSiblingIndex(uint32_t index);
+
+		const WeakEntity&					GetParent() const;
+		void								SetParent(const WeakEntity& parent);
 
 		UID					GetLocalId() const { return _localId; }
 
@@ -101,6 +112,9 @@ namespace hod::game
 
 		Event<std::shared_ptr<Component>>	_onAddComponentEvent;
 		Event<std::shared_ptr<Component>>	_onRemoveComponentEvent;
+
+		std::vector<WeakEntity>				_children;
+		WeakEntity							_parent;
 	};
 }
 

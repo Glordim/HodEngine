@@ -117,23 +117,7 @@ namespace hod::game::PrefabUtility
 			}
 			else
 			{
-				std::shared_ptr<game::NodeComponent> nodeComponent = entity->GetComponent<game::NodeComponent>();
-				if (nodeComponent != nullptr)
-				{
-					std::shared_ptr<game::NodeComponent> parentNodeComponent = nodeComponent->GetParent().Lock();
-					if (parentNodeComponent != nullptr)
-					{
-						entity = parentNodeComponent->GetEntity();
-					}
-					else
-					{
-						entity = nullptr;
-					}
-				}
-				else
-				{
-					return nullptr;
-				}
+				entity = entity->GetParent().Lock();
 			}
 		}
 		return nullptr;
@@ -146,16 +130,15 @@ namespace hod::game::PrefabUtility
 	std::string GetRelativePath(std::shared_ptr<Entity> parent, std::shared_ptr<Entity> child)
 	{
 		std::string relativePath;
-		std::shared_ptr<game::NodeComponent> nodeComponent = child->GetComponent<game::NodeComponent>();
-		while (nodeComponent != nullptr && nodeComponent->GetEntity() != parent)
+		while (child != nullptr && child != parent)
 		{
 			if (relativePath.empty() == false)
 			{
-				relativePath.insert('/', nodeComponent->GetEntity()->GetName());
+				relativePath.insert('/', child->GetName());
 			}
-			relativePath.insert(0, nodeComponent->GetEntity()->GetName());
+			relativePath.insert(0, child->GetName());
 
-			nodeComponent = nodeComponent->GetParent().Lock();
+			child = child->GetParent().Lock();
 		}
 		return relativePath;
 	}
@@ -167,7 +150,6 @@ namespace hod::game::PrefabUtility
 	std::shared_ptr<Entity> FindChildByPath(std::shared_ptr<Entity> parent, std::string_view relativePath)
 	{
 		size_t offset = 0;
-		std::shared_ptr<game::NodeComponent> nodeComponent = parent->GetComponent<game::NodeComponent>();
 		while (offset < relativePath.size())
 		{
 			size_t separatorPos = relativePath.find('/', offset);
@@ -175,13 +157,13 @@ namespace hod::game::PrefabUtility
 
 			bool childFound = false;
 
-			uint32_t childCount = nodeComponent->GetChildCount();
+			uint32_t childCount = parent->GetChildCount();
 			for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
 			{
-				std::shared_ptr<game::NodeComponent> childNodeComponent = nodeComponent->GetChild(childIndex).Lock();
-				if (childNodeComponent->GetEntity()->GetName() == name)
+				std::shared_ptr<game::Entity> child = parent->GetChild(childIndex).Lock();
+				if (child->GetName() == name)
 				{
-					nodeComponent = childNodeComponent;
+					parent = child;
 					offset += separatorPos + 1;
 					childFound = true;
 					break;
@@ -192,7 +174,7 @@ namespace hod::game::PrefabUtility
 				return nullptr;
 			}
 		}
-		return nodeComponent->GetEntity();
+		return parent;
 	}
 
 	/// @brief 

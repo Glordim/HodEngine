@@ -41,18 +41,7 @@ namespace hod::editor
 				for (auto& pair : scene->GetEntities())
 				{
 					std::shared_ptr<game::Entity> entity = pair.second;
-					std::shared_ptr<game::NodeComponent> nodeComponent = entity->GetComponent<game::NodeComponent>();
-					bool hasParent = false;
-					if (nodeComponent != nullptr)
-					{
-						std::shared_ptr<game::NodeComponent> parentNodeComponent = nodeComponent->GetParent().Lock();
-						if (parentNodeComponent != nullptr)
-						{
-							hasParent = true;
-						}
-					}
-
-					if (hasParent == false)
+					if (entity->GetParent().Lock() == nullptr)
 					{
 						DrawEntity(entity);
 					}
@@ -88,12 +77,7 @@ namespace hod::editor
 
 				if (selectionLock != nullptr)
 				{
-					std::shared_ptr<game::NodeComponent> selectionNodeComponentLock = selectionLock->GetComponent<game::NodeComponent>();
-					if (selectionNodeComponentLock != nullptr)
-					{
-						std::shared_ptr<game::NodeComponent> nodeComponentLock = std::static_pointer_cast<game::NodeComponent>(entityLock->AddComponent(*selectionNodeComponentLock->GetReflectionDescriptorV()));
-						nodeComponentLock->SetParent(selectionNodeComponentLock);
-					}
+					entityLock->SetParent(selectionLock);
 				}
 
 				Editor::GetInstance()->SetEntitySelection(entityLock);
@@ -159,23 +143,8 @@ namespace hod::editor
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
 					if (dropEntityLock != nullptr)
 					{
-						// todo get or add component
-						std::shared_ptr<game::NodeComponent> parentNodeComponentLock;
-						std::shared_ptr<game::NodeComponent> siblingNodeComponentLock = entityLock->GetComponent<game::NodeComponent>();
-						if (siblingNodeComponentLock != nullptr)
-						{
-							parentNodeComponentLock = siblingNodeComponentLock->GetParent().Lock();
-						}
-
-						// todo get or add component
-						std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>();
-						if (dropNodeComponentLock == nullptr)
-						{
-							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>();
-						}
-						dropNodeComponentLock->SetParent(parentNodeComponentLock);
-
-						dropNodeComponentLock->SetSiblingIndex(siblingNodeComponentLock->GetSiblingIndex());
+						dropEntityLock->SetParent(entityLock->GetParent());
+						dropEntityLock->SetSiblingIndex(entityLock->GetSiblingIndex());
 						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 				}
@@ -186,10 +155,8 @@ namespace hod::editor
 
 		std::shared_ptr<game::Entity> selectionLock = Editor::GetInstance()->GetEntitySelection();
 
-		std::shared_ptr<game::NodeComponent> nodeComponent = entityLock->GetComponent<game::NodeComponent>();
-
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
-		if (nodeComponent == nullptr || nodeComponent->GetChildCount() == 0)
+		if (entityLock->GetChildCount() == 0)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
@@ -231,20 +198,7 @@ namespace hod::editor
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
 					if (dropEntityLock != nullptr)
 					{
-						// todo get or add component
-						std::shared_ptr<game::NodeComponent> parentNodeComponentLock = entityLock->GetComponent<game::NodeComponent>();
-						if (parentNodeComponentLock == nullptr)
-						{
-							parentNodeComponentLock = entityLock->AddComponent<game::NodeComponent>();
-						}
-
-						// todo get or add component
-						std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>();
-						if (dropNodeComponentLock == nullptr)
-						{
-							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>();
-						}
-						dropNodeComponentLock->SetParent(parentNodeComponentLock);
+						dropEntityLock->SetParent(entityLock);
 						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 				}
@@ -282,16 +236,13 @@ namespace hod::editor
 
 		if (opened == true)
 		{
-			if (nodeComponent != nullptr)
+			uint32_t childCount = entityLock->GetChildCount();
+			for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
 			{
-				uint32_t childCount = nodeComponent->GetChildCount();
-				for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
+				std::shared_ptr<game::Entity> childEntity = entityLock->GetChild(childIndex).Lock();
+				if (childEntity != nullptr)
 				{
-					std::shared_ptr<game::NodeComponent> childNodeComponent = nodeComponent->GetChild(childIndex).Lock();
-					if (childNodeComponent != nullptr)
-					{
-						DrawEntity(childNodeComponent->GetEntity());
-					}
+					DrawEntity(childEntity);
 				}
 			}
 			ImGui::TreePop();

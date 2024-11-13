@@ -5,6 +5,10 @@
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
+#include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
+
 namespace hod::game
 {
 	Entity::Id Entity::_nextId = 0;
@@ -13,6 +17,10 @@ namespace hod::game
 	{
 		ADD_PROPERTY(Entity, _name);
 		ADD_PROPERTY(Entity, _active);
+		ADD_PROPERTY(Entity, _id);
+
+		AddPropertyT(this, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(this, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 
@@ -251,5 +259,90 @@ namespace hod::game
 	std::shared_ptr<PrefabResource> Entity::GetPrefabResource() const
 	{
 		return _prefabResource;
+	}
+
+	/// @brief 
+	/// @return 
+	uint32_t Entity::GetChildCount() const
+	{
+		return static_cast<uint32_t>(_children.size());
+	}
+
+	/// @brief 
+	/// @param index 
+	/// @return 
+	const WeakEntity& Entity::GetChild(uint32_t index)
+	{
+		return _children[index];
+	}
+
+	/// @brief 
+	/// @return 
+	uint32_t Entity::GetSiblingIndex() const
+	{
+		std::shared_ptr<Entity> parentLock = _parent.Lock();
+		if (parentLock != nullptr)
+		{
+			for (uint32_t index = 0; index < parentLock->GetChildCount(); ++index)
+			{
+				if (parentLock->GetChild(index).Lock().get() == this)
+				{
+					return index;
+				}
+			}
+		}
+		return 0;
+	}
+
+	/// @brief 
+	/// @param index 
+	void Entity::SetSiblingIndex(uint32_t index)
+	{
+		std::shared_ptr<Entity> parentLock = _parent.Lock();
+		if (parentLock != nullptr)
+		{
+			uint32_t initialIndex = GetSiblingIndex();
+			for (uint32_t i = initialIndex; i > index; --i)
+			{
+				parentLock->_children[i] = parentLock->_children[i - 1];
+			}
+			parentLock->_children[index] = WeakEntity(shared_from_this());
+		}
+	}
+
+	/// @brief 
+	/// @param parent 
+	void Entity::SetParent(const WeakEntity& parent)
+	{
+		std::shared_ptr<Entity> parentLock = _parent.Lock();
+		if (parentLock != nullptr)
+		{
+			std::shared_ptr<Entity> thiz = shared_from_this();
+
+			auto itEnd = parentLock->_children.end();
+			for (auto it = parentLock->_children.begin(); it != itEnd; ++it)
+			{
+				if (it->Lock() == thiz)
+				{
+					parentLock->_children.erase(it);
+					break;
+				}
+			}
+			// todo assert
+		}
+
+		parentLock = parent.Lock();
+		if (parentLock != nullptr)
+		{
+			parentLock->_children.emplace_back(shared_from_this());
+		}
+		_parent = parent;
+	}
+
+	/// @brief 
+	/// @return 
+	const WeakEntity& Entity::GetParent() const
+	{
+		return _parent;
 	}
 }

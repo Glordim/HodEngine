@@ -117,6 +117,7 @@ namespace hod::game
 
 			Document::Node& componentsNode = entityNode.AddChild("Components");
 
+			/*
 			std::shared_ptr<NodeComponent> nodeComponent = 
 
 			const std::vector<std::weak_ptr<Component>> components =  entity->GetComponents();
@@ -130,7 +131,10 @@ namespace hod::game
 			}
 
 			SceneSerializer::SerializeEntity
+			*/
 		}
+
+		return false;
 	}
 
 	std::shared_ptr<Entity> SceneSerializer::InstantiateEntityFromDocumentNode(const Document::Node& entityNode, std::vector<std::shared_ptr<Entity>>& entities, std::vector<std::shared_ptr<Component>>& components)
@@ -140,6 +144,7 @@ namespace hod::game
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>("");
 
 		Serializer::Deserialize(*entity.get(), entityNode);
+		WeakEntityMapping::Insert(entity->GetId(), entity);
 		/*
 		bool active = entityNode->GetChild("Active")->GetBool();
 		const std::string& name = entityNode->GetChild("Name")->GetString();

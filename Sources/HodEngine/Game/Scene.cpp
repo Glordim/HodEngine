@@ -263,16 +263,13 @@ namespace hod::game
 			sourceToCloneComponentsMap.emplace(entity->GetComponents()[componentIndex], clonedEntity->GetComponents()[componentIndex]);
 		}
 		
-		std::shared_ptr<NodeComponent> nodeComponent = entity->GetComponent<NodeComponent>();
-		if (nodeComponent != nullptr)
+		uint32_t childCount = entity->GetChildCount();
+		for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
 		{
-			uint32_t childCount = nodeComponent->GetChildCount();
-			for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
-			{
-				const std::shared_ptr<Entity> childEntity = nodeComponent->GetChild(childIndex).Lock()->GetEntity();
-				InstantiateInternal(childEntity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
-			}
+			const std::shared_ptr<Entity> childEntity = entity->GetChild(childIndex).Lock();
+			InstantiateInternal(childEntity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
 		}
+
 		return clonedEntity;
 	}
 
@@ -286,10 +283,12 @@ namespace hod::game
 			return nullptr;
 		}
 
+		/*
 		Document document;
 		SceneSerializer::SerializeEntities(entity, )
 		entity.SerializeInDocument(document.GetRootNode());
 		const Document::Node* entitiesNode = document.GetRootNode().GetChild("Entities");
+		*/
 
 		std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>> sourceToCloneEntitiesMap;		
 		std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>> sourceToCloneComponentsMap;
