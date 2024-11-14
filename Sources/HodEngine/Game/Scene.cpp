@@ -57,15 +57,20 @@ namespace hod::game
 	bool Scene::SerializeInDocument(Document::Node& documentNode) const
 	{
 		documentNode.AddChild("Name").SetString(_name);
+		Document::Node& entitiesNode = documentNode.AddChild("Entities");
 
-		std::vector<std::shared_ptr<Entity>> entities;
-		entities.reserve(_entities.size());
 		for (const auto& entityPair : _entities)
 		{
-			entities.push_back(entityPair.second);
+			if (entityPair.second->GetParent().Lock() == nullptr)
+			{
+				if (SceneSerializer::SerializeEntity(entityPair.second, true, entitiesNode) == false)
+				{
+					return false;
+				}
+			}
 		}
 
-		return SceneSerializer::SerializeEntities(entities, documentNode.AddChild("Entities"));
+		return true;
 	}
 
 	/// @brief 

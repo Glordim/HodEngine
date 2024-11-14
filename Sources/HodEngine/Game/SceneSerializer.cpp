@@ -14,71 +14,10 @@
 
 namespace hod::game
 {
-    /// @brief 
-    /// @param entities 
-    /// @param entitiesNode 
-    /// @return 
-    bool SceneSerializer::SerializeEntities(const std::vector<std::shared_ptr<Entity>>& entities, Document::Node& entitiesNode)
-    {
-        for (std::shared_ptr<Entity> entity : entities)
-		{
-			Document::Node& entityNode = entitiesNode.AddChild("");
-
-			std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
-			if (prefabResource != nullptr)
-			{
-				Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
-				UID uid = prefabResource->GetUid(); // TODO fix Serializa template lvalue
-				Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
-				Document::Node& overridesNode = prefabInstance.AddChild("Overrides");
-
-				PrefabUtility::EntityDiffs entityDiffs;
-				PrefabUtility::CollectDiff(entity, entityDiffs);
-
-				for (PrefabUtility::EntityDiffs::Diff* diff : entityDiffs._diffs)
-				{
-					Document::Node& overrideNode = overridesNode.AddChild("");
-					Document::Node& overrideTargetNode = overrideNode.AddChild("Target");
-					if (diff->_type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
-					{
-						overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::EntityDiffs::Diff::Type::Entity));
-						uid = static_cast<Entity*>(diff->_instance)->GetLocalId();
-						Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
-					}
-					else // Component
-					{
-						overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::EntityDiffs::Diff::Type::Component));
-						uid = static_cast<Component*>(diff->_instance)->GetLocalId();
-						Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
-					}
-					// TODO can be an array of modifcations to mutalize target description
-					Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
-					Serializer::SerializeVariable((ReflectionPropertyVariable*)diff->_reflectionProperty, diff->_effectiveInstanceAddr, overrideModificationNode, diff->_path);
-				}
-			}
-			else
-			{
-				Serializer::Serialize(entity.get(), entityNode);
-
-				Document::Node& componentsNode = entityNode.AddChild("Components");
-
-				const std::vector<std::weak_ptr<Component>> components =  entity->GetComponents();
-				for (const std::weak_ptr<Component>& component : components)
-				{
-					std::shared_ptr<Component> componentLock = component.lock();
-
-					Document::Node& componentNode = componentsNode.AddChild("");
-					componentNode.AddChild("MetaType").SetUInt64(componentLock->GetMetaType());
-					Serializer::Serialize(componentLock.get(), componentNode);
-				}
-			}
-		}
-
-        return true;
-    }
-
-	bool SceneSerializer::SerializeEntity(const std::shared_ptr<Entity> entity, Document::Node& entityNode)
+	bool SceneSerializer::SerializeEntity(const std::shared_ptr<Entity> entity, bool withChildren, Document::Node& entitiesNode)
 	{
+		Document::Node& entityNode = entitiesNode.AddChild("");
+
 		std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
 		if (prefabResource != nullptr)
 		{
@@ -117,9 +56,6 @@ namespace hod::game
 
 			Document::Node& componentsNode = entityNode.AddChild("Components");
 
-			/*
-			std::shared_ptr<NodeComponent> nodeComponent = 
-
 			const std::vector<std::weak_ptr<Component>> components =  entity->GetComponents();
 			for (const std::weak_ptr<Component>& component : components)
 			{
@@ -130,11 +66,20 @@ namespace hod::game
 				Serializer::Serialize(componentLock.get(), componentNode);
 			}
 
-			SceneSerializer::SerializeEntity
-			*/
+			if (withChildren)
+			{
+				uint32_t childCount = entity->GetChildCount();
+				for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
+				{
+					if (SceneSerializer::SerializeEntity(entity->GetChild(childIndex).Lock(), true, entitiesNode) == false)
+					{
+						return false;
+					}
+				}
+			}
 		}
 
-		return false;
+		return true;
 	}
 
 	std::shared_ptr<Entity> SceneSerializer::InstantiateEntityFromDocumentNode(const Document::Node& entityNode, std::vector<std::shared_ptr<Entity>>& entities, std::vector<std::shared_ptr<Component>>& components)

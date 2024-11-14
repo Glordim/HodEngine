@@ -512,7 +512,7 @@ namespace hod::editor
 
 						Document prefabDocument;
 						prefabDocument.GetRootNode().AddChild("Name").SetString(dropEntityLock->GetName());
-						if (game::SceneSerializer::SerializeEntities({ dropEntityLock }, prefabDocument.GetRootNode().AddChild("Entities")) == false)
+						if (game::SceneSerializer::SerializeEntity(dropEntityLock, true, prefabDocument.GetRootNode().AddChild("Entities")) == false)
 						{
 							// todo output
 						}

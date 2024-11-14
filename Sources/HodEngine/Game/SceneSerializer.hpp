@@ -14,8 +14,7 @@ namespace hod::game
     class HOD_GAME_API SceneSerializer
     {
     public:
-        static bool SerializeEntities(const std::vector<std::shared_ptr<Entity>>& entities, Document::Node& entitiesNode);
-        static bool SerializeEntity(const std::shared_ptr<Entity> entity, Document::Node& entityNode);
+        static bool SerializeEntity(const std::shared_ptr<Entity> entity, bool withChildren, Document::Node& entityNode);
 
         static std::shared_ptr<Entity> InstantiateEntityFromDocumentNode(const Document::Node& entityNode, std::vector<std::shared_ptr<Entity>>& entities, std::vector<std::shared_ptr<Component>>& components);
     };
