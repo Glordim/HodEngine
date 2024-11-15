@@ -518,7 +518,7 @@ namespace hod::editor
 						}
 						else
 						{
-							game::Prefab* prefab = new game::Prefab();
+							game::Prefab prefab;
 							if (Serializer::Deserialize(prefab, prefabDocument.GetRootNode()) == false)
 							{
 								// todo output
@@ -529,7 +529,7 @@ namespace hod::editor
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
-									newAssetNode->_asset->Save(prefab, prefab->GetReflectionDescriptorV());
+									newAssetNode->_asset->Save(&prefab, prefab.GetReflectionDescriptorV());
 									AssetDatabase::GetInstance()->Import(newAssetPath);
 									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<game::PrefabResource>(newAssetNode->_asset->GetUid()));
 									Editor::GetInstance()->MarkCurrentSceneAsDirty();
@@ -539,7 +539,6 @@ namespace hod::editor
 									// todo output
 								}
 							}
-							delete prefab;
 						}
 					}
 				}
@@ -585,6 +584,10 @@ namespace hod::editor
 						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 						if (newAssetNode != nullptr)
 						{
+							game::Prefab prefab;
+							prefab.CreateEntity("Prefab");
+							newAssetNode->_asset->Save(&prefab, prefab.GetReflectionDescriptorV());
+							AssetDatabase::GetInstance()->Import(newAssetPath);
 							_itemToRename = newAssetNode;
 							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
 							ImGui::CloseCurrentPopup();
