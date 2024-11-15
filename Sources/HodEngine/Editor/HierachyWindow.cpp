@@ -98,6 +98,7 @@ namespace hod::editor
 				if (selectionLock->GetPrefabResource() != nullptr && ImGui::MenuItem("Unpack Prefab"))
 				{
 					selectionLock->SetPrefabResource(nullptr);
+					Editor::GetInstance()->MarkCurrentSceneAsDirty();
 				}
 			}
 			ImGui::EndPopup();
