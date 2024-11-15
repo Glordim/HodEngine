@@ -49,18 +49,12 @@ namespace hod::game
 		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<PrefabResource> prefabResource);
 		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<Entity> entity);
 
-		std::shared_ptr<Entity>			InstantiateWithOverrides(std::shared_ptr<PrefabResource> prefabResource, const Document::Node& prefabNode);
-
 		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
 
 		void						Awake();
 		void						Start();
 		void						Update();
 		void						Draw(renderer::RenderQueue* renderQueue);
-
-	private:
-
-		std::shared_ptr<Entity>		InstantiateInternal(std::shared_ptr<Entity> entity, std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>>& sourceToCloneEntitiesMap, std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>>& sourceToCloneComponentsMap);
 
 	private:
 

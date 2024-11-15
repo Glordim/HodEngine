@@ -87,27 +87,11 @@ namespace hod::game
 		const Document::Node* entityNode = entitiesNode->GetFirstChild();
 		while (entityNode != nullptr)
 		{
-			const Document::Node* prefabInstanceNode = entityNode->GetChild("PrefabInstance");
-			if (prefabInstanceNode != nullptr)
+			std::vector<std::shared_ptr<Entity>> entities;
+			std::vector<std::shared_ptr<Component>> components;
+			SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
+			for (std::shared_ptr<Entity> entity : entities)
 			{
-				UID uid;
-				Serializer::Deserialize(uid, *prefabInstanceNode->GetChild("UID"));
-				
-				std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(uid);
-				if (prefabResource != nullptr)
-				{
-					InstantiateWithOverrides(prefabResource, *prefabInstanceNode->GetChild("Overrides"));
-				}
-				else
-				{
-					// TODO missing prefab ?
-				}
-			}
-			else
-			{
-				std::vector<std::shared_ptr<Entity>> entities;
-				std::vector<std::shared_ptr<Component>> components;
-				std::shared_ptr<Entity> entity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
 				_entities.emplace(entity->GetId(), entity);
 			}
 
@@ -143,6 +127,7 @@ namespace hod::game
 	std::shared_ptr<Entity> Scene::CreateEntity(const std::string_view& name)
 	{
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
+		WeakEntityMapping::Insert(entity->GetId(), entity);
 		_entities.emplace(entity->GetId(), entity);
 
 		return entity;
@@ -241,41 +226,7 @@ namespace hod::game
 	/// @return 
 	std::shared_ptr<Entity> Scene::Instantiate(std::shared_ptr<PrefabResource> prefabResource)
 	{
-		std::shared_ptr<Entity> instance = Instantiate(prefabResource->GetPrefab().GetRootEntity());
-
-		if (instance != nullptr)
-		{
-			instance->SetPrefabResource(prefabResource);
-		}
-
-		return instance;
-	}
-
-	/// @brief 
-	/// @param entity 
-	/// @param sourceToCloneEntitiesMap 
-	/// @param sourceToCloneComponentsMap 
-	/// @return 
-	std::shared_ptr<Entity> Scene::InstantiateInternal(std::shared_ptr<Entity> entity, std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>>& sourceToCloneEntitiesMap, std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>>& sourceToCloneComponentsMap)
-	{
-		std::shared_ptr<Entity> clonedEntity = entity->Clone();
-
-		_entities.emplace(clonedEntity->GetId(), clonedEntity);
-		sourceToCloneEntitiesMap.emplace(entity, clonedEntity);
-
-		for (size_t componentIndex = 0; componentIndex < entity->GetComponents().size(); ++componentIndex)
-		{
-			sourceToCloneComponentsMap.emplace(entity->GetComponents()[componentIndex], clonedEntity->GetComponents()[componentIndex]);
-		}
-		
-		uint32_t childCount = entity->GetChildCount();
-		for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
-		{
-			const std::shared_ptr<Entity> childEntity = entity->GetChild(childIndex).Lock();
-			InstantiateInternal(childEntity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
-		}
-
-		return clonedEntity;
+		return Instantiate(prefabResource->GetPrefab().GetRootEntity());
 	}
 
 	/// @brief 
@@ -288,130 +239,28 @@ namespace hod::game
 			return nullptr;
 		}
 
-		/*
 		Document document;
-		SceneSerializer::SerializeEntities(entity, )
-		entity.SerializeInDocument(document.GetRootNode());
-		const Document::Node* entitiesNode = document.GetRootNode().GetChild("Entities");
-		*/
-
-		std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>> sourceToCloneEntitiesMap;		
-		std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>> sourceToCloneComponentsMap;
-
-		std::shared_ptr<Entity> clonedEntity = InstantiateInternal(entity, sourceToCloneEntitiesMap, sourceToCloneComponentsMap);
-
-		for (const auto& componentPair : sourceToCloneComponentsMap)
-		{
-			ReflectionDescriptor* reflectionDescriptor = componentPair.second->GetReflectionDescriptorV();
-			for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
-			{
-				switch (reflectionProperty->GetMetaType())
-				{
-					case ReflectionPropertyArray::GetMetaTypeStatic():
-					{
-						//ReflectionPropertyArray* reflectionPropertyArray = static_cast<ReflectionPropertyArray*>(reflectionProperty);
-					}
-					break;
-
-					case ReflectionPropertyObject::GetMetaTypeStatic():
-					{
-						//ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
-
-						//if (reflectionPropertyObject->GetReflectionDescriptor() == WeakComponent::)
-					}
-					break;
-				}
-			}
-		}
-
-		return clonedEntity;
-	}
-
-	/// @brief 
-	/// @param prefab 
-	/// @param prefabNode 
-	/// @return 
-	std::shared_ptr<Entity> Scene::InstantiateWithOverrides(std::shared_ptr<PrefabResource> prefabResource, const Document::Node& overridesNode)
-	{
-		Document document;
-		prefabResource->GetPrefab().SerializeInDocument(document.GetRootNode());
-		const Document::Node* entitiesNode = document.GetRootNode().GetChild("Entities");
+		SceneSerializer::SerializeEntity(entity, true, document.GetRootNode());
 
 		std::vector<std::shared_ptr<Entity>> entities;
 		std::vector<std::shared_ptr<Component>> components;
 
-		const Document::Node* entityNode = entitiesNode->GetFirstChild();
-		std::shared_ptr<Entity> clonedEntity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
-		entityNode = entityNode->GetNextSibling();
+		std::shared_ptr<Entity> clonedEntity;
 
+		const Document::Node* entityNode = document.GetRootNode().GetFirstChild();
 		while (entityNode != nullptr)
 		{
-			SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
+			std::shared_ptr<Entity> newEntity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
+			if (clonedEntity == nullptr)
+			{
+				clonedEntity = newEntity;
+			}
 			entityNode = entityNode->GetNextSibling();
 		}
 
-		if (clonedEntity != nullptr)
+		for (std::shared_ptr<Entity> entity : entities)
 		{
-			clonedEntity->SetPrefabResource(prefabResource);
-		}
-
-		const Document::Node* overrideNode = overridesNode.GetFirstChild();
-		while (overrideNode != nullptr)
-		{
-			const Document::Node* targetNode = overrideNode->GetChild("Target");
-			if (targetNode != nullptr)
-			{
-				const Document::Node* typeNode = targetNode->GetChild("Type");
-				if (targetNode != nullptr)
-				{
-					PrefabUtility::EntityDiffs::Diff::Type type = static_cast<PrefabUtility::EntityDiffs::Diff::Type>(typeNode->GetInt64());
-					const Document::Node* uidNode = targetNode->GetChild("UID");
-					if (uidNode != nullptr)
-					{
-						UID localId;
-						Serializer::Deserialize(localId, *uidNode);
-
-						const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
-						if (modificationsNode != nullptr)
-						{
-							if (type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
-							{
-
-							}
-							else // Components
-							{
-								std::shared_ptr<Component> targetComponent;
-								for (const std::shared_ptr<Component>& component : components)
-								{
-									if (component->GetLocalId() == localId)
-									{
-										targetComponent = component;
-										break;
-									}
-								}
-								if (targetComponent != nullptr)
-								{
-									Component* component = targetComponent.get();
-									const Document::Node* modificationNode = modificationsNode->GetFirstChild();
-									while (modificationNode != nullptr)
-									{
-										Serializer::DeserializeWithPath(modificationNode->GetName(), component, *modificationsNode);
-										modificationNode = modificationNode->GetNextSibling();
-									}
-								}
-								else
-								{
-									// todo
-								}
-							}
-						}
-					}
-				}
-			}
-
-			// todo move in Instiate, here entity/component search has a heavy cost, searching during instiate will be better
-
-			overrideNode = overrideNode->GetNextSibling();
+			_entities.emplace(entity->GetId(), entity);
 		}
 
 		return clonedEntity;

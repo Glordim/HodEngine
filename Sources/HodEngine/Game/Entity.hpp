@@ -61,8 +61,6 @@ namespace hod::game
 		bool				GetActive() const;
 		void				SetActive(bool active);
 
-		std::shared_ptr<Entity>	Clone();
-
 		void				Awake();
 		void				Start();
 		void				OnEnable();

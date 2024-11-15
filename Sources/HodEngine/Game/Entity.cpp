@@ -33,29 +33,6 @@ namespace hod::game
 	}
 
 	/// @brief 
-	/// @param other 
-	std::shared_ptr<Entity> Entity::Clone()
-	{
-		std::shared_ptr<Entity> clone = std::make_shared<Entity>(_name);
-
-		clone->_components.reserve(_components.size());
-		for (std::shared_ptr<Component> component : _components)
-		{
-			ReflectionDescriptor* reflectionDescriptor = component->GetReflectionDescriptorV();
-			std::shared_ptr<Component> cloneComponent = std::static_pointer_cast<Component>(reflectionDescriptor->CreateSharedInstance());
-
-			reflectionDescriptor->Copy(component.get(), cloneComponent.get());
-
-			cloneComponent->SetEntity(clone);
-			cloneComponent->Construct();
-
-			clone->_components.push_back(cloneComponent);
-		}
-
-		return clone;
-	}
-
-	/// @brief 
 	/// @return 
 	Entity::Id Entity::GetId() const
 	{

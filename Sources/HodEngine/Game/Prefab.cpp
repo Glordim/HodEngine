@@ -103,6 +103,7 @@ namespace hod::game
 	std::weak_ptr<Entity> Prefab::CreateEntity(const std::string_view& name)
 	{
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
+		WeakEntityMapping::Insert(entity->GetId(), entity);
 		_entities.emplace(entity->GetId(), entity);
 
 		return entity;
