@@ -22,6 +22,7 @@ namespace hod
 		DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, RendererComponent)
 		{
 			AddPropertyT(this, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
+			AddPropertyT(this, &TextureRendererComponent::_pixelPerUnit, "_pixelPerUnit");
 			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
@@ -82,13 +83,6 @@ namespace hod
 			return _materialInstance;
 		}
 
-		static std::array<Vector2, 4> _vertices = {
-			Vector2(-0.5f, 0.5f),
-			Vector2(0.5f, 0.5f),
-			Vector2(0.5f, -0.5f),
-			Vector2(-0.5f, -0.5f),
-		};
-
 		static std::array<Vector2, 4> _uvs = {
 			Vector2(0, 0),
 			Vector2(1, 0),
@@ -112,7 +106,24 @@ namespace hod
 				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
-					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_vertices.data(), _uvs.data(), nullptr, (uint32_t)_vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetId()));
+					float width = _pixelPerUnit;
+					float height = _pixelPerUnit;
+
+					std::shared_ptr<renderer::TextureResource> textureResourceLock = _texture.Lock();
+					if (textureResourceLock != nullptr)
+					{
+						width = textureResourceLock->GetTexture()->GetWidth();
+						height = textureResourceLock->GetTexture()->GetHeight();
+					}
+
+					std::array<Vector2, 4> vertices = {
+						Vector2(-0.5f * (width / _pixelPerUnit), 0.5f * (height / _pixelPerUnit)),
+						Vector2(0.5f * (width / _pixelPerUnit), 0.5f * (height / _pixelPerUnit)),
+						Vector2(0.5f * (width / _pixelPerUnit), -0.5f * (height / _pixelPerUnit)),
+						Vector2(-0.5f * (width / _pixelPerUnit), -0.5f * (height / _pixelPerUnit)),
+					};
+					
+					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), _uvs.data(), nullptr, (uint32_t)vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetId()));
 				}
 			}
 		}

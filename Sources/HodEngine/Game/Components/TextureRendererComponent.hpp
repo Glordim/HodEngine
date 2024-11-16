@@ -45,7 +45,7 @@ namespace hod
 		private:
 
 			WeakResource<renderer::TextureResource>	_texture;
-
+			float									_pixelPerUnit = 100.0f;
 			
 			renderer::MaterialInstance*				_materialInstance = nullptr;
 		};
