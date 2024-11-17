@@ -482,11 +482,6 @@ namespace hod
     /// @return 
     bool Serializer::DeserializeObject(const ReflectionPropertyObject* property, void* instance, const Document::Node& documentNode, std::string_view overrideNodeName)
     {
-        uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
-        uint8_t* objectAddress = instanceAddress + property->GetOffset();
-
-        void* objectInstance = reinterpret_cast<void*>(objectAddress);
-
         if (overrideNodeName.empty())
         {
             overrideNodeName = property->GetName();
@@ -495,7 +490,26 @@ namespace hod
         
         if (objectNode != nullptr)
         {
-            return Serializer::Deserialize(property->GetReflectionDescriptor(), objectInstance, *objectNode);
+            if (property->HasSetMethod())
+            {
+                void* newInstance = property->GetReflectionDescriptor()->CreateInstance();
+                bool result = Serializer::Deserialize(property->GetReflectionDescriptor(), newInstance, *objectNode);
+                if (result == false)
+                {
+                    delete newInstance;
+                    return false;
+                }
+
+                property->SetValue(instance, newInstance);
+
+                delete newInstance;
+                return true;
+            }
+            else
+            {
+                void* objectInstance = property->GetInstance(instance);
+                return Serializer::Deserialize(property->GetReflectionDescriptor(), objectInstance, *objectNode);
+            }
         }
         return true;
     }

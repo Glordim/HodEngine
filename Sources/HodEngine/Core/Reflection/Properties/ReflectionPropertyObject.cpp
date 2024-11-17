@@ -56,7 +56,7 @@ namespace hod
 	/// @brief 
 	/// @param instance 
 	/// @param value 
-	void ReflectionPropertyObject::SetValue(void* instance, void* value)
+	void ReflectionPropertyObject::SetValue(void* instance, void* value) const
 	{
 		if (_setMethod != nullptr)
 		{
@@ -86,5 +86,12 @@ namespace hod
 	bool ReflectionPropertyObject::CompareInstance(const void* left, const void* right) const
 	{
 		return _reflectionDescriptor->Compare(left, right);
+	}
+
+	/// @brief 
+	/// @return 
+	bool ReflectionPropertyObject::HasSetMethod() const
+	{
+		return (_setMethod != nullptr);
 	}
 }

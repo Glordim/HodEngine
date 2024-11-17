@@ -30,12 +30,14 @@ namespace hod
 		const void*								GetInstance(const void* instance) const;
 
 		void*									GetValue(const void* instance) const;
-		void									SetValue(void* instance, void* value);
+		void									SetValue(void* instance, void* value) const;
 
 		ReflectionDescriptor*					GetReflectionDescriptor() const;
 
 		void									Copy(const void* sourceInstance, void* destinationInstance) const override;
 		bool									CompareInstance(const void* left, const void* right) const;
+
+		bool									HasSetMethod() const;
 
 	private:
 
