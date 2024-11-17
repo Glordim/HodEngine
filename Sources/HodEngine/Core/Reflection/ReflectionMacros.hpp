@@ -3,95 +3,83 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
 
-///@brief Implement Getter method to retreive ReflectionDescriptor
-#define GET_REFLECTION_DESCRIPTOR_METHOD(__REFLECTION_DESCRIPTOR_TYPE__)		\
-static __REFLECTION_DESCRIPTOR_TYPE__*	GetReflectionDescriptor()				\
-{																				\
-	static __REFLECTION_DESCRIPTOR_TYPE__ reflectionDescriptor;					\
-	return &reflectionDescriptor;												\
-}																				\
+#define REFLECTED_CLASS_NO_PARENT(CLASS) \
+BASE_META_TYPE(CLASS) \
+public: \
+static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescriptor) \
+{ \
+	reflectionDescriptor.Init(hod::ReflectionDescriptor::GenerateReflectionData<CLASS>(#CLASS)); \
+	FillReflectionDescriptorUser(reflectionDescriptor); \
+} \
+static void FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor); \
+static hod::ReflectionDescriptor* GetReflectionDescriptor() \
+{ \
+	return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
+} \
+virtual ReflectionDescriptor* GetReflectionDescriptorV() const \
+{ \
+    return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
+} \
 
-///@brief Declare sub class used for Reflection
-#define REFLECTED_CLASS_NO_VIRTUAL(__TYPE__, __API__)								\
-																					\
-	META_TYPE_NO_VIRTUAL(__TYPE__)													\
-																					\
-public:																				\
-																					\
-	class __API__ __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor	\
-	{																				\
-		public:																		\
-																					\
-			__TYPE__##ReflectionDescriptor();										\
-	};																				\
-																					\
-	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
-																					\
-	hod::ReflectionDescriptor* GetReflectionDescriptorV() const						\
-	{																				\
-		return __TYPE__::GetReflectionDescriptor();									\
-	}																				\
-																					\
-private:																			\
+#define REFLECTED_CLASS_NO_VIRTUAL(CLASS) \
+META_TYPE_NO_VIRTUAL(CLASS) \
+public: \
+static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescriptor) \
+{ \
+	reflectionDescriptor.Init(hod::ReflectionDescriptor::GenerateReflectionData<CLASS>(#CLASS)); \
+	FillReflectionDescriptorUser(reflectionDescriptor); \
+} \
+static void FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor); \
+static hod::ReflectionDescriptor* GetReflectionDescriptor() \
+{ \
+	return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
+} \
+ReflectionDescriptor* GetReflectionDescriptorV() const \
+{ \
+    return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
+} \
 
-///@brief Declare sub class used for Reflection
-#define REFLECTED_CLASS_NO_PARENT(__TYPE__, __API__)								\
-																					\
-	BASE_META_TYPE(__TYPE__)														\
-																					\
-public:																				\
-																					\
-	class __API__ __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor	\
-	{																				\
-		public:																		\
-																					\
-			__TYPE__##ReflectionDescriptor();										\
-	};																				\
-																					\
-	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
-																					\
-	virtual hod::ReflectionDescriptor* GetReflectionDescriptorV() const				\
-	{																				\
-		return __TYPE__::GetReflectionDescriptor();									\
-	}																				\
-																					\
-private:																			\
+#define REFLECTED_CLASS(CLASS, PARENT) \
+META_TYPE(CLASS, PARENT) \
+public: \
+static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescriptor) \
+{ \
+	reflectionDescriptor.Init(hod::ReflectionDescriptor::GenerateReflectionData<CLASS, PARENT>(#CLASS)); \
+	FillReflectionDescriptorUser(reflectionDescriptor); \
+} \
+static void FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor); \
+static hod::ReflectionDescriptor* GetReflectionDescriptor() \
+{ \
+	return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
+} \
+hod::ReflectionDescriptor* GetReflectionDescriptorV() const override \
+{ \
+    return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
+} \
 
-///@brief Declare sub class used for Reflection
-#define REFLECTED_CLASS(__TYPE__, __PARENT__, __API__)								\
-																					\
-	META_TYPE(__TYPE__, __PARENT__)													\
-																					\
-public:																				\
-																					\
-	class __API__ __TYPE__##ReflectionDescriptor : public hod::ReflectionDescriptor	\
-	{																				\
-		public:																		\
-																					\
-			__TYPE__##ReflectionDescriptor();										\
-	};																				\
-																					\
-	GET_REFLECTION_DESCRIPTOR_METHOD(__TYPE__##ReflectionDescriptor)				\
-																					\
-	hod::ReflectionDescriptor* GetReflectionDescriptorV() const override			\
-	{																				\
-		return __TYPE__::GetReflectionDescriptor();									\
-	}																				\
-																					\
-private:																			\
 
 ///@brief 
-#define DESCRIBE_REFLECTED_CLASS_NO_PARENT(__TYPE__)														\
-__TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()									\
-: hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<__TYPE__, void>(#__TYPE__))	\
-
-///@brief 
-#define DESCRIBE_REFLECTED_CLASS(__TYPE__, __PARENT__)																\
-__TYPE__::__TYPE__##ReflectionDescriptor::__TYPE__##ReflectionDescriptor()											\
-: hod::ReflectionDescriptor(hod::ReflectionDescriptor::GenerateReflectionData<__TYPE__, __PARENT__>(#__TYPE__))		\
+#define DESCRIBE_REFLECTED_CLASS(__TYPE__, reflectionDescriptor) void __TYPE__::FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor)
 
 namespace hod
 {
+	template<typename _Class_>
+	class ReflectedClass
+	{
+	public:
+		static ReflectionDescriptor* GetReflectionDescriptor()
+		{
+			static ReflectionDescriptor reflectionDescriptor;
+			static bool init = false;
+			if (init == false)
+			{
+				_Class_::FillReflectionDescriptor(reflectionDescriptor);
+				init = true;
+			}
+			return &reflectionDescriptor;
+		}
+	};
+
 	//std::function<void(T::*)(const MemberType&)> setFunction = nullptr
 
 	template<typename T, typename MemberType>
@@ -138,7 +126,3 @@ namespace hod
 		}
 	}
 }
-
-#define ADD_PROPERTY(Class, Member) hod::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member), nullptr, nullptr)
-
-#define ADD_PROPERTY_WITH_SET_METHOD(Class, Member, SetMethod) hod::ReflectionHelper::AddProperty<decltype(Class::Member)>(this, #Member, offsetof(Class, Member), [](void* instance, void* value){static_cast<Class*>(instance)->SetMethod(*reinterpret_cast<decltype(Class::Member)*>(value));})

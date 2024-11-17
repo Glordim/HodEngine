@@ -5,33 +5,30 @@
 
 #include "HodEngine/Game/Component.hpp"
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	class CameraComponent;
+	class PointLightComponent;
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API RendererComponent : public Component
 	{
-		class CameraComponent;
-		class PointLightComponent;
+		REFLECTED_CLASS(RendererComponent, Component)
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API RendererComponent : public Component
-		{
-			REFLECTED_CLASS(RendererComponent, Component, HOD_GAME_API)
+	public:
 
-		public:
+						RendererComponent() = default;
+						RendererComponent(const RendererComponent&) = delete;
+						RendererComponent(RendererComponent&&) = delete;
+						~RendererComponent() override = default;
 
-							RendererComponent() = default;
-							RendererComponent(const RendererComponent&) = delete;
-							RendererComponent(RendererComponent&&) = delete;
-							~RendererComponent() override = default;
+		void			operator=(const RendererComponent&) = delete;
+		void			operator=(RendererComponent&&) = delete;
 
-			void			operator=(const RendererComponent&) = delete;
-			void			operator=(RendererComponent&&) = delete;
+	public:
 
-		public:
-
-			virtual void	PushToRenderQueue(renderer::RenderQueue& renderQueue) {};
-		};
-	}
+		virtual void	PushToRenderQueue(renderer::RenderQueue& renderQueue) {};
+	};
 }

@@ -19,10 +19,10 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, RendererComponent)
+		DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, reflectionDescriptor)
 		{
-			AddPropertyT(this, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
-			AddPropertyT(this, &TextureRendererComponent::_pixelPerUnit, "_pixelPerUnit");
+			AddPropertyT(&reflectionDescriptor, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
+			AddPropertyT(&reflectionDescriptor, &TextureRendererComponent::_pixelPerUnit, "_pixelPerUnit");
 			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}

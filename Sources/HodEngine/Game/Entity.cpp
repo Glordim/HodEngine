@@ -13,14 +13,14 @@ namespace hod::game
 {
 	Entity::Id Entity::_nextId = 0;
 
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(Entity)
+	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
 	{
-		ADD_PROPERTY(Entity, _name);
-		ADD_PROPERTY(Entity, _active);
-		ADD_PROPERTY(Entity, _id);
+		AddPropertyT(&reflectionDescriptor, &Entity::_name, "_name");
+		AddPropertyT(&reflectionDescriptor, &Entity::_active, "_active");
+		AddPropertyT(&reflectionDescriptor, &Entity::_id, "_id");
 
-		AddPropertyT(this, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(this, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(&reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(&reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 

@@ -19,10 +19,10 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(Meta, void)
+	DESCRIBE_REFLECTED_CLASS(Meta, reflectionDescriptor)
 	{
-		ADD_PROPERTY(Meta, _uid);
-		ADD_PROPERTY(Meta, _importerType);
+		AddPropertyT(&reflectionDescriptor, &Meta::_uid, "_uid");
+		AddPropertyT(&reflectionDescriptor, &Meta::_importerType, "_importerType");
 	}
 
 	/// @brief 

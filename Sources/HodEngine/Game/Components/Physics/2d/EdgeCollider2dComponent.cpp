@@ -9,10 +9,10 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(EdgeCollider2dComponent, Collider2dComponent)
+	DESCRIBE_REFLECTED_CLASS(EdgeCollider2dComponent, reflectionDescriptor)
 	{
-		AddPropertyT(this, &EdgeCollider2dComponent::_start, "Start", &EdgeCollider2dComponent::SetStart);
-		AddPropertyT(this, &EdgeCollider2dComponent::_end, "End", &EdgeCollider2dComponent::SetEnd);
+		AddPropertyT(&reflectionDescriptor, &EdgeCollider2dComponent::_start, "Start", &EdgeCollider2dComponent::SetStart);
+		AddPropertyT(&reflectionDescriptor, &EdgeCollider2dComponent::_end, "End", &EdgeCollider2dComponent::SetEnd);
 	}
 
 	/// @brief 

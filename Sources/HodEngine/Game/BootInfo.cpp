@@ -3,9 +3,9 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(BootInfo)
+	DESCRIBE_REFLECTED_CLASS(BootInfo, reflectionDescriptor)
 	{
-		ADD_PROPERTY(BootInfo, _startupScene);
-		ADD_PROPERTY(BootInfo, _gameModule);
+		AddPropertyT(&reflectionDescriptor, &BootInfo::_startupScene, "_startupScene");
+		AddPropertyT(&reflectionDescriptor, &BootInfo::_gameModule, "_gameModule");
 	}
 }

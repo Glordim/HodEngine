@@ -6,12 +6,12 @@ namespace hod
 	Color Color::White(1.0f, 1.0f, 1.0f, 1.0f);
 	Color Color::Black(0.0f, 0.0f, 0.0f, 1.0f);
 
-	DESCRIBE_REFLECTED_CLASS(Color, void)
+	DESCRIBE_REFLECTED_CLASS(Color, reflectionDescriptor)
 	{
-		ADD_PROPERTY(Color, r);
-		ADD_PROPERTY(Color, g);
-		ADD_PROPERTY(Color, b);
-		ADD_PROPERTY(Color, a);
+		AddPropertyT(&reflectionDescriptor, &Color::r, "r");
+		AddPropertyT(&reflectionDescriptor, &Color::g, "g");
+		AddPropertyT(&reflectionDescriptor, &Color::b, "b");
+		AddPropertyT(&reflectionDescriptor, &Color::a, "a");
 	}
 
 	//-----------------------------------------------------------------------------

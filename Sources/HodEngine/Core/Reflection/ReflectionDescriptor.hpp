@@ -29,11 +29,12 @@ namespace hod
 			MetaType				_metaType;
 		};
 
-		template<typename _Class_, typename _ParentClass_>
+		template<typename _Class_, typename _ParentClass_ = void>
 		static Data GenerateReflectionData(const std::string_view& name);
 
 	public:
 
+												ReflectionDescriptor() = default;
 												ReflectionDescriptor(const Data& data);
 												ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent);
 												ReflectionDescriptor(const ReflectionDescriptor& copy) = default;
@@ -44,6 +45,8 @@ namespace hod
 		ReflectionDescriptor&					operator = (ReflectionDescriptor&& move) = default;
 
 	public:
+
+		void									Init(const Data& data);
 
 		const std::vector<ReflectionTrait*>&	GetTraits() const;
 		const std::vector<ReflectionProperty*>&	GetProperties() const;

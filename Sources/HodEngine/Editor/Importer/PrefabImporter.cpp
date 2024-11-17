@@ -9,7 +9,7 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(PrefabImporterSettings, ImporterSettings)
+	DESCRIBE_REFLECTED_CLASS(PrefabImporterSettings, reflectionDescriptor)
 	{
 
 	}

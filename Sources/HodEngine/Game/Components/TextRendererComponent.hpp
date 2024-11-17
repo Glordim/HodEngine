@@ -21,7 +21,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class HOD_GAME_API TextRendererComponent : public RendererComponent
 		{
-			REFLECTED_CLASS(TextRendererComponent, RendererComponent, HOD_GAME_API)
+			REFLECTED_CLASS(TextRendererComponent, RendererComponent)
 
 		public:
 

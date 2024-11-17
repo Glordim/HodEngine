@@ -20,7 +20,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API CameraComponent : public Component
 	{
-		REFLECTED_CLASS(CameraComponent, Component, HOD_GAME_API)
+		REFLECTED_CLASS(CameraComponent, Component)
 
 	public:
 

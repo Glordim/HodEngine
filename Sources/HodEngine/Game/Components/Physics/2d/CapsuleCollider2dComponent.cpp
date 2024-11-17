@@ -9,12 +9,12 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(CapsuleCollider2dComponent, Collider2dComponent)
+	DESCRIBE_REFLECTED_CLASS(CapsuleCollider2dComponent, reflectionDescriptor)
 	{
-		AddPropertyT(this, &CapsuleCollider2dComponent::_offset, "Offset", &CapsuleCollider2dComponent::SetOffset);
-		AddPropertyT(this, &CapsuleCollider2dComponent::_height, "Height", &CapsuleCollider2dComponent::SetHeight);
-		AddPropertyT(this, &CapsuleCollider2dComponent::_radius, "Radius", &CapsuleCollider2dComponent::SetRadius);
-		AddPropertyT(this, &CapsuleCollider2dComponent::_rotation, "Rotation", &CapsuleCollider2dComponent::SetRotation);
+		AddPropertyT(&reflectionDescriptor, &CapsuleCollider2dComponent::_offset, "Offset", &CapsuleCollider2dComponent::SetOffset);
+		AddPropertyT(&reflectionDescriptor, &CapsuleCollider2dComponent::_height, "Height", &CapsuleCollider2dComponent::SetHeight);
+		AddPropertyT(&reflectionDescriptor, &CapsuleCollider2dComponent::_radius, "Radius", &CapsuleCollider2dComponent::SetRadius);
+		AddPropertyT(&reflectionDescriptor, &CapsuleCollider2dComponent::_rotation, "Rotation", &CapsuleCollider2dComponent::SetRotation);
 	}
 
 	/// @brief 

@@ -42,7 +42,7 @@ namespace hod
 			3, 1, 2,
 		};
 
-		DESCRIBE_REFLECTED_CLASS(BoxComponent, PrimitiveComponent)
+		DESCRIBE_REFLECTED_CLASS(BoxComponent, reflectionDescriptor)
 		{
 		}
 

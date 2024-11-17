@@ -3,7 +3,7 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(SerializedData)
+	DESCRIBE_REFLECTED_CLASS(SerializedData, reflectionDescriptor)
 	{
 	}
 }

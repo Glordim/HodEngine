@@ -34,7 +34,7 @@ namespace hod::game
 
     class HOD_GAME_API WeakComponentBase
     {
-        REFLECTED_CLASS_NO_VIRTUAL(WeakComponentBase, HOD_GAME_API)
+        REFLECTED_CLASS_NO_VIRTUAL(WeakComponentBase)
 
         //DESCRIBE_REFLECTED_CLASS_NO_PARENT(WeakComponent)
 

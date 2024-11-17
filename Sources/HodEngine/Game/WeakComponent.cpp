@@ -32,9 +32,9 @@ namespace hod::game
         }
     }
 
-    DESCRIBE_REFLECTED_CLASS_NO_PARENT(WeakComponentBase)
+    DESCRIBE_REFLECTED_CLASS(WeakComponentBase, reflectionDescriptor)
     {
-        AddTrait<ReflectionTraitCustomSerialization>(
+        reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
             [](const void* instance, Document::Node& documentNode)
             {
                 const WeakComponentBase* weakComponentBase = static_cast<const WeakComponentBase*>(instance);

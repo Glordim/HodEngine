@@ -16,7 +16,7 @@ namespace hod::editor
 
 	struct HOD_EDITOR_API SpriteData
 	{
-		REFLECTED_CLASS_NO_PARENT(SpriteData, HOD_EDITOR_API)
+		REFLECTED_CLASS_NO_PARENT(SpriteData)
 
 	public:
 
@@ -29,7 +29,7 @@ namespace hod::editor
 
 	class HOD_EDITOR_API TextureImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(TextureImporterSettings, ImporterSettings, HOD_EDITOR_API)
+		REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
 
 	public:
 

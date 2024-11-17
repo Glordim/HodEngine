@@ -12,9 +12,9 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent, RendererComponent)
+		DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent, reflectionDescriptor)
 		{
-			ADD_PROPERTY(SpriteRendererComponent, _sprite);
+			AddPropertyT(&reflectionDescriptor, &SpriteRendererComponent::_sprite, "_sprite");
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
 

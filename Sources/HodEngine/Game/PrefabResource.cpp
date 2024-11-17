@@ -3,7 +3,7 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(PrefabResource, Resource)
+	DESCRIBE_REFLECTED_CLASS(PrefabResource, reflectionDescriptor)
 	{
 	}
 

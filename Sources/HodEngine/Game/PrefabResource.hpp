@@ -9,7 +9,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API PrefabResource : public Resource
 	{
-		REFLECTED_CLASS(PrefabResource, Resource, HOD_GAME_API)
+		REFLECTED_CLASS(PrefabResource, Resource)
 
 	public:
 						PrefabResource() = default;

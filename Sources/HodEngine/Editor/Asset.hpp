@@ -20,7 +20,7 @@ namespace hod::editor
 	// TODO embed in Asset when reflection support it
 	struct HOD_EDITOR_API Meta
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Meta, HOD_EDITOR_API)
+		REFLECTED_CLASS_NO_VIRTUAL(Meta)
 
 	public:
 

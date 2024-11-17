@@ -17,7 +17,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class HOD_GAME_API PrimitiveComponent : public RendererComponent
 		{
-			REFLECTED_CLASS(PrimitiveComponent, RendererComponent, HOD_GAME_API)
+			REFLECTED_CLASS(PrimitiveComponent, RendererComponent)
 
 		public:
 

@@ -19,10 +19,10 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS(TextRendererComponent, RendererComponent)
+		DESCRIBE_REFLECTED_CLASS(TextRendererComponent, reflectionDescriptor)
 		{
-			AddPropertyT(this, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
-			AddPropertyT(this, &TextRendererComponent::_text, "_text"/*, &TextRendererComponent::SetText*/);
+			AddPropertyT(&reflectionDescriptor, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
+			AddPropertyT(&reflectionDescriptor, &TextRendererComponent::_text, "_text"/*, &TextRendererComponent::SetText*/);
 			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}

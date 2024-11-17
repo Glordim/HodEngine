@@ -10,7 +10,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API CircleCollider2dComponent : public Collider2dComponent
 	{
-		REFLECTED_CLASS(CircleCollider2dComponent, Collider2dComponent, HOD_GAME_API)
+		REFLECTED_CLASS(CircleCollider2dComponent, Collider2dComponent)
 
 	public:
 

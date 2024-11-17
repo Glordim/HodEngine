@@ -10,7 +10,7 @@ namespace hod::editor
 {
 	class HOD_EDITOR_API FontImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(FontImporterSettings, ImporterSettings, HOD_EDITOR_API)
+		REFLECTED_CLASS(FontImporterSettings, ImporterSettings)
 	};
 
 	class HOD_EDITOR_API FontImporter : public Importer

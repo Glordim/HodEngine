@@ -15,9 +15,9 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(Prefab)
+	DESCRIBE_REFLECTED_CLASS(Prefab, reflectionDescriptor)
 	{
-		AddTrait<ReflectionTraitCustomSerialization>(
+		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, Document::Node& documentNode)
 		{
 			static_cast<const Prefab*>(instance)->SerializeInDocument(documentNode);

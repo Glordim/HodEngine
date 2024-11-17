@@ -9,7 +9,7 @@ namespace hod
 	/// @brief 
 	class HOD_CORE_API UID final
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(UID, HOD_CORE_API)
+		REFLECTED_CLASS_NO_VIRTUAL(UID)
 		
 	public:
 

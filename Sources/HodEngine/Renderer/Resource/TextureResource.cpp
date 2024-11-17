@@ -8,13 +8,13 @@
 
 namespace hod::renderer
 {
-	DESCRIBE_REFLECTED_CLASS(TextureResource, Resource)
+	DESCRIBE_REFLECTED_CLASS(TextureResource, reflectionDescriptor)
 	{
-		ADD_PROPERTY(TextureResource, _width);
-		ADD_PROPERTY(TextureResource, _height);
-		ADD_PROPERTY(TextureResource, _componentCount);
-		ADD_PROPERTY(TextureResource, _filterMode);
-		ADD_PROPERTY(TextureResource, _wrapMode);
+		AddPropertyT(&reflectionDescriptor, &TextureResource::_width, "_width");
+		AddPropertyT(&reflectionDescriptor, &TextureResource::_height, "_height");
+		AddPropertyT(&reflectionDescriptor, &TextureResource::_componentCount, "_componentCount");
+		AddPropertyT(&reflectionDescriptor, &TextureResource::_filterMode, "_filterMode");
+		AddPropertyT(&reflectionDescriptor, &TextureResource::_wrapMode, "_wrapMode");
 	}
 
 	/// @brief 

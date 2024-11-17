@@ -32,9 +32,9 @@ namespace hod::game
         }
     }
 
-    DESCRIBE_REFLECTED_CLASS_NO_PARENT(WeakEntity)
+    DESCRIBE_REFLECTED_CLASS(WeakEntity, reflectionDescriptor)
     {
-        AddTrait<ReflectionTraitCustomSerialization>(
+        reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
             [](const void* instance, Document::Node& documentNode)
             {
                 const WeakEntity* weakEntity = static_cast<const WeakEntity*>(instance);

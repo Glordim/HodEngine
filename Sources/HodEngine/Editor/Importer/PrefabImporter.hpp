@@ -7,7 +7,7 @@ namespace hod::editor
 {
 	class HOD_EDITOR_API PrefabImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(PrefabImporterSettings, ImporterSettings, HOD_EDITOR_API)
+		REFLECTED_CLASS(PrefabImporterSettings, ImporterSettings)
 	};
 
 	class HOD_EDITOR_API PrefabImporter : public Importer

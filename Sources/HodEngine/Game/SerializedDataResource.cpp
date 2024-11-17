@@ -5,7 +5,7 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(SerializedDataResource, Resource)
+	DESCRIBE_REFLECTED_CLASS(SerializedDataResource, reflectionDescriptor)
 	{
 	}
 

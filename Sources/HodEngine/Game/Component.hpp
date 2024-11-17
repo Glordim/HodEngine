@@ -26,7 +26,7 @@ namespace hod
 		///@brief 
 		class HOD_GAME_API Component : public std::enable_shared_from_this<Component>
 		{
-			REFLECTED_CLASS_NO_PARENT(Component, HOD_GAME_API)
+			REFLECTED_CLASS_NO_PARENT(Component)
 
 			friend class Scene;
 			friend class Entity;

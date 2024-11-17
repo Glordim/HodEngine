@@ -25,9 +25,9 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(Scene)
+	DESCRIBE_REFLECTED_CLASS(Scene, reflectionDescriptor)
 	{
-		AddTrait<ReflectionTraitCustomSerialization>(
+		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, Document::Node& documentNode)
 		{
 			static_cast<const Scene*>(instance)->SerializeInDocument(documentNode);

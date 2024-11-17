@@ -42,10 +42,10 @@ union UuidConverter
 
 namespace hod
 {
-	DESCRIBE_REFLECTED_CLASS(UID, void)
+	DESCRIBE_REFLECTED_CLASS(UID, reflectionDescriptor)
 	{
-		ADD_PROPERTY(UID, _low);
-		ADD_PROPERTY(UID, _high);
+		AddPropertyT(&reflectionDescriptor, &UID::_low, "_low");
+		AddPropertyT(&reflectionDescriptor, &UID::_high, "_high");
 	}
 
 	HOD_CORE_API UID UID::INVALID_UID;

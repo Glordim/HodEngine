@@ -9,7 +9,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API SerializedDataResource : public Resource
 	{
-		REFLECTED_CLASS(SerializedDataResource, Resource, HOD_GAME_API)
+		REFLECTED_CLASS(SerializedDataResource, Resource)
 
 	public:
 								SerializedDataResource() = default;

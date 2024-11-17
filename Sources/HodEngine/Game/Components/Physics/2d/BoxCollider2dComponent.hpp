@@ -10,7 +10,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API BoxCollider2dComponent : public Collider2dComponent
 	{
-		REFLECTED_CLASS(BoxCollider2dComponent, Collider2dComponent, HOD_GAME_API)
+		REFLECTED_CLASS(BoxCollider2dComponent, Collider2dComponent)
 
 	public:
 

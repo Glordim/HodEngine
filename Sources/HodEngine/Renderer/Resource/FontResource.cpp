@@ -13,7 +13,7 @@
 
 namespace hod::renderer
 {
-	DESCRIBE_REFLECTED_CLASS(FontResource, Resource)
+	DESCRIBE_REFLECTED_CLASS(FontResource, reflectionDescriptor)
 	{
 	}
 

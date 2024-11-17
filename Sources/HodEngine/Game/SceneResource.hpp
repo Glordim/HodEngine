@@ -9,7 +9,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API SceneResource : public Resource
 	{
-		REFLECTED_CLASS(SceneResource, Resource, HOD_GAME_API)
+		REFLECTED_CLASS(SceneResource, Resource)
 
 	public:
 						SceneResource() = default;

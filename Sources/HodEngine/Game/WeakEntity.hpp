@@ -28,7 +28,7 @@ namespace hod::game
 
     class HOD_GAME_API WeakEntity
     {
-        REFLECTED_CLASS_NO_VIRTUAL(WeakEntity, HOD_GAME_API)
+        REFLECTED_CLASS_NO_VIRTUAL(WeakEntity)
 
     public:
 

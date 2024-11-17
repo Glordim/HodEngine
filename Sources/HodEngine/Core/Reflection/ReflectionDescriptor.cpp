@@ -30,6 +30,18 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @param data 
+	void ReflectionDescriptor::Init(const Data& data)
+	{
+		_typeName = data._name.data(); // todo
+		_parent = data._parent;
+		_allocateFunction = data._allocateFunction;
+		_sharedAllocateFunction = data._sharedAllocateFunction;
+		_compareFunction = data._compareFunction;
+		_metaType = data._metaType;
+	}
+
+	/// @brief 
 	/// @return 
 	const std::string& ReflectionDescriptor::GetDisplayName() const
 	{

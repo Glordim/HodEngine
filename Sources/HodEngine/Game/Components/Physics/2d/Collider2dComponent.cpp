@@ -14,11 +14,11 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(Collider2dComponent, Component)
+	DESCRIBE_REFLECTED_CLASS(Collider2dComponent, reflectionDescriptor)
 	{
-		AddPropertyT(this, &Collider2dComponent::_isTrigger, "IsTrigger");
-		AddPropertyT(this, &Collider2dComponent::_friction, "Friction");
-		AddPropertyT(this, &Collider2dComponent::_density, "Density");
+		AddPropertyT(&reflectionDescriptor, &Collider2dComponent::_isTrigger, "IsTrigger");
+		AddPropertyT(&reflectionDescriptor, &Collider2dComponent::_friction, "Friction");
+		AddPropertyT(&reflectionDescriptor, &Collider2dComponent::_density, "Density");
 	}
 
 	Collider2dComponent::Collider2dComponent()

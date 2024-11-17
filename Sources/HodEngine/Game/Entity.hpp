@@ -26,7 +26,7 @@ namespace hod::game
 
 	class HOD_GAME_API Entity final : public std::enable_shared_from_this<Entity>
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Entity, HOD_GAME_API);
+		REFLECTED_CLASS_NO_VIRTUAL(Entity);
 
 	public:
 

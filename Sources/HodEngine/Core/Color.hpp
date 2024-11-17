@@ -13,7 +13,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	struct HOD_CORE_API Color final
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Color, HOD_CORE_API)
+		REFLECTED_CLASS_NO_VIRTUAL(Color)
 
 	public:
 

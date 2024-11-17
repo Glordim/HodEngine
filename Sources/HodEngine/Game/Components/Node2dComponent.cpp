@@ -13,11 +13,11 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS(Node2dComponent, NodeComponent)
+		DESCRIBE_REFLECTED_CLASS(Node2dComponent, reflectionDescriptor)
 		{
-			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _position, SetPosition);
-			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _rotation, SetRotation);
-			ADD_PROPERTY_WITH_SET_METHOD(Node2dComponent, _scale, SetScale);
+			AddPropertyT(&reflectionDescriptor, &Node2dComponent::_position, "_position", &Node2dComponent::SetPosition);
+			AddPropertyT(&reflectionDescriptor, &Node2dComponent::_rotation, "_rotation", &Node2dComponent::SetRotation);
+			AddPropertyT(&reflectionDescriptor, &Node2dComponent::_scale, "_scale", &Node2dComponent::SetScale);
 		}
 		
 		//-----------------------------------------------------------------------------

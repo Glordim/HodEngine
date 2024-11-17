@@ -13,13 +13,13 @@ namespace hod::game
 {
 	CameraComponent* CameraComponent::_main = nullptr;
 
-	DESCRIBE_REFLECTED_CLASS(CameraComponent, Component)
+	DESCRIBE_REFLECTED_CLASS(CameraComponent, reflectionDescriptor)
 	{
-		AddPropertyT(this, &CameraComponent::_projection, "Projection");
-		AddPropertyT(this, &CameraComponent::_near, "Near");
-		AddPropertyT(this, &CameraComponent::_far, "Far");
-		AddPropertyT(this, &CameraComponent::_fov, "Fov");
-		AddPropertyT(this, &CameraComponent::_size, "Size", &CameraComponent::SetSize);
+		AddPropertyT(&reflectionDescriptor, &CameraComponent::_projection, "Projection");
+		AddPropertyT(&reflectionDescriptor, &CameraComponent::_near, "Near");
+		AddPropertyT(&reflectionDescriptor, &CameraComponent::_far, "Far");
+		AddPropertyT(&reflectionDescriptor, &CameraComponent::_fov, "Fov");
+		AddPropertyT(&reflectionDescriptor, &CameraComponent::_size, "Size", &CameraComponent::SetSize);
 	}
 
 	/// @brief 

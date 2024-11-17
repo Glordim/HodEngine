@@ -3,9 +3,9 @@
 
 namespace hod
 {
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(Rect)
+	DESCRIBE_REFLECTED_CLASS(Rect, reflectionDescriptor)
 	{
-		ADD_PROPERTY(Rect, _position);
-		ADD_PROPERTY(Rect, _size);
+		AddPropertyT(&reflectionDescriptor, &Rect::_position, "_position");
+		AddPropertyT(&reflectionDescriptor, &Rect::_size, "_size");
 	}
 }

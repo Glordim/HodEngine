@@ -5,10 +5,10 @@
 
 namespace hod
 {
-	DESCRIBE_REFLECTED_CLASS(Vector2, void)
+	DESCRIBE_REFLECTED_CLASS(Vector2, reflectionDescriptor)
 	{
-		ADD_PROPERTY(Vector2, _x);
-		ADD_PROPERTY(Vector2, _y);
+		AddPropertyT(&reflectionDescriptor, &Vector2::_x, "_x");
+		AddPropertyT(&reflectionDescriptor, &Vector2::_y, "_y");
 	}
 
 	Vector2 Vector2::Zero(0.0f, 0.0f);

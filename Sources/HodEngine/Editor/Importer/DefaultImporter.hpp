@@ -7,7 +7,7 @@ namespace hod::editor
 {
 	class HOD_EDITOR_API DefaultImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(DefaultImporterSettings, ImporterSettings, HOD_EDITOR_API)
+		REFLECTED_CLASS(DefaultImporterSettings, ImporterSettings)
 	};
 
 	class HOD_EDITOR_API DefaultImporter : public Importer

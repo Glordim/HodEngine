@@ -12,7 +12,7 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS(PrimitiveComponent, RendererComponent)
+		DESCRIBE_REFLECTED_CLASS(PrimitiveComponent, reflectionDescriptor)
 		{
 		}
 

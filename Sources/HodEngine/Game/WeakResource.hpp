@@ -15,7 +15,7 @@ namespace hod::game
     /// @brief 
     class HOD_GAME_API WeakResourceBase
     {
-        REFLECTED_CLASS_NO_VIRTUAL(WeakResourceBase, HOD_GAME_API)
+        REFLECTED_CLASS_NO_PARENT(WeakResourceBase)
 
     public:
 
@@ -51,6 +51,8 @@ namespace hod::game
     template<typename _Resource_>
     class WeakResource : public WeakResourceBase
     {
+        REFLECTED_CLASS(WeakResource<_Resource_>, WeakResourceBase)
+
     public:
 
         WeakResource()
@@ -77,4 +79,10 @@ namespace hod::game
             return std::static_pointer_cast<_Resource_>(WeakResourceBase::Lock());
         }
     };
+
+    template<typename _Resource_>
+    void WeakResource<_Resource_>::FillReflectionDescriptorUser(ReflectionDescriptor& reflectionDescriptor)
+    {
+
+    }
 }

@@ -8,9 +8,9 @@
 
 namespace hod::game
 {
-    DESCRIBE_REFLECTED_CLASS_NO_PARENT(WeakResourceBase)
+    DESCRIBE_REFLECTED_CLASS(WeakResourceBase, reflectionDescriptor)
     {
-        ADD_PROPERTY(WeakResourceBase, _uid);
+        AddPropertyT(&reflectionDescriptor, &WeakResourceBase::_uid, "_uid");
     }
 
     /// @brief 

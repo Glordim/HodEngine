@@ -16,7 +16,7 @@ namespace hod::editor
 {
 	class HOD_EDITOR_API ImporterSettings
 	{
-		REFLECTED_CLASS_NO_PARENT(ImporterSettings, HOD_EDITOR_API)
+		REFLECTED_CLASS_NO_PARENT(ImporterSettings)
 
 	public:
 

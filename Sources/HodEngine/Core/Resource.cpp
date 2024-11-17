@@ -3,7 +3,7 @@
 
 namespace hod
 {
-	DESCRIBE_REFLECTED_CLASS(Resource, void)
+	DESCRIBE_REFLECTED_CLASS(Resource, reflectionDescriptor)
 	{
 		
 	}

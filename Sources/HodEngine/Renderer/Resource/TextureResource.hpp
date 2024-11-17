@@ -9,7 +9,7 @@ namespace hod::renderer
 {	
 	class HOD_RENDERER_API TextureResource : public Resource
 	{
-		REFLECTED_CLASS(TextureResource, Resource, HOD_RENDERER_API)
+		REFLECTED_CLASS(TextureResource, Resource)
 
 	public:
 

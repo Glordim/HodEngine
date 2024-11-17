@@ -10,7 +10,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	struct HOD_CORE_API Rect
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Rect, HOD_CORE_API)
+		REFLECTED_CLASS_NO_VIRTUAL(Rect)
 
 	public:
 	

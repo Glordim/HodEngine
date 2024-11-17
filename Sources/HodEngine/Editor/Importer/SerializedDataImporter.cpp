@@ -9,7 +9,7 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(SerializedDataImporterSettings, ImporterSettings)
+	DESCRIBE_REFLECTED_CLASS(SerializedDataImporterSettings, reflectionDescriptor)
 	{
 
 	}

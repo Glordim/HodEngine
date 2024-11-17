@@ -7,7 +7,7 @@ namespace hod::editor
 {
 	class HOD_EDITOR_API SerializedDataImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(SerializedDataImporterSettings, ImporterSettings, HOD_EDITOR_API)
+		REFLECTED_CLASS(SerializedDataImporterSettings, ImporterSettings)
 	};
 
 	class HOD_EDITOR_API SerializedDataImporter : public Importer

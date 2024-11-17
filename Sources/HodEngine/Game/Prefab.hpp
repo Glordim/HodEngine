@@ -15,7 +15,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API Prefab
 	{
-		REFLECTED_CLASS_NO_PARENT(Prefab, HOD_GAME_API)
+		REFLECTED_CLASS_NO_PARENT(Prefab)
 
 	public:
 						Prefab() = default;

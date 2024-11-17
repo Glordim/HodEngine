@@ -5,12 +5,12 @@
 
 namespace hod
 {
-	DESCRIBE_REFLECTED_CLASS(Vector4, void)
+	DESCRIBE_REFLECTED_CLASS(Vector4, reflectionDescriptor)
 	{
-		ADD_PROPERTY(Vector4, _x);
-		ADD_PROPERTY(Vector4, _y);
-		ADD_PROPERTY(Vector4, _z);
-		ADD_PROPERTY(Vector4, _w);
+		AddPropertyT(&reflectionDescriptor, &Vector4::_x, "_x");
+		AddPropertyT(&reflectionDescriptor, &Vector4::_y, "_y");
+		AddPropertyT(&reflectionDescriptor, &Vector4::_z, "_z");
+		AddPropertyT(&reflectionDescriptor, &Vector4::_w, "_w");
 	}
 
 	Vector4 Vector4::Zero(0.0f, 0.0f, 0.0f, 0.0f);

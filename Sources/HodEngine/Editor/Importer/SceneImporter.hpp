@@ -7,7 +7,7 @@ namespace hod::editor
 {
 	class HOD_EDITOR_API SceneImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(SceneImporterSettings, ImporterSettings, HOD_EDITOR_API)
+		REFLECTED_CLASS(SceneImporterSettings, ImporterSettings)
 	};
 
 	class HOD_EDITOR_API SceneImporter : public Importer

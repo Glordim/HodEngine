@@ -11,7 +11,7 @@ namespace hod::renderer
 {
 	class HOD_RENDERER_API FontResource : public Resource
 	{
-		REFLECTED_CLASS(FontResource, Resource, HOD_RENDERER_API)
+		REFLECTED_CLASS(FontResource, Resource)
 
 	public:
 

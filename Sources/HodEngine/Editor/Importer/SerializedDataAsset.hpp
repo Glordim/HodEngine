@@ -12,7 +12,7 @@ namespace hod::editor
 {
 	class HOD_EDITOR_API SerializedDataAsset
 	{
-		REFLECTED_CLASS_NO_PARENT(SerializedDataAsset, HOD_EDITOR_API)
+		REFLECTED_CLASS_NO_PARENT(SerializedDataAsset)
 
 	public:
 

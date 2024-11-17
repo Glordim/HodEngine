@@ -12,7 +12,7 @@ namespace hod::editor
 {
 	struct HOD_EDITOR_API RecentProjects
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(RecentProjects, HOD_EDITOR_API)
+		REFLECTED_CLASS_NO_VIRTUAL(RecentProjects)
 
 	public:
 

@@ -8,9 +8,9 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(SerializedDataAsset)
+	DESCRIBE_REFLECTED_CLASS(SerializedDataAsset, reflectionDescriptor)
 	{
-		AddTrait<ReflectionTraitCustomSerialization>([](const void* instance, Document::Node& documentNode)
+		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>([](const void* instance, Document::Node& documentNode)
 		{
 			const SerializedDataAsset* serializedDataAsset = static_cast<const SerializedDataAsset*>(instance);
 

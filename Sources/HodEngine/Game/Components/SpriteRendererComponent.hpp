@@ -19,7 +19,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class HOD_GAME_API SpriteRendererComponent : public RendererComponent
 		{
-			REFLECTED_CLASS(SpriteRendererComponent, RendererComponent, HOD_GAME_API)
+			REFLECTED_CLASS(SpriteRendererComponent, RendererComponent)
 
 		public:
 

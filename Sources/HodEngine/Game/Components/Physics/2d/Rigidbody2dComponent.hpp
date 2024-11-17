@@ -19,7 +19,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API Rigidbody2dComponent : public Component
 	{
-		REFLECTED_CLASS(Rigidbody2dComponent, Component, HOD_GAME_API)
+		REFLECTED_CLASS(Rigidbody2dComponent, Component)
 
 	public:
 

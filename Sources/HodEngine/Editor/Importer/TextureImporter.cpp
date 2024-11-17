@@ -22,19 +22,19 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
+	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, reflectionDescriptor)
 	{
-		AddPropertyT(this, &TextureImporterSettings::_generateMipmap, "GenerateMipmap");
-		AddPropertyT(this, &TextureImporterSettings::_filterMode, "FilterMode");
-		AddPropertyT(this, &TextureImporterSettings::_wrapMode, "WrapMode");
-		AddPropertyT(this, &TextureImporterSettings::_spriteDatas, "SpriteDatas");
+		AddPropertyT(&reflectionDescriptor, &TextureImporterSettings::_generateMipmap, "GenerateMipmap");
+		AddPropertyT(&reflectionDescriptor, &TextureImporterSettings::_filterMode, "FilterMode");
+		AddPropertyT(&reflectionDescriptor, &TextureImporterSettings::_wrapMode, "WrapMode");
+		AddPropertyT(&reflectionDescriptor, &TextureImporterSettings::_spriteDatas, "SpriteDatas");
 	}
 
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(SpriteData)
+	DESCRIBE_REFLECTED_CLASS(SpriteData, reflectionDescriptor)
 	{
-		AddPropertyT(this, &SpriteData::_uid, "Uid");
-		AddPropertyT(this, &SpriteData::_rect, "Rect");
-		AddPropertyT(this, &SpriteData::_meshType, "MeshType");
+		AddPropertyT(&reflectionDescriptor, &SpriteData::_uid, "Uid");
+		AddPropertyT(&reflectionDescriptor, &SpriteData::_rect, "Rect");
+		AddPropertyT(&reflectionDescriptor, &SpriteData::_meshType, "MeshType");
 	}
 
 	/// @brief 

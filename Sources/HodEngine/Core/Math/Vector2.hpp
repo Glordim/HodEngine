@@ -7,7 +7,7 @@ namespace hod
 {
 	class HOD_CORE_API Vector2 final
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Vector2, HOD_CORE_API)
+		REFLECTED_CLASS_NO_VIRTUAL(Vector2)
 
 	public:
 

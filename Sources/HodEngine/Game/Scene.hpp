@@ -20,7 +20,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API Scene
 	{
-		REFLECTED_CLASS_NO_PARENT(Scene, HOD_GAME_API)
+		REFLECTED_CLASS_NO_PARENT(Scene)
 
 	public:
 						Scene() = default;

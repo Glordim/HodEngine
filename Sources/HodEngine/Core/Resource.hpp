@@ -11,7 +11,7 @@ namespace hod
 {
 	class HOD_CORE_API Resource
 	{
-		REFLECTED_CLASS_NO_PARENT(Resource, HOD_CORE_API)
+		REFLECTED_CLASS_NO_PARENT(Resource)
 
 	public:
 

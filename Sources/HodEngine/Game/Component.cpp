@@ -7,10 +7,10 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS_NO_PARENT(Component)
+		DESCRIBE_REFLECTED_CLASS(Component, reflectionDescriptor)
 		{
-			AddPropertyT(this, &Component::_uid, "_uid")->AddTrait<ReflectionTraitHide>();
-			AddPropertyT(this, &Component::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
+			AddPropertyT(&reflectionDescriptor, &Component::_uid, "_uid")->AddTrait<ReflectionTraitHide>();
+			AddPropertyT(&reflectionDescriptor, &Component::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
 		}
 
 		/// @brief 

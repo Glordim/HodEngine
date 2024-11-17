@@ -19,7 +19,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API Project
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Project, HOD_EDITOR_API)
+		REFLECTED_CLASS_NO_VIRTUAL(Project)
 
 		_Singleton(Project)
 
