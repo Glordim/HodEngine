@@ -54,9 +54,9 @@ namespace hod
 	/// @tparam _Trait_ 
 	/// @return 
 	template<typename _Trait_>
-	_Trait_* ReflectionDescriptor::FindTrait() const
+	_Trait_* ReflectionDescriptor::FindTrait(bool fallbackOnParent) const
 	{
-		return static_cast<_Trait_*>(FindTrait(_Trait_::GetMetaTypeStatic()));
+		return static_cast<_Trait_*>(FindTrait(_Trait_::GetMetaTypeStatic(), fallbackOnParent));
 	}
 
 	template<typename _Property_, typename... Args>

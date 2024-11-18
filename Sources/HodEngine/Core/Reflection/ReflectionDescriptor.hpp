@@ -60,8 +60,8 @@ namespace hod
 		void									AddProperty(ReflectionProperty* property);
 
 		template<typename _Trait_>
-		_Trait_*								FindTrait() const;
-		ReflectionTrait*						FindTrait(MetaType metaType) const;
+		_Trait_*								FindTrait(bool fallbackOnParent = true) const;
+		ReflectionTrait*						FindTrait(MetaType metaType, bool fallbackOnParent = true) const;
 
 		template<typename _Property_>
 		_Property_*								FindProperty(const std::string_view& name, bool fallbackOnParent = true) const;
@@ -70,8 +70,6 @@ namespace hod
 		template<typename _Trait_>
 		void									RemoveTrait();
 		void									RemoveTrait(MetaType metaType);
-
-		void									SetFallbackTraitOnParent(bool fallbackOnParent);
 
 		void*									CreateInstance() const;
 		std::shared_ptr<void>					CreateSharedInstance() const;
@@ -106,8 +104,6 @@ namespace hod
 
 		std::vector<ReflectionTrait*>			_traits;
 		std::vector<ReflectionProperty*>		_properties;
-
-		bool									_fallbackTraitOnParent = false;
 	};
 }
 

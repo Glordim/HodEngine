@@ -118,7 +118,7 @@ namespace hod
 	/// @brief 
 	/// @param metaType 
 	/// @return 
-	ReflectionTrait* ReflectionDescriptor::FindTrait(MetaType metaType) const
+	ReflectionTrait* ReflectionDescriptor::FindTrait(MetaType metaType, bool fallbackOnParent) const
 	{
 		for (uint32_t index = 0; index < _traits.size(); ++index)
 		{
@@ -128,7 +128,7 @@ namespace hod
 			}
 		}
 
-		if (_fallbackTraitOnParent)
+		if (fallbackOnParent)
 		{
 			ReflectionDescriptor* parent = GetParent();
 			if (parent != nullptr)
@@ -154,13 +154,6 @@ namespace hod
 				return;
 			}
 		}
-	}
-
-	/// @brief 
-	/// @param fallbackOnParent 
-	void ReflectionDescriptor::SetFallbackTraitOnParent(bool fallbackTraitOnParent)
-	{
-		_fallbackTraitOnParent = fallbackTraitOnParent;
 	}
 
 	///@brief 
