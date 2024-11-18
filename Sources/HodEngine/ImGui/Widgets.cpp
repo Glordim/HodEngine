@@ -133,7 +133,7 @@ namespace hod
 		return value_changed;
 	}
 
-	bool ImageTextButton(ImTextureID image, ImVec2 imageSize, const char* label, ImVec2 size_arg, ImGuiButtonFlags flags, ImDrawFlags drawFlags)
+	bool ImageTextButton(ImTextureID image, ImVec2 imageSize, ImVec2 resizedSize, const char* label, ImVec2 size_arg, ImGuiButtonFlags flags, ImDrawFlags drawFlags)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
@@ -143,11 +143,13 @@ namespace hod
 		const ImGuiStyle& style = g.Style;
 		const ImGuiID id = window->GetID(label);
 		const ImVec2 label_size = ImGui::CalcTextSize(label, NULL, true);
+		const float finalHeight = ImMax(label_size.y, resizedSize.y) + style.FramePadding.y * 2.0f;
+		const float spaceBetweenImageAndText = finalHeight * 0.25f;
 
 		ImVec2 pos = window->DC.CursorPos;
 		if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
 			pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-		ImVec2 size = ImGui::CalcItemSize(size_arg, imageSize.x + 3 + label_size.x + style.FramePadding.x * 2.0f, ImMax(label_size.y, imageSize.y) + style.FramePadding.y * 2.0f);
+		ImVec2 size = ImGui::CalcItemSize(size_arg, resizedSize.x + spaceBetweenImageAndText + label_size.x + style.FramePadding.x * 2.0f, finalHeight);
 
 		const ImRect bb(pos, pos + size);
 		ImGui::ItemSize(size, style.FramePadding.y);
@@ -162,11 +164,24 @@ namespace hod
 		ImGui::RenderNavHighlight(bb, id);
 		ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
 
-		window->DrawList->AddImage(image, bb.Min + style.FramePadding, bb.Min + style.FramePadding + imageSize);
+		ImVec2 imageFinalSize = resizedSize;
+		float widthFactor = resizedSize.x / imageSize.x;
+		float heightFactor = resizedSize.y / imageSize.y;
+		if (widthFactor < heightFactor)
+		{
+			imageFinalSize.y = imageSize.y * widthFactor;
+		}
+		else
+		{
+			imageFinalSize.x = imageSize.x * heightFactor;
+		}
+
+		ImVec2 imageOffset = (resizedSize - imageFinalSize) * 0.5f;
+		window->DrawList->AddImage(image, bb.Min + style.FramePadding + imageOffset, bb.Min + style.FramePadding + imageOffset + imageFinalSize);
 
 		if (g.LogEnabled)
 			ImGui::LogSetNextTextDecoration("[", "]");
-		ImGui::RenderTextClipped(bb.Min + style.FramePadding + ImVec2(imageSize.x, 0) + ImVec2(3, 0), bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+		ImGui::RenderTextClipped(bb.Min + style.FramePadding + ImVec2(resizedSize.x, 0) + ImVec2(spaceBetweenImageAndText, 0), bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
 
 		// Automatically close popups
 		//if (pressed && !(flags & ImGuiButtonFlags_DontClosePopups) && (window->Flags & ImGuiWindowFlags_Popup))

@@ -52,11 +52,11 @@ namespace hod::editor
 		bool clicked = false;
 		if (asset != nullptr)
 		{
-			clicked = ImageTextButton(asset->GetThumbnail(), ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()), asset->GetName().c_str(), ImVec2(-1, 0));
+			clicked = ImageTextButton(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()), asset->GetName().c_str(), ImVec2(-1, ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2));
 		}
 		else
 		{
-			clicked = ImageTextButton(nullptr, ImVec2(0.0f, 0.0f), "None", ImVec2(-1, 0));
+			clicked = ImageTextButton(nullptr, ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f), "None", ImVec2(-1, ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2));
 		}
 		ImGui::PopStyleVar();
 		ImGui::PopStyleColor(3);
@@ -79,7 +79,8 @@ namespace hod::editor
 		{
 			if (ImGui::BeginTooltip())
 			{
-				ImGui::Image(asset->GetThumbnail(), ImVec2(asset->GetThumbnail()->GetWidth() * 0.5f, asset->GetThumbnail()->GetHeight() * 0.5f));
+				ImVec2 size = ImVec2(128.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 128.0f);
+				ImGui::Image(asset->GetThumbnail(), size);
 				ImGui::EndTooltip();
 			}
 		}
@@ -104,15 +105,21 @@ namespace hod::editor
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Name:");
 			ImGui::SameLine();
-
+			
 			static char inputTextBuffer[2048] = "";
+			if (ImGui::IsWindowAppearing())
+			{
+				inputTextBuffer[0] = '\0';
+				ImGui::SetKeyboardFocusHere();
+			}
 			ImGui::InputText("##Name", inputTextBuffer, sizeof(inputTextBuffer));
 			ImGui::Separator();
 
 			float itemHeight = 48; // todo max 32 - FontSize ?
+			float contentHeight = itemHeight - ImGui::GetStyle().FramePadding.y * 2;
 
 			ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
-			bool clicked = ImageTextButton(nullptr, ImVec2(0, itemHeight), "None", ImVec2(-1, 0));
+			bool clicked = ImageTextButton(nullptr, ImVec2(0, 0), ImVec2(0, 0), "None", ImVec2(-1, itemHeight));
 			ImGui::PopStyleVar();
 			if (clicked)
 			{
@@ -124,30 +131,38 @@ namespace hod::editor
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
-				ImGui::PushID(assetNode);
-				/*
-				ImGui::Image(assetNode->_asset->GetThumbnail(), ImVec2(itemHeight, itemHeight));
-				ImGui::SameLine();
-				ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0, 0.5f));
-				bool clicked = ImGui::Selectable(assetNode->_asset->GetName().c_str(), false, 0, ImVec2(0, itemHeight));
-				ImGui::PopStyleVar();
-				*/
-				ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
-				bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), ImVec2(itemHeight, itemHeight), assetNode->_asset->GetName().c_str(), ImVec2(-1, 0));
-				ImGui::PopStyleVar();
-				if (clicked)
+				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().find(inputTextBuffer) != std::string::npos)
 				{
-					ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
+					ImGui::PushID(assetNode);
+					/*
+					ImGui::Image(assetNode->_asset->GetThumbnail(), ImVec2(itemHeight, itemHeight));
+					ImGui::SameLine();
+					ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0, 0.5f));
+					bool clicked = ImGui::Selectable(assetNode->_asset->GetName().c_str(), false, 0, ImVec2(0, itemHeight));
+					ImGui::PopStyleVar();
+					*/
+					ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+					ImVec2 imageSize = ImVec2(0, 0);
+					if (assetNode->_asset->GetThumbnail())
+					{
+						imageSize = ImVec2((float)assetNode->_asset->GetThumbnail()->GetWidth(), (float)assetNode->_asset->GetThumbnail()->GetHeight());
+					}
+					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().c_str(), ImVec2(-1, itemHeight));
+					ImGui::PopStyleVar();
+					if (clicked)
+					{
+						ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
 
-					value->SetUid(assetNode->_asset->GetUid());
-					reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
-					changed = true;
+						value->SetUid(assetNode->_asset->GetUid());
+						reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
+						changed = true;
+					}
+					else if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					{
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::PopID();
 				}
-				else if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-				{
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::PopID();
 			}
 
 			ImGui::EndPopup();
