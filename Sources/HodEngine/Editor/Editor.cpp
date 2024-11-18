@@ -50,8 +50,10 @@
 #include "HodEngine/Editor/ComponentCustomEditor/CircleCollider2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/CapsuleCollider2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/EdgeCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/TextureRendererComponentCustomEditor.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/CameraComponent.hpp>
+#include <HodEngine/Game/Components/TextureRendererComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/BoxCollider2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp>
@@ -105,6 +107,7 @@ namespace hod::editor
 
 		game::Node2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
 		game::CameraComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::TextureRendererComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
 		game::BoxCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
 		game::CircleCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
 		game::CapsuleCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
@@ -125,6 +128,7 @@ namespace hod::editor
 
 		game::Node2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
 		game::CameraComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CameraComponentCustomEditor);
+		game::TextureRendererComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new TextureRendererComponentCustomEditor);
 		game::BoxCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new BoxCollider2dComponentCustomEditor);
 		game::CircleCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CircleCollider2dComponentCustomEditor);
 		game::CapsuleCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CapsuleCollider2dComponentCustomEditor);
