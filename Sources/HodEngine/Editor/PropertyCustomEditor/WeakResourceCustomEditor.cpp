@@ -22,6 +22,8 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/AssetBrowserWindow.hpp"
 
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+
 namespace hod::editor
 {
 	/// @brief 
@@ -45,6 +47,10 @@ namespace hod::editor
 		AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
 		std::shared_ptr<Asset> asset = assetDatabase->Find(value->GetUid());
 
+		float height = 50;
+
+		ImVec2 prevCursorPos = ImGui::GetCursorPos();
+
 		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_FrameBg));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetColorU32(ImGuiCol_FrameBgActive));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetColorU32(ImGuiCol_FrameBgHovered));
@@ -52,14 +58,122 @@ namespace hod::editor
 		bool clicked = false;
 		if (asset != nullptr)
 		{
-			clicked = ImageTextButton(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()), asset->GetName().c_str(), ImVec2(-1, ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2));
+			//clicked = ImageTextButton(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(height, height), asset->GetName().c_str(), ImVec2(-1, height + ImGui::GetStyle().FramePadding.y * 2));
+			PreserveAspectImage(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(height, height));
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+			{
+				if (ImGui::BeginTooltip())
+				{
+					ImVec2 size = ImVec2(128.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 128.0f);
+					ImGui::Image(asset->GetThumbnail(), size);
+					ImGui::EndTooltip();
+				}
+			}
+
+			ImGui::SameLine();
+
+			prevCursorPos = ImGui::GetCursorPos();
+
+			ImGui::SetNextItemWidth(-1);
+			if (ImGui::BeginCombo("", asset->GetName().c_str(), ImGuiComboFlags_HeightLarge))
+			{
+				if (clicked == false)
+				{
+					clicked = true;
+
+					assetList.clear();
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
+				}
+			}
 		}
 		else
 		{
-			clicked = ImageTextButton(nullptr, ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f), "None", ImVec2(-1, ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2));
+			//clicked = ImageTextButton(nullptr, ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f), "None", ImVec2(-1, height + ImGui::GetStyle().FramePadding.y * 2));
+			PreserveAspectImage(nullptr, ImVec2(0.0f, 0.0f), ImVec2(height, height));
 		}
 		ImGui::PopStyleVar();
 		ImGui::PopStyleColor(3);
+		if (clicked)
+		{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Name:");
+			ImGui::SameLine();
+			
+			static char inputTextBuffer[2048] = "";
+			if (ImGui::IsWindowAppearing())
+			{
+				inputTextBuffer[0] = '\0';
+				ImGui::SetKeyboardFocusHere();
+			}
+			ImGui::InputText("##Name", inputTextBuffer, sizeof(inputTextBuffer));
+			ImGui::Separator();
+
+			float itemHeight = 48; // todo max 32 - FontSize ?
+			float contentHeight = itemHeight - ImGui::GetStyle().FramePadding.y * 2;
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+			bool clicked = ImageTextButton(nullptr, ImVec2(0, 0), ImVec2(0, 0), "None", ImVec2(-1, itemHeight));
+			ImGui::PopStyleVar();
+			if (clicked)
+			{
+				ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
+				
+				value->SetUid(UID::INVALID_UID);
+				reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
+			}
+
+			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
+			{
+				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().find(inputTextBuffer) != std::string::npos)
+				{
+					ImGui::PushID(assetNode);
+					/*
+					ImGui::Image(assetNode->_asset->GetThumbnail(), ImVec2(itemHeight, itemHeight));
+					ImGui::SameLine();
+					ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0, 0.5f));
+					bool clicked = ImGui::Selectable(assetNode->_asset->GetName().c_str(), false, 0, ImVec2(0, itemHeight));
+					ImGui::PopStyleVar();
+					*/
+					ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+					ImVec2 imageSize = ImVec2(0, 0);
+					if (assetNode->_asset->GetThumbnail())
+					{
+						imageSize = ImVec2((float)assetNode->_asset->GetThumbnail()->GetWidth(), (float)assetNode->_asset->GetThumbnail()->GetHeight());
+					}
+					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().c_str(), ImVec2(-1, itemHeight));
+					ImGui::PopStyleVar();
+					if (clicked)
+					{
+						ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
+
+						value->SetUid(assetNode->_asset->GetUid());
+						reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
+						changed = true;
+
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::PopID();
+				}
+			}
+
+			ImGui::EndCombo();
+			clicked = false;
+		}
+
+		ImVec2 cursorToRestore = ImGui::GetCursorPos();
+		prevCursorPos.y += CalculateButtonSize("Toto").y + 4;
+		ImGui::SetCursorPos(prevCursorPos);
+		if (asset != nullptr && ImGui::Button(ICON_MDI_MAGNIFY))
+		{
+			AssetBrowserWindow* assetBrowserWindow = imgui::ImGuiManager::GetInstance()->FindWindow<AssetBrowserWindow>();
+			if (assetBrowserWindow != nullptr)
+			{
+				assetBrowserWindow->PingAsset(*asset);
+			}
+		}
+		ImGui::SetCursorPos(cursorToRestore);
+
+		/*
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
 			assetList.clear();
@@ -84,6 +198,7 @@ namespace hod::editor
 				ImGui::EndTooltip();
 			}
 		}
+		*/
 		/*
 		ImGui::Image(asset->GetThumbnail(), ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
 		ImGui::SameLine();

@@ -133,6 +133,39 @@ namespace hod
 		return value_changed;
 	}
 
+	void PreserveAspectImage(ImTextureID image, ImVec2 imageSize, ImVec2 resizedSize)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return;
+
+		ImGuiContext& g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		ImVec2 pos = window->DC.CursorPos;
+		const ImGuiID id = window->GetID(image);
+
+		ImVec2 imageFinalSize = resizedSize;
+		float widthFactor = resizedSize.x / imageSize.x;
+		float heightFactor = resizedSize.y / imageSize.y;
+		if (widthFactor < heightFactor)
+		{
+			imageFinalSize.y = imageSize.y * widthFactor;
+		}
+		else
+		{
+			imageFinalSize.x = imageSize.x * heightFactor;
+		}
+
+		const ImRect bb(pos, pos + resizedSize);
+		ImGui::ItemSize(resizedSize, style.FramePadding.y);
+		if (!ImGui::ItemAdd(bb, id))
+			return;
+
+		ImGui::RenderFrameBorder(bb.Min, bb.Max, style.FrameRounding);
+		ImVec2 imageOffset = (resizedSize - imageFinalSize) * 0.5f;
+		window->DrawList->AddImage(image, bb.Min + style.FramePadding + imageOffset, bb.Min + style.FramePadding + imageOffset + imageFinalSize);
+	}
+
 	bool ImageTextButton(ImTextureID image, ImVec2 imageSize, ImVec2 resizedSize, const char* label, ImVec2 size_arg, ImGuiButtonFlags flags, ImDrawFlags drawFlags)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
