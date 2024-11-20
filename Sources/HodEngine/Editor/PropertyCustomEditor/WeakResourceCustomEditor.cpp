@@ -64,7 +64,7 @@ namespace hod::editor
 			{
 				if (ImGui::BeginTooltip())
 				{
-					ImVec2 size = ImVec2(128.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 128.0f);
+					ImVec2 size = ImVec2(256.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 256.0f);
 					ImGui::Image(asset->GetThumbnail(), size);
 					ImGui::EndTooltip();
 				}
@@ -90,6 +90,21 @@ namespace hod::editor
 		{
 			//clicked = ImageTextButton(nullptr, ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f), "None", ImVec2(-1, height + ImGui::GetStyle().FramePadding.y * 2));
 			PreserveAspectImage(nullptr, ImVec2(0.0f, 0.0f), ImVec2(height, height));
+			ImGui::SameLine();
+
+			prevCursorPos = ImGui::GetCursorPos();
+
+			ImGui::SetNextItemWidth(-1);
+			if (ImGui::BeginCombo("", "None", ImGuiComboFlags_HeightLarge))
+			{
+				if (clicked == false)
+				{
+					clicked = true;
+
+					assetList.clear();
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
+				}
+			}
 		}
 		ImGui::PopStyleVar();
 		ImGui::PopStyleColor(3);

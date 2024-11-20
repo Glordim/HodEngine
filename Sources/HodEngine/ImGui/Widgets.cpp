@@ -144,7 +144,7 @@ namespace hod
 		ImVec2 pos = window->DC.CursorPos;
 		const ImGuiID id = window->GetID(image);
 
-		ImVec2 imageFinalSize = resizedSize;
+		ImVec2 imageFinalSize = resizedSize - style.FramePadding * 2;
 		float widthFactor = resizedSize.x / imageSize.x;
 		float heightFactor = resizedSize.y / imageSize.y;
 		if (widthFactor < heightFactor)
@@ -163,7 +163,7 @@ namespace hod
 
 		ImGui::RenderFrameBorder(bb.Min, bb.Max, style.FrameRounding);
 		ImVec2 imageOffset = (resizedSize - imageFinalSize) * 0.5f;
-		window->DrawList->AddImage(image, bb.Min + style.FramePadding + imageOffset, bb.Min + style.FramePadding + imageOffset + imageFinalSize);
+		window->DrawList->AddImage(image, bb.Min + style.FramePadding + imageOffset, bb.Max - style.FramePadding - imageOffset);
 	}
 
 	bool ImageTextButton(ImTextureID image, ImVec2 imageSize, ImVec2 resizedSize, const char* label, ImVec2 size_arg, ImGuiButtonFlags flags, ImDrawFlags drawFlags)
