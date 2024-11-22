@@ -40,6 +40,7 @@
 #include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ImporterCustomEditor/TextureImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ImporterCustomEditor/SerializedDataImporterCustomEditor.hpp"
+#include "HodEngine/Editor/ImporterCustomEditor/MaterialImporterCustomEditor.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
 
@@ -106,6 +107,8 @@ namespace hod::editor
 		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		WeakResourceBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		TextureImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
+		SerializedDataImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
+		MaterialImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
 
 		game::Node2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
 		game::CameraComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
@@ -127,6 +130,7 @@ namespace hod::editor
 		WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 		SerializedDataImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
+		MaterialImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialImporterCustomEditor);
 
 		game::Node2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
 		game::CameraComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CameraComponentCustomEditor);

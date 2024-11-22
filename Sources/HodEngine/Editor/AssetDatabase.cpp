@@ -11,6 +11,7 @@
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
+#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -46,6 +47,7 @@ namespace hod::editor
 		RegisterImporter<SceneImporter>();
 		RegisterImporter<PrefabImporter>();
 		RegisterImporter<SerializedDataImporter>();
+		RegisterImporter<MaterialImporter>();
 	}
 
 	/// @brief 

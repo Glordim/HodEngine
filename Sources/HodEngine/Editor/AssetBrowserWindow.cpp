@@ -14,6 +14,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 
@@ -605,7 +606,7 @@ namespace hod::editor
 						}
 					}
 					if (ImGui::BeginMenu("Data") == true)
-					{						
+					{
 						for (const auto& pair : game::SerializedDataFactory::GetInstance()->GetAllDescriptors())
 						{
 							ImGui::PushID(pair.second);
@@ -628,6 +629,17 @@ namespace hod::editor
 							ImGui::PopID();
 						}
 						ImGui::EndMenu();
+					}
+					if (ImGui::MenuItem("Material") == true)
+					{
+						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<MaterialAsset, MaterialImporter>(_currentFolderTreeNode->_path / "Material.mat");
+						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+						if (newAssetNode != nullptr)
+						{
+							_itemToRename = newAssetNode;
+							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
+							ImGui::CloseCurrentPopup();
+						}
 					}
 					ImGui::EndMenu();
 				}

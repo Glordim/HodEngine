@@ -59,15 +59,22 @@ namespace hod::editor
 		if (asset != nullptr)
 		{
 			//clicked = ImageTextButton(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(height, height), asset->GetName().c_str(), ImVec2(-1, height + ImGui::GetStyle().FramePadding.y * 2));
-			PreserveAspectImage(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(height, height));
-			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+			if (asset->GetThumbnail() != nullptr)
 			{
-				if (ImGui::BeginTooltip())
+				PreserveAspectImage(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(height, height));
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 				{
-					ImVec2 size = ImVec2(256.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 256.0f);
-					ImGui::Image(asset->GetThumbnail(), size);
-					ImGui::EndTooltip();
+					if (ImGui::BeginTooltip())
+					{
+						ImVec2 size = ImVec2(256.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 256.0f);
+						ImGui::Image(asset->GetThumbnail(), size);
+						ImGui::EndTooltip();
+					}
 				}
+			}
+			else
+			{
+				PreserveAspectImage(nullptr, ImVec2(0.0f, 0.0f), ImVec2(height, height));
 			}
 
 			ImGui::SameLine();
