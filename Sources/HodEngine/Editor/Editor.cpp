@@ -72,6 +72,7 @@
 #include "Icons/landscape.png.h"
 #include "Icons/prefab.png.h"
 #include "Icons/SerializedData.png.h"
+#include "Icons/Shader.png.h"
 
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
@@ -99,6 +100,7 @@ namespace hod::editor
 		delete _sceneTexture;
 		delete _prefabTexture;
 		delete _serializedDataTexture;
+		delete _shaderTexture;
 		delete _checkerTexture;
 
 		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
@@ -163,6 +165,11 @@ namespace hod::editor
 
 		_serializedDataTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_serializedDataTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+
+		pixels = stbi_load_from_memory(Shader_png, Shader_png_size, &x, &y, &component, 0);
+
+		_shaderTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_shaderTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
 
 		static constexpr uint8_t primaryGrey = 71;
 		static constexpr uint8_t secondaryGrey = 102;

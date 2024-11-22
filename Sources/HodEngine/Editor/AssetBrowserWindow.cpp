@@ -705,6 +705,10 @@ namespace hod::editor
 				{
 					thumbnailTexture = Editor::GetInstance()->GetSerializedDataTexture();
 				}
+				else if (asset->GetMeta()._importerType == "ShaderImporter")
+				{
+					thumbnailTexture = Editor::GetInstance()->GetShaderTexture();
+				}
 				else
 				{
 					thumbnailTexture = Editor::GetInstance()->GetCheckerTexture();

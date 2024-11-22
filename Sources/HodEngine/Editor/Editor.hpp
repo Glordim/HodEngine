@@ -86,6 +86,7 @@ namespace hod::editor
 		renderer::Texture*						GetSceneTexture() const  { return _sceneTexture; }
 		renderer::Texture*						GetPrefabTexture() const  { return _prefabTexture; }
 		renderer::Texture*						GetSerializedDataTexture() const  { return _serializedDataTexture; }
+		renderer::Texture*						GetShaderTexture() const  { return _shaderTexture; }
 		renderer::Texture*						GetCheckerTexture() const  { return _checkerTexture; }
 
 	private:
@@ -111,6 +112,7 @@ namespace hod::editor
 		renderer::Texture*						_sceneTexture = nullptr;
 		renderer::Texture*						_prefabTexture = nullptr;
 		renderer::Texture*						_serializedDataTexture = nullptr;
+		renderer::Texture*						_shaderTexture = nullptr;
 		renderer::Texture*						_checkerTexture = nullptr;
 
 		Document								_playedWorldDocument;

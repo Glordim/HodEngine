@@ -7,6 +7,7 @@
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 #include "HodEngine/Editor/Importer/FontImporter.hpp"
+#include "HodEngine/Editor/Importer/ShaderImporter.hpp"
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
@@ -41,6 +42,7 @@ namespace hod::editor
 		
 		RegisterImporter<TextureImporter>();
 		RegisterImporter<FontImporter>();
+		RegisterImporter<ShaderImporter>();
 		RegisterImporter<SceneImporter>();
 		RegisterImporter<PrefabImporter>();
 		RegisterImporter<SerializedDataImporter>();
