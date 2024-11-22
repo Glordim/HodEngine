@@ -12,7 +12,7 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <HodEngine/Core/ResourceManager.hpp>
+#include <HodEngine/Core/Resource/ResourceManager.hpp>
 
 namespace hod::game
 {

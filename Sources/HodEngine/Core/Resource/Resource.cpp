@@ -1,5 +1,5 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Resource.hpp"
+#include "HodEngine/Core/Resource/Resource.hpp"
 
 namespace hod
 {

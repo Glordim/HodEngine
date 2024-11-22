@@ -59,7 +59,7 @@
 #include <HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
 
-#include "HodEngine/Game/WeakResource.hpp"
+#include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
@@ -104,7 +104,7 @@ namespace hod::editor
 		delete _checkerTexture;
 
 		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		game::WeakResourceBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		WeakResourceBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		TextureImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
 
 		game::Node2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
@@ -124,7 +124,7 @@ namespace hod::editor
 		game::World::GetInstance()->DisableDrawJob();
 
 		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
-		game::WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
+		WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 		SerializedDataImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
 

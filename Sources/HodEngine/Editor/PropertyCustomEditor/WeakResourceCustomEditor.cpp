@@ -8,7 +8,7 @@
 #include "HodEngine/ImGui/Helper.hpp"
 #include "HodEngine/ImGui/Widgets.hpp"
 
-#include "HodEngine/Game/WeakResource.hpp"
+#include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
@@ -36,7 +36,7 @@ namespace hod::editor
 
 		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
 
-		game::WeakResourceBase* value = static_cast<game::WeakResourceBase*>(reflectedObject.GetInstance());
+		WeakResourceBase* value = static_cast<WeakResourceBase*>(reflectedObject.GetInstance());
 
 		ImGui::PushID(value);
 

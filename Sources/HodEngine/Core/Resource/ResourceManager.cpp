@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/ResourceManager.hpp"
+#include "HodEngine/Core/Resource/ResourceManager.hpp"
 
-#include "HodEngine/Core/Resource.hpp"
+#include "HodEngine/Core/Resource/Resource.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"

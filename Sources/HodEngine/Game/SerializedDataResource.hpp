@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Resource.hpp>
+#include <HodEngine/Core/Resource/Resource.hpp>
 #include "HodEngine/Game/SerializedData.hpp"
 
 namespace hod::game

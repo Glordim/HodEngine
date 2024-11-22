@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
-#include "HodEngine/Game/WeakResource.hpp"
+#include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Sprite.hpp"
 
 namespace hod

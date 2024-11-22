@@ -20,7 +20,7 @@
 #include <HodEngine/Core/Rect.hpp>
 #include <HodEngine/Core/Math/Vector4.hpp>
 #include <HodEngine/Core/Color.hpp>
-#include <HodEngine/Core/ResourceManager.hpp>
+#include <HodEngine/Core/Resource/ResourceManager.hpp>
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"

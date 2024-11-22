@@ -9,7 +9,7 @@
 
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
-#include "HodEngine/Core/ResourceManager.hpp"
+#include "HodEngine/Core/Resource/ResourceManager.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
 
 namespace hod::editor

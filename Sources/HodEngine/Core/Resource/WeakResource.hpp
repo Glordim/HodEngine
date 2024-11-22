@@ -8,12 +8,9 @@
 namespace hod
 {
     class Resource;
-}
 
-namespace hod::game
-{
     /// @brief 
-    class HOD_GAME_API WeakResourceBase
+    class HOD_CORE_API WeakResourceBase
     {
         REFLECTED_CLASS_NO_PARENT(WeakResourceBase)
 

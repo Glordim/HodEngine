@@ -4,7 +4,6 @@
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Core/UID.hpp"
 #include "HodEngine/Core/Rect.hpp"
-#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 namespace hod::editor
 {

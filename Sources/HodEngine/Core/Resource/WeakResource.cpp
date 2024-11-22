@@ -1,12 +1,12 @@
-#include "HodEngine/Game/Pch.hpp"
-#include "WeakResource.hpp"
+#include "HodEngine/Core/Pch.hpp"
+#include "HodEngine/Core/Resource/WeakResource.hpp"
 
-#include "HodEngine/Core/Resource.hpp"
-#include "HodEngine/Core/ResourceManager.hpp"
+#include "HodEngine/Core/Resource/Resource.hpp"
+#include "HodEngine/Core/Resource/ResourceManager.hpp"
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp>
 
-namespace hod::game
+namespace hod
 {
     DESCRIBE_REFLECTED_CLASS(WeakResourceBase, reflectionDescriptor)
     {

@@ -29,7 +29,7 @@
 #include "HodEngine/Physics/Physics.hpp"
 
 #include "HodEngine/Core/Time/SystemTime.hpp"
-#include "HodEngine/Core/ResourceManager.hpp"
+#include "HodEngine/Core/Resource/ResourceManager.hpp"
 
 #include "HodEngine/Window/Window.hpp"
 

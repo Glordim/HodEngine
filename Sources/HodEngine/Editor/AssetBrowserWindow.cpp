@@ -29,7 +29,7 @@
 #include "HodEngine/Game/SerializedDataFactory.hpp"
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
-#include <HodEngine/Core/ResourceManager.hpp>
+#include <HodEngine/Core/Resource/ResourceManager.hpp>
 
 #include <cmath>
 
