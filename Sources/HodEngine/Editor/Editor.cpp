@@ -41,6 +41,7 @@
 #include "HodEngine/Editor/ImporterCustomEditor/TextureImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ImporterCustomEditor/SerializedDataImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ImporterCustomEditor/MaterialImporterCustomEditor.hpp"
+#include "HodEngine/Editor/ImporterCustomEditor/MaterialInstanceImporterCustomEditor.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
 
@@ -109,6 +110,7 @@ namespace hod::editor
 		TextureImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
 		SerializedDataImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
 		MaterialImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
+		MaterialInstanceImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
 
 		game::Node2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
 		game::CameraComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
@@ -131,6 +133,7 @@ namespace hod::editor
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 		SerializedDataImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
 		MaterialImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialImporterCustomEditor);
+		MaterialInstanceImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialInstanceImporterCustomEditor);
 
 		game::Node2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
 		game::CameraComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CameraComponentCustomEditor);
