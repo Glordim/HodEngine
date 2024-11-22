@@ -4,6 +4,7 @@
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
+#include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include <HodEngine/Core/Rect.hpp>
 
 namespace hod::renderer
@@ -29,11 +30,11 @@ namespace hod::game
 		TextureRendererComponent&		operator=(TextureRendererComponent&&) = delete;
 
 	public:
-	
-		void							OnConstruct() override;
 
 		renderer::MaterialInstance*		GetMaterialInstance() const;
 		void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
+
+		void							SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& materialInstance);
 
 		void							SetTexture(const WeakResource<renderer::TextureResource>& texture);
 
@@ -43,9 +44,15 @@ namespace hod::game
 
 	private:
 
-		WeakResource<renderer::TextureResource>	_texture;
-		float									_pixelPerUnit = 100.0f;
+		void							RefreshMaterialInstance();
+
+	private:
+
+		WeakResource<renderer::TextureResource>				_texture;
+		WeakResource<renderer::MaterialInstanceResource>	_material;
+		float												_pixelPerUnit = 100.0f;
 		
-		renderer::MaterialInstance*				_materialInstance = nullptr;
+		renderer::MaterialInstance*							_materialInstance = nullptr;
+		renderer::MaterialInstance*							_builtinMaterialInstance = nullptr;
 	};
 }

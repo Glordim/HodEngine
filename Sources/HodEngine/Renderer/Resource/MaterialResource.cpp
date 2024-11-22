@@ -1,6 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
@@ -36,8 +37,9 @@ namespace hod::renderer
 			return false;
 		}
 
-		const VertexInput* vertexInputs = nullptr;
-		uint32_t vertexInputCount = 0;
+		std::vector<VertexInput> vertexInputs;
+		vertexInputs.push_back(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
+		vertexInputs.push_back(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
 
 		std::shared_ptr<ShaderResource> vertexShaderResource = _vertexShader.Lock();
 		if (vertexShaderResource == nullptr)
@@ -61,7 +63,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		_material = Renderer::GetInstance()->CreateMaterial(vertexInputs, vertexInputCount,vertexShader, fragmentShader, _polygonMode, _topololy, false);
+		_material = Renderer::GetInstance()->CreateMaterial(vertexInputs.data(), vertexInputs.size(), vertexShader, fragmentShader, _polygonMode, _topololy, false);
 		if (_material == nullptr)
 		{
 			return false;

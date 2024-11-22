@@ -20,9 +20,8 @@ namespace hod::game
 	DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, reflectionDescriptor)
 	{
 		AddPropertyT(&reflectionDescriptor, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
+		AddPropertyT(&reflectionDescriptor, &TextureRendererComponent::_material, "_material", &TextureRendererComponent::SetMaterialInstanceResource);
 		AddPropertyT(&reflectionDescriptor, &TextureRendererComponent::_pixelPerUnit, "_pixelPerUnit");
-		//ADD_PROPERTY(TextureRendererComponent, _textureResource);
-		//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 	}
 
 	TextureRendererComponent::TextureRendererComponent()
@@ -37,12 +36,6 @@ namespace hod::game
 	TextureRendererComponent::~TextureRendererComponent()
 	{
 		delete _materialInstance;
-	}
-
-	/// @brief 
-	void TextureRendererComponent::OnConstruct()
-	{
-		SetTexture(_texture);
 	}
 
 	/*
@@ -64,6 +57,23 @@ namespace hod::game
 		return _sprite;
 	}
 	*/
+
+	/// @brief 
+	/// @param materialInstance 
+	void TextureRendererComponent::SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& weakMaterialInstanceResource)
+	{
+		_material = weakMaterialInstanceResource;
+		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		if (materialInstanceResource != nullptr)
+		{
+			_materialInstance = materialInstanceResource->GetMaterialInstance();
+			RefreshMaterialInstance();
+		}
+		else
+		{
+			_materialInstance = nullptr;
+		}
+	}
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
@@ -112,6 +122,14 @@ namespace hod::game
 					Vector2(0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
 					Vector2(-0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
 				};
+
+				if (_materialInstance == nullptr)
+				{
+					const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+					_builtinMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+					_materialInstance = _builtinMaterialInstance;
+					RefreshMaterialInstance();
+				}
 				
 				renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), _uvs.data(), nullptr, (uint32_t)vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetId()));
 			}
@@ -123,14 +141,23 @@ namespace hod::game
 	void TextureRendererComponent::SetTexture(const WeakResource<renderer::TextureResource>& texture)
 	{
 		_texture = texture;
-		std::shared_ptr<renderer::TextureResource> textureResourceLock = _texture.Lock();
-		if (textureResourceLock != nullptr)
+		RefreshMaterialInstance();
+	}
+
+	/// @brief 
+	void TextureRendererComponent::RefreshMaterialInstance()
+	{
+		if (_materialInstance != nullptr)
 		{
-			_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
-		}
-		else
-		{
-			_materialInstance->SetTexture("image", nullptr);
+			std::shared_ptr<renderer::TextureResource> textureResourceLock = _texture.Lock();
+			if (textureResourceLock != nullptr)
+			{
+				_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
+			}
+			else
+			{
+				_materialInstance->SetTexture("image", nullptr);
+			}
 		}
 	}
 

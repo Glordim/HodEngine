@@ -64,18 +64,15 @@ namespace hod::editor
 		DocumentWriterJson documentWriter;
 		if (documentWriter.Write(document, documentStringStream) == false)
 		{
-			// TODO message
-			return false;
-		}
-		if (documentWriter.Write(document, resource) == false)
-		{
-			// TODO message
 			return false;
 		}
 
-		if (resource.fail())
+		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
+		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
+
+		// todo use documentStringStream ?
+		if (documentWriter.Write(document, resource) == false)
 		{
-			// TODO message
 			return false;
 		}
 

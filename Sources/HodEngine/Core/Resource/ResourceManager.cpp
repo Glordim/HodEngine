@@ -6,6 +6,8 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
+#include "HodEngine/Core/Output/OutputService.hpp"
+
 #include <fstream>
 #include <cstring>
 
@@ -46,7 +48,8 @@ namespace hod
 		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
 		if (fileHandle.IsOpen() == false)
 		{
-			return false; // todo message
+			OUTPUT_ERROR("ResourceManager::Load: resource {} not found", uid.ToString());
+			return false;
 		}
 
 		constexpr size_t signatureLen = 11; // HodResource
