@@ -44,6 +44,27 @@ namespace hod::editor
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
 
+		if (ImGui::CollapsingHeader("Params", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			std::shared_ptr<renderer::MaterialResource> materialResource = _materialInstanceAsset._material.Lock();
+			if (materialResource != nullptr)
+			{
+				renderer::Material* material = materialResource->GetMaterial();
+				if (material != nullptr)
+				{
+					renderer::Shader* fragmentShader = material->GetFragmentShader();
+					if (fragmentShader != nullptr)
+					{
+						const std::vector<renderer::Shader::Param>& params = fragmentShader->GetParams();
+						for (const renderer::Shader::Param& param : params)
+						{
+							// todo
+						}
+					}
+				}
+			}
+		}
+
 		ImGui::BeginDisabled(_asset->IsDirty() == false);
 		if (ImGui::Button("Apply"))
 		{
