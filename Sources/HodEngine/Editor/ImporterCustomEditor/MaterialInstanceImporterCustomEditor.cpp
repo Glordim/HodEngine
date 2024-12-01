@@ -17,6 +17,7 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/Resource/ResourceManager.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
+#include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"
 
 namespace hod::editor
 {
@@ -31,6 +32,27 @@ namespace hod::editor
 		reader.Read(document, asset->GetPath());
 
 		Serializer::Deserialize(_materialInstanceAsset, document.GetRootNode());
+	}
+
+	/// @brief 
+	/// @param member 
+	/// @return 
+	bool DrawUboMember(const renderer::ShaderSetDescriptor::BlockUbo::Member& member)
+	{
+		bool changed = false;
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(member._name.c_str());
+		ImGui::Indent();
+		{
+			for (const auto& childPair : member._childsMap)
+			{
+				changed |= DrawUboMember(childPair.second);
+			}
+		}
+		ImGui::Unindent();
+
+		return changed;
 	}
 
 	/// @brief 
@@ -52,13 +74,29 @@ namespace hod::editor
 				renderer::Material* material = materialResource->GetMaterial();
 				if (material != nullptr)
 				{
-					renderer::Shader* fragmentShader = material->GetFragmentShader();
-					if (fragmentShader != nullptr)
+					const std::unordered_map<uint32_t, renderer::ShaderSetDescriptor*> setDescriptors = material->GetSetDescriptors();
+					for (const auto& pair : setDescriptors)
 					{
-						const std::vector<renderer::Shader::Param>& params = fragmentShader->GetParams();
-						for (const renderer::Shader::Param& param : params)
+						for (const renderer::ShaderSetDescriptor::BlockUbo& ubo : pair.second->GetUboBlocks())
 						{
-							// todo
+							ImGui::AlignTextToFramePadding();
+							ImGui::TextUnformatted(ubo._name.c_str());
+							ImGui::Indent();
+							{
+								for (const auto& childPair : ubo._rootMember._childsMap)
+								{
+									changed |= DrawUboMember(childPair.second);
+								}
+							}
+							ImGui::Unindent();
+						}
+
+						for (const renderer::ShaderSetDescriptor::BlockTexture& texture : pair.second->GetTextureBlocks())
+						{
+							if (texture._type == renderer::ShaderSetDescriptor::BlockTexture::Type::Texture)
+							{
+								//WeakResourceCustomEditor
+							}
 						}
 					}
 				}

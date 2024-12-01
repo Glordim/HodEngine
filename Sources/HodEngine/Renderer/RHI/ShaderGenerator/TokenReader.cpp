@@ -212,6 +212,22 @@ namespace hod::renderer
 				token._type = Token::GreaterThan;
 				tokens.push_back(token);
 			}
+			else if (c == '|')
+			{
+				stream.ignore();
+
+				Token token;
+				token._type = Token::LogicalOr;
+				tokens.push_back(token);
+			}
+			else if (c == '&')
+			{
+				stream.ignore();
+				
+				Token token;
+				token._type = Token::LogicalAnd;
+				tokens.push_back(token);
+			}
 			else if (c == '\0' || c == EOF)
 			{
 				stream.ignore();
