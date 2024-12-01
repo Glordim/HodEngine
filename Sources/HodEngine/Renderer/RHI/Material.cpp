@@ -36,6 +36,11 @@ namespace hod
 
 			*/
 			delete _defaultInstance;
+
+			for (const auto& pair : _setDescriptors)
+			{
+				delete pair.second;
+			}
 		}
 
 		/// @brief 
@@ -50,6 +55,11 @@ namespace hod
 		const MaterialInstance*	Material::GetDefaultInstance() const
 		{
 			return _defaultInstance;
+		}
+
+		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& Material::GetSetDescriptors() const
+		{
+			return _setDescriptors;
 		}
 
 		//-----------------------------------------------------------------------------

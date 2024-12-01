@@ -1,6 +1,6 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/DescriptorSet.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/DescriptorSetLayout.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.hpp"
@@ -11,277 +11,274 @@
 
 #include <cstring>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	DescriptorSet::DescriptorSet()
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		DescriptorSet::DescriptorSet()
+		_descriptorSetLayout = nullptr;
+		_descriptorSet = VK_NULL_HANDLE;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	DescriptorSet::~DescriptorSet()
+	{
+		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+		size_t uboCount = _uboBuffers.size();
+		for (size_t i = 0; i < uboCount; ++i)
 		{
-			_descriptorSetLayout = nullptr;
-			_descriptorSet = VK_NULL_HANDLE;
+			delete _uboBuffers[i];
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		DescriptorSet::~DescriptorSet()
+		if (_descriptorSet != VK_NULL_HANDLE)
 		{
-			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+			vkFreeDescriptorSets(renderer->GetVkDevice(), renderer->GetDescriptorPool(), 1, &_descriptorSet);
+		}
+	}
 
-			size_t uboCount = _uboBuffers.size();
-			for (size_t i = 0; i < uboCount; ++i)
-			{
-				delete _uboBuffers[i];
-			}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	bool DescriptorSet::SetLayout(const ShaderSetDescriptorVk* layout)
+	{
+		_descriptorSetLayout = layout;
 
-			if (_descriptorSet != VK_NULL_HANDLE)
-			{
-				vkFreeDescriptorSets(renderer->GetVkDevice(), renderer->GetDescriptorPool(), 1, &_descriptorSet);
-			}
+		VkDescriptorSetLayout vkLayout = _descriptorSetLayout->GetDescriptorSetLayout();
+
+		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = renderer->GetDescriptorPool();
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &vkLayout;
+
+		if (vkAllocateDescriptorSets(renderer->GetVkDevice(), &allocInfo, &_descriptorSet) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to allocate descriptor sets!");
+			return false;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool DescriptorSet::SetLayout(const DescriptorSetLayout* layout)
+		const std::vector<ShaderSetDescriptorVk::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
+		size_t uboCount = ubos.size();
+
+		for (BufferVk* buffer : _uboBuffers)
 		{
-			_descriptorSetLayout = layout;
+			delete buffer;
+		}
 
-			VkDescriptorSetLayout vkLayout = _descriptorSetLayout->GetDescriptorSetLayout();
+		_uboBuffers.resize(uboCount, nullptr);
 
-			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+		for (size_t i = 0; i < uboCount; ++i)
+		{
+			const ShaderSetDescriptorVk::BlockUbo& ubo = ubos[i];
 
-			VkDescriptorSetAllocateInfo allocInfo = {};
-			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-			allocInfo.descriptorPool = renderer->GetDescriptorPool();
-			allocInfo.descriptorSetCount = 1;
-			allocInfo.pSetLayouts = &vkLayout;
+			uint32_t size = static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count);
 
-			if (vkAllocateDescriptorSets(renderer->GetVkDevice(), &allocInfo, &_descriptorSet) != VK_SUCCESS)
+			_uboBuffers[i] = static_cast<BufferVk*>(Renderer::GetInstance()->CreateBuffer(Buffer::Usage::Uniform, size));
+			if (_uboBuffers[i] == nullptr)
 			{
-				OUTPUT_ERROR("Vulkan: Unable to allocate descriptor sets!");
 				return false;
 			}
-
-			const std::vector<DescriptorSetLayout::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
-			size_t uboCount = ubos.size();
-
-			for (BufferVk* buffer : _uboBuffers)
+			/* TODO CreateBuffer now take the size, check error
+			if (_uboBuffers[i]->Resize(static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count)) == false)
 			{
-				delete buffer;
+				return false;
 			}
-
-			_uboBuffers.resize(uboCount, nullptr);
-
-			for (size_t i = 0; i < uboCount; ++i)
-			{
-				const DescriptorSetLayout::BlockUbo& ubo = ubos[i];
-
-				uint32_t size = static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count);
-
-				_uboBuffers[i] = static_cast<BufferVk*>(Renderer::GetInstance()->CreateBuffer(Buffer::Usage::Uniform, size));
-				if (_uboBuffers[i] == nullptr)
-				{
-					return false;
-				}
-				/* TODO CreateBuffer now take the size, check error
-				if (_uboBuffers[i]->Resize(static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count)) == false)
-				{
-					return false;
-				}
-				*/
-			}
-
-			return true;
+			*/
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		const DescriptorSetLayout* DescriptorSet::GetLayout() const
+		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	const ShaderSetDescriptorVk* DescriptorSet::GetLayout() const
+	{
+		return _descriptorSetLayout;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	VkDescriptorSet DescriptorSet::GetDescriptorSet() const
+	{
+		return _descriptorSet;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void DescriptorSet::SetUboValue(const std::string& memberName, const void* value, size_t valueSize)
+	{
+		std::string varIdentifier;
+		std::string target;
+
+		size_t len = memberName.find_first_of(".[");
+		if (len == std::string::npos)
 		{
-			return _descriptorSetLayout;
+			target = memberName;
+			varIdentifier = "";
+		}
+		else
+		{
+			target = memberName.substr(0, len);
+			varIdentifier = memberName.substr(len);
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		VkDescriptorSet DescriptorSet::GetDescriptorSet() const
+		const std::vector<ShaderSetDescriptorVk::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
+		size_t uboCount = ubos.size();
+
+		for (size_t i = 0; i < uboCount; ++i)
 		{
-			return _descriptorSet;
-		}
+			const ShaderSetDescriptorVk::BlockUbo& ubo = ubos[i];
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void DescriptorSet::SetUboValue(const std::string& memberName, const void* value, size_t valueSize)
-		{
-			std::string varIdentifier;
-			std::string target;
-
-			size_t len = memberName.find_first_of(".[");
-			if (len == std::string::npos)
+			if (ubo._name == target)
 			{
-				target = memberName;
-				varIdentifier = "";
-			}
-			else
-			{
-				target = memberName.substr(0, len);
-				varIdentifier = memberName.substr(len);
-			}
+				size_t offset = 0;
+				const ShaderSetDescriptorVk::BlockUbo::Member* member = &ubo._rootMember;
 
-			const std::vector<DescriptorSetLayout::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
-			size_t uboCount = ubos.size();
-
-			for (size_t i = 0; i < uboCount; ++i)
-			{
-				const DescriptorSetLayout::BlockUbo& ubo = ubos[i];
-
-				if (ubo._name == target)
+				while (varIdentifier.empty() == false)
 				{
-					size_t offset = 0;
-					const DescriptorSetLayout::BlockUbo::Member* member = &ubo._rootMember;
-
-					while (varIdentifier.empty() == false)
+					if (varIdentifier[0] == '.')
 					{
-						if (varIdentifier[0] == '.')
+						std::string subMemberName;
+
+						size_t len = varIdentifier.find_first_of(".[", 1);
+
+						if (len == std::string::npos)
 						{
-							std::string subMemberName;
-
-							size_t len = varIdentifier.find_first_of(".[", 1);
-
-							if (len == std::string::npos)
-							{
-								subMemberName = varIdentifier.substr(1);
-								varIdentifier = "";
-							}
-							else
-							{
-								subMemberName = varIdentifier.substr(1, len - 1);
-								varIdentifier = varIdentifier.substr(len);
-							}
-
-							auto it = member->_childsMap.find(subMemberName);
-
-							member = &it->second;
-
-							offset += member->_offset;
+							subMemberName = varIdentifier.substr(1);
+							varIdentifier = "";
 						}
-						else if (varIdentifier[0] == '[')
+						else
 						{
-							size_t len = varIdentifier.find_first_of("]", 1);
-
-							std::string indexStr = varIdentifier.substr(1, len - 1);
-							int index = std::atoi(indexStr.c_str());
-
-							offset += member->_size * index;
-
-							varIdentifier = varIdentifier.substr(len + 1);
+							subMemberName = varIdentifier.substr(1, len - 1);
+							varIdentifier = varIdentifier.substr(len);
 						}
-					}
 
-					if (member->_size != valueSize)
+						auto it = member->_childsMap.find(subMemberName);
+
+						member = &it->second;
+
+						offset += member->_offset;
+					}
+					else if (varIdentifier[0] == '[')
 					{
-						OUTPUT_ERROR("SetUboValue: member->size != valueSize !");
+						size_t len = varIdentifier.find_first_of("]", 1);
+
+						std::string indexStr = varIdentifier.substr(1, len - 1);
+						int index = std::atoi(indexStr.c_str());
+
+						offset += member->_size * index;
+
+						varIdentifier = varIdentifier.substr(len + 1);
 					}
-
-					RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-					void* data = _uboBuffers[i]->Lock();
-					if (data != nullptr)
-					{
-						memcpy(((char*)data) + offset, value, valueSize);
-						_uboBuffers[i]->Unlock();
-					}
-
-					VkDescriptorBufferInfo bufferInfo = {};
-					bufferInfo.buffer = _uboBuffers[i]->GetVkBuffer();
-					bufferInfo.offset = 0;
-					bufferInfo.range = ubo._rootMember._size * ubo._rootMember._count;
-
-					VkWriteDescriptorSet descriptorWrite = {};
-					descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-					descriptorWrite.dstSet = _descriptorSet;
-					descriptorWrite.dstBinding = ubo._binding;
-					descriptorWrite.dstArrayElement = 0;
-					descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-					descriptorWrite.descriptorCount = 1;
-					descriptorWrite.pBufferInfo = &bufferInfo;
-					descriptorWrite.pImageInfo = nullptr;
-					descriptorWrite.pTexelBufferView = nullptr;
-					descriptorWrite.pNext = nullptr;
-
-					vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
 				}
-			}
-		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void DescriptorSet::SetTexture(const std::string& name, const VkTexture* textureSampler)
-		{
-			const std::vector<DescriptorSetLayout::BlockTexture>& textures = _descriptorSetLayout->GetTextureBlocks();
-			size_t textureCount = textures.size();
-
-			bool founded = false;
-			for (size_t i = 0; i < textureCount; ++i)
-			{
-				const DescriptorSetLayout::BlockTexture& texture = textures[i];
-
-				if (texture._name == name)
+				if (member->_size != valueSize)
 				{
-					founded = true;
-					break;
+					OUTPUT_ERROR("SetUboValue: member->size != valueSize !");
 				}
-			}
-
-			if (founded == false)
-			{
-				return;
-			}
-
-			for (size_t i = 0; i < textureCount; ++i)
-			{
-				const DescriptorSetLayout::BlockTexture& texture = textures[i];
 
 				RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-				VkDescriptorImageInfo imageInfo = {};
-				if (texture._type == VK_DESCRIPTOR_TYPE_SAMPLER)
+				void* data = _uboBuffers[i]->Lock();
+				if (data != nullptr)
 				{
-					imageInfo.sampler = textureSampler->GetTextureSampler();
+					memcpy(((char*)data) + offset, value, valueSize);
+					_uboBuffers[i]->Unlock();
 				}
-				else if (texture._type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE)
-				{
-					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					imageInfo.imageView = textureSampler->GetTextureImageView();
-				}
-				else
-				{
-					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					imageInfo.imageView = textureSampler->GetTextureImageView();
-					imageInfo.sampler = textureSampler->GetTextureSampler();
-				}
+
+				VkDescriptorBufferInfo bufferInfo = {};
+				bufferInfo.buffer = _uboBuffers[i]->GetVkBuffer();
+				bufferInfo.offset = 0;
+				bufferInfo.range = ubo._rootMember._size * ubo._rootMember._count;
 
 				VkWriteDescriptorSet descriptorWrite = {};
 				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 				descriptorWrite.dstSet = _descriptorSet;
-				descriptorWrite.dstBinding = texture._binding;
+				descriptorWrite.dstBinding = ubo._binding;
 				descriptorWrite.dstArrayElement = 0;
-				descriptorWrite.descriptorType = texture._type;
+				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				descriptorWrite.descriptorCount = 1;
-				descriptorWrite.pBufferInfo = nullptr;
-				descriptorWrite.pImageInfo = &imageInfo;
+				descriptorWrite.pBufferInfo = &bufferInfo;
+				descriptorWrite.pImageInfo = nullptr;
 				descriptorWrite.pTexelBufferView = nullptr;
 				descriptorWrite.pNext = nullptr;
 
 				vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
 			}
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void DescriptorSet::SetTexture(const std::string& name, const VkTexture* textureSampler)
+	{
+		const std::vector<ShaderSetDescriptorVk::BlockTexture>& textures = _descriptorSetLayout->GetTextureBlocks();
+		size_t textureCount = textures.size();
+
+		bool founded = false;
+		for (size_t i = 0; i < textureCount; ++i)
+		{
+			const ShaderSetDescriptorVk::BlockTexture& texture = textures[i];
+
+			if (texture._name == name)
+			{
+				founded = true;
+				break;
+			}
+		}
+
+		if (founded == false)
+		{
+			return;
+		}
+
+		for (size_t i = 0; i < textureCount; ++i)
+		{
+			const ShaderSetDescriptorVk::BlockTexture& texture = textures[i];
+
+			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+			VkDescriptorImageInfo imageInfo = {};
+			if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Sampler)
+			{
+				imageInfo.sampler = textureSampler->GetTextureSampler();
+			}
+			else if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Texture)
+			{
+				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageInfo.imageView = textureSampler->GetTextureImageView();
+			}
+			else
+			{
+				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageInfo.imageView = textureSampler->GetTextureImageView();
+				imageInfo.sampler = textureSampler->GetTextureSampler();
+			}
+
+			VkWriteDescriptorSet descriptorWrite = {};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = _descriptorSet;
+			descriptorWrite.dstBinding = texture._binding;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = ShaderSetDescriptorVk::TextureTypeToVkDescriptorType(texture._type);
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pBufferInfo = nullptr;
+			descriptorWrite.pImageInfo = &imageInfo;
+			descriptorWrite.pTexelBufferView = nullptr;
+			descriptorWrite.pNext = nullptr;
+
+			vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
 		}
 	}
 }

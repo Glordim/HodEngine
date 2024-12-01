@@ -7,8 +7,6 @@
 
 #include "HodEngine/Renderer/RHI/Vulkan/VkGpuDevice.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/DescriptorSetLayout.hpp"
-
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
 #include "HodEngine/Renderer/Enums.hpp"

@@ -6,39 +6,34 @@
 #include <vector>
 #include <string>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	class ShaderSetDescriptorVk;
+	class VkTexture;
+	class BufferVk;
+
+	/// @brief 
+	class HOD_RENDERER_API DescriptorSet
 	{
-		class DescriptorSetLayout;
-		class VkTexture;
-		class BufferVk;
+	public:
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API DescriptorSet
-		{
-		public:
+									DescriptorSet();
+		virtual						~DescriptorSet();
 
-										DescriptorSet();
-			virtual						~DescriptorSet();
+		bool							SetLayout(const ShaderSetDescriptorVk* layout);
+		const ShaderSetDescriptorVk*	GetLayout() const;
 
-			bool						SetLayout(const DescriptorSetLayout* layout);
-			const DescriptorSetLayout*	GetLayout() const;
+		VkDescriptorSet				GetDescriptorSet() const;
 
-			VkDescriptorSet				GetDescriptorSet() const;
+		void						SetUboValue(const std::string& memberName, const void* value, size_t valueSize);
+		void						SetTexture(const std::string& name, const VkTexture* textureSampler);
 
-			void						SetUboValue(const std::string& memberName, const void* value, size_t valueSize);
-			void						SetTexture(const std::string& name, const VkTexture* textureSampler);
+	private:
 
-		private:
+		const ShaderSetDescriptorVk*	_descriptorSetLayout;
 
-			const DescriptorSetLayout*	_descriptorSetLayout;
+		VkDescriptorSet				_descriptorSet;
 
-			VkDescriptorSet				_descriptorSet;
-
-			std::vector<BufferVk*>		_uboBuffers;
-		};
-	}
+		std::vector<BufferVk*>		_uboBuffers;
+	};
 }

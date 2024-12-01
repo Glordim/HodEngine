@@ -8,35 +8,30 @@
 
 #include <vulkan/vulkan.h>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	class VkMaterial;
+
+	/// @brief 
+	class HOD_RENDERER_API VkMaterialInstance : public MaterialInstance
 	{
-		class VkMaterial;
+	public:
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API VkMaterialInstance : public MaterialInstance
-		{
-		public:
+										VkMaterialInstance(const Material& material);
+										~VkMaterialInstance() override;
 
-											VkMaterialInstance(const Material& material);
-											~VkMaterialInstance() override;
+		std::vector<VkDescriptorSet>	GetDescriptorSets(uint32_t setOffset, uint32_t setCount) const;
 
-			std::vector<VkDescriptorSet>	GetDescriptorSets(uint32_t setOffset, uint32_t setCount) const;
+	protected:
 
-		protected:
+		void							ApplyInt(const std::string& memberName, int value) override;
+		void							ApplyFloat(const std::string& memberName, float value) override;
+		void							ApplyVec4(const std::string& memberName, const Vector4& value) override;
+		void							ApplyMat4(const std::string& memberName, const Matrix4& value) override;
+		void							ApplyTexture(const std::string& name, const Texture& value) override;
 
-			void							ApplyInt(const std::string& memberName, int value) override;
-			void							ApplyFloat(const std::string& memberName, float value) override;
-			void							ApplyVec4(const std::string& memberName, const Vector4& value) override;
-			void							ApplyMat4(const std::string& memberName, const Matrix4& value) override;
-			void							ApplyTexture(const std::string& name, const Texture& value) override;
+	private:
 
-		private:
-
-			std::vector<DescriptorSet>		_descriptorSets;
-		};
-	}
+		std::vector<DescriptorSet>		_descriptorSets;
+	};
 }

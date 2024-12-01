@@ -5,45 +5,52 @@
 #include <vector>
 #include <cstdint>
 
-namespace hod
+#include <unordered_map>
+
+namespace hod::renderer
 {
-	class Stream;
+	class ShaderSetDescriptor;
+	class ShaderConstantDescriptor;
 
-	namespace renderer
+	/// @brief 
+	class HOD_RENDERER_API Shader
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API Shader
+	public:
+
+		enum ShaderType
 		{
-		public:
-
-			enum ShaderType
-			{
-				Vertex,
-				Geometry,
-				Fragment,
-				Compute
-			};
-
-		public:
-											Shader(ShaderType type);
-			virtual							~Shader();
-
-			const std::vector<uint8_t>&		GetShaderBytecode() const;
-            
-            ShaderType                      GetShaderType() const;
-
-			virtual bool					LoadFromIR(const void* data, uint32_t size) = 0;
-			virtual bool					LoadFromSource(std::string_view source) = 0;
-
-		protected:
-
-			std::vector<uint8_t>			_buffer;
-
-		private:
-
-			ShaderType						_type;
+			Vertex,
+			Geometry,
+			Fragment,
+			Compute
 		};
-	}
+
+	public:
+										Shader(ShaderType type);
+		virtual							~Shader();
+
+		const std::vector<uint8_t>&		GetShaderBytecode() const;
+		
+		ShaderType						GetShaderType() const;
+
+		virtual bool					LoadFromIR(const void* data, uint32_t size) = 0;
+		virtual bool					LoadFromSource(std::string_view source) = 0;
+
+		const ShaderConstantDescriptor*								GetConstantDescriptor() const;
+		const std::unordered_map<uint32_t, ShaderSetDescriptor*>&	GetSetDescriptors() const;
+
+	protected:
+
+		virtual bool					GenerateDescriptors() = 0;
+
+	protected:
+
+		std::vector<uint8_t>								_buffer;
+		ShaderConstantDescriptor* 							_constantDescriptor;
+		std::unordered_map<uint32_t, ShaderSetDescriptor*>	_setDescriptors;
+
+	private:
+
+		ShaderType						_type;
+	};
 }

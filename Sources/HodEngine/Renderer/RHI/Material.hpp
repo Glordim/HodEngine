@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <cstdint>
+#include <unordered_map>
 
 namespace hod
 {
@@ -13,6 +14,7 @@ namespace hod
 		class Texture;
 		class VertexInput;
 		class MaterialInstance;
+		class ShaderSetDescriptor;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -47,6 +49,12 @@ namespace hod
 
 			void					CreateDefaultInstance();
 			const MaterialInstance*	GetDefaultInstance() const;
+
+			const std::unordered_map<uint32_t, ShaderSetDescriptor*>&	GetSetDescriptors() const;
+
+		protected:
+
+			std::unordered_map<uint32_t, ShaderSetDescriptor*>	_setDescriptors;
 
 		private:
 
