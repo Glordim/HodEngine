@@ -36,11 +36,12 @@ namespace hod
 
 			*/
 			delete _defaultInstance;
-
+			/*
 			for (const auto& pair : _setDescriptors)
 			{
 				delete pair.second;
 			}
+			*/
 		}
 
 		/// @brief 

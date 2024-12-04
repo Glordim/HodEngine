@@ -28,6 +28,12 @@ namespace hod::renderer
 		/// @brief 
 		struct BlockUbo : Block
 		{
+			enum MemberType
+			{
+				Float,
+				Float2,
+			};
+
 			/// @brief 
 			struct Member
 			{
@@ -35,6 +41,7 @@ namespace hod::renderer
 				size_t							_size;
 				size_t							_count;
 				size_t							_offset;
+				MemberType						_memberType;
 
 				std::unordered_map<std::string, Member>	_childsMap;
 			};

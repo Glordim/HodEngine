@@ -27,5 +27,6 @@ namespace hod::editor
 	private:
 
 		MaterialInstanceAsset					_materialInstanceAsset;
+		ReflectionDescriptor					_reflectionDescriptor;
 	};
 }

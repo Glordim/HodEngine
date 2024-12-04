@@ -119,6 +119,17 @@ namespace hod::renderer
 			{
 				ExtractUboSubMembers(comp, memberType, member);
 			}
+			else if (memberType.basetype == spirv_cross::SPIRType::Float)
+			{
+				if (memberType.vecsize == 1)
+				{
+					member._memberType = BlockUbo::MemberType::Float;
+				}
+				else if (memberType.vecsize == 2)
+				{
+					member._memberType = BlockUbo::MemberType::Float2;
+				}
+			}
 
 			structMember._childsMap.emplace(member._name, std::move(member));
 		}

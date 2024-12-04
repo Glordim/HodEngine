@@ -8,6 +8,8 @@
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 
 #include "HodEngine/Game/SerializedDataResource.hpp"
@@ -18,6 +20,7 @@
 #include "HodEngine/Core/Resource/ResourceManager.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
 #include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"
+#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 namespace hod::editor
 {
@@ -32,27 +35,46 @@ namespace hod::editor
 		reader.Read(document, asset->GetPath());
 
 		Serializer::Deserialize(_materialInstanceAsset, document.GetRootNode());
-	}
 
-	/// @brief 
-	/// @param member 
-	/// @return 
-	bool DrawUboMember(const renderer::ShaderSetDescriptor::BlockUbo::Member& member)
-	{
-		bool changed = false;
-
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(member._name.c_str());
-		ImGui::Indent();
+		std::shared_ptr<renderer::MaterialResource> materialResource = _materialInstanceAsset._material.Lock();
+		if (materialResource != nullptr)
 		{
-			for (const auto& childPair : member._childsMap)
+			renderer::Material* material = materialResource->GetMaterial();
+			if (material != nullptr)
 			{
-				changed |= DrawUboMember(childPair.second);
+				_reflectionDescriptor = ReflectionDescriptor();
+
+				const std::unordered_map<uint32_t, renderer::ShaderSetDescriptor*> setDescriptors = material->GetSetDescriptors();
+
+				for (const auto& pair : setDescriptors)
+				{
+					for (const renderer::ShaderSetDescriptor::BlockUbo& ubo : pair.second->GetUboBlocks())
+					{
+						ReflectionDescriptor* uboReflectionDescriptor = new ReflectionDescriptor();
+						for (const auto& childPair : ubo._rootMember._childsMap)
+						{
+							if (childPair.second._memberType == renderer::ShaderSetDescriptor::BlockUbo::MemberType::Float)
+							{
+								uboReflectionDescriptor->AddProperty<ReflectionPropertyVariable>(ReflectionPropertyVariable::Type::Float32, 0, childPair.second._name.c_str(), nullptr, nullptr);
+							}
+							else if (childPair.second._memberType == renderer::ShaderSetDescriptor::BlockUbo::MemberType::Float2)
+							{
+								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(0, childPair.second._name.c_str(), Vector2::GetReflectionDescriptor(), nullptr, nullptr);
+							}
+						}
+						_reflectionDescriptor.AddProperty<ReflectionPropertyObject>(0, ubo._name.c_str(), uboReflectionDescriptor, nullptr, nullptr);
+					}
+
+					for (const renderer::ShaderSetDescriptor::BlockTexture& texture : pair.second->GetTextureBlocks())
+					{
+						if (texture._type == renderer::ShaderSetDescriptor::BlockTexture::Texture)
+						{
+							_reflectionDescriptor.AddProperty<ReflectionPropertyObject>(0, texture._name.c_str(), WeakResource<renderer::TextureResource>::GetReflectionDescriptor(), nullptr, nullptr);
+						}
+					}
+				}
 			}
 		}
-		ImGui::Unindent();
-
-		return changed;
 	}
 
 	/// @brief 
@@ -74,31 +96,9 @@ namespace hod::editor
 				renderer::Material* material = materialResource->GetMaterial();
 				if (material != nullptr)
 				{
-					const std::unordered_map<uint32_t, renderer::ShaderSetDescriptor*> setDescriptors = material->GetSetDescriptors();
-					for (const auto& pair : setDescriptors)
-					{
-						for (const renderer::ShaderSetDescriptor::BlockUbo& ubo : pair.second->GetUboBlocks())
-						{
-							ImGui::AlignTextToFramePadding();
-							ImGui::TextUnformatted(ubo._name.c_str());
-							ImGui::Indent();
-							{
-								for (const auto& childPair : ubo._rootMember._childsMap)
-								{
-									changed |= DrawUboMember(childPair.second);
-								}
-							}
-							ImGui::Unindent();
-						}
-
-						for (const renderer::ShaderSetDescriptor::BlockTexture& texture : pair.second->GetTextureBlocks())
-						{
-							if (texture._type == renderer::ShaderSetDescriptor::BlockTexture::Type::Texture)
-							{
-								//WeakResourceCustomEditor
-							}
-						}
-					}
+					char data[4096] = { 0 };
+					EditorReflectedObject reflectedObject((void*)data, &_reflectionDescriptor);
+					changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 				}
 			}
 		}
