@@ -150,33 +150,38 @@ namespace hod::editor
 		int component;
 		stbi_uc* pixels = stbi_load_from_memory(folder_png, folder_png_size, &x, &y, &component, 0);
 
+		renderer::Texture::CreateInfo textureCreateInfo;
+		textureCreateInfo._allowReadWrite = false;
+		textureCreateInfo._filterMode = renderer::FilterMode::Linear;
+		textureCreateInfo._wrapMode = renderer::WrapMode::Clamp;
+
 		_folderTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_folderTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+		_folderTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(folder_open_png, folder_open_png_size, &x, &y, &component, 0);
 
 		_folderOpenTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_folderOpenTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+		_folderOpenTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(landscape_png, landscape_png_size, &x, &y, &component, 0);
 
 		_sceneTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_sceneTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+		_sceneTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(prefab_png, prefab_png_size, &x, &y, &component, 0);
 
 		_prefabTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_prefabTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+		_prefabTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(SerializedData_png, SerializedData_png_size, &x, &y, &component, 0);
 
 		_serializedDataTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_serializedDataTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+		_serializedDataTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(Shader_png, Shader_png_size, &x, &y, &component, 0);
 
 		_shaderTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_shaderTexture->BuildBuffer(x, y, pixels, renderer::Texture::CreateInfo());
+		_shaderTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		static constexpr uint8_t primaryGrey = 71;
 		static constexpr uint8_t secondaryGrey = 102;
@@ -184,7 +189,7 @@ namespace hod::editor
 			primaryGrey, primaryGrey, primaryGrey, 255, secondaryGrey, secondaryGrey, secondaryGrey, 255,
 			secondaryGrey, secondaryGrey, secondaryGrey, 255, primaryGrey, primaryGrey, primaryGrey, 255,
 		};
-		renderer::Texture::CreateInfo textureCreateInfo;
+		
 		textureCreateInfo._filterMode = renderer::FilterMode::Nearest;
 		textureCreateInfo._wrapMode = renderer::WrapMode::Repeat;
 		_checkerTexture = renderer::Renderer::GetInstance()->CreateTexture();

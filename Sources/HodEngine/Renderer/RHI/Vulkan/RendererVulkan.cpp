@@ -1328,6 +1328,7 @@ namespace hod::renderer
 
 		VkSamplerAddressMode addressMode = createInfo._wrapMode == WrapMode::Clamp ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE : VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		VkFilter filter = createInfo._filterMode == FilterMode::Linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
+		VkSamplerMipmapMode mipmapMode = createInfo._filterMode == FilterMode::Linear ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
 
 		VkSamplerCreateInfo samplerInfo = {};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1336,13 +1337,13 @@ namespace hod::renderer
 		samplerInfo.addressModeU = addressMode;
 		samplerInfo.addressModeV = addressMode;
 		samplerInfo.addressModeW = addressMode;
-		samplerInfo.anisotropyEnable = VK_TRUE;
+		samplerInfo.anisotropyEnable = VK_FALSE;
 		samplerInfo.maxAnisotropy = 16;
 		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 		samplerInfo.unnormalizedCoordinates = VK_FALSE;
 		samplerInfo.compareEnable = VK_FALSE;
 		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.mipmapMode = mipmapMode;
 		samplerInfo.mipLodBias = 0.0f;
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = 0.0f;
