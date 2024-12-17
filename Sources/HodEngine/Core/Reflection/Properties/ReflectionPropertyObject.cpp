@@ -62,6 +62,13 @@ namespace hod
 		{
 			_setMethod(instance, value);
 		}
+		else
+		{
+			const uint8_t* instanceAddress = reinterpret_cast<const uint8_t*>(instance);
+			const uint8_t* objectAddress = instanceAddress + _offset;
+
+			_reflectionDescriptor->Copy(value, (void*)objectAddress);
+		}
 	}
 
 	/// @brief 

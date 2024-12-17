@@ -16,6 +16,7 @@ namespace hod::editor
 		REFLECTED_CLASS_NO_PARENT(MaterialInstanceAsset)
 
 		WeakResource<renderer::MaterialResource>	_material;
+		Document									_params;
 	};
 
 	class HOD_EDITOR_API MaterialInstanceImporterSettings : public ImporterSettings
