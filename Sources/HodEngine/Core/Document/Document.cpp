@@ -3,8 +3,26 @@
 
 #include "HodEngine/Core/Hash.hpp"
 
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
+
 namespace hod
 {
+	DESCRIBE_REFLECTED_CLASS(Document, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
+		[](const void* instance, Document::Node& documentNode)
+		{
+			std::string name = documentNode.GetName();
+			documentNode.Copy(static_cast<const Document*>(instance)->GetRootNode());
+			documentNode.SetName(name);
+		},
+		[](void* instance, const Document::Node& documentNode)
+		{
+			static_cast<const Document*>(instance)->GetRootNode().Copy(documentNode);
+			static_cast<const Document*>(instance)->GetRootNode().SetName("");
+		});
+	}
+
 	/// @brief 
 	/// @param name 
 	Document::Node::Node(Document& document, const std::string_view& name)
@@ -134,6 +152,13 @@ namespace hod
 	{
 		// TODO verify if _type is unset otherwise the value will be corrupted
 		_type = type;
+	}
+
+	/// @brief 
+	/// @param name 
+	void Document::Node::SetName(const std::string_view& name)
+	{
+		_name = name;
 	}
 
 	/// @brief 

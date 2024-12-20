@@ -8,11 +8,15 @@
 #include <span>
 #include <map>
 
+#include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+
 namespace hod
 {
 	/// @brief 
 	class HOD_CORE_API Document
 	{
+		REFLECTED_CLASS_NO_VIRTUAL(Document)
+
 	private:
 
 		using StringId = uint64_t;
@@ -55,7 +59,9 @@ namespace hod
 
 			uint32_t	GetChildCount() const;
 
-			const std::string& GetName() const;
+			void				SetName(const std::string_view& name);
+			const std::string&	GetName() const;
+
 			Type 		GetType() const;
 			void		SetTye(Type type);
 
@@ -95,8 +101,6 @@ namespace hod
 			const std::string& GetString() const;
 
 			Node&		operator [] (const std::string_view& name);
-
-
 
 		private:
 
