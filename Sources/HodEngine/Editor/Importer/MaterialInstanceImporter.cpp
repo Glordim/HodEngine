@@ -17,6 +17,7 @@ namespace hod::editor
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceAsset, reflectionDescriptor)
 	{
 		AddPropertyT(&reflectionDescriptor, &MaterialInstanceAsset::_material, "_material");
+		AddPropertyT(&reflectionDescriptor, &MaterialInstanceAsset::_params, "_params");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceImporterSettings, reflectionDescriptor)
