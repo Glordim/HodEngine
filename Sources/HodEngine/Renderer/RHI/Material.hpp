@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <unordered_map>
 
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+
 namespace hod
 {
 	namespace renderer
@@ -51,6 +53,7 @@ namespace hod
 			const MaterialInstance*	GetDefaultInstance() const;
 
 			const std::unordered_map<uint32_t, ShaderSetDescriptor*>&	GetSetDescriptors() const;
+			ReflectionDescriptor& GetReflectionDescriptorForParameters();
 
 		protected:
 
@@ -59,6 +62,9 @@ namespace hod
 		private:
 
 			MaterialInstance*		_defaultInstance = nullptr;
+
+			bool					_paramsReflectionDescriptorGenerated = false;
+			ReflectionDescriptor	_paramsReflectionDescriptor;
 
 		//uint32_t				getLocationFromName(const std::string& name);
 		};

@@ -26,6 +26,7 @@ namespace hod::renderer
 
 		void							ApplyInt(const std::string& memberName, int value) override;
 		void							ApplyFloat(const std::string& memberName, float value) override;
+		void							ApplyVec2(const std::string& memberName, const Vector2& value) override;
 		void							ApplyVec4(const std::string& memberName, const Vector4& value) override;
 		void							ApplyMat4(const std::string& memberName, const Matrix4& value) override;
 		void							ApplyTexture(const std::string& name, const Texture& value) override;

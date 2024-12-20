@@ -129,6 +129,10 @@ namespace hod::renderer
 				{
 					member._memberType = BlockUbo::MemberType::Float2;
 				}
+				else if (memberType.vecsize == 4)
+				{
+					member._memberType = BlockUbo::MemberType::Float4;
+				}
 			}
 
 			structMember._childsMap.emplace(member._name, std::move(member));

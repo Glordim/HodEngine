@@ -32,6 +32,7 @@ namespace hod::renderer
 			{
 				Float,
 				Float2,
+				Float4,
 			};
 
 			/// @brief 

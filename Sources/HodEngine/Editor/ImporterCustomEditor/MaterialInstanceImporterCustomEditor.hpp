@@ -27,7 +27,6 @@ namespace hod::editor
 	private:
 
 		MaterialInstanceAsset					_materialInstanceAsset;
-		ReflectionDescriptor					_reflectionDescriptor;
 
 		char									_paramsBuffer[4096];
 	};

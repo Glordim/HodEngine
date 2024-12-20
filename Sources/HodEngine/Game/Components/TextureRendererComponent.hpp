@@ -32,7 +32,6 @@ namespace hod::game
 	public:
 
 		renderer::MaterialInstance*		GetMaterialInstance() const;
-		void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
 
 		void							SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& materialInstance);
 

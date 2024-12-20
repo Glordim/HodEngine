@@ -94,6 +94,18 @@ namespace hod::renderer
 	/// @brief 
 	/// @param memberName 
 	/// @param value 
+	void VkMaterialInstance::ApplyVec2(const std::string& memberName, const Vector2& value)
+	{
+		size_t descriptorSetCount = _descriptorSets.size();
+		for (size_t i = 0; i < descriptorSetCount; ++i)
+		{
+			_descriptorSets[i].SetUboValue(memberName, &value, sizeof(value));
+		}
+	}
+
+	/// @brief 
+	/// @param memberName 
+	/// @param value 
 	void VkMaterialInstance::ApplyVec4(const std::string& memberName, const Vector4& value)
 	{
 		size_t descriptorSetCount = _descriptorSets.size();

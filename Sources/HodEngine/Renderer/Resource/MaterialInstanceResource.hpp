@@ -6,6 +6,7 @@
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
+#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 namespace hod::renderer
 {
@@ -31,10 +32,15 @@ namespace hod::renderer
 
 		MaterialInstance*			GetMaterialInstance() const;
 
+		void						ApplyInitialParams(ReflectionDescriptor* reflectionDescriptor, void* instance, std::string path);
+
 	private:
 
 		MaterialInstance*				_materialInstance = nullptr;
 
 		WeakResource<MaterialResource>	_material;
+		Document						_params;
+
+		std::vector<WeakResource<TextureResource>> _texturesRetain;
 	};
 }

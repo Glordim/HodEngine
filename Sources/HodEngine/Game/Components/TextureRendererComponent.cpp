@@ -26,8 +26,6 @@ namespace hod::game
 
 	TextureRendererComponent::TextureRendererComponent()
 	{
-		const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
-		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -35,7 +33,6 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	TextureRendererComponent::~TextureRendererComponent()
 	{
-		delete _materialInstance;
 	}
 
 	/*
@@ -67,20 +64,12 @@ namespace hod::game
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
-			RefreshMaterialInstance();
+			RefreshMaterialInstance(); 
 		}
 		else
 		{
 			_materialInstance = nullptr;
 		}
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	void TextureRendererComponent::SetMaterialInstance(renderer::MaterialInstance* materialInstance)
-	{
-		_materialInstance = materialInstance;
 	}
 
 	//-----------------------------------------------------------------------------

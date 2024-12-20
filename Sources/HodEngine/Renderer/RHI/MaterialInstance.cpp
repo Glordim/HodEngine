@@ -59,6 +59,15 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
+		void MaterialInstance::SetVec2(const std::string& memberName, const Vector2& value)
+		{
+			_vec2Map[memberName] = value;
+			ApplyVec2(memberName, value);
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		void MaterialInstance::SetVec4(const std::string& memberName, const Vector4& value)
 		{
 			_vec4Map[memberName] = value;
@@ -110,6 +119,14 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
+		const Vector2& MaterialInstance::GetVec2(const std::string& memberName)
+		{
+			return _vec2Map[memberName];
+		}
+
+		//-----------------------------------------------------------------------------
+		//! @brief		
+		//-----------------------------------------------------------------------------
 		const Vector4& MaterialInstance::GetVec4(const std::string& memberName)
 		{
 			return _vec4Map[memberName];
@@ -141,6 +158,11 @@ namespace hod
             return _floatMap;
         }
     
+		const std::map<std::string, Vector2>& MaterialInstance::GetVec2Map() const
+        {
+            return _vec2Map;
+        }
+
         const std::map<std::string, Vector4>& MaterialInstance::GetVec4Map() const
         {
             return _vec4Map;
