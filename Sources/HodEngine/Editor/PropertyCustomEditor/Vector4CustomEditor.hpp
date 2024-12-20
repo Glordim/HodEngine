@@ -1,0 +1,30 @@
+#pragma once
+#include "HodEngine/Editor/Export.hpp"
+
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
+
+namespace hod
+{
+	class ReflectionPropertyObject;
+}
+
+namespace hod::editor
+{
+	/// @brief 
+	class HOD_EDITOR_API Vector4CustomEditor : public CustomPropertyDrawer
+	{
+	public:
+
+								Vector4CustomEditor() = default;
+								Vector4CustomEditor(const Vector4CustomEditor&) = delete;
+								Vector4CustomEditor(Vector4CustomEditor&&) = delete;
+								~Vector4CustomEditor() override = default;
+
+		Vector4CustomEditor&	operator = (const Vector4CustomEditor&) = delete;
+		Vector4CustomEditor&	operator = (Vector4CustomEditor&&) = delete;
+
+	public:
+
+		bool					Draw(EditorReflectedObject& reflectedObject) override;
+	};
+}

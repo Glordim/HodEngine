@@ -33,8 +33,12 @@
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
+#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Core/Math/Vector4.hpp"
+
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/Vector4CustomEditor.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
@@ -106,6 +110,7 @@ namespace hod::editor
 		delete _checkerTexture;
 
 		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		Vector4::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		WeakResourceBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		TextureImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
 		SerializedDataImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
@@ -129,6 +134,7 @@ namespace hod::editor
 		game::World::GetInstance()->DisableDrawJob();
 
 		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
+		Vector4::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector4CustomEditor);
 		WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 		SerializedDataImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
