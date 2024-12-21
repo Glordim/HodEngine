@@ -20,7 +20,12 @@ namespace hod::game
 	bool PrefabResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
 	{
 		_prefab = new Prefab();
-		return _prefab->DeserializeFromDocument(documentNode);
+		bool result = _prefab->DeserializeFromDocument(documentNode);
+		if (result)
+		{
+			_prefab->GetRootEntity()->SetPrefabResource(std::static_pointer_cast<PrefabResource>(shared_from_this()));
+		}
+		return result;
 	}
 
 	/// @brief 

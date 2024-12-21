@@ -9,7 +9,7 @@
 
 namespace hod
 {
-	class HOD_CORE_API Resource
+	class HOD_CORE_API Resource : public std::enable_shared_from_this<Resource>
 	{
 		REFLECTED_CLASS_NO_PARENT(Resource)
 

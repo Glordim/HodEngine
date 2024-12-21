@@ -254,6 +254,7 @@ namespace hod::game
 			if (clonedEntity == nullptr)
 			{
 				clonedEntity = newEntity;
+				clonedEntity->SetPrefabResource(entity->GetPrefabResource());
 			}
 			entityNode = entityNode->GetNextSibling();
 		}

@@ -97,7 +97,9 @@ namespace hod::game
 			std::shared_ptr<Entity> entity;
 
 			Document prefabDocument;
+			prefabResource->GetPrefab().GetRootEntity()->SetPrefabResource(nullptr);
 			prefabResource->GetPrefab().SerializeInDocument(prefabDocument.GetRootNode());
+			prefabResource->GetPrefab().GetRootEntity()->SetPrefabResource(prefabResource);
 			const Document::Node* prefabEntitiesNode = prefabDocument.GetRootNode().GetChild("Entities");
 			const Document::Node* prefabEntityNode = prefabEntitiesNode->GetFirstChild();
 			while (prefabEntityNode != nullptr)
@@ -106,10 +108,10 @@ namespace hod::game
 				if (entity == nullptr) // todo store root id in prefab document ?
 				{
 					entity = prefabEntity;
+					entity->SetPrefabResource(prefabResource);
 				}
 				prefabEntityNode = prefabEntityNode->GetNextSibling();
 			}
-			entity->SetPrefabResource(prefabResource); 
 			
 			const Document::Node* overridesNode = prefabInstanceNode->GetChild("Overrides");
 

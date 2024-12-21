@@ -291,6 +291,11 @@ namespace hod::game
 	/// @param parent 
 	void Entity::SetParent(const WeakEntity& parent)
 	{
+		if (_parent == parent)
+		{
+			return;
+		}
+
 		std::shared_ptr<Entity> parentLock = _parent.Lock();
 		if (parentLock != nullptr)
 		{
