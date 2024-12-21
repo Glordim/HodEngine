@@ -31,6 +31,7 @@ namespace hod::editor
 		DocumentReaderJson reader;
 		reader.Read(document, asset->GetPath());
 
+		_materialInstanceAsset = MaterialInstanceAsset();
 		Serializer::Deserialize(_materialInstanceAsset, document.GetRootNode());
 
 		std::memset(_paramsBuffer, 0, sizeof(_paramsBuffer));

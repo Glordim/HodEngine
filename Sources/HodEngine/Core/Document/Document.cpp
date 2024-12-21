@@ -450,6 +450,8 @@ namespace hod
 	/// @param source 
 	void Document::Node::Copy(const Document::Node& source)
 	{
+		Clear();
+
 		Document::Node* sourceChild = source._firstChild;
 		while (sourceChild != nullptr)
 		{
