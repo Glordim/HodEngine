@@ -10,6 +10,11 @@
 #include <unordered_map>
 #include <memory>
 
+namespace hod::renderer
+{
+	class RenderQueue;
+}
+
 namespace hod::game
 {
 	class RendererComponent;

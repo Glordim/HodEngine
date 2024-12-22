@@ -9,72 +9,60 @@
 #include "HodEngine/Core/Type.hpp"
 #include "HodEngine/Core/UID.hpp"
 
-namespace hod
+namespace hod::game
 {
-	struct Color;
+	class Entity;
+	class Scene;
 
-	namespace renderer
+	///@brief 
+	class HOD_GAME_API Component : public std::enable_shared_from_this<Component>
 	{
-		class RenderQueue;
-	}
+		REFLECTED_CLASS_NO_PARENT(Component)
 
-	namespace game
-	{
-		class Entity;
-		class Scene;
+		friend class Scene;
+		friend class Entity;
 
-		///@brief 
-		class HOD_GAME_API Component : public std::enable_shared_from_this<Component>
-		{
-			REFLECTED_CLASS_NO_PARENT(Component)
+	public:
 
-			friend class Scene;
-			friend class Entity;
+		void					SetEntity(const std::shared_ptr<Entity>& entity);
+		std::shared_ptr<Entity>	GetEntity() const;
 
-		public:
+		void					SetEnable(bool enable);
+		bool					GetEnable() const;
 
-			void					SetEntity(const std::shared_ptr<Entity>& entity);
-			std::shared_ptr<Entity>	GetEntity() const;
+		const UID&			GetUid() const { return _uid; }
+		const UID&			GetLocalId() const { return _localId; }
+		void				SetLocalId(const UID& uid) { _localId = uid; }
 
-			void					SetEnable(bool enable);
-			bool					GetEnable() const;
+		virtual void		OnAwake() {};
+		virtual void		OnStart() {};
+		virtual void		OnEnable() {};
+		virtual void		OnDisable() {};
+		virtual void		OnUpdate() {};
 
-			const UID&			GetUid() const { return _uid; }
-			const UID&			GetLocalId() const { return _localId; }
-			void				SetLocalId(const UID& uid) { _localId = uid; }
+	protected:
 
-			virtual void		OnAwake() {};
-			virtual void		OnStart() {};
-			virtual void		OnEnable() {};
-			virtual void		OnDisable() {};
-			virtual void		OnUpdate() {};
+							Component();
+							Component(const Component&) = delete;
+							Component(Component&&) = delete;
+		virtual				~Component() = default;
 
-		protected:
+		void				operator=(const Component&) = delete;
+		void				operator=(Component&&) = delete;
 
-								Component();
-								Component(const Component&) = delete;
-								Component(Component&&) = delete;
-			virtual				~Component() = default;
+		virtual void		OnConstruct() {};
 
-			void				operator=(const Component&) = delete;
-			void				operator=(Component&&) = delete;
+	private:
 
-			virtual void		OnConstruct() {};
+		void				Construct() { OnConstruct(); };
 
-		private:
+	private:
 
-			void				Construct() { OnConstruct(); };
+		UID						_uid;
+		UID						_localId;
+		std::weak_ptr<Entity>	_entity;
 
-		private:
-
-			UID						_uid;
-			UID						_localId;
-			std::weak_ptr<Entity>	_entity;
-
-			bool					_enable = true;
-			bool					_wasEnable = false;
-		};
-	}
+		bool					_enable = true;
+		bool					_wasEnable = false;
+	};
 }
-
-#include "Component.inl"

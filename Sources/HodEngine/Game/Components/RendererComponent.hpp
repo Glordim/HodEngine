@@ -5,6 +5,11 @@
 
 #include "HodEngine/Game/Component.hpp"
 
+namespace hod::renderer
+{
+	class RenderQueue;
+}
+
 namespace hod::game
 {
 	class CameraComponent;
