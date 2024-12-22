@@ -316,7 +316,19 @@ namespace hod::game
 		parentLock = parent.Lock();
 		if (parentLock != nullptr)
 		{
-			parentLock->_children.emplace_back(shared_from_this());
+			bool exist = false;
+			for (const WeakEntity& child : parentLock->_children)
+			{
+				if (child.Lock() == shared_from_this() || child.GetId() == _id)
+				{
+					exist = true;
+					break;
+				}
+			}
+			if (exist == false)
+			{
+				parentLock->_children.emplace_back(shared_from_this());
+			}
 		}
 		_parent = parent;
 	}

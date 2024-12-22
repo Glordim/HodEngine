@@ -32,6 +32,11 @@ namespace hod::game::PrefabUtility
 		std::shared_ptr<Entity> source = prefabResource->GetPrefab().GetRootEntity();
 		std::shared_ptr<Entity> instance = entity;
 
+		if (source == instance)
+		{
+			return true;
+		}
+
 		ReflectionDescriptor* reflectionDescriptor = source->GetReflectionDescriptorV();
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
 		{
