@@ -73,6 +73,7 @@ namespace hod::editor
 			{
 				value->SetPointer(nullptr);
 				ImGui::CloseCurrentPopup();
+				changed = true;
 			}
 
 			for (game::Scene* scene : game::World::GetInstance()->GetScenes())
@@ -88,6 +89,7 @@ namespace hod::editor
 						{
 							value->SetPointer(component);
 							ImGui::CloseCurrentPopup();
+							changed = true;
 						}
 						ImGui::PopID();
 					}
