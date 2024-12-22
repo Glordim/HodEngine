@@ -35,10 +35,12 @@
 
 #include "HodEngine/Core/Math/Vector2.hpp"
 #include "HodEngine/Core/Math/Vector4.hpp"
+#include "HodEngine/Game/WeakComponent.hpp"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/Vector4CustomEditor.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/WeakComponentCustomEditor.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
@@ -111,6 +113,7 @@ namespace hod::editor
 
 		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		Vector4::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		game::WeakComponentBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		WeakResourceBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		TextureImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
 		SerializedDataImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
@@ -135,6 +138,7 @@ namespace hod::editor
 
 		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
 		Vector4::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector4CustomEditor);
+		game::WeakComponentBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakComponentCustomEditor);
 		WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
 		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 		SerializedDataImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
