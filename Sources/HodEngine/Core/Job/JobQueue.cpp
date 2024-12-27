@@ -68,6 +68,20 @@ namespace hod
 	/// @brief 
 	JobQueue::~JobQueue()
 	{
+		for (uint32_t workerThreadIndex = 0; workerThreadIndex < _workerThreadCount; ++workerThreadIndex)
+		{
+			_workerThreads[workerThreadIndex]._shouldExit = true;
+			if (_workerThreads[workerThreadIndex]._wakeUpFlag.test_and_set() == false)
+			{
+				_workerThreads[workerThreadIndex]._wakeUpFlag.notify_all();
+				break;
+			}
+		}
+		for (uint32_t workerThreadIndex = 0; workerThreadIndex < _workerThreadCount; ++workerThreadIndex)
+		{
+			_workerThreads[workerThreadIndex]._thread.Join();
+		}
+
 		delete[] _workerThreads;
 	}
 

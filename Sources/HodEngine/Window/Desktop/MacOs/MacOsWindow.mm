@@ -38,6 +38,18 @@
 	return self;
 }
 
+- (BOOL)windowShouldClose:(NSWindow *)sender
+{
+    return YES;
+}
+
+- (void)windowWillClose:(NSNotification *)notification
+{
+    [NSApp terminate:nil];
+	_window->Close();
+}
+
+
 - (void)windowDidResize:(NSNotification *)notification
 {
 	_window->ResizeContext();
