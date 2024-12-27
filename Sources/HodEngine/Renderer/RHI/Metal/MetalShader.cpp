@@ -143,4 +143,11 @@ namespace hod::renderer
 	{
 		return _function;
 	}
+
+	/// @brief 
+	/// @return 
+	bool MetalShader::GenerateDescriptors()
+	{
+		return false;
+	}
 }

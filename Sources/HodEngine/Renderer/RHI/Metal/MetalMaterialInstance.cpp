@@ -9,9 +9,8 @@ namespace hod
 {
 	namespace renderer
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param material 
 		MetalMaterialInstance::MetalMaterialInstance(const Material& material)
 			: MaterialInstance(material)
 		{
@@ -21,49 +20,56 @@ namespace hod
              */
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		MetalMaterialInstance::~MetalMaterialInstance()
 		{
 
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param memberName 
+		/// @param value 
 		void MetalMaterialInstance::ApplyInt(const std::string& memberName, int value)
 		{
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param memberName 
+		/// @param value 
 		void MetalMaterialInstance::ApplyFloat(const std::string& memberName, float value)
 		{
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param memberName 
+		/// @param value 
+		void MetalMaterialInstance::ApplyVec2(const std::string& memberName, const Vector2& value)
+		{
+		}
+
+		/// @brief 
+		/// @param memberName 
+		/// @param value 
 		void MetalMaterialInstance::ApplyVec4(const std::string& memberName, const Vector4& value)
 		{
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param memberName 
+		/// @param value 
 		void MetalMaterialInstance::ApplyMat4(const std::string& memberName, const Matrix4& value)
 		{
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param name 
+		/// @param value 
 		void MetalMaterialInstance::ApplyTexture(const std::string& name, const Texture& value)
 		{
 		}
     
+        /// @brief 
+        /// @param renderCommandEncoder 
         void MetalMaterialInstance::FillCommandEncoder(MTL::RenderCommandEncoder* renderCommandEncoder) const
         {
             const MetalMaterial& material = static_cast<const MetalMaterial&>(GetMaterial());

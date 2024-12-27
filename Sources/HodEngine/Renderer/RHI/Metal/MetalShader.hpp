@@ -31,6 +31,10 @@ namespace hod
 			bool	        LoadFromSource(std::string_view source) override;
 			bool	        LoadFromIR(const void* data, uint32_t size) override;
 
+		protected:
+
+			bool			GenerateDescriptors() override;
+
 		private:
 
 			bool			FindFunction();
