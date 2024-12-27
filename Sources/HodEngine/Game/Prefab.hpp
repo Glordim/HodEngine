@@ -32,22 +32,23 @@ namespace hod::game
 		void				SetName(const std::string_view& name);
 		const std::string&	GetName() const;
 
-		bool			SerializeInDocument(Document::Node& documentNode) const;
+		bool			SerializeInDocument(Document::Node& documentNode);
 		bool			DeserializeFromDocument(const Document::Node& documentNode);
 
 		std::weak_ptr<Entity>			CreateEntity(const std::string_view& name = "");
 		void							DestroyEntity(std::shared_ptr<Entity> entity);
-		std::weak_ptr<Entity>			FindEntity(Entity::Id entityId);
+		std::weak_ptr<Entity>			FindEntity(uint64_t entityId);
 
 		void							Clear();
 
 		std::shared_ptr<Entity>			GetRootEntity();
 
-		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
+		const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& GetEntities() const;
 
 	private:
 
 		std::string												_name;
-		std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
+		std::unordered_map<uint64_t, std::shared_ptr<Entity>>	_entities;
+		uint64_t												_nextLocalId = 1;
 	};
 }

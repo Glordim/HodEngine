@@ -296,7 +296,7 @@ namespace hod
 		/// @brief 
 		/// @param entityId 
 		/// @return 
-		std::weak_ptr<Entity> World::FindEntity(Entity::Id entityId)
+		std::weak_ptr<Entity> World::FindEntity(uint64_t entityId)
 		{
 			std::weak_ptr<Entity> entity;
 			

@@ -30,10 +30,6 @@ namespace hod::game
 
 	public:
 
-		using Id = uint64_t;
-
-	public:
-
 						Entity(const std::string_view& name);
 						Entity(const Entity&) = delete;
 						Entity(Entity&&) = delete;
@@ -53,9 +49,10 @@ namespace hod::game
 		const WeakEntity&					GetParent() const;
 		void								SetParent(const WeakEntity& parent);
 
-		UID					GetLocalId() const { return _localId; }
+		uint64_t				GetInstanceId() const { return _instanceId; }
+		uint64_t				GetLocalId() const { return _localId; }
+		void					SetLocalId(uint64_t localId) { _localId = localId; }
 
-		Id					GetId() const;
 		const std::string&	GetName() const;
 		void				SetName(const std::string_view& name);
 		bool				GetActive() const;
@@ -92,13 +89,13 @@ namespace hod::game
 
 	private:
 
-		static Entity::Id	_nextId; // todo std::atomic ?
+		static uint64_t	_nextInstanceId; // todo std::atomic ?
 
 	private:
 
-		UID				_localId;
+		uint64_t		_instanceId = 0;
+		uint64_t		_localId = 0;
 
-		Id				_id;
 		std::string		_name;
 		bool			_active = false;
 		bool			_awaked = false;

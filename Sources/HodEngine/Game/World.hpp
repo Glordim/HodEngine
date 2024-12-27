@@ -62,7 +62,7 @@ namespace hod
 			std::weak_ptr<Entity>		CreateEntity(const std::string_view& name = "");
 			void						DestroyEntity(std::shared_ptr<Entity> entity);
 			
-			std::weak_ptr<Entity>		FindEntity(Entity::Id entityId);
+			std::weak_ptr<Entity>		FindEntity(uint64_t entityId);
 
 //			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 

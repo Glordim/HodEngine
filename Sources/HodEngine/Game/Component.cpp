@@ -2,19 +2,23 @@
 #include "HodEngine/Game/Component.hpp"
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
 
 namespace hod::game
 {
+	uint64_t Component::_nextInstanceId = 0;
+
 	DESCRIBE_REFLECTED_CLASS(Component, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &Component::_uid, "_uid")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(&reflectionDescriptor, &Component::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(&reflectionDescriptor, &Component::_instanceId, "_instanceId")->AddTrait<ReflectionTraitNoSerialization>();
+		AddPropertyT(&reflectionDescriptor, &Component::_localId, "_localId");//->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 
 	Component::Component()
-	: _uid(UID::GenerateUID())
 	{
+		++_nextInstanceId;
+		_instanceId = _nextInstanceId;
 	}
 
 	/// @brief 

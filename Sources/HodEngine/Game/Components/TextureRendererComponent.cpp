@@ -120,7 +120,7 @@ namespace hod::game
 					RefreshMaterialInstance();
 				}
 				
-				renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), _uvs.data(), nullptr, (uint32_t)vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetId()));
+				renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), _uvs.data(), nullptr, (uint32_t)vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetInstanceId()));
 			}
 		}
 	}

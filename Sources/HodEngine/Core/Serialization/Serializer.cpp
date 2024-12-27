@@ -6,6 +6,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp"
 
@@ -35,6 +36,12 @@ namespace hod
 		{
 			for (const ReflectionProperty* property : reflectionDescriptor->GetProperties())
 			{
+                ReflectionTraitNoSerialization* noSerialization = property->FindTrait<ReflectionTraitNoSerialization>();
+                if (noSerialization != nullptr)
+                {
+                    continue;
+                }
+                
                 MetaType type = property->GetMetaType();
                 switch (type)
                 {
@@ -148,6 +155,12 @@ namespace hod
 		{
 			for (const ReflectionProperty* property : reflectionDescriptor->GetProperties())
 			{
+                ReflectionTraitNoSerialization* noSerialization = property->FindTrait<ReflectionTraitNoSerialization>();
+                if (noSerialization != nullptr)
+                {
+                    continue;
+                }
+
                 MetaType type = property->GetMetaType();
                 switch (type)
                 {

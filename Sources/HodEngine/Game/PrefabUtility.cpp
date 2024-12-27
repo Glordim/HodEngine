@@ -54,7 +54,7 @@ namespace hod::game::PrefabUtility
 		{
 			std::shared_ptr<Component> componentLock = component.lock();
 
-			UID localId = componentLock->GetLocalId();
+			uint64_t localId = componentLock->GetLocalId();
 			for (std::weak_ptr<Component> instanceComponent : instance->GetComponents())
 			{
 				std::shared_ptr<Component> instanceComponentLock = instanceComponent.lock();

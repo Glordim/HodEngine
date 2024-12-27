@@ -1,35 +1,35 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp>
 
+#include "HodEngine/Game/Component.hpp"
+
 namespace hod::game
 {
-    class Component;
-
     /// @brief 
     class HOD_GAME_API WeakComponentMapping
     {
     public:
 
-        static void Insert(const UID& uid, std::weak_ptr<Component> component);
+        static void Insert(uint64_t instanceId, std::weak_ptr<Component> component);
         static void Clear();
 
-        static std::shared_ptr<Component> Resolve(const UID& uid);
+        static std::shared_ptr<Component> Resolve(uint64_t instanceId);
 
         template<typename _Component_>
-        static std::shared_ptr<_Component_> Resolve(const UID& uid)
+        static std::shared_ptr<_Component_> Resolve(uint64_t instanceId)
         {
-            return std::static_pointer_cast<_Component_>(Resolve(uid));
+            return std::static_pointer_cast<_Component_>(Resolve(instanceId));
         }
 
     private:
 
-        static std::map<UID, std::weak_ptr<Component>> _map;
+        static std::unordered_map<uint64_t, std::weak_ptr<Component>> _map;
     };
 
     class HOD_GAME_API WeakComponentBase
@@ -54,19 +54,19 @@ namespace hod::game
     public:
 
         std::shared_ptr<Component>  Lock() const;
-        const UID&                  GetUid() const;
-        const UID&                  GetForSerialization() const;
+        uint64_t                    GetInstanceId() const;
+        uint64_t                    GetForSerialization() const;
 
         ReflectionDescriptor*       GetComponentDescriptor() const;
 
-        void                        SetUid(const UID& uid);
+        void                        SetInstanceId(uint64_t instanceId);
         void                        SetPointer(std::shared_ptr<Component> pointer);
 
     private:
 
         ReflectionDescriptor*           _componentDescriptor = nullptr;
-        
-        UID                                 _uid;
+
+        uint64_t                           _instanceId = 0;
         mutable std::weak_ptr<Component>   _pointer;
     };
 

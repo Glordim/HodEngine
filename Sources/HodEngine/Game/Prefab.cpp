@@ -20,7 +20,7 @@ namespace hod::game
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, Document::Node& documentNode)
 		{
-			static_cast<const Prefab*>(instance)->SerializeInDocument(documentNode);
+			const_cast<Prefab*>(static_cast<const Prefab*>(instance))->SerializeInDocument(documentNode);
 		},
 		[](void* instance, const Document::Node& documentNode)
 		{
@@ -44,7 +44,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @param documentNode 
-	bool Prefab::SerializeInDocument(Document::Node& documentNode) const
+	bool Prefab::SerializeInDocument(Document::Node& documentNode)
 	{
 		documentNode.AddChild("Name").SetString(_name);
 		Document::Node& entitiesNode = documentNode.AddChild("Entities");
@@ -53,12 +53,14 @@ namespace hod::game
 		{
 			if (entityPair.second->GetParent().Lock() == nullptr)
 			{
-				if (SceneSerializer::SerializeEntity(entityPair.second, true, entitiesNode) == false)
+				if (SceneSerializer::SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
 				{
 					return false;
 				}
 			}
 		}
+
+		documentNode.AddChild("NextLocalId").SetUInt64(_nextLocalId);
 
 		return true;
 	}
@@ -73,6 +75,12 @@ namespace hod::game
 			_name = nameNode->GetString();
 		}
 
+		const Document::Node* nextLocalIdNode = documentNode.GetChild("NextLocalId");
+		if (nextLocalIdNode != nullptr)
+		{
+			_nextLocalId = nextLocalIdNode->GetUInt64();
+		}
+
 		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
@@ -82,7 +90,7 @@ namespace hod::game
 			std::vector<std::shared_ptr<Entity>> entities;
 			std::vector<std::shared_ptr<Component>> components;
 			std::shared_ptr<Entity> entity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
-			_entities.emplace(entity->GetId(), entity);
+			_entities.emplace(entity->GetInstanceId(), entity);
 
 			entityNode = entityNode->GetNextSibling();
 		}
@@ -92,7 +100,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& Prefab::GetEntities() const
+	const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& Prefab::GetEntities() const
 	{
 		return _entities;
 	}
@@ -103,8 +111,8 @@ namespace hod::game
 	std::weak_ptr<Entity> Prefab::CreateEntity(const std::string_view& name)
 	{
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
-		WeakEntityMapping::Insert(entity->GetId(), entity);
-		_entities.emplace(entity->GetId(), entity);
+		WeakEntityMapping::Insert(entity->GetInstanceId(), entity);
+		_entities.emplace(entity->GetInstanceId(), entity);
 
 		return entity;
 	}
@@ -113,13 +121,13 @@ namespace hod::game
 	/// @param entity 
 	void Prefab::DestroyEntity(std::shared_ptr<Entity> entity)
 	{
-		_entities.erase(_entities.find(entity->GetId()));
+		_entities.erase(_entities.find(entity->GetInstanceId()));
 	}
 
 	/// @brief 
 	/// @param entityId 
 	/// @return 
-	std::weak_ptr<Entity> Prefab::FindEntity(Entity::Id entityId)
+	std::weak_ptr<Entity> Prefab::FindEntity(uint64_t entityId)
 	{
 		return _entities[entityId];
 	}

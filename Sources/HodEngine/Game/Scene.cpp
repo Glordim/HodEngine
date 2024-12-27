@@ -30,7 +30,7 @@ namespace hod::game
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, Document::Node& documentNode)
 		{
-			static_cast<const Scene*>(instance)->SerializeInDocument(documentNode);
+			const_cast<Scene*>(static_cast<const Scene*>(instance))->SerializeInDocument(documentNode);
 		},
 		[](void* instance, const Document::Node& documentNode)
 		{
@@ -54,7 +54,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @param documentNode 
-	bool Scene::SerializeInDocument(Document::Node& documentNode) const
+	bool Scene::SerializeInDocument(Document::Node& documentNode)
 	{
 		documentNode.AddChild("Name").SetString(_name);
 		Document::Node& entitiesNode = documentNode.AddChild("Entities");
@@ -63,12 +63,14 @@ namespace hod::game
 		{
 			if (entityPair.second->GetParent().Lock() == nullptr)
 			{
-				if (SceneSerializer::SerializeEntity(entityPair.second, true, entitiesNode) == false)
+				if (SceneSerializer::SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
 				{
 					return false;
 				}
 			}
 		}
+
+		documentNode.AddChild("NextLocalId").SetUInt64(_nextLocalId);
 
 		return true;
 	}
@@ -78,9 +80,15 @@ namespace hod::game
 	bool Scene::DeserializeFromDocument(const Document::Node& documentNode)
 	{
 		const Document::Node* nameNode = documentNode.GetChild("Name");
-		if (nameNode!= nullptr)
+		if (nameNode != nullptr)
 		{
 			_name = nameNode->GetString();
+		}
+
+		const Document::Node* nextLocalIdNode = documentNode.GetChild("NextLocalId");
+		if (nextLocalIdNode != nullptr)
+		{
+			_nextLocalId = nextLocalIdNode->GetUInt64();
 		}
 
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
@@ -92,7 +100,7 @@ namespace hod::game
 			SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
 			for (std::shared_ptr<Entity> entity : entities)
 			{
-				_entities.emplace(entity->GetId(), entity);
+				_entities.emplace(entity->GetInstanceId(), entity);
 			}
 
 			entityNode = entityNode->GetNextSibling();
@@ -116,7 +124,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& Scene::GetEntities() const
+	const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& Scene::GetEntities() const
 	{
 		return _entities;
 	}
@@ -127,8 +135,8 @@ namespace hod::game
 	std::shared_ptr<Entity> Scene::CreateEntity(const std::string_view& name)
 	{
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
-		WeakEntityMapping::Insert(entity->GetId(), entity);
-		_entities.emplace(entity->GetId(), entity);
+		WeakEntityMapping::Insert(entity->GetInstanceId(), entity);
+		_entities.emplace(entity->GetInstanceId(), entity);
 
 		return entity;
 	}
@@ -137,7 +145,7 @@ namespace hod::game
 	/// @param entity 
 	void Scene::DestroyEntity(std::shared_ptr<Entity> entity)
 	{
-		auto it = _entities.find(entity->GetId());
+		auto it = _entities.find(entity->GetInstanceId());
 		if (it != _entities.end())
 		{
 			_entities.erase(it);
@@ -147,7 +155,7 @@ namespace hod::game
 	/// @brief 
 	/// @param entityId 
 	/// @return 
-	std::shared_ptr<Entity> Scene::FindEntity(Entity::Id entityId)
+	std::shared_ptr<Entity> Scene::FindEntity(uint64_t entityId)
 	{
 		auto it = _entities.find(entityId);
 		if (it != _entities.end())
@@ -239,8 +247,9 @@ namespace hod::game
 			return nullptr;
 		}
 
+		uint64_t nextLocalId = 1; // todo
 		Document document;
-		SceneSerializer::SerializeEntity(entity, true, document.GetRootNode());
+		SceneSerializer::SerializeEntity(entity, true, document.GetRootNode(), nextLocalId);
 
 		std::vector<std::shared_ptr<Entity>> entities;
 		std::vector<std::shared_ptr<Component>> components;
@@ -261,7 +270,7 @@ namespace hod::game
 
 		for (std::shared_ptr<Entity> entity : entities)
 		{
-			_entities.emplace(entity->GetId(), entity);
+			_entities.emplace(entity->GetInstanceId(), entity);
 		}
 
 		return clonedEntity;

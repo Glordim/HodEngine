@@ -165,6 +165,12 @@ namespace hod::editor
 			Editor::GetInstance()->MarkCurrentSceneAsDirty();
 		}
 
+		uint64_t instanceId = selection->GetInstanceId();
+		ImGui::DragScalar("InstanceId", ImGuiDataType_U64, &instanceId, 1.0f, 0, 0, nullptr, ImGuiSliderFlags_AlwaysClamp);
+
+		uint64_t localId = selection->GetLocalId();
+		ImGui::DragScalar("LocalId", ImGuiDataType_U64, &localId, 1.0f, 0, 0, nullptr, ImGuiSliderFlags_AlwaysClamp);
+
 		std::vector<std::weak_ptr<game::Component>> components = selection->GetComponents();
 		for (const std::weak_ptr<game::Component>& component : components)
 		{

@@ -8,6 +8,7 @@
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
+#include "HodEngine/Game/WeakEntity.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
@@ -16,7 +17,7 @@
 
 namespace hod::game
 {
-	bool SceneSerializer::SerializeEntity(const std::shared_ptr<Entity> entity, bool withChildren, Document::Node& entitiesNode)
+	bool SceneSerializer::SerializeEntity(const std::shared_ptr<Entity> entity, bool withChildren, Document::Node& entitiesNode, uint64_t& nextLocalId)
 	{
 		Document::Node& entityNode = entitiesNode.AddChild("");
 
@@ -38,14 +39,12 @@ namespace hod::game
 				if (diff->_type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
 				{
 					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::EntityDiffs::Diff::Type::Entity));
-					uid = static_cast<Entity*>(diff->_instance)->GetLocalId();
-					Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
+					overrideTargetNode.AddChild("LocalId").SetUInt64(static_cast<Entity*>(diff->_instance)->GetLocalId());
 				}
 				else // Component
 				{
 					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::EntityDiffs::Diff::Type::Component));
-					uid = static_cast<Component*>(diff->_instance)->GetLocalId();
-					Serializer::Serialize(uid, overrideTargetNode.AddChild("UID"));
+					overrideTargetNode.AddChild("LocalId").SetUInt64(static_cast<Component*>(diff->_instance)->GetLocalId());
 				}
 				// TODO can be an array of modifcations to mutalize target description
 				Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
@@ -54,6 +53,11 @@ namespace hod::game
 		}
 		else
 		{
+			if (entity->GetLocalId() == 0)
+			{
+				entity->SetLocalId(nextLocalId);
+				++nextLocalId;
+			}
 			Serializer::Serialize(entity.get(), entityNode);
 
 			Document::Node& componentsNode = entityNode.AddChild("Components");
@@ -65,6 +69,11 @@ namespace hod::game
 
 				Document::Node& componentNode = componentsNode.AddChild("");
 				componentNode.AddChild("MetaType").SetUInt64(componentLock->GetMetaType());
+				if (componentLock->GetLocalId() == 0)
+				{
+					componentLock->SetLocalId(nextLocalId);
+					++nextLocalId;
+				}
 				Serializer::Serialize(componentLock.get(), componentNode);
 			}
 
@@ -73,7 +82,7 @@ namespace hod::game
 				uint32_t childCount = entity->GetChildCount();
 				for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
 				{
-					if (SceneSerializer::SerializeEntity(entity->GetChild(childIndex).Lock(), true, entitiesNode) == false)
+					if (SceneSerializer::SerializeEntity(entity->GetChild(childIndex).Lock(), true, entitiesNode, nextLocalId) == false)
 					{
 						return false;
 					}
@@ -125,44 +134,39 @@ namespace hod::game
 					if (targetNode != nullptr)
 					{
 						PrefabUtility::EntityDiffs::Diff::Type type = static_cast<PrefabUtility::EntityDiffs::Diff::Type>(typeNode->GetInt64());
-						const Document::Node* uidNode = targetNode->GetChild("UID");
-						if (uidNode != nullptr)
+						uint64_t localId = targetNode->GetChild("LocalId")->GetUInt64();
+						
+						const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
+						if (modificationsNode != nullptr)
 						{
-							UID localId;
-							Serializer::Deserialize(localId, *uidNode);
-
-							const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
-							if (modificationsNode != nullptr)
+							if (type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
 							{
-								if (type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
-								{
 
-								}
-								else // Components
+							}
+							else // Components
+							{
+								std::shared_ptr<Component> targetComponent;
+								for (const std::shared_ptr<Component>& component : components)
 								{
-									std::shared_ptr<Component> targetComponent;
-									for (const std::shared_ptr<Component>& component : components)
+									if (component->GetLocalId() == localId)
 									{
-										if (component->GetLocalId() == localId)
-										{
-											targetComponent = component;
-											break;
-										}
+										targetComponent = component;
+										break;
 									}
-									if (targetComponent != nullptr)
+								}
+								if (targetComponent != nullptr)
+								{
+									Component* component = targetComponent.get();
+									const Document::Node* modificationNode = modificationsNode->GetFirstChild();
+									while (modificationNode != nullptr)
 									{
-										Component* component = targetComponent.get();
-										const Document::Node* modificationNode = modificationsNode->GetFirstChild();
-										while (modificationNode != nullptr)
-										{
-											Serializer::DeserializeWithPath(modificationNode->GetName(), component, *modificationsNode);
-											modificationNode = modificationNode->GetNextSibling();
-										}
+										Serializer::DeserializeWithPath(modificationNode->GetName(), component, *modificationsNode);
+										modificationNode = modificationNode->GetNextSibling();
 									}
-									else
-									{
-										// todo
-									}
+								}
+								else
+								{
+									// todo
 								}
 							}
 						}
@@ -182,7 +186,7 @@ namespace hod::game
 			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 
 			Serializer::Deserialize(*entity.get(), entityNode);
-			WeakEntityMapping::Insert(entity->GetId(), entity);
+			WeakEntityMapping::Insert(entity->GetInstanceId(), entity);
 
 			const Document::Node* componentsNode = entityNode.GetChild("Components");
 			const Document::Node* componentNode = componentsNode->GetFirstChild();
@@ -198,7 +202,7 @@ namespace hod::game
 					std::shared_ptr<Component> componentLock = component.lock();
 					Component* rawComponent = componentLock.get();
 					Serializer::Deserialize(rawComponent, *componentNode); // todo lvalue...
-					WeakComponentMapping::Insert(componentLock->GetUid(), component);
+					WeakComponentMapping::Insert(componentLock->GetInstanceId(), component);
 					components.push_back(componentLock);
 				}
 				else

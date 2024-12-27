@@ -138,7 +138,7 @@ namespace hod::editor
 				if ((payload) != nullptr)
 				{
 					// todo factorize
-					game::Entity::Id entityId = *reinterpret_cast<game::Entity::Id*>(payload->Data);
+					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
 					game::World* world = game::World::GetInstance();
 					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
@@ -193,7 +193,7 @@ namespace hod::editor
 				payload = ImGui::AcceptDragDropPayload("EntityId");
 				if ((payload) != nullptr)
 				{
-					game::Entity::Id entityId = *reinterpret_cast<game::Entity::Id*>(payload->Data);
+					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
 					game::World* world = game::World::GetInstance();
 					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
@@ -211,7 +211,7 @@ namespace hod::editor
 		{
 			// Some processing...
 			ImGui::TextUnformatted(entityLock->GetName().c_str());
-			game::Entity::Id entityId = entityLock->GetId();
+			uint64_t entityId = entityLock->GetInstanceId();
 			ImGui::SetDragDropPayload("EntityId", (void*)&entityId, sizeof(entityId), ImGuiCond_Once);
 			ImGui::EndDragDropSource();
 		}

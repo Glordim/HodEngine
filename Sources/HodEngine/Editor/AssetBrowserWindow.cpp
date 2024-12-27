@@ -500,7 +500,7 @@ namespace hod::editor
 				payload = ImGui::AcceptDragDropPayload("EntityId");
 				if (payload != nullptr)
 				{
-					game::Entity::Id entityId = *reinterpret_cast<game::Entity::Id*>(payload->Data);
+					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
 					game::World* world = game::World::GetInstance();
 					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
@@ -514,7 +514,8 @@ namespace hod::editor
 
 						Document prefabDocument;
 						prefabDocument.GetRootNode().AddChild("Name").SetString(dropEntityLock->GetName());
-						if (game::SceneSerializer::SerializeEntity(dropEntityLock, true, prefabDocument.GetRootNode().AddChild("Entities")) == false)
+						uint64_t nextLocalId = 1; // todo
+						if (game::SceneSerializer::SerializeEntity(dropEntityLock, true, prefabDocument.GetRootNode().AddChild("Entities"), nextLocalId) == false)
 						{
 							// todo output
 						}

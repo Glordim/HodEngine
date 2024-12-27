@@ -7,17 +7,21 @@
 
 #include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
 
 namespace hod::game
 {
-	Entity::Id Entity::_nextId = 0;
+	uint64_t Entity::_nextInstanceId = 0;
 
 	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
 	{
+		AddPropertyT(&reflectionDescriptor, &Component::_instanceId, "_instanceId")->AddTrait<ReflectionTraitNoSerialization>();
+		AddPropertyT(&reflectionDescriptor, &Entity::_localId, "_localId");//->AddTrait<ReflectionTraitHide>();
+
 		AddPropertyT(&reflectionDescriptor, &Entity::_name, "_name");
 		AddPropertyT(&reflectionDescriptor, &Entity::_active, "_active");
-		AddPropertyT(&reflectionDescriptor, &Entity::_id, "_id");
 
 		AddPropertyT(&reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
 		AddPropertyT(&reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
@@ -28,15 +32,8 @@ namespace hod::game
 	Entity::Entity(const std::string_view& name)
 	: _name(name)
 	{
-		++_nextId;
-		_id = _nextId;
-	}
-
-	/// @brief 
-	/// @return 
-	Entity::Id Entity::GetId() const
-	{
-		return _id;
+		++_nextInstanceId;
+		_instanceId = _nextInstanceId;
 	}
 
 	/// @brief 
@@ -319,7 +316,7 @@ namespace hod::game
 			bool exist = false;
 			for (const WeakEntity& child : parentLock->_children)
 			{
-				if (child.Lock() == shared_from_this() || child.GetId() == _id)
+				if (child.Lock() == shared_from_this() || child.GetInstanceId() == _instanceId)
 				{
 					exist = true;
 					break;

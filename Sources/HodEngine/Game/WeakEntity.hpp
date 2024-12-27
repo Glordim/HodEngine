@@ -34,7 +34,7 @@ namespace hod::game
 
         public:
 
-                            WeakEntity();
+                            WeakEntity() = default;
                             WeakEntity(const std::shared_ptr<Entity>& pointer);
         virtual             ~WeakEntity();
 
@@ -46,17 +46,17 @@ namespace hod::game
     public:
 
         std::shared_ptr<Entity>     Lock() const;
-        uint64_t                    GetId() const;
+        uint64_t                    GetInstanceId() const;
         uint64_t                    GetForSerialization() const;
 
         ReflectionDescriptor*       GetComponentDescriptor() const;
 
-        void                        SetId(uint64_t id);
+        void                        SetInstanceId(uint64_t id);
         void                        SetPointer(std::shared_ptr<Entity> pointer);
 
     private:
         
-        uint64_t                            _id = 0;
+        uint64_t                            _instanceId = 0;
         mutable std::weak_ptr<Entity>       _pointer;
     };
 }

@@ -24,15 +24,15 @@ namespace hod::game
 
 	public:
 
+		uint64_t				GetInstanceId() const { return _instanceId; }
+		uint64_t				GetLocalId() const { return _localId; }
+		void					SetLocalId(uint64_t localId) { _localId = localId; }
+
 		void					SetEntity(const std::shared_ptr<Entity>& entity);
 		std::shared_ptr<Entity>	GetEntity() const;
 
 		void					SetEnable(bool enable);
 		bool					GetEnable() const;
-
-		const UID&			GetUid() const { return _uid; }
-		const UID&			GetLocalId() const { return _localId; }
-		void				SetLocalId(const UID& uid) { _localId = uid; }
 
 		virtual void		OnAwake() {};
 		virtual void		OnStart() {};
@@ -58,8 +58,13 @@ namespace hod::game
 
 	private:
 
-		UID						_uid;
-		UID						_localId;
+		static uint64_t			_nextInstanceId; // todo std::atomic ?
+
+	private:
+
+		uint64_t				_instanceId = 0;
+		uint64_t				_localId = 0;
+
 		std::weak_ptr<Entity>	_entity;
 
 		bool					_enable = true;

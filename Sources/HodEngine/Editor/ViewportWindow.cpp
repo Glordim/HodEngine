@@ -307,12 +307,12 @@ namespace hod::editor
 					else
 					{
 						game::World* world = game::World::GetInstance();
-						std::shared_ptr<game::Entity> pickedEntity = world->FindEntity((game::Entity::Id)pickingId).lock();
+						std::shared_ptr<game::Entity> pickedEntity = world->FindEntity((uint64_t)pickingId).lock();
 						if (pickedEntity != nullptr)
 						{
 							Editor::GetInstance()->SetEntitySelection(pickedEntity);
 						}
-					}					
+					}
 				}
 			}
 		}

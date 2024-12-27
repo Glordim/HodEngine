@@ -50,7 +50,7 @@ namespace hod::game
                 const Document::Node* idNode = documentNode.GetChild("Id");
                 if (idNode != nullptr)
                 {
-                    weakEntity->SetId(idNode->GetUInt64());
+                    weakEntity->SetInstanceId(idNode->GetUInt64());
                 }
                 else
                 {
@@ -62,16 +62,8 @@ namespace hod::game
 
     /// @brief 
     /// @param pointer 
-    WeakEntity::WeakEntity()
-    : _id(0)
-    {
-        
-    }
-
-    /// @brief 
-    /// @param pointer 
     WeakEntity::WeakEntity(const std::shared_ptr<Entity>& pointer)
-    : _id(0)
+    : _instanceId(0)
     , _pointer(pointer)
     {
     }
@@ -85,7 +77,7 @@ namespace hod::game
     /// @param pointer 
     WeakEntity& WeakEntity::operator = (const WeakEntity& copy)
     {
-        _id = copy._id;
+        _instanceId = copy._instanceId;
         _pointer = copy._pointer;
         return *this;
     }
@@ -103,7 +95,7 @@ namespace hod::game
     /// @return 
     bool WeakEntity::operator==(const WeakEntity& other) const
     {
-        return _id == other._id;
+        return _instanceId == other._instanceId;
     }
 
     /// @brief 
@@ -113,7 +105,7 @@ namespace hod::game
         std::shared_ptr<Entity> lock = _pointer.lock();
         if (lock == nullptr)
         {
-            _pointer = WeakEntityMapping::Resolve(_id);
+            _pointer = WeakEntityMapping::Resolve(_instanceId);
             lock = _pointer.lock();
         }
         return lock;
@@ -121,23 +113,30 @@ namespace hod::game
 
     /// @brief 
     /// @return 
-    uint64_t WeakEntity::GetId() const
+    uint64_t WeakEntity::GetInstanceId() const
     {
-        return _id;
+        return _instanceId;
     }
 
     /// @brief 
     /// @param uid 
-    void WeakEntity::SetId(uint64_t id)
+    void WeakEntity::SetInstanceId(uint64_t instanceId)
     {
-        _id = id;
+        _instanceId = instanceId;
     }
 
     /// @brief 
     /// @param pointer 
     void WeakEntity::SetPointer(std::shared_ptr<Entity> pointer)
     {
-        _id = 0;
+        if (pointer == nullptr)
+        {
+            _instanceId = 0;
+        }
+        else
+        {
+            _instanceId = pointer->GetInstanceId();
+        }
         _pointer = pointer;
     }
 
@@ -148,8 +147,8 @@ namespace hod::game
         std::shared_ptr<Entity> lock = _pointer.lock();
         if (lock == nullptr)
         {
-            return _id;
+            return _instanceId;
         }
-        return lock->GetId();
+        return lock->GetInstanceId();
     }
 }

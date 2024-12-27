@@ -7,11 +7,11 @@
 
 namespace hod::game
 {
-    std::map<UID, std::weak_ptr<Component>> WeakComponentMapping::_map;
+    std::unordered_map<uint64_t, std::weak_ptr<Component>> WeakComponentMapping::_map;
 
-    void WeakComponentMapping::Insert(const UID& uid, std::weak_ptr<Component> component)
+    void WeakComponentMapping::Insert(uint64_t instanceId, std::weak_ptr<Component> component)
     {
-        _map[uid] = component;
+        _map[instanceId] = component;
     }
 
     void WeakComponentMapping::Clear()
@@ -19,9 +19,9 @@ namespace hod::game
         _map.clear();
     };
 
-    std::shared_ptr<Component> WeakComponentMapping::Resolve(const UID& uid)
+    std::shared_ptr<Component> WeakComponentMapping::Resolve(uint64_t instanceId)
     {
-        auto it = _map.find(uid);
+        auto it = _map.find(instanceId);
         if (it == _map.end())
         {
             return std::shared_ptr<Component>();
@@ -38,15 +38,14 @@ namespace hod::game
             [](const void* instance, Document::Node& documentNode)
             {
                 const WeakComponentBase* weakComponentBase = static_cast<const WeakComponentBase*>(instance);
-                UID uid = weakComponentBase->GetForSerialization();
-                Serializer::Serialize(uid, documentNode);
+                uint64_t instanceId = weakComponentBase->GetForSerialization();
+                documentNode.SetUInt64(instanceId);
             },
             [](void* instance, const Document::Node& documentNode)
             {
                 WeakComponentBase* weakComponentBase = static_cast<WeakComponentBase*>(instance);
-                UID uid;
-                Serializer::Deserialize(uid, documentNode);
-                weakComponentBase->SetUid(uid);
+                uint64_t instanceId = documentNode.GetUInt64();
+                weakComponentBase->SetInstanceId(instanceId);
             }
         );
     }
@@ -55,7 +54,7 @@ namespace hod::game
     /// @param pointer 
     WeakComponentBase::WeakComponentBase(ReflectionDescriptor* componentDescriptor)
     : _componentDescriptor(componentDescriptor)
-    , _uid(UID::INVALID_UID)
+    , _instanceId(0)
     {
         
     }
@@ -64,7 +63,7 @@ namespace hod::game
     /// @param pointer 
     WeakComponentBase::WeakComponentBase(ReflectionDescriptor* componentDescriptor, const std::shared_ptr<Component>& pointer)
     : _componentDescriptor(componentDescriptor)
-    , _uid(UID::INVALID_UID)
+    , _instanceId(0)
     , _pointer(pointer)
     {
     }
@@ -78,7 +77,7 @@ namespace hod::game
     /// @param pointer 
     WeakComponentBase& WeakComponentBase::operator = (const WeakComponentBase& copy)
     {
-        _uid = copy._uid;
+        _instanceId = copy._instanceId;
         _pointer = copy._pointer;
         _componentDescriptor = copy._componentDescriptor;
         return *this;
@@ -97,7 +96,7 @@ namespace hod::game
     /// @return 
     bool WeakComponentBase::operator==(const WeakComponentBase& other) const
     {
-        return _uid == other._uid;
+        return _instanceId == other._instanceId;
     }
 
     /// @brief 
@@ -107,7 +106,7 @@ namespace hod::game
         std::shared_ptr<Component> lock = _pointer.lock();
         if (lock == nullptr)
         {
-            _pointer = WeakComponentMapping::Resolve(_uid);
+            _pointer = WeakComponentMapping::Resolve(_instanceId);
             lock = _pointer.lock();
         }
         return lock;
@@ -115,23 +114,30 @@ namespace hod::game
 
     /// @brief 
     /// @return 
-    const UID& WeakComponentBase::GetUid() const
+    uint64_t WeakComponentBase::GetInstanceId() const
     {
-        return _uid;
+        return _instanceId;
     }
 
     /// @brief 
     /// @param uid 
-    void WeakComponentBase::SetUid(const UID& uid)
+    void WeakComponentBase::SetInstanceId(uint64_t instanceId)
     {
-        _uid = uid;
+        _instanceId = instanceId;
     }
 
     /// @brief 
     /// @param pointer 
     void WeakComponentBase::SetPointer(std::shared_ptr<Component> pointer)
     {
-        _uid = UID::INVALID_UID;
+        if (pointer == nullptr)
+        {
+            _instanceId = 0;
+        }
+        else
+        {
+            _instanceId = pointer->GetInstanceId();
+        }
         _pointer = pointer;
     }
 
@@ -144,13 +150,13 @@ namespace hod::game
 
     /// @brief 
     /// @return 
-    const UID& WeakComponentBase::GetForSerialization() const
+    uint64_t WeakComponentBase::GetForSerialization() const
     {
         std::shared_ptr<Component> lock = _pointer.lock();
         if (lock == nullptr)
         {
-            return this->_uid;
+            return _instanceId;
         }
-        return lock->GetUid();
+        return lock->GetInstanceId();
     }
 }
