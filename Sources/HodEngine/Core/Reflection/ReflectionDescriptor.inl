@@ -20,11 +20,13 @@ namespace hod
 		if constexpr (std::is_abstract<_Class_>::value == true || std::is_default_constructible<_Class_>::value == false)
 		{		
 			data._allocateFunction = nullptr;
+			data._deleteFunction = nullptr;
 			data._sharedAllocateFunction = nullptr;
 		}
 		else
 		{
 			data._allocateFunction = [](){ return new _Class_(); };
+			data._deleteFunction = [](void* instance){ delete static_cast<_Class_*>(instance); };
 			data._sharedAllocateFunction = [](){ return std::make_shared<_Class_>(); };
 		}
 

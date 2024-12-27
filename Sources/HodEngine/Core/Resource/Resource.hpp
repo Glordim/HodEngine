@@ -23,8 +23,6 @@ namespace hod
 		Resource&	operator = (const Resource&) = delete;
 		Resource&	operator = (Resource&&) = delete;
 
-		bool		operator==(const Resource& other) const = default;
-
 	public:
 
 		const UID&	GetUid() const { return _uid; }

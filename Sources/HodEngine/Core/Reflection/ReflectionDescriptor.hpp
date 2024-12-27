@@ -24,6 +24,7 @@ namespace hod
 			std::string_view		_name;
 			ReflectionDescriptor*	_parent = nullptr;
 			std::function<void*()>	_allocateFunction = nullptr;
+			std::function<void(void*)> _deleteFunction = nullptr;
 			std::function<std::shared_ptr<void>()>	_sharedAllocateFunction = nullptr;
 			std::function<bool(const void*, const void*)>	_compareFunction = nullptr;
 			MetaType				_metaType;
@@ -72,6 +73,8 @@ namespace hod
 		void									RemoveTrait(MetaType metaType);
 
 		void*									CreateInstance() const;
+		void									DeleteInstance(void* instance);
+
 		std::shared_ptr<void>					CreateSharedInstance() const;
 
 		template<typename _Type_>
@@ -98,6 +101,7 @@ namespace hod
 
 		ReflectionDescriptor*					_parent = nullptr;
 		std::function<void*()>					_allocateFunction = nullptr;
+		std::function<void(void*)>				_deleteFunction = nullptr;
 		std::function<std::shared_ptr<void>()>	_sharedAllocateFunction = nullptr;
 		std::function<bool(const void*, const void*)> _compareFunction = nullptr;
 		MetaType								_metaType;

@@ -509,13 +509,13 @@ namespace hod
                 bool result = Serializer::Deserialize(property->GetReflectionDescriptor(), newInstance, *objectNode);
                 if (result == false)
                 {
-                    delete newInstance;
+                    property->GetReflectionDescriptor()->DeleteInstance(newInstance);
                     return false;
                 }
 
                 property->SetValue(instance, newInstance);
 
-                delete newInstance;
+                property->GetReflectionDescriptor()->DeleteInstance(newInstance);
                 return true;
             }
             else
