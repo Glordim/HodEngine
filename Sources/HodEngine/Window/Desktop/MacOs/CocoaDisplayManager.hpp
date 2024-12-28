@@ -15,6 +15,7 @@ namespace hod::window
     public:
 
         bool            Initialize() override;
+        void            Update() override;
         void            Terminate() override;
 
         Window*         CreateWindow(bool hidden = false) override;

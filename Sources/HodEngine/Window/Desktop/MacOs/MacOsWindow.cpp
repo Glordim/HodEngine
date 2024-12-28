@@ -19,12 +19,6 @@ namespace hod::window
 	{
 		return _view;
 	}
-
-	/// @brief 
-	void MacOsWindow::Update()
-	{
-		EventLoop();
-	}
 }
 
 #endif

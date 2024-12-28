@@ -30,8 +30,6 @@ namespace hod::window
 											MacOsWindow(bool hidden);
 											~MacOsWindow() override;
 
-		void								Update() override;
-
 		void								SetSize(uint16_t width, uint16_t height) override;
 		void								CenterToScreen() override;
 		void								Maximize() override;
@@ -43,10 +41,6 @@ namespace hod::window
 		float								GetScaleFactor() const;
 
 		void								ResizeContext();
-
-	private:
-
-		void								EventLoop();
 
 	private:
 

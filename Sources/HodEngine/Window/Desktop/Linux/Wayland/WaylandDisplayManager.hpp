@@ -4,7 +4,6 @@
 #if defined(PLATFORM_LINUX)
 
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
-#include "HodEngine/Core/Job/MemberFunctionJob.hpp"
 
 #include <wayland-client.h>
 #include <xkbcommon/xkbcommon.h>
@@ -28,6 +27,7 @@ namespace hod::window
     public:
 
         bool            Initialize() override;
+        void            Update() override;
         void            Terminate() override;
 
         Window*         CreateWindow(bool hidden = false) override;
@@ -67,8 +67,6 @@ namespace hod::window
         };
 
     private:
-
-        void            Update();
 
         Output&         CreateOutput(wl_output* wlOutput, uint32_t id);
 
@@ -127,8 +125,6 @@ namespace hod::window
 
         xkb_context*    _xkbContext = nullptr;
         xkb_state*      _xkbState = nullptr;
-
-        MemberFunctionJob<WaylandDisplayManager>    _updateJob;
 
         std::map<wl_surface*, WaylandWindow*>   _surfaceToWindowMap;
     };

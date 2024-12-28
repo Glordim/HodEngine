@@ -16,6 +16,7 @@ namespace hod::window
         virtual         ~DisplayManager() = default;
 
         virtual bool    Initialize() = 0;
+        virtual void    Update() = 0;
         virtual void    Terminate() = 0;
 
         Window*         GetMainWindow() const;

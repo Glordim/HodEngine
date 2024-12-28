@@ -33,7 +33,7 @@
 	if (self != nil)
 	{
 		_window = initWindow;
-	}	
+	}
 
 	return self;
 }
@@ -62,6 +62,8 @@ namespace hod::window
 	MacOsWindow::MacOsWindow(bool hidden)
 		: DesktopWindow()
 	{
+        [NSApplication sharedApplication];
+        
 		_delegate = [[MyWindowDelegate alloc] initWithWindow:this];
 
 		NSRect frame = NSMakeRect(0, 0, _width, _height);
@@ -87,24 +89,6 @@ namespace hod::window
 	MacOsWindow::~MacOsWindow()
 	{
 		
-	}
-
-	void MacOsWindow::EventLoop()
-	{
-        @autoreleasepool 
-        {
-            while (true)
-            {
-                NSEvent* event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                                    untilDate:[NSDate distantPast]
-                                                       inMode:NSDefaultRunLoopMode
-                                                      dequeue:YES];
-                if (event == nil)
-                    break;
-
-                [NSApp sendEvent:event];
-            }
-        } // autoreleasepool
 	}
 
 	/// @brief 

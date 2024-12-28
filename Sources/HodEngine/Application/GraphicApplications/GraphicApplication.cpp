@@ -135,7 +135,7 @@ namespace hod::application
 		SystemTime::TimeStamp last = SystemTime::Now();
 		while (_shouldQuit == false)
 		{
-			_window->Update();
+			window::DisplayManager::GetInstance()->Update();
 			if (_window->IsClose())
 			{
 				Quit();

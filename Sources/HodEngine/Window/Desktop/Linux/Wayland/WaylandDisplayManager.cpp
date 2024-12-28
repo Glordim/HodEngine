@@ -5,8 +5,6 @@
 #include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Core/Job/JobQueue.hpp"
-#include "HodEngine/Core/Frame/FrameSequencer.hpp"
 
 #include <linux/input.h>
 #include <unistd.h>
@@ -22,7 +20,6 @@ namespace hod::window
 {
     _SingletonOverrideConstructor(WaylandDisplayManager)
     : DesktopDisplayManager()
-    , _updateJob(this, &WaylandDisplayManager::Update, JobQueue::Queue::FramedNormalPriority)
     {
 
     }
@@ -87,8 +84,6 @@ namespace hod::window
             }
         }
 
-        FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreLogic);
-
         //while (true)
         {
             //wl_display_dispatch(_wlDisplay);
@@ -103,13 +98,6 @@ namespace hod::window
     /// @brief 
     void WaylandDisplayManager::Terminate()
     {
-        FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::PreLogic);
-
-		if (_updateJob.Cancel() == true)
-		{
-			_updateJob.Wait();
-		}
-
         if (_wlDisplay != nullptr)
 		{
 			wl_display_disconnect(_wlDisplay);
