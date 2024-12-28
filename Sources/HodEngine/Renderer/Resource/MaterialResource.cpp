@@ -63,7 +63,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		_material = Renderer::GetInstance()->CreateMaterial(vertexInputs.data(), vertexInputs.size(), vertexShader, fragmentShader, _polygonMode, _topololy, false);
+		_material = Renderer::GetInstance()->CreateMaterial(vertexInputs.data(), (uint32_t)vertexInputs.size(), vertexShader, fragmentShader, _polygonMode, _topololy, false);
 		if (_material == nullptr)
 		{
 			return false;
