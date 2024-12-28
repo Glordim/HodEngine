@@ -10,7 +10,7 @@ namespace hod::window
 {
     class HOD_WINDOW_API CocoaDisplayManager : public DesktopDisplayManager
     {
-        _Singleton(CocoaDisplayManager)
+        _SingletonOverride(CocoaDisplayManager)
 
     public:
 

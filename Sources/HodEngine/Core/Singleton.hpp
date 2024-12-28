@@ -23,6 +23,25 @@
 																						\
 	private:																			\
 
+#define _SingletonAbstractOverride(T)													\
+	public:																				\
+																						\
+		static T*		GetInstance() { return static_cast<T*>(_instance); }			\
+																						\
+	protected:																			\
+																						\
+						T();															\
+																						\
+	public:																				\
+																						\
+						T(const T&) = delete;											\
+						T(T&&) = delete;												\
+																						\
+		T&				operator = (const T&) = delete;									\
+		T&				operator = (T&&) = delete;										\
+																						\
+	private:																			\
+
 // todo CreateInstance check if alreay exist #memleak
 
 #define _Singleton(T)																	\

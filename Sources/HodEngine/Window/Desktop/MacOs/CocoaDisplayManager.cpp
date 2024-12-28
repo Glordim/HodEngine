@@ -6,7 +6,7 @@
 
 namespace hod::window
 {
-    _SingletonConstructor(CocoaDisplayManager)
+    _SingletonOverrideConstructor(CocoaDisplayManager)
     : DesktopDisplayManager()
     {
 

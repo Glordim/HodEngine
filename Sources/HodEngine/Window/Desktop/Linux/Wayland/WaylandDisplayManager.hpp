@@ -23,7 +23,7 @@ namespace hod::window
 
     class HOD_WINDOW_API WaylandDisplayManager : public DesktopDisplayManager
     {
-        _Singleton(WaylandDisplayManager)
+        _SingletonOverride(WaylandDisplayManager)
 
     public:
 
