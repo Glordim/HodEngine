@@ -8,9 +8,8 @@
 
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
-#include "HodEngine/Core/Job/MemberFunctionJob.hpp"
-
 #include "HodEngine/Core/Event.hpp"
+#include <HodEngine/Core/Job/Thread.hpp>
 
 namespace hod::window
 {
@@ -49,8 +48,6 @@ namespace hod::window
 		HINSTANCE							_hInstance = nullptr;
 		ATOM								_class = 0;
 		HWND								_hWnd = nullptr;
-
-		MemberFunctionJob<Win32Window>		_updateJob;
 
 		Thread::Id							_hWndThreadId;
 

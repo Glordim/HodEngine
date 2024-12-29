@@ -7,8 +7,6 @@
 #include <string>
 
 #include <HodEngine/Core/Output/OutputService.hpp>
-#include <HodEngine/Core/Job/JobQueue.hpp>
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Core/OS.hpp>
 
 #include <cstdlib>
@@ -69,7 +67,6 @@ namespace hod::window
 	/// @brief 
 	Win32Window::Win32Window(bool hidden)
 		: DesktopWindow()
-		, _updateJob(this, &Win32Window::Update, JobQueue::Queue::FramedNormalPriority, false, Thread::GetCurrentThreadId())
 	{
 		_hWndThreadId = Thread::GetCurrentThreadId();
 
@@ -124,20 +121,11 @@ namespace hod::window
 		{
 			::ShowWindow(_hWnd, SW_NORMAL);
 		}
-
-		//FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreLogic);
 	}
 
 	/// @brief 
 	Win32Window::~Win32Window()
 	{
-		//FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::PreLogic);
-
-		if (_updateJob.Cancel() == true)
-		{
-			_updateJob.Wait();
-		}
-
 		if (_hWnd != NULL)
 		{
 			::DestroyWindow(_hWnd);
