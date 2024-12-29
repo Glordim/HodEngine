@@ -45,7 +45,6 @@
 
 - (void)windowWillClose:(NSNotification *)notification
 {
-    [NSApp terminate:nil];
 	_window->Close();
 }
 
@@ -88,7 +87,6 @@ namespace hod::window
 	/// @brief 
 	MacOsWindow::~MacOsWindow()
 	{
-		
 	}
 
 	/// @brief 

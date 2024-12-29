@@ -13,21 +13,20 @@ namespace hod
     /// @brief 
     MemoryManagerLeakDetector::~MemoryManagerLeakDetector()
 	{
-		uint32_t memleakCount = _allocationCount;
-		if (memleakCount > 0)
+		if (_allocationCount > 0)
 		{
 			uint32_t size = 0;
-			for (uint32_t index = 0; index < memleakCount; ++index)
+			for (uint32_t index = 0; index < _allocationCount; ++index)
 			{
 				const Allocation* allocation = _allocations[index];
 				size += allocation->_size;
 			}
 
 			FILE* memleakReport = fopen("MemleakReport.txt", "w");
-			fprintf(memleakReport, "Memleak count = %u\n", memleakCount);
+			fprintf(memleakReport, "Memleak count = %u\n", _allocationCount);
 			fprintf(memleakReport, "Size = %u\n\n", size);
 
-			for (uint32_t index = 0; index < memleakCount; ++index)
+			for (uint32_t index = 0; index < _allocationCount; ++index)
 			{
 				const Allocation* allocation = _allocations[index];
 
