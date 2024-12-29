@@ -43,6 +43,11 @@ namespace hod
 
 			*/
 			delete _defaultInstance;
+
+			for (ReflectionDescriptor* reflectionDescriptor : _paramsSubReflectionDescriptors)
+			{
+				delete reflectionDescriptor;
+			}
 			/*
 			for (const auto& pair : _setDescriptors)
 			{
@@ -103,6 +108,7 @@ namespace hod
 								uboOffset += 4 * sizeof(float);
 							}
 						}
+						_paramsSubReflectionDescriptors.push_back(uboReflectionDescriptor);
 						_paramsReflectionDescriptor.AddProperty<ReflectionPropertyObject>(offset, ubo._name.c_str(), uboReflectionDescriptor, nullptr, nullptr);
 						offset += uboOffset;
 					}

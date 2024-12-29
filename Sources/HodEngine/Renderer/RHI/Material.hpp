@@ -65,6 +65,7 @@ namespace hod
 
 			bool					_paramsReflectionDescriptorGenerated = false;
 			ReflectionDescriptor	_paramsReflectionDescriptor;
+			std::vector<ReflectionDescriptor*> _paramsSubReflectionDescriptors;
 
 		//uint32_t				getLocationFromName(const std::string& name);
 		};
