@@ -72,10 +72,14 @@ namespace hod
 	{
 		constexpr size_t N = sizeof...(Index_);
 		//here we create an array of bool where each index indicates whether it belongs to a valid enum entry
+		#ifdef __clang__
 		#pragma clang diagnostic push
 		#pragma clang diagnostic ignored "-Wenum-constexpr-conversion"
+		#endif
 		constexpr std::array<bool, N> validIndices{ {!EnumTrait::ToStringInternalStatic<Enum_, static_cast<Enum_>(Index_ - Offset_)>().empty()...} };
+		#ifdef __clang__
 		#pragma clang diagnostic pop
+		#endif
 		//here we count the number of valid enum indices
 		constexpr int numValid = ((validIndices[Index_] ? 1 : 0) + ...);
 		//with this information we can build an array of only valid enum entries
@@ -162,10 +166,14 @@ namespace hod
 		//we have to convert the runtime value to a compile time index
 		//this method uses an O(1) lookup via function pointers
 		using ToStringFunctionDecl = decltype(&ToStringInternalStatic<Enum_, static_cast<Enum_>(0)>);
+		#ifdef __clang__
 		#pragma clang diagnostic push
 		#pragma clang diagnostic ignored "-Wenum-constexpr-conversion"
+		#endif
 		constexpr std::array<ToStringFunctionDecl, sizeof...(Index_)> ToStringFunctions{ { ToStringInternalStatic<Enum_, static_cast<Enum_>(Index_ - Offset_)>... } };
+		#ifdef __clang__
 		#pragma clang diagnostic pop
+		#endif
 		return ToStringFunctions[size_t(Offset_ + static_cast<int>(value))]();
 	}
 }
