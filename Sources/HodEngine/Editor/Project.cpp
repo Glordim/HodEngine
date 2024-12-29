@@ -163,6 +163,11 @@ namespace hod::editor
 			return false;
 		}
 
+		if (FileSystem::SetWorkingDirectory(projectPath.parent_path()) == false)
+		{
+			return false;
+		}
+
 		_projectPath = projectPath;
 		_name = _projectPath.stem().string();
 

@@ -50,7 +50,6 @@ namespace hod::application
 		{
 			return false;
 		}
-		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
 
 		JobScheduler::CreateInstance();
 		FrameSequencer::CreateInstance();
