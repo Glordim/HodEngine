@@ -43,6 +43,12 @@ namespace hod
 			{
 				delete _builtinMaterials[index];
 				_builtinMaterials[index] = nullptr;
+
+				delete _builtinVertexShaders[index];
+				_builtinVertexShaders[index] = nullptr;
+
+				delete _builtinFragmentShaders[index];
+				_builtinFragmentShaders[index] = nullptr;
 			}
 		}
 
@@ -172,6 +178,8 @@ namespace hod
 				}
 
 				_builtinMaterials[static_cast<uint32_t>(buildMaterial)] = material; // c++23 std::to_underlying
+				_builtinVertexShaders[static_cast<uint32_t>(buildMaterial)] = vertexShader;
+				_builtinFragmentShaders[static_cast<uint32_t>(buildMaterial)] = fragmentShader;
 
 				material->CreateDefaultInstance();
 			}

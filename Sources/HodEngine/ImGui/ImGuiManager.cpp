@@ -67,6 +67,8 @@ namespace hod::imgui
 
 		delete _fontTexture;
 		delete _material;
+		delete _vertexShader;
+		delete _fragmentShader;
 	}
 
 void embraceTheDarkness()
@@ -471,26 +473,27 @@ void embraceTheDarkness()
 				{ 0, 16, renderer::VertexInput::Format::R8G8B8A8_UNorm },
 			};
 
-			renderer::Shader* vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
-			if (vertexShader->LoadFromSource(imgui_vert) == false)
+			_vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
+			if (_vertexShader->LoadFromSource(imgui_vert) == false)
 			{
-				delete vertexShader;
+				delete _vertexShader;
 				return false;
 			}
 
-			renderer::Shader* fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
-			if (fragmentShader->LoadFromSource(imgui_frag) == false)
+			_fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
+			if (_fragmentShader->LoadFromSource(imgui_frag) == false)
 			{
-				delete vertexShader;
-				delete fragmentShader;
+				delete _vertexShader;
+				delete _fragmentShader;
 				return false;
 			}
 
-			_material = renderer->CreateMaterial(vertexInput, 3, vertexShader, fragmentShader);
+			_material = renderer->CreateMaterial(vertexInput, 3, _vertexShader, _fragmentShader);
 			if (_material == nullptr)
 			{
-				delete vertexShader;
-				delete fragmentShader;
+				delete _material;
+				delete _vertexShader;
+				delete _fragmentShader;
 				return false;
 			}
 

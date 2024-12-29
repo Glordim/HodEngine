@@ -23,6 +23,7 @@ namespace hod::window
 
 namespace hod::renderer
 {
+	class Shader;
 	class Material;
 	class Texture;
 }
@@ -88,6 +89,8 @@ namespace hod::imgui
 		renderer::Texture*				_fontTexture = nullptr;
 
 		renderer::Material*				_material = nullptr;
+		renderer::Shader*				_vertexShader = nullptr;
+		renderer::Shader*				_fragmentShader = nullptr;
 
 		window::Window*					_mainWindow = nullptr;
 

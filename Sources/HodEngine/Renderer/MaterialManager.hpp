@@ -52,6 +52,8 @@ namespace hod
 		private:
 
 			std::array<Material*, static_cast<uint32_t>(BuiltinMaterial::Count)>	_builtinMaterials = { nullptr }; // c++23 std::to_underlying
+			std::array<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>	_builtinVertexShaders = { nullptr };
+			std::array<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>	_builtinFragmentShaders = { nullptr };
 		};
 	}
 }
