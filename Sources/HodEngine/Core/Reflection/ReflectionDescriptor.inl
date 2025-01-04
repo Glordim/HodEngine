@@ -86,4 +86,10 @@ namespace hod
 	{
 		return std::static_pointer_cast<_Type_>(CreateSharedInstance());
 	}
+
+	template<typename _ObjectType_>
+	void ReflectionDescriptor::CollectObjectProperties(std::vector<_ObjectType_*>& collectedInstances, void* instance)
+	{
+		CollectObjectProperties(_ObjectType_::GetReflectionDescriptor(), (std::vector<void*>&)collectedInstances, instance);
+	}
 }

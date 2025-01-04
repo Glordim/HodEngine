@@ -87,8 +87,8 @@ namespace hod::game
 		const Document::Node* entityNode = entitiesNode->GetFirstChild();
 		while (entityNode != nullptr)
 		{
-			std::vector<std::shared_ptr<Entity>> entities;
-			std::vector<std::shared_ptr<Component>> components;
+			std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
+			std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
 			std::shared_ptr<Entity> entity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
 			_entities.emplace(entity->GetInstanceId(), entity);
 
@@ -111,7 +111,6 @@ namespace hod::game
 	std::weak_ptr<Entity> Prefab::CreateEntity(const std::string_view& name)
 	{
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
-		WeakEntityMapping::Insert(entity->GetInstanceId(), entity);
 		_entities.emplace(entity->GetInstanceId(), entity);
 
 		return entity;

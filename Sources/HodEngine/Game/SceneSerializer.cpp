@@ -93,7 +93,12 @@ namespace hod::game
 		return true;
 	}
 
-	std::shared_ptr<Entity> SceneSerializer::InstantiateEntityFromDocumentNode(const Document::Node& entityNode, std::vector<std::shared_ptr<Entity>>& entities, std::vector<std::shared_ptr<Component>>& components)
+	/// @brief 
+	/// @param entityNode 
+	/// @param entities 
+	/// @param components 
+	/// @return 
+	std::shared_ptr<Entity> SceneSerializer::InstantiateEntityFromDocumentNode(const Document::Node& entityNode, std::unordered_map<uint64_t, std::shared_ptr<Entity>>& entities, std::unordered_map<uint64_t, std::shared_ptr<Component>>& components)
 	{
 		const Document::Node* prefabInstanceNode = entityNode.GetChild("PrefabInstance");
 		if (prefabInstanceNode != nullptr)
@@ -145,6 +150,7 @@ namespace hod::game
 							}
 							else // Components
 							{
+								/*
 								std::shared_ptr<Component> targetComponent;
 								for (const std::shared_ptr<Component>& component : components)
 								{
@@ -168,6 +174,7 @@ namespace hod::game
 								{
 									// todo
 								}
+								*/
 							}
 						}
 					}
@@ -186,7 +193,6 @@ namespace hod::game
 			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 
 			Serializer::Deserialize(*entity.get(), entityNode);
-			WeakEntityMapping::Insert(entity->GetInstanceId(), entity);
 
 			const Document::Node* componentsNode = entityNode.GetChild("Components");
 			const Document::Node* componentNode = componentsNode->GetFirstChild();
@@ -202,8 +208,7 @@ namespace hod::game
 					std::shared_ptr<Component> componentLock = component.lock();
 					Component* rawComponent = componentLock.get();
 					Serializer::Deserialize(rawComponent, *componentNode); // todo lvalue...
-					WeakComponentMapping::Insert(componentLock->GetInstanceId(), component);
-					components.push_back(componentLock);
+					components[componentLock->GetLocalId()] = componentLock;
 				}
 				else
 				{
@@ -213,8 +218,8 @@ namespace hod::game
 				componentNode = componentNode->GetNextSibling();
 			}
 
-			entities.push_back(entity);
+			entities[entity->GetLocalId()] = entity;
 			return entity;
-		}		
+		}
 	}
 }

@@ -7,31 +7,6 @@
 
 namespace hod::game
 {
-    std::unordered_map<uint64_t, std::weak_ptr<Component>> WeakComponentMapping::_map;
-
-    void WeakComponentMapping::Insert(uint64_t instanceId, std::weak_ptr<Component> component)
-    {
-        _map[instanceId] = component;
-    }
-
-    void WeakComponentMapping::Clear()
-    {
-        _map.clear();
-    };
-
-    std::shared_ptr<Component> WeakComponentMapping::Resolve(uint64_t instanceId)
-    {
-        auto it = _map.find(instanceId);
-        if (it == _map.end())
-        {
-            return std::shared_ptr<Component>();
-        }
-        else
-        {
-            return it->second.lock();
-        }
-    }
-
     DESCRIBE_REFLECTED_CLASS(WeakComponentBase, reflectionDescriptor)
     {
         reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
@@ -103,13 +78,7 @@ namespace hod::game
     /// @return 
     std::shared_ptr<Component> WeakComponentBase::Lock() const
     {
-        std::shared_ptr<Component> lock = _pointer.lock();
-        if (lock == nullptr)
-        {
-            _pointer = WeakComponentMapping::Resolve(_instanceId);
-            lock = _pointer.lock();
-        }
-        return lock;
+        return _pointer.lock();
     }
 
     /// @brief 
@@ -155,8 +124,8 @@ namespace hod::game
         std::shared_ptr<Component> lock = _pointer.lock();
         if (lock == nullptr)
         {
-            return _instanceId;
+            return 0;
         }
-        return lock->GetInstanceId();
+        return lock->GetLocalId();
     }
 }

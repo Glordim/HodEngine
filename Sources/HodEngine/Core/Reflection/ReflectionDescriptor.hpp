@@ -68,6 +68,10 @@ namespace hod
 		_Property_*								FindProperty(const std::string_view& name, bool fallbackOnParent = true) const;
 		ReflectionProperty*						FindProperty(const std::string_view& name, bool fallbackOnParent = true) const;
 
+		template<typename _ObjectType_>
+		void									CollectObjectProperties(std::vector<_ObjectType_*>& collectedInstances, void* instance);
+		void									CollectObjectProperties(ReflectionDescriptor* reflectionDescriptor, std::vector<void*>& collectedInstances, void* instance);
+
 		template<typename _Trait_>
 		void									RemoveTrait();
 		void									RemoveTrait(MetaType metaType);
@@ -91,6 +95,7 @@ namespace hod
 		const std::string&						GetTypeName() const;
 
 		ReflectionDescriptor*					GetParent() const;
+		bool									IsCompatible(ReflectionDescriptor* descriptor) const;
 
 		const std::string&						GetDisplayName() const;
 

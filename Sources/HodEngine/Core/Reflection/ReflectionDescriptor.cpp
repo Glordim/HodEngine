@@ -3,6 +3,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 #include "HodEngine/Core/CharHelper.hpp"
 
 #include <cassert>
@@ -199,6 +200,24 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @param descriptor 
+	/// @return 
+	bool ReflectionDescriptor::IsCompatible(ReflectionDescriptor* descriptor) const
+	{
+		if (this == descriptor)
+		{
+			return true;
+		}
+
+		if (_parent != nullptr)
+		{
+			return _parent->IsCompatible(descriptor);
+		}
+
+		return false;
+	}
+
+	/// @brief 
 	/// @param sourceInstance 
 	/// @param destinationInstance 
 	void ReflectionDescriptor::Copy(const void* sourceInstance, void* destinationInstance)
@@ -222,5 +241,28 @@ namespace hod
 	{
 		assert(_compareFunction != nullptr);
 		return _compareFunction(left, right);
+	}
+
+	/// @brief 
+	/// @param reflectionDescriptor 
+	/// @param collectedInstances 
+	/// @param instance 
+	void ReflectionDescriptor::CollectObjectProperties(ReflectionDescriptor* reflectionDescriptor, std::vector<void*>& collectedInstances, void* instance)
+	{
+		for (ReflectionProperty* property : GetProperties())
+		{
+			if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+			{
+				ReflectionPropertyObject* objectProperty = static_cast<ReflectionPropertyObject*>(property);
+				if (objectProperty->GetReflectionDescriptor()->IsCompatible(reflectionDescriptor))
+				{
+					void* objectInstance = objectProperty->GetValue(instance);
+					if (objectInstance != nullptr)
+					{
+						collectedInstances.push_back(objectInstance);
+					}
+				}
+			}
+		}
 	}
 }

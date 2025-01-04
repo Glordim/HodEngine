@@ -91,19 +91,53 @@ namespace hod::game
 			_nextLocalId = nextLocalIdNode->GetUInt64();
 		}
 
+		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
+		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
 		const Document::Node* entityNode = entitiesNode->GetFirstChild();
 		while (entityNode != nullptr)
 		{
-			std::vector<std::shared_ptr<Entity>> entities;
-			std::vector<std::shared_ptr<Component>> components;
 			SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
-			for (std::shared_ptr<Entity> entity : entities)
-			{
-				_entities.emplace(entity->GetInstanceId(), entity);
-			}
 
 			entityNode = entityNode->GetNextSibling();
+		}
+
+		for (auto& entityPair : entities)
+		{
+			uint64_t parentId = entityPair.second->GetParent().GetInstanceId();
+			if (parentId != 0)
+			{
+				entityPair.second->SetParent(entities[parentId]);
+			}
+		}
+		for (auto& componentPair : components)
+		{
+			std::vector<WeakEntity*> weakEntities;
+			componentPair.second->GetReflectionDescriptorV()->CollectObjectProperties(weakEntities, componentPair.second.get());
+			for (WeakEntity* weakEntity : weakEntities)
+			{
+				uint64_t entityId = weakEntity->GetInstanceId();
+				if (entityId != 0)
+				{
+					weakEntity->SetPointer(entities[entityId]);
+				}
+			}
+
+			std::vector<WeakComponentBase*> weakComponents;
+			componentPair.second->GetReflectionDescriptorV()->CollectObjectProperties(weakComponents, componentPair.second.get());
+			for (WeakComponentBase* weakComponent : weakComponents)
+			{
+				uint64_t componenId = weakComponent->GetInstanceId();
+				if (componenId != 0)
+				{
+					weakComponent->SetPointer(components[componenId]);
+				}
+			}
+		}
+
+		for (auto& entityPair : entities)
+		{
+			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
 		}
 
 		for (const auto& entity : _entities)
@@ -135,7 +169,6 @@ namespace hod::game
 	std::shared_ptr<Entity> Scene::CreateEntity(const std::string_view& name)
 	{
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
-		WeakEntityMapping::Insert(entity->GetInstanceId(), entity);
 		_entities.emplace(entity->GetInstanceId(), entity);
 
 		return entity;
@@ -251,8 +284,8 @@ namespace hod::game
 		Document document;
 		SceneSerializer::SerializeEntity(entity, true, document.GetRootNode(), nextLocalId);
 
-		std::vector<std::shared_ptr<Entity>> entities;
-		std::vector<std::shared_ptr<Component>> components;
+		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
+		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
 
 		std::shared_ptr<Entity> clonedEntity;
 
@@ -268,9 +301,9 @@ namespace hod::game
 			entityNode = entityNode->GetNextSibling();
 		}
 
-		for (std::shared_ptr<Entity> entity : entities)
+		for (auto& entityPair : entities)
 		{
-			_entities.emplace(entity->GetInstanceId(), entity);
+			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
 		}
 
 		return clonedEntity;

@@ -24,7 +24,7 @@ namespace hod::game
 		AddPropertyT(&reflectionDescriptor, &Entity::_active, "_active");
 
 		AddPropertyT(&reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(&reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
+		//AddPropertyT(&reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 
@@ -288,7 +288,7 @@ namespace hod::game
 	/// @param parent 
 	void Entity::SetParent(const WeakEntity& parent)
 	{
-		if (_parent == parent)
+		if (_parent.Lock() == parent.Lock())
 		{
 			return;
 		}

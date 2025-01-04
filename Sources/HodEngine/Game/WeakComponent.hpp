@@ -11,27 +11,6 @@
 
 namespace hod::game
 {
-    /// @brief 
-    class HOD_GAME_API WeakComponentMapping
-    {
-    public:
-
-        static void Insert(uint64_t instanceId, std::weak_ptr<Component> component);
-        static void Clear();
-
-        static std::shared_ptr<Component> Resolve(uint64_t instanceId);
-
-        template<typename _Component_>
-        static std::shared_ptr<_Component_> Resolve(uint64_t instanceId)
-        {
-            return std::static_pointer_cast<_Component_>(Resolve(instanceId));
-        }
-
-    private:
-
-        static std::unordered_map<uint64_t, std::weak_ptr<Component>> _map;
-    };
-
     class HOD_GAME_API WeakComponentBase
     {
         REFLECTED_CLASS_NO_VIRTUAL(WeakComponentBase)

@@ -11,21 +11,6 @@ namespace hod::game
 {
     class Entity;
 
-    /// @brief 
-    class HOD_GAME_API WeakEntityMapping
-    {
-    public:
-
-        static void Insert(uint64_t id, std::weak_ptr<Entity> entity);
-        static void Clear();
-
-        static std::shared_ptr<Entity> Resolve(uint64_t id);
-
-    private:
-
-        static std::map<uint64_t, std::weak_ptr<Entity>> _map;
-    };
-
     class HOD_GAME_API WeakEntity
     {
         REFLECTED_CLASS_NO_VIRTUAL(WeakEntity)

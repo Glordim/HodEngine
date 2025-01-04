@@ -503,6 +503,7 @@ namespace hod
         
         if (objectNode != nullptr)
         {
+            /*
             if (property->HasSetMethod())
             {
                 void* newInstance = property->GetReflectionDescriptor()->CreateInstance();
@@ -519,6 +520,7 @@ namespace hod
                 return true;
             }
             else
+            */
             {
                 void* objectInstance = property->GetInstance(instance);
                 return Serializer::Deserialize(property->GetReflectionDescriptor(), objectInstance, *objectNode);
