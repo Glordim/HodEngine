@@ -80,18 +80,6 @@ namespace hod::game
 		return _materialInstance;
 	}
 
-	static std::array<Vector2, 4> _uvs = {
-		Vector2(0, 0),
-		Vector2(1, 0),
-		Vector2(1, 1),
-		Vector2(0, 1),
-	};
-
-	static std::array<uint16_t, 3*2> _indices = {
-		0, 1, 2,
-		0, 2, 3,
-	};
-
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
@@ -112,6 +100,18 @@ namespace hod::game
 					Vector2(-0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
 				};
 
+				static std::array<Vector2, 4> uvs = {
+					Vector2(0, 0),
+					Vector2(1, 0),
+					Vector2(1, 1),
+					Vector2(0, 1),
+				};
+
+				static std::array<uint16_t, 3*2> indices = {
+					0, 1, 2,
+					0, 2, 3,
+				};
+
 				if (_materialInstance == nullptr)
 				{
 					const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
@@ -120,7 +120,7 @@ namespace hod::game
 					RefreshMaterialInstance();
 				}
 				
-				renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), _uvs.data(), nullptr, (uint32_t)vertices.size(), _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetInstanceId()));
+				renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetInstanceId()));
 			}
 		}
 	}

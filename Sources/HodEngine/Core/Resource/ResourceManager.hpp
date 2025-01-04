@@ -9,6 +9,8 @@
 
 #include "HodEngine/Core/Singleton.hpp"
 
+#undef FindResource
+
 namespace hod
 {
 	class Resource;

@@ -238,3 +238,8 @@ if(NOT SET_UP_CONFIGURATIONS_DONE)
 		set(CMAKE_PDB_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/${OUTPUTCONFIG})
 	endforeach()
 endif()
+
+option(ENABLE_UNITY_BUILD "Enable Unity Build for faster compilation" ON)
+if (ENABLE_UNITY_BUILD)
+    set(CMAKE_UNITY_BUILD ON)
+endif()
