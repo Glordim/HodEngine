@@ -45,6 +45,9 @@ namespace hod::game
 
 		const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& GetEntities() const;
 
+		void						SetNextLocalId(uint64_t nextLocalId) { _nextLocalId = nextLocalId; }
+		uint64_t					GetNextLocalId() const { return _nextLocalId; }
+
 	private:
 
 		std::string												_name;

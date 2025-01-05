@@ -91,49 +91,10 @@ namespace hod::game
 			_nextLocalId = nextLocalIdNode->GetUInt64();
 		}
 
+		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
 		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
 		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
-		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
-		const Document::Node* entityNode = entitiesNode->GetFirstChild();
-		while (entityNode != nullptr)
-		{
-			SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
-
-			entityNode = entityNode->GetNextSibling();
-		}
-
-		for (auto& entityPair : entities)
-		{
-			uint64_t parentId = entityPair.second->GetParent().GetInstanceId();
-			if (parentId != 0)
-			{
-				entityPair.second->SetParent(entities[parentId]);
-			}
-		}
-		for (auto& componentPair : components)
-		{
-			std::vector<WeakEntity*> weakEntities;
-			componentPair.second->GetReflectionDescriptorV()->CollectObjectProperties(weakEntities, componentPair.second.get());
-			for (WeakEntity* weakEntity : weakEntities)
-			{
-				uint64_t entityId = weakEntity->GetInstanceId();
-				if (entityId != 0)
-				{
-					weakEntity->SetPointer(entities[entityId]);
-				}
-			}
-
-			std::vector<WeakComponentBase*> weakComponents;
-			componentPair.second->GetReflectionDescriptorV()->CollectObjectProperties(weakComponents, componentPair.second.get());
-			for (WeakComponentBase* weakComponent : weakComponents)
-			{
-				uint64_t componenId = weakComponent->GetInstanceId();
-				if (componenId != 0)
-				{
-					weakComponent->SetPointer(components[componenId]);
-				}
-			}
-		}
+		SceneSerializer::InstantiateEntitiesAndResolveReferenceFromDocumentNode(*entitiesNode, entities, components);
 
 		for (auto& entityPair : entities)
 		{
@@ -280,26 +241,15 @@ namespace hod::game
 			return nullptr;
 		}
 
-		uint64_t nextLocalId = 1; // todo
 		Document document;
-		SceneSerializer::SerializeEntity(entity, true, document.GetRootNode(), nextLocalId);
-
-		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
-		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
+		SceneSerializer::SerializeEntity(entity, true, document.GetRootNode(), _nextLocalId);
 
 		std::shared_ptr<Entity> clonedEntity;
 
-		const Document::Node* entityNode = document.GetRootNode().GetFirstChild();
-		while (entityNode != nullptr)
-		{
-			std::shared_ptr<Entity> newEntity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
-			if (clonedEntity == nullptr)
-			{
-				clonedEntity = newEntity;
-				clonedEntity->SetPrefabResource(entity->GetPrefabResource());
-			}
-			entityNode = entityNode->GetNextSibling();
-		}
+		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
+		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
+		clonedEntity = SceneSerializer::InstantiateEntitiesAndResolveReferenceFromDocumentNode(document.GetRootNode(), entities, components);
+		clonedEntity->SetPrefabResource(entity->GetPrefabResource());
 
 		for (auto& entityPair : entities)
 		{

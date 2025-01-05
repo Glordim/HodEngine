@@ -70,7 +70,7 @@ namespace hod::game
 	bool Prefab::DeserializeFromDocument(const Document::Node& documentNode)
 	{
 		const Document::Node* nameNode = documentNode.GetChild("Name");
-		if (nameNode!= nullptr)
+		if (nameNode != nullptr)
 		{
 			_name = nameNode->GetString();
 		}
@@ -81,18 +81,14 @@ namespace hod::game
 			_nextLocalId = nextLocalIdNode->GetUInt64();
 		}
 
-		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
-
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
-		const Document::Node* entityNode = entitiesNode->GetFirstChild();
-		while (entityNode != nullptr)
-		{
-			std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
-			std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
-			std::shared_ptr<Entity> entity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
-			_entities.emplace(entity->GetInstanceId(), entity);
+		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
+		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
+		SceneSerializer::InstantiateEntitiesAndResolveReferenceFromDocumentNode(*entitiesNode, entities, components);
 
-			entityNode = entityNode->GetNextSibling();
+		for (auto& entityPair : entities)
+		{
+			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
 		}
 
 		return true;

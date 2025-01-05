@@ -17,5 +17,7 @@ namespace hod::game
         static bool SerializeEntity(const std::shared_ptr<Entity> entity, bool withChildren, Document::Node& entityNode, uint64_t& nextLocalId);
 
         static std::shared_ptr<Entity> InstantiateEntityFromDocumentNode(const Document::Node& entityNode, std::unordered_map<uint64_t, std::shared_ptr<Entity>>& entities, std::unordered_map<uint64_t, std::shared_ptr<Component>>& components);
+
+        static std::shared_ptr<Entity> InstantiateEntitiesAndResolveReferenceFromDocumentNode(const Document::Node& entitiesNode, std::unordered_map<uint64_t, std::shared_ptr<Entity>>& entities, std::unordered_map<uint64_t, std::shared_ptr<Component>>& components);
     };
 }

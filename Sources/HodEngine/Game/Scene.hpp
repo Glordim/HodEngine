@@ -61,6 +61,9 @@ namespace hod::game
 		void						Update();
 		void						Draw(renderer::RenderQueue* renderQueue);
 
+		void						SetNextLocalId(uint64_t nextLocalId) { _nextLocalId = nextLocalId; }
+		uint64_t					GetNextLocalId() const { return _nextLocalId; }
+
 	private:
 
 		std::string												_name;

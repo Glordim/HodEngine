@@ -222,4 +222,61 @@ namespace hod::game
 			return entity;
 		}
 	}
+
+	/// @brief 
+	/// @param entityNode 
+	/// @param entities 
+	/// @param components 
+	/// @return 
+	std::shared_ptr<Entity> SceneSerializer::InstantiateEntitiesAndResolveReferenceFromDocumentNode(const Document::Node& entitiesNode, std::unordered_map<uint64_t, std::shared_ptr<Entity>>& entities, std::unordered_map<uint64_t, std::shared_ptr<Component>>& components)
+	{
+		std::shared_ptr<Entity> root;
+
+		const Document::Node* entityNode = entitiesNode.GetFirstChild();
+		while (entityNode != nullptr)
+		{
+			std::shared_ptr<Entity> entity = SceneSerializer::InstantiateEntityFromDocumentNode(*entityNode, entities, components);
+			if (root == nullptr)
+			{
+				root = entity;
+			}
+
+			entityNode = entityNode->GetNextSibling();
+		}
+
+		for (auto& entityPair : entities)
+		{
+			uint64_t parentId = entityPair.second->GetParent().GetInstanceId();
+			if (parentId != 0)
+			{
+				entityPair.second->SetParent(entities[parentId]);
+			}
+		}
+		for (auto& componentPair : components)
+		{
+			std::vector<WeakEntity*> weakEntities;
+			componentPair.second->GetReflectionDescriptorV()->CollectObjectProperties(weakEntities, componentPair.second.get());
+			for (WeakEntity* weakEntity : weakEntities)
+			{
+				uint64_t entityId = weakEntity->GetInstanceId();
+				if (entityId != 0)
+				{
+					weakEntity->SetPointer(entities[entityId]);
+				}
+			}
+
+			std::vector<WeakComponentBase*> weakComponents;
+			componentPair.second->GetReflectionDescriptorV()->CollectObjectProperties(weakComponents, componentPair.second.get());
+			for (WeakComponentBase* weakComponent : weakComponents)
+			{
+				uint64_t componenId = weakComponent->GetInstanceId();
+				if (componenId != 0)
+				{
+					weakComponent->SetPointer(components[componenId]);
+				}
+			}
+		}
+
+		return root;
+	}
 }
