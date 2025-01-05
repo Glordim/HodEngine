@@ -35,6 +35,17 @@ namespace hod::game
 	{
 	}
 
+	/// @brief 
+	void TextureRendererComponent::OnConstruct()
+	{
+		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		if (materialInstanceResource != nullptr)
+		{
+			_materialInstance = materialInstanceResource->GetMaterialInstance();
+		}
+		RefreshMaterialInstance();
+	}
+
 	/*
 	//-----------------------------------------------------------------------------
 	//! @brief		

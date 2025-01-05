@@ -31,6 +31,8 @@ namespace hod::game
 
 	public:
 
+		void							OnConstruct() override;
+
 		renderer::MaterialInstance*		GetMaterialInstance() const;
 
 		void							SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& materialInstance);

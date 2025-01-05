@@ -258,6 +258,19 @@ namespace hod::game
 			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
 		}
 
+		for (const auto& entity : entities)
+		{
+			for (std::weak_ptr<Component> component : entity.second->GetComponents())
+			{
+				component.lock()->Construct();
+			}
+		}
+
+		for (const auto& entity : entities)
+		{
+			entity.second->SetActive(true);
+		}
+
 		return clonedEntity;
 	}
 }
