@@ -33,6 +33,7 @@ namespace hod
 
 			_insertElementFunction = nullptr;
 			_removeElementFunction = nullptr;
+			_clearFunction = nullptr;
 		}
 
 		template<typename _array_>
@@ -52,6 +53,7 @@ namespace hod
 
 			_insertElementFunction = nullptr;
 			_removeElementFunction = nullptr;
+			_clearFunction = nullptr;
 		}
 
 		template<typename _vector_>
@@ -81,6 +83,12 @@ namespace hod
 				_vector_* array = static_cast<_vector_*>(instance);
 				array->erase(array->begin() + index);
 			};
+
+			_clearFunction = [](void* instance)
+			{
+				_vector_* array = static_cast<_vector_*>(instance);
+				array->clear();
+			};
 		}
 
 	public:
@@ -89,6 +97,7 @@ namespace hod
 		std::function<void*(const void*, uint32_t)>	_getElementAddressFunction;
 		std::function<void(void*, uint32_t)>		_insertElementFunction;
 		std::function<void(void*, uint32_t)>		_removeElementFunction;
+		std::function<void(void*)>					_clearFunction;
 	};
 
 	template<typename _container_>
@@ -144,6 +153,7 @@ namespace hod
 		uint32_t								GetElementCount(const void* instance) const;
 		void									InsertElement(void* instance, uint32_t index) const;
 		void									RemoveElement(void* instance, uint32_t index) const;
+		void									Clear(void* instance) const;
 
 		void									Copy(const void* sourceInstance, void* destinationInstance) const override;
 

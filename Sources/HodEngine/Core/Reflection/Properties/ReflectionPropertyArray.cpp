@@ -59,6 +59,17 @@ namespace hod
 		}
 	}
 
+	void ReflectionPropertyArray::Clear(void* instance) const
+	{
+		if (_adapter._clearFunction != nullptr)
+		{
+			uint8_t* instanceAddress = reinterpret_cast<uint8_t*>(instance);
+			void* arrayAddress = reinterpret_cast<void*>(instanceAddress + _offset);
+
+			_adapter._clearFunction(arrayAddress);
+		}
+	}
+
 	/// @brief 
 	/// @param sourceInstance 
 	/// @param destinationInstance 

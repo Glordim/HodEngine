@@ -384,6 +384,7 @@ namespace hod
         if (arrayNode != nullptr)
         {
             // TODO reserve
+            property->Clear(instance);
 
             const Document::Node* varNode = arrayNode->GetFirstChild();
             while (varNode != nullptr)
