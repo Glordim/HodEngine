@@ -438,11 +438,14 @@ namespace hod::editor
 
 					case ReflectionPropertyVariable::Type::Object:
 					{
+						void* value = property->GetValue<void*>(object, index);
+						EditorReflectedObject subEditorReflectedObject(value, property->GetElementReflectionDescriptor());
+
 						if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
 						{
 							ImGui::Indent();
-							void* value = property->GetValue<void*>(object, index);
-							//changed |= PropertyDrawer::DrawDescriptor(value, property->GetElementReflectionDescriptor());
+							//void* value = property->GetValue<void*>(object, index);
+							changed |= PropertyDrawer::DrawDescriptor(subEditorReflectedObject);
 							ImGui::Unindent();
 						}
 					}
