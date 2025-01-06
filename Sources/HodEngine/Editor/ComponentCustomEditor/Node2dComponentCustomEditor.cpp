@@ -119,7 +119,7 @@ namespace hod::editor
 				{
 					node2D->SetPosition(newPosition);
 					changed = true;
-				}				
+				}
 			}
 
 			constexpr float thickness = 0.05f;
