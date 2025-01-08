@@ -62,7 +62,7 @@ namespace hod::game
 
 	private:
 
-		Projection					_projection = Projection::Perpective;
+		Projection					_projection = Projection::Orthographic;
 		float						_size = 5.0f;
 		float						_near = -1.0f;
 		float						_far = 1.0f;

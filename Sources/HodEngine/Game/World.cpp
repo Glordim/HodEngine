@@ -48,7 +48,7 @@ namespace hod
 						Scene* clone = scene->Clone();
 						clonedScene.push_back(clone);
 					}
-					_scenes = clonedScene;					
+					_scenes = clonedScene;
 
 					for (Scene* scene : _scenes)
 					{
@@ -253,7 +253,8 @@ namespace hod
 				CameraComponent* camera = CameraComponent::_main;
 				if (camera == nullptr)
 				{
-					return;
+					static CameraComponent builtinCamera;
+					camera = &builtinCamera;
 				}
 				camera->PushToRenderQueue(*renderQueue);
 			}
