@@ -32,6 +32,7 @@ namespace hod::editor
 		{
 			bool _clicked = false;
 			Vector2 _initialPosition;
+			Vector2 _moveOffset;
 		};
 
 		static std::unordered_map<uint32_t, State> _states;

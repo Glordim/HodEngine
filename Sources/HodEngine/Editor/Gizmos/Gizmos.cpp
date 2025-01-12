@@ -45,7 +45,7 @@ namespace hod::editor
 				_states[pickingId]._initialPosition = position;
 
 				Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-				moveOffset = mouseWorldPos - position;
+				_states[pickingId]._moveOffset = mouseWorldPos - position;
 			}
 		}
 		else
@@ -57,7 +57,7 @@ namespace hod::editor
 		{
 			Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
 			//Vector2 newPosition = mouseWorldPos - _states[pickingId]._initialPosition;
-			position = mouseWorldPos;
+			position = mouseWorldPos - _states[pickingId]._moveOffset;
 			changed = true;
 		}
 
