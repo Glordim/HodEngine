@@ -40,7 +40,7 @@ namespace hod::editor
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			EditorReflectedObject reflectedObject(&_materialAsset, _materialAsset.GetReflectionDescriptorV());
+			EditorReflectedObject reflectedObject(&_materialAsset, _materialAsset.GetReflectionDescriptorV(), nullptr);
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
 

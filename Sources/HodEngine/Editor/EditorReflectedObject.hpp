@@ -6,54 +6,51 @@
 
 namespace hod
 {
-    class ReflectionDescriptor;
+	class ReflectionDescriptor;
 }
 
 namespace hod::game
 {
-    class Component;
+	class Component;
 }
 
 namespace hod::editor
 {
-    class EditorReflectedProperty;
-    
-    class HOD_EDITOR_API EditorReflectedObject
-    {
-    public:
+	class EditorReflectedProperty;
 
-        EditorReflectedObject(std::shared_ptr<game::Component> component);
-        EditorReflectedObject(const std::vector<std::shared_ptr<game::Component>>& components);
+	class HOD_EDITOR_API EditorReflectedObject
+	{
+	public:
 
-        EditorReflectedObject(void* instance, ReflectionDescriptor* reflectionDescriptor);
-        EditorReflectedObject(const std::vector<void*>& instances, ReflectionDescriptor* reflectionDescriptor);
-        
-        EditorReflectedObject(EditorReflectedProperty& sourceProperty);
-        ~EditorReflectedObject();
+		EditorReflectedObject(void* instance, ReflectionDescriptor* reflectionDescriptor, void* source);
+		EditorReflectedObject(const std::vector<void*>& instances, ReflectionDescriptor* reflectionDescriptor, void* source);
 
-    public:
+		EditorReflectedObject(EditorReflectedProperty& sourceProperty);
+		~EditorReflectedObject();
 
-        bool IsEditingMultipleInstance() const;
-        bool IsOverride() const;
+	public:
 
-        std::vector<EditorReflectedProperty*>&  GetProperties();
+		bool IsEditingMultipleInstance() const;
+		bool IsOverride() const;
 
-        void*                       GetInstance() const;
-        const std::vector<void*>&   GetInstances() const;
+		std::vector<EditorReflectedProperty*>&  GetProperties();
 
-        EditorReflectedProperty*    GetSourceProperty() const;
+		void*                       GetInstance() const;
+		const std::vector<void*>&   GetInstances() const;
 
-    private:
+		EditorReflectedProperty*    GetSourceProperty() const;
 
-        void GeneratePropertiesFromReflectionDescriptor(ReflectionDescriptor* reflectionDescriptor);
+	private:
 
-    private:
+		void GeneratePropertiesFromReflectionDescriptor(ReflectionDescriptor* reflectionDescriptor);
 
-        void*                   _sourceInstance = nullptr;
-        std::vector<void*>      _instances;
-        ReflectionDescriptor*   _reflectionDescriptor = nullptr;
-        EditorReflectedProperty*    _sourceProperty = nullptr;
+	private:
 
-        std::vector<EditorReflectedProperty*>    _properties;
-    }; 
+		void*                   _sourceInstance = nullptr;
+		std::vector<void*>      _instances;
+		ReflectionDescriptor*   _reflectionDescriptor = nullptr;
+		EditorReflectedProperty*    _sourceProperty = nullptr;
+
+		std::vector<EditorReflectedProperty*>    _properties;
+	};
 }

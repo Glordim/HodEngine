@@ -55,7 +55,7 @@ namespace hod::editor
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			EditorReflectedObject reflectedObject(&_materialInstanceAsset, _materialInstanceAsset.GetReflectionDescriptorV());
+			EditorReflectedObject reflectedObject(&_materialInstanceAsset, _materialInstanceAsset.GetReflectionDescriptorV(), nullptr);
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
 
@@ -67,7 +67,7 @@ namespace hod::editor
 				renderer::Material* material = materialResource->GetMaterial();
 				if (material != nullptr)
 				{
-					EditorReflectedObject reflectedObject(static_cast<void*>(_paramsBuffer), &material->GetReflectionDescriptorForParameters());
+					EditorReflectedObject reflectedObject(static_cast<void*>(_paramsBuffer), &material->GetReflectionDescriptorForParameters(), nullptr);
 					changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 				}
 			}

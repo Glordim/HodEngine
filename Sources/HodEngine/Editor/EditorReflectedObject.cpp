@@ -11,104 +11,90 @@
 
 namespace hod::editor
 {
-    EditorReflectedObject::EditorReflectedObject(std::shared_ptr<game::Component> component)
-    : _instances({ component.get() })
-    , _reflectionDescriptor(component->GetReflectionDescriptorV())
-    {
-        std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
+	EditorReflectedObject::EditorReflectedObject(void* instance, ReflectionDescriptor* reflectionDescriptor, void* source)
+	: _instances({ instance })
+	, _reflectionDescriptor(reflectionDescriptor)
+	, _sourceInstance(source)
+	{
+		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
+	}
 
-        _sourceInstance = sourceComponent.get();
+	EditorReflectedObject::EditorReflectedObject(const std::vector<void*>& instances, ReflectionDescriptor* reflectionDescriptor, void* source)
+	: _instances(instances)
+	, _reflectionDescriptor(reflectionDescriptor)
+	, _sourceInstance(source)
+	{
+		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
+	}
 
-        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
-    }
+	EditorReflectedObject::EditorReflectedObject(EditorReflectedProperty& sourceProperty)
+	: _sourceProperty(&sourceProperty)
+	{
+		ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(sourceProperty.GetReflectionProperty());
+		_reflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
+		_instances.reserve(sourceProperty.GetInstances().size());
+		if (sourceProperty.GetSourceInstance() != nullptr)
+		{
+			_sourceInstance = reflectionPropertyObject->GetInstance(sourceProperty.GetSourceInstance());
+		}
+		for (void* instance : sourceProperty.GetInstances())
+		{
+			_instances.push_back(reflectionPropertyObject->GetInstance(instance));
+		}
 
-    EditorReflectedObject::EditorReflectedObject(const std::vector<std::shared_ptr<game::Component>>& components)
-    {
-        // todo;
-    }
+		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
+	}
 
-    EditorReflectedObject::EditorReflectedObject(void* instance, ReflectionDescriptor* reflectionDescriptor)
-    : _instances({ instance })
-    , _reflectionDescriptor(reflectionDescriptor)
-    {
-        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
-    }
+	EditorReflectedObject::~EditorReflectedObject()
+	{
+		for (auto* property : _properties)
+		{
+			delete property; // avoid alloc ?
+		}
+	}
 
-    EditorReflectedObject::EditorReflectedObject(const std::vector<void*>& instances, ReflectionDescriptor* reflectionDescriptor)
-    : _instances(instances)
-    , _reflectionDescriptor(reflectionDescriptor)
-    {
-        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
-    }
+	bool EditorReflectedObject::IsOverride() const
+	{
+		if (_sourceInstance == nullptr)
+		{
+			return false;
+		}
 
-    EditorReflectedObject::EditorReflectedObject(EditorReflectedProperty& sourceProperty)
-    : _sourceProperty(&sourceProperty)
-    {
-        ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(sourceProperty.GetReflectionProperty());
-        _reflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
-        _instances.reserve(sourceProperty.GetInstances().size());
-        if (sourceProperty.GetSourceInstance() != nullptr)
-        {
-            _sourceInstance = reflectionPropertyObject->GetInstance(sourceProperty.GetSourceInstance());
-        }
-        for (void* instance : sourceProperty.GetInstances())
-        {
-            _instances.push_back(reflectionPropertyObject->GetInstance(instance));
-        }
+		return (_reflectionDescriptor->Compare(_instances[0], _sourceInstance) == false);
+	}
 
-        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
-    }
+	void* EditorReflectedObject::GetInstance() const
+	{
+		return _instances[0];
+	}
 
-    EditorReflectedObject::~EditorReflectedObject()
-    {
-        for (auto* property : _properties)
-        {
-            delete property; // avoid alloc ?
-        }
-    }
+	const std::vector<void*>& EditorReflectedObject::GetInstances() const
+	{
+		return _instances;
+	}
 
-    bool EditorReflectedObject::IsOverride() const
-    {
-        if (_sourceInstance == nullptr)
-        {
-            return false;
-        }
+	EditorReflectedProperty* EditorReflectedObject::GetSourceProperty() const
+	{
+		return _sourceProperty;
+	}
 
-        return (_reflectionDescriptor->Compare(_instances[0], _sourceInstance) == false);
-    }
+	void EditorReflectedObject::GeneratePropertiesFromReflectionDescriptor(ReflectionDescriptor* reflectionDescriptor)
+	{
+		ReflectionDescriptor* parentReflectionDescriptor = reflectionDescriptor->GetParent();
+		if (parentReflectionDescriptor != nullptr)
+		{
+			GeneratePropertiesFromReflectionDescriptor(parentReflectionDescriptor);
+		}
 
-    void* EditorReflectedObject::GetInstance() const
-    {
-        return _instances[0];
-    }
+		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
+		{
+			EditorReflectedProperty* property = new EditorReflectedProperty(_instances, _sourceInstance, reflectionProperty, this);
+			_properties.push_back(property);
+		}
+	}
 
-    const std::vector<void*>& EditorReflectedObject::GetInstances() const
-    {
-        return _instances;
-    }
-
-    EditorReflectedProperty* EditorReflectedObject::GetSourceProperty() const
-    {
-        return _sourceProperty;
-    }
-
-    void EditorReflectedObject::GeneratePropertiesFromReflectionDescriptor(ReflectionDescriptor* reflectionDescriptor)
-    {
-        ReflectionDescriptor* parentReflectionDescriptor = reflectionDescriptor->GetParent();
-        if (parentReflectionDescriptor != nullptr)
-        {
-            GeneratePropertiesFromReflectionDescriptor(parentReflectionDescriptor);
-        }
-
-        for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
-        {
-            EditorReflectedProperty* property = new EditorReflectedProperty(_instances, _sourceInstance, reflectionProperty, this);
-            _properties.push_back(property);
-        }
-    }
-
-    std::vector<EditorReflectedProperty*>& EditorReflectedObject::GetProperties()
-    {
-        return _properties;
-    }
+	std::vector<EditorReflectedProperty*>& EditorReflectedObject::GetProperties()
+	{
+		return _properties;
+	}
 }

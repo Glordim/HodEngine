@@ -439,7 +439,7 @@ namespace hod::editor
 					case ReflectionPropertyVariable::Type::Object:
 					{
 						void* value = property->GetValue<void*>(object, index);
-						EditorReflectedObject subEditorReflectedObject(value, property->GetElementReflectionDescriptor());
+						EditorReflectedObject subEditorReflectedObject(value, property->GetElementReflectionDescriptor(), nullptr);
 
 						if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
 						{

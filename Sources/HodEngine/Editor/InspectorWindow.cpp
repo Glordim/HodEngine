@@ -295,7 +295,8 @@ namespace hod::editor
 
 					if (opened == true)
 					{
-						EditorReflectedObject reflectedObject(componentLock);
+						std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(componentLock);
+						EditorReflectedObject reflectedObject(componentLock.get(), componentLock->GetReflectionDescriptorV(), sourceComponent.get());
 
 						bool changed = false;
 						ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
