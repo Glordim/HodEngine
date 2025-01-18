@@ -56,11 +56,11 @@ namespace hod
 	/// @brief 
 	/// @param instance 
 	/// @param value 
-	void ReflectionPropertyObject::SetValue(void* instance, void* value) const
+	void ReflectionPropertyObject::SetValue(void* instance, const void* value) const
 	{
 		if (_setMethod != nullptr)
 		{
-			_setMethod(instance, value);
+			_setMethod(instance, (void*)value); // todo remove const cast
 		}
 		else
 		{

@@ -32,20 +32,17 @@ namespace hod::editor
 	/// @brief 
 	/// @param instance 
 	/// @return 
-	bool WeakComponentCustomEditor::Draw(EditorReflectedObject& reflectedObject)
+	bool WeakComponentCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
-		changed |= PropertyDrawer::BeginProperty(*reflectedObject.GetSourceProperty());
+		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
 		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
 
-		game::WeakComponentBase* value = static_cast<game::WeakComponentBase*>(reflectedObject.GetInstance());
+		game::WeakComponentBase* value = editorReflectedProperty.GetObject<game::WeakComponentBase>();
 
 		ImGui::PushID(value);
-
-		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
-
-		ImGui::SameLine(valuePos);
 
 		const char* text = "None";
 		if (value->Lock())

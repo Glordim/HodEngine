@@ -487,7 +487,7 @@ namespace hod::editor
 		ReflectionTraitCustomPropertyDrawer* customPropertyDrawerTrait = instanceDescriptor->FindTrait<ReflectionTraitCustomPropertyDrawer>();
 		if (customPropertyDrawerTrait != nullptr)
 		{
-			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(*subEditorReflectedObject);
+			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(*subEditorReflectedObject->GetSourceProperty());
 		}
 		else
 		{
@@ -502,10 +502,10 @@ namespace hod::editor
 		return changed;
 	}
 
-	bool PropertyDrawer::BeginProperty(EditorReflectedProperty& reflectedProperty)
+	bool PropertyDrawer::BeginProperty(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
-		bool isOverride = reflectedProperty.IsOverride();
+		bool isOverride = editorReflectedProperty.IsOverride();
 		if (isOverride)
 		{
 			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
@@ -513,13 +513,13 @@ namespace hod::editor
 		}
 
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(reflectedProperty.GetReflectionProperty()->GetDisplayName().c_str());
+		ImGui::TextUnformatted(editorReflectedProperty.GetReflectionProperty()->GetDisplayName().c_str());
 		if (isOverride && ImGui::BeginPopupContextItem("OverrideContext") == true)
 		{
 			if (ImGui::Button("Revert") == true)
 			{
-				ReflectionProperty* reflectionProperty = reflectedProperty.GetReflectionProperty();
-				reflectionProperty->Copy(reflectedProperty.GetSourceInstance(), reflectedProperty.GetInstance());
+				ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
+				reflectionProperty->Copy(editorReflectedProperty.GetSourceInstance(), editorReflectedProperty.GetInstance());
 				changed = true;
 				ImGui::CloseCurrentPopup();
 			}

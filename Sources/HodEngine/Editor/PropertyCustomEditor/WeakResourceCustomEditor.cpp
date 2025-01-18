@@ -29,14 +29,14 @@ namespace hod::editor
 	/// @brief 
 	/// @param instance 
 	/// @return 
-	bool WeakResourceCustomEditor::Draw(EditorReflectedObject& reflectedObject)
+	bool WeakResourceCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
-		changed |= PropertyDrawer::BeginProperty(*reflectedObject.GetSourceProperty());
+		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 
 		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
 
-		WeakResourceBase* value = static_cast<WeakResourceBase*>(reflectedObject.GetInstance());
+		WeakResourceBase* value = editorReflectedProperty.GetObject<WeakResourceBase>();
 
 		ImGui::PushID(value);
 
@@ -138,10 +138,11 @@ namespace hod::editor
 			ImGui::PopStyleVar();
 			if (clicked)
 			{
-				ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
-				
 				value->SetUid(UID::INVALID_UID);
-				reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
+				editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
+				changed = true;
+
+				ImGui::CloseCurrentPopup();
 			}
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
@@ -166,10 +167,8 @@ namespace hod::editor
 					ImGui::PopStyleVar();
 					if (clicked)
 					{
-						ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
-
 						value->SetUid(assetNode->_asset->GetUid());
-						reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
+						editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
 						changed = true;
 
 						ImGui::CloseCurrentPopup();
@@ -260,10 +259,9 @@ namespace hod::editor
 			ImGui::PopStyleVar();
 			if (clicked)
 			{
-				ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
-				
 				value->SetUid(UID::INVALID_UID);
-				reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
+				editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
+				changed = true;
 			}
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
@@ -288,10 +286,8 @@ namespace hod::editor
 					ImGui::PopStyleVar();
 					if (clicked)
 					{
-						ReflectionPropertyObject* reflectionProperty = static_cast<ReflectionPropertyObject*>(reflectedObject.GetSourceProperty()->GetReflectionProperty());
-
 						value->SetUid(assetNode->_asset->GetUid());
-						reflectionProperty->SetValue(reflectedObject.GetSourceProperty()->GetParent()->GetInstance(), value); // Set to itself for call SetFunction
+						editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
 						changed = true;
 					}
 					else if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))

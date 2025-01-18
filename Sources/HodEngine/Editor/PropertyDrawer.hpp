@@ -35,6 +35,6 @@ namespace hod::editor
 		static bool     DrawPropertyArray(EditorReflectedProperty& reflectedProperty);
 		static bool     DrawPropertyObject(EditorReflectedProperty& reflectedProperty);
 
-        static bool     BeginProperty(EditorReflectedProperty& reflectedProperty);
+        static bool     BeginProperty(EditorReflectedProperty& editorReflectedProperty);
     };
 }

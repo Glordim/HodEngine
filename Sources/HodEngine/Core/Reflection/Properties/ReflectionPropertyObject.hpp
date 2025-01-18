@@ -30,7 +30,7 @@ namespace hod
 		const void*								GetInstance(const void* instance) const;
 
 		void*									GetValue(const void* instance) const;
-		void									SetValue(void* instance, void* value) const;
+		void									SetValue(void* instance, const void* value) const;
 
 		ReflectionDescriptor*					GetReflectionDescriptor() const;
 
