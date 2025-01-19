@@ -47,6 +47,23 @@ namespace hod::editor
         template<typename _type_>
         void                        SetObject(const _type_& value) const;
 
+        bool                        IsArray() const;
+        uint32_t                    GetArraySize() const;
+
+        template<typename _type_>
+        _type_                      GetValueAtIndex(uint32_t index) const;
+
+        template<typename _type_>
+        _type_*                     GetObjectAtIndex(uint32_t index) const;
+
+        template<typename _type_>
+        void                        SetValueAtIndex(uint32_t index, _type_ value) const;
+
+        template<typename _type_>
+        void                        SetObjectAtIndex(uint32_t index, const _type_& value) const;
+
+        EditorReflectedProperty     GenerateElementProperty(uint32_t index) const;
+
         EditorReflectedObject*   GetParent();
         EditorReflectedObject*   GetEditorReflectedObject();
 
@@ -60,6 +77,8 @@ namespace hod::editor
 
         EditorReflectedObject*  _parent = nullptr;
         EditorReflectedObject*  _reflectedObject = nullptr;
+
+        uint32_t                _internalIndex = -1;
     };
 
     template<typename _type_>
@@ -82,6 +101,10 @@ namespace hod::editor
         if (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
         {
             return static_cast<_type_*>(static_cast<ReflectionPropertyObject*>(_reflectionProperty)->GetValue(_instances[0]));
+        }
+        else if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)
+        {
+            return GetObjectAtIndex<_type_>(_internalIndex);
         }
         else
         {
@@ -110,6 +133,60 @@ namespace hod::editor
             for (void* instance : _instances)
             {
                 static_cast<ReflectionPropertyObject*>(_reflectionProperty)->SetValue(instance, (const void*)&value);
+            }
+        }
+    }
+
+    template<typename _type_>
+    _type_ EditorReflectedProperty::GetValueAtIndex(uint32_t index) const
+    {
+        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        {
+            return static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetValue<_type_>(_instances[0], index);
+        }
+        else
+        {
+            assert(false);
+            return _type_();
+        }
+    }
+
+    template<typename _type_>
+    _type_* EditorReflectedProperty::GetObjectAtIndex(uint32_t index) const
+    {
+        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        {
+            return static_cast<_type_*>(static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetValue<void*>(_instances[0], index));
+        }
+        else
+        {
+            assert(false);
+            return nullptr;
+        }
+    }
+
+    template<typename _type_>
+    void EditorReflectedProperty::SetValueAtIndex(uint32_t index, _type_ value) const
+    {
+        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        {
+            for (void* instance : _instances)
+            {
+                // todo multiselect assume all array have the same size
+                static_cast<ReflectionPropertyArray*>(_reflectionProperty)->SetValue<_type_>(instance, index, value);
+            }
+        }
+    }
+
+    template<typename _type_>
+    void EditorReflectedProperty::SetObjectAtIndex(uint32_t index, const _type_& value) const
+    {
+        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        {
+            for (void* instance : _instances)
+            {
+                // todo multiselect assume all array have the same size
+                static_cast<ReflectionPropertyArray*>(_reflectionProperty)->SetValue(instance, index, (const void*)&value);
             }
         }
     }

@@ -383,23 +383,20 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyArray(EditorReflectedProperty& reflectedProperty)
+	bool PropertyDrawer::DrawPropertyArray(EditorReflectedProperty& editorReflectedProperty)
 	{
-		ReflectionPropertyArray* property = static_cast<ReflectionPropertyArray*>(reflectedProperty.GetReflectionProperty());
-		void* object = reflectedProperty.GetInstance();
-
 		bool changed = false;
-		
-		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
+		changed |= BeginProperty(editorReflectedProperty);
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(property->GetDisplayName().c_str());
+		float cursorX = ImGui::GetCursorPosX();
 
-		ImGui::SameLine(valuePos);
-
+		ReflectionPropertyArray* property = static_cast<ReflectionPropertyArray*>(editorReflectedProperty.GetReflectionProperty());
 		ReflectionPropertyVariable::Type type = property->GetType();
 
-		uint32_t elementCount = property->GetElementCount(object);
+		void* object = editorReflectedProperty.GetInstance();
+
+		uint32_t elementCount = editorReflectedProperty.GetArraySize();
 
 		ImGui::PushID(property);
 		if (elementCount > 0 && ImGui::BeginTable("Items", 2) == true)
@@ -419,11 +416,12 @@ namespace hod::editor
 				{
 					case ReflectionPropertyVariable::Type::Float32:
 					{
-						float value = property->GetValue<float>(object, index);
+						float value = editorReflectedProperty.GetValueAtIndex<float>(index);
+						//float value = property->GetValue<float>(object, index);
 						bool elementChanged = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
 						if (elementChanged == true)
 						{
-							property->SetValue<float>(object, index, (float)value);
+							editorReflectedProperty.SetValueAtIndex<float>(index, (float)value);
 							changed = true;
 						}
 					}
@@ -431,9 +429,12 @@ namespace hod::editor
 
 					case ReflectionPropertyVariable::Type::Object:
 					{
+						EditorReflectedProperty elementProperty = editorReflectedProperty.GenerateElementProperty(index);
+						changed |= PropertyDrawer::DrawPropertyObject(elementProperty);
+
+						/*
 						void* value = property->GetValue<void*>(object, index);
 						EditorReflectedObject subEditorReflectedObject(value, property->GetElementReflectionDescriptor(), nullptr);
-
 						if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
 						{
 							ImGui::Indent();
@@ -441,6 +442,7 @@ namespace hod::editor
 							changed |= PropertyDrawer::DrawDescriptor(subEditorReflectedObject);
 							ImGui::Unindent();
 						}
+						*/
 					}
 					break;
 
@@ -455,7 +457,7 @@ namespace hod::editor
 			}
 			ImGui::EndTable();
 		}
-		ImGui::SetCursorPosX(valuePos);
+		ImGui::SetCursorPosX(cursorX);
 		if (ImGui::Button(ICON_MDI_PLUS) == true)
 		{
 			property->InsertElement(object, elementCount);
@@ -470,22 +472,37 @@ namespace hod::editor
 	/// @param property 
 	bool PropertyDrawer::DrawPropertyObject(EditorReflectedProperty& reflectedProperty)
 	{
-		EditorReflectedObject* subEditorReflectedObject = reflectedProperty.GetEditorReflectedObject();
+		ReflectionDescriptor* instanceDescriptor;
 
-		ReflectionPropertyObject* property = static_cast<ReflectionPropertyObject*>(reflectedProperty.GetReflectionProperty());
+		ReflectionProperty* property = reflectedProperty.GetReflectionProperty();
+		if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+		{
+			ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
+			instanceDescriptor = propertyObject->GetReflectionDescriptor();
+		}
+		else if (property->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+		{
+			ReflectionPropertyArray* propertyArray = static_cast<ReflectionPropertyArray*>(property);
+			instanceDescriptor = propertyArray->GetElementReflectionDescriptor();
+		}
+		else
+		{
+			assert(false);
+			return false;
+		}
 
 		bool changed = false;
-		ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
 
 		ReflectionTraitCustomPropertyDrawer* customPropertyDrawerTrait = instanceDescriptor->FindTrait<ReflectionTraitCustomPropertyDrawer>();
 		if (customPropertyDrawerTrait != nullptr)
 		{
-			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(*subEditorReflectedObject->GetSourceProperty());
+			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(reflectedProperty);
 		}
 		else
 		{
 			if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()) == true)
 			{
+				EditorReflectedObject* subEditorReflectedObject = reflectedProperty.GetEditorReflectedObject();
 				for (EditorReflectedProperty* subEditorReflectedProperty : subEditorReflectedObject->GetProperties())
 				{
 					changed |= PropertyDrawer::DrawProperty(*subEditorReflectedProperty);
@@ -498,6 +515,7 @@ namespace hod::editor
 	bool PropertyDrawer::BeginProperty(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
+		editorReflectedProperty.GetEditorReflectedObject(); // todo remove...
 		bool isOverride = editorReflectedProperty.IsOverride();
 		if (isOverride)
 		{

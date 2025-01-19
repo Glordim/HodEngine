@@ -301,6 +301,8 @@ namespace hod::editor
 			ImGui::EndPopup();
 		}
 
+		ImGui::Dummy(ImVec2(0,0)); // todo ?
+
 		ImGui::PopID();
 		return changed;
 	}

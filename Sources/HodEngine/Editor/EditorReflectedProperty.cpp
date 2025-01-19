@@ -4,6 +4,7 @@
 
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp>
 
 namespace hod::editor
@@ -81,5 +82,30 @@ namespace hod::editor
             return _reflectedObject->IsOverride();
         }
         return false;
+    }
+
+    bool EditorReflectedProperty::IsArray() const
+    {
+        return (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic());
+    }
+
+    uint32_t EditorReflectedProperty::GetArraySize() const
+    {
+        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        {
+            return static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementCount(_instances[0]);
+        }
+        else
+        {
+            assert(false);
+            return 0;
+        }
+    }
+
+    EditorReflectedProperty EditorReflectedProperty::GenerateElementProperty(uint32_t index) const
+    {
+        EditorReflectedProperty elementProperty(_instances[0], nullptr, _reflectionProperty, nullptr); // todo support multiselection
+        elementProperty._internalIndex = index;
+        return elementProperty;
     }
 }
