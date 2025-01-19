@@ -5,6 +5,8 @@
 
 #include "HodEngine/Game/Component.hpp"
 
+#include <HodEngine/Core/Rect.hpp>
+
 namespace hod::renderer
 {
 	class RenderQueue;
@@ -34,6 +36,7 @@ namespace hod::game
 
 	public:
 
-		virtual void	PushToRenderQueue(renderer::RenderQueue& renderQueue) {};
+		virtual void	PushToRenderQueue(renderer::RenderQueue& renderQueue) = 0;
+		virtual Rect	GetBoundingBox() const = 0;
 	};
 }

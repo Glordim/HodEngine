@@ -44,6 +44,7 @@ namespace hod
 			//void							SetText(const std::string_view& text);
 
 			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			Rect							GetBoundingBox() const override;
 
 		private:
 

@@ -84,5 +84,10 @@ namespace hod
 			*/
 			//renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_sprite->GetVertices().data(), _sprite->GetVertices().size(), sizeof(renderer::P2fT2f), _sprite->GetIndices().data(), _sprite->GetIndices().size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(), _materialInstance));
 		}
+
+		Rect SpriteRendererComponent::GetBoundingBox() const
+		{
+			return Rect();
+		}
 	}
 }

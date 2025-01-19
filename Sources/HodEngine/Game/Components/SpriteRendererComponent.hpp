@@ -40,6 +40,7 @@ namespace hod
 			void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
 
 			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			Rect							GetBoundingBox() const override;
 
 		private:
 

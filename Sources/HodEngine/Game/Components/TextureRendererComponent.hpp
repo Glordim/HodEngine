@@ -41,7 +41,7 @@ namespace hod::game
 
 		void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
 
-		Rect							GetBoundingBox() const;
+		Rect							GetBoundingBox() const override;
 
 	private:
 

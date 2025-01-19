@@ -82,6 +82,11 @@ namespace hod
 			return _materialInstance;
 		}
 
+		Rect TextRendererComponent::GetBoundingBox() const
+		{
+			return Rect();
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
