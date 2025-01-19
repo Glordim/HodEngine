@@ -24,6 +24,8 @@
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
+#undef GetObject
+
 namespace hod::editor
 {
 	/// @brief 

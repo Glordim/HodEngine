@@ -3,6 +3,10 @@
 
 #include <vector>
 
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp>
+
 #undef GetObject
 
 namespace hod

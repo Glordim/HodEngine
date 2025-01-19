@@ -27,6 +27,8 @@
 #include <HodEngine/Game/World.hpp>
 #include <HodEngine/Game/Scene.hpp>
 
+#undef GetObject
+
 namespace hod::editor
 {
 	/// @brief 
