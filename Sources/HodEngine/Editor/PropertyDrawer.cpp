@@ -103,30 +103,23 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param property 
-	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& reflectedProperty)
+	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
-		changed |= BeginProperty(reflectedProperty);
+		changed |= BeginProperty(editorReflectedProperty);
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(reflectedProperty.GetReflectionProperty());
-		void* object = reflectedProperty.GetInstance();
-
-		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
-
-		ImGui::SameLine(valuePos);
-
-		ReflectionPropertyVariable::Type type = property->GetType();
-
-		switch (type)
+		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(editorReflectedProperty.GetReflectionProperty());
+		switch (property->GetType())
 		{
 		case ReflectionPropertyVariable::Type::Bool:
 		{
 			ImGui::PushID(property);
-			bool value = property->GetValue<bool>(object);
+			bool value = editorReflectedProperty.GetValue<bool>();
 			ImGui::SetNextItemWidth(-1);
 			if (ImGui::Checkbox("", &value))
 			{
-				property->SetValue<bool>(object, value);
+				editorReflectedProperty.SetValue(value);
 				changed = true;
 			}
 			ImGui::PopID();
@@ -136,13 +129,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::Int8:
 		{
 			ImGui::PushID(property);
-			int8_t value = property->GetValue<int8_t>(object);
+			int8_t value = editorReflectedProperty.GetValue<int8_t>();
 			ImGui::SetNextItemWidth(-1);
 			if (property->GetEnumDescriptor() != nullptr)
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<int8_t>(object, (int8_t)value);
+					editorReflectedProperty.SetValue<int8_t>((int8_t)value);
 					changed = true;
 				}
 			}
@@ -150,7 +143,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_S8, &value, 1.0f))
 				{
-					property->SetValue<int8_t>(object, (int8_t)value);
+					editorReflectedProperty.SetValue<int8_t>((int8_t)value);
 					changed = true;
 				}
 			}
@@ -161,13 +154,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::UInt8:
 		{
 			ImGui::PushID(property);
-			uint8_t value = property->GetValue<uint8_t>(object);
+			uint8_t value = editorReflectedProperty.GetValue<uint8_t>();
 			ImGui::SetNextItemWidth(-1);
 			if (property->GetEnumDescriptor() != nullptr)
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<uint8_t>(object, (uint8_t)value);
+					editorReflectedProperty.SetValue<uint8_t>((uint8_t)value);
 					changed = true;
 				}
 			}
@@ -175,7 +168,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_U8, &value, 1.0f))
 				{
-					property->SetValue<uint8_t>(object, (uint8_t)value);
+					editorReflectedProperty.SetValue<uint8_t>((uint8_t)value);
 					changed = true;
 				}
 			}
@@ -186,13 +179,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::Int16:
 		{
 			ImGui::PushID(property);
-			int16_t value = property->GetValue<int16_t>(object);
+			int16_t value = editorReflectedProperty.GetValue<int16_t>();
 			ImGui::SetNextItemWidth(-1);
 			if (property->GetEnumDescriptor() != nullptr)
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<int16_t>(object, (int16_t)value);
+					editorReflectedProperty.SetValue<int16_t>((int16_t)value);
 					changed = true;
 				}
 			}
@@ -200,7 +193,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_S16, &value, 1.0f))
 				{
-					property->SetValue<int16_t>(object, (int16_t)value);
+					editorReflectedProperty.SetValue<int16_t>((int16_t)value);
 					changed = true;
 				}
 			}
@@ -211,13 +204,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::UInt16:
 		{
 			ImGui::PushID(property);
-			uint16_t value = property->GetValue<uint16_t>(object);
+			uint16_t value = editorReflectedProperty.GetValue<uint16_t>();
 			ImGui::SetNextItemWidth(-1);
 			if (property->GetEnumDescriptor() != nullptr)
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<uint16_t>(object, (uint16_t)value);
+					editorReflectedProperty.SetValue<uint16_t>((uint16_t)value);
 					changed = true;
 				}
 			}
@@ -225,7 +218,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_U16, &value, 1.0f))
 				{
-					property->SetValue<uint16_t>(object, (uint16_t)value);
+					editorReflectedProperty.SetValue<uint16_t>((uint16_t)value);
 					changed = true;
 				}
 			}
@@ -236,13 +229,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::Int32:
 		{
 			ImGui::PushID(property);
-			int32_t value = property->GetValue<int32_t>(object);
+			int32_t value = editorReflectedProperty.GetValue<int32_t>();
 			ImGui::SetNextItemWidth(-1);
 			if (property->GetEnumDescriptor() != nullptr)
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<int32_t>(object, (int32_t)value);
+					editorReflectedProperty.SetValue<int32_t>((int32_t)value);
 					changed = true;
 				}
 			}
@@ -250,7 +243,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f))
 				{
-					property->SetValue<int32_t>(object, (int32_t)value);
+					editorReflectedProperty.SetValue<int32_t>((int32_t)value);
 					changed = true;
 				}
 			}
@@ -261,13 +254,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::UInt32:
 		{
 			ImGui::PushID(property);
-			uint32_t value = property->GetValue<uint32_t>(object);
+			uint32_t value = editorReflectedProperty.GetValue<uint32_t>();
 			ImGui::SetNextItemWidth(-1);
 			if (property->GetEnumDescriptor() != nullptr)
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<uint32_t>(object, (uint32_t)value);
+					editorReflectedProperty.SetValue<uint32_t>((uint32_t)value);
 					changed = true;
 				}
 			}
@@ -275,7 +268,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_U32, &value, 1.0f))
 				{
-					property->SetValue<uint32_t>(object, (uint32_t)value);
+					editorReflectedProperty.SetValue<uint32_t>((uint32_t)value);
 					changed = true;
 				}
 			}
@@ -286,13 +279,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::Int64:
 		{
 			ImGui::PushID(property);
-			int64_t value = property->GetValue<int64_t>(object);
+			int64_t value = editorReflectedProperty.GetValue<int64_t>();
 			ImGui::SetNextItemWidth(-1);
 			if (property->GetEnumDescriptor() != nullptr)
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<int64_t>(object, (int64_t)value);
+					editorReflectedProperty.SetValue<int64_t>((int64_t)value);
 					changed = true;
 				}
 			}
@@ -300,7 +293,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_S64, &value, 1.0f))
 				{
-					property->SetValue<int64_t>(object, (int64_t)value);
+					editorReflectedProperty.SetValue<int64_t>((int64_t)value);
 					changed = true;
 				}
 			}
@@ -311,13 +304,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::UInt64:
 		{
 			ImGui::PushID(property);
-			uint64_t value = property->GetValue<uint64_t>(object);
+			uint64_t value = editorReflectedProperty.GetValue<uint64_t>();
 			ImGui::SetNextItemWidth(-1);
 			if (property->GetEnumDescriptor() != nullptr)
 			{
 				if (DrawEnum(value, property->GetEnumDescriptor()))
 				{
-					property->SetValue<uint64_t>(object, (uint64_t)value);
+					editorReflectedProperty.SetValue<uint64_t>((uint64_t)value);
 					changed = true;
 				}
 			}
@@ -325,7 +318,7 @@ namespace hod::editor
 			{
 				if (ImGui::DragScalar("", ImGuiDataType_U64, &value, 1.0f))
 				{
-					property->SetValue<uint64_t>(object, (uint64_t)value);
+					editorReflectedProperty.SetValue<uint64_t>((uint64_t)value);
 					changed = true;
 				}
 			}
@@ -336,11 +329,11 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::Float32:
 		{
 			ImGui::PushID(property);
-			float value = property->GetValue<float>(object);
+			float value = editorReflectedProperty.GetValue<float>();
 			ImGui::SetNextItemWidth(-1);
 			if (ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f))
 			{
-				property->SetValue<float>(object, (float)value);
+				editorReflectedProperty.SetValue<float>((float)value);
 				changed = true;
 			}
 			ImGui::PopID();
@@ -350,11 +343,11 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::Float64:
 		{
 			ImGui::PushID(property);
-			double value = property->GetValue<double>(object);
+			double value = editorReflectedProperty.GetValue<double>();
 			ImGui::SetNextItemWidth(-1);
 			if (ImGui::DragScalar("", ImGuiDataType_Double, &value, 0.01f))
 			{
-				property->SetValue<double>(object, (double)value);
+				editorReflectedProperty.SetValue<double>((double)value);
 				changed = true;
 			}
 			ImGui::PopID();
@@ -364,13 +357,13 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::String:
 		{
 			ImGui::PushID(property);
-			std::string value = property->GetValue<std::string>(object);
+			std::string value = editorReflectedProperty.GetValue<std::string>();
 			value.reserve(512);
 			ImGui::SetNextItemWidth(-1);
 			if (ImGui::InputText("", value.data(), value.capacity()))
 			{
 				value = value.c_str();
-				property->SetValue<std::string>(object, value);
+				editorReflectedProperty.SetValue<std::string>(value);
 				changed = true;
 			}
 			ImGui::PopID();
