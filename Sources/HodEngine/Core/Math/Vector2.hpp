@@ -58,6 +58,10 @@ namespace hod
 		static Vector2	Normalize(const Vector2& vector);
 		static float	Dot(const Vector2& A, const Vector2& B);
 		static Vector2	Reflect(const Vector2& velocity, const Vector2& normal);
+		static float	Angle(const Vector2& A, const Vector2& B);
+
+		static Vector2	Lerp(const Vector2& A, const Vector2& B, float t);
+		static float	Distance(const Vector2& A, const Vector2& B);
 
 	public:
 

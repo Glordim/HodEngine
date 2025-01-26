@@ -222,4 +222,33 @@ namespace hod
         float dotProduct = Vector2::Dot(velocity, normal);
 		return velocity - (normal * dotProduct * 2);
     }
+
+	/// @brief 
+	/// @param A 
+	/// @param B 
+	/// @param t 
+	/// @return 
+	Vector2 Vector2::Lerp(const Vector2& A, const Vector2& B, float t)
+	{
+		return Vector2(std::lerp(A._x, B._x, t), std::lerp(A._y, B._y, t));
+	}
+
+	/// @brief 
+	/// @param A 
+	/// @param B 
+	/// @return 
+	float Vector2::Distance(const Vector2& A, const Vector2& B)
+	{
+		return std::sqrt((B._x - A._x) * (B._x - A._x) + 
+						(B._y - A._y) * (B._y - A._y));
+	}
+
+	/// @brief 
+	/// @param A 
+	/// @param B 
+	/// @return 
+	float Vector2::Angle(const Vector2& A, const Vector2& B)
+	{
+		return std::atan2(B._y - A._y, B._x - A._x);
+	}
 }
