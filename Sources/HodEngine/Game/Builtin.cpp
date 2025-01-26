@@ -17,6 +17,7 @@
 
 #include "HodEngine/Game/Components/Physics/2d/Rigidbody2dComponent.hpp"
 #include "HodEngine/Game/Components/Physics/2d/Collider2dComponent.hpp"
+#include "HodEngine/Game/Components/Physics/2d/MultiShapeCollider2dComponent.hpp"
 #include "HodEngine/Game/Components/Physics/2d/BoxCollider2dComponent.hpp"
 #include "HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp"
 #include "HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp"
@@ -35,8 +36,9 @@ namespace hod
 			componentFactory->Register<Node2dComponent>();
 			componentFactory->Register<BoxComponent>();
 			componentFactory->Register<TextureRendererComponent>();
-			componentFactory->Register<TextRendererComponent>();			
+			componentFactory->Register<TextRendererComponent>();
 			componentFactory->Register<Collider2dComponent>();
+			componentFactory->Register<MultiShapeCollider2dComponent>();
 			componentFactory->Register<BoxCollider2dComponent>();
 			componentFactory->Register<CircleCollider2dComponent>();
 			componentFactory->Register<CapsuleCollider2dComponent>();
