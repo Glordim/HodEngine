@@ -59,7 +59,7 @@ namespace hod::editor
 
     EditorReflectedObject* EditorReflectedProperty::GetEditorReflectedObject()
     {
-        if (_reflectedObject == nullptr && _reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+        if (_reflectedObject == nullptr && (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic() || (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)))
         {
             _reflectedObject = new EditorReflectedObject(*this);
         }
@@ -107,5 +107,10 @@ namespace hod::editor
         EditorReflectedProperty elementProperty(_instances[0], nullptr, _reflectionProperty, nullptr); // todo support multiselection
         elementProperty._internalIndex = index;
         return elementProperty;
+    }
+
+    uint32_t EditorReflectedProperty::GetInternalIndex() const
+    {
+        return _internalIndex;
     }
 }

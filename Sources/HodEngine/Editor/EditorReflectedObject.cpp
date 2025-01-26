@@ -30,16 +30,41 @@ namespace hod::editor
 	EditorReflectedObject::EditorReflectedObject(EditorReflectedProperty& sourceProperty)
 	: _sourceProperty(&sourceProperty)
 	{
-		ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(sourceProperty.GetReflectionProperty());
-		_reflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
 		_instances.reserve(sourceProperty.GetInstances().size());
-		if (sourceProperty.GetSourceInstance() != nullptr)
+
+		ReflectionProperty* property = sourceProperty.GetReflectionProperty();
+		if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
 		{
-			_sourceInstance = reflectionPropertyObject->GetInstance(sourceProperty.GetSourceInstance());
+			ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
+			_reflectionDescriptor = propertyObject->GetReflectionDescriptor();
+
+			if (sourceProperty.GetSourceInstance() != nullptr)
+			{
+				_sourceInstance = propertyObject->GetInstance(sourceProperty.GetSourceInstance());
+			}
+			for (void* instance : sourceProperty.GetInstances())
+			{
+				_instances.push_back(propertyObject->GetInstance(instance));
+			}
 		}
-		for (void* instance : sourceProperty.GetInstances())
+		else if (property->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
 		{
-			_instances.push_back(reflectionPropertyObject->GetInstance(instance));
+			ReflectionPropertyArray* propertyArray = static_cast<ReflectionPropertyArray*>(property);
+			_reflectionDescriptor = propertyArray->GetElementReflectionDescriptor();
+
+			if (sourceProperty.GetSourceInstance() != nullptr)
+			{
+				_sourceInstance = propertyArray->GetValue<void*>(sourceProperty.GetSourceInstance(), sourceProperty.GetInternalIndex());
+			}
+			for (void* instance : sourceProperty.GetInstances())
+			{
+				_instances.push_back(propertyArray->GetValue<void*>(instance, sourceProperty.GetInternalIndex()));
+			}
+		}
+		else
+		{
+			assert(false);
+			return;
 		}
 
 		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);

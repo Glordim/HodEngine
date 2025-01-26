@@ -71,6 +71,8 @@ namespace hod::editor
         EditorReflectedObject*   GetParent();
         EditorReflectedObject*   GetEditorReflectedObject();
 
+        uint32_t                GetInternalIndex() const;
+
     private:
 
         std::vector<void*>      _instances;
