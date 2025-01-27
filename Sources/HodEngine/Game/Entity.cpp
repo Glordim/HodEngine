@@ -218,7 +218,7 @@ namespace hod::game
 
 		_onAddComponentEvent.Emit(component);
 
-		awakeAndStart = World::GetInstance()->GetEditorPlaying();
+		//awakeAndStart = World::GetInstance()->GetEditorPlaying();
 		
 		if (_active == true && awakeAndStart == true)
 		{
