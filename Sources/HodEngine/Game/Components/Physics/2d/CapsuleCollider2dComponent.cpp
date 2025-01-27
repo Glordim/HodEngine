@@ -18,9 +18,9 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void CapsuleCollider2dComponent::OnAwake()
+	void CapsuleCollider2dComponent::OnStart()
 	{
-		Collider2dComponent::OnAwake();
+		Collider2dComponent::OnStart();
 
 		Vector2 scale = GetScale();
 		_collider = GetRigidbody()->GetInternalBody()->AddCapsuleShape(_isTrigger, _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);

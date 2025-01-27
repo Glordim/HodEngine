@@ -16,9 +16,9 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void EdgeCollider2dComponent::OnAwake()
+	void EdgeCollider2dComponent::OnStart()
 	{
-		Collider2dComponent::OnAwake();
+		Collider2dComponent::OnStart();
 
 		Vector2 scale = GetScale();
 		_collider = GetRigidbody()->GetInternalBody()->AddEdgeShape(_isTrigger, _start * scale, _end * scale);

@@ -18,9 +18,9 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void CircleCollider2dComponent::OnAwake()
+	void CircleCollider2dComponent::OnStart()
 	{
-		Collider2dComponent::OnAwake();
+		Collider2dComponent::OnStart();
 
 		Vector2 scale = GetScale();
 		_collider = GetRigidbody()->GetInternalBody()->AddCircleShape(_isTrigger, _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));

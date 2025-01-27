@@ -44,7 +44,7 @@ namespace hod::game
 
 	public:
 
-		void			OnAwake() override;
+		void			OnStart() override;
 
 		void			AddCircleShape(const CircleShape& circleShape);
 		void			AddBoxShape(const BoxShape& boxshape);

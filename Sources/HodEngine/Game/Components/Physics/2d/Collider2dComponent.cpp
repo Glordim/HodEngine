@@ -37,7 +37,7 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void Collider2dComponent::OnAwake()
+	void Collider2dComponent::OnStart()
 	{
 		_rigidbody = GetEntity()->GetComponent<Rigidbody2dComponent>();
 	}

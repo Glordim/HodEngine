@@ -17,9 +17,9 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void BoxCollider2dComponent::OnAwake()
+	void BoxCollider2dComponent::OnStart()
 	{
-		Collider2dComponent::OnAwake();
+		Collider2dComponent::OnStart();
 
 		Vector2 scale = GetScale();
 		_collider = GetRigidbody()->GetInternalBody()->AddBoxShape(_isTrigger, _offset * scale, _size * scale, _rotation);

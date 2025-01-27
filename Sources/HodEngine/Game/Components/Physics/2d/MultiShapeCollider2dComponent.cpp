@@ -29,9 +29,9 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void MultiShapeCollider2dComponent::OnAwake()
+	void MultiShapeCollider2dComponent::OnStart()
 	{
-		Collider2dComponent::OnAwake();
+		Collider2dComponent::OnStart();
 
 		Vector2 scale = GetScale();
 		physics::Body* body = GetRigidbody()->GetInternalBody();

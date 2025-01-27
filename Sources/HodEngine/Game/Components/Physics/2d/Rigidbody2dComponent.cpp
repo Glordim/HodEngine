@@ -31,20 +31,8 @@ namespace hod::game
 			physics::Body::Type::Dynamic,
 		};
 
-		Vector2 position;
+		Vector2 position = Vector2::Zero;
 		float rotation = 0.0f;
-
-		std::shared_ptr<Entity> entity = GetEntity();
-		if (entity != nullptr)
-		{
-			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
-			if (node2dComponent != nullptr)
-			{
-				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
-				position = worldMatrix.GetTranslation();
-				rotation = worldMatrix.GetRotation().GetAngleZ();
-			}
-		}
 
 		_body = physics::Physics::GetInstance()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
 		_body->SetMoveEventCallback([this](const Vector2& position, float rotation)
@@ -84,6 +72,24 @@ namespace hod::game
 	/// @brief 
 	void Rigidbody2dComponent::OnStart()
 	{
+		Vector2 position = Vector2::Zero;
+		float rotation = 0.0f;
+		Vector2 scale = Vector2::One;
+
+		std::shared_ptr<Entity> entity = GetEntity();
+		if (entity != nullptr)
+		{
+			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+			if (node2dComponent != nullptr)
+			{
+				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
+				position = worldMatrix.GetTranslation();
+				rotation = worldMatrix.GetRotation().GetAngleZ();
+				//scale = worldMatrix.GetScale();
+			}
+		}
+		_body->SetTransform(position, rotation, scale);
+
 		_body->SetType(_body->GetType());
 	}
 

@@ -24,7 +24,7 @@ namespace hod::game
 
 	public:
 
-		void			OnAwake() override;
+		void			OnStart() override;
 
 		void			SetStart(const Vector2& start);
 		const Vector2&	GetStart() const;
