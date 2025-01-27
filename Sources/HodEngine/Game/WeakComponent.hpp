@@ -57,7 +57,7 @@ namespace hod::game
     public:
 
         WeakComponent()
-        : WeakComponentBase(_Component_::GetReflectionDescriptor())
+        : WeakComponentBase(&_Component_::GetReflectionDescriptor())
         {
         }
 
