@@ -83,7 +83,7 @@ namespace hod::editor
 
 	ReflectionDescriptor* FontImporter::GetResourceDescriptor() const
 	{
-		return renderer::FontResource::GetReflectionDescriptor();
+		return &renderer::FontResource::GetReflectionDescriptor();
 	}
 
 	std::shared_ptr<ImporterSettings> FontImporter::AllocateSettings() const

@@ -259,12 +259,14 @@ namespace hod::game
 		for (auto& entityPair : entities)
 		{
 			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
+			entityPair.second->SetLocalId(0);
 		}
 
 		for (const auto& entity : entities)
 		{
 			for (std::weak_ptr<Component> component : entity.second->GetComponents())
 			{
+				component.lock()->SetLocalId(0);
 				component.lock()->Construct();
 			}
 		}

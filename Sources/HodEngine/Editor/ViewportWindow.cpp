@@ -97,7 +97,7 @@ namespace hod::editor
 			{
 				return; // todo message + bool
 			}
-			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
+			asset->SetInstanceToSave(_scene, &_scene->GetReflectionDescriptorV());
 		}
 		else
 		{
@@ -105,7 +105,7 @@ namespace hod::editor
 			_scene->SetNextLocalId(prefabResource->GetPrefab().GetNextLocalId());
 			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(prefabResource);
 			prefabRootEntity->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
-			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
+			asset->SetInstanceToSave(_scene, &_scene->GetReflectionDescriptorV());
 		}
 	}
 
@@ -381,7 +381,7 @@ namespace hod::editor
 						std::shared_ptr<game::Component> componentLock = component.lock();
 						if (componentLock != nullptr)
 						{
-							ReflectionTraitComponentCustomEditor* customEditorTrait = componentLock->GetReflectionDescriptorV()->FindTrait<ReflectionTraitComponentCustomEditor>();
+							ReflectionTraitComponentCustomEditor* customEditorTrait = componentLock->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
 							if (customEditorTrait != nullptr)
 							{
 								ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();

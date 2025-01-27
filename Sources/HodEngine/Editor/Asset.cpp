@@ -21,8 +21,8 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(Meta, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &Meta::_uid, "_uid");
-		AddPropertyT(&reflectionDescriptor, &Meta::_importerType, "_importerType");
+		AddPropertyT(reflectionDescriptor, &Meta::_uid, "_uid");
+		AddPropertyT(reflectionDescriptor, &Meta::_importerType, "_importerType");
 	}
 
 	/// @brief 

@@ -11,10 +11,10 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(CircleCollider2dComponent, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &CircleCollider2dComponent::_offset, "Offset", &CircleCollider2dComponent::SetOffset);
-		AddPropertyT(&reflectionDescriptor, &CircleCollider2dComponent::_radius, "Radius", &CircleCollider2dComponent::SetRadius);
+		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_offset, "Offset", &CircleCollider2dComponent::SetOffset);
+		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_radius, "Radius", &CircleCollider2dComponent::SetRadius);
 
-		AddPropertyT(&reflectionDescriptor, &CircleCollider2dComponent::_bounciness, "Bounciness"); // tmp
+		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_bounciness, "Bounciness"); // tmp
 	}
 
 	/// @brief 

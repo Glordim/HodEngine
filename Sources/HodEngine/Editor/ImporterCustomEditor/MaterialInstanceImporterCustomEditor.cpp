@@ -55,7 +55,7 @@ namespace hod::editor
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			EditorReflectedObject reflectedObject(&_materialInstanceAsset, _materialInstanceAsset.GetReflectionDescriptorV(), nullptr);
+			EditorReflectedObject reflectedObject(&_materialInstanceAsset, &_materialInstanceAsset.GetReflectionDescriptorV(), nullptr);
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
 
@@ -84,7 +84,7 @@ namespace hod::editor
 				{
 					_materialInstanceAsset._params.GetRootNode().Clear();
 					Serializer::Serialize(&material->GetReflectionDescriptorForParameters(), static_cast<void*>(_paramsBuffer), _materialInstanceAsset._params.GetRootNode());
-					_asset->Save(&_materialInstanceAsset, _materialInstanceAsset.GetReflectionDescriptorV());
+					_asset->Save(&_materialInstanceAsset, &_materialInstanceAsset.GetReflectionDescriptorV());
 					AssetDatabase::GetInstance()->Import(_asset->GetPath());
 				}
 			}

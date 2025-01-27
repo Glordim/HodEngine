@@ -12,11 +12,11 @@ static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescri
 	FillReflectionDescriptorUser(reflectionDescriptor); \
 } \
 static void FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor); \
-static hod::ReflectionDescriptor* GetReflectionDescriptor() \
+static hod::ReflectionDescriptor& GetReflectionDescriptor() \
 { \
 	return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
 } \
-virtual ReflectionDescriptor* GetReflectionDescriptorV() const \
+virtual ReflectionDescriptor& GetReflectionDescriptorV() const \
 { \
     return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
 } \
@@ -30,11 +30,11 @@ static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescri
 	FillReflectionDescriptorUser(reflectionDescriptor); \
 } \
 static void FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor); \
-static hod::ReflectionDescriptor* GetReflectionDescriptor() \
+static hod::ReflectionDescriptor& GetReflectionDescriptor() \
 { \
 	return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
 } \
-ReflectionDescriptor* GetReflectionDescriptorV() const \
+ReflectionDescriptor& GetReflectionDescriptorV() const \
 { \
     return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
 } \
@@ -48,11 +48,11 @@ static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescri
 	FillReflectionDescriptorUser(reflectionDescriptor); \
 } \
 static void FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor); \
-static hod::ReflectionDescriptor* GetReflectionDescriptor() \
+static hod::ReflectionDescriptor& GetReflectionDescriptor() \
 { \
 	return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
 } \
-hod::ReflectionDescriptor* GetReflectionDescriptorV() const override \
+hod::ReflectionDescriptor& GetReflectionDescriptorV() const override \
 { \
     return hod::ReflectedClass<CLASS>::GetReflectionDescriptor(); \
 } \
@@ -67,7 +67,7 @@ namespace hod
 	class ReflectedClass
 	{
 	public:
-		static ReflectionDescriptor* GetReflectionDescriptor()
+		static ReflectionDescriptor& GetReflectionDescriptor()
 		{
 			static ReflectionDescriptor reflectionDescriptor;
 			static bool init = false;
@@ -76,7 +76,7 @@ namespace hod
 				_Class_::FillReflectionDescriptor(reflectionDescriptor);
 				init = true;
 			}
-			return &reflectionDescriptor;
+			return reflectionDescriptor;
 		}
 	};
 
@@ -84,7 +84,7 @@ namespace hod
 
 	template<typename T, typename MemberType>
 	requires (std::is_fundamental_v<MemberType> || std::is_enum_v<MemberType>)
-	ReflectionProperty* AddPropertyT(ReflectionDescriptor* descriptor, MemberType T::*member, const char* name, void(T::*setFunction)(MemberType) = nullptr/*, std::function<MemberType(void) const> getFunction = nullptr*/)
+	ReflectionProperty* AddPropertyT(ReflectionDescriptor& descriptor, MemberType T::*member, const char* name, void(T::*setFunction)(MemberType) = nullptr/*, std::function<MemberType(void) const> getFunction = nullptr*/)
 	{
 		uint32_t offset = OffsetOf(member);
 		
@@ -107,7 +107,7 @@ namespace hod
 
 	template<typename T, typename MemberType>
 	requires (!std::is_fundamental_v<MemberType> && !std::is_enum_v<MemberType>)
-	ReflectionProperty* AddPropertyT(ReflectionDescriptor* descriptor,  MemberType T::*member, const char* name, void(T::*setFunction)(const MemberType&) = nullptr/*, std::function<const MemberType&(void) const> getFunction = nullptr*/)
+	ReflectionProperty* AddPropertyT(ReflectionDescriptor& descriptor,  MemberType T::*member, const char* name, void(T::*setFunction)(const MemberType&) = nullptr/*, std::function<const MemberType&(void) const> getFunction = nullptr*/)
 	{
 		uint32_t offset = OffsetOf(member);
 		if (setFunction != nullptr)

@@ -15,11 +15,11 @@ namespace hod::game
 
 	DESCRIBE_REFLECTED_CLASS(CameraComponent, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &CameraComponent::_projection, "Projection");
-		AddPropertyT(&reflectionDescriptor, &CameraComponent::_near, "Near");
-		AddPropertyT(&reflectionDescriptor, &CameraComponent::_far, "Far");
-		AddPropertyT(&reflectionDescriptor, &CameraComponent::_fov, "Fov");
-		AddPropertyT(&reflectionDescriptor, &CameraComponent::_size, "Size", &CameraComponent::SetSize);
+		AddPropertyT(reflectionDescriptor, &CameraComponent::_projection, "Projection");
+		AddPropertyT(reflectionDescriptor, &CameraComponent::_near, "Near");
+		AddPropertyT(reflectionDescriptor, &CameraComponent::_far, "Far");
+		AddPropertyT(reflectionDescriptor, &CameraComponent::_fov, "Fov");
+		AddPropertyT(reflectionDescriptor, &CameraComponent::_size, "Size", &CameraComponent::SetSize);
 	}
 
 	/// @brief 

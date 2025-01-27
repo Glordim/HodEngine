@@ -24,17 +24,17 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &TextureImporterSettings::_generateMipmap, "GenerateMipmap");
-		AddPropertyT(&reflectionDescriptor, &TextureImporterSettings::_filterMode, "FilterMode");
-		AddPropertyT(&reflectionDescriptor, &TextureImporterSettings::_wrapMode, "WrapMode");
-		AddPropertyT(&reflectionDescriptor, &TextureImporterSettings::_spriteDatas, "SpriteDatas");
+		AddPropertyT(reflectionDescriptor, &TextureImporterSettings::_generateMipmap, "GenerateMipmap");
+		AddPropertyT(reflectionDescriptor, &TextureImporterSettings::_filterMode, "FilterMode");
+		AddPropertyT(reflectionDescriptor, &TextureImporterSettings::_wrapMode, "WrapMode");
+		AddPropertyT(reflectionDescriptor, &TextureImporterSettings::_spriteDatas, "SpriteDatas");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(SpriteData, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &SpriteData::_uid, "Uid");
-		AddPropertyT(&reflectionDescriptor, &SpriteData::_rect, "Rect");
-		AddPropertyT(&reflectionDescriptor, &SpriteData::_meshType, "MeshType");
+		AddPropertyT(reflectionDescriptor, &SpriteData::_uid, "Uid");
+		AddPropertyT(reflectionDescriptor, &SpriteData::_rect, "Rect");
+		AddPropertyT(reflectionDescriptor, &SpriteData::_meshType, "MeshType");
 	}
 
 	/// @brief 
@@ -162,7 +162,7 @@ namespace hod::editor
 
 	ReflectionDescriptor* TextureImporter::GetResourceDescriptor() const
 	{
-		return renderer::TextureResource::GetReflectionDescriptor();
+		return &renderer::TextureResource::GetReflectionDescriptor();
 	}
 
 	std::shared_ptr<ImporterSettings> TextureImporter::AllocateSettings() const

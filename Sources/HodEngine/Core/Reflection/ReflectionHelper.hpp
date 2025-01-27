@@ -20,7 +20,7 @@ namespace hod
 	public:
 
 		template<typename _MemberVariable_>
-		static ReflectionProperty*	AddProperty(ReflectionDescriptor* descriptor, const std::string_view& name, uint32_t offset, std::function<void(void*, void*)> = nullptr, std::function<void*(const void*)> = nullptr);
+		static ReflectionProperty*	AddProperty(ReflectionDescriptor& descriptor, const std::string_view& name, uint32_t offset, std::function<void(void*, void*)> = nullptr, std::function<void*(const void*)> = nullptr);
 	};
 }
 

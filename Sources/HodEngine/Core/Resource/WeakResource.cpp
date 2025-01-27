@@ -10,7 +10,7 @@ namespace hod
 {
     DESCRIBE_REFLECTED_CLASS(WeakResourceBase, reflectionDescriptor)
     {
-        AddPropertyT(&reflectionDescriptor, &WeakResourceBase::_uid, "_uid");
+        AddPropertyT(reflectionDescriptor, &WeakResourceBase::_uid, "_uid");
     }
 
     /// @brief 
@@ -73,7 +73,7 @@ namespace hod
         }
         else if (_pointer == nullptr || _pointer->GetUid() != _uid)
         {
-            _pointer = ResourceManager::GetInstance()->GetResource(_resourceDescriptor, _uid);
+            _pointer = ResourceManager::GetInstance()->GetResource(*_resourceDescriptor, _uid);
         }
         return _pointer;
     }

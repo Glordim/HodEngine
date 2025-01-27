@@ -109,22 +109,22 @@ namespace hod::editor
 		delete _shaderTexture;
 		delete _checkerTexture;
 
-		Vector2::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		Vector4::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		game::WeakComponentBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		WeakResourceBase::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		TextureImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
-		SerializedDataImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
-		MaterialImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
-		MaterialInstanceImporterSettings::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitImporterCustomEditor>();
+		Vector2::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		Vector4::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		game::WeakComponentBase::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		WeakResourceBase::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+		TextureImporterSettings::GetReflectionDescriptor().RemoveTrait<ReflectionTraitImporterCustomEditor>();
+		SerializedDataImporterSettings::GetReflectionDescriptor().RemoveTrait<ReflectionTraitImporterCustomEditor>();
+		MaterialImporterSettings::GetReflectionDescriptor().RemoveTrait<ReflectionTraitImporterCustomEditor>();
+		MaterialInstanceImporterSettings::GetReflectionDescriptor().RemoveTrait<ReflectionTraitImporterCustomEditor>();
 
-		game::Node2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::CameraComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::TextureRendererComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::BoxCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::CircleCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::CapsuleCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::EdgeCollider2dComponent::GetReflectionDescriptor()->RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::Node2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::CameraComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::TextureRendererComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::BoxCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::CircleCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::CapsuleCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::EdgeCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
 	}
 
 	/// @brief 
@@ -134,22 +134,22 @@ namespace hod::editor
 	{
 		game::World::GetInstance()->DisableDrawJob();
 
-		Vector2::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
-		Vector4::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector4CustomEditor);
-		game::WeakComponentBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakComponentCustomEditor);
-		WeakResourceBase::GetReflectionDescriptor()->AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
-		TextureImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
-		SerializedDataImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
-		MaterialImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialImporterCustomEditor);
-		MaterialInstanceImporterSettings::GetReflectionDescriptor()->AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialInstanceImporterCustomEditor);
+		Vector2::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
+		Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector4CustomEditor);
+		game::WeakComponentBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakComponentCustomEditor);
+		WeakResourceBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
+		TextureImporterSettings::GetReflectionDescriptor().AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
+		SerializedDataImporterSettings::GetReflectionDescriptor().AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
+		MaterialImporterSettings::GetReflectionDescriptor().AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialImporterCustomEditor);
+		MaterialInstanceImporterSettings::GetReflectionDescriptor().AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialInstanceImporterCustomEditor);
 
-		game::Node2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
-		game::CameraComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CameraComponentCustomEditor);
-		game::TextureRendererComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new TextureRendererComponentCustomEditor);
-		game::BoxCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new BoxCollider2dComponentCustomEditor);
-		game::CircleCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CircleCollider2dComponentCustomEditor);
-		game::CapsuleCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new CapsuleCollider2dComponentCustomEditor);
-		game::EdgeCollider2dComponent::GetReflectionDescriptor()->AddTrait<ReflectionTraitComponentCustomEditor>(new EdgeCollider2dComponentCustomEditor);
+		game::Node2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
+		game::CameraComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CameraComponentCustomEditor);
+		game::TextureRendererComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new TextureRendererComponentCustomEditor);
+		game::BoxCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new BoxCollider2dComponentCustomEditor);
+		game::CircleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CircleCollider2dComponentCustomEditor);
+		game::CapsuleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CapsuleCollider2dComponentCustomEditor);
+		game::EdgeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new EdgeCollider2dComponentCustomEditor);
 
 		Project::CreateInstance();
 
@@ -343,8 +343,8 @@ namespace hod::editor
 		std::shared_ptr<Asset> asset = selection->_asset;
 		if (asset != nullptr)
 		{
-			ReflectionDescriptor* reflectionDescriptor = asset->GetMeta()._importerSettings->GetReflectionDescriptorV();
-			ReflectionTraitImporterCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitImporterCustomEditor>();
+			ReflectionDescriptor& reflectionDescriptor = asset->GetMeta()._importerSettings->GetReflectionDescriptorV();
+			ReflectionTraitImporterCustomEditor* componentCustomEditorTrait = reflectionDescriptor.FindTrait<ReflectionTraitImporterCustomEditor>();
 			if (componentCustomEditorTrait != nullptr)
 			{
 				componentCustomEditorTrait->GetCustomEditor()->OnInit(asset);

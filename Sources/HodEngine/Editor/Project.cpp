@@ -34,8 +34,8 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(Project, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &Project::_name, "_name");
-		AddPropertyT(&reflectionDescriptor, &Project::_startupScene, "_startupScene");
+		AddPropertyT(reflectionDescriptor, &Project::_name, "_name");
+		AddPropertyT(reflectionDescriptor, &Project::_startupScene, "_startupScene");
 	}
 
 	_SingletonConstructor(Project)

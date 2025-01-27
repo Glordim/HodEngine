@@ -59,6 +59,6 @@ namespace hod::editor
 
 	ReflectionDescriptor* PrefabImporter::GetResourceDescriptor() const
 	{
-		return game::PrefabResource::GetReflectionDescriptor();
+		return &game::PrefabResource::GetReflectionDescriptor();
 	}
 }

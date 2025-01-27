@@ -14,7 +14,7 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent, reflectionDescriptor)
 		{
-			AddPropertyT(&reflectionDescriptor, &SpriteRendererComponent::_sprite, "_sprite");
+			AddPropertyT(reflectionDescriptor, &SpriteRendererComponent::_sprite, "_sprite");
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
 

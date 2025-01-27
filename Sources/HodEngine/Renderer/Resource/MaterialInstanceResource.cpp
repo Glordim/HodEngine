@@ -14,8 +14,8 @@ namespace hod::renderer
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceResource, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &MaterialInstanceResource::_material, "_material");
-		AddPropertyT(&reflectionDescriptor, &MaterialInstanceResource::_params, "_params");
+		AddPropertyT(reflectionDescriptor, &MaterialInstanceResource::_material, "_material");
+		AddPropertyT(reflectionDescriptor, &MaterialInstanceResource::_params, "_params");
 	}
 
 	/// @brief 
@@ -102,17 +102,17 @@ namespace hod::renderer
 			{
 				ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
 
-				if (propertyObject->GetReflectionDescriptor() == Vector2::GetReflectionDescriptor())
+				if (propertyObject->GetReflectionDescriptor() == &Vector2::GetReflectionDescriptor())
 				{
 					Vector2* value = static_cast<Vector2*>(propertyObject->GetInstance(instance));
 					_materialInstance->SetVec2(newPath, *value);
 				}
-				else if (propertyObject->GetReflectionDescriptor() == Vector4::GetReflectionDescriptor())
+				else if (propertyObject->GetReflectionDescriptor() == &Vector4::GetReflectionDescriptor())
 				{
 					Vector4* value = static_cast<Vector4*>(propertyObject->GetInstance(instance));
 					_materialInstance->SetVec4(newPath, *value);
 				}
-				else if (propertyObject->GetReflectionDescriptor() == WeakResource<TextureResource>::GetReflectionDescriptor())
+				else if (propertyObject->GetReflectionDescriptor() == &WeakResource<TextureResource>::GetReflectionDescriptor())
 				{
 					WeakResource<TextureResource>* value = static_cast<WeakResource<TextureResource>*>(propertyObject->GetInstance(instance));
 					WeakResource<TextureResource> retain;

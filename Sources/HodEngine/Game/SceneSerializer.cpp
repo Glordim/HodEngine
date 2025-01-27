@@ -255,7 +255,7 @@ namespace hod::game
 		for (auto& componentPair : components)
 		{
 			std::vector<WeakEntity*> weakEntities;
-			componentPair.second->GetReflectionDescriptorV()->CollectObjectProperties(weakEntities, componentPair.second.get());
+			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakEntities, componentPair.second.get());
 			for (WeakEntity* weakEntity : weakEntities)
 			{
 				uint64_t entityId = weakEntity->GetInstanceId();
@@ -266,7 +266,7 @@ namespace hod::game
 			}
 
 			std::vector<WeakComponentBase*> weakComponents;
-			componentPair.second->GetReflectionDescriptorV()->CollectObjectProperties(weakComponents, componentPair.second.get());
+			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakComponents, componentPair.second.get());
 			for (WeakComponentBase* weakComponent : weakComponents)
 			{
 				uint64_t componenId = weakComponent->GetInstanceId();

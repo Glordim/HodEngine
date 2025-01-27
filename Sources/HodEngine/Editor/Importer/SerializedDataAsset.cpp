@@ -14,7 +14,7 @@ namespace hod::editor
 		{
 			const SerializedDataAsset* serializedDataAsset = static_cast<const SerializedDataAsset*>(instance);
 
-			documentNode.AddChild("Type").SetUInt64(serializedDataAsset->_data->GetReflectionDescriptorV()->GetMetaType());
+			documentNode.AddChild("Type").SetUInt64(serializedDataAsset->_data->GetReflectionDescriptorV().GetMetaType());
 			Serializer::Serialize(static_cast<const game::SerializedData*>(serializedDataAsset->_data), documentNode.AddChild("Data"));
 		},
 		[](void* instance, const Document::Node& documentNode)

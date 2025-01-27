@@ -8,10 +8,10 @@ namespace hod
 
 	DESCRIBE_REFLECTED_CLASS(Color, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &Color::r, "r");
-		AddPropertyT(&reflectionDescriptor, &Color::g, "g");
-		AddPropertyT(&reflectionDescriptor, &Color::b, "b");
-		AddPropertyT(&reflectionDescriptor, &Color::a, "a");
+		AddPropertyT(reflectionDescriptor, &Color::r, "r");
+		AddPropertyT(reflectionDescriptor, &Color::g, "g");
+		AddPropertyT(reflectionDescriptor, &Color::b, "b");
+		AddPropertyT(reflectionDescriptor, &Color::a, "a");
 	}
 
 	//-----------------------------------------------------------------------------

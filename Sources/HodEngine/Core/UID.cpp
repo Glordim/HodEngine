@@ -44,8 +44,8 @@ namespace hod
 {
 	DESCRIBE_REFLECTED_CLASS(UID, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &UID::_low, "_low");
-		AddPropertyT(&reflectionDescriptor, &UID::_high, "_high");
+		AddPropertyT(reflectionDescriptor, &UID::_low, "_low");
+		AddPropertyT(reflectionDescriptor, &UID::_high, "_high");
 	}
 
 	HOD_CORE_API UID UID::INVALID_UID;

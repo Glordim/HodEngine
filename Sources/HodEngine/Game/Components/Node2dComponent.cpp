@@ -15,9 +15,9 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(Node2dComponent, reflectionDescriptor)
 		{
-			AddPropertyT(&reflectionDescriptor, &Node2dComponent::_position, "_position", &Node2dComponent::SetPosition);
-			AddPropertyT(&reflectionDescriptor, &Node2dComponent::_rotation, "_rotation", &Node2dComponent::SetRotation);
-			AddPropertyT(&reflectionDescriptor, &Node2dComponent::_scale, "_scale", &Node2dComponent::SetScale);
+			AddPropertyT(reflectionDescriptor, &Node2dComponent::_position, "_position", &Node2dComponent::SetPosition);
+			AddPropertyT(reflectionDescriptor, &Node2dComponent::_rotation, "_rotation", &Node2dComponent::SetRotation);
+			AddPropertyT(reflectionDescriptor, &Node2dComponent::_scale, "_scale", &Node2dComponent::SetScale);
 		}
 		
 		//-----------------------------------------------------------------------------

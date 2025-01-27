@@ -11,11 +11,11 @@ namespace hod::renderer
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialResource, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &MaterialResource::_vertexShader, "_vertexShader");
-		AddPropertyT(&reflectionDescriptor, &MaterialResource::_fragmentShader, "_fragmentShader");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_vertexShader, "_vertexShader");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_fragmentShader, "_fragmentShader");
 
-		AddPropertyT(&reflectionDescriptor, &MaterialResource::_polygonMode, "_polygonMode");
-		AddPropertyT(&reflectionDescriptor, &MaterialResource::_topololy, "_topololy");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_polygonMode, "_polygonMode");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_topololy, "_topololy");
 	}
 
 	/// @brief 

@@ -67,8 +67,8 @@ namespace hod::editor
 			ImGui::TextUnformatted(asset->GetName().c_str()); // same line add button to open (and later VersionControl)
 			ImGui::Separator();
 			bool changed = false;
-			ReflectionDescriptor* reflectionDescriptor = asset->GetMeta()._importerSettings->GetReflectionDescriptorV();
-			ReflectionTraitImporterCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitImporterCustomEditor>();
+			ReflectionDescriptor& reflectionDescriptor = asset->GetMeta()._importerSettings->GetReflectionDescriptorV();
+			ReflectionTraitImporterCustomEditor* componentCustomEditorTrait = reflectionDescriptor.FindTrait<ReflectionTraitImporterCustomEditor>();
 			if (componentCustomEditorTrait != nullptr)
 			{
 				changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector();
@@ -238,7 +238,7 @@ namespace hod::editor
 					ImGui::TextUnformatted(ICON_MDI_PUZZLE);
 					ImGui::SameLine();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(componentLock->GetReflectionDescriptorV()->GetDisplayName().c_str());
+					ImGui::TextUnformatted(componentLock->GetReflectionDescriptorV().GetDisplayName().c_str());
 
 					ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_CLOSE).x + 10.0f, 0.0f);
 					ImVec2 buttonPos = ImGui::GetCursorScreenPos();
@@ -296,11 +296,11 @@ namespace hod::editor
 					if (opened == true)
 					{
 						std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(componentLock);
-						EditorReflectedObject reflectedObject(componentLock.get(), componentLock->GetReflectionDescriptorV(), sourceComponent.get());
+						EditorReflectedObject reflectedObject(componentLock.get(), &componentLock->GetReflectionDescriptorV(), sourceComponent.get());
 
 						bool changed = false;
-						ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
-						ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitComponentCustomEditor>();
+						ReflectionDescriptor& reflectionDescriptor = componentLock->GetReflectionDescriptorV();
+						ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor.FindTrait<ReflectionTraitComponentCustomEditor>();
 						if (componentCustomEditorTrait != nullptr)
 						{
 							changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(reflectedObject);

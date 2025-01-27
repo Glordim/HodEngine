@@ -40,14 +40,14 @@ namespace hod::editor
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			EditorReflectedObject reflectedObject(&_materialAsset, _materialAsset.GetReflectionDescriptorV(), nullptr);
+			EditorReflectedObject reflectedObject(&_materialAsset, &_materialAsset.GetReflectionDescriptorV(), nullptr);
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
 
 		ImGui::BeginDisabled(_asset->IsDirty() == false);
 		if (ImGui::Button("Apply"))
 		{
-			_asset->Save(&_materialAsset, _materialAsset.GetReflectionDescriptorV());
+			_asset->Save(&_materialAsset, &_materialAsset.GetReflectionDescriptorV());
 			AssetDatabase::GetInstance()->Import(_asset->GetPath());
 		}
 		ImGui::EndDisabled();

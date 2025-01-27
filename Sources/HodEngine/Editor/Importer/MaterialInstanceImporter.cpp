@@ -16,8 +16,8 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceAsset, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &MaterialInstanceAsset::_material, "_material");
-		AddPropertyT(&reflectionDescriptor, &MaterialInstanceAsset::_params, "_params");
+		AddPropertyT(reflectionDescriptor, &MaterialInstanceAsset::_material, "_material");
+		AddPropertyT(reflectionDescriptor, &MaterialInstanceAsset::_params, "_params");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceImporterSettings, reflectionDescriptor)
@@ -74,7 +74,7 @@ namespace hod::editor
 
 	ReflectionDescriptor* MaterialInstanceImporter::GetResourceDescriptor() const
 	{
-		return renderer::MaterialInstanceResource::GetReflectionDescriptor();
+		return &renderer::MaterialInstanceResource::GetReflectionDescriptor();
 	}
 
 	std::shared_ptr<ImporterSettings> MaterialInstanceImporter::AllocateSettings() const

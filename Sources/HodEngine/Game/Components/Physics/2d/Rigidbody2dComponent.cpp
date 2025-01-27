@@ -12,8 +12,8 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
-		AddPropertyT(&reflectionDescriptor, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
+		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
+		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
 	}
 
 	/// @brief 

@@ -21,8 +21,8 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(TextRendererComponent, reflectionDescriptor)
 		{
-			AddPropertyT(&reflectionDescriptor, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
-			AddPropertyT(&reflectionDescriptor, &TextRendererComponent::_text, "_text"/*, &TextRendererComponent::SetText*/);
+			AddPropertyT(reflectionDescriptor, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
+			AddPropertyT(reflectionDescriptor, &TextRendererComponent::_text, "_text"/*, &TextRendererComponent::SetText*/);
 			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
 			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}

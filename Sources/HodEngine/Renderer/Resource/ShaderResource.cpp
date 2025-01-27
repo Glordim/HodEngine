@@ -10,8 +10,8 @@ namespace hod::renderer
 {
 	DESCRIBE_REFLECTED_CLASS(ShaderResource, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &ShaderResource::_type, "_type");
-		AddPropertyT(&reflectionDescriptor, &ShaderResource::_source, "_source");
+		AddPropertyT(reflectionDescriptor, &ShaderResource::_type, "_type");
+		AddPropertyT(reflectionDescriptor, &ShaderResource::_source, "_source");
 	}
 
 	/// @brief 

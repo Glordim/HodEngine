@@ -22,6 +22,6 @@ namespace hod::editor
 	{
 		_Object_ object;
 		_Importer_ importer;
-		return CreateAsset(&object, _Object_::GetReflectionDescriptor(), importer.AllocateSettings(), importer.GetTypeName(), path);
+		return CreateAsset(&object, &_Object_::GetReflectionDescriptor(), importer.AllocateSettings(), importer.GetTypeName(), path);
 	}
 }

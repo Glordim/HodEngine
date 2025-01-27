@@ -11,9 +11,9 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(BoxCollider2dComponent, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &BoxCollider2dComponent::_offset, "Offset", &BoxCollider2dComponent::SetOffset);
-		AddPropertyT(&reflectionDescriptor, &BoxCollider2dComponent::_size, "Size", &BoxCollider2dComponent::SetSize);
-		AddPropertyT(&reflectionDescriptor, &BoxCollider2dComponent::_rotation, "Rotation", &BoxCollider2dComponent::SetRotation);
+		AddPropertyT(reflectionDescriptor, &BoxCollider2dComponent::_offset, "Offset", &BoxCollider2dComponent::SetOffset);
+		AddPropertyT(reflectionDescriptor, &BoxCollider2dComponent::_size, "Size", &BoxCollider2dComponent::SetSize);
+		AddPropertyT(reflectionDescriptor, &BoxCollider2dComponent::_rotation, "Rotation", &BoxCollider2dComponent::SetRotation);
 	}
 
 	/// @brief 

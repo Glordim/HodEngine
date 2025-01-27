@@ -11,21 +11,21 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent::CircleShape, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &CircleShape::_origin, "Origin");
-		AddPropertyT(&reflectionDescriptor, &CircleShape::_radius, "Radius");
+		AddPropertyT(reflectionDescriptor, &CircleShape::_origin, "Origin");
+		AddPropertyT(reflectionDescriptor, &CircleShape::_radius, "Radius");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent::BoxShape, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &BoxShape::_origin, "Origin");
-		AddPropertyT(&reflectionDescriptor, &BoxShape::_size, "Size");
-		AddPropertyT(&reflectionDescriptor, &BoxShape::_angle, "Angle");
+		AddPropertyT(reflectionDescriptor, &BoxShape::_origin, "Origin");
+		AddPropertyT(reflectionDescriptor, &BoxShape::_size, "Size");
+		AddPropertyT(reflectionDescriptor, &BoxShape::_angle, "Angle");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &MultiShapeCollider2dComponent::_circles, "Circles");
-		AddPropertyT(&reflectionDescriptor, &MultiShapeCollider2dComponent::_boxes, "Boxes");
+		AddPropertyT(reflectionDescriptor, &MultiShapeCollider2dComponent::_circles, "Circles");
+		AddPropertyT(reflectionDescriptor, &MultiShapeCollider2dComponent::_boxes, "Boxes");
 	}
 
 	/// @brief 

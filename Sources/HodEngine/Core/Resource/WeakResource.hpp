@@ -53,7 +53,7 @@ namespace hod
     public:
 
         WeakResource()
-        : WeakResourceBase(_Resource_::GetReflectionDescriptor())
+        : WeakResourceBase(&_Resource_::GetReflectionDescriptor())
         {
         }
 

@@ -202,9 +202,9 @@ namespace hod
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	bool ReflectionDescriptor::IsCompatible(const ReflectionDescriptor* descriptor) const
+	bool ReflectionDescriptor::IsCompatible(const ReflectionDescriptor& descriptor) const
 	{
-		if (this == descriptor)
+		if (this == &descriptor)
 		{
 			return true;
 		}
@@ -247,7 +247,7 @@ namespace hod
 	/// @param reflectionDescriptor 
 	/// @param collectedInstances 
 	/// @param instance 
-	void ReflectionDescriptor::CollectObjectProperties(ReflectionDescriptor* reflectionDescriptor, std::vector<void*>& collectedInstances, void* instance)
+	void ReflectionDescriptor::CollectObjectProperties(const ReflectionDescriptor& reflectionDescriptor, std::vector<void*>& collectedInstances, void* instance)
 	{
 		for (ReflectionProperty* property : GetProperties())
 		{

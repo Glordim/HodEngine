@@ -90,7 +90,7 @@ namespace hod::editor
 
 	ReflectionDescriptor* ShaderImporter::GetResourceDescriptor() const
 	{
-		return renderer::ShaderResource::GetReflectionDescriptor();
+		return &renderer::ShaderResource::GetReflectionDescriptor();
 	}
 
 	std::shared_ptr<ImporterSettings> ShaderImporter::AllocateSettings() const

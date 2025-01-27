@@ -69,7 +69,7 @@ namespace hod::game::PrefabUtility
 	};
 
 	HOD_GAME_API bool CollectDiff(std::shared_ptr<Entity> entity, EntityDiffs& diffs);
-	HOD_GAME_API void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor* reflectionDescriptor, void* sourceAddr, void* instanceAddr);
+	HOD_GAME_API void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr);
 
 	HOD_GAME_API std::shared_ptr<Entity> GetPrefabInstance(std::shared_ptr<Entity> entity);
 	HOD_GAME_API std::string GetRelativePath(std::shared_ptr<Entity> parent, std::shared_ptr<Entity> child);

@@ -8,6 +8,6 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(RecentProjects, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &RecentProjects::_projectsPath, "_projectsPath");
+		AddPropertyT(reflectionDescriptor, &RecentProjects::_projectsPath, "_projectsPath");
 	}
 }

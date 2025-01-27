@@ -532,7 +532,7 @@ namespace hod::editor
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
-									newAssetNode->_asset->Save(&prefab, prefab.GetReflectionDescriptorV());
+									newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
 									AssetDatabase::GetInstance()->Import(newAssetPath);
 									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<game::PrefabResource>(newAssetNode->_asset->GetUid()));
 									Editor::GetInstance()->MarkCurrentSceneAsDirty();
@@ -589,7 +589,7 @@ namespace hod::editor
 						{
 							game::Prefab prefab;
 							prefab.CreateEntity("Prefab");
-							newAssetNode->_asset->Save(&prefab, prefab.GetReflectionDescriptorV());
+							newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
 							AssetDatabase::GetInstance()->Import(newAssetPath);
 							_itemToRename = newAssetNode;
 							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
@@ -619,7 +619,7 @@ namespace hod::editor
 								SerializedDataAsset serializedDataAsset(serializedData.get());
 
 								Importer* importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
-								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, serializedDataAsset.GetReflectionDescriptor(), importer->AllocateSettings(), importer->GetTypeName(), _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset"));
+								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(), importer->AllocateSettings(), importer->GetTypeName(), _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset"));
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{

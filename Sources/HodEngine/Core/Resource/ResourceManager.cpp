@@ -116,7 +116,7 @@ namespace hod
 	/// @param reflectionDescriptor 
 	/// @param uid 
 	/// @return 
-	std::shared_ptr<Resource> ResourceManager::GetResource(ReflectionDescriptor* reflectionDescriptor, const UID& uid)
+	std::shared_ptr<Resource> ResourceManager::GetResource(const ReflectionDescriptor& reflectionDescriptor, const UID& uid)
 	{
 		std::shared_ptr<Resource> existingResource = FindResource(uid);
 		if (existingResource != nullptr)
@@ -124,7 +124,7 @@ namespace hod
 			return existingResource;
 		}
 
-		std::shared_ptr<Resource> resource = reflectionDescriptor->CreateSharedInstance<Resource>();
+		std::shared_ptr<Resource> resource = reflectionDescriptor.CreateSharedInstance<Resource>();
 		resource->SetUid(uid);
 		if (Load(resource.get(), uid) == false)
 		{

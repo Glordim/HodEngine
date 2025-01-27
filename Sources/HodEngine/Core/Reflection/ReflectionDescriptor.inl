@@ -14,7 +14,7 @@ namespace hod
 		}
 		else
 		{
-			data._parent = _ParentClass_::GetReflectionDescriptor();
+			data._parent = &_ParentClass_::GetReflectionDescriptor();
 		}
 
 		if constexpr (std::is_abstract<_Class_>::value == true || std::is_default_constructible<_Class_>::value == false)

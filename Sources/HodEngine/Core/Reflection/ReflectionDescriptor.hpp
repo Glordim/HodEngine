@@ -70,7 +70,7 @@ namespace hod
 
 		template<typename _ObjectType_>
 		void									CollectObjectProperties(std::vector<_ObjectType_*>& collectedInstances, void* instance);
-		void									CollectObjectProperties(ReflectionDescriptor* reflectionDescriptor, std::vector<void*>& collectedInstances, void* instance);
+		void									CollectObjectProperties(const ReflectionDescriptor& reflectionDescriptor, std::vector<void*>& collectedInstances, void* instance);
 
 		template<typename _Trait_>
 		void									RemoveTrait();
@@ -95,7 +95,7 @@ namespace hod
 		const std::string&						GetTypeName() const;
 
 		ReflectionDescriptor*					GetParent() const;
-		bool									IsCompatible(const ReflectionDescriptor* descriptor) const;
+		bool									IsCompatible(const ReflectionDescriptor& descriptor) const;
 
 		const std::string&						GetDisplayName() const;
 

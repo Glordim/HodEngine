@@ -37,8 +37,8 @@ namespace hod::game::PrefabUtility
 			return true;
 		}
 
-		ReflectionDescriptor* reflectionDescriptor = source->GetReflectionDescriptorV();
-		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
+		ReflectionDescriptor& reflectionDescriptor = source->GetReflectionDescriptorV();
+		for (ReflectionProperty* reflectionProperty : reflectionDescriptor.GetProperties())
 		{
 			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
 			{
@@ -60,7 +60,7 @@ namespace hod::game::PrefabUtility
 				std::shared_ptr<Component> instanceComponentLock = instanceComponent.lock();
 				if (instanceComponentLock->GetLocalId() == localId)
 				{
-					ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
+					ReflectionDescriptor& reflectionDescriptor = componentLock->GetReflectionDescriptorV();
 					void* componentAddr = componentLock.get();
 					void* instanceAddr = instanceComponentLock.get();
 					std::string path = "";
@@ -79,14 +79,14 @@ namespace hod::game::PrefabUtility
 	/// @param reflectionDescriptor 
 	/// @param sourceAddr 
 	/// @param instanceAddr 
-	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor* reflectionDescriptor, void* sourceAddr, void* instanceAddr)
+	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr)
 	{
-		if (reflectionDescriptor->GetParent() != nullptr)
+		if (reflectionDescriptor.GetParent() != nullptr)
 		{
-			CollectDiff(sourceComponent, instanceComponent, diffs, path, reflectionDescriptor->GetParent(), sourceAddr, instanceAddr);
+			CollectDiff(sourceComponent, instanceComponent, diffs, path, *reflectionDescriptor.GetParent(), sourceAddr, instanceAddr);
 		}
 
-		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
+		for (ReflectionProperty* reflectionProperty : reflectionDescriptor.GetProperties())
 		{
 			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
 			{
@@ -103,7 +103,7 @@ namespace hod::game::PrefabUtility
 				void* subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
 				std::string subObjecPath = path + reflectionPropertyObject->GetName() + ".";
 				ReflectionDescriptor* subObjectReflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
-				CollectDiff(sourceComponent, instanceComponent, diffs, subObjecPath, subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
+				CollectDiff(sourceComponent, instanceComponent, diffs, subObjecPath, *subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
 			}
 		}
 	}
@@ -197,7 +197,7 @@ namespace hod::game::PrefabUtility
 				std::shared_ptr<Entity> correspondingEntity = FindChildByPath(prefabInstanceEntity->GetPrefabResource()->GetPrefab().GetRootEntity(), pathToComponent);
 				if (correspondingEntity != nullptr)
 				{
-					return correspondingEntity->GetComponent(*component->GetReflectionDescriptorV());
+					return correspondingEntity->GetComponent(component->GetReflectionDescriptorV());
 				}
 			}
 		}

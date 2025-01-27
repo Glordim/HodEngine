@@ -16,11 +16,11 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialAsset, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &MaterialAsset::_vertexShader, "_vertexShader");
-		AddPropertyT(&reflectionDescriptor, &MaterialAsset::_fragmentShader, "_fragmentShader");
+		AddPropertyT(reflectionDescriptor, &MaterialAsset::_vertexShader, "_vertexShader");
+		AddPropertyT(reflectionDescriptor, &MaterialAsset::_fragmentShader, "_fragmentShader");
 
-		AddPropertyT(&reflectionDescriptor, &MaterialAsset::_polygonMode, "_polygonMode");
-		AddPropertyT(&reflectionDescriptor, &MaterialAsset::_topololy, "_topololy");
+		AddPropertyT(reflectionDescriptor, &MaterialAsset::_polygonMode, "_polygonMode");
+		AddPropertyT(reflectionDescriptor, &MaterialAsset::_topololy, "_topololy");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MaterialImporterSettings, reflectionDescriptor)
@@ -77,7 +77,7 @@ namespace hod::editor
 
 	ReflectionDescriptor* MaterialImporter::GetResourceDescriptor() const
 	{
-		return renderer::MaterialResource::GetReflectionDescriptor();
+		return &renderer::MaterialResource::GetReflectionDescriptor();
 	}
 
 	std::shared_ptr<ImporterSettings> MaterialImporter::AllocateSettings() const

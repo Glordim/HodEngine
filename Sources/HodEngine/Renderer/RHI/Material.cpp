@@ -99,12 +99,12 @@ namespace hod
 							}
 							else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float2)
 							{
-								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.c_str(), Vector2::GetReflectionDescriptor(), nullptr, nullptr);
+								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.c_str(), &Vector2::GetReflectionDescriptor(), nullptr, nullptr);
 								uboOffset += 2 * sizeof(float);
 							}
 							else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float4)
 							{
-								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.c_str(), Vector4::GetReflectionDescriptor(), nullptr, nullptr);
+								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.c_str(), &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
 								uboOffset += 4 * sizeof(float);
 							}
 						}
@@ -117,7 +117,7 @@ namespace hod
 					{
 						if (texture._type == ShaderSetDescriptor::BlockTexture::Texture)
 						{
-							_paramsReflectionDescriptor.AddProperty<ReflectionPropertyObject>(offset, texture._name.c_str(), WeakResource<TextureResource>::GetReflectionDescriptor(), nullptr, nullptr);
+							_paramsReflectionDescriptor.AddProperty<ReflectionPropertyObject>(offset, texture._name.c_str(), &WeakResource<TextureResource>::GetReflectionDescriptor(), nullptr, nullptr);
 							offset += sizeof(WeakResource<TextureResource>);
 						}
 					}

@@ -17,14 +17,14 @@ namespace hod::game
 
 	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &Component::_instanceId, "_instanceId")->AddTrait<ReflectionTraitNoSerialization>();
-		AddPropertyT(&reflectionDescriptor, &Entity::_localId, "_localId");//->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(reflectionDescriptor, &Component::_instanceId, "_instanceId")->AddTrait<ReflectionTraitNoSerialization>();
+		AddPropertyT(reflectionDescriptor, &Entity::_localId, "_localId");//->AddTrait<ReflectionTraitHide>();
 
-		AddPropertyT(&reflectionDescriptor, &Entity::_name, "_name");
-		AddPropertyT(&reflectionDescriptor, &Entity::_active, "_active");
+		AddPropertyT(reflectionDescriptor, &Entity::_name, "_name");
+		AddPropertyT(reflectionDescriptor, &Entity::_active, "_active");
 
-		AddPropertyT(&reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
-		//AddPropertyT(&reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
+		//AddPropertyT(reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 
@@ -167,7 +167,7 @@ namespace hod::game
 	{
 		for (const std::shared_ptr<Component>& component : _components)
 		{
-			if (component->GetReflectionDescriptorV()->IsCompatible(&descriptor) == true)
+			if (component->GetReflectionDescriptorV().IsCompatible(descriptor) == true)
 			{
 				return component;
 			}
@@ -248,13 +248,13 @@ namespace hod::game
 		for (uint32_t index = 0; index < _components.size(); ++index)
 		{
 			std::shared_ptr<Component> component = _components[index];
-			if (component->GetReflectionDescriptorV() == &descriptor)
+			if (&component->GetReflectionDescriptorV() == &descriptor)
 			{
 				_components.erase(_components.begin() + index);
 				return;
 			}
 
-			if (component->GetReflectionDescriptorV()->IsCompatible(&descriptor) == true)
+			if (component->GetReflectionDescriptorV().IsCompatible(descriptor) == true)
 			{
 				indexToRemove = index;
 			}

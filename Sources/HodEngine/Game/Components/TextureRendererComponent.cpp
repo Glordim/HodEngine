@@ -19,9 +19,9 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, reflectionDescriptor)
 	{
-		AddPropertyT(&reflectionDescriptor, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
-		AddPropertyT(&reflectionDescriptor, &TextureRendererComponent::_material, "_material", &TextureRendererComponent::SetMaterialInstanceResource);
-		AddPropertyT(&reflectionDescriptor, &TextureRendererComponent::_pixelPerUnit, "_pixelPerUnit");
+		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
+		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_material, "_material", &TextureRendererComponent::SetMaterialInstanceResource);
+		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_pixelPerUnit, "_pixelPerUnit");
 	}
 
 	TextureRendererComponent::TextureRendererComponent()
