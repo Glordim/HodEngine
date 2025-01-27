@@ -167,12 +167,31 @@ namespace hod::game
 	{
 		for (const std::shared_ptr<Component>& component : _components)
 		{
-			if (component->GetMetaType() == metaType)
+			if (component->HasCompatibleMetaType(metaType) == true)
 			{
 				return component;
 			}
 		}
-		return std::shared_ptr<Component>();
+		return nullptr;
+	}
+
+	/// @brief 
+	/// @param descriptor 
+	/// @return 
+	std::shared_ptr<Component> Entity::GetComponentInParent(MetaType metaType)
+	{
+		std::shared_ptr<Component> component = GetComponent(metaType);
+		if (component != nullptr)
+		{
+			return component;
+		}
+
+		if (_parent.Lock() != nullptr)
+		{
+			return _parent.Lock()->GetComponentInParent(metaType);
+		}
+
+		return nullptr;
 	}
 
 	/// @brief 
@@ -218,6 +237,31 @@ namespace hod::game
 		if (it != _components.end())
 		{
 			_components.erase(it);
+		}
+	}
+
+	/// @brief 
+	/// @param metaType 
+	void Entity::RemoveComponent(MetaType metaType)
+	{
+		uint32_t indexToRemove = -1;
+		for (uint32_t index = 0; index < _components.size(); ++index)
+		{
+			std::shared_ptr<Component> component = _components[index];
+			if (component->GetMetaType() == metaType)
+			{
+				_components.erase(_components.begin() + index);
+				return;
+			}
+
+			if (component->HasCompatibleMetaType(metaType) == true)
+			{
+				indexToRemove = index;
+			}
+		}
+		if (indexToRemove != -1)
+		{
+			_components.erase(_components.begin() + indexToRemove);
 		}
 	}
 
