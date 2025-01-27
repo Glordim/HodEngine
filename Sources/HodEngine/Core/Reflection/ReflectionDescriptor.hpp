@@ -95,7 +95,7 @@ namespace hod
 		const std::string&						GetTypeName() const;
 
 		ReflectionDescriptor*					GetParent() const;
-		bool									IsCompatible(ReflectionDescriptor* descriptor) const;
+		bool									IsCompatible(const ReflectionDescriptor* descriptor) const;
 
 		const std::string&						GetDisplayName() const;
 

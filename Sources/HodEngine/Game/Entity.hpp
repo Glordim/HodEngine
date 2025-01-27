@@ -67,11 +67,11 @@ namespace hod::game
 
 		template<typename _Component_>
 		std::shared_ptr<_Component_>	GetComponent();
-		std::shared_ptr<Component>		GetComponent(MetaType metaType);
+		std::shared_ptr<Component>		GetComponent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
 		std::shared_ptr<_Component_>	GetComponentInParent();
-		std::shared_ptr<Component>		GetComponentInParent(MetaType metaType);
+		std::shared_ptr<Component>		GetComponentInParent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
 		std::shared_ptr<_Component_>	AddComponent(bool awakeAndStart = true);
@@ -79,7 +79,7 @@ namespace hod::game
 
 		template<typename _Component_>
 		void						RemoveComponent();
-		void						RemoveComponent(MetaType metaType);
+		void						RemoveComponent(const ReflectionDescriptor& descriptor);
 		void						RemoveComponent(std::shared_ptr<Component> component);
 
 		Event<std::shared_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }

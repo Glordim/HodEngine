@@ -197,7 +197,7 @@ namespace hod::game::PrefabUtility
 				std::shared_ptr<Entity> correspondingEntity = FindChildByPath(prefabInstanceEntity->GetPrefabResource()->GetPrefab().GetRootEntity(), pathToComponent);
 				if (correspondingEntity != nullptr)
 				{
-					return correspondingEntity->GetComponent(component->GetMetaType());
+					return correspondingEntity->GetComponent(*component->GetReflectionDescriptorV());
 				}
 			}
 		}

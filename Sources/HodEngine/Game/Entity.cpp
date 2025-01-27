@@ -163,11 +163,11 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::shared_ptr<Component> Entity::GetComponent(MetaType metaType)
+	std::shared_ptr<Component> Entity::GetComponent(const ReflectionDescriptor& descriptor)
 	{
 		for (const std::shared_ptr<Component>& component : _components)
 		{
-			if (component->HasCompatibleMetaType(metaType) == true)
+			if (component->GetReflectionDescriptorV()->IsCompatible(&descriptor) == true)
 			{
 				return component;
 			}
@@ -178,9 +178,9 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::shared_ptr<Component> Entity::GetComponentInParent(MetaType metaType)
+	std::shared_ptr<Component> Entity::GetComponentInParent(const ReflectionDescriptor& descriptor)
 	{
-		std::shared_ptr<Component> component = GetComponent(metaType);
+		std::shared_ptr<Component> component = GetComponent(descriptor);
 		if (component != nullptr)
 		{
 			return component;
@@ -188,7 +188,7 @@ namespace hod::game
 
 		if (_parent.Lock() != nullptr)
 		{
-			return _parent.Lock()->GetComponentInParent(metaType);
+			return _parent.Lock()->GetComponentInParent(descriptor);
 		}
 
 		return nullptr;
@@ -199,7 +199,7 @@ namespace hod::game
 	/// @return 
 	std::shared_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart)
 	{
-		std::shared_ptr<Component> existingComponent = GetComponent(descriptor.GetMetaType());
+		std::shared_ptr<Component> existingComponent = GetComponent(descriptor);
 		if (existingComponent != nullptr)
 		{
 			return existingComponent;
@@ -241,20 +241,20 @@ namespace hod::game
 	}
 
 	/// @brief 
-	/// @param metaType 
-	void Entity::RemoveComponent(MetaType metaType)
+	/// @param descriptor 
+	void Entity::RemoveComponent(const ReflectionDescriptor& descriptor)
 	{
 		uint32_t indexToRemove = -1;
 		for (uint32_t index = 0; index < _components.size(); ++index)
 		{
 			std::shared_ptr<Component> component = _components[index];
-			if (component->GetMetaType() == metaType)
+			if (component->GetReflectionDescriptorV() == &descriptor)
 			{
 				_components.erase(_components.begin() + index);
 				return;
 			}
 
-			if (component->HasCompatibleMetaType(metaType) == true)
+			if (component->GetReflectionDescriptorV()->IsCompatible(&descriptor) == true)
 			{
 				indexToRemove = index;
 			}

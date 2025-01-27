@@ -202,7 +202,7 @@ namespace hod
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	bool ReflectionDescriptor::IsCompatible(ReflectionDescriptor* descriptor) const
+	bool ReflectionDescriptor::IsCompatible(const ReflectionDescriptor* descriptor) const
 	{
 		if (this == descriptor)
 		{

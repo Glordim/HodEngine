@@ -81,7 +81,7 @@ namespace hod::editor
 				{
 					if (inputTextBuffer[0] == '\0' || entityPair.second->GetName().find(inputTextBuffer) != std::string::npos)
 					{
-						std::shared_ptr<game::Component> component = entityPair.second->GetComponent(value->GetComponentDescriptor()->GetMetaType());
+						std::shared_ptr<game::Component> component = entityPair.second->GetComponent(*value->GetComponentDescriptor());
 
 						ImGui::PushID(component.get());
 						if (component != nullptr && ImGui::Button(entityPair.second->GetName().c_str(), ImVec2(-1.0f, 0.0f)))
