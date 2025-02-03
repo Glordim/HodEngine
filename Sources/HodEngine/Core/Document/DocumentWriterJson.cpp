@@ -23,47 +23,110 @@ namespace hod
 	/// @return 
 	bool DocumentWriterJson::WriteNode(const Document::Node& node, std::ostream& stream)
 	{
+		if (_pretty == true)
+		{
+			for (uint32_t i = 0; i < _indentation; ++i)
+			{
+				stream.write("\t", 1);
+			}
+		}
+
 		const std::string& name = node.GetName();
 		if (name.size() > 0)
 		{
 			stream.write("\"", 1);
 			stream.write(name.data(), name.size());
 			stream.write("\":", 2);
+
+			if (_pretty == true)
+			{
+				stream.write(" ", 1);
+			}
 		}
 
 		switch (node.GetType())
 		{
 			case Document::Node::Type::Object:
 			{
-				stream.write("{", 1);
 				Document::Node* child = node.GetFirstChild();
-				while (child != nullptr)
+				if (child == nullptr)
 				{
-					WriteNode(*child, stream);
-					child = child->GetNextSibling();
-					if (child != nullptr)
-					{
-						stream.write(",", 1);
-					}
+					stream.write("{}", 2);
 				}
-				stream.write("}", 1);
+				else
+				{
+					stream.write("{", 1);
+					if (_pretty == true)
+					{
+						++_indentation;
+						stream.write("\n", 1);
+					}
+					while (child != nullptr)
+					{
+						WriteNode(*child, stream);
+						child = child->GetNextSibling();
+						if (child != nullptr)
+						{
+							stream.write(",", 1);
+							if (_pretty == true)
+							{
+								stream.write("\n", 1);
+							}
+						}
+					}
+					if (_pretty == true)
+					{
+						--_indentation;
+						stream.write("\n", 1);
+						for (uint32_t i = 0; i < _indentation; ++i)
+						{
+							stream.write("\t", 1);
+						}
+					}
+					stream.write("}", 1);
+				}
 			}
 			break;
 
 			case Document::Node::Type::Array:
 			{
-				stream.write("[", 1);
 				Document::Node* child = node.GetFirstChild();
-				while (child != nullptr)
+				if (child == nullptr)
 				{
-					WriteNode(*child, stream);
-					child = child->GetNextSibling();
-					if (child != nullptr)
-					{
-						stream.write(",", 1);
-					}
+					stream.write("[]", 2);
 				}
-				stream.write("]", 1);
+				else
+				{
+					stream.write("[", 1);
+					if (_pretty == true)
+					{
+						++_indentation;
+						stream.write("\n", 1);
+					}
+					while (child != nullptr)
+					{
+						WriteNode(*child, stream);
+						child = child->GetNextSibling();
+						if (child != nullptr)
+						{
+							stream.write(",", 1);
+							if (_pretty == true)
+							{
+								stream.write("\n", 1);
+							}
+						}
+					}
+					if (_pretty == true)
+					{
+						--_indentation;
+						stream.write("\n", 1);
+						for (uint32_t i = 0; i < _indentation; ++i)
+						{
+							stream.write("\t", 1);
+						}
+					}
+					stream.write("]", 1);
+				}
 			}
 			break;
 

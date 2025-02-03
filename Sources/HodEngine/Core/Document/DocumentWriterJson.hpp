@@ -26,5 +26,10 @@ namespace hod
 	private:
 
 		bool				WriteNode(const Document::Node& node, std::ostream& stream);
+
+	private:
+
+		bool				_pretty = true;
+		uint32_t			_indentation = 0;
 	};
 }
