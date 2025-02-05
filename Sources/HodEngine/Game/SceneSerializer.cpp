@@ -11,6 +11,7 @@
 #include "HodEngine/Game/WeakEntity.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <HodEngine/Core/Resource/ResourceManager.hpp>
@@ -21,9 +22,17 @@ namespace hod::game
 	{
 		Document::Node& entityNode = entitiesNode.AddChild("");
 
+		if (entity->GetLocalId() == 0)
+		{
+			entity->SetLocalId(nextLocalId);
+			++nextLocalId;
+		}
+
 		std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
 		if (prefabResource != nullptr)
 		{
+			entityNode.AddChild("_localId").SetUInt64(entity->GetLocalId());
+
 			Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
 			UID uid = prefabResource->GetUid(); // TODO fix Serializa template lvalue
 			Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
@@ -34,6 +43,16 @@ namespace hod::game
 
 			for (PrefabUtility::EntityDiffs::Diff* diff : entityDiffs._diffs)
 			{
+				if (diff->_reflectionProperty->FindTrait<ReflectionTraitNoSerialization>() != nullptr)
+				{
+					continue;
+				}
+
+				if (diff->_type == PrefabUtility::EntityDiffs::Diff::Type::Entity && std::strcmp(diff->_reflectionProperty->GetName(), "_localId") == 0) // toto better way
+				{
+					continue;
+				}
+
 				Document::Node& overrideNode = overridesNode.AddChild("");
 				Document::Node& overrideTargetNode = overrideNode.AddChild("Target");
 				if (diff->_type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
@@ -53,11 +72,6 @@ namespace hod::game
 		}
 		else
 		{
-			if (entity->GetLocalId() == 0)
-			{
-				entity->SetLocalId(nextLocalId);
-				++nextLocalId;
-			}
 			Serializer::Serialize(entity.get(), entityNode);
 
 			Document::Node& componentsNode = entityNode.AddChild("Components");
@@ -126,6 +140,8 @@ namespace hod::game
 				}
 				prefabEntityNode = prefabEntityNode->GetNextSibling();
 			}
+
+			entity->SetLocalId(entityNode.GetChild("_localId")->GetUInt64());
 			
 			const Document::Node* overridesNode = prefabInstanceNode->GetChild("Overrides");
 
