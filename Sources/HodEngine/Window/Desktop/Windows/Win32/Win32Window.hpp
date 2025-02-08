@@ -19,6 +19,7 @@ namespace hod::window
 	public:
 
 		Event<HWND, UINT, WPARAM, LPARAM>	OnWinProc;
+		static LRESULT						WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	public:
 											Win32Window(bool hidden = false);
@@ -40,13 +41,11 @@ namespace hod::window
 
 	private:
 
-		static LRESULT						WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 		LRESULT								InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam);
 
 	private:
 
 		HINSTANCE							_hInstance = nullptr;
-		ATOM								_class = 0;
 		HWND								_hWnd = nullptr;
 
 		Thread::Id							_hWndThreadId;

@@ -2,6 +2,7 @@
 
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
+#include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
 #include "HodEngine/Window/Surface.hpp"
 
 #include <string>
@@ -13,8 +14,6 @@
 
 namespace hod::window
 {
-	constexpr const char* className = "DesktopWindow";
-
 	/// @brief 
 	/// @param hWnd 
 	/// @param msg 
@@ -56,9 +55,15 @@ namespace hod::window
 		}
 		else if (msg == WM_CLOSE)
 		{
-			::DestroyWindow(_hWnd);
-			_hWnd = nullptr;
 			_close = true;
+			::DestroyWindow(_hWnd);
+		}
+		else if (msg == WM_DESTROY)
+		{
+			HWND hwnd = _hWnd;
+			_hWnd = nullptr;
+			SetWindowLongPtr(nullptr, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+			return ::DefWindowProc(hwnd, msg, wParam, lParam);
 		}
 
 		return ::DefWindowProc(_hWnd, msg, wParam, lParam);
@@ -72,31 +77,9 @@ namespace hod::window
 
 		_hInstance = ::GetModuleHandle(NULL);
 
-		WNDCLASSEX windowClass;
-		ZeroMemory(&windowClass, sizeof(WNDCLASSEX));
-		windowClass.cbSize = sizeof(WNDCLASSEX);
-		windowClass.style = CS_HREDRAW | CS_VREDRAW;
-		windowClass.lpfnWndProc = WindowProc;
-		windowClass.cbClsExtra = 0;
-		windowClass.cbWndExtra = 0;
-		windowClass.hInstance = _hInstance;
-		windowClass.hIcon = NULL;
-		windowClass.hCursor = ::LoadCursor(_hInstance, IDC_ARROW);
-		windowClass.hbrBackground = ::CreateSolidBrush(RGB(0, 0, 0));
-		windowClass.lpszMenuName = NULL;
-		windowClass.lpszClassName = className;
-		windowClass.hIconSm = NULL;
-
-		_class = ::RegisterClassEx(&windowClass);
-		if (_class == 0)
-		{
-			OUTPUT_ERROR("DesktopWindow: Unable to RegisterClass -> {}", OS::GetLastWin32ErrorMessage());
-			return;
-		}
-
 		_hWnd = ::CreateWindowEx(
 			0,
-			className,
+			Win32DisplayManager::_className,
 			"Window",
 			WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT,
@@ -129,11 +112,6 @@ namespace hod::window
 		if (_hWnd != NULL)
 		{
 			::DestroyWindow(_hWnd);
-		}
-
-		if (_class != 0)
-		{
-			::UnregisterClass(className, _hInstance);
 		}
 	}
 
