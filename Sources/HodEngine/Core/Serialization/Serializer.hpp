@@ -16,9 +16,9 @@ namespace hod
     {
     public:
 
-		static bool	Deserialize(const ReflectionDescriptor* reflectionDescriptor, void* instance, const Document::Node& documentNode);
-        static bool DeserializeWithPath(const std::string_view& path, const ReflectionDescriptor* reflectionDescriptor, void* instance, const Document::Node& documentNode);
-        static bool	Serialize(const ReflectionDescriptor* reflectionDescriptor, const void* instance, Document::Node& documentNode);
+		static bool	Deserialize(const ReflectionDescriptor& reflectionDescriptor, void* instance, const Document::Node& documentNode);
+        static bool DeserializeWithPath(const std::string_view& path, const ReflectionDescriptor& reflectionDescriptor, void* instance, const Document::Node& documentNode);
+        static bool	Serialize(const ReflectionDescriptor& reflectionDescriptor, const void* instance, Document::Node& documentNode);
         //static bool	SerializeDiff(const ReflectionDescriptor* reflectionDescriptor, const void* reference, const void* instance, Document::Node& documentNode);
 
         template<typename _InstanceType_>

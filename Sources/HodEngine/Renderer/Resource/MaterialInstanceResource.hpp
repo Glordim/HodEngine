@@ -32,7 +32,7 @@ namespace hod::renderer
 
 		MaterialInstance*			GetMaterialInstance() const;
 
-		void						ApplyInitialParams(ReflectionDescriptor* reflectionDescriptor, void* instance, std::string path);
+		void						ApplyInitialParams(const ReflectionDescriptor* reflectionDescriptor, void* instance, std::string path);
 
 	private:
 

@@ -152,7 +152,7 @@ namespace hod::editor
 		if (instance != nullptr)
 		{
 			Document objectDocument;
-			if (Serializer::Serialize(reflectionDescriptor, instance, objectDocument.GetRootNode()) == false)
+			if (Serializer::Serialize(*reflectionDescriptor, instance, objectDocument.GetRootNode()) == false)
 			{
 				return false;
 			}

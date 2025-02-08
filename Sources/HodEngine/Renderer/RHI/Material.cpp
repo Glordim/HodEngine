@@ -79,7 +79,7 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		ReflectionDescriptor& Material::GetReflectionDescriptorForParameters()
+		const ReflectionDescriptor& Material::GetReflectionDescriptorForParameters()
 		{
 			if (_paramsReflectionDescriptorGenerated == false)
 			{

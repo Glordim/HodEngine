@@ -19,63 +19,63 @@ namespace hod
 	/// @param instance 
 	/// @param documentNode 
 	/// @return 
-	bool Serializer::Serialize(const ReflectionDescriptor* reflectionDescriptor, const void* instance, Document::Node& documentNode)
+	bool Serializer::Serialize(const ReflectionDescriptor& reflectionDescriptor, const void* instance, Document::Node& documentNode)
 	{
-        const ReflectionDescriptor* parent = reflectionDescriptor->GetParent();
-        if (parent != nullptr)
-        {
-            Serializer::Serialize(parent, instance, documentNode);
-        }
+		const ReflectionDescriptor* parent = reflectionDescriptor.GetParent();
+		if (parent != nullptr)
+		{
+			Serializer::Serialize(*parent, instance, documentNode);
+		}
 
-		ReflectionTraitCustomSerialization* customSerialization = reflectionDescriptor->FindTrait<ReflectionTraitCustomSerialization>();
+		ReflectionTraitCustomSerialization* customSerialization = reflectionDescriptor.FindTrait<ReflectionTraitCustomSerialization>();
 		if (customSerialization != nullptr)
 		{
 			customSerialization->Serialize(instance, documentNode);
 		}
 		else
 		{
-			for (const ReflectionProperty* property : reflectionDescriptor->GetProperties())
+			for (const ReflectionProperty* property : reflectionDescriptor.GetProperties())
 			{
-                ReflectionTraitNoSerialization* noSerialization = property->FindTrait<ReflectionTraitNoSerialization>();
-                if (noSerialization != nullptr)
-                {
-                    continue;
-                }
-                
-                MetaType type = property->GetMetaType();
-                switch (type)
-                {
-                case ReflectionPropertyVariable::GetMetaTypeStatic():
-                {
-                    Serializer::SerializeVariable(static_cast<const ReflectionPropertyVariable*>(property), instance, documentNode);
-                }
-                break;
+				ReflectionTraitNoSerialization* noSerialization = property->FindTrait<ReflectionTraitNoSerialization>();
+				if (noSerialization != nullptr)
+				{
+					continue;
+				}
+				
+				MetaType type = property->GetMetaType();
+				switch (type)
+				{
+				case ReflectionPropertyVariable::GetMetaTypeStatic():
+				{
+					Serializer::SerializeVariable(static_cast<const ReflectionPropertyVariable*>(property), instance, documentNode);
+				}
+				break;
 
-                case ReflectionPropertyArray::GetMetaTypeStatic():
-                {
-                    Serializer::SerializeArray(static_cast<const ReflectionPropertyArray*>(property), instance, documentNode);
-                }
-                break;
+				case ReflectionPropertyArray::GetMetaTypeStatic():
+				{
+					Serializer::SerializeArray(static_cast<const ReflectionPropertyArray*>(property), instance, documentNode);
+				}
+				break;
 
-                case ReflectionPropertyObject::GetMetaTypeStatic():
-                {
-                    Serializer::SerializeObject(static_cast<const ReflectionPropertyObject*>(property), instance, documentNode);
-                }
-                break;
-                
-                default:
-                {
-                    assert(false);
-                    break;
-                }
-                }
-            }
-        }
+				case ReflectionPropertyObject::GetMetaTypeStatic():
+				{
+					Serializer::SerializeObject(static_cast<const ReflectionPropertyObject*>(property), instance, documentNode);
+				}
+				break;
+				
+				default:
+				{
+					assert(false);
+					break;
+				}
+				}
+			}
+		}
 		
 		return true;
 	}
 
-    /*
+	/*
 	/// @brief 
 	/// @param reflectionDescriptor 
 	/// @param reference 
@@ -138,22 +138,22 @@ namespace hod
 	/// @param instance 
 	/// @param documentNode 
 	/// @return 
-	bool Serializer::Deserialize(const ReflectionDescriptor* reflectionDescriptor, void* instance, const Document::Node& documentNode)
+	bool Serializer::Deserialize(const ReflectionDescriptor& reflectionDescriptor, void* instance, const Document::Node& documentNode)
 	{
-        const ReflectionDescriptor* parent = reflectionDescriptor->GetParent();
-        if (parent != nullptr)
-        {
-            Serializer::Deserialize(parent, instance, documentNode);
-        }
+		const ReflectionDescriptor* parent = reflectionDescriptor.GetParent();
+		if (parent != nullptr)
+		{
+			Serializer::Deserialize(*parent, instance, documentNode);
+		}
 
-		ReflectionTraitCustomSerialization* customSerialization = reflectionDescriptor->FindTrait<ReflectionTraitCustomSerialization>();
+		ReflectionTraitCustomSerialization* customSerialization = reflectionDescriptor.FindTrait<ReflectionTraitCustomSerialization>();
 		if (customSerialization != nullptr)
 		{
 			customSerialization->Deserialize(instance, documentNode);
 		}
 		else
 		{
-			for (const ReflectionProperty* property : reflectionDescriptor->GetProperties())
+			for (const ReflectionProperty* property : reflectionDescriptor.GetProperties())
 			{
                 ReflectionTraitNoSerialization* noSerialization = property->FindTrait<ReflectionTraitNoSerialization>();
                 if (noSerialization != nullptr)
@@ -200,19 +200,21 @@ namespace hod
     /// @param instance 
     /// @param documentNode 
     /// @return 
-    bool Serializer::DeserializeWithPath(const std::string_view& path, const ReflectionDescriptor* reflectionDescriptor, void* instance, const Document::Node& documentNode)
+    bool Serializer::DeserializeWithPath(const std::string_view& path, const ReflectionDescriptor& reflectionDescriptor, void* instance, const Document::Node& documentNode)
     {
+		const ReflectionDescriptor* finalReflectionDescriptor = &reflectionDescriptor;
+
         std::string propertyPath(path.data(), path.size());
         char* next = std::strpbrk((char*)propertyPath.c_str(), ".");
         while (next != nullptr)
         {
             std::string_view elementName(propertyPath.c_str(), next);
-            ReflectionPropertyObject* property = reflectionDescriptor->FindProperty<ReflectionPropertyObject>(elementName);
+            ReflectionPropertyObject* property = reflectionDescriptor.FindProperty<ReflectionPropertyObject>(elementName);
             if (property != nullptr)
             {
                 instance = property->GetInstance(instance);
-                reflectionDescriptor = property->GetReflectionDescriptor();
-            }									
+                finalReflectionDescriptor = property->GetReflectionDescriptor();
+            }
             propertyPath = next + 1; // skip '/'
             next = std::strpbrk((char*)propertyPath.c_str(), ".");
         }
@@ -228,7 +230,7 @@ namespace hod
         }
         else // variable
         {
-            ReflectionPropertyVariable* variableProperty = reflectionDescriptor->FindProperty<ReflectionPropertyVariable>(propertyPath.c_str());
+            ReflectionPropertyVariable* variableProperty = finalReflectionDescriptor->FindProperty<ReflectionPropertyVariable>(propertyPath.c_str());
             return Serializer::DeserializeVariable(variableProperty, instance, documentNode, path);
         }
     }
@@ -352,7 +354,7 @@ namespace hod
                 for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
                 {
                     void* element = property->GetValue<void*>(instance, elementIndex);
-                    if (Serializer::Serialize(property->GetElementReflectionDescriptor(), element, arrayNode.AddChild("")) == false)
+                    if (Serializer::Serialize(*property->GetElementReflectionDescriptor(), element, arrayNode.AddChild("")) == false)
                     {
                         return false;
                     }
@@ -407,7 +409,7 @@ namespace hod
                 {
                     property->InsertElement(instance, property->GetElementCount(instance));
                     void* element = property->GetValue<void*>(instance, property->GetElementCount(instance) - 1);
-                    if (Serializer::Deserialize(property->GetElementReflectionDescriptor(), element, *varNode) == false)
+                    if (Serializer::Deserialize(*property->GetElementReflectionDescriptor(), element, *varNode) == false)
                     {
                         return false;
                     }
@@ -445,13 +447,13 @@ namespace hod
         {
             uint8_t* buffer = new uint8_t[traitGetValueForSerialization->GetSize()]; // todo pmr stack alloc
             traitGetValueForSerialization->GetValueForSerialization(objectInstance, buffer);
-            bool result = Serializer::Serialize(property->GetReflectionDescriptor(), buffer, objectNode);
+            bool result = Serializer::Serialize(*property->GetReflectionDescriptor(), buffer, objectNode);
             delete[] buffer;
             return result;
         }
         else
-        {            
-            return Serializer::Serialize(property->GetReflectionDescriptor(), objectInstance, objectNode);
+        {
+            return Serializer::Serialize(*property->GetReflectionDescriptor(), objectInstance, objectNode);
         }
     }
 
@@ -524,7 +526,7 @@ namespace hod
             */
             {
                 void* objectInstance = property->GetInstance(instance);
-                return Serializer::Deserialize(property->GetReflectionDescriptor(), objectInstance, *objectNode);
+                return Serializer::Deserialize(*property->GetReflectionDescriptor(), objectInstance, *objectNode);
             }
         }
         return true;

@@ -48,7 +48,7 @@ namespace hod::game
 			return false;
 		}
 
-		if (Serializer::Deserialize(reflectionDescriptor, _serializedData, *dataNode))
+		if (Serializer::Deserialize(*reflectionDescriptor, _serializedData, *dataNode))
 		{
 			// todo message
 			delete _serializedData;

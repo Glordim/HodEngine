@@ -55,7 +55,7 @@ namespace hod::renderer
 		}
 
 		char paramsBuffer[4096];
-		Serializer::Deserialize(&material->GetReflectionDescriptorForParameters(), static_cast<void*>(paramsBuffer), _params.GetRootNode());
+		Serializer::Deserialize(material->GetReflectionDescriptorForParameters(), static_cast<void*>(paramsBuffer), _params.GetRootNode());
 		ApplyInitialParams(&material->GetReflectionDescriptorForParameters(), static_cast<void*>(paramsBuffer), "");
 
 		return true;
@@ -65,7 +65,7 @@ namespace hod::renderer
 	/// @param reflectionDescriptor 
 	/// @param instance 
 	/// @param path 
-	void MaterialInstanceResource::ApplyInitialParams(ReflectionDescriptor* reflectionDescriptor, void* instance, std::string path)
+	void MaterialInstanceResource::ApplyInitialParams(const ReflectionDescriptor* reflectionDescriptor, void* instance, std::string path)
 	{
 		for (ReflectionProperty* property : reflectionDescriptor->GetProperties())
 		{

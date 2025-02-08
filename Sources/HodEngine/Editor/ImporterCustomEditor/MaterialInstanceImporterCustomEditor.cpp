@@ -43,7 +43,7 @@ namespace hod::editor
 			if (material != nullptr)
 			{
 				// todo check _materialInstanceAsset._params and _paramsBuffer size ?
-				Serializer::Deserialize(&material->GetReflectionDescriptorForParameters(), static_cast<void*>(_paramsBuffer), _materialInstanceAsset._params.GetRootNode());
+				Serializer::Deserialize(material->GetReflectionDescriptorForParameters(), static_cast<void*>(_paramsBuffer), _materialInstanceAsset._params.GetRootNode());
 			}
 		}
 	}
@@ -83,7 +83,7 @@ namespace hod::editor
 				if (material != nullptr)
 				{
 					_materialInstanceAsset._params.GetRootNode().Clear();
-					Serializer::Serialize(&material->GetReflectionDescriptorForParameters(), static_cast<void*>(_paramsBuffer), _materialInstanceAsset._params.GetRootNode());
+					Serializer::Serialize(material->GetReflectionDescriptorForParameters(), static_cast<void*>(_paramsBuffer), _materialInstanceAsset._params.GetRootNode());
 					_asset->Save(&_materialInstanceAsset, &_materialInstanceAsset.GetReflectionDescriptorV());
 					AssetDatabase::GetInstance()->Import(_asset->GetPath());
 				}

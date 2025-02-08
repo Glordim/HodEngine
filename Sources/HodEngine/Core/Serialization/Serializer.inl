@@ -5,11 +5,11 @@ namespace hod
 	{
 		if constexpr (std::is_pointer_v<_InstanceType_>)
 		{
-			return Serializer::Serialize(&instance->GetReflectionDescriptorV(), static_cast<const void*>(instance), documentNode);
+			return Serializer::Serialize(instance->GetReflectionDescriptorV(), static_cast<const void*>(instance), documentNode);
 		}
 		else
 		{
-			return Serializer::Serialize(&instance.GetReflectionDescriptorV(), static_cast<const void*>(&instance), documentNode);
+			return Serializer::Serialize(instance.GetReflectionDescriptorV(), static_cast<const void*>(&instance), documentNode);
 		}
 	}
 
@@ -33,11 +33,11 @@ namespace hod
 	{
 		if constexpr (std::is_pointer_v<_InstanceType_>)
 		{
-			return Serializer::Deserialize(&instance->GetReflectionDescriptorV(), static_cast<void*>(instance), documentNode);
+			return Serializer::Deserialize(instance->GetReflectionDescriptorV(), static_cast<void*>(instance), documentNode);
 		}
 		else
 		{
-			return Serializer::Deserialize(&instance.GetReflectionDescriptorV(), static_cast<void*>(&instance), documentNode);
+			return Serializer::Deserialize(instance.GetReflectionDescriptorV(), static_cast<void*>(&instance), documentNode);
 		}
 	}
 
@@ -46,11 +46,11 @@ namespace hod
 	{
 		if constexpr (std::is_pointer_v<_InstanceType_>)
 		{
-			return Serializer::DeserializeWithPath(path, &instance->GetReflectionDescriptorV(), static_cast<void*>(instance), documentNode);
+			return Serializer::DeserializeWithPath(path, instance->GetReflectionDescriptorV(), static_cast<void*>(instance), documentNode);
 		}
 		else
 		{
-			return Serializer::DeserializeWithPath(path, &instance.GetReflectionDescriptorV(), static_cast<void*>(&instance), documentNode);
+			return Serializer::DeserializeWithPath(path, instance.GetReflectionDescriptorV(), static_cast<void*>(&instance), documentNode);
 		}
 	}
 }

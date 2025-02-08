@@ -53,7 +53,7 @@ namespace hod
 			const MaterialInstance*	GetDefaultInstance() const;
 
 			const std::unordered_map<uint32_t, ShaderSetDescriptor*>&	GetSetDescriptors() const;
-			ReflectionDescriptor& GetReflectionDescriptorForParameters();
+			const ReflectionDescriptor& GetReflectionDescriptorForParameters();
 
 		protected:
 
