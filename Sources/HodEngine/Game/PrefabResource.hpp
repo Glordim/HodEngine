@@ -25,9 +25,11 @@ namespace hod::game
 		bool			Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) override;
 
 		Prefab&			GetPrefab();
+		const Document&	GetDocument() const;
 
 	private:
 
 		Prefab*			_prefab = nullptr;
+		Document		_document;
 	};
 }

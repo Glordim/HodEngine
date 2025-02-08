@@ -53,7 +53,8 @@ namespace hod::game
 		{
 			if (entityPair.second->GetParent().Lock() == nullptr)
 			{
-				if (SceneSerializer::SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
+				SceneSerializer sceneSerializer;
+				if (sceneSerializer.SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
 				{
 					return false;
 				}
@@ -82,11 +83,10 @@ namespace hod::game
 		}
 
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
-		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
-		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
-		SceneSerializer::InstantiateEntitiesAndResolveReferenceFromDocumentNode(*entitiesNode, entities, components);
+		SceneSerializer sceneSerializer;
+		sceneSerializer.Deserialize(*entitiesNode);
 
-		for (auto& entityPair : entities)
+		for (auto& entityPair : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
 		}

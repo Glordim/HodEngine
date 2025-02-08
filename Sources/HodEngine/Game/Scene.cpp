@@ -63,7 +63,8 @@ namespace hod::game
 		{
 			if (entityPair.second->GetParent().Lock() == nullptr)
 			{
-				if (SceneSerializer::SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
+				SceneSerializer sceneSerializer;
+				if (sceneSerializer.SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
 				{
 					return false;
 				}
@@ -92,11 +93,10 @@ namespace hod::game
 		}
 
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
-		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
-		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
-		SceneSerializer::InstantiateEntitiesAndResolveReferenceFromDocumentNode(*entitiesNode, entities, components);
+		SceneSerializer sceneSerializer;
+		sceneSerializer.Deserialize(*entitiesNode);
 
-		for (auto& entityPair : entities)
+		for (auto& entityPair : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
 		}
@@ -247,22 +247,21 @@ namespace hod::game
 		}
 
 		Document document;
-		SceneSerializer::SerializeEntity(entity, true, document.GetRootNode(), _nextLocalId);
+		SceneSerializer sceneSerializer;
+		sceneSerializer.SerializeEntity(entity, true, document.GetRootNode(), _nextLocalId);
 
-		std::shared_ptr<Entity> clonedEntity;
+		sceneSerializer.Deserialize(document.GetRootNode());
 
-		std::unordered_map<uint64_t, std::shared_ptr<Entity>> entities;
-		std::unordered_map<uint64_t, std::shared_ptr<Component>> components;
-		clonedEntity = SceneSerializer::InstantiateEntitiesAndResolveReferenceFromDocumentNode(document.GetRootNode(), entities, components);
+		std::shared_ptr<Entity> clonedEntity = sceneSerializer.GetEntities().begin()->second;
 		clonedEntity->SetPrefabResource(entity->GetPrefabResource());
 
-		for (auto& entityPair : entities)
+		for (auto& entityPair : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
 			entityPair.second->SetLocalId(0);
 		}
 
-		for (const auto& entity : entities)
+		for (const auto& entity : sceneSerializer.GetEntities())
 		{
 			for (std::weak_ptr<Component> component : entity.second->GetComponents())
 			{
@@ -271,7 +270,7 @@ namespace hod::game
 			}
 		}
 
-		for (const auto& entity : entities)
+		for (const auto& entity : sceneSerializer.GetEntities())
 		{
 			entity.second->SetActive(true);
 		}

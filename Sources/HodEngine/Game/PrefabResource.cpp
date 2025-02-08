@@ -19,6 +19,8 @@ namespace hod::game
 	/// @return 
 	bool PrefabResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
 	{
+		_document.GetRootNode().Copy(documentNode);
+
 		_prefab = new Prefab();
 		bool result = _prefab->DeserializeFromDocument(documentNode);
 		if (result)
@@ -33,5 +35,12 @@ namespace hod::game
 	Prefab& PrefabResource::GetPrefab()
 	{
 		return *_prefab;
+	}
+
+	/// @brief 
+	/// @return 
+	const Document& PrefabResource::GetDocument() const
+	{
+		return _document;
 	}
 }
