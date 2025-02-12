@@ -86,9 +86,9 @@ namespace hod::game
 		SceneSerializer sceneSerializer;
 		sceneSerializer.Deserialize(*entitiesNode);
 
-		for (auto& entityPair : sceneSerializer.GetEntities())
+		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
-			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
+			_entities.emplace(entity->GetInstanceId(), entity);
 		}
 
 		return true;

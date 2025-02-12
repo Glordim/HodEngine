@@ -96,9 +96,9 @@ namespace hod::game
 		SceneSerializer sceneSerializer;
 		sceneSerializer.Deserialize(*entitiesNode);
 
-		for (auto& entityPair : sceneSerializer.GetEntities())
+		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
-			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
+			_entities.emplace(entity->GetInstanceId(), entity);
 		}
 
 		for (const auto& entity : _entities)
@@ -252,27 +252,27 @@ namespace hod::game
 
 		sceneSerializer.Deserialize(document.GetRootNode());
 
-		std::shared_ptr<Entity> clonedEntity = sceneSerializer.GetEntities().begin()->second;
+		std::shared_ptr<Entity> clonedEntity = sceneSerializer.GetEntities()[0];
 		clonedEntity->SetPrefabResource(entity->GetPrefabResource());
 
-		for (auto& entityPair : sceneSerializer.GetEntities())
+		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
-			_entities.emplace(entityPair.second->GetInstanceId(), entityPair.second);
-			entityPair.second->SetLocalId(0);
+			_entities.emplace(entity->GetInstanceId(), entity);
+			entity->SetLocalId(0);
 		}
 
-		for (const auto& entity : sceneSerializer.GetEntities())
+		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
-			for (std::weak_ptr<Component> component : entity.second->GetComponents())
+			for (std::weak_ptr<Component> component : entity->GetComponents())
 			{
 				component.lock()->SetLocalId(0);
 				component.lock()->Construct();
 			}
 		}
 
-		for (const auto& entity : sceneSerializer.GetEntities())
+		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
-			entity.second->SetActive(true);
+			entity->SetActive(true);
 		}
 
 		return clonedEntity;

@@ -122,15 +122,17 @@ namespace hod::game
 			entityNode = entityNode->GetNextSibling();
 		}
 
-		for (auto& entityPair : _entities)
+		for (auto& entityPair : _contextualEntityMap)
 		{
 			uint64_t parentId = entityPair.second->GetParent().GetInstanceId();
 			if (parentId != 0)
 			{
-				entityPair.second->SetParent(_entities[parentId]);
+				entityPair.second->SetParent(_contextualEntityMap[parentId]);
 			}
+
+			_totalEntities.push_back(entityPair.second);
 		}
-		for (auto& componentPair : _components)
+		for (auto& componentPair : _contextualComponentMap)
 		{
 			std::vector<WeakEntity*> weakEntities;
 			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakEntities, componentPair.second.get());
@@ -139,7 +141,7 @@ namespace hod::game
 				uint64_t entityId = weakEntity->GetInstanceId();
 				if (entityId != 0)
 				{
-					weakEntity->SetPointer(_entities[entityId]);
+					weakEntity->SetPointer(_contextualEntityMap[entityId]);
 				}
 			}
 
@@ -150,9 +152,11 @@ namespace hod::game
 				uint64_t componenId = weakComponent->GetInstanceId();
 				if (componenId != 0)
 				{
-					weakComponent->SetPointer(_components[componenId]);
+					weakComponent->SetPointer(_contextualComponentMap[componenId]);
 				}
 			}
+
+			_totalComponent.push_back(componentPair.second);
 		}
 
 		return true;
@@ -197,7 +201,7 @@ namespace hod::game
 				std::shared_ptr<Component> component = entity->AddComponent(componentDescriptor, false);
 				Serializer::Deserialize(componentDescriptor, component.get(), *componentNode); // todo lvalue...
 
-				if (_components.try_emplace(component->GetLocalId(), component).second == false)
+				if (_contextualComponentMap.try_emplace(component->GetLocalId(), component).second == false)
 				{
 					OUTPUT_ERROR("SceneSerializer::DeserializeEntityRaw: LocalId already exist !");
 					return false;
@@ -212,7 +216,7 @@ namespace hod::game
 			componentNode = componentNode->GetNextSibling();
 		}
 
-		if (_entities.try_emplace(entity->GetLocalId(), entity).second == false)
+		if (_contextualEntityMap.try_emplace(entity->GetLocalId(), entity).second == false)
 		{
 			OUTPUT_ERROR("SceneSerializer::DeserializeEntityRaw: LocalId already exist !");
 			return false;
@@ -302,14 +306,24 @@ namespace hod::game
 			overrideNode = overrideNode->GetNextSibling();
 		}
 
-		std::shared_ptr<Entity> rootEntity = sceneSerializer._entities.begin()->second;
+		std::shared_ptr<Entity> rootEntity = sceneSerializer._totalEntities[0];
 		rootEntity->SetPrefabResource(prefabResource);
 		rootEntity->SetLocalId(entityNode.GetChild("_localId")->GetUInt64());
 
-		if (_entities.try_emplace(rootEntity->GetLocalId(), rootEntity).second == false)
+		if (_contextualEntityMap.try_emplace(rootEntity->GetLocalId(), rootEntity).second == false)
 		{
 			OUTPUT_ERROR("SceneSerializer::DeserializeEntityPrefab: LocalId already exist !");
 			return false;
+		}
+
+		for (std::shared_ptr<Entity> entity : sceneSerializer._totalEntities)
+		{
+			_totalEntities.push_back(entity);
+		}
+
+		for (std::shared_ptr<Component> component : sceneSerializer._totalComponent)
+		{
+			_totalComponent.push_back(component);
 		}
 
 		return true;
@@ -317,15 +331,15 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& SceneSerializer::GetEntities() const
+	const std::vector<std::shared_ptr<Entity>>& SceneSerializer::GetEntities() const
 	{
-		return _entities;
+		return _totalEntities;
 	}
 
 	/// @brief 
 	/// @return 
-	const std::unordered_map<uint64_t, std::shared_ptr<Component>>& SceneSerializer::GetComponents() const
+	const std::vector<std::shared_ptr<Component>>& SceneSerializer::GetComponents() const
 	{
-		return _components;
+		return _totalComponent;
 	}
 }

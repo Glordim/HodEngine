@@ -18,8 +18,8 @@ namespace hod::game
 
 		bool	Deserialize(const Document::Node& entitiesNode);
 
-		const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& GetEntities() const;
-		const std::unordered_map<uint64_t, std::shared_ptr<Component>>& GetComponents() const;
+		const std::vector<std::shared_ptr<Entity>>& GetEntities() const;
+		const std::vector<std::shared_ptr<Component>>& GetComponents() const;
 
 	private:
 
@@ -29,7 +29,10 @@ namespace hod::game
 
 	private:
 
-		std::unordered_map<uint64_t, std::shared_ptr<Entity>>		_entities;
-		std::unordered_map<uint64_t, std::shared_ptr<Component>>	_components;
+		std::vector<std::shared_ptr<Entity>>	_totalEntities;
+		std::vector<std::shared_ptr<Component>>	_totalComponent;
+
+		std::unordered_map<uint64_t, std::shared_ptr<Entity>>		_contextualEntityMap;
+		std::unordered_map<uint64_t, std::shared_ptr<Component>>	_contextualComponentMap;
 	};
 }
