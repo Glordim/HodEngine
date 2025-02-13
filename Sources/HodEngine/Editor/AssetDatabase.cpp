@@ -343,16 +343,25 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
+	bool AssetDatabase::Import(std::shared_ptr<Asset> asset)
+	{
+		Importer* importer = GetImporter(asset->GetMeta()._importerType);
+		if (importer != nullptr)
+		{
+			return importer->Import(asset->GetPath());
+		}
+		return false;
+	}
+
+	/// @brief 
+	/// @param path 
+	/// @return 
 	bool AssetDatabase::Import(const std::filesystem::path& path)
 	{
 		FileSystemMapping* node = FindFileSystemMappingFromPath(path);
 		if (node != nullptr && node->_asset != nullptr)
 		{
-			Importer* importer = GetImporter(node->_asset->GetMeta()._importerType);
-			if (importer != nullptr)
-			{
-				return importer->Import(path);
-			}
+			return Import(node->_asset);
 		}
 
 		for (Importer* importer : _importers)
@@ -381,7 +390,7 @@ namespace hod::editor
 		std::ifstream resourceFile(resourceFilePath);
 		if (resourceFile.is_open() == false) // TODO replace by filesystem::exist ?
 		{
-			return Import(asset->GetPath());
+			return Import(asset);
 		}
 
 		return false;

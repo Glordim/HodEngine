@@ -79,6 +79,7 @@ namespace hod::editor
 		void								Delete(FileSystemMapping& node);
 
 		bool								Import(const std::filesystem::path& path);
+		bool								Import(std::shared_ptr<Asset> asset);
 
 		template<typename _Importer_>
 		bool								RegisterImporter();
