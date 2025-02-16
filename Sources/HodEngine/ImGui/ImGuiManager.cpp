@@ -284,12 +284,13 @@ void embraceTheDarkness()
 	/// @brief 
 	void ImGuiManager::Update()
 	{
-		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(_mainWindow);
 #if defined(PLATFORM_WINDOWS)
 		ImGui_ImplWin32_NewFrame();
 #elif defined(PLATFORM_MACOS)
+		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(_mainWindow);
 		ImGui_ImplOSX_NewFrame(static_cast<window::MacOsWindow*>(window)->GetNsView());
 #elif defined(PLATFORM_LINUX)
+		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(_mainWindow);
 		ImGui::GetIO().DisplaySize.x = window->GetWidth();
 		ImGui::GetIO().DisplaySize.y = window->GetHeight();
 		ImGui::GetIO().AddMousePosEvent(window->GetMousePosition().GetX(), window->GetMousePosition().GetY());

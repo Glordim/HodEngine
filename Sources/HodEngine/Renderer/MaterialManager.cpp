@@ -191,13 +191,11 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		UID MaterialManager::CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
+			return UID::INVALID_UID; // TODO ?
+			
+			/*
 			Renderer* renderer = Renderer::GetInstance();
 
-			// TODO ?
-
-			return UID::INVALID_UID;
-
-			/*
 			Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
 			if (vertexShader->LoadFromFile("Shader/" + shaderName + ".vert.spirv") == false)
 			{
