@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#if defined(PLATFORM_MACOS)
-
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
 #include "HodEngine/Core/Job/MemberFunctionJob.hpp"
@@ -49,5 +47,3 @@ namespace hod::window
 		MyWindowDelegate*					_delegate = nullptr;
 	};
 }
-
-#endif

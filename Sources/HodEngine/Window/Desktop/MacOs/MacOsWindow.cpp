@@ -1,5 +1,3 @@
-#if defined(PLATFORM_MACOS)
-
 #include "MacOsWindow.hpp"
 
 #include <string>
@@ -20,5 +18,3 @@ namespace hod::window
 		return _view;
 	}
 }
-
-#endif

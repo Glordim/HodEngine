@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#if defined(PLATFORM_WINDOWS)
-
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #undef CreateWindow
@@ -37,5 +35,3 @@ namespace hod::window
         std::vector<Window*> _windows;
     };
 }
-
-#endif

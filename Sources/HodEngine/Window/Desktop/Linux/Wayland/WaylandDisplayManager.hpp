@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#if defined(PLATFORM_LINUX)
-
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
 
 #include <wayland-client.h>
@@ -129,5 +127,3 @@ namespace hod::window
         std::map<wl_surface*, WaylandWindow*>   _surfaceToWindowMap;
     };
 }
-
-#endif

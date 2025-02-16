@@ -1,5 +1,3 @@
-#if defined(PLATFORM_MACOS)
-
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/Desktop/MacOs/CocoaDisplayManager.hpp"
 #include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
@@ -39,5 +37,3 @@ namespace hod::window
         delete window;
     }
 }
-
-#endif

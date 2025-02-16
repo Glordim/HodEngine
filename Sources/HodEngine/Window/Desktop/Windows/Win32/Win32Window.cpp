@@ -1,5 +1,3 @@
-#if defined(PLATFORM_WINDOWS)
-
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
@@ -224,5 +222,3 @@ namespace hod::window
 		return _hWndThreadId;
 	}
 }
-
-#endif

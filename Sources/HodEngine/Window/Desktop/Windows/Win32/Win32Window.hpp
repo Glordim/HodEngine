@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#if defined(PLATFORM_WINDOWS)
-
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
@@ -53,5 +51,3 @@ namespace hod::window
 		std::vector<std::function<void()>>	_runOnWin32Thread;
 	};
 }
-
-#endif

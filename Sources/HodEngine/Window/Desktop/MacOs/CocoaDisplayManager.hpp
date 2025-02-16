@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#if defined(PLATFORM_MACOS)
-
 #include "HodEngine/Core/Singleton.hpp"
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
 
@@ -22,5 +20,3 @@ namespace hod::window
         void            DestroyWindow(Window* window) override;
     };
 }
-
-#endif
