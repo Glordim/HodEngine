@@ -27,10 +27,11 @@ else()
   set(LIB_EXTENSION "a")
 endif()
 
-if(PLATFORM_LINUX)
+get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(isMultiConfig)
   set(LIB_SUB_FOLDER "Release")
 else()
-  set(LIB_SUB_FOLDER "Release")
+  set(LIB_SUB_FOLDER ".")
 endif()
 
 FetchContent_Declare(
@@ -64,6 +65,7 @@ ExternalProject_Add(box2d
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release
@@ -94,6 +96,7 @@ ExternalProject_Add(freetype
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/freetype-build --config Release
@@ -121,6 +124,7 @@ ExternalProject_Add(msdfgen
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/msdfgen-build --config Release
@@ -153,6 +157,7 @@ ExternalProject_Add(glslang
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/glslang-build --config Release
@@ -172,6 +177,7 @@ ExternalProject_Add(VulkanMemoryAllocator
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
@@ -202,6 +208,7 @@ ExternalProject_Add(SpirvCross
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+    -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build --config Release
@@ -212,18 +219,17 @@ ExternalProject_Add(SpirvCross
 message(STATUS "SpirvCross is available in " ${SpirvCross_INCLUDE_DIRS})
 message(STATUS "SpirvCross is available in " ${SpirvCross_LIBRARIES})
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
+#include(FetchContent)
+#FetchContent_Declare(
+#  googletest
+#  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+#)
 # For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# FetchContent_MakeAvailable(googletest)
 
 #enable_testing()
 #add_subdirectory("Sources/Tests/Core")
-
 
 SetupPlatform()
 SetupCompilation()
