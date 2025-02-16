@@ -66,11 +66,14 @@ get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   "../.."
-  "DearImGui" # for imguiFreetype include
   ${Core_INCLUDES}
   ${Window_INCLUDES}
   ${Renderer_INCLUDES}
   ${freetype_INCLUDE_DIRS}
+)
+
+include_directories(SYSTEM
+  "DearImGui" # for imguiFreetype include
 )
 
 target_link_libraries(ImGui

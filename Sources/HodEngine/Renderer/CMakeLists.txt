@@ -38,11 +38,14 @@ assign_source_group(${Srcs}) # for VS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 "../.."
-${Stb_INCLUDE_DIRS}
-${msdfgen_INCLUDE_DIRS}
-${freetype_INCLUDE_DIRS}
-${VulkanMemoryAllocator_INCLUDE_DIRS}
 "RHI/Metal/MetalCpp"
+)
+
+include_directories(SYSTEM
+  ${Stb_INCLUDE_DIRS}
+  ${msdfgen_INCLUDE_DIRS}
+  ${freetype_INCLUDE_DIRS}
+  ${VulkanMemoryAllocator_INCLUDE_DIRS}
 )
 
 add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
