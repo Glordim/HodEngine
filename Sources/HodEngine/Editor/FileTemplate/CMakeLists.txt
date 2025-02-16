@@ -8,6 +8,10 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 
 set(HodEngine_DIR [[ENGINE_PATH]])
 include(${HodEngine_DIR}/CMake/Global.cmake)
+SetupLanguageVersion()
+SetupPlatform()
+SetupCompilation()
+
 include(${HodEngine_DIR}/CMake/FindHodEngine.cmake)
 FindHodEngine()
 
