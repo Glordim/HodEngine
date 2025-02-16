@@ -43,7 +43,7 @@ set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
 set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/${LIB_SUB_FOLDER}/${LIB_PREFIX}box2d.${LIB_EXTENSION})
 
 ExternalProject_Add(box2d
-  URL https://github.com/erincatto/box2d/archive/refs/tags/v3.0.0.zip
+  URL https://github.com/erincatto/box2d/archive/28adacf82377d4113f2ed00586141463244b9d10.zip
   DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
   SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/box2d-src
   BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/box2d-build

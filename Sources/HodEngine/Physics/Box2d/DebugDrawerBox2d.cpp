@@ -35,7 +35,6 @@ namespace hod::physics
 		_debugDraw.DrawSolidPolygon = &DebugDrawerBox2d::DrawSolidPolygon;
 		_debugDraw.DrawCircle = &DebugDrawerBox2d::DrawCircle;
 		_debugDraw.DrawSolidCircle = &DebugDrawerBox2d::DrawSolidCircle;
-		_debugDraw.DrawCapsule = &DebugDrawerBox2d::DrawCapsule;
 		_debugDraw.DrawSolidCapsule = &DebugDrawerBox2d::DrawSolidCapsule;
 		_debugDraw.DrawSegment = &DebugDrawerBox2d::DrawSegment;
 		_debugDraw.DrawTransform = &DebugDrawerBox2d::DrawTransform;
@@ -321,7 +320,7 @@ namespace hod::physics
 	/// @param p 
 	/// @param s 
 	/// @param context 
-	void DebugDrawerBox2d::DrawString(b2Vec2 p, const char* s, void* context)
+	void DebugDrawerBox2d::DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context)
 	{
 		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
 	}
