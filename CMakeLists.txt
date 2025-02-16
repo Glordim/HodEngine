@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.4...3.27)
 
 project(Hod) # Rename
 
+option(ENABLE_UNITY_BUILD "Enable Unity Build for faster compilation" ON)
+if (ENABLE_UNITY_BUILD)
+    set(CMAKE_UNITY_BUILD ON)
+endif()
+
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
@@ -11,6 +16,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 include(Global)
 include(FetchContent)
 include(ExternalProject)
+
+SetupLanguageVersion()
 
 if(WIN32)
   set(LIB_PREFIX "")
@@ -190,6 +197,7 @@ ExternalProject_Add(SpirvCross
     -DSPIRV_CROSS_ENABLE_HLSL=OFF
     -DSPIRV_CROSS_ENABLE_MSL=OFF
     -DSPIRV_CROSS_ENABLE_CPP=OFF
+    -DSPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS=ON
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
     -DANDROID_ABI=${ANDROID_ABI}
@@ -203,7 +211,22 @@ ExternalProject_Add(SpirvCross
 
 message(STATUS "SpirvCross is available in " ${SpirvCross_INCLUDE_DIRS})
 message(STATUS "SpirvCross is available in " ${SpirvCross_LIBRARIES})
-#
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+#enable_testing()
+#add_subdirectory("Sources/Tests/Core")
+
+
+SetupPlatform()
+SetupCompilation()
 
 set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
 
@@ -233,15 +256,3 @@ if (NOT ANDROID)
   add_subdirectory("Sources/HodEngine/Editor")
   add_subdirectory("Sources/HodEditor")
 endif()
-
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-#enable_testing()
-#add_subdirectory("Sources/Tests/Core")
