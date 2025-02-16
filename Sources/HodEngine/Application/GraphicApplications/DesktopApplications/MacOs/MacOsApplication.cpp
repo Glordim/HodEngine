@@ -1,7 +1,5 @@
-#if defined(PLATFORM_MACOS)
-
 #include "HodEngine/Application/Pch.hpp"
-#include "HodEngine/Application/GraphicApplications/DesktopApplications/MacOsApplication.hpp"
+#include "HodEngine/Application/GraphicApplications/DesktopApplications/MacOs/MacOsApplication.hpp"
 
 namespace hod::application
 {
@@ -10,5 +8,3 @@ namespace hod::application
 		
 	}
 }
-
-#endif

@@ -1,16 +1,13 @@
 #pragma once
 #include "HodEngine/Application/Export.hpp"
-#if defined(PLATFORM_LINUX)
 
 #include "HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.hpp"
 
 namespace hod::application
 {
 	/// @brief 
-	class HOD_APPLICATION_API LinuxApplication : public DesktopApplication
+	class HOD_APPLICATION_API WindowsApplication : public DesktopApplication
 	{
-		_SingletonOverride(LinuxApplication)
+		_SingletonOverride(WindowsApplication)
 	};
 }
-
-#endif
