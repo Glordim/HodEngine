@@ -17,8 +17,11 @@ namespace hod::game
 
 	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Component::_instanceId, "_instanceId")->AddTrait<ReflectionTraitNoSerialization>();
-		AddPropertyT(reflectionDescriptor, &Entity::_localId, "_localId");//->AddTrait<ReflectionTraitHide>();
+		ReflectionProperty* instanceIdProperty = AddPropertyT(reflectionDescriptor, &Entity::_instanceId, "_instanceId");
+		instanceIdProperty->AddTrait<ReflectionTraitNoSerialization>();
+		instanceIdProperty->AddTrait<ReflectionTraitHide>();
+
+		AddPropertyT(reflectionDescriptor, &Entity::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
 
 		AddPropertyT(reflectionDescriptor, &Entity::_name, "_name");
 		AddPropertyT(reflectionDescriptor, &Entity::_active, "_active");

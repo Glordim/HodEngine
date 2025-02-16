@@ -152,8 +152,11 @@ namespace hod::editor
 			ImGui::Separator();
 		}
 
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted("Name");
+		bool enable = selection->GetActive();
+		if (ImGui::Checkbox("##Enable", &enable))
+		{
+			selection->SetActive(enable);
+		}
 		ImGui::SameLine();
 
 		char buffer[256] = { '\0' };
@@ -164,12 +167,6 @@ namespace hod::editor
 			selection->SetName(buffer);
 			Editor::GetInstance()->MarkCurrentSceneAsDirty();
 		}
-
-		uint64_t instanceId = selection->GetInstanceId();
-		ImGui::DragScalar("InstanceId", ImGuiDataType_U64, &instanceId, 1.0f, 0, 0, nullptr, ImGuiSliderFlags_AlwaysClamp);
-
-		uint64_t localId = selection->GetLocalId();
-		ImGui::DragScalar("LocalId", ImGuiDataType_U64, &localId, 1.0f, 0, 0, nullptr, ImGuiSliderFlags_AlwaysClamp);
 
 		std::vector<std::weak_ptr<game::Component>> components = selection->GetComponents();
 		for (const std::weak_ptr<game::Component>& component : components)
@@ -229,16 +226,34 @@ namespace hod::editor
 					ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 					ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-					ImGui::ArrowButton("CollapseComponent", ImGuiDir_Down);
+
+					bool collapsed = ImGui::GetCurrentWindow()->DC.StateStorage->GetInt(ImGui::GetID("Collapsed"), false);
+
+					if (ImGui::ArrowButton("CollapseComponent", collapsed == false ? ImGuiDir_Down : ImGuiDir_Right))
+					{
+						collapsed = !collapsed;
+						ImGui::GetCurrentWindow()->DC.StateStorage->SetInt(ImGui::GetID("Collapsed"), collapsed);
+					}
 					ImGui::PopStyleColor(4);
 
-					bool opened = true;
+					ImGui::SameLine();
+					bool enable = componentLock->GetEnable();
+					if (ImGui::Checkbox("##Enable", &enable))
+					{
+						componentLock->SetEnable(enable);
+					}
+
+					ImGui::BeginDisabled(enable == false);
+
+					bool opened = (collapsed == false);
 					ImGui::SameLine();
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted(ICON_MDI_PUZZLE);
 					ImGui::SameLine();
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted(componentLock->GetReflectionDescriptorV().GetDisplayName().c_str());
+
+					ImGui::EndDisabled();
 
 					ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_CLOSE).x + 10.0f, 0.0f);
 					ImVec2 buttonPos = ImGui::GetCursorScreenPos();
@@ -291,10 +306,11 @@ namespace hod::editor
 						max.x += ImGui::GetWindowWidth();
 						ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
 					}
-					ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
 
 					if (opened == true)
 					{
+						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
+
 						std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(componentLock);
 						EditorReflectedObject reflectedObject(componentLock.get(), &componentLock->GetReflectionDescriptorV(), sourceComponent.get());
 
@@ -313,6 +329,12 @@ namespace hod::editor
 						{
 							Editor::GetInstance()->MarkCurrentSceneAsDirty();
 						}
+					}
+					else
+					{
+						ImVec2 pos = ImGui::GetCursorScreenPos();
+						pos.y = max.y;
+						ImGui::SetCursorScreenPos(pos);
 					}
 				}
 				ImGui::Dummy(ImVec2(0,0)); // todo
