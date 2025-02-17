@@ -55,29 +55,45 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	bool Entity::GetActive() const
+	bool Entity::GetActiveSelf() const
 	{
-		return _active;
+		return _activeSelf;
 	}
 
 	/// @brief 
 	/// @param active 
-	void Entity::SetActive(bool active)
+	void Entity::SetActiveSelf(bool activeSelf)
 	{
-		if (_active != active)
+		if (_activeSelf != activeSelf)
 		{
-			_active = active;
-			if (active == true)
+			_activeSelf = activeSelf;
+
+			if (_active != _activeSelf)
 			{
-				Awake();
-				OnEnable();
-				Start();
+				_active = _activeSelf;
+
+				for (std::shared_ptr<Component> component : _components)
+				{
+					component->RefreshEnabled();
+				}
+
+				for (const WeakEntity& child : _children)
+				{
+					std::shared_ptr<Entity> entity = child.Lock();
+					entity->NotifyActivationChanged();
+				}
 			}
-		 }
-	 }
-	 
-	 void Entity::Awake()
-	 {
+		}
+	}
+
+	/// @brief 
+	void Entity::NotifyActivationChanged()
+	{
+
+	}
+
+	void Entity::Awake()
+	{
 		if (World::GetInstance()->GetEditorPlaying() == false)
 		{
 			return;
@@ -92,10 +108,10 @@ namespace hod::game
 				component.lock()->OnAwake();
 			}
 		}
-	 }
+	}
 
-	 void Entity::Start()
-	 {
+	void Entity::Start()
+	{
 		if (World::GetInstance()->GetEditorPlaying() == false)
 		{
 			return;

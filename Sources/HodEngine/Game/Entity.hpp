@@ -55,8 +55,9 @@ namespace hod::game
 
 		const std::string&	GetName() const;
 		void				SetName(const std::string_view& name);
-		bool				GetActive() const;
-		void				SetActive(bool active);
+		bool				GetActiveSelf() const;
+		void				SetActiveSelf(bool activeSelf);
+		bool				IsActive() const;
 
 		void				Awake();
 		void				Start();
@@ -92,9 +93,22 @@ namespace hod::game
 
 		std::shared_ptr<Component>	AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
 
+		void						NotifyActivationChanged();
+
+		void						EnableComponents();
+		void						DisableComponents();
+
 	private:
 
 		static uint64_t	_nextInstanceId; // todo std::atomic ?
+
+		enum class State : uint8_t
+		{
+			Created,
+			Awaked,
+			Started,
+			Destroyed,
+		};
 
 	private:
 
@@ -102,9 +116,10 @@ namespace hod::game
 		uint64_t		_localId = 0;
 
 		std::string		_name;
+		bool			_activeSelf = false;
 		bool			_active = false;
-		bool			_awaked = false;
-		bool			_started = false;
+
+		State			_state = State::Created;
 
 		std::shared_ptr<PrefabResource> _prefabResource = nullptr;
 

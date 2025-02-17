@@ -216,6 +216,8 @@ namespace hod::editor
 			ImGui::EndDragDropSource();
 		}
 
+		ImGui::BeginDisabled(entityLock->GetActive() == false);
+
 		ImGui::SameLine(0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 0.0f });
 		if (entityLock->GetPrefabResource() != nullptr)
@@ -234,6 +236,8 @@ namespace hod::editor
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(entityLock->GetName().c_str());
 		ImGui::PopStyleVar();
+
+		ImGui::EndDisabled();
 
 		if (opened == true)
 		{

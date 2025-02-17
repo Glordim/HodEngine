@@ -1,5 +1,6 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/Entity.hpp"
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
@@ -41,28 +42,54 @@ namespace hod::game
 
 	/// @brief 
 	/// @param enable 
-	void Component::SetEnable(bool enable)
+	void Component::SetEnableSelf(bool enableSelf)
 	{
-		if (_enable != enable)
+		if (_enabledSelf != enableSelf)
 		{
-			_enable = enable;
-			if (_wasEnable != false && _enable == true)
-			{
-				OnEnable();
-				_wasEnable = true;
-			}
-			else if (_wasEnable != true && _enable == false)
-			{
-				OnDisable();
-				_wasEnable = false;
-			}
+			_enabledSelf = enableSelf;
+			RefreshEnabled();
 		}
 	}
 
 	/// @brief 
 	/// @return 
-	bool Component::GetEnable() const
+	bool Component::GetEnableSelf() const
 	{
-		return _enable;
+		return _enabledSelf;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Component::IsEnabled() const
+	{
+		return _enabled;
+	}
+
+	/// @brief 
+	void Component::RefreshEnabled()
+	{
+		bool enabled = _enabledSelf && GetEntity()->IsActive();
+		if (_enabled != enabled)
+		{
+			_enabled = enabled;
+			if (_enabled == true)
+			{
+				if (_awaked == false)
+				{
+					_awaked = true;
+					OnAwake();
+				}
+				if (_started == false)
+				{
+					_started = true;
+					OnStart();
+				}
+				OnEnable();
+			}
+			else
+			{
+				OnDisable();
+			}
+		}
 	}
 }

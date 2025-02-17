@@ -75,7 +75,7 @@ void embraceTheDarkness()
 {
   ImVec4* colors = ImGui::GetStyle().Colors;
   colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-  colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+  colors[ImGuiCol_TextDisabled]           = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
   colors[ImGuiCol_WindowBg]               = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
   colors[ImGuiCol_ChildBg]                = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
   colors[ImGuiCol_PopupBg]                = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
@@ -153,6 +153,7 @@ void embraceTheDarkness()
   style.GrabRounding                      = 3;
   style.LogSliderDeadzone                 = 4;
   style.TabRounding                       = 4;
+  style.DisabledAlpha                     = 0.5f;
 }
 
 	/// @brief 

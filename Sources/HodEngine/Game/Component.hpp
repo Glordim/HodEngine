@@ -31,8 +31,9 @@ namespace hod::game
 		void					SetEntity(const std::shared_ptr<Entity>& entity);
 		std::shared_ptr<Entity>	GetEntity() const;
 
-		void					SetEnable(bool enable);
-		bool					GetEnable() const;
+		void					SetEnableSelf(bool enableSelf);
+		bool					GetEnableSelf() const;
+		bool					IsEnabled() const;
 
 		virtual void		OnAwake() {};
 		virtual void		OnStart() {};
@@ -54,6 +55,10 @@ namespace hod::game
 
 	private:
 
+		void				RefreshEnabled();
+
+	private:
+
 		void				Construct() { OnConstruct(); };
 
 	private:
@@ -67,7 +72,10 @@ namespace hod::game
 
 		std::weak_ptr<Entity>	_entity;
 
-		bool					_enable = true;
-		bool					_wasEnable = false;
+		bool					_awaked = false;
+		bool					_started = false;
+
+		bool					_enabled = false;
+		bool					_enabledSelf = true;
 	};
 }
