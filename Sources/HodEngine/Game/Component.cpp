@@ -16,7 +16,7 @@ namespace hod::game
 		instanceIdProperty->AddTrait<ReflectionTraitHide>();
 
 		AddPropertyT(reflectionDescriptor, &Component::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Component::_enable, "_enable")->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(reflectionDescriptor, &Component::_enabledSelf, "_enabledSelf")->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 

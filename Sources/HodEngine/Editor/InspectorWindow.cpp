@@ -152,10 +152,10 @@ namespace hod::editor
 			ImGui::Separator();
 		}
 
-		bool enable = selection->GetActive();
+		bool enable = selection->GetActiveSelf();
 		if (ImGui::Checkbox("##Enable", &enable))
 		{
-			selection->SetActive(enable);
+			selection->SetActiveSelf(enable);
 		}
 		ImGui::SameLine();
 
@@ -237,10 +237,10 @@ namespace hod::editor
 					ImGui::PopStyleColor(4);
 
 					ImGui::SameLine();
-					bool enable = componentLock->GetEnable();
+					bool enable = componentLock->GetEnableSelf();
 					if (ImGui::Checkbox("##Enable", &enable))
 					{
-						componentLock->SetEnable(enable);
+						componentLock->SetEnableSelf(enable);
 					}
 
 					ImGui::BeginDisabled(enable == false);

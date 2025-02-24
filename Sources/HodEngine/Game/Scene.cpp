@@ -111,7 +111,7 @@ namespace hod::game
 
 		for (const auto& entity : _entities)
 		{
-			entity.second->SetActive(true);
+			entity.second->SetActiveSelf(true);
 		}
 
 		return true;
@@ -272,7 +272,7 @@ namespace hod::game
 
 		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
-			entity->SetActive(true);
+			entity->SetActiveSelf(true);
 		}
 
 		return clonedEntity;

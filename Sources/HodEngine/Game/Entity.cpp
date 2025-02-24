@@ -24,7 +24,7 @@ namespace hod::game
 		AddPropertyT(reflectionDescriptor, &Entity::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
 
 		AddPropertyT(reflectionDescriptor, &Entity::_name, "_name");
-		AddPropertyT(reflectionDescriptor, &Entity::_active, "_active");
+		AddPropertyT(reflectionDescriptor, &Entity::_activeSelf, "_activeSelf");
 
 		AddPropertyT(reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
 		//AddPropertyT(reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
