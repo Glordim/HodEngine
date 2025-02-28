@@ -16,6 +16,8 @@
 
 #include <HodEngine/Core/Resource/ResourceManager.hpp>
 
+#include <cstring>
+
 namespace hod::game
 {
 	bool SceneSerializer::SerializeEntity(const std::shared_ptr<Entity> entity, bool withChildren, Document::Node& entitiesNode, uint64_t& nextLocalId)

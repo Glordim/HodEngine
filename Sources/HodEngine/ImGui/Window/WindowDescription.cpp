@@ -1,6 +1,8 @@
 #include "HodEngine/ImGui/Pch.hpp"
 #include "HodEngine/ImGui/Window/WindowDescription.hpp" 
 
+#include <cstring>
+
 namespace hod::imgui
 {
 	std::vector<WindowDescription*>	WindowDescription::_descriptions;
