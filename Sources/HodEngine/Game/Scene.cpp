@@ -204,7 +204,7 @@ namespace hod::game
 		for (const auto& pair : _entities)
 		{
 			std::shared_ptr<Entity> entity = pair.second;
-			if (entity->GetActive() == true)
+			if (entity->IsActive() == true)
 			{
 				std::shared_ptr<RendererComponent> rendererComponent = entity->GetComponent<RendererComponent>();
 				if (rendererComponent != nullptr)

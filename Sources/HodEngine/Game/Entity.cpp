@@ -55,6 +55,13 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
+	bool Entity::IsActive() const
+	{
+		return _active;
+	}
+
+	/// @brief 
+	/// @return 
 	bool Entity::GetActiveSelf() const
 	{
 		return _activeSelf;
@@ -99,6 +106,7 @@ namespace hod::game
 			return;
 		}
 
+		/*
 		if (_awaked == false)
 		{
 			_awaked = true;
@@ -108,6 +116,7 @@ namespace hod::game
 				component.lock()->OnAwake();
 			}
 		}
+			*/
 	}
 
 	void Entity::Start()
@@ -117,6 +126,7 @@ namespace hod::game
 			return;
 		}
 
+			/*
 		if (_started == false)
 		{
 			_started = true;
@@ -126,6 +136,7 @@ namespace hod::game
 				component.lock()->OnStart();
 			}
 		}
+			*/
 	}
 
 	void Entity::OnEnable()
@@ -135,6 +146,7 @@ namespace hod::game
 			return;
 		}
 
+		/*
 		if (_started == false)
 		{
 			_started = true;
@@ -144,6 +156,7 @@ namespace hod::game
 				component.lock()->OnEnable();
 			}
 		}
+			*/
 	}
 
 	void Entity::OnDisable()
@@ -153,6 +166,7 @@ namespace hod::game
 			return;
 		}
 
+		/*
 		if (_started == false)
 		{
 			_started = true;
@@ -162,6 +176,7 @@ namespace hod::game
 				component.lock()->OnDisable();
 			}
 		}
+			*/
 	}
 
 	/// @brief 
