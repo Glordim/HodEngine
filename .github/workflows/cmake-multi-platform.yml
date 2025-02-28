@@ -59,21 +59,12 @@ jobs:
         packages: pkgconf uuid-dev wayland-protocols libxkbcommon-dev libdecor-0-dev libvulkan-dev libspirv-cross-c-shared-dev glslang-tools
         version: 1.0
 
-    - name: Install Vulkan SDK on Windows
+    - name: Prepare Vulkan SDK
       if: matrix.os == 'windows-latest'
-      shell: powershell
-      run: |
-        # Télécharger le SDK Vulkan
-        $vulkanSdkUrl = "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe"
-        $vulkanSdkPath = "$env:RUNNER_TEMP\vulkan-sdk.exe"
-        Invoke-WebRequest -Uri $vulkanSdkUrl -OutFile $vulkanSdkPath
-
-        # Installer le SDK Vulkan en mode silencieux
-        Start-Process -FilePath $vulkanSdkPath -ArgumentList "/S" -NoNewWindow -Wait
-
-        # Ajouter le SDK Vulkan au PATH
-        $vulkanSdkDir = "C:\VulkanSDK\*\Bin"
-        Add-Content -Path $env:GITHUB_PATH -Value $vulkanSdkDir
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-components: Vulkan-Headers, Vulkan-Loader
+        vulkan-use-cache: true
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
