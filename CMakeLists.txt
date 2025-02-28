@@ -66,9 +66,10 @@ ExternalProject_Add(box2d
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
     -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_UNITY_BUILD=ON
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release --parallel
   INSTALL_COMMAND ""
   BUILD_BYPRODUCTS ${box2d_LIBRARIES}
 )
@@ -99,7 +100,7 @@ ExternalProject_Add(freetype
     -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/freetype-build --config Release
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/freetype-build --config Release --parallel
   INSTALL_COMMAND ""
   BUILD_BYPRODUCTS ${freetype_LIBRARIES}
 )
@@ -127,7 +128,7 @@ ExternalProject_Add(msdfgen
     -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/msdfgen-build --config Release
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/msdfgen-build --config Release --parallel
   INSTALL_COMMAND ""
   BUILD_BYPRODUCTS ${msdfgen_LIBRARIES}
 )
@@ -160,7 +161,7 @@ ExternalProject_Add(glslang
     -DCMAKE_BUILD_TYPE=Release
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/glslang-build --config Release
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/glslang-build --config Release --parallel
   INSTALL_COMMAND ""
   BUILD_BYPRODUCTS ${glslang_LIBRARIES}
 )
@@ -209,9 +210,10 @@ ExternalProject_Add(SpirvCross
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
     -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_UNITY_BUILD=ON
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build --config Release
+    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build --config Release --parallel
   INSTALL_COMMAND ""
   BUILD_BYPRODUCTS ${SpirvCross_LIBRARIES}
 )
