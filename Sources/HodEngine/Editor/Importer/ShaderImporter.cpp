@@ -10,6 +10,7 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <sstream>
+#include <cstring>
 
 namespace hod::editor
 {
@@ -41,11 +42,11 @@ namespace hod::editor
 		//ShaderImporterSettings& fontSettings = (ShaderImporterSettings&)settings;
 
 		renderer::Shader::ShaderType shaderType;
-		if (strstr(dataBuffer, "VertexMain") != NULL)
+		if (std::strstr(dataBuffer, "VertexMain") != NULL)
 		{
 			shaderType = renderer::Shader::ShaderType::Vertex;
 		}
-		else if (strstr(dataBuffer, "FragMain") != NULL)
+		else if (std::strstr(dataBuffer, "FragMain") != NULL)
 		{
 			shaderType = renderer::Shader::ShaderType::Fragment;
 		}
