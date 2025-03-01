@@ -67,7 +67,7 @@ namespace hod::game
 		if (_enabled != enabled)
 		{
 			_enabled = enabled;
-			if (_internalState == InternalState::Started && _enabled != _enabledInHierarchy && GetOwner()->IsActive())
+			if (_internalState == InternalState::Started && _enabled != _enabledInHierarchy && GetOwner()->IsActiveInHierarchy())
 			{
 				if (_enabled)
 				{

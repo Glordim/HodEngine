@@ -53,9 +53,9 @@ namespace hod::game
 		void									SetName(const std::string_view& name);
 		const std::string&						GetName() const;
 
-		void									SetActiveSelf(bool activeSelf);
-		bool									GetActiveSelf() const;
-		bool									IsActive() const;
+		void									SetActive(bool active);
+		bool									GetActive() const;
+		bool									IsActiveInHierarchy() const;
 
 		void									Awake();
 		void									Start();
@@ -110,8 +110,9 @@ namespace hod::game
 	private:
 
 		std::string								_name;
-		bool									_activeSelf = false;
+		
 		bool									_active = false;
+		bool									_activeInHierarchy = false;
 
 		State									_state = State::Created;
 

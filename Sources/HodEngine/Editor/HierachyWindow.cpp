@@ -216,7 +216,7 @@ namespace hod::editor
 			ImGui::EndDragDropSource();
 		}
 
-		ImGui::BeginDisabled(entityLock->IsActive() == false);
+		ImGui::BeginDisabled(entityLock->IsActiveInHierarchy() == false);
 
 		ImGui::SameLine(0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 0.0f });

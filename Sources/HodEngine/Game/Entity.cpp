@@ -24,7 +24,7 @@ namespace hod::game
 		AddPropertyT(reflectionDescriptor, &Entity::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
 
 		AddPropertyT(reflectionDescriptor, &Entity::_name, "_name");
-		AddPropertyT(reflectionDescriptor, &Entity::_activeSelf, "_activeSelf");
+		AddPropertyT(reflectionDescriptor, &Entity::_active, "_active");
 
 		AddPropertyT(reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
 		//AddPropertyT(reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
@@ -74,30 +74,16 @@ namespace hod::game
 	}
 
 	/// @brief 
-	/// @return 
-	bool Entity::IsActive() const
-	{
-		return _active;
-	}
-
-	/// @brief 
-	/// @return 
-	bool Entity::GetActiveSelf() const
-	{
-		return _activeSelf;
-	}
-
-	/// @brief 
 	/// @param active 
-	void Entity::SetActiveSelf(bool activeSelf)
+	void Entity::SetActive(bool active)
 	{
-		if (_activeSelf != activeSelf)
+		if (_active != active)
 		{
-			_activeSelf = activeSelf;
+			_active = active;
 
-			if (_active != _activeSelf)
+			if (_activeInHierarchy != _active)
 			{
-				_active = _activeSelf;
+				_activeInHierarchy = _active;
 
 				/* TODO
 				for (std::shared_ptr<Component> component : _components)
@@ -113,6 +99,20 @@ namespace hod::game
 				*/
 			}
 		}
+	}
+
+	/// @brief 
+	/// @return 
+	bool Entity::GetActive() const
+	{
+		return _active;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Entity::IsActiveInHierarchy() const
+	{
+		return _activeInHierarchy;
 	}
 
 	/// @brief 

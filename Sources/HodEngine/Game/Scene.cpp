@@ -111,7 +111,7 @@ namespace hod::game
 
 		for (const auto& entity : _entities)
 		{
-			entity.second->SetActiveSelf(true);
+			entity.second->SetActive(true);
 		}
 
 		return true;
@@ -204,7 +204,7 @@ namespace hod::game
 		for (const auto& pair : _entities)
 		{
 			std::shared_ptr<Entity> entity = pair.second;
-			if (entity->IsActive() == true)
+			if (entity->IsActiveInHierarchy() == true)
 			{
 				std::shared_ptr<RendererComponent> rendererComponent = entity->GetComponent<RendererComponent>();
 				if (rendererComponent != nullptr)
@@ -272,7 +272,7 @@ namespace hod::game
 
 		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
-			entity->SetActiveSelf(true);
+			entity->SetActive(true);
 		}
 
 		return clonedEntity;

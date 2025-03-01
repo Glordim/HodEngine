@@ -154,10 +154,10 @@ namespace hod::editor
 			ImGui::Separator();
 		}
 
-		bool enable = selection->GetActiveSelf();
-		if (ImGui::Checkbox("##Enable", &enable))
+		bool active = selection->GetActive();
+		if (ImGui::Checkbox("##Active", &active))
 		{
-			selection->SetActiveSelf(enable);
+			selection->SetActive(active);
 		}
 		ImGui::SameLine();
 
