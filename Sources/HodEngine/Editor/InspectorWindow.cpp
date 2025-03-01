@@ -239,13 +239,13 @@ namespace hod::editor
 					ImGui::PopStyleColor(4);
 
 					ImGui::SameLine();
-					bool enable = componentLock->GetEnableSelf();
-					if (ImGui::Checkbox("##Enable", &enable))
+					bool enabled = componentLock->GetEnabled();
+					if (ImGui::Checkbox("##Enabled", &enabled))
 					{
-						componentLock->SetEnableSelf(enable);
+						componentLock->SetEnabled(enabled);
 					}
 
-					ImGui::BeginDisabled(enable == false);
+					ImGui::BeginDisabled(enabled == false);
 
 					bool opened = (collapsed == false);
 					ImGui::SameLine();

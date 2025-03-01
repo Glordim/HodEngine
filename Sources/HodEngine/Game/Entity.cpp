@@ -79,6 +79,7 @@ namespace hod::game
 			{
 				_active = _activeSelf;
 
+				/* TODO
 				for (std::shared_ptr<Component> component : _components)
 				{
 					component->RefreshEnabled();
@@ -89,6 +90,7 @@ namespace hod::game
 					std::shared_ptr<Entity> entity = child.Lock();
 					entity->NotifyActivationChanged();
 				}
+				*/
 			}
 		}
 	}

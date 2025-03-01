@@ -2,12 +2,8 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
-#include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
 #include <memory>
-#include <functional>
-
-#include "HodEngine/Core/Type.hpp"
-#include "HodEngine/Core/UID.hpp"
+#include <atomic>
 
 namespace hod::game
 {
@@ -24,46 +20,63 @@ namespace hod::game
 
 	public:
 
-		uint64_t				GetInstanceId() const { return _instanceId; }
-		uint64_t				GetLocalId() const { return _localId; }
-		void					SetLocalId(uint64_t localId) { _localId = localId; }
+		enum class InternalState : uint8_t
+		{
+			None,
+			Constructed,
+			Awaked,
+			Started,
+			Destructed,
+		};
 
+	public:
+
+		uint64_t				GetInstanceId() const;
+
+		uint64_t				GetLocalId() const;
+		void					SetLocalId(uint64_t localId);
+
+		std::shared_ptr<Entity>	GetOwner() const;
+
+		void					SetEnabled(bool enabled);
+		bool					GetEnabled() const;
+		bool					IsEnabledInHierarchy() const;
+
+		virtual void			OnConstruct();
+		virtual void			OnAwake();
+		virtual void			OnEnable();
+		virtual void			OnStart();
+		virtual void			OnUpdate();
+		virtual void			OnDisable();
+		virtual void			OnDestruct();
+
+		// TODO Remove
 		void					SetEntity(const std::shared_ptr<Entity>& entity);
 		std::shared_ptr<Entity>	GetEntity() const;
-
-		void					SetEnableSelf(bool enableSelf);
-		bool					GetEnableSelf() const;
-		bool					IsEnabled() const;
-
-		virtual void		OnAwake() {};
-		virtual void		OnStart() {};
-		virtual void		OnEnable() {};
-		virtual void		OnDisable() {};
-		virtual void		OnUpdate() {};
+		//
 
 	protected:
 
-							Component();
-							Component(const Component&) = delete;
-							Component(Component&&) = delete;
-		virtual				~Component() = default;
+								Component();
+								Component(const Component&) = delete;
+								Component(Component&&) = delete;
+		virtual					~Component() = default;
 
-		void				operator=(const Component&) = delete;
-		void				operator=(Component&&) = delete;
-
-		virtual void		OnConstruct() {};
+		void					operator=(const Component&) = delete;
+		void					operator=(Component&&) = delete;
 
 	private:
 
-		void				RefreshEnabled();
+		void					AttachTo(const std::shared_ptr<Entity>& entity);
 
-	private:
+		InternalState			GetInternalState() const;
 
-		void				Construct() { OnConstruct(); };
-
-	private:
-
-		static uint64_t			_nextInstanceId; // todo std::atomic ?
+		void					Construct();
+		void					Awake();
+		void					Enable();
+		void					Start();
+		void					Disable();
+		void					Destruct();
 
 	private:
 
@@ -72,10 +85,13 @@ namespace hod::game
 
 		std::weak_ptr<Entity>	_entity;
 
-		bool					_awaked = false;
-		bool					_started = false;
+		InternalState			_internalState = InternalState::None;
 
-		bool					_enabled = false;
-		bool					_enabledSelf = true;
+		bool					_enabled = true;
+		bool					_enabledInHierarchy = false;
+
+	private:
+
+		static std::atomic<uint64_t> _nextInstanceId;
 	};
 }

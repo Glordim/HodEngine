@@ -7,7 +7,7 @@
 
 namespace hod::game
 {
-	uint64_t Component::_nextInstanceId = 0;
+	std::atomic<uint64_t> Component::_nextInstanceId = 0;
 
 	DESCRIBE_REFLECTED_CLASS(Component, reflectionDescriptor)
 	{
@@ -16,80 +16,193 @@ namespace hod::game
 		instanceIdProperty->AddTrait<ReflectionTraitHide>();
 
 		AddPropertyT(reflectionDescriptor, &Component::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Component::_enabledSelf, "_enabledSelf")->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(reflectionDescriptor, &Component::_enabled, "_enabled")->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 
 	Component::Component()
 	{
-		++_nextInstanceId;
-		_instanceId = _nextInstanceId;
+		_instanceId = _nextInstanceId.fetch_add(1);
+	}
+
+	/// @brief 
+	/// @return 
+	uint64_t Component::GetInstanceId() const
+	{
+		return _instanceId;
+	}
+
+	/// @brief 
+	/// @return 
+	uint64_t Component::GetLocalId() const
+	{
+		return _localId;
+	}
+
+	/// @brief 
+	/// @param localId 
+	void Component::SetLocalId(uint64_t localId)
+	{
+		_localId = localId;
+	}
+
+	/// @brief 
+	/// @return 
+	std::shared_ptr<Entity> Component::GetOwner() const
+	{
+		return _entity.lock();
+	}
+
+	/// @brief 
+	/// @param entity 
+	void Component::AttachTo(const std::shared_ptr<Entity>& entity)
+	{
+		_entity = entity;
 	}
 
 	/// @brief 
 	/// @param entity 
 	void Component::SetEntity(const std::shared_ptr<Entity>& entity)
 	{
-		_entity = entity;
+		AttachTo(entity);
 	}
 
 	/// @brief 
 	/// @return 
 	std::shared_ptr<Entity> Component::GetEntity() const
 	{
-		return _entity.lock();
+		return GetOwner();
 	}
 
 	/// @brief 
 	/// @param enable 
-	void Component::SetEnableSelf(bool enableSelf)
+	void Component::SetEnabled(bool enabled)
 	{
-		if (_enabledSelf != enableSelf)
+		if (_enabled != enabled)
 		{
-			_enabledSelf = enableSelf;
-			RefreshEnabled();
+			_enabled = enabled;
+			if (_internalState == InternalState::Started && _enabled != _enabledInHierarchy && GetEntity()->IsActive())
+			{
+				if (_enabled)
+				{
+					Enable();
+				}
+				else
+				{
+					Disable();
+				}
+			}
 		}
 	}
 
 	/// @brief 
 	/// @return 
-	bool Component::GetEnableSelf() const
-	{
-		return _enabledSelf;
-	}
-
-	/// @brief 
-	/// @return 
-	bool Component::IsEnabled() const
+	bool Component::GetEnabled() const
 	{
 		return _enabled;
 	}
 
 	/// @brief 
-	void Component::RefreshEnabled()
+	/// @return 
+	bool Component::IsEnabledInHierarchy() const
 	{
-		bool enabled = _enabledSelf && GetEntity()->IsActive();
-		if (_enabled != enabled)
-		{
-			_enabled = enabled;
-			if (_enabled == true)
-			{
-				if (_awaked == false)
-				{
-					_awaked = true;
-					OnAwake();
-				}
-				if (_started == false)
-				{
-					_started = true;
-					OnStart();
-				}
-				OnEnable();
-			}
-			else
-			{
-				OnDisable();
-			}
-		}
+		return _enabledInHierarchy;
+	}
+
+	/// @brief 
+	/// @return 
+	Component::InternalState Component::GetInternalState() const
+	{
+		return _internalState;
+	}
+
+	/// @brief 
+	void Component::Construct()
+	{
+		assert(_internalState == InternalState::None);
+		_internalState = InternalState::Constructed;
+		OnConstruct();
+	}
+
+	/// @brief 
+	void Component::Awake()
+	{
+		assert(_internalState == InternalState::Constructed);
+		_internalState = InternalState::Awaked;
+		OnAwake();
+	}
+
+	/// @brief 
+	void Component::Enable()
+	{
+		assert(_enabled == true && (_internalState == InternalState::Awaked || _internalState == InternalState::Started));
+		_enabledInHierarchy = true;
+		OnEnable();
+	}
+
+	/// @brief 
+	void Component::Start()
+	{
+		assert(_internalState == InternalState::Awaked);
+		_internalState = InternalState::Started;
+		OnStart();
+	}
+
+	/// @brief 
+	void Component::Disable()
+	{
+		assert(_internalState == InternalState::Started);
+		_enabledInHierarchy = false;
+		OnDisable();
+	}
+
+	/// @brief 
+	void Component::Destruct()
+	{
+		assert(_internalState == InternalState::Constructed || _internalState == InternalState::Started);
+		_internalState = InternalState::Destructed;
+		OnDestruct();
+	}
+
+	/// @brief 
+	void Component::OnConstruct()
+	{
+
+	}
+
+	/// @brief 
+	void Component::OnAwake()
+	{
+
+	}
+
+	/// @brief 
+	void Component::OnEnable()
+	{
+
+	}
+
+	/// @brief 
+	void Component::OnStart()
+	{
+
+	}
+
+	/// @brief 
+	void Component::OnUpdate()
+	{
+
+	}
+
+	/// @brief 
+	void Component::OnDisable()
+	{
+
+	}
+
+	/// @brief 
+	void Component::OnDestruct()
+	{
+
 	}
 }

@@ -38,8 +38,6 @@ namespace hod::game
 		virtual void			ComputeLocalMatrix(Matrix4& localMatrix) { localMatrix = Matrix4::Identity; }
 		void					SetLocalMatrixDirty();
 
-		void					OnConstruct() override;
-
 	private:
 
 		void					ComputeWorldMatrix(const Matrix4& parentMatrix);
