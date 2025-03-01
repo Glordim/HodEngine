@@ -50,14 +50,14 @@ namespace hod::game
 	/// @return 
 	std::shared_ptr<Entity> Component::GetOwner() const
 	{
-		return _entity.lock();
+		return _owner.lock();
 	}
 
 	/// @brief 
-	/// @param entity 
-	void Component::AttachTo(const std::shared_ptr<Entity>& entity)
+	/// @param owner 
+	void Component::AttachTo(const std::shared_ptr<Entity>& owner)
 	{
-		_entity = entity;
+		_owner = owner;
 	}
 
 	/// @brief 

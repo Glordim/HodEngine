@@ -67,7 +67,7 @@ namespace hod::game
 
 	private:
 
-		void					AttachTo(const std::shared_ptr<Entity>& entity);
+		void					AttachTo(const std::shared_ptr<Entity>& owner);
 
 		InternalState			GetInternalState() const;
 
@@ -83,7 +83,7 @@ namespace hod::game
 		uint64_t				_instanceId = 0;
 		uint64_t				_localId = 0;
 
-		std::weak_ptr<Entity>	_entity;
+		std::weak_ptr<Entity>	_owner;
 
 		InternalState			_internalState = InternalState::None;
 
