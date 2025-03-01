@@ -50,6 +50,10 @@ message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_
 set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
 set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/${LIB_SUB_FOLDER}/${LIB_PREFIX}box2d.${LIB_EXTENSION})
 
+if (WIN32)
+add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
 ExternalProject_Add(box2d
   URL https://github.com/erincatto/box2d/archive/28adacf82377d4113f2ed00586141463244b9d10.zip
   DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
@@ -66,7 +70,6 @@ ExternalProject_Add(box2d
     -DANDROID_ABI=${ANDROID_ABI}
     -DANDROID_PLATFORM=${ANDROID_PLATFORM}
     -DCMAKE_BUILD_TYPE=Release
-    -DCMAKE_UNITY_BUILD=ON
     -G ${CMAKE_GENERATOR}
   BUILD_COMMAND 
     ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release --parallel

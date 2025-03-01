@@ -15,6 +15,8 @@ namespace hod::editor
 	{
 		REFLECTED_CLASS_NO_PARENT(MaterialAsset)
 
+		virtual ~MaterialAsset() = default;
+
 		WeakResource<renderer::ShaderResource>	_vertexShader;
 		WeakResource<renderer::ShaderResource>	_fragmentShader;
 

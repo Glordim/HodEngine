@@ -258,7 +258,7 @@ namespace hod::game
 				if (targetNode != nullptr)
 				{
 					PrefabUtility::EntityDiffs::Diff::Type type = static_cast<PrefabUtility::EntityDiffs::Diff::Type>(typeNode->GetInt64());
-					uint64_t localId = targetNode->GetChild("LocalId")->GetUInt64();
+					//uint64_t localId = targetNode->GetChild("LocalId")->GetUInt64();
 					
 					const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
 					if (modificationsNode != nullptr)

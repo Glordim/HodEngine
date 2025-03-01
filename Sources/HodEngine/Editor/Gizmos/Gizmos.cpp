@@ -34,7 +34,6 @@ namespace hod::editor
 		Color mousePickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
 		uint32_t mousePickingId = renderer::PickingManager::ConvertColorToId(mousePickingColor);
 
-		Vector2 moveOffset;
 		bool hover = (mousePickingId == pickingId);
 
 		if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])

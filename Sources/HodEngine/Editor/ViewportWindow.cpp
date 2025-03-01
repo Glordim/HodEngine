@@ -345,7 +345,7 @@ namespace hod::editor
 
 		if (_renderTarget->IsValid() == true)
 		{
-			ImVec2 origin = ImGui::GetCursorScreenPos();
+			//ImVec2 origin = ImGui::GetCursorScreenPos();
 
 			_renderQueue.Prepare(_renderTarget, _pickingRenderTarget);
 

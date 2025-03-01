@@ -15,6 +15,8 @@ namespace hod::editor
 	{
 		REFLECTED_CLASS_NO_PARENT(MaterialInstanceAsset)
 
+		virtual ~MaterialInstanceAsset() = default;
+
 		WeakResource<renderer::MaterialResource>	_material;
 		Document									_params;
 	};

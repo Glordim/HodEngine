@@ -295,7 +295,6 @@ namespace hod::physics
 	/// @param context 
 	void DebugDrawerBox2d::DrawTransform(b2Transform transform, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
 	}
 
 	/// @brief 
@@ -322,6 +321,5 @@ namespace hod::physics
 	/// @param context 
 	void DebugDrawerBox2d::DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
 	}
 }

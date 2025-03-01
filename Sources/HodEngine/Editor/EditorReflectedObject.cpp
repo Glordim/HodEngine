@@ -12,17 +12,17 @@
 namespace hod::editor
 {
 	EditorReflectedObject::EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source)
-	: _instances({ instance })
+	: _sourceInstance(source)
+	, _instances({ instance })
 	, _reflectionDescriptor(reflectionDescriptor)
-	, _sourceInstance(source)
 	{
 		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
 	}
 
 	EditorReflectedObject::EditorReflectedObject(const std::vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source)
-	: _instances(instances)
+	: _sourceInstance(source)
+	, _instances(instances)
 	, _reflectionDescriptor(reflectionDescriptor)
-	, _sourceInstance(source)
 	{
 		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
 	}

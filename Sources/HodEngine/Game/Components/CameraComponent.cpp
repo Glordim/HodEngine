@@ -89,8 +89,6 @@ namespace hod::game
 	/// @param renderQueue 
 	void CameraComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 	{
-		float size = 5.0f;
-
 		Rect viewport;
 		viewport._position.SetX(0);
 		viewport._position.SetY(0);

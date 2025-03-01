@@ -20,7 +20,7 @@ namespace hod::game
             [](void* instance, const Document::Node& documentNode)
             {
                 WeakEntity* weakEntity = static_cast<WeakEntity*>(instance);
-                uint64_t id;
+                //uint64_t id;
                 //Serializer::Deserialize(id, documentNode);
                 const Document::Node* idNode = documentNode.GetChild("Id");
                 if (idNode != nullptr)

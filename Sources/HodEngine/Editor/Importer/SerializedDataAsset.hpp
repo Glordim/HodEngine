@@ -16,8 +16,9 @@ namespace hod::editor
 
 	public:
 
-		SerializedDataAsset() = default;
-		SerializedDataAsset(game::SerializedData* serializedData);
+				SerializedDataAsset() = default;
+				SerializedDataAsset(game::SerializedData* serializedData);
+		virtual	~SerializedDataAsset() = default;
 
 		game::SerializedData*	GetData();
 

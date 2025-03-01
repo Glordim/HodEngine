@@ -129,9 +129,11 @@ namespace hod::physics
 				*static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdB)),
 			};
 			b2ContactData contactData[10];
-			int count = b2Shape_GetContactData(beginEvent.shapeIdA, contactData, 10);
-			for (b2ContactData& data : contactData)
+			int contactCount = b2Shape_GetContactData(beginEvent.shapeIdA, contactData, 10);
+			for (uint32_t contactIndex = 0; contactIndex < contactCount; ++contactIndex)
 			{
+				b2ContactData& data = contactData[contactIndex];
+
 				if (data.shapeIdA.index1 == beginEvent.shapeIdA.index1 &&
 					data.shapeIdB.index1 == beginEvent.shapeIdB.index1)
 				{
