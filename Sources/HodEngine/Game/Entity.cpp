@@ -13,7 +13,7 @@
 
 namespace hod::game
 {
-	uint64_t Entity::_nextInstanceId = 0;
+	std::atomic<uint64_t> Entity::_nextInstanceId = 0;
 
 	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
 	{
@@ -35,8 +35,28 @@ namespace hod::game
 	Entity::Entity(const std::string_view& name)
 	: _name(name)
 	{
-		++_nextInstanceId;
-		_instanceId = _nextInstanceId;
+		_instanceId = _nextInstanceId.fetch_add(1);
+	}
+
+	/// @brief 
+	/// @return 
+	uint64_t Entity::GetInstanceId() const
+	{
+		return _instanceId;
+	}
+
+	/// @brief 
+	/// @return 
+	uint64_t Entity::GetLocalId() const
+	{
+		return _localId;
+	}
+
+	/// @brief 
+	/// @param localId 
+	void Entity::SetLocalId(uint64_t localId)
+	{
+		_localId = localId;
 	}
 
 	/// @brief 
@@ -251,8 +271,6 @@ namespace hod::game
 	{
 		_components.push_back(component);
 		component->AttachTo(shared_from_this());
-
-		_onAddComponentEvent.Emit(component);
 
 		//awakeAndStart = World::GetInstance()->GetEditorPlaying();
 		

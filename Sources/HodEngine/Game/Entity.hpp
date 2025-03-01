@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <atomic>
 
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Type.hpp"
@@ -30,77 +31,64 @@ namespace hod::game
 
 	public:
 
-						Entity(const std::string_view& name);
-						Entity(const Entity&) = delete;
-						Entity(Entity&&) = delete;
-						~Entity() = default;
+												Entity(const std::string_view& name);
+												Entity(const Entity&) = delete;
+												Entity(Entity&&) = delete;
+												~Entity() = default;
 
-		const Entity&	operator = (const Entity&) = delete;
-		const Entity&	operator = (Entity&&) = delete;
+		const Entity&							operator = (const Entity&) = delete;
+		const Entity&							operator = (Entity&&) = delete;
 
 	public:
 
-		uint32_t							GetChildCount() const;
-		const WeakEntity&					GetChild(uint32_t index);
+		uint32_t								GetChildCount() const;
+		const WeakEntity&						GetChild(uint32_t index);
 
-		uint32_t							GetSiblingIndex() const;
-		void								SetSiblingIndex(uint32_t index);
+		void									SetSiblingIndex(uint32_t index);
+		uint32_t								GetSiblingIndex() const;
 
-		const WeakEntity&					GetParent() const;
-		void								SetParent(const WeakEntity& parent);
+		void									SetParent(const WeakEntity& parent);
+		const WeakEntity&						GetParent() const;
 
-		uint64_t				GetInstanceId() const { return _instanceId; }
-		uint64_t				GetLocalId() const { return _localId; }
-		void					SetLocalId(uint64_t localId) { _localId = localId; }
+		void									SetName(const std::string_view& name);
+		const std::string&						GetName() const;
 
-		const std::string&	GetName() const;
-		void				SetName(const std::string_view& name);
-		bool				GetActiveSelf() const;
-		void				SetActiveSelf(bool activeSelf);
-		bool				IsActive() const;
+		void									SetActiveSelf(bool activeSelf);
+		bool									GetActiveSelf() const;
+		bool									IsActive() const;
 
-		void				Awake();
-		void				Start();
-		void				OnEnable();
-		void				OnDisable();
+		void									Awake();
+		void									Start();
+		void									OnEnable();
+		void									OnDisable();
 
-		std::vector<std::weak_ptr<game::Component>>	GetComponents() const;
+		std::vector<std::weak_ptr<Component>>	GetComponents() const;
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>	GetComponent();
-		std::shared_ptr<Component>		GetComponent(const ReflectionDescriptor& descriptor);
+		std::shared_ptr<_Component_>			GetComponent();
+		std::shared_ptr<Component>				GetComponent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>	GetComponentInParent();
-		std::shared_ptr<Component>		GetComponentInParent(const ReflectionDescriptor& descriptor);
+		std::shared_ptr<_Component_>			GetComponentInParent();
+		std::shared_ptr<Component>				GetComponentInParent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>	AddComponent(bool awakeAndStart = true);
-		std::shared_ptr<Component>		AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart = true);
+		std::shared_ptr<_Component_>			AddComponent(bool awakeAndStart = true);
+		std::shared_ptr<Component>				AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart = true);
 
 		template<typename _Component_>
-		void						RemoveComponent();
-		void						RemoveComponent(const ReflectionDescriptor& descriptor);
-		void						RemoveComponent(std::shared_ptr<Component> component);
+		void									RemoveComponent();
+		void									RemoveComponent(const ReflectionDescriptor& descriptor);
+		void									RemoveComponent(std::shared_ptr<Component> component);
 
-		Event<std::shared_ptr<Component>>&	GetAddComponentEvent() { return _onAddComponentEvent; }
-		Event<std::shared_ptr<Component>>&	GetRemoveComponentEvent() { return _onRemoveComponentEvent; }
+		void									SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource);
+		std::shared_ptr<PrefabResource>			GetPrefabResource() const;
 
-		void							SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource);
-		std::shared_ptr<PrefabResource>	GetPrefabResource() const;
+		uint64_t								GetInstanceId() const;
+		uint64_t								GetLocalId() const;
+		void									SetLocalId(uint64_t localId);
 
 	private:
-
-		std::shared_ptr<Component>	AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
-
-		void						NotifyActivationChanged();
-
-		void						EnableComponents();
-		void						DisableComponents();
-
-	private:
-
-		static uint64_t	_nextInstanceId; // todo std::atomic ?
 
 		enum class State : uint8_t
 		{
@@ -112,24 +100,34 @@ namespace hod::game
 
 	private:
 
-		uint64_t		_instanceId = 0;
-		uint64_t		_localId = 0;
+		std::shared_ptr<Component>				AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
 
-		std::string		_name;
-		bool			_activeSelf = false;
-		bool			_active = false;
+		void									NotifyActivationChanged();
 
-		State			_state = State::Created;
+		void									EnableComponents();
+		void									DisableComponents();
 
-		std::shared_ptr<PrefabResource> _prefabResource = nullptr;
+	private:
 
-		std::vector<std::shared_ptr<Component>>	_components; // map ?
+		std::string								_name;
+		bool									_activeSelf = false;
+		bool									_active = false;
 
-		Event<std::shared_ptr<Component>>	_onAddComponentEvent;
-		Event<std::shared_ptr<Component>>	_onRemoveComponentEvent;
+		State									_state = State::Created;
 
-		std::vector<WeakEntity>				_children;
-		WeakEntity							_parent;
+		std::shared_ptr<PrefabResource>			_prefabResource = nullptr;
+
+		std::vector<std::shared_ptr<Component>>	_components;
+
+		std::vector<WeakEntity>					_children;
+		WeakEntity								_parent;
+
+		uint64_t								_instanceId = 0;
+		uint64_t								_localId = 0;
+
+	private:
+
+		static std::atomic<uint64_t>			_nextInstanceId;
 	};
 }
 
