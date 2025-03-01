@@ -157,7 +157,7 @@ namespace hod::editor
 		std::shared_ptr<game::Entity> selectionLock = Editor::GetInstance()->GetEntitySelection();
 
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
-		if (entityLock->GetChildCount() == 0)
+		if (entityLock->GetChildren().empty())
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
@@ -241,10 +241,9 @@ namespace hod::editor
 
 		if (opened == true)
 		{
-			uint32_t childCount = entityLock->GetChildCount();
-			for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
+			for (const game::WeakEntity& child : entityLock->GetChildren())
 			{
-				std::shared_ptr<game::Entity> childEntity = entityLock->GetChild(childIndex).Lock();
+				std::shared_ptr<game::Entity> childEntity = child.Lock();
 				if (childEntity != nullptr)
 				{
 					DrawEntity(childEntity);

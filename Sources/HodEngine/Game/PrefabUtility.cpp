@@ -162,10 +162,9 @@ namespace hod::game::PrefabUtility
 
 			bool childFound = false;
 
-			uint32_t childCount = parent->GetChildCount();
-			for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
+			for (const WeakEntity& weakChild : parent->GetChildren())
 			{
-				std::shared_ptr<game::Entity> child = parent->GetChild(childIndex).Lock();
+				std::shared_ptr<game::Entity> child = weakChild.Lock();
 				if (child->GetName() == name)
 				{
 					parent = child;

@@ -78,27 +78,23 @@ namespace hod::game
 
 			Document::Node& componentsNode = entityNode.AddChild("Components");
 
-			const std::vector<std::weak_ptr<Component>> components =  entity->GetComponents();
-			for (const std::weak_ptr<Component>& component : components)
+			for (std::shared_ptr<Component> component : entity->GetComponents())
 			{
-				std::shared_ptr<Component> componentLock = component.lock();
-
 				Document::Node& componentNode = componentsNode.AddChild("");
-				componentNode.AddChild("MetaType").SetUInt64(componentLock->GetMetaType());
-				if (componentLock->GetLocalId() == 0)
+				componentNode.AddChild("MetaType").SetUInt64(component->GetMetaType());
+				if (component->GetLocalId() == 0)
 				{
-					componentLock->SetLocalId(nextLocalId);
+					component->SetLocalId(nextLocalId);
 					++nextLocalId;
 				}
-				Serializer::Serialize(componentLock.get(), componentNode);
+				Serializer::Serialize(component.get(), componentNode);
 			}
 
 			if (withChildren)
 			{
-				uint32_t childCount = entity->GetChildCount();
-				for (uint32_t childIndex = 0; childIndex < childCount; ++childIndex)
+				for (const WeakEntity& child : entity->GetChildren())
 				{
-					if (SceneSerializer::SerializeEntity(entity->GetChild(childIndex).Lock(), true, entitiesNode, nextLocalId) == false)
+					if (SceneSerializer::SerializeEntity(child.Lock(), true, entitiesNode, nextLocalId) == false)
 					{
 						return false;
 					}
@@ -200,7 +196,7 @@ namespace hod::game
 			if (it != componentFactory->GetAllDescriptors().end())
 			{
 				const ReflectionDescriptor& componentDescriptor = *it->second;
-				std::shared_ptr<Component> component = entity->AddComponent(componentDescriptor, false);
+				std::shared_ptr<Component> component = entity->AddComponent(componentDescriptor);
 				Serializer::Deserialize(componentDescriptor, component.get(), *componentNode); // todo lvalue...
 
 				if (_contextualComponentMap.try_emplace(component->GetLocalId(), component).second == false)

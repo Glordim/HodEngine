@@ -22,10 +22,10 @@ namespace hod::game
 	}
 
 	template<typename _Component_>
-	std::shared_ptr<_Component_> Entity::AddComponent(bool awakeAndStart)
+	std::shared_ptr<_Component_> Entity::AddComponent()
 	{
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use AddComponent()");
-		return std::static_pointer_cast<_Component_>(AddComponent(_Component_::GetReflectionDescriptor(), awakeAndStart));
+		return std::static_pointer_cast<_Component_>(AddComponent(_Component_::GetReflectionDescriptor()));
 	}
 
 	template<typename _Component_>

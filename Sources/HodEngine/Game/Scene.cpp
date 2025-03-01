@@ -170,19 +170,11 @@ namespace hod::game
 	/// @brief 
 	void Scene::Awake()
 	{
-		for (const auto& entity : _entities)
-		{
-			entity.second->Awake();
-		}
 	}
 
 	///
 	void Scene::Start()
 	{
-		for (const auto& entity : _entities)
-		{
-			entity.second->Start();
-		}
 	}
 
 	/// @brief 

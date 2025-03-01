@@ -24,6 +24,7 @@ namespace hod::game
 {
 	class Component;
 	class PrefabResource;
+	class Scene;
 
 	class HOD_GAME_API Entity final : public std::enable_shared_from_this<Entity>
 	{
@@ -31,62 +32,61 @@ namespace hod::game
 
 	public:
 
-												Entity(const std::string_view& name);
-												Entity(const Entity&) = delete;
-												Entity(Entity&&) = delete;
-												~Entity() = default;
+														Entity(const std::string_view& name);
+														Entity(const Entity&) = delete;
+														Entity(Entity&&) = delete;
+														~Entity() = default;
 
-		const Entity&							operator = (const Entity&) = delete;
-		const Entity&							operator = (Entity&&) = delete;
+		const Entity&									operator = (const Entity&) = delete;
+		const Entity&									operator = (Entity&&) = delete;
 
 	public:
 
-		uint32_t								GetChildCount() const;
-		const WeakEntity&						GetChild(uint32_t index);
+		void											SetName(const std::string_view& name);
+		const std::string&								GetName() const;
 
-		void									SetSiblingIndex(uint32_t index);
-		uint32_t								GetSiblingIndex() const;
+		void											SetActive(bool active);
+		bool											GetActive() const;
+		bool											IsActiveInHierarchy() const;
 
-		void									SetParent(const WeakEntity& parent);
-		const WeakEntity&						GetParent() const;
+		// Hierarchy
+		void											SetParent(const WeakEntity& parent);
+		const WeakEntity&								GetParent() const;
 
-		void									SetName(const std::string_view& name);
-		const std::string&						GetName() const;
+		const std::vector<WeakEntity>&					GetChildren() const;
 
-		void									SetActive(bool active);
-		bool									GetActive() const;
-		bool									IsActiveInHierarchy() const;
+		void											SetSiblingIndex(uint32_t index);
+		uint32_t										GetSiblingIndex() const;
 
-		void									Awake();
-		void									Start();
-		void									OnEnable();
-		void									OnDisable();
-
-		std::vector<std::weak_ptr<Component>>	GetComponents() const;
+		// Components
+		const std::vector<std::shared_ptr<Component>>&	GetComponents() const;
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>			GetComponent();
-		std::shared_ptr<Component>				GetComponent(const ReflectionDescriptor& descriptor);
+		std::shared_ptr<_Component_>					GetComponent();
+		std::shared_ptr<Component>						GetComponent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>			GetComponentInParent();
-		std::shared_ptr<Component>				GetComponentInParent(const ReflectionDescriptor& descriptor);
+		std::shared_ptr<_Component_>					GetComponentInParent();
+		std::shared_ptr<Component>						GetComponentInParent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>			AddComponent(bool awakeAndStart = true);
-		std::shared_ptr<Component>				AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart = true);
+		std::shared_ptr<_Component_>					AddComponent();
+		std::shared_ptr<Component>						AddComponent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		void									RemoveComponent();
-		void									RemoveComponent(const ReflectionDescriptor& descriptor);
-		void									RemoveComponent(std::shared_ptr<Component> component);
+		void											RemoveComponent();
+		void											RemoveComponent(const ReflectionDescriptor& descriptor);
+		void											RemoveComponent(std::shared_ptr<Component> component);
 
-		void									SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource);
-		std::shared_ptr<PrefabResource>			GetPrefabResource() const;
+		// Serialization
+		void											SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource); // TODO move in private ?
+		std::shared_ptr<PrefabResource>					GetPrefabResource() const;
 
-		uint64_t								GetInstanceId() const;
-		uint64_t								GetLocalId() const;
-		void									SetLocalId(uint64_t localId);
+		Scene*											GetScene() const;
+
+		uint64_t										GetInstanceId() const;
+		uint64_t										GetLocalId() const;
+		void											SetLocalId(uint64_t localId); // TODO move in private ?
 
 	private:
 
@@ -100,35 +100,37 @@ namespace hod::game
 
 	private:
 
-		std::shared_ptr<Component>				AddComponent(std::shared_ptr<Component> instance, bool awakeAndStart);
+		std::shared_ptr<Component>						AddComponent(std::shared_ptr<Component> instance);
 
-		void									NotifyActivationChanged();
+		void											NotifyActivationChanged();
 
-		void									EnableComponents();
-		void									DisableComponents();
-
-	private:
-
-		std::string								_name;
-		
-		bool									_active = false;
-		bool									_activeInHierarchy = false;
-
-		State									_state = State::Created;
-
-		std::shared_ptr<PrefabResource>			_prefabResource = nullptr;
-
-		std::vector<std::shared_ptr<Component>>	_components;
-
-		std::vector<WeakEntity>					_children;
-		WeakEntity								_parent;
-
-		uint64_t								_instanceId = 0;
-		uint64_t								_localId = 0;
+		void											EnableComponents();
+		void											DisableComponents();
 
 	private:
 
-		static std::atomic<uint64_t>			_nextInstanceId;
+		std::string										_name;
+
+		bool											_active = false;
+		bool											_activeInHierarchy = false;
+
+		State											_state = State::Created;
+
+		std::shared_ptr<PrefabResource>					_prefabResource = nullptr;
+
+		std::vector<std::shared_ptr<Component>>			_components;
+
+		std::vector<WeakEntity>							_children;
+		WeakEntity										_parent;
+
+		Scene*											_scene = nullptr; // TODO never set !!!
+
+		uint64_t										_instanceId = 0;
+		uint64_t										_localId = 0;
+
+	private:
+
+		static std::atomic<uint64_t>					_nextInstanceId;
 	};
 }
 

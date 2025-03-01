@@ -170,11 +170,9 @@ namespace hod::editor
 			Editor::GetInstance()->MarkCurrentSceneAsDirty();
 		}
 
-		std::vector<std::weak_ptr<game::Component>> components = selection->GetComponents();
-		for (const std::weak_ptr<game::Component>& component : components)
+		for (std::shared_ptr<game::Component> component : selection->GetComponents())
 		{
-			std::shared_ptr<game::Component> componentLock = component.lock();
-			if (componentLock != nullptr)
+			if (component != nullptr)
 			{
 				/*
 				bool hasOverride = false;
@@ -195,7 +193,7 @@ namespace hod::editor
 				*/
 				//bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 
-				ImGui::PushID(componentLock->GetMetaTypeName());
+				ImGui::PushID(component->GetMetaTypeName());
 				if (ImGui::BeginChild("Component", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Border))
 				{
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -239,10 +237,10 @@ namespace hod::editor
 					ImGui::PopStyleColor(4);
 
 					ImGui::SameLine();
-					bool enabled = componentLock->GetEnabled();
+					bool enabled = component->GetEnabled();
 					if (ImGui::Checkbox("##Enabled", &enabled))
 					{
-						componentLock->SetEnabled(enabled);
+						component->SetEnabled(enabled);
 					}
 
 					ImGui::BeginDisabled(enabled == false);
@@ -253,7 +251,7 @@ namespace hod::editor
 					ImGui::TextUnformatted(ICON_MDI_PUZZLE);
 					ImGui::SameLine();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(componentLock->GetReflectionDescriptorV().GetDisplayName().c_str());
+					ImGui::TextUnformatted(component->GetReflectionDescriptorV().GetDisplayName().c_str());
 
 					ImGui::EndDisabled();
 
@@ -282,7 +280,7 @@ namespace hod::editor
 					ImGui::PopStyleColor(4);
 					if (mustBeDelete)
 					{
-						selection->RemoveComponent(componentLock);
+						selection->RemoveComponent(component);
 						Editor::GetInstance()->MarkCurrentSceneAsDirty();
 					}
 
@@ -313,11 +311,11 @@ namespace hod::editor
 					{
 						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
 
-						std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(componentLock);
-						EditorReflectedObject reflectedObject(componentLock.get(), &componentLock->GetReflectionDescriptorV(), sourceComponent.get());
+						std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
+						EditorReflectedObject reflectedObject(component.get(), &component->GetReflectionDescriptorV(), sourceComponent.get());
 
 						bool changed = false;
-						ReflectionDescriptor& reflectionDescriptor = componentLock->GetReflectionDescriptorV();
+						ReflectionDescriptor& reflectionDescriptor = component->GetReflectionDescriptorV();
 						ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor.FindTrait<ReflectionTraitComponentCustomEditor>();
 						if (componentCustomEditorTrait != nullptr)
 						{
@@ -391,7 +389,7 @@ namespace hod::editor
 					{
 						if (ImGui::MenuItem(displayName.c_str()) == true)
 						{
-							selection->AddComponent(componentDescriptor, Editor::GetInstance()->IsPlaying());
+							selection->AddComponent(componentDescriptor);
 							Editor::GetInstance()->MarkCurrentSceneAsDirty();
 							ImGui::CloseCurrentPopup();
 						}

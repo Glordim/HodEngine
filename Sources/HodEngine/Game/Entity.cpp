@@ -121,99 +121,11 @@ namespace hod::game
 
 	}
 
-	void Entity::Awake()
-	{
-		if (World::GetInstance()->GetEditorPlaying() == false)
-		{
-			return;
-		}
-
-		/*
-		if (_awaked == false)
-		{
-			_awaked = true;
-
-			for (std::weak_ptr<Component> component : _components)
-			{
-				component.lock()->OnAwake();
-			}
-		}
-			*/
-	}
-
-	void Entity::Start()
-	{
-		if (World::GetInstance()->GetEditorPlaying() == false)
-		{
-			return;
-		}
-
-			/*
-		if (_started == false)
-		{
-			_started = true;
-
-			for (std::weak_ptr<Component> component : _components)
-			{
-				component.lock()->OnStart();
-			}
-		}
-			*/
-	}
-
-	void Entity::OnEnable()
-	 {
-		if (World::GetInstance()->GetEditorPlaying() == false)
-		{
-			return;
-		}
-
-		/*
-		if (_started == false)
-		{
-			_started = true;
-
-			for (std::weak_ptr<Component> component : _components)
-			{
-				component.lock()->OnEnable();
-			}
-		}
-			*/
-	}
-
-	void Entity::OnDisable()
-	 {
-		if (World::GetInstance()->GetEditorPlaying() == false)
-		{
-			return;
-		}
-
-		/*
-		if (_started == false)
-		{
-			_started = true;
-
-			for (std::weak_ptr<Component> component : _components)
-			{
-				component.lock()->OnDisable();
-			}
-		}
-			*/
-	}
-
 	/// @brief 
 	/// @return 
-	std::vector<std::weak_ptr<game::Component>> Entity::GetComponents() const
+	const std::vector<std::shared_ptr<Component>>& Entity::GetComponents() const
 	{
-		std::vector<std::weak_ptr<game::Component>> components;
-		components.reserve(_components.size());
- 
-		for (std::weak_ptr<game::Component> component : _components)
-		{
-			components.push_back(component);
-		}
-
-		return components;
+		return _components;
 	}
 
 	/// @brief 
@@ -253,7 +165,7 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::shared_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart)
+	std::shared_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor)
 	{
 		std::shared_ptr<Component> existingComponent = GetComponent(descriptor);
 		if (existingComponent != nullptr)
@@ -261,20 +173,20 @@ namespace hod::game
 			return existingComponent;
 		}
 
-		return AddComponent(std::static_pointer_cast<Component>(descriptor.CreateSharedInstance()), awakeAndStart);
+		return AddComponent(std::static_pointer_cast<Component>(descriptor.CreateSharedInstance()));
 	}
 
 	/// @brief 
 	/// @param component 
 	/// @return 
-	std::shared_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component, bool awakeAndStart)
+	std::shared_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component)
 	{
 		_components.push_back(component);
 		component->AttachTo(shared_from_this());
 
 		//awakeAndStart = World::GetInstance()->GetEditorPlaying();
 		
-		if (_active == true && awakeAndStart == true)
+		if (_active == true)
 		{
 			component->OnAwake();
 			component->OnStart();
@@ -335,17 +247,9 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	uint32_t Entity::GetChildCount() const
+	const std::vector<WeakEntity>& Entity::GetChildren() const
 	{
-		return static_cast<uint32_t>(_children.size());
-	}
-
-	/// @brief 
-	/// @param index 
-	/// @return 
-	const WeakEntity& Entity::GetChild(uint32_t index)
-	{
-		return _children[index];
+		return _children;
 	}
 
 	/// @brief 
@@ -355,9 +259,9 @@ namespace hod::game
 		std::shared_ptr<Entity> parentLock = _parent.Lock();
 		if (parentLock != nullptr)
 		{
-			for (uint32_t index = 0; index < parentLock->GetChildCount(); ++index)
+			for (uint32_t index = 0; index < parentLock->_children.size(); ++index)
 			{
-				if (parentLock->GetChild(index).Lock().get() == this)
+				if (parentLock->_children[index].Lock().get() == this)
 				{
 					return index;
 				}
@@ -433,5 +337,12 @@ namespace hod::game
 	const WeakEntity& Entity::GetParent() const
 	{
 		return _parent;
+	}
+
+	/// @brief 
+	/// @return 
+	Scene* Entity::GetScene() const
+	{
+		return _scene;
 	}
 }
