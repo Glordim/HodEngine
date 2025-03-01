@@ -37,7 +37,7 @@ namespace hod::game
 	/// @return 
 	Matrix4 NodeComponent::GetWorldMatrix()
 	{
-		std::shared_ptr<Entity> parent = GetEntity()->GetParent().Lock();
+		std::shared_ptr<Entity> parent = GetOwner()->GetParent().Lock();
 		if (parent == nullptr)
 		{
 			return GetLocalMatrix();

@@ -187,7 +187,7 @@ namespace hod::game::PrefabUtility
 	/// @return 
 	std::shared_ptr<Component> GetCorrespondingComponent(std::shared_ptr<Component> component)
 	{
-		std::shared_ptr<game::Entity> entity = component->GetEntity();
+		std::shared_ptr<game::Entity> entity = component->GetOwner();
 		if (entity != nullptr)
 		{
 			std::shared_ptr<game::Entity> prefabInstanceEntity = GetPrefabInstance(entity);

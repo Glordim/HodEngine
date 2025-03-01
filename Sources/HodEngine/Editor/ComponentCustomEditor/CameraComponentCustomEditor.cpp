@@ -40,7 +40,7 @@ namespace hod::editor
 		std::shared_ptr<game::CameraComponent> cameraComponent = std::static_pointer_cast<game::CameraComponent>(component);
 		if (cameraComponent != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = cameraComponent->GetEntity()->GetComponent<game::Node2dComponent>();
+			std::shared_ptr<game::Node2dComponent> node2D = cameraComponent->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				cameraComponent->SetAspect((float)viewport.GetPlayRatio().GetX() / (float)viewport.GetPlayRatio().GetY());

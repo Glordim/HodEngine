@@ -96,7 +96,7 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	void TextureRendererComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 	{
-		std::shared_ptr<Entity> entity = GetEntity();
+		std::shared_ptr<Entity> entity = GetOwner();
 		if (entity != nullptr)
 		{
 			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();

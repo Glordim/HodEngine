@@ -49,7 +49,7 @@ namespace hod::editor
 		const char* text = "None";
 		if (value->Lock())
 		{
-			text = value->Lock()->GetEntity()->GetName().c_str();
+			text = value->Lock()->GetOwner()->GetName().c_str();
 		}
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_MAGNIFY).x - CalculateButtonSize(ICON_MDI_CURSOR_POINTER).x - ImGui::GetStyle().ItemSpacing.x * 2);
@@ -106,7 +106,7 @@ namespace hod::editor
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_MDI_CURSOR_POINTER))
 		{
-			Editor::GetInstance()->SetEntitySelection(value->Lock()->GetEntity());
+			Editor::GetInstance()->SetEntitySelection(value->Lock()->GetOwner());
 		}
 		ImGui::EndDisabled();
 

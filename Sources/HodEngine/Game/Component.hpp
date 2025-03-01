@@ -50,11 +50,6 @@ namespace hod::game
 		virtual void			OnDisable();
 		virtual void			OnDestruct();
 
-		// TODO Remove
-		void					SetEntity(const std::shared_ptr<Entity>& entity);
-		std::shared_ptr<Entity>	GetEntity() const;
-		//
-
 	protected:
 
 								Component();

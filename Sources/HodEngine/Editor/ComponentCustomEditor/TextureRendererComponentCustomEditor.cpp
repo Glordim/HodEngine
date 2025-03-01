@@ -40,7 +40,7 @@ namespace hod::editor
 		std::shared_ptr<game::TextureRendererComponent> textureRenderer = std::static_pointer_cast<game::TextureRendererComponent>(component);
 		if (textureRenderer != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = textureRenderer->GetEntity()->GetComponent<game::Node2dComponent>();
+			std::shared_ptr<game::Node2dComponent> node2D = textureRenderer->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Rect bb = textureRenderer->GetBoundingBox();

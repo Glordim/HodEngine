@@ -40,7 +40,7 @@ namespace hod::editor
 		std::shared_ptr<game::BoxCollider2dComponent> boxCollider2d = std::static_pointer_cast<game::BoxCollider2dComponent>(component);
 		if (boxCollider2d != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = boxCollider2d->GetEntity()->GetComponent<game::Node2dComponent>();
+			std::shared_ptr<game::Node2dComponent> node2D = boxCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				std::array<Vector2, 5> vertices = {

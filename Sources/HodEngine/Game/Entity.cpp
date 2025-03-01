@@ -250,7 +250,7 @@ namespace hod::game
 	std::shared_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component, bool awakeAndStart)
 	{
 		_components.push_back(component);
-		component->SetEntity(shared_from_this());
+		component->AttachTo(shared_from_this());
 
 		_onAddComponentEvent.Emit(component);
 

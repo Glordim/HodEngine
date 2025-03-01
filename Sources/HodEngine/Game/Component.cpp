@@ -61,27 +61,13 @@ namespace hod::game
 	}
 
 	/// @brief 
-	/// @param entity 
-	void Component::SetEntity(const std::shared_ptr<Entity>& entity)
-	{
-		AttachTo(entity);
-	}
-
-	/// @brief 
-	/// @return 
-	std::shared_ptr<Entity> Component::GetEntity() const
-	{
-		return GetOwner();
-	}
-
-	/// @brief 
 	/// @param enable 
 	void Component::SetEnabled(bool enabled)
 	{
 		if (_enabled != enabled)
 		{
 			_enabled = enabled;
-			if (_internalState == InternalState::Started && _enabled != _enabledInHierarchy && GetEntity()->IsActive())
+			if (_internalState == InternalState::Started && _enabled != _enabledInHierarchy && GetOwner()->IsActive())
 			{
 				if (_enabled)
 				{

@@ -34,7 +34,7 @@ namespace hod::game
 	/// @brief 
 	void Collider2dComponent::OnStart()
 	{
-		_rigidbody = GetEntity()->GetComponentInParent<Rigidbody2dComponent>();
+		_rigidbody = GetOwner()->GetComponentInParent<Rigidbody2dComponent>();
 	}
 
 	/// @brief 
@@ -48,7 +48,7 @@ namespace hod::game
 	/// @return 
 	Vector2 Collider2dComponent::GetScale() const
 	{
-		std::shared_ptr<Entity> entity = GetEntity();
+		std::shared_ptr<Entity> entity = GetOwner();
 		if (entity != nullptr)
 		{
 			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();

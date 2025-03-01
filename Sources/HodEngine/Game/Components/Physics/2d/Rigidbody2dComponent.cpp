@@ -37,7 +37,7 @@ namespace hod::game
 		_body = physics::Physics::GetInstance()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
 		_body->SetMoveEventCallback([this](const Vector2& position, float rotation)
 		{
-			std::shared_ptr<Entity> entity = GetEntity();
+			std::shared_ptr<Entity> entity = GetOwner();
 			if (entity != nullptr)
 			{
 				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
@@ -76,7 +76,7 @@ namespace hod::game
 		float rotation = 0.0f;
 		Vector2 scale = Vector2::One;
 
-		std::shared_ptr<Entity> entity = GetEntity();
+		std::shared_ptr<Entity> entity = GetOwner();
 		if (entity != nullptr)
 		{
 			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();

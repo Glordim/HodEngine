@@ -41,7 +41,7 @@ namespace hod::editor
 		std::shared_ptr<game::CircleCollider2dComponent> circleCollider2d = std::static_pointer_cast<game::CircleCollider2dComponent>(component);
 		if (circleCollider2d != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = circleCollider2d->GetEntity()->GetComponent<game::Node2dComponent>();
+			std::shared_ptr<game::Node2dComponent> node2D = circleCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Vector2 scale = node2D->GetScale();
@@ -50,7 +50,7 @@ namespace hod::editor
 				GeometryGenerator::CircleShape<64>(vertices, circleCollider2d->GetOffset() * scale, circleCollider2d->GetRadius() * std::max(scale.GetX(), scale.GetY()));
 
 				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
-				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);		
+				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 			}
 		}
 		return false;

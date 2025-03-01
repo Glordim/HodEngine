@@ -102,7 +102,7 @@ namespace hod::game
 		Matrix4 projection = GetProjectionMatrix();
 		Matrix4 view = Matrix4::Identity;
 
-		std::shared_ptr<Entity> entity = GetEntity();
+		std::shared_ptr<Entity> entity = GetOwner();
 		if (entity != nullptr)
 		{
 			std::shared_ptr<NodeComponent> nodeComponent = entity->GetComponent<NodeComponent>();
