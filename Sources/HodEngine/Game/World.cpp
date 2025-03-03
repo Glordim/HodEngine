@@ -242,7 +242,7 @@ namespace hod
 		/// @param renderQueue 
 		void World::Draw(renderer::RenderQueue* renderQueue)
 		{
-			if (_editorPlaying == true)
+			if (_editorPlaying == true && _editorPaused == false)
 			{
 				CameraComponent* camera = CameraComponent::_main;
 				if (camera == nullptr)

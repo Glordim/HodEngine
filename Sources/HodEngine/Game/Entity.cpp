@@ -174,6 +174,7 @@ namespace hod::game
 
 		if (_activeInHierarchy == true)
 		{
+			component->Construct();
 			component->Awake();
 			component->Enable();
 			component->Start();

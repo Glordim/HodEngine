@@ -141,6 +141,11 @@ namespace hod::game
 	/// @param entity 
 	void Scene::DestroyEntity(std::shared_ptr<Entity> entity)
 	{
+		while (entity->GetChildren().empty() == false)
+		{
+			DestroyEntity(entity->GetChildren()[0].Lock());
+		}
+
 		entity->SetParent(WeakEntity(nullptr));
 
 		auto it = _entities.find(entity->GetInstanceId());

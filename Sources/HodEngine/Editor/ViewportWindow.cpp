@@ -324,7 +324,7 @@ namespace hod::editor
 		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
 		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
 
-		if (Editor::GetInstance()->IsPlaying() == true)
+		if (Editor::GetInstance()->IsPlaying() == true && Editor::GetInstance()->IsPaused() == false)
 		{
 			resolutionWidth = static_cast<uint32_t>(static_cast<float>(resolutionHeight) * (_playRatio.GetX() / _playRatio.GetY()));
 		}
@@ -349,7 +349,7 @@ namespace hod::editor
 
 			_renderQueue.Prepare(_renderTarget, _pickingRenderTarget);
 
-			if (Editor::GetInstance()->IsPlaying() == false)
+			if (Editor::GetInstance()->IsPlaying() == false || Editor::GetInstance()->IsPaused() == true)
 			{
 				Rect viewport;
 				viewport._position.SetX(0);

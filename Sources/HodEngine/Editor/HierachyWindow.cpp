@@ -177,6 +177,13 @@ namespace hod::editor
 		ImGui::PopStyleVar();
 		ImGui::PopID();
 
+		if (ImGui::BeginItemTooltip())
+		{
+			std::string_view internalStateLabel = EnumTrait::ToString(entityLock->GetInternalState());
+			ImGui::Text("InternalState: %.*s", internalStateLabel.size(), internalStateLabel.data());
+			ImGui::EndTooltip();
+		}
+
 		if (ImGui::IsWindowHovered() == true && hovered == true && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
 			Editor::GetInstance()->SetEntitySelection(entityLock);
