@@ -29,6 +29,18 @@ namespace hod::game
 	class HOD_GAME_API Entity final : public std::enable_shared_from_this<Entity>
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Entity);
+		friend class Scene;
+
+	public:
+
+		enum class InternalState : uint8_t
+		{
+			None,
+			Constructed,
+			Awaked,
+			Started,
+			Destructed,
+		};
 
 	public:
 
@@ -82,21 +94,14 @@ namespace hod::game
 		void											SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource); // TODO move in private ?
 		std::shared_ptr<PrefabResource>					GetPrefabResource() const;
 
+		void											SetScene(Scene* scene);
 		Scene*											GetScene() const;
 
 		uint64_t										GetInstanceId() const;
 		uint64_t										GetLocalId() const;
 		void											SetLocalId(uint64_t localId); // TODO move in private ?
 
-	private:
-
-		enum class State : uint8_t
-		{
-			Created,
-			Awaked,
-			Started,
-			Destroyed,
-		};
+		InternalState									GetInternalState() const;
 
 	private:
 
@@ -107,23 +112,30 @@ namespace hod::game
 		void											EnableComponents();
 		void											DisableComponents();
 
+		void											ProcessActivation();
+
+		void											Construct();
+		void											Awake();
+		void											Enable();
+		void											Start();
+		void											Disable();
+		void											Destruct();
+
 	private:
 
 		std::string										_name;
 
 		bool											_active = false;
 		bool											_activeInHierarchy = false;
-
-		State											_state = State::Created;
-
-		std::shared_ptr<PrefabResource>					_prefabResource = nullptr;
-
-		std::vector<std::shared_ptr<Component>>			_components;
+		InternalState									_internalState = InternalState::None;
 
 		std::vector<WeakEntity>							_children;
 		WeakEntity										_parent;
 
+		std::vector<std::shared_ptr<Component>>			_components;
+		
 		Scene*											_scene = nullptr; // TODO never set !!!
+		std::shared_ptr<PrefabResource>					_prefabResource = nullptr;
 
 		uint64_t										_instanceId = 0;
 		uint64_t										_localId = 0;

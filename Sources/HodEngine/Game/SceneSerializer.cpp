@@ -304,24 +304,31 @@ namespace hod::game
 			overrideNode = overrideNode->GetNextSibling();
 		}
 
-		std::shared_ptr<Entity> rootEntity = sceneSerializer._totalEntities[0];
-		rootEntity->SetPrefabResource(prefabResource);
-		rootEntity->SetLocalId(entityNode.GetChild("_localId")->GetUInt64());
-
-		if (_contextualEntityMap.try_emplace(rootEntity->GetLocalId(), rootEntity).second == false)
-		{
-			OUTPUT_ERROR("SceneSerializer::DeserializeEntityPrefab: LocalId already exist !");
-			return false;
-		}
+		std::shared_ptr<Entity> rootEntity = nullptr;
 
 		for (std::shared_ptr<Entity> entity : sceneSerializer._totalEntities)
 		{
-			_totalEntities.push_back(entity);
+			if (rootEntity == nullptr && entity->GetParent().Lock() == nullptr)
+			{
+				rootEntity = entity;
+			}
+			else
+			{
+				_totalEntities.push_back(entity);
+			}
 		}
 
 		for (std::shared_ptr<Component> component : sceneSerializer._totalComponent)
 		{
 			_totalComponent.push_back(component);
+		}
+
+		rootEntity->SetPrefabResource(prefabResource);
+		rootEntity->SetLocalId(entityNode.GetChild("_localId")->GetUInt64());
+		if (_contextualEntityMap.try_emplace(rootEntity->GetLocalId(), rootEntity).second == false)
+		{
+			OUTPUT_ERROR("SceneSerializer::DeserializeEntityPrefab: LocalId already exist !");
+			return false;
 		}
 
 		return true;

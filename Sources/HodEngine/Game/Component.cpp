@@ -121,7 +121,7 @@ namespace hod::game
 	/// @brief 
 	void Component::Enable()
 	{
-		assert(_enabled == true && (_internalState == InternalState::Awaked || _internalState == InternalState::Started));
+		assert(_enabled == true && (_internalState == InternalState::Constructed || _internalState == InternalState::Awaked || _internalState == InternalState::Started)); // todo accept construct only in edit mode
 		_enabledInHierarchy = true;
 		OnEnable();
 	}
@@ -137,7 +137,7 @@ namespace hod::game
 	/// @brief 
 	void Component::Disable()
 	{
-		assert(_internalState == InternalState::Started);
+		assert(_internalState == InternalState::Constructed || _internalState == InternalState::Started); // todo accept construct only in edit mode
 		_enabledInHierarchy = false;
 		OnDisable();
 	}

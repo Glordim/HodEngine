@@ -49,16 +49,6 @@ namespace hod
 						clonedScene.push_back(clone);
 					}
 					_scenes = clonedScene;
-
-					for (Scene* scene : _scenes)
-					{
-						scene->Awake();
-					}
-
-					for (Scene* scene : _scenes)
-					{
-						scene->Start();
-					}
 				}
 			}
 		}
@@ -183,6 +173,8 @@ namespace hod
 				++it;
 			}
 
+			scene->SetWorld(this);
+
 			_scenes.push_back(scene);
 			return true;
 		}
@@ -203,6 +195,8 @@ namespace hod
 				}
 				++it;
 			}
+
+			scene->SetWorld(nullptr);
 
 			// Todo message not found
 			return false;

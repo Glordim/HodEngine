@@ -1,6 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
@@ -83,20 +84,7 @@ namespace hod::game
 
 			if (_activeInHierarchy != _active)
 			{
-				_activeInHierarchy = _active;
-
-				/* TODO
-				for (std::shared_ptr<Component> component : _components)
-				{
-					component->RefreshEnabled();
-				}
-
-				for (const WeakEntity& child : _children)
-				{
-					std::shared_ptr<Entity> entity = child.Lock();
-					entity->NotifyActivationChanged();
-				}
-				*/
+				ProcessActivation();
 			}
 		}
 	}
@@ -184,12 +172,11 @@ namespace hod::game
 		_components.push_back(component);
 		component->AttachTo(shared_from_this());
 
-		//awakeAndStart = World::GetInstance()->GetEditorPlaying();
-		
-		if (_active == true)
+		if (_activeInHierarchy == true)
 		{
-			component->OnAwake();
-			component->OnStart();
+			component->Awake();
+			component->Enable();
+			component->Start();
 		}
 
 		return component;
@@ -340,9 +327,180 @@ namespace hod::game
 	}
 
 	/// @brief 
+	/// @param scene 
+	void Entity::SetScene(Scene* scene)
+	{
+		_scene = scene;
+	}
+
+	/// @brief 
 	/// @return 
 	Scene* Entity::GetScene() const
 	{
 		return _scene;
+	}
+
+	/// @brief 
+	void Entity::ProcessActivation()
+	{
+		if (_internalState == InternalState::None)
+		{
+			Construct();
+		}
+
+		if (_active && (_parent.Lock() == nullptr || _parent.Lock()->IsActiveInHierarchy()))
+		{
+			if (_internalState == InternalState::Constructed && GetScene()->GetWorld()->GetEditorPlaying())
+			{
+				Awake();
+			}
+
+			Enable();
+
+			if (_internalState == InternalState::Awaked && GetScene()->GetWorld()->GetEditorPlaying())
+			{
+				Start();
+			}
+		}
+		else
+		{
+			if (_activeInHierarchy == true)
+			{
+				Disable();
+			}
+		}
+	}
+
+	/// @brief 
+	/// @return 
+	Entity::InternalState Entity::GetInternalState() const
+	{
+		return _internalState;
+	}
+
+	/// @brief 
+	void Entity::Construct()
+	{
+		assert(_internalState == InternalState::None);
+
+		for (const std::shared_ptr<Component>& component : _components)
+		{
+			component->Construct();
+		}
+
+		_internalState = InternalState::Constructed;
+
+		for (const WeakEntity& child : _children)
+		{
+			std::shared_ptr<Entity> childEntity = child.Lock();
+			childEntity->Construct();
+		}
+	}
+
+	/// @brief 
+	void Entity::Awake()
+	{
+		assert(_internalState == InternalState::Constructed && _active == true);
+
+		for (const std::shared_ptr<Component>& component : _components)
+		{
+			component->Awake();
+		}
+
+		_internalState = InternalState::Awaked;
+
+		for (const WeakEntity& child : _children)
+		{
+			std::shared_ptr<Entity> childEntity = child.Lock();
+			if (childEntity->GetActive() == true)
+			{
+				childEntity->Awake();
+			}
+		}
+	}
+
+	/// @brief 
+	void Entity::Enable()
+	{
+		assert(_activeInHierarchy == false);
+
+		for (const std::shared_ptr<Component>& component : _components)
+		{
+			component->Enable();
+		}
+
+		_activeInHierarchy = true;
+
+		for (const WeakEntity& child : _children)
+		{
+			std::shared_ptr<Entity> childEntity = child.Lock();
+			if (childEntity->GetActive() == true)
+			{
+				childEntity->Enable();
+			}
+		}
+	}
+
+	/// @brief 
+	void Entity::Start()
+	{
+		assert(_internalState == InternalState::Awaked && _active == true);
+
+		for (const std::shared_ptr<Component>& component : _components)
+		{
+			component->Start();
+		}
+
+		_internalState = InternalState::Started;
+
+		for (const WeakEntity& child : _children)
+		{
+			std::shared_ptr<Entity> childEntity = child.Lock();
+			if (childEntity->GetActive() == true)
+			{
+				childEntity->Start();
+			}
+		}
+	}
+
+	/// @brief 
+	void Entity::Disable()
+	{
+		assert(_activeInHierarchy == true);
+
+		for (const std::shared_ptr<Component>& component : _components)
+		{
+			component->Disable();
+		}
+
+		_activeInHierarchy = false;
+
+		for (const WeakEntity& child : _children)
+		{
+			std::shared_ptr<Entity> childEntity = child.Lock();
+			if (childEntity->GetActive() == true)
+			{
+				childEntity->Disable();
+			}
+		}
+	}
+
+	/// @brief 
+	void Entity::Destruct()
+	{
+		assert(_internalState != InternalState::Destructed);
+
+		for (const std::shared_ptr<Component>& component : _components)
+		{
+			component->Destruct();
+		}
+
+		_internalState = InternalState::Destructed;
+
+		for (const WeakEntity& child : _children)
+		{
+			std::shared_ptr<Entity> childEntity = child.Lock();
+			childEntity->Destruct();
+		}
 	}
 }

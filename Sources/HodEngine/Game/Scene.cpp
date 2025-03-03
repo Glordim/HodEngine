@@ -5,6 +5,7 @@
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/PrefabUtility.hpp"
 #include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
@@ -36,6 +37,12 @@ namespace hod::game
 		{
 			static_cast<Scene*>(instance)->DeserializeFromDocument(documentNode);
 		});
+	}
+
+	/// @brief 
+	Scene::Scene()
+	{
+		_world = World::GetInstance(); // TODO MultiWorld support
 	}
 
 	/// @brief 
@@ -99,19 +106,12 @@ namespace hod::game
 		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
-		}
+			entity->SetScene(this);
 
-		for (const auto& entity : _entities)
-		{
-			for (std::weak_ptr<Component> component : entity.second->GetComponents())
+			if (entity->GetParent().Lock() == nullptr)
 			{
-				component.lock()->Construct();
+				entity->ProcessActivation();
 			}
-		}
-
-		for (const auto& entity : _entities)
-		{
-			entity.second->SetActive(true);
 		}
 
 		return true;
@@ -132,6 +132,8 @@ namespace hod::game
 		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
 		_entities.emplace(entity->GetInstanceId(), entity);
 
+		entity->SetScene(this);
+
 		return entity;
 	}
 
@@ -146,6 +148,8 @@ namespace hod::game
 		{
 			_entities.erase(it);
 		}
+
+		entity->SetScene(nullptr);
 	}
 
 	/// @brief 
@@ -164,17 +168,11 @@ namespace hod::game
 	/// @brief 
 	void Scene::Clear()
 	{
+		for (auto it : _entities)
+		{
+			it.second->SetScene(nullptr);
+		}
 		_entities.clear();
-	}
-
-	/// @brief 
-	void Scene::Awake()
-	{
-	}
-
-	///
-	void Scene::Start()
-	{
 	}
 
 	/// @brief 
@@ -244,29 +242,41 @@ namespace hod::game
 
 		sceneSerializer.Deserialize(document.GetRootNode());
 
-		std::shared_ptr<Entity> clonedEntity = sceneSerializer.GetEntities()[0];
-		clonedEntity->SetPrefabResource(entity->GetPrefabResource());
-
+		std::shared_ptr<Entity> clonedEntity = nullptr;
+		
 		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
+			entity->SetScene(this);
 			entity->SetLocalId(0);
-		}
-
-		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
-		{
 			for (std::weak_ptr<Component> component : entity->GetComponents())
 			{
 				component.lock()->SetLocalId(0);
-				component.lock()->Construct();
+			}
+
+			if (clonedEntity == nullptr && entity->GetParent().Lock() == nullptr)
+			{
+				clonedEntity = entity;
 			}
 		}
-
-		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
-		{
-			entity->SetActive(true);
-		}
+		
+		clonedEntity->SetPrefabResource(entity->GetPrefabResource());
+		clonedEntity->ProcessActivation();
 
 		return clonedEntity;
+	}
+
+	/// @brief 
+	/// @param world 
+	void Scene::SetWorld(World* world)
+	{
+		_world = world;
+	}
+
+	/// @brief 
+	/// @return 
+	World* Scene::GetWorld() const
+	{
+		return _world;
 	}
 }

@@ -89,6 +89,10 @@ namespace hod::game
 		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
+			if (_rootEntity == nullptr && entity->GetParent().Lock() == nullptr)
+			{
+				_rootEntity = entity;
+			}
 		}
 
 		return true;
@@ -137,10 +141,6 @@ namespace hod::game
 	/// @return 
 	std::shared_ptr<Entity> Prefab::GetRootEntity()
 	{
-		if (_entities.empty())
-		{
-			return nullptr;
-		}
-		return _entities.begin()->second;
+		return _rootEntity;
 	}
 }

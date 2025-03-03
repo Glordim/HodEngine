@@ -21,6 +21,7 @@ namespace hod::game
 	class PrefabResource;
 	class Entity;
 	class Component;
+	class World;
 
 	/// @brief 
 	class HOD_GAME_API Scene
@@ -28,7 +29,7 @@ namespace hod::game
 		REFLECTED_CLASS_NO_PARENT(Scene)
 
 	public:
-						Scene() = default;
+						Scene();
 						Scene(const Scene&) = delete;
 						Scene(Scene&&) = delete;
 		virtual			~Scene() = default;
@@ -56,18 +57,21 @@ namespace hod::game
 
 		const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& GetEntities() const;
 
-		void						Awake();
-		void						Start();
 		void						Update();
 		void						Draw(renderer::RenderQueue* renderQueue);
 
 		void						SetNextLocalId(uint64_t nextLocalId) { _nextLocalId = nextLocalId; }
+
 		uint64_t					GetNextLocalId() const { return _nextLocalId; }
+
+		void						SetWorld(World* world);
+		World*						GetWorld() const;
 
 	private:
 
 		std::string												_name;
 		std::unordered_map<uint64_t, std::shared_ptr<Entity>>	_entities;
 		uint64_t												_nextLocalId = 1;
+		World*													_world = nullptr;
 	};
 }
