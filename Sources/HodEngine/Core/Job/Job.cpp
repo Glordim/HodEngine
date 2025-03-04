@@ -41,6 +41,7 @@ namespace hod
 	void Job::Prepare()
 	{
 		_state = 0;
+		_waitFlag.clear();
 	}
 
 	/// @brief 
@@ -67,6 +68,8 @@ namespace hod
 			_state &= ~State::Canceled;
 		}
 		_state |= State::Completed;
+		_waitFlag.test_and_set();
+		_waitFlag.notify_all();
 
 		if (_isDeleteAfterCompletion == true)
 		{
@@ -84,6 +87,9 @@ namespace hod
 	/// @brief 
 	void Job::Wait()
 	{
-		while ((_state & State::Completed) == 0);
+		if ((_state & State::Completed) == 0)
+		{
+			_waitFlag.wait(false);
+		}
 	}
 }
