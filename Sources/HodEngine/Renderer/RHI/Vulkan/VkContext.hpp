@@ -7,10 +7,10 @@
 
 #include <vulkan/vulkan.h>
 
-namespace hod
+namespace hod::renderer
 {
 	/// @brief 
-	class HOD_RENDERER_API VkContext : public renderer::Context
+	class HOD_RENDERER_API VkContext : public Context
 	{
 	public:
 
@@ -23,7 +23,7 @@ namespace hod
 		uint32_t					GetWidth() override;
 		uint32_t					GetHeight() override;
 
-		bool						AcquireNextImageIndex() override;
+		bool						AcquireNextImageIndex(const Semaphore* semaphore) override;
 		bool						SwapBuffer() override;
 
 		VkSurfaceKHR				GetSurface() const;
@@ -51,8 +51,5 @@ namespace hod
 		VkRenderPass				_renderPass = VK_NULL_HANDLE;
 
 		uint32_t					_currentImageIndex = 0;
-		VkSemaphore                 _imageAvailableSemaphore = VK_NULL_HANDLE;
-		VkSemaphore                 _renderFinishedSemaphore = VK_NULL_HANDLE;
-		VkFence                     _acquireNextImageFence = VK_NULL_HANDLE;
 	};
 }

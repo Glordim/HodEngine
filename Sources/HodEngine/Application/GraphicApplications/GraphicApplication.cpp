@@ -142,11 +142,10 @@ namespace hod::application
 			}
 
 			renderer::Context* context = static_cast<renderer::Context*>(_window->GetSurface());
-			if (context->AcquireNextImageIndex() == false)
+			if (renderer::Renderer::GetInstance()->GetRenderQueue()->Prepare(context) == false)
 			{
 				return false;
 			}
-			renderer::Renderer::GetInstance()->GetRenderQueue()->Prepare(context);
 
 			frameSequencer->EnqueueAndWaitJobs();
 

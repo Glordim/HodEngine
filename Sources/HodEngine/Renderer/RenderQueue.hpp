@@ -10,6 +10,7 @@ namespace hod::renderer
 	class RenderTarget;
 	class Context;
 	class MaterialInstance;
+	class Semaphore;
 
 	/// @brief 
 	class HOD_RENDERER_API RenderQueue
@@ -21,7 +22,7 @@ namespace hod::renderer
 		void							Init();
 		void							Terminate();
 
-		void							Prepare(Context* context);
+		bool							Prepare(Context* context);
 		void							Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget);
 		uint32_t						GetRenderWidth() const;
 		uint32_t						GetRenderHeight() const;
@@ -38,5 +39,9 @@ namespace hod::renderer
 		Context*						_context = nullptr;
 		RenderTarget*					_renderTarget = nullptr;
 		RenderTarget*					_pickingRenderTarget = nullptr;
+
+		Semaphore*						_imageAvailableSemaphore = nullptr;
+		Semaphore*						_renderFinishedSemaphore = nullptr;
+		//Fence*						_renderFinishedFence = nullptr;
 	};
 }

@@ -6,21 +6,20 @@
 #include <string>
 #include <cstdint>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	class Semaphore;
+
+	/// @brief 
+	class HOD_RENDERER_API Context : public window::Surface
 	{
-		/// @brief 
-		class HOD_RENDERER_API Context : public window::Surface
-		{
-		public:
-							Context();
-			virtual			~Context();
+	public:
+						Context() = default;
+		virtual			~Context() = default;
 
-		public:
+	public:
 
-			virtual bool	AcquireNextImageIndex() = 0;
-			virtual bool	SwapBuffer() = 0;
-		};
-	}
+		virtual bool	AcquireNextImageIndex(const Semaphore* semaphore) = 0;
+		virtual bool	SwapBuffer() = 0;
+	};
 }

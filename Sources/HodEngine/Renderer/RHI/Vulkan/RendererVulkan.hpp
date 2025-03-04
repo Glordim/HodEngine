@@ -17,6 +17,7 @@
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
 	#undef max
+	#undef CreateSemaphore
 #endif
 
 namespace hod::renderer
@@ -56,8 +57,7 @@ namespace hod::renderer
 
 		virtual bool ResizeSwapChain() override; // TODO remove
 
-		virtual bool AcquireNextImageIndex() override { return false; }  // TODO remove
-		virtual bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount) override;
+		virtual bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) override;
 		virtual bool SwapBuffer() override { return false; }  // TODO remove
 
 		virtual CommandBuffer* CreateCommandBuffer() override;
@@ -67,6 +67,8 @@ namespace hod::renderer
 		virtual MaterialInstance* CreateMaterialInstance(const Material* material) override;
 		virtual Texture* CreateTexture() override;
 		virtual RenderTarget* CreateRenderTarget() override;
+		virtual Semaphore* CreateSemaphore() override;
+		virtual Fence* CreateFence() override;
 
 		VkInstance GetVkInstance() const;
 		VkDevice GetVkDevice() const;

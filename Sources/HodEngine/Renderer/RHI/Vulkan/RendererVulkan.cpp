@@ -11,6 +11,8 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/ShaderGeneratorGLSL.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/FenceVk.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -1640,7 +1642,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	bool RendererVulkan::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount)
+	bool RendererVulkan::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore, const Fence* fence)
 	{
 		std::vector<VkCommandBuffer> vkCommandBuffers(commandBufferCount);
 		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
@@ -1648,44 +1650,66 @@ namespace hod::renderer
 			vkCommandBuffers[commandBufferIndex] = static_cast<CommandBufferVk*>(commandBuffers[commandBufferIndex])->GetVkCommandBuffer();
 		}
 
-		VkFence fence = VK_NULL_HANDLE;
+		VkFence fenceOld = VK_NULL_HANDLE;
 
 		VkFenceCreateInfo fenceCreateInfo = {};
 		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceCreateInfo.flags = 0;
 		fenceCreateInfo.pNext = nullptr;
 
-		if (vkCreateFence(_device, &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
+		if (vkCreateFence(_device, &fenceCreateInfo, nullptr, &fenceOld) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create Fence!");
 			return false;
 		}
 
+		VkSemaphore vkSignalSemaphore = VK_NULL_HANDLE;
+		VkSemaphore vkWaitSemaphore = VK_NULL_HANDLE;
+		VkFence vkFence = VK_NULL_HANDLE;
+
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.signalSemaphoreCount = 0;
-		submitInfo.pSignalSemaphores = nullptr;
-		submitInfo.waitSemaphoreCount = 0;
-		submitInfo.pWaitSemaphores = nullptr;
+		if (signalSemaphore != nullptr)
+		{
+			vkSignalSemaphore = static_cast<const SemaphoreVk*>(signalSemaphore)->GetVkSemaphore();
+			submitInfo.signalSemaphoreCount = 1;
+			submitInfo.pSignalSemaphores = &vkSignalSemaphore;
+		}
+		else
+		{
+			submitInfo.signalSemaphoreCount = 0;
+			submitInfo.pSignalSemaphores = nullptr;
+		}
+		if (waitSemaphore != nullptr)
+		{
+			vkWaitSemaphore = static_cast<const SemaphoreVk*>(waitSemaphore)->GetVkSemaphore();
+			submitInfo.waitSemaphoreCount = 1;
+			submitInfo.pWaitSemaphores = &vkWaitSemaphore;
+		}
+		else
+		{
+			submitInfo.waitSemaphoreCount = 0;
+			submitInfo.pWaitSemaphores = nullptr;
+		}
 		submitInfo.pWaitDstStageMask = nullptr;
 		submitInfo.commandBufferCount = static_cast<uint32_t>(vkCommandBuffers.size());
 		submitInfo.pCommandBuffers = vkCommandBuffers.data();
 
-		if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, fence) != VK_SUCCESS)
+		if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, fenceOld) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to submit draw command buffer!");
-			vkDestroyFence(_device, fence, nullptr);
+			vkDestroyFence(_device, fenceOld, nullptr);
 			return false;
 		}
 
-		if (vkWaitForFences(_device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
+		if (vkWaitForFences(_device, 1, &fenceOld, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to wait fence");
-			vkDestroyFence(_device, fence, nullptr);
+			vkDestroyFence(_device, fenceOld, nullptr);
 			return false;
 		}
 
-		vkDestroyFence(_device, fence, nullptr);
+		vkDestroyFence(_device, fenceOld, nullptr);
 
 		return true;
 	}
@@ -1758,5 +1782,19 @@ namespace hod::renderer
 	RenderTarget* RendererVulkan::CreateRenderTarget()
 	{
 		return new VkRenderTarget();
+	}
+
+	/// @brief 
+	/// @return 
+	Semaphore* RendererVulkan::CreateSemaphore()
+	{
+		return new SemaphoreVk();
+	}
+
+	/// @brief 
+	/// @return 
+	Fence* RendererVulkan::CreateFence()
+	{
+		return new FenceVk();
 	}
 }

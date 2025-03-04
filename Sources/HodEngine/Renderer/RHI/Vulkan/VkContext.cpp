@@ -1,21 +1,19 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <limits>
 
-using namespace hod::renderer;
-
-namespace hod
+namespace hod::renderer
 {
 	/// @brief 
 	VkContext::VkContext(VkSurfaceKHR surface)
 		: Context()
 		, _surface(surface)
 	{
-		CreateSemaphores();
 		CreateSwapChain(800, 600);
 	}
 
@@ -23,21 +21,6 @@ namespace hod
 	VkContext::~VkContext()
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-		if (_acquireNextImageFence != VK_NULL_HANDLE)
-		{
-			vkDestroyFence(renderer->GetVkDevice(), _acquireNextImageFence, nullptr);
-		}
-
-		if (_imageAvailableSemaphore != VK_NULL_HANDLE)
-		{
-			vkDestroySemaphore(renderer->GetVkDevice(), _imageAvailableSemaphore, nullptr);
-		}
-
-		if (_renderFinishedSemaphore != VK_NULL_HANDLE)
-		{
-			vkDestroySemaphore(renderer->GetVkDevice(), _renderFinishedSemaphore, nullptr);
-		}
 
 		if (_surface != VK_NULL_HANDLE)
 		{
@@ -339,42 +322,7 @@ namespace hod
 
 	/// @brief 
 	/// @return 
-	bool VkContext::CreateSemaphores()
-	{
-		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
-
-		VkSemaphoreCreateInfo semaphoreInfo = {};
-		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_imageAvailableSemaphore) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create semaphores!");
-			return false;
-		}
-
-		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_renderFinishedSemaphore) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create semaphores!");
-			return false;
-		}
-
-		VkFenceCreateInfo fenceCreateInfo = {};
-		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceCreateInfo.flags = 0;
-		fenceCreateInfo.pNext = nullptr;
-
-		if (vkCreateFence(device, &fenceCreateInfo, nullptr, &_acquireNextImageFence) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create fence!");
-			return false;
-		}
-
-		return true;
-	}
-
-	/// @brief 
-	/// @return 
-	bool VkContext::AcquireNextImageIndex()
+	bool VkContext::AcquireNextImageIndex(const Semaphore* semaphore)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
@@ -383,13 +331,7 @@ namespace hod
 			return false;
 		}
 
-		if (vkResetFences(device, 1, &_acquireNextImageFence) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to reset fence!");
-			return false;
-		}
-
-		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, _acquireNextImageFence, &_currentImageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(), static_cast<const SemaphoreVk*>(semaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
 		if (result != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to acquire next image!");
@@ -405,12 +347,6 @@ namespace hod
 				//CreateSwapChain();
 			}
 
-			return false;
-		}
-
-		if (vkWaitForFences(device, 1, &_acquireNextImageFence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to wait fence");
 			return false;
 		}
 

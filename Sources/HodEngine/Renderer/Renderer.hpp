@@ -11,6 +11,8 @@
 
 #include <HodEngine/Core/Singleton.hpp>
 
+#undef CreateSemaphore
+
 namespace hod::application
 {
 	class Application;
@@ -34,6 +36,8 @@ namespace hod::renderer
 	class VertexInput;
 	class RenderTarget;
 	class ShaderGenerator;
+	class Semaphore;
+	class Fence;
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
@@ -67,8 +71,7 @@ namespace hod::renderer
 
 		virtual bool				ResizeSwapChain() = 0;
 
-		virtual bool				AcquireNextImageIndex() = 0;
-		virtual bool				SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount) = 0;
+		virtual bool				SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) = 0;
 
 		virtual bool				SwapBuffer() = 0;
 
@@ -79,6 +82,8 @@ namespace hod::renderer
 		virtual MaterialInstance*	CreateMaterialInstance(const Material* material) = 0;
 		virtual Texture*			CreateTexture() = 0;
 		virtual RenderTarget*		CreateRenderTarget() = 0;
+		virtual Semaphore*			CreateSemaphore() = 0;
+		virtual Fence*				CreateFence() = 0;
 
 		//Debug
 	public:
