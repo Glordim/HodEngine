@@ -5,6 +5,8 @@
 
 #include "HodEngine/Core/Job/JobQueue.hpp"
 
+#include <atomic>
+
 namespace hod
 {
 	/// @brief 
@@ -54,5 +56,7 @@ namespace hod
 		Thread::Id			_threadId;
 		JobQueue::Queue		_queue;
 		bool				_isDeleteAfterCompletion;
+
+		std::atomic_flag	_waitFlag;
 	};
 }
