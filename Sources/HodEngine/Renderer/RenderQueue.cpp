@@ -6,6 +6,7 @@
 #include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Context.hpp"
+#include "HodEngine/Renderer/RHI/Semaphore.hpp"
 #include "HodEngine/Renderer/RHI/Fence.hpp"
 
 #include "HodEngine/Renderer/Renderer.hpp"
@@ -82,60 +83,69 @@ namespace hod::renderer
 
 		if (_pickingRenderTarget != nullptr)
 		{
-			_pickingRenderTarget->PrepareForWrite();
-
 			CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
-
-			if (commandBuffer->StartRecord(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f)) == true)
+			
+			if (commandBuffer->StartRecord() == true)
 			{
+				_pickingRenderTarget->PrepareForWrite(commandBuffer);
+				commandBuffer->StartRenderPass(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f));
 				for (RenderCommand* renderCommand : _renderCommands)
 				{
 					renderCommand->Execute(commandBuffer, _pickingMaterialInstance);
 				}
-
+				commandBuffer->EndRenderPass();
+				_pickingRenderTarget->PrepareForRead(commandBuffer);
 				commandBuffer->EndRecord();
 			}
 
-			renderer->SubmitCommandBuffers(&commandBuffer, 1, _renderFinishedSemaphore, _imageAvailableSemaphore/*, _renderFinishedFence*/);
-			delete commandBuffer;
-
-			_pickingRenderTarget->PrepareForRead();
+			_commandBuffers.push_back(commandBuffer);
 		}
 
 		CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
 
-		if (commandBuffer->StartRecord(_renderTarget, _context) == true)
+		if (commandBuffer->StartRecord() == true)
 		{
 			if (_renderTarget != nullptr)
 			{
-				_renderTarget->PrepareForWrite();
+				_renderTarget->PrepareForWrite(commandBuffer);
 			}
 
+			commandBuffer->StartRenderPass(_renderTarget, _context);
 			for (RenderCommand* renderCommand : _renderCommands)
 			{
 				renderCommand->Execute(commandBuffer);
 				delete renderCommand;
 			}
+			commandBuffer->EndRenderPass();
+
+			if (_renderTarget != nullptr)
+			{
+				_renderTarget->PrepareForRead(commandBuffer);
+			}
 
 			commandBuffer->EndRecord();
 		}
-
 		if (_context != nullptr)
 		{
 			commandBuffer->Present(_context);
 		}
 
+		_commandBuffers.push_back(commandBuffer);
+
 		_renderFinishedFence->Reset();
-		renderer->SubmitCommandBuffers(&commandBuffer, 1, _renderFinishedSemaphore, _imageAvailableSemaphore, _renderFinishedFence);
-		delete commandBuffer;
+
+		if (_context != nullptr)
+		{
+			renderer->SubmitCommandBuffers(_commandBuffers.data(), _commandBuffers.size(), _renderFinishedSemaphore, _imageAvailableSemaphore, _renderFinishedFence);
+		}
+		else
+		{
+			renderer->SubmitCommandBuffers(_commandBuffers.data(), _commandBuffers.size(), nullptr, nullptr, _renderFinishedFence);
+		}
 
 		if (_context != nullptr)
 		{
 			_context->SwapBuffer(_renderFinishedSemaphore);
-		}
-		if (_renderTarget != nullptr)
-		{
-			_renderTarget->PrepareForRead();
 		}
 
 		_renderCommands.clear();
@@ -148,6 +158,12 @@ namespace hod::renderer
 	void RenderQueue::Wait()
 	{
 		_renderFinishedFence->Wait();
+
+		for (CommandBuffer* commandBuffer : _commandBuffers)
+		{
+			delete commandBuffer;
+		}
+		_commandBuffers.clear();
 	}
 
 	/// @brief 

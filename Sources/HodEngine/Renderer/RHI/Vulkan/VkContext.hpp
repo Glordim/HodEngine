@@ -36,8 +36,6 @@ namespace hod::renderer
 		bool						CreateSwapChain(uint32_t width, uint32_t height);
 		void						DestroySwapChain();
 
-		bool						CreateSemaphores();
-
 	protected:
 
 		VkSurfaceKHR				_surface = VK_NULL_HANDLE;

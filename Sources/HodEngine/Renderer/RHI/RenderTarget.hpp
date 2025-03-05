@@ -8,9 +8,9 @@
 
 namespace hod::renderer
 {
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
+	class CommandBuffer;
+
+	/// @brief 
 	class HOD_RENDERER_API RenderTarget
 	{
 	public:
@@ -26,8 +26,8 @@ namespace hod::renderer
 		Texture*		GetColorTexture() const;
 		Texture*		GetDepthTexture() const;
 
-		virtual void	PrepareForWrite() = 0;
-		virtual void	PrepareForRead() = 0;
+		virtual void	PrepareForWrite(const CommandBuffer* commandBuffer) = 0;
+		virtual void	PrepareForRead(const CommandBuffer* commandBuffer) = 0;
 
 		bool			IsValid() const;
 

@@ -2,6 +2,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -114,6 +115,8 @@ namespace hod
 				return false;
 			}
 
+			renderer->TransitionImageLayoutImmediate(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
 			return true;
 		}
 
@@ -152,22 +155,26 @@ namespace hod
 		}
 
 		/// @brief 
-		void VkRenderTarget::PrepareForWrite()
+		void VkRenderTarget::PrepareForWrite(const CommandBuffer* commandBuffer)
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
-			if (_color != nullptr && renderer->TransitionImageLayout(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
+			VkCommandBuffer vkCommandBuffer = static_cast<const CommandBufferVk*>(commandBuffer)->GetVkCommandBuffer();
+
+			if (_color != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
 			{
 				return; // todo bool ?
 			}
 		}
 
 		/// @brief 
-		void VkRenderTarget::PrepareForRead()
+		void VkRenderTarget::PrepareForRead(const CommandBuffer* commandBuffer)
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
-			if (_color != nullptr && renderer->TransitionImageLayout(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
+			VkCommandBuffer vkCommandBuffer = static_cast<const CommandBufferVk*>(commandBuffer)->GetVkCommandBuffer();
+
+			if (_color != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
 			{
 				return; // todo bool ?
 			}

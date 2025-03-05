@@ -1441,10 +1441,14 @@ namespace hod::renderer
 		return true;
 	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	bool RendererVulkan::TransitionImageLayout(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
+	/// @brief 
+	/// @param commandBuffer 
+	/// @param image 
+	/// @param aspectFlags 
+	/// @param oldLayout 
+	/// @param newLayout 
+	/// @return 
+	bool RendererVulkan::TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
 	{
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1524,13 +1528,6 @@ namespace hod::renderer
 			return false;
 		}
 
-		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-
-		if (BeginSingleTimeCommands(&commandBuffer) == false)
-		{
-			return false;
-		}
-
 		vkCmdPipelineBarrier(
 			commandBuffer,
 			sourceStage, destinationStage,
@@ -1539,6 +1536,26 @@ namespace hod::renderer
 			0, nullptr,
 			1, &barrier
 		);
+
+		return true;
+	}
+
+	/// @brief 
+	/// @param image 
+	/// @param aspectFlags 
+	/// @param oldLayout 
+	/// @param newLayout 
+	/// @return 
+	bool RendererVulkan::TransitionImageLayoutImmediate(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
+	{
+		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+
+		if (BeginSingleTimeCommands(&commandBuffer) == false)
+		{
+			return false;
+		}
+
+		TransitionImageLayout(commandBuffer, image, aspectFlags, oldLayout, newLayout);
 
 		if (EndSingleTimeCommands(commandBuffer) == false)
 		{
@@ -1654,6 +1671,8 @@ namespace hod::renderer
 			vkFence = static_cast<const FenceVk*>(fence)->GetVkFence();
 		}
 
+		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		if (signalSemaphore != nullptr)
@@ -1672,13 +1691,15 @@ namespace hod::renderer
 			vkWaitSemaphore = static_cast<const SemaphoreVk*>(waitSemaphore)->GetVkSemaphore();
 			submitInfo.waitSemaphoreCount = 1;
 			submitInfo.pWaitSemaphores = &vkWaitSemaphore;
+			submitInfo.pWaitDstStageMask = waitStages;
 		}
 		else
 		{
 			submitInfo.waitSemaphoreCount = 0;
 			submitInfo.pWaitSemaphores = nullptr;
+			submitInfo.pWaitDstStageMask = nullptr;
 		}
-		submitInfo.pWaitDstStageMask = nullptr;
+		
 		submitInfo.commandBufferCount = static_cast<uint32_t>(vkCommandBuffers.size());
 		submitInfo.pCommandBuffers = vkCommandBuffers.data();
 

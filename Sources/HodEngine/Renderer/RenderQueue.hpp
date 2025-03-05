@@ -12,6 +12,7 @@ namespace hod::renderer
 	class MaterialInstance;
 	class Semaphore;
 	class Fence;
+	class CommandBuffer;
 
 	/// @brief 
 	class HOD_RENDERER_API RenderQueue
@@ -45,5 +46,7 @@ namespace hod::renderer
 		Semaphore*						_imageAvailableSemaphore = nullptr;
 		Semaphore*						_renderFinishedSemaphore = nullptr;
 		Fence*							_renderFinishedFence = nullptr;
+
+		std::vector<CommandBuffer*>		_commandBuffers;
 	};
 }

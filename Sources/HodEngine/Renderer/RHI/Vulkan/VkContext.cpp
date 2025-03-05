@@ -22,6 +22,8 @@ namespace hod::renderer
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
+		DestroySwapChain();
+
 		if (_surface != VK_NULL_HANDLE)
 		{
 			vkDestroySurfaceKHR(renderer->GetVkInstance(), _surface, nullptr);
@@ -211,7 +213,7 @@ namespace hod::renderer
 
 		for (size_t i = 0; i < imageCount; ++i)
 		{
-			RendererVulkan::GetInstance()->TransitionImageLayout(swapChainImages[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+			RendererVulkan::GetInstance()->TransitionImageLayoutImmediate(swapChainImages[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 			// TODO use CreateImageView here ?
 

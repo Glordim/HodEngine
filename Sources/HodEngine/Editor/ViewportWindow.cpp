@@ -336,11 +336,9 @@ namespace hod::editor
 
 			createInfo._allowReadWrite = false;
 			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
-			_renderTarget->PrepareForRead(); // todo automate ?
 
 			createInfo._allowReadWrite = true;
 			_pickingRenderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
-			_pickingRenderTarget->PrepareForRead(); // todo automate ?
 		}
 
 		if (_renderTarget->IsValid() == true)
@@ -404,6 +402,7 @@ namespace hod::editor
 			}
 
 			_renderQueue.Execute();
+			_renderQueue.Wait();
 
 			if (_debugPicker)
 			{

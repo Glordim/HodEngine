@@ -66,17 +66,9 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		bool CommandBufferVk::StartRecord(RenderTarget* renderTarget, Context* context, const Color& color)
+		bool CommandBufferVk::StartRecord()
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
-
-			VkContext* vkContext = (VkContext*)context;
-			if (vkContext == nullptr)
-			{
-				vkContext = renderer->GetContext();
-			}
-			//VkMaterial* material = nullptr;//(VkMaterial*)renderer->GetSharedMinimalMaterial(); // todo
-			//_sharedMinimalMaterialInstance = (VkMaterialInstance*)renderer->CreateMaterialInstance(material);
 
 			VkCommandBufferBeginInfo beginInfo = {};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -89,6 +81,28 @@ namespace hod
 				return false;
 			}
 
+			return true;
+		}
+
+		/// @brief 
+		/// @return 
+		bool CommandBufferVk::EndRecord()
+		{
+			if (vkEndCommandBuffer(_vkCommandBuffer) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: Unable to recording command buffer!");
+				return false;
+			}
+
+			return true;
+		}
+
+		/// @brief 
+		/// @param renderTarget 
+		/// @param context 
+		/// @param color 
+		bool CommandBufferVk::StartRenderPass(RenderTarget* renderTarget, Context* context, const Color& color)
+		{
 			VkClearValue clearColor[1];
 			clearColor[0].color.float32[0] = color.r;
 			clearColor[0].color.float32[1] = color.g;
@@ -99,6 +113,13 @@ namespace hod
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			if (renderTarget == nullptr)
 			{
+				VkContext* vkContext = (VkContext*)context;
+				if (vkContext == nullptr)
+				{
+					RendererVulkan* renderer = RendererVulkan::GetInstance();
+					vkContext = renderer->GetContext();
+				}
+
 				renderPassInfo.renderPass = vkContext->GetRenderPass();
 				renderPassInfo.framebuffer = vkContext->GetSwapChainCurrentFrameBuffer();
 				renderPassInfo.renderArea.offset = { 0, 0 };
@@ -135,25 +156,14 @@ namespace hod
 
 			vkCmdSetScissor(_vkCommandBuffer, 0, 1, &scissor);
 
-			return true;
+			return true; // TODO cant fail
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool CommandBufferVk::EndRecord()
+		/// @brief 
+		bool CommandBufferVk::EndRenderPass()
 		{
-			//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), _vkCommandBuffer);
-
 			vkCmdEndRenderPass(_vkCommandBuffer);
-
-			if (vkEndCommandBuffer(_vkCommandBuffer) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to recording command buffer!");
-				return false;
-			}
-
-			return true;
+			return true; // TODO cant fail
 		}
 
 		/// @brief 
