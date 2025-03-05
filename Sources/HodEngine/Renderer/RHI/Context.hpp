@@ -19,7 +19,7 @@ namespace hod::renderer
 
 	public:
 
-		virtual bool	AcquireNextImageIndex(const Semaphore* semaphore) = 0;
-		virtual bool	SwapBuffer() = 0;
+		virtual bool	AcquireNextImageIndex(const Semaphore* signalSemaphore) = 0;
+		virtual bool	SwapBuffer(const Semaphore* waitSemaphore) = 0;
 	};
 }

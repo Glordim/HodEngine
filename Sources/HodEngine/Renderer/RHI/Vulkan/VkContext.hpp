@@ -23,8 +23,8 @@ namespace hod::renderer
 		uint32_t					GetWidth() override;
 		uint32_t					GetHeight() override;
 
-		bool						AcquireNextImageIndex(const Semaphore* semaphore) override;
-		bool						SwapBuffer() override;
+		bool						AcquireNextImageIndex(const Semaphore* signalSemaphore) override;
+		bool						SwapBuffer(const Semaphore* waitSemaphore) override;
 
 		VkSurfaceKHR				GetSurface() const;
 		VkRenderPass				GetRenderPass() const;

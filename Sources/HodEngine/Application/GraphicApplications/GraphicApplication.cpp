@@ -151,11 +151,11 @@ namespace hod::application
 
 			renderer::Renderer::GetInstance()->GetRenderQueue()->Execute();
 
-			//_window->GetGraphicsContext()->SwapBuffer();
-
 			SystemTime::TimeStamp now = SystemTime::Now();
 			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
 			last = now;
+
+			renderer::Renderer::GetInstance()->GetRenderQueue()->Wait();
 
 			double sleepTime = targetTimeStep - elapsedTime;
 			if (sleepTime > 0.0)

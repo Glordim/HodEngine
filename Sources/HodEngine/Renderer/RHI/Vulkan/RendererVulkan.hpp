@@ -51,14 +51,10 @@ namespace hod::renderer
 
 		virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
 
-
 		bool CreateDevice();
 		bool CreateCommandPool();
 
-		virtual bool ResizeSwapChain() override; // TODO remove
-
 		virtual bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) override;
-		virtual bool SwapBuffer() override { return false; }  // TODO remove
 
 		virtual CommandBuffer* CreateCommandBuffer() override;
 		virtual Buffer* CreateBuffer(Buffer::Usage usage, uint32_t size) override;

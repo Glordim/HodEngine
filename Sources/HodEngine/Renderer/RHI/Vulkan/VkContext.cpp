@@ -322,7 +322,7 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @return 
-	bool VkContext::AcquireNextImageIndex(const Semaphore* semaphore)
+	bool VkContext::AcquireNextImageIndex(const Semaphore* signalSemaphore)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
@@ -331,7 +331,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(), static_cast<const SemaphoreVk*>(semaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(), static_cast<const SemaphoreVk*>(signalSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
 		if (result != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to acquire next image!");
@@ -355,17 +355,28 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @return 
-	bool VkContext::SwapBuffer()
+	bool VkContext::SwapBuffer(const Semaphore* waitSemaphore)
 	{
 		if (_swapchain == nullptr) // For exemple if the window is hidden the size will be 0 and not swap chain are created
 		{
 			return false;
 		}
 
+		VkSemaphore vkWaitSemaphore = VK_NULL_HANDLE;
+
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 0;
-		presentInfo.pWaitSemaphores = nullptr;
+		if (waitSemaphore != nullptr)
+		{
+			vkWaitSemaphore = static_cast<const SemaphoreVk*>(waitSemaphore)->GetVkSemaphore();
+			presentInfo.waitSemaphoreCount = 1;
+			presentInfo.pWaitSemaphores = &vkWaitSemaphore;
+		}
+		else
+		{
+			presentInfo.waitSemaphoreCount = 0;
+			presentInfo.pWaitSemaphores = nullptr;
+		}
 
 		VkSwapchainKHR swapChains[] = { _swapchain };
 		presentInfo.swapchainCount = 1;

@@ -6,6 +6,7 @@
 #include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Context.hpp"
+#include "HodEngine/Renderer/RHI/Fence.hpp"
 
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
@@ -19,7 +20,7 @@ namespace hod::renderer
 
 		_imageAvailableSemaphore = Renderer::GetInstance()->CreateSemaphore();
 		_renderFinishedSemaphore = Renderer::GetInstance()->CreateSemaphore();
-		//_renderFinishedFence = Renderer::GetInstance()->CreateFence();
+		_renderFinishedFence = Renderer::GetInstance()->CreateFence();
 	}
 
 	/// @brief 
@@ -34,8 +35,8 @@ namespace hod::renderer
 		delete _renderFinishedSemaphore;
 		_renderFinishedSemaphore = nullptr;
 
-		//delete _renderFinishedFence;
-		//_renderFinishedFence = nullptr;
+		delete _renderFinishedFence;
+		_renderFinishedFence = nullptr;
 	}
 
 	/// @brief 
@@ -124,12 +125,13 @@ namespace hod::renderer
 			commandBuffer->Present(_context);
 		}
 
-		renderer->SubmitCommandBuffers(&commandBuffer, 1);
+		_renderFinishedFence->Reset();
+		renderer->SubmitCommandBuffers(&commandBuffer, 1, _renderFinishedSemaphore, _imageAvailableSemaphore, _renderFinishedFence);
 		delete commandBuffer;
 
 		if (_context != nullptr)
 		{
-			_context->SwapBuffer();
+			_context->SwapBuffer(_renderFinishedSemaphore);
 		}
 		if (_renderTarget != nullptr)
 		{
@@ -140,6 +142,12 @@ namespace hod::renderer
 		_context = nullptr;
 		_renderTarget = nullptr;
 		_pickingRenderTarget = nullptr;
+	}
+
+	/// @brief 
+	void RenderQueue::Wait()
+	{
+		_renderFinishedFence->Wait();
 	}
 
 	/// @brief 

@@ -11,6 +11,7 @@ namespace hod::renderer
 	class Context;
 	class MaterialInstance;
 	class Semaphore;
+	class Fence;
 
 	/// @brief 
 	class HOD_RENDERER_API RenderQueue
@@ -29,6 +30,7 @@ namespace hod::renderer
 
 		void							PushRenderCommand(RenderCommand* renderCommand);
 		void							Execute();
+		void							Wait();
 
 	private:
 
@@ -42,6 +44,6 @@ namespace hod::renderer
 
 		Semaphore*						_imageAvailableSemaphore = nullptr;
 		Semaphore*						_renderFinishedSemaphore = nullptr;
-		//Fence*						_renderFinishedFence = nullptr;
+		Fence*							_renderFinishedFence = nullptr;
 	};
 }

@@ -68,12 +68,7 @@ namespace hod::renderer
 
 		virtual bool				GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;
 
-
-		virtual bool				ResizeSwapChain() = 0;
-
 		virtual bool				SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) = 0;
-
-		virtual bool				SwapBuffer() = 0;
 
 		virtual CommandBuffer*		CreateCommandBuffer() = 0;
 		virtual Buffer*				CreateBuffer(Buffer::Usage usage, uint32_t size) = 0;
