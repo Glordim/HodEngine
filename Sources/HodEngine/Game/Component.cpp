@@ -175,7 +175,7 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void Component::OnUpdate()
+	void Component::OnUpdate(float deltaTime)
 	{
 
 	}
