@@ -187,7 +187,7 @@ namespace hod::game
 		{
 			for (std::weak_ptr<Component> component : entityPair.second->GetComponents())
 			{
-				component.lock()->OnUpdate();
+				component.lock()->OnUpdate(0.016f); // TODO
 			}
 		}
 	}

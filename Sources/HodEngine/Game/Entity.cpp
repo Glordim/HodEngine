@@ -469,13 +469,6 @@ namespace hod::game
 	{
 		assert(_activeInHierarchy == true);
 
-		for (const std::shared_ptr<Component>& component : _components)
-		{
-			component->Disable();
-		}
-
-		_activeInHierarchy = false;
-
 		for (const WeakEntity& child : _children)
 		{
 			std::shared_ptr<Entity> childEntity = child.Lock();
@@ -484,6 +477,13 @@ namespace hod::game
 				childEntity->Disable();
 			}
 		}
+
+		for (const std::shared_ptr<Component>& component : _components)
+		{
+			component->Disable();
+		}
+
+		_activeInHierarchy = false;
 	}
 
 	/// @brief 
@@ -491,17 +491,17 @@ namespace hod::game
 	{
 		assert(_internalState != InternalState::Destructed);
 
+		for (const WeakEntity& child : _children)
+		{
+			std::shared_ptr<Entity> childEntity = child.Lock();
+			childEntity->Destruct();
+		}
+
 		for (const std::shared_ptr<Component>& component : _components)
 		{
 			component->Destruct();
 		}
 
 		_internalState = InternalState::Destructed;
-
-		for (const WeakEntity& child : _children)
-		{
-			std::shared_ptr<Entity> childEntity = child.Lock();
-			childEntity->Destruct();
-		}
 	}
 }

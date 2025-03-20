@@ -30,7 +30,7 @@ namespace hod::game
 		virtual void			OnAwake();
 		virtual void			OnEnable();
 		virtual void			OnStart();
-		virtual void			OnUpdate();
+		virtual void			OnUpdate(float deltaTime);
 		virtual void			OnDisable();
 		virtual void			OnDestruct();
 

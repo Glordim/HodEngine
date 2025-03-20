@@ -94,7 +94,7 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void Rigidbody2dComponent::OnUpdate()
+	void Rigidbody2dComponent::OnUpdate(float deltaTime)
 	{
 		/*
 		std::shared_ptr<Entity> entity = GetEntity();
