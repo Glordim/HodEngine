@@ -701,7 +701,7 @@ namespace hod::renderer
 
 		if (gpuDevice.deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 		{
-			gpuDevice.score += 1000;
+			gpuDevice.score += 1000000;
 		}
 
 		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &gpuDevice.memProperties);
@@ -716,7 +716,7 @@ namespace hod::renderer
 			{
 				if (heap.size > vram)
 				{
-					vram = heap.size;
+					vram = heap.size / 1000000;
 				}
 			}
 		}
