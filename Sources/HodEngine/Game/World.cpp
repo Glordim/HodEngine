@@ -22,6 +22,8 @@
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
 #include <HodEngine/Window/Window.hpp>
 
+#undef min
+
 namespace hod
 {
 	namespace game
@@ -220,14 +222,23 @@ namespace hod
 			{
 				return;
 			}
-			_editorNextFrame = false;
+
+			SystemTime::TimeStamp now = SystemTime::Now();
+			float deltaTime = SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
+			_lastUpdateTimestamp = now;
+
+			if (_editorNextFrame == true)
+			{
+				deltaTime = std::min(deltaTime, 0.016f);
+				_editorNextFrame = false;
+			}
 			//
 
-			physics::Physics::GetInstance()->Update(0.016f);
+			physics::Physics::GetInstance()->Update(deltaTime);
 
 			for (Scene* scene : _scenes)
 			{
-				scene->Update();
+				scene->Update(deltaTime);
 			}
 		}
 

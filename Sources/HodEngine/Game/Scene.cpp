@@ -181,13 +181,13 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void Scene::Update()
+	void Scene::Update(float deltaTime)
 	{
 		for (auto entityPair : _entities)
 		{
 			for (std::weak_ptr<Component> component : entityPair.second->GetComponents())
 			{
-				component.lock()->OnUpdate(0.016f); // TODO
+				component.lock()->OnUpdate(deltaTime);
 			}
 		}
 	}

@@ -14,6 +14,8 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 
+#include <HodEngine/Core/Time/SystemTime.hpp>
+
 namespace hod
 {
 	class Vector2;
@@ -91,6 +93,8 @@ namespace hod
 			Scene*						_persistanteScene = nullptr;
 
 			DebugDrawer					_debugDrawer;
+
+			SystemTime::TimeStamp		_lastUpdateTimestamp = SystemTime::INVALID_TIMESTAMP;
 		};
 	}
 }
