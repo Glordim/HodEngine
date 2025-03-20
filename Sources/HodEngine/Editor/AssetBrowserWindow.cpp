@@ -387,7 +387,7 @@ namespace hod::editor
 			{
 				if (_pingAnimState == PingAnimState::In)
 				{
-					_pingAnimValue += 0.016f * 3.0f; // TODO use deltatime
+					_pingAnimValue += ImGui::GetIO().DeltaTime * 3.0f;
 					if (_pingAnimValue >= 1.0f)
 					{
 						_pingAnimValue = 1.0f;
@@ -396,7 +396,7 @@ namespace hod::editor
 				}
 				else
 				{
-					_pingAnimValue -= 0.016f * 3.0f; // TODO use deltatime
+					_pingAnimValue -= ImGui::GetIO().DeltaTime * 3.0f;
 					if (_pingAnimValue <= 0.0f)
 					{
 						_pingAnimValue = 0.0f;
