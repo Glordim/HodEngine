@@ -105,17 +105,21 @@ namespace hod::game
 	/// @brief 
 	void Component::Construct()
 	{
-		assert(_internalState == InternalState::None);
-		_internalState = InternalState::Constructed;
-		OnConstruct();
+		if (_internalState == InternalState::None)
+		{
+			_internalState = InternalState::Constructed;
+			OnConstruct();
+		}
 	}
 
 	/// @brief 
 	void Component::Awake()
 	{
-		assert(_internalState == InternalState::Constructed);
-		_internalState = InternalState::Awaked;
-		OnAwake();
+		if (_internalState == InternalState::Constructed)
+		{
+			_internalState = InternalState::Awaked;
+			OnAwake();
+		}
 	}
 
 	/// @brief 
@@ -129,9 +133,11 @@ namespace hod::game
 	/// @brief 
 	void Component::Start()
 	{
-		assert(_internalState == InternalState::Awaked);
-		_internalState = InternalState::Started;
-		OnStart();
+		if (_internalState == InternalState::Awaked)
+		{
+			_internalState = InternalState::Started;
+			OnStart();
+		}
 	}
 
 	/// @brief 

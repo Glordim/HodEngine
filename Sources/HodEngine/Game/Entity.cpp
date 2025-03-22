@@ -318,6 +318,8 @@ namespace hod::game
 			}
 		}
 		_parent = parent;
+
+		ProcessActivation();
 	}
 
 	/// @brief 
@@ -344,21 +346,18 @@ namespace hod::game
 	/// @brief 
 	void Entity::ProcessActivation()
 	{
-		if (_internalState == InternalState::None)
-		{
-			Construct();
-		}
+		Construct();
 
 		if (_active && (_parent.Lock() == nullptr || _parent.Lock()->IsActiveInHierarchy()))
 		{
-			if (_internalState == InternalState::Constructed && GetScene()->GetWorld()->GetEditorPlaying())
+			if (GetScene()->GetWorld()->GetEditorPlaying())
 			{
 				Awake();
 			}
 
 			Enable();
 
-			if (_internalState == InternalState::Awaked && GetScene()->GetWorld()->GetEditorPlaying())
+			if (GetScene()->GetWorld()->GetEditorPlaying())
 			{
 				Start();
 			}
@@ -382,8 +381,6 @@ namespace hod::game
 	/// @brief 
 	void Entity::Construct()
 	{
-		assert(_internalState == InternalState::None);
-
 		for (const std::shared_ptr<Component>& component : _components)
 		{
 			component->Construct();
@@ -401,7 +398,7 @@ namespace hod::game
 	/// @brief 
 	void Entity::Awake()
 	{
-		assert(_internalState == InternalState::Constructed && _active == true);
+		assert(_active == true);
 
 		for (const std::shared_ptr<Component>& component : _components)
 		{
@@ -445,7 +442,7 @@ namespace hod::game
 	/// @brief 
 	void Entity::Start()
 	{
-		assert(_internalState == InternalState::Awaked && _active == true);
+		assert(_active == true);
 
 		for (const std::shared_ptr<Component>& component : _components)
 		{
