@@ -68,7 +68,7 @@ namespace hod
 		if (format == NULL)
 			format = ImGui::DataTypeGetInfo(data_type)->PrintFmt;
 
-		const bool hovered = ImGui::ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
+		const bool hovered = ImGui::ItemHoverable(frame_bb, id, g.LastItemData.ItemFlags);
 		bool temp_input_is_active = temp_input_allowed && ImGui::TempInputIsActive(id);
 		if (!temp_input_is_active)
 		{
@@ -111,7 +111,7 @@ namespace hod
 
 		// Draw frame
 		const ImU32 frame_col = ImGui::GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
-		ImGui::RenderNavHighlight(frame_bb, id);
+		ImGui::RenderNavCursor(frame_bb, id);
 		RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding, drawFlags);
 
 		// Drag behavior
@@ -194,7 +194,7 @@ namespace hod
 
 		// Render
 		const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
-		ImGui::RenderNavHighlight(bb, id);
+		ImGui::RenderNavCursor(bb, id);
 		ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
 
 		ImVec2 imageFinalSize = resizedSize;
