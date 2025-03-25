@@ -33,6 +33,7 @@ namespace hod::editor
 	class Project;
 	class Asset;
 	class ViewportWindow;
+	class EditorTab;
 
 	/// @brief 
 	class HOD_EDITOR_API Editor
@@ -67,7 +68,13 @@ namespace hod::editor
 		ViewportWindow*							GetCurrentViewport() const;
 		void									SetCurrentViewport(ViewportWindow* viewportWindow);
 
-		void									OpenAsset(std::shared_ptr<Asset> asset);
+		
+		template<typename _EditorTabType_>
+		_EditorTabType_*						OpenAsset(std::shared_ptr<Asset> asset);
+		EditorTab*								OpenAsset(std::shared_ptr<Asset> asset);
+
+		template<typename _EditorTabType_>
+		_EditorTabType_*						OpenEditorTab();
 
 		void									Play();
 		void									Stop();
@@ -96,6 +103,7 @@ namespace hod::editor
 	private:
 
 		MainBar*								_mainBar = nullptr;
+		std::vector<EditorTab*>					_editorTabs;
 
 		std::weak_ptr<game::Entity> 			_entitySelection;
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
@@ -117,4 +125,18 @@ namespace hod::editor
 
 		Document								_playedWorldDocument;
 	};
+
+	template<typename _EditorTabType_>
+	_EditorTabType_* Editor::OpenAsset(std::shared_ptr<Asset> asset)
+	{
+		return static_cast<_EditorTabType_*>(OpenAsset(asset)); // todo check cast compat ?
+	}
+
+	template<typename _EditorTabType_>
+	_EditorTabType_* Editor::OpenEditorTab()
+	{
+		_EditorTabType_* editorTab = new _EditorTabType_();
+		_editorTabs.push_back(editorTab);
+		return editorTab;
+	}
 }

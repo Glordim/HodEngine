@@ -67,6 +67,8 @@ namespace hod::imgui
 
 		ImGuiID							GetCentralDockSpace() const;
 
+		void							SetDrawCallback(const std::function<void()>& drawCallback) { _callback = drawCallback; }
+
 	protected:
 
 										~ImGuiManager();
@@ -78,7 +80,6 @@ namespace hod::imgui
 #if defined (PLATFORM_WINDOWS)
 		void							OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
-
 	private:
 
 		MemberFunctionJob<ImGuiManager>	_updateJob;
@@ -99,6 +100,8 @@ namespace hod::imgui
 #endif
 
 		ImGuiID							_centralDockSpace;
+
+		std::function<void()>			_callback;
 	};
 }
 

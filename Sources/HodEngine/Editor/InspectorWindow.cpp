@@ -24,7 +24,7 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
-#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 

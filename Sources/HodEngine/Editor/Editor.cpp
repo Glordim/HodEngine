@@ -7,7 +7,7 @@
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include "HodEngine/Editor/ProjectBrowser.hpp"
-#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
@@ -66,6 +66,8 @@
 #include <HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
+
+#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -260,9 +262,42 @@ namespace hod::editor
 		AssetDatabase::GetInstance()->Init();
 
 		imgui::ImGuiManager::GetInstance()->CloseAllWindow();
+
+		imgui::ImGuiManager::GetInstance()->SetDrawCallback([this]()
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetFrameHeight()));
+			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y - ImGui::GetFrameHeight()));
+			bool open = ImGui::Begin("TabBarContainer", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking);
+			ImGui::PopStyleVar();
+			if (open)
+			{
+				if (ImGui::BeginTabBar("EditorTabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_DrawSelectedOverline))
+				{
+					auto it = _editorTabs.begin();
+					while (it != _editorTabs.end())
+					{
+						if ((*it)->Draw() == false)
+						{
+							_editorTabs.erase(it);
+						}
+						else
+						{
+							++it;
+						}
+					}
+					ImGui::EndTabBar();
+				}
+			}
+			ImGui::End();
+		});
+
+		OpenEditorTab<SceneEditorTab>();
+/*
 		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 		imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
 		imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
+*/
 		//imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 
 		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
@@ -452,7 +487,7 @@ namespace hod::editor
 		return true;
 	}
 
-	void Editor::OpenAsset(std::shared_ptr<Asset> asset)
+	EditorTab* Editor::OpenAsset(std::shared_ptr<Asset> asset)
 	{
 		bool alreadyExist = false;
 		std::vector<imgui::Window*> viewportWindows = imgui::ImGuiManager::GetInstance()->FindWindows<ViewportWindow>();
@@ -493,6 +528,8 @@ namespace hod::editor
 
 		_currentScene = &asset;
 		*/
+
+		return nullptr;
 	}
 
 	/// @brief 

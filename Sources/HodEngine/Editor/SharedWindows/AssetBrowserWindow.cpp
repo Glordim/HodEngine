@@ -1,5 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
@@ -710,7 +710,7 @@ namespace hod::editor
 		{
 			color = ImGui::GetColorU32(ImGuiCol_Button);
 		}
-		ImGui::RenderNavHighlight(boundingBox, id);
+		ImGui::RenderNavCursor(boundingBox, id);
 		ImGui::RenderFrame(boundingBox.Min, boundingBox.Max, color, true, style.FrameRounding);
 		if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
 		{

@@ -15,6 +15,8 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp>
 
+#undef max
+
 namespace hod::editor
 {
 	/// @brief 

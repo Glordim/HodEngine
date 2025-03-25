@@ -113,7 +113,7 @@ void embraceTheDarkness()
   colors[ImGuiCol_TabDimmed]          	  = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
   colors[ImGuiCol_TabDimmedSelected]      = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
   colors[ImGuiCol_DockingPreview]         = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-  colors[ImGuiCol_DockingEmptyBg]         = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+  colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.00f, 0.00f, 0.00f, 0.05f);
   colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
   colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
   colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
@@ -305,11 +305,11 @@ void embraceTheDarkness()
 
 		if (_mainBar != nullptr)
 		{
-			float mainbarhieght = ImGui::GetStyle().FramePadding.y;
-			ImGui::GetStyle().FramePadding.y = 16;
+			//float mainbarhieght = ImGui::GetStyle().FramePadding.y;
+			//ImGui::GetStyle().FramePadding.y = 16;
 			if (ImGui::BeginMainMenuBar() == true)
 			{
-				ImGui::GetStyle().FramePadding.y = mainbarhieght;
+				//ImGui::GetStyle().FramePadding.y = mainbarhieght;
 				_mainBar->Draw();
 				ImGui::EndMainMenuBar();
 			}
@@ -337,12 +337,17 @@ void embraceTheDarkness()
 			}
 		}
 */
-		_centralDockSpace = ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+		//_centralDockSpace = ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
 		static bool showDemo = false;
 		if (showDemo == true)
 		{
 			ImGui::ShowDemoWindow(&showDemo);
+		}
+
+		if (_callback != nullptr)
+		{
+			_callback();
 		}
 
 		std::vector<Window*>::iterator windowIt = _windows.begin();

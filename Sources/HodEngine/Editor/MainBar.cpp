@@ -8,7 +8,7 @@
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Helper.hpp>
 
-#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"
@@ -95,7 +95,7 @@ namespace hod::editor
 		{
 			Project::GetInstance()->ReloadGameModule();
 		}
-
+/*
 		const ImGuiStyle& style = ImGui::GetStyle();
 		float groupWidth = CalculateButtonSize(ICON_MDI_PLAY).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_PAUSE).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_SKIP_NEXT).x;
 		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x * 0.5f - groupWidth * 0.5f);
@@ -137,7 +137,7 @@ namespace hod::editor
 			editor->PlayNextFrame();
 		}
 		ImGui::EndDisabled();
-
+*/
 		_fpsCounter.OnFrame();
 		char fps[64] = { '\0' };
 		std::format_to_n(fps, sizeof(fps) - 1, "{} fps", (uint32_t)_fpsCounter.GetFPS());

@@ -20,7 +20,7 @@
 
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
