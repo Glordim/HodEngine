@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/EditorTabWindow.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 
@@ -13,7 +14,7 @@ namespace hod::editor
 	{
 		_asset = asset;
 		if (_asset == nullptr)
-		{			
+		{
 			_title = std::format("{}   Untitled", icon);
 		}
 		else
@@ -24,6 +25,15 @@ namespace hod::editor
 		//ICON_MDI_STAR_FOUR_POINTS_SMALL
 
 		_dockSpaceId = reinterpret_cast<uintptr_t>(this);
+	}
+
+	/// @brief 
+	EditorTab::~EditorTab()
+	{
+		for (EditorTabWindow* window : _windows)
+		{
+			delete window;
+		}
 	}
 
 	/// @brief 
@@ -39,7 +49,26 @@ namespace hod::editor
 				_initialLayoutCreated = true;
 			}
 			ImGui::DockSpace(_dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-			open = DrawContent();
+			auto it = _windows.begin();
+			auto itEnd = _windows.end();
+			while (it != itEnd)
+			{
+				(*it)->Draw();
+				if ((*it)->IsClosed())
+				{
+					delete (*it);
+					_windows.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+
+			if (DrawContent() == false)
+			{
+				open = false;
+			}
 			ImGui::EndTabItem();
 		}
 		return open;

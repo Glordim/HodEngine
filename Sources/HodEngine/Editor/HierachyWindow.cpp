@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -32,7 +33,7 @@ namespace hod::editor
 	/// @brief 
 	void HierachyWindow::DrawContent()
 	{
-		game::World* world = game::World::GetInstance();
+		game::World* world = GetOwner<SceneEditorTab>()->GetWorld();
 		for (game::Scene* scene : world->GetScenes())
 		{
 			ImGui::PushID(scene);
@@ -109,11 +110,9 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param entity 
-	void HierachyWindow::DrawEntity(std::weak_ptr<game::Entity> entity)
+	void HierachyWindow::DrawEntity(std::shared_ptr<game::Entity> entity)
 	{
-		std::shared_ptr<game::Entity> entityLock = entity.lock();
-
-		ImGui::PushID(entityLock.get() - 1);
+		ImGui::PushID(entity.get() - 1);
 		//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
 		//ImGui::Separator();
 		//ImGui::Button("", ImVec2(200, 25));
@@ -146,8 +145,8 @@ namespace hod::editor
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
 					if (dropEntityLock != nullptr)
 					{
-						dropEntityLock->SetParent(entityLock->GetParent());
-						dropEntityLock->SetSiblingIndex(entityLock->GetSiblingIndex());
+						dropEntityLock->SetParent(entity->GetParent());
+						dropEntityLock->SetSiblingIndex(entity->GetSiblingIndex());
 						GetOwner()->MarkAssetAsDirty();
 					}
 				}
@@ -159,21 +158,21 @@ namespace hod::editor
 		std::shared_ptr<game::Entity> selectionLock = Editor::GetInstance()->GetEntitySelection();
 
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
-		if (entityLock->GetChildren().empty())
+		if (entity->GetChildren().empty())
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
-		if (entityLock == selectionLock)
+		if (entity == selectionLock)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
 
-		ImGui::PushID(entityLock.get());
+		ImGui::PushID(entity.get());
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
 		bool opened = ImGui::TreeNodeEx("", treeNodeFlags);
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
-			Editor::GetInstance()->SetEntitySelection(entityLock);
+			Editor::GetInstance()->SetEntitySelection(entity);
 		}
 		bool hovered = ImGui::IsItemHovered();
 		ImGui::PopStyleVar();
@@ -181,14 +180,14 @@ namespace hod::editor
 
 		if (ImGui::BeginItemTooltip())
 		{
-			std::string_view internalStateLabel = EnumTrait::ToString(entityLock->GetInternalState());
+			std::string_view internalStateLabel = EnumTrait::ToString(entity->GetInternalState());
 			ImGui::Text("InternalState: %.*s", internalStateLabel.size(), internalStateLabel.data());
 			ImGui::EndTooltip();
 		}
 
 		if (ImGui::IsWindowHovered() == true && hovered == true && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
-			Editor::GetInstance()->SetEntitySelection(entityLock);
+			Editor::GetInstance()->SetEntitySelection(entity);
 			_openContextualMenu = true;
 		}
 
@@ -208,7 +207,7 @@ namespace hod::editor
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
 					if (dropEntityLock != nullptr)
 					{
-						dropEntityLock->SetParent(entityLock);
+						dropEntityLock->SetParent(entity);
 						GetOwner()->MarkAssetAsDirty();
 					}
 				}
@@ -219,19 +218,19 @@ namespace hod::editor
 		if (ImGui::BeginDragDropSource() == true)
 		{
 			// Some processing...
-			ImGui::TextUnformatted(entityLock->GetName().c_str());
+			ImGui::TextUnformatted(entity->GetName().c_str());
 
 			_entityDragAndDropPayload._hierarchyWindow = this;
-			_entityDragAndDropPayload._entity = entityLock;
+			_entityDragAndDropPayload._entity = entity;
 			ImGui::SetDragDropPayload("EntityId", (void*)&_entityDragAndDropPayload, sizeof(_entityDragAndDropPayload), ImGuiCond_Once);
 			ImGui::EndDragDropSource();
 		}
 
-		ImGui::BeginDisabled(entityLock->IsActiveInHierarchy() == false);
+		ImGui::BeginDisabled(entity->IsActiveInHierarchy() == false);
 
 		ImGui::SameLine(0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 0.0f });
-		if (entityLock->GetPrefabResource() != nullptr)
+		if (entity->GetPrefabResource() != nullptr)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.5f, 1.0f, 1.0f));
 			ImGui::AlignTextToFramePadding();
@@ -245,14 +244,14 @@ namespace hod::editor
 		}
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(entityLock->GetName().c_str());
+		ImGui::TextUnformatted(entity->GetName().c_str());
 		ImGui::PopStyleVar();
 
 		ImGui::EndDisabled();
 
 		if (opened == true)
 		{
-			for (const game::WeakEntity& child : entityLock->GetChildren())
+			for (const game::WeakEntity& child : entity->GetChildren())
 			{
 				std::shared_ptr<game::Entity> childEntity = child.Lock();
 				if (childEntity != nullptr)

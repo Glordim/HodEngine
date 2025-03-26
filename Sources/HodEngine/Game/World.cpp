@@ -97,10 +97,13 @@ namespace hod
 		/// @brief 
 		World::~World()
 		{
-			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
-			if (_drawJobEnabled == true)
+			if (_jobInserted)
 			{
-				FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
+				FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
+				if (_drawJobEnabled == true)
+				{
+					FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
+				}
 			}
 
 			Clear();
@@ -114,6 +117,7 @@ namespace hod
 		{
 			FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::Logic);
 			FrameSequencer::GetInstance()->InsertJob(&_drawJob, FrameSequencer::Step::Render);
+			_jobInserted = true;
 
 			return true;
 		}

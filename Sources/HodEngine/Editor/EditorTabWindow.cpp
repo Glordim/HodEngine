@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/EditorTab.hpp"
 
 namespace hod::editor
 {
@@ -9,7 +10,11 @@ namespace hod::editor
     : Window()
     , _owner(owner)
     {
+    }
 
+    /// @brief 
+    EditorTabWindow::~EditorTabWindow()
+    {
     }
 
     /// @brief 

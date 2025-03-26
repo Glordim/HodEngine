@@ -81,9 +81,9 @@ namespace hod::editor
 	void SceneEditorTab::CreateDefaultLayout()
 	{
 		//imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
-		HierachyWindow* hierarchyWindow = imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>(this);
-		InspectorWindow* inspectorWindow = imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>(this);
-		ViewportWindow* viewportWindow = imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>(this);
+		HierachyWindow* hierarchyWindow = OpenWindow<HierachyWindow>();
+		InspectorWindow* inspectorWindow = OpenWindow<InspectorWindow>();
+		ViewportWindow* viewportWindow = OpenWindow<ViewportWindow>();
 
 		ImGui::DockBuilderRemoveNode(_dockSpaceId);
 		ImGui::DockBuilderRemoveNodeChildNodes(_dockSpaceId);

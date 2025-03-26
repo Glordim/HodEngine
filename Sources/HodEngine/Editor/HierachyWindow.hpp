@@ -53,7 +53,7 @@ namespace hod::editor
 	private:
 
 		//void		DrawEntityNode(EntityNode* entityNode);
-		void		DrawEntity(std::weak_ptr<game::Entity> entity);
+		void		DrawEntity(std::shared_ptr<game::Entity> entity);
 
 		void		OnAddEntityCallback(std::weak_ptr<game::Entity> entity);
 		void		OnRemoveEntityCallback(std::weak_ptr<game::Entity> entity);

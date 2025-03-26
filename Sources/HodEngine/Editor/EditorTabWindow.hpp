@@ -12,6 +12,7 @@ namespace hod::editor
     {
     public:
         EditorTabWindow(EditorTab* owner = nullptr); // todo remove nullptr default value
+        ~EditorTabWindow() override;
 
         template<typename _EditorTabType_>
         _EditorTabType_*    GetOwner() const;

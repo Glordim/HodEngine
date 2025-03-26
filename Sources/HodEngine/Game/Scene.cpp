@@ -134,6 +134,8 @@ namespace hod::game
 
 		entity->SetScene(this);
 
+		entity->ProcessActivation();
+
 		return entity;
 	}
 

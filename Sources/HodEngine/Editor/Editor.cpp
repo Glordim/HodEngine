@@ -281,6 +281,7 @@ namespace hod::editor
 					{
 						if ((*it)->Draw() == false)
 						{
+							delete (*it);
 							_editorTabs.erase(it);
 						}
 						else
@@ -510,7 +511,9 @@ namespace hod::editor
 			return nullptr; // todo message
 		}
 
-		return it->second(asset);
+		EditorTab* editorTab = it->second(asset);
+		_editorTabs.push_back(editorTab);
+		return editorTab;
 	}
 
 	/*

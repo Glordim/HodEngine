@@ -101,6 +101,8 @@ namespace hod
 			DebugDrawer					_debugDrawer;
 
 			SystemTime::TimeStamp		_lastUpdateTimestamp = SystemTime::INVALID_TIMESTAMP;
+
+			bool						_jobInserted = false;
 		};
 	}
 }

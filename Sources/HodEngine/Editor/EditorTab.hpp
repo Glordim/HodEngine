@@ -10,19 +10,23 @@
 namespace hod::editor
 {
 	class Asset;
+	class EditorTabWindow;
 
 	class HOD_EDITOR_API EditorTab
 	{
 	public:
 
 				EditorTab(std::shared_ptr<Asset> asset, const char* icon = nullptr);
-		virtual ~EditorTab() = default;
+		virtual ~EditorTab();
 
 		bool					Draw();
 		std::shared_ptr<Asset>	GetAsset() const;
 
 		bool					AssetIsDirty() const;
 		void					MarkAssetAsDirty();
+
+		template<typename _EditorTabWindow_>
+		_EditorTabWindow_*		OpenWindow();
 
 	protected:
 
@@ -39,5 +43,15 @@ namespace hod::editor
 
 		std::shared_ptr<Asset>		_asset;
 		bool						_assetWasDirty = false;
+
+		std::vector<EditorTabWindow*>	_windows;
 	};
+
+	template<typename _EditorTabWindow_>
+	_EditorTabWindow_* EditorTab::OpenWindow()
+	{
+		_EditorTabWindow_* window = new _EditorTabWindow_(this);
+		_windows.push_back(window);
+		return window;
+	}
 }

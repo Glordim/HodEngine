@@ -125,7 +125,7 @@ namespace hod::game
 
 		std::string										_name;
 
-		bool											_active = false;
+		bool											_active = true;
 		bool											_activeInHierarchy = false;
 		InternalState									_internalState = InternalState::None;
 
