@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/Editor/EditorTabWindow.hpp"
 
 #include <HodEngine/ImGui/Window/Window.hpp>
 
@@ -23,14 +24,15 @@ namespace hod::editor
 	class EditorReflectedObject;
 
 	/// @brief 
-	class HOD_EDITOR_API InspectorWindow : public imgui::Window
+	class HOD_EDITOR_API InspectorWindow : public EditorTabWindow
 	{
-		META_TYPE(InspectorWindow, imgui::Window);
+		META_TYPE(InspectorWindow, EditorTabWindow);
 		WINDOW_DESCRIPTION()
 
 	public:
 
 					InspectorWindow() = default;
+					InspectorWindow(EditorTab* editorTab);
 					~InspectorWindow() override = default;
 
 	public:

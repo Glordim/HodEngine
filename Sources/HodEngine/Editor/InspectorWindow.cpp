@@ -1,6 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 
+#include "HodEngine/Editor/EditorTab.hpp"
+
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
@@ -37,6 +39,14 @@
 namespace hod::editor
 {
 	DECLARE_WINDOW_DESCRIPTION(InspectorWindow, "Inspector", true)
+
+	/// @brief 
+	/// @param editorTab 
+	InspectorWindow::InspectorWindow(EditorTab* editorTab)
+	: EditorTabWindow(editorTab)
+	{
+
+	}
 
 	/// @brief 
 	void InspectorWindow::DrawContent()
@@ -167,7 +177,7 @@ namespace hod::editor
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
 			selection->SetName(buffer);
-			Editor::GetInstance()->MarkCurrentSceneAsDirty();
+			GetOwner()->MarkAssetAsDirty();
 		}
 
 		for (std::shared_ptr<game::Component> component : selection->GetComponents())
@@ -281,7 +291,7 @@ namespace hod::editor
 					if (mustBeDelete)
 					{
 						selection->RemoveComponent(component);
-						Editor::GetInstance()->MarkCurrentSceneAsDirty();
+						GetOwner()->MarkAssetAsDirty();
 					}
 
 					if (ImGui::IsWindowHovered())
@@ -295,7 +305,7 @@ namespace hod::editor
 						if (ImGui::Button("Delete") == true)
 						{
 							selection->RemoveComponent(componentLock);
-							Editor::GetInstance()->MarkCurrentSceneAsDirty();
+							GetOwner()->MarkAssetAsDirty();
 						}
 						ImGui::EndPopup();
 					}
@@ -327,7 +337,7 @@ namespace hod::editor
 						}
 						if (changed == true)
 						{
-							Editor::GetInstance()->MarkCurrentSceneAsDirty();
+							GetOwner()->MarkAssetAsDirty();
 						}
 					}
 					else
@@ -390,7 +400,7 @@ namespace hod::editor
 						if (ImGui::MenuItem(displayName.c_str()) == true)
 						{
 							selection->AddComponent(componentDescriptor);
-							Editor::GetInstance()->MarkCurrentSceneAsDirty();
+							GetOwner()->MarkAssetAsDirty();
 							ImGui::CloseCurrentPopup();
 						}
 					}

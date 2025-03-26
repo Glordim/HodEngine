@@ -76,6 +76,7 @@ namespace hod::editor
 		template<typename _EditorTabType_>
 		_EditorTabType_*						OpenEditorTab();
 
+		/*
 		void									Play();
 		void									Stop();
 		void									Pause();
@@ -87,6 +88,7 @@ namespace hod::editor
 
 		Asset*									GetCurrentScene() const;
 		void									MarkCurrentSceneAsDirty();
+		*/
 
 		renderer::Texture*						GetFolderTexture() const { return _folderTexture; }
 		renderer::Texture*						GetFolderOpenTexture() const  { return _folderOpenTexture; }
@@ -104,6 +106,7 @@ namespace hod::editor
 
 		MainBar*								_mainBar = nullptr;
 		std::vector<EditorTab*>					_editorTabs;
+		std::unordered_map<std::string, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
 		std::weak_ptr<game::Entity> 			_entitySelection;
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
@@ -111,10 +114,10 @@ namespace hod::editor
 		ViewportWindow*							_currentViewport = nullptr;
 
 		Asset*									_currentScene = nullptr;
-
+		/*
 		bool									_playing = false;
 		bool									_paused = false;
-
+		*/
 		renderer::Texture*						_folderTexture = nullptr;
 		renderer::Texture*						_folderOpenTexture = nullptr;
 		renderer::Texture*						_sceneTexture = nullptr;
@@ -135,7 +138,7 @@ namespace hod::editor
 	template<typename _EditorTabType_>
 	_EditorTabType_* Editor::OpenEditorTab()
 	{
-		_EditorTabType_* editorTab = new _EditorTabType_();
+		_EditorTabType_* editorTab = new _EditorTabType_(nullptr);
 		_editorTabs.push_back(editorTab);
 		return editorTab;
 	}

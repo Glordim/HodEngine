@@ -4,11 +4,11 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
+#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
-#include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include <HodEngine/Renderer/Renderer.hpp>
@@ -22,10 +22,6 @@
 #include <HodEngine/Core/Color.hpp>
 #include <HodEngine/Core/Resource/ResourceManager.hpp>
 
-#include "HodEngine/Core/Document/Document.hpp"
-#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
-#include "HodEngine/Editor/Asset.hpp"
-#include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
@@ -50,150 +46,21 @@ namespace hod::editor
 	DECLARE_WINDOW_DESCRIPTION(ViewportWindow, "Viewport", false)
 
 	/// @brief 
-	ViewportWindow::ViewportWindow()
+	ViewportWindow::ViewportWindow(EditorTab* editorTab)
+	: EditorTabWindow(editorTab)
 	{
 		SetFlags(ImGuiWindowFlags_MenuBar);
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_renderQueue.Init();
-
-		_scene = new game::Scene();
-		SetId(reinterpret_cast<uint64_t>(_scene));
-
-		game::World* world = game::World::GetInstance();
-		world->AddScene(_scene);
-
-		SetTitle("New Scene");
-	}
-
-	/// @brief 
-	ViewportWindow::ViewportWindow(std::shared_ptr<Asset> asset)
-	{
-		_asset = asset;
-		SetTitle(asset->GetName());
-
-		SetFlags(ImGuiWindowFlags_MenuBar);
-
-		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_renderQueue.Init();
-
-		Document document;
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, asset->GetPath()) == false)
-		{
-			return; // todo message + bool
-		}
-
-		_scene = new game::Scene();
-		_scene->SetName(asset->GetName());
-		SetId(reinterpret_cast<uint64_t>(_scene));
-
-		SceneImporter sceneImporter;
-		if (asset->GetMeta()._importerType == sceneImporter.GetTypeName())
-		{
-			if (Serializer::Deserialize(_scene, document.GetRootNode()) == false)
-			{
-				return; // todo message + bool
-			}
-			asset->SetInstanceToSave(_scene, &_scene->GetReflectionDescriptorV());
-		}
-		else
-		{
-			std::shared_ptr<game::PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<game::PrefabResource>(asset->GetUid());
-			_scene->SetNextLocalId(prefabResource->GetPrefab().GetNextLocalId());
-			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(prefabResource);
-			prefabRootEntity->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
-			asset->SetInstanceToSave(_scene, &_scene->GetReflectionDescriptorV());
-		}
 	}
 
 	/// @brief 
 	ViewportWindow::~ViewportWindow()
 	{
-		game::World* world = game::World::GetInstance();
-		world->RemoveScene(_scene);
-
-		if (_asset != nullptr)
-		{
-			_asset->SetInstanceToSave(nullptr, nullptr);
-			_asset->ResetDirty();
-		}
-		delete _scene;
-
 		delete _renderTarget;
 		delete _pickingRenderTarget;
-	}
-
-	/// @brief 
-	void ViewportWindow::ReloadScene()
-	{
-		game::World* world = game::World::GetInstance();
-		world->RemoveScene(_scene);
-		world->AddScene(_scene);
-	}
-
-	bool ViewportWindow::Draw()
-	{
-		bool open = true;
-
-		// todo override GetIdentifier ?
-		if (_asset != nullptr && _assetWasDirty == true && _asset->IsDirty() == false)
-		{
-			_assetWasDirty = false;
-			SetTitle(_asset->GetName());
-		}
-		//
-
-		ImGui::SetNextWindowDockID(imgui::ImGuiManager::GetInstance()->GetCentralDockSpace(), ImGuiCond_Once);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		bool beginResult = ImGui::Begin(GetIdentifier(), &open, GetFlags());
-		ImGui::PopStyleVar();
-		if (beginResult)
-		{
-			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
-			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
-			cliprect.Min.y -= ImGui::GetStyle().WindowPadding.y * 0.5f;
-			cliprect.Max.x += ImGui::GetStyle().WindowPadding.x * 0.5f;
-			cliprect.Max.y += ImGui::GetStyle().WindowPadding.y * 0.5f;
-			ImGui::PopClipRect();
-			ImGui::PushClipRect(cliprect.Min, cliprect.Max, false);
-
-			if (ImGui::IsWindowAppearing())
-			{
-				game::World* world = game::World::GetInstance();
-				world->AddScene(_scene);
-			}
-			
-			DrawContent();
-
-			if (_wasFocus == false && ImGui::IsWindowFocused())
-			{
-				Editor::GetInstance()->SetCurrentViewport(this);
-				_wasFocus = true;
-			}
-		}
-		else
-		{
-			game::World* world = game::World::GetInstance();
-			world->RemoveScene(_scene);
-			if (_wasFocus == true && Editor::GetInstance()->GetEntitySelection() != nullptr)
-			{
-				Editor::GetInstance()->SetEntitySelection(nullptr);
-			}
-			if (Editor::GetInstance()->GetCurrentViewport() == this)
-			{
-				Editor::GetInstance()->SetCurrentViewport(nullptr);
-			}
-			_wasFocus = false;
-		}
-		if (open == false)
-		{
-			Close();
-		}
-		ImGui::End();
-		return open;
 	}
 
 	/// @brief 
@@ -307,7 +174,7 @@ namespace hod::editor
 					}
 					else
 					{
-						game::World* world = game::World::GetInstance();
+						game::World* world = GetOwner<SceneEditorTab>()->GetWorld();
 						std::shared_ptr<game::Entity> pickedEntity = world->FindEntity((uint64_t)pickingId).lock();
 						if (pickedEntity != nullptr)
 						{
@@ -324,7 +191,7 @@ namespace hod::editor
 		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
 		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
 
-		if (Editor::GetInstance()->IsPlaying() == true && Editor::GetInstance()->IsPaused() == false)
+		if (GetOwner<SceneEditorTab>()->IsPlaying() == true && GetOwner<SceneEditorTab>()->IsPaused() == false)
 		{
 			resolutionWidth = static_cast<uint32_t>(static_cast<float>(resolutionHeight) * (_playRatio.GetX() / _playRatio.GetY()));
 		}
@@ -347,7 +214,7 @@ namespace hod::editor
 
 			_renderQueue.Prepare(_renderTarget, _pickingRenderTarget);
 
-			if (Editor::GetInstance()->IsPlaying() == false || Editor::GetInstance()->IsPaused() == true)
+			if (GetOwner<SceneEditorTab>()->IsPlaying() == false || GetOwner<SceneEditorTab>()->IsPaused() == true)
 			{
 				Rect viewport;
 				viewport._position.SetX(0);
@@ -362,7 +229,7 @@ namespace hod::editor
 
 				_renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
 
-				game::World* world = game::World::GetInstance();
+				game::World* world = GetOwner<SceneEditorTab>()->GetWorld();
 				world->Draw(&_renderQueue);
 
 				if (_physicsDebugDrawer != nullptr)
@@ -387,7 +254,7 @@ namespace hod::editor
 								{
 									if (customEditor->OnDrawGizmo(componentLock, *this))
 									{
-										MarkCurrentSceneAsDirty();
+										GetOwner()->MarkAssetAsDirty();
 									}
 								}
 							}
@@ -397,7 +264,7 @@ namespace hod::editor
 			}
 			else
 			{
-				game::World* world = game::World::GetInstance();
+				game::World* world = GetOwner<SceneEditorTab>()->GetWorld();
 				world->Draw(&_renderQueue);
 			}
 
@@ -431,37 +298,17 @@ namespace hod::editor
 							PrefabImporter prefabImporter;
 							if (asset->GetMeta()._importerType == prefabImporter.GetTypeName())
 							{
-								Document document;
-								DocumentReaderJson documentReader;
-								if (documentReader.Read(document, asset->GetPath()) == false)
-								{
-									return; // todo message + bool
-								}
-
 								std::shared_ptr<game::PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<game::PrefabResource>(asset->GetUid());
 
-								_scene->Instantiate(prefabResource);
+								GetOwner<SceneEditorTab>()->GetCurrentScene()->Instantiate(prefabResource);
 
-								MarkCurrentSceneAsDirty();
+								GetOwner()->MarkAssetAsDirty();
 							}
 						}
 					}
 				}
 				ImGui::EndDragDropTarget();
 			}
-		}
-	}
-
-	/// @brief 
-	void ViewportWindow::MarkCurrentSceneAsDirty()
-	{
-		if (_asset != nullptr)
-		{
-			_asset->SetDirty();
-			_assetWasDirty = true;
-
-			std::string title = std::format("{} " ICON_MDI_STAR_FOUR_POINTS_SMALL, _asset->GetName());
-			SetTitle(title);
 		}
 	}
 
@@ -492,13 +339,6 @@ namespace hod::editor
 	bool ViewportWindow::IsPhysicsDebugDrawerEnabled(bool enabled) const
 	{
 		return (_physicsDebugDrawer != nullptr);
-	}
-
-	/// @brief 
-	/// @return 
-	std::shared_ptr<Asset> ViewportWindow::GetAsset() const
-	{
-		return _asset;
 	}
 
 	/// @brief 

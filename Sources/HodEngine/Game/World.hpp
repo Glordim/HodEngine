@@ -31,9 +31,19 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class HOD_GAME_API World
 		{
-			_Singleton(World)
+		// TODO remove
+		public:																		
+																					
+			static World*		CreateInstance() { _instance = new World(); return _instance; }	
+			static World*		GetInstance() { return _instance; }							
+			static void			DestroyInstance() { delete _instance; _instance = nullptr; }
+			static World*		_instance;
+		//
 
 		public:
+
+										World();
+										~World();
 
 			bool						Init();
 			void						Clear();
@@ -74,10 +84,6 @@ namespace hod
 			// todo #ifndef retail ?
 			void						DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
 			//
-
-		protected:
-
-										~World();
 
 		private:
 // todo

@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/EditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -23,7 +24,8 @@ namespace hod::editor
 	};
 
 	/// @brief 
-	HierachyWindow::HierachyWindow()
+	HierachyWindow::HierachyWindow(EditorTab* editorTab)
+	: EditorTabWindow(editorTab)
 	{
 	}
 
@@ -82,7 +84,7 @@ namespace hod::editor
 
 				Editor::GetInstance()->SetEntitySelection(entityLock);
 
-				Editor::GetInstance()->MarkCurrentSceneAsDirty();
+				GetOwner()->MarkAssetAsDirty();
 
 				ImGui::CloseCurrentPopup();
 			}
@@ -92,13 +94,13 @@ namespace hod::editor
 				if (ImGui::MenuItem("Delete") == true)
 				{
 					world->DestroyEntity(selectionLock);
-					Editor::GetInstance()->MarkCurrentSceneAsDirty();
+					GetOwner()->MarkAssetAsDirty();
 				}
 
 				if (selectionLock->GetPrefabResource() != nullptr && ImGui::MenuItem("Unpack Prefab"))
 				{
 					selectionLock->SetPrefabResource(nullptr);
-					Editor::GetInstance()->MarkCurrentSceneAsDirty();
+					GetOwner()->MarkAssetAsDirty();
 				}
 			}
 			ImGui::EndPopup();
@@ -146,7 +148,7 @@ namespace hod::editor
 					{
 						dropEntityLock->SetParent(entityLock->GetParent());
 						dropEntityLock->SetSiblingIndex(entityLock->GetSiblingIndex());
-						Editor::GetInstance()->MarkCurrentSceneAsDirty();
+						GetOwner()->MarkAssetAsDirty();
 					}
 				}
 			}
@@ -207,7 +209,7 @@ namespace hod::editor
 					if (dropEntityLock != nullptr)
 					{
 						dropEntityLock->SetParent(entityLock);
-						Editor::GetInstance()->MarkCurrentSceneAsDirty();
+						GetOwner()->MarkAssetAsDirty();
 					}
 				}
 			}
@@ -218,8 +220,10 @@ namespace hod::editor
 		{
 			// Some processing...
 			ImGui::TextUnformatted(entityLock->GetName().c_str());
-			uint64_t entityId = entityLock->GetInstanceId();
-			ImGui::SetDragDropPayload("EntityId", (void*)&entityId, sizeof(entityId), ImGuiCond_Once);
+
+			_entityDragAndDropPayload._hierarchyWindow = this;
+			_entityDragAndDropPayload._entity = entityLock;
+			ImGui::SetDragDropPayload("EntityId", (void*)&_entityDragAndDropPayload, sizeof(_entityDragAndDropPayload), ImGuiCond_Once);
 			ImGui::EndDragDropSource();
 		}
 

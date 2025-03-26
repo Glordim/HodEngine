@@ -205,6 +205,8 @@ namespace hod::editor
 		_checkerTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
 
+		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset){ return new SceneEditorTab(asset); });
+
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
 		{
@@ -487,51 +489,31 @@ namespace hod::editor
 		return true;
 	}
 
+	/// @brief 
+	/// @param asset 
+	/// @return 
 	EditorTab* Editor::OpenAsset(std::shared_ptr<Asset> asset)
 	{
 		bool alreadyExist = false;
-		std::vector<imgui::Window*> viewportWindows = imgui::ImGuiManager::GetInstance()->FindWindows<ViewportWindow>();
-		for (imgui::Window* window : viewportWindows)
+		for (EditorTab* editorTab : _editorTabs)
 		{
-			ViewportWindow* viewportWindows = static_cast<ViewportWindow*>(window);
-
-			if (viewportWindows->GetAsset() == asset)
+			if (editorTab->GetAsset() == asset)
 			{
 				// todo select tab if docking
-				alreadyExist = true;
-				break;
+				return editorTab;
 			}
 		}
-		if (alreadyExist == false)
+		
+		auto it = _editorTabFactory.find(asset->GetMeta()._importerType);
+		if (it == _editorTabFactory.end())
 		{
-			imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>(asset);
-			// todo with others ViewportWindows
-		}
-		/*
-		Document document;
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, asset.GetPath()) == false)
-		{
-			return; // todo message + bool
+			return nullptr; // todo message
 		}
 
-		game::Scene* scene = new game::Scene();
-		if (Serializer::Deserialize(scene, document.GetRootNode()) == false)
-		{
-			return; // todo message + bool
-		}
-
-		game::World* world = game::World::GetInstance();
-		world->Clear();
-		world->AddScene(scene);
-		//world->LoadFromDocument(scene->GetDocument().GetRootNode());
-
-		_currentScene = &asset;
-		*/
-
-		return nullptr;
+		return it->second(asset);
 	}
 
+	/*
 	/// @brief 
 	void Editor::Play()
 	{
@@ -541,13 +523,7 @@ namespace hod::editor
 		}
 
 		game::World* world = game::World::GetInstance();
-		/*
-		_playedWorldDocument.GetRootNode().Clear();
-		if (world->SaveToDocument(_playedWorldDocument.GetRootNode()) == false)
-		{
-			return;
-		}
-		*/
+
 		world->SetEditorPlaying(true);
 
 		_playing = true;
@@ -569,14 +545,6 @@ namespace hod::editor
 		world->SetEditorPaused(_paused);
 		world->Clear();
 		_currentViewport->ReloadScene();
-		
-		/*
-		world->Clear();
-		if (world->LoadFromDocument(_playedWorldDocument.GetRootNode()) == false)
-		{
-			return;
-		}
-		*/
 	}
 	
 	/// @brief 
@@ -641,6 +609,7 @@ namespace hod::editor
 			_currentViewport->MarkCurrentSceneAsDirty();
 		}
 	}
+	*/
 
 	/// @brief 
 	void Editor::Build()

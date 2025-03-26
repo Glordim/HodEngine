@@ -83,9 +83,11 @@ namespace hod
 		}
 	//
 
+		World* World::_instance = nullptr;
+
 		/// @brief 
 		/// @param  
-		_SingletonConstructor(World)
+		World::World()
 		: _updateJob(this, &World::Update, JobQueue::Queue::FramedNormalPriority)
 		, _drawJob(this, &World::Draw, JobQueue::Queue::FramedNormalPriority)
 		, _persistanteScene(new Scene())

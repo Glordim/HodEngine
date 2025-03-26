@@ -4,6 +4,9 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
 
+#include "HodEngine/Editor/HierachyWindow.hpp"
+#include "HodEngine/Editor/EditorTab.hpp"
+
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
@@ -500,10 +503,8 @@ namespace hod::editor
 				payload = ImGui::AcceptDragDropPayload("EntityId");
 				if (payload != nullptr)
 				{
-					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
-					game::World* world = game::World::GetInstance();
-					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
-					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
+					EntityDragAndDropPayload* payloadData = static_cast<EntityDragAndDropPayload*>(payload->Data);
+					std::shared_ptr<game::Entity> dropEntityLock = payloadData->_entity;
 					if (dropEntityLock != nullptr)
 					{
 						std::shared_ptr<game::PrefabResource> prefabResource = dropEntityLock->GetPrefabResource();
@@ -536,7 +537,7 @@ namespace hod::editor
 									newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
 									AssetDatabase::GetInstance()->Import(newAssetPath);
 									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<game::PrefabResource>(newAssetNode->_asset->GetUid()));
-									Editor::GetInstance()->MarkCurrentSceneAsDirty();
+									payloadData->_hierarchyWindow->GetOwner()->MarkAssetAsDirty();
 								}
 								else
 								{

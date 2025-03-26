@@ -1,7 +1,8 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <HodEngine/ImGui/Window/Window.hpp>
+#include "HodEngine/Editor/EditorTabWindow.hpp"
+
 #include <HodEngine/Core/Math/Vector2.hpp>
 #include <HodEngine/Core/Math/Matrix4.hpp>
 
@@ -14,39 +15,25 @@ namespace hod::renderer
 	class RenderTarget;
 }
 
-namespace hod::game
-{
-	class Scene;
-	class Prefab;
-}
-
 namespace hod::editor
 {
-	class Asset;
 	class PhysicsDebugDrawer;
 
 	/// @brief 
-	class HOD_EDITOR_API ViewportWindow : public imgui::Window
+	class HOD_EDITOR_API ViewportWindow : public EditorTabWindow
 	{
-		META_TYPE(ViewportWindow, imgui::Window);
+		META_TYPE(ViewportWindow, EditorTabWindow);
 		WINDOW_DESCRIPTION()
 
 	public:
 
-					ViewportWindow();
-					ViewportWindow(std::shared_ptr<Asset> asset);
+					ViewportWindow() = default; // todo remove
+					ViewportWindow(EditorTab* editorTab);
 					~ViewportWindow() override;
 
 	public:
 
-		bool		Draw() override;
 		void		DrawContent() override;
-
-		void		ReloadScene();
-
-		void		MarkCurrentSceneAsDirty();
-
-		std::shared_ptr<Asset> GetAsset() const;
 
 		renderer::RenderQueue*		GetRenderQueue();
 		renderer::RenderTarget*		GetPickingRenderTarget() const;
@@ -71,12 +58,9 @@ namespace hod::editor
 
 		Vector2						_cameraPosition = Vector2::Zero;
 		float						_size = 5.0f;
-		game::Scene*				_scene = nullptr;
-		std::shared_ptr<Asset>		_asset;
 
 		PhysicsDebugDrawer*			_physicsDebugDrawer = nullptr;
 		bool						_debugPicker = false;
 		bool						_wasFocus = false;
-		bool						_assetWasDirty = true;
 	};
 }

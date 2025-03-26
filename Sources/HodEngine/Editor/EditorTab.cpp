@@ -1,16 +1,29 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "EditorTab.hpp"
+#include "HodEngine/Editor/EditorTab.hpp"
+
+#include "HodEngine/Editor/Asset.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 namespace hod::editor
 {
 	/// @brief 
-	/// @param title 
-	EditorTab::EditorTab(std::string_view title)
+	/// @param asset 
+	EditorTab::EditorTab(std::shared_ptr<Asset> asset, const char* icon)
 	{
-		_title = title;
-		_dockSpaceId = ImGui::GetID(_title.c_str());
+		_asset = asset;
+		if (_asset == nullptr)
+		{			
+			_title = std::format("{}   Untitled", icon);
+		}
+		else
+		{
+			_title = std::format("{}   {}", icon, _asset->GetName());
+		}
+
+		//ICON_MDI_STAR_FOUR_POINTS_SMALL
+
+		_dockSpaceId = reinterpret_cast<uintptr_t>(this);
 	}
 
 	/// @brief 
@@ -30,5 +43,35 @@ namespace hod::editor
 			ImGui::EndTabItem();
 		}
 		return open;
+	}
+
+	/// @brief 
+	/// @return 
+	std::shared_ptr<Asset> EditorTab::GetAsset() const
+	{
+		return _asset;
+	}
+
+	/// @brief 
+	/// @return 
+	bool EditorTab::AssetIsDirty() const
+	{
+		if (_asset)
+		{
+			return _asset->IsDirty();
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	/// @brief 
+	void EditorTab::MarkAssetAsDirty()
+	{
+		if (_asset)
+		{
+			return _asset->SetDirty();
+		}
 	}
 }

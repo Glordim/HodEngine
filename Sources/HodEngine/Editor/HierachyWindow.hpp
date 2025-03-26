@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <HodEngine/ImGui/Window/Window.hpp>
+#include "HodEngine/Editor/EditorTabWindow.hpp"
 #include <memory>
 
 namespace hod::game
@@ -12,15 +12,25 @@ namespace hod::game
 
 namespace hod::editor
 {
+	class HierachyWindow;
+
 	/// @brief 
-	class HOD_EDITOR_API HierachyWindow : public imgui::Window
+	struct EntityDragAndDropPayload
+	{
+		HierachyWindow*					_hierarchyWindow;
+		std::shared_ptr<game::Entity>	_entity;
+	};
+
+	/// @brief 
+	class HOD_EDITOR_API HierachyWindow : public EditorTabWindow
 	{
 		META_TYPE(HierachyWindow, imgui::Window);
 		WINDOW_DESCRIPTION()
 
 	public:
 
-					HierachyWindow();
+					HierachyWindow() = default; // todo remove
+					HierachyWindow(EditorTab* editorTab);
 					~HierachyWindow() override = default;
 
 	public:
@@ -55,6 +65,8 @@ namespace hod::editor
 	private:
 
 		bool										_openContextualMenu = false;
+
+		EntityDragAndDropPayload					_entityDragAndDropPayload;
 
 		//EntityNode									_rootEntityNode;
 	};
