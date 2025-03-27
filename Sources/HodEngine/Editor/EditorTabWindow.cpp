@@ -10,6 +10,7 @@ namespace hod::editor
     : Window()
     , _owner(owner)
     {
+        SetId(reinterpret_cast<uint64_t>(owner));
     }
 
     /// @brief 

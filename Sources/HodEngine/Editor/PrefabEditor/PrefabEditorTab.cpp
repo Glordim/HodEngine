@@ -1,5 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
+#include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"
@@ -25,8 +25,8 @@
 namespace hod::editor
 {
 	/// @brief 
-	SceneEditorTab::SceneEditorTab(std::shared_ptr<Asset> asset)
-	: EditorTab(asset, ICON_MDI_IMAGE_FILTER_HDR)
+	PrefabEditorTab::PrefabEditorTab(std::shared_ptr<Asset> asset)
+	: EditorTab(asset, ICON_MDI_CUBE)
 	{
 		_scene = new game::Scene();
 
@@ -65,7 +65,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	SceneEditorTab::~SceneEditorTab()
+	PrefabEditorTab::~PrefabEditorTab()
 	{
 		_world->RemoveScene(_scene);
 
@@ -80,7 +80,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void SceneEditorTab::CreateDefaultLayout()
+	void PrefabEditorTab::CreateDefaultLayout()
 	{
 		//imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 		HierachyWindow* hierarchyWindow = OpenWindow<HierachyWindow>();
@@ -105,7 +105,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	bool SceneEditorTab::DrawContent()
+	bool PrefabEditorTab::DrawContent()
 	{
 		// todo override GetIdentifier ?
 		/*
@@ -121,7 +121,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void SceneEditorTab::ReloadScene()
+	void PrefabEditorTab::ReloadScene()
 	{
 		_world->RemoveScene(_scene);
 		_world->AddScene(_scene);
@@ -129,20 +129,20 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	game::World* SceneEditorTab::GetWorld() const
+	game::World* PrefabEditorTab::GetWorld() const
 	{
 		return _world;
 	}
 
 	/// @brief 
 	/// @return 
-	game::Scene* SceneEditorTab::GetCurrentScene() const
+	game::Scene* PrefabEditorTab::GetCurrentScene() const
 	{
 		return _scene;
 	}
 
 	/// @brief 
-	void SceneEditorTab::Play()
+	void PrefabEditorTab::Play()
 	{
 		if (_playing == true)
 		{
@@ -157,7 +157,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void SceneEditorTab::Stop()
+	void PrefabEditorTab::Stop()
 	{
 		if (_playing == false)
 		{
@@ -175,7 +175,7 @@ namespace hod::editor
 	}
 	
 	/// @brief 
-	void SceneEditorTab::Pause()
+	void PrefabEditorTab::Pause()
 	{
 		if (_paused == true)
 		{
@@ -188,7 +188,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void SceneEditorTab::Resume()
+	void PrefabEditorTab::Resume()
 	{
 		if (_paused == false)
 		{
@@ -201,7 +201,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void SceneEditorTab::PlayNextFrame()
+	void PrefabEditorTab::PlayNextFrame()
 	{
 		Pause();
 		game::World::GetInstance()->EditorNextFrame();
@@ -209,14 +209,14 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	bool SceneEditorTab::IsPlaying() const
+	bool PrefabEditorTab::IsPlaying() const
 	{
 		return _playing;
 	}
 
 	/// @brief 
 	/// @return 
-	bool SceneEditorTab::IsPaused() const
+	bool PrefabEditorTab::IsPaused() const
 	{
 		return _paused;
 	}

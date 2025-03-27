@@ -68,6 +68,7 @@
 #include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
 
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
+#include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
 
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -206,6 +207,7 @@ namespace hod::editor
 		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
 
 		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset){ return new SceneEditorTab(asset); });
+		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset){ return new PrefabEditorTab(asset); });
 
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
