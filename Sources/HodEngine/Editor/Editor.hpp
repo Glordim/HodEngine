@@ -59,10 +59,9 @@ namespace hod::editor
 		void									Build();
 		void									BuildAndRun();
 
-		void									SetEntitySelection(std::shared_ptr<game::Entity> selection);
+		
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 
-		std::shared_ptr<game::Entity>			GetEntitySelection() const;
 		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
 
 		ViewportWindow*							GetCurrentViewport() const;
@@ -108,7 +107,6 @@ namespace hod::editor
 		std::vector<EditorTab*>					_editorTabs;
 		std::unordered_map<std::string, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
-		std::weak_ptr<game::Entity> 			_entitySelection;
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
 
 		ViewportWindow*							_currentViewport = nullptr;

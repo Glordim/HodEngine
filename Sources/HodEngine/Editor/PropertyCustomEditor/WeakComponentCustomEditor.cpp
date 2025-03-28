@@ -106,7 +106,7 @@ namespace hod::editor
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_MDI_CURSOR_POINTER))
 		{
-			Editor::GetInstance()->SetEntitySelection(value->Lock()->GetOwner());
+			//Editor::GetInstance()->SetEntitySelection(value->Lock()->GetOwner());
 		}
 		ImGui::EndDisabled();
 

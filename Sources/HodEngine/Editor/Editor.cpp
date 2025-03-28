@@ -367,18 +367,9 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param asset 
-	void Editor::SetEntitySelection(std::shared_ptr<game::Entity> selection)
-	{
-		_assetSelection = nullptr;
-		_entitySelection = selection;
-	}
-
-	/// @brief 
-	/// @param asset 
 	void Editor::SetAssetSelection(const AssetDatabase::FileSystemMapping* selection)
 	{
 		_assetSelection = selection;
-		_entitySelection.reset();
 
 		std::shared_ptr<Asset> asset = selection->_asset;
 		if (asset != nullptr)
@@ -390,13 +381,6 @@ namespace hod::editor
 				componentCustomEditorTrait->GetCustomEditor()->OnInit(asset);
 			}
 		}
-	}
-
-	/// @brief 
-	/// @return 
-	std::shared_ptr<game::Entity> Editor::GetEntitySelection() const
-	{
-		return _entitySelection.lock();
 	}
 
 	/// @brief 

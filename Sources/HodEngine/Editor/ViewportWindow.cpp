@@ -170,15 +170,15 @@ namespace hod::editor
 					uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
 					if (pickingId == 0)
 					{
-						Editor::GetInstance()->SetEntitySelection(nullptr);
+						GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
 					}
 					else
 					{
-						game::World* world = GetOwner<SceneEditorTab>()->GetWorld();
+						game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 						std::shared_ptr<game::Entity> pickedEntity = world->FindEntity((uint64_t)pickingId).lock();
 						if (pickedEntity != nullptr)
 						{
-							Editor::GetInstance()->SetEntitySelection(pickedEntity);
+							GetOwner<EntityEditorTab>()->SetEntitySelection(pickedEntity);
 						}
 					}
 				}
@@ -191,7 +191,7 @@ namespace hod::editor
 		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
 		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
 
-		if (GetOwner<SceneEditorTab>()->IsPlaying() == true && GetOwner<SceneEditorTab>()->IsPaused() == false)
+		if (GetOwner<EntityEditorTab>()->IsPlaying() == true && GetOwner<EntityEditorTab>()->IsPaused() == false)
 		{
 			resolutionWidth = static_cast<uint32_t>(static_cast<float>(resolutionHeight) * (_playRatio.GetX() / _playRatio.GetY()));
 		}
@@ -214,7 +214,7 @@ namespace hod::editor
 
 			_renderQueue.Prepare(_renderTarget, _pickingRenderTarget);
 
-			if (GetOwner<SceneEditorTab>()->IsPlaying() == false || GetOwner<SceneEditorTab>()->IsPaused() == true)
+			if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
 			{
 				Rect viewport;
 				viewport._position.SetX(0);
@@ -229,7 +229,7 @@ namespace hod::editor
 
 				_renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
 
-				game::World* world = GetOwner<SceneEditorTab>()->GetWorld();
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				world->Draw(&_renderQueue);
 
 				if (_physicsDebugDrawer != nullptr)
@@ -237,8 +237,7 @@ namespace hod::editor
 					_physicsDebugDrawer->PushToRenderQueue(_renderQueue);
 				}
 
-				Editor* editor = Editor::GetInstance();
-				std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection();
+				std::shared_ptr<game::Entity> sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 				if (sceneSelection != nullptr)
 				{
 					for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
@@ -264,7 +263,7 @@ namespace hod::editor
 			}
 			else
 			{
-				game::World* world = GetOwner<SceneEditorTab>()->GetWorld();
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				world->Draw(&_renderQueue);
 			}
 
@@ -300,7 +299,7 @@ namespace hod::editor
 							{
 								std::shared_ptr<game::PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<game::PrefabResource>(asset->GetUid());
 
-								GetOwner<SceneEditorTab>()->GetCurrentScene()->Instantiate(prefabResource);
+								GetOwner<EntityEditorTab>()->GetCurrentScene()->Instantiate(prefabResource);
 
 								GetOwner()->MarkAssetAsDirty();
 							}

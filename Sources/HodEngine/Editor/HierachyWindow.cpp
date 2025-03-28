@@ -33,7 +33,7 @@ namespace hod::editor
 	/// @brief 
 	void HierachyWindow::DrawContent()
 	{
-		game::World* world = GetOwner<SceneEditorTab>()->GetWorld();
+		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 		for (game::Scene* scene : world->GetScenes())
 		{
 			ImGui::PushID(scene);
@@ -54,7 +54,7 @@ namespace hod::editor
 
 		if (ImGui::IsWindowHovered() && ImGui::IsAnyItemHovered() == false && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)))
 		{
-			Editor::GetInstance()->SetEntitySelection(nullptr);
+			GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
 		}
 		/*
 		for (EntityNode* entityNode : _rootEntityNode._children)
@@ -71,7 +71,7 @@ namespace hod::editor
 
 		if (ImGui::BeginPopup("ContextualMenu") == true)
 		{
-			std::shared_ptr<game::Entity> selectionLock = Editor::GetInstance()->GetEntitySelection();
+			std::shared_ptr<game::Entity> selectionLock = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
 			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().size() > 0)
 			{
@@ -83,7 +83,7 @@ namespace hod::editor
 					entityLock->SetParent(selectionLock);
 				}
 
-				Editor::GetInstance()->SetEntitySelection(entityLock);
+				GetOwner<EntityEditorTab>()->SetEntitySelection(entityLock);
 
 				GetOwner()->MarkAssetAsDirty();
 
@@ -155,7 +155,7 @@ namespace hod::editor
 		}
 		ImGui::PopStyleVar();
 
-		std::shared_ptr<game::Entity> selectionLock = Editor::GetInstance()->GetEntitySelection();
+		std::shared_ptr<game::Entity> selectionLock = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
 		if (entity->GetChildren().empty())
@@ -172,7 +172,7 @@ namespace hod::editor
 		bool opened = ImGui::TreeNodeEx("", treeNodeFlags);
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
-			Editor::GetInstance()->SetEntitySelection(entity);
+			GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
 		}
 		bool hovered = ImGui::IsItemHovered();
 		ImGui::PopStyleVar();
@@ -187,7 +187,7 @@ namespace hod::editor
 
 		if (ImGui::IsWindowHovered() == true && hovered == true && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
-			Editor::GetInstance()->SetEntitySelection(entity);
+			GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
 			_openContextualMenu = true;
 		}
 
@@ -287,7 +287,7 @@ namespace hod::editor
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
 			_selection = entityLock;
-			Editor::GetInstance()->SetEntitySelection(_selection);
+			GetOwner<EntityEditorTab>()->SetEntitySelection(_selection);
 		}
 		ImGui::PopStyleVar();
 		ImGui::PopID();
@@ -295,7 +295,7 @@ namespace hod::editor
 		if (ImGui::IsWindowHovered() == true && ImGui::IsItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
 			_selection = entityLock;
-			Editor::GetInstance()->SetEntitySelection(_selection);
+			GetOwner<EntityEditorTab>()->SetEntitySelection(_selection);
 
 			ImGui::OpenPopup("ContextualMenu");
 		}

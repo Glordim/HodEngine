@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/InspectorWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -51,12 +52,12 @@ namespace hod::editor
 	/// @brief 
 	void InspectorWindow::DrawContent()
 	{
-		Editor* editor = Editor::GetInstance();
-		std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection();
+		std::shared_ptr<game::Entity> sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 		if (sceneSelection != nullptr)
 		{
 			DrawSceneSelection(sceneSelection);
 		}
+		/*
 		else
 		{
 			const AssetDatabase::FileSystemMapping* assetSelection = editor->GetAssetSelection();
@@ -65,6 +66,7 @@ namespace hod::editor
 				DrawAssetSelection(assetSelection);
 			}
 		}
+		*/
 	}
 
 	/// @brief 
