@@ -420,7 +420,10 @@ namespace hod::game
 	/// @brief 
 	void Entity::Enable()
 	{
-		assert(_activeInHierarchy == false);
+		if (_activeInHierarchy == true)
+		{
+			return;
+		}
 
 		for (const std::shared_ptr<Component>& component : _components)
 		{
@@ -464,7 +467,10 @@ namespace hod::game
 	/// @brief 
 	void Entity::Disable()
 	{
-		assert(_activeInHierarchy == true);
+		if (_activeInHierarchy == false)
+		{
+			return;
+		}
 
 		for (const WeakEntity& child : _children)
 		{

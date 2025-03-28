@@ -183,6 +183,19 @@ namespace hod::game
 	}
 
 	/// @brief 
+	void Scene::ProcessActivation()
+	{
+		for (const auto& entityPair : _entities)
+		{
+			std::shared_ptr<Entity> entity = entityPair.second;
+			if (entity->GetParent().Lock() == nullptr)
+			{
+				entity->ProcessActivation();
+			}
+		}
+	}
+
+	/// @brief 
 	void Scene::Update(float deltaTime)
 	{
 		for (auto entityPair : _entities)

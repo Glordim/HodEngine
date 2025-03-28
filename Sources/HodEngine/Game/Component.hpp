@@ -9,6 +9,7 @@ namespace hod::game
 {
 	class Entity;
 	class Scene;
+	class World;
 
 	///@brief 
 	class HOD_GAME_API Component : public std::enable_shared_from_this<Component>
@@ -21,6 +22,8 @@ namespace hod::game
 	public:
 
 		std::shared_ptr<Entity>	GetOwner() const;
+		World*					GetWorld() const;
+		Scene*					GetScene() const;
 
 		void					SetEnabled(bool enabled);
 		bool					GetEnabled() const;

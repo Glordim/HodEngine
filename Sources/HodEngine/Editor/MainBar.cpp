@@ -95,49 +95,7 @@ namespace hod::editor
 		{
 			Project::GetInstance()->ReloadGameModule();
 		}
-/*
-		const ImGuiStyle& style = ImGui::GetStyle();
-		float groupWidth = CalculateButtonSize(ICON_MDI_PLAY).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_PAUSE).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_SKIP_NEXT).x;
-		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x * 0.5f - groupWidth * 0.5f);
 
-		Editor* editor = Editor::GetInstance();
-		if (editor->IsPlaying() == true)
-		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
-			bool pressed = ImGui::Button(ICON_MDI_STOP, ImVec2(0, 42));
-			ImGui::PopStyleColor();
-			if (pressed == true)
-			{
-				editor->Stop();
-			}
-		}
-		else if (ImGui::Button(ICON_MDI_PLAY, ImVec2(0, 42)) == true)
-		{
-			editor->Play();
-		}
-
-		if (editor->IsPaused() == true)
-		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
-			bool pressed = ImGui::Button(ICON_MDI_PAUSE, ImVec2(0, 42));
-			ImGui::PopStyleColor();
-			if (pressed == true)
-			{
-				editor->Resume();
-			}
-		}
-		else if (ImGui::Button(ICON_MDI_PAUSE, ImVec2(0, 42)) == true)
-		{
-			editor->Pause();
-		}
-
-		ImGui::BeginDisabled(editor->IsPlaying() == false);
-		if (ImGui::Button(ICON_MDI_SKIP_NEXT, ImVec2(0, 42)) == true)
-		{
-			editor->PlayNextFrame();
-		}
-		ImGui::EndDisabled();
-*/
 		_fpsCounter.OnFrame();
 		char fps[64] = { '\0' };
 		std::format_to_n(fps, sizeof(fps) - 1, "{} fps", (uint32_t)_fpsCounter.GetFPS());

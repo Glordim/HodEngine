@@ -5,6 +5,8 @@
 #include "HodEngine/Editor/Asset.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/DearImGui/imgui_internal.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::editor
 {
@@ -41,8 +43,27 @@ namespace hod::editor
 	bool EditorTab::Draw()
 	{
 		bool open = true;
-		if (ImGui::BeginTabItem(_title.c_str(), &open))
+		ImGui::SetNextItemWidth(210);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
+		bool draw = ImGui::BeginTabItem(_title.c_str(), &open);
+		ImGui::PopStyleVar();
+		if (draw)
 		{
+			float y = ImGui::GetCursorScreenPos().y - ImGui::GetStyle().ItemSpacing.y;
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(0.0f, y), ImVec2(ImGui::GetIO().DisplaySize.x, y + 40), ImGui::GetColorU32(ImGuiCol_TabSelected));
+			if (ImGui::Button(ICON_MDI_CONTENT_SAVE, ImVec2(0.0f, 32.0f)))
+			{
+
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_MDI_MAGNIFY, ImVec2(0.0f, 32.0f)))
+			{
+
+			}
+			ImGui::SameLine();
+			ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
+			DrawMenuBar();
+
 			if (_initialLayoutCreated == false)
 			{
 				CreateDefaultLayout();
@@ -58,6 +79,7 @@ namespace hod::editor
 				{
 					delete (*it);
 					_windows.erase(it);
+					itEnd = _windows.end();
 				}
 				else
 				{

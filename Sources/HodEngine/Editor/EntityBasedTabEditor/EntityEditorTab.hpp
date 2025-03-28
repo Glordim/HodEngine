@@ -35,9 +35,14 @@ namespace hod::editor
 		game::World*	GetWorld() const;
 		game::Scene*	GetCurrentScene() const;
 
+		
 		void							SetEntitySelection(std::shared_ptr<game::Entity> selection);
 		std::shared_ptr<game::Entity>	GetEntitySelection() const;
 
+	protected:
+	
+		void DrawMenuBar() override;
+		
 	protected:
 
 		game::World*				_world = nullptr;

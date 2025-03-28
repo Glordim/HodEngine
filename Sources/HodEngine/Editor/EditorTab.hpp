@@ -31,6 +31,7 @@ namespace hod::editor
 	protected:
 
 		virtual void	CreateDefaultLayout() = 0;
+		virtual void	DrawMenuBar() = 0;
 		virtual bool	DrawContent() = 0;
 
 	protected:

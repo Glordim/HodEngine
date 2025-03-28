@@ -270,13 +270,18 @@ namespace hod::editor
 		imgui::ImGuiManager::GetInstance()->SetDrawCallback([this]()
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.08f, 0.08f, 0.08f, 1.0f));
 			ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetFrameHeight()));
 			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y - ImGui::GetFrameHeight()));
 			bool open = ImGui::Begin("TabBarContainer", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking);
+			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			if (open)
 			{
-				if (ImGui::BeginTabBar("EditorTabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_DrawSelectedOverline))
+				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
+				bool visible = ImGui::BeginTabBar("EditorTabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_DrawSelectedOverline);
+				ImGui::PopStyleVar();
+				if (visible)
 				{
 					auto it = _editorTabs.begin();
 					while (it != _editorTabs.end())
@@ -388,20 +393,6 @@ namespace hod::editor
 	const AssetDatabase::FileSystemMapping* Editor::GetAssetSelection() const
 	{
 		return _assetSelection;
-	}
-
-	/// @brief 
-	/// @return 
-	ViewportWindow* Editor::GetCurrentViewport() const
-	{
-		return _currentViewport;
-	}
-
-	/// @brief 
-	/// @param viewportWindow 
-	void Editor::SetCurrentViewport(ViewportWindow* viewportWindow)
-	{
-		_currentViewport = viewportWindow;
 	}
 
 	/// @brief 

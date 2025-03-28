@@ -33,6 +33,7 @@ namespace hod::editor
 
 	public:
 
+		bool		Draw() override;
 		void		DrawContent() override;
 
 		renderer::RenderQueue*		GetRenderQueue();

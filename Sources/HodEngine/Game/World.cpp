@@ -48,9 +48,14 @@ namespace hod
 					for (Scene* scene : _scenes)
 					{
 						Scene* clone = scene->Clone();
+						clone->SetWorld(this);
 						clonedScene.push_back(clone);
 					}
 					_scenes = clonedScene;
+					for (Scene* scene : _scenes)
+					{
+						scene->ProcessActivation();
+					}
 				}
 			}
 		}

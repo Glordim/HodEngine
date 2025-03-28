@@ -57,6 +57,7 @@ namespace hod::game
 
 		const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& GetEntities() const;
 
+		void						ProcessActivation();
 		void						Update(float deltaTime);
 		void						Draw(renderer::RenderQueue* renderQueue);
 

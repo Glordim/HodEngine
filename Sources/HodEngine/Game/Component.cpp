@@ -1,6 +1,8 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/World.hpp"
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
@@ -51,6 +53,20 @@ namespace hod::game
 	std::shared_ptr<Entity> Component::GetOwner() const
 	{
 		return _owner.lock();
+	}
+
+	/// @brief 
+	/// @return 
+	World* Component::GetWorld() const
+	{
+		return _owner.lock()->GetScene()->GetWorld();
+	}
+
+	/// @brief 
+	/// @return 
+	Scene* Component::GetScene() const
+	{
+		return _owner.lock()->GetScene();
 	}
 
 	/// @brief 

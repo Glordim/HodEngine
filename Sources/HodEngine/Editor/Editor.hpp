@@ -59,13 +59,9 @@ namespace hod::editor
 		void									Build();
 		void									BuildAndRun();
 
-		
 		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
 
 		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
-
-		ViewportWindow*							GetCurrentViewport() const;
-		void									SetCurrentViewport(ViewportWindow* viewportWindow);
 
 		
 		template<typename _EditorTabType_>
@@ -74,20 +70,6 @@ namespace hod::editor
 
 		template<typename _EditorTabType_>
 		_EditorTabType_*						OpenEditorTab();
-
-		/*
-		void									Play();
-		void									Stop();
-		void									Pause();
-		void									Resume();
-		void									PlayNextFrame();
-
-		bool									IsPlaying() const;
-		bool									IsPaused() const;
-
-		Asset*									GetCurrentScene() const;
-		void									MarkCurrentSceneAsDirty();
-		*/
 
 		renderer::Texture*						GetFolderTexture() const { return _folderTexture; }
 		renderer::Texture*						GetFolderOpenTexture() const  { return _folderOpenTexture; }
@@ -109,13 +91,6 @@ namespace hod::editor
 
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
 
-		ViewportWindow*							_currentViewport = nullptr;
-
-		Asset*									_currentScene = nullptr;
-		/*
-		bool									_playing = false;
-		bool									_paused = false;
-		*/
 		renderer::Texture*						_folderTexture = nullptr;
 		renderer::Texture*						_folderOpenTexture = nullptr;
 		renderer::Texture*						_sceneTexture = nullptr;
@@ -123,8 +98,6 @@ namespace hod::editor
 		renderer::Texture*						_serializedDataTexture = nullptr;
 		renderer::Texture*						_shaderTexture = nullptr;
 		renderer::Texture*						_checkerTexture = nullptr;
-
-		Document								_playedWorldDocument;
 	};
 
 	template<typename _EditorTabType_>

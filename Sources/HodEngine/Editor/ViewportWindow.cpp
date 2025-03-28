@@ -49,7 +49,7 @@ namespace hod::editor
 	ViewportWindow::ViewportWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
-		SetFlags(ImGuiWindowFlags_MenuBar);
+		SetFlags(ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar);
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
@@ -61,6 +61,33 @@ namespace hod::editor
 	{
 		delete _renderTarget;
 		delete _pickingRenderTarget;
+	}
+
+	/// @brief 
+	/// @return 
+	bool ViewportWindow::Draw()
+	{
+		bool open = true;
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		bool visible = ImGui::Begin(GetIdentifier(), &open, GetFlags());
+		ImGui::PopStyleVar();
+		if (visible)
+		{
+			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
+			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
+			cliprect.Min.y -= ImGui::GetStyle().WindowPadding.y * 0.5f;
+			cliprect.Max.x += ImGui::GetStyle().WindowPadding.x * 0.5f;
+			cliprect.Max.y += ImGui::GetStyle().WindowPadding.y * 0.5f;
+			ImGui::PopClipRect();
+			ImGui::PushClipRect(cliprect.Min, cliprect.Max, false);
+			DrawContent();
+		}
+		if (open == false)
+		{
+			Close();
+		}
+		ImGui::End();
+		return open;
 	}
 
 	/// @brief 
@@ -191,9 +218,15 @@ namespace hod::editor
 		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
 		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
 
-		if (GetOwner<EntityEditorTab>()->IsPlaying() == true && GetOwner<EntityEditorTab>()->IsPaused() == false)
+		if (GetOwner<EntityEditorTab>()->IsPlaying() && GetOwner<EntityEditorTab>()->IsPaused() == false)
 		{
-			resolutionWidth = static_cast<uint32_t>(static_cast<float>(resolutionHeight) * (_playRatio.GetX() / _playRatio.GetY()));
+			const float aspectRatio = _playRatio.GetX() / _playRatio.GetY();
+			const float currentRatio = resolutionWidth / static_cast<float>(resolutionHeight);
+
+			if (currentRatio > aspectRatio)
+				resolutionWidth = static_cast<uint32_t>(resolutionHeight * aspectRatio);
+			else
+				resolutionHeight = static_cast<uint32_t>(resolutionWidth / aspectRatio);
 		}
 
 		if (_renderTarget->GetWidth() != resolutionWidth ||
@@ -273,11 +306,13 @@ namespace hod::editor
 			if (_debugPicker)
 			{
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
 				ImGui::Image(_pickingRenderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
 			else
 			{
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);
 				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
 			//ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth, (float)(windowHeight + menuBarHeight)));
