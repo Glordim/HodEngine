@@ -24,8 +24,6 @@ namespace hod::editor
 			_title = std::format("{}   {}", icon, _asset->GetName());
 		}
 
-		//ICON_MDI_STAR_FOUR_POINTS_SMALL
-
 		_dockSpaceId = reinterpret_cast<uintptr_t>(this);
 	}
 
@@ -45,7 +43,7 @@ namespace hod::editor
 		bool open = true;
 		ImGui::SetNextItemWidth(210);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
-		bool draw = ImGui::BeginTabItem(_title.c_str(), &open);
+		bool draw = ImGui::BeginTabItem(_title.c_str(), &open, AssetIsDirty() ? ImGuiTabItemFlags_UnsavedDocument : ImGuiTabItemFlags_None);
 		ImGui::PopStyleVar();
 		if (draw)
 		{

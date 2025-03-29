@@ -40,10 +40,9 @@ namespace hod::editor
 
 	private:
 
-		bool			_initialLayoutCreated = false;
+		bool						_initialLayoutCreated = false;
 
 		std::shared_ptr<Asset>		_asset;
-		bool						_assetWasDirty = false;
 
 		std::vector<EditorTabWindow*>	_windows;
 	};
