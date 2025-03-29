@@ -1,10 +1,11 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 
-#include "HodEngine/Editor/MainBar.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/DearImGui/imgui_internal.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
@@ -78,6 +79,7 @@
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "stb_image.h"
 
+#include "Icons/HodIcon.png.h"
 #include "Icons/folder.png.h"
 #include "Icons/folder-open.png.h"
 #include "Icons/landscape.png.h"
@@ -159,38 +161,38 @@ namespace hod::editor
 		int x;
 		int y;
 		int component;
-		stbi_uc* pixels = stbi_load_from_memory(folder_png, folder_png_size, &x, &y, &component, 0);
+		stbi_uc* pixels;
 
 		renderer::Texture::CreateInfo textureCreateInfo;
 		textureCreateInfo._allowReadWrite = false;
 		textureCreateInfo._filterMode = renderer::FilterMode::Linear;
 		textureCreateInfo._wrapMode = renderer::WrapMode::Clamp;
 
+		pixels = stbi_load_from_memory(HodIcon_png, HodIcon_png_size, &x, &y, &component, 0);
+		_hodTexture = renderer::Renderer::GetInstance()->CreateTexture();
+		_hodTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
+
+		pixels = stbi_load_from_memory(folder_png, folder_png_size, &x, &y, &component, 0);
 		_folderTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_folderTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(folder_open_png, folder_open_png_size, &x, &y, &component, 0);
-
 		_folderOpenTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_folderOpenTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(landscape_png, landscape_png_size, &x, &y, &component, 0);
-
 		_sceneTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_sceneTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(prefab_png, prefab_png_size, &x, &y, &component, 0);
-
 		_prefabTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_prefabTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(SerializedData_png, SerializedData_png_size, &x, &y, &component, 0);
-
 		_serializedDataTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_serializedDataTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(Shader_png, Shader_png_size, &x, &y, &component, 0);
-
 		_shaderTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_shaderTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
@@ -255,9 +257,6 @@ namespace hod::editor
 	{
 		AssetDatabase::CreateInstance();
 
-		_mainBar = new MainBar();
-		imgui::ImGuiManager::GetInstance()->SetMainBar(_mainBar);
-
 		if (Project::GetInstance()->ReloadGameModule() == false)
 		{
 			return false;
@@ -269,15 +268,120 @@ namespace hod::editor
 
 		imgui::ImGuiManager::GetInstance()->SetDrawCallback([this]()
 		{
+			static bool ImguiDemo = false;
+			if (ImguiDemo)
+			{
+				ImGui::ShowDemoWindow(&ImguiDemo);
+			}
+
+			ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.08f, 0.08f, 0.08f, 1.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+			bool visible = ImGui::BeginMainMenuBar();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleColor(2);
+			if (visible)
+			{
+				ImGui::SetCursorScreenPos(ImVec2(64.0f, 0.0f));
+
+				if (ImGui::BeginMenu("File") == true)
+				{
+					if (ImGui::MenuItem("Save", "CTRL+S") == true)
+					{
+						Editor::GetInstance()->Save();
+
+					}
+
+					if (ImGui::MenuItem("Save scene As", "CTRL+S") == true)
+					{
+						Editor::GetInstance()->SaveSceneAs();
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::MenuItem("Build") == true)
+					{
+						Editor::GetInstance()->Build();
+					}
+					if (ImGui::MenuItem("Build and Run") == true)
+					{
+						Editor::GetInstance()->BuildAndRun();
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::MenuItem("Quit") == true)
+					{
+						//application::Application::GetInstance()->Quit();
+					}
+					ImGui::EndMenu();
+				}
+				if (ImGui::BeginMenu("Edit") == true)
+				{
+					if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+					if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+					ImGui::Separator();
+					if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+					if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+					if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+					ImGui::EndMenu();
+				}
+				if (ImGui::BeginMenu("Window") == true)
+				{
+					if (ImGui::MenuItem("Asset Browser") == true)
+					{
+						imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+					}
+					if (ImGui::MenuItem("Inspector") == true)
+					{
+						imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
+					}
+					if (ImGui::MenuItem("Viewport") == true)
+					{
+						imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
+					}
+					if (ImGui::MenuItem("Hierachy") == true)
+					{
+						imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
+					}
+					if (ImGui::MenuItem("ImGui demo"))
+					{
+						ImguiDemo = !ImguiDemo;
+					}
+					ImGui::EndMenu();
+				}
+				if (ImGui::MenuItem("Hot Reload") == true)
+				{
+					Project::GetInstance()->ReloadGameModule();
+				}
+
+				_fpsCounter.OnFrame();
+				char fps[64] = { '\0' };
+				std::format_to_n(fps, sizeof(fps) - 1, "{} fps", (uint32_t)_fpsCounter.GetFPS());
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(fps).x);
+				ImGui::BeginDisabled();
+				ImGui::TextUnformatted(fps);
+				ImGui::EndDisabled();
+
+				ImGui::EndMainMenuBar();
+			}
+
+			ImVec2 logoPos = ImVec2((64.0f - 48.0f) * 0.5f, 0.0f);
+			ImGui::GetForegroundDrawList()->AddImage(_hodTexture, logoPos, logoPos + ImVec2(48.0f, 48.0f));
+
+			float statusBarHeight = 32;
+
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.08f, 0.08f, 0.08f, 1.0f));
 			ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetFrameHeight()));
-			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y - ImGui::GetFrameHeight()));
-			bool open = ImGui::Begin("TabBarContainer", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking);
+			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y - ImGui::GetFrameHeight() - statusBarHeight));
+			bool open = ImGui::Begin("TabBarContainer", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus);
 			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
+			ImGui::PopStyleVar(2);
 			if (open)
 			{
+				ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(64.0f, 0.0f));
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
 				bool visible = ImGui::BeginTabBar("EditorTabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_DrawSelectedOverline);
 				ImGui::PopStyleVar();
@@ -298,6 +402,41 @@ namespace hod::editor
 					}
 					ImGui::EndTabBar();
 				}
+			}
+			ImGui::End();
+
+			ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - statusBarHeight));
+			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, statusBarHeight));
+
+			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | 
+											ImGuiWindowFlags_NoMove | 
+											ImGuiWindowFlags_NoSavedSettings | 
+											ImGuiWindowFlags_NoBringToFrontOnFocus | 
+											ImGuiWindowFlags_NoDocking;
+
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			bool draw = ImGui::Begin("Bottom Menu Bar", nullptr, window_flags);
+			ImGui::PopStyleVar(2);
+			if (draw)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+				ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, 12.0f);
+				if (ImGui::Button(ICON_MDI_FOLDER_SEARCH "  Asset Browser", ImVec2(0.0f, statusBarHeight)))
+				{
+
+				}
+				ImGui::SameLine();
+				ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
+				ImGui::SameLine();
+				if (ImGui::Button(ICON_MDI_TEXT_BOX "  Output Log", ImVec2(0.0f, statusBarHeight)))
+				{
+
+				}
+				ImGui::PopStyleVar(3);
+				ImGui::PopStyleColor();
 			}
 			ImGui::End();
 		});

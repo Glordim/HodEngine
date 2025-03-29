@@ -27,6 +27,11 @@ function(create_resources input output SourcesVar IncludeVar)
   message("Pack shader ${input}")
 endfunction()
 
+create_resources("Icons/HodIcon.png" "Icons" IconSrcs IconIncludes)
+list(APPEND Srcs ${IconSrcs})
+list(APPEND Srcs ${IconIncludes})
+list(APPEND Includes ${IconIncludes})
+
 create_resources("Icons/folder.png" "Icons" IconSrcs IconIncludes)
 list(APPEND Srcs ${IconSrcs})
 list(APPEND Srcs ${IconIncludes})

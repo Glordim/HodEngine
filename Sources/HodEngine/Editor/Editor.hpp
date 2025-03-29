@@ -10,6 +10,7 @@
 #include <filesystem>
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/FpsCounter.hpp"
 
 namespace hod
 {
@@ -71,6 +72,7 @@ namespace hod::editor
 		template<typename _EditorTabType_>
 		_EditorTabType_*						OpenEditorTab();
 
+		renderer::Texture*						GetHodTexture() const  { return _hodTexture; }
 		renderer::Texture*						GetFolderTexture() const { return _folderTexture; }
 		renderer::Texture*						GetFolderOpenTexture() const  { return _folderOpenTexture; }
 		renderer::Texture*						GetSceneTexture() const  { return _sceneTexture; }
@@ -91,6 +93,7 @@ namespace hod::editor
 
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
 
+		renderer::Texture*						_hodTexture = nullptr;
 		renderer::Texture*						_folderTexture = nullptr;
 		renderer::Texture*						_folderOpenTexture = nullptr;
 		renderer::Texture*						_sceneTexture = nullptr;
@@ -98,6 +101,8 @@ namespace hod::editor
 		renderer::Texture*						_serializedDataTexture = nullptr;
 		renderer::Texture*						_shaderTexture = nullptr;
 		renderer::Texture*						_checkerTexture = nullptr;
+
+		FpsCounter								_fpsCounter;
 	};
 
 	template<typename _EditorTabType_>

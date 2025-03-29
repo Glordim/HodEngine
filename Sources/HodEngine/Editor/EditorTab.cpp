@@ -48,7 +48,18 @@ namespace hod::editor
 		if (draw)
 		{
 			float y = ImGui::GetCursorScreenPos().y - ImGui::GetStyle().ItemSpacing.y;
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(0.0f, y), ImVec2(ImGui::GetIO().DisplaySize.x, y + 40), ImGui::GetColorU32(ImGuiCol_TabSelected));
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(0.0f, y), ImVec2(ImGui::GetIO().DisplaySize.x, y + 32), ImGui::GetColorU32(ImGuiCol_TabSelected));
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+			ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, 12.0f);
+
+			ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+			cursorPos.x = 0.0f;
+			cursorPos.y += 32.0f;
+
+			ImGui::SetCursorScreenPos(ImVec2(0.0f, y));
 			if (ImGui::Button(ICON_MDI_CONTENT_SAVE, ImVec2(0.0f, 32.0f)))
 			{
 
@@ -61,6 +72,10 @@ namespace hod::editor
 			ImGui::SameLine();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
 			DrawMenuBar();
+
+			ImGui::PopStyleVar(3);
+			ImGui::PopStyleColor();
+			ImGui::SetCursorScreenPos(cursorPos);
 
 			if (_initialLayoutCreated == false)
 			{
