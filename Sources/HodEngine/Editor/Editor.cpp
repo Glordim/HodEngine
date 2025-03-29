@@ -91,6 +91,9 @@
 
 #include <HodEngine/Game/BootInfo.hpp>
 
+#undef max
+#undef min
+
 namespace hod::editor
 {
 	_SingletonConstructor(Editor)
@@ -100,6 +103,7 @@ namespace hod::editor
 	/// @brief 
 	Editor::~Editor()
 	{
+		delete _floatingAssetBrowserWindow;
 		imgui::ImGuiManager::GetInstance()->DestroyAllWindow();
 
 		Project::DestroyInstance();
@@ -210,6 +214,8 @@ namespace hod::editor
 
 		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset){ return new SceneEditorTab(asset); });
 		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset){ return new PrefabEditorTab(asset); });
+
+		_floatingAssetBrowserWindow = new AssetBrowserWindow();
 
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
@@ -405,6 +411,21 @@ namespace hod::editor
 			}
 			ImGui::End();
 
+			if (_showFloatingAssetBrowser)
+			{
+				_floatingAssetBrowserWindowPos = std::min(350.0f, _floatingAssetBrowserWindowPos + ImGui::GetIO().DeltaTime * 2500.0f);
+			}
+			else
+			{
+				_floatingAssetBrowserWindowPos = std::max(0.0f, _floatingAssetBrowserWindowPos - ImGui::GetIO().DeltaTime * 2500.0f);
+			}
+			if (_floatingAssetBrowserWindowPos > 0.0f)
+			{
+				ImGui::SetNextWindowPos(ImVec2(20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingAssetBrowserWindowPos));
+				ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 40.0f, 350));
+				_floatingAssetBrowserWindow->Draw();
+			}
+
 			ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - statusBarHeight));
 			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, statusBarHeight));
 
@@ -426,7 +447,7 @@ namespace hod::editor
 				ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, 12.0f);
 				if (ImGui::Button(ICON_MDI_FOLDER_SEARCH "  Asset Browser", ImVec2(0.0f, statusBarHeight)))
 				{
-
+					_showFloatingAssetBrowser = !_showFloatingAssetBrowser;
 				}
 				ImGui::SameLine();
 				ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);

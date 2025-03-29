@@ -35,6 +35,7 @@ namespace hod::editor
 	class Asset;
 	class ViewportWindow;
 	class EditorTab;
+	class AssetBrowserWindow;
 
 	/// @brief 
 	class HOD_EDITOR_API Editor
@@ -103,6 +104,10 @@ namespace hod::editor
 		renderer::Texture*						_checkerTexture = nullptr;
 
 		FpsCounter								_fpsCounter;
+
+		bool									_showFloatingAssetBrowser = false;
+		float									_floatingAssetBrowserWindowPos = 0.0f;
+		AssetBrowserWindow*						_floatingAssetBrowserWindow = nullptr;
 	};
 
 	template<typename _EditorTabType_>

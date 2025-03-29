@@ -22,6 +22,7 @@ namespace hod::editor
 
 	public:
 
+		bool		Draw() override;
 		void		DrawContent() override;
 
 		void		PingAsset(Asset& asset);
