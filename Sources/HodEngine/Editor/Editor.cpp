@@ -70,6 +70,7 @@
 
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 #include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
 
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -214,6 +215,9 @@ namespace hod::editor
 
 		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset){ return new SceneEditorTab(asset); });
 		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset){ return new PrefabEditorTab(asset); });
+		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset){ return new TextureEditorTab(asset); });
+		//_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset){ return new PrefabEditorTab(asset); });
+		//_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset){ return new PrefabEditorTab(asset); });
 
 		_floatingAssetBrowserWindow = new AssetBrowserWindow();
 
@@ -411,21 +415,6 @@ namespace hod::editor
 			}
 			ImGui::End();
 
-			if (_showFloatingAssetBrowser)
-			{
-				_floatingAssetBrowserWindowPos = std::min(350.0f, _floatingAssetBrowserWindowPos + ImGui::GetIO().DeltaTime * 2500.0f);
-			}
-			else
-			{
-				_floatingAssetBrowserWindowPos = std::max(0.0f, _floatingAssetBrowserWindowPos - ImGui::GetIO().DeltaTime * 2500.0f);
-			}
-			if (_floatingAssetBrowserWindowPos > 0.0f)
-			{
-				ImGui::SetNextWindowPos(ImVec2(20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingAssetBrowserWindowPos));
-				ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 40.0f, 350));
-				_floatingAssetBrowserWindow->Draw();
-			}
-
 			ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - statusBarHeight));
 			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, statusBarHeight));
 
@@ -445,9 +434,12 @@ namespace hod::editor
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
 				ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, 12.0f);
+				ImGui::SetNextItemShortcut(ImGuiMod_Ctrl | ImGuiKey_Space, ImGuiInputFlags_RouteGlobal | ImGuiInputFlags_Tooltip);
 				if (ImGui::Button(ICON_MDI_FOLDER_SEARCH "  Asset Browser", ImVec2(0.0f, statusBarHeight)))
 				{
 					_showFloatingAssetBrowser = !_showFloatingAssetBrowser;
+					if (_showFloatingAssetBrowser)
+						_focusFloatingAssetBrowserWindow = true;
 				}
 				ImGui::SameLine();
 				ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
@@ -460,6 +452,23 @@ namespace hod::editor
 				ImGui::PopStyleColor();
 			}
 			ImGui::End();
+
+			if (_showFloatingAssetBrowser)
+			{
+				_floatingAssetBrowserWindowPos = std::min(350.0f, _floatingAssetBrowserWindowPos + ImGui::GetIO().DeltaTime * 2500.0f);
+			}
+			else
+			{
+				_floatingAssetBrowserWindowPos = std::max(0.0f, _floatingAssetBrowserWindowPos - ImGui::GetIO().DeltaTime * 2500.0f);
+			}
+			if (_floatingAssetBrowserWindowPos > 0.0f)
+			{
+				ImGui::SetNextWindowPos(ImVec2(20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingAssetBrowserWindowPos));
+				ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 40.0f, 350));
+				if (_focusFloatingAssetBrowserWindow)
+					ImGui::SetNextWindowFocus();
+				_floatingAssetBrowserWindow->Draw();
+			}
 		});
 
 		OpenEditorTab<SceneEditorTab>();

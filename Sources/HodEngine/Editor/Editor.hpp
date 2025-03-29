@@ -106,6 +106,7 @@ namespace hod::editor
 		FpsCounter								_fpsCounter;
 
 		bool									_showFloatingAssetBrowser = false;
+		bool									_focusFloatingAssetBrowserWindow = false;
 		float									_floatingAssetBrowserWindowPos = 0.0f;
 		AssetBrowserWindow*						_floatingAssetBrowserWindow = nullptr;
 	};

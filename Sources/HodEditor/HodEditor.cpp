@@ -27,7 +27,7 @@ bool HodEditor::Init(const hod::ArgumentParser& argumentParser)
 		catch (const std::exception& e)
 		{
 			OUTPUT_ERROR(e.what());
-		}		
+		}
 	}
 	
 	bool platformApplicationResult = PlatformApplication::Init(argumentParser);

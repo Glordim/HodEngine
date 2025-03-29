@@ -22,6 +22,8 @@
 #include <HodEngine/Core/Color.hpp>
 #include <HodEngine/Core/Resource/ResourceManager.hpp>
 
+#include "HodEngine/Game/World.hpp"
+#include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
