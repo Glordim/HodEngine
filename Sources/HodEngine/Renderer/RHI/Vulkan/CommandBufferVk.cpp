@@ -68,8 +68,6 @@ namespace hod
 		/// @return 
 		bool CommandBufferVk::StartRecord()
 		{
-			RendererVulkan* renderer = RendererVulkan::GetInstance();
-
 			VkCommandBufferBeginInfo beginInfo = {};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;

@@ -49,8 +49,8 @@ namespace hod::editor
 	/// @brief 
 	void EntityEditorTab::DrawMenuBar()
 	{
-		const ImGuiStyle& style = ImGui::GetStyle();
-		float groupWidth = CalculateButtonSize(ICON_MDI_PLAY).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_PAUSE).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_SKIP_NEXT).x;
+		//const ImGuiStyle& style = ImGui::GetStyle();
+		//float groupWidth = CalculateButtonSize(ICON_MDI_PLAY).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_PAUSE).x + style.ItemSpacing.x + CalculateButtonSize(ICON_MDI_SKIP_NEXT).x;
 		//ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x * 0.5f - groupWidth * 0.5f);
 
 		ImGui::SameLine();

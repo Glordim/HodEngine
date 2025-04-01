@@ -3,8 +3,17 @@
 
 namespace hod::physics
 {
+	/// @brief 
+	/// @param body 
 	Collider::Collider(Body* body)
 	: _body(body)
 	{
+	}
+
+	/// @brief 
+	/// @return 
+	Body* Collider::GetBody() const
+	{
+		return _body;
 	}
 }

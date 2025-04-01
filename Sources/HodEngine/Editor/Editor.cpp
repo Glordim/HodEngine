@@ -109,7 +109,6 @@ namespace hod::editor
 
 		Project::DestroyInstance();
 		AssetDatabase::DestroyInstance();
-		delete _mainBar;
 
 		delete _folderTexture;
 		delete _folderOpenTexture;
@@ -641,7 +640,6 @@ namespace hod::editor
 	/// @return 
 	EditorTab* Editor::OpenAsset(std::shared_ptr<Asset> asset)
 	{
-		bool alreadyExist = false;
 		for (EditorTab* editorTab : _editorTabs)
 		{
 			if (editorTab->GetAsset() == asset)

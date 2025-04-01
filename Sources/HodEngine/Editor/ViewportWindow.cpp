@@ -308,7 +308,7 @@ namespace hod::editor
 			if (_debugPicker)
 			{
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
-				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);
 				ImGui::Image(_pickingRenderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
 			else

@@ -88,7 +88,6 @@ namespace hod::editor
 
 	private:
 
-		MainBar*								_mainBar = nullptr;
 		std::vector<EditorTab*>					_editorTabs;
 		std::unordered_map<std::string, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
