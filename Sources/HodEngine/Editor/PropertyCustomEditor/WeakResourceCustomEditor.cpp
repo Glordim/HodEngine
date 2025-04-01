@@ -35,19 +35,29 @@ namespace hod::editor
 	{
 		bool changed = false;
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
-
-		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
 		WeakResourceBase* value = editorReflectedProperty.GetObject<WeakResourceBase>();
+		changed |= WeakResourceCustomEditor::Draw(*value);
+		if (changed == true)
+		{
+			editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
+		}
+		return changed;
+	}
 
-		ImGui::PushID(value);
+	/// @brief 
+	/// @param weakResource 
+	/// @return 
+	bool WeakResourceCustomEditor::Draw(WeakResourceBase& weakResource)
+	{
+		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
 
-		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
-
-		ImGui::SameLine(valuePos);
+		bool changed = false;
+		ImGui::PushID(&weakResource);
 
 		AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
-		std::shared_ptr<Asset> asset = assetDatabase->Find(value->GetUid());
+		std::shared_ptr<Asset> asset = assetDatabase->Find(weakResource.GetUid());
 
 		float height = 50;
 
@@ -91,7 +101,7 @@ namespace hod::editor
 					clicked = true;
 
 					assetList.clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), weakResource.GetResourceDescriptor());
 				}
 			}
 		}
@@ -111,7 +121,7 @@ namespace hod::editor
 					clicked = true;
 
 					assetList.clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), weakResource.GetResourceDescriptor());
 				}
 			}
 		}
@@ -140,8 +150,7 @@ namespace hod::editor
 			ImGui::PopStyleVar();
 			if (clicked)
 			{
-				value->SetUid(UID::INVALID_UID);
-				editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
+				weakResource.SetUid(UID::INVALID_UID);
 				changed = true;
 
 				ImGui::CloseCurrentPopup();
@@ -169,8 +178,7 @@ namespace hod::editor
 					ImGui::PopStyleVar();
 					if (clicked)
 					{
-						value->SetUid(assetNode->_asset->GetUid());
-						editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
+						weakResource.SetUid(assetNode->_asset->GetUid());
 						changed = true;
 
 						ImGui::CloseCurrentPopup();
@@ -261,8 +269,7 @@ namespace hod::editor
 			ImGui::PopStyleVar();
 			if (clicked)
 			{
-				value->SetUid(UID::INVALID_UID);
-				editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
+				weakResource.SetUid(UID::INVALID_UID);
 				changed = true;
 			}
 
@@ -288,8 +295,7 @@ namespace hod::editor
 					ImGui::PopStyleVar();
 					if (clicked)
 					{
-						value->SetUid(assetNode->_asset->GetUid());
-						editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
+						weakResource.SetUid(assetNode->_asset->GetUid());
 						changed = true;
 					}
 					else if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))

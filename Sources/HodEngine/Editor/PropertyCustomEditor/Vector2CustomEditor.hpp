@@ -6,6 +6,7 @@
 namespace hod
 {
 	class ReflectionPropertyObject;
+	class Vector2;
 }
 
 namespace hod::editor
@@ -26,5 +27,7 @@ namespace hod::editor
 	public:
 
 		bool					Draw(EditorReflectedProperty& editorReflectedProperty) override;
+
+		static bool				Draw(Vector2& value);
 	};
 }

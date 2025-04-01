@@ -22,20 +22,34 @@ namespace hod::editor
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		float availableWidth = ImGui::GetColumnWidth();
-		availableWidth -= CalculateButtonSize("X").x;
-		availableWidth -= CalculateButtonSize("Y").x;
-		availableWidth -= CalculateButtonSize("Z").x;
-		availableWidth -= CalculateButtonSize("W").x;
-		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
-
 		Vector4 value = *editorReflectedProperty.GetObject<Vector4>();
+		changed |= Vector4CustomEditor::Draw(value);
+		if (changed == true)
+		{
+			editorReflectedProperty.SetObject(value);
+		}
+		return changed;
+	}
+
+	/// @brief 
+	/// @param value 
+	/// @return 
+	bool Vector4CustomEditor::Draw(Vector4& value)
+	{
+		bool changed = false;
 		float x = value.GetX();
 		float y = value.GetY();
 		float z = value.GetZ();
 		float w = value.GetW();
 
 		ImGui::PushID(&value);
+
+		float availableWidth = ImGui::GetColumnWidth();
+		availableWidth -= CalculateButtonSize("X").x;
+		availableWidth -= CalculateButtonSize("Y").x;
+		availableWidth -= CalculateButtonSize("Z").x;
+		availableWidth -= CalculateButtonSize("W").x;
+		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.0f, 0.0f, 1.0f));
 		FramedText("X", ImDrawFlags_RoundCornersLeft);
@@ -77,10 +91,14 @@ namespace hod::editor
 
 		ImGui::PopID();
 
-		if (changed == true)
+		if (changed)
 		{
-			editorReflectedProperty.SetObject(Vector4(x, y, z, w));
+			value.SetX(x);
+			value.SetY(y);
+			value.SetZ(z);
+			value.SetW(w);
 		}
+
 		return changed;
 	}
 }
