@@ -8,6 +8,7 @@
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <sstream>
@@ -21,6 +22,8 @@ namespace hod::editor
 
 		AddPropertyT(reflectionDescriptor, &MaterialAsset::_polygonMode, "_polygonMode");
 		AddPropertyT(reflectionDescriptor, &MaterialAsset::_topololy, "_topololy");
+
+		AddPropertyT(reflectionDescriptor, &MaterialAsset::_defaultInstanceParams, "_defaultInstanceParams")->AddTrait<ReflectionTraitHide>();
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MaterialImporterSettings, reflectionDescriptor)

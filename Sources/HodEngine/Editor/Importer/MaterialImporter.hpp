@@ -19,9 +19,11 @@ namespace hod::editor
 
 		WeakResource<renderer::ShaderResource>	_vertexShader;
 		WeakResource<renderer::ShaderResource>	_fragmentShader;
-
+		
 		renderer::Material::PolygonMode		_polygonMode = renderer::Material::PolygonMode::Fill;
 		renderer::Material::Topololy		_topololy = renderer::Material::Topololy::TRIANGLE;
+
+		Document								_defaultInstanceParams;
 	};
 
 	class HOD_EDITOR_API MaterialImporterSettings : public ImporterSettings

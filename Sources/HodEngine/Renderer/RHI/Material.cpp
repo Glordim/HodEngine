@@ -72,6 +72,13 @@ namespace hod
 
 		/// @brief 
 		/// @return 
+		MaterialInstance* Material::EditDefaultInstance()
+		{
+			return _defaultInstance;
+		}
+
+		/// @brief 
+		/// @return 
 		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& Material::GetSetDescriptors() const
 		{
 			return _setDescriptors;

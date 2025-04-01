@@ -6,9 +6,12 @@
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/Resource/ShaderResource.hpp"
+#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 namespace hod::renderer
-{	
+{
+	class TextureResource;
+
 	class HOD_RENDERER_API MaterialResource : public Resource
 	{
 		REFLECTED_CLASS(MaterialResource, Resource)
@@ -38,5 +41,8 @@ namespace hod::renderer
 
 		Material::PolygonMode	_polygonMode = Material::PolygonMode::Fill;
 		Material::Topololy		_topololy = Material::Topololy::TRIANGLE;
+
+		Document									_defaultInstanceParams;
+		std::vector<WeakResource<TextureResource>>	_textureResources;
 	};
 }

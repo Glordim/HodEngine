@@ -51,6 +51,7 @@ namespace hod
 
 			void					CreateDefaultInstance();
 			const MaterialInstance*	GetDefaultInstance() const;
+			MaterialInstance*		EditDefaultInstance();
 
 			const std::unordered_map<uint32_t, ShaderSetDescriptor*>&	GetSetDescriptors() const;
 			const ReflectionDescriptor& GetReflectionDescriptorForParameters();

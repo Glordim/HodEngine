@@ -1,0 +1,169 @@
+#include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialEditorPropertiesWindow.hpp"
+
+#include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
+#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
+
+#include <HodEngine/ImGui/DearImGui/imgui.h>
+
+#include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+#include <HodEngine/ImGui/Helper.hpp>
+
+#include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
+
+#include "HodEngine/Game/ComponentFactory.hpp"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
+#include "HodEngine/Editor/EditorReflectedObject.hpp"
+#include "HodEngine/Editor/EditorReflectedProperty.hpp"
+
+#include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/Vector4CustomEditor.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
+
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
+
+#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
+
+#include <HodEngine/Renderer/Resource/MaterialResource.hpp>
+#include <HodEngine/Renderer/RHI/Material.hpp>
+#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+
+#include <HodEngine/Core/Serialization/Serializer.hpp>
+
+#include <cmath>
+
+namespace hod::editor
+{
+	DECLARE_WINDOW_DESCRIPTION(MaterialEditorPropertiesWindow, "Properties", true)
+
+	/// @brief 
+	/// @param editorTab 
+	MaterialEditorPropertiesWindow::MaterialEditorPropertiesWindow(EditorTab* editorTab)
+	: EditorTabWindow(editorTab)
+	{
+
+	}
+
+	/// @brief 
+	void MaterialEditorPropertiesWindow::DrawContent()
+	{
+		bool changed = false;
+
+		std::shared_ptr<Asset> asset = GetOwner()->GetAsset();
+		std::shared_ptr<MaterialImporterSettings> materialImporterSettings = std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings);
+		MaterialAsset& materialAsset  = GetOwner<MaterialEditorTab>()->GetMaterialAsset();
+
+		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			EditorReflectedObject reflectedObject(&materialAsset, &materialAsset.GetReflectionDescriptorV(), nullptr);
+			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
+		}
+
+		if (ImGui::CollapsingHeader("Default Params", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			std::shared_ptr<renderer::MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
+			for (MaterialEditorTab::ShaderParamScalar& scalarParameter : GetOwner<MaterialEditorTab>()->GetScalarParameters())
+			{
+				switch (scalarParameter._type)
+				{
+				case renderer::ShaderParameter::Type::Float:
+				{
+					ImGui::PushID(&scalarParameter);
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted(scalarParameter._name.c_str());
+					ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+					ReflectionPropertyVariable reflectionPropertyVariable(ReflectionPropertyVariable::Type::Float32, 0, scalarParameter._name.c_str(), nullptr, nullptr);
+					EditorReflectedProperty editorProperty(&scalarParameter._value.floatValue, nullptr, &reflectionPropertyVariable, nullptr);
+					if (PropertyDrawer::DrawProperty(editorProperty))
+					{
+						GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetFloat("UBO." + scalarParameter._name, scalarParameter._value.floatValue);
+						changed = true;
+					}
+					ImGui::PopID();
+				}
+				break;
+
+				default:
+				{
+				}
+				break;
+				}
+			}
+
+			for (MaterialEditorTab::ShaderParamVec2& vec2Parameter : GetOwner<MaterialEditorTab>()->GetVector2Parameters())
+			{
+				ImGui::PushID(&vec2Parameter);
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(vec2Parameter._name.c_str());
+				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+				if (Vector2CustomEditor::Draw(vec2Parameter._value))
+				{
+					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec2("UBO." + vec2Parameter._name, vec2Parameter._value);
+					changed = true;
+				}
+				ImGui::PopID();
+			}
+			for (MaterialEditorTab::ShaderParamVec4& vec4Parameter : GetOwner<MaterialEditorTab>()->GetVector4Parameters())
+			{
+				ImGui::PushID(&vec4Parameter);
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(vec4Parameter._name.c_str());
+				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+				if (Vector4CustomEditor::Draw(vec4Parameter._value))
+				{
+					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec4("UBO." + vec4Parameter._name, vec4Parameter._value);
+					changed = true;
+				}
+				ImGui::PopID();
+			}
+			for (MaterialEditorTab::ShaderParamTexture& textureParameter : GetOwner<MaterialEditorTab>()->GetTextureParameters())
+			{
+				ImGui::PushID(&textureParameter);
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(textureParameter._name.c_str());
+				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+				if (WeakResourceCustomEditor::Draw(textureParameter._value))
+				{
+					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetTexture(textureParameter._name, textureParameter._value.Lock()->GetTexture());
+					changed = true;
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::BeginDisabled(asset->IsDirty() == false);
+		if (ImGui::Button("Apply"))
+		{
+			std::shared_ptr<renderer::MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
+			if (materialResource != nullptr)
+			{
+				renderer::Material* material = materialResource->GetMaterial();
+				if (material != nullptr)
+				{
+					materialAsset._defaultInstanceParams.GetRootNode().Clear();
+					//Serializer::Serialize(material->GetReflectionDescriptorForParameters(), static_cast<void*>(materialAsset._paramsBuffer), materialAsset._defaultInstanceParams.GetRootNode());
+				}
+			}
+			asset->Save(&materialAsset, &materialAsset.GetReflectionDescriptorV());
+			AssetDatabase::GetInstance()->Import(asset->GetPath());
+		}
+		ImGui::EndDisabled();
+
+		if (changed)
+		{
+			GetOwner()->MarkAssetAsDirty();
+		}
+	}
+}

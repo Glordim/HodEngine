@@ -1,11 +1,15 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
+#include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
+#include <HodEngine/Core/Serialization/Serializer.hpp>
+
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 namespace hod::renderer
 {
@@ -16,6 +20,8 @@ namespace hod::renderer
 
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_polygonMode, "_polygonMode");
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_topololy, "_topololy");
+
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_defaultInstanceParams, "_defaultInstanceParams");
 	}
 
 	/// @brief 
@@ -68,6 +74,10 @@ namespace hod::renderer
 		{
 			return false;
 		}
+
+		_material->CreateDefaultInstance();
+		MaterialSerializationHelper::ApplyParamsFromDocument(*const_cast<MaterialInstance*>(_material->GetDefaultInstance()), _defaultInstanceParams.GetRootNode(), _textureResources);
+
 		return true;
 	}
 
