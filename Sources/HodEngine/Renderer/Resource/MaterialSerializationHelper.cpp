@@ -53,11 +53,60 @@ namespace hod::renderer
 	/// @brief 
 	void MaterialSerializationHelper::ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode, std::vector<WeakResource<TextureResource>>& textureResources)
 	{
+		const Document::Node* paramNode = paramsNode.GetFirstChild();
+		while (paramNode != nullptr)
+		{
+			std::string name = paramNode->GetChild("Name")->GetString();
+			ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
+			const Document::Node* valueNode = paramNode->GetChild("Value");
+			switch (type)
+			{
+				case ShaderParameter::Type::Float:
+				{
+					float value = valueNode->GetFloat32();
+					materialInstance.SetFloat("UBO." + name, value);
+				}
+				break;
+
+				case ShaderParameter::Type::Float2:
+				{
+					Vector2 value;
+					Serializer::Deserialize(value, *valueNode);
+					materialInstance.SetVec2("UBO." + name, value);
+				}
+				break;
+
+				case ShaderParameter::Type::Float4:
+				{
+					Vector4 value;
+					Serializer::Deserialize(value, *valueNode);
+					materialInstance.SetVec4("UBO." + name, value);
+				}
+				break;
+
+				case ShaderParameter::Type::Texture:
+				{
+					WeakResource<TextureResource> value;
+					Serializer::Deserialize(value, *valueNode);
+					materialInstance.SetTexture(name, value.Lock()->GetTexture());
+
+					textureResources.push_back(value);
+				}
+				break;
+			
+				default:
+					break;
+			}
+			paramNode = paramNode->GetNextSibling();
+		}
+
+		/*
 		const ReflectionDescriptor& reflectionDescriptor = const_cast<Material&>(materialInstance.GetMaterial()).GetReflectionDescriptorForParameters();
 
 		char paramsBuffer[4096];
 		Serializer::Deserialize(reflectionDescriptor, static_cast<void*>(paramsBuffer), paramsNode);
 		MaterialSerializationHelper::ApplyReflectedParams(materialInstance, reflectionDescriptor, paramsBuffer, "", textureResources);
+		*/
 	}
 
 	/// @brief 

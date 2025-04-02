@@ -76,6 +76,63 @@ namespace hod::editor
 					}
 				}
 			}
+
+			const Document::Node* paramNode = _materialAsset._defaultInstanceParams.GetRootNode().GetFirstChild();
+			while (paramNode != nullptr)
+			{
+				std::string name = paramNode->GetChild("Name")->GetString();
+				renderer::ShaderParameter::Type type = static_cast<renderer::ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
+				switch (type)
+				{
+				case renderer::ShaderParameter::Type::Float:
+					for (ShaderParamScalar& param : _scalarParameters)
+					{
+						if (param._name == name)
+						{
+							param._value.floatValue = paramNode->GetChild("Value")->GetFloat32();
+							break;
+						}
+					}
+					break;
+
+				case renderer::ShaderParameter::Type::Float2:
+					for (ShaderParamVec2& param : _vec2Parameters)
+					{
+						if (param._name == name)
+						{
+							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+							break;
+						}
+					}
+					break;
+
+				case renderer::ShaderParameter::Type::Float4:
+					for (ShaderParamVec4& param : _vec4Parameters)
+					{
+						if (param._name == name)
+						{
+							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+							break;
+						}
+					}
+					break;
+
+				case renderer::ShaderParameter::Type::Texture:
+					for (ShaderParamTexture& param : _textureParameters)
+					{
+						if (param._name == name)
+						{
+							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+							break;
+						}
+					}
+					break;
+				
+				default:
+					break;
+				}
+				paramNode = paramNode->GetNextSibling();
+			}
 		}
 	}
 

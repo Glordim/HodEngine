@@ -153,6 +153,34 @@ namespace hod::editor
 				if (material != nullptr)
 				{
 					materialAsset._defaultInstanceParams.GetRootNode().Clear();
+					for (const MaterialEditorTab::ShaderParamScalar& scalarParameter : GetOwner<MaterialEditorTab>()->GetScalarParameters())
+					{
+						Document::Node& node = materialAsset._defaultInstanceParams.GetRootNode().AddChild("");
+						node.AddChild("Name").SetString(scalarParameter._name);
+						node.AddChild("Type").SetUInt8((uint8_t)scalarParameter._type);
+						node.AddChild("Value").SetFloat32(scalarParameter._value.floatValue);
+					}
+					for (const MaterialEditorTab::ShaderParamVec2& vec2Parameter : GetOwner<MaterialEditorTab>()->GetVector2Parameters())
+					{
+						Document::Node& node = materialAsset._defaultInstanceParams.GetRootNode().AddChild("");
+						node.AddChild("Name").SetString(vec2Parameter._name);
+						node.AddChild("Type").SetUInt8((uint8_t)vec2Parameter._type);
+						Serializer::Serialize(vec2Parameter._value, node.AddChild("Value"));
+					}
+					for (const MaterialEditorTab::ShaderParamVec4& vec4Parameter : GetOwner<MaterialEditorTab>()->GetVector4Parameters())
+					{
+						Document::Node& node = materialAsset._defaultInstanceParams.GetRootNode().AddChild("");
+						node.AddChild("Name").SetString(vec4Parameter._name);
+						node.AddChild("Type").SetUInt8((uint8_t)vec4Parameter._type);
+						Serializer::Serialize(vec4Parameter._value, node.AddChild("Value"));
+					}
+					for (const MaterialEditorTab::ShaderParamTexture& textureParameter : GetOwner<MaterialEditorTab>()->GetTextureParameters())
+					{
+						Document::Node& node = materialAsset._defaultInstanceParams.GetRootNode().AddChild("");
+						node.AddChild("Name").SetString(textureParameter._name);
+						node.AddChild("Type").SetUInt8((uint8_t)textureParameter._type);
+						Serializer::Serialize(textureParameter._value, node.AddChild("Value"));
+					}
 					//Serializer::Serialize(material->GetReflectionDescriptorForParameters(), static_cast<void*>(materialAsset._paramsBuffer), materialAsset._defaultInstanceParams.GetRootNode());
 				}
 			}
