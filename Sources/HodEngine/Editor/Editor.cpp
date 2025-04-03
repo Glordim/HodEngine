@@ -45,10 +45,7 @@
 #include "HodEngine/Editor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
-#include "HodEngine/Editor/ImporterCustomEditor/TextureImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ImporterCustomEditor/SerializedDataImporterCustomEditor.hpp"
-#include "HodEngine/Editor/ImporterCustomEditor/MaterialImporterCustomEditor.hpp"
-#include "HodEngine/Editor/ImporterCustomEditor/MaterialInstanceImporterCustomEditor.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
 
@@ -149,10 +146,7 @@ namespace hod::editor
 		Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector4CustomEditor);
 		game::WeakComponentBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakComponentCustomEditor);
 		WeakResourceBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
-		TextureImporterSettings::GetReflectionDescriptor().AddTrait<ReflectionTraitImporterCustomEditor>(new TextureImporterCustomEditor);
 		SerializedDataImporterSettings::GetReflectionDescriptor().AddTrait<ReflectionTraitImporterCustomEditor>(new SerializedDataImporterCustomEditor);
-		MaterialImporterSettings::GetReflectionDescriptor().AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialImporterCustomEditor);
-		MaterialInstanceImporterSettings::GetReflectionDescriptor().AddTrait<ReflectionTraitImporterCustomEditor>(new MaterialInstanceImporterCustomEditor);
 
 		game::Node2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
 		game::CameraComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CameraComponentCustomEditor);
