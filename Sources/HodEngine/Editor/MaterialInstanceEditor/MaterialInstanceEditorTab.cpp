@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialEditorPropertiesWindow.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialEditorViewportWindow.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorPropertiesWindow.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorViewportWindow.hpp"
 
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"
@@ -20,30 +20,33 @@
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/Core/Resource/ResourceManager.hpp>
 
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
-#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
+#include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 
 namespace hod::editor
 {
 	/// @brief 
-	MaterialEditorTab::MaterialEditorTab(std::shared_ptr<Asset> asset)
-	: EditorTab(asset, ICON_MDI_CIRCLE_OPACITY)
+	MaterialInstanceEditorTab::MaterialInstanceEditorTab(std::shared_ptr<Asset> asset)
+	: EditorTab(asset, ICON_MDI_CIRCLE)
 	{
 		if (asset != nullptr)
 		{
-			_material = ResourceManager::GetInstance()->GetResource<renderer::MaterialResource>(asset->GetMeta()._uid);
+			_materialInstance = ResourceManager::GetInstance()->GetResource<renderer::MaterialInstanceResource>(asset->GetMeta()._uid);
 
 			Document document;
 			DocumentReaderJson reader;
 			reader.Read(document, asset->GetPath());
 
-			Serializer::Deserialize(_materialAsset, document.GetRootNode());
+			Serializer::Deserialize(_materialInstanceAsset, document.GetRootNode());
 
-			const renderer::Material* material = _material->GetMaterial();
-			if (material != nullptr)
+			renderer::MaterialInstance* materialInstance = _materialInstance->GetMaterialInstance();
+			if (materialInstance != nullptr)
 			{
-				renderer::MaterialSerializationHelper::GenerateParameters(*material, _parameters);
+				const renderer::Material& material = materialInstance->GetMaterial();
+
+				renderer::MaterialSerializationHelper::GenerateParameters(material, _parameters);
 				for (const renderer::ShaderParameter& param : _parameters)
 				{
 					if (param._type == renderer::ShaderParameter::Type::Texture)
@@ -77,7 +80,7 @@ namespace hod::editor
 				}
 			}
 
-			const Document::Node* paramNode = _materialAsset._defaultInstanceParams.GetRootNode().GetFirstChild();
+			const Document::Node* paramNode = _materialInstanceAsset._params.GetRootNode().GetFirstChild();
 			while (paramNode != nullptr)
 			{
 				std::string name = paramNode->GetChild("Name")->GetString();
@@ -137,70 +140,70 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	MaterialEditorTab::~MaterialEditorTab()
+	MaterialInstanceEditorTab::~MaterialInstanceEditorTab()
 	{
 	}
 
 	/// @brief 
 	/// @return 
-	std::shared_ptr<renderer::MaterialResource> MaterialEditorTab::GetMaterial() const
+	std::shared_ptr<renderer::MaterialInstanceResource> MaterialInstanceEditorTab::GetMaterialInstance() const
 	{
-		return _material;
+		return _materialInstance;
 	}
 
 	/// @brief 
 	/// @return 
-	MaterialAsset& MaterialEditorTab::GetMaterialAsset()
+	MaterialInstanceAsset& MaterialInstanceEditorTab::GetMaterialInstanceAsset()
 	{
-		return _materialAsset;
+		return _materialInstanceAsset;
 	}
 
 	/// @brief 
 	/// @return 
-	std::vector<MaterialEditorTab::ShaderParamScalar>& MaterialEditorTab::GetScalarParameters()
+	std::vector<MaterialInstanceEditorTab::ShaderParamScalar>& MaterialInstanceEditorTab::GetScalarParameters()
 	{
 		return _scalarParameters;
 	}
 
 	/// @brief 
 	/// @return 
-	std::vector<MaterialEditorTab::ShaderParamTexture>& MaterialEditorTab::GetTextureParameters()
+	std::vector<MaterialInstanceEditorTab::ShaderParamTexture>& MaterialInstanceEditorTab::GetTextureParameters()
 	{
 		return _textureParameters;
 	}
 
 	/// @brief 
 	/// @return 
-	std::vector<MaterialEditorTab::ShaderParamVec2>& MaterialEditorTab::GetVector2Parameters()
+	std::vector<MaterialInstanceEditorTab::ShaderParamVec2>& MaterialInstanceEditorTab::GetVector2Parameters()
 	{
 		return _vec2Parameters;
 	}
 
 	/// @brief 
 	/// @return 
-	std::vector<MaterialEditorTab::ShaderParamVec4>& MaterialEditorTab::GetVector4Parameters()
+	std::vector<MaterialInstanceEditorTab::ShaderParamVec4>& MaterialInstanceEditorTab::GetVector4Parameters()
 	{
 		return _vec4Parameters;
 	}
 
 	/// @brief 
 	/// @return 
-	float MaterialEditorTab::GetZoomFactor() const
+	float MaterialInstanceEditorTab::GetZoomFactor() const
 	{
 		return _zoomFactor;
 	}
 
 	/// @brief 
-	void MaterialEditorTab::SetZoomFactor(float zoomFactor)
+	void MaterialInstanceEditorTab::SetZoomFactor(float zoomFactor)
 	{
 		_zoomFactor = std::max(0.01f, zoomFactor);
 	}
 
 	/// @brief 
-	void MaterialEditorTab::CreateDefaultLayout()
+	void MaterialInstanceEditorTab::CreateDefaultLayout()
 	{
-		MaterialEditorPropertiesWindow* propertiesWindow = OpenWindow<MaterialEditorPropertiesWindow>();
-		MaterialEditorViewportWindow* viewportWindow = OpenWindow<MaterialEditorViewportWindow>();
+		MaterialInstanceEditorPropertiesWindow* propertiesWindow = OpenWindow<MaterialInstanceEditorPropertiesWindow>();
+		MaterialInstanceEditorViewportWindow* viewportWindow = OpenWindow<MaterialInstanceEditorViewportWindow>();
 
 		ImGui::DockBuilderRemoveNode(_dockSpaceId);
 		ImGui::DockBuilderRemoveNodeChildNodes(_dockSpaceId);
@@ -218,7 +221,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	bool MaterialEditorTab::DrawContent()
+	bool MaterialInstanceEditorTab::DrawContent()
 	{
 		// todo override GetIdentifier ?
 		/*
@@ -234,7 +237,7 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	void MaterialEditorTab::DrawMenuBar()
+	void MaterialInstanceEditorTab::DrawMenuBar()
 	{
 		ImGui::SameLine(0.0f, 8.0f);
 		ImVec2 cursorPos = ImGui::GetCursorScreenPos();

@@ -15,7 +15,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param material 
 	/// @param params 
-	void MaterialSerializationHelper::GenerateParameters(Material& material, std::vector<ShaderParameter>& params)
+	void MaterialSerializationHelper::GenerateParameters(const Material& material, std::vector<ShaderParameter>& params)
 	{
 		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& setDescriptors = material.GetSetDescriptors();
 

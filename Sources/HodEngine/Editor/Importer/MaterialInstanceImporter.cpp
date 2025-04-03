@@ -9,6 +9,7 @@
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 
 #include <sstream>
 
@@ -17,7 +18,7 @@ namespace hod::editor
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceAsset, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &MaterialInstanceAsset::_material, "_material");
-		AddPropertyT(reflectionDescriptor, &MaterialInstanceAsset::_params, "_params");
+		AddPropertyT(reflectionDescriptor, &MaterialInstanceAsset::_params, "_params")->AddTrait<ReflectionTraitHide>();
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceImporterSettings, reflectionDescriptor)

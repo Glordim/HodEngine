@@ -40,7 +40,7 @@ namespace hod::renderer
 	class HOD_RENDERER_API MaterialSerializationHelper
 	{
 	public:
-		static void GenerateParameters(Material& material, std::vector<ShaderParameter>& params);
+		static void GenerateParameters(const Material& material, std::vector<ShaderParameter>& params);
 
 		static void ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode, std::vector<WeakResource<TextureResource>>& textureResources);
 		static void ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, std::string path, std::vector<WeakResource<TextureResource>>& textureResources);
