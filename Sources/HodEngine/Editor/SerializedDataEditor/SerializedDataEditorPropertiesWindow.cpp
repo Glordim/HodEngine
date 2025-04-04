@@ -20,9 +20,7 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 #include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 

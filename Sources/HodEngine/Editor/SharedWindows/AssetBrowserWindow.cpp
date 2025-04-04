@@ -346,7 +346,6 @@ namespace hod::editor
 					_currentFolderTreeNode = folder;
 				}
 				_currentExplorerNode = folder;
-				Editor::GetInstance()->SetAssetSelection(folder);
 			}
 			if (ImGui::IsWindowFocused() && _currentExplorerNode == folder)
 			{
@@ -454,10 +453,6 @@ namespace hod::editor
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) == true)
 				{
 					Editor::GetInstance()->OpenAsset(asset->_asset);
-				}
-				else
-				{					
-					Editor::GetInstance()->SetAssetSelection(asset);
 				}
 			}
 			ImGui::PopStyleColor(pingAnimPopStyleCount);
@@ -831,7 +826,6 @@ namespace hod::editor
 					newPath.replace_extension(_itemToRename->_path.extension());
 				}
 				AssetDatabase::GetInstance()->Move(*_itemToRename, newPath);
-				Editor::GetInstance()->SetAssetSelection(_itemToRename);
 				_itemToRename = nullptr;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))

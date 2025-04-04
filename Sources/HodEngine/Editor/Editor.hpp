@@ -61,10 +61,6 @@ namespace hod::editor
 		void									Build();
 		void									BuildAndRun();
 
-		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
-
-		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
-
 		
 		template<typename _EditorTabType_>
 		_EditorTabType_*						OpenAsset(std::shared_ptr<Asset> asset);
