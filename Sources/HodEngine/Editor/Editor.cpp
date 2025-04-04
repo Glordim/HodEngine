@@ -70,6 +70,7 @@
 #include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
+#include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
 
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -213,6 +214,7 @@ namespace hod::editor
 		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset){ return new TextureEditorTab(asset); });
 		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset){ return new MaterialEditorTab(asset); });
 		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset){ return new MaterialInstanceEditorTab(asset); });
+		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset){ return new SerializedDataEditorTab(asset); });
 
 		_floatingAssetBrowserWindow = new AssetBrowserWindow();
 
