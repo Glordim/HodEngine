@@ -461,7 +461,10 @@ namespace hod::editor
 				ImGui::SetNextWindowPos(ImVec2(20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingAssetBrowserWindowPos));
 				ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 40.0f, 350));
 				if (_focusFloatingAssetBrowserWindow)
+				{
+					_focusFloatingAssetBrowserWindow = false;
 					ImGui::SetNextWindowFocus();
+				}
 				_floatingAssetBrowserWindow->Draw();
 			}
 		});
