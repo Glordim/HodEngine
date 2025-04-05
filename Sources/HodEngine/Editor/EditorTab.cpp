@@ -3,6 +3,7 @@
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
@@ -60,15 +61,19 @@ namespace hod::editor
 			cursorPos.y += 32.0f;
 
 			ImGui::SetCursorScreenPos(ImVec2(0.0f, y));
+			ImGui::BeginDisabled(_asset != nullptr && _asset->IsDirty());
 			if (ImGui::Button(ICON_MDI_CONTENT_SAVE, ImVec2(0.0f, 32.0f)))
 			{
-
+				_asset->Save();
 			}
+			ImGui::EndDisabled();
 			ImGui::SameLine();
+			ImGui::BeginDisabled(_asset != nullptr);
 			if (ImGui::Button(ICON_MDI_MAGNIFY, ImVec2(0.0f, 32.0f)))
 			{
-
+				Editor::GetInstance()->PingAsset(_asset);
 			}
+			ImGui::EndDisabled();
 			ImGui::SameLine();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
 			DrawMenuBar();

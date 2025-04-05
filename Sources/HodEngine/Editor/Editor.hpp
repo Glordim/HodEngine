@@ -69,6 +69,8 @@ namespace hod::editor
 		template<typename _EditorTabType_>
 		_EditorTabType_*						OpenEditorTab();
 
+		void									PingAsset(std::shared_ptr<Asset> asset);
+
 		renderer::Texture*						GetHodTexture() const  { return _hodTexture; }
 		renderer::Texture*						GetFolderTexture() const { return _folderTexture; }
 		renderer::Texture*						GetFolderOpenTexture() const  { return _folderOpenTexture; }

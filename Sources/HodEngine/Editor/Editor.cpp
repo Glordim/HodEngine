@@ -640,6 +640,15 @@ namespace hod::editor
 		return editorTab;
 	}
 
+	/// @brief 
+	/// @param asset 
+	void Editor::PingAsset(std::shared_ptr<Asset> asset)
+	{
+		_showFloatingAssetBrowser = true;
+		_focusFloatingAssetBrowserWindow = true;
+		_floatingAssetBrowserWindow->PingAsset(*asset.get());
+	}
+
 	/*
 	/// @brief 
 	void Editor::Play()

@@ -196,11 +196,7 @@ namespace hod::editor
 		ImGui::SetCursorPos(prevCursorPos);
 		if (asset != nullptr && ImGui::Button(ICON_MDI_MAGNIFY))
 		{
-			AssetBrowserWindow* assetBrowserWindow = imgui::ImGuiManager::GetInstance()->FindWindow<AssetBrowserWindow>();
-			if (assetBrowserWindow != nullptr)
-			{
-				assetBrowserWindow->PingAsset(*asset);
-			}
+			Editor::GetInstance()->PingAsset(asset);
 		}
 		ImGui::SetCursorPos(cursorToRestore);
 
@@ -214,11 +210,7 @@ namespace hod::editor
 		}
 		else if (clicked == true && asset != nullptr)
 		{
-			AssetBrowserWindow* assetBrowserWindow = imgui::ImGuiManager::GetInstance()->FindWindow<AssetBrowserWindow>();
-			if (assetBrowserWindow != nullptr)
-			{
-				assetBrowserWindow->PingAsset(*asset);
-			}
+			Editor::GetInstance()->PingAsset(asset);
 		}
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && asset != nullptr && asset->GetThumbnail() != nullptr)
 		{

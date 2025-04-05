@@ -86,11 +86,7 @@ namespace hod::editor
 
 				if (ImGui::Button(asset->GetName().c_str()))
 				{
-					AssetBrowserWindow* assetBrowserWindow = imgui::ImGuiManager::GetInstance()->FindWindow<AssetBrowserWindow>();
-					if (assetBrowserWindow != nullptr)
-					{
-						assetBrowserWindow->PingAsset(*asset);
-					}
+					Editor::GetInstance()->PingAsset(asset);
 				}
 
 				// todo hide in play mode
