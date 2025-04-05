@@ -456,11 +456,11 @@ namespace hod::editor
 
 			if (_showFloatingAssetBrowser)
 			{
-				_floatingAssetBrowserWindowPos = std::min(350.0f, _floatingAssetBrowserWindowPos + ImGui::GetIO().DeltaTime * 2500.0f);
+				_floatingAssetBrowserWindowPos = std::min(350.0f, _floatingAssetBrowserWindowPos + ImGui::GetIO().DeltaTime * 2000.0f);
 			}
 			else
 			{
-				_floatingAssetBrowserWindowPos = std::max(0.0f, _floatingAssetBrowserWindowPos - ImGui::GetIO().DeltaTime * 2500.0f);
+				_floatingAssetBrowserWindowPos = std::max(0.0f, _floatingAssetBrowserWindowPos - ImGui::GetIO().DeltaTime * 2000.0f);
 			}
 			if (_floatingAssetBrowserWindowPos > 0.0f)
 			{
@@ -475,7 +475,9 @@ namespace hod::editor
 			}
 		});
 
-		OpenEditorTab<SceneEditorTab>();
+		//OpenEditorTab<SceneEditorTab>();
+		_showFloatingAssetBrowser = true;
+		_focusFloatingAssetBrowserWindow = true;
 /*
 		imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 		imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
@@ -624,7 +626,8 @@ namespace hod::editor
 		{
 			if (editorTab->GetAsset() == asset)
 			{
-				// todo select tab if docking
+				editorTab->Focus();
+				_showFloatingAssetBrowser = false;
 				return editorTab;
 			}
 		}
@@ -637,6 +640,9 @@ namespace hod::editor
 
 		EditorTab* editorTab = it->second(asset);
 		_editorTabs.push_back(editorTab);
+
+		_showFloatingAssetBrowser = false;
+
 		return editorTab;
 	}
 

@@ -28,6 +28,8 @@ namespace hod::editor
 		template<typename _EditorTabWindow_>
 		_EditorTabWindow_*		OpenWindow();
 
+		void					Focus();
+
 	protected:
 
 		virtual void	CreateDefaultLayout() = 0;
@@ -45,6 +47,8 @@ namespace hod::editor
 		std::shared_ptr<Asset>		_asset;
 
 		std::vector<EditorTabWindow*>	_windows;
+
+		bool						_focus = false;
 	};
 
 	template<typename _EditorTabWindow_>

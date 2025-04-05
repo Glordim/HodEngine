@@ -44,7 +44,17 @@ namespace hod::editor
 		bool open = true;
 		ImGui::SetNextItemWidth(210);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
-		bool draw = ImGui::BeginTabItem(_title.c_str(), &open, AssetIsDirty() ? ImGuiTabItemFlags_UnsavedDocument : ImGuiTabItemFlags_None);
+		ImGuiTabItemFlags tabItemFlags = ImGuiTabItemFlags_None;
+		if (AssetIsDirty())
+		{
+			tabItemFlags |= ImGuiTabItemFlags_UnsavedDocument;
+		}
+		if (_focus)
+		{
+			_focus = false;
+			tabItemFlags |= ImGuiTabItemFlags_SetSelected;
+		}
+		bool draw = ImGui::BeginTabItem(_title.c_str(), &open, tabItemFlags);
 		ImGui::PopStyleVar();
 		if (draw && open) // check open to avoid crash when RT owner is deleted after push rendercommand using it
 		{
@@ -61,14 +71,21 @@ namespace hod::editor
 			cursorPos.y += 32.0f;
 
 			ImGui::SetCursorScreenPos(ImVec2(0.0f, y));
-			ImGui::BeginDisabled(_asset != nullptr && _asset->IsDirty());
+			ImGui::BeginDisabled(_asset != nullptr && _asset->IsDirty() == false);
 			if (ImGui::Button(ICON_MDI_CONTENT_SAVE, ImVec2(0.0f, 32.0f)))
 			{
-				_asset->Save();
+				if (_asset)
+				{
+					_asset->Save();
+				}
+				else
+				{
+					// TODO SaveAs
+				}
 			}
 			ImGui::EndDisabled();
 			ImGui::SameLine();
-			ImGui::BeginDisabled(_asset != nullptr);
+			ImGui::BeginDisabled(_asset == nullptr);
 			if (ImGui::Button(ICON_MDI_MAGNIFY, ImVec2(0.0f, 32.0f)))
 			{
 				Editor::GetInstance()->PingAsset(_asset);
@@ -145,5 +162,11 @@ namespace hod::editor
 		{
 			return _asset->SetDirty();
 		}
+	}
+
+	/// @brief 
+	void EditorTab::Focus()
+	{
+		_focus = true;
 	}
 }

@@ -301,6 +301,8 @@ void embraceTheDarkness()
 #else
 		return;
 #endif
+		ImGui::GetIO().DeltaTime = std::min(ImGui::GetIO().DeltaTime, 1.0f / 30.0f);
+
 		ImGui::NewFrame();
 
 		if (_mainBar != nullptr)
