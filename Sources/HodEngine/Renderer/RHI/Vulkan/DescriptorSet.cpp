@@ -85,12 +85,74 @@ namespace hod::renderer
 			{
 				return false;
 			}
-			/* TODO CreateBuffer now take the size, check error
-			if (_uboBuffers[i]->Resize(static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count)) == false)
+
+			void* data = _uboBuffers[i]->Lock();
+			if (data != nullptr)
 			{
-				return false;
+				memset(data, 0, size);
+				_uboBuffers[i]->Unlock();
 			}
-			*/
+
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = _uboBuffers[i]->GetVkBuffer();
+			bufferInfo.offset = 0;
+			bufferInfo.range = ubo._rootMember._size * ubo._rootMember._count;
+
+			VkWriteDescriptorSet descriptorWrite = {};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = _descriptorSet;
+			descriptorWrite.dstBinding = ubo._binding;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			descriptorWrite.pImageInfo = nullptr;
+			descriptorWrite.pTexelBufferView = nullptr;
+			descriptorWrite.pNext = nullptr;
+
+			vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
+		}
+
+		const VkTexture* defaultTexture = static_cast<const VkTexture*>(Renderer::GetInstance()->GetDefaultWhiteTexture());
+
+		const std::vector<ShaderSetDescriptorVk::BlockTexture>& textures = _descriptorSetLayout->GetTextureBlocks();
+		size_t textureCount = textures.size();
+		for (size_t i = 0; i < textureCount; ++i)
+		{
+			const ShaderSetDescriptorVk::BlockTexture& texture = textures[i];
+
+			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+			VkDescriptorImageInfo imageInfo = {};
+			if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Sampler)
+			{
+				imageInfo.sampler = defaultTexture->GetTextureSampler();
+			}
+			else if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Texture)
+			{
+				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageInfo.imageView = defaultTexture->GetTextureImageView();
+			}
+			else
+			{
+				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageInfo.imageView = defaultTexture->GetTextureImageView();
+				imageInfo.sampler = defaultTexture->GetTextureSampler();
+			}
+
+			VkWriteDescriptorSet descriptorWrite = {};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = _descriptorSet;
+			descriptorWrite.dstBinding = texture._binding;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = ShaderSetDescriptorVk::TextureTypeToVkDescriptorType(texture._type);
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pBufferInfo = nullptr;
+			descriptorWrite.pImageInfo = &imageInfo;
+			descriptorWrite.pTexelBufferView = nullptr;
+			descriptorWrite.pNext = nullptr;
+
+			vkUpdateDescriptorSets(renderer->GetVkDevice(), 1, &descriptorWrite, 0, nullptr);
 		}
 
 		return true;
