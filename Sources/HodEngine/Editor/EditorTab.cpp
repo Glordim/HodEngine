@@ -45,7 +45,7 @@ namespace hod::editor
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
 		bool draw = ImGui::BeginTabItem(_title.c_str(), &open, AssetIsDirty() ? ImGuiTabItemFlags_UnsavedDocument : ImGuiTabItemFlags_None);
 		ImGui::PopStyleVar();
-		if (draw)
+		if (draw && open) // check open to avoid crash when RT owner is deleted after push rendercommand using it
 		{
 			float y = ImGui::GetCursorScreenPos().y - ImGui::GetStyle().ItemSpacing.y;
 			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(0.0f, y), ImVec2(ImGui::GetIO().DisplaySize.x, y + 32), ImGui::GetColorU32(ImGuiCol_TabSelected));
@@ -104,6 +104,9 @@ namespace hod::editor
 			{
 				open = false;
 			}
+		}
+		if (draw)
+		{
 			ImGui::EndTabItem();
 		}
 		return open;

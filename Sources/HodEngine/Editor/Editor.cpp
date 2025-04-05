@@ -381,26 +381,37 @@ namespace hod::editor
 			ImGui::PopStyleVar(2);
 			if (open)
 			{
-				ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(64.0f, 0.0f));
-				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
-				bool visible = ImGui::BeginTabBar("EditorTabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_DrawSelectedOverline);
-				ImGui::PopStyleVar();
-				if (visible)
+				if (_editorTabs.empty() == false)
 				{
-					auto it = _editorTabs.begin();
-					while (it != _editorTabs.end())
+					ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(64.0f, 0.0f));
+					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
+					bool visible = ImGui::BeginTabBar("EditorTabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_DrawSelectedOverline);
+					ImGui::PopStyleVar();
+					if (visible)
 					{
-						if ((*it)->Draw() == false)
+						auto it = _editorTabs.begin();
+						while (it != _editorTabs.end())
 						{
-							delete (*it);
-							_editorTabs.erase(it);
+							if ((*it)->Draw() == false)
+							{
+								delete (*it);
+								_editorTabs.erase(it);
+							}
+							else
+							{
+								++it;
+							}
 						}
-						else
-						{
-							++it;
-						}
+						ImGui::EndTabBar();
 					}
-					ImGui::EndTabBar();
+				}
+				else
+				{
+					if (_showFloatingAssetBrowser == false)
+					{
+						_showFloatingAssetBrowser = true;
+						_focusFloatingAssetBrowserWindow = true;
+					}
 				}
 			}
 			ImGui::End();
