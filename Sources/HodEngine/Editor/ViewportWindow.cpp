@@ -177,7 +177,7 @@ namespace hod::editor
 
 			if (ImGui::GetIO().MouseWheel != 0.0f)
 			{
-				_size -= ImGui::GetIO().MouseWheel * ImGui::GetIO().DeltaTime * std::abs(_size);
+				_size -= ImGui::GetIO().MouseWheel * 0.1f * std::abs(_size);
 			}
 
 			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
