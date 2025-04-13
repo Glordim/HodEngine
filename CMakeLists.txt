@@ -36,14 +36,18 @@ endif()
 
 FetchContent_Declare(
   stb
-  URL https://github.com/nothings/stb/archive/refs/heads/master.zip)
+  URL https://github.com/nothings/stb/archive/refs/heads/master.zip
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
 
 FetchContent_MakeAvailable(stb)
 message(STATUS "stb is available in " ${stb_SOURCE_DIR})
 
 FetchContent_Declare(
   portable_file_dialogs
-  URL https://github.com/samhocevar/portable-file-dialogs/archive/refs/heads/main.zip)
+  URL https://github.com/samhocevar/portable-file-dialogs/archive/refs/heads/main.zip
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
 FetchContent_MakeAvailable(portable_file_dialogs)
 message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_SOURCE_DIR})
 
@@ -228,6 +232,7 @@ message(STATUS "SpirvCross is available in " ${SpirvCross_LIBRARIES})
 #FetchContent_Declare(
 #  googletest
 #  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+#  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 #)
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 # set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
