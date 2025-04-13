@@ -8,14 +8,14 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
-#include "HodEngine/Renderer/Shader/Generated/P2fT2f_Texture_Unlit.vert.hpp"
-#include "HodEngine/Renderer/Shader/Generated/P2fT2f_Texture_Unlit.frag.hpp"
+#include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit.vert.hpp"
+#include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit.frag.hpp"
 
-#include "HodEngine/Renderer/Shader/Generated/P2fC4f_Unlit.vert.hpp"
-#include "HodEngine/Renderer/Shader/Generated/P2fC4f_Unlit.frag.hpp"
+#include "HodEngine/Renderer/Shader/P2fC4f_Unlit.vert.hpp"
+#include "HodEngine/Renderer/Shader/P2fC4f_Unlit.frag.hpp"
 
-#include "HodEngine/Renderer/Shader/Generated/P2f_Unlit.vert.hpp"
-#include "HodEngine/Renderer/Shader/Generated/P2f_Unlit.frag.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit.vert.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit.frag.hpp"
 
 #include <span>
 #include <cstring>

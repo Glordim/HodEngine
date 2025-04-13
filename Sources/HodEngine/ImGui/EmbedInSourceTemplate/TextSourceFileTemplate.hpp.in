@@ -1,0 +1,8 @@
+#pragma once
+#include <cstdint>
+
+namespace hod::imgui
+{
+	constexpr char @ESCAPED_FILE_NAME@[] = "@ESCAPED_FILE_CONTENTS@";
+	constexpr uint32_t @ESCAPED_FILE_NAME@_size = sizeof(@ESCAPED_FILE_NAME@);
+}

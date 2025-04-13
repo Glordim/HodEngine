@@ -8,8 +8,8 @@
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp"
 
-#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.vert.hpp"
-#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.frag.hpp"
+#include "HodEngine/Renderer/Shader/SpriteUnlitColor.vert.hpp"
+#include "HodEngine/Renderer/Shader/SpriteUnlitColor.frag.hpp"
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 

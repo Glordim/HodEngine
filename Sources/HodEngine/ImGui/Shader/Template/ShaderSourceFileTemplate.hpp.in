@@ -1,7 +1,0 @@
-#pragma once
-#include <string_view>
-
-namespace hod::imgui
-{
-	constexpr std::string_view @ESCAPED_FILE_NAME@ = "@ESCAPED_FILE_CONTENTS@";
-}

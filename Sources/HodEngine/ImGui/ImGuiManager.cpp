@@ -27,10 +27,10 @@
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 #include <HodEngine/Window/Desktop/DesktopDisplayManager.hpp>
 
-#include "HodEngine/ImGui/Shader/Generated/imgui.vert.hpp"
-#include "HodEngine/ImGui/Shader/Generated/imgui.frag.hpp"
-#include "HodEngine/ImGui/Font/MaterialDesignIcons.ttf.h"
-#include "HodEngine/ImGui/Font/Roboto-Regular.ttf.h"
+#include "HodEngine/ImGui/Shader/imgui.vert.hpp"
+#include "HodEngine/ImGui/Shader/imgui.frag.hpp"
+#include "HodEngine/ImGui/Font/MaterialDesignIcons.ttf.hpp"
+#include "HodEngine/ImGui/Font/Roboto-Regular.ttf.hpp"
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"

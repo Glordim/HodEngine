@@ -6,86 +6,36 @@ project(Editor)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES FileTemplate)
 
-# Creates C resources file from files in given directory
-function(create_resources input output SourcesVar IncludeVar)
-	file(MAKE_DIRECTORY ${output})
-	# Iterate through input files
-  string(REGEX MATCH "([^/]+)$" filename ${input})
-  # Replace filename spaces & extension separator for C compatibility
-  string(REGEX REPLACE "\\.| |-" "_" variablename ${filename})
-  # Read hex data from file
-  file(READ ${input} filedata HEX)
-  # Convert hex data for C compatibility
-  string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
-  # Create output file
-  file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tuint8_t ${variablename}[] = {${filedata}};\n\tuint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
-  file(WRITE "${output}/${filename}.h" "#pragma once\n#include <cstdint>\n\nnamespace hod\n{\n\textern uint8_t ${variablename}[];\n\textern uint32_t ${variablename}_size;\n}\n")
+file(GLOB_RECURSE Icons
+	"${PROJECT_SOURCE_DIR}/Icons/*.png"
+)
 
-  set(${SourcesVar} "${output}/${filename}.cpp" PARENT_SCOPE)
-  set(${IncludeVar} "${output}/${filename}.h" PARENT_SCOPE)
+foreach(file ${Icons})
+  EmbedBinaryInSource(${file}
+    ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.hpp.in
+    ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.cpp.in
+    ${PROJECT_BINARY_DIR}/Icons
+    GeneratedFileH
+    GeneratedFileCPP
+  )
+  list(APPEND Srcs ${GeneratedFileH})
+  list(APPEND Includes ${GeneratedFileH})
+  list(APPEND Srcs ${GeneratedFileCPP})
+endforeach()
 
-  message("Pack shader ${input}")
-endfunction()
+file(GLOB_RECURSE FileTemplates
+	"${PROJECT_SOURCE_DIR}/FileTemplate/*"
+)
 
-create_resources("Icons/HodIcon.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/folder.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/folder-open.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/landscape.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/prefab.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/SerializedData.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/Shader.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/Material.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-EmbeedTextInSource("FileTemplate/CMakeLists.txt" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
-list(APPEND Srcs ${GeneratedFile})
-list(APPEND Includes ${GeneratedFile})
-
-EmbeedTextInSource("FileTemplate/Module.hpp" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
-list(APPEND Srcs ${GeneratedFile})
-list(APPEND Includes ${GeneratedFile})
-
-EmbeedTextInSource("FileTemplate/Module.cpp" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
-list(APPEND Srcs ${GeneratedFile})
-list(APPEND Includes ${GeneratedFile})
-
-EmbeedTextInSource("FileTemplate/Component.hpp" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
-list(APPEND Srcs ${GeneratedFile})
-list(APPEND Includes ${GeneratedFile})
-
-EmbeedTextInSource("FileTemplate/Component.cpp" ${PROJECT_SOURCE_DIR}/FileTemplate/EditorTemplate.hpp.in ${PROJECT_SOURCE_DIR}/FileTemplate/Generated GeneratedFile)
-list(APPEND Srcs ${GeneratedFile})
-list(APPEND Includes ${GeneratedFile})
+foreach(file ${FileTemplates})
+  EmbedTextInSource(${file}
+    ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/TextSourceFileTemplate.hpp.in
+    ${PROJECT_BINARY_DIR}/FileTemplates
+    GeneratedFileH
+  )
+  list(APPEND Srcs ${GeneratedFileH})
+  list(APPEND Includes ${GeneratedFileH})
+endforeach()
 
 assign_source_group(${Srcs}) # for VS
 
@@ -101,6 +51,8 @@ get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
+  "${PROJECT_BINARY_DIR}/../.."
+  ${PROJECT_BINARY_DIR}
 	${Core_INCLUDES}
 	${PortableFileDialog_INCLUDE_DIRS}
 )

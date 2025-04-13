@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4...3.27)
 
 include(Global)
-
+include(EmbedInSource)
 
 if(APPLE)
 project(ImGui LANGUAGES CXX OBJCXX)
@@ -12,46 +12,40 @@ endif()
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 file(GLOB_RECURSE ShaderSources
-	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"
-	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.frag"
+	"${PROJECT_SOURCE_DIR}/Shader/*"
 )
 
 foreach(file ${ShaderSources})
-  EmbeedTextInSource(${file} ${PROJECT_SOURCE_DIR}/Shader/Template/ShaderSourceFileTemplate.hpp.in ${PROJECT_SOURCE_DIR}/Shader/Generated GeneratedFile)
-  list(APPEND Srcs ${GeneratedFile})
-  list(APPEND Includes ${GeneratedFile})
+  EmbedTextInSource(${file}
+  ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/TextSourceFileTemplate.hpp.in
+  ${PROJECT_BINARY_DIR}/Shader
+  GeneratedFileH
+  )
+  list(APPEND Srcs ${GeneratedFileH})
+  list(APPEND Includes ${GeneratedFileH})
 endforeach()
 
-# Creates C resources file from files in given directory
-function(create_resources input output SourcesVar IncludeVar)
-	file(MAKE_DIRECTORY ${output})
-	# Iterate through input files
-  string(REGEX MATCH "([^/]+)$" filename ${input})
-  # Replace filename spaces & extension separator for C compatibility
-  string(REGEX REPLACE "\\.| |-" "_" variablename ${filename})
-  # Read hex data from file
-  file(READ ${input} filedata HEX)
-  # Convert hex data for C compatibility
-  string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
-  # Create output file
-  file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tuint8_t ${variablename}[] = {${filedata}};\n\tuint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
-  file(WRITE "${output}/${filename}.h" "#pragma once\n#include <cstdint>\n\nnamespace hod\n{\n\textern uint8_t ${variablename}[];\n\textern uint32_t ${variablename}_size;\n}\n")
+EmbedBinaryInSource("Font/MaterialDesignIcons.ttf"
+	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.hpp.in
+	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.cpp.in
+	${PROJECT_BINARY_DIR}/Font
+	GeneratedFileH
+	GeneratedFileCPP
+)
+list(APPEND Srcs ${GeneratedFileH})
+list(APPEND Includes ${GeneratedFileH})
+list(APPEND Srcs ${GeneratedFileCPP})
 
-  set(${SourcesVar} "${output}/${filename}.cpp" PARENT_SCOPE)
-  set(${IncludeVar} "${output}/${filename}.h" PARENT_SCOPE)
-
-  message("Pack shader ${input}")
-endfunction()
-
-create_resources("Font/MaterialDesignIcons.ttf" "Font" FontSrcs FontIncludes)
-list(APPEND Srcs ${FontSrcs})
-list(APPEND Srcs ${FontIncludes})
-list(APPEND Includes ${FontIncludes})
-
-create_resources("Font/Roboto-Regular.ttf" "Font" FontSrcs FontIncludes)
-list(APPEND Srcs ${FontSrcs})
-list(APPEND Srcs ${FontIncludes})
-list(APPEND Includes ${FontIncludes})
+EmbedBinaryInSource("Font/Roboto-Regular.ttf"
+	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.hpp.in
+	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.cpp.in
+	${PROJECT_BINARY_DIR}/Font
+	GeneratedFileH
+	GeneratedFileCPP
+)
+list(APPEND Srcs ${GeneratedFileH})
+list(APPEND Includes ${GeneratedFileH})
+list(APPEND Srcs ${GeneratedFileCPP})
 
 assign_source_group(${Srcs}) # for VS
 
@@ -66,6 +60,8 @@ get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   "../.."
+  "${PROJECT_BINARY_DIR}/../.."
+  ${PROJECT_BINARY_DIR}
   ${Core_INCLUDES}
   ${Window_INCLUDES}
   ${Renderer_INCLUDES}

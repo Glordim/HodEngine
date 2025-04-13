@@ -191,23 +191,6 @@ function(CollectSourceFiles ProjectSourceDir SourcesVar IncludesVar)
 	set(${IncludesVar} ${Includes} PARENT_SCOPE)
 endfunction()
 
-function(EmbeedTextInSource InputFile TemplateFile OutputDir OutputFile)
-	message(STATUS "Pack: ${InputFile}")
-
-	get_filename_component(FILENAME "${InputFile}" NAME)
-	string(REPLACE "." "_" ESCAPED_FILE_NAME "${FILENAME}")
-
-	file(READ "${InputFile}" FILE_CONTENTS)
-	string(REPLACE "\"" "\\\"" ESCAPED_FILE_CONTENTS "${FILE_CONTENTS}")
-	string(REPLACE "\n" "\\n\"\n\"" ESCAPED_FILE_CONTENTS "${ESCAPED_FILE_CONTENTS}")
-
-	configure_file(
-		${TemplateFile}
-		${OutputDir}/${FILENAME}.hpp
-		@ONLY
-	)
-endfunction()
-
 function(assign_source_group)
 	foreach(_source IN ITEMS ${ARGN})
 		if (IS_ABSOLUTE "${_source}")

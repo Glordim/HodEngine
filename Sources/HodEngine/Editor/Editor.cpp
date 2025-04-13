@@ -78,13 +78,13 @@
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "stb_image.h"
 
-#include "Icons/HodIcon.png.h"
-#include "Icons/folder.png.h"
-#include "Icons/folder-open.png.h"
-#include "Icons/landscape.png.h"
-#include "Icons/prefab.png.h"
-#include "Icons/SerializedData.png.h"
-#include "Icons/Shader.png.h"
+#include "Icons/HodIcon.png.hpp"
+#include "Icons/folder.png.hpp"
+#include "Icons/folder-open.png.hpp"
+#include "Icons/landscape.png.hpp"
+#include "Icons/prefab.png.hpp"
+#include "Icons/SerializedData.png.hpp"
+#include "Icons/Shader.png.hpp"
 
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.4...3.27)
 
 include(Global)
+include(EmbedInSource)
 
 if(NOT APPLE)
 project(Renderer LANGUAGES CXX)
@@ -24,20 +25,25 @@ CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ".*/RHI/Vulkan/.
 endif()
 
 file(GLOB_RECURSE ShaderSources
-	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.vert"
-	"${PROJECT_SOURCE_DIR}/Shader/Sources/*.frag"
+	"${PROJECT_SOURCE_DIR}/Shader/*"
 )
 
 foreach(file ${ShaderSources})
-  EmbeedTextInSource(${file} ${PROJECT_SOURCE_DIR}/Shader/Template/ShaderSourceFileTemplate.hpp.in ${PROJECT_SOURCE_DIR}/Shader/Generated GeneratedFile)
-  list(APPEND Srcs ${GeneratedFile})
-  list(APPEND Includes ${GeneratedFile})
+EmbedTextInSource(${file}
+  ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/TextSourceFileTemplate.hpp.in
+  ${PROJECT_BINARY_DIR}/Shader
+  GeneratedFileH
+  )
+  list(APPEND Srcs ${GeneratedFileH})
+  list(APPEND Includes ${GeneratedFileH})
 endforeach()
 
 assign_source_group(${Srcs}) # for VS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 "../.."
+"${PROJECT_BINARY_DIR}/../.."
+${PROJECT_BINARY_DIR}
 "RHI/Metal/MetalCpp"
 )
 
