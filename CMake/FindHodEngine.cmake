@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...3.27)
+cmake_minimum_required(VERSION 3.10)
 
 function(FindHodEngine)
   if (DEFINED HodEngine_DIR)
