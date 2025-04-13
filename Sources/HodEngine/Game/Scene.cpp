@@ -143,6 +143,8 @@ namespace hod::game
 	/// @param entity 
 	void Scene::DestroyEntity(std::shared_ptr<Entity> entity)
 	{
+		entity->Destruct();
+		
 		while (entity->GetChildren().empty() == false)
 		{
 			DestroyEntity(entity->GetChildren()[0].Lock());
