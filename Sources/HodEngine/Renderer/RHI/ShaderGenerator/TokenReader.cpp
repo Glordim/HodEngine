@@ -25,7 +25,8 @@ namespace hod::renderer
 
 		while (stream.eof() == false)
 		{
-			char c = stream.peek();
+			int peek = stream.peek();
+			char c = (char)peek;
 			if (c == '\n' && tokens.empty() == false && tokens.back()._type == Token::Type::Semicolon)
 			{
 				stream.ignore();
@@ -228,7 +229,7 @@ namespace hod::renderer
 				token._type = Token::LogicalAnd;
 				tokens.push_back(token);
 			}
-			else if (c == '\0' || c == EOF)
+			else if (c == '\0' || peek == EOF)
 			{
 				stream.ignore();
 
