@@ -7,6 +7,7 @@ namespace hod
 {
 	std::filesystem::path FileSystem::_userSettingsPath;
 	std::filesystem::path FileSystem::_executablePath;
+	std::filesystem::path FileSystem::_temporaryPath;
 
 	std::filesystem::path FileSystem::GetUserSettingsPath()
 	{
@@ -16,6 +17,15 @@ namespace hod
 	std::filesystem::path FileSystem::GetExecutablePath()
 	{
 		return FileSystem::_executablePath;
+	}
+
+	std::filesystem::path FileSystem::GetTemporaryPath()
+	{
+		if (FileSystem::_temporaryPath.empty() == true)
+		{
+			assert(false); // TODO
+		}
+		return FileSystem::_temporaryPath;
 	}
 
 	bool FileSystem::SetWorkingDirectory(const std::filesystem::path& path)

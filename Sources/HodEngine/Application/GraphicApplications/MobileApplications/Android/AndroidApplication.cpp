@@ -31,7 +31,6 @@
 #include "HodEngine/Physics/Physics.hpp"
 
 #include "HodEngine/Core/Time/SystemTime.hpp"
-#include "HodEngine/Core/ResourceManager.hpp"
 
 #include "HodEngine/Window/Window.hpp"
 
@@ -42,8 +41,8 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 
-#include <HodEngine/Core/Resource.hpp>
-#include <HodEngine/Core/ResourceManager.hpp>
+#include <HodEngine/Core/Resource/Resource.hpp>
+#include <HodEngine/Core/Resource/ResourceManager.hpp>
 
 #include <HodEngine/Game/BootInfo.hpp>
 #include <HodEngine/Game/World.hpp>
