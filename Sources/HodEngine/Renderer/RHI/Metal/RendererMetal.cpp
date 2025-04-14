@@ -26,16 +26,14 @@ namespace hod
 
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		RendererMetal::~RendererMetal()
 		{
 			_commandQueue->release();
 			_device->release();
 		}
 
-		bool RendererMetal::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount)
+		bool RendererMetal::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore, const Fence* fence)
 		{
 			for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
 			{
@@ -112,30 +110,6 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool RendererMetal::ResizeSwapChain()
-		{
-			return false;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool RendererMetal::AcquireNextImageIndex()
-		{
-			return false;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool RendererMetal::SwapBuffer()
-		{
-			return false;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
 		Shader* RendererMetal::CreateShader(Shader::ShaderType type)
 		{
 			return new MetalShader(type);
@@ -161,6 +135,20 @@ namespace hod
 		MaterialInstance* RendererMetal::CreateMaterialInstance(const Material* material)
 		{
 			return new MetalMaterialInstance(*material);
+		}
+
+		/// @brief 
+		/// @return 
+		Semaphore* RendererMetal::CreateSemaphore()
+		{
+			return nullptr;
+		}
+
+		/// @brief 
+		/// @return 
+		Fence* RendererMetal::CreateFence()
+		{
+			return nullptr;
 		}
 
 		//-----------------------------------------------------------------------------

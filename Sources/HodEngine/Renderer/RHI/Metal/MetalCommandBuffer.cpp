@@ -18,9 +18,7 @@ namespace hod
 {
 	namespace renderer
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		MetalCommandBuffer::MetalCommandBuffer()
 		{
 			RendererMetal* rendererMetal = RendererMetal::GetInstance();
@@ -28,9 +26,7 @@ namespace hod
 			_commandBuffer = rendererMetal->GetCommandQueue()->commandBuffer();
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
 		MetalCommandBuffer::~MetalCommandBuffer()
 		{
 			_commandBuffer->release();
@@ -38,7 +34,21 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		bool MetalCommandBuffer::StartRecord(RenderTarget* renderTarget, Context* context, const Color& color)
+		bool MetalCommandBuffer::StartRecord()
+		{
+			return true;
+		}
+
+		/// @brief 
+		/// @return 
+		bool MetalCommandBuffer::EndRecord()
+		{
+			return true;
+		}
+
+		/// @brief 
+		/// @return 
+		bool MetalCommandBuffer::StartRenderPass(RenderTarget* renderTarget, Context* context, const Color& color)
 		{
 			MetalContext* metalContext = static_cast<MetalContext*>(context);
             CA::MetalDrawable* drawable = metalContext->GetCurrentDrawable();
@@ -55,10 +65,9 @@ namespace hod
 			return true;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool MetalCommandBuffer::EndRecord()
+		/// @brief 
+		/// @return 
+		bool MetalCommandBuffer::EndRenderPass()
 		{
 			_renderCommandEncoder->endEncoding();
 
@@ -90,23 +99,20 @@ namespace hod
             }
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param projectionMatrix 
 		void MetalCommandBuffer::SetProjectionMatrix(const Matrix4& projectionMatrix)
 		{
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param viewMatrix 
 		void MetalCommandBuffer::SetViewMatrix(const Matrix4& viewMatrix)
 		{
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param modelMatrix 
 		void MetalCommandBuffer::SetModelMatrix(const Matrix4& modelMatrix)
 		{
 		}
@@ -137,56 +143,62 @@ namespace hod
             _renderCommandEncoder->setScissorRect(scissorRect);
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param materialInstance 
+		/// @param setOffset 
+		/// @param setCount 
 		void MetalCommandBuffer::SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
 		{
             static_cast<const MetalMaterialInstance*>(materialInstance)->FillCommandEncoder(_renderCommandEncoder);
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param vertexBuffer 
+		/// @param count 
+		/// @param offset 
 		void MetalCommandBuffer::SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset)
 		{
 			// todo count
             _renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(vertexBuffer[0])->GetNativeBuffer(), offset, 0);
 		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		
+		/// @brief 
+		/// @param indexBuffer 
+		/// @param offset 
 		void MetalCommandBuffer::SetIndexBuffer(Buffer* indexBuffer, uint32_t offset)
 		{
             _indexBuffer = static_cast<MetalBuffer*>(indexBuffer);
             _indexBufferOffset = offset;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param vertexCount 
 		void MetalCommandBuffer::Draw(uint32_t vertexCount)
 		{
             // TODO primitive type from Material ?
             _renderCommandEncoder->drawPrimitives(MTL::PrimitiveTypeTriangle, 0, vertexCount, 1);
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
+		/// @brief 
+		/// @param indexCount 
+		/// @param indexOffset 
+		/// @param vertexOffset 
 		void MetalCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset)
 		{
             // TODO primitive type from Material ?
             _renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, _indexBuffer->GetNativeBuffer(), _indexBufferOffset, 1);
 		}
 
+		/// @brief 
+		/// @param context 
 		void MetalCommandBuffer::Present(Context* context)
 		{
 			MetalContext* metalContext = static_cast<MetalContext*>(context);
 			_commandBuffer->presentDrawable(metalContext->GetCurrentDrawable());
 		}
 
+		/// @brief 
+		/// @return 
 		MTL::CommandBuffer*	MetalCommandBuffer::GetNativeCommandBuffer() const
 		{
 			return _commandBuffer;

@@ -28,14 +28,14 @@ namespace hod::renderer
 
 	public:
 
-		bool						AcquireNextImageIndex() override;
+		bool						AcquireNextImageIndex(const Semaphore* signalSemaphore) override;
 		CA::MetalDrawable*			GetCurrentDrawable() const;
 
 		void						Resize(uint32_t width, uint32_t height) override;
 		uint32_t					GetWidth() override;
 		uint32_t					GetHeight() override;
 
-		bool						SwapBuffer() override;
+		bool						SwapBuffer(const Semaphore* waitSemaphore) override;
 
 		void						Present();
 
