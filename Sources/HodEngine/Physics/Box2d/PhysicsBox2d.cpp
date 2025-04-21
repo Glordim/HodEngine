@@ -130,7 +130,7 @@ namespace hod::physics
 			};
 			b2ContactData contactData[10];
 			int contactCount = b2Shape_GetContactData(beginEvent.shapeIdA, contactData, 10);
-			for (uint32_t contactIndex = 0; contactIndex < contactCount; ++contactIndex)
+			for (int contactIndex = 0; contactIndex < contactCount; ++contactIndex)
 			{
 				b2ContactData& data = contactData[contactIndex];
 

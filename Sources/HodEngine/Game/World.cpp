@@ -235,7 +235,7 @@ namespace hod
 			}
 
 			SystemTime::TimeStamp now = SystemTime::Now();
-			float deltaTime = SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
+			float deltaTime = (float)SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
 			_lastUpdateTimestamp = now;
 
 			if (_editorNextFrame == true)

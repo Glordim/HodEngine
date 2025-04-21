@@ -25,7 +25,7 @@ namespace hod::editor
 			_title = std::format("{}   {}", icon, _asset->GetName());
 		}
 
-		_dockSpaceId = reinterpret_cast<uintptr_t>(this);
+		_dockSpaceId = ImGui::GetID(this);
 	}
 
 	/// @brief 

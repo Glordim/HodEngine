@@ -45,7 +45,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		return LoadFromIR(shaderIR.data(), shaderIR.size());
+		return LoadFromIR(shaderIR.data(), (uint32_t)shaderIR.size());
 	}
 
 	/// @brief 

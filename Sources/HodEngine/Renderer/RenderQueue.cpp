@@ -136,11 +136,11 @@ namespace hod::renderer
 
 		if (_context != nullptr)
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.data(), _commandBuffers.size(), _renderFinishedSemaphore, _imageAvailableSemaphore, _renderFinishedFence);
+			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), _renderFinishedSemaphore, _imageAvailableSemaphore, _renderFinishedFence);
 		}
 		else
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.data(), _commandBuffers.size(), nullptr, nullptr, _renderFinishedFence);
+			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), nullptr, nullptr, _renderFinishedFence);
 		}
 
 		if (_context != nullptr)

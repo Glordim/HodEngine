@@ -131,7 +131,7 @@ namespace hod::editor
 				0, 2, 3,
 			};
 
-			renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), indices.size(), Matrix4::Identity, GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->GetDefaultInstance());
+			renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->GetDefaultInstance());
 			_renderQueue.PushRenderCommand(renderMeshCommand);
 		}
 

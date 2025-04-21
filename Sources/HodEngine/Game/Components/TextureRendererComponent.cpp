@@ -171,8 +171,8 @@ namespace hod::game
 		std::shared_ptr<renderer::TextureResource> textureResourceLock = _texture.Lock();
 		if (textureResourceLock != nullptr)
 		{
-			width = textureResourceLock->GetTexture()->GetWidth();
-			height = textureResourceLock->GetTexture()->GetHeight();
+			width = (float)textureResourceLock->GetTexture()->GetWidth();
+			height = (float)textureResourceLock->GetTexture()->GetHeight();
 		}
 
 		Rect bb;

@@ -226,7 +226,7 @@ namespace hod::editor
 					ImVec2 buttonPos = ImGui::GetCursorScreenPos();
 					ImVec2 mousePos = ImGui::GetMousePos();
 
-					float distance = std::sqrt(std::pow(buttonPos.x - mousePos.x, 2) + std::pow(buttonPos.y - mousePos.y, 2));
+					float distance = (float)std::sqrt(std::pow(buttonPos.x - mousePos.x, 2) + std::pow(buttonPos.y - mousePos.y, 2));
 					distance = std::clamp(distance, 15.0f, 40.0f);
 					float alpha = 1.0f - ((distance - 15.0f) / (40.0f - 15.0f));
 
