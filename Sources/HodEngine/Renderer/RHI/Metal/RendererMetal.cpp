@@ -8,6 +8,8 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalSemaphore.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalFence.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
 #include "HodEngine/Renderer/RHI/Metal/ShaderGeneratorMetal.hpp"
@@ -141,14 +143,14 @@ namespace hod
 		/// @return 
 		Semaphore* RendererMetal::CreateSemaphore()
 		{
-			return nullptr;
+			return new MetalSemaphore();
 		}
 
 		/// @brief 
 		/// @return 
 		Fence* RendererMetal::CreateFence()
 		{
-			return nullptr;
+			return new MetalFence();
 		}
 
 		//-----------------------------------------------------------------------------
