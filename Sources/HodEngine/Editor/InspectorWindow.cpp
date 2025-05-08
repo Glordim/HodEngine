@@ -61,13 +61,13 @@ namespace hod::editor
 	/// @param selection 
 	void InspectorWindow::DrawSceneSelection(std::shared_ptr<game::Entity> selection)
 	{
-		game::PrefabUtility::EntityDiffs entityDiffs;
+		std::vector<game::PrefabUtility::PrefabOverride> overrides;
 
 		std::shared_ptr<game::PrefabResource> prefabResource = selection->GetPrefabResource();
 		if (prefabResource != nullptr)
 		{
 			// todo don't do that in play mode
-			game::PrefabUtility::CollectDiff(selection, entityDiffs);
+			game::PrefabUtility::CollectPrefabOverride(selection, overrides);
 			//
 
 			if (ImGui::BeginChild("PrefabInstance", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle) == true)
@@ -91,12 +91,12 @@ namespace hod::editor
 
 				// todo hide in play mode
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_PENCIL).x, 0.0f);
-				ImGui::BeginDisabled(entityDiffs._diffs.empty());
+				ImGui::BeginDisabled(overrides.empty());
 				if (ImGui::Button(ICON_MDI_PENCIL))
 				{
 					ImGui::OpenPopup("EditOverrides");
 				}
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && entityDiffs._diffs.empty())
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && overrides.empty())
 				{
 					ImGui::SetTooltip("%s", "No override detected");
 				}

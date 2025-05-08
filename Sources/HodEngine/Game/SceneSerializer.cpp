@@ -40,36 +40,36 @@ namespace hod::game
 			Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
 			Document::Node& overridesNode = prefabInstance.AddChild("Overrides");
 
-			PrefabUtility::EntityDiffs entityDiffs;
-			PrefabUtility::CollectDiff(entity, entityDiffs);
+			std::vector<PrefabUtility::PrefabOverride> prefabOverrides;
+			PrefabUtility::CollectPrefabOverride(entity, prefabOverrides);
 
-			for (PrefabUtility::EntityDiffs::Diff* diff : entityDiffs._diffs)
+			for (const PrefabUtility::PrefabOverride& override : prefabOverrides)
 			{
-				if (diff->_reflectionProperty->FindTrait<ReflectionTraitNoSerialization>() != nullptr)
+				if (override._reflectionProperty->FindTrait<ReflectionTraitNoSerialization>() != nullptr)
 				{
 					continue;
 				}
 
-				if (diff->_type == PrefabUtility::EntityDiffs::Diff::Type::Entity && std::strcmp(diff->_reflectionProperty->GetName(), "_localId") == 0) // toto better way
+				if (override._type == PrefabUtility::PrefabOverride::Type::Entity && std::strcmp(override._reflectionProperty->GetName(), "_localId") == 0) // toto better way
 				{
 					continue;
 				}
 
 				Document::Node& overrideNode = overridesNode.AddChild("");
 				Document::Node& overrideTargetNode = overrideNode.AddChild("Target");
-				if (diff->_type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
+				if (override._type == PrefabUtility::PrefabOverride::Type::Entity)
 				{
-					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::EntityDiffs::Diff::Type::Entity));
-					overrideTargetNode.AddChild("LocalId").SetUInt64(static_cast<Entity*>(diff->_instance)->GetLocalId());
+					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Entity));
+					overrideTargetNode.AddChild("LocalId").SetUInt64(static_cast<Entity*>(override._source)->GetLocalId());
 				}
 				else // Component
 				{
-					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::EntityDiffs::Diff::Type::Component));
-					overrideTargetNode.AddChild("LocalId").SetUInt64(static_cast<Component*>(diff->_instance)->GetLocalId());
+					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Component));
+					overrideTargetNode.AddChild("LocalId").SetUInt64(static_cast<Component*>(override._source)->GetLocalId());
 				}
 				// TODO can be an array of modifcations to mutalize target description
 				Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
-				Serializer::SerializeVariable((ReflectionPropertyVariable*)diff->_reflectionProperty, diff->_effectiveInstanceAddr, overrideModificationNode, diff->_path);
+				Serializer::SerializeVariable((ReflectionPropertyVariable*)override._reflectionProperty, override._effectiveInstanceAddr, overrideModificationNode, override._path);
 			}
 		}
 		else
@@ -252,20 +252,26 @@ namespace hod::game
 		while (overrideNode != nullptr)
 		{
 			const Document::Node* targetNode = overrideNode->GetChild("Target");
-			if (targetNode != nullptr)
+			const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
+			if (targetNode != nullptr && modificationsNode != nullptr)
 			{
 				const Document::Node* typeNode = targetNode->GetChild("Type");
-				if (targetNode != nullptr)
+				const Document::Node* localIdNode = targetNode->GetChild("LocalId");
+				if (typeNode != nullptr && localIdNode != nullptr)
 				{
-					PrefabUtility::EntityDiffs::Diff::Type type = static_cast<PrefabUtility::EntityDiffs::Diff::Type>(typeNode->GetInt64());
-					//uint64_t localId = targetNode->GetChild("LocalId")->GetUInt64();
-					
-					const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
+					PrefabUtility::PrefabOverride::Type type = static_cast<PrefabUtility::PrefabOverride::Type>(typeNode->GetInt64());
+					uint64_t localId = localIdNode->GetUInt64();
+
 					if (modificationsNode != nullptr)
 					{
-						if (type == PrefabUtility::EntityDiffs::Diff::Type::Entity)
+						if (type == PrefabUtility::PrefabOverride::Type::Entity)
 						{
-
+							auto it = sceneSerializer._contextualEntityMap.find(localId);
+							if (it != sceneSerializer._contextualEntityMap.end())
+							{
+								std::shared_ptr<Entity> entity = it->second;
+								Serializer::Deserialize(*entity.get(), *modificationsNode);
+							}
 						}
 						else // Components
 						{

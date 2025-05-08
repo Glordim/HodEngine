@@ -19,9 +19,9 @@ namespace hod::game::PrefabUtility
 {
 	/// @brief 
 	/// @param entity 
-	/// @param diffs 
+	/// @param overrides 
 	/// @return 
-	bool CollectDiff(std::shared_ptr<Entity> entity, EntityDiffs& diffs)
+	bool CollectPrefabOverride(std::shared_ptr<Entity> entity, std::vector<PrefabOverride>& overrides)
 	{
 		std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
 		if (prefabResource == nullptr)
@@ -38,17 +38,7 @@ namespace hod::game::PrefabUtility
 		}
 
 		ReflectionDescriptor& reflectionDescriptor = source->GetReflectionDescriptorV();
-		for (ReflectionProperty* reflectionProperty : reflectionDescriptor.GetProperties())
-		{
-			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
-			{
-				ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
-				if (reflectionPropertyVariable->CompareInstance(source.get(), instance.get()) == false)
-				{
-					diffs.Add("", reflectionPropertyVariable, source, instance, source.get(), instance.get()); // TODO uniformize with component, entity can have sub object too
-				}
-			}
-		}
+		CollectEntityOverride(source, instance, overrides, "", reflectionDescriptor, source.get(), instance.get());
 
 		for (std::weak_ptr<Component> component : source->GetComponents())
 		{
@@ -61,10 +51,7 @@ namespace hod::game::PrefabUtility
 				if (instanceComponentLock->GetLocalId() == localId)
 				{
 					ReflectionDescriptor& reflectionDescriptor = componentLock->GetReflectionDescriptorV();
-					void* componentAddr = componentLock.get();
-					void* instanceAddr = instanceComponentLock.get();
-					std::string path = "";
-					CollectDiff(componentLock, instanceComponentLock, diffs, path, reflectionDescriptor, componentAddr, instanceAddr);
+					CollectComponentOverride(componentLock, instanceComponentLock, overrides, "", reflectionDescriptor, componentLock.get(), instanceComponentLock.get());
 				}
 			}
 		}
@@ -73,19 +60,15 @@ namespace hod::game::PrefabUtility
 	}
 
 	/// @brief 
-	/// @param sourceComponent 
-	/// @param instanceComponent 
-	/// @param diffs 
+	/// @param sourceEntity 
+	/// @param instanceEntity 
+	/// @param overrides 
+	/// @param path 
 	/// @param reflectionDescriptor 
 	/// @param sourceAddr 
 	/// @param instanceAddr 
-	void CollectDiff(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, EntityDiffs& diffs, const std::string& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr)
+	void CollectEntityOverride(std::shared_ptr<Entity> sourceEntity, std::shared_ptr<Entity> instanceEntity, std::vector<PrefabOverride>& overrides, const std::string& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr)
 	{
-		if (reflectionDescriptor.GetParent() != nullptr)
-		{
-			CollectDiff(sourceComponent, instanceComponent, diffs, path, *reflectionDescriptor.GetParent(), sourceAddr, instanceAddr);
-		}
-
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor.GetProperties())
 		{
 			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
@@ -93,7 +76,15 @@ namespace hod::game::PrefabUtility
 				ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
 				if (reflectionPropertyVariable->CompareInstance(sourceAddr, instanceAddr) == false)
 				{
-					diffs.Add(path + reflectionPropertyVariable->GetName(), reflectionPropertyVariable, sourceComponent, instanceComponent, sourceAddr, instanceAddr);
+					PrefabOverride override;
+					override._type = PrefabOverride::Type::Entity;
+					override._source = sourceEntity.get();
+					override._instance = instanceEntity.get();
+					override._reflectionProperty = reflectionPropertyVariable;
+					override._path = path + reflectionPropertyVariable->GetName();
+					override._effectiveSourceAddr = sourceAddr;
+					override._effectiveInstanceAddr = instanceAddr;
+					overrides.push_back(override);
 				}
 			}
 			else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
@@ -103,7 +94,52 @@ namespace hod::game::PrefabUtility
 				void* subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
 				std::string subObjecPath = path + reflectionPropertyObject->GetName() + ".";
 				ReflectionDescriptor* subObjectReflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
-				CollectDiff(sourceComponent, instanceComponent, diffs, subObjecPath, *subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
+				CollectEntityOverride(sourceEntity, instanceEntity, overrides, subObjecPath, *subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
+			}
+		}
+	}
+
+	/// @brief 
+	/// @param sourceComponent 
+	/// @param instanceComponent 
+	/// @param overrides 
+	/// @param path 
+	/// @param reflectionDescriptor 
+	/// @param sourceAddr 
+	/// @param instanceAddr 
+	void CollectComponentOverride(std::shared_ptr<Component> sourceComponent, std::shared_ptr<Component> instanceComponent, std::vector<PrefabOverride>& overrides, const std::string& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr)
+	{
+		if (reflectionDescriptor.GetParent() != nullptr)
+		{
+			CollectComponentOverride(sourceComponent, instanceComponent, overrides, path, *reflectionDescriptor.GetParent(), sourceAddr, instanceAddr);
+		}
+
+		for (ReflectionProperty* reflectionProperty : reflectionDescriptor.GetProperties())
+		{
+			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+			{
+				ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
+				if (reflectionPropertyVariable->CompareInstance(sourceAddr, instanceAddr) == false)
+				{
+					PrefabOverride override;
+					override._type = PrefabOverride::Type::Component;
+					override._source = sourceComponent.get();
+					override._instance = instanceComponent.get();
+					override._reflectionProperty = reflectionPropertyVariable;
+					override._path = path + reflectionPropertyVariable->GetName();
+					override._effectiveSourceAddr = sourceAddr;
+					override._effectiveInstanceAddr = instanceAddr;
+					overrides.push_back(override);
+				}
+			}
+			else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+			{
+				ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
+				void* subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);
+				void* subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
+				std::string subObjecPath = path + reflectionPropertyObject->GetName() + ".";
+				ReflectionDescriptor* subObjectReflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
+				CollectComponentOverride(sourceComponent, instanceComponent, overrides, subObjecPath, *subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
 			}
 		}
 	}
