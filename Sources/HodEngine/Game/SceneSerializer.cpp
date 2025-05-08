@@ -60,13 +60,14 @@ namespace hod::game
 				if (override._type == PrefabUtility::PrefabOverride::Type::Entity)
 				{
 					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Entity));
-					overrideTargetNode.AddChild("LocalId").SetUInt64(static_cast<Entity*>(override._source)->GetLocalId());
 				}
 				else // Component
 				{
 					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Component));
-					overrideTargetNode.AddChild("LocalId").SetUInt64(static_cast<Component*>(override._source)->GetLocalId());
 				}
+
+				overrideTargetNode.AddChild("LocalIds").SetValues(std::span(override._target));
+
 				// TODO can be an array of modifcations to mutalize target description
 				Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
 				Serializer::SerializeVariable((ReflectionPropertyVariable*)override._reflectionProperty, override._effectiveInstanceAddr, overrideModificationNode, override._path);
@@ -256,50 +257,36 @@ namespace hod::game
 			if (targetNode != nullptr && modificationsNode != nullptr)
 			{
 				const Document::Node* typeNode = targetNode->GetChild("Type");
-				const Document::Node* localIdNode = targetNode->GetChild("LocalId");
-				if (typeNode != nullptr && localIdNode != nullptr)
+				const Document::Node* localIdsNode = targetNode->GetChild("LocalIds");
+				if (typeNode != nullptr && localIdsNode != nullptr)
 				{
 					PrefabUtility::PrefabOverride::Type type = static_cast<PrefabUtility::PrefabOverride::Type>(typeNode->GetInt64());
+
+					const Document::Node* localIdNode = localIdsNode->GetFirstChild();
 					uint64_t localId = localIdNode->GetUInt64();
 
-					if (modificationsNode != nullptr)
+					if (type == PrefabUtility::PrefabOverride::Type::Entity)
 					{
-						if (type == PrefabUtility::PrefabOverride::Type::Entity)
+						auto it = sceneSerializer._contextualEntityMap.find(localId);
+						if (it != sceneSerializer._contextualEntityMap.end())
 						{
-							auto it = sceneSerializer._contextualEntityMap.find(localId);
-							if (it != sceneSerializer._contextualEntityMap.end())
-							{
-								std::shared_ptr<Entity> entity = it->second;
-								Serializer::Deserialize(*entity.get(), *modificationsNode);
-							}
+							std::shared_ptr<Entity> entity = it->second;
+							Serializer::Deserialize(*entity.get(), *modificationsNode);
 						}
-						else // Components
+					}
+					else // Components
+					{
+						auto it = sceneSerializer._contextualComponentMap.find(localId);
+						if (it != sceneSerializer._contextualComponentMap.end())
 						{
-							/*
-							std::shared_ptr<Component> targetComponent;
-							for (const std::shared_ptr<Component>& component : components)
+							std::shared_ptr<Component> component = it->second;
+							const Document::Node* modificationNode = modificationsNode->GetFirstChild();
+							while (modificationNode != nullptr)
 							{
-								if (component->GetLocalId() == localId)
-								{
-									targetComponent = component;
-									break;
-								}
+								Serializer::DeserializeWithPath(modificationNode->GetName(), *component.get(), *modificationsNode);
+								modificationNode = modificationNode->GetNextSibling();
 							}
-							if (targetComponent != nullptr)
-							{
-								Component* component = targetComponent.get();
-								const Document::Node* modificationNode = modificationsNode->GetFirstChild();
-								while (modificationNode != nullptr)
-								{
-									Serializer::DeserializeWithPath(modificationNode->GetName(), component, *modificationsNode);
-									modificationNode = modificationNode->GetNextSibling();
-								}
-							}
-							else
-							{
-								// todo
-							}
-							*/
+							//Serializer::Deserialize(*component.get(), *modificationsNode);
 						}
 					}
 				}
