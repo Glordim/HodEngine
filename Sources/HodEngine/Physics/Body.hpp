@@ -43,6 +43,7 @@ namespace hod::physics
 		void				SetTriggerExitCallback(std::function<void(const Collider& trigger, const Collider& visitor)> callback);
 		const std::function<void(const Collider& trigger, const Collider& visitor)>& GetTriggerExitCallback() const;
 
+		virtual void		ClearAllShapes() = 0;
 		virtual Collider*	AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition) = 0;
 		virtual Collider*	AddCircleShape(bool isTrigger, const Vector2& position, float radius) = 0;
 		virtual Collider*	AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) = 0;

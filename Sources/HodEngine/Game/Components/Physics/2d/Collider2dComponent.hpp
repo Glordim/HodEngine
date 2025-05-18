@@ -70,7 +70,7 @@ namespace hod::game
 
 		void			OnStart() override;
 
-		std::shared_ptr<Rigidbody2dComponent>	GetRigidbody() const;
+		std::shared_ptr<Rigidbody2dComponent>	GetRigidbody();
 		Vector2									GetScale() const;
 
 	protected:

@@ -39,8 +39,12 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	std::shared_ptr<Rigidbody2dComponent> Collider2dComponent::GetRigidbody() const
+	std::shared_ptr<Rigidbody2dComponent> Collider2dComponent::GetRigidbody()
 	{
+		if (_rigidbody.lock() == nullptr)
+		{
+			_rigidbody = GetOwner()->GetComponentInParent<Rigidbody2dComponent>();
+		}
 		return _rigidbody.lock();
 	}
 

@@ -55,6 +55,7 @@
 #include "HodEngine/Editor/ComponentCustomEditor/CircleCollider2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/CapsuleCollider2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/EdgeCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/MultiShapeCollider2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/TextureRendererComponentCustomEditor.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/CameraComponent.hpp>
@@ -130,6 +131,7 @@ namespace hod::editor
 		game::CircleCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
 		game::CapsuleCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
 		game::EdgeCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		game::MultiShapeCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
 	}
 
 	/// @brief 
@@ -152,6 +154,7 @@ namespace hod::editor
 		game::CircleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CircleCollider2dComponentCustomEditor);
 		game::CapsuleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CapsuleCollider2dComponentCustomEditor);
 		game::EdgeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new EdgeCollider2dComponentCustomEditor);
+		game::MultiShapeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new MultiShapeCollider2dComponentCustomEditor);
 
 		Project::CreateInstance();
 

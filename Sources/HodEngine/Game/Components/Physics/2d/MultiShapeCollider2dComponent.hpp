@@ -46,8 +46,13 @@ namespace hod::game
 
 		void			OnStart() override;
 
+		void			ClearAllShapes();
+
 		void			AddCircleShape(const CircleShape& circleShape);
+		const std::vector<CircleShape>&	GetCircleShapes() const;
+
 		void			AddBoxShape(const BoxShape& boxshape);
+		const std::vector<BoxShape>&	GetBoxShapes() const;
 
 	private:
 

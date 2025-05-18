@@ -20,6 +20,7 @@ namespace hod::physics
 
 	public:
 
+		void				ClearAllShapes() override;
 		Collider*			AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition) override;
 		Collider*			AddCircleShape(bool isTrigger, const Vector2& position, float radius) override;
 		Collider*			AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) override;

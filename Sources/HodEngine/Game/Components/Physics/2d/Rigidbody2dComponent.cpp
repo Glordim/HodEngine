@@ -23,7 +23,7 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void Rigidbody2dComponent::OnAwake()
+	void Rigidbody2dComponent::OnConstruct()
 	{
 		static physics::Body::Type modeToTypeMapping[EnumTrait::GetCount<Mode>()] = {
 			physics::Body::Type::Static,
@@ -67,6 +67,12 @@ namespace hod::game
 
 		SetMode(GetMode());
 		SetGravityScale(GetGravityScale());
+	}
+
+	/// @brief 
+	void Rigidbody2dComponent::OnAwake()
+	{
+		
 	}
 
 	/// @brief 

@@ -26,6 +26,16 @@ namespace hod::physics
 	}
 
 	/// @brief 
+	void BodyBox2d::ClearAllShapes()
+	{
+		for (Collider* collider : _colliders)
+		{
+			delete collider;
+		}
+		_colliders.clear();
+	}
+
+	/// @brief 
 	/// @param startPosition 
 	/// @param endPosition 
 	Collider* BodyBox2d::AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition)

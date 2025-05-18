@@ -43,6 +43,7 @@ namespace hod::game
 
 	public:
 
+		void			OnConstruct() override;
 		void			OnAwake() override;
 		void			OnStart() override;
 		void			OnUpdate(float deltaTime) override;
