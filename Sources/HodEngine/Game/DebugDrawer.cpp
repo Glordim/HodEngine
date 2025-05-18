@@ -35,7 +35,7 @@ namespace hod::game
 		{
 			std::array<Vector2, 2> vertices = { it->_start, it->_end };
 			std::array<Color, 2> colors = { it->_color, it->_color };
-			renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(), nullptr, 0, Matrix4::Identity, _lineMaterial));
+			renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(), nullptr, 0, Matrix4::Identity, _lineMaterial, 0));
 
 			it->_duration -= 0.016f; // todo
 			if (it->_duration <= 0.0f)

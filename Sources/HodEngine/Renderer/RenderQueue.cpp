@@ -86,6 +86,12 @@ namespace hod::renderer
 	/// @brief 
 	void RenderQueue::Execute()
 	{
+		std::sort(_renderCommands.begin(), _renderCommands.end(),
+		[](RenderCommand* a, RenderCommand* b)
+		{
+			return a->GetRenderingOrder() < b->GetRenderingOrder();
+		});
+
 		Renderer* renderer = Renderer::GetInstance();
 
 		if (_pickingRenderTarget != nullptr)

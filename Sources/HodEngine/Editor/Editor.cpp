@@ -39,6 +39,7 @@
 #include "HodEngine/Game/WeakComponent.hpp"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/ZOrderCustomEditor.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/Vector4CustomEditor.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/WeakComponentCustomEditor.hpp"
@@ -116,6 +117,7 @@ namespace hod::editor
 		delete _shaderTexture;
 		delete _checkerTexture;
 
+		game::ZOrder::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		Vector2::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		Vector4::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		game::WeakComponentBase::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
@@ -137,6 +139,7 @@ namespace hod::editor
 	{
 		game::World::GetInstance()->DisableDrawJob();
 
+		game::ZOrder::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new ZOrderCustomEditor);
 		Vector2::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
 		Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector4CustomEditor);
 		game::WeakComponentBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakComponentCustomEditor);

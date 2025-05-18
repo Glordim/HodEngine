@@ -14,6 +14,8 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/CameraComponent.hpp>
 
+#undef max
+
 namespace hod::editor
 {
 	/// @brief 
@@ -47,7 +49,7 @@ namespace hod::editor
 				const hod::Matrix4& projectionMatrix = cameraComponent->GetProjectionMatrix();
 				
 				float width = 2.0f / projectionMatrix[0][0];
-    			float height = 2.0f / projectionMatrix[1][1];
+				float height = 2.0f / projectionMatrix[1][1];
 
 				std::array<Vector2, 5> vertices = {
 					Vector2(-width * 0.5f, height * 0.5f),
@@ -57,7 +59,7 @@ namespace hod::editor
 					Vector2(-width * 0.5f, height * 0.5f),
 				};
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
+				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 			}
 		}

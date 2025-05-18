@@ -28,8 +28,6 @@ namespace hod::game
 
 	public:
 
-		
-
 		const Matrix4&			GetLocalMatrix();
 		Matrix4					GetWorldMatrix();
 

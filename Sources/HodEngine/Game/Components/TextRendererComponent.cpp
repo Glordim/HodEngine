@@ -158,7 +158,7 @@ namespace hod
 
 					if (positions.empty() == false)
 					{
-						renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetInstanceId()));
+						renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 					}
 				}
 			}

@@ -3,6 +3,7 @@
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -13,13 +14,72 @@ namespace hod
 {
 	namespace game
 	{
+		DESCRIBE_REFLECTED_CLASS(ZOrder, reflectionDescriptor)
+		{
+			reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
+			[](const void* instance, Document::Node& documentNode)
+			{
+				const ZOrder* zorder = static_cast<const ZOrder*>(instance);
+				documentNode.AddChild("Layer").SetUInt16(zorder->GetLayer());
+				documentNode.AddChild("InternalOrder").SetInt16(zorder->GetInternalOrder());
+			},
+			[](void* instance, const Document::Node& documentNode)
+			{
+				ZOrder* zorder = static_cast<ZOrder*>(instance);
+				const Document::Node* layerNode = documentNode.GetChild("Layer");
+				if (layerNode)
+				{
+					zorder->SetLayer(layerNode->GetUInt16());
+				}
+				const Document::Node* internalOrderNode = documentNode.GetChild("InternalOrder");
+				if (internalOrderNode)
+				{
+					zorder->SetInternalOrder(internalOrderNode->GetInt16());
+				}
+			});
+		}
+
+		ZOrder::ZOrder(uint16_t layer, uint16_t internalOrder)
+		{
+			_unifiedValue._layer = layer;
+			_unifiedValue._internalOrder = internalOrder;
+		}
+
+		void ZOrder::SetLayer(uint16_t layer)
+		{
+			_unifiedValue._layer = layer;
+		}
+
+		uint16_t ZOrder::GetLayer() const
+		{
+			return _unifiedValue._layer;
+		}
+
+		void ZOrder::SetInternalOrder(int16_t internalOrder)
+		{
+			_unifiedValue._internalOrder = internalOrder;
+		}
+
+		int16_t ZOrder::GetInternalOrder() const
+		{
+			return _unifiedValue._internalOrder;
+		}
+
+		uint32_t ZOrder::GetValue() const
+		{
+			uint16_t order = static_cast<uint16_t>(_unifiedValue._internalOrder ^ 0x8000);
+			return (static_cast<uint32_t>(_unifiedValue._layer) << 16) | order;
+		}
+
 		DESCRIBE_REFLECTED_CLASS(Node2dComponent, reflectionDescriptor)
 		{
 			AddPropertyT(reflectionDescriptor, &Node2dComponent::_position, "_position", &Node2dComponent::SetPosition);
 			AddPropertyT(reflectionDescriptor, &Node2dComponent::_rotation, "_rotation", &Node2dComponent::SetRotation);
 			AddPropertyT(reflectionDescriptor, &Node2dComponent::_scale, "_scale", &Node2dComponent::SetScale);
+
+			AddPropertyT(reflectionDescriptor, &Node2dComponent::_zOrder, "_zOrder");
 		}
-		
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
@@ -86,6 +146,16 @@ namespace hod
 		const Vector2& Node2dComponent::GetScale() const
 		{
 			return _scale;
+		}
+
+		void Node2dComponent::SetZOrder(ZOrder zOrder)
+		{
+			_zOrder = zOrder;
+		}
+
+		ZOrder Node2dComponent::GetZOrder() const
+		{
+			return _zOrder;
 		}
 	}
 }

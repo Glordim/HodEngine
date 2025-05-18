@@ -75,7 +75,7 @@ namespace hod::game
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
-			RefreshMaterialInstance(); 
+			RefreshMaterialInstance();
 		}
 		else
 		{
@@ -130,8 +130,8 @@ namespace hod::game
 					_materialInstance = _builtinMaterialInstance;
 					RefreshMaterialInstance();
 				}
-				
-				renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, (uint32_t)entity->GetInstanceId()));
+
+				renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 			}
 		}
 	}

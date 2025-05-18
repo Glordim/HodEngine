@@ -23,7 +23,7 @@ namespace hod::renderer
 	/// @param modelMatrix 
 	/// @param materialInstance 
 	/// @param ignoreVisualisationMode 
-	RenderCommandMesh::RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t pickingId, bool ignoreVisualisationMode)
+	RenderCommandMesh::RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t order, uint32_t pickingId, bool ignoreVisualisationMode)
 		: RenderCommand()
 		, _vertexCount(vertexCount)
 		, _pickingId(pickingId)
@@ -31,6 +31,7 @@ namespace hod::renderer
 		, _modelMatrix(modelMatrix)
 		, _materialInstance(materialInstance)
 		, _ignoreVisualisationMode(ignoreVisualisationMode)
+		, _order(order)
 	{
 		assert(positions != nullptr);
 		_positions.resize(vertexCount);
@@ -173,5 +174,12 @@ namespace hod::renderer
 				commandBuffer->DrawIndexed((uint32_t)_indices.size(), 0, 0);
 			}
 		}
+	}
+
+	/// @brief 
+	/// @return 
+	uint32_t RenderCommandMesh::GetRenderingOrder() const
+	{
+		return _order;
 	}
 }

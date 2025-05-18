@@ -102,4 +102,9 @@ namespace hod::imgui
 			}
 		}
 	}
+
+	uint32_t RenderCommandImGui::GetRenderingOrder() const
+	{
+		return 0;
+	}
 }

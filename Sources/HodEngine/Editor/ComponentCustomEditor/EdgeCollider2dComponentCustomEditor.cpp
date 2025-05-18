@@ -15,6 +15,8 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
 
+#undef max
+
 namespace hod::editor
 {
 	/// @brief 
@@ -49,8 +51,8 @@ namespace hod::editor
 					edgeCollider2d->GetEnd(),
 				};
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance);
-				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);		
+				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 			}
 		}
 		return false;

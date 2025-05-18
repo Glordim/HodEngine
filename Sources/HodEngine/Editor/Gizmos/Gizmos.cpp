@@ -11,6 +11,8 @@
 #include <HodEngine/Core/Math/Vector4.hpp>
 #include <HodEngine/Core/Math/Math.hpp>
 
+#undef max
+
 namespace hod::editor
 {
 	renderer::MaterialInstance* Gizmos::_materialInstanceNormal = nullptr;
@@ -120,7 +122,7 @@ namespace hod::editor
 		_materialInstanceNormal->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
 		_materialInstanceHighlight->SetVec4("UBO.color", Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a));
 
-		renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, hover ? _materialInstanceNormal : _materialInstanceHighlight, pickingId);
+		renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, hover ? _materialInstanceNormal : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max(), pickingId);
 		viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 
 		return changed;

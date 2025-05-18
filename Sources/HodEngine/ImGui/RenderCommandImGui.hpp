@@ -61,6 +61,7 @@ namespace hod::imgui
 	public:
 
 		void						Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial) override;
+		uint32_t					GetRenderingOrder() const override;
 
 	private:
 
