@@ -18,7 +18,6 @@
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
 #include <HodEngine/Window/Window.hpp>
 

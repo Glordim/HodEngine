@@ -2,6 +2,9 @@
 #include "HodEngine/Renderer/Export.hpp"
 #include "HodEngine/Core/Singleton.hpp"
 
+#include "HodEngine/Core/Rect.hpp"
+#include "HodEngine/Core/Math/Matrix4.hpp"
+
 #include <vector>
 
 namespace hod::renderer
@@ -29,6 +32,8 @@ namespace hod::renderer
 		uint32_t						GetRenderWidth() const;
 		uint32_t						GetRenderHeight() const;
 
+		void							SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport);
+
 		void							PushRenderCommand(RenderCommand* renderCommand);
 		void							Execute();
 		void							Wait();
@@ -48,5 +53,9 @@ namespace hod::renderer
 		Fence*							_renderFinishedFence = nullptr;
 
 		std::vector<CommandBuffer*>		_commandBuffers;
+
+		Matrix4							_projection;
+		Matrix4							_view;
+		Rect							_viewport;
 	};
 }

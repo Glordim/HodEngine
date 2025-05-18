@@ -6,7 +6,6 @@
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
 #include "../RenderQueueHelper.hpp"
 
 namespace hod::game
@@ -109,7 +108,8 @@ namespace hod::game
 				view = nodeComponent->GetWorldMatrix();
 			}
 		}
-		renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(projection, view, viewport));
+
+		renderQueue.SetupCamera(projection, view, viewport);
 	}
 
 	/// @brief 

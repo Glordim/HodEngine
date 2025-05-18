@@ -69,6 +69,13 @@ namespace hod::renderer
 		_pickingRenderTarget = pickingRenderTarget;
 	}
 
+	void RenderQueue::SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport)
+	{
+		_projection = projection;
+		_view = Matrix4::Inverse(view);
+		_viewport = viewport;
+	}
+
 	/// @brief 
 	/// @param renderCommand 
 	void RenderQueue::PushRenderCommand(RenderCommand* renderCommand)
@@ -84,9 +91,13 @@ namespace hod::renderer
 		if (_pickingRenderTarget != nullptr)
 		{
 			CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
-			
+
 			if (commandBuffer->StartRecord() == true)
 			{
+				commandBuffer->SetProjectionMatrix(_projection);
+				commandBuffer->SetViewMatrix(_view);
+				commandBuffer->SetViewport(_viewport);
+
 				_pickingRenderTarget->PrepareForWrite(commandBuffer);
 				commandBuffer->StartRenderPass(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f));
 				for (RenderCommand* renderCommand : _renderCommands)
@@ -105,6 +116,10 @@ namespace hod::renderer
 
 		if (commandBuffer->StartRecord() == true)
 		{
+			commandBuffer->SetProjectionMatrix(_projection);
+			commandBuffer->SetViewMatrix(_view);
+			commandBuffer->SetViewport(_viewport);
+
 			if (_renderTarget != nullptr)
 			{
 				_renderTarget->PrepareForWrite(commandBuffer);

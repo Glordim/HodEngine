@@ -33,7 +33,6 @@
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 
 #include <cmath>
@@ -108,7 +107,7 @@ namespace hod::editor
 			_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 			_view = Matrix4::Identity;
 
-			_renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
+			_renderQueue.SetupCamera(_projection, _view, viewport);
 
 			Vector2 previewSize = Vector2::One * 3;
 

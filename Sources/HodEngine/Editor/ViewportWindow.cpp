@@ -15,7 +15,6 @@
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Core/Rect.hpp>
 #include <HodEngine/Core/Math/Vector4.hpp>
@@ -262,7 +261,7 @@ namespace hod::editor
 				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 				_view = Matrix4::Translation(_cameraPosition);
 
-				_renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
+				_renderQueue.SetupCamera(_projection, _view, viewport);
 
 				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				world->Draw(&_renderQueue);
