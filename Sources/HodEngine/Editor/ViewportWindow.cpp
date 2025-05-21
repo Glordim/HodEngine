@@ -263,12 +263,14 @@ namespace hod::editor
 
 				_renderQueue.SetupCamera(_projection, _view, viewport);
 
-				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-				world->Draw(&_renderQueue);
-
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->PushToRenderQueue(_renderQueue);
+				}
+				else
+				{
+					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+					world->Draw(&_renderQueue);
 				}
 
 				std::shared_ptr<game::Entity> sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
@@ -297,8 +299,15 @@ namespace hod::editor
 			}
 			else
 			{
-				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-				world->Draw(&_renderQueue);
+				if (_physicsDebugDrawer != nullptr)
+				{
+					_physicsDebugDrawer->PushToRenderQueue(_renderQueue);
+				}
+				else
+				{
+					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+					world->Draw(&_renderQueue);
+				}
 			}
 
 			_renderQueue.Execute();
