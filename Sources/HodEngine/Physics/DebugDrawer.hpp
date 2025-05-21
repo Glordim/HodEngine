@@ -8,6 +8,8 @@
 
 namespace hod::physics
 {
+	class World;
+	
 	struct HOD_PHYSICS_API RenderCommand
 	{
 		enum Type
@@ -47,7 +49,7 @@ namespace hod::physics
 
 	public:
 
-		virtual void						Update() = 0;
+		virtual void						Update(World* world) = 0;
 		const std::vector<RenderCommand>&	GetRenderCommands() const;
 
 		virtual const std::vector<Flag>&	GetAvailableFlags() const = 0;

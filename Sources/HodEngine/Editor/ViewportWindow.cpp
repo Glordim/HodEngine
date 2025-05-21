@@ -31,7 +31,7 @@
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 
 #include "HodEngine/Editor/PhysicsDebugDrawer.hpp"
-#include <HodEngine/Physics/Physics.hpp>
+#include <HodEngine/Physics/World.hpp>
 #include <HodEngine/Physics/DebugDrawer.hpp>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
@@ -106,9 +106,12 @@ namespace hod::editor
 			ImGui::SameLine();
 			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
 			{
-				uint32_t flags = physics::Physics::GetInstance()->GetDebugDrawer()->GetFlags();
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+				physics::World* physicsWorld = world->GetPhysicsWorld();
+				physics::DebugDrawer* physicsDebugDrawer = physicsWorld->GetDebugDrawer();
+				uint32_t flags = physicsDebugDrawer->GetFlags();
 
-				for (const physics::DebugDrawer::Flag& flag : physics::Physics::GetInstance()->GetDebugDrawer()->GetAvailableFlags())
+				for (const physics::DebugDrawer::Flag& flag : physicsDebugDrawer->GetAvailableFlags())
 				{
 					bool enabled = flags & flag._value;
 					if (ImGui::MenuItem(flag._label, nullptr, &enabled))
@@ -121,7 +124,7 @@ namespace hod::editor
 						{
 							flags &= ~(flag._value);
 						}
-						physics::Physics::GetInstance()->GetDebugDrawer()->SetFlags(flags);
+						physicsDebugDrawer->SetFlags(flags);
 					}
 				}
 				ImGui::EndMenu();
@@ -263,13 +266,14 @@ namespace hod::editor
 
 				_renderQueue.SetupCamera(_projection, _view, viewport);
 
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
-					_physicsDebugDrawer->PushToRenderQueue(_renderQueue);
+					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
+					_physicsDebugDrawer->PushToRenderQueue(_renderQueue, world->GetPhysicsWorld());
 				}
 				else
 				{
-					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 					world->Draw(&_renderQueue);
 				}
 
@@ -299,13 +303,14 @@ namespace hod::editor
 			}
 			else
 			{
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
-					_physicsDebugDrawer->PushToRenderQueue(_renderQueue);
+					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
+					_physicsDebugDrawer->PushToRenderQueue(_renderQueue, world->GetPhysicsWorld());
 				}
 				else
 				{
-					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 					world->Draw(&_renderQueue);
 				}
 			}

@@ -21,6 +21,11 @@ namespace hod
 	class Vector2;
 	struct Color;
 
+	namespace physics
+	{
+		class World;
+	}
+
 	namespace game
 	{
 		class Scene;
@@ -84,6 +89,8 @@ namespace hod
 			void						DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
 			//
 
+			physics::World*				GetPhysicsWorld() const;
+
 		private:
 // todo
 			bool						_editorPlaying = false;
@@ -102,6 +109,10 @@ namespace hod
 			SystemTime::TimeStamp		_lastUpdateTimestamp = SystemTime::INVALID_TIMESTAMP;
 
 			bool						_jobInserted = false;
+
+			float						_physicsUpdateTimestep = 1.0f / 60.0f;
+			float						_accumulatedPhysicsTime = 0.0f;
+			physics::World*				_physicsWorld = nullptr;
 		};
 	}
 }

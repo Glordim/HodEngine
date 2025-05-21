@@ -1,6 +1,7 @@
 #include "HodEngine/Physics/Pch.hpp"
 #include "HodEngine/Physics/Box2d/DebugDrawerBox2d.hpp"
 #include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
+#include "HodEngine/Physics/Box2d/WorldBox2d.hpp"
 
 #include "HodEngine/Core/Math/Matrix4.hpp"
 #include "HodEngine/Core/Math/Math.hpp"
@@ -88,11 +89,11 @@ namespace hod::physics
 	}
 	
 	/// @brief 
-	void DebugDrawerBox2d::Update()
+	void DebugDrawerBox2d::Update(World* world)
 	{
 		_renderCommands.clear();
 
-		b2World_Draw(PhysicsBox2d::GetInstance()->GetWorldId(), &_debugDraw);
+		b2World_Draw(static_cast<WorldBox2d*>(world)->GetWorldId(), &_debugDraw);
 	}
 
 	/// @brief 

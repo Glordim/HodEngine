@@ -14,6 +14,7 @@
 #include "HodEngine/Core/Math/Math.hpp"
 
 #include <HodEngine/Physics/Physics.hpp>
+#include <HodEngine/Physics/World.hpp>
 #include <HodEngine/Physics/DebugDrawer.hpp>
 
 namespace hod::editor
@@ -43,11 +44,17 @@ namespace hod::editor
 	}
 
 	/// @brief 
-	/// @param renderQueue 
-	void PhysicsDebugDrawer::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+	/// @param world 
+	void PhysicsDebugDrawer::Update(physics::World* world)
 	{
-		physics::Physics::GetInstance()->GetDebugDrawer()->Update();
-		for (const hod::physics::RenderCommand& renderCommand : physics::Physics::GetInstance()->GetDebugDrawer()->GetRenderCommands())
+		world->GetDebugDrawer()->Update(world);
+	}
+
+	/// @brief 
+	/// @param renderQueue 
+	void PhysicsDebugDrawer::PushToRenderQueue(renderer::RenderQueue& renderQueue, physics::World* world)
+	{
+		for (const hod::physics::RenderCommand& renderCommand : world->GetDebugDrawer()->GetRenderCommands())
 		{
 			renderer::MaterialInstance* materialInstance = nullptr;
 

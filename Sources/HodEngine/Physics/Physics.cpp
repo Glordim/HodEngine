@@ -1,7 +1,6 @@
 #include "HodEngine/Physics/Pch.hpp"
 #include "HodEngine/Physics/Physics.hpp"
-
-#include "HodEngine/Physics/Body.hpp"
+#include "HodEngine/Physics/World.hpp"
 
 #include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
 
@@ -36,17 +35,10 @@ namespace hod::physics
 	/// @brief 
 	void Physics::Clear()
 	{
-		for (Body* body : _bodies)
+		for (World* world : _worlds)
 		{
-			delete body;
+			delete world;
 		}
-		_bodies.clear();
-	}
-
-	/// @brief 
-	/// @return 
-	DebugDrawer* Physics::GetDebugDrawer()
-	{
-		return _debugDrawer;
+		_worlds.clear();
 	}
 }

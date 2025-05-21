@@ -17,7 +17,7 @@ namespace hod::physics
 
 	public:
 
-		void						Update() override;
+		void						Update(World* world) override;
 		const std::vector<Flag>&	GetAvailableFlags() const override;
 		void						SetFlags(uint32_t flags) override;
 		uint32_t					GetFlags() const override;

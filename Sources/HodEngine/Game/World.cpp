@@ -15,6 +15,7 @@
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 
 #include <HodEngine/Physics/Physics.hpp>
+#include <HodEngine/Physics/World.hpp>
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
@@ -113,12 +114,15 @@ namespace hod
 			Clear();
 
 			delete _persistanteScene;
+			delete _physicsWorld;
 		}
 
 		/// @brief 
 		/// @return 
 		bool World::Init()
 		{
+			_physicsWorld = physics::Physics::GetInstance()->CreateWorld();
+
 			FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::Logic);
 			FrameSequencer::GetInstance()->InsertJob(&_drawJob, FrameSequencer::Step::Render);
 			_jobInserted = true;
@@ -244,7 +248,12 @@ namespace hod
 			}
 			//
 
-			physics::Physics::GetInstance()->Update(deltaTime);
+			_accumulatedPhysicsTime += deltaTime;
+			while (_accumulatedPhysicsTime >= _physicsUpdateTimestep)
+			{
+				_accumulatedPhysicsTime =- _physicsUpdateTimestep;
+				_physicsWorld->Update(_physicsUpdateTimestep);
+			}
 
 			for (Scene* scene : _scenes)
 			{
@@ -325,6 +334,13 @@ namespace hod
 				}
 			}
 			return _persistanteScene->FindEntity(entityId);
+		}
+
+		/// @brief 
+		/// @return 
+		physics::World* World::GetPhysicsWorld() const
+		{
+			return _physicsWorld;
 		}
 	}
 }

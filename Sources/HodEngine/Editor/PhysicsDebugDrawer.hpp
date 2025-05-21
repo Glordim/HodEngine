@@ -13,6 +13,7 @@ namespace hod::renderer
 namespace hod::physics
 {
 	struct RenderCommand;
+	class World;
 }
 
 namespace hod::editor
@@ -26,7 +27,8 @@ namespace hod::editor
 
 	public:
 
-		void									PushToRenderQueue(renderer::RenderQueue& renderQueue);
+		void									Update(physics::World* world);
+		void									PushToRenderQueue(renderer::RenderQueue& renderQueue, physics::World* world);
 
 	private:
 

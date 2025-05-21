@@ -1,8 +1,9 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/Physics/2d/Rigidbody2dComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/World.hpp"
 
-#include <HodEngine/Physics/Physics.hpp>
+#include <HodEngine/Physics/World.hpp>
 #include <HodEngine/Physics/Body.hpp>
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
 
@@ -19,7 +20,7 @@ namespace hod::game
 	/// @brief 
 	Rigidbody2dComponent::~Rigidbody2dComponent()
 	{
-		physics::Physics::GetInstance()->DeleteBody(_body);
+		GetWorld()->GetPhysicsWorld()->DeleteBody(_body);
 	}
 
 	/// @brief 
@@ -34,7 +35,7 @@ namespace hod::game
 		Vector2 position = Vector2::Zero;
 		float rotation = 0.0f;
 
-		_body = physics::Physics::GetInstance()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
+		_body = GetWorld()->GetPhysicsWorld()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
 		_body->SetMoveEventCallback([this](const Vector2& position, float rotation)
 		{
 			std::shared_ptr<Entity> entity = GetOwner();
@@ -102,18 +103,17 @@ namespace hod::game
 	/// @brief 
 	void Rigidbody2dComponent::OnUpdate(float deltaTime)
 	{
-		/*
-		std::shared_ptr<Entity> entity = GetEntity();
+		std::shared_ptr<Entity> entity = GetOwner();
 		if (entity != nullptr)
 		{
 			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
-				node2dComponent->SetPosition(_body->GetPosition());
-				node2dComponent->SetRotation(_body->GetRotation());
+				_body->SetTransform(node2dComponent->GetPosition(), node2dComponent->GetRotation(), node2dComponent->GetScale());
 			}
 		}
 
+		/*
 		// todo check if have slot connected ?
 		std::vector<physics::Collision> collisions;
 		_body->GetCollisions(collisions);
