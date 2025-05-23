@@ -17,8 +17,8 @@ namespace hod::editor
 	/// @brief 
 	struct EntityDragAndDropPayload
 	{
-		HierachyWindow*					_hierarchyWindow;
-		std::shared_ptr<game::Entity>	_entity;
+		HierachyWindow*	_hierarchyWindow;
+		game::Entity*	_entity;
 	};
 
 	/// @brief 
@@ -53,14 +53,14 @@ namespace hod::editor
 	private:
 
 		//void		DrawEntityNode(EntityNode* entityNode);
-		void		DrawEntity(std::shared_ptr<game::Entity> entity);
+		void		DrawEntity(game::Entity* entity);
 
-		void		OnAddEntityCallback(std::weak_ptr<game::Entity> entity);
-		void		OnRemoveEntityCallback(std::weak_ptr<game::Entity> entity);
-		void		OnRenameEntityCallback(std::weak_ptr<game::Entity> entity);
+		void		OnAddEntityCallback(game::Entity* entity);
+		void		OnRemoveEntityCallback(game::Entity* entity);
+		void		OnRenameEntityCallback(game::Entity* entity);
 
-		void		OnAddComponentCallback(std::weak_ptr<game::Component> componenent);
-		void		OnRemoveComponentCallback(std::weak_ptr<game::Component> componenent);
+		void		OnAddComponentCallback(game::Component* componenent);
+		void		OnRemoveComponentCallback(game::Component* componenent);
 
 	private:
 

@@ -520,7 +520,7 @@ namespace hod::editor
 				if (payload != nullptr)
 				{
 					EntityDragAndDropPayload* payloadData = static_cast<EntityDragAndDropPayload*>(payload->Data);
-					std::shared_ptr<game::Entity> dropEntityLock = payloadData->_entity;
+					game::Entity* dropEntityLock = payloadData->_entity;
 					if (dropEntityLock != nullptr)
 					{
 						std::shared_ptr<game::PrefabResource> prefabResource = dropEntityLock->GetPrefabResource();

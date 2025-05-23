@@ -20,7 +20,7 @@
 
 namespace hod::game
 {
-	bool SceneSerializer::SerializeEntity(const std::shared_ptr<Entity> entity, bool withChildren, Document::Node& entitiesNode, uint64_t& nextLocalId)
+	bool SceneSerializer::SerializeEntity(Entity* entity, bool withChildren, Document::Node& entitiesNode, uint64_t& nextLocalId)
 	{
 		Document::Node& entityNode = entitiesNode.AddChild("");
 
@@ -75,11 +75,11 @@ namespace hod::game
 		}
 		else
 		{
-			Serializer::Serialize(entity.get(), entityNode);
+			Serializer::Serialize(entity, entityNode);
 
 			Document::Node& componentsNode = entityNode.AddChild("Components");
 
-			for (std::shared_ptr<Component> component : entity->GetComponents())
+			for (Component* component : entity->GetComponents())
 			{
 				Document::Node& componentNode = componentsNode.AddChild("");
 				componentNode.AddChild("MetaType").SetUInt64(component->GetMetaType());
@@ -88,7 +88,7 @@ namespace hod::game
 					component->SetLocalId(nextLocalId);
 					++nextLocalId;
 				}
-				Serializer::Serialize(component.get(), componentNode);
+				Serializer::Serialize(component, componentNode);
 			}
 
 			if (withChildren)
@@ -134,7 +134,7 @@ namespace hod::game
 		for (auto& componentPair : _contextualComponentMap)
 		{
 			std::vector<WeakEntity*> weakEntities;
-			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakEntities, componentPair.second.get());
+			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakEntities, componentPair.second);
 			for (WeakEntity* weakEntity : weakEntities)
 			{
 				uint64_t entityId = weakEntity->GetInstanceId();
@@ -145,7 +145,7 @@ namespace hod::game
 			}
 
 			std::vector<WeakComponentBase*> weakComponents;
-			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakComponents, componentPair.second.get());
+			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakComponents, componentPair.second);
 			for (WeakComponentBase* weakComponent : weakComponents)
 			{
 				uint64_t componenId = weakComponent->GetInstanceId();
@@ -182,10 +182,10 @@ namespace hod::game
 	/// @return 
 	bool SceneSerializer::DeserializeEntityRaw(const Document::Node& entityNode)
 	{
-		std::shared_ptr<Entity> entity = std::make_shared<Entity>("");
+		Entity* entity = new Entity("");
 		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 
-		Serializer::Deserialize(*entity.get(), entityNode);
+		Serializer::Deserialize(*entity, entityNode);
 
 		const Document::Node* componentsNode = entityNode.GetChild("Components");
 		const Document::Node* componentNode = componentsNode->GetFirstChild();
@@ -197,8 +197,8 @@ namespace hod::game
 			if (it != componentFactory->GetAllDescriptors().end())
 			{
 				const ReflectionDescriptor& componentDescriptor = *it->second;
-				std::shared_ptr<Component> component = entity->AddComponent(componentDescriptor);
-				Serializer::Deserialize(componentDescriptor, component.get(), *componentNode); // todo lvalue...
+				Component* component = entity->AddComponent(componentDescriptor);
+				Serializer::Deserialize(componentDescriptor, component, *componentNode); // todo lvalue...
 
 				if (_contextualComponentMap.try_emplace(component->GetLocalId(), component).second == false)
 				{
@@ -270,8 +270,8 @@ namespace hod::game
 						auto it = sceneSerializer._contextualEntityMap.find(localId);
 						if (it != sceneSerializer._contextualEntityMap.end())
 						{
-							std::shared_ptr<Entity> entity = it->second;
-							Serializer::Deserialize(*entity.get(), *modificationsNode);
+							Entity* entity = it->second;
+							Serializer::Deserialize(*entity, *modificationsNode);
 						}
 					}
 					else // Components
@@ -279,11 +279,11 @@ namespace hod::game
 						auto it = sceneSerializer._contextualComponentMap.find(localId);
 						if (it != sceneSerializer._contextualComponentMap.end())
 						{
-							std::shared_ptr<Component> component = it->second;
+							Component* component = it->second;
 							const Document::Node* modificationNode = modificationsNode->GetFirstChild();
 							while (modificationNode != nullptr)
 							{
-								Serializer::DeserializeWithPath(modificationNode->GetName(), *component.get(), *modificationsNode);
+								Serializer::DeserializeWithPath(modificationNode->GetName(), *component, *modificationsNode);
 								modificationNode = modificationNode->GetNextSibling();
 							}
 							//Serializer::Deserialize(*component.get(), *modificationsNode);
@@ -297,9 +297,9 @@ namespace hod::game
 			overrideNode = overrideNode->GetNextSibling();
 		}
 
-		std::shared_ptr<Entity> rootEntity = nullptr;
+		Entity* rootEntity = nullptr;
 
-		for (std::shared_ptr<Entity> entity : sceneSerializer._totalEntities)
+		for (Entity* entity : sceneSerializer._totalEntities)
 		{
 			if (rootEntity == nullptr && entity->GetParent().Lock() == nullptr)
 			{
@@ -311,7 +311,7 @@ namespace hod::game
 			}
 		}
 
-		for (std::shared_ptr<Component> component : sceneSerializer._totalComponent)
+		for (Component* component : sceneSerializer._totalComponent)
 		{
 			_totalComponent.push_back(component);
 		}
@@ -329,14 +329,14 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::vector<std::shared_ptr<Entity>>& SceneSerializer::GetEntities() const
+	const std::vector<Entity*>& SceneSerializer::GetEntities() const
 	{
 		return _totalEntities;
 	}
 
 	/// @brief 
 	/// @return 
-	const std::vector<std::shared_ptr<Component>>& SceneSerializer::GetComponents() const
+	const std::vector<Component*>& SceneSerializer::GetComponents() const
 	{
 		return _totalComponent;
 	}

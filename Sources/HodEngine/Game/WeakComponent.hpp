@@ -22,31 +22,31 @@ namespace hod::game
         public:
 
                             WeakComponentBase(ReflectionDescriptor* componentDescriptor);
-                            WeakComponentBase(ReflectionDescriptor* componentDescriptor, const std::shared_ptr<Component>& pointer);
+                            WeakComponentBase(ReflectionDescriptor* componentDescriptor, Component* pointer);
         virtual             ~WeakComponentBase();
 
         WeakComponentBase&   operator = (const WeakComponentBase& copy);
-        WeakComponentBase&   operator = (const std::weak_ptr<Component>& pointer);
+        WeakComponentBase&   operator = (Component* pointer);
 
-        bool                operator==(const WeakComponentBase& other) const;
+        bool                 operator==(const WeakComponentBase& other) const;
 
     public:
 
-        std::shared_ptr<Component>  Lock() const;
+        Component*                  Lock() const;
         uint64_t                    GetInstanceId() const;
         uint64_t                    GetForSerialization() const;
 
         ReflectionDescriptor*       GetComponentDescriptor() const;
 
         void                        SetInstanceId(uint64_t instanceId);
-        void                        SetPointer(std::shared_ptr<Component> pointer);
+        void                        SetPointer(Component* pointer);
 
     private:
 
         ReflectionDescriptor*           _componentDescriptor = nullptr;
 
-        uint64_t                           _instanceId = 0;
-        mutable std::weak_ptr<Component>   _pointer;
+        uint64_t                        _instanceId = 0;
+        mutable WeakPtr<Component>      _pointer;
     };
 
     /// @brief 
@@ -63,8 +63,8 @@ namespace hod::game
 
         /// @brief 
         /// @param pointer 
-        WeakComponent(const std::shared_ptr<_Component_>& pointer)
-        : WeakComponentBase(_Component_::GetReflectionDescriptor(), pointer)
+        WeakComponent(_Component_* pointer)
+        : WeakComponentBase(&_Component_::GetReflectionDescriptor(), pointer)
         {
         }
 
@@ -75,9 +75,9 @@ namespace hod::game
 
         /// @brief 
         /// @return 
-        std::shared_ptr<_Component_> Lock() const
+        _Component_* Lock() const
         {
-            return std::static_pointer_cast<_Component_>(WeakComponentBase::Lock());
+            return static_cast<_Component_*>(WeakComponentBase::Lock());
         }
 
         void operator = (std::shared_ptr<_Component_> pointer)

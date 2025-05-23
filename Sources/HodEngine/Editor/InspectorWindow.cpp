@@ -50,7 +50,7 @@ namespace hod::editor
 	/// @brief 
 	void InspectorWindow::DrawContent()
 	{
-		std::shared_ptr<game::Entity> sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+		game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 		if (sceneSelection != nullptr)
 		{
 			DrawSceneSelection(sceneSelection);
@@ -59,7 +59,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param selection 
-	void InspectorWindow::DrawSceneSelection(std::shared_ptr<game::Entity> selection)
+	void InspectorWindow::DrawSceneSelection(game::Entity* selection)
 	{
 		std::vector<game::PrefabUtility::PrefabOverride> overrides;
 
@@ -137,7 +137,7 @@ namespace hod::editor
 			GetOwner()->MarkAssetAsDirty();
 		}
 
-		for (std::shared_ptr<game::Component> component : selection->GetComponents())
+		for (game::Component* component : selection->GetComponents())
 		{
 			if (component != nullptr)
 			{
@@ -278,8 +278,8 @@ namespace hod::editor
 					{
 						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
 
-						std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
-						EditorReflectedObject reflectedObject(component.get(), &component->GetReflectionDescriptorV(), sourceComponent.get());
+						game::Component* sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
+						EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent);
 
 						bool changed = false;
 						ReflectionDescriptor& reflectionDescriptor = component->GetReflectionDescriptorV();

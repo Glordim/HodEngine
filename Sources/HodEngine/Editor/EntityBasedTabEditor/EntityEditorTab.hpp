@@ -3,6 +3,8 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 
+#include <HodEngine/Core/Weakable/WeakPtr.hpp>
+
 #include <memory>
 
 namespace hod::game
@@ -36,8 +38,8 @@ namespace hod::editor
 		game::Scene*	GetCurrentScene() const;
 
 		
-		void							SetEntitySelection(std::shared_ptr<game::Entity> selection);
-		std::shared_ptr<game::Entity>	GetEntitySelection() const;
+		void			SetEntitySelection(game::Entity* selection);
+		game::Entity*	GetEntitySelection() const;
 
 	protected:
 	
@@ -51,6 +53,6 @@ namespace hod::editor
 		bool						_playing = false;
 		bool						_paused = false;
 
-		std::weak_ptr<game::Entity>	_entitySelection;
+		WeakPtr<game::Entity>		_entitySelection;
 	};
 }

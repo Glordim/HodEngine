@@ -2,14 +2,13 @@
 #include "HodEngine/Core/Export.hpp"
 #include <type_traits>
 
+//#include "HodEngine/Core/Weakable/Weakable.hpp"
 #include "HodEngine/Core/Weakable/WeakableAliveController.hpp"
 
 namespace hod
 {
-	class Weakable;
-
 	template <typename _Type_>
-	concept IsDerivedFromWeakable = std::is_base_of_v<Weakable, _Type_>;
+	concept IsDerivedFromWeakable = true;//std::is_base_of_v<Weakable, _Type_>;
 
 	template<IsDerivedFromWeakable _Type_>
 	class WeakPtr
@@ -21,13 +20,13 @@ namespace hod
 		WeakPtr(_Type_& ptr);
 
 		WeakPtr(const WeakPtr& copy);
-		WeakPtr(WeakPtr&&) = delete;
+		WeakPtr(WeakPtr&&) = default;
 
 		WeakPtr&	operator=(_Type_* ptr);
 		WeakPtr&	operator=(_Type_& ptr);
 
 		WeakPtr&	operator=(const WeakPtr& copy);
-		WeakPtr&	operator=(WeakPtr&&) = delete;
+		WeakPtr&	operator=(WeakPtr&&) = default;
 
 		bool 		IsValid() const;
 
@@ -121,5 +120,11 @@ namespace hod
 	_Type_& WeakPtr<_Type_>::operator*() const
 	{
 		return *Get();
+	}
+
+	template<IsDerivedFromWeakable _Type_>
+	bool operator==(std::nullptr_t, const WeakPtr<_Type_>& r)
+	{
+		return (r.Get() == nullptr);
 	}
 }

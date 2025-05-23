@@ -37,12 +37,12 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool TextureRendererComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
+	bool TextureRendererComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
 	{
-		std::shared_ptr<game::TextureRendererComponent> textureRenderer = std::static_pointer_cast<game::TextureRendererComponent>(component);
+		game::TextureRendererComponent* textureRenderer = static_cast<game::TextureRendererComponent*>(component);
 		if (textureRenderer != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = textureRenderer->GetOwner()->GetComponent<game::Node2dComponent>();
+			game::Node2dComponent* node2D = textureRenderer->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Rect bb = textureRenderer->GetBoundingBox();

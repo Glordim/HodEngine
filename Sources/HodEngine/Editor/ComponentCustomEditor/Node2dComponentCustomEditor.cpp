@@ -71,11 +71,11 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool Node2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
+	bool Node2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
 	{
 		bool changed = false;
 
-		std::shared_ptr<game::Node2dComponent> node2D = std::static_pointer_cast<game::Node2dComponent>(component);
+		game::Node2dComponent* node2D = static_cast<game::Node2dComponent*>(component);
 		if (node2D != nullptr)
 		{
 			ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();

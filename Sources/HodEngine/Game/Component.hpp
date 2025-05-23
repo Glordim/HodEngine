@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
+#include <HodEngine/Core/Weakable/Weakable.hpp>
+#include <HodEngine/Core/Weakable/WeakPtr.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <memory>
 #include <atomic>
@@ -12,7 +14,7 @@ namespace hod::game
 	class World;
 
 	///@brief 
-	class HOD_GAME_API Component : public std::enable_shared_from_this<Component>
+	class HOD_GAME_API Component : public Weakable
 	{
 		REFLECTED_CLASS_NO_PARENT(Component)
 
@@ -21,9 +23,9 @@ namespace hod::game
 
 	public:
 
-		std::shared_ptr<Entity>	GetOwner() const;
-		World*					GetWorld() const;
+		Entity*					GetOwner() const;
 		Scene*					GetScene() const;
+		World*					GetWorld() const;
 
 		void					SetEnabled(bool enabled);
 		bool					GetEnabled() const;
@@ -64,7 +66,7 @@ namespace hod::game
 
 	private:
 
-		void					AttachTo(const std::shared_ptr<Entity>& owner);
+		void					AttachTo(Entity* owner);
 
 		InternalState			GetInternalState() const;
 
@@ -77,7 +79,7 @@ namespace hod::game
 
 	private:
 
-		std::weak_ptr<Entity>	_owner;
+		WeakPtr<Entity>			_owner;
 
 		InternalState			_internalState = InternalState::None;
 

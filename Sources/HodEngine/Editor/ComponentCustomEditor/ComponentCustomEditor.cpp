@@ -19,7 +19,7 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool ComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
+	bool ComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
 	{
 		return false;
 	}

@@ -76,10 +76,10 @@ namespace hod
 
 			const std::vector<Scene*>&	GetScenes() const;
 
-			std::weak_ptr<Entity>		CreateEntity(const std::string_view& name = "");
-			void						DestroyEntity(std::shared_ptr<Entity> entity);
+			Entity*						CreateEntity(const std::string_view& name = "");
+			void						DestroyEntity(Entity* entity);
 			
-			std::weak_ptr<Entity>		FindEntity(uint64_t entityId);
+			Entity*						FindEntity(uint64_t entityId);
 
 //			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 

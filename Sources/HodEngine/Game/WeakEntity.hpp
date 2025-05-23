@@ -3,6 +3,7 @@
 #include <memory>
 #include <map>
 
+#include <HodEngine/Core/Weakable/WeakPtr.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp>
@@ -20,28 +21,28 @@ namespace hod::game
         public:
 
                             WeakEntity() = default;
-                            WeakEntity(const std::shared_ptr<Entity>& pointer);
+                            WeakEntity(Entity* pointer);
         virtual             ~WeakEntity();
 
         WeakEntity&         operator = (const WeakEntity& copy);
-        WeakEntity&         operator = (const std::weak_ptr<Entity>& pointer);
+        WeakEntity&         operator = (Entity* pointer);
 
         bool                operator==(const WeakEntity& other) const;
 
     public:
 
-        std::shared_ptr<Entity>     Lock() const;
+        Entity*                     Lock() const;
         uint64_t                    GetInstanceId() const;
         uint64_t                    GetForSerialization() const;
 
         ReflectionDescriptor*       GetComponentDescriptor() const;
 
         void                        SetInstanceId(uint64_t id);
-        void                        SetPointer(std::shared_ptr<Entity> pointer);
+        void                        SetPointer(Entity* pointer);
 
     private:
         
         uint64_t                            _instanceId = 0;
-        mutable std::weak_ptr<Entity>       _pointer;
+        mutable WeakPtr<Entity>             _pointer;
     };
 }

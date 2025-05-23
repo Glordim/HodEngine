@@ -197,15 +197,15 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param asset 
-	void EntityEditorTab::SetEntitySelection(std::shared_ptr<game::Entity> selection)
+	void EntityEditorTab::SetEntitySelection(game::Entity* selection)
 	{
 		_entitySelection = selection;
 	}
 
 	/// @brief 
 	/// @return 
-	std::shared_ptr<game::Entity> EntityEditorTab::GetEntitySelection() const
+	game::Entity* EntityEditorTab::GetEntitySelection() const
 	{
-		return _entitySelection.lock();
+		return _entitySelection.Get();
 	}
 }

@@ -36,7 +36,7 @@ namespace hod::game
 
     /// @brief 
     /// @param pointer 
-    WeakComponentBase::WeakComponentBase(ReflectionDescriptor* componentDescriptor, const std::shared_ptr<Component>& pointer)
+    WeakComponentBase::WeakComponentBase(ReflectionDescriptor* componentDescriptor, Component* pointer)
     : _componentDescriptor(componentDescriptor)
     , _instanceId(0)
     , _pointer(pointer)
@@ -60,9 +60,9 @@ namespace hod::game
 
     /// @brief 
     /// @param pointer 
-    WeakComponentBase& WeakComponentBase::operator = (const std::weak_ptr<Component>& pointer)
+    WeakComponentBase& WeakComponentBase::operator = (Component* pointer)
     {
-        _pointer = pointer.lock();
+        _pointer = pointer;
         return *this;
     }
 
@@ -76,9 +76,9 @@ namespace hod::game
 
     /// @brief 
     /// @return 
-    std::shared_ptr<Component> WeakComponentBase::Lock() const
+    Component* WeakComponentBase::Lock() const
     {
-        return _pointer.lock();
+        return _pointer.Get();
     }
 
     /// @brief 
@@ -97,7 +97,7 @@ namespace hod::game
 
     /// @brief 
     /// @param pointer 
-    void WeakComponentBase::SetPointer(std::shared_ptr<Component> pointer)
+    void WeakComponentBase::SetPointer(Component* pointer)
     {
         if (pointer == nullptr)
         {
@@ -121,11 +121,10 @@ namespace hod::game
     /// @return 
     uint64_t WeakComponentBase::GetForSerialization() const
     {
-        std::shared_ptr<Component> lock = _pointer.lock();
-        if (lock == nullptr)
+        if (_pointer == nullptr)
         {
             return 0;
         }
-        return lock->GetLocalId();
+        return _pointer->GetLocalId();
     }
 }

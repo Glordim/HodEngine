@@ -206,7 +206,7 @@ namespace hod::editor
 					else
 					{
 						game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-						std::shared_ptr<game::Entity> pickedEntity = world->FindEntity((uint64_t)pickingId).lock();
+						game::Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
 						if (pickedEntity != nullptr)
 						{
 							GetOwner<EntityEditorTab>()->SetEntitySelection(pickedEntity);
@@ -277,24 +277,20 @@ namespace hod::editor
 					world->Draw(&_renderQueue);
 				}
 
-				std::shared_ptr<game::Entity> sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+				game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 				if (sceneSelection != nullptr)
 				{
-					for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
+					for (game::Component* component : sceneSelection->GetComponents())
 					{
-						std::shared_ptr<game::Component> componentLock = component.lock();
-						if (componentLock != nullptr)
+						ReflectionTraitComponentCustomEditor* customEditorTrait = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
+						if (customEditorTrait != nullptr)
 						{
-							ReflectionTraitComponentCustomEditor* customEditorTrait = componentLock->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
-							if (customEditorTrait != nullptr)
+							ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
+							if (customEditor != nullptr)
 							{
-								ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
-								if (customEditor != nullptr)
+								if (customEditor->OnDrawGizmo(component, *this))
 								{
-									if (customEditor->OnDrawGizmo(componentLock, *this))
-									{
-										GetOwner()->MarkAssetAsDirty();
-									}
+									GetOwner()->MarkAssetAsDirty();
 								}
 							}
 						}

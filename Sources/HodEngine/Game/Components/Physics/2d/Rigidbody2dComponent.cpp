@@ -38,10 +38,10 @@ namespace hod::game
 		_body = GetWorld()->GetPhysicsWorld()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
 		_body->SetMoveEventCallback([this](const Vector2& position, float rotation)
 		{
-			std::shared_ptr<Entity> entity = GetOwner();
+			Entity* entity = GetOwner();
 			if (entity != nullptr)
 			{
-				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
 					node2dComponent->SetPosition(position);
@@ -83,10 +83,10 @@ namespace hod::game
 		float rotation = 0.0f;
 		Vector2 scale = Vector2::One;
 
-		std::shared_ptr<Entity> entity = GetOwner();
+		Entity* entity = GetOwner();
 		if (entity != nullptr)
 		{
-			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
 				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
@@ -103,10 +103,10 @@ namespace hod::game
 	/// @brief 
 	void Rigidbody2dComponent::OnUpdate(float deltaTime)
 	{
-		std::shared_ptr<Entity> entity = GetOwner();
+		Entity* entity = GetOwner();
 		if (entity != nullptr)
 		{
-			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
 				_body->SetTransform(node2dComponent->GetPosition(), node2dComponent->GetRotation(), node2dComponent->GetScale());

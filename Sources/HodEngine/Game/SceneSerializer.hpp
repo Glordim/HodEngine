@@ -14,12 +14,12 @@ namespace hod::game
 	class HOD_GAME_API SceneSerializer
 	{
 	public:
-		bool SerializeEntity(const std::shared_ptr<Entity> entity, bool withChildren, Document::Node& entityNode, uint64_t& nextLocalId);
+		bool	SerializeEntity(Entity* entity, bool withChildren, Document::Node& entityNode, uint64_t& nextLocalId);
 
 		bool	Deserialize(const Document::Node& entitiesNode);
 
-		const std::vector<std::shared_ptr<Entity>>& GetEntities() const;
-		const std::vector<std::shared_ptr<Component>>& GetComponents() const;
+		const std::vector<Entity*>&		GetEntities() const;
+		const std::vector<Component*>&	GetComponents() const;
 
 	private:
 
@@ -29,10 +29,10 @@ namespace hod::game
 
 	private:
 
-		std::vector<std::shared_ptr<Entity>>	_totalEntities;
-		std::vector<std::shared_ptr<Component>>	_totalComponent;
+		std::vector<Entity*>	_totalEntities;
+		std::vector<Component*>	_totalComponent;
 
-		std::unordered_map<uint64_t, std::shared_ptr<Entity>>		_contextualEntityMap;
-		std::unordered_map<uint64_t, std::shared_ptr<Component>>	_contextualComponentMap;
+		std::unordered_map<uint64_t, Entity*>		_contextualEntityMap;
+		std::unordered_map<uint64_t, Component*>	_contextualComponentMap;
 	};
 }

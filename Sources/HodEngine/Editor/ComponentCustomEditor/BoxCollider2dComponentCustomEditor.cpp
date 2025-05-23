@@ -37,12 +37,12 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool BoxCollider2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
+	bool BoxCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
 	{
-		std::shared_ptr<game::BoxCollider2dComponent> boxCollider2d = std::static_pointer_cast<game::BoxCollider2dComponent>(component);
+		game::BoxCollider2dComponent* boxCollider2d = static_cast<game::BoxCollider2dComponent*>(component);
 		if (boxCollider2d != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = boxCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
+			game::Node2dComponent* node2D = boxCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				std::array<Vector2, 5> vertices = {

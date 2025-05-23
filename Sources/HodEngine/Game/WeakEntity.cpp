@@ -37,7 +37,7 @@ namespace hod::game
 
     /// @brief 
     /// @param pointer 
-    WeakEntity::WeakEntity(const std::shared_ptr<Entity>& pointer)
+    WeakEntity::WeakEntity(Entity* pointer)
     : _instanceId(0)
     , _pointer(pointer)
     {
@@ -59,9 +59,9 @@ namespace hod::game
 
     /// @brief 
     /// @param pointer 
-    WeakEntity& WeakEntity::operator = (const std::weak_ptr<Entity>& pointer)
+    WeakEntity& WeakEntity::operator = (Entity* pointer)
     {
-        _pointer = pointer.lock();
+        _pointer = pointer;
         return *this;
     }
 
@@ -75,9 +75,9 @@ namespace hod::game
 
     /// @brief 
     /// @return 
-    std::shared_ptr<Entity> WeakEntity::Lock() const
+    Entity* WeakEntity::Lock() const
     {
-        return _pointer.lock();
+        return _pointer.Get();
     }
 
     /// @brief 
@@ -96,7 +96,7 @@ namespace hod::game
 
     /// @brief 
     /// @param pointer 
-    void WeakEntity::SetPointer(std::shared_ptr<Entity> pointer)
+    void WeakEntity::SetPointer(Entity* pointer)
     {
         if (pointer == nullptr)
         {
@@ -113,11 +113,10 @@ namespace hod::game
     /// @return 
     uint64_t WeakEntity::GetForSerialization() const
     {
-        std::shared_ptr<Entity> lock = _pointer.lock();
-        if (lock == nullptr)
+        if (_pointer.Get() == nullptr)
         {
             return 0;
         }
-        return lock->GetLocalId();
+        return _pointer->GetLocalId();
     }
 }

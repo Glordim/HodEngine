@@ -43,7 +43,7 @@ namespace hod::editor
 			{
 				for (auto& pair : scene->GetEntities())
 				{
-					std::shared_ptr<game::Entity> entity = pair.second;
+					game::Entity* entity = pair.second;
 					if (entity->GetParent().Lock() == nullptr)
 					{
 						DrawEntity(entity);
@@ -71,36 +71,35 @@ namespace hod::editor
 
 		if (ImGui::BeginPopup("ContextualMenu") == true)
 		{
-			std::shared_ptr<game::Entity> selectionLock = GetOwner<EntityEditorTab>()->GetEntitySelection();
+			game::Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
 			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().size() > 0)
 			{
-				std::weak_ptr<game::Entity> entity = world->GetScenes()[0]->CreateEntity("EditMe");
-				std::shared_ptr<game::Entity> entityLock = entity.lock();
+				game::Entity* entity = world->GetScenes()[0]->CreateEntity("EditMe");
 
-				if (selectionLock != nullptr)
+				if (selection != nullptr)
 				{
-					entityLock->SetParent(selectionLock);
+					entity->SetParent(selection);
 				}
 
-				GetOwner<EntityEditorTab>()->SetEntitySelection(entityLock);
+				GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
 
 				GetOwner()->MarkAssetAsDirty();
 
 				ImGui::CloseCurrentPopup();
 			}
 
-			if (selectionLock != nullptr)
+			if (selection != nullptr)
 			{
 				if (ImGui::MenuItem("Delete") == true)
 				{
-					world->DestroyEntity(selectionLock);
+					world->DestroyEntity(selection);
 					GetOwner()->MarkAssetAsDirty();
 				}
 
-				if (selectionLock->GetPrefabResource() != nullptr && ImGui::MenuItem("Unpack Prefab"))
+				if (selection->GetPrefabResource() != nullptr && ImGui::MenuItem("Unpack Prefab"))
 				{
-					selectionLock->SetPrefabResource(nullptr);
+					selection->SetPrefabResource(nullptr);
 					GetOwner()->MarkAssetAsDirty();
 				}
 			}
@@ -110,9 +109,9 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param entity 
-	void HierachyWindow::DrawEntity(std::shared_ptr<game::Entity> entity)
+	void HierachyWindow::DrawEntity(game::Entity* entity)
 	{
-		ImGui::PushID(entity.get() - 1);
+		ImGui::PushID(entity - 1);
 		//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
 		//ImGui::Separator();
 		//ImGui::Button("", ImVec2(200, 25));
@@ -141,12 +140,11 @@ namespace hod::editor
 					// todo factorize
 					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
 					game::World* world = game::World::GetInstance();
-					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
-					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
-					if (dropEntityLock != nullptr)
+					game::Entity* dropEntity = world->FindEntity(entityId);
+					if (dropEntity != nullptr)
 					{
-						dropEntityLock->SetParent(entity->GetParent());
-						dropEntityLock->SetSiblingIndex(entity->GetSiblingIndex());
+						dropEntity->SetParent(entity->GetParent());
+						dropEntity->SetSiblingIndex(entity->GetSiblingIndex());
 						GetOwner()->MarkAssetAsDirty();
 					}
 				}
@@ -155,19 +153,19 @@ namespace hod::editor
 		}
 		ImGui::PopStyleVar();
 
-		std::shared_ptr<game::Entity> selectionLock = GetOwner<EntityEditorTab>()->GetEntitySelection();
+		game::Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
 		if (entity->GetChildren().empty())
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
-		if (entity == selectionLock)
+		if (entity == selection)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
 
-		ImGui::PushID(entity.get());
+		ImGui::PushID(entity);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
 		bool opened = ImGui::TreeNodeEx("", treeNodeFlags);
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
@@ -203,11 +201,10 @@ namespace hod::editor
 				{
 					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
 					game::World* world = game::World::GetInstance();
-					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
-					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
-					if (dropEntityLock != nullptr)
+					game::Entity* dropEntity = world->FindEntity(entityId);
+					if (dropEntity != nullptr)
 					{
-						dropEntityLock->SetParent(entity);
+						dropEntity->SetParent(entity);
 						GetOwner()->MarkAssetAsDirty();
 					}
 				}
@@ -253,7 +250,7 @@ namespace hod::editor
 		{
 			for (const game::WeakEntity& child : entity->GetChildren())
 			{
-				std::shared_ptr<game::Entity> childEntity = child.Lock();
+				game::Entity* childEntity = child.Lock();
 				if (childEntity != nullptr)
 				{
 					DrawEntity(childEntity);

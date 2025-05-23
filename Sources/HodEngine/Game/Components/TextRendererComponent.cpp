@@ -97,10 +97,10 @@ namespace hod
 				return;
 			}
 
-			std::shared_ptr<Entity> entity = GetOwner();
+			Entity* entity = GetOwner();
 			if (entity != nullptr)
 			{
-				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
 					float atlasWidth = (float)_fontResource.Lock()->GetTexture()->GetWidth();

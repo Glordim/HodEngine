@@ -32,11 +32,11 @@ namespace hod::game::PrefabUtility
 		std::vector<uint64_t>	_target;
 	};
 
-	HOD_GAME_API bool CollectPrefabOverride(std::shared_ptr<Entity> prefabInstance, std::vector<PrefabOverride>& overrides);
+	HOD_GAME_API bool CollectPrefabOverride(Entity* prefabInstance, std::vector<PrefabOverride>& overrides);
 
-	HOD_GAME_API std::shared_ptr<Entity> GetPrefabInstance(std::shared_ptr<Entity> entity);
-	HOD_GAME_API std::string GetRelativePath(std::shared_ptr<Entity> parent, std::shared_ptr<Entity> child);
-	HOD_GAME_API std::shared_ptr<Entity> FindChildByPath(std::shared_ptr<Entity> parent, std::string_view relativePath);
+	HOD_GAME_API Entity* GetPrefabInstance(Entity* entity);
+	HOD_GAME_API std::string GetRelativePath(Entity* parent, Entity* child);
+	HOD_GAME_API Entity* FindChildByPath(Entity* parent, std::string_view relativePath);
 
-	HOD_GAME_API std::shared_ptr<Component> GetCorrespondingComponent(std::shared_ptr<Component> component);
+	HOD_GAME_API Component* GetCorrespondingComponent(Component* component);
 }

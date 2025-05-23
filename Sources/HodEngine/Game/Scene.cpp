@@ -103,7 +103,7 @@ namespace hod::game
 		SceneSerializer sceneSerializer;
 		sceneSerializer.Deserialize(*entitiesNode);
 
-		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
+		for (Entity* entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
 			entity->SetScene(this);
@@ -119,7 +119,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& Scene::GetEntities() const
+	const std::unordered_map<uint64_t, Entity*>& Scene::GetEntities() const
 	{
 		return _entities;
 	}
@@ -127,9 +127,9 @@ namespace hod::game
 	/// @brief 
 	/// @param name 
 	/// @return 
-	std::shared_ptr<Entity> Scene::CreateEntity(const std::string_view& name)
+	Entity* Scene::CreateEntity(const std::string_view& name)
 	{
-		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
+		Entity* entity = new Entity(name);
 		_entities.emplace(entity->GetInstanceId(), entity);
 
 		entity->SetScene(this);
@@ -141,7 +141,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @param entity 
-	void Scene::DestroyEntity(std::shared_ptr<Entity> entity)
+	void Scene::DestroyEntity(Entity* entity)
 	{
 		entity->Destruct();
 		
@@ -164,7 +164,7 @@ namespace hod::game
 	/// @brief 
 	/// @param entityId 
 	/// @return 
-	std::shared_ptr<Entity> Scene::FindEntity(uint64_t entityId)
+	Entity* Scene::FindEntity(uint64_t entityId)
 	{
 		auto it = _entities.find(entityId);
 		if (it != _entities.end())
@@ -189,7 +189,7 @@ namespace hod::game
 	{
 		for (const auto& entityPair : _entities)
 		{
-			std::shared_ptr<Entity> entity = entityPair.second;
+			Entity* entity = entityPair.second;
 			if (entity->GetParent().Lock() == nullptr)
 			{
 				entity->ProcessActivation();
@@ -202,9 +202,9 @@ namespace hod::game
 	{
 		for (auto entityPair : _entities)
 		{
-			for (std::weak_ptr<Component> component : entityPair.second->GetComponents())
+			for (Component* component : entityPair.second->GetComponents())
 			{
-				component.lock()->OnUpdate(deltaTime);
+				component->OnUpdate(deltaTime);
 			}
 		}
 	}
@@ -215,10 +215,10 @@ namespace hod::game
 	{
 		for (const auto& pair : _entities)
 		{
-			std::shared_ptr<Entity> entity = pair.second;
+			Entity* entity = pair.second;
 			if (entity->IsActiveInHierarchy() == true)
 			{
-				std::shared_ptr<RendererComponent> rendererComponent = entity->GetComponent<RendererComponent>();
+				RendererComponent* rendererComponent = entity->GetComponent<RendererComponent>();
 				if (rendererComponent != nullptr)
 				{
 					rendererComponent->PushToRenderQueue(*renderQueue);
@@ -243,7 +243,7 @@ namespace hod::game
 	/// @brief 
 	/// @param prefab 
 	/// @return 
-	std::shared_ptr<Entity> Scene::Instantiate(std::shared_ptr<PrefabResource> prefabResource)
+	Entity* Scene::Instantiate(std::shared_ptr<PrefabResource> prefabResource)
 	{
 		return Instantiate(prefabResource->GetPrefab().GetRootEntity());
 	}
@@ -251,7 +251,7 @@ namespace hod::game
 	/// @brief 
 	/// @param entity 
 	/// @return 
-	std::shared_ptr<Entity> Scene::Instantiate(std::shared_ptr<Entity> entity)
+	Entity* Scene::Instantiate(Entity* entity)
 	{
 		if (entity == nullptr)
 		{
@@ -264,16 +264,16 @@ namespace hod::game
 
 		sceneSerializer.Deserialize(document.GetRootNode());
 
-		std::shared_ptr<Entity> clonedEntity = nullptr;
+		Entity* clonedEntity = nullptr;
 		
-		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
+		for (Entity* entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
 			entity->SetScene(this);
 			entity->SetLocalId(0);
-			for (std::weak_ptr<Component> component : entity->GetComponents())
+			for (Component* component : entity->GetComponents())
 			{
-				component.lock()->SetLocalId(0);
+				component->SetLocalId(0);
 			}
 
 			if (clonedEntity == nullptr && entity->GetParent().Lock() == nullptr)

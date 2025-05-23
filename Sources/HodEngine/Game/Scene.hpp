@@ -45,17 +45,17 @@ namespace hod::game
 		bool				SerializeInDocument(Document::Node& documentNode);
 		bool				DeserializeFromDocument(const Document::Node& documentNode);
 
-		std::shared_ptr<Entity>			CreateEntity(const std::string_view& name = "");
-		void							DestroyEntity(std::shared_ptr<Entity> entity);
-		std::shared_ptr<Entity>			FindEntity(uint64_t entityId);
+		Entity*				CreateEntity(const std::string_view& name = "");
+		void				DestroyEntity(Entity* entity);
+		Entity*				FindEntity(uint64_t entityId);
 
 		Scene*							Clone();
 		void							Clear();
 
-		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<PrefabResource> prefabResource);
-		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<Entity> entity);
+		Entity*			Instantiate(std::shared_ptr<PrefabResource> prefabResource);
+		Entity*			Instantiate(Entity* entity);
 
-		const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& GetEntities() const;
+		const std::unordered_map<uint64_t, Entity*>& GetEntities() const;
 
 		void						ProcessActivation();
 		void						Update(float deltaTime);
@@ -71,7 +71,7 @@ namespace hod::game
 	private:
 
 		std::string												_name;
-		std::unordered_map<uint64_t, std::shared_ptr<Entity>>	_entities;
+		std::unordered_map<uint64_t, Entity*>	_entities;
 		uint64_t												_nextLocalId = 1;
 		World*													_world = nullptr;
 	};

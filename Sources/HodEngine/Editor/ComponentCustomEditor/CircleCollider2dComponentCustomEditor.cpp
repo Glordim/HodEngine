@@ -38,12 +38,12 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool CircleCollider2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
+	bool CircleCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
 	{
-		std::shared_ptr<game::CircleCollider2dComponent> circleCollider2d = std::static_pointer_cast<game::CircleCollider2dComponent>(component);
+		game::CircleCollider2dComponent* circleCollider2d = static_cast<game::CircleCollider2dComponent*>(component);
 		if (circleCollider2d != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = circleCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
+			game::Node2dComponent* node2D = circleCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Vector2 scale = node2D->GetScale();

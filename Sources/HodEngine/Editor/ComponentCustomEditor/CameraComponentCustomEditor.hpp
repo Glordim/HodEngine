@@ -25,7 +25,7 @@ namespace hod::editor
 
 	public:
 
-		bool								OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport) override;
+		bool								OnDrawGizmo(game::Component* component, ViewportWindow& viewport) override;
 
 	private:
 

@@ -38,12 +38,12 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool MultiShapeCollider2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
+	bool MultiShapeCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
 	{
-		std::shared_ptr<game::MultiShapeCollider2dComponent> multiShapeCollider2d = std::static_pointer_cast<game::MultiShapeCollider2dComponent>(component);
+		game::MultiShapeCollider2dComponent* multiShapeCollider2d = static_cast<game::MultiShapeCollider2dComponent*>(component);
 		if (multiShapeCollider2d != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = multiShapeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
+			game::Node2dComponent* node2D = multiShapeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Vector2 scale = node2D->GetScale();

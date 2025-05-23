@@ -70,8 +70,8 @@ namespace hod::game
 
 		void			OnStart() override;
 
-		std::shared_ptr<Rigidbody2dComponent>	GetRigidbody();
-		Vector2									GetScale() const;
+		Rigidbody2dComponent*		GetRigidbody();
+		Vector2						GetScale() const;
 
 	protected:
 
@@ -81,6 +81,6 @@ namespace hod::game
 		float			_friction = 0.5f;
 		float			_density = 1.0f;
 
-		std::weak_ptr<Rigidbody2dComponent>	_rigidbody;
+		WeakPtr<Rigidbody2dComponent>	_rigidbody;
 	};
 }

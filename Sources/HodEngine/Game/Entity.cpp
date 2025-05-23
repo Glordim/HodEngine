@@ -40,6 +40,16 @@ namespace hod::game
 	}
 
 	/// @brief 
+	Entity::~Entity()
+	{
+		for (Component* component : _components)
+		{
+			delete component;
+		}
+		_components.clear();
+	}
+
+	/// @brief 
 	/// @return 
 	uint64_t Entity::GetInstanceId() const
 	{
@@ -111,7 +121,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::vector<std::shared_ptr<Component>>& Entity::GetComponents() const
+	const std::vector<Component*>& Entity::GetComponents() const
 	{
 		return _components;
 	}
@@ -119,9 +129,9 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::shared_ptr<Component> Entity::GetComponent(const ReflectionDescriptor& descriptor)
+	Component* Entity::GetComponent(const ReflectionDescriptor& descriptor)
 	{
-		for (const std::shared_ptr<Component>& component : _components)
+		for (Component* component : _components)
 		{
 			if (component->GetReflectionDescriptorV().IsCompatible(descriptor) == true)
 			{
@@ -134,9 +144,9 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::shared_ptr<Component> Entity::GetComponentInParent(const ReflectionDescriptor& descriptor)
+	Component* Entity::GetComponentInParent(const ReflectionDescriptor& descriptor)
 	{
-		std::shared_ptr<Component> component = GetComponent(descriptor);
+		Component* component = GetComponent(descriptor);
 		if (component != nullptr)
 		{
 			return component;
@@ -153,24 +163,24 @@ namespace hod::game
 	/// @brief 
 	/// @param descriptor 
 	/// @return 
-	std::shared_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor)
+	Component* Entity::AddComponent(const ReflectionDescriptor& descriptor)
 	{
-		std::shared_ptr<Component> existingComponent = GetComponent(descriptor);
+		Component* existingComponent = GetComponent(descriptor);
 		if (existingComponent != nullptr)
 		{
 			return existingComponent;
 		}
 
-		return AddComponent(std::static_pointer_cast<Component>(descriptor.CreateSharedInstance()));
+		return AddComponent(static_cast<Component*>(descriptor.CreateInstance()));
 	}
 
 	/// @brief 
 	/// @param component 
 	/// @return 
-	std::shared_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component)
+	Component* Entity::AddComponent(Component* component)
 	{
 		_components.push_back(component);
-		component->AttachTo(shared_from_this());
+		component->AttachTo(this);
 
 		if (_activeInHierarchy == true)
 		{
@@ -185,7 +195,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @param component 
-	void Entity::RemoveComponent(std::shared_ptr<Component> component)
+	void Entity::RemoveComponent(Component* component)
 	{
 		auto it = std::find(_components.begin(), _components.end(), component);
 		if (it != _components.end())
@@ -201,7 +211,7 @@ namespace hod::game
 		uint32_t indexToRemove = -1;
 		for (uint32_t index = 0; index < _components.size(); ++index)
 		{
-			std::shared_ptr<Component> component = _components[index];
+			Component* component = _components[index];
 			if (&component->GetReflectionDescriptorV() == &descriptor)
 			{
 				_components.erase(_components.begin() + index);
@@ -244,12 +254,12 @@ namespace hod::game
 	/// @return 
 	uint32_t Entity::GetSiblingIndex() const
 	{
-		std::shared_ptr<Entity> parentLock = _parent.Lock();
+		Entity* parentLock = _parent.Lock();
 		if (parentLock != nullptr)
 		{
 			for (uint32_t index = 0; index < parentLock->_children.size(); ++index)
 			{
-				if (parentLock->_children[index].Lock().get() == this)
+				if (parentLock->_children[index].Lock() == this)
 				{
 					return index;
 				}
@@ -262,7 +272,7 @@ namespace hod::game
 	/// @param index 
 	void Entity::SetSiblingIndex(uint32_t index)
 	{
-		std::shared_ptr<Entity> parentLock = _parent.Lock();
+		Entity* parentLock = _parent.Lock();
 		if (parentLock != nullptr)
 		{
 			uint32_t initialIndex = GetSiblingIndex();
@@ -270,7 +280,7 @@ namespace hod::game
 			{
 				parentLock->_children[i] = parentLock->_children[i - 1];
 			}
-			parentLock->_children[index] = WeakEntity(shared_from_this());
+			parentLock->_children[index] = WeakEntity(this);
 		}
 	}
 
@@ -283,15 +293,13 @@ namespace hod::game
 			return;
 		}
 
-		std::shared_ptr<Entity> parentLock = _parent.Lock();
+		Entity* parentLock = _parent.Lock();
 		if (parentLock != nullptr)
 		{
-			std::shared_ptr<Entity> thiz = shared_from_this();
-
 			auto itEnd = parentLock->_children.end();
 			for (auto it = parentLock->_children.begin(); it != itEnd; ++it)
 			{
-				if (it->Lock() == thiz)
+				if (it->Lock() == this)
 				{
 					parentLock->_children.erase(it);
 					break;
@@ -306,7 +314,7 @@ namespace hod::game
 			bool exist = false;
 			for (const WeakEntity& child : parentLock->_children)
 			{
-				if (child.Lock() == shared_from_this() || child.GetInstanceId() == _instanceId)
+				if (child.Lock() == this || child.GetInstanceId() == _instanceId)
 				{
 					exist = true;
 					break;
@@ -314,7 +322,7 @@ namespace hod::game
 			}
 			if (exist == false)
 			{
-				parentLock->_children.emplace_back(shared_from_this());
+				parentLock->_children.emplace_back(this);
 			}
 		}
 		_parent = parent;
@@ -381,7 +389,7 @@ namespace hod::game
 	/// @brief 
 	void Entity::Construct()
 	{
-		for (const std::shared_ptr<Component>& component : _components)
+		for (Component* component : _components)
 		{
 			component->Construct();
 		}
@@ -390,7 +398,7 @@ namespace hod::game
 
 		for (const WeakEntity& child : _children)
 		{
-			std::shared_ptr<Entity> childEntity = child.Lock();
+			Entity* childEntity = child.Lock();
 			childEntity->Construct();
 		}
 	}
@@ -400,7 +408,7 @@ namespace hod::game
 	{
 		assert(_active == true);
 
-		for (const std::shared_ptr<Component>& component : _components)
+		for (Component* component : _components)
 		{
 			component->Awake();
 		}
@@ -409,7 +417,7 @@ namespace hod::game
 
 		for (const WeakEntity& child : _children)
 		{
-			std::shared_ptr<Entity> childEntity = child.Lock();
+			Entity* childEntity = child.Lock();
 			if (childEntity->GetActive() == true)
 			{
 				childEntity->Awake();
@@ -425,7 +433,7 @@ namespace hod::game
 			return;
 		}
 
-		for (const std::shared_ptr<Component>& component : _components)
+		for (Component* component : _components)
 		{
 			component->Enable();
 		}
@@ -434,7 +442,7 @@ namespace hod::game
 
 		for (const WeakEntity& child : _children)
 		{
-			std::shared_ptr<Entity> childEntity = child.Lock();
+			Entity* childEntity = child.Lock();
 			if (childEntity->GetActive() == true)
 			{
 				childEntity->Enable();
@@ -447,7 +455,7 @@ namespace hod::game
 	{
 		assert(_active == true);
 
-		for (const std::shared_ptr<Component>& component : _components)
+		for (Component* component : _components)
 		{
 			component->Start();
 		}
@@ -456,7 +464,7 @@ namespace hod::game
 
 		for (const WeakEntity& child : _children)
 		{
-			std::shared_ptr<Entity> childEntity = child.Lock();
+			Entity* childEntity = child.Lock();
 			if (childEntity->GetActive() == true)
 			{
 				childEntity->Start();
@@ -474,14 +482,14 @@ namespace hod::game
 
 		for (const WeakEntity& child : _children)
 		{
-			std::shared_ptr<Entity> childEntity = child.Lock();
+			Entity* childEntity = child.Lock();
 			if (childEntity->GetActive() == true)
 			{
 				childEntity->Disable();
 			}
 		}
 
-		for (const std::shared_ptr<Component>& component : _components)
+		for (Component* component : _components)
 		{
 			component->Disable();
 		}
@@ -496,11 +504,11 @@ namespace hod::game
 
 		for (const WeakEntity& child : _children)
 		{
-			std::shared_ptr<Entity> childEntity = child.Lock();
+			Entity* childEntity = child.Lock();
 			childEntity->Destruct();
 		}
 
-		for (const std::shared_ptr<Component>& component : _components)
+		for (Component* component : _components)
 		{
 			component->Destruct();
 		}

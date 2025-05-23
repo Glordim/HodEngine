@@ -50,7 +50,7 @@ namespace hod::game
 	/// @brief 
 	void MultiShapeCollider2dComponent::ClearAllShapes()
 	{
-		std::shared_ptr<Rigidbody2dComponent> rigidbody = GetRigidbody();
+		Rigidbody2dComponent* rigidbody = GetRigidbody();
 		if (rigidbody != nullptr)
 		{
 			physics::Body* body = rigidbody->GetInternalBody();
@@ -68,7 +68,7 @@ namespace hod::game
 	/// @param circleShape 
 	void MultiShapeCollider2dComponent::AddCircleShape(const CircleShape& circleShape)
 	{
-		std::shared_ptr<Rigidbody2dComponent> rigidbody = GetRigidbody();
+		Rigidbody2dComponent* rigidbody = GetRigidbody();
 		if (rigidbody != nullptr)
 		{
 			physics::Body* body = rigidbody->GetInternalBody();
@@ -92,7 +92,7 @@ namespace hod::game
 	/// @param boxshape 
 	void MultiShapeCollider2dComponent::AddBoxShape(const BoxShape& boxshape)
 	{
-		std::shared_ptr<Rigidbody2dComponent> rigidbody = GetRigidbody();
+		Rigidbody2dComponent* rigidbody = GetRigidbody();
 		if (rigidbody != nullptr)
 		{
 			physics::Body* body = rigidbody->GetInternalBody();

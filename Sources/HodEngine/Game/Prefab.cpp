@@ -86,7 +86,7 @@ namespace hod::game
 		SceneSerializer sceneSerializer;
 		sceneSerializer.Deserialize(*entitiesNode);
 
-		for (const std::shared_ptr<Entity>& entity : sceneSerializer.GetEntities())
+		for (Entity* entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
 			if (_rootEntity == nullptr && entity->GetParent().Lock() == nullptr)
@@ -100,7 +100,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::unordered_map<uint64_t, std::shared_ptr<Entity>>& Prefab::GetEntities() const
+	const std::unordered_map<uint64_t, Entity*>& Prefab::GetEntities() const
 	{
 		return _entities;
 	}
@@ -108,9 +108,9 @@ namespace hod::game
 	/// @brief 
 	/// @param name 
 	/// @return 
-	std::weak_ptr<Entity> Prefab::CreateEntity(const std::string_view& name)
+	Entity* Prefab::CreateEntity(const std::string_view& name)
 	{
-		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
+		Entity* entity = new Entity(name);
 		_entities.emplace(entity->GetInstanceId(), entity);
 
 		return entity;
@@ -118,7 +118,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @param entity 
-	void Prefab::DestroyEntity(std::shared_ptr<Entity> entity)
+	void Prefab::DestroyEntity(Entity* entity)
 	{
 		_entities.erase(_entities.find(entity->GetInstanceId()));
 	}
@@ -126,7 +126,7 @@ namespace hod::game
 	/// @brief 
 	/// @param entityId 
 	/// @return 
-	std::weak_ptr<Entity> Prefab::FindEntity(uint64_t entityId)
+	Entity* Prefab::FindEntity(uint64_t entityId)
 	{
 		return _entities[entityId];
 	}
@@ -139,7 +139,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	std::shared_ptr<Entity> Prefab::GetRootEntity()
+	Entity* Prefab::GetRootEntity()
 	{
 		return _rootEntity;
 	}

@@ -302,14 +302,14 @@ namespace hod
 		/// @brief 
 		/// @param name 
 		/// @return 
-		std::weak_ptr<Entity> World::CreateEntity(const std::string_view& name)
+		Entity* World::CreateEntity(const std::string_view& name)
 		{
 			return _persistanteScene->CreateEntity(name);
 		}
 
 		/// @brief 
 		/// @param entity 
-		void World::DestroyEntity(std::shared_ptr<Entity> entity)
+		void World::DestroyEntity(Entity* entity)
 		{
 			for (Scene* scene : _scenes)
 			{
@@ -321,14 +321,14 @@ namespace hod
 		/// @brief 
 		/// @param entityId 
 		/// @return 
-		std::weak_ptr<Entity> World::FindEntity(uint64_t entityId)
+		Entity* World::FindEntity(uint64_t entityId)
 		{
-			std::weak_ptr<Entity> entity;
+			Entity* entity;
 			
 			for (Scene* scene : _scenes)
 			{
 				entity = scene->FindEntity(entityId);
-				if (entity.lock() != nullptr)
+				if (entity != nullptr)
 				{
 					return entity;
 				}

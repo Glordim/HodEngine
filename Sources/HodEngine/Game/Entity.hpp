@@ -7,6 +7,7 @@
 #include <memory>
 #include <atomic>
 
+#include "HodEngine/Core/Weakable/Weakable.hpp"
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Type.hpp"
 #include "HodEngine/Core/UID.hpp"
@@ -26,7 +27,7 @@ namespace hod::game
 	class PrefabResource;
 	class Scene;
 
-	class HOD_GAME_API Entity final : public std::enable_shared_from_this<Entity>
+	class HOD_GAME_API Entity final : public Weakable
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Entity);
 		friend class Scene;
@@ -47,7 +48,7 @@ namespace hod::game
 														Entity(const std::string_view& name);
 														Entity(const Entity&) = delete;
 														Entity(Entity&&) = delete;
-														~Entity() = default;
+														~Entity();
 
 		const Entity&									operator = (const Entity&) = delete;
 		const Entity&									operator = (Entity&&) = delete;
@@ -71,24 +72,24 @@ namespace hod::game
 		uint32_t										GetSiblingIndex() const;
 
 		// Components
-		const std::vector<std::shared_ptr<Component>>&	GetComponents() const;
+		const std::vector<Component*>&					GetComponents() const;
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>					GetComponent();
-		std::shared_ptr<Component>						GetComponent(const ReflectionDescriptor& descriptor);
+		_Component_*									GetComponent();
+		Component*										GetComponent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>					GetComponentInParent();
-		std::shared_ptr<Component>						GetComponentInParent(const ReflectionDescriptor& descriptor);
+		_Component_*									GetComponentInParent();
+		Component*										GetComponentInParent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		std::shared_ptr<_Component_>					AddComponent();
-		std::shared_ptr<Component>						AddComponent(const ReflectionDescriptor& descriptor);
+		_Component_*									AddComponent();
+		Component*										AddComponent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
 		void											RemoveComponent();
 		void											RemoveComponent(const ReflectionDescriptor& descriptor);
-		void											RemoveComponent(std::shared_ptr<Component> component);
+		void											RemoveComponent(Component* component);
 
 		// Serialization
 		void											SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource); // TODO move in private ?
@@ -105,7 +106,7 @@ namespace hod::game
 
 	private:
 
-		std::shared_ptr<Component>						AddComponent(std::shared_ptr<Component> instance);
+		Component*										AddComponent(Component* instance);
 
 		void											NotifyActivationChanged();
 
@@ -132,7 +133,7 @@ namespace hod::game
 		std::vector<WeakEntity>							_children;
 		WeakEntity										_parent;
 
-		std::vector<std::shared_ptr<Component>>			_components;
+		std::vector<Component*>							_components;
 		
 		Scene*											_scene = nullptr; // TODO never set !!!
 		std::shared_ptr<PrefabResource>					_prefabResource = nullptr;

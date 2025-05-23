@@ -42,7 +42,7 @@ namespace hod::editor
 	private:
 
 		void		DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection);
-		void		DrawSceneSelection(std::shared_ptr<game::Entity> selection);
+		void		DrawSceneSelection(game::Entity* selection);
 
 		bool		DrawDefaultInspector(EditorReflectedObject& reflectedObject);
 	};

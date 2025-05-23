@@ -39,23 +39,23 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	std::shared_ptr<Rigidbody2dComponent> Collider2dComponent::GetRigidbody()
+	Rigidbody2dComponent* Collider2dComponent::GetRigidbody()
 	{
-		if (_rigidbody.lock() == nullptr)
+		if (_rigidbody == nullptr)
 		{
 			_rigidbody = GetOwner()->GetComponentInParent<Rigidbody2dComponent>();
 		}
-		return _rigidbody.lock();
+		return _rigidbody.Get();
 	}
 
 	/// @brief 
 	/// @return 
 	Vector2 Collider2dComponent::GetScale() const
 	{
-		std::shared_ptr<Entity> entity = GetOwner();
+		Entity* entity = GetOwner();
 		if (entity != nullptr)
 		{
-			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
 				return node2dComponent->GetScale();

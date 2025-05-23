@@ -59,10 +59,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void BoxComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
-			std::shared_ptr<Entity> entity = GetOwner();
+			Entity* entity = GetOwner();
 			if (entity != nullptr)
 			{
-				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
 					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), nullptr, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));

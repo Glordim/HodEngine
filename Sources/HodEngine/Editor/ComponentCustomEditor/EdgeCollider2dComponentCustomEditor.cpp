@@ -38,12 +38,12 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool EdgeCollider2dComponentCustomEditor::OnDrawGizmo(std::shared_ptr<game::Component> component, ViewportWindow& viewport)
+	bool EdgeCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
 	{
-		std::shared_ptr<game::EdgeCollider2dComponent> edgeCollider2d = std::static_pointer_cast<game::EdgeCollider2dComponent>(component);
+		game::EdgeCollider2dComponent* edgeCollider2d = static_cast<game::EdgeCollider2dComponent*>(component);
 		if (edgeCollider2d != nullptr)
 		{
-			std::shared_ptr<game::Node2dComponent> node2D = edgeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
+			game::Node2dComponent* node2D = edgeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				std::array<Vector2, 2> vertices = {
