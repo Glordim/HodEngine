@@ -28,6 +28,7 @@ namespace hod
 
 		bool				Read(Document& document, const std::filesystem::path& path);
 		bool				Read(Document& document, FileSystem::Handle& fileHandle, uint32_t size = 0);
+		bool				Read(Document& document, const char* buffer, uint32_t size);
 
 	protected:
 

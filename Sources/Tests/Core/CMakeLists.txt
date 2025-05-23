@@ -42,6 +42,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 
 target_link_libraries(TestsCore
 	Core
+	GTest::gtest
 	GTest::gtest_main
 )
 

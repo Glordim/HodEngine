@@ -49,9 +49,17 @@ namespace hod
 		}
 		buffer[size] = '\0';
 
-		bool result = PopulateDocument(document, buffer);
+		bool result = Read(document, buffer, size);
 		delete[] buffer;
-
 		return result;
+	}
+
+	/// @brief 
+	/// @param buffer 
+	/// @param size 
+	/// @return 
+	bool DocumentReader::Read(Document& document, const char* buffer, uint32_t size)
+	{
+		return PopulateDocument(document, buffer);
 	}
 }

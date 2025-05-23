@@ -228,21 +228,25 @@ ExternalProject_Add(SpirvCross
 message(STATUS "SpirvCross is available in " ${SpirvCross_INCLUDE_DIRS})
 message(STATUS "SpirvCross is available in " ${SpirvCross_LIBRARIES})
 
-#include(FetchContent)
-#FetchContent_Declare(
-#  googletest
-#  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-#  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-#)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-# FetchContent_MakeAvailable(googletest)
-
-#enable_testing()
-#add_subdirectory("Sources/Tests/Core")
-
 SetupPlatform()
 SetupCompilation()
+
+option(BUILD_UNIT_TESTS "Enable UnitTests compilation" ON)
+if (BUILD_UNIT_TESTS)
+  include(CTest)
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  )
+  #For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
+
+  enable_testing()
+  add_subdirectory("Sources/Tests/Core")
+endif()
 
 set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
 
