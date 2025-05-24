@@ -65,6 +65,9 @@ namespace hod
 			void						EditorNextFrame();
 //
 
+			World*						Clone();
+			void						ProcessActication();
+
 			void						Update();
 			void						Draw();
 

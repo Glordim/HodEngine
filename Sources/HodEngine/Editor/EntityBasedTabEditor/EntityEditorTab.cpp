@@ -31,19 +31,21 @@ namespace hod::editor
 	{
 		_scene = new game::Scene();
 
-		_world = new game::World();
-		_world->Init();
-		_world->DisableDrawJob();
-		_world->AddScene(_scene);
+		_editingWorld = new game::World();
+		_editingWorld->Init();
+		_editingWorld->DisableDrawJob();
+		_editingWorld->AddScene(_scene);
+		_editingWorld->ProcessActication();
+		_world = _editingWorld;
 	}
 
 	/// @brief 
 	EntityEditorTab::~EntityEditorTab()
 	{
-		_world->RemoveScene(_scene);
+		_editingWorld->RemoveScene(_scene);
 
 		delete _scene;
-		delete _world;
+		delete _editingWorld;
 	}
 
 	/// @brief 
@@ -126,9 +128,15 @@ namespace hod::editor
 			return;
 		}
 
-		_world->SetEditorPlaying(true);
-
 		_playing = true;
+
+		_playingWorld = _editingWorld->Clone();
+		_playingWorld->DisableDrawJob();
+		_world = _playingWorld;
+
+		_playingWorld->SetEditorPlaying(_playing);
+		_playingWorld->SetEditorPaused(_paused);
+		_playingWorld->ProcessActication();
 	}
 
 	/// @brief 
@@ -142,12 +150,16 @@ namespace hod::editor
 		_playing = false;
 		_paused = false;
 
-		_world->SetEditorPlaying(_playing);
-		_world->SetEditorPaused(_paused);
-		_world->Clear();
-		ReloadScene();
+		_world = _editingWorld;
+		delete _playingWorld;
+		_playingWorld = nullptr;
+
+		//_world->SetEditorPlaying(_playing);
+		//_world->SetEditorPaused(_paused);
+		//_world->Clear();
+		//ReloadScene();
 	}
-	
+
 	/// @brief 
 	void EntityEditorTab::Pause()
 	{

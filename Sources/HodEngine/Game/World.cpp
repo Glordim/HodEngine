@@ -38,28 +38,7 @@ namespace hod
 
 		void World::SetEditorPlaying(bool editorPlaying)
 		{
-			if (_editorPlaying != editorPlaying)
-			{
-				_editorPlaying = editorPlaying;
-				if (editorPlaying == true)
-				{
-					_persistanteScene->Clear();
-					std::vector<Scene*> clonedScene;
-					for (Scene* scene : _scenes)
-					{
-						Scene* clone = scene->Clone();
-						clone->SetWorld(this);
-						clonedScene.push_back(clone);
-					}
-					_scenes = clonedScene;
-					for (Scene* scene : _scenes)
-					{
-						scene->ProcessActivation();
-					}
-
-					_lastUpdateTimestamp = SystemTime::Now();
-				}
-			}
+			_editorPlaying = editorPlaying;
 		}
 
 		/// @brief 
@@ -144,6 +123,38 @@ namespace hod
 			_scenes.clear();
 
 			_persistanteScene->Clear();
+		}
+
+		/// @brief 
+		/// @return 
+		World* World::Clone()
+		{
+			World* clone = new World();
+			clone->Init();
+
+			delete clone->_persistanteScene;
+			clone->_persistanteScene = _persistanteScene->Clone(clone);
+
+			for (Scene* scene : _scenes)
+			{
+				Scene* sceneClone = scene->Clone(clone);
+
+				clone->AddScene(sceneClone);
+			}
+
+			return clone;
+		}
+
+		/// @brief 
+		void World::ProcessActication()
+		{
+			_lastUpdateTimestamp = SystemTime::Now();
+
+			_persistanteScene->ProcessActivation();
+			for (Scene* scene : _scenes)
+			{
+				scene->ProcessActivation();
+			}
 		}
 
 		/// @brief 

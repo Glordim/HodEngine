@@ -37,7 +37,6 @@ namespace hod::editor
 		game::World*	GetWorld() const;
 		game::Scene*	GetCurrentScene() const;
 
-		
 		void			SetEntitySelection(game::Entity* selection);
 		game::Entity*	GetEntitySelection() const;
 
@@ -48,6 +47,10 @@ namespace hod::editor
 	protected:
 
 		game::World*				_world = nullptr;
+
+		game::World*				_editingWorld = nullptr;
+		game::World*				_playingWorld = nullptr;
+
 		game::Scene*				_scene = nullptr;
 
 		bool						_playing = false;

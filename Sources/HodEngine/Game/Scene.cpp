@@ -42,7 +42,7 @@ namespace hod::game
 	/// @brief 
 	Scene::Scene()
 	{
-		_world = World::GetInstance(); // TODO MultiWorld support
+		_world = nullptr;//World::GetInstance(); // TODO MultiWorld support
 	}
 
 	/// @brief 
@@ -241,9 +241,10 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	Scene* Scene::Clone()
+	Scene* Scene::Clone(World* newWorld)
 	{
 		Scene* clone = new Scene();
+		clone->SetWorld(newWorld);
 
 		Document document;
 		SerializeInDocument(document.GetRootNode());
