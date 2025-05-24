@@ -139,7 +139,7 @@ namespace hod::editor
 				{
 					// todo factorize
 					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
-					game::World* world = game::World::GetInstance();
+					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 					game::Entity* dropEntity = world->FindEntity(entityId);
 					if (dropEntity != nullptr)
 					{
@@ -200,7 +200,7 @@ namespace hod::editor
 				if ((payload) != nullptr)
 				{
 					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
-					game::World* world = game::World::GetInstance();
+					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 					game::Entity* dropEntity = world->FindEntity(entityId);
 					if (dropEntity != nullptr)
 					{
@@ -308,7 +308,7 @@ namespace hod::editor
 				if ((payload) != nullptr)
 				{
 					game::Entity::Id entityId = *reinterpret_cast<game::Entity::Id*>(payload->Data);
-					game::World* world = game::World::GetInstance();
+					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
 					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
 					if (dropEntityLock != nullptr)

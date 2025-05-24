@@ -154,7 +154,7 @@ namespace hod::editor
 		}
 
 		/*
-		game::World* world = game::World::GetInstance();
+		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 		if (_selectedTab != nullptr)
 		{
 			world->RemoveScene(_selectedTab->_scene);
