@@ -20,8 +20,11 @@ namespace hod::game
 	{
 		Collider2dComponent::OnStart();
 
+		Rigidbody2dComponent* rigidbody = GetRigidbody();
+		Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 		Vector2 scale = GetScale();
-		_collider = GetRigidbody()->GetInternalBody()->AddEdgeShape(_isTrigger, _start * scale, _end * scale);
+		_collider = rigidbody->GetInternalBody()->AddEdgeShape(_isTrigger, parentOffset + _start * scale, parentOffset + _end * scale);
 	}
 
 	/// @brief 
@@ -31,8 +34,11 @@ namespace hod::game
 		_start = start;
 		if (_collider != nullptr)
 		{
+			Rigidbody2dComponent* rigidbody = GetRigidbody();
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 			Vector2 scale = GetScale();
-			_collider->SetAsEdge(_start * scale, _end * scale);
+			_collider->SetAsEdge(parentOffset + _start * scale, parentOffset + _end * scale);
 		}
 	}
 
@@ -50,8 +56,11 @@ namespace hod::game
 		_end = end;
 		if (_collider != nullptr)
 		{
+			Rigidbody2dComponent* rigidbody = GetRigidbody();
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 			Vector2 scale = GetScale();
-			_collider->SetAsEdge(_start * scale, _end * scale);
+			_collider->SetAsEdge(parentOffset + _start * scale, parentOffset + _end * scale);
 		}
 	}
 

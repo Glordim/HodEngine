@@ -16,6 +16,8 @@ namespace hod::physics
 
 namespace hod::game
 {
+	class Collider2dComponent;
+	
 	/// @brief 
 	class HOD_GAME_API Rigidbody2dComponent : public Component
 	{
@@ -51,6 +53,7 @@ namespace hod::game
 		void			OnDisable() override;
 
 		physics::Body*	GetInternalBody() const;
+		Vector2			GetParentOffset(Collider2dComponent* collider) const;
 
 		void			SetMode(Mode mode);
 		Mode			GetMode() const;

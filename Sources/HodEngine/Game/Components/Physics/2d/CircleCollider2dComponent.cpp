@@ -22,8 +22,11 @@ namespace hod::game
 	{
 		Collider2dComponent::OnStart();
 
+		Rigidbody2dComponent* rigidbody = GetRigidbody();
+		Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 		Vector2 scale = GetScale();
-		_collider = GetRigidbody()->GetInternalBody()->AddCircleShape(_isTrigger, _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
+		_collider = rigidbody->GetInternalBody()->AddCircleShape(_isTrigger, parentOffset + _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
 		_collider->SetBounciness(_bounciness);
 	}
 
@@ -33,8 +36,11 @@ namespace hod::game
 		_offset = offset;
 		if (_collider != nullptr)
 		{
+			Rigidbody2dComponent* rigidbody = GetRigidbody();
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 			Vector2 scale = GetScale();
-			_collider->SetAsCircleShape(_offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
+			_collider->SetAsCircleShape(parentOffset + _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
 		}
 	}
 
@@ -51,8 +57,11 @@ namespace hod::game
 		_radius = radius;
 		if (_collider != nullptr)
 		{
+			Rigidbody2dComponent* rigidbody = GetRigidbody();
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 			Vector2 scale = GetScale();
-			_collider->SetAsCircleShape(_offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
+			_collider->SetAsCircleShape(parentOffset + _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
 		}
 	}
 

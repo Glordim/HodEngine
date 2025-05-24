@@ -1,5 +1,6 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/Physics/2d/Rigidbody2dComponent.hpp"
+#include "HodEngine/Game/Components/Physics/2d/Collider2dComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/World.hpp"
 
@@ -145,6 +146,23 @@ namespace hod::game
 	physics::Body* Rigidbody2dComponent::GetInternalBody() const
 	{
 		return _body;
+	}
+
+	/// @brief 
+	/// @param collider 
+	/// @return 
+	Vector2 Rigidbody2dComponent::GetParentOffset(Collider2dComponent* collider) const
+	{
+		Node2dComponent* colliderNode2dComponent = collider->GetOwner()->GetComponent<Node2dComponent>();
+		Node2dComponent* bodyNode2dComponent = GetOwner()->GetComponent<Node2dComponent>();
+		if (colliderNode2dComponent == bodyNode2dComponent)
+		{
+			return Vector2::Zero;
+		}
+
+		Matrix4 colliderWorldMatrix = colliderNode2dComponent->GetWorldMatrix();
+		Matrix4 bodyWorldMatrix = bodyNode2dComponent->GetWorldMatrix();
+		return colliderWorldMatrix.GetTranslation() - bodyWorldMatrix.GetTranslation();
 	}
 
 	/// @brief 

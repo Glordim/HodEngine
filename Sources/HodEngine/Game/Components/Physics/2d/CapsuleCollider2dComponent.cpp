@@ -22,8 +22,11 @@ namespace hod::game
 	{
 		Collider2dComponent::OnStart();
 
+		Rigidbody2dComponent* rigidbody = GetRigidbody();
+		Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 		Vector2 scale = GetScale();
-		_collider = GetRigidbody()->GetInternalBody()->AddCapsuleShape(_isTrigger, _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
+		_collider = rigidbody->GetInternalBody()->AddCapsuleShape(_isTrigger, parentOffset + _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 	}
 
 	/// @brief 
@@ -32,8 +35,11 @@ namespace hod::game
 		_offset = offset;
 		if (_collider != nullptr)
 		{
+			Rigidbody2dComponent* rigidbody = GetRigidbody();
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 			Vector2 scale = GetScale();
-			_collider->SetAsCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
+			_collider->SetAsCapsuleShape(parentOffset + _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 		}
 	}
 
@@ -50,8 +56,11 @@ namespace hod::game
 		_height = height;
 		if (_collider != nullptr)
 		{
+			Rigidbody2dComponent* rigidbody = GetRigidbody();
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 			Vector2 scale = GetScale();
-			_collider->SetAsCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
+			_collider->SetAsCapsuleShape(parentOffset + _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 		}
 	}
 
@@ -68,8 +77,11 @@ namespace hod::game
 		_radius = radius;
 		if (_collider != nullptr)
 		{
+			Rigidbody2dComponent* rigidbody = GetRigidbody();
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 			Vector2 scale = GetScale();
-			_collider->SetAsCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
+			_collider->SetAsCapsuleShape(parentOffset + _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 		}
 	}
 
@@ -86,8 +98,11 @@ namespace hod::game
 		_rotation = rotation;
 		if (_collider != nullptr)
 		{
+			Rigidbody2dComponent* rigidbody = GetRigidbody();
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
+
 			Vector2 scale = GetScale();
-			_collider->SetAsCapsuleShape(_offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
+			_collider->SetAsCapsuleShape(parentOffset + _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
 		}
 	}
 
