@@ -210,6 +210,18 @@ namespace hod::game
 	}
 
 	/// @brief 
+	void Scene::FixedUpdate()
+	{
+		for (auto entityPair : _entities)
+		{
+			for (Component* component : entityPair.second->GetComponents())
+			{
+				component->OnFixedUpdate();
+			}
+		}
+	}
+
+	/// @brief 
 	/// @param renderQueue 
 	void Scene::Draw(renderer::RenderQueue* renderQueue)
 	{

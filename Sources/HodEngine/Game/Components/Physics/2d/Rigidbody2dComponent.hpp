@@ -46,7 +46,7 @@ namespace hod::game
 		void			OnConstruct() override;
 		void			OnAwake() override;
 		void			OnStart() override;
-		void			OnUpdate(float deltaTime) override;
+		void			OnFixedUpdate() override;
 
 		physics::Body*	GetInternalBody() const;
 

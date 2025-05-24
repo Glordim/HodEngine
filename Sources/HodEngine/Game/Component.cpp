@@ -203,6 +203,12 @@ namespace hod::game
 	}
 
 	/// @brief 
+	void Component::OnFixedUpdate()
+	{
+
+	}
+
+	/// @brief 
 	void Component::OnDisable()
 	{
 

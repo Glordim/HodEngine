@@ -59,6 +59,7 @@ namespace hod::game
 
 		void						ProcessActivation();
 		void						Update(float deltaTime);
+		void						FixedUpdate();
 		void						Draw(renderer::RenderQueue* renderQueue);
 
 		void						SetNextLocalId(uint64_t nextLocalId) { _nextLocalId = nextLocalId; }

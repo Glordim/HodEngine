@@ -101,7 +101,7 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void Rigidbody2dComponent::OnUpdate(float deltaTime)
+	void Rigidbody2dComponent::OnFixedUpdate()
 	{
 		Entity* entity = GetOwner();
 		if (entity != nullptr)
@@ -109,7 +109,11 @@ namespace hod::game
 			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
-				_body->SetTransform(node2dComponent->GetPosition(), node2dComponent->GetRotation(), node2dComponent->GetScale());
+				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
+				Vector2 position = worldMatrix.GetTranslation();
+				float rotation = worldMatrix.GetRotation().GetAngleZ();
+				Vector2 scale;// = worldMatrix.GetScale();
+				_body->SetTransform(position, rotation, scale);
 			}
 		}
 
