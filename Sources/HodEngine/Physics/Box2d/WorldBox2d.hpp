@@ -18,8 +18,6 @@ namespace hod::physics
 
 	public:
 
-		void				Clear();
-
 		Body*				CreateBody(Body::Type type, const Vector2& position, float rotation) override;
 		void				DeleteBody(Body* body) override;
 

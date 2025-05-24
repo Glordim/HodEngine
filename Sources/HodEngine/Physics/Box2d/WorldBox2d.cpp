@@ -21,6 +21,8 @@ namespace hod::physics
 	/// @brief 
 	WorldBox2d::~WorldBox2d()
 	{
+		Clear();
+
 		delete _debugDrawer;
 		_debugDrawer = nullptr;
 
