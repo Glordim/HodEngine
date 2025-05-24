@@ -56,6 +56,8 @@ namespace hod
 					{
 						scene->ProcessActivation();
 					}
+
+					_lastUpdateTimestamp = SystemTime::Now();
 				}
 			}
 		}
@@ -122,6 +124,8 @@ namespace hod
 		bool World::Init()
 		{
 			_physicsWorld = physics::Physics::GetInstance()->CreateWorld();
+
+			_lastUpdateTimestamp = SystemTime::Now();
 
 			FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::Logic);
 			FrameSequencer::GetInstance()->InsertJob(&_drawJob, FrameSequencer::Step::Render);
