@@ -95,6 +95,20 @@ namespace hod::physics
 	}
 
 	/// @brief 
+	/// @param enabled 
+	void BodyBox2d::SetEnabled(bool enabled)
+	{
+		if (enabled)
+		{
+			b2Body_Enable(_b2BodyId);
+		}
+		else
+		{
+			b2Body_Disable(_b2BodyId);
+		}
+	}
+
+	/// @brief 
 	/// @param position 
 	/// @param rotation 
 	/// @param scale 

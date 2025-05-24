@@ -101,6 +101,12 @@ namespace hod::game
 	}
 
 	/// @brief 
+	void Rigidbody2dComponent::OnEnable()
+	{
+		_body->SetEnabled(true);
+	}
+
+	/// @brief 
 	void Rigidbody2dComponent::OnFixedUpdate()
 	{
 		Entity* entity = GetOwner();
@@ -126,6 +132,12 @@ namespace hod::game
 			_onCollisionEnterEvent.Emit(collision);
 		}
 		*/
+	}
+
+	/// @brief 
+	void Rigidbody2dComponent::OnDisable()
+	{
+		_body->SetEnabled(false);
 	}
 
 	/// @brief 

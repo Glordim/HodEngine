@@ -40,6 +40,7 @@ namespace hod::physics
 		bodyDef.enableSleep = true;
 		bodyDef.isAwake = true;
 		bodyDef.fixedRotation = true;
+		bodyDef.isEnabled = false;
 		b2BodyId bodyId = b2CreateBody(_worldId, &bodyDef);
 
 		b2MassData myMassData;

@@ -27,6 +27,7 @@ namespace hod::physics
 		Collider*			AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle) override;
 		Collider*			AddConvexShape(bool isTrigger, const std::vector<const Vector2>& vertices) override;
 
+		void				SetEnabled(bool enabled) override;
 		void				SetTransform(const Vector2& position, float angle, const Vector2& scale) override;
 
 		Vector2				GetPosition() const override;
