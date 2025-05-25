@@ -47,4 +47,12 @@ namespace hod
 	{
 
 	}
+
+	/// @brief 
+	/// @param right 
+	/// @return 
+	bool Color::operator==(const Color& right) const
+	{
+		return (r == right.r) && (g == right.g) && (b == right.b) && (a == right.a);
+	}
 }

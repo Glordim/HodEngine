@@ -18,7 +18,7 @@ namespace hod
 		}
 
 		if constexpr (std::is_abstract<_Class_>::value == true || std::is_default_constructible<_Class_>::value == false)
-		{		
+		{
 			data._allocateFunction = nullptr;
 			data._deleteFunction = nullptr;
 			data._sharedAllocateFunction = nullptr;

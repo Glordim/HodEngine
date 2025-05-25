@@ -24,6 +24,8 @@ namespace hod
 		Color(float r, float g, float b, float a);
 		Color(int32_t rgba);
 
+		bool operator==(const Color& right) const;
+
 		float& operator[](size_t index)
 		{
 			if (index == 0) return r;
