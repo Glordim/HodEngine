@@ -6,6 +6,7 @@
 
 #include <HodEngine/Physics/World.hpp>
 #include <HodEngine/Physics/Body.hpp>
+#include <HodEngine/Physics/Collider.hpp>
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
@@ -37,6 +38,7 @@ namespace hod::game
 		float rotation = 0.0f;
 
 		_body = GetWorld()->GetPhysicsWorld()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
+		_body->SetUserData(this);
 		_body->SetMoveEventCallback([this](const Vector2& position, float rotation)
 		{
 			Entity* entity = GetOwner();
@@ -52,19 +54,37 @@ namespace hod::game
 		});
 		_body->SetCollisionEnterCallback([this](const physics::Collision& collision)
 		{
-			_onCollisionEnterEvent.Emit(collision);
+			CollisionEvent collisionEvent;
+			collisionEvent._collider = static_cast<Collider2dComponent*>(collision._colliderA.GetUserData());
+			collisionEvent._other = static_cast<Collider2dComponent*>(collision._colliderB.GetUserData());
+			collisionEvent._normal = collision._normal;
+
+			_onCollisionEnterEvent.Emit(collisionEvent);
 		});
 		_body->SetCollisionExitCallback([this](const physics::Collision& collision)
 		{
-			_onCollisionExitEvent.Emit(collision);
+			CollisionEvent collisionEvent;
+			collisionEvent._collider = static_cast<Collider2dComponent*>(collision._colliderA.GetUserData());
+			collisionEvent._other = static_cast<Collider2dComponent*>(collision._colliderB.GetUserData());
+			collisionEvent._normal = collision._normal;
+
+			_onCollisionExitEvent.Emit(collisionEvent);
 		});
 		_body->SetTriggerEnterCallback([this](const physics::Collider& trigger, const physics::Collider& visitor)
 		{
-			_onTriggerEnterEvent.Emit(trigger, visitor);
+			TriggerEvent triggerEvent;
+			triggerEvent._collider = static_cast<Collider2dComponent*>(trigger.GetUserData());
+			triggerEvent._other = static_cast<Collider2dComponent*>(visitor.GetUserData());
+
+			_onTriggerEnterEvent.Emit(triggerEvent);
 		});
 		_body->SetTriggerExitCallback([this](const physics::Collider& trigger, const physics::Collider& visitor)
 		{
-			_onTriggerExitEvent.Emit(trigger, visitor);
+			TriggerEvent triggerEvent;
+			triggerEvent._collider = static_cast<Collider2dComponent*>(trigger.GetUserData());
+			triggerEvent._other = static_cast<Collider2dComponent*>(visitor.GetUserData());
+
+			_onTriggerExitEvent.Emit(triggerEvent);
 		});
 
 		SetMode(GetMode());
@@ -233,28 +253,28 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	Event<const physics::Collision&>& Rigidbody2dComponent::GetOnCollisionEnterEvent()
+	Event<const CollisionEvent&>& Rigidbody2dComponent::GetOnCollisionEnterEvent()
 	{
 		return _onCollisionEnterEvent;
 	}
 
 	/// @brief 
 	/// @return 
-	Event<const physics::Collision&>& Rigidbody2dComponent::GetOnCollisionExitEvent()
+	Event<const CollisionEvent&>& Rigidbody2dComponent::GetOnCollisionExitEvent()
 	{
 		return _onCollisionExitEvent;
 	}
 
 	/// @brief 
 	/// @return 
-	Event<const physics::Collider&, const physics::Collider&>& Rigidbody2dComponent::GetOnTriggerEnterEvent()
+	Event<const TriggerEvent&>& Rigidbody2dComponent::GetOnTriggerEnterEvent()
 	{
 		return _onTriggerEnterEvent;
 	}
 
 	/// @brief 
 	/// @return 
-	Event<const physics::Collider&, const physics::Collider&>& Rigidbody2dComponent::GetOnTriggerExitEvent()
+	Event<const TriggerEvent&>& Rigidbody2dComponent::GetOnTriggerExitEvent()
 	{
 		return _onTriggerExitEvent;
 	}

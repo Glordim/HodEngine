@@ -25,6 +25,7 @@ namespace hod::game
 
 		Vector2 scale = GetScale();
 		_collider = rigidbody->GetInternalBody()->AddEdgeShape(_isTrigger, parentOffset + _start * scale, parentOffset + _end * scale);
+		_collider->SetUserData(this);
 	}
 
 	/// @brief 

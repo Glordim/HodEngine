@@ -28,6 +28,9 @@ namespace hod::physics
 
 	public:
 
+		void				SetUserData(void* userData);
+		void*				GetUserData() const;
+
 		void				SetMoveEventCallback(std::function<void(const Vector2& position, float rotation)> callback);
 		const std::function<void(const Vector2& position, float rotation)>& GetMoveEventCallback() const;
 
@@ -76,5 +79,7 @@ namespace hod::physics
 		std::function<void(const Collision& collision)> _collisionExitCallback;
 		std::function<void(const Collider& trigger, const Collider& visitor)> _triggerEnterCallback;
 		std::function<void(const Collider& trigger, const Collider& visitor)> _triggerExitCallback;
+
+		void* _userData = nullptr;
 	};
 }

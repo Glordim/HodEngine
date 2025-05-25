@@ -17,6 +17,9 @@ namespace hod::physics
 
 	public:
 
+		void				SetUserData(void* userData);
+		void*				GetUserData() const;
+
 		virtual void		SetAsEdge(const Vector2& startPosition, const Vector2& endPosition) = 0;
 		virtual void		SetAsCircleShape(const Vector2& position, float radius) = 0;
 		virtual void		SetAsCapsuleShape(const Vector2& position, float height, float radius, float angle) = 0;
@@ -30,5 +33,6 @@ namespace hod::physics
 	private:
 
 		Body*				_body = nullptr;
+		void*				_userData = nullptr;
 	};
 }

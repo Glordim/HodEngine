@@ -18,6 +18,19 @@ namespace hod::game
 {
 	class Collider2dComponent;
 	
+	struct CollisionEvent
+	{
+		Collider2dComponent*	_collider;
+		Collider2dComponent*	_other;
+		Vector2					_normal;
+	};
+
+	struct TriggerEvent
+	{
+		Collider2dComponent*	_collider;
+		Collider2dComponent*	_other;
+	};
+
 	/// @brief 
 	class HOD_GAME_API Rigidbody2dComponent : public Component
 	{
@@ -64,11 +77,11 @@ namespace hod::game
 		void			SetVelocity(const Vector2& velocity);
 		Vector2			GetVelocity() const;
 
-		Event<const physics::Collision&>&		GetOnCollisionEnterEvent();
-		Event<const physics::Collision&>&		GetOnCollisionExitEvent();
+		Event<const CollisionEvent&>&		GetOnCollisionEnterEvent();
+		Event<const CollisionEvent&>&		GetOnCollisionExitEvent();
 
-		Event<const physics::Collider&, const physics::Collider&>&		GetOnTriggerEnterEvent();
-		Event<const physics::Collider&, const physics::Collider&>&		GetOnTriggerExitEvent();
+		Event<const TriggerEvent&>&		GetOnTriggerEnterEvent();
+		Event<const TriggerEvent&>&		GetOnTriggerExitEvent();
 
 	private:
 
@@ -77,10 +90,10 @@ namespace hod::game
 		Mode			_mode = Mode::Static;
 		float			_gravityScale = 1.0f;
 
-		Event<const physics::Collision&>	_onCollisionEnterEvent;
-		Event<const physics::Collision&>	_onCollisionExitEvent;
+		Event<const CollisionEvent&>	_onCollisionEnterEvent;
+		Event<const CollisionEvent&>	_onCollisionExitEvent;
 
-		Event<const physics::Collider&, const physics::Collider&>	_onTriggerEnterEvent;
-		Event<const physics::Collider&, const physics::Collider&>	_onTriggerExitEvent;
+		Event<const TriggerEvent&>	_onTriggerEnterEvent;
+		Event<const TriggerEvent&>	_onTriggerExitEvent;
 	};
 }

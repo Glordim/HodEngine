@@ -26,6 +26,7 @@ namespace hod::game
 
 		Vector2 scale = GetScale();
 		_collider = GetRigidbody()->GetInternalBody()->AddBoxShape(_isTrigger, parentOffset + _offset * scale, _size * scale, _rotation);
+		_collider->SetUserData(this);
 	}
 
 	/// @brief 

@@ -27,6 +27,7 @@ namespace hod::game
 
 		Vector2 scale = GetScale();
 		_collider = rigidbody->GetInternalBody()->AddCapsuleShape(_isTrigger, parentOffset + _offset * scale, _height * scale.GetY(), _radius * scale.GetX(), _rotation);
+		_collider->SetUserData(this);
 	}
 
 	/// @brief 

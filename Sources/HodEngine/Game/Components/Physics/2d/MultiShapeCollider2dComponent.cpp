@@ -41,12 +41,14 @@ namespace hod::game
 
 		for (const CircleShape& circle : _circles)
 		{
-			body->AddCircleShape(_isTrigger, parentOffset + circle._origin * scale, circle._radius * scale.GetX());
+			physics::Collider* collider = body->AddCircleShape(_isTrigger, parentOffset + circle._origin * scale, circle._radius * scale.GetX());
+			collider->SetUserData(this);
 		}
 
 		for (const BoxShape& box : _boxes)
 		{
-			body->AddBoxShape(_isTrigger, parentOffset + box._origin * scale, box._size * scale, box._angle);
+			physics::Collider* collider = body->AddBoxShape(_isTrigger, parentOffset + box._origin * scale, box._size * scale, box._angle);
+			collider->SetUserData(this);
 		}
 	}
 
@@ -81,7 +83,8 @@ namespace hod::game
 				Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
 				Vector2 scale = GetScale();
-				body->AddCircleShape(_isTrigger, parentOffset + circleShape._origin * scale, circleShape._radius * scale.GetX());
+				physics::Collider* collider = body->AddCircleShape(_isTrigger, parentOffset + circleShape._origin * scale, circleShape._radius * scale.GetX());
+				collider->SetUserData(this);
 				_circles.push_back(circleShape);
 			}
 		}
@@ -108,7 +111,8 @@ namespace hod::game
 				Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
 				Vector2 scale = GetScale();
-				body->AddBoxShape(_isTrigger, parentOffset + boxshape._origin * scale, boxshape._size * scale, boxshape._angle);
+				physics::Collider* collider = body->AddBoxShape(_isTrigger, parentOffset + boxshape._origin * scale, boxshape._size * scale, boxshape._angle);
+				collider->SetUserData(this);
 				_boxes.push_back(boxshape);
 			}
 		}

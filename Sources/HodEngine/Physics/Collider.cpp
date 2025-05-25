@@ -16,4 +16,18 @@ namespace hod::physics
 	{
 		return _body;
 	}
+
+	/// @brief 
+	/// @param userData 
+	void Collider::SetUserData(void* userData)
+	{
+		_userData = userData;
+	}
+
+	/// @brief 
+	/// @return 
+	void* Collider::GetUserData() const
+	{
+		return _userData;
+	}
 }

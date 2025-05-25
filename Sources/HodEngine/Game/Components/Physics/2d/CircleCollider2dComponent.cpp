@@ -27,6 +27,7 @@ namespace hod::game
 
 		Vector2 scale = GetScale();
 		_collider = rigidbody->GetInternalBody()->AddCircleShape(_isTrigger, parentOffset + _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
+		_collider->SetUserData(this);
 		_collider->SetBounciness(_bounciness);
 	}
 

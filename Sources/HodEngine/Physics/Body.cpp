@@ -11,6 +11,20 @@ namespace hod::physics
 			delete collider;
 		}
 	}
+	
+	/// @brief 
+	/// @param userData 
+	void Body::SetUserData(void* userData)
+	{
+		_userData = userData;
+	}
+
+	/// @brief 
+	/// @return 
+	void* Body::GetUserData() const
+	{
+		return _userData;
+	}
 
 	/// @brief 
 	/// @param callback 
