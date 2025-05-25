@@ -204,7 +204,10 @@ namespace hod::game
 		{
 			for (Component* component : entityPair.second->GetComponents())
 			{
-				component->OnUpdate(deltaTime);
+				if (component->IsEnabledInHierarchy())
+				{
+					component->OnUpdate(deltaTime);
+				}
 			}
 		}
 	}

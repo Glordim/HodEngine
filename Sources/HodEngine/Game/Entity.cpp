@@ -435,7 +435,10 @@ namespace hod::game
 
 		for (Component* component : _components)
 		{
-			component->Enable();
+			if (component->GetEnabled())
+			{
+				component->Enable();
+			}
 		}
 
 		_activeInHierarchy = true;
