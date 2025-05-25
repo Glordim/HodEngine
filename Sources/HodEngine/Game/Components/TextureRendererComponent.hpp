@@ -43,6 +43,9 @@ namespace hod::game
 
 		Rect							GetBoundingBox() const override;
 
+		void							SetColor(const Color& color);
+		const Color&					GetColor() const;
+
 	private:
 
 		void							RefreshMaterialInstance();
@@ -52,6 +55,8 @@ namespace hod::game
 		WeakResource<renderer::TextureResource>				_texture;
 		WeakResource<renderer::MaterialInstanceResource>	_material;
 		float												_pixelPerUnit = 100.0f;
+
+		Color												_color;
 		
 		renderer::MaterialInstance*							_materialInstance = nullptr;
 		renderer::MaterialInstance*							_builtinMaterialInstance = nullptr;

@@ -22,6 +22,7 @@ namespace hod::game
 		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
 		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_material, "_material", &TextureRendererComponent::SetMaterialInstanceResource);
 		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_pixelPerUnit, "_pixelPerUnit");
+		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_color, "_color", &TextureRendererComponent::SetColor);
 	}
 
 	TextureRendererComponent::TextureRendererComponent()
@@ -125,7 +126,7 @@ namespace hod::game
 
 				if (_materialInstance == nullptr)
 				{
-					const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+					const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
 					_builtinMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 					_materialInstance = _builtinMaterialInstance;
 					RefreshMaterialInstance();
@@ -158,6 +159,13 @@ namespace hod::game
 			{
 				_materialInstance->SetTexture("image", nullptr);
 			}
+
+			Vector4 vec4Color;
+			vec4Color.SetX(_color.r);
+			vec4Color.SetY(_color.g);
+			vec4Color.SetZ(_color.b);
+			vec4Color.SetW(_color.a);
+			_materialInstance->SetVec4("UBO.color", vec4Color);
 		}
 	}
 
@@ -179,5 +187,20 @@ namespace hod::game
 		bb._position = Vector2::Zero;
 		bb._size = Vector2(width, height) / _pixelPerUnit;
 		return bb;
+	}
+
+	/// @brief 
+	/// @param color 
+	void TextureRendererComponent::SetColor(const Color& color)
+	{
+		_color = color;
+		RefreshMaterialInstance();
+	}
+
+	/// @brief 
+	/// @return 
+	const Color& TextureRendererComponent::GetColor() const
+	{
+		return _color;
 	}
 }

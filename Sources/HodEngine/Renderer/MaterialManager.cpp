@@ -10,6 +10,7 @@
 
 #include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit.vert.hpp"
 #include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit.frag.hpp"
+#include "HodEngine/Renderer/Shader/TextureUnlitColor.frag.hpp"
 
 #include "HodEngine/Renderer/Shader/P2fC4f_Unlit.vert.hpp"
 #include "HodEngine/Renderer/Shader/P2fC4f_Unlit.frag.hpp"
@@ -107,6 +108,10 @@ namespace hod
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
+			static BuiltinMaterialSource P2fT2f_Texture_Unlit_Color(P2fT2f_Texture_Unlit_vert, TextureUnlitColor_frag,
+															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat) },
+															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
+
 			static BuiltinMaterialSource P2fC4f_Unlit_Fill_Triangle(P2fC4f_Unlit_vert, P2fC4f_Unlit_frag,
 								  									{ VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  									Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
@@ -130,6 +135,7 @@ namespace hod
 				&P2f_Unlit_Line_TriangleFan,
 				&P2f_Unlit_Line_LineStrip,
 				&P2fT2f_Texture_Unlit,
+				&P2fT2f_Texture_Unlit_Color,
 				&P2fC4f_Unlit_Fill_Triangle,
 				&P2fC4f_Unlit_Fill_TriangleFan,
 				&P2fC4f_Unlit_Line_TriangleFan,

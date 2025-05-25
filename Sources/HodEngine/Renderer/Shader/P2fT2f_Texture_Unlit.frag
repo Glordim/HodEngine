@@ -1,6 +1,6 @@
 struct IN
 {
-	float2 uv : TEXTCOORD;	
+	float2 uv : TEXTCOORD;
 };
 
 struct OUT

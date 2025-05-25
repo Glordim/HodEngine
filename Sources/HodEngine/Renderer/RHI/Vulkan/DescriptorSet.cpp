@@ -226,6 +226,10 @@ namespace hod::renderer
 						}
 
 						auto it = member->_childsMap.find(subMemberName);
+						if (it == member->_childsMap.end())
+						{
+							return;
+						}
 
 						member = &it->second;
 
