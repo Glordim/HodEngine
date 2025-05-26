@@ -314,7 +314,7 @@ namespace hod::game
 			bool exist = false;
 			for (const WeakEntity& child : parentLock->_children)
 			{
-				if (child.Lock() == this || child.GetInstanceId() == _instanceId)
+				if (child.Lock() == this)
 				{
 					exist = true;
 					break;

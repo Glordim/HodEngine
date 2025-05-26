@@ -143,22 +143,21 @@ namespace hod::game
 	/// @param entity 
 	void Scene::DestroyEntity(Entity* entity)
 	{
-		entity->Destruct();
-		
-		while (entity->GetChildren().empty() == false)
-		{
-			DestroyEntity(entity->GetChildren()[0].Lock());
-		}
-
-		entity->SetParent(WeakEntity(nullptr));
-
 		auto it = _entities.find(entity->GetInstanceId());
 		if (it != _entities.end())
 		{
 			_entities.erase(it);
-		}
 
-		entity->SetScene(nullptr);
+			entity->Destruct();
+		
+			while (entity->GetChildren().empty() == false)
+			{
+				DestroyEntity(entity->GetChildren()[0].Lock());
+			}
+
+			entity->SetParent(WeakEntity(nullptr));
+			entity->SetScene(nullptr);
+		}
 	}
 
 	/// @brief 

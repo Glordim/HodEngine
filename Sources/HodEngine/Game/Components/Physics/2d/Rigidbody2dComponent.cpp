@@ -22,7 +22,14 @@ namespace hod::game
 	/// @brief 
 	Rigidbody2dComponent::~Rigidbody2dComponent()
 	{
+		
+	}
+
+	/// @brief 
+	void Rigidbody2dComponent::OnDestruct()
+	{
 		GetWorld()->GetPhysicsWorld()->DeleteBody(_body);
+		_body = nullptr;
 	}
 
 	/// @brief 

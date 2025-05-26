@@ -335,6 +335,8 @@ namespace hod
 				scene->DestroyEntity(entity);
 			}
 			_persistanteScene->DestroyEntity(entity);
+
+			delete entity;
 		}
 
 		/// @brief 

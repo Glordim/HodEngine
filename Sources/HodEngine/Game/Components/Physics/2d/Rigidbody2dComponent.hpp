@@ -64,6 +64,7 @@ namespace hod::game
 		void			OnEnable() override;
 		void			OnFixedUpdate() override;
 		void			OnDisable() override;
+		void			OnDestruct() override;
 
 		physics::Body*	GetInternalBody() const;
 		Vector2			GetParentOffset(Collider2dComponent* collider) const;

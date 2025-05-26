@@ -49,8 +49,8 @@ namespace hod::game
 		void				DestroyEntity(Entity* entity);
 		Entity*				FindEntity(uint64_t entityId);
 
-		Scene*							Clone(World* newWorld);
-		void							Clear();
+		Scene*				Clone(World* newWorld);
+		void				Clear();
 
 		Entity*			Instantiate(std::shared_ptr<PrefabResource> prefabResource);
 		Entity*			Instantiate(Entity* entity);

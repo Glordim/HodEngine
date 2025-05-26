@@ -91,13 +91,14 @@ namespace hod::editor
 
 			if (selection != nullptr)
 			{
+				bool isPrefab = (selection->GetPrefabResource() != nullptr);
 				if (ImGui::MenuItem("Delete") == true)
 				{
 					world->DestroyEntity(selection);
 					GetOwner()->MarkAssetAsDirty();
 				}
 
-				if (selection->GetPrefabResource() != nullptr && ImGui::MenuItem("Unpack Prefab"))
+				if (isPrefab && ImGui::MenuItem("Unpack Prefab"))
 				{
 					selection->SetPrefabResource(nullptr);
 					GetOwner()->MarkAssetAsDirty();
