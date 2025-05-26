@@ -151,7 +151,11 @@ namespace hod::game
 				uint64_t componenId = weakComponent->GetInstanceId();
 				if (componenId != 0)
 				{
-					weakComponent->SetPointer(_contextualComponentMap[componenId]);
+					auto it = _contextualComponentMap.find(componenId);
+					if (it != _contextualComponentMap.end())
+					{
+						weakComponent->SetPointer(it->second);
+					}
 				}
 			}
 
