@@ -37,10 +37,10 @@ namespace hod
 		class HOD_GAME_API World
 		{
 		// TODO remove
-		public:																		
-																					
-			static World*		CreateInstance() { _instance = new World(); return _instance; }	
-			static World*		GetInstance() { return _instance; }							
+		public:
+
+			static World*		CreateInstance() { _instance = new World(); return _instance; }
+			static World*		GetInstance() { return _instance; }
 			static void			DestroyInstance() { delete _instance; _instance = nullptr; }
 			static World*		_instance;
 		//
@@ -113,7 +113,7 @@ namespace hod
 
 			bool						_jobInserted = false;
 
-			float						_physicsUpdateTimestep = 1.0f / 60.0f;
+			float						_physicsUpdateTimestep = 1.0f / 120.0f;
 			float						_accumulatedPhysicsTime = 0.0f;
 			physics::World*				_physicsWorld = nullptr;
 		};

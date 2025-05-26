@@ -132,7 +132,7 @@ namespace hod::input
 	/// @return 
 	bool Input::State::IsJustPressed() const
 	{
-		return (_flags & Flag::Pressed);
+		return (_flags & Flag::JustPressed);
 	}
 
 	/// @brief 
