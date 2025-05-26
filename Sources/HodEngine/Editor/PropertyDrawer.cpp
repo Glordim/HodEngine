@@ -14,7 +14,6 @@
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"

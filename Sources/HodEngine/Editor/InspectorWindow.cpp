@@ -279,7 +279,7 @@ namespace hod::editor
 						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
 
 						game::Component* sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
-						EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent);
+						EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent, this);
 
 						bool changed = false;
 						ReflectionDescriptor& reflectionDescriptor = component->GetReflectionDescriptorV();

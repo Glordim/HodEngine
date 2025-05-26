@@ -15,6 +15,8 @@
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
@@ -75,7 +77,8 @@ namespace hod::editor
 				changed = true;
 			}
 
-			for (game::Scene* scene : game::World::GetInstance()->GetScenes())
+			EntityEditorTab* entityEditorTab = editorReflectedProperty.GetParent()->GetEditorTabWindow()->GetOwner<EntityEditorTab>();
+			for (game::Scene* scene : entityEditorTab->GetWorld()->GetScenes())
 			{
 				for (const auto& entityPair : scene->GetEntities())
 				{

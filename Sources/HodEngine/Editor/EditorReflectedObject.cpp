@@ -11,24 +11,27 @@
 
 namespace hod::editor
 {
-	EditorReflectedObject::EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source)
+	EditorReflectedObject::EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)
 	: _sourceInstance(source)
 	, _instances({ instance })
 	, _reflectionDescriptor(reflectionDescriptor)
+	, _editorTabWindow(editorTabWindow)
 	{
 		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
 	}
 
-	EditorReflectedObject::EditorReflectedObject(const std::vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source)
+	EditorReflectedObject::EditorReflectedObject(const std::vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)
 	: _sourceInstance(source)
 	, _instances(instances)
 	, _reflectionDescriptor(reflectionDescriptor)
+	, _editorTabWindow(editorTabWindow)
 	{
 		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
 	}
 
 	EditorReflectedObject::EditorReflectedObject(EditorReflectedProperty& sourceProperty)
 	: _sourceProperty(&sourceProperty)
+	, _editorTabWindow(sourceProperty.GetParent()->GetEditorTabWindow())
 	{
 		_instances.reserve(sourceProperty.GetInstances().size());
 
@@ -101,6 +104,11 @@ namespace hod::editor
 	EditorReflectedProperty* EditorReflectedObject::GetSourceProperty() const
 	{
 		return _sourceProperty;
+	}
+
+	EditorTabWindow* EditorReflectedObject::GetEditorTabWindow() const
+	{
+		return _editorTabWindow;
 	}
 
 	void EditorReflectedObject::GeneratePropertiesFromReflectionDescriptor(const ReflectionDescriptor* reflectionDescriptor)

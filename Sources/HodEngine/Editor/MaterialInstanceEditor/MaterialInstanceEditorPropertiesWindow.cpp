@@ -65,7 +65,7 @@ namespace hod::editor
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			EditorReflectedObject reflectedObject(&materialInstanceAsset, &materialInstanceAsset.GetReflectionDescriptorV(), nullptr);
+			EditorReflectedObject reflectedObject(&materialInstanceAsset, &materialInstanceAsset.GetReflectionDescriptorV(), nullptr, this);
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
 
