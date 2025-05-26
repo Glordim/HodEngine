@@ -138,9 +138,8 @@ namespace hod::editor
 				if ((payload) != nullptr)
 				{
 					// todo factorize
-					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
-					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-					game::Entity* dropEntity = world->FindEntity(entityId);
+					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
+					game::Entity* dropEntity = entityDragAndDropPayload->_entity;
 					if (dropEntity != nullptr)
 					{
 						dropEntity->SetParent(entity->GetParent());
@@ -199,9 +198,8 @@ namespace hod::editor
 				payload = ImGui::AcceptDragDropPayload("EntityId");
 				if ((payload) != nullptr)
 				{
-					uint64_t entityId = *reinterpret_cast<uint64_t*>(payload->Data);
-					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-					game::Entity* dropEntity = world->FindEntity(entityId);
+					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
+					game::Entity* dropEntity = entityDragAndDropPayload->_entity;
 					if (dropEntity != nullptr)
 					{
 						dropEntity->SetParent(entity);
