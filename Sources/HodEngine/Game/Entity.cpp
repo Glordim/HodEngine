@@ -185,9 +185,18 @@ namespace hod::game
 		if (_activeInHierarchy == true)
 		{
 			component->Construct();
-			component->Awake();
+			
+			bool playing = GetScene()->GetWorld()->GetEditorPlaying();
+
+			if (playing)
+			{
+				component->Awake();
+			}
 			component->Enable();
-			component->Start();
+			if (playing)
+			{
+				component->Start();
+			}
 		}
 
 		return component;
