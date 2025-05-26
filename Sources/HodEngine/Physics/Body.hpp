@@ -62,6 +62,9 @@ namespace hod::physics
 		virtual void		SetVelocity(const Vector2& velocity) = 0;
 		virtual Vector2		GetVelocity() const = 0;
 
+		virtual void		AddForce(const Vector2& force) = 0;
+		virtual void		AddImpulse(const Vector2& impulse) = 0;
+
 		virtual void		GetCollisions(std::vector<Collision>& collisions) = 0;
 
 		virtual Type		GetType() const = 0;

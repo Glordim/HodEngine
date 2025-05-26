@@ -252,6 +252,26 @@ namespace hod::game
 	}
 
 	/// @brief 
+	/// @param force 
+	void Rigidbody2dComponent::AddForce(const Vector2& force)
+	{
+		if (_body != nullptr)
+		{
+			_body->AddForce(force);
+		}
+	}
+
+	/// @brief 
+	/// @param impulse 
+	void Rigidbody2dComponent::AddImpulse(const Vector2& impulse)
+	{
+		if (_body != nullptr)
+		{
+			_body->AddImpulse(impulse);
+		}
+	}
+
+	/// @brief 
 	/// @return 
 	Event<const CollisionEvent&>& Rigidbody2dComponent::GetOnCollisionEnterEvent()
 	{

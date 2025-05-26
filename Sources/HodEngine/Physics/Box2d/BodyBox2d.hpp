@@ -44,6 +44,9 @@ namespace hod::physics
 		void				SetVelocity(const Vector2& velocity) override;
 		Vector2				GetVelocity() const override;
 
+		void				AddForce(const Vector2& force) override;
+		void				AddImpulse(const Vector2& impulse) override;
+
 		b2BodyId			GetB2Actor() const;
 		ColliderBox2d*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;
 

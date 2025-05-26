@@ -179,6 +179,20 @@ namespace hod::physics
 	}
 
 	/// @brief 
+	/// @param force 
+	void BodyBox2d::AddForce(const Vector2& force)
+	{
+		b2Body_ApplyForceToCenter(_b2BodyId, { force.GetX(), force.GetY() }, true);
+	}
+
+	/// @brief 
+	/// @param force 
+	void BodyBox2d::AddImpulse(const Vector2& impulse)
+	{
+		b2Body_ApplyLinearImpulseToCenter(_b2BodyId, { impulse.GetX(), impulse.GetY() }, true);
+	}
+
+	/// @brief 
 	/// @return 
 	b2BodyId BodyBox2d::GetB2Actor() const
 	{

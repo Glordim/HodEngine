@@ -77,6 +77,9 @@ namespace hod::game
 		void			SetVelocity(const Vector2& velocity);
 		Vector2			GetVelocity() const;
 
+		void			AddForce(const Vector2& force);
+		void			AddImpulse(const Vector2& impulse);
+
 		Event<const CollisionEvent&>&		GetOnCollisionEnterEvent();
 		Event<const CollisionEvent&>&		GetOnCollisionExitEvent();
 
