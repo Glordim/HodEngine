@@ -40,6 +40,8 @@ EmbedTextInSource(${file}
   list(APPEND Includes ${GeneratedFileH})
 endforeach()
 
+set_source_files_properties(RHI/Metal/MetalCpp.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON) #Build SingleFileHeader lib with Implementation define separatly
+
 assign_source_group(${Srcs}) # for VS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
@@ -85,7 +87,9 @@ if(NOT APPLE)
     target_compile_definitions(Renderer PUBLIC RENDERER_ENABLE_VALIDATION_LAYER)
   endif ()
 else()
-  target_link_libraries(Renderer "-framework Metal" ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES})
+  find_library(QUARTZCORE_LIBRARY QuartzCore)
+  find_library(METAL_LIBRARY Metal)
+  target_link_libraries(Renderer ${QUARTZCORE_LIBRARY} ${METAL_LIBRARY} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES})
 endif()
 
 target_compile_definitions(Renderer PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
