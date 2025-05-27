@@ -266,7 +266,7 @@ namespace hod
 			_accumulatedPhysicsTime += deltaTime;
 			while (_accumulatedPhysicsTime >= _physicsUpdateTimestep)
 			{
-				_accumulatedPhysicsTime =- _physicsUpdateTimestep;
+				_accumulatedPhysicsTime -= _physicsUpdateTimestep;
 				for (Scene* scene : _scenes)
 				{
 					scene->FixedUpdate();

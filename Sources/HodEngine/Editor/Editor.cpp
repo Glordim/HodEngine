@@ -65,6 +65,7 @@
 #include <HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
+#include <HodEngine/Game/Components/Physics/2d/MultiShapeCollider2dComponent.hpp>
 
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 #include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"

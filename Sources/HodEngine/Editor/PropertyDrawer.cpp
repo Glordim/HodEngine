@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 #include "HodEngine/Core/Reflection/EnumDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"

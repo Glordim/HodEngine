@@ -1,6 +1,9 @@
 #include "HodEngine/Physics/Pch.hpp"
 #include "HodEngine/Physics/Box2d/WorldBox2d.hpp"
 #include "HodEngine/Physics/Box2d/BodyBox2d.hpp"
+#include "HodEngine/Physics/Box2d/DebugDrawerBox2d.hpp"
+
+#include "HodEngine/Core/Math/Math.hpp"
 
 #include <box2d/box2d.h>
 

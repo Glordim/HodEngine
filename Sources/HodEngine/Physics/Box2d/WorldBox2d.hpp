@@ -9,6 +9,8 @@
 
 namespace hod::physics
 {
+	class ColliderBox2d;
+	
 	/// @brief 
 	class HOD_PHYSICS_API WorldBox2d : public World
 	{
