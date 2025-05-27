@@ -55,6 +55,28 @@ namespace hod::physics
 
 		_bodies.push_back(body);
 
+		// UGLY TMP HACK FOR CIRCLE GAME (TODO REMOVE)
+		if (type == Body::Type::Dynamic)
+		{
+			b2BodyDef groundBodyDef = b2DefaultBodyDef();
+			groundBodyDef.type = b2_staticBody;
+			groundBodyDef.position = { 0, 0 };
+			groundBodyDef.rotation = b2MakeRot(0);
+			groundBodyDef.enableSleep = true;
+			groundBodyDef.isAwake = true;
+			groundBodyDef.fixedRotation = true;
+			groundBodyDef.isEnabled = true;
+			b2BodyId groundBodyId = b2CreateBody(_worldId, &groundBodyDef);
+
+			b2PrismaticJointDef jointDef = b2DefaultPrismaticJointDef();
+			jointDef.bodyIdA = body->GetB2Actor();
+			jointDef.bodyIdB = groundBodyId;
+			jointDef.localAxisA = b2Vec2(0.0f, 1.0f);
+
+			b2CreatePrismaticJoint(_worldId, &jointDef);
+		}
+		//
+
 		return body;
 	}
 
