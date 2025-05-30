@@ -186,7 +186,7 @@ namespace hod
 		void MetalCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset)
 		{
             // TODO primitive type from Material ?
-            _renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, _indexBuffer->GetNativeBuffer(), _indexBufferOffset, 1);
+            _renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, _indexBuffer->GetNativeBuffer(), indexOffset * sizeof(uint16_t) + _indexBufferOffset, 1);
 		}
 
 		/// @brief 
