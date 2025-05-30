@@ -136,6 +136,11 @@ namespace hod
 					_textureImageMemory = VK_NULL_HANDLE;
 				}
 			}
+			else
+			{
+				_width = width;
+				_height = height;
+			}
 
 			return ret;
 		}
