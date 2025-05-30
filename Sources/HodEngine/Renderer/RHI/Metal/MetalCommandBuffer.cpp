@@ -13,6 +13,7 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalDrawable.hpp"
 
 #include <cstring>
+#include <algorithm>
 
 namespace hod
 {
@@ -61,6 +62,9 @@ namespace hod
 			renderPassDescriptor->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(color.r, color.g, color.b, color.a));
 			
 			_renderCommandEncoder = _commandBuffer->renderCommandEncoder(renderPassDescriptor);
+            
+            _renderPassWidth = (uint32_t)drawableTexture->width();
+            _renderPassHeight = (uint32_t)drawableTexture->height();
 
 			return true;
 		}
@@ -136,10 +140,10 @@ namespace hod
 		void MetalCommandBuffer::SetScissor(const Rect& scissor)
 		{
             MTL::ScissorRect scissorRect;
-            scissorRect.x = scissor._position.GetX();
-            scissorRect.y = scissor._position.GetY();
-            scissorRect.width = scissor._size.GetX();
-            scissorRect.height = scissor._size.GetY();
+            scissorRect.x = std::clamp((uint32_t)scissor._position.GetX(), 0u, _renderPassWidth);
+            scissorRect.y = std::clamp((uint32_t)scissor._position.GetY(), 0u, _renderPassHeight);
+            scissorRect.width = std::clamp((uint32_t)scissor._size.GetX(), 0u, _renderPassWidth - (uint32_t)scissorRect.x);
+            scissorRect.height = std::clamp((uint32_t)scissor._size.GetY(), 0u, _renderPassHeight - (uint32_t)scissorRect.y);
             _renderCommandEncoder->setScissorRect(scissorRect);
 		}
 

@@ -64,6 +64,8 @@ namespace hod
 			MTL::RenderCommandEncoder*	_renderCommandEncoder = nullptr;
             MetalBuffer* _indexBuffer = nullptr;
             uint32_t _indexBufferOffset = 0;
+            uint32_t _renderPassWidth = 0;
+            uint32_t _renderPassHeight = 0;
 		};
 	}
 }
