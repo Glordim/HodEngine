@@ -30,6 +30,8 @@ namespace hod
 		/// @brief 
 		MetalCommandBuffer::~MetalCommandBuffer()
 		{
+            if (_renderCommandEncoder)
+                _renderCommandEncoder->release();
 			_commandBuffer->release();
 		}
 
@@ -62,6 +64,7 @@ namespace hod
 			renderPassDescriptor->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(color.r, color.g, color.b, color.a));
 			
 			_renderCommandEncoder = _commandBuffer->renderCommandEncoder(renderPassDescriptor);
+            renderPassDescriptor->release();
             
             _renderPassWidth = (uint32_t)drawableTexture->width();
             _renderPassHeight = (uint32_t)drawableTexture->height();

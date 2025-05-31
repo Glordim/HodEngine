@@ -20,7 +20,7 @@ namespace hod
 		public:
 
 									MetalMaterial();
-			virtual					~MetalMaterial();
+                                    ~MetalMaterial() override;
 
 			bool			        Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
             
@@ -28,7 +28,7 @@ namespace hod
             
         private:
             
-            MTL::RenderPipelineState*    _renderPipelineState = nullptr;
+            MTL::RenderPipelineState*   _renderPipelineState = nullptr;
 		};
 	}
 }

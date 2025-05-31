@@ -39,6 +39,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		MetalMaterial::~MetalMaterial()
 		{
+            _renderPipelineState->release();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -125,6 +126,7 @@ namespace hod
             RendererMetal* rendererMetal = RendererMetal::GetInstance();
             _renderPipelineState = rendererMetal->GetDevice()->newRenderPipelineState(pipelineDescriptor, &pipelineError);
             pipelineDescriptor->release();
+            vertexDescriptor->release();
             if (_renderPipelineState == nullptr)
             {
                 std::cerr << "Failed to create render pipeline state: " << pipelineError->localizedDescription()->utf8String() << std::endl; // TODO Output
