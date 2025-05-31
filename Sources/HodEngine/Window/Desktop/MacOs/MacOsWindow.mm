@@ -73,6 +73,7 @@ namespace hod::window
 
         [_window setDelegate:_delegate];
 		[_window setTitle:@"Window"];
+        [_window makeKeyAndOrderFront:(nil)];
 
         CustomView *customView = [[CustomView alloc] initWithFrame:frame];
 		_view = customView;
@@ -82,6 +83,10 @@ namespace hod::window
 		[_window setContentView:customView];
 
 		SetVisible(!hidden);
+        
+        [NSApplication sharedApplication];
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+        [NSApp activateIgnoringOtherApps:YES];
 	}
 
 	/// @brief 
