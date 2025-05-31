@@ -13,6 +13,7 @@ namespace hod
     /// @brief 
     MemoryManagerLeakDetector::~MemoryManagerLeakDetector()
 	{
+        _spinLock.Lock();
 		if (_allocationCount > 0)
 		{
 			uint32_t size = 0;
@@ -36,13 +37,20 @@ namespace hod
 
 				for (uint32_t index = 0; index < allocation->_callstackSize; ++index)
 				{
-					fprintf(memleakReport, "\t%s\n", OS::GetSymbol(allocation->_callstack[index]).c_str());
+					char symbol[512];
+					OS::GetSymbol(allocation->_callstack[index], symbol, sizeof(symbol));
+					fprintf(memleakReport, "\t%s\n", symbol);
 				}
 
 				fprintf(memleakReport, "\n\n");
 			}
 			fclose(memleakReport);
+            
+            _spinLock.Unlock();
+            OS::OpenFileWithDefaultApp("MemleakReport.txt");
+            return;
 		}
+        _spinLock.Unlock();
 	}
 
     /// @brief 

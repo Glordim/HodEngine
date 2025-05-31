@@ -74,6 +74,7 @@ namespace hod
 			{
 				symbol = symbols[0];
 			}
+			free(symbols);
         }
 		
 		return symbol;

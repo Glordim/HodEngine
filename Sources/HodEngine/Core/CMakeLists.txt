@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
-project(Core)
+if (APPLE)
+    project(Core LANGUAGES CXX OBJCXX)
+else()
+    project(Core LANGUAGES CXX)
+endif()
 
 if (ANDROID)
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES FileSystemWatcher)
@@ -24,6 +28,10 @@ if(APPLE)
 	find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 endif()
 
+if (APPLE)
+    find_library(COCOA_LIBRARY Cocoa)
+endif()
+
 if(ANDROID)
 find_library(android-lib android)
 target_link_libraries(Core ${android-lib} log)
@@ -37,6 +45,6 @@ if(PLATFORM_LINUX)
 	target_link_libraries(Core uuid)
 endif()
 
-target_link_libraries(Core ${COREFOUNDATION_LIBRARY} ${DebugLib})
+target_link_libraries(Core ${COREFOUNDATION_LIBRARY} ${COCOA_LIBRARY} ${DebugLib})
 target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)

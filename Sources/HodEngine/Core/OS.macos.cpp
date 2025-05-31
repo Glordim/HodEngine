@@ -5,6 +5,7 @@
 #include <execinfo.h>
 
 #include <cassert>
+#include <cstring>
 
 namespace hod
 {
@@ -33,6 +34,30 @@ namespace hod
 		else
 		{
 			symbol = symbols[0];
+			free(symbols);
+		}
+		
+		return symbol;
+	}
+
+	/// @brief 
+	/// @param addr 
+	/// @param symbol 
+	/// @param size 
+	/// @return 
+	bool OS::GetSymbol(void* addr, char* symbol, uint32_t size)
+	{
+		char** symbols = backtrace_symbols(&addr, 1);
+		if (symbols == nullptr)
+		{
+			perror("backtrace_symbols");
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			std::strncpy(symbol, symbols[0], size);
+			symbol[512 - 1] = '\0';
+			free(symbols);
 		}
 		
 		return symbol;
