@@ -3,6 +3,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <execinfo.h>
+#include <cxxabi.h>
 
 #include <cassert>
 #include <cstring>
@@ -55,8 +56,48 @@ namespace hod
 		}
 		else
 		{
-			std::strncpy(symbol, symbols[0], size);
-			symbol[512 - 1] = '\0';
+			// example : 0   libWindow.dylib                     0x00000001000bbda4 _ZN3hod6window11MacOsWindowC2Eb + 376
+
+			const char* it = symbols[0];
+			while (*it != '\0')
+				++it;
+
+			const char* mangledEnd = it;
+			while (*it != '+' && it != symbols[0])
+				--it;
+
+			if (*it == '+')
+			{
+				mangledEnd = it - 2;
+			}
+
+			const char* mangledStart = symbols[0];
+			it = mangledEnd;
+			while (*it != ' ' && it != symbols[0])
+				--it;
+
+			if (*it == ' ')
+			{
+				mangledStart = it + 1;
+			}
+
+			char mangledSymbol[512];
+			std::strncpy(mangledSymbol, mangledStart, (mangledEnd - mangledStart) + 1);
+			mangledSymbol[(mangledEnd - mangledStart) + 1] = '\0';
+
+			int status;
+			char* demangledSymbol = abi::__cxa_demangle(mangledSymbol, nullptr, nullptr, &status);
+			if (status == 0)
+			{
+				std::strncpy(symbol, demangledSymbol, size);
+				symbol[512 - 1] = '\0';
+				free(demangledSymbol);
+			}
+			else
+			{
+				std::strncpy(symbol, symbols[0], size);
+				symbol[512 - 1] = '\0';
+			}
 			free(symbols);
 		}
 		
