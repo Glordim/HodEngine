@@ -46,7 +46,7 @@ namespace hod
 	/// @param symbol 
 	/// @param size 
 	/// @return 
-	bool OS::GetSymbol(void* addr, char* symbol, uint32_t size)
+	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo)
 	{
 		char** symbols = backtrace_symbols(&addr, 1);
 		if (symbols == nullptr)

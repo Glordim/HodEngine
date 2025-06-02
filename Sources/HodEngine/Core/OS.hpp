@@ -5,13 +5,21 @@
 
 namespace hod
 {
+	struct SymbolInfo
+	{
+		std::string _module;
+		std::string _function;
+		uint64_t	_address;
+		uint32_t	_line;
+	};
+
 	class HOD_CORE_API OS
 	{
 	public:
 
 		static uint32_t		GetCallstack(void** callstack, uint32_t maxSize); // todo span ?
 		static std::string	GetSymbol(void* addr);
-		static bool			GetSymbol(void* addr, char* symbol, uint32_t size);
+		static bool			GetSymbolInfo(void* addr, SymbolInfo& symbolInfo);
 
 		static void			OpenFileWithDefaultApp(const char* filePath);
 
