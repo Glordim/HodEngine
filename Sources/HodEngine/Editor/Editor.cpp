@@ -112,6 +112,7 @@ namespace hod::editor
 		Project::DestroyInstance();
 		AssetDatabase::DestroyInstance();
 
+		delete _hodTexture;
 		delete _folderTexture;
 		delete _folderOpenTexture;
 		delete _sceneTexture;
