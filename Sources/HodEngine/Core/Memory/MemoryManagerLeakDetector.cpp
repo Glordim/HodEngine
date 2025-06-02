@@ -1,6 +1,8 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Memory/MemoryManagerLeakDetector.hpp"
 #include "HodEngine/Core/OS.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #if defined(HOD_ENABLED_MEMLEAK_DETECTOR)
 
@@ -8,151 +10,178 @@
 #include <cstring>
 #include <cassert>
 
+#include "shellapi.h"
+
 namespace hod
 {
-    /// @brief 
-    MemoryManagerLeakDetector::~MemoryManagerLeakDetector()
+	/// @brief 
+	MemoryManagerLeakDetector::~MemoryManagerLeakDetector()
 	{
-        _spinLock.Lock();
-		if (_allocationCount > 0)
+		_spinLock.Lock();
+		_stopAllocationCollect = true;
+		if (_firstAlloc != nullptr)
 		{
-			uint32_t size = 0;
-			for (uint32_t index = 0; index < _allocationCount; ++index)
+			SymbolInfo symbolInfo;
+			symbolInfo._function.reserve(2048);
+			symbolInfo._module.reserve(2048);
+
+			uint32_t totalLeak = 0;
+			uint64_t totalSize = 0;
+			AllocationHeader* it = _firstAlloc;
+			while (it != nullptr)
 			{
-				const Allocation* allocation = _allocations[index];
-				size += allocation->_size;
+				++totalLeak;
+				totalSize += it->_size;
+				it = it->_next;
 			}
 
-			FILE* memleakReport = fopen("MemleakReport.txt", "w");
-			fprintf(memleakReport, "Memleak count = %u\n", _allocationCount);
-			fprintf(memleakReport, "Size = %u\n\n", size);
-
-			for (uint32_t index = 0; index < _allocationCount; ++index)
+			std::filesystem::path memleakReportPath = FileSystem::GetTemporaryPath() / "MemleakReport.txt";
+			FILE* memleakReport = fopen(memleakReportPath.string().c_str(), "w");
+			if (memleakReport == NULL)
 			{
-				const Allocation* allocation = _allocations[index];
+				OUTPUT_ERROR("MemoryManagerLeakDetector: Fail to open MemleakReport.txt : {}", OS::GetLastWin32ErrorMessage());
+			}
+			else
+			{
+				fprintf(memleakReport, "Leak = %u\n", totalLeak);
+				fprintf(memleakReport, "Size = %ju\n\n", totalSize);
 
-				fprintf(memleakReport, "Ptr = %p\n", allocation->_userAddress);
-				fprintf(memleakReport, "Size = %u\n", allocation->_size);
-				fprintf(memleakReport, "Callstack :\n");
-
-				for (uint32_t index = 0; index < allocation->_callstackSize; ++index)
+				it = _firstAlloc;
+				while (it != nullptr)
 				{
-					char symbol[512];
-					OS::GetSymbol(allocation->_callstack[index], symbol, sizeof(symbol));
-					fprintf(memleakReport, "\t%s\n", symbol);
+					//fprintf(memleakReport, "Ptr = %p\n", it->_userAddress);
+					fprintf(memleakReport, "Size = %u\n", it->_size);
+					fprintf(memleakReport, "Callstack :\n");
+
+					for (uint32_t index = 0; index < it->_callstackSize; ++index)
+					{
+						OS::GetSymbolInfo(it->_callstack[index], symbolInfo, true);
+						fprintf(memleakReport, "\t%s\n", symbolInfo._function.c_str());
+					}
+
+					fprintf(memleakReport, "\n\n");
+
+					it = it->_next;
 				}
 
-				fprintf(memleakReport, "\n\n");
+				fclose(memleakReport);
+
+				OS::OpenFileWithDefaultApp(memleakReportPath.string().c_str());
 			}
-			fclose(memleakReport);
-            
-            _spinLock.Unlock();
-            OS::OpenFileWithDefaultApp("MemleakReport.txt");
-            return;
 		}
-        _spinLock.Unlock();
+		_spinLock.Unlock();
 	}
 
-    /// @brief 
-    /// @param size 
-    /// @return 
-    void* MemoryManagerLeakDetector::Allocate(uint32_t size)
-    {
-		void* realAddress = malloc(size + sizeof(Allocation));
-		void* userAddress = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(realAddress) + sizeof(Allocation));
-		InsertAllocation(userAddress, size, realAddress);
-        return userAddress;
-    }
+	/// @brief 
+	/// @param size 
+	/// @return 
+	void* MemoryManagerLeakDetector::Allocate(uint32_t size)
+	{
+		return AllocateAlign(size, 0);
+	}
 
-    /// @brief 
-    /// @param userAddress 
-    void MemoryManagerLeakDetector::Free(void* userAddress)
-    {
+	/// @brief 
+	/// @param size 
+	/// @param alignment 
+	/// @return 
+	void* MemoryManagerLeakDetector::AllocateAlign(uint32_t size, uint32_t alignment)
+	{
+		if (alignment == 0 || std::has_single_bit(alignment) == false) // check if pow2
+		{
+			alignment = alignof(std::max_align_t);
+		}
+
+		uint32_t maxPadding  = 0;
+		if (alignment > 0)
+		{
+			maxPadding  = alignment - 1;
+		}
+		
+		// [ AllocationHeader ][ padding ][ pointer to header ][ aligned user ptr ]
+		void* allocation = malloc(sizeof(AllocationHeader) + maxPadding  + sizeof(AllocationHeader*) + size);
+		if (allocation == nullptr)
+		{
+			return nullptr;
+		}
+
+		AllocationHeader* allocationHeader = static_cast<AllocationHeader*>(allocation);
+		allocationHeader->_callstackSize = OS::GetCallstack(allocationHeader->_callstack.data(), (uint32_t)allocationHeader->_callstack.size());
+		allocationHeader->_size = size;
+		allocationHeader->_next = nullptr;
+		if (_stopAllocationCollect == false)
+		{
+			_spinLock.Lock();
+			allocationHeader->_prev = _lastAlloc;
+			if (_firstAlloc == nullptr)
+			{
+				_firstAlloc = allocationHeader;
+			}
+			else if (_lastAlloc != nullptr)
+			{
+				_lastAlloc->_next = allocationHeader;
+			}
+			_lastAlloc = allocationHeader;
+			_spinLock.Unlock();
+		}
+
+		uintptr_t rawAddr = reinterpret_cast<uintptr_t>(allocation) + sizeof(AllocationHeader) + sizeof(AllocationHeader*);
+		uintptr_t alignedAddr = (rawAddr + alignment - 1) & ~(static_cast<uintptr_t>(alignment) - 1);
+
+		AllocationHeader** pointerToHeader = reinterpret_cast<AllocationHeader**>(alignedAddr - sizeof(AllocationHeader*));
+		*pointerToHeader = allocationHeader;
+
+		void* alignedPtr = reinterpret_cast<void*>(alignedAddr);
+		std::memset(alignedPtr, 0xA1, size);
+		return alignedPtr;
+	}
+
+	/// @brief 
+	/// @param userAddress 
+	void MemoryManagerLeakDetector::Free(void* userAddress)
+	{
 		if (userAddress == nullptr)
 		{
 			return;
 		}
 
-		void* realAddress = RemoveAllocation(userAddress);
-		free(realAddress);
-    }
+		AllocationHeader* allocationHeader = *reinterpret_cast<AllocationHeader**>((reinterpret_cast<uintptr_t>(userAddress) - sizeof(AllocationHeader*)));
+		if (_stopAllocationCollect == false)
+		{
+			_spinLock.Lock();
+			if (allocationHeader->_next != nullptr)
+			{
+				allocationHeader->_next->_prev = allocationHeader->_prev;
+			}
+			if (allocationHeader->_prev != nullptr)
+			{
+				allocationHeader->_prev->_next = allocationHeader->_next;
+			}
+			if (_firstAlloc == allocationHeader)
+			{
+				_firstAlloc = allocationHeader->_next;
+			}
+			if (_lastAlloc == allocationHeader)
+			{
+				_lastAlloc = allocationHeader->_prev;
+			}
+			_spinLock.Unlock();
+		}
+
+		std::memset(userAddress, 0xDE, allocationHeader->_size);
+		free(allocationHeader);
+	}
 
 	/// @brief 
-    /// @param size 
-    /// @param alignment 
-    /// @return 
-    void* MemoryManagerLeakDetector::AllocateAlign(uint32_t size, uint32_t alignment)
-    {
-		void* realAddress = malloc(size + alignment - 1 + sizeof(Allocation));
-
-		uintptr_t alignedAddressUInt = reinterpret_cast<uintptr_t>(realAddress) + sizeof(Allocation);
-		alignedAddressUInt = (alignedAddressUInt + alignment - 1) & ~((uintptr_t)alignment - 1);
-
-		void* alignedAddress = reinterpret_cast<void*>(alignedAddressUInt);
-		assert(reinterpret_cast<uintptr_t>(alignedAddress) % alignment == 0);
-
-		InsertAllocation(alignedAddress, size, realAddress);
-		return alignedAddress;
-    }
-
-	/// @brief 
-    /// @param ptr 
-    void MemoryManagerLeakDetector::FreeAlign(void* ptr, uint32_t alignment)
-    {
+	/// @param ptr 
+	void MemoryManagerLeakDetector::FreeAlign(void* ptr, uint32_t alignment)
+	{
 		if (ptr == nullptr)
 		{
 			return;
 		}
 		
-		void* realAddress = RemoveAllocation(ptr);
-		free(realAddress);
-    }
-
-	/// @brief 
-	/// @param userAddress 
-	/// @param size 
-	/// @param address 
-	void MemoryManagerLeakDetector::InsertAllocation(void* userAddress, uint32_t size, void* address)
-	{
-		uint32_t reservedSize = (uint32_t)(reinterpret_cast<uintptr_t>(userAddress) - reinterpret_cast<uintptr_t>(address));
-		std::memset(address, 0xCE, reservedSize);
-		std::memset(userAddress, 0xA1, size);
-
-		Allocation* allocation = reinterpret_cast<Allocation*>(reinterpret_cast<uintptr_t>(userAddress) - sizeof(Allocation));
-        allocation->_callstackSize = OS::GetCallstack(allocation->_callstack.data(), (uint32_t)allocation->_callstack.size());
-        allocation->_size = size;
-        allocation->_realAddress = address;
-		allocation->_userAddress = userAddress;
-
-		_spinLock.Lock();
-		allocation->_index = _allocationCount;
-        _allocations[_allocationCount] = allocation;
-		++_allocationCount;
-		_spinLock.Unlock();
-	}
-
-    /// @brief 
-    /// @param userAddress 
-    /// @return 
-    void* MemoryManagerLeakDetector::RemoveAllocation(void* userAddress)
-	{
-		void* allocationAddress = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(userAddress) - sizeof(Allocation));
-		Allocation* allocation = static_cast<Allocation*>(allocationAddress);
-		assert(allocation->_userAddress == userAddress);
-
-		_spinLock.Lock();
-		if (allocation->_index != _allocationCount - 1)
-		{
-			assert(allocation->_index < _allocationCount);
-			_allocations[_allocationCount - 1]->_index = allocation->_index;
-			std::swap(_allocations[allocation->_index], _allocations[_allocationCount - 1]);
-		}
-		_allocations[_allocationCount - 1] = nullptr;
-		--_allocationCount;
-		_spinLock.Unlock();
-
-		std::memset(userAddress, 0xDE, allocation->_size);
-		return allocation->_realAddress;
+		(void)alignment;
+		Free(ptr);
 	}
 }
 

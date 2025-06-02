@@ -12,47 +12,44 @@
 
 namespace hod
 {
-    class HOD_CORE_API MemoryManagerLeakDetector
-    {
-    public:
+	class HOD_CORE_API MemoryManagerLeakDetector
+	{
+	public:
 
-        static MemoryManagerLeakDetector _instance;
-        static MemoryManagerLeakDetector* GetInstance() { return &_instance; }
+		static MemoryManagerLeakDetector _instance;
+		static MemoryManagerLeakDetector* GetInstance() { return &_instance; }
 
-    public:
+	public:
 
-        struct Allocation
-        {
-            void* _realAddress = nullptr;
-            void* _userAddress = nullptr;
-            uint32_t _size = 0;
-            uint32_t _index = 0;
+		struct AllocationHeader
+		{
+			AllocationHeader*	_next = nullptr;
+			AllocationHeader*	_prev = nullptr;
+			uint32_t			_size = 0;
 
-            std::array<void*, 64> _callstack;
-            uint32_t _callstackSize = 0;
-        };
+			std::array<void*, 64> _callstack;
+			uint32_t _callstackSize = 0;
+		};
 
-    public:
+	public:
 
-        ~MemoryManagerLeakDetector();
+		~MemoryManagerLeakDetector();
 
-        void*    Allocate(uint32_t size);
-        void     Free(void* ptr);
+		void*       Allocate(uint32_t size);
+		void*       AllocateAlign(uint32_t size, uint32_t alignment);
 
-        void*    AllocateAlign(uint32_t size, uint32_t alignment);
-        void     FreeAlign(void* ptr, uint32_t alignment);
+		void        Free(void* ptr);
+		void        FreeAlign(void* ptr, uint32_t alignment);
 
-    private:
+	private:
 
-        void        InsertAllocation(void* userAddress, uint32_t size, void* address);
-        void*       RemoveAllocation(void* userAddress);
+		SpinLock _spinLock;
+		bool	 _stopAllocationCollect = false;
+		uint32_t _allocationCount = 0;
 
-    private:
-
-        SpinLock _spinLock;
-        std::array<Allocation*, 1024 * 32> _allocations; // todo boost or use vector with custom allocator
-        uint32_t _allocationCount = 0;
-    };
+		AllocationHeader*	_firstAlloc = nullptr;
+		AllocationHeader*	_lastAlloc = nullptr;
+	};
 }
 
 #endif
