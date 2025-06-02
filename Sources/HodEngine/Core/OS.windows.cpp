@@ -6,6 +6,8 @@
 #include <Windows.h>
 #include <DbgHelp.h>
 
+#include <filesystem>
+
 namespace hod
 {
 	/// @brief 
@@ -83,7 +85,8 @@ namespace hod
 		win32SymbolInfo->MaxNameLen = maxFunctionNameSize;
 		win32SymbolInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
 
-		if (SymFromAddr(hProcess, reinterpret_cast<DWORD64>(addr), 0, win32SymbolInfo) == FALSE)
+		DWORD64 displacement = 0;
+		if (SymFromAddr(hProcess, reinterpret_cast<DWORD64>(addr), &displacement, win32SymbolInfo) == FALSE)
 		{
 			return false;
 		}
@@ -104,11 +107,13 @@ namespace hod
 		}
 		else
 		{
-			symbolInfo._module = moduleInfo.ImageName;
+			std::filesystem::path modulePath(moduleInfo.ImageName);
+			symbolInfo._module = modulePath.filename().string();
 		}
 
 		symbolInfo._address = win32SymbolInfo->Address;
 		symbolInfo._function = win32SymbolInfo->Name;
+		symbolInfo._line = static_cast<uint32_t>(displacement);
 
 		if (demangle)
 		{

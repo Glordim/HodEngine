@@ -10,8 +10,6 @@
 #include <cstring>
 #include <cassert>
 
-#include "shellapi.h"
-
 namespace hod
 {
 	/// @brief 
@@ -56,7 +54,7 @@ namespace hod
 					for (uint32_t index = 0; index < it->_callstackSize; ++index)
 					{
 						OS::GetSymbolInfo(it->_callstack[index], symbolInfo, true);
-						fprintf(memleakReport, "\t%s\n", symbolInfo._function.c_str());
+						fprintf(memleakReport, "\t%-*s %s + %u\n", 24, symbolInfo._module.c_str(), symbolInfo._function.c_str(), symbolInfo._line);
 					}
 
 					fprintf(memleakReport, "\n\n");
