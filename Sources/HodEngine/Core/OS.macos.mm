@@ -6,7 +6,7 @@
 
 namespace hod
 {
-	void OS::OpenFileWithDefaultApp(const char* filePath)
+	bool OS::OpenFileWithDefaultApp(const char* filePath)
 	{
 		@autoreleasepool
 		{
@@ -14,5 +14,6 @@ namespace hod
 			NSURL* fileURL = [NSURL fileURLWithPath:nsPath];
 			[[NSWorkspace sharedWorkspace] openURL:fileURL];
 		}
+		return true;
 	}
 }

@@ -19,9 +19,9 @@ namespace hod
 
 		static uint32_t		GetCallstack(void** callstack, uint32_t maxSize); // todo span ?
 		static std::string	GetSymbol(void* addr);
-		static bool			GetSymbolInfo(void* addr, SymbolInfo& symbolInfo);
+		static bool			GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle);
 
-		static void			OpenFileWithDefaultApp(const char* filePath);
+		static bool			OpenFileWithDefaultApp(const char* filePath);
 
 #if defined(PLATFORM_WINDOWS)
 		static std::string GetLastWin32ErrorMessage();

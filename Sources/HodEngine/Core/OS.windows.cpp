@@ -58,6 +58,67 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @param addr 
+	/// @param symbolInfo 
+	/// @param demangle 
+	/// @return 
+	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
+	{
+		HANDLE hProcess = GetCurrentProcess();
+		
+		static bool symInitialized = false;
+		if (symInitialized == false)
+		{
+			if (SymInitialize(hProcess, NULL, TRUE) == FALSE)
+			{
+				OUTPUT_ERROR("SymInitialize error : {}", OS::GetLastWin32ErrorMessage());
+				return false;
+			}
+			symInitialized = true;
+		}
+
+		constexpr uint32_t maxFunctionNameSize = 1024;
+		uint8_t data[sizeof(SYMBOL_INFO) + maxFunctionNameSize];
+		PSYMBOL_INFO win32SymbolInfo = reinterpret_cast<PSYMBOL_INFO>(data);
+		win32SymbolInfo->MaxNameLen = maxFunctionNameSize;
+		win32SymbolInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+		if (SymFromAddr(hProcess, reinterpret_cast<DWORD64>(addr), 0, win32SymbolInfo) == FALSE)
+		{
+			return false;
+		}
+
+		if (win32SymbolInfo->NameLen >= win32SymbolInfo->MaxNameLen)
+		{
+			win32SymbolInfo->Name[win32SymbolInfo->NameLen - 1] = '\0';
+		}
+
+		IMAGEHLP_MODULE64 moduleInfo;
+		memset(&moduleInfo, 0, sizeof(moduleInfo));
+		moduleInfo.SizeOfStruct = sizeof(moduleInfo);
+
+		if (SymGetModuleInfo64(hProcess, win32SymbolInfo->ModBase, &moduleInfo) == FALSE)
+		{
+			OUTPUT_ERROR("SymGetModuleInfo64 error : {}", OS::GetLastWin32ErrorMessage());
+			return false;
+		}
+		else
+		{
+			symbolInfo._module = moduleInfo.ImageName;
+		}
+
+		symbolInfo._address = win32SymbolInfo->Address;
+		symbolInfo._function = win32SymbolInfo->Name;
+
+		if (demangle)
+		{
+
+		}
+
+		return true;
+	}
+
+	/// @brief 
 	/// @return 
 	std::string OS::GetLastWin32ErrorMessage()
 	{
@@ -79,5 +140,18 @@ namespace hod
 		::LocalFree(lpMsgBuf);
 
 		return message;
+	}
+
+	/// @brief 
+	/// @param filePath 
+	bool OS::OpenFileWithDefaultApp(const char* filePath)
+	{
+		HINSTANCE result = ShellExecute(NULL, "open", filePath, NULL, NULL, SW_SHOWNORMAL);
+		if ((INT_PTR)result <= 32)
+		{
+			OUTPUT_ERROR("OS::OpenFileWithDefaultApp: ShellExecute open {} fail ({})", filePath, OS::GetLastWin32ErrorMessage());
+			return false;
+		}
+		return true;
 	}
 }
