@@ -23,6 +23,7 @@ namespace hod::editor
 
 			MetaType metaType = documentNode.GetChild("Type")->GetUInt64();
 			ReflectionDescriptor* reflectionDescriptor = game::SerializedDataFactory::GetInstance()->FindReflectionDescriptor(metaType);
+			delete serializedDataAsset->_data;
 			serializedDataAsset->_data = static_cast<game::SerializedData*>(reflectionDescriptor->CreateInstance());
 			Serializer::Deserialize(*static_cast<game::SerializedData*>(serializedDataAsset->_data), *documentNode.GetChild("Data"));
 		});
@@ -32,6 +33,11 @@ namespace hod::editor
 	: _data(serializedData)
 	{
 		
+	}
+
+	SerializedDataAsset::~SerializedDataAsset()
+	{
+		delete _data;
 	}
 
 	/// @brief 
