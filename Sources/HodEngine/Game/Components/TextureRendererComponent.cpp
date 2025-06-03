@@ -34,6 +34,7 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	TextureRendererComponent::~TextureRendererComponent()
 	{
+		delete _builtinMaterialInstance;
 	}
 
 	/// @brief 
