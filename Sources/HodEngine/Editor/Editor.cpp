@@ -106,6 +106,12 @@ namespace hod::editor
 	/// @brief 
 	Editor::~Editor()
 	{
+		for (EditorTab* editorTab : _editorTabs)
+		{
+			delete editorTab;
+		}
+		_editorTabs.clear();
+
 		delete _floatingAssetBrowserWindow;
 		imgui::ImGuiManager::GetInstance()->DestroyAllWindow();
 
