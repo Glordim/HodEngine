@@ -23,9 +23,9 @@ namespace hod::game
 
 		_prefab = new Prefab();
 		bool result = _prefab->DeserializeFromDocument(documentNode);
-		if (result)
+		if (result == false)
 		{
-			_prefab->GetRootEntity()->SetPrefabResource(std::static_pointer_cast<PrefabResource>(shared_from_this()));
+			delete _prefab;
 		}
 		return result;
 	}

@@ -29,6 +29,15 @@ namespace hod::game
 	}
 
 	/// @brief 
+	Prefab::~Prefab()
+	{
+		for (const auto& entityPair : _entities)
+		{
+			delete entityPair.second;
+		}
+	}
+
+	/// @brief 
 	/// @param name 
 	void Prefab::SetName(const std::string_view& name)
 	{

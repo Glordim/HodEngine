@@ -22,7 +22,7 @@ namespace hod::game
 						Prefab(const UID& uid);
 						Prefab(const Prefab&) = delete;
 						Prefab(Prefab&&) = delete;
-		virtual			~Prefab() = default;
+		virtual			~Prefab();
 
 		Prefab&			operator=(const Prefab&) = delete;
 		Prefab&			operator=(Prefab&&) = delete;

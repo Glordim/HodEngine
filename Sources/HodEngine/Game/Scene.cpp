@@ -45,6 +45,14 @@ namespace hod::game
 		_world = nullptr;//World::GetInstance(); // TODO MultiWorld support
 	}
 
+	Scene::~Scene()
+	{
+		for (const auto& entityPair : _entities)
+		{
+			delete entityPair.second;
+		}
+	}
+
 	/// @brief 
 	/// @param name 
 	void Scene::SetName(const std::string_view& name)

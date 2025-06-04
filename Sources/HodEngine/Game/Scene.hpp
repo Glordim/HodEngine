@@ -32,7 +32,7 @@ namespace hod::game
 						Scene();
 						Scene(const Scene&) = delete;
 						Scene(Scene&&) = delete;
-		virtual			~Scene() = default;
+		virtual			~Scene();
 
 		Scene&			operator=(const Scene&) = delete;
 		Scene&			operator=(Scene&&) = delete;
@@ -72,7 +72,7 @@ namespace hod::game
 	private:
 
 		std::string												_name;
-		std::unordered_map<uint64_t, Entity*>	_entities;
+		std::unordered_map<uint64_t, Entity*>					_entities;
 		uint64_t												_nextLocalId = 1;
 		World*													_world = nullptr;
 	};
