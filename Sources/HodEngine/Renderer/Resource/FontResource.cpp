@@ -159,7 +159,7 @@ namespace hod::renderer
 			uint32_t height = 0;
 		};
 
-		std::vector<CharacterData> characterDatas;
+		Vector<CharacterData> characterDatas;
 		characterDatas.reserve(128);
 
 		_kernings.reserve(128);

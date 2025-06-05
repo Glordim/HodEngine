@@ -96,7 +96,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool RendererMetal::GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices)
+		bool RendererMetal::GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices)
 		{
 			return true;
 		}

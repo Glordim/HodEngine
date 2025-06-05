@@ -4,7 +4,7 @@
 #include <cstdint>
 
 #include <HodEngine/Core/Rect.hpp>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Core/Math/Matrix4.hpp"
@@ -71,7 +71,7 @@ namespace hod::renderer
 
 	private:
 
-		std::vector<MaterialInstance*>	_materialInstanceToDelete;
-		std::vector<Buffer*>			_bufferToDelete;
+		Vector<MaterialInstance*>	_materialInstanceToDelete;
+		Vector<Buffer*>			_bufferToDelete;
 	};
 }

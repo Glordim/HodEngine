@@ -19,7 +19,7 @@ namespace hod::input
 {
 	/// @brief 
 	/// @param errorMessage 
-	void GetWinLastErrorMsg(std::string& errorMessage)
+	void GetWinLastErrorMsg(String& errorMessage)
 	{
 		// TODO
 	}
@@ -79,7 +79,7 @@ namespace hod::input
 
 		if (RegisterRawInputDevices(aRawInputDevices, 2, sizeof(RAWINPUTDEVICE)) == FALSE)
 		{
-			std::string sErrorMessage;
+			String sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
 
 			OUTPUT_ERROR("Unable to register RawInput devices type ({})", sErrorMessage.c_str());
@@ -95,7 +95,7 @@ namespace hod::input
 		ApiRawInput::_hGetMessageHook = SetWindowsHookEx(WH_GETMESSAGE, ApiRawInput::GetMessageHook, NULL, _window->GetMessageLoopThreadId());
 		if (ApiRawInput::_hGetMessageHook == nullptr)
 		{
-			std::string sErrorMessage;
+			String sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
 
 			OUTPUT_ERROR("Unable to set MessageHook ({})", sErrorMessage.c_str());
@@ -118,7 +118,7 @@ namespace hod::input
 
 		if (GetRawInputDeviceList(nullptr, &deviceCount, sizeof(RAWINPUTDEVICELIST)) != 0)
 		{
-			std::string sErrorMessage;
+			String sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
 
 			OUTPUT_ERROR("Unable to get RawInput device list ({})", sErrorMessage.c_str());
@@ -129,7 +129,7 @@ namespace hod::input
 
 		if (GetRawInputDeviceList(pRawInputDeviceList, &deviceCount, sizeof(RAWINPUTDEVICELIST)) == (UINT)-1)
 		{
-			std::string sErrorMessage;
+			String sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
 
 			OUTPUT_ERROR("Unable to get RawInput device list ({})", sErrorMessage.c_str());
@@ -194,7 +194,7 @@ namespace hod::input
 		{
 			if (UnhookWindowsHookEx(ApiRawInput::_hGetMessageHook) == FALSE)
 			{
-				std::string sErrorMessage;
+				String sErrorMessage;
 				GetWinLastErrorMsg(sErrorMessage);
 
 				OUTPUT_ERROR("Unable to release MessageHook ({})", sErrorMessage.c_str());
@@ -276,7 +276,7 @@ namespace hod::input
 			uint32_t uiSize = 512;
 			if (GetRawInputDeviceInfo(hDevice, RIDI_DEVICENAME, deviceChangeMessage._name, &uiSize) <= 0)
 			{
-				std::string sErrorMessage;
+				String sErrorMessage;
 				GetWinLastErrorMsg(sErrorMessage);
 
 				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, sErrorMessage.c_str());
@@ -289,7 +289,7 @@ namespace hod::input
 
 			if (GetRawInputDeviceInfo(hDevice, RIDI_DEVICEINFO, &deviceChangeMessage._info, &uiSize) <= 0)
 			{
-				std::string sErrorMessage;
+				String sErrorMessage;
 				GetWinLastErrorMsg(sErrorMessage);
 
 				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, sErrorMessage.c_str());
@@ -309,7 +309,7 @@ namespace hod::input
 		UINT uiSize = 0;
 		if (GetRawInputData(hRawInput, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER)) != 0)
 		{
-			std::string sErrorMessage;
+			String sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
 
 			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, sErrorMessage.c_str());
@@ -324,7 +324,7 @@ namespace hod::input
 		InputChangeMessage inputChangeMessage;
 		if (GetRawInputData(hRawInput, RID_INPUT, reinterpret_cast<BYTE*>(&inputChangeMessage._rawInput), &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
 		{
-			std::string sErrorMessage;
+			String sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
 
 			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, sErrorMessage.c_str());

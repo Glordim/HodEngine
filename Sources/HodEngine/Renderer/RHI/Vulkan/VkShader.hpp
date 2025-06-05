@@ -4,7 +4,7 @@
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 
 #include <vulkan/vulkan.h>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod::renderer
 {

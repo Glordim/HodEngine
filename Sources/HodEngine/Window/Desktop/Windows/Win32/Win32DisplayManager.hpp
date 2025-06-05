@@ -32,6 +32,6 @@ namespace hod::window
         HINSTANCE       _hInstance = NULL;
         ATOM            _class = INVALID_ATOM;
 
-        std::vector<Window*> _windows;
+        Vector<Window*> _windows;
     };
 }

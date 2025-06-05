@@ -83,13 +83,13 @@ namespace hod::renderer
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
 		// Extract descriptorSet definition from shader bytecode
-		const std::vector<uint8_t>& byteCode = vertexShader->GetShaderBytecode();
+		const Vector<uint8_t>& byteCode = vertexShader->GetShaderBytecode();
 		spirv_cross::Compiler compVert(reinterpret_cast<const uint32_t*>(byteCode.data()), byteCode.size() / sizeof(uint32_t));
 		spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
 
-		std::vector<uint32_t> strides;
-		std::vector<VkVertexInputAttributeDescription> vertexAttributeDecriptions;
-		std::vector<VkVertexInputBindingDescription> vertexBindingDescriptions;
+		Vector<uint32_t> strides;
+		Vector<VkVertexInputAttributeDescription> vertexAttributeDecriptions;
+		Vector<VkVertexInputBindingDescription> vertexBindingDescriptions;
 
 		if (vertexInputs != nullptr)
 		{
@@ -322,14 +322,14 @@ namespace hod::renderer
 			_setDescriptors[pair.first] = pair.second;
 		}
 
-		std::vector<VkDescriptorSetLayout> layouts;
+		Vector<VkDescriptorSetLayout> layouts;
 		for (const auto& pair : _setDescriptors)
 		{
 			static_cast<ShaderSetDescriptorVk*>(pair.second)->BuildDescriptorSetLayout();
 			layouts.push_back(static_cast<const ShaderSetDescriptorVk*>(pair.second)->GetDescriptorSetLayout());
 		}
 
-		std::vector<VkPushConstantRange> constants;
+		Vector<VkPushConstantRange> constants;
 		if (vertexShader->GetConstantDescriptor() != nullptr)
 		{
 			constants.push_back(static_cast<const ShaderConstantDescriptorVk*>(vertexShader->GetConstantDescriptor())->GetPushConstantRange());

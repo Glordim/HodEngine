@@ -2,8 +2,8 @@
 #include "HodEngine/Renderer/Export.hpp"
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/String.hpp"
 #include <cstdint>
 
 #include "Token.hpp"
@@ -23,14 +23,14 @@ namespace hod::renderer
 
 	public:
 	
-		bool				GenerateByteCode(std::vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source);
-		bool				GenerateSource(std::string& generatedSource, std::string_view source);
+		bool				GenerateByteCode(Vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source);
+		bool				GenerateSource(String& generatedSource, std::string_view source);
 
-		virtual bool		ConvertTokens(const std::vector<Token>& inTokens, std::vector<Token>& outTokens) = 0;
-		virtual bool		CompileSource(std::vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source) = 0;
+		virtual bool		ConvertTokens(const Vector<Token>& inTokens, Vector<Token>& outTokens) = 0;
+		virtual bool		CompileSource(Vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source) = 0;
 
 	protected:
 
-		bool				NextTokensAre(const std::vector<Token>& tokens, uint32_t& index, const std::vector<Token>& expectedTokens, std::vector<std::string>* identifiers = nullptr);
+		bool				NextTokensAre(const Vector<Token>& tokens, uint32_t& index, const Vector<Token>& expectedTokens, Vector<std::string>* identifiers = nullptr);
     };
 }

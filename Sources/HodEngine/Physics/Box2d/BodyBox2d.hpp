@@ -2,7 +2,7 @@
 #include "HodEngine/Physics/Export.hpp"
 #include "HodEngine/Physics/Body.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
 
 #include <box2d/id.h>
@@ -25,7 +25,7 @@ namespace hod::physics
 		Collider*			AddCircleShape(bool isTrigger, const Vector2& position, float radius) override;
 		Collider*			AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) override;
 		Collider*			AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle) override;
-		Collider*			AddConvexShape(bool isTrigger, const std::vector<const Vector2>& vertices) override;
+		Collider*			AddConvexShape(bool isTrigger, const Vector<const Vector2>& vertices) override;
 
 		void				SetEnabled(bool enabled) override;
 		void				SetTransform(const Vector2& position, float angle, const Vector2& scale) override;
@@ -33,7 +33,7 @@ namespace hod::physics
 		Vector2				GetPosition() const override;
 		float				GetRotation() const override;
 
-		void				GetCollisions(std::vector<Collision>& collisions) override;
+		void				GetCollisions(Vector<Collision>& collisions) override;
 
 		Type				GetType() const override;
 		void				SetType(Type type) override;

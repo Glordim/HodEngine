@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <string_view>
 #include <memory>
 
@@ -46,7 +46,7 @@ namespace hod::editor
 
 		std::shared_ptr<Asset>		_asset;
 
-		std::vector<EditorTabWindow*>	_windows;
+		Vector<EditorTabWindow*>	_windows;
 
 		bool						_focus = false;
 	};

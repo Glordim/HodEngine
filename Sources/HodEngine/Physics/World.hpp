@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Physics/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include "HodEngine/Physics/Body.hpp"
 
 namespace hod
@@ -41,7 +41,7 @@ namespace hod::physics
 
 	protected:
 
-		std::vector<Body*>	_bodies;
+		Vector<Body*>	_bodies;
 
 		DebugDrawer*		_debugDrawer = nullptr;
 	};

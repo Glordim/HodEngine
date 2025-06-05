@@ -61,7 +61,7 @@ namespace hod::editor
 	/// @param selection 
 	void InspectorWindow::DrawSceneSelection(game::Entity* selection)
 	{
-		std::vector<game::PrefabUtility::PrefabOverride> overrides;
+		Vector<game::PrefabUtility::PrefabOverride> overrides;
 
 		std::shared_ptr<game::PrefabResource> prefabResource = selection->GetPrefabResource();
 		if (prefabResource != nullptr)
@@ -143,7 +143,7 @@ namespace hod::editor
 			{
 				/*
 				bool hasOverride = false;
-				std::vector<hod::game::PrefabUtility::EntityDiffs::Diff*> componentDiffs;
+				Vector<hod::game::PrefabUtility::EntityDiffs::Diff*> componentDiffs;
 				for (auto diff : entityDiffs._diffs)
 				{
 					if (diff->_instance == componentLock.get())
@@ -326,7 +326,7 @@ namespace hod::editor
 			ImGui::SameLine();
 
 			static char nameBuffer[256] = { '\0' };
-			static std::string strName;
+			static String strName;
 			if (ImGui::IsWindowAppearing())
 			{
 				nameBuffer[0] = '\0';
@@ -346,7 +346,7 @@ namespace hod::editor
 				for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
 				{
 					const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
-					const std::string& displayName = componentDescriptor.GetDisplayName();
+					const String& displayName = componentDescriptor.GetDisplayName();
 
 					auto it = std::search(displayName.cbegin(), displayName.cend(), strName.cbegin(), strName.cend(), [](char ch1, char ch2)
 					{

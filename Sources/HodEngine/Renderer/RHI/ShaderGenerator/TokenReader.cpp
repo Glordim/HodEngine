@@ -13,7 +13,7 @@
 
 namespace hod::renderer
 {
-	bool TokenReader::Parse(std::istream& stream, std::vector<Token>& tokens)
+	bool TokenReader::Parse(std::istream& stream, Vector<Token>& tokens)
 	{
 		/* try catch ?
 		if (stream. CanRead() == false)

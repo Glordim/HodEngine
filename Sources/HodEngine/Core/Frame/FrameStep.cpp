@@ -22,7 +22,7 @@ namespace hod
 	/// @param job 
 	void FrameStep::RemoveJob(Job* job)
 	{
-		std::vector<Job*>::iterator jobIt = std::find(_jobs.begin(), _jobs.end(), job);
+		Vector<Job*>::iterator jobIt = std::find(_jobs.begin(), _jobs.end(), job);
 
 		assert(jobIt != _jobs.end());
 

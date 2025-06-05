@@ -136,13 +136,13 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	std::string UID::ToString() const
+	String UID::ToString() const
 	{
 		UuidConverter uuidConverter;
 		uuidConverter.low = _low;
 		uuidConverter.high = _high;
 
-		std::string str;
+		String str;
 
 	#if defined(_WIN32)
 		RPC_CSTR stringTmp;

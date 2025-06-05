@@ -3,8 +3,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/String.hpp"
 
 namespace hod::renderer
 {
@@ -25,8 +25,8 @@ namespace hod::renderer
 
 		VkDescriptorSet				GetDescriptorSet() const;
 
-		void						SetUboValue(const std::string& memberName, const void* value, size_t valueSize);
-		void						SetTexture(const std::string& name, const VkTexture* textureSampler);
+		void						SetUboValue(const String& memberName, const void* value, size_t valueSize);
+		void						SetTexture(const String& name, const VkTexture* textureSampler);
 
 	private:
 
@@ -34,6 +34,6 @@ namespace hod::renderer
 
 		VkDescriptorSet				_descriptorSet;
 
-		std::vector<BufferVk*>		_uboBuffers;
+		Vector<BufferVk*>		_uboBuffers;
 	};
 }

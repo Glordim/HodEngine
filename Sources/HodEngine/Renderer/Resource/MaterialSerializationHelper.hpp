@@ -5,8 +5,8 @@
 #include <HodEngine/Core/Resource/WeakResource.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
 
-#include <string>
-#include <vector>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod
 {
@@ -40,9 +40,9 @@ namespace hod::renderer
 	class HOD_RENDERER_API MaterialSerializationHelper
 	{
 	public:
-		static void GenerateParameters(const Material& material, std::vector<ShaderParameter>& params);
+		static void GenerateParameters(const Material& material, Vector<ShaderParameter>& params);
 
-		static void ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode, std::vector<WeakResource<TextureResource>>& textureResources);
-		static void ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, std::string path, std::vector<WeakResource<TextureResource>>& textureResources);
+		static void ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode, Vector<WeakResource<TextureResource>>& textureResources);
+		static void ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, String path, Vector<WeakResource<TextureResource>>& textureResources);
 	};
 }

@@ -7,7 +7,7 @@
 
 #include "HodEngine/Core/Event.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 #ifdef __OBJC__
 @class NSView;

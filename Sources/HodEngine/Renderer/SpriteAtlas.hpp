@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/String.hpp"
 
 #include "HodEngine/Renderer/Sprite.hpp"
 
@@ -29,16 +29,16 @@ namespace hod
 
 		public:
 
-			bool					LoadFromFile(const std::string& spriteAltasJsonPath);
+			bool					LoadFromFile(const String& spriteAltasJsonPath);
 
-			const Sprite*			FindSprite(const std::string& spriteName) const;
+			const Sprite*			FindSprite(const String& spriteName) const;
 
 			const Texture*			GetTexture() const;
 
 		private:
 
 			Texture*				_texture = nullptr;
-			std::vector<Sprite>		_sprites;
+			Vector<Sprite>		_sprites;
 		};
 	}
 }

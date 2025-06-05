@@ -9,7 +9,7 @@ namespace hod
 	/// @brief 
 	/// @param type 
 	/// @param content 
-	void OutputService::PlatformOutput(Output::Type type, const std::string& content)
+	void OutputService::PlatformOutput(Output::Type type, const String& content)
 	{
 		if (type == Output::Type::Message)
 		{

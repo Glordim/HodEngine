@@ -4,7 +4,7 @@
 #include <HodEngine/Core/Output/Output.hpp>
 
 #include <mutex>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod
 {
@@ -26,12 +26,12 @@ namespace hod
 		void Clear();
 
 		std::mutex& GetLock() const;
-		const std::vector<Output>& GetOutputs() const;
+		const Vector<Output>& GetOutputs() const;
 		void AddOutput(const Output& output);
 
 	private:
 
-		std::vector<Output> _outputs;
+		Vector<Output> _outputs;
 		mutable std::mutex _lock;
 	};
 

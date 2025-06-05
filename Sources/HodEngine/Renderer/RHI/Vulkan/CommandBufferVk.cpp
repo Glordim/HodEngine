@@ -259,7 +259,7 @@ namespace hod
 				vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetGraphicsPipeline());
 			}
 
-			std::vector<VkDescriptorSet> descriptorSets = vkMaterialInstance->GetDescriptorSets(setOffset, setCount);
+			Vector<VkDescriptorSet> descriptorSets = vkMaterialInstance->GetDescriptorSets(setOffset, setCount);
 
 			if (descriptorSets.empty() == false)
 			{

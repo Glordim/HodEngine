@@ -10,7 +10,7 @@
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 
 #include <map>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <string_view>
 
 namespace hod::renderer
@@ -55,7 +55,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param tokens 
 	/// @return 
-	bool ShaderGeneratorMetal::ConvertTokens(const std::vector<Token>& inTokens, std::vector<Token>& outTokens)
+	bool ShaderGeneratorMetal::ConvertTokens(const Vector<Token>& inTokens, Vector<Token>& outTokens)
 	{
 		outTokens.emplace_back(Token::Type::Identifier, "#include");
 		outTokens.emplace_back(Token::Type::Identifier, "<metal_stdlib>");
@@ -78,12 +78,12 @@ namespace hod::renderer
 		int locationIndex = 0;
 		int bufferIndex = 1;
 
-		std::vector<std::string> identifiers;
+		Vector<std::string> identifiers;
 
 		std::map<std::string, std::string> inVariableToQualifier;
 		std::map<std::string, std::string> outVariableToQualifier;
 
-		std::vector<Token> mainParameter;
+		Vector<Token> mainParameter;
 
 		for (uint32_t index = 0; index < inTokens.size(); ++index)
 		{
@@ -416,7 +416,7 @@ namespace hod::renderer
 			{
 				case Token::Type::Identifier:
 				{
-					std::string value = std::get<std::string>(token._data);
+					String value = std::get<std::string>(token._data);
 					auto it = _identifierMap.find(value);
 					if (it != _identifierMap.end())
 					{
@@ -445,7 +445,7 @@ namespace hod::renderer
 	/// @param type 
 	/// @param source 
 	/// @return 
-	bool ShaderGeneratorMetal::CompileSource(std::vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source)
+	bool ShaderGeneratorMetal::CompileSource(Vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source)
 	{
 		NS::Error* error = nullptr;
 		RendererMetal* metalRenderer = RendererMetal::GetInstance();

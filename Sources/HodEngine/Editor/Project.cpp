@@ -78,9 +78,9 @@ namespace hod::editor
 			return false;
 		}
 
-		std::function<bool(const std::filesystem::path&, std::string_view, const std::string&)> writeFileFunc = [](const std::filesystem::path& path, std::string_view contentIn, const std::string& projectName)
+		std::function<bool(const std::filesystem::path&, std::string_view, const String&)> writeFileFunc = [](const std::filesystem::path& path, std::string_view contentIn, const String& projectName)
 		{
-			std::string content(contentIn);
+			String content(contentIn);
 
 			constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
 			size_t replaceIndex = content.find(projectNameTag);
@@ -90,7 +90,7 @@ namespace hod::editor
 				replaceIndex = content.find(projectNameTag);
 			}
 
-			std::string projectExport = projectName + "_EXPORT";
+			String projectExport = projectName + "_EXPORT";
 			std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
 			constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
 			replaceIndex = content.find(projectExportTag);
@@ -100,7 +100,7 @@ namespace hod::editor
 				replaceIndex = content.find(projectExportTag);
 			}
 
-			std::string api = projectName + "_API";
+			String api = projectName + "_API";
 			std::transform(api.begin(), api.end(), api.begin(), [](char c) { return std::toupper(c); });
 			constexpr std::string_view apiTag = "[[API]]";
 			replaceIndex = content.find(apiTag);
@@ -248,7 +248,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	const std::string Project::GetName() const
+	const String Project::GetName() const
 	{
 		return _name;
 	}
@@ -306,9 +306,9 @@ namespace hod::editor
 	/// @return 
 	bool Project::GenerateGameModuleCMakeList() const
 	{
-		std::string cmakeLists(CMakeLists_txt);
+		String cmakeLists(CMakeLists_txt);
 		
-		std::string enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string(); // todo...
+		String enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string(); // todo...
 #if defined(PLATFORM_WINDOWS)
 		// CMakeLists require portable path
 		for (char& c : enginePath)
@@ -335,7 +335,7 @@ namespace hod::editor
 			replaceIndex = cmakeLists.find(projectNameTag);
 		}
 
-		std::string projectExport = _name + "_EXPORT";
+		String projectExport = _name + "_EXPORT";
 		std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
 		constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
 		replaceIndex = cmakeLists.find(projectExportTag);
@@ -402,7 +402,7 @@ namespace hod::editor
 			#error
 		#endif
 
-		std::string arguments = std::format("-B {} -S {} -G \"{}\"", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator);
+		String arguments = std::format("-B {} -S {} -G \"{}\"", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator);
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{
@@ -419,7 +419,7 @@ namespace hod::editor
 		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 
 		const char* config = "Release";
-		std::string arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount());
+		String arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount());
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{

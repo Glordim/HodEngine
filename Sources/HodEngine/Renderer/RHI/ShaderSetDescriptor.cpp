@@ -18,7 +18,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	const std::vector<ShaderSetDescriptor::BlockUbo>& ShaderSetDescriptor::GetUboBlocks() const
+	const Vector<ShaderSetDescriptor::BlockUbo>& ShaderSetDescriptor::GetUboBlocks() const
 	{
 		return _uboBlockVector;
 	}
@@ -26,7 +26,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	const std::vector<ShaderSetDescriptor::BlockTexture>& ShaderSetDescriptor::GetTextureBlocks() const
+	const Vector<ShaderSetDescriptor::BlockTexture>& ShaderSetDescriptor::GetTextureBlocks() const
 	{
 		return _textureBlockVector;
 	}

@@ -2,8 +2,8 @@
 #include "HodEngine/Input/Export.hpp"
 
 #include <string_view>
-#include <string>
-#include <vector>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 
 #include <HodEngine/Core/UID.hpp>
 #include "HodEngine/Input/InputId.hpp"
@@ -54,10 +54,10 @@ namespace hod::input
 		const UID&				GetUid() const;
 		Type					GetType() const;
 		Product					GetProduct() const;
-		const std::string&		GetName() const;
+		const String&		GetName() const;
 
 		Input*					GetInput(InputId inputId) const;
-		const std::vector<Input*>&	GetInputs() const;
+		const Vector<Input*>&	GetInputs() const;
 
 		virtual bool			ApplyFeedback(Feedback& feedback) = 0;
 
@@ -84,6 +84,6 @@ namespace hod::input
 		Product					_product = Product::UNKNOWN;
 		bool					_connected = false;
 
-		std::vector<Input*>		_inputs;
+		Vector<Input*>		_inputs;
 	};
 }

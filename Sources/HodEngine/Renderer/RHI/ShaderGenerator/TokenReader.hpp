@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/Export.hpp"
 
 #include <cstdint>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <istream>
 #include <functional>
 
@@ -23,7 +23,7 @@ namespace hod::renderer
 
 	public:
 
-		bool Parse(std::istream& stream, std::vector<Token>& tokens);
+		bool Parse(std::istream& stream, Vector<Token>& tokens);
 
 	private:
 

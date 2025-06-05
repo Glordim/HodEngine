@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {

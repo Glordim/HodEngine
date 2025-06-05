@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <string_view>
 
 namespace hod
@@ -45,5 +45,5 @@ namespace hod
 		return c + ('a' - 'A');
 	}
 
-	std::string GenerateDisplayName(const std::string_view& name);
+	String GenerateDisplayName(const std::string_view& name);
 }

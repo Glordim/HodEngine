@@ -88,17 +88,17 @@ namespace hod::input
 
 	private:
 
-		std::vector<DeviceMouseRawInput*>			_mice;
-		std::vector<DeviceKeyboardRawInput*>		_keyboards;
+		Vector<DeviceMouseRawInput*>			_mice;
+		Vector<DeviceKeyboardRawInput*>		_keyboards;
 
 		std::mutex									_deviceChangeslock;
-		std::vector<DeviceChangeMessage>			_vDeviceChangeMessages;
+		Vector<DeviceChangeMessage>			_vDeviceChangeMessages;
 
 		std::mutex									_inputChangesLock;
-		std::vector<InputChangeMessage>				_vInputChangeMessages;
+		Vector<InputChangeMessage>				_vInputChangeMessages;
 
 		std::mutex									_characterLock;
-		std::vector<char>							_vCharacterMessages;
+		Vector<char>							_vCharacterMessages;
 
 		bool										_bIgnoreNextMouseMessage = false;
 		bool										_bJustGainFocus = false;

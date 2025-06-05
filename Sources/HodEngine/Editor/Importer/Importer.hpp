@@ -68,7 +68,7 @@ namespace hod::editor
 
 	private:
 
-		std::vector<const char*>	_supportedDataFileExtensions;
+		Vector<const char*>	_supportedDataFileExtensions;
 	};
 
 	// TODO inl

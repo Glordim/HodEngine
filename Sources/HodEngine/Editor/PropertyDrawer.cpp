@@ -357,7 +357,7 @@ namespace hod::editor
 		case ReflectionPropertyVariable::Type::String:
 		{
 			ImGui::PushID(property);
-			std::string value = editorReflectedProperty.GetValue<std::string>();
+			String value = editorReflectedProperty.GetValue<std::string>();
 			value.reserve(512);
 			ImGui::SetNextItemWidth(-1);
 			if (ImGui::InputText("", value.data(), value.capacity()))

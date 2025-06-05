@@ -14,7 +14,7 @@ namespace hod
 	/// @brief 
 	/// @param type 
 	/// @param content 
-	Output::Output(Type type, const std::string& content)
+	Output::Output(Type type, const String& content)
 	: _type(type)
 	, _content(content)
 	{
@@ -38,7 +38,7 @@ namespace hod
 
 	/// @brief 
 	/// @return 
-	const std::string& Output::GetContent() const
+	const String& Output::GetContent() const
 	{
 		return _content;
 	}

@@ -65,7 +65,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool RendererDirectX12::GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices)
+		bool RendererDirectX12::GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices)
 		{
 			if (availableDevices == nullptr)
 				return false;

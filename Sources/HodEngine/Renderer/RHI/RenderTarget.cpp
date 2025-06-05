@@ -6,7 +6,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <iostream>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {

@@ -43,6 +43,6 @@ namespace hod::renderer
 		Material::Topololy		_topololy = Material::Topololy::TRIANGLE;
 
 		Document									_defaultInstanceParams;
-		std::vector<WeakResource<TextureResource>>	_textureResources;
+		Vector<WeakResource<TextureResource>>	_textureResources;
 	};
 }

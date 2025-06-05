@@ -36,11 +36,11 @@ namespace hod
 
 				if (staticMeshComponent->IsDebugTangentEnabled() == true)
 				{
-					const std::vector<renderer::Vertex_3P_3C_3N_2UV_3TA>& vertices = staticMeshComponent->GetMesh()->GetVertices();
+					const Vector<renderer::Vertex_3P_3C_3N_2UV_3TA>& vertices = staticMeshComponent->GetMesh()->GetVertices();
 
 					size_t verticesCount = vertices.size();
 
-					std::vector<renderer::Line_3P_3C> tangentLines;
+					Vector<renderer::Line_3P_3C> tangentLines;
 					tangentLines.reserve(verticesCount);
 
 					float red[3] = { 1.0f, 0.0f, 0.0f };
@@ -117,8 +117,8 @@ namespace hod
 	void RenderQueueHelper::AddScenePhysicsDebug(renderer::RenderQueue& renderQueue, game::Scene* scene)
 	{
 		/*
-		std::vector<renderer::Line_3P_3C> lines;
-		std::vector<renderer::Tri_3P_3C> tris;
+		Vector<renderer::Line_3P_3C> lines;
+		Vector<renderer::Tri_3P_3C> tris;
 		scene->GetPhysicScene()->GetDebugGeometry(lines, tris);
 
 		if (lines.empty() == false)
@@ -138,7 +138,7 @@ namespace hod
 	void RenderQueueHelper::AddDebugLines(renderer::RenderQueue& renderQueue, game::Scene* scene)
 	{
 		/*
-		std::vector<renderer::Line_3P_3C> lines;
+		Vector<renderer::Line_3P_3C> lines;
 
 		scene->GetDebugLines(lines);
 

@@ -6,8 +6,8 @@
 #include "HodEngine/Renderer/BoundingBox.hpp"
 #include "HodEngine/Core/Resource/Resource.hpp"
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {
@@ -36,13 +36,13 @@ namespace hod
 
 			SpriteAtlas*					GetSpriteAtlas() const;
 
-			const std::string&				GetName() const;
+			const String&				GetName() const;
 			const Rect&						GetFrame() const;
 			const Vector2&					GetSize() const;
 			const Vector2&					GetPivot() const;
 
-			const std::vector<P2fT2f>&		GetVertices() const;
-			const std::vector<uint16_t>&	GetIndices() const;
+			const Vector<P2fT2f>&		GetVertices() const;
+			const Vector<uint16_t>&	GetIndices() const;
 
 			const BoundingBox&				GetBoundingBox() const;
 			void							RebuildBoundingBox();
@@ -56,8 +56,8 @@ namespace hod
 			Vector2							_size;
 			Vector2							_pivot;
 
-			std::vector<P2fT2f>				_vertices;
-			std::vector<uint16_t>			_indices;
+			Vector<P2fT2f>				_vertices;
+			Vector<uint16_t>			_indices;
 
 			BoundingBox						_boundingBox;
 		};

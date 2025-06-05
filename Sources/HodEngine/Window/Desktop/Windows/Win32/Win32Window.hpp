@@ -48,6 +48,6 @@ namespace hod::window
 
 		Thread::Id							_hWndThreadId;
 
-		std::vector<std::function<void()>>	_runOnWin32Thread;
+		Vector<std::function<void()>>	_runOnWin32Thread;
 	};
 }

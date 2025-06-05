@@ -281,7 +281,7 @@ namespace hod::editor
 			return;
 		}
 
-		std::vector<AssetDatabase::FileSystemMapping*> pathSplit;
+		Vector<AssetDatabase::FileSystemMapping*> pathSplit;
 		AssetDatabase::FileSystemMapping* pathNode = _currentFolderTreeNode;
 		while (pathNode != nullptr)
 		{

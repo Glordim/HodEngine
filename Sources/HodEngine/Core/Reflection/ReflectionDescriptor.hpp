@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <functional>
 #include <string_view>
 #include <memory>
@@ -49,8 +49,8 @@ namespace hod
 
 		void									Init(const Data& data);
 
-		const std::vector<ReflectionTrait*>&	GetTraits() const;
-		const std::vector<ReflectionProperty*>&	GetProperties() const;
+		const Vector<ReflectionTrait*>&	GetTraits() const;
+		const Vector<ReflectionProperty*>&	GetProperties() const;
 
 		template<typename _Trait_, typename... Args>
 		_Trait_*								AddTrait(Args&&... args);
@@ -69,8 +69,8 @@ namespace hod
 		ReflectionProperty*						FindProperty(const std::string_view& name, bool fallbackOnParent = true) const;
 
 		template<typename _ObjectType_>
-		void									CollectObjectProperties(std::vector<_ObjectType_*>& collectedInstances, void* instance);
-		void									CollectObjectProperties(const ReflectionDescriptor& reflectionDescriptor, std::vector<void*>& collectedInstances, void* instance);
+		void									CollectObjectProperties(Vector<_ObjectType_*>& collectedInstances, void* instance);
+		void									CollectObjectProperties(const ReflectionDescriptor& reflectionDescriptor, Vector<void*>& collectedInstances, void* instance);
 
 		template<typename _Trait_>
 		void									RemoveTrait();
@@ -92,12 +92,12 @@ namespace hod
 		bool									Compare(const void* left, const void* right) const;
 
 		MetaType								GetMetaType() const;
-		const std::string&						GetTypeName() const;
+		const String&						GetTypeName() const;
 
 		ReflectionDescriptor*					GetParent() const;
 		bool									IsCompatible(const ReflectionDescriptor& descriptor) const;
 
-		const std::string&						GetDisplayName() const;
+		const String&						GetDisplayName() const;
 
 	private:
 
@@ -111,8 +111,8 @@ namespace hod
 		std::function<bool(const void*, const void*)> _compareFunction = nullptr;
 		MetaType								_metaType;
 
-		std::vector<ReflectionTrait*>			_traits;
-		std::vector<ReflectionProperty*>		_properties;
+		Vector<ReflectionTrait*>			_traits;
+		Vector<ReflectionProperty*>		_properties;
 	};
 }
 

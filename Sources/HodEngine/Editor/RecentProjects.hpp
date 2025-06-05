@@ -5,8 +5,8 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/String.hpp"
 
 namespace hod::editor
 {
@@ -16,6 +16,6 @@ namespace hod::editor
 
 	public:
 
-		std::vector<std::string>	_projectsPath;
+		Vector<std::string>	_projectsPath;
 	};
 }

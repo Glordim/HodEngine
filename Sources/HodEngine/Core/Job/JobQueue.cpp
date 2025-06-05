@@ -5,7 +5,7 @@
 #include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <atomic>
 
 namespace hod
@@ -95,12 +95,12 @@ namespace hod
 
 		for (uint32_t index = 0; index < count; ++index)
 		{
-			std::string workerName(jobQueueNames[queue]);
+			String workerName(jobQueueNames[queue]);
 			workerName += " Worker ";
 
-			std::string countLabel = std::to_string(count + 1);
+			String countLabel = std::to_string(count + 1);
 
-			std::string workerIndexLabel = std::to_string(index + 1);
+			String workerIndexLabel = std::to_string(index + 1);
 			for (size_t digit = workerIndexLabel.size(); digit < countLabel.size(); ++digit)
 			{
 				workerIndexLabel.insert(0, "0");

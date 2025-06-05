@@ -43,7 +43,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		std::vector<VertexInput> vertexInputs;
+		Vector<VertexInput> vertexInputs;
 		vertexInputs.push_back(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
 		vertexInputs.push_back(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
 

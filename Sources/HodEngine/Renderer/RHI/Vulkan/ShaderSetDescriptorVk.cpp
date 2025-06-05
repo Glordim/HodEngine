@@ -175,7 +175,7 @@ namespace hod::renderer
 	/// @return 
 	bool ShaderSetDescriptorVk::BuildDescriptorSetLayout()
 	{
-		std::vector<VkDescriptorSetLayoutBinding> descriptors;
+		Vector<VkDescriptorSetLayoutBinding> descriptors;
 
 		size_t uboCount = _uboBlockVector.size();
 		for (size_t i = 0; i < uboCount; ++i)

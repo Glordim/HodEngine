@@ -4,7 +4,7 @@
 
 namespace hod
 {
-	static thread_local std::vector<OutputBucket*> _buckets;
+	static thread_local Vector<OutputBucket*> _buckets;
 
 	/// @brief 
 	/// @param fileName 
@@ -19,7 +19,7 @@ namespace hod
 			bucket->AddOutput(Output(type, format));
 		}
 
-		std::string content = std::format("{}({}) : {} : {}\n", fileName, lineNumber, Output::GetTypeName(type), format);
+		String content = std::format("{}({}) : {} : {}\n", fileName, lineNumber, Output::GetTypeName(type), format);
 
 		PlatformOutput(type, content);
 	}

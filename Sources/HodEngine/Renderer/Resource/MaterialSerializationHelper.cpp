@@ -15,7 +15,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param material 
 	/// @param params 
-	void MaterialSerializationHelper::GenerateParameters(const Material& material, std::vector<ShaderParameter>& params)
+	void MaterialSerializationHelper::GenerateParameters(const Material& material, Vector<ShaderParameter>& params)
 	{
 		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& setDescriptors = material.GetSetDescriptors();
 
@@ -51,12 +51,12 @@ namespace hod::renderer
 	}
 
 	/// @brief 
-	void MaterialSerializationHelper::ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode, std::vector<WeakResource<TextureResource>>& textureResources)
+	void MaterialSerializationHelper::ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode, Vector<WeakResource<TextureResource>>& textureResources)
 	{
 		const Document::Node* paramNode = paramsNode.GetFirstChild();
 		while (paramNode != nullptr)
 		{
-			std::string name = paramNode->GetChild("Name")->GetString();
+			String name = paramNode->GetChild("Name")->GetString();
 			ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
 			const Document::Node* valueNode = paramNode->GetChild("Value");
 			switch (type)
@@ -113,11 +113,11 @@ namespace hod::renderer
 	/// @param reflectionDescriptor 
 	/// @param instance 
 	/// @param path 
-	void MaterialSerializationHelper::ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, std::string path, std::vector<WeakResource<TextureResource>>& textureResources)
+	void MaterialSerializationHelper::ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, String path, Vector<WeakResource<TextureResource>>& textureResources)
 	{
 		for (ReflectionProperty* property : reflectionDescriptor.GetProperties())
 		{
-			std::string newPath;
+			String newPath;
 			if (path.empty())
 			{
 				newPath = property->GetName();

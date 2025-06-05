@@ -7,7 +7,7 @@
 
 #include "HodEngine/Core/Type.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <cstring>
 #include <functional>
 

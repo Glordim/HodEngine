@@ -5,7 +5,7 @@ namespace hod
 {
 	/// @brief 
 	/// @return 
-	const std::vector<ReflectionDescriptor*>& ReflectionTraitAllowedClasses::GetAllowedClasses() const
+	const Vector<ReflectionDescriptor*>& ReflectionTraitAllowedClasses::GetAllowedClasses() const
 	{
 		return _allowedClasses;
 	}

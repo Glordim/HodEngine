@@ -3,7 +3,7 @@
 
 #include <variant>
 #include <array>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <string_view>
 
 namespace hod::renderer

@@ -40,7 +40,7 @@ namespace hod::game
 			Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
 			Document::Node& overridesNode = prefabInstance.AddChild("Overrides");
 
-			std::vector<PrefabUtility::PrefabOverride> prefabOverrides;
+			Vector<PrefabUtility::PrefabOverride> prefabOverrides;
 			PrefabUtility::CollectPrefabOverride(entity, prefabOverrides);
 
 			for (const PrefabUtility::PrefabOverride& override : prefabOverrides)
@@ -133,7 +133,7 @@ namespace hod::game
 		}
 		for (auto& componentPair : _contextualComponentMap)
 		{
-			std::vector<WeakEntity*> weakEntities;
+			Vector<WeakEntity*> weakEntities;
 			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakEntities, componentPair.second);
 			for (WeakEntity* weakEntity : weakEntities)
 			{
@@ -144,7 +144,7 @@ namespace hod::game
 				}
 			}
 
-			std::vector<WeakComponentBase*> weakComponents;
+			Vector<WeakComponentBase*> weakComponents;
 			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakComponents, componentPair.second);
 			for (WeakComponentBase* weakComponent : weakComponents)
 			{
@@ -333,14 +333,14 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::vector<Entity*>& SceneSerializer::GetEntities() const
+	const Vector<Entity*>& SceneSerializer::GetEntities() const
 	{
 		return _totalEntities;
 	}
 
 	/// @brief 
 	/// @return 
-	const std::vector<Component*>& SceneSerializer::GetComponents() const
+	const Vector<Component*>& SceneSerializer::GetComponents() const
 	{
 		return _totalComponent;
 	}

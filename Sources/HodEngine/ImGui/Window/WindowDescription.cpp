@@ -5,7 +5,7 @@
 
 namespace hod::imgui
 {
-	std::vector<WindowDescription*>	WindowDescription::_descriptions;
+	Vector<WindowDescription*>	WindowDescription::_descriptions;
 
 	/// @brief 
 	/// @param name 

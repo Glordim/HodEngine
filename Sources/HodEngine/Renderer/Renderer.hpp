@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <string>
-#include <vector>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
@@ -66,7 +66,7 @@ namespace hod::renderer
 
 		virtual bool				BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) = 0;
 
-		virtual bool				GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;
+		virtual bool				GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) = 0;
 
 		virtual bool				SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) = 0;
 

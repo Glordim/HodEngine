@@ -1,13 +1,13 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 
 #include <functional>
 #include <cassert>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {

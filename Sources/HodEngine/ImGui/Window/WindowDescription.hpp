@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Type.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <cstring>
 #include <functional>
 
@@ -31,7 +31,7 @@ namespace hod::imgui
 		bool		_unique;
 		std::function<Window*()> _allocateFunction;
 
-		static std::vector<WindowDescription*>	_descriptions;
+		static Vector<WindowDescription*>	_descriptions;
 	};
 }
 

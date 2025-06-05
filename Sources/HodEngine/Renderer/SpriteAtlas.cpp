@@ -27,7 +27,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool SpriteAtlas::LoadFromFile(const std::string& spriteAltasJsonPath)
+		bool SpriteAtlas::LoadFromFile(const String& spriteAltasJsonPath)
 		{
 			return false;
 			/*
@@ -40,7 +40,7 @@ namespace hod
 
 			std::ostringstream sstr;
 			sstr << jsonFile.rdbuf();
-			std::string jsonBuffer = sstr.str();
+			String jsonBuffer = sstr.str();
 			
 			jsonFile.close();
 
@@ -49,7 +49,7 @@ namespace hod
 
 			auto metaElement = documentJson["meta"].GetObject();
 
-			std::string texturePath = spriteAltasJsonPath;
+			String texturePath = spriteAltasJsonPath;
 			size_t lastSlash = texturePath.find_last_of('/');
 			texturePath = texturePath.substr(0, lastSlash + 1) + metaElement["image"].GetString();
 
@@ -111,7 +111,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const Sprite* SpriteAtlas::FindSprite(const std::string& spriteName) const
+		const Sprite* SpriteAtlas::FindSprite(const String& spriteName) const
 		{
 			for (const Sprite& sprite : _sprites)
 			{

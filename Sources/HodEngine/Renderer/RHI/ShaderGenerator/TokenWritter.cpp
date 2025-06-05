@@ -7,7 +7,7 @@ namespace hod::renderer
 	/// @param stream 
 	/// @param tokens 
 	/// @return 
-	bool TokenWritter::PrettyWrite(std::ostream& stream, const std::vector<Token>& tokens)
+	bool TokenWritter::PrettyWrite(std::ostream& stream, const Vector<Token>& tokens)
 	{
 		int indent = 0;
 		bool newLine = false;
@@ -133,7 +133,7 @@ namespace hod::renderer
 	/// @param stream 
 	/// @param tokens 
 	/// @return 
-	bool TokenWritter::CompactWrite(std::ostream& stream, const std::vector<Token>& tokens)
+	bool TokenWritter::CompactWrite(std::ostream& stream, const Vector<Token>& tokens)
 	{
 		return false;
 	}

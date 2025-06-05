@@ -231,7 +231,7 @@ namespace hod
 			_cursor = valueEnd;
 			++_cursor;
 
-			std::string value(valueStart, valueEnd - valueStart);
+			String value(valueStart, valueEnd - valueStart);
 
 			std::size_t offset = 0;
 			std::size_t index = value.find("\\t", offset);

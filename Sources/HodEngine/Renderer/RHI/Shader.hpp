@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <string>
-#include <vector>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 #include <cstdint>
 
 #include <unordered_map>
@@ -29,7 +29,7 @@ namespace hod::renderer
 										Shader(ShaderType type);
 		virtual							~Shader();
 
-		const std::vector<uint8_t>&		GetShaderBytecode() const;
+		const Vector<uint8_t>&		GetShaderBytecode() const;
 		
 		ShaderType						GetShaderType() const;
 
@@ -45,7 +45,7 @@ namespace hod::renderer
 
 	protected:
 
-		std::vector<uint8_t>								_buffer;
+		Vector<uint8_t>								_buffer;
 		ShaderConstantDescriptor* 							_constantDescriptor;
 		std::unordered_map<uint32_t, ShaderSetDescriptor*>	_setDescriptors;
 

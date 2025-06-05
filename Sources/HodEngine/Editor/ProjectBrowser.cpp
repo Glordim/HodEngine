@@ -128,7 +128,7 @@ namespace hod::editor
 							exit(-1);
 						}
 						/*
-						std::string arguments = "--ProjectPath ";
+						String arguments = "--ProjectPath ";
 						arguments += *it;
 						if (Process::Create(FileSystem::GetExecutablePath().string(), arguments, true) == true)
 						{

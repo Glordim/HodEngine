@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/String.hpp"
 
 #include "Token.hpp"
 
@@ -23,7 +23,7 @@ namespace hod::renderer
 
 	public:
 	
-		bool	PrettyWrite(std::ostream& stream, const std::vector<Token>& tokens);
-        bool	CompactWrite(std::ostream& stream, const std::vector<Token>& tokens);
+		bool	PrettyWrite(std::ostream& stream, const Vector<Token>& tokens);
+        bool	CompactWrite(std::ostream& stream, const Vector<Token>& tokens);
     };
 }

@@ -1,6 +1,6 @@
 #include "MacOsWindow.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 #include "HodEngine/Window/Pch.hpp"
 #include <HodEngine/Core/Output/OutputService.hpp>

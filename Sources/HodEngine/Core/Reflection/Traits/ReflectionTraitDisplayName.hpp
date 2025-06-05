@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {
@@ -24,7 +24,7 @@ namespace hod
 
 	public:
 
-		const std::string&				GetValue() const;
+		const String&				GetValue() const;
 
 	private:
 

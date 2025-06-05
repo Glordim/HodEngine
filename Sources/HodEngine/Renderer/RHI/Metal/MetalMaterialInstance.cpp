@@ -29,42 +29,42 @@ namespace hod
 		/// @brief 
 		/// @param memberName 
 		/// @param value 
-		void MetalMaterialInstance::ApplyInt(const std::string& memberName, int value)
+		void MetalMaterialInstance::ApplyInt(const String& memberName, int value)
 		{
 		}
 
 		/// @brief 
 		/// @param memberName 
 		/// @param value 
-		void MetalMaterialInstance::ApplyFloat(const std::string& memberName, float value)
+		void MetalMaterialInstance::ApplyFloat(const String& memberName, float value)
 		{
 		}
 
 		/// @brief 
 		/// @param memberName 
 		/// @param value 
-		void MetalMaterialInstance::ApplyVec2(const std::string& memberName, const Vector2& value)
+		void MetalMaterialInstance::ApplyVec2(const String& memberName, const Vector2& value)
 		{
 		}
 
 		/// @brief 
 		/// @param memberName 
 		/// @param value 
-		void MetalMaterialInstance::ApplyVec4(const std::string& memberName, const Vector4& value)
+		void MetalMaterialInstance::ApplyVec4(const String& memberName, const Vector4& value)
 		{
 		}
 
 		/// @brief 
 		/// @param memberName 
 		/// @param value 
-		void MetalMaterialInstance::ApplyMat4(const std::string& memberName, const Matrix4& value)
+		void MetalMaterialInstance::ApplyMat4(const String& memberName, const Matrix4& value)
 		{
 		}
 
 		/// @brief 
 		/// @param name 
 		/// @param value 
-		void MetalMaterialInstance::ApplyTexture(const std::string& name, const Texture& value)
+		void MetalMaterialInstance::ApplyTexture(const String& name, const Texture& value)
 		{
 		}
     

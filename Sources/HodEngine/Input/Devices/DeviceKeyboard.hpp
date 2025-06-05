@@ -22,7 +22,7 @@ namespace hod::input
 
 		void				ClearBufferedTextIfNeeded();
 		void				AppendCharactersToBufferedText(const std::string_view& characters);
-		const std::string&	GetBufferedText();
+		const String&	GetBufferedText();
 
 	private:
 

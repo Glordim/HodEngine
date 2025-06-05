@@ -2,7 +2,7 @@
 #include "HodEngine/Physics/Export.hpp"
 #include "HodEngine/Physics/DebugDrawer.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include <box2d/types.h>
 
@@ -18,7 +18,7 @@ namespace hod::physics
 	public:
 
 		void						Update(World* world) override;
-		const std::vector<Flag>&	GetAvailableFlags() const override;
+		const Vector<Flag>&	GetAvailableFlags() const override;
 		void						SetFlags(uint32_t flags) override;
 		uint32_t					GetFlags() const override;
 

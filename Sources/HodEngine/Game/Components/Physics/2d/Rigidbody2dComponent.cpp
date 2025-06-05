@@ -153,7 +153,7 @@ namespace hod::game
 
 		/*
 		// todo check if have slot connected ?
-		std::vector<physics::Collision> collisions;
+		Vector<physics::Collision> collisions;
 		_body->GetCollisions(collisions);
 		for (const physics::Collision& collision : collisions)
 		{

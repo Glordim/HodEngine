@@ -46,7 +46,7 @@ namespace hod::window
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	bool ScreenHelper::GetSupportedResoltions(std::vector<Resolution>* supportedResolution, int monitor)
+	bool ScreenHelper::GetSupportedResoltions(Vector<Resolution>* supportedResolution, int monitor)
 	{
 		/*
 		if (supportedResolution == nullptr)

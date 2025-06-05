@@ -5,7 +5,7 @@ namespace hod
 {
 	/// @brief 
 	/// @return 
-	const std::vector<std::pair<uint64_t, std::string>>& EnumDescriptor::GetValues() const
+	const Vector<std::pair<uint64_t, std::string>>& EnumDescriptor::GetValues() const
 	{
 		return _values;
 	}

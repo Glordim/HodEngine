@@ -16,7 +16,7 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::editor
 {
@@ -441,7 +441,7 @@ namespace hod::editor
 	/// @param result 
 	/// @param from 
 	/// @param resourceDescriptor 
-	void AssetDatabase::ListAsset(std::vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor)
+	void AssetDatabase::ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor)
 	{
 		for (FileSystemMapping* assetNode : from._childrenAsset)
 		{
@@ -534,13 +534,13 @@ namespace hod::editor
 	{
 		if (node._type == AssetDatabase::FileSystemMapping::Type::AssetType)
 		{
-			std::vector<FileSystemMapping*>::const_iterator it = std::find(node._parentFolder->_childrenAsset.begin(), node._parentFolder->_childrenAsset.end(), &node);
+			Vector<FileSystemMapping*>::const_iterator it = std::find(node._parentFolder->_childrenAsset.begin(), node._parentFolder->_childrenAsset.end(), &node);
 			node._parentFolder->_childrenAsset.erase(it);
 		}
 
 		if (node._type == AssetDatabase::FileSystemMapping::Type::FolderType)
 		{
-			std::vector<FileSystemMapping*>::const_iterator it = std::find(node._parentFolder->_childrenFolder.begin(), node._parentFolder->_childrenFolder.end(), &node);
+			Vector<FileSystemMapping*>::const_iterator it = std::find(node._parentFolder->_childrenFolder.begin(), node._parentFolder->_childrenFolder.end(), &node);
 			node._parentFolder->_childrenFolder.erase(it);
 		}
 

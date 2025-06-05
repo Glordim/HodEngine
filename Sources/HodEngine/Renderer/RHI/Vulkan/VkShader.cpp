@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <cstring>
 #include <string_view>
 
@@ -39,7 +39,7 @@ namespace hod::renderer
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-		std::vector<uint8_t> shaderIR;
+		Vector<uint8_t> shaderIR;
 		if (renderer->GetShaderGenerator()->GenerateByteCode(shaderIR, GetShaderType(), source) == false)
 		{
 			return false;

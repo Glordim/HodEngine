@@ -80,7 +80,7 @@ namespace hod::editor
 			const Document::Node* paramNode = _materialAsset._defaultInstanceParams.GetRootNode().GetFirstChild();
 			while (paramNode != nullptr)
 			{
-				std::string name = paramNode->GetChild("Name")->GetString();
+				String name = paramNode->GetChild("Name")->GetString();
 				renderer::ShaderParameter::Type type = static_cast<renderer::ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
 				switch (type)
 				{
@@ -157,28 +157,28 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	std::vector<MaterialEditorTab::ShaderParamScalar>& MaterialEditorTab::GetScalarParameters()
+	Vector<MaterialEditorTab::ShaderParamScalar>& MaterialEditorTab::GetScalarParameters()
 	{
 		return _scalarParameters;
 	}
 
 	/// @brief 
 	/// @return 
-	std::vector<MaterialEditorTab::ShaderParamTexture>& MaterialEditorTab::GetTextureParameters()
+	Vector<MaterialEditorTab::ShaderParamTexture>& MaterialEditorTab::GetTextureParameters()
 	{
 		return _textureParameters;
 	}
 
 	/// @brief 
 	/// @return 
-	std::vector<MaterialEditorTab::ShaderParamVec2>& MaterialEditorTab::GetVector2Parameters()
+	Vector<MaterialEditorTab::ShaderParamVec2>& MaterialEditorTab::GetVector2Parameters()
 	{
 		return _vec2Parameters;
 	}
 
 	/// @brief 
 	/// @return 
-	std::vector<MaterialEditorTab::ShaderParamVec4>& MaterialEditorTab::GetVector4Parameters()
+	Vector<MaterialEditorTab::ShaderParamVec4>& MaterialEditorTab::GetVector4Parameters()
 	{
 		return _vec4Parameters;
 	}

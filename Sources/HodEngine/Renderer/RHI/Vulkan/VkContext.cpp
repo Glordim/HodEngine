@@ -68,8 +68,8 @@ namespace hod::renderer
 		_currentImageIndex = 0;
 
 		VkSurfaceCapabilitiesKHR capabilities;
-		std::vector<VkSurfaceFormatKHR> formats;
-		std::vector<VkPresentModeKHR> presentModes;
+		Vector<VkSurfaceFormatKHR> formats;
+		Vector<VkPresentModeKHR> presentModes;
 
 		const VkGpuDevice* selectedGpuDevice = RendererVulkan::GetInstance()->GetVkGpuDevice();
 
@@ -205,7 +205,7 @@ namespace hod::renderer
 		// Image views
 		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, nullptr);
 
-		std::vector<VkImage> swapChainImages(imageCount);
+		Vector<VkImage> swapChainImages(imageCount);
 		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, swapChainImages.data());
 
 		_swapchainImageViews.resize(imageCount, VK_NULL_HANDLE);

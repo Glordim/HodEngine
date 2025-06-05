@@ -94,7 +94,7 @@ namespace hod::physics
 
 	/// @brief 
 	/// @param vertices 
-	void ColliderBox2d::SetAsConvexShape(const std::vector<const Vector2>& vertices)
+	void ColliderBox2d::SetAsConvexShape(const Vector<const Vector2>& vertices)
 	{
 		/*
 		b2Polygon polygon = b2MakeBox(size.GetX(), size.GetY());

@@ -262,7 +262,7 @@ namespace hod::renderer
 	{
 		// === Extensions ===
 
-		std::vector<VkExtensionProperties> availableExtensions;
+		Vector<VkExtensionProperties> availableExtensions;
 		RendererVulkan::GetAvailableExtensions(availableExtensions);
 
 		std::array<const char*, 0> extensionsRequiredByEngine {
@@ -324,7 +324,7 @@ namespace hod::renderer
 		}
 #endif
 
-		std::vector<const char*> extensions;
+		Vector<const char*> extensions;
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		if (enableValidationLayers == true)
@@ -401,7 +401,7 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @param availableExtensions 
-	void RendererVulkan::GetAvailableExtensions(std::vector<VkExtensionProperties>& availableExtensions)
+	void RendererVulkan::GetAvailableExtensions(Vector<VkExtensionProperties>& availableExtensions)
 	{
 		uint32_t availableExtensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr);
@@ -415,7 +415,7 @@ namespace hod::renderer
 	/// @param extensionCount 
 	/// @param availableExtensions 
 	/// @return 
-	bool RendererVulkan::CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const std::vector<VkExtensionProperties>& availableExtensions)
+	bool RendererVulkan::CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const Vector<VkExtensionProperties>& availableExtensions)
 	{
 		size_t availableExtensionsCount = availableExtensions.size();
 
@@ -453,7 +453,7 @@ namespace hod::renderer
 		uint32_t availableValidationLayerCount = 0;
 		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, nullptr);
 
-		std::vector<VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
+		Vector<VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
 		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, availableValidationLayers.data());
 
 		for (size_t i = 0; i < validationLayerCount; ++i)
@@ -644,7 +644,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param availableDevices 
 	/// @return 
-	bool RendererVulkan::GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices)
+	bool RendererVulkan::GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices)
 	{
 		return false; // TODO
 	}
@@ -657,7 +657,7 @@ namespace hod::renderer
 		uint32_t physicalDeviceCount = 0;
 		vkEnumeratePhysicalDevices(_vkInstance, &physicalDeviceCount, nullptr);
 
-		std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
+		Vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
 		vkEnumeratePhysicalDevices(_vkInstance, &physicalDeviceCount, physicalDevices.data());
 
 		_availableGpu.resize(physicalDeviceCount);
@@ -729,7 +729,7 @@ namespace hod::renderer
 		uint32_t queueFamilyCount = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
-		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		Vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
 		for (size_t i = 0; i < queueFamilyCount; ++i)
@@ -770,7 +770,7 @@ namespace hod::renderer
 		uint32_t availableExtensionCount;
 		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, nullptr);
 
-		std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
+		Vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
 		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, availableExtensions.data());
 
 		if (RendererVulkan::CheckExtensionsIsAvailable(requiredExtensions.data(), requiredExtensions.size(), availableExtensions) == false)
@@ -780,8 +780,8 @@ namespace hod::renderer
 		}
 
 		VkSurfaceCapabilitiesKHR capabilities;
-		std::vector<VkSurfaceFormatKHR> formats;
-		std::vector<VkPresentModeKHR> presentModes;
+		Vector<VkSurfaceFormatKHR> formats;
+		Vector<VkPresentModeKHR> presentModes;
 
 		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities) != VK_SUCCESS)
 		{
@@ -929,7 +929,7 @@ namespace hod::renderer
 
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
-		const std::vector<const char*> requiredExtensions = {
+		const Vector<const char*> requiredExtensions = {
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
 
@@ -963,8 +963,8 @@ namespace hod::renderer
 		DestroySwapChain();
 
 		VkSurfaceCapabilitiesKHR capabilities;
-		std::vector<VkSurfaceFormatKHR> formats;
-		std::vector<VkPresentModeKHR> presentModes;
+		Vector<VkSurfaceFormatKHR> formats;
+		Vector<VkPresentModeKHR> presentModes;
 
 		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_selectedGpu->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
 		{
@@ -1084,7 +1084,7 @@ namespace hod::renderer
 		// Image views
 		vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, nullptr);
 
-		std::vector<VkImage> swapChainImages(imageCount);
+		Vector<VkImage> swapChainImages(imageCount);
 		vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, swapChainImages.data());
 
 		_swapChainImageViews.resize(imageCount, VK_NULL_HANDLE);
@@ -1657,7 +1657,7 @@ namespace hod::renderer
 	/// @return 
 	bool RendererVulkan::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore, const Fence* fence)
 	{
-		std::vector<VkCommandBuffer> vkCommandBuffers(commandBufferCount);
+		Vector<VkCommandBuffer> vkCommandBuffers(commandBufferCount);
 		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
 		{
 			vkCommandBuffers[commandBufferIndex] = static_cast<CommandBufferVk*>(commandBuffers[commandBufferIndex])->GetVkCommandBuffer();

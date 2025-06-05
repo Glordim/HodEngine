@@ -42,7 +42,7 @@ namespace hod::editor
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
+		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
 		game::WeakComponentBase* value = editorReflectedProperty.GetObject<game::WeakComponentBase>();
 

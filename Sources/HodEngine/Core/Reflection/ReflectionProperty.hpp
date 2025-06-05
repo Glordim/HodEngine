@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/String.hpp"
 
 #include "HodEngine/Core/Type.hpp"
 
@@ -27,7 +27,7 @@ namespace hod
 
 	public:
 
-		const std::vector<ReflectionTrait*>&	GetTraits() const;
+		const Vector<ReflectionTrait*>&			GetTraits() const;
 		template<typename _Trait_>
 		_Trait_*								FindTrait() const;
 		ReflectionTrait*						FindTrait(MetaType metaType) const;
@@ -41,11 +41,11 @@ namespace hod
 
 		virtual void							Copy(const void* sourceInstance, void* destinationInstance) const = 0;
 
-		const std::string&						GetDisplayName() const;
+		const String&							GetDisplayName() const;
 
 	protected:
 
-		std::vector<ReflectionTrait*>			_traits;
+		Vector<ReflectionTrait*>				_traits;
 
 		uint32_t								_offset = 0;
 		const char*								_name = nullptr;

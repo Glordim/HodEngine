@@ -12,7 +12,7 @@ namespace hod
 	
 	/// @brief 
 	/// @return 
-	const std::string& ReflectionTraitDisplayName::GetValue() const
+	const String& ReflectionTraitDisplayName::GetValue() const
 	{
 		return _name;
 	}

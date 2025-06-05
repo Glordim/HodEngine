@@ -46,7 +46,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::string& Prefab::GetName() const
+	const String& Prefab::GetName() const
 	{
 		return _name;
 	}

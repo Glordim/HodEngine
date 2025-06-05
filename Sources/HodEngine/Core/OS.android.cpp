@@ -52,9 +52,9 @@ namespace hod
 	/// @brief 
 	/// @param addr 
 	/// @return 
-	std::string OS::GetSymbol(void* addr)
+	String OS::GetSymbol(void* addr)
 	{
-		std::string symbol = "NOT_FOUND";
+		String symbol = "NOT_FOUND";
 
 		Dl_info info;
 		if (dladdr(addr, &info) && info.dli_sname)

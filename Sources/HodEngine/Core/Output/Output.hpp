@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Type.hpp> // std::to_underlying
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {
@@ -22,7 +22,7 @@ namespace hod
 
 	public:
 
-		Output(Type type, const std::string& content);
+		Output(Type type, const String& content);
 		Output(const Output& other) = default;
 		Output(Output&& other) = default;
 		~Output() = default;
@@ -33,7 +33,7 @@ namespace hod
 	public:
 
 		Type GetType() const;
-		const std::string& GetContent() const;
+		const String& GetContent() const;
 
 	public:
 
@@ -42,7 +42,7 @@ namespace hod
 	private:
 
         Type _type;
-        std::string _content;
+        String _content;
 
 	private:
 

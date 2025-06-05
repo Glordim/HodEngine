@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/Export.hpp"
 
 #include <map>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <cstdint>
 #include <unordered_map>
 
@@ -66,9 +66,9 @@ namespace hod
 
 			bool					_paramsReflectionDescriptorGenerated = false;
 			ReflectionDescriptor	_paramsReflectionDescriptor;
-			std::vector<ReflectionDescriptor*> _paramsSubReflectionDescriptors;
+			Vector<ReflectionDescriptor*> _paramsSubReflectionDescriptors;
 
-		//uint32_t				getLocationFromName(const std::string& name);
+		//uint32_t				getLocationFromName(const String& name);
 		};
 	}
 }

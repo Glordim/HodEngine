@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <memory>
 
 namespace hod::game
@@ -18,8 +18,8 @@ namespace hod::game
 
 		bool	Deserialize(const Document::Node& entitiesNode);
 
-		const std::vector<Entity*>&		GetEntities() const;
-		const std::vector<Component*>&	GetComponents() const;
+		const Vector<Entity*>&		GetEntities() const;
+		const Vector<Component*>&	GetComponents() const;
 
 	private:
 
@@ -29,8 +29,8 @@ namespace hod::game
 
 	private:
 
-		std::vector<Entity*>	_totalEntities;
-		std::vector<Component*>	_totalComponent;
+		Vector<Entity*>	_totalEntities;
+		Vector<Component*>	_totalComponent;
 
 		std::unordered_map<uint64_t, Entity*>		_contextualEntityMap;
 		std::unordered_map<uint64_t, Component*>	_contextualComponentMap;

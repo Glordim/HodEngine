@@ -22,9 +22,9 @@ namespace hod
 	/// @brief 
 	/// @param addr 
 	/// @return 
-	std::string OS::GetSymbol(void* addr)
+	String OS::GetSymbol(void* addr)
 	{
-		std::string symbol = "NOT_FOUND";
+		String symbol = "NOT_FOUND";
 
 		char** symbols = backtrace_symbols(&addr, 1);
 		if (symbols == nullptr)

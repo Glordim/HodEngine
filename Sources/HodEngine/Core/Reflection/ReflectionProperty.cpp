@@ -28,7 +28,7 @@ namespace hod
 
 	/// @brief 
 	/// @return 
-	const std::string& ReflectionProperty::GetDisplayName() const
+	const String& ReflectionProperty::GetDisplayName() const
 	{
 		if (_displayName.empty())
 		{
@@ -38,8 +38,8 @@ namespace hod
 	}
 
 	///@brief 
-	///@return const std::vector<ReflectionTrait>& 
-	const std::vector<ReflectionTrait*>& ReflectionProperty::GetTraits() const
+	///@return const Vector<ReflectionTrait>& 
+	const Vector<ReflectionTrait*>& ReflectionProperty::GetTraits() const
 	{
 		return _traits;
 	}

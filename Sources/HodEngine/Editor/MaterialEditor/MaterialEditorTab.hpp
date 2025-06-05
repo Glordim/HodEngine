@@ -8,7 +8,7 @@
 #include <HodEngine/Core/Math/Vector4.hpp>
 #include <HodEngine/Core/Resource/WeakResource.hpp>
 #include <memory>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <unordered_map>
 
 #include "HodEngine/Editor/Importer/MaterialImporter.hpp"
@@ -59,10 +59,10 @@ namespace hod::editor
 		std::shared_ptr<renderer::MaterialResource>	GetMaterial() const;
 		MaterialAsset&								GetMaterialAsset();
 
-		std::vector<ShaderParamScalar>&				GetScalarParameters();
-		std::vector<ShaderParamTexture>&			GetTextureParameters();
-		std::vector<ShaderParamVec2>&				GetVector2Parameters();
-		std::vector<ShaderParamVec4>&				GetVector4Parameters();
+		Vector<ShaderParamScalar>&				GetScalarParameters();
+		Vector<ShaderParamTexture>&			GetTextureParameters();
+		Vector<ShaderParamVec2>&				GetVector2Parameters();
+		Vector<ShaderParamVec4>&				GetVector4Parameters();
 
 		float										GetZoomFactor() const;
 		void										SetZoomFactor(float zoomFactor);
@@ -79,11 +79,11 @@ namespace hod::editor
 
 		std::shared_ptr<renderer::MaterialResource>	_material;
 
-		std::vector<renderer::ShaderParameter>	_parameters;
-		std::vector<ShaderParamScalar>			_scalarParameters;
-		std::vector<ShaderParamTexture>			_textureParameters;
-		std::vector<ShaderParamVec2>			_vec2Parameters;
-		std::vector<ShaderParamVec4>			_vec4Parameters;
+		Vector<renderer::ShaderParameter>	_parameters;
+		Vector<ShaderParamScalar>			_scalarParameters;
+		Vector<ShaderParamTexture>			_textureParameters;
+		Vector<ShaderParamVec2>			_vec2Parameters;
+		Vector<ShaderParamVec4>			_vec4Parameters;
 
 		MaterialAsset						_materialAsset;
 	};

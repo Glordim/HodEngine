@@ -72,7 +72,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::string& Entity::GetName() const
+	const String& Entity::GetName() const
 	{
 		return _name;
 	}
@@ -121,7 +121,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::vector<Component*>& Entity::GetComponents() const
+	const Vector<Component*>& Entity::GetComponents() const
 	{
 		return _components;
 	}
@@ -254,7 +254,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::vector<WeakEntity>& Entity::GetChildren() const
+	const Vector<WeakEntity>& Entity::GetChildren() const
 	{
 		return _children;
 	}

@@ -183,7 +183,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	const std::string& Asset::GetName() const
+	const String& Asset::GetName() const
 	{
 		return _name;
 	}

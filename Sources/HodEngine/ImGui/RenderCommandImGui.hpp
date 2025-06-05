@@ -6,7 +6,7 @@
 
 #include <HodEngine/Core/Rect.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::renderer
 {
@@ -43,14 +43,14 @@ namespace hod::imgui
 			Vector2				_displayPosition;
 			Vector2				_displaySize;
 
-			std::vector<Vertex>		_vertices;
-			std::vector<uint16_t>	_indices;
-			std::vector<Command>	_commands;
+			Vector<Vertex>		_vertices;
+			Vector<uint16_t>	_indices;
+			Vector<Command>	_commands;
 		};
 
 	public:
 
-									RenderCommandImGui(const std::vector<DrawList*>& drawLists, const Rect& viewport);
+									RenderCommandImGui(const Vector<DrawList*>& drawLists, const Rect& viewport);
 									RenderCommandImGui(const RenderCommandImGui&) = delete;
 									RenderCommandImGui(RenderCommandImGui&&) = delete;
 									~RenderCommandImGui() override;
@@ -66,6 +66,6 @@ namespace hod::imgui
 	private:
 
 		Rect						_viewport;
-		std::vector<DrawList*>		_drawLists;
+		Vector<DrawList*>		_drawLists;
 	};
 }

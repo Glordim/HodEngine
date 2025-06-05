@@ -20,7 +20,7 @@
 
 #include <span>
 #include <cstring>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod
 {
@@ -57,7 +57,7 @@ namespace hod
 		{
 			BuiltinMaterialSource(std::string_view vertexShaderSource,
 								  std::string_view fragmentShaderSource,
-								  const std::vector<VertexInput>& vertexInputs,
+								  const Vector<VertexInput>& vertexInputs,
 								  Material::PolygonMode polygonMode, Material::Topololy topology)
 			: _vertexShaderSource(vertexShaderSource)
 			, _fragmentShaderSource(fragmentShaderSource)
@@ -72,7 +72,7 @@ namespace hod
 			std::string_view			_vertexShaderSource;
 			std::string_view			_fragmentShaderSource;
 
-			std::vector<VertexInput>	_vertexInputs;
+			Vector<VertexInput>	_vertexInputs;
 
 			Material::PolygonMode		_polygonMode;
 			Material::Topololy			_topology;
@@ -195,7 +195,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		UID MaterialManager::CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+		UID MaterialManager::CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			return UID::INVALID_UID; // TODO ?
 			

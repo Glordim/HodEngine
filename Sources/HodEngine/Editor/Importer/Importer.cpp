@@ -23,7 +23,7 @@ namespace hod::editor
 	/// @return 
 	bool Importer::CanImport(const std::filesystem::path& path)
 	{
-		std::string extension = path.extension().string().substr(1);
+		String extension = path.extension().string().substr(1);
 		std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c){ return std::tolower(c); });
 
 		for (const char* supportedExtension : _supportedDataFileExtensions)

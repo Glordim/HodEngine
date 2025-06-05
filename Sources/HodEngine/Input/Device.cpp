@@ -43,7 +43,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	const std::vector<Input*>& Device::GetInputs() const
+	const Vector<Input*>& Device::GetInputs() const
 	{
 		return _inputs;
 	}
@@ -116,7 +116,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	const std::string& Device::GetName() const
+	const String& Device::GetName() const
 	{
 		return _name;
 	}

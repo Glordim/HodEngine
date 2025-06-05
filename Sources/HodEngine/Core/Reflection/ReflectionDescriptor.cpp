@@ -46,7 +46,7 @@ namespace hod
 
 	/// @brief 
 	/// @return 
-	const std::string& ReflectionDescriptor::GetDisplayName() const
+	const String& ReflectionDescriptor::GetDisplayName() const
 	{
 		if (_displayName.empty())
 		{
@@ -99,21 +99,21 @@ namespace hod
 
 	/// @brief 
 	/// @return 
-	const std::string& ReflectionDescriptor::GetTypeName() const
+	const String& ReflectionDescriptor::GetTypeName() const
 	{
 		return _typeName;
 	}
 
 	///@brief 
-	///@return const std::vector<ReflectionTrait*>& 
-	const std::vector<ReflectionTrait*>& ReflectionDescriptor::GetTraits() const
+	///@return const Vector<ReflectionTrait*>& 
+	const Vector<ReflectionTrait*>& ReflectionDescriptor::GetTraits() const
 	{
 		return _traits;
 	}
 
 	///@brief 
-	///@return const std::vector<ReflectionProperty*>& 
-	const std::vector<ReflectionProperty*>& ReflectionDescriptor::GetProperties() const
+	///@return const Vector<ReflectionProperty*>& 
+	const Vector<ReflectionProperty*>& ReflectionDescriptor::GetProperties() const
 	{
 		return _properties;
 	}
@@ -247,7 +247,7 @@ namespace hod
 	/// @param reflectionDescriptor 
 	/// @param collectedInstances 
 	/// @param instance 
-	void ReflectionDescriptor::CollectObjectProperties(const ReflectionDescriptor& reflectionDescriptor, std::vector<void*>& collectedInstances, void* instance)
+	void ReflectionDescriptor::CollectObjectProperties(const ReflectionDescriptor& reflectionDescriptor, Vector<void*>& collectedInstances, void* instance)
 	{
 		for (ReflectionProperty* property : GetProperties())
 		{

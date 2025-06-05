@@ -45,9 +45,9 @@ namespace hod::physics
 
 	/// @brief 
 	/// @return 
-	const std::vector<DebugDrawer::Flag>& DebugDrawerBox2d::GetAvailableFlags() const
+	const Vector<DebugDrawer::Flag>& DebugDrawerBox2d::GetAvailableFlags() const
 	{
-		static std::vector<Flag> flags = {
+		static Vector<Flag> flags = {
 			Flag("Shapes", (1 << 0)),
 			Flag("Joints", (1 << 1)),
 			Flag("JointExtras", (1 << 2)),

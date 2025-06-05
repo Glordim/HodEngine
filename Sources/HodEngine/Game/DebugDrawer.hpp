@@ -4,7 +4,7 @@
 #include <HodEngine/Core/Color.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::renderer
 {
@@ -39,7 +39,7 @@ namespace hod::game
 
 	private:
 
-		std::vector<Line>	_lines;
+		Vector<Line>	_lines;
 
 		const renderer::MaterialInstance*	_lineMaterial = nullptr; 
 	};

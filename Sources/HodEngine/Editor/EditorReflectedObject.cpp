@@ -20,7 +20,7 @@ namespace hod::editor
 		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
 	}
 
-	EditorReflectedObject::EditorReflectedObject(const std::vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)
+	EditorReflectedObject::EditorReflectedObject(const Vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)
 	: _sourceInstance(source)
 	, _instances(instances)
 	, _reflectionDescriptor(reflectionDescriptor)
@@ -96,7 +96,7 @@ namespace hod::editor
 		return _instances[0];
 	}
 
-	const std::vector<void*>& EditorReflectedObject::GetInstances() const
+	const Vector<void*>& EditorReflectedObject::GetInstances() const
 	{
 		return _instances;
 	}
@@ -126,7 +126,7 @@ namespace hod::editor
 		}
 	}
 
-	std::vector<EditorReflectedProperty*>& EditorReflectedObject::GetProperties()
+	Vector<EditorReflectedProperty*>& EditorReflectedObject::GetProperties()
 	{
 		return _properties;
 	}

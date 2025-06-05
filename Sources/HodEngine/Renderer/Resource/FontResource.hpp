@@ -5,7 +5,7 @@
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::renderer
 {
@@ -45,7 +45,7 @@ namespace hod::renderer
 	private:
 
 		Texture*					_texture = nullptr;
-		std::vector<Kerning>		_kernings;
+		Vector<Kerning>		_kernings;
 		Kerning						_unknownKerning;
 	};
 }

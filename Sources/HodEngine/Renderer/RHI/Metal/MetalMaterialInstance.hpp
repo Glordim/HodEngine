@@ -26,12 +26,12 @@ namespace hod
 
 		protected:
 
-			void							ApplyInt(const std::string& memberName, int value) override;
-			void							ApplyFloat(const std::string& memberName, float value) override;
-			void							ApplyVec2(const std::string& memberName, const Vector2& value) override;
-			void							ApplyVec4(const std::string& memberName, const Vector4& value) override;
-			void							ApplyMat4(const std::string& memberName, const Matrix4& value) override;
-			void							ApplyTexture(const std::string& name, const Texture& value) override;
+			void							ApplyInt(const String& memberName, int value) override;
+			void							ApplyFloat(const String& memberName, float value) override;
+			void							ApplyVec2(const String& memberName, const Vector2& value) override;
+			void							ApplyVec4(const String& memberName, const Vector4& value) override;
+			void							ApplyMat4(const String& memberName, const Matrix4& value) override;
+			void							ApplyTexture(const String& name, const Texture& value) override;
 		};
 	}
 }

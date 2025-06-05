@@ -45,11 +45,11 @@ namespace hod::renderer
 	/// @param setOffset 
 	/// @param setCount 
 	/// @return 
-	std::vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets(uint32_t setOffset, uint32_t setCount) const
+	Vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets(uint32_t setOffset, uint32_t setCount) const
 	{
 		if (setOffset > _descriptorSets.size())
 		{
-			return std::vector<VkDescriptorSet>();
+			return Vector<VkDescriptorSet>();
 		}
 
 		if (setCount > _descriptorSets.size() - setOffset)
@@ -57,7 +57,7 @@ namespace hod::renderer
 			setCount = (uint32_t)_descriptorSets.size() - setOffset;
 		}
 
-		std::vector<VkDescriptorSet> descriptorSets(setCount);
+		Vector<VkDescriptorSet> descriptorSets(setCount);
 
 		for (size_t i = 0; i < setCount; ++i)
 		{
@@ -70,7 +70,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param memberName 
 	/// @param value 
-	void VkMaterialInstance::ApplyInt(const std::string& memberName, int value)
+	void VkMaterialInstance::ApplyInt(const String& memberName, int value)
 	{
 		size_t descriptorSetCount = _descriptorSets.size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)
@@ -82,7 +82,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param memberName 
 	/// @param value 
-	void VkMaterialInstance::ApplyFloat(const std::string& memberName, float value)
+	void VkMaterialInstance::ApplyFloat(const String& memberName, float value)
 	{
 		size_t descriptorSetCount = _descriptorSets.size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)
@@ -94,7 +94,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param memberName 
 	/// @param value 
-	void VkMaterialInstance::ApplyVec2(const std::string& memberName, const Vector2& value)
+	void VkMaterialInstance::ApplyVec2(const String& memberName, const Vector2& value)
 	{
 		size_t descriptorSetCount = _descriptorSets.size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)
@@ -106,7 +106,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param memberName 
 	/// @param value 
-	void VkMaterialInstance::ApplyVec4(const std::string& memberName, const Vector4& value)
+	void VkMaterialInstance::ApplyVec4(const String& memberName, const Vector4& value)
 	{
 		size_t descriptorSetCount = _descriptorSets.size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)
@@ -118,7 +118,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param memberName 
 	/// @param value 
-	void VkMaterialInstance::ApplyMat4(const std::string& memberName, const Matrix4& value)
+	void VkMaterialInstance::ApplyMat4(const String& memberName, const Matrix4& value)
 	{
 		size_t descriptorSetCount = _descriptorSets.size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)
@@ -130,7 +130,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param name 
 	/// @param value 
-	void VkMaterialInstance::ApplyTexture(const std::string& name, const Texture& value)
+	void VkMaterialInstance::ApplyTexture(const String& name, const Texture& value)
 	{
 		size_t descriptorSetCount = _descriptorSets.size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)

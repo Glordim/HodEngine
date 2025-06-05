@@ -17,7 +17,7 @@ namespace hod::renderer
 
     public:
 
-        bool					ConvertTokens(const std::vector<Token>& inTokens, std::vector<Token>& outTokens) override;
-		bool					CompileSource(std::vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source) override;
+        bool					ConvertTokens(const Vector<Token>& inTokens, Vector<Token>& outTokens) override;
+		bool					CompileSource(Vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source) override;
     };
 }

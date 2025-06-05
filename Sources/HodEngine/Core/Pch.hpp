@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <string_view>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Core/Type.hpp"

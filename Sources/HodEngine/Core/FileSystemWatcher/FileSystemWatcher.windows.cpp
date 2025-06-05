@@ -55,7 +55,7 @@ namespace hod
 			while (true)
 			{
 				std::wstring result(fni->FileName, fni->FileNameLength / sizeof(wchar_t));
-				std::string relativefilePath;
+				String relativefilePath;
 				StringConversion::WStringToString(result, relativefilePath);
 
 				std::filesystem::path filePath = _dirPath / relativefilePath;

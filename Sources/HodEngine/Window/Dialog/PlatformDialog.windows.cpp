@@ -43,7 +43,7 @@ namespace hod::window
 		strcpy(filter, typeName.data());
 		strcpy(filter + typeName.size() + 1, typeExtension.data());
 
-		std::string initialFolderPath = initialFolder.string();
+		String initialFolderPath = initialFolder.string();
 
 		OPENFILENAMEA openFileName;
 		ZeroMemory(&openFileName, sizeof(openFileName));

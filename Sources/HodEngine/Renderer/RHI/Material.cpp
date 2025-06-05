@@ -12,7 +12,7 @@
 #include "HodEngine/Core/Math/Vector4.hpp"
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include <iostream>
 #include <cassert>
@@ -156,7 +156,7 @@ namespace hod
 				glGetProgramiv(this->programId, GL_INFO_LOG_LENGTH, &maxLength);
 
 				// The maxLength includes the NULL character
-				std::vector<GLchar> errorLog(maxLength);
+				Vector<GLchar> errorLog(maxLength);
 				glGetProgramInfoLog(this->programId, maxLength, &maxLength, &errorLog[0]);
 
 				std::cerr << std::string("Material : Failed to link Shaders") << std::endl;
@@ -207,7 +207,7 @@ namespace hod
 		//! @brief		
 		//-----------------------------------------------------------------------------
 		/*
-		uint32_t Material::getLocationFromName(const std::string& name)
+		uint32_t Material::getLocationFromName(const String& name)
 		{
 
 			auto it = this->nameToLocationMap.find(name);

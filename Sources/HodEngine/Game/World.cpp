@@ -313,7 +313,7 @@ namespace hod
 
 		/// @brief 
 		/// @return 
-		const std::vector<Scene*>& World::GetScenes() const
+		const Vector<Scene*>& World::GetScenes() const
 		{
 			return _scenes;
 		}

@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod
 {
@@ -20,6 +20,6 @@ namespace hod
 
 	private:
 
-		std::vector<Job*>	_jobs;
+		Vector<Job*>	_jobs;
 	};
 }

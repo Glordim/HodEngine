@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <string>
-#include <vector>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 #include <utility>
 
 namespace hod
@@ -22,7 +22,7 @@ namespace hod
 
 	public:
 
-		const std::vector<std::pair<uint64_t, std::string>>&	GetValues() const;
+		const Vector<std::pair<uint64_t, std::string>>&	GetValues() const;
 
 		template<typename __TYPE__>
 		void AddEnumValue(__TYPE__ value, const char* label);
@@ -32,7 +32,7 @@ namespace hod
 
 	private:
 
-		std::vector<std::pair<uint64_t, std::string>> _values;
+		Vector<std::pair<uint64_t, std::string>> _values;
 	};
 }
 

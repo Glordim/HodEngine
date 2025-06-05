@@ -2,7 +2,7 @@
 #include "HodEngine/Physics/Export.hpp"
 #include "HodEngine/Physics/Collider.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
 
 #include <box2d/id.h>
@@ -24,7 +24,7 @@ namespace hod::physics
 		void	SetAsCircleShape(const Vector2& position, float radius) override;
 		void	SetAsCapsuleShape(const Vector2& position, float height, float radius, float angle) override;
 		void	SetAsBoxShape(const Vector2& position, const Vector2& size, float angle) override;
-		void	SetAsConvexShape(const std::vector<const Vector2>& vertices) override;
+		void	SetAsConvexShape(const Vector<const Vector2>& vertices) override;
 
 		void	SetBounciness(float bounciness) override;
 

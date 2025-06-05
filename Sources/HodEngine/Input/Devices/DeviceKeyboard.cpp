@@ -32,7 +32,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	const std::string& DeviceKeyboard::GetBufferedText()
+	const String& DeviceKeyboard::GetBufferedText()
 	{
 		_readed = true;
 		return _bufferedText;

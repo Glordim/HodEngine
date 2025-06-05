@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {

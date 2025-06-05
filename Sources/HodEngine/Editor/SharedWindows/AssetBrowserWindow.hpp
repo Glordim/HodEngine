@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include <HodEngine/ImGui/Window/Window.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <filesystem>
 
 namespace hod::editor
@@ -34,7 +34,7 @@ namespace hod::editor
 			std::filesystem::path		_path;
 			bool						_expanded = false;
 
-			std::vector<FolderItem*>	_children;
+			Vector<FolderItem*>	_children;
 		};
 
 		enum PingAnimState

@@ -526,7 +526,7 @@ namespace hod::editor
 		}
 
 		bool alreadyExist = false;
-		for (const std::string& projectPath : recentProjects._projectsPath)
+		for (const String& projectPath : recentProjects._projectsPath)
 		{
 			if (projectPath == path.string())
 			{

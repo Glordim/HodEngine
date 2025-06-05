@@ -36,7 +36,7 @@ namespace hod::editor
 		bool									_generateMipmap = false;
 		renderer::FilterMode					_filterMode = renderer::FilterMode::Linear;
 		renderer::WrapMode						_wrapMode = renderer::WrapMode::Clamp;
-		std::vector<SpriteData> 				_spriteDatas;
+		Vector<SpriteData> 				_spriteDatas;
 	};
 
 	class HOD_EDITOR_API TextureImporter : public Importer

@@ -6,7 +6,7 @@
 #include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/DebugDrawer.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <memory>
 #include <map>
 
@@ -77,7 +77,7 @@ namespace hod
 			bool						AddScene(Scene* scene);
 			bool						RemoveScene(Scene* scene);
 
-			const std::vector<Scene*>&	GetScenes() const;
+			const Vector<Scene*>&	GetScenes() const;
 
 			Entity*						CreateEntity(const std::string_view& name = "");
 			void						DestroyEntity(Entity* entity);
@@ -104,7 +104,7 @@ namespace hod
 			MemberFunctionJob<World>	_drawJob;
 			bool						_drawJobEnabled = true;
 
-			std::vector<Scene*>			_scenes;
+			Vector<Scene*>			_scenes;
 			Scene*						_persistanteScene = nullptr;
 
 			DebugDrawer					_debugDrawer;

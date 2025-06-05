@@ -86,7 +86,7 @@ namespace hod::editor
 
 	private:
 
-		std::vector<EditorTab*>					_editorTabs;
+		Vector<EditorTab*>					_editorTabs;
 		std::unordered_map<std::string, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
 		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;

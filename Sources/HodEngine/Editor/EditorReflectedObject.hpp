@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <memory>
 
 namespace hod
@@ -24,7 +24,7 @@ namespace hod::editor
 	public:
 
 		EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow);
-		EditorReflectedObject(const std::vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow);
+		EditorReflectedObject(const Vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow);
 
 		EditorReflectedObject(EditorReflectedProperty& sourceProperty);
 		~EditorReflectedObject();
@@ -34,10 +34,10 @@ namespace hod::editor
 		bool IsEditingMultipleInstance() const;
 		bool IsOverride() const;
 
-		std::vector<EditorReflectedProperty*>&  GetProperties();
+		Vector<EditorReflectedProperty*>&  GetProperties();
 
 		void*                       GetInstance() const;
-		const std::vector<void*>&   GetInstances() const;
+		const Vector<void*>&   GetInstances() const;
 
 		EditorReflectedProperty*    GetSourceProperty() const;
 		EditorTabWindow*			GetEditorTabWindow() const;
@@ -49,11 +49,11 @@ namespace hod::editor
 	private:
 
 		void*                   _sourceInstance = nullptr;
-		std::vector<void*>      _instances;
+		Vector<void*>      _instances;
 		const ReflectionDescriptor*   _reflectionDescriptor = nullptr;
 		EditorReflectedProperty*    _sourceProperty = nullptr;
 		EditorTabWindow*		_editorTabWindow = nullptr;
 
-		std::vector<EditorReflectedProperty*>    _properties;
+		Vector<EditorReflectedProperty*>    _properties;
 	};
 }

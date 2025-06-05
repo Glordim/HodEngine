@@ -3,7 +3,7 @@
 
 #include "HodEngine/Renderer/RHI/Context.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -44,8 +44,8 @@ namespace hod::renderer
 
 		VkExtent2D					_swapChainExtent;
 		VkSwapchainKHR				_swapchain = VK_NULL_HANDLE;
-		std::vector<VkImageView>	_swapchainImageViews;
-		std::vector<VkFramebuffer>	_swapchainFramebuffers;
+		Vector<VkImageView>	_swapchainImageViews;
+		Vector<VkFramebuffer>	_swapchainFramebuffers;
 		VkRenderPass				_renderPass = VK_NULL_HANDLE;
 
 		uint32_t					_currentImageIndex = 0;

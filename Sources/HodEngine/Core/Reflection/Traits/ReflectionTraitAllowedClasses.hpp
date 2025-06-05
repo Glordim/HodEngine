@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod
 {
@@ -26,7 +26,7 @@ namespace hod
 
 	public:
 
-		const std::vector<ReflectionDescriptor*>&	GetAllowedClasses() const;
+		const Vector<ReflectionDescriptor*>&	GetAllowedClasses() const;
 
 		template<typename T>
 		void										AddAllowedClass();
@@ -34,7 +34,7 @@ namespace hod
 
 	protected:
 
-		std::vector<ReflectionDescriptor*>	_allowedClasses;
+		Vector<ReflectionDescriptor*>	_allowedClasses;
 	};
 
 	template<typename T>

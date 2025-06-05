@@ -352,8 +352,8 @@ void embraceTheDarkness()
 			_callback();
 		}
 
-		std::vector<Window*>::iterator windowIt = _windows.begin();
-		std::vector<Window*>::iterator windowItEnd = _windows.end();
+		Vector<Window*>::iterator windowIt = _windows.begin();
+		Vector<Window*>::iterator windowItEnd = _windows.end();
 		while (windowIt != windowItEnd)
 		{
 			if ((*windowIt)->IsClosed() == true)
@@ -408,7 +408,7 @@ void embraceTheDarkness()
 		ImVec2 clipOffset = drawData->DisplayPos;
  		ImVec2 clipScale = drawData->FramebufferScale;
 
-		std::vector<RenderCommandImGui::DrawList*> drawLists;
+		Vector<RenderCommandImGui::DrawList*> drawLists;
 		drawLists.resize(drawData->CmdListsCount);
 
 		for (int drawListIndex = 0; drawListIndex < drawData->CmdListsCount; ++drawListIndex)
@@ -536,9 +536,9 @@ void embraceTheDarkness()
 	/// @brief 
 	/// @param windowDescription 
 	/// @return 
-	std::vector<Window*> ImGuiManager::FindWindows(WindowDescription* windowDescription) const
+	Vector<Window*> ImGuiManager::FindWindows(WindowDescription* windowDescription) const
 	{
-		std::vector<Window*> windows;
+		Vector<Window*> windows;
 
 		for (Window* window : _windows)
 		{

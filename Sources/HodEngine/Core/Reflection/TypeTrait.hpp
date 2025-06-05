@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <type_traits>
 
 namespace hod
@@ -17,8 +17,8 @@ namespace hod
     template <typename T>
     struct IsVector : std::false_type {};
 
-    template <typename T, typename Allocator>
-    struct IsVector<std::vector<T, Allocator>> : std::true_type {};
+    template <typename T>
+    struct IsVector<Vector<T>> : std::true_type {};
 
     template <typename, typename = void>
     struct HasEqualOperator : std::false_type {};

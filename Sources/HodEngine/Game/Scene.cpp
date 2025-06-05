@@ -22,7 +22,7 @@
 #include "HodEngine/Core/Resource/ResourceManager.hpp"
 
 #include <unordered_map>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::game
 {
@@ -62,7 +62,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::string& Scene::GetName() const
+	const String& Scene::GetName() const
 	{
 		return _name;
 	}

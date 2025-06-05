@@ -61,9 +61,9 @@ namespace hod
 
 	private:
 
-		std::vector<std::function<void(int, int)>>										_mouseMoveCallbackList;
-		std::unordered_map<int, std::vector<std::function<void()>>>						_mouseButtonPressCallbackList;
-		std::unordered_map<int, std::vector<std::function<void()>>>						_mouseButtonReleaseCallbackList;
+		Vector<std::function<void(int, int)>>										_mouseMoveCallbackList;
+		std::unordered_map<int, Vector<std::function<void()>>>						_mouseButtonPressCallbackList;
+		std::unordered_map<int, Vector<std::function<void()>>>						_mouseButtonReleaseCallbackList;
 		std::unordered_map<InputListener::InternalKeyAxis*, std::function<void(float)>>	_axisCallbackList;
 	};
 }

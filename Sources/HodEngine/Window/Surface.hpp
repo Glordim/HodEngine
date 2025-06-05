@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <cstdint>
 
 namespace hod::window

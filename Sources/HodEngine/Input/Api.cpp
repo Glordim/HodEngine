@@ -115,7 +115,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	const std::vector<Device*> Api::GetDevices() const
+	const Vector<Device*> Api::GetDevices() const
 	{
 		return _devices;
 	}
@@ -136,7 +136,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	const std::string& Api::GetName() const
+	const String& Api::GetName() const
 	{
 		return _name;
 	}

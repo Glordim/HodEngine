@@ -40,7 +40,7 @@ namespace hod::game
 	public:
 
 		void				SetName(const std::string_view& name);
-		const std::string&	GetName() const;
+		const String&	GetName() const;
 
 		bool				SerializeInDocument(Document::Node& documentNode);
 		bool				DeserializeFromDocument(const Document::Node& documentNode);

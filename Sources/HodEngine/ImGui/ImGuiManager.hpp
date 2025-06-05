@@ -57,8 +57,8 @@ namespace hod::imgui
 		Window*							FindWindow(WindowDescription* windowDescription) const;
 
 		template<typename Window_>
-		std::vector<Window*>			FindWindows() const;
-		std::vector<Window*>			FindWindows(WindowDescription* windowDescription) const;
+		Vector<Window*>			FindWindows() const;
+		Vector<Window*>			FindWindows(WindowDescription* windowDescription) const;
 
 		void							CloseAllWindow();
 		void							DestroyAllWindow();
@@ -85,7 +85,7 @@ namespace hod::imgui
 		MemberFunctionJob<ImGuiManager>	_updateJob;
 
 		MainBar*						_mainBar = nullptr;
-		std::vector<Window*>			_windows;
+		Vector<Window*>			_windows;
 
 		renderer::Texture*				_fontTexture = nullptr;
 

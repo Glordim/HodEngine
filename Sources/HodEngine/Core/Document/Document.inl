@@ -81,7 +81,7 @@ namespace hod
 	}
 
 	template<>
-	inline void Document::Node::SetValue(const std::string& value)
+	inline void Document::Node::SetValue(const String& value)
 	{
 		SetString(value);
 	}

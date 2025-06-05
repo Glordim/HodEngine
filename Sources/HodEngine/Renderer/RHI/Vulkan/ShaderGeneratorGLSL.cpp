@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <map>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <string_view>
 
 #include <glslang/Public/ShaderLang.h>
@@ -53,7 +53,7 @@ namespace hod::renderer
 	/// @brief 
 	/// @param tokens 
 	/// @return 
-	bool ShaderGeneratorGLSL::ConvertTokens(const std::vector<Token>& inTokens, std::vector<Token>& outTokens)
+	bool ShaderGeneratorGLSL::ConvertTokens(const Vector<Token>& inTokens, Vector<Token>& outTokens)
 	{
 		outTokens.emplace_back(Token::Type::Identifier, "#version");
 		outTokens.emplace_back(Token::Type::IntegerValue, 450);
@@ -68,11 +68,11 @@ namespace hod::renderer
 		bool inCBufferStruct = false;
 		int locationIndex = 0;
 
-		std::vector<std::string> identifiers;
+		Vector<std::string> identifiers;
 
 		std::map<std::string, std::string> inVariableToQualifier;
 		std::map<std::string, std::string> outVariableToQualifier;
-		std::string cbufferIdentifier;
+		String cbufferIdentifier;
 
 		for (uint32_t index = 0; index < inTokens.size(); ++index)
 		{
@@ -336,7 +336,7 @@ namespace hod::renderer
 			{
 				case Token::Type::Identifier:
 				{
-					std::string value = std::get<std::string>(token._data);
+					String value = std::get<std::string>(token._data);
 					auto it = _identifierMap.find(value);
 					if (it != _identifierMap.end())
 					{
@@ -365,7 +365,7 @@ namespace hod::renderer
 	/// @param type 
 	/// @param source 
 	/// @return 
-	bool ShaderGeneratorGLSL::CompileSource(std::vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source)
+	bool ShaderGeneratorGLSL::CompileSource(Vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source)
 	{
 		if (glslang::InitializeProcess() == false)
 		{
@@ -406,7 +406,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		std::vector<uint32_t> spirv;
+		Vector<uint32_t> spirv;
 		glslang::GlslangToSpv(*program.getIntermediate(stage), spirv);
 
 		byteCode.resize(spirv.size() * sizeof(uint32_t));

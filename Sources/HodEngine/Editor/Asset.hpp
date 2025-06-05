@@ -49,7 +49,7 @@ namespace hod::editor
 
 		const UID&						GetUid() const;
 		const std::filesystem::path&	GetPath() const;
-		const std::string&				GetName() const;
+		const String&				GetName() const;
 
 		Meta&							GetMeta();
 

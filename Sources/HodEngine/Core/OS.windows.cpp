@@ -22,9 +22,9 @@ namespace hod
 	/// @brief 
 	/// @param addr 
 	/// @return 
-	std::string OS::GetSymbol(void* addr)
+	String OS::GetSymbol(void* addr)
 	{
-		std::string symbol;
+		String symbol;
 		HANDLE hProcess = GetCurrentProcess();
 		
 		static bool symInitialized = false;
@@ -125,7 +125,7 @@ namespace hod
 
 	/// @brief 
 	/// @return 
-	std::string OS::GetLastWin32ErrorMessage()
+	String OS::GetLastWin32ErrorMessage()
 	{
 		LPVOID lpMsgBuf;
 		DWORD dw = GetLastError();
@@ -140,7 +140,7 @@ namespace hod
 			(LPTSTR)&lpMsgBuf,
 			0, NULL);
 
-		std::string message = (char*)lpMsgBuf;
+		String message = (char*)lpMsgBuf;
 
 		::LocalFree(lpMsgBuf);
 

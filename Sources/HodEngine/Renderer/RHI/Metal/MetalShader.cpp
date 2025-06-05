@@ -38,7 +38,7 @@ namespace hod::renderer
 	{
 		RendererMetal* metalRenderer = RendererMetal::GetInstance();
 
-		std::string metalSource;
+		String metalSource;
 		if (metalRenderer->GetShaderGenerator()->GenerateSource(metalSource, source) == false)
 		{
 			return false;

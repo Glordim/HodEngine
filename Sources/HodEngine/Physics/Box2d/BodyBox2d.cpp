@@ -86,7 +86,7 @@ namespace hod::physics
 
 	/// @brief 
 	/// @param vertices 
-	Collider* BodyBox2d::AddConvexShape(bool isTrigger, const std::vector<const Vector2>& vertices)
+	Collider* BodyBox2d::AddConvexShape(bool isTrigger, const Vector<const Vector2>& vertices)
 	{
 		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
 		collider->SetAsConvexShape(vertices);
@@ -217,7 +217,7 @@ namespace hod::physics
 
 	/// @brief 
 	/// @param collision 
-	void BodyBox2d::GetCollisions(std::vector<Collision>& collisions)
+	void BodyBox2d::GetCollisions(Vector<Collision>& collisions)
 	{
 		int bodyContactCapacity = b2Body_GetContactCapacity(_b2BodyId);
 		b2ContactData* contactDatas = (b2ContactData*)alloca(bodyContactCapacity * sizeof(b2ContactData));

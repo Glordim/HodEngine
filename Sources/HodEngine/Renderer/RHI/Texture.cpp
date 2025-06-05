@@ -7,7 +7,7 @@
 #include <stb_image.h>
 
 #include <iostream>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {

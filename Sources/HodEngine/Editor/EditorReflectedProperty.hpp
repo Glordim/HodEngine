@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp>
@@ -23,7 +23,7 @@ namespace hod::editor
     public:
 
         EditorReflectedProperty(void* instance, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent);
-        EditorReflectedProperty(const std::vector<void*>& instances, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent);
+        EditorReflectedProperty(const Vector<void*>& instances, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent);
         ~EditorReflectedProperty();
 
     public:
@@ -35,7 +35,7 @@ namespace hod::editor
 
         void*                       GetSourceInstance() const;
         void*                       GetInstance() const;
-        const std::vector<void*>&   GetInstances() const;
+        const Vector<void*>&   GetInstances() const;
 
         bool                        HasDifferentValues() const;
 
@@ -75,11 +75,11 @@ namespace hod::editor
 
     private:
 
-        std::vector<void*>      _instances;
+        Vector<void*>      _instances;
         void*                   _sourceInstance = nullptr; 
         ReflectionProperty*     _reflectionProperty = nullptr;
 
-        std::vector<EditorReflectedProperty*>    _properties;
+        Vector<EditorReflectedProperty*>    _properties;
 
         EditorReflectedObject*  _parent = nullptr;
         EditorReflectedObject*  _reflectedObject = nullptr;

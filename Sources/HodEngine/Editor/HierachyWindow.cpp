@@ -21,7 +21,7 @@ namespace hod::editor
 
 	struct ChangeParentPayload
 	{
-		std::vector<std::weak_ptr<game::Entity>>	_entities;
+		Vector<std::weak_ptr<game::Entity>>	_entities;
 	};
 
 	/// @brief 

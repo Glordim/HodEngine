@@ -3,7 +3,7 @@
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
 #include "HodEngine/Window/Surface.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/OS.hpp>

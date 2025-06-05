@@ -12,7 +12,7 @@ namespace hod
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, Document::Node& documentNode)
 		{
-			std::string name = documentNode.GetName();
+			String name = documentNode.GetName();
 			documentNode.Copy(static_cast<const Document*>(instance)->GetRootNode());
 			documentNode.SetName(name);
 		},
@@ -163,7 +163,7 @@ namespace hod
 
 	/// @brief 
 	/// @return 
-	const std::string& Document::Node::GetName() const
+	const String& Document::Node::GetName() const
 	{
 		return _name;
 	}
@@ -353,7 +353,7 @@ namespace hod
 		return _value._float64;
 	}
 	
-	const std::string& Document::Node::GetString() const
+	const String& Document::Node::GetString() const
 	{
 		// TODO add assert if doesn't match with type
 		return _document.GetString(_value._stringId);
@@ -430,7 +430,7 @@ namespace hod
 	/// @brief 
 	/// @param hash 
 	/// @return 
-	const std::string& Document::GetString(StringId hash)
+	const String& Document::GetString(StringId hash)
 	{
 		return _stringTable[hash];
 	}

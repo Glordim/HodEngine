@@ -38,7 +38,7 @@ namespace hod
 		/// @param str 
 		/// @param result 
 		/// @return 
-		bool WStringToString(const std::wstring& str, std::string& result)
+		bool WStringToString(const std::wstring& str, String& result)
 		{
 			size_t utf8Size = str.size() + 1;
     		result.resize(str.size(), L'\0');

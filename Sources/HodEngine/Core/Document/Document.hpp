@@ -2,9 +2,9 @@
 #include "HodEngine/Core/Export.hpp"
 
 #include <cstdint>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <string_view>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <span>
 #include <map>
 
@@ -60,7 +60,7 @@ namespace hod
 			uint32_t	GetChildCount() const;
 
 			void				SetName(const std::string_view& name);
-			const std::string&	GetName() const;
+			const String&	GetName() const;
 
 			Type 		GetType() const;
 			void		SetTye(Type type);
@@ -98,7 +98,7 @@ namespace hod
 			uint64_t	GetUInt64() const;
 			float		GetFloat32() const;
 			double		GetFloat64() const;
-			const std::string& GetString() const;
+			const String& GetString() const;
 
 			Node&		operator [] (const std::string_view& name);
 
@@ -178,7 +178,7 @@ namespace hod
 	private:
 
 		StringId			AddString(const std::string_view& str);
-		const std::string&	GetString(StringId hash);
+		const String&	GetString(StringId hash);
 
 	private:
 

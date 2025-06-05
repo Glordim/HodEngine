@@ -24,7 +24,7 @@ namespace hod::imgui
 	/// @tparam Window_ 
 	/// @return 
 	template<typename Window_>
-	std::vector<Window*> ImGuiManager::FindWindows() const
+	Vector<Window*> ImGuiManager::FindWindows() const
 	{
 		return FindWindows(Window_::GetStaticDescription());
 	}

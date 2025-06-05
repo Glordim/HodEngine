@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Rect.hpp"
 #include "HodEngine/Core/Math/Matrix4.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::renderer
 {
@@ -40,7 +40,7 @@ namespace hod::renderer
 
 	private:
 
-		std::vector<RenderCommand*>		_renderCommands;
+		Vector<RenderCommand*>		_renderCommands;
 
 		MaterialInstance*				_pickingMaterialInstance = nullptr;
 
@@ -52,7 +52,7 @@ namespace hod::renderer
 		Semaphore*						_renderFinishedSemaphore = nullptr;
 		Fence*							_renderFinishedFence = nullptr;
 
-		std::vector<CommandBuffer*>		_commandBuffers;
+		Vector<CommandBuffer*>		_commandBuffers;
 
 		Matrix4							_projection;
 		Matrix4							_view;

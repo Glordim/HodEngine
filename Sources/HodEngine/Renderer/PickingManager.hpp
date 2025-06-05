@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <unordered_map>
 
 #include <HodEngine/Core/Singleton.hpp>

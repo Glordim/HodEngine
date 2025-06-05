@@ -43,7 +43,7 @@ namespace hod
 		CHAR resolvedProgram[MAX_PATH];
 		ExpandEnvironmentStrings(program.data(), resolvedProgram, MAX_PATH);
 
-		std::string commandLine = resolvedProgram;
+		String commandLine = resolvedProgram;
 		commandLine += " ";
 		commandLine += argument;
 

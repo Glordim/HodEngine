@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Math/Matrix4.hpp"

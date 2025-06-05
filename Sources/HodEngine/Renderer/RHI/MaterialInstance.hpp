@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/Export.hpp"
 
 #include <map>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 #include "HodEngine/Core/Math/Vector2.hpp"
 #include "HodEngine/Core/Math/Vector4.hpp"
@@ -33,28 +33,28 @@ namespace hod
 
 			const Material&							GetMaterial() const;
 
-			void									SetInt(const std::string& memberName, int value);
-			void									SetFloat(const std::string& memberName, float value);
-			void									SetVec2(const std::string& memberName, const Vector2& value);
-			void									SetVec4(const std::string& memberName, const Vector4& value);
-			void									SetMat4(const std::string& memberName, const Matrix4& value);
-			void									SetTexture(const std::string& memberName, const Texture* value);
+			void									SetInt(const String& memberName, int value);
+			void									SetFloat(const String& memberName, float value);
+			void									SetVec2(const String& memberName, const Vector2& value);
+			void									SetVec4(const String& memberName, const Vector4& value);
+			void									SetMat4(const String& memberName, const Matrix4& value);
+			void									SetTexture(const String& memberName, const Texture* value);
 
-			int										GetInt(const std::string& memberName);
-			float									GetFloat(const std::string& memberName);
-			const Vector2&							GetVec2(const std::string& memberName);
-			const Vector4&							GetVec4(const std::string& memberName);
-			const Matrix4&							GetMat4(const std::string& memberName);
-			const Texture*							GetTexture(const std::string& memberName);
+			int										GetInt(const String& memberName);
+			float									GetFloat(const String& memberName);
+			const Vector2&							GetVec2(const String& memberName);
+			const Vector4&							GetVec4(const String& memberName);
+			const Matrix4&							GetMat4(const String& memberName);
+			const Texture*							GetTexture(const String& memberName);
 
 		protected:
 
-			virtual void							ApplyInt(const std::string& memberName, int value) = 0;
-			virtual void							ApplyFloat(const std::string& memberName, float value) = 0;
-			virtual void							ApplyVec2(const std::string& memberName, const Vector2& value) = 0;
-			virtual void							ApplyVec4(const std::string& memberName, const Vector4& value) = 0;
-			virtual void							ApplyMat4(const std::string& memberName, const Matrix4& value) = 0;
-			virtual void							ApplyTexture(const std::string& memberName, const Texture& value) = 0;
+			virtual void							ApplyInt(const String& memberName, int value) = 0;
+			virtual void							ApplyFloat(const String& memberName, float value) = 0;
+			virtual void							ApplyVec2(const String& memberName, const Vector2& value) = 0;
+			virtual void							ApplyVec4(const String& memberName, const Vector4& value) = 0;
+			virtual void							ApplyMat4(const String& memberName, const Matrix4& value) = 0;
+			virtual void							ApplyTexture(const String& memberName, const Texture& value) = 0;
             
             const std::map<std::string, int>&               GetIntMap() const;
             const std::map<std::string, float>&             GetFloatMap() const;

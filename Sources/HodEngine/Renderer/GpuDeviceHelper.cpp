@@ -10,7 +10,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		bool GpuDeviceHelper::GetAvailableDevices(std::vector<GpuDevice*>* availableDevices)
+		bool GpuDeviceHelper::GetAvailableDevices(Vector<GpuDevice*>* availableDevices)
 		{
 			if (availableDevices == nullptr)
 				return false;
@@ -36,7 +36,7 @@ namespace hod
 			if (renderer == nullptr)
 				return false;
 
-			std::vector<GpuDevice*> availableDevices;
+			Vector<GpuDevice*> availableDevices;
 
 			if (renderer->GetAvailableGpuDevices(&availableDevices) == false)
 				return false;

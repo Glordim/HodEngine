@@ -49,7 +49,7 @@ namespace hod::renderer
 
 		bool		CreateContext(window::Window* window); // TODO virtual in Renderer ?
 
-		virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
+		virtual bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
 		bool CreateDevice();
 		bool CreateCommandPool();
@@ -105,8 +105,8 @@ namespace hod::renderer
 
 	private:
 
-		static void GetAvailableExtensions(std::vector<VkExtensionProperties>& availableExtensions);
-		static bool CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const std::vector<VkExtensionProperties>& availableExtensions);
+		static void GetAvailableExtensions(Vector<VkExtensionProperties>& availableExtensions);
+		static bool CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const Vector<VkExtensionProperties>& availableExtensions);
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		static bool CheckValidationLayerSupport(const char** validationLayers, size_t validationLayerCount);
@@ -119,8 +119,8 @@ namespace hod::renderer
 		VkQueue                     _graphicsQueue = VK_NULL_HANDLE;
 		VkQueue                     _presentQueue = VK_NULL_HANDLE;
 		//VkSwapchainKHR              _swapChain = VK_NULL_HANDLE;
-		//std::vector<VkImageView>    _swapChainImageViews;
-		//std::vector<VkFramebuffer>  _swapChainFramebuffers;
+		//Vector<VkImageView>    _swapChainImageViews;
+		//Vector<VkFramebuffer>  _swapChainFramebuffers;
 		VkTexture                   _depthTexture;
 		//VkRenderPass                _renderPass = VK_NULL_HANDLE;
 		VkCommandPool               _commandPool = VK_NULL_HANDLE;
@@ -128,7 +128,7 @@ namespace hod::renderer
 
 		const VkGpuDevice* _selectedGpu = nullptr;
 		const VkGpuDevice* _recommandedGpu = nullptr;
-		std::vector<VkGpuDevice>	_availableGpu;
+		Vector<VkGpuDevice>	_availableGpu;
 
 		VkContext* _context = nullptr;
 

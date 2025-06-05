@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <unordered_map>
 
 #include <HodEngine/Core/GenericManager.hpp>
@@ -48,7 +48,7 @@ namespace hod
 
 			const Material*	GetBuiltinMaterial(BuiltinMaterial buildMaterial);
 
-			UID	CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
+			UID	CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
 
 		private:
 

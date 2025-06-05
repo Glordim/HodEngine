@@ -2,7 +2,7 @@
 #include "HodEngine/Window/Android/AndroidWindow.hpp"
 #include "HodEngine/Window/Surface.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Job/JobQueue.hpp>

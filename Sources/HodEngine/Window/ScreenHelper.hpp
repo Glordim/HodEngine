@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <cstddef>
 
 namespace hod::window
@@ -17,7 +17,7 @@ namespace hod::window
 
 		static size_t	GetMonitorCount();
 		static bool		GetNativeResoltion(Resolution* nativeResolution, int monitor = 0);
-		static bool		GetSupportedResoltions(std::vector<Resolution>* supportedResolution, int monitor = 0);
+		static bool		GetSupportedResoltions(Vector<Resolution>* supportedResolution, int monitor = 0);
 
 	private:
 

@@ -6,8 +6,8 @@
 #include <unistd.h>
 #include <string.h> // strerror
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {
@@ -51,12 +51,12 @@ namespace hod
         	dup2(stderr_pipe[1], STDERR_FILENO); // Redirect stderr to the pipe
         	close(stderr_pipe[1]); // Close the write end of stderr pipe (it is duplicated now)
 
-			std::string commandLine(program);
+			String commandLine(program);
 			commandLine += " ";
 			commandLine += argument;
 			//OUTPUT_ERROR(commandLine.c_str());
 
-			std::vector<const char*> argv;
+			Vector<const char*> argv;
 			char* begin = commandLine.data();
 			char* cursor = begin;
 			bool escaped = 0;

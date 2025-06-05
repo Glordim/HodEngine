@@ -5,7 +5,7 @@
 
 #include "HodEngine/Renderer/Renderer.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include <D3d12.h>
 #include <dxgi1_6.h>
@@ -33,7 +33,7 @@ namespace hod
 
 			bool								Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
 
-			bool								GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
+			bool								GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
 			bool								BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) override;
 
@@ -49,7 +49,7 @@ namespace hod
 
 		private:
 
-			std::vector<D3d12GpuDevice>			_availableGpu;
+			Vector<D3d12GpuDevice>			_availableGpu;
 
 			// DirectX 12 Objects
 			ComPtr<ID3D12Debug>					_debugInterface;
@@ -59,7 +59,7 @@ namespace hod
 			ComPtr<ID3D12CommandAllocator>		_commandAllocator;
 			ComPtr<IDXGISwapChain4>				_swapChain;
 			ComPtr<ID3D12DescriptorHeap>		_descriptorHeap;
-			std::vector<ComPtr<ID3D12Resource>>	_backBuffers;
+			Vector<ComPtr<ID3D12Resource>>	_backBuffers;
 		};
 	}
 }

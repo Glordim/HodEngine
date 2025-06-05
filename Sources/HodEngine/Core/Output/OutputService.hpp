@@ -2,9 +2,9 @@
 #include "HodEngine/Core/Export.hpp"
 #include <HodEngine/Core/Output/Output.hpp>
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <format>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #define OUTPUT_MESSAGE(...)		hod::OutputService::AddOutput(__FILE__, __LINE__, hod::Output::Type::Message, __VA_ARGS__);
 #define OUTPUT_WARNING(...)		hod::OutputService::AddOutput(__FILE__, __LINE__, hod::Output::Type::Warning, __VA_ARGS__);
@@ -39,7 +39,7 @@ namespace hod
 
 	private:
 
-		static void			PlatformOutput(Output::Type type, const std::string& content);
+		static void			PlatformOutput(Output::Type type, const String& content);
 	};
 
 	/// @brief 
@@ -52,7 +52,7 @@ namespace hod
 	template<typename... Args>
 	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, std::format_string<Args...> format, Args&&... args)
 	{
-		std::string content = std::vformat(format.get(), std::make_format_args(args...));
+		String content = std::vformat(format.get(), std::make_format_args(args...));
 		AddOutput(fileName, lineNumber, type, content.c_str());
 	}
 }

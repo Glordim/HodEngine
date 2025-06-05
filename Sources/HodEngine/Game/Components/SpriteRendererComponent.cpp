@@ -68,7 +68,7 @@ namespace hod
 		void SpriteRendererComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 		{
 			/*
-			std::vector<renderer::P2fT2f> vertices(6);
+			Vector<renderer::P2fT2f> vertices(6);
 			vertices[0]._position[0] = -0.5f;
 			vertices[0]._position[1] = -0.5f;
 			vertices[0]._textCoord[0] = 0.0f;

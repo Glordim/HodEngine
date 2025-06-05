@@ -41,8 +41,8 @@ namespace hod::editor
 
 			std::shared_ptr<Asset>			_asset = nullptr;
 
-			std::vector<FileSystemMapping*>	_childrenAsset;
-			std::vector<FileSystemMapping*>	_childrenFolder;
+			Vector<FileSystemMapping*>	_childrenAsset;
+			Vector<FileSystemMapping*>	_childrenFolder;
 
 			//const FileSystemMapping*		_firstChildrenAsset = nullptr;
 			//const FileSystemMapping*		_nextChildrenAsset = nullptr;
@@ -88,7 +88,7 @@ namespace hod::editor
 
 		bool								ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 
-		void								ListAsset(std::vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor);
+		void								ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor);
 
 	private:
 
@@ -119,7 +119,7 @@ namespace hod::editor
 
 		FileSystemWatcher					_fileSystemWatcher;
 
-		std::vector<Importer*>				_importers;
+		Vector<Importer*>				_importers;
 		DefaultImporter						_defaultImporter;
 	};
 }

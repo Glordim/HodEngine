@@ -21,7 +21,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const std::string& Sprite::GetName() const
+		const String& Sprite::GetName() const
 		{
 			return _name;
 		}
@@ -53,7 +53,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const std::vector<P2fT2f>& Sprite::GetVertices() const
+		const Vector<P2fT2f>& Sprite::GetVertices() const
 		{
 			return _vertices;
 		}
@@ -61,7 +61,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const std::vector<uint16_t>& Sprite::GetIndices() const
+		const Vector<uint16_t>& Sprite::GetIndices() const
 		{
 			return _indices;
 		}

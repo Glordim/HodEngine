@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/Export.hpp"
 #include <HodEngine/Core/Time/SystemTime.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::editor
 {
@@ -20,7 +20,7 @@ namespace hod::editor
 
 		uint32_t 				_sampleCount;
 		SystemTime::TimeStamp	_lastTime;
-		std::vector<float>		_frameTimes;
+		Vector<float>		_frameTimes;
 		uint32_t				_currentIndex;
 		uint32_t				_frameCount;
 		float					_totalDuration = 0.0f;

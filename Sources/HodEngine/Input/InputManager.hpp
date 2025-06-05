@@ -6,7 +6,7 @@
 
 #include "HodEngine/Input/Input.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::input
 {
@@ -36,7 +36,7 @@ namespace hod::input
 
 	private:
 
-		std::vector<Api*>				_apis;
+		Vector<Api*>				_apis;
 
 		MemberFunctionJob<InputManager>	_updateJob;
 	};

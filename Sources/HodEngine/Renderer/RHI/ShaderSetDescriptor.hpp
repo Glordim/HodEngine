@@ -1,9 +1,9 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <unordered_map>
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::renderer
 {
@@ -68,12 +68,12 @@ namespace hod::renderer
 											ShaderSetDescriptor();
 		virtual								~ShaderSetDescriptor();
 
-		const std::vector<BlockUbo>&		GetUboBlocks() const;
-		const std::vector<BlockTexture>&	GetTextureBlocks() const;
+		const Vector<BlockUbo>&		GetUboBlocks() const;
+		const Vector<BlockTexture>&	GetTextureBlocks() const;
 
 	protected:
 
-		std::vector<BlockUbo>				_uboBlockVector;
-		std::vector<BlockTexture>			_textureBlockVector;
+		Vector<BlockUbo>				_uboBlockVector;
+		Vector<BlockTexture>			_textureBlockVector;
 	};
 }

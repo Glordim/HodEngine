@@ -36,7 +36,7 @@ namespace hod
 
 			bool		CreateContext(window::Window* window); // TODO virtual in Renderer ?
 
-			bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
+			bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
 			bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) override;
 

@@ -6,7 +6,7 @@
 
 #include "HodEngine/Window/Surface.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <cstring>
 
 #include <unistd.h>
@@ -335,7 +335,7 @@ namespace hod::window
 	bool WaylandWindow::SetupBuffer()
 	{
 		/*
-		std::string shmName = StringConversion::StringFormat("/HodEngine_pid-%i_wlShm_window-%p", getpid(), this);
+		String shmName = StringConversion::StringFormat("/HodEngine_pid-%i_wlShm_window-%p", getpid(), this);
 		int fd = shm_open(shmName.c_str(), O_RDWR | O_CREAT | O_EXCL, 0600);
 		if (fd < 0)
 		{

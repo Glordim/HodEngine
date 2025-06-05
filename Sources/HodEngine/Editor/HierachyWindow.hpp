@@ -45,7 +45,7 @@ namespace hod::editor
 			std::weak_ptr<game::Entity> _entity;
 			bool						_collapsed = true;
 
-			std::vector<EntityNode*>	_children;
+			Vector<EntityNode*>	_children;
 			EntityNode*					_parent = nullptr;
 		};
 		*/

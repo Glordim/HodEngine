@@ -2,8 +2,8 @@
 #include "HodEngine/Input/Export.hpp"
 
 #include <string_view>
-#include <string>
-#include <vector>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 #include <cstdint>
 
 namespace hod
@@ -43,11 +43,11 @@ namespace hod::input
 
 		void							Update();
 
-		const std::string&				GetName() const;
+		const String&				GetName() const;
 
 		bool							HasDevice(const UID& deviceUid) const;
 		const Device*					GetDevice(const UID& deviceUid) const;
-		const std::vector<Device*>		GetDevices() const;
+		const Vector<Device*>		GetDevices() const;
 
 	protected:
 
@@ -66,6 +66,6 @@ namespace hod::input
 		std::string						_name;
 
 		bool							_initialized = false;
-		std::vector<Device*>			_devices;
+		Vector<Device*>			_devices;
 	};
 }

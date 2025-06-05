@@ -2,8 +2,8 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include <cstdint>
-#include <string>
-#include <vector>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 #include <memory>
 #include <atomic>
 
@@ -56,7 +56,7 @@ namespace hod::game
 	public:
 
 		void											SetName(const std::string_view& name);
-		const std::string&								GetName() const;
+		const String&								GetName() const;
 
 		void											SetActive(bool active);
 		bool											GetActive() const;
@@ -66,13 +66,13 @@ namespace hod::game
 		void											SetParent(const WeakEntity& parent);
 		const WeakEntity&								GetParent() const;
 
-		const std::vector<WeakEntity>&					GetChildren() const;
+		const Vector<WeakEntity>&					GetChildren() const;
 
 		void											SetSiblingIndex(uint32_t index);
 		uint32_t										GetSiblingIndex() const;
 
 		// Components
-		const std::vector<Component*>&					GetComponents() const;
+		const Vector<Component*>&					GetComponents() const;
 
 		template<typename _Component_>
 		_Component_*									GetComponent();
@@ -130,10 +130,10 @@ namespace hod::game
 		bool											_activeInHierarchy = false;
 		InternalState									_internalState = InternalState::None;
 
-		std::vector<WeakEntity>							_children;
+		Vector<WeakEntity>							_children;
 		WeakEntity										_parent;
 
-		std::vector<Component*>							_components;
+		Vector<Component*>							_components;
 		
 		Scene*											_scene = nullptr; // TODO never set !!!
 		std::shared_ptr<PrefabResource>					_prefabResource = nullptr;

@@ -2,9 +2,9 @@
 
 namespace hod
 {
-	std::string GenerateDisplayName(const std::string_view& name)
+	String GenerateDisplayName(const std::string_view& name)
 	{
-		std::string displayName;
+		String displayName;
 		displayName.reserve(name.size());
 
 		bool nextWord = true;

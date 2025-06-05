@@ -106,13 +106,13 @@ namespace hod
 					float atlasWidth = (float)_fontResource.Lock()->GetTexture()->GetWidth();
 					float atlasHeight = (float)_fontResource.Lock()->GetTexture()->GetHeight();
 
-					std::vector<Vector2> positions;
+					Vector<Vector2> positions;
 					positions.reserve(_text.size() * 4);
 
-					std::vector<Vector2> uvs;
+					Vector<Vector2> uvs;
 					uvs.reserve(_text.size() * 4);
 
-					std::vector<uint16_t> indices;
+					Vector<uint16_t> indices;
 					indices.reserve(_text.size() * 6);
 
 					float offset = 0;

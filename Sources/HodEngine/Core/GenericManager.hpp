@@ -38,7 +38,7 @@ namespace hod
 
 	private:
 
-		std::vector<std::pair<UID, T*>>		_uidToDataMap;
+		Vector<std::pair<UID, T*>>		_uidToDataMap;
 	};
 }
 

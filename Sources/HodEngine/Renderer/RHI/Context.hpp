@@ -3,7 +3,7 @@
 
 #include <HodEngine/Window/Surface.hpp>
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <cstdint>
 
 namespace hod::renderer

@@ -19,7 +19,7 @@ namespace hod::imgui
 	/// @brief 
 	/// @param drawLists 
 	/// @param viewport 
-	RenderCommandImGui::RenderCommandImGui(const std::vector<DrawList*>& drawLists, const Rect& viewport)
+	RenderCommandImGui::RenderCommandImGui(const Vector<DrawList*>& drawLists, const Rect& viewport)
 		: RenderCommand()
 		, _viewport(viewport)
 		, _drawLists(drawLists)

@@ -12,11 +12,11 @@ namespace hod::renderer
 	/// @param type 
 	/// @param source 
 	/// @return 
-	bool ShaderGenerator::GenerateByteCode(std::vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source)
+	bool ShaderGenerator::GenerateByteCode(Vector<uint8_t>& byteCode, Shader::ShaderType type, std::string_view source)
 	{
 		byteCode.clear();
 
-		std::string specificPlatformSource;
+		String specificPlatformSource;
 		if (GenerateSource(specificPlatformSource, source) == false)
 		{
 			return false;
@@ -34,18 +34,18 @@ namespace hod::renderer
 	/// @param generatedSource 
 	/// @param source 
 	/// @return 
-	bool ShaderGenerator::GenerateSource(std::string& generatedSource, std::string_view source)
+	bool ShaderGenerator::GenerateSource(String& generatedSource, std::string_view source)
 	{
 		std::istringstream inputStream(std::string(source), std::ios_base::in);
 
-		std::vector<Token> tokens;
+		Vector<Token> tokens;
 		TokenReader tokenReader;
 		if (tokenReader.Parse(inputStream, tokens) == false)
 		{
 			return false;
 		}
 
-		std::vector<Token> convertedTokens;
+		Vector<Token> convertedTokens;
 		convertedTokens.reserve(tokens.size());
 		if (ConvertTokens(tokens, convertedTokens) == false)
 		{
@@ -70,7 +70,7 @@ namespace hod::renderer
 	/// @param expectedTokens 
 	/// @param identifiers 
 	/// @return 
-	bool ShaderGenerator::NextTokensAre(const std::vector<Token>& tokens, uint32_t& index, const std::vector<Token>& expectedTokens, std::vector<std::string>* identifiers)
+	bool ShaderGenerator::NextTokensAre(const Vector<Token>& tokens, uint32_t& index, const Vector<Token>& expectedTokens, Vector<std::string>* identifiers)
 	{
 		if (identifiers != nullptr)
 		{

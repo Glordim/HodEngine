@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <functional>
 #include <algorithm>
 
@@ -67,7 +67,7 @@ namespace hod
 
 	private:
 
-		std::vector<Slot*>	_slots;
+		Vector<Slot*>	_slots;
 	};
 }
 

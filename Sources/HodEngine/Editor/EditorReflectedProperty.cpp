@@ -18,7 +18,7 @@ namespace hod::editor
 
     }
 
-    EditorReflectedProperty::EditorReflectedProperty(const std::vector<void*>& instances, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent)
+    EditorReflectedProperty::EditorReflectedProperty(const Vector<void*>& instances, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent)
     : _instances(instances)
     , _sourceInstance(sourceInstance)
     , _reflectionProperty(reflectionProperty)
@@ -52,7 +52,7 @@ namespace hod::editor
         return _instances[0];
     }
 
-    const std::vector<void*>& EditorReflectedProperty::GetInstances() const
+    const Vector<void*>& EditorReflectedProperty::GetInstances() const
     {
         return _instances;
     }

@@ -51,7 +51,7 @@ namespace hod::editor
 	/// @return 
 	bool WeakResourceCustomEditor::Draw(WeakResourceBase& weakResource)
 	{
-		static std::vector<AssetDatabase::FileSystemMapping*> assetList;
+		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
 		bool changed = false;
 		ImGui::PushID(&weakResource);

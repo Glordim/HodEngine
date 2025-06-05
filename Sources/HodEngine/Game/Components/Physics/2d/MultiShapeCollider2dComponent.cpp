@@ -92,7 +92,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::vector<MultiShapeCollider2dComponent::CircleShape>& MultiShapeCollider2dComponent::GetCircleShapes() const
+	const Vector<MultiShapeCollider2dComponent::CircleShape>& MultiShapeCollider2dComponent::GetCircleShapes() const
 	{
 		return _circles;
 	}
@@ -120,7 +120,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::vector<MultiShapeCollider2dComponent::BoxShape>& MultiShapeCollider2dComponent::GetBoxShapes() const
+	const Vector<MultiShapeCollider2dComponent::BoxShape>& MultiShapeCollider2dComponent::GetBoxShapes() const
 	{
 		return _boxes;
 	}

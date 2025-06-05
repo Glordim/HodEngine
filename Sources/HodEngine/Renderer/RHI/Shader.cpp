@@ -4,7 +4,7 @@
 #include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"
 #include "HodEngine/Renderer/RHI/ShaderConstantDescriptor.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -33,7 +33,7 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @return 
-	const std::vector<uint8_t>& Shader::GetShaderBytecode() const
+	const Vector<uint8_t>& Shader::GetShaderBytecode() const
 	{
 		return _buffer;
 	}

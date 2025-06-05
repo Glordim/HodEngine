@@ -31,7 +31,7 @@ namespace hod
 			}
 		}
 
-		const std::string& name = node.GetName();
+		const String& name = node.GetName();
 		if (name.size() > 0)
 		{
 			stream.write("\"", 1);
@@ -236,11 +236,11 @@ namespace hod
 			case Document::Node::Type::String:
 			{
 				stream.write("\"", 1);
-				const std::string& value = node.GetString();
+				const String& value = node.GetString();
 				const char* pos = std::strpbrk(value.data(), "\t\n\r\f\b\"\\");
 				if (pos != nullptr)
 				{
-					std::string escapedValue = value;
+					String escapedValue = value;
 					pos = std::strpbrk(escapedValue.data(), "\t\n\r\f\b\"\\");
 
 					while (pos != nullptr)

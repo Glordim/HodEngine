@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
 namespace hod
@@ -38,7 +38,7 @@ namespace hod
 
 	public:
 
-		std::string							ToString() const;
+		String								ToString() const;
 		bool								IsValid() const;
 
 		bool								Compare(const UID& other) const;

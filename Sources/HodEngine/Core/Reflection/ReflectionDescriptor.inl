@@ -88,8 +88,8 @@ namespace hod
 	}
 
 	template<typename _ObjectType_>
-	void ReflectionDescriptor::CollectObjectProperties(std::vector<_ObjectType_*>& collectedInstances, void* instance)
+	void ReflectionDescriptor::CollectObjectProperties(Vector<_ObjectType_*>& collectedInstances, void* instance)
 	{
-		CollectObjectProperties(_ObjectType_::GetReflectionDescriptor(), (std::vector<void*>&)collectedInstances, instance);
+		CollectObjectProperties(_ObjectType_::GetReflectionDescriptor(), (Vector<void*>&)collectedInstances, instance);
 	}
 }

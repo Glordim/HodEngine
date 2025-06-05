@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 

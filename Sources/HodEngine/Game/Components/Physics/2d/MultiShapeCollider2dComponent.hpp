@@ -4,7 +4,7 @@
 #include "HodEngine/Game/Components/Physics/2d/Collider2dComponent.hpp"
 #include <HodEngine/Core/Math/Vector2.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::game
 {
@@ -49,14 +49,14 @@ namespace hod::game
 		void			ClearAllShapes();
 
 		void			AddCircleShape(const CircleShape& circleShape);
-		const std::vector<CircleShape>&	GetCircleShapes() const;
+		const Vector<CircleShape>&	GetCircleShapes() const;
 
 		void			AddBoxShape(const BoxShape& boxshape);
-		const std::vector<BoxShape>&	GetBoxShapes() const;
+		const Vector<BoxShape>&	GetBoxShapes() const;
 
 	private:
 
-		std::vector<CircleShape>	_circles;
-		std::vector<BoxShape>		_boxes;
+		Vector<CircleShape>	_circles;
+		Vector<BoxShape>		_boxes;
 	};
 }

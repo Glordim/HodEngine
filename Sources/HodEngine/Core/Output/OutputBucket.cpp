@@ -19,7 +19,7 @@ namespace hod
 
 	/// @brief 
 	/// @return 
-	const std::vector<Output>& OutputBucket::GetOutputs() const
+	const Vector<Output>& OutputBucket::GetOutputs() const
 	{
 		return _outputs;
 	}

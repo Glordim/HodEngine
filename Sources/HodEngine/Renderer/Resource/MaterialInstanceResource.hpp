@@ -39,6 +39,6 @@ namespace hod::renderer
 		WeakResource<MaterialResource>	_material;
 		Document						_params;
 
-		std::vector<WeakResource<TextureResource>> _textureResources;
+		Vector<WeakResource<TextureResource>> _textureResources;
 	};
 }
