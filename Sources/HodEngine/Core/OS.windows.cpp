@@ -5,6 +5,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <DbgHelp.h>
+#include <shellapi.h>
 
 #include <filesystem>
 
@@ -102,8 +103,7 @@ namespace hod
 
 		if (SymGetModuleInfo64(hProcess, win32SymbolInfo->ModBase, &moduleInfo) == FALSE)
 		{
-			OUTPUT_ERROR("SymGetModuleInfo64 error : {}", OS::GetLastWin32ErrorMessage());
-			return false;
+			symbolInfo._module = "???";
 		}
 		else
 		{
