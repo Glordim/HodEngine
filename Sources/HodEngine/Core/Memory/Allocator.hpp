@@ -9,7 +9,15 @@ namespace hod
 	{
 	public:
 
-		virtual ~Allocator() = default;
+					Allocator() = default;
+					Allocator(const Allocator&) = delete;
+					Allocator(Allocator&&) = delete;
+		virtual		~Allocator() = default;
+
+		Allocator&	operator=(const Allocator&) = delete;
+		Allocator&	operator=(Allocator&&) = delete;
+
+	public:
 
 		[[nodiscard]] void*	Allocate(uint32_t size);
 		[[nodiscard]] virtual void*	Allocate(uint32_t size, uint32_t alignment) = 0;
