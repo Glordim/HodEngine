@@ -9,13 +9,8 @@ namespace hod
 	{
 	public:
 
-		[[nodiscard]] void*	Allocate(uint32_t size) override;
 		[[nodiscard]] void*	Allocate(uint32_t size, uint32_t alignment) override;
-
-		[[nodiscard]] void*	Reallocate(void* ptr, uint32_t newSize) override;
 		[[nodiscard]] void*	Reallocate(void* ptr, uint32_t newSize, uint32_t alignment) override;
-		
-		void	Free(void* ptr) override;
-		void	Free(void* ptr, uint32_t alignment) override;
+		void				Free(void* ptr) override;
 	};
 }

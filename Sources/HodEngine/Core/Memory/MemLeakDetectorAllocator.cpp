@@ -20,14 +20,6 @@ namespace hod
 
 	/// @brief 
 	/// @param size 
-	/// @return 
-	void* MemLeakDetectorAllocator::Allocate(uint32_t size)
-	{
-		return Allocate(size, alignof(std::max_align_t));
-	}
-
-	/// @brief 
-	/// @param size 
 	/// @param alignment 
 	/// @return 
 	void* MemLeakDetectorAllocator::Allocate(uint32_t size, uint32_t alignment)
@@ -45,7 +37,7 @@ namespace hod
 		}
 		
 		// [ AllocationHeader ][ padding ][ pointer to header ][ aligned user ptr ]
-		void* allocation = _mallocAllocator.Allocate(sizeof(AllocationHeader) + maxPadding  + sizeof(AllocationHeader*) + size);
+		void* allocation = _mallocAllocator.Allocate(sizeof(AllocationHeader) + maxPadding  + sizeof(AllocationHeader*) + size, alignment);
 		if (allocation == nullptr)
 		{
 			return nullptr;
@@ -80,15 +72,6 @@ namespace hod
 		void* alignedPtr = reinterpret_cast<void*>(alignedAddr);
 		std::memset(alignedPtr, 0xA1, size);
 		return alignedPtr;
-	}
-
-	/// @brief 
-	/// @param ptr 
-	/// @param newSize 
-	/// @return 
-	void* MemLeakDetectorAllocator::Reallocate(void* ptr, uint32_t newSize)
-	{
-		return nullptr; // todo
 	}
 
 	/// @brief 
@@ -138,25 +121,10 @@ namespace hod
 	}
 
 	/// @brief 
-	/// @param ptr 
-	void MemLeakDetectorAllocator::Free(void* ptr, uint32_t alignment)
-	{
-		if (ptr == nullptr)
-		{
-			return;
-		}
-		
-		(void)alignment;
-		Free(ptr);
-	}
-
-	/// @brief 
 	/// @return 
 	bool MemLeakDetectorAllocator::DumpReport()
 	{
 		bool result = true;
-
-		new float();
 
 		_spinLock.Lock();
 		_stopAllocationCollect = true;

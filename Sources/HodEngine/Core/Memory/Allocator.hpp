@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
+#undef max
+
 namespace hod
 {
 	class HOD_CORE_API Allocator
@@ -9,14 +11,13 @@ namespace hod
 
 		virtual ~Allocator() = default;
 
-		[[nodiscard]] virtual void*	Allocate(uint32_t size) = 0;
+		[[nodiscard]] void*	Allocate(uint32_t size);
 		[[nodiscard]] virtual void*	Allocate(uint32_t size, uint32_t alignment) = 0;
 
-		[[nodiscard]] virtual void*	Reallocate(void* ptr, uint32_t newSize) = 0;
+		[[nodiscard]] void*	Reallocate(void* ptr, uint32_t newSize);
 		[[nodiscard]] virtual void*	Reallocate(void* ptr, uint32_t newSize, uint32_t alignment) = 0;
 
 		virtual void	Free(void* ptr) = 0;
-		virtual void	Free(void* ptr, uint32_t alignment) = 0;
 
 		// Optional helper to avoid static_cast
 
@@ -44,6 +45,16 @@ namespace hod
 		template<typename _Type_>
 		void DeleteArray(_Type_* ptr);
 	};
+
+	inline void* Allocator::Allocate(uint32_t size)
+	{
+		return Allocate(size, alignof(std::max_align_t));
+	}
+
+	inline void* Allocator::Reallocate(void* ptr, uint32_t newSize)
+	{
+		return Reallocate(ptr, newSize, alignof(std::max_align_t));
+	}
 
 	template<typename _Type_>
 	inline _Type_* Allocator::Allocate(uint32_t size)
@@ -87,7 +98,7 @@ namespace hod
 			return;
 
 		ptr->~_Type_();
-		Free(ptr, alignof(_Type_));
+		Free(ptr);
 	}
 
 	template<typename _Type_, typename ...Args>
@@ -127,6 +138,6 @@ namespace hod
 		{
 			(ptr + index)->~_Type_();
 		}
-		Free(allocation, alignof(_Type_));
+		Free(allocation);
 	}
 }

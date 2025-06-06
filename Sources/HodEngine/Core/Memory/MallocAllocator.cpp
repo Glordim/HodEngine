@@ -5,11 +5,6 @@
 
 namespace hod
 {
-	void* MallocAllocator::Allocate(uint32_t size)
-	{
-		return std::malloc(size);
-	}
-
 	void* MallocAllocator::Allocate(uint32_t size, uint32_t alignment)
 	{
 #if PLATFORM_WINDOWS
@@ -19,25 +14,19 @@ namespace hod
 #endif
 	}
 
-	void* MallocAllocator::Reallocate(void* ptr, uint32_t newSize)
-	{
-		return std::realloc(ptr, newSize);
-	}
-
 	void* MallocAllocator::Reallocate(void* ptr, uint32_t newSize, uint32_t alignment)
 	{
 		if (ptr == nullptr)
 			return Allocate(newSize, alignment);
 
+#if PLATFORM_WINDOWS
+		return nullptr;
+#else
 		return std::realloc(ptr, newSize);
+#endif
 	}
 
 	void MallocAllocator::Free(void* ptr)
-	{
-		std::free(ptr);
-	}
-
-	void MallocAllocator::Free(void* ptr, uint32_t alignment)
 	{
 #if PLATFORM_WINDOWS
 		return _aligned_free(ptr);
