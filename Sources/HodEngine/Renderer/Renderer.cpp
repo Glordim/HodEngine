@@ -22,7 +22,7 @@ namespace hod
 		{
 			MaterialManager::CreateInstance();
 			PickingManager::CreateInstance();
-			_renderQueue = new RenderQueue();
+			_renderQueue = DefaultAllocator::GetInstance().New<RenderQueue>();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Renderer::~Renderer()
 		{
-			delete _renderQueue;
+			DefaultAllocator::GetInstance().Delete(_renderQueue);
 			PickingManager::DestroyInstance();
 			MaterialManager::DestroyInstance();
 		}
@@ -41,25 +41,25 @@ namespace hod
 			_renderQueue->Terminate();
 			MaterialManager::GetInstance()->Clear();
 
-			delete _overdrawnMaterialInstance;
+			DefaultAllocator::GetInstance().Delete(_overdrawnMaterialInstance);
 			_overdrawnMaterialInstance = nullptr;
-			delete _overdrawnMaterial;
+			DefaultAllocator::GetInstance().Delete(_overdrawnMaterial);
 			_overdrawnMaterial = nullptr;
 
-			delete _wireframeMaterialInstance;
+			DefaultAllocator::GetInstance().Delete(_wireframeMaterialInstance);
 			_wireframeMaterialInstance = nullptr;
-			delete _wireframeMaterial;
+			DefaultAllocator::GetInstance().Delete(_wireframeMaterial);
 			_wireframeMaterial = nullptr;
 
-			delete _defaultMaterialInstance;
+			DefaultAllocator::GetInstance().Delete(_defaultMaterialInstance);
 			_defaultMaterialInstance = nullptr;
-			delete _defaultMaterial;
+			DefaultAllocator::GetInstance().Delete(_defaultMaterial);
 			_defaultMaterial = nullptr;
 
-			delete _defaultWhiteTexture;
+			DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
 			_defaultWhiteTexture = nullptr;
 
-			delete _shaderGenerator;
+			DefaultAllocator::GetInstance().Delete(_shaderGenerator);
 		}
 
 		/*
@@ -121,23 +121,23 @@ namespace hod
 					Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
 					if (vertexShader->LoadFromSource(SpriteUnlitColor_vert) == false)
 					{
-						delete vertexShader;
+						DefaultAllocator::GetInstance().Delete(vertexShader);
 						return nullptr;
 					}
 
 					Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
 					if (fragmentShader->LoadFromSource(SpriteUnlitColor_frag) == false)
 					{
-						delete vertexShader;
-						delete fragmentShader;
+						DefaultAllocator::GetInstance().Delete(vertexShader);
+						DefaultAllocator::GetInstance().Delete(fragmentShader);
 						return nullptr;
 					}
 
 					_defaultMaterial = renderer->CreateMaterial(vertexInput, 1, vertexShader, fragmentShader);
 					if (_defaultMaterial == nullptr)
 					{
-						delete vertexShader;
-						delete fragmentShader;
+						DefaultAllocator::GetInstance().Delete(vertexShader);
+						DefaultAllocator::GetInstance().Delete(fragmentShader);
 						return nullptr;
 					}
 				}

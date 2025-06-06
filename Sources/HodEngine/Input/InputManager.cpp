@@ -25,7 +25,7 @@ namespace hod::input
 
 		for (Api* api : _apis)
 		{
-			delete api;
+			DefaultAllocator::GetInstance().Delete(api);
 		}
 	}
 
@@ -49,7 +49,7 @@ namespace hod::input
 	{
 		if (api->Initialize() == false)
 		{
-			delete api;
+			DefaultAllocator::GetInstance().Delete(api);
 			return false;
 		}
 		_apis.push_back(api);

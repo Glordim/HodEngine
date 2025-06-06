@@ -445,10 +445,10 @@ namespace hod
         ReflectionTraitGetValueForSerialization* traitGetValueForSerialization = property->FindTrait<ReflectionTraitGetValueForSerialization>();
         if (traitGetValueForSerialization != nullptr)
         {
-            uint8_t* buffer = new uint8_t[traitGetValueForSerialization->GetSize()]; // todo pmr stack alloc
+            uint8_t* buffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(traitGetValueForSerialization->GetSize()); // todo pmr stack alloc
             traitGetValueForSerialization->GetValueForSerialization(objectInstance, buffer);
             bool result = Serializer::Serialize(*property->GetReflectionDescriptor(), buffer, objectNode);
-            delete[] buffer;
+            DefaultAllocator::GetInstance().Free(buffer);
             return result;
         }
         else
@@ -478,10 +478,10 @@ namespace hod
         ReflectionTraitGetValueForSerialization* traitGetValueForSerialization = property->FindTrait<ReflectionTraitGetValueForSerialization>();
         if (traitGetValueForSerialization != nullptr)
         {
-            uint8_t* buffer = new uint8_t[traitGetValueForSerialization->GetSize()]; // todo pmr stack alloc
+            uint8_t* buffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(traitGetValueForSerialization->GetSize()); // stack allocator ?
             traitGetValueForSerialization->GetValueForSerialization(objectInstance, buffer);
             bool result = Serializer::Serialize(property->GetReflectionDescriptor(), buffer, objectNode);
-            delete[] buffer;
+            DefaultAllocator::GetInstance().Free(buffer);
             return result;
         }
         else

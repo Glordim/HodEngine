@@ -20,7 +20,7 @@ namespace hod
 		{
 			if (_texture != nullptr)
 			{
-				delete _texture;
+				DefaultAllocator::GetInstance().Delete(_texture);
 			}
 		}
 

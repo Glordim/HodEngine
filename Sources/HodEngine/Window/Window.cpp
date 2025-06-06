@@ -8,7 +8,7 @@ namespace hod::window
 	/// @brief 
 	Window::~Window()
 	{
-		delete _surface;
+		DefaultAllocator::GetInstance().Delete(_surface);
 	}
 
 	/// @brief 

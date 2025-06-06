@@ -30,7 +30,7 @@ namespace hod::physics
 	{
 		for (Collider* collider : _colliders)
 		{
-			delete collider;
+			DefaultAllocator::GetInstance().Delete(collider);
 		}
 		_colliders.clear();
 	}
@@ -40,7 +40,7 @@ namespace hod::physics
 	/// @param endPosition 
 	Collider* BodyBox2d::AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
+		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsEdge(startPosition, endPosition);
 		_colliders.push_back(collider);
 		return collider;
@@ -51,7 +51,7 @@ namespace hod::physics
 	/// @param radius 
 	Collider* BodyBox2d::AddCircleShape(bool isTrigger, const Vector2& position, float radius)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
+		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsCircleShape(position, radius);
 		_colliders.push_back(collider);
 		return collider;
@@ -65,7 +65,7 @@ namespace hod::physics
 	/// @return 
 	Collider* BodyBox2d::AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
+		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsCapsuleShape(position, height, radius, angle);
 		_colliders.push_back(collider);
 		return collider;
@@ -78,7 +78,7 @@ namespace hod::physics
 	/// @param density 
 	Collider* BodyBox2d::AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
+		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsBoxShape(position, size, angle);
 		_colliders.push_back(collider);
 		return collider;
@@ -88,7 +88,7 @@ namespace hod::physics
 	/// @param vertices 
 	Collider* BodyBox2d::AddConvexShape(bool isTrigger, const Vector<const Vector2>& vertices)
 	{
-		ColliderBox2d* collider = new ColliderBox2d(this, isTrigger);
+		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsConvexShape(vertices);
 		_colliders.push_back(collider);
 		return collider;

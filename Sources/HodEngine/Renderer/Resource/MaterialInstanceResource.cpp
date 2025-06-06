@@ -23,7 +23,7 @@ namespace hod::renderer
 	/// @return 
 	MaterialInstanceResource::~MaterialInstanceResource()
 	{
-		delete _materialInstance;
+		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
 
 	/// @brief 

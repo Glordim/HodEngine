@@ -27,13 +27,13 @@ namespace hod::window
     /// @return 
     Window* CocoaDisplayManager::CreateWindow(bool hidden)
     {
-        return new MacOsWindow(hidden);
+        return DefaultAllocator::GetInstance().New<MacOsWindow>(hidden);
     }
 
     /// @brief 
     /// @param window 
     void CocoaDisplayManager::DestroyWindow(Window* window)
     {
-        delete window;
+        DefaultAllocator::GetInstance().Delete(window);
     }
 }

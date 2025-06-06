@@ -28,7 +28,7 @@ namespace hod::editor
 	/// @brief 
 	BoxCollider2dComponentCustomEditor::~BoxCollider2dComponentCustomEditor()
 	{
-		delete _materialInstance;
+		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
 
 	/// @brief 
@@ -55,7 +55,7 @@ namespace hod::editor
 
 				Matrix4 localMatrix = Matrix4::Translation(boxCollider2d->GetOffset()) * Matrix4::Rotation(boxCollider2d->GetRotation());
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+				renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 			}
 		}

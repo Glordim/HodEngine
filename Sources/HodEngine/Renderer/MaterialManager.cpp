@@ -42,13 +42,13 @@ namespace hod
 		{
 			for (uint32_t index = 0; index < _builtinMaterials.size(); ++index)
 			{
-				delete _builtinMaterials[index];
+				DefaultAllocator::GetInstance().Delete(_builtinMaterials[index]);
 				_builtinMaterials[index] = nullptr;
 
-				delete _builtinVertexShaders[index];
+				DefaultAllocator::GetInstance().Delete(_builtinVertexShaders[index]);
 				_builtinVertexShaders[index] = nullptr;
 
-				delete _builtinFragmentShaders[index];
+				DefaultAllocator::GetInstance().Delete(_builtinFragmentShaders[index]);
 				_builtinFragmentShaders[index] = nullptr;
 			}
 		}
@@ -162,15 +162,15 @@ namespace hod
 				Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
 				if (vertexShader->LoadFromSource(builtinMaterialSource._vertexShaderSource) == false)
 				{
-					delete vertexShader;
+					DefaultAllocator::GetInstance().Delete(vertexShader);
 					return nullptr;
 				}
 
 				Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
 				if (fragmentShader->LoadFromSource(builtinMaterialSource._fragmentShaderSource) == false)
 				{
-					delete vertexShader;
-					delete fragmentShader;
+					DefaultAllocator::GetInstance().Delete(vertexShader);
+					DefaultAllocator::GetInstance().Delete(fragmentShader);
 					return nullptr;
 				}
 
@@ -178,8 +178,8 @@ namespace hod
 				
 				if (material == nullptr)
 				{
-					delete vertexShader;
-					delete fragmentShader;
+					DefaultAllocator::GetInstance().Delete(vertexShader);
+					DefaultAllocator::GetInstance().Delete(fragmentShader);
 					return nullptr;
 				}
 
@@ -205,23 +205,23 @@ namespace hod
 			Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
 			if (vertexShader->LoadFromFile("Shader/" + shaderName + ".vert.spirv") == false)
 			{
-				delete vertexShader;
+				DefaultAllocator::GetInstance().Delete(vertexShader);
 				return UID::INVALID_UID;
 			}
 
 			Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
 			if (fragmentShader->LoadFromFile("Shader/" + shaderName + ".frag.spirv") == false)
 			{
-				delete vertexShader;
-				delete fragmentShader;
+				DefaultAllocator::GetInstance().Delete(vertexShader);
+				DefaultAllocator::GetInstance().Delete(fragmentShader);
 				return UID::INVALID_UID;
 			}
 
 			Material* material = renderer->CreateMaterial(nullptr, 0, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
 			if (material == nullptr)
 			{
-				delete vertexShader;
-				delete fragmentShader;
+				DefaultAllocator::GetInstance().Delete(vertexShader);
+				DefaultAllocator::GetInstance().Delete(fragmentShader);
 				return UID::INVALID_UID;
 			}
 

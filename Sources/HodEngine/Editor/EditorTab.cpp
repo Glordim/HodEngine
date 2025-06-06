@@ -33,7 +33,7 @@ namespace hod::editor
 	{
 		for (EditorTabWindow* window : _windows)
 		{
-			delete window;
+			DefaultAllocator::GetInstance().Delete(window);
 		}
 	}
 
@@ -112,7 +112,7 @@ namespace hod::editor
 				(*it)->Draw();
 				if ((*it)->IsClosed())
 				{
-					delete (*it);
+					DefaultAllocator::GetInstance().Delete(*it);
 					_windows.erase(it);
 					itEnd = _windows.end();
 				}

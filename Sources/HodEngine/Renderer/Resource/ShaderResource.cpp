@@ -18,7 +18,7 @@ namespace hod::renderer
 	/// @return 
 	ShaderResource::~ShaderResource()
 	{
-		delete _shader;
+		DefaultAllocator::GetInstance().Delete(_shader);
 	}
 
 	/// @brief 
@@ -36,7 +36,7 @@ namespace hod::renderer
 		_shader = Renderer::GetInstance()->CreateShader(_type);
 		if (_shader->LoadFromSource(_source) == false)
 		{
-			delete _shader;
+			DefaultAllocator::GetInstance().Delete(_shader);
 			_shader = nullptr;
 			return false;
 		}

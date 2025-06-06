@@ -29,7 +29,7 @@ namespace hod
 
 	TEST(Weakable, AfterDelete)
 	{
-		MyWeakable* weakable = new MyWeakable();
+		MyWeakable* weakable = DefaultAllocator::GetInstance().New<MyWeakable>();
 
 		WeakPtr<MyWeakable> weakPtrA(weakable);
 		EXPECT_EQ(weakPtrA.Get(), weakable);
@@ -37,7 +37,7 @@ namespace hod
 		WeakPtr<MyWeakable> weakPtrB(weakable);
 		EXPECT_EQ(weakPtrB.Get(), weakable);
 
-		delete weakable;
+		DefaultAllocator::GetInstance().Delete(weakable);
 
 		EXPECT_EQ(weakPtrA.Get(), nullptr);
 		EXPECT_EQ(weakPtrB.Get(), nullptr);

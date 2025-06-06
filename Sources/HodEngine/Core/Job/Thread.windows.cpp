@@ -38,7 +38,7 @@ namespace hod
 		Descriptor* descriptor = static_cast<Descriptor*>(param);
 		Thread::Function function = descriptor->_function;
 		void* parameter = descriptor->_parameter;
-		delete descriptor;
+		DefaultAllocator::GetInstance().Delete(descriptor);
 
 		return function(parameter);
 	}
@@ -50,7 +50,7 @@ namespace hod
 	/// @param name 
 	void Thread::Start(const Function& function, void* parameter, Priority priority, const char* name)
 	{
-		Descriptor* descriptor = new Descriptor();
+		Descriptor* descriptor = DefaultAllocator::GetInstance().New<Descriptor>();
 		descriptor->_function = function;
 		descriptor->_parameter = parameter;
 

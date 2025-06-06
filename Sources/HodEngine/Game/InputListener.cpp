@@ -43,8 +43,7 @@ namespace hod
 
 		while (it != itEnd)
 		{
-			delete it->first;
-
+			DefaultAllocator::GetInstance().Delete(it->first);
 			++it;
 		}
 	}
@@ -237,7 +236,7 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	void InputListener::RegisterAxisEvent(const InputListener::KeyAxis& axis, std::function<void(float)> callback)
 	{
-		_axisCallbackList[new InputListener::InternalKeyAxis(axis)] = callback;
+		_axisCallbackList[DefaultAllocator::GetInstance().New<InputListener::InternalKeyAxis>(axis)] = callback;
 	}
 
 	//-----------------------------------------------------------------------------

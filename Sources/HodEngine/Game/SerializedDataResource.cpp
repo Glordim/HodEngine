@@ -12,7 +12,7 @@ namespace hod::game
 	/// @brief 
 	SerializedDataResource::~SerializedDataResource()
 	{
-		delete _serializedData;
+		DefaultAllocator::GetInstance().Delete(_serializedData);
 	}
 
 	/// @brief 
@@ -43,7 +43,7 @@ namespace hod::game
 		if (typeNode == nullptr)
 		{
 			// todo message
-			delete _serializedData;
+			DefaultAllocator::GetInstance().Delete(_serializedData);
 			_serializedData = nullptr;
 			return false;
 		}
@@ -51,7 +51,7 @@ namespace hod::game
 		if (Serializer::Deserialize(*reflectionDescriptor, _serializedData, *dataNode) == false)
 		{
 			// todo message
-			delete _serializedData;
+			DefaultAllocator::GetInstance().Delete(_serializedData);
 			_serializedData = nullptr;
 			return false;
 		}

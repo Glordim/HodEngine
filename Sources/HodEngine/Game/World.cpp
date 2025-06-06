@@ -76,7 +76,7 @@ namespace hod
 		World::World()
 		: _updateJob(this, &World::Update, JobQueue::Queue::FramedNormalPriority)
 		, _drawJob(this, &World::Draw, JobQueue::Queue::FramedNormalPriority)
-		, _persistanteScene(new Scene())
+		, _persistanteScene(DefaultAllocator::GetInstance().New<Scene>())
 		{
 		}
 
@@ -94,8 +94,8 @@ namespace hod
 
 			Clear();
 
-			delete _persistanteScene;
-			delete _physicsWorld;
+			DefaultAllocator::GetInstance().Delete(_persistanteScene);
+			DefaultAllocator::GetInstance().Delete(_physicsWorld);
 		}
 
 		/// @brief 
@@ -118,7 +118,7 @@ namespace hod
 		{
 			for (Scene* scene : _scenes)
 			{
-				delete scene;
+				DefaultAllocator::GetInstance().Delete(scene);
 			}
 			_scenes.clear();
 
@@ -129,10 +129,10 @@ namespace hod
 		/// @return 
 		World* World::Clone()
 		{
-			World* clone = new World();
+			World* clone = DefaultAllocator::GetInstance().New<World>();
 			clone->Init();
 
-			delete clone->_persistanteScene;
+			DefaultAllocator::GetInstance().Delete(clone->_persistanteScene);
 			clone->_persistanteScene = _persistanteScene->Clone(clone);
 
 			for (Scene* scene : _scenes)
@@ -161,7 +161,7 @@ namespace hod
 		/// @return 
 		Scene* World::CreateScene()
 		{
-			Scene* pScene = new Scene();
+			Scene* pScene = DefaultAllocator::GetInstance().New<Scene>();
 
 			_scenes.push_back(pScene);
 
@@ -179,7 +179,7 @@ namespace hod
 				if (*it == pScene)
 				{
 					_scenes.erase(it);
-					delete pScene;
+					DefaultAllocator::GetInstance().Delete(pScene);
 					return;
 				}
 			}
@@ -336,7 +336,7 @@ namespace hod
 			}
 			_persistanteScene->DestroyEntity(entity);
 
-			delete entity;
+			DefaultAllocator::GetInstance().Delete(entity);
 		}
 
 		/// @brief 

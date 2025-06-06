@@ -29,7 +29,7 @@ namespace hod::editor
 	/// @brief 
 	CapsuleCollider2dComponentCustomEditor::~CapsuleCollider2dComponentCustomEditor()
 	{
-		delete _materialInstance;
+		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
 
 	/// @brief 
@@ -56,7 +56,7 @@ namespace hod::editor
 
 				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset() * scale) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix * localMatrix, _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+				renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix * localMatrix, _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 			}
 		}

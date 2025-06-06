@@ -55,7 +55,7 @@ namespace hod::editor
 	/// @brief 
 	MaterialEditorViewportWindow::~MaterialEditorViewportWindow()
 	{
-		delete _renderTarget;
+		DefaultAllocator::GetInstance().Delete(_renderTarget);
 	}
 
 	/// @brief 
@@ -130,7 +130,7 @@ namespace hod::editor
 				0, 2, 3,
 			};
 
-			renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->GetDefaultInstance(), 0);
+			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->GetDefaultInstance(), 0);
 			_renderQueue.PushRenderCommand(renderMeshCommand);
 		}
 

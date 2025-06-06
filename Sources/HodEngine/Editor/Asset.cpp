@@ -38,7 +38,7 @@ namespace hod::editor
 	/// @brief 
 	Asset::~Asset()
 	{
-		delete _thumbnail;
+		DefaultAllocator::GetInstance().Delete(_thumbnail);
 	}
 
 	/// @brief 
@@ -103,14 +103,14 @@ namespace hod::editor
 
 		if (_thumbnail != nullptr)
 		{
-			delete _thumbnail;
+			DefaultAllocator::GetInstance().Delete(_thumbnail);
 			_thumbnail = nullptr;
 		}
 		
 		_thumbnail = renderer::Renderer::GetInstance()->CreateTexture();
 		if (_thumbnail->LoadFromPath(thumbnailFilePath.string().c_str()) == false)
 		{
-			delete _thumbnail;
+			DefaultAllocator::GetInstance().Delete(_thumbnail);
 			_thumbnail = nullptr;
 		}
 

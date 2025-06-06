@@ -193,7 +193,7 @@ namespace hod::window
         {
             if ((*it)->GetId() == id)
             {
-                delete *it;
+                DefaultAllocator::GetInstance().Delete(*it);
                 thiz->_outputs.erase(it);
                 break;
             }
@@ -608,7 +608,7 @@ namespace hod::window
     /// @return 
     Window* WaylandDisplayManager::CreateWindow(bool hidden)
     {
-        WaylandWindow* window = new WaylandWindow(); // todo use hidden
+        WaylandWindow* window = DefaultAllocator::GetInstance().New<WaylandWindow>(); // todo use hidden
 
         _surfaceToWindowMap[window->GetWaylandSurface()] =  window;
 
@@ -662,7 +662,7 @@ namespace hod::window
     /// @return 
     WaylandDisplayManager::Output& WaylandDisplayManager::CreateOutput(wl_output* wlOutput, uint32_t id)
     {
-        _outputs.push_back(new Output(wlOutput, id));
+        _outputs.push_back(DefaultAllocator::GetInstance().New<Output>(wlOutput, id));
         return *_outputs.back();
     }
 

@@ -186,7 +186,7 @@ namespace hod::game
 	/// @return 
 	bool SceneSerializer::DeserializeEntityRaw(const Document::Node& entityNode)
 	{
-		Entity* entity = new Entity("");
+		Entity* entity = DefaultAllocator::GetInstance().New<Entity>("");
 		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 
 		Serializer::Deserialize(*entity, entityNode);

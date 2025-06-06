@@ -21,7 +21,7 @@ namespace hod::input
 					Api::NotifyDeviceDisconnected(device);
 				}
 
-				delete device;
+				DefaultAllocator::GetInstance().Delete(device);
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace hod::input
 
 		for (uint32_t padIndex = 0; padIndex < MaxPad; ++padIndex)
 		{
-			DevicePadXbox* device = new DevicePadXbox(this, padIndex);
+			DevicePadXbox* device = DefaultAllocator::GetInstance().New<DevicePadXbox>(this, padIndex);
 
 			_pads[padIndex] = device;
 

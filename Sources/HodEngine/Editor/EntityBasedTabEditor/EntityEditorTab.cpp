@@ -29,9 +29,9 @@ namespace hod::editor
 	EntityEditorTab::EntityEditorTab(std::shared_ptr<Asset> asset, const char* icon)
 	: EditorTab(asset, icon)
 	{
-		_scene = new game::Scene();
+		_scene = DefaultAllocator::GetInstance().New<game::Scene>();
 
-		_editingWorld = new game::World();
+		_editingWorld = DefaultAllocator::GetInstance().New<game::World>();
 		_editingWorld->Init();
 		_editingWorld->DisableDrawJob();
 		_editingWorld->AddScene(_scene);
@@ -44,8 +44,8 @@ namespace hod::editor
 	{
 		_editingWorld->RemoveScene(_scene);
 
-		delete _scene;
-		delete _editingWorld;
+		DefaultAllocator::GetInstance().Delete(_scene);
+		DefaultAllocator::GetInstance().Delete(_editingWorld);
 	}
 
 	/// @brief 
@@ -151,7 +151,7 @@ namespace hod::editor
 		_paused = false;
 
 		_world = _editingWorld;
-		delete _playingWorld;
+		DefaultAllocator::GetInstance().Delete(_playingWorld);
 		_playingWorld = nullptr;
 
 		//_world->SetEditorPlaying(_playing);

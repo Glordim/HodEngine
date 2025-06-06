@@ -21,7 +21,7 @@ namespace hod
 	{
 		for (ReflectionTrait* trait : _traits)
 		{
-			delete trait;
+			DefaultAllocator::GetInstance().Delete(trait);
 		}
 	}
 	

@@ -61,7 +61,7 @@ namespace hod::editor
 		
 		for (auto pair : _uidToAssetMap)
 		{
-			//delete pair.second;
+			//DefaultAllocator::GetInstance().Delete(pair.second);
 		}
 
 		_uidToAssetMap.clear();
@@ -70,7 +70,7 @@ namespace hod::editor
 		{
 			if (importer != &_defaultImporter)
 			{
-				delete importer;
+				DefaultAllocator::GetInstance().Delete(importer);
 			}
 		}
 	}
@@ -81,13 +81,13 @@ namespace hod::editor
 		for (FileSystemMapping* child : filesystemMapping._childrenFolder)
 		{
 			ClearFilesystemMapping(*child);
-			delete child;
+			DefaultAllocator::GetInstance().Delete(child);
 		}
 
 		for (FileSystemMapping* child : filesystemMapping._childrenAsset)
 		{
 			ClearFilesystemMapping(*child);
-			delete child;
+			DefaultAllocator::GetInstance().Delete(child);
 		}
 	}
 
@@ -129,7 +129,7 @@ namespace hod::editor
 				continue;
 			}
 
-			FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
+			FileSystemMapping* childFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
 			childFileSystemMapping->_path = path;
 			childFileSystemMapping->_lastWriteTime = entry.last_write_time();
 			childFileSystemMapping->_parentFolder = fileSystemMapping;
@@ -237,7 +237,7 @@ namespace hod::editor
 			AssetDatabase::FileSystemMapping* parentNode = (AssetDatabase::FileSystemMapping*)FindFileSystemMappingFromPath(finalPath.parent_path());
 			if (parentNode != nullptr)
 			{
-				FileSystemMapping* newFolderFileSystemMapping = new FileSystemMapping;
+				FileSystemMapping* newFolderFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
 				newFolderFileSystemMapping->_path = finalPath;
 				//newFolderFileSystemMapping->_lastWriteTime = entry.last_write_time();
 				newFolderFileSystemMapping->_parentFolder = parentNode;
@@ -258,7 +258,7 @@ namespace hod::editor
 	/// @return 
 	std::filesystem::path AssetDatabase::CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, std::shared_ptr<ImporterSettings> importerSettings, const char* importerType, const std::filesystem::path& path)
 	{
-		FileSystemMapping* childFileSystemMapping = new FileSystemMapping;
+		FileSystemMapping* childFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
 		childFileSystemMapping->_path = path;
 		//childFileSystemMapping->_path.replace_extension(".asset");
 		childFileSystemMapping->_path = GenerateUniqueAssetPath(childFileSystemMapping->_path);
@@ -274,7 +274,7 @@ namespace hod::editor
 		if (childFileSystemMapping->_asset->Save(instance, reflectionDescriptor) == false)
 		{
 			// TODO message better return value
-			delete childFileSystemMapping;
+			DefaultAllocator::GetInstance().Delete(childFileSystemMapping);
 			return "";
 		}
 
@@ -544,7 +544,7 @@ namespace hod::editor
 			node._parentFolder->_childrenFolder.erase(it);
 		}
 
-		delete &node;
+		DefaultAllocator::GetInstance().Delete(&node);
 	}
 
 	/// @brief 
@@ -558,7 +558,7 @@ namespace hod::editor
 
 		if (FindFileSystemMappingFromPath(path) == nullptr)
 		{
-			FileSystemMapping* node = new FileSystemMapping();
+			FileSystemMapping* node = DefaultAllocator::GetInstance().New<FileSystemMapping>();
 			node->_path = path;
 			node->_parentFolder = FindFileSystemMappingFromPath(path.parent_path());
 

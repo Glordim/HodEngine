@@ -65,7 +65,7 @@ namespace hod
 				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
-					renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), nullptr, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
+					renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), nullptr, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 				}
 			}
 		}

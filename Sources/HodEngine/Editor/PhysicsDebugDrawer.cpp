@@ -37,10 +37,10 @@ namespace hod::editor
 	/// @brief 
 	PhysicsDebugDrawer::~PhysicsDebugDrawer()
 	{
-		delete _solidPolygonMaterialInstance;
-		delete _wireframePolygonMaterialInstance;
-		delete _lineMaterialInstance;
-		delete _pointMaterialInstance;
+		DefaultAllocator::GetInstance().Delete(_solidPolygonMaterialInstance);
+		DefaultAllocator::GetInstance().Delete(_wireframePolygonMaterialInstance);
+		DefaultAllocator::GetInstance().Delete(_lineMaterialInstance);
+		DefaultAllocator::GetInstance().Delete(_pointMaterialInstance);
 	}
 
 	/// @brief 
@@ -75,7 +75,7 @@ namespace hod::editor
 				materialInstance = PhysicsDebugDrawer::_solidPolygonMaterialInstance;
 			}
 
-			renderQueue.PushRenderCommand(new RenderCommandPhysicsDrawer(renderCommand, materialInstance->GetMaterial()));
+			renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandPhysicsDrawer>(renderCommand, materialInstance->GetMaterial()));
 		}
 	}
 

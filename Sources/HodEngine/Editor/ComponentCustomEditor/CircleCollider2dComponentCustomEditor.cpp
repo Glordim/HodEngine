@@ -29,7 +29,7 @@ namespace hod::editor
 	/// @brief 
 	CircleCollider2dComponentCustomEditor::~CircleCollider2dComponentCustomEditor()
 	{
-		delete _materialInstance;
+		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
 
 	/// @brief 
@@ -51,7 +51,7 @@ namespace hod::editor
 				std::array<Vector2, 65> vertices;
 				GeometryGenerator::CircleShape<64>(vertices, circleCollider2d->GetOffset() * scale, circleCollider2d->GetRadius() * std::max(scale.GetX(), scale.GetY()));
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+				renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 			}
 		}

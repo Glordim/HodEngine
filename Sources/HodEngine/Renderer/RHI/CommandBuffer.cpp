@@ -39,13 +39,13 @@ namespace hod
 		{
 			for (MaterialInstance* materialInstance : _materialInstanceToDelete)
 			{
-				delete materialInstance;
+				DefaultAllocator::GetInstance().Delete(materialInstance);
 			}
 			_materialInstanceToDelete.clear();
 
 			for (Buffer* buffer : _bufferToDelete)
 			{
-				delete buffer;
+				DefaultAllocator::GetInstance().Delete(buffer);
 			}
 			_bufferToDelete.clear();
 		}

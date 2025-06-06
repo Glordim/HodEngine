@@ -29,7 +29,7 @@ namespace hod::editor
 
     EditorReflectedProperty::~EditorReflectedProperty()
     {
-        delete _reflectedObject;
+        DefaultAllocator::GetInstance().Delete(_reflectedObject);
     }
 
     ReflectionProperty* EditorReflectedProperty::GetReflectionProperty() const
@@ -61,7 +61,7 @@ namespace hod::editor
     {
         if (_reflectedObject == nullptr && (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic() || (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)))
         {
-            _reflectedObject = new EditorReflectedObject(*this);
+            _reflectedObject = DefaultAllocator::GetInstance().New<EditorReflectedObject>(*this);
         }
         return _reflectedObject;
     }

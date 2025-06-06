@@ -21,7 +21,7 @@ namespace hod::renderer
 	/// @return 
 	TextureResource::~TextureResource()
 	{
-		delete _texture;
+		DefaultAllocator::GetInstance().Delete(_texture);
 	}
 
 	/// @brief 
@@ -61,24 +61,24 @@ namespace hod::renderer
 		createInfo._wrapMode = _wrapMode;
 		createInfo._filterMode = _filterMode;
 
-		char* data = new char[dataSize];
+		char* data = DefaultAllocator::GetInstance().Allocate<char>(dataSize);
 		if (FileSystem::GetInstance()->Read(fileHandle, data, dataSize) != dataSize)
 		{
-			delete[] data;
+			DefaultAllocator::GetInstance().Free(data);
 			return false;
 		}
 
 		_texture = Renderer::GetInstance()->CreateTexture();
 		if (_texture->BuildBuffer(_width, _height, (unsigned char*)data, createInfo) == false) // todo BuildBuffer doesn't take void* ?
 		{
-			delete _texture;
+			DefaultAllocator::GetInstance().Delete(_texture);
 			_texture = nullptr;
 
-			delete[] data;
+			DefaultAllocator::GetInstance().Free(data);
 			return false;
 		}
 		
-		delete[] data;
+		DefaultAllocator::GetInstance().Free(data);
 		return true;
 	}
 

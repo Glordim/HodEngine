@@ -32,7 +32,7 @@ namespace hod::renderer
 		size_t uboCount = _uboBuffers.size();
 		for (size_t i = 0; i < uboCount; ++i)
 		{
-			delete _uboBuffers[i];
+			DefaultAllocator::GetInstance().Delete(_uboBuffers[i]);
 		}
 
 		if (_descriptorSet != VK_NULL_HANDLE)
@@ -69,7 +69,7 @@ namespace hod::renderer
 
 		for (BufferVk* buffer : _uboBuffers)
 		{
-			delete buffer;
+			DefaultAllocator::GetInstance().Delete(buffer);
 		}
 
 		_uboBuffers.resize(uboCount, nullptr);

@@ -77,7 +77,7 @@ namespace hod::editor
 	{
 		for (auto* property : _properties)
 		{
-			delete property; // avoid alloc ?
+			DefaultAllocator::GetInstance().Delete(property); // avoid alloc ?
 		}
 	}
 
@@ -121,7 +121,7 @@ namespace hod::editor
 
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
 		{
-			EditorReflectedProperty* property = new EditorReflectedProperty(_instances, _sourceInstance, reflectionProperty, this);
+			EditorReflectedProperty* property = DefaultAllocator::GetInstance().New<EditorReflectedProperty>(_instances, _sourceInstance, reflectionProperty, this);
 			_properties.push_back(property);
 		}
 	}

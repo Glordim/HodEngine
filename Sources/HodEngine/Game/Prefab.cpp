@@ -33,7 +33,7 @@ namespace hod::game
 	{
 		for (const auto& entityPair : _entities)
 		{
-			delete entityPair.second;
+			DefaultAllocator::GetInstance().Delete(entityPair.second);
 		}
 	}
 
@@ -119,7 +119,7 @@ namespace hod::game
 	/// @return 
 	Entity* Prefab::CreateEntity(const std::string_view& name)
 	{
-		Entity* entity = new Entity(name);
+		Entity* entity = DefaultAllocator::GetInstance().New<Entity>(name);
 		_entities.emplace(entity->GetInstanceId(), entity);
 
 		return entity;

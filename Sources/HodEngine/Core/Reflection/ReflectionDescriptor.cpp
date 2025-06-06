@@ -60,12 +60,12 @@ namespace hod
 	{
 		for (ReflectionProperty* property : _properties)
 		{
-			delete property;
+			DefaultAllocator::GetInstance().Delete(property);
 		}
 
 		for (ReflectionTrait* trait : _traits)
 		{
-			delete trait;
+			DefaultAllocator::GetInstance().Delete(trait);
 		}
 	}
 
@@ -160,7 +160,7 @@ namespace hod
 			{
 				ReflectionTrait* trait = _traits[index];
 				_traits.erase(_traits.begin() + index);
-				delete trait;
+				DefaultAllocator::GetInstance().Delete(trait);
 				return;
 			}
 		}

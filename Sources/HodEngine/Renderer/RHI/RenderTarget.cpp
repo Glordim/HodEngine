@@ -76,10 +76,10 @@ namespace hod
 		/// @brief 
 		void RenderTarget::Clear()
 		{
-			delete _color;
+			DefaultAllocator::GetInstance().Delete(_color);
 			_color = nullptr;
 
-			delete _depth;
+			DefaultAllocator::GetInstance().Delete(_depth);
 			_depth = nullptr;
 		}
 

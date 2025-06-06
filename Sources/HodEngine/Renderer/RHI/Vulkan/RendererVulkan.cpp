@@ -188,7 +188,7 @@ namespace hod::renderer
 	/// @return 
 	bool RendererVulkan::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
-		_shaderGenerator = new ShaderGeneratorGLSL();
+		_shaderGenerator = DefaultAllocator::GetInstance().New<ShaderGeneratorGLSL>();
 
 		if (CreateVkIntance() == false)
 		{
@@ -228,7 +228,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		_context = new VkContext(surface);
+		_context = DefaultAllocator::GetInstance().New<VkContext>(surface);
 		mainWindow->SetSurface(_context);
 		/*
 		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
@@ -601,7 +601,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		window->SetSurface(new VkContext(surface));
+		window->SetSurface(DefaultAllocator::GetInstance().New<VkContext>(surface));
 		return true;
 	}
 
@@ -1717,7 +1717,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	Shader* RendererVulkan::CreateShader(Shader::ShaderType type)
 	{
-		return new VkShader(type);
+		return DefaultAllocator::GetInstance().New<VkShader>(type);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -1725,11 +1725,11 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	Material* RendererVulkan::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 	{
-		VkMaterial* mat = new VkMaterial();
+		VkMaterial* mat = DefaultAllocator::GetInstance().New<VkMaterial>();
 
 		if (mat->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
 		{
-			delete mat;
+			DefaultAllocator::GetInstance().Delete(mat);
 			return nullptr;
 		}
 
@@ -1747,7 +1747,7 @@ namespace hod::renderer
 			return nullptr;
 		}
 
-		return new VkMaterialInstance(*material);
+		return DefaultAllocator::GetInstance().New<VkMaterialInstance>(*material);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -1755,7 +1755,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	CommandBuffer* RendererVulkan::CreateCommandBuffer()
 	{
-		return new CommandBufferVk();
+		return DefaultAllocator::GetInstance().New<CommandBufferVk>();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -1763,7 +1763,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	Buffer* RendererVulkan::CreateBuffer(Buffer::Usage usage, uint32_t size)
 	{
-		return new BufferVk(usage, size);
+		return DefaultAllocator::GetInstance().New<BufferVk>(usage, size);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -1771,7 +1771,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	Texture* RendererVulkan::CreateTexture()
 	{
-		return new VkTexture();
+		return DefaultAllocator::GetInstance().New<VkTexture>();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -1779,20 +1779,20 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	RenderTarget* RendererVulkan::CreateRenderTarget()
 	{
-		return new VkRenderTarget();
+		return DefaultAllocator::GetInstance().New<VkRenderTarget>();
 	}
 
 	/// @brief 
 	/// @return 
 	Semaphore* RendererVulkan::CreateSemaphore()
 	{
-		return new SemaphoreVk();
+		return DefaultAllocator::GetInstance().New<SemaphoreVk>();
 	}
 
 	/// @brief 
 	/// @return 
 	Fence* RendererVulkan::CreateFence()
 	{
-		return new FenceVk();
+		return DefaultAllocator::GetInstance().New<FenceVk>();
 	}
 }

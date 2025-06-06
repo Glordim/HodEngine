@@ -28,7 +28,7 @@ namespace hod::editor
 	/// @brief 
 	TextureRendererComponentCustomEditor::~TextureRendererComponentCustomEditor()
 	{
-		delete _materialInstance;
+		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
 
 	/// @brief 
@@ -55,7 +55,7 @@ namespace hod::editor
 					Vector2(-bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f),
 				};
 
-				renderer::RenderCommandMesh* renderMeshCommand = new renderer::RenderCommandMesh(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+				renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 			}
 		}

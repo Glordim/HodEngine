@@ -69,7 +69,7 @@ namespace hod::renderer
 	/// @brief 
 	FontResource::~FontResource()
 	{
-		delete _texture;
+		DefaultAllocator::GetInstance().Delete(_texture);
 	}
 
 	/// @brief 
@@ -114,10 +114,10 @@ namespace hod::renderer
 			return false;
 		}
 
-		uint8_t* data = new uint8_t[dataSize];
+		uint8_t* data = DefaultAllocator::GetInstance().Allocate<uint8_t>(dataSize);
 		if (FileSystem::GetInstance()->Read(fileHandle, (char*)data, dataSize) != dataSize)
 		{
-			delete[] data;
+			DefaultAllocator::GetInstance().Free(data);
 			return false;
 		}
 
@@ -126,7 +126,7 @@ namespace hod::renderer
 
 		if (error != 0)
 		{
-			delete[] data;
+			DefaultAllocator::GetInstance().Free(data);
 			FT_Done_FreeType(ftLibrary);
 			OUTPUT_ERROR("FreeType::FT_New_Memory_Face {}", FT_Error_String(error));
 			return false;
@@ -136,7 +136,7 @@ namespace hod::renderer
 		if (error != 0)
 		{
 			FT_Done_Face(ftFace);
-			delete[] data;
+			DefaultAllocator::GetInstance().Free(data);
 			FT_Done_FreeType(ftLibrary);
 			OUTPUT_ERROR("FreeType::FT_Select_Charmap {}", FT_Error_String(error));
 			return false;
@@ -147,7 +147,7 @@ namespace hod::renderer
 		{
 			OUTPUT_ERROR("FreeType::FT_Set_Pixel_Sizes {}", FT_Error_String(error));
 			FT_Done_Face(ftFace);
-			delete[] data;
+			DefaultAllocator::GetInstance().Free(data);
 			FT_Done_FreeType(ftLibrary);
 			return false;
 		}
@@ -183,7 +183,7 @@ namespace hod::renderer
 			{
 				OUTPUT_ERROR("FreeType::FT_Load_Glyph {}", FT_Error_String(error));
 				FT_Done_Face(ftFace);
-				delete[] data;
+				DefaultAllocator::GetInstance().Free(data);
 				FT_Done_FreeType(ftLibrary);
 				return false;
 			}
@@ -194,7 +194,7 @@ namespace hod::renderer
 			{
 				OUTPUT_ERROR("FreeType::FT_Render_Glyph {}", FT_Error_String(error));
 				FT_Done_Face(ftFace);
-				delete[] data;
+				DefaultAllocator::GetInstance().Free(data);
 				FT_Done_FreeType(ftLibrary);
 				return false;
 			}
@@ -203,7 +203,7 @@ namespace hod::renderer
 			if (ftBitmap.buffer != nullptr && ftBitmap.rows > 0 && ftBitmap.width > 0)
 			{
 				CharacterData characterData;
-				characterData.pixels = new uint8_t[ftBitmap.rows * ftBitmap.width * 4];
+				characterData.pixels = DefaultAllocator::GetInstance().Allocate<uint8_t>(ftBitmap.rows * ftBitmap.width * 4);
 				characterData.width = ftBitmap.width;
 				characterData.height = ftBitmap.rows;
 				for (uint32_t y = 0; y < ftBitmap.rows; y++)
@@ -232,12 +232,12 @@ namespace hod::renderer
 		}
 
 		FT_Done_Face(ftFace);
-		delete[] data;
+		DefaultAllocator::GetInstance().Free(data);
 		FT_Done_FreeType(ftLibrary);
 
 		uint32_t characterByLine = (uint32_t)std::sqrt(characterDatas.size()) + 1;
 		uint32_t atlasWidth = nextPowerOf2(characterByLine * 48);
-		uint8_t* atlas = new uint8_t[atlasWidth * atlasWidth * 4];
+		uint8_t* atlas = DefaultAllocator::GetInstance().Allocate<uint8_t>(atlasWidth * atlasWidth * 4);
 		for (uint32_t characteIndex = 0; characteIndex < characterDatas.size(); ++characteIndex)
 		{
 			const CharacterData& characterData = characterDatas[characteIndex];
@@ -254,21 +254,21 @@ namespace hod::renderer
 		}
 		for (const CharacterData& characterData : characterDatas)
 		{
-			delete[] characterData.pixels;
+			DefaultAllocator::GetInstance().Free(characterData.pixels);
 		}
 
 		Texture::CreateInfo createInfo;
 		_texture = Renderer::GetInstance()->CreateTexture();
 		if (_texture->BuildBuffer(atlasWidth, atlasWidth, (unsigned char*)atlas, createInfo) == false) // todo BuildBuffer doesn't take void* ?
 		{
-			delete[] atlas;
+			DefaultAllocator::GetInstance().Free(atlas);
 			
-			delete _texture;
+			DefaultAllocator::GetInstance().Delete(_texture);
 			_texture = nullptr;
 
 			return false;
 		}
-		delete[] atlas;
+		DefaultAllocator::GetInstance().Free(atlas);
 		
 		return true;
 	}

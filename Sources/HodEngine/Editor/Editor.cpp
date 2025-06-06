@@ -108,24 +108,24 @@ namespace hod::editor
 	{
 		for (EditorTab* editorTab : _editorTabs)
 		{
-			delete editorTab;
+			DefaultAllocator::GetInstance().Delete(editorTab);
 		}
 		_editorTabs.clear();
 
-		delete _floatingAssetBrowserWindow;
+		DefaultAllocator::GetInstance().Delete(_floatingAssetBrowserWindow);
 		imgui::ImGuiManager::GetInstance()->DestroyAllWindow();
 
 		Project::DestroyInstance();
 		AssetDatabase::DestroyInstance();
 
-		delete _hodTexture;
-		delete _folderTexture;
-		delete _folderOpenTexture;
-		delete _sceneTexture;
-		delete _prefabTexture;
-		delete _serializedDataTexture;
-		delete _shaderTexture;
-		delete _checkerTexture;
+		DefaultAllocator::GetInstance().Delete(_hodTexture);
+		DefaultAllocator::GetInstance().Delete(_folderTexture);
+		DefaultAllocator::GetInstance().Delete(_folderOpenTexture);
+		DefaultAllocator::GetInstance().Delete(_sceneTexture);
+		DefaultAllocator::GetInstance().Delete(_prefabTexture);
+		DefaultAllocator::GetInstance().Delete(_serializedDataTexture);
+		DefaultAllocator::GetInstance().Delete(_shaderTexture);
+		DefaultAllocator::GetInstance().Delete(_checkerTexture);
 
 		game::ZOrder::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 		Color::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
@@ -151,21 +151,21 @@ namespace hod::editor
 	{
 		game::World::GetInstance()->DisableDrawJob();
 
-		game::ZOrder::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new ZOrderCustomEditor);
-		Color::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new ColorCustomEditor);
-		Vector2::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector2CustomEditor);
-		Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new Vector4CustomEditor);
-		game::WeakComponentBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakComponentCustomEditor);
-		WeakResourceBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(new WeakResourceCustomEditor);
+		game::ZOrder::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<ZOrderCustomEditor>());
+		Color::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<ColorCustomEditor>());
+		Vector2::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector2CustomEditor>());
+		Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector4CustomEditor>());
+		game::WeakComponentBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<WeakComponentCustomEditor>());
+		WeakResourceBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<WeakResourceCustomEditor>());
 
-		game::Node2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new Node2dComponentCustomEditor);
-		game::CameraComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CameraComponentCustomEditor);
-		game::TextureRendererComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new TextureRendererComponentCustomEditor);
-		game::BoxCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new BoxCollider2dComponentCustomEditor);
-		game::CircleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CircleCollider2dComponentCustomEditor);
-		game::CapsuleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new CapsuleCollider2dComponentCustomEditor);
-		game::EdgeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new EdgeCollider2dComponentCustomEditor);
-		game::MultiShapeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(new MultiShapeCollider2dComponentCustomEditor);
+		game::Node2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<Node2dComponentCustomEditor>());
+		game::CameraComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CameraComponentCustomEditor>());
+		game::TextureRendererComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<TextureRendererComponentCustomEditor>());
+		game::BoxCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<BoxCollider2dComponentCustomEditor>());
+		game::CircleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CircleCollider2dComponentCustomEditor>());
+		game::CapsuleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CapsuleCollider2dComponentCustomEditor>());
+		game::EdgeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<EdgeCollider2dComponentCustomEditor>());
+		game::MultiShapeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<MultiShapeCollider2dComponentCustomEditor>());
 
 		Project::CreateInstance();
 
@@ -219,14 +219,14 @@ namespace hod::editor
 		_checkerTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
 
-		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset){ return new SceneEditorTab(asset); });
-		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset){ return new PrefabEditorTab(asset); });
-		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset){ return new TextureEditorTab(asset); });
-		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset){ return new MaterialEditorTab(asset); });
-		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset){ return new MaterialInstanceEditorTab(asset); });
-		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset){ return new SerializedDataEditorTab(asset); });
+		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset){ return DefaultAllocator::GetInstance().New<SceneEditorTab>(asset); });
+		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset){ return DefaultAllocator::GetInstance().New<PrefabEditorTab>(asset); });
+		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset){ return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
+		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset){ return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
+		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset){ return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
+		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset){ return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
 
-		_floatingAssetBrowserWindow = new AssetBrowserWindow();
+		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();
 
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
@@ -411,7 +411,7 @@ namespace hod::editor
 						{
 							if ((*it)->Draw() == false)
 							{
-								delete (*it);
+								DefaultAllocator::GetInstance().Delete(*it);
 								_editorTabs.erase(it);
 							}
 							else

@@ -73,7 +73,7 @@ namespace hod
 
 		if (_isDeleteAfterCompletion == true)
 		{
-			delete this;
+			DefaultAllocator::GetInstance().Delete(this);
 		}
 	}
 

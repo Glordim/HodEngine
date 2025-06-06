@@ -21,7 +21,7 @@ namespace hod::physics
 	{
 		for (Body* body : _bodies)
 		{
-			delete body;
+			DefaultAllocator::GetInstance().Delete(body);
 		}
 		_bodies.clear();
 	}

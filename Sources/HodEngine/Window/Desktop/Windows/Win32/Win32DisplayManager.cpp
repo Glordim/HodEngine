@@ -79,7 +79,7 @@ namespace hod::window
     /// @return 
     Window* Win32DisplayManager::CreateWindow(bool hidden)
     {
-        Window* window = new Win32Window(hidden);
+        Window* window = DefaultAllocator::GetInstance().New<Win32Window>(hidden);
         _windows.push_back(window);
         return window;
     }
@@ -93,6 +93,6 @@ namespace hod::window
         {
             _windows.erase(it);
         }
-        delete window;
+        DefaultAllocator::GetInstance().Delete(window);
     }
 }

@@ -26,6 +26,7 @@ namespace hod
 		class HOD_CORE_API Node
 		{
 			friend class Document;
+			friend class Allocator;
 
 		public:
 

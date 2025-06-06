@@ -106,7 +106,7 @@ namespace hod::application
 		game::SerializedDataFactory::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
 		imgui::ImGuiManager::DestroyInstance();
-		delete _window;
+		DefaultAllocator::GetInstance().Delete(_window);
 		PlatformRenderer::GetInstance()->Clear();
 		PlatformRenderer::DestroyInstance();
 		input::InputManager::DestroyInstance();

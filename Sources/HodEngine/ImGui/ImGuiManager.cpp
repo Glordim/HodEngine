@@ -65,10 +65,10 @@ namespace hod::imgui
 
 		//ImGui::DestroyContext(); // todo
 
-		delete _fontTexture;
-		delete _material;
-		delete _vertexShader;
-		delete _fragmentShader;
+		DefaultAllocator::GetInstance().Delete(_fontTexture);
+		DefaultAllocator::GetInstance().Delete(_material);
+		DefaultAllocator::GetInstance().Delete(_vertexShader);
+		DefaultAllocator::GetInstance().Delete(_fragmentShader);
 	}
 
 void embraceTheDarkness()
@@ -277,7 +277,7 @@ void embraceTheDarkness()
 	{
 		for (Window* window : _windows)
 		{
-			delete window;
+			DefaultAllocator::GetInstance().Delete(window);
 		}
 		_windows.clear();
 	}
@@ -358,7 +358,7 @@ void embraceTheDarkness()
 		{
 			if ((*windowIt)->IsClosed() == true)
 			{
-				delete *windowIt;
+				DefaultAllocator::GetInstance().Delete(*windowIt);
 				windowIt = _windows.erase(windowIt);
 				windowItEnd = _windows.end();
 			}
@@ -415,7 +415,7 @@ void embraceTheDarkness()
 		{
 			ImDrawList* imDrawList = drawData->CmdLists[drawListIndex];
 
-			RenderCommandImGui::DrawList* drawList = new RenderCommandImGui::DrawList();
+			RenderCommandImGui::DrawList* drawList = DefaultAllocator::GetInstance().New<RenderCommandImGui::DrawList>();
 
 			memcpy(&drawList->_displayPosition, &drawData->DisplayPos, sizeof(Vector2));
 			memcpy(&drawList->_displaySize, &drawData->DisplaySize, sizeof(Vector2));
@@ -455,7 +455,7 @@ void embraceTheDarkness()
 		viewport._size.SetX(ImGui::GetIO().DisplaySize.x * ImGui::GetIO().DisplayFramebufferScale.x);
 		viewport._size.SetY(-ImGui::GetIO().DisplaySize.y * ImGui::GetIO().DisplayFramebufferScale.y);
 		
-		RenderCommandImGui* renderCommand = new RenderCommandImGui(drawLists, viewport);
+		RenderCommandImGui* renderCommand = DefaultAllocator::GetInstance().New<RenderCommandImGui>(drawLists, viewport);
 
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 		renderer->GetRenderQueue()->PushRenderCommand(renderCommand);
@@ -485,24 +485,24 @@ void embraceTheDarkness()
 			_vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
 			if (_vertexShader->LoadFromSource(imgui_vert) == false)
 			{
-				delete _vertexShader;
+				DefaultAllocator::GetInstance().Delete(_vertexShader);
 				return false;
 			}
 
 			_fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
 			if (_fragmentShader->LoadFromSource(imgui_frag) == false)
 			{
-				delete _vertexShader;
-				delete _fragmentShader;
+				DefaultAllocator::GetInstance().Delete(_vertexShader);
+				DefaultAllocator::GetInstance().Delete(_fragmentShader);
 				return false;
 			}
 
 			_material = renderer->CreateMaterial(vertexInput, 3, _vertexShader, _fragmentShader);
 			if (_material == nullptr)
 			{
-				delete _material;
-				delete _vertexShader;
-				delete _fragmentShader;
+				DefaultAllocator::GetInstance().Delete(_material);
+				DefaultAllocator::GetInstance().Delete(_vertexShader);
+				DefaultAllocator::GetInstance().Delete(_fragmentShader);
 				return false;
 			}
 

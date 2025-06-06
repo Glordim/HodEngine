@@ -49,12 +49,12 @@ namespace hod
 
 		CommandBuffer* RendererMetal::CreateCommandBuffer()
 		{
-			return new MetalCommandBuffer();
+			return DefaultAllocator::GetInstance().New<MetalCommandBuffer>();
 		}
 
 		Buffer* RendererMetal::CreateBuffer(Buffer::Usage usage, uint32_t size)
 		{
-			return new MetalBuffer(usage, size);
+			return DefaultAllocator::GetInstance().New<MetalBuffer>(usage, size);
 		}
 
 		RenderTarget* RendererMetal::CreateRenderTarget()
@@ -67,12 +67,12 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 		{
-			_shaderGenerator = new ShaderGeneratorMetal();
+			_shaderGenerator = DefaultAllocator::GetInstance().New<ShaderGeneratorMetal>();
 
 			_device = MTL::CreateSystemDefaultDevice();
 			_commandQueue = _device->newCommandQueue();
 
-			_context = new MetalContext(static_cast<window::MacOsWindow*>(mainWindow));
+			_context = DefaultAllocator::GetInstance().New<MetalContext>(static_cast<window::MacOsWindow*>(mainWindow));
 			mainWindow->SetSurface(_context);
 
 /*
@@ -114,7 +114,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Shader* RendererMetal::CreateShader(Shader::ShaderType type)
 		{
-			return new MetalShader(type);
+			return DefaultAllocator::GetInstance().New<MetalShader>(type);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -122,10 +122,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Material* RendererMetal::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
-			MetalMaterial* material = new MetalMaterial();
+			MetalMaterial* material = DefaultAllocator::GetInstance().New<MetalMaterial>();
 			if (material->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
 			{
-				delete material;
+				DefaultAllocator::GetInstance().Delete(material);
 				return nullptr;
 			}
 			return material;
@@ -136,21 +136,21 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		MaterialInstance* RendererMetal::CreateMaterialInstance(const Material* material)
 		{
-			return new MetalMaterialInstance(*material);
+			return DefaultAllocator::GetInstance().New<MetalMaterialInstance>(*material);
 		}
 
 		/// @brief 
 		/// @return 
 		Semaphore* RendererMetal::CreateSemaphore()
 		{
-			return new MetalSemaphore();
+			return DefaultAllocator::GetInstance().New<MetalSemaphore>();
 		}
 
 		/// @brief 
 		/// @return 
 		Fence* RendererMetal::CreateFence()
 		{
-			return new MetalFence();
+			return DefaultAllocator::GetInstance().New<MetalFence>();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -158,7 +158,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Texture* RendererMetal::CreateTexture()
 		{
-			return new MetalTexture();
+			return DefaultAllocator::GetInstance().New<MetalTexture>();
 		}
 
 		MTL::Device* RendererMetal::GetDevice() const

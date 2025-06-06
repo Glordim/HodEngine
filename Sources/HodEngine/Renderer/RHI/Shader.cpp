@@ -23,11 +23,11 @@ namespace hod::renderer
 	/// @brief 
 	Shader::~Shader()
 	{
-		delete _constantDescriptor;
+		DefaultAllocator::GetInstance().Delete(_constantDescriptor);
 
 		for (const auto& pair : _setDescriptors)
 		{
-			delete pair.second;
+			DefaultAllocator::GetInstance().Delete(pair.second);
 		}
 	}
 

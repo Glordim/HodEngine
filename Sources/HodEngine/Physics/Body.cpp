@@ -8,7 +8,7 @@ namespace hod::physics
 	{
 		for (Collider* collider : _colliders)
 		{
-			delete collider;
+			DefaultAllocator::GetInstance().Delete(collider);
 		}
 	}
 	

@@ -31,6 +31,6 @@ namespace hod::physics
 
 	World* PhysicsBox2d::CreateWorld()
 	{
-		return new WorldBox2d();
+		return DefaultAllocator::GetInstance().New<WorldBox2d>();
 	}
 }

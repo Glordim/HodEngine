@@ -10,7 +10,7 @@ namespace hod::game
 	/// @brief 
 	SceneResource::~SceneResource()
 	{
-		delete _scene;
+		DefaultAllocator::GetInstance().Delete(_scene);
 	}
 
 	/// @brief 
@@ -19,7 +19,7 @@ namespace hod::game
 	/// @return 
 	bool SceneResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
 	{
-		_scene = new Scene();
+		_scene = DefaultAllocator::GetInstance().New<Scene>();
 		return _scene->DeserializeFromDocument(documentNode);
 	}
 

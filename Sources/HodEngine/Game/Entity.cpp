@@ -44,7 +44,7 @@ namespace hod::game
 	{
 		for (Component* component : _components)
 		{
-			delete component;
+			DefaultAllocator::GetInstance().Delete(component);
 		}
 		_components.clear();
 	}

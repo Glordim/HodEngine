@@ -20,6 +20,7 @@ namespace hod::game
 
 		friend class Scene;
 		friend class Entity;
+		friend class Allocator;
 
 	public:
 

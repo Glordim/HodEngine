@@ -37,7 +37,7 @@ namespace hod::physics
 	{
 		for (World* world : _worlds)
 		{
-			delete world;
+			DefaultAllocator::GetInstance().Delete(world);
 		}
 		_worlds.clear();
 	}

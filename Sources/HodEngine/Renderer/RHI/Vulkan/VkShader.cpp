@@ -105,7 +105,7 @@ namespace hod::renderer
 		}
 		else
 		{
-			setDescriptor = new ShaderSetDescriptorVk();
+			setDescriptor = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
 			_setDescriptors.emplace(set, setDescriptor);
 		}
 
@@ -131,7 +131,7 @@ namespace hod::renderer
 				size += unsigned(range.range);
 			}
 
-			_constantDescriptor = new ShaderConstantDescriptorVk(0, size, GetShaderType());
+			_constantDescriptor = DefaultAllocator::GetInstance().New<ShaderConstantDescriptorVk>(0, size, GetShaderType());
 		}
 
 		size_t uniformBufferCount = resources.uniform_buffers.size();

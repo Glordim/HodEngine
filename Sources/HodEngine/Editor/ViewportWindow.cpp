@@ -60,8 +60,8 @@ namespace hod::editor
 	/// @brief 
 	ViewportWindow::~ViewportWindow()
 	{
-		delete _renderTarget;
-		delete _pickingRenderTarget;
+		DefaultAllocator::GetInstance().Delete(_renderTarget);
+		DefaultAllocator::GetInstance().Delete(_pickingRenderTarget);
 	}
 
 	/// @brief 
@@ -365,14 +365,14 @@ namespace hod::editor
 		{
 			if (_physicsDebugDrawer == nullptr)
 			{
-				_physicsDebugDrawer = new PhysicsDebugDrawer();
+				_physicsDebugDrawer = DefaultAllocator::GetInstance().New<PhysicsDebugDrawer>();
 			}
 		}
 		else
 		{
 			if (_physicsDebugDrawer != nullptr)
 			{
-				delete _physicsDebugDrawer;
+				DefaultAllocator::GetInstance().Delete(_physicsDebugDrawer);
 				_physicsDebugDrawer = nullptr;
 			}
 		}

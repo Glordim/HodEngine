@@ -10,7 +10,7 @@ namespace hod::game
 	/// @brief 
 	PrefabResource::~PrefabResource()
 	{
-		delete _prefab;
+		DefaultAllocator::GetInstance().Delete(_prefab);
 	}
 
 	/// @brief 
@@ -21,11 +21,11 @@ namespace hod::game
 	{
 		_document.GetRootNode().Copy(documentNode);
 
-		_prefab = new Prefab();
+		_prefab = DefaultAllocator::GetInstance().New<Prefab>();
 		bool result = _prefab->DeserializeFromDocument(documentNode);
 		if (result == false)
 		{
-			delete _prefab;
+			DefaultAllocator::GetInstance().Delete(_prefab);
 		}
 		return result;
 	}

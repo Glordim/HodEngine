@@ -52,7 +52,7 @@ namespace hod::window
 
 		wl_buffer_destroy(buffer->_wlBuffer);
 		munmap(buffer->_data, buffer->_size);
-		delete buffer;
+		DefaultAllocator::GetInstance().Delete(buffer);
 	}
 
 	void WaylandWindow::xdg_surface_configure(void* userData, xdg_surface* xdg_surface, uint32_t serial)
@@ -362,7 +362,7 @@ namespace hod::window
 		wl_shm_pool* pool = wl_shm_create_pool(displayManager->GetShm(), fd, size);
 
 
-		Buffer* buffer = new Buffer;
+		Buffer* buffer = DefaultAllocator::GetInstance().New<Buffer>();
 		buffer->_wlBuffer = wl_shm_pool_create_buffer(pool, 0, _width, _height, stride, WL_SHM_FORMAT_XRGB8888);
 		buffer->_data = poolData;
 		buffer->_size = size;

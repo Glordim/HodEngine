@@ -31,7 +31,7 @@ namespace hod::editor
 	bool ShaderImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
 		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
-		char* dataBuffer = new char[dataSize + 1];
+		char* dataBuffer = DefaultAllocator::GetInstance().Allocate<char>(dataSize + 1);
 		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != dataSize)
 		{
 			OUTPUT_ERROR("ShaderImporter : Can't read Shader data");

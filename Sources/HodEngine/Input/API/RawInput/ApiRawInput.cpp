@@ -125,7 +125,7 @@ namespace hod::input
 			return;
 		}
 
-		pRawInputDeviceList = new RAWINPUTDEVICELIST[deviceCount];
+		pRawInputDeviceList = DefaultAllocator::GetInstance().NewArray<RAWINPUTDEVICELIST>(deviceCount);
 
 		if (GetRawInputDeviceList(pRawInputDeviceList, &deviceCount, sizeof(RAWINPUTDEVICELIST)) == (UINT)-1)
 		{
@@ -143,7 +143,7 @@ namespace hod::input
 			PushDeviceChangeMessage(device.hDevice, GIDC_ARRIVAL);
 		}
 
-		delete[] pRawInputDeviceList;
+		DefaultAllocator::GetInstance().DeleteArray(pRawInputDeviceList);
 	}
 
 	/// @brief 
@@ -159,7 +159,7 @@ namespace hod::input
 
 			if (mouse == nullptr)
 			{
-				mouse = new DeviceMouseRawInput(hDevice, name, info.mouse);
+				mouse = DefaultAllocator::GetInstance().New<DeviceMouseRawInput>(hDevice, name, info.mouse);
 
 				_mice.push_back(mouse);
 
@@ -174,7 +174,7 @@ namespace hod::input
 
 			if (keyboard == nullptr)
 			{
-				keyboard = new DeviceKeyboardRawInput(hDevice, name, info.keyboard);
+				keyboard = DefaultAllocator::GetInstance().New<DeviceKeyboardRawInput>(hDevice, name, info.keyboard);
 
 				_keyboards.push_back(keyboard);
 
@@ -213,7 +213,7 @@ namespace hod::input
 			{
 				Api::NotifyDeviceDisconnected(mouse);
 			}
-			delete mouse;
+			DefaultAllocator::GetInstance().Delete(mouse);
 		}
 
 		for (DeviceKeyboardRawInput* keyboard : _keyboards)
@@ -222,7 +222,7 @@ namespace hod::input
 			{
 				Api::NotifyDeviceDisconnected(keyboard);
 			}
-			delete keyboard;
+			DefaultAllocator::GetInstance().Delete(keyboard);
 		}
 	}
 

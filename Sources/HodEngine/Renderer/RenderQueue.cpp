@@ -27,16 +27,16 @@ namespace hod::renderer
 	/// @brief 
 	void RenderQueue::Terminate()
 	{
-		delete _pickingMaterialInstance;
+		DefaultAllocator::GetInstance().Delete(_pickingMaterialInstance);
 		_pickingMaterialInstance = nullptr;
 
-		delete _imageAvailableSemaphore;
+		DefaultAllocator::GetInstance().Delete(_imageAvailableSemaphore);
 		_imageAvailableSemaphore = nullptr;
 
-		delete _renderFinishedSemaphore;
+		DefaultAllocator::GetInstance().Delete(_renderFinishedSemaphore);
 		_renderFinishedSemaphore = nullptr;
 
-		delete _renderFinishedFence;
+		DefaultAllocator::GetInstance().Delete(_renderFinishedFence);
 		_renderFinishedFence = nullptr;
 	}
 
@@ -135,7 +135,7 @@ namespace hod::renderer
 			for (RenderCommand* renderCommand : _renderCommands)
 			{
 				renderCommand->Execute(commandBuffer);
-				delete renderCommand;
+				DefaultAllocator::GetInstance().Delete(renderCommand);
 			}
 			commandBuffer->EndRenderPass();
 
@@ -182,7 +182,7 @@ namespace hod::renderer
 
 		for (CommandBuffer* commandBuffer : _commandBuffers)
 		{
-			delete commandBuffer;
+			DefaultAllocator::GetInstance().Delete(commandBuffer);
 		}
 		_commandBuffers.clear();
 	}

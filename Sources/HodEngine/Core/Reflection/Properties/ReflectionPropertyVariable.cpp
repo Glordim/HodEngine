@@ -24,7 +24,7 @@ namespace hod
 	/// @brief 
 	ReflectionPropertyVariable::~ReflectionPropertyVariable()
 	{
-		delete _enumDescriptor;
+		DefaultAllocator::GetInstance().Delete(_enumDescriptor);
 	}
 
 	/// @brief 

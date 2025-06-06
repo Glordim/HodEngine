@@ -48,7 +48,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::Release()
 		{
-			//delete _sharedMinimalMaterialInstance;
+			//DefaultAllocator::GetInstance().Delete(_sharedMinimalMaterialInstance);
 			//_sharedMinimalMaterialInstance = nullptr;
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();

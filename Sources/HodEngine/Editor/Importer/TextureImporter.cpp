@@ -49,7 +49,7 @@ namespace hod::editor
 	bool TextureImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
 		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
-		uint8_t* dataBuffer = new uint8_t[dataSize];
+		uint8_t* dataBuffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(dataSize);
 		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != dataSize)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't read Texture data");
@@ -76,7 +76,7 @@ namespace hod::editor
 		{
 			thumbnailHeight = (int)(((float)y / (float)x) * thumbnailWidth);
 		}
-		uint8_t* thumbnailPixels = new uint8_t[thumbnailHeight * thumbnailWidth * componentCount];
+		uint8_t* thumbnailPixels = DefaultAllocator::GetInstance().Allocate<uint8_t>(thumbnailHeight * thumbnailWidth * componentCount);
 		stbir_resize_uint8_linear(pixels, x, y, 0, thumbnailPixels, thumbnailWidth, thumbnailHeight, 0, (stbir_pixel_layout)componentCount);
 
 		stbi_write_png_compression_level = 9;
@@ -86,7 +86,7 @@ namespace hod::editor
 			std::ofstream* thumbnailStream= static_cast<std::ofstream*>(context);
 			thumbnailStream->write(reinterpret_cast<char*>(data), len);
 		}, &thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
-		delete[] thumbnailPixels;
+		DefaultAllocator::GetInstance().Free(thumbnailPixels);
 
 		if (writeResult == 0)
 		{

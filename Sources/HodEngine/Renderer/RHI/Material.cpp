@@ -42,16 +42,16 @@ namespace hod
 			}
 
 			*/
-			delete _defaultInstance;
+			DefaultAllocator::GetInstance().Delete(_defaultInstance);
 
 			for (ReflectionDescriptor* reflectionDescriptor : _paramsSubReflectionDescriptors)
 			{
-				delete reflectionDescriptor;
+				DefaultAllocator::GetInstance().Delete(reflectionDescriptor);
 			}
 			/*
 			for (const auto& pair : _setDescriptors)
 			{
-				delete pair.second;
+				DefaultAllocator::GetInstance().Delete(pair.second);
 			}
 			*/
 		}
@@ -96,7 +96,7 @@ namespace hod
 					for (const ShaderSetDescriptor::BlockUbo& ubo : pair.second->GetUboBlocks())
 					{
 						uint32_t uboOffset = 0;
-						ReflectionDescriptor* uboReflectionDescriptor = new ReflectionDescriptor();
+						ReflectionDescriptor* uboReflectionDescriptor = DefaultAllocator::GetInstance().New<ReflectionDescriptor>();
 						for (const auto& childPair : ubo._rootMember._childsMap)
 						{
 							if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float)

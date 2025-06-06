@@ -49,7 +49,7 @@ namespace hod::game
 	{
 		for (const auto& entityPair : _entities)
 		{
-			delete entityPair.second;
+			DefaultAllocator::GetInstance().Delete(entityPair.second);
 		}
 	}
 
@@ -137,7 +137,7 @@ namespace hod::game
 	/// @return 
 	Entity* Scene::CreateEntity(const std::string_view& name)
 	{
-		Entity* entity = new Entity(name);
+		Entity* entity = DefaultAllocator::GetInstance().New<Entity>(name);
 		_entities.emplace(entity->GetInstanceId(), entity);
 
 		entity->SetScene(this);
@@ -253,7 +253,7 @@ namespace hod::game
 	/// @return 
 	Scene* Scene::Clone(World* newWorld)
 	{
-		Scene* clone = new Scene();
+		Scene* clone = DefaultAllocator::GetInstance().New<Scene>();
 		clone->SetWorld(newWorld);
 
 		Document document;

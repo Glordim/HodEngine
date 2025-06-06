@@ -31,7 +31,7 @@ namespace hod::imgui
 	{
 		for (DrawList* drawList : _drawLists)
 		{
-			delete drawList;
+			DefaultAllocator::GetInstance().Delete(drawList);
 		}
 	}
 

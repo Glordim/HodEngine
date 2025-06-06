@@ -42,7 +42,7 @@ namespace hod
 			size = FileSystem::GetInstance()->GetSize(fileHandle);
 		}
 
-		char* buffer = new char[size + 1];
+		char* buffer = DefaultAllocator::GetInstance().Allocate<char>(size + 1);
 		if (FileSystem::GetInstance()->Read(fileHandle, buffer, size) != size)
 		{
 			return false;
@@ -50,7 +50,7 @@ namespace hod
 		buffer[size] = '\0';
 
 		bool result = Read(document, buffer, size);
-		delete[] buffer;
+		DefaultAllocator::GetInstance().Free(buffer);
 		return result;
 	}
 

@@ -14,7 +14,7 @@ namespace hod::editor
 	/// @brief 
 	ReflectionTraitComponentCustomEditor::~ReflectionTraitComponentCustomEditor()
 	{
-		delete _customEditor;
+		DefaultAllocator::GetInstance().Delete(_customEditor);
 	}
 
 	/// @brief 

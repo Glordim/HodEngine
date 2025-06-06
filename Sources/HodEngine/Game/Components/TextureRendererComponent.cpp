@@ -34,7 +34,7 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	TextureRendererComponent::~TextureRendererComponent()
 	{
-		delete _builtinMaterialInstance;
+		DefaultAllocator::GetInstance().Delete(_builtinMaterialInstance);
 	}
 
 	/// @brief 
@@ -133,7 +133,7 @@ namespace hod::game
 					RefreshMaterialInstance();
 				}
 
-				renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
+				renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 			}
 		}
 	}

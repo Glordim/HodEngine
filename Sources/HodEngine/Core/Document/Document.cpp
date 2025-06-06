@@ -40,7 +40,7 @@ namespace hod
 		while (child != nullptr)
 		{
 			Document::Node* nextChild = child->_nextSibling;
-			delete child;
+			DefaultAllocator::GetInstance().Delete(child);
 			child = nextChild;
 		}
 	}
@@ -102,7 +102,7 @@ namespace hod
 	{
 		// TODO check if an other child if same name exist
 
-		Node* node = new Node(_document, name);
+		Node* node = DefaultAllocator::GetInstance().New<Node>(_document, name);
 		if (node->GetName().empty() == true)
 		{
 			_type = Type::Array;
@@ -126,7 +126,7 @@ namespace hod
 	{
 		// TODO check if an other child if same name exist
 
-		Node* node = new Node(_document, name);
+		Node* node = DefaultAllocator::GetInstance().New<Node>(_document, name);
 		Attach(*node);
 		return *node;
 	}
@@ -405,7 +405,7 @@ namespace hod
 		while (child != nullptr)
 		{
 			Document::Node* nextChild = child->_nextSibling;
-			delete child;
+			DefaultAllocator::GetInstance().Delete(child);
 			child = nextChild;
 		}
 	}

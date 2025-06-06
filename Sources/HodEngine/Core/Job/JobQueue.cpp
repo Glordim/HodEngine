@@ -82,7 +82,7 @@ namespace hod
 			_workerThreads[workerThreadIndex]._thread.Join();
 		}
 
-		delete[] _workerThreads;
+		DefaultAllocator::GetInstance().DeleteArray(_workerThreads);
 	}
 
 	/// @brief 
@@ -91,7 +91,7 @@ namespace hod
 		uint32_t count = SystemInfo::GetLogicalCoreCount();
 		count = 1; // TODO REMOVE
 		_workerThreadCount = count;
-		_workerThreads = new WorkerThread[count];
+		_workerThreads = DefaultAllocator::GetInstance().NewArray<WorkerThread>(count);
 
 		for (uint32_t index = 0; index < count; ++index)
 		{

@@ -18,7 +18,7 @@ namespace hod::physics
 		worldDef.gravity.y = -9.8f;
 		_worldId = b2CreateWorld(&worldDef);
 
-		_debugDrawer = new DebugDrawerBox2d();
+		_debugDrawer = DefaultAllocator::GetInstance().New<DebugDrawerBox2d>();
 	}
 
 	/// @brief 
@@ -26,7 +26,7 @@ namespace hod::physics
 	{
 		Clear();
 
-		delete _debugDrawer;
+		DefaultAllocator::GetInstance().Delete(_debugDrawer);
 		_debugDrawer = nullptr;
 
 		b2DestroyWorld(_worldId);
@@ -52,7 +52,7 @@ namespace hod::physics
 		myMassData.rotationalInertia = 100.0f;
 		b2Body_SetMassData(bodyId, myMassData);
 
-		BodyBox2d* body = new BodyBox2d(bodyId);
+		BodyBox2d* body = DefaultAllocator::GetInstance().New<BodyBox2d>(bodyId);
 
 		b2Body_ApplyMassFromShapes(bodyId);
 
@@ -92,7 +92,7 @@ namespace hod::physics
 		{
 			_bodies.erase(it); // todo swap and popback ?
 			b2BodyId bodyId =  static_cast<BodyBox2d*>(body)->GetB2Actor();
-			delete body;
+			DefaultAllocator::GetInstance().Delete(body);
 			b2DestroyBody(bodyId);
 		}
 	}
