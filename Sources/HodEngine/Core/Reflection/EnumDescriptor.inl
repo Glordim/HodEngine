@@ -20,7 +20,7 @@ namespace hod
 	{
 		static_assert(std::is_enum_v<__TYPE__>, "Requires enum type");
 
-		EnumDescriptor* enumDescriptor = new EnumDescriptor();
+		EnumDescriptor* enumDescriptor = DefaultAllocator::GetInstance().New<EnumDescriptor>();
 
 		enumDescriptor->_values.clear();
 		for (__TYPE__ value : EnumTrait::GetValues<__TYPE__>())

@@ -54,7 +54,7 @@ namespace hod::editor
 	template<typename _EditorTabWindow_>
 	_EditorTabWindow_* EditorTab::OpenWindow()
 	{
-		_EditorTabWindow_* window = new _EditorTabWindow_(this);
+		_EditorTabWindow_* window = DefaultAllocator::GetInstance().New<_EditorTabWindow_>(this);
 		_windows.push_back(window);
 		return window;
 	}

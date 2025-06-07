@@ -47,6 +47,6 @@ namespace hod::input
 	template<typename API_>
 	bool InputManager::CreateApi()
 	{
-		return CreateApi(new API_());
+		return CreateApi(DefaultAllocator::GetInstance().New<API_>());
 	}
 }

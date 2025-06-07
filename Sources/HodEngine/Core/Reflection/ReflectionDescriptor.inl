@@ -25,8 +25,8 @@ namespace hod
 		}
 		else
 		{
-			data._allocateFunction = [](){ return new _Class_(); };
-			data._deleteFunction = [](void* instance){ delete static_cast<_Class_*>(instance); };
+			data._allocateFunction = [](){ return DefaultAllocator::GetInstance().New<_Class_>(); };
+			data._deleteFunction = [](void* instance){ hod::DefaultAllocator::GetInstance().Delete(static_cast<_Class_*>(instance)); };
 			data._sharedAllocateFunction = [](){ return std::make_shared<_Class_>(); };
 		}
 
@@ -41,7 +41,7 @@ namespace hod
 	template<typename _Trait_, typename... Args>
 	_Trait_* ReflectionDescriptor::AddTrait(Args&&... args)
 	{
-		_Trait_* trait = new _Trait_(std::forward<Args>(args)...);
+		_Trait_* trait = DefaultAllocator::GetInstance().New<_Trait_>(std::forward<Args>(args)...);
 		AddTrait(trait);
 		return trait;
 	}
@@ -64,7 +64,7 @@ namespace hod
 	template<typename _Property_, typename... Args>
 	_Property_* ReflectionDescriptor::AddProperty(Args&&... args)
 	{
-		_Property_* property = new _Property_(std::forward<Args>(args)...);
+		_Property_* property = DefaultAllocator::GetInstance().New<_Property_>(std::forward<Args>(args)...);
 		AddProperty(property);
 		return property;
 	}

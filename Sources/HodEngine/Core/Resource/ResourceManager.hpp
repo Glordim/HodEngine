@@ -18,6 +18,7 @@ namespace hod
 	class HOD_CORE_API ResourceManager : public Singleton<ResourceManager>
 	{
 		friend class Singleton<ResourceManager>;
+		friend class Allocator;
 
 	public:
 

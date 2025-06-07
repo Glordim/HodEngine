@@ -6,7 +6,7 @@ namespace hod::imgui
 	template<typename Window_, typename... Args>
 	Window_* ImGuiManager::OpenWindow(Args&&... args)
 	{
-		Window_* window = new Window_(std::forward<Args>(args)...);
+		Window_* window = DefaultAllocator::GetInstance().New<Window_>(std::forward<Args>(args)...);
 		OpenWindow(window);
 		return window;
 	}

@@ -5,6 +5,7 @@
 #include "HodEngine/Core/String.hpp"
 
 #include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 
 namespace hod
 {

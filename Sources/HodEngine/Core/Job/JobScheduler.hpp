@@ -14,6 +14,7 @@ namespace hod
 	class HOD_CORE_API JobScheduler : public Singleton<JobScheduler>
 	{
 		friend class Singleton<JobScheduler>;
+		friend class Allocator;
 
 	public:
 

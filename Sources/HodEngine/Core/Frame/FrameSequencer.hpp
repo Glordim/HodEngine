@@ -14,6 +14,7 @@ namespace hod
 	class HOD_CORE_API FrameSequencer : public Singleton<FrameSequencer>
 	{
 		friend class Singleton<FrameSequencer>;
+		friend class Allocator;
 
 	public:
 

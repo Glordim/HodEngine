@@ -39,9 +39,9 @@ namespace hod
 		// TODO remove
 		public:
 
-			static World*		CreateInstance() { _instance = new World(); return _instance; }
+			static World*		CreateInstance() { _instance = DefaultAllocator::GetInstance().New<World>(); return _instance; }
 			static World*		GetInstance() { return _instance; }
-			static void			DestroyInstance() { delete _instance; _instance = nullptr; }
+			static void			DestroyInstance() { hod::DefaultAllocator::GetInstance().Delete(_instance); _instance = nullptr; }
 			static World*		_instance;
 		//
 

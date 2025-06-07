@@ -8,7 +8,7 @@ namespace hod::editor
 	bool AssetDatabase::RegisterImporter()
 	{
 		// TODO check duplicate
-		_Importer_* importer = new _Importer_();
+		_Importer_* importer = DefaultAllocator::GetInstance().New<_Importer_>();
 		_importers.push_back(importer);
 		return true;
 	}

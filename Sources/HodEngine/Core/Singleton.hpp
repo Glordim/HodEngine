@@ -1,4 +1,5 @@
 #pragma once
+#include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
 #define _SingletonAbstract(T)															\
 	public:																				\
@@ -45,11 +46,13 @@
 // todo CreateInstance check if alreay exist #memleak
 
 #define _Singleton(T)																	\
+		friend class hod::Allocator;													\
+																						\
 	public:																				\
 																						\
-		static T*		CreateInstance() { _instance = new T(); return _instance; }		\
+		static T*		CreateInstance() { _instance = hod::DefaultAllocator::GetInstance().New<T>(); return _instance; }		\
 		static T*		GetInstance() { return _instance; }								\
-		static void		DestroyInstance() { delete _instance; _instance = nullptr; }	\
+		static void		DestroyInstance() { hod::DefaultAllocator::GetInstance().Delete(_instance); _instance = nullptr; }	\
 																						\
 	protected:																			\
 																						\
@@ -76,11 +79,13 @@
 	T::T()							
 
 #define _SingletonOverride(T)																			\
+		friend class hod::Allocator;																	\
+																										\
 	public:																								\
 																										\
-		static T*		CreateInstance() { _instance = new T(); return static_cast<T*>(_instance); }	\
+		static T*		CreateInstance() { _instance = hod::DefaultAllocator::GetInstance().New<T>(); return static_cast<T*>(_instance); }	\
 		static T*		GetInstance() { return static_cast<T*>(_instance); }							\
-		static void		DestroyInstance() { delete _instance; _instance = nullptr; }					\
+		static void		DestroyInstance() { hod::DefaultAllocator::GetInstance().Delete(_instance); _instance = nullptr; }					\
 																										\
 	protected:																							\
 																										\
@@ -109,6 +114,7 @@ namespace hod
 	class Singleton
 	{
 		friend T;
+		friend class Allocator;
 
 	public:
 

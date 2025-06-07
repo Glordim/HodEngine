@@ -117,7 +117,7 @@ namespace hod::editor
 	template<typename _EditorTabType_>
 	_EditorTabType_* Editor::OpenEditorTab()
 	{
-		_EditorTabType_* editorTab = new _EditorTabType_(nullptr);
+		_EditorTabType_* editorTab = DefaultAllocator::GetInstance().New<_EditorTabType_>(nullptr);
 		_editorTabs.push_back(editorTab);
 		return editorTab;
 	}

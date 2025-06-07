@@ -52,5 +52,5 @@ namespace hod::imgui
 	hod::imgui::WindowDescription Window::_description(		\
 		Name,												\
 		Unique,												\
-		[](){ return new Window; }							\
+		[](){ return DefaultAllocator::GetInstance().New<Window>(); }							\
 	);														

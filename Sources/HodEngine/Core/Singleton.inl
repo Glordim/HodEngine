@@ -13,7 +13,7 @@ namespace hod
 	{
 		if (_instance == nullptr)
 		{
-			_instance = new T();
+			_instance = DefaultAllocator::GetInstance().New<T>();
 		}
 		return (T*)_instance;
 	}
@@ -36,7 +36,7 @@ namespace hod
 	{
 		if (T::_instance != nullptr)
 		{
-			delete T::_instance;
+			DefaultAllocator::GetInstance().Delete(T::_instance);
 			T::_instance = nullptr;
 		}
 	}

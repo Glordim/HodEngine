@@ -8,7 +8,7 @@ namespace hod
 	template<typename __TRAIT_TYPE__, typename... Args>
 	__TRAIT_TYPE__* ReflectionProperty::AddTrait(Args&&... args)
 	{
-		__TRAIT_TYPE__* trait = new __TRAIT_TYPE__(std::forward<Args>(args)...);
+		__TRAIT_TYPE__* trait = DefaultAllocator::GetInstance().New<__TRAIT_TYPE__>(std::forward<Args>(args)...);
 		AddTrait(trait);
 		return trait;
 	}
