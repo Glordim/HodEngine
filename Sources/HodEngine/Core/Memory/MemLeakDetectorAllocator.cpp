@@ -22,7 +22,7 @@ namespace hod
 	/// @param size 
 	/// @param alignment 
 	/// @return 
-	void* MemLeakDetectorAllocator::Allocate(uint32_t size, uint32_t alignment)
+	void* MemLeakDetectorAllocator::AllocateInternal(uint32_t size, uint32_t alignment)
 	{
 		if (alignment < alignof(std::max_align_t) || std::has_single_bit(alignment) == false) // check if pow2
 		{
@@ -79,14 +79,14 @@ namespace hod
 	/// @param newSize 
 	/// @param alignment 
 	/// @return 
-	void* MemLeakDetectorAllocator::Reallocate(void* ptr, uint32_t newSize, uint32_t alignment)
+	void* MemLeakDetectorAllocator::ReallocateInternal(void* ptr, uint32_t newSize, uint32_t alignment)
 	{
 		return nullptr; // todo
 	}
 
 	/// @brief 
 	/// @param userAddress 
-	void MemLeakDetectorAllocator::Free(void* userAddress)
+	void MemLeakDetectorAllocator::FreeInternal(void* userAddress)
 	{
 		if (userAddress == nullptr)
 		{

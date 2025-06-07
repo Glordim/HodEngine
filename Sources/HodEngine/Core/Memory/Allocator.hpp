@@ -1,5 +1,11 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <type_traits>
+#include <algorithm>
+#include <cassert>
 
 #undef max
 
@@ -20,12 +26,12 @@ namespace hod
 	public:
 
 		[[nodiscard]] void*	Allocate(uint32_t size);
-		[[nodiscard]] virtual void*	Allocate(uint32_t size, uint32_t alignment) = 0;
+		[[nodiscard]] void*	Allocate(uint32_t size, uint32_t alignment);
 
 		[[nodiscard]] void*	Reallocate(void* ptr, uint32_t newSize);
-		[[nodiscard]] virtual void*	Reallocate(void* ptr, uint32_t newSize, uint32_t alignment) = 0;
+		[[nodiscard]] void*	Reallocate(void* ptr, uint32_t newSize, uint32_t alignment);
 
-		virtual void	Free(void* ptr) = 0;
+		void Free(void* ptr);
 
 		// Optional helper to avoid static_cast
 
@@ -52,16 +58,49 @@ namespace hod
 
 		template<typename _Type_>
 		void DeleteArray(_Type_* ptr);
+
+	protected:
+
+		virtual void*	AllocateInternal(uint32_t size, uint32_t alignment) = 0;
+		virtual void*	ReallocateInternal(void* ptr, uint32_t newSize, uint32_t alignment) = 0;
+		virtual void	FreeInternal(void* ptr) = 0;
 	};
 
 	inline void* Allocator::Allocate(uint32_t size)
 	{
-		return Allocate(size, alignof(std::max_align_t));
+		uint32_t alignment = alignof(std::max_align_t);
+		void* allocation = AllocateInternal(size, alignment);
+		assert((reinterpret_cast<uintptr_t>(allocation) % alignment) == 0);
+		return allocation;
+	}
+
+	inline void* Allocator::Allocate(uint32_t size, uint32_t alignment)
+	{
+		alignment = std::max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
+		void* allocation = AllocateInternal(size, alignment);
+		assert((reinterpret_cast<uintptr_t>(allocation) % alignment) == 0);
+		return allocation;
 	}
 
 	inline void* Allocator::Reallocate(void* ptr, uint32_t newSize)
 	{
-		return Reallocate(ptr, newSize, alignof(std::max_align_t));
+		uint32_t alignment = alignof(std::max_align_t);
+		void* allocation = ReallocateInternal(ptr, newSize, alignment);
+		assert((reinterpret_cast<uintptr_t>(allocation) % alignment) == 0);
+		return allocation;
+	}
+
+	inline void* Allocator::Reallocate(void* ptr, uint32_t newSize, uint32_t alignment)
+	{
+		alignment = std::max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
+		void* allocation = ReallocateInternal(ptr, newSize, alignment);
+		assert((reinterpret_cast<uintptr_t>(allocation) % alignment) == 0);
+		return allocation;
+	}
+
+	inline void Allocator::Free(void* ptr)
+	{
+		FreeInternal(ptr);
 	}
 
 	template<typename _Type_>
@@ -99,7 +138,7 @@ namespace hod
 		return object;
 	}
 
-	template<typename _Type_>
+	template<typename _Type_> // TODO error if type is void* ?
 	inline void Allocator::Delete(_Type_* ptr)
 	{
 		if (ptr == nullptr)
