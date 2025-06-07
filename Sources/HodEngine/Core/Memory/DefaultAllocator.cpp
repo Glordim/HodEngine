@@ -1,5 +1,4 @@
-#pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 
 #include "HodEngine/Core/Memory/MallocAllocator.hpp"
