@@ -7,9 +7,9 @@ namespace hod
 {
 	struct SymbolInfo
 	{
-		String _module;
-		String _function;
-		uint64_t	_address;
+		String 		_module;
+		String 		_function;
+		void*		_address;
 		uint32_t	_line;
 	};
 

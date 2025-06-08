@@ -4,6 +4,7 @@
 
 #include <execinfo.h>
 #include <cxxabi.h>
+#include <dlfcn.h>
 
 #include <cassert>
 #include <cstring>
@@ -48,59 +49,28 @@ namespace hod
 	/// @return 
 	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
 	{
-		char** symbols = backtrace_symbols(&addr, 1);
-		if (symbols == nullptr)
+		Dl_info info;
+		if (dladdr(addr, &info) == 0)
 		{
-			perror("backtrace_symbols");
-			exit(EXIT_FAILURE);
+			return false;
 		}
-		else
+
+		symbolInfo._address = info.dli_saddr;
+		symbolInfo._module = info.dli_fname;
+		symbolInfo._function = info.dli_sname;
+		symbolInfo._line = 0;
+
+		if (demangle)
 		{
-			// example : 0   libWindow.dylib                     0x00000001000bbda4 _ZN3hod6window11MacOsWindowC2Eb + 376
-
-			const char* it = symbols[0];
-			while (*it != '\0')
-				++it;
-
-			const char* mangledEnd = it;
-			while (*it != '+' && it != symbols[0])
-				--it;
-
-			if (*it == '+')
-			{
-				mangledEnd = it - 2;
-			}
-
-			const char* mangledStart = symbols[0];
-			it = mangledEnd;
-			while (*it != ' ' && it != symbols[0])
-				--it;
-
-			if (*it == ' ')
-			{
-				mangledStart = it + 1;
-			}
-
-			char mangledSymbol[512];
-			std::strncpy(mangledSymbol, mangledStart, (mangledEnd - mangledStart) + 1);
-			mangledSymbol[(mangledEnd - mangledStart) + 1] = '\0';
-
 			int status;
-			char* demangledSymbol = abi::__cxa_demangle(mangledSymbol, nullptr, nullptr, &status);
+			char* demangledSymbol = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
 			if (status == 0)
 			{
-				std::strncpy(symbol, demangledSymbol, size);
-				symbol[512 - 1] = '\0';
+				symbolInfo._function = demangledSymbol;
 				free(demangledSymbol);
 			}
-			else
-			{
-				std::strncpy(symbol, symbols[0], size);
-				symbol[512 - 1] = '\0';
-			}
-			free(symbols);
 		}
 		
-		return symbol;
+		return true;
 	}
 }
