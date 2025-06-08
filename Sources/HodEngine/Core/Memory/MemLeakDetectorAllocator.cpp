@@ -135,7 +135,7 @@ namespace hod
 			symbolInfo._module.reserve(2048);
 
 			uint32_t totalLeak = 0;
-			uint64_t totalSize = 0;
+			uintmax_t totalSize = 0;
 			AllocationHeader* it = _firstAlloc;
 			while (it != nullptr)
 			{
@@ -149,7 +149,7 @@ namespace hod
 			FILE* memleakReport = fopen(memleakReportPath.string().c_str(), "w");
 			if (memleakReport == NULL)
 			{
-				OUTPUT_ERROR("MemoryManagerLeakDetector: Fail to open MemleakReport.txt : {}", OS::GetLastWin32ErrorMessage());
+				OUTPUT_ERROR("MemoryManagerLeakDetector: Fail to open MemleakReport.txt");
 				result = false;
 			}
 			else
