@@ -6,7 +6,6 @@
 #include <HodEngine/Core/Weakable/WeakPtr.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
-#include <HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp>
 
 namespace hod::game
 {

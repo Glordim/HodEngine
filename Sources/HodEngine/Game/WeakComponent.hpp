@@ -5,7 +5,6 @@
 
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
-#include <HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp>
 
 #include "HodEngine/Game/Component.hpp"
 
@@ -33,19 +32,15 @@ namespace hod::game
     public:
 
         Component*                  Lock() const;
-        uint64_t                    GetInstanceId() const;
-        uint64_t                    GetForSerialization() const;
 
         ReflectionDescriptor*       GetComponentDescriptor() const;
 
-        void                        SetInstanceId(uint64_t instanceId);
         void                        SetPointer(Component* pointer);
 
     private:
 
         ReflectionDescriptor*           _componentDescriptor = nullptr;
 
-        uint64_t                        _instanceId = 0;
         mutable WeakPtr<Component>      _pointer;
     };
 

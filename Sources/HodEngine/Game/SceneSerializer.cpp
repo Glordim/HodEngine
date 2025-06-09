@@ -20,7 +20,30 @@
 
 namespace hod::game
 {
+	/// @brief 
+	/// @param entity 
+	/// @param withChildren 
+	/// @param entityNode 
+	/// @param nextLocalId 
+	/// @return 
 	bool SceneSerializer::SerializeEntity(Entity* entity, bool withChildren, Document::Node& entitiesNode, uint64_t& nextLocalId)
+	{
+		if (entity->GetPrefabResource() != nullptr)
+		{
+			return SerializeEntityPrefab(entity, entitiesNode, nextLocalId);
+		}
+		else
+		{
+			return SerializeEntityRaw(entity, entitiesNode, nextLocalId);
+		}
+	}
+
+	/// @brief 
+	/// @param entityNode 
+	/// @param entityNode 
+	/// @param nextLocalId 
+	/// @return 
+	bool SceneSerializer::SerializeEntityRaw(Entity* entity, Document::Node& entitiesNode, uint64_t& nextLocalId)
 	{
 		Document::Node& entityNode = entitiesNode.AddChild("");
 
@@ -30,77 +53,80 @@ namespace hod::game
 			++nextLocalId;
 		}
 
-		std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
-		if (prefabResource != nullptr)
+		Serializer::Serialize(entity, entityNode);
+
+		Document::Node& componentsNode = entityNode.AddChild("Components");
+
+		for (Component* component : entity->GetComponents())
 		{
-			entityNode.AddChild("_localId").SetUInt64(entity->GetLocalId());
-
-			Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
-			UID uid = prefabResource->GetUid(); // TODO fix Serializa template lvalue
-			Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
-			Document::Node& overridesNode = prefabInstance.AddChild("Overrides");
-
-			Vector<PrefabUtility::PrefabOverride> prefabOverrides;
-			PrefabUtility::CollectPrefabOverride(entity, prefabOverrides);
-
-			for (const PrefabUtility::PrefabOverride& override : prefabOverrides)
+			Document::Node& componentNode = componentsNode.AddChild("");
+			componentNode.AddChild("MetaType").SetUInt64(component->GetMetaType());
+			if (component->GetLocalId() == 0)
 			{
-				if (override._reflectionProperty->FindTrait<ReflectionTraitNoSerialization>() != nullptr)
-				{
-					continue;
-				}
+				component->SetLocalId(nextLocalId);
+				++nextLocalId;
+			}
+			Serializer::Serialize(component, componentNode, std::bind(&SceneSerializer::CustomComponentSerializationCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+		}
 
-				if (override._type == PrefabUtility::PrefabOverride::Type::Entity && std::strcmp(override._reflectionProperty->GetName(), "_localId") == 0) // toto better way
-				{
-					continue;
-				}
-
-				Document::Node& overrideNode = overridesNode.AddChild("");
-				Document::Node& overrideTargetNode = overrideNode.AddChild("Target");
-				if (override._type == PrefabUtility::PrefabOverride::Type::Entity)
-				{
-					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Entity));
-				}
-				else // Component
-				{
-					overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Component));
-				}
-
-				overrideTargetNode.AddChild("LocalIds").SetValues(std::span(override._target));
-
-				// TODO can be an array of modifcations to mutalize target description
-				Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
-				Serializer::SerializeVariable((ReflectionPropertyVariable*)override._reflectionProperty, override._effectiveInstanceAddr, overrideModificationNode, override._path);
+		for (const WeakEntity& child : entity->GetChildren())
+		{
+			if (SceneSerializer::SerializeEntity(child.Lock(), true, entitiesNode, nextLocalId) == false)
+			{
+				return false;
 			}
 		}
-		else
+
+		return true;
+	}
+
+	/// @brief 
+	/// @param entity 
+	/// @param entityNode 
+	/// @param nextLocalId 
+	/// @return 
+	bool SceneSerializer::SerializeEntityPrefab(Entity* entity, Document::Node& entitiesNode, uint64_t& nextLocalId)
+	{
+		Document::Node& entityNode = entitiesNode.AddChild("");
+
+		entityNode.AddChild("_localId").SetUInt64(entity->GetLocalId());
+
+		Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
+		UID uid = entity->GetPrefabResource()->GetUid(); // TODO fix Serializa template lvalue
+		Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
+		Document::Node& overridesNode = prefabInstance.AddChild("Overrides");
+
+		Vector<PrefabUtility::PrefabOverride> prefabOverrides;
+		PrefabUtility::CollectPrefabOverride(entity, prefabOverrides);
+
+		for (const PrefabUtility::PrefabOverride& override : prefabOverrides)
 		{
-			Serializer::Serialize(entity, entityNode);
-
-			Document::Node& componentsNode = entityNode.AddChild("Components");
-
-			for (Component* component : entity->GetComponents())
+			if (override._reflectionProperty->FindTrait<ReflectionTraitNoSerialization>() != nullptr)
 			{
-				Document::Node& componentNode = componentsNode.AddChild("");
-				componentNode.AddChild("MetaType").SetUInt64(component->GetMetaType());
-				if (component->GetLocalId() == 0)
-				{
-					component->SetLocalId(nextLocalId);
-					++nextLocalId;
-				}
-				Serializer::Serialize(component, componentNode);
+				continue;
 			}
 
-			if (withChildren)
+			if (override._type == PrefabUtility::PrefabOverride::Type::Entity && std::strcmp(override._reflectionProperty->GetName(), "_localId") == 0) // toto better way
 			{
-				for (const WeakEntity& child : entity->GetChildren())
-				{
-					if (SceneSerializer::SerializeEntity(child.Lock(), true, entitiesNode, nextLocalId) == false)
-					{
-						return false;
-					}
-				}
+				continue;
 			}
+
+			Document::Node& overrideNode = overridesNode.AddChild("");
+			Document::Node& overrideTargetNode = overrideNode.AddChild("Target");
+			if (override._type == PrefabUtility::PrefabOverride::Type::Entity)
+			{
+				overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Entity));
+			}
+			else // Component
+			{
+				overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Component));
+			}
+
+			overrideTargetNode.AddChild("LocalIds").SetValues(std::span(override._target));
+
+			// TODO can be an array of modifcations to mutalize target description
+			Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
+			Serializer::SerializeVariable((ReflectionPropertyVariable*)override._reflectionProperty, override._effectiveInstanceAddr, overrideModificationNode, override._path);
 		}
 
 		return true;
@@ -144,17 +170,43 @@ namespace hod::game
 				}
 			}
 
-			Vector<WeakComponentBase*> weakComponents;
-			componentPair.second->GetReflectionDescriptorV().CollectObjectProperties(weakComponents, componentPair.second);
-			for (WeakComponentBase* weakComponent : weakComponents)
+			for (const std::pair<WeakComponentBase*, Vector<EntityComponentRoute>>& weakComponentToResolve : _weakComponentsToResolve)
 			{
-				uint64_t componenId = weakComponent->GetInstanceId();
-				if (componenId != 0)
+				const Vector<EntityComponentRoute>& routes = weakComponentToResolve.second;
+				Entity* entity = nullptr;
+				SceneSerializer* sceneSerializer = this;
+				for (uint32_t i = 0; i < routes.size(); ++i)
 				{
-					auto it = _contextualComponentMap.find(componenId);
-					if (it != _contextualComponentMap.end())
+					auto it = sceneSerializer->_contextualEntityMap.find(routes[i]._entityId);
+					if (it != sceneSerializer->_contextualEntityMap.end())
 					{
-						weakComponent->SetPointer(it->second);
+						entity = it->second;
+						std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
+						if (prefabResource != nullptr)
+						{
+							sceneSerializer = nullptr;
+						}
+						else
+						{
+							// todo error ?
+						}
+					}
+					else
+					{
+						// todo output error or better ? missing target can interest users
+					}
+				}
+
+				if (entity != nullptr)
+				{
+					uint64_t componentId = routes.back()._componentId;
+					for (Component* component : entity->GetComponents())
+					{
+						if (component->GetLocalId() == componentId)
+						{
+							weakComponentToResolve.first->SetPointer(component);
+							break;
+						}
 					}
 				}
 			}
@@ -202,7 +254,7 @@ namespace hod::game
 			{
 				const ReflectionDescriptor& componentDescriptor = *it->second;
 				Component* component = entity->AddComponent(componentDescriptor);
-				Serializer::Deserialize(componentDescriptor, component, *componentNode); // todo lvalue...
+				Serializer::Deserialize(componentDescriptor, component, *componentNode, std::bind(&SceneSerializer::CustomComponentDeserializationCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)); // todo lvalue...
 
 				if (_contextualComponentMap.try_emplace(component->GetLocalId(), component).second == false)
 				{
@@ -343,5 +395,89 @@ namespace hod::game
 	const Vector<Component*>& SceneSerializer::GetComponents() const
 	{
 		return _totalComponent;
+	}
+
+	/// @brief 
+	/// @param instance 
+	/// @param reflectionDescriptor 
+	/// @param documentNode 
+	void SceneSerializer::CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, Document::Node& documentNode)
+	{
+		if (WeakComponentBase::GetReflectionDescriptor().IsCompatible(reflectionDescriptor))
+		{
+			const WeakComponentBase* weakComponent = static_cast<const WeakComponentBase*>(instance);
+			Component* component = weakComponent->Lock();
+			if (component != nullptr)
+			{
+				Entity* entity = component->GetOwner();
+
+				Vector<EntityComponentRoute> routes;
+				EntityComponentRoute route;
+				route._entityId = entity->GetLocalId();
+				route._componentId = component->GetLocalId();
+				routes.push_back(route);
+
+				while (entity != nullptr)
+				{
+					std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
+					if (prefabResource != nullptr)
+					{
+						EntityComponentRoute route;
+						route._entityId = entity->GetLocalId();
+						route._componentId = 0;
+						routes.push_back(route);
+					}
+					entity = entity->GetParent().Lock();
+				}
+
+				for (auto it = routes.rbegin(); it != routes.rend(); ++it)
+				{
+					Document::Node& routeNode = documentNode.AddChild("");
+					routeNode.AddChild("Entity").SetUInt64(it->_entityId);
+					routeNode.AddChild("Component").SetUInt64(it->_componentId);
+				}
+			}
+		}
+	}
+
+	/// @brief 
+	/// @param instance 
+	/// @param reflectionDescriptor 
+	/// @param documentNode 
+	void SceneSerializer::CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const Document::Node& documentNode)
+	{
+		if (WeakComponentBase::GetReflectionDescriptor().IsCompatible(reflectionDescriptor))
+		{
+			WeakComponentBase* weakComponent = static_cast<WeakComponentBase*>(instance);
+			Vector<EntityComponentRoute> routes;
+			const Document::Node* childNode = documentNode.GetFirstChild();
+			while (childNode != nullptr)
+			{
+				EntityComponentRoute route;
+
+				const Document::Node* entityNode = childNode->GetChild("Entity");
+				if (entityNode)
+				{
+					route._entityId = entityNode->GetUInt64();
+				}
+				else
+				{
+					// todo format error
+				}
+
+				const Document::Node* componentNode = childNode->GetChild("Component");
+				if (componentNode)
+				{
+					route._componentId = componentNode->GetUInt64();
+				}
+				else
+				{
+					// todo format error
+				}
+				routes.push_back(route);
+				childNode = childNode->GetNextSibling();
+			}
+			_weakComponentsToResolve.emplace_back(weakComponent, std::move(routes));
+		}
 	}
 }

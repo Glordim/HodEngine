@@ -1,15 +1,15 @@
 namespace hod
 {
     template<typename _InstanceType_>
-    bool Serializer::Serialize(const _InstanceType_& instance, Document::Node& documentNode)
+    bool Serializer::Serialize(const _InstanceType_& instance, Document::Node& documentNode, const std::function<void(const void*, const ReflectionDescriptor&, Document::Node&)>& customSerializationCallback)
 	{
 		if constexpr (std::is_pointer_v<_InstanceType_>)
 		{
-			return Serializer::Serialize(instance->GetReflectionDescriptorV(), static_cast<const void*>(instance), documentNode);
+			return Serializer::Serialize(instance->GetReflectionDescriptorV(), static_cast<const void*>(instance), documentNode, customSerializationCallback);
 		}
 		else
 		{
-			return Serializer::Serialize(instance.GetReflectionDescriptorV(), static_cast<const void*>(&instance), documentNode);
+			return Serializer::Serialize(instance.GetReflectionDescriptorV(), static_cast<const void*>(&instance), documentNode, customSerializationCallback);
 		}
 	}
 
@@ -29,15 +29,15 @@ namespace hod
 	*/
 
     template<typename _InstanceType_>
-    bool Serializer::Deserialize(_InstanceType_& instance, const Document::Node& documentNode)
+    bool Serializer::Deserialize(_InstanceType_& instance, const Document::Node& documentNode, const std::function<void(void*, const ReflectionDescriptor&, const Document::Node&)>& customDeserializationCallback)
 	{
 		if constexpr (std::is_pointer_v<_InstanceType_>)
 		{
-			return Serializer::Deserialize(instance->GetReflectionDescriptorV(), static_cast<void*>(instance), documentNode);
+			return Serializer::Deserialize(instance->GetReflectionDescriptorV(), static_cast<void*>(instance), documentNode, customDeserializationCallback);
 		}
 		else
 		{
-			return Serializer::Deserialize(instance.GetReflectionDescriptorV(), static_cast<void*>(&instance), documentNode);
+			return Serializer::Deserialize(instance.GetReflectionDescriptorV(), static_cast<void*>(&instance), documentNode, customDeserializationCallback);
 		}
 	}
 

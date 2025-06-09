@@ -4,8 +4,6 @@
 #include "HodEngine/Core/Resource/Resource.hpp"
 #include "HodEngine/Core/Resource/ResourceManager.hpp"
 
-#include <HodEngine/Core/Reflection/Traits/ReflectionTraitGetValueForSerialization.hpp>
-
 namespace hod
 {
     DESCRIBE_REFLECTED_CLASS(WeakResourceBase, reflectionDescriptor)
