@@ -104,7 +104,7 @@ namespace hod::editor
 
     EditorReflectedProperty EditorReflectedProperty::GenerateElementProperty(uint32_t index) const
     {
-        EditorReflectedProperty elementProperty(_instances[0], nullptr, _reflectionProperty, nullptr); // todo support multiselection
+        EditorReflectedProperty elementProperty(_instances[0], nullptr, _reflectionProperty, _reflectedObject); // todo support multiselection
         elementProperty._internalIndex = index;
         return elementProperty;
     }
