@@ -111,7 +111,7 @@ namespace hod
 			symbolInfo._module = modulePath.filename().string();
 		}
 
-		symbolInfo._address = win32SymbolInfo->Address;
+		symbolInfo._address = reinterpret_cast<void*>(win32SymbolInfo->Address);
 		symbolInfo._function = win32SymbolInfo->Name;
 		symbolInfo._line = static_cast<uint32_t>(displacement);
 
