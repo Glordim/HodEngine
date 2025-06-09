@@ -293,11 +293,6 @@ namespace hod::game
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
 			entity->SetScene(this);
-			entity->SetLocalId(0);
-			for (Component* component : entity->GetComponents())
-			{
-				component->SetLocalId(0);
-			}
 
 			if (clonedEntity == nullptr && entity->GetParent().Lock() == nullptr)
 			{
