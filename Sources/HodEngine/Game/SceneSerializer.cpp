@@ -420,7 +420,7 @@ namespace hod::game
 				while (entity != nullptr)
 				{
 					std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
-					if (prefabResource != nullptr)
+					if (prefabResource != nullptr && entity->GetLocalId() != routes.back()._entityId)
 					{
 						EntityComponentRoute route;
 						route._entityId = entity->GetLocalId();

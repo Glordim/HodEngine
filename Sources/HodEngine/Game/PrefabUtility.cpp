@@ -212,7 +212,7 @@ namespace hod::game::PrefabUtility
 		{
 			if (relativePath.empty() == false)
 			{
-				relativePath.insert('/', child->GetName());
+				relativePath.insert(0, "/");
 			}
 			relativePath.insert(0, child->GetName());
 
