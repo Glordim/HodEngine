@@ -162,54 +162,57 @@ namespace hod::editor
 		world->AddScene(tab->_scene);
 		*/
 
-		if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
+		if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
 		{
-			if (ImGui::IsKeyPressed(ImGuiKey_T))
+			if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 			{
-				//_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
-			}
-			else if (ImGui::IsKeyPressed(ImGuiKey_R))
-			{
-				//_gizmoOperation = ImGuizmo::OPERATION::ROTATE_Z;
-			}
-			else if (ImGui::IsKeyPressed(ImGuiKey_S))
-			{
-				//_gizmoOperation = ImGuizmo::OPERATION::SCALE;
-			}
+				if (ImGui::IsKeyPressed(ImGuiKey_T))
+				{
+					//_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+				}
+				else if (ImGui::IsKeyPressed(ImGuiKey_R))
+				{
+					//_gizmoOperation = ImGuizmo::OPERATION::ROTATE_Z;
+				}
+				else if (ImGui::IsKeyPressed(ImGuiKey_S))
+				{
+					//_gizmoOperation = ImGuizmo::OPERATION::SCALE;
+				}
 
-			if (ImGui::GetIO().MouseWheel != 0.0f)
-			{
-				_size -= ImGui::GetIO().MouseWheel * 0.1f * std::abs(_size);
-			}
+				if (ImGui::GetIO().MouseWheel != 0.0f)
+				{
+					_size -= ImGui::GetIO().MouseWheel * 0.1f * std::abs(_size);
+				}
 
-			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
-			{
-				Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
-				_cameraPosition.SetX(_cameraPosition.GetX() - movement.GetX());
-				_cameraPosition.SetY(_cameraPosition.GetY() - movement.GetY());
-			}
+				if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
+				{
+					Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
+					_cameraPosition.SetX(_cameraPosition.GetX() - movement.GetX());
+					_cameraPosition.SetY(_cameraPosition.GetY() - movement.GetY());
+				}
 
-			if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered())
-			{
-				ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-
-				if (mousePos.x >= 0 && mousePos.x < _pickingRenderTarget->GetWidth() && mousePos.y >= 0 && mousePos.y < _pickingRenderTarget->GetHeight())
+				if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered())
 				{
 					ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-					Vector2 mousePosition(mousePos.x, mousePos.y);
-					Color pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
-					uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
-					if (pickingId == 0)
+
+					if (mousePos.x >= 0 && mousePos.x < _pickingRenderTarget->GetWidth() && mousePos.y >= 0 && mousePos.y < _pickingRenderTarget->GetHeight())
 					{
-						GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
-					}
-					else
-					{
-						game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-						game::Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
-						if (pickedEntity != nullptr)
+						ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
+						Vector2 mousePosition(mousePos.x, mousePos.y);
+						Color pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
+						uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
+						if (pickingId == 0)
 						{
-							GetOwner<EntityEditorTab>()->SetEntitySelection(pickedEntity);
+							GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
+						}
+						else
+						{
+							game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+							game::Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
+							if (pickedEntity != nullptr)
+							{
+								GetOwner<EntityEditorTab>()->SetEntitySelection(pickedEntity);
+							}
 						}
 					}
 				}
