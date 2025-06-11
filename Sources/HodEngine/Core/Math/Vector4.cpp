@@ -87,6 +87,13 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @return 
+	Vector4 Vector4::operator-() const
+	{
+		return Vector4(-_x, -_y, -_z, -_w);
+	}
+
+	/// @brief 
 	/// @param right 
 	/// @return 
 	Vector4& Vector4::operator += (const Vector4& right)

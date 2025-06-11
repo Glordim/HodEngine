@@ -31,6 +31,8 @@ namespace hod
 
 	public:
 
+		Vector2		operator-() const;
+
 		Vector2&	operator += (const Vector2& right);
 		Vector2&	operator -= (const Vector2& right);
 		Vector2&	operator *= (const Vector2& right);

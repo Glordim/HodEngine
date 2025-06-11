@@ -27,6 +27,8 @@ namespace hod
 
 	public:
 
+		Vector4		operator-() const;
+
 		Vector4&	operator += (const Vector4& right);
 		Vector4&	operator -= (const Vector4& right);
 		Vector4&	operator *= (const Vector4& right);

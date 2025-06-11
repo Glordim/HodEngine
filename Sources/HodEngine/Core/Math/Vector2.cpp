@@ -57,6 +57,13 @@ namespace hod
 	}
 
 	/// @brief 
+	/// @return 
+	Vector2 Vector2::operator-() const
+	{
+		return Vector2(-_x, -_y);
+	}
+
+	/// @brief 
 	/// @param right 
 	/// @return 
 	Vector2& Vector2::operator += (const Vector2& right)
