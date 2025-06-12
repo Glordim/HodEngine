@@ -78,16 +78,16 @@ namespace hod::ui
 		int32_t						_zOrder = std::numeric_limits<int32_t>().lowest();
 		int32_t						_globalZOrder = 0;
 
-		Vector2						_position;
-		float						_rotation;
-		Vector2						_scale;
+		Vector2						_position = Vector2::Zero;
+		float						_rotation = 0.0f;
+		Vector2						_scale = Vector2::One;
 
-		Vector2						_anchorMin;
-		Vector2						_anchorMax;
-		Vector2						_pivot;
-		Vector2						_deltaSize;
+		Vector2						_anchorMin = Vector2(0.5f, 0.5f);
+		Vector2						_anchorMax = Vector2(0.5f, 0.5f);
+		Vector2						_pivot = Vector2(0.5f, 0.5f);
+		Vector2						_deltaSize = Vector2(100.0f, 100.0f);
 
-		Vector2						_size;
+		Vector2						_size = Vector2::Zero;
 		Matrix4						_localMatrix = Matrix4::Identity;
 		Matrix4						_canvasMatrix = Matrix4::Identity;
 		uint8_t						_dirtyFlags = (uint8_t)DirtyFlag::LocalMatrix | (uint8_t)DirtyFlag::CanvasMatrix | (uint8_t)DirtyFlag::Size | (uint8_t)DirtyFlag::ZOrder;
