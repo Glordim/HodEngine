@@ -195,9 +195,10 @@ namespace hod::editor
 	/// @return 
 	bool Editor::LoadEditorModules()
 	{
-		std::array<const char*, 2> editorModules = {
+		std::array<const char*, 3> editorModules = {
 			"CoreEditor",
-			"GameEditor"
+			"GameEditor",
+			"UIEditor"
 		};
 
 		for (const char* moduleName : editorModules)
