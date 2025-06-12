@@ -274,6 +274,8 @@ add_subdirectory("Sources/HodEngine/Application")
 add_subdirectory("Sources/HodApplication")
 
 if (NOT ANDROID)
+  add_subdirectory("Sources/HodEngine/CoreEditor")
+  add_subdirectory("Sources/HodEngine/GameEditor")
   add_subdirectory("Sources/HodEngine/Editor")
   add_subdirectory("Sources/HodEditor")
 endif()

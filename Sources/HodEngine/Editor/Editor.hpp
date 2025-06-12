@@ -5,6 +5,7 @@
 
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/Event.hpp>
+#include <HodEngine/Core/Module/Module.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
 
 #include <filesystem>
@@ -61,7 +62,6 @@ namespace hod::editor
 		void									Build();
 		void									BuildAndRun();
 
-		
 		template<typename _EditorTabType_>
 		_EditorTabType_*						OpenAsset(std::shared_ptr<Asset> asset);
 		EditorTab*								OpenAsset(std::shared_ptr<Asset> asset);
@@ -84,7 +84,12 @@ namespace hod::editor
 
 		bool									AddProjectInRecentProject(const std::filesystem::path& path) const;
 
+		bool									LoadEditorModules();
+		bool									UnloadEditorModules();
+
 	private:
+
+		Vector<Module*>							_editorModules;
 
 		Vector<EditorTab*>					_editorTabs;
 		std::unordered_map<std::string, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;

@@ -30,6 +30,8 @@ include_directories(
 add_dependencies(HodEditor
 	Application
 	Editor
+	CoreEditor
+	GameEditor
 )
 
 target_link_libraries(HodEditor

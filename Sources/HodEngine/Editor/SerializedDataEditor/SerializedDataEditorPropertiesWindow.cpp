@@ -24,10 +24,6 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
-#include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/Vector4CustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
-
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"

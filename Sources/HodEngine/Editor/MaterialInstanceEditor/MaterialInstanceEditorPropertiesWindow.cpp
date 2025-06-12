@@ -23,10 +23,6 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
-#include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/Vector4CustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
-
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
@@ -106,7 +102,8 @@ namespace hod::editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(vec2Parameter._name.c_str());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				if (Vector2CustomEditor::Draw(vec2Parameter._value))
+				EditorReflectedObject editorObject(&vec2Parameter._value, &Vector2::GetReflectionDescriptor(), nullptr, nullptr);
+				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
 					GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetVec2("UBO." + vec2Parameter._name, vec2Parameter._value);
 					changed = true;
@@ -119,7 +116,8 @@ namespace hod::editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(vec4Parameter._name.c_str());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				if (Vector4CustomEditor::Draw(vec4Parameter._value))
+				EditorReflectedObject editorObject(&vec4Parameter._value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
+				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
 					GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetVec4("UBO." + vec4Parameter._name, vec4Parameter._value);
 					changed = true;
@@ -132,7 +130,8 @@ namespace hod::editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(textureParameter._name.c_str());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				if (WeakResourceCustomEditor::Draw(textureParameter._value))
+				EditorReflectedObject editorObject(&textureParameter._value, &WeakResourceBase::GetReflectionDescriptor(), nullptr, nullptr);
+				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
 					GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetTexture(textureParameter._name, textureParameter._value.Lock()->GetTexture());
 					changed = true;

@@ -34,38 +34,8 @@
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
-#include "HodEngine/Core/Math/Vector4.hpp"
-#include "HodEngine/Game/WeakComponent.hpp"
-
-#include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/ZOrderCustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/ColorCustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/Vector2CustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/Vector4CustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/WeakComponentCustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
-
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
-
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/Node2dComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/CameraComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/BoxCollider2dComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/CircleCollider2dComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/CapsuleCollider2dComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/EdgeCollider2dComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/MultiShapeCollider2dComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/TextureRendererComponentCustomEditor.hpp"
-#include <HodEngine/Game/Components/Node2dComponent.hpp>
-#include <HodEngine/Game/Components/CameraComponent.hpp>
-#include <HodEngine/Game/Components/TextureRendererComponent.hpp>
-#include <HodEngine/Game/Components/Physics/2d/BoxCollider2dComponent.hpp>
-#include <HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp>
-#include <HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp>
-#include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
-#include <HodEngine/Game/Components/Physics/2d/MultiShapeCollider2dComponent.hpp>
 
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 #include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
@@ -74,7 +44,6 @@
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
 #include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
 
-#include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
@@ -127,21 +96,7 @@ namespace hod::editor
 		DefaultAllocator::GetInstance().Delete(_shaderTexture);
 		DefaultAllocator::GetInstance().Delete(_checkerTexture);
 
-		game::ZOrder::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		Color::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		Vector2::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		Vector4::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		game::WeakComponentBase::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-		WeakResourceBase::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-
-		game::Node2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::CameraComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::TextureRendererComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::BoxCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::CircleCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::CapsuleCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::EdgeCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-		game::MultiShapeCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+		UnloadEditorModules();
 	}
 
 	/// @brief 
@@ -151,21 +106,10 @@ namespace hod::editor
 	{
 		game::World::GetInstance()->DisableDrawJob();
 
-		game::ZOrder::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<ZOrderCustomEditor>());
-		Color::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<ColorCustomEditor>());
-		Vector2::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector2CustomEditor>());
-		Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector4CustomEditor>());
-		game::WeakComponentBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<WeakComponentCustomEditor>());
-		WeakResourceBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<WeakResourceCustomEditor>());
-
-		game::Node2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<Node2dComponentCustomEditor>());
-		game::CameraComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CameraComponentCustomEditor>());
-		game::TextureRendererComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<TextureRendererComponentCustomEditor>());
-		game::BoxCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<BoxCollider2dComponentCustomEditor>());
-		game::CircleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CircleCollider2dComponentCustomEditor>());
-		game::CapsuleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CapsuleCollider2dComponentCustomEditor>());
-		game::EdgeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<EdgeCollider2dComponentCustomEditor>());
-		game::MultiShapeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<MultiShapeCollider2dComponentCustomEditor>());
+		if (LoadEditorModules() == false)
+		{
+			return false;
+		}
 
 		Project::CreateInstance();
 
@@ -245,6 +189,42 @@ namespace hod::editor
 		}
 
 		return false;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Editor::LoadEditorModules()
+	{
+		std::array<const char*, 2> editorModules = {
+			"CoreEditor",
+			"GameEditor"
+		};
+
+		for (const char* moduleName : editorModules)
+		{
+			Module* module = DefaultAllocator::GetInstance().New<Module>();
+			module->Init(FileSystem::GetExecutablePath().parent_path() / moduleName, false);
+			if (module->Load() == false)
+			{
+				DefaultAllocator::GetInstance().Delete(module);
+				return false;
+			}
+
+			_editorModules.push_back(module);
+		}
+		return true;
+	}
+
+	/// @brief 
+	/// @return 
+	bool Editor::UnloadEditorModules()
+	{
+		for (Module* module : _editorModules)
+		{
+			module->Unload();
+			DefaultAllocator::GetInstance().Delete(module);
+		}
+		return true;
 	}
 
 	/// @brief 
