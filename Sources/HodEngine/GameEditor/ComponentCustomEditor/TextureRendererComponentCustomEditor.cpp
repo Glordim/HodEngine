@@ -37,8 +37,13 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool TextureRendererComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
+	bool TextureRendererComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		if (selected == false)
+		{
+			return false;
+		}
+
 		game::TextureRendererComponent* textureRenderer = static_cast<game::TextureRendererComponent*>(component);
 		if (textureRenderer != nullptr)
 		{

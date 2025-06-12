@@ -38,8 +38,13 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool CircleCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
+	bool CircleCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		if (selected == false)
+		{
+			return false;
+		}
+
 		game::CircleCollider2dComponent* circleCollider2d = static_cast<game::CircleCollider2dComponent*>(component);
 		if (circleCollider2d != nullptr)
 		{

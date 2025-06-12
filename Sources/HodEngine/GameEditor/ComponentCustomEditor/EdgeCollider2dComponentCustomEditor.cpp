@@ -38,8 +38,13 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool EdgeCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
+	bool EdgeCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		if (selected == false)
+		{
+			return false;
+		}
+
 		game::EdgeCollider2dComponent* edgeCollider2d = static_cast<game::EdgeCollider2dComponent*>(component);
 		if (edgeCollider2d != nullptr)
 		{

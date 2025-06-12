@@ -71,8 +71,13 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool Node2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
+	bool Node2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		if (selected == false)
+		{
+			return false;
+		}
+
 		bool changed = false;
 
 		game::Node2dComponent* node2D = static_cast<game::Node2dComponent*>(component);

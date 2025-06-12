@@ -291,9 +291,36 @@ namespace hod::editor
 							ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
 							if (customEditor != nullptr)
 							{
-								if (customEditor->OnDrawGizmo(component, *this))
+								if (customEditor->OnDrawGizmo(component, *this, true))
 								{
 									GetOwner()->MarkAssetAsDirty();
+								}
+							}
+						}
+					}
+				}
+
+				for (game::Scene* scene : world->GetScenes())
+				{
+					for (const auto& entityPair : scene->GetEntities())
+					{
+						if (entityPair.second == sceneSelection)
+						{
+							continue; // Already call
+						}
+
+						for (game::Component* component : entityPair.second->GetComponents())
+						{
+							ReflectionTraitComponentCustomEditor* customEditorTrait = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
+							if (customEditorTrait != nullptr)
+							{
+								ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
+								if (customEditor != nullptr)
+								{
+									if (customEditor->OnDrawGizmo(component, *this, false))
+									{
+										GetOwner()->MarkAssetAsDirty();
+									}
 								}
 							}
 						}

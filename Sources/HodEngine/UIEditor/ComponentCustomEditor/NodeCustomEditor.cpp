@@ -76,8 +76,13 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool NodeCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
+	bool NodeCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		if (selected == false)
+		{
+			return false;
+		}
+
 		bool changed = false;
 
 		ui::Node* node = static_cast<ui::Node*>(component);

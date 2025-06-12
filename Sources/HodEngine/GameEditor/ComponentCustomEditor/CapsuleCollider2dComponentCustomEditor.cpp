@@ -38,8 +38,13 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool CapsuleCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
+	bool CapsuleCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		if (selected == false)
+		{
+			return false;
+		}
+
 		game::CapsuleCollider2dComponent* capsuleCollider2d = static_cast<game::CapsuleCollider2dComponent*>(component);
 		if (capsuleCollider2d != nullptr)
 		{

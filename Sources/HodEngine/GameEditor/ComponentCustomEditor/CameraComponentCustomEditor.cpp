@@ -37,8 +37,13 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool CameraComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
+	bool CameraComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		if (selected == false)
+		{
+			return false;
+		}
+
 		game::CameraComponent* cameraComponent = static_cast<game::CameraComponent*>(component);
 		if (cameraComponent != nullptr)
 		{

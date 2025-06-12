@@ -38,8 +38,13 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool MultiShapeCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport)
+	bool MultiShapeCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		if (selected == false)
+		{
+			return false;
+		}
+
 		game::MultiShapeCollider2dComponent* multiShapeCollider2d = static_cast<game::MultiShapeCollider2dComponent*>(component);
 		if (multiShapeCollider2d != nullptr)
 		{
