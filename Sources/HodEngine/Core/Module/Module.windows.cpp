@@ -17,7 +17,7 @@ namespace hod
 		using initFunction = int(*)();
 
 		// resolve function address here
-		initFunction initFunc = (initFunction)GetProcAddress(_dll, "Init");
+		initFunction initFunc = (initFunction)GetProcAddress(_dll, "StartupModule");
 		if (initFunc == nullptr)
 		{
 			//std::cout << "could not locate the function" << std::endl;
@@ -37,7 +37,7 @@ namespace hod
 		{
 			using cleanFunction = int(*)();
 
-			cleanFunction cleanFunc = (cleanFunction)GetProcAddress(_dll, "Clean");
+			cleanFunction cleanFunc = (cleanFunction)GetProcAddress(_dll, "ShutdownModule");
 			if (cleanFunc == nullptr)
 			{
 				//std::cout << "could not locate the function" << std::endl;

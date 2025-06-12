@@ -19,7 +19,7 @@ namespace hod
 		using initFunction = int(*)();
 
 		// resolve function address here
-		initFunction initFunc = (initFunction)dlsym(_sharedLib, "Init");
+		initFunction initFunc = (initFunction)dlsym(_sharedLib, "StartupModule");
 		if (initFunc == nullptr)
 		{
 			//std::cout << "could not locate the function" << std::endl;
@@ -39,7 +39,7 @@ namespace hod
 		{
 			using cleanFunction = int(*)();
 
-			cleanFunction cleanFunc = (cleanFunction)dlsym(_sharedLib, "Clean");
+			cleanFunction cleanFunc = (cleanFunction)dlsym(_sharedLib, "ShutdownModule");
 			if (cleanFunc == nullptr)
 			{
 				//std::cout << "could not locate the function" << std::endl;
