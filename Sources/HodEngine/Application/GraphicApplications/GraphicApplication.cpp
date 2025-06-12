@@ -31,6 +31,7 @@
 #include "HodEngine/Core/Time/SystemTime.hpp"
 #include "HodEngine/Core/Resource/ResourceManager.hpp"
 
+#include "HodEngine/UI/Builtin.hpp"
 #include "HodEngine/Window/Window.hpp"
 
 namespace hod::application
@@ -95,6 +96,8 @@ namespace hod::application
 		game::RegisterBuiltin();
 
 		game::World::CreateInstance()->Init();
+
+		ui::RegisterBuiltin();
 
 		return true;
 	}

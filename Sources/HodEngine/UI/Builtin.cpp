@@ -1,0 +1,17 @@
+#include "HodEngine/UI/Pch.hpp"
+#include "HodEngine/UI/Builtin.hpp"
+
+#include "HodEngine/Game/ComponentFactory.hpp"
+
+#include "HodEngine/UI/Canvas.hpp"
+#include "HodEngine/UI/Node.hpp"
+
+namespace hod::ui
+{
+	void RegisterBuiltin()
+	{
+		game::ComponentFactory* componentFactory = game::ComponentFactory::GetInstance();
+		componentFactory->Register<Canvas>();
+		componentFactory->Register<Node>();
+	}
+}
