@@ -27,7 +27,5 @@ namespace hod::editor
 	public:
 
 		bool					Draw(EditorReflectedProperty& editorReflectedProperty) override;
-
-		static bool				Draw(Vector4& value);
 	};
 }
