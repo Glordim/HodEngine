@@ -30,13 +30,13 @@ namespace hod::ui
 
 	public:
 
-		void				OnAwake() override;
+		void				OnEnable() override;
 
 		ScaleMode			GetScaleMode() const;
 		void				SetScaleMode(ScaleMode scaleMode);
 
-		float				GetScaleWidthHeightPreferredAxis() const;
-		void				SetScaleWidthHeightPreferredAxis(float scaleWidthHeightPreferredAxis);
+		float				GetWidthHeightPreferredAxis() const;
+		void				SetWidthHeightPreferredAxis(float widthHeightPreferredAxis);
 
 		void				RecomputeRootNodeSize();
 
@@ -45,7 +45,7 @@ namespace hod::ui
 		WeakPtr<Node>		_rootNode;
 
 		ScaleMode			_scaleMode = ScaleMode::WidthHeight;
-		float				_scaleWidthHeightPreferredAxis = 1.0f;
+		float				_widthHeightPreferredAxis = 1.0f;
 
 		float				_scaleFactor = 1.0f;
 	};

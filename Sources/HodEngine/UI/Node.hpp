@@ -61,7 +61,7 @@ namespace hod::ui
 		const Matrix4&				ComputeCanvasMatrix();
 		Node*						GetParent() const;
 
-		void						OnAwake() override;
+		void						OnEnable() override;
 
 	private:
 

@@ -12,10 +12,10 @@ namespace hod::ui
 	DESCRIBE_REFLECTED_CLASS(Canvas, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &Canvas::_scaleMode, "ScaleMode", &Canvas::SetScaleMode);
-		AddPropertyT(reflectionDescriptor, &Canvas::_scaleWidthHeightPreferredAxis, "ScaleWidthHeightPreferredAxis", &Canvas::SetScaleWidthHeightPreferredAxis);
+		AddPropertyT(reflectionDescriptor, &Canvas::_widthHeightPreferredAxis, "WidthHeightPreferredAxis", &Canvas::SetWidthHeightPreferredAxis);
 	}
 
-	void Canvas::OnAwake()
+	void Canvas::OnEnable()
 	{
 		_rootNode = GetOwner()->GetComponent<Node>();
 	}
@@ -34,16 +34,16 @@ namespace hod::ui
 		}
 	}
 
-	float Canvas::GetScaleWidthHeightPreferredAxis() const
+	float Canvas::GetWidthHeightPreferredAxis() const
 	{
-		return _scaleWidthHeightPreferredAxis;
+		return _widthHeightPreferredAxis;
 	}
 
-	void Canvas::SetScaleWidthHeightPreferredAxis(float scaleWidthHeightPreferredAxis)
+	void Canvas::SetWidthHeightPreferredAxis(float widthHeightPreferredAxis)
 	{
-		if (_scaleWidthHeightPreferredAxis != scaleWidthHeightPreferredAxis)
+		if (_widthHeightPreferredAxis != widthHeightPreferredAxis)
 		{
-			_scaleWidthHeightPreferredAxis = scaleWidthHeightPreferredAxis;
+			_widthHeightPreferredAxis = widthHeightPreferredAxis;
 			RecomputeRootNodeSize();
 		}
 	}
@@ -59,7 +59,7 @@ namespace hod::ui
 		{
 			float logWidth = std::log2f(resolution.GetX() / designSize.GetX());
 			float logHeight = std::log2f(resolution.GetY() / designSize.GetY());
-			float logLerp = std::lerp(logWidth, logHeight, _scaleWidthHeightPreferredAxis);
+			float logLerp = std::lerp(logWidth, logHeight, _widthHeightPreferredAxis);
 			_scaleFactor = std::powf(2.0f, logLerp);
 		}
 		break;

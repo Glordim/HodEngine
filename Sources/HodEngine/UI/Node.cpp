@@ -19,12 +19,16 @@ namespace hod::ui
 	}
 
 	/// @brief 
-	void Node::OnAwake()
+	void Node::OnEnable()
 	{
 		game::Entity* owner = GetOwner();
 		if (owner != nullptr)
 		{
-			_parent = owner->GetComponent<Node>();
+			game::Entity* parentEntity = owner->GetParent().Lock();
+			if (parentEntity != nullptr)
+			{
+				_parent = parentEntity->GetComponent<Node>();
+			}
 		}
 	}
 
@@ -197,7 +201,7 @@ namespace hod::ui
 				Node* childNode = entity->GetChildren()[childIndex].Lock()->GetComponent<Node>();
 				if (childNode != nullptr)
 				{
-					MarkCanvasMatrixAsDirty();
+					childNode->MarkCanvasMatrixAsDirty();
 				}
 			}
 		}
