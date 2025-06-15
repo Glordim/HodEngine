@@ -204,7 +204,7 @@ namespace hod::editor
 		for (const char* moduleName : editorModules)
 		{
 			Module* module = DefaultAllocator::GetInstance().New<Module>();
-			module->Init(FileSystem::GetExecutablePath().parent_path() / moduleName, false);
+			module->Init(FileSystem::GetExecutablePath().parent_path() / moduleName, true);
 			if (module->Load() == false)
 			{
 				DefaultAllocator::GetInstance().Delete(module);
@@ -225,6 +225,7 @@ namespace hod::editor
 			module->Unload();
 			DefaultAllocator::GetInstance().Delete(module);
 		}
+		_editorModules.clear();
 		return true;
 	}
 
@@ -350,6 +351,8 @@ namespace hod::editor
 				}
 				if (ImGui::MenuItem("Hot Reload") == true)
 				{
+					UnloadEditorModules();
+					LoadEditorModules();
 					Project::GetInstance()->ReloadGameModule();
 				}
 
