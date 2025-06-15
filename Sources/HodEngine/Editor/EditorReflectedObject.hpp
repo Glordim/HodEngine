@@ -34,10 +34,11 @@ namespace hod::editor
 		bool IsEditingMultipleInstance() const;
 		bool IsOverride() const;
 
+		EditorReflectedProperty*			FindProperty(std::string_view name) const;
 		Vector<EditorReflectedProperty*>&  GetProperties();
 
 		void*                       GetInstance() const;
-		const Vector<void*>&   GetInstances() const;
+		const Vector<void*>&   		GetInstances() const;
 
 		EditorReflectedProperty*    GetSourceProperty() const;
 		EditorTabWindow*			GetEditorTabWindow() const;

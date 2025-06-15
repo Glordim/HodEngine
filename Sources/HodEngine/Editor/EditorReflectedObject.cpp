@@ -130,4 +130,16 @@ namespace hod::editor
 	{
 		return _properties;
 	}
+
+	EditorReflectedProperty* EditorReflectedObject::FindProperty(std::string_view name) const
+	{
+		for (EditorReflectedProperty* property : _properties)
+		{
+			if (property->GetReflectionProperty()->GetName() == name)
+			{
+				return property;
+			}
+		}
+		return nullptr;
+	}
 }

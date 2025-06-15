@@ -3,6 +3,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include <HodEngine/UI/Node.hpp>
+#include <HodEngine/UI/Canvas.hpp>
 
 #include <HodEngine/Game/Entity.hpp>
 
@@ -15,6 +16,9 @@
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 
 #include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/EditorReflectedObject.hpp"
+#include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
 #undef max
 
@@ -31,6 +35,24 @@ namespace hod::editor
 	CanvasCustomEditor::~CanvasCustomEditor()
 	{
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
+	}
+
+	bool CanvasCustomEditor::OnDrawInspector(EditorReflectedObject& reflectedObject)
+	{
+		bool changed = false;
+
+		EditorReflectedProperty* scaleMode = reflectedObject.FindProperty("ScaleMode");
+		changed |= PropertyDrawer::DrawProperty(*scaleMode);
+
+		if (scaleMode->GetValue<ui::Canvas::ScaleMode>() == ui::Canvas::ScaleMode::WidthHeight)
+		{
+			ImGui::Indent();
+			EditorReflectedProperty* widthHeightPreferredAxis = reflectedObject.FindProperty("WidthHeightPreferredAxis");
+			changed |= PropertyDrawer::DrawProperty(*widthHeightPreferredAxis);
+			ImGui::Unindent();
+		}
+
+		return changed;
 	}
 
 	/// @brief 

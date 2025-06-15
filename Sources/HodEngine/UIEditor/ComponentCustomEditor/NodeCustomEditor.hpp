@@ -26,10 +26,12 @@ namespace hod::editor
 
 	public:
 
+		bool							OnDrawInspector(EditorReflectedObject &reflectedObject) override;
 		bool							OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected) override;
 
 	private:
 
+		static bool						DrawAnchorPresets(const ImVec2& size, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot);
 		static Vector2					GetMouseWorldPos(const Vector2& mousePosition, const ViewportWindow& viewport);
 		
 	private:
