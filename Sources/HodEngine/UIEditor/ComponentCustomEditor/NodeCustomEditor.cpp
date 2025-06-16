@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include <HodEngine/UI/Node.hpp>
+#include <HodEngine/Game/Entity.hpp>
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/PickingManager.hpp>
@@ -17,6 +18,7 @@
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Editor/GeometryGenerator.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 
@@ -27,6 +29,25 @@ namespace hod::editor
 	/// @brief 
 	NodeCustomEditor::NodeCustomEditor()
 	{
+		_materialInstanceHitbox = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		_materialInstanceHitbox->SetVec4("UBO.color", Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+
+		_pickingIdTopLeftCorner = renderer::PickingManager::GetInstance()->GenerateId();
+		_pickingIdTopRightCorner = renderer::PickingManager::GetInstance()->GenerateId();
+		_pickingIdBottomLeftCorner = renderer::PickingManager::GetInstance()->GenerateId();
+		_pickingIdBottomRightCorner = renderer::PickingManager::GetInstance()->GenerateId();
+
+		_materialInstanceCorner = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		_materialInstanceCorner->SetVec4("UBO.color", Vector4(0.3f, 0.3f, 0.8f, 1.0f));
+
+		_materialInstanceCornerHighlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		_materialInstanceCornerHighlight->SetVec4("UBO.color", Vector4(0.5f, 0.5f, 1.0f, 1.0f));
+
+		_pickingIdTopEdge = renderer::PickingManager::GetInstance()->GenerateId();
+		_pickingIdLeftEdge = renderer::PickingManager::GetInstance()->GenerateId();
+		_pickingIdBottomEdge = renderer::PickingManager::GetInstance()->GenerateId();
+		_pickingIdRightEdge = renderer::PickingManager::GetInstance()->GenerateId();
+
 		_materialInstanceCenterNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		_materialInstanceCenterNormal->SetVec4("UBO.color", Vector4(0.5f, 0.5f, 0.5f, 1.0f));
 
@@ -59,6 +80,9 @@ namespace hod::editor
 
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		_materialInstance->SetVec4("UBO.color", Vector4(0.75f, 0.75f, 0.75f, 1.0f));
+
+		_materialInstanceHighlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		_materialInstanceHighlight->SetVec4("UBO.color", Vector4(0.95f, 0.95f, 0.95f, 1.0f));
 	}
 
 	/// @brief 
@@ -74,6 +98,10 @@ namespace hod::editor
 		DefaultAllocator::GetInstance().Delete(_materialInstanceAxisZHightlight);
 
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
+		DefaultAllocator::GetInstance().Delete(_materialInstanceHighlight);
+		DefaultAllocator::GetInstance().Delete(_materialInstanceHitbox);
+		DefaultAllocator::GetInstance().Delete(_materialInstanceCorner);
+		DefaultAllocator::GetInstance().Delete(_materialInstanceCornerHighlight);
 	}
 
 	bool NodeCustomEditor::OnDrawInspector(EditorReflectedObject& reflectedObject)
@@ -504,6 +532,34 @@ namespace hod::editor
 	{
 		if (selected == false)
 		{
+			ui::Node* node = static_cast<ui::Node*>(component);
+
+			Vector2 size = node->ComputeSize();
+
+			std::array<Vector2, 5> vertices = {
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+			};
+
+			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			std::array<Vector2, 6> verticesHitbox = {
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+
+				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f)
+			};
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesHitbox.data(), nullptr, nullptr, (uint32_t)verticesHitbox.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstanceHitbox, 0, (uint32_t)node->GetOwner()->GetInstanceId());
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
 			return false;
 		}
 
@@ -521,12 +577,21 @@ namespace hod::editor
 			{
 				if (ImGui::GetIO().MouseDownDuration[ImGuiMouseButton_Left] == 0.0f && pickingId != 0 && _movingAxis == 0)
 				{
-					if (pickingId == _pickingIdAxisX || pickingId == _pickingIdAxisY || pickingId == _pickingIdAxisZ)
+					if (pickingId == _pickingIdAxisX || pickingId == _pickingIdAxisY || pickingId == _pickingIdAxisZ ||
+					pickingId == _pickingIdTopEdge ||
+					pickingId == _pickingIdLeftEdge ||
+					pickingId == _pickingIdBottomEdge ||
+					pickingId == _pickingIdRightEdge ||
+					pickingId == _pickingIdTopLeftCorner ||
+					pickingId == _pickingIdTopRightCorner ||
+					pickingId == _pickingIdBottomLeftCorner ||
+					pickingId == _pickingIdBottomRightCorner)
 					{
 						_movingAxis = pickingId;
 
 						Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-						_pickingOffset = mouseWorldPos - node->GetPosition();
+						_pickingOffset = mouseWorldPos - node->ComputeCanvasMatrix().GetTranslation();
+						_pickingSize = node->GetDeltaSize();
 					}
 				}
 			}
@@ -542,7 +607,33 @@ namespace hod::editor
 				Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
 				Vector2 previousPosition = node->GetPosition();
 				Vector2 newPosition = mouseWorldPos - _pickingOffset;
-				if (_movingAxis == _pickingIdAxisX)
+
+				if (_movingAxis == _pickingIdTopEdge ||
+					_movingAxis == _pickingIdLeftEdge ||
+					_movingAxis == _pickingIdBottomEdge ||
+					_movingAxis == _pickingIdRightEdge ||
+					_movingAxis == _pickingIdTopLeftCorner ||
+					_movingAxis == _pickingIdTopRightCorner ||
+					_movingAxis == _pickingIdBottomLeftCorner ||
+					_movingAxis == _pickingIdBottomRightCorner)
+				{
+					Vector2 newSize = _pickingSize + (_pickingOffset - mouseWorldPos);
+					newPosition = previousPosition; // todo remove
+
+					Vector2 deltaSize = node->GetDeltaSize();
+					if (_movingAxis == _pickingIdLeftEdge || _movingAxis == _pickingIdRightEdge)
+					{
+						newSize.SetY(_pickingSize.GetY());
+					}
+					else if (_movingAxis == _pickingIdTopEdge || _movingAxis == _pickingIdBottomEdge)
+					{
+						newSize.SetX(_pickingSize.GetX());
+					}
+					deltaSize = newSize;
+
+					node->SetDeltaSize(deltaSize);
+				}
+				else if (_movingAxis == _pickingIdAxisX)
 				{
 					newPosition.SetY(previousPosition.GetY());
 				}
@@ -625,20 +716,124 @@ namespace hod::editor
 
 			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCenter.data(), nullptr, nullptr, (uint32_t)verticesCenter.size(), nullptr, 0, finalMatrix, _materialInstanceCenterNormal, std::numeric_limits<uint32_t>::max());
 			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			Vector2 size = node->ComputeSize();
+
+			std::array<Vector2, 6> verticesHitbox = {
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+
+				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f)
+			};
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesHitbox.data(), nullptr, nullptr, (uint32_t)verticesHitbox.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdAxisZ);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+/*
+			std::array<Vector2, 5> vertices = {
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+			};
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+*/
+			std::array<Vector2, 2> horizontalLineVertices {
+				Vector2(-size.GetX() * 0.5f, 0.0f),
+				Vector2(size.GetX() * 0.5f, 0.0f)
+			};
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(horizontalLineVertices.data(), nullptr, nullptr, (uint32_t)horizontalLineVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(0.0f, size.GetY() * 0.5f)), _movingAxis != _pickingIdTopEdge && pickingId != _pickingIdTopEdge ? _materialInstance : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max() - 1);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(horizontalLineVertices.data(), nullptr, nullptr, (uint32_t)horizontalLineVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(0.0f, -size.GetY() * 0.5f)), _movingAxis != _pickingIdBottomEdge && pickingId != _pickingIdBottomEdge ? _materialInstance : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max() - 1);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			std::array<Vector2, 6> horizontalLineHitboxVertices {
+				Vector2(-size.GetX() * 0.5f, 0.025f),
+				Vector2(size.GetX() * 0.5f, 0.025f),
+				Vector2(-size.GetX() * 0.5f, -0.025f),
+				
+				Vector2(size.GetX() * 0.5f, -0.025f),
+				Vector2(-size.GetX() * 0.5f, -0.025f),
+				Vector2(size.GetX() * 0.5f, 0.025f),
+			};
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(horizontalLineHitboxVertices.data(), nullptr, nullptr, (uint32_t)horizontalLineHitboxVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(0.0f, size.GetY() * 0.5f)), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdTopEdge);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(horizontalLineHitboxVertices.data(), nullptr, nullptr, (uint32_t)horizontalLineHitboxVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(0.0f, -size.GetY() * 0.5f)), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdBottomEdge);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			std::array<Vector2, 2> verticalLineVertices {
+				Vector2(0.0f, size.GetY() * 0.5f),
+				Vector2(0.0f, -size.GetY() * 0.5f)
+			};
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticalLineVertices.data(), nullptr, nullptr, (uint32_t)verticalLineVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(-size.GetX() * 0.5f, 0.0f)), _movingAxis != _pickingIdLeftEdge && pickingId != _pickingIdLeftEdge ? _materialInstance : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max() - 1);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticalLineVertices.data(), nullptr, nullptr, (uint32_t)verticalLineVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(size.GetX() * 0.5f, 0.0f)), _movingAxis != _pickingIdRightEdge && pickingId != _pickingIdRightEdge ? _materialInstance : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max() - 1);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			std::array<Vector2, 6> verticalLineHitboxVertices {
+				Vector2(0.025f, -size.GetY() * 0.5f),
+				Vector2(0.025f, size.GetY() * 0.5f),
+				Vector2(-0.025f, -size.GetY() * 0.5f),
+				
+				Vector2(-0.025f, size.GetY() * 0.5f),
+				Vector2(-0.025f, -size.GetY() * 0.5f),
+				Vector2(0.025f, size.GetY() * 0.5f),
+			};
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticalLineHitboxVertices.data(), nullptr, nullptr, (uint32_t)verticalLineHitboxVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(-size.GetX() * 0.5f, 0.0f)), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdLeftEdge);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticalLineHitboxVertices.data(), nullptr, nullptr, (uint32_t)verticalLineHitboxVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(size.GetX() * 0.5f, 0.0f)), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdRightEdge);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			constexpr float cornerSize = 0.05f;
+			std::array<Vector2, 64 * 3> verticesCorner;
+			GeometryGenerator::CircleShapeFillNoFan<64>(verticesCorner, Vector2::Zero, cornerSize);
+
+			/*
+			std::array<Vector2, 6> verticesCorner = {
+				Vector2(-cornerSize * 0.5f, cornerSize * 0.5f),
+				Vector2(-cornerSize * 0.5f, -cornerSize * 0.5f),
+				Vector2(cornerSize * 0.5f, cornerSize * 0.5f),
+				
+				Vector2(-cornerSize * 0.5f, -cornerSize * 0.5f),
+				Vector2(cornerSize * 0.5f, -cornerSize * 0.5f),
+				Vector2(cornerSize * 0.5f, cornerSize * 0.5f),
+			};
+			*/
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCorner.data(), nullptr, nullptr, (uint32_t)verticesCorner.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f)), _movingAxis != _pickingIdTopLeftCorner && pickingId != _pickingIdTopLeftCorner ? _materialInstanceCorner : _materialInstanceCornerHighlight, std::numeric_limits<uint32_t>::max(), _pickingIdTopLeftCorner);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCorner.data(), nullptr, nullptr, (uint32_t)verticesCorner.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f)), _movingAxis != _pickingIdTopRightCorner && pickingId != _pickingIdTopRightCorner ? _materialInstanceCorner : _materialInstanceCornerHighlight, std::numeric_limits<uint32_t>::max(), _pickingIdTopRightCorner);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+			
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCorner.data(), nullptr, nullptr, (uint32_t)verticesCorner.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f)), _movingAxis != _pickingIdBottomLeftCorner && pickingId != _pickingIdBottomLeftCorner ? _materialInstanceCorner : _materialInstanceCornerHighlight, std::numeric_limits<uint32_t>::max(), _pickingIdBottomLeftCorner);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCorner.data(), nullptr, nullptr, (uint32_t)verticesCorner.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f)), _movingAxis != _pickingIdBottomRightCorner && pickingId != _pickingIdBottomRightCorner ? _materialInstanceCorner : _materialInstanceCornerHighlight, std::numeric_limits<uint32_t>::max(), _pickingIdBottomRightCorner);
+			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+
+			if (pickingId == _pickingIdTopLeftCorner || pickingId == _pickingIdBottomRightCorner)
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+			else if (pickingId == _pickingIdTopRightCorner || pickingId == _pickingIdBottomLeftCorner)
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
+			else if (pickingId == _pickingIdTopEdge || pickingId == _pickingIdBottomEdge)
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+			else if (pickingId == _pickingIdLeftEdge || pickingId == _pickingIdRightEdge)
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 		}
-
-		Vector2 size = node->ComputeSize();
-
-		std::array<Vector2, 5> vertices = {
-			Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
-			Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
-			Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
-			Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
-			Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
-		};
-
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-		viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
 
 		return changed;
 	}

@@ -26,6 +26,30 @@ namespace hod::editor
 		vertices[SegmentCount_] = vertices[0];
 	}
 
+	template<uint32_t SegmentCount_>
+	void GeometryGenerator::CircleShapeFillNoFan(std::array<Vector2, (SegmentCount_) * 3>& vertices, const Vector2& center, float radius)
+	{
+		const float angleStep = 360.0f / SegmentCount_;
+
+		for (uint32_t currentSegment = 0; currentSegment < SegmentCount_; ++currentSegment)
+		{
+			float angle = angleStep * currentSegment;
+			angle = math::DegreeToRadian(angle);
+
+			vertices[currentSegment * 3].SetX(center.GetX() + (radius * cosf(angle)));
+			vertices[currentSegment * 3].SetY(center.GetY() + (radius * sinf(angle)));
+
+			float nextAngle = angleStep * (currentSegment + 1);
+			nextAngle = math::DegreeToRadian(nextAngle);
+
+			vertices[currentSegment * 3 + 1].SetX(center.GetX() + (radius * cosf(nextAngle)));
+			vertices[currentSegment * 3 + 1].SetY(center.GetY() + (radius * sinf(nextAngle)));
+
+			vertices[currentSegment * 3 + 2].SetX(center.GetX());
+			vertices[currentSegment * 3 + 2].SetY(center.GetY());
+		}
+	}
+
 	/// @brief 
 	/// @tparam SegmentCount_ 
 	/// @param vertices 

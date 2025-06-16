@@ -64,6 +64,11 @@ namespace hod::renderer
 	/// @param commandBuffer 
 	void RenderCommandMesh::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
 	{
+		if (overrideMaterial != nullptr && _pickingId == PickingManager::InvalidId)
+		{
+			return;
+		}
+		
 		Renderer* renderer = Renderer::GetInstance();
 
 		std::array<Buffer*, 3> vertexBuffers = { nullptr, nullptr, nullptr };

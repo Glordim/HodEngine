@@ -36,6 +36,21 @@ namespace hod::editor
 		
 	private:
 
+		renderer::MaterialInstance*		_materialInstanceHitbox = nullptr;
+
+		uint32_t						_pickingIdTopLeftCorner;
+		uint32_t						_pickingIdTopRightCorner;
+		uint32_t						_pickingIdBottomLeftCorner;
+		uint32_t						_pickingIdBottomRightCorner;
+
+		renderer::MaterialInstance*		_materialInstanceCorner = nullptr;
+		renderer::MaterialInstance*		_materialInstanceCornerHighlight = nullptr;
+
+		uint32_t						_pickingIdTopEdge;
+		uint32_t						_pickingIdLeftEdge;
+		uint32_t						_pickingIdBottomEdge;
+		uint32_t						_pickingIdRightEdge;
+
 		renderer::MaterialInstance*		_materialInstanceCenterNormal = nullptr;
 		renderer::MaterialInstance*		_materialInstanceCenterHightlight = nullptr;
 
@@ -52,8 +67,10 @@ namespace hod::editor
 		uint32_t						_pickingIdAxisZ;
 
 		renderer::MaterialInstance*		_materialInstance = nullptr;
+		renderer::MaterialInstance*		_materialInstanceHighlight = nullptr;
 
 		uint32_t						_movingAxis = 0;
 		Vector2							_pickingOffset;
+		Vector2							_pickingSize;
 	};
 }
