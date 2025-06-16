@@ -449,7 +449,7 @@ namespace hod::editor
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetTopRight", presetSize, Edge::Top | Edge::Right, Anchor::TopRight, 0, anchorMin, anchorMax, pivot, Vector2(1.0f, 1.0f), Vector2(1.0f, 1.0f));
 			ImGui::SameLine(0.0f, 25.0f);
-			changed |= DrawPresetButton("##AnchorPresetTopStretch", presetSize, Edge::Top | Edge::CenterV, Anchor::TopLeft | Anchor::TopRight, ExpandArrow::Horizontal, anchorMin, anchorMax, pivot, Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f));
+			changed |= DrawPresetButton("##AnchorPresetTopStretch", presetSize, Edge::Top, Anchor::TopLeft | Anchor::TopRight, ExpandArrow::Horizontal, anchorMin, anchorMax, pivot, Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f));
 
 
 			changed |= DrawPresetButton("##AnchorPresetMiddleLeft", presetSize, Edge::CenterH | Edge::Left, Anchor::MiddleLeft, 0, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.5f), Vector2(0.0f, 0.5f));
@@ -458,7 +458,7 @@ namespace hod::editor
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetMiddleRight", presetSize, Edge::CenterH | Edge::Right, Anchor::MiddleRight, 0, anchorMin, anchorMax, pivot, Vector2(1.0f, 0.5f), Vector2(1.0f, 0.5f));
 			ImGui::SameLine(0.0f, 25.0f);
-			changed |= DrawPresetButton("##AnchorPresetMiddleStretch", presetSize, Edge::CenterH | Edge::CenterV, Anchor::MiddleLeft | Anchor::MiddleRight, ExpandArrow::Horizontal, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.5f), Vector2(1.0f, 0.5f));
+			changed |= DrawPresetButton("##AnchorPresetMiddleStretch", presetSize, Edge::CenterH, Anchor::MiddleLeft | Anchor::MiddleRight, ExpandArrow::Horizontal, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.5f), Vector2(1.0f, 0.5f));
 
 
 			changed |= DrawPresetButton("##AnchorPresetBottomLeft", presetSize, Edge::Bottom | Edge::Left, Anchor::BottomLeft, 0, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.0f), Vector2(0.0f, 0.0f));
@@ -467,7 +467,7 @@ namespace hod::editor
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetBottomRight", presetSize, Edge::Bottom | Edge::Right, Anchor::BottomRight, 0, anchorMin, anchorMax, pivot, Vector2(1.0f, 0.0f), Vector2(1.0f, 0.0f));
 			ImGui::SameLine(0.0f, 25.0f);
-			changed |= DrawPresetButton("##AnchorPresetBottomStretch", presetSize, Edge::Bottom | Edge::CenterV, Anchor::BottomLeft | Anchor::BottomRight, ExpandArrow::Horizontal, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f));
+			changed |= DrawPresetButton("##AnchorPresetBottomStretch", presetSize, Edge::Bottom, Anchor::BottomLeft | Anchor::BottomRight, ExpandArrow::Horizontal, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f));
 
 			ImGui::Spacing();
 			ImGui::Spacing();
