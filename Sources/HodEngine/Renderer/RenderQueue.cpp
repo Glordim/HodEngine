@@ -173,6 +173,12 @@ namespace hod::renderer
 		_context = nullptr;
 		_renderTarget = nullptr;
 		_pickingRenderTarget = nullptr;
+
+		for (MaterialInstance* materialInstance : _materialInstancesToDelete)
+		{
+			DefaultAllocator::GetInstance().Delete(materialInstance);
+		}
+		_materialInstancesToDelete.clear();
 	}
 
 	/// @brief 
@@ -221,5 +227,12 @@ namespace hod::renderer
 		{
 			return 0;
 		}
+	}
+
+	/// @brief 
+	/// @param materialInstance 
+	void RenderQueue::DeleteAfter(MaterialInstance* materialInstance)
+	{
+		_materialInstancesToDelete.push_back(materialInstance);
 	}
 }

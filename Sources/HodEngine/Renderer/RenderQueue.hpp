@@ -38,6 +38,8 @@ namespace hod::renderer
 		void							Execute();
 		void							Wait();
 
+		void							DeleteAfter(MaterialInstance* materialInstance);
+
 	private:
 
 		Vector<RenderCommand*>		_renderCommands;
@@ -52,10 +54,12 @@ namespace hod::renderer
 		Semaphore*						_renderFinishedSemaphore = nullptr;
 		Fence*							_renderFinishedFence = nullptr;
 
-		Vector<CommandBuffer*>		_commandBuffers;
+		Vector<CommandBuffer*>			_commandBuffers;
 
 		Matrix4							_projection;
 		Matrix4							_view;
 		Rect							_viewport;
+
+		Vector<MaterialInstance*>		_materialInstancesToDelete;
 	};
 }

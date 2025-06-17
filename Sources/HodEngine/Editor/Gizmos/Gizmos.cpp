@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Gizmos/Gizmos.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Editor/GeometryGenerator.hpp"
 #include <HodEngine/Renderer/PickingManager.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
@@ -15,9 +16,59 @@
 
 namespace hod::editor
 {
-	renderer::MaterialInstance* Gizmos::_materialInstanceNormal = nullptr;
-	renderer::MaterialInstance* Gizmos::_materialInstanceHighlight = nullptr;
-	std::unordered_map<uint32_t, Gizmos::State> Gizmos::_states;
+	Handle Gizmos::GenerateHandle()
+	{
+		Handle handle;
+		handle._pickingId = renderer::PickingManager::GetInstance()->GenerateId();
+		return handle;
+	}
+
+	bool Gizmos::FreeMoveBehavior(Handle& handle, const Matrix4& worldMatrix, Vector2& position, ViewportWindow& viewport)
+	{
+		bool changed = false;
+		handle._justPressed = false;
+
+		ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
+		Vector2 mousePosition(mousePos.x, mousePos.y);
+		Color mousePickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
+		uint32_t mousePickingId = renderer::PickingManager::ConvertColorToId(mousePickingColor);
+
+		handle._hovered = (mousePickingId == handle._pickingId);
+
+		if (handle._pressed && ImGui::IsKeyPressed(ImGuiKey_Escape))
+		{
+			handle._canceled = true;
+			handle._moveOffset = Vector2::Zero;
+			position = Vector2::Zero;
+		}
+		else if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])
+		{
+			if (ImGui::GetIO().MouseDownDuration[ImGuiMouseButton_Left] == 0.0f && handle._hovered)
+			{
+				handle._pressed = true;
+				handle._justPressed = true;
+				handle._initialPosition = position;
+
+				Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
+				handle._moveOffset = mouseWorldPos - position;
+			}
+		}
+		else
+		{
+			handle._pressed = false;
+			handle._canceled = false;
+		}
+
+		if (handle._pressed == true && handle._canceled == false)
+		{
+			Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
+			//Vector2 newPosition = mouseWorldPos - handle._initialPosition;
+			position = mouseWorldPos - handle._moveOffset;
+			changed = true;
+		}
+
+		return changed;
+	}
 
 	/// @brief 
 	/// @param pickingId 
@@ -27,105 +78,81 @@ namespace hod::editor
 	/// @param highlightColor 
 	/// @param viewport 
 	/// @return 
-	bool Gizmos::FreeMoveCircle(uint32_t pickingId, const Matrix4& worldMatrix, Vector2& position, float radius, const Color& color, const Color& highlightColor, ViewportWindow& viewport)
+	bool Gizmos::FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, Vector2& position, float radius, const Color& color, const Color& highlightColor, ViewportWindow& viewport)
 	{
-		bool changed = false;
+		bool changed = FreeMoveBehavior(handle, worldMatrix, position, viewport);
 
-		ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-		Vector2 mousePosition(mousePos.x, mousePos.y);
-		Color mousePickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
-		uint32_t mousePickingId = renderer::PickingManager::ConvertColorToId(mousePickingColor);
-
-		bool hover = (mousePickingId == pickingId);
-
-		if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])
-		{
-			if (ImGui::GetIO().MouseDownDuration[ImGuiMouseButton_Left] == 0.0f && hover)
-			{
-				_states[pickingId]._clicked = true;
-				_states[pickingId]._initialPosition = position;
-
-				Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-				_states[pickingId]._moveOffset = mouseWorldPos - position;
-			}
-		}
-		else
-		{
-			_states[pickingId]._clicked = false;
-		}
-
-		if (_states[pickingId]._clicked)
-		{
-			Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-			//Vector2 newPosition = mouseWorldPos - _states[pickingId]._initialPosition;
-			position = mouseWorldPos - _states[pickingId]._moveOffset;
-			changed = true;
-		}
-
-		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position); // Backup gizmo matrix before modification to avoid desync/lag
-		/*
-		if (_movingAxis != 0 && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
-		{
-			Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-			Vector2 previousPosition = node2D->GetPosition();
-			Vector2 newPosition = mouseWorldPos - _pickingOffset;
-			if (_movingAxis == _pickingIdAxisX)
-			{
-				newPosition.SetY(previousPosition.GetY());
-			}
-			else if (_movingAxis == _pickingIdAxisY)
-			{
-				newPosition.SetX(previousPosition.GetX());
-			}
-
-			if (newPosition != previousPosition)
-			{
-				node2D->SetPosition(newPosition);
-				changed = true;
-			}
-		}
-		*/
 		constexpr uint32_t segmentCount = 32;
 		std::array<Vector2, segmentCount * 3> vertices;
+		GeometryGenerator::CircleShapeFillNoFan<segmentCount>(vertices, Vector2::Zero, radius);
 
-		constexpr float angleStep = 360.0f / segmentCount;
+		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		materialInstance->SetVec4("UBO.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
-		for (uint32_t currentSegment = 0; currentSegment < segmentCount; ++currentSegment)
-		{
-			uint32_t offset = currentSegment * 3;
-
-			vertices[offset].SetX(0.0f);
-			vertices[offset].SetY(0.0f);
-
-			float angle = angleStep * currentSegment;
-			angle = math::DegreeToRadian(angle);
-
-			vertices[offset + 1].SetX(radius * cosf(angle));
-			vertices[offset + 1].SetY(radius * sinf(angle));
-
-			angle = angleStep * (currentSegment + 1);
-			angle = math::DegreeToRadian(angle);
-
-			vertices[offset + 2].SetX(radius * cosf(angle));
-			vertices[offset + 2].SetY(radius * sinf(angle));
-		}
-
-		if (_materialInstanceNormal == nullptr)
-		{
-			_materialInstanceNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		}
-		if (_materialInstanceHighlight == nullptr)
-		{
-			_materialInstanceHighlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		}
-
-		_materialInstanceNormal->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
-		_materialInstanceHighlight->SetVec4("UBO.color", Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a));
-
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, hover ? _materialInstanceNormal : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max(), pickingId);
+		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
+		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, std::numeric_limits<uint32_t>::max(), handle._pickingId);
 		viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+		viewport.GetRenderQueue()->DeleteAfter(materialInstance);
 
 		return changed;
+	}
+
+	bool Gizmos::FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor, ViewportWindow& viewport)
+	{
+		bool changed = FreeMoveBehavior(handle, worldMatrix, position, viewport);
+		
+		std::array<Vector2, 6> vertices = {
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+
+				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f)
+			};
+
+		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		materialInstance->SetVec4("UBO.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
+
+		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
+		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, std::numeric_limits<uint32_t>::max(), handle._pickingId);
+		viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+		viewport.GetRenderQueue()->DeleteAfter(materialInstance);
+
+		return changed;
+	}
+
+	void Gizmos::Rect(const Matrix4& worldMatrix, const Vector2& size, const Color& color, renderer::RenderQueue& renderQueue)
+	{
+		std::array<Vector2, 5> vertices = {
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
+				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
+				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
+			};
+
+		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		materialInstance->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
+
+		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+		renderQueue.PushRenderCommand(renderMeshCommand);
+		renderQueue.DeleteAfter(materialInstance);
+	}
+
+	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, renderer::RenderQueue& renderQueue)
+	{
+		std::array<Vector2, 2> vertices {
+				start,
+				end
+			};
+
+		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		materialInstance->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
+
+		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+		renderQueue.PushRenderCommand(renderMeshCommand);
+		renderQueue.DeleteAfter(materialInstance);
 	}
 
 	/// @brief 

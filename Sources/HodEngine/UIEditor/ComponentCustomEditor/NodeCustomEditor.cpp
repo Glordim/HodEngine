@@ -29,79 +29,22 @@ namespace hod::editor
 	/// @brief 
 	NodeCustomEditor::NodeCustomEditor()
 	{
-		_materialInstanceHitbox = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceHitbox->SetVec4("UBO.color", Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+		_freeMoveHandle = Gizmos::GenerateHandle();
 
-		_pickingIdTopLeftCorner = renderer::PickingManager::GetInstance()->GenerateId();
-		_pickingIdTopRightCorner = renderer::PickingManager::GetInstance()->GenerateId();
-		_pickingIdBottomLeftCorner = renderer::PickingManager::GetInstance()->GenerateId();
-		_pickingIdBottomRightCorner = renderer::PickingManager::GetInstance()->GenerateId();
+		_topLeftCorner = Gizmos::GenerateHandle();
+		_topRightCorner = Gizmos::GenerateHandle();
+		_bottomLeftCorner = Gizmos::GenerateHandle();
+		_bottomRightCorner = Gizmos::GenerateHandle();
 
-		_materialInstanceCorner = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceCorner->SetVec4("UBO.color", Vector4(0.3f, 0.3f, 0.8f, 1.0f));
-
-		_materialInstanceCornerHighlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceCornerHighlight->SetVec4("UBO.color", Vector4(0.5f, 0.5f, 1.0f, 1.0f));
-
-		_pickingIdTopEdge = renderer::PickingManager::GetInstance()->GenerateId();
-		_pickingIdLeftEdge = renderer::PickingManager::GetInstance()->GenerateId();
-		_pickingIdBottomEdge = renderer::PickingManager::GetInstance()->GenerateId();
-		_pickingIdRightEdge = renderer::PickingManager::GetInstance()->GenerateId();
-
-		_materialInstanceCenterNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceCenterNormal->SetVec4("UBO.color", Vector4(0.5f, 0.5f, 0.5f, 1.0f));
-
-		_materialInstanceCenterHightlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceCenterHightlight->SetVec4("UBO.color", Vector4(1.0f, 0.5f, 0.5f, 1.0f));
-
-		_materialInstanceAxisXNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisXNormal->SetVec4("UBO.color", Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-
-		_materialInstanceAxisXHightlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisXHightlight->SetVec4("UBO.color", Vector4(1.0f, 0.5f, 0.5f, 1.0f));
-
-		_pickingIdAxisX = renderer::PickingManager::GetInstance()->GenerateId();
-
-		_materialInstanceAxisYNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisYNormal->SetVec4("UBO.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-
-		_materialInstanceAxisYHightlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisYHightlight->SetVec4("UBO.color", Vector4(0.5f, 1.0f, 0.5f, 1.0f));
-
-		_pickingIdAxisY = renderer::PickingManager::GetInstance()->GenerateId();
-
-		_materialInstanceAxisZNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisZNormal->SetVec4("UBO.color", Vector4(0.0f, 0.0f, 1.0f, 1.0f));
-
-		_materialInstanceAxisZHightlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisZHightlight->SetVec4("UBO.color", Vector4(0.5f, 0.5f, 1.0f, 1.0f));
-
-		_pickingIdAxisZ = renderer::PickingManager::GetInstance()->GenerateId();
-
-		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("UBO.color", Vector4(0.75f, 0.75f, 0.75f, 1.0f));
-
-		_materialInstanceHighlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstanceHighlight->SetVec4("UBO.color", Vector4(0.95f, 0.95f, 0.95f, 1.0f));
+		_topEdge = Gizmos::GenerateHandle();
+		_bottomEdge = Gizmos::GenerateHandle();
+		_leftEdge = Gizmos::GenerateHandle();
+		_rightEdge = Gizmos::GenerateHandle();
 	}
 
 	/// @brief 
 	NodeCustomEditor::~NodeCustomEditor()
 	{
-		DefaultAllocator::GetInstance().Delete(_materialInstanceCenterNormal);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceCenterHightlight);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceAxisXNormal);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceAxisXHightlight);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceAxisYNormal);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceAxisYHightlight);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceAxisZNormal);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceAxisZHightlight);
-
-		DefaultAllocator::GetInstance().Delete(_materialInstance);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceHighlight);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceHitbox);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceCorner);
-		DefaultAllocator::GetInstance().Delete(_materialInstanceCornerHighlight);
 	}
 
 	bool NodeCustomEditor::OnDrawInspector(EditorReflectedObject& reflectedObject)
@@ -530,314 +473,162 @@ namespace hod::editor
 	/// @return 
 	bool NodeCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		ui::Node* node = static_cast<ui::Node*>(component);
+		if (node == nullptr)
+		{
+			return false;
+		}
+
+		Vector2 size = node->ComputeSize();
+		Matrix4 worldMatrix = node->ComputeCanvasMatrix();
+
 		if (selected == false)
 		{
-			ui::Node* node = static_cast<ui::Node*>(component);
+			Gizmos::Rect(worldMatrix, size, Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
 
-			Vector2 size = node->ComputeSize();
-
-			std::array<Vector2, 5> vertices = {
-				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
-				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
-				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
-			};
-
-			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			std::array<Vector2, 6> verticesHitbox = {
-				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
-
-				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
-				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f)
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesHitbox.data(), nullptr, nullptr, (uint32_t)verticesHitbox.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstanceHitbox, 0, (uint32_t)node->GetOwner()->GetInstanceId());
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+			Vector2 position;
+			Handle selectionHandle;
+			selectionHandle._pickingId = (uint32_t)node->GetOwner()->GetInstanceId();
+			Gizmos::FreeMoveRect(selectionHandle, worldMatrix, position, size, Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
 
 			return false;
 		}
 
 		bool changed = false;
 
-		ui::Node* node = static_cast<ui::Node*>(component);
-		if (node != nullptr)
+		Vector2 delta;
+		changed |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, delta, size, Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
+		if (_freeMoveHandle._justPressed)
 		{
-			ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-			Vector2 mousePosition(mousePos.x, mousePos.y);
-			Color pickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
-			uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
+			_pickingPosition = node->GetPosition();
+		}
+		if (_freeMoveHandle._pressed)
+		{
+			node->SetPosition(_pickingPosition + delta);
+		}
 
-			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])
-			{
-				if (ImGui::GetIO().MouseDownDuration[ImGuiMouseButton_Left] == 0.0f && pickingId != 0 && _movingAxis == 0)
-				{
-					if (pickingId == _pickingIdAxisX || pickingId == _pickingIdAxisY || pickingId == _pickingIdAxisZ ||
-					pickingId == _pickingIdTopEdge ||
-					pickingId == _pickingIdLeftEdge ||
-					pickingId == _pickingIdBottomEdge ||
-					pickingId == _pickingIdRightEdge ||
-					pickingId == _pickingIdTopLeftCorner ||
-					pickingId == _pickingIdTopRightCorner ||
-					pickingId == _pickingIdBottomLeftCorner ||
-					pickingId == _pickingIdBottomRightCorner)
-					{
-						_movingAxis = pickingId;
+		delta = Vector2(0.0f, size.GetY() * 0.5f);
+		Gizmos::FreeMoveRect(_topEdge, worldMatrix, delta, Vector2(size.GetX(), 0.05f), Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
 
-						Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-						_pickingOffset = mouseWorldPos;
-						_pickingPosition = node->GetPosition();
-						_pickingSize = node->GetDeltaSize();
-					}
-				}
-			}
-			else
-			{
-				_movingAxis = 0;
-			}
+		delta = Vector2(0.0f, -size.GetY() * 0.5f);
+		Gizmos::FreeMoveRect(_bottomEdge, worldMatrix, delta, Vector2(size.GetX(), 0.05f), Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
 
-			Matrix4 finalMatrix = Matrix4::Translation(node->ComputeCanvasMatrix().GetTranslation()); // Backup gizmo matrix before modification to avoid desync/lag
-			
-			if (_movingAxis != 0 && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
-			{
-				Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
+		delta = Vector2(-size.GetX() * 0.5f, 0.0f);
+		Gizmos::FreeMoveRect(_leftEdge, worldMatrix, delta, Vector2(0.05f, size.GetY()), Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
 
-				if (_movingAxis == _pickingIdTopEdge ||
-					_movingAxis == _pickingIdLeftEdge ||
-					_movingAxis == _pickingIdBottomEdge ||
-					_movingAxis == _pickingIdRightEdge ||
-					_movingAxis == _pickingIdTopLeftCorner ||
-					_movingAxis == _pickingIdTopRightCorner ||
-					_movingAxis == _pickingIdBottomLeftCorner ||
-					_movingAxis == _pickingIdBottomRightCorner)
-				{
-					float sideMultiplier = 1.0f;
-					if (_movingAxis == _pickingIdLeftEdge)
-						sideMultiplier = -1.0f;
-					Vector2 newSize = _pickingSize + (mouseWorldPos - _pickingOffset) * sideMultiplier;
+		delta = Vector2(size.GetX() * 0.5f, 0.0f);
+		Gizmos::FreeMoveRect(_rightEdge, worldMatrix, delta, Vector2(0.05f, size.GetY()), Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
 
-					if (_movingAxis == _pickingIdLeftEdge || _movingAxis == _pickingIdRightEdge)
-						newSize.SetY(_pickingSize.GetY());
-					else if (_movingAxis == _pickingIdTopEdge || _movingAxis == _pickingIdBottomEdge)
-						newSize.SetX(_pickingSize.GetX());
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), _topEdge._hovered ? Color(0.95f, 0.95f, 0.95f, 1.0f) : Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _bottomEdge._hovered ? Color(0.95f, 0.95f, 0.95f, 1.0f) : Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), _leftEdge._hovered ? Color(0.95f, 0.95f, 0.95f, 1.0f) : Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
+		Gizmos::Line(worldMatrix, Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _rightEdge._hovered ? Color(0.95f, 0.95f, 0.95f, 1.0f) : Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
 
-					if (newSize != _pickingSize)
-					{
-						Vector2 newPosition = _pickingPosition + ((newSize - _pickingSize) * sideMultiplier * node->GetPivot());
-						node->SetPosition(newPosition);
-						node->SetDeltaSize(newSize);
-						changed = true;
-					}
-				}
-				else if (_movingAxis == _pickingIdAxisX ||
-						_movingAxis == _pickingIdAxisY ||
-						_movingAxis == _pickingIdAxisZ)
-				{
-					Vector2 newPosition = _pickingPosition + (mouseWorldPos - _pickingOffset);
+		delta = Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f);
+		Gizmos::FreeMoveCircle(_topLeftCorner, worldMatrix, delta, 0.05f, Color(0.25f, 0.25f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
 
-					if (_movingAxis == _pickingIdAxisX)
-						newPosition.SetY(_pickingPosition.GetY());
-					else if (_movingAxis == _pickingIdAxisY)
-						newPosition.SetX(_pickingPosition.GetX());
+		delta = Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f);
+		Gizmos::FreeMoveCircle(_topRightCorner, worldMatrix, delta, 0.05f, Color(0.25f, 0.25f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
 
-					if (newPosition != _pickingPosition)
-					{
-						node->SetPosition(newPosition);
-						changed = true;
-					}
-				}
-			}
+		delta = Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f);
+		Gizmos::FreeMoveCircle(_bottomLeftCorner, worldMatrix, delta, 0.05f, Color(0.25f, 0.25f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
 
-			constexpr float thickness = 0.05f;
-			constexpr float length = 1.0f;
-			constexpr float headHeight = 0.15f;
-			constexpr float headLength = 0.25f;
-			constexpr float lineLength = length - headLength;
-			constexpr float squareSize = 0.25f;
-			constexpr float squareOffset = 0.5f;
+		delta = Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f);
+		Gizmos::FreeMoveCircle(_bottomRightCorner, worldMatrix, delta, 0.05f, Color(0.25f, 0.25f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
 
-			std::array<Vector2, 9> verticesX = {
-				Vector2(0.0f, thickness * 0.5f),
-				Vector2(0.0f, -thickness * 0.5f),
-				Vector2(lineLength, thickness * 0.5f),
-				
-				Vector2(0.0f, -thickness * 0.5f),
-				Vector2(lineLength, -thickness * 0.5f),
-				Vector2(lineLength, thickness * 0.5f),
-
-				Vector2(lineLength, headHeight * 0.5f),
-				Vector2(lineLength, -headHeight * 0.5f),
-				Vector2(length, 0.0f),
-			};
-
-			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesX.data(), nullptr, nullptr, (uint32_t)verticesX.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisX && pickingId != _pickingIdAxisX ? _materialInstanceAxisXNormal : _materialInstanceAxisXHightlight, std::numeric_limits<uint32_t>::max(), _pickingIdAxisX);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			std::array<Vector2, 9> verticesY = {
-				Vector2(thickness * 0.5f, 0.0f),
-				Vector2(-thickness * 0.5f, 0.0f),
-				Vector2(thickness * 0.5f, lineLength),
-				
-				Vector2(-thickness * 0.5f, 0.0f),
-				Vector2(-thickness * 0.5f, lineLength),
-				Vector2(thickness * 0.5f, lineLength),
-
-				Vector2(headHeight * 0.5f, lineLength),
-				Vector2(-headHeight * 0.5f, lineLength),
-				Vector2(0.0f, length),
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesY.data(), nullptr, nullptr, (uint32_t)verticesY.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisY && pickingId != _pickingIdAxisY ? _materialInstanceAxisYNormal : _materialInstanceAxisYHightlight, std::numeric_limits<uint32_t>::max(), _pickingIdAxisY);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			std::array<Vector2, 6> verticesZ = {
-				Vector2(squareOffset + -squareSize * 0.5f, squareOffset + squareSize * 0.5f),
-				Vector2(squareOffset + -squareSize * 0.5f, squareOffset + -squareSize * 0.5f),
-				Vector2(squareOffset +squareSize * 0.5f, squareOffset + squareSize * 0.5f),
-				
-				Vector2(squareOffset + -squareSize * 0.5f, squareOffset + -squareSize * 0.5f),
-				Vector2(squareOffset + squareSize * 0.5f, squareOffset + -squareSize * 0.5f),
-				Vector2(squareOffset + squareSize * 0.5f, squareOffset + squareSize * 0.5f),
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesZ.data(), nullptr, nullptr, (uint32_t)verticesZ.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisZ && pickingId != _pickingIdAxisZ ? _materialInstanceAxisZNormal : _materialInstanceAxisZHightlight, std::numeric_limits<uint32_t>::max(), _pickingIdAxisZ);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			std::array<Vector2, 6> verticesCenter = {
-				Vector2(-thickness * 0.5f, thickness * 0.5f),
-				Vector2(-thickness * 0.5f, -thickness * 0.5f),
-				Vector2(thickness * 0.5f, thickness * 0.5f),
-				
-				Vector2(-thickness * 0.5f, -thickness * 0.5f),
-				Vector2(thickness * 0.5f, -thickness * 0.5f),
-				Vector2(thickness * 0.5f, thickness * 0.5f),
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCenter.data(), nullptr, nullptr, (uint32_t)verticesCenter.size(), nullptr, 0, finalMatrix, _materialInstanceCenterNormal, std::numeric_limits<uint32_t>::max());
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			Vector2 size = node->ComputeSize();
-
-			std::array<Vector2, 6> verticesHitbox = {
-				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
-
-				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
-				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f)
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesHitbox.data(), nullptr, nullptr, (uint32_t)verticesHitbox.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdAxisZ);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-/*
-			std::array<Vector2, 5> vertices = {
-				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
-				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),
-				Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f),
-				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-*/
-			std::array<Vector2, 2> horizontalLineVertices {
-				Vector2(-size.GetX() * 0.5f, 0.0f),
-				Vector2(size.GetX() * 0.5f, 0.0f)
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(horizontalLineVertices.data(), nullptr, nullptr, (uint32_t)horizontalLineVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(0.0f, size.GetY() * 0.5f)), _movingAxis != _pickingIdTopEdge && pickingId != _pickingIdTopEdge ? _materialInstance : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max() - 1);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(horizontalLineVertices.data(), nullptr, nullptr, (uint32_t)horizontalLineVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(0.0f, -size.GetY() * 0.5f)), _movingAxis != _pickingIdBottomEdge && pickingId != _pickingIdBottomEdge ? _materialInstance : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max() - 1);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			std::array<Vector2, 6> horizontalLineHitboxVertices {
-				Vector2(-size.GetX() * 0.5f, 0.025f),
-				Vector2(size.GetX() * 0.5f, 0.025f),
-				Vector2(-size.GetX() * 0.5f, -0.025f),
-				
-				Vector2(size.GetX() * 0.5f, -0.025f),
-				Vector2(-size.GetX() * 0.5f, -0.025f),
-				Vector2(size.GetX() * 0.5f, 0.025f),
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(horizontalLineHitboxVertices.data(), nullptr, nullptr, (uint32_t)horizontalLineHitboxVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(0.0f, size.GetY() * 0.5f)), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdTopEdge);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(horizontalLineHitboxVertices.data(), nullptr, nullptr, (uint32_t)horizontalLineHitboxVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(0.0f, -size.GetY() * 0.5f)), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdBottomEdge);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			std::array<Vector2, 2> verticalLineVertices {
-				Vector2(0.0f, size.GetY() * 0.5f),
-				Vector2(0.0f, -size.GetY() * 0.5f)
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticalLineVertices.data(), nullptr, nullptr, (uint32_t)verticalLineVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(-size.GetX() * 0.5f, 0.0f)), _movingAxis != _pickingIdLeftEdge && pickingId != _pickingIdLeftEdge ? _materialInstance : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max() - 1);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticalLineVertices.data(), nullptr, nullptr, (uint32_t)verticalLineVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(size.GetX() * 0.5f, 0.0f)), _movingAxis != _pickingIdRightEdge && pickingId != _pickingIdRightEdge ? _materialInstance : _materialInstanceHighlight, std::numeric_limits<uint32_t>::max() - 1);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			std::array<Vector2, 6> verticalLineHitboxVertices {
-				Vector2(0.025f, -size.GetY() * 0.5f),
-				Vector2(0.025f, size.GetY() * 0.5f),
-				Vector2(-0.025f, -size.GetY() * 0.5f),
-				
-				Vector2(-0.025f, size.GetY() * 0.5f),
-				Vector2(-0.025f, -size.GetY() * 0.5f),
-				Vector2(0.025f, size.GetY() * 0.5f),
-			};
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticalLineHitboxVertices.data(), nullptr, nullptr, (uint32_t)verticalLineHitboxVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(-size.GetX() * 0.5f, 0.0f)), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdLeftEdge);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticalLineHitboxVertices.data(), nullptr, nullptr, (uint32_t)verticalLineHitboxVertices.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(size.GetX() * 0.5f, 0.0f)), _materialInstanceHitbox, std::numeric_limits<uint32_t>::max() - 1, _pickingIdRightEdge);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			constexpr float cornerSize = 0.05f;
-			std::array<Vector2, 64 * 3> verticesCorner;
-			GeometryGenerator::CircleShapeFillNoFan<64>(verticesCorner, Vector2::Zero, cornerSize);
+		if (_topLeftCorner._hovered || _bottomRightCorner._hovered)
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+		else if (_topRightCorner._hovered || _bottomLeftCorner._hovered)
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
+		else if (_topEdge._hovered || _bottomEdge._hovered)
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+		else if (_leftEdge._hovered || _rightEdge._hovered)
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 
 			/*
-			std::array<Vector2, 6> verticesCorner = {
-				Vector2(-cornerSize * 0.5f, cornerSize * 0.5f),
-				Vector2(-cornerSize * 0.5f, -cornerSize * 0.5f),
-				Vector2(cornerSize * 0.5f, cornerSize * 0.5f),
-				
-				Vector2(-cornerSize * 0.5f, -cornerSize * 0.5f),
-				Vector2(cornerSize * 0.5f, -cornerSize * 0.5f),
-				Vector2(cornerSize * 0.5f, cornerSize * 0.5f),
-			};
-			*/
+		ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
+		Vector2 mousePosition(mousePos.x, mousePos.y);
+		Color pickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
+		uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
 
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCorner.data(), nullptr, nullptr, (uint32_t)verticesCorner.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f)), _movingAxis != _pickingIdTopLeftCorner && pickingId != _pickingIdTopLeftCorner ? _materialInstanceCorner : _materialInstanceCornerHighlight, std::numeric_limits<uint32_t>::max(), _pickingIdTopLeftCorner);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+		if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])
+		{
+			if (ImGui::GetIO().MouseDownDuration[ImGuiMouseButton_Left] == 0.0f && pickingId != 0 && _movingAxis == 0)
+			{
+				if (pickingId == _pickingIdAxisX || pickingId == _pickingIdAxisY || pickingId == _pickingIdAxisZ ||
+				pickingId == _pickingIdTopEdge ||
+				pickingId == _pickingIdLeftEdge ||
+				pickingId == _pickingIdBottomEdge ||
+				pickingId == _pickingIdRightEdge ||
+				pickingId == _pickingIdTopLeftCorner ||
+				pickingId == _pickingIdTopRightCorner ||
+				pickingId == _pickingIdBottomLeftCorner ||
+				pickingId == _pickingIdBottomRightCorner)
+				{
+					_movingAxis = pickingId;
 
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCorner.data(), nullptr, nullptr, (uint32_t)verticesCorner.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f)), _movingAxis != _pickingIdTopRightCorner && pickingId != _pickingIdTopRightCorner ? _materialInstanceCorner : _materialInstanceCornerHighlight, std::numeric_limits<uint32_t>::max(), _pickingIdTopRightCorner);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-			
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCorner.data(), nullptr, nullptr, (uint32_t)verticesCorner.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f)), _movingAxis != _pickingIdBottomLeftCorner && pickingId != _pickingIdBottomLeftCorner ? _materialInstanceCorner : _materialInstanceCornerHighlight, std::numeric_limits<uint32_t>::max(), _pickingIdBottomLeftCorner);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCorner.data(), nullptr, nullptr, (uint32_t)verticesCorner.size(), nullptr, 0, node->ComputeCanvasMatrix() * Matrix4::Translation(Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f)), _movingAxis != _pickingIdBottomRightCorner && pickingId != _pickingIdBottomRightCorner ? _materialInstanceCorner : _materialInstanceCornerHighlight, std::numeric_limits<uint32_t>::max(), _pickingIdBottomRightCorner);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-
-			if (pickingId == _pickingIdTopLeftCorner || pickingId == _pickingIdBottomRightCorner)
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
-			else if (pickingId == _pickingIdTopRightCorner || pickingId == _pickingIdBottomLeftCorner)
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
-			else if (pickingId == _pickingIdTopEdge || pickingId == _pickingIdBottomEdge)
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
-			else if (pickingId == _pickingIdLeftEdge || pickingId == _pickingIdRightEdge)
-				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+					Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
+					_pickingOffset = mouseWorldPos;
+					_pickingPosition = node->GetPosition();
+					_pickingSize = node->GetDeltaSize();
+				}
+			}
 		}
+		else
+		{
+			_movingAxis = 0;
+		}
+		
+		if (_movingAxis != 0 && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
+		{
+			Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
+
+			if (_movingAxis == _pickingIdTopEdge ||
+				_movingAxis == _pickingIdLeftEdge ||
+				_movingAxis == _pickingIdBottomEdge ||
+				_movingAxis == _pickingIdRightEdge ||
+				_movingAxis == _pickingIdTopLeftCorner ||
+				_movingAxis == _pickingIdTopRightCorner ||
+				_movingAxis == _pickingIdBottomLeftCorner ||
+				_movingAxis == _pickingIdBottomRightCorner)
+			{
+				float sideMultiplier = 1.0f;
+				if (_movingAxis == _pickingIdLeftEdge)
+					sideMultiplier = -1.0f;
+				Vector2 newSize = _pickingSize + (mouseWorldPos - _pickingOffset) * sideMultiplier;
+
+				if (_movingAxis == _pickingIdLeftEdge || _movingAxis == _pickingIdRightEdge)
+					newSize.SetY(_pickingSize.GetY());
+				else if (_movingAxis == _pickingIdTopEdge || _movingAxis == _pickingIdBottomEdge)
+					newSize.SetX(_pickingSize.GetX());
+
+				if (newSize != _pickingSize)
+				{
+					Vector2 newPosition = _pickingPosition + ((newSize - _pickingSize) * sideMultiplier * node->GetPivot());
+					node->SetPosition(newPosition);
+					node->SetDeltaSize(newSize);
+					changed = true;
+				}
+			}
+			else if (_movingAxis == _pickingIdAxisX ||
+					_movingAxis == _pickingIdAxisY ||
+					_movingAxis == _pickingIdAxisZ)
+			{
+				Vector2 newPosition = _pickingPosition + (mouseWorldPos - _pickingOffset);
+
+				if (_movingAxis == _pickingIdAxisX)
+					newPosition.SetY(_pickingPosition.GetY());
+				else if (_movingAxis == _pickingIdAxisY)
+					newPosition.SetX(_pickingPosition.GetX());
+
+				if (newPosition != _pickingPosition)
+				{
+					node->SetPosition(newPosition);
+					changed = true;
+				}
+			}
+		}
+			*/
 
 		return changed;
 	}

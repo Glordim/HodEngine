@@ -4,6 +4,8 @@
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 #include <HodEngine/Core/Math/Vector2.hpp>
 
+#include "HodEngine/Editor/Gizmos/Gizmos.hpp"
+
 namespace hod::renderer
 {
 	class MaterialInstance;
@@ -36,38 +38,17 @@ namespace hod::editor
 		
 	private:
 
-		renderer::MaterialInstance*		_materialInstanceHitbox = nullptr;
+		Handle							_freeMoveHandle;
 
-		uint32_t						_pickingIdTopLeftCorner;
-		uint32_t						_pickingIdTopRightCorner;
-		uint32_t						_pickingIdBottomLeftCorner;
-		uint32_t						_pickingIdBottomRightCorner;
+		Handle							_topLeftCorner;
+		Handle							_topRightCorner;
+		Handle							_bottomLeftCorner;
+		Handle							_bottomRightCorner;
 
-		renderer::MaterialInstance*		_materialInstanceCorner = nullptr;
-		renderer::MaterialInstance*		_materialInstanceCornerHighlight = nullptr;
-
-		uint32_t						_pickingIdTopEdge;
-		uint32_t						_pickingIdLeftEdge;
-		uint32_t						_pickingIdBottomEdge;
-		uint32_t						_pickingIdRightEdge;
-
-		renderer::MaterialInstance*		_materialInstanceCenterNormal = nullptr;
-		renderer::MaterialInstance*		_materialInstanceCenterHightlight = nullptr;
-
-		renderer::MaterialInstance*		_materialInstanceAxisXNormal = nullptr;
-		renderer::MaterialInstance*		_materialInstanceAxisXHightlight = nullptr;
-		uint32_t						_pickingIdAxisX;
-
-		renderer::MaterialInstance*		_materialInstanceAxisYNormal = nullptr;
-		renderer::MaterialInstance*		_materialInstanceAxisYHightlight = nullptr;
-		uint32_t						_pickingIdAxisY;
-
-		renderer::MaterialInstance*		_materialInstanceAxisZNormal = nullptr;
-		renderer::MaterialInstance*		_materialInstanceAxisZHightlight = nullptr;
-		uint32_t						_pickingIdAxisZ;
-
-		renderer::MaterialInstance*		_materialInstance = nullptr;
-		renderer::MaterialInstance*		_materialInstanceHighlight = nullptr;
+		Handle							_topEdge;
+		Handle							_bottomEdge;
+		Handle							_leftEdge;
+		Handle							_rightEdge;
 
 		uint32_t						_movingAxis = 0;
 		Vector2							_pickingOffset;
