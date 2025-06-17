@@ -19,8 +19,6 @@ namespace hod::ui
 	{
 		if (_node.Get())
 		{
-			Rect bb = GetBoundingBox();
-
 			Vector2 size = _node->ComputeSize();
 			Matrix4 worldMatrix = _node->ComputeCanvasMatrix();
 
@@ -49,7 +47,16 @@ namespace hod::ui
 				_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
 
-			_materialInstance->SetTexture("image", _texture.Lock()->GetTexture());
+			if (_texture.Lock())
+			{
+				_materialInstance->SetTexture("image", _texture.Lock()->GetTexture());
+			}
+			Vector4 vec4Color;
+			vec4Color.SetX(_color.r);
+			vec4Color.SetY(_color.g);
+			vec4Color.SetZ(_color.b);
+			vec4Color.SetW(_color.a);
+			_materialInstance->SetVec4("UBO.color", vec4Color);
 			renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0));
 		}
 	}
