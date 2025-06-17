@@ -5,6 +5,7 @@
 
 #include "HodEngine/UI/Canvas.hpp"
 #include "HodEngine/UI/Node.hpp"
+#include "HodEngine/UI/Drawables/Texture.hpp"
 
 namespace hod::ui
 {
@@ -13,5 +14,7 @@ namespace hod::ui
 		game::ComponentFactory* componentFactory = game::ComponentFactory::GetInstance();
 		componentFactory->Register<Canvas>();
 		componentFactory->Register<Node>();
+
+		componentFactory->Register<Texture>();
 	}
 }
