@@ -23,7 +23,7 @@ namespace hod::editor
 		return handle;
 	}
 
-	bool Gizmos::FreeMoveBehavior(Handle& handle, const Matrix4& worldMatrix, Vector2& position, ViewportWindow& viewport)
+	bool Gizmos::FreeMoveBehavior(Handle& handle, ViewportWindow& viewport)
 	{
 		bool changed = false;
 		handle._justPressed = false;
@@ -39,7 +39,6 @@ namespace hod::editor
 		{
 			handle._canceled = true;
 			handle._moveOffset = Vector2::Zero;
-			position = Vector2::Zero;
 		}
 		else if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])
 		{
@@ -47,10 +46,9 @@ namespace hod::editor
 			{
 				handle._pressed = true;
 				handle._justPressed = true;
-				handle._initialPosition = position;
 
 				Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-				handle._moveOffset = mouseWorldPos - position;
+				handle._initialPosition = mouseWorldPos;
 			}
 		}
 		else
@@ -62,8 +60,7 @@ namespace hod::editor
 		if (handle._pressed == true && handle._canceled == false)
 		{
 			Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-			//Vector2 newPosition = mouseWorldPos - handle._initialPosition;
-			position = mouseWorldPos - handle._moveOffset;
+			handle._delta = mouseWorldPos - handle._initialPosition;
 			changed = true;
 		}
 
@@ -78,9 +75,9 @@ namespace hod::editor
 	/// @param highlightColor 
 	/// @param viewport 
 	/// @return 
-	bool Gizmos::FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, Vector2& position, float radius, const Color& color, const Color& highlightColor, ViewportWindow& viewport)
+	bool Gizmos::FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, float radius, const Color& color, const Color& highlightColor, ViewportWindow& viewport)
 	{
-		bool changed = FreeMoveBehavior(handle, worldMatrix, position, viewport);
+		bool changed = FreeMoveBehavior(handle, viewport);
 
 		constexpr uint32_t segmentCount = 32;
 		std::array<Vector2, segmentCount * 3> vertices;
@@ -97,9 +94,9 @@ namespace hod::editor
 		return changed;
 	}
 
-	bool Gizmos::FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor, ViewportWindow& viewport)
+	bool Gizmos::FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor, ViewportWindow& viewport)
 	{
-		bool changed = FreeMoveBehavior(handle, worldMatrix, position, viewport);
+		bool changed = FreeMoveBehavior(handle, viewport);
 		
 		std::array<Vector2, 6> vertices = {
 				Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f),

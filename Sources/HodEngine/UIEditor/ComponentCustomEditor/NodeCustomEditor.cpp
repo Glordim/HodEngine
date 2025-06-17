@@ -496,45 +496,38 @@ namespace hod::editor
 
 		bool changed = false;
 
-		Vector2 delta;
-		changed |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, delta, size, Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
+		static Color hitboxHandleColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+		changed |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::Zero, size, hitboxHandleColor, hitboxHandleColor, viewport);
 		if (_freeMoveHandle._justPressed)
 		{
 			_pickingPosition = node->GetPosition();
 		}
 		if (_freeMoveHandle._pressed)
 		{
-			node->SetPosition(_pickingPosition + delta);
+			node->SetPosition(_pickingPosition + _freeMoveHandle._delta);
 		}
 
-		delta = Vector2(0.0f, size.GetY() * 0.5f);
-		Gizmos::FreeMoveRect(_topEdge, worldMatrix, delta, Vector2(size.GetX(), 0.05f), Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
+		changed |= Gizmos::FreeMoveRect(_topEdge, worldMatrix, Vector2(0.0f, size.GetY() * 0.5f), Vector2(size.GetX(), 0.05f), hitboxHandleColor, hitboxHandleColor, viewport);
+		changed |= Gizmos::FreeMoveRect(_bottomEdge, worldMatrix, Vector2(0.0f, -size.GetY() * 0.5f), Vector2(size.GetX(), 0.05f), hitboxHandleColor, hitboxHandleColor, viewport);
+		changed |= Gizmos::FreeMoveRect(_leftEdge, worldMatrix, Vector2(-size.GetX() * 0.5f, 0.0f), Vector2(0.05f, size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
+		changed |= Gizmos::FreeMoveRect(_rightEdge, worldMatrix, Vector2(size.GetX() * 0.5f, 0.0f), Vector2(0.05f, size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
 
-		delta = Vector2(0.0f, -size.GetY() * 0.5f);
-		Gizmos::FreeMoveRect(_bottomEdge, worldMatrix, delta, Vector2(size.GetX(), 0.05f), Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
+		static Color lineColor(0.75f, 0.75f, 0.75f, 1.0f);
+		static Color lineHighlightColor(0.75f, 0.75f, 0.75f, 1.0f);
 
-		delta = Vector2(-size.GetX() * 0.5f, 0.0f);
-		Gizmos::FreeMoveRect(_leftEdge, worldMatrix, delta, Vector2(0.05f, size.GetY()), Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), _topEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderQueue());
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _bottomEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderQueue());
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), _leftEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderQueue());
+		Gizmos::Line(worldMatrix, Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _rightEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderQueue());
 
-		delta = Vector2(size.GetX() * 0.5f, 0.0f);
-		Gizmos::FreeMoveRect(_rightEdge, worldMatrix, delta, Vector2(0.05f, size.GetY()), Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
+		static Color cornerColor(0.25f, 0.25f, 1.0f, 1.0f);
+		static Color cornerHighlightColor(0.5f, 0.5f, 1.0f, 1.0f);
 
-		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), _topEdge._hovered ? Color(0.95f, 0.95f, 0.95f, 1.0f) : Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
-		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _bottomEdge._hovered ? Color(0.95f, 0.95f, 0.95f, 1.0f) : Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
-		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), _leftEdge._hovered ? Color(0.95f, 0.95f, 0.95f, 1.0f) : Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
-		Gizmos::Line(worldMatrix, Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _rightEdge._hovered ? Color(0.95f, 0.95f, 0.95f, 1.0f) : Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
-
-		delta = Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f);
-		Gizmos::FreeMoveCircle(_topLeftCorner, worldMatrix, delta, 0.05f, Color(0.25f, 0.25f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
-
-		delta = Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f);
-		Gizmos::FreeMoveCircle(_topRightCorner, worldMatrix, delta, 0.05f, Color(0.25f, 0.25f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
-
-		delta = Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f);
-		Gizmos::FreeMoveCircle(_bottomLeftCorner, worldMatrix, delta, 0.05f, Color(0.25f, 0.25f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
-
-		delta = Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f);
-		Gizmos::FreeMoveCircle(_bottomRightCorner, worldMatrix, delta, 0.05f, Color(0.25f, 0.25f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
+		changed |= Gizmos::FreeMoveCircle(_topLeftCorner, worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), 0.05f, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_topRightCorner, worldMatrix, Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), 0.05f, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_bottomLeftCorner, worldMatrix, Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), 0.05f, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_bottomRightCorner, worldMatrix, Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), 0.05f, cornerColor, cornerHighlightColor, viewport);
 
 		if (_topLeftCorner._hovered || _bottomRightCorner._hovered)
 			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
@@ -545,90 +538,75 @@ namespace hod::editor
 		else if (_leftEdge._hovered || _rightEdge._hovered)
 			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 
-			/*
-		ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-		Vector2 mousePosition(mousePos.x, mousePos.y);
-		Color pickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
-		uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
-
-		if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])
+		if (_topEdge._justPressed ||
+			_bottomEdge._justPressed ||
+			_leftEdge._justPressed ||
+			_rightEdge._justPressed ||
+			_topLeftCorner._justPressed ||
+			_topRightCorner._justPressed ||
+			_bottomLeftCorner._justPressed ||
+			_bottomRightCorner._justPressed)
 		{
-			if (ImGui::GetIO().MouseDownDuration[ImGuiMouseButton_Left] == 0.0f && pickingId != 0 && _movingAxis == 0)
-			{
-				if (pickingId == _pickingIdAxisX || pickingId == _pickingIdAxisY || pickingId == _pickingIdAxisZ ||
-				pickingId == _pickingIdTopEdge ||
-				pickingId == _pickingIdLeftEdge ||
-				pickingId == _pickingIdBottomEdge ||
-				pickingId == _pickingIdRightEdge ||
-				pickingId == _pickingIdTopLeftCorner ||
-				pickingId == _pickingIdTopRightCorner ||
-				pickingId == _pickingIdBottomLeftCorner ||
-				pickingId == _pickingIdBottomRightCorner)
-				{
-					_movingAxis = pickingId;
+			_pickingSize = node->GetDeltaSize();
+			_pickingPosition = node->GetPosition();
+		}
 
-					Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-					_pickingOffset = mouseWorldPos;
-					_pickingPosition = node->GetPosition();
-					_pickingSize = node->GetDeltaSize();
-				}
+		Vector2 pivot = node->GetPivot();
+
+		Vector2 deltaSize;
+		Vector2 reverse;
+		if (_topEdge._pressed)
+		{
+			deltaSize = Vector2(0.0f, _topEdge._delta.GetY());
+			reverse = Vector2(0.0f, 0.0f);
+		}
+		else if (_bottomEdge._pressed)
+		{
+			deltaSize = Vector2(0.0f, -_bottomEdge._delta.GetY());
+			reverse = Vector2(0.0f, 1.0f);
+		}
+		else if (_leftEdge._pressed)
+		{
+			deltaSize = Vector2(-_leftEdge._delta.GetX(), 0.0f);
+			reverse = Vector2(1.0f, 0.0f);
+		}
+		else if (_rightEdge._pressed)
+		{
+			deltaSize = Vector2(_rightEdge._delta.GetX(), 0.0f);
+			reverse = Vector2(0.0f, 0.0f);
+		}
+		else if (_topLeftCorner._pressed)
+		{
+			deltaSize = Vector2(-_topLeftCorner._delta.GetX(), _topLeftCorner._delta.GetY());
+			reverse = Vector2(1.0f, 0.0f);
+		}
+		else if (_topRightCorner._pressed)
+		{
+			deltaSize = Vector2(_topRightCorner._delta.GetX(), _topRightCorner._delta.GetY());
+			reverse = Vector2(0.0f, 0.0f);
+		}
+		else if (_bottomLeftCorner._pressed)
+		{
+			deltaSize = Vector2(-_bottomLeftCorner._delta.GetX(), -_bottomLeftCorner._delta.GetY());
+			reverse = Vector2(1.0f, 1.0f);
+		}
+		else if (_bottomRightCorner._pressed)
+		{
+			deltaSize = Vector2(_bottomRightCorner._delta.GetX(), -_bottomRightCorner._delta.GetY());
+			reverse = Vector2(0.0f, 1.0f);
+		}
+
+		if (deltaSize != Vector2::Zero)
+		{
+			Vector2 newSize = _pickingSize + deltaSize;
+			Vector2 newPosition = _pickingPosition - deltaSize * (reverse - pivot);
+
+			if (newSize != _pickingSize)
+			{
+				node->SetDeltaSize(newSize);
+				node->SetPosition(newPosition);
 			}
 		}
-		else
-		{
-			_movingAxis = 0;
-		}
-		
-		if (_movingAxis != 0 && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
-		{
-			Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-
-			if (_movingAxis == _pickingIdTopEdge ||
-				_movingAxis == _pickingIdLeftEdge ||
-				_movingAxis == _pickingIdBottomEdge ||
-				_movingAxis == _pickingIdRightEdge ||
-				_movingAxis == _pickingIdTopLeftCorner ||
-				_movingAxis == _pickingIdTopRightCorner ||
-				_movingAxis == _pickingIdBottomLeftCorner ||
-				_movingAxis == _pickingIdBottomRightCorner)
-			{
-				float sideMultiplier = 1.0f;
-				if (_movingAxis == _pickingIdLeftEdge)
-					sideMultiplier = -1.0f;
-				Vector2 newSize = _pickingSize + (mouseWorldPos - _pickingOffset) * sideMultiplier;
-
-				if (_movingAxis == _pickingIdLeftEdge || _movingAxis == _pickingIdRightEdge)
-					newSize.SetY(_pickingSize.GetY());
-				else if (_movingAxis == _pickingIdTopEdge || _movingAxis == _pickingIdBottomEdge)
-					newSize.SetX(_pickingSize.GetX());
-
-				if (newSize != _pickingSize)
-				{
-					Vector2 newPosition = _pickingPosition + ((newSize - _pickingSize) * sideMultiplier * node->GetPivot());
-					node->SetPosition(newPosition);
-					node->SetDeltaSize(newSize);
-					changed = true;
-				}
-			}
-			else if (_movingAxis == _pickingIdAxisX ||
-					_movingAxis == _pickingIdAxisY ||
-					_movingAxis == _pickingIdAxisZ)
-			{
-				Vector2 newPosition = _pickingPosition + (mouseWorldPos - _pickingOffset);
-
-				if (_movingAxis == _pickingIdAxisX)
-					newPosition.SetY(_pickingPosition.GetY());
-				else if (_movingAxis == _pickingIdAxisY)
-					newPosition.SetX(_pickingPosition.GetX());
-
-				if (newPosition != _pickingPosition)
-				{
-					node->SetPosition(newPosition);
-					changed = true;
-				}
-			}
-		}
-			*/
 
 		return changed;
 	}
