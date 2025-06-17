@@ -71,6 +71,7 @@ namespace hod::editor
 
 		uint32_t						_movingAxis = 0;
 		Vector2							_pickingOffset;
+		Vector2							_pickingPosition;
 		Vector2							_pickingSize;
 	};
 }

@@ -590,7 +590,8 @@ namespace hod::editor
 						_movingAxis = pickingId;
 
 						Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-						_pickingOffset = mouseWorldPos - node->ComputeCanvasMatrix().GetTranslation();
+						_pickingOffset = mouseWorldPos;
+						_pickingPosition = node->GetPosition();
 						_pickingSize = node->GetDeltaSize();
 					}
 				}
@@ -605,8 +606,6 @@ namespace hod::editor
 			if (_movingAxis != 0 && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 			{
 				Vector2 mouseWorldPos = GetMouseWorldPos(mousePosition, viewport);
-				Vector2 previousPosition = node->GetPosition();
-				Vector2 newPosition = mouseWorldPos - _pickingOffset;
 
 				if (_movingAxis == _pickingIdTopEdge ||
 					_movingAxis == _pickingIdLeftEdge ||
@@ -617,35 +616,40 @@ namespace hod::editor
 					_movingAxis == _pickingIdBottomLeftCorner ||
 					_movingAxis == _pickingIdBottomRightCorner)
 				{
-					Vector2 newSize = _pickingSize + (_pickingOffset - mouseWorldPos);
-					newPosition = previousPosition; // todo remove
+					float sideMultiplier = 1.0f;
+					if (_movingAxis == _pickingIdLeftEdge)
+						sideMultiplier = -1.0f;
+					Vector2 newSize = _pickingSize + (mouseWorldPos - _pickingOffset) * sideMultiplier;
 
-					Vector2 deltaSize = node->GetDeltaSize();
 					if (_movingAxis == _pickingIdLeftEdge || _movingAxis == _pickingIdRightEdge)
-					{
 						newSize.SetY(_pickingSize.GetY());
-					}
 					else if (_movingAxis == _pickingIdTopEdge || _movingAxis == _pickingIdBottomEdge)
-					{
 						newSize.SetX(_pickingSize.GetX());
+
+					if (newSize != _pickingSize)
+					{
+						Vector2 newPosition = _pickingPosition + ((newSize - _pickingSize) * sideMultiplier * node->GetPivot());
+						node->SetPosition(newPosition);
+						node->SetDeltaSize(newSize);
+						changed = true;
 					}
-					deltaSize = newSize;
+				}
+				else if (_movingAxis == _pickingIdAxisX ||
+						_movingAxis == _pickingIdAxisY ||
+						_movingAxis == _pickingIdAxisZ)
+				{
+					Vector2 newPosition = _pickingPosition + (mouseWorldPos - _pickingOffset);
 
-					node->SetDeltaSize(deltaSize);
-				}
-				else if (_movingAxis == _pickingIdAxisX)
-				{
-					newPosition.SetY(previousPosition.GetY());
-				}
-				else if (_movingAxis == _pickingIdAxisY)
-				{
-					newPosition.SetX(previousPosition.GetX());
-				}
+					if (_movingAxis == _pickingIdAxisX)
+						newPosition.SetY(_pickingPosition.GetY());
+					else if (_movingAxis == _pickingIdAxisY)
+						newPosition.SetX(_pickingPosition.GetX());
 
-				if (newPosition != previousPosition)
-				{
-					node->SetPosition(newPosition);
-					changed = true;
+					if (newPosition != _pickingPosition)
+					{
+						node->SetPosition(newPosition);
+						changed = true;
+					}
 				}
 			}
 
