@@ -3,6 +3,7 @@
 
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/Font/FontManager.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
@@ -23,6 +24,8 @@ namespace hod
 			MaterialManager::CreateInstance();
 			PickingManager::CreateInstance();
 			_renderQueue = DefaultAllocator::GetInstance().New<RenderQueue>();
+			FontManager::CreateInstance();
+			FontManager::GetInstance()->Init(); // todo catch error ?
 		}
 
 		//-----------------------------------------------------------------------------
@@ -30,6 +33,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		Renderer::~Renderer()
 		{
+			FontManager::DestroyInstance();
 			DefaultAllocator::GetInstance().Delete(_renderQueue);
 			PickingManager::DestroyInstance();
 			MaterialManager::DestroyInstance();

@@ -4,6 +4,7 @@
 #include "HodEngine/Game/Entity.hpp"
 
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/Font/Font.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RHI/Material.hpp>
 #include <HodEngine/Renderer/RenderQueue.hpp>
@@ -103,8 +104,10 @@ namespace hod
 				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
-					float atlasWidth = (float)_fontResource.Lock()->GetTexture()->GetWidth();
-					float atlasHeight = (float)_fontResource.Lock()->GetTexture()->GetHeight();
+					renderer::Font* font = _fontResource.Lock()->GetFont();
+
+					float atlasWidth = (float)font->GetTexture()->GetWidth();
+					float atlasHeight = (float)font->GetTexture()->GetHeight();
 
 					Vector<Vector2> positions;
 					positions.reserve(_text.size() * 4);
@@ -120,7 +123,7 @@ namespace hod
 					const char* str = _text.c_str();
 					while (*str != '\0')
 					{
-						renderer::FontResource::Kerning kerning = _fontResource.Lock()->GetKerning(*str);
+						const renderer::Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
 
 						uint16_t vertexCount = (uint16_t)positions.size();
 
@@ -131,17 +134,17 @@ namespace hod
 						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * -0.5f * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
 						*/
 
-						positions.emplace_back(offset, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._sizeY * 0.5f * 0.01f);
+						positions.emplace_back(offset, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
 						uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight);
 
-						positions.emplace_back(offset + (float)kerning._sizeX * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._sizeY * 0.5f * 0.01f);
-						uvs.emplace_back((float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)kerning._offsetY / atlasHeight);
+						positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
+						uvs.emplace_back((float)(kerning._offsetX + kerning._size.GetX()) / atlasWidth, (float)kerning._offsetY / atlasHeight);
 
-						positions.emplace_back(offset + (float)kerning._sizeX * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._sizeY * -0.5f * 0.01f);
-						uvs.emplace_back((float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight);
+						positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * -0.5f * 0.01f);
+						uvs.emplace_back((float)(kerning._offsetX + kerning._size.GetX()) / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
 
-						positions.emplace_back(offset, (float)kerning._baseline * 0.5f * -0.01f + (float)kerning._sizeY * -0.5f * 0.01f);
-						uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight);
+						positions.emplace_back(offset, (float)kerning._baseline * 0.5f * -0.01f + (float)kerning._size.GetY() * -0.5f * 0.01f);
+						uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
 
 						indices.push_back(vertexCount);
 						indices.push_back(vertexCount + 1);
@@ -151,7 +154,7 @@ namespace hod
 						indices.push_back(vertexCount + 2);
 						indices.push_back(vertexCount + 3);
 
-						offset += (kerning._sizeX + 2) * 0.01f;
+						offset += (kerning._size.GetX() + 2) * 0.01f;
 
 						++str;
 					}
@@ -169,15 +172,22 @@ namespace hod
 		void TextRendererComponent::SetFont(const WeakResource<renderer::FontResource>& font)
 		{
 			_fontResource = font;
-			std::shared_ptr<renderer::FontResource> textureResourceLock = _fontResource.Lock();
-			if (textureResourceLock != nullptr)
+
+			renderer::Texture* texture = nullptr;
+			std::shared_ptr<renderer::FontResource> fontResource = _fontResource.Lock();
+			if (fontResource != nullptr)
 			{
-				_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
+				renderer::Font* font = fontResource->GetFont();
+				if (font != nullptr)
+				{
+					texture = font->GetTexture();
+				}
 			}
 			else
 			{
-				_materialInstance->SetTexture("image", nullptr);
+				
 			}
+			_materialInstance->SetTexture("image", texture);
 		}
 	}
 }
