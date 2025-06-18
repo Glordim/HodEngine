@@ -61,6 +61,7 @@ namespace hod::renderer
 	FontImpl::~FontImpl()
 	{
 		FT_Done_Face(_ftFace);
+		DefaultAllocator::GetInstance().Free(_data);
 	}
 
 	/// @brief 
@@ -69,10 +70,15 @@ namespace hod::renderer
 	/// @return 
 	bool FontImpl::LoadFromMemory(const void* data, uint32_t size, Texture*& texture, Vector<Font::GlyphInfo>& glyphInfos)
 	{
+		_data = DefaultAllocator::GetInstance().Allocate(size);
+		std::memcpy(_data, data, size);
+
 		FT_Library ftLibrary = FontManager::GetInstance()->GetImpl()->GetFtLibrary();
-		FT_Error error = FT_New_Memory_Face(ftLibrary, static_cast<const FT_Byte*>(data), size, 0, &_ftFace);
+		FT_Error error = FT_New_Memory_Face(ftLibrary, static_cast<const FT_Byte*>(_data), size, 0, &_ftFace);
 		if (error != 0)
 		{
+			DefaultAllocator::GetInstance().Free(_data);
+			_data = nullptr;
 			OUTPUT_ERROR("FreeType::FT_New_Memory_Face {}", FT_Error_String(error));
 			return false;
 		}
@@ -82,6 +88,8 @@ namespace hod::renderer
 		{
 			FT_Done_Face(_ftFace);
 			_ftFace = nullptr;
+			DefaultAllocator::GetInstance().Free(_data);
+			_data = nullptr;
 			OUTPUT_ERROR("FreeType::FT_Select_Charmap {}", FT_Error_String(error));
 			return false;
 		}
@@ -91,6 +99,8 @@ namespace hod::renderer
 		{
 			FT_Done_Face(_ftFace);
 			_ftFace = nullptr;
+			DefaultAllocator::GetInstance().Free(_data);
+			_data = nullptr;
 			OUTPUT_ERROR("FreeType::FT_Set_Pixel_Sizes {}", FT_Error_String(error));
 			return false;
 		}
@@ -121,6 +131,8 @@ namespace hod::renderer
 				OUTPUT_ERROR("FreeType::FT_Load_Glyph {}", FT_Error_String(error));
 				FT_Done_Face(_ftFace);
 				_ftFace = nullptr;
+				DefaultAllocator::GetInstance().Free(_data);
+				_data = nullptr;
 				return false;
 			}
 
@@ -131,6 +143,8 @@ namespace hod::renderer
 				OUTPUT_ERROR("FreeType::FT_Render_Glyph {}", FT_Error_String(error));
 				FT_Done_Face(_ftFace);
 				_ftFace = nullptr;
+				DefaultAllocator::GetInstance().Free(_data);
+				_data = nullptr;
 				return false;
 			}
 
@@ -157,11 +171,10 @@ namespace hod::renderer
 
 				Font::GlyphInfo glyphInfo;
 				glyphInfo._code = c;
-				glyphInfo._advance = Vector2(float(_ftFace->glyph->advance.x >> 6), float(_ftFace->glyph->advance.y >> 6));
-				glyphInfo._baseline = 48 - _ftFace->glyph->bitmap_top;
-				glyphInfo._size = Vector2((float)ftBitmap.width, (float)ftBitmap.rows);
-				glyphInfo._offsetX = 0;
-				glyphInfo._offsetY = 0;
+				glyphInfo._advanceX = (float)(_ftFace->glyph->advance.x >> 6);
+				glyphInfo._baseline = (float)(48 - _ftFace->glyph->bitmap_top);
+				glyphInfo._bearing = Vector2((float)(_ftFace->glyph->metrics.horiBearingX >> 6), (float)(_ftFace->glyph->metrics.horiBearingY >> 6));
+				glyphInfo._size = Vector2((float)(_ftFace->glyph->metrics.width >> 6), (float)(_ftFace->glyph->metrics.height >> 6));
 				glyphInfos.push_back(glyphInfo);
 			}
 		}
@@ -173,8 +186,8 @@ namespace hod::renderer
 		{
 			const CharacterData& characterData = characterDatas[characteIndex];
 			Font::GlyphInfo& glyphInfo = glyphInfos[characteIndex];
-			glyphInfo._offsetX = (characteIndex % characterByLine) * 48;
-			glyphInfo._offsetY = (characteIndex / characterByLine) * 48;
+			glyphInfo._atlasSize = Vector2(glyphInfo._size.GetX() / atlasWidth, glyphInfo._size.GetY() / atlasWidth);
+			glyphInfo._atlasPos = Vector2(((characteIndex % characterByLine) * 48) / (float)atlasWidth, ((characteIndex / characterByLine) * 48) / (float)atlasWidth);
 
 			uint32_t lineOffset = (characteIndex / characterByLine) * atlasWidth * 4 * 48;
 
@@ -200,6 +213,9 @@ namespace hod::renderer
 			FT_Done_Face(_ftFace);
 			_ftFace = nullptr;
 
+			DefaultAllocator::GetInstance().Free(_data);
+			_data = nullptr;
+
 			return false;
 		}
 		DefaultAllocator::GetInstance().Free(atlas);
@@ -220,5 +236,90 @@ namespace hod::renderer
 		FT_Get_Kerning(_ftFace, leftCharIndex, rightCharIndex, FT_KERNING_DEFAULT, &delta);
 
 		return float(delta.x >> 6);
+	}
+
+	/// @brief 
+	/// @param value 
+	/// @return 
+	Vector2 FontImpl::ComputeRequiredSize(const String& value) const
+	{
+		Vector2 requiredSize;
+		FT_UInt previous = 0;
+
+		const char* str = value.c_str();
+		while (*str != '\0')
+		{
+			FT_ULong charCode = *str;
+			FT_UInt glyphIndex = FT_Get_Char_Index(_ftFace, charCode);
+
+			if (FT_HAS_KERNING(_ftFace) && previous && glyphIndex)
+			{
+				FT_Vector kerning;
+				FT_Get_Kerning(_ftFace, previous, glyphIndex, FT_KERNING_DEFAULT, &kerning);
+				requiredSize.SetX(requiredSize.GetX() + kerning.x);
+			}
+
+			FT_Load_Glyph(_ftFace, glyphIndex, FT_LOAD_DEFAULT);
+			requiredSize.SetX(requiredSize.GetX() + _ftFace->glyph->advance.x);
+
+			previous = glyphIndex;
+			++str;
+		}
+
+		long ascender = _ftFace->size->metrics.ascender;
+		long descender = abs(_ftFace->size->metrics.descender);
+		requiredSize.SetY((float)(ascender + descender));
+
+		return requiredSize / 64;
+	}
+
+	void FontImpl::BuildTextGeometry(const String& value, Vector<Font::GlyphGeometry>& glyphGeometries, const Vector<Font::GlyphInfo>& glyphInfos)
+	{
+		FT_UInt previous = 0;
+
+		float offsetX = 0.0f;
+
+		const char* str = value.c_str();
+		while (*str != '\0')
+		{
+			char c = *str;
+			FT_ULong charCode = c;
+			FT_UInt glyphIndex = FT_Get_Char_Index(_ftFace, charCode);
+
+			const Font::GlyphInfo* glyphInfo = nullptr;
+			for (const Font::GlyphInfo& it : glyphInfos)
+			{
+				if (it._code == charCode)
+				{
+					glyphInfo = &it;
+					break;
+				}
+			}
+
+			if (glyphInfo == nullptr)
+			{
+				++str;
+				continue; // todo rect ?
+			}
+
+			if (FT_HAS_KERNING(_ftFace) && previous && glyphIndex)
+			{
+				FT_Vector kerning;
+				FT_Get_Kerning(_ftFace, previous, glyphIndex, FT_KERNING_DEFAULT, &kerning);
+				offsetX += (float)kerning.x;
+			}
+
+			Font::GlyphGeometry glyphGeometry;
+			glyphGeometry._posCenter = Vector2(offsetX + glyphInfo->_size.GetX() * 0.5f, -glyphInfo->_baseline - glyphInfo->_size.GetY() * 0.5f);
+			glyphGeometry._posSize = glyphInfo->_size;
+			glyphGeometry._uvPos = glyphInfo->_atlasPos;
+			glyphGeometry._uvSize = glyphInfo->_atlasSize;
+			glyphGeometries.push_back(glyphGeometry);
+
+			previous = glyphIndex;
+			++str;
+
+			offsetX += glyphInfo->_advanceX;
+		}
 	}
 }

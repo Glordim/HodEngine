@@ -8,6 +8,7 @@
 #include <HodEngine/Renderer/Font/Font.hpp>
 
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Game/World.hpp>
 
 namespace hod::ui
 {
@@ -45,80 +46,87 @@ namespace hod::ui
 			Vector<uint16_t> indices;
 			indices.reserve(_value.size() * 6);
 
-			Vector2 requiredSize;
-			const char* str = _value.c_str();
-			while (*str != '\0')
-			{
-				const renderer::Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
+			Vector2 requiredSize = font->ComputeRequiredSize(_value) * 0.01f;
 
-				requiredSize.SetX(requiredSize.GetX() + (kerning._size.GetX() + 2) * 0.01f);
-				if (requiredSize.GetY() < kerning._size.GetY())
-				{
-					requiredSize.SetY((float)kerning._size.GetY() * 0.01f);
-				}
-
-				++str;
-			}
-
+			Vector2 lineTopLeftCorner;
 			float offset = 0.0f;
 			float baseLineOffset = 0.0f;
 			switch (_alignment)
 			{
 			case Alignment::TopLeft:
-				offset = -size.GetX() * 0.5f;
-				baseLineOffset = size.GetY() * 0.5f - requiredSize.GetY();
+				lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f);
 				break;
 			case Alignment::TopCenter:
-				offset = -requiredSize.GetX() * 0.5f;
-				baseLineOffset = size.GetY() * 0.5f - requiredSize.GetY();
+				lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, size.GetY() * 0.5f);
 				break;
 			case Alignment::TopRight:
-				offset = size.GetX() * 0.5f - requiredSize.GetX();
-				baseLineOffset = size.GetY() * 0.5f - requiredSize.GetY();
+				lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), size.GetY() * 0.5f);
 				break;
 
 			case Alignment::MiddleLeft:
-				offset = -size.GetX() * 0.5f;
-				baseLineOffset = -requiredSize.GetY() * 0.5f;
+				lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, requiredSize.GetY() * 0.5f);
 				break;
 			case Alignment::MiddleCenter:
-				offset = -requiredSize.GetX() * 0.5f;
-				baseLineOffset = -requiredSize.GetY() * 0.5f;
+				lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, requiredSize.GetY() * 0.5f);
 				break;
 			case Alignment::MiddleRight:
-				offset = size.GetX() * 0.5f - requiredSize.GetX();
-				baseLineOffset = -requiredSize.GetY() * 0.5f;
+				lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), requiredSize.GetY() * 0.5f);
 				break;
 
 			case Alignment::BottomLeft:
-				offset = -size.GetX() * 0.5f;
-				baseLineOffset = -size.GetY() * 0.5f;
+				lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f  + requiredSize.GetY());
 				break;
 			case Alignment::BottomCenter:
-				offset = -requiredSize.GetX() * 0.5f;
-				baseLineOffset = -size.GetY() * 0.5f;
+				lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, -size.GetY() * 0.5f  + requiredSize.GetY());
 				break;
 			case Alignment::BottomRight:
-				offset = size.GetX() * 0.5f - requiredSize.GetX();
-				baseLineOffset = -size.GetY() * 0.5f;
+				lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), -size.GetY() * 0.5f + requiredSize.GetY());
 				break;
 			}
 
-			str = _value.c_str();
+			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f), Color::White);
+			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()), worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
+
+			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()), Color::White);
+			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f), worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
+
+			Vector<renderer::Font::GlyphGeometry> glyphGeometries;
+			font->BuildTextGeometry(_value, glyphGeometries);
+
+			for (const renderer::Font::GlyphGeometry& glyphGeometry : glyphGeometries)
+			{
+				uint16_t vertexCount = (uint16_t)positions.size();
+
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter * 0.01f + Vector2(-glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f) * 0.01f);
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter * 0.01f + Vector2(glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f) * 0.01f);
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter * 0.01f + Vector2(-glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f) * 0.01f);
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter * 0.01f + Vector2(glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f) * 0.01f);
+
+				uvs.push_back(glyphGeometry._uvPos);
+				uvs.push_back(glyphGeometry._uvPos + Vector2(glyphGeometry._uvSize.GetX(), 0.0f));
+				uvs.push_back(glyphGeometry._uvPos + Vector2(0.0f, glyphGeometry._uvSize.GetY()));
+				uvs.push_back(glyphGeometry._uvPos + Vector2(glyphGeometry._uvSize.GetX(), glyphGeometry._uvSize.GetY()));
+
+				indices.push_back(vertexCount + 1);
+				indices.push_back(vertexCount + 0);
+				indices.push_back(vertexCount + 2);
+
+				indices.push_back(vertexCount + 1);
+				indices.push_back(vertexCount + 2);
+				indices.push_back(vertexCount + 3);
+			}
+			/*
+			offset = lineTopLeftCorner.GetX();
+			baseLineOffset = lineTopLeftCorner.GetY();
+
+			const char* str = _value.c_str();
 			while (*str != '\0')
 			{
 				const renderer::Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
 
 				uint16_t vertexCount = (uint16_t)positions.size();
 
-				/*
-				vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * -0.5f * 0.01f, (float)kerning._sizeY * 0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight));
-				vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.5f * 0.01f, (float)kerning._sizeY * 0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)kerning._offsetY / atlasHeight));
-				vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.5f * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
-				vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * -0.5f * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
-				*/
-
-				positions.emplace_back(offset, baseLineOffset + (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
+				positions.emplace_back(offset + , baseLineOffset + (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
 				uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight);
 
 				positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, baseLineOffset + (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
@@ -142,6 +150,7 @@ namespace hod::ui
 
 				++str;
 			}
+			*/
 
 			if (positions.empty() == false)
 			{

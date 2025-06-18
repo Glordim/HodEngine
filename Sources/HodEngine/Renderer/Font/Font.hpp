@@ -14,12 +14,22 @@ namespace hod::renderer
 
 		struct GlyphInfo
 		{
-			char32_t	_code;
-			uint32_t	_offsetX;
-			uint32_t	_offsetY;
-			uint32_t	_baseline;
+			char32_t	_code = 0;
+			float		_advanceX = 0.0f;
+			float		_baseline = 0.0f;
+			Vector2		_bearing;
 			Vector2		_size;
-			Vector2		_advance;
+			Vector2		_atlasPos;
+			Vector2		_atlasSize;
+		};
+
+		struct GlyphGeometry
+		{
+			Vector2		_posCenter;
+			Vector2		_posSize;
+
+			Vector2		_uvPos;
+			Vector2		_uvSize;
 		};
 
 	public:
@@ -33,6 +43,9 @@ namespace hod::renderer
 
 		Texture*			GetTexture() const;
 		const GlyphInfo&	GetGlyphInfo(char32_t code) const;
+
+		Vector2				ComputeRequiredSize(const String& value) const;
+		void				BuildTextGeometry(const String& value, Vector<GlyphGeometry>& glyphGeometries);
 
 	private:
 

@@ -7,12 +7,6 @@ namespace hod::renderer
 	Font::Font()
 	{
 		_impl = DefaultAllocator::GetInstance().New<FontImpl>();
-
-		_unknownGlyphInfo._code = 0;
-		_unknownGlyphInfo._baseline = 0;
-		_unknownGlyphInfo._offsetX = 0;
-		_unknownGlyphInfo._offsetY = 0;
-		_unknownGlyphInfo._size = Vector2::Zero;
 	}
 	
 	Font::~Font()
@@ -51,5 +45,16 @@ namespace hod::renderer
 			}
 		}
 		return _unknownGlyphInfo;
+	}
+
+	Vector2 Font::ComputeRequiredSize(const String& value) const
+	{
+		return _impl->ComputeRequiredSize(value);
+	}
+
+	void Font::BuildTextGeometry(const String& value, Vector<GlyphGeometry>& glyphGeometries)
+	{
+		glyphGeometries.reserve(value.size());
+		_impl->BuildTextGeometry(value, glyphGeometries, _glyphInfos);
 	}
 }
