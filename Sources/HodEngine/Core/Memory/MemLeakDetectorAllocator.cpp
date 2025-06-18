@@ -177,6 +177,7 @@ namespace hod
 
 				fclose(memleakReport);
 
+				OUTPUT_MESSAGE("MemoryManagerLeakDetector: Memleak detected, report available here {}", memleakReportPath.string());
 				OS::OpenFileWithDefaultApp(memleakReportPath.string().c_str());
 			}
 		}
