@@ -15,6 +15,12 @@ namespace hod::ui
 		AddPropertyT(reflectionDescriptor, &Texture::_texture, "Texture", &Texture::SetTexture);
 	}
 
+	void Texture::OnDestruct()
+	{
+		DefaultAllocator::GetInstance().Delete(_materialInstance);
+		_materialInstance = nullptr;
+	}
+
 	void Texture::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 	{
 		if (_node.Get())

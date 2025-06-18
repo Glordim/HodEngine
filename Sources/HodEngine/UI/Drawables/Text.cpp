@@ -17,6 +17,12 @@ namespace hod::ui
 		AddPropertyT(reflectionDescriptor, &Text::_alignment, "Alignment", &Text::SetAlignment);
 	}
 
+	void Text::OnDestruct()
+	{
+		DefaultAllocator::GetInstance().Delete(_materialInstance);
+		_materialInstance = nullptr;
+	}
+
 	void Text::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 	{
 		if (_node.Get() && _font.Lock())

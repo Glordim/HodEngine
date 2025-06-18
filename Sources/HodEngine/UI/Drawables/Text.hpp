@@ -29,6 +29,8 @@ namespace hod::ui
 
 	public:
 
+		void	OnDestruct() override;
+
 		void	SetFont(const WeakResource<renderer::FontResource>& font);
 		void	SetValue(const String& value);
 		void	SetAlignment(Alignment alignment);

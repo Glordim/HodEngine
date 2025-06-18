@@ -14,6 +14,8 @@ namespace hod::ui
 
 	public:
 
+		void	OnDestruct() override;
+
 		void	SetTexture(const WeakResource<renderer::TextureResource>& texture);
 
 		void	PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
