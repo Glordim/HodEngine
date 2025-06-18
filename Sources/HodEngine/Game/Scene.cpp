@@ -49,6 +49,12 @@ namespace hod::game
 	{
 		for (const auto& entityPair : _entities)
 		{
+			if (entityPair.second->GetParent().Lock() == nullptr)
+				entityPair.second->Destruct();
+		}
+
+		for (const auto& entityPair : _entities)
+		{
 			DefaultAllocator::GetInstance().Delete(entityPair.second);
 		}
 	}
