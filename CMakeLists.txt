@@ -58,32 +58,6 @@ if (WIN32)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
-ExternalProject_Add(box2d
-  URL https://github.com/erincatto/box2d/archive/28adacf82377d4113f2ed00586141463244b9d10.zip
-  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/box2d-src
-  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/box2d-build
-  CMAKE_ARGS
-    -DBOX2D_SAMPLES=OFF
-    -DBOX2D_VALIDATE=OFF
-    -DBOX2D_UNIT_TESTS=OFF
-    -DBOX2D_AVX2=OFF # TODO crash on Android
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DANDROID_ABI=${ANDROID_ABI}
-    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
-    -DCMAKE_BUILD_TYPE=Release
-    -G ${CMAKE_GENERATOR}
-  BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release --parallel
-  INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${box2d_LIBRARIES}
-)
-
-message(STATUS "box2d is available in " ${box2d_INCLUDE_DIRS})
-message(STATUS "box2d is available in " ${box2d_LIBRARIES})
-
 set(freetype_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/freetype-src/include)
 set(freetype_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/freetype-build/${LIB_SUB_FOLDER}/${LIB_PREFIX}freetype.${LIB_EXTENSION})
 
@@ -227,6 +201,26 @@ ExternalProject_Add(SpirvCross
 
 message(STATUS "SpirvCross is available in " ${SpirvCross_INCLUDE_DIRS})
 message(STATUS "SpirvCross is available in " ${SpirvCross_LIBRARIES})
+
+if(WIN32)
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+        set(ARCH_FOLDER "Win_${CMAKE_GENERATOR_PLATFORM}")
+    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
+        set(ARCH_FOLDER "Win_${CMAKE_GENERATOR_PLATFORM}")
+    else()
+        message(FATAL_ERROR "Unsupported Windows architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+    endif()
+else()
+    message(FATAL_ERROR "Unsupported system: ${CMAKE_SYSTEM_NAME}")
+endif()
+
+set(THIRDPARTY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/${ARCH_FOLDER}")
+
+add_library(Box2d::Box2d STATIC IMPORTED GLOBAL)
+set_target_properties(Box2d::Box2d PROPERTIES
+    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/box2d.lib"
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+)
 
 SetupPlatform()
 SetupCompilation()
