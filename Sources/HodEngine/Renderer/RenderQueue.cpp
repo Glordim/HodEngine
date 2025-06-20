@@ -193,39 +193,19 @@ namespace hod::renderer
 		_commandBuffers.clear();
 	}
 
-	/// @brief 
-	/// @return 
-	uint32_t RenderQueue::GetRenderWidth() const
+	Vector2 RenderQueue::GetRenderResolution() const
 	{
 		if (_context != nullptr)
 		{
-			return _context->GetWidth();
+			return _context->GetResolution();
 		}
 		else if (_renderTarget != nullptr)
 		{
-			return _renderTarget->GetWidth();
+			return _renderTarget->GetResolution();
 		}
 		else
 		{
-			return 0;
-		}
-	}
-
-	/// @brief 
-	/// @return 
-	uint32_t RenderQueue::GetRenderHeight() const
-	{
-		if (_context != nullptr)
-		{
-			return _context->GetHeight();
-		}
-		else if (_renderTarget != nullptr)
-		{
-			return _renderTarget->GetHeight();
-		}
-		else
-		{
-			return 0;
+			return Vector2::Zero;
 		}
 	}
 

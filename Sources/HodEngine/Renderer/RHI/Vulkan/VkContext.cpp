@@ -40,16 +40,9 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @return 
-	uint32_t VkContext::GetWidth()
+	Vector2 VkContext::GetResolution()
 	{
-		return _swapChainExtent.width;
-	}
-
-	/// @brief 
-	/// @return 
-	uint32_t VkContext::GetHeight()
-	{
-		return _swapChainExtent.height;
+		return Vector2((float)_swapChainExtent.width, (float)_swapChainExtent.height);
 	}
 
 	/// @brief 

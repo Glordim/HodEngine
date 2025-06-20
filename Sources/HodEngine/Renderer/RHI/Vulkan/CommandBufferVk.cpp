@@ -130,8 +130,9 @@ namespace hod
 				renderPassInfo.renderPass = vkRenderTarget->GetRenderPass();
 				renderPassInfo.framebuffer = vkRenderTarget->GetFrameBuffer();
 				renderPassInfo.renderArea.offset = { 0, 0 };
-				renderPassInfo.renderArea.extent.width = vkRenderTarget->GetWidth();
-				renderPassInfo.renderArea.extent.height = vkRenderTarget->GetHeight();
+				Vector2 resolution = vkRenderTarget->GetResolution();
+				renderPassInfo.renderArea.extent.width = (uint32_t)resolution.GetX();
+				renderPassInfo.renderArea.extent.height = (uint32_t)resolution.GetY();
 			}
 			renderPassInfo.clearValueCount = 1;
 			renderPassInfo.pClearValues = clearColor;

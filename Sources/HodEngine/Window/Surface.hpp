@@ -1,7 +1,8 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#include "HodEngine/Core/String.hpp"
+#include <HodEngine/Core/String.hpp>
+#include <HodEngine/Core/Math/Vector2.hpp>
 #include <cstdint>
 
 namespace hod::window
@@ -15,8 +16,7 @@ namespace hod::window
 
 	public:
 
-		virtual void		Resize(uint32_t width, uint32_t height) = 0;
-		virtual	uint32_t	GetWidth() = 0;
-		virtual uint32_t	GetHeight() = 0;
+		virtual void		Resize(uint32_t width, uint32_t height) = 0; // todo Vector2 size ?
+		virtual Vector2		GetResolution() = 0;
 	};
 }

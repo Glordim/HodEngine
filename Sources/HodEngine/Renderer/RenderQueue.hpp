@@ -29,8 +29,7 @@ namespace hod::renderer
 
 		bool							Prepare(Context* context);
 		void							Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget);
-		uint32_t						GetRenderWidth() const;
-		uint32_t						GetRenderHeight() const;
+		Vector2							GetRenderResolution() const;
 
 		void							SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport);
 

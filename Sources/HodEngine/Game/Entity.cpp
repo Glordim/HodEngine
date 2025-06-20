@@ -512,7 +512,11 @@ namespace hod::game
 	/// @brief 
 	void Entity::Destruct()
 	{
-		assert(_internalState != InternalState::Destructed);
+		//assert(_internalState != InternalState::Destructed);
+		if (_internalState == InternalState::Destructed)
+		{
+			return;
+		}
 
 		for (const WeakEntity& child : _children)
 		{

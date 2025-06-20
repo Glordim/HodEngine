@@ -83,8 +83,8 @@ namespace hod::editor
 		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
 		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
 		
-		if (_renderTarget->GetWidth() != resolutionWidth ||
-			_renderTarget->GetHeight() != resolutionHeight)
+		if (_renderTarget->GetResolution().GetX() != resolutionWidth ||
+			_renderTarget->GetResolution().GetY() != resolutionHeight)
 		{
 			renderer::Texture::CreateInfo createInfo;
 

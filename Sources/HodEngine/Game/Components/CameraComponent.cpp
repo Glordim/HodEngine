@@ -88,13 +88,15 @@ namespace hod::game
 	/// @param renderQueue 
 	void CameraComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
 	{
+		Vector2 resolution = renderQueue.GetRenderResolution();
+
 		Rect viewport;
 		viewport._position.SetX(0);
 		viewport._position.SetY(0);
-		viewport._size.SetX((float)renderQueue.GetRenderWidth());
-		viewport._size.SetY((float)renderQueue.GetRenderHeight());
+		viewport._size.SetX(resolution.GetX());
+		viewport._size.SetY(resolution.GetY());
 
-		SetAspect((float)renderQueue.GetRenderWidth() / (float)renderQueue.GetRenderHeight());
+		SetAspect(resolution.GetX() / resolution.GetY());
 
 		Matrix4 projection = GetProjectionMatrix();
 		Matrix4 view = Matrix4::Identity;

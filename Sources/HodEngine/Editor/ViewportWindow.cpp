@@ -195,7 +195,8 @@ namespace hod::editor
 				{
 					ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 
-					if (mousePos.x >= 0 && mousePos.x < _pickingRenderTarget->GetWidth() && mousePos.y >= 0 && mousePos.y < _pickingRenderTarget->GetHeight())
+					Vector2 pickingResolution = _pickingRenderTarget->GetResolution();
+					if (mousePos.x >= 0 && mousePos.x < pickingResolution.GetX() && mousePos.y >= 0 && mousePos.y < pickingResolution.GetY())
 					{
 						ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 						Vector2 mousePosition(mousePos.x, mousePos.y);
@@ -236,8 +237,8 @@ namespace hod::editor
 				resolutionHeight = static_cast<uint32_t>(resolutionWidth / aspectRatio);
 		}
 
-		if (_renderTarget->GetWidth() != resolutionWidth ||
-			_renderTarget->GetHeight() != resolutionHeight)
+		if (_renderTarget->GetResolution().GetX() != resolutionWidth ||
+			_renderTarget->GetResolution().GetY() != resolutionHeight)
 		{
 			renderer::Texture::CreateInfo createInfo;
 

@@ -18,8 +18,7 @@ namespace hod::renderer
 						RenderTarget();
 		virtual			~RenderTarget();
 
-		uint32_t		GetWidth() const;
-		uint32_t		GetHeight() const;
+		Vector2			GetResolution() const;
 
 		virtual bool	Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo);
 
@@ -42,7 +41,6 @@ namespace hod::renderer
 
 	protected:
 
-		uint32_t		_width = 0;
-		uint32_t		_height = 0;
+		Vector2			_resolution; // TODO Vector2_Int ?
 	};
 }

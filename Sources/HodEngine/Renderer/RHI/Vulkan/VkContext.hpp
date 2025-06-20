@@ -20,8 +20,7 @@ namespace hod::renderer
 	public:
 
 		void						Resize(uint32_t width, uint32_t height) override;
-		uint32_t					GetWidth() override;
-		uint32_t					GetHeight() override;
+		Vector2						GetResolution() override;
 
 		bool						AcquireNextImageIndex(const Semaphore* signalSemaphore) override;
 		bool						SwapBuffer(const Semaphore* waitSemaphore) override;
