@@ -4,7 +4,7 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-#include <vk_mem_alloc.h>
+#include <VulkanMemoryAllocator/vk_mem_alloc.h>
 
 namespace hod::renderer
 {

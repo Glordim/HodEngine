@@ -25,7 +25,7 @@
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Application/Application.hpp>
 
-#include "portable-file-dialogs.h"
+#include <PortableFileDialogs/portable-file-dialogs.h>
 
 namespace hod::editor
 {

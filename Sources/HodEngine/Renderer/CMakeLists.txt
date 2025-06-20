@@ -18,7 +18,6 @@ project(Renderer LANGUAGES CXX OBJCXX)
 find_package(BZip2 REQUIRED)
 find_package(ZLIB REQUIRED)
 endif()
-find_package(Stb REQUIRED)
 
 if(NOT APPLE)
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES D3d12 Metal)
@@ -52,22 +51,21 @@ ${PROJECT_BINARY_DIR}
 )
 
 include_directories(SYSTEM
-  ${Stb_INCLUDE_DIRS}
+  Stb::Stb
   Freetype::Freetype
-  ${VulkanMemoryAllocator_INCLUDE_DIRS}
+  VulkanMemoryAllocator::VulkanMemoryAllocator
 )
 
 add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(Renderer PRIVATE "Pch.hpp")
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(Renderer Core Window Freetype::Freetype VulkanMemoryAllocator)
+add_dependencies(Renderer Core Window)
 
 target_link_libraries(Renderer
   Core
   Window
   Freetype::Freetype
-  ${VulkanMemoryAllocator_LIBRARIES}
 )
 
 if(NOT APPLE)

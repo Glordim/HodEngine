@@ -27,58 +27,6 @@ else()
   set(LIB_EXTENSION "a")
 endif()
 
-get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if(isMultiConfig)
-  set(LIB_SUB_FOLDER "Release")
-else()
-  set(LIB_SUB_FOLDER ".")
-endif()
-
-FetchContent_Declare(
-  stb
-  URL https://github.com/nothings/stb/archive/refs/heads/master.zip
-  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
-
-FetchContent_MakeAvailable(stb)
-message(STATUS "stb is available in " ${stb_SOURCE_DIR})
-
-FetchContent_Declare(
-  portable_file_dialogs
-  URL https://github.com/samhocevar/portable-file-dialogs/archive/refs/heads/main.zip
-  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
-FetchContent_MakeAvailable(portable_file_dialogs)
-message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_SOURCE_DIR})
-
-set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
-set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/${LIB_SUB_FOLDER}/${LIB_PREFIX}box2d.${LIB_EXTENSION})
-
-if (WIN32)
-add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
-endif()
-
-ExternalProject_Add(VulkanMemoryAllocator
-  URL https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/archive/refs/tags/v3.1.0.zip
-  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-src
-  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-build
-  CMAKE_ARGS
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DANDROID_ABI=${ANDROID_ABI}
-    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
-    -DCMAKE_BUILD_TYPE=Release
-    -G ${CMAKE_GENERATOR}
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${VulkanMemoryAllocator_LIBRARIES}
-)
-
-set(VulkanMemoryAllocator_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-src/include)
-
-message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_INCLUDE_DIRS})
-message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_LIBRARIES})
-
 if(WIN32)
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
         set(ARCH_FOLDER "Win_${CMAKE_GENERATOR_PLATFORM}")
@@ -122,6 +70,21 @@ set_target_properties(SpirvCross::SpirvCross PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
+add_library(Stb::Stb STATIC IMPORTED GLOBAL)
+set_target_properties(Stb::Stb PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+)
+
+add_library(VulkanMemoryAllocator::VulkanMemoryAllocator STATIC IMPORTED GLOBAL)
+set_target_properties(VulkanMemoryAllocator::VulkanMemoryAllocator PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+)
+
+add_library(PortableFileDialogs::PortableFileDialogs STATIC IMPORTED GLOBAL)
+set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+)
+
 SetupPlatform()
 SetupCompilation()
 
@@ -141,8 +104,6 @@ if (BUILD_UNIT_TESTS)
   enable_testing()
   add_subdirectory("Sources/Tests/Core")
 endif()
-
-set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
 
 set(CMAKE_SUPPRESS_REGENERATION true)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

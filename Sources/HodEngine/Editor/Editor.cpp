@@ -49,7 +49,7 @@
 
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
-#include "stb_image.h"
+#include <Stb/stb_image.h>
 
 #include "Icons/HodIcon.png.hpp"
 #include "Icons/folder.png.hpp"

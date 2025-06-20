@@ -39,9 +39,6 @@ endforeach()
 
 assign_source_group(${Srcs}) # for VS
 
-find_package(Stb REQUIRED)
-find_package(PortableFileDialog REQUIRED)
-
 add_library(Editor ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(Editor PRIVATE "Pch.hpp")
 set_property(TARGET Editor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
@@ -54,10 +51,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   "${PROJECT_BINARY_DIR}/../.."
   ${PROJECT_BINARY_DIR}
 	${Core_INCLUDES}
-	${PortableFileDialog_INCLUDE_DIRS}
 )
 
-target_include_directories(Editor SYSTEM PRIVATE ${Stb_INCLUDE_DIRS})
+target_include_directories(Editor SYSTEM PRIVATE Stb::Stb PortableFileDialogs::PortableFileDialogs)
 
 target_compile_definitions(Editor PRIVATE HOD_EDITOR_EXPORT)
 target_link_libraries(Editor
