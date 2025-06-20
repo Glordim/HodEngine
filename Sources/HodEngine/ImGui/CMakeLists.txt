@@ -53,7 +53,7 @@ add_library(ImGui ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(ImGui PRIVATE "Pch.hpp")
 set_property(TARGET ImGui PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(ImGui Core Window Renderer freetype)
+add_dependencies(ImGui Core Window Renderer Freetype::Freetype)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
 get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
@@ -65,7 +65,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   ${Core_INCLUDES}
   ${Window_INCLUDES}
   ${Renderer_INCLUDES}
-  ${freetype_INCLUDE_DIRS}
+  Freetype::Freetype
 )
 
 include_directories(SYSTEM
@@ -76,7 +76,7 @@ target_link_libraries(ImGui
   Core
   Renderer
   Window
-  ${freetype_LIBRARIES}
+  Freetype::Freetype
 )
 
 if (APPLE)

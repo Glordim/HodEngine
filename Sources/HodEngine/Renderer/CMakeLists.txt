@@ -53,8 +53,7 @@ ${PROJECT_BINARY_DIR}
 
 include_directories(SYSTEM
   ${Stb_INCLUDE_DIRS}
-  ${msdfgen_INCLUDE_DIRS}
-  ${freetype_INCLUDE_DIRS}
+  Freetype::Freetype
   ${VulkanMemoryAllocator_INCLUDE_DIRS}
 )
 
@@ -62,20 +61,18 @@ add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(Renderer PRIVATE "Pch.hpp")
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(Renderer Core Window msdfgen freetype VulkanMemoryAllocator)
+add_dependencies(Renderer Core Window Freetype::Freetype VulkanMemoryAllocator)
 
 target_link_libraries(Renderer
   Core
   Window
-  ${msdfgen_LIBRARIES}
-  ${freetype_LIBRARIES}
+  Freetype::Freetype
   ${VulkanMemoryAllocator_LIBRARIES}
 )
 
 if(NOT APPLE)
-  add_dependencies(Renderer glslang SpirvCross)
-  include_directories(${SpirvCross_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${glslang_INCLUDE_DIRS})
-  target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${SpirvCross_LIBRARIES} ${glslang_LIBRARIES})
+  include_directories(${Vulkan_INCLUDE_DIRS} SpirvCross::SpirvCross  Glslang::Glslang Glslang::GlslangDefaultResource)
+  target_link_libraries(Renderer ${Vulkan_LIBRARIES} SpirvCross::SpirvCross Glslang::Glslang Glslang::GlslangDefaultResource)
   #optimized "d3d12.lib" debug "d3d12.lib"
   #optimized "DXGI.lib" debug "DXGI.lib"
   
