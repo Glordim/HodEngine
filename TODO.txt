@@ -1,0 +1,23 @@
+# TextureCompression
+
+- Vulkan BC7
+	- Windows
+	- Linux
+- Vulkan ASTC
+	- Android
+- Metal ASTC
+	- MacOs
+	- IOS
+
+BC7 = ASTC 4x4 (weight, quality)
+Editor: bc7enc_rdo fast / astcenc -medium
+Build: bc7enc_rdo / astcenc -thorough
+
+---------
+
+# WebRequest
+
+- Curl (+ mbedTLS for TLS)
+
+---------
+
