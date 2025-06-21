@@ -40,6 +40,7 @@ namespace hod::editor
 		renderer::RenderTarget*		GetPickingRenderTarget() const;
 		const Matrix4&				GetProjectionMatrix() const;
 		const Matrix4&				GetViewMatrix() const;
+		float						GetCameraSize() const;
 
 		const Vector2&				GetPlayRatio() const;
 

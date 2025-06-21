@@ -23,6 +23,11 @@ namespace hod::editor
 		return handle;
 	}
 
+	float Gizmos::GetHandleSize(float size, ViewportWindow& viewport)
+	{
+		return size * viewport.GetCameraSize() * 100.0f;
+	}
+
 	bool Gizmos::FreeMoveBehavior(Handle& handle, ViewportWindow& viewport)
 	{
 		bool changed = false;

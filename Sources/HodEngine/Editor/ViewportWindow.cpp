@@ -451,4 +451,9 @@ namespace hod::editor
 	{
 		return _playRatio;
 	}
+
+	float ViewportWindow::GetCameraSize() const
+	{
+		return _size;
+	}
 }

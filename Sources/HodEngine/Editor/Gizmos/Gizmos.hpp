@@ -32,7 +32,8 @@ namespace hod::editor
 	{
 	public:
 
-		static Handle GenerateHandle();
+		static Handle 	GenerateHandle();
+		static float	GetHandleSize(float size, ViewportWindow& viewport);
 
 		static bool FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, float radius, const Color& color, const Color& highlightColor, ViewportWindow& viewport);
 		static bool FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor, ViewportWindow& viewport);

@@ -508,10 +508,12 @@ namespace hod::editor
 			node->SetPosition(_pickingPosition + _freeMoveHandle._delta * 100.0f); // TODO NOP ! * 100.0f
 		}
 
-		changed |= Gizmos::FreeMoveRect(_topEdge, worldMatrix, Vector2(0.0f, size.GetY() * 0.5f), Vector2(size.GetX(), 0.05f), hitboxHandleColor, hitboxHandleColor, viewport);
-		changed |= Gizmos::FreeMoveRect(_bottomEdge, worldMatrix, Vector2(0.0f, -size.GetY() * 0.5f), Vector2(size.GetX(), 0.05f), hitboxHandleColor, hitboxHandleColor, viewport);
-		changed |= Gizmos::FreeMoveRect(_leftEdge, worldMatrix, Vector2(-size.GetX() * 0.5f, 0.0f), Vector2(0.05f, size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
-		changed |= Gizmos::FreeMoveRect(_rightEdge, worldMatrix, Vector2(size.GetX() * 0.5f, 0.0f), Vector2(0.05f, size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
+		float handleSize = Gizmos::GetHandleSize(0.01f, viewport);
+
+		changed |= Gizmos::FreeMoveRect(_topEdge, worldMatrix, Vector2(0.0f, size.GetY() * 0.5f), Vector2(size.GetX(), handleSize), hitboxHandleColor, hitboxHandleColor, viewport);
+		changed |= Gizmos::FreeMoveRect(_bottomEdge, worldMatrix, Vector2(0.0f, -size.GetY() * 0.5f), Vector2(size.GetX(), handleSize), hitboxHandleColor, hitboxHandleColor, viewport);
+		changed |= Gizmos::FreeMoveRect(_leftEdge, worldMatrix, Vector2(-size.GetX() * 0.5f, 0.0f), Vector2(handleSize, size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
+		changed |= Gizmos::FreeMoveRect(_rightEdge, worldMatrix, Vector2(size.GetX() * 0.5f, 0.0f), Vector2(handleSize, size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
 
 		static Color lineColor(0.75f, 0.75f, 0.75f, 1.0f);
 		static Color lineHighlightColor(0.75f, 0.75f, 0.75f, 1.0f);
@@ -524,10 +526,10 @@ namespace hod::editor
 		static Color cornerColor(0.25f, 0.25f, 1.0f, 1.0f);
 		static Color cornerHighlightColor(0.5f, 0.5f, 1.0f, 1.0f);
 
-		changed |= Gizmos::FreeMoveCircle(_topLeftCorner, worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), 0.05f, cornerColor, cornerHighlightColor, viewport);
-		changed |= Gizmos::FreeMoveCircle(_topRightCorner, worldMatrix, Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), 0.05f, cornerColor, cornerHighlightColor, viewport);
-		changed |= Gizmos::FreeMoveCircle(_bottomLeftCorner, worldMatrix, Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), 0.05f, cornerColor, cornerHighlightColor, viewport);
-		changed |= Gizmos::FreeMoveCircle(_bottomRightCorner, worldMatrix, Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), 0.05f, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_topLeftCorner, worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_topRightCorner, worldMatrix, Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_bottomLeftCorner, worldMatrix, Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_bottomRightCorner, worldMatrix, Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
 
 		if (_topLeftCorner._hovered || _bottomRightCorner._hovered)
 			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
