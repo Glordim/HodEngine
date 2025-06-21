@@ -1,5 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Node.hpp"
+#include "HodEngine/UI/Canvas.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
 
@@ -320,6 +321,17 @@ namespace hod::ui
 		}
 
 		return _canvasMatrix;
+	}
+
+	Matrix4 Node::ComputeWorldMatrix()
+	{
+		Matrix4 worldMatrix;
+		Canvas* canvas = GetOwner()->GetComponentInParent<Canvas>();
+		if (canvas != nullptr)
+		{
+			worldMatrix = canvas->GetRenderModeMatrix() * ComputeCanvasMatrix();
+		}
+		return worldMatrix;
 	}
 
 	/// @brief

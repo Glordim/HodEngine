@@ -3,6 +3,7 @@
 
 #include <HodEngine/Game/Component.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Core/Math/Matrix4.hpp>
 
 namespace hod::game
 {
@@ -38,7 +39,7 @@ namespace hod::ui
 		float				GetWidthHeightPreferredAxis() const;
 		void				SetWidthHeightPreferredAxis(float widthHeightPreferredAxis);
 
-		void				RecomputeRootNodeSize();
+		const Matrix4&		GetRenderModeMatrix() const;
 
 	private:
 
@@ -48,5 +49,7 @@ namespace hod::ui
 		float				_widthHeightPreferredAxis = 1.0f;
 
 		float				_scaleFactor = 1.0f;
+
+		Matrix4				_renderModeMatrix;
 	};
 }

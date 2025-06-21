@@ -30,7 +30,7 @@ namespace hod::ui
 		if (_node.Get() && _font.Lock())
 		{
 			Vector2 size = _node->ComputeSize();
-			Matrix4 worldMatrix = _node->ComputeCanvasMatrix();
+			Matrix4 worldMatrix = _node->ComputeWorldMatrix();
 
 			renderer::Font* font = _font.Lock()->GetFont();
 
@@ -84,11 +84,13 @@ namespace hod::ui
 				break;
 			}
 
+			/*
 			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f), Color::White);
 			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()), worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
 
 			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()), Color::White);
 			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f), worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
+			*/
 
 			Vector<renderer::Font::GlyphGeometry> glyphGeometries;
 			font->BuildTextGeometry(_value, glyphGeometries);

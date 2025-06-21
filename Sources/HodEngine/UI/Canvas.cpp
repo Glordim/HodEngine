@@ -18,6 +18,7 @@ namespace hod::ui
 	void Canvas::OnEnable()
 	{
 		_rootNode = GetOwner()->GetComponent<Node>();
+		_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f));
 	}
 
 	Canvas::ScaleMode Canvas::GetScaleMode() const
@@ -90,6 +91,8 @@ namespace hod::ui
 			rootNodeSize.SetY(resolution.GetY() / _scaleFactor);
 		}
 
-		_rootNode->SetDeltaSize(rootNodeSize);
+	const Matrix4& Canvas::GetRenderModeMatrix() const
+	{
+		return _renderModeMatrix;
 	}
 }

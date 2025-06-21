@@ -36,7 +36,6 @@ namespace hod::ui
 		void	SetAlignment(Alignment alignment);
 
 		void	PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
-		// TODO override BoundingBox too (can be different than Node's rect, override or small content)
 
 	private:
 

@@ -59,6 +59,7 @@ namespace hod::ui
 		const Matrix4&				ComputeLocalMatrix();
 		void						ComputeLocalMatrix(Node* parent, const Vector2& size, Matrix4& localMatrix) const;
 		const Matrix4&				ComputeCanvasMatrix();
+		Matrix4						ComputeWorldMatrix();
 		Node*						GetParent() const;
 
 		void						OnEnable() override;

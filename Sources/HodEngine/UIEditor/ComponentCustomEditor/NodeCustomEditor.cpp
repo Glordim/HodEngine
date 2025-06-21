@@ -480,7 +480,7 @@ namespace hod::editor
 		}
 
 		Vector2 size = node->ComputeSize();
-		Matrix4 worldMatrix = node->ComputeCanvasMatrix();
+		Matrix4 worldMatrix = node->ComputeWorldMatrix();
 
 		if (selected == false)
 		{
@@ -505,7 +505,7 @@ namespace hod::editor
 		}
 		if (_freeMoveHandle._pressed)
 		{
-			node->SetPosition(_pickingPosition + _freeMoveHandle._delta);
+			node->SetPosition(_pickingPosition + _freeMoveHandle._delta * 100.0f); // TODO NOP ! * 100.0f
 		}
 
 		changed |= Gizmos::FreeMoveRect(_topEdge, worldMatrix, Vector2(0.0f, size.GetY() * 0.5f), Vector2(size.GetX(), 0.05f), hitboxHandleColor, hitboxHandleColor, viewport);
@@ -598,6 +598,7 @@ namespace hod::editor
 
 		if (deltaSize != Vector2::Zero)
 		{
+			deltaSize *= 100.0f; // TODO NOP !
 			Vector2 newSize = _pickingSize + deltaSize;
 			Vector2 newPosition = _pickingPosition - deltaSize * (reverse - pivot);
 

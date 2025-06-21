@@ -26,7 +26,7 @@ namespace hod::ui
 		if (_node.Get())
 		{
 			Vector2 size = _node->ComputeSize();
-			Matrix4 worldMatrix = _node->ComputeCanvasMatrix();
+			Matrix4 worldMatrix = _node->ComputeWorldMatrix();
 
 			std::array<Vector2, 4> vertices = {
 				Vector2(-0.5f * size.GetX(), 0.5f * size.GetY()),
