@@ -1,8 +1,10 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Canvas.hpp"
 #include "HodEngine/UI/Node.hpp"
+#include "HodEngine/UI/Drawables/Drawable.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Renderer/RenderQueue.hpp>
 
 #undef min
 #undef max
@@ -90,6 +92,42 @@ namespace hod::ui
 			rootNodeSize.SetX(resolution.GetX() / _scaleFactor);
 			rootNodeSize.SetY(resolution.GetY() / _scaleFactor);
 		}
+	}
+
+	Rect Canvas::GetBoundingBox() const
+	{
+		return Rect();
+	}
+
+	void Canvas::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+	{
+		game::World* world = GetOwner()->GetScene()->GetWorld();
+		if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
+		{
+			_renderModeMatrix = renderQueue.GetViewMatrix() * Matrix4::Scale(Vector2(0.01f, 0.01f));
+		}
+
+		static std::function<void(Node*, renderer::RenderQueue&)> drawRecursively = [&](Node* node, renderer::RenderQueue& renderQueue)
+		{
+			if (node == nullptr || node->GetOwner()->IsActiveInHierarchy() == false)
+			{
+				return;
+			}
+
+			Drawable* drawable = node->GetOwner()->GetComponent<Drawable>();
+			if (drawable != nullptr)
+			{
+				drawable->PushToRenderQueue(renderQueue);
+			}
+
+			for (const game::WeakEntity& child : node->GetOwner()->GetChildren())
+			{
+				Node* childNode = child.Lock()->GetComponent<Node>();
+				drawRecursively(childNode, renderQueue);
+			}
+		};
+		drawRecursively(_rootNode.Get(), renderQueue);
+	}
 
 	const Matrix4& Canvas::GetRenderModeMatrix() const
 	{

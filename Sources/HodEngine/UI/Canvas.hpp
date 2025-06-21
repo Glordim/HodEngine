@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/UI/Export.hpp"
 
-#include <HodEngine/Game/Component.hpp>
+#include <HodEngine/Game/Components/RendererComponent.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
 #include <HodEngine/Core/Math/Matrix4.hpp>
 
@@ -15,9 +15,9 @@ namespace hod::ui
 	class Node;
 
 	/// @brief 
-	class HOD_UI_API Canvas : public game::Component
+	class HOD_UI_API Canvas : public game::RendererComponent
 	{
-		REFLECTED_CLASS(Canvas, game::Component)
+		REFLECTED_CLASS(Canvas, game::RendererComponent)
 
 	public:
 
@@ -38,6 +38,8 @@ namespace hod::ui
 
 		float				GetWidthHeightPreferredAxis() const;
 		void				SetWidthHeightPreferredAxis(float widthHeightPreferredAxis);
+		Rect				GetBoundingBox() const override;
+		void				PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
 
 		const Matrix4&		GetRenderModeMatrix() const;
 

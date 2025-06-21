@@ -29,12 +29,4 @@ namespace hod::ui
 	{
 		return _color;
 	}
-
-	Rect Drawable::GetBoundingBox() const
-	{
-		Rect boundingBox;
-		boundingBox._position = _node->ComputeCanvasMatrix().GetTranslation();
-		boundingBox._size = _node->ComputeSize();
-		return boundingBox;
-	}
 }
