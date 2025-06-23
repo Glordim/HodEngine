@@ -26,7 +26,7 @@ namespace hod::ui
 		void			SetColor(const Color& color);
 		const Color&	GetColor() const;
 
-		virtual void	PushToRenderQueue(renderer::RenderQueue& renderQueue) = 0;
+		virtual void	PushRenderCommand(renderer::RenderView& renderView) = 0;
 
 	protected:
 

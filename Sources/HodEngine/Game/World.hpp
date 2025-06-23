@@ -21,6 +21,11 @@ namespace hod
 	class Vector2;
 	struct Color;
 
+	namespace renderer
+	{
+		class RenderView;
+	}
+
 	namespace physics
 	{
 		class World;
@@ -86,7 +91,7 @@ namespace hod
 
 //			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
-			void						Draw(renderer::RenderQueue* renderQueue);
+			void						Draw(renderer::RenderView& renderView);
 
 			// todo #ifndef retail ?
 			void						DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);

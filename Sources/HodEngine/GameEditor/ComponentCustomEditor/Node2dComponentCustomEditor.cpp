@@ -8,7 +8,7 @@
 #include <HodEngine/Renderer/PickingManager.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 
@@ -152,7 +152,7 @@ namespace hod::editor
 			};
 
 			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesX.data(), nullptr, nullptr, (uint32_t)verticesX.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisX && pickingId != _pickingIdAxisX ? _materialInstanceAxisXNormal : _materialInstanceAxisXHightlight, std::numeric_limits<uint32_t>::max(), _pickingIdAxisX);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+			viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 9> verticesY = {
 				Vector2(thickness * 0.5f, 0.0f),
@@ -169,7 +169,7 @@ namespace hod::editor
 			};
 
 			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesY.data(), nullptr, nullptr, (uint32_t)verticesY.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisY && pickingId != _pickingIdAxisY ? _materialInstanceAxisYNormal : _materialInstanceAxisYHightlight, std::numeric_limits<uint32_t>::max(), _pickingIdAxisY);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+			viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 6> verticesZ = {
 				Vector2(squareOffset + -squareSize * 0.5f, squareOffset + squareSize * 0.5f),
@@ -182,7 +182,7 @@ namespace hod::editor
 			};
 
 			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesZ.data(), nullptr, nullptr, (uint32_t)verticesZ.size(), nullptr, 0, finalMatrix, _movingAxis != _pickingIdAxisZ && pickingId != _pickingIdAxisZ ? _materialInstanceAxisZNormal : _materialInstanceAxisZHightlight, std::numeric_limits<uint32_t>::max(), _pickingIdAxisZ);
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+			viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 
 			std::array<Vector2, 6> verticesCenter = {
 				Vector2(-thickness * 0.5f, thickness * 0.5f),
@@ -195,7 +195,7 @@ namespace hod::editor
 			};
 
 			renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(verticesCenter.data(), nullptr, nullptr, (uint32_t)verticesCenter.size(), nullptr, 0, finalMatrix, _materialInstanceCenterNormal, std::numeric_limits<uint32_t>::max());
-			viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+			viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		}
 
 		return changed;

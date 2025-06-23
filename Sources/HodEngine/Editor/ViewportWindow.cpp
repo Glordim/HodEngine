@@ -14,7 +14,6 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Core/Rect.hpp>
 #include <HodEngine/Core/Math/Vector4.hpp>
@@ -54,7 +53,7 @@ namespace hod::editor
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_renderQueue.Init();
+		_renderView.Init();
 	}
 
 	/// @brief 
@@ -253,7 +252,7 @@ namespace hod::editor
 		{
 			//ImVec2 origin = ImGui::GetCursorScreenPos();
 
-			_renderQueue.Prepare(_renderTarget, _pickingRenderTarget);
+			_renderView.Prepare(_renderTarget, _pickingRenderTarget);
 
 			if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
 			{
@@ -268,17 +267,17 @@ namespace hod::editor
 				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 				_view = Matrix4::Translation(_cameraPosition);
 
-				_renderQueue.SetupCamera(_projection, _view, viewport);
+				_renderView.SetupCamera(_projection, _view, viewport);
 
 				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
-					_physicsDebugDrawer->PushToRenderQueue(_renderQueue, world->GetPhysicsWorld());
+					_physicsDebugDrawer->PushRenderCommand(_renderView, world->GetPhysicsWorld());
 				}
 				else
 				{
-					world->Draw(&_renderQueue);
+					world->Draw(_renderView);
 				}
 
 				game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
@@ -334,16 +333,15 @@ namespace hod::editor
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
-					_physicsDebugDrawer->PushToRenderQueue(_renderQueue, world->GetPhysicsWorld());
+					_physicsDebugDrawer->PushRenderCommand(_renderView, world->GetPhysicsWorld());
 				}
 				else
 				{
-					world->Draw(&_renderQueue);
+					world->Draw(_renderView);
 				}
 			}
 
-			_renderQueue.Execute();
-			_renderQueue.Wait();
+			renderer::Renderer::GetInstance()->PushRenderView(_renderView, false);
 
 			if (_debugPicker)
 			{
@@ -419,9 +417,9 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	renderer::RenderQueue* ViewportWindow::GetRenderQueue()
+	renderer::RenderView* ViewportWindow::GetRenderView()
 	{
-		return &_renderQueue;
+		return &_renderView;
 	}
 
 	/// @brief 

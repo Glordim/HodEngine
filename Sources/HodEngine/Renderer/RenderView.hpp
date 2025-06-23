@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
-#include "HodEngine/Core/Singleton.hpp"
+
+#include "HodEngine/Renderer/RenderQueue/WorldRenderQueue.hpp"
+#include "HodEngine/Renderer/RenderQueue/UIRenderQueue.hpp"
 
 #include "HodEngine/Core/Rect.hpp"
 #include "HodEngine/Core/Math/Matrix4.hpp"
@@ -18,11 +20,19 @@ namespace hod::renderer
 	class CommandBuffer;
 
 	/// @brief 
-	class HOD_RENDERER_API RenderQueue
+	class HOD_RENDERER_API RenderView
 	{
 	public:
-										RenderQueue() = default;
-										~RenderQueue();
+
+		enum class RenderQueueType
+		{
+			World,
+			UI,
+		};
+
+	public:
+										RenderView() = default;
+										~RenderView();
 
 		void							Init();
 		void							Terminate();
@@ -32,16 +42,23 @@ namespace hod::renderer
 		Vector2							GetRenderResolution() const;
 
 		void							SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport);
+		const Matrix4&					GetViewMatrix() const;
+		const Matrix4&					GetProjectionMatrix() const;
+		const Rect&						GetViewport() const;
 
-		void							PushRenderCommand(RenderCommand* renderCommand);
+		void							PushRenderCommand(RenderCommand* renderCommand, RenderQueueType renderQueueType = RenderQueueType::World);
 		void							Execute();
 		void							Wait();
 
 		void							DeleteAfter(MaterialInstance* materialInstance);
 
+		void							SetAutoDestroy(bool autoDestroy);
+		bool							IsAutoDestroy() const;
+
 	private:
 
-		Vector<RenderCommand*>		_renderCommands;
+		WorldRenderQueue				_worldRenderQueue;
+		UIRenderQueue					_uiRenderQueue;
 
 		MaterialInstance*				_pickingMaterialInstance = nullptr;
 
@@ -60,5 +77,6 @@ namespace hod::renderer
 		Rect							_viewport;
 
 		Vector<MaterialInstance*>		_materialInstancesToDelete;
+		bool							_autoDestroy = true;
 	};
 }

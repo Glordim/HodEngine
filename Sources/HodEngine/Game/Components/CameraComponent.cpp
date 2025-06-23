@@ -5,8 +5,7 @@
 #include <HodEngine/Core/Rect.hpp>
 
 #include <HodEngine/Renderer/Renderer.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
-#include "../RenderQueueHelper.hpp"
+#include <HodEngine/Renderer/RenderView.hpp>
 
 namespace hod::game
 {
@@ -85,10 +84,10 @@ namespace hod::game
 	}
 
 	/// @brief 
-	/// @param renderQueue 
-	void CameraComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+	/// @param renderView 
+	void CameraComponent::SetupRenderView(renderer::RenderView& renderView)
 	{
-		Vector2 resolution = renderQueue.GetRenderResolution();
+		Vector2 resolution = renderView.GetRenderResolution();
 
 		Rect viewport;
 		viewport._position.SetX(0);
@@ -111,7 +110,7 @@ namespace hod::game
 			}
 		}
 
-		renderQueue.SetupCamera(projection, view, viewport);
+		renderView.SetupCamera(projection, view, viewport);
 	}
 
 	/// @brief 

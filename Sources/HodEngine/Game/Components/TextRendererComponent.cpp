@@ -7,7 +7,7 @@
 #include <HodEngine/Renderer/Font/Font.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
@@ -91,7 +91,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void TextRendererComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+		void TextRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
 		{
 			if (_text.empty() || _fontResource.Lock() == nullptr)
 			{
@@ -162,7 +162,7 @@ namespace hod
 
 					if (positions.empty() == false)
 					{
-						renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
+						renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 					}
 				}
 			}

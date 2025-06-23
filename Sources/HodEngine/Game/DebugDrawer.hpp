@@ -8,7 +8,7 @@
 
 namespace hod::renderer
 {
-	class RenderQueue;
+	class RenderView;
 	class MaterialInstance;
 }
 
@@ -35,7 +35,7 @@ namespace hod::game
 
 		void	AddLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
 
-		void	Draw(renderer::RenderQueue& renderQueue);
+		void	Draw(renderer::RenderView& renderView);
 
 	private:
 

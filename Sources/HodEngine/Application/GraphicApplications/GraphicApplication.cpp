@@ -144,21 +144,25 @@ namespace hod::application
 				break;
 			}
 
+			/*
 			renderer::Context* context = static_cast<renderer::Context*>(_window->GetSurface());
 			if (renderer::Renderer::GetInstance()->GetRenderQueue()->Prepare(context) == false)
 			{
 				return false;
 			}
+			*/
 
 			frameSequencer->EnqueueAndWaitJobs();
 
-			renderer::Renderer::GetInstance()->GetRenderQueue()->Execute();
+			//renderer::Renderer::GetInstance()->GetRenderQueue()->Execute();
+			renderer::Renderer::GetInstance()->RenderViews();
 
 			SystemTime::TimeStamp now = SystemTime::Now();
 			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
 			last = now;
 
-			renderer::Renderer::GetInstance()->GetRenderQueue()->Wait();
+			//renderer::Renderer::GetInstance()->GetRenderQueue()->Wait();
+			renderer::Renderer::GetInstance()->WaitViews();
 
 			double sleepTime = targetTimeStep - elapsedTime;
 			if (sleepTime > 0.0)

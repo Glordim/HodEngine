@@ -9,7 +9,7 @@
 
 namespace hod::renderer
 {
-	class RenderQueue;
+	class RenderView;
 }
 
 namespace hod::game
@@ -36,7 +36,7 @@ namespace hod::game
 
 	public:
 
-		virtual void	PushToRenderQueue(renderer::RenderQueue& renderQueue) = 0;
+		virtual void	PushRenderCommand(renderer::RenderView& renderView) = 0;
 		virtual Rect	GetBoundingBox() const = 0;
 	};
 }

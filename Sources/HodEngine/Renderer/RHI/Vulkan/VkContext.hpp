@@ -43,8 +43,8 @@ namespace hod::renderer
 
 		VkExtent2D					_swapChainExtent;
 		VkSwapchainKHR				_swapchain = VK_NULL_HANDLE;
-		Vector<VkImageView>	_swapchainImageViews;
-		Vector<VkFramebuffer>	_swapchainFramebuffers;
+		Vector<VkImageView>			_swapchainImageViews;
+		Vector<VkFramebuffer>		_swapchainFramebuffers;
 		VkRenderPass				_renderPass = VK_NULL_HANDLE;
 
 		uint32_t					_currentImageIndex = 0;

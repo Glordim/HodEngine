@@ -7,7 +7,6 @@
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
-#include "HodEngine/Renderer/RenderQueue.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
 
@@ -26,7 +25,7 @@ namespace hod::window
 namespace hod::renderer
 {
 	struct GpuDevice;
-	class RenderQueue;
+	class RenderView;
 	class Buffer;
 	class CommandBuffer;
 	class Material;
@@ -80,6 +79,10 @@ namespace hod::renderer
 		virtual Semaphore*			CreateSemaphore() = 0;
 		virtual Fence*				CreateFence() = 0;
 
+		void						PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame = true);
+		void						RenderViews();
+		void						WaitViews();
+
 		//Debug
 	public:
 
@@ -94,8 +97,6 @@ namespace hod::renderer
 
 		ShaderGenerator*			GetShaderGenerator() const;
 
-		RenderQueue*				GetRenderQueue() const;
-
 	protected:
 
 		Material*					_overdrawnMaterial = nullptr;
@@ -106,8 +107,8 @@ namespace hod::renderer
 
 		Material*					_defaultMaterial = nullptr;
 		MaterialInstance*			_defaultMaterialInstance = nullptr;
-
-		RenderQueue*				_renderQueue = nullptr;
+		
+		Vector<RenderView*>			_renderViews;
 
 		/*
 		Material* _unlitVertexColorMaterial = nullptr;

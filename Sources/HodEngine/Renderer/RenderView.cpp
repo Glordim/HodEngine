@@ -1,5 +1,5 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/RenderQueue.hpp"
+#include "HodEngine/Renderer/RenderView.hpp"
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
@@ -15,7 +15,7 @@
 namespace hod::renderer
 {
 	/// @brief 
-	void RenderQueue::Init()
+	void RenderView::Init()
 	{
 		_pickingMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 
@@ -25,7 +25,7 @@ namespace hod::renderer
 	}
 
 	/// @brief 
-	void RenderQueue::Terminate()
+	void RenderView::Terminate()
 	{
 		DefaultAllocator::GetInstance().Delete(_pickingMaterialInstance);
 		_pickingMaterialInstance = nullptr;
@@ -41,7 +41,7 @@ namespace hod::renderer
 	}
 
 	/// @brief 
-	RenderQueue::~RenderQueue()
+	RenderView::~RenderView()
 	{
 		Terminate();
 	}
@@ -49,10 +49,8 @@ namespace hod::renderer
 	/// @brief 
 	/// @param context 
 	/// @return 
-	bool RenderQueue::Prepare(Context* context)
+	bool RenderView::Prepare(Context* context)
 	{
-		assert(_renderCommands.empty());
-
 		if (context->AcquireNextImageIndex(_imageAvailableSemaphore) == false)
 		{
 			return false;
@@ -62,37 +60,53 @@ namespace hod::renderer
 		return true;
 	}
 
-	void RenderQueue::Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget)
+	void RenderView::Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget)
 	{
-		assert(_renderCommands.empty());
 		_renderTarget = renderTarget;
 		_pickingRenderTarget = pickingRenderTarget;
 	}
 
-	void RenderQueue::SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport)
+	void RenderView::SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport)
 	{
 		_projection = projection;
 		_view = Matrix4::Inverse(view);
 		_viewport = viewport;
 	}
 
-	/// @brief 
-	/// @param renderCommand 
-	void RenderQueue::PushRenderCommand(RenderCommand* renderCommand)
+	const Matrix4& RenderView::GetViewMatrix() const
 	{
-		_renderCommands.push_back(renderCommand);
+		static Matrix4 view;
+		view = Matrix4::Inverse(_view);
+		return view;
+	}
+
+	const Matrix4& RenderView::GetProjectionMatrix() const
+	{
+		return _projection;
+	}
+
+	const Rect& RenderView::GetViewport() const
+	{
+		return _viewport;
 	}
 
 	/// @brief 
-	void RenderQueue::Execute()
+	/// @param renderCommand 
+	void RenderView::PushRenderCommand(RenderCommand* renderCommand, RenderQueueType renderQueueType)
 	{
-		std::sort(_renderCommands.begin(), _renderCommands.end(),
-		[](RenderCommand* a, RenderCommand* b)
-		{
-			return a->GetRenderingOrder() < b->GetRenderingOrder();
-		});
+		if (renderQueueType == RenderQueueType::World)
+			_worldRenderQueue.PushRenderCommand(renderCommand);
+		else if (renderQueueType == RenderQueueType::World)
+			_uiRenderQueue.PushRenderCommand(renderCommand);
+	}
 
+	/// @brief 
+	void RenderView::Execute()
+	{
 		Renderer* renderer = Renderer::GetInstance();
+
+		_worldRenderQueue.Prepare(*this);
+		_uiRenderQueue.Prepare(*this);
 
 		if (_pickingRenderTarget != nullptr)
 		{
@@ -100,16 +114,16 @@ namespace hod::renderer
 
 			if (commandBuffer->StartRecord() == true)
 			{
+				_pickingRenderTarget->PrepareForWrite(commandBuffer);
+				commandBuffer->StartRenderPass(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f));
+
 				commandBuffer->SetProjectionMatrix(_projection);
 				commandBuffer->SetViewMatrix(_view);
 				commandBuffer->SetViewport(_viewport);
 
-				_pickingRenderTarget->PrepareForWrite(commandBuffer);
-				commandBuffer->StartRenderPass(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f));
-				for (RenderCommand* renderCommand : _renderCommands)
-				{
-					renderCommand->Execute(commandBuffer, _pickingMaterialInstance);
-				}
+				_worldRenderQueue.Execute(commandBuffer, _pickingMaterialInstance);
+				_uiRenderQueue.Execute(commandBuffer, _pickingMaterialInstance);
+
 				commandBuffer->EndRenderPass();
 				_pickingRenderTarget->PrepareForRead(commandBuffer);
 				commandBuffer->EndRecord();
@@ -122,28 +136,24 @@ namespace hod::renderer
 
 		if (commandBuffer->StartRecord() == true)
 		{
-			commandBuffer->SetProjectionMatrix(_projection);
-			commandBuffer->SetViewMatrix(_view);
-			commandBuffer->SetViewport(_viewport);
-
 			if (_renderTarget != nullptr)
 			{
 				_renderTarget->PrepareForWrite(commandBuffer);
 			}
-
 			commandBuffer->StartRenderPass(_renderTarget, _context);
-			for (RenderCommand* renderCommand : _renderCommands)
-			{
-				renderCommand->Execute(commandBuffer);
-				DefaultAllocator::GetInstance().Delete(renderCommand);
-			}
-			commandBuffer->EndRenderPass();
 
+			commandBuffer->SetProjectionMatrix(_projection);
+			commandBuffer->SetViewMatrix(_view);
+			commandBuffer->SetViewport(_viewport);
+
+			_worldRenderQueue.Execute(commandBuffer);
+			_uiRenderQueue.Execute(commandBuffer);
+
+			commandBuffer->EndRenderPass();
 			if (_renderTarget != nullptr)
 			{
 				_renderTarget->PrepareForRead(commandBuffer);
 			}
-
 			commandBuffer->EndRecord();
 		}
 		if (_context != nullptr)
@@ -168,8 +178,22 @@ namespace hod::renderer
 		{
 			_context->SwapBuffer(_renderFinishedSemaphore);
 		}
+	}
 
-		_renderCommands.clear();
+	/// @brief 
+	void RenderView::Wait()
+	{
+		_renderFinishedFence->Wait();
+
+		for (CommandBuffer* commandBuffer : _commandBuffers)
+		{
+			DefaultAllocator::GetInstance().Delete(commandBuffer);
+		}
+		_commandBuffers.clear();
+
+		_worldRenderQueue.Clear();
+		_uiRenderQueue.Clear();
+
 		_context = nullptr;
 		_renderTarget = nullptr;
 		_pickingRenderTarget = nullptr;
@@ -181,19 +205,7 @@ namespace hod::renderer
 		_materialInstancesToDelete.clear();
 	}
 
-	/// @brief 
-	void RenderQueue::Wait()
-	{
-		_renderFinishedFence->Wait();
-
-		for (CommandBuffer* commandBuffer : _commandBuffers)
-		{
-			DefaultAllocator::GetInstance().Delete(commandBuffer);
-		}
-		_commandBuffers.clear();
-	}
-
-	Vector2 RenderQueue::GetRenderResolution() const
+	Vector2 RenderView::GetRenderResolution() const
 	{
 		if (_context != nullptr)
 		{
@@ -211,8 +223,18 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @param materialInstance 
-	void RenderQueue::DeleteAfter(MaterialInstance* materialInstance)
+	void RenderView::DeleteAfter(MaterialInstance* materialInstance)
 	{
 		_materialInstancesToDelete.push_back(materialInstance);
+	}
+
+	void RenderView::SetAutoDestroy(bool autoDestroy)
+	{
+		_autoDestroy = autoDestroy;
+	}
+
+	bool RenderView::IsAutoDestroy() const
+	{
+		return _autoDestroy;
 	}
 }

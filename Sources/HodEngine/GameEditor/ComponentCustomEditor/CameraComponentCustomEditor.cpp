@@ -7,7 +7,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 
 #include <HodEngine/Game/Entity.hpp>
@@ -65,7 +65,7 @@ namespace hod::editor
 				};
 
 				renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-				viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 			}
 		}
 		return false;

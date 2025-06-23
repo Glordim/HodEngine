@@ -8,7 +8,7 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 
 namespace hod::renderer
 {
@@ -36,7 +36,7 @@ namespace hod::editor
 		bool		Draw() override;
 		void		DrawContent() override;
 
-		renderer::RenderQueue*		GetRenderQueue();
+		renderer::RenderView*		GetRenderView();
 		renderer::RenderTarget*		GetPickingRenderTarget() const;
 		const Matrix4&				GetProjectionMatrix() const;
 		const Matrix4&				GetViewMatrix() const;
@@ -51,7 +51,7 @@ namespace hod::editor
 		
 		renderer::RenderTarget* 	_renderTarget = nullptr;
 		renderer::RenderTarget* 	_pickingRenderTarget = nullptr;
-		renderer::RenderQueue		_renderQueue;
+		renderer::RenderView		_renderView;
 
 		Matrix4						_projection;
 		Matrix4						_view;

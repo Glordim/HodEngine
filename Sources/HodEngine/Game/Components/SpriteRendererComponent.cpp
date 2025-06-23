@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Components/SpriteRendererComponent.hpp"
 
 #include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
@@ -65,7 +65,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void SpriteRendererComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+		void SpriteRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
 		{
 			/*
 			Vector<renderer::P2fT2f> vertices(6);

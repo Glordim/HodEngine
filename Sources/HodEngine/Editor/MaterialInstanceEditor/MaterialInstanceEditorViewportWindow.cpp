@@ -49,7 +49,7 @@ namespace hod::editor
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_renderQueue.Init();
+		_renderView.Init();
 	}
 
 	/// @brief 
@@ -94,7 +94,7 @@ namespace hod::editor
 
 		if (_renderTarget->IsValid() == true)
 		{
-			_renderQueue.Prepare(_renderTarget, nullptr);
+			_renderView.Prepare(_renderTarget, nullptr);
 
 			Rect viewport;
 			viewport._position.SetX(0);
@@ -107,7 +107,7 @@ namespace hod::editor
 			_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 			_view = Matrix4::Identity;
 
-			_renderQueue.SetupCamera(_projection, _view, viewport);
+			_renderView.SetupCamera(_projection, _view, viewport);
 
 			Vector2 previewSize = Vector2::One * 3;
 
@@ -131,11 +131,10 @@ namespace hod::editor
 			};
 
 			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance(), 0);
-			_renderQueue.PushRenderCommand(renderMeshCommand);
-		}
+			_renderView.PushRenderCommand(renderMeshCommand);
 
-		_renderQueue.Execute();
-		_renderQueue.Wait();
+			renderer::Renderer::GetInstance()->PushRenderView(_renderView, false);
+		}
 
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);

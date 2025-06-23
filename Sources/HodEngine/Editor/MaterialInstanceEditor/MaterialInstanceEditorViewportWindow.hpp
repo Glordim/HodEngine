@@ -4,7 +4,7 @@
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
-#include "HodEngine/Renderer/RenderQueue.hpp"
+#include <HodEngine/Renderer/RenderView.hpp>
 
 #include <HodEngine/Core/Math/Matrix4.hpp>
 
@@ -44,7 +44,7 @@ namespace hod::editor
 	private:
 
 		renderer::RenderTarget* 	_renderTarget = nullptr;
-		renderer::RenderQueue		_renderQueue;
+		renderer::RenderView		_renderView;
 
 		Matrix4						_projection;
 		Matrix4						_view;

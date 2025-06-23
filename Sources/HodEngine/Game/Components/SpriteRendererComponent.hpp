@@ -39,7 +39,7 @@ namespace hod
 			renderer::MaterialInstance*		GetMaterialInstance() const;
 			void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
 
-			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			void							PushRenderCommand(renderer::RenderView& renderView) override;
 			Rect							GetBoundingBox() const override;
 
 		private:

@@ -10,7 +10,7 @@
 #include <HodEngine/Renderer/PickingManager.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 
@@ -484,7 +484,7 @@ namespace hod::editor
 
 		if (selected == false)
 		{
-			Gizmos::Rect(worldMatrix, size, Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderQueue());
+			Gizmos::Rect(worldMatrix, size, Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderView());
 
 			Vector2 position;
 			Handle selectionHandle;
@@ -518,10 +518,10 @@ namespace hod::editor
 		static Color lineColor(0.75f, 0.75f, 0.75f, 1.0f);
 		static Color lineHighlightColor(0.75f, 0.75f, 0.75f, 1.0f);
 
-		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), _topEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderQueue());
-		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _bottomEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderQueue());
-		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), _leftEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderQueue());
-		Gizmos::Line(worldMatrix, Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _rightEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderQueue());
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), _topEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderView());
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _bottomEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderView());
+		Gizmos::Line(worldMatrix, Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f), _leftEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderView());
+		Gizmos::Line(worldMatrix, Vector2(size.GetX() * 0.5f, size.GetY() * 0.5f), Vector2(size.GetX() * 0.5f, -size.GetY() * 0.5f), _rightEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderView());
 
 		static Color cornerColor(0.25f, 0.25f, 1.0f, 1.0f);
 		static Color cornerHighlightColor(0.5f, 0.5f, 1.0f, 1.0f);

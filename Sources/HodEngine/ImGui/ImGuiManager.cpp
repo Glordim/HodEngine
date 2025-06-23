@@ -33,7 +33,8 @@
 #include "HodEngine/ImGui/Font/Roboto-Regular.ttf.hpp"
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 
-#include "HodEngine/Renderer/RHI/VertexInput.hpp"
+#include <HodEngine/Renderer/RHI/VertexInput.hpp>
+#include <HodEngine/Renderer/RHI/Context.hpp>
 
 #include <filesystem>
 #include <cstring>
@@ -236,6 +237,8 @@ void embraceTheDarkness()
 #elif defined(PLATFORM_MACOS)
 		ImGui_ImplOSX_Init(static_cast<window::MacOsWindow*>(_mainWindow)->GetNsView());
 #endif
+
+		_renderView.Init();
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
 
@@ -457,8 +460,12 @@ void embraceTheDarkness()
 		
 		RenderCommandImGui* renderCommand = DefaultAllocator::GetInstance().New<RenderCommandImGui>(drawLists, viewport);
 
+		_renderView.Prepare(static_cast<renderer::Context*>(_mainWindow->GetSurface()));
+		_renderView.SetupCamera(Matrix4::Identity, Matrix4::Identity, viewport);
+		_renderView.PushRenderCommand(renderCommand);
+		
 		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
-		renderer->GetRenderQueue()->PushRenderCommand(renderCommand);
+		renderer->PushRenderView(_renderView, false);
 	}
 
 	/// @brief 

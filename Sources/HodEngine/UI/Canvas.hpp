@@ -39,7 +39,7 @@ namespace hod::ui
 		float				GetWidthHeightPreferredAxis() const;
 		void				SetWidthHeightPreferredAxis(float widthHeightPreferredAxis);
 		Rect				GetBoundingBox() const override;
-		void				PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+		void				PushRenderCommand(renderer::RenderView& renderView) override;
 
 		const Matrix4&		GetRenderModeMatrix() const;
 

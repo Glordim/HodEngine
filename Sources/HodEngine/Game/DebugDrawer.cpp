@@ -2,7 +2,7 @@
 #include "HodEngine/Game/DebugDrawer.hpp"
 
 #include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 
 #include <utility>
@@ -26,8 +26,8 @@ namespace hod::game
 	}
 
 	/// @brief 
-	/// @param renderQueue 
-	void DebugDrawer::Draw(renderer::RenderQueue& renderQueue)
+	/// @param renderView 
+	void DebugDrawer::Draw(renderer::RenderView& renderView)
 	{
 		auto it = _lines.begin();
 		auto itEnd = _lines.end();
@@ -35,7 +35,7 @@ namespace hod::game
 		{
 			std::array<Vector2, 2> vertices = { it->_start, it->_end };
 			std::array<Color, 2> colors = { it->_color, it->_color };
-			renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(), nullptr, 0, Matrix4::Identity, _lineMaterial, 0));
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(), nullptr, 0, Matrix4::Identity, _lineMaterial, 0));
 
 			it->_duration -= 0.016f; // todo
 			if (it->_duration <= 0.0f)

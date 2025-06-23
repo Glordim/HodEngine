@@ -4,6 +4,7 @@
 #include "HodEngine/Renderer/P2fC4f.hpp"
 
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RenderView.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
@@ -52,7 +53,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param renderQueue 
-	void PhysicsDebugDrawer::PushToRenderQueue(renderer::RenderQueue& renderQueue, physics::World* world)
+	void PhysicsDebugDrawer::PushRenderCommand(renderer::RenderView& renderView, physics::World* world)
 	{
 		for (const hod::physics::RenderCommand& renderCommand : world->GetDebugDrawer()->GetRenderCommands())
 		{
@@ -75,7 +76,7 @@ namespace hod::editor
 				materialInstance = PhysicsDebugDrawer::_solidPolygonMaterialInstance;
 			}
 
-			renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandPhysicsDrawer>(renderCommand, materialInstance->GetMaterial()));
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandPhysicsDrawer>(renderCommand, materialInstance->GetMaterial()));
 		}
 	}
 

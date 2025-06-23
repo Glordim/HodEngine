@@ -1,8 +1,6 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
-#include "HodEngine/Renderer/RenderQueue.hpp"
-
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
@@ -220,9 +218,9 @@ namespace hod::renderer
 
 		VmaAllocatorCreateInfo vmaAllocatorInfo = {};
 		vmaAllocatorInfo.physicalDevice = _selectedGpu->physicalDevice;
-    	vmaAllocatorInfo.device = _device;
-    	vmaAllocatorInfo.instance = _vkInstance;
-    	vmaAllocatorInfo.vulkanApiVersion = VK_API_VERSION_1_3;
+		vmaAllocatorInfo.device = _device;
+		vmaAllocatorInfo.instance = _vkInstance;
+		vmaAllocatorInfo.vulkanApiVersion = VK_API_VERSION_1_3;
 		if (vmaCreateAllocator(&vmaAllocatorInfo, &_vmaAllocator) != VK_SUCCESS)
 		{
 			return false;
@@ -250,8 +248,6 @@ namespace hod::renderer
 		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
 		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
 		*/
-
-		_renderQueue->Init();
 
 		return true;
 	}

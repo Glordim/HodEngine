@@ -239,7 +239,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @param renderQueue 
-	void Scene::Draw(renderer::RenderQueue* renderQueue)
+	void Scene::Draw(renderer::RenderView& renderView)
 	{
 		for (const auto& pair : _entities)
 		{
@@ -249,7 +249,7 @@ namespace hod::game
 				RendererComponent* rendererComponent = entity->GetComponent<RendererComponent>();
 				if (rendererComponent != nullptr)
 				{
-					rendererComponent->PushToRenderQueue(*renderQueue);
+					rendererComponent->PushRenderCommand(renderView);
 				}
 			}
 		}

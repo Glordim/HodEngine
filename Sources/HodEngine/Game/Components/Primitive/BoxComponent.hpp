@@ -31,7 +31,7 @@ namespace hod
 
 		public:
 
-			void			PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			void			PushRenderCommand(renderer::RenderView& renderView) override;
 		};
 	}
 }

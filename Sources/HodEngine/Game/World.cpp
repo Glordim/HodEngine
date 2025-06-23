@@ -18,7 +18,6 @@
 #include <HodEngine/Physics/World.hpp>
 
 #include <HodEngine/Renderer/Renderer.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
 #include <HodEngine/Window/Window.hpp>
 
@@ -283,13 +282,13 @@ namespace hod
 		/// @brief 
 		void World::Draw()
 		{
-			renderer::RenderQueue* renderQueue = renderer::Renderer::GetInstance()->GetRenderQueue();
-			Draw(renderQueue);
+			// TODO
+			//Draw(renderQueue);
 		}
 
 		/// @brief 
 		/// @param renderQueue 
-		void World::Draw(renderer::RenderQueue* renderQueue)
+		void World::Draw(renderer::RenderView& renderView)
 		{
 			if (_editorPlaying == true && _editorPaused == false)
 			{
@@ -299,16 +298,16 @@ namespace hod
 					static CameraComponent builtinCamera;
 					camera = &builtinCamera;
 				}
-				camera->PushToRenderQueue(*renderQueue);
+				camera->SetupRenderView(renderView);
 			}
 
 			for (Scene* scene : _scenes)
 			{
-				scene->Draw(renderQueue);
+				scene->Draw(renderView);
 			}
-			_persistanteScene->Draw(renderQueue);
+			_persistanteScene->Draw(renderView);
 
-			_debugDrawer.Draw(*renderQueue);
+			_debugDrawer.Draw(renderView);
 		}
 
 		/// @brief 

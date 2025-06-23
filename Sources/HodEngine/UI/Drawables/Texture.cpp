@@ -21,7 +21,7 @@ namespace hod::ui
 		_materialInstance = nullptr;
 	}
 
-	void Texture::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+	void Texture::PushRenderCommand(renderer::RenderView& renderView)
 	{
 		if (_node.Get())
 		{
@@ -63,7 +63,7 @@ namespace hod::ui
 			vec4Color.SetZ(_color.b);
 			vec4Color.SetW(_color.a);
 			_materialInstance->SetVec4("UBO.color", vec4Color);
-			renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0));
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0));
 		}
 	}
 

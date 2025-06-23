@@ -39,7 +39,7 @@ namespace hod::game
 
 		void							SetTexture(const WeakResource<renderer::TextureResource>& texture);
 
-		void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+		void							PushRenderCommand(renderer::RenderView& renderView) override;
 
 		Rect							GetBoundingBox() const override;
 

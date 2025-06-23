@@ -4,7 +4,7 @@
 #include "HodEngine/Game/Entity.hpp"
 
 #include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
@@ -57,7 +57,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void BoxComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+		void BoxComponent::PushRenderCommand(renderer::RenderView& renderView)
 		{
 			Entity* entity = GetOwner();
 			if (entity != nullptr)
@@ -65,7 +65,7 @@ namespace hod
 				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
-					renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), nullptr, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
+					renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), nullptr, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 				}
 			}
 		}

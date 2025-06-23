@@ -4,7 +4,7 @@
 #include "HodEngine/UI/Drawables/Drawable.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 
 #undef min
 #undef max
@@ -99,15 +99,20 @@ namespace hod::ui
 		return Rect();
 	}
 
-	void Canvas::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+	void Canvas::PushRenderCommand(renderer::RenderView& renderView)
 	{
-		game::World* world = GetOwner()->GetScene()->GetWorld();
-		if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
+		if (_renderMode == RenderMode::Camera)
 		{
-			_renderModeMatrix = renderQueue.GetViewMatrix() * Matrix4::Scale(Vector2(0.01f, 0.01f));
+			RecomputeRootNodeSize(renderView.GetRenderResolution());
+
+			game::World* world = GetOwner()->GetScene()->GetWorld();
+			if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
+			{
+				_renderModeMatrix = renderView.GetViewMatrix() * Matrix4::Scale(Vector2(0.01f, 0.01f));
+			}
 		}
 
-		static std::function<void(Node*, renderer::RenderQueue&)> drawRecursively = [&](Node* node, renderer::RenderQueue& renderQueue)
+		static std::function<void(Node*, renderer::RenderView&)> drawRecursively = [&](Node* node, renderer::RenderView& renderView)
 		{
 			if (node == nullptr || node->GetOwner()->IsActiveInHierarchy() == false)
 			{
@@ -117,16 +122,16 @@ namespace hod::ui
 			Drawable* drawable = node->GetOwner()->GetComponent<Drawable>();
 			if (drawable != nullptr)
 			{
-				drawable->PushToRenderQueue(renderQueue);
+				drawable->PushRenderCommand(renderView);
 			}
 
 			for (const game::WeakEntity& child : node->GetOwner()->GetChildren())
 			{
 				Node* childNode = child.Lock()->GetComponent<Node>();
-				drawRecursively(childNode, renderQueue);
+				drawRecursively(childNode, renderView);
 			}
 		};
-		drawRecursively(_rootNode.Get(), renderQueue);
+		drawRecursively(_rootNode.Get(), renderView);
 	}
 
 	const Matrix4& Canvas::GetRenderModeMatrix() const

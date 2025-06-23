@@ -12,7 +12,7 @@
 
 namespace hod::renderer
 {
-	class RenderQueue;
+	class RenderView;
 }
 
 namespace hod::game
@@ -40,7 +40,7 @@ namespace hod::game
 	public:
 
 		void				SetName(const std::string_view& name);
-		const String&	GetName() const;
+		const String&		GetName() const;
 
 		bool				SerializeInDocument(Document::Node& documentNode);
 		bool				DeserializeFromDocument(const Document::Node& documentNode);
@@ -52,15 +52,15 @@ namespace hod::game
 		Scene*				Clone(World* newWorld);
 		void				Clear();
 
-		Entity*			Instantiate(std::shared_ptr<PrefabResource> prefabResource);
-		Entity*			Instantiate(Entity* entity);
+		Entity*				Instantiate(std::shared_ptr<PrefabResource> prefabResource);
+		Entity*				Instantiate(Entity* entity);
 
 		const std::unordered_map<uint64_t, Entity*>& GetEntities() const;
 
 		void						ProcessActivation();
 		void						Update(float deltaTime);
 		void						FixedUpdate();
-		void						Draw(renderer::RenderQueue* renderQueue);
+		void						Draw(renderer::RenderView& renderView);
 
 		void						SetNextLocalId(uint64_t nextLocalId) { _nextLocalId = nextLocalId; }
 

@@ -43,7 +43,7 @@ namespace hod
 			void							SetFont(const WeakResource<renderer::FontResource>& font);
 			//void							SetText(const std::string_view& text);
 
-			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			void							PushRenderCommand(renderer::RenderView& renderView) override;
 			Rect							GetBoundingBox() const override;
 
 		private:

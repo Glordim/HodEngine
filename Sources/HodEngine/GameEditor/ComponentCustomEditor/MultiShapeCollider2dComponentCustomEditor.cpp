@@ -8,7 +8,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 
 #include <HodEngine/Game/Entity.hpp>
@@ -66,7 +66,7 @@ namespace hod::editor
 					Matrix4 localMatrix = Matrix4::Translation(boxShape._origin) * Matrix4::Rotation(boxShape._angle);
 
 					renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-					viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+					viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 				}
 
 				for (const game::MultiShapeCollider2dComponent::CircleShape& circleShape : multiShapeCollider2d->GetCircleShapes())
@@ -75,7 +75,7 @@ namespace hod::editor
 					GeometryGenerator::CircleShape<64>(vertices, circleShape._origin * scale, circleShape._radius * std::max(scale.GetX(), scale.GetY()));
 
 					renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-					viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
+					viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 				}
 			}
 		}

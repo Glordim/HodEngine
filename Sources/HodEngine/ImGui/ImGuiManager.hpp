@@ -5,6 +5,8 @@
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 #include <HodEngine/Core/Event.hpp>
 
+#include <HodEngine/Renderer/RenderView.hpp>
+
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <stdint.h>
@@ -57,8 +59,8 @@ namespace hod::imgui
 		Window*							FindWindow(WindowDescription* windowDescription) const;
 
 		template<typename Window_>
-		Vector<Window*>			FindWindows() const;
-		Vector<Window*>			FindWindows(WindowDescription* windowDescription) const;
+		Vector<Window*>					FindWindows() const;
+		Vector<Window*>					FindWindows(WindowDescription* windowDescription) const;
 
 		void							CloseAllWindow();
 		void							DestroyAllWindow();
@@ -85,13 +87,14 @@ namespace hod::imgui
 		MemberFunctionJob<ImGuiManager>	_updateJob;
 
 		MainBar*						_mainBar = nullptr;
-		Vector<Window*>			_windows;
+		Vector<Window*>					_windows;
 
 		renderer::Texture*				_fontTexture = nullptr;
 
 		renderer::Material*				_material = nullptr;
 		renderer::Shader*				_vertexShader = nullptr;
 		renderer::Shader*				_fragmentShader = nullptr;
+		renderer::RenderView			_renderView;
 
 		window::Window*					_mainWindow = nullptr;
 

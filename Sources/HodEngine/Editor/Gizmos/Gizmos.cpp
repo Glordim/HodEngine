@@ -6,7 +6,7 @@
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Core/Math/Vector4.hpp>
@@ -93,8 +93,8 @@ namespace hod::editor
 
 		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, std::numeric_limits<uint32_t>::max(), handle._pickingId);
-		viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-		viewport.GetRenderQueue()->DeleteAfter(materialInstance);
+		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
+		viewport.GetRenderView()->DeleteAfter(materialInstance);
 
 		return changed;
 	}
@@ -118,13 +118,13 @@ namespace hod::editor
 
 		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, std::numeric_limits<uint32_t>::max(), handle._pickingId);
-		viewport.GetRenderQueue()->PushRenderCommand(renderMeshCommand);
-		viewport.GetRenderQueue()->DeleteAfter(materialInstance);
+		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
+		viewport.GetRenderView()->DeleteAfter(materialInstance);
 
 		return changed;
 	}
 
-	void Gizmos::Rect(const Matrix4& worldMatrix, const Vector2& size, const Color& color, renderer::RenderQueue& renderQueue)
+	void Gizmos::Rect(const Matrix4& worldMatrix, const Vector2& size, const Color& color, renderer::RenderView& renderView)
 	{
 		std::array<Vector2, 5> vertices = {
 				Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f),
@@ -138,11 +138,11 @@ namespace hod::editor
 		materialInstance->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
 
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-		renderQueue.PushRenderCommand(renderMeshCommand);
-		renderQueue.DeleteAfter(materialInstance);
+		renderView.PushRenderCommand(renderMeshCommand);
+		renderView.DeleteAfter(materialInstance);
 	}
 
-	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, renderer::RenderQueue& renderQueue)
+	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, renderer::RenderView& renderView)
 	{
 		std::array<Vector2, 2> vertices {
 				start,
@@ -153,8 +153,8 @@ namespace hod::editor
 		materialInstance->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
 
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-		renderQueue.PushRenderCommand(renderMeshCommand);
-		renderQueue.DeleteAfter(materialInstance);
+		renderView.PushRenderCommand(renderMeshCommand);
+		renderView.DeleteAfter(materialInstance);
 	}
 
 	/// @brief 

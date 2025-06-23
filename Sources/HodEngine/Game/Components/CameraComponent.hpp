@@ -53,7 +53,7 @@ namespace hod::game
 
 		const Matrix4&				GetProjectionMatrix();
 
-		void						PushToRenderQueue(renderer::RenderQueue& renderQueue); // todo ?
+		void						SetupRenderView(renderer::RenderView& renderView);
 
 		void						SetSize(float size);
 		float						GetSize() const;

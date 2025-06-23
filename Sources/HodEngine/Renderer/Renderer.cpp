@@ -1,6 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
+#include "HodEngine/Renderer/RenderView.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/Font/FontManager.hpp"
@@ -23,7 +24,6 @@ namespace hod
 		{
 			MaterialManager::CreateInstance();
 			PickingManager::CreateInstance();
-			_renderQueue = DefaultAllocator::GetInstance().New<RenderQueue>();
 			FontManager::CreateInstance();
 			FontManager::GetInstance()->Init(); // todo catch error ?
 		}
@@ -34,7 +34,6 @@ namespace hod
 		Renderer::~Renderer()
 		{
 			FontManager::DestroyInstance();
-			DefaultAllocator::GetInstance().Delete(_renderQueue);
 			PickingManager::DestroyInstance();
 			MaterialManager::DestroyInstance();
 		}
@@ -42,7 +41,6 @@ namespace hod
 		/// @brief 
 		void Renderer::Clear()
 		{
-			_renderQueue->Terminate();
 			MaterialManager::GetInstance()->Clear();
 
 			DefaultAllocator::GetInstance().Delete(_overdrawnMaterialInstance);
@@ -212,11 +210,37 @@ namespace hod
 			return _shaderGenerator;
 		}
 
-		/// @brief 
-		/// @return 
-		RenderQueue* Renderer::GetRenderQueue() const
+		void Renderer::PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame)
 		{
-			return _renderQueue;
+			renderView.SetAutoDestroy(autoDestroyAfterFrame);
+			_renderViews.push_back(&renderView);
+		}
+
+		void Renderer::RenderViews()
+		{
+			// todo sort
+
+			for (RenderView* renderView : _renderViews)
+			{
+				renderView->Execute();
+			}
+		}
+
+		void Renderer::WaitViews()
+		{
+			for (RenderView* renderView : _renderViews)
+			{
+				renderView->Wait();
+			}
+
+			for (RenderView* renderView : _renderViews)
+			{
+				if (renderView->IsAutoDestroy())
+				{
+					DefaultAllocator::GetInstance().Delete(renderView);
+				}
+			}
+			_renderViews.clear();
 		}
 	}
 }
