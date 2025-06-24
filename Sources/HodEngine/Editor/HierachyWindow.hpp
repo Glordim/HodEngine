@@ -68,6 +68,8 @@ namespace hod::editor
 
 		EntityDragAndDropPayload					_entityDragAndDropPayload;
 
+		game::Entity*								_previousSelection = nullptr;
+
 		//EntityNode									_rootEntityNode;
 	};
 }

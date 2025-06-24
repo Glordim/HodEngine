@@ -51,6 +51,7 @@ namespace hod::editor
 				}
 			}
 		}
+		_previousSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
 		if (ImGui::IsWindowHovered() && ImGui::IsAnyItemHovered() == false && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)))
 		{
@@ -165,6 +166,20 @@ namespace hod::editor
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
 
+		if (_previousSelection != selection)
+		{
+			game::Entity* selectionIt = selection;
+			while (selectionIt != nullptr)
+			{
+				if (selectionIt == entity)
+				{
+					ImGui::SetNextItemOpen(true, ImGuiCond_Always);
+					break;
+				}
+				selectionIt = selectionIt->GetParent().Lock();
+			}
+		}
+
 		ImGui::PushID(entity);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
 		bool opened = ImGui::TreeNodeEx("", treeNodeFlags);
@@ -172,6 +187,12 @@ namespace hod::editor
 		{
 			GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
 		}
+
+		if (entity == selection && _previousSelection != selection)
+		{
+			ImGui::SetScrollHereY();
+		}
+
 		bool hovered = ImGui::IsItemHovered();
 		ImGui::PopStyleVar();
 		ImGui::PopID();
