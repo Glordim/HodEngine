@@ -285,15 +285,18 @@ namespace hod::editor
 				{
 					for (game::Component* component : sceneSelection->GetComponents())
 					{
-						ReflectionTraitComponentCustomEditor* customEditorTrait = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
-						if (customEditorTrait != nullptr)
+						if (component->IsEnabledInHierarchy())
 						{
-							ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
-							if (customEditor != nullptr)
+							ReflectionTraitComponentCustomEditor* customEditorTrait = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
+							if (customEditorTrait != nullptr)
 							{
-								if (customEditor->OnDrawGizmo(component, *this, true))
+								ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
+								if (customEditor != nullptr)
 								{
-									GetOwner()->MarkAssetAsDirty();
+									if (customEditor->OnDrawGizmo(component, *this, true))
+									{
+										GetOwner()->MarkAssetAsDirty();
+									}
 								}
 							}
 						}
@@ -311,15 +314,18 @@ namespace hod::editor
 
 						for (game::Component* component : entityPair.second->GetComponents())
 						{
-							ReflectionTraitComponentCustomEditor* customEditorTrait = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
-							if (customEditorTrait != nullptr)
+							if (component->IsEnabledInHierarchy())
 							{
-								ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
-								if (customEditor != nullptr)
+								ReflectionTraitComponentCustomEditor* customEditorTrait = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
+								if (customEditorTrait != nullptr)
 								{
-									if (customEditor->OnDrawGizmo(component, *this, false))
+									ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
+									if (customEditor != nullptr)
 									{
-										GetOwner()->MarkAssetAsDirty();
+										if (customEditor->OnDrawGizmo(component, *this, false))
+										{
+											GetOwner()->MarkAssetAsDirty();
+										}
 									}
 								}
 							}
