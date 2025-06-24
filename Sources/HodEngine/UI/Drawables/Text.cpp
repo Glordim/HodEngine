@@ -47,7 +47,7 @@ namespace hod::ui
 			Vector<uint16_t> indices;
 			indices.reserve(_value.size() * 6);
 
-			Vector2 requiredSize = font->ComputeRequiredSize(_value) * 0.01f;
+			Vector2 requiredSize = font->ComputeRequiredSize(_value);
 
 			Vector2 lineTopLeftCorner;
 			float offset = 0.0f;
@@ -100,10 +100,10 @@ namespace hod::ui
 			{
 				uint16_t vertexCount = (uint16_t)positions.size();
 
-				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter * 0.01f + Vector2(-glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f) * 0.01f);
-				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter * 0.01f + Vector2(glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f) * 0.01f);
-				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter * 0.01f + Vector2(-glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f) * 0.01f);
-				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter * 0.01f + Vector2(glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f) * 0.01f);
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + Vector2(-glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f));
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + Vector2(glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f));
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + Vector2(-glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f));
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + Vector2(glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f));
 
 				uvs.push_back(glyphGeometry._uvPos);
 				uvs.push_back(glyphGeometry._uvPos + Vector2(glyphGeometry._uvSize.GetX(), 0.0f));

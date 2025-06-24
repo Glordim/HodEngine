@@ -41,6 +41,9 @@ namespace hod::editor
 	{
 		bool changed = false;
 
+		EditorReflectedProperty* renderMode = reflectedObject.FindProperty("RenderMode");
+		changed |= PropertyDrawer::DrawProperty(*renderMode);
+
 		EditorReflectedProperty* scaleMode = reflectedObject.FindProperty("ScaleMode");
 		changed |= PropertyDrawer::DrawProperty(*scaleMode);
 
@@ -81,7 +84,7 @@ namespace hod::editor
 
 			_materialInstance->SetVec4("UBO.color", selected ? selectedColor : normalColor);
 
-			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeCanvasMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 			viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		}
 		return false;

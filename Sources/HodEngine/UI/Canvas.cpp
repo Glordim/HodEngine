@@ -16,6 +16,7 @@ namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(Canvas, reflectionDescriptor)
 	{
+		AddPropertyT(reflectionDescriptor, &Canvas::_renderMode, "RenderMode", &Canvas::SetRenderMode);
 		AddPropertyT(reflectionDescriptor, &Canvas::_scaleMode, "ScaleMode", &Canvas::SetScaleMode);
 		AddPropertyT(reflectionDescriptor, &Canvas::_widthHeightPreferredAxis, "WidthHeightPreferredAxis", &Canvas::SetWidthHeightPreferredAxis);
 	}
@@ -23,7 +24,6 @@ namespace hod::ui
 	void Canvas::OnEnable()
 	{
 		_rootNode = GetOwner()->GetComponent<Node>();
-		_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f));
 	}
 
 	void Canvas::SetRenderMode(RenderMode renderMode)
