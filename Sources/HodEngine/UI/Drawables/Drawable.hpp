@@ -5,10 +5,7 @@
 #include <HodEngine/Core/Color.hpp>
 #include <HodEngine/Core/Weakable/WeakPtr.hpp>
 
-namespace hod::renderer
-{
-	class RenderQueue;
-}
+#include <HodEngine/Renderer/RenderView.hpp>
 
 namespace hod::ui
 {
@@ -26,7 +23,7 @@ namespace hod::ui
 		void			SetColor(const Color& color);
 		const Color&	GetColor() const;
 
-		virtual void	PushRenderCommand(renderer::RenderView& renderView) = 0;
+		virtual void	PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) = 0;
 
 	protected:
 

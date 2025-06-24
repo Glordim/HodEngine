@@ -18,7 +18,7 @@ namespace hod::ui
 
 		void	SetTexture(const WeakResource<renderer::TextureResource>& texture);
 
-		void	PushRenderCommand(renderer::RenderView& renderView) override;
+		void	PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) override;
 
 	private:
 

@@ -96,7 +96,7 @@ namespace hod::renderer
 	{
 		if (renderQueueType == RenderQueueType::World)
 			_worldRenderQueue.PushRenderCommand(renderCommand);
-		else if (renderQueueType == RenderQueueType::World)
+		else if (renderQueueType == RenderQueueType::UI)
 			_uiRenderQueue.PushRenderCommand(renderCommand);
 	}
 

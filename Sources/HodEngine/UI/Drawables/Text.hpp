@@ -35,7 +35,7 @@ namespace hod::ui
 		void	SetValue(const String& value);
 		void	SetAlignment(Alignment alignment);
 
-		void	PushRenderCommand(renderer::RenderView& renderView) override;
+		void	PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) override;
 
 	private:
 

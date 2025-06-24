@@ -9,8 +9,9 @@ namespace hod::renderer
 	/// @return 
 	bool UIRenderQueue::Prepare(const RenderView& renderView)
 	{
-		_projection = renderView.GetProjectionMatrix();
-		_view = Matrix4::Inverse(renderView.GetViewMatrix());
+		Vector2 resolution = renderView.GetRenderResolution();
+		_projection = Matrix4::OrthogonalProjection(-resolution.GetX() * 0.5f, resolution.GetX() * 0.5f, -resolution.GetY() * 0.5f, resolution.GetY() * 0.5f, -1.0f, 1.0f);
+		_view = Matrix4::Identity;
 		_viewport = renderView.GetViewport();
 
 		/*
@@ -21,7 +22,6 @@ namespace hod::renderer
 		});
 		*/
 
-		
 		return true;
 	}
 }

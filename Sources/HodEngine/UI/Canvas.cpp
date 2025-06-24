@@ -4,6 +4,9 @@
 #include "HodEngine/UI/Drawables/Drawable.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Game/Scene.hpp>
+#include <HodEngine/Game/World.hpp>
+
 #include <HodEngine/Renderer/RenderView.hpp>
 
 #undef min
@@ -23,6 +26,26 @@ namespace hod::ui
 		_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f));
 	}
 
+	void Canvas::SetRenderMode(RenderMode renderMode)
+	{
+		_renderMode = renderMode;
+	}
+
+	Canvas::RenderMode Canvas::GetRenderMode() const
+	{
+		return _renderMode;
+	}
+
+	void Canvas::SetCamera(game::CameraComponent* camera)
+	{
+		_camera = camera;
+	}
+
+	game::CameraComponent* Canvas::GetCamera() const
+	{
+		return _camera.Get();
+	}
+
 	Canvas::ScaleMode Canvas::GetScaleMode() const
 	{
 		return _scaleMode;
@@ -33,7 +56,7 @@ namespace hod::ui
 		if (_scaleMode != scaleMode)
 		{
 			_scaleMode = scaleMode;
-			RecomputeRootNodeSize();
+			// TODO dirty flag to recompute _scaleFactor + _rootNode size ?
 		}
 	}
 
@@ -47,14 +70,13 @@ namespace hod::ui
 		if (_widthHeightPreferredAxis != widthHeightPreferredAxis)
 		{
 			_widthHeightPreferredAxis = widthHeightPreferredAxis;
-			RecomputeRootNodeSize();
+			// TODO dirty flag to recompute _scaleFactor + _rootNode size ?
 		}
 	}
 
-	void Canvas::RecomputeRootNodeSize()
+	void Canvas::RecomputeRootNodeSize(const Vector2& resolution)
 	{
-		Vector2 resolution(1920.0f, 1080.0f);
-		Vector2 designSize(1920.0f, 1080.0f);
+		static Vector2 designSize(1920.0f, 1080.0f);
 
 		switch (_scaleMode)
 		{
@@ -92,6 +114,13 @@ namespace hod::ui
 			rootNodeSize.SetX(resolution.GetX() / _scaleFactor);
 			rootNodeSize.SetY(resolution.GetY() / _scaleFactor);
 		}
+
+		game::World* world = GetOwner()->GetScene()->GetWorld();
+		if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
+		{
+			_rootNode->SetDeltaSize(rootNodeSize);
+			_rootNode->SetScale(Vector2(_scaleFactor, _scaleFactor));
+		}
 	}
 
 	Rect Canvas::GetBoundingBox() const
@@ -101,6 +130,7 @@ namespace hod::ui
 
 	void Canvas::PushRenderCommand(renderer::RenderView& renderView)
 	{
+		renderer::RenderView::RenderQueueType renderQueueType = renderer::RenderView::RenderQueueType::UI;
 		if (_renderMode == RenderMode::Camera)
 		{
 			RecomputeRootNodeSize(renderView.GetRenderResolution());
@@ -108,11 +138,22 @@ namespace hod::ui
 			game::World* world = GetOwner()->GetScene()->GetWorld();
 			if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 			{
-				_renderModeMatrix = renderView.GetViewMatrix() * Matrix4::Scale(Vector2(0.01f, 0.01f));
+				_renderModeMatrix = Matrix4::Identity;
+				renderQueueType = renderer::RenderView::RenderQueueType::UI;
+			}
+			else
+			{
+				_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f));
+				renderQueueType = renderer::RenderView::RenderQueueType::World;
 			}
 		}
+		else
+		{
+			_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f));
+			renderQueueType = renderer::RenderView::RenderQueueType::World;
+		}
 
-		static std::function<void(Node*, renderer::RenderView&)> drawRecursively = [&](Node* node, renderer::RenderView& renderView)
+		static std::function<void(Node*, renderer::RenderView&, renderer::RenderView::RenderQueueType)> drawRecursively = [&](Node* node, renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType)
 		{
 			if (node == nullptr || node->GetOwner()->IsActiveInHierarchy() == false)
 			{
@@ -122,16 +163,16 @@ namespace hod::ui
 			Drawable* drawable = node->GetOwner()->GetComponent<Drawable>();
 			if (drawable != nullptr)
 			{
-				drawable->PushRenderCommand(renderView);
+				drawable->PushRenderCommand(renderView, renderQueueType);
 			}
 
 			for (const game::WeakEntity& child : node->GetOwner()->GetChildren())
 			{
 				Node* childNode = child.Lock()->GetComponent<Node>();
-				drawRecursively(childNode, renderView);
+				drawRecursively(childNode, renderView, renderQueueType);
 			}
 		};
-		drawRecursively(_rootNode.Get(), renderView);
+		drawRecursively(_rootNode.Get(), renderView, renderQueueType);
 	}
 
 	const Matrix4& Canvas::GetRenderModeMatrix() const

@@ -4,6 +4,7 @@
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RenderView.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
@@ -21,7 +22,7 @@ namespace hod::ui
 		_materialInstance = nullptr;
 	}
 
-	void Texture::PushRenderCommand(renderer::RenderView& renderView)
+	void Texture::PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType)
 	{
 		if (_node.Get())
 		{
@@ -63,7 +64,7 @@ namespace hod::ui
 			vec4Color.SetZ(_color.b);
 			vec4Color.SetW(_color.a);
 			_materialInstance->SetVec4("UBO.color", vec4Color);
-			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0));
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0), renderQueueType);
 		}
 	}
 

@@ -4,6 +4,7 @@
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RenderView.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include <HodEngine/Renderer/Font/Font.hpp>
 
@@ -25,7 +26,7 @@ namespace hod::ui
 		_materialInstance = nullptr;
 	}
 
-	void Text::PushRenderCommand(renderer::RenderView& renderView)
+	void Text::PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType)
 	{
 		if (_node.Get() && _font.Lock())
 		{
@@ -169,7 +170,7 @@ namespace hod::ui
 				vec4Color.SetW(_color.a);
 				_materialInstance->SetVec4("UBO.color", vec4Color);
 
-				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0));
+				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0), renderQueueType);
 			}
 		}
 	}

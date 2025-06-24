@@ -5,6 +5,8 @@
 #include <HodEngine/Core/Math/Vector2.hpp>
 #include <HodEngine/Core/Math/Matrix4.hpp>
 
+#include <HodEngine/Game/Components/CameraComponent.hpp>
+
 namespace hod::game
 {
 	class Entity;
@@ -21,6 +23,12 @@ namespace hod::ui
 
 	public:
 
+		enum class RenderMode
+		{
+			World,
+			Camera,
+		};
+
 		enum class ScaleMode
 		{
 			WidthHeight,
@@ -33,17 +41,29 @@ namespace hod::ui
 
 		void				OnEnable() override;
 
+		void				SetRenderMode(RenderMode renderMode);
+		RenderMode			GetRenderMode() const;
+
+		void					SetCamera(game::CameraComponent* camera);
+		game::CameraComponent*	GetCamera() const;
+
 		ScaleMode			GetScaleMode() const;
 		void				SetScaleMode(ScaleMode scaleMode);
 
 		float				GetWidthHeightPreferredAxis() const;
 		void				SetWidthHeightPreferredAxis(float widthHeightPreferredAxis);
+
+		void				RecomputeRootNodeSize(const Vector2& resolution);
+
 		Rect				GetBoundingBox() const override;
 		void				PushRenderCommand(renderer::RenderView& renderView) override;
 
 		const Matrix4&		GetRenderModeMatrix() const;
 
 	private:
+
+		RenderMode			_renderMode = RenderMode::Camera;
+		WeakPtr<game::CameraComponent>	_camera;
 
 		WeakPtr<Node>		_rootNode;
 
