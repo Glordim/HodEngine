@@ -68,7 +68,7 @@ namespace hod::ui
 		WeakPtr<Node>		_rootNode;
 
 		ScaleMode			_scaleMode = ScaleMode::WidthHeight;
-		float				_widthHeightPreferredAxis = 1.0f;
+		float				_widthHeightPreferredAxis = 0.5f;
 
 		float				_scaleFactor = 1.0f;
 
