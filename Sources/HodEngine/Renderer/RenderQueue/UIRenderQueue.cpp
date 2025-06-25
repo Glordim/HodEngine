@@ -14,13 +14,11 @@ namespace hod::renderer
 		_view = Matrix4::Identity;
 		_viewport = renderView.GetViewport();
 
-		/*
 		std::sort(_renderCommands.begin(), _renderCommands.end(),
 		[](RenderCommand* a, RenderCommand* b)
 		{
 			return a->GetRenderingOrder() < b->GetRenderingOrder();
 		});
-		*/
 
 		return true;
 	}

@@ -340,4 +340,14 @@ namespace hod::ui
 	{
 		return _parent.Get();
 	}
+
+	void Node::SetZOrder(int32_t zOrder)
+	{
+		_zOrder = zOrder;
+	}
+
+	int32_t Node::GetZOrder() const
+	{
+		return _zOrder;
+	}
 }

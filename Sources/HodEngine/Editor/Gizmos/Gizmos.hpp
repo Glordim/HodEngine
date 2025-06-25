@@ -25,6 +25,7 @@ namespace hod::editor
 		Vector2		_initialPosition;
 		Vector2		_moveOffset;
 		Vector2		_delta;
+		int32_t		_sortingOrder = std::numeric_limits<uint32_t>::max();
 	};
 
 	/// @brief 

@@ -153,12 +153,16 @@ namespace hod::ui
 			renderQueueType = renderer::RenderView::RenderQueueType::World;
 		}
 
-		static std::function<void(Node*, renderer::RenderView&, renderer::RenderView::RenderQueueType)> drawRecursively = [&](Node* node, renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType)
+		int32_t zOrder = 0;
+		static std::function<void(Node*, renderer::RenderView&, renderer::RenderView::RenderQueueType, int32_t&)> drawRecursively = [&](Node* node, renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType, int32_t& zOrder)
 		{
 			if (node == nullptr || node->GetOwner()->IsActiveInHierarchy() == false)
 			{
 				return;
 			}
+
+			node->SetZOrder(zOrder);
+			++zOrder;
 
 			Drawable* drawable = node->GetOwner()->GetComponent<Drawable>();
 			if (drawable != nullptr)
@@ -169,10 +173,10 @@ namespace hod::ui
 			for (const game::WeakEntity& child : node->GetOwner()->GetChildren())
 			{
 				Node* childNode = child.Lock()->GetComponent<Node>();
-				drawRecursively(childNode, renderView, renderQueueType);
+				drawRecursively(childNode, renderView, renderQueueType, zOrder);
 			}
 		};
-		drawRecursively(_rootNode.Get(), renderView, renderQueueType);
+		drawRecursively(_rootNode.Get(), renderView, renderQueueType, zOrder);
 	}
 
 	const Matrix4& Canvas::GetRenderModeMatrix() const

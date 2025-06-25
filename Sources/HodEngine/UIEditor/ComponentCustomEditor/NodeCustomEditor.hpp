@@ -34,7 +34,6 @@ namespace hod::editor
 	private:
 
 		static bool						DrawAnchorPresets(const ImVec2& size, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot);
-		static Vector2					GetMouseWorldPos(const Vector2& mousePosition, const ViewportWindow& viewport);
 		
 	private:
 

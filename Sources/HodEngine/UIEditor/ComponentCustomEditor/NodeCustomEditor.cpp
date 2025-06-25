@@ -489,6 +489,7 @@ namespace hod::editor
 			Vector2 position;
 			Handle selectionHandle;
 			selectionHandle._pickingId = (uint32_t)node->GetOwner()->GetInstanceId();
+			selectionHandle._sortingOrder = node->GetZOrder();
 			Gizmos::FreeMoveRect(selectionHandle, worldMatrix, position, size, Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
 
 			return false;
@@ -498,6 +499,8 @@ namespace hod::editor
 
 		static Color hitboxHandleColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+		_freeMoveHandle._pickingId = (uint32_t)node->GetOwner()->GetInstanceId();
+		_freeMoveHandle._sortingOrder = node->GetZOrder();
 		changed |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::Zero, size, hitboxHandleColor, hitboxHandleColor, viewport);
 		if (_freeMoveHandle._justPressed)
 		{
@@ -612,20 +615,5 @@ namespace hod::editor
 		}
 
 		return changed;
-	}
-
-	/// @brief 
-	/// @param mousePosition 
-	/// @param viewport 
-	/// @return 
-	Vector2 NodeCustomEditor::GetMouseWorldPos(const Vector2& mousePosition, const ViewportWindow& viewport)
-	{
-		float ndcX = (2.0f * mousePosition.GetX()) / viewport.GetPickingRenderTarget()->GetResolution().GetX() - 1.0f;
-		float ndcY = 1.0f - (2.0f * mousePosition.GetY()) / viewport.GetPickingRenderTarget()->GetResolution().GetY();
-		
-		Vector4 mouseNDC = Vector4(ndcX, ndcY, 0.0f, 1.0f);
-		Vector4 mouseWorld = Matrix4::Inverse(viewport.GetProjectionMatrix() * viewport.GetViewMatrix()) * mouseNDC;
-
-		return Vector2(mouseWorld.GetX() / mouseWorld.GetW(), mouseWorld.GetY() / mouseWorld.GetW());
 	}
 }

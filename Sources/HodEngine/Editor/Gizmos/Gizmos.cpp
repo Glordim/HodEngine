@@ -92,7 +92,7 @@ namespace hod::editor
 		materialInstance->SetVec4("UBO.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
 		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, std::numeric_limits<uint32_t>::max(), handle._pickingId);
+		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
 		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		viewport.GetRenderView()->DeleteAfter(materialInstance);
 
@@ -117,7 +117,7 @@ namespace hod::editor
 		materialInstance->SetVec4("UBO.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
 		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, std::numeric_limits<uint32_t>::max(), handle._pickingId);
+		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
 		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		viewport.GetRenderView()->DeleteAfter(materialInstance);
 
