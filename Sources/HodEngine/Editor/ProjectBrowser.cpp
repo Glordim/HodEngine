@@ -109,11 +109,11 @@ namespace hod::editor
 					std::filesystem::path path(it->data());
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted(path.stem().string().c_str());
-					ImGui::SetWindowFontScale(0.9f);
+					ImGui::PushFont(nullptr, ImGui::GetStyle().FontSizeBase * 0.9f);
 					ImGui::BeginDisabled();
 					ImGui::TextUnformatted(it->data());
 					ImGui::EndDisabled();
-					ImGui::SetWindowFontScale(1.0f);
+					ImGui::PopFont();
 					//ImGui::Text("C:\\users\\glordim\\Desltop\\Dev\\Toto");
 
 					ImGui::TableNextColumn();

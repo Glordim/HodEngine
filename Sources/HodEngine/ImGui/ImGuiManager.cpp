@@ -181,6 +181,8 @@ void embraceTheDarkness()
 		std::strcpy(iniFileName, projectsPath.string().c_str());
 
 		ImGui::GetIO().IniFilename = iniFileName;
+		ImGui::GetIO().BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		//ImGui::GetIO().Fonts->AddFontDefault();
 		/*
@@ -202,7 +204,6 @@ void embraceTheDarkness()
 		icons_configProggyClean.RasterizerDensity = macOsWindow->GetScaleFactor();
 #endif
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Roboto_Regular_ttf, Roboto_Regular_ttf_size, 16.0f, &icons_configProggyClean);
-		ImGui::GetIO().Fonts->Build();
 
 		const ImWchar iconsRangesMDI[] = { ICON_MIN_MDI, ICON_MAX_MDI, 0 };
 		ImFontConfig icons_configMDI;
@@ -216,19 +217,6 @@ void embraceTheDarkness()
 #endif
 
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(MaterialDesignIcons_ttf, MaterialDesignIcons_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
-		ImGui::GetIO().Fonts->Build();
-
-		unsigned char* out_pixels;
-		int out_width;
-		int out_height;
-		int out_bytes_per_pixel;
-		ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&out_pixels, &out_width, &out_height, &out_bytes_per_pixel);
-
-		_fontTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_fontTexture->BuildBuffer(out_width, out_height, out_pixels, renderer::Texture::CreateInfo());
-
-		ImGui::GetIO().Fonts->SetTexID((ImTextureID)_fontTexture);
-		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		_mainWindow = window;
 #if defined(PLATFORM_WINDOWS)
@@ -408,6 +396,74 @@ void embraceTheDarkness()
 		ImGui::Render();
 
 		ImDrawData* drawData = ImGui::GetDrawData();
+
+		if (drawData->Textures != nullptr)
+		{
+			for (ImTextureData* textureData : *drawData->Textures)
+			{
+				switch (textureData->Status)
+				{
+				case ImTextureStatus_OK:
+				{
+					// Nothing to do
+				}
+				break;
+
+				case ImTextureStatus_WantCreate:
+				{
+					renderer::Texture* texture = renderer::Renderer::GetInstance()->CreateTexture();
+					hod::renderer::Texture::CreateInfo createInfo;
+					createInfo._allowReadWrite = false;
+					createInfo._filterMode = renderer::FilterMode::Linear;
+					createInfo._wrapMode = renderer::WrapMode::Clamp;
+					assert(textureData->Format == ImTextureFormat_RGBA32 && textureData->BytesPerPixel == 4);
+					if (texture->BuildBuffer(textureData->Width, textureData->Height, textureData->Pixels, createInfo) == false)
+					{
+						assert(false);
+					}
+					textureData->SetTexID(texture);
+					textureData->SetStatus(ImTextureStatus_OK);
+				}
+				break;
+				
+				case ImTextureStatus_WantUpdates:
+				{
+					DefaultAllocator::GetInstance().Delete(textureData->TexID);
+					textureData->SetTexID(nullptr);
+					textureData->SetStatus(ImTextureStatus_Destroyed);
+				
+					renderer::Texture* texture = renderer::Renderer::GetInstance()->CreateTexture();
+					hod::renderer::Texture::CreateInfo createInfo;
+					createInfo._allowReadWrite = false;
+					createInfo._filterMode = renderer::FilterMode::Linear;
+					createInfo._wrapMode = renderer::WrapMode::Clamp;
+					assert(textureData->Format == ImTextureFormat_RGBA32 && textureData->BytesPerPixel == 4);
+					if (texture->BuildBuffer(textureData->Width, textureData->Height, textureData->Pixels, createInfo) == false)
+					{
+						assert(false);
+					}
+					textureData->SetTexID(texture);
+					textureData->SetStatus(ImTextureStatus_OK);
+				}
+				break;
+
+				case ImTextureStatus_WantDestroy:
+				{
+					DefaultAllocator::GetInstance().Delete(textureData->TexID);
+					textureData->SetTexID(nullptr);
+					textureData->SetStatus(ImTextureStatus_Destroyed);
+				}
+				break;
+
+				case ImTextureStatus_Destroyed:
+				{
+					// Nothing to do
+				}
+				break;
+				}
+			}
+		}
+
 		ImVec2 clipOffset = drawData->DisplayPos;
  		ImVec2 clipScale = drawData->FramebufferScale;
 
@@ -443,7 +499,7 @@ void embraceTheDarkness()
 				command._clipRect._position.SetY(clipMin.y);
 				command._clipRect._size.SetX(clipMax.x - clipMin.x);
 				command._clipRect._size.SetY(clipMax.y - clipMin.y);
-				command._texture = reinterpret_cast<renderer::Texture*>(imCommand.TextureId);
+				command._texture = reinterpret_cast<renderer::Texture*>(imCommand.GetTexID());
 				command._vertexOffset = imCommand.VtxOffset;
 				command._indexOffset = imCommand.IdxOffset;
 				command._elementCount = imCommand.ElemCount;

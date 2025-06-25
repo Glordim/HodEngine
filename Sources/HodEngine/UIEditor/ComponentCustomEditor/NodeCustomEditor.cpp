@@ -129,7 +129,7 @@ namespace hod::editor
 		ImVec2 text_size = ImGui::CalcTextSize(text);
 		while ((c = *text++))
 		{
-			glyph = font->FindGlyph(c);
+			glyph = font->GetFontBaked(ImGui::GetStyle().FontSizeBase)->FindGlyph(c);
 			if (!glyph) continue;
 
 			DrawList->PrimReserve(6, 4);
