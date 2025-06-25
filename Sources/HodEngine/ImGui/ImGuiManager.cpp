@@ -65,8 +65,11 @@ namespace hod::imgui
 #endif
 
 		//ImGui::DestroyContext(); // todo
+		for (renderer::Texture* texure : _textures)
+		{
+			DefaultAllocator::GetInstance().Delete(texure);
+		}
 
-		DefaultAllocator::GetInstance().Delete(_fontTexture);
 		DefaultAllocator::GetInstance().Delete(_material);
 		DefaultAllocator::GetInstance().Delete(_vertexShader);
 		DefaultAllocator::GetInstance().Delete(_fragmentShader);
@@ -423,11 +426,21 @@ void embraceTheDarkness()
 					}
 					textureData->SetTexID(texture);
 					textureData->SetStatus(ImTextureStatus_OK);
+
+					_textures.push_back(texture);
 				}
 				break;
 				
 				case ImTextureStatus_WantUpdates:
 				{
+					for (uint32_t i = 0; i < _textures.size(); ++i)
+					{
+						if (_textures[i] == textureData->TexID)
+						{
+							_textures.erase(_textures.begin() + i);
+							break;
+						}
+					}
 					DefaultAllocator::GetInstance().Delete(textureData->TexID);
 					textureData->SetTexID(nullptr);
 					textureData->SetStatus(ImTextureStatus_Destroyed);
@@ -444,11 +457,21 @@ void embraceTheDarkness()
 					}
 					textureData->SetTexID(texture);
 					textureData->SetStatus(ImTextureStatus_OK);
+
+					_textures.push_back(texture);
 				}
 				break;
 
 				case ImTextureStatus_WantDestroy:
 				{
+					for (uint32_t i = 0; i < _textures.size(); ++i)
+					{
+						if (_textures[i] == textureData->TexID)
+						{
+							_textures.erase(_textures.begin() + i);
+							break;
+						}
+					}
 					DefaultAllocator::GetInstance().Delete(textureData->TexID);
 					textureData->SetTexID(nullptr);
 					textureData->SetStatus(ImTextureStatus_Destroyed);

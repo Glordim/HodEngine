@@ -89,7 +89,7 @@ namespace hod::imgui
 		MainBar*						_mainBar = nullptr;
 		Vector<Window*>					_windows;
 
-		renderer::Texture*				_fontTexture = nullptr;
+		Vector<renderer::Texture*>		_textures;
 
 		renderer::Material*				_material = nullptr;
 		renderer::Shader*				_vertexShader = nullptr;
