@@ -16,6 +16,7 @@ namespace hod::game
                 uint64_t id = weakEntity->GetForSerialization();
                 documentNode.AddChild("Id").SetUInt64(id);
                 //Serializer::Serialize(id, documentNode);
+                return true;
             },
             [](void* instance, const Document::Node& documentNode)
             {
@@ -31,6 +32,8 @@ namespace hod::game
                 {
                     // todo message
                 }
+
+                return true;
             }
         );
     }

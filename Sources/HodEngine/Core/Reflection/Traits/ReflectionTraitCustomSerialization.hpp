@@ -15,7 +15,7 @@ namespace hod
 
 	public:
 
-												ReflectionTraitCustomSerialization(const std::function<void(const void*, Document::Node&)> serialization, const std::function<void(void*, const Document::Node&)> deserialization);
+												ReflectionTraitCustomSerialization(const std::function<bool(const void*, Document::Node&)> serialization, const std::function<bool(void*, const Document::Node&)> deserialization);
 												ReflectionTraitCustomSerialization(const ReflectionTraitCustomSerialization& copy) = default;
 												ReflectionTraitCustomSerialization(ReflectionTraitCustomSerialization&& move) = default;
 												~ReflectionTraitCustomSerialization() = default;
@@ -25,12 +25,12 @@ namespace hod
 
 	public:
 
-		void									Serialize(const void* instance, Document::Node& documentNode) const;
-		void									Deserialize(void* instance, const Document::Node& documentNode) const;
+		bool									Serialize(const void* instance, Document::Node& documentNode) const;
+		bool									Deserialize(void* instance, const Document::Node& documentNode) const;
 
 	private:
 
-		std::function<void(const void*, Document::Node&)>	_serialization;
-		std::function<void(void*, const Document::Node&)>	_deserialization;
+		std::function<bool(const void*, Document::Node&)>	_serialization;
+		std::function<bool(void*, const Document::Node&)>	_deserialization;
 	};
 }

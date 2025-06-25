@@ -39,8 +39,8 @@ namespace hod::game
 		bool	DeserializeEntityRaw(const Document::Node& entityNode);
 		bool	DeserializeEntityPrefab(const Document::Node& entityNode);
 
-		void	CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, Document::Node& documentNode);
-		void	CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const Document::Node& documentNode);
+		bool	CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, Document::Node& documentNode);
+		bool	CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const Document::Node& documentNode);
 
 	private:
 

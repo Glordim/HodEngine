@@ -66,7 +66,10 @@ namespace hod::game
 				component->SetLocalId(nextLocalId);
 				++nextLocalId;
 			}
-			Serializer::Serialize(component, componentNode, std::bind(&SceneSerializer::CustomComponentSerializationCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+			if (Serializer::Serialize(component, componentNode, std::bind(&SceneSerializer::CustomComponentSerializationCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)) == false)
+			{
+				return false;
+			}
 		}
 
 		for (const WeakEntity& child : entity->GetChildren())
@@ -254,7 +257,10 @@ namespace hod::game
 			{
 				const ReflectionDescriptor& componentDescriptor = *it->second;
 				Component* component = entity->AddComponent(componentDescriptor);
-				Serializer::Deserialize(componentDescriptor, component, *componentNode, std::bind(&SceneSerializer::CustomComponentDeserializationCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)); // todo lvalue...
+				if (Serializer::Deserialize(componentDescriptor, component, *componentNode, std::bind(&SceneSerializer::CustomComponentDeserializationCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)) == false) // todo lvalue...
+				{
+					return false;
+				}
 
 				if (_contextualComponentMap.try_emplace(component->GetLocalId(), component).second == false)
 				{
@@ -401,7 +407,7 @@ namespace hod::game
 	/// @param instance 
 	/// @param reflectionDescriptor 
 	/// @param documentNode 
-	void SceneSerializer::CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, Document::Node& documentNode)
+	bool SceneSerializer::CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, Document::Node& documentNode)
 	{
 		if (WeakComponentBase::GetReflectionDescriptor().IsCompatible(reflectionDescriptor))
 		{
@@ -438,13 +444,15 @@ namespace hod::game
 				}
 			}
 		}
+
+		return true;
 	}
 
 	/// @brief 
 	/// @param instance 
 	/// @param reflectionDescriptor 
 	/// @param documentNode 
-	void SceneSerializer::CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const Document::Node& documentNode)
+	bool SceneSerializer::CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const Document::Node& documentNode)
 	{
 		if (WeakComponentBase::GetReflectionDescriptor().IsCompatible(reflectionDescriptor))
 		{
@@ -479,5 +487,7 @@ namespace hod::game
 			}
 			_weakComponentsToResolve.emplace_back(weakComponent, std::move(routes));
 		}
+
+		return true;
 	}
 }

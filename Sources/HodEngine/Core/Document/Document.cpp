@@ -15,11 +15,13 @@ namespace hod
 			String name = documentNode.GetName();
 			documentNode.Copy(static_cast<const Document*>(instance)->GetRootNode());
 			documentNode.SetName(name);
+			return true;
 		},
 		[](void* instance, const Document::Node& documentNode)
 		{
 			static_cast<const Document*>(instance)->GetRootNode().Copy(documentNode);
 			static_cast<const Document*>(instance)->GetRootNode().SetName("");
+			return true;
 		});
 	}
 

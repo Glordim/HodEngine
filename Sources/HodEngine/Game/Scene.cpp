@@ -31,11 +31,11 @@ namespace hod::game
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, Document::Node& documentNode)
 		{
-			const_cast<Scene*>(static_cast<const Scene*>(instance))->SerializeInDocument(documentNode);
+			return const_cast<Scene*>(static_cast<const Scene*>(instance))->SerializeInDocument(documentNode);
 		},
 		[](void* instance, const Document::Node& documentNode)
 		{
-			static_cast<Scene*>(instance)->DeserializeFromDocument(documentNode);
+			return static_cast<Scene*>(instance)->DeserializeFromDocument(documentNode);
 		});
 	}
 
@@ -115,7 +115,10 @@ namespace hod::game
 
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
 		SceneSerializer sceneSerializer;
-		sceneSerializer.Deserialize(*entitiesNode);
+		if (sceneSerializer.Deserialize(*entitiesNode) == false)
+		{
+			return false;
+		}
 
 		for (Entity* entity : sceneSerializer.GetEntities())
 		{

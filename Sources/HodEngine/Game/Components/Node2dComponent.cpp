@@ -22,6 +22,7 @@ namespace hod
 				const ZOrder* zorder = static_cast<const ZOrder*>(instance);
 				documentNode.AddChild("Layer").SetUInt16(zorder->GetLayer());
 				documentNode.AddChild("InternalOrder").SetInt16(zorder->GetInternalOrder());
+				return true;
 			},
 			[](void* instance, const Document::Node& documentNode)
 			{
@@ -36,6 +37,7 @@ namespace hod
 				{
 					zorder->SetInternalOrder(internalOrderNode->GetInt16());
 				}
+				return true;
 			});
 		}
 

@@ -20,11 +20,11 @@ namespace hod::game
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, Document::Node& documentNode)
 		{
-			const_cast<Prefab*>(static_cast<const Prefab*>(instance))->SerializeInDocument(documentNode);
+			return const_cast<Prefab*>(static_cast<const Prefab*>(instance))->SerializeInDocument(documentNode);
 		},
 		[](void* instance, const Document::Node& documentNode)
 		{
-			static_cast<Prefab*>(instance)->DeserializeFromDocument(documentNode);
+			return static_cast<Prefab*>(instance)->DeserializeFromDocument(documentNode);
 		});
 	}
 

@@ -1,7 +1,7 @@
 namespace hod
 {
     template<typename _InstanceType_>
-    bool Serializer::Serialize(const _InstanceType_& instance, Document::Node& documentNode, const std::function<void(const void*, const ReflectionDescriptor&, Document::Node&)>& customSerializationCallback)
+    bool Serializer::Serialize(const _InstanceType_& instance, Document::Node& documentNode, const std::function<bool(const void*, const ReflectionDescriptor&, Document::Node&)>& customSerializationCallback)
 	{
 		if constexpr (std::is_pointer_v<_InstanceType_>)
 		{
@@ -28,8 +28,8 @@ namespace hod
 	}
 	*/
 
-    template<typename _InstanceType_>
-    bool Serializer::Deserialize(_InstanceType_& instance, const Document::Node& documentNode, const std::function<void(void*, const ReflectionDescriptor&, const Document::Node&)>& customDeserializationCallback)
+	template<typename _InstanceType_>
+	bool Serializer::Deserialize(_InstanceType_& instance, const Document::Node& documentNode, const std::function<bool(void*, const ReflectionDescriptor&, const Document::Node&)>& customDeserializationCallback)
 	{
 		if constexpr (std::is_pointer_v<_InstanceType_>)
 		{

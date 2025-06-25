@@ -4,7 +4,7 @@
 namespace hod
 {
 	///@brief 
-	ReflectionTraitCustomSerialization::ReflectionTraitCustomSerialization(const std::function<void(const void*, Document::Node&)> serialization, const std::function<void(void*, const Document::Node&)> deserialization)
+	ReflectionTraitCustomSerialization::ReflectionTraitCustomSerialization(const std::function<bool(const void*, Document::Node&)> serialization, const std::function<bool(void*, const Document::Node&)> deserialization)
 	: ReflectionTrait()
 	, _serialization(serialization)
 	, _deserialization(deserialization)
@@ -14,16 +14,16 @@ namespace hod
 	/// @brief 
 	/// @param instance 
 	/// @param documentNode 
-	void ReflectionTraitCustomSerialization::Serialize(const void* instance, Document::Node& documentNode) const
+	bool ReflectionTraitCustomSerialization::Serialize(const void* instance, Document::Node& documentNode) const
 	{
-		_serialization(instance, documentNode);
+		return _serialization(instance, documentNode);
 	}
 
 	/// @brief 
 	/// @param instance 
 	/// @param documentNode 
-	void ReflectionTraitCustomSerialization::Deserialize(void* instance, const Document::Node& documentNode) const
+	bool ReflectionTraitCustomSerialization::Deserialize(void* instance, const Document::Node& documentNode) const
 	{
-		_deserialization(instance, documentNode);
+		return _deserialization(instance, documentNode);
 	}
 }
