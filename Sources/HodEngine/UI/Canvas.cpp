@@ -119,7 +119,6 @@ namespace hod::ui
 		if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 		{
 			_rootNode->SetDeltaSize(rootNodeSize);
-			_rootNode->SetScale(Vector2(_scaleFactor, _scaleFactor));
 		}
 	}
 
@@ -138,18 +137,20 @@ namespace hod::ui
 			game::World* world = GetOwner()->GetScene()->GetWorld();
 			if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 			{
-				_renderModeMatrix = Matrix4::Identity;
+				_renderModeMatrix = Matrix4::Scale(Vector2::One * _scaleFactor);
 				renderQueueType = renderer::RenderView::RenderQueueType::UI;
 			}
 			else
 			{
-				_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f));
+				_scaleFactor = 1.0f;
+				_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f) * _scaleFactor);
 				renderQueueType = renderer::RenderView::RenderQueueType::World;
 			}
 		}
 		else
 		{
-			_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f));
+			_scaleFactor = 1.0f;
+			_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f) * _scaleFactor);
 			renderQueueType = renderer::RenderView::RenderQueueType::World;
 		}
 
