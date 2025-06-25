@@ -43,6 +43,7 @@ namespace hod::editor
 			_scene->SetNextLocalId(prefabResource->GetPrefab().GetNextLocalId());
 			game::Entity* prefabRootEntity = _scene->Instantiate(prefabResource);
 			prefabRootEntity->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
+			prefabRootEntity->SetLocalId(prefabResource->GetPrefab().GetRootEntity()->GetLocalId());
 			asset->SetInstanceToSave(_scene, &_scene->GetReflectionDescriptorV());
 		}
 	}

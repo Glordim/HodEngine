@@ -277,7 +277,10 @@ namespace hod::game
 	/// @return 
 	Entity* Scene::Instantiate(std::shared_ptr<PrefabResource> prefabResource)
 	{
-		return Instantiate(prefabResource->GetPrefab().GetRootEntity());
+		Entity* entity = Instantiate(prefabResource->GetPrefab().GetRootEntity());
+		entity->SetPrefabResource(prefabResource);
+		entity->SetLocalId(0);
+		return entity;
 	}
 
 	/// @brief 

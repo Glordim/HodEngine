@@ -92,6 +92,11 @@ namespace hod::game
 	{
 		Document::Node& entityNode = entitiesNode.AddChild("");
 
+		if (entity->GetLocalId() == 0)
+		{
+			entity->SetLocalId(nextLocalId);
+			++nextLocalId;
+		}
 		entityNode.AddChild("_localId").SetUInt64(entity->GetLocalId());
 
 		Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
