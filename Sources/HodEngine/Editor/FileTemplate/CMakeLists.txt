@@ -55,6 +55,7 @@ target_link_libraries([[PROJECT_NAME]]
 	${HodEngine_IMGUI_LIBRARY}
 	${HodEngine_EDITOR_LIBRARY}
 	${HodEngine_AUDIO_LIBRARY}
+	${HodEngine_UI_LIBRARY}
 	${HodEngine_APPLICATION_LIBRARY}
 	${HodEngine_HOD_APPLICATION_LIBRARY}
 )
