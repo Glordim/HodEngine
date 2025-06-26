@@ -33,105 +33,107 @@ namespace hod::editor
 		if (asset != nullptr)
 		{
 			_material = ResourceManager::GetInstance()->GetResource<renderer::MaterialResource>(asset->GetMeta()._uid);
-
-			Document document;
-			DocumentReaderJson reader;
-			reader.Read(document, asset->GetPath());
-
-			Serializer::Deserialize(_materialAsset, document.GetRootNode());
-
-			const renderer::Material* material = _material->GetMaterial();
-			if (material != nullptr)
+			if (_material != nullptr)
 			{
-				renderer::MaterialSerializationHelper::GenerateParameters(*material, _parameters);
-				for (const renderer::ShaderParameter& param : _parameters)
+				Document document;
+				DocumentReaderJson reader;
+				reader.Read(document, asset->GetPath());
+
+				Serializer::Deserialize(_materialAsset, document.GetRootNode());
+
+				const renderer::Material* material = _material->GetMaterial();
+				if (material != nullptr)
 				{
-					if (param._type == renderer::ShaderParameter::Type::Texture)
+					renderer::MaterialSerializationHelper::GenerateParameters(*material, _parameters);
+					for (const renderer::ShaderParameter& param : _parameters)
 					{
-						ShaderParamTexture textureParam;
-						textureParam._name = param._name;
-						textureParam._type = param._type;
-						_textureParameters.push_back(textureParam);
-					}
-					else if (param._type == renderer::ShaderParameter::Type::Float2)
-					{
-						ShaderParamVec2 value;
-						value._name = param._name;
-						value._type = param._type;
-						_vec2Parameters.push_back(value);
-					}
-					else if (param._type == renderer::ShaderParameter::Type::Float4)
-					{
-						ShaderParamVec4 value;
-						value._name = param._name;
-						value._type = param._type;
-						_vec4Parameters.push_back(value);
-					}
-					else if (param._type != renderer::ShaderParameter::Type::Unknown)
-					{
-						ShaderParamScalar value;
-						value._name = param._name;
-						value._type = param._type;
-						_scalarParameters.push_back(value);
+						if (param._type == renderer::ShaderParameter::Type::Texture)
+						{
+							ShaderParamTexture textureParam;
+							textureParam._name = param._name;
+							textureParam._type = param._type;
+							_textureParameters.push_back(textureParam);
+						}
+						else if (param._type == renderer::ShaderParameter::Type::Float2)
+						{
+							ShaderParamVec2 value;
+							value._name = param._name;
+							value._type = param._type;
+							_vec2Parameters.push_back(value);
+						}
+						else if (param._type == renderer::ShaderParameter::Type::Float4)
+						{
+							ShaderParamVec4 value;
+							value._name = param._name;
+							value._type = param._type;
+							_vec4Parameters.push_back(value);
+						}
+						else if (param._type != renderer::ShaderParameter::Type::Unknown)
+						{
+							ShaderParamScalar value;
+							value._name = param._name;
+							value._type = param._type;
+							_scalarParameters.push_back(value);
+						}
 					}
 				}
-			}
 
-			const Document::Node* paramNode = _materialAsset._defaultInstanceParams.GetRootNode().GetFirstChild();
-			while (paramNode != nullptr)
-			{
-				String name = paramNode->GetChild("Name")->GetString();
-				renderer::ShaderParameter::Type type = static_cast<renderer::ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
-				switch (type)
+				const Document::Node* paramNode = _materialAsset._defaultInstanceParams.GetRootNode().GetFirstChild();
+				while (paramNode != nullptr)
 				{
-				case renderer::ShaderParameter::Type::Float:
-					for (ShaderParamScalar& param : _scalarParameters)
+					String name = paramNode->GetChild("Name")->GetString();
+					renderer::ShaderParameter::Type type = static_cast<renderer::ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
+					switch (type)
 					{
-						if (param._name == name)
+					case renderer::ShaderParameter::Type::Float:
+						for (ShaderParamScalar& param : _scalarParameters)
 						{
-							param._value.floatValue = paramNode->GetChild("Value")->GetFloat32();
-							break;
+							if (param._name == name)
+							{
+								param._value.floatValue = paramNode->GetChild("Value")->GetFloat32();
+								break;
+							}
 						}
-					}
-					break;
+						break;
 
-				case renderer::ShaderParameter::Type::Float2:
-					for (ShaderParamVec2& param : _vec2Parameters)
-					{
-						if (param._name == name)
+					case renderer::ShaderParameter::Type::Float2:
+						for (ShaderParamVec2& param : _vec2Parameters)
 						{
-							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-							break;
+							if (param._name == name)
+							{
+								Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+								break;
+							}
 						}
-					}
-					break;
+						break;
 
-				case renderer::ShaderParameter::Type::Float4:
-					for (ShaderParamVec4& param : _vec4Parameters)
-					{
-						if (param._name == name)
+					case renderer::ShaderParameter::Type::Float4:
+						for (ShaderParamVec4& param : _vec4Parameters)
 						{
-							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-							break;
+							if (param._name == name)
+							{
+								Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+								break;
+							}
 						}
-					}
-					break;
+						break;
 
-				case renderer::ShaderParameter::Type::Texture:
-					for (ShaderParamTexture& param : _textureParameters)
-					{
-						if (param._name == name)
+					case renderer::ShaderParameter::Type::Texture:
+						for (ShaderParamTexture& param : _textureParameters)
 						{
-							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-							break;
+							if (param._name == name)
+							{
+								Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+								break;
+							}
 						}
+						break;
+					
+					default:
+						break;
 					}
-					break;
-				
-				default:
-					break;
+					paramNode = paramNode->GetNextSibling();
 				}
-				paramNode = paramNode->GetNextSibling();
 			}
 		}
 	}
