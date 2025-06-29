@@ -158,12 +158,15 @@ namespace hod
 
 			VkMemoryPropertyFlags memoryPropertyFlags = createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 			VkImageTiling imageTiling = createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
+			VkImageUsageFlags imageUseFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+			if (createInfo._allowReadWrite)
+				imageUseFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
 			SamplerCreateInfo samplerCreateInfo;
 			samplerCreateInfo._wrapMode = createInfo._wrapMode;
 			samplerCreateInfo._filterMode = createInfo._filterMode;
 
-			if (renderer->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
+			if (renderer->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, imageUseFlags, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
 			{
 				goto exit;
 			}
