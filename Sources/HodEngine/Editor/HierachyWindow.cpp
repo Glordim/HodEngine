@@ -156,7 +156,7 @@ namespace hod::editor
 
 		game::Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DrawLinesToNodes;
 		if (entity->GetChildren().empty())
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
