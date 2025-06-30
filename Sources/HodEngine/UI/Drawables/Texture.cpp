@@ -63,7 +63,7 @@ namespace hod::ui
 			vec4Color.SetY(_color.g);
 			vec4Color.SetZ(_color.b);
 			vec4Color.SetW(_color.a);
-			_materialInstance->SetVec4("UBO.color", vec4Color);
+			_materialInstance->SetVec4("ubo.color", vec4Color);
 			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0), renderQueueType);
 		}
 	}

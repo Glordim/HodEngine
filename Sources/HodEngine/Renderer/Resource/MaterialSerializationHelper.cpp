@@ -64,7 +64,7 @@ namespace hod::renderer
 				case ShaderParameter::Type::Float:
 				{
 					float value = valueNode->GetFloat32();
-					materialInstance.SetFloat("UBO." + name, value);
+					materialInstance.SetFloat("ubo." + name, value);
 				}
 				break;
 
@@ -72,7 +72,7 @@ namespace hod::renderer
 				{
 					Vector2 value;
 					Serializer::Deserialize(value, *valueNode);
-					materialInstance.SetVec2("UBO." + name, value);
+					materialInstance.SetVec2("ubo." + name, value);
 				}
 				break;
 
@@ -80,7 +80,7 @@ namespace hod::renderer
 				{
 					Vector4 value;
 					Serializer::Deserialize(value, *valueNode);
-					materialInstance.SetVec4("UBO." + name, value);
+					materialInstance.SetVec4("ubo." + name, value);
 				}
 				break;
 

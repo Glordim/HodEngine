@@ -166,7 +166,7 @@ namespace hod::game
 			vec4Color.SetY(_color.g);
 			vec4Color.SetZ(_color.b);
 			vec4Color.SetW(_color.a);
-			_materialInstance->SetVec4("UBO.color", vec4Color);
+			_materialInstance->SetVec4("ubo.color", vec4Color);
 		}
 	}
 

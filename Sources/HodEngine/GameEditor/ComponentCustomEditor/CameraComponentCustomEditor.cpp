@@ -22,7 +22,7 @@ namespace hod::editor
 	CameraComponentCustomEditor::CameraComponentCustomEditor()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("UBO.color", Vector4(0.8f, 0.8f, 0.8f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", Vector4(0.8f, 0.8f, 0.8f, 1.0f));
 	}
 
 	/// @brief 

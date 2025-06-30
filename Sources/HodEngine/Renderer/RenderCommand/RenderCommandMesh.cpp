@@ -137,7 +137,7 @@ namespace hod::renderer
 			Color color = renderer::PickingManager::ConvertIdToColor(_pickingId);
 
 			materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
-			materialInstance->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
+			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 			commandBuffer->DeleteAfterRender(materialInstance);
 		}
 		else if (_ignoreVisualisationMode == false)
@@ -159,7 +159,7 @@ namespace hod::renderer
 		};
 
 		Constant constant;
-		constant._mvp = commandBuffer->_projection * commandBuffer->_view * _modelMatrix;
+		constant._mvp = (commandBuffer->_projection * commandBuffer->_view * _modelMatrix).Transpose();
 		commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
 
 		if (_indices.empty() == false)

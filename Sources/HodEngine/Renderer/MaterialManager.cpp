@@ -8,15 +8,14 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
-#include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit.vert.hpp"
-#include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit.frag.hpp"
-#include "HodEngine/Renderer/Shader/TextureUnlitColor.frag.hpp"
+#include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit_Vertex.hpp"
+#include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit_Fragment.hpp"
 
-#include "HodEngine/Renderer/Shader/P2fC4f_Unlit.vert.hpp"
-#include "HodEngine/Renderer/Shader/P2fC4f_Unlit.frag.hpp"
+#include "HodEngine/Renderer/Shader/P2fC4f_Unlit_Vertex.hpp"
+#include "HodEngine/Renderer/Shader/P2fC4f_Unlit_Fragment.hpp"
 
-#include "HodEngine/Renderer/Shader/P2f_Unlit.vert.hpp"
-#include "HodEngine/Renderer/Shader/P2f_Unlit.frag.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
 
 #include <span>
 #include <cstring>
@@ -55,12 +54,14 @@ namespace hod
 
 		struct BuiltinMaterialSource
 		{
-			BuiltinMaterialSource(std::string_view vertexShaderSource,
-								  std::string_view fragmentShaderSource,
+			BuiltinMaterialSource(const uint8_t* vertexShaderBytecode, uint32_t vertexShaderBytecodeSize,
+								  const uint8_t* fragmentShaderBytecode, uint32_t fragmentShaderBytecodeSize,
 								  const Vector<VertexInput>& vertexInputs,
 								  Material::PolygonMode polygonMode, Material::Topololy topology)
-			: _vertexShaderSource(vertexShaderSource)
-			, _fragmentShaderSource(fragmentShaderSource)
+			: _vertexShaderBytecode(vertexShaderBytecode)
+			, _vertexShaderBytecodeSize(vertexShaderBytecodeSize)
+			, _fragmentShaderBytecode(fragmentShaderBytecode)
+			, _fragmentShaderBytecodeSize(fragmentShaderBytecodeSize)
 			//, _vertexInput(vertexInput)
 			, _polygonMode(polygonMode)
 			, _topology(topology)
@@ -69,14 +70,16 @@ namespace hod
 				std::memcpy(_vertexInputs.data(), vertexInputs.data(), vertexInputs.size() * sizeof(VertexInput));
 			}
 
-			std::string_view			_vertexShaderSource;
-			std::string_view			_fragmentShaderSource;
+			const uint8_t*			_vertexShaderBytecode;
+			uint32_t				_vertexShaderBytecodeSize;
 
-			Vector<VertexInput>	_vertexInputs;
+			const uint8_t*			_fragmentShaderBytecode;
+			uint32_t				_fragmentShaderBytecodeSize;
+
+			Vector<VertexInput>			_vertexInputs;
 
 			Material::PolygonMode		_polygonMode;
 			Material::Topololy			_topology;
-
 		};
 
 		/// @brief 
@@ -84,47 +87,47 @@ namespace hod
 		/// @return 
 		const BuiltinMaterialSource& GetBuiltinMaterialSource(MaterialManager::BuiltinMaterial buildMaterial)
 		{
-			static BuiltinMaterialSource P2f_Unlit_Line(P2f_Unlit_vert, P2f_Unlit_frag,
+			static BuiltinMaterialSource P2f_Unlit_Line(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Fragment, P2f_Unlit_Fragment_size,
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::LINE);
 
-			static BuiltinMaterialSource P2f_Unlit_Triangle(P2f_Unlit_vert, P2f_Unlit_frag,
+			static BuiltinMaterialSource P2f_Unlit_Triangle(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Fragment, P2f_Unlit_Fragment_size,
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
-			static BuiltinMaterialSource P2f_Unlit_TriangleFan(P2f_Unlit_vert, P2f_Unlit_frag,
+			static BuiltinMaterialSource P2f_Unlit_TriangleFan(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Fragment, P2f_Unlit_Fragment_size,
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE_FAN);
 
-			static BuiltinMaterialSource P2f_Unlit_Line_TriangleFan(P2f_Unlit_vert, P2f_Unlit_frag,
+			static BuiltinMaterialSource P2f_Unlit_Line_TriangleFan(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Fragment, P2f_Unlit_Fragment_size,
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Line, Material::Topololy::TRIANGLE_FAN);
 
-			static BuiltinMaterialSource P2f_Unlit_Line_LineStrip(P2f_Unlit_vert, P2f_Unlit_frag,
+			static BuiltinMaterialSource P2f_Unlit_Line_LineStrip(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Fragment, P2f_Unlit_Fragment_size,
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Line, Material::Topololy::LINE_STRIP);
 
-			static BuiltinMaterialSource P2fT2f_Texture_Unlit(P2fT2f_Texture_Unlit_vert, P2fT2f_Texture_Unlit_frag,
+			static BuiltinMaterialSource P2fT2f_Texture_Unlit(P2fT2f_Texture_Unlit_Vertex, P2fT2f_Texture_Unlit_Vertex_size, P2fT2f_Texture_Unlit_Fragment, P2fT2f_Texture_Unlit_Fragment_size,
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
-			static BuiltinMaterialSource P2fT2f_Texture_Unlit_Color(P2fT2f_Texture_Unlit_vert, TextureUnlitColor_frag,
+			static BuiltinMaterialSource P2fT2f_Texture_Unlit_Color(P2fT2f_Texture_Unlit_Vertex, P2fT2f_Texture_Unlit_Vertex_size, P2fT2f_Texture_Unlit_Fragment, P2fT2f_Texture_Unlit_Fragment_size,
 															  { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat) },
 															  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
-			static BuiltinMaterialSource P2fC4f_Unlit_Fill_Triangle(P2fC4f_Unlit_vert, P2fC4f_Unlit_frag,
+			static BuiltinMaterialSource P2fC4f_Unlit_Fill_Triangle(P2fC4f_Unlit_Vertex, P2fC4f_Unlit_Vertex_size, P2fC4f_Unlit_Fragment, P2fC4f_Unlit_Fragment_size,
 								  									{ VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  									Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
-			static BuiltinMaterialSource P2fC4f_Unlit_Fill_TriangleFan(P2fC4f_Unlit_vert, P2fC4f_Unlit_frag,
+			static BuiltinMaterialSource P2fC4f_Unlit_Fill_TriangleFan(P2fC4f_Unlit_Vertex, P2fC4f_Unlit_Vertex_size, P2fC4f_Unlit_Fragment, P2fC4f_Unlit_Fragment_size,
 								  									   { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  									   Material::PolygonMode::Fill, Material::Topololy::TRIANGLE_FAN);
 
-			static BuiltinMaterialSource P2fC4f_Unlit_Line_TriangleFan(P2fC4f_Unlit_vert, P2fC4f_Unlit_frag,
+			static BuiltinMaterialSource P2fC4f_Unlit_Line_TriangleFan(P2fC4f_Unlit_Vertex, P2fC4f_Unlit_Vertex_size, P2fC4f_Unlit_Fragment, P2fC4f_Unlit_Fragment_size,
 								  									   { VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  									   Material::PolygonMode::Line, Material::Topololy::TRIANGLE_FAN);
 
-			static BuiltinMaterialSource P2fC4f_Unlit_Line_Line(P2fC4f_Unlit_vert, P2fC4f_Unlit_frag,
+			static BuiltinMaterialSource P2fC4f_Unlit_Line_Line(P2fC4f_Unlit_Vertex, P2fC4f_Unlit_Vertex_size, P2fC4f_Unlit_Fragment, P2fC4f_Unlit_Fragment_size,
 								  								{ VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat) },
 								  								Material::PolygonMode::Line, Material::Topololy::LINE);
 
@@ -160,14 +163,14 @@ namespace hod
 				const BuiltinMaterialSource& builtinMaterialSource = GetBuiltinMaterialSource(buildMaterial);
 
 				Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
-				if (vertexShader->LoadFromSource(builtinMaterialSource._vertexShaderSource) == false)
+				if (vertexShader->LoadFromIR(builtinMaterialSource._vertexShaderBytecode, builtinMaterialSource._vertexShaderBytecodeSize) == false)
 				{
 					DefaultAllocator::GetInstance().Delete(vertexShader);
 					return nullptr;
 				}
 
 				Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
-				if (fragmentShader->LoadFromSource(builtinMaterialSource._fragmentShaderSource) == false)
+				if (fragmentShader->LoadFromIR(builtinMaterialSource._fragmentShaderBytecode, builtinMaterialSource._fragmentShaderBytecodeSize) == false)
 				{
 					DefaultAllocator::GetInstance().Delete(vertexShader);
 					DefaultAllocator::GetInstance().Delete(fragmentShader);

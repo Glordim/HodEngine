@@ -60,11 +60,26 @@
 			"preLaunchTask": "Build Target",
 		},
 		{
+			"name": "(Windows) Editor attach",
+			"type": "cppvsdbg",
+			"request": "attach",
+			"program": "${command:cmake.launchTargetDirectory}/HodEditor.exe",
+			//"args": ["--ProjectPath", "E:/Pong/Pong.hod"],
+			"stopAtEntry": false,
+			//"cwd": "E:/Pong/Pong.hod",
+			"environment": [],
+			"console": "integratedTerminal",
+			"preLaunchTask": "Build Target",
+		},
+		{
 			"name": "(Windows) Game",
 			"type": "cppvsdbg",
 			"request": "launch",
 			"program": "${command:cmake.launchTargetDirectory}/HodApplication.exe",
-			"args": ["--BuildPath", "E:/Pong/Builds/Latest"],
+			"args": [
+				"--BuildPath",
+				"E:/Pong/Builds/Latest"
+			],
 			"stopAtEntry": false,
 			//"cwd": "E:/Pong/Pong.hod",
 			"environment": [],

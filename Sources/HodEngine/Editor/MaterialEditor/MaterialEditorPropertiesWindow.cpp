@@ -82,7 +82,7 @@ namespace hod::editor
 					EditorReflectedProperty editorProperty(&scalarParameter._value.floatValue, nullptr, &reflectionPropertyVariable, nullptr);
 					if (PropertyDrawer::DrawProperty(editorProperty))
 					{
-						GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetFloat("UBO." + scalarParameter._name, scalarParameter._value.floatValue);
+						GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetFloat("ubo." + scalarParameter._name, scalarParameter._value.floatValue);
 						changed = true;
 					}
 					ImGui::PopID();
@@ -105,7 +105,7 @@ namespace hod::editor
 				EditorReflectedObject editorObject(&vec2Parameter._value, &Vector2::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
-					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec2("UBO." + vec2Parameter._name, vec2Parameter._value);
+					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec2("ubo." + vec2Parameter._name, vec2Parameter._value);
 					changed = true;
 				}
 				ImGui::PopID();
@@ -119,7 +119,7 @@ namespace hod::editor
 				EditorReflectedObject editorObject(&vec4Parameter._value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
-					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec4("UBO." + vec4Parameter._name, vec4Parameter._value);
+					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec4("ubo." + vec4Parameter._name, vec4Parameter._value);
 					changed = true;
 				}
 				ImGui::PopID();

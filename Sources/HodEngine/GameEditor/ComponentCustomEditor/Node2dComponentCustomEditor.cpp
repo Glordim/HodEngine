@@ -22,32 +22,32 @@ namespace hod::editor
 	Node2dComponentCustomEditor::Node2dComponentCustomEditor()
 	{
 		_materialInstanceCenterNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceCenterNormal->SetVec4("UBO.color", Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+		_materialInstanceCenterNormal->SetVec4("ubo.color", Vector4(0.5f, 0.5f, 0.5f, 1.0f));
 
 		_materialInstanceCenterHightlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceCenterHightlight->SetVec4("UBO.color", Vector4(1.0f, 0.5f, 0.5f, 1.0f));
+		_materialInstanceCenterHightlight->SetVec4("ubo.color", Vector4(1.0f, 0.5f, 0.5f, 1.0f));
 
 		_materialInstanceAxisXNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisXNormal->SetVec4("UBO.color", Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+		_materialInstanceAxisXNormal->SetVec4("ubo.color", Vector4(1.0f, 0.0f, 0.0f, 1.0f));
 
 		_materialInstanceAxisXHightlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisXHightlight->SetVec4("UBO.color", Vector4(1.0f, 0.5f, 0.5f, 1.0f));
+		_materialInstanceAxisXHightlight->SetVec4("ubo.color", Vector4(1.0f, 0.5f, 0.5f, 1.0f));
 
 		_pickingIdAxisX = renderer::PickingManager::GetInstance()->GenerateId();
 
 		_materialInstanceAxisYNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisYNormal->SetVec4("UBO.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		_materialInstanceAxisYNormal->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 
 		_materialInstanceAxisYHightlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisYHightlight->SetVec4("UBO.color", Vector4(0.5f, 1.0f, 0.5f, 1.0f));
+		_materialInstanceAxisYHightlight->SetVec4("ubo.color", Vector4(0.5f, 1.0f, 0.5f, 1.0f));
 
 		_pickingIdAxisY = renderer::PickingManager::GetInstance()->GenerateId();
 
 		_materialInstanceAxisZNormal = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisZNormal->SetVec4("UBO.color", Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+		_materialInstanceAxisZNormal->SetVec4("ubo.color", Vector4(0.0f, 0.0f, 1.0f, 1.0f));
 
 		_materialInstanceAxisZHightlight = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		_materialInstanceAxisZHightlight->SetVec4("UBO.color", Vector4(0.5f, 0.5f, 1.0f, 1.0f));
+		_materialInstanceAxisZHightlight->SetVec4("ubo.color", Vector4(0.5f, 0.5f, 1.0f, 1.0f));
 
 		_pickingIdAxisZ = renderer::PickingManager::GetInstance()->GenerateId();
 	}

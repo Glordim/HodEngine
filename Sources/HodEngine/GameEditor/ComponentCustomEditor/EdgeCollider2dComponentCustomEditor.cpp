@@ -23,7 +23,7 @@ namespace hod::editor
 	EdgeCollider2dComponentCustomEditor::EdgeCollider2dComponentCustomEditor()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("UBO.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
 	/// @brief 

@@ -27,8 +27,8 @@
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 #include <HodEngine/Window/Desktop/DesktopDisplayManager.hpp>
 
-#include "HodEngine/ImGui/Shader/imgui.vert.hpp"
-#include "HodEngine/ImGui/Shader/imgui.frag.hpp"
+#include "HodEngine/ImGui/Shader/ImGui_Vertex.hpp"
+#include "HodEngine/ImGui/Shader/ImGui_Fragment.hpp"
 #include "HodEngine/ImGui/Font/MaterialDesignIcons.ttf.hpp"
 #include "HodEngine/ImGui/Font/Roboto-Regular.ttf.hpp"
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
@@ -569,14 +569,14 @@ void embraceTheDarkness()
 			};
 
 			_vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
-			if (_vertexShader->LoadFromSource(imgui_vert) == false)
+			if (_vertexShader->LoadFromIR(ImGui_Vertex, ImGui_Vertex_size) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(_vertexShader);
 				return false;
 			}
 
 			_fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
-			if (_fragmentShader->LoadFromSource(imgui_frag) == false)
+			if (_fragmentShader->LoadFromIR(ImGui_Fragment, ImGui_Fragment_size) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(_vertexShader);
 				DefaultAllocator::GetInstance().Delete(_fragmentShader);

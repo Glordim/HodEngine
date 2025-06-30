@@ -28,7 +28,7 @@ namespace hod::editor
 	CanvasCustomEditor::CanvasCustomEditor()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("UBO.color", Vector4(0.75f, 0.75f, 0.75f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", Vector4(0.75f, 0.75f, 0.75f, 1.0f));
 	}
 
 	/// @brief 
@@ -82,7 +82,7 @@ namespace hod::editor
 			static Vector4 selectedColor(0.75f, 0.75f, 0.75f, 1.0f);
 			static Vector4 normalColor(0.45f, 0.45f, 0.45f, 1.0f);
 
-			_materialInstance->SetVec4("UBO.color", selected ? selectedColor : normalColor);
+			_materialInstance->SetVec4("ubo.color", selected ? selectedColor : normalColor);
 
 			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 			viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);

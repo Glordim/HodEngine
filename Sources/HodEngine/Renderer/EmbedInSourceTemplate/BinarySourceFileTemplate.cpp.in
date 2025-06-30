@@ -1,8 +1,10 @@
 #include <cstdint>
 
-namespace hod::imgui
+namespace hod::renderer
 {
-	uint8_t @ESCAPED_FILE_NAME@[] = {@ESCAPED_FILE_CONTENTS@};
+	uint8_t @ESCAPED_FILE_NAME@[] = {
+	@ESCAPED_FILE_CONTENTS@
+	};
 	uint32_t @ESCAPED_FILE_NAME@_size = sizeof(@ESCAPED_FILE_NAME@);
 
 /*

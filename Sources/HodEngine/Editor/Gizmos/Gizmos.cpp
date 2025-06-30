@@ -89,7 +89,7 @@ namespace hod::editor
 		GeometryGenerator::CircleShapeFillNoFan<segmentCount>(vertices, Vector2::Zero, radius);
 
 		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		materialInstance->SetVec4("UBO.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
+		materialInstance->SetVec4("ubo.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
 		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
@@ -114,7 +114,7 @@ namespace hod::editor
 			};
 
 		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		materialInstance->SetVec4("UBO.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
+		materialInstance->SetVec4("ubo.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
 		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
@@ -135,7 +135,7 @@ namespace hod::editor
 			};
 
 		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		materialInstance->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
+		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 		renderView.PushRenderCommand(renderMeshCommand);
@@ -150,7 +150,7 @@ namespace hod::editor
 			};
 
 		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		materialInstance->SetVec4("UBO.color", Vector4(color.r, color.g, color.b, color.a));
+		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 		renderView.PushRenderCommand(renderMeshCommand);

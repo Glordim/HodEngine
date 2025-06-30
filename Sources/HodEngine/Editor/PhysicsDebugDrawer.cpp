@@ -98,7 +98,7 @@ namespace hod::editor
 		}
 
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(&_material);
-		const_cast<renderer::MaterialInstance*>(_materialInstance)->SetVec4("UBO.color", _color);
+		const_cast<renderer::MaterialInstance*>(_materialInstance)->SetVec4("ubo.color", _color);
 		RenderCommandMesh::Execute(commandBuffer, overrideMaterial);
 		commandBuffer->DeleteAfterRender(const_cast<renderer::MaterialInstance*>(_materialInstance));
 	}

@@ -85,6 +85,8 @@ set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
+set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc.exe")
+
 SetupPlatform()
 SetupCompilation()
 

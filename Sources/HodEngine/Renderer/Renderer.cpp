@@ -10,8 +10,8 @@
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp"
 
-#include "HodEngine/Renderer/Shader/SpriteUnlitColor.vert.hpp"
-#include "HodEngine/Renderer/Shader/SpriteUnlitColor.frag.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
@@ -121,14 +121,14 @@ namespace hod
 					};
 
 					Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
-					if (vertexShader->LoadFromSource(SpriteUnlitColor_vert) == false)
+					if (vertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size) == false)
 					{
 						DefaultAllocator::GetInstance().Delete(vertexShader);
 						return nullptr;
 					}
 
 					Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
-					if (fragmentShader->LoadFromSource(SpriteUnlitColor_frag) == false)
+					if (fragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size) == false)
 					{
 						DefaultAllocator::GetInstance().Delete(vertexShader);
 						DefaultAllocator::GetInstance().Delete(fragmentShader);

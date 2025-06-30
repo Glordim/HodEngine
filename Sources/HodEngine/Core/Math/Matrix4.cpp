@@ -80,6 +80,8 @@ namespace hod
         );
     }
 
+	#undef near
+
 	/// @brief 
 	/// @param left 
 	/// @param right 
@@ -104,12 +106,12 @@ namespace hod
 
 		projection._values[2][0] = 0.0f;
 		projection._values[2][1] = 0.0f;
-		projection._values[2][2] = 1.0f;
+		projection._values[2][2] = -2.0f / (far - near);
 		projection._values[2][3] = 0.0f;
 
-		projection._values[3][0] = 0.0f;
-		projection._values[3][1] = 0.0f;
-		projection._values[3][2] = 0.0f;
+		projection._values[3][0] = -((right + left) / (right - left));
+		projection._values[3][1] = -((top + bottom) / (top - bottom));
+		projection._values[3][2] = -((far + near) / (far - near));
 		projection._values[3][3] = 1.0f;
 
 		return projection;
@@ -180,86 +182,86 @@ namespace hod
 		float invDet;
 
 		inv._values[0][0] = matrix._values[1][1]  * matrix._values[2][2] * matrix._values[3][3] - 
-					matrix._values[1][1]  * matrix._values[2][3] * matrix._values[3][2] - 
-					matrix._values[2][1]  * matrix._values[1][2]  * matrix._values[3][3] + 
-					matrix._values[2][1]  * matrix._values[1][3]  * matrix._values[3][2] +
-					matrix._values[3][1] * matrix._values[1][2]  * matrix._values[2][3] - 
-					matrix._values[3][1] * matrix._values[1][3]  * matrix._values[2][2];
+					matrix._values[1][1] * matrix._values[2][3] * matrix._values[3][2] - 
+					matrix._values[2][1] * matrix._values[1][2] * matrix._values[3][3] + 
+					matrix._values[2][1] * matrix._values[1][3] * matrix._values[3][2] +
+					matrix._values[3][1] * matrix._values[1][2] * matrix._values[2][3] - 
+					matrix._values[3][1] * matrix._values[1][3] * matrix._values[2][2];
 
 		inv._values[0][1] = -matrix._values[0][1]  * matrix._values[2][2] * matrix._values[3][3] + 
-					matrix._values[0][1]  * matrix._values[2][3] * matrix._values[3][2] + 
-					matrix._values[2][1]  * matrix._values[0][2] * matrix._values[3][3] - 
-					matrix._values[2][1]  * matrix._values[0][3] * matrix._values[3][2] - 
+					matrix._values[0][1] * matrix._values[2][3] * matrix._values[3][2] + 
+					matrix._values[2][1] * matrix._values[0][2] * matrix._values[3][3] - 
+					matrix._values[2][1] * matrix._values[0][3] * matrix._values[3][2] - 
 					matrix._values[3][1] * matrix._values[0][2] * matrix._values[2][3] + 
 					matrix._values[3][1] * matrix._values[0][3] * matrix._values[2][2];
 
 		inv._values[0][2] = matrix._values[0][1]  * matrix._values[1][2] * matrix._values[3][3] - 
-					matrix._values[0][1]  * matrix._values[1][3] * matrix._values[3][2] - 
-					matrix._values[1][1]  * matrix._values[0][2] * matrix._values[3][3] + 
-					matrix._values[1][1]  * matrix._values[0][3] * matrix._values[3][2] + 
+					matrix._values[0][1] * matrix._values[1][3] * matrix._values[3][2] - 
+					matrix._values[1][1] * matrix._values[0][2] * matrix._values[3][3] + 
+					matrix._values[1][1] * matrix._values[0][3] * matrix._values[3][2] + 
 					matrix._values[3][1] * matrix._values[0][2] * matrix._values[1][3] - 
 					matrix._values[3][1] * matrix._values[0][3] * matrix._values[1][2];
 
 		inv._values[0][3] = -matrix._values[0][1]  * matrix._values[1][2] * matrix._values[2][3] + 
-					matrix._values[0][1]  * matrix._values[1][3] * matrix._values[2][2] + 
-					matrix._values[1][1]  * matrix._values[0][2] * matrix._values[2][3] - 
-					matrix._values[1][1]  * matrix._values[0][3] * matrix._values[2][2] - 
+					matrix._values[0][1] * matrix._values[1][3] * matrix._values[2][2] + 
+					matrix._values[1][1] * matrix._values[0][2] * matrix._values[2][3] - 
+					matrix._values[1][1] * matrix._values[0][3] * matrix._values[2][2] - 
 					matrix._values[2][1] * matrix._values[0][2] * matrix._values[1][3] + 
 					matrix._values[2][1] * matrix._values[0][3] * matrix._values[1][2];
 
 		inv._values[1][0] = -matrix._values[1][0]  * matrix._values[2][2] * matrix._values[3][3] + 
-					matrix._values[1][0]  * matrix._values[2][3] * matrix._values[3][2] + 
-					matrix._values[2][0]  * matrix._values[1][2] * matrix._values[3][3] - 
-					matrix._values[2][0]  * matrix._values[1][3] * matrix._values[3][2] - 
+					matrix._values[1][0] * matrix._values[2][3] * matrix._values[3][2] + 
+					matrix._values[2][0] * matrix._values[1][2] * matrix._values[3][3] - 
+					matrix._values[2][0] * matrix._values[1][3] * matrix._values[3][2] - 
 					matrix._values[3][0] * matrix._values[1][2] * matrix._values[2][3] + 
 					matrix._values[3][0] * matrix._values[1][3] * matrix._values[2][2];
 
 		inv._values[1][1] = matrix._values[0][0]  * matrix._values[2][2] * matrix._values[3][3] - 
-					matrix._values[0][0]  * matrix._values[2][3] * matrix._values[3][2] - 
-					matrix._values[2][0]  * matrix._values[0][2] * matrix._values[3][3] + 
-					matrix._values[2][0]  * matrix._values[0][3] * matrix._values[3][2] + 
+					matrix._values[0][0] * matrix._values[2][3] * matrix._values[3][2] - 
+					matrix._values[2][0] * matrix._values[0][2] * matrix._values[3][3] + 
+					matrix._values[2][0] * matrix._values[0][3] * matrix._values[3][2] + 
 					matrix._values[3][0] * matrix._values[0][2] * matrix._values[2][3] - 
 					matrix._values[3][0] * matrix._values[0][3] * matrix._values[2][2];
 
 		inv._values[1][2] = -matrix._values[0][0]  * matrix._values[1][2] * matrix._values[3][3] + 
-					matrix._values[0][0]  * matrix._values[1][3] * matrix._values[3][2] + 
-					matrix._values[1][0]  * matrix._values[0][2] * matrix._values[3][3] - 
-					matrix._values[1][0]  * matrix._values[0][3] * matrix._values[3][2] - 
+					matrix._values[0][0] * matrix._values[1][3] * matrix._values[3][2] + 
+					matrix._values[1][0] * matrix._values[0][2] * matrix._values[3][3] - 
+					matrix._values[1][0] * matrix._values[0][3] * matrix._values[3][2] - 
 					matrix._values[3][0] * matrix._values[0][2] * matrix._values[1][3] + 
 					matrix._values[3][0] * matrix._values[0][3] * matrix._values[1][2];
 
 		inv._values[1][3] = matrix._values[0][0]  * matrix._values[1][2] * matrix._values[2][3] - 
-					matrix._values[0][0]  * matrix._values[1][3] * matrix._values[2][2] - 
-					matrix._values[1][0]  * matrix._values[0][2] * matrix._values[2][3] + 
-					matrix._values[1][0]  * matrix._values[0][3] * matrix._values[2][2] + 
+					matrix._values[0][0] * matrix._values[1][3] * matrix._values[2][2] - 
+					matrix._values[1][0] * matrix._values[0][2] * matrix._values[2][3] + 
+					matrix._values[1][0] * matrix._values[0][3] * matrix._values[2][2] + 
 					matrix._values[2][0] * matrix._values[0][2] * matrix._values[1][3] - 
 					matrix._values[2][0] * matrix._values[0][3] * matrix._values[1][2];
 
 		inv._values[2][0] = matrix._values[1][0]  * matrix._values[2][1] * matrix._values[3][3] - 
-					matrix._values[1][0]  * matrix._values[2][3] * matrix._values[3][1] - 
-					matrix._values[2][0]  * matrix._values[1][1] * matrix._values[3][3] + 
-					matrix._values[2][0]  * matrix._values[1][3] * matrix._values[3][1] + 
+					matrix._values[1][0] * matrix._values[2][3] * matrix._values[3][1] - 
+					matrix._values[2][0] * matrix._values[1][1] * matrix._values[3][3] + 
+					matrix._values[2][0] * matrix._values[1][3] * matrix._values[3][1] + 
 					matrix._values[3][0] * matrix._values[1][1] * matrix._values[2][3] - 
 					matrix._values[3][0] * matrix._values[1][3] * matrix._values[2][1];
 
 		inv._values[2][1] = -matrix._values[0][0]  * matrix._values[2][1] * matrix._values[3][3] + 
-					matrix._values[0][0]  * matrix._values[2][3] * matrix._values[3][1] + 
-					matrix._values[2][0]  * matrix._values[0][1] * matrix._values[3][3] - 
-					matrix._values[2][0]  * matrix._values[0][3] * matrix._values[3][1] - 
+					matrix._values[0][0] * matrix._values[2][3] * matrix._values[3][1] + 
+					matrix._values[2][0] * matrix._values[0][1] * matrix._values[3][3] - 
+					matrix._values[2][0] * matrix._values[0][3] * matrix._values[3][1] - 
 					matrix._values[3][0] * matrix._values[0][1] * matrix._values[2][3] + 
 					matrix._values[3][0] * matrix._values[0][3] * matrix._values[2][1];
 
 		inv._values[2][2] = matrix._values[0][0]  * matrix._values[1][1] * matrix._values[3][3] - 
-					matrix._values[0][0]  * matrix._values[1][3] * matrix._values[3][1] - 
-					matrix._values[1][0]  * matrix._values[0][1] * matrix._values[3][3] + 
-					matrix._values[1][0]  * matrix._values[0][3] * matrix._values[3][1] + 
+					matrix._values[0][0] * matrix._values[1][3] * matrix._values[3][1] - 
+					matrix._values[1][0] * matrix._values[0][1] * matrix._values[3][3] + 
+					matrix._values[1][0] * matrix._values[0][3] * matrix._values[3][1] + 
 					matrix._values[3][0] * matrix._values[0][1] * matrix._values[1][3] - 
 					matrix._values[3][0] * matrix._values[0][3] * matrix._values[1][1];
 
 		inv._values[2][3] = -matrix._values[0][0]  * matrix._values[1][1] * matrix._values[2][3] + 
-					matrix._values[0][0]  * matrix._values[1][3] * matrix._values[2][1] + 
-					matrix._values[1][0]  * matrix._values[0][1] * matrix._values[2][3] - 
-					matrix._values[1][0]  * matrix._values[0][3] * matrix._values[2][1] - 
+					matrix._values[0][0] * matrix._values[1][3] * matrix._values[2][1] + 
+					matrix._values[1][0] * matrix._values[0][1] * matrix._values[2][3] - 
+					matrix._values[1][0] * matrix._values[0][3] * matrix._values[2][1] - 
 					matrix._values[2][0] * matrix._values[0][1] * matrix._values[1][3] + 
 					matrix._values[2][0] * matrix._values[0][3] * matrix._values[1][1];
 
@@ -394,4 +396,15 @@ namespace hod
             _values[2][2] /= scaleZ;
         }
     }
+
+	Matrix4 Matrix4::Transpose() const
+	{
+		Matrix4 result;
+		for (int i = 0; i < 4; ++i) {
+			for (int j = 0; j < 4; ++j) {
+				result._values[i][j] = _values[j][i];
+			}
+		}
+		return result;
+	}
 }

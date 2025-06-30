@@ -42,6 +42,8 @@ namespace hod
 
 		void		RemoveScale();
 
+		Matrix4		Transpose() const;
+
 	public:
 
 		static Matrix4	OrthogonalProjection(float left, float right, float bottom, float top, float near, float far);
@@ -54,6 +56,6 @@ namespace hod
 
 	private:
 
-		float 		_values[4][4];
+		float			_values[4][4];
 	};
 }
