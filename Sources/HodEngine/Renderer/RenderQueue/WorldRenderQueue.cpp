@@ -1,6 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RenderQueue/WorldRenderQueue.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
+#include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 
 namespace hod::renderer
 {
