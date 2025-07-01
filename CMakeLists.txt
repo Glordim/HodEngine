@@ -59,17 +59,6 @@ set_target_properties(Freetype::Freetype PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
 )
 
-add_library(Glslang::Glslang STATIC IMPORTED GLOBAL)
-set_target_properties(Glslang::Glslang PROPERTIES
-    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}glslang.${LIB_EXTENSION}"
-    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-)
-add_library(Glslang::GlslangDefaultResource STATIC IMPORTED GLOBAL)
-set_target_properties(Glslang::GlslangDefaultResource PROPERTIES
-    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}glslang-default-resource-limits.${LIB_EXTENSION}"
-    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-)
-
 add_library(SpirvCross::SpirvCross STATIC IMPORTED GLOBAL)
 set_target_properties(SpirvCross::SpirvCross PROPERTIES
     IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}spirv-cross-core.${LIB_EXTENSION}"
