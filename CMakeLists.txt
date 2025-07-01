@@ -81,6 +81,8 @@ set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
 )
 
 set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc.exe")
+set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/slang.dll")
+set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/bin/slang-glslang.dll")
 
 SetupPlatform()
 SetupCompilation()

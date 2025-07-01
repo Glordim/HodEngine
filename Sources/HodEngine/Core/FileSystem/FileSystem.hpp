@@ -40,6 +40,8 @@ namespace hod
 			FILE*	_file = nullptr;
 		#endif
 
+			std::filesystem::path _path; // TODO REMOVE
+
 			bool IsOpen() const;
 		};
 

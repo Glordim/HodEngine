@@ -33,8 +33,39 @@ namespace hod::renderer
 			return false;
 		}
 
+		const Document::Node* dataOffsetNode = documentNode.GetChild("DataOffset");
+		if (dataOffsetNode == nullptr)
+		{
+			// TODO message
+			return false;
+		}
+
+		uint32_t initialStreamPos = FileSystem::GetInstance()->GetOffset(fileHandle);
+		uint32_t dataOffset = dataOffsetNode->GetUInt32();
+
+		const Document::Node* dataSizeNode = documentNode.GetChild("DataSize");
+		if (dataSizeNode == nullptr)
+		{
+			// TODO message
+			return false;
+		}
+
+		uint32_t dataSize = dataSizeNode->GetUInt32();
+
+		FileSystem::GetInstance()->Seek(fileHandle, initialStreamPos + dataOffset, FileSystem::SeekMode::Begin);
+
+		char* data = DefaultAllocator::GetInstance().Allocate<char>(dataSize);
+		if (FileSystem::GetInstance()->Read(fileHandle, data, dataSize) != dataSize)
+		{
+			DefaultAllocator::GetInstance().Free(data);
+			return false;
+		}
+
 		_shader = Renderer::GetInstance()->CreateShader(_type);
-		if (_shader->LoadFromSource(_source) == false)
+		bool loaded = _shader->LoadFromIR(data, dataSize);
+		DefaultAllocator::GetInstance().Free(data);
+
+		if (loaded == false)
 		{
 			DefaultAllocator::GetInstance().Delete(_shader);
 			_shader = nullptr;

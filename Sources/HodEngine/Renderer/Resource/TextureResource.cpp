@@ -35,7 +35,7 @@ namespace hod::renderer
 			// TODO message
 			return false;
 		}
-		
+
 		const Document::Node* dataOffsetNode = documentNode.GetChild("DataOffset");
 		if (dataOffsetNode == nullptr)
 		{

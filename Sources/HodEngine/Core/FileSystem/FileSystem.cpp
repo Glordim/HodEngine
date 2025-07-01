@@ -21,6 +21,8 @@ namespace hod
 
 	FileSystem::Handle FileSystem::Open(const std::filesystem::path& path)
 	{
-		return Open(path.string().c_str());
+		FileSystem::Handle handle = Open(path.string().c_str());
+		handle._path = path;
+		return handle;
 	}
 }

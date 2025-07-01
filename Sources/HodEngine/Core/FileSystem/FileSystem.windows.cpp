@@ -69,7 +69,7 @@ namespace hod
 	FileSystem::Handle FileSystem::Open(const char* path)
 	{
 		FileSystem::Handle handle;
-		handle._handle = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		handle._handle = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (handle._handle == INVALID_HANDLE_VALUE)
 		{
 			OUTPUT_ERROR("Unable to open file at : {}, {}", path, OS::GetLastWin32ErrorMessage());

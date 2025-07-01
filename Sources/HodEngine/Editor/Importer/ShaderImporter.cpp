@@ -9,6 +9,9 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
+#include <HodEngine/Core/Process/Process.hpp>
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
+
 #include <sstream>
 #include <cstring>
 
@@ -22,7 +25,7 @@ namespace hod::editor
 	ShaderImporter::ShaderImporter()
 	: Importer()
 	{
-		SetSupportedDataFileExtensions("vert", "frag");
+		SetSupportedDataFileExtensions("vert", "frag", "slang");
 	}
 
 	/// @brief 
@@ -41,14 +44,17 @@ namespace hod::editor
 
 		//ShaderImporterSettings& fontSettings = (ShaderImporterSettings&)settings;
 
+		std::string shaderTypeParams;
 		renderer::Shader::ShaderType shaderType;
 		if (std::strstr(dataBuffer, "VertexMain") != NULL)
 		{
 			shaderType = renderer::Shader::ShaderType::Vertex;
+			shaderTypeParams = "-entry VertexMain -stage vertex";
 		}
-		else if (std::strstr(dataBuffer, "FragMain") != NULL)
+		else if (std::strstr(dataBuffer, "FragmentMain") != NULL)
 		{
 			shaderType = renderer::Shader::ShaderType::Fragment;
+			shaderTypeParams = "-entry FragmentMain -stage fragment";
 		}
 		else
 		{
@@ -56,15 +62,48 @@ namespace hod::editor
 			return false;
 		}
 
+		DefaultAllocator::GetInstance().Free(dataBuffer);
+
+		std::filesystem::path slangOutput = FileSystem::GetTemporaryPath() / "ShaderImporter.tmp";
+
+#if defined(PLATFORM_WINDOWS)
+		bool slangResult = Process::Create("Tools/slangc.exe", std::format("{} -target spirv {} -o {}", data._path.string(), shaderTypeParams, slangOutput.string()), false);
+#elif defined(PLATFORM_LINUX)
+		bool slangResult = Process::Create("Tools/slangc", std::format("{} -target spv {} -o {}", data._path.string(), shaderTypeParams, slangOutput.string()), false);
+#else
+		bool slangResult = Process::Create("Tools/slangc", std::format("{} -target metallib {} -o {}", data._path.string(), shaderTypeParams, slangOutput.string()), false);
+#endif
+
+		if (slangResult == false)
+		{
+			// todo message
+			return false;
+		}
+
+		FileSystem::Handle slangOutputHandle = FileSystem::GetInstance()->Open(slangOutput);
+		dataSize = FileSystem::GetInstance()->GetSize(slangOutputHandle);
+		dataBuffer = DefaultAllocator::GetInstance().Allocate<char>(dataSize + 1);
+		if (FileSystem::GetInstance()->Read(slangOutputHandle, reinterpret_cast<char*>(dataBuffer), dataSize) != dataSize)
+		{
+			DefaultAllocator::GetInstance().Free(dataBuffer);
+			FileSystem::GetInstance()->Close(slangOutputHandle);
+			OUTPUT_ERROR("ShaderImporter : Can't read Shader data");
+			return false;
+		}
+		FileSystem::GetInstance()->Close(slangOutputHandle);
+		dataBuffer[dataSize] = '\0';
+
 		Document document;
 		document.GetRootNode().AddChild("_type").SetUInt8(shaderType);
-		document.GetRootNode().AddChild("_source").SetString(dataBuffer);
-
+		document.GetRootNode().AddChild("DataOffset").SetUInt32(0);
+		document.GetRootNode().AddChild("DataSize").SetUInt32(dataSize);
 		std::stringstream documentStringStream;
 
 		DocumentWriterJson documentWriter;
 		if (documentWriter.Write(document, documentStringStream) == false)
 		{
+			// TODO message
+			DefaultAllocator::GetInstance().Free(dataBuffer);
 			return false;
 		}
 
@@ -74,6 +113,16 @@ namespace hod::editor
 		// todo use documentStringStream ?
 		if (documentWriter.Write(document, resource) == false)
 		{
+			// TODO message
+			DefaultAllocator::GetInstance().Free(dataBuffer);
+			return false;
+		}
+		resource.write(reinterpret_cast<char*>(dataBuffer), dataSize);
+		DefaultAllocator::GetInstance().Free(dataBuffer);
+
+		if (resource.fail())
+		{
+			// TODO message
 			return false;
 		}
 
