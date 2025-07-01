@@ -3,7 +3,6 @@
 
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
-#include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp"
 
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"

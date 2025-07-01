@@ -34,7 +34,6 @@ namespace hod::renderer
 	class Context;
 	class VertexInput;
 	class RenderTarget;
-	class ShaderGenerator;
 	class Semaphore;
 	class Fence;
 
@@ -95,8 +94,6 @@ namespace hod::renderer
 
 		Texture*					GetDefaultWhiteTexture();
 
-		ShaderGenerator*			GetShaderGenerator() const;
-
 	protected:
 
 		Material*					_overdrawnMaterial = nullptr;
@@ -123,7 +120,5 @@ namespace hod::renderer
 		VisualizationMode			_visualizationMode = VisualizationMode::Normal;
 
 		Texture*					_defaultWhiteTexture = nullptr;
-
-		ShaderGenerator*			_shaderGenerator = nullptr;
 	};
 }

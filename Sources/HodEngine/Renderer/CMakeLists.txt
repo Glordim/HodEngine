@@ -119,8 +119,8 @@ target_link_libraries(Renderer
 
 
 if(NOT APPLE)
-  include_directories(${Vulkan_INCLUDE_DIRS} SpirvCross::SpirvCross  Glslang::Glslang Glslang::GlslangDefaultResource)
-  target_link_libraries(Renderer ${Vulkan_LIBRARIES} SpirvCross::SpirvCross Glslang::Glslang Glslang::GlslangDefaultResource)
+  include_directories(${Vulkan_INCLUDE_DIRS} SpirvCross::SpirvCross)
+  target_link_libraries(Renderer ${Vulkan_LIBRARIES} SpirvCross::SpirvCross)
   #optimized "d3d12.lib" debug "d3d12.lib"
   #optimized "DXGI.lib" debug "DXGI.lib"
   

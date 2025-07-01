@@ -2,8 +2,6 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 
-#include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp"
-
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include "Metal/Metal.hpp"
@@ -29,34 +27,6 @@ namespace hod::renderer
 		{
 			_library->release();
 		}
-	}
-
-	/// @brief
-	/// @param source 
-	/// @return 
-	bool MetalShader::LoadFromSource(std::string_view source)
-	{
-		RendererMetal* metalRenderer = RendererMetal::GetInstance();
-
-		String metalSource;
-		if (metalRenderer->GetShaderGenerator()->GenerateSource(metalSource, source) == false)
-		{
-			return false;
-		}
-
-		NS::Error* error = nullptr;
-		MTL::CompileOptions* compileOption = MTL::CompileOptions::alloc()->init();
-		NS::String* nsStringSource = NS::String::string(metalSource.c_str(), NS::StringEncoding::ASCIIStringEncoding);
-		_library = metalRenderer->GetDevice()->newLibrary(nsStringSource, compileOption, &error);
-		nsStringSource->release();
-
-		if (_library == nullptr)
-		{
-			OUTPUT_ERROR("MetalShader::LoadFromSource fail: {}", error->description()->utf8String());
-			return false;
-		}
-
-		return FindFunction();
 	}
 
 	/// @brief 

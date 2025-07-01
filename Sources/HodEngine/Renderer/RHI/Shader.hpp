@@ -29,12 +29,11 @@ namespace hod::renderer
 										Shader(ShaderType type);
 		virtual							~Shader();
 
-		const Vector<uint8_t>&		GetShaderBytecode() const;
+		const Vector<uint8_t>&			GetShaderBytecode() const;
 		
 		ShaderType						GetShaderType() const;
 
 		virtual bool					LoadFromIR(const void* data, uint32_t size) = 0;
-		virtual bool					LoadFromSource(std::string_view source) = 0;
 
 		const ShaderConstantDescriptor*								GetConstantDescriptor() const;
 		const std::unordered_map<uint32_t, ShaderSetDescriptor*>&	GetSetDescriptors() const;

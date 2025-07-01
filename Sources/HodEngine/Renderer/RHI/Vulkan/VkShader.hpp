@@ -23,7 +23,6 @@ namespace hod::renderer
 
 	protected:
 
-		bool						LoadFromSource(std::string_view source) override;
 		bool						LoadFromIR(const void* data, uint32_t size) override;
 		bool						GenerateDescriptors() override;
 

@@ -8,7 +8,6 @@
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/ShaderConstantDescriptorVk.hpp"
-#include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -33,19 +32,6 @@ namespace hod::renderer
 		{
 			vkDestroyShaderModule(renderer->GetVkDevice(), _shaderModule, nullptr);
 		}
-	}
-
-	bool VkShader::LoadFromSource(std::string_view source)
-	{
-		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-
-		Vector<uint8_t> shaderIR;
-		if (renderer->GetShaderGenerator()->GenerateByteCode(shaderIR, GetShaderType(), source) == false)
-		{
-			return false;
-		}
-
-		return LoadFromIR(shaderIR.data(), (uint32_t)shaderIR.size());
 	}
 
 	/// @brief 

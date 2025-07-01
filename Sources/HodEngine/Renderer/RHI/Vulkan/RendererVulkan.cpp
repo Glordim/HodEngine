@@ -8,7 +8,6 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/ShaderGeneratorGLSL.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/FenceVk.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
@@ -186,8 +185,6 @@ namespace hod::renderer
 	/// @return 
 	bool RendererVulkan::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
-		_shaderGenerator = DefaultAllocator::GetInstance().New<ShaderGeneratorGLSL>();
-
 		if (CreateVkIntance() == false)
 		{
 			return false;

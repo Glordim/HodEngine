@@ -19,7 +19,6 @@
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
-#include <HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp>
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>

@@ -8,7 +8,6 @@
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp"
 
 #include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
 #include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
@@ -60,8 +59,6 @@ namespace hod
 
 			DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
 			_defaultWhiteTexture = nullptr;
-
-			DefaultAllocator::GetInstance().Delete(_shaderGenerator);
 		}
 
 		/*
@@ -201,13 +198,6 @@ namespace hod
 				_defaultWhiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
 			}
 			return _defaultWhiteTexture;
-		}
-
-		/// @brief 
-		/// @return 
-		ShaderGenerator* Renderer::GetShaderGenerator() const
-		{
-			return _shaderGenerator;
 		}
 
 		void Renderer::PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame)
