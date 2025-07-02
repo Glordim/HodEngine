@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/CoreEditor/Export.hpp"
 
 #include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
