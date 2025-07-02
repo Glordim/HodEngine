@@ -26,8 +26,6 @@ struct UBO
 {
 	float4 color;
 };
-
-[[binding(0, 0)]]
 ConstantBuffer<UBO> ubo;
 
 float4 FragmentMain(VS_OUT input) : SV_Target

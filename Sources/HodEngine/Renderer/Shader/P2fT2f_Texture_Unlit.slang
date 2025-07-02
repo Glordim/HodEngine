@@ -25,17 +25,13 @@ VS_OUT VertexMain(VS_IN input)
 	return output;
 }
 
-[[binding(0, 0)]]
 struct UBO
 {
 	float4 color;
 };
 ConstantBuffer<UBO> ubo;
 
-[[binding(1, 0)]]
 Texture2D image;
-
-[[binding(2, 0)]]
 SamplerState imageSampler;
 
 float4 FragmentMain(VS_OUT input) : SV_Target

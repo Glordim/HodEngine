@@ -70,7 +70,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${SLANG_COMPILER}
     $<TARGET_FILE_DIR:Editor>/Tools/slangc.exe
-  COMMENT "Copying SLANG_COMPILER to output directory"
+  COMMENT "Copying ${SLANG_COMPILER} to output directory"
 )
 
 add_custom_command(
@@ -78,7 +78,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${SLANG_DLL}
     $<TARGET_FILE_DIR:Editor>/Tools/slang.dll
-  COMMENT "Copying SLANG_COMPILER dll to output directory"
+  COMMENT "Copying ${SLANG_DLL} dll to output directory"
 )
 
 add_custom_command(
@@ -86,5 +86,5 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${SLANG_DLL_GLSLANG}
     $<TARGET_FILE_DIR:Editor>/Tools/slang-glslang.dll
-  COMMENT "Copying SLANG_COMPILER dll to output directory"
+  COMMENT "Copying ${SLANG_DLL_GLSLANG} dll to output directory"
 )
