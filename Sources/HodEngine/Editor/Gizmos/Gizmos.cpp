@@ -44,6 +44,7 @@ namespace hod::editor
 		{
 			handle._canceled = true;
 			handle._moveOffset = Vector2::Zero;
+			changed = true;
 		}
 		else if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Left])
 		{
@@ -118,6 +119,20 @@ namespace hod::editor
 
 		Matrix4 finalMatrix = worldMatrix * Matrix4::Translation(position);
 		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
+		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
+		viewport.GetRenderView()->DeleteAfter(materialInstance);
+
+		return changed;
+	}
+
+	bool Gizmos::FreeMoveMesh(Handle& handle, const Matrix4& worldMatrix, const Vector2* vertices, uint32_t vertexCount, const Color& color, const Color& highlightColor, ViewportWindow& viewport)
+	{
+		bool changed = FreeMoveBehavior(handle, viewport);
+
+		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		materialInstance->SetVec4("ubo.color", handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
+
+		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices, nullptr, nullptr, vertexCount, nullptr, 0, worldMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
 		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		viewport.GetRenderView()->DeleteAfter(materialInstance);
 
