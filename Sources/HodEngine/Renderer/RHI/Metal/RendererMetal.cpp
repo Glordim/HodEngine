@@ -84,8 +84,6 @@ namespace hod
 
 			[view.layer addSublayer:_layer];
 */
-
-			_renderQueue->Init();
 			
 			return true;
 		}

@@ -10,7 +10,6 @@ assign_source_group(${Srcs}) # for VS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
-	Box2d::Box2d
 )
 
 add_library(Physics ${LIB_TYPE} ${Srcs} ${Includes})

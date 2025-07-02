@@ -69,14 +69,9 @@ namespace hod::renderer
         _layer->setDrawableSize(size);
 	}
 
-	uint32_t MetalContext::GetWidth()
+	Vector2 MetalContext::GetResolution()
 	{
-		return static_cast<uint32_t>(_layer->drawableSize().width);
-	}
-
-	uint32_t MetalContext::GetHeight()
-	{
-		return static_cast<uint32_t>(_layer->drawableSize().height);
+		return Vector2(static_cast<uint32_t>(_layer->drawableSize().width), static_cast<uint32_t>(_layer->drawableSize().height));
 	}
 
 	bool MetalContext::SwapBuffer(const Semaphore* waitSemaphore)

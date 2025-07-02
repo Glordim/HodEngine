@@ -51,33 +51,39 @@ add_library(Box2d::Box2d STATIC IMPORTED GLOBAL)
 set_target_properties(Box2d::Box2d PROPERTIES
     IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
 add_library(Freetype::Freetype STATIC IMPORTED GLOBAL)
 set_target_properties(Freetype::Freetype PROPERTIES
     IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}freetype.${LIB_EXTENSION}"
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
 )
 
 add_library(SpirvCross::SpirvCross STATIC IMPORTED GLOBAL)
 set_target_properties(SpirvCross::SpirvCross PROPERTIES
     IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}spirv-cross-core.${LIB_EXTENSION}"
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
-add_library(Stb::Stb STATIC IMPORTED GLOBAL)
+add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)
 set_target_properties(Stb::Stb PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
-add_library(VulkanMemoryAllocator::VulkanMemoryAllocator STATIC IMPORTED GLOBAL)
+add_library(VulkanMemoryAllocator::VulkanMemoryAllocator INTERFACE IMPORTED GLOBAL)
 set_target_properties(VulkanMemoryAllocator::VulkanMemoryAllocator PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
-add_library(PortableFileDialogs::PortableFileDialogs STATIC IMPORTED GLOBAL)
+add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)
 set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
 if(WIN32)
@@ -86,6 +92,8 @@ set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/slang.dll")
 set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/bin/slang-glslang.dll")
 else()
 set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc")
+set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/slang.so")
+set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/bin/slang-glslang.so")
 endif()
 
 SetupPlatform()

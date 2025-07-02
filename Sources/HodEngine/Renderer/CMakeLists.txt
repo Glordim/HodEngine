@@ -54,7 +54,7 @@ endfunction()
 set(ShaderCpps "")
 set(ShaderHpps "")
 
-file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*")
+file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*.slang")
 
 if(NOT APPLE)
 	set(SHADER_TARGET_API Vulkan)
@@ -99,12 +99,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
     "RHI/Metal/MetalCpp"
 )
 
-include_directories(SYSTEM
-    Stb::Stb
-    Freetype::Freetype
-    VulkanMemoryAllocator::VulkanMemoryAllocator
-)
-
 add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
 target_precompile_headers(Renderer PRIVATE "Pch.hpp")
 set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
@@ -115,6 +109,8 @@ target_link_libraries(Renderer
     Core
     Window
     Freetype::Freetype
+	Stb::Stb
+	VulkanMemoryAllocator::VulkanMemoryAllocator
 )
 
 
