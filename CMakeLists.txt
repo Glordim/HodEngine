@@ -37,7 +37,7 @@ if(WIN32)
     endif()
 elseif(APPLE)
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-        set(ARCH_FOLDER "MacOs_${CMAKE_GENERATOR_PLATFORM}")
+        set(ARCH_FOLDER "MacOs_arm64")
     else()
         message(FATAL_ERROR "Unsupported Apple architecture: ${CMAKE_SYSTEM_PROCESSOR}")
     endif()
@@ -80,9 +80,13 @@ set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
+if(WIN32)
 set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc.exe")
 set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/slang.dll")
 set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/bin/slang-glslang.dll")
+else()
+set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc")
+endif()
 
 SetupPlatform()
 SetupCompilation()
