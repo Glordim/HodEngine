@@ -11,6 +11,8 @@
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <stdlib.h>
 
+#undef min
+
 namespace hod
 {
 	namespace renderer
@@ -176,6 +178,8 @@ namespace hod
 			{
 				shaderStage = VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
 			}
+
+			size = std::min(size, _material->GetPushConstantSize());
 
 			vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), shaderStage, 0, size, constant);
 		}

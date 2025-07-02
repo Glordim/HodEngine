@@ -132,6 +132,8 @@ namespace hod::renderer
 		commandBuffer->SetModelMatrix(_modelMatrix);
 
 		MaterialInstance* materialInstance = const_cast<MaterialInstance*>(_materialInstance);
+		materialInstance->SetMat4("global.view", commandBuffer->_view);
+		materialInstance->SetMat4("global.proj", commandBuffer->_projection);
 		if (overrideMaterial != nullptr)
 		{
 			Color color = renderer::PickingManager::ConvertIdToColor(_pickingId);
@@ -156,10 +158,12 @@ namespace hod::renderer
 		struct Constant
 		{
 			Matrix4	_mvp;
+			Matrix4 _model;
 		};
 
 		Constant constant;
 		constant._mvp = (commandBuffer->_projection * commandBuffer->_view * _modelMatrix).Transpose();
+		constant._model = _modelMatrix.Transpose();
 		commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
 
 		if (_indices.empty() == false)

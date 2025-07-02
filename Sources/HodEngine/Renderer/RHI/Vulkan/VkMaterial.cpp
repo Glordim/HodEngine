@@ -315,11 +315,27 @@ namespace hod::renderer
 
 		for (const auto& pair : vertexShader->GetSetDescriptors())
 		{
-			_setDescriptors[pair.first] = pair.second;
+			auto it = _setDescriptors.find(pair.first);
+			if (it == _setDescriptors.end())
+			{
+				_setDescriptors[pair.first] = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>(*pair.second);
+			}
+			else
+			{
+				it->second->Merge(*pair.second);
+			}
 		}
 		for (const auto& pair : fragmentShader->GetSetDescriptors())
 		{
-			_setDescriptors[pair.first] = pair.second;
+			auto it = _setDescriptors.find(pair.first);
+			if (it == _setDescriptors.end())
+			{
+				_setDescriptors[pair.first] = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>(*pair.second);
+			}
+			else
+			{
+				it->second->Merge(*pair.second);
+			}
 		}
 
 		Vector<VkDescriptorSetLayout> layouts;
@@ -346,6 +362,11 @@ namespace hod::renderer
 		pipelineLayoutInfo.pSetLayouts = layouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)constants.size();
 		pipelineLayoutInfo.pPushConstantRanges = constants.data();
+
+		for (VkPushConstantRange pushConstantRange : constants)
+		{
+			_pushConstantSize = pushConstantRange.size; // todo
+		}
 
 		if (vkCreatePipelineLayout(renderer->GetVkDevice(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
 		{
@@ -392,5 +413,10 @@ namespace hod::renderer
 	VkPipelineLayout VkMaterial::GetPipelineLayout() const
 	{
 		return _pipelineLayout;
+	}
+
+	uint32_t VkMaterial::GetPushConstantSize() const
+	{
+		return _pushConstantSize;
 	}
 }

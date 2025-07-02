@@ -48,12 +48,10 @@ namespace hod
 			{
 				DefaultAllocator::GetInstance().Delete(reflectionDescriptor);
 			}
-			/*
 			for (const auto& pair : _setDescriptors)
 			{
 				DefaultAllocator::GetInstance().Delete(pair.second);
 			}
-			*/
 		}
 
 		/// @brief 

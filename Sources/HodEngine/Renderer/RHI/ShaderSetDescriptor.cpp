@@ -5,14 +5,41 @@
 
 namespace hod::renderer
 {
-	/// @brief 
-	ShaderSetDescriptor::ShaderSetDescriptor()
+	void ShaderSetDescriptor::Merge(const ShaderSetDescriptor& other)
 	{
-	}
+		for (const BlockUbo& otherUboBlock : other._uboBlockVector)
+		{
+			bool alreadyExist = false;
+			for (BlockUbo& exisintgUboBlock : _uboBlockVector)
+			{
+				if (otherUboBlock._binding == exisintgUboBlock._binding) // Todo binding is enought or check name too can be useful ?
+				{
+					alreadyExist = true;
+					break;
+				}
+			}
+			if (alreadyExist == false)
+			{
+				_uboBlockVector.push_back(otherUboBlock);
+			}
+		}
 
-	/// @brief 
-	ShaderSetDescriptor::~ShaderSetDescriptor()
-	{
+		for (const BlockTexture& otherTextureBlock : other._textureBlockVector)
+		{
+			bool alreadyExist = false;
+			for (BlockTexture& exisintgTextureBlock : _textureBlockVector)
+			{
+				if (otherTextureBlock._binding == exisintgTextureBlock._binding) // Todo binding is enought or check name too can be useful ?
+				{
+					alreadyExist = true;
+					break;
+				}
+			}
+			if (alreadyExist == false)
+			{
+				_textureBlockVector.push_back(otherTextureBlock);
+			}
+		}
 	}
 
 	//-----------------------------------------------------------------------------

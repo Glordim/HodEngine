@@ -65,8 +65,11 @@ namespace hod::renderer
 
 	public:
 
-											ShaderSetDescriptor();
-		virtual								~ShaderSetDescriptor();
+											ShaderSetDescriptor() = default;
+											ShaderSetDescriptor(const ShaderSetDescriptor& other) = default;
+		virtual								~ShaderSetDescriptor() = default;
+
+		void						Merge(const ShaderSetDescriptor& other);
 
 		const Vector<BlockUbo>&		GetUboBlocks() const;
 		const Vector<BlockTexture>&	GetTextureBlocks() const;

@@ -21,3 +21,11 @@ Build: bc7enc_rdo / astcenc -thorough
 
 ---------
 
+# Reflection: Store parent instance for Set/Get function, instance must be real data
+
+---------
+
+# Editor: Material = 1 slang (and remove Shader)
+
+---------
+

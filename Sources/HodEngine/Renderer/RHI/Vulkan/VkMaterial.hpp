@@ -19,9 +19,11 @@ namespace hod::renderer
 
 		VkPipeline				GetGraphicsPipeline() const;
 		VkPipelineLayout		GetPipelineLayout() const;
+		uint32_t				GetPushConstantSize() const;
 
 	private:
-		VkPipeline				_graphicsPipeline;
-		VkPipelineLayout		_pipelineLayout;
+		VkPipeline				_graphicsPipeline = VK_NULL_HANDLE;
+		VkPipelineLayout		_pipelineLayout = VK_NULL_HANDLE;
+		uint32_t				_pushConstantSize = 0;
 	};
 }
