@@ -41,41 +41,44 @@ namespace hod::editor
 
 			Serializer::Deserialize(_materialInstanceAsset, document.GetRootNode());
 
-			renderer::MaterialInstance* materialInstance = _materialInstance->GetMaterialInstance();
-			if (materialInstance != nullptr)
+			if (_materialInstance != nullptr)
 			{
-				const renderer::Material& material = materialInstance->GetMaterial();
-
-				renderer::MaterialSerializationHelper::GenerateParameters(material, _parameters);
-				for (const renderer::ShaderParameter& param : _parameters)
+				renderer::MaterialInstance* materialInstance = _materialInstance->GetMaterialInstance();
+				if (materialInstance != nullptr)
 				{
-					if (param._type == renderer::ShaderParameter::Type::Texture)
+					const renderer::Material& material = materialInstance->GetMaterial();
+
+					renderer::MaterialSerializationHelper::GenerateParameters(material, _parameters);
+					for (const renderer::ShaderParameter& param : _parameters)
 					{
-						ShaderParamTexture textureParam;
-						textureParam._name = param._name;
-						textureParam._type = param._type;
-						_textureParameters.push_back(textureParam);
-					}
-					else if (param._type == renderer::ShaderParameter::Type::Float2)
-					{
-						ShaderParamVec2 value;
-						value._name = param._name;
-						value._type = param._type;
-						_vec2Parameters.push_back(value);
-					}
-					else if (param._type == renderer::ShaderParameter::Type::Float4)
-					{
-						ShaderParamVec4 value;
-						value._name = param._name;
-						value._type = param._type;
-						_vec4Parameters.push_back(value);
-					}
-					else if (param._type != renderer::ShaderParameter::Type::Unknown)
-					{
-						ShaderParamScalar value;
-						value._name = param._name;
-						value._type = param._type;
-						_scalarParameters.push_back(value);
+						if (param._type == renderer::ShaderParameter::Type::Texture)
+						{
+							ShaderParamTexture textureParam;
+							textureParam._name = param._name;
+							textureParam._type = param._type;
+							_textureParameters.push_back(textureParam);
+						}
+						else if (param._type == renderer::ShaderParameter::Type::Float2)
+						{
+							ShaderParamVec2 value;
+							value._name = param._name;
+							value._type = param._type;
+							_vec2Parameters.push_back(value);
+						}
+						else if (param._type == renderer::ShaderParameter::Type::Float4)
+						{
+							ShaderParamVec4 value;
+							value._name = param._name;
+							value._type = param._type;
+							_vec4Parameters.push_back(value);
+						}
+						else if (param._type != renderer::ShaderParameter::Type::Unknown)
+						{
+							ShaderParamScalar value;
+							value._name = param._name;
+							value._type = param._type;
+							_scalarParameters.push_back(value);
+						}
 					}
 				}
 			}

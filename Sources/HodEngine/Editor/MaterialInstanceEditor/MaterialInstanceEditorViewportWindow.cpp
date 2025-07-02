@@ -77,67 +77,75 @@ namespace hod::editor
 	/// @brief 
 	void MaterialInstanceEditorViewportWindow::DrawContent()
 	{
-		uint32_t resolutionWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
-		uint32_t resolutionHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
-
-		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
-		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
-		
-		if (_renderTarget->GetResolution().GetX() != resolutionWidth ||
-			_renderTarget->GetResolution().GetY() != resolutionHeight)
+		std::shared_ptr<hod::renderer::MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
+		if (materialInstanceResource != nullptr)
 		{
-			renderer::Texture::CreateInfo createInfo;
+			renderer::MaterialInstance* materialInstance = materialInstanceResource->GetMaterialInstance();
+			if (materialInstance != nullptr)
+			{
+				uint32_t resolutionWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
+				uint32_t resolutionHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
 
-			createInfo._allowReadWrite = false;
-			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
+				resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
+				resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
+				
+				if (_renderTarget->GetResolution().GetX() != resolutionWidth ||
+					_renderTarget->GetResolution().GetY() != resolutionHeight)
+				{
+					renderer::Texture::CreateInfo createInfo;
+
+					createInfo._allowReadWrite = false;
+					_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
+				}
+
+				if (_renderTarget->IsValid() == true)
+				{
+					_renderView.Prepare(_renderTarget, nullptr);
+
+					Rect viewport;
+					viewport._position.SetX(0);
+					viewport._position.SetY(0);
+					viewport._size.SetX((float)resolutionWidth);
+					viewport._size.SetY((float)resolutionHeight);
+
+					float aspect = (float)resolutionWidth / (float)resolutionHeight;
+
+					_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+					_view = Matrix4::Identity;
+
+					_renderView.SetupCamera(_projection, _view, viewport);
+
+					Vector2 previewSize = Vector2::One * 3;
+
+					std::array<Vector2, 4> vertices = {
+						Vector2(-0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
+						Vector2(0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
+						Vector2(0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
+						Vector2(-0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
+					};
+
+					static std::array<Vector2, 4> uvs = {
+						Vector2(0, 0),
+						Vector2(1, 0),
+						Vector2(1, 1),
+						Vector2(0, 1),
+					};
+
+					static std::array<uint16_t, 3*2> indices = {
+						0, 1, 2,
+						0, 2, 3,
+					};
+
+					renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, materialInstance, 0);
+					_renderView.PushRenderCommand(renderMeshCommand);
+
+					renderer::Renderer::GetInstance()->PushRenderView(_renderView, false);
+				}
+
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);
+				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
+			}
 		}
-
-		if (_renderTarget->IsValid() == true)
-		{
-			_renderView.Prepare(_renderTarget, nullptr);
-
-			Rect viewport;
-			viewport._position.SetX(0);
-			viewport._position.SetY(0);
-			viewport._size.SetX((float)resolutionWidth);
-			viewport._size.SetY((float)resolutionHeight);
-
-			float aspect = (float)resolutionWidth / (float)resolutionHeight;
-
-			_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-			_view = Matrix4::Identity;
-
-			_renderView.SetupCamera(_projection, _view, viewport);
-
-			Vector2 previewSize = Vector2::One * 3;
-
-			std::array<Vector2, 4> vertices = {
-				Vector2(-0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
-				Vector2(0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
-				Vector2(0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
-				Vector2(-0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
-			};
-
-			static std::array<Vector2, 4> uvs = {
-				Vector2(0, 0),
-				Vector2(1, 0),
-				Vector2(1, 1),
-				Vector2(0, 1),
-			};
-
-			static std::array<uint16_t, 3*2> indices = {
-				0, 1, 2,
-				0, 2, 3,
-			};
-
-			renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance(), 0);
-			_renderView.PushRenderCommand(renderMeshCommand);
-
-			renderer::Renderer::GetInstance()->PushRenderView(_renderView, false);
-		}
-
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);
-		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 	}
 }

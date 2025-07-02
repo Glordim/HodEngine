@@ -133,7 +133,11 @@ namespace hod::editor
 				EditorReflectedObject editorObject(&textureParameter._value, &WeakResourceBase::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
-					GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetTexture(textureParameter._name, textureParameter._value.Lock()->GetTexture());
+					std::shared_ptr<hod::renderer::TextureResource> textureResource = textureParameter._value.Lock();
+					if (textureResource != nullptr)
+					{
+						GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetTexture(textureParameter._name, textureResource->GetTexture());
+					}
 					changed = true;
 				}
 				ImGui::PopID();
