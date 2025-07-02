@@ -3,6 +3,8 @@ struct Constant
 	float2 scale;
 	float2 translate;
 };
+[[vk::push_constant]]
+ConstantBuffer<Constant> constant;
 
 struct VS_IN
 {
@@ -18,7 +20,7 @@ struct VS_OUT
 	float4 color : COLOR0;
 };
 
-VS_OUT VertexMain(VS_IN input, uniform Constant constant)
+VS_OUT VertexMain(VS_IN input)
 {
 	VS_OUT output;
 	output.position = float4(input.position * constant.scale + constant.translate, 0, 1);

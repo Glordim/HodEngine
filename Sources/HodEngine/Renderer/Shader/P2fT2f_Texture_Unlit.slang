@@ -2,6 +2,8 @@ struct PushMatrices
 {
 	float4x4 mvp;
 };
+[[vk::push_constant]]
+ConstantBuffer<PushMatrices> pc;
 
 struct VS_IN
 {
@@ -15,7 +17,7 @@ struct VS_OUT
 	float2 uv : TEXTCOORD;
 };
 
-VS_OUT VertexMain(VS_IN input, uniform PushMatrices pc)
+VS_OUT VertexMain(VS_IN input)
 {
 	VS_OUT output;
 	output.position = mul(pc.mvp, float4(input.position, 0.0, 1.0));
