@@ -93,7 +93,6 @@ namespace hod::editor
 		DefaultAllocator::GetInstance().Delete(_sceneTexture);
 		DefaultAllocator::GetInstance().Delete(_prefabTexture);
 		DefaultAllocator::GetInstance().Delete(_serializedDataTexture);
-		DefaultAllocator::GetInstance().Delete(_shaderTexture);
 		DefaultAllocator::GetInstance().Delete(_checkerTexture);
 
 		UnloadEditorModules();
@@ -146,10 +145,6 @@ namespace hod::editor
 		pixels = stbi_load_from_memory(SerializedData_png, SerializedData_png_size, &x, &y, &component, 0);
 		_serializedDataTexture = renderer::Renderer::GetInstance()->CreateTexture();
 		_serializedDataTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
-
-		pixels = stbi_load_from_memory(Shader_png, Shader_png_size, &x, &y, &component, 0);
-		_shaderTexture = renderer::Renderer::GetInstance()->CreateTexture();
-		_shaderTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		static constexpr uint8_t primaryGrey = 71;
 		static constexpr uint8_t secondaryGrey = 102;

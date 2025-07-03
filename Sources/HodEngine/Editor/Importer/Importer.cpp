@@ -124,6 +124,7 @@ namespace hod::editor
 			return false;
 		}
 
+		FileSystem::GetInstance()->Seek(metaFileHandle, 0, FileSystem::SeekMode::Begin);
 		resourceFile.write("HodResource", 11);
 		bool result = WriteResource(dataFile, metaFileHandle, resourceFile, thumbnailFile, *meta._importerSettings);
 		FileSystem::GetInstance()->Close(metaFileHandle);

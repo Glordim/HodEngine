@@ -5,8 +5,8 @@
 #include "HodEngine/Core/UID.hpp"
 #include "HodEngine/Core/Rect.hpp"
 
+#include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Resource/WeakResource.hpp"
-#include "HodEngine/Renderer/Resource/ShaderResource.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 
 namespace hod::editor
@@ -16,9 +16,6 @@ namespace hod::editor
 		REFLECTED_CLASS_NO_PARENT(MaterialAsset)
 
 		virtual ~MaterialAsset() = default;
-
-		WeakResource<renderer::ShaderResource>	_vertexShader;
-		WeakResource<renderer::ShaderResource>	_fragmentShader;
 		
 		renderer::Material::PolygonMode		_polygonMode = renderer::Material::PolygonMode::Fill;
 		renderer::Material::Topololy		_topololy = renderer::Material::Topololy::TRIANGLE;

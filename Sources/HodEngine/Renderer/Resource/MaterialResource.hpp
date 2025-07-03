@@ -5,7 +5,6 @@
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
-#include "HodEngine/Renderer/Resource/ShaderResource.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 namespace hod::renderer
@@ -36,8 +35,8 @@ namespace hod::renderer
 
 		Material*			_material = nullptr;
 
-		WeakResource<ShaderResource>	_vertexShader;
-		WeakResource<ShaderResource>	_fragmentShader;
+		Shader*				_vertexShader = nullptr;
+		Shader*				_fragmentShader = nullptr;
 
 		Material::PolygonMode	_polygonMode = Material::PolygonMode::Fill;
 		Material::Topololy		_topololy = Material::Topololy::TRIANGLE;
