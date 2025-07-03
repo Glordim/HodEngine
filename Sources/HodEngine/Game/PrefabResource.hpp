@@ -22,7 +22,7 @@ namespace hod::game
 
 	public:
 
-		bool			Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) override;
+		bool			Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) override;
 
 		Prefab&			GetPrefab();
 		const Document&	GetDocument() const;

@@ -17,7 +17,7 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SceneResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
+	bool SceneResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
 		_scene = DefaultAllocator::GetInstance().New<Scene>();
 		return _scene->DeserializeFromDocument(documentNode);

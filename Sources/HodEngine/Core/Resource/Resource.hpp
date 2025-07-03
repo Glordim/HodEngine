@@ -15,23 +15,31 @@ namespace hod
 
 	public:
 
-					Resource() = default;
-					Resource(const Resource&) = delete;
-					Resource(Resource&&) = delete;
-		virtual		~Resource() = default;
-
-		Resource&	operator = (const Resource&) = delete;
-		Resource&	operator = (Resource&&) = delete;
+		struct Data
+		{
+			void*		_buffer = nullptr;
+			uint32_t	_size = 0;
+		};
 
 	public:
 
-		const UID&	GetUid() const { return _uid; }
-		void		SetUid(const UID& uid) { _uid = uid; }
+						Resource() = default;
+						Resource(const Resource&) = delete;
+						Resource(Resource&&) = delete;
+		virtual			~Resource() = default;
 
-		virtual bool		Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) = 0;
+		Resource&		operator = (const Resource&) = delete;
+		Resource&		operator = (Resource&&) = delete;
+
+	public:
+
+		const UID&		GetUid() const { return _uid; }
+		void			SetUid(const UID& uid) { _uid = uid; }
+
+		virtual bool	Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) = 0;
 
 	private:
 
-		UID			_uid;
+		UID				_uid;
 	};
 }

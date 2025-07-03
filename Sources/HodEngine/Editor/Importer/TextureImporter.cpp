@@ -46,7 +46,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool TextureImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool TextureImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
 		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
 		uint8_t* dataBuffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(dataSize);
@@ -107,7 +107,6 @@ namespace hod::editor
 		textureResource._filterMode = textureSettings._filterMode;
 		textureResource._wrapMode = textureSettings._wrapMode;
 
-		Document document;
 		if (Serializer::Serialize(textureResource, document.GetRootNode()) == false)
 		{
 			// TODO message
@@ -115,38 +114,13 @@ namespace hod::editor
 			return false;
 		}
 
-		document.GetRootNode().AddChild("DataOffset").SetUInt32(0);
-		document.GetRootNode().AddChild("DataSize").SetUInt32(x * y * componentCount);
-
-		std::stringstream documentStringStream;
-
-		DocumentWriterJson documentWriter;
-		if (documentWriter.Write(document, documentStringStream) == false)
-		{
-			// TODO message
-			stbi_image_free(pixels);
-			return false;
-		}
-
-		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
-		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
-
-		// todo use documentStringStream ?
-		if (documentWriter.Write(document, resource) == false)
-		{
-			// TODO message
-			stbi_image_free(pixels);
-			return false;
-		}
-		resource.write(reinterpret_cast<char*>(pixels), x * y * componentCount);
+		Resource::Data pixelsData;
+		pixelsData._buffer = DefaultAllocator::GetInstance().Allocate(x * y * componentCount);
+		std::memcpy(pixelsData._buffer, pixels, x * y * componentCount);
+		pixelsData._size = x * y * componentCount;
+		datas.push_back(pixelsData);
 
 		stbi_image_free(pixels);
-
-		if (resource.fail())
-		{
-			// TODO message
-			return false;
-		}
 
 		return true;
 	}

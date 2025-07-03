@@ -27,48 +27,17 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool FontImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool FontImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
-		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
-		uint8_t* dataBuffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(dataSize);
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != dataSize)
+		Resource::Data ttfData;
+		ttfData._size = FileSystem::GetInstance()->GetSize(data);
+		ttfData._buffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(ttfData._size);
+		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(ttfData._buffer), ttfData._size) != ttfData._size)
 		{
 			OUTPUT_ERROR("FontImporter : Can't read Font data");
 			return false;
 		}
-
-		//FontImporterSettings& fontSettings = (FontImporterSettings&)settings;
-
-		Document document;
-		document.GetRootNode().AddChild("DataOffset").SetUInt32(0);
-		document.GetRootNode().AddChild("DataSize").SetUInt32((uint32_t)dataSize);
-
-		std::stringstream documentStringStream;
-
-		DocumentWriterJson documentWriter;
-		if (documentWriter.Write(document, documentStringStream) == false)
-		{
-			// TODO message
-			return false;
-		}
-
-		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
-		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
-
-		// todo use documentStringStream ?
-		if (documentWriter.Write(document, resource) == false)
-		{
-			// TODO message
-			return false;
-		}
-		resource.write(reinterpret_cast<char*>(dataBuffer), dataSize);
-
-		if (resource.fail())
-		{
-			// TODO message
-			return false;
-		}
-
+		datas.push_back(ttfData);
 		return true;
 	}
 

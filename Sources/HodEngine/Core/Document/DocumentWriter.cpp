@@ -31,12 +31,6 @@ namespace hod
 			return false;
 		}
 
-		if (document.GetRootNode().GetFirstChild() == nullptr)
-		{
-			OUTPUT_ERROR("Document is empty");
-			return false;
-		}
-
 		return WriteDocument(document, stream);
 	}
 }

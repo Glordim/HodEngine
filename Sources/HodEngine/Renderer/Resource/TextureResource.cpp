@@ -28,7 +28,7 @@ namespace hod::renderer
 	/// @param document 
 	/// @param stream 
 	/// @return 
-	bool TextureResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
+	bool TextureResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
@@ -36,49 +36,25 @@ namespace hod::renderer
 			return false;
 		}
 
-		const Document::Node* dataOffsetNode = documentNode.GetChild("DataOffset");
-		if (dataOffsetNode == nullptr)
+		if (datas.empty())
 		{
 			// TODO message
 			return false;
 		}
 
-		uint32_t initialStreamPos = FileSystem::GetInstance()->GetOffset(fileHandle);
-		uint32_t dataOffset = dataOffsetNode->GetUInt32();
-
-		const Document::Node* dataSizeNode = documentNode.GetChild("DataSize");
-		if (dataSizeNode == nullptr)
-		{
-			// TODO message
-			return false;
-		}
-
-		uint32_t dataSize = dataSizeNode->GetUInt32();
-
-		FileSystem::GetInstance()->Seek(fileHandle, initialStreamPos + dataOffset, FileSystem::SeekMode::Begin);
+		const Resource::Data& data = datas[0];
 
 		Texture::CreateInfo createInfo;
 		createInfo._wrapMode = _wrapMode;
 		createInfo._filterMode = _filterMode;
 
-		char* data = DefaultAllocator::GetInstance().Allocate<char>(dataSize);
-		if (FileSystem::GetInstance()->Read(fileHandle, data, dataSize) != dataSize)
-		{
-			DefaultAllocator::GetInstance().Free(data);
-			return false;
-		}
-
 		_texture = Renderer::GetInstance()->CreateTexture();
-		if (_texture->BuildBuffer(_width, _height, (unsigned char*)data, createInfo) == false) // todo BuildBuffer doesn't take void* ?
+		if (_texture->BuildBuffer(_width, _height, (unsigned char*)data._buffer, createInfo) == false) // todo BuildBuffer doesn't take void* ?
 		{
 			DefaultAllocator::GetInstance().Delete(_texture);
 			_texture = nullptr;
-
-			DefaultAllocator::GetInstance().Free(data);
 			return false;
 		}
-		
-		DefaultAllocator::GetInstance().Free(data);
 		return true;
 	}
 

@@ -17,7 +17,7 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool PrefabResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
+	bool PrefabResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
 		_document.GetRootNode().Copy(documentNode);
 

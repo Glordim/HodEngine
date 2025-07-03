@@ -3,6 +3,7 @@
 #include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 
+#include "HodEngine/Core/Resource/Resource.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
@@ -59,9 +60,9 @@ namespace hod::editor
 			}
 		}
 		
-		Document document;
+		Document metaDocument;
 		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, metaFileHandle) == false)
+		if (documentReader.Read(metaDocument, metaFileHandle) == false)
 		{
 			// TODO output reason
 			FileSystem::GetInstance()->Close(metaFileHandle);
@@ -69,14 +70,14 @@ namespace hod::editor
 		}
 
 		Meta meta;
-		if (Serializer::Deserialize(meta, document.GetRootNode()) == false)
+		if (Serializer::Deserialize(meta, metaDocument.GetRootNode()) == false)
 		{
 			// TODO output reason
 			FileSystem::GetInstance()->Close(metaFileHandle);
 			return false;
 		}
 
-		const Document::Node* importerNode = document.GetRootNode().GetChild("importerSettings");
+		const Document::Node* importerNode = metaDocument.GetRootNode().GetChild("importerSettings");
 		if (importerNode == nullptr)
 		{
 			// TODO output reason
@@ -114,6 +115,12 @@ namespace hod::editor
 			return false;
 		}
 
+		FileSystem::GetInstance()->Seek(metaFileHandle, 0, FileSystem::SeekMode::Begin);
+
+		Document document;
+		Vector<Resource::Data> datas;
+		bool result = WriteResource(dataFile, metaFileHandle, document, datas, thumbnailFile, *meta._importerSettings);
+
 		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
 		resourceFilePath += ".dat";
 
@@ -124,9 +131,40 @@ namespace hod::editor
 			return false;
 		}
 
-		FileSystem::GetInstance()->Seek(metaFileHandle, 0, FileSystem::SeekMode::Begin);
 		resourceFile.write("HodResource", 11);
-		bool result = WriteResource(dataFile, metaFileHandle, resourceFile, thumbnailFile, *meta._importerSettings);
+
+		uint32_t version = 1;
+		resourceFile.write(reinterpret_cast<char*>(&version), sizeof(version));
+
+		std::stringstream documentStringStream;
+
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(document, documentStringStream) == false)
+		{
+			// TODO message
+			return false;
+		}
+
+		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
+		resourceFile.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
+
+		// todo use documentStringStream ?
+		if (documentWriter.Write(document, resourceFile) == false)
+		{
+			// TODO message
+			return false;
+		}
+
+		uint32_t dataCount = datas.size();
+		resourceFile.write(reinterpret_cast<char*>(&dataCount), sizeof(dataCount));
+
+		for (const Resource::Data& data : datas)
+		{
+			resourceFile.write(reinterpret_cast<const char*>(&data._size), sizeof(data._size));
+			resourceFile.write(static_cast<const char*>(data._buffer), data._size);
+
+			DefaultAllocator::GetInstance().Free(data._buffer);
+		}
 		FileSystem::GetInstance()->Close(metaFileHandle);
 		FileSystem::GetInstance()->Close(dataFile);
 		return result;

@@ -19,7 +19,7 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SerializedDataResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
+	bool SerializedDataResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
 		const Document::Node* typeNode = documentNode.GetChild("Type");
 		if (typeNode == nullptr)

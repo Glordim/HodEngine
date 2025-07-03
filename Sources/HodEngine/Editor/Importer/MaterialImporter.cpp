@@ -40,7 +40,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool MaterialImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool MaterialImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
 		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
 		char* dataBuffer = DefaultAllocator::GetInstance().Allocate<char>(dataSize + 1);
@@ -123,50 +123,22 @@ namespace hod::editor
 		FileSystem::GetInstance()->Close(fragmentSlangOutputHandle);
 		fragmentDataBuffer[fragmentDataSize] = '\0';
 
-		Document document;
 		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, meta) == false)
+		if (documentReader.Read(document, meta) == false) // todo dont copy all meta
 		{
 			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
 			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
 			return false;
 		}
-		document.GetRootNode().AddChild("VertexDataOffset").SetUInt32(0);
-		document.GetRootNode().AddChild("VertexDataSize").SetUInt32(vertexDataSize);
-		document.GetRootNode().AddChild("FragmentDataOffset").SetUInt32(vertexDataSize);
-		document.GetRootNode().AddChild("FragmentDataSize").SetUInt32(fragmentDataSize);
-		std::stringstream documentStringStream;
+		Resource::Data vertexData;
+		vertexData._buffer = vertexDataBuffer;
+		vertexData._size = vertexDataSize;
+		datas.push_back(vertexData);
 
-		DocumentWriterJson documentWriter;
-		if (documentWriter.Write(document, documentStringStream) == false)
-		{
-			// TODO message
-			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
-			return false;
-		}
-
-		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
-		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
-
-		// todo use documentStringStream ?
-		if (documentWriter.Write(document, resource) == false)
-		{
-			// TODO message
-			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
-			return false;
-		}
-		resource.write(reinterpret_cast<char*>(vertexDataBuffer), vertexDataSize);
-		DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-		resource.write(reinterpret_cast<char*>(fragmentDataBuffer), fragmentDataSize);
-		DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
-
-		if (resource.fail())
-		{
-			// TODO message
-			return false;
-		}
+		Resource::Data fragmentData;
+		fragmentData._buffer = fragmentDataBuffer;
+		fragmentData._size = fragmentDataSize;
+		datas.push_back(fragmentData);
 
 		return true;
 	}
