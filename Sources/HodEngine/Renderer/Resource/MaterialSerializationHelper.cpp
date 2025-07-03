@@ -88,7 +88,11 @@ namespace hod::renderer
 				{
 					WeakResource<TextureResource> value;
 					Serializer::Deserialize(value, *valueNode);
-					materialInstance.SetTexture(name, value.Lock()->GetTexture());
+					std::shared_ptr<TextureResource> textureResource = value.Lock();
+					if (textureResource != nullptr)
+					{
+						materialInstance.SetTexture(name, textureResource->GetTexture());
+					}
 
 					textureResources.push_back(value);
 				}
