@@ -35,11 +35,7 @@ namespace hod::editor
 			_material = ResourceManager::GetInstance()->GetResource<renderer::MaterialResource>(asset->GetMeta()._uid);
 			if (_material != nullptr)
 			{
-				Document document;
-				DocumentReaderJson reader;
-				reader.Read(document, asset->GetPath());
-
-				Serializer::Deserialize(_materialAsset, document.GetRootNode());
+				std::shared_ptr<MaterialImporterSettings> materialImporterSettings = std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings);
 
 				const renderer::Material* material = _material->GetMaterial();
 				if (material != nullptr)
@@ -78,7 +74,7 @@ namespace hod::editor
 					}
 				}
 
-				const Document::Node* paramNode = _materialAsset._defaultInstanceParams.GetRootNode().GetFirstChild();
+				const Document::Node* paramNode = materialImporterSettings->_defaultInstanceParams.GetRootNode().GetFirstChild();
 				while (paramNode != nullptr)
 				{
 					String name = paramNode->GetChild("Name")->GetString();
@@ -148,13 +144,6 @@ namespace hod::editor
 	std::shared_ptr<renderer::MaterialResource> MaterialEditorTab::GetMaterial() const
 	{
 		return _material;
-	}
-
-	/// @brief 
-	/// @return 
-	MaterialAsset& MaterialEditorTab::GetMaterialAsset()
-	{
-		return _materialAsset;
 	}
 
 	/// @brief 

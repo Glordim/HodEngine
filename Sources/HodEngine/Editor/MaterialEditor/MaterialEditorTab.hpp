@@ -57,12 +57,11 @@ namespace hod::editor
 				~MaterialEditorTab() override;
 
 		std::shared_ptr<renderer::MaterialResource>	GetMaterial() const;
-		MaterialAsset&								GetMaterialAsset();
 
-		Vector<ShaderParamScalar>&				GetScalarParameters();
-		Vector<ShaderParamTexture>&			GetTextureParameters();
-		Vector<ShaderParamVec2>&				GetVector2Parameters();
-		Vector<ShaderParamVec4>&				GetVector4Parameters();
+		Vector<ShaderParamScalar>&					GetScalarParameters();
+		Vector<ShaderParamTexture>&					GetTextureParameters();
+		Vector<ShaderParamVec2>&					GetVector2Parameters();
+		Vector<ShaderParamVec4>&					GetVector4Parameters();
 
 		float										GetZoomFactor() const;
 		void										SetZoomFactor(float zoomFactor);
@@ -82,9 +81,7 @@ namespace hod::editor
 		Vector<renderer::ShaderParameter>	_parameters;
 		Vector<ShaderParamScalar>			_scalarParameters;
 		Vector<ShaderParamTexture>			_textureParameters;
-		Vector<ShaderParamVec2>			_vec2Parameters;
-		Vector<ShaderParamVec4>			_vec4Parameters;
-
-		MaterialAsset						_materialAsset;
+		Vector<ShaderParamVec2>				_vec2Parameters;
+		Vector<ShaderParamVec4>				_vec4Parameters;
 	};
 }

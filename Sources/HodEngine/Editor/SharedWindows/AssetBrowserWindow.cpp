@@ -654,17 +654,6 @@ namespace hod::editor
 						}
 						ImGui::EndMenu();
 					}
-					if (ImGui::MenuItem("Material") == true)
-					{
-						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<MaterialAsset, MaterialImporter>(_currentFolderTreeNode->_path / "Material.mat");
-						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-						if (newAssetNode != nullptr)
-						{
-							_itemToRename = newAssetNode;
-							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
-							ImGui::CloseCurrentPopup();
-						}
-					}
 					if (ImGui::MenuItem("Material Instance") == true)
 					{
 						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<MaterialInstanceAsset, MaterialInstanceImporter>(_currentFolderTreeNode->_path / "MaterialInstance.mati");

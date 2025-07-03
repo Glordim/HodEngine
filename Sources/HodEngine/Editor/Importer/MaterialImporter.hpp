@@ -11,21 +11,14 @@
 
 namespace hod::editor
 {
-	class HOD_EDITOR_API MaterialAsset
-	{
-		REFLECTED_CLASS_NO_PARENT(MaterialAsset)
-
-		virtual ~MaterialAsset() = default;
-		
-		renderer::Material::PolygonMode		_polygonMode = renderer::Material::PolygonMode::Fill;
-		renderer::Material::Topololy		_topololy = renderer::Material::Topololy::TRIANGLE;
-
-		Document								_defaultInstanceParams;
-	};
-
 	class HOD_EDITOR_API MaterialImporterSettings : public ImporterSettings
 	{
 		REFLECTED_CLASS(MaterialImporterSettings, ImporterSettings)
+
+		renderer::Material::PolygonMode			_polygonMode = renderer::Material::PolygonMode::Fill;
+		renderer::Material::Topololy			_topololy = renderer::Material::Topololy::TRIANGLE;
+
+		Document								_defaultInstanceParams;
 	};
 
 	class HOD_EDITOR_API MaterialImporter : public Importer
@@ -45,6 +38,7 @@ namespace hod::editor
 		std::shared_ptr<ImporterSettings> AllocateSettings() const override;
 		const char*				GetTypeName() const override;
 		ReflectionDescriptor*	GetResourceDescriptor() const override;
+		Document&				GetDefaultInstanceParamsDocument();
 
 	protected:
 

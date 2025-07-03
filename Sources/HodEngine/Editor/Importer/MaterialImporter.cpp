@@ -17,17 +17,12 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(MaterialAsset, reflectionDescriptor)
-	{
-		AddPropertyT(reflectionDescriptor, &MaterialAsset::_polygonMode, "_polygonMode");
-		AddPropertyT(reflectionDescriptor, &MaterialAsset::_topololy, "_topololy");
-
-		AddPropertyT(reflectionDescriptor, &MaterialAsset::_defaultInstanceParams, "_defaultInstanceParams")->AddTrait<ReflectionTraitHide>();
-	}
-
 	DESCRIBE_REFLECTED_CLASS(MaterialImporterSettings, reflectionDescriptor)
 	{
+		AddPropertyT(reflectionDescriptor, &MaterialImporterSettings::_polygonMode, "_polygonMode");
+		AddPropertyT(reflectionDescriptor, &MaterialImporterSettings::_topololy, "_topololy");
 
+		AddPropertyT(reflectionDescriptor, &MaterialImporterSettings::_defaultInstanceParams, "_defaultInstanceParams")->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 
@@ -123,13 +118,24 @@ namespace hod::editor
 		FileSystem::GetInstance()->Close(fragmentSlangOutputHandle);
 		fragmentDataBuffer[fragmentDataSize] = '\0';
 
+		Document metaDocument;
 		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, meta) == false) // todo dont copy all meta
+		if (documentReader.Read(metaDocument, meta) == false) // todo dont copy all meta
 		{
 			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
 			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
 			return false;
 		}
+		const Document::Node* importerSettings = metaDocument.GetRootNode().GetChild("importerSettings");
+		if (importerSettings == nullptr)
+		{
+			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
+			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
+			return false;
+		}
+		document.GetRootNode().Copy(*importerSettings);
+		document.GetRootNode().SetName("");
+
 		Resource::Data vertexData;
 		vertexData._buffer = vertexDataBuffer;
 		vertexData._size = vertexDataSize;
