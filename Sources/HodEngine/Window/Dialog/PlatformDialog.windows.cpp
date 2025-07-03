@@ -100,7 +100,19 @@ namespace hod::window
 	/// @param path 
 	void OpenExplorerAtPath(const std::filesystem::path& path)
 	{
-		ShellExecute(NULL, "open", path.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+		if (std::filesystem::is_directory(path))
+		{
+			ShellExecute(NULL, "open", path.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+		}
+		else if (std::filesystem::is_regular_file(path))
+		{
+			std::string param = "/select,\"" + path.string() + "\"";
+			ShellExecute(NULL, "open", "explorer.exe", param.c_str(), NULL, SW_SHOWDEFAULT);
+		}
+		else
+		{
+			// TODO
+		}
 	}
 
 	/// @brief 

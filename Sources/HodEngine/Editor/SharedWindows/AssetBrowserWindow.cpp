@@ -483,6 +483,10 @@ namespace hod::editor
 				{
 					AssetDatabase::GetInstance()->Import(asset->_path);
 				}
+				else if (ImGui::MenuItem("Show Resource in explorer") == true)
+				{
+					window::OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat"));
+				}
 				else if (ImGui::MenuItem("Rename") == true)
 				{
 					_itemToRename = asset;
