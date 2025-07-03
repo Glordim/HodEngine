@@ -66,6 +66,8 @@ namespace hod::editor
 			return false;
 		}
 
+		DefaultAllocator::GetInstance().Free(dataBuffer);
+
 		int thumbnailWidth = 256;
 		int thumbnailHeight = 256;
 		if (y > x)
