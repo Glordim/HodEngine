@@ -61,8 +61,6 @@ namespace hod::editor
 		EditorReflectedProperty* rotation = reflectedObject.FindProperty("Rotation");
 		EditorReflectedProperty* scale = reflectedObject.FindProperty("Scale");
 
-		Vector2 anchorDiff = *anchorMax->GetObject<Vector2>() - *anchorMin->GetObject<Vector2>();
-
 		Vector2 deltaSizeValue = *deltaSize->GetObject<Vector2>();
 
 		ImVec2 cursorPos = ImGui::GetCursorPos();
@@ -126,7 +124,6 @@ namespace hod::editor
 		ImFont* font = ImGui::GetFont();
 		const ImFontGlyph *glyph;
 		char c;
-		ImVec2 text_size = ImGui::CalcTextSize(text);
 		while ((c = *text++))
 		{
 			glyph = font->GetFontBaked(ImGui::GetStyle().FontSizeBase)->FindGlyph(c);

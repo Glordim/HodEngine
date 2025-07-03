@@ -26,12 +26,12 @@ namespace hod::renderer
 	RenderCommandMesh::RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t order, uint32_t pickingId, bool ignoreVisualisationMode)
 		: RenderCommand()
 		, _vertexCount(vertexCount)
+		, _order(order)
 		, _pickingId(pickingId)
 		, _indices(indexCount)
 		, _modelMatrix(modelMatrix)
 		, _materialInstance(materialInstance)
 		, _ignoreVisualisationMode(ignoreVisualisationMode)
-		, _order(order)
 	{
 		assert(positions != nullptr);
 		_positions.resize(vertexCount);

@@ -35,9 +35,6 @@ namespace hod::ui
 
 			renderer::Font* font = _font.Lock()->GetFont();
 
-			float atlasWidth = (float)font->GetTexture()->GetWidth();
-			float atlasHeight = (float)font->GetTexture()->GetHeight();
-
 			Vector<Vector2> positions;
 			positions.reserve(_value.size() * 4);
 
@@ -50,8 +47,6 @@ namespace hod::ui
 			Vector2 requiredSize = font->ComputeRequiredSize(_value);
 
 			Vector2 lineTopLeftCorner;
-			float offset = 0.0f;
-			float baseLineOffset = 0.0f;
 			switch (_alignment)
 			{
 			case Alignment::TopLeft:
@@ -118,42 +113,6 @@ namespace hod::ui
 				indices.push_back(vertexCount + 2);
 				indices.push_back(vertexCount + 3);
 			}
-			/*
-			offset = lineTopLeftCorner.GetX();
-			baseLineOffset = lineTopLeftCorner.GetY();
-
-			const char* str = _value.c_str();
-			while (*str != '\0')
-			{
-				const renderer::Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
-
-				uint16_t vertexCount = (uint16_t)positions.size();
-
-				positions.emplace_back(offset + , baseLineOffset + (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
-				uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight);
-
-				positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, baseLineOffset + (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
-				uvs.emplace_back((float)(kerning._offsetX + kerning._size.GetX()) / atlasWidth, (float)kerning._offsetY / atlasHeight);
-
-				positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, baseLineOffset + (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * -0.5f * 0.01f);
-				uvs.emplace_back((float)(kerning._offsetX + kerning._size.GetX()) / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
-
-				positions.emplace_back(offset, baseLineOffset + (float)kerning._baseline * 0.5f * -0.01f + (float)kerning._size.GetY() * -0.5f * 0.01f);
-				uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
-
-				indices.push_back(vertexCount);
-				indices.push_back(vertexCount + 1);
-				indices.push_back(vertexCount + 2);
-
-				indices.push_back(vertexCount);
-				indices.push_back(vertexCount + 2);
-				indices.push_back(vertexCount + 3);
-
-				offset += (kerning._size.GetX() + 2) * 0.01f;
-
-				++str;
-			}
-			*/
 
 			if (positions.empty() == false)
 			{

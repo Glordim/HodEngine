@@ -47,7 +47,6 @@ namespace hod
 			WeakResource<renderer::MaterialInstanceResource>	_material;
 
 			renderer::MaterialInstance*							_materialInstance = nullptr;
-			renderer::MaterialInstance*							_builtinMaterialInstance = nullptr;
 		};
 	}
 }

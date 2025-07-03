@@ -47,9 +47,5 @@ namespace hod::physics
 		bool				Init() override;
 
 		World*				CreateWorld() override;
-
-	private:
-
-		b2WorldId			_worldId = {};
 	};
 }

@@ -104,6 +104,7 @@ namespace hod
 				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
+					/*
 					renderer::Font* font = _fontResource.Lock()->GetFont();
 
 					float atlasWidth = (float)font->GetTexture()->GetWidth();
@@ -127,13 +128,6 @@ namespace hod
 
 						uint16_t vertexCount = (uint16_t)positions.size();
 
-						/*
-						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * -0.5f * 0.01f, (float)kerning._sizeY * 0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight));
-						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.5f * 0.01f, (float)kerning._sizeY * 0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)kerning._offsetY / atlasHeight));
-						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * 0.5f * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)(kerning._offsetX + kerning._sizeX) / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
-						vertices.push_back(renderer::P2fT2f(offset + (float)kerning._sizeX * -0.5f * 0.01f, (float)kerning._sizeY * -0.5f * 0.01f, (float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._sizeY) / atlasHeight));
-						*/
-						/*
 						positions.emplace_back(offset, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
 						uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight);
 
@@ -145,7 +139,6 @@ namespace hod
 
 						positions.emplace_back(offset, (float)kerning._baseline * 0.5f * -0.01f + (float)kerning._size.GetY() * -0.5f * 0.01f);
 						uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
-						*/
 
 						indices.push_back(vertexCount);
 						indices.push_back(vertexCount + 1);
@@ -164,6 +157,7 @@ namespace hod
 					{
 						renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 					}
+					*/
 				}
 			}
 		}
