@@ -64,5 +64,7 @@ namespace hod::editor
 		PhysicsDebugDrawer*			_physicsDebugDrawer = nullptr;
 		bool						_debugPicker = false;
 		bool						_wasFocus = false;
+
+		bool						_drawGrid = true;
 	};
 }

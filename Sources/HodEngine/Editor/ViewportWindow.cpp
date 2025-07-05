@@ -149,6 +149,17 @@ namespace hod::editor
 				}
 				ImGui::EndMenu();
 			}
+
+			if (ImGui::MenuItem(ICON_MDI_GRID, nullptr, &_drawGrid) == true)
+			{
+				
+			}
+			ImGui::SameLine();
+			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
+			{
+				//ImGui::TextUnformatted();
+				ImGui::EndMenu();
+			}
 			ImGui::EndMenuBar();
 		}
 
@@ -304,6 +315,23 @@ namespace hod::editor
 							}
 						}
 					}
+				}
+
+				if (_drawGrid)
+				{
+					std::array<Vector2, 4> positions = {
+						Vector2(-0.5f, 0.5f),
+						Vector2(0.5f, 0.5f),
+						Vector2(-0.5f, -0.5f),
+						Vector2(0.5f, -0.5f),
+					};
+
+					std::array<uint16_t, 6> indices = {
+						0, 1, 2,
+						2, 1, 3
+					};
+
+					_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), nullptr, nullptr, positions.size(), indices.data(), indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
 				}
 			}
 			else
