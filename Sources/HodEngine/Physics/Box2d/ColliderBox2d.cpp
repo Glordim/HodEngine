@@ -20,6 +20,8 @@ namespace hod::physics
 		b2ShapeDef shapeDef = b2DefaultShapeDef();
 		shapeDef.isSensor = isTrigger;
 		shapeDef.restitution = 0.0f;
+		shapeDef.enableContactEvents = true;
+		shapeDef.enableHitEvents = true;
 		//shapeDef.density = 1.0f;
 		//shapeDef.friction = 0.0f;
 		//_shape = b2CreateSegmentShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &segment);
