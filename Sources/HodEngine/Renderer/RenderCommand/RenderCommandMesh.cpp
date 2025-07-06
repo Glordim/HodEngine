@@ -8,6 +8,8 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 
+#include <HodEngine/Core/Time/SystemTime.hpp>
+
 #include <cstring>
 #include <cassert>
 
@@ -134,6 +136,7 @@ namespace hod::renderer
 		MaterialInstance* materialInstance = const_cast<MaterialInstance*>(_materialInstance);
 		materialInstance->SetMat4("global.view", commandBuffer->_view);
 		materialInstance->SetMat4("global.proj", commandBuffer->_projection);
+		materialInstance->SetFloat("global.time", (float)SystemTime::ToSeconds(SystemTime::Now()));
 		if (overrideMaterial != nullptr)
 		{
 			Color color = renderer::PickingManager::ConvertIdToColor(_pickingId);
