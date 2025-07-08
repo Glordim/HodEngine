@@ -37,7 +37,9 @@ namespace hod
 		}
 		
 		// [ AllocationHeader ][ padding ][ pointer to header ][ aligned user ptr ]
-		void* allocation = _mallocAllocator.Allocate(sizeof(AllocationHeader) + maxPadding  + sizeof(AllocationHeader*) + size, alignment);
+		uint32_t alignedSize = sizeof(AllocationHeader) + maxPadding  + sizeof(AllocationHeader*) + size;
+		alignedSize = (alignedSize + alignment - 1) / alignment * alignment;
+		void* allocation = _mallocAllocator.Allocate(alignedSize, alignment);
 		if (allocation == nullptr)
 		{
 			return nullptr;
