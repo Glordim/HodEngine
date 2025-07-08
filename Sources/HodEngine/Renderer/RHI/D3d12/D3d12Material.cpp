@@ -57,15 +57,6 @@ namespace hod::renderer
 		psoDesc.InputLayout.pInputElementDescs = inputs.data();
 
 		// RootSignature
-		D3D12_VERSIONED_ROOT_SIGNATURE_DESC rootSigDesc = {};
-		rootSigDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
-		rootSigDesc.Desc_1_1.NumParameters = 0;
-		rootSigDesc.Desc_1_1.pParameters = nullptr;
-		rootSigDesc.Desc_1_1.NumStaticSamplers = 0;
-		rootSigDesc.Desc_1_1.pStaticSamplers = nullptr;
-		rootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-		rootSigDesc.
-
 		D3D12_DESCRIPTOR_RANGE1 cbvRange = {};
 		cbvRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		cbvRange.NumDescriptors = 1;
@@ -74,10 +65,54 @@ namespace hod::renderer
 		cbvRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
 		cbvRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+		D3D12_DESCRIPTOR_RANGE1 samplerRange = {};
+		samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+		samplerRange.NumDescriptors = 1;
+		samplerRange.BaseShaderRegister = 0; // s0
+		samplerRange.RegisterSpace = 0;
+		samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		samplerRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
+
+		D3D12_DESCRIPTOR_RANGE1 srvRange = {};
+		srvRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		srvRange.NumDescriptors = 1;
+		srvRange.BaseShaderRegister = 0; // t0
+		srvRange.RegisterSpace = 0;
+		srvRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		srvRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
+
+		D3D12_ROOT_PARAMETER1 cbvParam = {};
+		cbvParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		cbvParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+		cbvParam.DescriptorTable.NumDescriptorRanges = 1;
+		cbvParam.DescriptorTable.pDescriptorRanges = &cbvRange;
+
+		D3D12_ROOT_PARAMETER1 samplerParam = {};
+		samplerParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		samplerParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		samplerParam.DescriptorTable.NumDescriptorRanges = 1;
+		samplerParam.DescriptorTable.pDescriptorRanges = &samplerRange;
+
+		D3D12_ROOT_PARAMETER1 srvParam = {};
+		srvParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		srvParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		srvParam.DescriptorTable.NumDescriptorRanges = 1;
+		srvParam.DescriptorTable.pDescriptorRanges = &srvRange;
+
+		D3D12_ROOT_PARAMETER1 rootParams[3] = { cbvParam, srvParam, samplerParam };
+
+		D3D12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+		rootSignatureDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
+		rootSignatureDesc.Desc_1_1.NumParameters = 3;
+		rootSignatureDesc.Desc_1_1.pParameters = rootParams;
+		rootSignatureDesc.Desc_1_1.NumStaticSamplers = 0;
+		rootSignatureDesc.Desc_1_1.pStaticSamplers = nullptr;
+		rootSignatureDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
 		ComPtr<ID3DBlob> signatureBlob;
 		ComPtr<ID3DBlob> errorBlob;
 
-		if (FAILED(D3D12SerializeVersionedRootSignature(&rootSigDesc, &signatureBlob, &errorBlob)))
+		if (FAILED(D3D12SerializeVersionedRootSignature(&rootSignatureDesc, &signatureBlob, &errorBlob)))
 		{
 			if (errorBlob)
 			{
