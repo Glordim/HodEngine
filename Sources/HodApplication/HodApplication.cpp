@@ -59,8 +59,22 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	}
 
 	std::shared_ptr<hod::game::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::game::SceneResource>(bootInfo._startupScene);
-	hod::game::World::GetInstance()->AddScene(&sceneResource->GetScene());
-	hod::game::World::GetInstance()->SetEditorPlaying(true);
+	if (sceneResource == nullptr)
+	{
+		return false;
+	}
+
+	hod::game::Scene* startupScene = sceneResource->CreateScene();
+	if (startupScene == nullptr)
+	{
+		return false;
+	}
+
+	_world = hod::DefaultAllocator::GetInstance().New<hod::game::World>();
+	_world->Init();
+	_world->AddScene(startupScene);
+	_world->SetEditorPlaying(true);
+	startupScene->ProcessActivation();
 
 	// todo remove
 	static_cast<hod::window::DesktopWindow*>(hod::application::GraphicApplication::GetInstance()->GetWindow())->SetVisible(true);
@@ -72,5 +86,8 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 /// @brief 
 void HodApplication::Terminate()
 {
+	hod::DefaultAllocator::GetInstance().Delete(_world);
+	_world = nullptr;
+
 	PlatformApplication::Terminate();
 }

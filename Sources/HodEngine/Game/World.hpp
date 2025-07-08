@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Singleton.hpp>
-
 #include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/DebugDrawer.hpp"
 
@@ -41,15 +39,6 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class HOD_GAME_API World
 		{
-		// TODO remove
-		public:
-
-			static World*		CreateInstance() { _instance = DefaultAllocator::GetInstance().New<World>(); return _instance; }
-			static World*		GetInstance() { return _instance; }
-			static void			DestroyInstance() { hod::DefaultAllocator::GetInstance().Delete(_instance); _instance = nullptr; }
-			static World*		_instance;
-		//
-
 		public:
 
 										World();

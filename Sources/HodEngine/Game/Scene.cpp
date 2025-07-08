@@ -124,11 +124,6 @@ namespace hod::game
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
 			entity->SetScene(this);
-
-			if (entity->GetParent().Lock() == nullptr)
-			{
-				entity->ProcessActivation();
-			}
 		}
 
 		return true;

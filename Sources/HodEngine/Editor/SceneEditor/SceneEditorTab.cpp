@@ -44,6 +44,8 @@ namespace hod::editor
 				return; // todo message + bool
 			}
 			asset->SetInstanceToSave(_scene, &_scene->GetReflectionDescriptorV());
+
+			_scene->ProcessActivation();
 		}
 	}
 

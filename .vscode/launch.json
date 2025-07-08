@@ -78,7 +78,7 @@
 			"program": "${command:cmake.launchTargetDirectory}/HodApplication.exe",
 			"args": [
 				"--BuildPath",
-				"E:/Pong/Builds/Latest"
+				"E:/Circle/Builds/Latest"
 			],
 			"stopAtEntry": false,
 			//"cwd": "E:/Pong/Pong.hod",

@@ -24,10 +24,10 @@ namespace hod::game
 
 		bool			Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) override;
 
-		Scene&			GetScene();
+		Scene*			CreateScene();
 
 	private:
 
-		Scene*			_scene = nullptr;
+		Document		_document;
 	};
 }

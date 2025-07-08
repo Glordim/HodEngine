@@ -18,8 +18,11 @@
 #include <HodEngine/Physics/World.hpp>
 
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RHI/Context.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
 #include <HodEngine/Window/Window.hpp>
+#include <HodEngine/Window/DisplayManager.hpp>
 
 #undef min
 
@@ -67,8 +70,6 @@ namespace hod
 			_editorNextFrame = true;
 		}
 	//
-
-		World* World::_instance = nullptr;
 
 		/// @brief 
 		/// @param  
@@ -282,8 +283,11 @@ namespace hod
 		/// @brief 
 		void World::Draw()
 		{
-			// TODO
-			//Draw(renderQueue);
+			renderer::RenderView* renderView = DefaultAllocator::GetInstance().New<renderer::RenderView>();
+			renderView->Init();
+			renderView->Prepare(static_cast<renderer::Context*>(window::DisplayManager::GetInstance()->GetMainWindow()->GetSurface()));
+			Draw(*renderView);
+			renderer::Renderer::GetInstance()->PushRenderView(*renderView, true);
 		}
 
 		/// @brief 

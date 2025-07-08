@@ -182,20 +182,22 @@ namespace hod::game
 		_components.push_back(component);
 		component->AttachTo(this);
 
-		if (_activeInHierarchy == true)
+		if (_internalState != InternalState::None)
 		{
 			component->Construct();
-			
-			bool playing = GetScene()->GetWorld()->GetEditorPlaying();
+			if (_activeInHierarchy == true)
+			{
+				bool playing = GetScene()->GetWorld()->GetEditorPlaying();
 
-			if (playing)
-			{
-				component->Awake();
-			}
-			component->Enable();
-			if (playing)
-			{
-				component->Start();
+				if (playing)
+				{
+					component->Awake();
+				}
+				component->Enable();
+				if (playing)
+				{
+					component->Start();
+				}
 			}
 		}
 
@@ -336,7 +338,10 @@ namespace hod::game
 		}
 		_parent = parent;
 
-		ProcessActivation();
+		if (_internalState != InternalState::None)
+		{
+			ProcessActivation();
+		}
 	}
 
 	/// @brief 

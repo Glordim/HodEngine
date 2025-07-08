@@ -103,8 +103,6 @@ namespace hod::editor
 	/// @return 
 	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
-		game::World::GetInstance()->DisableDrawJob();
-
 		if (LoadEditorModules() == false)
 		{
 			return false;

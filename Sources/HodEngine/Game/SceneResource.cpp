@@ -10,7 +10,6 @@ namespace hod::game
 	/// @brief 
 	SceneResource::~SceneResource()
 	{
-		DefaultAllocator::GetInstance().Delete(_scene);
 	}
 
 	/// @brief 
@@ -19,14 +18,20 @@ namespace hod::game
 	/// @return 
 	bool SceneResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
-		_scene = DefaultAllocator::GetInstance().New<Scene>();
-		return _scene->DeserializeFromDocument(documentNode);
+		_document.GetRootNode().Copy(documentNode);
+		return true;
 	}
 
 	/// @brief 
 	/// @return 
-	Scene& SceneResource::GetScene()
+	Scene* SceneResource::CreateScene()
 	{
-		return *_scene;
+		Scene* scene = DefaultAllocator::GetInstance().New<Scene>();
+		if (scene->DeserializeFromDocument(_document.GetRootNode()) == false)
+		{
+			DefaultAllocator::GetInstance().Delete(scene);
+			return nullptr;
+		}
+		return scene;
 	}
 }

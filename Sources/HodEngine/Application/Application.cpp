@@ -48,15 +48,12 @@ namespace hod::application
 		game::SerializedDataFactory::CreateInstance();
 		game::RegisterBuiltin();
 
-		game::World::CreateInstance()->Init();
-
 		return true;
 	}
 
 	/// @brief 
 	void Application::Terminate()
 	{
-		game::World::DestroyInstance();
 		game::SerializedDataFactory::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
 
