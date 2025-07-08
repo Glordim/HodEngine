@@ -45,6 +45,7 @@ namespace hod::game
 	public:
 
 		void						OnAwake() override;
+		void						OnDestruct() override;
 
 		void						Render(Scene& scene);
 

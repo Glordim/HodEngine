@@ -26,6 +26,11 @@ namespace hod::game
 		_main = this;
 	}
 
+	void CameraComponent::OnDestruct()
+	{
+		_main = nullptr;
+	}
+
 	/// @brief 
 	/// @return 
 	const Matrix4& CameraComponent::GetProjectionMatrix()
