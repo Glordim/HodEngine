@@ -42,7 +42,7 @@ namespace hod::renderer
 		_layer->release();
 	}
 
-	bool MetalContext::AcquireNextImageIndex(const Semaphore* signalSemaphore)
+	bool MetalContext::AcquireNextImageIndex()
 	{
 		if (_drawable != nullptr)
 		{
@@ -74,7 +74,7 @@ namespace hod::renderer
 		return Vector2(static_cast<uint32_t>(_layer->drawableSize().width), static_cast<uint32_t>(_layer->drawableSize().height));
 	}
 
-	bool MetalContext::SwapBuffer(const Semaphore* waitSemaphore)
+	bool MetalContext::SwapBuffer()
 	{
 		return false;
 	}

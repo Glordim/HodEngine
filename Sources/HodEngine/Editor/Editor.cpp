@@ -57,7 +57,6 @@
 #include "Icons/landscape.png.hpp"
 #include "Icons/prefab.png.hpp"
 #include "Icons/SerializedData.png.hpp"
-#include "Icons/Shader.png.hpp"
 
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
