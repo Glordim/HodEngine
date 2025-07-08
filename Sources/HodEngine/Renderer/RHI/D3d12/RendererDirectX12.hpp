@@ -47,12 +47,19 @@ namespace hod::renderer
 		Semaphore* CreateSemaphore() override;
 		Fence* CreateFence() override;
 
+		ComPtr<ID3D12Device5> GetDevice();
+
+		void								OutputErrors();
+
 	private:
 
 		Vector<D3d12GpuDevice>				_availableGpu;
+		D3d12GpuDevice*						_selectedGpu = nullptr;
 
 		// DirectX 12 Objects
 		ComPtr<ID3D12Debug>					_debugInterface = nullptr;
+		ComPtr<ID3D12InfoQueue>				_infoQueue = nullptr;
+
 		ComPtr<IDXGIFactory7>				_dxgiFactory = nullptr;
 		ComPtr<ID3D12Device5>				_device = nullptr;
 		ComPtr<ID3D12CommandQueue>			_commandQueue = nullptr;
