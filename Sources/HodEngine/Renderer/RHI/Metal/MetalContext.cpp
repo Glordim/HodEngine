@@ -76,7 +76,7 @@ namespace hod::renderer
 
 	bool MetalContext::SwapBuffer()
 	{
-		return false;
+		return true;
 	}
 
 	CA::MetalLayer* MetalContext::GetLayer() const

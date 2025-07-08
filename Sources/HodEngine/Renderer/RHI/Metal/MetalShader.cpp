@@ -70,7 +70,7 @@ namespace hod::renderer
 
 			case ShaderType::Fragment:
 			{
-				functionName = "FragMain";
+				functionName = "FragmentMain";
 			}
 			break;
 
