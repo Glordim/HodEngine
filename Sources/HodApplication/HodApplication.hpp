@@ -26,5 +26,5 @@ public:
 private:
 
 	hod::Module			_gameModule;
-	hod::game::World*	_world;
+	hod::game::World*	_world = nullptr;
 };
