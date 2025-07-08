@@ -14,12 +14,20 @@ namespace hod::renderer
 	class HOD_RENDERER_API Context : public window::Surface
 	{
 	public:
-						Context() = default;
-		virtual			~Context() = default;
+						Context();
+		virtual			~Context();
 
 	public:
 
-		virtual bool	AcquireNextImageIndex(const Semaphore* signalSemaphore) = 0;
-		virtual bool	SwapBuffer(const Semaphore* waitSemaphore) = 0;
+		virtual bool	AcquireNextImageIndex() = 0;
+		virtual bool	SwapBuffer() = 0;
+
+		const Semaphore*	GetImageAvailableSempahore() const;
+		void				AddSemaphoreToSwapBuffer(const Semaphore* semaphore);
+
+	protected:
+
+		Semaphore*					_imageAvailableSemaphore;
+		Vector<const Semaphore*>	_semaphoresToSwapBuffer;
 	};
 }

@@ -317,7 +317,7 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @return 
-	bool VkContext::AcquireNextImageIndex(const Semaphore* signalSemaphore)
+	bool VkContext::AcquireNextImageIndex()
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
@@ -326,7 +326,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(), static_cast<const SemaphoreVk*>(signalSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(), static_cast<const SemaphoreVk*>(_imageAvailableSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
 		if (result != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to acquire next image!");
@@ -350,32 +350,36 @@ namespace hod::renderer
 
 	/// @brief 
 	/// @return 
-	bool VkContext::SwapBuffer(const Semaphore* waitSemaphore)
+	bool VkContext::SwapBuffer()
 	{
 		if (_swapchain == nullptr) // For exemple if the window is hidden the size will be 0 and not swap chain are created
 		{
 			return false;
 		}
 
-		VkSemaphore vkWaitSemaphore = VK_NULL_HANDLE;
-
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		if (waitSemaphore != nullptr)
-		{
-			vkWaitSemaphore = static_cast<const SemaphoreVk*>(waitSemaphore)->GetVkSemaphore();
-			presentInfo.waitSemaphoreCount = 1;
-			presentInfo.pWaitSemaphores = &vkWaitSemaphore;
-		}
-		else
+		if (_semaphoresToSwapBuffer.empty())
 		{
 			presentInfo.waitSemaphoreCount = 0;
 			presentInfo.pWaitSemaphores = nullptr;
 		}
+		else
+		{
+			Vector<VkSemaphore> waitSemaphores;
+			waitSemaphores.reserve(_semaphoresToSwapBuffer.size());
+			for (const Semaphore* semaphore : _semaphoresToSwapBuffer)
+			{
+				VkSemaphore vkWaitSemaphore = static_cast<const SemaphoreVk*>(semaphore)->GetVkSemaphore();
+				waitSemaphores.push_back(vkWaitSemaphore);
+			}
+			presentInfo.waitSemaphoreCount = waitSemaphores.size();
+			presentInfo.pWaitSemaphores = waitSemaphores.data();
+			_semaphoresToSwapBuffer.clear();
+		}
 
-		VkSwapchainKHR swapChains[] = { _swapchain };
 		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
+		presentInfo.pSwapchains = &_swapchain;
 		presentInfo.pImageIndices = &_currentImageIndex;
 		presentInfo.pResults = nullptr;
 

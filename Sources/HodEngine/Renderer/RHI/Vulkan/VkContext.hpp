@@ -22,8 +22,8 @@ namespace hod::renderer
 		void						Resize(uint32_t width, uint32_t height) override;
 		Vector2						GetResolution() override;
 
-		bool						AcquireNextImageIndex(const Semaphore* signalSemaphore) override;
-		bool						SwapBuffer(const Semaphore* waitSemaphore) override;
+		bool						AcquireNextImageIndex() override;
+		bool						SwapBuffer() override;
 
 		VkSurfaceKHR				GetSurface() const;
 		VkRenderPass				GetRenderPass() const;

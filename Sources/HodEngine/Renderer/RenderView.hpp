@@ -66,7 +66,6 @@ namespace hod::renderer
 		RenderTarget*					_renderTarget = nullptr;
 		RenderTarget*					_pickingRenderTarget = nullptr;
 
-		Semaphore*						_imageAvailableSemaphore = nullptr;
 		Semaphore*						_renderFinishedSemaphore = nullptr;
 		Fence*							_renderFinishedFence = nullptr;
 

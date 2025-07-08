@@ -19,7 +19,6 @@ namespace hod::renderer
 	{
 		_pickingMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 
-		_imageAvailableSemaphore = Renderer::GetInstance()->CreateSemaphore();
 		_renderFinishedSemaphore = Renderer::GetInstance()->CreateSemaphore();
 		_renderFinishedFence = Renderer::GetInstance()->CreateFence();
 	}
@@ -29,9 +28,6 @@ namespace hod::renderer
 	{
 		DefaultAllocator::GetInstance().Delete(_pickingMaterialInstance);
 		_pickingMaterialInstance = nullptr;
-
-		DefaultAllocator::GetInstance().Delete(_imageAvailableSemaphore);
-		_imageAvailableSemaphore = nullptr;
 
 		DefaultAllocator::GetInstance().Delete(_renderFinishedSemaphore);
 		_renderFinishedSemaphore = nullptr;
@@ -51,11 +47,6 @@ namespace hod::renderer
 	/// @return 
 	bool RenderView::Prepare(Context* context)
 	{
-		if (context->AcquireNextImageIndex(_imageAvailableSemaphore) == false)
-		{
-			return false;
-		}
-
 		_context = context;
 		return true;
 	}
@@ -167,16 +158,12 @@ namespace hod::renderer
 
 		if (_context != nullptr)
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), _renderFinishedSemaphore, _imageAvailableSemaphore, _renderFinishedFence);
+			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), _renderFinishedSemaphore, nullptr, _renderFinishedFence);
+			_context->AddSemaphoreToSwapBuffer(_renderFinishedSemaphore);
 		}
 		else
 		{
 			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), nullptr, nullptr, _renderFinishedFence);
-		}
-
-		if (_context != nullptr)
-		{
-			_context->SwapBuffer(_renderFinishedSemaphore);
 		}
 	}
 
