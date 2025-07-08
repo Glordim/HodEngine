@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#if defined(_WIN32)
-
 #include "HodEngine/Renderer/Renderer.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
@@ -17,51 +15,50 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
-namespace hod
+#undef CreateSemaphore
+
+namespace hod::renderer
 {
-	namespace renderer
+	class HOD_RENDERER_API RendererDirectX12 : public Renderer
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API RendererDirectX12 : public Renderer
-		{
-		public:
+		_SingletonOverride(RendererDirectX12)
 
-												RendererDirectX12();
-			virtual								~RendererDirectX12();
+	protected:
 
-			bool								Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
+		~RendererDirectX12() override;
 
-			bool								GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
+	public:
 
-			bool								BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) override;
+		bool								Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
 
-			bool								ResizeSwapChain() override;
+		bool								GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
-			bool								AcquireNextImageIndex() override;
-			bool								SwapBuffer() override;
+		bool								BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) override;
+		
+		bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) override;
 
-			Shader*								CreateShader(Shader::ShaderType type) override;
-			Material*							CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
-			MaterialInstance*					CreateMaterialInstance(const Material* material) override;
-			Texture*							CreateTexture() override;
+		CommandBuffer* CreateCommandBuffer() override;
+		Buffer* CreateBuffer(Buffer::Usage usage, uint32_t size) override;
+		Shader* CreateShader(Shader::ShaderType type) override;
+		Material* CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+		MaterialInstance* CreateMaterialInstance(const Material* material) override;
+		Texture* CreateTexture() override;
+		RenderTarget* CreateRenderTarget() override;
+		Semaphore* CreateSemaphore() override;
+		Fence* CreateFence() override;
 
-		private:
+	private:
 
-			Vector<D3d12GpuDevice>			_availableGpu;
+		Vector<D3d12GpuDevice>				_availableGpu;
 
-			// DirectX 12 Objects
-			ComPtr<ID3D12Debug>					_debugInterface;
-			ComPtr<IDXGIFactory7>				_dxgiFactory;
-			ComPtr<ID3D12Device5>				_device;
-			ComPtr<ID3D12CommandQueue>			_commandQueue;
-			ComPtr<ID3D12CommandAllocator>		_commandAllocator;
-			ComPtr<IDXGISwapChain4>				_swapChain;
-			ComPtr<ID3D12DescriptorHeap>		_descriptorHeap;
-			Vector<ComPtr<ID3D12Resource>>	_backBuffers;
-		};
-	}
+		// DirectX 12 Objects
+		ComPtr<ID3D12Debug>					_debugInterface = nullptr;
+		ComPtr<IDXGIFactory7>				_dxgiFactory = nullptr;
+		ComPtr<ID3D12Device5>				_device = nullptr;
+		ComPtr<ID3D12CommandQueue>			_commandQueue = nullptr;
+		ComPtr<ID3D12CommandAllocator>		_commandAllocator = nullptr;
+		ComPtr<IDXGISwapChain4>				_swapChain = nullptr;
+		ComPtr<ID3D12DescriptorHeap>		_descriptorHeap = nullptr;
+		Vector<ComPtr<ID3D12Resource>>		_backBuffers;
+	};
 }
-
-#endif

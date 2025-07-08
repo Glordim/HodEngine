@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-def compile_shader(slangc, input_file, target_api, shader_stage, output_file, reflection_json=None):
+def compile_shader(slangc, input_file, target_api, profile, shader_stage, output_file, reflection_json=None):
 
 	shader_stage = shader_stage.lower()
 	if shader_stage == "vertex":
@@ -26,6 +26,9 @@ def compile_shader(slangc, input_file, target_api, shader_stage, output_file, re
 		"-entry", entry,
 		"-o", output_file,
 	]
+
+	if profile is not None:
+		args.extend(["-profile", profile])
 
 	# todo
 	#if reflection_json is not None:
@@ -82,6 +85,7 @@ def main():
 
 	os.makedirs(tmp_dir, exist_ok=True)
 
+	profile = None
 	target_api = target_api.lower()
 	if target_api == "vulkan":
 		bytecode_ext = "spv"
@@ -93,6 +97,18 @@ def main():
 		bytecode_target = "metallib"
 		text_ext = "metal"
 		text_target = "metal"
+	elif target_api == "d3d12":
+		bytecode_ext = "dxil"
+		bytecode_target = "dxil"
+		text_ext = "hlsl"
+		text_target = "hlsl"
+		if shader_stage.lower() == "vertex":
+			profile = "vs_6_0"
+		elif shader_stage.lower() == "fragment":
+			profile = "ps_6_0"
+		else:
+			print(f"Unsupported stage: {shader_stage}")
+			sys.exit(1)
 	else:
 		print(f"Unsupported target API: {target_api}")
 		sys.exit(1)
@@ -102,9 +118,9 @@ def main():
 	text_output = os.path.join(tmp_dir, f"{base_name}_{shader_stage}.{text_ext}")
 	reflection_output = os.path.join(tmp_dir, f"{base_name}_{shader_stage}.json")
 
-	compile_shader(slangc, input_file, bytecode_target, shader_stage.lower(), binary_output, reflection_output)
+	compile_shader(slangc, input_file, bytecode_target, profile, shader_stage.lower(), binary_output, reflection_output)
 	if config == "Debug":
-		compile_shader(slangc, input_file, text_target, shader_stage.lower(), text_output)
+		compile_shader(slangc, input_file, text_target, profile, shader_stage.lower(), text_output)
 
 	#todo embed reflection
 	identifier = f"{base_name}_{shader_stage}"

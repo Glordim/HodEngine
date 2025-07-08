@@ -4,28 +4,43 @@ include(Global)
 include(EmbedInSource)
 
 if(NOT APPLE)
-project(Renderer LANGUAGES CXX)
-if (NOT ANDROID)
-  find_package(Vulkan REQUIRED)
+	project(Renderer LANGUAGES CXX)
+	if(WIN32)
+		set(API D3D12)
+	else()
+		set(API Vulkan)
+	endif()
 else()
-  find_library(vulkan-lib vulkan)
-  find_library(zlib-lib z)
-  set(Vulkan_INCLUDE_DIRS ${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include) # TODO
-  set(Vulkan_LIBRARIES ${vulkan-lib} ${zlib-lib}) # TODO
+	project(Renderer LANGUAGES CXX OBJCXX)
+	set(API Metal)
 endif()
-else()
-project(Renderer LANGUAGES CXX OBJCXX)
-find_package(BZip2 REQUIRED)
-find_package(ZLIB REQUIRED)
+
+set(ExcludeDirs D3d12 Metal Vulkan)
+if(API STREQUAL Vulkan)
+	list(REMOVE_ITEM ExcludeDirs Vulkan)
+	set(SHADER_TARGET_API Vulkan)
+	if (NOT ANDROID)
+		find_package(Vulkan REQUIRED)
+	else()
+		find_library(vulkan-lib vulkan)
+		find_library(zlib-lib z)
+		set(Vulkan_INCLUDE_DIRS ${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include) # TODO
+		set(Vulkan_LIBRARIES ${vulkan-lib} ${zlib-lib}) # TODO
+	endif()
+	find_package(BZip2 REQUIRED)
+	find_package(ZLIB REQUIRED)
+elseif(API STREQUAL Metal)
+	list(REMOVE_ITEM ExcludeDirs Metal)
+	set(SHADER_TARGET_API Metal)
+elseif(API STREQUAL D3D12)
+	list(REMOVE_ITEM ExcludeDirs D3d12)
+	set(SHADER_TARGET_API D3D12)
+	set(API_LIBRARIES d3d12.lib DXGI.lib)
 endif()
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-if(NOT APPLE)
-    CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES D3d12 Metal)
-else()
-    CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ".*/RHI/Vulkan/.*")
-endif()
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ${ExcludeDirs})
 
 function(CompileReflectEmbedShader INPUT_SLANG TARGET_API SHADER_TYPE SHADER_CONFIG TEMPLATE_CPP TEMPLATE_HPP OUTPUT_CPP OUTPUT_HPP TEMP_DIR)
 	add_custom_command(
@@ -56,11 +71,6 @@ set(ShaderHpps "")
 
 file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*.slang")
 
-if(NOT APPLE)
-	set(SHADER_TARGET_API Vulkan)
-else()
-	set(SHADER_TARGET_API Metal)
-endif()
 set(SHADER_TMP_DIR ${PROJECT_BINARY_DIR}/ShaderTmp)
 set(SHADER_CPP_TEMPLATE ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.cpp.in)
 set(SHADER_HPP_TEMPLATE ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.hpp.in)
@@ -116,9 +126,7 @@ target_link_libraries(Renderer
 
 if(NOT APPLE)
   include_directories(${Vulkan_INCLUDE_DIRS} SpirvCross::SpirvCross)
-  target_link_libraries(Renderer ${Vulkan_LIBRARIES} SpirvCross::SpirvCross)
-  #optimized "d3d12.lib" debug "d3d12.lib"
-  #optimized "DXGI.lib" debug "DXGI.lib"
+  target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${API_LIBRARIES} SpirvCross::SpirvCross)
   
   unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
   option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" OFF)

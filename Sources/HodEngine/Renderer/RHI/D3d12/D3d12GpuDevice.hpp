@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#if defined(_WIN32)
-
 #include "HodEngine/Renderer/RHI/GpuDevice.hpp"
 
 #include <dxgi1_5.h>
@@ -23,5 +21,3 @@ namespace hod
 		};
 	}
 }
-
-#endif

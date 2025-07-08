@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#if defined(_WIN32)
-
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 
 namespace hod
@@ -22,5 +20,3 @@ namespace hod
 		};
 	}
 }
-
-#endif
