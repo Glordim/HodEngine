@@ -155,7 +155,7 @@ namespace hod::editor
 			return false;
 		}
 
-		uint32_t dataCount = datas.size();
+		uint32_t dataCount = (uint32_t)datas.size();
 		resourceFile.write(reinterpret_cast<char*>(&dataCount), sizeof(dataCount));
 
 		for (const Resource::Data& data : datas)
