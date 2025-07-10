@@ -60,6 +60,6 @@ target_link_libraries([[PROJECT_NAME]]
 	${HodEngine_HOD_APPLICATION_LIBRARY}
 )
 
-target_compile_definitions([[PROJECT_NAME]] PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+target_compile_definitions([[PROJECT_NAME]] PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions([[PROJECT_NAME]] PRIVATE [[PROJECT_EXPORT]])
 

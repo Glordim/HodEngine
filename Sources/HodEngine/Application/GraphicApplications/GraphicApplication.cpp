@@ -79,8 +79,8 @@ namespace hod::application
 			return false;
 		}
 
-		PlatformRenderer::CreateInstance();
-		if (PlatformRenderer::GetInstance()->Init(_window) == false)
+		renderer::CreatePlatformRenderer();
+		if (renderer::Renderer::GetInstance()->Init(_window) == false)
 		{
 			return false;
 		}
@@ -107,8 +107,8 @@ namespace hod::application
 		game::ComponentFactory::DestroyInstance();
 		imgui::ImGuiManager::DestroyInstance();
 		DefaultAllocator::GetInstance().Delete(_window);
-		PlatformRenderer::GetInstance()->Clear();
-		PlatformRenderer::DestroyInstance();
+		renderer::Renderer::GetInstance()->Clear();
+		renderer::Renderer::DestroyInstance();
 		input::InputManager::DestroyInstance();
 		PlatformDisplayManager::DestroyInstance();
 		PlatformAudioManager::DestroyInstance();

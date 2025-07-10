@@ -6,6 +6,8 @@
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
+#include <HodEngine/Core/Math/Vector2.hpp>
+
 namespace hod::renderer
 {
 	class CommandBuffer;

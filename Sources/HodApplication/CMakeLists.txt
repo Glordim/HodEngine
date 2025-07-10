@@ -43,4 +43,4 @@ target_link_libraries(HodApplication
 	Application
 )
 
-target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE})

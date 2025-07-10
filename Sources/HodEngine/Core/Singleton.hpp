@@ -5,6 +5,7 @@
 	public:																				\
 																						\
 		static T*		GetInstance() { return _instance; }								\
+		static void		DestroyInstance() { hod::DefaultAllocator::GetInstance().Delete(_instance); _instance = nullptr; }	\
 																						\
 	protected:																			\
 																						\

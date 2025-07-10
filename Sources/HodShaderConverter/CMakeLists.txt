@@ -32,5 +32,4 @@ include_directories(
 #	Core
 #)
 
-target_compile_definitions(HodShaderConverter PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
-				
+target_compile_definitions(HodShaderConverter PUBLIC ${PLATFORM_DEFINE})

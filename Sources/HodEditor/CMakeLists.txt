@@ -40,5 +40,5 @@ target_link_libraries(HodEditor
 	Editor
 )
 
-target_compile_definitions(HodEditor PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+target_compile_definitions(HodEditor PUBLIC ${PLATFORM_DEFINE})
 
