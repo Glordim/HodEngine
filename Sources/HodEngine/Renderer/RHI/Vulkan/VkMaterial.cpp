@@ -318,7 +318,9 @@ namespace hod::renderer
 			auto it = _setDescriptors.find(pair.first);
 			if (it == _setDescriptors.end())
 			{
-				_setDescriptors[pair.first] = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>(*pair.second);
+				ShaderSetDescriptorVk* shaderSetDescriptorVk = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
+				shaderSetDescriptorVk->Merge(*pair.second);
+				_setDescriptors[pair.first] = shaderSetDescriptorVk;
 			}
 			else
 			{
@@ -330,7 +332,9 @@ namespace hod::renderer
 			auto it = _setDescriptors.find(pair.first);
 			if (it == _setDescriptors.end())
 			{
-				_setDescriptors[pair.first] = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>(*pair.second);
+				ShaderSetDescriptorVk* shaderSetDescriptorVk = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
+				shaderSetDescriptorVk->Merge(*pair.second);
+				_setDescriptors[pair.first] = shaderSetDescriptorVk;
 			}
 			else
 			{

@@ -36,6 +36,6 @@ namespace hod::renderer
 
 	private:
 
-		VkDescriptorSetLayout				_descriptorSetLayout;
+		VkDescriptorSetLayout				_descriptorSetLayout = VK_NULL_HANDLE;
 	};
 }
