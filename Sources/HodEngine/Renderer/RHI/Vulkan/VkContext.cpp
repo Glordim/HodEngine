@@ -373,7 +373,7 @@ namespace hod::renderer
 				VkSemaphore vkWaitSemaphore = static_cast<const SemaphoreVk*>(semaphore)->GetVkSemaphore();
 				waitSemaphores.push_back(vkWaitSemaphore);
 			}
-			presentInfo.waitSemaphoreCount = waitSemaphores.size();
+			presentInfo.waitSemaphoreCount = (uint32_t)waitSemaphores.size();
 			presentInfo.pWaitSemaphores = waitSemaphores.data();
 			_semaphoresToSwapBuffer.clear();
 		}

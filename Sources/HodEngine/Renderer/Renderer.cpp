@@ -8,6 +8,7 @@
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Context.hpp"
 
 #include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
 #include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
@@ -210,10 +211,26 @@ namespace hod
 		{
 			// todo sort
 
+			Semaphore* semaphore = nullptr;
+			Context* context = nullptr;
 			for (RenderView* renderView : _renderViews)
 			{
-				renderView->Execute();
+				if (renderView->GetContext())
+				{
+					context = renderView->GetContext();
+					if (semaphore == nullptr)
+					{
+						semaphore = (Semaphore*)renderView->GetContext()->GetImageAvailableSempahore();
+					}
+					renderView->Execute(semaphore);
+					semaphore = renderView->GetRenderFinishedSemaphore();
+				}
+				else
+				{
+					renderView->Execute();
+				}
 			}
+			context->AddSemaphoreToSwapBuffer(semaphore);
 		}
 
 		void Renderer::WaitViews()

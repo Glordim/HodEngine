@@ -41,13 +41,16 @@ namespace hod::renderer
 		void							Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget);
 		Vector2							GetRenderResolution() const;
 
+		Context*						GetContext() const;
+		Semaphore*						GetRenderFinishedSemaphore() const;
+
 		void							SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport);
 		const Matrix4&					GetViewMatrix() const;
 		const Matrix4&					GetProjectionMatrix() const;
 		const Rect&						GetViewport() const;
 
 		void							PushRenderCommand(RenderCommand* renderCommand, RenderQueueType renderQueueType = RenderQueueType::World);
-		void							Execute();
+		void							Execute(Semaphore* previous = nullptr);
 		void							Wait();
 
 		void							DeleteAfter(MaterialInstance* materialInstance);

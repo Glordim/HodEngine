@@ -92,7 +92,7 @@ namespace hod::renderer
 	}
 
 	/// @brief 
-	void RenderView::Execute()
+	void RenderView::Execute(Semaphore* previousSemaphore)
 	{
 		Renderer* renderer = Renderer::GetInstance();
 
@@ -158,12 +158,11 @@ namespace hod::renderer
 
 		if (_context != nullptr)
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), _renderFinishedSemaphore, nullptr, _renderFinishedFence);
-			_context->AddSemaphoreToSwapBuffer(_renderFinishedSemaphore);
+			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), _renderFinishedSemaphore, previousSemaphore, _renderFinishedFence);
 		}
 		else
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), nullptr, nullptr, _renderFinishedFence);
+			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), nullptr, previousSemaphore, _renderFinishedFence);
 		}
 	}
 
@@ -223,5 +222,15 @@ namespace hod::renderer
 	bool RenderView::IsAutoDestroy() const
 	{
 		return _autoDestroy;
+	}
+
+	Context* RenderView::GetContext() const
+	{
+		return _context;
+	}
+
+	Semaphore* RenderView::GetRenderFinishedSemaphore() const
+	{
+		return _renderFinishedSemaphore;
 	}
 }
