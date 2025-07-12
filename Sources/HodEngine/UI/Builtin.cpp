@@ -10,6 +10,8 @@
 #include "HodEngine/UI/Drawables/Text.hpp"
 
 #include "HodEngine/UI/Layout/LayoutElement.hpp"
+#include "HodEngine/UI/Layout/HorizontalLayout.hpp"
+#include "HodEngine/UI/Layout/VerticalLayout.hpp"
 
 namespace hod::ui
 {
@@ -23,5 +25,7 @@ namespace hod::ui
 		componentFactory->Register<Text>();
 
 		componentFactory->Register<LayoutElement>();
+		componentFactory->Register<HorizontalLayout>();
+		componentFactory->Register<VerticalLayout>();
 	}
 }
