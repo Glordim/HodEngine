@@ -22,6 +22,10 @@ namespace hod::ui
 
 	public:
 
+		using PropertyChangedEvent = Event<>;
+
+	public:
+
 		const Vector2&				GetPosition() const;
 		void						SetPosition(const Vector2& position);
 
@@ -64,6 +68,8 @@ namespace hod::ui
 
 		void						OnEnable() override;
 
+		PropertyChangedEvent&		GetPropertyChangedEvent();
+
 	private:
 
 		enum class DirtyFlag : uint8_t
@@ -94,5 +100,7 @@ namespace hod::ui
 		uint8_t						_dirtyFlags = (uint8_t)DirtyFlag::LocalMatrix | (uint8_t)DirtyFlag::CanvasMatrix | (uint8_t)DirtyFlag::Size | (uint8_t)DirtyFlag::ZOrder;
 
 		WeakPtr<Node>				_parent;
+
+		PropertyChangedEvent		_propertyChangedEvent;
 	};
 }

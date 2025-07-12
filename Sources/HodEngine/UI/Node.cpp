@@ -48,6 +48,8 @@ namespace hod::ui
 		{
 			_position = position;
 			MarkLocalMatrixAsDirty();
+
+			_propertyChangedEvent.Emit();
 		}
 	}
 
@@ -66,6 +68,8 @@ namespace hod::ui
 		{
 			_rotation = rotation;
 			MarkLocalMatrixAsDirty();
+
+			_propertyChangedEvent.Emit();
 		}
 	}
 
@@ -84,6 +88,8 @@ namespace hod::ui
 		{
 			_scale = scale;
 			MarkLocalMatrixAsDirty();
+
+			_propertyChangedEvent.Emit();
 		}
 	}
 
@@ -103,6 +109,8 @@ namespace hod::ui
 			_anchorMin = anchorMin;
 			MarkSizeAsDirty();
 			MarkLocalMatrixAsDirty();
+
+			_propertyChangedEvent.Emit();
 		}
 	}
 
@@ -122,6 +130,8 @@ namespace hod::ui
 			_anchorMax = anchorMax;
 			MarkSizeAsDirty();
 			MarkLocalMatrixAsDirty();
+
+			_propertyChangedEvent.Emit();
 		}
 	}
 
@@ -140,6 +150,8 @@ namespace hod::ui
 		{
 			_pivot = pivot;
 			MarkLocalMatrixAsDirty();
+
+			_propertyChangedEvent.Emit();
 		}
 	}
 
@@ -158,6 +170,8 @@ namespace hod::ui
 		{
 			_deltaSize = deltaSize;
 			MarkSizeAsDirty();
+
+			_propertyChangedEvent.Emit();
 		}
 	}
 
@@ -349,5 +363,10 @@ namespace hod::ui
 	int32_t Node::GetZOrder() const
 	{
 		return _zOrder;
+	}
+
+	Event<>& Node::GetPropertyChangedEvent()
+	{
+		return _propertyChangedEvent;
 	}
 }
