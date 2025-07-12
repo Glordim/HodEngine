@@ -43,6 +43,8 @@ namespace hod::game
 			Destructed,
 		};
 
+		using ChildrenChangedEvent = Event<>;
+
 	public:
 
 														Entity(const std::string_view& name);
@@ -56,7 +58,7 @@ namespace hod::game
 	public:
 
 		void											SetName(const std::string_view& name);
-		const String&								GetName() const;
+		const String&									GetName() const;
 
 		void											SetActive(bool active);
 		bool											GetActive() const;
@@ -66,13 +68,15 @@ namespace hod::game
 		void											SetParent(const WeakEntity& parent);
 		const WeakEntity&								GetParent() const;
 
-		const Vector<WeakEntity>&					GetChildren() const;
+		const Vector<WeakEntity>&						GetChildren() const;
 
 		void											SetSiblingIndex(uint32_t index);
 		uint32_t										GetSiblingIndex() const;
 
+		ChildrenChangedEvent&							GetChildrenChangedEvent();
+
 		// Components
-		const Vector<Component*>&					GetComponents() const;
+		const Vector<Component*>&						GetComponents() const;
 
 		template<typename _Component_>
 		_Component_*									GetComponent();
@@ -130,10 +134,11 @@ namespace hod::game
 		bool											_activeInHierarchy = false;
 		InternalState									_internalState = InternalState::None;
 
-		Vector<WeakEntity>							_children;
+		Vector<WeakEntity>								_children;
 		WeakEntity										_parent;
+		ChildrenChangedEvent							_childrenChangedEvent;
 
-		Vector<Component*>							_components;
+		Vector<Component*>								_components;
 		
 		Scene*											_scene = nullptr; // TODO never set !!!
 		std::shared_ptr<PrefabResource>					_prefabResource = nullptr;

@@ -292,6 +292,8 @@ namespace hod::game
 				parentLock->_children[i] = parentLock->_children[i - 1];
 			}
 			parentLock->_children[index] = WeakEntity(this);
+
+			_childrenChangedEvent.Emit();
 		}
 	}
 
@@ -304,26 +306,26 @@ namespace hod::game
 			return;
 		}
 
-		Entity* parentLock = _parent.Lock();
-		if (parentLock != nullptr)
+		Entity* previousParentLock = _parent.Lock();
+		if (previousParentLock != nullptr)
 		{
-			auto itEnd = parentLock->_children.end();
-			for (auto it = parentLock->_children.begin(); it != itEnd; ++it)
+			auto itEnd = previousParentLock->_children.end();
+			for (auto it = previousParentLock->_children.begin(); it != itEnd; ++it)
 			{
 				if (it->Lock() == this)
 				{
-					parentLock->_children.erase(it);
+					previousParentLock->_children.erase(it);
 					break;
 				}
 			}
 			// todo assert
 		}
 
-		parentLock = parent.Lock();
-		if (parentLock != nullptr)
+		Entity* newParentLock = parent.Lock();
+		if (newParentLock != nullptr)
 		{
 			bool exist = false;
-			for (const WeakEntity& child : parentLock->_children)
+			for (const WeakEntity& child : newParentLock->_children)
 			{
 				if (child.Lock() == this)
 				{
@@ -333,7 +335,7 @@ namespace hod::game
 			}
 			if (exist == false)
 			{
-				parentLock->_children.emplace_back(this);
+				newParentLock->_children.emplace_back(this);
 			}
 		}
 		_parent = parent;
@@ -342,6 +344,15 @@ namespace hod::game
 		{
 			ProcessActivation();
 		}
+
+		if (previousParentLock)
+		{
+			previousParentLock->_childrenChangedEvent.Emit();
+		}
+		if (newParentLock)
+		{
+			newParentLock->_childrenChangedEvent.Emit();
+		}
 	}
 
 	/// @brief 
@@ -349,6 +360,11 @@ namespace hod::game
 	const WeakEntity& Entity::GetParent() const
 	{
 		return _parent;
+	}
+
+	Entity::ChildrenChangedEvent& Entity::GetChildrenChangedEvent()
+	{
+		return _childrenChangedEvent;
 	}
 
 	/// @brief 
