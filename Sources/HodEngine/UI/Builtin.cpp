@@ -14,6 +14,8 @@
 #include "HodEngine/UI/Layout/VerticalLayout.hpp"
 #include "HodEngine/UI/Layout/GridLayout.hpp"
 
+#include "HodEngine/UI/Fitter/ContentSizeFitter.hpp"
+
 namespace hod::ui
 {
 	void RegisterBuiltin()
@@ -29,5 +31,7 @@ namespace hod::ui
 		componentFactory->Register<HorizontalLayout>();
 		componentFactory->Register<VerticalLayout>();
 		componentFactory->Register<GridLayout>();
+
+		componentFactory->Register<ContentSizeFitter>();
 	}
 }
