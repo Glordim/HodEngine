@@ -12,6 +12,7 @@
 #include "HodEngine/UI/Layout/LayoutElement.hpp"
 #include "HodEngine/UI/Layout/HorizontalLayout.hpp"
 #include "HodEngine/UI/Layout/VerticalLayout.hpp"
+#include "HodEngine/UI/Layout/GridLayout.hpp"
 
 namespace hod::ui
 {
@@ -27,5 +28,6 @@ namespace hod::ui
 		componentFactory->Register<LayoutElement>();
 		componentFactory->Register<HorizontalLayout>();
 		componentFactory->Register<VerticalLayout>();
+		componentFactory->Register<GridLayout>();
 	}
 }
