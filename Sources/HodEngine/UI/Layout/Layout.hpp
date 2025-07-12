@@ -2,7 +2,7 @@
 #include "HodEngine/UI/Export.hpp"
 
 #include "HodEngine/UI/Node.hpp"
-#include "HodEngine/UI/Layout/IRebuildable.hpp"
+#include "HodEngine/UI/IRebuildable.hpp"
 #include "HodEngine/UI/Layout/LayoutElement.hpp"
 #include "HodEngine/UI/Padding.hpp"
 
@@ -13,7 +13,7 @@
 namespace hod::ui
 {
 	/// @brief 
-	class Layout : public game::Component, IRebuildable
+	class HOD_UI_API Layout : public game::Component, IRebuildable
 	{
 		REFLECTED_CLASS(Layout, game::Component)
 

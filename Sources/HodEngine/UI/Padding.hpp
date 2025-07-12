@@ -5,7 +5,7 @@
 
 namespace hod::ui
 {
-	class Padding final
+	class HOD_UI_API Padding final
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Padding)
 

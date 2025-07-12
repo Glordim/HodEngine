@@ -4,7 +4,7 @@
 namespace hod::ui
 {
 	/// @brief 
-	class IRebuildable
+	class HOD_UI_API IRebuildable
 	{
 	public:
 
