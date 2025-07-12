@@ -5,8 +5,11 @@
 
 #include "HodEngine/UI/Canvas.hpp"
 #include "HodEngine/UI/Node.hpp"
+
 #include "HodEngine/UI/Drawables/Texture.hpp"
 #include "HodEngine/UI/Drawables/Text.hpp"
+
+#include "HodEngine/UI/Layout/LayoutElement.hpp"
 
 namespace hod::ui
 {
@@ -18,5 +21,7 @@ namespace hod::ui
 
 		componentFactory->Register<Texture>();
 		componentFactory->Register<Text>();
+
+		componentFactory->Register<LayoutElement>();
 	}
 }
