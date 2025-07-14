@@ -1,6 +1,8 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Layout/Layout.hpp"
 
+#include "HodEngine/UI/Canvas.hpp"
+
 namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(Layout, reflectionDescriptor)
@@ -10,7 +12,7 @@ namespace hod::ui
 	}
 
 	Layout::Layout()
-		: game::Component()
+		: Rebuildable()
 		, _onDrivenNodeChangedSlot(std::bind(&Layout::OnDrivenNodeChanged, this))
 		, _onDrivenNodeLayoutElementChangedSlot(std::bind(&Layout::OnDrivenNodeLayoutElementChanged, this, std::placeholders::_1))
 		, _onChildrenChangedSlot(std::bind(&Layout::OnChildrenChanged, this))
@@ -86,12 +88,6 @@ namespace hod::ui
 		ComputeChildrenPositionAndSize();
 
 		return true;
-	}
-
-	/// @brief 
-	void Layout::SetDirty()
-	{
-		// TODO
 	}
 
 	/// @brief 

@@ -2,6 +2,7 @@
 #include "HodEngine/UI/Canvas.hpp"
 #include "HodEngine/UI/Node.hpp"
 #include "HodEngine/UI/Drawables/Drawable.hpp"
+#include "HodEngine/UI/Rebuildable.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Game/Scene.hpp>
@@ -183,5 +184,35 @@ namespace hod::ui
 	const Matrix4& Canvas::GetRenderModeMatrix() const
 	{
 		return _renderModeMatrix;
+	}
+
+	void Canvas::OnUpdate(float deltaTime)
+	{
+		DoRebuild();
+	}
+
+	void Canvas::DoRebuild()
+	{
+		while (_markedForRebuild.empty() == false)
+		{
+			Rebuildable* rebuildable = _markedForRebuild[0].Get();
+			if (rebuildable != nullptr)
+			{
+				rebuildable->Rebuild();
+			}
+			_markedForRebuild.erase(_markedForRebuild.begin());
+		}
+	}
+
+	void Canvas::MarkForRebuild(Rebuildable* rebuildable)
+	{
+		for (const WeakPtr<Rebuildable>& existingRebuildable : _markedForRebuild)
+		{
+			if (existingRebuildable.Get() == rebuildable)
+			{
+				return;
+			}
+		}
+		_markedForRebuild.emplace_back(rebuildable);
 	}
 }

@@ -39,8 +39,6 @@ namespace hod::ui
 		void			OnEnable() override;
 		void			OnDisable() override;
 
-		void			SetDirty();
-
 	private:
 
 		void			OnDrivenTextChanged();

@@ -2,20 +2,19 @@
 #include "HodEngine/UI/Export.hpp"
 
 #include "HodEngine/UI/Node.hpp"
-#include "HodEngine/UI/IRebuildable.hpp"
+#include "HodEngine/UI/Rebuildable.hpp"
 #include "HodEngine/UI/Layout/LayoutElement.hpp"
 #include "HodEngine/UI/Padding.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
-#include <HodEngine/Game/Component.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
 
 namespace hod::ui
 {
 	/// @brief 
-	class HOD_UI_API Layout : public game::Component, IRebuildable
+	class HOD_UI_API Layout : public Rebuildable
 	{
-		REFLECTED_CLASS(Layout, game::Component)
+		REFLECTED_CLASS(Layout, Rebuildable)
 
 	public:
 
@@ -61,7 +60,6 @@ namespace hod::ui
 		const Vector2&						GetTotalFlexibleSize() const;
 
 		bool								Rebuild() override;
-		void								SetDirty();
 
 		SizeChangedEvent&					GetSizeChangedEvent();
 
@@ -95,7 +93,7 @@ namespace hod::ui
 
 	private:
 
-		bool								_drivenNodesDirty = false;
+		bool								_drivenNodesDirty = true;
 		Vector<WeakPtr<Node>>				_drivenNodes;
 
 		Node::PropertyChangedEvent::Slot 	_onDrivenNodeChangedSlot;

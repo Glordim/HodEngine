@@ -165,12 +165,6 @@ namespace hod::ui
 	}
 
 	/// @brief 
-	void ContentSizeFitter::SetDirty()
-	{
-		// TODO
-	}
-
-	/// @brief 
 	/// @param drivenText 
 	/// @param changedProperty 
 	void ContentSizeFitter::OnDrivenTextChanged()

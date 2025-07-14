@@ -15,6 +15,7 @@ namespace hod::game
 namespace hod::ui
 {
 	class Node;
+	class Rebuildable;
 
 	/// @brief 
 	class HOD_UI_API Canvas : public game::RendererComponent
@@ -40,6 +41,7 @@ namespace hod::ui
 	public:
 
 		void				OnEnable() override;
+		void				OnUpdate(float deltaTime) override;
 
 		void				SetRenderMode(RenderMode renderMode);
 		RenderMode			GetRenderMode() const;
@@ -60,6 +62,10 @@ namespace hod::ui
 
 		const Matrix4&		GetRenderModeMatrix() const;
 
+		void				MarkForRebuild(Rebuildable* rebuildable);
+
+		void				DoRebuild();
+
 	private:
 
 		RenderMode			_renderMode = RenderMode::Camera;
@@ -73,5 +79,7 @@ namespace hod::ui
 		float				_scaleFactor = 1.0f;
 
 		Matrix4				_renderModeMatrix;
+
+		Vector<WeakPtr<Rebuildable>> _markedForRebuild;
 	};
 }

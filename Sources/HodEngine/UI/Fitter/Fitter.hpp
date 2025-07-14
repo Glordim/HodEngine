@@ -1,14 +1,12 @@
 #pragma once
 #include "HodEngine/UI/Export.hpp"
 
-#include "HodEngine/UI/IRebuildable.hpp"
-
-#include <HodEngine/Game/Component.hpp>
+#include "HodEngine/UI/Rebuildable.hpp"
 
 namespace hod::ui
 {
-	class HOD_UI_API Fitter : public game::Component, IRebuildable
+	class HOD_UI_API Fitter : public Rebuildable
 	{
-		REFLECTED_CLASS(Fitter, game::Component)
+		REFLECTED_CLASS(Fitter, Rebuildable)
 	};
 }

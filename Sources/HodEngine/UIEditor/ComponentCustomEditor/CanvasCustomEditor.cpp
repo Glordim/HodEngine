@@ -66,6 +66,8 @@ namespace hod::editor
 	/// @return 
 	bool CanvasCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
+		static_cast<ui::Canvas*>(component)->DoRebuild();
+
 		ui::Node* node = component->GetOwner()->GetComponent<ui::Node>();
 		if (node != nullptr)
 		{
