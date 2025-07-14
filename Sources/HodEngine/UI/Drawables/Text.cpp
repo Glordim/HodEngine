@@ -138,20 +138,48 @@ namespace hod::ui
 	/// @param font 
 	void Text::SetFont(const WeakResource<renderer::FontResource>& font)
 	{
-		_font = font;
+		if (_font != font)
+		{
+			_font = font;
+			_propertyChangedEvent.Emit();
+		}
 	}
 
 	/// @brief 
 	/// @param value 
 	void Text::SetValue(const String& value)
 	{
-		_value = value;
+		if (_value != value)
+		{
+			_value = value;
+			_propertyChangedEvent.Emit();
+		}
 	}
 
 	/// @brief 
 	/// @param alignment 
 	void Text::SetAlignment(Alignment alignment)
 	{
-		_alignment = alignment;
+		if (_alignment != alignment)
+		{
+			_alignment = alignment;
+			_propertyChangedEvent.Emit();
+		}
+	}
+
+	Vector2 Text::GetContentSize() const
+	{
+		Vector2 requiredSize;
+		if (_font.Lock())
+		{
+			renderer::Font* font = _font.Lock()->GetFont();
+			requiredSize = font->ComputeRequiredSize(_value);
+		}
+		return requiredSize;
+	}
+
+	Text::PropertyChangedEvent& Text::GetPropertyChangedEvent()
+	{
+		return _propertyChangedEvent;
 	}
 }

@@ -49,7 +49,7 @@ namespace hod::ui
 		FitMode			_horizontalFitMode = FitMode::Unconstrained;
 		FitMode			_verticalFitMode = FitMode::Unconstrained;
 
-		//Text::PropertyChangedEvent::Slot	_onDrivenTextChangedSlot;
+		Text::PropertyChangedEvent::Slot	_onDrivenTextChangedSlot;
 		Layout::SizeChangedEvent::Slot		_onDrivenLayoutChangedSlot;
 	};
 }

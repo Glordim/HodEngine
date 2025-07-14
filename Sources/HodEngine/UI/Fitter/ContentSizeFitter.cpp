@@ -17,7 +17,7 @@ namespace hod::ui
 	/// @param pComponent 
 	ContentSizeFitter::ContentSizeFitter()
 		: Fitter()
-		//, _onDrivenTextChangedSlot(std::bind(&ContentSizeFitter::OnDrivenTextChanged, this))
+		, _onDrivenTextChangedSlot(std::bind(&ContentSizeFitter::OnDrivenTextChanged, this))
 		, _onDrivenLayoutChangedSlot(std::bind(&ContentSizeFitter::OnDrivenLayoutChanged, this, std::placeholders::_1))
 	{
 	}
@@ -29,7 +29,7 @@ namespace hod::ui
 		Text* text = GetOwner()->GetComponent<Text>();
 		if (text != nullptr)
 		{
-			//text->GetOnPropertyChangedSignal().Connect(_onDrivenTextChangeSlot);
+			text->GetPropertyChangedEvent() += _onDrivenTextChangedSlot;
 		}
 		else
 		{
@@ -101,7 +101,7 @@ namespace hod::ui
 			if (text != nullptr)
 			{
 				Vector2 size = node->GetDeltaSize();
-				Vector2 contentSize;// = text->GetContentSize(_horizontalFitMode != FitMode::Unconstrained, _verticalFitMode != FitMode::Unconstrained);
+				Vector2 contentSize = text->GetContentSize();
 
 				if (_horizontalFitMode != FitMode::Unconstrained)
 				{

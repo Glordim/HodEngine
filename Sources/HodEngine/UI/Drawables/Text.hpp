@@ -27,6 +27,8 @@ namespace hod::ui
 			BottomRight
 		};
 
+		using PropertyChangedEvent = Event<>;
+
 	public:
 
 		void	OnDestruct() override;
@@ -37,6 +39,10 @@ namespace hod::ui
 
 		void	PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) override;
 
+		Vector2	GetContentSize() const;
+
+		PropertyChangedEvent&		GetPropertyChangedEvent();
+
 	private:
 
 		WeakResource<renderer::FontResource>	_font;
@@ -44,5 +50,7 @@ namespace hod::ui
 		Alignment								_alignment;
 
 		renderer::MaterialInstance* _materialInstance = nullptr;
+
+		PropertyChangedEvent		_propertyChangedEvent;
 	};
 }
