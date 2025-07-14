@@ -31,6 +31,7 @@ namespace hod::game
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Entity);
 		friend class Scene;
+		friend class SceneSerializer;
 
 	public:
 

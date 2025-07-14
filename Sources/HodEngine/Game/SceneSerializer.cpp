@@ -157,10 +157,26 @@ namespace hod::game
 
 		for (auto& entityPair : _contextualEntityMap)
 		{
+			for (WeakEntity& child : entityPair.second->_children)
+			{
+				auto it = _contextualEntityMap.find(child.GetInstanceId());
+				if (it != _contextualEntityMap.end())
+				{
+					child.SetPointer(it->second);
+				}
+			}
+		}
+
+		for (auto& entityPair : _contextualEntityMap)
+		{
 			uint64_t parentId = entityPair.second->GetParent().GetInstanceId();
 			if (parentId != 0)
 			{
-				entityPair.second->SetParent(_contextualEntityMap[parentId]);
+				auto it = _contextualEntityMap.find(parentId);
+				if (it != _contextualEntityMap.end())
+				{
+					entityPair.second->SetParent(it->second);
+				}
 			}
 
 			_totalEntities.push_back(entityPair.second);
@@ -174,7 +190,11 @@ namespace hod::game
 				uint64_t entityId = weakEntity->GetInstanceId();
 				if (entityId != 0)
 				{
-					weakEntity->SetPointer(_contextualEntityMap[entityId]);
+					auto it = _contextualEntityMap.find(entityId);
+					if (it != _contextualEntityMap.end())
+					{
+						weakEntity->SetPointer(it->second);
+					}
 				}
 			}
 
