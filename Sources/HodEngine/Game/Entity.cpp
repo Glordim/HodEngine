@@ -293,7 +293,7 @@ namespace hod::game
 			}
 			parentLock->_children[index] = WeakEntity(this);
 
-			_childrenChangedEvent.Emit();
+			parentLock->_childrenChangedEvent.Emit();
 		}
 	}
 
