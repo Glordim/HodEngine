@@ -52,6 +52,15 @@ namespace hod::game
 			entity->SetLocalId(nextLocalId);
 			++nextLocalId;
 		}
+		for (const WeakEntity& child : entity->GetChildren()) // TODO TMP !! Must be move in CustomEntitySerializationCallback (related to WeakEntity -> WeakPtr<Entity>)
+		{
+			Entity* childEntity = child.Lock();
+			if (childEntity && childEntity->GetLocalId() == 0)
+			{
+				childEntity->SetLocalId(nextLocalId);
+				++nextLocalId;
+			}
+		}
 
 		Serializer::Serialize(entity, entityNode);
 
