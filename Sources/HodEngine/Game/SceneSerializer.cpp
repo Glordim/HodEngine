@@ -106,7 +106,9 @@ namespace hod::game
 			entity->SetLocalId(nextLocalId);
 			++nextLocalId;
 		}
-		entityNode.AddChild("_localId").SetUInt64(entity->GetLocalId());
+
+		Serializer::SerializeVariable(entity->GetReflectionDescriptorV().FindProperty<ReflectionPropertyVariable>("_localId"), entity, entityNode);
+		Serializer::SerializeObject(entity->GetReflectionDescriptorV().FindProperty<ReflectionPropertyObject>("Parent"), entity, entityNode, nullptr);
 
 		Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
 		UID uid = entity->GetPrefabResource()->GetUid(); // TODO fix Serializa template lvalue
@@ -413,7 +415,8 @@ namespace hod::game
 		}
 
 		rootEntity->SetPrefabResource(prefabResource);
-		rootEntity->SetLocalId(entityNode.GetChild("_localId")->GetUInt64());
+		Serializer::DeserializeVariable(rootEntity->GetReflectionDescriptorV().FindProperty<ReflectionPropertyVariable>("_localId"), rootEntity, entityNode);
+		Serializer::DeserializeObject(rootEntity->GetReflectionDescriptorV().FindProperty<ReflectionPropertyObject>("Parent"), rootEntity, entityNode, nullptr);
 		if (_contextualEntityMap.try_emplace(rootEntity->GetLocalId(), rootEntity).second == false)
 		{
 			OUTPUT_ERROR("SceneSerializer::DeserializeEntityPrefab: LocalId already exist !");

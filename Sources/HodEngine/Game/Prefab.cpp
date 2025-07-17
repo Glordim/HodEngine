@@ -93,7 +93,10 @@ namespace hod::game
 
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
 		SceneSerializer sceneSerializer;
-		sceneSerializer.Deserialize(*entitiesNode);
+		if (sceneSerializer.Deserialize(*entitiesNode) == false)
+		{
+			return false;
+		}
 
 		for (Entity* entity : sceneSerializer.GetEntities())
 		{
