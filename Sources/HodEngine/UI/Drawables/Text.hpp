@@ -2,6 +2,7 @@
 #include "HodEngine/UI/Export.hpp"
 #include "HodEngine/UI/Drawables/Drawable.hpp"
 #include <HodEngine/Core/Resource/WeakResource.hpp>
+#include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Renderer/Resource/FontResource.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 

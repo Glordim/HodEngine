@@ -1,6 +1,9 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Layout/AxisLayout.hpp"
 
+#undef min
+#undef max
+
 namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(AxisLayout, reflectionDescriptor)
