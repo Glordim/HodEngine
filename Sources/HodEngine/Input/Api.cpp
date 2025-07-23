@@ -39,6 +39,15 @@ namespace hod::input
 	void Api::AddDevice(Device* device)
 	{
 		_devices.push_back(device);
+		InputManager::GetInstance()->AddDevice(device);
+	}
+
+	/// @brief 
+	/// @param device 
+	void Api::RemoveDevice(Device* device)
+	{
+		std::erase(_devices, device);
+		InputManager::GetInstance()->RemoveDevice(device);
 	}
 
 	/// @brief 

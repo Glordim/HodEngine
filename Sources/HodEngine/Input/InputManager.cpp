@@ -93,4 +93,19 @@ namespace hod::input
 
 		return maxState;
 	}
+
+	const Vector<Device*> InputManager::GetDevices() const
+	{
+		return _devices;
+	}
+
+	void InputManager::AddDevice(Device* device)
+	{
+		_devices.push_back(device);
+	}
+
+	void InputManager::RemoveDevice(Device* device)
+	{
+		std::erase(_devices, device);
+	}
 }

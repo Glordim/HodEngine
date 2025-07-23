@@ -20,12 +20,13 @@ namespace hod::input
 
 	public:
 
-		enum Type
+		enum class Type : uint8_t
 		{
-			ANY = -1,
 			PAD = 0,
 			KEYBOARD,
 			MOUSE,
+
+			ANY,
 		};
 
 		enum Product
@@ -54,7 +55,7 @@ namespace hod::input
 		const UID&				GetUid() const;
 		Type					GetType() const;
 		Product					GetProduct() const;
-		const String&		GetName() const;
+		const String&			GetName() const;
 
 		Input*					GetInput(InputId inputId) const;
 		const Vector<Input*>&	GetInputs() const;
@@ -84,6 +85,6 @@ namespace hod::input
 		Product					_product = Product::UNKNOWN;
 		bool					_connected = false;
 
-		Vector<Input*>		_inputs;
+		Vector<Input*>			_inputs;
 	};
 }

@@ -18,6 +18,8 @@ namespace hod::input
 	/// @brief 
 	class HOD_INPUT_API Api
 	{
+		friend class InputManager;
+
 	public:
 
 		enum DeviceUidOffset
@@ -26,7 +28,6 @@ namespace hod::input
 			XINPUT = 2000,
 			COUNT
 		};
-
 
 	public:
 
@@ -43,11 +44,11 @@ namespace hod::input
 
 		void							Update();
 
-		const String&				GetName() const;
+		const String&					GetName() const;
 
 		bool							HasDevice(const UID& deviceUid) const;
 		const Device*					GetDevice(const UID& deviceUid) const;
-		const Vector<Device*>		GetDevices() const;
+		const Vector<Device*>			GetDevices() const;
 
 	protected:
 
@@ -56,6 +57,7 @@ namespace hod::input
 		void							SetInitialized(bool initialized);
 
 		void							AddDevice(Device* device);
+		void							RemoveDevice(Device* device);
 
 		static void						SetDeviceConnected(Device* device, bool connected);
 		static void						NotifyDeviceConnected(Device* device);
@@ -66,6 +68,6 @@ namespace hod::input
 		std::string						_name;
 
 		bool							_initialized = false;
-		Vector<Device*>			_devices;
+		Vector<Device*>					_devices;
 	};
 }

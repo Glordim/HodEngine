@@ -17,12 +17,16 @@ namespace hod::input
 	{
 		_Singleton(InputManager)
 
+		friend class Api;
+
 	public:
 
 		bool							Initialize();
 		void							UpdateJob();
 
 		Input::State					GetInputState(InputId inputId) const;
+
+		const Vector<Device*>			GetDevices() const;
 
 	private:
 
@@ -34,9 +38,13 @@ namespace hod::input
 		bool							CreateApi();
 		bool							CreateApi(Api* api);
 
+		void							AddDevice(Device* device);
+		void							RemoveDevice(Device* device);
+
 	private:
 
-		Vector<Api*>				_apis;
+		Vector<Api*>					_apis;
+		Vector<Device*>					_devices;
 
 		MemberFunctionJob<InputManager>	_updateJob;
 	};

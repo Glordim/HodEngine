@@ -25,6 +25,8 @@
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 
+#include "HodEngine/Editor/WindowFactory.hpp"
+
 #include "HodEngine/Editor/RecentProjects.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Game/Scene.hpp"
@@ -85,6 +87,7 @@ namespace hod::editor
 
 		Project::DestroyInstance();
 		AssetDatabase::DestroyInstance();
+		WindowFactory::DestroyInstance();
 
 		DefaultAllocator::GetInstance().Delete(_hodTexture);
 		DefaultAllocator::GetInstance().Delete(_folderTexture);
@@ -102,12 +105,13 @@ namespace hod::editor
 	/// @return 
 	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
+		Project::CreateInstance();
+		WindowFactory::CreateInstance();
+
 		if (LoadEditorModules() == false)
 		{
 			return false;
 		}
-
-		Project::CreateInstance();
 
 		int x;
 		int y;
@@ -187,8 +191,9 @@ namespace hod::editor
 	/// @return 
 	bool Editor::LoadEditorModules()
 	{
-		std::array<const char*, 3> editorModules = {
+		std::array<const char*, 4> editorModules = {
 			"CoreEditor",
+			"InputEditor",
 			"GameEditor",
 			"UIEditor"
 		};
@@ -339,6 +344,9 @@ namespace hod::editor
 					{
 						ImguiDemo = !ImguiDemo;
 					}
+
+					WindowFactory::GetInstance()->Draw();
+
 					ImGui::EndMenu();
 				}
 				if (ImGui::MenuItem("Hot Reload") == true)

@@ -31,6 +31,7 @@ add_dependencies(HodEditor
 	Application
 	Editor
 	CoreEditor
+	InputEditor
 	GameEditor
 	UIEditor
 )
