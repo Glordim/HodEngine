@@ -38,7 +38,10 @@ if(API STREQUAL Vulkan)
 elseif(API STREQUAL Metal)
 	list(REMOVE_ITEM ExcludeDirs Metal)
 	set(SHADER_TARGET_API Metal)
-	set(RENDERER_DEFINE "RENDERER_METAL" PARENT_SCOPE)
+	set(RENDERER_DEFINE "RENDERER_METAL")
+	find_library(QUARTZCORE_LIBRARY QuartzCore)
+	find_library(METAL_LIBRARY Metal)
+	set(API_LIBRARIES ${QUARTZCORE_LIBRARY} ${METAL_LIBRARY} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES})
 elseif(API STREQUAL D3D12)
 	list(REMOVE_ITEM ExcludeDirs D3d12)
 	set(SHADER_TARGET_API D3D12)
@@ -123,9 +126,13 @@ set_property(TARGET Renderer PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 add_dependencies(Renderer Core Window)
 
-target_link_libraries(Renderer
+target_link_libraries(Renderer PUBLIC
 	Core
 	Window
+)
+
+target_link_libraries(Renderer PRIVATE 
+	${API_LIBRARIES}
 	Freetype::Freetype
 	Stb::Stb
 	VulkanMemoryAllocator::VulkanMemoryAllocator
@@ -133,7 +140,7 @@ target_link_libraries(Renderer
 
 if(NOT APPLE)
 	include_directories(${Vulkan_INCLUDE_DIRS} SpirvCross::SpirvCross)
-	target_link_libraries(Renderer ${Vulkan_LIBRARIES} ${API_LIBRARIES} SpirvCross::SpirvCross)
+	target_link_libraries(Renderer ${Vulkan_LIBRARIES} SpirvCross::SpirvCross)
 
 	unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
 	option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" OFF)
@@ -142,10 +149,6 @@ if(NOT APPLE)
 	if (RENDERER_ENABLE_VALIDATION_LAYER)
 		target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
 	endif ()
-else()
-	find_library(QUARTZCORE_LIBRARY QuartzCore)
-	find_library(METAL_LIBRARY Metal)
-	target_link_libraries(Renderer ${QUARTZCORE_LIBRARY} ${METAL_LIBRARY} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES})
 endif()
 
 target_compile_definitions(Renderer PRIVATE ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
