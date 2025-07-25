@@ -20,7 +20,7 @@ namespace hod
 		template<typename _type_>
 		void AsRaw()
 		{
-			_getElementCountFunction = [](const void* instance) -> uint32_t
+			_getElementCountFunction = [](const void* /*instance*/) -> uint32_t
 			{
 				return sizeof(_type_) / sizeof(ElementType<_type_>::type);
 			};

@@ -92,6 +92,8 @@ namespace hod::physics
 		capsule.center2 = { position.GetX(), position.GetY() - (height * 0.5f) + radius };
 		capsule.radius = radius;
 		b2Shape_SetCapsule(_shape, &capsule);
+
+		(void)angle; // TODO
 	}
 
 	/// @brief 
@@ -104,6 +106,8 @@ namespace hod::physics
 
 		b2Shape_SetPolygon(_shape, &polygon);
 		*/
+
+		(void)vertices; // TODO
 	}
 
 	/// @brief 

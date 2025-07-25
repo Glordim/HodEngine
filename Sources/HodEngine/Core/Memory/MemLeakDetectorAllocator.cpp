@@ -83,6 +83,9 @@ namespace hod
 	/// @return 
 	void* MemLeakDetectorAllocator::ReallocateInternal(void* ptr, uint32_t newSize, uint32_t alignment)
 	{
+		(void)ptr;
+		(void)newSize;
+		(void)alignment;
 		return nullptr; // todo
 	}
 

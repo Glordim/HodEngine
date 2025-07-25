@@ -36,6 +36,11 @@ namespace hod
 
 		bool RendererMetal::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore, const Fence* fence)
 		{
+			// TODO
+			(void)signalSemaphore;
+			(void)waitSemaphore;
+			(void)fence;
+
 			for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
 			{
 				MetalCommandBuffer* commandBuffer = static_cast<MetalCommandBuffer*>(commandBuffers[commandBufferIndex]);
@@ -66,6 +71,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 		{
+			(void)physicalDeviceIdentifier; // TODO
+
 			_device = MTL::CreateSystemDefaultDevice();
 			_commandQueue = _device->newCommandQueue();
 
@@ -93,6 +100,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices)
 		{
+			(void)availableDevices; // TODO
 			return true;
 		}
 
@@ -101,6 +109,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier)
 		{
+			// TODO
+			(void)context;
+			(void)physicalDeviceIdentifier;
 			return true;
 		}
 

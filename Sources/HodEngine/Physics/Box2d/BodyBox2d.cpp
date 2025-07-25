@@ -115,6 +115,7 @@ namespace hod::physics
 	void BodyBox2d::SetTransform(const Vector2& position, float rotation, const Vector2& scale)
 	{
 		// todo scale
+		(void)scale;
 		b2Body_SetTransform(_b2BodyId, { position.GetX(), position.GetY() }, b2MakeRot(math::DegreeToRadian(rotation)));
 	}
 
@@ -223,6 +224,7 @@ namespace hod::physics
 		b2ContactData* contactDatas = (b2ContactData*)alloca(bodyContactCapacity * sizeof(b2ContactData));
 		int bodyContactCount = b2Body_GetContactData(_b2BodyId, contactDatas, bodyContactCapacity);
 
+		(void)collisions; // TODO
 		//collisions.resize(bodyContactCount);
 		for (int index = 0; index < bodyContactCount; ++index)
 		{

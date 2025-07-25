@@ -11,7 +11,7 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(SerializedDataImporterSettings, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 

@@ -7,6 +7,7 @@ namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(Rebuildable, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 

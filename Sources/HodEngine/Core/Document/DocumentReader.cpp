@@ -43,7 +43,7 @@ namespace hod
 		}
 
 		char* buffer = DefaultAllocator::GetInstance().Allocate<char>(size + 1);
-		if (FileSystem::GetInstance()->Read(fileHandle, buffer, size) != size)
+		if (FileSystem::GetInstance()->Read(fileHandle, buffer, size) != (int32_t)size)
 		{
 			return false;
 		}
@@ -60,6 +60,7 @@ namespace hod
 	/// @return 
 	bool DocumentReader::Read(Document& document, const char* buffer, uint32_t size)
 	{
+		(void)size; // TODO
 		return PopulateDocument(document, buffer);
 	}
 }

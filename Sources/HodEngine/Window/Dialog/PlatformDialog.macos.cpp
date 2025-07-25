@@ -10,6 +10,9 @@ namespace hod::window
 		char buffer[4096] = { '\0' };
 
 		// TODO
+		(void)typeName;
+		(void)typeExtension;
+		(void)initialFolder;
 
 		return buffer;
 	}
@@ -28,5 +31,6 @@ namespace hod::window
 	void OpenExplorerAtPath(const std::filesystem::path& path)
 	{
 		// TODO
+		(void)path;
 	}
 }

@@ -7,5 +7,6 @@ namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(Fitter, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 }

@@ -110,8 +110,10 @@ namespace hod
 			OUTPUT_ERROR("UID: Fail to generate UID from {}", uuidStr);
 			return INVALID_UID;
 		}
-	#elif defined(PLATFORM_LINUX)
+	#else
 		// TODO
+		assert(false);
+		(void)uuidStr;
 	#endif
 
 		UID uid;

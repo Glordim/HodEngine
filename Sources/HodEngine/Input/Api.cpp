@@ -24,6 +24,8 @@ namespace hod::input
 	/// @param device 
 	void Api::NotifyDeviceConnected(Device* device)
 	{
+		// TODO
+		(void)device;
 		//InputManager::GetInstance()->NotifyDeviceConnected(pDevice);
 	}
 
@@ -31,6 +33,8 @@ namespace hod::input
 	/// @param device 
 	void Api::NotifyDeviceDisconnected(Device* device)
 	{
+		// TODO
+		(void)device;
 		//InputManager::GetInstance()->NotifyDeviceDisconnected(pDevice);
 	}
 

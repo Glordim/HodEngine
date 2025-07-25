@@ -5,6 +5,6 @@ namespace hod
 {
 	DESCRIBE_REFLECTED_CLASS(Resource, reflectionDescriptor)
 	{
-		
+		(void)reflectionDescriptor;
 	}
 }

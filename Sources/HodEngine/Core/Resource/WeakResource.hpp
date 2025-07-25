@@ -80,6 +80,6 @@ namespace hod
     template<typename _Resource_>
     void WeakResource<_Resource_>::FillReflectionDescriptorUser(ReflectionDescriptor& reflectionDescriptor)
     {
-
+        (void)reflectionDescriptor;
     }
 }

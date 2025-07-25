@@ -5,6 +5,7 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(SceneResource, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
@@ -16,7 +17,7 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SceneResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
+	bool SceneResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& /*datas*/)
 	{
 		_document.GetRootNode().Copy(documentNode);
 		return true;

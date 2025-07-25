@@ -5,7 +5,7 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(DefaultImporterSettings, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 

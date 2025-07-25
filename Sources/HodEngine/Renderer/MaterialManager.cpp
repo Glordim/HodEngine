@@ -199,6 +199,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		UID MaterialManager::CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
+			(void)shaderName;
+			(void)polygonMode;
+			(void)topololy;
+			(void)useDepth;
 			return UID::INVALID_UID; // TODO ?
 			
 			/*

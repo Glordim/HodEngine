@@ -54,7 +54,7 @@ namespace hod::imgui
 			Vector2	_translate;
 		};
 
-		for (int drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
+		for (size_t drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
 		{
 			DrawList* drawList = _drawLists[drawListIndex];
 			
@@ -86,7 +86,7 @@ namespace hod::imgui
 			constant._translate.SetX(-1.0f - drawList->_displayPosition.GetX() * constant._scale.GetX());
 			constant._translate.SetY(-1.0f - drawList->_displayPosition.GetY() * constant._scale.GetY());
 
-			for (int commandIndex = 0; commandIndex < drawList->_commands.size(); ++commandIndex)
+			for (size_t commandIndex = 0; commandIndex < drawList->_commands.size(); ++commandIndex)
 			{
 				Command& command = drawList->_commands[commandIndex];
 

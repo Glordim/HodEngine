@@ -124,6 +124,8 @@ namespace hod::physics
 	/// @param context 
 	void DebugDrawerBox2d::DrawSolidPolygon(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context)
 	{
+		(void)radius; // TODO
+
 		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
 
 		RenderCommand renderCommand;
@@ -296,6 +298,9 @@ namespace hod::physics
 	/// @param context 
 	void DebugDrawerBox2d::DrawTransform(b2Transform transform, void* context)
 	{
+		// TODO
+		(void)transform;
+		(void)context;
 	}
 
 	/// @brief 
@@ -314,6 +319,9 @@ namespace hod::physics
 		std::memcpy(renderCommand._vertices.data(), &p, 2 * sizeof(float));
 
 		thiz->_renderCommands.push_back(renderCommand);
+
+		// TODO
+		(void)size;
 	}
 
 	/// @brief 
@@ -322,5 +330,10 @@ namespace hod::physics
 	/// @param context 
 	void DebugDrawerBox2d::DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context)
 	{
+		// TODO
+		(void)p;
+		(void)s;
+		(void)color;
+		(void)context;
 	}
 }

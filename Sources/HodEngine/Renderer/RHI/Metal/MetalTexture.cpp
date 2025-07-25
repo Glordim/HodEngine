@@ -36,6 +36,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool MetalTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 		{
+            (void)createInfo; // TODO
+
 			MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
             textureDescriptor->setWidth(width);
             textureDescriptor->setHeight(height);
@@ -117,6 +119,7 @@ namespace hod
 		/// @return 
 		Color MetalTexture::ReadPixel(const Vector2& position) const
 		{
+            (void)position; // TODO
 			return Color();
 		}
     

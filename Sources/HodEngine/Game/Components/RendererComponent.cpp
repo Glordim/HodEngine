@@ -5,6 +5,6 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(RendererComponent, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 }

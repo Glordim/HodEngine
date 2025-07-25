@@ -31,6 +31,9 @@ namespace hod
 		/// @param value 
 		void MetalMaterialInstance::ApplyInt(const String& memberName, int value)
 		{
+			// TODO
+			(void)memberName;
+			(void)value;
 		}
 
 		/// @brief 
@@ -38,6 +41,9 @@ namespace hod
 		/// @param value 
 		void MetalMaterialInstance::ApplyFloat(const String& memberName, float value)
 		{
+			// TODO
+			(void)memberName;
+			(void)value;
 		}
 
 		/// @brief 
@@ -45,6 +51,9 @@ namespace hod
 		/// @param value 
 		void MetalMaterialInstance::ApplyVec2(const String& memberName, const Vector2& value)
 		{
+			// TODO
+			(void)memberName;
+			(void)value;
 		}
 
 		/// @brief 
@@ -52,6 +61,9 @@ namespace hod
 		/// @param value 
 		void MetalMaterialInstance::ApplyVec4(const String& memberName, const Vector4& value)
 		{
+			// TODO
+			(void)memberName;
+			(void)value;
 		}
 
 		/// @brief 
@@ -59,6 +71,9 @@ namespace hod
 		/// @param value 
 		void MetalMaterialInstance::ApplyMat4(const String& memberName, const Matrix4& value)
 		{
+			// TODO
+			(void)memberName;
+			(void)value;
 		}
 
 		/// @brief 
@@ -66,6 +81,9 @@ namespace hod
 		/// @param value 
 		void MetalMaterialInstance::ApplyTexture(const String& name, const Texture& value)
 		{
+			// TODO
+			(void)name;
+			(void)value;
 		}
     
         /// @brief 

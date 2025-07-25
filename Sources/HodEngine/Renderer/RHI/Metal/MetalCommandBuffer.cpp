@@ -53,6 +53,8 @@ namespace hod
 		/// @return 
 		bool MetalCommandBuffer::StartRenderPass(RenderTarget* renderTarget, Context* context, const Color& color)
 		{
+			(void)renderTarget; // TODO
+
 			MetalContext* metalContext = static_cast<MetalContext*>(context);
             CA::MetalDrawable* drawable = metalContext->GetCurrentDrawable();
             MTL::Texture* drawableTexture = drawable->texture();
@@ -110,18 +112,24 @@ namespace hod
 		/// @param projectionMatrix 
 		void MetalCommandBuffer::SetProjectionMatrix(const Matrix4& projectionMatrix)
 		{
+			// todo
+			(void)projectionMatrix;
 		}
 
 		/// @brief 
 		/// @param viewMatrix 
 		void MetalCommandBuffer::SetViewMatrix(const Matrix4& viewMatrix)
 		{
+			// todo
+			(void)viewMatrix;
 		}
 
 		/// @brief 
 		/// @param modelMatrix 
 		void MetalCommandBuffer::SetModelMatrix(const Matrix4& modelMatrix)
 		{
+			// todo
+			(void)modelMatrix;
 		}
 
 		/// @brief 
@@ -156,6 +164,10 @@ namespace hod
 		/// @param setCount 
 		void MetalCommandBuffer::SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
 		{
+			// TODO
+			(void)setOffset;
+			(void)setCount;
+			//
             static_cast<const MetalMaterialInstance*>(materialInstance)->FillCommandEncoder(_renderCommandEncoder);
 		}
 
@@ -166,6 +178,7 @@ namespace hod
 		void MetalCommandBuffer::SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset)
 		{
 			// todo count
+			(void)count;
             _renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(vertexBuffer[0])->GetNativeBuffer(), offset, 0);
 		}
 		
@@ -192,6 +205,7 @@ namespace hod
 		/// @param vertexOffset 
 		void MetalCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset)
 		{
+			(void)vertexOffset; // TODO
             // TODO primitive type from Material ?
             _renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, _indexBuffer->GetNativeBuffer(), indexOffset * sizeof(uint16_t) + _indexBufferOffset, 1);
 		}

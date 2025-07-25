@@ -5,6 +5,7 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(PrefabResource, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 

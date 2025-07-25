@@ -143,6 +143,7 @@ namespace hod::physics
 			Collision collision {
 				*static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdA)),
 				*static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdB)),
+				Vector2::Zero // TODO normal ?
 			};
 			b2ContactData contactData[10];
 			int contactCount = b2Shape_GetContactData(beginEvent.shapeIdA, contactData, 10);
@@ -172,6 +173,7 @@ namespace hod::physics
 			Collision collision {
 				*static_cast<Collider*>(b2Shape_GetUserData(endEvent.shapeIdA)),
 				*static_cast<Collider*>(b2Shape_GetUserData(endEvent.shapeIdB)),
+				Vector2::Zero // TODO normal ?
 			};
 			BodyBox2d* bodyA = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(endEvent.shapeIdA)));
 			BodyBox2d* bodyB = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(endEvent.shapeIdB)));
@@ -193,6 +195,10 @@ namespace hod::physics
 	{
 		// TODO
 		//_world->RayCast();
+		(void)origin;
+		(void)dir;
+		(void)distance;
+		(void)result;
 		return false;
 	}
 

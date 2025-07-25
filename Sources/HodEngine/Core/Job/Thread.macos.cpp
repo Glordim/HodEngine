@@ -62,6 +62,8 @@ namespace hod
 		}
 
 		// todo set attributes
+		(void)priority;
+		(void)name;
 
 		if (pthread_create(&_id, &attributes, ThreadFunctionInternal, descriptor) != 0)
 		{

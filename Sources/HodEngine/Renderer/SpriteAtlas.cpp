@@ -29,6 +29,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool SpriteAtlas::LoadFromFile(const String& spriteAltasJsonPath)
 		{
+			(void)spriteAltasJsonPath; // TODO
 			return false;
 			/*
 			std::ifstream jsonFile;

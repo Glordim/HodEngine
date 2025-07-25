@@ -44,6 +44,7 @@ namespace hod::renderer
 		matrix.yy = 0x10000;
 
 		//FT_Outline_Transform(&slot->outline, &matrix);
+		(void)slot; // TODO
 	}
 
 	unsigned int nextPowerOf2(unsigned int n)

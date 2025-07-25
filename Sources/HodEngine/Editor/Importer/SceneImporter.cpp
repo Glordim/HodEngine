@@ -10,7 +10,7 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(SceneImporterSettings, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 

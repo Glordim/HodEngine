@@ -168,6 +168,8 @@ namespace hod
 
 	bool ImageTextButton(ImTextureID image, ImVec2 imageSize, ImVec2 resizedSize, const char* label, ImVec2 size_arg, ImGuiButtonFlags flags, ImDrawFlags drawFlags)
 	{
+		(void)drawFlags; // TODO
+
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
 			return false;

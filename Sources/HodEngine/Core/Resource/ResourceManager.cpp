@@ -123,7 +123,7 @@ namespace hod
 				data._buffer = DefaultAllocator::GetInstance().Allocate(dataSize);
 				data._size = dataSize;
 
-				if (FileSystem::GetInstance()->Read(fileHandle, (char*)(data._buffer), dataSize) != dataSize)
+				if (FileSystem::GetInstance()->Read(fileHandle, (char*)(data._buffer), dataSize) != (int32_t)dataSize)
 				{
 					FileSystem::GetInstance()->Close(fileHandle);
 					return false; // todo message

@@ -7,6 +7,7 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(SerializedDataResource, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
@@ -19,7 +20,7 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SerializedDataResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
+	bool SerializedDataResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& /*datas*/)
 	{
 		const Document::Node* typeNode = documentNode.GetChild("Type");
 		if (typeNode == nullptr)

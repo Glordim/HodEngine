@@ -37,9 +37,12 @@ namespace hod::editor
 	/// @return 
 	bool MaterialImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
+		(void)thumbnail; // TODO
+		(void)settings;
+
 		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
 		char* dataBuffer = DefaultAllocator::GetInstance().Allocate<char>(dataSize + 1);
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != dataSize)
+		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != (int32_t)dataSize)
 		{
 			OUTPUT_ERROR("MaterialImporter : Can't read Shader data");
 			return false;
@@ -94,7 +97,7 @@ namespace hod::editor
 		FileSystem::Handle vertexSlangOutputHandle = FileSystem::GetInstance()->Open(slangVertexOutput);
 		uint32_t vertexDataSize = FileSystem::GetInstance()->GetSize(vertexSlangOutputHandle);
 		char* vertexDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(vertexDataSize + 1);
-		if (FileSystem::GetInstance()->Read(vertexSlangOutputHandle, reinterpret_cast<char*>(vertexDataBuffer), vertexDataSize) != vertexDataSize)
+		if (FileSystem::GetInstance()->Read(vertexSlangOutputHandle, reinterpret_cast<char*>(vertexDataBuffer), vertexDataSize) != (int32_t)vertexDataSize)
 		{
 			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
 			FileSystem::GetInstance()->Close(vertexSlangOutputHandle);
@@ -107,7 +110,7 @@ namespace hod::editor
 		FileSystem::Handle fragmentSlangOutputHandle = FileSystem::GetInstance()->Open(slangFragmentOutput);
 		uint32_t fragmentDataSize = FileSystem::GetInstance()->GetSize(fragmentSlangOutputHandle);
 		char* fragmentDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(fragmentDataSize + 1);
-		if (FileSystem::GetInstance()->Read(fragmentSlangOutputHandle, reinterpret_cast<char*>(fragmentDataBuffer), fragmentDataSize) != fragmentDataSize)
+		if (FileSystem::GetInstance()->Read(fragmentSlangOutputHandle, reinterpret_cast<char*>(fragmentDataBuffer), fragmentDataSize) != (int32_t)fragmentDataSize)
 		{
 			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
 			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);

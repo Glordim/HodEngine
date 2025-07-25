@@ -5,7 +5,7 @@ namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(EventListener, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 
 	bool EventListener::OnPointerEnterEvent(const PointerEnterEvent& event)

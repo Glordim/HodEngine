@@ -19,6 +19,8 @@ namespace hod::window
 	//-----------------------------------------------------------------------------
 	bool ScreenHelper::GetNativeResoltion(Resolution* nativeResolution, int monitor)
 	{
+		(void)nativeResolution;
+		(void)monitor;
 		/*
 		if (nativeResolution == nullptr)
 		{
@@ -48,6 +50,8 @@ namespace hod::window
 	//-----------------------------------------------------------------------------
 	bool ScreenHelper::GetSupportedResoltions(Vector<Resolution>* supportedResolution, int monitor)
 	{
+		(void)supportedResolution;
+		(void)monitor;
 		/*
 		if (supportedResolution == nullptr)
 		{

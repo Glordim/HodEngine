@@ -13,6 +13,7 @@ namespace hod
 	{
 		DESCRIBE_REFLECTED_CLASS(PrimitiveComponent, reflectionDescriptor)
 		{
+			(void)reflectionDescriptor;
 		}
 
 		//-----------------------------------------------------------------------------

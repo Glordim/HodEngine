@@ -47,13 +47,17 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		bool MetalMaterial::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
+            // TODDO
+            (void)topololy;
+            (void)polygonMode;
+            (void)useDepth;
+
             MTL::Function* vertexFunction = static_cast<MetalShader*>(vertexShader)->GetNativeFunction();
             MTL::Function* fragmentFunction = static_cast<MetalShader*>(fragmentShader)->GetNativeFunction();
             //MTL::VertexDescriptor* vertexDescriptor = static_cast<MetalVertexInput*>(vertexInputs)->GetNativeVertexDescriptor();
             
             MTL::VertexDescriptor* vertexDescriptor = MTL::VertexDescriptor::alloc()->init();
 
-            uint32_t vertexStructIndex = 0;
             uint32_t offset = 0;
             
             if (vertexInputs != nullptr)

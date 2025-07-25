@@ -15,6 +15,7 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(FontImporterSettings, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 

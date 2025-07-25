@@ -15,6 +15,7 @@ namespace hod::renderer
 {
 	DESCRIBE_REFLECTED_CLASS(FontResource, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
@@ -29,6 +30,8 @@ namespace hod::renderer
 	/// @return 
 	bool FontResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
+		(void)documentNode; // TODO
+
 		if (datas.empty())
 		{
 			// TODO message
