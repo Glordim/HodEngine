@@ -112,4 +112,9 @@ namespace hod::physics
 	{
 		b2Shape_SetRestitution(_shape, bounciness);
 	}
+
+	b2ShapeId ColliderBox2d::GetShapeId() const
+	{
+		return _shape;
+	}
 }

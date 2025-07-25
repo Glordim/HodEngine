@@ -28,6 +28,8 @@ namespace hod::physics
 
 		void	SetBounciness(float bounciness) override;
 
+		b2ShapeId	GetShapeId() const;
+
 	private:
 
 		b2ShapeId	_shape = b2_nullShapeId;

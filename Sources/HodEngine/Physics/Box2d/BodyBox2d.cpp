@@ -207,7 +207,7 @@ namespace hod::physics
 		for (uint32_t index = 0; index < _colliders.size(); ++index)
 		{
 			ColliderBox2d* collider = (ColliderBox2d*)_colliders[index];
-			if (collider != nullptr)
+			if (collider != nullptr && B2_ID_EQUALS(collider->GetShapeId(), shapeId))
 			{
 				return collider;
 			}
