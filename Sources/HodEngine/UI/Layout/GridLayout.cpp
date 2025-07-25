@@ -132,7 +132,7 @@ namespace hod::ui
 
 		Vector2 availableSize = node->ComputeSize();
 		const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
-		uint32_t drivenNodeCount = drivenNodes.size();
+		uint32_t drivenNodeCount = (uint32_t)drivenNodes.size();
 
 		uint32_t cellCountX = 1;
 		uint32_t cellCountY = 1;

@@ -203,7 +203,7 @@ namespace hod::ui
 		float spacing = GetSpacing();
 
 		const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
-		uint32_t drivenNodeCount = drivenNodes.size();
+		uint32_t drivenNodeCount = (uint32_t)drivenNodes.size();
 
 		if (node != nullptr)
 		{
@@ -335,7 +335,7 @@ namespace hod::ui
 			}
 
 			const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
-			uint32_t drivenNodeCount = drivenNodes.size();
+			uint32_t drivenNodeCount = (uint32_t)drivenNodes.size();
 
 			for (uint32_t drivenNodeIndex = 0; drivenNodeIndex < drivenNodeCount; ++drivenNodeIndex)
 			{
@@ -383,7 +383,7 @@ namespace hod::ui
 			float innerSize = availableSize - combinedPadding;
 
 			const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
-			uint32_t drivenNodeCount = drivenNodes.size();
+			uint32_t drivenNodeCount = (uint32_t)drivenNodes.size();
 
 			for (uint32_t drivenNodeIndex = 0; drivenNodeIndex < drivenNodeCount; ++drivenNodeIndex)
 			{
