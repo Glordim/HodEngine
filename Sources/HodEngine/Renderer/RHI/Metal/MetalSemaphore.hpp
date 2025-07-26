@@ -3,7 +3,7 @@
 
 #include "HodEngine/Renderer/RHI/Semaphore.hpp"
 
-#include "HodEngine/Renderer/RHI/Metal/MetalCpp/Metal/Metal.hpp"
+#include <Metal/Metal.hpp>
 
 namespace hod::renderer
 {

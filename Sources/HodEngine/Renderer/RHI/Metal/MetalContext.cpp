@@ -6,9 +6,8 @@
 
 #include <limits>
 
-#include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalLayer.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalDrawable.hpp"
-
+#include <QuartzCore/CAMetalLayer.hpp>
+#include <QuartzCore/CAMetalDrawable.hpp>
 #include <Metal/Metal.hpp>
 
 #include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"

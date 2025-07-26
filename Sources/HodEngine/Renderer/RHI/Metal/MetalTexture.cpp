@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 
-#include "HodEngine/Renderer/RHI/Metal/MetalCpp/Metal/Metal.hpp"
+#include <Metal/Metal.hpp>
 
 namespace hod
 {
