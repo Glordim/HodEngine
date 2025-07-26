@@ -37,7 +37,7 @@ namespace hod
 	void Event<Types...>::Disconnect(Slot& slot)
 	{
 		size_t slotCount = _slots.size();
-		for (int index = 0; index < slotCount; ++index)
+		for (size_t index = 0; index < slotCount; ++index)
 		{
 			Slot* currentSlot = _slots[index];
 			if (currentSlot == &slot)

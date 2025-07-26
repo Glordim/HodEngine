@@ -28,6 +28,8 @@ namespace hod::game
 	/// @return 
 	bool SceneSerializer::SerializeEntity(Entity* entity, bool withChildren, Document::Node& entitiesNode, uint64_t& nextLocalId)
 	{
+		(void)withChildren; // TODO
+
 		if (entity->GetPrefabResource() != nullptr)
 		{
 			return SerializeEntityPrefab(entity, entitiesNode, nextLocalId);

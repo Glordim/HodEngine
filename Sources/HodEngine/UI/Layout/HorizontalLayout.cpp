@@ -5,6 +5,7 @@ namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(HorizontalLayout, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 

@@ -417,7 +417,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param enabled 
 	/// @return 
-	bool ViewportWindow::IsPhysicsDebugDrawerEnabled(bool enabled) const
+	bool ViewportWindow::IsPhysicsDebugDrawerEnabled() const
 	{
 		return (_physicsDebugDrawer != nullptr);
 	}

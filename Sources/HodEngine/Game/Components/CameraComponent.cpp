@@ -67,6 +67,7 @@ namespace hod::game
 	/// @param scene 
 	void CameraComponent::Render(Scene& scene)
 	{
+		(void)scene; // TODO
 		/*
 		renderer::RenderQueue renderQueue;
 

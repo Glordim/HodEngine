@@ -93,6 +93,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void TextRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
 		{
+			(void)renderView; // TODO
+
 			if (_text.empty() || _fontResource.Lock() == nullptr)
 			{
 				return;

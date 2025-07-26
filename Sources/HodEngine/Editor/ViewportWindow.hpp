@@ -47,7 +47,7 @@ namespace hod::editor
 	private:
 
 		void		EnablePhysicsDebugDrawer(bool enabled);
-		bool		IsPhysicsDebugDrawerEnabled(bool enabled) const;
+		bool		IsPhysicsDebugDrawerEnabled() const;
 		
 		renderer::RenderTarget* 	_renderTarget = nullptr;
 		renderer::RenderTarget* 	_pickingRenderTarget = nullptr;

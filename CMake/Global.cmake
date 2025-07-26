@@ -82,7 +82,7 @@ function(SetupCompilation)
 	endif()
 
 	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-		set(CXX_FLAGS "${CXX_FLAGS} -Wno-invalid-offsetof -Wno-nullability-completeness -Werror -D_CRT_SECURE_NO_WARNINGS -D_ITERATOR_DEBUG_LEVEL=0")
+		set(CXX_FLAGS "${CXX_FLAGS} -Wall -Wextra -Wno-invalid-offsetof -Wno-nullability-completeness -Werror -D_CRT_SECURE_NO_WARNINGS -D_ITERATOR_DEBUG_LEVEL=0")
 		if(MSVC)
 			set(CXX_FLAGS "${CXX_FLAGS} /MD")
 		endif()

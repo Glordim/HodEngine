@@ -11,7 +11,7 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(PrefabImporterSettings, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
@@ -19,6 +19,12 @@ namespace hod::editor
 	/// @return 
 	bool PrefabImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
+		// TODO
+		(void)meta;
+		(void)datas;
+		(void)thumbnail;
+		(void)settings;
+
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, data) == false)
 		{

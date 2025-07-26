@@ -175,7 +175,7 @@ namespace hod::ui
 	/// @brief 
 	/// @param drivenText 
 	/// @param changedProperty 
-	void ContentSizeFitter::OnDrivenLayoutChanged(Layout::ChangedSizeProperty sizeAxis)
+	void ContentSizeFitter::OnDrivenLayoutChanged(Layout::ChangedSizeProperty /*sizeAxis*/)
 	{
 		SetDirty();
 	}

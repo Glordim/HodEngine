@@ -8,57 +8,57 @@ namespace hod::ui
 		(void)reflectionDescriptor;
 	}
 
-	bool EventListener::OnPointerEnterEvent(const PointerEnterEvent& event)
+	bool EventListener::OnPointerEnterEvent(const PointerEnterEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnPointerExitEvent(const PointerExitEvent& event)
+	bool EventListener::OnPointerExitEvent(const PointerExitEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnPressEvent(const PressEvent& event)
+	bool EventListener::OnPressEvent(const PressEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnReleaseEvent(const ReleaseEvent& event)
+	bool EventListener::OnReleaseEvent(const ReleaseEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnClickEvent(const ClickEvent& event)
+	bool EventListener::OnClickEvent(const ClickEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnCancelEvent(const CancelEvent& event)
+	bool EventListener::OnCancelEvent(const CancelEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnScrollEvent(const ScrollEvent& event)
+	bool EventListener::OnScrollEvent(const ScrollEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnDragBeginEvent(const DragBeginEvent& event)
+	bool EventListener::OnDragBeginEvent(const DragBeginEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnDragMoveEvent(const DragMoveEvent& event)
+	bool EventListener::OnDragMoveEvent(const DragMoveEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnDropEvent(const DropEvent& event)
+	bool EventListener::OnDropEvent(const DropEvent& /*event*/)
 	{
 		return false;
 	}
 
-	bool EventListener::OnNavigationEvent(const NavigationEvent& event)
+	bool EventListener::OnNavigationEvent(const NavigationEvent& /*event*/)
 	{
 		return false;
 	}

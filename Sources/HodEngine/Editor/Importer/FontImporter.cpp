@@ -30,10 +30,15 @@ namespace hod::editor
 	/// @return 
 	bool FontImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
+		(void)document;
+		(void)meta;
+		(void)thumbnail;
+		(void)settings;
+
 		Resource::Data ttfData;
 		ttfData._size = FileSystem::GetInstance()->GetSize(data);
 		ttfData._buffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(ttfData._size);
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(ttfData._buffer), ttfData._size) != ttfData._size)
+		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(ttfData._buffer), ttfData._size) != (int32_t)ttfData._size)
 		{
 			OUTPUT_ERROR("FontImporter : Can't read Font data");
 			return false;

@@ -219,7 +219,7 @@ namespace hod::game
 	/// @param descriptor 
 	void Entity::RemoveComponent(const ReflectionDescriptor& descriptor)
 	{
-		uint32_t indexToRemove = -1;
+		uint32_t indexToRemove = std::numeric_limits<uint32_t>::max();
 		for (uint32_t index = 0; index < _components.size(); ++index)
 		{
 			Component* component = _components[index];
@@ -234,7 +234,7 @@ namespace hod::game
 				indexToRemove = index;
 			}
 		}
-		if (indexToRemove != -1)
+		if (indexToRemove != std::numeric_limits<uint32_t>::max())
 		{
 			_components.erase(_components.begin() + indexToRemove);
 		}

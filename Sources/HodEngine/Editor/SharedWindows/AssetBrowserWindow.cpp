@@ -262,6 +262,7 @@ namespace hod::editor
 	/// @brief 
 	void AssetBrowserWindow::ResyncFolderTree(FolderItem* folderItem)
 	{
+		(void)folderItem; // TODO
 		/*
 		const AssetDatabase::FileSystemMapping& root = Editor::GetInstance()->GetAssetDatabase().GetAssetRootNode();
 

@@ -67,6 +67,8 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		void SpriteRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
 		{
+			(void)renderView; // TODO
+
 			/*
 			Vector<renderer::P2fT2f> vertices(6);
 			vertices[0]._position[0] = -0.5f;

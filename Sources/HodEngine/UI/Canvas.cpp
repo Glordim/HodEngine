@@ -186,7 +186,7 @@ namespace hod::ui
 		return _renderModeMatrix;
 	}
 
-	void Canvas::OnUpdate(float deltaTime)
+	void Canvas::OnUpdate(float /*deltaTime*/)
 	{
 		DoRebuild();
 	}

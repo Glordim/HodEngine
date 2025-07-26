@@ -7,7 +7,7 @@ namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(NodeComponent, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 
 	//-----------------------------------------------------------------------------

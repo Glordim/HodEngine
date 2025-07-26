@@ -262,6 +262,8 @@ namespace hod::editor
 
 	bool DrawPresetButton(const char* id, const ImVec2& size, uint8_t edge, uint16_t anchors, uint8_t expandArrows, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot, Vector2 presetAnchorMin, Vector2 presetAnchorMax)
 	{
+		(void)pivot; // TODO
+
 		ImVec2 childSize = size * 0.5f;
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 

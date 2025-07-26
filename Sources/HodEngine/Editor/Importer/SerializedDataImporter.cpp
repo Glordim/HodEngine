@@ -19,6 +19,12 @@ namespace hod::editor
 	/// @return 
 	bool SerializedDataImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
+		// TODO
+		(void)meta;
+		(void)datas;
+		(void)thumbnail;
+		(void)settings;
+
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, data) == false)
 		{

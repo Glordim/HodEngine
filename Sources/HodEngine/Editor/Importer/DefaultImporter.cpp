@@ -13,6 +13,12 @@ namespace hod::editor
 	/// @return 
 	bool DefaultImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
+		(void)data;
+		(void)meta;
+		(void)document;
+		(void)datas;
+		(void)thumbnail;
+		(void)settings;
 		return false;
 	}
 

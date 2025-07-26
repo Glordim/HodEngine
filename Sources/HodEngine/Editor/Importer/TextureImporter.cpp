@@ -48,9 +48,12 @@ namespace hod::editor
 	/// @return 
 	bool TextureImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
+		// TODO
+		(void)meta;
+
 		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
 		uint8_t* dataBuffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(dataSize);
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != dataSize)
+		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != (int32_t)dataSize)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't read Texture data");
 			return false;

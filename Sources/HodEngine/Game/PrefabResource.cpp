@@ -20,6 +20,8 @@ namespace hod::game
 	/// @return 
 	bool PrefabResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
+		(void)datas;
+
 		_document.GetRootNode().Copy(documentNode);
 
 		_prefab = DefaultAllocator::GetInstance().New<Prefab>();

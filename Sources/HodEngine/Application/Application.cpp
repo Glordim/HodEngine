@@ -35,6 +35,8 @@ namespace hod::application
 	/// @return 
 	bool Application::Init(const ArgumentParser& argumentParser)
 	{
+		(void)argumentParser;
+
 		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
 
 		JobScheduler::CreateInstance();
