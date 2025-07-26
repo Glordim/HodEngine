@@ -26,7 +26,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API InspectorWindow : public EditorTabWindow
 	{
-		META_TYPE(InspectorWindow, EditorTabWindow);
+		META_TYPE(InspectorWindow, EditorTabWindow)
 		WINDOW_DESCRIPTION()
 
 	public:

@@ -43,34 +43,34 @@ namespace hod
 
 		ZOrder::ZOrder(uint16_t layer, uint16_t internalOrder)
 		{
-			_unifiedValue._layer = layer;
-			_unifiedValue._internalOrder = internalOrder;
+			_unifiedValue.split._layer = layer;
+			_unifiedValue.split._internalOrder = internalOrder;
 		}
 
 		void ZOrder::SetLayer(uint16_t layer)
 		{
-			_unifiedValue._layer = layer;
+			_unifiedValue.split._layer = layer;
 		}
 
 		uint16_t ZOrder::GetLayer() const
 		{
-			return _unifiedValue._layer;
+			return _unifiedValue.split._layer;
 		}
 
 		void ZOrder::SetInternalOrder(int16_t internalOrder)
 		{
-			_unifiedValue._internalOrder = internalOrder;
+			_unifiedValue.split._internalOrder = internalOrder;
 		}
 
 		int16_t ZOrder::GetInternalOrder() const
 		{
-			return _unifiedValue._internalOrder;
+			return _unifiedValue.split._internalOrder;
 		}
 
 		uint32_t ZOrder::GetValue() const
 		{
-			uint16_t order = static_cast<uint16_t>(_unifiedValue._internalOrder ^ 0x8000);
-			return (static_cast<uint32_t>(_unifiedValue._layer) << 16) | order;
+			uint16_t order = static_cast<uint16_t>(_unifiedValue.split._internalOrder ^ 0x8000);
+			return (static_cast<uint32_t>(_unifiedValue.split._layer) << 16) | order;
 		}
 
 		DESCRIBE_REFLECTED_CLASS(Node2dComponent, reflectionDescriptor)

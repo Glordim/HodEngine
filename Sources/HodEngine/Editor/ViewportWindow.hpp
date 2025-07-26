@@ -22,7 +22,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API ViewportWindow : public EditorTabWindow
 	{
-		META_TYPE(ViewportWindow, EditorTabWindow);
+		META_TYPE(ViewportWindow, EditorTabWindow)
 		WINDOW_DESCRIPTION()
 
 	public:

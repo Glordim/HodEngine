@@ -37,7 +37,7 @@ union UuidConverter
 	{
 		uint64_t	low;
 		uint64_t	high;
-	};
+	} raw;
 };
 
 namespace hod
@@ -91,8 +91,8 @@ namespace hod
 	#endif
 
 		UID uid;
-		uid._low = uuidConverter.low;
-		uid._high = uuidConverter.high;
+		uid._low = uuidConverter.raw.low;
+		uid._high = uuidConverter.raw.high;
 
 		return uid;
 	}
@@ -117,8 +117,8 @@ namespace hod
 	#endif
 
 		UID uid;
-		uid._low = uuidConverter.low;
-		uid._high = uuidConverter.high;
+		uid._low = uuidConverter.raw.low;
+		uid._high = uuidConverter.raw.high;
 
 		return uid;
 	}
@@ -141,8 +141,8 @@ namespace hod
 	String UID::ToString() const
 	{
 		UuidConverter uuidConverter;
-		uuidConverter.low = _low;
-		uuidConverter.high = _high;
+		uuidConverter.raw.low = _low;
+		uuidConverter.raw.high = _high;
 
 		String str;
 

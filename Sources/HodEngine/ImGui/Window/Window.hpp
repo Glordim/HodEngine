@@ -16,7 +16,7 @@ namespace hod::imgui
 	/// @brief 
 	class HOD_IMGUI_API Window
 	{
-		BASE_META_TYPE(Window);
+		BASE_META_TYPE(Window)
 
 	public:
 

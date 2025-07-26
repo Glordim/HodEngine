@@ -32,7 +32,7 @@ namespace hod
 				{
 					int16_t		_internalOrder;
 					uint16_t	_layer;
-				};
+				} split;
 				uint32_t _value = 0;
 			} _unifiedValue;
 		};

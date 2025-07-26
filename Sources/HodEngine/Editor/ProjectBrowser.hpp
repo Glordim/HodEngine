@@ -14,7 +14,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API ProjectBrowser : public imgui::Window
 	{
-		META_TYPE(ProjectBrowser, imgui::Window);
+		META_TYPE(ProjectBrowser, imgui::Window)
 		WINDOW_DESCRIPTION()
 
 	public:

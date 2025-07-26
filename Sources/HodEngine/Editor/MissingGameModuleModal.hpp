@@ -12,7 +12,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API MissingGameModuleModal : public imgui::Modal
 	{
-		META_TYPE(MissingGameModuleModal, imgui::Window);
+		META_TYPE(MissingGameModuleModal, imgui::Window)
 		WINDOW_DESCRIPTION()
 
 		enum class StepStatus

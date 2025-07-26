@@ -20,7 +20,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API MaterialInstanceEditorPropertiesWindow : public EditorTabWindow
 	{
-		META_TYPE(MaterialInstanceEditorPropertiesWindow, EditorTabWindow);
+		META_TYPE(MaterialInstanceEditorPropertiesWindow, EditorTabWindow)
 		WINDOW_DESCRIPTION()
 
 	public:

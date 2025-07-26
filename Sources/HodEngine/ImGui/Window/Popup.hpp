@@ -9,7 +9,7 @@ namespace hod::imgui
 	/// @brief 
 	class HOD_IMGUI_API Popup : public Window
 	{
-		META_TYPE(Popup, Window);
+		META_TYPE(Popup, Window)
 
 	public:
 
