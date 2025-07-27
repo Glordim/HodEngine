@@ -88,8 +88,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	${UNIX_INCLUDES}
 )
 
-target_link_libraries(Window
+target_link_libraries(Window PUBLIC
 	Core
+)
+
+target_link_libraries(Window PRIVATE
 	${UNIX_LIBS}
     ${COCOA_LIBRARY}
 )

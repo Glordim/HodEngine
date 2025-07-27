@@ -125,17 +125,20 @@ include_directories(SYSTEM
   "DearImGui" # for imguiFreetype include
 )
 
-target_link_libraries(ImGui
+if (APPLE)
+	set(PLATFORM_LIBS "-framework GameController" "-framework AppKit")
+endif()
+
+target_link_libraries(ImGui PUBLIC
   Core
   Renderer
   Window
-  Freetype::Freetype
 )
 
-if (APPLE)
-target_link_libraries(ImGui "-framework GameController")
-target_link_libraries(ImGui "-framework AppKit")
-endif()
+target_link_libraries(ImGui PRIVATE
+  Freetype::Freetype
+  ${PLATFORM_LIBS}
+)
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
