@@ -29,7 +29,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(ProjectBrowser, "Project Browser", true)
+	DESCRIBE_REFLECTED_CLASS(ProjectBrowser, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	ProjectBrowser::ProjectBrowser()

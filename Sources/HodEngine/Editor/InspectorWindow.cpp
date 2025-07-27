@@ -37,7 +37,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(InspectorWindow, "Inspector", true)
+	DESCRIBE_REFLECTED_CLASS(InspectorWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	/// @param editorTab 

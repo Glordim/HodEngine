@@ -606,11 +606,11 @@ void embraceTheDarkness()
 	/// @brief 
 	/// @param windowDescription 
 	/// @return 
-	Window* ImGuiManager::FindWindow(WindowDescription* windowDescription) const
+	Window* ImGuiManager::FindWindow(ReflectionDescriptor& windowDescription) const
 	{
 		for (Window* window : _windows)
 		{
-			if (window->GetDescription() == windowDescription)
+			if (&window->GetReflectionDescriptorV() == &windowDescription)
 			{
 				return window;
 			}
@@ -621,13 +621,13 @@ void embraceTheDarkness()
 	/// @brief 
 	/// @param windowDescription 
 	/// @return 
-	Vector<Window*> ImGuiManager::FindWindows(WindowDescription* windowDescription) const
+	Vector<Window*> ImGuiManager::FindWindows(ReflectionDescriptor& windowDescription) const
 	{
 		Vector<Window*> windows;
 
 		for (Window* window : _windows)
 		{
-			if (window->GetDescription() == windowDescription)
+			if (&window->GetReflectionDescriptorV() == &windowDescription)
 			{
 				windows.push_back(window);
 			}

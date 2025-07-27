@@ -20,8 +20,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API SerializedDataEditorPropertiesWindow : public EditorTabWindow
 	{
-		META_TYPE(SerializedDataEditorPropertiesWindow, EditorTabWindow)
-		WINDOW_DESCRIPTION()
+		REFLECTED_CLASS(SerializedDataEditorPropertiesWindow, EditorTabWindow)
 
 	public:
 

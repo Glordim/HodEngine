@@ -14,8 +14,7 @@ namespace hod::editor
 {
 	class HOD_INPUT_EDITOR_API DeviceWindow : public imgui::Window
 	{
-		WINDOW_DESCRIPTION()
-		REFLECTED_CLASS_NO_PARENT(DeviceWindow)
+		REFLECTED_CLASS(DeviceWindow, imgui::Window)
 
 	public:
 

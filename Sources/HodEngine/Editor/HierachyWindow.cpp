@@ -17,7 +17,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(HierachyWindow, "Hierachy", true)
+	DESCRIBE_REFLECTED_CLASS(HierachyWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	struct ChangeParentPayload
 	{

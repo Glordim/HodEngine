@@ -35,7 +35,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(SerializedDataEditorPropertiesWindow, "Properties", true)
+	DESCRIBE_REFLECTED_CLASS(SerializedDataEditorPropertiesWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	/// @param editorTab 

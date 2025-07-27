@@ -13,7 +13,6 @@ using namespace hod::input;
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(DeviceWindow, "Device", false);
 	DESCRIBE_REFLECTED_CLASS(DeviceWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;

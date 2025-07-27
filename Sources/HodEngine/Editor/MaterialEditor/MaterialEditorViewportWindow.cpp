@@ -39,7 +39,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(MaterialEditorViewportWindow, "Viewport", true)
+	DESCRIBE_REFLECTED_CLASS(MaterialEditorViewportWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	/// @param editorTab 

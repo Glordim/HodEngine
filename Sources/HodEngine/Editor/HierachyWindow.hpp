@@ -24,8 +24,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API HierachyWindow : public EditorTabWindow
 	{
-		META_TYPE(HierachyWindow, imgui::Window)
-		WINDOW_DESCRIPTION()
+		REFLECTED_CLASS(HierachyWindow, EditorTabWindow)
 
 	public:
 

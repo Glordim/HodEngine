@@ -56,11 +56,11 @@ namespace hod::imgui
 
 		template<typename Window_>
 		Window_*						FindWindow() const;
-		Window*							FindWindow(WindowDescription* windowDescription) const;
+		Window*							FindWindow(ReflectionDescriptor& windowDescription) const;
 
 		template<typename Window_>
 		Vector<Window*>					FindWindows() const;
-		Vector<Window*>					FindWindows(WindowDescription* windowDescription) const;
+		Vector<Window*>					FindWindows(ReflectionDescriptor& windowDescription) const;
 
 		void							CloseAllWindow();
 		void							DestroyAllWindow();

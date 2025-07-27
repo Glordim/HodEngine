@@ -5,6 +5,11 @@
 
 namespace hod::window
 {
+	DESCRIBE_REFLECTED_CLASS(Window, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
+
 	/// @brief 
 	Window::~Window()
 	{

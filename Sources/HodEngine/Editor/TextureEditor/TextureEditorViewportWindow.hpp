@@ -20,8 +20,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API TextureEditorViewportWindow : public EditorTabWindow
 	{
-		META_TYPE(TextureEditorViewportWindow, EditorTabWindow)
-		WINDOW_DESCRIPTION()
+		REFLECTED_CLASS(TextureEditorViewportWindow, EditorTabWindow)
 
 	public:
 

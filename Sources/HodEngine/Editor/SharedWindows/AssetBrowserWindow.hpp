@@ -12,8 +12,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API AssetBrowserWindow : public imgui::Window
 	{
-		META_TYPE(AssetBrowserWindow, imgui::Window)
-		WINDOW_DESCRIPTION()
+		REFLECTED_CLASS(AssetBrowserWindow, imgui::Window)
 
 	public:
 

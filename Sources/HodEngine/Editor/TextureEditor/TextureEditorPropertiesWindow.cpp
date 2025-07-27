@@ -38,7 +38,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(TextureEditorPropertiesWindow, "Properties", true)
+	DESCRIBE_REFLECTED_CLASS(TextureEditorPropertiesWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	/// @param editorTab 

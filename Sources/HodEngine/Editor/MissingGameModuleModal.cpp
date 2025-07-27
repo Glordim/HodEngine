@@ -14,7 +14,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(MissingGameModuleModal, "MissingGameModuleModal", true)
+	DESCRIBE_REFLECTED_CLASS(MissingGameModuleModal, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	MissingGameModuleModal::MissingGameModuleModal()

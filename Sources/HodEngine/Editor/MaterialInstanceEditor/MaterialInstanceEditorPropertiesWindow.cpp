@@ -40,7 +40,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(MaterialInstanceEditorPropertiesWindow, "Properties", true)
+	DESCRIBE_REFLECTED_CLASS(MaterialInstanceEditorPropertiesWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	/// @param editorTab 

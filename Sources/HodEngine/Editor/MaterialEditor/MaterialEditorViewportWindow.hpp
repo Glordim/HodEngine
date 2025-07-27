@@ -27,8 +27,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API MaterialEditorViewportWindow : public EditorTabWindow
 	{
-		META_TYPE(MaterialEditorViewportWindow, EditorTabWindow)
-		WINDOW_DESCRIPTION()
+		REFLECTED_CLASS(MaterialEditorViewportWindow, EditorTabWindow)
 
 	public:
 

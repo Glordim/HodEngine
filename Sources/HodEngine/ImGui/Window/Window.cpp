@@ -1,6 +1,5 @@
 #include "HodEngine/ImGui/Pch.hpp"
-#include "HodEngine/ImGui/Window/Window.hpp" 
-#include "HodEngine/ImGui/Window/WindowDescription.hpp"
+#include "HodEngine/ImGui/Window/Window.hpp"
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 
@@ -8,6 +7,11 @@
 
 namespace hod::imgui
 {
+	DESCRIBE_REFLECTED_CLASS(Window, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
+
 	/// @brief 
 	Window::Window()
 	{
@@ -58,13 +62,13 @@ namespace hod::imgui
 		const char* title = nullptr;
 		if (_title.empty())
 		{
-			title = GetDescription()->GetName();
+			title = GetReflectionDescriptorV().GetDisplayName().c_str();
 		}
 		else
 		{
 			title = _title.c_str();
 		}
-		_identifier = std::format("{}###{}_{}", title, GetDescription()->GetName(), _id);
+		_identifier = std::format("{}###{}_{}", title, GetReflectionDescriptorV().GetTypeName(), _id);
 		return _identifier.c_str();
 	}
 

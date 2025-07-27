@@ -2,7 +2,6 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include <HodEngine/ImGui/Window/Window.hpp>
-#include <HodEngine/ImGui/Window/WindowDescription.hpp>
 
 namespace hod::editor
 {
@@ -11,6 +10,8 @@ namespace hod::editor
     /// @brief 
     class HOD_EDITOR_API EditorTabWindow : public imgui::Window
     {
+        REFLECTED_CLASS(EditorTabWindow, imgui::Window)
+
     public:
         EditorTabWindow(EditorTab* owner = nullptr); // todo remove nullptr default value
         ~EditorTabWindow() override;

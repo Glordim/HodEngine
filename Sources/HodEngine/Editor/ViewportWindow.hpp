@@ -22,8 +22,7 @@ namespace hod::editor
 	/// @brief 
 	class HOD_EDITOR_API ViewportWindow : public EditorTabWindow
 	{
-		META_TYPE(ViewportWindow, EditorTabWindow)
-		WINDOW_DESCRIPTION()
+		REFLECTED_CLASS(ViewportWindow, EditorTabWindow)
 
 	public:
 
@@ -63,7 +62,6 @@ namespace hod::editor
 
 		PhysicsDebugDrawer*			_physicsDebugDrawer = nullptr;
 		bool						_debugPicker = false;
-		bool						_wasFocus = false;
 
 		bool						_drawGrid = true;
 	};

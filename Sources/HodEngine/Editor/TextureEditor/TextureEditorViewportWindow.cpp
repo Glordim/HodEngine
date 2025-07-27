@@ -39,7 +39,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(TextureEditorViewportWindow, "Viewport", true)
+	DESCRIBE_REFLECTED_CLASS(TextureEditorViewportWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	/// @param editorTab 

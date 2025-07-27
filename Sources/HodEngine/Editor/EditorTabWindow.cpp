@@ -4,6 +4,11 @@
 
 namespace hod::editor
 {
+    DESCRIBE_REFLECTED_CLASS(EditorTabWindow, reflectionDescriptor)
+    {
+        (void)reflectionDescriptor;
+    }
+
     /// @brief 
     /// @param owner 
     EditorTabWindow::EditorTabWindow(EditorTab* owner)

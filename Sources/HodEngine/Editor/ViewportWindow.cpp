@@ -43,7 +43,10 @@
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(ViewportWindow, "Viewport", false)
+	DESCRIBE_REFLECTED_CLASS(ViewportWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
 	/// @brief 
 	ViewportWindow::ViewportWindow(EditorTab* editorTab)
@@ -331,7 +334,7 @@ namespace hod::editor
 						2, 1, 3
 					};
 
-					_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), nullptr, nullptr, positions.size(), indices.data(), indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
+					_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
 				}
 			}
 			else

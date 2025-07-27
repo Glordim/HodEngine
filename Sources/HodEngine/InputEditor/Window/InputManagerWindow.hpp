@@ -9,8 +9,7 @@ namespace hod::editor
 {
 	class HOD_INPUT_EDITOR_API InputManagerWindow : public imgui::Window
 	{
-		WINDOW_DESCRIPTION()
-		REFLECTED_CLASS_NO_PARENT(InputManagerWindow)
+		REFLECTED_CLASS(InputManagerWindow, imgui::Window)
 
 	public:
 

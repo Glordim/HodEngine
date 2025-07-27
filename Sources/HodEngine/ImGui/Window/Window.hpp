@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/ImGui/Export.hpp"
 
-#include "HodEngine/ImGui/Window/WindowDescription.hpp"
+#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -16,7 +16,7 @@ namespace hod::imgui
 	/// @brief 
 	class HOD_IMGUI_API Window
 	{
-		BASE_META_TYPE(Window)
+		REFLECTED_CLASS_NO_PARENT(Window)
 
 	public:
 
@@ -28,8 +28,6 @@ namespace hod::imgui
 		virtual bool				Draw();
 		
 		virtual void				DrawContent() = 0;
-
-		virtual WindowDescription*	GetDescription() = 0;
 
 		bool						IsClosed() const;
 		void						Close();
