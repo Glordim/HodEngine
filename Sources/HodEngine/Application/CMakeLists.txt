@@ -21,6 +21,7 @@ endif()
 assign_source_group(${Srcs}) # for VS
 
 add_library(Application ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Application PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(Application PRIVATE "Pch.hpp")
 set_property(TARGET Application PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 

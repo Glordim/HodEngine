@@ -120,6 +120,13 @@ if (BUILD_UNIT_TESTS)
 
   enable_testing()
   add_subdirectory("Sources/Tests/Core")
+
+  set_target_properties(gtest      PROPERTIES FOLDER "Test/GoogleTest")
+  set_target_properties(gmock      PROPERTIES FOLDER "Test/GoogleTest")
+  set_target_properties(gtest_main PROPERTIES FOLDER "Test/GoogleTest")
+  set_target_properties(gmock_main PROPERTIES FOLDER "Test/GoogleTest")
+
+  set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
 endif()
 
 set(CMAKE_SUPPRESS_REGENERATION true)

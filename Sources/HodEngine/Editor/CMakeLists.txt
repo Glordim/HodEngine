@@ -40,6 +40,7 @@ endforeach()
 assign_source_group(${Srcs}) # for VS
 
 add_library(Editor ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Editor PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(Editor PRIVATE "Pch.hpp")
 set_property(TARGET Editor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 

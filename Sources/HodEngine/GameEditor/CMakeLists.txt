@@ -7,6 +7,7 @@ project(GameEditor)
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 add_library(GameEditor ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(GameEditor PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(GameEditor PRIVATE "Pch.hpp")
 set_property(TARGET GameEditor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 

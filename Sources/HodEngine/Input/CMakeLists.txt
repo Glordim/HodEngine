@@ -11,6 +11,7 @@ else()
 endif()
 
 add_library(Input ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Input PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(Input PRIVATE "Pch.hpp")
 set_property(TARGET Input PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 

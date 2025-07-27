@@ -104,6 +104,7 @@ list(APPEND Srcs ${GeneratedFileCPP})
 assign_source_group(${Srcs}) # for VS
 
 add_library(ImGui ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(ImGui PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(ImGui PRIVATE "Pch.hpp")
 set_property(TARGET ImGui PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 

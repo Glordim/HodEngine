@@ -21,6 +21,7 @@ endif()
 assign_source_group(${Srcs}) # for VS
 
 add_library(Window ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Window PROPERTIES FOLDER "HodEngine")
 set_property(TARGET Window PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 set(UNIX_LIBS "")

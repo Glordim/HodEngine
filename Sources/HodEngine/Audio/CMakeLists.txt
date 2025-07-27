@@ -21,6 +21,7 @@ endif()
 assign_source_group(${Srcs}) # for VS
 
 add_library(Audio ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Audio PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(Audio PRIVATE "Pch.hpp")
 set_property(TARGET Audio PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 

@@ -7,6 +7,7 @@ project(UIEditor)
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 add_library(UIEditor ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(UIEditor PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(UIEditor PRIVATE "Pch.hpp")
 set_property(TARGET UIEditor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 

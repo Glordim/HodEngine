@@ -21,6 +21,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(Core ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Core PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(Core PRIVATE "Pch.hpp")
 set_property(TARGET Core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 

@@ -7,6 +7,7 @@ project(CoreEditor)
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 add_library(CoreEditor ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(CoreEditor PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(CoreEditor PRIVATE "Pch.hpp")
 set_property(TARGET CoreEditor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
