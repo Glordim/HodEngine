@@ -100,11 +100,11 @@ namespace hod
             
             if (shaderType == Shader::ShaderType::Vertex)
             {
-                _renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer(), 0, 1);
+                _renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer(), 0, 0);
             }
             else if (shaderType == Shader::ShaderType::Fragment)
             {
-                _renderCommandEncoder->setFragmentBuffer(static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer(), 0, 1);
+                _renderCommandEncoder->setFragmentBuffer(static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer(), 0, 0);
             }
 		}
 
@@ -158,6 +158,12 @@ namespace hod
             _renderCommandEncoder->setScissorRect(scissorRect);
 		}
 
+		void MetalCommandBuffer::SetMaterial(const Material* material)
+		{
+			_material = static_cast<const MetalMaterial*>(material);
+			_renderCommandEncoder->setRenderPipelineState(_material->GetNativeRenderPipeline());
+		}
+
 		/// @brief 
 		/// @param materialInstance 
 		/// @param setOffset 
@@ -177,9 +183,16 @@ namespace hod
 		/// @param offset 
 		void MetalCommandBuffer::SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset)
 		{
-			// todo count
-			(void)count;
-            _renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(vertexBuffer[0])->GetNativeBuffer(), offset, 0);
+			MTL::Buffer** mtlBuffers = (MTL::Buffer**)alloca(sizeof(MTL::Buffer*) * count);
+			NS::UInteger* bufferOffsets = (NS::UInteger*)alloca(sizeof(NS::UInteger) * count);
+			NS::Range range = _material->GetVertexAttributeBufferRange();
+
+			for (uint32_t index = 0; index < count; ++index)
+			{
+				mtlBuffers[index] = static_cast<MetalBuffer*>(vertexBuffer[index])->GetNativeBuffer();
+				bufferOffsets[index] = offset;
+			}
+			_renderCommandEncoder->setVertexBuffers(mtlBuffers, bufferOffsets, range);
 		}
 		
 		/// @brief 

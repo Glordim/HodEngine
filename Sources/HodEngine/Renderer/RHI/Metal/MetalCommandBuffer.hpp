@@ -14,6 +14,7 @@ namespace hod
 	namespace renderer
 	{
 		class MetalBuffer;
+		class MetalMaterial;
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
@@ -47,6 +48,7 @@ namespace hod
 			void				SetViewport(const Rect& viewport) override;
 			void				SetScissor(const Rect& scissor) override;
 
+			void				SetMaterial(const Material* material) override;
 			void				SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) override;
 			void				SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset = 0) override;
 			void				SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) override;
@@ -63,6 +65,7 @@ namespace hod
 			MTL::CommandBuffer*	_commandBuffer = nullptr;
 			MTL::RenderCommandEncoder*	_renderCommandEncoder = nullptr;
             MetalBuffer* _indexBuffer = nullptr;
+			const MetalMaterial* _material = nullptr;
             uint32_t _indexBufferOffset = 0;
             uint32_t _renderPassWidth = 0;
             uint32_t _renderPassHeight = 0;

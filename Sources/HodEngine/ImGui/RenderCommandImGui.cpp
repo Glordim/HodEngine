@@ -44,15 +44,10 @@ namespace hod::imgui
 			return;
 		}
 
-		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
-
+		commandBuffer->SetMaterial(ImGuiManager::GetInstance()->GetMaterial());
 		commandBuffer->SetViewport(_viewport);
 
-		struct Constant
-		{
-			Vector2	_scale;
-			Vector2	_translate;
-		};
+		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 
 		for (size_t drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
 		{
@@ -78,13 +73,20 @@ namespace hod::imgui
 				indexBuffer->Unlock();
 			}
 			commandBuffer->DeleteAfterRender(indexBuffer);
-			commandBuffer->SetIndexBuffer(indexBuffer, 0);
+			commandBuffer->SetIndexBuffer(indexBuffer);
+
+			struct Constant
+			{
+				Vector2	_scale;
+				Vector2	_translate;
+			};
 
 			Constant constant;
 			constant._scale.SetX(2.0f / drawList->_displaySize.GetX());
 			constant._scale.SetY(2.0f / drawList->_displaySize.GetY());
 			constant._translate.SetX(-1.0f - drawList->_displayPosition.GetX() * constant._scale.GetX());
 			constant._translate.SetY(-1.0f - drawList->_displayPosition.GetY() * constant._scale.GetY());
+			commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
 
 			for (size_t commandIndex = 0; commandIndex < drawList->_commands.size(); ++commandIndex)
 			{
@@ -94,7 +96,6 @@ namespace hod::imgui
 
 				materialInstance->SetTexture("image", command._texture);
 				commandBuffer->SetMaterialInstance(materialInstance, 0);
-				commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
 				commandBuffer->DeleteAfterRender(materialInstance);
 
 				commandBuffer->SetScissor(command._clipRect);

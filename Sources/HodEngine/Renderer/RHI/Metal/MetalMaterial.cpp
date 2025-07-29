@@ -30,7 +30,9 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		MetalMaterial::MetalMaterial() : Material()
+		MetalMaterial::MetalMaterial()
+        : Material()
+        , _vertexAttributeBufferRange(0, 0)
 		{
 		}
 
@@ -56,27 +58,50 @@ namespace hod
             MTL::Function* fragmentFunction = static_cast<MetalShader*>(fragmentShader)->GetNativeFunction();
             //MTL::VertexDescriptor* vertexDescriptor = static_cast<MetalVertexInput*>(vertexInputs)->GetNativeVertexDescriptor();
             
+            uint32_t lastUsedBufferIndex = 7; // TODO
+            _vertexAttributeBufferRange.location = lastUsedBufferIndex + 1;
+
             MTL::VertexDescriptor* vertexDescriptor = MTL::VertexDescriptor::alloc()->init();
 
             uint32_t offset = 0;
             
             if (vertexInputs != nullptr)
             {
+				Vector<uint32_t> strides;
+				strides.resize(vertexInputCount, 0);
                 for (uint32_t i = 0; i < vertexInputCount; ++i)
                 {
+					uint32_t bufferIndex = vertexInputs[i]._binding;
+					uint32_t offset = vertexInputs[i]._offset;
+					uint32_t size = FormatToSize[vertexInputs[i]._format];
+					
                     MTL::VertexAttributeDescriptor* vertexAttribute = MTL::VertexAttributeDescriptor::alloc()->init();
                     vertexAttribute->setOffset(offset);
-                    vertexAttribute->setBufferIndex(0);
+                    vertexAttribute->setBufferIndex(_vertexAttributeBufferRange.location + bufferIndex);
                     vertexAttribute->setFormat(FormatToMetalFormat[vertexInputs[i]._format]);
-
-                    offset += FormatToSize[vertexInputs[i]._format];
-                    
                     vertexDescriptor->attributes()->setObject(vertexAttribute, i);
                     vertexAttribute->release();
+					
+					strides[bufferIndex] = std::max(strides[bufferIndex], offset + size);
                 }
+				
+				_vertexAttributeBufferRange.length = 0;
+				for (uint32_t i = 0; i < strides.size(); ++i)
+				{
+					if (strides[i] == 0)
+						continue;
+					
+					MTL::VertexBufferLayoutDescriptor* layout = MTL::VertexBufferLayoutDescriptor::alloc()->init();
+					layout->setStride(strides[i]);
+					vertexDescriptor->layouts()->setObject(layout, _vertexAttributeBufferRange.location + i);
+					layout->release();
+					
+					++_vertexAttributeBufferRange.length;
+				}
             }
             else
             {
+				assert(false);
                 NS::Array* stageInputs = vertexFunction->stageInputAttributes();
                 for (NS::UInteger i = 0; i < stageInputs->count(); ++i)
                 {
@@ -106,10 +131,6 @@ namespace hod
                     vertexAttribute->release();
                 }
             }
-            MTL::VertexBufferLayoutDescriptor* layout = MTL::VertexBufferLayoutDescriptor::alloc()->init();
-            layout->setStride(offset);
-            vertexDescriptor->layouts()->setObject(layout, 0);
-            layout->release();
             
             // Create a pipeline descriptor
             MTL::RenderPipelineDescriptor* pipelineDescriptor = MTL::RenderPipelineDescriptor::alloc()->init();
@@ -143,6 +164,11 @@ namespace hod
         MTL::RenderPipelineState* MetalMaterial::GetNativeRenderPipeline() const
         {
             return _renderPipelineState;
+        }
+
+        NS::Range MetalMaterial::GetVertexAttributeBufferRange() const
+        {
+            return _vertexAttributeBufferRange;
         }
 	}
 }
