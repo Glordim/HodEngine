@@ -1,5 +1,6 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/InputManager.hpp"
+#include "HodEngine/Input/API/WindowLib/ApiWindowLib.hpp"
 
 namespace hod::input
 {
@@ -7,6 +8,10 @@ namespace hod::input
 	/// @return 
 	bool InputManager::InitializeApis()
 	{
+		if (CreateApi<ApiWindowLib>() == false)
+		{
+			return false;
+		}
 		return true;
 	}
 }

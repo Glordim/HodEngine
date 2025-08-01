@@ -10,6 +10,8 @@
 
 namespace hod::window
 {
+	class IDesktopWindowInputListener;
+
 	/// @brief 
 	class HOD_WINDOW_API DesktopWindow : public Window
 	{
@@ -41,19 +43,30 @@ namespace hod::window
 		void					SetMousePosition(const Vector2& mousePosition);
 		void					SetMouseButton(MouseButton button, bool pressed);
 
+		void					RegisterInputListener(IDesktopWindowInputListener* inputListener);
+		void					UnregisterInputListener(IDesktopWindowInputListener* inputListener);
+
 		void					Close();
 
 	protected:
 
 		void					SetFocused(bool focused);
 
+	public:
+
+		void					EmitKeyPressed(int keycode);
+		void					EmitKeyReleased(int keycode);
+		void					EmitMouseButtonPressed(int button);
+		void					EmitMouseButtonReleased(int button);
+		void					EmitMouseMoved(int x, int y);
+
     private:
 
-    	Vector2 								_mousePosition;
-        std::array<bool, MouseButton::Count>	_mouseButtons = { false, false, false };
+    	Vector2 				_mousePosition;
 
 		bool					_focused = true;
-
 		Event<bool>				_focusEvent;
+
+		Vector<IDesktopWindowInputListener*>	_inputListeners;
 	};
 }

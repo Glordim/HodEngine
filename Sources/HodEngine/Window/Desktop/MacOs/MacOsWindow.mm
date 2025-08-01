@@ -5,14 +5,76 @@
 #include <Cocoa/Cocoa.h>
 
 @interface CustomView : NSView
+{
+	hod::window::MacOsWindow* window;
+}
+
+- (instancetype)initWithFrame:(NSRect)frameRect window:(hod::window::MacOsWindow*)cppWindow;
 @end
 
 @implementation CustomView
 
-- (void)drawRect:(NSRect)dirtyRect {
+- (instancetype)initWithFrame:(NSRect)frameRect window:(hod::window::MacOsWindow*)cppWindow
+{
+    self = [super initWithFrame:frameRect];
+    if (self)
+	{
+        window = cppWindow;
+    }
+    return self;
+}
+
+- (void)drawRect:(NSRect)dirtyRect
+{
 	[[NSColor whiteColor] setFill];
 	NSRectFill(dirtyRect);
 	[super drawRect:dirtyRect];
+}
+
+- (void)keyDown:(NSEvent*)event
+{
+    window->EmitKeyPressed([event keyCode]);
+}
+
+- (void)keyUp:(NSEvent*)event
+{
+    window->EmitKeyReleased([event keyCode]);
+}
+
+- (void)mouseDown:(NSEvent*)event
+{
+    window->EmitMouseButtonPressed(0);
+}
+
+- (void)mouseUp:(NSEvent*)event
+{
+    window->EmitMouseButtonReleased(0);
+}
+
+- (void)rightMouseDown:(NSEvent*)event
+{
+    window->EmitMouseButtonPressed(1);
+}
+
+- (void)rightMouseUp:(NSEvent*)event
+{
+    window->EmitMouseButtonReleased(1);
+}
+
+- (void)otherMouseDown:(NSEvent*)event
+{
+    window->EmitMouseButtonPressed(2);
+}
+
+- (void)otherMouseUp:(NSEvent*)event
+{
+    window->EmitMouseButtonReleased(2);
+}
+
+- (void)mouseMoved:(NSEvent*)event
+{
+    NSPoint location = [self convertPoint:[event locationInWindow] fromView:nil];
+    window->EmitMouseMoved(location.x, location.y);
 }
 
 @end
@@ -75,7 +137,7 @@ namespace hod::window
 		[_window setTitle:@"Window"];
         [_window makeKeyAndOrderFront:(nil)];
 
-        CustomView *customView = [[CustomView alloc] initWithFrame:frame];
+        CustomView *customView = [[CustomView alloc] initWithFrame:frame window:this];
 		_view = customView;
 		_view.wantsLayer = YES;
 
