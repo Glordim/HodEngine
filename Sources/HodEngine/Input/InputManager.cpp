@@ -70,30 +70,6 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @param inputId 
-	/// @return 
-	Input::State InputManager::GetInputState(InputId inputId) const
-	{
-		Input::State maxState;
-		maxState._inputId = inputId;
-		maxState._flags = Input::Flag::Released;
-
-		for (Api* api : _apis)
-		{
-			for (Device* device : api->GetDevices())
-			{
-				Input* input = device->GetInput(inputId);
-				if (input != nullptr)
-				{
-					maxState.Merge(input->GetState());
-				}
-			}
-		}
-
-		return maxState;
-	}
-
 	const Vector<Device*> InputManager::GetDevices() const
 	{
 		return _devices;

@@ -24,8 +24,6 @@ namespace hod::input
 		bool							Initialize();
 		void							UpdateJob();
 
-		Input::State					GetInputState(InputId inputId) const;
-
 		const Vector<Device*>			GetDevices() const;
 
 	private:

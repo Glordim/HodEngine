@@ -1,54 +1,28 @@
 #pragma once
 #include "HodEngine/Input/Export.hpp"
 
-#include "HodEngine/Input/InputId.hpp"
+#include "HodEngine/Input/StateView.hpp"
+
+#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
 namespace hod::input
 {
 	class Device;
 
+	union Identifier
+	{
+		char _chars[8];
+		uint64_t _value;
+	};
+
 	/// @brief 
 	class HOD_INPUT_API Input
 	{
-		friend class Device;
+		REFLECTED_CLASS_NO_PARENT(Input)
 
 	public:
 
-		/// @brief 
-		struct HOD_INPUT_API State
-		{
-						State(float value = 0.0f, uint8_t flags = 0, InputId inputId = InputId::Unknown);
-			void		Merge(const State& state);
-			bool		IsPressed() const;
-			bool		IsJustPressed() const;
-			bool		IsReleased() const;
-			bool		IsJustReleased() const;
-			bool		IsJustRepeat() const;
-			bool		IsJustPressedOrRepeat() const;
-
-			float		_value;
-			uint8_t		_flags;
-			InputId		_inputId;
-			//UID	_deviceUid;
-		};
-
-		enum Flag : uint8_t // Keep an order by Priority (see STATE::Merge)
-		{
-			Released = 1 << 0,
-			Pressed = 1 << 1,
-			JustReleased = 1 << 2,
-			JustPressed = 1 << 3,
-			JustRepeat = 1 << 4,
-		};
-
-	private:
-
-		static constexpr float RepeatThreshold = 0.75f;
-		static constexpr float RepeatTimestep = 0.10f;
-
-	public:
-
-										Input(InputId inputId);
+										Input(Identifier identifier, const String& displayName, const StateView& stateView, const State* state, const State* previousState);
 										Input(const Input& other) = delete;
 										Input(Input&& other) = delete;
 										~Input() = default;
@@ -56,25 +30,21 @@ namespace hod::input
 		Input&							operator = (const Input& other) = delete;
 		Input&							operator = (Input&& other) = delete;
 
-		InputId							GetInputId() const;
-		float							GetValue() const;
-		uint8_t							GetFlags() const;
-		State							GetState() const;
+		Identifier						GetIdentifier() const;
+		const String&					GetDisplayName() const;
+		const StateView&				GetStateView() const;
+		const State*					GetState() const;
+		const State*					GetPreviousState() const;
+
+		virtual String					ToString() const = 0;
 
 	private:
 
-		void							SetValue(float newValue);
+		const Identifier				_identifier;
+		String							_displayName;
+		const StateView					_stateView;
 
-		void							ClearInputFlags();
-		void							UpdateInputFlags();
-
-	private:
-
-		const InputId					_inputId;
-		float							_value = 0.0f;
-		uint8_t							_flags = Flag::Released;
-
-		double							_elapsedTime = 0.0f;
-		uint32_t						_repeatCount = 0;
+		const State*					_state;
+		const State*					_previousState;
 	};
 }

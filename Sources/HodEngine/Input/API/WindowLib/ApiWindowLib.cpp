@@ -24,6 +24,8 @@ namespace hod::input
 		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(window::DisplayManager::GetInstance()->GetMainWindow());
 		window->RegisterInputListener(this);
 
+		AddDevice(&_keyboard);
+
 		return true;
 	}
 
@@ -37,7 +39,7 @@ namespace hod::input
 	/// @brief 
 	void ApiWindowLib::UpdateDeviceValues()
 	{
-		
+		_keyboard.UpdateState();
 	}
 
 	void ApiWindowLib::OnKeyPressed(int keyCode)

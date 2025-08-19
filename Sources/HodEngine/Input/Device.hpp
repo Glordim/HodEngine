@@ -12,6 +12,7 @@ namespace hod::input
 {
 	class Input;
 	class Feedback;
+	class State;
 
 	/// @brief 
 	class HOD_INPUT_API Device
@@ -60,17 +61,16 @@ namespace hod::input
 		Input*					GetInput(InputId inputId) const;
 		const Vector<Input*>&	GetInputs() const;
 
-		virtual bool			ApplyFeedback(Feedback& feedback) = 0;
+		virtual const State*	GetState() const = 0;
+		virtual uint32_t		GetStateSize() const = 0;
 
-		void					ReleaseAllInputs();
+		virtual void			UpdateState() = 0;
+
+		virtual bool			ApplyFeedback(Feedback& feedback) = 0;
 
 	protected:
 
 		void					AddInput(Input* input);
-		void					SetInputValue(Input& input, float value);
-
-		void					ClearInputFlags();
-		void					UpdateInputFlags();
 
 		void					SetConnected(bool connected);
 		void					SetProduct(Product product);

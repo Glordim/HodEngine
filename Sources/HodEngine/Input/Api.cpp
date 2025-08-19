@@ -57,11 +57,6 @@ namespace hod::input
 	/// @brief 
 	void Api::Update()
 	{
-		for (Device* device : _devices)
-		{
-			device->ClearInputFlags();
-		}
-
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
 /*
 		DesktopApplication* desktopApplication = DesktopApplication::GetInstance();
@@ -87,11 +82,6 @@ namespace hod::input
 */
 #endif
 		UpdateDeviceValues();
-
-		for (Device* device : _devices)
-		{
-			device->UpdateInputFlags();
-		}
 	}
 
 	/// @brief 

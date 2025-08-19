@@ -11,6 +11,8 @@
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
+#include "HodEngine/InputEditor/Helper.hpp"
+
 using namespace hod::input;
 
 namespace hod::editor
@@ -19,13 +21,6 @@ namespace hod::editor
 	{
 		(void)reflectionDescriptor;
 	}
-
-	const char* deviceTypeToIcon[EnumTrait::GetCount<Device::Type>()] = {
-		ICON_MDI_CONTROLLER,
-		ICON_MDI_KEYBOARD,
-		ICON_MDI_MOUSE,
-		"",
-	};
 
 	void InputManagerWindow::DrawContent()
 	{

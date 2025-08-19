@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
-project(Input)
+if (APPLE)
+    project(Input LANGUAGES CXX OBJCXX)
+else()
+    project(Input LANGUAGES CXX)
+endif()
 
 if (WIN32)
   CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
@@ -26,9 +30,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   ${Application_INCLUDES}
 )
 
-target_link_libraries(Input
+if (APPLE)
+  set(PLATFORM_LIBS "-framework GameController")
+endif()
+
+target_link_libraries(Input PUBLIC
   Core
   Window
+)
+
+target_link_libraries(Input PRIVATE
+  ${PLATFORM_LIBS}
 )
 
 if(MSVC)

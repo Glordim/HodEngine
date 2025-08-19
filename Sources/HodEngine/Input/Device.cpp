@@ -31,6 +31,8 @@ namespace hod::input
 	/// @return 
 	Input* Device::GetInput(InputId inputId) const
 	{
+		(void)inputId;
+		/*
 		for (Input* input : _inputs)
 		{
 			if (input->GetInputId() == inputId)
@@ -38,6 +40,7 @@ namespace hod::input
 				return input;
 			}
 		}
+			*/
 		return nullptr;
 	}
 
@@ -53,37 +56,6 @@ namespace hod::input
 	void Device::AddInput(Input* input)
 	{
 		_inputs.push_back(input);
-		SetInputValue(*input, 0.0f);
-	}
-
-	/// @brief 
-	void Device::ClearInputFlags()
-	{
-		for (Input* input : _inputs)
-		{
-			input->ClearInputFlags();
-		}
-	}
-
-	/// @brief 
-	void Device::UpdateInputFlags()
-	{
-		for (Input* input : _inputs)
-		{
-			input->UpdateInputFlags();
-		}
-	}
-
-	/// @brief 
-	void Device::ReleaseAllInputs()
-	{
-		for (Input* input : _inputs)
-		{
-			if (input->GetValue() != 0.0f) // Check if not already release to don't override JustRelease flag
-			{
-				input->SetValue(0.0f);
-			}
-		}
 	}
 
 	/// @brief 
@@ -136,13 +108,5 @@ namespace hod::input
 		{
 			_connected = connected;
 		}
-	}
-
-	/// @brief 
-	/// @param input 
-	/// @param value 
-	void Device::SetInputValue(Input& input, float value)
-	{
-		input.SetValue(value);
 	}
 }
