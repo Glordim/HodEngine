@@ -12,7 +12,7 @@ namespace hod::input
 
 	public:
 
-		InputButton(Identifier identifier, const String& displayName, const StateView& stateView, const State* state, const State* previousState);
+		InputButton(Identifier identifier, const String& displayName, const StateView& stateView);
 
 		bool	ReadValue() const;
 		bool	IsPressed() const;

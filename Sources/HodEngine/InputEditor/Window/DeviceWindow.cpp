@@ -31,11 +31,18 @@ namespace hod::editor
 	{
 		if (ImGui::CollapsingHeader("Raw State"))
 		{
-			const State* state = _device->GetState();
+			const State* state = _device->GetCurrentState();
 			const uint32_t stateSize = _device->GetStateSize();
 
 			uint32_t byteIndex = 0;
-			for (uint32_t line = 0; line < (stateSize / 8); ++line)
+
+			uint32_t lineCount = (stateSize / 8);
+			if (stateSize % 8 > 0)
+			{
+				++lineCount;
+			}
+
+			for (uint32_t line = 0; line < lineCount; ++line)
 			{
 				ImGui::Text("#%u", line * 8);
 				ImGui::SameLine(0.0f, 35.0f);
@@ -51,15 +58,15 @@ namespace hod::editor
 						else
 							ImGui::Text("0");
 
-						if (bitIndex < 7)
-							ImGui::SameLine(0.0f, 0.0f);
+						ImGui::SameLine(0.0f, 0.0f);
 					}
 
-					if (byteInThisLine < 7)
-						ImGui::SameLine(0.0f, 10.0f);
+					ImGui::SameLine(0.0f, 10.0f);
 
 					++byteIndex;
 				}
+
+				ImGui::NewLine();
 			}
 		}
 		if (ImGui::BeginTable("InputTable", 7, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg))

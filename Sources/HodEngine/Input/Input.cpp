@@ -8,14 +8,18 @@ namespace hod::input
 		(void)reflectionDescriptor;
 	}
 
-	Input::Input(Identifier identifier, const String& displayName, const StateView& stateView, const State* state, const State* previousState)
+	Input::Input(Identifier identifier, const String& displayName, const StateView& stateView)
 	: _identifier(identifier)
 	, _displayName(displayName)
 	, _stateView(stateView)
-	, _state(state)
-	, _previousState(previousState)
 	{
 
+	}
+
+	void Input::SetStatePtr(const State* state, const State* previousState)
+	{
+		_state = state;
+		_previousState = previousState;
 	}
 
 	/// @brief 

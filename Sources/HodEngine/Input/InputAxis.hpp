@@ -12,7 +12,7 @@ namespace hod::input
 
 	public:
 
-		InputAxis(Identifier identifier, const String& displayName, const StateView& stateView, const State* state, const State* previousState);
+		InputAxis(Identifier identifier, const String& displayName, const StateView& stateView);
 
 		float	ReadValue() const;
 

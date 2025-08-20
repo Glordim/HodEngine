@@ -5,7 +5,7 @@ namespace hod::input
 {
 	class State;
 
-	class StateView
+	class HOD_INPUT_API StateView
 	{
 	public:
 

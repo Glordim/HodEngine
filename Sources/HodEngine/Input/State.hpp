@@ -3,7 +3,7 @@
 
 namespace hod::input
 {
-	class State
+	class HOD_INPUT_API State
 	{
 		
 	};

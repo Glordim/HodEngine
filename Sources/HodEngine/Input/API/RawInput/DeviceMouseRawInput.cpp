@@ -4,8 +4,19 @@
 
 #include <WinUser.h>
 
+#undef max
+
 namespace hod::input
 {
+	struct MouseState : public State
+	{
+		int16_t		_delta[2];
+		int8_t		_wheel;
+		uint8_t		_buttons;
+	};
+
+	// GetSystemMetrics(SM_SWAPBUTTON) == 0 ? InputId::MouseButtonLeft : InputId::MouseButtonRight
+
 	/// @brief 
 	/// @param handle 
 	/// @param name 
@@ -13,23 +24,7 @@ namespace hod::input
 	DeviceMouseRawInput::DeviceMouseRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_MOUSE&)
 	: DeviceMouse(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
-	, _button0(GetSystemMetrics(SM_SWAPBUTTON) == 0 ? InputId::MouseButtonLeft : InputId::MouseButtonRight) // Check Left-handed mode
-	, _button1(GetSystemMetrics(SM_SWAPBUTTON) == 0 ? InputId::MouseButtonRight : InputId::MouseButtonLeft) // Check Left-handed mode
 	{
-		// Position
-		AddInput(&_axisX);
-		AddInput(&_axisY);
-
-		// Wheel
-		AddInput(&_wheel);
-
-		// Buttons
-		AddInput(&_button0);
-		AddInput(&_button1);
-		AddInput(&_button2);
-		AddInput(&_button3);
-		AddInput(&_button4);
-
 		SetConnected(true);
 	}
 
@@ -49,13 +44,11 @@ namespace hod::input
 		_lastAbsoluteDirty = true;
 	}
 
-	/// @brief 
-	void DeviceMouseRawInput::PrepareUpdate()
+	void DeviceMouseRawInput::ResetNextState()
 	{
-		SetInputValue(_axisX, 0.0f);
-		SetInputValue(_axisY, 0.0f);
-
-		SetInputValue(_wheel, 0.0f);
+		EditNextState<MouseState>()->_delta[0] = 0;
+		EditNextState<MouseState>()->_delta[1] = 0;
+		EditNextState<MouseState>()->_wheel = 0;
 	}
 
 	/// @brief 
@@ -75,13 +68,13 @@ namespace hod::input
 			if (_lastAbsoluteDirty == true)
 			{
 				_lastAbsoluteDirty = false;
-				SetInputValue(_axisX, 0.0f);
-				SetInputValue(_axisY, 0.0f);
+				EditNextState<MouseState>()->_delta[0] = 0;
+				EditNextState<MouseState>()->_delta[1] = 0;
 			}
 			else
 			{
-				SetInputValue(_axisX, _axisX.GetValue() + (float)(absoluteX - _lastAbsoluteX));
-				SetInputValue(_axisY, _axisY.GetValue() + (float)(absoluteY - _lastAbsoluteY));
+				EditNextState<MouseState>()->_delta[0] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[0] + (absoluteX - _lastAbsoluteX), (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
+				EditNextState<MouseState>()->_delta[1] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[1] + (absoluteY - _lastAbsoluteY), (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
 			}
 
 			_lastAbsoluteX = absoluteX;
@@ -89,60 +82,62 @@ namespace hod::input
 		}
 		else
 		{
-			SetInputValue(_axisX, _axisX.GetValue() + (float)rawMouse.lLastX);
-			SetInputValue(_axisY, _axisY.GetValue() + (float)rawMouse.lLastY);
+			EditNextState<MouseState>()->_delta[0] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[0] + (int32_t)rawMouse.lLastX, (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
+			EditNextState<MouseState>()->_delta[1] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[1] + (int32_t)rawMouse.lLastY, (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
 		}
 
 		USHORT uiButtonFlag = rawMouse.usButtonFlags;
 
 		if (uiButtonFlag & RI_MOUSE_WHEEL)
 		{
-			SetInputValue(_wheel, static_cast<float>((SHORT)rawMouse.usButtonData) / (float)WHEEL_DELTA);
+			int32_t detents = EditNextState<MouseState>()->_wheel;
+			detents += (SHORT)rawMouse.usButtonData / WHEEL_DELTA;
+			EditNextState<MouseState>()->_wheel = (int8_t)std::clamp(detents, (int32_t)std::numeric_limits<int8_t>::lowest(), (int32_t)std::numeric_limits<int8_t>::max());
 		}
 
-		if (uiButtonFlag & RI_MOUSE_BUTTON_1_DOWN)
+		if (uiButtonFlag & RI_MOUSE_LEFT_BUTTON_DOWN)
 		{
-			SetInputValue(_button0, 1.0f);
+			EditNextState<MouseState>()->_buttons |= (1 << 0);
 		}
-		else if (uiButtonFlag & RI_MOUSE_BUTTON_1_UP)
+		else if (uiButtonFlag & RI_MOUSE_LEFT_BUTTON_UP)
 		{
-			SetInputValue(_button0, 0.0f);
-		}
-
-		if (uiButtonFlag & RI_MOUSE_BUTTON_2_DOWN)
-		{
-			SetInputValue(_button1, 1.0f);
-		}
-		else if (uiButtonFlag & RI_MOUSE_BUTTON_2_UP)
-		{
-			SetInputValue(_button1, 0.0f);
+			EditNextState<MouseState>()->_buttons &= ~(1 << 0);
 		}
 
-		if (uiButtonFlag & RI_MOUSE_BUTTON_3_DOWN)
+		if (uiButtonFlag & RI_MOUSE_RIGHT_BUTTON_DOWN)
 		{
-			SetInputValue(_button2, 1.0f);
+			EditNextState<MouseState>()->_buttons |= (1 << 1);
 		}
-		else if (uiButtonFlag & RI_MOUSE_BUTTON_3_UP)
+		else if (uiButtonFlag & RI_MOUSE_RIGHT_BUTTON_UP)
 		{
-			SetInputValue(_button2, 0.0f);
+			EditNextState<MouseState>()->_buttons &= ~(1 << 1);
+		}
+
+		if (uiButtonFlag & RI_MOUSE_MIDDLE_BUTTON_DOWN)
+		{
+			EditNextState<MouseState>()->_buttons |= (1 << 2);
+		}
+		else if (uiButtonFlag & RI_MOUSE_MIDDLE_BUTTON_UP)
+		{
+			EditNextState<MouseState>()->_buttons &= ~(1 << 2);
 		}
 
 		if (uiButtonFlag & RI_MOUSE_BUTTON_4_DOWN)
 		{
-			SetInputValue(_button3, 1.0f);
+			EditNextState<MouseState>()->_buttons |= (1 << 3);
 		}
 		else if (uiButtonFlag & RI_MOUSE_BUTTON_4_UP)
 		{
-			SetInputValue(_button3, 0.0f);
+			EditNextState<MouseState>()->_buttons &= ~(1 << 3);
 		}
 
 		if (uiButtonFlag & RI_MOUSE_BUTTON_5_DOWN)
 		{
-			SetInputValue(_button4, 1.0f);
+			EditNextState<MouseState>()->_buttons |= (1 << 4);
 		}
 		else if (uiButtonFlag & RI_MOUSE_BUTTON_5_UP)
 		{
-			SetInputValue(_button4, 0.0f);
+			EditNextState<MouseState>()->_buttons &= ~(1 << 4);
 		}
 	}
 

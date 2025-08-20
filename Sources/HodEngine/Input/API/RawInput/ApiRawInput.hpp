@@ -53,11 +53,6 @@ namespace hod::input
 			RID_DEVICE_INFO		_info;
 		};
 
-		struct InputChangeMessage
-		{
-			RAWINPUT			_rawInput;
-		};
-
 	private:
 
 		static LRESULT CALLBACK						GetMessageHook(int nCode, WPARAM wParam, LPARAM lParam);
@@ -75,7 +70,6 @@ namespace hod::input
 		void										PushCharacterMessage(char character);
 
 		void										PullDeviceChangeMessages();
-		void										PullRawInputMessages();
 		void										PullCharacterMessages();
 
 		DeviceMouseRawInput*						FindMouse(HANDLE hDevice) const;
@@ -93,9 +87,6 @@ namespace hod::input
 
 		std::mutex									_deviceChangeslock;
 		Vector<DeviceChangeMessage>			_vDeviceChangeMessages;
-
-		std::mutex									_inputChangesLock;
-		Vector<InputChangeMessage>				_vInputChangeMessages;
 
 		std::mutex									_characterLock;
 		Vector<char>							_vCharacterMessages;

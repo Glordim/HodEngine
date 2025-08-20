@@ -666,6 +666,7 @@ namespace hod::input
 	: DeviceKeyboard(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
 	{
+		/*
 		for (uint32_t index = 0; index < InputId::KeyboardEnumCount; ++index)
 		{
 			AddInput(&_keys[index]);
@@ -674,7 +675,7 @@ namespace hod::input
 		{
 			AddInput(&_virtualKeys[index]);
 		}
-
+		*/
 		SetConnected(true);
 	}
 
@@ -704,13 +705,13 @@ namespace hod::input
 
 			int32_t index = static_cast<int32_t>(inputId) - (InputId::KeyboardStartEnum + 1);
 
-			SetInputValue(_keys[index], value);
+//			SetInputValue(_keys[index], value);
 
 			InputId physicalInputId = inputId;
 			InputId virtualInputId = InputIdHelper::PhysicalToVirtual(physicalInputId);
 			if (physicalInputId != virtualInputId)
 			{
-				SetInputValue(_virtualKeys[static_cast<uint32_t>(virtualInputId) - static_cast<uint32_t>(InputId::KeyboardVirtualStartEnum) - 1], value);
+//				SetInputValue(_virtualKeys[static_cast<uint32_t>(virtualInputId) - static_cast<uint32_t>(InputId::KeyboardVirtualStartEnum) - 1], value);
 			}
 		}
 	}

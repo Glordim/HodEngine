@@ -22,7 +22,7 @@ namespace hod::input
 
 	public:
 
-										Input(Identifier identifier, const String& displayName, const StateView& stateView, const State* state, const State* previousState);
+										Input(Identifier identifier, const String& displayName, const StateView& stateView);
 										Input(const Input& other) = delete;
 										Input(Input&& other) = delete;
 										~Input() = default;
@@ -37,6 +37,8 @@ namespace hod::input
 		const State*					GetPreviousState() const;
 
 		virtual String					ToString() const = 0;
+
+		void							SetStatePtr(const State* state, const State* previousState);
 
 	private:
 

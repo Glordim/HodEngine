@@ -2,6 +2,7 @@
 #include "HodEngine/Input/Export.hpp"
 
 #include "HodEngine/Input/Device.hpp"
+#include "HodEngine/Input/State.hpp"
 
 #include "HodEngine/Input/InputButton.hpp"
 #include "HodEngine/Input/InputAxis.hpp"

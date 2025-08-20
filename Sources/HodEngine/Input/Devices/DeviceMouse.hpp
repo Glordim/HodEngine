@@ -2,6 +2,12 @@
 #include "HodEngine/Input/Export.hpp"
 
 #include "HodEngine/Input/Device.hpp"
+#include "HodEngine/Input/State.hpp"
+
+#include "HodEngine/Input/InputButton.hpp"
+#include "HodEngine/Input/InputAxis.hpp"
+
+#include "HodEngine/Core/Math/Vector2.hpp"
 
 namespace hod::input
 {
@@ -17,5 +23,19 @@ namespace hod::input
 
 		DeviceMouse&	operator = (const DeviceMouse&) = delete;
 		DeviceMouse&	operator = (DeviceMouse&&) = delete;
+
+	private:
+
+		//InputAxis		_axis;
+		InputAxis		_axisX;
+		InputAxis		_axisY;
+
+		InputAxis		_axisWheel;
+
+		InputButton		_buttonLeft;
+		InputButton		_buttonRight;
+		InputButton		_buttonWheel;
+		InputButton		_button4;
+		InputButton		_button5;
 	};
 }

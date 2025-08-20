@@ -252,9 +252,7 @@ namespace hod::input
 	{
 		if (bFocus == false)
 		{
-			_inputChangesLock.lock();
-			_vInputChangeMessages.clear();
-			_inputChangesLock.unlock();
+
 		}
 		else
 		{
@@ -321,8 +319,8 @@ namespace hod::input
 			return;
 		}
 
-		InputChangeMessage inputChangeMessage;
-		if (GetRawInputData(hRawInput, RID_INPUT, reinterpret_cast<BYTE*>(&inputChangeMessage._rawInput), &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
+		RAWINPUT rawInputData;
+		if (GetRawInputData(hRawInput, RID_INPUT, reinterpret_cast<BYTE*>(&rawInputData), &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
 		{
 			String sErrorMessage;
 			GetWinLastErrorMsg(sErrorMessage);
@@ -331,9 +329,26 @@ namespace hod::input
 			return;
 		}
 
-		_inputChangesLock.lock();
-		_vInputChangeMessages.push_back(inputChangeMessage);
-		_inputChangesLock.unlock();
+		HANDLE hDevice = rawInputData.header.hDevice;
+
+		if (rawInputData.header.dwType == RIM_TYPEMOUSE)
+		{
+			DeviceMouseRawInput* mouse = FindMouse(hDevice);
+
+			if (mouse != nullptr)
+			{
+				mouse->ReadRawInput(rawInputData.data.mouse);
+			}
+		}
+		else if (rawInputData.header.dwType == RIM_TYPEKEYBOARD)
+		{
+			DeviceKeyboardRawInput* keyboard = FindKeyboard(hDevice);
+
+			if (keyboard != nullptr)
+			{
+				keyboard->ReadRawInput(rawInputData.data.keyboard);
+			}
+		}
 	}
 
 	/// @brief 
@@ -358,19 +373,23 @@ namespace hod::input
 			}
 		}
 
-		for (DeviceMouseRawInput* mouse : _mice)
-		{
-			mouse->PrepareUpdate();
-		}
-
 		for (DeviceKeyboardRawInput* keyboard : _keyboards)
 		{
 			keyboard->ClearBufferedTextIfNeeded();
 		}
 
 		PullDeviceChangeMessages();
-		PullRawInputMessages();
 		PullCharacterMessages();
+
+		for (DeviceMouseRawInput* mouse : _mice)
+		{
+			mouse->UpdateState();
+		}
+
+		for (DeviceKeyboardRawInput* keyboard : _keyboards)
+		{
+			keyboard->UpdateState();
+		}
 	}
 
 	/// @brief 
@@ -399,57 +418,6 @@ namespace hod::input
 		_vDeviceChangeMessages.clear();
 
 		_deviceChangeslock.unlock();
-	}
-
-	/// @brief 
-	void ApiRawInput::PullRawInputMessages()
-	{
-		_inputChangesLock.lock();
-		if (_vInputChangeMessages.empty() == false)
-		{
-			if (_window->IsFocused() == true)
-			{
-				bool isResizingOrMovingWindow = false; // TODO WindowsApplication::GetInstance()->GetIsResizingOrMoving();
-				if (isResizingOrMovingWindow == true)
-				{
-					_bIgnoreNextMouseMessage = true; // Windows do the sum of all movement at the end of the Resizing or Moving
-				}
-
-				for (const InputChangeMessage& inputChangeMessage : _vInputChangeMessages)
-				{
-					HANDLE hDevice = inputChangeMessage._rawInput.header.hDevice;
-
-					if (inputChangeMessage._rawInput.header.dwType == RIM_TYPEMOUSE)
-					{
-						DeviceMouseRawInput* mouse = FindMouse(hDevice);
-
-						if (mouse != nullptr && isResizingOrMovingWindow == false)
-						{
-							if (_bIgnoreNextMouseMessage == true)
-							{
-								_bIgnoreNextMouseMessage = false;
-							}
-							else
-							{
-								mouse->ReadRawInput(inputChangeMessage._rawInput.data.mouse);
-							}
-						}
-					}
-					else if (inputChangeMessage._rawInput.header.dwType == RIM_TYPEKEYBOARD)
-					{
-						DeviceKeyboardRawInput* keyboard = FindKeyboard(hDevice);
-
-						if (keyboard != nullptr)
-						{
-							keyboard->ReadRawInput(inputChangeMessage._rawInput.data.keyboard);
-						}
-					}
-				}
-			}
-			_vInputChangeMessages.clear();
-		}
-
-		_inputChangesLock.unlock();
 	}
 
 	/// @brief 

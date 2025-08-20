@@ -29,11 +29,11 @@ namespace hod::input
 		void							SimulateMouseDownBeforeFocusGain(InputId mouseButtonInputId);
 		void							ReadRawInput(const RAWMOUSE& rawMouse);
 
-		void							PrepareUpdate();
-
 	protected:
 
 		bool							ApplyFeedback(Feedback& feedback) override;
+
+		void							ResetNextState() override;
 
 	private:
 
@@ -46,19 +46,5 @@ namespace hod::input
 		int32_t							_lastAbsoluteX = 0;
 		int32_t							_lastAbsoluteY = 0;
 		bool							_lastAbsoluteDirty = true;
-
-		// Move
-		Input							_axisX = (InputId::MouseAxisX);
-		Input							_axisY = (InputId::MouseAxisY);
-
-		// Whell
-		Input							_wheel = (InputId::MouseAxisWheel);
-
-		// Buttons
-		Input							_button0; // Setup in constructor (can be swapped, left-handed mode)
-		Input							_button1; // Setup in constructor (can be swapped, left-handed mode)
-		Input							_button2 = (InputId::MouseButtonWheel);
-		Input							_button3 = (InputId::MouseButton3);
-		Input							_button4 = (InputId::MouseButton4);		
 	};
 }

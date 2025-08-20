@@ -87,6 +87,7 @@ namespace hod::input
 	{
 		for (DevicePadGameController* pad : _pads)
 		{
+			pad->WriteNextState();
 			pad->UpdateState();
 		}
 	}

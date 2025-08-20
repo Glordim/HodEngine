@@ -5,8 +5,6 @@
 #include "HodEngine/Input/InputButton.hpp"
 #include "HodEngine/Input/State.hpp"
 
-#include <HodEngine/Core/Concurency/SpinLock.hpp>
-
 #ifdef __OBJC__
 @class GCExtendedGamepad;
 #else
@@ -33,12 +31,9 @@ namespace hod::input
 		DevicePadGameController&			operator = (const DevicePadGameController&) = delete;
 		DevicePadGameController&			operator = (DevicePadGameController&&) = delete;
 
-		const State*						GetState() const override;
-		uint32_t							GetStateSize() const override;
-
-		void								UpdateState() override;
-
 		GCExtendedGamepad*					GetInternalExtendedPad() const;
+
+		void								WriteNextState();
 
 	protected:
 
@@ -47,10 +42,5 @@ namespace hod::input
 	private:
 
 		GCExtendedGamepad*					_extendedGamepad;
-
-		SpinLock							_stateLock;
-		PadState							_nextState;
-		PadState							_currentState;
-		PadState							_previousState;
 	};
 }

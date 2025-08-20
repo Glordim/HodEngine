@@ -41,21 +41,16 @@ namespace hod::input
 		return sizeof(_currentState);
 	}
 
-	void DevicePadGameController::UpdateState()
+	void DevicePadGameController::WriteNextState()
 	{
-		_nextState._buttons[0] = 0;
+		EditNextState<PadState>()->_buttons[0] = 0;
 		if (_extendedGamepad.leftShoulder.pressed)
-			_nextState._buttons[0] |= (1 << 0);
+			EditNextState<PadState>()->_buttons[0] |= (1 << 0);
 		if (_extendedGamepad.rightShoulder.pressed)
-			_nextState._buttons[0] |= (1 << 1);
+			EditNextState<PadState>()->_buttons[0] |= (1 << 1);
 		if (_extendedGamepad.leftThumbstickButton.pressed)
-			_nextState._buttons[0] |= (1 << 2);
+			EditNextState<PadState>()->_buttons[0] |= (1 << 2);
 		if (_extendedGamepad.rightThumbstickButton.pressed)
-			_nextState._buttons[0] |= (1 << 3);
-
-		std::memcpy(&_previousState, &_currentState, sizeof(_currentState));
-		_stateLock.Lock();
-		std::memcpy(&_currentState, &_nextState, sizeof(_currentState));
-		_stateLock.Unlock();
+			EditNextState<PadState>()->_buttons[0] |= (1 << 3);
 	}
 }

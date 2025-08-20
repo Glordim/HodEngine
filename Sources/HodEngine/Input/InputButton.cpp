@@ -10,8 +10,8 @@ namespace hod::input
 		(void)reflectionDescriptor;
 	}
 
-	InputButton::InputButton(Identifier identifier, const String& displayName, const StateView& stateView, const State* state, const State* previousState)
-	: Input(identifier, displayName, stateView, state, previousState)
+	InputButton::InputButton(Identifier identifier, const String& displayName, const StateView& stateView)
+	: Input(identifier, displayName, stateView)
 	{
 
 	}
