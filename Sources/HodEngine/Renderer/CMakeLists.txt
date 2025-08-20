@@ -35,6 +35,8 @@ if(API STREQUAL Vulkan)
 		find_package(BZip2 REQUIRED)
 		find_package(ZLIB REQUIRED)
 	endif()
+	set(API_INCLUDES ${Vulkan_INCLUDE_DIRS} SpirvCross::SpirvCross)
+	set(API_LIBRARIES ${Vulkan_LIBRARIES} SpirvCross::SpirvCross)
 elseif(API STREQUAL Metal)
 	list(REMOVE_ITEM ExcludeDirs Metal)
 	set(SHADER_TARGET_API Metal)
@@ -139,18 +141,17 @@ target_link_libraries(Renderer PRIVATE
 	VulkanMemoryAllocator::VulkanMemoryAllocator
 )
 
-if(NOT APPLE)
-	include_directories(${Vulkan_INCLUDE_DIRS} SpirvCross::SpirvCross)
-	target_link_libraries(Renderer ${Vulkan_LIBRARIES} SpirvCross::SpirvCross)
+target_include_directories(Renderer PRIVATE
+	${API_INCLUDES}
+)
 
-	unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
-	option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" OFF)
-	set(RENDERER_ENABLE_VALIDATION_LAYER True)
+unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
+option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" OFF)
+set(RENDERER_ENABLE_VALIDATION_LAYER True)
 
-	if (RENDERER_ENABLE_VALIDATION_LAYER)
-		target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
-	endif ()
-endif()
+if (RENDERER_ENABLE_VALIDATION_LAYER)
+	target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
+endif ()
 
 target_compile_definitions(Renderer PRIVATE ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(Renderer PRIVATE HOD_RENDERER_EXPORT)

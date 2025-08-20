@@ -250,6 +250,18 @@ namespace hod
 			vkCmdSetScissor(_vkCommandBuffer, 0, 1, &vkScissor);
 		}
 
+		/// @brief 
+		/// @param material 
+		void CommandBufferVk::SetMaterial(const Material* material)
+		{
+			const VkMaterial* vkMaterial = static_cast<const VkMaterial*>(material);
+			if (_material != vkMaterial)
+			{
+				_material = vkMaterial;
+				vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetGraphicsPipeline());
+			}
+		}
+
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
