@@ -12,6 +12,8 @@
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
 
+#undef max
+
 namespace hod::game
 {
 	std::atomic<uint64_t> Entity::_nextInstanceId = 0;

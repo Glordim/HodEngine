@@ -114,7 +114,7 @@ namespace hod::window
 	{
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
-			inputListener->OnMouseMoved(x, y);
+			inputListener->OnMouseMoved((float)x, (float)y);
 		}
 	}
 }

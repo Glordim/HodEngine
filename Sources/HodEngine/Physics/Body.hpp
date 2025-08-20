@@ -51,7 +51,7 @@ namespace hod::physics
 		virtual Collider*	AddCircleShape(bool isTrigger, const Vector2& position, float radius) = 0;
 		virtual Collider*	AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) = 0;
 		virtual Collider*	AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle) = 0;
-		virtual Collider*	AddConvexShape(bool isTrigger, const Vector<const Vector2>& vertices) = 0;
+		virtual Collider*	AddConvexShape(bool isTrigger, const Vector<Vector2>& vertices) = 0;
 
 		virtual void		SetEnabled(bool enabled) = 0;
 		virtual void		SetTransform(const Vector2& position, float angle, const Vector2& scale) = 0;

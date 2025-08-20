@@ -25,7 +25,7 @@ namespace hod::physics
 		Collider*			AddCircleShape(bool isTrigger, const Vector2& position, float radius) override;
 		Collider*			AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) override;
 		Collider*			AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle) override;
-		Collider*			AddConvexShape(bool isTrigger, const Vector<const Vector2>& vertices) override;
+		Collider*			AddConvexShape(bool isTrigger, const Vector<Vector2>& vertices) override;
 
 		void				SetEnabled(bool enabled) override;
 		void				SetTransform(const Vector2& position, float angle, const Vector2& scale) override;

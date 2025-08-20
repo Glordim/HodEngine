@@ -86,7 +86,7 @@ namespace hod::physics
 
 	/// @brief 
 	/// @param vertices 
-	Collider* BodyBox2d::AddConvexShape(bool isTrigger, const Vector<const Vector2>& vertices)
+	Collider* BodyBox2d::AddConvexShape(bool isTrigger, const Vector<Vector2>& vertices)
 	{
 		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsConvexShape(vertices);
