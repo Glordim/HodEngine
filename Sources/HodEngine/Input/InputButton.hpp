@@ -12,6 +12,7 @@ namespace hod::input
 
 	public:
 
+		InputButton() = default;
 		InputButton(Identifier identifier, const String& displayName, const StateView& stateView);
 
 		bool	ReadValue() const;

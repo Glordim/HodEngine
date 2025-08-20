@@ -9,7 +9,27 @@ namespace hod::input
 	{
 	public:
 
-		StateView(uint32_t byteOffset, uint32_t bitOffset, uint32_t sizeInBit);
+		enum class Format
+		{
+			Unknown,
+			Bit,
+			S8,
+			U8,
+			S16,
+			U16,
+			S32,
+			U32,
+			S64,
+			U64,
+			F32,
+			Vec2S16,
+			Vec2U16,
+		};
+
+	public:
+
+		StateView() = default;
+		StateView(Format format, uint32_t byteOffset, uint32_t bitOffset = 0);
 
 		template<typename _Type_>
 		_Type_		ReadValue() const;
@@ -29,14 +49,17 @@ namespace hod::input
 
 		//uint64_t	ReadObjectValue(State* state) const;
 
+		Format		GetFormat() const;
 		uint32_t	GetByteOffset() const;
 		uint32_t	GetBitOffset() const;
 		uint32_t	GetSizeInBit() const;
 
 	private:
 
+		Format		_format = Format::Unknown;
+		uint32_t	_sizeInBit = 0;
+
 		uint32_t	_byteOffset = 0;
 		uint32_t	_bitOffset = 0;
-		uint32_t	_sizeInBit = 1;
 	};
 }

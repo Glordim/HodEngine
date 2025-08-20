@@ -15,7 +15,7 @@ namespace hod::input
 	{
 	public:
 
-						DevicePad(const UID& uid, const std::string_view& name, Product product);
+						DevicePad(const UID& uid, const std::string_view& name, Product product, uint32_t stateSize);
 						DevicePad(const DevicePad&) = delete;
 						DevicePad(DevicePad&&) = delete;
 						~DevicePad() override = default;
@@ -25,7 +25,30 @@ namespace hod::input
 
 	public:
 
-	/*
+		//InputVector2	_leftStick;
+		InputAxis		_leftStickX;
+		InputAxis		_leftStickLeft;
+		InputAxis		_leftStickRight;
+		InputAxis		_leftStickY;
+		InputAxis		_leftStickUp;
+		InputAxis		_leftStickDown;
+		InputButton		_leftStickPress;
+
+		//InputVector2	_rightStick;
+		InputAxis		_rightStickX;
+		InputAxis		_rightStickLeft;
+		InputAxis		_rightStickRight;
+		InputAxis		_rightStickY;
+		InputAxis		_rightStickUp;
+		InputAxis		_rightStickDown;
+		InputButton		_rightStickPress;
+
+		//InputVector2	_dpad;
+		InputButton		_dpadUp;
+		InputButton		_dpadDown;
+		InputButton		_dpadLeft;
+		InputButton		_dpadRight;
+
 		InputButton		_buttonNorth;
 		InputButton		_buttonEast;
 		InputButton		_buttonWest;
@@ -33,25 +56,11 @@ namespace hod::input
 
 		InputButton		_leftShoulder;
 		InputButton		_rightShoulder;
-
-		InputButton		_leftStickPress;
-		InputButton		_rightStickPress;
-
-		InputButton		_start;
-		InputButton		_select;
-
-		InputButton		_dpadUp;
-		InputButton		_dpadDown;
-		InputButton		_dpadLeft;
-		InputButton		_dpadRight;
-
+		
 		InputAxis		_leftTrigger;
 		InputAxis		_rightTrigger;
-	*/
-
-		//InputVector2	_leftStick;
-		//InputVector2	_rightStick;
-
-		//InputVector2	_dpad;
+		
+		InputButton		_start;
+		InputButton		_select;
 	};
 }

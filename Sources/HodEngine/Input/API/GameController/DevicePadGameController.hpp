@@ -13,12 +13,6 @@ class GCExtendedGamepad;
 
 namespace hod::input
 {
-	struct PadState : public State
-	{
-		uint8_t _buttons[16]; // 1 button = 1 bit
-		
-	};
-
 	/// @brief 
 	class HOD_INPUT_API DevicePadGameController : public DevicePad
 	{

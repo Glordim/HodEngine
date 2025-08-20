@@ -11,8 +11,13 @@
 
 namespace hod::input
 {
+	struct PadGameControllerState : public State
+	{
+		uint8_t _buttons[16]; // 1 button = 1 bit
+	};
+
 	DevicePadGameController::DevicePadGameController(GCExtendedGamepad* extendedGamepad)
-	: DevicePad(UID::INVALID_UID, "Gamepad", Product::UNKNOWN)
+	: DevicePad(UID::INVALID_UID, "Gamepad", Product::UNKNOWN, sizeof(PadGameControllerState))
 	, _extendedGamepad(extendedGamepad)
 	{
 		std::memset(&_nextState, false, sizeof(_nextState));

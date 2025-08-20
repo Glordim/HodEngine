@@ -18,14 +18,14 @@ namespace hod::input
 	DeviceMouse::DeviceMouse(const UID& uid, const std::string_view& name, Product product)
 	: Device(Type::MOUSE, uid, name, product, sizeof(MouseState))
 	//, _axis(Identifier(), "Axis", StateView(0, 0, 1))
-	, _axisX(Identifier(), "AxisX", StateView(0, 0, 1))
-	, _axisY(Identifier(), "AxisY", StateView(0, 0, 1))
-	, _axisWheel(Identifier(), "Axis Wheel", StateView(0, 0, 1))
-	, _buttonLeft(Identifier(), "Button Left", StateView(0, 0, 1))
-	, _buttonRight(Identifier(), "Button Right", StateView(0, 0, 1))
-	, _buttonWheel(Identifier(), "Button Wheel", StateView(0, 0, 1))
-	, _button4(Identifier(), "Button 4", StateView(0, 0, 1))
-	, _button5(Identifier(), "Button 5", StateView(0, 0, 1))
+	, _axisX(Identifier(), "AxisX", StateView(StateView::Format::S16, 0, 0))
+	, _axisY(Identifier(), "AxisY", StateView(StateView::Format::S16, 0, 0))
+	, _axisWheel(Identifier(), "Axis Wheel", StateView(StateView::Format::Bit, 0, 0))
+	, _buttonLeft(Identifier(), "Button Left", StateView(StateView::Format::Bit, 0, 0))
+	, _buttonRight(Identifier(), "Button Right", StateView(StateView::Format::Bit, 0, 0))
+	, _buttonWheel(Identifier(), "Button Wheel", StateView(StateView::Format::Bit, 0, 0))
+	, _button4(Identifier(), "Button 4", StateView(StateView::Format::Bit, 0, 0))
+	, _button5(Identifier(), "Button 5", StateView(StateView::Format::Bit, 0, 0))
 	{
 		AddInput(&_axisX);
 		AddInput(&_axisY);

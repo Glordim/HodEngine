@@ -54,7 +54,7 @@ namespace hod::input
 
 		for (uint32_t padIndex = 0; padIndex < MaxPad; ++padIndex)
 		{
-			DevicePadXbox* device = DefaultAllocator::GetInstance().New<DevicePadXbox>(this, padIndex);
+			DevicePadXbox* device = DefaultAllocator::GetInstance().New<DevicePadXbox>(padIndex);
 
 			_pads[padIndex] = device;
 
@@ -70,6 +70,14 @@ namespace hod::input
 	{
 		for (DevicePadXbox* xboxPad : _pads)
 		{
+			XINPUT_STATE state;
+			std::memset(&state, 0, sizeof(XINPUT_STATE));
+			if (_getStateProc(xboxPad->GetPadIndex(), &state) == 0)
+			{
+				xboxPad->WriteState(state);
+				xboxPad->UpdateState();
+			}
+/*
 			bool wasConnected = xboxPad->IsConnected();
 			bool isConnected = xboxPad->Update();
 			if (wasConnected != isConnected)
@@ -83,6 +91,7 @@ namespace hod::input
 					Api::NotifyDeviceDisconnected(xboxPad);
 				}
 			}
+				*/
 		}
 	}
 

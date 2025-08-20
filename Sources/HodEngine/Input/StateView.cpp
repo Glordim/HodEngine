@@ -1,12 +1,13 @@
-#pragma once
-#include "HodEngine/Input/Export.hpp"
+#include "HodEngine/Input/Pch.hpp"
+
+#include "HodEngine/Input/StateView.hpp"
 
 namespace hod::input
 {
-	StateView::StateView(uint32_t byteOffset, uint32_t bitOffset, uint32_t sizeInBit)
-	: _byteOffset(byteOffset)
+	StateView::StateView(Format format, uint32_t byteOffset, uint32_t bitOffset)
+	: _format(format)
+	, _byteOffset(byteOffset)
 	, _bitOffset(bitOffset)
-	, _sizeInBit(sizeInBit)
 	{
 
 	}
@@ -67,8 +68,24 @@ namespace hod::input
 
 	float StateView::ReadFloatValue(const State* state) const
 	{
-		const float* bytePtr = reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(state) + _byteOffset);
-		return *bytePtr;
+		switch (_format)
+		{
+			case Format::S8: return (float)ReadS8Value(state) / (float)std::numeric_limits<int8_t>::max();
+			case Format::U8: return (float)ReadU8Value(state) / (float)std::numeric_limits<uint8_t>::max();
+
+			case Format::S16: return (float)ReadS16Value(state) / (float)std::numeric_limits<int16_t>::max();
+			case Format::U16: return (float)ReadU16Value(state) / (float)std::numeric_limits<uint16_t>::max();
+
+			case Format::F32: return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(state) + _byteOffset);
+
+			default: assert(false);
+		}
+		return 0.0f;
+	}
+
+	StateView::Format StateView::GetFormat() const
+	{
+		return _format;
 	}
 
 	uint32_t StateView::GetByteOffset() const

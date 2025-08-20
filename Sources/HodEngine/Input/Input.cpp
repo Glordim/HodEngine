@@ -22,6 +22,11 @@ namespace hod::input
 		_previousState = previousState;
 	}
 
+	void Input::SetStateView(const StateView& stateView)
+	{
+		_stateView = stateView;
+	}
+
 	/// @brief 
 	/// @return 
 	Identifier Input::GetIdentifier() const

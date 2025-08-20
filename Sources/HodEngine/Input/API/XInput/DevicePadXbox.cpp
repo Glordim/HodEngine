@@ -13,50 +13,65 @@
 
 namespace hod::input
 {
+	struct PadXboxState : public State
+	{
+		XINPUT_GAMEPAD _xInputGamepad;
+	};
+
 	/// @brief 
 	/// @param api 
 	/// @param padIndex 
-	DevicePadXbox::DevicePadXbox(ApiXInput* api, uint32_t padIndex)
-		: DevicePad(ComputeDeviceUID(padIndex), "Xbox_Pad", Product::XBOX)
-		, _api(api)
+	DevicePadXbox::DevicePadXbox(uint32_t padIndex)
+		: DevicePad(ComputeDeviceUID(padIndex), "Xbox_Pad", Product::XBOX, sizeof(PadXboxState))
 		, _padIndex(padIndex)
 	{
-		// Sticks
-		AddInput(&_axisLeftX);
-		AddInput(&_axisLeftY);
-		AddInput(&_axisRightX);
-		AddInput(&_axisRightY);
-
-		// Buttons
-		AddInput(&_buttonA);
-		AddInput(&_buttonB);
-		AddInput(&_buttonY);
-		AddInput(&_buttonX);
-
-		AddInput(&_buttonDpadUp);
-		AddInput(&_buttonDpadDown);
-		AddInput(&_buttonDpadLeft);
-		AddInput(&_buttonDpadRight);
-
-		AddInput(&_buttonLB);
-		AddInput(&_buttonLT);
-		AddInput(&_buttonLS);
-
-		AddInput(&_buttonRB);
-		AddInput(&_buttonRT);
-		AddInput(&_buttonRS);
-
-		AddInput(&_buttonStart);
-		AddInput(&_buttonBack);
-
 		_lastUpdate = SystemTime::Now();
+
+		_leftStickX.SetStateView(StateView(StateView::Format::S16, 4));
+		_leftStickLeft.SetStateView(StateView(StateView::Format::S16, 4));
+		_leftStickRight.SetStateView(StateView(StateView::Format::S16, 4));
+		_leftStickY.SetStateView(StateView(StateView::Format::S16, 6));
+		_leftStickUp.SetStateView(StateView(StateView::Format::S16, 6));
+		_leftStickDown.SetStateView(StateView(StateView::Format::S16, 6));
+		_leftStickPress.SetStateView(StateView(StateView::Format::Bit, 0, 6));
+
+		_rightStickX.SetStateView(StateView(StateView::Format::S16, 8));
+		_rightStickLeft.SetStateView(StateView(StateView::Format::S16, 8));
+		_rightStickRight.SetStateView(StateView(StateView::Format::S16, 8));
+		_rightStickY.SetStateView(StateView(StateView::Format::S16, 10));
+		_rightStickUp.SetStateView(StateView(StateView::Format::S16, 10));
+		_rightStickDown.SetStateView(StateView(StateView::Format::S16, 10));
+		_rightStickPress.SetStateView(StateView(StateView::Format::Bit, 0, 7));
+
+		_dpadUp.SetStateView(StateView(StateView::Format::Bit, 0, 0));
+		_dpadDown.SetStateView(StateView(StateView::Format::Bit, 0, 1));
+		_dpadLeft.SetStateView(StateView(StateView::Format::Bit, 0, 2));
+		_dpadRight.SetStateView(StateView(StateView::Format::Bit, 0, 3));
+
+		_buttonNorth.SetStateView(StateView(StateView::Format::Bit, 1, 7));
+		_buttonEast.SetStateView(StateView(StateView::Format::Bit, 1, 5));
+		_buttonWest.SetStateView(StateView(StateView::Format::Bit, 1, 6));
+		_buttonSouth.SetStateView(StateView(StateView::Format::Bit, 1, 4));
+
+		_leftShoulder.SetStateView(StateView(StateView::Format::Bit, 1, 0));
+		_rightShoulder.SetStateView(StateView(StateView::Format::Bit, 1, 1));
+
+		_leftTrigger.SetStateView(StateView(StateView::Format::U8, 2));
+		_rightTrigger.SetStateView(StateView(StateView::Format::U8, 3));
+
+		_start.SetStateView(StateView(StateView::Format::Bit, 0, 4));
+		_select.SetStateView(StateView(StateView::Format::Bit, 0, 5));
 	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool DevicePadXbox::Update()
+	void DevicePadXbox::WriteState(const XINPUT_STATE& xInputState)
 	{
+		if (_lastPacketNumber < xInputState.dwPacketNumber)
+		{
+			_lastPacketNumber = xInputState.dwPacketNumber;
+			std::memcpy(&EditNextState<PadXboxState>()->_xInputGamepad, &xInputState.Gamepad, sizeof(xInputState.Gamepad));
+		}
+	}
+	/*
 		bool bConnected = false;
 
 		SystemTime::TimeStamp now = SystemTime::Now();
@@ -70,7 +85,8 @@ namespace hod::input
 		XINPUT_STATE state;
 		std::memset(&state, 0, sizeof(XINPUT_STATE));
 		if (_api->GetPadState(_padIndex, &state) == true)
-		{
+		{*/
+			/*
 			// Sticks
 			SetInputValue(_axisLeftX, GetAxisValue(state.Gamepad.sThumbLX, DeadZone));
 			SetInputValue(_axisLeftY, -GetAxisValue(state.Gamepad.sThumbLY, DeadZone));
@@ -94,13 +110,15 @@ namespace hod::input
 			SetInputValue(_buttonRS, GetButtonValue(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_THUMB));
 			SetInputValue(_buttonStart, GetButtonValue(state.Gamepad.wButtons, XINPUT_GAMEPAD_START));
 			SetInputValue(_buttonBack, GetButtonValue(state.Gamepad.wButtons, XINPUT_GAMEPAD_BACK));
-
+			*/
+/*/
 			bConnected = true;
 		}
 
 		SetConnected(bConnected);
 		return bConnected;
 	}
+		*/
 
 	/// @brief 
 	/// @param feedback 
@@ -134,7 +152,7 @@ namespace hod::input
 		vibration.wLeftMotorSpeed = (WORD)(left * 65535.0f);
 		vibration.wRightMotorSpeed = (WORD)(right * 65535.0f);
 
-		_api->SetPadState(_padIndex, &vibration);
+		//_api->SetPadState(_padIndex, &vibration);
 	}
 
 	/// @brief 
@@ -182,5 +200,10 @@ namespace hod::input
 	float DevicePadXbox::GetTriggerValue(uint32_t rawValue)
 	{
 		return (float)rawValue / 255.0f;
+	}
+
+	uint32_t DevicePadXbox::GetPadIndex() const
+	{
+		return _padIndex;
 	}
 }
