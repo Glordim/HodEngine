@@ -1,0 +1,25 @@
+[
+	{
+		"name": "Linux GCC x64",
+		"toolchainFile": "${workspaceFolder}/CMake/Toolchains/Linux-Gcc-x64.cmake"
+	},
+	{
+		"name": "Linux Clang x64",
+		"toolchainFile": "${workspaceFolder}/CMake/Toolchains/Linux-Clang-x64.cmake"
+	},
+	{
+		"name": "MacOS Clang arm64",
+		"toolchainFile": "${workspaceFolder}/CMake/Toolchains/MacOs-Clang-arm64.cmake"
+	},
+	{
+		"name": "Windows Msvc x64",
+		"toolchainFile": "${workspaceFolder}/CMake/Toolchains/Windows-Msvc-x64.cmake",
+		"preferredGenerator": {
+			"name": "Visual Studio 17 2022"
+		}
+	},
+	{
+		"name": "Windows ClangCl x64",
+		"toolchainFile": "${workspaceFolder}/CMake/Toolchains/Windows-ClangCl-x64.cmake"
+	}
+]

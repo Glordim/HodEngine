@@ -391,18 +391,23 @@ namespace hod::editor
 			OUTPUT_MESSAGE("Failed to create Build directory at {} : ", gameModuleBuildDirectoryPath.string(), e.what());
 			return false;
 		}
+
+		std::filesystem::path toolchainPath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path();
 		
 		#if defined(PLATFORM_WINDOWS)
 		const char* generator = "Visual Studio 17 2022";
+		toolchainPath /= "CMake/Toolchains/Windows-Msvc-x64.cmake";
 		#elif defined(PLATFORM_MACOS)
 		const char* generator = "Xcode";
+		toolchainPath /= "CMake/Toolchains/MacOs-Clang-arm64.cmake";
 		#elif defined(PLATFORM_LINUX)
 		const char* generator = "Ninja Multi-Config";
+		toolchainPath /= "CMake/Toolchains/Linux-Clang-x64.cmake";
 		#else
 			#error
 		#endif
 
-		String arguments = std::format("-B {} -S {} -G \"{}\"", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator);
+		String arguments = std::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G \"{}\"", toolchainPath.string(), gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator);
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{

@@ -17,8 +17,6 @@ include(Global)
 include(FetchContent)
 include(ExternalProject)
 
-SetupLanguageVersion()
-
 if(WIN32)
   set(LIB_PREFIX "")
   set(LIB_EXTENSION "lib")
