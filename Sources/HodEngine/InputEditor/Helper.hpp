@@ -2,7 +2,7 @@
 #include <HodEngine/InputEditor/Export.hpp>
 
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
-#include <HodEngine/Input/Device.hpp>
+#include <HodEngine/Input/Devices/Device.hpp>
 
 namespace hod::editor
 {

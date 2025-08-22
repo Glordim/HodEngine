@@ -11,6 +11,7 @@
 namespace hod::input
 {
 	class Api;
+	class MouseDevice;
 
 	/// @brief 
 	class HOD_INPUT_API InputManager

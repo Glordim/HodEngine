@@ -19,8 +19,8 @@ namespace hod::window
 
 namespace hod::input
 {
-	class DeviceMouseRawInput;
-	class DeviceKeyboardRawInput;
+	class MouseRawInput;
+	class KeyboardRawInput;
 
 	/// @brief 
 	class HOD_INPUT_API ApiRawInput : public Api
@@ -72,8 +72,8 @@ namespace hod::input
 		void										PullDeviceChangeMessages();
 		void										PullCharacterMessages();
 
-		DeviceMouseRawInput*						FindMouse(HANDLE hDevice) const;
-		DeviceKeyboardRawInput*						FindKeyboard(HANDLE hDevice) const;
+		MouseRawInput*								FindMouse(HANDLE hDevice) const;
+		KeyboardRawInput*							FindKeyboard(HANDLE hDevice) const;
 
 	private:
 
@@ -82,14 +82,14 @@ namespace hod::input
 
 	private:
 
-		Vector<DeviceMouseRawInput*>			_mice;
-		Vector<DeviceKeyboardRawInput*>		_keyboards;
+		Vector<MouseRawInput*>						_mice;
+		Vector<KeyboardRawInput*>					_keyboards;
 
 		std::mutex									_deviceChangeslock;
-		Vector<DeviceChangeMessage>			_vDeviceChangeMessages;
+		Vector<DeviceChangeMessage>					_vDeviceChangeMessages;
 
 		std::mutex									_characterLock;
-		Vector<char>							_vCharacterMessages;
+		Vector<char>								_vCharacterMessages;
 
 		bool										_bIgnoreNextMouseMessage = false;
 		bool										_bJustGainFocus = false;

@@ -1,5 +1,5 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/Devices/DeviceMouse.hpp"
+#include "HodEngine/Input/Devices/Mouse.hpp"
 #include "HodEngine/Input/State.hpp"
 
 namespace hod::input
@@ -15,7 +15,7 @@ namespace hod::input
 	/// @param uid 
 	/// @param name 
 	/// @param product 
-	DeviceMouse::DeviceMouse(const UID& uid, const std::string_view& name, Product product)
+	Mouse::Mouse(const UID& uid, const std::string_view& name, Product product)
 	: Device(Type::MOUSE, uid, name, product, sizeof(MouseState))
 	//, _axis(Identifier(), "Axis", StateView(0, 0, 1))
 	, _axisX(Identifier(), "AxisX", StateView(StateView::Format::S16, 0, 0))

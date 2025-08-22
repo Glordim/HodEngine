@@ -1,5 +1,5 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/Devices/DevicePad.hpp"
+#include "HodEngine/Input/Devices/Gamepad.hpp"
 #include "HodEngine/Input/State.hpp"
 
 namespace hod::input
@@ -8,7 +8,7 @@ namespace hod::input
 	/// @param uid 
 	/// @param name 
 	/// @param product 
-	DevicePad::DevicePad(const UID& uid, const std::string_view& name, Product product, uint32_t stateSize)
+	Gamepad::Gamepad(const UID& uid, const std::string_view& name, Product product, uint32_t stateSize)
 	: Device(Type::PAD, uid, name, product, stateSize)
 	, _leftStickX(Identifier(), "Left Stick X", StateView())
 	, _leftStickLeft(Identifier(), "Left Stick Left", StateView())

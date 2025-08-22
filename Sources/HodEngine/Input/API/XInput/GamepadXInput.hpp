@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Input/Export.hpp"
 
-#include "HodEngine/Input/Devices/DevicePad.hpp"
+#include "HodEngine/Input/Devices/Gamepad.hpp"
 #include "HodEngine/Input/Input.hpp"
 
 #include "HodEngine/Core/UID.hpp"
@@ -10,7 +10,7 @@
 namespace hod::input
 {
 	/// @brief 
-	class HOD_INPUT_API DevicePadXbox : public DevicePad
+	class HOD_INPUT_API GamepadXInput : public Gamepad
 	{
 	private:
 
@@ -18,13 +18,13 @@ namespace hod::input
 
 	public:
 
-									DevicePadXbox(uint32_t padIndex);
-									DevicePadXbox(const DevicePadXbox&) = delete;
-									DevicePadXbox(DevicePadXbox&&) = delete;
-									~DevicePadXbox() override = default;
+									GamepadXInput(uint32_t padIndex);
+									GamepadXInput(const GamepadXInput&) = delete;
+									GamepadXInput(GamepadXInput&&) = delete;
+									~GamepadXInput() override = default;
 
-		DevicePadXbox&				operator = (const DevicePadXbox&) = delete;
-		DevicePadXbox&				operator = (DevicePadXbox&&) = delete;
+		GamepadXInput&				operator = (const GamepadXInput&) = delete;
+		GamepadXInput&				operator = (GamepadXInput&&) = delete;
 
 		bool						ApplyFeedback(Feedback& feedback) override;
 

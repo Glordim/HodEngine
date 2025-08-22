@@ -2,7 +2,7 @@
 #include <array>
 
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/API/RawInput/DeviceKeyboardRawInput.hpp"
+#include "HodEngine/Input/API/RawInput/KeyboardRawInput.hpp"
 #include "HodEngine/Input/InputIdHelper.hpp"
 #include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Core/Type.hpp"
@@ -662,8 +662,8 @@ namespace hod::input
 	/// @param handle 
 	/// @param name 
 	/// @param info 
-	DeviceKeyboardRawInput::DeviceKeyboardRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_KEYBOARD& info)
-	: DeviceKeyboard(ComputeDeviceUID(handle), name, Product::UNKNOWN)
+	KeyboardRawInput::KeyboardRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_KEYBOARD& info)
+	: Keyboard(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
 	{
 		/*
@@ -682,7 +682,7 @@ namespace hod::input
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool DeviceKeyboardRawInput::ApplyFeedback(Feedback& feedback)
+	bool KeyboardRawInput::ApplyFeedback(Feedback& feedback)
 	{
 		return false;
 	}
@@ -690,7 +690,7 @@ namespace hod::input
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void DeviceKeyboardRawInput::ReadRawInput(const RAWKEYBOARD& rawKeyboard)
+	void KeyboardRawInput::ReadRawInput(const RAWKEYBOARD& rawKeyboard)
 	{
 		WINDOWS_SCAN_CODE scanCode = static_cast<WINDOWS_SCAN_CODE>(rawKeyboard.MakeCode);
 		if (rawKeyboard.Flags & RI_KEY_E0)
@@ -718,7 +718,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	HANDLE DeviceKeyboardRawInput::GetHandle()
+	HANDLE KeyboardRawInput::GetHandle()
 	{
 		return _handle;
 	}
@@ -726,7 +726,7 @@ namespace hod::input
 	/// @brief 
 	/// @param hDevice 
 	/// @return 
-	UID DeviceKeyboardRawInput::ComputeDeviceUID(HANDLE hDevice)
+	UID KeyboardRawInput::ComputeDeviceUID(HANDLE hDevice)
 	{
 		return UID(Api::DeviceUidOffset::RAW_INPUT, reinterpret_cast<uint64_t>(hDevice));
 	}

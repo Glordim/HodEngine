@@ -3,7 +3,7 @@
 
 #include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Input/InputId.hpp"
-#include "HodEngine/Input/API/WindowLib/DeviceKeyboardWindowLib.hpp"
+#include "HodEngine/Input/API/WindowLib/KeyboardWindowLib.hpp"
 
 #include <HodEngine/Window/Desktop/IDesktopWindowInputListener.hpp>
 
@@ -42,7 +42,7 @@ namespace hod::input
 
 	private:
 
-		DeviceKeyboardWindowLib				_keyboard;
-		//DeviceMouseWindowLib				_mouse;
+		KeyboardWindowLib					_keyboard;
+		//MouseWindowLib					_mouse;
 	};
 }

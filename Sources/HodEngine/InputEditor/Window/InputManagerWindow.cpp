@@ -4,7 +4,7 @@
 #include "HodEngine/InputEditor/Window/DeviceWindow.hpp"
 
 #include <HodEngine/Input/InputManager.hpp>
-#include <HodEngine/Input/Device.hpp>
+#include <HodEngine/Input/Devices/Device.hpp>
 
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
 

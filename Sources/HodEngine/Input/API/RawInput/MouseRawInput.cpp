@@ -1,5 +1,5 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/API/RawInput/DeviceMouseRawInput.hpp"
+#include "HodEngine/Input/API/RawInput/MouseRawInput.hpp"
 #include "HodEngine/Input/Api.hpp"
 
 #include <WinUser.h>
@@ -21,8 +21,8 @@ namespace hod::input
 	/// @param handle 
 	/// @param name 
 	/// @param  
-	DeviceMouseRawInput::DeviceMouseRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_MOUSE&)
-	: DeviceMouse(ComputeDeviceUID(handle), name, Product::UNKNOWN)
+	MouseRawInput::MouseRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_MOUSE&)
+	: Mouse(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
 	{
 		SetConnected(true);
@@ -31,7 +31,7 @@ namespace hod::input
 	/// @brief 
 	/// @param feedback 
 	/// @return 
-	bool DeviceMouseRawInput::ApplyFeedback(Feedback& feedback)
+	bool MouseRawInput::ApplyFeedback(Feedback& feedback)
 	{
 		return false;
 	}
@@ -39,12 +39,12 @@ namespace hod::input
 	/// @brief 
 	/// @param cusorPositionX 
 	/// @param cursorPositionY 
-	void DeviceMouseRawInput::ResyncLastCusorPosition()
+	void MouseRawInput::ResyncLastCusorPosition()
 	{
 		_lastAbsoluteDirty = true;
 	}
 
-	void DeviceMouseRawInput::ResetNextState()
+	void MouseRawInput::ResetNextState()
 	{
 		EditNextState<MouseState>()->_delta[0] = 0;
 		EditNextState<MouseState>()->_delta[1] = 0;
@@ -53,7 +53,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @param rawMouse 
-	void DeviceMouseRawInput::ReadRawInput(const RAWMOUSE& rawMouse)
+	void MouseRawInput::ReadRawInput(const RAWMOUSE& rawMouse)
 	{
 		if ((rawMouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
 		{
@@ -143,7 +143,7 @@ namespace hod::input
 
 	/// @brief 
 	/// @return 
-	HANDLE DeviceMouseRawInput::GetHandle()
+	HANDLE MouseRawInput::GetHandle()
 	{
 		return _handle;
 	}
@@ -151,7 +151,7 @@ namespace hod::input
 	/// @brief 
 	/// @param hDevice 
 	/// @return 
-	UID DeviceMouseRawInput::ComputeDeviceUID(HANDLE hDevice)
+	UID MouseRawInput::ComputeDeviceUID(HANDLE hDevice)
 	{
 		return UID(Api::DeviceUidOffset::RAW_INPUT, reinterpret_cast<uint64_t>(hDevice));
 	}

@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <Xinput.h>
 
-#include "HodEngine/Input/API/XInput/DevicePadXbox.hpp"
+#include "HodEngine/Input/API/XInput/GamepadXInput.hpp"
 #include "HodEngine/Input/API/XInput/ApiXInput.hpp"
 
 #include "HodEngine/Input/FeedbackVibration.hpp"
@@ -21,8 +21,8 @@ namespace hod::input
 	/// @brief 
 	/// @param api 
 	/// @param padIndex 
-	DevicePadXbox::DevicePadXbox(uint32_t padIndex)
-		: DevicePad(ComputeDeviceUID(padIndex), "Xbox_Pad", Product::XBOX, sizeof(PadXboxState))
+	GamepadXInput::GamepadXInput(uint32_t padIndex)
+		: Gamepad(ComputeDeviceUID(padIndex), "Xbox_Pad", Product::XBOX, sizeof(PadXboxState))
 		, _padIndex(padIndex)
 	{
 		_lastUpdate = SystemTime::Now();
@@ -63,7 +63,7 @@ namespace hod::input
 		_select.SetStateView(StateView(StateView::Format::Bit, 0, 5));
 	}
 
-	void DevicePadXbox::WriteState(const XINPUT_STATE& xInputState)
+	void GamepadXInput::WriteState(const XINPUT_STATE& xInputState)
 	{
 		if (_lastPacketNumber < xInputState.dwPacketNumber)
 		{
@@ -123,7 +123,7 @@ namespace hod::input
 	/// @brief 
 	/// @param feedback 
 	/// @return 
-	bool DevicePadXbox::ApplyFeedback(Feedback& feedback)
+	bool GamepadXInput::ApplyFeedback(Feedback& feedback)
 	{
 		switch (feedback.GetMetaType())
 		{
@@ -146,7 +146,7 @@ namespace hod::input
 	/// @brief 
 	/// @param left 
 	/// @param right 
-	void DevicePadXbox::Vibrate(float left, float right)
+	void GamepadXInput::Vibrate(float left, float right)
 	{
 		XINPUT_VIBRATION vibration;
 		vibration.wLeftMotorSpeed = (WORD)(left * 65535.0f);
@@ -159,7 +159,7 @@ namespace hod::input
 	/// @param rawValue 
 	/// @param deadZone 
 	/// @return 
-	float DevicePadXbox::GetAxisValue(int32_t rawValue, int32_t deadZone)
+	float GamepadXInput::GetAxisValue(int32_t rawValue, int32_t deadZone)
 	{
 		float result = 0.0f;
 		if (std::abs(rawValue) > deadZone)
@@ -180,7 +180,7 @@ namespace hod::input
 	/// @brief 
 	/// @param padIndex 
 	/// @return 
-	UID DevicePadXbox::ComputeDeviceUID(uint32_t padIndex)
+	UID GamepadXInput::ComputeDeviceUID(uint32_t padIndex)
 	{
 		return UID(Api::DeviceUidOffset::XINPUT, padIndex);
 	}
@@ -189,7 +189,7 @@ namespace hod::input
 	/// @param buttons 
 	/// @param mask 
 	/// @return 
-	float DevicePadXbox::GetButtonValue(uint32_t buttons, uint32_t mask)
+	float GamepadXInput::GetButtonValue(uint32_t buttons, uint32_t mask)
 	{
 		return ((buttons & mask) == 0) ? 0.0f : 1.0f;
 	}
@@ -197,12 +197,12 @@ namespace hod::input
 	/// @brief 
 	/// @param rawValue 
 	/// @return 
-	float DevicePadXbox::GetTriggerValue(uint32_t rawValue)
+	float GamepadXInput::GetTriggerValue(uint32_t rawValue)
 	{
 		return (float)rawValue / 255.0f;
 	}
 
-	uint32_t DevicePadXbox::GetPadIndex() const
+	uint32_t GamepadXInput::GetPadIndex() const
 	{
 		return _padIndex;
 	}

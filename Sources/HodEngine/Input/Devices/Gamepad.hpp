@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Input/Export.hpp"
 
-#include "HodEngine/Input/Device.hpp"
+#include "HodEngine/Input/Devices/Device.hpp"
 #include "HodEngine/Input/State.hpp"
 
 #include "HodEngine/Input/InputButton.hpp"
@@ -11,17 +11,17 @@
 namespace hod::input
 {
 	/// @brief 
-	class HOD_INPUT_API DevicePad : public Device
+	class HOD_INPUT_API Gamepad : public Device
 	{
 	public:
 
-						DevicePad(const UID& uid, const std::string_view& name, Product product, uint32_t stateSize);
-						DevicePad(const DevicePad&) = delete;
-						DevicePad(DevicePad&&) = delete;
-						~DevicePad() override = default;
+						Gamepad(const UID& uid, const std::string_view& name, Product product, uint32_t stateSize);
+						Gamepad(const Gamepad&) = delete;
+						Gamepad(Gamepad&&) = delete;
+						~Gamepad() override = default;
 
-		DevicePad&		operator = (const DevicePad&) = delete;
-		DevicePad&		operator = (DevicePad&&) = delete;
+		Gamepad&		operator = (const Gamepad&) = delete;
+		Gamepad&		operator = (Gamepad&&) = delete;
 
 	public:
 

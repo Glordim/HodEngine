@@ -1,23 +1,23 @@
 #pragma once
 #include "HodEngine/Input/Export.hpp"
 
-#include "HodEngine/Input/Device.hpp"
+#include "HodEngine/Input/Devices/Device.hpp"
 #include "HodEngine/Input/InputButton.hpp"
 
 namespace hod::input
 {
 	/// @brief 
-	class HOD_INPUT_API DeviceKeyboard : public Device
+	class HOD_INPUT_API Keyboard : public Device
 	{
 	public:
 
-						DeviceKeyboard(const UID& uid, const std::string_view& name, Product product);
-						DeviceKeyboard(const DeviceKeyboard&) = delete;
-						DeviceKeyboard(DeviceKeyboard&&) = delete;
-						~DeviceKeyboard() override = default;
+						Keyboard(const UID& uid, const std::string_view& name, Product product);
+						Keyboard(const Keyboard&) = delete;
+						Keyboard(Keyboard&&) = delete;
+						~Keyboard() override = default;
 
-		DeviceKeyboard&	operator = (const DeviceKeyboard&) = delete;
-		DeviceKeyboard&	operator = (DeviceKeyboard&&) = delete;
+		Keyboard&		operator = (const Keyboard&) = delete;
+		Keyboard&		operator = (Keyboard&&) = delete;
 
 	public:
 

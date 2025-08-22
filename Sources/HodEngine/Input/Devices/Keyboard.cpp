@@ -1,5 +1,5 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/Devices/DeviceKeyboard.hpp"
+#include "HodEngine/Input/Devices/Keyboard.hpp"
 #include "HodEngine/Input/State.hpp"
 
 namespace hod::input
@@ -13,7 +13,7 @@ namespace hod::input
 	/// @param uid 
 	/// @param name 
 	/// @param product 
-	DeviceKeyboard::DeviceKeyboard(const UID& uid, const std::string_view& name, Product product)
+	Keyboard::Keyboard(const UID& uid, const std::string_view& name, Product product)
 	: Device(Type::KEYBOARD, uid, name, product, sizeof(KeyboardState))
 	, _a(Identifier(), "a", StateView(StateView::Format::Bit, 0, 0))
 	, _b(Identifier(), "b", StateView(StateView::Format::Bit, 1, 3))
@@ -71,7 +71,7 @@ namespace hod::input
 	}
 
 	/// @brief 
-	void DeviceKeyboard::ClearBufferedTextIfNeeded()
+	void Keyboard::ClearBufferedTextIfNeeded()
 	{
 		if (_readed == true)
 		{
@@ -82,14 +82,14 @@ namespace hod::input
 
 	/// @brief 
 	/// @param characters 
-	void DeviceKeyboard::AppendCharactersToBufferedText(const std::string_view& characters)
+	void Keyboard::AppendCharactersToBufferedText(const std::string_view& characters)
 	{
 		_bufferedText += characters;
 	}
 
 	/// @brief 
 	/// @return 
-	const String& DeviceKeyboard::GetBufferedText()
+	const String& Keyboard::GetBufferedText()
 	{
 		_readed = true;
 		return _bufferedText;

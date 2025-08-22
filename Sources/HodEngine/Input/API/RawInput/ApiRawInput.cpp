@@ -2,8 +2,8 @@
 #include "HodEngine/Input/API/RawInput/ApiRawInput.hpp"
 
 #include "HodEngine/Input/InputManager.hpp"
-#include "HodEngine/Input/API/RawInput/DeviceMouseRawInput.hpp"
-#include "HodEngine/Input/API/RawInput/DeviceKeyboardRawInput.hpp"
+#include "HodEngine/Input/API/RawInput/MouseRawInput.hpp"
+#include "HodEngine/Input/API/RawInput/KeyboardRawInput.hpp"
 
 #include <WinDNS.h>
 #include <WinUser.h>
@@ -155,11 +155,11 @@ namespace hod::input
 	{
 		if (info.dwType == RIM_TYPEMOUSE)
 		{
-			DeviceMouseRawInput* mouse = FindMouse(hDevice);
+			MouseRawInput* mouse = FindMouse(hDevice);
 
 			if (mouse == nullptr)
 			{
-				mouse = DefaultAllocator::GetInstance().New<DeviceMouseRawInput>(hDevice, name, info.mouse);
+				mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(hDevice, name, info.mouse);
 
 				_mice.push_back(mouse);
 
@@ -170,11 +170,11 @@ namespace hod::input
 		}
 		else if (info.dwType == RIM_TYPEKEYBOARD)
 		{
-			DeviceKeyboardRawInput* keyboard = FindKeyboard(hDevice);
+			KeyboardRawInput* keyboard = FindKeyboard(hDevice);
 
 			if (keyboard == nullptr)
 			{
-				keyboard = DefaultAllocator::GetInstance().New<DeviceKeyboardRawInput>(hDevice, name, info.keyboard);
+				keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(hDevice, name, info.keyboard);
 
 				_keyboards.push_back(keyboard);
 
@@ -207,7 +207,7 @@ namespace hod::input
 
 		ApiRawInput::_pInstance = nullptr;
 
-		for (DeviceMouseRawInput* mouse : _mice)
+		for (MouseRawInput* mouse : _mice)
 		{
 			if (mouse->IsConnected() == true)
 			{
@@ -216,7 +216,7 @@ namespace hod::input
 			DefaultAllocator::GetInstance().Delete(mouse);
 		}
 
-		for (DeviceKeyboardRawInput* keyboard : _keyboards)
+		for (KeyboardRawInput* keyboard : _keyboards)
 		{
 			if (keyboard->IsConnected() == true)
 			{
@@ -333,7 +333,7 @@ namespace hod::input
 
 		if (rawInputData.header.dwType == RIM_TYPEMOUSE)
 		{
-			DeviceMouseRawInput* mouse = FindMouse(hDevice);
+			MouseRawInput* mouse = FindMouse(hDevice);
 
 			if (mouse != nullptr)
 			{
@@ -342,7 +342,7 @@ namespace hod::input
 		}
 		else if (rawInputData.header.dwType == RIM_TYPEKEYBOARD)
 		{
-			DeviceKeyboardRawInput* keyboard = FindKeyboard(hDevice);
+			KeyboardRawInput* keyboard = FindKeyboard(hDevice);
 
 			if (keyboard != nullptr)
 			{
@@ -367,13 +367,13 @@ namespace hod::input
 		{
 			_bJustGainFocus = false;
 
-			for (DeviceMouseRawInput* mouse : _mice)
+			for (MouseRawInput* mouse : _mice)
 			{
 				mouse->ResyncLastCusorPosition();
 			}
 		}
 
-		for (DeviceKeyboardRawInput* keyboard : _keyboards)
+		for (KeyboardRawInput* keyboard : _keyboards)
 		{
 			keyboard->ClearBufferedTextIfNeeded();
 		}
@@ -381,12 +381,12 @@ namespace hod::input
 		PullDeviceChangeMessages();
 		PullCharacterMessages();
 
-		for (DeviceMouseRawInput* mouse : _mice)
+		for (MouseRawInput* mouse : _mice)
 		{
 			mouse->UpdateState();
 		}
 
-		for (DeviceKeyboardRawInput* keyboard : _keyboards)
+		for (KeyboardRawInput* keyboard : _keyboards)
 		{
 			keyboard->UpdateState();
 		}
@@ -443,9 +443,9 @@ namespace hod::input
 	/// @brief 
 	/// @param hDevice 
 	/// @return 
-	DeviceMouseRawInput* ApiRawInput::FindMouse(HANDLE hDevice) const
+	MouseRawInput* ApiRawInput::FindMouse(HANDLE hDevice) const
 	{
-		for (DeviceMouseRawInput* mouse : _mice)
+		for (MouseRawInput* mouse : _mice)
 		{
 			if (mouse->GetHandle() == hDevice)
 			{
@@ -466,9 +466,9 @@ namespace hod::input
 	/// @brief 
 	/// @param hDevice 
 	/// @return 
-	DeviceKeyboardRawInput* ApiRawInput::FindKeyboard(HANDLE hDevice) const
+	KeyboardRawInput* ApiRawInput::FindKeyboard(HANDLE hDevice) const
 	{
-		for (DeviceKeyboardRawInput* keyboard : _keyboards)
+		for (KeyboardRawInput* keyboard : _keyboards)
 		{
 			if (keyboard->GetHandle() == hDevice)
 			{

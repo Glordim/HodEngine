@@ -1,7 +1,7 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/InputManager.hpp"
 #include "HodEngine/Input/Api.hpp"
-#include "HodEngine/Input/Device.hpp"
+#include "HodEngine/Input/Devices/Device.hpp"
 
 #include "HodEngine/Core/Frame/FrameSequencer.hpp"
 #include "HodEngine/Core/Job/JobScheduler.hpp"

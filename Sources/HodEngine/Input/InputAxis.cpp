@@ -1,8 +1,6 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/InputAxis.hpp"
 
-#include "HodEngine/Input/Device.hpp"
-
 namespace hod::input
 {
 	DESCRIBE_REFLECTED_CLASS(InputAxis, reflectionDescriptor)

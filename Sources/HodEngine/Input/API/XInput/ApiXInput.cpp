@@ -1,6 +1,6 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/API/XInput/ApiXInput.hpp"
-#include "HodEngine/Input/API/XInput/DevicePadXbox.hpp"
+#include "HodEngine/Input/API/XInput/GamepadXInput.hpp"
 
 namespace hod::input
 {
@@ -12,7 +12,7 @@ namespace hod::input
 	/// @brief 
 	ApiXInput::~ApiXInput()
 	{
-		for (DevicePadXbox* device : _pads)
+		for (GamepadXInput* device : _pads)
 		{
 			if (device != nullptr)
 			{
@@ -54,7 +54,7 @@ namespace hod::input
 
 		for (uint32_t padIndex = 0; padIndex < MaxPad; ++padIndex)
 		{
-			DevicePadXbox* device = DefaultAllocator::GetInstance().New<DevicePadXbox>(padIndex);
+			GamepadXInput* device = DefaultAllocator::GetInstance().New<GamepadXInput>(padIndex);
 
 			_pads[padIndex] = device;
 
@@ -68,7 +68,7 @@ namespace hod::input
 	/// @brief 
 	void ApiXInput::UpdateDeviceValues()
 	{
-		for (DevicePadXbox* xboxPad : _pads)
+		for (GamepadXInput* xboxPad : _pads)
 		{
 			XINPUT_STATE state;
 			std::memset(&state, 0, sizeof(XINPUT_STATE));

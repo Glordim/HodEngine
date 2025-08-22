@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Input/Export.hpp"
 
-#include "HodEngine/Input/Devices/DeviceMouse.hpp"
+#include "HodEngine/Input/Devices/Mouse.hpp"
 #include "HodEngine/Input/Input.hpp"
 
 #include <Windows.h>
@@ -9,17 +9,17 @@
 namespace hod::input
 {
 	/// @brief 
-	class HOD_INPUT_API DeviceMouseRawInput : public DeviceMouse
+	class HOD_INPUT_API MouseRawInput : public Mouse
 	{
 	public:
 
-										DeviceMouseRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_MOUSE& info);
-										DeviceMouseRawInput(const DeviceMouseRawInput&) = delete;
-										DeviceMouseRawInput(DeviceMouseRawInput&&) = delete;
-										~DeviceMouseRawInput() override = default;
+										MouseRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_MOUSE& info);
+										MouseRawInput(const MouseRawInput&) = delete;
+										MouseRawInput(MouseRawInput&&) = delete;
+										~MouseRawInput() override = default;
 
-		DeviceMouseRawInput&			operator = (const DeviceMouseRawInput&) = delete;
-		DeviceMouseRawInput&			operator = (DeviceMouseRawInput&&) = delete;
+		MouseRawInput&			operator = (const MouseRawInput&) = delete;
+		MouseRawInput&			operator = (MouseRawInput&&) = delete;
 
 	public:
 

@@ -8,14 +8,14 @@
 
 namespace hod::input
 {
-	class DevicePadXbox;
+	class GamepadXInput;
 
 	/// @brief 
 	class HOD_INPUT_API ApiXInput : public Api
 	{
 	private:
 
-		friend class DevicePadXbox;
+		friend class GamepadXInput;
 
 		using XInputGetStateProc = DWORD(*)(DWORD userIndex, XINPUT_STATE* state);
 		using XInputSetStateProc = DWORD(*)(DWORD userIndex, XINPUT_VIBRATION* vibration);
@@ -50,6 +50,6 @@ namespace hod::input
 		XInputGetStateProc		_getStateProc = nullptr;
 		XInputSetStateProc		_setStateProc = nullptr;
 
-		DevicePadXbox*			_pads[MaxPad] = { nullptr };
+		GamepadXInput*			_pads[MaxPad] = { nullptr };
 	};
 }

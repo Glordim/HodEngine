@@ -1,5 +1,5 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/Device.hpp"
+#include "HodEngine/Input/Devices/Device.hpp"
 #include "HodEngine/Input/Input.hpp"
 #include "HodEngine/Input/InputManager.hpp"
 
