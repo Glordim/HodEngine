@@ -6,7 +6,7 @@ namespace hod
 {
 	/// @brief 
 	FileSystemWatcher::FileSystemWatcher()
-	: _internalJob(this, &FileSystemWatcher::Update, JobQueue::FramedLowPriority)
+	: _internalJob(this, &FileSystemWatcher::Update, JobQueue::Queue::Framed)
 	{
 
 	}

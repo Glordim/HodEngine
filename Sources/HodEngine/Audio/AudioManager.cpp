@@ -5,7 +5,7 @@
 namespace hod::audio
 {
     _SingletonConstructor(AudioManager)
-	: _updateJob(this, &AudioManager::Update, JobQueue::FramedHighPriority)
+	: _updateJob(this, &AudioManager::Update, JobQueue::Queue::Framed)
 	{
 
 	}

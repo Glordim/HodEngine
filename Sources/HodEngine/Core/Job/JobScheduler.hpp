@@ -4,6 +4,8 @@
 #include "HodEngine/Core/Singleton.hpp"
 #include "HodEngine/Core/Job/JobQueue.hpp"
 
+#include "HodEngine/Core/Reflection/EnumTrait.hpp"
+
 #include <stdint.h>
 
 namespace hod
@@ -26,6 +28,6 @@ namespace hod
 
 	private:
 
-		JobQueue	_queues[JobQueue::Queue::Count];
+		JobQueue	_queues[EnumTrait::GetCount<JobQueue::Queue>()];
 	};
 }

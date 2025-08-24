@@ -46,7 +46,7 @@ namespace hod::imgui
 {
 	/// @brief 
 	_SingletonConstructor(ImGuiManager)
-		: _updateJob(this, &ImGuiManager::Update, JobQueue::Queue::FramedNormalPriority)
+		: _updateJob(this, &ImGuiManager::Update, JobQueue::Queue::Framed)
 #if defined (PLATFORM_WINDOWS)
 		, _winProcSlot(&ImGui_ImplWin32_WndProcHandler)
 #endif

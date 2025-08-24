@@ -74,8 +74,8 @@ namespace hod
 		/// @brief 
 		/// @param  
 		World::World()
-		: _updateJob(this, &World::Update, JobQueue::Queue::FramedNormalPriority)
-		, _drawJob(this, &World::Draw, JobQueue::Queue::FramedNormalPriority)
+		: _updateJob(this, &World::Update, JobQueue::Queue::Framed)
+		, _drawJob(this, &World::Draw, JobQueue::Queue::Framed)
 		, _persistanteScene(DefaultAllocator::GetInstance().New<Scene>())
 		{
 		}

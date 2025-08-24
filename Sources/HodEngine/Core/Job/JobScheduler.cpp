@@ -8,7 +8,7 @@ namespace hod
 	/// @brief 
 	JobScheduler::JobScheduler()
 	{
-		for (uint32_t index = 0; index < JobQueue::Queue::Count; ++index)
+		for (uint32_t index = 0; index < EnumTrait::GetCount<JobQueue::Queue>(); ++index)
 		{
 			_queues[index].Init(static_cast<JobQueue::Queue>(index));
 		}
@@ -18,6 +18,6 @@ namespace hod
 	/// @param job 
 	void JobScheduler::Push(Job* job)
 	{
-		_queues[job->GetQueue()].Enqueue(job);
+		_queues[(uint32_t)job->GetQueue()].Enqueue(job);
 	}
 }

@@ -5,29 +5,22 @@
 #include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
+#include "HodEngine/Core/Reflection/EnumTrait.hpp"
 #include "HodEngine/Core/String.hpp"
 #include <atomic>
 
 namespace hod
 {
 	/// @brief 
-	const char* jobQueueNames[JobQueue::Queue::Count] = {
-		"FrameLowPriority",
-		"FrameNormalPriority",
-		"FrameHighPriority",
-		"UnframedLowPriority",
-		"UnframedNormalPriority",
-		"UnframedHighPriority",
+	const char* jobQueueNames[EnumTrait::GetCount<JobQueue::Queue>()] = {
+		"Framed",
+		"Unframed",
 	};
 
 	/// @brief 
-	Thread::Priority jobQueuePriority[JobQueue::Queue::Count] = {
-		Thread::Priority::Low,
-		Thread::Priority::Normal,
+	Thread::Priority jobQueuePriority[EnumTrait::GetCount<JobQueue::Queue>()] = {
 		Thread::Priority::High,
-		Thread::Priority::Low,
 		Thread::Priority::Normal,
-		Thread::Priority::High,
 	};
 
 	/// @brief 
@@ -95,7 +88,7 @@ namespace hod
 
 		for (uint32_t index = 0; index < count; ++index)
 		{
-			String workerName(jobQueueNames[queue]);
+			String workerName(jobQueueNames[(uint32_t)queue]);
 			workerName += " Worker ";
 
 			String countLabel = std::to_string(count + 1);
@@ -108,7 +101,7 @@ namespace hod
 			workerName += workerIndexLabel;
 
 			_workerThreads[index]._jobQueue = this;
-			_workerThreads[index]._thread.Start(&WorkerThreadFunction, &_workerThreads[index], jobQueuePriority[queue], workerName.c_str());
+			_workerThreads[index]._thread.Start(&WorkerThreadFunction, &_workerThreads[index], jobQueuePriority[(uint32_t)queue], workerName.c_str());
 		}
 	}
 

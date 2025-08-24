@@ -21,7 +21,7 @@ namespace hod::editor
 
 	/// @brief 
 	MissingGameModuleModal::MissingGameModuleModal()
-	: _generationJob(this, &MissingGameModuleModal::GenerationJob, JobQueue::UnframedHighPriority)
+	: _generationJob(this, &MissingGameModuleModal::GenerationJob, JobQueue::Queue::Unframed)
 	{
 		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->SetSize(320, 200);

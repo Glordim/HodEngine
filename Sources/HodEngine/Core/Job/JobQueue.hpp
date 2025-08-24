@@ -15,17 +15,10 @@ namespace hod
 	{
 	public:
 
-		enum Queue
+		enum class Queue
 		{
-			FramedHighPriority = 0,
-			FramedNormalPriority,
-			FramedLowPriority,
-
-			UnframedHighPriority,
-			UnframedNormalPriority,
-			UnframedLowPriority,
-
-			Count
+			Framed = 0,
+			Unframed,
 		};
 
 	public:
