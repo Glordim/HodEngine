@@ -24,7 +24,20 @@ namespace hod::input
 		Mouse&			operator = (const Mouse&) = delete;
 		Mouse&			operator = (Mouse&&) = delete;
 
-	private:
+	public:
+		//inline const InputAxis&	GetAxis() const { return _axis; }
+		inline const InputAxis&	GetAxisX() const { return _axisX; }
+		inline const InputAxis&	GetAxisY() const { return _axisY; }
+
+		inline const InputAxis&	GetAxisWheel() const { return _axisWheel; }
+
+		inline const InputButton&	GetButtonLeft() const { return _buttonLeft; }
+		inline const InputButton&	GetButtonRight() const { return _buttonRight; }
+		inline const InputButton&	GetButtonWheel() const { return _buttonWheel; }
+
+		inline const InputButton&	GetButtonForward() const { return _buttonForward; }
+		inline const InputButton&	GetButtonBackward() const { return _buttonBackward; }
+	protected:
 
 		//InputAxis		_axis;
 		InputAxis		_axisX;
@@ -35,7 +48,8 @@ namespace hod::input
 		InputButton		_buttonLeft;
 		InputButton		_buttonRight;
 		InputButton		_buttonWheel;
-		InputButton		_button4;
-		InputButton		_button5;
+
+		InputButton		_buttonForward;
+		InputButton		_buttonBackward;
 	};
 }

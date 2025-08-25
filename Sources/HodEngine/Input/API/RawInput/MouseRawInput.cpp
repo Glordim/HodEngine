@@ -25,6 +25,17 @@ namespace hod::input
 	: Mouse(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
 	{
+		_axisX.SetStateView(StateView(StateView::Format::S16, 0));
+		_axisY.SetStateView(StateView(StateView::Format::S16, 2));
+
+		_axisWheel.SetStateView(StateView(StateView::Format::S8, 4));
+
+		_buttonLeft.SetStateView(StateView(StateView::Format::Bit, 5, 0));
+		_buttonRight.SetStateView(StateView(StateView::Format::Bit, 5, 1));
+		_buttonWheel.SetStateView(StateView(StateView::Format::Bit, 5, 2));
+		_buttonForward.SetStateView(StateView(StateView::Format::Bit, 5, 4));
+		_buttonBackward.SetStateView(StateView(StateView::Format::Bit, 5, 3));
+
 		SetConnected(true);
 	}
 

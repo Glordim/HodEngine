@@ -24,8 +24,8 @@ namespace hod::input
 	, _buttonLeft(Identifier(), "Button Left", StateView(StateView::Format::Bit, 0, 0))
 	, _buttonRight(Identifier(), "Button Right", StateView(StateView::Format::Bit, 0, 0))
 	, _buttonWheel(Identifier(), "Button Wheel", StateView(StateView::Format::Bit, 0, 0))
-	, _button4(Identifier(), "Button 4", StateView(StateView::Format::Bit, 0, 0))
-	, _button5(Identifier(), "Button 5", StateView(StateView::Format::Bit, 0, 0))
+	, _buttonForward(Identifier(), "Button Forward", StateView(StateView::Format::Bit, 0, 0))
+	, _buttonBackward(Identifier(), "Button Backward", StateView(StateView::Format::Bit, 0, 0))
 	{
 		AddInput(&_axisX);
 		AddInput(&_axisY);
@@ -35,7 +35,8 @@ namespace hod::input
 		AddInput(&_buttonLeft);
 		AddInput(&_buttonRight);
 		AddInput(&_buttonWheel);
-		AddInput(&_button4);
-		AddInput(&_button5);
+
+		AddInput(&_buttonForward);
+		AddInput(&_buttonBackward);
 	}
 }
