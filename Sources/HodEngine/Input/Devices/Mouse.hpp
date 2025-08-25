@@ -25,6 +25,9 @@ namespace hod::input
 		Mouse&			operator = (Mouse&&) = delete;
 
 	public:
+
+		static inline const Mouse* Current() { return _current; }
+
 		//inline const InputAxis&	GetAxis() const { return _axis; }
 		inline const InputAxis&	GetAxisX() const { return _axisX; }
 		inline const InputAxis&	GetAxisY() const { return _axisY; }
@@ -37,6 +40,15 @@ namespace hod::input
 
 		inline const InputButton&	GetButtonForward() const { return _buttonForward; }
 		inline const InputButton&	GetButtonBackward() const { return _buttonBackward; }
+
+	protected:
+
+		inline void MakeCurrent() override { _current = this; }
+
+	protected:
+
+		static Mouse* _current;
+
 	protected:
 
 		//InputAxis		_axis;

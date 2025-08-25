@@ -154,5 +154,11 @@ namespace hod::input
 		std::memcpy(_currentState, _nextState, _stateSize);
 		ResetNextState();
 		_stateLock.Unlock();
+
+		if (_markForCurrent)
+		{
+			MakeCurrent();
+			_markForCurrent = false;
+		}
 	}
 }

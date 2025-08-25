@@ -83,6 +83,8 @@ namespace hod::input
 		void					SetName(const std::string_view& name);
 
 		virtual void			ResetNextState() {};
+		virtual void			MakeCurrent() = 0;
+		inline void				MarkForCurrent() { _markForCurrent = true; }
 
 	private:
 
@@ -91,6 +93,8 @@ namespace hod::input
 		State*					_previousState = nullptr;
 		State*					_currentState = nullptr;
 		State*					_nextState = nullptr;
+
+		bool					_markForCurrent = false;
 
 		String					_name;
 

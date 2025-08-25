@@ -4,6 +4,8 @@
 
 namespace hod::input
 {
+	Gamepad* Gamepad::_current = nullptr;
+
 	/// @brief 
 	/// @param uid 
 	/// @param name 

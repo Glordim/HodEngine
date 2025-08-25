@@ -25,6 +25,18 @@ namespace hod::input
 
 	public:
 
+		static inline const Gamepad* Current() { return _current; }
+
+	protected:
+
+		inline void MakeCurrent() override { _current = this; }
+
+	protected:
+
+		static Gamepad* _current;
+
+	public:
+
 		//InputVector2	_leftStick;
 		InputAxis		_leftStickX;
 		InputAxis		_leftStickLeft;

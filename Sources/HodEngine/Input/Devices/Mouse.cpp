@@ -11,6 +11,8 @@ namespace hod::input
 		uint8_t		_buttons;
 	};
 
+	Mouse* Mouse::_current = nullptr;
+
 	/// @brief 
 	/// @param uid 
 	/// @param name 

@@ -21,9 +21,19 @@ namespace hod::input
 
 	public:
 
+		static inline const Keyboard* Current() { return _current; }
+
 		void				ClearBufferedTextIfNeeded();
 		void				AppendCharactersToBufferedText(const std::string_view& characters);
 		const String&		GetBufferedText();
+
+	protected:
+
+		inline void MakeCurrent() override { _current = this; }
+
+	protected:
+
+		static Keyboard* _current;
 
 	private:
 

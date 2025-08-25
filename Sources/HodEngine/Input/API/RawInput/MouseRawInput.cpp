@@ -104,11 +104,13 @@ namespace hod::input
 			int32_t detents = EditNextState<MouseState>()->_wheel;
 			detents += (SHORT)rawMouse.usButtonData / WHEEL_DELTA;
 			EditNextState<MouseState>()->_wheel = (int8_t)std::clamp(detents, (int32_t)std::numeric_limits<int8_t>::lowest(), (int32_t)std::numeric_limits<int8_t>::max());
+			MarkForCurrent();
 		}
 
 		if (uiButtonFlag & RI_MOUSE_LEFT_BUTTON_DOWN)
 		{
 			EditNextState<MouseState>()->_buttons |= (1 << 0);
+			MarkForCurrent();
 		}
 		else if (uiButtonFlag & RI_MOUSE_LEFT_BUTTON_UP)
 		{
@@ -118,6 +120,7 @@ namespace hod::input
 		if (uiButtonFlag & RI_MOUSE_RIGHT_BUTTON_DOWN)
 		{
 			EditNextState<MouseState>()->_buttons |= (1 << 1);
+			MarkForCurrent();
 		}
 		else if (uiButtonFlag & RI_MOUSE_RIGHT_BUTTON_UP)
 		{
@@ -127,6 +130,7 @@ namespace hod::input
 		if (uiButtonFlag & RI_MOUSE_MIDDLE_BUTTON_DOWN)
 		{
 			EditNextState<MouseState>()->_buttons |= (1 << 2);
+			MarkForCurrent();
 		}
 		else if (uiButtonFlag & RI_MOUSE_MIDDLE_BUTTON_UP)
 		{
@@ -136,6 +140,7 @@ namespace hod::input
 		if (uiButtonFlag & RI_MOUSE_BUTTON_4_DOWN)
 		{
 			EditNextState<MouseState>()->_buttons |= (1 << 3);
+			MarkForCurrent();
 		}
 		else if (uiButtonFlag & RI_MOUSE_BUTTON_4_UP)
 		{
@@ -145,6 +150,7 @@ namespace hod::input
 		if (uiButtonFlag & RI_MOUSE_BUTTON_5_DOWN)
 		{
 			EditNextState<MouseState>()->_buttons |= (1 << 4);
+			MarkForCurrent();
 		}
 		else if (uiButtonFlag & RI_MOUSE_BUTTON_5_UP)
 		{

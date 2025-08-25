@@ -9,6 +9,8 @@ namespace hod::input
 		uint8_t _keys[16]; // 128 bits, 1 key = 1 bit
 	};
 
+	Keyboard* Keyboard::_current = nullptr;
+
 	/// @brief 
 	/// @param uid 
 	/// @param name 
