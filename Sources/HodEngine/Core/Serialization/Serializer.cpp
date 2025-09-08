@@ -243,7 +243,7 @@ namespace hod
         while (next != nullptr)
         {
             std::string_view elementName(propertyPath.c_str(), next);
-            ReflectionPropertyObject* property = reflectionDescriptor.FindProperty<ReflectionPropertyObject>(elementName);
+            ReflectionPropertyObject* property = finalReflectionDescriptor->FindProperty<ReflectionPropertyObject>(elementName);
             if (property != nullptr)
             {
                 instance = property->GetInstance(instance);

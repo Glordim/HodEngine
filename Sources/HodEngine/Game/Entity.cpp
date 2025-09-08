@@ -303,6 +303,8 @@ namespace hod::game
 	/// @param parent 
 	void Entity::SetParent(const WeakEntity& parent)
 	{
+		assert(parent.Lock() != this);
+
 		if (_parent.Lock() == parent.Lock())
 		{
 			return;
