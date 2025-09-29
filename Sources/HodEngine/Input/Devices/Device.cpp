@@ -11,11 +11,11 @@ namespace hod::input
 	/// @param name 
 	/// @param product 
 	Device::Device(Type type, const UID& uid, const std::string_view& name, Product product, uint32_t stateSize)
-		: _uid(uid)
+		: _stateSize(stateSize)
+		, _uid(uid)
 		, _type(type)
 		, _product(product)
 		, _connected(false)
-		, _stateSize(stateSize)
 	{
 		SetName(name);
 

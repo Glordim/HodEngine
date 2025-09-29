@@ -12,7 +12,6 @@ namespace hod::input
 
 	public:
 
-		InputAxis() = default;
 		InputAxis(Identifier identifier, const String& displayName, const StateView& stateView);
 
 		float	ReadValue() const;

@@ -45,7 +45,6 @@ namespace hod
 
 		SpinLock _spinLock;
 		bool	 _stopAllocationCollect = false;
-		uint32_t _allocationCount = 0;
 
 		AllocationHeader*	_firstAlloc = nullptr;
 		AllocationHeader*	_lastAlloc = nullptr;

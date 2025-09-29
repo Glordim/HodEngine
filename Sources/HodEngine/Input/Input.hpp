@@ -22,7 +22,6 @@ namespace hod::input
 
 	public:
 
-										Input() = default;
 										Input(Identifier identifier, const String& displayName, const StateView& stateView);
 										Input(const Input& other) = delete;
 										Input(Input&& other) = delete;

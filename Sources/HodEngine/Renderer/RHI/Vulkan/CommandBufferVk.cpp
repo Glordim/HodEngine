@@ -213,7 +213,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void CommandBufferVk::SetModelMatrix(const Matrix4& modelMatrix)
+		void CommandBufferVk::SetModelMatrix(const Matrix4& /*modelMatrix*/)
 		{
 			/*
 			MaterialInstance* modelMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(&_sharedMinimalMaterialInstance->GetMaterial());
@@ -324,7 +324,7 @@ namespace hod
 			vkCmdDrawIndexed(_vkCommandBuffer, indexCount, 1, indexOffset, vertexOffset, 0);
 		}
 
-		void CommandBufferVk::Present(Context* context)
+		void CommandBufferVk::Present(Context* /*context*/)
 		{
 
 		}

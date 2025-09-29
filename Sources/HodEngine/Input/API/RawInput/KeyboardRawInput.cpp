@@ -662,7 +662,7 @@ namespace hod::input
 	/// @param handle 
 	/// @param name 
 	/// @param info 
-	KeyboardRawInput::KeyboardRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_KEYBOARD& info)
+	KeyboardRawInput::KeyboardRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_KEYBOARD& /*info*/)
 	: Keyboard(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
 	{
@@ -682,7 +682,7 @@ namespace hod::input
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool KeyboardRawInput::ApplyFeedback(Feedback& feedback)
+	bool KeyboardRawInput::ApplyFeedback(Feedback& /*feedback*/)
 	{
 		return false;
 	}
@@ -701,9 +701,9 @@ namespace hod::input
 		InputId inputId = ConvertWindowsScanCodeToInputId(scanCode);
 		if (inputId != InputId::Unknown)
 		{
-			float value = (rawKeyboard.Flags & RI_KEY_BREAK) ? 0.0f : 1.0f;
+			//float value = (rawKeyboard.Flags & RI_KEY_BREAK) ? 0.0f : 1.0f;
 
-			int32_t index = static_cast<int32_t>(inputId) - (InputId::KeyboardStartEnum + 1);
+			//int32_t index = static_cast<int32_t>(inputId) - (InputId::KeyboardStartEnum + 1);
 
 //			SetInputValue(_keys[index], value);
 

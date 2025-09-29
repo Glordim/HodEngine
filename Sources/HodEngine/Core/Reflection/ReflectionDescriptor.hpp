@@ -49,8 +49,8 @@ namespace hod
 
 		void									Init(const Data& data);
 
-		const Vector<ReflectionTrait*>&	GetTraits() const;
-		const Vector<ReflectionProperty*>&	GetProperties() const;
+		const Vector<ReflectionTrait*>&			GetTraits() const;
+		const Vector<ReflectionProperty*>&		GetProperties() const;
 
 		template<typename _Trait_, typename... Args>
 		_Trait_*								AddTrait(Args&&... args);
@@ -92,12 +92,12 @@ namespace hod
 		bool									Compare(const void* left, const void* right) const;
 
 		MetaType								GetMetaType() const;
-		const String&						GetTypeName() const;
+		const String&							GetTypeName() const;
 
 		ReflectionDescriptor*					GetParent() const;
 		bool									IsCompatible(const ReflectionDescriptor& descriptor) const;
 
-		const String&						GetDisplayName() const;
+		const String&							GetDisplayName() const;
 
 	private:
 

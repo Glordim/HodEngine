@@ -91,7 +91,7 @@ namespace hod::input
 		std::mutex									_characterLock;
 		Vector<char>								_vCharacterMessages;
 
-		bool										_bIgnoreNextMouseMessage = false;
+		//bool										_bIgnoreNextMouseMessage = false;
 		bool										_bJustGainFocus = false;
 
 		Event<bool>::Slot							_onFocusChangeSlot;

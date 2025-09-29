@@ -2,6 +2,9 @@
 
 #include "HodEngine/Input/StateView.hpp"
 
+#undef min
+#undef max
+
 namespace hod::input
 {
 	StateView::StateView(Format format, uint32_t byteOffset, uint32_t bitOffset)

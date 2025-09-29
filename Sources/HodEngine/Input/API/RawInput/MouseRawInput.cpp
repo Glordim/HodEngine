@@ -42,7 +42,7 @@ namespace hod::input
 	/// @brief 
 	/// @param feedback 
 	/// @return 
-	bool MouseRawInput::ApplyFeedback(Feedback& feedback)
+	bool MouseRawInput::ApplyFeedback(Feedback& /*feedback*/)
 	{
 		return false;
 	}

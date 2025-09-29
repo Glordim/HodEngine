@@ -19,7 +19,7 @@ namespace hod::input
 {
 	/// @brief 
 	/// @param errorMessage 
-	void GetWinLastErrorMsg(String& errorMessage)
+	void GetWinLastErrorMsg(String& /*errorMessage*/)
 	{
 		// TODO
 	}

@@ -121,7 +121,7 @@ namespace hod::window
 	/// @param yesChoice 
 	/// @param noChoice 
 	/// @return 
-	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& yesChoice, const std::string_view& noChoice)
+	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& /*yesChoice*/, [[maybe_unused]] const std::string_view& /*noChoice*/)
 	{
 		return MessageBox(NULL, description.data(), title.data(), MB_YESNO) == IDYES;
 	}
