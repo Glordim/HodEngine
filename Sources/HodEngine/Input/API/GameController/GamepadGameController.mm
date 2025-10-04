@@ -35,14 +35,14 @@ namespace hod::input
 
 	void GamepadGameController::WriteNextState()
 	{
-		EditNextState<PadState>()->_buttons[0] = 0;
+		EditNextState<PadGameControllerState>()->_buttons[0] = 0;
 		if (_extendedGamepad.leftShoulder.pressed)
-			EditNextState<PadState>()->_buttons[0] |= (1 << 0);
+			EditNextState<PadGameControllerState>()->_buttons[0] |= (1 << 0);
 		if (_extendedGamepad.rightShoulder.pressed)
-			EditNextState<PadState>()->_buttons[0] |= (1 << 1);
+			EditNextState<PadGameControllerState>()->_buttons[0] |= (1 << 1);
 		if (_extendedGamepad.leftThumbstickButton.pressed)
-			EditNextState<PadState>()->_buttons[0] |= (1 << 2);
+			EditNextState<PadGameControllerState>()->_buttons[0] |= (1 << 2);
 		if (_extendedGamepad.rightThumbstickButton.pressed)
-			EditNextState<PadState>()->_buttons[0] |= (1 << 3);
+			EditNextState<PadGameControllerState>()->_buttons[0] |= (1 << 3);
 	}
 }

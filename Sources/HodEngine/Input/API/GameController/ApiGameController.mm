@@ -1,6 +1,6 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/API/GameController/ApiGameController.hpp"
-#include "HodEngine/Input/API/GameController/DevicePadGameController.hpp"
+#include "HodEngine/Input/API/GameController/GamepadGameController.hpp"
 
 #include "HodEngine/Input/InputManager.hpp"
 
@@ -65,14 +65,14 @@ namespace hod::input
 
 	void ApiGameController::AddPadDevice(GCExtendedGamepad* extendedGamepad)
 	{
-		DevicePadGameController* pad = DefaultAllocator::GetInstance().New<DevicePadGameController>(extendedGamepad);
+		GamepadGameController* pad = DefaultAllocator::GetInstance().New<GamepadGameController>(extendedGamepad);
 
 		_pads.push_back(pad);
 	}
 
 	void ApiGameController::RemovePadDevice(GCExtendedGamepad* extendedGamepad)
 	{
-		auto it = std::find_if(_pads.begin(), _pads.end(), [extendedGamepad](DevicePadGameController* pad){
+		auto it = std::find_if(_pads.begin(), _pads.end(), [extendedGamepad](GamepadGameController* pad){
 			return (pad->GetInternalExtendedPad() == extendedGamepad);
 		});
 		if (it != _pads.end())
@@ -85,7 +85,7 @@ namespace hod::input
 	/// @brief 
 	void ApiGameController::UpdateDeviceValues()
 	{
-		for (DevicePadGameController* pad : _pads)
+		for (GamepadGameController* pad : _pads)
 		{
 			pad->WriteNextState();
 			pad->UpdateState();
