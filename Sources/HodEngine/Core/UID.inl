@@ -2,18 +2,18 @@
 namespace hod
 {
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	inline bool UID::IsValid() const
 	{
-		return (*this != INVALID_UID);
+		return *this != INVALID_UID;
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	inline bool UID::Compare(const UID& other) const
 	{
-		return (_low == other._low && _high == other._high);
+		return _low == other._low && _high == other._high;
 	}
 }

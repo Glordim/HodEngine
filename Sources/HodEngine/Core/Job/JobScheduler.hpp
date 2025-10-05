@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include "HodEngine/Core/Singleton.hpp"
 #include "HodEngine/Core/Job/JobQueue.hpp"
+#include "HodEngine/Core/Singleton.hpp"
 
 #include "HodEngine/Core/Reflection/EnumTrait.hpp"
 
@@ -12,22 +12,19 @@ namespace hod
 {
 	class Job;
 
-	/// @brief 
+	/// @brief
 	class HOD_CORE_API JobScheduler : public Singleton<JobScheduler>
 	{
 		friend class Singleton<JobScheduler>;
 		friend class Allocator;
 
 	public:
-
-		void		Push(Job* job);
+		void Push(Job* job);
 
 	protected:
-
-					JobScheduler();
+		JobScheduler();
 
 	private:
-
-		JobQueue	_queues[EnumTrait::GetCount<JobQueue::Queue>()];
+		JobQueue _queues[EnumTrait::GetCount<JobQueue::Queue>()];
 	};
 }

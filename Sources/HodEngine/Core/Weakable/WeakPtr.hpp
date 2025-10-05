@@ -2,19 +2,18 @@
 #include "HodEngine/Core/Export.hpp"
 #include <type_traits>
 
-//#include "HodEngine/Core/Weakable/Weakable.hpp"
+// #include "HodEngine/Core/Weakable/Weakable.hpp"
 #include "HodEngine/Core/Weakable/WeakableAliveController.hpp"
 
 namespace hod
 {
-	template <typename _Type_>
-	concept IsDerivedFromWeakable = true;//std::is_base_of_v<Weakable, _Type_>;
+	template<typename _Type_>
+	concept IsDerivedFromWeakable = true; // std::is_base_of_v<Weakable, _Type_>;
 
 	template<IsDerivedFromWeakable _Type_>
 	class WeakPtr
 	{
 	public:
-
 		WeakPtr() = default;
 		WeakPtr(_Type_* ptr);
 		WeakPtr(_Type_& ptr);
@@ -22,26 +21,24 @@ namespace hod
 		WeakPtr(const WeakPtr& copy);
 		WeakPtr(WeakPtr&&) = default;
 
-		WeakPtr&	operator=(_Type_* ptr);
-		WeakPtr&	operator=(_Type_& ptr);
+		WeakPtr& operator=(_Type_* ptr);
+		WeakPtr& operator=(_Type_& ptr);
 
-		WeakPtr&	operator=(const WeakPtr& copy);
-		WeakPtr&	operator=(WeakPtr&&) = default;
+		WeakPtr& operator=(const WeakPtr& copy);
+		WeakPtr& operator=(WeakPtr&&) = default;
 
-		bool 		IsValid() const;
+		bool IsValid() const;
 
-		_Type_*		Get() const;
-		_Type_*		operator->() const;
-		_Type_&		operator*() const;
-
-	private:
-
-		void		Reset(_Type_* weakable);
+		_Type_* Get() const;
+		_Type_* operator->() const;
+		_Type_& operator*() const;
 
 	private:
+		void Reset(_Type_* weakable);
 
-		_Type_*										_ptr = nullptr;
-		std::shared_ptr<WeakableAliveController>	_aliveController = nullptr;
+	private:
+		_Type_*                                  _ptr = nullptr;
+		std::shared_ptr<WeakableAliveController> _aliveController = nullptr;
 	};
 
 	template<IsDerivedFromWeakable _Type_>
@@ -101,7 +98,7 @@ namespace hod
 	template<IsDerivedFromWeakable _Type_>
 	bool WeakPtr<_Type_>::IsValid() const
 	{
-		return (_aliveController && _aliveController->IsAlive());
+		return _aliveController && _aliveController->IsAlive();
 	}
 
 	template<IsDerivedFromWeakable _Type_>
@@ -125,6 +122,6 @@ namespace hod
 	template<IsDerivedFromWeakable _Type_>
 	bool operator==(std::nullptr_t, const WeakPtr<_Type_>& r)
 	{
-		return (r.Get() == nullptr);
+		return r.Get() == nullptr;
 	}
 }

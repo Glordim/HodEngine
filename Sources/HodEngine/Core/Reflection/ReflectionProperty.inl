@@ -1,10 +1,10 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @tparam __TRAIT_TYPE__ 
-	/// @tparam ...Args 
-	/// @param ...args 
+	/// @brief
+	/// @tparam __TRAIT_TYPE__
+	/// @tparam ...Args
+	/// @param ...args
 	template<typename __TRAIT_TYPE__, typename... Args>
 	__TRAIT_TYPE__* ReflectionProperty::AddTrait(Args&&... args)
 	{
@@ -13,9 +13,9 @@ namespace hod
 		return trait;
 	}
 
-	/// @brief 
-	/// @tparam _Trait_ 
-	/// @return 
+	/// @brief
+	/// @tparam _Trait_
+	/// @return
 	template<typename _Trait_>
 	_Trait_* ReflectionProperty::FindTrait() const
 	{

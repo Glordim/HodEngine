@@ -2,84 +2,78 @@
 #include "HodEngine/Game/Export.hpp"
 #include <memory>
 
-#include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
+#include <HodEngine/Core/UID.hpp>
 
 namespace hod
 {
-    class Resource;
+	class Resource;
 
-    /// @brief 
-    class HOD_CORE_API WeakResourceBase
-    {
-        REFLECTED_CLASS_NO_PARENT(WeakResourceBase)
+	/// @brief
+	class HOD_CORE_API WeakResourceBase
+	{
+		REFLECTED_CLASS_NO_PARENT(WeakResourceBase)
 
-    public:
+	public:
+		WeakResourceBase(ReflectionDescriptor* resourceDescriptor);
+		WeakResourceBase(ReflectionDescriptor* resourceDescriptor, const std::shared_ptr<Resource>& pointer);
+		virtual ~WeakResourceBase();
 
-                            WeakResourceBase(ReflectionDescriptor* resourceDescriptor);
-                            WeakResourceBase(ReflectionDescriptor* resourceDescriptor, const std::shared_ptr<Resource>& pointer);
-        virtual             ~WeakResourceBase();
+		WeakResourceBase& operator=(const WeakResourceBase& copy);
+		WeakResourceBase& operator=(const std::weak_ptr<Resource>& pointer);
 
-        WeakResourceBase&   operator = (const WeakResourceBase& copy);
-        WeakResourceBase&   operator = (const std::weak_ptr<Resource>& pointer);
+		bool operator==(const WeakResourceBase& other) const;
 
-        bool                operator==(const WeakResourceBase& other) const;
+	public:
+		std::shared_ptr<Resource> Lock() const;
+		const UID&                GetUid() const;
+		const UID&                GetForSerialization() const;
 
-    public:
+		ReflectionDescriptor* GetResourceDescriptor() const;
 
-        std::shared_ptr<Resource>   Lock() const;
-        const UID&                  GetUid() const;
-        const UID&                  GetForSerialization() const;
+		void SetUid(const UID& uid);
 
-        ReflectionDescriptor*       GetResourceDescriptor() const;
+	private:
+		ReflectionDescriptor* _resourceDescriptor = nullptr;
 
-        void                        SetUid(const UID& uid);
+		UID                               _uid;
+		mutable std::shared_ptr<Resource> _pointer;
+	};
 
-    private:
+	/// @brief
+	/// @tparam _Resource_
+	template<typename _Resource_>
+	class WeakResource : public WeakResourceBase
+	{
+		REFLECTED_CLASS(WeakResource<_Resource_>, WeakResourceBase)
 
-        ReflectionDescriptor*           _resourceDescriptor = nullptr;
-        
-        UID                                 _uid;
-        mutable std::shared_ptr<Resource>   _pointer;
-    };
+	public:
+		WeakResource()
+		: WeakResourceBase(&_Resource_::GetReflectionDescriptor())
+		{
+		}
 
-    /// @brief 
-    /// @tparam _Resource_ 
-    template<typename _Resource_>
-    class WeakResource : public WeakResourceBase
-    {
-        REFLECTED_CLASS(WeakResource<_Resource_>, WeakResourceBase)
+		/// @brief
+		/// @param pointer
+		WeakResource(const std::shared_ptr<_Resource_>& pointer)
+		: WeakResourceBase(_Resource_::GetReflectionDescriptor(), pointer)
+		{
+		}
 
-    public:
+		/// @brief
+		~WeakResource() {}
 
-        WeakResource()
-        : WeakResourceBase(&_Resource_::GetReflectionDescriptor())
-        {
-        }
+		/// @brief
+		/// @return
+		std::shared_ptr<_Resource_> Lock() const
+		{
+			return std::static_pointer_cast<_Resource_>(WeakResourceBase::Lock());
+		}
+	};
 
-        /// @brief 
-        /// @param pointer 
-        WeakResource(const std::shared_ptr<_Resource_>& pointer)
-        : WeakResourceBase(_Resource_::GetReflectionDescriptor(), pointer)
-        {
-        }
-
-        /// @brief 
-        ~WeakResource()
-        {
-        }
-
-        /// @brief 
-        /// @return 
-        std::shared_ptr<_Resource_> Lock() const
-        {
-            return std::static_pointer_cast<_Resource_>(WeakResourceBase::Lock());
-        }
-    };
-
-    template<typename _Resource_>
-    void WeakResource<_Resource_>::FillReflectionDescriptorUser(ReflectionDescriptor& reflectionDescriptor)
-    {
-        (void)reflectionDescriptor;
-    }
+	template<typename _Resource_>
+	void WeakResource<_Resource_>::FillReflectionDescriptorUser(ReflectionDescriptor& reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 }

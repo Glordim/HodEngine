@@ -5,55 +5,54 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @param queue 
-	/// @param deleteAfterCompletion 
+	/// @brief
+	/// @param queue
+	/// @param deleteAfterCompletion
 	Job::Job(JobQueue::Queue queue, bool deleteAfterCompletion, Thread::Id threadId)
-		: _threadId(threadId)
-		, _queue(queue)
-		, _isDeleteAfterCompletion(deleteAfterCompletion)
-	{
+	: _threadId(threadId)
+	, _queue(queue)
+	, _isDeleteAfterCompletion(deleteAfterCompletion)
+	{}
 
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Thread::Id Job::GetThreadId() const
 	{
 		return _threadId;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	JobQueue::Queue Job::GetQueue() const
 	{
 		return _queue;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Job::IsDeleteAfterCompletion() const
 	{
 		return _isDeleteAfterCompletion;
 	}
 
-	/// @brief 
+	/// @brief
 	void Job::Prepare()
 	{
 		_state = 0;
 		_waitFlag.clear();
 	}
 
-	/// @brief 
+	/// @brief
 	void Job::SetQueued()
 	{
 		_state |= State::Queued;
 	}
 
-	/// @brief 
+	/// @brief
 	void Job::Execute()
 	{
-		while ((_state & State::Queued) == 0);
+		while ((_state & State::Queued) == 0)
+			;
 		_state &= ~State::Queued;
 		if ((_state & State::Canceled) == 0)
 		{
@@ -77,14 +76,14 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	bool Job::Cancel()
 	{
 		_state |= State::Canceled;
 		return (_state & (State::Queued | State::Executing)) != 0;
 	}
 
-	/// @brief 
+	/// @brief
 	void Job::Wait()
 	{
 		if ((_state & State::Completed) == 0)

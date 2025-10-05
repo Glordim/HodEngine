@@ -36,7 +36,6 @@ BraceWrapping:
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
 
-BreakBeforeBraces: Custom
 BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: AfterComma
 ConstructorInitializerIndentWidth: 0
@@ -68,6 +67,11 @@ TabWidth: 4
 UseTab: AlignWithSpaces
 InsertBraces: true
 RemoveBracesLLVM: false
+AlignEscapedNewlines: Left
+
+BreakBeforeBraces: Allman
+BreakBeforeInitializerList: Always
+AllowShortArraysOnASingleLine: false
 
 StatementMacros:
   - _Singleton

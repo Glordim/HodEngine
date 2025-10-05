@@ -1,17 +1,17 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Output/OutputBucket.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 namespace hod
 {
 	static thread_local Vector<OutputBucket*> _buckets;
 
-	/// @brief 
-	/// @param fileName 
-	/// @param lineNumber 
-	/// @param type 
-	/// @param format 
-	/// @param  
+	/// @brief
+	/// @param fileName
+	/// @param lineNumber
+	/// @param type
+	/// @param format
+	/// @param
 	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, const char* format)
 	{
 		for (OutputBucket* bucket : _buckets)
@@ -24,14 +24,14 @@ namespace hod
 		PlatformOutput(type, content);
 	}
 
-	/// @brief 
-	/// @param bucket 
+	/// @brief
+	/// @param bucket
 	void OutputService::PushBucket(OutputBucket& bucket)
 	{
 		_buckets.push_back(&bucket);
 	}
 
-	/// @brief 
+	/// @brief
 	void OutputService::PopBucket()
 	{
 		_buckets.pop_back();

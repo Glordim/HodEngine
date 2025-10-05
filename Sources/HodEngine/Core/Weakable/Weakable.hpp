@@ -10,13 +10,12 @@ namespace hod
 	class HOD_CORE_API Weakable
 	{
 	public:
-				Weakable();
-		virtual	~Weakable();
+		Weakable();
+		virtual ~Weakable();
 
-		std::shared_ptr<WeakableAliveController>	GetAliveController() const;
+		std::shared_ptr<WeakableAliveController> GetAliveController() const;
 
 	private:
-
-		std::shared_ptr<WeakableAliveController>	_aliveController = nullptr;
+		std::shared_ptr<WeakableAliveController> _aliveController = nullptr;
 	};
 }

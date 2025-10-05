@@ -1,27 +1,27 @@
 #include "HodEngine/Core/Pch.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Memory/MemLeakDetectorAllocator.hpp"
 #include "HodEngine/Core/OS.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #if defined(HOD_ENABLED_MEMLEAK_DETECTOR)
 
-#include <cstdlib>
-#include <cstring>
-#include <cassert>
+	#include <cassert>
+	#include <cstdlib>
+	#include <cstring>
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	MemLeakDetectorAllocator::~MemLeakDetectorAllocator()
 	{
 		DumpReport();
 	}
 
-	/// @brief 
-	/// @param size 
-	/// @param alignment 
-	/// @return 
+	/// @brief
+	/// @param size
+	/// @param alignment
+	/// @return
 	void* MemLeakDetectorAllocator::AllocateInternal(uint32_t size, uint32_t alignment)
 	{
 		if (alignment < alignof(std::max_align_t) || std::has_single_bit(alignment) == false) // check if pow2
@@ -30,14 +30,14 @@ namespace hod
 			alignment = alignof(std::max_align_t);
 		}
 
-		uint32_t maxPadding  = 0;
+		uint32_t maxPadding = 0;
 		if (alignment > 0)
 		{
-			maxPadding  = alignment - 1;
+			maxPadding = alignment - 1;
 		}
-		
+
 		// [ AllocationHeader ][ padding ][ pointer to header ][ aligned user ptr ]
-		uint32_t alignedSize = sizeof(AllocationHeader) + maxPadding  + sizeof(AllocationHeader*) + size;
+		uint32_t alignedSize = sizeof(AllocationHeader) + maxPadding + sizeof(AllocationHeader*) + size;
 		alignedSize = (alignedSize + alignment - 1) / alignment * alignment;
 		void* allocation = _mallocAllocator.Allocate(alignedSize, alignment);
 		if (allocation == nullptr)
@@ -76,11 +76,11 @@ namespace hod
 		return alignedPtr;
 	}
 
-	/// @brief 
-	/// @param ptr 
-	/// @param newSize 
-	/// @param alignment 
-	/// @return 
+	/// @brief
+	/// @param ptr
+	/// @param newSize
+	/// @param alignment
+	/// @return
 	void* MemLeakDetectorAllocator::ReallocateInternal(void* ptr, uint32_t newSize, uint32_t alignment)
 	{
 		(void)ptr;
@@ -89,8 +89,8 @@ namespace hod
 		return nullptr; // todo
 	}
 
-	/// @brief 
-	/// @param userAddress 
+	/// @brief
+	/// @param userAddress
 	void MemLeakDetectorAllocator::FreeInternal(void* userAddress)
 	{
 		if (userAddress == nullptr)
@@ -98,7 +98,7 @@ namespace hod
 			return;
 		}
 
-		AllocationHeader* allocationHeader = *reinterpret_cast<AllocationHeader**>((reinterpret_cast<uintptr_t>(userAddress) - sizeof(AllocationHeader*)));
+		AllocationHeader* allocationHeader = *reinterpret_cast<AllocationHeader**>(reinterpret_cast<uintptr_t>(userAddress) - sizeof(AllocationHeader*));
 		if (_stopAllocationCollect == false)
 		{
 			_spinLock.Lock();
@@ -125,8 +125,8 @@ namespace hod
 		_mallocAllocator.Free(allocationHeader);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool MemLeakDetectorAllocator::DumpReport()
 	{
 		bool result = true;
@@ -139,8 +139,8 @@ namespace hod
 			symbolInfo._function.reserve(2048);
 			symbolInfo._module.reserve(2048);
 
-			uint32_t totalLeak = 0;
-			uintmax_t totalSize = 0;
+			uint32_t          totalLeak = 0;
+			uintmax_t         totalSize = 0;
 			AllocationHeader* it = _firstAlloc;
 			while (it != nullptr)
 			{
@@ -165,7 +165,7 @@ namespace hod
 				it = _firstAlloc;
 				while (it != nullptr)
 				{
-					//fprintf(memleakReport, "Ptr = %p\n", it->_userAddress);
+					// fprintf(memleakReport, "Ptr = %p\n", it->_userAddress);
 					fprintf(memleakReport, "Size = %u\n", it->_size);
 					fprintf(memleakReport, "Callstack :\n");
 

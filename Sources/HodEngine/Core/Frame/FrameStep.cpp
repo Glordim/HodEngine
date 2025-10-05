@@ -1,16 +1,16 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Frame/FrameStep.hpp"
 
-#include "HodEngine/Core/Job/JobScheduler.hpp"
 #include "HodEngine/Core/Job/Job.hpp"
+#include "HodEngine/Core/Job/JobScheduler.hpp"
 
-#include <assert.h>
 #include <algorithm>
+#include <assert.h>
 
 namespace hod
 {
-	/// @brief 
-	/// @param job 
+	/// @brief
+	/// @param job
 	void FrameStep::InsertJob(Job* job)
 	{
 		assert(std::find(_jobs.begin(), _jobs.end(), job) == _jobs.end());
@@ -18,8 +18,8 @@ namespace hod
 		_jobs.push_back(job);
 	}
 
-	/// @brief 
-	/// @param job 
+	/// @brief
+	/// @param job
 	void FrameStep::RemoveJob(Job* job)
 	{
 		Vector<Job*>::iterator jobIt = std::find(_jobs.begin(), _jobs.end(), job);
@@ -29,7 +29,7 @@ namespace hod
 		_jobs.erase(jobIt);
 	}
 
-	/// @brief 
+	/// @brief
 	void FrameStep::Enqueue()
 	{
 		JobScheduler* jobScheduler = JobScheduler::GetInstance();
@@ -42,7 +42,7 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void FrameStep::Wait()
 	{
 		uint32_t jobCount = (uint32_t)_jobs.size();

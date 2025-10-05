@@ -3,15 +3,15 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector<ReflectionDescriptor*>& ReflectionTraitAllowedClasses::GetAllowedClasses() const
 	{
 		return _allowedClasses;
 	}
 
-	/// @brief 
-	/// @param reflectionDescriptor 
+	/// @brief
+	/// @param reflectionDescriptor
 	void ReflectionTraitAllowedClasses::AddAllowedClass(ReflectionDescriptor* reflectionDescriptor)
 	{
 		_allowedClasses.push_back(reflectionDescriptor);

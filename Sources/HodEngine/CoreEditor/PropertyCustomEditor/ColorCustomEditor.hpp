@@ -11,23 +11,21 @@ namespace hod
 
 namespace hod::editor
 {
-	/// @brief 
+	/// @brief
 	class HOD_CORE_EDITOR_API ColorCustomEditor : public CustomPropertyDrawer
 	{
 	public:
+		ColorCustomEditor() = default;
+		ColorCustomEditor(const ColorCustomEditor&) = delete;
+		ColorCustomEditor(ColorCustomEditor&&) = delete;
+		~ColorCustomEditor() override = default;
 
-								ColorCustomEditor() = default;
-								ColorCustomEditor(const ColorCustomEditor&) = delete;
-								ColorCustomEditor(ColorCustomEditor&&) = delete;
-								~ColorCustomEditor() override = default;
-
-		ColorCustomEditor&		operator = (const ColorCustomEditor&) = delete;
-		ColorCustomEditor&		operator = (ColorCustomEditor&&) = delete;
+		ColorCustomEditor& operator=(const ColorCustomEditor&) = delete;
+		ColorCustomEditor& operator=(ColorCustomEditor&&) = delete;
 
 	public:
+		bool Draw(EditorReflectedProperty& editorReflectedProperty) override;
 
-		bool					Draw(EditorReflectedProperty& editorReflectedProperty) override;
-
-		static bool				Draw(Color& value);
+		static bool Draw(Color& value);
 	};
 }

@@ -1,37 +1,35 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @tparam Type 
+	/// @brief
+	/// @tparam Type
 	template<typename Type>
 	LinkedList<Type>::LinkedList()
-		: _data(nullptr)
+	: _data(nullptr)
 	{
-
 	}
 
-	/// @brief 
-	/// @tparam Type 
-	/// @param data 
+	/// @brief
+	/// @tparam Type
+	/// @param data
 	template<typename Type>
 	LinkedList<Type>::LinkedList(Type* data)
-		: _data(data)
+	: _data(data)
 	{
-
 	}
 
-	/// @brief 
-	/// @tparam Type 
-	/// @return 
+	/// @brief
+	/// @tparam Type
+	/// @return
 	template<typename Type>
 	inline LinkedList<Type>* LinkedList<Type>::Next() const
 	{
 		return _next;
 	}
 
-	/// @brief 
-	/// @tparam Type 
-	/// @return 
+	/// @brief
+	/// @tparam Type
+	/// @return
 	template<typename Type>
 	LinkedList<Type>* LinkedList<Type>::Back() const
 	{
@@ -43,9 +41,9 @@ namespace hod
 		return current;
 	}
 
-	/// @brief 
-	/// @tparam Type 
-	/// @param next 
+	/// @brief
+	/// @tparam Type
+	/// @param next
 	template<typename Type>
 	inline void LinkedList<Type>::InsertNext(LinkedList<Type>* next)
 	{
@@ -53,18 +51,18 @@ namespace hod
 		_next = next;
 	}
 
-	/// @brief 
-	/// @tparam Type 
-	/// @param element 
+	/// @brief
+	/// @tparam Type
+	/// @param element
 	template<typename Type>
 	inline void LinkedList<Type>::PushBack(LinkedList<Type>* element)
 	{
 		Back()->InsertNext(element);
 	}
 
-	/// @brief 
-	/// @tparam Type 
-	/// @return 
+	/// @brief
+	/// @tparam Type
+	/// @return
 	template<typename Type>
 	inline Type* LinkedList<Type>::Data() const
 	{

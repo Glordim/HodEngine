@@ -14,11 +14,10 @@
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	class HOD_CORE_API Thread
 	{
 	public:
-
 #if defined(PLATFORM_WINDOWS)
 		using Id = DWORD;
 		static constexpr Id InvalidId = 0;
@@ -27,7 +26,7 @@ namespace hod
 		static constexpr Id InvalidId = 0;
 #endif
 
-		using Function = int(*)(void*);
+		using Function = int (*)(void*);
 
 		enum Priority
 		{
@@ -39,39 +38,35 @@ namespace hod
 		};
 
 	public:
-
-		static Id	GetCurrentThreadId();
-
-	public:
-
-					Thread() = default;
-					Thread(const Thread&) = delete;
-					Thread(Thread&&) = delete;
-					~Thread() = default;
-
-		Thread&		operator = (const Thread&) = delete;
-		Thread&		operator = (Thread&&) = delete;
+		static Id GetCurrentThreadId();
 
 	public:
+		Thread() = default;
+		Thread(const Thread&) = delete;
+		Thread(Thread&&) = delete;
+		~Thread() = default;
 
-		void		Start(const Function& function, void* parameter = nullptr, Priority priority = Priority::Normal, const char* name = nullptr);
-		void		Join();
-		Id			GetId() const;
+		Thread& operator=(const Thread&) = delete;
+		Thread& operator=(Thread&&) = delete;
+
+	public:
+		void Start(const Function& function, void* parameter = nullptr, Priority priority = Priority::Normal, const char* name = nullptr);
+		void Join();
+		Id   GetId() const;
 
 	private:
-
-		Id			_id;
+		Id _id;
 
 #if defined(PLATFORM_WINDOWS)
-		HANDLE		_handle;
+		HANDLE _handle;
 #endif
 	};
 
-	/// @brief 
+	/// @brief
 	class HOD_CORE_API ThisThread
 	{
 	public:
-		static void		Yield();
-		static void		Sleep(uint32_t millisecond);
+		static void Yield();
+		static void Sleep(uint32_t millisecond);
 	};
 }

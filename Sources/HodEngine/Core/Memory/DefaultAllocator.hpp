@@ -10,13 +10,11 @@ namespace hod
 	class HOD_CORE_API DefaultAllocator
 	{
 	public:
-
 		DefaultAllocator();
 
 		static Allocator& GetInstance();
-	
-	private:
 
+	private:
 		static DefaultAllocator _defaultAllocator;
 	};
 }

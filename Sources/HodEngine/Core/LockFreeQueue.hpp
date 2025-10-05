@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include <atomic>
+#include <stdint.h>
 
 namespace hod
 {
@@ -9,26 +9,25 @@ namespace hod
 	class LockFreeQueue
 	{
 	public:
-						LockFreeQueue();
-						LockFreeQueue(const LockFreeQueue&) = delete;
-						LockFreeQueue(LockFreeQueue&&) = delete;
-						~LockFreeQueue() = default;
+		LockFreeQueue();
+		LockFreeQueue(const LockFreeQueue&) = delete;
+		LockFreeQueue(LockFreeQueue&&) = delete;
+		~LockFreeQueue() = default;
 
-		LockFreeQueue&	operator = (const LockFreeQueue&) = delete;
-		LockFreeQueue&	operator = (LockFreeQueue&&) = delete;
+		LockFreeQueue& operator=(const LockFreeQueue&) = delete;
+		LockFreeQueue& operator=(LockFreeQueue&&) = delete;
 
 	public:
+		bool Enqueue(const _Type_& value);
+		bool Dequeue(_Type_& result);
 
-		bool				Enqueue(const _Type_& value);
-		bool				Dequeue(_Type_& result);
-
-		constexpr uint32_t	GetCapacity() const;
-		uint32_t			GetSize() const;
+		constexpr uint32_t GetCapacity() const;
+		uint32_t           GetSize() const;
 
 	private:
-		alignas(64) _Type_					_buffer[_Capacity_];
-		alignas(64) std::atomic<uint32_t>	_head;
-		alignas(64) std::atomic<uint32_t>	_tail;		
+		alignas(64) _Type_ _buffer[_Capacity_];
+		alignas(64) std::atomic<uint32_t> _head;
+		alignas(64) std::atomic<uint32_t> _tail;
 	};
 }
 

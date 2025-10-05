@@ -7,7 +7,6 @@ namespace hod
 	Weakable::Weakable()
 	: _aliveController(std::make_shared<WeakableAliveController>())
 	{
-
 	}
 
 	Weakable::~Weakable()

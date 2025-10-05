@@ -17,7 +17,9 @@ namespace hod
 	void* MallocAllocator::ReallocateInternal(void* ptr, uint32_t newSize, uint32_t alignment)
 	{
 		if (ptr == nullptr)
+		{
 			return Allocate(newSize, alignment);
+		}
 
 #if PLATFORM_WINDOWS
 		return nullptr;

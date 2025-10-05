@@ -5,19 +5,18 @@
 
 namespace hod
 {
-	///@brief 
+	///@brief
 	class HOD_CORE_API ReflectionTraitSerializedByCallback : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitSerializedByCallback, ReflectionTrait)
 
 	public:
+		ReflectionTraitSerializedByCallback() = default;
+		ReflectionTraitSerializedByCallback(const ReflectionTraitSerializedByCallback& copy) = default;
+		ReflectionTraitSerializedByCallback(ReflectionTraitSerializedByCallback&& move) = default;
+		~ReflectionTraitSerializedByCallback() = default;
 
-													ReflectionTraitSerializedByCallback() = default;
-													ReflectionTraitSerializedByCallback(const ReflectionTraitSerializedByCallback& copy) = default;
-													ReflectionTraitSerializedByCallback(ReflectionTraitSerializedByCallback&& move) = default;
-													~ReflectionTraitSerializedByCallback() = default;
-
-		ReflectionTraitSerializedByCallback&		operator = (const ReflectionTraitSerializedByCallback& copy) = default;
-		ReflectionTraitSerializedByCallback&		operator = (ReflectionTraitSerializedByCallback&& move) = default;
+		ReflectionTraitSerializedByCallback& operator=(const ReflectionTraitSerializedByCallback& copy) = default;
+		ReflectionTraitSerializedByCallback& operator=(ReflectionTraitSerializedByCallback&& move) = default;
 	};
 }
