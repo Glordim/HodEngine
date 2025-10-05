@@ -5,25 +5,25 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @param path 
-	/// @return 
+	/// @brief
+	/// @param path
+	/// @return
 	bool FileSystemWatcher::InternalInit()
 	{
 		/*
 		_fd = open(_path.string().c_str(), O_RDONLY);
 		if (_fd == -1)
 		{
-			perror("open");
-			return 1;
+		    perror("open");
+		    return 1;
 		}
 
 		_kQueue = kqueue();
 		if (_kQueue == -1)
 		{
-			perror("kqueue");
-			close(_fd);
-			return 1;
+		    perror("kqueue");
+		    close(_fd);
+		    return 1;
 		}
 
 		EV_SET(&_change, _fd, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE, 0, NULL);
@@ -31,27 +31,27 @@ namespace hod
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void FileSystemWatcher::Cleanup()
 	{
 		close(_fd);
-    	close(_kQueue);
+		close(_kQueue);
 	}
 
-	/// @brief 
+	/// @brief
 	void FileSystemWatcher::Update()
 	{
 		return;
-		
-		struct kevent event;
-        int nev = kevent(_kQueue, &_change, 1, &event, 1, NULL);
-        if (nev == -1)
-		{
-            perror("kevent");
-            return;
-        }
 
-        if (nev > 0)
+		struct kevent event;
+		int           nev = kevent(_kQueue, &_change, 1, &event, 1, NULL);
+		if (nev == -1)
+		{
+			perror("kevent");
+			return;
+		}
+
+		if (nev > 0)
 		{
 			if (event.fflags & NOTE_WRITE)
 			{

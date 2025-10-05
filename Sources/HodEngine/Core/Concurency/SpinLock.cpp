@@ -3,7 +3,7 @@
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	void SpinLock::Lock()
 	{
 		while (_flag.test_and_set(std::memory_order_acquire))
@@ -12,9 +12,9 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void SpinLock::Unlock()
 	{
 		_flag.clear(std::memory_order_release);
 	}
-} 
+}

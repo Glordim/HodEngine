@@ -5,12 +5,11 @@
 
 namespace hod::application
 {
-	/// @brief 
+	/// @brief
 	class HOD_APPLICATION_API IOSApplication : public GraphicApplication
 	{
 	public:
-
-		bool			Init(int argc, char** argv);
-		bool			Run();
+		bool Init(int argc, char** argv);
+		bool Run();
 	};
 }

@@ -2,11 +2,11 @@
 #include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
-#include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
 
-#include <HodEngine/Window/PlatformWindow.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
+#include <HodEngine/Window/PlatformWindow.hpp>
 
 #include <HodEngine/Audio/PlatformAudioManager.hpp>
 
@@ -18,33 +18,30 @@
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-#include <HodEngine/Core/Job/JobScheduler.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/Core/Job/JobScheduler.hpp>
 
-#include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/SerializedDataFactory.hpp"
+#include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Physics/Physics.hpp"
 
-#include "HodEngine/Core/Time/SystemTime.hpp"
 #include "HodEngine/Core/Resource/ResourceManager.hpp"
+#include "HodEngine/Core/Time/SystemTime.hpp"
 
 #include "HodEngine/UI/Builtin.hpp"
 #include "HodEngine/Window/Window.hpp"
 
 namespace hod::application
 {
-	_SingletonOverrideConstructor(GraphicApplication)
-	{
+	_SingletonOverrideConstructor(GraphicApplication) {}
 
-	}
-
-	/// @brief 
-	/// @param argc 
-	/// @param argv 
-	/// @return 
+	/// @brief
+	/// @param argc
+	/// @param argv
+	/// @return
 	bool GraphicApplication::Init(const ArgumentParser& argumentParser)
 	{
 		(void)argumentParser;
@@ -102,7 +99,7 @@ namespace hod::application
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void GraphicApplication::Terminate()
 	{
 		game::SerializedDataFactory::DestroyInstance();
@@ -125,8 +122,8 @@ namespace hod::application
 		FileSystem::DestroyInstance();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool GraphicApplication::Run()
 	{
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
@@ -154,9 +151,9 @@ namespace hod::application
 			renderer::Renderer::GetInstance()->RenderViews();
 
 			SystemTime::TimeStamp now = SystemTime::Now();
-			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
+			double                elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
 			last = now;
-			
+
 			if (context->SwapBuffer() == false)
 			{
 				return false;
@@ -172,8 +169,8 @@ namespace hod::application
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	window::Window* GraphicApplication::GetWindow() const
 	{
 		return _window;

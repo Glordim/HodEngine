@@ -4,26 +4,26 @@
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	FileSystemWatcher::FileSystemWatcher()
 	: _internalJob(this, &FileSystemWatcher::Update, JobQueue::Queue::Framed)
-	{
+	{}
 
-	}
-
-	/// @brief 
+	/// @brief
 	FileSystemWatcher::~FileSystemWatcher()
 	{
 		Cleanup();
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @param onCreateFile 
-	/// @param onDeleteFile 
-	/// @param onMoveFile 
-	/// @return 
-	bool FileSystemWatcher::Init(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& onCreateFile, const std::function<void(const std::filesystem::path&)>& onDeleteFile, const std::function<void(const std::filesystem::path&)>& onChangeFile, const std::function<void(const std::filesystem::path& old, const std::filesystem::path&)>& onMoveFile)
+	/// @brief
+	/// @param path
+	/// @param onCreateFile
+	/// @param onDeleteFile
+	/// @param onMoveFile
+	/// @return
+	bool FileSystemWatcher::Init(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& onCreateFile,
+	                             const std::function<void(const std::filesystem::path&)>& onDeleteFile, const std::function<void(const std::filesystem::path&)>& onChangeFile,
+	                             const std::function<void(const std::filesystem::path& old, const std::filesystem::path&)>& onMoveFile)
 	{
 		_path = path;
 		_onCreateFile = onCreateFile;
@@ -49,13 +49,13 @@ namespace hod
 		return InternalInit();
 	}
 
-	/// @brief 
+	/// @brief
 	void FileSystemWatcher::RegisterUpdateJob()
 	{
 		FrameSequencer::GetInstance()->InsertJob(&_internalJob, FrameSequencer::Step::PreRender);
 	}
 
-	/// @brief 
+	/// @brief
 	void FileSystemWatcher::UnregisterUpdateJob()
 	{
 		FrameSequencer::GetInstance()->RemoveJob(&_internalJob, FrameSequencer::Step::PreRender);

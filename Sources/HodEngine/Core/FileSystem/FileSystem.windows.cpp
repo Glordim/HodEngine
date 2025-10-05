@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
-#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/OS.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <Windows.h>
 
@@ -19,7 +19,7 @@ namespace hod
 	{
 		if (FileSystem::_userSettingsPath.empty() == true)
 		{
-			char username[256];
+			char          username[256];
 			unsigned long usernameLen = 256;
 			GetUserNameA(username, &usernameLen);
 			FileSystem::_userSettingsPath = std::string("C:\\users\\") + username + "\\AppData\\Local";
@@ -63,9 +63,9 @@ namespace hod
 		return true;
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
+	/// @brief
+	/// @param path
+	/// @return
 	FileSystem::Handle FileSystem::Open(const char* path)
 	{
 		FileSystem::Handle handle;
@@ -77,36 +77,36 @@ namespace hod
 		return handle;
 	}
 
-	/// @brief 
-	/// @param handle 
-	/// @return 
+	/// @brief
+	/// @param handle
+	/// @return
 	uint32_t FileSystem::GetSize(FileSystem::Handle handle)
 	{
 		return GetFileSize(handle._handle, NULL);
 	}
 
-	/// @brief 
-	/// @param handle 
-	/// @return 
+	/// @brief
+	/// @param handle
+	/// @return
 	uint32_t FileSystem::GetOffset(FileSystem::Handle handle)
 	{
 		return SetFilePointer(handle._handle, 0, NULL, FILE_CURRENT);
 	}
 
-	/// @brief 
-	/// @param handle 
-	/// @param position 
-	/// @param mode 
+	/// @brief
+	/// @param handle
+	/// @param position
+	/// @param mode
 	void FileSystem::Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode)
 	{
 		SetFilePointer(handle._handle, position, NULL, static_cast<DWORD>(mode));
 	}
 
-	/// @brief 
-	/// @param handle 
-	/// @param buffer 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param handle
+	/// @param buffer
+	/// @param size
+	/// @return
 	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
 	{
 		DWORD readedBytes = 0;
@@ -117,9 +117,9 @@ namespace hod
 		return -1;
 	}
 
-	/// @brief 
-	/// @param handle 
-	/// @return 
+	/// @brief
+	/// @param handle
+	/// @return
 	bool FileSystem::Close(FileSystem::Handle& handle)
 	{
 		if (CloseHandle(handle._handle) == TRUE)
@@ -130,8 +130,8 @@ namespace hod
 		return false;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool FileSystem::Handle::IsOpen() const
 	{
 		return _handle != INVALID_HANDLE_VALUE;

@@ -5,13 +5,10 @@
 
 namespace hod::audio
 {
-	_SingletonOverrideConstructor(Win32AudioManager)
-	{
+	_SingletonOverrideConstructor(Win32AudioManager) {}
 
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Win32AudioManager::Initialize()
 	{
 		if (CoInitializeEx(nullptr, COINIT_MULTITHREADED) == RPC_E_CHANGED_MODE)
@@ -59,7 +56,7 @@ namespace hod::audio
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void Win32AudioManager::Terminate()
 	{
 		RemoveUpdateJob();
@@ -70,27 +67,27 @@ namespace hod::audio
 		CoUninitialize();
 	}
 
-	/// @brief 
+	/// @brief
 	void Win32AudioManager::Update()
 	{
 		UINT32 bufferFrameCount;
-    	if (_audioClient->GetBufferSize(&bufferFrameCount) < 0)
+		if (_audioClient->GetBufferSize(&bufferFrameCount) < 0)
 		{
 			return;
 		}
 
-    	BYTE* pData;
-    	DWORD flags = 0;
+		BYTE* pData;
+		DWORD flags = 0;
 
 		UINT32 padding;
-        if (_audioClient->GetCurrentPadding(&padding) < 0)
+		if (_audioClient->GetCurrentPadding(&padding) < 0)
 		{
 			return;
 		}
 
-        UINT32 framesAvailable = bufferFrameCount - padding;
+		UINT32 framesAvailable = bufferFrameCount - padding;
 
-        if (_renderClient->GetBuffer(framesAvailable, &pData) < 0)
+		if (_renderClient->GetBuffer(framesAvailable, &pData) < 0)
 		{
 			return;
 		}
@@ -105,19 +102,19 @@ namespace hod::audio
 		const double phaseIncrement = (2.0 * 3.14f * frequency) / _waveFormat->nSamplesPerSec;
 
 		float* pFloatData = reinterpret_cast<float*>(pData);
-        for (UINT32 i = 0; i < framesAvailable; ++i)
+		for (UINT32 i = 0; i < framesAvailable; ++i)
 		{
-            float sampleValue = static_cast<float>(amplitude * sin(phase));
-            for (int channel = 0; channel < _waveFormat->nChannels; ++channel)
-			{
-                pFloatData[i * _waveFormat->nChannels + channel] = sampleValue;
-            }
-            phase += phaseIncrement;
-            if (phase >= 2.0 * 3.14f)
-			{
-                phase -= 2.0 * 3.14f;
-            }
-        }
+		    float sampleValue = static_cast<float>(amplitude * sin(phase));
+		    for (int channel = 0; channel < _waveFormat->nChannels; ++channel)
+		    {
+		        pFloatData[i * _waveFormat->nChannels + channel] = sampleValue;
+		    }
+		    phase += phaseIncrement;
+		    if (phase >= 2.0 * 3.14f)
+		    {
+		        phase -= 2.0 * 3.14f;
+		    }
+		}
 		*/
 
 		if (_renderClient->ReleaseBuffer(framesAvailable, flags) < 0)

@@ -10,25 +10,23 @@ namespace hod
 
 namespace hod::application
 {
-	/// @brief 
+	/// @brief
 	class HOD_APPLICATION_API Application
 	{
 		_Singleton(Application)
 
 	public:
+		virtual ~Application() = default;
 
-		virtual			~Application() = default;
+		virtual bool Init(const ArgumentParser& argumentParser);
+		virtual void Terminate();
+		virtual bool Run();
 
-		virtual bool	Init(const ArgumentParser& argumentParser);
-		virtual void	Terminate();
-		virtual bool	Run();
+		bool CheckIfGameSharedLibraryExist() const;
 
-		bool			CheckIfGameSharedLibraryExist() const;
-
-		void			Quit();
+		void Quit();
 
 	protected:
-
-		bool			_shouldQuit = false;
+		bool _shouldQuit = false;
 	};
 }

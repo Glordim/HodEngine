@@ -22,7 +22,7 @@
 
 #elif defined(PLATFORM_IOS)
 
-	//#include "GraphicApplications/MobileApplications/IOSApplication.hpp"
-	//#define PlatformApplication IOSApplication
+// #include "GraphicApplications/MobileApplications/IOSApplication.hpp"
+// #define PlatformApplication IOSApplication
 
 #endif

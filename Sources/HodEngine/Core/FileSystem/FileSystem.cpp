@@ -4,10 +4,7 @@
 
 namespace hod
 {
-	_SingletonConstructor(FileSystem)
-	{
-
-	}
+	_SingletonConstructor(FileSystem) {}
 
 	bool FileSystem::Init()
 	{

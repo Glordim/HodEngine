@@ -14,22 +14,20 @@ namespace hod::window
 
 namespace hod::application
 {
-	/// @brief 
+	/// @brief
 	class HOD_APPLICATION_API GraphicApplication : public Application
 	{
 		_SingletonOverride(GraphicApplication)
 
 	public:
+		bool Init(const ArgumentParser& argumentParser) override;
+		void Terminate() override;
+		bool Run() override;
 
-		bool			Init(const ArgumentParser& argumentParser) override;
-		void			Terminate() override;
-		bool			Run() override;
-
-		window::Window*	GetWindow() const;
+		window::Window* GetWindow() const;
 
 	protected:
-
-		window::Window*	_window = nullptr;
+		window::Window* _window = nullptr;
 	};
 }
 

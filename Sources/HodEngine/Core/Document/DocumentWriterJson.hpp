@@ -1,35 +1,31 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include "HodEngine/Core/Document/DocumentWriter.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentWriter.hpp"
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	class HOD_CORE_API DocumentWriterJson : public DocumentWriter
 	{
 	public:
+		DocumentWriterJson() = default;
+		DocumentWriterJson(const DocumentWriterJson&) = delete;
+		DocumentWriterJson(DocumentWriterJson&&) = delete;
+		~DocumentWriterJson() override = default;
 
-							DocumentWriterJson() = default;
-							DocumentWriterJson(const DocumentWriterJson&) = delete;
-							DocumentWriterJson(DocumentWriterJson&&) = delete;
-							~DocumentWriterJson() override = default;
-
-		DocumentWriterJson&	operator = (const DocumentWriterJson&) = delete;
-		DocumentWriterJson&	operator = (DocumentWriterJson&&) = delete;
+		DocumentWriterJson& operator=(const DocumentWriterJson&) = delete;
+		DocumentWriterJson& operator=(DocumentWriterJson&&) = delete;
 
 	protected:
-
-		bool				WriteDocument(Document& document, std::ostream& stream) override;
-
-	private:
-
-		bool				WriteNode(const Document::Node& node, std::ostream& stream);
+		bool WriteDocument(Document& document, std::ostream& stream) override;
 
 	private:
+		bool WriteNode(const Document::Node& node, std::ostream& stream);
 
-		bool				_pretty = true;
-		uint32_t			_indentation = 0;
+	private:
+		bool     _pretty = true;
+		uint32_t _indentation = 0;
 	};
 }

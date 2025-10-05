@@ -1,28 +1,28 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Document/DocumentReader.hpp"
 
-#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 namespace hod
 {
-	/// @brief 
-	/// @param document 
-	/// @param path 
-	/// @return 
+	/// @brief
+	/// @param document
+	/// @param path
+	/// @return
 	bool DocumentReader::Read(Document& document, const std::filesystem::path& path)
 	{
 		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
-		bool result = Read(document, fileHandle);
+		bool               result = Read(document, fileHandle);
 		FileSystem::GetInstance()->Close(fileHandle);
 		return result;
 	}
 
-	/// @brief 
-	/// @param document 
-	/// @param fileHandle 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param document
+	/// @param fileHandle
+	/// @param size
+	/// @return
 	bool DocumentReader::Read(Document& document, FileSystem::Handle& fileHandle, uint32_t size)
 	{
 		if (fileHandle.IsOpen() == false)
@@ -54,10 +54,10 @@ namespace hod
 		return result;
 	}
 
-	/// @brief 
-	/// @param buffer 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param buffer
+	/// @param size
+	/// @return
 	bool DocumentReader::Read(Document& document, const char* buffer, uint32_t size)
 	{
 		(void)size; // TODO

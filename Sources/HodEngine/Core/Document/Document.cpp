@@ -10,32 +10,30 @@ namespace hod
 	DESCRIBE_REFLECTED_CLASS(Document, reflectionDescriptor)
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
-		[](const void* instance, Document::Node& documentNode)
-		{
-			String name = documentNode.GetName();
-			documentNode.Copy(static_cast<const Document*>(instance)->GetRootNode());
-			documentNode.SetName(name);
-			return true;
-		},
-		[](void* instance, const Document::Node& documentNode)
-		{
-			static_cast<const Document*>(instance)->GetRootNode().Copy(documentNode);
-			static_cast<const Document*>(instance)->GetRootNode().SetName("");
-			return true;
-		});
+			[](const void* instance, Document::Node& documentNode)
+			{
+				String name = documentNode.GetName();
+				documentNode.Copy(static_cast<const Document*>(instance)->GetRootNode());
+				documentNode.SetName(name);
+				return true;
+			},
+			[](void* instance, const Document::Node& documentNode)
+			{
+				static_cast<const Document*>(instance)->GetRootNode().Copy(documentNode);
+				static_cast<const Document*>(instance)->GetRootNode().SetName("");
+				return true;
+			});
 	}
 
-	/// @brief 
-	/// @param name 
+	/// @brief
+	/// @param name
 	Document::Node::Node(Document& document, const std::string_view& name)
-		: _document(document)
-		, _type(Type::Object)
-		, _name(name)
-	{
+	: _document(document)
+	, _type(Type::Object)
+	, _name(name)
+	{}
 
-	}
-
-	/// @brief 
+	/// @brief
 	Document::Node::~Node()
 	{
 		Document::Node* child = _firstChild;
@@ -47,8 +45,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param node 
+	/// @brief
+	/// @param node
 	void Document::Node::Detach()
 	{
 		if (_parent != nullptr)
@@ -57,8 +55,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param node 
+	/// @brief
+	/// @param node
 	void Document::Node::Detach(Node& node)
 	{
 		Node* child = _firstChild;
@@ -75,8 +73,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param node 
+	/// @brief
+	/// @param node
 	void Document::Node::Attach(Node& node)
 	{
 		node.Detach();
@@ -97,9 +95,9 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	Document::Node& Document::Node::AddChild(const std::string_view& name)
 	{
 		// TODO check if an other child if same name exist
@@ -113,17 +111,17 @@ namespace hod
 		return *node;
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	const Document::Node* Document::Node::GetChild(const std::string_view& name) const
 	{
 		return FindChild(name);
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	Document::Node& Document::Node::GetOrAddChild(const std::string_view& name)
 	{
 		// TODO check if an other child if same name exist
@@ -133,67 +131,67 @@ namespace hod
 		return *node;
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
-	Document::Node& Document::Node::operator [] (const std::string_view& name)
+	/// @brief
+	/// @param name
+	/// @return
+	Document::Node& Document::Node::operator[](const std::string_view& name)
 	{
 		return GetOrAddChild(name);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node::Type Document::Node::GetType() const
 	{
 		return _type;
 	}
 
-	/// @brief 
-	/// @param type 
+	/// @brief
+	/// @param type
 	void Document::Node::SetTye(Type type)
 	{
 		// TODO verify if _type is unset otherwise the value will be corrupted
 		_type = type;
 	}
 
-	/// @brief 
-	/// @param name 
+	/// @brief
+	/// @param name
 	void Document::Node::SetName(const std::string_view& name)
 	{
 		_name = name;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const String& Document::Node::GetName() const
 	{
 		return _name;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node* Document::Node::GetFirstChild() const
 	{
 		return _firstChild;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node* Document::Node::GetNextSibling() const
 	{
 		return _nextSibling;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node* Document::Node::GetParent() const
 	{
 		return _parent;
 	}
 
-	/// @brief 
-	/// @return 
-	uint32_t  Document::Node::GetChildCount() const
+	/// @brief
+	/// @return
+	uint32_t Document::Node::GetChildCount() const
 	{
 		uint32_t count = 0;
 
@@ -206,9 +204,9 @@ namespace hod
 		return count;
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	Document::Node* Document::Node::FindChild(const std::string_view& name) const
 	{
 		Node* child = _firstChild;
@@ -354,24 +352,24 @@ namespace hod
 	{
 		return _value._float64;
 	}
-	
+
 	const String& Document::Node::GetString() const
 	{
 		// TODO add assert if doesn't match with type
 		return _document.GetString(_value._stringId);
 	}
 
-	/// @brief 
-	/// @param right 
-	/// @return 
-	Document& Document::operator = (const Document& right)
+	/// @brief
+	/// @param right
+	/// @return
+	Document& Document::operator=(const Document& right)
 	{
 		_root.Copy(right._root);
 		return *this;
 	}
 
-	/// @brief 
-	/// @param source 
+	/// @brief
+	/// @param source
 	void Document::Node::Copy(const Document::Node& source)
 	{
 		Clear();
@@ -398,7 +396,7 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Document::Node::Clear()
 	{
 		Document::Node* child = _firstChild;
@@ -412,16 +410,16 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node& Document::GetRootNode() const
 	{
 		return const_cast<Document::Node&>(_root);
 	}
 
-	/// @brief 
-	/// @param str 
-	/// @return 
+	/// @brief
+	/// @param str
+	/// @return
 	Document::StringId Document::AddString(const std::string_view& str)
 	{
 		StringId hash = Hash::CompilationTimeFnv64(str);
@@ -429,9 +427,9 @@ namespace hod
 		return hash;
 	}
 
-	/// @brief 
-	/// @param hash 
-	/// @return 
+	/// @brief
+	/// @param hash
+	/// @return
 	const String& Document::GetString(StringId hash)
 	{
 		return _stringTable[hash];
