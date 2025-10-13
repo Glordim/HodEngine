@@ -28,6 +28,8 @@ namespace hod::input
 			KEYBOARD,
 			MOUSE,
 
+			Count,
+
 			ANY,
 		};
 

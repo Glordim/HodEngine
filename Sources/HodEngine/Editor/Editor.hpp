@@ -93,8 +93,6 @@ namespace hod::editor
 		Vector<EditorTab*>					_editorTabs;
 		std::unordered_map<std::string, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
-		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
-
 		renderer::Texture*						_hodTexture = nullptr;
 		renderer::Texture*						_folderTexture = nullptr;
 		renderer::Texture*						_folderOpenTexture = nullptr;

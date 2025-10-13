@@ -18,7 +18,7 @@ namespace hod
 	};
 
 	/// @brief 
-	Thread::Priority jobQueuePriority[EnumTrait::GetCount<JobQueue::Queue>()] = {
+	Thread::Priority jobQueuePriority[static_cast<uint32_t>(JobQueue::Queue::COUNT)] = {
 		Thread::Priority::High,
 		Thread::Priority::Normal,
 	};

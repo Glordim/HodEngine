@@ -28,6 +28,6 @@ namespace hod
 
 	private:
 
-		JobQueue	_queues[EnumTrait::GetCount<JobQueue::Queue>()];
+		JobQueue	_queues[static_cast<uint32_t>(JobQueue::Queue::COUNT)];
 	};
 }

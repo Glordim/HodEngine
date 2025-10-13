@@ -6,5 +6,5 @@
 
 namespace hod::editor
 {
-    extern const char* deviceTypeToIcon[EnumTrait::GetCount<input::Device::Type>()];
+    extern const char* deviceTypeToIcon[static_cast<uint8_t>(input::Device::Type::Count)];
 }

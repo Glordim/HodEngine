@@ -35,7 +35,7 @@ namespace hod::game
 	/// @brief 
 	void Rigidbody2dComponent::OnConstruct()
 	{
-		static physics::Body::Type modeToTypeMapping[EnumTrait::GetCount<Mode>()] = {
+		static physics::Body::Type modeToTypeMapping[static_cast<uint32_t>(Mode::Count)] = {
 			physics::Body::Type::Static,
 			physics::Body::Type::Kinematic,
 			physics::Body::Type::Dynamic,
@@ -199,7 +199,7 @@ namespace hod::game
 		_mode = mode;
 		if (_body != nullptr)
 		{
-			static physics::Body::Type modeToTypeMapping[EnumTrait::GetCount<Mode>()] = {
+			static physics::Body::Type modeToTypeMapping[static_cast<uint32_t>(Mode::Count)] = {
 				physics::Body::Type::Static,
 				physics::Body::Type::Kinematic,
 				physics::Body::Type::Dynamic,

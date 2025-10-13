@@ -8,7 +8,7 @@ namespace hod
 	/// @brief 
 	JobScheduler::JobScheduler()
 	{
-		for (uint32_t index = 0; index < EnumTrait::GetCount<JobQueue::Queue>(); ++index)
+		for (uint32_t index = 0; index < static_cast<uint32_t>(JobQueue::Queue::COUNT); ++index)
 		{
 			_queues[index].Init(static_cast<JobQueue::Queue>(index));
 		}

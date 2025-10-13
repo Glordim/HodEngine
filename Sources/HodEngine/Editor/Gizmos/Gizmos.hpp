@@ -5,6 +5,8 @@
 #include <HodEngine/Core/Math/Matrix4.hpp>
 #include <HodEngine/Core/Color.hpp>
 
+#undef max
+
 namespace hod::renderer
 {
 	class RenderView;

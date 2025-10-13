@@ -43,6 +43,8 @@ namespace hod::game
 			Static = 0,
 			Kinematic,
 			Dynamic,
+
+			Count
 		};
 
 

@@ -19,6 +19,8 @@ namespace hod
 		{
 			Framed = 0,
 			Unframed,
+
+			COUNT
 		};
 
 	public:
