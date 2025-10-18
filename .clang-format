@@ -56,8 +56,10 @@ SortIncludes: CaseInsensitive
 IncludeCategories:
   - Regex: 'Pch\.hpp"$'
     Priority: 0
-  - Regex: '.*'
+  - Regex: 'Windows.h'
     Priority: 1
+  - Regex: '.*'
+    Priority: 2
 
 SpaceBeforeCpp11BracedList: true
 SpacesInContainerLiterals: false

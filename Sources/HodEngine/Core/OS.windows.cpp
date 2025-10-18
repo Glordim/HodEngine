@@ -3,9 +3,9 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #include <DbgHelp.h>
 #include <shellapi.h>
-#include <Windows.h>
 
 #include <filesystem>
 
