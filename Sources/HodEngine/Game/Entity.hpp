@@ -43,6 +43,7 @@ namespace hod::game
 			Started,
 			Destructed,
 		};
+		REFLECTED_ENUM(InternalState);
 
 		using ChildrenChangedEvent = Event<>;
 

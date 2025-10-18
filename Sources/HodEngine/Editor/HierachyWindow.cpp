@@ -202,7 +202,7 @@ namespace hod::editor
 
 		if (ImGui::BeginItemTooltip())
 		{
-			std::string_view internalStateLabel = EnumTrait::ToString(entity->GetInternalState());
+			std::string_view internalStateLabel = ReflectedEnum<game::Entity::InternalState>::GetEnumDescriptor().ToString(entity->GetInternalState());
 			ImGui::Text("InternalState: %.*s", (int)internalStateLabel.size(), internalStateLabel.data());
 			ImGui::EndTooltip();
 		}

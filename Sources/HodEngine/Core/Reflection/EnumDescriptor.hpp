@@ -23,6 +23,9 @@ namespace hod
 		const Vector<std::pair<uint64_t, std::string>>& GetValues() const;
 
 		template<typename __TYPE__>
+		std::string_view ToString(__TYPE__ value) const;
+
+		template<typename __TYPE__>
 		void AddEnumValue(__TYPE__ value, const char* label);
 
 		template<typename __TYPE__>

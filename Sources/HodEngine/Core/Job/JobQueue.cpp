@@ -12,7 +12,7 @@
 namespace hod
 {
 	/// @brief
-	const char* jobQueueNames[EnumTrait::GetCount<JobQueue::Queue>()] = {
+	const char* jobQueueNames[static_cast<uint32_t>(JobQueue::Queue::COUNT)] = {
 		"Framed",
 		"Unframed",
 	};
@@ -85,7 +85,7 @@ namespace hod
 
 		for (uint32_t index = 0; index < count; ++index)
 		{
-			String workerName(jobQueueNames[(uint32_t)queue]);
+			String workerName(jobQueueNames[index]);
 			workerName += " Worker ";
 
 			String countLabel = std::to_string(count + 1);

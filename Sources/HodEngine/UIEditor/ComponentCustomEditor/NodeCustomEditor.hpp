@@ -6,6 +6,8 @@
 
 #include "HodEngine/Editor/Gizmos/Gizmos.hpp"
 
+#include <HodEngine/ImGui/DearImGui/imgui.h>
+
 namespace hod::renderer
 {
 	class MaterialInstance;

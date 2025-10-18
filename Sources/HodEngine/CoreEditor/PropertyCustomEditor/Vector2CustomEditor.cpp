@@ -7,6 +7,7 @@
 
 #include "HodEngine/Core/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
+#include "HodEngine/ImGui/DearImGui/imgui.h"
 
 namespace hod::editor
 {

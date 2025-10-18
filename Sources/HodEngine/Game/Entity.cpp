@@ -18,6 +18,17 @@ namespace hod::game
 {
 	std::atomic<uint64_t> Entity::_nextInstanceId = 0;
 
+	DESCRIBE_REFLECTED_ENUM(Entity::InternalState, reflectionDescriptor)
+	{
+		// constexpr auto names = EnumTrait::GetEnumNames<Entity::InternalState, 0, 1>();
+
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::None, "None");
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::Constructed, "Constructed");
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::Awaked, "Awaked");
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::Started, "Started");
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::Destructed, "Destructed");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
 	{
 		ReflectionProperty* instanceIdProperty = AddPropertyT(reflectionDescriptor, &Entity::_instanceId, "_instanceId");

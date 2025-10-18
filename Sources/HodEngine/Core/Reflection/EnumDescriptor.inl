@@ -12,6 +12,19 @@ namespace hod
 		_values.emplace_back(static_cast<uint64_t>(value), label);
 	}
 
+	template<typename __TYPE__>
+	std::string_view EnumDescriptor::ToString(__TYPE__ value) const
+	{
+		for (uint32_t i = 0; i < _values.size(); ++i)
+		{
+			if (_values[i].first == static_cast<uint64_t>(value))
+			{
+				return _values[i].second;
+			}
+		}
+		return std::string_view();
+	}
+
 	/// @brief
 	/// @tparam __TYPE__
 	/// @return
@@ -23,10 +36,12 @@ namespace hod
 		EnumDescriptor* enumDescriptor = DefaultAllocator::GetInstance().New<EnumDescriptor>();
 
 		enumDescriptor->_values.clear();
-		for (__TYPE__ value : EnumTrait::GetValues<__TYPE__>())
+		/*
+		for (uint64_t i = 0; i < static_cast<uint64_t>(__TYPE__::COUNT); ++i)
 		{
-			enumDescriptor->_values.emplace_back(static_cast<uint64_t>(value), EnumTrait::ToString(value));
+		    enumDescriptor->_values.emplace_back(static_cast<uint64_t>(i), EnumTrait::ToString(static_cast<__TYPE__>(i)));
 		}
+		    */
 
 		return enumDescriptor;
 	}
