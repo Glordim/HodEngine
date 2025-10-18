@@ -3,16 +3,15 @@
 
 #include <HodEngine/Core/Output/Output.hpp>
 
-#include <mutex>
 #include "HodEngine/Core/Vector.hpp"
+#include <mutex>
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	class HOD_CORE_API OutputBucket
 	{
 	public:
-
 		OutputBucket() = default;
 		OutputBucket(const OutputBucket&) = delete;
 		OutputBucket(OutputBucket&&) = delete;
@@ -22,24 +21,21 @@ namespace hod
 		OutputBucket& operator=(OutputBucket&&) = delete;
 
 	public:
-
 		void Clear();
 
-		std::mutex& GetLock() const;
+		std::mutex&           GetLock() const;
 		const Vector<Output>& GetOutputs() const;
-		void AddOutput(const Output& output);
+		void                  AddOutput(const Output& output);
 
 	private:
-
-		Vector<Output> _outputs;
+		Vector<Output>     _outputs;
 		mutable std::mutex _lock;
 	};
 
-	/// @brief 
+	/// @brief
 	class HOD_CORE_API ScopedEnableOutputBucket
 	{
 	public:
-
 		ScopedEnableOutputBucket(OutputBucket& outputBucket);
 		ScopedEnableOutputBucket(const ScopedEnableOutputBucket&) = delete;
 		ScopedEnableOutputBucket(ScopedEnableOutputBucket&&) = delete;
@@ -49,7 +45,6 @@ namespace hod
 		ScopedEnableOutputBucket& operator=(ScopedEnableOutputBucket&&) = delete;
 
 	private:
-
 		OutputBucket& _outputBucket;
 	};
 }

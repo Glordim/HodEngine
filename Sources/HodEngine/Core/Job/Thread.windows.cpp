@@ -7,12 +7,12 @@
 
 namespace hod
 {
-	int priorities[Thread::Priority::Count] = { THREAD_PRIORITY_BELOW_NORMAL, THREAD_PRIORITY_NORMAL, THREAD_PRIORITY_ABOVE_NORMAL };
+	int priorities[Thread::Priority::Count] = {THREAD_PRIORITY_BELOW_NORMAL, THREAD_PRIORITY_NORMAL, THREAD_PRIORITY_ABOVE_NORMAL};
 
 	thread_local Thread::Id localThreadId = Thread::InvalidId;
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Thread::Id Thread::GetCurrentThreadId()
 	{
 		if (localThreadId == Thread::InvalidId)
@@ -23,31 +23,31 @@ namespace hod
 		return localThreadId;
 	}
 
-	/// @brief 
+	/// @brief
 	struct Descriptor
 	{
-		Thread::Function	_function;
-		void*				_parameter;
+		Thread::Function _function;
+		void*            _parameter;
 	};
 
-	/// @brief 
-	/// @param descriptor 
-	/// @return 
+	/// @brief
+	/// @param descriptor
+	/// @return
 	DWORD WINAPI ThreadFunctionInternal(LPVOID param)
 	{
-		Descriptor* descriptor = static_cast<Descriptor*>(param);
+		Descriptor*      descriptor = static_cast<Descriptor*>(param);
 		Thread::Function function = descriptor->_function;
-		void* parameter = descriptor->_parameter;
+		void*            parameter = descriptor->_parameter;
 		DefaultAllocator::GetInstance().Delete(descriptor);
 
 		return function(parameter);
 	}
 
-	/// @brief 
-	/// @param function 
-	/// @param parameter 
-	/// @param priority 
-	/// @param name 
+	/// @brief
+	/// @param function
+	/// @param parameter
+	/// @param priority
+	/// @param name
 	void Thread::Start(const Function& function, void* parameter, Priority priority, const char* name)
 	{
 		Descriptor* descriptor = DefaultAllocator::GetInstance().New<Descriptor>();
@@ -66,20 +66,20 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Thread::Join()
 	{
 		::WaitForMultipleObjects(1, &_handle, TRUE, INFINITE);
 	}
 
-	/// @brief 
+	/// @brief
 	void ThisThread::Yield()
 	{
 		::SwitchToThread();
 	}
 
-	/// @brief 
-	/// @param millisecond 
+	/// @brief
+	/// @param millisecond
 	void ThisThread::Sleep(uint32_t millisecond)
 	{
 		::Sleep(millisecond);

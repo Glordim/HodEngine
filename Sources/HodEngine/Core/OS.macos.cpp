@@ -2,27 +2,27 @@
 #include "HodEngine/Core/OS.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <execinfo.h>
 #include <cxxabi.h>
 #include <dlfcn.h>
+#include <execinfo.h>
 
 #include <cassert>
 #include <cstring>
 
 namespace hod
 {
-	/// @brief 
-	/// @param callstack 
-	/// @param maxSize 
-	/// @return 
+	/// @brief
+	/// @param callstack
+	/// @param maxSize
+	/// @return
 	uint32_t OS::GetCallstack(void** callstack, uint32_t maxSize)
 	{
 		return backtrace(callstack, maxSize);
 	}
 
-	/// @brief 
-	/// @param addr 
-	/// @return 
+	/// @brief
+	/// @param addr
+	/// @return
 	String OS::GetSymbol(void* addr)
 	{
 		String symbol = "NOT_FOUND";
@@ -38,15 +38,15 @@ namespace hod
 			symbol = symbols[0];
 			free(symbols);
 		}
-		
+
 		return symbol;
 	}
 
-	/// @brief 
-	/// @param addr 
-	/// @param symbol 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param addr
+	/// @param symbol
+	/// @param size
+	/// @return
 	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
 	{
 		Dl_info info;
@@ -62,7 +62,7 @@ namespace hod
 
 		if (demangle)
 		{
-			int status;
+			int   status;
 			char* demangledSymbol = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
 			if (status == 0)
 			{
@@ -70,7 +70,7 @@ namespace hod
 				free(demangledSymbol);
 			}
 		}
-		
+
 		return true;
 	}
 }

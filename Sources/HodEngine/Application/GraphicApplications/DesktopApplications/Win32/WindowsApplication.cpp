@@ -3,8 +3,5 @@
 
 namespace hod::application
 {
-	_SingletonOverrideConstructor(WindowsApplication)
-	{
-
-	}
+	_SingletonOverrideConstructor(WindowsApplication) {}
 }

@@ -6,12 +6,10 @@ namespace hod
 	class HOD_CORE_API WeakableAliveController
 	{
 	public:
-
-		void	MarkAsDead();
-		bool	IsAlive() const;
+		void MarkAsDead();
+		bool IsAlive() const;
 
 	private:
-
-		bool	_alive = true;
+		bool _alive = true;
 	};
 }

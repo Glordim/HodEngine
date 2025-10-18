@@ -5,7 +5,7 @@
 
 namespace hod::application
 {
-	/// @brief 
+	/// @brief
 	class HOD_APPLICATION_API LinuxApplication : public DesktopApplication
 	{
 		_SingletonOverride(LinuxApplication)

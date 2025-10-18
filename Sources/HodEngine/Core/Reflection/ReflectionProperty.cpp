@@ -1,22 +1,22 @@
 #include "HodEngine/Core/Pch.hpp"
+#include "HodEngine/Core/CharHelper.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
-#include "HodEngine/Core/CharHelper.hpp"
 
 #include <algorithm>
 
 namespace hod
 {
-	/// @brief 
-	/// @param offset 
-	/// @param name 
+	/// @brief
+	/// @param offset
+	/// @param name
 	ReflectionProperty::ReflectionProperty(uint32_t offset, const char* name)
 	: _offset(offset)
 	, _name(name)
 	{
 	}
 
-	/// @brief 
+	/// @brief
 	ReflectionProperty::~ReflectionProperty()
 	{
 		for (ReflectionTrait* trait : _traits)
@@ -24,10 +24,9 @@ namespace hod
 			DefaultAllocator::GetInstance().Delete(trait);
 		}
 	}
-	
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const String& ReflectionProperty::GetDisplayName() const
 	{
 		if (_displayName.empty())
@@ -37,23 +36,23 @@ namespace hod
 		return _displayName;
 	}
 
-	///@brief 
-	///@return const Vector<ReflectionTrait>& 
+	///@brief
+	///@return const Vector<ReflectionTrait>&
 	const Vector<ReflectionTrait*>& ReflectionProperty::GetTraits() const
 	{
 		return _traits;
 	}
 
-	///@brief 
-	///@param trait 
+	///@brief
+	///@param trait
 	void ReflectionProperty::AddTrait(ReflectionTrait* trait)
 	{
 		_traits.push_back(trait);
 	}
 
-	/// @brief 
-	/// @param metaType 
-	/// @return 
+	/// @brief
+	/// @param metaType
+	/// @return
 	ReflectionTrait* ReflectionProperty::FindTrait(MetaType metaType) const
 	{
 		for (uint32_t index = 0; index < _traits.size(); ++index)
@@ -66,15 +65,15 @@ namespace hod
 		return nullptr;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	uint32_t ReflectionProperty::GetOffset() const
 	{
 		return _offset;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const char* ReflectionProperty::GetName() const
 	{
 		return _name;

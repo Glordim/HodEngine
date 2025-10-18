@@ -3,21 +3,17 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @param path 
-	/// @return 
+	/// @brief
+	/// @param path
+	/// @return
 	bool FileSystemWatcher::InternalInit()
 	{
 		return true;
 	}
 
-	/// @brief 
-	void FileSystemWatcher::Cleanup()
-	{
-	}
+	/// @brief
+	void FileSystemWatcher::Cleanup() {}
 
-	/// @brief 
-	void FileSystemWatcher::Update()
-	{
-	}
+	/// @brief
+	void FileSystemWatcher::Update() {}
 }

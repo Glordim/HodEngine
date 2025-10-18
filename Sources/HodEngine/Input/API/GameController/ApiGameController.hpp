@@ -14,7 +14,7 @@ class GCExtendedGamepad;
 
 namespace hod::input
 {
-	class DevicePadGameController;
+	class GamepadGameController;
 
 	/// @brief 
 	class HOD_INPUT_API ApiGameController : public Api
@@ -44,7 +44,7 @@ namespace hod::input
 
 	private:
 
-		Vector<DevicePadGameController*>	_pads;
+		Vector<GamepadGameController*>		_pads;
 
 		void*								_connectObserver = nullptr;
 		void*								_disconnectObserver = nullptr;

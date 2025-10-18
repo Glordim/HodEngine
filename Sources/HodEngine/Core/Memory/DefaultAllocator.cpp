@@ -1,9 +1,9 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 
+#include "HodEngine/Core/Memory/Config.hpp"
 #include "HodEngine/Core/Memory/MallocAllocator.hpp"
 #include "HodEngine/Core/Memory/MemLeakDetectorAllocator.hpp"
-#include "HodEngine/Core/Memory/Config.hpp"
 
 namespace hod
 {
@@ -14,14 +14,13 @@ namespace hod
 #endif
 
 #if defined(_MSC_VER)
-	#pragma warning(disable:4075)
+	#pragma warning(disable : 4075)
 	#pragma init_seg(".CRT$XCA-000")
 	DefaultAllocator DefaultAllocator::_defaultAllocator;
-	#pragma warning(default:4075)
+	#pragma warning(default : 4075)
 #else
 	DefaultAllocator DefaultAllocator::_defaultAllocator __attribute__((init_priority(101)));
 #endif
-	
 
 	DefaultAllocator::DefaultAllocator()
 	{

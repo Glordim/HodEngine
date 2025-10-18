@@ -1,15 +1,15 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Process/Process.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/Process/Process.hpp"
 
 #include <Windows.h>
 
 namespace hod
 {
-	/// @brief 
-	/// @param program 
-	/// @param argument 
-	/// @return 
+	/// @brief
+	/// @param program
+	/// @param argument
+	/// @return
 	bool Process::Create(const std::string_view& program, const std::string_view& argument, bool detach)
 	{
 		SECURITY_ATTRIBUTES saAttr;
@@ -47,7 +47,7 @@ namespace hod
 		commandLine += " ";
 		commandLine += argument;
 
-		if (!CreateProcessA(NULL, (char*)commandLine.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW | (detach ? DETACHED_PROCESS : 0), NULL, NULL, &si, &pi)) 
+		if (!CreateProcessA(NULL, (char*)commandLine.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW | (detach ? DETACHED_PROCESS : 0), NULL, NULL, &si, &pi))
 		{
 			OUTPUT_ERROR("Failed to create process ({})", GetLastError());
 			CloseHandle(hStdOutRead);
@@ -67,9 +67,9 @@ namespace hod
 		}
 		else
 		{
-			char buffer[4096];
+			char  buffer[4096];
 			DWORD bytesRead;
-			BOOL success;
+			BOOL  success;
 			DWORD exitCode;
 
 			while (true)

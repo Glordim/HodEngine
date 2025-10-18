@@ -8,14 +8,14 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
-#include "HodEngine/ImGui/Widgets.hpp"
 #include "HodEngine/ImGui/Helper.hpp"
+#include "HodEngine/ImGui/Widgets.hpp"
 
 namespace hod::editor
 {
-	/// @brief 
-	/// @param instance 
-	/// @return 
+	/// @brief
+	/// @param instance
+	/// @return
 	bool ColorCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
@@ -31,12 +31,12 @@ namespace hod::editor
 		return changed;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
+	/// @brief
+	/// @param value
+	/// @return
 	bool ColorCustomEditor::Draw(Color& value)
 	{
-		bool changed = false;
+		bool  changed = false;
 		float r = value.r;
 		float g = value.g;
 		float b = value.b;

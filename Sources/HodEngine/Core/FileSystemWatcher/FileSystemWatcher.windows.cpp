@@ -5,15 +5,15 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @param path 
-	/// @return 
+	/// @brief
+	/// @param path
+	/// @return
 	bool FileSystemWatcher::InternalInit()
 	{
 		std::wstring assetFolderPath;
 		if (std::filesystem::is_directory(_path))
 		{
-			_dirPath = _path;			
+			_dirPath = _path;
 		}
 		else
 		{
@@ -21,16 +21,18 @@ namespace hod
 			_dirPath = _path.parent_path();
 		}
 		StringConversion::StringToWString(_dirPath.string(), assetFolderPath);
-		_hDir = CreateFileW(assetFolderPath.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
+		_hDir = CreateFileW(assetFolderPath.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
+		                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
 
-  		_overlapped.hEvent = CreateEventW(NULL, FALSE, 0, NULL);
+		_overlapped.hEvent = CreateEventW(NULL, FALSE, 0, NULL);
 
-		::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL, &_overlapped, NULL);
+		::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL,
+		                        &_overlapped, NULL);
 
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void FileSystemWatcher::Cleanup()
 	{
 		if (_hDir != INVALID_HANDLE_VALUE)
@@ -39,7 +41,7 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void FileSystemWatcher::Update()
 	{
 		DWORD result = WaitForSingleObject(_overlapped.hEvent, 0);
@@ -47,7 +49,7 @@ namespace hod
 		if (result == WAIT_OBJECT_0)
 		{
 			DWORD bytes_transferred;
-      		GetOverlappedResult(_hDir, &_overlapped, &bytes_transferred, FALSE);
+			GetOverlappedResult(_hDir, &_overlapped, &bytes_transferred, FALSE);
 
 			std::filesystem::path oldFilePathToRename;
 
@@ -55,7 +57,7 @@ namespace hod
 			while (true)
 			{
 				std::wstring result(fni->FileName, fni->FileNameLength / sizeof(wchar_t));
-				String relativefilePath;
+				String       relativefilePath;
 				StringConversion::WStringToString(result, relativefilePath);
 
 				std::filesystem::path filePath = _dirPath / relativefilePath;
@@ -101,7 +103,7 @@ namespace hod
 							if (_onMoveFile != nullptr)
 							{
 								_onMoveFile(oldFilePathToRename, filePath);
-							}							
+							}
 						}
 						break;
 					}
@@ -114,10 +116,11 @@ namespace hod
 				fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>((uint8_t*)fni + fni->NextEntryOffset);
 			}
 
-			::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL, &_overlapped, NULL);
+			::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL,
+			                        &_overlapped, NULL);
 		}
 
-		//if (::WaitForSingleObject(_filesystemWatcherHandle, 0) == WAIT_OBJECT_0)
+		// if (::WaitForSingleObject(_filesystemWatcherHandle, 0) == WAIT_OBJECT_0)
 
 		//::FindNextChangeNotification(_filesystemWatcherHandle);
 		// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationa

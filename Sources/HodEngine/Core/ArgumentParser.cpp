@@ -5,9 +5,9 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @param argc 
-	/// @param argv 
+	/// @brief
+	/// @param argc
+	/// @param argv
 	ArgumentParser::ArgumentParser(int argc, char** argv)
 	{
 		Argument* currentArgument = nullptr;
@@ -46,10 +46,10 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param shortName 
-	/// @param longName 
-	/// @return 
+	/// @brief
+	/// @param shortName
+	/// @param longName
+	/// @return
 	const Argument* ArgumentParser::GetArgument(char shortName, const char* longName) const
 	{
 		for (uint8_t index = 0; index < _argumentCount; ++index)

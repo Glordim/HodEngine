@@ -1,9 +1,9 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Job/JobQueue.hpp"
 #include "HodEngine/Core/Job/Job.hpp"
+#include "HodEngine/Core/Job/JobQueue.hpp"
 
-#include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/SystemInfo.hpp"
 
 #include "HodEngine/Core/Reflection/EnumTrait.hpp"
 #include "HodEngine/Core/String.hpp"
@@ -11,21 +11,21 @@
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	const char* jobQueueNames[EnumTrait::GetCount<JobQueue::Queue>()] = {
 		"Framed",
 		"Unframed",
 	};
 
-	/// @brief 
+	/// @brief
 	Thread::Priority jobQueuePriority[static_cast<uint32_t>(JobQueue::Queue::COUNT)] = {
 		Thread::Priority::High,
 		Thread::Priority::Normal,
 	};
 
-	/// @brief 
-	/// @param 
-	/// @return 
+	/// @brief
+	/// @param
+	/// @return
 	int JobQueue::WorkerThreadFunction(void* parameters)
 	{
 		WorkerThread* workerThread = static_cast<WorkerThread*>(parameters);
@@ -52,13 +52,10 @@ namespace hod
 		return 0;
 	}
 
-	/// @brief 
-	JobQueue::JobQueue()
-	{
+	/// @brief
+	JobQueue::JobQueue() {}
 
-	}
-
-	/// @brief 
+	/// @brief
 	JobQueue::~JobQueue()
 	{
 		for (uint32_t workerThreadIndex = 0; workerThreadIndex < _workerThreadCount; ++workerThreadIndex)
@@ -78,7 +75,7 @@ namespace hod
 		DefaultAllocator::GetInstance().DeleteArray(_workerThreads);
 	}
 
-	/// @brief 
+	/// @brief
 	void JobQueue::Init(Queue queue)
 	{
 		uint32_t count = SystemInfo::GetLogicalCoreCount();
@@ -105,7 +102,7 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void JobQueue::Enqueue(Job* job)
 	{
 		if (job->GetThreadId() == Thread::InvalidId)
@@ -145,8 +142,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Job* JobQueue::PopNextJob()
 	{
 		Job* job = nullptr;

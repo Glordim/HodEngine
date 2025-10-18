@@ -5,9 +5,9 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @param path 
-	/// @param copyForSupportReload 
+	/// @brief
+	/// @param path
+	/// @param copyForSupportReload
 	void Module::Init(const std::filesystem::path& path, bool copyForSupportReload)
 	{
 		_path = path;
@@ -34,21 +34,21 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	Module::~Module()
 	{
 		Unload();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const std::filesystem::path& Module::GetPath() const
 	{
 		return _path;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Module::Load()
 	{
 		if (_copyForSupportReload == true)
@@ -69,8 +69,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Module::Unload()
 	{
 		if (InternalUnload() == false)
@@ -85,16 +85,14 @@ namespace hod
 				std::filesystem::remove(_copyPath);
 			}
 			catch (...)
-			{
-
-			}
+			{}
 		}
 
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Module::Reload()
 	{
 		if (Unload() == false)

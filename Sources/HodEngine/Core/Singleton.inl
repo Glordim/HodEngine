@@ -4,10 +4,10 @@ namespace hod
 	template<typename T>
 	T* Singleton<T>::_instance = nullptr;
 
-	/// @brief 
-	/// @tparam T 
-	/// @tparam Tname 
-	/// @return 
+	/// @brief
+	/// @tparam T
+	/// @tparam Tname
+	/// @return
 	template<typename T>
 	inline T* Singleton<T>::CreateInstance()
 	{
@@ -18,19 +18,19 @@ namespace hod
 		return (T*)_instance;
 	}
 
-	/// @brief 
-	/// @tparam T 
-	/// @tparam Tname 
-	/// @return 
+	/// @brief
+	/// @tparam T
+	/// @tparam Tname
+	/// @return
 	template<typename T>
 	inline T* Singleton<T>::GetInstance()
 	{
 		return (T*)_instance;
 	}
 
-	/// @brief 
-	/// @tparam T 
-	/// @tparam Tname 
+	/// @brief
+	/// @tparam T
+	/// @tparam Tname
 	template<typename T>
 	inline void Singleton<T>::DestroyInstance()
 	{

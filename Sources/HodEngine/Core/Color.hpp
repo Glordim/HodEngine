@@ -9,14 +9,13 @@
 namespace hod
 {
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	struct HOD_CORE_API Color final
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Color)
 
 	public:
-
 		static Color White;
 		static Color Black;
 
@@ -28,10 +27,22 @@ namespace hod
 
 		float& operator[](size_t index)
 		{
-			if (index == 0) return r;
-			if (index == 1) return g;
-			if (index == 2) return b;
-			if (index == 3) return a;
+			if (index == 0)
+			{
+				return r;
+			}
+			if (index == 1)
+			{
+				return g;
+			}
+			if (index == 2)
+			{
+				return b;
+			}
+			if (index == 3)
+			{
+				return a;
+			}
 			return r;
 		}
 

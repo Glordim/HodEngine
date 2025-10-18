@@ -25,14 +25,14 @@ namespace hod
 		}
 		else
 		{
-			data._allocateFunction = [](){ return DefaultAllocator::GetInstance().New<_Class_>(); };
-			data._deleteFunction = [](void* instance){ hod::DefaultAllocator::GetInstance().Delete(static_cast<_Class_*>(instance)); };
-			data._sharedAllocateFunction = [](){ return std::make_shared<_Class_>(); };
+			data._allocateFunction = []() { return DefaultAllocator::GetInstance().New<_Class_>(); };
+			data._deleteFunction = [](void* instance) { hod::DefaultAllocator::GetInstance().Delete(static_cast<_Class_*>(instance)); };
+			data._sharedAllocateFunction = []() { return std::make_shared<_Class_>(); };
 		}
 
 		if constexpr (HasEqualOperator<_Class_>::value)
 		{
-			data._compareFunction = [](const void* left, const void* right){ return *static_cast<const _Class_*>(left) == *static_cast<const _Class_*>(right); };
+			data._compareFunction = [](const void* left, const void* right) { return *static_cast<const _Class_*>(left) == *static_cast<const _Class_*>(right); };
 		}
 
 		return data;
@@ -52,9 +52,9 @@ namespace hod
 		RemoveTrait(_Trait_::GetMetaTypeStatic());
 	}
 
-	/// @brief 
-	/// @tparam _Trait_ 
-	/// @return 
+	/// @brief
+	/// @tparam _Trait_
+	/// @return
 	template<typename _Trait_>
 	_Trait_* ReflectionDescriptor::FindTrait(bool fallbackOnParent) const
 	{

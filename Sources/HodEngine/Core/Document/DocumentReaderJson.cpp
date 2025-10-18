@@ -3,22 +3,22 @@
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <cstring>
 #include <charconv>
+#include <cstring>
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	void DocumentReaderJson::SkipWhiteSpace()
 	{
 		_cursor += std::strspn(_cursor, " \t\n\r");
 	}
 
-	/// @brief 
-	/// @param document 
-	/// @param stream 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param document
+	/// @param stream
+	/// @param size
+	/// @return
 	bool DocumentReaderJson::PopulateDocument(Document& document, const char* buffer)
 	{
 		_cursor = buffer;
@@ -29,10 +29,10 @@ namespace hod
 		return parsingResult;
 	}
 
-	/// @brief 
-	/// @param json 
-	/// @param node 
-	/// @return 
+	/// @brief
+	/// @param json
+	/// @param node
+	/// @return
 	bool DocumentReaderJson::ParseObject(Document::Node& node)
 	{
 		if (*_cursor != '{')
@@ -91,10 +91,10 @@ namespace hod
 		return true;
 	}
 
-	/// @brief 
-	/// @param json 
-	/// @param node 
-	/// @return 
+	/// @brief
+	/// @param json
+	/// @param node
+	/// @return
 	bool DocumentReaderJson::ParseArray(Document::Node& node)
 	{
 		if (*_cursor != '[')
@@ -138,9 +138,9 @@ namespace hod
 		return true;
 	}
 
-	/// @brief 
-	/// @param node 
-	/// @return 
+	/// @brief
+	/// @param node
+	/// @return
 	bool DocumentReaderJson::ParseValue(Document::Node& node)
 	{
 		if (*_cursor == '{') // object
@@ -165,7 +165,7 @@ namespace hod
 				}
 			}
 
-			bool isFloat = false;
+			bool        isFloat = false;
 			const char* valueStart = _cursor;
 			_cursor += std::strspn(valueStart, "-0123456789");
 			if (*_cursor == '.' || *_cursor == 'e' || *_cursor == 'E')
@@ -178,12 +178,12 @@ namespace hod
 			if (isFloat == true)
 			{
 				double value;
-				/* std::from_chars with Floating is not available for now on Clang 
+				/* std::from_chars with Floating is not available for now on Clang
 				std::from_chars_result result = std::from_chars(valueStart, valueEnd, value);
 				if (result.ec != std::errc())
 				{
-					OUTPUT_ERROR("Json syntax error");
-					return false;
+				    OUTPUT_ERROR("Json syntax error");
+				    return false;
 				}
 				*/
 				char* end = (char*)valueEnd;
@@ -195,7 +195,7 @@ namespace hod
 			{
 				if (isNegative == false)
 				{
-					uint64_t value;
+					uint64_t               value;
 					std::from_chars_result result = std::from_chars(valueStart, valueEnd, value);
 					if (result.ec != std::errc())
 					{
@@ -207,7 +207,7 @@ namespace hod
 				}
 				else
 				{
-					int64_t value;
+					int64_t                value;
 					std::from_chars_result result = std::from_chars(valueStart, valueEnd, value);
 					if (result.ec != std::errc())
 					{
@@ -340,9 +340,9 @@ namespace hod
 		return false;
 	}
 
-	/// @brief 
-	/// @param node 
-	/// @return 
+	/// @brief
+	/// @param node
+	/// @return
 	Document::Node* DocumentReaderJson::ParseKeyAndCreateChildNode(Document::Node& node)
 	{
 		if (*_cursor != '\"')
@@ -362,7 +362,7 @@ namespace hod
 		const char* keyEnd = _cursor;
 		++_cursor;
 
-		Document::Node& child = node.AddChild(std::string_view(keyStart, (keyEnd - keyStart)));
+		Document::Node& child = node.AddChild(std::string_view(keyStart, keyEnd - keyStart));
 		return &child;
 	}
 }

@@ -1,31 +1,28 @@
 #pragma once
 #include "HodEngine/Audio/Export.hpp"
 
-#include "HodEngine/Core/Singleton.hpp"
 #include "HodEngine/Core/Job/MemberFunctionJob.hpp"
+#include "HodEngine/Core/Singleton.hpp"
 
 namespace hod::audio
 {
-    class HOD_AUDIO_API AudioManager
-    {
-        _SingletonAbstract(AudioManager)
+	class HOD_AUDIO_API AudioManager
+	{
+		_SingletonAbstract(AudioManager)
 
-    public:
+	public:
+		virtual ~AudioManager() = default;
 
-        virtual         ~AudioManager() = default;
+		virtual bool Initialize() = 0;
+		virtual void Terminate() = 0;
 
-        virtual bool    Initialize() = 0;
-        virtual void    Terminate() = 0;
+		virtual void Update() = 0;
 
-        virtual void    Update() = 0;
+	protected:
+		void InsertUpdateJob();
+		void RemoveUpdateJob();
 
-    protected:
-
-        void            InsertUpdateJob();
-        void            RemoveUpdateJob();
-
-    private:
-
-        MemberFunctionJob<AudioManager> _updateJob;
-    };
+	private:
+		MemberFunctionJob<AudioManager> _updateJob;
+	};
 }

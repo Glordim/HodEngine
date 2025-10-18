@@ -3,31 +3,31 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #include <DbgHelp.h>
 #include <shellapi.h>
+#include <Windows.h>
 
 #include <filesystem>
 
 namespace hod
 {
-	/// @brief 
-	/// @param callstack 
-	/// @param maxSize 
-	/// @return 
+	/// @brief
+	/// @param callstack
+	/// @param maxSize
+	/// @return
 	uint32_t OS::GetCallstack(void** callstack, uint32_t maxSize)
 	{
 		return CaptureStackBackTrace(4, maxSize, callstack, nullptr);
 	}
 
-	/// @brief 
-	/// @param addr 
-	/// @return 
+	/// @brief
+	/// @param addr
+	/// @return
 	String OS::GetSymbol(void* addr)
 	{
 		String symbol;
 		HANDLE hProcess = GetCurrentProcess();
-		
+
 		static bool symInitialized = false;
 		if (symInitialized == false)
 		{
@@ -40,8 +40,8 @@ namespace hod
 		}
 
 		constexpr uint32_t maxFunctionNameSize = 255;
-		uint8_t data[sizeof(SYMBOL_INFO) + maxFunctionNameSize * sizeof(uint8_t)];
-		PSYMBOL_INFO symbolInfo = reinterpret_cast<PSYMBOL_INFO>(data);
+		uint8_t            data[sizeof(SYMBOL_INFO) + maxFunctionNameSize * sizeof(uint8_t)];
+		PSYMBOL_INFO       symbolInfo = reinterpret_cast<PSYMBOL_INFO>(data);
 		symbolInfo->MaxNameLen = maxFunctionNameSize;
 		symbolInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
 
@@ -60,15 +60,15 @@ namespace hod
 		return symbol;
 	}
 
-	/// @brief 
-	/// @param addr 
-	/// @param symbolInfo 
-	/// @param demangle 
-	/// @return 
+	/// @brief
+	/// @param addr
+	/// @param symbolInfo
+	/// @param demangle
+	/// @return
 	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
 	{
 		HANDLE hProcess = GetCurrentProcess();
-		
+
 		static bool symInitialized = false;
 		if (symInitialized == false)
 		{
@@ -81,8 +81,8 @@ namespace hod
 		}
 
 		constexpr uint32_t maxFunctionNameSize = 1024;
-		uint8_t data[sizeof(SYMBOL_INFO) + maxFunctionNameSize];
-		PSYMBOL_INFO win32SymbolInfo = reinterpret_cast<PSYMBOL_INFO>(data);
+		uint8_t            data[sizeof(SYMBOL_INFO) + maxFunctionNameSize];
+		PSYMBOL_INFO       win32SymbolInfo = reinterpret_cast<PSYMBOL_INFO>(data);
 		win32SymbolInfo->MaxNameLen = maxFunctionNameSize;
 		win32SymbolInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
 
@@ -117,28 +117,20 @@ namespace hod
 
 		if (demangle)
 		{
-
 		}
 
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	String OS::GetLastWin32ErrorMessage()
 	{
 		LPVOID lpMsgBuf;
-		DWORD dw = GetLastError();
+		DWORD  dw = GetLastError();
 
-		::FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER |
-			FORMAT_MESSAGE_FROM_SYSTEM |
-			FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
-			dw,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR)&lpMsgBuf,
-			0, NULL);
+		::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		                (LPTSTR)&lpMsgBuf, 0, NULL);
 
 		String message = (char*)lpMsgBuf;
 
@@ -147,8 +139,8 @@ namespace hod
 		return message;
 	}
 
-	/// @brief 
-	/// @param filePath 
+	/// @brief
+	/// @param filePath
 	bool OS::OpenFileWithDefaultApp(const char* filePath)
 	{
 		HINSTANCE result = ShellExecute(NULL, "open", filePath, NULL, NULL, SW_SHOWNORMAL);

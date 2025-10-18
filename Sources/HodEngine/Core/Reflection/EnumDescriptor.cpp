@@ -3,8 +3,8 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector<std::pair<uint64_t, std::string>>& EnumDescriptor::GetValues() const
 	{
 		return _values;

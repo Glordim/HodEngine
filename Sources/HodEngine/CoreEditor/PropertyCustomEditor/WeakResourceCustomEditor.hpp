@@ -11,23 +11,21 @@ namespace hod
 
 namespace hod::editor
 {
-	/// @brief 
+	/// @brief
 	class HOD_CORE_EDITOR_API WeakResourceCustomEditor : public CustomPropertyDrawer
 	{
 	public:
+		WeakResourceCustomEditor() = default;
+		WeakResourceCustomEditor(const WeakResourceCustomEditor&) = delete;
+		WeakResourceCustomEditor(WeakResourceCustomEditor&&) = delete;
+		~WeakResourceCustomEditor() override = default;
 
-									WeakResourceCustomEditor() = default;
-									WeakResourceCustomEditor(const WeakResourceCustomEditor&) = delete;
-									WeakResourceCustomEditor(WeakResourceCustomEditor&&) = delete;
-									~WeakResourceCustomEditor() override = default;
-
-		WeakResourceCustomEditor&	operator = (const WeakResourceCustomEditor&) = delete;
-		WeakResourceCustomEditor&	operator = (WeakResourceCustomEditor&&) = delete;
+		WeakResourceCustomEditor& operator=(const WeakResourceCustomEditor&) = delete;
+		WeakResourceCustomEditor& operator=(WeakResourceCustomEditor&&) = delete;
 
 	public:
+		bool Draw(EditorReflectedProperty& editorReflectedProperty) override;
 
-		bool						Draw(EditorReflectedProperty& editorReflectedProperty) override;
-
-		static bool					Draw(WeakResourceBase& weakResource);
+		static bool Draw(WeakResourceBase& weakResource);
 	};
 }

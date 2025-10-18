@@ -2,10 +2,10 @@
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <pwd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <fcntl.h>
 #include <mach-o/dyld.h>
@@ -21,7 +21,7 @@ namespace hod
 	{
 		if (FileSystem::_userSettingsPath.empty() == true)
 		{
-			struct passwd *pw = getpwuid(getuid());
+			struct passwd* pw = getpwuid(getuid());
 			FileSystem::_userSettingsPath = pw->pw_dir;
 		}
 		return FileSystem::_userSettingsPath;
@@ -31,7 +31,7 @@ namespace hod
 	{
 		if (FileSystem::_executablePath.empty() == true)
 		{
-			char buffer[MAXPATHLEN];
+			char     buffer[MAXPATHLEN];
 			uint32_t bufferSize = sizeof(buffer);
 			if (_NSGetExecutablePath(buffer, &bufferSize) == 0)
 			{
@@ -60,73 +60,73 @@ namespace hod
 		return FileSystem::_temporaryPath;
 	}
 
-    /// @brief
-    /// @param path
-    /// @return
-    FileSystem::Handle FileSystem::Open(const char* path)
-    {
-        FileSystem::Handle handle;
-        handle._fd = open(path, O_RDONLY);
-        return handle;
-    }
+	/// @brief
+	/// @param path
+	/// @return
+	FileSystem::Handle FileSystem::Open(const char* path)
+	{
+		FileSystem::Handle handle;
+		handle._fd = open(path, O_RDONLY);
+		return handle;
+	}
 
-    /// @brief
-    /// @param handle
-    /// @return
-    uint32_t FileSystem::GetSize(FileSystem::Handle handle)
-    {
-        struct stat fileStat;
-        if (fstat(handle._fd, &fileStat) == -1)
-        {
-            return 0;
-        }
-        return (uint32_t)fileStat.st_size;
-    }
+	/// @brief
+	/// @param handle
+	/// @return
+	uint32_t FileSystem::GetSize(FileSystem::Handle handle)
+	{
+		struct stat fileStat;
+		if (fstat(handle._fd, &fileStat) == -1)
+		{
+			return 0;
+		}
+		return (uint32_t)fileStat.st_size;
+	}
 
-    /// @brief
-    /// @param handle
-    /// @return
-    uint32_t FileSystem::GetOffset(FileSystem::Handle handle)
-    {
-        return (uint32_t)lseek(handle._fd, 0, SEEK_CUR);
-    }
+	/// @brief
+	/// @param handle
+	/// @return
+	uint32_t FileSystem::GetOffset(FileSystem::Handle handle)
+	{
+		return (uint32_t)lseek(handle._fd, 0, SEEK_CUR);
+	}
 
-    /// @brief
-    /// @param handle
-    /// @param position
-    /// @param mode
-    void FileSystem::Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode)
-    {
-        lseek(handle._fd, position, static_cast<int>(mode));
-    }
+	/// @brief
+	/// @param handle
+	/// @param position
+	/// @param mode
+	void FileSystem::Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode)
+	{
+		lseek(handle._fd, position, static_cast<int>(mode));
+	}
 
-    /// @brief
-    /// @param handle
-    /// @param buffer
-    /// @param size
-    /// @return
-    int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
-    {
-        return (int32_t)read(handle._fd, buffer, size);
-    }
+	/// @brief
+	/// @param handle
+	/// @param buffer
+	/// @param size
+	/// @return
+	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
+	{
+		return (int32_t)read(handle._fd, buffer, size);
+	}
 
-    /// @brief
-    /// @param handle
-    /// @return
-    bool FileSystem::Close(FileSystem::Handle& handle)
-    {
-        if (close(handle._fd) == 0)
-        {
-            handle._fd = -1;
-            return true;
-        }
-        return false;
-    }
+	/// @brief
+	/// @param handle
+	/// @return
+	bool FileSystem::Close(FileSystem::Handle& handle)
+	{
+		if (close(handle._fd) == 0)
+		{
+			handle._fd = -1;
+			return true;
+		}
+		return false;
+	}
 
-    /// @brief
-    /// @return
-    bool FileSystem::Handle::IsOpen() const
-    {
-        return _fd >= 0;
-    }
+	/// @brief
+	/// @return
+	bool FileSystem::Handle::IsOpen() const
+	{
+		return _fd >= 0;
+	}
 }

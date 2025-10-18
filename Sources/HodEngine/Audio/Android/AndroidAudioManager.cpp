@@ -3,25 +3,18 @@
 
 namespace hod::audio
 {
-	_SingletonOverrideConstructor(AndroidAudioManager)
-	{
+	_SingletonOverrideConstructor(AndroidAudioManager) {}
 
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AndroidAudioManager::Initialize()
 	{
 		return true;
 	}
 
-	/// @brief 
-	void AndroidAudioManager::Terminate()
-	{
-	}
+	/// @brief
+	void AndroidAudioManager::Terminate() {}
 
-	/// @brief 
-	void AndroidAudioManager::Update()
-	{
-	}
+	/// @brief
+	void AndroidAudioManager::Update() {}
 }

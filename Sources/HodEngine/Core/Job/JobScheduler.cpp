@@ -5,7 +5,7 @@
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	JobScheduler::JobScheduler()
 	{
 		for (uint32_t index = 0; index < static_cast<uint32_t>(JobQueue::Queue::COUNT); ++index)
@@ -14,8 +14,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param job 
+	/// @brief
+	/// @param job
 	void JobScheduler::Push(Job* job)
 	{
 		_queues[(uint32_t)job->GetQueue()].Enqueue(job);

@@ -13,14 +13,14 @@
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
-#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include "HodEngine/ImGui/ImGuiManager.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
+#include "HodEngine/ImGui/ImGuiManager.hpp"
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
@@ -28,9 +28,9 @@
 
 namespace hod::editor
 {
-	/// @brief 
-	/// @param instance 
-	/// @return 
+	/// @brief
+	/// @param instance
+	/// @return
 	bool WeakResourceCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
@@ -46,9 +46,9 @@ namespace hod::editor
 		return changed;
 	}
 
-	/// @brief 
-	/// @param weakResource 
-	/// @return 
+	/// @brief
+	/// @param weakResource
+	/// @return
 	bool WeakResourceCustomEditor::Draw(WeakResourceBase& weakResource)
 	{
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
@@ -56,7 +56,7 @@ namespace hod::editor
 		bool changed = false;
 		ImGui::PushID(&weakResource);
 
-		AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
+		AssetDatabase*         assetDatabase = AssetDatabase::GetInstance();
 		std::shared_ptr<Asset> asset = assetDatabase->Find(weakResource.GetUid());
 
 		float height = 50;
@@ -70,7 +70,8 @@ namespace hod::editor
 		bool clicked = false;
 		if (asset != nullptr)
 		{
-			//clicked = ImageTextButton(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(height, height), asset->GetName().c_str(), ImVec2(-1, height + ImGui::GetStyle().FramePadding.y * 2));
+			// clicked = ImageTextButton(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(height, height),
+			// asset->GetName().c_str(), ImVec2(-1, height + ImGui::GetStyle().FramePadding.y * 2));
 			if (asset->GetThumbnail() != nullptr)
 			{
 				PreserveAspectImage(asset->GetThumbnail(), ImVec2((float)asset->GetThumbnail()->GetWidth(), (float)asset->GetThumbnail()->GetHeight()), ImVec2(height, height));
@@ -107,7 +108,7 @@ namespace hod::editor
 		}
 		else
 		{
-			//clicked = ImageTextButton(nullptr, ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f), "None", ImVec2(-1, height + ImGui::GetStyle().FramePadding.y * 2));
+			// clicked = ImageTextButton(nullptr, ImVec2(0.0f, 0.0f), ImVec2(0.0f, 0.0f), "None", ImVec2(-1, height + ImGui::GetStyle().FramePadding.y * 2));
 			PreserveAspectImage(nullptr, ImVec2(0.0f, 0.0f), ImVec2(height, height));
 			ImGui::SameLine();
 
@@ -132,7 +133,7 @@ namespace hod::editor
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Name:");
 			ImGui::SameLine();
-			
+
 			static char inputTextBuffer[2048] = "";
 			if (ImGui::IsWindowAppearing())
 			{
@@ -174,7 +175,8 @@ namespace hod::editor
 					{
 						imageSize = ImVec2((float)assetNode->_asset->GetThumbnail()->GetWidth(), (float)assetNode->_asset->GetThumbnail()->GetHeight());
 					}
-					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().c_str(), ImVec2(-1, itemHeight));
+					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().c_str(),
+					                               ImVec2(-1, itemHeight));
 					ImGui::PopStyleVar();
 					if (clicked)
 					{
@@ -203,23 +205,23 @@ namespace hod::editor
 		/*
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
-			assetList.clear();
-			assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
+		    assetList.clear();
+		    assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
 
-			ImGui::OpenPopup("WeakResourceFindPopup");
+		    ImGui::OpenPopup("WeakResourceFindPopup");
 		}
 		else if (clicked == true && asset != nullptr)
 		{
-			Editor::GetInstance()->PingAsset(asset);
+		    Editor::GetInstance()->PingAsset(asset);
 		}
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && asset != nullptr && asset->GetThumbnail() != nullptr)
 		{
-			if (ImGui::BeginTooltip())
-			{
-				ImVec2 size = ImVec2(128.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 128.0f);
-				ImGui::Image(asset->GetThumbnail(), size);
-				ImGui::EndTooltip();
-			}
+		    if (ImGui::BeginTooltip())
+		    {
+		        ImVec2 size = ImVec2(128.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 128.0f);
+		        ImGui::Image(asset->GetThumbnail(), size);
+		        ImGui::EndTooltip();
+		    }
 		}
 		*/
 		/*
@@ -232,10 +234,10 @@ namespace hod::editor
 		ImGui::SameLine(ImGui::GetContentRegionMax().x - CalculateButtonSize("Find").x);
 		if (ImGui::Button("Find") == true)
 		{
-			assetList.clear();
-			assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
+		    assetList.clear();
+		    assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
 
-			ImGui::OpenPopup("WeakResourceFindPopup");
+		    ImGui::OpenPopup("WeakResourceFindPopup");
 		}
 		*/
 		if (ImGui::BeginPopup("WeakResourceFindPopup"))
@@ -243,7 +245,7 @@ namespace hod::editor
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Name:");
 			ImGui::SameLine();
-			
+
 			static char inputTextBuffer[2048] = "";
 			if (ImGui::IsWindowAppearing())
 			{
@@ -283,7 +285,8 @@ namespace hod::editor
 					{
 						imageSize = ImVec2((float)assetNode->_asset->GetThumbnail()->GetWidth(), (float)assetNode->_asset->GetThumbnail()->GetHeight());
 					}
-					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().c_str(), ImVec2(-1, itemHeight));
+					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().c_str(),
+					                               ImVec2(-1, itemHeight));
 					ImGui::PopStyleVar();
 					if (clicked)
 					{
@@ -301,7 +304,7 @@ namespace hod::editor
 			ImGui::EndPopup();
 		}
 
-		ImGui::Dummy(ImVec2(0,0)); // todo ?
+		ImGui::Dummy(ImVec2(0, 0)); // todo ?
 
 		ImGui::PopID();
 		return changed;

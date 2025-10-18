@@ -5,8 +5,8 @@
 #include <filesystem>
 
 #if defined(PLATFORM_ANDROID)
-	struct AAssetManager;
-	struct AAsset;
+struct AAssetManager;
+struct AAsset;
 #elif defined(PLATFORM_WINDOWS)
 	#include <Windows.h>
 #else
@@ -20,25 +20,24 @@ namespace hod
 		_Singleton(FileSystem)
 
 	public:
-
 		enum class SeekMode
 		{
 			Begin = 0,
 			Current = 1,
 			End = 2
-		};	
+		};
 
 		struct HOD_CORE_API Handle
 		{
-		#if defined(PLATFORM_ANDROID)
-			AAsset*	_asset = nullptr;
-		#elif defined(PLATFORM_WINDOWS)
-			HANDLE	_handle = INVALID_HANDLE_VALUE;
-		#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
-			int		_fd = -1;
-		#else
-			FILE*	_file = nullptr;
-		#endif
+#if defined(PLATFORM_ANDROID)
+			AAsset* _asset = nullptr;
+#elif defined(PLATFORM_WINDOWS)
+			HANDLE _handle = INVALID_HANDLE_VALUE;
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
+			int _fd = -1;
+#else
+			FILE* _file = nullptr;
+#endif
 
 			std::filesystem::path _path; // TODO REMOVE
 
@@ -46,43 +45,39 @@ namespace hod
 		};
 
 	public:
-
-		static std::filesystem::path	GetUserSettingsPath();
-		static std::filesystem::path	GetExecutablePath();
-		static std::filesystem::path	GetTemporaryPath();
-		static bool						SetWorkingDirectory(const std::filesystem::path& path);
+		static std::filesystem::path GetUserSettingsPath();
+		static std::filesystem::path GetExecutablePath();
+		static std::filesystem::path GetTemporaryPath();
+		static bool                  SetWorkingDirectory(const std::filesystem::path& path);
 
 	private:
-
-		static std::filesystem::path	_userSettingsPath;
-		static std::filesystem::path	_temporaryPath;
-		static std::filesystem::path	_executablePath;
+		static std::filesystem::path _userSettingsPath;
+		static std::filesystem::path _temporaryPath;
+		static std::filesystem::path _executablePath;
 
 	public:
-
 #if defined(PLATFORM_ANDROID)
-		bool			Init(AAssetManager* assetManager);
+		bool Init(AAssetManager* assetManager);
 #endif
-		bool			Init();
+		bool Init();
 
-		FileSystem::Handle	Open(const char* path);
-		FileSystem::Handle	Open(const std::filesystem::path& path);
+		FileSystem::Handle Open(const char* path);
+		FileSystem::Handle Open(const std::filesystem::path& path);
 
-		uint32_t			GetSize(FileSystem::Handle handle);
-		uint32_t			GetOffset(FileSystem::Handle handle);
+		uint32_t GetSize(FileSystem::Handle handle);
+		uint32_t GetOffset(FileSystem::Handle handle);
 
-		void				Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode);
+		void Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode);
 
-		int32_t				Read(FileSystem::Handle handle, void* buffer, uint32_t size);
+		int32_t Read(FileSystem::Handle handle, void* buffer, uint32_t size);
 
-		bool				Close(FileSystem::Handle& handle);
+		bool Close(FileSystem::Handle& handle);
 
 		std::filesystem::path GenerateTemporaryFilePath() const;
 
 	private:
-
 #if defined(PLATFORM_ANDROID)
-		AAssetManager*	_assetManager = nullptr;
+		AAssetManager* _assetManager = nullptr;
 #endif
 	};
 }

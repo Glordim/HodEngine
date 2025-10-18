@@ -2,16 +2,16 @@
 #include "HodEngine/CoreEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
+#include "HodEngine/Core/Color.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
 #include "HodEngine/Core/Math/Vector4.hpp"
-#include "HodEngine/Core/Color.hpp"
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 
-#include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/ColorCustomEditor.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/Vector2CustomEditor.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/Vector4CustomEditor.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 

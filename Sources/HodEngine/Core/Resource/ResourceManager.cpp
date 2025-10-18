@@ -1,30 +1,30 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Resource/ResourceManager.hpp"
 
-#include "HodEngine/Core/Resource/Resource.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
+#include "HodEngine/Core/Resource/Resource.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <fstream>
 #include <cstring>
+#include <fstream>
 
 #undef FindResource
 
 namespace hod
 {
-	/// @brief 
-	/// @param directory 
+	/// @brief
+	/// @param directory
 	void ResourceManager::SetResourceDirectory(const std::filesystem::path& directory)
 	{
 		_directory = directory;
 	}
 
-	/// @brief 
-	/// @param uid 
-	/// @return 
+	/// @brief
+	/// @param uid
+	/// @return
 	std::shared_ptr<Resource> ResourceManager::FindResource(const UID& uid) const
 	{
 		auto it = _resources.find(uid);
@@ -36,10 +36,10 @@ namespace hod
 		return nullptr;
 	}
 
-	/// @brief 
-	/// @param resource 
-	/// @param uid 
-	/// @return 
+	/// @brief
+	/// @param resource
+	/// @param uid
+	/// @return
 	bool ResourceManager::Load(Resource* resource, const UID& uid)
 	{
 		std::filesystem::path path = _directory;
@@ -66,7 +66,7 @@ namespace hod
 		//
 
 		constexpr size_t signatureLen = 11;
-		char signature[signatureLen];
+		char             signature[signatureLen];
 		if (FileSystem::GetInstance()->Read(fileHandle, signature, signatureLen) != signatureLen)
 		{
 			FileSystem::GetInstance()->Close(fileHandle);
@@ -93,7 +93,7 @@ namespace hod
 				return false; // todo message
 			}
 
-			Document document;
+			Document           document;
 			DocumentReaderJson documentReader;
 			if (documentReader.Read(document, fileHandle, documentLen) == false)
 			{
@@ -149,10 +149,10 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param reflectionDescriptor 
-	/// @param uid 
-	/// @return 
+	/// @brief
+	/// @param reflectionDescriptor
+	/// @param uid
+	/// @return
 	std::shared_ptr<Resource> ResourceManager::GetResource(const ReflectionDescriptor& reflectionDescriptor, const UID& uid)
 	{
 		std::shared_ptr<Resource> existingResource = FindResource(uid);

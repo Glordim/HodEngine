@@ -2,19 +2,19 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @tparam __TYPE__ 
-	/// @param value 
-	/// @param label 
+	/// @brief
+	/// @tparam __TYPE__
+	/// @param value
+	/// @param label
 	template<typename __TYPE__>
 	void EnumDescriptor::AddEnumValue(__TYPE__ value, const char* label)
 	{
 		_values.emplace_back(static_cast<uint64_t>(value), label);
 	}
 
-	/// @brief 
-	/// @tparam __TYPE__ 
-	/// @return 
+	/// @brief
+	/// @tparam __TYPE__
+	/// @return
 	template<typename __TYPE__>
 	EnumDescriptor* EnumDescriptor::GenerateFromType()
 	{

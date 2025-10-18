@@ -3,41 +3,35 @@
 
 namespace hod
 {
-	/// @brief 
-	const char* Output::_typeNames[std::to_underlying(Type::Count)] = {
-		"Message",
-		"Warning",
-		"Error",
-		"Assert"
-	};
+	/// @brief
+	const char* Output::_typeNames[std::to_underlying(Type::Count)] = {"Message", "Warning", "Error", "Assert"};
 
-	/// @brief 
-	/// @param type 
-	/// @param content 
+	/// @brief
+	/// @param type
+	/// @param content
 	Output::Output(Type type, const String& content)
 	: _type(type)
 	, _content(content)
 	{
-
 	}
 
-	/// @brief 
-	/// @param type 
-	/// @return 
+	/// @brief
+	/// @param type
+	/// @return
 	const char* Output::GetTypeName(Type type)
 	{
 		return _typeNames[std::to_underlying(type)];
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Output::Type Output::GetType() const
 	{
 		return _type;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const String& Output::GetContent() const
 	{
 		return _content;

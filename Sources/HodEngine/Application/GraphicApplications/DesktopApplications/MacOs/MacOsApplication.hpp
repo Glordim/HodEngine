@@ -5,7 +5,7 @@
 
 namespace hod::application
 {
-	/// @brief 
+	/// @brief
 	class HOD_APPLICATION_API MacOsApplication : public DesktopApplication
 	{
 		_SingletonOverride(MacOsApplication)

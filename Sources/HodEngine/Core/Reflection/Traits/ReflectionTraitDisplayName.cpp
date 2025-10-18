@@ -3,15 +3,15 @@
 
 namespace hod
 {
-	///@brief 
+	///@brief
 	ReflectionTraitDisplayName::ReflectionTraitDisplayName(const std::string_view& name)
 	: ReflectionTrait()
 	, _name(name)
 	{
 	}
-	
-	/// @brief 
-	/// @return 
+
+	/// @brief
+	/// @return
 	const String& ReflectionTraitDisplayName::GetValue() const
 	{
 		return _name;

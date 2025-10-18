@@ -2,9 +2,9 @@
 #include "HodEngine/Core/SystemInfo.hpp"
 
 #if defined(PLATFORM_WINDOWS)
-#include <Windows.h>
+	#include <Windows.h>
 #elif defined(PLATFORM_LINUX)
-#include <sys/sysinfo.h>
+	#include <sys/sysinfo.h>
 #endif
 
 #include <thread>
@@ -13,8 +13,8 @@ namespace hod
 {
 	namespace SystemInfo
 	{
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		uint32_t ComputeLogicalCoreCount()
 		{
 			return (uint32_t)std::thread::hardware_concurrency();
@@ -32,8 +32,8 @@ namespace hod
 			*/
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		uint32_t GetLogicalCoreCount()
 		{
 			static uint32_t logicalCoreCount = ComputeLogicalCoreCount();
