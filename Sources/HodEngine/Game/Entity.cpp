@@ -1,13 +1,13 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
-#include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
@@ -44,15 +44,15 @@ namespace hod::game
 		AddPropertyT(reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
 	}
 
-	/// @brief 
-	/// @param name 
+	/// @brief
+	/// @param name
 	Entity::Entity(const std::string_view& name)
 	: _name(name)
 	{
 		_instanceId = _nextInstanceId.fetch_add(1);
 	}
 
-	/// @brief 
+	/// @brief
 	Entity::~Entity()
 	{
 		for (Component* component : _components)
@@ -62,43 +62,43 @@ namespace hod::game
 		_components.clear();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	uint64_t Entity::GetInstanceId() const
 	{
 		return _instanceId;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	uint64_t Entity::GetLocalId() const
 	{
 		return _localId;
 	}
 
-	/// @brief 
-	/// @param localId 
+	/// @brief
+	/// @param localId
 	void Entity::SetLocalId(uint64_t localId)
 	{
 		_localId = localId;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const String& Entity::GetName() const
 	{
 		return _name;
 	}
 
-	/// @brief 
-	/// @param name 
+	/// @brief
+	/// @param name
 	void Entity::SetName(const std::string_view& name)
 	{
 		_name = name;
 	}
 
-	/// @brief 
-	/// @param active 
+	/// @brief
+	/// @param active
 	void Entity::SetActive(bool active)
 	{
 		if (_active != active)
@@ -112,36 +112,33 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Entity::GetActive() const
 	{
 		return _active;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Entity::IsActiveInHierarchy() const
 	{
 		return _activeInHierarchy;
 	}
 
-	/// @brief 
-	void Entity::NotifyActivationChanged()
-	{
+	/// @brief
+	void Entity::NotifyActivationChanged() {}
 
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector<Component*>& Entity::GetComponents() const
 	{
 		return _components;
 	}
 
-	/// @brief 
-	/// @param descriptor 
-	/// @return 
+	/// @brief
+	/// @param descriptor
+	/// @return
 	Component* Entity::GetComponent(const ReflectionDescriptor& descriptor)
 	{
 		for (Component* component : _components)
@@ -154,9 +151,9 @@ namespace hod::game
 		return nullptr;
 	}
 
-	/// @brief 
-	/// @param descriptor 
-	/// @return 
+	/// @brief
+	/// @param descriptor
+	/// @return
 	Component* Entity::GetComponentInParent(const ReflectionDescriptor& descriptor)
 	{
 		Component* component = GetComponent(descriptor);
@@ -173,9 +170,9 @@ namespace hod::game
 		return nullptr;
 	}
 
-	/// @brief 
-	/// @param descriptor 
-	/// @return 
+	/// @brief
+	/// @param descriptor
+	/// @return
 	Component* Entity::AddComponent(const ReflectionDescriptor& descriptor)
 	{
 		Component* existingComponent = GetComponent(descriptor);
@@ -187,9 +184,9 @@ namespace hod::game
 		return AddComponent(static_cast<Component*>(descriptor.CreateInstance()));
 	}
 
-	/// @brief 
-	/// @param component 
-	/// @return 
+	/// @brief
+	/// @param component
+	/// @return
 	Component* Entity::AddComponent(Component* component)
 	{
 		_components.push_back(component);
@@ -217,8 +214,8 @@ namespace hod::game
 		return component;
 	}
 
-	/// @brief 
-	/// @param component 
+	/// @brief
+	/// @param component
 	void Entity::RemoveComponent(Component* component)
 	{
 		auto it = std::find(_components.begin(), _components.end(), component);
@@ -228,8 +225,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @param descriptor 
+	/// @brief
+	/// @param descriptor
 	void Entity::RemoveComponent(const ReflectionDescriptor& descriptor)
 	{
 		uint32_t indexToRemove = std::numeric_limits<uint32_t>::max();
@@ -253,29 +250,29 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @param prefab 
+	/// @brief
+	/// @param prefab
 	void Entity::SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource)
 	{
 		_prefabResource = prefabResource;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	std::shared_ptr<PrefabResource> Entity::GetPrefabResource() const
 	{
 		return _prefabResource;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector<WeakEntity>& Entity::GetChildren() const
 	{
 		return _children;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	uint32_t Entity::GetSiblingIndex() const
 	{
 		Entity* parentLock = _parent.Lock();
@@ -292,8 +289,8 @@ namespace hod::game
 		return 0;
 	}
 
-	/// @brief 
-	/// @param index 
+	/// @brief
+	/// @param index
 	void Entity::SetSiblingIndex(uint32_t index)
 	{
 		Entity* parentLock = _parent.Lock();
@@ -310,8 +307,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @param parent 
+	/// @brief
+	/// @param parent
 	void Entity::SetParent(const WeakEntity& parent)
 	{
 		assert(parent.Lock() != this);
@@ -370,8 +367,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const WeakEntity& Entity::GetParent() const
 	{
 		return _parent;
@@ -382,21 +379,21 @@ namespace hod::game
 		return _childrenChangedEvent;
 	}
 
-	/// @brief 
-	/// @param scene 
+	/// @brief
+	/// @param scene
 	void Entity::SetScene(Scene* scene)
 	{
 		_scene = scene;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Scene* Entity::GetScene() const
 	{
 		return _scene;
 	}
 
-	/// @brief 
+	/// @brief
 	void Entity::ProcessActivation()
 	{
 		Construct();
@@ -424,14 +421,14 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Entity::InternalState Entity::GetInternalState() const
 	{
 		return _internalState;
 	}
 
-	/// @brief 
+	/// @brief
 	void Entity::Construct()
 	{
 		for (Component* component : _components)
@@ -448,7 +445,7 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Entity::Awake()
 	{
 		assert(_active == true);
@@ -470,7 +467,7 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Entity::Enable()
 	{
 		if (_activeInHierarchy == true)
@@ -498,7 +495,7 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Entity::Start()
 	{
 		assert(_active == true);
@@ -520,7 +517,7 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Entity::Disable()
 	{
 		if (_activeInHierarchy == false)
@@ -545,10 +542,10 @@ namespace hod::game
 		_activeInHierarchy = false;
 	}
 
-	/// @brief 
+	/// @brief
 	void Entity::Destruct()
 	{
-		//assert(_internalState != InternalState::Destructed);
+		// assert(_internalState != InternalState::Destructed);
 		if (_internalState == InternalState::Destructed)
 		{
 			return;

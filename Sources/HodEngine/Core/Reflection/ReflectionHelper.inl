@@ -111,7 +111,7 @@ namespace hod
 			                                                                                                  getMethod); // TODO remove data, descriptor must use string view
 			if constexpr (std::is_enum<_MemberVariable_>::value)
 			{
-				propertyVariable->SetEnumDescriptor(EnumDescriptor::GenerateFromType<_MemberVariable_>());
+				propertyVariable->SetEnumDescriptor(&ReflectedEnum<_MemberVariable_>::GetEnumDescriptor());
 			}
 			return propertyVariable;
 		}

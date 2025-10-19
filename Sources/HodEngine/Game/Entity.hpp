@@ -1,16 +1,16 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <cstdint>
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
-#include <memory>
 #include <atomic>
+#include <cstdint>
+#include <memory>
 
-#include "HodEngine/Core/Weakable/Weakable.hpp"
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Type.hpp"
 #include "HodEngine/Core/UID.hpp"
+#include "HodEngine/Core/Weakable/Weakable.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
@@ -34,7 +34,6 @@ namespace hod::game
 		friend class SceneSerializer;
 
 	public:
-
 		enum class InternalState : uint8_t
 		{
 			None,
@@ -43,114 +42,109 @@ namespace hod::game
 			Started,
 			Destructed,
 		};
-		REFLECTED_ENUM(InternalState);
+		REFLECTED_ENUM(HOD_GAME_API, InternalState);
 
 		using ChildrenChangedEvent = Event<>;
 
 	public:
+		Entity(const std::string_view& name);
+		Entity(const Entity&) = delete;
+		Entity(Entity&&) = delete;
+		~Entity();
 
-														Entity(const std::string_view& name);
-														Entity(const Entity&) = delete;
-														Entity(Entity&&) = delete;
-														~Entity();
-
-		const Entity&									operator = (const Entity&) = delete;
-		const Entity&									operator = (Entity&&) = delete;
+		const Entity& operator=(const Entity&) = delete;
+		const Entity& operator=(Entity&&) = delete;
 
 	public:
+		void          SetName(const std::string_view& name);
+		const String& GetName() const;
 
-		void											SetName(const std::string_view& name);
-		const String&									GetName() const;
-
-		void											SetActive(bool active);
-		bool											GetActive() const;
-		bool											IsActiveInHierarchy() const;
+		void SetActive(bool active);
+		bool GetActive() const;
+		bool IsActiveInHierarchy() const;
 
 		// Hierarchy
-		void											SetParent(const WeakEntity& parent);
-		const WeakEntity&								GetParent() const;
+		void              SetParent(const WeakEntity& parent);
+		const WeakEntity& GetParent() const;
 
-		const Vector<WeakEntity>&						GetChildren() const;
+		const Vector<WeakEntity>& GetChildren() const;
 
-		void											SetSiblingIndex(uint32_t index);
-		uint32_t										GetSiblingIndex() const;
+		void     SetSiblingIndex(uint32_t index);
+		uint32_t GetSiblingIndex() const;
 
-		ChildrenChangedEvent&							GetChildrenChangedEvent();
+		ChildrenChangedEvent& GetChildrenChangedEvent();
 
 		// Components
-		const Vector<Component*>&						GetComponents() const;
+		const Vector<Component*>& GetComponents() const;
 
 		template<typename _Component_>
-		_Component_*									GetComponent();
-		Component*										GetComponent(const ReflectionDescriptor& descriptor);
+		_Component_* GetComponent();
+		Component*   GetComponent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		_Component_*									GetComponentInParent();
-		Component*										GetComponentInParent(const ReflectionDescriptor& descriptor);
+		_Component_* GetComponentInParent();
+		Component*   GetComponentInParent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		_Component_*									AddComponent();
-		Component*										AddComponent(const ReflectionDescriptor& descriptor);
+		_Component_* AddComponent();
+		Component*   AddComponent(const ReflectionDescriptor& descriptor);
 
 		template<typename _Component_>
-		void											RemoveComponent();
-		void											RemoveComponent(const ReflectionDescriptor& descriptor);
-		void											RemoveComponent(Component* component);
+		void RemoveComponent();
+		void RemoveComponent(const ReflectionDescriptor& descriptor);
+		void RemoveComponent(Component* component);
 
 		// Serialization
-		void											SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource); // TODO move in private ?
-		std::shared_ptr<PrefabResource>					GetPrefabResource() const;
+		void                            SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource); // TODO move in private ?
+		std::shared_ptr<PrefabResource> GetPrefabResource() const;
 
-		void											SetScene(Scene* scene);
-		Scene*											GetScene() const;
+		void   SetScene(Scene* scene);
+		Scene* GetScene() const;
 
-		uint64_t										GetInstanceId() const;
-		uint64_t										GetLocalId() const;
-		void											SetLocalId(uint64_t localId); // TODO move in private ?
+		uint64_t GetInstanceId() const;
+		uint64_t GetLocalId() const;
+		void     SetLocalId(uint64_t localId); // TODO move in private ?
 
-		InternalState									GetInternalState() const;
-
-	private:
-
-		Component*										AddComponent(Component* instance);
-
-		void											NotifyActivationChanged();
-
-		void											EnableComponents();
-		void											DisableComponents();
-
-		void											ProcessActivation();
-
-		void											Construct();
-		void											Awake();
-		void											Enable();
-		void											Start();
-		void											Disable();
-		void											Destruct();
+		InternalState GetInternalState() const;
 
 	private:
+		Component* AddComponent(Component* instance);
 
-		std::string										_name;
+		void NotifyActivationChanged();
 
-		bool											_active = true;
-		bool											_activeInHierarchy = false;
-		InternalState									_internalState = InternalState::None;
+		void EnableComponents();
+		void DisableComponents();
 
-		Vector<WeakEntity>								_children;
-		WeakEntity										_parent;
-		ChildrenChangedEvent							_childrenChangedEvent;
+		void ProcessActivation();
 
-		Vector<Component*>								_components;
-		
-		Scene*											_scene = nullptr; // TODO never set !!!
-		std::shared_ptr<PrefabResource>					_prefabResource = nullptr;
-
-		uint64_t										_instanceId = 0;
-		uint64_t										_localId = 0;
+		void Construct();
+		void Awake();
+		void Enable();
+		void Start();
+		void Disable();
+		void Destruct();
 
 	private:
+		std::string _name;
 
-		static std::atomic<uint64_t>					_nextInstanceId;
+		bool          _active = true;
+		bool          _activeInHierarchy = false;
+		InternalState _internalState = InternalState::None;
+
+		Vector<WeakEntity>   _children;
+		WeakEntity           _parent;
+		ChildrenChangedEvent _childrenChangedEvent;
+
+		Vector<Component*> _components;
+
+		Scene*                          _scene = nullptr; // TODO never set !!!
+		std::shared_ptr<PrefabResource> _prefabResource = nullptr;
+
+		uint64_t _instanceId = 0;
+		uint64_t _localId = 0;
+
+	private:
+		static std::atomic<uint64_t> _nextInstanceId;
 	};
 }
 

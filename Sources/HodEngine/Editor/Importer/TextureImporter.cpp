@@ -1,8 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/Importer/TextureImporter.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Editor/Importer/TextureImporter.hpp"
 
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
@@ -22,6 +22,12 @@
 
 namespace hod::editor
 {
+	DESCRIBE_REFLECTED_ENUM(MeshType, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(MeshType::Rect, "Rect");
+		reflectionDescriptor.AddEnumValue(MeshType::Tight, "Tight");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(TextureImporterSettings, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &TextureImporterSettings::_generateMipmap, "GenerateMipmap");
@@ -37,16 +43,17 @@ namespace hod::editor
 		AddPropertyT(reflectionDescriptor, &SpriteData::_meshType, "MeshType");
 	}
 
-	/// @brief 
+	/// @brief
 	TextureImporter::TextureImporter()
 	{
 		SetSupportedDataFileExtensions("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
-	bool TextureImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
+	/// @brief
+	/// @param path
+	/// @return
+	bool TextureImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail,
+	                                    ImporterSettings& settings)
 	{
 		// TODO
 		(void)meta;
@@ -59,9 +66,9 @@ namespace hod::editor
 			return false;
 		}
 
-		int x;
-		int y;
-		int componentCount;
+		int      x;
+		int      y;
+		int      componentCount;
 		uint8_t* pixels = stbi_load_from_memory(dataBuffer, (int)dataSize, &x, &y, &componentCount, 0); // TODO rgba
 		if (pixels == nullptr)
 		{
@@ -86,11 +93,13 @@ namespace hod::editor
 
 		stbi_write_png_compression_level = 9;
 
-		int writeResult = stbi_write_png_to_func([](void *context, void *data, int len)
-		{
-			std::ofstream* thumbnailStream= static_cast<std::ofstream*>(context);
-			thumbnailStream->write(reinterpret_cast<char*>(data), len);
-		}, &thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
+		int writeResult = stbi_write_png_to_func(
+			[](void* context, void* data, int len)
+			{
+				std::ofstream* thumbnailStream = static_cast<std::ofstream*>(context);
+				thumbnailStream->write(reinterpret_cast<char*>(data), len);
+			},
+			&thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
 		DefaultAllocator::GetInstance().Free(thumbnailPixels);
 
 		if (writeResult == 0)
@@ -132,8 +141,8 @@ namespace hod::editor
 
 	// TODO Move all virtual in Ctor const init ?
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const char* TextureImporter::GetTypeName() const
 	{
 		return "TextureImporter";

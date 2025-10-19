@@ -28,9 +28,6 @@ namespace hod
 		template<typename __TYPE__>
 		void AddEnumValue(__TYPE__ value, const char* label);
 
-		template<typename __TYPE__>
-		static EnumDescriptor* GenerateFromType();
-
 	private:
 		Vector<std::pair<uint64_t, std::string>> _values;
 	};

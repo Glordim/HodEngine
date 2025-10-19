@@ -7,23 +7,30 @@
 
 namespace hod::ui
 {
+	DESCRIBE_REFLECTED_ENUM(ContentSizeFitter::FitMode, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(ContentSizeFitter::FitMode::MinSize, "MinSize");
+		reflectionDescriptor.AddEnumValue(ContentSizeFitter::FitMode::PreferredSize, "PreferredSize");
+		reflectionDescriptor.AddEnumValue(ContentSizeFitter::FitMode::Unconstrained, "Unconstrained");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(ContentSizeFitter, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &ContentSizeFitter::_horizontalFitMode, "_horizontalFitMode", &ContentSizeFitter::SetHorizontalFitMode);
 		AddPropertyT(reflectionDescriptor, &ContentSizeFitter::_verticalFitMode, "_verticalFitMode", &ContentSizeFitter::SetVerticalFitMode);
 	}
 
-	/// @brief 
-	/// @param pComponent 
+	/// @brief
+	/// @param pComponent
 	ContentSizeFitter::ContentSizeFitter()
-		: Fitter()
-		, _onDrivenTextChangedSlot(std::bind(&ContentSizeFitter::OnDrivenTextChanged, this))
-		, _onDrivenLayoutChangedSlot(std::bind(&ContentSizeFitter::OnDrivenLayoutChanged, this, std::placeholders::_1))
+	: Fitter()
+	, _onDrivenTextChangedSlot(std::bind(&ContentSizeFitter::OnDrivenTextChanged, this))
+	, _onDrivenLayoutChangedSlot(std::bind(&ContentSizeFitter::OnDrivenLayoutChanged, this, std::placeholders::_1))
 	{
 	}
 
-	/// @brief 
-	/// @param element 
+	/// @brief
+	/// @param element
 	void ContentSizeFitter::OnEnable()
 	{
 		Text* text = GetOwner()->GetComponent<Text>();
@@ -43,22 +50,22 @@ namespace hod::ui
 		SetDirty();
 	}
 
-	/// @brief 
+	/// @brief
 	void ContentSizeFitter::OnDisable()
 	{
 		//_onDrivenTextChangeSlot.DisconnectAll();
 		//_onDrivenLayoutChangeSlot.DisconnectAll();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	ContentSizeFitter::FitMode ContentSizeFitter::GetHorizontalFitMode() const
 	{
 		return _horizontalFitMode;
 	}
 
-	/// @brief 
-	/// @param fitMode 
+	/// @brief
+	/// @param fitMode
 	void ContentSizeFitter::SetHorizontalFitMode(FitMode fitMode)
 	{
 		if (_horizontalFitMode != fitMode)
@@ -68,15 +75,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	ContentSizeFitter::FitMode ContentSizeFitter::GetVerticalFitMode() const
 	{
 		return _verticalFitMode;
 	}
 
-	/// @brief 
-	/// @param fitMode 
+	/// @brief
+	/// @param fitMode
 	void ContentSizeFitter::SetVerticalFitMode(FitMode fitMode)
 	{
 		if (_verticalFitMode != fitMode)
@@ -86,7 +93,7 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	bool ContentSizeFitter::Rebuild()
 	{
 		Node* node = GetOwner()->GetComponent<Node>();
@@ -164,17 +171,17 @@ namespace hod::ui
 		return true;
 	}
 
-	/// @brief 
-	/// @param drivenText 
-	/// @param changedProperty 
+	/// @brief
+	/// @param drivenText
+	/// @param changedProperty
 	void ContentSizeFitter::OnDrivenTextChanged()
 	{
 		SetDirty();
 	}
 
-	/// @brief 
-	/// @param drivenText 
-	/// @param changedProperty 
+	/// @brief
+	/// @param drivenText
+	/// @param changedProperty
 	void ContentSizeFitter::OnDrivenLayoutChanged(Layout::ChangedSizeProperty /*sizeAxis*/)
 	{
 		SetDirty();

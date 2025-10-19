@@ -5,6 +5,25 @@
 
 namespace hod::ui
 {
+	DESCRIBE_REFLECTED_ENUM(Layout::Axis, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(Layout::Axis::Horizontal, "Horizontal");
+		reflectionDescriptor.AddEnumValue(Layout::Axis::Vertical, "Vertical");
+	}
+
+	DESCRIBE_REFLECTED_ENUM(Layout::Alignment, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::TopLeft, "TopLeft");
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::TopCenter, "TopCenter");
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::TopRight, "TopRight");
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::MiddleLeft, "MiddleLeft");
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::MiddleCenter, "MiddleCenter");
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::MiddleRight, "MiddleRight");
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::BottomLeft, "BottomLeft");
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::BottomCenter, "BottomCenter");
+		reflectionDescriptor.AddEnumValue(Layout::Alignment::BottomRight, "BottomRight");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(Layout, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &Layout::_padding, "_padding", &Layout::SetPadding);
@@ -12,10 +31,10 @@ namespace hod::ui
 	}
 
 	Layout::Layout()
-		: Rebuildable()
-		, _onDrivenNodeChangedSlot(std::bind(&Layout::OnDrivenNodeChanged, this))
-		, _onDrivenNodeLayoutElementChangedSlot(std::bind(&Layout::OnDrivenNodeLayoutElementChanged, this, std::placeholders::_1))
-		, _onChildrenChangedSlot(std::bind(&Layout::OnChildrenChanged, this))
+	: Rebuildable()
+	, _onDrivenNodeChangedSlot(std::bind(&Layout::OnDrivenNodeChanged, this))
+	, _onDrivenNodeLayoutElementChangedSlot(std::bind(&Layout::OnDrivenNodeLayoutElementChanged, this, std::placeholders::_1))
+	, _onChildrenChangedSlot(std::bind(&Layout::OnChildrenChanged, this))
 	{
 	}
 
@@ -32,14 +51,14 @@ namespace hod::ui
 		SetDirty();
 	}
 
-	/// @brief 
+	/// @brief
 	void Layout::OnDisable()
 	{
 		//_onChildrenChangedSlot.DisconnectAll();
 		//_onDrivenNodeChangedSlot.DisconnectAll(); // TODO Event::Slot DisconnectAll
 	}
 
-	/// @brief 
+	/// @brief
 	bool Layout::Rebuild()
 	{
 		if (_drivenNodesDirty == true)
@@ -58,7 +77,7 @@ namespace hod::ui
 			for (const game::WeakEntity& weakChild : GetOwner()->GetChildren())
 			{
 				game::Entity* child = weakChild.Lock();
-				Node* childNode = child->GetComponent<Node>();
+				Node*         childNode = child->GetComponent<Node>();
 				if (childNode == nullptr)
 				{
 					OUTPUT_ERROR("UI::Layout: missing UI::Node on child {}", weakChild.Lock()->GetName());
@@ -90,15 +109,15 @@ namespace hod::ui
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Padding& Layout::GetPadding() const
 	{
 		return _padding;
 	}
 
-	/// @brief 
-	/// @param padding 
+	/// @brief
+	/// @param padding
 	void Layout::SetPadding(const Padding& padding)
 	{
 		if (_padding._vector4 != padding._vector4)
@@ -108,15 +127,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Layout::Alignment Layout::GetAlignment() const
 	{
 		return _alignment;
 	}
 
-	/// @brief 
-	/// @param alignment 
+	/// @brief
+	/// @param alignment
 	void Layout::SetAlignment(Alignment alignment)
 	{
 		if (_alignment != alignment)
@@ -126,11 +145,11 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @param axis 
-	/// @param requiredSpaceWithoutPadding 
-	/// @param availableSpace 
-	/// @return 
+	/// @brief
+	/// @param axis
+	/// @param requiredSpaceWithoutPadding
+	/// @param availableSpace
+	/// @return
 	float Layout::GetStartOffset(Axis axis, float requiredSpaceWithoutPadding, float availableSpace)
 	{
 		float combinedPadding;
@@ -162,9 +181,9 @@ namespace hod::ui
 		return startOffset + surplusSpace * alignmentMultiplier;
 	}
 
-	/// @brief 
-	/// @param axis 
-	/// @return 
+	/// @brief
+	/// @param axis
+	/// @return
 	float Layout::GetAlignmentMultiplier(Axis axis)
 	{
 		if (axis == Axis::Horizontal)
@@ -177,10 +196,10 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @param node 
-	/// @param axis 
-	/// @param position 
+	/// @brief
+	/// @param node
+	/// @param axis
+	/// @param position
 	void Layout::SetChildAlongAxis(Node* node, Axis axis, float position)
 	{
 		node->SetAnchorMin(Vector2(0.0f, 1.0f));
@@ -190,21 +209,21 @@ namespace hod::ui
 
 		if (axis == Axis::Horizontal)
 		{
-			anchoredPos.SetX((position + node->GetDeltaSize().GetX() * node->GetPivot().GetX()));
+			anchoredPos.SetX(position + node->GetDeltaSize().GetX() * node->GetPivot().GetX());
 		}
 		else
 		{
-			anchoredPos.SetY((-position - node->GetDeltaSize().GetY() * (1.0f - node->GetPivot().GetY())));
+			anchoredPos.SetY(-position - node->GetDeltaSize().GetY() * (1.0f - node->GetPivot().GetY()));
 		}
 
 		node->SetPosition(anchoredPos);
 	}
 
-	/// @brief 
-	/// @param node 
-	/// @param axis 
-	/// @param position 
-	/// @param scaleFactor 
+	/// @brief
+	/// @param node
+	/// @param axis
+	/// @param position
+	/// @param scaleFactor
 	void Layout::SetChildAlongAxisWithScale(Node* node, Axis axis, float position, float scaleFactor)
 	{
 		node->SetAnchorMin(Vector2(0.0f, 1.0f));
@@ -213,22 +232,22 @@ namespace hod::ui
 		Vector2 anchoredPos = node->GetPosition();
 		if (axis == Axis::Horizontal)
 		{
-			anchoredPos.SetX((position + node->GetDeltaSize().GetX() * node->GetPivot().GetX() * scaleFactor));
+			anchoredPos.SetX(position + node->GetDeltaSize().GetX() * node->GetPivot().GetX() * scaleFactor);
 		}
 		else
 		{
-			anchoredPos.SetY((-position - node->GetDeltaSize().GetY() * (1.0f - node->GetPivot().GetY()) * scaleFactor));
+			anchoredPos.SetY(-position - node->GetDeltaSize().GetY() * (1.0f - node->GetPivot().GetY()) * scaleFactor);
 		}
 
 		node->SetPosition(anchoredPos);
 	}
 
-	/// @brief 
-	/// @param node 
-	/// @param axis 
-	/// @param position 
-	/// @param size 
-	/// @param scaleFactor 
+	/// @brief
+	/// @param node
+	/// @param axis
+	/// @param position
+	/// @param size
+	/// @param scaleFactor
 	void Layout::SetChildAlongAxisWithScale(Node* node, Axis axis, float position, float size, float scaleFactor)
 	{
 		node->SetAnchorMin(Vector2(0.0f, 1.0f));
@@ -240,31 +259,29 @@ namespace hod::ui
 		if (axis == Axis::Horizontal)
 		{
 			deltaSize.SetX(size);
-			anchoredPos.SetX((position + size * node->GetPivot().GetX() * scaleFactor));
+			anchoredPos.SetX(position + size * node->GetPivot().GetX() * scaleFactor);
 		}
 		else
 		{
 			deltaSize.SetY(size);
-			anchoredPos.SetY((-position - size * (1.0f - node->GetPivot().GetY()) * scaleFactor));
+			anchoredPos.SetY(-position - size * (1.0f - node->GetPivot().GetY()) * scaleFactor);
 		}
 
 		node->SetDeltaSize(deltaSize);
 		node->SetPosition(anchoredPos);
 	}
 
-	/// @brief 
-	/// @param minSize 
-	/// @param preferredSize 
-	/// @param flexibleSize 
+	/// @brief
+	/// @param minSize
+	/// @param preferredSize
+	/// @param flexibleSize
 	void Layout::SetTotalSizeX(float minSize, float preferredSize, float flexibleSize)
 	{
 		minSize = std::max(0.0f, minSize);
 		preferredSize = std::max(0.0f, preferredSize);
 		flexibleSize = std::max(0.0f, flexibleSize);
 
-		if (_totalMinSize.GetX() != minSize ||
-			_totalPreferredSize.GetX() != preferredSize ||
-			_totalFlexibleSize.GetX() != flexibleSize)
+		if (_totalMinSize.GetX() != minSize || _totalPreferredSize.GetX() != preferredSize || _totalFlexibleSize.GetX() != flexibleSize)
 		{
 			_totalMinSize.SetX(minSize);
 			_totalPreferredSize.SetX(preferredSize);
@@ -274,19 +291,17 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @param minSize 
-	/// @param preferredSize 
-	/// @param flexibleSize 
+	/// @brief
+	/// @param minSize
+	/// @param preferredSize
+	/// @param flexibleSize
 	void Layout::SetTotalSizeY(float minSize, float preferredSize, float flexibleSize)
 	{
 		minSize = std::max(0.0f, minSize);
 		preferredSize = std::max(0.0f, preferredSize);
 		flexibleSize = std::max(0.0f, flexibleSize);
 
-		if (_totalMinSize.GetY() != minSize ||
-			_totalPreferredSize.GetY() != preferredSize ||
-			_totalFlexibleSize.GetY() != flexibleSize)
+		if (_totalMinSize.GetY() != minSize || _totalPreferredSize.GetY() != preferredSize || _totalFlexibleSize.GetY() != flexibleSize)
 		{
 			_totalMinSize.SetY(minSize);
 			_totalPreferredSize.SetY(preferredSize);
@@ -296,34 +311,34 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector2& Layout::GetTotalMinSize() const
 	{
 		return _totalMinSize;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector2& Layout::GetTotalPreferredSize() const
 	{
 		return _totalPreferredSize;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector2& Layout::GetTotalFlexibleSize() const
 	{
 		return _totalFlexibleSize;
 	}
 
-	/// @brief 
+	/// @brief
 	void Layout::OnDrivenNodeChanged()
 	{
 		SetDirty();
 	}
 
-	/// @brief 
+	/// @brief
 	void Layout::OnDrivenNodeLayoutElementChanged(LayoutElement::ChangedProperty changedProperty)
 	{
 		SetDirty();
@@ -335,22 +350,22 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Layout::OnChildrenChanged()
 	{
 		SetDirty();
 		_drivenNodesDirty = true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector<WeakPtr<Node>>& Layout::GetDrivenNodes() const
 	{
 		return _drivenNodes;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Layout::SizeChangedEvent& Layout::GetSizeChangedEvent()
 	{
 		return _sizeChangedEvent;

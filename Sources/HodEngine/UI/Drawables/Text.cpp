@@ -3,9 +3,9 @@
 #include "HodEngine/UI/Node.hpp"
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include <HodEngine/Renderer/Font/Font.hpp>
 
 #include <HodEngine/Game/Entity.hpp>
@@ -13,6 +13,19 @@
 
 namespace hod::ui
 {
+	DESCRIBE_REFLECTED_ENUM(Text::Alignment, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(Text::Alignment::TopLeft, "TopLeft");
+		reflectionDescriptor.AddEnumValue(Text::Alignment::TopCenter, "TopCenter");
+		reflectionDescriptor.AddEnumValue(Text::Alignment::TopRight, "TopRight");
+		reflectionDescriptor.AddEnumValue(Text::Alignment::MiddleLeft, "MiddleLeft");
+		reflectionDescriptor.AddEnumValue(Text::Alignment::MiddleCenter, "MiddleCenter");
+		reflectionDescriptor.AddEnumValue(Text::Alignment::MiddleRight, "MiddleRight");
+		reflectionDescriptor.AddEnumValue(Text::Alignment::BottomLeft, "BottomLeft");
+		reflectionDescriptor.AddEnumValue(Text::Alignment::BottomCenter, "BottomCenter");
+		reflectionDescriptor.AddEnumValue(Text::Alignment::BottomRight, "BottomRight");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(Text, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &Text::_font, "Font", &Text::SetFont);
@@ -49,43 +62,27 @@ namespace hod::ui
 			Vector2 lineTopLeftCorner;
 			switch (_alignment)
 			{
-			case Alignment::TopLeft:
-				lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f);
-				break;
-			case Alignment::TopCenter:
-				lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, size.GetY() * 0.5f);
-				break;
-			case Alignment::TopRight:
-				lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), size.GetY() * 0.5f);
-				break;
+				case Alignment::TopLeft: lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f); break;
+				case Alignment::TopCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, size.GetY() * 0.5f); break;
+				case Alignment::TopRight: lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), size.GetY() * 0.5f); break;
 
-			case Alignment::MiddleLeft:
-				lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, requiredSize.GetY() * 0.5f);
-				break;
-			case Alignment::MiddleCenter:
-				lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, requiredSize.GetY() * 0.5f);
-				break;
-			case Alignment::MiddleRight:
-				lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), requiredSize.GetY() * 0.5f);
-				break;
+				case Alignment::MiddleLeft: lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, requiredSize.GetY() * 0.5f); break;
+				case Alignment::MiddleCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, requiredSize.GetY() * 0.5f); break;
+				case Alignment::MiddleRight: lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), requiredSize.GetY() * 0.5f); break;
 
-			case Alignment::BottomLeft:
-				lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f  + requiredSize.GetY());
-				break;
-			case Alignment::BottomCenter:
-				lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, -size.GetY() * 0.5f  + requiredSize.GetY());
-				break;
-			case Alignment::BottomRight:
-				lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), -size.GetY() * 0.5f + requiredSize.GetY());
-				break;
+				case Alignment::BottomLeft: lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f + requiredSize.GetY()); break;
+				case Alignment::BottomCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, -size.GetY() * 0.5f + requiredSize.GetY()); break;
+				case Alignment::BottomRight: lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), -size.GetY() * 0.5f + requiredSize.GetY()); break;
 			}
 
 			/*
-			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f), Color::White);
-			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()), worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
+			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f),
+			Color::White); GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()), worldMatrix.GetTranslation() +
+			lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
 
-			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()), Color::White);
-			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f), worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
+			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()),
+			Color::White); GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f), worldMatrix.GetTranslation() +
+			lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
 			*/
 
 			Vector<renderer::Font::GlyphGeometry> glyphGeometries;
@@ -118,7 +115,8 @@ namespace hod::ui
 			{
 				if (_materialInstance == nullptr)
 				{
-					const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+					const renderer::Material* material =
+						renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
 					_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 				}
 				_materialInstance->SetTexture("image", font->GetTexture());
@@ -129,13 +127,16 @@ namespace hod::ui
 				vec4Color.SetW(_color.a);
 				_materialInstance->SetVec4("ubo.color", vec4Color);
 
-				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance, 0, 0), renderQueueType);
+				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(),
+				                                                                                              indices.data(), (uint32_t)indices.size(), worldMatrix,
+				                                                                                              _materialInstance, 0, 0),
+				                             renderQueueType);
 			}
 		}
 	}
 
-	/// @brief 
-	/// @param font 
+	/// @brief
+	/// @param font
 	void Text::SetFont(const WeakResource<renderer::FontResource>& font)
 	{
 		if (_font != font)
@@ -145,8 +146,8 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @param value 
+	/// @brief
+	/// @param value
 	void Text::SetValue(const String& value)
 	{
 		if (_value != value)
@@ -156,8 +157,8 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @param alignment 
+	/// @brief
+	/// @param alignment
 	void Text::SetAlignment(Alignment alignment)
 	{
 		if (_alignment != alignment)

@@ -1,20 +1,19 @@
 #pragma once
-#include "HodEngine/UI/Export.hpp"
 #include "HodEngine/UI/Drawables/Drawable.hpp"
-#include <HodEngine/Core/Resource/WeakResource.hpp>
+#include "HodEngine/UI/Export.hpp"
 #include <HodEngine/Core/Event.hpp>
+#include <HodEngine/Core/Resource/WeakResource.hpp>
 #include <HodEngine/Renderer/Resource/FontResource.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 
 namespace hod::ui
 {
-	/// @brief 
+	/// @brief
 	class HOD_UI_API Text : public Drawable
 	{
 		REFLECTED_CLASS(Text, Drawable)
 
 	public:
-
 		enum Alignment
 		{
 			TopLeft,
@@ -28,30 +27,30 @@ namespace hod::ui
 			BottomRight
 		};
 
+		REFLECTED_ENUM(HOD_UI_API, Alignment);
+
 		using PropertyChangedEvent = Event<>;
 
 	public:
+		void OnDestruct() override;
 
-		void	OnDestruct() override;
+		void SetFont(const WeakResource<renderer::FontResource>& font);
+		void SetValue(const String& value);
+		void SetAlignment(Alignment alignment);
 
-		void	SetFont(const WeakResource<renderer::FontResource>& font);
-		void	SetValue(const String& value);
-		void	SetAlignment(Alignment alignment);
+		void PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) override;
 
-		void	PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) override;
+		Vector2 GetContentSize() const;
 
-		Vector2	GetContentSize() const;
-
-		PropertyChangedEvent&		GetPropertyChangedEvent();
+		PropertyChangedEvent& GetPropertyChangedEvent();
 
 	private:
-
-		WeakResource<renderer::FontResource>	_font;
-		String									_value;
-		Alignment								_alignment;
+		WeakResource<renderer::FontResource> _font;
+		String                               _value;
+		Alignment                            _alignment;
 
 		renderer::MaterialInstance* _materialInstance = nullptr;
 
-		PropertyChangedEvent		_propertyChangedEvent;
+		PropertyChangedEvent _propertyChangedEvent;
 	};
 }

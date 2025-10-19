@@ -70,97 +70,11 @@ public:                                                                         
 ///@brief
 #define DESCRIBE_REFLECTED_CLASS(__TYPE__, reflectionDescriptor) void __TYPE__::FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor)
 
-#define REFLECTED_ENUM(__TYPE__) friend void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__);
+#define REFLECTED_ENUM(__API__, __TYPE__) __API__ friend void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__);
+#define REFLECTED_ENUM2(__API__, __TYPE__) __API__ void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__);
 
 ///@brief
 #define DESCRIBE_REFLECTED_ENUM(__TYPE__, reflectionDescriptor) void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
-
-namespace hod
-{
-	template<typename _Enum_>
-	class ReflectedEnum
-	{
-	public:
-		static EnumDescriptor& GetEnumDescriptor()
-		{
-			static EnumDescriptor descriptor = []()
-			{
-				EnumDescriptor desc;
-				DescribeEnum(desc, _Enum_ {}); // ADL (see DESCRIBE_REFLECTED_ENUM macro)
-				return desc;
-			}();
-			return descriptor;
-		}
-	};
-
-	template<typename _Class_>
-	class ReflectedClass
-	{
-	public:
-		static ReflectionDescriptor& GetReflectionDescriptor()
-		{
-			static ReflectionDescriptor reflectionDescriptor;
-			static bool                 init = false;
-			if (init == false)
-			{
-				_Class_::FillReflectionDescriptor(reflectionDescriptor);
-				init = true;
-			}
-			return reflectionDescriptor;
-		}
-	};
-
-	// std::function<void(T::*)(const MemberType&)> setFunction = nullptr
-
-	template<typename T, typename MemberType>
-		requires(std::is_fundamental_v<MemberType> || std::is_enum_v<MemberType>)
-	ReflectionProperty* AddPropertyT(ReflectionDescriptor& descriptor, MemberType T::* member, const char* name,
-	                                 void (T::*setFunction)(MemberType) = nullptr /*, std::function<MemberType(void) const> getFunction = nullptr*/)
-	{
-		uint32_t offset = OffsetOf(member);
-
-		if (setFunction != nullptr)
-		{
-			ReflectionProperty* property = ReflectionHelper::AddProperty<MemberType>(
-				descriptor, name, offset,
-				[setFunction](void* instance, void* value)
-				{
-					T*         instanceClass = static_cast<T*>(instance);
-					MemberType valueCopy = *static_cast<MemberType*>(value);
-					(instanceClass->*setFunction)(valueCopy);
-				},
-				nullptr);
-
-			return property;
-		}
-		else
-		{
-			return ReflectionHelper::AddProperty<MemberType>(descriptor, name, offset);
-		}
-	}
-
-	template<typename T, typename MemberType>
-		requires(!std::is_fundamental_v<MemberType> && !std::is_enum_v<MemberType>)
-	ReflectionProperty* AddPropertyT(ReflectionDescriptor& descriptor, MemberType T::* member, const char* name,
-	                                 void (T::*setFunction)(const MemberType&) = nullptr /*, std::function<const MemberType&(void) const> getFunction = nullptr*/)
-	{
-		uint32_t offset = OffsetOf(member);
-		if (setFunction != nullptr)
-		{
-			ReflectionProperty* property = ReflectionHelper::AddProperty<MemberType>(
-				descriptor, name, offset,
-				[setFunction](void* instance, void* value)
-				{
-					T*                instanceClass = static_cast<T*>(instance);
-					const MemberType& valueRef = *static_cast<MemberType*>(value);
-					(instanceClass->*setFunction)(valueRef);
-				},
-				nullptr);
-			return property;
-		}
-		else
-		{
-			return ReflectionHelper::AddProperty<MemberType>(descriptor, name, offset);
-		}
-	}
-}
+#define DESCRIBE_REFLECTED_ENUM2(__API__, __TYPE__, reflectionDescriptor) \
+	template class __API__ hod::ReflectedEnum<__TYPE__>;                  \
+	void                   DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)

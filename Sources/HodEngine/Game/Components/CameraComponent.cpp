@@ -11,6 +11,12 @@ namespace hod::game
 {
 	CameraComponent* CameraComponent::_main = nullptr;
 
+	DESCRIBE_REFLECTED_ENUM(CameraComponent::Projection, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(CameraComponent::Projection::Orthographic, "Orthographic");
+		reflectionDescriptor.AddEnumValue(CameraComponent::Projection::Perpective, "Perpective");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(CameraComponent, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &CameraComponent::_projection, "Projection");
@@ -20,7 +26,7 @@ namespace hod::game
 		AddPropertyT(reflectionDescriptor, &CameraComponent::_size, "Size", &CameraComponent::SetSize);
 	}
 
-	/// @brief 
+	/// @brief
 	void CameraComponent::OnAwake()
 	{
 		_main = this;
@@ -31,8 +37,8 @@ namespace hod::game
 		_main = nullptr;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Matrix4& CameraComponent::GetProjectionMatrix()
 	{
 		if (_dirtyFlag == true)
@@ -52,8 +58,8 @@ namespace hod::game
 		return _projectionMatrix;
 	}
 
-	/// @brief 
-	/// @param aspect 
+	/// @brief
+	/// @param aspect
 	void CameraComponent::SetAspect(float aspect)
 	{
 		if (aspect != _aspect)
@@ -63,34 +69,34 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @param scene 
+	/// @brief
+	/// @param scene
 	void CameraComponent::Render(Scene& scene)
 	{
 		(void)scene; // TODO
-		/*
-		renderer::RenderQueue renderQueue;
-
-		renderQueue.SetCameraPos(GetActor()->GetComponent<SceneComponent>()->GetPosition());
-		renderQueue.SetViewMatrix(glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()));
-		renderQueue.SetProjMatrix(GetProjectionMatrix());
-
-		renderQueue.SetClearFlag(renderer::RenderQueue::ClearFlag::COLOR | renderer::RenderQueue::ClearFlag::DEPTH);
-
-		renderQueue.SetHdriMaterial(_hdriMat);
-		renderQueue.SetHdriTexture(_hdriTexture);
-
-		RenderQueueHelper::AddSceneComponent(renderQueue, scene.GetRoot(), true);
-		RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
-		RenderQueueHelper::AddDebugLines(renderQueue, &scene);
-
-		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
-		renderer->SubmitRenderQueue(renderQueue);
-		*/
+					 /*
+		             renderer::RenderQueue renderQueue;
+		     
+		             renderQueue.SetCameraPos(GetActor()->GetComponent<SceneComponent>()->GetPosition());
+		             renderQueue.SetViewMatrix(glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()));
+		             renderQueue.SetProjMatrix(GetProjectionMatrix());
+		     
+		             renderQueue.SetClearFlag(renderer::RenderQueue::ClearFlag::COLOR | renderer::RenderQueue::ClearFlag::DEPTH);
+		     
+		             renderQueue.SetHdriMaterial(_hdriMat);
+		             renderQueue.SetHdriTexture(_hdriTexture);
+		     
+		             RenderQueueHelper::AddSceneComponent(renderQueue, scene.GetRoot(), true);
+		             RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
+		             RenderQueueHelper::AddDebugLines(renderQueue, &scene);
+		     
+		             renderer::Renderer* renderer = renderer::Renderer::GetInstance();
+		             renderer->SubmitRenderQueue(renderQueue);
+		             */
 	}
 
-	/// @brief 
-	/// @param renderView 
+	/// @brief
+	/// @param renderView
 	void CameraComponent::SetupRenderView(renderer::RenderView& renderView)
 	{
 		Vector2 resolution = renderView.GetRenderResolution();
@@ -119,8 +125,8 @@ namespace hod::game
 		renderView.SetupCamera(projection, view, viewport);
 	}
 
-	/// @brief 
-	/// @param size 
+	/// @brief
+	/// @param size
 	void CameraComponent::SetSize(float size)
 	{
 		if (size != _size)
@@ -130,8 +136,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	float CameraComponent::GetSize() const
 	{
 		return _size;

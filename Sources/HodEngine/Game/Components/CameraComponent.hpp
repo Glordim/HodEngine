@@ -3,8 +3,8 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Math/Matrix4.hpp"
+#include "HodEngine/Game/Component.hpp"
 
 #include "../Scene.hpp"
 
@@ -17,61 +17,58 @@ namespace hod::renderer
 
 namespace hod::game
 {
-	/// @brief 
+	/// @brief
 	class HOD_GAME_API CameraComponent : public Component
 	{
 		REFLECTED_CLASS(CameraComponent, Component)
 
 	public:
-
 		enum class Projection : uint8_t
 		{
 			Perpective,
 			Orthographic
 		};
+		REFLECTED_ENUM(HOD_GAME_API, Projection);
 
-		static CameraComponent*	_main;
-
-	public:
-
-									CameraComponent() = default;
-									CameraComponent(const CameraComponent&) = delete;
-									CameraComponent(CameraComponent&&) = delete;
-									~CameraComponent() override = default;
-
-		void						operator=(const CameraComponent&) = delete;
-		void						operator=(CameraComponent&&) = delete;
+		static CameraComponent* _main;
 
 	public:
+		CameraComponent() = default;
+		CameraComponent(const CameraComponent&) = delete;
+		CameraComponent(CameraComponent&&) = delete;
+		~CameraComponent() override = default;
 
-		void						OnAwake() override;
-		void						OnDestruct() override;
+		void operator=(const CameraComponent&) = delete;
+		void operator=(CameraComponent&&) = delete;
 
-		void						Render(Scene& scene);
+	public:
+		void OnAwake() override;
+		void OnDestruct() override;
 
-		void						SetProjection(Projection projection);
-		Projection					GetProjection() const;
+		void Render(Scene& scene);
 
-		const Matrix4&				GetProjectionMatrix();
+		void       SetProjection(Projection projection);
+		Projection GetProjection() const;
 
-		void						SetupRenderView(renderer::RenderView& renderView);
+		const Matrix4& GetProjectionMatrix();
 
-		void						SetSize(float size);
-		float						GetSize() const;
+		void SetupRenderView(renderer::RenderView& renderView);
 
-		void						SetAspect(float aspect);
+		void  SetSize(float size);
+		float GetSize() const;
+
+		void SetAspect(float aspect);
 
 	private:
+		Projection _projection = Projection::Orthographic;
+		float      _size = 5.0f;
+		float      _near = -1.0f;
+		float      _far = 1.0f;
+		float      _fov = 60.0f;
+		float      _aspect = 1.0f;
 
-		Projection					_projection = Projection::Orthographic;
-		float						_size = 5.0f;
-		float						_near = -1.0f;
-		float						_far = 1.0f;
-		float						_fov = 60.0f;
-		float						_aspect = 1.0f;
+		bool _dirtyFlag = true;
 
-		bool						_dirtyFlag = true;
-
-		Matrix4						_projectionMatrix;
+		Matrix4 _projectionMatrix;
 	};
 }

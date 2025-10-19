@@ -5,19 +5,20 @@
 
 namespace hod::ui
 {
-	/// @brief 
+	/// @brief
 	class HOD_UI_API GridLayout : public Layout
 	{
 		REFLECTED_CLASS(GridLayout, Layout)
 
 	public:
-
 		enum Constraint
 		{
 			Flexible = 0,
 			FixedColumnCount,
 			FixedRowCount,
 		};
+
+		REFLECTED_ENUM(HOD_UI_API, Constraint);
 
 		enum Corner
 		{
@@ -27,39 +28,38 @@ namespace hod::ui
 			BottomRight,
 		};
 
+		REFLECTED_ENUM(HOD_UI_API, Corner);
+
 	public:
+		const Vector2& GetCellSize() const;
+		void           SetCellSize(const Vector2& cellSize);
 
-		const Vector2&	GetCellSize() const;
-		void			SetCellSize(const Vector2& cellSize);
+		const Vector2& GetCellSpacing() const;
+		void           SetCellSpacing(const Vector2& cellSpacing);
 
-		const Vector2&	GetCellSpacing() const;
-		void			SetCellSpacing(const Vector2& cellSpacing);
+		Constraint GetConstraint() const;
+		void       SetConstraint(Constraint constraint);
 
-		Constraint		GetConstraint() const;
-		void			SetConstraint(Constraint constraint);
+		int32_t GetConstraintCount() const;
+		void    SetConstraintCount(int32_t constraintCount);
 
-		int32_t			GetConstraintCount() const;
-		void			SetConstraintCount(int32_t constraintCount);
+		Axis GetStartAxis() const;
+		void SetStartAxis(Axis startAxis);
 
-		Axis			GetStartAxis() const;
-		void			SetStartAxis(Axis startAxis);
-
-		Corner			GetStartCorner() const;
-		void			SetStartCorner(Corner startCorner);
+		Corner GetStartCorner() const;
+		void   SetStartCorner(Corner startCorner);
 
 	protected:
-
-		void			ComputeChildrenPositionAndSize() override;
+		void ComputeChildrenPositionAndSize() override;
 
 	private:
+		Vector2 _cellSize = Vector2(100.0f, 100.0f);
+		Vector2 _cellSpacing;
 
-		Vector2			_cellSize = Vector2(100.0f, 100.0f);
-		Vector2			_cellSpacing;
+		Constraint _constraint = Constraint::Flexible;
+		int32_t    _constraintCount = 0;
 
-		Constraint		_constraint = Constraint::Flexible;
-		int32_t			_constraintCount = 0;
-
-		Axis			_startAxis = Axis::Horizontal;
-		Corner			_startCorner = Corner::TopLeft;
+		Axis   _startAxis = Axis::Horizontal;
+		Corner _startCorner = Corner::TopLeft;
 	};
 }

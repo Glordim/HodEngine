@@ -1,7 +1,7 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Canvas.hpp"
-#include "HodEngine/UI/Node.hpp"
 #include "HodEngine/UI/Drawables/Drawable.hpp"
+#include "HodEngine/UI/Node.hpp"
 #include "HodEngine/UI/Rebuildable.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
@@ -15,6 +15,20 @@
 
 namespace hod::ui
 {
+	DESCRIBE_REFLECTED_ENUM(Canvas::RenderMode, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(Canvas::RenderMode::Camera, "Camera");
+		reflectionDescriptor.AddEnumValue(Canvas::RenderMode::World, "World");
+	}
+
+	DESCRIBE_REFLECTED_ENUM(Canvas::ScaleMode, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(Canvas::ScaleMode::WidthHeight, "WidthHeight");
+		reflectionDescriptor.AddEnumValue(Canvas::ScaleMode::Expand, "Expand");
+		reflectionDescriptor.AddEnumValue(Canvas::ScaleMode::Shrink, "Shrink");
+		reflectionDescriptor.AddEnumValue(Canvas::ScaleMode::Fixed, "Fixed");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(Canvas, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &Canvas::_renderMode, "RenderMode", &Canvas::SetRenderMode);
@@ -81,32 +95,32 @@ namespace hod::ui
 
 		switch (_scaleMode)
 		{
-		case ScaleMode::WidthHeight:
-		{
-			float logWidth = std::log2f(resolution.GetX() / designSize.GetX());
-			float logHeight = std::log2f(resolution.GetY() / designSize.GetY());
-			float logLerp = std::lerp(logWidth, logHeight, _widthHeightPreferredAxis);
-			_scaleFactor = std::powf(2.0f, logLerp);
-		}
-		break;
+			case ScaleMode::WidthHeight:
+			{
+				float logWidth = std::log2f(resolution.GetX() / designSize.GetX());
+				float logHeight = std::log2f(resolution.GetY() / designSize.GetY());
+				float logLerp = std::lerp(logWidth, logHeight, _widthHeightPreferredAxis);
+				_scaleFactor = std::powf(2.0f, logLerp);
+			}
+			break;
 
-		case ScaleMode::Expand:
-		{
-			_scaleFactor = std::min(resolution.GetX() / designSize.GetX(), resolution.GetY() / designSize.GetY());
-		}
-		break;
+			case ScaleMode::Expand:
+			{
+				_scaleFactor = std::min(resolution.GetX() / designSize.GetX(), resolution.GetY() / designSize.GetY());
+			}
+			break;
 
-		case ScaleMode::Shrink:
-		{
-			_scaleFactor = std::max(resolution.GetX() / designSize.GetX(), resolution.GetY() / designSize.GetY());
-		}
-		break;
+			case ScaleMode::Shrink:
+			{
+				_scaleFactor = std::max(resolution.GetX() / designSize.GetX(), resolution.GetY() / designSize.GetY());
+			}
+			break;
 
-		case ScaleMode::Fixed:
-		{
-			_scaleFactor = 1.0f;
-		}
-		break;
+			case ScaleMode::Fixed:
+			{
+				_scaleFactor = 1.0f;
+			}
+			break;
 		}
 
 		Vector2 rootNodeSize = designSize;
@@ -155,8 +169,9 @@ namespace hod::ui
 			renderQueueType = renderer::RenderView::RenderQueueType::World;
 		}
 
-		int32_t zOrder = 0;
-		static std::function<void(Node*, renderer::RenderView&, renderer::RenderView::RenderQueueType, int32_t&)> drawRecursively = [&](Node* node, renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType, int32_t& zOrder)
+		int32_t                                                                                                   zOrder = 0;
+		static std::function<void(Node*, renderer::RenderView&, renderer::RenderView::RenderQueueType, int32_t&)> drawRecursively =
+			[&](Node* node, renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType, int32_t& zOrder)
 		{
 			if (node == nullptr || node->GetOwner()->IsActiveInHierarchy() == false)
 			{

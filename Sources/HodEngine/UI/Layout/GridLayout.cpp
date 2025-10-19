@@ -3,6 +3,21 @@
 
 namespace hod::ui
 {
+	DESCRIBE_REFLECTED_ENUM(GridLayout::Constraint, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(GridLayout::Constraint::FixedColumnCount, "FixedColumnCount");
+		reflectionDescriptor.AddEnumValue(GridLayout::Constraint::FixedRowCount, "FixedRowCount");
+		reflectionDescriptor.AddEnumValue(GridLayout::Constraint::Flexible, "Flexible");
+	}
+
+	DESCRIBE_REFLECTED_ENUM(GridLayout::Corner, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(GridLayout::Corner::TopLeft, "TopLeft");
+		reflectionDescriptor.AddEnumValue(GridLayout::Corner::TopRight, "TopRight");
+		reflectionDescriptor.AddEnumValue(GridLayout::Corner::BottomLeft, "BottomLeft");
+		reflectionDescriptor.AddEnumValue(GridLayout::Corner::BottomRight, "BottomRight");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(GridLayout, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &GridLayout::_cellSize, "_cellSize", &GridLayout::SetCellSize);
@@ -13,15 +28,15 @@ namespace hod::ui
 		AddPropertyT(reflectionDescriptor, &GridLayout::_startCorner, "_startCorner", &GridLayout::SetStartCorner);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector2& GridLayout::GetCellSize() const
 	{
 		return _cellSize;
 	}
 
-	/// @brief 
-	/// @param cellSize 
+	/// @brief
+	/// @param cellSize
 	void GridLayout::SetCellSize(const Vector2& cellSize)
 	{
 		if (_cellSize != cellSize)
@@ -31,15 +46,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector2& GridLayout::GetCellSpacing() const
 	{
 		return _cellSpacing;
 	}
 
-	/// @brief 
-	/// @param cellSpacing 
+	/// @brief
+	/// @param cellSpacing
 	void GridLayout::SetCellSpacing(const Vector2& cellSpacing)
 	{
 		if (_cellSpacing != cellSpacing)
@@ -49,15 +64,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	GridLayout::Constraint GridLayout::GetConstraint() const
 	{
 		return _constraint;
 	}
 
-	/// @brief 
-	/// @param constraint 
+	/// @brief
+	/// @param constraint
 	void GridLayout::SetConstraint(Constraint constraint)
 	{
 		if (_constraint != constraint)
@@ -67,15 +82,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	int32_t GridLayout::GetConstraintCount() const
 	{
 		return _constraintCount;
 	}
 
-	/// @brief 
-	/// @param constraintCount 
+	/// @brief
+	/// @param constraintCount
 	void GridLayout::SetConstraintCount(int32_t constraintCount)
 	{
 		if (_constraintCount != constraintCount)
@@ -85,15 +100,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	GridLayout::Axis GridLayout::GetStartAxis() const
 	{
 		return _startAxis;
 	}
 
-	/// @brief 
-	/// @param startAxis 
+	/// @brief
+	/// @param startAxis
 	void GridLayout::SetStartAxis(Axis startAxis)
 	{
 		if (_startAxis != startAxis)
@@ -103,15 +118,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	GridLayout::Corner GridLayout::GetStartCorner() const
 	{
 		return _startCorner;
 	}
 
-	/// @brief 
-	/// @param startCorner 
+	/// @brief
+	/// @param startCorner
 	void GridLayout::SetStartCorner(Corner startCorner)
 	{
 		if (_startCorner != startCorner)
@@ -121,7 +136,7 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void GridLayout::ComputeChildrenPositionAndSize()
 	{
 		Node* node = GetOwner()->GetComponent<Node>();
@@ -130,9 +145,9 @@ namespace hod::ui
 			return;
 		}
 
-		Vector2 availableSize = node->ComputeSize();
+		Vector2                      availableSize = node->ComputeSize();
 		const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
-		uint32_t drivenNodeCount = (uint32_t)drivenNodes.size();
+		uint32_t                     drivenNodeCount = (uint32_t)drivenNodes.size();
 
 		uint32_t cellCountX = 1;
 		uint32_t cellCountY = 1;
@@ -176,14 +191,14 @@ namespace hod::ui
 			{
 				float availableHeight = availableSize.GetY() - (GetPadding().GetTop() + GetPadding().GetBottom()) + _cellSpacing.GetY() + 0.0001f;
 
-				cellCountY =std::max(1, (int)(std::floor(availableHeight / (_cellSize.GetY() + _cellSpacing.GetY()))));
+				cellCountY = std::max(1, (int)(std::floor(availableHeight / (_cellSize.GetY() + _cellSpacing.GetY()))));
 			}
 		}
 
 		int32_t cornerX = (int32_t)_startCorner % 2;
 		int32_t cornerY = (int32_t)_startCorner / 2;
 
-		int32_t cellsPerMainAxis;
+		int32_t  cellsPerMainAxis;
 		uint32_t actualCellCountX;
 		uint32_t actualCellCountY;
 
