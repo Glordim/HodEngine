@@ -25,9 +25,9 @@ namespace hod
 		}
 		else
 		{
-			data._allocateFunction = []() { return DefaultAllocator::GetInstance().New<_Class_>(); };
-			data._deleteFunction = [](void* instance) { hod::DefaultAllocator::GetInstance().Delete(static_cast<_Class_*>(instance)); };
-			data._sharedAllocateFunction = []() { return std::make_shared<_Class_>(); };
+			data._allocateFunction = +[]() -> void* { return DefaultAllocator::GetInstance().New<_Class_>(); };
+			data._deleteFunction = +[](void* instance) { hod::DefaultAllocator::GetInstance().Delete(static_cast<_Class_*>(instance)); };
+			data._sharedAllocateFunction = +[]() -> std::shared_ptr<void> { return std::make_shared<_Class_>(); };
 		}
 
 		if constexpr (HasEqualOperator<_Class_>::value)

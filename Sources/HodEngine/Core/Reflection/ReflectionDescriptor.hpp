@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
+#include "HodEngine/Core/FunctionPtr.hpp"
 #include "HodEngine/Core/Vector.hpp"
-#include <functional>
 #include <memory>
 #include <string_view>
 
@@ -20,13 +20,13 @@ namespace hod
 	public:
 		struct Data
 		{
-			std::string_view                              _name;
-			ReflectionDescriptor*                         _parent = nullptr;
-			std::function<void*()>                        _allocateFunction = nullptr;
-			std::function<void(void*)>                    _deleteFunction = nullptr;
-			std::function<std::shared_ptr<void>()>        _sharedAllocateFunction = nullptr;
-			std::function<bool(const void*, const void*)> _compareFunction = nullptr;
-			MetaType                                      _metaType;
+			std::string_view                            _name;
+			ReflectionDescriptor*                       _parent = nullptr;
+			FunctionPtr<void*()>                        _allocateFunction = nullptr;
+			FunctionPtr<void(void*)>                    _deleteFunction = nullptr;
+			FunctionPtr<std::shared_ptr<void>()>        _sharedAllocateFunction = nullptr;
+			FunctionPtr<bool(const void*, const void*)> _compareFunction = nullptr;
+			MetaType                                    _metaType;
 		};
 
 		template<typename _Class_, typename _ParentClass_ = void>
@@ -97,15 +97,15 @@ namespace hod
 		const String& GetDisplayName() const;
 
 	private:
-		std::string         _typeName;
-		mutable std::string _displayName;
+		String         _typeName;
+		mutable String _displayName;
 
-		ReflectionDescriptor*                         _parent = nullptr;
-		std::function<void*()>                        _allocateFunction = nullptr;
-		std::function<void(void*)>                    _deleteFunction = nullptr;
-		std::function<std::shared_ptr<void>()>        _sharedAllocateFunction = nullptr;
-		std::function<bool(const void*, const void*)> _compareFunction = nullptr;
-		MetaType                                      _metaType;
+		ReflectionDescriptor*                       _parent = nullptr;
+		FunctionPtr<void*()>                        _allocateFunction = nullptr;
+		FunctionPtr<void(void*)>                    _deleteFunction = nullptr;
+		FunctionPtr<std::shared_ptr<void>()>        _sharedAllocateFunction = nullptr;
+		FunctionPtr<bool(const void*, const void*)> _compareFunction = nullptr;
+		MetaType                                    _metaType;
 
 		Vector<ReflectionTrait*>    _traits;
 		Vector<ReflectionProperty*> _properties;
