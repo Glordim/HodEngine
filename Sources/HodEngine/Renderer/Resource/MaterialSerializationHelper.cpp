@@ -4,17 +4,17 @@
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
-#include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Resource/WeakResource.hpp>
+#include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"
 
 namespace hod::renderer
 {
-	/// @brief 
-	/// @param material 
-	/// @param params 
+	/// @brief
+	/// @param material
+	/// @param params
 	void MaterialSerializationHelper::GenerateParameters(const Material& material, Vector<ShaderParameter>& params)
 	{
 		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& setDescriptors = material.GetSetDescriptors();
@@ -50,13 +50,14 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
-	void MaterialSerializationHelper::ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode, Vector<WeakResource<TextureResource>>& textureResources)
+	/// @brief
+	void MaterialSerializationHelper::ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode,
+	                                                          Vector<WeakResource<TextureResource>>& textureResources)
 	{
 		const Document::Node* paramNode = paramsNode.GetFirstChild();
 		while (paramNode != nullptr)
 		{
-			String name = paramNode->GetChild("Name")->GetString();
+			String                name = paramNode->GetChild("Name")->GetString();
 			ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
 			const Document::Node* valueNode = paramNode->GetChild("Value");
 			switch (type)
@@ -97,9 +98,8 @@ namespace hod::renderer
 					textureResources.push_back(value);
 				}
 				break;
-			
-				default:
-					break;
+
+				default: break;
 			}
 			paramNode = paramNode->GetNextSibling();
 		}
@@ -113,16 +113,17 @@ namespace hod::renderer
 		*/
 	}
 
-	/// @brief 
-	/// @param reflectionDescriptor 
-	/// @param instance 
-	/// @param path 
-	void MaterialSerializationHelper::ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, String path, Vector<WeakResource<TextureResource>>& textureResources)
+	/// @brief
+	/// @param reflectionDescriptor
+	/// @param instance
+	/// @param path
+	void MaterialSerializationHelper::ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, String path,
+	                                                       Vector<WeakResource<TextureResource>>& textureResources)
 	{
 		for (ReflectionProperty* property : reflectionDescriptor.GetProperties())
 		{
 			String newPath;
-			if (path.empty())
+			if (path.Empty())
 			{
 				newPath = property->GetName();
 			}
@@ -167,7 +168,7 @@ namespace hod::renderer
 				else if (propertyObject->GetReflectionDescriptor() == &WeakResource<TextureResource>::GetReflectionDescriptor())
 				{
 					WeakResource<TextureResource>* value = static_cast<WeakResource<TextureResource>*>(propertyObject->GetInstance(instance));
-					WeakResource<TextureResource> retain;
+					WeakResource<TextureResource>  retain;
 					retain.SetUid(value->GetUid());
 
 					std::shared_ptr<TextureResource> textureResource = retain.Lock();

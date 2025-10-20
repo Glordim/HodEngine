@@ -1,8 +1,10 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/API/RawInput/MouseRawInput.hpp"
 #include "HodEngine/Input/Api.hpp"
+#include "HodEngine/Input/API/RawInput/MouseRawInput.hpp"
 
 #include <WinUser.h>
+
+#include <algorithm>
 
 #undef max
 
@@ -10,17 +12,17 @@ namespace hod::input
 {
 	struct MouseState : public State
 	{
-		int16_t		_delta[2];
-		int8_t		_wheel;
-		uint8_t		_buttons;
+		int16_t _delta[2];
+		int8_t  _wheel;
+		uint8_t _buttons;
 	};
 
 	// GetSystemMetrics(SM_SWAPBUTTON) == 0 ? InputId::MouseButtonLeft : InputId::MouseButtonRight
 
-	/// @brief 
-	/// @param handle 
-	/// @param name 
-	/// @param  
+	/// @brief
+	/// @param handle
+	/// @param name
+	/// @param
 	MouseRawInput::MouseRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_MOUSE&)
 	: Mouse(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
@@ -39,17 +41,17 @@ namespace hod::input
 		SetConnected(true);
 	}
 
-	/// @brief 
-	/// @param feedback 
-	/// @return 
+	/// @brief
+	/// @param feedback
+	/// @return
 	bool MouseRawInput::ApplyFeedback(Feedback& /*feedback*/)
 	{
 		return false;
 	}
 
-	/// @brief 
-	/// @param cusorPositionX 
-	/// @param cursorPositionY 
+	/// @brief
+	/// @param cusorPositionX
+	/// @param cursorPositionY
 	void MouseRawInput::ResyncLastCusorPosition()
 	{
 		_lastAbsoluteDirty = true;
@@ -62,8 +64,8 @@ namespace hod::input
 		EditNextState<MouseState>()->_wheel = 0;
 	}
 
-	/// @brief 
-	/// @param rawMouse 
+	/// @brief
+	/// @param rawMouse
 	void MouseRawInput::ReadRawInput(const RAWMOUSE& rawMouse)
 	{
 		if ((rawMouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
@@ -84,8 +86,10 @@ namespace hod::input
 			}
 			else
 			{
-				EditNextState<MouseState>()->_delta[0] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[0] + (absoluteX - _lastAbsoluteX), (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
-				EditNextState<MouseState>()->_delta[1] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[1] + (absoluteY - _lastAbsoluteY), (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
+				EditNextState<MouseState>()->_delta[0] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[0] + (absoluteX - _lastAbsoluteX),
+				                                                             (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
+				EditNextState<MouseState>()->_delta[1] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[1] + (absoluteY - _lastAbsoluteY),
+				                                                             (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
 			}
 
 			_lastAbsoluteX = absoluteX;
@@ -93,8 +97,10 @@ namespace hod::input
 		}
 		else
 		{
-			EditNextState<MouseState>()->_delta[0] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[0] + (int32_t)rawMouse.lLastX, (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
-			EditNextState<MouseState>()->_delta[1] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[1] + (int32_t)rawMouse.lLastY, (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
+			EditNextState<MouseState>()->_delta[0] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[0] + (int32_t)rawMouse.lLastX,
+			                                                             (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
+			EditNextState<MouseState>()->_delta[1] = (int16_t)std::clamp((int32_t)EditNextState<MouseState>()->_delta[1] + (int32_t)rawMouse.lLastY,
+			                                                             (int32_t)std::numeric_limits<int16_t>::lowest(), (int32_t)std::numeric_limits<int16_t>::max());
 		}
 
 		USHORT uiButtonFlag = rawMouse.usButtonFlags;
@@ -158,16 +164,16 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	HANDLE MouseRawInput::GetHandle()
 	{
 		return _handle;
 	}
 
-	/// @brief 
-	/// @param hDevice 
-	/// @return 
+	/// @brief
+	/// @param hDevice
+	/// @return
 	UID MouseRawInput::ComputeDeviceUID(HANDLE hDevice)
 	{
 		return UID(Api::DeviceUidOffset::RAW_INPUT, reinterpret_cast<uint64_t>(hDevice));

@@ -5,14 +5,14 @@ namespace hod
 	String GenerateDisplayName(const std::string_view& name)
 	{
 		String displayName;
-		displayName.reserve(name.size());
+		displayName.Reserve(name.size());
 
 		bool nextWord = true;
 		for (char c : name)
 		{
 			if (c == '_')
 			{
-				if (displayName.empty() == false)
+				if (displayName.Empty() == false)
 				{
 					displayName += ' ';
 					nextWord = true;

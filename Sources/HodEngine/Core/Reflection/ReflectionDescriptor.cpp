@@ -48,7 +48,7 @@ namespace hod
 	/// @return
 	const String& ReflectionDescriptor::GetDisplayName() const
 	{
-		if (_displayName.empty())
+		if (_displayName.Empty())
 		{
 			_displayName = GenerateDisplayName(_typeName);
 		}

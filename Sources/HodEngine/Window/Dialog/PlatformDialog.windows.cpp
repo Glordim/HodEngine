@@ -43,7 +43,7 @@ namespace hod::window
 		strcpy(filter, typeName.data());
 		strcpy(filter + typeName.size() + 1, typeExtension.data());
 
-		String initialFolderPath = initialFolder.string();
+		String initialFolderPath = initialFolder.string().c_str();
 
 		OPENFILENAMEA openFileName;
 		ZeroMemory(&openFileName, sizeof(openFileName));
@@ -61,7 +61,7 @@ namespace hod::window
 		}
 		else
 		{
-			openFileName.lpstrInitialDir = initialFolderPath.c_str();
+			openFileName.lpstrInitialDir = initialFolderPath.CStr();
 		}
 		openFileName.Flags = 0; // OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
@@ -106,8 +106,8 @@ namespace hod::window
 		}
 		else if (std::filesystem::is_regular_file(path))
 		{
-			String param = "/select,\"" + path.string() + "\"";
-			ShellExecute(NULL, "open", "explorer.exe", param.c_str(), NULL, SW_SHOWDEFAULT);
+			String param = String::Format("/select,\"%s\"", path.string().c_str());
+			ShellExecute(NULL, "open", "explorer.exe", param.CStr(), NULL, SW_SHOWDEFAULT);
 		}
 		else
 		{

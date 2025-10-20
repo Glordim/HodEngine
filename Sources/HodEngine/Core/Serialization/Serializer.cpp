@@ -242,10 +242,10 @@ namespace hod
 		const ReflectionDescriptor* finalReflectionDescriptor = &reflectionDescriptor;
 
 		String propertyPath(path.data(), path.size());
-		char*  next = std::strpbrk((char*)propertyPath.c_str(), ".");
+		char*  next = std::strpbrk((char*)propertyPath.CStr(), ".");
 		while (next != nullptr)
 		{
-			std::string_view          elementName(propertyPath.c_str(), next);
+			std::string_view          elementName(propertyPath.CStr(), next);
 			ReflectionPropertyObject* property = finalReflectionDescriptor->FindProperty<ReflectionPropertyObject>(elementName);
 			if (property != nullptr)
 			{
@@ -253,21 +253,21 @@ namespace hod
 				finalReflectionDescriptor = property->GetReflectionDescriptor();
 			}
 			propertyPath = next + 1; // skip '/'
-			next = std::strpbrk((char*)propertyPath.c_str(), ".");
+			next = std::strpbrk((char*)propertyPath.CStr(), ".");
 		}
 
-		next = std::strpbrk((char*)propertyPath.c_str(), "[");
+		next = std::strpbrk((char*)propertyPath.CStr(), "[");
 		if (next != nullptr) // array
 		{
 			/*
-			ReflectionPropertyArray* arrayProperty = reflectionDescriptor->FindProperty<ReflectionPropertyVariable>(propertyPath.c_str());
+			ReflectionPropertyArray* arrayProperty = reflectionDescriptor->FindProperty<ReflectionPropertyVariable>(propertyPath.CStr());
 			Serializer::DeserializeArray(variableProperty, instance, documentNode, path);
 			*/
 			return false;
 		}
 		else // variable
 		{
-			ReflectionPropertyVariable* variableProperty = finalReflectionDescriptor->FindProperty<ReflectionPropertyVariable>(propertyPath.c_str());
+			ReflectionPropertyVariable* variableProperty = finalReflectionDescriptor->FindProperty<ReflectionPropertyVariable>(propertyPath.CStr());
 			return Serializer::DeserializeVariable(variableProperty, instance, documentNode, path);
 		}
 	}

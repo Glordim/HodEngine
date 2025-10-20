@@ -49,13 +49,13 @@ namespace hod::ui
 			renderer::Font* font = _font.Lock()->GetFont();
 
 			Vector<Vector2> positions;
-			positions.reserve(_value.size() * 4);
+			positions.reserve(_value.Size() * 4);
 
 			Vector<Vector2> uvs;
-			uvs.reserve(_value.size() * 4);
+			uvs.reserve(_value.Size() * 4);
 
 			Vector<uint16_t> indices;
-			indices.reserve(_value.size() * 6);
+			indices.reserve(_value.Size() * 6);
 
 			Vector2 requiredSize = font->ComputeRequiredSize(_value);
 

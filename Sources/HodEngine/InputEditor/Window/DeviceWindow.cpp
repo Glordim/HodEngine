@@ -1,9 +1,9 @@
 #include "HodEngine/InputEditor/Pch.hpp"
 #include "HodEngine/InputEditor/Window/DeviceWindow.hpp"
 
-#include <HodEngine/Input/InputManager.hpp>
 #include <HodEngine/Input/Devices/Device.hpp>
 #include <HodEngine/Input/Input.hpp>
+#include <HodEngine/Input/InputManager.hpp>
 
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
 
@@ -31,7 +31,7 @@ namespace hod::editor
 	{
 		if (ImGui::CollapsingHeader("Raw State"))
 		{
-			const State* state = _device->GetCurrentState();
+			const State*   state = _device->GetCurrentState();
 			const uint32_t stateSize = _device->GetStateSize();
 
 			uint32_t byteIndex = 0;
@@ -54,9 +54,13 @@ namespace hod::editor
 					for (uint32_t bitIndex = 0; bitIndex < 8; ++bitIndex)
 					{
 						if ((byte & (1 << (7 - bitIndex))) != 0)
+						{
 							ImGui::Text("1");
+						}
 						else
+						{
 							ImGui::Text("0");
+						}
 
 						ImGui::SameLine(0.0f, 0.0f);
 					}
@@ -79,19 +83,19 @@ namespace hod::editor
 			ImGui::TableSetupColumn("Size (bit)");
 			ImGui::TableSetupColumn("Value");
 			ImGui::TableHeadersRow();
-			
+
 			for (Input* input : _device->GetInputs())
 			{
 				ImGui::TableNextRow();
 
 				ImGui::TableNextColumn();
-				ImGui::TextUnformatted(input->GetDisplayName().c_str());
+				ImGui::TextUnformatted(input->GetDisplayName().CStr());
 
 				ImGui::TableNextColumn();
-				ImGui::TextUnformatted(input->GetDisplayName().c_str());
+				ImGui::TextUnformatted(input->GetDisplayName().CStr());
 
 				ImGui::TableNextColumn();
-				ImGui::TextUnformatted(input->GetReflectionDescriptorV().GetTypeName().c_str());
+				ImGui::TextUnformatted(input->GetReflectionDescriptorV().GetTypeName().CStr());
 
 				ImGui::TableNextColumn();
 				ImGui::Text("%u", input->GetStateView().GetByteOffset());
@@ -103,7 +107,7 @@ namespace hod::editor
 				ImGui::Text("%u", input->GetStateView().GetSizeInBit());
 
 				ImGui::TableNextColumn();
-				ImGui::TextUnformatted(input->ToString().c_str());
+				ImGui::TextUnformatted(input->ToString().CStr());
 			}
 
 			ImGui::EndTable();

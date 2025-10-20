@@ -11,10 +11,10 @@ namespace hod::input
 
 	Keyboard* Keyboard::_current = nullptr;
 
-	/// @brief 
-	/// @param uid 
-	/// @param name 
-	/// @param product 
+	/// @brief
+	/// @param uid
+	/// @param name
+	/// @param product
 	Keyboard::Keyboard(const UID& uid, const std::string_view& name, Product product)
 	: Device(Type::KEYBOARD, uid, name, product, sizeof(KeyboardState))
 	, _a(Identifier(), "a", StateView(StateView::Format::Bit, 0, 0))
@@ -72,25 +72,25 @@ namespace hod::input
 		AddInput(&_z);
 	}
 
-	/// @brief 
+	/// @brief
 	void Keyboard::ClearBufferedTextIfNeeded()
 	{
 		if (_readed == true)
 		{
 			_readed = false;
-			_bufferedText.clear();
+			_bufferedText.Clear();
 		}
 	}
 
-	/// @brief 
-	/// @param characters 
+	/// @brief
+	/// @param characters
 	void Keyboard::AppendCharactersToBufferedText(const std::string_view& characters)
 	{
 		_bufferedText += characters;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const String& Keyboard::GetBufferedText()
 	{
 		_readed = true;

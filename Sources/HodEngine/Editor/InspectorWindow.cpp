@@ -6,51 +6,85 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/Helper.hpp>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
-#include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
+#include "HodEngine/Game/Entity.hpp"
 
-#include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Game/ComponentFactory.hpp"
 
-#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
-#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
-#include "HodEngine/Game/PrefabUtility.hpp"
-#include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/Prefab.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
+#include "HodEngine/Game/PrefabUtility.hpp"
 
 #include <cmath>
 
 namespace hod::editor
 {
+	// TODO move in reusable header
+	bool MatchSearch(const hod::String& text, const hod::String& pattern)
+	{
+		if (pattern.Empty() || text.Size() < pattern.Size())
+		{
+			return false;
+		}
+
+		for (uint32_t i = 0; i <= text.Size() - pattern.Size(); ++i)
+		{
+			bool match = true;
+
+			for (uint32_t j = 0; j < pattern.Size(); ++j)
+			{
+				unsigned char a = static_cast<unsigned char>(text[i + j]);
+				unsigned char b = static_cast<unsigned char>(pattern[j]);
+
+				if (std::tolower(a) != std::tolower(b))
+				{
+					match = false;
+					break;
+				}
+			}
+
+			if (match)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//
+
 	DESCRIBE_REFLECTED_CLASS(InspectorWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	/// @param editorTab 
+	/// @brief
+	/// @param editorTab
 	InspectorWindow::InspectorWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
-
 	}
 
-	/// @brief 
+	/// @brief
 	void InspectorWindow::DrawContent()
 	{
 		game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
@@ -60,8 +94,8 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param selection 
+	/// @brief
+	/// @param selection
 	void InspectorWindow::DrawSceneSelection(game::Entity* selection)
 	{
 		Vector<game::PrefabUtility::PrefabOverride> overrides;
@@ -84,10 +118,10 @@ namespace hod::editor
 				ImGui::TextUnformatted("Instance of");
 				ImGui::SameLine();
 
-				AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
+				AssetDatabase*         assetDatabase = AssetDatabase::GetInstance();
 				std::shared_ptr<Asset> asset = assetDatabase->Find(prefabResource->GetUid());
 
-				if (ImGui::Button(asset->GetName().c_str()))
+				if (ImGui::Button(asset->GetName().CStr()))
 				{
 					Editor::GetInstance()->PingAsset(asset);
 				}
@@ -109,12 +143,10 @@ namespace hod::editor
 				{
 					if (ImGui::Button(ICON_MDI_RESTORE " Revert all"))
 					{
-						
 					}
 					ImGui::SameLine();
 					if (ImGui::Button(ICON_MDI_CONTENT_SAVE " Apply all"))
 					{
-						
 					}
 					ImGui::EndPopup();
 				}
@@ -131,8 +163,8 @@ namespace hod::editor
 		}
 		ImGui::SameLine();
 
-		char buffer[256] = { '\0' };
-		std::strcpy(buffer, selection->GetName().c_str());
+		char buffer[256] = {'\0'};
+		std::strcpy(buffer, selection->GetName().CStr());
 		ImGui::SetNextItemWidth(-1);
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
@@ -149,19 +181,20 @@ namespace hod::editor
 				Vector<hod::game::PrefabUtility::EntityDiffs::Diff*> componentDiffs;
 				for (auto diff : entityDiffs._diffs)
 				{
-					if (diff->_instance == componentLock.get())
-					{
-						hasOverride = true;
-						componentDiffs.push_back(diff);
-					}
+				    if (diff->_instance == componentLock.get())
+				    {
+				        hasOverride = true;
+				        componentDiffs.push_back(diff);
+				    }
 				}
 				if (hasOverride == true)
 				{
-					float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
-					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+				    float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
+				    ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f,
+				ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
 				}
 				*/
-				//bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
+				// bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 
 				ImGui::PushID(component->GetMetaTypeName());
 				if (ImGui::BeginChild("Component", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders))
@@ -174,7 +207,7 @@ namespace hod::editor
 					ImVec2 min = ImGui::GetCursorScreenPos();
 					ImVec2 max = min;
 					max.x += ImGui::GetWindowWidth();
-					//ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
+					// ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
 
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
@@ -221,7 +254,7 @@ namespace hod::editor
 					ImGui::TextUnformatted(ICON_MDI_PUZZLE);
 					ImGui::SameLine();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(component->GetReflectionDescriptorV().GetDisplayName().c_str());
+					ImGui::TextUnformatted(component->GetReflectionDescriptorV().GetDisplayName().CStr());
 
 					ImGui::EndDisabled();
 
@@ -256,18 +289,17 @@ namespace hod::editor
 
 					if (ImGui::IsWindowHovered())
 					{
-						
 					}
 
 					/*
 					if (ImGui::BeginPopupContextItem() == true)
 					{
-						if (ImGui::Button("Delete") == true)
-						{
-							selection->RemoveComponent(componentLock);
-							GetOwner()->MarkAssetAsDirty();
-						}
-						ImGui::EndPopup();
+					    if (ImGui::Button("Delete") == true)
+					    {
+					        selection->RemoveComponent(componentLock);
+					        GetOwner()->MarkAssetAsDirty();
+					    }
+					    ImGui::EndPopup();
 					}
 					*/
 
@@ -281,11 +313,11 @@ namespace hod::editor
 					{
 						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
 
-						game::Component* sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
+						game::Component*      sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
 						EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent, this);
 
-						bool changed = false;
-						ReflectionDescriptor& reflectionDescriptor = component->GetReflectionDescriptorV();
+						bool                                  changed = false;
+						ReflectionDescriptor&                 reflectionDescriptor = component->GetReflectionDescriptorV();
 						ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor.FindTrait<ReflectionTraitComponentCustomEditor>();
 						if (componentCustomEditorTrait != nullptr)
 						{
@@ -307,7 +339,7 @@ namespace hod::editor
 						ImGui::SetCursorScreenPos(pos);
 					}
 				}
-				ImGui::Dummy(ImVec2(0,0)); // todo
+				ImGui::Dummy(ImVec2(0, 0)); // todo
 				ImGui::EndChild();
 
 				ImGui::PopID();
@@ -328,12 +360,12 @@ namespace hod::editor
 			ImGui::TextUnformatted(ICON_MDI_MAGNIFY);
 			ImGui::SameLine();
 
-			static char nameBuffer[256] = { '\0' };
+			static char   nameBuffer[256] = {'\0'};
 			static String strName;
 			if (ImGui::IsWindowAppearing())
 			{
 				nameBuffer[0] = '\0';
-				strName.clear();
+				strName.Clear();
 				ImGui::SetKeyboardFocusHere();
 			}
 			if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
@@ -349,15 +381,10 @@ namespace hod::editor
 				for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
 				{
 					const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
-					const String& displayName = componentDescriptor.GetDisplayName();
-
-					auto it = std::search(displayName.cbegin(), displayName.cend(), strName.cbegin(), strName.cend(), [](char ch1, char ch2)
+					const String&               displayName = componentDescriptor.GetDisplayName();
+					if (MatchSearch(displayName, strName))
 					{
-						return std::tolower(ch1) == std::tolower(ch2);
-					});
-					if (it != displayName.cend() || strName.empty())
-					{
-						if (ImGui::MenuItem(displayName.c_str()) == true)
+						if (ImGui::MenuItem(displayName.CStr()) == true)
 						{
 							selection->AddComponent(componentDescriptor);
 							GetOwner()->MarkAssetAsDirty();
@@ -371,8 +398,8 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param object 
+	/// @brief
+	/// @param object
 	bool InspectorWindow::DrawDefaultInspector(EditorReflectedObject& reflectedObject)
 	{
 		return PropertyDrawer::DrawDescriptor(reflectedObject);

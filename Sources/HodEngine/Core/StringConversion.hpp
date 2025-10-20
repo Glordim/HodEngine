@@ -25,7 +25,7 @@ namespace hod
 			char buffer[4096] = {'\0'};
 
 			String result;
-			result.reserve(size);
+			result.Reserve(size);
 			std::snprintf(buffer, size, format.data(), args...);
 			buffer[size - 1] = '\0';
 			result = buffer;

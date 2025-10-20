@@ -2,31 +2,31 @@
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
 #include "HodEngine/Editor/Importer/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/Helper.hpp>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
-#include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Game/ComponentFactory.hpp"
 
-#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
-#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/Editor/Importer/MaterialImporter.hpp"
 
@@ -45,22 +45,21 @@ namespace hod::editor
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	/// @param editorTab 
+	/// @brief
+	/// @param editorTab
 	MaterialInstanceEditorPropertiesWindow::MaterialInstanceEditorPropertiesWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
-
 	}
 
-	/// @brief 
+	/// @brief
 	void MaterialInstanceEditorPropertiesWindow::DrawContent()
 	{
 		bool changed = false;
 
-		std::shared_ptr<Asset> asset = GetOwner()->GetAsset();
+		std::shared_ptr<Asset>                    asset = GetOwner()->GetAsset();
 		std::shared_ptr<MaterialImporterSettings> materialImporterSettings = std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings);
-		MaterialInstanceAsset& materialInstanceAsset  = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstanceAsset();
+		MaterialInstanceAsset&                    materialInstanceAsset = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstanceAsset();
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
@@ -75,27 +74,28 @@ namespace hod::editor
 			{
 				switch (scalarParameter._type)
 				{
-				case renderer::ShaderParameter::Type::Float:
-				{
-					ImGui::PushID(&scalarParameter);
-					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(scalarParameter._name.c_str());
-					ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-					ReflectionPropertyVariable reflectionPropertyVariable(ReflectionPropertyVariable::Type::Float32, 0, scalarParameter._name.c_str(), nullptr, nullptr);
-					EditorReflectedProperty editorProperty(&scalarParameter._value.floatValue, nullptr, &reflectionPropertyVariable, nullptr);
-					if (PropertyDrawer::DrawProperty(editorProperty))
+					case renderer::ShaderParameter::Type::Float:
 					{
-						GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetFloat("ubo." + scalarParameter._name, scalarParameter._value.floatValue);
-						changed = true;
+						ImGui::PushID(&scalarParameter);
+						ImGui::AlignTextToFramePadding();
+						ImGui::TextUnformatted(scalarParameter._name.CStr());
+						ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+						ReflectionPropertyVariable reflectionPropertyVariable(ReflectionPropertyVariable::Type::Float32, 0, scalarParameter._name.CStr(), nullptr, nullptr);
+						EditorReflectedProperty    editorProperty(&scalarParameter._value.floatValue, nullptr, &reflectionPropertyVariable, nullptr);
+						if (PropertyDrawer::DrawProperty(editorProperty))
+						{
+							GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetFloat("ubo." + scalarParameter._name,
+							                                                                                              scalarParameter._value.floatValue);
+							changed = true;
+						}
+						ImGui::PopID();
 					}
-					ImGui::PopID();
-				}
-				break;
+					break;
 
-				default:
-				{
-				}
-				break;
+					default:
+					{
+					}
+					break;
 				}
 			}
 
@@ -103,7 +103,7 @@ namespace hod::editor
 			{
 				ImGui::PushID(&vec2Parameter);
 				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted(vec2Parameter._name.c_str());
+				ImGui::TextUnformatted(vec2Parameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 				EditorReflectedObject editorObject(&vec2Parameter._value, &Vector2::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
@@ -117,7 +117,7 @@ namespace hod::editor
 			{
 				ImGui::PushID(&vec4Parameter);
 				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted(vec4Parameter._name.c_str());
+				ImGui::TextUnformatted(vec4Parameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 				EditorReflectedObject editorObject(&vec4Parameter._value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
@@ -131,7 +131,7 @@ namespace hod::editor
 			{
 				ImGui::PushID(&textureParameter);
 				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted(textureParameter._name.c_str());
+				ImGui::TextUnformatted(textureParameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 				EditorReflectedObject editorObject(&textureParameter._value, &WeakResourceBase::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
@@ -185,7 +185,8 @@ namespace hod::editor
 						node.AddChild("Type").SetUInt8((uint8_t)textureParameter._type);
 						Serializer::Serialize(textureParameter._value, node.AddChild("Value"));
 					}
-					//Serializer::Serialize(material->GetReflectionDescriptorForParameters(), static_cast<void*>(materialInstanceAsset._paramsBuffer), materialInstanceAsset._defaultInstanceParams.GetRootNode());
+					// Serializer::Serialize(material->GetReflectionDescriptorForParameters(), static_cast<void*>(materialInstanceAsset._paramsBuffer),
+					// materialInstanceAsset._defaultInstanceParams.GetRootNode());
 				}
 			}
 			asset->Save(&materialInstanceAsset, &materialInstanceAsset.GetReflectionDescriptorV());

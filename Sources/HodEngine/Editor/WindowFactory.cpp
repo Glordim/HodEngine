@@ -8,10 +8,7 @@
 
 namespace hod::editor
 {
-	_SingletonConstructor(WindowFactory)
-	{
-		
-	}
+	_SingletonConstructor(WindowFactory) {}
 
 	const WindowFactory::Route& WindowFactory::GetRootRoute() const
 	{
@@ -25,9 +22,9 @@ namespace hod::editor
 		std::string_view routePathView = routePath;
 		while (routePathView.empty() == false)
 		{
-			size_t separatorIndex = routePathView.find('/');
+			size_t           separatorIndex = routePathView.find('/');
 			std::string_view routeName;
-			if (separatorIndex == String::npos)
+			if (separatorIndex == String::Npos)
 			{
 				routeName = routePathView;
 				routePathView = std::string_view();
@@ -39,7 +36,9 @@ namespace hod::editor
 			}
 
 			if (routeName.empty())
+			{
 				continue;
+			}
 
 			Route* childRoute = nullptr;
 			for (Route* it : route->_children)
@@ -71,7 +70,7 @@ namespace hod::editor
 	{
 		for (Route* childRoute : route._children)
 		{
-			if (ImGui::BeginMenu(childRoute->_name.c_str()))
+			if (ImGui::BeginMenu(childRoute->_name.CStr()))
 			{
 				DrawRoute(*childRoute);
 				ImGui::EndMenu();
@@ -80,7 +79,7 @@ namespace hod::editor
 
 		for (ReflectionDescriptor* windowReflectionDescriptor : route._windowReflectionDescriptors)
 		{
-			if (ImGui::MenuItem(windowReflectionDescriptor->GetDisplayName().c_str()))
+			if (ImGui::MenuItem(windowReflectionDescriptor->GetDisplayName().CStr()))
 			{
 				imgui::Window* window = (imgui::Window*)windowReflectionDescriptor->CreateInstance();
 				imgui::ImGuiManager::GetInstance()->OpenWindow(window);

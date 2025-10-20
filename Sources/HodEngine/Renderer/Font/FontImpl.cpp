@@ -3,25 +3,30 @@
 #include "HodEngine/Renderer/Font/FontManager.hpp"
 #include "HodEngine/Renderer/Font/FontManagerImpl.hpp"
 
-#include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
 namespace hod::renderer
 {
-		// Fonction pour obtenir l'explication d'un code FT_Error
-	const char* FT_Error_String(FT_Error err) {
-		#undef FTERRORS_H_
-		#define FT_ERRORDEF(e, v, s) case e: return s;
-		#define FT_ERROR_START_LIST switch (err) {
-		#define FT_ERROR_END_LIST }
-		#include FT_ERRORS_H
+	// Fonction pour obtenir l'explication d'un code FT_Error
+	const char* FT_Error_String(FT_Error err)
+	{
+#undef FTERRORS_H_
+#define FT_ERRORDEF(e, v, s) \
+	case e: return s;
+#define FT_ERROR_START_LIST \
+	switch (err)            \
+	{
+#define FT_ERROR_END_LIST }
+#include FT_ERRORS_H
 		return "(Unknown error)";
 	}
 
 	void embolden_glyph(FT_GlyphSlot slot, FT_Pos strength)
 	{
-		FT_Outline *outline = &slot->outline;
-		for (int i = 0; i < outline->n_points; i++) {
+		FT_Outline* outline = &slot->outline;
+		for (int i = 0; i < outline->n_points; i++)
+		{
 			outline->points[i].x += (outline->points[i].x > 0) ? strength : -strength;
 			outline->points[i].y += (outline->points[i].y > 0) ? strength : -strength;
 		}
@@ -43,39 +48,43 @@ namespace hod::renderer
 		matrix.yx = 0x0000;
 		matrix.yy = 0x10000;
 
-		//FT_Outline_Transform(&slot->outline, &matrix);
+		// FT_Outline_Transform(&slot->outline, &matrix);
 		(void)slot; // TODO
 	}
 
 	unsigned int nextPowerOf2(unsigned int n)
 	{
-		if ((n & (n - 1)) == 0) return n;
+		if ((n & (n - 1)) == 0)
+		{
+			return n;
+		}
 
 		unsigned int power = 1;
-		while (power < n) {
+		while (power < n)
+		{
 			power <<= 1;
 		}
 		return power;
 	}
 
-	/// @brief 
+	/// @brief
 	FontImpl::~FontImpl()
 	{
 		FT_Done_Face(_ftFace);
 		DefaultAllocator::GetInstance().Free(_data);
 	}
 
-	/// @brief 
-	/// @param data 
-	/// @param size 
-	/// @return 
+	/// @brief
+	/// @param data
+	/// @param size
+	/// @return
 	bool FontImpl::LoadFromMemory(const void* data, uint32_t size, Texture*& texture, Vector<Font::GlyphInfo>& glyphInfos)
 	{
 		_data = DefaultAllocator::GetInstance().Allocate(size);
 		std::memcpy(_data, data, size);
 
 		FT_Library ftLibrary = FontManager::GetInstance()->GetImpl()->GetFtLibrary();
-		FT_Error error = FT_New_Memory_Face(ftLibrary, static_cast<const FT_Byte*>(_data), size, 0, &_ftFace);
+		FT_Error   error = FT_New_Memory_Face(ftLibrary, static_cast<const FT_Byte*>(_data), size, 0, &_ftFace);
 		if (error != 0)
 		{
 			DefaultAllocator::GetInstance().Free(_data);
@@ -186,7 +195,7 @@ namespace hod::renderer
 		for (uint32_t characteIndex = 0; characteIndex < characterDatas.size(); ++characteIndex)
 		{
 			const CharacterData& characterData = characterDatas[characteIndex];
-			Font::GlyphInfo& glyphInfo = glyphInfos[characteIndex];
+			Font::GlyphInfo&     glyphInfo = glyphInfos[characteIndex];
 			glyphInfo._atlasSize = Vector2(glyphInfo._size.GetX() / atlasWidth, glyphInfo._size.GetY() / atlasWidth);
 			glyphInfo._atlasPos = Vector2(((characteIndex % characterByLine) * 48) / (float)atlasWidth, ((characteIndex / characterByLine) * 48) / (float)atlasWidth);
 
@@ -194,7 +203,8 @@ namespace hod::renderer
 
 			for (uint32_t y = 0; y < characterData.height; ++y)
 			{
-				std::memcpy(atlas + lineOffset + (characteIndex % characterByLine) * 48 * 4 + y * atlasWidth * 4, characterData.pixels + y * characterData.width * 4, 4 * characterData.width);
+				std::memcpy(atlas + lineOffset + (characteIndex % characterByLine) * 48 * 4 + y * atlasWidth * 4, characterData.pixels + y * characterData.width * 4,
+				            4 * characterData.width);
 			}
 		}
 		for (const CharacterData& characterData : characterDatas)
@@ -207,7 +217,7 @@ namespace hod::renderer
 		if (texture->BuildBuffer(atlasWidth, atlasWidth, (unsigned char*)atlas, createInfo) == false) // todo BuildBuffer doesn't take void* ?
 		{
 			DefaultAllocator::GetInstance().Free(atlas);
-			
+
 			DefaultAllocator::GetInstance().Delete(texture);
 			texture = nullptr;
 
@@ -224,10 +234,10 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @param left 
-	/// @param right 
-	/// @return 
+	/// @brief
+	/// @param left
+	/// @param right
+	/// @return
 	float FontImpl::GetKerning(char32_t left, char32_t right) const
 	{
 		FT_UInt leftCharIndex = FT_Get_Char_Index(_ftFace, left);
@@ -239,19 +249,19 @@ namespace hod::renderer
 		return float(delta.x >> 6);
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @return 
+	/// @brief
+	/// @param value
+	/// @return
 	Vector2 FontImpl::ComputeRequiredSize(const String& value) const
 	{
 		Vector2 requiredSize;
 		FT_UInt previous = 0;
 
-		const char* str = value.c_str();
+		const char* str = value.CStr();
 		while (*str != '\0')
 		{
 			FT_ULong charCode = *str;
-			FT_UInt glyphIndex = FT_Get_Char_Index(_ftFace, charCode);
+			FT_UInt  glyphIndex = FT_Get_Char_Index(_ftFace, charCode);
 
 			if (FT_HAS_KERNING(_ftFace) && previous && glyphIndex)
 			{
@@ -280,12 +290,12 @@ namespace hod::renderer
 
 		float offsetX = 0.0f;
 
-		const char* str = value.c_str();
+		const char* str = value.CStr();
 		while (*str != '\0')
 		{
-			char c = *str;
+			char     c = *str;
 			FT_ULong charCode = c;
-			FT_UInt glyphIndex = FT_Get_Char_Index(_ftFace, charCode);
+			FT_UInt  glyphIndex = FT_Get_Char_Index(_ftFace, charCode);
 
 			const Font::GlyphInfo* glyphInfo = nullptr;
 			for (const Font::GlyphInfo& it : glyphInfos)

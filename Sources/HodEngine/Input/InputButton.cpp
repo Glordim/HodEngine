@@ -11,7 +11,6 @@ namespace hod::input
 	InputButton::InputButton(Identifier identifier, const String& displayName, const StateView& stateView)
 	: Input(identifier, displayName, stateView)
 	{
-
 	}
 
 	bool InputButton::ReadValue() const
@@ -31,6 +30,6 @@ namespace hod::input
 
 	String InputButton::ToString() const
 	{
-		return std::format("{}", ReadValue());
+		return std::format("{}", ReadValue()).c_str();
 	}
 }

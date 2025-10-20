@@ -9,7 +9,7 @@ namespace hod::renderer
 	{
 		_impl = DefaultAllocator::GetInstance().New<FontImpl>();
 	}
-	
+
 	Font::~Font()
 	{
 		DefaultAllocator::GetInstance().Delete(_texture);
@@ -26,16 +26,16 @@ namespace hod::renderer
 		return _impl->GetKerning(left, right);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Texture* Font::GetTexture() const
 	{
 		return _texture;
 	}
 
-	/// @brief 
-	/// @param code 
-	/// @return 
+	/// @brief
+	/// @param code
+	/// @return
 	const Font::GlyphInfo& Font::GetGlyphInfo(char32_t code) const
 	{
 		for (const GlyphInfo& glyphInfo : _glyphInfos)
@@ -55,7 +55,7 @@ namespace hod::renderer
 
 	void Font::BuildTextGeometry(const String& value, Vector<GlyphGeometry>& glyphGeometries)
 	{
-		glyphGeometries.reserve(value.size());
+		glyphGeometries.reserve(value.Size());
 		_impl->BuildTextGeometry(value, glyphGeometries, _glyphInfos);
 	}
 }

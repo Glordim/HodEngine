@@ -1,11 +1,11 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
-#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
+#include <utility>
 
 #undef max
 
@@ -115,13 +115,13 @@ namespace hod
 	template<typename _Type_>
 	inline _Type_* Allocator::Reallocate(_Type_* ptr, uint32_t newSize)
 	{
-		return static_cast<_Type_*>(Reallocate(ptr, newSize));
+		return static_cast<_Type_*>(Reallocate((void*)ptr, newSize));
 	}
 
 	template<typename _Type_>
 	inline _Type_* Allocator::Reallocate(_Type_* ptr, uint32_t newSize, uint32_t alignment)
 	{
-		return static_cast<_Type_*>(Reallocate(ptr, newSize, alignment));
+		return static_cast<_Type_*>(Reallocate((void*)ptr, newSize, alignment));
 	}
 
 	template<typename _Type_, typename... Args>

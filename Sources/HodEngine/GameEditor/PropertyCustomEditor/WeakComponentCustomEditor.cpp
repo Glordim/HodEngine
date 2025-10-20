@@ -8,34 +8,34 @@
 #include "HodEngine/ImGui/Helper.hpp"
 #include "HodEngine/ImGui/Widgets.hpp"
 
-#include "HodEngine/Game/WeakComponent.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Game/WeakComponent.hpp"
 
-#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 #include "HodEngine/Editor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include "HodEngine/ImGui/ImGuiManager.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
+#include "HodEngine/ImGui/ImGuiManager.hpp"
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
-#include <HodEngine/Game/World.hpp>
 #include <HodEngine/Game/Scene.hpp>
+#include <HodEngine/Game/World.hpp>
 
 #undef GetObject
 
 namespace hod::editor
 {
-	/// @brief 
-	/// @param instance 
-	/// @return 
+	/// @brief
+	/// @param instance
+	/// @return
 	bool WeakComponentCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
@@ -51,16 +51,17 @@ namespace hod::editor
 		const char* text = "None";
 		if (value->Lock())
 		{
-			text = value->Lock()->GetOwner()->GetName().c_str();
+			text = value->Lock()->GetOwner()->GetName().CStr();
 		}
 
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_MAGNIFY).x - CalculateButtonSize(ICON_MDI_CURSOR_POINTER).x - ImGui::GetStyle().ItemSpacing.x * 2);
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_MAGNIFY).x - CalculateButtonSize(ICON_MDI_CURSOR_POINTER).x -
+		                        ImGui::GetStyle().ItemSpacing.x * 2);
 		if (ImGui::BeginCombo("", text, ImGuiComboFlags_HeightLarge))
 		{
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Name:");
 			ImGui::SameLine();
-			
+
 			static char inputTextBuffer[2048] = "";
 			if (ImGui::IsWindowAppearing())
 			{
@@ -82,12 +83,12 @@ namespace hod::editor
 			{
 				for (const auto& entityPair : scene->GetEntities())
 				{
-					if (inputTextBuffer[0] == '\0' || entityPair.second->GetName().find(inputTextBuffer) != std::string::npos)
+					if (inputTextBuffer[0] == '\0' || entityPair.second->GetName().Find(inputTextBuffer) != String::Npos)
 					{
 						game::Component* component = entityPair.second->GetComponent(*value->GetComponentDescriptor());
 
 						ImGui::PushID(component);
-						if (component != nullptr && ImGui::Button(entityPair.second->GetName().c_str(), ImVec2(-1.0f, 0.0f)))
+						if (component != nullptr && ImGui::Button(entityPair.second->GetName().CStr(), ImVec2(-1.0f, 0.0f)))
 						{
 							value->SetPointer(component);
 							ImGui::CloseCurrentPopup();
@@ -104,12 +105,12 @@ namespace hod::editor
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_MDI_MAGNIFY))
 		{
-			//Editor::GetInstance()->SetEntitySelection(value->Lock()->GetEntity());
+			// Editor::GetInstance()->SetEntitySelection(value->Lock()->GetEntity());
 		}
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_MDI_CURSOR_POINTER))
 		{
-			//Editor::GetInstance()->SetEntitySelection(value->Lock()->GetOwner());
+			// Editor::GetInstance()->SetEntitySelection(value->Lock()->GetOwner());
 		}
 		ImGui::EndDisabled();
 

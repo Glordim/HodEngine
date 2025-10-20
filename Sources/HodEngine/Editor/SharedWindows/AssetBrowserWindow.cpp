@@ -145,7 +145,7 @@ namespace hod::editor
 		}
 
 		ImGui::AlignTextToFramePadding();
-		bool opened = ImGui::TreeNodeEx((String("##") + node->_path.filename().string()).c_str(), treeNodeFlags);
+		bool opened = ImGui::TreeNodeEx((String("##") + node->_path.filename().string()).CStr(), treeNodeFlags);
 		if (ImGui::BeginDragDropSource() == true)
 		{
 			// Some processing...
@@ -220,11 +220,11 @@ namespace hod::editor
 				ImGui::SetKeyboardFocusHere();
 				_focus = false;
 			}
-			if (ImGui::InputText("###rename", _renameBuffer.data(), _renameBuffer.capacity(), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue) == true)
+			if (ImGui::InputText("###rename", _renameBuffer.Data(), _renameBuffer.Capacity(), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue) == true)
 			{
-				_renameBuffer = _renameBuffer.c_str();
+				_renameBuffer = _renameBuffer.CStr();
 				std::filesystem::path newPath = _treeNodeToEdit->_path;
-				newPath.replace_filename(_renameBuffer);
+				newPath.replace_filename(_renameBuffer.CStr());
 				if (_treeNodeToEdit->_path.has_extension())
 				{
 					newPath.replace_extension(_treeNodeToEdit->_path.extension());
@@ -258,7 +258,7 @@ namespace hod::editor
 		_currentFolderTreeNode = node;
 		_treeNodeToEdit = node;
 		_renameBuffer = _treeNodeToEdit->_path.filename().string();
-		_renameBuffer.reserve(256);
+		_renameBuffer.Reserve(256);
 		_focus = true;
 	}
 
@@ -464,7 +464,7 @@ namespace hod::editor
 			if (ImGui::BeginDragDropSource() == true)
 			{
 				// Some processing...
-				ImGui::TextUnformatted(asset->_asset->GetName().c_str());
+				ImGui::TextUnformatted(asset->_asset->GetName().CStr());
 				ImGui::SetDragDropPayload("FileSystemMapping", (void*)&asset, sizeof(void*), ImGuiCond_Once);
 				ImGui::EndDragDropSource();
 			}
@@ -474,7 +474,7 @@ namespace hod::editor
 				if (ImGui::IsKeyPressed(ImGuiKey_F2))
 				{
 					_itemToRename = asset;
-					std::strcpy(_itemRenameBuffer, asset->_asset->GetName().c_str());
+					std::strcpy(_itemRenameBuffer, asset->_asset->GetName().CStr());
 				}
 				else if (ImGui::IsKeyPressed(ImGuiKey_Delete))
 				{
@@ -489,12 +489,12 @@ namespace hod::editor
 				}
 				else if (ImGui::MenuItem("Show Resource in explorer") == true)
 				{
-					window::OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat"));
+					window::OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
 				}
 				else if (ImGui::MenuItem("Rename") == true)
 				{
 					_itemToRename = asset;
-					std::strcpy(_itemRenameBuffer, asset->_asset->GetName().c_str());
+					std::strcpy(_itemRenameBuffer, asset->_asset->GetName().CStr());
 				}
 				else if (ImGui::MenuItem("Delete") == true)
 				{
@@ -554,8 +554,8 @@ namespace hod::editor
 							}
 							else
 							{
-								std::filesystem::path newAssetPath =
-									AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path / (dropEntityLock->GetName() + ".asset"));
+								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(
+									_currentFolderTreeNode->_path / (dropEntityLock->GetName() + ".asset").CStr());
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
@@ -620,7 +620,7 @@ namespace hod::editor
 							newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
 							AssetDatabase::GetInstance()->Import(newAssetPath);
 							_itemToRename = newAssetNode;
-							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
+							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
 							ImGui::CloseCurrentPopup();
 						}
 					}
@@ -631,7 +631,7 @@ namespace hod::editor
 						if (newAssetNode != nullptr)
 						{
 							_itemToRename = newAssetNode;
-							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
+							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
 							ImGui::CloseCurrentPopup();
 						}
 					}
@@ -640,21 +640,21 @@ namespace hod::editor
 						for (const auto& pair : game::SerializedDataFactory::GetInstance()->GetAllDescriptors())
 						{
 							ImGui::PushID(pair.second);
-							if (ImGui::MenuItem(pair.second->GetDisplayName().c_str()))
+							if (ImGui::MenuItem(pair.second->GetDisplayName().CStr()))
 							{
 								std::shared_ptr<game::SerializedData> serializedData = pair.second->CreateSharedInstance<game::SerializedData>();
 
 								SerializedDataAsset serializedDataAsset(serializedData.get());
 
 								Importer*             importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
-								std::filesystem::path newAssetPath =
-									AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(), importer->AllocateSettings(),
-								                                              importer->GetTypeName(), _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset"));
+								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(
+									&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(), importer->AllocateSettings(), importer->GetTypeName(),
+									_currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset").CStr());
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
 									_itemToRename = newAssetNode;
-									std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
+									std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
 									ImGui::CloseCurrentPopup();
 								}
 							}
@@ -670,7 +670,7 @@ namespace hod::editor
 						if (newAssetNode != nullptr)
 						{
 							_itemToRename = newAssetNode;
-							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().c_str());
+							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
 							ImGui::CloseCurrentPopup();
 						}
 					}
@@ -833,7 +833,7 @@ namespace hod::editor
 			if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
 			{
 				ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
-				                         ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y), item->_asset->GetName().c_str(), nullptr,
+				                         ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y), item->_asset->GetName().CStr(), nullptr,
 				                         nullptr, style.ButtonTextAlign, nullptr);
 			}
 			else

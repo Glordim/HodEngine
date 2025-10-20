@@ -1,15 +1,15 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 
@@ -24,23 +24,23 @@ namespace hod::editor
 
 	struct ChangeParentPayload
 	{
-		Vector<std::weak_ptr<game::Entity>>	_entities;
+		Vector<std::weak_ptr<game::Entity>> _entities;
 	};
 
-	/// @brief 
+	/// @brief
 	HierachyWindow::HierachyWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
 	}
 
-	/// @brief 
+	/// @brief
 	void HierachyWindow::DrawContent()
 	{
 		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 		for (game::Scene* scene : world->GetScenes())
 		{
 			ImGui::PushID(scene);
-			bool open = ImGui::CollapsingHeader(scene->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+			bool open = ImGui::CollapsingHeader(scene->GetName().CStr(), ImGuiTreeNodeFlags_DefaultOpen);
 			ImGui::PopID();
 			if (open)
 			{
@@ -63,7 +63,7 @@ namespace hod::editor
 		/*
 		for (EntityNode* entityNode : _rootEntityNode._children)
 		{
-			DrawEntityNode(entityNode);
+		    DrawEntityNode(entityNode);
 		}
 		*/
 
@@ -112,18 +112,18 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param entity 
+	/// @brief
+	/// @param entity
 	void HierachyWindow::DrawEntity(game::Entity* entity)
 	{
 		ImGui::PushID(entity - 1);
-		//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-		//ImGui::Separator();
-		//ImGui::Button("", ImVec2(200, 25));
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 0.0f });
+		// ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
+		// ImGui::Separator();
+		// ImGui::Button("", ImVec2(200, 25));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 0.0f});
 		ImGui::InvisibleButton("", ImVec2(200, 3));
 		ImGui::PopStyleVar();
-		//ImGui::PopStyleVar();
+		// ImGui::PopStyleVar();
 		ImGui::PopID();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
@@ -133,10 +133,10 @@ namespace hod::editor
 			if (payload->IsDataType("EntityId") == true)
 			{
 				payload = ImGui::AcceptDragDropPayload("EntityId", ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
-				//GetColorU32(ImGuiCol_DragDropTarget)
+				// GetColorU32(ImGuiCol_DragDropTarget)
 				ImVec2 min = ImGui::GetItemRectMin();
 				ImVec2 max = ImGui::GetItemRectMax();
-				float lerp = (min.y + max.y) * 0.5f;
+				float  lerp = (min.y + max.y) * 0.5f;
 				min.y = lerp;
 				max.y = lerp;
 				ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::GetColorU32(ImGuiCol_DragDropTarget), 1.0f); // todo alpha ?
@@ -144,7 +144,7 @@ namespace hod::editor
 				{
 					// todo factorize
 					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
-					game::Entity* dropEntity = entityDragAndDropPayload->_entity;
+					game::Entity*             dropEntity = entityDragAndDropPayload->_entity;
 					if (dropEntity != nullptr)
 					{
 						dropEntity->SetParent(entity->GetParent());
@@ -159,7 +159,8 @@ namespace hod::editor
 
 		game::Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DrawLinesToNodes;
+		ImGuiTreeNodeFlags treeNodeFlags =
+			ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DrawLinesToNodes;
 		if (entity->GetChildren().empty())
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
@@ -218,13 +219,13 @@ namespace hod::editor
 			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
 			if (payload->IsDataType("EntityId") == true)
 			{
-				//ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255));
+				// ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255));
 
 				payload = ImGui::AcceptDragDropPayload("EntityId");
 				if ((payload) != nullptr)
 				{
 					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
-					game::Entity* dropEntity = entityDragAndDropPayload->_entity;
+					game::Entity*             dropEntity = entityDragAndDropPayload->_entity;
 					if (dropEntity != nullptr)
 					{
 						dropEntity->SetParent(entity);
@@ -238,7 +239,7 @@ namespace hod::editor
 		if (ImGui::BeginDragDropSource() == true)
 		{
 			// Some processing...
-			ImGui::TextUnformatted(entity->GetName().c_str());
+			ImGui::TextUnformatted(entity->GetName().CStr());
 
 			_entityDragAndDropPayload._hierarchyWindow = this;
 			_entityDragAndDropPayload._entity = entity;
@@ -249,7 +250,7 @@ namespace hod::editor
 		ImGui::BeginDisabled(entity->IsActiveInHierarchy() == false);
 
 		ImGui::SameLine(0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 0.0f });
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 0.0f});
 		if (entity->GetPrefabResource() != nullptr)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.5f, 1.0f, 1.0f));
@@ -264,7 +265,7 @@ namespace hod::editor
 		}
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(entity->GetName().c_str());
+		ImGui::TextUnformatted(entity->GetName().CStr());
 		ImGui::PopStyleVar();
 
 		ImGui::EndDisabled();
@@ -282,97 +283,98 @@ namespace hod::editor
 			ImGui::TreePop();
 		}
 	}
-/*
-	/// @brief 
-	/// @param entityNode 
-	void HierachyWindow::DrawEntityNode(EntityNode* entityNode)
-	{
-		std::shared_ptr<game::Entity> selectionLock = _selection.lock();
 
-		std::shared_ptr<game::Entity> entityLock = entityNode->_entity.lock();
+	/*
+	    /// @brief
+	    /// @param entityNode
+	    void HierachyWindow::DrawEntityNode(EntityNode* entityNode)
+	    {
+	        std::shared_ptr<game::Entity> selectionLock = _selection.lock();
 
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding;
-		if (entityNode->_children.empty() == true)
-		{
-			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
-		}
-		if (entityLock == selectionLock)
-		{
-			treeNodeFlags|= ImGuiTreeNodeFlags_Selected;
-		}
+	        std::shared_ptr<game::Entity> entityLock = entityNode->_entity.lock();
 
-		ImGui::PushID(entityLock.get());
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-		bool opened = ImGui::TreeNodeEx(entityLock->GetName().c_str(), treeNodeFlags);
-		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
-		{
-			_selection = entityLock;
-			GetOwner<EntityEditorTab>()->SetEntitySelection(_selection);
-		}
-		ImGui::PopStyleVar();
-		ImGui::PopID();
+	        ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding;
+	        if (entityNode->_children.empty() == true)
+	        {
+	            treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
+	        }
+	        if (entityLock == selectionLock)
+	        {
+	            treeNodeFlags|= ImGuiTreeNodeFlags_Selected;
+	        }
 
-		if (ImGui::IsWindowHovered() == true && ImGui::IsItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
-		{
-			_selection = entityLock;
-			GetOwner<EntityEditorTab>()->SetEntitySelection(_selection);
+	        ImGui::PushID(entityLock.get());
+	        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
+	        bool opened = ImGui::TreeNodeEx(entityLock->GetName().c_str(), treeNodeFlags);
+	        if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
+	        {
+	            _selection = entityLock;
+	            GetOwner<EntityEditorTab>()->SetEntitySelection(_selection);
+	        }
+	        ImGui::PopStyleVar();
+	        ImGui::PopID();
 
-			ImGui::OpenPopup("ContextualMenu");
-		}
+	        if (ImGui::IsWindowHovered() == true && ImGui::IsItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
+	        {
+	            _selection = entityLock;
+	            GetOwner<EntityEditorTab>()->SetEntitySelection(_selection);
 
-		if (ImGui::BeginDragDropTarget() == true)
-		{
-			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-			if (payload->IsDataType("EntityId") == true)
-			{
-				ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255));
+	            ImGui::OpenPopup("ContextualMenu");
+	        }
 
-				payload = ImGui::AcceptDragDropPayload("EntityId");
-				if ((payload) != nullptr)
-				{
-					game::Entity::Id entityId = *reinterpret_cast<game::Entity::Id*>(payload->Data);
-					game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-					std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
-					std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
-					if (dropEntityLock != nullptr)
-					{
-						// todo get or add component
-						std::shared_ptr<game::NodeComponent> parentNodeComponentLock = entityLock->GetComponent<game::NodeComponent>().lock();
-						if (parentNodeComponentLock == nullptr)
-						{
-							parentNodeComponentLock = entityLock->AddComponent<game::NodeComponent>().lock();
-						}
+	        if (ImGui::BeginDragDropTarget() == true)
+	        {
+	            const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+	            if (payload->IsDataType("EntityId") == true)
+	            {
+	                ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255));
 
-						// todo get or add component
-						std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>().lock();
-						if (dropNodeComponentLock == nullptr)
-						{
-							dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>().lock();
-						}
-						dropNodeComponentLock->SetParent(parentNodeComponentLock);
-					}
-				}
-			}
-			ImGui::EndDragDropTarget();
-		}
+	                payload = ImGui::AcceptDragDropPayload("EntityId");
+	                if ((payload) != nullptr)
+	                {
+	                    game::Entity::Id entityId = *reinterpret_cast<game::Entity::Id*>(payload->Data);
+	                    game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+	                    std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
+	                    std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
+	                    if (dropEntityLock != nullptr)
+	                    {
+	                        // todo get or add component
+	                        std::shared_ptr<game::NodeComponent> parentNodeComponentLock = entityLock->GetComponent<game::NodeComponent>().lock();
+	                        if (parentNodeComponentLock == nullptr)
+	                        {
+	                            parentNodeComponentLock = entityLock->AddComponent<game::NodeComponent>().lock();
+	                        }
 
-		if (ImGui::BeginDragDropSource() == true)
-		{
-			// Some processing...
-			ImGui::TextUnformatted(entityLock->GetName().c_str());
-			game::Entity::Id entityId = entityLock->GetId();
-			ImGui::SetDragDropPayload("EntityId", (void*)&entityId, sizeof(entityId), ImGuiCond_Once);
-			ImGui::EndDragDropSource();
-		}
+	                        // todo get or add component
+	                        std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>().lock();
+	                        if (dropNodeComponentLock == nullptr)
+	                        {
+	                            dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>().lock();
+	                        }
+	                        dropNodeComponentLock->SetParent(parentNodeComponentLock);
+	                    }
+	                }
+	            }
+	            ImGui::EndDragDropTarget();
+	        }
 
-		if (opened == true)
-		{
-			for (EntityNode* entityNode : entityNode->_children)
-			{
-				DrawEntityNode(entityNode);
-			}
-			ImGui::TreePop();
-		}
-	}
-	*/
+	        if (ImGui::BeginDragDropSource() == true)
+	        {
+	            // Some processing...
+	            ImGui::TextUnformatted(entityLock->GetName().c_str());
+	            game::Entity::Id entityId = entityLock->GetId();
+	            ImGui::SetDragDropPayload("EntityId", (void*)&entityId, sizeof(entityId), ImGuiCond_Once);
+	            ImGui::EndDragDropSource();
+	        }
+
+	        if (opened == true)
+	        {
+	            for (EntityNode* entityNode : entityNode->_children)
+	            {
+	                DrawEntityNode(entityNode);
+	            }
+	            ImGui::TreePop();
+	        }
+	    }
+	    */
 }

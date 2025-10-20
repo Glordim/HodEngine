@@ -11,7 +11,6 @@ namespace hod::input
 	InputAxis::InputAxis(Identifier identifier, const String& displayName, const StateView& stateView)
 	: Input(identifier, displayName, stateView)
 	{
-
 	}
 
 	float InputAxis::ReadValue() const
@@ -21,6 +20,6 @@ namespace hod::input
 
 	String InputAxis::ToString() const
 	{
-		return std::format("{}", ReadValue());
+		return std::format("{}", ReadValue()).c_str();
 	}
 }

@@ -13,7 +13,7 @@ namespace hod
 
 	std::filesystem::path FileSystem::GenerateTemporaryFilePath() const
 	{
-		return GetTemporaryPath() / ("Hod_Tmp_" + UID::GenerateUID().ToString());
+		return GetTemporaryPath() / ("Hod_Tmp_" + UID::GenerateUID().ToString()).CStr(); // Todo remove CStr()
 	}
 
 	FileSystem::Handle FileSystem::Open(const std::filesystem::path& path)

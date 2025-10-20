@@ -136,8 +136,8 @@ namespace hod
 		if (_firstAlloc != nullptr)
 		{
 			SymbolInfo symbolInfo;
-			symbolInfo._function.reserve(2048);
-			symbolInfo._module.reserve(2048);
+			symbolInfo._function.Reserve(2048);
+			symbolInfo._module.Reserve(2048);
 
 			uint32_t          totalLeak = 0;
 			uintmax_t         totalSize = 0;
@@ -172,7 +172,7 @@ namespace hod
 					for (uint32_t index = 0; index < it->_callstackSize; ++index)
 					{
 						OS::GetSymbolInfo(it->_callstack[index], symbolInfo, true);
-						fprintf(memleakReport, "\t%-*s %s + %u\n", 24, symbolInfo._module.c_str(), symbolInfo._function.c_str(), symbolInfo._line);
+						fprintf(memleakReport, "\t%-*s %s + %u\n", 24, symbolInfo._module.CStr(), symbolInfo._function.CStr(), symbolInfo._line);
 					}
 
 					fprintf(memleakReport, "\n\n");

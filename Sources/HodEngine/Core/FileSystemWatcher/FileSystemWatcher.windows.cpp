@@ -60,7 +60,7 @@ namespace hod
 				String       relativefilePath;
 				StringConversion::WStringToString(result, relativefilePath);
 
-				std::filesystem::path filePath = _dirPath / relativefilePath;
+				std::filesystem::path filePath = _dirPath / relativefilePath.CStr();
 				if (_isFile == false || fni->Action == FILE_ACTION_RENAMED_NEW_NAME || _path == filePath)
 				{
 					switch (fni->Action)

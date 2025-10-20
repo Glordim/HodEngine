@@ -80,7 +80,7 @@ namespace hod::editor
 		{
 			if (static_cast<__TYPE__>(enumValue.first) == value)
 			{
-				label = enumValue.second.c_str();
+				label = enumValue.second.CStr();
 				break;
 			}
 		}
@@ -89,7 +89,7 @@ namespace hod::editor
 		{
 			for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
 			{
-				if (ImGui::MenuItem(enumValue.second.c_str()) && static_cast<__TYPE__>(enumValue.first) != value)
+				if (ImGui::MenuItem(enumValue.second.CStr()) && static_cast<__TYPE__>(enumValue.first) != value)
 				{
 					value = static_cast<__TYPE__>(enumValue.first);
 					changed = true;
@@ -358,11 +358,11 @@ namespace hod::editor
 			{
 				ImGui::PushID(property);
 				String value = editorReflectedProperty.GetValue<String>();
-				value.reserve(512);
+				value.Reserve(512);
 				ImGui::SetNextItemWidth(-1);
-				if (ImGui::InputText("", value.data(), value.capacity()))
+				if (ImGui::InputText("", value.Data(), value.Capacity()))
 				{
-					value = value.c_str();
+					value = value.CStr();
 					editorReflectedProperty.SetValue<String>(value);
 					changed = true;
 				}
@@ -499,7 +499,7 @@ namespace hod::editor
 		}
 		else
 		{
-			if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()) == true)
+			if (ImGui::CollapsingHeader(property->GetDisplayName().CStr()) == true)
 			{
 				EditorReflectedObject* subEditorReflectedObject = reflectedProperty.GetEditorReflectedObject();
 				for (EditorReflectedProperty* subEditorReflectedProperty : subEditorReflectedObject->GetProperties())
@@ -524,7 +524,7 @@ namespace hod::editor
 		}
 
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(editorReflectedProperty.GetReflectionProperty()->GetDisplayName().c_str());
+		ImGui::TextUnformatted(editorReflectedProperty.GetReflectionProperty()->GetDisplayName().CStr());
 		if (isOverride && ImGui::BeginPopupContextItem("OverrideContext") == true)
 		{
 			if (ImGui::Button("Revert") == true)

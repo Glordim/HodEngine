@@ -1,30 +1,32 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/PrefabUtility.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
+#include "HodEngine/Game/PrefabUtility.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
-#include "HodEngine/Game/WeakComponent.hpp"
-#include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
+#include "HodEngine/Game/Components/RendererComponent.hpp"
+#include "HodEngine/Game/WeakComponent.hpp"
 
+#include "HodEngine/Core/Color.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
-#include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Core/Color.hpp"
 
 namespace hod::game::PrefabUtility
 {
 	bool CollectPrefabOverrideInternalRecursive(Entity* source, Entity* instance, const Vector<uint64_t>& target, Vector<PrefabOverride>& overrides);
-	void CollectEntityOverride(Entity* sourceEntity, Entity* instanceEntity, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr);
-	void CollectComponentOverride(Component* sourceComponent, Component* instanceComponent, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr);
+	void CollectEntityOverride(Entity* sourceEntity, Entity* instanceEntity, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path,
+	                           ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr);
+	void CollectComponentOverride(Component* sourceComponent, Component* instanceComponent, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path,
+	                              ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr);
 
-	/// @brief 
-	/// @param entity 
-	/// @param overrides 
-	/// @return 
+	/// @brief
+	/// @param entity
+	/// @param overrides
+	/// @return
 	bool CollectPrefabOverride(Entity* entity, Vector<PrefabOverride>& overrides)
 	{
 		std::shared_ptr<PrefabResource> prefabResource = entity->GetPrefabResource();
@@ -44,17 +46,17 @@ namespace hod::game::PrefabUtility
 		Vector<uint64_t> target;
 		return CollectPrefabOverrideInternalRecursive(source, instance, target, overrides);
 	}
-	
-	/// @brief 
-	/// @param entity 
-	/// @param overrides 
-	/// @return 
+
+	/// @brief
+	/// @param entity
+	/// @param overrides
+	/// @return
 	bool CollectPrefabOverrideInternalRecursive(Entity* source, Entity* instance, const Vector<uint64_t>& target, Vector<PrefabOverride>& overrides)
 	{
 		Vector<uint64_t> entityTarget = target;
 		entityTarget.push_back(source->GetLocalId());
 		CollectEntityOverride(source, instance, overrides, entityTarget, "", Entity::GetReflectionDescriptor(), source, instance);
-		
+
 		for (Component* component : source->GetComponents())
 		{
 			uint64_t localId = component->GetLocalId();
@@ -64,7 +66,7 @@ namespace hod::game::PrefabUtility
 				{
 					Vector<uint64_t> componentTarget = target;
 					componentTarget.push_back(instanceComponent->GetLocalId());
-					
+
 					ReflectionDescriptor& reflectionDescriptor = component->GetReflectionDescriptorV();
 					CollectComponentOverride(component, instanceComponent, overrides, componentTarget, "", reflectionDescriptor, component, instanceComponent);
 				}
@@ -94,15 +96,16 @@ namespace hod::game::PrefabUtility
 		return true;
 	}
 
-	/// @brief 
-	/// @param sourceEntity 
-	/// @param instanceEntity 
-	/// @param overrides 
-	/// @param path 
-	/// @param reflectionDescriptor 
-	/// @param sourceAddr 
-	/// @param instanceAddr 
-	void CollectEntityOverride(Entity* sourceEntity, Entity* instanceEntity, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr)
+	/// @brief
+	/// @param sourceEntity
+	/// @param instanceEntity
+	/// @param overrides
+	/// @param path
+	/// @param reflectionDescriptor
+	/// @param sourceAddr
+	/// @param instanceAddr
+	void CollectEntityOverride(Entity* sourceEntity, Entity* instanceEntity, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path,
+	                           ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr)
 	{
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor.GetProperties())
 		{
@@ -126,24 +129,25 @@ namespace hod::game::PrefabUtility
 			else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
 			{
 				ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
-				void* subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);
-				void* subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
-				String subObjecPath = path + reflectionPropertyObject->GetName() + ".";
-				ReflectionDescriptor* subObjectReflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
+				void*                     subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);
+				void*                     subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
+				String                    subObjecPath = path + reflectionPropertyObject->GetName() + ".";
+				ReflectionDescriptor*     subObjectReflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
 				CollectEntityOverride(sourceEntity, instanceEntity, overrides, target, subObjecPath, *subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
 			}
 		}
 	}
 
-	/// @brief 
-	/// @param sourceComponent 
-	/// @param instanceComponent 
-	/// @param overrides 
-	/// @param path 
-	/// @param reflectionDescriptor 
-	/// @param sourceAddr 
-	/// @param instanceAddr 
-	void CollectComponentOverride(Component* sourceComponent, Component* instanceComponent, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path, ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr)
+	/// @brief
+	/// @param sourceComponent
+	/// @param instanceComponent
+	/// @param overrides
+	/// @param path
+	/// @param reflectionDescriptor
+	/// @param sourceAddr
+	/// @param instanceAddr
+	void CollectComponentOverride(Component* sourceComponent, Component* instanceComponent, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path,
+	                              ReflectionDescriptor& reflectionDescriptor, void* sourceAddr, void* instanceAddr)
 	{
 		if (reflectionDescriptor.GetParent() != nullptr)
 		{
@@ -172,18 +176,19 @@ namespace hod::game::PrefabUtility
 			else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
 			{
 				ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
-				void* subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);
-				void* subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
-				String subObjecPath = path + reflectionPropertyObject->GetName() + ".";
-				ReflectionDescriptor* subObjectReflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
-				CollectComponentOverride(sourceComponent, instanceComponent, overrides, target, subObjecPath, *subObjectReflectionDescriptor, subObjectSourceAddr, subObjectInstanceAddr);
+				void*                     subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);
+				void*                     subObjectInstanceAddr = reflectionPropertyObject->GetInstance(instanceAddr);
+				String                    subObjecPath = path + reflectionPropertyObject->GetName() + ".";
+				ReflectionDescriptor*     subObjectReflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
+				CollectComponentOverride(sourceComponent, instanceComponent, overrides, target, subObjecPath, *subObjectReflectionDescriptor, subObjectSourceAddr,
+				                         subObjectInstanceAddr);
 			}
 		}
 	}
 
-	/// @brief 
-	/// @param entity 
-	/// @return 
+	/// @brief
+	/// @param entity
+	/// @return
 	Entity* GetPrefabInstance(Entity* entity)
 	{
 		while (entity != nullptr)
@@ -201,36 +206,36 @@ namespace hod::game::PrefabUtility
 		return nullptr;
 	}
 
-	/// @brief 
-	/// @param parent 
-	/// @param child 
-	/// @return 
+	/// @brief
+	/// @param parent
+	/// @param child
+	/// @return
 	String GetRelativePath(Entity* parent, Entity* child)
 	{
 		String relativePath;
 		while (child != nullptr && child != parent)
 		{
-			if (relativePath.empty() == false)
+			if (relativePath.Empty() == false)
 			{
-				relativePath.insert(0, "/");
+				relativePath.Insert(0, "/");
 			}
-			relativePath.insert(0, child->GetName());
+			relativePath.Insert(0, child->GetName());
 
 			child = child->GetParent().Lock();
 		}
 		return relativePath;
 	}
 
-	/// @brief 
-	/// @param parent 
-	/// @param relativePath 
-	/// @return 
+	/// @brief
+	/// @param parent
+	/// @param relativePath
+	/// @return
 	Entity* FindChildByPath(Entity* parent, std::string_view relativePath)
 	{
 		size_t offset = 0;
 		while (offset < relativePath.size())
 		{
-			size_t separatorPos = relativePath.find('/', offset);
+			size_t           separatorPos = relativePath.find('/', offset);
 			std::string_view name(relativePath.data() + offset, separatorPos);
 
 			bool childFound = false;
@@ -254,9 +259,9 @@ namespace hod::game::PrefabUtility
 		return parent;
 	}
 
-	/// @brief 
-	/// @param sourceComponent 
-	/// @return 
+	/// @brief
+	/// @param sourceComponent
+	/// @return
 	Component* GetCorrespondingComponent(Component* component)
 	{
 		game::Entity* entity = component->GetOwner();
@@ -265,7 +270,7 @@ namespace hod::game::PrefabUtility
 			game::Entity* prefabInstanceEntity = GetPrefabInstance(entity);
 			if (prefabInstanceEntity != nullptr)
 			{
-				String pathToComponent = GetRelativePath(prefabInstanceEntity, entity);
+				String  pathToComponent = GetRelativePath(prefabInstanceEntity, entity);
 				Entity* correspondingEntity = FindChildByPath(prefabInstanceEntity->GetPrefabResource()->GetPrefab().GetRootEntity(), pathToComponent);
 				if (correspondingEntity != nullptr)
 				{

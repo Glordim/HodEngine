@@ -117,24 +117,24 @@ namespace hod
 							if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float)
 							{
 								uboReflectionDescriptor->AddProperty<ReflectionPropertyVariable>(ReflectionPropertyVariable::Type::Float32, uboOffset,
-								                                                                 childPair.second._name.c_str(), nullptr, nullptr);
+								                                                                 childPair.second._name.CStr(), nullptr, nullptr);
 								uboOffset += 1 * sizeof(float);
 							}
 							else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float2)
 							{
-								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.c_str(), &Vector2::GetReflectionDescriptor(),
+								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &Vector2::GetReflectionDescriptor(),
 								                                                               nullptr, nullptr);
 								uboOffset += 2 * sizeof(float);
 							}
 							else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float4)
 							{
-								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.c_str(), &Vector4::GetReflectionDescriptor(),
+								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &Vector4::GetReflectionDescriptor(),
 								                                                               nullptr, nullptr);
 								uboOffset += 4 * sizeof(float);
 							}
 						}
 						_paramsSubReflectionDescriptors.push_back(uboReflectionDescriptor);
-						_paramsReflectionDescriptor.AddProperty<ReflectionPropertyObject>(offset, ubo._name.c_str(), uboReflectionDescriptor, nullptr, nullptr);
+						_paramsReflectionDescriptor.AddProperty<ReflectionPropertyObject>(offset, ubo._name.CStr(), uboReflectionDescriptor, nullptr, nullptr);
 						offset += uboOffset;
 					}
 
@@ -142,7 +142,7 @@ namespace hod
 					{
 						if (texture._type == ShaderSetDescriptor::BlockTexture::Texture)
 						{
-							_paramsReflectionDescriptor.AddProperty<ReflectionPropertyObject>(offset, texture._name.c_str(),
+							_paramsReflectionDescriptor.AddProperty<ReflectionPropertyObject>(offset, texture._name.CStr(),
 							                                                                  &WeakResource<TextureResource>::GetReflectionDescriptor(), nullptr, nullptr);
 							offset += sizeof(WeakResource<TextureResource>);
 						}

@@ -41,7 +41,7 @@ namespace hod
 		bool WStringToString(const std::wstring& str, String& result)
 		{
 			size_t utf8Size = str.size() + 1;
-			result.resize(str.size(), L'\0');
+			result.Resize(str.size(), L'\0');
 
 			std::mbstate_t                                     state = std::mbstate_t();
 			const std::codecvt<char, wchar_t, std::mbstate_t>& codecvtFacet = std::use_facet<std::codecvt<char, wchar_t, std::mbstate_t>>(std::locale());

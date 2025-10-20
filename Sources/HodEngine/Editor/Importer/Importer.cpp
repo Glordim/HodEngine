@@ -1,14 +1,14 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Project.hpp"
-#include "HodEngine/Editor/Asset.hpp"
 
-#include "HodEngine/Core/Resource/Resource.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/Core/UID.hpp"
+#include "HodEngine/Core/Resource/Resource.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include "HodEngine/Core/UID.hpp"
 
 #include <fstream>
 
@@ -19,13 +19,16 @@ namespace hod::editor
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
+	/// @brief
+	/// @param path
+	/// @return
 	bool Importer::CanImport(const std::filesystem::path& path)
 	{
-		String extension = path.extension().string().substr(1);
-		std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c){ return std::tolower(c); });
+		String extension = path.extension().string().substr(1).c_str();
+		for (char& c : extension)
+		{
+			c = static_cast<char>(std::tolower((int)c));
+		}
 
 		for (const char* supportedExtension : _supportedDataFileExtensions)
 		{
@@ -37,9 +40,9 @@ namespace hod::editor
 		return false;
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
+	/// @brief
+	/// @param path
+	/// @return
 	bool Importer::Import(const std::filesystem::path& path)
 	{
 		std::filesystem::path metaFilePath = path;
@@ -59,8 +62,8 @@ namespace hod::editor
 				return false;
 			}
 		}
-		
-		Document metaDocument;
+
+		Document           metaDocument;
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(metaDocument, metaFileHandle) == false)
 		{
@@ -103,7 +106,7 @@ namespace hod::editor
 
 		Project* project = Project::GetInstance();
 
-		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString();
+		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString().CStr();
 		thumbnailFilePath += ".png";
 
 		std::ofstream thumbnailFile(thumbnailFilePath, std::ios::binary);
@@ -117,11 +120,11 @@ namespace hod::editor
 
 		FileSystem::GetInstance()->Seek(metaFileHandle, 0, FileSystem::SeekMode::Begin);
 
-		Document document;
+		Document               document;
 		Vector<Resource::Data> datas;
-		bool result = WriteResource(dataFile, metaFileHandle, document, datas, thumbnailFile, *meta._importerSettings);
+		bool                   result = WriteResource(dataFile, metaFileHandle, document, datas, thumbnailFile, *meta._importerSettings);
 
-		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
+		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString().CStr();
 		resourceFilePath += ".dat";
 
 		std::ofstream resourceFile(resourceFilePath, std::ios::binary);
@@ -170,9 +173,9 @@ namespace hod::editor
 		return result;
 	}
 
-	/// @brief 
-	/// @param metaFilePath 
-	/// @return 
+	/// @brief
+	/// @param metaFilePath
+	/// @return
 	bool Importer::GenerateNewMeta(const std::filesystem::path& metaFilePath)
 	{
 		std::ofstream metaFile(metaFilePath);

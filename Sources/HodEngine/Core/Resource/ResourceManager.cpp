@@ -43,7 +43,7 @@ namespace hod
 	bool ResourceManager::Load(Resource* resource, const UID& uid)
 	{
 		std::filesystem::path path = _directory;
-		path /= uid.ToString() + ".dat";
+		path /= (uid.ToString() + ".dat").CStr(); // todo remove Cstr when remove std::filesystem::path
 
 		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
 		if (fileHandle.IsOpen() == false)

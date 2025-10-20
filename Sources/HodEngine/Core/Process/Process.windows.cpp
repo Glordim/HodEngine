@@ -47,7 +47,7 @@ namespace hod
 		commandLine += " ";
 		commandLine += argument;
 
-		if (!CreateProcessA(NULL, (char*)commandLine.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW | (detach ? DETACHED_PROCESS : 0), NULL, NULL, &si, &pi))
+		if (!CreateProcessA(NULL, (char*)commandLine.CStr(), NULL, NULL, TRUE, CREATE_NO_WINDOW | (detach ? DETACHED_PROCESS : 0), NULL, NULL, &si, &pi))
 		{
 			OUTPUT_ERROR("Failed to create process ({})", GetLastError());
 			CloseHandle(hStdOutRead);

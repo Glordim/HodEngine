@@ -234,87 +234,87 @@ namespace hod
 			String value(valueStart, valueEnd - valueStart);
 
 			std::size_t offset = 0;
-			std::size_t index = value.find("\\t", offset);
-			while (index != String::npos)
+			std::size_t index = value.Find("\\t", offset);
+			while (index != String::Npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
 				{
-					value.replace(index, 2, "\t");
+					value.Replace(index, 2, "\t");
 				}
-				index = value.find("\\t", offset);
+				index = value.Find("\\t", offset);
 			}
 
 			offset = 0;
-			index = value.find("\\n", offset);
-			while (index != String::npos)
+			index = value.Find("\\n", offset);
+			while (index != String::Npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
 				{
-					value.replace(index, 2, "\n");
+					value.Replace(index, 2, "\n");
 				}
-				index = value.find("\\n", offset);
+				index = value.Find("\\n", offset);
 			}
 
 			offset = 0;
-			index = value.find("\\r", offset);
-			while (index != String::npos)
+			index = value.Find("\\r", offset);
+			while (index != String::Npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
 				{
-					value.replace(index, 2, "\r");
+					value.Replace(index, 2, "\r");
 				}
-				index = value.find("\\r", offset);
+				index = value.Find("\\r", offset);
 			}
 
 			offset = 0;
-			index = value.find("\\f", offset);
-			while (index != String::npos)
+			index = value.Find("\\f", offset);
+			while (index != String::Npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
 				{
-					value.replace(index, 2, "\f");
+					value.Replace(index, 2, "\f");
 				}
-				index = value.find("\\f", offset);
+				index = value.Find("\\f", offset);
 			}
 
 			offset = 0;
-			index = value.find("\\b", offset);
-			while (index != String::npos)
+			index = value.Find("\\b", offset);
+			while (index != String::Npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
 				{
-					value.replace(index, 2, "\b");
+					value.Replace(index, 2, "\b");
 				}
-				index = value.find("\\b", offset);
+				index = value.Find("\\b", offset);
 			}
 
 			offset = 0;
-			index = value.find("\\\"", offset);
-			while (index != Stringg::npos)
+			index = value.Find("\\\"", offset);
+			while (index != String::Npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
 				{
-					value.replace(index, 2, "\"");
+					value.Replace(index, 2, "\"");
 				}
-				index = value.find("\\\"", offset);
+				index = value.Find("\\\"", offset);
 			}
 
 			offset = 0;
-			index = value.find("\\\\", offset);
-			while (index != String::npos)
+			index = value.Find("\\\\", offset);
+			while (index != String::Npos)
 			{
 				offset = index + 1;
-				value.replace(index, 2, "\\");
-				index = value.find("\\\\", offset);
+				value.Replace(index, 2, "\\");
+				index = value.Find("\\\\", offset);
 			}
 
-			node.SetString(std::string_view(value.data(), value.size()));
+			node.SetString(std::string_view(value.CStr(), value.Size()));
 
 			return true;
 		}

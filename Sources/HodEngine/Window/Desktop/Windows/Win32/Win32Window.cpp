@@ -1,23 +1,23 @@
 #include "HodEngine/Window/Pch.hpp"
-#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
+#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
 #include "HodEngine/Window/Surface.hpp"
 
 #include "HodEngine/Core/String.hpp"
 
-#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/OS.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <cstdlib>
 
 namespace hod::window
 {
-	/// @brief 
-	/// @param hWnd 
-	/// @param msg 
-	/// @param wParam 
-	/// @param lParam 
-	/// @return 
+	/// @brief
+	/// @param hWnd
+	/// @param msg
+	/// @param wParam
+	/// @param lParam
+	/// @return
 	LRESULT Win32Window::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		Win32Window* win32Window = reinterpret_cast<Win32Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
@@ -28,11 +28,11 @@ namespace hod::window
 		return win32Window->InternalWindowProc(msg, wParam, lParam);
 	}
 
-	/// @brief 
-	/// @param msg 
-	/// @param wParam 
-	/// @param lParam 
-	/// @return 
+	/// @brief
+	/// @param msg
+	/// @param wParam
+	/// @param lParam
+	/// @return
 	LRESULT Win32Window::InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		OnWinProc.Emit(_hWnd, msg, wParam, lParam);
@@ -67,28 +67,15 @@ namespace hod::window
 		return ::DefWindowProc(_hWnd, msg, wParam, lParam);
 	}
 
-	/// @brief 
+	/// @brief
 	Win32Window::Win32Window(bool hidden)
-		: DesktopWindow()
+	: DesktopWindow()
 	{
 		_hWndThreadId = Thread::GetCurrentThreadId();
 
 		_hInstance = ::GetModuleHandle(NULL);
 
-		_hWnd = ::CreateWindowEx(
-			0,
-			Win32DisplayManager::_className,
-			"Window",
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			_width,
-			_height,
-			NULL,
-			NULL,
-			_hInstance,
-			NULL
-		);
+		_hWnd = ::CreateWindowEx(0, Win32DisplayManager::_className, "Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, _hInstance, NULL);
 
 		if (_hWnd == NULL)
 		{
@@ -104,7 +91,7 @@ namespace hod::window
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	Win32Window::~Win32Window()
 	{
 		if (_hWnd != NULL)
@@ -113,7 +100,7 @@ namespace hod::window
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Win32Window::Update()
 	{
 		if (_hWndThreadId != Thread::GetCurrentThreadId())
@@ -137,15 +124,15 @@ namespace hod::window
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	HWND Win32Window::GetWindowHandle() const
 	{
 		return _hWnd;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	HINSTANCE Win32Window::GetInstanceHandle() const
 	{
 		return _hInstance;
@@ -156,12 +143,7 @@ namespace hod::window
 		_width = width;
 		_height = height;
 
-		RunOnWin32Thread(
-			[this]()
-			{
-				SetWindowPos(_hWnd, nullptr, 0, 0, _width, _height, SWP_NOMOVE);
-			}
-		);
+		RunOnWin32Thread([this]() { SetWindowPos(_hWnd, nullptr, 0, 0, _width, _height, SWP_NOMOVE); });
 	}
 
 	void Win32Window::CenterToScreen()
@@ -172,18 +154,12 @@ namespace hod::window
 				int x = static_cast<int>(GetSystemMetrics(SM_CXSCREEN) * 0.5f - _width * 0.5f);
 				int y = static_cast<int>(GetSystemMetrics(SM_CYSCREEN) * 0.5f - _height * 0.5f);
 				SetWindowPos(_hWnd, nullptr, x, y, 0, 0, SWP_NOSIZE);
-			}
-		);
+			});
 	}
 
 	void Win32Window::Maximize()
 	{
-		RunOnWin32Thread(
-			[this]()
-			{
-				ShowWindow(_hWnd, SW_MAXIMIZE);
-			}
-		);
+		RunOnWin32Thread([this]() { ShowWindow(_hWnd, SW_MAXIMIZE); });
 	}
 
 	void Win32Window::SetVisible(bool visible)
@@ -199,8 +175,7 @@ namespace hod::window
 				{
 					ShowWindow(_hWnd, SW_HIDE);
 				}
-			}
-		);
+			});
 	}
 
 	void Win32Window::RunOnWin32Thread(std::function<void()> codeToRun)
@@ -215,8 +190,8 @@ namespace hod::window
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Thread::Id Win32Window::GetMessageLoopThreadId() const
 	{
 		return _hWndThreadId;

@@ -1,13 +1,15 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/RenderQueue/UIRenderQueue.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
+
+#include <algorithm>
 
 namespace hod::renderer
 {
-	/// @brief 
-	/// @param context 
-	/// @return 
+	/// @brief
+	/// @param context
+	/// @return
 	bool UIRenderQueue::Prepare(const RenderView& renderView)
 	{
 		Vector2 resolution = renderView.GetRenderResolution();
@@ -15,11 +17,7 @@ namespace hod::renderer
 		_view = Matrix4::Identity;
 		_viewport = renderView.GetViewport();
 
-		std::sort(_renderCommands.begin(), _renderCommands.end(),
-		[](RenderCommand* a, RenderCommand* b)
-		{
-			return a->GetRenderingOrder() < b->GetRenderingOrder();
-		});
+		std::sort(_renderCommands.begin(), _renderCommands.end(), [](RenderCommand* a, RenderCommand* b) { return a->GetRenderingOrder() < b->GetRenderingOrder(); });
 
 		return true;
 	}

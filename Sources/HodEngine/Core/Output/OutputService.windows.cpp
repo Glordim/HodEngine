@@ -13,16 +13,16 @@ namespace hod
 	{
 		if (type == Output::Type::Message)
 		{
-			fputs(content.c_str(), stdout);
+			fputs(content.CStr(), stdout);
 		}
 		else
 		{
-			fputs(content.c_str(), stderr);
+			fputs(content.CStr(), stderr);
 		}
 
 		if (IsDebuggerPresent() == TRUE)
 		{
-			OutputDebugString(content.c_str());
+			OutputDebugString(content.CStr());
 		}
 	}
 }

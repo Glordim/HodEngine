@@ -95,7 +95,7 @@ namespace hod::editor
 			prevCursorPos = ImGui::GetCursorPos();
 
 			ImGui::SetNextItemWidth(-1);
-			if (ImGui::BeginCombo("", asset->GetName().c_str(), ImGuiComboFlags_HeightLarge))
+			if (ImGui::BeginCombo("", asset->GetName().CStr(), ImGuiComboFlags_HeightLarge))
 			{
 				if (clicked == false)
 				{
@@ -159,7 +159,7 @@ namespace hod::editor
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
-				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().find(inputTextBuffer) != String::npos)
+				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().Find(inputTextBuffer) != String::Npos)
 				{
 					ImGui::PushID(assetNode);
 					/*
@@ -175,7 +175,7 @@ namespace hod::editor
 					{
 						imageSize = ImVec2((float)assetNode->_asset->GetThumbnail()->GetWidth(), (float)assetNode->_asset->GetThumbnail()->GetHeight());
 					}
-					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().c_str(),
+					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().CStr(),
 					                               ImVec2(-1, itemHeight));
 					ImGui::PopStyleVar();
 					if (clicked)
@@ -269,7 +269,7 @@ namespace hod::editor
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
-				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().find(inputTextBuffer) != String::npos)
+				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().Find(inputTextBuffer) != String::Npos)
 				{
 					ImGui::PushID(assetNode);
 					/*
@@ -285,7 +285,7 @@ namespace hod::editor
 					{
 						imageSize = ImVec2((float)assetNode->_asset->GetThumbnail()->GetWidth(), (float)assetNode->_asset->GetThumbnail()->GetHeight());
 					}
-					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().c_str(),
+					bool clicked = ImageTextButton(assetNode->_asset->GetThumbnail(), imageSize, ImVec2(contentHeight, contentHeight), assetNode->_asset->GetName().CStr(),
 					                               ImVec2(-1, itemHeight));
 					ImGui::PopStyleVar();
 					if (clicked)

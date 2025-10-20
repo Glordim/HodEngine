@@ -182,16 +182,16 @@ namespace hod::renderer
 		String varIdentifier;
 		String target;
 
-		size_t len = memberName.find_first_of(".[");
-		if (len == String::npos)
+		size_t len = memberName.Find(".[");
+		if (len == String::Npos)
 		{
 			target = memberName;
 			varIdentifier = "";
 		}
 		else
 		{
-			target = memberName.substr(0, len);
-			varIdentifier = memberName.substr(len);
+			target = memberName.SubStr(0, len);
+			varIdentifier = memberName.SubStr(len);
 		}
 
 		const Vector<ShaderSetDescriptorVk::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
@@ -206,23 +206,23 @@ namespace hod::renderer
 				size_t                                         offset = 0;
 				const ShaderSetDescriptorVk::BlockUbo::Member* member = &ubo._rootMember;
 
-				while (varIdentifier.empty() == false)
+				while (varIdentifier.Empty() == false)
 				{
 					if (varIdentifier[0] == '.')
 					{
 						String subMemberName;
 
-						size_t len = varIdentifier.find_first_of(".[", 1);
+						size_t len = varIdentifier.Find(".[", 1);
 
-						if (len == String::npos)
+						if (len == String::Npos)
 						{
-							subMemberName = varIdentifier.substr(1);
+							subMemberName = varIdentifier.SubStr(1);
 							varIdentifier = "";
 						}
 						else
 						{
-							subMemberName = varIdentifier.substr(1, len - 1);
-							varIdentifier = varIdentifier.substr(len);
+							subMemberName = varIdentifier.SubStr(1, len - 1);
+							varIdentifier = varIdentifier.SubStr(len);
 						}
 
 						auto it = member->_childsMap.find(subMemberName);
@@ -237,14 +237,14 @@ namespace hod::renderer
 					}
 					else if (varIdentifier[0] == '[')
 					{
-						size_t len = varIdentifier.find_first_of("]", 1);
+						size_t len = varIdentifier.Find("]", 1);
 
-						String indexStr = varIdentifier.substr(1, len - 1);
-						int    index = std::atoi(indexStr.c_str());
+						String indexStr = varIdentifier.SubStr(1, len - 1);
+						int    index = std::atoi(indexStr.CStr());
 
 						offset += member->_size * index;
 
-						varIdentifier = varIdentifier.substr(len + 1);
+						varIdentifier = varIdentifier.SubStr(len + 1);
 					}
 				}
 

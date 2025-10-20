@@ -31,7 +31,8 @@ namespace hod
 	: _document(document)
 	, _type(Type::Object)
 	, _name(name)
-	{}
+	{
+	}
 
 	/// @brief
 	Document::Node::~Node()
@@ -103,7 +104,7 @@ namespace hod
 		// TODO check if an other child if same name exist
 
 		Node* node = DefaultAllocator::GetInstance().New<Node>(_document, name);
-		if (node->GetName().empty() == true)
+		if (node->GetName().Empty() == true)
 		{
 			_type = Type::Array;
 		}

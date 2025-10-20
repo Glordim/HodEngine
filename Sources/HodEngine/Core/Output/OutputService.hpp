@@ -49,7 +49,7 @@ namespace hod
 	template<typename... Args>
 	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, std::format_string<Args...> format, Args&&... args)
 	{
-		String content = std::vformat(format.get(), std::make_format_args(args...));
-		AddOutput(fileName, lineNumber, type, content.c_str());
+		String content = std::vformat(format.get(), std::make_format_args(args...)).c_str();
+		AddOutput(fileName, lineNumber, type, content.CStr());
 	}
 }

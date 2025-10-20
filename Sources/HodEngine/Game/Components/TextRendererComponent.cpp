@@ -1,20 +1,20 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/Components/TextRendererComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/Components/TextRendererComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
 
-#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Core/Color.hpp>
 #include <HodEngine/Renderer/Font/Font.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/P2fC4f.hpp>
+#include <HodEngine/Renderer/P2fT2f.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RHI/Material.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
-#include <HodEngine/Renderer/P2fT2f.hpp>
-#include <HodEngine/Renderer/P2fC4f.hpp>
-#include <HodEngine/Core/Color.hpp>
 
 namespace hod
 {
@@ -23,25 +23,25 @@ namespace hod
 		DESCRIBE_REFLECTED_CLASS(TextRendererComponent, reflectionDescriptor)
 		{
 			AddPropertyT(reflectionDescriptor, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
-			AddPropertyT(reflectionDescriptor, &TextRendererComponent::_text, "_text"/*, &TextRendererComponent::SetText*/);
-			//ADD_PROPERTY(TextureRendererComponent, _textureResource);
-			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
+			AddPropertyT(reflectionDescriptor, &TextRendererComponent::_text, "_text" /*, &TextRendererComponent::SetText*/);
+			// ADD_PROPERTY(TextureRendererComponent, _textureResource);
+			// ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
 
-		/// @brief 
+		/// @brief
 		TextRendererComponent::TextRendererComponent()
 		{
 			const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 			_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 		}
 
-		/// @brief 
+		/// @brief
 		TextRendererComponent::~TextRendererComponent()
 		{
 			DefaultAllocator::GetInstance().Delete(_materialInstance);
 		}
 
-		/// @brief 
+		/// @brief
 		void TextRendererComponent::OnConstruct()
 		{
 			SetFont(_fontResource);
@@ -49,26 +49,26 @@ namespace hod
 
 		/*
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void TextureRendererComponent::SetSprite(std::shared_ptr<renderer::Sprite> sprite)
 		{
-			_sprite = sprite;
+		    _sprite = sprite;
 
-			_materialInstance->SetTexture("textureSampler", _sprite->GetSpriteAtlas()->GetTexture());
+		    _materialInstance->SetTexture("textureSampler", _sprite->GetSpriteAtlas()->GetTexture());
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		const renderer::Sprite* TextureRendererComponent::GetSprite() const
 		{
-			return _sprite;
+		    return _sprite;
 		}
 		*/
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void TextRendererComponent::SetMaterialInstance(renderer::MaterialInstance* materialInstance)
 		{
@@ -76,7 +76,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		renderer::MaterialInstance* TextRendererComponent::GetMaterialInstance() const
 		{
@@ -89,13 +89,13 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void TextRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
 		{
 			(void)renderView; // TODO
 
-			if (_text.empty() || _fontResource.Lock() == nullptr)
+			if (_text.Empty() || _fontResource.Lock() == nullptr)
 			{
 				return;
 			}
@@ -126,51 +126,53 @@ namespace hod
 					const char* str = _text.c_str();
 					while (*str != '\0')
 					{
-						const renderer::Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
+					    const renderer::Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
 
-						uint16_t vertexCount = (uint16_t)positions.size();
+					    uint16_t vertexCount = (uint16_t)positions.size();
 
-						positions.emplace_back(offset, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
-						uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight);
+					    positions.emplace_back(offset, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
+					    uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight);
 
-						positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
-						uvs.emplace_back((float)(kerning._offsetX + kerning._size.GetX()) / atlasWidth, (float)kerning._offsetY / atlasHeight);
+					    positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f *
+					0.01f); uvs.emplace_back((float)(kerning._offsetX + kerning._size.GetX()) / atlasWidth, (float)kerning._offsetY / atlasHeight);
 
-						positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * -0.5f * 0.01f);
-						uvs.emplace_back((float)(kerning._offsetX + kerning._size.GetX()) / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
+					    positions.emplace_back(offset + (float)kerning._size.GetX() * 0.01f, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * -0.5f *
+					0.01f); uvs.emplace_back((float)(kerning._offsetX + kerning._size.GetX()) / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
 
-						positions.emplace_back(offset, (float)kerning._baseline * 0.5f * -0.01f + (float)kerning._size.GetY() * -0.5f * 0.01f);
-						uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
+					    positions.emplace_back(offset, (float)kerning._baseline * 0.5f * -0.01f + (float)kerning._size.GetY() * -0.5f * 0.01f);
+					    uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)(kerning._offsetY + kerning._size.GetY()) / atlasHeight);
 
-						indices.push_back(vertexCount);
-						indices.push_back(vertexCount + 1);
-						indices.push_back(vertexCount + 2);
+					    indices.push_back(vertexCount);
+					    indices.push_back(vertexCount + 1);
+					    indices.push_back(vertexCount + 2);
 
-						indices.push_back(vertexCount);
-						indices.push_back(vertexCount + 2);
-						indices.push_back(vertexCount + 3);
+					    indices.push_back(vertexCount);
+					    indices.push_back(vertexCount + 2);
+					    indices.push_back(vertexCount + 3);
 
-						offset += (kerning._size.GetX() + 2) * 0.01f;
+					    offset += (kerning._size.GetX() + 2) * 0.01f;
 
-						++str;
+					    ++str;
 					}
 
 					if (positions.empty() == false)
 					{
-						renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
+					    renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr,
+					(uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
+					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 					}
 					*/
 				}
 			}
 		}
 
-		/// @brief 
-		/// @param texture 
+		/// @brief
+		/// @param texture
 		void TextRendererComponent::SetFont(const WeakResource<renderer::FontResource>& font)
 		{
 			_fontResource = font;
 
-			renderer::Texture* texture = nullptr;
+			renderer::Texture*                      texture = nullptr;
 			std::shared_ptr<renderer::FontResource> fontResource = _fontResource.Lock();
 			if (fontResource != nullptr)
 			{
@@ -182,7 +184,6 @@ namespace hod
 			}
 			else
 			{
-				
 			}
 			_materialInstance->SetTexture("image", texture);
 		}

@@ -1,10 +1,10 @@
 #include "HodEngine/InputEditor/Pch.hpp"
 
-#include "HodEngine/InputEditor/Window/InputManagerWindow.hpp"
 #include "HodEngine/InputEditor/Window/DeviceWindow.hpp"
+#include "HodEngine/InputEditor/Window/InputManagerWindow.hpp"
 
-#include <HodEngine/Input/InputManager.hpp>
 #include <HodEngine/Input/Devices/Device.hpp>
+#include <HodEngine/Input/InputManager.hpp>
 
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
 
@@ -29,9 +29,9 @@ namespace hod::editor
 			ImGui::Indent();
 			for (Device* device : InputManager::GetInstance()->GetDevices())
 			{
-				String label = std::format("{} {}##{}", deviceTypeToIcon[(uint8_t)device->GetType()], device->GetName(), (void*)device);
-				bool selected = false;
-				if (ImGui::Selectable(label.c_str(), &selected))
+				String label = std::format("{} {}##{}", deviceTypeToIcon[(uint8_t)device->GetType()], device->GetName(), (void*)device).c_str();
+				bool   selected = false;
+				if (ImGui::Selectable(label.CStr(), &selected))
 				{
 					imgui::ImGuiManager::GetInstance()->OpenWindow<DeviceWindow>(device);
 				}

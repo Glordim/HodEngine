@@ -1,7 +1,7 @@
 #include "HodEngine/ImGui/Pch.hpp"
-#include "HodEngine/ImGui/Window/Window.hpp"
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
+#include "HodEngine/ImGui/Window/Window.hpp"
 
 #include <format>
 
@@ -12,27 +12,24 @@ namespace hod::imgui
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	Window::Window()
-	{
-		
-	}
+	/// @brief
+	Window::Window() {}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Window::IsClosed() const
 	{
 		return _closed;
 	}
 
-	/// @brief 
+	/// @brief
 	void Window::Close()
 	{
 		_closed = true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Window::Draw()
 	{
 		bool open = true;
@@ -55,53 +52,53 @@ namespace hod::imgui
 		return open;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const char* Window::GetIdentifier()
 	{
 		const char* title = nullptr;
-		if (_title.empty())
+		if (_title.Empty())
 		{
-			title = GetReflectionDescriptorV().GetDisplayName().c_str();
+			title = GetReflectionDescriptorV().GetDisplayName().CStr();
 		}
 		else
 		{
-			title = _title.c_str();
+			title = _title.CStr();
 		}
 		_identifier = std::format("{}###{}_{}", title, GetReflectionDescriptorV().GetTypeName(), _id);
-		return _identifier.c_str();
+		return _identifier.CStr();
 	}
 
-	/// @brief 
-	/// @param id 
+	/// @brief
+	/// @param id
 	void Window::SetId(uint64_t id)
 	{
 		_id = id;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	uint64_t Window::GetId() const
 	{
 		return _id;
 	}
 
-	/// @brief 
-	/// @param flags 
+	/// @brief
+	/// @param flags
 	void Window::SetFlags(ImGuiWindowFlags flags)
 	{
 		_flags = flags;
 	}
-	
-	/// @brief 
-	/// @return 
+
+	/// @brief
+	/// @return
 	ImGuiWindowFlags Window::GetFlags() const
 	{
 		return _flags;
 	}
 
-	/// @brief 
-	/// @param title 
+	/// @brief
+	/// @param title
 	void Window::SetTitle(std::string_view title)
 	{
 		_title = title;

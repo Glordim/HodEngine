@@ -88,17 +88,17 @@ namespace hod
 			String workerName(jobQueueNames[index]);
 			workerName += " Worker ";
 
-			String countLabel = std::to_string(count + 1);
+			String countLabel = std::to_string(count + 1).c_str();
 
-			String workerIndexLabel = std::to_string(index + 1);
-			for (size_t digit = workerIndexLabel.size(); digit < countLabel.size(); ++digit)
+			String workerIndexLabel = std::to_string(index + 1).c_str();
+			for (size_t digit = workerIndexLabel.Size(); digit < countLabel.Size(); ++digit)
 			{
-				workerIndexLabel.insert(0, "0");
+				workerIndexLabel.Insert(0, "0");
 			}
 			workerName += workerIndexLabel;
 
 			_workerThreads[index]._jobQueue = this;
-			_workerThreads[index]._thread.Start(&WorkerThreadFunction, &_workerThreads[index], jobQueuePriority[(uint32_t)queue], workerName.c_str());
+			_workerThreads[index]._thread.Start(&WorkerThreadFunction, &_workerThreads[index], jobQueuePriority[(uint32_t)queue], workerName.CStr());
 		}
 	}
 

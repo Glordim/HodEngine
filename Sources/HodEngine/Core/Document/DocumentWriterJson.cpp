@@ -32,10 +32,10 @@ namespace hod
 		}
 
 		const String& name = node.GetName();
-		if (name.size() > 0)
+		if (name.Size() > 0)
 		{
 			stream.write("\"", 1);
-			stream.write(name.data(), name.size());
+			stream.write(name.CStr(), name.Size());
 			stream.write("\":", 2);
 
 			if (_pretty == true)
@@ -237,11 +237,11 @@ namespace hod
 			{
 				stream.write("\"", 1);
 				const String& value = node.GetString();
-				const char*   pos = std::strpbrk(value.data(), "\t\n\r\f\b\"\\");
+				const char*   pos = std::strpbrk(value.CStr(), "\t\n\r\f\b\"\\");
 				if (pos != nullptr)
 				{
 					String escapedValue = value;
-					pos = std::strpbrk(escapedValue.data(), "\t\n\r\f\b\"\\");
+					pos = std::strpbrk(escapedValue.CStr(), "\t\n\r\f\b\"\\");
 
 					while (pos != nullptr)
 					{
@@ -256,15 +256,15 @@ namespace hod
 							case '\\': *const_cast<char*>(pos) = '\\'; break;
 							default: assert(false); break;
 						}
-						size_t offset = pos - escapedValue.data();
-						escapedValue.insert(offset, "\\");
-						pos = std::strpbrk(escapedValue.data() + offset + 2, "\t\n\r\f\b\"\\");
+						size_t offset = pos - escapedValue.CStr();
+						escapedValue.Insert(offset, "\\");
+						pos = std::strpbrk(escapedValue.CStr() + offset + 2, "\t\n\r\f\b\"\\");
 					}
-					stream.write(escapedValue.data(), escapedValue.size());
+					stream.write(escapedValue.CStr(), escapedValue.Size());
 				}
 				else
 				{
-					stream.write(value.data(), value.size());
+					stream.write(value.CStr(), value.Size());
 				}
 				stream.write("\"", 1);
 			}

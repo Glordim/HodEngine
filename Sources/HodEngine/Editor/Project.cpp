@@ -83,31 +83,31 @@ namespace hod::editor
 			String content(contentIn);
 
 			constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
-			size_t                     replaceIndex = content.find(projectNameTag);
-			while (replaceIndex != String::npos)
+			size_t                     replaceIndex = content.Find(projectNameTag);
+			while (replaceIndex != String::Npos)
 			{
-				content.replace(replaceIndex, projectNameTag.size(), projectName);
-				replaceIndex = content.find(projectNameTag);
+				content.Replace(replaceIndex, projectNameTag.size(), projectName);
+				replaceIndex = content.Find(projectNameTag);
 			}
 
 			String projectExport = projectName + "_EXPORT";
 			std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
 			constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
-			replaceIndex = content.find(projectExportTag);
-			while (replaceIndex != String::npos)
+			replaceIndex = content.Find(projectExportTag);
+			while (replaceIndex != String::Npos)
 			{
-				content.replace(replaceIndex, projectExportTag.size(), projectExport);
-				replaceIndex = content.find(projectExportTag);
+				content.Replace(replaceIndex, projectExportTag.size(), projectExport);
+				replaceIndex = content.Find(projectExportTag);
 			}
 
 			String api = projectName + "_API";
 			std::transform(api.begin(), api.end(), api.begin(), [](char c) { return std::toupper(c); });
 			constexpr std::string_view apiTag = "[[API]]";
-			replaceIndex = content.find(apiTag);
-			while (replaceIndex != String::npos)
+			replaceIndex = content.Find(apiTag);
+			while (replaceIndex != String::Npos)
 			{
-				content.replace(replaceIndex, apiTag.size(), api);
-				replaceIndex = content.find(apiTag);
+				content.Replace(replaceIndex, apiTag.size(), api);
+				replaceIndex = content.Find(apiTag);
 			}
 
 			try
@@ -115,7 +115,7 @@ namespace hod::editor
 				std::ofstream fileStream;
 				fileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
 				fileStream.open(path, std::ios_base::trunc);
-				fileStream.write(content.c_str(), content.size());
+				fileStream.write(content.CStr(), content.Size());
 				fileStream.close();
 
 				OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path.string().c_str());
@@ -129,12 +129,12 @@ namespace hod::editor
 			}
 		};
 
-		if (writeFileFunc(sourcesDirPath / (_name + ".hpp"), Module_hpp, _name) == false)
+		if (writeFileFunc(sourcesDirPath / (_name + ".hpp").CStr(), Module_hpp, _name) == false)
 		{
 			return false;
 		}
 
-		if (writeFileFunc(sourcesDirPath / (_name + ".cpp"), Module_cpp, _name) == false)
+		if (writeFileFunc(sourcesDirPath / (_name + ".cpp").CStr(), Module_cpp, _name) == false)
 		{
 			return false;
 		}
@@ -197,7 +197,7 @@ namespace hod::editor
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule.Init(_projectPath.parent_path() / "build" / "Release" / _name, true);
+		_gameModule.Init(_projectPath.parent_path() / "build" / "Release" / _name.CStr(), true);
 		std::filesystem::create_directories(_gameModule.GetPath().parent_path());
 		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const std::filesystem::path&) { _gameModule.Reload(); }, nullptr);
 		_gameModuleFileSystemWatcher.RegisterUpdateJob();
@@ -308,7 +308,7 @@ namespace hod::editor
 	{
 		String cmakeLists(CMakeLists_txt);
 
-		String enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string(); // todo...
+		String enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string().c_str(); // todo...
 #if defined(PLATFORM_WINDOWS)
 		// CMakeLists require portable path
 		for (char& c : enginePath)
@@ -320,29 +320,29 @@ namespace hod::editor
 		}
 #endif
 		constexpr std::string_view enginePathTag = "[[ENGINE_PATH]]";
-		size_t                     replaceIndex = cmakeLists.find(enginePathTag);
-		while (replaceIndex != String::npos)
+		size_t                     replaceIndex = cmakeLists.Find(enginePathTag);
+		while (replaceIndex != String::Npos)
 		{
-			cmakeLists.replace(replaceIndex, enginePathTag.size(), enginePath);
-			replaceIndex = cmakeLists.find(enginePathTag);
+			cmakeLists.Replace(replaceIndex, enginePathTag.size(), enginePath);
+			replaceIndex = cmakeLists.Find(enginePathTag);
 		}
 
 		constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
-		replaceIndex = cmakeLists.find(projectNameTag);
-		while (replaceIndex != String::npos)
+		replaceIndex = cmakeLists.Find(projectNameTag);
+		while (replaceIndex != String::Npos)
 		{
-			cmakeLists.replace(replaceIndex, projectNameTag.size(), _name);
-			replaceIndex = cmakeLists.find(projectNameTag);
+			cmakeLists.Replace(replaceIndex, projectNameTag.size(), _name);
+			replaceIndex = cmakeLists.Find(projectNameTag);
 		}
 
 		String projectExport = _name + "_EXPORT";
 		std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
 		constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
-		replaceIndex = cmakeLists.find(projectExportTag);
-		while (replaceIndex != String::npos)
+		replaceIndex = cmakeLists.Find(projectExportTag);
+		while (replaceIndex != String::Npos)
 		{
-			cmakeLists.replace(replaceIndex, projectExportTag.size(), projectExport);
-			replaceIndex = cmakeLists.find(projectExportTag);
+			cmakeLists.Replace(replaceIndex, projectExportTag.size(), projectExport);
+			replaceIndex = cmakeLists.Find(projectExportTag);
 		}
 
 		std::filesystem::path path = _projectPath.parent_path() / "CMakeLists.txt";
@@ -352,7 +352,7 @@ namespace hod::editor
 			std::ofstream cmakeListFileStream;
 			cmakeListFileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
 			cmakeListFileStream.open(path, std::ios_base::trunc);
-			cmakeListFileStream.write(cmakeLists.c_str(), cmakeLists.size());
+			cmakeListFileStream.write(cmakeLists.CStr(), cmakeLists.Size());
 			cmakeListFileStream.close();
 
 			OUTPUT_MESSAGE("CMakeLists.txt generated at {}", path.string().c_str());
@@ -408,7 +408,8 @@ namespace hod::editor
 #endif
 
 		String arguments = std::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G \"{}\"", toolchainPath.string(),
-		                               gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator);
+		                               gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator)
+		                       .c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{
@@ -425,7 +426,7 @@ namespace hod::editor
 		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 
 		const char* config = "Release";
-		String      arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount());
+		String      arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount()).c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{

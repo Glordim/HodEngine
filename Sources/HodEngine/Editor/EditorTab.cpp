@@ -11,8 +11,8 @@
 
 namespace hod::editor
 {
-	/// @brief 
-	/// @param asset 
+	/// @brief
+	/// @param asset
 	EditorTab::EditorTab(std::shared_ptr<Asset> asset, const char* icon)
 	{
 		_asset = asset;
@@ -28,7 +28,7 @@ namespace hod::editor
 		_dockSpaceId = ImGui::GetID(this);
 	}
 
-	/// @brief 
+	/// @brief
 	EditorTab::~EditorTab()
 	{
 		for (EditorTabWindow* window : _windows)
@@ -37,8 +37,8 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool EditorTab::Draw()
 	{
 		bool open = true;
@@ -54,7 +54,7 @@ namespace hod::editor
 			_focus = false;
 			tabItemFlags |= ImGuiTabItemFlags_SetSelected;
 		}
-		bool draw = ImGui::BeginTabItem(_title.c_str(), &open, tabItemFlags);
+		bool draw = ImGui::BeginTabItem(_title.CStr(), &open, tabItemFlags);
 		ImGui::PopStyleVar();
 		if (draw && open) // check open to avoid crash when RT owner is deleted after push rendercommand using it
 		{
@@ -134,15 +134,15 @@ namespace hod::editor
 		return open;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	std::shared_ptr<Asset> EditorTab::GetAsset() const
 	{
 		return _asset;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool EditorTab::AssetIsDirty() const
 	{
 		if (_asset)
@@ -155,7 +155,7 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void EditorTab::MarkAssetAsDirty()
 	{
 		if (_asset)
@@ -164,7 +164,7 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void EditorTab::Focus()
 	{
 		_focus = true;

@@ -12,8 +12,8 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include "HodEngine/Renderer/RHI/Texture.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
 #include <fstream>
 
@@ -25,9 +25,9 @@ namespace hod::editor
 		AddPropertyT(reflectionDescriptor, &Meta::_importerType, "_importerType");
 	}
 
-	/// @brief 
+	/// @brief
 	Asset::Asset(const std::filesystem::path& path)
-		: _path(path)
+	: _path(path)
 	{
 		_name = _path.stem().string();
 		_meta._uid = UID::GenerateUID();
@@ -35,31 +35,31 @@ namespace hod::editor
 		_meta._importerSettings = AssetDatabase::GetInstance()->GetDefaultImporter().AllocateSettings();
 	}
 
-	/// @brief 
+	/// @brief
 	Asset::~Asset()
 	{
 		DefaultAllocator::GetInstance().Delete(_thumbnail);
 	}
 
-	/// @brief 
-	/// @param path 
+	/// @brief
+	/// @param path
 	void Asset::SetPath(const std::filesystem::path& path)
 	{
 		_path = path;
 		_name = path.stem().string();
 	}
 
-	/// @brief 
-	/// @param instance 
-	/// @param reflectionDescriptor 
+	/// @brief
+	/// @param instance
+	/// @param reflectionDescriptor
 	void Asset::SetInstanceToSave(const void* instance, ReflectionDescriptor* reflectionDescriptor)
 	{
 		_instanceToSave = instance;
 		_instanceToSaveReflectionDescriptor = reflectionDescriptor;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Asset::Load()
 	{
 		std::filesystem::path metaPath = _path;
@@ -78,7 +78,7 @@ namespace hod::editor
 			}
 		}
 
-		Document document;
+		Document           document;
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, metaPath) == false)
 		{
@@ -97,8 +97,8 @@ namespace hod::editor
 
 		AssetDatabase::GetInstance()->ReimportAssetIfNecessary(shared_from_this());
 
-		Project* project = Project::GetInstance();
-		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / _meta._uid.ToString();
+		Project*              project = Project::GetInstance();
+		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / _meta._uid.ToString().CStr();
 		thumbnailFilePath += ".png";
 
 		if (_thumbnail != nullptr)
@@ -106,7 +106,7 @@ namespace hod::editor
 			DefaultAllocator::GetInstance().Delete(_thumbnail);
 			_thumbnail = nullptr;
 		}
-		
+
 		_thumbnail = renderer::Renderer::GetInstance()->CreateTexture();
 		if (_thumbnail->LoadFromPath(thumbnailFilePath.string().c_str()) == false)
 		{
@@ -117,17 +117,17 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Asset::Save()
 	{
 		return Save(_instanceToSave, _instanceToSaveReflectionDescriptor);
 	}
 
-	/// @brief 
-	/// @param instance 
-	/// @param reflectionDescriptor 
-	/// @return 
+	/// @brief
+	/// @param instance
+	/// @param reflectionDescriptor
+	/// @return
 	bool Asset::Save(const void* instance, ReflectionDescriptor* reflectionDescriptor)
 	{
 		Document metaDocument;
@@ -167,72 +167,72 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const UID& Asset::GetUid() const
 	{
 		return _meta._uid;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const std::filesystem::path& Asset::GetPath() const
 	{
 		return _path;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const String& Asset::GetName() const
 	{
 		return _name;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Asset::IsDirty() const
 	{
 		return _dirty;
 	}
-	
-	/// @brief 
+
+	/// @brief
 	void Asset::SetDirty()
 	{
 		_dirty = true;
 	}
 
-	/// @brief 
+	/// @brief
 	void Asset::ResetDirty()
 	{
 		_dirty = false;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Meta& Asset::GetMeta()
 	{
 		return _meta;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	renderer::Texture* Asset::GetThumbnail() const
 	{
 		return _thumbnail;
 	}
 
-	/// @brief 
-	/// @param importerSettings 
-	/// @param importerType 
+	/// @brief
+	/// @param importerSettings
+	/// @param importerType
 	void Meta::SetImporterConfig(std::shared_ptr<ImporterSettings> importerSettings, const char* importerType)
 	{
 		_importerSettings = importerSettings;
 		_importerType = importerType;
 	}
 
-	/// @brief 
-	/// @param documentNode 
-	/// @return 
+	/// @brief
+	/// @param documentNode
+	/// @return
 	bool Meta::LoadImporterConfig(const Document::Node& documentNode)
 	{
 		Importer* importer = AssetDatabase::GetInstance()->GetImporter(_importerType);
@@ -255,9 +255,9 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
-	/// @param documentNode 
-	/// @return 
+	/// @brief
+	/// @param documentNode
+	/// @return
 	bool Meta::SaveImporterConfig(Document::Node& documentNode) const
 	{
 		// TODO Ensure _importerSettings == nullptr
