@@ -44,7 +44,7 @@ namespace hod
 			{
 				currentSlot->_event = nullptr;
 
-				std::iter_swap(_slots.begin() + index, _slots.end() - 1);
+				std::swap(_slots[index], _slots.back());
 				_slots.pop_back();
 				return;
 			}
