@@ -19,7 +19,7 @@
 #include <thread>
 
 #if defined(PLATFORM_WINDOWS)
-#include <Windows.h>
+	#include <Windows.h>
 #endif
 
 namespace hod::application
@@ -34,7 +34,7 @@ namespace hod::application
 	{
 		(void)argumentParser;
 
-		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
+		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().ParentPath() / "Data");
 
 		JobScheduler::CreateInstance();
 		FrameSequencer::CreateInstance();

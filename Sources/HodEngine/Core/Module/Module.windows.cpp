@@ -5,12 +5,13 @@ namespace hod
 {
 	/// @brief
 	/// @return
-	bool Module::InternalLoad(const std::filesystem::path& path)
+	bool Module::InternalLoad(const Path& path)
 	{
-		_dll = LoadLibrary(path.string().c_str());
+		_dll = LoadLibrary(path.GetString().CStr());
 		if (_dll == NULL)
 		{
 			// std::cout << "could not load the dynamic library" << std::endl;
+			OUTPUT_ERROR("Unable to load module {}", path);
 			return false;
 		}
 

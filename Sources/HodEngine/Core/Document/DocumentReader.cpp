@@ -10,7 +10,7 @@ namespace hod
 	/// @param document
 	/// @param path
 	/// @return
-	bool DocumentReader::Read(Document& document, const std::filesystem::path& path)
+	bool DocumentReader::Read(Document& document, const Path& path)
 	{
 		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
 		bool               result = Read(document, fileHandle);

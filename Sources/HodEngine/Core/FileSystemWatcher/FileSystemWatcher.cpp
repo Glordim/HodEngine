@@ -2,12 +2,15 @@
 #include "HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp"
 #include "HodEngine/Core/Frame/FrameSequencer.hpp"
 
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
+
 namespace hod
 {
 	/// @brief
 	FileSystemWatcher::FileSystemWatcher()
 	: _internalJob(this, &FileSystemWatcher::Update, JobQueue::Queue::Framed)
-	{}
+	{
+	}
 
 	/// @brief
 	FileSystemWatcher::~FileSystemWatcher()
@@ -21,9 +24,8 @@ namespace hod
 	/// @param onDeleteFile
 	/// @param onMoveFile
 	/// @return
-	bool FileSystemWatcher::Init(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& onCreateFile,
-	                             const std::function<void(const std::filesystem::path&)>& onDeleteFile, const std::function<void(const std::filesystem::path&)>& onChangeFile,
-	                             const std::function<void(const std::filesystem::path& old, const std::filesystem::path&)>& onMoveFile)
+	bool FileSystemWatcher::Init(const Path& path, const std::function<void(const Path&)>& onCreateFile, const std::function<void(const Path&)>& onDeleteFile,
+	                             const std::function<void(const Path&)>& onChangeFile, const std::function<void(const Path& old, const Path&)>& onMoveFile)
 	{
 		_path = path;
 		_onCreateFile = onCreateFile;
@@ -31,16 +33,16 @@ namespace hod
 		_onChangeFile = onChangeFile;
 		_onMoveFile = onMoveFile;
 
-		if (std::filesystem::is_directory(_path))
+		if (FileSystem::GetInstance()->IsDirectory(_path))
 		{
-			if (std::filesystem::exists(_path) == false)
+			if (FileSystem::GetInstance()->Exists(_path) == false)
 			{
 				return false; // todo output
 			}
 		}
 		else
 		{
-			if (std::filesystem::exists(_path.parent_path()) == false)
+			if (FileSystem::GetInstance()->Exists(_path.ParentPath()) == false)
 			{
 				return false; // todo output
 			}

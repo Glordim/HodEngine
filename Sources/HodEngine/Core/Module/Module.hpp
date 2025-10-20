@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 #if defined(PLATFORM_WINDOWS)
 	#include <Windows.h>
@@ -25,25 +25,25 @@ namespace hod
 		Module() = default;
 		~Module();
 
-		void Init(const std::filesystem::path& path, bool copyForSupportReload);
+		void Init(const Path& path, bool copyForSupportReload);
 
 		bool Load();
 		bool Unload();
 		bool Reload();
 
-		const std::filesystem::path& GetPath() const;
+		const Path& GetPath() const;
 
 	private:
-		bool InternalLoad(const std::filesystem::path& path);
+		bool InternalLoad(const Path& path);
 		bool InternalUnload();
 
 		const char* GetModuleExtension();
 		const char* GetModulePrefix();
 
 	private:
-		std::filesystem::path _path;
-		std::filesystem::path _copyPath;
-		bool                  _copyForSupportReload;
+		Path _path;
+		Path _copyPath;
+		bool _copyForSupportReload;
 
 #if defined(PLATFORM_WINDOWS)
 		HINSTANCE _dll = NULL;

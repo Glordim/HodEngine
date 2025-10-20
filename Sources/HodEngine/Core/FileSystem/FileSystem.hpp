@@ -2,13 +2,14 @@
 #include "HodEngine/Core/Export.hpp"
 #include "HodEngine/Core/Singleton.hpp"
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 #if defined(PLATFORM_ANDROID)
 struct AAssetManager;
 struct AAsset;
 #elif defined(PLATFORM_WINDOWS)
-	#include <Windows.h>
+// #include <Windows.h>
+typedef void* HANDLE;
 #else
 	#include <cstdio>
 #endif
@@ -32,28 +33,38 @@ namespace hod
 #if defined(PLATFORM_ANDROID)
 			AAsset* _asset = nullptr;
 #elif defined(PLATFORM_WINDOWS)
-			HANDLE _handle = INVALID_HANDLE_VALUE;
+			HANDLE _handle = (HANDLE)-1;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
 			int _fd = -1;
 #else
 			FILE* _file = nullptr;
 #endif
 
-			std::filesystem::path _path; // TODO REMOVE
+			Path _path; // TODO REMOVE
 
 			bool IsOpen() const;
 		};
 
+#if defined(PLATFORM_WINDOWS)
+		typedef struct _FILETIME
+		{
+			uint32_t dwLowDateTime;
+			uint32_t dwHighDateTime;
+		} FILETIME, *PFILETIME, *LPFILETIME;
+
+		using FileTime = FILETIME;
+#endif
+
 	public:
-		static std::filesystem::path GetUserSettingsPath();
-		static std::filesystem::path GetExecutablePath();
-		static std::filesystem::path GetTemporaryPath();
-		static bool                  SetWorkingDirectory(const std::filesystem::path& path);
+		static Path GetUserSettingsPath();
+		static Path GetExecutablePath();
+		static Path GetTemporaryPath();
+		static bool SetWorkingDirectory(const Path& path);
 
 	private:
-		static std::filesystem::path _userSettingsPath;
-		static std::filesystem::path _temporaryPath;
-		static std::filesystem::path _executablePath;
+		static Path _userSettingsPath;
+		static Path _temporaryPath;
+		static Path _executablePath;
 
 	public:
 #if defined(PLATFORM_ANDROID)
@@ -61,8 +72,32 @@ namespace hod
 #endif
 		bool Init();
 
+		bool IsRegularFile(const char* path);
+		bool IsRegularFile(const Path& path);
+
+		bool CopyFile(const char* pathSrc, const char* pathDst, bool overwrite = false);
+		bool CopyFile(const Path& pathSrc, const Path& pathDst, bool overwrite = false);
+
+		bool RemoveAll(const char* path);
+		bool RemoveAll(const Path& path);
+
+		bool Remove(const char* path);
+		bool Remove(const Path& path);
+
+		bool Rename(const char* pathSrc, const char* pathDst);
+		bool Rename(const Path& pathSrc, const Path& pathDst);
+
+		bool Exists(const char* path);
+		bool Exists(const Path& path);
+
+		bool IsDirectory(const char* path);
+		bool IsDirectory(const Path& path);
+
+		bool CreateDirectories(const char* path);
+		bool CreateDirectories(const Path& path);
+
 		FileSystem::Handle Open(const char* path);
-		FileSystem::Handle Open(const std::filesystem::path& path);
+		FileSystem::Handle Open(const Path& path);
 
 		uint32_t GetSize(FileSystem::Handle handle);
 		uint32_t GetOffset(FileSystem::Handle handle);
@@ -73,7 +108,7 @@ namespace hod
 
 		bool Close(FileSystem::Handle& handle);
 
-		std::filesystem::path GenerateTemporaryFilePath() const;
+		Path GenerateTemporaryFilePath() const;
 
 	private:
 #if defined(PLATFORM_ANDROID)

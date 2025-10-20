@@ -17,7 +17,7 @@ namespace hod
 {
 	/// @brief
 	/// @param directory
-	void ResourceManager::SetResourceDirectory(const std::filesystem::path& directory)
+	void ResourceManager::SetResourceDirectory(const Path& directory)
 	{
 		_directory = directory;
 	}
@@ -42,8 +42,8 @@ namespace hod
 	/// @return
 	bool ResourceManager::Load(Resource* resource, const UID& uid)
 	{
-		std::filesystem::path path = _directory;
-		path /= (uid.ToString() + ".dat").CStr(); // todo remove Cstr when remove std::filesystem::path
+		Path path = _directory;
+		path /= (uid.ToString() + ".dat").CStr(); // todo remove Cstr when remove Path
 
 		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
 		if (fileHandle.IsOpen() == false)

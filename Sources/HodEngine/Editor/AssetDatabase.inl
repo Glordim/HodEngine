@@ -1,9 +1,9 @@
 
 namespace hod::editor
 {
-	/// @brief 
-	/// @tparam _Importer_ 
-	/// @return 
+	/// @brief
+	/// @tparam _Importer_
+	/// @return
 	template<typename _Importer_>
 	bool AssetDatabase::RegisterImporter()
 	{
@@ -13,14 +13,14 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
-	/// @tparam _Object_ 
-	/// @param path 
-	/// @return 
+	/// @brief
+	/// @tparam _Object_
+	/// @param path
+	/// @return
 	template<typename _Object_, typename _Importer_>
-	std::filesystem::path AssetDatabase::CreateAsset(const std::filesystem::path& path)
+	Path AssetDatabase::CreateAsset(const Path& path)
 	{
-		_Object_ object;
+		_Object_   object;
 		_Importer_ importer;
 		return CreateAsset(&object, &_Object_::GetReflectionDescriptor(), importer.AllocateSettings(), importer.GetTypeName(), path);
 	}

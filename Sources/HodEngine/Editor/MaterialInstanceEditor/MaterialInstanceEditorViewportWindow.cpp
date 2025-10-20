@@ -8,33 +8,34 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/Helper.hpp>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
-#include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
+#include "HodEngine/Game/Entity.hpp"
 
-#include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Game/ComponentFactory.hpp"
 
-#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
-#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
+#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 
+#include <algorithm>
 #include <cmath>
 
 namespace hod::editor
@@ -44,8 +45,8 @@ namespace hod::editor
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	/// @param editorTab 
+	/// @brief
+	/// @param editorTab
 	MaterialInstanceEditorViewportWindow::MaterialInstanceEditorViewportWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
@@ -55,13 +56,13 @@ namespace hod::editor
 		_renderView.Init();
 	}
 
-	/// @brief 
+	/// @brief
 	MaterialInstanceEditorViewportWindow::~MaterialInstanceEditorViewportWindow()
 	{
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 	}
 
-	/// @brief 
+	/// @brief
 	bool MaterialInstanceEditorViewportWindow::Draw()
 	{
 		bool open = true;
@@ -77,7 +78,7 @@ namespace hod::editor
 		return open;
 	}
 
-	/// @brief 
+	/// @brief
 	void MaterialInstanceEditorViewportWindow::DrawContent()
 	{
 		std::shared_ptr<hod::renderer::MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
@@ -91,9 +92,8 @@ namespace hod::editor
 
 				resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
 				resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
-				
-				if (_renderTarget->GetResolution().GetX() != resolutionWidth ||
-					_renderTarget->GetResolution().GetY() != resolutionHeight)
+
+				if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 				{
 					renderer::Texture::CreateInfo createInfo;
 
@@ -134,12 +134,12 @@ namespace hod::editor
 						Vector2(0, 1),
 					};
 
-					static std::array<uint16_t, 3*2> indices = {
-						0, 1, 2,
-						0, 2, 3,
+					static std::array<uint16_t, 3 * 2> indices = {
+						0, 1, 2, 0, 2, 3,
 					};
 
-					renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, materialInstance, 0);
+					renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+						vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, materialInstance, 0);
 					_renderView.PushRenderCommand(renderMeshCommand);
 
 					renderer::Renderer::GetInstance()->PushRenderView(_renderView, false);

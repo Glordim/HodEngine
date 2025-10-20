@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
 #include <HodEngine/Core/Module/Module.hpp>
@@ -24,8 +24,8 @@ namespace hod::editor
 		_Singleton(Project)
 
 	public:
-		bool Create(const std::filesystem::path& directory);
-		bool Open(const std::filesystem::path& projectPath);
+		bool Create(const Path& directory);
+		bool Open(const Path& projectPath);
 
 		bool Load();
 		bool Save();
@@ -35,14 +35,14 @@ namespace hod::editor
 
 		const String GetName() const;
 
-		const std::filesystem::path& GetProjectPath() const;
-		const std::filesystem::path& GetAssetDirPath() const;
-		const std::filesystem::path& GetResourceDirPath() const;
-		const std::filesystem::path& GetThumbnailDirPath() const;
-		const std::filesystem::path& GetBuildsDirPath() const;
+		const Path& GetProjectPath() const;
+		const Path& GetAssetDirPath() const;
+		const Path& GetResourceDirPath() const;
+		const Path& GetThumbnailDirPath() const;
+		const Path& GetBuildsDirPath() const;
 
-		bool                  HasGameModule() const;
-		std::filesystem::path GetGameModulePath() const;
+		bool HasGameModule() const;
+		Path GetGameModulePath() const;
 
 		bool GenerateGameModuleCMakeList() const;
 		bool ConfigureGameModule() const;
@@ -50,14 +50,14 @@ namespace hod::editor
 
 		bool ReloadGameModule();
 
-		bool CreateMinimalSourceForModule(const std::filesystem::path& directory);
+		bool CreateMinimalSourceForModule(const Path& directory);
 
 	private:
-		std::filesystem::path _projectPath;
-		std::filesystem::path _assetDirPath;
-		std::filesystem::path _resourceDirPath;
-		std::filesystem::path _thumbnailDirPath;
-		std::filesystem::path _buildsDirPath;
+		Path _projectPath;
+		Path _assetDirPath;
+		Path _resourceDirPath;
+		Path _thumbnailDirPath;
+		Path _buildsDirPath;
 
 		String _name;
 		UID    _startupScene;

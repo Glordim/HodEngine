@@ -1,4 +1,5 @@
 #include "HodEngine/Window/Pch.hpp"
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #include <Windows.h>
@@ -8,7 +9,7 @@ namespace hod::window
 {
 	/// @brief
 	/// @return
-	std::filesystem::path GetOpenFileDialog()
+	Path GetOpenFileDialog()
 	{
 		char buffer[4096] = {'\0'};
 
@@ -32,7 +33,7 @@ namespace hod::window
 
 	/// @brief
 	/// @return
-	std::filesystem::path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const std::filesystem::path& initialFolder)
+	Path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const Path& initialFolder)
 	{
 		char buffer[4096] = {'\0'};
 
@@ -43,7 +44,7 @@ namespace hod::window
 		strcpy(filter, typeName.data());
 		strcpy(filter + typeName.size() + 1, typeExtension.data());
 
-		String initialFolderPath = initialFolder.string().c_str();
+		String initialFolderPath = initialFolder.GetString().CStr();
 
 		OPENFILENAMEA openFileName;
 		ZeroMemory(&openFileName, sizeof(openFileName));
@@ -55,7 +56,7 @@ namespace hod::window
 		openFileName.nFilterIndex = 1;
 		openFileName.lpstrFileTitle = NULL;
 		openFileName.nMaxFileTitle = 0;
-		if (initialFolder.empty() == true)
+		if (initialFolder.Empty() == true)
 		{
 			openFileName.lpstrInitialDir = NULL;
 		}
@@ -72,7 +73,7 @@ namespace hod::window
 
 	/// @brief
 	/// @return
-	std::filesystem::path GetFolderDialog()
+	Path GetFolderDialog()
 	{
 		char        buffer[MAX_PATH] = {'\0'};
 		BROWSEINFOA browseInfo;
@@ -93,20 +94,20 @@ namespace hod::window
 			return dirPaths;
 		}
 
-		return std::filesystem::path();
+		return Path();
 	}
 
 	/// @brief
 	/// @param path
-	void OpenExplorerAtPath(const std::filesystem::path& path)
+	void OpenExplorerAtPath(const Path& path)
 	{
-		if (std::filesystem::is_directory(path))
+		if (FileSystem::GetInstance()->IsDirectory(path))
 		{
-			ShellExecute(NULL, "open", path.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+			ShellExecute(NULL, "open", path.GetString().CStr(), NULL, NULL, SW_SHOWDEFAULT);
 		}
-		else if (std::filesystem::is_regular_file(path))
+		else if (FileSystem::GetInstance()->IsRegularFile(path))
 		{
-			String param = String::Format("/select,\"%s\"", path.string().c_str());
+			String param = String::Format("/select,\"%s\"", path.GetString().CStr());
 			ShellExecute(NULL, "open", "explorer.exe", param.CStr(), NULL, SW_SHOWDEFAULT);
 		}
 		else

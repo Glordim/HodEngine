@@ -11,6 +11,7 @@
 #include "HodEngine/Core/UID.hpp"
 
 #include <fstream>
+#include <sstream>
 
 namespace hod::editor
 {
@@ -22,9 +23,9 @@ namespace hod::editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool Importer::CanImport(const std::filesystem::path& path)
+	bool Importer::CanImport(const Path& path)
 	{
-		String extension = path.extension().string().substr(1).c_str();
+		String extension = path.Extension().GetString().SubStr(1);
 		for (char& c : extension)
 		{
 			c = static_cast<char>(std::tolower((int)c));
@@ -43,9 +44,9 @@ namespace hod::editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool Importer::Import(const std::filesystem::path& path)
+	bool Importer::Import(const Path& path)
 	{
-		std::filesystem::path metaFilePath = path;
+		Path metaFilePath = path;
 		metaFilePath += ".meta";
 
 		FileSystem::Handle metaFileHandle = FileSystem::GetInstance()->Open(metaFilePath);
@@ -106,10 +107,10 @@ namespace hod::editor
 
 		Project* project = Project::GetInstance();
 
-		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString().CStr();
+		Path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString().CStr();
 		thumbnailFilePath += ".png";
 
-		std::ofstream thumbnailFile(thumbnailFilePath, std::ios::binary);
+		std::ofstream thumbnailFile(thumbnailFilePath.GetString().CStr(), std::ios::binary);
 		if (thumbnailFile.is_open() == false)
 		{
 			// TODO output reason
@@ -124,10 +125,10 @@ namespace hod::editor
 		Vector<Resource::Data> datas;
 		bool                   result = WriteResource(dataFile, metaFileHandle, document, datas, thumbnailFile, *meta._importerSettings);
 
-		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString().CStr();
+		Path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString().CStr();
 		resourceFilePath += ".dat";
 
-		std::ofstream resourceFile(resourceFilePath, std::ios::binary);
+		std::ofstream resourceFile(resourceFilePath.GetString().CStr(), std::ios::binary);
 		if (resourceFile.is_open() == false)
 		{
 			// TODO output reason
@@ -176,9 +177,9 @@ namespace hod::editor
 	/// @brief
 	/// @param metaFilePath
 	/// @return
-	bool Importer::GenerateNewMeta(const std::filesystem::path& metaFilePath)
+	bool Importer::GenerateNewMeta(const Path& metaFilePath)
 	{
-		std::ofstream metaFile(metaFilePath);
+		std::ofstream metaFile(metaFilePath.GetString().CStr());
 		if (metaFile.is_open() == true)
 		{
 			Meta meta;

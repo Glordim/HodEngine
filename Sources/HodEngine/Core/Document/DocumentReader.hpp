@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Export.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 #include <istream>
 #include <stdint.h>
 
@@ -24,7 +24,7 @@ namespace hod
 		DocumentReader& operator=(DocumentReader&&) = delete;
 
 	public:
-		bool Read(Document& document, const std::filesystem::path& path);
+		bool Read(Document& document, const Path& path);
 		bool Read(Document& document, FileSystem::Handle& fileHandle, uint32_t size = 0);
 		bool Read(Document& document, const char* buffer, uint32_t size);
 

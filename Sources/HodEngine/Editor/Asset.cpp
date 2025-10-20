@@ -26,10 +26,10 @@ namespace hod::editor
 	}
 
 	/// @brief
-	Asset::Asset(const std::filesystem::path& path)
+	Asset::Asset(const Path& path)
 	: _path(path)
 	{
-		_name = _path.stem().string();
+		_name = _path.Stem().GetString();
 		_meta._uid = UID::GenerateUID();
 
 		_meta._importerSettings = AssetDatabase::GetInstance()->GetDefaultImporter().AllocateSettings();
@@ -43,10 +43,10 @@ namespace hod::editor
 
 	/// @brief
 	/// @param path
-	void Asset::SetPath(const std::filesystem::path& path)
+	void Asset::SetPath(const Path& path)
 	{
 		_path = path;
-		_name = path.stem().string();
+		_name = path.Stem().GetString();
 	}
 
 	/// @brief
@@ -62,17 +62,17 @@ namespace hod::editor
 	/// @return
 	bool Asset::Load()
 	{
-		std::filesystem::path metaPath = _path;
+		Path metaPath = _path;
 		metaPath += ".meta";
 
-		if (std::filesystem::exists(metaPath) == false)
+		if (FileSystem::GetInstance()->Exists(metaPath) == false)
 		{
 			// TODO generate new meta if not exist
 			if (AssetDatabase::GetInstance()->Import(_path) == false)
 			{
 				return false;
 			}
-			if (std::filesystem::exists(metaPath) == false)
+			if (FileSystem::GetInstance()->Exists(metaPath) == false)
 			{
 				return false;
 			}
@@ -97,8 +97,8 @@ namespace hod::editor
 
 		AssetDatabase::GetInstance()->ReimportAssetIfNecessary(shared_from_this());
 
-		Project*              project = Project::GetInstance();
-		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / _meta._uid.ToString().CStr();
+		Project* project = Project::GetInstance();
+		Path     thumbnailFilePath = project->GetThumbnailDirPath() / _meta._uid.ToString().CStr();
 		thumbnailFilePath += ".png";
 
 		if (_thumbnail != nullptr)
@@ -108,7 +108,7 @@ namespace hod::editor
 		}
 
 		_thumbnail = renderer::Renderer::GetInstance()->CreateTexture();
-		if (_thumbnail->LoadFromPath(thumbnailFilePath.string().c_str()) == false)
+		if (_thumbnail->LoadFromPath(thumbnailFilePath.GetString().CStr()) == false)
 		{
 			DefaultAllocator::GetInstance().Delete(_thumbnail);
 			_thumbnail = nullptr;
@@ -140,7 +140,7 @@ namespace hod::editor
 			return false;
 		}
 
-		std::filesystem::path metaPath = _path;
+		Path metaPath = _path;
 		metaPath += ".meta";
 
 		DocumentWriterJson documentWriter;
@@ -176,7 +176,7 @@ namespace hod::editor
 
 	/// @brief
 	/// @return
-	const std::filesystem::path& Asset::GetPath() const
+	const Path& Asset::GetPath() const
 	{
 		return _path;
 	}

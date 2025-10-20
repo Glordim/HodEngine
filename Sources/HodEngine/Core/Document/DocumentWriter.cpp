@@ -12,9 +12,9 @@ namespace hod
 	/// @param document
 	/// @param path
 	/// @return
-	bool DocumentWriter::Write(Document& document, const std::filesystem::path& path)
+	bool DocumentWriter::Write(Document& document, const Path& path)
 	{
-		std::ofstream fileStream(path);
+		std::ofstream fileStream(path.GetString().CStr());
 		return Write(document, fileStream);
 	}
 

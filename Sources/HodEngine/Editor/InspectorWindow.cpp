@@ -33,6 +33,7 @@
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/PrefabUtility.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace hod::editor

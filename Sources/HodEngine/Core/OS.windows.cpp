@@ -7,7 +7,7 @@
 #include <DbgHelp.h>
 #include <shellapi.h>
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 namespace hod
 {
@@ -107,8 +107,8 @@ namespace hod
 		}
 		else
 		{
-			std::filesystem::path modulePath(moduleInfo.ImageName);
-			symbolInfo._module = modulePath.filename().string();
+			Path modulePath(moduleInfo.ImageName);
+			symbolInfo._module = modulePath.Filename().GetString();
 		}
 
 		symbolInfo._address = reinterpret_cast<void*>(win32SymbolInfo->Address);

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
@@ -38,16 +38,16 @@ namespace hod::editor
 	class HOD_EDITOR_API Asset : public std::enable_shared_from_this<Asset>
 	{
 	public:
-		Asset(const std::filesystem::path& path);
+		Asset(const Path& path);
 		~Asset();
 
 		bool Load();
 		bool Save(const void* instance, ReflectionDescriptor* reflectionDescriptor);
 		bool Save();
 
-		const UID&                   GetUid() const;
-		const std::filesystem::path& GetPath() const;
-		const String&                GetName() const;
+		const UID&    GetUid() const;
+		const Path&   GetPath() const;
+		const String& GetName() const;
 
 		Meta& GetMeta();
 
@@ -57,7 +57,7 @@ namespace hod::editor
 		void SetDirty();
 		void ResetDirty();
 
-		void SetPath(const std::filesystem::path& path);
+		void SetPath(const Path& path);
 
 		void SetInstanceToSave(const void* instance, ReflectionDescriptor* reflectionDescriptor);
 
@@ -66,8 +66,8 @@ namespace hod::editor
 
 		Meta _meta;
 
-		String                _name;
-		std::filesystem::path _path;
+		String _name;
+		Path   _path;
 
 		renderer::Texture* _thumbnail = nullptr;
 

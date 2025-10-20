@@ -3,11 +3,11 @@
 
 namespace hod::window
 {
-	/// @brief 
-	/// @return 
-	std::filesystem::path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const std::filesystem::path& initialFolder)
+	/// @brief
+	/// @return
+	Path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const Path& initialFolder)
 	{
-		char buffer[4096] = { '\0' };
+		char buffer[4096] = {'\0'};
 
 		// TODO
 		(void)typeName;
@@ -17,18 +17,18 @@ namespace hod::window
 		return buffer;
 	}
 
-	/// @brief 
-	/// @return 
-	std::filesystem::path GetFolderDialog()
+	/// @brief
+	/// @return
+	Path GetFolderDialog()
 	{
 		// TODO
 
-		return std::filesystem::path();
+		return Path();
 	}
 
-	/// @brief 
-	/// @param path 
-	void OpenExplorerAtPath(const std::filesystem::path& path)
+	/// @brief
+	/// @param path
+	void OpenExplorerAtPath(const Path& path)
 	{
 		// TODO
 		(void)path;

@@ -7,7 +7,7 @@ namespace hod
 {
 	/// @brief
 	/// @return
-	bool Module::InternalLoad(const std::filesystem::path& path)
+	bool Module::InternalLoad(const Path& path)
 	{
 		_sharedLib = dlopen(path.string().c_str(), RTLD_LAZY);
 		if (_sharedLib == nullptr)

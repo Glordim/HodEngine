@@ -37,11 +37,11 @@ namespace hod::editor
 	/// @brief
 	ProjectBrowser::ProjectBrowser()
 	{
-		std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
+		Path projectsPath = FileSystem::GetUserSettingsPath();
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("Project.json");
 
-		if (std::filesystem::exists(projectsPath) == true)
+		if (FileSystem::GetInstance()->Exists(projectsPath) == true)
 		{
 			Document           document;
 			DocumentReaderJson jsonReader;
@@ -73,9 +73,9 @@ namespace hod::editor
 				auto result = dialog.result();
 				if (result.empty() == false)
 				{
-					std::filesystem::path path = result[0];
-					// std::filesystem::path path = window::GetOpenFileDialog();
-					if (path.empty() == false)
+					Path path = result[0].c_str();
+					// Path path = window::GetOpenFileDialog();
+					if (path.Empty() == false)
 					{
 						Editor::GetInstance()->OpenProject(path);
 					}
@@ -87,8 +87,8 @@ namespace hod::editor
 			ImGui::PopStyleColor(1);
 			if (newProjectButtonClicked == true)
 			{
-				std::filesystem::path path = window::GetFolderDialog();
-				if (path.empty() == false)
+				Path path = window::GetFolderDialog();
+				if (path.Empty() == false)
 				{
 					Editor::GetInstance()->CreateProject(path);
 				}
@@ -109,9 +109,9 @@ namespace hod::editor
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					std::filesystem::path path(it->CStr());
+					Path path(it->CStr());
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(path.stem().string().c_str());
+					ImGui::TextUnformatted(path.Stem().GetString().CStr());
 					ImGui::PushFont(nullptr, ImGui::GetStyle().FontSizeBase * 0.9f);
 					ImGui::BeginDisabled();
 					ImGui::TextUnformatted(it->CStr());
@@ -147,14 +147,14 @@ namespace hod::editor
 					{
 						it = _recentProjects._projectsPath.erase(it);
 
-						std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
+						Path projectsPath = FileSystem::GetUserSettingsPath();
 						projectsPath /= ("HodEngine");
 						projectsPath /= ("Project.json");
 
 						Document writeDocument;
 						Serializer::Serialize(_recentProjects, writeDocument.GetRootNode());
 
-						std::filesystem::create_directories(projectsPath.parent_path());
+						FileSystem::GetInstance()->CreateDirectories(projectsPath.ParentPath());
 						DocumentWriterJson jsonWriter;
 						jsonWriter.Write(writeDocument, projectsPath);
 					}

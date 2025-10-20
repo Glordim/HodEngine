@@ -1,4 +1,4 @@
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include "ArgumentParser.hpp"
 
@@ -10,31 +10,31 @@
 #include "ConverterHLSL.hpp"
 #include "ConverterMetal.hpp"
 
+#include <format>
 #include <fstream>
 #include <iomanip>
-#include <format>
 #include <iostream>
 
 #include "Target.hpp"
 
 #if defined(PLATFORM_WINDOWS)
-#include <Windows.h> // TODO create Processus class in Core lib
+	#include <Windows.h> // TODO create Processus class in Core lib
 #elif defined(PLATFORM_MACOS)
-#include <spawn.h>
-#include <unistd.h>
+	#include <spawn.h>
+	#include <unistd.h>
 #elif defined(PLATFORM_LINUX)
-#include <sys/wait.h>
-#include <unistd.h>
-#include <string.h> // strerror
+	#include <string.h> // strerror
+	#include <sys/wait.h>
+	#include <unistd.h>
 #endif
 
 namespace hod
 {
-	/// @brief 
-	/// @param inputFile 
-	/// @param outputFile 
-	/// @return 
-	bool ConvertShader(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile, Target target)
+	/// @brief
+	/// @param inputFile
+	/// @param outputFile
+	/// @return
+	bool ConvertShader(const Path& inputFile, const Path& outputFile, Target target)
 	{
 		std::cout << std::format("Convert '{}'...\n", inputFile.string());
 
@@ -56,7 +56,7 @@ namespace hod
 		std::vector<Token> convertedTokens;
 		convertedTokens.reserve(tokens.size());
 
-		std::filesystem::path convertedOutputFilePath = outputFile;
+		Path convertedOutputFilePath = outputFile;
 
 		if (target == Target::Vulkan)
 		{
@@ -97,13 +97,13 @@ namespace hod
 		return true;
 	}
 
-	/// @brief 
-	/// @param inputFile 
-	/// @param outputFile 
-	/// @return 
-	bool CompileShader(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile, Target target)
+	/// @brief
+	/// @param inputFile
+	/// @param outputFile
+	/// @return
+	bool CompileShader(const Path& inputFile, const Path& outputFile, Target target)
 	{
-		std::filesystem::path finalInputFile = inputFile;
+		Path finalInputFile = inputFile;
 
 		if (target == Target::Vulkan)
 		{
@@ -119,15 +119,15 @@ namespace hod
 		}
 
 		bool result = false;
-		
+
 		// TODO create Processus class in Core lib
 #if defined(PLATFORM_WINDOWS)
-		STARTUPINFO si;
+		STARTUPINFO         si;
 		PROCESS_INFORMATION pi;
 
-		ZeroMemory( &si, sizeof(si) );
+		ZeroMemory(&si, sizeof(si));
 		si.cb = sizeof(si);
-		ZeroMemory( &pi, sizeof(pi) );
+		ZeroMemory(&pi, sizeof(pi));
 
 		std::string program = "%VULKAN_SDK%/Bin/glslangValidator.exe";
 
@@ -140,113 +140,115 @@ namespace hod
 		commandLine += ".spirv ";
 		commandLine += finalInputFile.string();
 
-		// Start the child process. 
-		if( !CreateProcess( NULL,   // No module name (use command line)
-			(char*)commandLine.c_str(),// Command line
-			NULL,           // Process handle not inheritable
-			NULL,           // Thread handle not inheritable
-			FALSE,          // Set handle inheritance to FALSE
-			0,              // No creation flags
-			NULL,           // Use parent's environment block
-			NULL,           // Use parent's starting directory 
-			&si,            // Pointer to STARTUPINFO structure
-			&pi )           // Pointer to PROCESS_INFORMATION structure
-		) 
+		// Start the child process.
+		if (!CreateProcess(NULL,                       // No module name (use command line)
+		                   (char*)commandLine.c_str(), // Command line
+		                   NULL,                       // Process handle not inheritable
+		                   NULL,                       // Thread handle not inheritable
+		                   FALSE,                      // Set handle inheritance to FALSE
+		                   0,                          // No creation flags
+		                   NULL,                       // Use parent's environment block
+		                   NULL,                       // Use parent's starting directory
+		                   &si,                        // Pointer to STARTUPINFO structure
+		                   &pi)                        // Pointer to PROCESS_INFORMATION structure
+		)
 		{
 			std::cerr << std::format("CreateProcess failed ({})\n", GetLastError());
 			return false;
 		}
 
 		// Wait until child process exits.
-		WaitForSingleObject( pi.hProcess, INFINITE );
+		WaitForSingleObject(pi.hProcess, INFINITE);
 
-		// Close process and thread handles. 
-		CloseHandle( pi.hProcess );
-		CloseHandle( pi.hThread );
+		// Close process and thread handles.
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
 
 		result = true;
 #elif defined(PLATFORM_MACOS)
 		// Définition des arguments du programme à exécuter
 		std::string inputFileStr = finalInputFile.string();
 		std::string irFileStr = inputFileStr + ".ir";
-        
+
 		{
-            const char *args[] = {"/usr/bin/xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metal", "-o", irFileStr.c_str(), "-c", inputFileStr.c_str(), nullptr};
+			const char* args[] = {"/usr/bin/xcrun",     "-sdk", target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metal", "-o", irFileStr.c_str(), "-c",
+			                      inputFileStr.c_str(), nullptr};
 
-            int argIndex = 0;
-            const char* arg = args[argIndex];
-            while (arg)
-            {
-                std::cout << arg << " ";
+			int         argIndex = 0;
+			const char* arg = args[argIndex];
+			while (arg)
+			{
+				std::cout << arg << " ";
 
-                ++argIndex;
-                arg = args[argIndex];
-            }
-            std::cout << std::endl;
+				++argIndex;
+				arg = args[argIndex];
+			}
+			std::cout << std::endl;
 
-            // Initialiser les attributs de spawn
-            posix_spawnattr_t attr;
-            posix_spawnattr_init(&attr);
+			// Initialiser les attributs de spawn
+			posix_spawnattr_t attr;
+			posix_spawnattr_init(&attr);
 
-            // Démarrer le processus fils
-            pid_t pid;
-            int status = posix_spawn(&pid, args[0], nullptr, &attr, (char* const*)args, NULL);
-            if (status == 0)
-            {
-                std::cout << "Processus lancé avec succès. PID : " << pid << std::endl;
-                // Attendre que le processus fils se termine
-                waitpid(pid, &status, 0);
-                std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
-                result = true;
-            }
-            else
-            {
-                std::cerr << "Erreur lors du lancement du processus : " << strerror(status) << std::endl;
-            }
+			// Démarrer le processus fils
+			pid_t pid;
+			int   status = posix_spawn(&pid, args[0], nullptr, &attr, (char* const*)args, NULL);
+			if (status == 0)
+			{
+				std::cout << "Processus lancé avec succès. PID : " << pid << std::endl;
+				// Attendre que le processus fils se termine
+				waitpid(pid, &status, 0);
+				std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
+				result = true;
+			}
+			else
+			{
+				std::cerr << "Erreur lors du lancement du processus : " << strerror(status) << std::endl;
+			}
 
-            // Libérer les attributs de spawn
-            posix_spawnattr_destroy(&attr);
-        }
-        
-        std::string libFileStr = inputFileStr + ".metallib";
-        
-        {
-            const char *args[] = {"/usr/bin/xcrun", "-sdk",  target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metallib", irFileStr.c_str(), "-o", libFileStr.c_str(), nullptr};
+			// Libérer les attributs de spawn
+			posix_spawnattr_destroy(&attr);
+		}
 
-            int argIndex = 0;
-            const char* arg = args[argIndex];
-            while (arg)
-            {
-                std::cout << arg << " ";
+		std::string libFileStr = inputFileStr + ".metallib";
 
-                ++argIndex;
-                arg = args[argIndex];
-            }
-            std::cout << std::endl;
+		{
+			const char* args[] = {"/usr/bin/xcrun",   "-sdk", target == Target::Metal_MacOS ? "macosx" : "iphoneos", "metallib", irFileStr.c_str(), "-o",
+			                      libFileStr.c_str(), nullptr};
 
-            // Initialiser les attributs de spawn
-            posix_spawnattr_t attr;
-            posix_spawnattr_init(&attr);
+			int         argIndex = 0;
+			const char* arg = args[argIndex];
+			while (arg)
+			{
+				std::cout << arg << " ";
 
-            // Démarrer le processus fils
-            pid_t pid;
-            int status = posix_spawn(&pid, args[0], nullptr, &attr, (char* const*)args, NULL);
-            if (status == 0)
-            {
-                std::cout << "Processus lancé avec succès. PID : " << pid << std::endl;
-                // Attendre que le processus fils se termine
-                waitpid(pid, &status, 0);
-                std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
-                result = true;
-            }
-            else
-            {
-                std::cerr << "Erreur lors du lancement du processus : " << strerror(status) << std::endl;
-            }
+				++argIndex;
+				arg = args[argIndex];
+			}
+			std::cout << std::endl;
 
-            // Libérer les attributs de spawn
-            posix_spawnattr_destroy(&attr);
-        }
+			// Initialiser les attributs de spawn
+			posix_spawnattr_t attr;
+			posix_spawnattr_init(&attr);
+
+			// Démarrer le processus fils
+			pid_t pid;
+			int   status = posix_spawn(&pid, args[0], nullptr, &attr, (char* const*)args, NULL);
+			if (status == 0)
+			{
+				std::cout << "Processus lancé avec succès. PID : " << pid << std::endl;
+				// Attendre que le processus fils se termine
+				waitpid(pid, &status, 0);
+				std::cout << "Le processus fils s'est terminé avec le statut : " << status << std::endl;
+				result = true;
+			}
+			else
+			{
+				std::cerr << "Erreur lors du lancement du processus : " << strerror(status) << std::endl;
+			}
+
+			// Libérer les attributs de spawn
+			posix_spawnattr_destroy(&attr);
+		}
 #elif defined(PLATFORM_LINUX)
 		pid_t pid = fork(); // Crée un nouveau processus
 		if (pid == -1)
@@ -259,9 +261,9 @@ namespace hod
 		{
 			std::string strOutputFile = finalInputFile.string() + ".spirv";
 			std::string strInputFile = finalInputFile.string();
-			const char *argv[] = {"glslangValidator", "-Od", "--target-env", "vulkan1.3", "-o", strOutputFile.c_str(), strInputFile.c_str(), nullptr};
+			const char* argv[] = {"glslangValidator", "-Od", "--target-env", "vulkan1.3", "-o", strOutputFile.c_str(), strInputFile.c_str(), nullptr};
 
-			execvp(argv[0], (char *const *)argv);
+			execvp(argv[0], (char* const*)argv);
 			std::cerr << "Exec failed" << std::endl;
 			return 1;
 		}
@@ -282,18 +284,18 @@ namespace hod
 			}
 		}
 #else
-		#error
+	#error
 #endif
 		return result;
 	}
 
-	/// @brief 
-	/// @param inputFile 
-	/// @param outputFile 
-	/// @return 
-	bool EmbeedInSource(const std::filesystem::path& inputFile, const std::filesystem::path& outputFile, Target target)
+	/// @brief
+	/// @param inputFile
+	/// @param outputFile
+	/// @return
+	bool EmbeedInSource(const Path& inputFile, const Path& outputFile, Target target)
 	{
-		std::filesystem::path finalInputFile = inputFile;
+		Path finalInputFile = inputFile;
 
 		if (target == Target::Vulkan)
 		{
@@ -315,7 +317,7 @@ namespace hod
 			return false;
 		}
 
-		std::filesystem::path headerOutputFilePath = outputFile;
+		Path headerOutputFilePath = outputFile;
 		headerOutputFilePath += ".hpp";
 
 		std::ofstream headerOutputStream(headerOutputFilePath);
@@ -335,9 +337,9 @@ namespace hod
 		headerOutputStream << "\textern uint8_t " << identifier << "[];\n";
 		headerOutputStream << "\textern uint32_t " << identifier << "_size;\n";
 		headerOutputStream << "}\n";
-		//headerOutputStream.Close();
+		// headerOutputStream.Close();
 
-		std::filesystem::path sourceOutputFilePath = outputFile;
+		Path sourceOutputFilePath = outputFile;
 		sourceOutputFilePath += ".cpp";
 
 		std::ofstream sourceOutputStream(sourceOutputFilePath);
@@ -352,16 +354,16 @@ namespace hod
 		sourceOutputStream << "{\n";
 		sourceOutputStream << "\tuint8_t " << identifier << "[] = {\n\t\t";
 
-		int count = 0;
+		int  count = 0;
 		char value;
 		while (inputStream.get(value))
 		{
-			//std::stringstream stream;
-			//stream << "0x";
-         	//stream << std::setfill ('0') << std::setw(sizeof(value)*2);
-         	//stream << std::hex << i;
-			//stream << std::hex << static_cast<uint8_t>(value);//std::to_string(static_cast<uint8_t>(value));
-			//sourceOutputStream << stream.str();
+			// std::stringstream stream;
+			// stream << "0x";
+			// stream << std::setfill ('0') << std::setw(sizeof(value)*2);
+			// stream << std::hex << i;
+			// stream << std::hex << static_cast<uint8_t>(value);//std::to_string(static_cast<uint8_t>(value));
+			// sourceOutputStream << stream.str();
 			sourceOutputStream << std::format("0x{:02X}", static_cast<uint8_t>(value));
 			sourceOutputStream << ", ";
 			++count;
@@ -375,20 +377,20 @@ namespace hod
 		sourceOutputStream << "\n\t};\n";
 		sourceOutputStream << "\tuint32_t " << identifier << "_size = sizeof(" << identifier << ");\n";
 		sourceOutputStream << "}\n";
-		//sourceOutputStream.Close();
+		// sourceOutputStream.Close();
 
 		return true;
 	}
 
-	/// @brief 
-	/// @param argc 
-	/// @param argv 
-	/// @return 
+	/// @brief
+	/// @param argc
+	/// @param argv
+	/// @return
 	bool Run(int argc, char** argv)
 	{
 		ArgumentParser argumentParser(argc, argv);
-		
-		std::filesystem::path inputDirectory = std::filesystem::current_path();
+
+		Path inputDirectory = std::filesystem::current_path();
 
 		const Argument* inputArgument = argumentParser.GetArgument('i', "input");
 		if (inputArgument != nullptr)
@@ -413,7 +415,7 @@ namespace hod
 		}
 		std::cout << std::format("Input '{}'\n", inputDirectory.string());
 
-		std::filesystem::path outputDirectory = std::filesystem::current_path();
+		Path outputDirectory = std::filesystem::current_path();
 
 		const hod::Argument* outputArgument = argumentParser.GetArgument('o', "output");
 		if (outputArgument != nullptr)
@@ -446,7 +448,7 @@ namespace hod
 #elif defined(PLATFORM_MACOS)
 		Target target = Target::Metal_MacOS;
 #else
-		#error
+	#error
 #endif
 		const hod::Argument* targetArgument = argumentParser.GetArgument('t', "target");
 		if (targetArgument != nullptr)
@@ -492,7 +494,7 @@ namespace hod
 #elif defined(PLATFORM_LINUX)
 		if (target != Target::Vulkan)
 #else
-		#error
+	#error
 #endif
 		{
 			std::cerr << "Target unavailable on  this platform\n";
@@ -531,10 +533,10 @@ namespace hod
 	}
 }
 
-/// @brief 
-/// @param argc 
-/// @param argv 
-/// @return 
+/// @brief
+/// @param argc
+/// @param argv
+/// @return
 int main(int argc, char** argv)
 {
 	if (hod::Run(argc, argv) == false)

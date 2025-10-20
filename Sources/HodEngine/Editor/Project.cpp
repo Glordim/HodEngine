@@ -44,15 +44,15 @@ namespace hod::editor
 	/// @brief
 	/// @param directory
 	/// @return
-	bool Project::Create(const std::filesystem::path& directory)
+	bool Project::Create(const Path& directory)
 	{
-		if (std::filesystem::exists(directory) == false && std::filesystem::create_directories(directory) == false)
+		if (FileSystem::GetInstance()->Exists(directory) == false && FileSystem::GetInstance()->CreateDirectories(directory) == false)
 		{
 			return false;
 		}
 
-		_projectPath = directory / (directory.filename().string() + ".hod");
-		_name = _projectPath.stem().string();
+		_projectPath = directory / (directory.Filename().GetString() + ".hod");
+		_name = _projectPath.Stem().GetString();
 
 		if (CreateMinimalSourceForModule(directory) == false)
 		{
@@ -64,21 +64,20 @@ namespace hod::editor
 
 	/// @brief
 	/// @return
-	bool Project::CreateMinimalSourceForModule(const std::filesystem::path& directory)
+	bool Project::CreateMinimalSourceForModule(const Path& directory)
 	{
-		std::filesystem::path sourcesDirPath = directory / "Sources";
-		std::filesystem::path sourcesComponentsDirPath = sourcesDirPath / "Components";
-		if (std::filesystem::exists(sourcesDirPath) == false && std::filesystem::create_directory(sourcesDirPath) == false)
+		Path sourcesDirPath = directory / "Sources";
+		Path sourcesComponentsDirPath = sourcesDirPath / "Components";
+		if (FileSystem::GetInstance()->Exists(sourcesDirPath) == false && FileSystem::GetInstance()->CreateDirectories(sourcesDirPath) == false)
 		{
 			return false;
 		}
-		if (std::filesystem::exists(sourcesComponentsDirPath) == false && std::filesystem::create_directory(sourcesComponentsDirPath) == false)
+		if (FileSystem::GetInstance()->Exists(sourcesComponentsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(sourcesComponentsDirPath) == false)
 		{
 			return false;
 		}
 
-		std::function<bool(const std::filesystem::path&, std::string_view, const String&)> writeFileFunc =
-			[](const std::filesystem::path& path, std::string_view contentIn, const String& projectName)
+		std::function<bool(const Path&, std::string_view, const String&)> writeFileFunc = [](const Path& path, std::string_view contentIn, const String& projectName)
 		{
 			String content(contentIn);
 
@@ -114,17 +113,17 @@ namespace hod::editor
 			{
 				std::ofstream fileStream;
 				fileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-				fileStream.open(path, std::ios_base::trunc);
+				fileStream.open(path.CStr(), std::ios_base::trunc);
 				fileStream.write(content.CStr(), content.Size());
 				fileStream.close();
 
-				OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path.string().c_str());
+				OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path);
 
 				return true;
 			}
 			catch (const std::ios_base::failure& e)
 			{
-				OUTPUT_ERROR("Failed to generate MinimalSourceForModule at {} : {}", path.string().c_str(), e.what());
+				OUTPUT_ERROR("Failed to generate MinimalSourceForModule at {} : {}", path, e.what());
 				return false;
 			}
 		};
@@ -155,51 +154,51 @@ namespace hod::editor
 	/// @brief
 	/// @param projectPath
 	/// @return
-	bool Project::Open(const std::filesystem::path& projectPath)
+	bool Project::Open(const Path& projectPath)
 	{
-		if (std::filesystem::exists(projectPath) == false)
+		if (FileSystem::GetInstance()->Exists(projectPath) == false)
 		{
-			OUTPUT_ERROR("Project::Open fail: {} doesn't exist", projectPath.string());
+			OUTPUT_ERROR("Project::Open fail: {} doesn't exist", projectPath);
 			return false;
 		}
 
-		if (FileSystem::SetWorkingDirectory(projectPath.parent_path()) == false)
+		if (FileSystem::SetWorkingDirectory(projectPath.ParentPath()) == false)
 		{
 			return false;
 		}
 
 		_projectPath = projectPath;
-		_name = _projectPath.stem().string();
+		_name = _projectPath.Stem().GetString();
 
-		_assetDirPath = _projectPath.parent_path() / "Assets";
-		if (std::filesystem::exists(_assetDirPath) == false && std::filesystem::create_directory(_assetDirPath) == false)
+		_assetDirPath = _projectPath.ParentPath() / "Assets";
+		if (FileSystem::GetInstance()->Exists(_assetDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_assetDirPath) == false)
 		{
 			return false;
 		}
 
-		_resourceDirPath = _projectPath.parent_path() / "Generated" / "Resources";
-		if (std::filesystem::exists(_resourceDirPath) == false && std::filesystem::create_directories(_resourceDirPath) == false)
+		_resourceDirPath = _projectPath.ParentPath() / "Generated" / "Resources";
+		if (FileSystem::GetInstance()->Exists(_resourceDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_resourceDirPath) == false)
 		{
 			return false;
 		}
 
-		_thumbnailDirPath = _projectPath.parent_path() / "Generated" / "Thumbnails";
-		if (std::filesystem::exists(_thumbnailDirPath) == false && std::filesystem::create_directories(_thumbnailDirPath) == false)
+		_thumbnailDirPath = _projectPath.ParentPath() / "Generated" / "Thumbnails";
+		if (FileSystem::GetInstance()->Exists(_thumbnailDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_thumbnailDirPath) == false)
 		{
 			return false;
 		}
 
-		_buildsDirPath = _projectPath.parent_path() / "Builds";
-		if (std::filesystem::exists(_buildsDirPath) == false && std::filesystem::create_directories(_buildsDirPath) == false)
+		_buildsDirPath = _projectPath.ParentPath() / "Builds";
+		if (FileSystem::GetInstance()->Exists(_buildsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_buildsDirPath) == false)
 		{
 			return false;
 		}
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule.Init(_projectPath.parent_path() / "build" / "Release" / _name.CStr(), true);
-		std::filesystem::create_directories(_gameModule.GetPath().parent_path());
-		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const std::filesystem::path&) { _gameModule.Reload(); }, nullptr);
+		_gameModule.Init(_projectPath.ParentPath() / "build" / "Release" / _name.CStr(), true);
+		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
+		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr);
 		_gameModuleFileSystemWatcher.RegisterUpdateJob();
 
 		return Load();
@@ -255,35 +254,35 @@ namespace hod::editor
 
 	/// @brief
 	/// @return
-	const std::filesystem::path& Project::GetProjectPath() const
+	const Path& Project::GetProjectPath() const
 	{
 		return _projectPath;
 	}
 
 	/// @brief
 	/// @return
-	const std::filesystem::path& Project::GetAssetDirPath() const
+	const Path& Project::GetAssetDirPath() const
 	{
 		return _assetDirPath;
 	}
 
 	/// @brief
 	/// @return
-	const std::filesystem::path& Project::GetResourceDirPath() const
+	const Path& Project::GetResourceDirPath() const
 	{
 		return _resourceDirPath;
 	}
 
 	/// @brief
 	/// @return
-	const std::filesystem::path& Project::GetThumbnailDirPath() const
+	const Path& Project::GetThumbnailDirPath() const
 	{
 		return _thumbnailDirPath;
 	}
 
 	/// @brief
 	/// @return
-	const std::filesystem::path& Project::GetBuildsDirPath() const
+	const Path& Project::GetBuildsDirPath() const
 	{
 		return _buildsDirPath;
 	}
@@ -292,12 +291,12 @@ namespace hod::editor
 	/// @return
 	bool Project::HasGameModule() const
 	{
-		return std::filesystem::exists(_gameModule.GetPath());
+		return FileSystem::GetInstance()->Exists(_gameModule.GetPath());
 	}
 
 	/// @brief
 	/// @return
-	std::filesystem::path Project::GetGameModulePath() const
+	Path Project::GetGameModulePath() const
 	{
 		return _gameModule.GetPath();
 	}
@@ -308,7 +307,7 @@ namespace hod::editor
 	{
 		String cmakeLists(CMakeLists_txt);
 
-		String enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string().c_str(); // todo...
+		String enginePath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath().GetString().CStr(); // todo...
 #if defined(PLATFORM_WINDOWS)
 		// CMakeLists require portable path
 		for (char& c : enginePath)
@@ -345,23 +344,23 @@ namespace hod::editor
 			replaceIndex = cmakeLists.Find(projectExportTag);
 		}
 
-		std::filesystem::path path = _projectPath.parent_path() / "CMakeLists.txt";
+		Path path = _projectPath.ParentPath() / "CMakeLists.txt";
 
 		try
 		{
 			std::ofstream cmakeListFileStream;
 			cmakeListFileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-			cmakeListFileStream.open(path, std::ios_base::trunc);
+			cmakeListFileStream.open(path.CStr(), std::ios_base::trunc);
 			cmakeListFileStream.write(cmakeLists.CStr(), cmakeLists.Size());
 			cmakeListFileStream.close();
 
-			OUTPUT_MESSAGE("CMakeLists.txt generated at {}", path.string().c_str());
+			OUTPUT_MESSAGE("CMakeLists.txt generated at {}", path);
 
 			return true;
 		}
 		catch (const std::ios_base::failure& e)
 		{
-			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {} : {}", path.string().c_str(), e.what());
+			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {} : {}", path, e.what());
 			return false;
 		}
 	}
@@ -371,28 +370,28 @@ namespace hod::editor
 	/// @return
 	bool Project::ConfigureGameModule() const
 	{
-		std::filesystem::path gameModuleSourceDirectoryPath = _projectPath.parent_path();
-		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
+		Path gameModuleSourceDirectoryPath = _projectPath.ParentPath();
+		Path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 
 		try
 		{
-			if (std::filesystem::exists(gameModuleBuildDirectoryPath) == false)
+			if (FileSystem::GetInstance()->Exists(gameModuleBuildDirectoryPath) == false)
 			{
-				std::filesystem::create_directory(gameModuleBuildDirectoryPath);
-				OUTPUT_MESSAGE("Create Build directory at {}", gameModuleBuildDirectoryPath.string());
+				FileSystem::GetInstance()->CreateDirectories(gameModuleBuildDirectoryPath);
+				OUTPUT_MESSAGE("Create Build directory at {}", gameModuleBuildDirectoryPath);
 			}
 			else
 			{
-				OUTPUT_MESSAGE("Build directory already exist at {}", gameModuleBuildDirectoryPath.string());
+				OUTPUT_MESSAGE("Build directory already exist at {}", gameModuleBuildDirectoryPath);
 			}
 		}
 		catch (const std::exception& e)
 		{
-			OUTPUT_MESSAGE("Failed to create Build directory at {} : ", gameModuleBuildDirectoryPath.string(), e.what());
+			OUTPUT_MESSAGE("Failed to create Build directory at {} : ", gameModuleBuildDirectoryPath, e.what());
 			return false;
 		}
 
-		std::filesystem::path toolchainPath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path();
+		Path toolchainPath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath();
 
 #if defined(PLATFORM_WINDOWS)
 		const char* generator = "Visual Studio 17 2022";
@@ -407,8 +406,8 @@ namespace hod::editor
 	#error
 #endif
 
-		String arguments = std::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G \"{}\"", toolchainPath.string(),
-		                               gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator)
+		String arguments = std::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G \"{}\"", toolchainPath, gameModuleBuildDirectoryPath,
+		                               gameModuleSourceDirectoryPath, generator)
 		                       .c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
@@ -422,11 +421,11 @@ namespace hod::editor
 	/// @return
 	bool Project::BuildGameModule() const
 	{
-		std::filesystem::path gameModuleSourceDirectoryPath = _projectPath.parent_path();
-		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
+		Path gameModuleSourceDirectoryPath = _projectPath.ParentPath();
+		Path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 
 		const char* config = "Release";
-		String      arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount()).c_str();
+		String      arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath, config, SystemInfo::GetLogicalCoreCount()).c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{

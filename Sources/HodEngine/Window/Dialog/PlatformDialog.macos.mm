@@ -7,7 +7,7 @@ namespace hod::window
 {
 	/// @brief 
 	/// @return 
-	std::filesystem::path GetOpenFileDialog()
+	Path GetOpenFileDialog()
 	{
 		NSOpenPanel *panel = [NSOpenPanel openPanel];
     
@@ -26,6 +26,6 @@ namespace hod::window
 			NSLog(@"Selected directory: %@", path);
 		}
 
-		return std::filesystem::path();
+		return Path();
 	}
 }

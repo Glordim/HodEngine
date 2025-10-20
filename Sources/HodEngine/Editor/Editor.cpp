@@ -64,6 +64,8 @@
 
 #include <HodEngine/Game/BootInfo.hpp>
 
+#include <filesystem> // todo remove
+
 #undef max
 #undef min
 
@@ -194,7 +196,7 @@ namespace hod::editor
 		for (const char* moduleName : editorModules)
 		{
 			Module* module = DefaultAllocator::GetInstance().New<Module>();
-			module->Init(FileSystem::GetExecutablePath().parent_path() / moduleName, true);
+			module->Init(FileSystem::GetExecutablePath().ParentPath() / moduleName, true);
 			if (module->Load() == false)
 			{
 				DefaultAllocator::GetInstance().Delete(module);
@@ -222,7 +224,7 @@ namespace hod::editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool Editor::OpenProject(const std::filesystem::path& path)
+	bool Editor::OpenProject(const Path& path)
 	{
 		if (Project::GetInstance()->Open(path) == false)
 		{
@@ -495,11 +497,11 @@ namespace hod::editor
 		return true;
 	}
 
-	bool Editor::AddProjectInRecentProject(const std::filesystem::path& path) const
+	bool Editor::AddProjectInRecentProject(const Path& path) const
 	{
 		RecentProjects recentProjects;
 
-		std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
+		Path projectsPath = FileSystem::GetUserSettingsPath();
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("Project.json");
 
@@ -516,7 +518,7 @@ namespace hod::editor
 		bool alreadyExist = false;
 		for (const String& projectPath : recentProjects._projectsPath)
 		{
-			if (projectPath == path.string().c_str())
+			if (projectPath == path.GetString())
 			{
 				alreadyExist = true;
 				break;
@@ -525,12 +527,12 @@ namespace hod::editor
 
 		if (alreadyExist == false)
 		{
-			recentProjects._projectsPath.push_back(path.string().c_str());
+			recentProjects._projectsPath.push_back(path.GetString().CStr());
 
 			Document writeDocument;
 			Serializer::Serialize(recentProjects, writeDocument.GetRootNode());
 
-			std::filesystem::create_directories(projectsPath.parent_path());
+			FileSystem::GetInstance()->CreateDirectories(projectsPath.ParentPath());
 			DocumentWriterJson jsonWriter;
 			jsonWriter.Write(writeDocument, projectsPath);
 		}
@@ -541,7 +543,7 @@ namespace hod::editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool Editor::CreateProject(const std::filesystem::path& directory)
+	bool Editor::CreateProject(const Path& directory)
 	{
 		if (Project::GetInstance()->Create(directory) == true)
 		{
@@ -590,7 +592,7 @@ namespace hod::editor
 	bool Editor::SaveSceneAs()
 	{
 		/*
-		std::filesystem::path saveLocation = window::GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
+		Path saveLocation = window::GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
 		if (saveLocation.empty() == true)
 		{
 		    return false;
@@ -763,8 +765,8 @@ namespace hod::editor
 	{
 		try
 		{
-			std::filesystem::path buildPath = Project::GetInstance()->GetBuildsDirPath() / "Latest";
-			std::filesystem::create_directories(buildPath);
+			Path buildPath = Project::GetInstance()->GetBuildsDirPath() / "Latest";
+			FileSystem::GetInstance()->CreateDirectories(buildPath);
 
 			game::BootInfo bootInfo;
 			bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
@@ -776,19 +778,19 @@ namespace hod::editor
 			DocumentWriterJson writer;
 			writer.Write(bootDocument, buildPath / "Boot.json");
 
-			std::filesystem::copy(Project::GetInstance()->GetGameModulePath(), buildPath / Project::GetInstance()->GetGameModulePath().filename(),
-			                      std::filesystem::copy_options::overwrite_existing);
+			std::filesystem::copy(Project::GetInstance()->GetGameModulePath().GetString().CStr(),
+			                      (buildPath / Project::GetInstance()->GetGameModulePath().Filename()).GetString().CStr(), std::filesystem::copy_options::overwrite_existing);
 			// todo copy hodapplication.exe
 
-			std::filesystem::path dataDirPath = buildPath / "Datas";
-			std::filesystem::create_directories(dataDirPath);
+			Path dataDirPath = buildPath / "Datas";
+			FileSystem::GetInstance()->CreateDirectories(dataDirPath);
 
-			for (const auto& entry : std::filesystem::directory_iterator(Project::GetInstance()->GetResourceDirPath()))
+			for (const auto& entry : std::filesystem::directory_iterator(Project::GetInstance()->GetResourceDirPath().GetString().CStr()))
 			{
 				const std::filesystem::path& source = entry.path();
 				if (std::filesystem::is_regular_file(source))
 				{
-					std::filesystem::path destination = dataDirPath / source.filename();
+					std::filesystem::path destination = dataDirPath.GetString().CStr() / source.filename();
 					std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);
 				}
 			}

@@ -20,15 +20,15 @@ namespace hod::ui
 		AddPropertyT(reflectionDescriptor, &AxisLayout::_reverseArrangement, "_reverseArrangement", &AxisLayout::SetReverseArrangement);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AxisLayout::GetControlWidth() const
 	{
 		return _controlWidth;
 	}
 
-	/// @brief 
-	/// @param controlWidth 
+	/// @brief
+	/// @param controlWidth
 	void AxisLayout::SetControlWidth(bool controlWidth)
 	{
 		if (_controlWidth != controlWidth)
@@ -38,15 +38,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AxisLayout::GetControlHeight() const
 	{
 		return _controlHeight;
 	}
 
-	/// @brief 
-	/// @param controlHeight 
+	/// @brief
+	/// @param controlHeight
 	void AxisLayout::SetControlHeight(bool controlHeight)
 	{
 		if (_controlHeight != controlHeight)
@@ -56,15 +56,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AxisLayout::GetForceExpandWidth() const
 	{
 		return _forceExpandWidth;
 	}
 
-	/// @brief 
-	/// @param forceExpandWidth 
+	/// @brief
+	/// @param forceExpandWidth
 	void AxisLayout::SetForceExpandWidth(bool forceExpandWidth)
 	{
 		if (_forceExpandWidth != forceExpandWidth)
@@ -74,15 +74,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AxisLayout::GetForceExpandHeight() const
 	{
 		return _forceExpandHeight;
 	}
 
-	/// @brief 
-	/// @param forceExpandHeight 
+	/// @brief
+	/// @param forceExpandHeight
 	void AxisLayout::SetForceExpandHeight(bool forceExpandHeight)
 	{
 		if (_forceExpandHeight != forceExpandHeight)
@@ -92,15 +92,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AxisLayout::GetConsiderScaleWidth() const
 	{
 		return _considerScaleWidth;
 	}
 
-	/// @brief 
-	/// @param bScaleWidth 
+	/// @brief
+	/// @param bScaleWidth
 	void AxisLayout::SetConsiderScaleWidth(bool considerScaleWidth)
 	{
 		if (_considerScaleWidth != considerScaleWidth)
@@ -110,15 +110,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AxisLayout::GetConsiderScaleHeight() const
 	{
 		return _considerScaleHeight;
 	}
 
-	/// @brief 
-	/// @param bScaleHeight 
+	/// @brief
+	/// @param bScaleHeight
 	void AxisLayout::SetConsiderScaleHeight(bool considerScaleHeight)
 	{
 		if (_considerScaleHeight != considerScaleHeight)
@@ -128,15 +128,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	float AxisLayout::GetSpacing() const
 	{
 		return _spacing;
 	}
 
-	/// @brief 
-	/// @param spacing 
+	/// @brief
+	/// @param spacing
 	void AxisLayout::SetSpacing(float spacing)
 	{
 		if (_spacing != spacing)
@@ -146,15 +146,15 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AxisLayout::GetReverseArrangement() const
 	{
 		return _reverseArrangement;
 	}
 
-	/// @brief 
-	/// @param bScaleHeight 
+	/// @brief
+	/// @param bScaleHeight
 	void AxisLayout::SetReverseArrangement(bool reverseArrangement)
 	{
 		if (_reverseArrangement != reverseArrangement)
@@ -164,12 +164,12 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @param currentAxis 
-	/// @param mainAxis 
-	/// @param totalMin 
-	/// @param totalPreferred 
-	/// @param totalFlexible 
+	/// @brief
+	/// @param currentAxis
+	/// @param mainAxis
+	/// @param totalMin
+	/// @param totalPreferred
+	/// @param totalFlexible
 	void AxisLayout::CalculateSizesForAxis(Axis currentAxis, Axis mainAxis, float& totalMin, float& totalPreferred, float& totalFlexible)
 	{
 		Node* node = GetOwner()->GetComponent<Node>();
@@ -179,9 +179,9 @@ namespace hod::ui
 		}
 
 		float combinedPadding;
-		bool controlSize;
-		bool forceExpand;
-		bool useScale;
+		bool  controlSize;
+		bool  forceExpand;
+		bool  useScale;
 
 		if (currentAxis == Axis::Horizontal)
 		{
@@ -205,7 +205,7 @@ namespace hod::ui
 		float spacing = GetSpacing();
 
 		const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
-		uint32_t drivenNodeCount = (uint32_t)drivenNodes.size();
+		uint32_t                     drivenNodeCount = (uint32_t)drivenNodes.size();
 
 		if (node != nullptr)
 		{
@@ -263,12 +263,12 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @param currentAxis 
-	/// @param mainAxis 
-	/// @param totalMin 
-	/// @param totalPreferred 
-	/// @param totalFlexible 
+	/// @brief
+	/// @param currentAxis
+	/// @param mainAxis
+	/// @param totalMin
+	/// @param totalPreferred
+	/// @param totalFlexible
 	void AxisLayout::PlaceAndResizeChildren(Axis currentAxis, Axis mainAxis, float totalMin, float totalPreferred, float totalFlexible)
 	{
 		Node* node = GetOwner()->GetComponent<Node>();
@@ -278,9 +278,9 @@ namespace hod::ui
 		}
 
 		float combinedPadding;
-		bool controlSize;
-		bool forceExpand;
-		bool useScale;
+		bool  controlSize;
+		bool  forceExpand;
+		bool  useScale;
 
 		float pos;
 
@@ -337,7 +337,7 @@ namespace hod::ui
 			}
 
 			const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
-			uint32_t drivenNodeCount = (uint32_t)drivenNodes.size();
+			uint32_t                     drivenNodeCount = (uint32_t)drivenNodes.size();
 
 			for (uint32_t drivenNodeIndex = 0; drivenNodeIndex < drivenNodeCount; ++drivenNodeIndex)
 			{
@@ -385,7 +385,7 @@ namespace hod::ui
 			float innerSize = availableSize - combinedPadding;
 
 			const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
-			uint32_t drivenNodeCount = (uint32_t)drivenNodes.size();
+			uint32_t                     drivenNodeCount = (uint32_t)drivenNodes.size();
 
 			for (uint32_t drivenNodeIndex = 0; drivenNodeIndex < drivenNodeCount; ++drivenNodeIndex)
 			{
@@ -437,14 +437,14 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @param childNode 
-	/// @param axis 
-	/// @param controlSize 
-	/// @param forceExpand 
-	/// @param min 
-	/// @param preferred 
-	/// @param flexible 
+	/// @brief
+	/// @param childNode
+	/// @param axis
+	/// @param controlSize
+	/// @param forceExpand
+	/// @param min
+	/// @param preferred
+	/// @param flexible
 	void AxisLayout::GetChildSizes(Node* childNode, Axis axis, bool controlSize, bool forceExpand, float& min, float& preferred, float& flexible)
 	{
 		if (controlSize == false)

@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Export.hpp"
 
 #include <cstdint>
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 #include <ostream>
 
 namespace hod
@@ -23,7 +23,7 @@ namespace hod
 		DocumentWriter& operator=(DocumentWriter&&) = delete;
 
 	public:
-		bool Write(Document& document, const std::filesystem::path& path);
+		bool Write(Document& document, const Path& path);
 		bool Write(Document& document, std::ostream& stream);
 
 	protected:

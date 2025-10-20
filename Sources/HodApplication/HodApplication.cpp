@@ -3,31 +3,28 @@
 #include <HodEngine/Core/ArgumentParser.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-#include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+#include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include <HodEngine/Core/Resource/Resource.hpp>
 #include <HodEngine/Core/Resource/ResourceManager.hpp>
 
 #include <HodEngine/Game/BootInfo.hpp>
-#include <HodEngine/Game/World.hpp>
 #include <HodEngine/Game/Scene.hpp>
 #include <HodEngine/Game/SceneResource.hpp>
+#include <HodEngine/Game/World.hpp>
 
 #include <HodEngine/Application/GraphicApplications/GraphicApplication.hpp>
-#include <HodEngine/Window/Window.hpp>
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
+#include <HodEngine/Window/Window.hpp>
 
-_SingletonOverrideConstructor(HodApplication)
-{
+_SingletonOverrideConstructor(HodApplication) {}
 
-}
-
-/// @brief 
-/// @param argc 
-/// @param argv 
-/// @return 
+/// @brief
+/// @param argc
+/// @param argv
+/// @return
 bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 {
 	bool platformApplicationResult = PlatformApplication::Init(argumentParser);
@@ -36,7 +33,7 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 		return false;
 	}
 
-	std::filesystem::path buildPath;
+	Path buildPath;
 
 	const hod::Argument* datasPathArgument = argumentParser.GetArgument('p', "BuildPath");
 	if (datasPathArgument != nullptr && datasPathArgument->_values[0] != nullptr)
@@ -44,7 +41,7 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 		buildPath = datasPathArgument->_values[0];
 	}
 
-	hod::Document document;
+	hod::Document           document;
 	hod::DocumentReaderJson reader;
 	reader.Read(document, buildPath / "Boot.json");
 
@@ -83,7 +80,7 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	return true;
 }
 
-/// @brief 
+/// @brief
 void HodApplication::Terminate()
 {
 	hod::DefaultAllocator::GetInstance().Delete(_world);

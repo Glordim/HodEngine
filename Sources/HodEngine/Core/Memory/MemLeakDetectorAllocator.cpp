@@ -149,9 +149,9 @@ namespace hod
 				it = it->_next;
 			}
 
-			std::filesystem::path memleakReportPath = FileSystem::GetTemporaryPath() / "HodEngine" / "MemleakReport.txt";
-			std::filesystem::create_directories(memleakReportPath.parent_path());
-			FILE* memleakReport = fopen(memleakReportPath.string().c_str(), "w");
+			Path memleakReportPath = FileSystem::GetTemporaryPath() / "HodEngine" / "MemleakReport.txt";
+			FileSystem::GetInstance()->CreateDirectories(memleakReportPath.ParentPath());
+			FILE* memleakReport = fopen(memleakReportPath.GetString().CStr(), "w");
 			if (memleakReport == NULL)
 			{
 				OUTPUT_ERROR("MemoryManagerLeakDetector: Fail to open MemleakReport.txt");
@@ -182,8 +182,8 @@ namespace hod
 
 				fclose(memleakReport);
 
-				OUTPUT_MESSAGE("MemoryManagerLeakDetector: Memleak detected, report available here {}", memleakReportPath.string());
-				OS::OpenFileWithDefaultApp(memleakReportPath.string().c_str());
+				OUTPUT_MESSAGE("MemoryManagerLeakDetector: Memleak detected, report available here {}", memleakReportPath);
+				OS::OpenFileWithDefaultApp(memleakReportPath.GetString().CStr());
 			}
 		}
 		_stopAllocationCollect = false;

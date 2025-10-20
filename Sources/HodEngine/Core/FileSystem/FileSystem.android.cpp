@@ -5,21 +5,21 @@
 
 namespace hod
 {
-	std::filesystem::path FileSystem::_userSettingsPath;
-	std::filesystem::path FileSystem::_executablePath;
-	std::filesystem::path FileSystem::_temporaryPath;
+	Path FileSystem::_userSettingsPath;
+	Path FileSystem::_executablePath;
+	Path FileSystem::_temporaryPath;
 
-	std::filesystem::path FileSystem::GetUserSettingsPath()
+	Path FileSystem::GetUserSettingsPath()
 	{
 		return FileSystem::_userSettingsPath;
 	}
 
-	std::filesystem::path FileSystem::GetExecutablePath()
+	Path FileSystem::GetExecutablePath()
 	{
 		return FileSystem::_executablePath;
 	}
 
-	std::filesystem::path FileSystem::GetTemporaryPath()
+	Path FileSystem::GetTemporaryPath()
 	{
 		if (FileSystem::_temporaryPath.empty() == true)
 		{
@@ -28,7 +28,7 @@ namespace hod
 		return FileSystem::_temporaryPath;
 	}
 
-	bool FileSystem::SetWorkingDirectory(const std::filesystem::path& path)
+	bool FileSystem::SetWorkingDirectory(const Path& path)
 	{
 		return false;
 	}

@@ -5,19 +5,21 @@
 
 #include <Windows.h>
 
+#undef CopyFile
+
 namespace hod
 {
 	static_assert(static_cast<DWORD>(FileSystem::SeekMode::Begin) == FILE_BEGIN);
 	static_assert(static_cast<DWORD>(FileSystem::SeekMode::Current) == FILE_CURRENT);
 	static_assert(static_cast<DWORD>(FileSystem::SeekMode::End) == FILE_END);
 
-	std::filesystem::path FileSystem::_temporaryPath;
-	std::filesystem::path FileSystem::_userSettingsPath;
-	std::filesystem::path FileSystem::_executablePath;
+	Path FileSystem::_temporaryPath;
+	Path FileSystem::_userSettingsPath;
+	Path FileSystem::_executablePath;
 
-	std::filesystem::path FileSystem::GetUserSettingsPath()
+	Path FileSystem::GetUserSettingsPath()
 	{
-		if (FileSystem::_userSettingsPath.empty() == true)
+		if (FileSystem::_userSettingsPath.Empty() == true)
 		{
 			char          username[256];
 			unsigned long usernameLen = 256;
@@ -27,9 +29,9 @@ namespace hod
 		return FileSystem::_userSettingsPath;
 	}
 
-	std::filesystem::path FileSystem::GetExecutablePath()
+	Path FileSystem::GetExecutablePath()
 	{
-		if (FileSystem::_executablePath.empty() == true)
+		if (FileSystem::_executablePath.Empty() == true)
 		{
 			char executablePath[MAX_PATH];
 			if (GetModuleFileNameA(nullptr, executablePath, MAX_PATH) != 0)
@@ -40,9 +42,9 @@ namespace hod
 		return FileSystem::_executablePath;
 	}
 
-	std::filesystem::path FileSystem::GetTemporaryPath()
+	Path FileSystem::GetTemporaryPath()
 	{
-		if (FileSystem::_temporaryPath.empty() == true)
+		if (FileSystem::_temporaryPath.Empty() == true)
 		{
 			char tempPath[MAX_PATH];
 			if (GetTempPath(MAX_PATH, tempPath) != 0)
@@ -53,9 +55,9 @@ namespace hod
 		return FileSystem::_temporaryPath;
 	}
 
-	bool FileSystem::SetWorkingDirectory(const std::filesystem::path& path)
+	bool FileSystem::SetWorkingDirectory(const Path& path)
 	{
-		if (SetCurrentDirectoryA(path.string().c_str()) == FALSE)
+		if (SetCurrentDirectoryA(path.GetString().CStr()) == FALSE)
 		{
 			OUTPUT_ERROR("Unable to set working directory");
 			return false;
@@ -135,5 +137,225 @@ namespace hod
 	bool FileSystem::Handle::IsOpen() const
 	{
 		return _handle != INVALID_HANDLE_VALUE;
+	}
+
+	bool FileSystem::Exists(const char* path)
+	{
+		DWORD attr = GetFileAttributesA(path);
+		return attr != INVALID_FILE_ATTRIBUTES;
+	}
+
+	bool FileSystem::IsDirectory(const char* path)
+	{
+		DWORD attr = GetFileAttributesA(path);
+		if (attr == INVALID_FILE_ATTRIBUTES)
+		{
+			return false;
+		}
+		return (attr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+	}
+
+	bool FileSystem::CreateDirectories(const char* path)
+	{
+		if (path[0] == '\0')
+		{
+			return false;
+		}
+
+		if (IsDirectory(path))
+		{
+			return false;
+		}
+
+		String cleaned = path;
+		if (cleaned.Back() == '\\' || cleaned.Back() == '/')
+		{
+			cleaned.PopBack();
+		}
+
+		size_t pos = cleaned.FindR("\\/");
+
+		if (pos != String::Npos)
+		{
+			String parent = cleaned.SubStr(0, pos);
+			if (!parent.Empty() && !CreateDirectories(parent))
+			{
+				return false;
+			}
+		}
+
+		if (CreateDirectoryA(cleaned.CStr(), nullptr))
+		{
+			return true;
+		}
+
+		DWORD err = GetLastError();
+		if (err == ERROR_ALREADY_EXISTS)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	bool FileSystem::Remove(const char* path)
+	{
+		if (path[0] == '\0')
+		{
+			return false;
+		}
+
+		DWORD attr = GetFileAttributesA(path);
+		if (attr == INVALID_FILE_ATTRIBUTES)
+		{
+			return false;
+		}
+
+		if (attr & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (RemoveDirectoryA(path))
+			{
+				return true;
+			}
+			return false;
+		}
+		else
+		{
+			if (DeleteFileA(path))
+			{
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	bool FileSystem::RemoveAll(const char* path)
+	{
+		if (path[0] == '\0')
+		{
+			return false;
+		}
+
+		DWORD attr = GetFileAttributesA(path);
+		if (attr == INVALID_FILE_ATTRIBUTES)
+		{
+			return false;
+		}
+
+		if (attr & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			String searchPath = path;
+			if (searchPath.Back() != '\\' && searchPath.Back() != '/')
+			{
+				searchPath += '\\';
+			}
+			searchPath += '*';
+
+			WIN32_FIND_DATAA findData;
+			HANDLE           hFind = FindFirstFileA(searchPath.CStr(), &findData);
+
+			if (hFind != INVALID_HANDLE_VALUE)
+			{
+				do
+				{
+					const char* name = findData.cFileName;
+
+					if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+					{
+						continue;
+					}
+
+					std::string childPath = path;
+					if (childPath.back() != '\\' && childPath.back() != '/')
+					{
+						childPath += '\\';
+					}
+					childPath += name;
+
+					RemoveAll(childPath.c_str());
+
+				} while (FindNextFileA(hFind, &findData));
+
+				FindClose(hFind);
+			}
+
+			if (!RemoveDirectoryA(path))
+			{
+				return false;
+			}
+
+			return true;
+		}
+		else
+		{
+			if (!DeleteFileA(path))
+			{
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	bool FileSystem::CopyFile(const char* pathSrc, const char* pathDst, bool overwrite)
+	{
+		if (pathSrc[0] == '\0' || pathDst[0] == '\0')
+		{
+			return false;
+		}
+
+		DWORD srcAttr = GetFileAttributesA(pathSrc);
+		if (srcAttr == INVALID_FILE_ATTRIBUTES)
+		{
+			return false;
+		}
+
+		if (srcAttr & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			return false;
+		}
+
+		BOOL ok = CopyFileA(pathSrc, pathDst, overwrite ? FALSE : TRUE);
+		return ok != 0;
+	}
+
+	bool FileSystem::IsRegularFile(const char* path)
+	{
+		if (path[0] == '\0')
+		{
+			return false;
+		}
+
+		DWORD attr = GetFileAttributesA(path);
+		if (attr == INVALID_FILE_ATTRIBUTES)
+		{
+			return false;
+		}
+
+		if ((attr & FILE_ATTRIBUTE_DIRECTORY) == 0 && (attr & FILE_ATTRIBUTE_REPARSE_POINT) == 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool FileSystem::Rename(const char* pathSrc, const char* pathDst)
+	{
+		if (!pathSrc || !pathDst || pathSrc[0] == '\0' || pathDst[0] == '\0')
+		{
+			return false;
+		}
+
+		DWORD attr = GetFileAttributesA(pathSrc);
+		if (attr == INVALID_FILE_ATTRIBUTES)
+		{
+			return false;
+		}
+
+		BOOL ok = MoveFileExA(pathSrc, pathDst, MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
+
+		return ok != 0;
 	}
 }

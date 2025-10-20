@@ -17,20 +17,22 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
+#include <filesystem> // todo remove
+
 namespace hod::editor
 {
 	/// @brief
 	/// @param path
 	/// @return
-	std::filesystem::path AssetDatabase::GenerateUniqueAssetPath(const std::filesystem::path& path)
+	Path AssetDatabase::GenerateUniqueAssetPath(const Path& path)
 	{
-		uint32_t              count = 1;
-		std::filesystem::path uniquePath(path);
+		uint32_t count = 1;
+		Path     uniquePath(path);
 
-		while (std::filesystem::exists(uniquePath) == true)
+		while (FileSystem::GetInstance()->Exists(uniquePath) == true)
 		{
 			uniquePath = path;
-			uniquePath.replace_filename(path.stem().string() + " " + std::to_string(count) + path.extension().string());
+			uniquePath.ReplaceFilename(path.Stem().GetString() + " " + std::to_string(count).c_str() + path.Extension().GetString());
 			++count;
 		}
 
@@ -116,19 +118,19 @@ namespace hod::editor
 	/// @param dir
 	void AssetDatabase::ExploreAndDetectAsset(FileSystemMapping* fileSystemMapping)
 	{
-		std::filesystem::directory_iterator entries(fileSystemMapping->_path);
+		std::filesystem::directory_iterator entries(fileSystemMapping->_path.CStr());
 
 		for (const std::filesystem::directory_entry& entry : entries)
 		{
-			const std::filesystem::path& path = entry.path();
-			if (path.has_extension() && path.extension().string() == ".meta")
+			Path path = entry.path().string().c_str();
+			if (path.HasExtension() && path.Extension().GetString() == ".meta")
 			{
 				continue;
 			}
 
 			FileSystemMapping* childFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
 			childFileSystemMapping->_path = path;
-			childFileSystemMapping->_lastWriteTime = entry.last_write_time();
+			// childFileSystemMapping->_lastWriteTime = entry.last_write_time();
 			childFileSystemMapping->_parentFolder = fileSystemMapping;
 
 			if (entry.is_directory() == true)
@@ -151,7 +153,7 @@ namespace hod::editor
 
 				if (asset->Load() == false)
 				{
-					OUTPUT_ERROR("Unable to load Asset : {}", childFileSystemMapping->_path.string().c_str());
+					OUTPUT_ERROR("Unable to load Asset : {}", childFileSystemMapping->_path);
 				}
 				else
 				{
@@ -164,17 +166,17 @@ namespace hod::editor
 	/// @brief
 	/// @param path
 	/// @return
-	AssetDatabase::FileSystemMapping* AssetDatabase::FindFileSystemMappingFromPath(const std::filesystem::path& path) const
+	AssetDatabase::FileSystemMapping* AssetDatabase::FindFileSystemMappingFromPath(const Path& path) const
 	{
-		int                   deep = 0;
-		std::filesystem::path splitPath = path;
+		int  deep = 0;
+		Path splitPath = path;
 		while (splitPath != _rootFileSystemMapping._path)
 		{
-			if (splitPath.has_parent_path() == false)
+			if (splitPath.HasParentPath() == false)
 			{
 				return nullptr;
 			}
-			splitPath = splitPath.parent_path();
+			splitPath = splitPath.ParentPath();
 			++deep;
 		}
 
@@ -184,7 +186,7 @@ namespace hod::editor
 			splitPath = path;
 			for (int i = 0; i < deep - 1; ++i)
 			{
-				splitPath = splitPath.parent_path();
+				splitPath = splitPath.ParentPath();
 			}
 			--deep;
 
@@ -225,13 +227,13 @@ namespace hod::editor
 
 	/// @brief
 	/// @param path
-	std::filesystem::path AssetDatabase::CreateFolder(const std::filesystem::path& path)
+	Path AssetDatabase::CreateFolder(const Path& path)
 	{
-		std::filesystem::path finalPath = GenerateUniqueAssetPath(path);
+		Path finalPath = GenerateUniqueAssetPath(path);
 
-		if (std::filesystem::create_directory(finalPath) == true)
+		if (FileSystem::GetInstance()->CreateDirectories(finalPath) == true)
 		{
-			AssetDatabase::FileSystemMapping* parentNode = (AssetDatabase::FileSystemMapping*)FindFileSystemMappingFromPath(finalPath.parent_path());
+			AssetDatabase::FileSystemMapping* parentNode = (AssetDatabase::FileSystemMapping*)FindFileSystemMappingFromPath(finalPath.ParentPath());
 			if (parentNode != nullptr)
 			{
 				FileSystemMapping* newFolderFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
@@ -253,15 +255,15 @@ namespace hod::editor
 	/// @param reflectionDescriptor
 	/// @param path
 	/// @return
-	std::filesystem::path AssetDatabase::CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, std::shared_ptr<ImporterSettings> importerSettings,
-	                                                 const char* importerType, const std::filesystem::path& path)
+	Path AssetDatabase::CreateAsset(void* instance, ReflectionDescriptor* reflectionDescriptor, std::shared_ptr<ImporterSettings> importerSettings, const char* importerType,
+	                                const Path& path)
 	{
 		FileSystemMapping* childFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
 		childFileSystemMapping->_path = path;
 		// childFileSystemMapping->_path.replace_extension(".asset");
 		childFileSystemMapping->_path = GenerateUniqueAssetPath(childFileSystemMapping->_path);
 		// childFileSystemMapping->_lastWriteTime = 0;
-		childFileSystemMapping->_parentFolder = FindFileSystemMappingFromPath(path.parent_path());
+		childFileSystemMapping->_parentFolder = FindFileSystemMappingFromPath(path.ParentPath());
 		childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
 		childFileSystemMapping->_asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 		if (importerSettings != nullptr && importerType != nullptr)
@@ -286,27 +288,27 @@ namespace hod::editor
 	/// @brief
 	/// @param node
 	/// @param newName
-	void AssetDatabase::Move(FileSystemMapping& node, const std::filesystem::path& newPath)
+	void AssetDatabase::Move(FileSystemMapping& node, const Path& newPath)
 	{
 		if (node._path == newPath)
 		{
 			return;
 		}
 
-		std::filesystem::path finalPath = GenerateUniqueAssetPath(newPath);
+		Path finalPath = GenerateUniqueAssetPath(newPath);
 
 		if (node._type == FileSystemMapping::Type::FolderType)
 		{
-			std::filesystem::rename(node._path, finalPath);
+			FileSystem::GetInstance()->Rename(node._path, finalPath);
 		}
 		else
 		{
-			std::filesystem::rename(node._path, finalPath);
-			std::filesystem::path metaPath = node._path;
-			metaPath.concat(".meta");
-			std::filesystem::path newMetaPath = finalPath;
-			newMetaPath.concat(".meta");
-			std::filesystem::rename(metaPath, newMetaPath);
+			FileSystem::GetInstance()->Rename(node._path, finalPath);
+			Path metaPath = node._path;
+			metaPath.Concat(".meta");
+			Path newMetaPath = finalPath;
+			newMetaPath.Concat(".meta");
+			FileSystem::GetInstance()->Rename(metaPath, newMetaPath);
 		}
 
 		MoveNode(node, finalPath);
@@ -315,7 +317,7 @@ namespace hod::editor
 	/// @brief
 	void AssetDatabase::FileSystemMapping::RefreshPathFromParent()
 	{
-		_path = _parentFolder->_path / _path.filename();
+		_path = _parentFolder->_path / _path.Filename();
 
 		for (AssetDatabase::FileSystemMapping* child : _childrenFolder)
 		{
@@ -332,8 +334,8 @@ namespace hod::editor
 	/// @param node
 	void AssetDatabase::Delete(FileSystemMapping& node)
 	{
-		std::filesystem::remove_all(node._path);
-		std::filesystem::remove_all(node._path.concat(".meta"));
+		FileSystem::GetInstance()->RemoveAll(node._path);
+		FileSystem::GetInstance()->RemoveAll(node._path.Concat(".meta"));
 
 		DeleteNode(node);
 	}
@@ -354,7 +356,7 @@ namespace hod::editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool AssetDatabase::Import(const std::filesystem::path& path)
+	bool AssetDatabase::Import(const Path& path)
 	{
 		FileSystemMapping* node = FindFileSystemMappingFromPath(path);
 		if (node != nullptr && node->_asset != nullptr)
@@ -382,10 +384,10 @@ namespace hod::editor
 	/// @return
 	bool AssetDatabase::ReimportAssetIfNecessary(std::shared_ptr<Asset> asset)
 	{
-		std::filesystem::path resourceFilePath = Project::GetInstance()->GetResourceDirPath() / asset->GetUid().ToString().CStr();
+		Path resourceFilePath = Project::GetInstance()->GetResourceDirPath() / asset->GetUid().ToString().CStr();
 		resourceFilePath += ".dat";
 
-		std::ifstream resourceFile(resourceFilePath);
+		std::ifstream resourceFile(resourceFilePath.CStr());
 		if (resourceFile.is_open() == false) // TODO replace by filesystem::exist ?
 		{
 			return Import(asset);
@@ -472,7 +474,7 @@ namespace hod::editor
 	/// @brief
 	/// @param node
 	/// @param newPath
-	void AssetDatabase::MoveNode(FileSystemMapping& node, const std::filesystem::path& newPath)
+	void AssetDatabase::MoveNode(FileSystemMapping& node, const Path& newPath)
 	{
 		node._path = newPath;
 
@@ -482,7 +484,7 @@ namespace hod::editor
 			return;
 		}
 
-		AssetDatabase::FileSystemMapping* newParentNode = FindFileSystemMappingFromPath(newPath.parent_path());
+		AssetDatabase::FileSystemMapping* newParentNode = FindFileSystemMappingFromPath(newPath.ParentPath());
 		if (newParentNode == nullptr)
 		{
 			return;
@@ -547,9 +549,9 @@ namespace hod::editor
 
 	/// @brief
 	/// @param path
-	void AssetDatabase::FileSystemWatcherOnCreateFile(const std::filesystem::path& path)
+	void AssetDatabase::FileSystemWatcherOnCreateFile(const Path& path)
 	{
-		if (path.has_extension() && path.extension().string() == ".meta")
+		if (path.HasExtension() && path.Extension().GetString() == ".meta")
 		{
 			return;
 		}
@@ -558,9 +560,9 @@ namespace hod::editor
 		{
 			FileSystemMapping* node = DefaultAllocator::GetInstance().New<FileSystemMapping>();
 			node->_path = path;
-			node->_parentFolder = FindFileSystemMappingFromPath(path.parent_path());
+			node->_parentFolder = FindFileSystemMappingFromPath(path.ParentPath());
 
-			if (std::filesystem::is_directory(path))
+			if (FileSystem::GetInstance()->IsDirectory(path))
 			{
 				node->_parentFolder->_childrenFolder.push_back(node);
 				node->_type = FileSystemMapping::Type::FolderType;
@@ -577,7 +579,7 @@ namespace hod::editor
 
 	/// @brief
 	/// @param path
-	void AssetDatabase::FileSystemWatcherOnDeleteFile(const std::filesystem::path& path)
+	void AssetDatabase::FileSystemWatcherOnDeleteFile(const Path& path)
 	{
 		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(path);
 		if (nodeToMove != nullptr)
@@ -588,9 +590,9 @@ namespace hod::editor
 
 	/// @brief
 	/// @param path
-	void AssetDatabase::FileSystemWatcherOnChangeFile(const std::filesystem::path& path)
+	void AssetDatabase::FileSystemWatcherOnChangeFile(const Path& path)
 	{
-		if (std::filesystem::is_directory(path) == false)
+		if (FileSystem::GetInstance()->IsDirectory(path) == false)
 		{
 			FileSystemMapping* nodeToReimport = FindFileSystemMappingFromPath(path);
 			if (nodeToReimport != nullptr)
@@ -603,7 +605,7 @@ namespace hod::editor
 	/// @brief
 	/// @param oldPath
 	/// @param newPath
-	void AssetDatabase::FileSystemWatcherOnMoveFile(const std::filesystem::path& oldPath, const std::filesystem::path& newPath)
+	void AssetDatabase::FileSystemWatcherOnMoveFile(const Path& oldPath, const Path& newPath)
 	{
 		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(oldPath);
 		if (nodeToMove != nullptr)

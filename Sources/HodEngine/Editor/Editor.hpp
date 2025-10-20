@@ -8,7 +8,7 @@
 #include <HodEngine/Core/Module/Module.hpp>
 #include <HodEngine/Core/Singleton.hpp>
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/FpsCounter.hpp"
@@ -49,8 +49,8 @@ namespace hod::editor
 	public:
 		bool Init(const ArgumentParser& argumentParser);
 
-		bool CreateProject(const std::filesystem::path& path);
-		bool OpenProject(const std::filesystem::path& path);
+		bool CreateProject(const Path& path);
+		bool OpenProject(const Path& path);
 
 		bool LoadEditor();
 
@@ -105,7 +105,7 @@ namespace hod::editor
 		}
 
 	private:
-		bool AddProjectInRecentProject(const std::filesystem::path& path) const;
+		bool AddProjectInRecentProject(const Path& path) const;
 
 		bool LoadEditorModules();
 		bool UnloadEditorModules();

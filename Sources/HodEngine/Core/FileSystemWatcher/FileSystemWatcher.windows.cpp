@@ -1,7 +1,8 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp"
 #include "HodEngine/Core/StringConversion.hpp"
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 namespace hod
 {
@@ -10,17 +11,17 @@ namespace hod
 	/// @return
 	bool FileSystemWatcher::InternalInit()
 	{
-		std::wstring assetFolderPath;
-		if (std::filesystem::is_directory(_path))
+		if (FileSystem::GetInstance()->IsDirectory(_path))
 		{
 			_dirPath = _path;
 		}
 		else
 		{
 			_isFile = true;
-			_dirPath = _path.parent_path();
+			_dirPath = _path.ParentPath();
 		}
-		StringConversion::StringToWString(_dirPath.string(), assetFolderPath);
+		std::wstring assetFolderPath;
+		StringConversion::StringToWString(_dirPath.GetString(), assetFolderPath);
 		_hDir = CreateFileW(assetFolderPath.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
 		                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
 
@@ -51,7 +52,7 @@ namespace hod
 			DWORD bytes_transferred;
 			GetOverlappedResult(_hDir, &_overlapped, &bytes_transferred, FALSE);
 
-			std::filesystem::path oldFilePathToRename;
+			Path oldFilePathToRename;
 
 			FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)_changeBuf;
 			while (true)
@@ -60,7 +61,7 @@ namespace hod
 				String       relativefilePath;
 				StringConversion::WStringToString(result, relativefilePath);
 
-				std::filesystem::path filePath = _dirPath / relativefilePath.CStr();
+				Path filePath = _dirPath / relativefilePath.CStr();
 				if (_isFile == false || fni->Action == FILE_ACTION_RENAMED_NEW_NAME || _path == filePath)
 				{
 					switch (fni->Action)

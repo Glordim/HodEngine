@@ -3,8 +3,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Core/UID.hpp"
-#include <filesystem>
-#include <istream>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 #include <map>
 
 #include "HodEngine/Core/Singleton.hpp"
@@ -21,7 +20,7 @@ namespace hod
 		friend class Allocator;
 
 	public:
-		void SetResourceDirectory(const std::filesystem::path& directory);
+		void SetResourceDirectory(const Path& directory);
 
 		std::shared_ptr<Resource> GetResource(const ReflectionDescriptor& reflectionDescriptor, const UID& uid);
 
@@ -37,7 +36,7 @@ namespace hod
 		bool                      Load(Resource* resource, const UID& uid);
 
 	private:
-		std::filesystem::path _directory;
+		Path _directory;
 
 		std::map<UID, std::weak_ptr<Resource>> _resources;
 	};

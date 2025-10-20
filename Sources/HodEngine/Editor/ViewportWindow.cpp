@@ -1,43 +1,44 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
-#include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
+#include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
+#include "HodEngine/Editor/ViewportWindow.hpp"
 
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/Components/RendererComponent.hpp"
+#include <HodEngine/Core/Color.hpp>
+#include <HodEngine/Core/Math/Vector4.hpp>
+#include <HodEngine/Core/Rect.hpp>
+#include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Core/Rect.hpp>
-#include <HodEngine/Core/Math/Vector4.hpp>
-#include <HodEngine/Core/Color.hpp>
-#include <HodEngine/Core/Resource/ResourceManager.hpp>
 
-#include "HodEngine/Game/World.hpp"
-#include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
+#include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/World.hpp"
 
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 
 #include "HodEngine/Editor/PhysicsDebugDrawer.hpp"
-#include <HodEngine/Physics/World.hpp>
 #include <HodEngine/Physics/DebugDrawer.hpp>
+#include <HodEngine/Physics/World.hpp>
 
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include <HodEngine/Renderer/PickingManager.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <format>
 
@@ -48,7 +49,7 @@ namespace hod::editor
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
+	/// @brief
 	ViewportWindow::ViewportWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
@@ -59,15 +60,15 @@ namespace hod::editor
 		_renderView.Init();
 	}
 
-	/// @brief 
+	/// @brief
 	ViewportWindow::~ViewportWindow()
 	{
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 		DefaultAllocator::GetInstance().Delete(_pickingRenderTarget);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool ViewportWindow::Draw()
 	{
 		bool open = true;
@@ -93,7 +94,7 @@ namespace hod::editor
 		return open;
 	}
 
-	/// @brief 
+	/// @brief
 	void ViewportWindow::DrawContent()
 	{
 		if (ImGui::BeginMenuBar())
@@ -108,10 +109,10 @@ namespace hod::editor
 			ImGui::SameLine();
 			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
 			{
-				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-				physics::World* physicsWorld = world->GetPhysicsWorld();
+				game::World*          world = GetOwner<EntityEditorTab>()->GetWorld();
+				physics::World*       physicsWorld = world->GetPhysicsWorld();
 				physics::DebugDrawer* physicsDebugDrawer = physicsWorld->GetDebugDrawer();
-				uint32_t flags = physicsDebugDrawer->GetFlags();
+				uint32_t              flags = physicsDebugDrawer->GetFlags();
 
 				for (const physics::DebugDrawer::Flag& flag : physicsDebugDrawer->GetAvailableFlags())
 				{
@@ -131,7 +132,7 @@ namespace hod::editor
 				}
 				ImGui::EndMenu();
 			}
-			
+
 			if (ImGui::BeginMenu("Resolution"))
 			{
 				if (ImGui::MenuItem("16:9 (landscapce)"))
@@ -155,12 +156,11 @@ namespace hod::editor
 
 			if (ImGui::MenuItem(ICON_MDI_GRID, nullptr, &_drawGrid) == true)
 			{
-				
 			}
 			ImGui::SameLine();
 			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
 			{
-				//ImGui::TextUnformatted();
+				// ImGui::TextUnformatted();
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
@@ -170,7 +170,7 @@ namespace hod::editor
 		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 		if (_selectedTab != nullptr)
 		{
-			world->RemoveScene(_selectedTab->_scene);
+		    world->RemoveScene(_selectedTab->_scene);
 		}
 		world->AddScene(tab->_scene);
 		*/
@@ -211,9 +211,9 @@ namespace hod::editor
 					Vector2 pickingResolution = _pickingRenderTarget->GetResolution();
 					if (mousePos.x >= 0 && mousePos.x < pickingResolution.GetX() && mousePos.y >= 0 && mousePos.y < pickingResolution.GetY())
 					{
-						ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-						Vector2 mousePosition(mousePos.x, mousePos.y);
-						Color pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
+						ImVec2   mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
+						Vector2  mousePosition(mousePos.x, mousePos.y);
+						Color    pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
 						uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
 						if (pickingId == 0)
 						{
@@ -221,7 +221,7 @@ namespace hod::editor
 						}
 						else
 						{
-							game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+							game::World*  world = GetOwner<EntityEditorTab>()->GetWorld();
 							game::Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
 							if (pickedEntity != nullptr)
 							{
@@ -245,13 +245,16 @@ namespace hod::editor
 			const float currentRatio = resolutionWidth / static_cast<float>(resolutionHeight);
 
 			if (currentRatio > aspectRatio)
+			{
 				resolutionWidth = static_cast<uint32_t>(resolutionHeight * aspectRatio);
+			}
 			else
+			{
 				resolutionHeight = static_cast<uint32_t>(resolutionWidth / aspectRatio);
+			}
 		}
 
-		if (_renderTarget->GetResolution().GetX() != resolutionWidth ||
-			_renderTarget->GetResolution().GetY() != resolutionHeight)
+		if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 		{
 			renderer::Texture::CreateInfo createInfo;
 
@@ -264,7 +267,7 @@ namespace hod::editor
 
 		if (_renderTarget->IsValid() == true)
 		{
-			//ImVec2 origin = ImGui::GetCursorScreenPos();
+			// ImVec2 origin = ImGui::GetCursorScreenPos();
 
 			_renderView.Prepare(_renderTarget, _pickingRenderTarget);
 
@@ -309,7 +312,7 @@ namespace hod::editor
 									ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
 									if (customEditor != nullptr)
 									{
-										if (customEditor->OnDrawGizmo(component, *this, (entityPair.second == sceneSelection)))
+										if (customEditor->OnDrawGizmo(component, *this, entityPair.second == sceneSelection))
 										{
 											GetOwner()->MarkAssetAsDirty();
 										}
@@ -329,12 +332,10 @@ namespace hod::editor
 						Vector2(0.5f, -0.5f),
 					};
 
-					std::array<uint16_t, 6> indices = {
-						0, 1, 2,
-						2, 1, 3
-					};
+					std::array<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
 
-					_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
+					_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+						positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
 				}
 			}
 			else
@@ -365,7 +366,8 @@ namespace hod::editor
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);
 				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
-			//ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth, (float)(windowHeight + menuBarHeight)));
+			// ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth,
+			// (float)(windowHeight + menuBarHeight)));
 			if (ImGui::BeginDragDropTarget() == true)
 			{
 				const ImGuiPayload* payload = ImGui::GetDragDropPayload();
@@ -376,7 +378,7 @@ namespace hod::editor
 					{
 						// todo factorize
 						AssetDatabase::FileSystemMapping* node = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
-						std::shared_ptr<Asset> asset = node->_asset;
+						std::shared_ptr<Asset>            asset = node->_asset;
 						if (asset != nullptr)
 						{
 							PrefabImporter prefabImporter;
@@ -396,8 +398,8 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param enabled 
+	/// @brief
+	/// @param enabled
 	void ViewportWindow::EnablePhysicsDebugDrawer(bool enabled)
 	{
 		if (enabled == true)
@@ -417,44 +419,44 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param enabled 
-	/// @return 
+	/// @brief
+	/// @param enabled
+	/// @return
 	bool ViewportWindow::IsPhysicsDebugDrawerEnabled() const
 	{
-		return (_physicsDebugDrawer != nullptr);
+		return _physicsDebugDrawer != nullptr;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	renderer::RenderView* ViewportWindow::GetRenderView()
 	{
 		return &_renderView;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	renderer::RenderTarget* ViewportWindow::GetPickingRenderTarget() const
 	{
 		return _pickingRenderTarget;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Matrix4& ViewportWindow::GetProjectionMatrix() const
 	{
 		return _projection;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Matrix4& ViewportWindow::GetViewMatrix() const
 	{
 		return _view;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector2& ViewportWindow::GetPlayRatio() const
 	{
 		return _playRatio;

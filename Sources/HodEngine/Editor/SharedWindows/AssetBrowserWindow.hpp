@@ -5,7 +5,7 @@
 #include <HodEngine/ImGui/Window/Window.hpp>
 
 #include "HodEngine/Core/Vector.hpp"
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 namespace hod::editor
 {
@@ -27,8 +27,8 @@ namespace hod::editor
 	private:
 		struct HOD_EDITOR_API FolderItem
 		{
-			std::filesystem::path _path;
-			bool                  _expanded = false;
+			Path _path;
+			bool _expanded = false;
 
 			Vector<FolderItem*> _children;
 		};
