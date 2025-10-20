@@ -20,7 +20,7 @@ namespace hod
 		EnumDescriptor& operator=(EnumDescriptor&& move) = default;
 
 	public:
-		const Vector<std::pair<uint64_t, std::string>>& GetValues() const;
+		const Vector<std::pair<uint64_t, String>>& GetValues() const;
 
 		template<typename __TYPE__>
 		std::string_view ToString(__TYPE__ value) const;
@@ -29,7 +29,7 @@ namespace hod
 		void AddEnumValue(__TYPE__ value, const char* label);
 
 	private:
-		Vector<std::pair<uint64_t, std::string>> _values;
+		Vector<std::pair<uint64_t, String>> _values;
 	};
 }
 

@@ -235,7 +235,7 @@ namespace hod
 
 			std::size_t offset = 0;
 			std::size_t index = value.find("\\t", offset);
-			while (index != std::string::npos)
+			while (index != String::npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
@@ -247,7 +247,7 @@ namespace hod
 
 			offset = 0;
 			index = value.find("\\n", offset);
-			while (index != std::string::npos)
+			while (index != String::npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
@@ -259,7 +259,7 @@ namespace hod
 
 			offset = 0;
 			index = value.find("\\r", offset);
-			while (index != std::string::npos)
+			while (index != String::npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
@@ -271,7 +271,7 @@ namespace hod
 
 			offset = 0;
 			index = value.find("\\f", offset);
-			while (index != std::string::npos)
+			while (index != String::npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
@@ -283,7 +283,7 @@ namespace hod
 
 			offset = 0;
 			index = value.find("\\b", offset);
-			while (index != std::string::npos)
+			while (index != String::npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
@@ -295,7 +295,7 @@ namespace hod
 
 			offset = 0;
 			index = value.find("\\\"", offset);
-			while (index != std::string::npos)
+			while (index != Stringg::npos)
 			{
 				offset = index + 1;
 				if (index > 0 && value[index - 1] != '\\')
@@ -307,7 +307,7 @@ namespace hod
 
 			offset = 0;
 			index = value.find("\\\\", offset);
-			while (index != std::string::npos)
+			while (index != String::npos)
 			{
 				offset = index + 1;
 				value.replace(index, 2, "\\");

@@ -1,11 +1,11 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
-#include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/HierachyWindow.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -14,27 +14,27 @@
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/MaterialImporter.hpp"
 #include "HodEngine/Editor/Importer/MaterialInstanceImporter.hpp"
-#include "HodEngine/Editor/Importer/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
+#include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
-#include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
-#include "HodEngine/Game/World.hpp"
+#include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/SceneSerializer.hpp"
 #include "HodEngine/Game/SerializedDataFactory.hpp"
+#include "HodEngine/Game/World.hpp"
 
-#include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include <cmath>
 
@@ -42,9 +42,9 @@ bool Splitter(bool split_vertically, float thickness, float* size1, float* size2
 {
 	using namespace ImGui;
 	ImGuiContext& g = *GImGui;
-	ImGuiWindow* window = g.CurrentWindow;
-	ImGuiID id = window->GetID("##Splitter");
-	ImRect bb;
+	ImGuiWindow*  window = g.CurrentWindow;
+	ImGuiID       id = window->GetID("##Splitter");
+	ImRect        bb;
 	bb.Min = window->DC.CursorPos + (split_vertically ? ImVec2(*size1, 0.0f) : ImVec2(0.0f, *size1));
 	bb.Max = bb.Min + CalcItemSize(split_vertically ? ImVec2(thickness, splitter_long_axis_size) : ImVec2(splitter_long_axis_size, thickness), 0.0f, 0.0f);
 	return SplitterBehavior(bb, id, split_vertically ? ImGuiAxis_X : ImGuiAxis_Y, size1, size2, min_size1, min_size2, 0.0f);
@@ -57,7 +57,7 @@ namespace hod::editor
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
+	/// @brief
 	AssetBrowserWindow::AssetBrowserWindow()
 	{
 		SetFlags(ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
@@ -67,8 +67,8 @@ namespace hod::editor
 		ResyncFolderTree(&_folderTree);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool AssetBrowserWindow::Draw()
 	{
 		if (ImGui::Begin(GetIdentifier(), nullptr, GetFlags()) == true)
@@ -86,7 +86,7 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void AssetBrowserWindow::DrawContent()
 	{
 		static float size1 = 300;
@@ -105,7 +105,7 @@ namespace hod::editor
 		ImGui::EndChild();
 	}
 
-	/// @brief 
+	/// @brief
 	void AssetBrowserWindow::DrawFolderTree()
 	{
 		AssetDatabase::FileSystemMapping& root = AssetDatabase::GetInstance()->GetAssetRootNode();
@@ -126,12 +126,12 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void AssetBrowserWindow::DrawFolderTreeNode(AssetDatabase::FileSystemMapping* node)
 	{
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowOverlap;
 		if (node->_childrenFolder.size() == 0)
-		//if (node->_childrenFolder.Next() != nullptr)
+		// if (node->_childrenFolder.Next() != nullptr)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
@@ -145,13 +145,13 @@ namespace hod::editor
 		}
 
 		ImGui::AlignTextToFramePadding();
-		bool opened = ImGui::TreeNodeEx((std::string("##") + node->_path.filename().string()).c_str(), treeNodeFlags);
+		bool opened = ImGui::TreeNodeEx((String("##") + node->_path.filename().string()).c_str(), treeNodeFlags);
 		if (ImGui::BeginDragDropSource() == true)
 		{
-				// Some processing...
-				ImGui::TextUnformatted(node->_path.filename().string().c_str());
-				ImGui::SetDragDropPayload("FileSystemMapping", (void*)&node, sizeof(void*), ImGuiCond_Once);
-				ImGui::EndDragDropSource();
+			// Some processing...
+			ImGui::TextUnformatted(node->_path.filename().string().c_str());
+			ImGui::SetDragDropPayload("FileSystemMapping", (void*)&node, sizeof(void*), ImGuiCond_Once);
+			ImGui::EndDragDropSource();
 		}
 		else if (ImGui::BeginDragDropTarget() == true)
 		{
@@ -178,7 +178,7 @@ namespace hod::editor
 		{
 			if (ImGui::MenuItem("New Folder") == true)
 			{
-				std::filesystem::path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(node->_path / "Folder");
+				std::filesystem::path             newFolderPath = AssetDatabase::GetInstance()->CreateFolder(node->_path / "Folder");
 				AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
 				if (newFolderNode != nullptr)
 				{
@@ -236,7 +236,7 @@ namespace hod::editor
 		else
 		{
 			const char* icon = node->_childrenAsset.empty() == false || node->_childrenFolder.empty() == false ? ICON_MDI_FOLDER : ICON_MDI_FOLDER_OPEN;
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, 1.0f });
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 1.0f});
 			ImGui::Text("%s  %s", icon, node->_path.filename().string().c_str());
 			ImGui::PopStyleVar();
 		}
@@ -251,8 +251,8 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param node 
+	/// @brief
+	/// @param node
 	void AssetBrowserWindow::EditNodeName(AssetDatabase::FileSystemMapping* node)
 	{
 		_currentFolderTreeNode = node;
@@ -262,22 +262,22 @@ namespace hod::editor
 		_focus = true;
 	}
 
-	/// @brief 
+	/// @brief
 	void AssetBrowserWindow::ResyncFolderTree(FolderItem* folderItem)
 	{
 		(void)folderItem; // TODO
-		/*
-		const AssetDatabase::FileSystemMapping& root = Editor::GetInstance()->GetAssetDatabase().GetAssetRootNode();
-
-		_folderTree._path = root._path;
-		_folderTree._expanded = true;
-		_folderTree.
-
-		DrawFolderItem(&root);
-		*/
+						  /*
+		                  const AssetDatabase::FileSystemMapping& root = Editor::GetInstance()->GetAssetDatabase().GetAssetRootNode();
+		          
+		                  _folderTree._path = root._path;
+		                  _folderTree._expanded = true;
+		                  _folderTree.
+		          
+		                  DrawFolderItem(&root);
+		                  */
 	}
 
-	/// @brief 
+	/// @brief
 	void AssetBrowserWindow::DrawFolderExplorer()
 	{
 		if (_currentFolderTreeNode == nullptr)
@@ -286,13 +286,13 @@ namespace hod::editor
 		}
 
 		Vector<AssetDatabase::FileSystemMapping*> pathSplit;
-		AssetDatabase::FileSystemMapping* pathNode = _currentFolderTreeNode;
+		AssetDatabase::FileSystemMapping*         pathNode = _currentFolderTreeNode;
 		while (pathNode != nullptr)
 		{
 			pathSplit.insert(pathSplit.begin(), pathNode);
 			pathNode = pathNode->_parentFolder;
 		}
-		
+
 		size_t pathSplitSize = pathSplit.size();
 		for (uint32_t i = 0; i < pathSplitSize; ++i)
 		{
@@ -405,10 +405,10 @@ namespace hod::editor
 				ImGui::SameLine();
 			}
 		}
-		
+
 		for (AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
 		{
-			float available = ImGui::GetContentRegionAvail().x;
+			float    available = ImGui::GetContentRegionAvail().x;
 			uint32_t pingAnimPopStyleCount = 0;
 			if (_itemToPing == asset)
 			{
@@ -528,7 +528,7 @@ namespace hod::editor
 				if (payload != nullptr)
 				{
 					EntityDragAndDropPayload* payloadData = static_cast<EntityDragAndDropPayload*>(payload->Data);
-					game::Entity* dropEntityLock = payloadData->_entity;
+					game::Entity*             dropEntityLock = payloadData->_entity;
 					if (dropEntityLock != nullptr)
 					{
 						std::shared_ptr<game::PrefabResource> prefabResource = dropEntityLock->GetPrefabResource();
@@ -539,7 +539,7 @@ namespace hod::editor
 
 						Document prefabDocument;
 						prefabDocument.GetRootNode().AddChild("Name").SetString(dropEntityLock->GetName());
-						uint64_t nextLocalId = 1; // todo
+						uint64_t              nextLocalId = 1; // todo
 						game::SceneSerializer sceneSerializer;
 						if (sceneSerializer.SerializeEntity(dropEntityLock, true, prefabDocument.GetRootNode().AddChild("Entities"), nextLocalId) == false)
 						{
@@ -554,7 +554,8 @@ namespace hod::editor
 							}
 							else
 							{
-								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path / (dropEntityLock->GetName() + ".asset"));
+								std::filesystem::path newAssetPath =
+									AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path / (dropEntityLock->GetName() + ".asset"));
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
@@ -590,7 +591,7 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("New Folder") == true)
 				{
-					std::filesystem::path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(_currentFolderTreeNode->_path / "Folder");
+					std::filesystem::path             newFolderPath = AssetDatabase::GetInstance()->CreateFolder(_currentFolderTreeNode->_path / "Folder");
 					AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
 					if (newFolderNode != nullptr)
 					{
@@ -609,7 +610,8 @@ namespace hod::editor
 				{
 					if (ImGui::MenuItem("Prefab") == true)
 					{
-						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
+						std::filesystem::path newAssetPath =
+							AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
 						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 						if (newAssetNode != nullptr)
 						{
@@ -644,8 +646,10 @@ namespace hod::editor
 
 								SerializedDataAsset serializedDataAsset(serializedData.get());
 
-								Importer* importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
-								std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(), importer->AllocateSettings(), importer->GetTypeName(), _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset"));
+								Importer*             importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
+								std::filesystem::path newAssetPath =
+									AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(), importer->AllocateSettings(),
+								                                              importer->GetTypeName(), _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset"));
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
@@ -660,7 +664,8 @@ namespace hod::editor
 					}
 					if (ImGui::MenuItem("Material Instance") == true)
 					{
-						std::filesystem::path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<MaterialInstanceAsset, MaterialInstanceImporter>(_currentFolderTreeNode->_path / "MaterialInstance.mati");
+						std::filesystem::path newAssetPath =
+							AssetDatabase::GetInstance()->CreateAsset<MaterialInstanceAsset, MaterialInstanceImporter>(_currentFolderTreeNode->_path / "MaterialInstance.mati");
 						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 						if (newAssetNode != nullptr)
 						{
@@ -676,8 +681,8 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param item 
+	/// @brief
+	/// @param item
 	bool AssetBrowserWindow::DrawExplorerItem(AssetDatabase::FileSystemMapping* item)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -686,12 +691,12 @@ namespace hod::editor
 			return false;
 		}
 
-		ImGuiContext& g = *GImGui;
+		ImGuiContext&     g = *GImGui;
 		const ImGuiStyle& style = g.Style;
-		const ImGuiID id = window->GetID(item);
+		const ImGuiID     id = window->GetID(item);
 
 		ImVec2 size(100, 100 + ImGui::GetTextLineHeight());
-		float padding = 10.0f;
+		float  padding = 10.0f;
 
 		if (_itemToRename != nullptr)
 		{
@@ -759,19 +764,17 @@ namespace hod::editor
 			imageOffset.y = 0;
 			if (thumbnailTexture->GetWidth() > thumbnailTexture->GetHeight())
 			{
-				imageSize.y =  imageSize.x * ((float)thumbnailTexture->GetHeight() / (float)thumbnailTexture->GetWidth());
+				imageSize.y = imageSize.x * ((float)thumbnailTexture->GetHeight() / (float)thumbnailTexture->GetWidth());
 				imageOffset.y = (imageSize.x - imageSize.y) * 0.5f;
 			}
 			else
 			{
-				imageSize.x =  imageSize.y * ((float)thumbnailTexture->GetWidth() / (float)thumbnailTexture->GetHeight());
+				imageSize.x = imageSize.y * ((float)thumbnailTexture->GetWidth() / (float)thumbnailTexture->GetHeight());
 				imageOffset.x = (imageSize.y - imageSize.x) * 0.5f;
 			}
 
-			ImGui::GetWindowDrawList()->AddImage(thumbnailTexture,
-				ImVec2(cursorPosition.x + imageOffset.x + padding, cursorPosition.y + imageOffset.y + padding),
-				ImVec2(cursorPosition.x + imageOffset.x + padding + imageSize.x, cursorPosition.y + imageOffset.y + padding + imageSize.y)
-			);
+			ImGui::GetWindowDrawList()->AddImage(thumbnailTexture, ImVec2(cursorPosition.x + imageOffset.x + padding, cursorPosition.y + imageOffset.y + padding),
+			                                     ImVec2(cursorPosition.x + imageOffset.x + padding + imageSize.x, cursorPosition.y + imageOffset.y + padding + imageSize.y));
 		}
 		else
 		{
@@ -793,10 +796,8 @@ namespace hod::editor
 			ImVec2 imageSize;
 			imageSize.x = boundingBox.GetWidth() - padding * 2;
 			imageSize.y = boundingBox.GetWidth() - padding * 2;
-			ImGui::GetWindowDrawList()->AddImage(texture,
-				ImVec2(cursorPosition.x + padding, cursorPosition.y + padding),
-				ImVec2(cursorPosition.x + padding + imageSize.x, cursorPosition.y + padding + imageSize.y)
-			);
+			ImGui::GetWindowDrawList()->AddImage(texture, ImVec2(cursorPosition.x + padding, cursorPosition.y + padding),
+			                                     ImVec2(cursorPosition.x + padding + imageSize.x, cursorPosition.y + padding + imageSize.y));
 		}
 
 		if (g.LogEnabled == true)
@@ -824,7 +825,6 @@ namespace hod::editor
 			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
 				_itemToRename = nullptr;
-
 			}
 			window->DC = dc;
 		}
@@ -833,22 +833,22 @@ namespace hod::editor
 			if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
 			{
 				ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
-										ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y),
-										item->_asset->GetName().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+				                         ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y), item->_asset->GetName().c_str(), nullptr,
+				                         nullptr, style.ButtonTextAlign, nullptr);
 			}
 			else
 			{
 				ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
-										ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y),
-										item->_path.filename().string().c_str(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+				                         ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y), item->_path.filename().string().c_str(),
+				                         nullptr, nullptr, style.ButtonTextAlign, nullptr);
 			}
-		}		
+		}
 
 		return hovered;
 	}
 
-	/// @brief 
-	/// @param asset 
+	/// @brief
+	/// @param asset
 	void AssetBrowserWindow::PingAsset(Asset& asset)
 	{
 		AssetDatabase::FileSystemMapping* fileSystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(asset.GetPath());

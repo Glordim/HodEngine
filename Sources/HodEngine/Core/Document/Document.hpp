@@ -161,7 +161,7 @@ namespace hod
 		/*
 		bool		Parse(const char* buffer, uint32_t size);
 
-		std::string	Dump() const;
+		String		Dump() const;
 		void		Dump(const char* buffer, uint32_t size) const;
 		*/
 
@@ -172,7 +172,7 @@ namespace hod
 	private:
 		Node _root = Node(*this, "");
 
-		std::map<uint64_t, std::string> _stringTable;
+		std::map<uint64_t, String> _stringTable;
 	};
 }
 

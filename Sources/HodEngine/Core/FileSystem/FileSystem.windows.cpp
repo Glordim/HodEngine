@@ -22,7 +22,7 @@ namespace hod
 			char          username[256];
 			unsigned long usernameLen = 256;
 			GetUserNameA(username, &usernameLen);
-			FileSystem::_userSettingsPath = std::string("C:\\users\\") + username + "\\AppData\\Local";
+			FileSystem::_userSettingsPath = String("C:\\users\\") + username + "\\AppData\\Local";
 		}
 		return FileSystem::_userSettingsPath;
 	}

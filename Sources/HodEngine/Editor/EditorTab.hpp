@@ -2,8 +2,8 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Core/String.hpp"
-#include <string_view>
 #include <memory>
+#include <string_view>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -15,40 +15,37 @@ namespace hod::editor
 	class HOD_EDITOR_API EditorTab
 	{
 	public:
-
-				EditorTab(std::shared_ptr<Asset> asset, const char* icon = nullptr);
+		EditorTab(std::shared_ptr<Asset> asset, const char* icon = nullptr);
 		virtual ~EditorTab();
 
-		bool					Draw();
-		std::shared_ptr<Asset>	GetAsset() const;
+		bool                   Draw();
+		std::shared_ptr<Asset> GetAsset() const;
 
-		bool					AssetIsDirty() const;
-		void					MarkAssetAsDirty();
+		bool AssetIsDirty() const;
+		void MarkAssetAsDirty();
 
 		template<typename _EditorTabWindow_>
-		_EditorTabWindow_*		OpenWindow();
+		_EditorTabWindow_* OpenWindow();
 
-		void					Focus();
-
-	protected:
-
-		virtual void	CreateDefaultLayout() = 0;
-		virtual void	DrawMenuBar() = 0;
-		virtual bool	DrawContent() = 0;
+		void Focus();
 
 	protected:
-		std::string		_title;
-		ImGuiID 		_dockSpaceId;
+		virtual void CreateDefaultLayout() = 0;
+		virtual void DrawMenuBar() = 0;
+		virtual bool DrawContent() = 0;
+
+	protected:
+		String  _title;
+		ImGuiID _dockSpaceId;
 
 	private:
+		bool _initialLayoutCreated = false;
 
-		bool						_initialLayoutCreated = false;
+		std::shared_ptr<Asset> _asset;
 
-		std::shared_ptr<Asset>		_asset;
+		Vector<EditorTabWindow*> _windows;
 
-		Vector<EditorTabWindow*>	_windows;
-
-		bool						_focus = false;
+		bool _focus = false;
 	};
 
 	template<typename _EditorTabWindow_>

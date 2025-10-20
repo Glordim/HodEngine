@@ -2,8 +2,8 @@
 #include "HodEngine/Renderer/RHI/Vulkan/DescriptorSet.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
@@ -14,7 +14,7 @@
 namespace hod::renderer
 {
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	DescriptorSet::DescriptorSet()
 	{
@@ -23,7 +23,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	DescriptorSet::~DescriptorSet()
 	{
@@ -42,7 +42,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool DescriptorSet::SetLayout(const ShaderSetDescriptorVk* layout)
 	{
@@ -65,7 +65,7 @@ namespace hod::renderer
 		}
 
 		const Vector<ShaderSetDescriptorVk::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
-		size_t uboCount = ubos.size();
+		size_t                                         uboCount = ubos.size();
 
 		for (BufferVk* buffer : _uboBuffers)
 		{
@@ -116,7 +116,7 @@ namespace hod::renderer
 		const VkTexture* defaultTexture = static_cast<const VkTexture*>(Renderer::GetInstance()->GetDefaultWhiteTexture());
 
 		const Vector<ShaderSetDescriptorVk::BlockTexture>& textures = _descriptorSetLayout->GetTextureBlocks();
-		size_t textureCount = textures.size();
+		size_t                                             textureCount = textures.size();
 		for (size_t i = 0; i < textureCount; ++i)
 		{
 			const ShaderSetDescriptorVk::BlockTexture& texture = textures[i];
@@ -159,7 +159,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	const ShaderSetDescriptorVk* DescriptorSet::GetLayout() const
 	{
@@ -167,7 +167,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	VkDescriptorSet DescriptorSet::GetDescriptorSet() const
 	{
@@ -175,7 +175,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	void DescriptorSet::SetUboValue(const String& memberName, const void* value, size_t valueSize)
 	{
@@ -183,7 +183,7 @@ namespace hod::renderer
 		String target;
 
 		size_t len = memberName.find_first_of(".[");
-		if (len == std::string::npos)
+		if (len == String::npos)
 		{
 			target = memberName;
 			varIdentifier = "";
@@ -195,7 +195,7 @@ namespace hod::renderer
 		}
 
 		const Vector<ShaderSetDescriptorVk::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
-		size_t uboCount = ubos.size();
+		size_t                                         uboCount = ubos.size();
 
 		for (size_t i = 0; i < uboCount; ++i)
 		{
@@ -203,7 +203,7 @@ namespace hod::renderer
 
 			if (ubo._name == target)
 			{
-				size_t offset = 0;
+				size_t                                         offset = 0;
 				const ShaderSetDescriptorVk::BlockUbo::Member* member = &ubo._rootMember;
 
 				while (varIdentifier.empty() == false)
@@ -214,7 +214,7 @@ namespace hod::renderer
 
 						size_t len = varIdentifier.find_first_of(".[", 1);
 
-						if (len == std::string::npos)
+						if (len == String::npos)
 						{
 							subMemberName = varIdentifier.substr(1);
 							varIdentifier = "";
@@ -240,7 +240,7 @@ namespace hod::renderer
 						size_t len = varIdentifier.find_first_of("]", 1);
 
 						String indexStr = varIdentifier.substr(1, len - 1);
-						int index = std::atoi(indexStr.c_str());
+						int    index = std::atoi(indexStr.c_str());
 
 						offset += member->_size * index;
 
@@ -285,12 +285,12 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	void DescriptorSet::SetTexture(const String& name, const VkTexture* textureSampler)
 	{
 		const Vector<ShaderSetDescriptorVk::BlockTexture>& textures = _descriptorSetLayout->GetTextureBlocks();
-		size_t textureCount = textures.size();
+		size_t                                             textureCount = textures.size();
 
 		bool founded = false;
 		for (size_t i = 0; i < textureCount; ++i)

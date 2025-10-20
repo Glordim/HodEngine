@@ -107,7 +107,7 @@ namespace hod
 			case ReflectionPropertyVariable::Type::Float64:
 				*reinterpret_cast<double*>(variableAddress) = static_cast<double>(value);
 				break;
-				// case ReflectionPropertyVariable::Type::String: *reinterpret_cast<std::string*>(variableAddress) = value; break;
+				// case ReflectionPropertyVariable::Type::String: *reinterpret_cast<String*>(variableAddress) = value; break;
 
 			default: assert(false); break;
 		}

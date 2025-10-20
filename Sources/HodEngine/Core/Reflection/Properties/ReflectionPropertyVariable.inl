@@ -14,9 +14,9 @@ namespace hod
 		}
 		else
 		{
-			if constexpr (std::is_same_v<_type_, std::string> == true)
+			if constexpr (std::is_same_v<_type_, String> == true)
 			{
-				return *reinterpret_cast<const std::string*>(variableAddress);
+				return *reinterpret_cast<const String*>(variableAddress);
 			}
 			else
 			{
@@ -53,9 +53,9 @@ namespace hod
 		}
 		else
 		{
-			if constexpr (std::is_same_v<_type_, std::string> == true)
+			if constexpr (std::is_same_v<_type_, String> == true)
 			{
-				*reinterpret_cast<std::string*>(variableAddress) = value;
+				*reinterpret_cast<String*>(variableAddress) = value;
 			}
 			else
 			{

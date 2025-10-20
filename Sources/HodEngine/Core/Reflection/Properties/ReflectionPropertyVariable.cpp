@@ -49,7 +49,7 @@ namespace hod
 			case Type::UInt64: SetValue<uint64_t>(destinationInstance, GetValue<uint64_t>(sourceInstance)); break;
 			case Type::Float32: SetValue<float>(destinationInstance, GetValue<float>(sourceInstance)); break;
 			case Type::Float64: SetValue<double>(destinationInstance, GetValue<double>(sourceInstance)); break;
-			case Type::String: SetValue<std::string>(destinationInstance, GetValue<std::string>(sourceInstance)); break;
+			case Type::String: SetValue<String>(destinationInstance, GetValue<String>(sourceInstance)); break;
 
 			default: assert(false); break;
 		}
@@ -74,7 +74,7 @@ namespace hod
 			case Type::UInt64: return GetValue<uint64_t>(left) == GetValue<uint64_t>(right);
 			case Type::Float32: return GetValue<float>(left) == GetValue<float>(right);
 			case Type::Float64: return GetValue<double>(left) == GetValue<double>(right);
-			case Type::String: return GetValue<std::string>(left) == GetValue<std::string>(right);
+			case Type::String: return GetValue<String>(left) == GetValue<String>(right);
 
 			default: assert(false); return false;
 		}

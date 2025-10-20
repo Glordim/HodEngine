@@ -5,18 +5,18 @@
 
 #include <filesystem>
 
-#include <HodEngine/Core/Singleton.hpp>
-#include <HodEngine/Core/Module/Module.hpp>
-#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
+#include <HodEngine/Core/Module/Module.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
+#include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
 
 namespace hod::editor
 {
 	class Asset;
 
-	/// @brief 
+	/// @brief
 	class HOD_EDITOR_API Project
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Project)
@@ -24,47 +24,45 @@ namespace hod::editor
 		_Singleton(Project)
 
 	public:
+		bool Create(const std::filesystem::path& directory);
+		bool Open(const std::filesystem::path& projectPath);
 
-		bool							Create(const std::filesystem::path& directory);
-		bool							Open(const std::filesystem::path& projectPath);
+		bool Load();
+		bool Save();
 
-		bool							Load();
-		bool							Save();
+		void       SetStartupScene(std::shared_ptr<Asset> asset);
+		const UID& GetStartupScene() const;
 
-		void							SetStartupScene(std::shared_ptr<Asset> asset);
-		const UID&						GetStartupScene() const;
+		const String GetName() const;
 
-		const std::string				GetName() const;
+		const std::filesystem::path& GetProjectPath() const;
+		const std::filesystem::path& GetAssetDirPath() const;
+		const std::filesystem::path& GetResourceDirPath() const;
+		const std::filesystem::path& GetThumbnailDirPath() const;
+		const std::filesystem::path& GetBuildsDirPath() const;
 
-		const std::filesystem::path&	GetProjectPath() const;
-		const std::filesystem::path&	GetAssetDirPath() const;
-		const std::filesystem::path&	GetResourceDirPath() const;
-		const std::filesystem::path&	GetThumbnailDirPath() const;
-		const std::filesystem::path&	GetBuildsDirPath() const;
+		bool                  HasGameModule() const;
+		std::filesystem::path GetGameModulePath() const;
 
-		bool							HasGameModule() const;
-		std::filesystem::path			GetGameModulePath() const;
+		bool GenerateGameModuleCMakeList() const;
+		bool ConfigureGameModule() const;
+		bool BuildGameModule() const;
 
-		bool							GenerateGameModuleCMakeList() const;
-		bool							ConfigureGameModule() const;
-		bool							BuildGameModule() const;
+		bool ReloadGameModule();
 
-		bool							ReloadGameModule();
-
-		bool							CreateMinimalSourceForModule(const std::filesystem::path& directory);
+		bool CreateMinimalSourceForModule(const std::filesystem::path& directory);
 
 	private:
+		std::filesystem::path _projectPath;
+		std::filesystem::path _assetDirPath;
+		std::filesystem::path _resourceDirPath;
+		std::filesystem::path _thumbnailDirPath;
+		std::filesystem::path _buildsDirPath;
 
-		std::filesystem::path			_projectPath;
-		std::filesystem::path			_assetDirPath;
-		std::filesystem::path			_resourceDirPath;
-		std::filesystem::path			_thumbnailDirPath;
-		std::filesystem::path			_buildsDirPath;
+		String _name;
+		UID    _startupScene;
 
-		std::string						_name;
-		UID								_startupScene;
-
-		Module							_gameModule;
-		FileSystemWatcher				_gameModuleFileSystemWatcher;
+		Module            _gameModule;
+		FileSystemWatcher _gameModuleFileSystemWatcher;
 	};
 }

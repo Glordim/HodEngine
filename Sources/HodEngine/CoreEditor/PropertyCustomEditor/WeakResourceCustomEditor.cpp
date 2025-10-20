@@ -159,7 +159,7 @@ namespace hod::editor
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
-				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().find(inputTextBuffer) != std::string::npos)
+				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().find(inputTextBuffer) != String::npos)
 				{
 					ImGui::PushID(assetNode);
 					/*
@@ -269,7 +269,7 @@ namespace hod::editor
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
-				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().find(inputTextBuffer) != std::string::npos)
+				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().find(inputTextBuffer) != String::npos)
 				{
 					ImGui::PushID(assetNode);
 					/*

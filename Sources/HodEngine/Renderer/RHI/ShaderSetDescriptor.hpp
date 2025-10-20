@@ -2,17 +2,16 @@
 #include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/Core/String.hpp"
-#include <unordered_map>
 #include "HodEngine/Core/Vector.hpp"
+#include <unordered_map>
 
 namespace hod::renderer
 {
-	/// @brief 
+	/// @brief
 	class HOD_RENDERER_API ShaderSetDescriptor
 	{
 	public:
-
-		/// @brief 
+		/// @brief
 		struct Block
 		{
 			enum Type
@@ -21,11 +20,11 @@ namespace hod::renderer
 				Texture
 			};
 
-			uint32_t	_binding;
-			std::string	_name;
+			uint32_t _binding;
+			String   _name;
 		};
 
-		/// @brief 
+		/// @brief
 		struct BlockUbo : Block
 		{
 			enum MemberType
@@ -35,22 +34,22 @@ namespace hod::renderer
 				Float4,
 			};
 
-			/// @brief 
+			/// @brief
 			struct Member
 			{
-				std::string						_name;
-				size_t							_size;
-				size_t							_count;
-				size_t							_offset;
-				MemberType						_memberType;
+				String     _name;
+				size_t     _size;
+				size_t     _count;
+				size_t     _offset;
+				MemberType _memberType;
 
-				std::unordered_map<std::string, Member>	_childsMap;
+				std::unordered_map<String, Member> _childsMap;
 			};
 
-			Member	_rootMember;
+			Member _rootMember;
 		};
 
-		/// @brief 
+		/// @brief
 		struct BlockTexture : Block
 		{
 			enum Type
@@ -60,23 +59,21 @@ namespace hod::renderer
 				Combined,
 			};
 
-			Type	_type;
+			Type _type;
 		};
 
 	public:
+		ShaderSetDescriptor() = default;
+		ShaderSetDescriptor(const ShaderSetDescriptor& other) = default;
+		virtual ~ShaderSetDescriptor() = default;
 
-											ShaderSetDescriptor() = default;
-											ShaderSetDescriptor(const ShaderSetDescriptor& other) = default;
-		virtual								~ShaderSetDescriptor() = default;
+		void Merge(const ShaderSetDescriptor& other);
 
-		void						Merge(const ShaderSetDescriptor& other);
-
-		const Vector<BlockUbo>&		GetUboBlocks() const;
-		const Vector<BlockTexture>&	GetTextureBlocks() const;
+		const Vector<BlockUbo>&     GetUboBlocks() const;
+		const Vector<BlockTexture>& GetTextureBlocks() const;
 
 	protected:
-
-		Vector<BlockUbo>				_uboBlockVector;
-		Vector<BlockTexture>			_textureBlockVector;
+		Vector<BlockUbo>     _uboBlockVector;
+		Vector<BlockTexture> _textureBlockVector;
 	};
 }

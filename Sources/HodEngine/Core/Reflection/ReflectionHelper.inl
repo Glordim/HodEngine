@@ -48,7 +48,7 @@ namespace hod
 		{
 			return ReflectionPropertyVariable::Type::Float64;
 		}
-		else if constexpr (std::is_same<_MemberVariable_, std::string>::value)
+		else if constexpr (std::is_same<_MemberVariable_, String>::value)
 		{
 			return ReflectionPropertyVariable::Type::String;
 		}
@@ -105,7 +105,7 @@ namespace hod
 				return descriptor.AddProperty<ReflectionPropertyArray>(MakeAdapter<_MemberVariable_>(), type, offset, name.data(), nullptr);
 			}
 		}
-		else if constexpr (std::is_arithmetic<_MemberVariable_>::value || std::is_same<_MemberVariable_, std::string>::value || std::is_enum<_MemberVariable_>::value)
+		else if constexpr (std::is_arithmetic<_MemberVariable_>::value || std::is_same<_MemberVariable_, String>::value || std::is_enum<_MemberVariable_>::value)
 		{
 			ReflectionPropertyVariable* propertyVariable = descriptor.AddProperty<ReflectionPropertyVariable>(GetVariableType<_MemberVariable_>(), offset, name.data(), setMethod,
 			                                                                                                  getMethod); // TODO remove data, descriptor must use string view

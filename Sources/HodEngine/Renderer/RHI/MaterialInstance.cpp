@@ -1,37 +1,32 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
-#include "HodEngine/Renderer/Renderer.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
 #include <iostream>
-
 
 namespace hod
 {
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		MaterialInstance::MaterialInstance(const Material& material)
-			: _material(material)
+		: _material(material)
 		{
-
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		MaterialInstance::~MaterialInstance()
-		{
-
-		}
+		MaterialInstance::~MaterialInstance() {}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		const Material& MaterialInstance::GetMaterial() const
 		{
@@ -39,7 +34,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void MaterialInstance::SetInt(const String& memberName, int value)
 		{
@@ -48,7 +43,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void MaterialInstance::SetFloat(const String& memberName, float value)
 		{
@@ -57,7 +52,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void MaterialInstance::SetVec2(const String& memberName, const Vector2& value)
 		{
@@ -66,7 +61,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void MaterialInstance::SetVec4(const String& memberName, const Vector4& value)
 		{
@@ -75,7 +70,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void MaterialInstance::SetMat4(const String& memberName, const Matrix4& value)
 		{
@@ -84,7 +79,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void MaterialInstance::SetTexture(const String& memberName, const Texture* value)
 		{
@@ -101,7 +96,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		int MaterialInstance::GetInt(const String& memberName)
 		{
@@ -109,7 +104,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		float MaterialInstance::GetFloat(const String& memberName)
 		{
@@ -117,7 +112,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		const Vector2& MaterialInstance::GetVec2(const String& memberName)
 		{
@@ -125,7 +120,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		const Vector4& MaterialInstance::GetVec4(const String& memberName)
 		{
@@ -133,7 +128,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		const Matrix4& MaterialInstance::GetMat4(const String& memberName)
 		{
@@ -141,41 +136,41 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		const Texture* MaterialInstance::GetTexture(const String& memberName)
 		{
 			return _textureMap[memberName];
 		}
-    
-        const std::map<std::string, int>& MaterialInstance::GetIntMap() const
-        {
-            return _intMap;
-        }
-    
-        const std::map<std::string, float>& MaterialInstance::GetFloatMap() const
-        {
-            return _floatMap;
-        }
-    
-		const std::map<std::string, Vector2>& MaterialInstance::GetVec2Map() const
-        {
-            return _vec2Map;
-        }
 
-        const std::map<std::string, Vector4>& MaterialInstance::GetVec4Map() const
-        {
-            return _vec4Map;
-        }
-    
-        const std::map<std::string, Matrix4>& MaterialInstance::GetMat4Map() const
-        {
-            return _mat4Map;
-        }
-    
-        const std::map<std::string, const Texture*>& MaterialInstance::GetTextureMap() const
-        {
-            return _textureMap;
-        }
+		const std::map<String, int>& MaterialInstance::GetIntMap() const
+		{
+			return _intMap;
+		}
+
+		const std::map<String, float>& MaterialInstance::GetFloatMap() const
+		{
+			return _floatMap;
+		}
+
+		const std::map<String, Vector2>& MaterialInstance::GetVec2Map() const
+		{
+			return _vec2Map;
+		}
+
+		const std::map<String, Vector4>& MaterialInstance::GetVec4Map() const
+		{
+			return _vec4Map;
+		}
+
+		const std::map<String, Matrix4>& MaterialInstance::GetMat4Map() const
+		{
+			return _mat4Map;
+		}
+
+		const std::map<String, const Texture*>& MaterialInstance::GetTextureMap() const
+		{
+			return _textureMap;
+		}
 	}
 }

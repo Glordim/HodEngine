@@ -301,8 +301,8 @@ namespace hod
 			case ReflectionPropertyVariable::Type::UInt64: varNode.SetUInt64(*reinterpret_cast<const uint64_t*>(variableAddress)); break;
 			case ReflectionPropertyVariable::Type::Float32: varNode.SetFloat32(*reinterpret_cast<const float*>(variableAddress)); break;
 			case ReflectionPropertyVariable::Type::Float64: varNode.SetFloat64(*reinterpret_cast<const double*>(variableAddress)); break;
-			case ReflectionPropertyVariable::Type::String: varNode.SetString(*reinterpret_cast<const std::string*>(variableAddress)); break;
-			case ReflectionPropertyVariable::Type::Object: varNode.SetString(*reinterpret_cast<const std::string*>(variableAddress)); break;
+			case ReflectionPropertyVariable::Type::String: varNode.SetString(*reinterpret_cast<const String*>(variableAddress)); break;
+			case ReflectionPropertyVariable::Type::Object: varNode.SetString(*reinterpret_cast<const String*>(variableAddress)); break;
 
 			default: assert(false); break;
 		}
@@ -340,7 +340,7 @@ namespace hod
 				case ReflectionPropertyVariable::Type::UInt64: *reinterpret_cast<uint64_t*>(variableAddress) = varNode->GetUInt64(); break;
 				case ReflectionPropertyVariable::Type::Float32: *reinterpret_cast<float*>(variableAddress) = varNode->GetFloat32(); break;
 				case ReflectionPropertyVariable::Type::Float64: *reinterpret_cast<double*>(variableAddress) = varNode->GetFloat64(); break;
-				case ReflectionPropertyVariable::Type::String: *reinterpret_cast<std::string*>(variableAddress) = varNode->GetString(); break;
+				case ReflectionPropertyVariable::Type::String: *reinterpret_cast<String*>(variableAddress) = varNode->GetString(); break;
 
 				default: assert(false); break;
 			}
@@ -378,7 +378,7 @@ namespace hod
 			case ReflectionPropertyVariable::Type::UInt64: arrayNode.SetValues(std::span<const uint64_t>(*reinterpret_cast<const Vector<uint64_t>*>(arrayAddress))); break;
 			case ReflectionPropertyVariable::Type::Float32: arrayNode.SetValues(std::span<const float>(*reinterpret_cast<const Vector<float>*>(arrayAddress))); break;
 			case ReflectionPropertyVariable::Type::Float64: arrayNode.SetValues(std::span<const double>(*reinterpret_cast<const Vector<double>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::String: arrayNode.SetValues(std::span<const std::string>(*reinterpret_cast<const Vector<std::string>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::String: arrayNode.SetValues(std::span<const String>(*reinterpret_cast<const Vector<String>*>(arrayAddress))); break;
 			case ReflectionPropertyVariable::Type::Object:
 			{
 				uint32_t elementCount = property->GetElementCount(instance);
@@ -441,7 +441,7 @@ namespace hod
 					case ReflectionPropertyVariable::Type::UInt64: reinterpret_cast<Vector<uint64_t>*>(arrayAddress)->push_back(varNode->GetUInt64()); break;
 					case ReflectionPropertyVariable::Type::Float32: reinterpret_cast<Vector<float>*>(arrayAddress)->push_back(varNode->GetFloat32()); break;
 					case ReflectionPropertyVariable::Type::Float64: reinterpret_cast<Vector<double>*>(arrayAddress)->push_back(varNode->GetFloat64()); break;
-					case ReflectionPropertyVariable::Type::String: reinterpret_cast<Vector<std::string>*>(arrayAddress)->push_back(varNode->GetString()); break;
+					case ReflectionPropertyVariable::Type::String: reinterpret_cast<Vector<String>*>(arrayAddress)->push_back(varNode->GetString()); break;
 					case ReflectionPropertyVariable::Type::Object:
 					{
 						property->InsertElement(instance, property->GetElementCount(instance));

@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-#include <HodEngine/Core/Singleton.hpp>
+#include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Module/Module.hpp>
-#include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Singleton.hpp>
 
 #include <filesystem>
 
@@ -38,75 +38,98 @@ namespace hod::editor
 	class EditorTab;
 	class AssetBrowserWindow;
 
-	/// @brief 
+	/// @brief
 	class HOD_EDITOR_API Editor
 	{
 		_Singleton(Editor)
 
 	public:
+		~Editor();
 
-												~Editor();
+	public:
+		bool Init(const ArgumentParser& argumentParser);
 
-	public:						
+		bool CreateProject(const std::filesystem::path& path);
+		bool OpenProject(const std::filesystem::path& path);
 
-		bool									Init(const ArgumentParser& argumentParser);
+		bool LoadEditor();
 
-		bool									CreateProject(const std::filesystem::path& path);
-		bool									OpenProject(const std::filesystem::path& path);
+		bool Save();
+		bool SaveSceneAs();
 
-		bool									LoadEditor();
-
-		bool									Save();
-		bool									SaveSceneAs();
-
-		void									Build();
-		void									BuildAndRun();
+		void Build();
+		void BuildAndRun();
 
 		template<typename _EditorTabType_>
-		_EditorTabType_*						OpenAsset(std::shared_ptr<Asset> asset);
-		EditorTab*								OpenAsset(std::shared_ptr<Asset> asset);
+		_EditorTabType_* OpenAsset(std::shared_ptr<Asset> asset);
+		EditorTab*       OpenAsset(std::shared_ptr<Asset> asset);
 
 		template<typename _EditorTabType_>
-		_EditorTabType_*						OpenEditorTab();
+		_EditorTabType_* OpenEditorTab();
 
-		void									PingAsset(std::shared_ptr<Asset> asset);
+		void PingAsset(std::shared_ptr<Asset> asset);
 
-		renderer::Texture*						GetHodTexture() const  { return _hodTexture; }
-		renderer::Texture*						GetFolderTexture() const { return _folderTexture; }
-		renderer::Texture*						GetFolderOpenTexture() const  { return _folderOpenTexture; }
-		renderer::Texture*						GetSceneTexture() const  { return _sceneTexture; }
-		renderer::Texture*						GetPrefabTexture() const  { return _prefabTexture; }
-		renderer::Texture*						GetSerializedDataTexture() const  { return _serializedDataTexture; }
-		renderer::Texture*						GetCheckerTexture() const  { return _checkerTexture; }
+		renderer::Texture* GetHodTexture() const
+		{
+			return _hodTexture;
+		}
+
+		renderer::Texture* GetFolderTexture() const
+		{
+			return _folderTexture;
+		}
+
+		renderer::Texture* GetFolderOpenTexture() const
+		{
+			return _folderOpenTexture;
+		}
+
+		renderer::Texture* GetSceneTexture() const
+		{
+			return _sceneTexture;
+		}
+
+		renderer::Texture* GetPrefabTexture() const
+		{
+			return _prefabTexture;
+		}
+
+		renderer::Texture* GetSerializedDataTexture() const
+		{
+			return _serializedDataTexture;
+		}
+
+		renderer::Texture* GetCheckerTexture() const
+		{
+			return _checkerTexture;
+		}
 
 	private:
+		bool AddProjectInRecentProject(const std::filesystem::path& path) const;
 
-		bool									AddProjectInRecentProject(const std::filesystem::path& path) const;
-
-		bool									LoadEditorModules();
-		bool									UnloadEditorModules();
+		bool LoadEditorModules();
+		bool UnloadEditorModules();
 
 	private:
+		Vector<Module*> _editorModules;
 
-		Vector<Module*>							_editorModules;
+		Vector<EditorTab*>                                                            _editorTabs;
+		std::unordered_map<String, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
-		Vector<EditorTab*>					_editorTabs;
-		std::unordered_map<std::string, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
+		renderer::Texture* _hodTexture = nullptr;
+		renderer::Texture* _folderTexture = nullptr;
+		renderer::Texture* _folderOpenTexture = nullptr;
+		renderer::Texture* _sceneTexture = nullptr;
+		renderer::Texture* _prefabTexture = nullptr;
+		renderer::Texture* _serializedDataTexture = nullptr;
+		renderer::Texture* _checkerTexture = nullptr;
 
-		renderer::Texture*						_hodTexture = nullptr;
-		renderer::Texture*						_folderTexture = nullptr;
-		renderer::Texture*						_folderOpenTexture = nullptr;
-		renderer::Texture*						_sceneTexture = nullptr;
-		renderer::Texture*						_prefabTexture = nullptr;
-		renderer::Texture*						_serializedDataTexture = nullptr;
-		renderer::Texture*						_checkerTexture = nullptr;
+		FpsCounter _fpsCounter;
 
-		FpsCounter								_fpsCounter;
-
-		bool									_showFloatingAssetBrowser = false;
-		bool									_focusFloatingAssetBrowserWindow = false;
-		float									_floatingAssetBrowserWindowPos = 0.0f;
-		AssetBrowserWindow*						_floatingAssetBrowserWindow = nullptr;
+		bool                _showFloatingAssetBrowser = false;
+		bool                _focusFloatingAssetBrowserWindow = false;
+		float               _floatingAssetBrowserWindowPos = 0.0f;
+		AssetBrowserWindow* _floatingAssetBrowserWindow = nullptr;
 	};
 
 	template<typename _EditorTabType_>

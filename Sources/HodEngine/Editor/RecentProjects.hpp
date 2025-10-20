@@ -5,8 +5,8 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
-#include "HodEngine/Core/Vector.hpp"
 #include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::editor
 {
@@ -15,7 +15,6 @@ namespace hod::editor
 		REFLECTED_CLASS_NO_VIRTUAL(RecentProjects)
 
 	public:
-
-		Vector<std::string>	_projectsPath;
+		Vector<String> _projectsPath;
 	};
 }

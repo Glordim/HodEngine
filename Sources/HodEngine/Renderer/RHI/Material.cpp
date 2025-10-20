@@ -178,8 +178,8 @@ namespace hod
 		        Vector<GLchar> errorLog(maxLength);
 		        glGetProgramInfoLog(this->programId, maxLength, &maxLength, &errorLog[0]);
 
-		        std::cerr << std::string("Material : Failed to link Shaders") << std::endl;
-		        std::cerr << std::string(&errorLog[0]) << std::endl;
+		        std::cerr << String("Material : Failed to link Shaders") << std::endl;
+		        std::cerr << String(&errorLog[0]) << std::endl;
 
 		        glDeleteProgram(this->programId);
 		        this->programId = 0;
