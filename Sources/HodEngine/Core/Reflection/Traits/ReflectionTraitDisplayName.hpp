@@ -25,6 +25,6 @@ namespace hod
 		const String& GetValue() const;
 
 	private:
-		std::string _name;
+		String _name;
 	};
 }

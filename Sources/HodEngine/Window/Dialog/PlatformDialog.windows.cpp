@@ -6,11 +6,11 @@
 
 namespace hod::window
 {
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	std::filesystem::path GetOpenFileDialog()
 	{
-		char buffer[4096] = { '\0' };
+		char buffer[4096] = {'\0'};
 
 		OPENFILENAMEA openFileName;
 		ZeroMemory(&openFileName, sizeof(openFileName));
@@ -30,16 +30,16 @@ namespace hod::window
 		return buffer;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	std::filesystem::path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const std::filesystem::path& initialFolder)
 	{
-		char buffer[4096] = { '\0' };
+		char buffer[4096] = {'\0'};
 
 		strcpy(buffer, "EditMe.");
 		strcat(buffer, typeExtension.data());
 
-		char filter[4096] = { '\0' };
+		char filter[4096] = {'\0'};
 		strcpy(filter, typeName.data());
 		strcpy(filter + typeName.size() + 1, typeExtension.data());
 
@@ -63,18 +63,18 @@ namespace hod::window
 		{
 			openFileName.lpstrInitialDir = initialFolderPath.c_str();
 		}
-		openFileName.Flags = 0;//OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+		openFileName.Flags = 0; // OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 		GetSaveFileNameA(&openFileName);
 
 		return buffer;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	std::filesystem::path GetFolderDialog()
 	{
-		char buffer[MAX_PATH] = { '\0' }; 
+		char        buffer[MAX_PATH] = {'\0'};
 		BROWSEINFOA browseInfo;
 		browseInfo.hwndOwner = NULL;
 		browseInfo.pidlRoot = NULL;
@@ -96,8 +96,8 @@ namespace hod::window
 		return std::filesystem::path();
 	}
 
-	/// @brief 
-	/// @param path 
+	/// @brief
+	/// @param path
 	void OpenExplorerAtPath(const std::filesystem::path& path)
 	{
 		if (std::filesystem::is_directory(path))
@@ -106,7 +106,7 @@ namespace hod::window
 		}
 		else if (std::filesystem::is_regular_file(path))
 		{
-			std::string param = "/select,\"" + path.string() + "\"";
+			String param = "/select,\"" + path.string() + "\"";
 			ShellExecute(NULL, "open", "explorer.exe", param.c_str(), NULL, SW_SHOWDEFAULT);
 		}
 		else
@@ -115,13 +115,14 @@ namespace hod::window
 		}
 	}
 
-	/// @brief 
-	/// @param title 
-	/// @param description 
-	/// @param yesChoice 
-	/// @param noChoice 
-	/// @return 
-	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& /*yesChoice*/, [[maybe_unused]] const std::string_view& /*noChoice*/)
+	/// @brief
+	/// @param title
+	/// @param description
+	/// @param yesChoice
+	/// @param noChoice
+	/// @return
+	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& /*yesChoice*/,
+	                     [[maybe_unused]] const std::string_view& /*noChoice*/)
 	{
 		return MessageBox(NULL, description.data(), title.data(), MB_YESNO) == IDYES;
 	}

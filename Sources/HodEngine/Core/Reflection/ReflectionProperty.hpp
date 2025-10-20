@@ -45,9 +45,9 @@ namespace hod
 	protected:
 		Vector<ReflectionTrait*> _traits;
 
-		uint32_t            _offset = 0;
-		const char*         _name = nullptr;
-		mutable std::string _displayName;
+		uint32_t       _offset = 0;
+		const char*    _name = nullptr;
+		mutable String _displayName;
 	};
 }
 

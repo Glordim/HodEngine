@@ -19,7 +19,7 @@ namespace hod
 			int size = std::snprintf(nullptr, 0, format.data(), args...) + 1; // Extra space for '\0'
 			if (size <= 0)
 			{
-				return std::string();
+				return String();
 			}
 
 			char buffer[4096] = {'\0'};

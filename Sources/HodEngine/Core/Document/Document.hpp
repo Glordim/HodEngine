@@ -141,9 +141,9 @@ namespace hod
 			Node*     _parent = nullptr;
 			Document& _document;
 
-			Type        _type;
-			std::string _name;
-			Value       _value;
+			Type   _type;
+			String _name;
+			Value  _value;
 		};
 
 	public:

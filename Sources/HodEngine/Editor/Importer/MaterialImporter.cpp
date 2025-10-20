@@ -1,17 +1,17 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
 
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
-#include <HodEngine/Core/Process/Process.hpp>
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
+#include <HodEngine/Core/Process/Process.hpp>
 
 #include <sstream>
 
@@ -25,23 +25,24 @@ namespace hod::editor
 		AddPropertyT(reflectionDescriptor, &MaterialImporterSettings::_defaultInstanceParams, "_defaultInstanceParams")->AddTrait<ReflectionTraitHide>();
 	}
 
-	/// @brief 
+	/// @brief
 	MaterialImporter::MaterialImporter()
 	: Importer()
 	{
 		SetSupportedDataFileExtensions("slang");
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
-	bool MaterialImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
+	/// @brief
+	/// @param path
+	/// @return
+	bool MaterialImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail,
+	                                     ImporterSettings& settings)
 	{
 		(void)thumbnail; // TODO
 		(void)settings;
 
 		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
-		char* dataBuffer = DefaultAllocator::GetInstance().Allocate<char>(dataSize + 1);
+		char*    dataBuffer = DefaultAllocator::GetInstance().Allocate<char>(dataSize + 1);
 		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != (int32_t)dataSize)
 		{
 			OUTPUT_ERROR("MaterialImporter : Can't read Shader data");
@@ -49,7 +50,7 @@ namespace hod::editor
 		}
 		dataBuffer[dataSize] = '\0';
 
-		std::string shaderTypeParams;
+		String shaderTypeParams;
 		if (std::strstr(dataBuffer, "VertexMain") == nullptr)
 		{
 			DefaultAllocator::GetInstance().Free(dataBuffer);
@@ -65,13 +66,15 @@ namespace hod::editor
 		DefaultAllocator::GetInstance().Free(dataBuffer); // todo remove (link with slang and don't use filesystem)
 
 		std::filesystem::path slangVertexOutput = FileSystem::GetTemporaryPath() / "HodShaderVertexImporter.tmp";
-		std::string stageVertexParameter = "-entry VertexMain -stage vertex";
+		String                stageVertexParameter = "-entry VertexMain -stage vertex";
 #if defined(PLATFORM_WINDOWS)
-		bool slangResult = Process::Create("Tools/slangc.exe", std::format("{} -target spirv {} -o {}", data._path.string(), stageVertexParameter, slangVertexOutput.string()), false);
+		bool slangResult =
+			Process::Create("Tools/slangc.exe", std::format("{} -target spirv {} -o {}", data._path.string(), stageVertexParameter, slangVertexOutput.string()), false);
 #elif defined(PLATFORM_LINUX)
 		bool slangResult = Process::Create("Tools/slangc", std::format("{} -target spv {} -o {}", data._path.string(), stageVertexParameter, slangVertexOutput.string()), false);
 #else
-		bool slangResult = Process::Create("Tools/slangc", std::format("{} -target metallib {} -o {}", data._path.string(), stageVertexParameter, slangVertexOutput.string()), false);
+		bool slangResult =
+			Process::Create("Tools/slangc", std::format("{} -target metallib {} -o {}", data._path.string(), stageVertexParameter, slangVertexOutput.string()), false);
 #endif
 		if (slangResult == false)
 		{
@@ -80,13 +83,15 @@ namespace hod::editor
 		}
 
 		std::filesystem::path slangFragmentOutput = FileSystem::GetTemporaryPath() / "HodShaderFragmentImporter.tmp";
-		std::string stageFragmentParameter = "-entry FragmentMain -stage fragment";
+		String                stageFragmentParameter = "-entry FragmentMain -stage fragment";
 #if defined(PLATFORM_WINDOWS)
-		slangResult = Process::Create("Tools/slangc.exe", std::format("{} -target spirv {} -o {}", data._path.string(), stageFragmentParameter, slangFragmentOutput.string()), false);
+		slangResult =
+			Process::Create("Tools/slangc.exe", std::format("{} -target spirv {} -o {}", data._path.string(), stageFragmentParameter, slangFragmentOutput.string()), false);
 #elif defined(PLATFORM_LINUX)
 		slangResult = Process::Create("Tools/slangc", std::format("{} -target spv {} -o {}", data._path.string(), stageFragmentParameter, slangFragmentOutput.string()), false);
 #else
-		slangResult = Process::Create("Tools/slangc", std::format("{} -target metallib {} -o {}", data._path.string(), stageFragmentParameter, slangFragmentOutput.string()), false);
+		slangResult =
+			Process::Create("Tools/slangc", std::format("{} -target metallib {} -o {}", data._path.string(), stageFragmentParameter, slangFragmentOutput.string()), false);
 #endif
 		if (slangResult == false)
 		{
@@ -95,8 +100,8 @@ namespace hod::editor
 		}
 
 		FileSystem::Handle vertexSlangOutputHandle = FileSystem::GetInstance()->Open(slangVertexOutput);
-		uint32_t vertexDataSize = FileSystem::GetInstance()->GetSize(vertexSlangOutputHandle);
-		char* vertexDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(vertexDataSize + 1);
+		uint32_t           vertexDataSize = FileSystem::GetInstance()->GetSize(vertexSlangOutputHandle);
+		char*              vertexDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(vertexDataSize + 1);
 		if (FileSystem::GetInstance()->Read(vertexSlangOutputHandle, reinterpret_cast<char*>(vertexDataBuffer), vertexDataSize) != (int32_t)vertexDataSize)
 		{
 			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
@@ -108,8 +113,8 @@ namespace hod::editor
 		vertexDataBuffer[vertexDataSize] = '\0';
 
 		FileSystem::Handle fragmentSlangOutputHandle = FileSystem::GetInstance()->Open(slangFragmentOutput);
-		uint32_t fragmentDataSize = FileSystem::GetInstance()->GetSize(fragmentSlangOutputHandle);
-		char* fragmentDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(fragmentDataSize + 1);
+		uint32_t           fragmentDataSize = FileSystem::GetInstance()->GetSize(fragmentSlangOutputHandle);
+		char*              fragmentDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(fragmentDataSize + 1);
 		if (FileSystem::GetInstance()->Read(fragmentSlangOutputHandle, reinterpret_cast<char*>(fragmentDataBuffer), fragmentDataSize) != (int32_t)fragmentDataSize)
 		{
 			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
@@ -121,7 +126,7 @@ namespace hod::editor
 		FileSystem::GetInstance()->Close(fragmentSlangOutputHandle);
 		fragmentDataBuffer[fragmentDataSize] = '\0';
 
-		Document metaDocument;
+		Document           metaDocument;
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(metaDocument, meta) == false) // todo dont copy all meta
 		{
@@ -154,8 +159,8 @@ namespace hod::editor
 
 	// TODO Move all virtual in Ctor const init ?
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const char* MaterialImporter::GetTypeName() const
 	{
 		return "MaterialImporter";

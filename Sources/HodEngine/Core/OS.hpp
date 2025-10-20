@@ -16,9 +16,9 @@ namespace hod
 	class HOD_CORE_API OS
 	{
 	public:
-		static uint32_t    GetCallstack(void** callstack, uint32_t maxSize); // todo span ?
-		static std::string GetSymbol(void* addr);
-		static bool        GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle);
+		static uint32_t GetCallstack(void** callstack, uint32_t maxSize); // todo span ?
+		static String   GetSymbol(void* addr);
+		static bool     GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle);
 
 		static bool OpenFileWithDefaultApp(const char* filePath);
 

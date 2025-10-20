@@ -125,7 +125,7 @@ namespace hod::game
 		void Destruct();
 
 	private:
-		std::string _name;
+		String _name;
 
 		bool          _active = true;
 		bool          _activeInHierarchy = false;
