@@ -4,8 +4,9 @@ namespace hod
 	/// @tparam __TYPE__
 	/// @param index
 	template<typename __TYPE__>
-	Vector<__TYPE__>::Iterator::Iterator(pointer element)
-	: element(element)
+	template<typename __ITER_TYPE__>
+	Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::IteratorBase(pointer ptr)
+	: _ptr(ptr)
 	{
 	}
 
@@ -13,8 +14,9 @@ namespace hod
 	/// @tparam __TYPE__
 	/// @param iterator
 	template<typename __TYPE__>
-	Vector<__TYPE__>::Iterator::Iterator(const Iterator& iterator)
-	: element(iterator.element)
+	template<typename __ITER_TYPE__>
+	Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::IteratorBase(const IteratorBase& iterator)
+	: _ptr(iterator._ptr)
 	{
 	}
 
@@ -22,10 +24,11 @@ namespace hod
 	/// @tparam __TYPE__
 	/// @param iterator
 	template<typename __TYPE__>
-	Vector<__TYPE__>::Iterator::Iterator(Iterator&& iterator)
-	: element(iterator.element)
+	template<typename __ITER_TYPE__>
+	Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::IteratorBase(IteratorBase&& iterator)
+	: _ptr(iterator._ptr)
 	{
-		iterator.element = nullptr;
+		iterator._ptr = nullptr;
 	}
 
 	/// @brief
@@ -33,9 +36,10 @@ namespace hod
 	/// @param iterator
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator& Vector<__TYPE__>::Iterator::operator=(const Iterator& iterator)
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>& Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator=(const IteratorBase& iterator)
 	{
-		element = iterator.element;
+		_ptr = iterator._ptr;
 
 		return *this;
 	}
@@ -45,11 +49,12 @@ namespace hod
 	/// @param iterator
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator& Vector<__TYPE__>::Iterator::operator=(Iterator&& iterator)
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>& Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator=(IteratorBase&& iterator)
 	{
-		element = iterator.element;
+		_ptr = iterator._ptr;
 
-		iterator.element = nullptr;
+		iterator._ptr = nullptr;
 
 		return *this;
 	}
@@ -59,9 +64,10 @@ namespace hod
 	/// @param iterator
 	/// @return
 	template<typename __TYPE__>
-	bool Vector<__TYPE__>::Iterator::operator==(const Iterator& iterator) const
+	template<typename __ITER_TYPE__>
+	bool Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator==(const IteratorBase& iterator) const
 	{
-		return element == iterator.element;
+		return _ptr == iterator._ptr;
 	}
 
 	/// @brief
@@ -69,9 +75,10 @@ namespace hod
 	/// @param iterator
 	/// @return
 	template<typename __TYPE__>
-	bool Vector<__TYPE__>::Iterator::operator!=(const Iterator& iterator) const
+	template<typename __ITER_TYPE__>
+	bool Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator!=(const IteratorBase& iterator) const
 	{
-		return element != iterator.element;
+		return _ptr != iterator._ptr;
 	}
 
 	/// @brief
@@ -79,21 +86,10 @@ namespace hod
 	/// @param offset
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator& Vector<__TYPE__>::Iterator::operator+=(difference_type offset)
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>& Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator+=(difference_type offset)
 	{
-		element += offset; // TODO : Check bound if macro defined
-
-		return *this;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param offset
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator& Vector<__TYPE__>::Iterator::operator-=(difference_type offset)
-	{
-		element -= offset; // TODO : Check bound if macro defined
+		_ptr += offset; // TODO : Check bound if macro defined
 
 		return *this;
 	}
@@ -103,9 +99,12 @@ namespace hod
 	/// @param offset
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Iterator::operator+(difference_type offset) const
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>& Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator-=(difference_type offset)
 	{
-		return Vector<__TYPE__>::Iterator(element + offset); // TODO : Check bound if macro defined
+		_ptr -= offset; // TODO : Check bound if macro defined
+
+		return *this;
 	}
 
 	/// @brief
@@ -113,18 +112,31 @@ namespace hod
 	/// @param offset
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Iterator::operator-(difference_type offset) const
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__> Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator+(difference_type offset) const
 	{
-		return Vector<__TYPE__>::Iterator(element - offset); // TODO : Check bound if macro defined
+		return Vector<__TYPE__>::IteratorBase(_ptr + offset); // TODO : Check bound if macro defined
+	}
+
+	/// @brief
+	/// @tparam __TYPE__
+	/// @param offset
+	/// @return
+	template<typename __TYPE__>
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__> Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator-(difference_type offset) const
+	{
+		return Vector<__TYPE__>::IteratorBase(_ptr - offset); // TODO : Check bound if macro defined
 	}
 
 	/// @brief
 	/// @tparam __TYPE__
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator& Vector<__TYPE__>::Iterator::operator++()
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>& Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator++()
 	{
-		++element; // TODO : Check bound if macro defined
+		++_ptr; // TODO : Check bound if macro defined
 
 		return *this;
 	}
@@ -133,9 +145,10 @@ namespace hod
 	/// @tparam __TYPE__
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator& Vector<__TYPE__>::Iterator::operator--()
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>& Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator--()
 	{
-		--element; // TODO : Check bound if macro defined
+		--_ptr; // TODO : Check bound if macro defined
 
 		return *this;
 	}
@@ -144,10 +157,11 @@ namespace hod
 	/// @tparam __TYPE__
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Iterator::operator++(int32_t)
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__> Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator++(int32_t)
 	{
-		Iterator it = Iterator(*this);
-		++element; // TODO : Check bound if macro defined
+		IteratorBase it = IteratorBase(*this);
+		++_ptr; // TODO : Check bound if macro defined
 
 		return it;
 	}
@@ -156,10 +170,11 @@ namespace hod
 	/// @tparam __TYPE__
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Iterator::operator--(int32_t)
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__> Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator--(int32_t)
 	{
-		Iterator it = Iterator(*this);
-		--element; // TODO : Check bound if macro defined
+		IteratorBase it = IteratorBase(*this);
+		--_ptr; // TODO : Check bound if macro defined
 
 		return it;
 	}
@@ -168,18 +183,20 @@ namespace hod
 	/// @tparam __TYPE__
 	/// @return
 	template<typename __TYPE__>
-	__TYPE__& Vector<__TYPE__>::Iterator::operator*() const
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>::reference Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator*() const
 	{
-		return *element;
+		return *_ptr;
 	}
 
 	/// @brief
 	/// @tparam __TYPE__
 	/// @return
 	template<typename __TYPE__>
-	__TYPE__* Vector<__TYPE__>::Iterator::operator->() const
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>::pointer Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator->() const
 	{
-		return element;
+		return _ptr;
 	}
 
 	/// @brief
@@ -187,300 +204,45 @@ namespace hod
 	/// @param iterator
 	/// @return
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator::difference_type Vector<__TYPE__>::Iterator::operator-(const Iterator& iterator) const
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>::difference_type Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator-(const IteratorBase& iterator) const
 	{
-		return element - iterator.element;
+		return _ptr - iterator._ptr;
 	}
 
 	template<typename __TYPE__>
-	typename Vector<__TYPE__>::Iterator::reference Vector<__TYPE__>::Iterator::operator[](difference_type offset) const
+	template<typename __ITER_TYPE__>
+	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>::reference Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator[](difference_type offset) const
 	{
-		return *(element + offset);
+		return *(_ptr + offset);
 	}
 
 	template<typename __TYPE__>
-	bool Vector<__TYPE__>::Iterator::operator<(const Iterator& iterator) const
+	template<typename __ITER_TYPE__>
+	bool Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator<(const IteratorBase& iterator) const
 	{
-		return element - iterator.element < 0;
+		return _ptr - iterator._ptr < 0;
 	}
 
 	template<typename __TYPE__>
-	bool Vector<__TYPE__>::Iterator::operator<=(const Iterator& iterator) const
+	template<typename __ITER_TYPE__>
+	bool Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator<=(const IteratorBase& iterator) const
 	{
-		return element - iterator.element <= 0;
+		return _ptr - iterator._ptr <= 0;
 	}
 
 	template<typename __TYPE__>
-	bool Vector<__TYPE__>::Iterator::operator>(const Iterator& iterator) const
+	template<typename __ITER_TYPE__>
+	bool Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator>(const IteratorBase& iterator) const
 	{
-		return element - iterator.element > 0;
+		return _ptr - iterator._ptr > 0;
 	}
 
 	template<typename __TYPE__>
-	bool Vector<__TYPE__>::Iterator::operator>=(const Iterator& iterator) const
+	template<typename __ITER_TYPE__>
+	bool Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator>=(const IteratorBase& iterator) const
 	{
-		return element - iterator.element >= 0;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param index
-	template<typename __TYPE__>
-	Vector<__TYPE__>::ConstIterator::ConstIterator(pointer element)
-	: element(element)
-	{
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	template<typename __TYPE__>
-	Vector<__TYPE__>::ConstIterator::ConstIterator(const ConstIterator& iterator)
-	: element(iterator.element)
-	{
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	template<typename __TYPE__>
-	Vector<__TYPE__>::ConstIterator::ConstIterator(const Iterator& iterator)
-	: element(iterator.element)
-	{
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	template<typename __TYPE__>
-	Vector<__TYPE__>::ConstIterator::ConstIterator(ConstIterator&& iterator)
-	: element(iterator.element)
-	{
-		iterator.element = nullptr;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	template<typename __TYPE__>
-	Vector<__TYPE__>::ConstIterator::ConstIterator(Iterator&& iterator)
-	: element(iterator.element)
-	{
-		iterator.element = nullptr;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator& Vector<__TYPE__>::ConstIterator::operator=(const ConstIterator& iterator)
-	{
-		element = iterator.element;
-
-		return *this;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator& Vector<__TYPE__>::ConstIterator::operator=(ConstIterator&& iterator)
-	{
-		element = iterator.element;
-
-		iterator.element = nullptr;
-
-		return *this;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	bool Vector<__TYPE__>::ConstIterator::operator==(const ConstIterator& iterator) const
-	{
-		return element == iterator.element;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	bool Vector<__TYPE__>::ConstIterator::operator!=(const ConstIterator& iterator) const
-	{
-		return element != iterator.element;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param offset
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator& Vector<__TYPE__>::ConstIterator::operator+=(difference_type offset)
-	{
-		element += offset; // TODO : Check bound if macro defined
-
-		return *this;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param offset
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator& Vector<__TYPE__>::ConstIterator::operator-=(difference_type offset)
-	{
-		element -= offset; // TODO : Check bound if macro defined
-
-		return *this;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param offset
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator Vector<__TYPE__>::ConstIterator::operator+(difference_type offset) const
-	{
-		return Vector<__TYPE__>::ConstIterator(element + offset); // TODO : Check bound if macro defined
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param offset
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator Vector<__TYPE__>::ConstIterator::operator-(difference_type offset) const
-	{
-		return Vector<__TYPE__>::ConstIterator(element - offset); // TODO : Check bound if macro defined
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator& Vector<__TYPE__>::ConstIterator::operator++()
-	{
-		++element; // TODO : Check bound if macro defined
-
-		return *this;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator& Vector<__TYPE__>::ConstIterator::operator--()
-	{
-		--element; // TODO : Check bound if macro defined
-
-		return *this;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator Vector<__TYPE__>::ConstIterator::operator++(int32_t)
-	{
-		ConstIterator it = ConstIterator(*this);
-		++element; // TODO : Check bound if macro defined
-
-		return it;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator Vector<__TYPE__>::ConstIterator::operator--(int32_t)
-	{
-		ConstIterator it = ConstIterator(*this);
-		--element; // TODO : Check bound if macro defined
-
-		return it;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @return
-	template<typename __TYPE__>
-	const __TYPE__& Vector<__TYPE__>::ConstIterator::operator*() const
-	{
-		return *element;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @return
-	template<typename __TYPE__>
-	const __TYPE__* Vector<__TYPE__>::ConstIterator::operator->() const
-	{
-		return element;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator::difference_type Vector<__TYPE__>::ConstIterator::operator-(const ConstIterator& iterator) const
-	{
-		return element - iterator.element;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param offset
-	/// @return
-	template<typename __TYPE__>
-	typename Vector<__TYPE__>::ConstIterator::reference Vector<__TYPE__>::ConstIterator::operator[](difference_type offset) const
-	{
-		return *(element + offset);
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	bool Vector<__TYPE__>::ConstIterator::operator<(const ConstIterator& iterator) const
-	{
-		return element - iterator.element < 0;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	bool Vector<__TYPE__>::ConstIterator::operator<=(const ConstIterator& iterator) const
-	{
-		return element - iterator.element <= 0;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	bool Vector<__TYPE__>::ConstIterator::operator>(const ConstIterator& iterator) const
-	{
-		return element - iterator.element > 0;
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param iterator
-	/// @return
-	template<typename __TYPE__>
-	bool Vector<__TYPE__>::ConstIterator::operator>=(const ConstIterator& iterator) const
-	{
-		return element - iterator.element >= 0;
+		return _ptr - iterator._ptr >= 0;
 	}
 
 	/// @brief
@@ -1412,28 +1174,28 @@ namespace hod
 	{
 		if (_size < _capacity)
 		{
-			if (iterator.element < _elements + _size)
+			if (iterator._ptr < _elements + _size)
 			{
 				New(&_elements[_size], std::move(_elements[_size - 1]));
 
-				for (__TYPE__* element = &_elements[_size - 1]; element > iterator.element; --element)
+				for (__TYPE__* element = &_elements[_size - 1]; element > iterator._ptr; --element)
 				{
 					*element = std::move(*(element - 1));
 				}
 
-				(_elements + (iterator.element - _elements))->~__TYPE__();
+				(_elements + (iterator._ptr - _elements))->~__TYPE__();
 			}
 
-			New(_elements + (iterator.element - _elements), value);
+			New(_elements + (iterator._ptr - _elements), value);
 			++_size;
 
-			return Iterator(const_cast<typename Iterator::pointer>(iterator.element));
+			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
 		}
 		else
 		{
 			if (_elements == nullptr)
 			{
-				assert(iterator.element == nullptr);
+				assert(iterator._ptr == nullptr);
 
 				_capacity = 1;
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
@@ -1445,14 +1207,14 @@ namespace hod
 			}
 			else
 			{
-				assert(iterator.element <= _elements + _size);
+				assert(iterator._ptr <= _elements + _size);
 
 				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
 				{
 					__TYPE__* newElements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
 					__TYPE__* newElement = newElements;
 
-					for (__TYPE__* element = _elements; element < iterator.element; ++element)
+					for (__TYPE__* element = _elements; element < iterator._ptr; ++element)
 					{
 						New(newElement, std::move(*element));
 						++newElement;
@@ -1463,7 +1225,7 @@ namespace hod
 					New(newElement, value);
 					++newElement;
 
-					for (__TYPE__* element = _elements + (iterator.element - _elements); element < _elements + _size; ++element)
+					for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size; ++element)
 					{
 						New(newElement, std::move(*element));
 						++newElement;
@@ -1481,13 +1243,13 @@ namespace hod
 				}
 				else
 				{
-					for (__TYPE__* element = _elements + _size; element > iterator.element; --element)
+					for (__TYPE__* element = _elements + _size; element > iterator._ptr; --element)
 					{
 						New(element, std::move(*(element - 1)));
 						(element - 1)->~__TYPE__();
 					}
 
-					__TYPE__* newElement = const_cast<__TYPE__*>(iterator.element);
+					__TYPE__* newElement = const_cast<__TYPE__*>(iterator._ptr);
 					New(newElement, value);
 
 					++_size;
@@ -1613,30 +1375,30 @@ namespace hod
 	{
 		if (_size < _capacity)
 		{
-			assert(iterator.element <= _elements + _size);
+			assert(iterator._ptr <= _elements + _size);
 
-			if (iterator.element < _elements + _size)
+			if (iterator._ptr < _elements + _size)
 			{
 				New(&_elements[_size], std::move(_elements[_size - 1]));
 
-				for (__TYPE__* element = _elements + _size - 1; element > iterator.element; --element)
+				for (__TYPE__* element = _elements + _size - 1; element > iterator._ptr; --element)
 				{
 					*element = std::move(*(element - 1));
 				}
 
-				(_elements + (iterator.element - _elements))->~__TYPE__();
+				(_elements + (iterator._ptr - _elements))->~__TYPE__();
 			}
 
-			New(_elements + (iterator.element - _elements), std::move(value));
+			New(_elements + (iterator._ptr - _elements), std::move(value));
 			++_size;
 
-			return Iterator(const_cast<typename Iterator::pointer>(iterator.element));
+			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
 		}
 		else
 		{
 			if (_elements == nullptr)
 			{
-				assert(iterator.element == nullptr);
+				assert(iterator._ptr == nullptr);
 
 				_capacity = 1;
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
@@ -1650,11 +1412,11 @@ namespace hod
 			{
 				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
 				{
-					assert(iterator.element <= _elements + _size);
+					assert(iterator._ptr <= _elements + _size);
 
 					__TYPE__* newElements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
 					__TYPE__* newElement = newElements;
-					for (__TYPE__* element = _elements; element < iterator.element; ++element)
+					for (__TYPE__* element = _elements; element < iterator._ptr; ++element)
 					{
 						New(newElement, std::move(*element));
 						++newElement;
@@ -1665,7 +1427,7 @@ namespace hod
 					New(newElement, std::move(value));
 					++newElement;
 
-					for (__TYPE__* element = _elements + (iterator.element - _elements); element < _elements + _size; ++element)
+					for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size; ++element)
 					{
 						New(newElement, std::move(*element));
 						++newElement;
@@ -1683,13 +1445,13 @@ namespace hod
 				}
 				else
 				{
-					for (__TYPE__* element = _elements + _size; element > iterator.element; --element)
+					for (__TYPE__* element = _elements + _size; element > iterator._ptr; --element)
 					{
 						New(element, std::move(*(element - 1)));
 						(element - 1)->~__TYPE__();
 					}
 
-					__TYPE__* newElement = const_cast<__TYPE__*>(iterator.element);
+					__TYPE__* newElement = const_cast<__TYPE__*>(iterator._ptr);
 					New(newElement, std::move(value));
 
 					++_size;
@@ -1815,38 +1577,40 @@ namespace hod
 
 		if (first == last)
 		{
-			return Iterator(const_cast<typename Iterator::pointer>(iterator.element));
+			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
 		}
-		uint32_t elementToInsertCount = static_cast<uint32_t>(last.element - first.element);
+		uint32_t elementToInsertCount = static_cast<uint32_t>(*last - *first);
 		if (_size + elementToInsertCount <= _capacity)
 		{
-			for (__TYPE__* element = _elements + _size - 1; element >= iterator.element; --element)
+			for (__TYPE__* element = _elements + _size - 1; element >= iterator._ptr; --element)
 			{
 				New(element + elementToInsertCount, std::move(*element));
 				element->~__TYPE__();
 			}
-			for (__TYPE__* element = const_cast<__TYPE__*>(iterator.element); element < iterator.element + elementToInsertCount; ++element)
+			for (__TYPE__* element = const_cast<__TYPE__*>(iterator._ptr); element < iterator._ptr + elementToInsertCount; ++element)
 			{
-				New(element, *first.element);
+				New(element, *first);
 				++first;
 			}
 			_size += elementToInsertCount;
 
-			return Iterator(const_cast<typename Iterator::pointer>(iterator.element));
+			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
 		}
 		else
 		{
 			if (_elements == nullptr)
 			{
-				assert(iterator.element == nullptr);
+				assert(iterator._ptr == nullptr);
 
 				_capacity = _size + elementToInsertCount; // Should be better to set capacity to a power of two ?
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-				__TYPE__* elements = _elements;
-				for (__TYPE__* element = const_cast<__TYPE__*>(first.element); element < last.element; ++element)
+				__TYPE__*    elements = _elements;
+				__ITERATOR__ it = first;
+				while (it != last)
 				{
-					New(elements, std::move(*element));
+					New(elements, std::move(*it));
 					++elements;
+					++it;
 				}
 				_size += elementToInsertCount;
 
@@ -1854,12 +1618,12 @@ namespace hod
 			}
 			else
 			{
-				assert(iterator.element <= _elements + _size);
+				assert(iterator._ptr <= _elements + _size);
 
 				__TYPE__* newElements = reinterpret_cast<__TYPE__*>(
 					_allocator->Allocate((_size + elementToInsertCount) * sizeof(__TYPE__), alignof(__TYPE__))); // Should be better to set capacity to a power of two ?
 				__TYPE__* newElement = newElements;
-				for (__TYPE__* element = _elements; element < iterator.element; ++element)
+				for (__TYPE__* element = _elements; element < iterator._ptr; ++element)
 				{
 					New(newElement, std::move(*element));
 					++newElement;
@@ -1871,7 +1635,7 @@ namespace hod
 					New(newElement, std::move(*element));
 					++newElement;
 				}
-				for (__TYPE__* element = _elements + (iterator.element - _elements); element < _elements + _size; ++element)
+				for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size; ++element)
 				{
 					New(newElement, std::move(*element));
 					++newElement;
@@ -2039,30 +1803,30 @@ namespace hod
 	{
 		if (_size < _capacity)
 		{
-			assert(iterator.element <= _elements + _size);
+			assert(iterator._ptr <= _elements + _size);
 
-			if (iterator.element < _elements + _size)
+			if (iterator._ptr < _elements + _size)
 			{
 				New(&_elements[_size], std::move(_elements[_size - 1]));
 
-				for (__TYPE__* element = &_elements[_size - 1]; element > iterator.element; --element)
+				for (__TYPE__* element = &_elements[_size - 1]; element > iterator._ptr; --element)
 				{
 					*element = std::move(*(element - 1));
 				}
 
-				(_elements + (iterator.element - _elements))->~__TYPE__();
+				(_elements + (iterator._ptr - _elements))->~__TYPE__();
 			}
 
-			New(_elements + (iterator.element - _elements), std::forward<__ARGUMENTS__>(arguments)...);
+			New(_elements + (iterator._ptr - _elements), std::forward<__ARGUMENTS__>(arguments)...);
 			++_size;
 
-			return Iterator(const_cast<typename Iterator::pointer>(iterator.element));
+			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
 		}
 		else
 		{
 			if (_elements == nullptr)
 			{
-				assert(iterator.element == nullptr);
+				assert(iterator._ptr == nullptr);
 
 				_capacity = 1;
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
@@ -2076,11 +1840,11 @@ namespace hod
 			{
 				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
 				{
-					assert(iterator.element <= _elements + _size);
+					assert(iterator._ptr <= _elements + _size);
 
 					__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
 
-					for (__TYPE__* element = _elements; element < iterator.element; ++element)
+					for (__TYPE__* element = _elements; element < iterator._ptr; ++element)
 					{
 						New(elements, std::move(*element));
 						++elements;
@@ -2091,7 +1855,7 @@ namespace hod
 					New(elements, std::forward<__ARGUMENTS__>(arguments)...);
 					++elements;
 
-					for (__TYPE__* element = _elements + (iterator.element - _elements); element < _elements + _size; ++element)
+					for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size; ++element)
 					{
 						New(elements, std::move(*element));
 						++elements;
@@ -2109,13 +1873,13 @@ namespace hod
 				}
 				else
 				{
-					for (__TYPE__* element = _elements + _size; element > iterator.element; --element)
+					for (__TYPE__* element = _elements + _size; element > iterator._ptr; --element)
 					{
 						New(element, std::move(*(element - 1)));
 						(element - 1)->~__TYPE__();
 					}
 
-					__TYPE__* newElement = const_cast<__TYPE__*>(iterator.element);
+					__TYPE__* newElement = const_cast<__TYPE__*>(iterator._ptr);
 					New(newElement, std::forward<__ARGUMENTS__>(arguments)...);
 
 					++_size;
@@ -2260,9 +2024,9 @@ namespace hod
 	template<typename __TYPE__>
 	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Erase(ConstIterator iterator)
 	{
-		assert(iterator.element < _elements + _size);
+		assert(iterator._ptr < _elements + _size);
 
-		for (__TYPE__* element = _elements + (iterator.element - _elements); element < _elements + _size - 1; ++element)
+		for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size - 1; ++element)
 		{
 			*element = std::move(*(element + 1));
 		}
@@ -2270,7 +2034,7 @@ namespace hod
 		_elements[_size - 1].~__TYPE__();
 		--_size;
 
-		return Iterator(const_cast<typename Iterator::pointer>(iterator.element));
+		return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
 	}
 
 	template<typename __TYPE__>
@@ -2307,18 +2071,18 @@ namespace hod
 	template<typename __TYPE__>
 	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Erase(ConstIterator first, ConstIterator last)
 	{
-		assert(first.element <= _elements + _size);
-		assert(first.element <= last.element);
+		assert(first._ptr <= _elements + _size);
+		assert(first._ptr <= last._ptr);
 
-		if (first.element == last.element)
+		if (first._ptr == last._ptr)
 		{
-			return Iterator(const_cast<typename Iterator::pointer>(last.element));
+			return Iterator(const_cast<typename Iterator::pointer>(last._ptr));
 		}
 
-		uint32_t  uiNewSize = _size - static_cast<uint32_t>(last.element - first.element);
-		__TYPE__* pFirst = _elements + (first.element - _elements);
+		uint32_t  uiNewSize = _size - static_cast<uint32_t>(last.ele_ptrment - first._ptr);
+		__TYPE__* pFirst = _elements + (first._ptr - _elements);
 
-		for (__TYPE__* element = _elements + (last.element - _elements); element < _elements + _size; ++element)
+		for (__TYPE__* element = _elements + (last._ptr - _elements); element < _elements + _size; ++element)
 		{
 			*(pFirst) = std::move(*element);
 			++pFirst;
@@ -2381,7 +2145,7 @@ namespace hod
 	void Vector<__TYPE__>::Swap(Vector& vector)
 	{
 		__TYPE__*  elements = _elements;
-		uint32_t   uiCapacity = _capacity;
+		uint32_t   capacity = _capacity;
 		uint32_t   size = _size;
 		Allocator* allocator = _allocator;
 
@@ -2391,7 +2155,7 @@ namespace hod
 		_allocator = vector._allocator;
 
 		vector._elements = elements;
-		vector._capacity = uiCapacity;
+		vector._capacity = capacity;
 		vector._size = size;
 		vector._allocator = allocator;
 	}
@@ -2432,14 +2196,14 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::SwapAndPopBack(ConstIterator iterator)
 	{
-		assert(iterator.element < _elements + _size);
+		assert(iterator._ptr < _elements + _size);
 
-		if (iterator.element < _elements + _size - 1)
+		if (iterator._ptr < _elements + _size - 1)
 		{
 			Swap(iterator, ConstIterator(_elements + _size - 1));
 		}
 
-		if (iterator.element < _elements + _size)
+		if (iterator._ptr < _elements + _size)
 		{
 			PopBack();
 		}

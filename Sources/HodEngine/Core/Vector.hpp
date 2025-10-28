@@ -13,118 +13,73 @@ namespace hod
 		using value_type = __TYPE__;
 
 	public:
-		class Iterator
+		template<typename __ITER_TYPE__>
+		class IteratorBase
 		{
 			friend class Vector;
 
 		public:
 			using iterator_category = std::random_access_iterator_tag;
 			using difference_type = std::ptrdiff_t;
-			using value_type = __TYPE__;
-			using pointer = __TYPE__*;
-			using reference = __TYPE__&;
+			using value_type = __ITER_TYPE__;
+			using pointer = __ITER_TYPE__*;
+			using reference = __ITER_TYPE__&;
 
 		public:
-			Iterator() = default;
-			Iterator(const Iterator& iterator);
-			Iterator(Iterator&& iterator);
-			~Iterator() = default;
+			IteratorBase() = default;
+			IteratorBase(const IteratorBase& iterator);
+			IteratorBase(IteratorBase&& iterator);
+			~IteratorBase() = default;
 
-			Iterator& operator=(const Iterator& iterator);
-			Iterator& operator=(Iterator&& iterator);
+			IteratorBase& operator=(const IteratorBase& iterator);
+			IteratorBase& operator=(IteratorBase&& iterator);
 
-			bool operator==(const Iterator& iterator) const;
-			bool operator!=(const Iterator& iterator) const;
+			template<typename OtherValueType>
+				requires(std::is_same_v<std::remove_const_t<__ITER_TYPE__>, std::remove_const_t<OtherValueType>> && std::is_const_v<__ITER_TYPE__> &&
+			             !std::is_const_v<OtherValueType>)
+			IteratorBase(const IteratorBase<OtherValueType>& other)
+			: _ptr(other._ptr)
+			{
+			}
 
-			Iterator& operator+=(difference_type offset);
-			Iterator& operator-=(difference_type offset);
+			bool operator==(const IteratorBase& iterator) const;
+			bool operator!=(const IteratorBase& iterator) const;
 
-			Iterator operator+(difference_type offset) const;
-			Iterator operator-(difference_type offset) const;
+			IteratorBase& operator+=(difference_type offset);
+			IteratorBase& operator-=(difference_type offset);
 
-			Iterator& operator++();
-			Iterator& operator--();
+			IteratorBase operator+(difference_type offset) const;
+			IteratorBase operator-(difference_type offset) const;
 
-			Iterator operator++(int32_t);
-			Iterator operator--(int32_t);
+			IteratorBase& operator++();
+			IteratorBase& operator--();
+
+			IteratorBase operator++(int32_t);
+			IteratorBase operator--(int32_t);
 
 			reference operator*() const;
 			pointer   operator->() const;
 
-			difference_type operator-(const Iterator& iterator) const;
+			difference_type operator-(const IteratorBase& iterator) const;
 
 			reference operator[](difference_type offset) const;
 
-			bool operator<(const Iterator& iterator) const;
-			bool operator<=(const Iterator& iterator) const;
-			bool operator>(const Iterator& iterator) const;
-			bool operator>=(const Iterator& iterator) const;
+			bool operator<(const IteratorBase& iterator) const;
+			bool operator<=(const IteratorBase& iterator) const;
+			bool operator>(const IteratorBase& iterator) const;
+			bool operator>=(const IteratorBase& iterator) const;
 
 		private:
-			Iterator(pointer element);
+			IteratorBase(pointer ptr);
 
 		private:
-			pointer element = nullptr;
+			pointer _ptr = nullptr;
 		};
 
-		class ConstIterator
-		{
-			friend class Vector;
-
-		public:
-			using iterator_category = std::random_access_iterator_tag;
-			using difference_type = std::ptrdiff_t;
-			using value_type = __TYPE__;
-			using pointer = const __TYPE__*;
-			using reference = const __TYPE__&;
-
-		public:
-			ConstIterator() = default;
-			ConstIterator(const ConstIterator& iterator);
-			ConstIterator(const Iterator& iterator);
-			ConstIterator(ConstIterator&& iterator);
-			ConstIterator(Iterator&& iterator);
-			~ConstIterator() = default;
-
-			ConstIterator& operator=(const ConstIterator& iterator);
-			ConstIterator& operator=(ConstIterator&& iterator);
-
-			bool operator==(const ConstIterator& iterator) const;
-			bool operator!=(const ConstIterator& iterator) const;
-
-			ConstIterator& operator+=(difference_type offset);
-			ConstIterator& operator-=(difference_type offset);
-
-			ConstIterator operator+(difference_type offset) const;
-			ConstIterator operator-(difference_type offset) const;
-
-			ConstIterator& operator++();
-			ConstIterator& operator--();
-
-			ConstIterator operator++(int32_t);
-			ConstIterator operator--(int32_t);
-
-			reference operator*() const;
-			pointer   operator->() const;
-
-			difference_type operator-(const ConstIterator& iterator) const;
-
-			reference operator[](difference_type offset) const;
-
-			bool operator<(const ConstIterator& iterator) const;
-			bool operator<=(const ConstIterator& iterator) const;
-			bool operator>(const ConstIterator& iterator) const;
-			bool operator>=(const ConstIterator& iterator) const;
-
-		private:
-			ConstIterator(pointer element);
-
-		private:
-			pointer element = nullptr;
-		};
-
-		using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
+		using Iterator = IteratorBase<__TYPE__>;
+		using ConstIterator = IteratorBase<const __TYPE__>;
 		using ReverseIterator = std::reverse_iterator<Iterator>;
+		using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
 
 	public:
 		Vector() = default;
