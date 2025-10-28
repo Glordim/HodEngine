@@ -329,15 +329,7 @@ namespace hod
 	template<typename __TYPE__>
 	Vector<__TYPE__>::~Vector()
 	{
-		for (uint32_t index = 0; index < _size; ++index)
-		{
-			_elements[index].~__TYPE__();
-		}
-
-		if (_elements != nullptr)
-		{
-			_allocator->Free(_elements);
-		}
+		FreeAndDestructElements();
 	}
 
 	/// @brief
@@ -347,60 +339,7 @@ namespace hod
 	template<typename __TYPE__>
 	Vector<__TYPE__>& Vector<__TYPE__>::operator=(std::initializer_list<__TYPE__> values)
 	{
-		uint32_t valueCount = static_cast<uint32_t>(values.size());
-
-		if (_capacity >= valueCount)
-		{
-			if (_size >= valueCount)
-			{
-				for (uint32_t index = 0; index < valueCount; ++index)
-				{
-					_elements[index] = values.begin()[index];
-				}
-
-				for (uint32_t index = valueCount; index < _size; ++index)
-				{
-					_elements[index].~__TYPE__();
-				}
-			}
-			else
-			{
-				for (uint32_t index = 0; index < _size; ++index)
-				{
-					_elements[index] = values.begin()[index];
-				}
-
-				for (uint32_t index = _size; index < valueCount; ++index)
-				{
-					New(&_elements[index], values.begin()[index]);
-				}
-			}
-
-			_size = valueCount;
-		}
-		else
-		{
-			if (_elements != nullptr)
-			{
-				for (uint32_t index = 0; index < _size; ++index)
-				{
-					_elements[index].~__TYPE__();
-				}
-
-				_allocator->Free(_elements);
-			}
-
-			_capacity = valueCount;
-			_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-			for (uint32_t index = 0; index < valueCount; ++index)
-			{
-				New(&_elements[index], values.begin()[index]);
-			}
-
-			_size = valueCount;
-		}
-
+		Assign(values.begin(), values.size());
 		return *this;
 	}
 
@@ -411,61 +350,12 @@ namespace hod
 	template<typename __TYPE__>
 	Vector<__TYPE__>& Vector<__TYPE__>::operator=(const Vector& vector)
 	{
-		if (&vector != this)
+		if (&vector == this)
 		{
-			if (_capacity >= vector._size)
-			{
-				if (_size >= vector._size)
-				{
-					for (uint32_t index = 0; index < vector._size; ++index)
-					{
-						_elements[index] = vector._elements[index];
-					}
-
-					for (uint32_t index = vector._size; index < _size; ++index)
-					{
-						_elements[index].~__TYPE__();
-					}
-				}
-				else
-				{
-					for (uint32_t index = 0; index < _size; ++index)
-					{
-						_elements[index] = vector._elements[index];
-					}
-
-					for (uint32_t index = _size; index < vector._size; ++index)
-					{
-						New(&_elements[index], vector._elements[index]);
-					}
-				}
-
-				_size = vector._size;
-			}
-			else
-			{
-				if (_elements != nullptr)
-				{
-					for (uint32_t index = 0; index < _size; ++index)
-					{
-						_elements[index].~__TYPE__();
-					}
-
-					_allocator->Free(_elements);
-				}
-
-				_capacity = vector._size;
-				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-				for (uint32_t index = 0; index < vector._size; ++index)
-				{
-					New(&_elements[index], vector._elements[index]);
-				}
-
-				_size = vector._size;
-			}
+			return *this;
 		}
 
+		Assign(vector._elements, vector._size);
 		return *this;
 	}
 
@@ -476,15 +366,7 @@ namespace hod
 	template<typename __TYPE__>
 	Vector<__TYPE__>& Vector<__TYPE__>::operator=(Vector&& vector)
 	{
-		if (_elements != nullptr)
-		{
-			for (uint32_t index = 0; index < _size; ++index)
-			{
-				_elements[index].~__TYPE__();
-			}
-
-			_allocator->Free(_elements);
-		}
+		FreeAndDestructElements();
 
 		_elements = vector._elements;
 		_capacity = vector._capacity;
@@ -523,25 +405,12 @@ namespace hod
 
 	/// @brief
 	/// @tparam __TYPE__
-	/// @param vector
+	/// @param position
 	/// @return
 	template<typename __TYPE__>
-	bool Vector<__TYPE__>::operator!=(const Vector& vector) const
+	const __TYPE__& Vector<__TYPE__>::operator[](uint32_t position) const&
 	{
-		if (_size != vector._size)
-		{
-			return true;
-		}
-
-		for (uint32_t index = 0; index < _size; ++index)
-		{
-			if (_elements[index] != vector._elements[index])
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return At(position);
 	}
 
 	/// @brief
@@ -549,28 +418,14 @@ namespace hod
 	/// @param position
 	/// @return
 	template<typename __TYPE__>
-	const __TYPE__& Vector<__TYPE__>::operator[](uint32_t position) const&
-	{
-		assert(position < _size);
-
-		return _elements[position];
-	}
-
-	/// @brief
-	/// @tparam __TYPE__
-	/// @param uiPosition
-	/// @return
-	template<typename __TYPE__>
 	__TYPE__& Vector<__TYPE__>::operator[](uint32_t position) &
 	{
-		assert(position < _size);
-
-		return _elements[position];
+		return At(position);
 	}
 
 	/// @brief
 	/// @tparam __TYPE__
-	/// @param uiPosition
+	/// @param position
 	/// @return
 	template<typename __TYPE__>
 	const __TYPE__& Vector<__TYPE__>::At(uint32_t position) const&
@@ -582,7 +437,7 @@ namespace hod
 
 	/// @brief
 	/// @tparam __TYPE__
-	/// @param uiPosition
+	/// @param position
 	/// @return
 	template<typename __TYPE__>
 	__TYPE__& Vector<__TYPE__>::At(uint32_t position) &
@@ -800,35 +655,20 @@ namespace hod
 	/// @brief Increase the capacity of the vector to a value that's greater or equal to the new capacity. If the new capacity is greater than the current capacity, new storage is
 	/// allocated, otherwise the method does nothing
 	/// @tparam __TYPE__
-	/// @param uiCapacity
+	/// @param capacity
 	template<typename __TYPE__>
-	void Vector<__TYPE__>::Reserve(uint32_t uiCapacity)
+	void Vector<__TYPE__>::Reserve(uint32_t capacity)
 	{
-		if (uiCapacity > _capacity)
+		if (capacity > _capacity)
 		{
 			if (_elements == nullptr)
 			{
-				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(uiCapacity * sizeof(__TYPE__), alignof(__TYPE__)));
-				_capacity = uiCapacity;
+				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(capacity * sizeof(__TYPE__), alignof(__TYPE__)));
+				_capacity = capacity;
 			}
 			else
 			{
-				if (!_allocator->Reallocate(_elements, uiCapacity * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(uiCapacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-					for (uint32_t index = 0; index < _size; ++index)
-					{
-						New(&elements[index], std::move(_elements[index]));
-
-						_elements[index].~__TYPE__();
-					}
-
-					_allocator->Free(_elements);
-
-					_elements = elements;
-				}
-				_capacity = uiCapacity;
+				Reallocate(capacity);
 			}
 		}
 	}
@@ -856,29 +696,11 @@ namespace hod
 		{
 			_allocator->Free(_elements);
 			_elements = nullptr;
-			_capacity = _size;
+			_capacity = 0;
 		}
-		else
+		else if (_capacity > _size)
 		{
-			if (_capacity > _size)
-			{
-				if (!_allocator->Reallocate(_elements, _size * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_size * sizeof(__TYPE__), alignof(__TYPE__)));
-
-					for (uint32_t index = 0; index < _size; ++index)
-					{
-						New(&elements[index], std::move(_elements[index]));
-
-						_elements[index].~__TYPE__();
-					}
-
-					_allocator->Free(_elements, alignof(__TYPE__));
-
-					_elements = elements;
-				}
-				_capacity = _size;
-			}
+			Reallocate(_size);
 		}
 	}
 
@@ -886,76 +708,46 @@ namespace hod
 	/// @tparam __TYPE__
 	/// @param size
 	template<typename __TYPE__>
-	void Vector<__TYPE__>::Resize(uint32_t size)
+	void Vector<__TYPE__>::Resize(uint32_t newSize)
 	{
-		if (size != _size)
+		if (newSize == _size)
 		{
-			if (size > _size)
-			{
-				if (size <= _capacity)
-				{
-					for (uint32_t index = _size; index < size; ++index)
-					{
-						New(&_elements[index]);
-					}
+			return;
+		}
 
-					_size = size;
+		if (newSize > _size)
+		{
+			if (_capacity < newSize)
+			{
+				if (_elements == nullptr)
+				{
+					_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(newSize * sizeof(__TYPE__), alignof(__TYPE__)));
+					_capacity = newSize;
 				}
 				else
 				{
-					if (_elements == nullptr)
-					{
-						_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(size * sizeof(__TYPE__), alignof(__TYPE__)));
-
-						for (uint32_t index = 0; index < size; ++index)
-						{
-							New(&_elements[index]);
-						}
-
-						_size = size;
-						_capacity = size;
-					}
-					else
-					{
-						if (!_allocator->Reallocate(_elements, size * sizeof(__TYPE__), alignof(__TYPE__)))
-						{
-							__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(size * sizeof(__TYPE__), alignof(__TYPE__)));
-
-							for (uint32_t index = 0; index < _size; ++index)
-							{
-								New(&elements[index], static_cast<__TYPE__&&>(_elements[index]));
-
-								_elements[index].~__TYPE__();
-							}
-
-							_allocator->Free(_elements);
-
-							_elements = elements;
-						}
-
-						for (uint32_t index = _size; index < size; ++index)
-						{
-							New(&_elements[index]);
-						}
-						_size = size;
-						_capacity = size;
-					}
+					Reallocate(newSize);
 				}
 			}
-			else
+			for (uint32_t index = _size; index < newSize; ++index)
 			{
-				if (_size > 0)
+				New(&_elements[index]);
+			}
+			_size = newSize;
+		}
+		else
+		{
+			if (_size > 0)
+			{
+				for (uint32_t index = _size - 1; index > newSize; --index) // > to avoid infinite loop if _size is 1 and size is 0
 				{
-					for (uint32_t index = _size - 1; index > size; --index) // > to avoid infinite loop if _size is 1 and size is 0
-					{
-						_elements[index].~__TYPE__();
-					}
-
-					_elements[size].~__TYPE__();
+					_elements[index].~__TYPE__();
 				}
 
-				_size = size;
+				_elements[newSize].~__TYPE__();
 			}
+
+			_size = newSize;
 		}
 	}
 
@@ -964,77 +756,46 @@ namespace hod
 	/// @param size
 	/// @param value
 	template<typename __TYPE__>
-	void Vector<__TYPE__>::Resize(uint32_t size, const __TYPE__& value)
+	void Vector<__TYPE__>::Resize(uint32_t newSize, const __TYPE__& value)
 	{
-		if (size != _size)
+		if (newSize == _size)
 		{
-			if (size > _size)
-			{
-				if (size <= _capacity)
-				{
-					for (uint32_t index = _size; index < size; ++index)
-					{
-						New(&_elements[index], value);
-					}
+			return;
+		}
 
-					_size = size;
+		if (newSize > _size)
+		{
+			if (_capacity < newSize)
+			{
+				if (_elements == nullptr)
+				{
+					_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(newSize * sizeof(__TYPE__), alignof(__TYPE__)));
+					_capacity = newSize;
 				}
 				else
 				{
-					if (_elements == nullptr)
-					{
-						_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(size * sizeof(__TYPE__), alignof(__TYPE__)));
-
-						for (uint32_t index = 0; index < size; ++index)
-						{
-							New(&_elements[index], value);
-						}
-
-						_size = size;
-						_capacity = size;
-					}
-					else
-					{
-						if (!_allocator->Reallocate(_elements, size * sizeof(__TYPE__), alignof(__TYPE__)))
-						{
-							__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(size * sizeof(__TYPE__), alignof(__TYPE__)));
-
-							for (uint32_t index = 0; index < _size; ++index)
-							{
-								New(&elements[index], static_cast<__TYPE__&&>(_elements[index]));
-
-								_elements[index].~__TYPE__();
-							}
-
-							_allocator->Free(_elements);
-
-							_elements = elements;
-						}
-
-						for (uint32_t index = _size; index < size; ++index)
-						{
-							New(&_elements[index], value);
-						}
-
-						_size = size;
-						_capacity = size;
-					}
+					Reallocate(newSize);
 				}
 			}
-			else
+			for (uint32_t index = _size; index < newSize; ++index)
 			{
-				if (_size > 0)
+				New(&_elements[index], value);
+			}
+			_size = newSize;
+		}
+		else
+		{
+			if (_size > 0)
+			{
+				for (uint32_t index = _size - 1; index > newSize; --index) // > to avoid infinite loop if _size is 1 and size is 0
 				{
-					for (uint32_t index = _size - 1; index > size; --index) // > to avoid infinite loop if _size is 1 and size is 0
-					{
-						_elements[index].~__TYPE__();
-					}
-
-					_elements[size].~__TYPE__();
+					_elements[index].~__TYPE__();
 				}
 
-				_size = size;
+				_elements[newSize].~__TYPE__();
 			}
+
+			_size = newSize;
 		}
 	}
 
@@ -1044,44 +805,21 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::PushBack(const __TYPE__& value)
 	{
-		if (_size < _capacity)
-		{
-			New(&_elements[_size], value);
-			++_size;
-		}
-		else
+		if (_size >= _capacity)
 		{
 			if (_elements == nullptr)
 			{
 				_capacity = 1;
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-				_size = 1;
-				New(&_elements[0], value);
 			}
 			else
 			{
-				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
-
-					for (uint32_t index = 0; index < _size; ++index)
-					{
-						New(&elements[index], std::move(_elements[index]));
-						_elements[index].~__TYPE__();
-					}
-
-					_allocator->Free(_elements);
-
-					_elements = elements;
-				}
-
-				New(&_elements[_size], value);
-
-				_capacity = _capacity * 2;
-				++_size;
+				Reallocate(_capacity * 2);
 			}
 		}
+
+		New(&_elements[_size], value);
+		++_size;
 	}
 
 	/// @brief
@@ -1090,45 +828,21 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::PushBack(__TYPE__&& value)
 	{
-		if (_size < _capacity)
-		{
-			New(&_elements[_size], std::move(value));
-			++_size;
-		}
-		else
+		if (_size >= _capacity)
 		{
 			if (_elements == nullptr)
 			{
 				_capacity = 1;
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-				New(&_elements[_size], std::move(value));
-				++_size;
 			}
 			else
 			{
-				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
-
-					for (uint32_t index = 0; index < _size; ++index)
-					{
-						New(&elements[index], std::move(_elements[index]));
-
-						_elements[index].~__TYPE__();
-					}
-
-					_allocator->Free(_elements);
-
-					_elements = elements;
-				}
-
-				New(&_elements[_size], std::move(value));
-
-				_capacity = _capacity * 2;
-				++_size;
+				Reallocate(_capacity * 2);
 			}
 		}
+
+		New(&_elements[_size], std::move(value));
+		++_size;
 	}
 
 	/// @brief
@@ -1157,9 +871,8 @@ namespace hod
 	{
 		assert(_size > 0);
 
-		_elements[_size - 1]
-			.~__TYPE__(); // std::is_destructible should be called but is it returns false it means that the destructor is deleted and thus it generated a compilation error...
-
+		// std::is_destructible should be called but is it returns false it means that the destructor is deleted and thus it generated a compilation error...
+		_elements[_size - 1].~__TYPE__();
 		--_size;
 	}
 
@@ -1264,93 +977,29 @@ namespace hod
 	template<typename __TYPE__>
 	uint32_t Vector<__TYPE__>::Insert(uint32_t index, const __TYPE__& value)
 	{
-		if (_size < _capacity)
-		{
-			if (index < _size)
-			{
-				New(&_elements[_size], std::move(_elements[_size - 1]));
+		assert(index <= _size);
 
-				for (__TYPE__* element = &_elements[_size - 1]; element > _elements + index; --element)
-				{
-					*element = std::move(*(element - 1));
-				}
-
-				(_elements + index)->~__TYPE__();
-			}
-
-			New(_elements + index, value);
-			++_size;
-
-			return index;
-		}
-		else
+		if (_size >= _capacity)
 		{
 			if (_elements == nullptr)
 			{
-				assert(index == 0);
-
 				_capacity = 1;
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-				New(&_elements[_size], std::move(value));
-				++_size;
-
-				return 0;
 			}
 			else
 			{
-				assert(index <= _size);
-
-				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					__TYPE__* newElements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
-					__TYPE__* newElement = newElements;
-
-					for (__TYPE__* element = _elements; element < _elements + index; ++element)
-					{
-						New(newElement, std::move(*element));
-						++newElement;
-						element->~__TYPE__();
-					}
-
-					__TYPE__* pFirstElement = newElement;
-					New(newElement, value);
-					++newElement;
-
-					for (__TYPE__* element = _elements + index; element < _elements + _size; ++element)
-					{
-						New(newElement, std::move(*element));
-						++newElement;
-						element->~__TYPE__();
-					}
-
-					++_size;
-
-					_allocator->Free(_elements);
-
-					_elements = newElements;
-					_capacity = _capacity * 2;
-
-					return static_cast<uint32_t>(pFirstElement - _elements);
-				}
-				else
-				{
-					for (__TYPE__* element = _elements + _size; element > _elements + index; --element)
-					{
-						New(element, std::move(*(element - 1)));
-						(element - 1)->~__TYPE__();
-					}
-
-					__TYPE__* newElement = _elements + index;
-					New(newElement, value);
-
-					++_size;
-					_capacity = _capacity * 2;
-
-					return static_cast<uint32_t>(newElement - _elements);
-				}
+				ReallocateAndMove(_capacity * 2, index, 1);
 			}
 		}
+		else
+		{
+			Move(index, 1);
+		}
+
+		New(&_elements[_size], value);
+		++_size;
+
+		return index;
 	}
 
 	/// @brief
@@ -1466,94 +1115,29 @@ namespace hod
 	template<typename __TYPE__>
 	uint32_t Vector<__TYPE__>::Insert(uint32_t index, __TYPE__&& value)
 	{
-		if (_size < _capacity)
-		{
-			assert(index <= _size);
+		assert(index <= _size);
 
-			if (index < _size)
-			{
-				New(&_elements[_size], std::move(_elements[_size - 1]));
-
-				for (__TYPE__* element = _elements + _size - 1; element > _elements + index; --element)
-				{
-					*element = std::move(*(element - 1));
-				}
-
-				(_elements + (_elements + index - _elements))->~__TYPE__();
-			}
-
-			New(_elements + (_elements + index - _elements), std::move(value));
-			++_size;
-
-			return index;
-		}
-		else
+		if (_size >= _capacity)
 		{
 			if (_elements == nullptr)
 			{
-				assert(index == 0);
-
 				_capacity = 1;
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-				New(&_elements[_size], std::move(value));
-				++_size;
-
-				return 0;
 			}
 			else
 			{
-				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					assert(_elements + index <= _elements + _size);
-
-					__TYPE__* newElements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
-					__TYPE__* newElement = newElements;
-					for (__TYPE__* element = _elements; element < _elements + index; ++element)
-					{
-						New(newElement, std::move(*element));
-						++newElement;
-						element->~__TYPE__();
-					}
-
-					__TYPE__* pFirstElement = newElement;
-					New(newElement, std::move(value));
-					++newElement;
-
-					for (__TYPE__* element = _elements + index; element < _elements + _size; ++element)
-					{
-						New(newElement, std::move(*element));
-						++newElement;
-						element->~__TYPE__();
-					}
-
-					++_size;
-
-					_allocator->Free(_elements);
-
-					_elements = newElements;
-					_capacity = _capacity * 2;
-
-					return static_cast<uint32_t>(pFirstElement - _elements);
-				}
-				else
-				{
-					for (__TYPE__* element = _elements + _size; element > _elements + index; --element)
-					{
-						New(element, std::move(*(element - 1)));
-						(element - 1)->~__TYPE__();
-					}
-
-					__TYPE__* newElement = _elements + index;
-					New(newElement, std::move(value));
-
-					++_size;
-					_capacity = _capacity * 2;
-
-					return static_cast<uint32_t>(newElement - _elements);
-				}
+				ReallocateAndMove(_capacity * 2, index, 1);
 			}
 		}
+		else
+		{
+			Move(index, 1);
+		}
+
+		New(&_elements[_size], std::move(value));
+		++_size;
+
+		return index;
 	}
 
 	template<typename __TYPE__>
@@ -1767,24 +1351,10 @@ namespace hod
 			}
 			else
 			{
-				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
-
-					for (uint32_t index = 0; index < _size; ++index)
-					{
-						New(&elements[index], std::move(_elements[index]));
-						_elements[index].~__TYPE__();
-					}
-
-					_allocator->Free(_elements);
-
-					_elements = elements;
-				}
+				Reallocate(_capacity * 2);
 
 				New(&_elements[_size], std::forward<__ARGUMENTS__>(arguments)...);
 				++_size;
-				_capacity = _capacity * 2;
 			}
 		}
 
@@ -2232,5 +1802,152 @@ namespace hod
 	void Vector<__TYPE__>::SwapAndPopBack(ConstReverseIterator iterator)
 	{
 		SwapAndPopBack(--iterator.base());
+	}
+
+	template<typename __TYPE__>
+	void Vector<__TYPE__>::Assign(const __TYPE__* source, uint32_t count)
+	{
+		if (_capacity >= count)
+		{
+			uint32_t minSize = (_size < count) ? _size : count;
+
+			for (uint32_t i = 0; i < minSize; ++i)
+			{
+				_elements[i] = source[i];
+			}
+
+			for (uint32_t i = minSize; i < count; ++i)
+			{
+				New(&_elements[i], source[i]);
+			}
+
+			for (uint32_t i = count; i < _size; ++i)
+			{
+				_elements[i].~__TYPE__();
+			}
+
+			_size = count;
+		}
+		else
+		{
+			FreeAndDestructElements();
+
+			_capacity = count;
+			_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
+
+			for (uint32_t i = 0; i < count; ++i)
+			{
+				New(&_elements[i], source[i]);
+			}
+
+			_size = count;
+		}
+	}
+
+	template<typename __TYPE__>
+	void Vector<__TYPE__>::Reallocate(uint32_t capacity)
+	{
+		if (_allocator->Reallocate(_elements, capacity * sizeof(__TYPE__), alignof(__TYPE__)) == false)
+		{
+			__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(capacity * sizeof(__TYPE__), alignof(__TYPE__)));
+
+			if constexpr (std::is_trivially_copyable_v<__TYPE__>)
+			{
+				std::memcpy(elements, _elements, _size * sizeof(__TYPE__));
+			}
+			else
+			{
+				for (uint32_t index = 0; index < _size; ++index)
+				{
+					New(&elements[index], std::move(_elements[index]));
+					_elements[index].~__TYPE__();
+				}
+			}
+
+			_allocator->Free(_elements);
+			_elements = elements;
+		}
+		_capacity = capacity;
+	}
+
+	template<typename __TYPE__>
+	void Vector<__TYPE__>::ReallocateAndMove(uint32_t capacity, uint32_t moveIndex, uint32_t moveLen)
+	{
+		if (_allocator->Reallocate(_elements, capacity * sizeof(__TYPE__), alignof(__TYPE__)) == false)
+		{
+			__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(capacity * sizeof(__TYPE__), alignof(__TYPE__)));
+
+			if constexpr (std::is_trivially_copyable_v<__TYPE__>)
+			{
+				std::memcpy(elements, _elements, moveIndex * sizeof(__TYPE__));
+				std::memcpy(elements + moveIndex + moveLen, _elements + moveIndex, (_size - moveIndex) * sizeof(__TYPE__));
+			}
+			else
+			{
+				for (uint32_t index = 0; index < moveIndex; ++index)
+				{
+					New(&elements[index], std::move(_elements[index]));
+					_elements[index].~__TYPE__();
+				}
+
+				for (uint32_t index = moveIndex; index < _size; ++index)
+				{
+					New(&elements[index + moveLen], std::move(_elements[index]));
+					_elements[index].~__TYPE__();
+				}
+
+				_allocator->Free(_elements);
+				_elements = elements;
+			}
+
+			if constexpr (std::is_trivially_copyable_v<__TYPE__>)
+			{
+				std::memcpy(elements, _elements, _size * sizeof(__TYPE__));
+			}
+			else
+			{
+				for (uint32_t index = 0; index < _size; ++index)
+				{
+					New(&elements[index], std::move(_elements[index]));
+					_elements[index].~__TYPE__();
+				}
+			}
+		}
+		else
+		{
+			Move(moveIndex, moveLen);
+		}
+		_capacity = capacity;
+	}
+
+	template<typename __TYPE__>
+	void Vector<__TYPE__>::Move(uint32_t moveIndex, uint32_t moveLen)
+	{
+		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
+		{
+			std::memmove(_elements + moveIndex + moveLen, _elements + moveIndex, (_size - moveIndex) * sizeof(__TYPE__));
+		}
+		else
+		{
+			for (int32_t i = moveLen - 1; i >= 0; --i)
+			{
+				New(&_elements[moveIndex + moveLen + i], std::move(_elements[moveIndex + i]));
+				_elements[moveIndex + i].~__TYPE__();
+			}
+		}
+	}
+
+	template<typename __TYPE__>
+	void Vector<__TYPE__>::FreeAndDestructElements()
+	{
+		if (_elements != nullptr)
+		{
+			for (uint32_t index = 0; index < _size; ++index)
+			{
+				_elements[index].~__TYPE__();
+			}
+
+			_allocator->Free(_elements);
+		}
 	}
 }

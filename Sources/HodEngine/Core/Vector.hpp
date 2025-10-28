@@ -96,7 +96,6 @@ namespace hod
 		Vector& operator=(Vector&& vector);
 
 		bool operator==(const Vector& vector) const;
-		bool operator!=(const Vector& vector) const;
 
 		const __TYPE__& operator[](uint32_t index) const&;
 		__TYPE__&       operator[](uint32_t index) &;
@@ -200,6 +199,13 @@ namespace hod
 	private:
 		template<typename... __ARGUMENTS__>
 		void New(void* ptr, __ARGUMENTS__&&... arguments);
+
+		void Assign(const __TYPE__* source, uint32_t count);
+
+		void Reallocate(uint32_t capacity);
+		void ReallocateAndMove(uint32_t capacity, uint32_t index, uint32_t count);
+		void Move(uint32_t index, uint32_t count);
+		void FreeAndDestructElements();
 
 	private:
 		__TYPE__* _elements {nullptr};
