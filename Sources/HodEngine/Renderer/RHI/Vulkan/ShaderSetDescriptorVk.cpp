@@ -11,34 +11,30 @@
 
 namespace hod::renderer
 {
-	/// @brief 
-	/// @param type 
-	/// @return 
+	/// @brief
+	/// @param type
+	/// @return
 	VkDescriptorType ShaderSetDescriptorVk::TextureTypeToVkDescriptorType(BlockTexture::Type type)
 	{
 		switch (type)
 		{
-		case BlockTexture::Type::Sampler:
-			return VK_DESCRIPTOR_TYPE_SAMPLER;
+			case BlockTexture::Type::Sampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
 
-		case BlockTexture::Type::Texture:
-			return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			case BlockTexture::Type::Texture: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 
-		case BlockTexture::Type::Combined:
-			return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		
-		default:
-			return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+			case BlockTexture::Type::Combined: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+			default: return VK_DESCRIPTOR_TYPE_MAX_ENUM;
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	ShaderSetDescriptorVk::ShaderSetDescriptorVk()
 	{
 		_descriptorSetLayout = VK_NULL_HANDLE;
 	}
 
-	/// @brief 
+	/// @brief
 	ShaderSetDescriptorVk::~ShaderSetDescriptorVk()
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -49,26 +45,28 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkDescriptorSetLayout ShaderSetDescriptorVk::GetDescriptorSetLayout() const
 	{
 		return _descriptorSetLayout;
 	}
 
-	/// @brief 
-	/// @param comp 
-	/// @param resource 
+	/// @brief
+	/// @param comp
+	/// @param resource
 	void ShaderSetDescriptorVk::ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource)
 	{
 		BlockUbo ubo;
 		ubo._binding = comp.get_decoration(resource.id, spv::DecorationBinding);
 
-		size_t uboBlockCount = _uboBlockVector.size();
+		size_t uboBlockCount = _uboBlockVector.Size();
 		for (size_t i = 0; i < uboBlockCount; ++i)
 		{
 			if (_uboBlockVector[i]._binding == ubo._binding)
+			{
 				return;
+			}
 		}
 
 		ubo._name = comp.get_name(resource.id);
@@ -92,10 +90,10 @@ namespace hod::renderer
 		_uboBlockVector.push_back(std::move(ubo));
 	}
 
-	/// @brief 
-	/// @param comp 
-	/// @param structType 
-	/// @param structMember 
+	/// @brief
+	/// @param comp
+	/// @param structType
+	/// @param structMember
 	void ShaderSetDescriptorVk::ExtractUboSubMembers(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& structType, BlockUbo::Member& structMember)
 	{
 		size_t memberCount = structType.member_types.size();
@@ -109,9 +107,13 @@ namespace hod::renderer
 			member._size = comp.get_declared_struct_member_size(structType, (uint32_t)i);
 
 			if (memberType.array.empty() == false)
+			{
 				member._count = memberType.array[0];
+			}
 			else
+			{
 				member._count = 1;
+			}
 
 			member._offset = comp.type_struct_member_offset(structType, (uint32_t)i);
 
@@ -139,10 +141,10 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
-	/// @param comp 
-	/// @param resource 
-	/// @param type 
+	/// @brief
+	/// @param comp
+	/// @param resource
+	/// @param type
 	void ShaderSetDescriptorVk::ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource, VkDescriptorType type)
 	{
 		BlockTexture texture;
@@ -152,32 +154,25 @@ namespace hod::renderer
 
 		switch (type)
 		{
-		case VK_DESCRIPTOR_TYPE_SAMPLER:
-			texture._type = BlockTexture::Type::Sampler;
-			break;
+			case VK_DESCRIPTOR_TYPE_SAMPLER: texture._type = BlockTexture::Type::Sampler; break;
 
-		case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-			texture._type = BlockTexture::Type::Texture;
-			break;
+			case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE: texture._type = BlockTexture::Type::Texture; break;
 
-		case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-			texture._type = BlockTexture::Type::Combined;
-			break;
-		
-		default:
-			return;
+			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER: texture._type = BlockTexture::Type::Combined; break;
+
+			default: return;
 		}
-		
+
 		_textureBlockVector.push_back(std::move(texture));
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool ShaderSetDescriptorVk::BuildDescriptorSetLayout()
 	{
 		Vector<VkDescriptorSetLayoutBinding> descriptors;
 
-		size_t uboCount = _uboBlockVector.size();
+		size_t uboCount = _uboBlockVector.Size();
 		for (size_t i = 0; i < uboCount; ++i)
 		{
 			BlockUbo& ubo = _uboBlockVector[i];
@@ -192,7 +187,7 @@ namespace hod::renderer
 			descriptors.push_back(std::move(uboLayoutBinding));
 		}
 
-		size_t textureCount = _textureBlockVector.size();
+		size_t textureCount = _textureBlockVector.Size();
 		for (size_t i = 0; i < textureCount; ++i)
 		{
 			BlockTexture& texture = _textureBlockVector[i];
@@ -209,8 +204,8 @@ namespace hod::renderer
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = (uint32_t)descriptors.size();
-		layoutInfo.pBindings = descriptors.data();
+		layoutInfo.bindingCount = (uint32_t)descriptors.Size();
+		layoutInfo.pBindings = descriptors.Data();
 
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 

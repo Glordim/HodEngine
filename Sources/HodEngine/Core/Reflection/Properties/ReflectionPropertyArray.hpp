@@ -58,32 +58,32 @@ namespace hod
 			_getElementCountFunction = [](const void* instance) -> uint32_t
 			{
 				const _vector_* array = static_cast<const _vector_*>(instance);
-				return (uint32_t)array->size();
+				return (uint32_t)array->Size();
 			};
 
 			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*
 			{
 				const _vector_* array = static_cast<const _vector_*>(instance);
-				return (void*)(array->data() + index);
+				return (void*)(array->Data() + index);
 			};
 
 			_insertElementFunction = [](void* instance, uint32_t index)
 			{
 				_vector_*                     array = static_cast<_vector_*>(instance);
 				typename _vector_::value_type item = typename _vector_::value_type();
-				array->insert(array->begin() + index, item);
+				array->Insert(index, item);
 			};
 
 			_removeElementFunction = [](void* instance, uint32_t index)
 			{
 				_vector_* array = static_cast<_vector_*>(instance);
-				array->erase(array->begin() + index);
+				array->Erase(index);
 			};
 
 			_clearFunction = [](void* instance)
 			{
 				_vector_* array = static_cast<_vector_*>(instance);
-				array->clear();
+				array->Clear();
 			};
 		}
 

@@ -46,7 +46,7 @@ namespace hod
 			std::mbstate_t                                     state = std::mbstate_t();
 			const std::codecvt<char, wchar_t, std::mbstate_t>& codecvtFacet = std::use_facet<std::codecvt<char, wchar_t, std::mbstate_t>>(std::locale());
 
-			const wchar_t* strPtr = str.data();
+			const wchar_t* strPtr = str.c_str();
 			char*          endResultPtr = &result[utf8Size];
 			if (codecvtFacet.in(state, strPtr, strPtr + utf8Size, strPtr, &result[0], &result[0] + utf8Size, endResultPtr) != std::codecvt_base::ok)
 			{

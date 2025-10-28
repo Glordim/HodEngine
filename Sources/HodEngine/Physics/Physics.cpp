@@ -6,39 +6,36 @@
 
 namespace hod::physics
 {
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Physics* Physics::CreatePhysicsInstance()
 	{
 		return PhysicsBox2d::CreateInstance();
 	}
 
-	/// @brief 
+	/// @brief
 	void Physics::DestroyPhysicsInstance()
 	{
 		PhysicsBox2d::DestroyInstance();
 	}
 
-	/// @brief 
-	/// @param  
-	_SingletonConstructor(Physics)
-	{
+	/// @brief
+	/// @param
+	_SingletonConstructor(Physics) {}
 
-	}
-
-	/// @brief 
+	/// @brief
 	Physics::~Physics()
 	{
 		Clear();
 	}
 
-	/// @brief 
+	/// @brief
 	void Physics::Clear()
 	{
 		for (World* world : _worlds)
 		{
 			DefaultAllocator::GetInstance().Delete(world);
 		}
-		_worlds.clear();
+		_worlds.Clear();
 	}
 }

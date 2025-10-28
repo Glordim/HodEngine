@@ -9,13 +9,13 @@ namespace hod
 	template<typename __TYPE__>
 	void EnumDescriptor::AddEnumValue(__TYPE__ value, const char* label)
 	{
-		_values.emplace_back(static_cast<uint64_t>(value), label);
+		_values.EmplaceBack(static_cast<uint64_t>(value), label);
 	}
 
 	template<typename __TYPE__>
 	std::string_view EnumDescriptor::ToString(__TYPE__ value) const
 	{
-		for (uint32_t i = 0; i < _values.size(); ++i)
+		for (uint32_t i = 0; i < _values.Size(); ++i)
 		{
 			if (_values[i].first == static_cast<uint64_t>(value))
 			{

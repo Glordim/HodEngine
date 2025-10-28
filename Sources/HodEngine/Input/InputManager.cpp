@@ -1,7 +1,7 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/InputManager.hpp"
 #include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Input/Devices/Device.hpp"
+#include "HodEngine/Input/InputManager.hpp"
 
 #include "HodEngine/Core/Frame/FrameSequencer.hpp"
 #include "HodEngine/Core/Job/JobScheduler.hpp"
@@ -11,10 +11,9 @@ namespace hod::input
 	_SingletonConstructor(InputManager)
 	: _updateJob(this, &InputManager::UpdateJob, JobQueue::Queue::Framed, false)
 	{
-
 	}
 
-	/// @brief 
+	/// @brief
 	InputManager::~InputManager()
 	{
 		FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::PreLogic);
@@ -29,8 +28,8 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool InputManager::Initialize()
 	{
 		if (InitializeApis() == false)
@@ -42,9 +41,9 @@ namespace hod::input
 		return true;
 	}
 
-	/// @brief 
-	/// @param api 
-	/// @return 
+	/// @brief
+	/// @param api
+	/// @return
 	bool InputManager::CreateApi(Api* api)
 	{
 		if (api->Initialize() == false)
@@ -56,7 +55,7 @@ namespace hod::input
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void InputManager::UpdateJob()
 	{
 		/*
@@ -82,6 +81,10 @@ namespace hod::input
 
 	void InputManager::RemoveDevice(Device* device)
 	{
-		std::erase(_devices, device);
+		auto it = std::find(_devices.Begin(), _devices.End(), device);
+		if (it != _devices.End())
+		{
+			_devices.Erase(it);
+		}
 	}
 }

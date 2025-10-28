@@ -3,15 +3,16 @@
 
 namespace hod::renderer
 {
-	/// @brief 
-	/// @param type 
-	D3d12Shader::D3d12Shader(ShaderType type) : Shader(type)
+	/// @brief
+	/// @param type
+	D3d12Shader::D3d12Shader(ShaderType type)
+	: Shader(type)
 	{
 		_bytecode.BytecodeLength = 0;
 		_bytecode.pShaderBytecode = nullptr;
 	}
 
-	/// @brief 
+	/// @brief
 	D3d12Shader::~D3d12Shader()
 	{
 		if (_bytecode.pShaderBytecode != nullptr)
@@ -20,16 +21,16 @@ namespace hod::renderer
 		}
 	}
 
-	bool D3d12Shader::LoadFromIR(const void* data, uint32_t size)
+	bool D3d12Shader::LoadFromIR(const void* data, uint32_t Size)
 	{
 		if (_bytecode.pShaderBytecode != nullptr)
 		{
 			DefaultAllocator::GetInstance().Free((void*)_bytecode.pShaderBytecode);
 		}
 
-		_bytecode.BytecodeLength = size;
-		_bytecode.pShaderBytecode = DefaultAllocator::GetInstance().Allocate(size);
-		std::memcpy((void*)_bytecode.pShaderBytecode, data, size);
+		_bytecode.BytecodeLength = Size;
+		_bytecode.pShaderBytecode = DefaultAllocator::GetInstance().Allocate(Size);
+		std::memcpy((void*)_bytecode.pShaderBytecode, data, Size);
 		return true;
 	}
 

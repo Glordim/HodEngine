@@ -109,7 +109,7 @@ namespace hod
 				return false; // todo message
 			}
 			Vector<Resource::Data> datas;
-			datas.reserve(dataCount);
+			datas.Reserve(dataCount);
 			for (uint32_t dataIndex = 0; dataIndex < dataCount; ++dataIndex)
 			{
 				uint32_t dataSize = 0;

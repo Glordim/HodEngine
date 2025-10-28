@@ -4,12 +4,12 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include "HodEngine/Renderer/RHI/Metal/MetalBuffer.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalFence.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalSemaphore.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalFence.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
 
@@ -24,17 +24,17 @@ namespace hod
 		_SingletonOverrideConstructor(RendererMetal)
 		: Renderer()
 		{
-
 		}
 
-		/// @brief 
+		/// @brief
 		RendererMetal::~RendererMetal()
 		{
 			_commandQueue->release();
 			_device->release();
 		}
 
-		bool RendererMetal::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore, const Fence* fence)
+		bool RendererMetal::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore,
+		                                         const Fence* fence)
 		{
 			// TODO
 			(void)signalSemaphore;
@@ -56,9 +56,9 @@ namespace hod
 			return DefaultAllocator::GetInstance().New<MetalCommandBuffer>();
 		}
 
-		Buffer* RendererMetal::CreateBuffer(Buffer::Usage usage, uint32_t size)
+		Buffer* RendererMetal::CreateBuffer(Buffer::Usage usage, uint32_t Size)
 		{
-			return DefaultAllocator::GetInstance().New<MetalBuffer>(usage, size);
+			return DefaultAllocator::GetInstance().New<MetalBuffer>(usage, Size);
 		}
 
 		RenderTarget* RendererMetal::CreateRenderTarget()
@@ -67,7 +67,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 		{
@@ -79,24 +79,24 @@ namespace hod
 			_context = DefaultAllocator::GetInstance().New<MetalContext>(static_cast<window::MacOsWindow*>(mainWindow));
 			mainWindow->SetSurface(_context);
 
-/*
-			_layer = [CAMetalLayer layer];
-			_layer.device = _device->GetNativeDevice();
-			_layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-			_layer.framebufferOnly = YES;
-			_layer.frame = mainWindow->GetSize();
+			/*
+			            _layer = [CAMetalLayer layer];
+			            _layer.device = _device->GetNativeDevice();
+			            _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+			            _layer.framebufferOnly = YES;
+			            _layer.frame = mainWindow->GetSize();
 
-			window::MacOsWindow* macOsWindow = static_cast<window::MacOsWindow*>(mainWindow);
-			NSView* view = macOsWindow->GetNSView();
+			            window::MacOsWindow* macOsWindow = static_cast<window::MacOsWindow*>(mainWindow);
+			            NSView* view = macOsWindow->GetNSView();
 
-			[view.layer addSublayer:_layer];
-*/
-			
+			            [view.layer addSublayer:_layer];
+			*/
+
 			return true;
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices)
 		{
@@ -105,7 +105,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool RendererMetal::BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier)
 		{
@@ -116,7 +116,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		Shader* RendererMetal::CreateShader(Shader::ShaderType type)
 		{
@@ -124,9 +124,10 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		Material* RendererMetal::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+		Material* RendererMetal::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+		                                        Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 		{
 			MetalMaterial* material = DefaultAllocator::GetInstance().New<MetalMaterial>();
 			if (material->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
@@ -138,29 +139,29 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		MaterialInstance* RendererMetal::CreateMaterialInstance(const Material* material)
 		{
 			return DefaultAllocator::GetInstance().New<MetalMaterialInstance>(*material);
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Semaphore* RendererMetal::CreateSemaphore()
 		{
 			return DefaultAllocator::GetInstance().New<MetalSemaphore>();
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Fence* RendererMetal::CreateFence()
 		{
 			return DefaultAllocator::GetInstance().New<MetalFence>();
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		Texture* RendererMetal::CreateTexture()
 		{

@@ -1,48 +1,42 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/Scene.hpp"
-#include "HodEngine/Game/SceneSerializer.hpp"
+#include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/PrefabUtility.hpp"
-#include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/SceneSerializer.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
-#include "HodEngine/Game/WeakComponent.hpp"
-#include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
+#include "HodEngine/Game/Components/RendererComponent.hpp"
+#include "HodEngine/Game/WeakComponent.hpp"
 
+#include "HodEngine/Core/Color.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
-#include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Core/Color.hpp"
 
 #include "HodEngine/Core/Resource/ResourceManager.hpp"
 
-#include <unordered_map>
 #include "HodEngine/Core/Vector.hpp"
+#include <unordered_map>
 
 namespace hod::game
 {
 	DESCRIBE_REFLECTED_CLASS(Scene, reflectionDescriptor)
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
-		[](const void* instance, Document::Node& documentNode)
-		{
-			return const_cast<Scene*>(static_cast<const Scene*>(instance))->SerializeInDocument(documentNode);
-		},
-		[](void* instance, const Document::Node& documentNode)
-		{
-			return static_cast<Scene*>(instance)->DeserializeFromDocument(documentNode);
-		});
+			[](const void* instance, Document::Node& documentNode) { return const_cast<Scene*>(static_cast<const Scene*>(instance))->SerializeInDocument(documentNode); },
+			[](void* instance, const Document::Node& documentNode) { return static_cast<Scene*>(instance)->DeserializeFromDocument(documentNode); });
 	}
 
-	/// @brief 
+	/// @brief
 	Scene::Scene()
 	{
-		_world = nullptr;//World::GetInstance(); // TODO MultiWorld support
+		_world = nullptr; // World::GetInstance(); // TODO MultiWorld support
 	}
 
 	Scene::~Scene()
@@ -50,7 +44,9 @@ namespace hod::game
 		for (const auto& entityPair : _entities)
 		{
 			if (entityPair.second->GetParent().Lock() == nullptr)
+			{
 				entityPair.second->Destruct();
+			}
 		}
 
 		for (const auto& entityPair : _entities)
@@ -59,22 +55,22 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @param name 
+	/// @brief
+	/// @param name
 	void Scene::SetName(const std::string_view& name)
 	{
 		_name = name;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const String& Scene::GetName() const
 	{
 		return _name;
 	}
 
-	/// @brief 
-	/// @param documentNode 
+	/// @brief
+	/// @param documentNode
 	bool Scene::SerializeInDocument(Document::Node& documentNode)
 	{
 		documentNode.AddChild("Name").SetString(_name);
@@ -97,8 +93,8 @@ namespace hod::game
 		return true;
 	}
 
-	/// @brief 
-	/// @param documentNode 
+	/// @brief
+	/// @param documentNode
 	bool Scene::DeserializeFromDocument(const Document::Node& documentNode)
 	{
 		const Document::Node* nameNode = documentNode.GetChild("Name");
@@ -114,7 +110,7 @@ namespace hod::game
 		}
 
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
-		SceneSerializer sceneSerializer;
+		SceneSerializer       sceneSerializer;
 		if (sceneSerializer.Deserialize(*entitiesNode) == false)
 		{
 			return false;
@@ -129,16 +125,16 @@ namespace hod::game
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const std::unordered_map<uint64_t, Entity*>& Scene::GetEntities() const
 	{
 		return _entities;
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	Entity* Scene::CreateEntity(const std::string_view& name)
 	{
 		Entity* entity = DefaultAllocator::GetInstance().New<Entity>(name);
@@ -151,8 +147,8 @@ namespace hod::game
 		return entity;
 	}
 
-	/// @brief 
-	/// @param entity 
+	/// @brief
+	/// @param entity
 	void Scene::DestroyEntity(Entity* entity)
 	{
 		auto it = _entities.find(entity->GetInstanceId());
@@ -161,8 +157,8 @@ namespace hod::game
 			_entities.erase(it);
 
 			entity->Destruct();
-		
-			while (entity->GetChildren().empty() == false)
+
+			while (entity->GetChildren().Empty() == false)
 			{
 				DestroyEntity(entity->GetChildren()[0].Lock());
 			}
@@ -172,9 +168,9 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @param entityId 
-	/// @return 
+	/// @brief
+	/// @param entityId
+	/// @return
 	Entity* Scene::FindEntity(uint64_t entityId)
 	{
 		auto it = _entities.find(entityId);
@@ -185,7 +181,7 @@ namespace hod::game
 		return nullptr;
 	}
 
-	/// @brief 
+	/// @brief
 	void Scene::Clear()
 	{
 		for (auto it : _entities)
@@ -195,7 +191,7 @@ namespace hod::game
 		_entities.clear();
 	}
 
-	/// @brief 
+	/// @brief
 	void Scene::ProcessActivation()
 	{
 		for (const auto& entityPair : _entities)
@@ -208,7 +204,7 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Scene::Update(float deltaTime)
 	{
 		for (auto entityPair : _entities)
@@ -223,7 +219,7 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Scene::FixedUpdate()
 	{
 		for (auto entityPair : _entities)
@@ -235,8 +231,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @param renderQueue 
+	/// @brief
+	/// @param renderQueue
 	void Scene::Draw(renderer::RenderView& renderView)
 	{
 		for (const auto& pair : _entities)
@@ -253,8 +249,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Scene* Scene::Clone(World* newWorld)
 	{
 		Scene* clone = DefaultAllocator::GetInstance().New<Scene>();
@@ -267,9 +263,9 @@ namespace hod::game
 		return clone;
 	}
 
-	/// @brief 
-	/// @param prefab 
-	/// @return 
+	/// @brief
+	/// @param prefab
+	/// @return
 	Entity* Scene::Instantiate(std::shared_ptr<PrefabResource> prefabResource)
 	{
 		Entity* entity = Instantiate(prefabResource->GetPrefab().GetRootEntity());
@@ -278,9 +274,9 @@ namespace hod::game
 		return entity;
 	}
 
-	/// @brief 
-	/// @param entity 
-	/// @return 
+	/// @brief
+	/// @param entity
+	/// @return
 	Entity* Scene::Instantiate(Entity* entity)
 	{
 		if (entity == nullptr)
@@ -288,14 +284,14 @@ namespace hod::game
 			return nullptr;
 		}
 
-		Document document;
+		Document        document;
 		SceneSerializer sceneSerializer;
 		sceneSerializer.SerializeEntity(entity, true, document.GetRootNode(), _nextLocalId);
 
 		sceneSerializer.Deserialize(document.GetRootNode());
 
 		Entity* clonedEntity = nullptr;
-		
+
 		for (Entity* entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
@@ -306,22 +302,22 @@ namespace hod::game
 				clonedEntity = entity;
 			}
 		}
-		
+
 		clonedEntity->SetPrefabResource(entity->GetPrefabResource());
 		clonedEntity->ProcessActivation();
 
 		return clonedEntity;
 	}
 
-	/// @brief 
-	/// @param world 
+	/// @brief
+	/// @param world
 	void Scene::SetWorld(World* world)
 	{
 		_world = world;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	World* Scene::GetWorld() const
 	{
 		return _world;

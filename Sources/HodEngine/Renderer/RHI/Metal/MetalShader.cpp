@@ -9,36 +9,37 @@
 
 namespace hod::renderer
 {
-	/// @brief 
-	/// @param type 
-	MetalShader::MetalShader(ShaderType type) : Shader(type)
+	/// @brief
+	/// @param type
+	MetalShader::MetalShader(ShaderType type)
+	: Shader(type)
 	{
 	}
 
-	/// @brief 
+	/// @brief
 	MetalShader::~MetalShader()
 	{
 		if (_function != nullptr)
 		{
 			_function->release();
 		}
-		
+
 		if (_library != nullptr)
 		{
 			_library->release();
 		}
 	}
 
-	/// @brief 
-	/// @param data 
-	/// @param size 
-	/// @return 
-	bool MetalShader::LoadFromIR(const void* data, uint32_t size)
+	/// @brief
+	/// @param data
+	/// @param Size
+	/// @return
+	bool MetalShader::LoadFromIR(const void* data, uint32_t Size)
 	{
 		RendererMetal* metalRenderer = RendererMetal::GetInstance();
 
 		NS::Error* error = nullptr;
-		_library = metalRenderer->GetDevice()->newLibrary(dispatch_data_create(data, size, nullptr, DISPATCH_DATA_DESTRUCTOR_DEFAULT), &error);
+		_library = metalRenderer->GetDevice()->newLibrary(dispatch_data_create(data, Size, nullptr, DISPATCH_DATA_DESTRUCTOR_DEFAULT), &error);
 
 		if (_library == nullptr)
 		{
@@ -49,8 +50,8 @@ namespace hod::renderer
 		return FindFunction();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool MetalShader::FindFunction()
 	{
 		if (_library == nullptr)
@@ -90,7 +91,7 @@ namespace hod::renderer
 		NS::String* nsFunctionName = NS::String::string(functionName, NS::ASCIIStringEncoding);
 		_function = _library->newFunction(nsFunctionName);
 		nsFunctionName->release();
-	
+
 		if (_function == nullptr)
 		{
 			OUTPUT_ERROR("MetalShader::FindFunction fail: Unable to find {} function in MtlLibrary", functionName);
@@ -100,22 +101,22 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	MTL::Library* MetalShader::GetNativeLibrary() const
 	{
 		return _library;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	MTL::Function* MetalShader::GetNativeFunction() const
 	{
 		return _function;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool MetalShader::GenerateDescriptors()
 	{
 		return false;

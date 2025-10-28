@@ -126,12 +126,12 @@ namespace hod::game
 	}
 
 	/// @brief
-	/// @param size
-	void CameraComponent::SetSize(float size)
+	/// @param Size
+	void CameraComponent::SetSize(float Size)
 	{
-		if (size != _size)
+		if (Size != _size)
 		{
-			_size = size;
+			_size = Size;
 			_dirtyFlag = true;
 		}
 	}

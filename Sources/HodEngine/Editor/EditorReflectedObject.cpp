@@ -2,8 +2,8 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
-#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp>
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
 #include <HodEngine/Game/Component.hpp>
 #include <HodEngine/Game/Entity.hpp>
@@ -13,7 +13,7 @@ namespace hod::editor
 {
 	EditorReflectedObject::EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)
 	: _sourceInstance(source)
-	, _instances({ instance })
+	, _instances({instance})
 	, _reflectionDescriptor(reflectionDescriptor)
 	, _editorTabWindow(editorTabWindow)
 	{
@@ -33,7 +33,7 @@ namespace hod::editor
 	: _sourceProperty(&sourceProperty)
 	, _editorTabWindow(sourceProperty.GetParent()->GetEditorTabWindow())
 	{
-		_instances.reserve(sourceProperty.GetInstances().size());
+		_instances.Reserve(sourceProperty.GetInstances().Size());
 
 		ReflectionProperty* property = sourceProperty.GetReflectionProperty();
 		if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
@@ -88,7 +88,7 @@ namespace hod::editor
 			return false;
 		}
 
-		return (_reflectionDescriptor->Compare(_instances[0], _sourceInstance) == false);
+		return _reflectionDescriptor->Compare(_instances[0], _sourceInstance) == false;
 	}
 
 	void* EditorReflectedObject::GetInstance() const

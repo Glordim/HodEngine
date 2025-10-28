@@ -492,16 +492,16 @@ namespace hod::editor
 
 		if (newParentNode != parentNode)
 		{
-			auto it = std::find(node._parentFolder->_childrenFolder.begin(), node._parentFolder->_childrenFolder.end(), &node);
-			if (it != node._parentFolder->_childrenFolder.end())
+			auto it = std::find(node._parentFolder->_childrenFolder.Begin(), node._parentFolder->_childrenFolder.End(), &node);
+			if (it != node._parentFolder->_childrenFolder.End())
 			{
-				node._parentFolder->_childrenFolder.erase(it);
+				node._parentFolder->_childrenFolder.Erase(it);
 			}
 
-			it = std::find(node._parentFolder->_childrenAsset.begin(), node._parentFolder->_childrenAsset.end(), &node);
-			if (it != node._parentFolder->_childrenAsset.end())
+			it = std::find(node._parentFolder->_childrenAsset.Begin(), node._parentFolder->_childrenAsset.End(), &node);
+			if (it != node._parentFolder->_childrenAsset.End())
 			{
-				node._parentFolder->_childrenAsset.erase(it);
+				node._parentFolder->_childrenAsset.Erase(it);
 			}
 
 			node._parentFolder = newParentNode;
@@ -534,14 +534,14 @@ namespace hod::editor
 	{
 		if (node._type == AssetDatabase::FileSystemMapping::Type::AssetType)
 		{
-			Vector<FileSystemMapping*>::const_iterator it = std::find(node._parentFolder->_childrenAsset.begin(), node._parentFolder->_childrenAsset.end(), &node);
-			node._parentFolder->_childrenAsset.erase(it);
+			Vector<FileSystemMapping*>::ConstIterator it = std::find(node._parentFolder->_childrenAsset.Begin(), node._parentFolder->_childrenAsset.End(), &node);
+			node._parentFolder->_childrenAsset.Erase(it);
 		}
 
 		if (node._type == AssetDatabase::FileSystemMapping::Type::FolderType)
 		{
-			Vector<FileSystemMapping*>::const_iterator it = std::find(node._parentFolder->_childrenFolder.begin(), node._parentFolder->_childrenFolder.end(), &node);
-			node._parentFolder->_childrenFolder.erase(it);
+			Vector<FileSystemMapping*>::ConstIterator it = std::find(node._parentFolder->_childrenFolder.Begin(), node._parentFolder->_childrenFolder.End(), &node);
+			node._parentFolder->_childrenFolder.Erase(it);
 		}
 
 		DefaultAllocator::GetInstance().Delete(&node);

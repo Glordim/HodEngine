@@ -7,15 +7,15 @@
 namespace hod::window
 {
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	size_t ScreenHelper::GetMonitorCount()
 	{
-		return 0;//SDL_GetNumVideoDisplays();
+		return 0; // SDL_GetNumVideoDisplays();
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool ScreenHelper::GetNativeResoltion(Resolution* nativeResolution, int monitor)
 	{
@@ -24,15 +24,15 @@ namespace hod::window
 		/*
 		if (nativeResolution == nullptr)
 		{
-			return false;
+		    return false;
 		}
 
 		SDL_DisplayMode desktopMode;
 
 		if (SDL_GetDesktopDisplayMode(monitor, &desktopMode) != 0)
 		{
-			OUTPUT_ERROR("SDL: SDL_GetDesktopDisplayMode failed: {}", SDL_GetError());
-			return false;
+		    OUTPUT_ERROR("SDL: SDL_GetDesktopDisplayMode failed: {}", SDL_GetError());
+		    return false;
 		}
 
 		nativeResolution->width = desktopMode.w;
@@ -46,7 +46,7 @@ namespace hod::window
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool ScreenHelper::GetSupportedResoltions(Vector<Resolution>* supportedResolution, int monitor)
 	{
@@ -55,34 +55,34 @@ namespace hod::window
 		/*
 		if (supportedResolution == nullptr)
 		{
-			return false;
+		    return false;
 		}
 
 		int modeCount = SDL_GetNumDisplayModes(monitor);
 
 		if (modeCount == 0)
 		{
-			return false;
+		    return false;
 		}
 
-		supportedResolution->resize(modeCount);
+		supportedResolution->Resize(modeCount);
 
 		for (int i = 0; i < modeCount; ++i)
 		{
-			SDL_DisplayMode mode;
+		    SDL_DisplayMode mode;
 
-			if (SDL_GetDisplayMode(monitor, i, &mode) != 0)
-			{
-				OUTPUT_ERROR("SDL: SDL_GetDisplayMode failed: {}", SDL_GetError());
-				return 1;
-			}
+		    if (SDL_GetDisplayMode(monitor, i, &mode) != 0)
+		    {
+		        OUTPUT_ERROR("SDL: SDL_GetDisplayMode failed: {}", SDL_GetError());
+		        return 1;
+		    }
 
-			Resolution& resolution = supportedResolution->at(i);
+		    Resolution& resolution = supportedResolution->at(i);
 
-			resolution.width = mode.w;
-			resolution.height = mode.h;
-			resolution.refreshRate = mode.refresh_rate;
-			resolution.bitPerPixel = SDL_BITSPERPIXEL(mode.format);
+		    resolution.width = mode.w;
+		    resolution.height = mode.h;
+		    resolution.refreshRate = mode.refresh_rate;
+		    resolution.bitPerPixel = SDL_BITSPERPIXEL(mode.format);
 		}
 
 		return true;

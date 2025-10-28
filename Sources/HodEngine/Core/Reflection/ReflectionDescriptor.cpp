@@ -130,7 +130,7 @@ namespace hod
 	/// @return
 	ReflectionTrait* ReflectionDescriptor::FindTrait(MetaType metaType, bool fallbackOnParent) const
 	{
-		for (uint32_t index = 0; index < _traits.size(); ++index)
+		for (uint32_t index = 0; index < _traits.Size(); ++index)
 		{
 			if (_traits[index]->GetMetaType() == metaType)
 			{
@@ -154,12 +154,12 @@ namespace hod
 	/// @param metaType
 	void ReflectionDescriptor::RemoveTrait(MetaType metaType)
 	{
-		for (uint32_t index = 0; index < _traits.size(); ++index)
+		for (uint32_t index = 0; index < _traits.Size(); ++index)
 		{
 			if (_traits[index]->GetMetaType() == metaType)
 			{
 				ReflectionTrait* trait = _traits[index];
-				_traits.erase(_traits.begin() + index);
+				_traits.Erase(index);
 				DefaultAllocator::GetInstance().Delete(trait);
 				return;
 			}

@@ -105,16 +105,16 @@ namespace hod::editor
 				_initialLayoutCreated = true;
 			}
 			ImGui::DockSpace(_dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-			auto it = _windows.begin();
-			auto itEnd = _windows.end();
+			auto it = _windows.Begin();
+			auto itEnd = _windows.End();
 			while (it != itEnd)
 			{
 				(*it)->Draw();
 				if ((*it)->IsClosed())
 				{
 					DefaultAllocator::GetInstance().Delete(*it);
-					_windows.erase(it);
-					itEnd = _windows.end();
+					_windows.Erase(it);
+					itEnd = _windows.End();
 				}
 				else
 				{

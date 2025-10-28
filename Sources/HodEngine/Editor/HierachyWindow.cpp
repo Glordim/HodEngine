@@ -77,7 +77,7 @@ namespace hod::editor
 		{
 			game::Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
-			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().size() > 0)
+			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().Size() > 0)
 			{
 				game::Entity* entity = world->GetScenes()[0]->CreateEntity("EditMe");
 
@@ -161,7 +161,7 @@ namespace hod::editor
 
 		ImGuiTreeNodeFlags treeNodeFlags =
 			ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DrawLinesToNodes;
-		if (entity->GetChildren().empty())
+		if (entity->GetChildren().Empty())
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}

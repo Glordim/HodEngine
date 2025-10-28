@@ -5,12 +5,12 @@
 
 namespace hod
 {
-	void* MallocAllocator::AllocateInternal(uint32_t size, uint32_t alignment)
+	void* MallocAllocator::AllocateInternal(uint32_t Size, uint32_t alignment)
 	{
 #if PLATFORM_WINDOWS
-		return _aligned_malloc(size, alignment);
+		return _aligned_malloc(Size, alignment);
 #else
-		return std::aligned_alloc(alignment, size);
+		return std::aligned_alloc(alignment, Size);
 #endif
 	}
 

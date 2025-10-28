@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
+#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 namespace hod
@@ -9,7 +9,7 @@ namespace hod
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		CommandBuffer::~CommandBuffer()
 		{
@@ -17,7 +17,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBuffer::DeleteAfterRender(MaterialInstance* materialInstance)
 		{
@@ -25,7 +25,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBuffer::DeleteAfterRender(Buffer* buffer)
 		{
@@ -33,7 +33,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBuffer::PurgePointerToDelete()
 		{
@@ -41,13 +41,13 @@ namespace hod
 			{
 				DefaultAllocator::GetInstance().Delete(materialInstance);
 			}
-			_materialInstanceToDelete.clear();
+			_materialInstanceToDelete.Clear();
 
 			for (Buffer* buffer : _bufferToDelete)
 			{
 				DefaultAllocator::GetInstance().Delete(buffer);
 			}
-			_bufferToDelete.clear();
+			_bufferToDelete.Clear();
 		}
 	}
 }

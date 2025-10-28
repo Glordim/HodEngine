@@ -64,7 +64,7 @@ namespace hod::ui
 		if (_drivenNodesDirty == true)
 		{
 			_drivenNodesDirty = false;
-			_drivenNodes.clear();
+			_drivenNodes.Clear();
 			//_onDrivenNodeChangedSlot.DisconnectAll(); // TODO Event::Slot DisconnectAll
 			//_onDrivenNodeLayoutElementChangedSlot.DisconnectAll(); // TODO Event::Slot DisconnectAll
 
@@ -246,9 +246,9 @@ namespace hod::ui
 	/// @param node
 	/// @param axis
 	/// @param position
-	/// @param size
+	/// @param Size
 	/// @param scaleFactor
-	void Layout::SetChildAlongAxisWithScale(Node* node, Axis axis, float position, float size, float scaleFactor)
+	void Layout::SetChildAlongAxisWithScale(Node* node, Axis axis, float position, float Size, float scaleFactor)
 	{
 		node->SetAnchorMin(Vector2(0.0f, 1.0f));
 		node->SetAnchorMax(Vector2(0.0f, 1.0f));
@@ -258,13 +258,13 @@ namespace hod::ui
 
 		if (axis == Axis::Horizontal)
 		{
-			deltaSize.SetX(size);
-			anchoredPos.SetX(position + size * node->GetPivot().GetX() * scaleFactor);
+			deltaSize.SetX(Size);
+			anchoredPos.SetX(position + Size * node->GetPivot().GetX() * scaleFactor);
 		}
 		else
 		{
-			deltaSize.SetY(size);
-			anchoredPos.SetY(-position - size * (1.0f - node->GetPivot().GetY()) * scaleFactor);
+			deltaSize.SetY(Size);
+			anchoredPos.SetY(-position - Size * (1.0f - node->GetPivot().GetY()) * scaleFactor);
 		}
 
 		node->SetDeltaSize(deltaSize);

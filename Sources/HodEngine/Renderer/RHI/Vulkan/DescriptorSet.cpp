@@ -29,7 +29,7 @@ namespace hod::renderer
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-		size_t uboCount = _uboBuffers.size();
+		size_t uboCount = _uboBuffers.Size();
 		for (size_t i = 0; i < uboCount; ++i)
 		{
 			DefaultAllocator::GetInstance().Delete(_uboBuffers[i]);
@@ -65,22 +65,22 @@ namespace hod::renderer
 		}
 
 		const Vector<ShaderSetDescriptorVk::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
-		size_t                                         uboCount = ubos.size();
+		size_t                                         uboCount = ubos.Size();
 
 		for (BufferVk* buffer : _uboBuffers)
 		{
 			DefaultAllocator::GetInstance().Delete(buffer);
 		}
 
-		_uboBuffers.resize(uboCount, nullptr);
+		_uboBuffers.Resize(uboCount, nullptr);
 
 		for (size_t i = 0; i < uboCount; ++i)
 		{
 			const ShaderSetDescriptorVk::BlockUbo& ubo = ubos[i];
 
-			uint32_t size = static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count);
+			uint32_t Size = static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count);
 
-			_uboBuffers[i] = static_cast<BufferVk*>(Renderer::GetInstance()->CreateBuffer(Buffer::Usage::Uniform, size));
+			_uboBuffers[i] = static_cast<BufferVk*>(Renderer::GetInstance()->CreateBuffer(Buffer::Usage::Uniform, Size));
 			if (_uboBuffers[i] == nullptr)
 			{
 				return false;
@@ -89,7 +89,7 @@ namespace hod::renderer
 			void* data = _uboBuffers[i]->Lock();
 			if (data != nullptr)
 			{
-				memset(data, 0, size);
+				memset(data, 0, Size);
 				_uboBuffers[i]->Unlock();
 			}
 
@@ -116,7 +116,7 @@ namespace hod::renderer
 		const VkTexture* defaultTexture = static_cast<const VkTexture*>(Renderer::GetInstance()->GetDefaultWhiteTexture());
 
 		const Vector<ShaderSetDescriptorVk::BlockTexture>& textures = _descriptorSetLayout->GetTextureBlocks();
-		size_t                                             textureCount = textures.size();
+		size_t                                             textureCount = textures.Size();
 		for (size_t i = 0; i < textureCount; ++i)
 		{
 			const ShaderSetDescriptorVk::BlockTexture& texture = textures[i];
@@ -195,7 +195,7 @@ namespace hod::renderer
 		}
 
 		const Vector<ShaderSetDescriptorVk::BlockUbo>& ubos = _descriptorSetLayout->GetUboBlocks();
-		size_t                                         uboCount = ubos.size();
+		size_t                                         uboCount = ubos.Size();
 
 		for (size_t i = 0; i < uboCount; ++i)
 		{
@@ -250,7 +250,7 @@ namespace hod::renderer
 
 				if (member->_size != valueSize)
 				{
-					OUTPUT_ERROR("SetUboValue: member->size != valueSize !");
+					OUTPUT_ERROR("SetUboValue: member->Size != valueSize !");
 				}
 
 				RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -290,7 +290,7 @@ namespace hod::renderer
 	void DescriptorSet::SetTexture(const String& name, const VkTexture* textureSampler)
 	{
 		const Vector<ShaderSetDescriptorVk::BlockTexture>& textures = _descriptorSetLayout->GetTextureBlocks();
-		size_t                                             textureCount = textures.size();
+		size_t                                             textureCount = textures.Size();
 
 		bool founded = false;
 		for (size_t i = 0; i < textureCount; ++i)

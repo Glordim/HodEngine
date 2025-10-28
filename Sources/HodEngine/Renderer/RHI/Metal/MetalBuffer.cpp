@@ -10,40 +10,37 @@ namespace hod
 {
 	namespace renderer
 	{
-        MetalBuffer::MetalBuffer(Usage usage, uint32_t size)
-			: Buffer(usage, size)
+		MetalBuffer::MetalBuffer(Usage usage, uint32_t Size)
+		: Buffer(usage, Size)
 		{
-            RendererMetal* rendererMetal = RendererMetal::GetInstance();
-            _nativeBuffer = rendererMetal->GetDevice()->newBuffer(size, MTL::ResourceStorageModeShared);
+			RendererMetal* rendererMetal = RendererMetal::GetInstance();
+			_nativeBuffer = rendererMetal->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
 		}
-    
-        MetalBuffer::~MetalBuffer()
-        {
-            _nativeBuffer->release();
-        }
 
-		bool MetalBuffer::Resize(uint32_t size)
+		MetalBuffer::~MetalBuffer()
 		{
-            _nativeBuffer->release();
-            RendererMetal* rendererMetal = RendererMetal::GetInstance();
-            _nativeBuffer = rendererMetal->GetDevice()->newBuffer(size, MTL::ResourceStorageModeShared);
-            _size = size;
+			_nativeBuffer->release();
+		}
+
+		bool MetalBuffer::Resize(uint32_t Size)
+		{
+			_nativeBuffer->release();
+			RendererMetal* rendererMetal = RendererMetal::GetInstance();
+			_nativeBuffer = rendererMetal->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
+			_size = Size;
 			return true;
 		}
 
 		void* MetalBuffer::Lock()
 		{
-            return _nativeBuffer->contents();
+			return _nativeBuffer->contents();
 		}
 
-		void MetalBuffer::Unlock()
+		void MetalBuffer::Unlock() {}
+
+		MTL::Buffer* MetalBuffer::GetNativeBuffer() const
 		{
-
+			return _nativeBuffer;
 		}
-    
-        MTL::Buffer* MetalBuffer::GetNativeBuffer() const
-        {
-            return _nativeBuffer;
-        }
 	}
 }

@@ -113,13 +113,13 @@ namespace hod
 					float atlasHeight = (float)font->GetTexture()->GetHeight();
 
 					Vector<Vector2> positions;
-					positions.reserve(_text.size() * 4);
+					positions.reserve(_text.Size() * 4);
 
 					Vector<Vector2> uvs;
-					uvs.reserve(_text.size() * 4);
+					uvs.reserve(_text.Size() * 4);
 
 					Vector<uint16_t> indices;
-					indices.reserve(_text.size() * 6);
+					indices.reserve(_text.Size() * 6);
 
 					float offset = 0;
 
@@ -128,7 +128,7 @@ namespace hod
 					{
 					    const renderer::Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
 
-					    uint16_t vertexCount = (uint16_t)positions.size();
+					    uint16_t vertexCount = (uint16_t)positions.Size();
 
 					    positions.emplace_back(offset, (float)kerning._baseline * 0.5f  * -0.01f + (float)kerning._size.GetY() * 0.5f * 0.01f);
 					    uvs.emplace_back((float)kerning._offsetX / atlasWidth, (float)kerning._offsetY / atlasHeight);
@@ -157,8 +157,8 @@ namespace hod
 
 					if (positions.empty() == false)
 					{
-					    renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.data(), uvs.data(), nullptr,
-					(uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
+					    renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.Data(), uvs.Data(), nullptr,
+					(uint32_t)positions.Size(), indices.Data(), (uint32_t)indices.Size(), node2dComponent->GetWorldMatrix(), _materialInstance,
 					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 					}
 					*/

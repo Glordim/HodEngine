@@ -112,7 +112,7 @@ namespace hod::window
 		{
 			function();
 		}
-		_runOnWin32Thread.clear();
+		_runOnWin32Thread.Clear();
 
 		::MSG msg;
 		::ZeroMemory(&msg, sizeof(msg));

@@ -69,7 +69,7 @@ namespace hod::editor
 	template<typename... Args>
 	void Importer::SetSupportedDataFileExtensions(Args... args)
 	{
-		_supportedDataFileExtensions.clear();
+		_supportedDataFileExtensions.Clear();
 		for (const char* extension : {args...})
 		{
 			_supportedDataFileExtensions.push_back(extension);

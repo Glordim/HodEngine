@@ -7,7 +7,7 @@ namespace hod
 	/// @brief
 	void OutputBucket::Clear()
 	{
-		_outputs.clear();
+		_outputs.Clear();
 	}
 
 	/// @brief

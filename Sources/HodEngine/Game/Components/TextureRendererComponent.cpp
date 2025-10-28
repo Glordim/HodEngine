@@ -1,19 +1,19 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/Components/TextureRendererComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/Components/TextureRendererComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
 
-#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Core/Color.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/P2fC4f.hpp>
+#include <HodEngine/Renderer/P2fT2f.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RHI/Material.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
-#include <HodEngine/Renderer/P2fT2f.hpp>
-#include <HodEngine/Renderer/P2fC4f.hpp>
-#include <HodEngine/Core/Color.hpp>
 
 namespace hod::game
 {
@@ -25,19 +25,17 @@ namespace hod::game
 		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_color, "_color", &TextureRendererComponent::SetColor);
 	}
 
-	TextureRendererComponent::TextureRendererComponent()
-	{
-	}
+	TextureRendererComponent::TextureRendererComponent() {}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	TextureRendererComponent::~TextureRendererComponent()
 	{
 		DefaultAllocator::GetInstance().Delete(_builtinMaterialInstance);
 	}
 
-	/// @brief 
+	/// @brief
 	void TextureRendererComponent::OnConstruct()
 	{
 		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
@@ -50,26 +48,26 @@ namespace hod::game
 
 	/*
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	void TextureRendererComponent::SetSprite(std::shared_ptr<renderer::Sprite> sprite)
 	{
-		_sprite = sprite;
+	    _sprite = sprite;
 
-		_materialInstance->SetTexture("textureSampler", _sprite->GetSpriteAtlas()->GetTexture());
+	    _materialInstance->SetTexture("textureSampler", _sprite->GetSpriteAtlas()->GetTexture());
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	const renderer::Sprite* TextureRendererComponent::GetSprite() const
 	{
-		return _sprite;
+	    return _sprite;
 	}
 	*/
 
-	/// @brief 
-	/// @param materialInstance 
+	/// @brief
+	/// @param materialInstance
 	void TextureRendererComponent::SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& weakMaterialInstanceResource)
 	{
 		_material = weakMaterialInstanceResource;
@@ -86,7 +84,7 @@ namespace hod::game
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	renderer::MaterialInstance* TextureRendererComponent::GetMaterialInstance() const
 	{
@@ -94,7 +92,7 @@ namespace hod::game
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	void TextureRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
 	{
@@ -120,33 +118,35 @@ namespace hod::game
 					Vector2(0, 1),
 				};
 
-				static std::array<uint16_t, 3*2> indices = {
-					0, 1, 2,
-					0, 2, 3,
+				static std::array<uint16_t, 3 * 2> indices = {
+					0, 1, 2, 0, 2, 3,
 				};
 
 				if (_materialInstance == nullptr)
 				{
-					const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+					const renderer::Material* material =
+						renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
 					_builtinMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 					_materialInstance = _builtinMaterialInstance;
 					RefreshMaterialInstance();
 				}
 
-				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
+				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+					vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
+					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 			}
 		}
 	}
 
-	/// @brief 
-	/// @param texture 
+	/// @brief
+	/// @param texture
 	void TextureRendererComponent::SetTexture(const WeakResource<renderer::TextureResource>& texture)
 	{
 		_texture = texture;
 		RefreshMaterialInstance();
 	}
 
-	/// @brief 
+	/// @brief
 	void TextureRendererComponent::RefreshMaterialInstance()
 	{
 		if (_materialInstance != nullptr)
@@ -170,8 +170,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Rect TextureRendererComponent::GetBoundingBox() const
 	{
 		float width = _pixelPerUnit;
@@ -190,16 +190,16 @@ namespace hod::game
 		return bb;
 	}
 
-	/// @brief 
-	/// @param color 
+	/// @brief
+	/// @param color
 	void TextureRendererComponent::SetColor(const Color& color)
 	{
 		_color = color;
 		RefreshMaterialInstance();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Color& TextureRendererComponent::GetColor() const
 	{
 		return _color;

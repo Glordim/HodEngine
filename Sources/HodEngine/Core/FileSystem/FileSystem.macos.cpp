@@ -103,11 +103,11 @@ namespace hod
 	/// @brief
 	/// @param handle
 	/// @param buffer
-	/// @param size
+	/// @param Size
 	/// @return
-	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
+	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t Size)
 	{
-		return (int32_t)read(handle._fd, buffer, size);
+		return (int32_t)read(handle._fd, buffer, Size);
 	}
 
 	/// @brief

@@ -107,12 +107,12 @@ namespace hod
 	/// @brief
 	/// @param handle
 	/// @param buffer
-	/// @param size
+	/// @param Size
 	/// @return
-	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
+	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t Size)
 	{
 		DWORD readedBytes = 0;
-		if (ReadFile(handle._handle, buffer, size, &readedBytes, NULL) == TRUE)
+		if (ReadFile(handle._handle, buffer, Size, &readedBytes, NULL) == TRUE)
 		{
 			return (int32_t)readedBytes;
 		}

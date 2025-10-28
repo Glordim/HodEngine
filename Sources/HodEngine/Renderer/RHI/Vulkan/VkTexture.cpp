@@ -16,9 +16,10 @@ namespace hod
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		VkTexture::VkTexture() : Texture()
+		VkTexture::VkTexture()
+		: Texture()
 		{
 			_textureImage = VK_NULL_HANDLE;
 			_textureImageMemory = VK_NULL_HANDLE;
@@ -28,7 +29,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		VkTexture::~VkTexture()
 		{
@@ -56,7 +57,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		VkImage VkTexture::GetTextureImage() const
 		{
@@ -64,7 +65,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		VkImageView VkTexture::GetTextureImageView() const
 		{
@@ -72,7 +73,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		VkSampler VkTexture::GetTextureSampler() const
 		{
@@ -80,7 +81,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool VkTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 		{
@@ -88,15 +89,18 @@ namespace hod
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-			VkMemoryPropertyFlags memoryPropertyFlags = /*createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : */VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-			VkImageTiling imageTiling = /*createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : */VK_IMAGE_TILING_OPTIMAL;
+			VkMemoryPropertyFlags memoryPropertyFlags =
+				/*createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : */ VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			VkImageTiling imageTiling = /*createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : */ VK_IMAGE_TILING_OPTIMAL;
 
-			if (renderer->CreateImage(width, height, VK_FORMAT_D32_SFLOAT_S8_UINT, imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
+			if (renderer->CreateImage(width, height, VK_FORMAT_D32_SFLOAT_S8_UINT, imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage,
+			                          &_textureImageMemory) == false)
 			{
 				goto exit;
 			}
 
-			if (renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
+			if (renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+			                                             VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
 			{
 				goto exit;
 			}
@@ -146,21 +150,24 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool VkTexture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-			VkBuffer buffer = VK_NULL_HANDLE;
+			VkBuffer       buffer = VK_NULL_HANDLE;
 			VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
-			bool ret = false;
+			bool           ret = false;
 
-			VkMemoryPropertyFlags memoryPropertyFlags = createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-			VkImageTiling imageTiling = createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
+			VkMemoryPropertyFlags memoryPropertyFlags =
+				createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			VkImageTiling     imageTiling = createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
 			VkImageUsageFlags imageUseFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 			if (createInfo._allowReadWrite)
+			{
 				imageUseFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+			}
 
 			SamplerCreateInfo samplerCreateInfo;
 			samplerCreateInfo._wrapMode = createInfo._wrapMode;
@@ -234,26 +241,28 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool VkTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-			VkBuffer buffer = VK_NULL_HANDLE;
+			VkBuffer       buffer = VK_NULL_HANDLE;
 			VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
-			VkDeviceSize bufferSize = width * height * 4;
-			void* data = nullptr;
-			bool ret = false;
+			VkDeviceSize   bufferSize = width * height * 4;
+			void*          data = nullptr;
+			bool           ret = false;
 
-			VkMemoryPropertyFlags memoryPropertyFlags = createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			VkMemoryPropertyFlags memoryPropertyFlags =
+				createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 			VkImageTiling imageTiling = createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
 
 			SamplerCreateInfo samplerCreateInfo;
 			samplerCreateInfo._wrapMode = createInfo._wrapMode;
 			samplerCreateInfo._filterMode = createInfo._filterMode;
 
-			if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer, &bufferMemory) == false)
+			if (renderer->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer,
+			                           &bufferMemory) == false)
 			{
 				goto exit;
 			}
@@ -269,7 +278,8 @@ namespace hod
 				vkUnmapMemory(renderer->GetVkDevice(), bufferMemory);
 			}
 
-			if (renderer->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
+			if (renderer->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags,
+			                          &_textureImage, &_textureImageMemory) == false)
 			{
 				goto exit;
 			}
@@ -284,7 +294,8 @@ namespace hod
 				goto exit;
 			}
 
-			if (renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
+			if (renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			                                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
 			{
 				goto exit;
 			}
@@ -346,20 +357,19 @@ namespace hod
 			return ret;
 		}
 
-		/// @brief 
-		/// @param position 
-		/// @return 
+		/// @brief
+		/// @param position
+		/// @return
 		Color VkTexture::ReadPixel(const Vector2& position) const
 		{
-			if (position.GetX() < 0 || position.GetX() > _width ||
-				position.GetY() < 0 || position.GetY() > _height)
+			if (position.GetX() < 0 || position.GetX() > _width || position.GetY() < 0 || position.GetY() > _height)
 			{
 				return Color(0.0f, 0.0f, 0.0f, 0.0f);
 			}
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-			VkBuffer stagingBuffer;
+			VkBuffer      stagingBuffer;
 			VmaAllocation stagingBufferAllocation;
 
 			VkBufferCreateInfo bufferCreateInfo = {};
@@ -390,15 +400,10 @@ namespace hod
 				OUTPUT_ERROR("Vulkan: Texture, unable to map memory");
 				return Color(0.0f, 0.0f, 0.0f, 0.0f);
 			}
-			
+
 			uint8_t* pixelData = (uint8_t*)data + ((uint32_t)position.GetY() * _width + (uint32_t)position.GetX()) * 4;
 
-			Color color(
-				((float)pixelData[0]) / 255.0f,
-				((float)pixelData[1]) / 255.0f,
-				((float)pixelData[2]) / 255.0f,
-				((float)pixelData[3]) / 255.0f
-			);
+			Color color(((float)pixelData[0]) / 255.0f, ((float)pixelData[1]) / 255.0f, ((float)pixelData[2]) / 255.0f, ((float)pixelData[3]) / 255.0f);
 
 			vmaUnmapMemory(renderer->GetVmaAllocator(), stagingBufferAllocation);
 			vmaDestroyBuffer(renderer->GetVmaAllocator(), stagingBuffer, stagingBufferAllocation);
@@ -407,4 +412,3 @@ namespace hod
 		}
 	}
 }
-

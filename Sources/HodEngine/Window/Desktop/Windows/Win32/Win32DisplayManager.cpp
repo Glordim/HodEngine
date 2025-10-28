@@ -87,10 +87,10 @@ namespace hod::window
 	/// @param window
 	void Win32DisplayManager::DestroyWindow(Window* window)
 	{
-		auto it = std::find(_windows.begin(), _windows.end(), window);
-		if (it != _windows.end())
+		auto it = std::find(_windows.Begin(), _windows.End(), window);
+		if (it != _windows.End())
 		{
-			_windows.erase(it);
+			_windows.Erase(it);
 		}
 		DefaultAllocator::GetInstance().Delete(window);
 	}

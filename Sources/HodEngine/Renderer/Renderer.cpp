@@ -1,17 +1,17 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
-#include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/Renderer/PickingManager.hpp"
-#include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/Font/FontManager.hpp"
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/PickingManager.hpp"
+#include "HodEngine/Renderer/RenderView.hpp"
+#include "HodEngine/Renderer/RHI/Context.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/Context.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
 #include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
@@ -19,7 +19,7 @@ namespace hod
 {
 	namespace renderer
 	{
-		/// @brief 
+		/// @brief
 		_SingletonConstructor(Renderer)
 		{
 			MaterialManager::CreateInstance();
@@ -29,7 +29,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		Renderer::~Renderer()
 		{
@@ -38,7 +38,7 @@ namespace hod
 			MaterialManager::DestroyInstance();
 		}
 
-		/// @brief 
+		/// @brief
 		void Renderer::Clear()
 		{
 			MaterialManager::GetInstance()->Clear();
@@ -64,29 +64,29 @@ namespace hod
 
 		/*
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool Renderer::Init()
 		{
-			DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
+		    DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
 
-			pDebugLayer->RegisterDebugWindow(&_rendererDebugWindow);
+		    pDebugLayer->RegisterDebugWindow(&_rendererDebugWindow);
 
-			return true;
+		    return true;
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void Renderer::Clear()
 		{
-			DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
+		    DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
 
-			pDebugLayer->UnregisterDebugWindow(&_rendererDebugWindow);
+		    pDebugLayer->UnregisterDebugWindow(&_rendererDebugWindow);
 		}
 		*/
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		Renderer::VisualizationMode Renderer::GetVisualizationMode() const
 		{
@@ -94,7 +94,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void Renderer::SetVisualizationMode(VisualizationMode visualizationMode)
 		{
@@ -102,7 +102,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		MaterialInstance* Renderer::GetDefaultMaterialInstance()
 		{
@@ -113,9 +113,9 @@ namespace hod
 					Renderer* renderer = Renderer::GetInstance();
 
 					renderer::VertexInput vertexInput[1] = {
-						{ 0, 0, renderer::VertexInput::Format::R32G32_SFloat },
+						{0, 0, renderer::VertexInput::Format::R32G32_SFloat},
 						//{ 8, renderer::VertexInput::Format::R32G32_SFloat },
-						//{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
+					    //{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
 					};
 
 					Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
@@ -149,7 +149,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		MaterialInstance* Renderer::GetOverdrawMaterialInstance()
 		{
@@ -167,7 +167,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		MaterialInstance* Renderer::GetWireframeMaterialInstance()
 		{
@@ -175,7 +175,8 @@ namespace hod
 			{
 				if (_wireframeMaterial == nullptr)
 				{
-					_wireframeMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
+					_wireframeMaterial = MaterialManager::GetInstance()->GetData(
+						MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
 				}
 
 				_wireframeMaterialInstance = CreateMaterialInstance(_wireframeMaterial);
@@ -184,16 +185,13 @@ namespace hod
 			return _wireframeMaterialInstance;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Texture* Renderer::GetDefaultWhiteTexture()
 		{
 			if (_defaultWhiteTexture == nullptr)
 			{
-				uint8_t pixels[4*2*2] = { 255, 255, 255, 255,
-										  255, 255, 255, 255,
-										  255, 255, 255, 255,
-										  255, 255, 255, 255 };
+				uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
 
 				_defaultWhiteTexture = CreateTexture();
 				_defaultWhiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
@@ -212,7 +210,7 @@ namespace hod
 			// todo sort
 
 			Semaphore* semaphore = nullptr;
-			Context* context = nullptr;
+			Context*   context = nullptr;
 			for (RenderView* renderView : _renderViews)
 			{
 				if (renderView->GetContext())
@@ -247,7 +245,7 @@ namespace hod
 					DefaultAllocator::GetInstance().Delete(renderView);
 				}
 			}
-			_renderViews.clear();
+			_renderViews.Clear();
 		}
 	}
 }

@@ -80,7 +80,7 @@ namespace hod::editor
 		{
 			DefaultAllocator::GetInstance().Delete(editorTab);
 		}
-		_editorTabs.clear();
+		_editorTabs.Clear();
 
 		DefaultAllocator::GetInstance().Delete(_floatingAssetBrowserWindow);
 		imgui::ImGuiManager::GetInstance()->DestroyAllWindow();
@@ -217,7 +217,7 @@ namespace hod::editor
 			module->Unload();
 			DefaultAllocator::GetInstance().Delete(module);
 		}
-		_editorModules.clear();
+		_editorModules.Clear();
 		return true;
 	}
 
@@ -389,7 +389,7 @@ namespace hod::editor
 				ImGui::PopStyleVar(2);
 				if (open)
 				{
-					if (_editorTabs.empty() == false)
+					if (_editorTabs.Empty() == false)
 					{
 						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(64.0f, 0.0f));
 						ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
@@ -398,13 +398,13 @@ namespace hod::editor
 						ImGui::PopStyleVar();
 						if (visible)
 						{
-							auto it = _editorTabs.begin();
-							while (it != _editorTabs.end())
+							auto it = _editorTabs.Begin();
+							while (it != _editorTabs.End())
 							{
 								if ((*it)->Draw() == false)
 								{
 									DefaultAllocator::GetInstance().Delete(*it);
-									_editorTabs.erase(it);
+									_editorTabs.Erase(it);
 								}
 								else
 								{

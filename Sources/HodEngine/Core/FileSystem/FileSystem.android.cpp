@@ -61,9 +61,9 @@ namespace hod
 		AAsset_seek(handle._asset, position, static_cast<int>(mode));
 	}
 
-	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t size)
+	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t Size)
 	{
-		return AAsset_read(handle._asset, buffer, size);
+		return AAsset_read(handle._asset, buffer, Size);
 	}
 
 	bool FileSystem::Close(FileSystem::Handle& handle)

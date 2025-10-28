@@ -1,12 +1,12 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/Resource/FontResource.hpp"
 #include "HodEngine/Renderer/Font/Font.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/Resource/FontResource.hpp"
 
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <cmath>
 #include <cstring>
@@ -18,21 +18,21 @@ namespace hod::renderer
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
+	/// @brief
 	FontResource::~FontResource()
 	{
 		DefaultAllocator::GetInstance().Delete(_font);
 	}
 
-	/// @brief 
-	/// @param document 
-	/// @param stream 
-	/// @return 
+	/// @brief
+	/// @param document
+	/// @param stream
+	/// @return
 	bool FontResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
 		(void)documentNode; // TODO
 
-		if (datas.empty())
+		if (datas.Empty())
 		{
 			// TODO message
 			return false;

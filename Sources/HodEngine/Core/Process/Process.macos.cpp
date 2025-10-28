@@ -57,7 +57,7 @@ namespace hod
 			// OUTPUT_ERROR(commandLine.c_str());
 
 			Vector<const char*> argv;
-			char*               begin = commandLine.data();
+			char*               begin = commandLine.Data();
 			char*               cursor = begin;
 			bool                escaped = 0;
 			while (*cursor != '\0')
@@ -91,7 +91,7 @@ namespace hod
 			argv.push_back(begin);
 			argv.push_back(nullptr);
 
-			if (execvp(argv[0], (char* const*)argv.data()) == -1)
+			if (execvp(argv[0], (char* const*)argv.Data()) == -1)
 			{
 				// OUTPUT_ERROR("Error executing program: {}", strerror(errno));
 				exit(EXIT_FAILURE);

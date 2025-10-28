@@ -6,8 +6,8 @@
 #include <string_view>
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/ShaderConstantDescriptorVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -17,13 +17,14 @@
 
 namespace hod::renderer
 {
-	/// @brief 
-	/// @param type 
-	VkShader::VkShader(ShaderType type) : Shader(type)
+	/// @brief
+	/// @param type
+	VkShader::VkShader(ShaderType type)
+	: Shader(type)
 	{
 	}
 
-	/// @brief 
+	/// @brief
 	VkShader::~VkShader()
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -34,17 +35,17 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
-	/// @param data 
-	/// @param size 
-	/// @return 
-	bool VkShader::LoadFromIR(const void* data, uint32_t size)
+	/// @brief
+	/// @param data
+	/// @param Size
+	/// @return
+	bool VkShader::LoadFromIR(const void* data, uint32_t Size)
 	{
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.flags = 0;
 		createInfo.pNext = nullptr;
-		createInfo.codeSize = size;
+		createInfo.codeSize = Size;
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(data);
 
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -55,8 +56,8 @@ namespace hod::renderer
 			return false;
 		}
 
-		_buffer.resize(size);
-		memcpy(_buffer.data(), data, size);
+		_buffer.Resize(Size);
+		memcpy(_buffer.Data(), data, Size);
 
 		if (GenerateDescriptors() == false)
 		{
@@ -70,16 +71,16 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkShaderModule VkShader::GetShaderModule() const
 	{
 		return _shaderModule;
 	}
 
-	/// @brief 
-	/// @param set 
-	/// @return 
+	/// @brief
+	/// @param set
+	/// @return
 	ShaderSetDescriptorVk* VkShader::GetOrCreateSetDescriptor(uint32_t set)
 	{
 		ShaderSetDescriptorVk* setDescriptor = nullptr;
@@ -98,11 +99,11 @@ namespace hod::renderer
 		return setDescriptor;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool VkShader::GenerateDescriptors()
 	{
-		spirv_cross::Compiler compiler(reinterpret_cast<const uint32_t*>(_buffer.data()), _buffer.size() / sizeof(uint32_t));
+		spirv_cross::Compiler        compiler(reinterpret_cast<const uint32_t*>(_buffer.Data()), _buffer.Size() / sizeof(uint32_t));
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
 		size_t constantBufferCount = resources.push_constant_buffers.size();
@@ -110,14 +111,14 @@ namespace hod::renderer
 		{
 			spirv_cross::Resource& resource = resources.push_constant_buffers[0]; // todo only first ?
 
-			uint32_t size = 0;
+			uint32_t                                           Size = 0;
 			spirv_cross::SmallVector<spirv_cross::BufferRange> ranges = compiler.get_active_buffer_ranges(resource.id);
 			for (const spirv_cross::BufferRange& range : ranges)
 			{
-				size += unsigned(range.range);
+				Size += unsigned(range.range);
 			}
 
-			_constantDescriptor = DefaultAllocator::GetInstance().New<ShaderConstantDescriptorVk>(0, size, GetShaderType());
+			_constantDescriptor = DefaultAllocator::GetInstance().New<ShaderConstantDescriptorVk>(0, Size, GetShaderType());
 		}
 
 		size_t uniformBufferCount = resources.uniform_buffers.size();

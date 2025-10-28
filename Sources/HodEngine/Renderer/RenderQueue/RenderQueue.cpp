@@ -3,43 +3,37 @@
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Context.hpp"
-#include "HodEngine/Renderer/RHI/Semaphore.hpp"
 #include "HodEngine/Renderer/RHI/Fence.hpp"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
+#include "HodEngine/Renderer/RHI/Semaphore.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 namespace hod::renderer
 {
-	/// @brief 
-	void RenderQueue::Init()
-	{
+	/// @brief
+	void RenderQueue::Init() {}
 
-	}
+	/// @brief
+	void RenderQueue::Terminate() {}
 
-	/// @brief 
-	void RenderQueue::Terminate()
-	{
-
-	}
-
-	/// @brief 
+	/// @brief
 	RenderQueue::~RenderQueue()
 	{
 		Terminate();
 	}
 
-	/// @brief 
-	/// @param renderCommand 
+	/// @brief
+	/// @param renderCommand
 	void RenderQueue::PushRenderCommand(RenderCommand* renderCommand)
 	{
 		_renderCommands.push_back(renderCommand);
 	}
 
-	/// @brief 
+	/// @brief
 	void RenderQueue::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
 	{
 		commandBuffer->SetProjectionMatrix(_projection);
@@ -52,13 +46,13 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void RenderQueue::Clear()
 	{
 		for (RenderCommand* renderCommand : _renderCommands)
 		{
 			DefaultAllocator::GetInstance().Delete(renderCommand);
 		}
-		_renderCommands.clear();
+		_renderCommands.Clear();
 	}
 }

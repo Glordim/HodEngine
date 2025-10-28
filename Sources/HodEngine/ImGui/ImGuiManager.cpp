@@ -272,7 +272,7 @@ namespace hod::imgui
 		{
 			DefaultAllocator::GetInstance().Delete(window);
 		}
-		_windows.clear();
+		_windows.Clear();
 	}
 
 	/// @brief
@@ -345,15 +345,15 @@ namespace hod::imgui
 			_callback();
 		}
 
-		Vector<Window*>::iterator windowIt = _windows.begin();
-		Vector<Window*>::iterator windowItEnd = _windows.end();
+		Vector<Window*>::Iterator windowIt = _windows.Begin();
+		Vector<Window*>::Iterator windowItEnd = _windows.End();
 		while (windowIt != windowItEnd)
 		{
 			if ((*windowIt)->IsClosed() == true)
 			{
 				DefaultAllocator::GetInstance().Delete(*windowIt);
-				windowIt = _windows.erase(windowIt);
-				windowItEnd = _windows.end();
+				windowIt = _windows.Erase(windowIt);
+				windowItEnd = _windows.End();
 			}
 			else
 			{
@@ -361,7 +361,7 @@ namespace hod::imgui
 			}
 		}
 
-		for (uint32_t index = 0; index < _windows.size(); ++index)
+		for (uint32_t index = 0; index < _windows.Size(); ++index)
 		{
 			Window* window = _windows[index];
 			/*
@@ -432,11 +432,11 @@ namespace hod::imgui
 
 					case ImTextureStatus_WantUpdates:
 					{
-						for (uint32_t i = 0; i < _textures.size(); ++i)
+						for (uint32_t i = 0; i < _textures.Size(); ++i)
 						{
 							if (_textures[i] == textureData->TexID)
 							{
-								_textures.erase(_textures.begin() + i);
+								_textures.Erase(_textures.Begin() + i);
 								break;
 							}
 						}
@@ -463,11 +463,11 @@ namespace hod::imgui
 
 					case ImTextureStatus_WantDestroy:
 					{
-						for (uint32_t i = 0; i < _textures.size(); ++i)
+						for (uint32_t i = 0; i < _textures.Size(); ++i)
 						{
 							if (_textures[i] == textureData->TexID)
 							{
-								_textures.erase(_textures.begin() + i);
+								_textures.Erase(_textures.Begin() + i);
 								break;
 							}
 						}
@@ -490,7 +490,7 @@ namespace hod::imgui
 		ImVec2 clipScale = drawData->FramebufferScale;
 
 		Vector<RenderCommandImGui::DrawList*> drawLists;
-		drawLists.resize(drawData->CmdListsCount);
+		drawLists.Resize(drawData->CmdListsCount);
 
 		for (int drawListIndex = 0; drawListIndex < drawData->CmdListsCount; ++drawListIndex)
 		{
@@ -501,13 +501,13 @@ namespace hod::imgui
 			memcpy(&drawList->_displayPosition, &drawData->DisplayPos, sizeof(Vector2));
 			memcpy(&drawList->_displaySize, &drawData->DisplaySize, sizeof(Vector2));
 
-			drawList->_vertices.resize(imDrawList->VtxBuffer.Size);
-			memcpy(drawList->_vertices.data(), imDrawList->VtxBuffer.Data, imDrawList->VtxBuffer.Size * sizeof(RenderCommandImGui::Vertex));
+			drawList->_vertices.Resize(imDrawList->VtxBuffer.Size);
+			memcpy(drawList->_vertices.Data(), imDrawList->VtxBuffer.Data, imDrawList->VtxBuffer.Size * sizeof(RenderCommandImGui::Vertex));
 
-			drawList->_indices.resize(imDrawList->IdxBuffer.Size);
-			memcpy(drawList->_indices.data(), imDrawList->IdxBuffer.Data, imDrawList->IdxBuffer.Size * sizeof(uint16_t));
+			drawList->_indices.Resize(imDrawList->IdxBuffer.Size);
+			memcpy(drawList->_indices.Data(), imDrawList->IdxBuffer.Data, imDrawList->IdxBuffer.Size * sizeof(uint16_t));
 
-			drawList->_commands.resize(imDrawList->CmdBuffer.Size);
+			drawList->_commands.Resize(imDrawList->CmdBuffer.Size);
 			for (int cmdIndex = 0; cmdIndex < imDrawList->CmdBuffer.Size; ++cmdIndex)
 			{
 				ImDrawCmd&                   imCommand = imDrawList->CmdBuffer[cmdIndex];

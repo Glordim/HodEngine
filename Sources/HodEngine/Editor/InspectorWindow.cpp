@@ -129,12 +129,12 @@ namespace hod::editor
 
 				// todo hide in play mode
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_PENCIL).x, 0.0f);
-				ImGui::BeginDisabled(overrides.empty());
+				ImGui::BeginDisabled(overrides.Empty());
 				if (ImGui::Button(ICON_MDI_PENCIL))
 				{
 					ImGui::OpenPopup("EditOverrides");
 				}
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && overrides.empty())
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && overrides.Empty())
 				{
 					ImGui::SetTooltip("%s", "No override detected");
 				}

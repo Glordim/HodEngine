@@ -1,9 +1,9 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 namespace hod::renderer
@@ -17,17 +17,17 @@ namespace hod::renderer
 		AddPropertyT(reflectionDescriptor, &TextureResource::_wrapMode, "_wrapMode");
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	TextureResource::~TextureResource()
 	{
 		DefaultAllocator::GetInstance().Delete(_texture);
 	}
 
-	/// @brief 
-	/// @param document 
-	/// @param stream 
-	/// @return 
+	/// @brief
+	/// @param document
+	/// @param stream
+	/// @return
 	bool TextureResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
@@ -36,7 +36,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		if (datas.empty())
+		if (datas.Empty())
 		{
 			// TODO message
 			return false;
@@ -58,8 +58,8 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Texture* TextureResource::GetTexture() const
 	{
 		return _texture;

@@ -1,6 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
-#include "HodEngine/UI/Node.hpp"
 #include "HodEngine/UI/Canvas.hpp"
+#include "HodEngine/UI/Node.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
 
@@ -19,7 +19,7 @@ namespace hod::ui
 		AddPropertyT(reflectionDescriptor, &Node::_deltaSize, "DeltaSize", &Node::SetDeltaSize);
 	}
 
-	/// @brief 
+	/// @brief
 	void Node::OnEnable()
 	{
 		game::Entity* owner = GetOwner();
@@ -183,7 +183,7 @@ namespace hod::ui
 		Vector2 half(0.5f, 0.5f);
 
 		game::Entity* entity = GetOwner();
-		for (uint32_t childIndex = 0; childIndex < entity->GetChildren().size(); ++childIndex)
+		for (uint32_t childIndex = 0; childIndex < entity->GetChildren().Size(); ++childIndex)
 		{
 			Node* childNode = entity->GetChildren()[childIndex].Lock()->GetComponent<Node>();
 			if (childNode != nullptr)
@@ -211,7 +211,7 @@ namespace hod::ui
 		{
 			_dirtyFlags |= (uint8_t)DirtyFlag::CanvasMatrix;
 			game::Entity* entity = GetOwner();
-			for (uint32_t childIndex = 0; childIndex < entity->GetChildren().size(); ++childIndex)
+			for (uint32_t childIndex = 0; childIndex < entity->GetChildren().Size(); ++childIndex)
 			{
 				Node* childNode = entity->GetChildren()[childIndex].Lock()->GetComponent<Node>();
 				if (childNode != nullptr)
@@ -245,7 +245,7 @@ namespace hod::ui
 	}
 
 	/// @brief
-	/// @return 
+	/// @return
 	void Node::ComputeSize(Node* pParent, Vector2& rSize)
 	{
 		Vector2 deltaAnchor = _anchorMax - _anchorMin;
@@ -266,8 +266,8 @@ namespace hod::ui
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Matrix4& Node::ComputeLocalMatrix()
 	{
 		ComputeSize();
@@ -282,8 +282,8 @@ namespace hod::ui
 	}
 
 	/// @brief
-	/// @return 
-	void Node::ComputeLocalMatrix(Node* parent, const Vector2& size, Matrix4& localMatrix) const
+	/// @return
+	void Node::ComputeLocalMatrix(Node* parent, const Vector2& Size, Matrix4& localMatrix) const
 	{
 		Vector2 position(0.0f, 0.0f);
 
@@ -301,7 +301,7 @@ namespace hod::ui
 
 		position += GetPosition();
 
-		const Vector2& pixelPivot = (_pivot - Vector2(0.5f, 0.5f)) * size;
+		const Vector2& pixelPivot = (_pivot - Vector2(0.5f, 0.5f)) * Size;
 
 		Matrix4 anchor = Matrix4::Translation(pixelPivot);
 		Matrix4 inverseAnchor = Matrix4::Translation(-pixelPivot);

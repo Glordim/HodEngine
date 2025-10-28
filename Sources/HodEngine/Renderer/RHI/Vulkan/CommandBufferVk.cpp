@@ -1,9 +1,9 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
@@ -18,7 +18,7 @@ namespace hod
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		CommandBufferVk::CommandBufferVk()
 		{
@@ -38,7 +38,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		CommandBufferVk::~CommandBufferVk()
 		{
@@ -46,11 +46,11 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::Release()
 		{
-			//DefaultAllocator::GetInstance().Delete(_sharedMinimalMaterialInstance);
+			// DefaultAllocator::GetInstance().Delete(_sharedMinimalMaterialInstance);
 			//_sharedMinimalMaterialInstance = nullptr;
 
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -59,15 +59,15 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		VkCommandBuffer CommandBufferVk::GetVkCommandBuffer() const
 		{
 			return _vkCommandBuffer;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		bool CommandBufferVk::StartRecord()
 		{
 			VkCommandBufferBeginInfo beginInfo = {};
@@ -84,8 +84,8 @@ namespace hod
 			return true;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		bool CommandBufferVk::EndRecord()
 		{
 			if (vkEndCommandBuffer(_vkCommandBuffer) != VK_SUCCESS)
@@ -97,10 +97,10 @@ namespace hod
 			return true;
 		}
 
-		/// @brief 
-		/// @param renderTarget 
-		/// @param context 
-		/// @param color 
+		/// @brief
+		/// @param renderTarget
+		/// @param context
+		/// @param color
 		bool CommandBufferVk::StartRenderPass(RenderTarget* renderTarget, Context* context, const Color& color)
 		{
 			VkClearValue clearColor[1];
@@ -122,7 +122,7 @@ namespace hod
 
 				renderPassInfo.renderPass = vkContext->GetRenderPass();
 				renderPassInfo.framebuffer = vkContext->GetSwapChainCurrentFrameBuffer();
-				renderPassInfo.renderArea.offset = { 0, 0 };
+				renderPassInfo.renderArea.offset = {0, 0};
 				renderPassInfo.renderArea.extent = vkContext->GetSwapChainExtent();
 			}
 			else
@@ -131,7 +131,7 @@ namespace hod
 
 				renderPassInfo.renderPass = vkRenderTarget->GetRenderPass();
 				renderPassInfo.framebuffer = vkRenderTarget->GetFrameBuffer();
-				renderPassInfo.renderArea.offset = { 0, 0 };
+				renderPassInfo.renderArea.offset = {0, 0};
 				Vector2 resolution = vkRenderTarget->GetResolution();
 				renderPassInfo.renderArea.extent.width = (uint32_t)resolution.GetX();
 				renderPassInfo.renderArea.extent.height = (uint32_t)resolution.GetY();
@@ -140,7 +140,7 @@ namespace hod
 			renderPassInfo.pClearValues = clearColor;
 
 			vkCmdBeginRenderPass(_vkCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			
+
 			VkViewport vkViewport = {};
 			vkViewport.x = 0;
 			vkViewport.y = (float)renderPassInfo.renderArea.extent.height;
@@ -152,7 +152,7 @@ namespace hod
 			vkCmdSetViewport(_vkCommandBuffer, 0, 1, &vkViewport);
 
 			VkRect2D scissor = {};
-			scissor.offset = { 0, 0 };
+			scissor.offset = {0, 0};
 			scissor.extent = renderPassInfo.renderArea.extent;
 
 			vkCmdSetScissor(_vkCommandBuffer, 0, 1, &scissor);
@@ -160,18 +160,18 @@ namespace hod
 			return true; // TODO cant fail
 		}
 
-		/// @brief 
+		/// @brief
 		bool CommandBufferVk::EndRenderPass()
 		{
 			vkCmdEndRenderPass(_vkCommandBuffer);
 			return true; // TODO cant fail
 		}
 
-		/// @brief 
-		/// @param constant 
-		/// @param size 
-		/// @param shaderType 
-		void CommandBufferVk::SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType)
+		/// @brief
+		/// @param constant
+		/// @param Size
+		/// @param shaderType
+		void CommandBufferVk::SetConstant(void* constant, uint32_t Size, Shader::ShaderType shaderType)
 		{
 			VkShaderStageFlags shaderStage = VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
 			if (shaderType == Shader::ShaderType::Fragment)
@@ -179,13 +179,13 @@ namespace hod
 				shaderStage = VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
 			}
 
-			size = std::min(size, _material->GetPushConstantSize());
+			Size = std::min(Size, _material->GetPushConstantSize());
 
-			vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), shaderStage, 0, size, constant);
+			vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), shaderStage, 0, Size, constant);
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetProjectionMatrix(const Matrix4& projectionMatrix)
 		{
@@ -193,11 +193,11 @@ namespace hod
 			//_sharedMinimalMaterialInstance->SetMat4("viewUbo.proj", projectionMatrix);
 			//_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", projectionMatrix * _sharedMinimalMaterialInstance->GetMat4("viewUbo.view"));
 
-			//SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
+			// SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetViewMatrix(const Matrix4& viewMatrix)
 		{
@@ -211,7 +211,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetModelMatrix(const Matrix4& /*modelMatrix*/)
 		{
@@ -224,8 +224,8 @@ namespace hod
 			*/
 		}
 
-		/// @brief 
-		/// @param viewport 
+		/// @brief
+		/// @param viewport
 		void CommandBufferVk::SetViewport(const Rect& viewport)
 		{
 			VkViewport vkViewport = {};
@@ -239,19 +239,19 @@ namespace hod
 			vkCmdSetViewport(_vkCommandBuffer, 0, 1, &vkViewport);
 		}
 
-		/// @brief 
-		/// @param scissor 
+		/// @brief
+		/// @param scissor
 		void CommandBufferVk::SetScissor(const Rect& scissor)
 		{
 			VkRect2D vkScissor = {};
-			vkScissor.offset = { std::max((int32_t)scissor._position.GetX(), 0), std::max((int32_t)scissor._position.GetY(), 0) };
-			vkScissor.extent = { (uint32_t)scissor._size.GetX(), (uint32_t)scissor._size.GetY() };
+			vkScissor.offset = {std::max((int32_t)scissor._position.GetX(), 0), std::max((int32_t)scissor._position.GetY(), 0)};
+			vkScissor.extent = {(uint32_t)scissor._size.GetX(), (uint32_t)scissor._size.GetY()};
 
 			vkCmdSetScissor(_vkCommandBuffer, 0, 1, &vkScissor);
 		}
 
-		/// @brief 
-		/// @param material 
+		/// @brief
+		/// @param material
 		void CommandBufferVk::SetMaterial(const Material* material)
 		{
 			const VkMaterial* vkMaterial = static_cast<const VkMaterial*>(material);
@@ -263,7 +263,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
 		{
@@ -278,18 +278,19 @@ namespace hod
 
 			Vector<VkDescriptorSet> descriptorSets = vkMaterialInstance->GetDescriptorSets(setOffset, setCount);
 
-			if (descriptorSets.empty() == false)
+			if (descriptorSets.Empty() == false)
 			{
-				vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetPipelineLayout(), setOffset, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+				vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetPipelineLayout(), setOffset, (uint32_t)descriptorSets.Size(),
+				                        descriptorSets.Data(), 0, nullptr);
 			}
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset)
 		{
-			VkBuffer* vkBuffers = (VkBuffer*)alloca(sizeof(VkBuffer) * count);
+			VkBuffer*     vkBuffers = (VkBuffer*)alloca(sizeof(VkBuffer) * count);
 			VkDeviceSize* bufferOffsets = (VkDeviceSize*)alloca(sizeof(VkDeviceSize) * count);
 			for (uint32_t index = 0; index < count; ++index)
 			{
@@ -301,7 +302,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::SetIndexBuffer(Buffer* indexBuffer, uint32_t offset)
 		{
@@ -309,7 +310,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::Draw(uint32_t vertexCount)
 		{
@@ -317,16 +318,13 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void CommandBufferVk::DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset)
 		{
 			vkCmdDrawIndexed(_vkCommandBuffer, indexCount, 1, indexOffset, vertexOffset, 0);
 		}
 
-		void CommandBufferVk::Present(Context* /*context*/)
-		{
-
-		}
+		void CommandBufferVk::Present(Context* /*context*/) {}
 	}
 }

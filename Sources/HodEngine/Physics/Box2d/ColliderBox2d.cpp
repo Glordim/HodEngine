@@ -1,13 +1,13 @@
 #include "HodEngine/Physics/Pch.hpp"
-#include "HodEngine/Physics/Box2d/ColliderBox2d.hpp"
 #include "HodEngine/Physics/Box2d/BodyBox2d.hpp"
+#include "HodEngine/Physics/Box2d/ColliderBox2d.hpp"
 
 #include <box2d/box2d.h>
 
 namespace hod::physics
 {
-	/// @brief 
-	/// @param body 
+	/// @brief
+	/// @param body
 	ColliderBox2d::ColliderBox2d(Body* body, bool isTrigger)
 	: Collider(body)
 	{
@@ -22,12 +22,12 @@ namespace hod::physics
 		shapeDef.restitution = 0.0f;
 		shapeDef.enableContactEvents = true;
 		shapeDef.enableHitEvents = true;
-		//shapeDef.density = 1.0f;
-		//shapeDef.friction = 0.0f;
+		// shapeDef.density = 1.0f;
+		// shapeDef.friction = 0.0f;
 		//_shape = b2CreateSegmentShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &segment);
 
 		b2Circle circle;
-		circle.center = { 0.0f, 0.0f };
+		circle.center = {0.0f, 0.0f};
 		circle.radius = 0.5f;
 
 		_shape = b2CreateCircleShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &circle);
@@ -35,7 +35,7 @@ namespace hod::physics
 		b2Shape_SetUserData(_shape, this);
 	}
 
-	/// @brief 
+	/// @brief
 	ColliderBox2d::~ColliderBox2d()
 	{
 		b2BodyId body = b2Shape_GetBody(_shape);
@@ -45,63 +45,63 @@ namespace hod::physics
 		}
 	}
 
-	/// @brief 
-	/// @param startPosition 
-	/// @param endPosition 
+	/// @brief
+	/// @param startPosition
+	/// @param endPosition
 	void ColliderBox2d::SetAsEdge(const Vector2& startPosition, const Vector2& endPosition)
 	{
 		b2Segment segment;
-		segment.point1 = { startPosition.GetX(), startPosition.GetY() };
-		segment.point2 = { endPosition.GetX(), endPosition.GetY() };
+		segment.point1 = {startPosition.GetX(), startPosition.GetY()};
+		segment.point2 = {endPosition.GetX(), endPosition.GetY()};
 
 		b2Shape_SetSegment(_shape, &segment);
 	}
 
-	/// @brief 
-	/// @param position 
-	/// @param radius 
+	/// @brief
+	/// @param position
+	/// @param radius
 	void ColliderBox2d::SetAsCircleShape(const Vector2& position, float radius)
 	{
 		b2Circle circle;
-		circle.center = { position.GetX(), position.GetY() };
+		circle.center = {position.GetX(), position.GetY()};
 		circle.radius = radius;
 
 		b2Shape_SetCircle(_shape, &circle);
 	}
 
-	/// @brief 
-	/// @param position 
-	/// @param size 
-	/// @param angle 
-	/// @param density 
-	void ColliderBox2d::SetAsBoxShape(const Vector2& position, const Vector2& size, float angle)
+	/// @brief
+	/// @param position
+	/// @param Size
+	/// @param angle
+	/// @param density
+	void ColliderBox2d::SetAsBoxShape(const Vector2& position, const Vector2& Size, float angle)
 	{
-		b2Polygon polygon = b2MakeOffsetBox(size.GetX() * 0.5f, size.GetY() * 0.5f, { position.GetX(), position.GetY() }, b2MakeRot(angle));
+		b2Polygon polygon = b2MakeOffsetBox(Size.GetX() * 0.5f, Size.GetY() * 0.5f, {position.GetX(), position.GetY()}, b2MakeRot(angle));
 		b2Shape_SetPolygon(_shape, &polygon);
 	}
 
-	/// @brief 
-	/// @param position 
-	/// @param size 
-	/// @param angle 
-	/// @param density 
+	/// @brief
+	/// @param position
+	/// @param Size
+	/// @param angle
+	/// @param density
 	void ColliderBox2d::SetAsCapsuleShape(const Vector2& position, float height, float radius, float angle)
 	{
 		b2Capsule capsule;
-		capsule.center1 = { position.GetX(), position.GetY() + (height * 0.5f) - radius };
-		capsule.center2 = { position.GetX(), position.GetY() - (height * 0.5f) + radius };
+		capsule.center1 = {position.GetX(), position.GetY() + (height * 0.5f) - radius};
+		capsule.center2 = {position.GetX(), position.GetY() - (height * 0.5f) + radius};
 		capsule.radius = radius;
 		b2Shape_SetCapsule(_shape, &capsule);
 
 		(void)angle; // TODO
 	}
 
-	/// @brief 
-	/// @param vertices 
+	/// @brief
+	/// @param vertices
 	void ColliderBox2d::SetAsConvexShape(const Vector<Vector2>& vertices)
 	{
 		/*
-		b2Polygon polygon = b2MakeBox(size.GetX(), size.GetY());
+		b2Polygon polygon = b2MakeBox(Size.GetX(), Size.GetY());
 		polygon.centroid = { position.GetX(), position.GetY() };
 
 		b2Shape_SetPolygon(_shape, &polygon);
@@ -110,8 +110,8 @@ namespace hod::physics
 		(void)vertices; // TODO
 	}
 
-	/// @brief 
-	/// @param bounciness 
+	/// @brief
+	/// @param bounciness
 	void ColliderBox2d::SetBounciness(float bounciness)
 	{
 		b2Shape_SetRestitution(_shape, bounciness);

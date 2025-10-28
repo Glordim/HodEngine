@@ -1,8 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/ShaderConstantDescriptorVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/ShaderConstantDescriptorVk.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
@@ -32,14 +32,15 @@ namespace hod::renderer
 		1 * sizeof(uint32_t),
 	};
 
-	/// @brief 
-	VkMaterial::VkMaterial() : Material()
+	/// @brief
+	VkMaterial::VkMaterial()
+	: Material()
 	{
 		_graphicsPipeline = VK_NULL_HANDLE;
 		_pipelineLayout = VK_NULL_HANDLE;
 	}
 
-	/// @brief 
+	/// @brief
 	VkMaterial::~VkMaterial()
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -55,16 +56,17 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
-	/// @param vertexInputs 
-	/// @param vertexInputCount 
-	/// @param vertexShader 
-	/// @param fragmentShader 
-	/// @param polygonMode 
-	/// @param topololy 
-	/// @param useDepth 
-	/// @return 
-	bool VkMaterial::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+	/// @brief
+	/// @param vertexInputs
+	/// @param vertexInputCount
+	/// @param vertexShader
+	/// @param fragmentShader
+	/// @param polygonMode
+	/// @param topololy
+	/// @param useDepth
+	/// @return
+	bool VkMaterial::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
+	                       Material::Topololy topololy, bool useDepth)
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -80,16 +82,16 @@ namespace hod::renderer
 		fragShaderStageInfo.module = ((VkShader*)fragmentShader)->GetShaderModule();
 		fragShaderStageInfo.pName = "main";
 
-		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+		VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
 		// Extract descriptorSet definition from shader bytecode
-		const Vector<uint8_t>& byteCode = vertexShader->GetShaderBytecode();
-		spirv_cross::Compiler compVert(reinterpret_cast<const uint32_t*>(byteCode.data()), byteCode.size() / sizeof(uint32_t));
+		const Vector<uint8_t>&       byteCode = vertexShader->GetShaderBytecode();
+		spirv_cross::Compiler        compVert(reinterpret_cast<const uint32_t*>(byteCode.Data()), byteCode.Size() / sizeof(uint32_t));
 		spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
 
-		Vector<uint32_t> strides;
+		Vector<uint32_t>                          strides;
 		Vector<VkVertexInputAttributeDescription> vertexAttributeDecriptions;
-		Vector<VkVertexInputBindingDescription> vertexBindingDescriptions;
+		Vector<VkVertexInputBindingDescription>   vertexBindingDescriptions;
 
 		if (vertexInputs != nullptr)
 		{
@@ -100,16 +102,16 @@ namespace hod::renderer
 			}
 
 			++maxBinding;
-			strides.resize(maxBinding, 0);
-			vertexBindingDescriptions.resize(maxBinding);
-			for (uint32_t i = 0; i < vertexBindingDescriptions.size(); ++i)
+			strides.Resize(maxBinding, 0);
+			vertexBindingDescriptions.Resize(maxBinding);
+			for (uint32_t i = 0; i < vertexBindingDescriptions.Size(); ++i)
 			{
 				VkVertexInputBindingDescription& vertexBindingDescription = vertexBindingDescriptions[i];
 				vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 				vertexBindingDescription.stride = 0;
 			}
 
-			vertexAttributeDecriptions.resize(vertexInputCount);
+			vertexAttributeDecriptions.Resize(vertexInputCount);
 
 			for (uint32_t i = 0; i < vertexInputCount; ++i)
 			{
@@ -131,49 +133,49 @@ namespace hod::renderer
 		else
 		{
 			/*
-			size_t inputCount = resourcesVert.stage_inputs.size();
-			vertexAttributeDecriptions.resize(inputCount);
+			size_t inputCount = resourcesVert.stage_inputs.Size();
+			vertexAttributeDecriptions.Resize(inputCount);
 
 			for (size_t i = 0; i < inputCount; ++i)
 			{
-				spirv_cross::Resource& resource = resourcesVert.stage_inputs[i];
-				const spirv_cross::SPIRType& type = compVert.get_type_from_variable(resource.id);
+			    spirv_cross::Resource& resource = resourcesVert.stage_inputs[i];
+			    const spirv_cross::SPIRType& type = compVert.get_type_from_variable(resource.id);
 
-				uint32_t location = compVert.get_decoration(resource.id, spv::DecorationLocation);
+			    uint32_t location = compVert.get_decoration(resource.id, spv::DecorationLocation);
 
-				VkVertexInputAttributeDescription& vertexAttributeDescription = vertexAttributeDecriptions[location];
-				vertexAttributeDescription.binding = 0;
-				vertexAttributeDescription.location = location;
-				if (type.vecsize == 1)
-				{
-					vertexAttributeDescription.format = VK_FORMAT_R32_SFLOAT;
-				}
-				else if (type.vecsize == 2)
-				{
-					vertexAttributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
-				}
-				else if (type.vecsize == 3)
-				{
-					vertexAttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-				}
-				else if (type.vecsize == 4)
-				{
-					vertexAttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-				}
-				else
-				{
-					vertexAttributeDescription.format = VK_FORMAT_UNDEFINED;
-				}
+			    VkVertexInputAttributeDescription& vertexAttributeDescription = vertexAttributeDecriptions[location];
+			    vertexAttributeDescription.binding = 0;
+			    vertexAttributeDescription.location = location;
+			    if (type.vecsize == 1)
+			    {
+			        vertexAttributeDescription.format = VK_FORMAT_R32_SFLOAT;
+			    }
+			    else if (type.vecsize == 2)
+			    {
+			        vertexAttributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+			    }
+			    else if (type.vecsize == 3)
+			    {
+			        vertexAttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+			    }
+			    else if (type.vecsize == 4)
+			    {
+			        vertexAttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+			    }
+			    else
+			    {
+			        vertexAttributeDescription.format = VK_FORMAT_UNDEFINED;
+			    }
 
-				vertexAttributeDescription.offset = (type.width / 8) * type.vecsize;
+			    vertexAttributeDescription.offset = (type.width / 8) * type.vecsize;
 			}
 
 			for (size_t i = 0; i < inputCount; ++i)
 			{
-				uint32_t size = vertexAttributeDecriptions[i].offset;
-				vertexAttributeDecriptions[i].offset = stride;
+			    uint32_t Size = vertexAttributeDecriptions[i].offset;
+			    vertexAttributeDecriptions[i].offset = stride;
 
-				stride += size;
+			    stride += Size;
 			}
 			*/
 		}
@@ -188,10 +190,11 @@ namespace hod::renderer
 		// Vertex input
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = (uint32_t)vertexBindingDescriptions.size();;
-		vertexInputInfo.pVertexBindingDescriptions = vertexBindingDescriptions.data();
-		vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)vertexAttributeDecriptions.size();
-		vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDecriptions.data();
+		vertexInputInfo.vertexBindingDescriptionCount = (uint32_t)vertexBindingDescriptions.Size();
+		;
+		vertexInputInfo.pVertexBindingDescriptions = vertexBindingDescriptions.Data();
+		vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)vertexAttributeDecriptions.Size();
+		vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDecriptions.Data();
 
 		// Input assembly
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -248,22 +251,22 @@ namespace hod::renderer
 			rasterizer.polygonMode = VK_POLYGON_MODE_POINT;
 		}
 		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = VK_CULL_MODE_NONE;//VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; //VK_FRONT_FACE_COUNTER_CLOCKWISE
+		rasterizer.cullMode = VK_CULL_MODE_NONE;                // VK_CULL_MODE_BACK_BIT;
+		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // VK_FRONT_FACE_COUNTER_CLOCKWISE
 		rasterizer.depthBiasEnable = VK_FALSE;
 		rasterizer.depthBiasConstantFactor = 0.0f; // Optional
-		rasterizer.depthBiasClamp = 0.0f; // Optional
-		rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
+		rasterizer.depthBiasClamp = 0.0f;          // Optional
+		rasterizer.depthBiasSlopeFactor = 0.0f;    // Optional
 
 		// Multisampling
 		VkPipelineMultisampleStateCreateInfo multisampling = {};
 		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampling.sampleShadingEnable = VK_FALSE;
 		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-		multisampling.minSampleShading = 1.0f; // Optional
-		multisampling.pSampleMask = nullptr; // Optional
+		multisampling.minSampleShading = 1.0f;          // Optional
+		multisampling.pSampleMask = nullptr;            // Optional
 		multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-		multisampling.alphaToOneEnable = VK_FALSE; // Optional
+		multisampling.alphaToOneEnable = VK_FALSE;      // Optional
 
 		// Depth and stencil testing
 		VkPipelineDepthStencilStateCreateInfo depthStencil = {};
@@ -278,19 +281,19 @@ namespace hod::renderer
 			depthStencil.maxDepthBounds = 1.0f; // Optional
 			depthStencil.stencilTestEnable = VK_FALSE;
 			depthStencil.front = {}; // Optional
-			depthStencil.back = {}; // Optional
+			depthStencil.back = {};  // Optional
 		}
 
 		// Color blending
 		VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable = VK_TRUE;
-		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // Optional
+		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;           // Optional
 		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
-		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
-		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // Optional
+		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;                            // Optional
+		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;           // Optional
 		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
-		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;                            // Optional
 
 		VkPipelineColorBlendStateCreateInfo colorBlending = {};
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -303,10 +306,7 @@ namespace hod::renderer
 		colorBlending.blendConstants[2] = 0.0f; // Optional
 		colorBlending.blendConstants[3] = 0.0f; // Optional
 
-		VkDynamicState dynamicStates[] = {
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR
-		};
+		VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
 		VkPipelineDynamicStateCreateInfo dynamicState = {};
 		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -362,10 +362,10 @@ namespace hod::renderer
 		// Pipeline layout
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = (uint32_t)layouts.size();
-		pipelineLayoutInfo.pSetLayouts = layouts.data();
-		pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)constants.size();
-		pipelineLayoutInfo.pPushConstantRanges = constants.data();
+		pipelineLayoutInfo.setLayoutCount = (uint32_t)layouts.Size();
+		pipelineLayoutInfo.pSetLayouts = layouts.Data();
+		pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)constants.Size();
+		pipelineLayoutInfo.pPushConstantRanges = constants.Data();
 
 		for (VkPushConstantRange pushConstantRange : constants)
 		{
@@ -405,15 +405,15 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkPipeline VkMaterial::GetGraphicsPipeline() const
 	{
 		return _graphicsPipeline;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkPipelineLayout VkMaterial::GetPipelineLayout() const
 	{
 		return _pipelineLayout;

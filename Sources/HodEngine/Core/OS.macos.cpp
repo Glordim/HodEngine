@@ -45,7 +45,7 @@ namespace hod
 	/// @brief
 	/// @param addr
 	/// @param symbol
-	/// @param size
+	/// @param Size
 	/// @return
 	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
 	{

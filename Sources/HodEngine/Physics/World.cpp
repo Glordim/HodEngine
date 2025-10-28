@@ -3,26 +3,26 @@
 
 namespace hod::physics
 {
-	/// @brief 
+	/// @brief
 	World::~World()
 	{
 		Clear();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	DebugDrawer* World::GetDebugDrawer()
 	{
 		return _debugDrawer;
 	}
 
-	/// @brief 
+	/// @brief
 	void World::Clear()
 	{
 		for (Body* body : _bodies)
 		{
 			DefaultAllocator::GetInstance().Delete(body);
 		}
-		_bodies.clear();
+		_bodies.Clear();
 	}
 }

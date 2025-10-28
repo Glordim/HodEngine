@@ -13,7 +13,7 @@ namespace hod
 	/// @param job
 	void FrameStep::InsertJob(Job* job)
 	{
-		assert(std::find(_jobs.begin(), _jobs.end(), job) == _jobs.end());
+		assert(std::find(_jobs.Begin(), _jobs.End(), job) == _jobs.End());
 
 		_jobs.push_back(job);
 	}
@@ -22,11 +22,11 @@ namespace hod
 	/// @param job
 	void FrameStep::RemoveJob(Job* job)
 	{
-		Vector<Job*>::iterator jobIt = std::find(_jobs.begin(), _jobs.end(), job);
+		Vector<Job*>::Iterator jobIt = std::find(_jobs.Begin(), _jobs.End(), job);
 
-		assert(jobIt != _jobs.end());
+		assert(jobIt != _jobs.End());
 
-		_jobs.erase(jobIt);
+		_jobs.Erase(jobIt);
 	}
 
 	/// @brief
@@ -34,7 +34,7 @@ namespace hod
 	{
 		JobScheduler* jobScheduler = JobScheduler::GetInstance();
 
-		uint32_t jobCount = (uint32_t)_jobs.size();
+		uint32_t jobCount = (uint32_t)_jobs.Size();
 		for (uint32_t jobIndex = 0; jobIndex < jobCount; ++jobIndex)
 		{
 			Job* job = _jobs[jobIndex];
@@ -45,7 +45,7 @@ namespace hod
 	/// @brief
 	void FrameStep::Wait()
 	{
-		uint32_t jobCount = (uint32_t)_jobs.size();
+		uint32_t jobCount = (uint32_t)_jobs.Size();
 		for (uint32_t jobIndex = 0; jobIndex < jobCount; ++jobIndex)
 		{
 			Job* job = _jobs[jobIndex];

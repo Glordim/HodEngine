@@ -34,6 +34,6 @@ namespace hod
 	/// @brief
 	void OutputService::PopBucket()
 	{
-		_buckets.pop_back();
+		_buckets.PopBack();
 	}
 }

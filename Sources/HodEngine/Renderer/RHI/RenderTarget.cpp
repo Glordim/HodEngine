@@ -1,44 +1,42 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
-#include "HodEngine/Renderer/Renderer.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <iostream>
 #include "HodEngine/Core/String.hpp"
+#include <iostream>
 
 namespace hod
 {
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		RenderTarget::RenderTarget()
-		{
-		}
+		RenderTarget::RenderTarget() {}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		RenderTarget::~RenderTarget()
 		{
 			Clear();
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Vector2 RenderTarget::GetResolution() const
 		{
 			return _resolution;
 		}
 
-		/// @brief 
-		/// @param width 
-		/// @param height 
-		/// @return 
-		bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo Vector2 size
+		/// @brief
+		/// @param width
+		/// @param height
+		/// @return
+		bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo Vector2 Size
 		{
 			if (width == 0 || height == 0)
 			{
@@ -64,7 +62,7 @@ namespace hod
 			return true;
 		}
 
-		/// @brief 
+		/// @brief
 		void RenderTarget::Clear()
 		{
 			DefaultAllocator::GetInstance().Delete(_color);
@@ -74,25 +72,25 @@ namespace hod
 			_depth = nullptr;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Texture* RenderTarget::GetColorTexture() const
 		{
 			return _color;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Texture* RenderTarget::GetDepthTexture() const
 		{
 			return _depth;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		bool RenderTarget::IsValid() const
 		{
-			return (_color != nullptr);
+			return _color != nullptr;
 		}
 	}
 }

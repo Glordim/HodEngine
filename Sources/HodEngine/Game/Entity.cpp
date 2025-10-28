@@ -59,7 +59,7 @@ namespace hod::game
 		{
 			DefaultAllocator::GetInstance().Delete(component);
 		}
-		_components.clear();
+		_components.Clear();
 	}
 
 	/// @brief
@@ -218,10 +218,10 @@ namespace hod::game
 	/// @param component
 	void Entity::RemoveComponent(Component* component)
 	{
-		auto it = std::find(_components.begin(), _components.end(), component);
-		if (it != _components.end())
+		auto it = std::find(_components.Begin(), _components.End(), component);
+		if (it != _components.End())
 		{
-			_components.erase(it);
+			_components.Erase(it);
 		}
 	}
 
@@ -230,12 +230,12 @@ namespace hod::game
 	void Entity::RemoveComponent(const ReflectionDescriptor& descriptor)
 	{
 		uint32_t indexToRemove = std::numeric_limits<uint32_t>::max();
-		for (uint32_t index = 0; index < _components.size(); ++index)
+		for (uint32_t index = 0; index < _components.Size(); ++index)
 		{
 			Component* component = _components[index];
 			if (&component->GetReflectionDescriptorV() == &descriptor)
 			{
-				_components.erase(_components.begin() + index);
+				_components.Erase(index);
 				return;
 			}
 
@@ -246,7 +246,7 @@ namespace hod::game
 		}
 		if (indexToRemove != std::numeric_limits<uint32_t>::max())
 		{
-			_components.erase(_components.begin() + indexToRemove);
+			_components.Erase(indexToRemove);
 		}
 	}
 
@@ -278,7 +278,7 @@ namespace hod::game
 		Entity* parentLock = _parent.Lock();
 		if (parentLock != nullptr)
 		{
-			for (uint32_t index = 0; index < parentLock->_children.size(); ++index)
+			for (uint32_t index = 0; index < parentLock->_children.Size(); ++index)
 			{
 				if (parentLock->_children[index].Lock() == this)
 				{
@@ -321,12 +321,12 @@ namespace hod::game
 		Entity* previousParentLock = _parent.Lock();
 		if (previousParentLock != nullptr)
 		{
-			auto itEnd = previousParentLock->_children.end();
-			for (auto it = previousParentLock->_children.begin(); it != itEnd; ++it)
+			auto itEnd = previousParentLock->_children.End();
+			for (auto it = previousParentLock->_children.Begin(); it != itEnd; ++it)
 			{
 				if (it->Lock() == this)
 				{
-					previousParentLock->_children.erase(it);
+					previousParentLock->_children.Erase(it);
 					break;
 				}
 			}
@@ -347,7 +347,7 @@ namespace hod::game
 			}
 			if (exist == false)
 			{
-				newParentLock->_children.emplace_back(this);
+				newParentLock->_children.EmplaceBack(this);
 			}
 		}
 		_parent = parent;

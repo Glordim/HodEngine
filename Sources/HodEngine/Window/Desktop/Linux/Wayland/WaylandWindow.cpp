@@ -1,18 +1,18 @@
 #include "HodEngine/Window/Pch.hpp"
-#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
-#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/StringConversion.hpp"
+#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp"
+#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
 
 #include "HodEngine/Window/Surface.hpp"
 
 #include "HodEngine/Core/String.hpp"
 #include <cstring>
 
-#include <unistd.h>
+#include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+#include <unistd.h>
 
 #include <libdecor.h>
 
@@ -26,7 +26,7 @@ namespace hod::window
 			// Compositor is deferring to us
 			return;
 		}
-		/*	
+		/*
 		waylandWindow->_requestedWidth = width;
 		waylandWindow->_requestedHeight = height;
 		waylandWindow->_requestFlags |= RequestFlag::NeedResize;
@@ -44,8 +44,8 @@ namespace hod::window
 	}
 
 	/// @brief Sent by the compositor when it's no longer using this buffer
-	/// @param userData 
-	/// @param wl_buffer 
+	/// @param userData
+	/// @param wl_buffer
 	void WaylandWindow::BufferRelease(void* userData, wl_buffer* wl_buffer)
 	{
 		Buffer* buffer = (Buffer*)userData;
@@ -66,12 +66,12 @@ namespace hod::window
 			waylandWindow->_requestFlags &= ~(RequestFlag::NeedResize);
 			waylandWindow->_requestFlags |= RequestFlag::NeedResizeReady;
 		}
-/*
-		waylandWindow->SetupBuffer();
+		/*
+		        waylandWindow->SetupBuffer();
 
-		wl_surface_attach(waylandWindow->_wlSurface, waylandWindow->_wlBuffer, 0, 0);
-		wl_surface_commit(waylandWindow->_wlSurface);
-*/
+		        wl_surface_attach(waylandWindow->_wlSurface, waylandWindow->_wlBuffer, 0, 0);
+		        wl_surface_commit(waylandWindow->_wlSurface);
+		*/
 	}
 
 	static void xdgDecorationHandleConfigure(void* userData, zxdg_toplevel_decoration_v1* decoration, uint32_t mode)
@@ -83,21 +83,21 @@ namespace hod::window
 
 		if (mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE)
 		{
-			if (window->decorated && !window->monitor)
-				createFallbackDecorations(window);
+		    if (window->decorated && !window->monitor)
+		        createFallbackDecorations(window);
 		}
 		else
-			destroyFallbackDecorations(window);
+		    destroyFallbackDecorations(window);
 		*/
 	}
 
 	void WaylandWindow::handle_configure(libdecor_frame* frame, libdecor_configuration* configuration, void* data)
 	{
-		WaylandWindow* waylandWindow = static_cast<WaylandWindow*>(data);
-		int width = 0;
-		int height = 0;
+		WaylandWindow*        waylandWindow = static_cast<WaylandWindow*>(data);
+		int                   width = 0;
+		int                   height = 0;
 		libdecor_window_state window_state;
-		libdecor_state* state;
+		libdecor_state*       state;
 
 		/* Update window state first for the correct calculations */
 		if (libdecor_configuration_get_window_state(configuration, &window_state) == false)
@@ -107,38 +107,38 @@ namespace hod::window
 
 		libdecor_frame_unset_fullscreen(frame);
 
-		//window->window_state = window_state;
+		// window->window_state = window_state;
 
 		if (libdecor_configuration_get_content_size(configuration, frame, &width, &height) == false)
 		{
 			width = 800;
 			height = 600;
 		}
-		//waylandWindow->SetSize(width, height);
+		// waylandWindow->SetSize(width, height);
 		/*
 		waylandWindow->_requestedWidth = width;
 		waylandWindow->_requestedHeight = height;
 		waylandWindow->_requestFlags |= RequestFlag::NeedResizeReady;
 		*/
-/*
-		width = (width == 0) ? window->floating_width : width;
-		height = (height == 0) ? window->floating_height : height;
+		/*
+		        width = (width == 0) ? window->floating_width : width;
+		        height = (height == 0) ? window->floating_height : height;
 
-		window->configured_width = width;
-		window->configured_height = height;
-*/
+		        window->configured_width = width;
+		        window->configured_height = height;
+		*/
 		state = libdecor_state_new(width, height);
 		libdecor_frame_commit(frame, state, configuration);
 		libdecor_state_free(state);
 
 		/* store floating dimensions */
-/*
-		if (libdecor_frame_is_floating(window->frame) == true)
-		{
-			window->floating_width = width;
-			window->floating_height = height;
-		}
-*/
+		/*
+		        if (libdecor_frame_is_floating(window->frame) == true)
+		        {
+		            window->floating_width = width;
+		            window->floating_height = height;
+		        }
+		*/
 		waylandWindow->SetupBuffer();
 
 		waylandWindow->_width = width;
@@ -165,10 +165,10 @@ namespace hod::window
 
 	static void handle_dismiss_popup(struct libdecor_frame* frame, const char* seat_name, void* user_data)
 	{
-		//popup_destroy(window->popup);
+		// popup_destroy(window->popup);
 	}
 
-	/// @brief 
+	/// @brief
 	WaylandWindow::WaylandWindow()
 	{
 		WaylandDisplayManager* displayManager = WaylandDisplayManager::GetInstance();
@@ -187,7 +187,7 @@ namespace hod::window
 				handle_configure,
 				handle_close,
 				handle_commit,
-				//handle_dismiss_popup,
+				// handle_dismiss_popup,
 			};
 
 			_frame = libdecor_decorate(displayManager->GetLibDecorContext(), _wlSurface, &libdecor_frame_iface, this);
@@ -224,53 +224,50 @@ namespace hod::window
 			zxdg_toplevel_decoration_v1* wlDecoration = zxdg_decoration_manager_v1_get_toplevel_decoration(_wlDecorationManager, xdgToplevel);
 			static const struct zxdg_toplevel_decoration_v1_listener xdgDecorationListener =
 			{
-				xdgDecorationHandleConfigure,
-			};		
+			    xdgDecorationHandleConfigure,
+			};
 			zxdg_toplevel_decoration_v1_add_listener(wlDecoration, &xdgDecorationListener, this);
 
 			uint32_t mode;
 
 			if (true)
-				mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
+			    mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
 			else
-				mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE;
+			    mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE;
 
 			zxdg_toplevel_decoration_v1_set_mode(wlDecoration, mode);
 			*/
 		}
 
 		wl_surface_commit(_wlSurface);
-    	wl_display_roundtrip(displayManager->GetDisplay());
-	    wl_surface_commit(_wlSurface);
+		wl_display_roundtrip(displayManager->GetDisplay());
+		wl_surface_commit(_wlSurface);
 	}
 
-	/// @brief 
-	WaylandWindow::~WaylandWindow()
-	{
+	/// @brief
+	WaylandWindow::~WaylandWindow() {}
 
-	}
-
-	/// @brief 
+	/// @brief
 	void WaylandWindow::Update()
 	{
 		/*
 		if (_requestFlags & RequestFlag::NeedResizeReady)
 		{
-			SetSize(_requestedWidth, _requestedHeight);
-			_requestFlags &= ~(RequestFlag::NeedResizeReady);
+		    SetSize(_requestedWidth, _requestedHeight);
+		    _requestFlags &= ~(RequestFlag::NeedResizeReady);
 		}
 		*/
 	}
 
-	/// @brief 
+	/// @brief
 	wl_surface* WaylandWindow::GetWaylandSurface() const
 	{
 		return _wlSurface;
 	}
 
-	/// @brief 
-	/// @param width 
-	/// @param height 
+	/// @brief
+	/// @param width
+	/// @param height
 	void WaylandWindow::SetSize(uint16_t width, uint16_t height)
 	{
 		/*
@@ -280,7 +277,7 @@ namespace hod::window
 		wl_surface_commit(_wlSurface);
 		*/
 
-		struct libdecor_state *state;
+		struct libdecor_state* state;
 		state = libdecor_state_new(width, height);
 		libdecor_frame_commit(_frame, state, NULL);
 		libdecor_state_free(state);
@@ -311,27 +308,24 @@ namespace hod::window
 		wl_surface_commit(_wlSurface);
 		*/
 	}
-	
-	/// @brief 
-	void WaylandWindow::CenterToScreen()
-	{
 
-	}
+	/// @brief
+	void WaylandWindow::CenterToScreen() {}
 
-	/// @brief 
+	/// @brief
 	void WaylandWindow::Maximize()
 	{
 		libdecor_frame_set_maximized(_frame);
 	}
 
-	/// @brief 
-	/// @param visible 
+	/// @brief
+	/// @param visible
 	void WaylandWindow::SetVisible(bool visible)
 	{
 		libdecor_frame_set_visibility(_frame, visible);
 	}
-	
-	/// @brief 
+
+	/// @brief
 	bool WaylandWindow::SetupBuffer()
 	{
 		/*
@@ -339,36 +333,36 @@ namespace hod::window
 		int fd = shm_open(shmName.c_str(), O_RDWR | O_CREAT | O_EXCL, 0600);
 		if (fd < 0)
 		{
-			return false;
+		    return false;
 		}
 
 		int stride = _width * 4;
-		int size = stride * _height;
+		int Size = stride * _height;
 
-		if (ftruncate(fd, size) < 0)
+		if (ftruncate(fd, Size) < 0)
 		{
-			close(fd);
-			return false;
+		    close(fd);
+		    return false;
 		}
 
-		uint32_t* poolData = (uint32_t*)mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+		uint32_t* poolData = (uint32_t*)mmap(nullptr, Size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 		if (poolData == MAP_FAILED)
 		{
-			close(fd);
-			return false;
+		    close(fd);
+		    return false;
 		}
 
 		WaylandDisplayManager* displayManager = WaylandDisplayManager::GetInstance();
-		wl_shm_pool* pool = wl_shm_create_pool(displayManager->GetShm(), fd, size);
+		wl_shm_pool* pool = wl_shm_create_pool(displayManager->GetShm(), fd, Size);
 
 
 		Buffer* buffer = DefaultAllocator::GetInstance().New<Buffer>();
 		buffer->_wlBuffer = wl_shm_pool_create_buffer(pool, 0, _width, _height, stride, WL_SHM_FORMAT_XRGB8888);
 		buffer->_data = poolData;
-		buffer->_size = size;
+		buffer->_size = Size;
 
 		static const wl_buffer_listener bufferListener = {
-			.release = &WaylandWindow::BufferRelease,
+		    .release = &WaylandWindow::BufferRelease,
 		};
 		wl_buffer_add_listener(buffer->_wlBuffer, &bufferListener, buffer);
 		wl_shm_pool_destroy(pool);
@@ -376,15 +370,15 @@ namespace hod::window
 
 		// Draw checkerboxed background
 		for (int y = 0; y < _height; ++y) {
-			for (int x = 0; x < _width; ++x) {
-				if ((x + y / 8 * 8) % 16 < 8)
-					poolData[y * _width + x] = 0xFF666666;
-				else
-					poolData[y * _width + x] = 0xFFEEEEEE;
-			}
+		    for (int x = 0; x < _width; ++x) {
+		        if ((x + y / 8 * 8) % 16 < 8)
+		            poolData[y * _width + x] = 0xFF666666;
+		        else
+		            poolData[y * _width + x] = 0xFFEEEEEE;
+		    }
 		}
 
-		//munmap(poolData, size);
+		//munmap(poolData, Size);
 
 		// todo shm_unlink ? unmap ?
 
@@ -397,9 +391,9 @@ namespace hod::window
 		wl_surface_commit(_wlSurface);
 */
 
-		//wl_surface_attach(_wlSurface, nullptr, 0, 0);
-		//wl_surface_set_buffer_scale(_wlSurface, 1.0);
-		//wl_surface_damage_buffer(_wlSurface, 0, 0,_width * scale, _height * scale);
+		// wl_surface_attach(_wlSurface, nullptr, 0, 0);
+		// wl_surface_set_buffer_scale(_wlSurface, 1.0);
+		// wl_surface_damage_buffer(_wlSurface, 0, 0,_width * scale, _height * scale);
 		wl_surface_commit(_wlSurface);
 		return true;
 	}

@@ -130,7 +130,7 @@ namespace hod::editor
 	void AssetBrowserWindow::DrawFolderTreeNode(AssetDatabase::FileSystemMapping* node)
 	{
 		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowOverlap;
-		if (node->_childrenFolder.size() == 0)
+		if (node->_childrenFolder.Size() == 0)
 		// if (node->_childrenFolder.Next() != nullptr)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
@@ -235,7 +235,7 @@ namespace hod::editor
 		}
 		else
 		{
-			const char* icon = node->_childrenAsset.empty() == false || node->_childrenFolder.empty() == false ? ICON_MDI_FOLDER : ICON_MDI_FOLDER_OPEN;
+			const char* icon = node->_childrenAsset.Empty() == false || node->_childrenFolder.Empty() == false ? ICON_MDI_FOLDER : ICON_MDI_FOLDER_OPEN;
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 1.0f});
 			ImGui::Text("%s  %s", icon, node->_path.Filename().GetString().CStr());
 			ImGui::PopStyleVar();
@@ -289,11 +289,11 @@ namespace hod::editor
 		AssetDatabase::FileSystemMapping*         pathNode = _currentFolderTreeNode;
 		while (pathNode != nullptr)
 		{
-			pathSplit.insert(pathSplit.begin(), pathNode);
+			pathSplit.Insert(pathSplit.Begin(), pathNode);
 			pathNode = pathNode->_parentFolder;
 		}
 
-		size_t pathSplitSize = pathSplit.size();
+		size_t pathSplitSize = pathSplit.Size();
 		for (uint32_t i = 0; i < pathSplitSize; ++i)
 		{
 			AssetDatabase::FileSystemMapping* pathNode = pathSplit[i];
@@ -694,7 +694,7 @@ namespace hod::editor
 		const ImGuiStyle& style = g.Style;
 		const ImGuiID     id = window->GetID(item);
 
-		ImVec2 size(100, 100 + ImGui::GetTextLineHeight());
+		ImVec2 Size(100, 100 + ImGui::GetTextLineHeight());
 		float  padding = 10.0f;
 
 		if (_itemToRename != nullptr)
@@ -703,7 +703,7 @@ namespace hod::editor
 		}
 
 		ImVec2 cursorPosition = window->DC.CursorPos;
-		ImRect boundingBox(cursorPosition.x, cursorPosition.y, cursorPosition.x + size.x, cursorPosition.y + size.y);
+		ImRect boundingBox(cursorPosition.x, cursorPosition.y, cursorPosition.x + Size.x, cursorPosition.y + Size.y);
 		ImGui::ItemSize(boundingBox.GetSize());
 		if (ImGui::ItemAdd(boundingBox, id) == false)
 		{
@@ -783,7 +783,7 @@ namespace hod::editor
 			                         ICON_MD_FOLDER, nullptr, nullptr, ImVec2(0.5f, 0.5f), nullptr);
 			*/
 			ImTextureID texture = nullptr;
-			if (item->_childrenAsset.empty() == false || item->_childrenFolder.empty() == false)
+			if (item->_childrenAsset.Empty() == false || item->_childrenFolder.Empty() == false)
 			{
 				texture = Editor::GetInstance()->GetFolderTexture();
 			}

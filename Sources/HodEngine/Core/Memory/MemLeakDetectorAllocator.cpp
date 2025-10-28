@@ -19,10 +19,10 @@ namespace hod
 	}
 
 	/// @brief
-	/// @param size
+	/// @param Size
 	/// @param alignment
 	/// @return
-	void* MemLeakDetectorAllocator::AllocateInternal(uint32_t size, uint32_t alignment)
+	void* MemLeakDetectorAllocator::AllocateInternal(uint32_t Size, uint32_t alignment)
 	{
 		if (alignment < alignof(std::max_align_t) || std::has_single_bit(alignment) == false) // check if pow2
 		{
@@ -37,7 +37,7 @@ namespace hod
 		}
 
 		// [ AllocationHeader ][ padding ][ pointer to header ][ aligned user ptr ]
-		uint32_t alignedSize = sizeof(AllocationHeader) + maxPadding + sizeof(AllocationHeader*) + size;
+		uint32_t alignedSize = sizeof(AllocationHeader) + maxPadding + sizeof(AllocationHeader*) + Size;
 		alignedSize = (alignedSize + alignment - 1) / alignment * alignment;
 		void* allocation = _mallocAllocator.Allocate(alignedSize, alignment);
 		if (allocation == nullptr)
@@ -47,7 +47,7 @@ namespace hod
 
 		AllocationHeader* allocationHeader = static_cast<AllocationHeader*>(allocation);
 		allocationHeader->_callstackSize = OS::GetCallstack(allocationHeader->_callstack.data(), (uint32_t)allocationHeader->_callstack.size());
-		allocationHeader->_size = size;
+		allocationHeader->_size = Size;
 		allocationHeader->_next = nullptr;
 		if (_stopAllocationCollect == false)
 		{
@@ -72,7 +72,7 @@ namespace hod
 		*pointerToHeader = allocationHeader;
 
 		void* alignedPtr = reinterpret_cast<void*>(alignedAddr);
-		std::memset(alignedPtr, 0xA1, size);
+		std::memset(alignedPtr, 0xA1, Size);
 		return alignedPtr;
 	}
 

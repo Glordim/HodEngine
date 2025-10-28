@@ -76,15 +76,15 @@ namespace hod::renderer
 
 	/// @brief
 	/// @param data
-	/// @param size
+	/// @param Size
 	/// @return
-	bool FontImpl::LoadFromMemory(const void* data, uint32_t size, Texture*& texture, Vector<Font::GlyphInfo>& glyphInfos)
+	bool FontImpl::LoadFromMemory(const void* data, uint32_t Size, Texture*& texture, Vector<Font::GlyphInfo>& glyphInfos)
 	{
-		_data = DefaultAllocator::GetInstance().Allocate(size);
-		std::memcpy(_data, data, size);
+		_data = DefaultAllocator::GetInstance().Allocate(Size);
+		std::memcpy(_data, data, Size);
 
 		FT_Library ftLibrary = FontManager::GetInstance()->GetImpl()->GetFtLibrary();
-		FT_Error   error = FT_New_Memory_Face(ftLibrary, static_cast<const FT_Byte*>(_data), size, 0, &_ftFace);
+		FT_Error   error = FT_New_Memory_Face(ftLibrary, static_cast<const FT_Byte*>(_data), Size, 0, &_ftFace);
 		if (error != 0)
 		{
 			DefaultAllocator::GetInstance().Free(_data);
@@ -123,9 +123,9 @@ namespace hod::renderer
 		};
 
 		Vector<CharacterData> characterDatas;
-		characterDatas.reserve(128);
+		characterDatas.Reserve(128);
 
-		glyphInfos.reserve(128);
+		glyphInfos.Reserve(128);
 
 		for (uint8_t c = 0; c < 128; ++c)
 		{
@@ -189,10 +189,10 @@ namespace hod::renderer
 			}
 		}
 
-		uint32_t characterByLine = (uint32_t)std::sqrt(characterDatas.size()) + 1;
+		uint32_t characterByLine = (uint32_t)std::sqrt(characterDatas.Size()) + 1;
 		uint32_t atlasWidth = nextPowerOf2(characterByLine * 48);
 		uint8_t* atlas = DefaultAllocator::GetInstance().Allocate<uint8_t>(atlasWidth * atlasWidth * 4);
-		for (uint32_t characteIndex = 0; characteIndex < characterDatas.size(); ++characteIndex)
+		for (uint32_t characteIndex = 0; characteIndex < characterDatas.Size(); ++characteIndex)
 		{
 			const CharacterData& characterData = characterDatas[characteIndex];
 			Font::GlyphInfo&     glyphInfo = glyphInfos[characteIndex];

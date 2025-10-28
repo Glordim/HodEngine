@@ -79,8 +79,8 @@ namespace hod::editor
 				{
 					if (ImGui::BeginTooltip())
 					{
-						ImVec2 size = ImVec2(256.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 256.0f);
-						ImGui::Image(asset->GetThumbnail(), size);
+						ImVec2 Size = ImVec2(256.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 256.0f);
+						ImGui::Image(asset->GetThumbnail(), Size);
 						ImGui::EndTooltip();
 					}
 				}
@@ -101,7 +101,7 @@ namespace hod::editor
 				{
 					clicked = true;
 
-					assetList.clear();
+					assetList.Clear();
 					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), weakResource.GetResourceDescriptor());
 				}
 			}
@@ -121,7 +121,7 @@ namespace hod::editor
 				{
 					clicked = true;
 
-					assetList.clear();
+					assetList.Clear();
 					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), weakResource.GetResourceDescriptor());
 				}
 			}
@@ -218,8 +218,8 @@ namespace hod::editor
 		{
 		    if (ImGui::BeginTooltip())
 		    {
-		        ImVec2 size = ImVec2(128.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 128.0f);
-		        ImGui::Image(asset->GetThumbnail(), size);
+		        ImVec2 Size = ImVec2(128.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 128.0f);
+		        ImGui::Image(asset->GetThumbnail(), Size);
 		        ImGui::EndTooltip();
 		    }
 		}

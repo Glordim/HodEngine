@@ -3,27 +3,28 @@
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Context.hpp"
-#include "HodEngine/Renderer/RHI/Semaphore.hpp"
 #include "HodEngine/Renderer/RHI/Fence.hpp"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
+#include "HodEngine/Renderer/RHI/Semaphore.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 namespace hod::renderer
 {
-	/// @brief 
+	/// @brief
 	void RenderView::Init()
 	{
-		_pickingMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		_pickingMaterialInstance =
+			Renderer::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 
 		_renderFinishedSemaphore = Renderer::GetInstance()->CreateSemaphore();
 		_renderFinishedFence = Renderer::GetInstance()->CreateFence();
 	}
 
-	/// @brief 
+	/// @brief
 	void RenderView::Terminate()
 	{
 		DefaultAllocator::GetInstance().Delete(_pickingMaterialInstance);
@@ -36,15 +37,15 @@ namespace hod::renderer
 		_renderFinishedFence = nullptr;
 	}
 
-	/// @brief 
+	/// @brief
 	RenderView::~RenderView()
 	{
 		Terminate();
 	}
 
-	/// @brief 
-	/// @param context 
-	/// @return 
+	/// @brief
+	/// @param context
+	/// @return
 	bool RenderView::Prepare(Context* context)
 	{
 		_context = context;
@@ -81,17 +82,21 @@ namespace hod::renderer
 		return _viewport;
 	}
 
-	/// @brief 
-	/// @param renderCommand 
+	/// @brief
+	/// @param renderCommand
 	void RenderView::PushRenderCommand(RenderCommand* renderCommand, RenderQueueType renderQueueType)
 	{
 		if (renderQueueType == RenderQueueType::World)
+		{
 			_worldRenderQueue.PushRenderCommand(renderCommand);
+		}
 		else if (renderQueueType == RenderQueueType::UI)
+		{
 			_uiRenderQueue.PushRenderCommand(renderCommand);
+		}
 	}
 
-	/// @brief 
+	/// @brief
 	void RenderView::Execute(Semaphore* previousSemaphore)
 	{
 		Renderer* renderer = Renderer::GetInstance();
@@ -158,15 +163,15 @@ namespace hod::renderer
 
 		if (_context != nullptr)
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), _renderFinishedSemaphore, previousSemaphore, _renderFinishedFence);
+			renderer->SubmitCommandBuffers(_commandBuffers.Data(), (uint32_t)_commandBuffers.Size(), _renderFinishedSemaphore, previousSemaphore, _renderFinishedFence);
 		}
 		else
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.data(), (uint32_t)_commandBuffers.size(), nullptr, previousSemaphore, _renderFinishedFence);
+			renderer->SubmitCommandBuffers(_commandBuffers.Data(), (uint32_t)_commandBuffers.Size(), nullptr, previousSemaphore, _renderFinishedFence);
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void RenderView::Wait()
 	{
 		_renderFinishedFence->Wait();
@@ -175,7 +180,7 @@ namespace hod::renderer
 		{
 			DefaultAllocator::GetInstance().Delete(commandBuffer);
 		}
-		_commandBuffers.clear();
+		_commandBuffers.Clear();
 
 		_worldRenderQueue.Clear();
 		_uiRenderQueue.Clear();
@@ -188,7 +193,7 @@ namespace hod::renderer
 		{
 			DefaultAllocator::GetInstance().Delete(materialInstance);
 		}
-		_materialInstancesToDelete.clear();
+		_materialInstancesToDelete.Clear();
 	}
 
 	Vector2 RenderView::GetRenderResolution() const
@@ -207,8 +212,8 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
-	/// @param materialInstance 
+	/// @brief
+	/// @param materialInstance
 	void RenderView::DeleteAfter(MaterialInstance* materialInstance)
 	{
 		_materialInstancesToDelete.push_back(materialInstance);

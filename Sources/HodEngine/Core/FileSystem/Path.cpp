@@ -643,8 +643,8 @@ namespace hod
 	{
 #if defined(PLATFORM_WINDOWS)
 		wchar_t buffer[MAX_PATH];
-		DWORD   size = GetCurrentDirectoryW(MAX_PATH, buffer);
-		if (size > 0)
+		DWORD   Size = GetCurrentDirectoryW(MAX_PATH, buffer);
+		if (Size > 0)
 		{
 			return FromNative(buffer);
 		}
@@ -662,8 +662,8 @@ namespace hod
 	{
 #if defined(PLATFORM_WINDOWS)
 		wchar_t buffer[MAX_PATH];
-		DWORD   size = GetTempPathW(MAX_PATH, buffer);
-		if (size > 0)
+		DWORD   Size = GetTempPathW(MAX_PATH, buffer);
+		if (Size > 0)
 		{
 			return FromNative(buffer);
 		}

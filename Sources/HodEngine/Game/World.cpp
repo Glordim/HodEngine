@@ -1,13 +1,13 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/World.hpp"
 
-#include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/Builtin.hpp"
+#include "HodEngine/Game/Scene.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
-#include "HodEngine/Game/WeakComponent.hpp"
 #include "HodEngine/Game/Components/CameraComponent.hpp"
+#include "HodEngine/Game/WeakComponent.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
@@ -20,9 +20,9 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RHI/Context.hpp>
+#include <HodEngine/Window/DisplayManager.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
 #include <HodEngine/Window/Window.hpp>
-#include <HodEngine/Window/DisplayManager.hpp>
 
 #undef min
 
@@ -30,7 +30,7 @@ namespace hod
 {
 	namespace game
 	{
-	// TODO
+		// TODO
 		/// @brief
 		void World::DisableDrawJob()
 		{
@@ -43,36 +43,37 @@ namespace hod
 			_editorPlaying = editorPlaying;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		bool World::GetEditorPlaying() const
 		{
 			return _editorPlaying;
 		}
 
-		/// @brief 
-		/// @param editorPaused 
+		/// @brief
+		/// @param editorPaused
 		void World::SetEditorPaused(bool editorPaused)
 		{
 			_editorPaused = editorPaused;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		bool World::GetEditorPaused() const
 		{
 			return _editorPaused;
 		}
 
-		/// @brief 
+		/// @brief
 		void World::EditorNextFrame()
 		{
 			_editorNextFrame = true;
 		}
-	//
 
-		/// @brief 
-		/// @param  
+		//
+
+		/// @brief
+		/// @param
 		World::World()
 		: _updateJob(this, &World::Update, JobQueue::Queue::Framed)
 		, _drawJob(this, &World::Draw, JobQueue::Queue::Framed)
@@ -80,7 +81,7 @@ namespace hod
 		{
 		}
 
-		/// @brief 
+		/// @brief
 		World::~World()
 		{
 			if (_jobInserted)
@@ -98,8 +99,8 @@ namespace hod
 			DefaultAllocator::GetInstance().Delete(_physicsWorld);
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		bool World::Init()
 		{
 			_physicsWorld = physics::Physics::GetInstance()->CreateWorld();
@@ -113,20 +114,20 @@ namespace hod
 			return true;
 		}
 
-		/// @brief 
+		/// @brief
 		void World::Clear()
 		{
 			for (Scene* scene : _scenes)
 			{
 				DefaultAllocator::GetInstance().Delete(scene);
 			}
-			_scenes.clear();
+			_scenes.Clear();
 
 			_persistanteScene->Clear();
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		World* World::Clone()
 		{
 			World* clone = DefaultAllocator::GetInstance().New<World>();
@@ -145,7 +146,7 @@ namespace hod
 			return clone;
 		}
 
-		/// @brief 
+		/// @brief
 		void World::ProcessActication()
 		{
 			_lastUpdateTimestamp = SystemTime::Now();
@@ -157,8 +158,8 @@ namespace hod
 			}
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Scene* World::CreateScene()
 		{
 			Scene* pScene = DefaultAllocator::GetInstance().New<Scene>();
@@ -168,17 +169,17 @@ namespace hod
 			return pScene;
 		}
 
-		/// @brief 
-		/// @param pScene 
+		/// @brief
+		/// @param pScene
 		void World::DestroyScene(Scene* pScene)
 		{
-			auto it = _scenes.begin();
-			auto itEnd = _scenes.end();
+			auto it = _scenes.Begin();
+			auto itEnd = _scenes.End();
 			while (it != itEnd)
 			{
 				if (*it == pScene)
 				{
-					_scenes.erase(it);
+					_scenes.Erase(it);
 					DefaultAllocator::GetInstance().Delete(pScene);
 					return;
 				}
@@ -187,13 +188,13 @@ namespace hod
 			// Todo message not found
 		}
 
-		/// @brief 
-		/// @param scene 
-		/// @return 
+		/// @brief
+		/// @param scene
+		/// @return
 		bool World::AddScene(Scene* scene)
 		{
-			auto it = _scenes.begin();
-			auto itEnd = _scenes.end();
+			auto it = _scenes.Begin();
+			auto itEnd = _scenes.End();
 			while (it != itEnd)
 			{
 				if (*it == scene)
@@ -210,18 +211,18 @@ namespace hod
 			return true;
 		}
 
-		/// @brief 
-		/// @param scene 
-		/// @return 
+		/// @brief
+		/// @param scene
+		/// @return
 		bool World::RemoveScene(Scene* scene)
 		{
-			auto it = _scenes.begin();
-			auto itEnd = _scenes.end();
+			auto it = _scenes.Begin();
+			auto itEnd = _scenes.End();
 			while (it != itEnd)
 			{
 				if (*it == scene)
 				{
-					_scenes.erase(it);
+					_scenes.Erase(it);
 					return true;
 				}
 				++it;
@@ -233,17 +234,17 @@ namespace hod
 			return false;
 		}
 
-		/// @brief 
-		/// @param start 
-		/// @param end 
-		/// @param color 
-		/// @param duration 
+		/// @brief
+		/// @param start
+		/// @param end
+		/// @param color
+		/// @param duration
 		void World::DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration)
 		{
 			_debugDrawer.AddLine(start, end, color, duration);
 		}
 
-		/// @brief 
+		/// @brief
 		void World::Update()
 		{
 			// todo
@@ -253,7 +254,7 @@ namespace hod
 			}
 
 			SystemTime::TimeStamp now = SystemTime::Now();
-			float deltaTime = (float)SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
+			float                 deltaTime = (float)SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
 			_lastUpdateTimestamp = now;
 
 			if (_editorNextFrame == true)
@@ -280,7 +281,7 @@ namespace hod
 			}
 		}
 
-		/// @brief 
+		/// @brief
 		void World::Draw()
 		{
 			renderer::RenderView* renderView = DefaultAllocator::GetInstance().New<renderer::RenderView>();
@@ -290,8 +291,8 @@ namespace hod
 			renderer::Renderer::GetInstance()->PushRenderView(*renderView, true);
 		}
 
-		/// @brief 
-		/// @param renderQueue 
+		/// @brief
+		/// @param renderQueue
 		void World::Draw(renderer::RenderView& renderView)
 		{
 			if (_editorPlaying == true && _editorPaused == false)
@@ -314,23 +315,23 @@ namespace hod
 			_debugDrawer.Draw(renderView);
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		const Vector<Scene*>& World::GetScenes() const
 		{
 			return _scenes;
 		}
 
-		/// @brief 
-		/// @param name 
-		/// @return 
+		/// @brief
+		/// @param name
+		/// @return
 		Entity* World::CreateEntity(const std::string_view& name)
 		{
 			return _persistanteScene->CreateEntity(name);
 		}
 
-		/// @brief 
-		/// @param entity 
+		/// @brief
+		/// @param entity
 		void World::DestroyEntity(Entity* entity)
 		{
 			for (Scene* scene : _scenes)
@@ -342,13 +343,13 @@ namespace hod
 			DefaultAllocator::GetInstance().Delete(entity);
 		}
 
-		/// @brief 
-		/// @param entityId 
-		/// @return 
+		/// @brief
+		/// @param entityId
+		/// @return
 		Entity* World::FindEntity(uint64_t entityId)
 		{
 			Entity* entity;
-			
+
 			for (Scene* scene : _scenes)
 			{
 				entity = scene->FindEntity(entityId);
@@ -360,8 +361,8 @@ namespace hod
 			return _persistanteScene->FindEntity(entityId);
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		physics::World* World::GetPhysicsWorld() const
 		{
 			return _physicsWorld;

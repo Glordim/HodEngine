@@ -21,9 +21,9 @@ namespace hod
 	/// @brief
 	/// @param document
 	/// @param fileHandle
-	/// @param size
+	/// @param Size
 	/// @return
-	bool DocumentReader::Read(Document& document, FileSystem::Handle& fileHandle, uint32_t size)
+	bool DocumentReader::Read(Document& document, FileSystem::Handle& fileHandle, uint32_t Size)
 	{
 		if (fileHandle.IsOpen() == false)
 		{
@@ -37,30 +37,30 @@ namespace hod
 			return false;
 		}
 
-		if (size == 0)
+		if (Size == 0)
 		{
-			size = FileSystem::GetInstance()->GetSize(fileHandle);
+			Size = FileSystem::GetInstance()->GetSize(fileHandle);
 		}
 
-		char* buffer = DefaultAllocator::GetInstance().Allocate<char>(size + 1);
-		if (FileSystem::GetInstance()->Read(fileHandle, buffer, size) != (int32_t)size)
+		char* buffer = DefaultAllocator::GetInstance().Allocate<char>(Size + 1);
+		if (FileSystem::GetInstance()->Read(fileHandle, buffer, Size) != (int32_t)Size)
 		{
 			return false;
 		}
-		buffer[size] = '\0';
+		buffer[Size] = '\0';
 
-		bool result = Read(document, buffer, size);
+		bool result = Read(document, buffer, Size);
 		DefaultAllocator::GetInstance().Free(buffer);
 		return result;
 	}
 
 	/// @brief
 	/// @param buffer
-	/// @param size
+	/// @param Size
 	/// @return
-	bool DocumentReader::Read(Document& document, const char* buffer, uint32_t size)
+	bool DocumentReader::Read(Document& document, const char* buffer, uint32_t Size)
 	{
-		(void)size; // TODO
+		(void)Size; // TODO
 		return PopulateDocument(document, buffer);
 	}
 }

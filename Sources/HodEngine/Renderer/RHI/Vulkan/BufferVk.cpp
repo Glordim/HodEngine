@@ -10,23 +10,19 @@ namespace hod
 {
 	namespace renderer
 	{
-		VkBufferUsageFlags BufferVk::_usageMap[Usage::Count] = {
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
-		};
+		VkBufferUsageFlags BufferVk::_usageMap[Usage::Count] = {VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT};
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		BufferVk::BufferVk(Usage usage, uint32_t size)
-			: Buffer(usage, size)
+		BufferVk::BufferVk(Usage usage, uint32_t Size)
+		: Buffer(usage, Size)
 		{
-			Resize(size);
+			Resize(Size);
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		BufferVk::~BufferVk()
 		{
@@ -34,7 +30,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void BufferVk::Release()
 		{
@@ -46,12 +42,12 @@ namespace hod
 				_vkBuffer = VK_NULL_HANDLE;
 				_vmaAllocation = VK_NULL_HANDLE;
 			}
-			
+
 			_size = 0;
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		VkBuffer BufferVk::GetVkBuffer() const
 		{
@@ -59,9 +55,9 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		bool BufferVk::Resize(uint32_t size)
+		bool BufferVk::Resize(uint32_t Size)
 		{
 			Release();
 
@@ -69,7 +65,7 @@ namespace hod
 
 			VkBufferCreateInfo bufferInfo = {};
 			bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-			bufferInfo.size = size;
+			bufferInfo.size = Size;
 			bufferInfo.usage = _usageMap[_usage];
 			bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -82,17 +78,17 @@ namespace hod
 				return false;
 			}
 
-			_size = size;
+			_size = Size;
 			return true;
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void* BufferVk::Lock()
 		{
 			RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
-			
+
 			void* data;
 			if (vmaMapMemory(renderer->GetVmaAllocator(), _vmaAllocation, &data) != VK_SUCCESS)
 			{
@@ -104,7 +100,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void BufferVk::Unlock()
 		{

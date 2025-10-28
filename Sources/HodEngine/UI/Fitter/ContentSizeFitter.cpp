@@ -107,19 +107,19 @@ namespace hod::ui
 			Text* text = GetOwner()->GetComponent<Text>();
 			if (text != nullptr)
 			{
-				Vector2 size = node->GetDeltaSize();
+				Vector2 Size = node->GetDeltaSize();
 				Vector2 contentSize = text->GetContentSize();
 
 				if (_horizontalFitMode != FitMode::Unconstrained)
 				{
-					size.SetX(contentSize.GetX());
+					Size.SetX(contentSize.GetX());
 				}
 				if (_verticalFitMode != FitMode::Unconstrained)
 				{
-					size.SetY(contentSize.GetY());
+					Size.SetY(contentSize.GetY());
 				}
 
-				node->SetDeltaSize(size);
+				node->SetDeltaSize(Size);
 			}
 			else
 			{
@@ -134,36 +134,36 @@ namespace hod::ui
 						{
 							int32_t constraintCount = gridLayout->GetConstraintCount();
 							gridLayout->SetConstraint(GridLayout::Constraint::FixedColumnCount);
-							gridLayout->SetConstraintCount(static_cast<int32_t>(std::sqrt(static_cast<float>(GetOwner()->GetChildren().size())) + 0.5f));
+							gridLayout->SetConstraintCount(static_cast<int32_t>(std::sqrt(static_cast<float>(GetOwner()->GetChildren().Size())) + 0.5f));
 							gridLayout->Rebuild();
 							gridLayout->SetConstraint(GridLayout::Constraint::Flexible);
 							gridLayout->SetConstraintCount(constraintCount);
 						}
 					}
 
-					Vector2 size = node->GetDeltaSize();
+					Vector2 Size = node->GetDeltaSize();
 
 					layout->Rebuild();
 
 					if (_horizontalFitMode == FitMode::MinSize)
 					{
-						size.SetX(layout->GetTotalMinSize().GetX());
+						Size.SetX(layout->GetTotalMinSize().GetX());
 					}
 					else if (_horizontalFitMode == FitMode::PreferredSize)
 					{
-						size.SetX(layout->GetTotalPreferredSize().GetX());
+						Size.SetX(layout->GetTotalPreferredSize().GetX());
 					}
 
 					if (_verticalFitMode == FitMode::MinSize)
 					{
-						size.SetY(layout->GetTotalMinSize().GetY());
+						Size.SetY(layout->GetTotalMinSize().GetY());
 					}
 					else if (_verticalFitMode == FitMode::PreferredSize)
 					{
-						size.SetY(layout->GetTotalPreferredSize().GetY());
+						Size.SetY(layout->GetTotalPreferredSize().GetY());
 					}
 
-					node->SetDeltaSize(size);
+					node->SetDeltaSize(Size);
 				}
 			}
 		}

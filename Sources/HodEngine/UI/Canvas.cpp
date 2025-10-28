@@ -71,7 +71,7 @@ namespace hod::ui
 		if (_scaleMode != scaleMode)
 		{
 			_scaleMode = scaleMode;
-			// TODO dirty flag to recompute _scaleFactor + _rootNode size ?
+			// TODO dirty flag to recompute _scaleFactor + _rootNode Size ?
 		}
 	}
 
@@ -85,7 +85,7 @@ namespace hod::ui
 		if (_widthHeightPreferredAxis != widthHeightPreferredAxis)
 		{
 			_widthHeightPreferredAxis = widthHeightPreferredAxis;
-			// TODO dirty flag to recompute _scaleFactor + _rootNode size ?
+			// TODO dirty flag to recompute _scaleFactor + _rootNode Size ?
 		}
 	}
 
@@ -208,14 +208,14 @@ namespace hod::ui
 
 	void Canvas::DoRebuild()
 	{
-		while (_markedForRebuild.empty() == false)
+		while (_markedForRebuild.Empty() == false)
 		{
 			Rebuildable* rebuildable = _markedForRebuild[0].Get();
 			if (rebuildable != nullptr)
 			{
 				rebuildable->Rebuild();
 			}
-			_markedForRebuild.erase(_markedForRebuild.begin());
+			_markedForRebuild.Erase(_markedForRebuild.Begin());
 		}
 	}
 
@@ -228,6 +228,6 @@ namespace hod::ui
 				return;
 			}
 		}
-		_markedForRebuild.emplace_back(rebuildable);
+		_markedForRebuild.EmplaceBack(rebuildable);
 	}
 }

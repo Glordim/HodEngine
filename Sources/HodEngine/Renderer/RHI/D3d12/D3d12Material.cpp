@@ -6,16 +6,15 @@
 
 namespace hod::renderer
 {
-	/// @brief 
-	/// @param type 
-	D3d12Material::D3d12Material() : Material()
+	/// @brief
+	/// @param type
+	D3d12Material::D3d12Material()
+	: Material()
 	{
 	}
 
-	/// @brief 
-	D3d12Material::~D3d12Material()
-	{
-	}
+	/// @brief
+	D3d12Material::~D3d12Material() {}
 
 	DXGI_FORMAT FormatToD3d12Format[VertexInput::Format::Count] = {
 		DXGI_FORMAT_R32_FLOAT,
@@ -24,7 +23,8 @@ namespace hod::renderer
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 	};
 
-	bool D3d12Material::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Topololy topololy, bool useDepth)
+	bool D3d12Material::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Topololy topololy,
+	                          bool useDepth)
 	{
 		ComPtr<ID3D12Device5> device = RendererDirectX12::GetInstance()->GetDevice();
 
@@ -40,11 +40,17 @@ namespace hod::renderer
 
 			D3D12_INPUT_ELEMENT_DESC inputDesc;
 			if (i == 0)
+			{
 				inputDesc.SemanticName = "POSITION";
+			}
 			else if (i == 1)
+			{
 				inputDesc.SemanticName = "TEXCOORD";
+			}
 			else
+			{
 				inputDesc.SemanticName = "COLOR";
+			}
 			inputDesc.SemanticIndex = 0;
 			inputDesc.InputSlot = 0;
 			inputDesc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
@@ -53,15 +59,15 @@ namespace hod::renderer
 
 			inputs.push_back(inputDesc);
 		}
-		psoDesc.InputLayout.NumElements = (UINT)inputs.size();
-		psoDesc.InputLayout.pInputElementDescs = inputs.data();
+		psoDesc.InputLayout.NumElements = (UINT)inputs.Size();
+		psoDesc.InputLayout.pInputElementDescs = inputs.Data();
 
 		// RootSignature
 		D3D12_DESCRIPTOR_RANGE1 cbvRange = {};
 		cbvRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		cbvRange.NumDescriptors = 1;
-		cbvRange.BaseShaderRegister = 0;    // register b0
-		cbvRange.RegisterSpace = 0;         // espace 0
+		cbvRange.BaseShaderRegister = 0; // register b0
+		cbvRange.RegisterSpace = 0;      // espace 0
 		cbvRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
 		cbvRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
@@ -99,7 +105,7 @@ namespace hod::renderer
 		srvParam.DescriptorTable.NumDescriptorRanges = 1;
 		srvParam.DescriptorTable.pDescriptorRanges = &srvRange;
 
-		D3D12_ROOT_PARAMETER1 rootParams[3] = { cbvParam, srvParam, samplerParam };
+		D3D12_ROOT_PARAMETER1 rootParams[3] = {cbvParam, srvParam, samplerParam};
 
 		D3D12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 		rootSignatureDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
@@ -142,14 +148,14 @@ namespace hod::renderer
 
 		// BlendState
 		D3D12_RENDER_TARGET_BLEND_DESC rtBlendDesc = {};
-		rtBlendDesc.BlendEnable           = TRUE;
-		rtBlendDesc.LogicOpEnable         = FALSE;
-		rtBlendDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-		rtBlendDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
-		rtBlendDesc.BlendOp               = D3D12_BLEND_OP_ADD;
-		rtBlendDesc.SrcBlendAlpha         = D3D12_BLEND_ONE;
-		rtBlendDesc.DestBlendAlpha        = D3D12_BLEND_ZERO;
-		rtBlendDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+		rtBlendDesc.BlendEnable = TRUE;
+		rtBlendDesc.LogicOpEnable = FALSE;
+		rtBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		rtBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		rtBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+		rtBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+		rtBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+		rtBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
 		rtBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 		psoDesc.BlendState.AlphaToCoverageEnable = FALSE;
@@ -178,25 +184,15 @@ namespace hod::renderer
 
 		switch (topololy)
 		{
-		case Topololy::POINT:
-			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-			break;
-		case Topololy::LINE:
-			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-			break;
-		case Topololy::LINE_STRIP:
-			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-			break;
-		case Topololy::TRIANGLE:
-			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-			break;
-		case Topololy::TRIANGLE_FAN:
-			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-			break;
-		
-		default:
-			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED; // todo
-			break;
+			case Topololy::POINT: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT; break;
+			case Topololy::LINE: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; break;
+			case Topololy::LINE_STRIP: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; break;
+			case Topololy::TRIANGLE: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
+			case Topololy::TRIANGLE_FAN: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
+
+			default:
+				psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED; // todo
+				break;
 		}
 		psoDesc.NumRenderTargets = 1;
 		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;

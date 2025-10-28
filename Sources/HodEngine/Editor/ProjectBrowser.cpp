@@ -101,8 +101,8 @@ namespace hod::editor
 				ImGui::TableSetupColumn("##OpenDelete", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 100.0f);
 				ImGui::TableHeadersRow();
 
-				auto itEnd = _recentProjects._projectsPath.end();
-				auto it = _recentProjects._projectsPath.begin();
+				auto itEnd = _recentProjects._projectsPath.End();
+				auto it = _recentProjects._projectsPath.Begin();
 				while (it != itEnd)
 				{
 					ImGui::PushID(it->CStr());
@@ -145,7 +145,7 @@ namespace hod::editor
 					ImGui::PopStyleColor(1);
 					if (deleteButtonClicked == true)
 					{
-						it = _recentProjects._projectsPath.erase(it);
+						it = _recentProjects._projectsPath.Erase(it);
 
 						Path projectsPath = FileSystem::GetUserSettingsPath();
 						projectsPath /= ("HodEngine");

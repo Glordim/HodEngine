@@ -414,7 +414,7 @@ namespace hod::input
 			}
 		}
 
-		_vDeviceChangeMessages.clear();
+		_vDeviceChangeMessages.Clear();
 
 		_deviceChangeslock.unlock();
 	}
@@ -424,16 +424,16 @@ namespace hod::input
 	{
 		_characterLock.lock();
 
-		if (_vCharacterMessages.size() != 0)
+		if (_vCharacterMessages.Size() != 0)
 		{
 			_vCharacterMessages.push_back('\0');
 
-			if (_keyboards.size() > 0)
+			if (_keyboards.Size() > 0)
 			{
-				// _keyboards[0]->AppendCharactersToBufferedText(_characterMessages.data()); // TODO
+				// _keyboards[0]->AppendCharactersToBufferedText(_characterMessages.Data()); // TODO
 			}
 
-			_vCharacterMessages.clear();
+			_vCharacterMessages.Clear();
 		}
 
 		_characterLock.unlock();
@@ -453,7 +453,7 @@ namespace hod::input
 		}
 
 #if defined(REDIRECT_INJECTED_INPUT_TO_FIRST_DEVICE)
-		if (_mice.size() != 0)
+		if (_mice.Size() != 0)
 		{
 			return _mice[0];
 		}
@@ -476,7 +476,7 @@ namespace hod::input
 		}
 
 #if defined(REDIRECT_INJECTED_INPUT_TO_FIRST_DEVICE)
-		if (_keyboards.size() != 0)
+		if (_keyboards.Size() != 0)
 		{
 			return _keyboards[0];
 		}

@@ -55,7 +55,7 @@ namespace hod
 	/// @return
 	ReflectionTrait* ReflectionProperty::FindTrait(MetaType metaType) const
 	{
-		for (uint32_t index = 0; index < _traits.size(); ++index)
+		for (uint32_t index = 0; index < _traits.Size(); ++index)
 		{
 			if (_traits[index]->GetMetaType() == metaType)
 			{

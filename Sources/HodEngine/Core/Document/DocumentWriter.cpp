@@ -21,7 +21,7 @@ namespace hod
 	/// @brief
 	/// @param document
 	/// @param stream
-	/// @param size
+	/// @param Size
 	/// @return
 	bool DocumentWriter::Write(Document& document, std::ostream& stream)
 	{

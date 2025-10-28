@@ -27,15 +27,15 @@ namespace hod::renderer
 				{
 					if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float)
 					{
-						params.emplace_back(childPair.second._name, ShaderParameter::Type::Float);
+						params.EmplaceBack(childPair.second._name, ShaderParameter::Type::Float);
 					}
 					else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float2)
 					{
-						params.emplace_back(childPair.second._name, ShaderParameter::Type::Float2);
+						params.EmplaceBack(childPair.second._name, ShaderParameter::Type::Float2);
 					}
 					else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float4)
 					{
-						params.emplace_back(childPair.second._name, ShaderParameter::Type::Float4);
+						params.EmplaceBack(childPair.second._name, ShaderParameter::Type::Float4);
 					}
 				}
 			}
@@ -44,7 +44,7 @@ namespace hod::renderer
 			{
 				if (texture._type == ShaderSetDescriptor::BlockTexture::Texture)
 				{
-					params.emplace_back(texture._name, ShaderParameter::Type::Texture);
+					params.EmplaceBack(texture._name, ShaderParameter::Type::Texture);
 				}
 			}
 		}

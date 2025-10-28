@@ -1,15 +1,15 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/GameEditor/ComponentCustomEditor/Node2dComponentCustomEditor.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/GameEditor/ComponentCustomEditor/Node2dComponentCustomEditor.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 
-#include <HodEngine/Renderer/Renderer.hpp>
-#include <HodEngine/Renderer/PickingManager.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
-#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/PickingManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 
 #include "HodEngine/Editor/ViewportWindow.hpp"
@@ -18,7 +18,7 @@
 
 namespace hod::editor
 {
-	/// @brief 
+	/// @brief
 	Node2dComponentCustomEditor::Node2dComponentCustomEditor()
 	{
 		_freeMoveHandle = Gizmos::GenerateHandle();
@@ -27,12 +27,12 @@ namespace hod::editor
 		_YAxisHandle = Gizmos::GenerateHandle();
 	}
 
-	/// @brief 
-	/// @param component 
-	/// @param projection 
-	/// @param view 
-	/// @param operation 
-	/// @return 
+	/// @brief
+	/// @param component
+	/// @param projection
+	/// @param view
+	/// @param operation
+	/// @return
 	bool Node2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
@@ -48,7 +48,7 @@ namespace hod::editor
 
 		bool changed = false;
 
-		float handleSize = Gizmos::GetHandleSize(0.002f, viewport);
+		float           handleSize = Gizmos::GetHandleSize(0.002f, viewport);
 		constexpr float thickness = 0.05f;
 		constexpr float length = 1.0f;
 		constexpr float headHeight = 0.15f;
@@ -65,7 +65,7 @@ namespace hod::editor
 			Vector2(thickness * 0.5f, thickness * 0.5f),
 			Vector2(thickness * 0.5f, -thickness * 0.5f),
 			Vector2(lineLength, thickness * 0.5f),
-			
+
 			Vector2(0.0f, -thickness * 0.5f),
 			Vector2(lineLength, -thickness * 0.5f),
 			Vector2(lineLength, thickness * 0.5f),
@@ -83,7 +83,7 @@ namespace hod::editor
 			Vector2(thickness * 0.5f, thickness * 0.5f),
 			Vector2(-thickness * 0.5f, thickness * 0.5f),
 			Vector2(thickness * 0.5f, lineLength),
-			
+
 			Vector2(-thickness * 0.5f, 0.0f),
 			Vector2(-thickness * 0.5f, lineLength),
 			Vector2(thickness * 0.5f, lineLength),
@@ -98,9 +98,12 @@ namespace hod::editor
 		worldMatrix *= Matrix4::Scale(Vector2(handleSize, handleSize));
 
 		bool interacted = false;
-		interacted |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::One * squareOffset, Vector2::One * squareSize, Color(0.0f, 0.0f, 1.0f, 1.0f), Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
-		interacted |= Gizmos::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.data(), (uint32_t)verticesX.size(), Color(1.0f, 0.0f, 0.0f, 1.0f), Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
-		interacted |= Gizmos::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.data(), (uint32_t)verticesY.size(), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
+		interacted |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::One * squareOffset, Vector2::One * squareSize, Color(0.0f, 0.0f, 1.0f, 1.0f),
+		                                   Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
+		interacted |=
+			Gizmos::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.data(), (uint32_t)verticesX.size(), Color(1.0f, 0.0f, 0.0f, 1.0f), Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
+		interacted |=
+			Gizmos::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.data(), (uint32_t)verticesY.size(), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
 		if (interacted)
 		{
 			if (_freeMoveHandle._justPressed || _XAxisHandle._justPressed || _YAxisHandle._justPressed)

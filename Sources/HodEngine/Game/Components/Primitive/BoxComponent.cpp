@@ -1,21 +1,21 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
 
-#include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/P2fT2f.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RHI/Material.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
-#include <HodEngine/Renderer/P2fT2f.hpp>
 
-#include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RHI/Material.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 
 #include <array>
@@ -44,8 +44,7 @@ namespace hod
 		};
 
 		static std::array<uint16_t, 6> _indices = {
-			0, 1, 3,
-			3, 1, 2,
+			0, 1, 3, 3, 1, 2,
 		};
 
 		DESCRIBE_REFLECTED_CLASS(BoxComponent, reflectionDescriptor)
@@ -54,12 +53,9 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		BoxComponent::~BoxComponent()
-		{
-
-		}
+		BoxComponent::~BoxComponent() {}
 
 		void BoxComponent::OnConstruct()
 		{
@@ -70,8 +66,8 @@ namespace hod
 			}
 		}
 
-		/// @brief 
-		/// @param materialInstance 
+		/// @brief
+		/// @param materialInstance
 		void BoxComponent::SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& weakMaterialInstanceResource)
 		{
 			_material = weakMaterialInstanceResource;
@@ -87,7 +83,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		renderer::MaterialInstance* BoxComponent::GetMaterialInstance() const
 		{
@@ -95,7 +91,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void BoxComponent::PushRenderCommand(renderer::RenderView& renderView)
 		{
@@ -105,7 +101,9 @@ namespace hod
 				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 				if (node2dComponent != nullptr)
 				{
-					renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance, node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
+					renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+						_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
+						node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 				}
 			}
 		}

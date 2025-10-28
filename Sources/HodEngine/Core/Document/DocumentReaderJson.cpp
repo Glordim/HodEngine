@@ -17,7 +17,7 @@ namespace hod
 	/// @brief
 	/// @param document
 	/// @param stream
-	/// @param size
+	/// @param Size
 	/// @return
 	bool DocumentReaderJson::PopulateDocument(Document& document, const char* buffer)
 	{

@@ -36,7 +36,7 @@ namespace hod
 	template<typename... Types>
 	void Event<Types...>::Disconnect(Slot& slot)
 	{
-		size_t slotCount = _slots.size();
+		size_t slotCount = _slots.Size();
 		for (size_t index = 0; index < slotCount; ++index)
 		{
 			Slot* currentSlot = _slots[index];
@@ -44,8 +44,8 @@ namespace hod
 			{
 				currentSlot->_event = nullptr;
 
-				std::swap(_slots[index], _slots.back());
-				_slots.pop_back();
+				std::swap(_slots[index], _slots.Back());
+				_slots.PopBack();
 				return;
 			}
 		}
@@ -60,7 +60,7 @@ namespace hod
 		{
 			slot->_event = nullptr;
 		}
-		_slots.clear();
+		_slots.Clear();
 	}
 
 	/// @brief

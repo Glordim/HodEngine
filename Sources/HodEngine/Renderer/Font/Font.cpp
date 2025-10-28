@@ -16,9 +16,9 @@ namespace hod::renderer
 		DefaultAllocator::GetInstance().Delete(_impl);
 	}
 
-	bool Font::LoadFromMemory(const void* data, uint32_t size)
+	bool Font::LoadFromMemory(const void* data, uint32_t Size)
 	{
-		return _impl->LoadFromMemory(data, size, _texture, _glyphInfos);
+		return _impl->LoadFromMemory(data, Size, _texture, _glyphInfos);
 	}
 
 	float Font::GetKerning(char32_t left, char32_t right) const
@@ -55,7 +55,7 @@ namespace hod::renderer
 
 	void Font::BuildTextGeometry(const String& value, Vector<GlyphGeometry>& glyphGeometries)
 	{
-		glyphGeometries.reserve(value.Size());
+		glyphGeometries.Reserve(value.Size());
 		_impl->BuildTextGeometry(value, glyphGeometries, _glyphInfos);
 	}
 }

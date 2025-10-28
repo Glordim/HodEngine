@@ -28,15 +28,15 @@ namespace hod::game
 		AddPropertyT(reflectionDescriptor, &MultiShapeCollider2dComponent::_boxes, "Boxes");
 	}
 
-	/// @brief 
+	/// @brief
 	void MultiShapeCollider2dComponent::OnStart()
 	{
 		Collider2dComponent::OnStart();
 
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
-		Vector2 parentOffset = rigidbody->GetParentOffset(this);
+		Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-		Vector2 scale = GetScale();
+		Vector2        scale = GetScale();
 		physics::Body* body = rigidbody->GetInternalBody();
 
 		for (const CircleShape& circle : _circles)
@@ -52,7 +52,7 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void MultiShapeCollider2dComponent::ClearAllShapes()
 	{
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
@@ -63,14 +63,14 @@ namespace hod::game
 			{
 				body->ClearAllShapes();
 
-				_circles.clear();
-				_boxes.clear();
+				_circles.Clear();
+				_boxes.Clear();
 			}
 		}
 	}
 
-	/// @brief 
-	/// @param circleShape 
+	/// @brief
+	/// @param circleShape
 	void MultiShapeCollider2dComponent::AddCircleShape(const CircleShape& circleShape)
 	{
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
@@ -80,9 +80,9 @@ namespace hod::game
 			if (body != nullptr)
 			{
 				Rigidbody2dComponent* rigidbody = GetRigidbody();
-				Vector2 parentOffset = rigidbody->GetParentOffset(this);
+				Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-				Vector2 scale = GetScale();
+				Vector2            scale = GetScale();
 				physics::Collider* collider = body->AddCircleShape(_isTrigger, parentOffset + circleShape._origin * scale, circleShape._radius * scale.GetX());
 				collider->SetUserData(this);
 				_circles.push_back(circleShape);
@@ -90,15 +90,15 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector<MultiShapeCollider2dComponent::CircleShape>& MultiShapeCollider2dComponent::GetCircleShapes() const
 	{
 		return _circles;
 	}
 
-	/// @brief 
-	/// @param boxshape 
+	/// @brief
+	/// @param boxshape
 	void MultiShapeCollider2dComponent::AddBoxShape(const BoxShape& boxshape)
 	{
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
@@ -108,9 +108,9 @@ namespace hod::game
 			if (body != nullptr)
 			{
 				Rigidbody2dComponent* rigidbody = GetRigidbody();
-				Vector2 parentOffset = rigidbody->GetParentOffset(this);
+				Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-				Vector2 scale = GetScale();
+				Vector2            scale = GetScale();
 				physics::Collider* collider = body->AddBoxShape(_isTrigger, parentOffset + boxshape._origin * scale, boxshape._size * scale, boxshape._angle);
 				collider->SetUserData(this);
 				_boxes.push_back(boxshape);
@@ -118,8 +118,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector<MultiShapeCollider2dComponent::BoxShape>& MultiShapeCollider2dComponent::GetBoxShapes() const
 	{
 		return _boxes;

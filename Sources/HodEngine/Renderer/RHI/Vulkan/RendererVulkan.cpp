@@ -1,16 +1,16 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
+#include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/BufferVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/FenceVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/FenceVk.hpp"
-#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -23,15 +23,15 @@
 #include <array>
 
 #if defined(PLATFORM_WINDOWS)
-	#include <vulkan/vulkan_win32.h>
 	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
+	#include <vulkan/vulkan_win32.h>
 #elif defined(PLATFORM_LINUX)
-	#include <vulkan/vulkan_wayland.h>
 	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp>
 	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp>
+	#include <vulkan/vulkan_wayland.h>
 #elif defined(PLATFORM_ANDROID)
-	#include <vulkan/vulkan_android.h>
 	#include <HodEngine/Window/Android/AndroidWindow.hpp>
+	#include <vulkan/vulkan_android.h>
 #endif
 
 namespace hod::renderer
@@ -39,11 +39,10 @@ namespace hod::renderer
 	_SingletonOverrideConstructor(RendererVulkan)
 	: Renderer()
 	{
-
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	RendererVulkan::~RendererVulkan()
 	{
@@ -79,41 +78,41 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	/*
 	void RendererVulkan::DestroySwapChain()
 	{
-		size_t swapChainFramebufferCount = _swapChainFramebuffers.size();
-		for (int i = 0; i < swapChainFramebufferCount; ++i)
-		{
-			vkDestroyFramebuffer(_device, _swapChainFramebuffers[i], nullptr);
-		}
-		_swapChainFramebuffers.clear();
+	    size_t swapChainFramebufferCount = _swapChainFramebuffers.Size();
+	    for (int i = 0; i < swapChainFramebufferCount; ++i)
+	    {
+	        vkDestroyFramebuffer(_device, _swapChainFramebuffers[i], nullptr);
+	    }
+	    _swapChainFramebuffers.clear();
 
-		size_t swapChainImageViewCount = _swapChainImageViews.size();
-		for (int i = 0; i < swapChainImageViewCount; ++i)
-		{
-			vkDestroyImageView(_device, _swapChainImageViews[i], nullptr);
-		}
-		_swapChainImageViews.clear();
+	    size_t swapChainImageViewCount = _swapChainImageViews.Size();
+	    for (int i = 0; i < swapChainImageViewCount; ++i)
+	    {
+	        vkDestroyImageView(_device, _swapChainImageViews[i], nullptr);
+	    }
+	    _swapChainImageViews.clear();
 
-		if (_renderPass != VK_NULL_HANDLE)
-		{
-			vkDestroyRenderPass(_device, _renderPass, nullptr);
-			_renderPass = VK_NULL_HANDLE;
-		}
+	    if (_renderPass != VK_NULL_HANDLE)
+	    {
+	        vkDestroyRenderPass(_device, _renderPass, nullptr);
+	        _renderPass = VK_NULL_HANDLE;
+	    }
 
-		if (_swapChain != VK_NULL_HANDLE)
-		{
-			vkDestroySwapchainKHR(_device, _swapChain, nullptr);
-			_swapChain = VK_NULL_HANDLE;
-		}
+	    if (_swapChain != VK_NULL_HANDLE)
+	    {
+	        vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+	        _swapChain = VK_NULL_HANDLE;
+	    }
 	}
 	*/
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	VkInstance RendererVulkan::GetVkInstance() const
 	{
@@ -121,42 +120,42 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	VkDevice RendererVulkan::GetVkDevice() const
 	{
 		return _device;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const VkGpuDevice* RendererVulkan::GetVkGpuDevice() const
 	{
 		return _selectedGpu;
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	/*
 	VkRenderPass RendererVulkan::GetRenderPass() const
 	{
-		return _renderPass;
+	    return _renderPass;
 	}
 	*/
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	/*
 	VkExtent2D RendererVulkan::GetSwapChainExtent() const
 	{
-		return _swapChainExtent;
+	    return _swapChainExtent;
 	}
 	*/
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	VkDescriptorPool RendererVulkan::GetDescriptorPool() const
 	{
@@ -164,7 +163,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	VkCommandPool RendererVulkan::GetCommandPool() const
 	{
@@ -173,16 +172,16 @@ namespace hod::renderer
 
 	/*
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	Material* RendererVulkan::GetSharedMinimalMaterial() const
 	{
-		return _sharedMinimalMaterial;
+	    return _sharedMinimalMaterial;
 	}
 	*/
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool RendererVulkan::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
 		if (CreateVkIntance() == false)
@@ -226,20 +225,20 @@ namespace hod::renderer
 		_context = DefaultAllocator::GetInstance().New<VkContext>(surface);
 		mainWindow->SetSurface(_context);
 		/*
-		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
-		if (_unlitVertexColorMaterial == nullptr)
+		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill,
+		Material::Topololy::TRIANGLE)); if (_unlitVertexColorMaterial == nullptr)
 		{
-			return false;
+		    return false;
 		}
-		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Line, Material::Topololy::LINE));
-		if (_unlitVertexColorLineMaterial == nullptr)
+		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Line,
+		Material::Topololy::LINE)); if (_unlitVertexColorLineMaterial == nullptr)
 		{
-			return false;
+		    return false;
 		}
-		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false));
-		if (_sharedMinimalMaterial == nullptr)
+		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill,
+		Material::Topololy::TRIANGLE, false)); if (_sharedMinimalMaterial == nullptr)
 		{
-			return false;
+		    return false;
 		}
 
 		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
@@ -249,8 +248,8 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool RendererVulkan::CreateVkIntance()
 	{
 		// === Extensions ===
@@ -269,14 +268,13 @@ namespace hod::renderer
 		}
 
 		// TODO move in Context
-		std::array<const char*, 2> extensionsRequiredByContext {
-			VK_KHR_SURFACE_EXTENSION_NAME,
+		std::array<const char*, 2> extensionsRequiredByContext {VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(PLATFORM_WINDOWS)
-			VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+		                                                        VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #elif defined(PLATFORM_LINUX)
-			VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+		                                                        VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
 #elif defined(PLATFORM_ANDROID)
-			VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
+		                                                        VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
 #endif
 		};
 
@@ -292,10 +290,7 @@ namespace hod::renderer
 
 		bool enableValidationLayers = true;
 
-		std::array<const char*, 2> extensionsRequiredByValidationLayers {
-			VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
-			VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-		};
+		std::array<const char*, 2> extensionsRequiredByValidationLayers {VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME};
 
 		if (RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredByValidationLayers.data(), extensionsRequiredByValidationLayers.size(), availableExtensions) == false)
 		{
@@ -304,10 +299,8 @@ namespace hod::renderer
 			enableValidationLayers = false;
 		}
 
-		std::array<const char*, 1> validationLayers {
-			//"VK_LAYER_LUNARG_standard_validation"
-			"VK_LAYER_KHRONOS_validation"
-		};
+		std::array<const char*, 1> validationLayers {//"VK_LAYER_LUNARG_standard_validation"
+		                                             "VK_LAYER_KHRONOS_validation"};
 
 		if (RendererVulkan::CheckValidationLayerSupport(validationLayers.data(), validationLayers.size()) == false)
 		{
@@ -322,24 +315,24 @@ namespace hod::renderer
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		if (enableValidationLayers == true)
 		{
-			extensions.reserve(extensionsRequiredByEngine.size() + extensionsRequiredByContext.size() + extensionsRequiredByValidationLayers.size());
-			extensions.insert(extensions.end(), extensionsRequiredByEngine.begin(), extensionsRequiredByEngine.end());
-			extensions.insert(extensions.end(), extensionsRequiredByContext.begin(), extensionsRequiredByContext.end());
-			extensions.insert(extensions.end(), extensionsRequiredByValidationLayers.begin(), extensionsRequiredByValidationLayers.end());
+			extensions.Reserve(extensionsRequiredByEngine.size() + extensionsRequiredByContext.size() + extensionsRequiredByValidationLayers.size());
+			extensions.Insert(extensions.End(), extensionsRequiredByEngine.begin(), extensionsRequiredByEngine.end());
+			extensions.Insert(extensions.End(), extensionsRequiredByContext.begin(), extensionsRequiredByContext.end());
+			extensions.Insert(extensions.End(), extensionsRequiredByValidationLayers.begin(), extensionsRequiredByValidationLayers.end());
 		}
 		else
 #endif
 		{
-			extensions.reserve(extensionsRequiredByEngine.size() + extensionsRequiredByContext.size());
-			extensions.insert(extensions.end(), extensionsRequiredByEngine.begin(), extensionsRequiredByEngine.end());
-			extensions.insert(extensions.end(), extensionsRequiredByContext.begin(), extensionsRequiredByContext.end());
+			extensions.Reserve(extensionsRequiredByEngine.size() + extensionsRequiredByContext.size());
+			extensions.Insert(extensions.End(), extensionsRequiredByEngine.begin(), extensionsRequiredByEngine.end());
+			extensions.Insert(extensions.End(), extensionsRequiredByContext.begin(), extensionsRequiredByContext.end());
 		}
 
 		// === Create Instance ===
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Hello"; // TODO ?
+		appInfo.pApplicationName = "Hello";                    // TODO ?
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); // TODO ?
 		appInfo.pEngineName = "HodEngine";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0); // TODO ?
@@ -349,25 +342,22 @@ namespace hod::renderer
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.flags = 0;
 		createInfo.pApplicationInfo = &appInfo;
-		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-		createInfo.ppEnabledExtensionNames = extensions.data();
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.Size());
+		createInfo.ppEnabledExtensionNames = extensions.Data();
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		if (enableValidationLayers == true)
 		{
 			VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = {};
 			debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-			debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-													   VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-													   VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-													   VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-			debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-												   VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-												   VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
-#if defined(PLATFORM_WINDOWS)
-												   | VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT
-#endif
-												   ;
+			debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+			                                           VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+			debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+			                                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+	#if defined(PLATFORM_WINDOWS)
+			                                       | VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT
+	#endif
+				;
 			debugMessengerCreateInfo.pfnUserCallback = &RendererVulkan::DebugCallback;
 			debugMessengerCreateInfo.pUserData = nullptr;
 
@@ -392,25 +382,25 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @param availableExtensions 
+	/// @brief
+	/// @param availableExtensions
 	void RendererVulkan::GetAvailableExtensions(Vector<VkExtensionProperties>& availableExtensions)
 	{
 		uint32_t availableExtensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr);
 
-		availableExtensions.resize(availableExtensionCount);
-		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, availableExtensions.data());
+		availableExtensions.Resize(availableExtensionCount);
+		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, availableExtensions.Data());
 	}
 
-	/// @brief 
-	/// @param extensions 
-	/// @param extensionCount 
-	/// @param availableExtensions 
-	/// @return 
+	/// @brief
+	/// @param extensions
+	/// @param extensionCount
+	/// @param availableExtensions
+	/// @return
 	bool RendererVulkan::CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const Vector<VkExtensionProperties>& availableExtensions)
 	{
-		size_t availableExtensionsCount = availableExtensions.size();
+		size_t availableExtensionsCount = availableExtensions.Size();
 
 		for (size_t i = 0; i < extensionCount; ++i)
 		{
@@ -437,17 +427,17 @@ namespace hod::renderer
 	}
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-	/// @brief 
-	/// @param validationLayers 
-	/// @param validationLayerCount 
-	/// @return 
+	/// @brief
+	/// @param validationLayers
+	/// @param validationLayerCount
+	/// @return
 	bool RendererVulkan::CheckValidationLayerSupport(const char** validationLayers, size_t validationLayerCount)
 	{
 		uint32_t availableValidationLayerCount = 0;
 		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, nullptr);
 
 		Vector<VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
-		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, availableValidationLayers.data());
+		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, availableValidationLayers.Data());
 
 		for (size_t i = 0; i < validationLayerCount; ++i)
 		{
@@ -465,23 +455,22 @@ namespace hod::renderer
 			}
 
 			if (founded == false)
+			{
 				return false;
+			}
 		}
 
 		return true;
 	}
 
-	/// @brief 
-	/// @param messageSeverity 
-	/// @param messageType 
-	/// @param pCallbackData 
-	/// @param pUserData 
-	/// @return 
-	VKAPI_ATTR VkBool32 VKAPI_CALL RendererVulkan::DebugCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-		void* pUserData)
+	/// @brief
+	/// @param messageSeverity
+	/// @param messageType
+	/// @param pCallbackData
+	/// @param pUserData
+	/// @return
+	VKAPI_ATTR VkBool32 VKAPI_CALL RendererVulkan::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
+	                                                             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 	{
 		(void)messageType;
 		(void)pUserData;
@@ -504,9 +493,9 @@ namespace hod::renderer
 #endif
 
 #if defined(PLATFORM_WINDOWS)
-	/// @brief 
-	/// @param window 
-	/// @return 
+	/// @brief
+	/// @param window
+	/// @return
 	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
 	{
 		window::Win32Window* win32Window = static_cast<window::Win32Window*>(window);
@@ -528,12 +517,12 @@ namespace hod::renderer
 		return surface;
 	}
 #elif defined(PLATFORM_LINUX)
-	/// @brief 
-	/// @param window 
-	/// @return 
+	/// @brief
+	/// @param window
+	/// @return
 	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
 	{
-		window::WaylandWindow* waylandWindow = static_cast<window::WaylandWindow*>(window);
+		window::WaylandWindow*         waylandWindow = static_cast<window::WaylandWindow*>(window);
 		window::WaylandDisplayManager* waylandDisplayManager = window::WaylandDisplayManager::GetInstance();
 
 		VkWaylandSurfaceCreateInfoKHR createInfo;
@@ -553,18 +542,18 @@ namespace hod::renderer
 		return surface;
 	}
 #elif defined(PLATFORM_ANDROID)
-	/// @brief 
-	/// @param window 
-	/// @return 
+	/// @brief
+	/// @param window
+	/// @return
 	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
 	{
 		window::AndroidWindow* androidWindow = static_cast<window::AndroidWindow*>(window);
 
-        if (window == nullptr)
-        {
-            OUTPUT_ERROR("Vulkan: Unable to create Android Surface, Windows is nullptr");
-            return nullptr;
-        }
+		if (window == nullptr)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Android Surface, Windows is nullptr");
+			return nullptr;
+		}
 
 		VkAndroidSurfaceCreateInfoKHR createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
@@ -583,9 +572,9 @@ namespace hod::renderer
 	}
 #endif
 
-	/// @brief 
-	/// @param window 
-	/// @return 
+	/// @brief
+	/// @param window
+	/// @return
 	bool RendererVulkan::CreateContext(window::Window* window)
 	{
 		VkSurfaceKHR surface = CreateSurface(window);
@@ -598,10 +587,10 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @param context 
-	/// @param physicalDeviceIdentifier 
-	/// @return 
+	/// @brief
+	/// @param context
+	/// @param physicalDeviceIdentifier
+	/// @return
 	bool RendererVulkan::BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier)
 	{
 		EnumeratePhysicalDevice(static_cast<VkContext*>(context)->GetSurface());
@@ -623,9 +612,11 @@ namespace hod::renderer
 		_context = (VkContext*)context;
 
 		/*
-		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE));
-		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Line, Material::Topololy::LINE));
-		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE, false));
+		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill,
+		Material::Topololy::TRIANGLE)); _unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor",
+		Material::PolygonMode::Line, Material::Topololy::LINE)); _sharedMinimalMaterial =
+		MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE,
+		false));
 
 		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
 		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
@@ -634,16 +625,16 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @param availableDevices 
-	/// @return 
+	/// @brief
+	/// @param availableDevices
+	/// @return
 	bool RendererVulkan::GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices)
 	{
 		return false; // TODO
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	void RendererVulkan::EnumeratePhysicalDevice(VkSurfaceKHR surface)
 	{
@@ -651,15 +642,15 @@ namespace hod::renderer
 		vkEnumeratePhysicalDevices(_vkInstance, &physicalDeviceCount, nullptr);
 
 		Vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
-		vkEnumeratePhysicalDevices(_vkInstance, &physicalDeviceCount, physicalDevices.data());
+		vkEnumeratePhysicalDevices(_vkInstance, &physicalDeviceCount, physicalDevices.Data());
 
-		_availableGpu.resize(physicalDeviceCount);
+		_availableGpu.Resize(physicalDeviceCount);
 
 		_recommandedGpu = nullptr;
 		for (size_t i = 0; i < physicalDeviceCount; ++i)
 		{
 			VkPhysicalDevice physicalDevice = physicalDevices[i];
-			VkGpuDevice& gpuDevice = _availableGpu[i];
+			VkGpuDevice&     gpuDevice = _availableGpu[i];
 
 			FillPhysicalDeviceInfo(surface, physicalDevice, gpuDevice);
 
@@ -677,10 +668,10 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
-	/// @param physicalDevice 
-	/// @param gpuDevice 
-	/// @return 
+	/// @brief
+	/// @param physicalDevice
+	/// @param gpuDevice
+	/// @return
 	void RendererVulkan::FillPhysicalDeviceInfo(VkSurfaceKHR surface, VkPhysicalDevice physicalDevice, VkGpuDevice& gpuDevice)
 	{
 		gpuDevice.physicalDevice = physicalDevice;
@@ -723,7 +714,7 @@ namespace hod::renderer
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
 		Vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.Data());
 
 		for (size_t i = 0; i < queueFamilyCount; ++i)
 		{
@@ -756,15 +747,13 @@ namespace hod::renderer
 			return;
 		}
 
-		std::array<const char*, 1> requiredExtensions {
-			VK_KHR_SWAPCHAIN_EXTENSION_NAME
-		};
+		std::array<const char*, 1> requiredExtensions {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 		uint32_t availableExtensionCount;
 		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, nullptr);
 
 		Vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
-		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, availableExtensions.data());
+		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, availableExtensions.Data());
 
 		if (RendererVulkan::CheckExtensionsIsAvailable(requiredExtensions.data(), requiredExtensions.size(), availableExtensions) == false)
 		{
@@ -772,9 +761,9 @@ namespace hod::renderer
 			return;
 		}
 
-		VkSurfaceCapabilitiesKHR capabilities;
+		VkSurfaceCapabilitiesKHR   capabilities;
 		Vector<VkSurfaceFormatKHR> formats;
-		Vector<VkPresentModeKHR> presentModes;
+		Vector<VkPresentModeKHR>   presentModes;
 
 		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities) != VK_SUCCESS)
 		{
@@ -794,8 +783,8 @@ namespace hod::renderer
 
 			if (formatCount != 0)
 			{
-				formats.resize(formatCount);
-				if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.data()) != VK_SUCCESS)
+				formats.Resize(formatCount);
+				if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.Data()) != VK_SUCCESS)
 				{
 					OUTPUT_ERROR("Vulkan: Unable to get Surface formats !");
 					gpuDevice.compatible = false;
@@ -808,7 +797,7 @@ namespace hod::renderer
 				{
 					const VkSurfaceFormatKHR& format = formats[j];
 
-					//if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+					// if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 					if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 					{
 						targetFormatFounded = true;
@@ -839,8 +828,8 @@ namespace hod::renderer
 
 			if (presentModeCount != 0)
 			{
-				presentModes.resize(presentModeCount);
-				if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.data()) != VK_SUCCESS)
+				presentModes.Resize(presentModeCount);
+				if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.Data()) != VK_SUCCESS)
 				{
 					OUTPUT_ERROR("Vulkan: Unable to get Surface present modes !");
 					gpuDevice.compatible = false;
@@ -856,9 +845,9 @@ namespace hod::renderer
 		}
 	}
 
-	/// @brief 
-	/// @param physicalDeviceIdentifier 
-	/// @return 
+	/// @brief
+	/// @param physicalDeviceIdentifier
+	/// @return
 	bool RendererVulkan::SelectPhysicalDevice(uint32_t physicalDeviceIdentifier)
 	{
 		_selectedGpu = nullptr;
@@ -899,7 +888,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::CreateDevice()
 	{
@@ -922,12 +911,10 @@ namespace hod::renderer
 
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
-		const Vector<const char*> requiredExtensions = {
-				VK_KHR_SWAPCHAIN_EXTENSION_NAME
-		};
+		const Vector<const char*> requiredExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
-		createInfo.enabledExtensionCount = (uint32_t)requiredExtensions.size();
-		createInfo.ppEnabledExtensionNames = requiredExtensions.data();
+		createInfo.enabledExtensionCount = (uint32_t)requiredExtensions.Size();
+		createInfo.ppEnabledExtensionNames = requiredExtensions.Data();
 
 		// Deprecated, now _device share Validation Layer with the VkInstance
 		createInfo.ppEnabledLayerNames = nullptr;
@@ -946,200 +933,200 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	/*
 	bool RendererVulkan::CreateSwapChain()
 	{
-		vkDeviceWaitIdle(_device);
+	    vkDeviceWaitIdle(_device);
 
-		DestroySwapChain();
+	    DestroySwapChain();
 
-		VkSurfaceCapabilitiesKHR capabilities;
-		Vector<VkSurfaceFormatKHR> formats;
-		Vector<VkPresentModeKHR> presentModes;
+	    VkSurfaceCapabilitiesKHR capabilities;
+	    Vector<VkSurfaceFormatKHR> formats;
+	    Vector<VkPresentModeKHR> presentModes;
 
-		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_selectedGpu->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !");
-			return false;
-		}
+	    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_selectedGpu->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
+	    {
+	        OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !");
+	        return false;
+	    }
 
-		if (capabilities.currentExtent.width == 0)
-			return false;
+	    if (capabilities.currentExtent.width == 0)
+	        return false;
 
-		VkExtent2D extent;
+	    VkExtent2D extent;
 
-		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-		{
-			extent = capabilities.currentExtent;
-		}
-		else
-		{
-			extent.width = 800;
-			extent.height = 600;
+	    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+	    {
+	        extent = capabilities.currentExtent;
+	    }
+	    else
+	    {
+	        extent.width = 800;
+	        extent.height = 600;
 
-			if (extent.width > capabilities.maxImageExtent.width)
-				extent.width = capabilities.maxImageExtent.width;
-			else if (extent.width < capabilities.minImageExtent.width)
-				extent.width = capabilities.minImageExtent.width;
+	        if (extent.width > capabilities.maxImageExtent.width)
+	            extent.width = capabilities.maxImageExtent.width;
+	        else if (extent.width < capabilities.minImageExtent.width)
+	            extent.width = capabilities.minImageExtent.width;
 
-			if (extent.height > capabilities.maxImageExtent.height)
-				extent.height = capabilities.maxImageExtent.height;
-			else if (extent.height < capabilities.minImageExtent.height)
-				extent.height = capabilities.minImageExtent.height;
-		}
+	        if (extent.height > capabilities.maxImageExtent.height)
+	            extent.height = capabilities.maxImageExtent.height;
+	        else if (extent.height < capabilities.minImageExtent.height)
+	            extent.height = capabilities.minImageExtent.height;
+	    }
 
-		_swapChainExtent = extent;
+	    _swapChainExtent = extent;
 
-		uint32_t imageCount = capabilities.minImageCount + 1;
+	    uint32_t imageCount = capabilities.minImageCount + 1;
 
-		if (imageCount > capabilities.maxImageCount)
-			imageCount = capabilities.maxImageCount;
+	    if (imageCount > capabilities.maxImageCount)
+	        imageCount = capabilities.maxImageCount;
 
-		VkSwapchainCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = _surface;
-		createInfo.minImageCount = imageCount;
-		createInfo.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
-		createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-		createInfo.imageExtent = _swapChainExtent;
-		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // Present and graphics queue have the same queue family
-		createInfo.queueFamilyIndexCount = 0; // Optional
-		createInfo.pQueueFamilyIndices = nullptr; // Optional
-		createInfo.preTransform = capabilities.currentTransform;
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = VK_PRESENT_MODE_MAILBOX_KHR; // Todo support VSync
-		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = VK_NULL_HANDLE;
+	    VkSwapchainCreateInfoKHR createInfo = {};
+	    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	    createInfo.surface = _surface;
+	    createInfo.minImageCount = imageCount;
+	    createInfo.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+	    createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+	    createInfo.imageExtent = _swapChainExtent;
+	    createInfo.imageArrayLayers = 1;
+	    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // Present and graphics queue have the same queue family
+	    createInfo.queueFamilyIndexCount = 0; // Optional
+	    createInfo.pQueueFamilyIndices = nullptr; // Optional
+	    createInfo.preTransform = capabilities.currentTransform;
+	    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	    createInfo.presentMode = VK_PRESENT_MODE_MAILBOX_KHR; // Todo support VSync
+	    createInfo.clipped = VK_TRUE;
+	    createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-		if (vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapChain) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !");
-			return false;
-		}
+	    if (vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapChain) != VK_SUCCESS)
+	    {
+	        OUTPUT_ERROR("Vulkan: Unable to create SwapChain !");
+	        return false;
+	    }
 
-		// Render pass
-		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	    // Render pass
+	    VkAttachmentDescription colorAttachment = {};
+	    colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
+	    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-		VkAttachmentReference colorAttachmentRef = {};
-		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	    VkAttachmentReference colorAttachmentRef = {};
+	    colorAttachmentRef.attachment = 0;
+	    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentDescription depthAttachment = {};
-		depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
-		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	    VkAttachmentDescription depthAttachment = {};
+	    depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
+	    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentReference depthAttachmentRef = {};
-		depthAttachmentRef.attachment = 1;
-		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	    VkAttachmentReference depthAttachmentRef = {};
+	    depthAttachmentRef.attachment = 1;
+	    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
-		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+	    VkSubpassDescription subpass = {};
+	    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	    subpass.colorAttachmentCount = 1;
+	    subpass.pColorAttachments = &colorAttachmentRef;
+	    subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
-		VkAttachmentDescription attachments[] = { colorAttachment, depthAttachment };
+	    VkAttachmentDescription attachments[] = { colorAttachment, depthAttachment };
 
-		VkRenderPassCreateInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 2;
-		renderPassInfo.pAttachments = attachments;
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
+	    VkRenderPassCreateInfo renderPassInfo = {};
+	    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	    renderPassInfo.attachmentCount = 2;
+	    renderPassInfo.pAttachments = attachments;
+	    renderPassInfo.subpassCount = 1;
+	    renderPassInfo.pSubpasses = &subpass;
 
-		if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create render pass!");
-			return false;
-		}
+	    if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
+	    {
+	        OUTPUT_ERROR("Vulkan: Unable to create render pass!");
+	        return false;
+	    }
 
-		if (_depthTexture.BuildDepth(extent.width, extent.height) == false)
-			return false;
+	    if (_depthTexture.BuildDepth(extent.width, extent.height) == false)
+	        return false;
 
-		// Image views
-		vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, nullptr);
+	    // Image views
+	    vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, nullptr);
 
-		Vector<VkImage> swapChainImages(imageCount);
-		vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, swapChainImages.data());
+	    Vector<VkImage> swapChainImages(imageCount);
+	    vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, swapChainImages.Data());
 
-		_swapChainImageViews.resize(imageCount, VK_NULL_HANDLE);
-		for (size_t i = 0; i < imageCount; ++i)
-		{
-			TransitionImageLayout(swapChainImages[i], VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	    _swapChainImageViews.Resize(imageCount, VK_NULL_HANDLE);
+	    for (size_t i = 0; i < imageCount; ++i)
+	    {
+	        TransitionImageLayout(swapChainImages[i], VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-			// TODO use CreateImageView here ?
+	        // TODO use CreateImageView here ?
 
-			VkImageViewCreateInfo imageCreateInfo = {};
-			imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			imageCreateInfo.image = swapChainImages[i];
-			imageCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			imageCreateInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
-			imageCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			imageCreateInfo.subresourceRange.baseMipLevel = 0;
-			imageCreateInfo.subresourceRange.levelCount = 1;
-			imageCreateInfo.subresourceRange.baseArrayLayer = 0;
-			imageCreateInfo.subresourceRange.layerCount = 1;
+	        VkImageViewCreateInfo imageCreateInfo = {};
+	        imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	        imageCreateInfo.image = swapChainImages[i];
+	        imageCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	        imageCreateInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
+	        imageCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	        imageCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	        imageCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	        imageCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+	        imageCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	        imageCreateInfo.subresourceRange.baseMipLevel = 0;
+	        imageCreateInfo.subresourceRange.levelCount = 1;
+	        imageCreateInfo.subresourceRange.baseArrayLayer = 0;
+	        imageCreateInfo.subresourceRange.layerCount = 1;
 
-			if (vkCreateImageView(_device, &imageCreateInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to create Image Views !");
-				return false;
-			}
-		}
+	        if (vkCreateImageView(_device, &imageCreateInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS)
+	        {
+	            OUTPUT_ERROR("Vulkan: Unable to create Image Views !");
+	            return false;
+	        }
+	    }
 
-		// Framebuffers
-		_swapChainFramebuffers.resize(imageCount);
-		for (size_t i = 0; i < imageCount; i++)
-		{
-			VkImageView attachments[] = {
-				_swapChainImageViews[i],
-				_depthTexture.GetTextureImageView()
-			};
+	    // Framebuffers
+	    _swapChainFramebuffers.Resize(imageCount);
+	    for (size_t i = 0; i < imageCount; i++)
+	    {
+	        VkImageView attachments[] = {
+	            _swapChainImageViews[i],
+	            _depthTexture.GetTextureImageView()
+	        };
 
-			VkFramebufferCreateInfo framebufferInfo = {};
-			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = _renderPass;
-			framebufferInfo.attachmentCount = 2;
-			framebufferInfo.pAttachments = attachments;
-			framebufferInfo.width = _swapChainExtent.width;
-			framebufferInfo.height = _swapChainExtent.height;
-			framebufferInfo.layers = 1;
+	        VkFramebufferCreateInfo framebufferInfo = {};
+	        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	        framebufferInfo.renderPass = _renderPass;
+	        framebufferInfo.attachmentCount = 2;
+	        framebufferInfo.pAttachments = attachments;
+	        framebufferInfo.width = _swapChainExtent.width;
+	        framebufferInfo.height = _swapChainExtent.height;
+	        framebufferInfo.layers = 1;
 
-			if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !");
-				return false;
-			}
-		}
+	        if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS)
+	        {
+	            OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !");
+	            return false;
+	        }
+	    }
 
-		return true;
+	    return true;
 	}
 	*/
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::CreateCommandPool()
 	{
@@ -1185,9 +1172,10 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererVulkan::CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
+	bool RendererVulkan::CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer,
+	                                  VkDeviceMemory* bufferMemory)
 	{
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -1232,9 +1220,10 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererVulkan::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory)
+	bool RendererVulkan::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+	                                 VkImage* image, VkDeviceMemory* imageMemory)
 	{
 		VkImageCreateInfo imageInfo = {};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -1288,7 +1277,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView)
 	{
@@ -1315,15 +1304,15 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::CreateSampler(VkSampler* sampler, const SamplerCreateInfo& createInfo)
 	{
 		*sampler = VK_NULL_HANDLE;
 
 		VkSamplerAddressMode addressMode = createInfo._wrapMode == WrapMode::Clamp ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE : VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		VkFilter filter = createInfo._filterMode == FilterMode::Linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
-		VkSamplerMipmapMode mipmapMode = createInfo._filterMode == FilterMode::Linear ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
+		VkFilter             filter = createInfo._filterMode == FilterMode::Linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
+		VkSamplerMipmapMode  mipmapMode = createInfo._filterMode == FilterMode::Linear ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
 
 		VkSamplerCreateInfo samplerInfo = {};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1353,7 +1342,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::BeginSingleTimeCommands(VkCommandBuffer* commandBuffer)
 	{
@@ -1366,7 +1355,9 @@ namespace hod::renderer
 		allocInfo.commandBufferCount = 1;
 
 		if (vkAllocateCommandBuffers(_device, &allocInfo, commandBuffer) != VK_SUCCESS)
+		{
 			return false;
+		}
 
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1382,25 +1373,31 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
 	{
-		bool ret = false;
+		bool         ret = false;
 		VkSubmitInfo submitInfo = {};
 
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+		{
 			goto exit;
+		}
 
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
 		if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+		{
 			goto exit;
+		}
 
 		if (vkQueueWaitIdle(_graphicsQueue) != VK_SUCCESS)
+		{
 			goto exit;
+		}
 
 		ret = true;
 
@@ -1411,13 +1408,13 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererVulkan::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+	bool RendererVulkan::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize Size)
 	{
 		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-		VkBufferCopy copyRegion = {};
-		copyRegion.size = size;
+		VkBufferCopy    copyRegion = {};
+		copyRegion.size = Size;
 
 		if (BeginSingleTimeCommands(&commandBuffer) == false)
 		{
@@ -1434,13 +1431,13 @@ namespace hod::renderer
 		return true;
 	}
 
-	/// @brief 
-	/// @param commandBuffer 
-	/// @param image 
-	/// @param aspectFlags 
-	/// @param oldLayout 
-	/// @param newLayout 
-	/// @return 
+	/// @brief
+	/// @param commandBuffer
+	/// @param image
+	/// @param aspectFlags
+	/// @param oldLayout
+	/// @param newLayout
+	/// @return
 	bool RendererVulkan::TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
 	{
 		VkImageMemoryBarrier barrier = {};
@@ -1537,24 +1534,17 @@ namespace hod::renderer
 			return false;
 		}
 
-		vkCmdPipelineBarrier(
-			commandBuffer,
-			sourceStage, destinationStage,
-			0,
-			0, nullptr,
-			0, nullptr,
-			1, &barrier
-		);
+		vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
 		return true;
 	}
 
-	/// @brief 
-	/// @param image 
-	/// @param aspectFlags 
-	/// @param oldLayout 
-	/// @param newLayout 
-	/// @return 
+	/// @brief
+	/// @param image
+	/// @param aspectFlags
+	/// @param oldLayout
+	/// @param newLayout
+	/// @return
 	bool RendererVulkan::TransitionImageLayoutImmediate(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
 	{
 		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
@@ -1575,7 +1565,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
 	{
@@ -1594,8 +1584,8 @@ namespace hod::renderer
 		region.imageSubresource.mipLevel = 0;
 		region.imageSubresource.baseArrayLayer = 0;
 		region.imageSubresource.layerCount = 1;
-		region.imageOffset = { 0, 0, 0 };
-		region.imageExtent = { width, height, 1 };
+		region.imageOffset = {0, 0, 0};
+		region.imageExtent = {width, height, 1};
 
 		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
@@ -1608,7 +1598,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::CopyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height)
 	{
@@ -1628,7 +1618,7 @@ namespace hod::renderer
 		region.imageSubresource.baseArrayLayer = 0;
 		region.imageSubresource.layerCount = 1;
 		region.imageOffset = {0, 0, 0};
-		region.imageExtent = { width, height, 1};
+		region.imageExtent = {width, height, 1};
 
 		vkCmdCopyImageToBuffer(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer, 1, &region);
 
@@ -1641,7 +1631,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererVulkan::FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex)
 	{
@@ -1657,14 +1647,15 @@ namespace hod::renderer
 		return false;
 	}
 
-	/// @brief 
-	/// @param commandBuffers 
-	/// @param commandBufferCount 
-	/// @param signalSemaphore 
-	/// @param waitSemaphore 
-	/// @param fence 
-	/// @return 
-	bool RendererVulkan::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore, const Fence* fence)
+	/// @brief
+	/// @param commandBuffers
+	/// @param commandBufferCount
+	/// @param signalSemaphore
+	/// @param waitSemaphore
+	/// @param fence
+	/// @return
+	bool RendererVulkan::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore,
+	                                          const Fence* fence)
 	{
 		Vector<VkCommandBuffer> vkCommandBuffers(commandBufferCount);
 		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
@@ -1674,7 +1665,7 @@ namespace hod::renderer
 
 		VkSemaphore vkSignalSemaphore = VK_NULL_HANDLE;
 		VkSemaphore vkWaitSemaphore = VK_NULL_HANDLE;
-		VkFence vkFence = VK_NULL_HANDLE;
+		VkFence     vkFence = VK_NULL_HANDLE;
 		if (fence != nullptr)
 		{
 			vkFence = static_cast<const FenceVk*>(fence)->GetVkFence();
@@ -1708,9 +1699,9 @@ namespace hod::renderer
 			submitInfo.pWaitSemaphores = nullptr;
 			submitInfo.pWaitDstStageMask = nullptr;
 		}
-		
-		submitInfo.commandBufferCount = static_cast<uint32_t>(vkCommandBuffers.size());
-		submitInfo.pCommandBuffers = vkCommandBuffers.data();
+
+		submitInfo.commandBufferCount = static_cast<uint32_t>(vkCommandBuffers.Size());
+		submitInfo.pCommandBuffers = vkCommandBuffers.Data();
 
 		if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, vkFence) != VK_SUCCESS)
 		{
@@ -1722,7 +1713,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	Shader* RendererVulkan::CreateShader(Shader::ShaderType type)
 	{
@@ -1730,9 +1721,10 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
-	Material* RendererVulkan::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+	Material* RendererVulkan::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+	                                         Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 	{
 		VkMaterial* mat = DefaultAllocator::GetInstance().New<VkMaterial>();
 
@@ -1746,7 +1738,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	MaterialInstance* RendererVulkan::CreateMaterialInstance(const Material* material)
 	{
@@ -1760,7 +1752,7 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	CommandBuffer* RendererVulkan::CreateCommandBuffer()
 	{
@@ -1768,15 +1760,15 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
-	Buffer* RendererVulkan::CreateBuffer(Buffer::Usage usage, uint32_t size)
+	Buffer* RendererVulkan::CreateBuffer(Buffer::Usage usage, uint32_t Size)
 	{
-		return DefaultAllocator::GetInstance().New<BufferVk>(usage, size);
+		return DefaultAllocator::GetInstance().New<BufferVk>(usage, Size);
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	Texture* RendererVulkan::CreateTexture()
 	{
@@ -1784,22 +1776,22 @@ namespace hod::renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	RenderTarget* RendererVulkan::CreateRenderTarget()
 	{
 		return DefaultAllocator::GetInstance().New<VkRenderTarget>();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Semaphore* RendererVulkan::CreateSemaphore()
 	{
 		return DefaultAllocator::GetInstance().New<SemaphoreVk>();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Fence* RendererVulkan::CreateFence()
 	{
 		return DefaultAllocator::GetInstance().New<FenceVk>();
