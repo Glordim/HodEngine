@@ -885,93 +885,8 @@ namespace hod
 	template<typename __TYPE__>
 	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Insert(ConstIterator iterator, const __TYPE__& value)
 	{
-		if (_size < _capacity)
-		{
-			if (iterator._ptr < _elements + _size)
-			{
-				New(&_elements[_size], std::move(_elements[_size - 1]));
-
-				for (__TYPE__* element = &_elements[_size - 1]; element > iterator._ptr; --element)
-				{
-					*element = std::move(*(element - 1));
-				}
-
-				(_elements + (iterator._ptr - _elements))->~__TYPE__();
-			}
-
-			New(_elements + (iterator._ptr - _elements), value);
-			++_size;
-
-			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
-		}
-		else
-		{
-			if (_elements == nullptr)
-			{
-				assert(iterator._ptr == nullptr);
-
-				_capacity = 1;
-				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-				New(&_elements[_size], std::move(value));
-				++_size;
-
-				return Iterator(_elements);
-			}
-			else
-			{
-				assert(iterator._ptr <= _elements + _size);
-
-				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					__TYPE__* newElements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
-					__TYPE__* newElement = newElements;
-
-					for (__TYPE__* element = _elements; element < iterator._ptr; ++element)
-					{
-						New(newElement, std::move(*element));
-						++newElement;
-						element->~__TYPE__();
-					}
-
-					__TYPE__* pFirstElement = newElement;
-					New(newElement, value);
-					++newElement;
-
-					for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size; ++element)
-					{
-						New(newElement, std::move(*element));
-						++newElement;
-						element->~__TYPE__();
-					}
-
-					++_size;
-
-					_allocator->Free(_elements);
-
-					_elements = newElements;
-					_capacity = _capacity * 2;
-
-					return Iterator(pFirstElement);
-				}
-				else
-				{
-					for (__TYPE__* element = _elements + _size; element > iterator._ptr; --element)
-					{
-						New(element, std::move(*(element - 1)));
-						(element - 1)->~__TYPE__();
-					}
-
-					__TYPE__* newElement = const_cast<__TYPE__*>(iterator._ptr);
-					New(newElement, value);
-
-					++_size;
-					_capacity = _capacity * 2;
-
-					return Iterator(newElement);
-				}
-			}
-		}
+		uint32_t index = iterator._ptr - _elements;
+		return Begin() + Insert(index, value);
 	}
 
 	template<typename __TYPE__>
@@ -1022,94 +937,8 @@ namespace hod
 	template<typename __TYPE__>
 	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Insert(ConstIterator iterator, __TYPE__&& value)
 	{
-		if (_size < _capacity)
-		{
-			assert(iterator._ptr <= _elements + _size);
-
-			if (iterator._ptr < _elements + _size)
-			{
-				New(&_elements[_size], std::move(_elements[_size - 1]));
-
-				for (__TYPE__* element = _elements + _size - 1; element > iterator._ptr; --element)
-				{
-					*element = std::move(*(element - 1));
-				}
-
-				(_elements + (iterator._ptr - _elements))->~__TYPE__();
-			}
-
-			New(_elements + (iterator._ptr - _elements), std::move(value));
-			++_size;
-
-			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
-		}
-		else
-		{
-			if (_elements == nullptr)
-			{
-				assert(iterator._ptr == nullptr);
-
-				_capacity = 1;
-				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-				New(&_elements[_size], std::move(value));
-				++_size;
-
-				return Iterator(_elements);
-			}
-			else
-			{
-				if (!_allocator->Reallocate(_elements, _capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)))
-				{
-					assert(iterator._ptr <= _elements + _size);
-
-					__TYPE__* newElements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * 2 * sizeof(__TYPE__), alignof(__TYPE__)));
-					__TYPE__* newElement = newElements;
-					for (__TYPE__* element = _elements; element < iterator._ptr; ++element)
-					{
-						New(newElement, std::move(*element));
-						++newElement;
-						element->~__TYPE__();
-					}
-
-					__TYPE__* pFirstElement = newElement;
-					New(newElement, std::move(value));
-					++newElement;
-
-					for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size; ++element)
-					{
-						New(newElement, std::move(*element));
-						++newElement;
-						element->~__TYPE__();
-					}
-
-					++_size;
-
-					_allocator->Free(_elements);
-
-					_elements = newElements;
-					_capacity = _capacity * 2;
-
-					return Iterator(pFirstElement);
-				}
-				else
-				{
-					for (__TYPE__* element = _elements + _size; element > iterator._ptr; --element)
-					{
-						New(element, std::move(*(element - 1)));
-						(element - 1)->~__TYPE__();
-					}
-
-					__TYPE__* newElement = const_cast<__TYPE__*>(iterator._ptr);
-					New(newElement, std::move(value));
-
-					++_size;
-					_capacity = _capacity * 2;
-
-					return Iterator(newElement);
-				}
-			}
-		}
+		uint32_t index = iterator._ptr - _elements;
+		return Begin() + Insert(index, std::move(value));
 	}
 
 	template<typename __TYPE__>
@@ -1159,165 +988,59 @@ namespace hod
 		static_assert(!(std::is_same_v<__ITERATOR__, ReverseIterator> || std::is_same_v<__ITERATOR__, ConstReverseIterator>),
 		              "Insert Range with reverse iterators is not supported");
 
-		if (first == last)
-		{
-			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
-		}
-		uint32_t elementToInsertCount = static_cast<uint32_t>(*last - *first);
-		if (_size + elementToInsertCount <= _capacity)
-		{
-			for (__TYPE__* element = _elements + _size - 1; element >= iterator._ptr; --element)
-			{
-				New(element + elementToInsertCount, std::move(*element));
-				element->~__TYPE__();
-			}
-			for (__TYPE__* element = const_cast<__TYPE__*>(iterator._ptr); element < iterator._ptr + elementToInsertCount; ++element)
-			{
-				New(element, *first);
-				++first;
-			}
-			_size += elementToInsertCount;
-
-			return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
-		}
-		else
-		{
-			if (_elements == nullptr)
-			{
-				assert(iterator._ptr == nullptr);
-
-				_capacity = _size + elementToInsertCount; // Should be better to set capacity to a power of two ?
-				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-				__TYPE__*    elements = _elements;
-				__ITERATOR__ it = first;
-				while (it != last)
-				{
-					New(elements, std::move(*it));
-					++elements;
-					++it;
-				}
-				_size += elementToInsertCount;
-
-				return Iterator(_elements);
-			}
-			else
-			{
-				assert(iterator._ptr <= _elements + _size);
-
-				__TYPE__* newElements = reinterpret_cast<__TYPE__*>(
-					_allocator->Allocate((_size + elementToInsertCount) * sizeof(__TYPE__), alignof(__TYPE__))); // Should be better to set capacity to a power of two ?
-				__TYPE__* newElement = newElements;
-				for (__TYPE__* element = _elements; element < iterator._ptr; ++element)
-				{
-					New(newElement, std::move(*element));
-					++newElement;
-					element->~__TYPE__();
-				}
-				__TYPE__* pFirstElement = newElement;
-				for (__TYPE__* element = const_cast<__TYPE__*>(first.element); element < last.element; ++element)
-				{
-					New(newElement, std::move(*element));
-					++newElement;
-				}
-				for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size; ++element)
-				{
-					New(newElement, std::move(*element));
-					++newElement;
-					element->~__TYPE__();
-				}
-
-				_allocator->Free(_elements);
-
-				_elements = newElements;
-				_size += elementToInsertCount;
-				_capacity = _size;
-
-				return Iterator(pFirstElement);
-			}
-		}
+		uint32_t index = iterator._ptr - _elements;
+		return Begin() + Insert(index, first, last);
 	}
 
 	template<typename __TYPE__>
 	template<typename __ITERATOR__>
 	uint32_t Vector<__TYPE__>::Insert(uint32_t index, __ITERATOR__ first, __ITERATOR__ last)
 	{
-		static_assert(!(std::is_same_v<__ITERATOR__, ReverseIterator> || std::is_same_v<__ITERATOR__, ConstReverseIterator>),
-		              "Insert Range with reverse iterators is not supported");
+		assert(index <= _size);
 
-		if (first == last)
+		uint32_t elementToInsertCount = std::distance(first, last);
+		if (elementToInsertCount == 0)
 		{
 			return index;
 		}
-		uint32_t elementToInsertCount = static_cast<uint32_t>(last.element - first.element);
-		if (_size + elementToInsertCount <= _capacity)
-		{
-			for (__TYPE__* element = _elements + _size - 1; element >= _elements + index; --element)
-			{
-				New(element + elementToInsertCount, std::move(*element));
-				element->~__TYPE__();
-			}
-			for (__TYPE__* element = _elements + index; element < _elements + index + elementToInsertCount; ++element)
-			{
-				New(element, *first.element);
-				++first;
-			}
-			_size += elementToInsertCount;
 
-			return index;
-		}
-		else
+		if (_size + elementToInsertCount > _capacity)
 		{
 			if (_elements == nullptr)
 			{
-				assert(index == 0);
-
-				_capacity = _size + elementToInsertCount; // Should be better to set capacity to a power of two ?
+				_capacity = elementToInsertCount;
 				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-				__TYPE__* elements = _elements;
-				for (__TYPE__* element = const_cast<__TYPE__*>(first.element); element < last.element; ++element)
-				{
-					New(elements, std::move(*element));
-					++elements;
-				}
-				_size += elementToInsertCount;
-
-				return 0;
 			}
 			else
 			{
-				assert(_elements + index <= _elements + _size);
-
-				__TYPE__* newElements = reinterpret_cast<__TYPE__*>(
-					_allocator->Allocate((_size + elementToInsertCount) * sizeof(__TYPE__), alignof(__TYPE__))); // Should be better to set capacity to a power of two ?
-				__TYPE__* newElement = newElements;
-				for (__TYPE__* element = _elements; element < _elements + index; ++element)
+				uint32_t newCapacity = _capacity * 2;
+				while (newCapacity < _size + elementToInsertCount)
 				{
-					New(newElement, std::move(*element));
-					++newElement;
-					element->~__TYPE__();
+					newCapacity *= 2;
 				}
-				__TYPE__* pFirstElement = newElement;
-				for (__TYPE__* element = const_cast<__TYPE__*>(first.element); element < last.element; ++element)
-				{
-					New(newElement, std::move(*element));
-					++newElement;
-				}
-				for (__TYPE__* element = _elements + index; element < _elements + _size; ++element)
-				{
-					New(newElement, std::move(*element));
-					++newElement;
-					element->~__TYPE__();
-				}
-
-				_allocator->Free(_elements);
-
-				_elements = newElements;
-				_size += elementToInsertCount;
-				_capacity = _size;
-
-				return static_cast<uint32_t>(pFirstElement - _elements);
+				ReallocateAndMove(newCapacity, index, elementToInsertCount);
 			}
 		}
+		else
+		{
+			Move(index, elementToInsertCount);
+		}
+
+		if constexpr (std::is_trivially_copyable_v<__TYPE__> && std::contiguous_iterator<__ITERATOR__>)
+		{
+			std::memcpy(_elements + index, std::to_address(first), elementToInsertCount * sizeof(__TYPE__));
+		}
+		else
+		{
+			__ITERATOR__ it = first;
+			for (uint32_t i = 0; i < elementToInsertCount; ++i, ++it)
+			{
+				New(&_elements[index + i], __TYPE__(*it));
+			}
+		}
+		_size += elementToInsertCount;
+
+		return index + elementToInsertCount;
 	}
 
 	template<typename __TYPE__>
