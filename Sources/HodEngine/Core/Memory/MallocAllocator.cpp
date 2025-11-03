@@ -28,6 +28,11 @@ namespace hod
 #endif
 	}
 
+	bool MallocAllocator::ResizeInternal(void* ptr, uint32_t newSize, uint32_t alignment)
+	{
+		return false;
+	}
+
 	void MallocAllocator::FreeInternal(void* ptr)
 	{
 #if PLATFORM_WINDOWS

@@ -10,6 +10,7 @@ namespace hod
 	public:
 		void* AllocateInternal(uint32_t size, uint32_t alignment) override;
 		void* ReallocateInternal(void* ptr, uint32_t newSize, uint32_t alignment) override;
+		bool  ResizeInternal(void* ptr, uint32_t newSize, uint32_t alignment) override;
 		void  FreeInternal(void* ptr) override;
 	};
 }

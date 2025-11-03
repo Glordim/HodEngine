@@ -89,6 +89,11 @@ namespace hod
 		return nullptr; // todo
 	}
 
+	bool MemLeakDetectorAllocator::ResizeInternal(void* ptr, uint32_t newSize, uint32_t alignment)
+	{
+		return false;
+	}
+
 	/// @brief
 	/// @param userAddress
 	void MemLeakDetectorAllocator::FreeInternal(void* userAddress)

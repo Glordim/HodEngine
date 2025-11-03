@@ -29,6 +29,9 @@ namespace hod
 		[[nodiscard]] void* Reallocate(void* ptr, uint32_t newSize);
 		[[nodiscard]] void* Reallocate(void* ptr, uint32_t newSize, uint32_t alignment);
 
+		[[nodiscard]] bool Resize(void* ptr, uint32_t newSize);
+		[[nodiscard]] bool Resize(void* ptr, uint32_t newSize, uint32_t alignment);
+
 		void Free(void* ptr);
 
 		// Optional helper to avoid static_cast
@@ -60,6 +63,7 @@ namespace hod
 	protected:
 		virtual void* AllocateInternal(uint32_t size, uint32_t alignment) = 0;
 		virtual void* ReallocateInternal(void* ptr, uint32_t newSize, uint32_t alignment) = 0;
+		virtual bool  ResizeInternal(void* ptr, uint32_t newSize, uint32_t alignment) = 0;
 		virtual void  FreeInternal(void* ptr) = 0;
 	};
 
@@ -93,6 +97,18 @@ namespace hod
 		void* allocation = ReallocateInternal(ptr, newSize, alignment);
 		assert((reinterpret_cast<uintptr_t>(allocation) % alignment) == 0);
 		return allocation;
+	}
+
+	inline bool Allocator::Resize(void* ptr, uint32_t newSize)
+	{
+		uint32_t alignment = alignof(std::max_align_t);
+		return ResizeInternal(ptr, newSize, alignment);
+	}
+
+	inline bool Allocator::Resize(void* ptr, uint32_t newSize, uint32_t alignment)
+	{
+		alignment = std::max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
+		return ResizeInternal(ptr, newSize, alignment);
 	}
 
 	inline void Allocator::Free(void* ptr)

@@ -1570,7 +1570,7 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::Reallocate(uint32_t capacity)
 	{
-		if (_allocator->Reallocate(_elements, capacity * sizeof(__TYPE__), alignof(__TYPE__)) == false)
+		if (_allocator->Resize(_elements, capacity * sizeof(__TYPE__), alignof(__TYPE__)) == false)
 		{
 			__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(capacity * sizeof(__TYPE__), alignof(__TYPE__)));
 
@@ -1596,7 +1596,7 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::ReallocateAndMove(uint32_t capacity, uint32_t moveIndex, uint32_t moveLen)
 	{
-		if (_allocator->Reallocate(_elements, capacity * sizeof(__TYPE__), alignof(__TYPE__)) == false)
+		if (_allocator->Resize(_elements, capacity * sizeof(__TYPE__), alignof(__TYPE__)) == false)
 		{
 			__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(capacity * sizeof(__TYPE__), alignof(__TYPE__)));
 

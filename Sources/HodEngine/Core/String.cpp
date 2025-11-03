@@ -382,7 +382,7 @@ namespace hod
 					}
 					else
 					{
-						if (!_allocator->Reallocate(_large._buffer, capacity + 1))
+						if (_allocator->Resize(_large._buffer, capacity + 1) == false)
 						{
 							char* pNewBuffer = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
 							std::memcpy(pNewBuffer, _large._buffer, _size + 1);                        // +1 to copy the '\0' from the end of the source string
