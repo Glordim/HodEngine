@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 #include <HodEngine/Core/Weakable/Weakable.hpp>
 #include <HodEngine/Core/Weakable/WeakPtr.hpp>
 
@@ -16,7 +17,7 @@ namespace hod
 		WeakPtr<MyWeakable> weakPtrDefault;
 		EXPECT_EQ(weakPtrDefault.Get(), nullptr);
 
-		MyWeakable weakable;
+		MyWeakable          weakable;
 		WeakPtr<MyWeakable> weakPtrA(weakable);
 		EXPECT_EQ(weakPtrA.Get(), &weakable);
 
@@ -45,7 +46,7 @@ namespace hod
 
 	TEST(Weakable, Reassign)
 	{
-		MyWeakable weakableA;
+		MyWeakable          weakableA;
 		WeakPtr<MyWeakable> weakPtrA(&weakableA);
 		EXPECT_EQ(weakPtrA.Get(), &weakableA);
 

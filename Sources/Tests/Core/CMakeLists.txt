@@ -22,28 +22,20 @@ assign_source_group(${Srcs}) # for VS
 add_executable(TestsCore ${Srcs} ${Includes})
 set_property(TARGET TestsCore PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-#add_dependencies(HodEngine-Application Core DebugLayer ImGui Physics Application Renderer Game)
-#add_dependencies(HodEngine-Editor Core DebugLayer ImGui Physics Application Renderer Game)
-
-#add_executable(HodEngine-Application ${Srcs})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TestsCore)
-#set_property(TARGET HodEngine-Application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "../Data")
-#add_dependencies(HodEngine-Application Core DebugLayer ImGui Physics Application Renderer Game)
-
-#set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
-#find_package(Glm REQUIRED)
-#find_package(Vulkan REQUIRED)
 
 add_dependencies(TestsCore Core)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-	"../.."
+target_include_directories(TestsCore
+	PRIVATE
+		"../.."
 )
 
 target_link_libraries(TestsCore
-	Core
-	GTest::gtest
-	GTest::gtest_main
+	PRIVATE
+		Core
+		Gtest::Gtest
+		GtestMain::GtestMain
 )
 
 target_compile_definitions(TestsCore PUBLIC ${PLATFORM_DEFINE})

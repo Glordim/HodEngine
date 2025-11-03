@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(Hod) # Rename
 
-option(ENABLE_UNITY_BUILD "Enable Unity Build for faster compilation" ON)
+option(ENABLE_UNITY_BUILD "Enable Unity Build for faster compilation" OFF)
 if (ENABLE_UNITY_BUILD)
     set(CMAKE_UNITY_BUILD ON)
 endif()
@@ -90,6 +90,17 @@ set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
     INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
+add_library(Gtest::Gtest STATIC IMPORTED GLOBAL)
+set_target_properties(Gtest::Gtest PROPERTIES
+    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}gtest.${LIB_EXTENSION}"
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/Gtest"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/Gtest"
+)
+add_library(GtestMain::GtestMain STATIC IMPORTED GLOBAL)
+set_target_properties(GtestMain::GtestMain PROPERTIES
+    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}gtest_main.${LIB_EXTENSION}"
+)
+
 if(WIN32)
 set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc.exe")
 set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang.${DLL_EXTENSION}")
@@ -106,23 +117,8 @@ SetupCompilation()
 option(BUILD_UNIT_TESTS "Enable UnitTests compilation" ON)
 if (BUILD_UNIT_TESTS)
   include(CTest)
-  include(FetchContent)
-  FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-  )
-  #For Windows: Prevent overriding the parent project's compiler/linker settings
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-  FetchContent_MakeAvailable(googletest)
-
   enable_testing()
   add_subdirectory("Sources/Tests/Core")
-
-  set_target_properties(gtest      PROPERTIES FOLDER "Test/GoogleTest")
-  set_target_properties(gmock      PROPERTIES FOLDER "Test/GoogleTest")
-  set_target_properties(gtest_main PROPERTIES FOLDER "Test/GoogleTest")
-  set_target_properties(gmock_main PROPERTIES FOLDER "Test/GoogleTest")
 
   set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
 endif()
