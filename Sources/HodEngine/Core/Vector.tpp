@@ -115,7 +115,7 @@ namespace hod
 	template<typename __ITER_TYPE__>
 	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__> Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator+(difference_type offset) const
 	{
-		return Vector<__TYPE__>::IteratorBase(_ptr + offset); // TODO : Check bound if macro defined
+		return typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>(_ptr + offset); // TODO : Check bound if macro defined
 	}
 
 	/// @brief
@@ -126,7 +126,7 @@ namespace hod
 	template<typename __ITER_TYPE__>
 	typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__> Vector<__TYPE__>::IteratorBase<__ITER_TYPE__>::operator-(difference_type offset) const
 	{
-		return Vector<__TYPE__>::IteratorBase(_ptr - offset); // TODO : Check bound if macro defined
+		return typename Vector<__TYPE__>::template IteratorBase<__ITER_TYPE__>(_ptr - offset); // TODO : Check bound if macro defined
 	}
 
 	/// @brief
@@ -911,7 +911,7 @@ namespace hod
 			Move(index, 1);
 		}
 
-		New(&_elements[_size], value);
+		New(&_elements[index], value);
 		++_size;
 
 		return index;
@@ -963,7 +963,7 @@ namespace hod
 			Move(index, 1);
 		}
 
-		New(&_elements[_size], std::move(value));
+		New(&_elements[index], std::move(value));
 		++_size;
 
 		return index;
@@ -1372,23 +1372,23 @@ namespace hod
 			return Iterator(const_cast<typename Iterator::pointer>(last._ptr));
 		}
 
-		uint32_t  uiNewSize = _size - static_cast<uint32_t>(last.ele_ptrment - first._ptr);
-		__TYPE__* pFirst = _elements + (first._ptr - _elements);
+		uint32_t  newSize = _size - static_cast<uint32_t>(last._ptr - first._ptr);
+		__TYPE__* firstPtr = _elements + (first._ptr - _elements);
 
 		for (__TYPE__* element = _elements + (last._ptr - _elements); element < _elements + _size; ++element)
 		{
-			*(pFirst) = std::move(*element);
-			++pFirst;
+			*(firstPtr) = std::move(*element);
+			++firstPtr;
 		}
 
-		for (__TYPE__* element = pFirst; element < _elements + _size; ++element)
+		for (__TYPE__* element = firstPtr; element < _elements + _size; ++element)
 		{
 			element->~__TYPE__();
 		}
 
-		_size = uiNewSize;
+		_size = newSize;
 
-		return Iterator(const_cast<typename Iterator::pointer>(first.element));
+		return Iterator(const_cast<typename Iterator::pointer>(first._ptr));
 	}
 
 	template<typename __TYPE__>
@@ -1401,21 +1401,21 @@ namespace hod
 			return index;
 		}
 
-		uint32_t  uiNewSize = _size - count;
-		__TYPE__* pFirst = _elements + index;
+		uint32_t  newSize = _size - count;
+		__TYPE__* firstPtr = _elements + index;
 
 		for (__TYPE__* element = _elements + index + count; element < _elements + _size; ++element)
 		{
-			*(pFirst) = std::move(*element);
-			++pFirst;
+			*(firstPtr) = std::move(*element);
+			++firstPtr;
 		}
 
-		for (__TYPE__* element = pFirst; element < _elements + _size; ++element)
+		for (__TYPE__* element = firstPtr; element < _elements + _size; ++element)
 		{
 			element->~__TYPE__();
 		}
 
-		_size = uiNewSize;
+		_size = newSize;
 
 		return index;
 	}
@@ -1460,11 +1460,11 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::Swap(ConstIterator itFirst, ConstIterator itSecond)
 	{
-		assert((itFirst.element < _elements + _size) && (itSecond.element < _elements + _size));
+		assert((itFirst._ptr < _elements + _size) && (itSecond._ptr < _elements + _size));
 
-		__TYPE__ value(std::move(const_cast<__TYPE__&>(*itFirst.element)));
-		*(_elements + (itFirst.element - _elements)) = std::move(*const_cast<__TYPE__*>(itSecond.element));
-		*(_elements + (itSecond.element - _elements)) = std::move(value);
+		__TYPE__ value(std::move(const_cast<__TYPE__&>(*itFirst._ptr)));
+		*(_elements + (itFirst._ptr - _elements)) = std::move(*const_cast<__TYPE__*>(itSecond._ptr));
+		*(_elements + (itSecond._ptr - _elements)) = std::move(value);
 	}
 
 	template<typename __TYPE__>
@@ -1598,7 +1598,7 @@ namespace hod
 	{
 		if (_allocator->Resize(_elements, capacity * sizeof(__TYPE__), alignof(__TYPE__)) == false)
 		{
-			__TYPE__* elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(capacity * sizeof(__TYPE__), alignof(__TYPE__)));
+			__TYPE__* elements = static_cast<__TYPE__*>(_allocator->Allocate(capacity * sizeof(__TYPE__), alignof(__TYPE__)));
 
 			if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 			{
@@ -1618,23 +1618,9 @@ namespace hod
 					New(&elements[index + moveLen], std::move(_elements[index]));
 					_elements[index].~__TYPE__();
 				}
-
-				_allocator->Free(_elements);
-				_elements = elements;
 			}
-
-			if constexpr (std::is_trivially_copyable_v<__TYPE__>)
-			{
-				std::memcpy(elements, _elements, _size * sizeof(__TYPE__));
-			}
-			else
-			{
-				for (uint32_t index = 0; index < _size; ++index)
-				{
-					New(&elements[index], std::move(_elements[index]));
-					_elements[index].~__TYPE__();
-				}
-			}
+			_allocator->Free(_elements);
+			_elements = elements;
 		}
 		else
 		{
