@@ -358,7 +358,8 @@ namespace hod::renderer
 			return false;
 		}
 
-		VkPresentInfoKHR presentInfo = {};
+		Vector<VkSemaphore> waitSemaphores;
+		VkPresentInfoKHR    presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		if (_semaphoresToSwapBuffer.Empty())
 		{
@@ -367,7 +368,6 @@ namespace hod::renderer
 		}
 		else
 		{
-			Vector<VkSemaphore> waitSemaphores;
 			waitSemaphores.Reserve(_semaphoresToSwapBuffer.Size());
 			for (const Semaphore* semaphore : _semaphoresToSwapBuffer)
 			{
