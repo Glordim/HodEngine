@@ -2,14 +2,18 @@
 #include "HodEngine/Input/API/XInput/ApiXInput.hpp"
 #include "HodEngine/Input/API/XInput/GamepadXInput.hpp"
 
+#include <Windows.h>
+#include <Xinput.h>
+
 namespace hod::input
 {
-	/// @brief 
-	ApiXInput::ApiXInput() : Api("XInput")
+	/// @brief
+	ApiXInput::ApiXInput()
+	: Api("XInput")
 	{
 	}
 
-	/// @brief 
+	/// @brief
 	ApiXInput::~ApiXInput()
 	{
 		for (GamepadXInput* device : _pads)
@@ -31,8 +35,8 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool ApiXInput::Initialize()
 	{
 		_hInstance = LoadLibrary(TEXT("xinput1_4.dll"));
@@ -65,7 +69,7 @@ namespace hod::input
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void ApiXInput::UpdateDeviceValues()
 	{
 		for (GamepadXInput* xboxPad : _pads)
@@ -77,37 +81,37 @@ namespace hod::input
 				xboxPad->WriteState(state);
 				xboxPad->UpdateState();
 			}
-/*
-			bool wasConnected = xboxPad->IsConnected();
-			bool isConnected = xboxPad->Update();
-			if (wasConnected != isConnected)
-			{
-				if (isConnected == true)
-				{
-					Api::NotifyDeviceConnected(xboxPad);
-				}
-				else
-				{
-					Api::NotifyDeviceDisconnected(xboxPad);
-				}
-			}
-				*/
+			/*
+			            bool wasConnected = xboxPad->IsConnected();
+			            bool isConnected = xboxPad->Update();
+			            if (wasConnected != isConnected)
+			            {
+			                if (isConnected == true)
+			                {
+			                    Api::NotifyDeviceConnected(xboxPad);
+			                }
+			                else
+			                {
+			                    Api::NotifyDeviceDisconnected(xboxPad);
+			                }
+			            }
+			                */
 		}
 	}
 
-	/// @brief 
-	/// @param padIndex 
-	/// @param state 
-	/// @return 
+	/// @brief
+	/// @param padIndex
+	/// @param state
+	/// @return
 	bool ApiXInput::GetPadState(uint32_t padIndex, XINPUT_STATE* state) const
 	{
 		return _getStateProc(padIndex, state) == ERROR_SUCCESS;
 	}
 
-	/// @brief 
-	/// @param padIndex 
-	/// @param vibration 
-	/// @return 
+	/// @brief
+	/// @param padIndex
+	/// @param vibration
+	/// @return
 	bool ApiXInput::SetPadState(uint32_t padIndex, XINPUT_VIBRATION* vibration) const
 	{
 		return _setStateProc(padIndex, vibration) == ERROR_SUCCESS;

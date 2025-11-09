@@ -1,11 +1,13 @@
-#include <limits>
 #include <array>
+#include <limits>
 
 #include "HodEngine/Input/Pch.hpp"
+#include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Input/API/RawInput/KeyboardRawInput.hpp"
 #include "HodEngine/Input/InputIdHelper.hpp"
-#include "HodEngine/Input/Api.hpp"
-#include "HodEngine/Core/Type.hpp"
+
+#include <Windows.h>
 
 #undef max
 
@@ -20,179 +22,184 @@ namespace hod::input
 	*/
 	enum class WINDOWS_SCAN_CODE : USHORT
 	{
-		SC_ESCAPE				= 0x01,
-		SC_1					= 0x02,
-		SC_2					= 0x03,
-		SC_3					= 0x04,
-		SC_4					= 0x05,
-		SC_5					= 0x06,
-		SC_6					= 0x07,
-		SC_7					= 0x08,
-		SC_8					= 0x09,
-		SC_9					= 0x0A,
-		SC_0					= 0x0B,
-		SC_SUBSTRACT			= 0x0C,
-		SC_EQUAL				= 0x0D,
-		SC_BACKSPACE			= 0x0E,
-		SC_TAB					= 0x0F,
-		SC_Q					= 0x10,
-		SC_W					= 0x11,
-		SC_E					= 0x12,
-		SC_R					= 0x13,
-		SC_T					= 0x14,
-		SC_Y					= 0x15,
-		SC_U					= 0x16,
-		SC_I					= 0x17,
-		SC_O					= 0x18,
-		SC_P					= 0x19,
-		SC_LEFT_BRACKET			= 0x1A,
-		SC_RIGHT_BRACKET		= 0x1B,
-		SC_ENTER				= 0x1C,
-		SC_LEFT_CONTROL			= 0x1D,
-		SC_A					= 0x1E,
-		SC_S					= 0x1F,
-		SC_D					= 0x20,
-		SC_F					= 0x21,
-		SC_G					= 0x22,
-		SC_H					= 0x23,
-		SC_J					= 0x24,
-		SC_K					= 0x25,
-		SC_L					= 0x26,
-		SC_SEMICOLON			= 0x27,
-		SC_APOSTROPHE			= 0x28,
-		SC_TILDE				= 0x29,
-		SC_LEFT_SHIFT			= 0x2A,
-		SC_BACKSLASH			= 0x2B,
-		SC_Z					= 0x2C,
-		SC_X					= 0x2D,
-		SC_C					= 0x2E,
-		SC_V					= 0x2F,
-		SC_B					= 0x30,
-		SC_N					= 0x31,
-		SC_M					= 0x32,
-		SC_COMMA				= 0x33,
-		SC_PERIOD				= 0x34,
-		SC_SLASH				= 0x35,
-		SC_RIGHT_SHIFT			= 0x36,
-		SC_NUMPAD_MULTIPLY		= 0x37,
-		SC_LEFT_ALT				= 0x38,
-		SC_SPACE				= 0x39,
-		SC_CAPS_LOCK			= 0x3A,
-		SC_F1					= 0x3B,
-		SC_F2					= 0x3C,
-		SC_F3					= 0x3D,
-		SC_F4					= 0x3E,
-		SC_F5					= 0x3F,
-		SC_F6					= 0x40,
-		SC_F7					= 0x41,
-		SC_F8					= 0x42,
-		SC_F9					= 0x43,
-		SC_F10					= 0x44,
-		SC_NUM_LOCK				= 0x45,
-		SC_SCROLL_LOCK			= 0x46,
-		SC_NUMPAD_7				= 0x47,
-		SC_NUMPAD_8				= 0x48,
-		SC_NUMPAD_9				= 0x49,
-		SC_NUMPAD_SUBTRACT		= 0x4A,
-		SC_NUMPAD_4				= 0x4B,
-		SC_NUMPAD_5				= 0x4C,
-		SC_NUMPAD_6				= 0x4D,
-		SC_NUMPAD_ADD			= 0x4E,
-		SC_NUMPAD_1				= 0x4F,
-		SC_NUMPAD_2				= 0x50,
-		SC_NUMPAD_3				= 0x51,
-		SC_NUMPAD_0				= 0x52,
-		SC_NUMPAD_DECIMAL		= 0x53,
-		SC_SYS_RQ				= 0x54, /* Alt + print screen. MapVirtualKeyEx( VK_SNAPSHOT, MAPVK_VK_TO_VSC_EX, 0 ) returns scancode 0x54. */
-		SC_OEM_102				= 0x56, /* <> or \| on RT 102-key keyboard (Non-U.S.) */
-		SC_F11					= 0x57,
-		SC_F12					= 0x58,
-		SC_OEM_1				= 0x5a, /* VK_OEM_WSCTRL */
-		SC_OEM_2				= 0x5b, /* VK_OEM_FINISH */
-		SC_OEM_3				= 0x5c, /* VK_OEM_JUMP */
-		SC_ERASE_EOF			= 0x5d,
-		SC_OEM_4				= 0x5e, /* VK_OEM_BACKTAB */
-		SC_OEM_5				= 0x5f, /* VK_OEM_AUTO */
-		SC_ZOOM_FUNC			= 0x62,
-		SC_HELP					= 0x63,
-		SC_F13					= 0x64, /*                     (NEC PC98) */
-		SC_F14					= 0x65, /*                     (NEC PC98) */
-		SC_F15					= 0x66, /*                     (NEC PC98) */
-		SC_F16					= 0x67,
-		SC_F17					= 0x68,
-		SC_F18					= 0x69,
-		SC_F19					= 0x6a,
-		SC_F20					= 0x6b,
-		SC_F21					= 0x6c,
-		SC_F22					= 0x6d,
-		SC_F23					= 0x6e,
-		SC_OEM_6				= 0x6f, /* VK_OEM_PA3 */
-		SC_KATAKANA				= 0x70, /* (Japanese keyboard)            */
-		SC_OEM_7				= 0x71, /* VK_OEM_RESET */
-		SC_ABNT_C1				= 0x73, /* /? on Brazilian keyboard */
-		SC_F24					= 0x76,
-		SC_SBCSCHAR				= 0x77,
-		SC_CONVERT				= 0x79, /* (Japanese keyboard)            */
-		SC_NOCONVERT			= 0x7B, /* (Japanese keyboard)            */
+		SC_ESCAPE = 0x01,
+		SC_1 = 0x02,
+		SC_2 = 0x03,
+		SC_3 = 0x04,
+		SC_4 = 0x05,
+		SC_5 = 0x06,
+		SC_6 = 0x07,
+		SC_7 = 0x08,
+		SC_8 = 0x09,
+		SC_9 = 0x0A,
+		SC_0 = 0x0B,
+		SC_SUBSTRACT = 0x0C,
+		SC_EQUAL = 0x0D,
+		SC_BACKSPACE = 0x0E,
+		SC_TAB = 0x0F,
+		SC_Q = 0x10,
+		SC_W = 0x11,
+		SC_E = 0x12,
+		SC_R = 0x13,
+		SC_T = 0x14,
+		SC_Y = 0x15,
+		SC_U = 0x16,
+		SC_I = 0x17,
+		SC_O = 0x18,
+		SC_P = 0x19,
+		SC_LEFT_BRACKET = 0x1A,
+		SC_RIGHT_BRACKET = 0x1B,
+		SC_ENTER = 0x1C,
+		SC_LEFT_CONTROL = 0x1D,
+		SC_A = 0x1E,
+		SC_S = 0x1F,
+		SC_D = 0x20,
+		SC_F = 0x21,
+		SC_G = 0x22,
+		SC_H = 0x23,
+		SC_J = 0x24,
+		SC_K = 0x25,
+		SC_L = 0x26,
+		SC_SEMICOLON = 0x27,
+		SC_APOSTROPHE = 0x28,
+		SC_TILDE = 0x29,
+		SC_LEFT_SHIFT = 0x2A,
+		SC_BACKSLASH = 0x2B,
+		SC_Z = 0x2C,
+		SC_X = 0x2D,
+		SC_C = 0x2E,
+		SC_V = 0x2F,
+		SC_B = 0x30,
+		SC_N = 0x31,
+		SC_M = 0x32,
+		SC_COMMA = 0x33,
+		SC_PERIOD = 0x34,
+		SC_SLASH = 0x35,
+		SC_RIGHT_SHIFT = 0x36,
+		SC_NUMPAD_MULTIPLY = 0x37,
+		SC_LEFT_ALT = 0x38,
+		SC_SPACE = 0x39,
+		SC_CAPS_LOCK = 0x3A,
+		SC_F1 = 0x3B,
+		SC_F2 = 0x3C,
+		SC_F3 = 0x3D,
+		SC_F4 = 0x3E,
+		SC_F5 = 0x3F,
+		SC_F6 = 0x40,
+		SC_F7 = 0x41,
+		SC_F8 = 0x42,
+		SC_F9 = 0x43,
+		SC_F10 = 0x44,
+		SC_NUM_LOCK = 0x45,
+		SC_SCROLL_LOCK = 0x46,
+		SC_NUMPAD_7 = 0x47,
+		SC_NUMPAD_8 = 0x48,
+		SC_NUMPAD_9 = 0x49,
+		SC_NUMPAD_SUBTRACT = 0x4A,
+		SC_NUMPAD_4 = 0x4B,
+		SC_NUMPAD_5 = 0x4C,
+		SC_NUMPAD_6 = 0x4D,
+		SC_NUMPAD_ADD = 0x4E,
+		SC_NUMPAD_1 = 0x4F,
+		SC_NUMPAD_2 = 0x50,
+		SC_NUMPAD_3 = 0x51,
+		SC_NUMPAD_0 = 0x52,
+		SC_NUMPAD_DECIMAL = 0x53,
+		SC_SYS_RQ = 0x54,  /* Alt + print screen. MapVirtualKeyEx( VK_SNAPSHOT, MAPVK_VK_TO_VSC_EX, 0 ) returns scancode 0x54. */
+		SC_OEM_102 = 0x56, /* <> or \| on RT 102-key keyboard (Non-U.S.) */
+		SC_F11 = 0x57,
+		SC_F12 = 0x58,
+		SC_OEM_1 = 0x5a, /* VK_OEM_WSCTRL */
+		SC_OEM_2 = 0x5b, /* VK_OEM_FINISH */
+		SC_OEM_3 = 0x5c, /* VK_OEM_JUMP */
+		SC_ERASE_EOF = 0x5d,
+		SC_OEM_4 = 0x5e, /* VK_OEM_BACKTAB */
+		SC_OEM_5 = 0x5f, /* VK_OEM_AUTO */
+		SC_ZOOM_FUNC = 0x62,
+		SC_HELP = 0x63,
+		SC_F13 = 0x64, /*                     (NEC PC98) */
+		SC_F14 = 0x65, /*                     (NEC PC98) */
+		SC_F15 = 0x66, /*                     (NEC PC98) */
+		SC_F16 = 0x67,
+		SC_F17 = 0x68,
+		SC_F18 = 0x69,
+		SC_F19 = 0x6a,
+		SC_F20 = 0x6b,
+		SC_F21 = 0x6c,
+		SC_F22 = 0x6d,
+		SC_F23 = 0x6e,
+		SC_OEM_6 = 0x6f,    /* VK_OEM_PA3 */
+		SC_KATAKANA = 0x70, /* (Japanese keyboard)            */
+		SC_OEM_7 = 0x71,    /* VK_OEM_RESET */
+		SC_ABNT_C1 = 0x73,  /* /? on Brazilian keyboard */
+		SC_F24 = 0x76,
+		SC_SBCSCHAR = 0x77,
+		SC_CONVERT = 0x79,   /* (Japanese keyboard)            */
+		SC_NOCONVERT = 0x7B, /* (Japanese keyboard)            */
 
-		SC_MEDIA_PREVIOUS		= 0xE010,
-		SC_MEDIA_NEXT			= 0xE019,
-		SC_NUMPAD_ENTER			= 0xE01C,
-		SC_RIGHT_CONTROL		= 0xE01D,
-		SC_VOLUME_MUTE			= 0xE020,
-		SC_LAUCNH_APP_2			= 0xE021,
-		SC_MEDIA_PLAY			= 0xE022,
-		SC_MEDIA_STOP			= 0xE024,
-		SC_VOLUME_DOWN			= 0xE02E,
-		SC_VOLUME_UP			= 0xE030,
-		SC_BROWSER_HOME			= 0xE032,
-		SC_NUMPAD_DIVIDE		= 0xE035,
-		SC_PRINT_SCREEN			= 0xE037, /* make: 0xE02A 0xE037 break: 0xE0B7 0xE0AA MapVirtualKeyEx( VK_SNAPSHOT, MAPVK_VK_TO_VSC_EX, 0 ) returns scancode 0x54; - There is no VK_KEYDOWN with VK_SNAPSHOT.*/
+		SC_MEDIA_PREVIOUS = 0xE010,
+		SC_MEDIA_NEXT = 0xE019,
+		SC_NUMPAD_ENTER = 0xE01C,
+		SC_RIGHT_CONTROL = 0xE01D,
+		SC_VOLUME_MUTE = 0xE020,
+		SC_LAUCNH_APP_2 = 0xE021,
+		SC_MEDIA_PLAY = 0xE022,
+		SC_MEDIA_STOP = 0xE024,
+		SC_VOLUME_DOWN = 0xE02E,
+		SC_VOLUME_UP = 0xE030,
+		SC_BROWSER_HOME = 0xE032,
+		SC_NUMPAD_DIVIDE = 0xE035,
+		SC_PRINT_SCREEN = 0xE037, /* make: 0xE02A 0xE037 break: 0xE0B7 0xE0AA MapVirtualKeyEx( VK_SNAPSHOT, MAPVK_VK_TO_VSC_EX, 0 ) returns scancode 0x54; - There is no VK_KEYDOWN
+		                             with VK_SNAPSHOT.*/
 
-		SC_RIGHT_ALT			= 0xE038,
-		SC_CANCEL				= 0xE046, /* CTRL + Pause */
-		SC_HOME					= 0xE047,
-		SC_UP					= 0xE048,
-		SC_PAGE_UP				= 0xE049,
-		SC_LEFT					= 0xE04B,
-		SC_RIGHT				= 0xE04D,
-		SC_END					= 0xE04F,
-		SC_DOWN					= 0xE050,
-		SC_PAGE_DOWN			= 0xE051,
-		SC_INSERT				= 0xE052,
-		SC_DELETE				= 0xE053,
-		SC_LEFT_WINDOW			= 0xE05B,
-		SC_RIGHT_WINDOW			= 0xE05C,
-		SC_APPLICATION			= 0xE05D,
-		SC_POWER				= 0xE05E,
-		SC_SLEEP				= 0xE05F,
-		SC_WAKE					= 0xE063,
-		SC_BROWSER_SEARCH		= 0xE065,
-		SC_BROWSER_FAVORITES	= 0xE066,
-		SC_BROWSER_REFRESH		= 0xE067,
-		SC_BROWSER_STOP			= 0xE068,
-		SC_BROWSER_FORWARD		= 0xE069,
-		SC_BROWSER_BACK			= 0xE06A,
-		SC_LAUNCH_APP_1			= 0xE06B,
-		SC_LAUNCH_EMAIL			= 0xE06C,
-		SC_LAUNCH_MEDIA			= 0xE06D,
+		SC_RIGHT_ALT = 0xE038,
+		SC_CANCEL = 0xE046, /* CTRL + Pause */
+		SC_HOME = 0xE047,
+		SC_UP = 0xE048,
+		SC_PAGE_UP = 0xE049,
+		SC_LEFT = 0xE04B,
+		SC_RIGHT = 0xE04D,
+		SC_END = 0xE04F,
+		SC_DOWN = 0xE050,
+		SC_PAGE_DOWN = 0xE051,
+		SC_INSERT = 0xE052,
+		SC_DELETE = 0xE053,
+		SC_LEFT_WINDOW = 0xE05B,
+		SC_RIGHT_WINDOW = 0xE05C,
+		SC_APPLICATION = 0xE05D,
+		SC_POWER = 0xE05E,
+		SC_SLEEP = 0xE05F,
+		SC_WAKE = 0xE063,
+		SC_BROWSER_SEARCH = 0xE065,
+		SC_BROWSER_FAVORITES = 0xE066,
+		SC_BROWSER_REFRESH = 0xE067,
+		SC_BROWSER_STOP = 0xE068,
+		SC_BROWSER_FORWARD = 0xE069,
+		SC_BROWSER_BACK = 0xE06A,
+		SC_LAUNCH_APP_1 = 0xE06B,
+		SC_LAUNCH_EMAIL = 0xE06C,
+		SC_LAUNCH_MEDIA = 0xE06D,
 
-		//SC_PAUSE				= 0xE11D45, /* make: 0xE11D 45 0xE19D C5 make in raw input: 0xE11D 0x45 break: none No repeat when you hold the key down There are no break so I don't know how the key down/up is expected to work. Raw input sends "keydown" and "keyup" messages, and it appears that the keyup message is sent directly after the keydown message (you can't hold the key down) so depending on when GetMessage or PeekMessage will return messages, you may get both a keydown and keyup message "at the same time". If you use VK messages most of the time you only get keydown messages, but some times you get keyup messages too. when pressed at the same time as one or both control keys, generates a 0xE046 (sc_cancel) and the string for that scancode is "break". */
+		// SC_PAUSE				= 0xE11D45, /* make: 0xE11D 45 0xE19D C5 make in raw input: 0xE11D 0x45 break: none No repeat when you hold the key down There are no break so I
+		// don't know how the key down/up is expected to work. Raw input sends "keydown" and "keyup" messages, and it appears that the keyup message is sent directly after the
+		// keydown message (you can't hold the key down) so depending on when GetMessage or PeekMessage will return messages, you may get both a keydown and keyup message "at the
+		// same time". If you use VK messages most of the time you only get keydown messages, but some times you get keyup messages too. when pressed at the same time as one or
+		// both control keys, generates a 0xE046 (sc_cancel) and the string for that scancode is "break". */
 
-		SC_NONE					= 0
+		SC_NONE = 0
 	};
 
-	/// @brief 
-	/// @param inputId 
-	/// @return 
+	/// @brief
+	/// @param inputId
+	/// @return
 	constexpr int32_t InputIdLocalIndex(InputId inputId)
 	{
-		return (std::to_underlying(inputId) - std::to_underlying(InputId::KeyboardStartEnum));
+		return std::to_underlying(inputId) - std::to_underlying(InputId::KeyboardStartEnum);
 	}
 
-	/// @brief 
-	/// @param inputId 
-	/// @return 
+	/// @brief
+	/// @param inputId
+	/// @return
 	WINDOWS_SCAN_CODE ConvertInputIdToWindowsScanCode(InputId inputId)
 	{
 		static std::array<WINDOWS_SCAN_CODE, std::to_underlying(InputId::KeyboardEnumCount)> inputIdToWindowsScanCode;
@@ -329,7 +336,7 @@ namespace hod::input
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyRightControl)] = WINDOWS_SCAN_CODE::SC_RIGHT_CONTROL;
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyRightAlt)] = WINDOWS_SCAN_CODE::SC_RIGHT_ALT;
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyPrintScreen)] = WINDOWS_SCAN_CODE::SC_PRINT_SCREEN;
-			//inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyBreak)] = WINDOWS_SCAN_CODE::SC_PAUSE;
+			// inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyBreak)] = WINDOWS_SCAN_CODE::SC_PAUSE;
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyUp)] = WINDOWS_SCAN_CODE::SC_UP;
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyLeft)] = WINDOWS_SCAN_CODE::SC_LEFT;
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyRight)] = WINDOWS_SCAN_CODE::SC_RIGHT;
@@ -342,44 +349,44 @@ namespace hod::input
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyDelete)] = WINDOWS_SCAN_CODE::SC_DELETE;
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyLeftWindow)] = WINDOWS_SCAN_CODE::SC_LEFT_WINDOW;
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyRightWindow)] = WINDOWS_SCAN_CODE::SC_RIGHT_WINDOW;
-			//inputIdToWindowsScanCode[InputId::KeyMENU] =
+			// inputIdToWindowsScanCode[InputId::KeyMENU] =
 
 			/* Unampped
-				SC_MEDIA_PREVIOUS
-				SC_MEDIA_NEXT
-		
-				SC_VOLUME_MUTE
-				SC_LAUCNH_APP_2
-				SC_MEDIA_PLAY
-				SC_MEDIA_STOP
-				SC_VOLUME_DOWN
-				SC_VOLUME_UP
-				SC_BROWSER_HOME
+			    SC_MEDIA_PREVIOUS
+			    SC_MEDIA_NEXT
 
-				SC_CANCEL
+			    SC_VOLUME_MUTE
+			    SC_LAUCNH_APP_2
+			    SC_MEDIA_PLAY
+			    SC_MEDIA_STOP
+			    SC_VOLUME_DOWN
+			    SC_VOLUME_UP
+			    SC_BROWSER_HOME
 
-				SC_APPLICATION
-				SC_POWER
-				SC_SLEEP
-				SC_WAKE
-				SC_BROWSER_SEARCH
-				SC_BROWSER_FAVORITES
-				SC_BROWSER_REFRESH
-				SC_BROWSER_STOP
-				SC_BROWSER_FORWARD
-				SC_BROWSER_BACK
-				SC_LAUNCH_APP_1
-				SC_LAUNCH_EMAIL
-				SC_LAUNCH_MEDIA
+			    SC_CANCEL
+
+			    SC_APPLICATION
+			    SC_POWER
+			    SC_SLEEP
+			    SC_WAKE
+			    SC_BROWSER_SEARCH
+			    SC_BROWSER_FAVORITES
+			    SC_BROWSER_REFRESH
+			    SC_BROWSER_STOP
+			    SC_BROWSER_FORWARD
+			    SC_BROWSER_BACK
+			    SC_LAUNCH_APP_1
+			    SC_LAUNCH_EMAIL
+			    SC_LAUNCH_MEDIA
 			*/
 		}
 
 		return inputIdToWindowsScanCode[InputIdLocalIndex(inputId)];
 	}
 
-	/// @brief 
-	/// @param scanCode 
-	/// @return 
+	/// @brief
+	/// @param scanCode
+	/// @return
 	InputId ConvertWindowsScanCodeToInputId(WINDOWS_SCAN_CODE scanCode)
 	{
 		static std::array<InputId, std::numeric_limits<std::underlying_type_t<WINDOWS_SCAN_CODE>>().max()> windowsScanCodeToInputId;
@@ -475,8 +482,8 @@ namespace hod::input
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_NUMPAD_0)] = InputId::KeyNumpad0;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_NUMPAD_DECIMAL)] = InputId::KeyNumpadDecimal;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_SYS_RQ)] = InputId::KeySysRq;
-			//windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_SCANCODE_85)] = InputId::KeyNONE;
-			//windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_UNLABELLED)] = InputId::KeyNONE;
+			// windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_SCANCODE_85)] = InputId::KeyNONE;
+			// windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_UNLABELLED)] = InputId::KeyNONE;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_F11)] = InputId::KeyF11;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_F12)] = InputId::KeyF12;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_F13)] = InputId::KeyF13;
@@ -516,7 +523,7 @@ namespace hod::input
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_RIGHT_CONTROL)] = InputId::KeyRightControl;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_RIGHT_ALT)] = InputId::KeyRightAlt;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_PRINT_SCREEN)] = InputId::KeyPrintScreen;
-			//windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_BREAK)] = InputId::KeyBreak;
+			// windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_BREAK)] = InputId::KeyBreak;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_UP)] = InputId::KeyUp;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_LEFT)] = InputId::KeyLeft;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_RIGHT)] = InputId::KeyRight;
@@ -529,44 +536,44 @@ namespace hod::input
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_DELETE)] = InputId::KeyDelete;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_LEFT_WINDOW)] = InputId::KeyLeftWindow;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_RIGHT_WINDOW)] = InputId::KeyRightWindow;
-			//windowsScanCodeToInputId[InputId::KeyMENU] =
+			// windowsScanCodeToInputId[InputId::KeyMENU] =
 
 			/* Unampped
-				SC_MEDIA_PREVIOUS
-				SC_MEDIA_NEXT
+			    SC_MEDIA_PREVIOUS
+			    SC_MEDIA_NEXT
 
-				SC_VOLUME_MUTE
-				SC_LAUCNH_APP_2
-				SC_MEDIA_PLAY
-				SC_MEDIA_STOP
-				SC_VOLUME_DOWN
-				SC_VOLUME_UP
-				SC_BROWSER_HOME
+			    SC_VOLUME_MUTE
+			    SC_LAUCNH_APP_2
+			    SC_MEDIA_PLAY
+			    SC_MEDIA_STOP
+			    SC_VOLUME_DOWN
+			    SC_VOLUME_UP
+			    SC_BROWSER_HOME
 
-				SC_CANCEL
+			    SC_CANCEL
 
-				SC_APPLICATION
-				SC_POWER
-				SC_SLEEP
-				SC_WAKE
-				SC_BROWSER_SEARCH
-				SC_BROWSER_FAVORITES
-				SC_BROWSER_REFRESH
-				SC_BROWSER_STOP
-				SC_BROWSER_FORWARD
-				SC_BROWSER_BACK
-				SC_LAUNCH_APP_1
-				SC_LAUNCH_EMAIL
-				SC_LAUNCH_MEDIA
+			    SC_APPLICATION
+			    SC_POWER
+			    SC_SLEEP
+			    SC_WAKE
+			    SC_BROWSER_SEARCH
+			    SC_BROWSER_FAVORITES
+			    SC_BROWSER_REFRESH
+			    SC_BROWSER_STOP
+			    SC_BROWSER_FORWARD
+			    SC_BROWSER_BACK
+			    SC_LAUNCH_APP_1
+			    SC_LAUNCH_EMAIL
+			    SC_LAUNCH_MEDIA
 			*/
 		}
 
 		return windowsScanCodeToInputId[std::to_underlying(scanCode)];
 	}
 
-	/// @brief 
-	/// @param virtualKey 
-	/// @return 
+	/// @brief
+	/// @param virtualKey
+	/// @return
 	WINDOWS_SCAN_CODE ConvertVirtualKeyToWindowsScanCode(UINT virtualKey)
 	{
 		switch (virtualKey)
@@ -600,7 +607,7 @@ namespace hod::input
 			case VK_NUMPAD7: return WINDOWS_SCAN_CODE::SC_NUMPAD_7;
 			case VK_NUMPAD8: return WINDOWS_SCAN_CODE::SC_NUMPAD_8;
 			case VK_NUMPAD9: return WINDOWS_SCAN_CODE::SC_NUMPAD_9;
-			//case VK_RETURN: return WINDOWS_SCAN_CODE::SC_ENTER;
+			// case VK_RETURN: return WINDOWS_SCAN_CODE::SC_ENTER;
 			default:
 			{
 				// TODO Get windows application
@@ -611,9 +618,9 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @param virtualKey 
-	/// @return 
+	/// @brief
+	/// @param virtualKey
+	/// @return
 	UINT ConvertWindowsScanCodeToVirtualKey(WINDOWS_SCAN_CODE scanCode)
 	{
 		switch (scanCode)
@@ -647,7 +654,7 @@ namespace hod::input
 			case WINDOWS_SCAN_CODE::SC_NUMPAD_7: return VK_NUMPAD7;
 			case WINDOWS_SCAN_CODE::SC_NUMPAD_8: return VK_NUMPAD8;
 			case WINDOWS_SCAN_CODE::SC_NUMPAD_9: return VK_NUMPAD9;
-			//case WINDOWS_SCAN_CODE::SC_ENTER: return VK_RETURN;
+			// case WINDOWS_SCAN_CODE::SC_ENTER: return VK_RETURN;
 			default:
 			{
 				// TODO Get windows application
@@ -658,22 +665,22 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @param handle 
-	/// @param name 
-	/// @param info 
-	KeyboardRawInput::KeyboardRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_KEYBOARD& /*info*/)
+	/// @brief
+	/// @param handle
+	/// @param name
+	/// @param info
+	KeyboardRawInput::KeyboardRawInput(HANDLE handle, const std::string_view& name, const tagRID_DEVICE_INFO_KEYBOARD& /*info*/)
 	: Keyboard(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
 	{
 		/*
 		for (uint32_t index = 0; index < InputId::KeyboardEnumCount; ++index)
 		{
-			AddInput(&_keys[index]);
+		    AddInput(&_keys[index]);
 		}
 		for (uint32_t index = 0; index < InputId::KeyboardVirtualEnumCount; ++index)
 		{
-			AddInput(&_virtualKeys[index]);
+		    AddInput(&_virtualKeys[index]);
 		}
 		*/
 		SetConnected(true);
@@ -690,7 +697,7 @@ namespace hod::input
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void KeyboardRawInput::ReadRawInput(const RAWKEYBOARD& rawKeyboard)
+	void KeyboardRawInput::ReadRawInput(const tagRAWKEYBOARD& rawKeyboard)
 	{
 		WINDOWS_SCAN_CODE scanCode = static_cast<WINDOWS_SCAN_CODE>(rawKeyboard.MakeCode);
 		if (rawKeyboard.Flags & RI_KEY_E0)
@@ -701,31 +708,31 @@ namespace hod::input
 		InputId inputId = ConvertWindowsScanCodeToInputId(scanCode);
 		if (inputId != InputId::Unknown)
 		{
-			//float value = (rawKeyboard.Flags & RI_KEY_BREAK) ? 0.0f : 1.0f;
+			// float value = (rawKeyboard.Flags & RI_KEY_BREAK) ? 0.0f : 1.0f;
 
-			//int32_t index = static_cast<int32_t>(inputId) - (InputId::KeyboardStartEnum + 1);
+			// int32_t index = static_cast<int32_t>(inputId) - (InputId::KeyboardStartEnum + 1);
 
-//			SetInputValue(_keys[index], value);
+			//			SetInputValue(_keys[index], value);
 
 			InputId physicalInputId = inputId;
 			InputId virtualInputId = InputIdHelper::PhysicalToVirtual(physicalInputId);
 			if (physicalInputId != virtualInputId)
 			{
-//				SetInputValue(_virtualKeys[static_cast<uint32_t>(virtualInputId) - static_cast<uint32_t>(InputId::KeyboardVirtualStartEnum) - 1], value);
+				//				SetInputValue(_virtualKeys[static_cast<uint32_t>(virtualInputId) - static_cast<uint32_t>(InputId::KeyboardVirtualStartEnum) - 1], value);
 			}
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	HANDLE KeyboardRawInput::GetHandle()
 	{
 		return _handle;
 	}
 
-	/// @brief 
-	/// @param hDevice 
-	/// @return 
+	/// @brief
+	/// @param hDevice
+	/// @return
 	UID KeyboardRawInput::ComputeDeviceUID(HANDLE hDevice)
 	{
 		return UID(Api::DeviceUidOffset::RAW_INPUT, reinterpret_cast<uint64_t>(hDevice));

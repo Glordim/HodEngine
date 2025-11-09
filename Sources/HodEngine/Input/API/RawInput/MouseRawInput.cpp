@@ -2,6 +2,7 @@
 #include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Input/API/RawInput/MouseRawInput.hpp"
 
+#include <Windows.h>
 #include <WinUser.h>
 
 #include <algorithm>
@@ -23,7 +24,7 @@ namespace hod::input
 	/// @param handle
 	/// @param name
 	/// @param
-	MouseRawInput::MouseRawInput(HANDLE handle, const std::string_view& name, const RID_DEVICE_INFO_MOUSE&)
+	MouseRawInput::MouseRawInput(HANDLE handle, const std::string_view& name, const tagRID_DEVICE_INFO_MOUSE&)
 	: Mouse(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
 	{
@@ -66,7 +67,7 @@ namespace hod::input
 
 	/// @brief
 	/// @param rawMouse
-	void MouseRawInput::ReadRawInput(const RAWMOUSE& rawMouse)
+	void MouseRawInput::ReadRawInput(const tagRAWMOUSE& rawMouse)
 	{
 		if ((rawMouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
 		{

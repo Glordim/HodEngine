@@ -41,6 +41,7 @@ target_link_libraries(Input PUBLIC
 
 target_link_libraries(Input PRIVATE
   ${PLATFORM_LIBS}
+  WindowsHModular::WindowsHModular
 )
 
 if(MSVC)
