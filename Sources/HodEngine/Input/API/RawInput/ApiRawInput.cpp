@@ -9,6 +9,7 @@
 #include <WinDNS.h>
 #include <WinUser.h>
 
+#include <HodEngine/Core/OS.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp>
 #include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
@@ -18,43 +19,9 @@ using namespace hod::window;
 namespace hod::input
 {
 	/// @brief
-	/// @param errorMessage
-	void GetWinLastErrorMsg(String& /*errorMessage*/)
-	{
-		// TODO
-	}
-
-	ApiRawInput* ApiRawInput::_pInstance = nullptr;
-	HHOOK        ApiRawInput::_hGetMessageHook = nullptr;
-
-	/// @brief
-	/// @param code
-	/// @param wParam
-	/// @param lParam
-	/// @return
-	LRESULT CALLBACK ApiRawInput::GetMessageHook(int code, WPARAM wParam, LPARAM lParam)
-	{
-		if (code < 0)
-		{
-			return CallNextHookEx(NULL, code, wParam, lParam);
-		}
-
-		if (code == HC_ACTION && wParam == PM_REMOVE)
-		{
-			if (ApiRawInput::_pInstance != nullptr)
-			{
-				MSG* pMsg = (MSG*)lParam;
-
-				ApiRawInput::_pInstance->ProcessWindowMessage(pMsg->message, pMsg->wParam, pMsg->lParam);
-			}
-		}
-
-		return CallNextHookEx(_hGetMessageHook, code, wParam, lParam);
-	}
-
-	/// @brief
 	ApiRawInput::ApiRawInput()
 	: Api("RawInput")
+	, _onWinProcSlot(std::bind(&ApiRawInput::OnWinProc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
 	, _onFocusChangeSlot(std::bind(&ApiRawInput::OnFocusChange, this, std::placeholders::_1))
 	{
 	}
@@ -79,27 +46,12 @@ namespace hod::input
 
 		if (RegisterRawInputDevices(aRawInputDevices, 2, sizeof(RAWINPUTDEVICE)) == FALSE)
 		{
-			String sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to register RawInput devices type ({})", sErrorMessage);
+			OUTPUT_ERROR("Unable to register RawInput devices type ({})", OS::GetLastWin32ErrorMessage());
 			return false;
 		}
 
-		assert(ApiRawInput::_pInstance == nullptr);
-		ApiRawInput::_pInstance = this;
-
 		_window = static_cast<Win32Window*>(Win32DisplayManager::GetInstance()->GetMainWindow());
-
-		assert(ApiRawInput::_hGetMessageHook == nullptr);
-		ApiRawInput::_hGetMessageHook = SetWindowsHookEx(WH_GETMESSAGE, ApiRawInput::GetMessageHook, NULL, _window->GetMessageLoopThreadId());
-		if (ApiRawInput::_hGetMessageHook == nullptr)
-		{
-			String sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to set MessageHook ({})", sErrorMessage);
-		}
+		_window->OnWinProc.Connect(_onWinProcSlot);
 
 		_window->GetFocusedEvent().Connect(_onFocusChangeSlot);
 
@@ -110,6 +62,11 @@ namespace hod::input
 		return true;
 	}
 
+	void ApiRawInput::OnWinProc(HWND, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+	{
+		ProcessWindowMessage(uiMsg, wParam, lParam);
+	}
+
 	/// @brief
 	void ApiRawInput::FetchConnectedDevices()
 	{
@@ -118,10 +75,7 @@ namespace hod::input
 
 		if (GetRawInputDeviceList(nullptr, &deviceCount, sizeof(RAWINPUTDEVICELIST)) != 0)
 		{
-			String sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to get RawInput device list ({})", sErrorMessage);
+			OUTPUT_ERROR("Unable to get RawInput device list ({})", OS::GetLastWin32ErrorMessage());
 			return;
 		}
 
@@ -129,10 +83,7 @@ namespace hod::input
 
 		if (GetRawInputDeviceList(pRawInputDeviceList, &deviceCount, sizeof(RAWINPUTDEVICELIST)) == (UINT)-1)
 		{
-			String sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to get RawInput device list ({})", sErrorMessage);
+			OUTPUT_ERROR("Unable to get RawInput device list ({})", OS::GetLastWin32ErrorMessage());
 			return;
 		}
 
@@ -190,23 +141,6 @@ namespace hod::input
 	/// @brief
 	ApiRawInput::~ApiRawInput()
 	{
-		if (ApiRawInput::_hGetMessageHook != nullptr)
-		{
-			if (UnhookWindowsHookEx(ApiRawInput::_hGetMessageHook) == FALSE)
-			{
-				String sErrorMessage;
-				GetWinLastErrorMsg(sErrorMessage);
-
-				OUTPUT_ERROR("Unable to release MessageHook ({})", sErrorMessage);
-			}
-			else
-			{
-				ApiRawInput::_hGetMessageHook = nullptr;
-			}
-		}
-
-		ApiRawInput::_pInstance = nullptr;
-
 		for (MouseRawInput* mouse : _mice)
 		{
 			if (mouse->IsConnected() == true)
@@ -273,10 +207,7 @@ namespace hod::input
 			uint32_t uiSize = 512;
 			if (GetRawInputDeviceInfo(hDevice, RIDI_DEVICENAME, deviceChangeMessage._name, &uiSize) <= 0)
 			{
-				String sErrorMessage;
-				GetWinLastErrorMsg(sErrorMessage);
-
-				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, sErrorMessage);
+				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, OS::GetLastWin32ErrorMessage());
 				return;
 			}
 
@@ -286,10 +217,7 @@ namespace hod::input
 
 			if (GetRawInputDeviceInfo(hDevice, RIDI_DEVICEINFO, &deviceChangeMessage._info, &uiSize) <= 0)
 			{
-				String sErrorMessage;
-				GetWinLastErrorMsg(sErrorMessage);
-
-				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, sErrorMessage);
+				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, OS::GetLastWin32ErrorMessage());
 				return;
 			}
 		}
@@ -306,10 +234,7 @@ namespace hod::input
 		UINT uiSize = 0;
 		if (GetRawInputData(hRawInput, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER)) != 0)
 		{
-			String sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, sErrorMessage);
+			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, OS::GetLastWin32ErrorMessage());
 			return;
 		}
 
@@ -321,10 +246,7 @@ namespace hod::input
 		RAWINPUT rawInputData;
 		if (GetRawInputData(hRawInput, RID_INPUT, reinterpret_cast<BYTE*>(&rawInputData), &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
 		{
-			String sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, sErrorMessage);
+			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, OS::GetLastWin32ErrorMessage());
 			return;
 		}
 

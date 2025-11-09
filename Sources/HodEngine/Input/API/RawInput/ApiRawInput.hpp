@@ -74,11 +74,11 @@ namespace hod::input
 		MouseRawInput*    FindMouse(HANDLE hDevice) const;
 		KeyboardRawInput* FindKeyboard(HANDLE hDevice) const;
 
-	private:
-		static ApiRawInput* _pInstance;
-		static HHOOK__*     _hGetMessageHook;
+		void OnWinProc(HWND, UINT, WPARAM, LPARAM);
 
 	private:
+		Event<HWND, UINT, WPARAM, LPARAM>::Slot _onWinProcSlot;
+
 		Vector<MouseRawInput*>    _mice;
 		Vector<KeyboardRawInput*> _keyboards;
 
