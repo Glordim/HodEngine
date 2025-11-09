@@ -1,13 +1,15 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Module/Module.hpp"
 
+#include <win32/misc.h>
+
 namespace hod
 {
 	/// @brief
 	/// @return
 	bool Module::InternalLoad(const Path& path)
 	{
-		_dll = LoadLibrary(path.GetString().CStr());
+		_dll = (HINSTANCE__*)LoadLibraryW(path.ToNative().c_str());
 		if (_dll == NULL)
 		{
 			// std::cout << "could not load the dynamic library" << std::endl;

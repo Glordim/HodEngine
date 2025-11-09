@@ -4,8 +4,9 @@
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 
 #if defined(PLATFORM_WINDOWS)
-	#include <Windows.h>
-	#include <WinBase.h>
+using HANDLE = void*;
+using DWORD = unsigned long;
+struct _OVERLAPPED;
 #elif defined(PLATFORM_MACOS)
 	#include <fcntl.h>
 	#include <sys/event.h>
@@ -48,8 +49,8 @@ namespace hod
 		MemberFunctionJob<FileSystemWatcher> _internalJob;
 
 #if defined(PLATFORM_WINDOWS)
-		HANDLE     _hDir = INVALID_HANDLE_VALUE;
-		OVERLAPPED _overlapped;
+		HANDLE       _hDir = nullptr;
+		_OVERLAPPED* _overlapped;
 		alignas(DWORD) uint8_t _changeBuf[1024];
 		bool _isFile = false;
 		Path _dirPath;

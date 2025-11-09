@@ -4,7 +4,7 @@
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
 #if defined(PLATFORM_WINDOWS)
-	#include <Windows.h>
+struct HINSTANCE__;
 #endif
 
 #define HOD_DECLARE_MODULE(Name, API) \
@@ -46,7 +46,7 @@ namespace hod
 		bool _copyForSupportReload;
 
 #if defined(PLATFORM_WINDOWS)
-		HINSTANCE _dll = NULL;
+		HINSTANCE__* _dll = NULL;
 #elif defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX) || defined(PLATFORM_ANDROID)
 		void* _sharedLib = nullptr;
 #endif

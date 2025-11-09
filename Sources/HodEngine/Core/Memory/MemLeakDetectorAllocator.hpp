@@ -10,8 +10,6 @@
 
 	#include <array>
 	#include <cstdint>
-	#include <mutex>
-	#include <unordered_map>
 
 namespace hod
 {

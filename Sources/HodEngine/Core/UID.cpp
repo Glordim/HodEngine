@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 
 #if defined(PLATFORM_WINDOWS)
-	#include <Windows.h>
+	#include <Rpc.h>
 	#include <rpcdce.h>
 
 	#pragma comment(lib, "Rpcrt4.lib")

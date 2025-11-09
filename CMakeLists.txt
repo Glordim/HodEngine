@@ -78,6 +78,12 @@ set_target_properties(Stb::Stb PROPERTIES
     INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
+add_library(WindowsHModular::WindowsHModular INTERFACE IMPORTED GLOBAL)
+set_target_properties(WindowsHModular::WindowsHModular PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+)
+
 add_library(VulkanMemoryAllocator::VulkanMemoryAllocator INTERFACE IMPORTED GLOBAL)
 set_target_properties(VulkanMemoryAllocator::VulkanMemoryAllocator PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"

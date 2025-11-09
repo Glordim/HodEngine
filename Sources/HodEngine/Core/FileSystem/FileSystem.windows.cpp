@@ -3,7 +3,8 @@
 #include "HodEngine/Core/OS.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <Windows.h>
+#include <shlobj.h>
+#include <win32/file.h>
 
 #undef CopyFile
 
@@ -21,10 +22,14 @@ namespace hod
 	{
 		if (FileSystem::_userSettingsPath.Empty() == true)
 		{
-			char          username[256];
-			unsigned long usernameLen = 256;
-			GetUserNameA(username, &usernameLen);
-			FileSystem::_userSettingsPath = (String("C:\\users\\") + username + "\\AppData\\Local").CStr();
+			PWSTR wpath = nullptr;
+
+			HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &wpath);
+
+			assert(SUCCEEDED(hr) && wpath != nullptr);
+
+			FileSystem::_userSettingsPath = Path::FromNative(wpath);
+			CoTaskMemFree(wpath);
 		}
 		return FileSystem::_userSettingsPath;
 	}
@@ -46,10 +51,10 @@ namespace hod
 	{
 		if (FileSystem::_temporaryPath.Empty() == true)
 		{
-			char tempPath[MAX_PATH];
-			if (GetTempPath(MAX_PATH, tempPath) != 0)
+			wchar_t tempPath[MAX_PATH];
+			if (GetTempPathW(MAX_PATH, tempPath) != 0)
 			{
-				FileSystem::_temporaryPath = tempPath;
+				FileSystem::_temporaryPath = Path::FromNative(tempPath);
 			}
 		}
 		return FileSystem::_temporaryPath;
@@ -71,7 +76,7 @@ namespace hod
 	FileSystem::Handle FileSystem::Open(const char* path)
 	{
 		FileSystem::Handle handle;
-		handle._handle = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		handle._handle = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (handle._handle == INVALID_HANDLE_VALUE)
 		{
 			OUTPUT_ERROR("Unable to open file at : {}, {}", path, OS::GetLastWin32ErrorMessage());
@@ -84,7 +89,7 @@ namespace hod
 	/// @return
 	uint32_t FileSystem::GetSize(FileSystem::Handle handle)
 	{
-		return GetFileSize(handle._handle, NULL);
+		return GetFileSizeEx(handle._handle, NULL);
 	}
 
 	/// @brief

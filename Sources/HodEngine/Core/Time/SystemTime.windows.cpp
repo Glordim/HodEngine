@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Time/SystemTime.hpp"
 
-#include "Windows.h"
+#include <win32/misc.h>
 
 namespace hod
 {

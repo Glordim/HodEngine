@@ -1,12 +1,12 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystem/Path.hpp"
 
-#include <algorithm>
 #include <cstring>
 
 #if defined(PLATFORM_WINDOWS)
-	#include <Windows.h>
-	#include <shlobj.h>
+	#include <win32/file.h> // GetTempPathW
+	#include <win32/io.h>   // GetCurrentDirectoryW
+	#include <win32/misc.h> // WideCharToMultiByte
 #else
 	#include <limits.h>
 	#include <pwd.h>

@@ -3,7 +3,10 @@
 
 #include "HodEngine/Core/StringConversion.hpp"
 
+// #include <win32/threads.h>
+// #include <win32/threads.h>
 #include <Windows.h>
+#undef Yield
 
 namespace hod
 {

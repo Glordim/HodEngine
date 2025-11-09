@@ -4,6 +4,16 @@
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
+#include <win32/file.h>
+#include <win32/threads.h>
+#include <win32/window.h>
+#include <win32/windows_base.h>
+
+extern "C"
+{
+	BOOL WINAPI GetOverlappedResult(_In_ HANDLE hFile, _In_ LPOVERLAPPED lpOverlapped, _Out_ LPDWORD lpNumberOfBytesTransferred, _In_ BOOL bWait);
+}
+
 namespace hod
 {
 	/// @brief
@@ -25,10 +35,14 @@ namespace hod
 		_hDir = CreateFileW(assetFolderPath.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
 		                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
 
-		_overlapped.hEvent = CreateEventW(NULL, FALSE, 0, NULL);
+		if (_overlapped == nullptr)
+		{
+			_overlapped = DefaultAllocator::GetInstance().New<OVERLAPPED>();
+		}
+		_overlapped->hEvent = CreateEventW(NULL, FALSE, 0, NULL);
 
 		::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL,
-		                        &_overlapped, NULL);
+		                        _overlapped, NULL);
 
 		return true;
 	}
@@ -40,17 +54,20 @@ namespace hod
 		{
 			// ::CloseHandle(_hDir); // todo
 		}
+
+		DefaultAllocator::GetInstance().Delete(_overlapped);
+		_overlapped = nullptr;
 	}
 
 	/// @brief
 	void FileSystemWatcher::Update()
 	{
-		DWORD result = WaitForSingleObject(_overlapped.hEvent, 0);
+		DWORD result = WaitForSingleObject(_overlapped->hEvent, 0);
 
 		if (result == WAIT_OBJECT_0)
 		{
 			DWORD bytes_transferred;
-			GetOverlappedResult(_hDir, &_overlapped, &bytes_transferred, FALSE);
+			GetOverlappedResult(_hDir, _overlapped, &bytes_transferred, FALSE);
 
 			Path oldFilePathToRename;
 
@@ -118,7 +135,7 @@ namespace hod
 			}
 
 			::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL,
-			                        &_overlapped, NULL);
+			                        _overlapped, NULL);
 		}
 
 		// if (::WaitForSingleObject(_filesystemWatcherHandle, 0) == WAIT_OBJECT_0)

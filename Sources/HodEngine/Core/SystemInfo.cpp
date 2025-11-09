@@ -2,7 +2,7 @@
 #include "HodEngine/Core/SystemInfo.hpp"
 
 #if defined(PLATFORM_WINDOWS)
-	#include <Windows.h>
+// #include <Windows.h>
 #elif defined(PLATFORM_LINUX)
 	#include <sys/sysinfo.h>
 #endif

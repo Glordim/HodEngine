@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Output/OutputBucket.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#include <Windows.h>
+#include <win32/dbghelp.h>
 
 namespace hod
 {
@@ -22,7 +22,7 @@ namespace hod
 
 		if (IsDebuggerPresent() == TRUE)
 		{
-			OutputDebugString(content.CStr());
+			OutputDebugStringA(content.CStr());
 		}
 	}
 }

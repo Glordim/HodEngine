@@ -5,8 +5,6 @@
 #include <cstdint>
 
 #if defined(PLATFORM_WINDOWS)
-	#define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
 	#undef Yield
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
 	#include <pthread.h>
@@ -19,7 +17,8 @@ namespace hod
 	{
 	public:
 #if defined(PLATFORM_WINDOWS)
-		using Id = DWORD;
+		using Id = unsigned long;
+		using HANDLE = void*;
 		static constexpr Id InvalidId = 0;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS) || defined(PLATFORM_ANDROID)
 		using Id = pthread_t;

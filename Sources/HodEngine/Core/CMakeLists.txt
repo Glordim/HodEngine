@@ -38,7 +38,10 @@ else()
 	set(PLATFORM_LIBS uuid)
 endif()
 
-target_link_libraries(Core PRIVATE ${PLATFORM_LIBS})
+target_link_libraries(Core PRIVATE
+	${PLATFORM_LIBS}
+	WindowsHModular::WindowsHModular
+)
 
 target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)
