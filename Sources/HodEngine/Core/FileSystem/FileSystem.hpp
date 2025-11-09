@@ -8,8 +8,7 @@
 struct AAssetManager;
 struct AAsset;
 #elif defined(PLATFORM_WINDOWS)
-// #include <Windows.h>
-typedef void* HANDLE;
+using HANDLE = void*;
 #else
 	#include <cstdio>
 #endif

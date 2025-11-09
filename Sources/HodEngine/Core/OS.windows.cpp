@@ -2,12 +2,65 @@
 #include "HodEngine/Core/OS.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <DbgHelp.h>
-#include <shellapi.h>
+#include <win32/dbghelp.h>
+#include <win32/misc.h>
+#include <win32/process.h>
+#include <win32/window.h>
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
+
+extern "C"
+{
+	typedef enum
+	{
+		SymNone = 0,
+		SymCoff,
+		SymCv,
+		SymPdb,
+		SymExport,
+		SymDeferred,
+		SymSym, // .sym file
+		SymDia,
+		SymVirtual,
+		NumSymTypes
+	} SYM_TYPE;
+
+	typedef struct _IMAGEHLP_MODULE64
+	{
+		DWORD    SizeOfStruct;         // set to sizeof(IMAGEHLP_MODULE64)
+		DWORD64  BaseOfImage;          // base load address of module
+		DWORD    ImageSize;            // virtual size of the loaded module
+		DWORD    TimeDateStamp;        // date/time stamp from pe header
+		DWORD    CheckSum;             // checksum from the pe header
+		DWORD    NumSyms;              // number of symbols in the symbol table
+		SYM_TYPE SymType;              // type of symbols loaded
+		CHAR     ModuleName[32];       // module name
+		CHAR     ImageName[256];       // image name
+		CHAR     LoadedImageName[256]; // symbol file name
+		// new elements: 07-Jun-2002
+		CHAR  LoadedPdbName[256];   // pdb file name
+		DWORD CVSig;                // Signature of the CV record in the debug directories
+		CHAR  CVData[MAX_PATH * 3]; // Contents of the CV record
+		DWORD PdbSig;               // Signature of PDB
+		GUID  PdbSig70;             // Signature of PDB (VC 7 and up)
+		DWORD PdbAge;               // DBI age of pdb
+		BOOL  PdbUnmatched;         // loaded an unmatched pdb
+		BOOL  DbgUnmatched;         // loaded an unmatched dbg
+		BOOL  LineNumbers;          // we have line number information
+		BOOL  GlobalSymbols;        // we have internal symbol information
+		BOOL  TypeInfo;             // we have type information
+		// new elements: 17-Dec-2003
+		BOOL SourceIndexed; // pdb supports source server
+		BOOL Publics;       // contains public symbols
+		// new element: 15-Jul-2009
+		DWORD MachineType; // IMAGE_FILE_MACHINE_XXX from ntimage.h and winnt.h
+		DWORD Reserved;    // Padding - don't remove.
+	} IMAGEHLP_MODULE64, *PIMAGEHLP_MODULE64;
+
+	BOOL      SymGetModuleInfo64(_In_ HANDLE hProcess, _In_ DWORD64 qwAddr, _Out_ PIMAGEHLP_MODULE64 ModuleInfo);
+	HINSTANCE ShellExecuteA(_In_opt_ HWND hwnd, _In_opt_ LPCSTR lpOperation, _In_ LPCSTR lpFile, _In_opt_ LPCSTR lpParameters, _In_opt_ LPCSTR lpDirectory, _In_ INT nShowCmd);
+	HANDLE    LocalFree(HANDLE hMem);
+}
 
 namespace hod
 {
@@ -129,8 +182,8 @@ namespace hod
 		LPVOID lpMsgBuf;
 		DWORD  dw = GetLastError();
 
-		::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		                (LPTSTR)&lpMsgBuf, 0, NULL);
+		::FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		                 (LPTSTR)&lpMsgBuf, 0, NULL);
 
 		String message = (char*)lpMsgBuf;
 
@@ -143,7 +196,7 @@ namespace hod
 	/// @param filePath
 	bool OS::OpenFileWithDefaultApp(const char* filePath)
 	{
-		HINSTANCE result = ShellExecute(NULL, "open", filePath, NULL, NULL, SW_SHOWNORMAL);
+		HINSTANCE result = ShellExecuteA(NULL, "open", filePath, NULL, NULL, SW_SHOWNORMAL);
 		if ((INT_PTR)result <= 32)
 		{
 			OUTPUT_ERROR("OS::OpenFileWithDefaultApp: ShellExecute open {} fail ({})", filePath, OS::GetLastWin32ErrorMessage());
