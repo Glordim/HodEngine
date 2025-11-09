@@ -50,7 +50,7 @@ namespace hod
 
 #if defined(PLATFORM_WINDOWS)
 		HANDLE       _hDir = nullptr;
-		_OVERLAPPED* _overlapped;
+		_OVERLAPPED* _overlapped = nullptr;
 		alignas(DWORD) uint8_t _changeBuf[1024];
 		bool _isFile = false;
 		Path _dirPath;

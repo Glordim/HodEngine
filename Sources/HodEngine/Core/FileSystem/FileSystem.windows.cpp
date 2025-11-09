@@ -6,6 +6,11 @@
 #include <shlobj.h>
 #include <win32/file.h>
 
+extern "C"
+{
+	// DWORD WINAPI GetFileSize(_In_ HANDLE hFile, _Out_opt_ LPDWORD lpFileSizeHigh);
+}
+
 #undef CopyFile
 
 namespace hod
@@ -89,7 +94,7 @@ namespace hod
 	/// @return
 	uint32_t FileSystem::GetSize(FileSystem::Handle handle)
 	{
-		return GetFileSizeEx(handle._handle, NULL);
+		return GetFileSize(handle._handle, NULL);
 	}
 
 	/// @brief
