@@ -40,6 +40,8 @@
 
 #if defined(PLATFORM_WINDOWS)
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	#undef FindWindow
+	#undef min
 #endif
 
 namespace hod::imgui
