@@ -625,6 +625,7 @@ namespace hod
 
 		String result(sizeNeeded - 1); // -1 for null terminator
 		WideCharToMultiByte(CP_UTF8, 0, nativePath, -1, result.Data(), sizeNeeded, nullptr, nullptr);
+		result = result.Data(); // refresh size
 
 		return Path(result);
 	}
