@@ -167,7 +167,7 @@ namespace hod::input
 
 	/// @brief
 	/// @return
-	HANDLE MouseRawInput::GetHandle()
+	HANDLE MouseRawInput::GetHandle() const
 	{
 		return _handle;
 	}

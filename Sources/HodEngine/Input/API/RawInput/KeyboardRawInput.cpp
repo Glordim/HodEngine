@@ -725,7 +725,7 @@ namespace hod::input
 
 	/// @brief
 	/// @return
-	HANDLE KeyboardRawInput::GetHandle()
+	HANDLE KeyboardRawInput::GetHandle() const
 	{
 		return _handle;
 	}

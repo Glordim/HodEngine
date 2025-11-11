@@ -79,6 +79,12 @@ namespace hod::input
 	private:
 		Event<HWND, UINT, WPARAM, LPARAM>::Slot _onWinProcSlot;
 
+		Vector<MouseRawInput*>    _pendingArrivalMice;
+		Vector<KeyboardRawInput*> _pendingArrivalKeyboards;
+
+		Vector<HANDLE> _pendingRemoveMice;
+		Vector<HANDLE> _pendingRemoveKeyboards;
+
 		Vector<MouseRawInput*>    _mice;
 		Vector<KeyboardRawInput*> _keyboards;
 

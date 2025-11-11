@@ -30,7 +30,9 @@ namespace hod::input
 	/// @return
 	bool ApiRawInput::Initialize()
 	{
-		HWND hwnd = NULL; // TODO
+		_window = static_cast<Win32Window*>(Win32DisplayManager::GetInstance()->GetMainWindow());
+
+		HWND hwnd = _window->GetWindowHandle();
 
 		RAWINPUTDEVICE aRawInputDevices[2];
 
@@ -50,7 +52,6 @@ namespace hod::input
 			return false;
 		}
 
-		_window = static_cast<Win32Window*>(Win32DisplayManager::GetInstance()->GetMainWindow());
 		_window->OnWinProc.Connect(_onWinProcSlot);
 
 		_window->GetFocusedEvent().Connect(_onFocusChangeSlot);
@@ -91,7 +92,20 @@ namespace hod::input
 		{
 			const RAWINPUTDEVICELIST& device = pRawInputDeviceList[deviceIndex];
 
-			PushDeviceChangeMessage(device.hDevice, GIDC_ARRIVAL);
+			if (device.dwType == RIM_TYPEMOUSE)
+			{
+				RID_DEVICE_INFO_MOUSE info = {}; // TODO useless ?
+				MouseRawInput*        mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(device.hDevice, "Mouse", info);
+				_mice.PushBack(mouse);
+				AddDevice(mouse);
+			}
+			else if (device.dwType == RIM_TYPEKEYBOARD)
+			{
+				RID_DEVICE_INFO_KEYBOARD info = {}; // TODO useless ?
+				KeyboardRawInput*        keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(device.hDevice, "Keyboard", info);
+				_keyboards.PushBack(keyboard);
+				AddDevice(keyboard);
+			}
 		}
 
 		DefaultAllocator::GetInstance().DeleteArray(pRawInputDeviceList);
@@ -168,7 +182,45 @@ namespace hod::input
 	{
 		if (uiMsg == WM_INPUT_DEVICE_CHANGE)
 		{
-			PushDeviceChangeMessage((HANDLE)lParam, (uint8_t)wParam);
+			uint32_t uiSize = 512;
+			HANDLE   handle = (HANDLE)lParam;
+
+			RID_DEVICE_INFO deviceInfo = {};
+			deviceInfo.cbSize = sizeof(RID_DEVICE_INFO);
+			if (GetRawInputDeviceInfoW(handle, RIDI_DEVICEINFO, &deviceInfo, &uiSize) <= 0)
+			{
+				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)handle, OS::GetLastWin32ErrorMessage());
+				return;
+			}
+
+			if (wParam == GIDC_ARRIVAL)
+			{
+				if (deviceInfo.dwType == RIM_TYPEMOUSE)
+				{
+					MouseRawInput* mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(handle, "Mouse", deviceInfo.mouse);
+					_pendingArrivalMice.PushBack(mouse);
+				}
+				else if (deviceInfo.dwType == RIM_TYPEKEYBOARD)
+				{
+					KeyboardRawInput* keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(handle, "Keyboard", deviceInfo.keyboard);
+					_pendingArrivalKeyboards.PushBack(keyboard);
+				}
+			}
+			else if (wParam == GIDC_REMOVAL)
+			{
+				if (deviceInfo.dwType == RIM_TYPEMOUSE)
+				{
+					_pendingRemoveMice.PushBack(handle);
+				}
+				else if (deviceInfo.dwType == RIM_TYPEKEYBOARD)
+				{
+					_pendingRemoveKeyboards.PushBack(handle);
+				}
+			}
+			else
+			{
+				assert(false);
+			}
 		}
 		else if (uiMsg == WM_INPUT)
 		{
@@ -293,6 +345,47 @@ namespace hod::input
 				mouse->ResyncLastCusorPosition();
 			}
 		}
+
+		for (MouseRawInput* arrivalMouse : _pendingArrivalMice)
+		{
+			_mice.PushBack(arrivalMouse);
+			AddDevice(arrivalMouse);
+		}
+		_pendingArrivalMice.Clear();
+
+		for (KeyboardRawInput* arrivalKeyboard : _pendingArrivalKeyboards)
+		{
+			_keyboards.PushBack(arrivalKeyboard);
+			AddDevice(arrivalKeyboard);
+		}
+		_pendingArrivalKeyboards.Clear();
+
+		for (HANDLE removeMouseHandle : _pendingRemoveMice)
+		{
+			auto it = std::find_if(_mice.Begin(), _mice.End(), [removeMouseHandle](const MouseRawInput* mouse) { return mouse->GetHandle() == removeMouseHandle; });
+			if (it != _mice.End())
+			{
+				_mice.Erase(it);
+			}
+		}
+		_pendingRemoveMice.Clear();
+
+		for (HANDLE removeKeyboardHandle : _pendingRemoveKeyboards)
+		{
+			auto it = std::find_if(_keyboards.Begin(), _keyboards.End(),
+			                       [removeKeyboardHandle](const KeyboardRawInput* keyboard) { return keyboard->GetHandle() == removeKeyboardHandle; });
+			if (it != _keyboards.End())
+			{
+				_keyboards.Erase(it);
+			}
+		}
+		_pendingRemoveKeyboards.Clear();
+
+		for (MouseRawInput* arrivalMouse : _pendingArrivalMice)
+		{
+			_mice.PushBack(arrivalMouse);
+		}
+		_pendingArrivalMice.Clear();
 
 		for (KeyboardRawInput* keyboard : _keyboards)
 		{

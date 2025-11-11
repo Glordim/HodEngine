@@ -23,7 +23,7 @@ namespace hod::input
 		MouseRawInput& operator=(MouseRawInput&&) = delete;
 
 	public:
-		HANDLE GetHandle();
+		HANDLE GetHandle() const;
 
 		void ResyncLastCusorPosition();
 		void SimulateMouseDownBeforeFocusGain(InputId mouseButtonInputId);

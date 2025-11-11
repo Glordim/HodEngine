@@ -23,7 +23,7 @@ namespace hod::input
 		KeyboardRawInput& operator=(KeyboardRawInput&&) = delete;
 
 	public:
-		HANDLE GetHandle();
+		HANDLE GetHandle() const;
 
 		void ReadRawInput(const tagRAWKEYBOARD& rawKeyboard);
 
