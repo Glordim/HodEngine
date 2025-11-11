@@ -336,25 +336,32 @@ namespace hod::window
 		{
 			WaylandWindow* waylandWindow = thiz->_surfaceToWindowMap[thiz->_pointerFocus];
 
-			DesktopWindow::MouseButton mouseButton;
+			MouseButton mouseButton;
 			if (button == BTN_LEFT)
 			{
-				mouseButton = DesktopWindow::MouseButton::Left;
+				mouseButton = MouseButton::Left;
 			}
 			else if (button == BTN_MIDDLE)
 			{
-				mouseButton = DesktopWindow::MouseButton::Middle;
+				mouseButton = MouseButton::Middle;
 			}
 			else if (button == BTN_RIGHT)
 			{
-				mouseButton = DesktopWindow::MouseButton::Right;
+				mouseButton = MouseButton::Right;
 			}
 			else
 			{
 				return; // todo ?
 			}
 
-			waylandWindow->SetMouseButton(mouseButton, state == WL_POINTER_BUTTON_STATE_PRESSED);
+			if (state == WL_POINTER_BUTTON_STATE_PRESSED)
+			{
+				waylandWindow->EmitMouseButtonPressed(mouseButton);
+			}
+			else
+			{
+				waylandWindow->EmitMouseButtonReleased(mouseButton);
+			}
 		}
 		/*
 		if (seat->_pointerFocus != window->wl_surface)

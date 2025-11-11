@@ -3,6 +3,8 @@
 
 #include "HodEngine/Input/Devices/Mouse.hpp"
 
+#include <HodEngine/Window/MouseButton.hpp>
+
 namespace hod::input
 {
 	/// @brief
@@ -17,8 +19,10 @@ namespace hod::input
 		MouseWindowLib& operator=(const MouseWindowLib&) = delete;
 		MouseWindowLib& operator=(MouseWindowLib&&) = delete;
 
-		void OnButtonPressed(int button);
-		void OnButtonReleased(int button);
+		void OnButtonPressed(window::MouseButton button);
+		void OnButtonReleased(window::MouseButton button);
+		void OnButtonMoved(int x, int y);
+		void OnButtonScroll(int scroll);
 
 	protected:
 		bool ApplyFeedback(Feedback& feedback) override;

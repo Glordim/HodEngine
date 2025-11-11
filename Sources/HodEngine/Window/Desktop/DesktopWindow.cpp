@@ -13,21 +13,6 @@ namespace hod::window
 	}
 
 	/// @brief
-	/// @param button
-	/// @param pressed
-	void DesktopWindow::SetMouseButton(MouseButton button, bool pressed)
-	{
-		if (pressed)
-		{
-			EmitMouseButtonPressed(button);
-		}
-		else
-		{
-			EmitMouseButtonReleased(button);
-		}
-	}
-
-	/// @brief
 	/// @return
 	const Vector2& DesktopWindow::GetMousePosition() const
 	{
@@ -94,7 +79,7 @@ namespace hod::window
 		}
 	}
 
-	void DesktopWindow::EmitMouseButtonPressed(int button)
+	void DesktopWindow::EmitMouseButtonPressed(MouseButton button)
 	{
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
@@ -102,7 +87,7 @@ namespace hod::window
 		}
 	}
 
-	void DesktopWindow::EmitMouseButtonReleased(int button)
+	void DesktopWindow::EmitMouseButtonReleased(MouseButton button)
 	{
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
@@ -115,6 +100,14 @@ namespace hod::window
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
 			inputListener->OnMouseMoved((float)x, (float)y);
+		}
+	}
+
+	void DesktopWindow::EmitMouseScroll(int delta)
+	{
+		for (IDesktopWindowInputListener* inputListener : _inputListeners)
+		{
+			inputListener->OnMouseScroll((float)delta);
 		}
 	}
 }

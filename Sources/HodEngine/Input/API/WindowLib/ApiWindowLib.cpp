@@ -53,20 +53,23 @@ namespace hod::input
 		_keyboard.OnKeyReleased(scanCode);
 	}
 
-	void ApiWindowLib::OnMouseButtonPressed(int button)
+	void ApiWindowLib::OnMouseButtonPressed(window::MouseButton button)
 	{
 		_mouse.OnButtonPressed(button);
 	}
 
-	void ApiWindowLib::OnMouseButtonReleased(int button)
+	void ApiWindowLib::OnMouseButtonReleased(window::MouseButton button)
 	{
 		_mouse.OnButtonReleased(button);
 	}
 
 	void ApiWindowLib::OnMouseMoved(float x, float y)
 	{
-		// todo
-		(void)x;
-		(void)y;
+		_mouse.OnButtonMoved(x, y);
+	}
+
+	void ApiWindowLib::OnMouseScroll(float scroll)
+	{
+		_mouse.OnButtonScroll(scroll);
 	}
 }

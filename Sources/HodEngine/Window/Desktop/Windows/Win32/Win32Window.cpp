@@ -10,6 +10,8 @@
 
 #include <cstdlib>
 
+#include <windowsx.h>
+
 namespace hod::window
 {
 	/// @brief
@@ -48,6 +50,65 @@ namespace hod::window
 			UINT scancode = (lParam >> 16) & 0xFF;
 			scancode |= ((lParam >> 24) & 1) << 8;
 			EmitKeyReleased(WindowsScanCodeToScanCode(scancode));
+		}
+		else if (msg == WM_LBUTTONDOWN)
+		{
+			EmitMouseButtonPressed(MouseButton::Left);
+		}
+		else if (msg == WM_LBUTTONUP)
+		{
+			EmitMouseButtonReleased(MouseButton::Left);
+		}
+		else if (msg == WM_RBUTTONDOWN)
+		{
+			EmitMouseButtonPressed(MouseButton::Right);
+		}
+		else if (msg == WM_RBUTTONUP)
+		{
+			EmitMouseButtonReleased(MouseButton::Right);
+		}
+		else if (msg == WM_MBUTTONDOWN)
+		{
+			EmitMouseButtonPressed(MouseButton::Middle);
+		}
+		else if (msg == WM_MBUTTONUP)
+		{
+			EmitMouseButtonReleased(MouseButton::Middle);
+		}
+		else if (msg == WM_XBUTTONDOWN)
+		{
+			WORD xbtn = HIWORD(wParam);
+			if (xbtn == XBUTTON1)
+			{
+				EmitMouseButtonPressed(MouseButton::Backward);
+			}
+			else
+			{
+				EmitMouseButtonPressed(MouseButton::Forward);
+			}
+		}
+		else if (msg == WM_XBUTTONUP)
+		{
+			WORD xbtn = HIWORD(wParam);
+			if (xbtn == XBUTTON1)
+			{
+				EmitMouseButtonReleased(MouseButton::Backward);
+			}
+			else
+			{
+				EmitMouseButtonReleased(MouseButton::Forward);
+			}
+		}
+		else if (msg == WM_MOUSEMOVE)
+		{
+			int x = GET_X_LPARAM(lParam);
+			int y = GET_Y_LPARAM(lParam);
+			EmitMouseMoved(x, y);
+		}
+		else if (msg == WM_MOUSEWHEEL)
+		{
+			int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+			EmitMouseScroll(delta);
 		}
 		else if (msg == WM_SIZE)
 		{

@@ -29,14 +29,25 @@ namespace hod::input
 		return false;
 	}
 
-	void MouseWindowLib::OnButtonPressed(int button)
+	void MouseWindowLib::OnButtonPressed(window::MouseButton button)
 	{
-		EditNextState<MouseState>()->_buttons |= (1 << button);
+		EditNextState<MouseState>()->_buttons |= (1 << std::to_underlying(button));
 		MarkForCurrent();
 	}
 
-	void MouseWindowLib::OnButtonReleased(int button)
+	void MouseWindowLib::OnButtonReleased(window::MouseButton button)
 	{
-		EditNextState<MouseState>()->_buttons &= ~(1 << button);
+		EditNextState<MouseState>()->_buttons &= ~(1 << std::to_underlying(button));
+	}
+
+	void MouseWindowLib::OnButtonMoved(int x, int y)
+	{
+		EditNextState<MouseState>()->_delta[0] = x;
+		EditNextState<MouseState>()->_delta[1] = y;
+	}
+
+	void MouseWindowLib::OnButtonScroll(int scroll)
+	{
+		EditNextState<MouseState>()->_wheel = scroll;
 	}
 }
