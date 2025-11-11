@@ -19,7 +19,7 @@ namespace hod
 
 	Path FileSystem::GetUserSettingsPath()
 	{
-		if (FileSystem::_userSettingsPath.empty() == true)
+		if (FileSystem::_userSettingsPath.Empty() == true)
 		{
 			struct passwd* pw = getpwuid(getuid());
 			FileSystem::_userSettingsPath = pw->pw_dir;
@@ -29,7 +29,7 @@ namespace hod
 
 	Path FileSystem::GetExecutablePath()
 	{
-		if (FileSystem::_executablePath.empty() == true)
+		if (FileSystem::_executablePath.Empty() == true)
 		{
 			char     buffer[MAXPATHLEN];
 			uint32_t bufferSize = sizeof(buffer);
@@ -43,7 +43,7 @@ namespace hod
 
 	bool FileSystem::SetWorkingDirectory(const Path& path)
 	{
-		if (chdir(path.string().c_str()) != 0)
+		if (chdir(path.CStr()) != 0)
 		{
 			OUTPUT_ERROR("Unable to set working directory");
 			return false;
@@ -53,7 +53,7 @@ namespace hod
 
 	Path FileSystem::GetTemporaryPath()
 	{
-		if (FileSystem::_temporaryPath.empty() == true)
+		if (FileSystem::_temporaryPath.Empty() == true)
 		{
 			FileSystem::_temporaryPath = "/tmp";
 		}

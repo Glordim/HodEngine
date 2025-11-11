@@ -43,32 +43,32 @@
 
 - (void)mouseDown:(NSEvent*)event
 {
-    window->EmitMouseButtonPressed(0);
+    window->EmitMouseButtonPressed(hod::window::MouseButton::Left);
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
-    window->EmitMouseButtonReleased(0);
+    window->EmitMouseButtonReleased(hod::window::MouseButton::Left);
 }
 
 - (void)rightMouseDown:(NSEvent*)event
 {
-    window->EmitMouseButtonPressed(1);
+    window->EmitMouseButtonPressed(hod::window::MouseButton::Right);
 }
 
 - (void)rightMouseUp:(NSEvent*)event
 {
-    window->EmitMouseButtonReleased(1);
+    window->EmitMouseButtonReleased(hod::window::MouseButton::Right);
 }
 
 - (void)otherMouseDown:(NSEvent*)event
 {
-    window->EmitMouseButtonPressed(2);
+    window->EmitMouseButtonPressed(hod::window::MouseButton::Middle);
 }
 
 - (void)otherMouseUp:(NSEvent*)event
 {
-    window->EmitMouseButtonReleased(2);
+    window->EmitMouseButtonReleased(hod::window::MouseButton::Middle);
 }
 
 - (void)mouseMoved:(NSEvent*)event

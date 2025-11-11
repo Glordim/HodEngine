@@ -1,6 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Module/Module.hpp"
 
+#include "HodEngine/Core/FileSystem/Path.hpp"
 #include <dlfcn.h>
 
 namespace hod
@@ -9,7 +10,7 @@ namespace hod
 	/// @return
 	bool Module::InternalLoad(const Path& path)
 	{
-		_sharedLib = dlopen(path.string().c_str(), RTLD_LAZY);
+		_sharedLib = dlopen(path.CStr(), RTLD_LAZY);
 		if (_sharedLib == nullptr)
 		{
 			// std::cout << "could not load the dynamic library" << std::endl;
