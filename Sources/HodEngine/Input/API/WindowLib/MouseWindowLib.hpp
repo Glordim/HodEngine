@@ -26,5 +26,9 @@ namespace hod::input
 
 	protected:
 		bool ApplyFeedback(Feedback& feedback) override;
+		void ResetNextState() override;
+
+		int16_t _lastPosX = 0;
+		int16_t _lastPosY = 0;
 	};
 }

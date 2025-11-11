@@ -42,12 +42,22 @@ namespace hod::input
 
 	void MouseWindowLib::OnButtonMoved(int x, int y)
 	{
-		EditNextState<MouseState>()->_delta[0] = x;
-		EditNextState<MouseState>()->_delta[1] = y;
+		EditNextState<MouseState>()->_delta[0] += (_lastPosX - x);
+		EditNextState<MouseState>()->_delta[1] += (_lastPosY - y);
+
+		_lastPosX = x;
+		_lastPosY = y;
 	}
 
 	void MouseWindowLib::OnButtonScroll(int scroll)
 	{
-		EditNextState<MouseState>()->_wheel = scroll;
+		EditNextState<MouseState>()->_wheel += scroll;
+	}
+
+	void MouseWindowLib::ResetNextState()
+	{
+		EditNextState<MouseState>()->_delta[0] = 0;
+		EditNextState<MouseState>()->_delta[1] = 0;
+		EditNextState<MouseState>()->_wheel = 0;
 	}
 }

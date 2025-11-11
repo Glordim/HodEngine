@@ -5,7 +5,7 @@ namespace hod::window
 {
 	// Conversion table
 	MouseButton windowsMouseButtonToMouseButton[6] = {
-		Left, Right, Middle, Forward, Backward,
+		MouseButton::Left, MouseButton::Right, MouseButton::Middle, MouseButton::Forward, MouseButton::Backward,
 	};
 
 	MouseButton WindowsMouseButtonToMouseButton(uint8_t scancode)
