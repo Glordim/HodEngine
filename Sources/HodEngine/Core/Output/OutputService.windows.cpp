@@ -20,9 +20,6 @@ namespace hod
 			fputs(content.CStr(), stderr);
 		}
 
-		if (IsDebuggerPresent() == TRUE)
-		{
-			OutputDebugStringA(content.CStr());
-		}
+		OutputDebugStringA(content.CStr());
 	}
 }
