@@ -3,25 +3,26 @@
 
 #include "HodEngine/Input/Devices/Keyboard.hpp"
 
+#include <HodEngine/Window/ScanCode.hpp>
+
 namespace hod::input
 {
-	/// @brief 
+	/// @brief
 	class HOD_INPUT_API KeyboardWindowLib : public Keyboard
 	{
 	public:
-											KeyboardWindowLib();
-											KeyboardWindowLib(const KeyboardWindowLib&) = delete;
-											KeyboardWindowLib(KeyboardWindowLib&&) = delete;
-											~KeyboardWindowLib() override = default;
+		KeyboardWindowLib();
+		KeyboardWindowLib(const KeyboardWindowLib&) = delete;
+		KeyboardWindowLib(KeyboardWindowLib&&) = delete;
+		~KeyboardWindowLib() override = default;
 
-		KeyboardWindowLib&					operator = (const KeyboardWindowLib&) = delete;
-		KeyboardWindowLib&					operator = (KeyboardWindowLib&&) = delete;
+		KeyboardWindowLib& operator=(const KeyboardWindowLib&) = delete;
+		KeyboardWindowLib& operator=(KeyboardWindowLib&&) = delete;
 
-		void								OnKeyPressed(int keycode);
-		void								OnKeyReleased(int keycode);
+		void OnKeyPressed(window::ScanCode scanCode);
+		void OnKeyReleased(window::ScanCode scanCode);
 
 	protected:
-
-		bool								ApplyFeedback(Feedback& feedback) override;
+		bool ApplyFeedback(Feedback& feedback) override;
 	};
 }

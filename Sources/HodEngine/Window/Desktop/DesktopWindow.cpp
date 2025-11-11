@@ -5,16 +5,16 @@
 
 namespace hod::window
 {
-	/// @brief 
-	/// @param mousePosition 
+	/// @brief
+	/// @param mousePosition
 	void DesktopWindow::SetMousePosition(const Vector2& mousePosition)
 	{
 		_mousePosition = mousePosition;
 	}
 
-	/// @brief 
-	/// @param button 
-	/// @param pressed 
+	/// @brief
+	/// @param button
+	/// @param pressed
 	void DesktopWindow::SetMouseButton(MouseButton button, bool pressed)
 	{
 		if (pressed)
@@ -27,35 +27,35 @@ namespace hod::window
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Vector2& DesktopWindow::GetMousePosition() const
 	{
 		return _mousePosition;
 	}
 
-	/// @brief 
+	/// @brief
 	void DesktopWindow::Close()
 	{
 		_close = true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Event<bool>& DesktopWindow::GetFocusedEvent()
 	{
 		return _focusEvent;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool DesktopWindow::IsFocused() const
 	{
 		return _focused;
 	}
 
-	/// @brief 
-	/// @param focused 
+	/// @brief
+	/// @param focused
 	void DesktopWindow::SetFocused(bool focused)
 	{
 		if (_focused != focused)
@@ -78,19 +78,19 @@ namespace hod::window
 		}
 	}
 
-	void DesktopWindow::EmitKeyPressed(int keycode)
+	void DesktopWindow::EmitKeyPressed(ScanCode scanCode)
 	{
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
-			inputListener->OnKeyPressed(keycode);
+			inputListener->OnKeyPressed(scanCode);
 		}
 	}
 
-	void DesktopWindow::EmitKeyReleased(int keycode)
+	void DesktopWindow::EmitKeyReleased(ScanCode scanCode)
 	{
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
-			inputListener->OnKeyReleased(keycode);
+			inputListener->OnKeyReleased(scanCode);
 		}
 	}
 

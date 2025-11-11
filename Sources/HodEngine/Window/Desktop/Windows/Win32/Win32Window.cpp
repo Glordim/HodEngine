@@ -37,7 +37,19 @@ namespace hod::window
 	{
 		OnWinProc.Emit(_hWnd, msg, wParam, lParam);
 
-		if (msg == WM_SIZE)
+		if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
+		{
+			UINT scancode = (lParam >> 16) & 0xFF;
+			scancode |= ((lParam >> 24) & 1) << 8;
+			EmitKeyPressed(WindowsScanCodeToScanCode(scancode));
+		}
+		else if (msg == WM_KEYUP || msg == WM_SYSKEYUP)
+		{
+			UINT scancode = (lParam >> 16) & 0xFF;
+			scancode |= ((lParam >> 24) & 1) << 8;
+			EmitKeyReleased(WindowsScanCodeToScanCode(scancode));
+		}
+		else if (msg == WM_SIZE)
 		{
 			UINT width = LOWORD(lParam);
 			UINT height = HIWORD(lParam);

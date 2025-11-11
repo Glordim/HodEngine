@@ -5,62 +5,62 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-#include <HodEngine/Window/DisplayManager.hpp>
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
+#include <HodEngine/Window/DisplayManager.hpp>
 
 namespace hod::input
 {
-	/// @brief 
+	/// @brief
 	ApiWindowLib::ApiWindowLib()
 	: Api("WindowLib")
 	{
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool ApiWindowLib::Initialize()
 	{
 		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(window::DisplayManager::GetInstance()->GetMainWindow());
 		window->RegisterInputListener(this);
 
+		AddDevice(&_mouse);
 		AddDevice(&_keyboard);
 
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	ApiWindowLib::~ApiWindowLib()
 	{
 		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(window::DisplayManager::GetInstance()->GetMainWindow());
 		window->UnregisterInputListener(this);
 	}
 
-	/// @brief 
+	/// @brief
 	void ApiWindowLib::UpdateDeviceValues()
 	{
+		_mouse.UpdateState();
 		_keyboard.UpdateState();
 	}
 
-	void ApiWindowLib::OnKeyPressed(int keyCode)
+	void ApiWindowLib::OnKeyPressed(window::ScanCode scanCode)
 	{
-		_keyboard.OnKeyPressed(keyCode);
+		_keyboard.OnKeyPressed(scanCode);
 	}
 
-	void ApiWindowLib::OnKeyReleased(int keyCode)
+	void ApiWindowLib::OnKeyReleased(window::ScanCode scanCode)
 	{
-		_keyboard.OnKeyReleased(keyCode);
+		_keyboard.OnKeyReleased(scanCode);
 	}
 
 	void ApiWindowLib::OnMouseButtonPressed(int button)
 	{
-		// todo
-		(void)button;
+		_mouse.OnButtonPressed(button);
 	}
 
 	void ApiWindowLib::OnMouseButtonReleased(int button)
 	{
-		// todo
-		(void)button;
+		_mouse.OnButtonReleased(button);
 	}
 
 	void ApiWindowLib::OnMouseMoved(float x, float y)
