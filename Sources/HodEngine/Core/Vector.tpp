@@ -1596,6 +1596,10 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::ReallocateAndMove(uint32_t capacity, uint32_t moveIndex, uint32_t moveLen)
 	{
+		assert(moveIndex <= _size && moveLen > 0);
+
+		uint32_t elementsToMove = _size - moveIndex;
+
 		if (_allocator->Resize(_elements, capacity * sizeof(__TYPE__), alignof(__TYPE__)) == false)
 		{
 			__TYPE__* elements = static_cast<__TYPE__*>(_allocator->Allocate(capacity * sizeof(__TYPE__), alignof(__TYPE__)));
@@ -1603,7 +1607,7 @@ namespace hod
 			if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 			{
 				std::memcpy(elements, _elements, moveIndex * sizeof(__TYPE__));
-				std::memcpy(elements + moveIndex + moveLen, _elements + moveIndex, (_size - moveIndex) * sizeof(__TYPE__));
+				std::memcpy(elements + moveIndex + moveLen, _elements + moveIndex, elementsToMove * sizeof(__TYPE__));
 			}
 			else
 			{
@@ -1613,10 +1617,10 @@ namespace hod
 					_elements[index].~__TYPE__();
 				}
 
-				for (uint32_t index = moveIndex; index < _size; ++index)
+				for (uint32_t index = 0; index < elementsToMove; ++index)
 				{
-					New(&elements[index + moveLen], std::move(_elements[index]));
-					_elements[index].~__TYPE__();
+					New(&elements[moveIndex + moveLen + index], std::move(_elements[moveIndex + index]));
+					_elements[moveIndex + index].~__TYPE__();
 				}
 			}
 			_allocator->Free(_elements);
@@ -1632,13 +1636,17 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::Move(uint32_t moveIndex, uint32_t moveLen)
 	{
+		assert(moveIndex <= _size && moveLen > 0);
+
+		uint32_t elementsToMove = _size - moveIndex;
+
 		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 		{
-			std::memmove(_elements + moveIndex + moveLen, _elements + moveIndex, (_size - moveIndex) * sizeof(__TYPE__));
+			std::memmove(_elements + moveIndex + moveLen, _elements + moveIndex, elementsToMove * sizeof(__TYPE__));
 		}
 		else
 		{
-			for (int32_t i = moveLen - 1; i >= 0; --i)
+			for (int32_t i = elementsToMove - 1; i >= 0; --i)
 			{
 				New(&_elements[moveIndex + moveLen + i], std::move(_elements[moveIndex + i]));
 				_elements[moveIndex + i].~__TYPE__();
