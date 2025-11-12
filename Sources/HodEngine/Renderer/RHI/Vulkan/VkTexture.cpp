@@ -83,7 +83,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief
 		//-----------------------------------------------------------------------------
-		bool VkTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
+		bool VkTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& /*createInfo*/)
 		{
 			bool ret = false;
 

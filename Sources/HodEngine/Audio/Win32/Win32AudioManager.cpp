@@ -3,6 +3,9 @@
 
 #include "Mmdeviceapi.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wlanguage-extension-token"
+
 namespace hod::audio
 {
 	_SingletonOverrideConstructor(Win32AudioManager) {}
@@ -123,3 +126,5 @@ namespace hod::audio
 		}
 	}
 }
+
+#pragma clang diagnostic pop

@@ -14,13 +14,13 @@ namespace hod::ui
 		REFLECTED_CLASS(ContentSizeFitter, Fitter)
 
 	public:
-		enum FitMode
+		enum class FitMode
 		{
 			Unconstrained,
 			MinSize,
 			PreferredSize,
 		};
-		REFLECTED_ENUM(HOD_UI_API, ContentSizeFitter)
+		REFLECTED_ENUM(HOD_UI_API, ContentSizeFitter);
 
 	public:
 		ContentSizeFitter();

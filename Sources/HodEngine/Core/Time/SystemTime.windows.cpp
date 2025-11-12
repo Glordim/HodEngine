@@ -7,9 +7,9 @@ namespace hod
 {
 	/// @brief
 	/// @return
-	__int64 ComputeProcessTimeCounterFrequency()
+	SystemTime::TimeStamp ComputeProcessTimeCounterFrequency()
 	{
-		__int64 performanceTimeStampFrequency = 0;
+		SystemTime::TimeStamp performanceTimeStampFrequency = 0;
 		QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&performanceTimeStampFrequency));
 
 		return performanceTimeStampFrequency;
@@ -17,9 +17,9 @@ namespace hod
 
 	/// @brief
 	/// @return
-	__int64 ComputeStartTimeStamp()
+	SystemTime::TimeStamp ComputeStartTimeStamp()
 	{
-		__int64 timeStampStartTime = 0;
+		SystemTime::TimeStamp timeStampStartTime = 0;
 		QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&timeStampStartTime));
 
 		return timeStampStartTime;
@@ -32,7 +32,7 @@ namespace hod
 	/// @return
 	SystemTime::TimeStamp SystemTime::Now()
 	{
-		__int64 performanceTimeStamp = 0;
+		SystemTime::TimeStamp performanceTimeStamp = 0;
 		QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&performanceTimeStamp));
 
 		return performanceTimeStamp;

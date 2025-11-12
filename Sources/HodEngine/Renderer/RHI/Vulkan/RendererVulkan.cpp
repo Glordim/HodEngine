@@ -628,7 +628,7 @@ namespace hod::renderer
 	/// @brief
 	/// @param availableDevices
 	/// @return
-	bool RendererVulkan::GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices)
+	bool RendererVulkan::GetAvailableGpuDevices(Vector<GpuDevice*>* /*availableDevices*/)
 	{
 		return false; // TODO
 	}

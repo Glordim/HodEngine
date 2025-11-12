@@ -204,6 +204,9 @@ namespace hod
 		static constexpr uint32_t SMALL_BUFFER_MAX_CAPACITY = 16;
 
 	private:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+
 		union
 		{
 			struct
@@ -216,6 +219,8 @@ namespace hod
 				char _buffer[SMALL_BUFFER_MAX_CAPACITY]; // { '\0' };
 			} _small;
 		};
+
+#pragma clang diagnostic pop
 
 		uint32_t _capacity = 0;
 		uint32_t _size = 0;

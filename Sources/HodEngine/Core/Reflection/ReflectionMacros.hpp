@@ -70,8 +70,8 @@ public:                                                                         
 ///@brief
 #define DESCRIBE_REFLECTED_CLASS(__TYPE__, reflectionDescriptor) void __TYPE__::FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor)
 
-#define REFLECTED_ENUM(__API__, __TYPE__) __API__ friend void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__);
-#define REFLECTED_ENUM2(__API__, __TYPE__) __API__ void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__);
+#define REFLECTED_ENUM(__API__, __TYPE__) __API__ friend void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
+#define REFLECTED_ENUM2(__API__, __TYPE__) __API__ void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
 
 ///@brief
 #define DESCRIBE_REFLECTED_ENUM(__TYPE__, reflectionDescriptor) void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
