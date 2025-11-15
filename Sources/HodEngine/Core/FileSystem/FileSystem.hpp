@@ -52,6 +52,8 @@ namespace hod
 		} FILETIME, *PFILETIME, *LPFILETIME;
 
 		using FileTime = FILETIME;
+#elif defined(PLATFORM_MACOS)
+		using FileTime = uint64_t;
 #endif
 
 	public:
