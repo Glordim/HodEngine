@@ -36,8 +36,8 @@ namespace hod
 	template<typename... Types>
 	void Event<Types...>::Disconnect(Slot& slot)
 	{
-		size_t slotCount = _slots.Size();
-		for (size_t index = 0; index < slotCount; ++index)
+		uint32_t slotCount = _slots.Size();
+		for (uint32_t index = 0; index < slotCount; ++index)
 		{
 			Slot* currentSlot = _slots[index];
 			if (currentSlot == &slot)
