@@ -3,6 +3,8 @@
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
 
+#include <Foundation/NSRange.hpp>
+
 namespace MTL
 {
     class RenderPipelineState;

@@ -33,7 +33,7 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 		return false;
 	}
 
-	Path buildPath;
+	hod::Path buildPath;
 
 	const hod::Argument* datasPathArgument = argumentParser.GetArgument('p', "BuildPath");
 	if (datasPathArgument != nullptr && datasPathArgument->_values[0] != nullptr)
