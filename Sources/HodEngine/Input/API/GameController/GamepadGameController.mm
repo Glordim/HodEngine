@@ -7,6 +7,8 @@
 #include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Core/Type.hpp"
 
+#import <GameController/GameController.h>
+
 #undef max
 
 namespace hod::input

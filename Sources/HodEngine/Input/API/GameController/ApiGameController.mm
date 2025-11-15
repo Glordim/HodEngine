@@ -72,13 +72,13 @@ namespace hod::input
 
 	void ApiGameController::RemovePadDevice(GCExtendedGamepad* extendedGamepad)
 	{
-		auto it = std::find_if(_pads.begin(), _pads.end(), [extendedGamepad](GamepadGameController* pad){
+		auto it = std::find_if(_pads.Begin(), _pads.End(), [extendedGamepad](GamepadGameController* pad){
 			return (pad->GetInternalExtendedPad() == extendedGamepad);
 		});
-		if (it != _pads.end())
+		if (it != _pads.End())
 		{
 			DefaultAllocator::GetInstance().Delete(*it);
-			_pads.erase(it);
+			_pads.Erase(it);
 		}
 	}
 

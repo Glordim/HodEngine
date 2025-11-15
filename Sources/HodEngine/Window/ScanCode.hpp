@@ -147,5 +147,7 @@ namespace hod::window
 
 #if defined(PLATFORM_WINDOWS)
 	HOD_WINDOW_API ScanCode WindowsScanCodeToScanCode(uint16_t scancode);
+#elif defined(PLATFORM_MACOS)
+	HOD_WINDOW_API ScanCode MacOSKeyCodeToScanCode(uint16_t keyCode);
 #endif
 }

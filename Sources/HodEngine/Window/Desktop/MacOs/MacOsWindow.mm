@@ -33,12 +33,12 @@
 
 - (void)keyDown:(NSEvent*)event
 {
-    window->EmitKeyPressed([event keyCode]);
+    window->EmitKeyPressed(hod::window::MacOSKeyCodeToScanCode([event keyCode]));
 }
 
 - (void)keyUp:(NSEvent*)event
 {
-    window->EmitKeyReleased([event keyCode]);
+    window->EmitKeyReleased(hod::window::MacOSKeyCodeToScanCode([event keyCode]));
 }
 
 - (void)mouseDown:(NSEvent*)event
