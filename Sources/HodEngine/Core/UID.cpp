@@ -140,13 +140,13 @@ namespace hod
 	//-----------------------------------------------------------------------------
 	String UID::ToString() const
 	{
+		String str;
+
+#if defined(_WIN32)
 		UuidConverter uuidConverter;
 		uuidConverter.raw.low = _low;
 		uuidConverter.raw.high = _high;
 
-		String str;
-
-#if defined(_WIN32)
 		RPC_CSTR stringTmp;
 		if (UuidToString(&uuidConverter.uuid, &stringTmp) != RPC_S_OK)
 		{

@@ -1,3 +1,5 @@
+#include <cstring>
+
 namespace hod
 {
 	/// @brief

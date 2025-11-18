@@ -204,8 +204,10 @@ namespace hod
 		static constexpr uint32_t SMALL_BUFFER_MAX_CAPACITY = 16;
 
 	private:
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnested-anon-types"
+#endif
 
 		union
 		{
@@ -220,7 +222,9 @@ namespace hod
 			} _small;
 		};
 
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#endif
 
 		uint32_t _capacity = 0;
 		uint32_t _size = 0;

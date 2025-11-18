@@ -9,7 +9,7 @@ namespace hod
 	/// @return
 	bool Module::InternalLoad(const Path& path)
 	{
-		_sharedLib = dlopen(path.string().c_str(), RTLD_LAZY);
+		_sharedLib = dlopen(path.GetString().CStr(), RTLD_LAZY);
 		if (_sharedLib == nullptr)
 		{
 			// std::cout << "could not load the dynamic library" << std::endl;

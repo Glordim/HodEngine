@@ -1513,7 +1513,7 @@ namespace hod
 		}
 		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
 
-		while (currentPos >= 0)
+		while (true)
 		{
 			if (buffer[currentPos] == character)
 			{

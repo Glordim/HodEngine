@@ -116,10 +116,15 @@ TEST_F(Vector, CopyAssignment)
 TEST_F(Vector, SelfAssignment)
 {
 	hod::Vector<int> vec = {1, 2, 3};
+
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
 	vec = vec;
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#endif
 
 	EXPECT_EQ(vec.Size(), 3);
 	EXPECT_EQ(vec[0], 1);

@@ -11,11 +11,11 @@ namespace hod
 	{
 		if (type == Output::Type::Message)
 		{
-			fputs(content.c_str(), stdout);
+			fputs(content.CStr(), stdout);
 		}
 		else
 		{
-			fputs(content.c_str(), stderr);
+			fputs(content.CStr(), stderr);
 		}
 	}
 }
