@@ -18,9 +18,9 @@
 
 namespace hod::window
 {
-	void WaylandWindow::xdg_toplevel_configure(void* userData, xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, wl_array* states)
+	void WaylandWindow::xdg_toplevel_configure(void* /*userData*/, xdg_toplevel* /*xdg_toplevel*/, int32_t width, int32_t height, wl_array* /*states*/)
 	{
-		WaylandWindow* waylandWindow = static_cast<WaylandWindow*>(userData);
+		//WaylandWindow* waylandWindow = static_cast<WaylandWindow*>(userData);
 		if (width == 0 || height == 0)
 		{
 			// Compositor is deferring to us
@@ -46,7 +46,7 @@ namespace hod::window
 	/// @brief Sent by the compositor when it's no longer using this buffer
 	/// @param userData
 	/// @param wl_buffer
-	void WaylandWindow::BufferRelease(void* userData, wl_buffer* wl_buffer)
+	void WaylandWindow::BufferRelease(void* userData, wl_buffer* /*wl_buffer*/)
 	{
 		Buffer* buffer = (Buffer*)userData;
 
@@ -74,8 +74,8 @@ namespace hod::window
 		*/
 	}
 
-	static void xdgDecorationHandleConfigure(void* userData, zxdg_toplevel_decoration_v1* decoration, uint32_t mode)
-	{
+	//static void xdgDecorationHandleConfigure(void* /*userData*/, zxdg_toplevel_decoration_v1* /*decoration*/, uint32_t /*mode*/)
+	//{
 		/*
 		_GLFWwindow* window = userData;
 
@@ -89,7 +89,7 @@ namespace hod::window
 		else
 		    destroyFallbackDecorations(window);
 		*/
-	}
+	//}
 
 	void WaylandWindow::handle_configure(libdecor_frame* frame, libdecor_configuration* configuration, void* data)
 	{
@@ -151,22 +151,22 @@ namespace hod::window
 		}
 	}
 
-	static void handle_close(struct libdecor_frame* frame, void* data)
+	static void handle_close(struct libdecor_frame* /*frame*/, void* data)
 	{
 		WaylandWindow* waylandWindow = static_cast<WaylandWindow*>(data);
 		waylandWindow->Close();
 	}
 
-	static void handle_commit(struct libdecor_frame* frame, void* data)
+	static void handle_commit(struct libdecor_frame* /*frame*/, void* data)
 	{
 		WaylandWindow* waylandWindow = static_cast<WaylandWindow*>(data);
 		wl_surface_commit(waylandWindow->GetWaylandSurface());
 	}
 
-	static void handle_dismiss_popup(struct libdecor_frame* frame, const char* seat_name, void* user_data)
-	{
+	//static void handle_dismiss_popup(struct libdecor_frame* /*frame*/, const char* /*seat_name*/, void* /*user_data*/)
+	//{
 		// popup_destroy(window->popup);
-	}
+	//}
 
 	/// @brief
 	WaylandWindow::WaylandWindow()
@@ -184,10 +184,20 @@ namespace hod::window
 		if (libdecorContext != nullptr)
 		{
 			static struct libdecor_frame_interface libdecor_frame_iface = {
-				handle_configure,
-				handle_close,
-				handle_commit,
-				// handle_dismiss_popup,
+				.configure = handle_configure,
+				.close = handle_close,
+				.commit = handle_commit,
+				.dismiss_popup = nullptr, // handle_dismiss_popup,
+				.reserved0 = nullptr,
+				.reserved1 = nullptr,
+				.reserved2 = nullptr,
+				.reserved3 = nullptr,
+				.reserved4 = nullptr,
+				.reserved5 = nullptr,
+				.reserved6 = nullptr,
+				.reserved7 = nullptr,
+				.reserved8 = nullptr,
+				.reserved9 = nullptr,
 			};
 
 			_frame = libdecor_decorate(displayManager->GetLibDecorContext(), _wlSurface, &libdecor_frame_iface, this);
@@ -214,6 +224,8 @@ namespace hod::window
 			static const xdg_toplevel_listener xdg_toplevel_listener = {
 				.configure = xdg_toplevel_configure,
 				.close = xdg_toplevel_close,
+				.configure_bounds = nullptr,
+				.wm_capabilities = nullptr,
 			};
 
 			xdg_toplevel_add_listener(xdgToplevel, &xdg_toplevel_listener, this);

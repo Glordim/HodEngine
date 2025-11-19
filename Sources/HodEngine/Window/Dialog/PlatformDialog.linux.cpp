@@ -16,7 +16,7 @@ namespace hod::window
 
 	/// @brief
 	/// @return
-	Path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const Path& initialFolder)
+	Path GetSaveFileDialog(const std::string_view& /*typeName*/, const std::string_view& /*typeExtension*/, const Path& /*initialFolder*/)
 	{
 		char buffer[4096] = {'\0'};
 
@@ -36,7 +36,7 @@ namespace hod::window
 
 	/// @brief
 	/// @param path
-	void OpenExplorerAtPath(const Path& path)
+	void OpenExplorerAtPath(const Path& /*path*/)
 	{
 		// TODO
 	}
@@ -47,7 +47,7 @@ namespace hod::window
 	/// @param yesChoice
 	/// @param noChoice
 	/// @return
-	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& yesChoice, const std::string_view& noChoice)
+	bool ShowYesNoDialog(const std::string_view& /*title*/, const std::string_view& /*description*/, const std::string_view& /*yesChoice*/, const std::string_view& /*noChoice*/)
 	{
 		return true; // todo
 	}

@@ -71,6 +71,16 @@ namespace hod::window
 		{
 			static libdecor_interface libDecorInterface = {
 				.error = &WaylandDisplayManager::LibDecorErrorHandler,
+				.reserved0 = nullptr,
+				.reserved1 = nullptr,
+				.reserved2 = nullptr,
+				.reserved3 = nullptr,
+				.reserved4 = nullptr,
+				.reserved5 = nullptr,
+				.reserved6 = nullptr,
+				.reserved7 = nullptr,
+				.reserved8 = nullptr,
+				.reserved9 = nullptr,
 			};
 
 			_libDecorContext = libdecor_new(_wlDisplay, &libDecorInterface);
@@ -181,19 +191,19 @@ namespace hod::window
 	/// @param userData
 	/// @param registry
 	/// @param id
-	void WaylandDisplayManager::RegistryRemover(void* userData, wl_registry* registry, uint32_t id)
+	void WaylandDisplayManager::RegistryRemover(void* userData, wl_registry* /*registry*/, uint32_t id)
 	{
 		OUTPUT_MESSAGE("Got a registry losing event for %d", id);
 
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-		auto                   it = thiz->_outputs.begin();
-		auto                   itEnd = thiz->_outputs.end();
+		auto                   it = thiz->_outputs.Begin();
+		auto                   itEnd = thiz->_outputs.End();
 		while (it != itEnd)
 		{
 			if ((*it)->GetId() == id)
 			{
 				DefaultAllocator::GetInstance().Delete(*it);
-				thiz->_outputs.erase(it);
+				thiz->_outputs.Erase(it);
 				break;
 			}
 			++it;
@@ -204,7 +214,7 @@ namespace hod::window
 	/// @param userData
 	/// @param seat
 	/// @param name
-	void WaylandDisplayManager::SeatName(void* userData, wl_seat* wlSeat, const char* name)
+	void WaylandDisplayManager::SeatName(void* userData, wl_seat* /*wlSeat*/, const char* name)
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 		thiz->_seatName = name;
@@ -214,7 +224,7 @@ namespace hod::window
 	/// @param userData
 	/// @param seat
 	/// @param capabilities
-	void WaylandDisplayManager::SeatCapabilities(void* userData, wl_seat* wlSeat, uint32_t capabilities)
+	void WaylandDisplayManager::SeatCapabilities(void* userData, wl_seat* /*wlSeat*/, uint32_t capabilities)
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 
@@ -228,6 +238,12 @@ namespace hod::window
 				.motion = &WaylandDisplayManager::PointerMotion,
 				.button = &WaylandDisplayManager::PointerButton,
 				.axis = &WaylandDisplayManager::PointerAxis,
+				.frame = nullptr,
+				.axis_source = nullptr,
+				.axis_stop = nullptr,
+				.axis_discrete = nullptr,
+				.axis_value120 = nullptr,
+				.axis_relative_direction = nullptr,
 			};
 
 			wl_pointer_add_listener(thiz->_wlPointer, &pointerListener, thiz);
@@ -271,7 +287,7 @@ namespace hod::window
 	/// @param surface
 	/// @param surfaceX
 	/// @param surfaceY
-	void WaylandDisplayManager::PointerEnter(void* userData, wl_pointer* wlPointer, uint32_t serial, wl_surface* surface, wl_fixed_t surfaceX, wl_fixed_t surfaceY)
+	void WaylandDisplayManager::PointerEnter(void* userData, wl_pointer* /*wlPointer*/, uint32_t serial, wl_surface* surface, wl_fixed_t surfaceX, wl_fixed_t surfaceY)
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 		thiz->_pointerFocus = surface;
@@ -295,7 +311,7 @@ namespace hod::window
 	/// @param wlPointer
 	/// @param serial
 	/// @param surface
-	void WaylandDisplayManager::PointerLeave(void* userData, wl_pointer* wlPointer, uint32_t serial, wl_surface* surface)
+	void WaylandDisplayManager::PointerLeave(void* userData, wl_pointer* /*wlPointer*/, uint32_t /*serial*/, wl_surface* surface)
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 		if (thiz->_pointerFocus == surface)
@@ -310,7 +326,7 @@ namespace hod::window
 	/// @param time
 	/// @param surfaceX
 	/// @param surfaceY
-	void WaylandDisplayManager::PointerMotion(void* userData, wl_pointer* wlPointer, uint32_t time, wl_fixed_t surfaceX, wl_fixed_t surfaceY)
+	void WaylandDisplayManager::PointerMotion(void* userData, wl_pointer* /*wlPointer*/, uint32_t /*time*/, wl_fixed_t surfaceX, wl_fixed_t surfaceY)
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 
@@ -328,7 +344,7 @@ namespace hod::window
 	/// @param time
 	/// @param button
 	/// @param state
-	void WaylandDisplayManager::PointerButton(void* userData, wl_pointer* wlPointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
+	void WaylandDisplayManager::PointerButton(void* userData, wl_pointer* /*wlPointer*/, uint32_t /*serial*/, uint32_t /*time*/, uint32_t button, uint32_t state)
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 
@@ -400,7 +416,7 @@ namespace hod::window
 	/// @param time
 	/// @param axis
 	/// @param value
-	void WaylandDisplayManager::PointerAxis(void* userData, wl_pointer* wlPointer, uint32_t time, uint32_t axis, wl_fixed_t value) {}
+	void WaylandDisplayManager::PointerAxis(void* /*userData*/, wl_pointer* /*wlPointer*/, uint32_t /*time*/, uint32_t /*axis*/, wl_fixed_t /*value*/) {}
 
 	/// @brief
 	/// @param userData
@@ -408,7 +424,7 @@ namespace hod::window
 	/// @param format
 	/// @param fd
 	/// @param Size
-	void WaylandDisplayManager::KeyboardKeymap(void* userData, wl_keyboard* wl_keyboard, uint32_t format, int32_t fd, uint32_t Size)
+	void WaylandDisplayManager::KeyboardKeymap(void* userData, wl_keyboard* /*wl_keyboard*/, uint32_t format, int32_t fd, uint32_t Size)
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 
@@ -446,14 +462,14 @@ namespace hod::window
 	/// @param serial
 	/// @param surface
 	/// @param keys
-	void WaylandDisplayManager::KeyboardEnter(void* userData, wl_keyboard* wl_keyboard, uint32_t serial, wl_surface* surface, wl_array* keys) {}
+	void WaylandDisplayManager::KeyboardEnter(void* /*userData*/, wl_keyboard* /*wl_keyboard*/, uint32_t /*serial*/, wl_surface* /*surface*/, wl_array* /*keys*/) {}
 
 	/// @brief
 	/// @param userData
 	/// @param wl_keyboard
 	/// @param serial
 	/// @param surface
-	void WaylandDisplayManager::KeyboardLeave(void* userData, wl_keyboard* wl_keyboard, uint32_t serial, wl_surface* surface) {}
+	void WaylandDisplayManager::KeyboardLeave(void* /*userData*/, wl_keyboard* /*wl_keyboard*/, uint32_t /*serial*/, wl_surface* /*surface*/) {}
 
 	/// @brief
 	/// @param userData
@@ -462,10 +478,11 @@ namespace hod::window
 	/// @param time
 	/// @param key
 	/// @param state
-	void WaylandDisplayManager::KeyboardKey(void* userData, wl_keyboard* wl_keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
+	void WaylandDisplayManager::KeyboardKey(void* /*userData*/, wl_keyboard* /*wl_keyboard*/, uint32_t /*serial*/, uint32_t /*time*/, uint32_t /*key*/, uint32_t /*state*/)
 	{
-		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 		/*
+		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
+		
 		if (state & WL_KEYBOARD_KEY_STATE_PRESSED)
 		{
 		    const xkb_keysym_t* syms;
@@ -557,7 +574,7 @@ namespace hod::window
 	/// @param modsLatched
 	/// @param modsLocked
 	/// @param group
-	void WaylandDisplayManager::KeyboardModifiers(void* userData, wl_keyboard* wl_keyboard, uint32_t serial, uint32_t modsDepressed, uint32_t modsLatched, uint32_t modsLocked,
+	void WaylandDisplayManager::KeyboardModifiers(void* userData, wl_keyboard* /*wl_keyboard*/, uint32_t /*serial*/, uint32_t modsDepressed, uint32_t modsLatched, uint32_t modsLocked,
 	                                              uint32_t group)
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
@@ -570,13 +587,13 @@ namespace hod::window
 	/// @param wlKeyboard
 	/// @param rate
 	/// @param delay
-	void WaylandDisplayManager::KeyboardRepeatInfo(void* userData, wl_keyboard* wlKeyboard, int32_t rate, int32_t delay) {}
+	void WaylandDisplayManager::KeyboardRepeatInfo(void* /*userData*/, wl_keyboard* /*wlKeyboard*/, int32_t /*rate*/, int32_t /*delay*/) {}
 
 	/// @brief
 	/// @param context
 	/// @param error
 	/// @param message
-	void WaylandDisplayManager::LibDecorErrorHandler(libdecor* context, libdecor_error error, const char* message)
+	void WaylandDisplayManager::LibDecorErrorHandler(libdecor* /*context*/, libdecor_error error, const char* message)
 	{
 		OUTPUT_ERROR("LibDecor: Caught error ({}): {}", (int)error, message);
 	}
@@ -585,7 +602,7 @@ namespace hod::window
 	/// @param data
 	/// @param xdg_wm_base
 	/// @param serial
-	void WaylandDisplayManager::XdgWmBasePing(void* userData, xdg_wm_base* xdg_wm_base, uint32_t serial)
+	void WaylandDisplayManager::XdgWmBasePing(void* /*userData*/, xdg_wm_base* xdg_wm_base, uint32_t serial)
 	{
 		xdg_wm_base_pong(xdg_wm_base, serial);
 	}
@@ -605,7 +622,7 @@ namespace hod::window
 
 	/// @brief
 	/// @return
-	Window* WaylandDisplayManager::CreateWindow(bool hidden)
+	Window* WaylandDisplayManager::CreateWindow(bool /*hidden*/)
 	{
 		WaylandWindow* window = DefaultAllocator::GetInstance().New<WaylandWindow>(); // todo use hidden
 
@@ -616,7 +633,7 @@ namespace hod::window
 
 	/// @brief
 	/// @param window
-	void WaylandDisplayManager::DestroyWindow(Window* window) {}
+	void WaylandDisplayManager::DestroyWindow(Window* /*window*/) {}
 
 	/// @brief
 	/// @return
@@ -659,7 +676,7 @@ namespace hod::window
 	WaylandDisplayManager::Output& WaylandDisplayManager::CreateOutput(wl_output* wlOutput, uint32_t id)
 	{
 		_outputs.push_back(DefaultAllocator::GetInstance().New<Output>(wlOutput, id));
-		return *_outputs.back();
+		return *_outputs.Back();
 	}
 
 	/// @brief
@@ -706,8 +723,8 @@ namespace hod::window
 	/// @param make
 	/// @param model
 	/// @param transform
-	void WaylandDisplayManager::Output::OutputGeometry(void* userData, wl_output* wl_output, int32_t x, int32_t y, int32_t physicalWidth, int32_t physicalHeight, int32_t subpixel,
-	                                                   const char* make, const char* model, int32_t transform)
+	void WaylandDisplayManager::Output::OutputGeometry(void* /*userData*/, wl_output* /*wl_output*/, int32_t /*x*/, int32_t /*y*/, int32_t /*physicalWidth*/, int32_t /*physicalHeight*/, int32_t /*subpixel*/,
+	                                                   const char* /*make*/, const char* /*model*/, int32_t /*transform*/)
 	{
 	}
 
@@ -718,12 +735,12 @@ namespace hod::window
 	/// @param width
 	/// @param height
 	/// @param refresh
-	void WaylandDisplayManager::Output::OutputMode(void* userData, wl_output* wl_output, uint32_t flags, int32_t width, int32_t height, int32_t refresh) {}
+	void WaylandDisplayManager::Output::OutputMode(void* /*userData*/, wl_output* /*wl_output*/, uint32_t /*flags*/, int32_t /*width*/, int32_t /*height*/, int32_t /*refresh*/) {}
 
 	/// @brief
 	/// @param userData
 	/// @param wl_output
-	void WaylandDisplayManager::Output::OutputDone(void* userData, wl_output* wl_output)
+	void WaylandDisplayManager::Output::OutputDone(void* /*userData*/, wl_output* /*wl_output*/)
 	{
 		/*
 		struct output *output = data;
@@ -744,7 +761,7 @@ namespace hod::window
 	/// @param userData
 	/// @param wl_output
 	/// @param factor
-	void WaylandDisplayManager::Output::OutputScale(void* userData, wl_output* wl_output, int32_t factor)
+	void WaylandDisplayManager::Output::OutputScale(void* userData, wl_output* /*wl_output*/, int32_t factor)
 	{
 		Output* thiz = (Output*)userData;
 		thiz->_scale = factor;
@@ -754,11 +771,11 @@ namespace hod::window
 	/// @param userData
 	/// @param wl_output
 	/// @param name
-	void WaylandDisplayManager::Output::OutputName(void* userData, wl_output* wl_output, const char* name) {}
+	void WaylandDisplayManager::Output::OutputName(void* /*userData*/, wl_output* /*wl_output*/, const char* /*name*/) {}
 
 	/// @brief
 	/// @param userData
 	/// @param wl_output
 	/// @param description
-	void WaylandDisplayManager::Output::OutputDescription(void* userData, wl_output* wl_output, const char* description) {}
+	void WaylandDisplayManager::Output::OutputDescription(void* /*userData*/, wl_output* /*wl_output*/, const char* /*description*/) {}
 }

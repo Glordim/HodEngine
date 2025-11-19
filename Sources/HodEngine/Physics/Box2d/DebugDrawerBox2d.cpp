@@ -102,7 +102,7 @@ namespace hod::physics
 		renderCommand._color = (color << 8) | 0xff;
 
 		renderCommand._vertices.Resize(vertexCount * 2);
-		std::memcpy(renderCommand._vertices.Data(), vertices, sizeof(float) * vertexCount * 2);
+		std::memcpy((void*)renderCommand._vertices.Data(), vertices, sizeof(float) * vertexCount * 2);
 
 		thiz->_renderCommands.push_back(renderCommand);
 	}
@@ -279,8 +279,8 @@ namespace hod::physics
 		renderCommand._type = RenderCommand::Type::Line;
 		renderCommand._color = (color << 8) | 0xff;
 		renderCommand._vertices.Resize(2);
-		std::memcpy(renderCommand._vertices.Data(), &p1, 2 * sizeof(float));
-		std::memcpy(renderCommand._vertices.Data() + 2, &p2, 2 * sizeof(float));
+		std::memcpy((void*)renderCommand._vertices.Data(), &p1, 2 * sizeof(float));
+		std::memcpy((void*)(renderCommand._vertices.Data() + 2), &p2, 2 * sizeof(float));
 
 		thiz->_renderCommands.push_back(renderCommand);
 	}
@@ -308,7 +308,7 @@ namespace hod::physics
 		renderCommand._type = RenderCommand::Type::Point;
 		renderCommand._color = (color << 8) | 0xff;
 		renderCommand._vertices.Resize(1);
-		std::memcpy(renderCommand._vertices.Data(), &p, 2 * sizeof(float));
+		std::memcpy((void*)renderCommand._vertices.Data(), &p, 2 * sizeof(float));
 
 		thiz->_renderCommands.push_back(renderCommand);
 
