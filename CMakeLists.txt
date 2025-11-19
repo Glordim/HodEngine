@@ -1,6 +1,11 @@
-cmake_minimum_required(VERSION 3.4...3.27)
+cmake_minimum_required(VERSION 3.10)
 
 project(Hod) # Rename
+
+option(ENABLE_UNITY_BUILD "Enable Unity Build for faster compilation" OFF)
+if (ENABLE_UNITY_BUILD)
+    set(CMAKE_UNITY_BUILD ON)
+endif()
 
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
@@ -15,197 +20,120 @@ include(ExternalProject)
 if(WIN32)
   set(LIB_PREFIX "")
   set(LIB_EXTENSION "lib")
+  set(DLL_EXTENSION "dll")
+elseif(APPLE)
+  set(LIB_PREFIX "lib")
+  set(LIB_EXTENSION "a")
+  set(DLL_EXTENSION "dylib")
 else()
   set(LIB_PREFIX "lib")
   set(LIB_EXTENSION "a")
+  set(DLL_EXTENSION "so")
 endif()
 
-if(PLATFORM_LINUX)
-  set(LIB_SUB_FOLDER "Release")
+if(WIN32)
+    if(ARCH STREQUAL "x64")
+        set(ARCH_FOLDER "Win_${ARCH}")
+    elseif(ARCH STREQUAL "arm64")
+        set(ARCH_FOLDER "Win_${ARCH}")
+    else()
+        message(FATAL_ERROR "Unsupported Windows architecture: ${ARCH}")
+    endif()
+elseif(APPLE)
+    if(ARCH STREQUAL "arm64")
+        set(ARCH_FOLDER "MacOs_${ARCH}")
+    else()
+        message(FATAL_ERROR "Unsupported Apple architecture: ${ARCH}")
+    endif()
+elseif(UNIX)
+    if(ARCH STREQUAL "x64")
+        set(ARCH_FOLDER "Linux_${ARCH}")
+    else()
+        message(FATAL_ERROR "Unsupported Linux architecture: ${ARCH}")
+    endif()
 else()
-  set(LIB_SUB_FOLDER "Release")
+    message(FATAL_ERROR "Unsupported system: ${ARCH}")
 endif()
 
-FetchContent_Declare(
-  stb
-  URL https://github.com/nothings/stb/archive/refs/heads/master.zip)
+set(THIRDPARTY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/${ARCH_FOLDER}")
 
-FetchContent_MakeAvailable(stb)
-message(STATUS "stb is available in " ${stb_SOURCE_DIR})
-
-FetchContent_Declare(
-  portable_file_dialogs
-  URL https://github.com/samhocevar/portable-file-dialogs/archive/refs/heads/main.zip)
-FetchContent_MakeAvailable(portable_file_dialogs)
-message(STATUS "portable_file_dialogs is available in " ${portable_file_dialogs_SOURCE_DIR})
-
-set(box2d_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/box2d-src/include)
-set(box2d_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/box2d-build/src/${LIB_SUB_FOLDER}/${LIB_PREFIX}box2d.${LIB_EXTENSION})
-
-ExternalProject_Add(box2d
-  URL https://github.com/erincatto/box2d/archive/refs/tags/v3.0.0.zip
-  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/box2d-src
-  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/box2d-build
-  CMAKE_ARGS
-    -DBOX2D_SAMPLES=OFF
-    -DBOX2D_VALIDATE=OFF
-    -DBOX2D_UNIT_TESTS=OFF
-    -DBOX2D_AVX2=OFF # TODO crash on Android
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DANDROID_ABI=${ANDROID_ABI}
-    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
-    -G ${CMAKE_GENERATOR}
-  BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/box2d-build --config Release
-  INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${box2d_LIBRARIES}
+add_library(Box2d::Box2d STATIC IMPORTED GLOBAL)
+set_target_properties(Box2d::Box2d PROPERTIES
+    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
-message(STATUS "box2d is available in " ${box2d_INCLUDE_DIRS})
-message(STATUS "box2d is available in " ${box2d_LIBRARIES})
-
-set(freetype_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/freetype-src/include)
-set(freetype_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/freetype-build/${LIB_SUB_FOLDER}/${LIB_PREFIX}freetype.${LIB_EXTENSION})
-
-ExternalProject_Add(freetype
-  URL https://github.com/freetype/freetype/archive/refs/tags/VER-2-13-2.zip
-  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/freetype-src
-  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/freetype-build
-  CMAKE_ARGS
-    -DFT_DISABLE_BROTLI=ON
-    -DFT_DISABLE_HARFBUZZ=ON
-    -DFT_DISABLE_PNG=ON
-    -DFT_DISABLE_BZIP2=ON
-    -DFT_DISABLE_ZLIB=ON
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DANDROID_ABI=${ANDROID_ABI}
-    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
-    -G ${CMAKE_GENERATOR}
-  BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/freetype-build --config Release
-  INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${freetype_LIBRARIES}
+add_library(Freetype::Freetype STATIC IMPORTED GLOBAL)
+set_target_properties(Freetype::Freetype PROPERTIES
+    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}freetype.${LIB_EXTENSION}"
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
 )
 
-message(STATUS "freetype is available in " ${freetype_INCLUDE_DIRS})
-message(STATUS "freetype is available in " ${freetype_LIBRARIES})
-
-set(msdfgen_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/msdfgen-src/include)
-set(msdfgen_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/msdfgen-build/${LIB_SUB_FOLDER}/${LIB_PREFIX}msdfgen-core.${LIB_EXTENSION})
-
-ExternalProject_Add(msdfgen
-  URL https://github.com/Chlumsky/msdfgen/archive/refs/tags/v1.12.zip
-  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/msdfgen-src
-  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/msdfgen-build
-  CMAKE_ARGS
-    -DMSDFGEN_CORE_ONLY=ON
-    -DMSDFGEN_BUILD_STANDALONE=OFF
-    -DMSDFGEN_USE_VCPKG=OFF
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=14 #TODO only on MacOs platform
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DANDROID_ABI=${ANDROID_ABI}
-    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
-    -G ${CMAKE_GENERATOR}
-  BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/msdfgen-build --config Release
-  INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${msdfgen_LIBRARIES}
+add_library(SpirvCross::SpirvCross STATIC IMPORTED GLOBAL)
+set_target_properties(SpirvCross::SpirvCross PROPERTIES
+    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}spirv-cross-core.${LIB_EXTENSION}"
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
-message(STATUS "msdfgen is available in " ${msdfgen_INCLUDE_DIRS})
-message(STATUS "msdfgen is available in " ${msdfgen_LIBRARIES})
-
-# TODO move in Renderer CmakeList (only with Vulkan) ? 
-
-set(glslang_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/glslang-src)
-set(glslang_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/${LIB_SUB_FOLDER}/${LIB_PREFIX}glslang.${LIB_EXTENSION} ${CMAKE_BINARY_DIR}/_deps/glslang-build/glslang/${LIB_SUB_FOLDER}/${LIB_PREFIX}glslang-default-resource-limits.${LIB_EXTENSION})
-
-ExternalProject_Add(glslang
-  URL https://github.com/KhronosGroup/glslang/archive/refs/tags/15.0.0.zip
-  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/glslang-src
-  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/glslang-build
-  CMAKE_ARGS
-    -DGLSLANG_TESTS=OFF
-    -DBUILD_EXTERNAL=OFF
-    -DENABLE_SPIRV=ON
-    -DENABLE_HLSL=OFF
-    -DENABLE_SPVREMAPPER=OFF
-    -DENABLE_GLSLANG_BINARIES=OFF
-    -DENABLE_OPT=OFF
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DANDROID_ABI=${ANDROID_ABI}
-    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
-    -G ${CMAKE_GENERATOR}
-  BUILD_COMMAND 
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/glslang-build --config Release
-  INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${glslang_LIBRARIES}
+add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)
+set_target_properties(Stb::Stb PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
-message(STATUS "glslang is available in " ${glslang_INCLUDE_DIRS})
-message(STATUS "glslang is available in " ${glslang_LIBRARIES})
-
-ExternalProject_Add(VulkanMemoryAllocator
-  URL https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/archive/refs/tags/v3.1.0.zip
-  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-src
-  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-build
-  CMAKE_ARGS
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DANDROID_ABI=${ANDROID_ABI}
-    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
-    -G ${CMAKE_GENERATOR}
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${VulkanMemoryAllocator_LIBRARIES}
+add_library(WindowsHModular::WindowsHModular INTERFACE IMPORTED GLOBAL)
+set_target_properties(WindowsHModular::WindowsHModular PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
-set(VulkanMemoryAllocator_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/VulkanMemoryAllocator-src/include)
-
-message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_INCLUDE_DIRS})
-message(STATUS "VulkanMemoryAllocator is available in " ${VulkanMemoryAllocator_LIBRARIES})
-
-set(SpirvCross_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/_deps/SpirvCross-src)
-set(SpirvCross_LIBRARIES ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build/${LIB_SUB_FOLDER}/${LIB_PREFIX}spirv-cross-core.${LIB_EXTENSION})
-
-ExternalProject_Add(SpirvCross
-  URL https://github.com/KhronosGroup/SPIRV-Cross/archive/refs/tags/vulkan-sdk-1.3.275.0.zip
-  DOWNLOAD_DIR ${DOWNLOAD_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/SpirvCross-src
-  BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build
-  CMAKE_ARGS
-    -DSPIRV_CROSS_CLI=OFF
-    -DSPIRV_CROSS_ENABLE_TESTS=OFF
-    -DSPIRV_CROSS_ENABLE_HLSL=OFF
-    -DSPIRV_CROSS_ENABLE_MSL=OFF
-    -DSPIRV_CROSS_ENABLE_CPP=OFF
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DANDROID_ABI=${ANDROID_ABI}
-    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
-    -G ${CMAKE_GENERATOR}
-  BUILD_COMMAND
-    ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/SpirvCross-build --config Release
-  INSTALL_COMMAND ""
-  BUILD_BYPRODUCTS ${SpirvCross_LIBRARIES}
+add_library(VulkanMemoryAllocator::VulkanMemoryAllocator INTERFACE IMPORTED GLOBAL)
+set_target_properties(VulkanMemoryAllocator::VulkanMemoryAllocator PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
-message(STATUS "SpirvCross is available in " ${SpirvCross_INCLUDE_DIRS})
-message(STATUS "SpirvCross is available in " ${SpirvCross_LIBRARIES})
-#
+add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)
+set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+)
 
-set(SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDK")
+add_library(Gtest::Gtest STATIC IMPORTED GLOBAL)
+set_target_properties(Gtest::Gtest PROPERTIES
+    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}gtest.${LIB_EXTENSION}"
+    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/Gtest"
+    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/Gtest"
+)
+add_library(GtestMain::GtestMain STATIC IMPORTED GLOBAL)
+set_target_properties(GtestMain::GtestMain PROPERTIES
+    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}gtest_main.${LIB_EXTENSION}"
+)
+
+if(WIN32)
+set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc.exe")
+set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang.${DLL_EXTENSION}")
+set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+else()
+set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc")
+set(SLANG_DLL "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang.${DLL_EXTENSION}")
+set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+endif()
+
+SetupPlatform()
+SetupCompilation()
+
+option(BUILD_UNIT_TESTS "Enable UnitTests compilation" ON)
+if (BUILD_UNIT_TESTS)
+  include(CTest)
+  enable_testing()
+  add_subdirectory("Sources/Tests/Core")
+
+  set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
+endif()
 
 set(CMAKE_SUPPRESS_REGENERATION true)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -223,6 +151,7 @@ add_subdirectory("Sources/HodEngine/Renderer")
 add_subdirectory("Sources/HodEngine/ImGui")
 add_subdirectory("Sources/HodEngine/Physics")
 add_subdirectory("Sources/HodEngine/Game")
+add_subdirectory("Sources/HodEngine/UI")
 add_subdirectory("Sources/HodEngine/Input")
 add_subdirectory("Sources/HodEngine/Audio")
 add_subdirectory("Sources/HodEngine/Application")
@@ -230,18 +159,10 @@ add_subdirectory("Sources/HodEngine/Application")
 add_subdirectory("Sources/HodApplication")
 
 if (NOT ANDROID)
+  add_subdirectory("Sources/HodEngine/CoreEditor")
+  add_subdirectory("Sources/HodEngine/InputEditor")
+  add_subdirectory("Sources/HodEngine/GameEditor")
+  add_subdirectory("Sources/HodEngine/UIEditor")
   add_subdirectory("Sources/HodEngine/Editor")
   add_subdirectory("Sources/HodEditor")
 endif()
-
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-#enable_testing()
-#add_subdirectory("Sources/Tests/Core")

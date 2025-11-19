@@ -8,26 +8,22 @@ struct android_app;
 
 namespace hod::application
 {
-	/// @brief 
+	/// @brief
 	class HOD_APPLICATION_API AndroidApplication : public GraphicApplication
 	{
 	public:
-
-		bool			Init(android_app* androidApp);
-		bool			Run() override;
+		bool Init(android_app* androidApp);
+		bool Run() override;
 
 	public:
-
-		static void		CommandHandleStatic(android_app* androidApp, int32_t command);
-		void			CommandHandle(int32_t command);
+		static void CommandHandleStatic(android_app* androidApp, int32_t command);
+		void        CommandHandle(int32_t command);
 
 	protected:
-
-		bool			Init(const ArgumentParser& argumentParser) override { return false; }
+		bool Init(const ArgumentParser& argumentParser) override;
 
 	private:
-
-		android_app*	_androidApp = nullptr;
-		Module			_gameModule;
+		android_app* _androidApp = nullptr;
+		Module       _gameModule;
 	};
 }

@@ -3,13 +3,13 @@
 
 #include <HodEngine/Core/Type.hpp> // std::to_underlying
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	struct HOD_CORE_API Output
-    {
+	{
 		enum class Type
 		{
 			Message = 0,
@@ -21,8 +21,7 @@ namespace hod
 		};
 
 	public:
-
-		Output(Type type, const std::string& content);
+		Output(Type type, const String& content);
 		Output(const Output& other) = default;
 		Output(Output&& other) = default;
 		~Output() = default;
@@ -31,21 +30,17 @@ namespace hod
 		Output& operator=(Output&& other) = default;
 
 	public:
-
-		Type GetType() const;
-		const std::string& GetContent() const;
+		Type          GetType() const;
+		const String& GetContent() const;
 
 	public:
-
 		static const char* GetTypeName(Type type);
-		
-	private:
-
-        Type _type;
-        std::string _content;
 
 	private:
+		Type   _type;
+		String _content;
 
+	private:
 		static const char* _typeNames[std::to_underlying(Type::Count)];
-    };
+	};
 }

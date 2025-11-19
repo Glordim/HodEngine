@@ -4,6 +4,7 @@
 
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp>
 
 namespace hod::editor
@@ -17,7 +18,7 @@ namespace hod::editor
 
     }
 
-    EditorReflectedProperty::EditorReflectedProperty(const std::vector<void*>& instances, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent)
+    EditorReflectedProperty::EditorReflectedProperty(const Vector<void*>& instances, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent)
     : _instances(instances)
     , _sourceInstance(sourceInstance)
     , _reflectionProperty(reflectionProperty)
@@ -28,7 +29,7 @@ namespace hod::editor
 
     EditorReflectedProperty::~EditorReflectedProperty()
     {
-        delete _reflectedObject;
+        DefaultAllocator::GetInstance().Delete(_reflectedObject);
     }
 
     ReflectionProperty* EditorReflectedProperty::GetReflectionProperty() const
@@ -51,16 +52,16 @@ namespace hod::editor
         return _instances[0];
     }
 
-    const std::vector<void*>& EditorReflectedProperty::GetInstances() const
+    const Vector<void*>& EditorReflectedProperty::GetInstances() const
     {
         return _instances;
     }
 
     EditorReflectedObject* EditorReflectedProperty::GetEditorReflectedObject()
     {
-        if (_reflectedObject == nullptr && _reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+        if (_reflectedObject == nullptr && (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic() || (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)))
         {
-            _reflectedObject = new EditorReflectedObject(*this);
+            _reflectedObject = DefaultAllocator::GetInstance().New<EditorReflectedObject>(*this);
         }
         return _reflectedObject;
     }
@@ -81,5 +82,35 @@ namespace hod::editor
             return _reflectedObject->IsOverride();
         }
         return false;
+    }
+
+    bool EditorReflectedProperty::IsArray() const
+    {
+        return (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic());
+    }
+
+    uint32_t EditorReflectedProperty::GetArraySize() const
+    {
+        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        {
+            return static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementCount(_instances[0]);
+        }
+        else
+        {
+            assert(false);
+            return 0;
+        }
+    }
+
+    EditorReflectedProperty EditorReflectedProperty::GenerateElementProperty(uint32_t index) const
+    {
+        EditorReflectedProperty elementProperty(_instances[0], nullptr, _reflectionProperty, _reflectedObject); // todo support multiselection
+        elementProperty._internalIndex = index;
+        return elementProperty;
+    }
+
+    uint32_t EditorReflectedProperty::GetInternalIndex() const
+    {
+        return _internalIndex;
     }
 }

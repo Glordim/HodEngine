@@ -3,30 +3,36 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(SceneResource, Resource)
+	DESCRIBE_REFLECTED_CLASS(SceneResource, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
 	SceneResource::~SceneResource()
 	{
-		delete _scene;
 	}
 
 	/// @brief 
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SceneResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
+	bool SceneResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& /*datas*/)
 	{
-		_scene = new Scene();
-		return _scene->DeserializeFromDocument(documentNode);
+		_document.GetRootNode().Copy(documentNode);
+		return true;
 	}
 
 	/// @brief 
 	/// @return 
-	Scene& SceneResource::GetScene()
+	Scene* SceneResource::CreateScene()
 	{
-		return *_scene;
+		Scene* scene = DefaultAllocator::GetInstance().New<Scene>();
+		if (scene->DeserializeFromDocument(_document.GetRootNode()) == false)
+		{
+			DefaultAllocator::GetInstance().Delete(scene);
+			return nullptr;
+		}
+		return scene;
 	}
 }

@@ -1,9 +1,13 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <map>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <cstdint>
+#include <map>
+#include <unordered_map>
+
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
 namespace hod
 {
@@ -13,20 +17,22 @@ namespace hod
 		class Texture;
 		class VertexInput;
 		class MaterialInstance;
+		class ShaderSetDescriptor;
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		class HOD_RENDERER_API Material
 		{
 		public:
-
 			enum PolygonMode
 			{
 				Fill,
 				Line,
 				Point,
 			};
+
+			REFLECTED_ENUM(HOD_RENDERER_API, PolygonMode);
 
 			enum Topololy
 			{
@@ -37,22 +43,35 @@ namespace hod
 				TRIANGLE_FAN,
 			};
 
-									Material();
-			virtual					~Material();
+			REFLECTED_ENUM(HOD_RENDERER_API, Topololy);
 
-			virtual bool			Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
+			Material();
+			virtual ~Material();
 
-			//bool					link(Shader* vertexShader, Shader* fragmentShader);
-			//void					use();
+			virtual bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+			                   PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
 
-			void					CreateDefaultInstance();
-			const MaterialInstance*	GetDefaultInstance() const;
+			// bool					link(Shader* vertexShader, Shader* fragmentShader);
+			// void					use();
+
+			void                    CreateDefaultInstance();
+			const MaterialInstance* GetDefaultInstance() const;
+			MaterialInstance*       EditDefaultInstance();
+
+			const std::unordered_map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
+			const ReflectionDescriptor&                               GetReflectionDescriptorForParameters();
+
+		protected:
+			std::unordered_map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
 
 		private:
+			MaterialInstance* _defaultInstance = nullptr;
 
-			MaterialInstance*		_defaultInstance = nullptr;
+			bool                          _paramsReflectionDescriptorGenerated = false;
+			ReflectionDescriptor          _paramsReflectionDescriptor;
+			Vector<ReflectionDescriptor*> _paramsSubReflectionDescriptors;
 
-		//uint32_t				getLocationFromName(const std::string& name);
+			// uint32_t				getLocationFromName(const String& name);
 		};
 	}
 }

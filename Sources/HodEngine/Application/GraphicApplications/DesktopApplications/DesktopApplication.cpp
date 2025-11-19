@@ -3,8 +3,5 @@
 
 namespace hod::application
 {
-	_SingletonOverrideConstructor(DesktopApplication)
-	{
-
-	}
+	_SingletonOverrideConstructor(DesktopApplication) {}
 }

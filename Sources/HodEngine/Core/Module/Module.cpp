@@ -1,61 +1,64 @@
 #include "HodEngine/Core/Pch.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Module/Module.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
+#undef CopyFile
+
 namespace hod
 {
-	/// @brief 
-	/// @param path 
-	/// @param copyForSupportReload 
-	void Module::Init(const std::filesystem::path& path, bool copyForSupportReload)
+	/// @brief
+	/// @param path
+	/// @param copyForSupportReload
+	void Module::Init(const Path& path, bool copyForSupportReload)
 	{
 		_path = path;
 		_copyForSupportReload = copyForSupportReload;
 
-		if (_path.has_extension() == false)
+		if (_path.HasExtension() == false)
 		{
 			_path += GetModuleExtension();
 		}
 		else
 		{
-			_path.replace_extension(GetModuleExtension());
+			_path.ReplaceExtension(GetModuleExtension());
 		}
 
-		_path.replace_filename(GetModulePrefix() + _path.filename().string());
+		_path.ReplaceFilename(GetModulePrefix() + _path.Filename().GetString());
 
 		_copyPath = _path;
 		if (_copyForSupportReload == true)
 		{
-			std::filesystem::path newFilename = _copyPath.stem();
+			Path newFilename = _copyPath.Stem();
 			newFilename += "-Copy";
-			newFilename += _copyPath.extension();
-			_copyPath.replace_filename(newFilename);
+			newFilename += _copyPath.Extension();
+			_copyPath.ReplaceFilename(newFilename);
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	Module::~Module()
 	{
 		Unload();
 	}
 
-	/// @brief 
-	/// @return 
-	const std::filesystem::path& Module::GetPath() const
+	/// @brief
+	/// @return
+	const Path& Module::GetPath() const
 	{
 		return _path;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Module::Load()
 	{
 		if (_copyForSupportReload == true)
 		{
 			try
 			{
-				std::filesystem::copy_file(_path, _copyPath, std::filesystem::copy_options::update_existing);
+				FileSystem::GetInstance()->CopyFile(_path, _copyPath, true);
 			}
 			catch (std::exception& e)
 			{
@@ -69,8 +72,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Module::Unload()
 	{
 		if (InternalUnload() == false)
@@ -78,23 +81,22 @@ namespace hod
 			return false;
 		}
 
-		if (_copyForSupportReload == true && std::filesystem::exists(_copyPath))
+		if (_copyForSupportReload == true && FileSystem::GetInstance()->Exists(_copyPath))
 		{
 			try
 			{
-				std::filesystem::remove(_copyPath);
+				FileSystem::GetInstance()->Remove(_copyPath);
 			}
 			catch (...)
 			{
-
 			}
 		}
 
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Module::Reload()
 	{
 		if (Unload() == false)

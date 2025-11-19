@@ -1,15 +1,16 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <string>
-#include <vector>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
-#include "HodEngine/Renderer/RenderQueue.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
+
+#undef CreateSemaphore
 
 namespace hod::application
 {
@@ -24,7 +25,7 @@ namespace hod::window
 namespace hod::renderer
 {
 	struct GpuDevice;
-	class RenderQueue;
+	class RenderView;
 	class Buffer;
 	class CommandBuffer;
 	class Material;
@@ -33,7 +34,8 @@ namespace hod::renderer
 	class Context;
 	class VertexInput;
 	class RenderTarget;
-	class ShaderGenerator;
+	class Semaphore;
+	class Fence;
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
@@ -62,15 +64,9 @@ namespace hod::renderer
 
 		virtual bool				BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) = 0;
 
-		virtual bool				GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) = 0;
+		virtual bool				GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) = 0;
 
-
-		virtual bool				ResizeSwapChain() = 0;
-
-		virtual bool				AcquireNextImageIndex() = 0;
-		virtual bool				SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount) = 0;
-
-		virtual bool				SwapBuffer() = 0;
+		virtual bool				SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) = 0;
 
 		virtual CommandBuffer*		CreateCommandBuffer() = 0;
 		virtual Buffer*				CreateBuffer(Buffer::Usage usage, uint32_t size) = 0;
@@ -79,6 +75,12 @@ namespace hod::renderer
 		virtual MaterialInstance*	CreateMaterialInstance(const Material* material) = 0;
 		virtual Texture*			CreateTexture() = 0;
 		virtual RenderTarget*		CreateRenderTarget() = 0;
+		virtual Semaphore*			CreateSemaphore() = 0;
+		virtual Fence*				CreateFence() = 0;
+
+		void						PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame = true);
+		void						RenderViews();
+		void						WaitViews();
 
 		//Debug
 	public:
@@ -92,10 +94,6 @@ namespace hod::renderer
 
 		Texture*					GetDefaultWhiteTexture();
 
-		ShaderGenerator*			GetShaderGenerator() const;
-
-		RenderQueue*				GetRenderQueue() const;
-
 	protected:
 
 		Material*					_overdrawnMaterial = nullptr;
@@ -106,8 +104,8 @@ namespace hod::renderer
 
 		Material*					_defaultMaterial = nullptr;
 		MaterialInstance*			_defaultMaterialInstance = nullptr;
-
-		RenderQueue*				_renderQueue = nullptr;
+		
+		Vector<RenderView*>			_renderViews;
 
 		/*
 		Material* _unlitVertexColorMaterial = nullptr;
@@ -122,7 +120,5 @@ namespace hod::renderer
 		VisualizationMode			_visualizationMode = VisualizationMode::Normal;
 
 		Texture*					_defaultWhiteTexture = nullptr;
-
-		ShaderGenerator*			_shaderGenerator = nullptr;
 	};
 }

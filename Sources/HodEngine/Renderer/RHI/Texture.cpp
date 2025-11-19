@@ -4,10 +4,10 @@
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include <Stb/stb_image.h>
 
 #include <iostream>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {

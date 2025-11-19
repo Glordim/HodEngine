@@ -3,14 +3,14 @@
 
 #include "HodEngine/Game/Components/Physics/2d/Collider2dComponent.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::game
 {
 	/// @brief 
 	class HOD_GAME_API CircleCollider2dComponent : public Collider2dComponent
 	{
-		REFLECTED_CLASS(CircleCollider2dComponent, Collider2dComponent, HOD_GAME_API)
+		REFLECTED_CLASS(CircleCollider2dComponent, Collider2dComponent)
 
 	public:
 
@@ -24,7 +24,7 @@ namespace hod::game
 
 	public:
 
-		void			OnAwake() override;
+		void			OnStart() override;
 
 		void			SetOffset(const Vector2& offset);
 		const Vector2&	GetOffset() const;

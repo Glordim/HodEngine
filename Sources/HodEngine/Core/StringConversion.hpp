@@ -1,32 +1,32 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
+#include "HodEngine/Core/String.hpp"
 #include <string_view>
-#include <string>
 
 namespace hod
 {
 	namespace StringConversion
 	{
-		#if defined(PLATFORM_WINDOWS)
-		HOD_CORE_API bool	StringToWString(const std::string_view& str, std::wstring& result);
-		HOD_CORE_API bool	WStringToString(const std::wstring& str, std::string& result);
-		#endif
+#if defined(PLATFORM_WINDOWS)
+		HOD_CORE_API bool StringToWString(const std::string_view& str, std::wstring& result);
+		HOD_CORE_API bool WStringToString(const std::wstring& str, String& result);
+#endif
 
-		template<typename ... Args>
-		HOD_CORE_API std::string StringFormat(const std::string_view& format, Args ... args )
+		template<typename... Args>
+		HOD_CORE_API String StringFormat(const std::string_view& format, Args... args)
 		{
-			int size = std::snprintf(nullptr, 0, format.data(), args ... ) + 1; // Extra space for '\0'
+			int size = std::snprintf(nullptr, 0, format.data(), args...) + 1; // Extra space for '\0'
 			if (size <= 0)
 			{
-				return std::string();
+				return String();
 			}
 
 			char buffer[4096] = {'\0'};
 
-			std::string result;
-			result.reserve(size);
-			std::snprintf(buffer, size, format.data(), args ... );
+			String result;
+			result.Reserve(size);
+			std::snprintf(buffer, size, format.data(), args...);
 			buffer[size - 1] = '\0';
 			result = buffer;
 			return result;

@@ -11,7 +11,7 @@ namespace hod::window
 
     class HOD_WINDOW_API DesktopDisplayManager : public DisplayManager
     {
-        _SingletonAbstract(DesktopDisplayManager)
+        _SingletonAbstractOverride(DesktopDisplayManager)
 
     public:
 

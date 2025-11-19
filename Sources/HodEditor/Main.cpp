@@ -30,6 +30,7 @@ int HodMain(int argc, char** argv)
 	HodEditor* app = HodEditor::CreateInstance();
 	if (app->Init(argumentParser) == false)
 	{
+		app->Terminate();
 		return 1;
 	}
 

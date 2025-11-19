@@ -3,31 +3,28 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {
-	///@brief 
+	///@brief
 	class HOD_CORE_API ReflectionTraitDisplayName : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitDisplayName, ReflectionTrait)
 
 	public:
+		ReflectionTraitDisplayName(const std::string_view& name);
+		ReflectionTraitDisplayName(const ReflectionTraitDisplayName& copy) = default;
+		ReflectionTraitDisplayName(ReflectionTraitDisplayName&& move) = default;
+		~ReflectionTraitDisplayName() = default;
 
-										ReflectionTraitDisplayName(const std::string_view& name);
-										ReflectionTraitDisplayName(const ReflectionTraitDisplayName& copy) = default;
-										ReflectionTraitDisplayName(ReflectionTraitDisplayName&& move) = default;
-										~ReflectionTraitDisplayName() = default;
-
-		ReflectionTraitDisplayName&		operator = (const ReflectionTraitDisplayName& copy) = default;
-		ReflectionTraitDisplayName&		operator = (ReflectionTraitDisplayName&& move) = default;
+		ReflectionTraitDisplayName& operator=(const ReflectionTraitDisplayName& copy) = default;
+		ReflectionTraitDisplayName& operator=(ReflectionTraitDisplayName&& move) = default;
 
 	public:
-
-		const std::string&				GetValue() const;
+		const String& GetValue() const;
 
 	private:
-
-		std::string						_name;
+		String _name;
 	};
 }

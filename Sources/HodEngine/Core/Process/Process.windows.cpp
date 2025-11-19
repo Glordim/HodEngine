@@ -1,15 +1,19 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Process/Process.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/Process/Process.hpp"
 
-#include <Windows.h>
+#include <win32/file.h>
+#include <win32/io.h>
+#include <win32/misc.h>
+#include <win32/process.h>
+#include <win32/threads.h>
 
 namespace hod
 {
-	/// @brief 
-	/// @param program 
-	/// @param argument 
-	/// @return 
+	/// @brief
+	/// @param program
+	/// @param argument
+	/// @return
 	bool Process::Create(const std::string_view& program, const std::string_view& argument, bool detach)
 	{
 		SECURITY_ATTRIBUTES saAttr;
@@ -29,25 +33,20 @@ namespace hod
 		SetHandleInformation(hStdOutRead, HANDLE_FLAG_INHERIT, 0);
 		SetHandleInformation(hStdErrRead, HANDLE_FLAG_INHERIT, 0);
 
-		STARTUPINFOA si;
-		ZeroMemory(&si, sizeof(si));
+		STARTUPINFOA si = {};
 		si.cb = sizeof(si);
 		si.dwFlags = STARTF_USESTDHANDLES;
 		si.hStdOutput = hStdOutWrite;
 		si.hStdError = hStdErrWrite;
 		si.hStdInput = NULL;
 
-		PROCESS_INFORMATION pi;
-		ZeroMemory(&pi, sizeof(pi));
+		PROCESS_INFORMATION pi = {};
 
-		CHAR resolvedProgram[MAX_PATH];
-		ExpandEnvironmentStrings(program.data(), resolvedProgram, MAX_PATH);
-
-		std::string commandLine = resolvedProgram;
+		String commandLine = program.data();
 		commandLine += " ";
 		commandLine += argument;
 
-		if (!CreateProcessA(NULL, (char*)commandLine.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW | (detach ? DETACHED_PROCESS : 0), NULL, NULL, &si, &pi)) 
+		if (!CreateProcessA(NULL, (char*)commandLine.CStr(), NULL, NULL, TRUE, CREATE_NO_WINDOW | (detach ? DETACHED_PROCESS : 0), NULL, NULL, &si, &pi))
 		{
 			OUTPUT_ERROR("Failed to create process ({})", GetLastError());
 			CloseHandle(hStdOutRead);
@@ -67,9 +66,9 @@ namespace hod
 		}
 		else
 		{
-			char buffer[4096];
+			char  buffer[4096];
 			DWORD bytesRead;
-			BOOL success;
+			BOOL  success;
 			DWORD exitCode;
 
 			while (true)

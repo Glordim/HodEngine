@@ -6,7 +6,7 @@ namespace hod::imgui
 	template<typename Window_, typename... Args>
 	Window_* ImGuiManager::OpenWindow(Args&&... args)
 	{
-		Window_* window = new Window_(std::forward<Args>(args)...);
+		Window_* window = DefaultAllocator::GetInstance().New<Window_>(std::forward<Args>(args)...);
 		OpenWindow(window);
 		return window;
 	}
@@ -24,7 +24,7 @@ namespace hod::imgui
 	/// @tparam Window_ 
 	/// @return 
 	template<typename Window_>
-	std::vector<Window*> ImGuiManager::FindWindows() const
+	Vector<Window*> ImGuiManager::FindWindows() const
 	{
 		return FindWindows(Window_::GetStaticDescription());
 	}

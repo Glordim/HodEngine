@@ -4,30 +4,26 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include <HodEngine/ImGui/Window/Window.hpp>
 
-#include <vector>
-#include <filesystem>
+#include "HodEngine/Core/Vector.hpp"
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include "HodEngine/Editor/RecentProjects.hpp"
 
 namespace hod::editor
 {
-	/// @brief 
+	/// @brief
 	class HOD_EDITOR_API ProjectBrowser : public imgui::Window
 	{
-		META_TYPE(ProjectBrowser, imgui::Window);
-		WINDOW_DESCRIPTION()
+		REFLECTED_CLASS(ProjectBrowser, imgui::Window)
 
 	public:
-
-					ProjectBrowser();
-					~ProjectBrowser() override = default;
+		ProjectBrowser();
+		~ProjectBrowser() override = default;
 
 	public:
-
-		void		DrawContent() override;
+		void DrawContent() override;
 
 	private:
-
 		RecentProjects _recentProjects;
 	};
 }

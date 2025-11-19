@@ -1,7 +1,7 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/InputManager.hpp"
 #include "HodEngine/Input/Api.hpp"
-#include "HodEngine/Input/Device.hpp"
+#include "HodEngine/Input/Devices/Device.hpp"
+#include "HodEngine/Input/InputManager.hpp"
 
 #include "HodEngine/Core/Frame/FrameSequencer.hpp"
 #include "HodEngine/Core/Job/JobScheduler.hpp"
@@ -9,12 +9,11 @@
 namespace hod::input
 {
 	_SingletonConstructor(InputManager)
-	: _updateJob(this, &InputManager::UpdateJob, JobQueue::FramedHighPriority, false)
+	: _updateJob(this, &InputManager::UpdateJob, JobQueue::Queue::Framed, false)
 	{
-
 	}
 
-	/// @brief 
+	/// @brief
 	InputManager::~InputManager()
 	{
 		FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::PreLogic);
@@ -25,12 +24,12 @@ namespace hod::input
 
 		for (Api* api : _apis)
 		{
-			delete api;
+			DefaultAllocator::GetInstance().Delete(api);
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool InputManager::Initialize()
 	{
 		if (InitializeApis() == false)
@@ -42,21 +41,21 @@ namespace hod::input
 		return true;
 	}
 
-	/// @brief 
-	/// @param api 
-	/// @return 
+	/// @brief
+	/// @param api
+	/// @return
 	bool InputManager::CreateApi(Api* api)
 	{
 		if (api->Initialize() == false)
 		{
-			delete api;
+			DefaultAllocator::GetInstance().Delete(api);
 			return false;
 		}
 		_apis.push_back(api);
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void InputManager::UpdateJob()
 	{
 		/*
@@ -70,27 +69,22 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @param inputId 
-	/// @return 
-	Input::State InputManager::GetInputState(InputId inputId) const
+	const Vector<Device*> InputManager::GetDevices() const
 	{
-		Input::State maxState;
-		maxState._inputId = inputId;
-		maxState._flags = Input::Flag::Released;
+		return _devices;
+	}
 
-		for (Api* api : _apis)
+	void InputManager::AddDevice(Device* device)
+	{
+		_devices.push_back(device);
+	}
+
+	void InputManager::RemoveDevice(Device* device)
+	{
+		auto it = std::find(_devices.Begin(), _devices.End(), device);
+		if (it != _devices.End())
 		{
-			for (Device* device : api->GetDevices())
-			{
-				Input* input = device->GetInput(inputId);
-				if (input != nullptr)
-				{
-					maxState.Merge(input->GetState());
-				}
-			}
+			_devices.Erase(it);
 		}
-
-		return maxState;
 	}
 }

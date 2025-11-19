@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/ProjectBrowser.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -15,32 +15,35 @@
 
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
-#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include <HodEngine/Core/Process/Process.hpp>
-#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Application/Application.hpp>
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
+#include <HodEngine/Core/Process/Process.hpp>
 
-#include "portable-file-dialogs.h"
+#include <PortableFileDialogs/portable-file-dialogs.h>
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(ProjectBrowser, "Project Browser", true)
+	DESCRIBE_REFLECTED_CLASS(ProjectBrowser, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
-	/// @brief 
+	/// @brief
 	ProjectBrowser::ProjectBrowser()
 	{
-		std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
+		Path projectsPath = FileSystem::GetUserSettingsPath();
 		projectsPath /= ("HodEngine");
 		projectsPath /= ("Project.json");
 
-		if (std::filesystem::exists(projectsPath) == true)
+		if (FileSystem::GetInstance()->Exists(projectsPath) == true)
 		{
-			Document document;
+			Document           document;
 			DocumentReaderJson jsonReader;
 			if (jsonReader.Read(document, projectsPath) == true)
 			{
@@ -49,7 +52,7 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void ProjectBrowser::DrawContent()
 	{
 		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
@@ -64,15 +67,15 @@ namespace hod::editor
 			{
 				pfd::settings::verbose(true);
 				pfd::open_file dialog("Open HodProject");
-				//while (dialog.ready() == false)
+				// while (dialog.ready() == false)
 				{
 				}
 				auto result = dialog.result();
 				if (result.empty() == false)
 				{
-					std::filesystem::path path = result[0];
-					//std::filesystem::path path = window::GetOpenFileDialog();
-					if (path.empty() == false)
+					Path path = result[0].c_str();
+					// Path path = window::GetOpenFileDialog();
+					if (path.Empty() == false)
 					{
 						Editor::GetInstance()->OpenProject(path);
 					}
@@ -84,8 +87,8 @@ namespace hod::editor
 			ImGui::PopStyleColor(1);
 			if (newProjectButtonClicked == true)
 			{
-				std::filesystem::path path = window::GetFolderDialog();
-				if (path.empty() == false)
+				Path path = window::GetFolderDialog();
+				if (path.Empty() == false)
 				{
 					Editor::GetInstance()->CreateProject(path);
 				}
@@ -98,23 +101,23 @@ namespace hod::editor
 				ImGui::TableSetupColumn("##OpenDelete", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 100.0f);
 				ImGui::TableHeadersRow();
 
-				auto itEnd = _recentProjects._projectsPath.end();
-				auto it = _recentProjects._projectsPath.begin();
+				auto itEnd = _recentProjects._projectsPath.End();
+				auto it = _recentProjects._projectsPath.Begin();
 				while (it != itEnd)
 				{
-					ImGui::PushID(it->c_str());
+					ImGui::PushID(it->CStr());
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					std::filesystem::path path(it->data());
+					Path path(it->CStr());
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(path.stem().string().c_str());
-					ImGui::SetWindowFontScale(0.9f);
+					ImGui::TextUnformatted(path.Stem().GetString().CStr());
+					ImGui::PushFont(nullptr, ImGui::GetStyle().FontSizeBase * 0.9f);
 					ImGui::BeginDisabled();
-					ImGui::TextUnformatted(it->data());
+					ImGui::TextUnformatted(it->CStr());
 					ImGui::EndDisabled();
-					ImGui::SetWindowFontScale(1.0f);
-					//ImGui::Text("C:\\users\\glordim\\Desltop\\Dev\\Toto");
+					ImGui::PopFont();
+					// ImGui::Text("C:\\users\\glordim\\Desltop\\Dev\\Toto");
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
@@ -123,16 +126,16 @@ namespace hod::editor
 					ImGui::TableNextColumn();
 					if (ImGui::Button("Open") == true)
 					{
-						if (Editor::GetInstance()->OpenProject(*it) == false)
+						if (Editor::GetInstance()->OpenProject(it->CStr()) == false)
 						{
 							exit(-1);
 						}
 						/*
-						std::string arguments = "--ProjectPath ";
+						String arguments = "--ProjectPath ";
 						arguments += *it;
 						if (Process::Create(FileSystem::GetExecutablePath().string(), arguments, true) == true)
 						{
-							application::Application::GetInstance()->Quit();
+						    application::Application::GetInstance()->Quit();
 						}
 						*/
 					}
@@ -142,16 +145,16 @@ namespace hod::editor
 					ImGui::PopStyleColor(1);
 					if (deleteButtonClicked == true)
 					{
-						it = _recentProjects._projectsPath.erase(it);
+						it = _recentProjects._projectsPath.Erase(it);
 
-						std::filesystem::path projectsPath = FileSystem::GetUserSettingsPath();
+						Path projectsPath = FileSystem::GetUserSettingsPath();
 						projectsPath /= ("HodEngine");
 						projectsPath /= ("Project.json");
 
 						Document writeDocument;
 						Serializer::Serialize(_recentProjects, writeDocument.GetRootNode());
 
-						std::filesystem::create_directories(projectsPath.parent_path());
+						FileSystem::GetInstance()->CreateDirectories(projectsPath.ParentPath());
 						DocumentWriterJson jsonWriter;
 						jsonWriter.Write(writeDocument, projectsPath);
 					}

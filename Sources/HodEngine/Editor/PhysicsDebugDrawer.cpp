@@ -3,22 +3,24 @@
 
 #include "HodEngine/Renderer/P2fC4f.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/RenderView.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 
-#include "HodEngine/Core/Math/Matrix4.hpp"
 #include "HodEngine/Core/Math/Math.hpp"
+#include "HodEngine/Core/Math/Matrix4.hpp"
 
-#include <HodEngine/Physics/Physics.hpp>
 #include <HodEngine/Physics/DebugDrawer.hpp>
+#include <HodEngine/Physics/Physics.hpp>
+#include <HodEngine/Physics/World.hpp>
 
 namespace hod::editor
 {
-	/// @brief 
+	/// @brief
 	PhysicsDebugDrawer::PhysicsDebugDrawer()
 	{
 		renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
@@ -33,21 +35,27 @@ namespace hod::editor
 		_lineMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 	}
 
-	/// @brief 
+	/// @brief
 	PhysicsDebugDrawer::~PhysicsDebugDrawer()
 	{
-		delete _solidPolygonMaterialInstance;
-		delete _wireframePolygonMaterialInstance;
-		delete _lineMaterialInstance;
-		delete _pointMaterialInstance;
+		DefaultAllocator::GetInstance().Delete(_solidPolygonMaterialInstance);
+		DefaultAllocator::GetInstance().Delete(_wireframePolygonMaterialInstance);
+		DefaultAllocator::GetInstance().Delete(_lineMaterialInstance);
+		DefaultAllocator::GetInstance().Delete(_pointMaterialInstance);
 	}
 
-	/// @brief 
-	/// @param renderQueue 
-	void PhysicsDebugDrawer::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+	/// @brief
+	/// @param world
+	void PhysicsDebugDrawer::Update(physics::World* world)
 	{
-		physics::Physics::GetInstance()->GetDebugDrawer()->Update();
-		for (const hod::physics::RenderCommand& renderCommand : physics::Physics::GetInstance()->GetDebugDrawer()->GetRenderCommands())
+		world->GetDebugDrawer()->Update(world);
+	}
+
+	/// @brief
+	/// @param renderQueue
+	void PhysicsDebugDrawer::PushRenderCommand(renderer::RenderView& renderView, physics::World* world)
+	{
+		for (const hod::physics::RenderCommand& renderCommand : world->GetDebugDrawer()->GetRenderCommands())
 		{
 			renderer::MaterialInstance* materialInstance = nullptr;
 
@@ -68,20 +76,20 @@ namespace hod::editor
 				materialInstance = PhysicsDebugDrawer::_solidPolygonMaterialInstance;
 			}
 
-			renderQueue.PushRenderCommand(new RenderCommandPhysicsDrawer(renderCommand, materialInstance->GetMaterial()));
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandPhysicsDrawer>(renderCommand, materialInstance->GetMaterial()));
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const hod::physics::RenderCommand& renderCommand, const renderer::Material& material)
-	: RenderCommandMesh(renderCommand._vertices.data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.size(), nullptr, 0, Matrix4::Identity, nullptr, true)
+	: RenderCommandMesh(renderCommand._vertices.Data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.Size(), nullptr, 0, Matrix4::Identity, nullptr, true)
 	, _material(material)
 	, _color(renderCommand._color.r, renderCommand._color.g, renderCommand._color.b, renderCommand._color.a)
 	{
 	}
 
-	/// @brief 
-	/// @param commandBuffer 
+	/// @brief
+	/// @param commandBuffer
 	void RenderCommandPhysicsDrawer::Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial)
 	{
 		if (overrideMaterial != nullptr)
@@ -90,7 +98,7 @@ namespace hod::editor
 		}
 
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(&_material);
-		const_cast<renderer::MaterialInstance*>(_materialInstance)->SetVec4("UBO.color", _color);
+		const_cast<renderer::MaterialInstance*>(_materialInstance)->SetVec4("ubo.color", _color);
 		RenderCommandMesh::Execute(commandBuffer, overrideMaterial);
 		commandBuffer->DeleteAfterRender(const_cast<renderer::MaterialInstance*>(_materialInstance));
 	}

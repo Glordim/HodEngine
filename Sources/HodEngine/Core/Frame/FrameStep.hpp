@@ -1,25 +1,23 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod
 {
 	class Job;
 
-	/// @brief 
+	/// @brief
 	class HOD_CORE_API FrameStep
 	{
 	public:
+		void InsertJob(Job* job);
+		void RemoveJob(Job* job);
 
-		void				InsertJob(Job* job);
-		void				RemoveJob(Job* job);
-
-		void				Enqueue();
-		void				Wait();
+		void Enqueue();
+		void Wait();
 
 	private:
-
-		std::vector<Job*>	_jobs;
+		Vector<Job*> _jobs;
 	};
 }

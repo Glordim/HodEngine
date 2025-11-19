@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Export.hpp"
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
-#include <time.h>
+	#include <time.h>
 #endif
 
 namespace hod
@@ -11,14 +11,13 @@ namespace hod
 	{
 	public:
 #if defined(PLATFORM_WINDOWS)
-		using TimeStamp = __int64;
+		using TimeStamp = int64_t;
 		static constexpr TimeStamp INVALID_TIMESTAMP = 0;
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS) || defined(PLATFORM_ANDROID)
 		using TimeStamp = timespec;
-		static constexpr TimeStamp INVALID_TIMESTAMP = { 0, 0 };
+		static constexpr TimeStamp INVALID_TIMESTAMP = {0, 0};
 #endif
 	public:
-
 		static TimeStamp Now();
 
 		static double ToSeconds(const TimeStamp& timeStamp);
@@ -28,13 +27,12 @@ namespace hod
 		static double ElapsedTimeInMilliseconds(const TimeStamp& startTimeStamp, const TimeStamp& endTimeStamp);
 
 	public:
-
 		SystemTime() = delete;
 
 	private:
 #if defined(PLATFORM_WINDOWS)
-		static const double	_reverseFrequency;
-		static const TimeStamp	_startTimeStamp;
+		static const double    _reverseFrequency;
+		static const TimeStamp _startTimeStamp;
 #endif
 	};
 }

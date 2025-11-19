@@ -1,99 +1,111 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 
+#include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
+
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/Helper.hpp>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
-#include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
+#include "HodEngine/Game/Entity.hpp"
 
-#include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitImporterCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ImporterCustomEditor/ImporterCustomEditor.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Game/ComponentFactory.hpp"
 
-#include "HodEngine/Editor/AssetBrowserWindow.hpp"
-#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
-#include "HodEngine/Game/PrefabUtility.hpp"
 #include "HodEngine/Game/Prefab.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
+#include "HodEngine/Game/PrefabUtility.hpp"
+
+#include <algorithm>
+#include <cmath>
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(InspectorWindow, "Inspector", true)
+	// TODO move in reusable header
+	bool MatchSearch(const hod::String& text, const hod::String& pattern)
+	{
+		if (pattern.Empty() || text.Size() < pattern.Size())
+		{
+			return false;
+		}
 
-	/// @brief 
+		for (uint32_t i = 0; i <= text.Size() - pattern.Size(); ++i)
+		{
+			bool match = true;
+
+			for (uint32_t j = 0; j < pattern.Size(); ++j)
+			{
+				unsigned char a = static_cast<unsigned char>(text[i + j]);
+				unsigned char b = static_cast<unsigned char>(pattern[j]);
+
+				if (std::tolower(a) != std::tolower(b))
+				{
+					match = false;
+					break;
+				}
+			}
+
+			if (match)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//
+
+	DESCRIBE_REFLECTED_CLASS(InspectorWindow, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
+
+	/// @brief
+	/// @param editorTab
+	InspectorWindow::InspectorWindow(EditorTab* editorTab)
+	: EditorTabWindow(editorTab)
+	{
+	}
+
+	/// @brief
 	void InspectorWindow::DrawContent()
 	{
-		Editor* editor = Editor::GetInstance();
-		std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection();
+		game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 		if (sceneSelection != nullptr)
 		{
 			DrawSceneSelection(sceneSelection);
 		}
-		else
-		{
-			const AssetDatabase::FileSystemMapping* assetSelection = editor->GetAssetSelection();
-			if (assetSelection != nullptr)
-			{
-				DrawAssetSelection(assetSelection);
-			}
-		}
 	}
 
-	/// @brief 
-	/// @param selection 
-	void InspectorWindow::DrawAssetSelection(const AssetDatabase::FileSystemMapping* selection)
+	/// @brief
+	/// @param selection
+	void InspectorWindow::DrawSceneSelection(game::Entity* selection)
 	{
-		ImGui::Text("Asset");
+		Vector<game::PrefabUtility::PrefabOverride> overrides;
 
-		if (selection->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
-		{
-			std::shared_ptr<Asset> asset = selection->_asset;
-			ImGui::TextUnformatted(asset->GetName().c_str()); // same line add button to open (and later VersionControl)
-			ImGui::Separator();
-			bool changed = false;
-			ReflectionDescriptor* reflectionDescriptor = asset->GetMeta()._importerSettings->GetReflectionDescriptorV();
-			ReflectionTraitImporterCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitImporterCustomEditor>();
-			if (componentCustomEditorTrait != nullptr)
-			{
-				changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(asset);
-			}
-			else
-			{
-				//changed = DrawDefaultInspector(asset->GetMeta()._importerSettings, reflectionDescriptor);
-			}
-			if (changed == true)
-			{
-				selection->_asset->SetDirty();
-			}
-		}
-	}
-
-	/// @brief 
-	/// @param selection 
-	void InspectorWindow::DrawSceneSelection(std::shared_ptr<game::Entity> selection)
-	{
-		game::PrefabUtility::EntityDiffs entityDiffs;
-
-		game::Prefab* prefab = selection->GetPrefab();
-		if (prefab != nullptr)
+		std::shared_ptr<game::PrefabResource> prefabResource = selection->GetPrefabResource();
+		if (prefabResource != nullptr)
 		{
 			// todo don't do that in play mode
-			game::PrefabUtility::CollectDiff(selection, entityDiffs);
+			game::PrefabUtility::CollectPrefabOverride(selection, overrides);
 			//
 
 			if (ImGui::BeginChild("PrefabInstance", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle) == true)
@@ -107,26 +119,22 @@ namespace hod::editor
 				ImGui::TextUnformatted("Instance of");
 				ImGui::SameLine();
 
-				AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
-				std::shared_ptr<Asset> asset = assetDatabase->Find(prefab->GetUid());
+				AssetDatabase*         assetDatabase = AssetDatabase::GetInstance();
+				std::shared_ptr<Asset> asset = assetDatabase->Find(prefabResource->GetUid());
 
-				if (ImGui::Button(asset->GetName().c_str()))
+				if (ImGui::Button(asset->GetName().CStr()))
 				{
-					AssetBrowserWindow* assetBrowserWindow = imgui::ImGuiManager::GetInstance()->FindWindow<AssetBrowserWindow>();
-					if (assetBrowserWindow != nullptr)
-					{
-						assetBrowserWindow->PingAsset(*asset);
-					}
+					Editor::GetInstance()->PingAsset(asset);
 				}
 
 				// todo hide in play mode
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_PENCIL).x, 0.0f);
-				ImGui::BeginDisabled(entityDiffs._diffs.empty());
+				ImGui::BeginDisabled(overrides.Empty());
 				if (ImGui::Button(ICON_MDI_PENCIL))
 				{
 					ImGui::OpenPopup("EditOverrides");
 				}
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && entityDiffs._diffs.empty())
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && overrides.Empty())
 				{
 					ImGui::SetTooltip("%s", "No override detected");
 				}
@@ -136,12 +144,10 @@ namespace hod::editor
 				{
 					if (ImGui::Button(ICON_MDI_RESTORE " Revert all"))
 					{
-						
 					}
 					ImGui::SameLine();
 					if (ImGui::Button(ICON_MDI_CONTENT_SAVE " Apply all"))
 					{
-						
 					}
 					ImGui::EndPopup();
 				}
@@ -151,46 +157,48 @@ namespace hod::editor
 			ImGui::Separator();
 		}
 
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted("Name");
+		bool active = selection->GetActive();
+		if (ImGui::Checkbox("##Active", &active))
+		{
+			selection->SetActive(active);
+		}
 		ImGui::SameLine();
 
-		char buffer[256] = { '\0' };
-		std::strcpy(buffer, selection->GetName().c_str());
+		char buffer[256] = {'\0'};
+		std::strcpy(buffer, selection->GetName().CStr());
 		ImGui::SetNextItemWidth(-1);
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
 			selection->SetName(buffer);
-			Editor::GetInstance()->MarkCurrentSceneAsDirty();
+			GetOwner()->MarkAssetAsDirty();
 		}
 
-		std::vector<std::weak_ptr<game::Component>> components = selection->GetComponents();
-		for (const std::weak_ptr<game::Component>& component : components)
+		for (game::Component* component : selection->GetComponents())
 		{
-			std::shared_ptr<game::Component> componentLock = component.lock();
-			if (componentLock != nullptr)
+			if (component != nullptr)
 			{
 				/*
 				bool hasOverride = false;
-				std::vector<hod::game::PrefabUtility::EntityDiffs::Diff*> componentDiffs;
+				Vector<hod::game::PrefabUtility::EntityDiffs::Diff*> componentDiffs;
 				for (auto diff : entityDiffs._diffs)
 				{
-					if (diff->_instance == componentLock.get())
-					{
-						hasOverride = true;
-						componentDiffs.push_back(diff);
-					}
+				    if (diff->_instance == componentLock.get())
+				    {
+				        hasOverride = true;
+				        componentDiffs.push_back(diff);
+				    }
 				}
 				if (hasOverride == true)
 				{
-					float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
-					ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+				    float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
+				    ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f,
+				ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
 				}
 				*/
-				//bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
+				// bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 
-				ImGui::PushID(componentLock->GetMetaTypeName());
-				if (ImGui::BeginChild("Component", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Border))
+				ImGui::PushID(component->GetMetaTypeName());
+				if (ImGui::BeginChild("Component", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders))
 				{
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 					ImGui::SetCursorPosX(0.0f);
@@ -200,7 +208,7 @@ namespace hod::editor
 					ImVec2 min = ImGui::GetCursorScreenPos();
 					ImVec2 max = min;
 					max.x += ImGui::GetWindowWidth();
-					//ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
+					// ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
 
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
@@ -222,22 +230,40 @@ namespace hod::editor
 					ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 					ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-					ImGui::ArrowButton("CollapseComponent", ImGuiDir_Down);
+
+					bool collapsed = ImGui::GetCurrentWindow()->DC.StateStorage->GetInt(ImGui::GetID("Collapsed"), false);
+
+					if (ImGui::ArrowButton("CollapseComponent", collapsed == false ? ImGuiDir_Down : ImGuiDir_Right))
+					{
+						collapsed = !collapsed;
+						ImGui::GetCurrentWindow()->DC.StateStorage->SetInt(ImGui::GetID("Collapsed"), collapsed);
+					}
 					ImGui::PopStyleColor(4);
 
-					bool opened = true;
+					ImGui::SameLine();
+					bool enabled = component->GetEnabled();
+					if (ImGui::Checkbox("##Enabled", &enabled))
+					{
+						component->SetEnabled(enabled);
+					}
+
+					ImGui::BeginDisabled(enabled == false);
+
+					bool opened = (collapsed == false);
 					ImGui::SameLine();
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted(ICON_MDI_PUZZLE);
 					ImGui::SameLine();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(componentLock->GetReflectionDescriptorV()->GetDisplayName().c_str());
+					ImGui::TextUnformatted(component->GetReflectionDescriptorV().GetDisplayName().CStr());
+
+					ImGui::EndDisabled();
 
 					ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_CLOSE).x + 10.0f, 0.0f);
 					ImVec2 buttonPos = ImGui::GetCursorScreenPos();
 					ImVec2 mousePos = ImGui::GetMousePos();
 
-					float distance = std::sqrt(std::powf(buttonPos.x - mousePos.x, 2) + std::powf(buttonPos.y - mousePos.y, 2));
+					float distance = (float)std::sqrt(std::pow(buttonPos.x - mousePos.x, 2) + std::pow(buttonPos.y - mousePos.y, 2));
 					distance = std::clamp(distance, 15.0f, 40.0f);
 					float alpha = 1.0f - ((distance - 15.0f) / (40.0f - 15.0f));
 
@@ -258,24 +284,23 @@ namespace hod::editor
 					ImGui::PopStyleColor(4);
 					if (mustBeDelete)
 					{
-						selection->RemoveComponent(componentLock);
-						Editor::GetInstance()->MarkCurrentSceneAsDirty();
+						selection->RemoveComponent(component);
+						GetOwner()->MarkAssetAsDirty();
 					}
 
 					if (ImGui::IsWindowHovered())
 					{
-						
 					}
 
 					/*
 					if (ImGui::BeginPopupContextItem() == true)
 					{
-						if (ImGui::Button("Delete") == true)
-						{
-							selection->RemoveComponent(componentLock);
-							Editor::GetInstance()->MarkCurrentSceneAsDirty();
-						}
-						ImGui::EndPopup();
+					    if (ImGui::Button("Delete") == true)
+					    {
+					        selection->RemoveComponent(componentLock);
+					        GetOwner()->MarkAssetAsDirty();
+					    }
+					    ImGui::EndPopup();
 					}
 					*/
 
@@ -284,15 +309,17 @@ namespace hod::editor
 						max.x += ImGui::GetWindowWidth();
 						ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
 					}
-					ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
 
 					if (opened == true)
 					{
-						EditorReflectedObject reflectedObject(componentLock);
+						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
 
-						bool changed = false;
-						ReflectionDescriptor* reflectionDescriptor = componentLock->GetReflectionDescriptorV();
-						ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor->FindTrait<ReflectionTraitComponentCustomEditor>();
+						game::Component*      sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
+						EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent, this);
+
+						bool                                  changed = false;
+						ReflectionDescriptor&                 reflectionDescriptor = component->GetReflectionDescriptorV();
+						ReflectionTraitComponentCustomEditor* componentCustomEditorTrait = reflectionDescriptor.FindTrait<ReflectionTraitComponentCustomEditor>();
 						if (componentCustomEditorTrait != nullptr)
 						{
 							changed = componentCustomEditorTrait->GetCustomEditor()->OnDrawInspector(reflectedObject);
@@ -303,11 +330,17 @@ namespace hod::editor
 						}
 						if (changed == true)
 						{
-							Editor::GetInstance()->MarkCurrentSceneAsDirty();
+							GetOwner()->MarkAssetAsDirty();
 						}
 					}
+					else
+					{
+						ImVec2 pos = ImGui::GetCursorScreenPos();
+						pos.y = max.y;
+						ImGui::SetCursorScreenPos(pos);
+					}
 				}
-				ImGui::Dummy(ImVec2(0,0)); // todo
+				ImGui::Dummy(ImVec2(0, 0)); // todo
 				ImGui::EndChild();
 
 				ImGui::PopID();
@@ -328,12 +361,12 @@ namespace hod::editor
 			ImGui::TextUnformatted(ICON_MDI_MAGNIFY);
 			ImGui::SameLine();
 
-			static char nameBuffer[256] = { '\0' };
-			static std::string strName;
+			static char   nameBuffer[256] = {'\0'};
+			static String strName;
 			if (ImGui::IsWindowAppearing())
 			{
 				nameBuffer[0] = '\0';
-				strName.clear();
+				strName.Clear();
 				ImGui::SetKeyboardFocusHere();
 			}
 			if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
@@ -349,18 +382,13 @@ namespace hod::editor
 				for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
 				{
 					const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
-					const std::string& displayName = componentDescriptor.GetDisplayName();
-
-					auto it = std::search(displayName.cbegin(), displayName.cend(), strName.cbegin(), strName.cend(), [](char ch1, char ch2)
+					const String&               displayName = componentDescriptor.GetDisplayName();
+					if (MatchSearch(displayName, strName))
 					{
-						return std::tolower(ch1) == std::tolower(ch2);
-					});
-					if (it != displayName.cend() || strName.empty())
-					{
-						if (ImGui::MenuItem(displayName.c_str()) == true)
+						if (ImGui::MenuItem(displayName.CStr()) == true)
 						{
-							selection->AddComponent(componentDescriptor, Editor::GetInstance()->IsPlaying());
-							Editor::GetInstance()->MarkCurrentSceneAsDirty();
+							selection->AddComponent(componentDescriptor);
+							GetOwner()->MarkAssetAsDirty();
 							ImGui::CloseCurrentPopup();
 						}
 					}
@@ -371,8 +399,8 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param object 
+	/// @brief
+	/// @param object
 	bool InspectorWindow::DrawDefaultInspector(EditorReflectedObject& reflectedObject)
 	{
 		return PropertyDrawer::DrawDescriptor(reflectedObject);

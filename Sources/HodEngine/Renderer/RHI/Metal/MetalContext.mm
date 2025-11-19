@@ -10,7 +10,7 @@ namespace hod::renderer
     {
         NSView* view = macOsWindow->GetNsView();
 
-        [view setLayer:(CALayer*)_layer];
+        [view setLayer:(__bridge CALayer*)_layer];
         [view setWantsLayer:YES];
     }
 }

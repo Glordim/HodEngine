@@ -5,17 +5,16 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::editor
 {
 	struct HOD_EDITOR_API RecentProjects
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(RecentProjects, HOD_EDITOR_API)
+		REFLECTED_CLASS_NO_VIRTUAL(RecentProjects)
 
 	public:
-
-		std::vector<std::string>	_projectsPath;
+		Vector<String> _projectsPath;
 	};
 }

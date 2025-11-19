@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
-#include "HodEngine/Game/WeakResource.hpp"
+#include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Sprite.hpp"
 
 namespace hod
@@ -19,7 +19,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class HOD_GAME_API SpriteRendererComponent : public RendererComponent
 		{
-			REFLECTED_CLASS(SpriteRendererComponent, RendererComponent, HOD_GAME_API)
+			REFLECTED_CLASS(SpriteRendererComponent, RendererComponent)
 
 		public:
 
@@ -39,7 +39,8 @@ namespace hod
 			renderer::MaterialInstance*		GetMaterialInstance() const;
 			void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
 
-			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			void							PushRenderCommand(renderer::RenderView& renderView) override;
+			Rect							GetBoundingBox() const override;
 
 		private:
 

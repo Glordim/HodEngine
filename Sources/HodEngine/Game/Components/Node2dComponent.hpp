@@ -8,10 +8,39 @@ namespace hod
 {
 	namespace game
 	{
+		class HOD_GAME_API ZOrder
+		{
+			REFLECTED_CLASS_NO_VIRTUAL(ZOrder)
+
+		public:
+
+			ZOrder(uint16_t layer, uint16_t internalOrder);
+
+			void		SetLayer(uint16_t layer);
+			uint16_t	GetLayer() const;
+
+			void		SetInternalOrder(int16_t internalOrder);
+			int16_t		GetInternalOrder() const;
+
+			uint32_t	GetValue() const;
+
+		private:
+
+			union UnfiedValue
+			{
+				struct
+				{
+					int16_t		_internalOrder;
+					uint16_t	_layer;
+				} split;
+				uint32_t _value = 0;
+			} _unifiedValue;
+		};
+
 		/// @brief 
 		class HOD_GAME_API Node2dComponent : public NodeComponent
 		{
-			REFLECTED_CLASS(Node2dComponent, NodeComponent, HOD_GAME_API)
+			REFLECTED_CLASS(Node2dComponent, NodeComponent)
 
 		public:
 
@@ -35,6 +64,9 @@ namespace hod
 			void							SetScale(const Vector2& scale);
 			const Vector2&					GetScale() const;
 
+			void							SetZOrder(ZOrder zOrder);
+			ZOrder							GetZOrder() const;
+
 		protected:
 
 			void							ComputeLocalMatrix(Matrix4& localMatrix) override;
@@ -44,6 +76,8 @@ namespace hod
 			Vector2							_position = Vector2::Zero;
 			Vector2							_scale = Vector2::One;
 			float							_rotation = 0.0f;
+
+			ZOrder							_zOrder = ZOrder(0, 0);
 		};
 	}
 }

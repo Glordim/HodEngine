@@ -1,38 +1,31 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Job/JobQueue.hpp"
 #include "HodEngine/Core/Job/Job.hpp"
+#include "HodEngine/Core/Job/JobQueue.hpp"
 
-#include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/SystemInfo.hpp"
 
-#include <string>
+#include "HodEngine/Core/Reflection/EnumTrait.hpp"
+#include "HodEngine/Core/String.hpp"
 #include <atomic>
 
 namespace hod
 {
-	/// @brief 
-	const char* jobQueueNames[JobQueue::Queue::Count] = {
-		"FrameLowPriority",
-		"FrameNormalPriority",
-		"FrameHighPriority",
-		"UnframedLowPriority",
-		"UnframedNormalPriority",
-		"UnframedHighPriority",
+	/// @brief
+	const char* jobQueueNames[static_cast<uint32_t>(JobQueue::Queue::COUNT)] = {
+		"Framed",
+		"Unframed",
 	};
 
-	/// @brief 
-	Thread::Priority jobQueuePriority[JobQueue::Queue::Count] = {
-		Thread::Priority::Low,
-		Thread::Priority::Normal,
+	/// @brief
+	Thread::Priority jobQueuePriority[static_cast<uint32_t>(JobQueue::Queue::COUNT)] = {
 		Thread::Priority::High,
-		Thread::Priority::Low,
 		Thread::Priority::Normal,
-		Thread::Priority::High,
 	};
 
-	/// @brief 
-	/// @param 
-	/// @return 
+	/// @brief
+	/// @param
+	/// @return
 	int JobQueue::WorkerThreadFunction(void* parameters)
 	{
 		WorkerThread* workerThread = static_cast<WorkerThread*>(parameters);
@@ -59,46 +52,57 @@ namespace hod
 		return 0;
 	}
 
-	/// @brief 
-	JobQueue::JobQueue()
-	{
+	/// @brief
+	JobQueue::JobQueue() {}
 
-	}
-
-	/// @brief 
+	/// @brief
 	JobQueue::~JobQueue()
 	{
-		delete[] _workerThreads;
+		for (uint32_t workerThreadIndex = 0; workerThreadIndex < _workerThreadCount; ++workerThreadIndex)
+		{
+			_workerThreads[workerThreadIndex]._shouldExit = true;
+			if (_workerThreads[workerThreadIndex]._wakeUpFlag.test_and_set() == false)
+			{
+				_workerThreads[workerThreadIndex]._wakeUpFlag.notify_all();
+				break;
+			}
+		}
+		for (uint32_t workerThreadIndex = 0; workerThreadIndex < _workerThreadCount; ++workerThreadIndex)
+		{
+			_workerThreads[workerThreadIndex]._thread.Join();
+		}
+
+		DefaultAllocator::GetInstance().DeleteArray(_workerThreads);
 	}
 
-	/// @brief 
+	/// @brief
 	void JobQueue::Init(Queue queue)
 	{
 		uint32_t count = SystemInfo::GetLogicalCoreCount();
 		count = 1; // TODO REMOVE
 		_workerThreadCount = count;
-		_workerThreads = new WorkerThread[count];
+		_workerThreads = DefaultAllocator::GetInstance().NewArray<WorkerThread>(count);
 
 		for (uint32_t index = 0; index < count; ++index)
 		{
-			std::string workerName(jobQueueNames[queue]);
+			String workerName(jobQueueNames[index]);
 			workerName += " Worker ";
 
-			std::string countLabel = std::to_string(count + 1);
+			String countLabel = std::to_string(count + 1).c_str();
 
-			std::string workerIndexLabel = std::to_string(index + 1);
-			for (size_t digit = workerIndexLabel.size(); digit < countLabel.size(); ++digit)
+			String workerIndexLabel = std::to_string(index + 1).c_str();
+			for (size_t digit = workerIndexLabel.Size(); digit < countLabel.Size(); ++digit)
 			{
-				workerIndexLabel.insert(0, "0");
+				workerIndexLabel.Insert(0, "0");
 			}
 			workerName += workerIndexLabel;
 
 			_workerThreads[index]._jobQueue = this;
-			_workerThreads[index]._thread.Start(&WorkerThreadFunction, &_workerThreads[index], jobQueuePriority[queue], workerName.c_str());
+			_workerThreads[index]._thread.Start(&WorkerThreadFunction, &_workerThreads[index], jobQueuePriority[(uint32_t)queue], workerName.CStr());
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void JobQueue::Enqueue(Job* job)
 	{
 		if (job->GetThreadId() == Thread::InvalidId)
@@ -138,8 +142,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Job* JobQueue::PopNextJob()
 	{
 		Job* job = nullptr;

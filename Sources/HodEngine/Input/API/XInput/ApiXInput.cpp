@@ -1,18 +1,22 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/API/XInput/ApiXInput.hpp"
-#include "HodEngine/Input/API/XInput/DevicePadXbox.hpp"
+#include "HodEngine/Input/API/XInput/GamepadXInput.hpp"
+
+#include <Windows.h>
+#include <Xinput.h>
 
 namespace hod::input
 {
-	/// @brief 
-	ApiXInput::ApiXInput() : Api("XInput")
+	/// @brief
+	ApiXInput::ApiXInput()
+	: Api("XInput")
 	{
 	}
 
-	/// @brief 
+	/// @brief
 	ApiXInput::~ApiXInput()
 	{
-		for (DevicePadXbox* device : _pads)
+		for (GamepadXInput* device : _pads)
 		{
 			if (device != nullptr)
 			{
@@ -21,7 +25,7 @@ namespace hod::input
 					Api::NotifyDeviceDisconnected(device);
 				}
 
-				delete device;
+				DefaultAllocator::GetInstance().Delete(device);
 			}
 		}
 
@@ -31,8 +35,8 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool ApiXInput::Initialize()
 	{
 		_hInstance = LoadLibrary(TEXT("xinput1_4.dll"));
@@ -54,7 +58,7 @@ namespace hod::input
 
 		for (uint32_t padIndex = 0; padIndex < MaxPad; ++padIndex)
 		{
-			DevicePadXbox* device = new DevicePadXbox(this, padIndex);
+			GamepadXInput* device = DefaultAllocator::GetInstance().New<GamepadXInput>(padIndex);
 
 			_pads[padIndex] = device;
 
@@ -65,40 +69,49 @@ namespace hod::input
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void ApiXInput::UpdateDeviceValues()
 	{
-		for (DevicePadXbox* xboxPad : _pads)
+		for (GamepadXInput* xboxPad : _pads)
 		{
-			bool wasConnected = xboxPad->IsConnected();
-			bool isConnected = xboxPad->Update();
-			if (wasConnected != isConnected)
+			XINPUT_STATE state;
+			std::memset(&state, 0, sizeof(XINPUT_STATE));
+			if (_getStateProc(xboxPad->GetPadIndex(), &state) == 0)
 			{
-				if (isConnected == true)
-				{
-					Api::NotifyDeviceConnected(xboxPad);
-				}
-				else
-				{
-					Api::NotifyDeviceDisconnected(xboxPad);
-				}
+				xboxPad->WriteState(state);
+				xboxPad->UpdateState();
 			}
+			/*
+			            bool wasConnected = xboxPad->IsConnected();
+			            bool isConnected = xboxPad->Update();
+			            if (wasConnected != isConnected)
+			            {
+			                if (isConnected == true)
+			                {
+			                    Api::NotifyDeviceConnected(xboxPad);
+			                }
+			                else
+			                {
+			                    Api::NotifyDeviceDisconnected(xboxPad);
+			                }
+			            }
+			                */
 		}
 	}
 
-	/// @brief 
-	/// @param padIndex 
-	/// @param state 
-	/// @return 
+	/// @brief
+	/// @param padIndex
+	/// @param state
+	/// @return
 	bool ApiXInput::GetPadState(uint32_t padIndex, XINPUT_STATE* state) const
 	{
 		return _getStateProc(padIndex, state) == ERROR_SUCCESS;
 	}
 
-	/// @brief 
-	/// @param padIndex 
-	/// @param vibration 
-	/// @return 
+	/// @brief
+	/// @param padIndex
+	/// @param vibration
+	/// @return
 	bool ApiXInput::SetPadState(uint32_t padIndex, XINPUT_VIBRATION* vibration) const
 	{
 		return _setStateProc(padIndex, vibration) == ERROR_SUCCESS;

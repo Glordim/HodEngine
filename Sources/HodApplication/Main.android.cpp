@@ -36,7 +36,7 @@ void handle_cmd(android_app *pApp, int32_t cmd)
                 //
                 //auto *pRenderer = reinterpret_cast<Renderer *>(pApp->userData);
                 //pApp->userData = nullptr;
-                //delete pRenderer;
+                //DefaultAllocator::GetInstance().Delete(pRenderer);
             }
             break;
         default:

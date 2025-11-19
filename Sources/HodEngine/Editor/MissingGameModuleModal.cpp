@@ -1,24 +1,27 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/MissingGameModuleModal.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 #include "HodEngine/Core/Job/JobScheduler.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
 #include <format>
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(MissingGameModuleModal, "MissingGameModuleModal", true)
+	DESCRIBE_REFLECTED_CLASS(MissingGameModuleModal, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
 
-	/// @brief 
+	/// @brief
 	MissingGameModuleModal::MissingGameModuleModal()
-	: _generationJob(this, &MissingGameModuleModal::GenerationJob, JobQueue::UnframedHighPriority)
+	: _generationJob(this, &MissingGameModuleModal::GenerationJob, JobQueue::Queue::Unframed)
 	{
 		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->SetSize(320, 200);
@@ -26,7 +29,7 @@ namespace hod::editor
 		mainWindow->SetVisible(true);
 	}
 
-	/// @brief 
+	/// @brief
 	bool MissingGameModuleModal::Draw()
 	{
 		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
@@ -44,7 +47,7 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void MissingGameModuleModal::DrawContent()
 	{
 		if (_askForGeneration)
@@ -54,7 +57,7 @@ namespace hod::editor
 			if (ImGui::Button("Generate"))
 			{
 				_askForGeneration = false;
-				
+
 				window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
 				mainWindow->SetSize(800, 600);
 				mainWindow->CenterToScreen();
@@ -64,8 +67,8 @@ namespace hod::editor
 			ImGui::SameLine();
 			if (ImGui::Button("Exit"))
 			{
-				//application::DesktopApplication* application = application::DesktopApplication::GetInstance();
-				//application->Quit();
+				// application::DesktopApplication* application = application::DesktopApplication::GetInstance();
+				// application->Quit();
 			}
 		}
 		else
@@ -74,7 +77,7 @@ namespace hod::editor
 			DrawStep("Prepare", _prepareResult);
 			DrawStep("Configure", _configureResult);
 			DrawStep("Build", _buildResult);
-		
+
 			if (ImGui::BeginChild("Output", ImVec2(0.0f, -1.0f), ImGuiChildFlags_FrameStyle))
 			{
 				DrawOutputs();
@@ -91,9 +94,9 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	/// @param step 
-	/// @param stepStatus 
+	/// @brief
+	/// @param step
+	/// @param stepStatus
 	void MissingGameModuleModal::DrawStep(const char* step, StepStatus stepStatus)
 	{
 		static ImVec4 stepStatusToColor[std::to_underlying(StepStatus::Count)] = {
@@ -115,7 +118,7 @@ namespace hod::editor
 		ImGui::TextUnformatted(step);
 	}
 
-	/// @brief 
+	/// @brief
 	void MissingGameModuleModal::GenerationJob()
 	{
 		_outputBucket.Clear();
@@ -150,8 +153,8 @@ namespace hod::editor
 		_buildResult = StepStatus::Succeeded;
 	}
 
-	/// @brief 
-	/// @param outputs 
+	/// @brief
+	/// @param outputs
 	void MissingGameModuleModal::DrawOutputs() const
 	{
 		static ImVec4 outputTypeToColor[std::to_underlying(Output::Type::Count)] = {
@@ -168,7 +171,7 @@ namespace hod::editor
 		_outputBucket.GetLock().lock();
 		for (const Output& output : _outputBucket.GetOutputs())
 		{
-			ImGui::TextColored(outputTypeToColor[std::to_underlying(output.GetType())], "%s", output.GetContent().c_str());
+			ImGui::TextColored(outputTypeToColor[std::to_underlying(output.GetType())], "%s", output.GetContent().CStr());
 			/*
 			ImGui::PushStyleColor(ImGuiCol_Text, outputTypeToColor[std::to_underlying(output._type)]);
 			ImGui::PushID((void*)output._content.c_str());

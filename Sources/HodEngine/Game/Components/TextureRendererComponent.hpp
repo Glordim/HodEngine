@@ -2,52 +2,63 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
-#include "HodEngine/Game/WeakResource.hpp"
+#include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
+#include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
+#include <HodEngine/Core/Rect.hpp>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	class MaterialInstance;
+}
+
+namespace hod::game
+{
+	/// @brief 
+	class HOD_GAME_API TextureRendererComponent : public RendererComponent
 	{
-		class MaterialInstance;
-	}
+		REFLECTED_CLASS(TextureRendererComponent, RendererComponent)
 
-	namespace game
-	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API TextureRendererComponent : public RendererComponent
-		{
-			REFLECTED_CLASS(TextureRendererComponent, RendererComponent, HOD_GAME_API)
+	public:
 
-		public:
+										TextureRendererComponent();
+										TextureRendererComponent(const TextureRendererComponent&) = delete;
+										TextureRendererComponent(TextureRendererComponent&&) = delete;
+										~TextureRendererComponent() override;
 
-											TextureRendererComponent();
-											TextureRendererComponent(const TextureRendererComponent&) = delete;
-											TextureRendererComponent(TextureRendererComponent&&) = delete;
-											~TextureRendererComponent() override;
+		TextureRendererComponent&		operator=(const TextureRendererComponent&) = delete;
+		TextureRendererComponent&		operator=(TextureRendererComponent&&) = delete;
 
-			TextureRendererComponent&		operator=(const TextureRendererComponent&) = delete;
-			TextureRendererComponent&		operator=(TextureRendererComponent&&) = delete;
+	public:
 
-		public:
+		void							OnConstruct() override;
+
+		renderer::MaterialInstance*		GetMaterialInstance() const;
+
+		void							SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& materialInstance);
+
+		void							SetTexture(const WeakResource<renderer::TextureResource>& texture);
+
+		void							PushRenderCommand(renderer::RenderView& renderView) override;
+
+		Rect							GetBoundingBox() const override;
+
+		void							SetColor(const Color& color);
+		const Color&					GetColor() const;
+
+	private:
+
+		void							RefreshMaterialInstance();
+
+	private:
+
+		WeakResource<renderer::TextureResource>				_texture;
+		WeakResource<renderer::MaterialInstanceResource>	_material;
+		float												_pixelPerUnit = 100.0f;
+
+		Color												_color;
 		
-			void							OnConstruct() override;
-
-			renderer::MaterialInstance*		GetMaterialInstance() const;
-			void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
-
-			void							SetTexture(const WeakResource<renderer::TextureResource>& texture);
-
-			void							PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
-
-		private:
-
-			WeakResource<renderer::TextureResource>	_textureResource;
-
-			
-			renderer::MaterialInstance*				_materialInstance = nullptr;
-		};
-	}
+		renderer::MaterialInstance*							_materialInstance = nullptr;
+		renderer::MaterialInstance*							_builtinMaterialInstance = nullptr;
+	};
 }

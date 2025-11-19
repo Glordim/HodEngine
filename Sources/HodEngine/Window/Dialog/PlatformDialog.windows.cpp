@@ -1,4 +1,5 @@
 #include "HodEngine/Window/Pch.hpp"
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #include <Windows.h>
@@ -6,11 +7,11 @@
 
 namespace hod::window
 {
-	/// @brief 
-	/// @return 
-	std::filesystem::path GetOpenFileDialog()
+	/// @brief
+	/// @return
+	Path GetOpenFileDialog()
 	{
-		char buffer[4096] = { '\0' };
+		char buffer[4096] = {'\0'};
 
 		OPENFILENAMEA openFileName;
 		ZeroMemory(&openFileName, sizeof(openFileName));
@@ -30,20 +31,20 @@ namespace hod::window
 		return buffer;
 	}
 
-	/// @brief 
-	/// @return 
-	std::filesystem::path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const std::filesystem::path& initialFolder)
+	/// @brief
+	/// @return
+	Path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const Path& initialFolder)
 	{
-		char buffer[4096] = { '\0' };
+		char buffer[4096] = {'\0'};
 
 		strcpy(buffer, "EditMe.");
 		strcat(buffer, typeExtension.data());
 
-		char filter[4096] = { '\0' };
+		char filter[4096] = {'\0'};
 		strcpy(filter, typeName.data());
 		strcpy(filter + typeName.size() + 1, typeExtension.data());
 
-		std::string initialFolderPath = initialFolder.string();
+		String initialFolderPath = initialFolder.GetString().CStr();
 
 		OPENFILENAMEA openFileName;
 		ZeroMemory(&openFileName, sizeof(openFileName));
@@ -55,26 +56,26 @@ namespace hod::window
 		openFileName.nFilterIndex = 1;
 		openFileName.lpstrFileTitle = NULL;
 		openFileName.nMaxFileTitle = 0;
-		if (initialFolder.empty() == true)
+		if (initialFolder.Empty() == true)
 		{
 			openFileName.lpstrInitialDir = NULL;
 		}
 		else
 		{
-			openFileName.lpstrInitialDir = initialFolderPath.c_str();
+			openFileName.lpstrInitialDir = initialFolderPath.CStr();
 		}
-		openFileName.Flags = 0;//OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+		openFileName.Flags = 0; // OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 		GetSaveFileNameA(&openFileName);
 
 		return buffer;
 	}
 
-	/// @brief 
-	/// @return 
-	std::filesystem::path GetFolderDialog()
+	/// @brief
+	/// @return
+	Path GetFolderDialog()
 	{
-		char buffer[MAX_PATH] = { '\0' }; 
+		char        buffer[MAX_PATH] = {'\0'};
 		BROWSEINFOA browseInfo;
 		browseInfo.hwndOwner = NULL;
 		browseInfo.pidlRoot = NULL;
@@ -93,23 +94,36 @@ namespace hod::window
 			return dirPaths;
 		}
 
-		return std::filesystem::path();
+		return Path();
 	}
 
-	/// @brief 
-	/// @param path 
-	void OpenExplorerAtPath(const std::filesystem::path& path)
+	/// @brief
+	/// @param path
+	void OpenExplorerAtPath(const Path& path)
 	{
-		ShellExecute(NULL, "open", path.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+		if (FileSystem::GetInstance()->IsDirectory(path))
+		{
+			ShellExecute(NULL, "open", path.GetString().CStr(), NULL, NULL, SW_SHOWDEFAULT);
+		}
+		else if (FileSystem::GetInstance()->IsRegularFile(path))
+		{
+			String param = String::Format("/select,\"%s\"", path.GetString().CStr());
+			ShellExecute(NULL, "open", "explorer.exe", param.CStr(), NULL, SW_SHOWDEFAULT);
+		}
+		else
+		{
+			// TODO
+		}
 	}
 
-	/// @brief 
-	/// @param title 
-	/// @param description 
-	/// @param yesChoice 
-	/// @param noChoice 
-	/// @return 
-	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& yesChoice, const std::string_view& noChoice)
+	/// @brief
+	/// @param title
+	/// @param description
+	/// @param yesChoice
+	/// @param noChoice
+	/// @return
+	bool ShowYesNoDialog(const std::string_view& title, const std::string_view& description, const std::string_view& /*yesChoice*/,
+	                     [[maybe_unused]] const std::string_view& /*noChoice*/)
 	{
 		return MessageBox(NULL, description.data(), title.data(), MB_YESNO) == IDYES;
 	}

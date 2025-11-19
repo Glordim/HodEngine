@@ -2,6 +2,8 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Components/Primitive/PrimitiveComponent.hpp"
+#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 
 namespace hod
 {
@@ -17,7 +19,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		class HOD_GAME_API BoxComponent : public PrimitiveComponent
 		{
-			REFLECTED_CLASS(BoxComponent, PrimitiveComponent, HOD_GAME_API)
+			REFLECTED_CLASS(BoxComponent, PrimitiveComponent)
 
 		public:
 
@@ -31,7 +33,20 @@ namespace hod
 
 		public:
 
-			void			PushToRenderQueue(renderer::RenderQueue& renderQueue) override;
+			void			OnConstruct() override;
+
+			void			PushRenderCommand(renderer::RenderView& renderView) override;
+			Rect			GetBoundingBox() const override;
+
+			renderer::MaterialInstance*		GetMaterialInstance() const;
+
+			void							SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& materialInstance);
+
+		private:
+
+			WeakResource<renderer::MaterialInstanceResource>	_material;
+
+			renderer::MaterialInstance*							_materialInstance = nullptr;
 		};
 	}
 }

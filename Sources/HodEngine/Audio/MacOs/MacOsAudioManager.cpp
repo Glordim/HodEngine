@@ -3,25 +3,18 @@
 
 namespace hod::audio
 {
-	_SingletonOverrideConstructor(MacOsAudioManager)
-	{
+	_SingletonOverrideConstructor(MacOsAudioManager) {}
 
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool MacOsAudioManager::Initialize()
 	{
 		return true;
 	}
 
-	/// @brief 
-	void MacOsAudioManager::Terminate()
-	{
-	}
+	/// @brief
+	void MacOsAudioManager::Terminate() {}
 
-	/// @brief 
-	void MacOsAudioManager::Update()
-	{
-	}
+	/// @brief
+	void MacOsAudioManager::Update() {}
 }

@@ -2,11 +2,11 @@
 #include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
 
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
-#include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
 
-#include <HodEngine/Window/PlatformWindow.hpp>
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
+#include <HodEngine/Window/PlatformWindow.hpp>
 
 #include <HodEngine/Audio/PlatformAudioManager.hpp>
 
@@ -18,38 +18,38 @@
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-#include <HodEngine/Core/Job/JobScheduler.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/Core/Job/JobScheduler.hpp>
 
-#include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
+#include "HodEngine/Game/SerializedDataFactory.hpp"
+#include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Physics/Physics.hpp"
 
+#include "HodEngine/Core/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Time/SystemTime.hpp"
-#include "HodEngine/Core/ResourceManager.hpp"
 
+#include "HodEngine/UI/Builtin.hpp"
 #include "HodEngine/Window/Window.hpp"
 
 namespace hod::application
 {
-	_SingletonOverrideConstructor(GraphicApplication)
-	{
+	_SingletonOverrideConstructor(GraphicApplication) {}
 
-	}
-
-	/// @brief 
-	/// @param argc 
-	/// @param argv 
-	/// @return 
+	/// @brief
+	/// @param argc
+	/// @param argv
+	/// @return
 	bool GraphicApplication::Init(const ArgumentParser& argumentParser)
 	{
+		(void)argumentParser;
+
 		if (FileSystem::CreateInstance()->Init() == false)
 		{
 			return false;
 		}
-		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
 
 		JobScheduler::CreateInstance();
 		FrameSequencer::CreateInstance();
@@ -78,8 +78,8 @@ namespace hod::application
 			return false;
 		}
 
-		PlatformRenderer::CreateInstance();
-		if (PlatformRenderer::GetInstance()->Init(_window) == false)
+		renderer::CreatePlatformRenderer();
+		if (renderer::Renderer::GetInstance()->Init(_window) == false)
 		{
 			return false;
 		}
@@ -91,22 +91,23 @@ namespace hod::application
 		}
 
 		game::ComponentFactory::CreateInstance();
+		game::SerializedDataFactory::CreateInstance();
 		game::RegisterBuiltin();
 
-		game::World::CreateInstance()->Init();
+		ui::RegisterBuiltin();
 
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void GraphicApplication::Terminate()
 	{
-		game::World::DestroyInstance();
+		game::SerializedDataFactory::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
 		imgui::ImGuiManager::DestroyInstance();
-		delete _window;
-		PlatformRenderer::GetInstance()->Clear();
-		PlatformRenderer::DestroyInstance();
+		DefaultAllocator::GetInstance().Delete(_window);
+		renderer::Renderer::GetInstance()->Clear();
+		renderer::Renderer::DestroyInstance();
 		input::InputManager::DestroyInstance();
 		PlatformDisplayManager::DestroyInstance();
 		PlatformAudioManager::DestroyInstance();
@@ -121,8 +122,8 @@ namespace hod::application
 		FileSystem::DestroyInstance();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool GraphicApplication::Run()
 	{
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
@@ -132,7 +133,7 @@ namespace hod::application
 		SystemTime::TimeStamp last = SystemTime::Now();
 		while (_shouldQuit == false)
 		{
-			_window->Update();
+			window::DisplayManager::GetInstance()->Update();
 			if (_window->IsClose())
 			{
 				Quit();
@@ -144,17 +145,20 @@ namespace hod::application
 			{
 				return false;
 			}
-			renderer::Renderer::GetInstance()->GetRenderQueue()->Prepare(context);
 
 			frameSequencer->EnqueueAndWaitJobs();
 
-			renderer::Renderer::GetInstance()->GetRenderQueue()->Execute();
-
-			//_window->GetGraphicsContext()->SwapBuffer();
+			renderer::Renderer::GetInstance()->RenderViews();
 
 			SystemTime::TimeStamp now = SystemTime::Now();
-			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
+			double                elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
 			last = now;
+
+			if (context->SwapBuffer() == false)
+			{
+				return false;
+			}
+			renderer::Renderer::GetInstance()->WaitViews();
 
 			double sleepTime = targetTimeStep - elapsedTime;
 			if (sleepTime > 0.0)
@@ -165,8 +169,8 @@ namespace hod::application
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	window::Window* GraphicApplication::GetWindow() const
 	{
 		return _window;

@@ -14,7 +14,7 @@ namespace hod::window
 	/// @return 
 	Window* AndroidDisplayManager::CreateMainWindow(ANativeWindow* nativeWindow)
 	{
-		_mainWindow = new AndroidWindow(nativeWindow);
+		_mainWindow = DefaultAllocator::GetInstance().New<AndroidWindow>(nativeWindow);
 		return _mainWindow;
 	}
 }

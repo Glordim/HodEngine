@@ -1,12 +1,13 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Core/Reflection/EnumDescriptor.hpp"
-#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
-#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
@@ -14,7 +15,6 @@
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
@@ -58,7 +58,7 @@ namespace hod::editor
 
 			if (changed == true)
 			{
-				//objectProperty->SetValue(object, objectProperty->GetValue(object));
+				// objectProperty->SetValue(object, objectProperty->GetValue(object));
 			}
 		}
 		ImGui::PopID();
@@ -66,30 +66,30 @@ namespace hod::editor
 		return changed;
 	}
 
-	/// @brief 
-	/// @tparam __TYPE__ 
-	/// @param value 
-	/// @return 
+	/// @brief
+	/// @tparam __TYPE__
+	/// @param value
+	/// @return
 	template<typename __TYPE__>
 	bool DrawEnum(__TYPE__& value, EnumDescriptor* enumDescriptor)
 	{
 		bool changed = false;
 
 		const char* label = "NotFound";
-		for (const std::pair<uint64_t, std::string>& enumValue : enumDescriptor->GetValues())
+		for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
 		{
 			if (static_cast<__TYPE__>(enumValue.first) == value)
 			{
-				label = enumValue.second.c_str();
+				label = enumValue.second.CStr();
 				break;
 			}
 		}
 
 		if (ImGui::BeginCombo("", label))
 		{
-			for (const std::pair<uint64_t, std::string>& enumValue : enumDescriptor->GetValues())
+			for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
 			{
-				if (ImGui::MenuItem(enumValue.second.c_str()) && static_cast<__TYPE__>(enumValue.first) != value)
+				if (ImGui::MenuItem(enumValue.second.CStr()) && static_cast<__TYPE__>(enumValue.first) != value)
 				{
 					value = static_cast<__TYPE__>(enumValue.first);
 					changed = true;
@@ -101,148 +101,301 @@ namespace hod::editor
 		return changed;
 	}
 
-	/// @brief 
-	/// @param property 
-	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& reflectedProperty)
+	/// @brief
+	/// @param property
+	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
-		changed |= BeginProperty(reflectedProperty);
+		changed |= BeginProperty(editorReflectedProperty);
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(reflectedProperty.GetReflectionProperty());
-		void* object = reflectedProperty.GetInstance();
-
-		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
-
-		ImGui::SameLine(valuePos);
-
-		ReflectionPropertyVariable::Type type = property->GetType();
-
-		switch (type)
+		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(editorReflectedProperty.GetReflectionProperty());
+		switch (property->GetType())
 		{
-		case ReflectionPropertyVariable::Type::Bool:
-		{
-			ImGui::PushID(property);
-			bool value = property->GetValue<bool>(object);
-			ImGui::SetNextItemWidth(-1);
-			if (ImGui::Checkbox("", &value))
+			case ReflectionPropertyVariable::Type::Bool:
 			{
-				property->SetValue<bool>(object, value);
-				changed = true;
-			}
-			ImGui::PopID();
-		}
-		break;
-
-		case ReflectionPropertyVariable::Type::Int8:
-		{
-			ImGui::PushID(property);
-			int8_t value = property->GetValue<int8_t>(object);
-			ImGui::SetNextItemWidth(-1);
-			if (property->GetEnumDescriptor() != nullptr)
-			{
-				if (DrawEnum(value, property->GetEnumDescriptor()))
+				ImGui::PushID(property);
+				bool value = editorReflectedProperty.GetValue<bool>();
+				ImGui::SetNextItemWidth(-1);
+				if (ImGui::Checkbox("", &value))
 				{
-					property->SetValue<uint8_t>(object, (uint8_t)value);
+					editorReflectedProperty.SetValue(value);
 					changed = true;
 				}
+				ImGui::PopID();
 			}
-			else
+			break;
+
+			case ReflectionPropertyVariable::Type::Int8:
 			{
-				if (ImGui::DragScalar("", ImGuiDataType_S8, &value, 1.0f))
+				ImGui::PushID(property);
+				int8_t value = editorReflectedProperty.GetValue<int8_t>();
+				ImGui::SetNextItemWidth(-1);
+				if (property->GetEnumDescriptor() != nullptr)
 				{
-					property->SetValue<uint8_t>(object, (uint8_t)value);
+					if (DrawEnum(value, property->GetEnumDescriptor()))
+					{
+						editorReflectedProperty.SetValue<int8_t>((int8_t)value);
+						changed = true;
+					}
+				}
+				else
+				{
+					if (ImGui::DragScalar("", ImGuiDataType_S8, &value, 1.0f))
+					{
+						editorReflectedProperty.SetValue<int8_t>((int8_t)value);
+						changed = true;
+					}
+				}
+				ImGui::PopID();
+			}
+			break;
+
+			case ReflectionPropertyVariable::Type::UInt8:
+			{
+				ImGui::PushID(property);
+				uint8_t value = editorReflectedProperty.GetValue<uint8_t>();
+				ImGui::SetNextItemWidth(-1);
+				if (property->GetEnumDescriptor() != nullptr)
+				{
+					if (DrawEnum(value, property->GetEnumDescriptor()))
+					{
+						editorReflectedProperty.SetValue<uint8_t>((uint8_t)value);
+						changed = true;
+					}
+				}
+				else
+				{
+					if (ImGui::DragScalar("", ImGuiDataType_U8, &value, 1.0f))
+					{
+						editorReflectedProperty.SetValue<uint8_t>((uint8_t)value);
+						changed = true;
+					}
+				}
+				ImGui::PopID();
+			}
+			break;
+
+			case ReflectionPropertyVariable::Type::Int16:
+			{
+				ImGui::PushID(property);
+				int16_t value = editorReflectedProperty.GetValue<int16_t>();
+				ImGui::SetNextItemWidth(-1);
+				if (property->GetEnumDescriptor() != nullptr)
+				{
+					if (DrawEnum(value, property->GetEnumDescriptor()))
+					{
+						editorReflectedProperty.SetValue<int16_t>((int16_t)value);
+						changed = true;
+					}
+				}
+				else
+				{
+					if (ImGui::DragScalar("", ImGuiDataType_S16, &value, 1.0f))
+					{
+						editorReflectedProperty.SetValue<int16_t>((int16_t)value);
+						changed = true;
+					}
+				}
+				ImGui::PopID();
+			}
+			break;
+
+			case ReflectionPropertyVariable::Type::UInt16:
+			{
+				ImGui::PushID(property);
+				uint16_t value = editorReflectedProperty.GetValue<uint16_t>();
+				ImGui::SetNextItemWidth(-1);
+				if (property->GetEnumDescriptor() != nullptr)
+				{
+					if (DrawEnum(value, property->GetEnumDescriptor()))
+					{
+						editorReflectedProperty.SetValue<uint16_t>((uint16_t)value);
+						changed = true;
+					}
+				}
+				else
+				{
+					if (ImGui::DragScalar("", ImGuiDataType_U16, &value, 1.0f))
+					{
+						editorReflectedProperty.SetValue<uint16_t>((uint16_t)value);
+						changed = true;
+					}
+				}
+				ImGui::PopID();
+			}
+			break;
+
+			case ReflectionPropertyVariable::Type::Int32:
+			{
+				ImGui::PushID(property);
+				int32_t value = editorReflectedProperty.GetValue<int32_t>();
+				ImGui::SetNextItemWidth(-1);
+				if (property->GetEnumDescriptor() != nullptr)
+				{
+					if (DrawEnum(value, property->GetEnumDescriptor()))
+					{
+						editorReflectedProperty.SetValue<int32_t>((int32_t)value);
+						changed = true;
+					}
+				}
+				else
+				{
+					if (ImGui::DragScalar("", ImGuiDataType_S32, &value, 1.0f))
+					{
+						editorReflectedProperty.SetValue<int32_t>((int32_t)value);
+						changed = true;
+					}
+				}
+				ImGui::PopID();
+			}
+			break;
+
+			case ReflectionPropertyVariable::Type::UInt32:
+			{
+				ImGui::PushID(property);
+				uint32_t value = editorReflectedProperty.GetValue<uint32_t>();
+				ImGui::SetNextItemWidth(-1);
+				if (property->GetEnumDescriptor() != nullptr)
+				{
+					if (DrawEnum(value, property->GetEnumDescriptor()))
+					{
+						editorReflectedProperty.SetValue<uint32_t>((uint32_t)value);
+						changed = true;
+					}
+				}
+				else
+				{
+					if (ImGui::DragScalar("", ImGuiDataType_U32, &value, 1.0f))
+					{
+						editorReflectedProperty.SetValue<uint32_t>((uint32_t)value);
+						changed = true;
+					}
+				}
+				ImGui::PopID();
+			}
+			break;
+
+			case ReflectionPropertyVariable::Type::Int64:
+			{
+				ImGui::PushID(property);
+				int64_t value = editorReflectedProperty.GetValue<int64_t>();
+				ImGui::SetNextItemWidth(-1);
+				if (property->GetEnumDescriptor() != nullptr)
+				{
+					if (DrawEnum(value, property->GetEnumDescriptor()))
+					{
+						editorReflectedProperty.SetValue<int64_t>((int64_t)value);
+						changed = true;
+					}
+				}
+				else
+				{
+					if (ImGui::DragScalar("", ImGuiDataType_S64, &value, 1.0f))
+					{
+						editorReflectedProperty.SetValue<int64_t>((int64_t)value);
+						changed = true;
+					}
+				}
+				ImGui::PopID();
+			}
+			break;
+
+			case ReflectionPropertyVariable::Type::UInt64:
+			{
+				ImGui::PushID(property);
+				uint64_t value = editorReflectedProperty.GetValue<uint64_t>();
+				ImGui::SetNextItemWidth(-1);
+				if (property->GetEnumDescriptor() != nullptr)
+				{
+					if (DrawEnum(value, property->GetEnumDescriptor()))
+					{
+						editorReflectedProperty.SetValue<uint64_t>((uint64_t)value);
+						changed = true;
+					}
+				}
+				else
+				{
+					if (ImGui::DragScalar("", ImGuiDataType_U64, &value, 1.0f))
+					{
+						editorReflectedProperty.SetValue<uint64_t>((uint64_t)value);
+						changed = true;
+					}
+				}
+				ImGui::PopID();
+			}
+			break;
+
+			case ReflectionPropertyVariable::Type::Float32:
+			{
+				ImGui::PushID(property);
+				float value = editorReflectedProperty.GetValue<float>();
+				ImGui::SetNextItemWidth(-1);
+				if (ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f))
+				{
+					editorReflectedProperty.SetValue<float>((float)value);
 					changed = true;
 				}
+				ImGui::PopID();
 			}
-			ImGui::PopID();
-		}
-		break;
+			break;
 
-		case ReflectionPropertyVariable::Type::UInt8:
-		{
-			ImGui::PushID(property);
-			uint8_t value = property->GetValue<uint8_t>(object);
-			ImGui::SetNextItemWidth(-1);
-			if (property->GetEnumDescriptor() != nullptr)
+			case ReflectionPropertyVariable::Type::Float64:
 			{
-				if (DrawEnum(value, property->GetEnumDescriptor()))
+				ImGui::PushID(property);
+				double value = editorReflectedProperty.GetValue<double>();
+				ImGui::SetNextItemWidth(-1);
+				if (ImGui::DragScalar("", ImGuiDataType_Double, &value, 0.01f))
 				{
-					property->SetValue<uint8_t>(object, (uint8_t)value);
+					editorReflectedProperty.SetValue<double>((double)value);
 					changed = true;
 				}
+				ImGui::PopID();
 			}
-			else
+			break;
+
+			case ReflectionPropertyVariable::Type::String:
 			{
-				if (ImGui::DragScalar("", ImGuiDataType_U8, &value, 1.0f))
+				ImGui::PushID(property);
+				String value = editorReflectedProperty.GetValue<String>();
+				value.Reserve(512);
+				ImGui::SetNextItemWidth(-1);
+				if (ImGui::InputText("", value.Data(), value.Capacity()))
 				{
-					property->SetValue<uint8_t>(object, (uint8_t)value);
+					value = value.CStr();
+					editorReflectedProperty.SetValue<String>(value);
 					changed = true;
 				}
+				ImGui::PopID();
 			}
-			ImGui::PopID();
-		}
-		break;
+			break;
 
-		case ReflectionPropertyVariable::Type::Float32:
-		{
-			ImGui::PushID(property);
-			float value = property->GetValue<float>(object);
-			ImGui::SetNextItemWidth(-1);
-			if (ImGui::DragScalar("", ImGuiDataType_Float, &value, 0.01f))
+			default:
 			{
-				property->SetValue<float>(object, (float)value);
-				changed = true;
+				ImGui::TextUnformatted("Unsupported type");
 			}
-			ImGui::PopID();
-		}
-		break;
-
-		case ReflectionPropertyVariable::Type::String:
-		{
-			ImGui::PushID(property);
-			std::string value = property->GetValue<std::string>(object);
-			value.reserve(512);
-			ImGui::SetNextItemWidth(-1);
-			if (ImGui::InputText("", value.data(), value.capacity()))
-			{
-				value = value.c_str();
-				property->SetValue<std::string>(object, value);
-				changed = true;
-			}
-			ImGui::PopID();
-		}
-		break;
-		
-		default:
-		{
-			ImGui::TextUnformatted("Unsupported type");
-		}
-		break;
-
+			break;
 		}
 
 		return changed;
 	}
 
-	/// @brief 
-	/// @param property 
-	bool PropertyDrawer::DrawPropertyArray(EditorReflectedProperty& reflectedProperty)
+	/// @brief
+	/// @param property
+	bool PropertyDrawer::DrawPropertyArray(EditorReflectedProperty& editorReflectedProperty)
 	{
-		ReflectionPropertyArray* property = static_cast<ReflectionPropertyArray*>(reflectedProperty.GetReflectionProperty());
-		void* object = reflectedProperty.GetInstance();
-
 		bool changed = false;
-		
-		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
+		changed |= BeginProperty(editorReflectedProperty);
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(property->GetDisplayName().c_str());
+		float cursorX = ImGui::GetCursorPosX();
 
-		ImGui::SameLine(valuePos);
-
+		ReflectionPropertyArray*         property = static_cast<ReflectionPropertyArray*>(editorReflectedProperty.GetReflectionProperty());
 		ReflectionPropertyVariable::Type type = property->GetType();
 
-		uint32_t elementCount = property->GetElementCount(object);
+		void* object = editorReflectedProperty.GetInstance();
+
+		uint32_t elementCount = editorReflectedProperty.GetArraySize();
 
 		ImGui::PushID(property);
 		if (elementCount > 0 && ImGui::BeginTable("Items", 2) == true)
@@ -262,11 +415,12 @@ namespace hod::editor
 				{
 					case ReflectionPropertyVariable::Type::Float32:
 					{
-						float value = property->GetValue<float>(object, index);
+						float value = editorReflectedProperty.GetValueAtIndex<float>(index);
+						// float value = property->GetValue<float>(object, index);
 						bool elementChanged = ImGui::DragScalar("", ImGuiDataType_Float, &value, 1.0f);
 						if (elementChanged == true)
 						{
-							property->SetValue<float>(object, index, (float)value);
+							editorReflectedProperty.SetValueAtIndex<float>(index, (float)value);
 							changed = true;
 						}
 					}
@@ -274,13 +428,20 @@ namespace hod::editor
 
 					case ReflectionPropertyVariable::Type::Object:
 					{
+						EditorReflectedProperty elementProperty = editorReflectedProperty.GenerateElementProperty(index);
+						changed |= PropertyDrawer::DrawPropertyObject(elementProperty);
+
+						/*
+						void* value = property->GetValue<void*>(object, index);
+						EditorReflectedObject subEditorReflectedObject(value, property->GetElementReflectionDescriptor(), nullptr);
 						if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()))
 						{
-							ImGui::Indent();
-							void* value = property->GetValue<void*>(object, index);
-							//changed |= PropertyDrawer::DrawDescriptor(value, property->GetElementReflectionDescriptor());
-							ImGui::Unindent();
+						    ImGui::Indent();
+						    //void* value = property->GetValue<void*>(object, index);
+						    changed |= PropertyDrawer::DrawDescriptor(subEditorReflectedObject);
+						    ImGui::Unindent();
 						}
+						*/
 					}
 					break;
 
@@ -295,7 +456,7 @@ namespace hod::editor
 			}
 			ImGui::EndTable();
 		}
-		ImGui::SetCursorPosX(valuePos);
+		ImGui::SetCursorPosX(cursorX);
 		if (ImGui::Button(ICON_MDI_PLUS) == true)
 		{
 			property->InsertElement(object, elementCount);
@@ -306,26 +467,41 @@ namespace hod::editor
 		return changed;
 	}
 
-	/// @brief 
-	/// @param property 
+	/// @brief
+	/// @param property
 	bool PropertyDrawer::DrawPropertyObject(EditorReflectedProperty& reflectedProperty)
 	{
-		EditorReflectedObject* subEditorReflectedObject = reflectedProperty.GetEditorReflectedObject();
+		ReflectionDescriptor* instanceDescriptor;
 
-		ReflectionPropertyObject* property = static_cast<ReflectionPropertyObject*>(reflectedProperty.GetReflectionProperty());
+		ReflectionProperty* property = reflectedProperty.GetReflectionProperty();
+		if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+		{
+			ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
+			instanceDescriptor = propertyObject->GetReflectionDescriptor();
+		}
+		else if (property->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+		{
+			ReflectionPropertyArray* propertyArray = static_cast<ReflectionPropertyArray*>(property);
+			instanceDescriptor = propertyArray->GetElementReflectionDescriptor();
+		}
+		else
+		{
+			assert(false);
+			return false;
+		}
 
 		bool changed = false;
-		ReflectionDescriptor* instanceDescriptor = property->GetReflectionDescriptor();
 
 		ReflectionTraitCustomPropertyDrawer* customPropertyDrawerTrait = instanceDescriptor->FindTrait<ReflectionTraitCustomPropertyDrawer>();
 		if (customPropertyDrawerTrait != nullptr)
 		{
-			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(*subEditorReflectedObject);
+			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(reflectedProperty);
 		}
 		else
 		{
-			if (ImGui::CollapsingHeader(property->GetDisplayName().c_str()) == true)
+			if (ImGui::CollapsingHeader(property->GetDisplayName().CStr()) == true)
 			{
+				EditorReflectedObject* subEditorReflectedObject = reflectedProperty.GetEditorReflectedObject();
 				for (EditorReflectedProperty* subEditorReflectedProperty : subEditorReflectedObject->GetProperties())
 				{
 					changed |= PropertyDrawer::DrawProperty(*subEditorReflectedProperty);
@@ -335,24 +511,26 @@ namespace hod::editor
 		return changed;
 	}
 
-	bool PropertyDrawer::BeginProperty(EditorReflectedProperty& reflectedProperty)
+	bool PropertyDrawer::BeginProperty(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
-		bool isOverride = reflectedProperty.IsOverride();
+		editorReflectedProperty.GetEditorReflectedObject(); // todo remove...
+		bool isOverride = editorReflectedProperty.IsOverride();
 		if (isOverride)
 		{
 			float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y), ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y),
+			                                          ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
 		}
 
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(reflectedProperty.GetReflectionProperty()->GetDisplayName().c_str());
+		ImGui::TextUnformatted(editorReflectedProperty.GetReflectionProperty()->GetDisplayName().CStr());
 		if (isOverride && ImGui::BeginPopupContextItem("OverrideContext") == true)
 		{
 			if (ImGui::Button("Revert") == true)
 			{
-				ReflectionProperty* reflectionProperty = reflectedProperty.GetReflectionProperty();
-				reflectionProperty->Copy(reflectedProperty.GetSourceInstance(), reflectedProperty.GetInstance());
+				ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
+				reflectionProperty->Copy(editorReflectedProperty.GetSourceInstance(), editorReflectedProperty.GetInstance());
 				changed = true;
 				ImGui::CloseCurrentPopup();
 			}

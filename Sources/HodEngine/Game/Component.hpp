@@ -1,72 +1,98 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
+#include <HodEngine/Core/Weakable/Weakable.hpp>
+#include <HodEngine/Core/Weakable/WeakPtr.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
-#include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
 #include <memory>
-#include <functional>
+#include <atomic>
 
-#include "HodEngine/Core/Type.hpp"
-#include "HodEngine/Core/UID.hpp"
-
-namespace hod
+namespace hod::game
 {
-	struct Color;
+	class Entity;
+	class Scene;
+	class World;
 
-	namespace renderer
+	///@brief 
+	class HOD_GAME_API Component : public Weakable
 	{
-		class RenderQueue;
-	}
+		REFLECTED_CLASS_NO_PARENT(Component)
 
-	namespace game
-	{
-		class Entity;
-		class Scene;
+		friend class Scene;
+		friend class Entity;
+		friend class hod::Allocator;
 
-		///@brief 
-		class HOD_GAME_API Component : public std::enable_shared_from_this<Component>
-		{
-			REFLECTED_CLASS_NO_PARENT(Component, HOD_GAME_API)
+	public:
 
-			friend class Scene;
-			friend class Entity;
+		Entity*					GetOwner() const;
+		Scene*					GetScene() const;
+		World*					GetWorld() const;
 
-		public:
+		void					SetEnabled(bool enabled);
+		bool					GetEnabled() const;
+		bool					IsEnabledInHierarchy() const;
 
-			void					SetEntity(const std::shared_ptr<Entity>& entity);
-			std::shared_ptr<Entity>	GetEntity() const;
+		virtual void			OnConstruct();
+		virtual void			OnAwake();
+		virtual void			OnEnable();
+		virtual void			OnStart();
+		virtual void			OnUpdate(float deltaTime);
+		virtual void			OnFixedUpdate();
+		virtual void			OnDisable();
+		virtual void			OnDestruct();
 
-			const UID&			GetUid() const { return _uid; }
-			const UID&			GetLocalId() const { return _localId; }
-			void				SetLocalId(const UID& uid) { _localId = uid; }
+		uint64_t				GetInstanceId() const;
+		uint64_t				GetLocalId() const;
+		void					SetLocalId(uint64_t localId); // TODO move in private ?
 
-			virtual void		OnAwake() {};
-			virtual void		OnStart() {};
-			virtual void		OnUpdate() {};
-
-		protected:
+	protected:
 
 								Component();
 								Component(const Component&) = delete;
 								Component(Component&&) = delete;
-			virtual				~Component() = default;
+		virtual					~Component() = default;
 
-			void				operator=(const Component&) = delete;
-			void				operator=(Component&&) = delete;
+		void					operator=(const Component&) = delete;
+		void					operator=(Component&&) = delete;
 
-			virtual void		OnConstruct() {};
+	private:
 
-		private:
-
-			void				Construct() { OnConstruct(); };
-
-		private:
-
-			UID						_uid;
-			UID						_localId;
-			std::weak_ptr<Entity>	_entity;
+		enum class InternalState : uint8_t
+		{
+			None,
+			Constructed,
+			Awaked,
+			Started,
+			Destructed,
 		};
-	}
-}
 
-#include "Component.inl"
+	private:
+
+		void					AttachTo(Entity* owner);
+
+		InternalState			GetInternalState() const;
+
+		void					Construct();
+		void					Awake();
+		void					Enable();
+		void					Start();
+		void					Disable();
+		void					Destruct();
+
+	private:
+
+		WeakPtr<Entity>			_owner;
+
+		InternalState			_internalState = InternalState::None;
+
+		bool					_enabled = true;
+		bool					_enabledInHierarchy = false;
+
+		uint64_t				_instanceId = 0;
+		uint64_t				_localId = 0;
+
+	private:
+
+		static std::atomic<uint64_t> _nextInstanceId;
+	};
+}

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...3.27)
+cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
@@ -8,11 +8,20 @@ else()
     project(Window LANGUAGES CXX)
 endif()
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+if (APPLE)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32 Android Linux)
+elseif(ANDROID)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs Win32 Linux)
+elseif(WIN32)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs Android Linux)
+else() # Linux
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32 Android MacOs)
+endif()
 
 assign_source_group(${Srcs}) # for VS
 
 add_library(Window ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Window PROPERTIES FOLDER "HodEngine")
 set_property(TARGET Window PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 set(UNIX_LIBS "")
@@ -80,8 +89,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	${UNIX_INCLUDES}
 )
 
-target_link_libraries(Window
+target_link_libraries(Window PUBLIC
 	Core
+)
+
+target_link_libraries(Window PRIVATE
 	${UNIX_LIBS}
     ${COCOA_LIBRARY}
 )

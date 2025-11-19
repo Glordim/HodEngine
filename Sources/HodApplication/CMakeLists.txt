@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...3.27)
+cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
@@ -43,4 +43,4 @@ target_link_libraries(HodApplication
 	Application
 )
 
-target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE})

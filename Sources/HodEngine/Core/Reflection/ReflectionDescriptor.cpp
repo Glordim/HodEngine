@@ -1,114 +1,136 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
-#include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
-#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/CharHelper.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
+#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
 #include <cassert>
 
 namespace hod
 {
 	///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
-	///@param typeName 
+	///@param typeName
 	ReflectionDescriptor::ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent)
 	: _typeName(typeName)
 	, _parent(parent)
 	{
 	}
 
-	/// @brief 
-	/// @param data 
+	/// @brief
+	/// @param data
 	ReflectionDescriptor::ReflectionDescriptor(const Data& data)
 	: _typeName(data._name.data()) // todo
 	, _parent(data._parent)
 	, _allocateFunction(data._allocateFunction)
+	, _deleteFunction(data._deleteFunction)
 	, _sharedAllocateFunction(data._sharedAllocateFunction)
 	, _compareFunction(data._compareFunction)
 	, _metaType(data._metaType)
 	{
 	}
 
-	/// @brief 
-	/// @return 
-	const std::string& ReflectionDescriptor::GetDisplayName() const
+	/// @brief
+	/// @param data
+	void ReflectionDescriptor::Init(const Data& data)
 	{
-		if (_displayName.empty())
+		_typeName = data._name.data(); // todo
+		_parent = data._parent;
+		_allocateFunction = data._allocateFunction;
+		_deleteFunction = data._deleteFunction;
+		_sharedAllocateFunction = data._sharedAllocateFunction;
+		_compareFunction = data._compareFunction;
+		_metaType = data._metaType;
+	}
+
+	/// @brief
+	/// @return
+	const String& ReflectionDescriptor::GetDisplayName() const
+	{
+		if (_displayName.Empty())
 		{
 			_displayName = GenerateDisplayName(_typeName);
 		}
 		return _displayName;
 	}
 
-	/// @brief 
+	/// @brief
 	ReflectionDescriptor::~ReflectionDescriptor()
 	{
 		for (ReflectionProperty* property : _properties)
 		{
-			delete property;
+			DefaultAllocator::GetInstance().Delete(property);
 		}
 
 		for (ReflectionTrait* trait : _traits)
 		{
-			delete trait;
+			DefaultAllocator::GetInstance().Delete(trait);
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	void* ReflectionDescriptor::CreateInstance() const
 	{
 		return _allocateFunction();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @param instance
+	void ReflectionDescriptor::DeleteInstance(void* instance)
+	{
+		_deleteFunction(instance);
+	}
+
+	/// @brief
+	/// @return
 	std::shared_ptr<void> ReflectionDescriptor::CreateSharedInstance() const
 	{
 		return _sharedAllocateFunction();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	MetaType ReflectionDescriptor::GetMetaType() const
 	{
 		return _metaType;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::string& ReflectionDescriptor::GetTypeName() const
+	/// @brief
+	/// @return
+	const String& ReflectionDescriptor::GetTypeName() const
 	{
 		return _typeName;
 	}
 
-	///@brief 
-	///@return const std::vector<ReflectionTrait*>& 
-	const std::vector<ReflectionTrait*>& ReflectionDescriptor::GetTraits() const
+	///@brief
+	///@return const Vector<ReflectionTrait*>&
+	const Vector<ReflectionTrait*>& ReflectionDescriptor::GetTraits() const
 	{
 		return _traits;
 	}
 
-	///@brief 
-	///@return const std::vector<ReflectionProperty*>& 
-	const std::vector<ReflectionProperty*>& ReflectionDescriptor::GetProperties() const
+	///@brief
+	///@return const Vector<ReflectionProperty*>&
+	const Vector<ReflectionProperty*>& ReflectionDescriptor::GetProperties() const
 	{
 		return _properties;
 	}
 
-	///@brief 
-	///@param trait 
+	///@brief
+	///@param trait
 	void ReflectionDescriptor::AddTrait(ReflectionTrait* trait)
 	{
 		_traits.push_back(trait);
 	}
 
-	/// @brief 
-	/// @param metaType 
-	/// @return 
-	ReflectionTrait* ReflectionDescriptor::FindTrait(MetaType metaType) const
+	/// @brief
+	/// @param metaType
+	/// @return
+	ReflectionTrait* ReflectionDescriptor::FindTrait(MetaType metaType, bool fallbackOnParent) const
 	{
-		for (uint32_t index = 0; index < _traits.size(); ++index)
+		for (uint32_t index = 0; index < _traits.Size(); ++index)
 		{
 			if (_traits[index]->GetMetaType() == metaType)
 			{
@@ -116,7 +138,7 @@ namespace hod
 			}
 		}
 
-		if (_fallbackTraitOnParent)
+		if (fallbackOnParent)
 		{
 			ReflectionDescriptor* parent = GetParent();
 			if (parent != nullptr)
@@ -128,39 +150,32 @@ namespace hod
 		return nullptr;
 	}
 
-	/// @brief 
-	/// @param metaType 
+	/// @brief
+	/// @param metaType
 	void ReflectionDescriptor::RemoveTrait(MetaType metaType)
 	{
-		for (uint32_t index = 0; index < _traits.size(); ++index)
+		for (uint32_t index = 0; index < _traits.Size(); ++index)
 		{
 			if (_traits[index]->GetMetaType() == metaType)
 			{
 				ReflectionTrait* trait = _traits[index];
-				_traits.erase(_traits.begin() + index);
-				delete trait;
+				_traits.Erase(index);
+				DefaultAllocator::GetInstance().Delete(trait);
 				return;
 			}
 		}
 	}
 
-	/// @brief 
-	/// @param fallbackOnParent 
-	void ReflectionDescriptor::SetFallbackTraitOnParent(bool fallbackTraitOnParent)
-	{
-		_fallbackTraitOnParent = fallbackTraitOnParent;
-	}
-
-	///@brief 
-	///@param property 
+	///@brief
+	///@param property
 	void ReflectionDescriptor::AddProperty(ReflectionProperty* property)
 	{
 		_properties.push_back(property);
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	ReflectionProperty* ReflectionDescriptor::FindProperty(const std::string_view& name, bool fallbackOnParent) const
 	{
 		for (ReflectionProperty* property : _properties)
@@ -177,22 +192,40 @@ namespace hod
 		return nullptr;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	ReflectionDescriptor* ReflectionDescriptor::GetParent() const
 	{
 		return _parent;
 	}
 
-	/// @brief 
-	/// @param sourceInstance 
-	/// @param destinationInstance 
+	/// @brief
+	/// @param descriptor
+	/// @return
+	bool ReflectionDescriptor::IsCompatible(const ReflectionDescriptor& descriptor) const
+	{
+		if (this == &descriptor)
+		{
+			return true;
+		}
+
+		if (_parent != nullptr)
+		{
+			return _parent->IsCompatible(descriptor);
+		}
+
+		return false;
+	}
+
+	/// @brief
+	/// @param sourceInstance
+	/// @param destinationInstance
 	void ReflectionDescriptor::Copy(const void* sourceInstance, void* destinationInstance)
 	{
-        if (_parent != nullptr)
-        {
-            _parent->Copy(sourceInstance, destinationInstance);
-        }
+		if (_parent != nullptr)
+		{
+			_parent->Copy(sourceInstance, destinationInstance);
+		}
 
 		for (ReflectionProperty* reflectionProperty : _properties)
 		{
@@ -200,13 +233,36 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param left 
-	/// @param right 
-	/// @return 
+	/// @brief
+	/// @param left
+	/// @param right
+	/// @return
 	bool ReflectionDescriptor::Compare(const void* left, const void* right) const
 	{
 		assert(_compareFunction != nullptr);
 		return _compareFunction(left, right);
+	}
+
+	/// @brief
+	/// @param reflectionDescriptor
+	/// @param collectedInstances
+	/// @param instance
+	void ReflectionDescriptor::CollectObjectProperties(const ReflectionDescriptor& reflectionDescriptor, Vector<void*>& collectedInstances, void* instance)
+	{
+		for (ReflectionProperty* property : GetProperties())
+		{
+			if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+			{
+				ReflectionPropertyObject* objectProperty = static_cast<ReflectionPropertyObject*>(property);
+				if (objectProperty->GetReflectionDescriptor()->IsCompatible(reflectionDescriptor))
+				{
+					void* objectInstance = objectProperty->GetValue(instance);
+					if (objectInstance != nullptr)
+					{
+						collectedInstances.push_back(objectInstance);
+					}
+				}
+			}
+		}
 	}
 }

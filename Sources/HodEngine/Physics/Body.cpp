@@ -8,8 +8,22 @@ namespace hod::physics
 	{
 		for (Collider* collider : _colliders)
 		{
-			delete collider;
+			DefaultAllocator::GetInstance().Delete(collider);
 		}
+	}
+	
+	/// @brief 
+	/// @param userData 
+	void Body::SetUserData(void* userData)
+	{
+		_userData = userData;
+	}
+
+	/// @brief 
+	/// @return 
+	void* Body::GetUserData() const
+	{
+		return _userData;
 	}
 
 	/// @brief 

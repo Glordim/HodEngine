@@ -1,221 +1,567 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
+
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
+
+#undef max
+
 namespace hod::game
 {
-	Entity::Id Entity::_nextId = 0;
+	std::atomic<uint64_t> Entity::_nextInstanceId = 0;
 
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(Entity)
+	DESCRIBE_REFLECTED_ENUM(Entity::InternalState, reflectionDescriptor)
 	{
-		ADD_PROPERTY(Entity, _name);
-		ADD_PROPERTY(Entity, _active);
+		// constexpr auto names = EnumTrait::GetEnumNames<Entity::InternalState, 0, 1>();
+
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::None, "None");
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::Constructed, "Constructed");
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::Awaked, "Awaked");
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::Started, "Started");
+		reflectionDescriptor.AddEnumValue(Entity::InternalState::Destructed, "Destructed");
 	}
 
-	/// @brief 
-	/// @param name 
+	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
+	{
+		ReflectionProperty* instanceIdProperty = AddPropertyT(reflectionDescriptor, &Entity::_instanceId, "_instanceId");
+		instanceIdProperty->AddTrait<ReflectionTraitNoSerialization>();
+		instanceIdProperty->AddTrait<ReflectionTraitHide>();
+
+		AddPropertyT(reflectionDescriptor, &Entity::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
+
+		AddPropertyT(reflectionDescriptor, &Entity::_name, "_name");
+		AddPropertyT(reflectionDescriptor, &Entity::_active, "_active");
+
+		AddPropertyT(reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
+	}
+
+	/// @brief
+	/// @param name
 	Entity::Entity(const std::string_view& name)
 	: _name(name)
 	{
-		++_nextId;
-		_id = _nextId;
+		_instanceId = _nextInstanceId.fetch_add(1);
 	}
 
-	/// @brief 
-	/// @param other 
-	std::shared_ptr<Entity> Entity::Clone()
+	/// @brief
+	Entity::~Entity()
 	{
-		std::shared_ptr<Entity> clone = std::make_shared<Entity>(_name);
-
-		clone->_components.reserve(_components.size());
-		for (std::shared_ptr<Component> component : _components)
+		for (Component* component : _components)
 		{
-			ReflectionDescriptor* reflectionDescriptor = component->GetReflectionDescriptorV();
-			std::shared_ptr<Component> cloneComponent = std::static_pointer_cast<Component>(reflectionDescriptor->CreateSharedInstance());
-
-			reflectionDescriptor->Copy(component.get(), cloneComponent.get());
-
-			cloneComponent->SetEntity(clone);
-			cloneComponent->Construct();
-
-			clone->_components.push_back(cloneComponent);
+			DefaultAllocator::GetInstance().Delete(component);
 		}
-
-		return clone;
+		_components.Clear();
 	}
 
-	/// @brief 
-	/// @return 
-	Entity::Id Entity::GetId() const
+	/// @brief
+	/// @return
+	uint64_t Entity::GetInstanceId() const
 	{
-		return _id;
+		return _instanceId;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::string& Entity::GetName() const
+	/// @brief
+	/// @return
+	uint64_t Entity::GetLocalId() const
+	{
+		return _localId;
+	}
+
+	/// @brief
+	/// @param localId
+	void Entity::SetLocalId(uint64_t localId)
+	{
+		_localId = localId;
+	}
+
+	/// @brief
+	/// @return
+	const String& Entity::GetName() const
 	{
 		return _name;
 	}
 
-	/// @brief 
-	/// @param name 
+	/// @brief
+	/// @param name
 	void Entity::SetName(const std::string_view& name)
 	{
 		_name = name;
 	}
 
-	/// @brief 
-	/// @return 
-	bool Entity::GetActive() const
-	{
-		return _active;
-	}
-
-	/// @brief 
-	/// @param active 
+	/// @brief
+	/// @param active
 	void Entity::SetActive(bool active)
 	{
 		if (_active != active)
 		{
 			_active = active;
-			if (active == true)
-			{
-				Awake();
-				Start();
-			}
-		 }
-	 }
-	 
-	 void Entity::Awake()
-	 {
-		#if defined(HOD_EDITOR)
-		if (World::GetInstance()->GetEditorPlaying() == false)
-		{
-			return;
-		}
-		#endif
-		if (_awaked == false)
-		{
-			_awaked = true;
 
-			for (std::weak_ptr<Component> component : _components)
+			if (_activeInHierarchy != _active)
 			{
-				component.lock()->OnAwake();
-			}
-		}
-	 }
-
-	 void Entity::Start()
-	 {
-		#if defined(HOD_EDITOR)
-		if (World::GetInstance()->GetEditorPlaying() == false)
-		{
-			return;
-		}
-		#endif
-		if (_started == false)
-		{
-			_started = true;
-
-			for (std::weak_ptr<Component> component : _components)
-			{
-				component.lock()->OnStart();
+				ProcessActivation();
 			}
 		}
 	}
 
-	/// @brief 
-	/// @return 
-	std::vector<std::weak_ptr<game::Component>> Entity::GetComponents() const
+	/// @brief
+	/// @return
+	bool Entity::GetActive() const
 	{
-		std::vector<std::weak_ptr<game::Component>> components;
-		components.reserve(_components.size());
- 
-		for (std::weak_ptr<game::Component> component : _components)
-		{
-			components.push_back(component);
-		}
-
-		return components;
+		return _active;
 	}
 
-	/// @brief 
-	/// @param descriptor 
-	/// @return 
-	std::shared_ptr<Component> Entity::GetComponent(MetaType metaType)
+	/// @brief
+	/// @return
+	bool Entity::IsActiveInHierarchy() const
 	{
-		for (const std::shared_ptr<Component>& component : _components)
+		return _activeInHierarchy;
+	}
+
+	/// @brief
+	void Entity::NotifyActivationChanged() {}
+
+	/// @brief
+	/// @return
+	const Vector<Component*>& Entity::GetComponents() const
+	{
+		return _components;
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @return
+	Component* Entity::GetComponent(const ReflectionDescriptor& descriptor)
+	{
+		for (Component* component : _components)
 		{
-			if (component->GetMetaType() == metaType)
+			if (component->GetReflectionDescriptorV().IsCompatible(descriptor) == true)
 			{
 				return component;
 			}
 		}
-		return std::shared_ptr<Component>();
+		return nullptr;
 	}
 
-	/// @brief 
-	/// @param descriptor 
-	/// @return 
-	std::shared_ptr<Component> Entity::AddComponent(const ReflectionDescriptor& descriptor, bool awakeAndStart)
+	/// @brief
+	/// @param descriptor
+	/// @return
+	Component* Entity::GetComponentInParent(const ReflectionDescriptor& descriptor)
 	{
-		std::shared_ptr<Component> existingComponent = GetComponent(descriptor.GetMetaType());
+		Component* component = GetComponent(descriptor);
+		if (component != nullptr)
+		{
+			return component;
+		}
+
+		if (_parent.Lock() != nullptr)
+		{
+			return _parent.Lock()->GetComponentInParent(descriptor);
+		}
+
+		return nullptr;
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @return
+	Component* Entity::AddComponent(const ReflectionDescriptor& descriptor)
+	{
+		Component* existingComponent = GetComponent(descriptor);
 		if (existingComponent != nullptr)
 		{
 			return existingComponent;
 		}
 
-		return AddComponent(std::static_pointer_cast<Component>(descriptor.CreateSharedInstance()), awakeAndStart);
+		return AddComponent(static_cast<Component*>(descriptor.CreateInstance()));
 	}
 
-	/// @brief 
-	/// @param component 
-	/// @return 
-	std::shared_ptr<Component> Entity::AddComponent(std::shared_ptr<Component> component, bool awakeAndStart)
+	/// @brief
+	/// @param component
+	/// @return
+	Component* Entity::AddComponent(Component* component)
 	{
 		_components.push_back(component);
-		component->SetEntity(shared_from_this());
+		component->AttachTo(this);
 
-		_onAddComponentEvent.Emit(component);
-
-#if defined(HOD_EDITOR)
-		awakeAndStart = World::GetInstance()->GetEditorPlaying();
-#endif
-		if (_active == true && awakeAndStart == true)
+		if (_internalState != InternalState::None)
 		{
-			component->OnAwake();
-			component->OnStart();
+			component->Construct();
+			if (_activeInHierarchy == true)
+			{
+				bool playing = GetScene()->GetWorld()->GetEditorPlaying();
+
+				if (playing)
+				{
+					component->Awake();
+				}
+				component->Enable();
+				if (playing)
+				{
+					component->Start();
+				}
+			}
 		}
 
 		return component;
 	}
 
-	/// @brief 
-	/// @param component 
-	void Entity::RemoveComponent(std::shared_ptr<Component> component)
+	/// @brief
+	/// @param component
+	void Entity::RemoveComponent(Component* component)
 	{
-		auto it = std::find(_components.begin(), _components.end(), component);
-		if (it != _components.end())
+		auto it = std::find(_components.Begin(), _components.End(), component);
+		if (it != _components.End())
 		{
-			_components.erase(it);
+			_components.Erase(it);
 		}
 	}
 
-	/// @brief 
-	/// @param prefab 
-	void Entity::SetPrefab(Prefab* prefab)
+	/// @brief
+	/// @param descriptor
+	void Entity::RemoveComponent(const ReflectionDescriptor& descriptor)
 	{
-		_prefab = prefab;
+		uint32_t indexToRemove = std::numeric_limits<uint32_t>::max();
+		for (uint32_t index = 0; index < _components.Size(); ++index)
+		{
+			Component* component = _components[index];
+			if (&component->GetReflectionDescriptorV() == &descriptor)
+			{
+				_components.Erase(index);
+				return;
+			}
+
+			if (component->GetReflectionDescriptorV().IsCompatible(descriptor) == true)
+			{
+				indexToRemove = index;
+			}
+		}
+		if (indexToRemove != std::numeric_limits<uint32_t>::max())
+		{
+			_components.Erase(indexToRemove);
+		}
 	}
 
-	/// @brief 
-	/// @return 
-	Prefab* Entity::GetPrefab() const
+	/// @brief
+	/// @param prefab
+	void Entity::SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource)
 	{
-		return _prefab;
+		_prefabResource = prefabResource;
+	}
+
+	/// @brief
+	/// @return
+	std::shared_ptr<PrefabResource> Entity::GetPrefabResource() const
+	{
+		return _prefabResource;
+	}
+
+	/// @brief
+	/// @return
+	const Vector<WeakEntity>& Entity::GetChildren() const
+	{
+		return _children;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t Entity::GetSiblingIndex() const
+	{
+		Entity* parentLock = _parent.Lock();
+		if (parentLock != nullptr)
+		{
+			for (uint32_t index = 0; index < parentLock->_children.Size(); ++index)
+			{
+				if (parentLock->_children[index].Lock() == this)
+				{
+					return index;
+				}
+			}
+		}
+		return 0;
+	}
+
+	/// @brief
+	/// @param index
+	void Entity::SetSiblingIndex(uint32_t index)
+	{
+		Entity* parentLock = _parent.Lock();
+		if (parentLock != nullptr)
+		{
+			uint32_t initialIndex = GetSiblingIndex();
+			for (uint32_t i = initialIndex; i > index; --i)
+			{
+				parentLock->_children[i] = parentLock->_children[i - 1];
+			}
+			parentLock->_children[index] = WeakEntity(this);
+
+			parentLock->_childrenChangedEvent.Emit();
+		}
+	}
+
+	/// @brief
+	/// @param parent
+	void Entity::SetParent(const WeakEntity& parent)
+	{
+		assert(parent.Lock() != this);
+
+		if (_parent.Lock() == parent.Lock())
+		{
+			return;
+		}
+
+		Entity* previousParentLock = _parent.Lock();
+		if (previousParentLock != nullptr)
+		{
+			auto itEnd = previousParentLock->_children.End();
+			for (auto it = previousParentLock->_children.Begin(); it != itEnd; ++it)
+			{
+				if (it->Lock() == this)
+				{
+					previousParentLock->_children.Erase(it);
+					break;
+				}
+			}
+			// todo assert
+		}
+
+		Entity* newParentLock = parent.Lock();
+		if (newParentLock != nullptr)
+		{
+			bool exist = false;
+			for (const WeakEntity& child : newParentLock->_children)
+			{
+				if (child.Lock() == this)
+				{
+					exist = true;
+					break;
+				}
+			}
+			if (exist == false)
+			{
+				newParentLock->_children.EmplaceBack(this);
+			}
+		}
+		_parent = parent;
+
+		if (_internalState != InternalState::None)
+		{
+			ProcessActivation();
+		}
+
+		if (previousParentLock)
+		{
+			previousParentLock->_childrenChangedEvent.Emit();
+		}
+		if (newParentLock)
+		{
+			newParentLock->_childrenChangedEvent.Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	const WeakEntity& Entity::GetParent() const
+	{
+		return _parent;
+	}
+
+	Entity::ChildrenChangedEvent& Entity::GetChildrenChangedEvent()
+	{
+		return _childrenChangedEvent;
+	}
+
+	/// @brief
+	/// @param scene
+	void Entity::SetScene(Scene* scene)
+	{
+		_scene = scene;
+	}
+
+	/// @brief
+	/// @return
+	Scene* Entity::GetScene() const
+	{
+		return _scene;
+	}
+
+	/// @brief
+	void Entity::ProcessActivation()
+	{
+		Construct();
+
+		if (_active && (_parent.Lock() == nullptr || _parent.Lock()->IsActiveInHierarchy()))
+		{
+			if (GetScene()->GetWorld()->GetEditorPlaying())
+			{
+				Awake();
+			}
+
+			Enable();
+
+			if (GetScene()->GetWorld()->GetEditorPlaying())
+			{
+				Start();
+			}
+		}
+		else
+		{
+			if (_activeInHierarchy == true)
+			{
+				Disable();
+			}
+		}
+	}
+
+	/// @brief
+	/// @return
+	Entity::InternalState Entity::GetInternalState() const
+	{
+		return _internalState;
+	}
+
+	/// @brief
+	void Entity::Construct()
+	{
+		for (Component* component : _components)
+		{
+			component->Construct();
+		}
+
+		_internalState = InternalState::Constructed;
+
+		for (const WeakEntity& child : _children)
+		{
+			Entity* childEntity = child.Lock();
+			childEntity->Construct();
+		}
+	}
+
+	/// @brief
+	void Entity::Awake()
+	{
+		assert(_active == true);
+
+		for (Component* component : _components)
+		{
+			component->Awake();
+		}
+
+		_internalState = InternalState::Awaked;
+
+		for (const WeakEntity& child : _children)
+		{
+			Entity* childEntity = child.Lock();
+			if (childEntity->GetActive() == true)
+			{
+				childEntity->Awake();
+			}
+		}
+	}
+
+	/// @brief
+	void Entity::Enable()
+	{
+		if (_activeInHierarchy == true)
+		{
+			return;
+		}
+
+		for (Component* component : _components)
+		{
+			if (component->GetEnabled())
+			{
+				component->Enable();
+			}
+		}
+
+		_activeInHierarchy = true;
+
+		for (const WeakEntity& child : _children)
+		{
+			Entity* childEntity = child.Lock();
+			if (childEntity->GetActive() == true)
+			{
+				childEntity->Enable();
+			}
+		}
+	}
+
+	/// @brief
+	void Entity::Start()
+	{
+		assert(_active == true);
+
+		for (Component* component : _components)
+		{
+			component->Start();
+		}
+
+		_internalState = InternalState::Started;
+
+		for (const WeakEntity& child : _children)
+		{
+			Entity* childEntity = child.Lock();
+			if (childEntity->GetActive() == true)
+			{
+				childEntity->Start();
+			}
+		}
+	}
+
+	/// @brief
+	void Entity::Disable()
+	{
+		if (_activeInHierarchy == false)
+		{
+			return;
+		}
+
+		for (const WeakEntity& child : _children)
+		{
+			Entity* childEntity = child.Lock();
+			if (childEntity->GetActive() == true)
+			{
+				childEntity->Disable();
+			}
+		}
+
+		for (Component* component : _components)
+		{
+			component->Disable();
+		}
+
+		_activeInHierarchy = false;
+	}
+
+	/// @brief
+	void Entity::Destruct()
+	{
+		// assert(_internalState != InternalState::Destructed);
+		if (_internalState == InternalState::Destructed)
+		{
+			return;
+		}
+
+		for (const WeakEntity& child : _children)
+		{
+			Entity* childEntity = child.Lock();
+			childEntity->Destruct();
+		}
+
+		for (Component* component : _components)
+		{
+			component->Destruct();
+		}
+
+		_internalState = InternalState::Destructed;
 	}
 }

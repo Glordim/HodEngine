@@ -15,32 +15,26 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(Prefab)
+	DESCRIBE_REFLECTED_CLASS(Prefab, reflectionDescriptor)
 	{
-		AddTrait<ReflectionTraitCustomSerialization>(
+		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, Document::Node& documentNode)
 		{
-			static_cast<const Prefab*>(instance)->SerializeInDocument(documentNode);
+			return const_cast<Prefab*>(static_cast<const Prefab*>(instance))->SerializeInDocument(documentNode);
 		},
 		[](void* instance, const Document::Node& documentNode)
 		{
-			static_cast<Prefab*>(instance)->DeserializeFromDocument(documentNode);
+			return static_cast<Prefab*>(instance)->DeserializeFromDocument(documentNode);
 		});
 	}
 
 	/// @brief 
-	/// @param uid 
-	Prefab::Prefab(const UID& uid)
-	: _uid(uid)
+	Prefab::~Prefab()
 	{
-
-	}
-
-	/// @brief 
-	/// @return 
-	const UID& Prefab::GetUid() const
-	{
-		return _uid;
+		for (const auto& entityPair : _entities)
+		{
+			DefaultAllocator::GetInstance().Delete(entityPair.second);
+		}
 	}
 
 	/// @brief 
@@ -52,25 +46,33 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::string& Prefab::GetName() const
+	const String& Prefab::GetName() const
 	{
 		return _name;
 	}
 
 	/// @brief 
 	/// @param documentNode 
-	bool Prefab::SerializeInDocument(Document::Node& documentNode) const
+	bool Prefab::SerializeInDocument(Document::Node& documentNode)
 	{
 		documentNode.AddChild("Name").SetString(_name);
+		Document::Node& entitiesNode = documentNode.AddChild("Entities");
 
-		std::vector<std::shared_ptr<Entity>> entities;
-		entities.reserve(_entities.size());
 		for (const auto& entityPair : _entities)
 		{
-			entities.push_back(entityPair.second);
+			if (entityPair.second->GetParent().Lock() == nullptr)
+			{
+				SceneSerializer sceneSerializer;
+				if (sceneSerializer.SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
+				{
+					return false;
+				}
+			}
 		}
 
-		return SceneSerializer::SerializeEntities(entities, documentNode.AddChild("Entities"));
+		documentNode.AddChild("NextLocalId").SetUInt64(_nextLocalId);
+
+		return true;
 	}
 
 	/// @brief 
@@ -78,53 +80,31 @@ namespace hod::game
 	bool Prefab::DeserializeFromDocument(const Document::Node& documentNode)
 	{
 		const Document::Node* nameNode = documentNode.GetChild("Name");
-		if (nameNode!= nullptr)
+		if (nameNode != nullptr)
 		{
 			_name = nameNode->GetString();
 		}
 
-		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
+		const Document::Node* nextLocalIdNode = documentNode.GetChild("NextLocalId");
+		if (nextLocalIdNode != nullptr)
+		{
+			_nextLocalId = nextLocalIdNode->GetUInt64();
+		}
 
 		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
-		const Document::Node* entityNode = entitiesNode->GetFirstChild();
-		while (entityNode != nullptr)
+		SceneSerializer sceneSerializer;
+		if (sceneSerializer.Deserialize(*entitiesNode) == false)
 		{
-			std::weak_ptr<Entity> entity = CreateEntity();
-			std::shared_ptr<Entity> entityLock = entity.lock();
+			return false;
+		}
 
-			/*
-			const std::string& name = entityNode->GetChild("Name")->GetString();
-			bool active = entityNode->GetChild("Active")->GetBool();
-			entityLock->SetActive(active);
-			*/
-			Serializer::Deserialize(*entity.lock().get(), *entityNode);
-
-			const Document::Node* componentsNode = entityNode->GetChild("Components");
-			const Document::Node* componentNode = componentsNode->GetFirstChild();
-			while (componentNode != nullptr)
+		for (Entity* entity : sceneSerializer.GetEntities())
+		{
+			_entities.emplace(entity->GetInstanceId(), entity);
+			if (_rootEntity == nullptr && entity->GetParent().Lock() == nullptr)
 			{
-				MetaType metaType = componentNode->GetChild("MetaType")->GetUInt64();
-
-				auto it = componentFactory->GetAllDescriptors().find(metaType);
-				if (it != componentFactory->GetAllDescriptors().end())
-				{
-					const ReflectionDescriptor& componentDescriptor = *it->second;
-					std::weak_ptr<Component> component = entityLock->AddComponent(componentDescriptor, false);
-					std::shared_ptr<Component> componentLock = component.lock();
-					Component* rawComponent = componentLock.get();
-					Serializer::Deserialize(rawComponent, *componentNode); // todo lvalue...
-					rawComponent->SetLocalId(rawComponent->GetUid());
-					WeakComponentMapping::Insert(componentLock->GetUid(), component);
-				}
-				else
-				{
-					OUTPUT_ERROR("Unknown component !"); // TODO dangerous !!! user lost data
-				}
-
-				componentNode = componentNode->GetNextSibling();
+				_rootEntity = entity;
 			}
-
-			entityNode = entityNode->GetNextSibling();
 		}
 
 		return true;
@@ -132,7 +112,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& Prefab::GetEntities() const
+	const std::unordered_map<uint64_t, Entity*>& Prefab::GetEntities() const
 	{
 		return _entities;
 	}
@@ -140,25 +120,25 @@ namespace hod::game
 	/// @brief 
 	/// @param name 
 	/// @return 
-	std::weak_ptr<Entity> Prefab::CreateEntity(const std::string_view& name)
+	Entity* Prefab::CreateEntity(const std::string_view& name)
 	{
-		std::shared_ptr<Entity> entity = std::make_shared<Entity>(name);
-		_entities.emplace(entity->GetId(), entity);
+		Entity* entity = DefaultAllocator::GetInstance().New<Entity>(name);
+		_entities.emplace(entity->GetInstanceId(), entity);
 
 		return entity;
 	}
 
 	/// @brief 
 	/// @param entity 
-	void Prefab::DestroyEntity(std::shared_ptr<Entity> entity)
+	void Prefab::DestroyEntity(Entity* entity)
 	{
-		_entities.erase(_entities.find(entity->GetId()));
+		_entities.erase(_entities.find(entity->GetInstanceId()));
 	}
 
 	/// @brief 
 	/// @param entityId 
 	/// @return 
-	std::weak_ptr<Entity> Prefab::FindEntity(Entity::Id entityId)
+	Entity* Prefab::FindEntity(uint64_t entityId)
 	{
 		return _entities[entityId];
 	}
@@ -171,62 +151,8 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	Prefab* Prefab::Clone()
+	Entity* Prefab::GetRootEntity()
 	{
-		Prefab* clone = new Prefab();
-
-		std::map<std::shared_ptr<Entity>, std::shared_ptr<Entity>> sourceToCloneEntitiesMap;		
-		std::map<std::shared_ptr<Component>, std::shared_ptr<Component>> sourceToCloneComponentsMap;
-
-		clone->_entities.reserve(_entities.size());
-		for (const auto& entityPair : _entities)
-		{
-			std::shared_ptr<Entity> cloneEntity = entityPair.second->Clone();
-			sourceToCloneEntitiesMap.emplace(entityPair.second, cloneEntity);
-
-			for (size_t componentIndex = 0; componentIndex < cloneEntity->GetComponents().size(); ++componentIndex)
-			{
-				sourceToCloneComponentsMap.emplace(entityPair.second->GetComponents()[componentIndex], cloneEntity->GetComponents()[componentIndex]);
-			}
-
-			clone->_entities.emplace(cloneEntity->GetId(), cloneEntity);
-		}
-			
-		for (const auto& componentPair : sourceToCloneComponentsMap)
-		{
-			ReflectionDescriptor* reflectionDescriptor = componentPair.second->GetReflectionDescriptorV();
-			for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
-			{
-				switch (reflectionProperty->GetMetaType())
-				{
-					case ReflectionPropertyArray::GetMetaTypeStatic():
-					{
-						//ReflectionPropertyArray* reflectionPropertyArray = static_cast<ReflectionPropertyArray*>(reflectionProperty);
-					}
-					break;
-
-					case ReflectionPropertyObject::GetMetaTypeStatic():
-					{
-						//ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
-
-						//if (reflectionPropertyObject->GetReflectionDescriptor() == WeakComponent::)
-					}
-					break;
-				}
-			}
-		}
-
-		return clone;
-	}
-
-	/// @brief 
-	/// @return 
-	std::shared_ptr<Entity> Prefab::GetRootEntity()
-	{
-		if (_entities.empty())
-		{
-			return nullptr;
-		}
-		return _entities.begin()->second;
+		return _rootEntity;
 	}
 }

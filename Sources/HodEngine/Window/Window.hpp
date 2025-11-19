@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
+#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
+
 #include <stdint.h>
 
 namespace hod::window
@@ -10,6 +12,8 @@ namespace hod::window
 	/// @brief 
 	class HOD_WINDOW_API Window
 	{
+		REFLECTED_CLASS_NO_PARENT(Window)
+
 	public:
 
 		virtual				~Window();

@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Resource.hpp>
+#include <HodEngine/Core/Resource/Resource.hpp>
 #include "HodEngine/Game/Prefab.hpp"
 
 namespace hod::game
@@ -9,7 +9,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API PrefabResource : public Resource
 	{
-		REFLECTED_CLASS(PrefabResource, Resource, HOD_GAME_API)
+		REFLECTED_CLASS(PrefabResource, Resource)
 
 	public:
 						PrefabResource() = default;
@@ -22,12 +22,14 @@ namespace hod::game
 
 	public:
 
-		bool			Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) override;
+		bool			Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) override;
 
 		Prefab&			GetPrefab();
+		const Document&	GetDocument() const;
 
 	private:
 
 		Prefab*			_prefab = nullptr;
+		Document		_document;
 	};
 }

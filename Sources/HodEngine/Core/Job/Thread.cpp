@@ -3,8 +3,8 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Thread::Id Thread::GetId() const
 	{
 		return _id;

@@ -1,12 +1,12 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <vector>
-#include <functional>
+#include "HodEngine/Core/Vector.hpp"
 #include <cassert>
+#include <functional>
 
-#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/TypeTrait.hpp"
 
 namespace hod
@@ -16,14 +16,10 @@ namespace hod
 	struct HOD_CORE_API Adapter
 	{
 	public:
-
 		template<typename _type_>
 		void AsRaw()
 		{
-			_getElementCountFunction = [](const void* instance) -> uint32_t
-			{
-				return sizeof(_type_) / sizeof(ElementType<_type_>::type);
-			};
+			_getElementCountFunction = [](const void* /*instance*/) -> uint32_t { return sizeof(_type_) / sizeof(ElementType<_type_>::type); };
 
 			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*
 			{
@@ -33,6 +29,7 @@ namespace hod
 
 			_insertElementFunction = nullptr;
 			_removeElementFunction = nullptr;
+			_clearFunction = nullptr;
 		}
 
 		template<typename _array_>
@@ -52,6 +49,7 @@ namespace hod
 
 			_insertElementFunction = nullptr;
 			_removeElementFunction = nullptr;
+			_clearFunction = nullptr;
 		}
 
 		template<typename _vector_>
@@ -60,35 +58,41 @@ namespace hod
 			_getElementCountFunction = [](const void* instance) -> uint32_t
 			{
 				const _vector_* array = static_cast<const _vector_*>(instance);
-				return (uint32_t)array->size();
+				return (uint32_t)array->Size();
 			};
 
 			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*
 			{
 				const _vector_* array = static_cast<const _vector_*>(instance);
-				return (void*)(array->data() + index);
+				return (void*)(array->Data() + index);
 			};
 
 			_insertElementFunction = [](void* instance, uint32_t index)
 			{
-				_vector_* array = static_cast<_vector_*>(instance);
+				_vector_*                     array = static_cast<_vector_*>(instance);
 				typename _vector_::value_type item = typename _vector_::value_type();
-				array->insert(array->begin() + index, item);
+				array->Insert(index, item);
 			};
 
 			_removeElementFunction = [](void* instance, uint32_t index)
 			{
 				_vector_* array = static_cast<_vector_*>(instance);
-				array->erase(array->begin() + index);
+				array->Erase(index);
+			};
+
+			_clearFunction = [](void* instance)
+			{
+				_vector_* array = static_cast<_vector_*>(instance);
+				array->Clear();
 			};
 		}
 
 	public:
-
-		std::function<uint32_t(const void*)>		_getElementCountFunction;
-		std::function<void*(const void*, uint32_t)>	_getElementAddressFunction;
-		std::function<void(void*, uint32_t)>		_insertElementFunction;
-		std::function<void(void*, uint32_t)>		_removeElementFunction;
+		std::function<uint32_t(const void*)>        _getElementCountFunction;
+		std::function<void*(const void*, uint32_t)> _getElementAddressFunction;
+		std::function<void(void*, uint32_t)>        _insertElementFunction;
+		std::function<void(void*, uint32_t)>        _removeElementFunction;
+		std::function<void(void*)>                  _clearFunction;
 	};
 
 	template<typename _container_>
@@ -114,46 +118,45 @@ namespace hod
 		return adapter;
 	}
 
-	///@brief 
+	///@brief
 	class HOD_CORE_API ReflectionPropertyArray : public ReflectionProperty
 	{
 		META_TYPE(ReflectionPropertyArray, ReflectionProperty)
 
 	public:
+		ReflectionPropertyArray(Adapter adapter, ReflectionPropertyVariable::Type type, uint32_t offset, const char* name,
+		                        ReflectionDescriptor* elementReflectionDescriptor = nullptr);
+		ReflectionPropertyArray(const ReflectionPropertyArray& copy) = default;
+		ReflectionPropertyArray(ReflectionPropertyArray&& move) = default;
+		~ReflectionPropertyArray() = default;
 
-												ReflectionPropertyArray(Adapter adapter, ReflectionPropertyVariable::Type type, uint32_t offset, const char* name, ReflectionDescriptor* elementReflectionDescriptor = nullptr);
-												ReflectionPropertyArray(const ReflectionPropertyArray& copy) = default;
-												ReflectionPropertyArray(ReflectionPropertyArray&& move) = default;
-												~ReflectionPropertyArray() = default;
-
-		ReflectionPropertyArray&				operator = (const ReflectionPropertyArray& copy) = default;
-		ReflectionPropertyArray&				operator = (ReflectionPropertyArray&& move) = default;
+		ReflectionPropertyArray& operator=(const ReflectionPropertyArray& copy) = default;
+		ReflectionPropertyArray& operator=(ReflectionPropertyArray&& move) = default;
 
 	public:
-
-		ReflectionPropertyVariable::Type		GetType() const;
-
-		template<typename _type_>
-		_type_									GetValue(const void* instance, uint32_t index) const;
+		ReflectionPropertyVariable::Type GetType() const;
 
 		template<typename _type_>
-		void									SetValue(void* instance, uint32_t index, _type_ value);
+		_type_ GetValue(const void* instance, uint32_t index) const;
 
-		ReflectionDescriptor*					GetElementReflectionDescriptor() const;
+		template<typename _type_>
+		void SetValue(void* instance, uint32_t index, _type_ value);
 
-		uint32_t								GetElementCount(const void* instance) const;
-		void									InsertElement(void* instance, uint32_t index) const;
-		void									RemoveElement(void* instance, uint32_t index) const;
+		ReflectionDescriptor* GetElementReflectionDescriptor() const;
 
-		void									Copy(const void* sourceInstance, void* destinationInstance) const override;
+		uint32_t GetElementCount(const void* instance) const;
+		void     InsertElement(void* instance, uint32_t index) const;
+		void     RemoveElement(void* instance, uint32_t index) const;
+		void     Clear(void* instance) const;
+
+		void Copy(const void* sourceInstance, void* destinationInstance) const override;
 
 	private:
+		ReflectionPropertyVariable::Type _type;
 
-		ReflectionPropertyVariable::Type		_type;
+		ReflectionDescriptor* _elementReflectionDescriptor = nullptr;
 
-		ReflectionDescriptor*					_elementReflectionDescriptor = nullptr;
-
-		Adapter									_adapter;
+		Adapter _adapter;
 	};
 }
 

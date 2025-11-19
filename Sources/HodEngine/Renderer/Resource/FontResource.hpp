@@ -1,29 +1,21 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include "HodEngine/Core/Resource.hpp"
+#include "HodEngine/Core/Resource/Resource.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
+
+struct FT_FaceRec_;
 
 namespace hod::renderer
 {
+	class Font;
+
 	class HOD_RENDERER_API FontResource : public Resource
 	{
-		REFLECTED_CLASS(FontResource, Resource, HOD_RENDERER_API)
-
-	public:
-
-		struct Kerning
-		{
-			char32_t	_code;
-			uint32_t	_offsetX;
-			uint32_t	_offsetY;
-			uint32_t	_sizeX;
-			uint32_t	_sizeY;
-			uint32_t	_baseline;
-		};
+		REFLECTED_CLASS(FontResource, Resource)
 
 	public:
 
@@ -37,15 +29,12 @@ namespace hod::renderer
 
 	public:
 
-		bool				Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) override;
+		bool				Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) override;
 
-		Texture*			GetTexture() const;
-		const Kerning&		GetKerning(char32_t code) const;
+		Font*				GetFont() const;
 
 	private:
 
-		Texture*					_texture = nullptr;
-		std::vector<Kerning>		_kernings;
-		Kerning						_unknownKerning;
+		Font*				_font = nullptr;
 	};
 }

@@ -28,9 +28,15 @@ namespace hod
             MTL::Library*   GetNativeLibrary() const;
             MTL::Function*  GetNativeFunction() const;
 
+			bool	        LoadFromIR(const void* data, uint32_t size) override;
+
 		protected:
 
-			bool	        LoadInternal(const void* data, uint32_t size) override;
+			bool			GenerateDescriptors() override;
+
+		private:
+
+			bool			FindFunction();
             
         private:
             

@@ -3,16 +3,22 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(DefaultImporterSettings, ImporterSettings)
+	DESCRIBE_REFLECTED_CLASS(DefaultImporterSettings, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool DefaultImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool DefaultImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
+		(void)data;
+		(void)meta;
+		(void)document;
+		(void)datas;
+		(void)thumbnail;
+		(void)settings;
 		return false;
 	}
 

@@ -8,6 +8,11 @@ namespace hod
 	class ArgumentParser;
 }
 
+namespace hod::game
+{
+	class World;
+}
+
 /// @brief
 class HodApplication : public PlatformApplication
 {
@@ -20,5 +25,6 @@ public:
 
 private:
 
-	hod::Module		_gameModule;
+	hod::Module			_gameModule;
+	hod::game::World*	_world = nullptr;
 };

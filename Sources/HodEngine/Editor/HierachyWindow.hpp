@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <HodEngine/ImGui/Window/Window.hpp>
+#include "HodEngine/Editor/EditorTabWindow.hpp"
 #include <memory>
 
 namespace hod::game
@@ -12,15 +12,24 @@ namespace hod::game
 
 namespace hod::editor
 {
+	class HierachyWindow;
+
 	/// @brief 
-	class HOD_EDITOR_API HierachyWindow : public imgui::Window
+	struct EntityDragAndDropPayload
 	{
-		META_TYPE(HierachyWindow, imgui::Window);
-		WINDOW_DESCRIPTION()
+		HierachyWindow*	_hierarchyWindow;
+		game::Entity*	_entity;
+	};
+
+	/// @brief 
+	class HOD_EDITOR_API HierachyWindow : public EditorTabWindow
+	{
+		REFLECTED_CLASS(HierachyWindow, EditorTabWindow)
 
 	public:
 
-					HierachyWindow();
+					HierachyWindow() = default; // todo remove
+					HierachyWindow(EditorTab* editorTab);
 					~HierachyWindow() override = default;
 
 	public:
@@ -35,7 +44,7 @@ namespace hod::editor
 			std::weak_ptr<game::Entity> _entity;
 			bool						_collapsed = true;
 
-			std::vector<EntityNode*>	_children;
+			Vector<EntityNode*>	_children;
 			EntityNode*					_parent = nullptr;
 		};
 		*/
@@ -43,18 +52,22 @@ namespace hod::editor
 	private:
 
 		//void		DrawEntityNode(EntityNode* entityNode);
-		void		DrawEntity(std::weak_ptr<game::Entity> entity);
+		void		DrawEntity(game::Entity* entity);
 
-		void		OnAddEntityCallback(std::weak_ptr<game::Entity> entity);
-		void		OnRemoveEntityCallback(std::weak_ptr<game::Entity> entity);
-		void		OnRenameEntityCallback(std::weak_ptr<game::Entity> entity);
+		void		OnAddEntityCallback(game::Entity* entity);
+		void		OnRemoveEntityCallback(game::Entity* entity);
+		void		OnRenameEntityCallback(game::Entity* entity);
 
-		void		OnAddComponentCallback(std::weak_ptr<game::Component> componenent);
-		void		OnRemoveComponentCallback(std::weak_ptr<game::Component> componenent);
+		void		OnAddComponentCallback(game::Component* componenent);
+		void		OnRemoveComponentCallback(game::Component* componenent);
 
 	private:
 
 		bool										_openContextualMenu = false;
+
+		EntityDragAndDropPayload					_entityDragAndDropPayload;
+
+		game::Entity*								_previousSelection = nullptr;
 
 		//EntityNode									_rootEntityNode;
 	};

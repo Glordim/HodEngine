@@ -5,10 +5,15 @@
 
 namespace hod::window
 {
+	DESCRIBE_REFLECTED_CLASS(Window, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
+
 	/// @brief 
 	Window::~Window()
 	{
-		delete _surface;
+		DefaultAllocator::GetInstance().Delete(_surface);
 	}
 
 	/// @brief 

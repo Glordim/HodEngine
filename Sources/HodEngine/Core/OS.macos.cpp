@@ -2,27 +2,30 @@
 #include "HodEngine/Core/OS.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
+#include <cxxabi.h>
+#include <dlfcn.h>
 #include <execinfo.h>
 
 #include <cassert>
+#include <cstring>
 
 namespace hod
 {
-	/// @brief 
-	/// @param callstack 
-	/// @param maxSize 
-	/// @return 
+	/// @brief
+	/// @param callstack
+	/// @param maxSize
+	/// @return
 	uint32_t OS::GetCallstack(void** callstack, uint32_t maxSize)
 	{
 		return backtrace(callstack, maxSize);
 	}
 
-	/// @brief 
-	/// @param addr 
-	/// @return 
-	std::string OS::GetSymbol(void* addr)
+	/// @brief
+	/// @param addr
+	/// @return
+	String OS::GetSymbol(void* addr)
 	{
-		std::string symbol = "NOT_FOUND";
+		String symbol = "NOT_FOUND";
 
 		char** symbols = backtrace_symbols(&addr, 1);
 		if (symbols == nullptr)
@@ -33,8 +36,41 @@ namespace hod
 		else
 		{
 			symbol = symbols[0];
+			free(symbols);
 		}
-		
+
 		return symbol;
+	}
+
+	/// @brief
+	/// @param addr
+	/// @param symbol
+	/// @param Size
+	/// @return
+	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
+	{
+		Dl_info info;
+		if (dladdr(addr, &info) == 0)
+		{
+			return false;
+		}
+
+		symbolInfo._address = info.dli_saddr;
+		symbolInfo._module = info.dli_fname;
+		symbolInfo._function = info.dli_sname;
+		symbolInfo._line = 0;
+
+		if (demangle)
+		{
+			int   status;
+			char* demangledSymbol = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
+			if (status == 0)
+			{
+				symbolInfo._function = demangledSymbol;
+				free(demangledSymbol);
+			}
+		}
+
+		return true;
 	}
 }

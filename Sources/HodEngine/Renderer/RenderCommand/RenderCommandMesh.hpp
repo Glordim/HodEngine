@@ -8,7 +8,7 @@
 #include <HodEngine/Core/Math/Vector2.hpp>
 #include <HodEngine/Core/Color.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::renderer
 {
@@ -19,7 +19,7 @@ namespace hod::renderer
 	{
 	public:
 
-								RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t pickingId = 0, bool ignoreVisualisationMode = false);
+								RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t order, uint32_t pickingId = 0, bool ignoreVisualisationMode = false);
 								RenderCommandMesh(const RenderCommandMesh&) = delete;
 								RenderCommandMesh(RenderCommandMesh&&) = delete;
 								~RenderCommandMesh() override = default;
@@ -30,17 +30,19 @@ namespace hod::renderer
 	public:
 
 		void					Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial) override;
+		uint32_t				GetRenderingOrder() const override;
 
 	protected:
 
-		std::vector<Vector2>	_positions;
-		std::vector<Vector2>	_uvs;
-		std::vector<Color>		_colors;
+		Vector<Vector2>			_positions;
+		Vector<Vector2>			_uvs;
+		Vector<Color>			_colors;
 		uint32_t				_vertexCount;
 
+		uint32_t				_order;
 		uint32_t				_pickingId;
 
-		std::vector<uint16_t>	_indices;
+		Vector<uint16_t>		_indices;
 		Matrix4					_modelMatrix;
 		const MaterialInstance*	_materialInstance = nullptr;
 		bool					_ignoreVisualisationMode;

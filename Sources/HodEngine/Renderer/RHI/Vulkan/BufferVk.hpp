@@ -4,7 +4,7 @@
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 
 #include <vulkan/vulkan.h>
-#include <vk_mem_alloc.h>
+#include <VulkanMemoryAllocator/vk_mem_alloc.h>
 
 namespace hod
 {

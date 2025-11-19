@@ -1,40 +1,33 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <HodEngine/ImGui/Window/Window.hpp>
+#include "HodEngine/Editor/EditorTabWindow.hpp"
+
 #include <HodEngine/Core/Math/Vector2.hpp>
 #include <HodEngine/Core/Math/Matrix4.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Renderer/RenderQueue.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 
 namespace hod::renderer
 {
 	class RenderTarget;
 }
 
-namespace hod::game
-{
-	class Scene;
-	class Prefab;
-}
-
 namespace hod::editor
 {
-	class Asset;
 	class PhysicsDebugDrawer;
-
+	
 	/// @brief 
-	class HOD_EDITOR_API ViewportWindow : public imgui::Window
+	class HOD_EDITOR_API ViewportWindow : public EditorTabWindow
 	{
-		META_TYPE(ViewportWindow, imgui::Window);
-		WINDOW_DESCRIPTION()
+		REFLECTED_CLASS(ViewportWindow, EditorTabWindow)
 
 	public:
 
-					ViewportWindow();
-					ViewportWindow(std::shared_ptr<Asset> asset);
+					ViewportWindow() = default; // todo remove
+					ViewportWindow(EditorTab* editorTab);
 					~ViewportWindow() override;
 
 	public:
@@ -42,37 +35,34 @@ namespace hod::editor
 		bool		Draw() override;
 		void		DrawContent() override;
 
-		void		ReloadScene();
-
-		void		MarkCurrentSceneAsDirty();
-
-		std::shared_ptr<Asset> GetAsset() const;
-
-		renderer::RenderQueue*		GetRenderQueue();
+		renderer::RenderView*		GetRenderView();
 		renderer::RenderTarget*		GetPickingRenderTarget() const;
 		const Matrix4&				GetProjectionMatrix() const;
 		const Matrix4&				GetViewMatrix() const;
+		float						GetCameraSize() const;
+
+		const Vector2&				GetPlayRatio() const;
 
 	private:
 
 		void		EnablePhysicsDebugDrawer(bool enabled);
-		bool		IsPhysicsDebugDrawerEnabled(bool enabled) const;
+		bool		IsPhysicsDebugDrawerEnabled() const;
 		
 		renderer::RenderTarget* 	_renderTarget = nullptr;
 		renderer::RenderTarget* 	_pickingRenderTarget = nullptr;
-		renderer::RenderQueue		_renderQueue;
+		renderer::RenderView		_renderView;
 
 		Matrix4						_projection;
 		Matrix4						_view;
 
+		Vector2						_playRatio = Vector2(16.0f, 9.0f);
+
 		Vector2						_cameraPosition = Vector2::Zero;
 		float						_size = 5.0f;
-		game::Scene*				_scene = nullptr;
-		std::shared_ptr<Asset>		_asset;
 
 		PhysicsDebugDrawer*			_physicsDebugDrawer = nullptr;
 		bool						_debugPicker = false;
-		bool						_wasFocus = false;
-		bool						_assetWasDirty = true;
+
+		bool						_drawGrid = true;
 	};
 }

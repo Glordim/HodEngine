@@ -4,28 +4,28 @@
 
 namespace hod
 {
-	/// @brief 
+	/// @brief
 	void OutputBucket::Clear()
 	{
-		_outputs.clear();
+		_outputs.Clear();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	std::mutex& OutputBucket::GetLock() const
 	{
 		return _lock;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::vector<Output>& OutputBucket::GetOutputs() const
+	/// @brief
+	/// @return
+	const Vector<Output>& OutputBucket::GetOutputs() const
 	{
 		return _outputs;
 	}
 
-	/// @brief 
-	/// @param output 
+	/// @brief
+	/// @param output
 	void OutputBucket::AddOutput(const Output& output)
 	{
 		_lock.lock();
@@ -33,15 +33,15 @@ namespace hod
 		_lock.unlock();
 	}
 
-	/// @brief 
-	/// @param outputBucket 
+	/// @brief
+	/// @param outputBucket
 	ScopedEnableOutputBucket::ScopedEnableOutputBucket(OutputBucket& outputBucket)
 	: _outputBucket(outputBucket)
 	{
 		OutputService::PushBucket(_outputBucket);
 	}
 
-	/// @brief 
+	/// @brief
 	ScopedEnableOutputBucket::~ScopedEnableOutputBucket()
 	{
 		OutputService::PopBucket();

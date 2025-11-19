@@ -5,13 +5,13 @@
 	#define PlatformApplication hod::application::Application
 #else
 	#if defined(PLATFORM_WINDOWS)
-		#include "HodEngine/Application/GraphicApplications/DesktopApplications/WindowsApplication.hpp"
+		#include "HodEngine/Application/GraphicApplications/DesktopApplications/Win32/WindowsApplication.hpp"
 		#define PlatformApplication hod::application::WindowsApplication
 	#elif defined(PLATFORM_MACOS)
-		#include "HodEngine/Application/GraphicApplications/DesktopApplications/MacOsApplication.hpp"
+		#include "HodEngine/Application/GraphicApplications/DesktopApplications/MacOs/MacOsApplication.hpp"
 		#define PlatformApplication hod::application::MacOsApplication
 	#elif defined(PLATFORM_LINUX)
-		#include "HodEngine/Application/GraphicApplications/DesktopApplications/LinuxApplication.hpp"
+		#include "HodEngine/Application/GraphicApplications/DesktopApplications/Linux/LinuxApplication.hpp"
 		#define PlatformApplication hod::application::LinuxApplication
 	#elif defined(PLATFORM_ANDROID)
 		#include "HodEngine/Application/GraphicApplications/MobileApplications/Android/AndroidApplication.hpp"

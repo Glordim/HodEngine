@@ -2,47 +2,48 @@
 #include "HodEngine/Game/DebugDrawer.hpp"
 
 #include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 
 #include <utility>
 
 namespace hod::game
 {
-	/// @brief 
+	/// @brief
 	DebugDrawer::DebugDrawer()
 	{
 		_lineMaterial = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line)->GetDefaultInstance();
 	}
 
-	/// @brief 
-	/// @param start 
-	/// @param end 
-	/// @param color 
-	/// @param duration 
+	/// @brief
+	/// @param start
+	/// @param end
+	/// @param color
+	/// @param duration
 	void DebugDrawer::AddLine(const Vector2& start, const Vector2& end, const Color& color, float duration)
 	{
-		_lines.emplace_back(start, end, color, duration);
+		_lines.EmplaceBack(start, end, color, duration);
 	}
 
-	/// @brief 
-	/// @param renderQueue 
-	void DebugDrawer::Draw(renderer::RenderQueue& renderQueue)
+	/// @brief
+	/// @param renderView
+	void DebugDrawer::Draw(renderer::RenderView& renderView)
 	{
-		auto it = _lines.begin();
-		auto itEnd = _lines.end();
+		auto it = _lines.Begin();
+		auto itEnd = _lines.End();
 		while (it != itEnd)
 		{
-			std::array<Vector2, 2> vertices = { it->_start, it->_end };
-			std::array<Color, 2> colors = { it->_color, it->_color };
-			renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(), nullptr, 0, Matrix4::Identity, _lineMaterial));
+			std::array<Vector2, 2> vertices = {it->_start, it->_end};
+			std::array<Color, 2>   colors = {it->_color, it->_color};
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(),
+			                                                                                              nullptr, 0, Matrix4::Identity, _lineMaterial, 0));
 
 			it->_duration -= 0.016f; // todo
 			if (it->_duration <= 0.0f)
 			{
-				std::swap(*it, _lines.back());
-				_lines.pop_back();
-				itEnd = _lines.end();
+				std::swap(*it, _lines.Back());
+				_lines.PopBack();
+				itEnd = _lines.End();
 			}
 			else
 			{

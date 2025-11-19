@@ -2,32 +2,26 @@
 
 namespace hod
 {
-	/// @brief 
-	/// @tparam __TYPE__ 
-	/// @param value 
-	/// @param label 
+	/// @brief
+	/// @tparam __TYPE__
+	/// @param value
+	/// @param label
 	template<typename __TYPE__>
 	void EnumDescriptor::AddEnumValue(__TYPE__ value, const char* label)
 	{
-		_values.emplace_back(static_cast<uint64_t>(value), label);
+		_values.EmplaceBack(static_cast<uint64_t>(value), label);
 	}
 
-	/// @brief 
-	/// @tparam __TYPE__ 
-	/// @return 
 	template<typename __TYPE__>
-	EnumDescriptor* EnumDescriptor::GenerateFromType()
+	std::string_view EnumDescriptor::ToString(__TYPE__ value) const
 	{
-		static_assert(std::is_enum_v<__TYPE__>, "Requires enum type");
-
-		EnumDescriptor* enumDescriptor = new EnumDescriptor();
-
-		enumDescriptor->_values.clear();
-		for (__TYPE__ value : EnumTrait::GetValues<__TYPE__>())
+		for (uint32_t i = 0; i < _values.Size(); ++i)
 		{
-			enumDescriptor->_values.emplace_back(static_cast<uint64_t>(value), EnumTrait::ToString(value));
+			if (_values[i].first == static_cast<uint64_t>(value))
+			{
+				return _values[i].second;
+			}
 		}
-
-		return enumDescriptor;
+		return std::string_view();
 	}
 }

@@ -3,12 +3,12 @@
 
 #include <stdint.h>
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
-#include <HodEngine/Core/UID.hpp>
-#include <HodEngine/Core/Document/Document.hpp>
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
+#include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/UID.hpp>
 
 namespace hod::renderer
 {
@@ -20,61 +20,58 @@ namespace hod::editor
 	// TODO embed in Asset when reflection support it
 	struct HOD_EDITOR_API Meta
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Meta, HOD_EDITOR_API)
+		REFLECTED_CLASS_NO_VIRTUAL(Meta)
 
 	public:
+		bool LoadImporterConfig(const Document::Node& documentNode);
+		bool SaveImporterConfig(Document::Node& documentNode) const;
 
-		bool			LoadImporterConfig(const Document::Node& documentNode);
-		bool			SaveImporterConfig(Document::Node& documentNode) const;
-
-		void			SetImporterConfig(std::shared_ptr<ImporterSettings> importerSettings, const char* importerType);
+		void SetImporterConfig(std::shared_ptr<ImporterSettings> importerSettings, const char* importerType);
 
 	public:
-
-		UID						_uid;
-		std::string				_importerType;
-		std::shared_ptr<ImporterSettings>	_importerSettings;
+		UID                               _uid;
+		String                            _importerType;
+		std::shared_ptr<ImporterSettings> _importerSettings;
 	};
 
-	/// @brief 
+	/// @brief
 	class HOD_EDITOR_API Asset : public std::enable_shared_from_this<Asset>
 	{
 	public:
-								Asset(const std::filesystem::path& path);
-								~Asset();
+		Asset(const Path& path);
+		~Asset();
 
-		bool					Load();
-		bool					Save(const void* instance, ReflectionDescriptor* reflectionDescriptor);
-		bool					Save();
+		bool Load();
+		bool Save(const void* instance, ReflectionDescriptor* reflectionDescriptor);
+		bool Save();
 
-		const UID&						GetUid() const;
-		const std::filesystem::path&	GetPath() const;
-		const std::string&				GetName() const;
+		const UID&    GetUid() const;
+		const Path&   GetPath() const;
+		const String& GetName() const;
 
-		Meta&							GetMeta();
+		Meta& GetMeta();
 
-		renderer::Texture*				GetThumbnail() const;
+		renderer::Texture* GetThumbnail() const;
 
-		bool							IsDirty() const;
-		void							SetDirty();
-		void							ResetDirty();
+		bool IsDirty() const;
+		void SetDirty();
+		void ResetDirty();
 
-		void							SetPath(const std::filesystem::path& path);
+		void SetPath(const Path& path);
 
-		void							SetInstanceToSave(const void* instance, ReflectionDescriptor* reflectionDescriptor);
+		void SetInstanceToSave(const void* instance, ReflectionDescriptor* reflectionDescriptor);
 
 	private:
+		bool _dirty = false;
 
-		bool					_dirty = false;
+		Meta _meta;
 
-		Meta					_meta;
+		String _name;
+		Path   _path;
 
-		std::string				_name;
-		std::filesystem::path	_path;
+		renderer::Texture* _thumbnail = nullptr;
 
-		renderer::Texture*		_thumbnail = nullptr;
-
-		const void*				_instanceToSave = nullptr;
-		ReflectionDescriptor*	_instanceToSaveReflectionDescriptor = nullptr;
+		const void*           _instanceToSave = nullptr;
+		ReflectionDescriptor* _instanceToSaveReflectionDescriptor = nullptr;
 	};
 }

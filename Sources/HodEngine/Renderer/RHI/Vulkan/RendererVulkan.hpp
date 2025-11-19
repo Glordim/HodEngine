@@ -7,18 +7,17 @@
 
 #include "HodEngine/Renderer/RHI/Vulkan/VkGpuDevice.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/DescriptorSetLayout.hpp"
-
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
 
-#include <vk_mem_alloc.h>
+#include <VulkanMemoryAllocator/vk_mem_alloc.h>
 
 #if defined(PLATFORM_WINDOWS)
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
 	#undef max
+	#undef CreateSemaphore
 #endif
 
 namespace hod::renderer
@@ -50,25 +49,22 @@ namespace hod::renderer
 
 		bool		CreateContext(window::Window* window); // TODO virtual in Renderer ?
 
-		virtual bool GetAvailableGpuDevices(std::vector<GpuDevice*>* availableDevices) override;
-
+		bool		GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
 		bool CreateDevice();
 		bool CreateCommandPool();
 
-		virtual bool ResizeSwapChain() override; // TODO remove
+		bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) override;
 
-		virtual bool AcquireNextImageIndex() override { return false; }  // TODO remove
-		virtual bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount) override;
-		virtual bool SwapBuffer() override { return false; }  // TODO remove
-
-		virtual CommandBuffer* CreateCommandBuffer() override;
-		virtual Buffer* CreateBuffer(Buffer::Usage usage, uint32_t size) override;
-		virtual Shader* CreateShader(Shader::ShaderType type) override;
-		virtual Material* CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
-		virtual MaterialInstance* CreateMaterialInstance(const Material* material) override;
-		virtual Texture* CreateTexture() override;
-		virtual RenderTarget* CreateRenderTarget() override;
+		CommandBuffer* CreateCommandBuffer() override;
+		Buffer* CreateBuffer(Buffer::Usage usage, uint32_t size) override;
+		Shader* CreateShader(Shader::ShaderType type) override;
+		Material* CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true) override;
+		MaterialInstance* CreateMaterialInstance(const Material* material) override;
+		Texture* CreateTexture() override;
+		RenderTarget* CreateRenderTarget() override;
+		Semaphore* CreateSemaphore() override;
+		Fence* CreateFence() override;
 
 		VkInstance GetVkInstance() const;
 		VkDevice GetVkDevice() const;
@@ -91,7 +87,8 @@ namespace hod::renderer
 
 		bool CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
-		bool TransitionImageLayout(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
+		bool TransitionImageLayoutImmediate(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
+		bool TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
 		bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 		bool CopyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height);
 
@@ -108,8 +105,8 @@ namespace hod::renderer
 
 	private:
 
-		static void GetAvailableExtensions(std::vector<VkExtensionProperties>& availableExtensions);
-		static bool CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const std::vector<VkExtensionProperties>& availableExtensions);
+		static void GetAvailableExtensions(Vector<VkExtensionProperties>& availableExtensions);
+		static bool CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const Vector<VkExtensionProperties>& availableExtensions);
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		static bool CheckValidationLayerSupport(const char** validationLayers, size_t validationLayerCount);
@@ -122,8 +119,8 @@ namespace hod::renderer
 		VkQueue                     _graphicsQueue = VK_NULL_HANDLE;
 		VkQueue                     _presentQueue = VK_NULL_HANDLE;
 		//VkSwapchainKHR              _swapChain = VK_NULL_HANDLE;
-		//std::vector<VkImageView>    _swapChainImageViews;
-		//std::vector<VkFramebuffer>  _swapChainFramebuffers;
+		//Vector<VkImageView>    _swapChainImageViews;
+		//Vector<VkFramebuffer>  _swapChainFramebuffers;
 		VkTexture                   _depthTexture;
 		//VkRenderPass                _renderPass = VK_NULL_HANDLE;
 		VkCommandPool               _commandPool = VK_NULL_HANDLE;
@@ -131,7 +128,7 @@ namespace hod::renderer
 
 		const VkGpuDevice* _selectedGpu = nullptr;
 		const VkGpuDevice* _recommandedGpu = nullptr;
-		std::vector<VkGpuDevice>	_availableGpu;
+		Vector<VkGpuDevice>	_availableGpu;
 
 		VkContext* _context = nullptr;
 

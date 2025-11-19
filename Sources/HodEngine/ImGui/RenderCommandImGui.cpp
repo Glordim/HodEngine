@@ -1,6 +1,6 @@
 #include "HodEngine/ImGui/Pch.hpp"
-#include "HodEngine/ImGui/RenderCommandImGui.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
+#include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
@@ -9,34 +9,34 @@
 
 #include <cstring>
 
-#include "HodEngine/Renderer/RHI/VertexInput.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
 #include "HodEngine/Core/Rect.hpp"
 
 namespace hod::imgui
 {
-	/// @brief 
-	/// @param drawLists 
-	/// @param viewport 
-	RenderCommandImGui::RenderCommandImGui(const std::vector<DrawList*>& drawLists, const Rect& viewport)
-		: RenderCommand()
-		, _viewport(viewport)
-		, _drawLists(drawLists)
+	/// @brief
+	/// @param drawLists
+	/// @param viewport
+	RenderCommandImGui::RenderCommandImGui(const Vector<DrawList*>& drawLists, const Rect& viewport)
+	: RenderCommand()
+	, _viewport(viewport)
+	, _drawLists(drawLists)
 	{
 	}
 
-	/// @brief 
+	/// @brief
 	RenderCommandImGui::~RenderCommandImGui()
 	{
 		for (DrawList* drawList : _drawLists)
 		{
-			delete drawList;
+			DefaultAllocator::GetInstance().Delete(drawList);
 		}
 	}
 
-	/// @brief 
-	/// @param commandBuffer 
+	/// @brief
+	/// @param commandBuffer
 	void RenderCommandImGui::Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial)
 	{
 		if (overrideMaterial != nullptr)
@@ -44,49 +44,51 @@ namespace hod::imgui
 			return;
 		}
 
-		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
-
+		commandBuffer->SetMaterial(ImGuiManager::GetInstance()->GetMaterial());
 		commandBuffer->SetViewport(_viewport);
 
-		struct Constant
-		{
-			Vector2	_scale;
-			Vector2	_translate;
-		};
+		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
 
-		for (int drawListIndex = 0; drawListIndex < _drawLists.size(); ++drawListIndex)
+		for (size_t drawListIndex = 0; drawListIndex < _drawLists.Size(); ++drawListIndex)
 		{
 			DrawList* drawList = _drawLists[drawListIndex];
-			
-            uint32_t vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.size() * sizeof(Vertex));
+
+			uint32_t          vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.Size() * sizeof(Vertex));
 			renderer::Buffer* vertexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Vertex, vertexBufferSize);
-			void* vertexBufferData = vertexBuffer->Lock();
+			void*             vertexBufferData = vertexBuffer->Lock();
 			if (vertexBufferData != nullptr)
 			{
-				memcpy(vertexBufferData, drawList->_vertices.data(), vertexBufferSize);
+				memcpy(vertexBufferData, drawList->_vertices.Data(), vertexBufferSize);
 				vertexBuffer->Unlock();
 			}
 			commandBuffer->DeleteAfterRender(vertexBuffer);
 			commandBuffer->SetVertexBuffer(&vertexBuffer, 1);
 
-            uint32_t indexBufferSize = static_cast<uint32_t>(drawList->_indices.size() * sizeof(uint16_t));
+			uint32_t          indexBufferSize = static_cast<uint32_t>(drawList->_indices.Size() * sizeof(uint16_t));
 			renderer::Buffer* indexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Index, indexBufferSize);
-			void* indexBufferData = indexBuffer->Lock();
+			void*             indexBufferData = indexBuffer->Lock();
 			if (indexBufferData != nullptr)
 			{
-				memcpy(indexBufferData, drawList->_indices.data(), indexBufferSize);
+				memcpy(indexBufferData, drawList->_indices.Data(), indexBufferSize);
 				indexBuffer->Unlock();
 			}
 			commandBuffer->DeleteAfterRender(indexBuffer);
-			commandBuffer->SetIndexBuffer(indexBuffer, 0);
+			commandBuffer->SetIndexBuffer(indexBuffer);
+
+			struct Constant
+			{
+				Vector2 _scale;
+				Vector2 _translate;
+			};
 
 			Constant constant;
 			constant._scale.SetX(2.0f / drawList->_displaySize.GetX());
 			constant._scale.SetY(2.0f / drawList->_displaySize.GetY());
 			constant._translate.SetX(-1.0f - drawList->_displayPosition.GetX() * constant._scale.GetX());
 			constant._translate.SetY(-1.0f - drawList->_displayPosition.GetY() * constant._scale.GetY());
+			commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
 
-			for (int commandIndex = 0; commandIndex < drawList->_commands.size(); ++commandIndex)
+			for (size_t commandIndex = 0; commandIndex < drawList->_commands.Size(); ++commandIndex)
 			{
 				Command& command = drawList->_commands[commandIndex];
 
@@ -94,12 +96,16 @@ namespace hod::imgui
 
 				materialInstance->SetTexture("image", command._texture);
 				commandBuffer->SetMaterialInstance(materialInstance, 0);
-				commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
 				commandBuffer->DeleteAfterRender(materialInstance);
 
 				commandBuffer->SetScissor(command._clipRect);
 				commandBuffer->DrawIndexed(command._elementCount, command._indexOffset, command._vertexOffset);
 			}
 		}
+	}
+
+	uint32_t RenderCommandImGui::GetRenderingOrder() const
+	{
+		return 0;
 	}
 }

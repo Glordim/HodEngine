@@ -3,33 +3,33 @@
 #include <HodEngine/Editor/Editor.hpp>
 
 #include <HodEngine/Core/ArgumentParser.hpp>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-_SingletonOverrideConstructor(HodEditor)
-{
+#include <filesystem> // todo remove
 
-}
+_SingletonOverrideConstructor(HodEditor) {}
 
-/// @brief 
-/// @param argc 
-/// @param argv 
-/// @return 
+/// @brief
+/// @param argc
+/// @param argv
+/// @return
 bool HodEditor::Init(const hod::ArgumentParser& argumentParser)
 {
 	const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 	if (projectPathArgument != nullptr && projectPathArgument->_values[0] != nullptr)
 	{
-		std::filesystem::path projectPath(projectPathArgument->_values[0]);
+		hod::Path projectPath(projectPathArgument->_values[0]);
 		try
 		{
-			std::filesystem::current_path(projectPath.parent_path());
+			std::filesystem::current_path(projectPath.ParentPath().GetString().CStr());
 		}
 		catch (const std::exception& e)
 		{
 			OUTPUT_ERROR(e.what());
-		}		
+		}
 	}
-	
+
 	bool platformApplicationResult = PlatformApplication::Init(argumentParser);
 	if (platformApplicationResult == false)
 	{
@@ -45,7 +45,7 @@ bool HodEditor::Init(const hod::ArgumentParser& argumentParser)
 	return true;
 }
 
-/// @brief 
+/// @brief
 void HodEditor::Terminate()
 {
 	hod::editor::Editor::DestroyInstance();

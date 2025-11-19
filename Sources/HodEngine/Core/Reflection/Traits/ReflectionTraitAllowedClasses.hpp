@@ -3,38 +3,35 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod
 {
 	class ReflectionDescriptor;
 
-	///@brief 
+	///@brief
 	class HOD_CORE_API ReflectionTraitAllowedClasses : public ReflectionTrait
 	{
 		META_TYPE(ReflectionTraitAllowedClasses, ReflectionTrait)
 
 	public:
+		ReflectionTraitAllowedClasses() = default;
+		ReflectionTraitAllowedClasses(const ReflectionTraitAllowedClasses& copy) = default;
+		ReflectionTraitAllowedClasses(ReflectionTraitAllowedClasses&& move) = default;
+		~ReflectionTraitAllowedClasses() = default;
 
-										ReflectionTraitAllowedClasses() = default;
-										ReflectionTraitAllowedClasses(const ReflectionTraitAllowedClasses& copy) = default;
-										ReflectionTraitAllowedClasses(ReflectionTraitAllowedClasses&& move) = default;
-										~ReflectionTraitAllowedClasses() = default;
-
-		ReflectionTraitAllowedClasses&	operator = (const ReflectionTraitAllowedClasses& copy) = default;
-		ReflectionTraitAllowedClasses&	operator = (ReflectionTraitAllowedClasses&& move) = default;
+		ReflectionTraitAllowedClasses& operator=(const ReflectionTraitAllowedClasses& copy) = default;
+		ReflectionTraitAllowedClasses& operator=(ReflectionTraitAllowedClasses&& move) = default;
 
 	public:
-
-		const std::vector<ReflectionDescriptor*>&	GetAllowedClasses() const;
+		const Vector<ReflectionDescriptor*>& GetAllowedClasses() const;
 
 		template<typename T>
-		void										AddAllowedClass();
-		void										AddAllowedClass(ReflectionDescriptor* reflectionDescriptor);
+		void AddAllowedClass();
+		void AddAllowedClass(ReflectionDescriptor* reflectionDescriptor);
 
 	protected:
-
-		std::vector<ReflectionDescriptor*>	_allowedClasses;
+		Vector<ReflectionDescriptor*> _allowedClasses;
 	};
 
 	template<typename T>

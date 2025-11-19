@@ -7,6 +7,6 @@ namespace hod::input
 {
 	class HOD_INPUT_API Feedback
 	{
-		BASE_META_TYPE(Feedback);
+		BASE_META_TYPE(Feedback)
 	};
 }

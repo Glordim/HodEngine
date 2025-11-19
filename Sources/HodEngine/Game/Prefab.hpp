@@ -1,57 +1,63 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
 #include "HodEngine/Game/Entity.hpp"
 
 #include <map>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 
 namespace hod::game
 {
-	/// @brief 
+	/// @brief
 	class HOD_GAME_API Prefab
 	{
-		REFLECTED_CLASS_NO_PARENT(Prefab, HOD_GAME_API)
+		REFLECTED_CLASS_NO_PARENT(Prefab)
 
 	public:
-						Prefab() = default;
-						Prefab(const UID& uid);
-						Prefab(const Prefab&) = delete;
-						Prefab(Prefab&&) = delete;
-		virtual			~Prefab() = default;
+		Prefab() = default;
+		Prefab(const UID& uid);
+		Prefab(const Prefab&) = delete;
+		Prefab(Prefab&&) = delete;
+		virtual ~Prefab();
 
-		Prefab&			operator=(const Prefab&) = delete;
-		Prefab&			operator=(Prefab&&) = delete;
+		Prefab& operator=(const Prefab&) = delete;
+		Prefab& operator=(Prefab&&) = delete;
 
 	public:
+		void          SetName(const std::string_view& name);
+		const String& GetName() const;
 
-		const UID&			GetUid() const;
+		bool SerializeInDocument(Document::Node& documentNode);
+		bool DeserializeFromDocument(const Document::Node& documentNode);
 
-		void				SetName(const std::string_view& name);
-		const std::string&	GetName() const;
+		Entity* CreateEntity(const std::string_view& name = "");
+		void    DestroyEntity(Entity* entity);
+		Entity* FindEntity(uint64_t entityId);
 
-		bool			SerializeInDocument(Document::Node& documentNode) const;
-		bool			DeserializeFromDocument(const Document::Node& documentNode);
+		void Clear();
 
-		std::weak_ptr<Entity>			CreateEntity(const std::string_view& name = "");
-		void							DestroyEntity(std::shared_ptr<Entity> entity);
-		std::weak_ptr<Entity>			FindEntity(Entity::Id entityId);
+		Entity* GetRootEntity();
 
-		Prefab*							Clone();
-		void							Clear();
+		const std::unordered_map<uint64_t, Entity*>& GetEntities() const;
 
-		std::shared_ptr<Entity>			GetRootEntity();
+		void SetNextLocalId(uint64_t nextLocalId)
+		{
+			_nextLocalId = nextLocalId;
+		}
 
-		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
+		uint64_t GetNextLocalId() const
+		{
+			return _nextLocalId;
+		}
 
 	private:
-
-		UID														_uid;
-		std::string												_name;
-		std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
+		String                                _name;
+		std::unordered_map<uint64_t, Entity*> _entities;
+		Entity*                               _rootEntity;
+		uint64_t                              _nextLocalId = 1;
 	};
 }

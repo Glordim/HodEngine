@@ -1,8 +1,9 @@
-#if defined(PLATFORM_WINDOWS)
-
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
+
+#include <HodEngine/Core/OS.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <ole2.h>
 
@@ -10,42 +11,87 @@
 
 namespace hod::window
 {
-    _SingletonConstructor(Win32DisplayManager)
-    : DesktopDisplayManager()
-    {
+	_SingletonOverrideConstructor(Win32DisplayManager)
+	: DesktopDisplayManager()
+	{
+	}
 
-    }
+	/// @brief
+	/// @return
+	bool Win32DisplayManager::Initialize()
+	{
+		OleInitialize(nullptr);
 
-    /// @brief 
-    /// @return 
-    bool Win32DisplayManager::Initialize()
-    {
-        OleInitialize(nullptr);
+		_hInstance = ::GetModuleHandle(NULL);
 
-        _mainWindow = CreateWindow();
+		WNDCLASSEX windowClass;
+		ZeroMemory(&windowClass, sizeof(WNDCLASSEX));
+		windowClass.cbSize = sizeof(WNDCLASSEX);
+		windowClass.style = CS_HREDRAW | CS_VREDRAW;
+		windowClass.lpfnWndProc = &Win32Window::WindowProc;
+		windowClass.cbClsExtra = 0;
+		windowClass.cbWndExtra = 0;
+		windowClass.hInstance = _hInstance;
+		windowClass.hIcon = NULL;
+		windowClass.hCursor = ::LoadCursor(_hInstance, IDC_ARROW);
+		windowClass.hbrBackground = ::CreateSolidBrush(RGB(0, 0, 0));
+		windowClass.lpszMenuName = NULL;
+		windowClass.lpszClassName = _className;
+		windowClass.hIconSm = NULL;
 
-        return true;
-    }
+		_class = ::RegisterClassEx(&windowClass);
+		if (_class == INVALID_ATOM)
+		{
+			OUTPUT_ERROR("Win32DisplayManager: Unable to RegisterClass -> {}", OS::GetLastWin32ErrorMessage());
+			return false;
+		}
 
-    /// @brief 
-    void Win32DisplayManager::Terminate()
-    {
-        OleUninitialize();
-    }
+		_mainWindow = CreateWindow();
 
-    /// @brief 
-    /// @return 
-    Window* Win32DisplayManager::CreateWindow(bool hidden)
-    {
-        return new Win32Window(hidden);
-    }
+		return true;
+	}
 
-    /// @brief 
-    /// @param window 
-    void Win32DisplayManager::DestroyWindow(Window* window)
-    {
-        delete window;
-    }
+	/// @brief
+	void Win32DisplayManager::Update()
+	{
+		for (Window* window : _windows)
+		{
+			window->Update();
+		}
+	}
+
+	/// @brief
+	void Win32DisplayManager::Terminate()
+	{
+		if (_class != INVALID_ATOM)
+		{
+			::UnregisterClass(_className, _hInstance);
+			_class = INVALID_ATOM;
+		}
+
+		_hInstance = NULL;
+
+		OleUninitialize();
+	}
+
+	/// @brief
+	/// @return
+	Window* Win32DisplayManager::CreateWindow(bool hidden)
+	{
+		Window* window = DefaultAllocator::GetInstance().New<Win32Window>(hidden);
+		_windows.push_back(window);
+		return window;
+	}
+
+	/// @brief
+	/// @param window
+	void Win32DisplayManager::DestroyWindow(Window* window)
+	{
+		auto it = std::find(_windows.Begin(), _windows.End(), window);
+		if (it != _windows.End())
+		{
+			_windows.Erase(it);
+		}
+		DefaultAllocator::GetInstance().Delete(window);
+	}
 }
-
-#endif

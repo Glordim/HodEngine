@@ -3,25 +3,18 @@
 
 namespace hod::audio
 {
-	_SingletonOverrideConstructor(LinuxAudioManager)
-	{
+	_SingletonOverrideConstructor(LinuxAudioManager) {}
 
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool LinuxAudioManager::Initialize()
 	{
 		return true;
 	}
 
-	/// @brief 
-	void LinuxAudioManager::Terminate()
-	{
-	}
+	/// @brief
+	void LinuxAudioManager::Terminate() {}
 
-	/// @brief 
-	void LinuxAudioManager::Update()
-	{
-	}
+	/// @brief
+	void LinuxAudioManager::Update() {}
 }

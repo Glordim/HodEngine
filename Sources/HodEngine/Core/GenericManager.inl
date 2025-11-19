@@ -2,16 +2,16 @@
 namespace hod
 {
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	template<typename T>
 	inline uint32_t GenericManager<T>::Count() const
 	{
-		return (uint32_t)_uidToDataMap.size();
+		return (uint32_t)_uidToDataMap.Size();
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	template<typename T>
 	inline bool GenericManager<T>::IsEmpty() const
@@ -20,7 +20,7 @@ namespace hod
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	template<typename T>
 	T* GenericManager<T>::GetData(const UID& uid) const
@@ -37,32 +37,32 @@ namespace hod
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	template<typename T>
 	void GenericManager<T>::RemoveData(const UID& uid)
 	{
-		uint32_t vectorSize = (uint32_t)_uidToDataMap.size();
+		uint32_t vectorSize = (uint32_t)_uidToDataMap.Size();
 
 		for (uint32_t i = 0; i < vectorSize; ++i)
 		{
 			if (_uidToDataMap[i].first == uid)
 			{
 				OnDataRemoved.Emit(_uidToDataMap[i].second);
-				_uidToDataMap.erase(_uidToDataMap.begin() + i);
+				_uidToDataMap.Erase(i);
 				return;
 			}
 		}
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	template<typename T>
 	inline void GenericManager<T>::AddData(const UID& uid, const T* data)
 	{
-		_uidToDataMap.resize(_uidToDataMap.size() + 1);
-		std::pair<UID, T*>& pair = _uidToDataMap.back();
+		_uidToDataMap.Resize(_uidToDataMap.Size() + 1);
+		std::pair<UID, T*>& pair = _uidToDataMap.Back();
 
 		pair.first = uid;
 		pair.second = (T*)data;

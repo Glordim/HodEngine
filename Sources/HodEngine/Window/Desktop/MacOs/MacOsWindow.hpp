@@ -1,15 +1,13 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#if defined(PLATFORM_MACOS)
-
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
 #include "HodEngine/Core/Job/MemberFunctionJob.hpp"
 
 #include "HodEngine/Core/Event.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 #ifdef __OBJC__
 @class NSView;
@@ -30,8 +28,6 @@ namespace hod::window
 											MacOsWindow(bool hidden);
 											~MacOsWindow() override;
 
-		void								Update() override;
-
 		void								SetSize(uint16_t width, uint16_t height) override;
 		void								CenterToScreen() override;
 		void								Maximize() override;
@@ -46,14 +42,8 @@ namespace hod::window
 
 	private:
 
-		void								EventLoop();
-
-	private:
-
 		NSView*								_view = nullptr;
 		NSWindow*							_window = nullptr;
 		MyWindowDelegate*					_delegate = nullptr;
 	};
 }
-
-#endif

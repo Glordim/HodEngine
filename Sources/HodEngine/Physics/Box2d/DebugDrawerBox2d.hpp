@@ -2,7 +2,7 @@
 #include "HodEngine/Physics/Export.hpp"
 #include "HodEngine/Physics/DebugDrawer.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 #include <box2d/types.h>
 
@@ -17,8 +17,8 @@ namespace hod::physics
 
 	public:
 
-		void						Update() override;
-		const std::vector<Flag>&	GetAvailableFlags() const override;
+		void						Update(World* world) override;
+		const Vector<Flag>&	GetAvailableFlags() const override;
 		void						SetFlags(uint32_t flags) override;
 		uint32_t					GetFlags() const override;
 
@@ -33,7 +33,7 @@ namespace hod::physics
 		static void	DrawSegment(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context);
 		static void	DrawTransform(b2Transform transform, void* context);
 		static void	DrawPoint(b2Vec2 p, float size, b2HexColor color, void* context);
-		static void	DrawString(b2Vec2 p, const char* s, void* context);
+		static void	DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context);
 
 		static void BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount);
 

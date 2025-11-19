@@ -2,17 +2,17 @@
 
 namespace hod
 {
-	std::string GenerateDisplayName(const std::string_view& name)
+	String GenerateDisplayName(const std::string_view& name)
 	{
-		std::string displayName;
-		displayName.reserve(name.size());
+		String displayName;
+		displayName.Reserve(name.size());
 
 		bool nextWord = true;
 		for (char c : name)
 		{
 			if (c == '_')
 			{
-				if (displayName.empty() == false)
+				if (displayName.Empty() == false)
 				{
 					displayName += ' ';
 					nextWord = true;

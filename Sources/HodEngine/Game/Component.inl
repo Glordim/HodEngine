@@ -1,7 +1,0 @@
-
-namespace hod
-{
-	namespace game
-	{
-	}
-}

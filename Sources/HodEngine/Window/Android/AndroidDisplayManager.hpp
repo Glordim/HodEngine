@@ -16,6 +16,7 @@ namespace hod::window
     public:
 
         bool    Initialize() override { return true; }
+        void    Update() override {};
         void    Terminate() override {}
 
         Window* CreateMainWindow(ANativeWindow* nativeWindow);

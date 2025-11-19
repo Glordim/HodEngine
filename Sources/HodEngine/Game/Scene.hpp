@@ -1,70 +1,83 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
 #include "HodEngine/Game/Entity.hpp"
 
 #include <map>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
+
+namespace hod::renderer
+{
+	class RenderView;
+}
 
 namespace hod::game
 {
 	class RendererComponent;
-	class Prefab;
+	class PrefabResource;
 	class Entity;
 	class Component;
+	class World;
 
-	/// @brief 
+	/// @brief
 	class HOD_GAME_API Scene
 	{
-		REFLECTED_CLASS_NO_PARENT(Scene, HOD_GAME_API)
+		REFLECTED_CLASS_NO_PARENT(Scene)
 
 	public:
-						Scene() = default;
-						Scene(const Scene&) = delete;
-						Scene(Scene&&) = delete;
-		virtual			~Scene() = default;
+		Scene();
+		Scene(const Scene&) = delete;
+		Scene(Scene&&) = delete;
+		virtual ~Scene();
 
-		Scene&			operator=(const Scene&) = delete;
-		Scene&			operator=(Scene&&) = delete;
+		Scene& operator=(const Scene&) = delete;
+		Scene& operator=(Scene&&) = delete;
 
 	public:
+		void          SetName(const std::string_view& name);
+		const String& GetName() const;
 
-		void				SetName(const std::string_view& name);
-		const std::string&	GetName() const;
+		bool SerializeInDocument(Document::Node& documentNode);
+		bool DeserializeFromDocument(const Document::Node& documentNode);
 
-		bool			SerializeInDocument(Document::Node& documentNode) const;
-		bool			DeserializeFromDocument(const Document::Node& documentNode);
+		Entity* CreateEntity(const std::string_view& name = "");
+		void    DestroyEntity(Entity* entity);
+		Entity* FindEntity(uint64_t entityId);
 
-		std::shared_ptr<Entity>			CreateEntity(const std::string_view& name = "");
-		void							DestroyEntity(std::shared_ptr<Entity> entity);
-		std::shared_ptr<Entity>			FindEntity(Entity::Id entityId);
+		Scene* Clone(World* newWorld);
+		void   Clear();
 
-		Scene*							Clone();
-		void							Clear();
+		Entity* Instantiate(std::shared_ptr<PrefabResource> prefabResource);
+		Entity* Instantiate(Entity* entity);
 
-		std::shared_ptr<Entity>			Instantiate(Prefab& prefab);
-		std::shared_ptr<Entity>			Instantiate(std::shared_ptr<Entity> entity);
+		const std::unordered_map<uint64_t, Entity*>& GetEntities() const;
 
-		std::shared_ptr<Entity>			InstantiateWithOverrides(Prefab& prefab, const Document::Node& prefabNode);
+		void ProcessActivation();
+		void Update(float deltaTime);
+		void FixedUpdate();
+		void Draw(renderer::RenderView& renderView);
 
-		const std::unordered_map<Entity::Id, std::shared_ptr<Entity>>& GetEntities() const;
+		void SetNextLocalId(uint64_t nextLocalId)
+		{
+			_nextLocalId = nextLocalId;
+		}
 
-		void						Awake();
-		void						Start();
-		void						Update();
-		void						Draw(renderer::RenderQueue* renderQueue);
+		uint64_t GetNextLocalId() const
+		{
+			return _nextLocalId;
+		}
+
+		void   SetWorld(World* world);
+		World* GetWorld() const;
 
 	private:
-
-		std::shared_ptr<Entity>		InstantiateInternal(std::shared_ptr<Entity> entity, std::unordered_map<std::shared_ptr<Entity>, std::shared_ptr<Entity>>& sourceToCloneEntitiesMap, std::unordered_map<std::shared_ptr<Component>, std::shared_ptr<Component>>& sourceToCloneComponentsMap);
-
-	private:
-
-		std::string												_name;
-		std::unordered_map<Entity::Id, std::shared_ptr<Entity>>	_entities;
+		String                                _name;
+		std::unordered_map<uint64_t, Entity*> _entities;
+		uint64_t                              _nextLocalId = 1;
+		World*                                _world = nullptr;
 	};
 }

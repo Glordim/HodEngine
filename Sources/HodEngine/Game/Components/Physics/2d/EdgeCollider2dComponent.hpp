@@ -3,14 +3,14 @@
 
 #include "HodEngine/Game/Components/Physics/2d/Collider2dComponent.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::game
 {
 	/// @brief 
 	class HOD_GAME_API EdgeCollider2dComponent : public Collider2dComponent
 	{
-		REFLECTED_CLASS(EdgeCollider2dComponent, Collider2dComponent, HOD_GAME_API)
+		REFLECTED_CLASS(EdgeCollider2dComponent, Collider2dComponent)
 
 	public:
 
@@ -24,7 +24,7 @@ namespace hod::game
 
 	public:
 
-		void			OnAwake() override;
+		void			OnStart() override;
 
 		void			SetStart(const Vector2& start);
 		const Vector2&	GetStart() const;

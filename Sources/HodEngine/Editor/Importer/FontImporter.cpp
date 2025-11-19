@@ -13,8 +13,9 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(FontImporterSettings, ImporterSettings)
+	DESCRIBE_REFLECTED_CLASS(FontImporterSettings, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
@@ -27,48 +28,22 @@ namespace hod::editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool FontImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool FontImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
-		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
-		uint8_t* dataBuffer = new uint8_t[dataSize];
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != dataSize)
+		(void)document;
+		(void)meta;
+		(void)thumbnail;
+		(void)settings;
+
+		Resource::Data ttfData;
+		ttfData._size = FileSystem::GetInstance()->GetSize(data);
+		ttfData._buffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(ttfData._size);
+		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(ttfData._buffer), ttfData._size) != (int32_t)ttfData._size)
 		{
 			OUTPUT_ERROR("FontImporter : Can't read Font data");
 			return false;
 		}
-
-		//FontImporterSettings& fontSettings = (FontImporterSettings&)settings;
-
-		Document document;
-		document.GetRootNode().AddChild("DataOffset").SetUInt32(0);
-		document.GetRootNode().AddChild("DataSize").SetUInt32((uint32_t)dataSize);
-
-		std::stringstream documentStringStream;
-
-		DocumentWriterJson documentWriter;
-		if (documentWriter.Write(document, documentStringStream) == false)
-		{
-			// TODO message
-			return false;
-		}
-
-		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
-		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
-
-		// todo use documentStringStream ?
-		if (documentWriter.Write(document, resource) == false)
-		{
-			// TODO message
-			return false;
-		}
-		resource.write(reinterpret_cast<char*>(dataBuffer), dataSize);
-
-		if (resource.fail())
-		{
-			// TODO message
-			return false;
-		}
-
+		datas.push_back(ttfData);
 		return true;
 	}
 
@@ -83,7 +58,7 @@ namespace hod::editor
 
 	ReflectionDescriptor* FontImporter::GetResourceDescriptor() const
 	{
-		return renderer::FontResource::GetReflectionDescriptor();
+		return &renderer::FontResource::GetReflectionDescriptor();
 	}
 
 	std::shared_ptr<ImporterSettings> FontImporter::AllocateSettings() const

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...3.27)
+cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
@@ -8,15 +8,24 @@ else()
     project(Application LANGUAGES CXX)
 endif()
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+if (APPLE)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32 Android Linux)
+elseif(ANDROID)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs Win32 Linux)
+elseif(WIN32)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs Android Linux)
+else() # Linux
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32 Android MacOs)
+endif()
 
 assign_source_group(${Srcs}) # for VS
 
 add_library(Application ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Application PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(Application PRIVATE "Pch.hpp")
 set_property(TARGET Application PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
-add_dependencies(Application Core Audio Window Renderer Input Physics Game ImGui)
+add_dependencies(Application Core Audio Window Renderer Input Physics Game ImGui UI)
 get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
 get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
@@ -37,6 +46,7 @@ target_link_libraries(Application
 	Physics
 	Game
 	ImGui
+	UI
 )
 
 if (ANDROID)
@@ -46,5 +56,5 @@ target_include_directories(Application PRIVATE ${CMAKE_SOURCE_DIR}/Externals/agd
 target_link_libraries(Application ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-activity_static.a)
 endif()
 
-target_compile_definitions(Application PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+target_compile_definitions(Application PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Application PRIVATE HOD_APPLICATION_EXPORT)

@@ -1,70 +1,59 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
-#include "HodEngine/Renderer/Renderer.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
+#include "HodEngine/Core/String.hpp"
 #include <iostream>
-#include <string>
 
 namespace hod
 {
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		RenderTarget::RenderTarget()
-		{
-		}
+		RenderTarget::RenderTarget() {}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		RenderTarget::~RenderTarget()
 		{
 			Clear();
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		uint32_t RenderTarget::GetWidth() const
+		/// @brief
+		/// @return
+		Vector2 RenderTarget::GetResolution() const
 		{
-			return _width;
+			return _resolution;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		uint32_t RenderTarget::GetHeight() const
+		/// @brief
+		/// @param width
+		/// @param height
+		/// @return
+		bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo Vector2 Size
 		{
-			return _height;
-		}
-
-		/// @brief 
-		/// @param width 
-		/// @param height 
-		/// @return 
-		bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo)
-		{
-			_width = width;
-			_height = height;
-
-			if (_width == 0 || _height == 0)
+			if (width == 0 || height == 0)
 			{
 				return false;
 			}
 
+			_resolution.SetX((float)width);
+			_resolution.SetY((float)height);
+
 			_color = Renderer::GetInstance()->CreateTexture();
-			if (_color->BuildColor(_width, _height, createInfo) == false)
+			if (_color->BuildColor(width, height, createInfo) == false)
 			{
 				Clear();
 				return false;
 			}
 			_depth = Renderer::GetInstance()->CreateTexture();
-			if (_depth->BuildDepth(_width, _height, createInfo) == false)
+			if (_depth->BuildDepth(width, height, createInfo) == false)
 			{
 				Clear();
 				return false;
@@ -73,35 +62,35 @@ namespace hod
 			return true;
 		}
 
-		/// @brief 
+		/// @brief
 		void RenderTarget::Clear()
 		{
-			delete _color;
+			DefaultAllocator::GetInstance().Delete(_color);
 			_color = nullptr;
 
-			delete _depth;
+			DefaultAllocator::GetInstance().Delete(_depth);
 			_depth = nullptr;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Texture* RenderTarget::GetColorTexture() const
 		{
 			return _color;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Texture* RenderTarget::GetDepthTexture() const
 		{
 			return _depth;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		bool RenderTarget::IsValid() const
 		{
-			return (_color != nullptr);
+			return _color != nullptr;
 		}
 	}
 }

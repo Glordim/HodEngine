@@ -1,132 +1,211 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/Components/Physics/2d/Rigidbody2dComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/Components/Physics/2d/Collider2dComponent.hpp"
+#include "HodEngine/Game/Components/Physics/2d/Rigidbody2dComponent.hpp"
+#include "HodEngine/Game/World.hpp"
 
-#include <HodEngine/Physics/Physics.hpp>
-#include <HodEngine/Physics/Body.hpp>
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
+#include <HodEngine/Physics/Body.hpp>
+#include <HodEngine/Physics/Collider.hpp>
+#include <HodEngine/Physics/World.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent, Component)
+	DESCRIBE_REFLECTED_ENUM(Rigidbody2dComponent::Mode, reflectionDescriptor)
 	{
-		AddPropertyT(this, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
-		AddPropertyT(this, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
+		reflectionDescriptor.AddEnumValue(Rigidbody2dComponent::Mode::Static, "Static");
+		reflectionDescriptor.AddEnumValue(Rigidbody2dComponent::Mode::Kinematic, "Kinematic");
+		reflectionDescriptor.AddEnumValue(Rigidbody2dComponent::Mode::Dynamic, "Dynamic");
 	}
 
-	/// @brief 
-	Rigidbody2dComponent::~Rigidbody2dComponent()
+	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent, reflectionDescriptor)
 	{
-		physics::Physics::GetInstance()->DeleteBody(_body);
+		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
+		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
 	}
 
-	/// @brief 
-	void Rigidbody2dComponent::OnAwake()
+	/// @brief
+	Rigidbody2dComponent::~Rigidbody2dComponent() {}
+
+	/// @brief
+	void Rigidbody2dComponent::OnDestruct()
 	{
-		static physics::Body::Type modeToTypeMapping[EnumTrait::GetCount<Mode>()] = {
+		GetWorld()->GetPhysicsWorld()->DeleteBody(_body);
+		_body = nullptr;
+	}
+
+	/// @brief
+	void Rigidbody2dComponent::OnConstruct()
+	{
+		static physics::Body::Type modeToTypeMapping[static_cast<uint32_t>(Mode::Count)] = {
 			physics::Body::Type::Static,
 			physics::Body::Type::Kinematic,
 			physics::Body::Type::Dynamic,
 		};
 
-		Vector2 position;
-		float rotation = 0.0f;
+		Vector2 position = Vector2::Zero;
+		float   rotation = 0.0f;
 
-		std::shared_ptr<Entity> entity = GetEntity();
-		if (entity != nullptr)
-		{
-			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
-			if (node2dComponent != nullptr)
+		_body = GetWorld()->GetPhysicsWorld()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
+		_body->SetUserData(this);
+		_body->SetMoveEventCallback(
+			[this](const Vector2& position, float rotation)
 			{
-				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
-				position = worldMatrix.GetTranslation();
-				rotation = worldMatrix.GetRotation().GetAngleZ();
-			}
-		}
-
-		_body = physics::Physics::GetInstance()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
-		_body->SetMoveEventCallback([this](const Vector2& position, float rotation)
-		{
-			std::shared_ptr<Entity> entity = GetEntity();
-			if (entity != nullptr)
-			{
-				std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
-				if (node2dComponent != nullptr)
+				Entity* entity = GetOwner();
+				if (entity != nullptr)
 				{
-					node2dComponent->SetPosition(position);
-					node2dComponent->SetRotation(rotation);
+					Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
+					if (node2dComponent != nullptr)
+					{
+						node2dComponent->SetPosition(position);
+						node2dComponent->SetRotation(rotation);
+					}
 				}
-			}
-		});
-		_body->SetCollisionEnterCallback([this](const physics::Collision& collision)
-		{
-			_onCollisionEnterEvent.Emit(collision);
-		});
-		_body->SetCollisionExitCallback([this](const physics::Collision& collision)
-		{
-			_onCollisionExitEvent.Emit(collision);
-		});
-		_body->SetTriggerEnterCallback([this](const physics::Collider& trigger, const physics::Collider& visitor)
-		{
-			_onTriggerEnterEvent.Emit(trigger, visitor);
-		});
-		_body->SetTriggerExitCallback([this](const physics::Collider& trigger, const physics::Collider& visitor)
-		{
-			_onTriggerExitEvent.Emit(trigger, visitor);
-		});
+			});
+		_body->SetCollisionEnterCallback(
+			[this](const physics::Collision& collision)
+			{
+				CollisionEvent collisionEvent;
+				collisionEvent._collider = static_cast<Collider2dComponent*>(collision._colliderA.GetUserData());
+				collisionEvent._other = static_cast<Collider2dComponent*>(collision._colliderB.GetUserData());
+				collisionEvent._normal = collision._normal;
+
+				_onCollisionEnterEvent.Emit(collisionEvent);
+			});
+		_body->SetCollisionExitCallback(
+			[this](const physics::Collision& collision)
+			{
+				CollisionEvent collisionEvent;
+				collisionEvent._collider = static_cast<Collider2dComponent*>(collision._colliderA.GetUserData());
+				collisionEvent._other = static_cast<Collider2dComponent*>(collision._colliderB.GetUserData());
+				collisionEvent._normal = collision._normal;
+
+				_onCollisionExitEvent.Emit(collisionEvent);
+			});
+		_body->SetTriggerEnterCallback(
+			[this](const physics::Collider& trigger, const physics::Collider& visitor)
+			{
+				TriggerEvent triggerEvent;
+				triggerEvent._collider = static_cast<Collider2dComponent*>(trigger.GetUserData());
+				triggerEvent._other = static_cast<Collider2dComponent*>(visitor.GetUserData());
+
+				_onTriggerEnterEvent.Emit(triggerEvent);
+			});
+		_body->SetTriggerExitCallback(
+			[this](const physics::Collider& trigger, const physics::Collider& visitor)
+			{
+				TriggerEvent triggerEvent;
+				triggerEvent._collider = static_cast<Collider2dComponent*>(trigger.GetUserData());
+				triggerEvent._other = static_cast<Collider2dComponent*>(visitor.GetUserData());
+
+				_onTriggerExitEvent.Emit(triggerEvent);
+			});
 
 		SetMode(GetMode());
 		SetGravityScale(GetGravityScale());
 	}
 
-	/// @brief 
+	/// @brief
+	void Rigidbody2dComponent::OnAwake() {}
+
+	/// @brief
 	void Rigidbody2dComponent::OnStart()
 	{
+		Vector2 position = Vector2::Zero;
+		float   rotation = 0.0f;
+		Vector2 scale = Vector2::One;
+
+		Entity* entity = GetOwner();
+		if (entity != nullptr)
+		{
+			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
+			if (node2dComponent != nullptr)
+			{
+				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
+				position = worldMatrix.GetTranslation();
+				rotation = worldMatrix.GetRotation().GetAngleZ();
+				// scale = worldMatrix.GetScale();
+			}
+		}
+		_body->SetTransform(position, rotation, scale);
+
 		_body->SetType(_body->GetType());
 	}
 
-	/// @brief 
-	void Rigidbody2dComponent::OnUpdate()
+	/// @brief
+	void Rigidbody2dComponent::OnEnable()
 	{
-		/*
-		std::shared_ptr<Entity> entity = GetEntity();
+		_body->SetEnabled(true);
+	}
+
+	/// @brief
+	void Rigidbody2dComponent::OnFixedUpdate()
+	{
+		Entity* entity = GetOwner();
 		if (entity != nullptr)
 		{
-			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
-				node2dComponent->SetPosition(_body->GetPosition());
-				node2dComponent->SetRotation(_body->GetRotation());
+				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
+				Vector2 position = worldMatrix.GetTranslation();
+				float   rotation = worldMatrix.GetRotation().GetAngleZ();
+				Vector2 scale; // = worldMatrix.GetScale();
+				_body->SetTransform(position, rotation, scale);
 			}
 		}
 
+		/*
 		// todo check if have slot connected ?
-		std::vector<physics::Collision> collisions;
+		Vector<physics::Collision> collisions;
 		_body->GetCollisions(collisions);
 		for (const physics::Collision& collision : collisions)
 		{
-			_onCollisionEnterEvent.Emit(collision);
+		    _onCollisionEnterEvent.Emit(collision);
 		}
 		*/
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	void Rigidbody2dComponent::OnDisable()
+	{
+		_body->SetEnabled(false);
+	}
+
+	/// @brief
+	/// @return
 	physics::Body* Rigidbody2dComponent::GetInternalBody() const
 	{
 		return _body;
 	}
 
-	/// @brief 
-	/// @param dynamic 
+	/// @brief
+	/// @param collider
+	/// @return
+	Vector2 Rigidbody2dComponent::GetParentOffset(Collider2dComponent* collider) const
+	{
+		Node2dComponent* colliderNode2dComponent = collider->GetOwner()->GetComponent<Node2dComponent>();
+		Node2dComponent* bodyNode2dComponent = GetOwner()->GetComponent<Node2dComponent>();
+		if (colliderNode2dComponent == bodyNode2dComponent)
+		{
+			return Vector2::Zero;
+		}
+
+		Matrix4 colliderWorldMatrix = colliderNode2dComponent->GetWorldMatrix();
+		Matrix4 bodyWorldMatrix = bodyNode2dComponent->GetWorldMatrix();
+		return colliderWorldMatrix.GetTranslation() - bodyWorldMatrix.GetTranslation();
+	}
+
+	/// @brief
+	/// @param dynamic
 	void Rigidbody2dComponent::SetMode(Mode mode)
 	{
 		_mode = mode;
 		if (_body != nullptr)
 		{
-			static physics::Body::Type modeToTypeMapping[EnumTrait::GetCount<Mode>()] = {
+			static physics::Body::Type modeToTypeMapping[static_cast<uint32_t>(Mode::Count)] = {
 				physics::Body::Type::Static,
 				physics::Body::Type::Kinematic,
 				physics::Body::Type::Dynamic,
@@ -136,15 +215,15 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Rigidbody2dComponent::Mode Rigidbody2dComponent::GetMode() const
 	{
 		return _mode;
 	}
 
-	/// @brief 
-	/// @param gravityScale 
+	/// @brief
+	/// @param gravityScale
 	void Rigidbody2dComponent::SetGravityScale(float gravityScale)
 	{
 		_gravityScale = gravityScale;
@@ -154,15 +233,15 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	float Rigidbody2dComponent::GetGravityScale() const
 	{
 		return _gravityScale;
 	}
 
-	/// @brief 
-	/// @param velocity 
+	/// @brief
+	/// @param velocity
 	void Rigidbody2dComponent::SetVelocity(const Vector2& velocity)
 	{
 		if (_body != nullptr)
@@ -171,8 +250,8 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Vector2 Rigidbody2dComponent::GetVelocity() const
 	{
 		if (_body != nullptr)
@@ -185,30 +264,50 @@ namespace hod::game
 		}
 	}
 
-	/// @brief 
-	/// @return 
-	Event<const physics::Collision&>& Rigidbody2dComponent::GetOnCollisionEnterEvent()
+	/// @brief
+	/// @param force
+	void Rigidbody2dComponent::AddForce(const Vector2& force)
+	{
+		if (_body != nullptr)
+		{
+			_body->AddForce(force);
+		}
+	}
+
+	/// @brief
+	/// @param impulse
+	void Rigidbody2dComponent::AddImpulse(const Vector2& impulse)
+	{
+		if (_body != nullptr)
+		{
+			_body->AddImpulse(impulse);
+		}
+	}
+
+	/// @brief
+	/// @return
+	Event<const CollisionEvent&>& Rigidbody2dComponent::GetOnCollisionEnterEvent()
 	{
 		return _onCollisionEnterEvent;
 	}
 
-	/// @brief 
-	/// @return 
-	Event<const physics::Collision&>& Rigidbody2dComponent::GetOnCollisionExitEvent()
+	/// @brief
+	/// @return
+	Event<const CollisionEvent&>& Rigidbody2dComponent::GetOnCollisionExitEvent()
 	{
 		return _onCollisionExitEvent;
 	}
 
-	/// @brief 
-	/// @return 
-	Event<const physics::Collider&, const physics::Collider&>& Rigidbody2dComponent::GetOnTriggerEnterEvent()
+	/// @brief
+	/// @return
+	Event<const TriggerEvent&>& Rigidbody2dComponent::GetOnTriggerEnterEvent()
 	{
 		return _onTriggerEnterEvent;
 	}
 
-	/// @brief 
-	/// @return 
-	Event<const physics::Collider&, const physics::Collider&>& Rigidbody2dComponent::GetOnTriggerExitEvent()
+	/// @brief
+	/// @return
+	Event<const TriggerEvent&>& Rigidbody2dComponent::GetOnTriggerExitEvent()
 	{
 		return _onTriggerExitEvent;
 	}

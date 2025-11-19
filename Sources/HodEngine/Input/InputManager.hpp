@@ -6,23 +6,26 @@
 
 #include "HodEngine/Input/Input.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::input
 {
 	class Api;
+	class MouseDevice;
 
 	/// @brief 
 	class HOD_INPUT_API InputManager
 	{
 		_Singleton(InputManager)
 
+		friend class Api;
+
 	public:
 
 		bool							Initialize();
 		void							UpdateJob();
 
-		Input::State					GetInputState(InputId inputId) const;
+		const Vector<Device*>			GetDevices() const;
 
 	private:
 
@@ -34,9 +37,13 @@ namespace hod::input
 		bool							CreateApi();
 		bool							CreateApi(Api* api);
 
+		void							AddDevice(Device* device);
+		void							RemoveDevice(Device* device);
+
 	private:
 
-		std::vector<Api*>				_apis;
+		Vector<Api*>					_apis;
+		Vector<Device*>					_devices;
 
 		MemberFunctionJob<InputManager>	_updateJob;
 	};
@@ -47,6 +54,6 @@ namespace hod::input
 	template<typename API_>
 	bool InputManager::CreateApi()
 	{
-		return CreateApi(new API_());
+		return CreateApi(DefaultAllocator::GetInstance().New<API_>());
 	}
 }

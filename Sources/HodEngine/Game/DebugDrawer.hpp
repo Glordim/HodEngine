@@ -4,11 +4,11 @@
 #include <HodEngine/Core/Color.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::renderer
 {
-	class RenderQueue;
+	class RenderView;
 	class MaterialInstance;
 }
 
@@ -35,11 +35,11 @@ namespace hod::game
 
 		void	AddLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
 
-		void	Draw(renderer::RenderQueue& renderQueue);
+		void	Draw(renderer::RenderView& renderView);
 
 	private:
 
-		std::vector<Line>	_lines;
+		Vector<Line>	_lines;
 
 		const renderer::MaterialInstance*	_lineMaterial = nullptr; 
 	};

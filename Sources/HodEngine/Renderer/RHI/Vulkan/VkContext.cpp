@@ -1,43 +1,28 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <limits>
 
-using namespace hod::renderer;
-
-namespace hod
+namespace hod::renderer
 {
-	/// @brief 
+	/// @brief
 	VkContext::VkContext(VkSurfaceKHR surface)
-		: Context()
-		, _surface(surface)
+	: Context()
+	, _surface(surface)
 	{
-		CreateSemaphores();
 		CreateSwapChain(800, 600);
 	}
 
-	/// @brief 
+	/// @brief
 	VkContext::~VkContext()
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-		if (_acquireNextImageFence != VK_NULL_HANDLE)
-		{
-			vkDestroyFence(renderer->GetVkDevice(), _acquireNextImageFence, nullptr);
-		}
-
-		if (_imageAvailableSemaphore != VK_NULL_HANDLE)
-		{
-			vkDestroySemaphore(renderer->GetVkDevice(), _imageAvailableSemaphore, nullptr);
-		}
-
-		if (_renderFinishedSemaphore != VK_NULL_HANDLE)
-		{
-			vkDestroySemaphore(renderer->GetVkDevice(), _renderFinishedSemaphore, nullptr);
-		}
+		DestroySwapChain();
 
 		if (_surface != VK_NULL_HANDLE)
 		{
@@ -45,30 +30,23 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param width 
-	/// @param height 
+	/// @brief
+	/// @param width
+	/// @param height
 	void VkContext::Resize(uint32_t width, uint32_t height)
 	{
 		CreateSwapChain(width, height);
 	}
 
-	/// @brief 
-	/// @return 
-	uint32_t VkContext::GetWidth()
+	/// @brief
+	/// @return
+	Vector2 VkContext::GetResolution()
 	{
-		return _swapChainExtent.width;
+		return Vector2((float)_swapChainExtent.width, (float)_swapChainExtent.height);
 	}
 
-	/// @brief 
-	/// @return 
-	uint32_t VkContext::GetHeight()
-	{
-		return _swapChainExtent.height;
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool VkContext::CreateSwapChain(uint32_t width, uint32_t height)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
@@ -82,9 +60,9 @@ namespace hod
 
 		_currentImageIndex = 0;
 
-		VkSurfaceCapabilitiesKHR capabilities;
-		std::vector<VkSurfaceFormatKHR> formats;
-		std::vector<VkPresentModeKHR> presentModes;
+		VkSurfaceCapabilitiesKHR   capabilities;
+		Vector<VkSurfaceFormatKHR> formats;
+		Vector<VkPresentModeKHR>   presentModes;
 
 		const VkGpuDevice* selectedGpuDevice = RendererVulkan::GetInstance()->GetVkGpuDevice();
 
@@ -101,8 +79,7 @@ namespace hod
 
 		VkExtent2D extent;
 
-		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() &&
-			capabilities.currentExtent.height != std::numeric_limits<uint32_t>::max())
+		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() && capabilities.currentExtent.height != std::numeric_limits<uint32_t>::max())
 		{
 			extent = capabilities.currentExtent;
 		}
@@ -151,11 +128,11 @@ namespace hod
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // Present and graphics queue have the same queue family
-		createInfo.queueFamilyIndexCount = 0; // Optional
-		createInfo.pQueueFamilyIndices = nullptr; // Optional
+		createInfo.queueFamilyIndexCount = 0;                    // Optional
+		createInfo.pQueueFamilyIndices = nullptr;                // Optional
 		createInfo.preTransform = capabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = VK_PRESENT_MODE_MAILBOX_KHR; // Todo support VSync
+		createInfo.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR; // Todo support VSync
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
@@ -200,9 +177,9 @@ namespace hod
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-		subpass.pDepthStencilAttachment = nullptr;// &depthAttachmentRef;
+		subpass.pDepthStencilAttachment = nullptr; // &depthAttachmentRef;
 
-		VkAttachmentDescription attachments[] = { colorAttachment }; // , depthAttachment };
+		VkAttachmentDescription attachments[] = {colorAttachment}; // , depthAttachment };
 
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -220,15 +197,16 @@ namespace hod
 		// Image views
 		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, nullptr);
 
-		std::vector<VkImage> swapChainImages(imageCount);
-		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, swapChainImages.data());
+		Vector<VkImage> swapChainImages(imageCount);
+		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, swapChainImages.Data());
 
-		_swapchainImageViews.resize(imageCount, VK_NULL_HANDLE);
-		_swapchainFramebuffers.resize(imageCount, VK_NULL_HANDLE);
+		_swapchainImageViews.Resize(imageCount, VK_NULL_HANDLE);
+		_swapchainFramebuffers.Resize(imageCount, VK_NULL_HANDLE);
 
 		for (size_t i = 0; i < imageCount; ++i)
 		{
-			RendererVulkan::GetInstance()->TransitionImageLayout(swapChainImages[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+			RendererVulkan::GetInstance()->TransitionImageLayoutImmediate(swapChainImages[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+			                                                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 			// TODO use CreateImageView here ?
 
@@ -277,24 +255,24 @@ namespace hod
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void VkContext::DestroySwapChain()
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
-		size_t swapChainFramebufferCount = _swapchainFramebuffers.size();
+		size_t swapChainFramebufferCount = _swapchainFramebuffers.Size();
 		for (size_t i = 0; i < swapChainFramebufferCount; ++i)
 		{
 			vkDestroyFramebuffer(device, _swapchainFramebuffers[i], nullptr);
 		}
-		_swapchainFramebuffers.clear();
+		_swapchainFramebuffers.Clear();
 
-		size_t swapChainImageViewCount = _swapchainImageViews.size();
+		size_t swapChainImageViewCount = _swapchainImageViews.Size();
 		for (size_t i = 0; i < swapChainImageViewCount; ++i)
 		{
 			vkDestroyImageView(device, _swapchainImageViews[i], nullptr);
 		}
-		_swapchainImageViews.clear();
+		_swapchainImageViews.Clear();
 
 		if (_renderPass != VK_NULL_HANDLE)
 		{
@@ -309,87 +287,47 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkSurfaceKHR VkContext::GetSurface() const
 	{
 		return _surface;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkRenderPass VkContext::GetRenderPass() const
 	{
 		return _renderPass;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkExtent2D VkContext::GetSwapChainExtent() const
 	{
 		return _swapChainExtent;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkFramebuffer VkContext::GetSwapChainCurrentFrameBuffer() const
 	{
 		return _swapchainFramebuffers[_currentImageIndex];
 	}
 
-	/// @brief 
-	/// @return 
-	bool VkContext::CreateSemaphores()
-	{
-		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
-
-		VkSemaphoreCreateInfo semaphoreInfo = {};
-		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_imageAvailableSemaphore) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create semaphores!");
-			return false;
-		}
-
-		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_renderFinishedSemaphore) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create semaphores!");
-			return false;
-		}
-
-		VkFenceCreateInfo fenceCreateInfo = {};
-		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceCreateInfo.flags = 0;
-		fenceCreateInfo.pNext = nullptr;
-
-		if (vkCreateFence(device, &fenceCreateInfo, nullptr, &_acquireNextImageFence) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create fence!");
-			return false;
-		}
-
-		return true;
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool VkContext::AcquireNextImageIndex()
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
-		if (_swapchain == nullptr) // For exemple if the window is hidden the size will be 0 and not swap chain are created
+		if (_swapchain == nullptr) // For exemple if the window is hidden the Size will be 0 and not swap chain are created
 		{
 			return false;
 		}
 
-		if (vkResetFences(device, 1, &_acquireNextImageFence) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to reset fence!");
-			return false;
-		}
-
-		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, _acquireNextImageFence, &_currentImageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(),
+		                                        static_cast<const SemaphoreVk*>(_imageAvailableSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
 		if (result != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to acquire next image!");
@@ -397,47 +335,56 @@ namespace hod
 			if (result == VK_ERROR_OUT_OF_DATE_KHR)
 			{
 				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...");
-				//CreateSwapChain();
+				// CreateSwapChain();
 			}
 			else if (result == VK_SUBOPTIMAL_KHR)
 			{
 				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...");
-				//CreateSwapChain();
+				// CreateSwapChain();
 			}
 
-			return false;
-		}
-
-		if (vkWaitForFences(device, 1, &_acquireNextImageFence, VK_TRUE, std::numeric_limits<uint64_t>::max()) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to wait fence");
 			return false;
 		}
 
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool VkContext::SwapBuffer()
 	{
-		if (_swapchain == nullptr) // For exemple if the window is hidden the size will be 0 and not swap chain are created
+		if (_swapchain == nullptr) // For exemple if the window is hidden the Size will be 0 and not swap chain are created
 		{
 			return false;
 		}
 
-		VkPresentInfoKHR presentInfo = {};
+		Vector<VkSemaphore> waitSemaphores;
+		VkPresentInfoKHR    presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 0;
-		presentInfo.pWaitSemaphores = nullptr;
+		if (_semaphoresToSwapBuffer.Empty())
+		{
+			presentInfo.waitSemaphoreCount = 0;
+			presentInfo.pWaitSemaphores = nullptr;
+		}
+		else
+		{
+			waitSemaphores.Reserve(_semaphoresToSwapBuffer.Size());
+			for (const Semaphore* semaphore : _semaphoresToSwapBuffer)
+			{
+				VkSemaphore vkWaitSemaphore = static_cast<const SemaphoreVk*>(semaphore)->GetVkSemaphore();
+				waitSemaphores.push_back(vkWaitSemaphore);
+			}
+			presentInfo.waitSemaphoreCount = (uint32_t)waitSemaphores.Size();
+			presentInfo.pWaitSemaphores = waitSemaphores.Data();
+			_semaphoresToSwapBuffer.Clear();
+		}
 
-		VkSwapchainKHR swapChains[] = { _swapchain };
 		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
+		presentInfo.pSwapchains = &_swapchain;
 		presentInfo.pImageIndices = &_currentImageIndex;
 		presentInfo.pResults = nullptr;
 
-		VkQueue presentQueue = RendererVulkan::GetInstance()->GetPresentQueue();
+		VkQueue  presentQueue = RendererVulkan::GetInstance()->GetPresentQueue();
 		VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
 		if (result != VK_SUCCESS)
 		{
@@ -446,12 +393,12 @@ namespace hod
 			if (result == VK_ERROR_OUT_OF_DATE_KHR)
 			{
 				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...");
-				//CreateSwapChain();
+				// CreateSwapChain();
 			}
 			else if (result == VK_SUBOPTIMAL_KHR)
 			{
 				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...");
-				//CreateSwapChain();
+				// CreateSwapChain();
 			}
 
 			return false;

@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include "HodEngine/Core/Resource.hpp"
+#include "HodEngine/Core/Resource/Resource.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
@@ -9,7 +9,7 @@ namespace hod::renderer
 {	
 	class HOD_RENDERER_API TextureResource : public Resource
 	{
-		REFLECTED_CLASS(TextureResource, Resource, HOD_RENDERER_API)
+		REFLECTED_CLASS(TextureResource, Resource)
 
 	public:
 
@@ -23,7 +23,7 @@ namespace hod::renderer
 
 	public:
 
-		bool				Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) override;
+		bool				Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) override;
 
 		Texture*			GetTexture() const;
 

@@ -4,7 +4,7 @@
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::physics
 {
@@ -54,7 +54,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API Collider2dComponent : public Component
 	{
-		REFLECTED_CLASS(Collider2dComponent, Component, HOD_GAME_API)
+		REFLECTED_CLASS(Collider2dComponent, Component)
 
 	public:
 
@@ -68,11 +68,10 @@ namespace hod::game
 
 	public:
 
-		void			OnConstruct() override;
-		void			OnAwake() override;
+		void			OnStart() override;
 
-		std::shared_ptr<Rigidbody2dComponent>	GetRigidbody() const;
-		Vector2									GetScale() const;
+		Rigidbody2dComponent*		GetRigidbody();
+		Vector2						GetScale() const;
 
 	protected:
 
@@ -82,6 +81,6 @@ namespace hod::game
 		float			_friction = 0.5f;
 		float			_density = 1.0f;
 
-		std::weak_ptr<Rigidbody2dComponent>	_rigidbody;
+		WeakPtr<Rigidbody2dComponent>	_rigidbody;
 	};
 }

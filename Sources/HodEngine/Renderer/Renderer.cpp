@@ -1,15 +1,17 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
-#include "HodEngine/Renderer/PickingManager.hpp"
+#include "HodEngine/Renderer/Font/FontManager.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/Renderer/PickingManager.hpp"
+#include "HodEngine/Renderer/RenderView.hpp"
+#include "HodEngine/Renderer/RHI/Context.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/ShaderGenerator/ShaderGenerator.hpp"
+#include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.vert.hpp"
-#include "HodEngine/Renderer/Shader/Generated/SpriteUnlitColor.frag.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
+#include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
@@ -17,76 +19,74 @@ namespace hod
 {
 	namespace renderer
 	{
-		/// @brief 
+		/// @brief
 		_SingletonConstructor(Renderer)
 		{
 			MaterialManager::CreateInstance();
 			PickingManager::CreateInstance();
-			_renderQueue = new RenderQueue();
+			FontManager::CreateInstance();
+			FontManager::GetInstance()->Init(); // todo catch error ?
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		Renderer::~Renderer()
 		{
-			delete _renderQueue;
+			FontManager::DestroyInstance();
 			PickingManager::DestroyInstance();
 			MaterialManager::DestroyInstance();
 		}
 
-		/// @brief 
+		/// @brief
 		void Renderer::Clear()
 		{
-			_renderQueue->Terminate();
 			MaterialManager::GetInstance()->Clear();
 
-			delete _overdrawnMaterialInstance;
+			DefaultAllocator::GetInstance().Delete(_overdrawnMaterialInstance);
 			_overdrawnMaterialInstance = nullptr;
-			delete _overdrawnMaterial;
+			DefaultAllocator::GetInstance().Delete(_overdrawnMaterial);
 			_overdrawnMaterial = nullptr;
 
-			delete _wireframeMaterialInstance;
+			DefaultAllocator::GetInstance().Delete(_wireframeMaterialInstance);
 			_wireframeMaterialInstance = nullptr;
-			delete _wireframeMaterial;
+			DefaultAllocator::GetInstance().Delete(_wireframeMaterial);
 			_wireframeMaterial = nullptr;
 
-			delete _defaultMaterialInstance;
+			DefaultAllocator::GetInstance().Delete(_defaultMaterialInstance);
 			_defaultMaterialInstance = nullptr;
-			delete _defaultMaterial;
+			DefaultAllocator::GetInstance().Delete(_defaultMaterial);
 			_defaultMaterial = nullptr;
 
-			delete _defaultWhiteTexture;
+			DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
 			_defaultWhiteTexture = nullptr;
-
-			delete _shaderGenerator;
 		}
 
 		/*
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool Renderer::Init()
 		{
-			DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
+		    DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
 
-			pDebugLayer->RegisterDebugWindow(&_rendererDebugWindow);
+		    pDebugLayer->RegisterDebugWindow(&_rendererDebugWindow);
 
-			return true;
+		    return true;
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void Renderer::Clear()
 		{
-			DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
+		    DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
 
-			pDebugLayer->UnregisterDebugWindow(&_rendererDebugWindow);
+		    pDebugLayer->UnregisterDebugWindow(&_rendererDebugWindow);
 		}
 		*/
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		Renderer::VisualizationMode Renderer::GetVisualizationMode() const
 		{
@@ -94,7 +94,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void Renderer::SetVisualizationMode(VisualizationMode visualizationMode)
 		{
@@ -102,7 +102,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		MaterialInstance* Renderer::GetDefaultMaterialInstance()
 		{
@@ -113,43 +113,31 @@ namespace hod
 					Renderer* renderer = Renderer::GetInstance();
 
 					renderer::VertexInput vertexInput[1] = {
-						{ 0, 0, renderer::VertexInput::Format::R32G32_SFloat },
+						{0, 0, renderer::VertexInput::Format::R32G32_SFloat},
 						//{ 8, renderer::VertexInput::Format::R32G32_SFloat },
-						//{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
+					    //{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
 					};
 
-					std::vector<uint8_t> shaderByteCode;
-					shaderByteCode.reserve(2048);
-
-					if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, Shader::ShaderType::Vertex, SpriteUnlitColor_vert) == false)
-					{
-						return nullptr;
-					}
 					Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
-					if (vertexShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
+					if (vertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size) == false)
 					{
-						delete vertexShader;
+						DefaultAllocator::GetInstance().Delete(vertexShader);
 						return nullptr;
 					}
 
-					if (renderer->GetShaderGenerator()->GenerateByteCode(shaderByteCode, Shader::ShaderType::Fragment, SpriteUnlitColor_frag) == false)
-					{
-						delete vertexShader;
-						return nullptr;
-					}
 					Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
-					if (fragmentShader->LoadFromMemory(shaderByteCode.data(), (uint32_t)shaderByteCode.size()) == false)
+					if (fragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size) == false)
 					{
-						delete vertexShader;
-						delete fragmentShader;
+						DefaultAllocator::GetInstance().Delete(vertexShader);
+						DefaultAllocator::GetInstance().Delete(fragmentShader);
 						return nullptr;
 					}
 
 					_defaultMaterial = renderer->CreateMaterial(vertexInput, 1, vertexShader, fragmentShader);
 					if (_defaultMaterial == nullptr)
 					{
-						delete vertexShader;
-						delete fragmentShader;
+						DefaultAllocator::GetInstance().Delete(vertexShader);
+						DefaultAllocator::GetInstance().Delete(fragmentShader);
 						return nullptr;
 					}
 				}
@@ -161,7 +149,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		MaterialInstance* Renderer::GetOverdrawMaterialInstance()
 		{
@@ -179,7 +167,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		MaterialInstance* Renderer::GetWireframeMaterialInstance()
 		{
@@ -187,7 +175,8 @@ namespace hod
 			{
 				if (_wireframeMaterial == nullptr)
 				{
-					_wireframeMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
+					_wireframeMaterial = MaterialManager::GetInstance()->GetData(
+						MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
 				}
 
 				_wireframeMaterialInstance = CreateMaterialInstance(_wireframeMaterial);
@@ -196,16 +185,13 @@ namespace hod
 			return _wireframeMaterialInstance;
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		Texture* Renderer::GetDefaultWhiteTexture()
 		{
 			if (_defaultWhiteTexture == nullptr)
 			{
-				uint8_t pixels[4*2*2] = { 255, 255, 255, 255,
-										  255, 255, 255, 255,
-										  255, 255, 255, 255,
-										  255, 255, 255, 255 };
+				uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
 
 				_defaultWhiteTexture = CreateTexture();
 				_defaultWhiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
@@ -213,18 +199,53 @@ namespace hod
 			return _defaultWhiteTexture;
 		}
 
-		/// @brief 
-		/// @return 
-		ShaderGenerator* Renderer::GetShaderGenerator() const
+		void Renderer::PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame)
 		{
-			return _shaderGenerator;
+			renderView.SetAutoDestroy(autoDestroyAfterFrame);
+			_renderViews.push_back(&renderView);
 		}
 
-		/// @brief 
-		/// @return 
-		RenderQueue* Renderer::GetRenderQueue() const
+		void Renderer::RenderViews()
 		{
-			return _renderQueue;
+			// todo sort
+
+			Semaphore* semaphore = nullptr;
+			Context*   context = nullptr;
+			for (RenderView* renderView : _renderViews)
+			{
+				if (renderView->GetContext())
+				{
+					context = renderView->GetContext();
+					if (semaphore == nullptr)
+					{
+						semaphore = (Semaphore*)renderView->GetContext()->GetImageAvailableSempahore();
+					}
+					renderView->Execute(semaphore);
+					semaphore = renderView->GetRenderFinishedSemaphore();
+				}
+				else
+				{
+					renderView->Execute();
+				}
+			}
+			context->AddSemaphoreToSwapBuffer(semaphore);
+		}
+
+		void Renderer::WaitViews()
+		{
+			for (RenderView* renderView : _renderViews)
+			{
+				renderView->Wait();
+			}
+
+			for (RenderView* renderView : _renderViews)
+			{
+				if (renderView->IsAutoDestroy())
+				{
+					DefaultAllocator::GetInstance().Delete(renderView);
+				}
+			}
+			_renderViews.Clear();
 		}
 	}
 }

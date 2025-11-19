@@ -14,11 +14,11 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(Collider2dComponent, Component)
+	DESCRIBE_REFLECTED_CLASS(Collider2dComponent, reflectionDescriptor)
 	{
-		AddPropertyT(this, &Collider2dComponent::_isTrigger, "IsTrigger");
-		AddPropertyT(this, &Collider2dComponent::_friction, "Friction");
-		AddPropertyT(this, &Collider2dComponent::_density, "Density");
+		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_isTrigger, "IsTrigger");
+		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_friction, "Friction");
+		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_density, "Density");
 	}
 
 	Collider2dComponent::Collider2dComponent()
@@ -32,31 +32,30 @@ namespace hod::game
 	}
 
 	/// @brief 
-	void Collider2dComponent::OnConstruct()
+	void Collider2dComponent::OnStart()
 	{
-	}
-
-	/// @brief 
-	void Collider2dComponent::OnAwake()
-	{
-		_rigidbody = GetEntity()->GetComponent<Rigidbody2dComponent>();
+		_rigidbody = GetOwner()->GetComponentInParent<Rigidbody2dComponent>();
 	}
 
 	/// @brief 
 	/// @return 
-	std::shared_ptr<Rigidbody2dComponent> Collider2dComponent::GetRigidbody() const
+	Rigidbody2dComponent* Collider2dComponent::GetRigidbody()
 	{
-		return _rigidbody.lock();
+		if (_rigidbody == nullptr)
+		{
+			_rigidbody = GetOwner()->GetComponentInParent<Rigidbody2dComponent>();
+		}
+		return _rigidbody.Get();
 	}
 
 	/// @brief 
 	/// @return 
 	Vector2 Collider2dComponent::GetScale() const
 	{
-		std::shared_ptr<Entity> entity = GetEntity();
+		Entity* entity = GetOwner();
 		if (entity != nullptr)
 		{
-			std::shared_ptr<Node2dComponent> node2dComponent = entity->GetComponent<Node2dComponent>();
+			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
 				return node2dComponent->GetScale();

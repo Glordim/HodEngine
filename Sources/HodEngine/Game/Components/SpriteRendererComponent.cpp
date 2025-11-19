@@ -1,9 +1,9 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/SpriteRendererComponent.hpp"
 
-#include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RHI/Material.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
@@ -12,42 +12,39 @@ namespace hod
 {
 	namespace game
 	{
-		DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent, RendererComponent)
+		DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent, reflectionDescriptor)
 		{
-			ADD_PROPERTY(SpriteRendererComponent, _sprite);
-			//ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
+			AddPropertyT(reflectionDescriptor, &SpriteRendererComponent::_sprite, "_sprite");
+			// ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		SpriteRendererComponent::~SpriteRendererComponent()
-		{
-
-		}
+		SpriteRendererComponent::~SpriteRendererComponent() {}
 
 		/*
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void SpriteRendererComponent::SetSprite(std::shared_ptr<renderer::Sprite> sprite)
 		{
-			_sprite = sprite;
+		    _sprite = sprite;
 
-			_materialInstance->SetTexture("textureSampler", _sprite->GetSpriteAtlas()->GetTexture());
+		    _materialInstance->SetTexture("textureSampler", _sprite->GetSpriteAtlas()->GetTexture());
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		const renderer::Sprite* SpriteRendererComponent::GetSprite() const
 		{
-			return _sprite;
+		    return _sprite;
 		}
 		*/
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		void SpriteRendererComponent::SetMaterialInstance(renderer::MaterialInstance* materialInstance)
 		{
@@ -55,7 +52,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		renderer::MaterialInstance* SpriteRendererComponent::GetMaterialInstance() const
 		{
@@ -63,12 +60,14 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		void SpriteRendererComponent::PushToRenderQueue(renderer::RenderQueue& renderQueue)
+		void SpriteRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
 		{
+			(void)renderView; // TODO
+
 			/*
-			std::vector<renderer::P2fT2f> vertices(6);
+			Vector<renderer::P2fT2f> vertices(6);
 			vertices[0]._position[0] = -0.5f;
 			vertices[0]._position[1] = -0.5f;
 			vertices[0]._textCoord[0] = 0.0f;
@@ -82,7 +81,14 @@ namespace hod
 			vertices[2]._textCoord[0] = 1.0f;
 			vertices[2]._textCoord[1] = 0.0f;
 			*/
-			//renderQueue.PushRenderCommand(new renderer::RenderCommandMesh(_sprite->GetVertices().data(), _sprite->GetVertices().size(), sizeof(renderer::P2fT2f), _sprite->GetIndices().data(), _sprite->GetIndices().size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(), _materialInstance));
+			// renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(_sprite->GetVertices().Data(), _sprite->GetVertices().Size(),
+			// sizeof(renderer::P2fT2f), _sprite->GetIndices().Data(), _sprite->GetIndices().Size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(),
+			// _materialInstance));
+		}
+
+		Rect SpriteRendererComponent::GetBoundingBox() const
+		{
+			return Rect();
 		}
 	}
 }

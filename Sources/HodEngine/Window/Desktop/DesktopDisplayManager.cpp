@@ -3,7 +3,7 @@
 
 namespace hod::window
 {
-    _SingletonConstructor(DesktopDisplayManager) : DisplayManager()
+    _SingletonOverrideConstructor(DesktopDisplayManager) : DisplayManager()
 	{
 
 	}

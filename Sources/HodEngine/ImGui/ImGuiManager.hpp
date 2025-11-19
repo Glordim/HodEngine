@@ -5,6 +5,8 @@
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 #include <HodEngine/Core/Event.hpp>
 
+#include <HodEngine/Renderer/RenderView.hpp>
+
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <stdint.h>
@@ -23,6 +25,7 @@ namespace hod::window
 
 namespace hod::renderer
 {
+	class Shader;
 	class Material;
 	class Texture;
 }
@@ -53,11 +56,11 @@ namespace hod::imgui
 
 		template<typename Window_>
 		Window_*						FindWindow() const;
-		Window*							FindWindow(WindowDescription* windowDescription) const;
+		Window*							FindWindow(ReflectionDescriptor& windowDescription) const;
 
 		template<typename Window_>
-		std::vector<Window*>			FindWindows() const;
-		std::vector<Window*>			FindWindows(WindowDescription* windowDescription) const;
+		Vector<Window*>					FindWindows() const;
+		Vector<Window*>					FindWindows(ReflectionDescriptor& windowDescription) const;
 
 		void							CloseAllWindow();
 		void							DestroyAllWindow();
@@ -65,6 +68,8 @@ namespace hod::imgui
 		renderer::Material*				GetMaterial() const;
 
 		ImGuiID							GetCentralDockSpace() const;
+
+		void							SetDrawCallback(const std::function<void()>& drawCallback) { _callback = drawCallback; }
 
 	protected:
 
@@ -77,17 +82,19 @@ namespace hod::imgui
 #if defined (PLATFORM_WINDOWS)
 		void							OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
-
 	private:
 
 		MemberFunctionJob<ImGuiManager>	_updateJob;
 
 		MainBar*						_mainBar = nullptr;
-		std::vector<Window*>			_windows;
+		Vector<Window*>					_windows;
 
-		renderer::Texture*				_fontTexture = nullptr;
+		Vector<renderer::Texture*>		_textures;
 
 		renderer::Material*				_material = nullptr;
+		renderer::Shader*				_vertexShader = nullptr;
+		renderer::Shader*				_fragmentShader = nullptr;
+		renderer::RenderView			_renderView;
 
 		window::Window*					_mainWindow = nullptr;
 
@@ -96,6 +103,8 @@ namespace hod::imgui
 #endif
 
 		ImGuiID							_centralDockSpace;
+
+		std::function<void()>			_callback;
 	};
 }
 

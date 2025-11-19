@@ -3,24 +3,34 @@
 
 namespace hod::game
 {
-	DESCRIBE_REFLECTED_CLASS(PrefabResource, Resource)
+	DESCRIBE_REFLECTED_CLASS(PrefabResource, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
 	PrefabResource::~PrefabResource()
 	{
-		delete _prefab;
+		DefaultAllocator::GetInstance().Delete(_prefab);
 	}
 
 	/// @brief 
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool PrefabResource::Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle)
+	bool PrefabResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
 	{
-		_prefab = new Prefab(GetUid());
-		return _prefab->DeserializeFromDocument(documentNode);
+		(void)datas;
+
+		_document.GetRootNode().Copy(documentNode);
+
+		_prefab = DefaultAllocator::GetInstance().New<Prefab>();
+		bool result = _prefab->DeserializeFromDocument(documentNode);
+		if (result == false)
+		{
+			DefaultAllocator::GetInstance().Delete(_prefab);
+		}
+		return result;
 	}
 
 	/// @brief 
@@ -28,5 +38,12 @@ namespace hod::game
 	Prefab& PrefabResource::GetPrefab()
 	{
 		return *_prefab;
+	}
+
+	/// @brief 
+	/// @return 
+	const Document& PrefabResource::GetDocument() const
+	{
+		return _document;
 	}
 }

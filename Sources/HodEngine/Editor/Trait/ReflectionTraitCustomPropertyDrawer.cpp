@@ -14,7 +14,7 @@ namespace hod::editor
 	/// @brief 
 	ReflectionTraitCustomPropertyDrawer::~ReflectionTraitCustomPropertyDrawer()
 	{
-		delete _propertyDrawer;
+		DefaultAllocator::GetInstance().Delete(_propertyDrawer);
 	}
 
 	/// @brief 

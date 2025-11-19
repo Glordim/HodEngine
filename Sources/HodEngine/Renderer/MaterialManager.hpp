@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <unordered_map>
 
 #include <HodEngine/Core/GenericManager.hpp>
@@ -32,6 +32,7 @@ namespace hod
 				P2f_Unlit_Line_TriangleFan,
 				P2f_Unlit_Line_LineStrip,
 				P2fT2f_Texture_Unlit,
+				P2fT2f_Texture_Unlit_Color,
 				P2fC4f_Unlit_Fill_Triangle,
 				P2fC4f_Unlit_Fill_TriangleFan,
 				P2fC4f_Unlit_Line_TriangleFan,
@@ -47,11 +48,13 @@ namespace hod
 
 			const Material*	GetBuiltinMaterial(BuiltinMaterial buildMaterial);
 
-			UID	CreateMaterial(const std::string& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
+			UID	CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE, bool useDepth = true);
 
 		private:
 
 			std::array<Material*, static_cast<uint32_t>(BuiltinMaterial::Count)>	_builtinMaterials = { nullptr }; // c++23 std::to_underlying
+			std::array<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>	_builtinVertexShaders = { nullptr };
+			std::array<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>	_builtinFragmentShaders = { nullptr };
 		};
 	}
 }

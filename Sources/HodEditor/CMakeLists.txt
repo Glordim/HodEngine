@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...3.27)
+cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
@@ -30,6 +30,10 @@ include_directories(
 add_dependencies(HodEditor
 	Application
 	Editor
+	CoreEditor
+	InputEditor
+	GameEditor
+	UIEditor
 )
 
 target_link_libraries(HodEditor
@@ -37,5 +41,5 @@ target_link_libraries(HodEditor
 	Editor
 )
 
-target_compile_definitions(HodEditor PUBLIC ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
+target_compile_definitions(HodEditor PUBLIC ${PLATFORM_DEFINE})
 

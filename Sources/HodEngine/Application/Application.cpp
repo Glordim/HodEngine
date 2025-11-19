@@ -3,38 +3,38 @@
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-#include <HodEngine/Core/Job/JobScheduler.hpp>
 #include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/Core/Job/JobScheduler.hpp>
 
-#include "HodEngine/Game/World.hpp"
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
+#include "HodEngine/Game/SerializedDataFactory.hpp"
+#include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Physics/Physics.hpp"
 
+#include "HodEngine/Core/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Time/SystemTime.hpp"
-#include "HodEngine/Core/ResourceManager.hpp"
 
 #include <thread>
 
 #if defined(PLATFORM_WINDOWS)
-#include <Windows.h>
+	#include <Windows.h>
 #endif
 
 namespace hod::application
 {
-	_SingletonConstructor(Application)
-	{
+	_SingletonConstructor(Application) {}
 
-	}
-
-	/// @brief 
-	/// @param argc 
-	/// @param argv 
-	/// @return 
+	/// @brief
+	/// @param argc
+	/// @param argv
+	/// @return
 	bool Application::Init(const ArgumentParser& argumentParser)
 	{
-		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().parent_path() / "Data");
+		(void)argumentParser;
+
+		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().ParentPath() / "Data");
 
 		JobScheduler::CreateInstance();
 		FrameSequencer::CreateInstance();
@@ -44,17 +44,16 @@ namespace hod::application
 		physics::Physics::CreatePhysicsInstance()->Init();
 
 		game::ComponentFactory::CreateInstance();
+		game::SerializedDataFactory::CreateInstance();
 		game::RegisterBuiltin();
-
-		game::World::CreateInstance()->Init();
 
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void Application::Terminate()
 	{
-		game::World::DestroyInstance();
+		game::SerializedDataFactory::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
 
 		physics::Physics::DestroyPhysicsInstance();
@@ -67,8 +66,8 @@ namespace hod::application
 		FileSystem::DestroyInstance();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Application::Run()
 	{
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
@@ -81,7 +80,7 @@ namespace hod::application
 			frameSequencer->EnqueueAndWaitJobs();
 
 			SystemTime::TimeStamp now = SystemTime::Now();
-			double elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
+			double                elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
 			last = now;
 
 			double sleepTime = targetTimeStep - elapsedTime;
@@ -94,7 +93,7 @@ namespace hod::application
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
 	void Application::Quit()
 	{
 		_shouldQuit = true;

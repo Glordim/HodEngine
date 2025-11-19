@@ -1,30 +1,35 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Project.hpp"
-#include "HodEngine/Editor/Asset.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/Core/UID.hpp"
+#include "HodEngine/Core/Resource/Resource.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include "HodEngine/Core/UID.hpp"
 
 #include <fstream>
+#include <sstream>
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS_NO_PARENT(ImporterSettings)
+	DESCRIBE_REFLECTED_CLASS(ImporterSettings, reflectionDescriptor)
 	{
-		
+		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
-	bool Importer::CanImport(const std::filesystem::path& path)
+	/// @brief
+	/// @param path
+	/// @return
+	bool Importer::CanImport(const Path& path)
 	{
-		std::string extension = path.extension().string().substr(1);
-		std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c){ return std::tolower(c); });
+		String extension = path.Extension().GetString().SubStr(1);
+		for (char& c : extension)
+		{
+			c = static_cast<char>(std::tolower((int)c));
+		}
 
 		for (const char* supportedExtension : _supportedDataFileExtensions)
 		{
@@ -36,12 +41,12 @@ namespace hod::editor
 		return false;
 	}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
-	bool Importer::Import(const std::filesystem::path& path)
+	/// @brief
+	/// @param path
+	/// @return
+	bool Importer::Import(const Path& path)
 	{
-		std::filesystem::path metaFilePath = path;
+		Path metaFilePath = path;
 		metaFilePath += ".meta";
 
 		FileSystem::Handle metaFileHandle = FileSystem::GetInstance()->Open(metaFilePath);
@@ -58,10 +63,10 @@ namespace hod::editor
 				return false;
 			}
 		}
-		
-		Document document;
+
+		Document           metaDocument;
 		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, metaFileHandle) == false)
+		if (documentReader.Read(metaDocument, metaFileHandle) == false)
 		{
 			// TODO output reason
 			FileSystem::GetInstance()->Close(metaFileHandle);
@@ -69,14 +74,14 @@ namespace hod::editor
 		}
 
 		Meta meta;
-		if (Serializer::Deserialize(meta, document.GetRootNode()) == false)
+		if (Serializer::Deserialize(meta, metaDocument.GetRootNode()) == false)
 		{
 			// TODO output reason
 			FileSystem::GetInstance()->Close(metaFileHandle);
 			return false;
 		}
 
-		const Document::Node* importerNode = document.GetRootNode().GetChild("importerSettings");
+		const Document::Node* importerNode = metaDocument.GetRootNode().GetChild("importerSettings");
 		if (importerNode == nullptr)
 		{
 			// TODO output reason
@@ -102,10 +107,10 @@ namespace hod::editor
 
 		Project* project = Project::GetInstance();
 
-		std::filesystem::path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString();
+		Path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString().CStr();
 		thumbnailFilePath += ".png";
 
-		std::ofstream thumbnailFile(thumbnailFilePath, std::ios::binary);
+		std::ofstream thumbnailFile(thumbnailFilePath.GetString().CStr(), std::ios::binary);
 		if (thumbnailFile.is_open() == false)
 		{
 			// TODO output reason
@@ -114,10 +119,16 @@ namespace hod::editor
 			return false;
 		}
 
-		std::filesystem::path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString();
+		FileSystem::GetInstance()->Seek(metaFileHandle, 0, FileSystem::SeekMode::Begin);
+
+		Document               document;
+		Vector<Resource::Data> datas;
+		bool                   result = WriteResource(dataFile, metaFileHandle, document, datas, thumbnailFile, *meta._importerSettings);
+
+		Path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString().CStr();
 		resourceFilePath += ".dat";
 
-		std::ofstream resourceFile(resourceFilePath, std::ios::binary);
+		std::ofstream resourceFile(resourceFilePath.GetString().CStr(), std::ios::binary);
 		if (resourceFile.is_open() == false)
 		{
 			// TODO output reason
@@ -125,18 +136,50 @@ namespace hod::editor
 		}
 
 		resourceFile.write("HodResource", 11);
-		bool result = WriteResource(dataFile, metaFileHandle, resourceFile, thumbnailFile, *meta._importerSettings);
+
+		uint32_t version = 1;
+		resourceFile.write(reinterpret_cast<char*>(&version), sizeof(version));
+
+		std::stringstream documentStringStream;
+
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(document, documentStringStream) == false)
+		{
+			// TODO message
+			return false;
+		}
+
+		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
+		resourceFile.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
+
+		// todo use documentStringStream ?
+		if (documentWriter.Write(document, resourceFile) == false)
+		{
+			// TODO message
+			return false;
+		}
+
+		uint32_t dataCount = (uint32_t)datas.Size();
+		resourceFile.write(reinterpret_cast<char*>(&dataCount), sizeof(dataCount));
+
+		for (const Resource::Data& data : datas)
+		{
+			resourceFile.write(reinterpret_cast<const char*>(&data._size), sizeof(data._size));
+			resourceFile.write(static_cast<const char*>(data._buffer), data._size);
+
+			DefaultAllocator::GetInstance().Free(data._buffer);
+		}
 		FileSystem::GetInstance()->Close(metaFileHandle);
 		FileSystem::GetInstance()->Close(dataFile);
 		return result;
 	}
 
-	/// @brief 
-	/// @param metaFilePath 
-	/// @return 
-	bool Importer::GenerateNewMeta(const std::filesystem::path& metaFilePath)
+	/// @brief
+	/// @param metaFilePath
+	/// @return
+	bool Importer::GenerateNewMeta(const Path& metaFilePath)
 	{
-		std::ofstream metaFile(metaFilePath);
+		std::ofstream metaFile(metaFilePath.GetString().CStr());
 		if (metaFile.is_open() == true)
 		{
 			Meta meta;

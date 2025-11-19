@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Resource.hpp>
+#include <HodEngine/Core/Resource/Resource.hpp>
 #include "HodEngine/Game/Scene.hpp"
 
 namespace hod::game
@@ -9,7 +9,7 @@ namespace hod::game
 	/// @brief 
 	class HOD_GAME_API SceneResource : public Resource
 	{
-		REFLECTED_CLASS(SceneResource, Resource, HOD_GAME_API)
+		REFLECTED_CLASS(SceneResource, Resource)
 
 	public:
 						SceneResource() = default;
@@ -22,12 +22,12 @@ namespace hod::game
 
 	public:
 
-		bool			Initialize(const Document::Node& documentNode, FileSystem::Handle& fileHandle) override;
+		bool			Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) override;
 
-		Scene&			GetScene();
+		Scene*			CreateScene();
 
 	private:
 
-		Scene*			_scene = nullptr;
+		Document		_document;
 	};
 }

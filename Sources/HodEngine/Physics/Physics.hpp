@@ -2,25 +2,13 @@
 #include "HodEngine/Physics/Export.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
-#include "HodEngine/Physics/Body.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <cstdint>
-
-namespace hod
-{
-	class Vector2;
-}
 
 namespace hod::physics
 {
-	class DebugDrawer;
-
-	/// @brief 
-	struct HOD_PHYSICS_API RaycastResult
-	{
-		Body* _bodyCollided = nullptr;
-	};
+	class World;
 
 	/// @brief 
 	class HOD_PHYSICS_API Physics
@@ -36,14 +24,7 @@ namespace hod::physics
 		virtual bool		Init() = 0;
 		void				Clear();
 
-		virtual Body*		CreateBody(Body::Type type, const Vector2& position, float rotation) = 0;
-		virtual void		DeleteBody(Body* body) = 0;
-
-		virtual void		Update(float dt) = 0;
-
-		virtual bool		Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result) = 0;
-
-		DebugDrawer*		GetDebugDrawer();
+		virtual World*		CreateWorld() = 0;
 
 	public:
 
@@ -52,8 +33,6 @@ namespace hod::physics
 
 	protected:
 
-		std::vector<Body*>	_bodies;
-
-		DebugDrawer*		_debugDrawer = nullptr;
+		Vector<World*>	_worlds;
 	};
 }

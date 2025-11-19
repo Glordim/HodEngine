@@ -1,20 +1,26 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/Project.hpp"
-#include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/Core/ResourceManager.hpp"
+#include "HodEngine/Core/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Project.hpp"
 
-#include <fstream>
+#include <algorithm>
 #include <format>
+#include <fstream>
+#include <functional>
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Process/Process.hpp"
-#include "HodEngine/Core/SystemInfo.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Editor/CMakeProjectTemplate/Generated/CMakeLists.txt.hpp"
+#include "HodEngine/Core/SystemInfo.hpp"
+#include "HodEngine/Editor/FileTemplates/CMakeLists.txt.hpp"
+#include "HodEngine/Editor/FileTemplates/Component.cpp.hpp"
+#include "HodEngine/Editor/FileTemplates/Component.hpp.hpp"
+#include "HodEngine/Editor/FileTemplates/Module.cpp.hpp"
+#include "HodEngine/Editor/FileTemplates/Module.hpp.hpp"
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -22,89 +28,187 @@
 // todo move ?
 #define STRINGIZE(x) #x
 #define STRINGIZE_VALUE_OF(x) STRINGIZE(x)
+
 //
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(Project, void)
+	DESCRIBE_REFLECTED_CLASS(Project, reflectionDescriptor)
 	{
-		ADD_PROPERTY(Project, _name);
-		ADD_PROPERTY(Project, _startupScene);
+		AddPropertyT(reflectionDescriptor, &Project::_name, "_name");
+		AddPropertyT(reflectionDescriptor, &Project::_startupScene, "_startupScene");
 	}
 
-	_SingletonConstructor(Project)
-	{
-	}
+	_SingletonConstructor(Project) {}
 
-	/// @brief 
-	/// @param directory 
-	/// @return 
-	bool Project::Create(const std::filesystem::path& directory)
+	/// @brief
+	/// @param directory
+	/// @return
+	bool Project::Create(const Path& directory)
 	{
-		if (std::filesystem::exists(directory) == false && std::filesystem::create_directories(directory) == false)
+		if (FileSystem::GetInstance()->Exists(directory) == false && FileSystem::GetInstance()->CreateDirectories(directory) == false)
 		{
 			return false;
 		}
 
-		_projectPath = directory / (directory.filename().string() + ".hod");
-		_name = _projectPath.stem().string();
+		_projectPath = directory / (directory.Filename().GetString() + ".hod");
+		_name = _projectPath.Stem().GetString();
+
+		if (CreateMinimalSourceForModule(directory) == false)
+		{
+			return false;
+		}
 
 		return Save();
 	}
 
-	/// @brief 
-	/// @param projectPath 
-	/// @return 
-	bool Project::Open(const std::filesystem::path& projectPath)
+	/// @brief
+	/// @return
+	bool Project::CreateMinimalSourceForModule(const Path& directory)
 	{
-		if (std::filesystem::exists(projectPath) == false)
+		Path sourcesDirPath = directory / "Sources";
+		Path sourcesComponentsDirPath = sourcesDirPath / "Components";
+		if (FileSystem::GetInstance()->Exists(sourcesDirPath) == false && FileSystem::GetInstance()->CreateDirectories(sourcesDirPath) == false)
 		{
-			// todo
+			return false;
+		}
+		if (FileSystem::GetInstance()->Exists(sourcesComponentsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(sourcesComponentsDirPath) == false)
+		{
+			return false;
+		}
+
+		std::function<bool(const Path&, std::string_view, const String&)> writeFileFunc = [](const Path& path, std::string_view contentIn, const String& projectName)
+		{
+			String content(contentIn);
+
+			constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
+			size_t                     replaceIndex = content.Find(projectNameTag);
+			while (replaceIndex != String::Npos)
+			{
+				content.Replace(replaceIndex, projectNameTag.size(), projectName);
+				replaceIndex = content.Find(projectNameTag);
+			}
+
+			String projectExport = projectName + "_EXPORT";
+			std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
+			constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
+			replaceIndex = content.Find(projectExportTag);
+			while (replaceIndex != String::Npos)
+			{
+				content.Replace(replaceIndex, projectExportTag.size(), projectExport);
+				replaceIndex = content.Find(projectExportTag);
+			}
+
+			String api = projectName + "_API";
+			std::transform(api.begin(), api.end(), api.begin(), [](char c) { return std::toupper(c); });
+			constexpr std::string_view apiTag = "[[API]]";
+			replaceIndex = content.Find(apiTag);
+			while (replaceIndex != String::Npos)
+			{
+				content.Replace(replaceIndex, apiTag.size(), api);
+				replaceIndex = content.Find(apiTag);
+			}
+
+			try
+			{
+				std::ofstream fileStream;
+				fileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+				fileStream.open(path.CStr(), std::ios_base::trunc);
+				fileStream.write(content.CStr(), content.Size());
+				fileStream.close();
+
+				OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path);
+
+				return true;
+			}
+			catch (const std::ios_base::failure& e)
+			{
+				OUTPUT_ERROR("Failed to generate MinimalSourceForModule at {} : {}", path, e.what());
+				return false;
+			}
+		};
+
+		if (writeFileFunc(sourcesDirPath / (_name + ".hpp").CStr(), Module_hpp, _name) == false)
+		{
+			return false;
+		}
+
+		if (writeFileFunc(sourcesDirPath / (_name + ".cpp").CStr(), Module_cpp, _name) == false)
+		{
+			return false;
+		}
+
+		if (writeFileFunc(sourcesComponentsDirPath / "MyFirstComponent.hpp", Component_hpp, _name) == false)
+		{
+			return false;
+		}
+
+		if (writeFileFunc(sourcesComponentsDirPath / "MyFirstComponent.cpp", Component_cpp, _name) == false)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief
+	/// @param projectPath
+	/// @return
+	bool Project::Open(const Path& projectPath)
+	{
+		if (FileSystem::GetInstance()->Exists(projectPath) == false)
+		{
+			OUTPUT_ERROR("Project::Open fail: {} doesn't exist", projectPath);
+			return false;
+		}
+
+		if (FileSystem::SetWorkingDirectory(projectPath.ParentPath()) == false)
+		{
 			return false;
 		}
 
 		_projectPath = projectPath;
-		_name = _projectPath.stem().string();
+		_name = _projectPath.Stem().GetString();
 
-		_assetDirPath = _projectPath.parent_path() / "Assets";
-		if (std::filesystem::exists(_assetDirPath) == false && std::filesystem::create_directory(_assetDirPath) == false)
+		_assetDirPath = _projectPath.ParentPath() / "Assets";
+		if (FileSystem::GetInstance()->Exists(_assetDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_assetDirPath) == false)
 		{
 			return false;
 		}
 
-		_resourceDirPath = _projectPath.parent_path() / "Generated" / "Resources";
-		if (std::filesystem::exists(_resourceDirPath) == false && std::filesystem::create_directories(_resourceDirPath) == false)
+		_resourceDirPath = _projectPath.ParentPath() / "Generated" / "Resources";
+		if (FileSystem::GetInstance()->Exists(_resourceDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_resourceDirPath) == false)
 		{
 			return false;
 		}
 
-		_thumbnailDirPath = _projectPath.parent_path() / "Generated" / "Thumbnails";
-		if (std::filesystem::exists(_thumbnailDirPath) == false && std::filesystem::create_directories(_thumbnailDirPath) == false)
+		_thumbnailDirPath = _projectPath.ParentPath() / "Generated" / "Thumbnails";
+		if (FileSystem::GetInstance()->Exists(_thumbnailDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_thumbnailDirPath) == false)
 		{
 			return false;
 		}
 
-		_buildsDirPath = _projectPath.parent_path() / "Builds";
-		if (std::filesystem::exists(_buildsDirPath) == false && std::filesystem::create_directories(_buildsDirPath) == false)
+		_buildsDirPath = _projectPath.ParentPath() / "Builds";
+		if (FileSystem::GetInstance()->Exists(_buildsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_buildsDirPath) == false)
 		{
 			return false;
 		}
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule.Init(_projectPath.parent_path() / "build" / "Release" / _name, true);
-		std::filesystem::create_directories(_gameModule.GetPath().parent_path());
-		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const std::filesystem::path&){ _gameModule.Reload(); }, nullptr);
+		_gameModule.Init(_projectPath.ParentPath() / "build" / "Release" / _name.CStr(), true);
+		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
+		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr);
 		_gameModuleFileSystemWatcher.RegisterUpdateJob();
 
 		return Load();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Project::Load()
 	{
-		Document document;
+		Document           document;
 		DocumentReaderJson reader;
 		reader.Read(document, _projectPath);
 
@@ -113,8 +217,8 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Project::Save()
 	{
 		Document document;
@@ -126,84 +230,84 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
-	/// @param asset 
+	/// @brief
+	/// @param asset
 	void Project::SetStartupScene(std::shared_ptr<Asset> asset)
 	{
 		_startupScene = asset->GetMeta()._uid;
 		Save();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const UID& Project::GetStartupScene() const
 	{
 		return _startupScene;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::string Project::GetName() const
+	/// @brief
+	/// @return
+	const String Project::GetName() const
 	{
 		return _name;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::filesystem::path& Project::GetProjectPath() const
+	/// @brief
+	/// @return
+	const Path& Project::GetProjectPath() const
 	{
 		return _projectPath;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::filesystem::path& Project::GetAssetDirPath() const
+	/// @brief
+	/// @return
+	const Path& Project::GetAssetDirPath() const
 	{
 		return _assetDirPath;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::filesystem::path& Project::GetResourceDirPath() const
+	/// @brief
+	/// @return
+	const Path& Project::GetResourceDirPath() const
 	{
 		return _resourceDirPath;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::filesystem::path& Project::GetThumbnailDirPath() const
+	/// @brief
+	/// @return
+	const Path& Project::GetThumbnailDirPath() const
 	{
 		return _thumbnailDirPath;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::filesystem::path& Project::GetBuildsDirPath() const
+	/// @brief
+	/// @return
+	const Path& Project::GetBuildsDirPath() const
 	{
 		return _buildsDirPath;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Project::HasGameModule() const
 	{
-		return std::filesystem::exists(_gameModule.GetPath());
+		return FileSystem::GetInstance()->Exists(_gameModule.GetPath());
 	}
 
-	/// @brief 
-	/// @return 
-	std::filesystem::path Project::GetGameModulePath() const
+	/// @brief
+	/// @return
+	Path Project::GetGameModulePath() const
 	{
 		return _gameModule.GetPath();
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Project::GenerateGameModuleCMakeList() const
 	{
-		std::string cmakeLists(CMakeLists_txt);
-		
-		std::string enginePath = FileSystem::GetExecutablePath().parent_path().parent_path().parent_path().string(); // todo...
+		String cmakeLists(CMakeLists_txt);
+
+		String enginePath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath().GetString().CStr(); // todo...
 #if defined(PLATFORM_WINDOWS)
 		// CMakeLists require portable path
 		for (char& c : enginePath)
@@ -212,82 +316,99 @@ namespace hod::editor
 			{
 				c = '/';
 			}
-        }
+		}
 #endif
 		constexpr std::string_view enginePathTag = "[[ENGINE_PATH]]";
-		size_t replaceIndex = cmakeLists.find(enginePathTag);
-		while (replaceIndex != std::string::npos)
+		size_t                     replaceIndex = cmakeLists.Find(enginePathTag);
+		while (replaceIndex != String::Npos)
 		{
-			cmakeLists.replace(replaceIndex, enginePathTag.size(), enginePath);
-			replaceIndex = cmakeLists.find(enginePathTag);
+			cmakeLists.Replace(replaceIndex, enginePathTag.size(), enginePath);
+			replaceIndex = cmakeLists.Find(enginePathTag);
 		}
 
 		constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
-		replaceIndex = cmakeLists.find(projectNameTag);
-		while (replaceIndex != std::string::npos)
+		replaceIndex = cmakeLists.Find(projectNameTag);
+		while (replaceIndex != String::Npos)
 		{
-			cmakeLists.replace(replaceIndex, projectNameTag.size(), _name);
-			replaceIndex = cmakeLists.find(projectNameTag);
+			cmakeLists.Replace(replaceIndex, projectNameTag.size(), _name);
+			replaceIndex = cmakeLists.Find(projectNameTag);
 		}
 
-		std::filesystem::path path = _projectPath.parent_path() / "CMakeLists.txt";
+		String projectExport = _name + "_EXPORT";
+		std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
+		constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
+		replaceIndex = cmakeLists.Find(projectExportTag);
+		while (replaceIndex != String::Npos)
+		{
+			cmakeLists.Replace(replaceIndex, projectExportTag.size(), projectExport);
+			replaceIndex = cmakeLists.Find(projectExportTag);
+		}
+
+		Path path = _projectPath.ParentPath() / "CMakeLists.txt";
 
 		try
 		{
 			std::ofstream cmakeListFileStream;
 			cmakeListFileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-			cmakeListFileStream.open(path, std::ios_base::trunc);
-			cmakeListFileStream.write(cmakeLists.c_str(), cmakeLists.size());
+			cmakeListFileStream.open(path.CStr(), std::ios_base::trunc);
+			cmakeListFileStream.write(cmakeLists.CStr(), cmakeLists.Size());
 			cmakeListFileStream.close();
 
-			OUTPUT_MESSAGE("CMakeLists.txt generated at {}", path.string().c_str());
+			OUTPUT_MESSAGE("CMakeLists.txt generated at {}", path);
 
 			return true;
 		}
 		catch (const std::ios_base::failure& e)
 		{
-			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {} : {}", path.string().c_str(), e.what());
-			return false; 
+			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {} : {}", path, e.what());
+			return false;
 		}
 	}
 
-	/// @brief 
-	/// @param outputs 
-	/// @return 
+	/// @brief
+	/// @param outputs
+	/// @return
 	bool Project::ConfigureGameModule() const
 	{
-		std::filesystem::path gameModuleSourceDirectoryPath = _projectPath.parent_path();
-		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
-		
+		Path gameModuleSourceDirectoryPath = _projectPath.ParentPath();
+		Path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
+
 		try
 		{
-			if (std::filesystem::exists(gameModuleBuildDirectoryPath) == false)
+			if (FileSystem::GetInstance()->Exists(gameModuleBuildDirectoryPath) == false)
 			{
-				std::filesystem::create_directory(gameModuleBuildDirectoryPath);
-				OUTPUT_MESSAGE("Create Build directory at {}", gameModuleBuildDirectoryPath.string());
+				FileSystem::GetInstance()->CreateDirectories(gameModuleBuildDirectoryPath);
+				OUTPUT_MESSAGE("Create Build directory at {}", gameModuleBuildDirectoryPath);
 			}
 			else
 			{
-				OUTPUT_MESSAGE("Build directory already exist at {}", gameModuleBuildDirectoryPath.string());
+				OUTPUT_MESSAGE("Build directory already exist at {}", gameModuleBuildDirectoryPath);
 			}
 		}
 		catch (const std::exception& e)
 		{
-			OUTPUT_MESSAGE("Failed to create Build directory at {} : ", gameModuleBuildDirectoryPath.string(), e.what());
+			OUTPUT_MESSAGE("Failed to create Build directory at {} : ", gameModuleBuildDirectoryPath, e.what());
 			return false;
 		}
-		
-		#if defined(PLATFORM_WINDOWS)
-		const char* generator = "Visual Studio 17 2022";
-		#elif defined(PLATFORM_MACOS)
-		const char* generator = "Xcode";
-		#elif defined(PLATFORM_LINUX)
-		const char* generator = "Ninja Multi-Config";
-		#else
-			#error
-		#endif
 
-		std::string arguments = std::format("-B {} -S {} -G \"{}\"", gameModuleBuildDirectoryPath.string(), gameModuleSourceDirectoryPath.string(), generator);
+		Path toolchainPath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath();
+
+#if defined(PLATFORM_WINDOWS)
+		const char* generator = "Visual Studio 17 2022";
+		toolchainPath /= "CMake/Toolchains/Windows-Msvc-x64.cmake";
+#elif defined(PLATFORM_MACOS)
+		const char* generator = "Xcode";
+		toolchainPath /= "CMake/Toolchains/MacOs-Clang-arm64.cmake";
+#elif defined(PLATFORM_LINUX)
+		const char* generator = "Ninja Multi-Config";
+		toolchainPath /= "CMake/Toolchains/Linux-Clang-x64.cmake";
+#else
+	#error
+#endif
+
+		String arguments = std::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G \"{}\"", toolchainPath, gameModuleBuildDirectoryPath,
+		                               gameModuleSourceDirectoryPath, generator)
+		                       .c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{
@@ -296,15 +417,15 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Project::BuildGameModule() const
 	{
-		std::filesystem::path gameModuleSourceDirectoryPath = _projectPath.parent_path();
-		std::filesystem::path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
+		Path gameModuleSourceDirectoryPath = _projectPath.ParentPath();
+		Path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 
 		const char* config = "Release";
-		std::string arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath.string(), config, SystemInfo::GetLogicalCoreCount());
+		String      arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath, config, SystemInfo::GetLogicalCoreCount()).c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{
@@ -314,8 +435,8 @@ namespace hod::editor
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Project::ReloadGameModule()
 	{
 		return _gameModule.Reload();

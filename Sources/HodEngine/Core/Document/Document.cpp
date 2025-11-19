@@ -3,32 +3,51 @@
 
 #include "HodEngine/Core/Hash.hpp"
 
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
+
 namespace hod
 {
-	/// @brief 
-	/// @param name 
-	Document::Node::Node(Document& document, const std::string_view& name)
-		: _document(document)
-		, _type(Type::Object)
-		, _name(name)
+	DESCRIBE_REFLECTED_CLASS(Document, reflectionDescriptor)
 	{
-
+		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
+			[](const void* instance, Document::Node& documentNode)
+			{
+				String name = documentNode.GetName();
+				documentNode.Copy(static_cast<const Document*>(instance)->GetRootNode());
+				documentNode.SetName(name);
+				return true;
+			},
+			[](void* instance, const Document::Node& documentNode)
+			{
+				static_cast<const Document*>(instance)->GetRootNode().Copy(documentNode);
+				static_cast<const Document*>(instance)->GetRootNode().SetName("");
+				return true;
+			});
 	}
 
-	/// @brief 
+	/// @brief
+	/// @param name
+	Document::Node::Node(Document& document, const std::string_view& name)
+	: _document(document)
+	, _type(Type::Object)
+	, _name(name)
+	{
+	}
+
+	/// @brief
 	Document::Node::~Node()
 	{
 		Document::Node* child = _firstChild;
 		while (child != nullptr)
 		{
 			Document::Node* nextChild = child->_nextSibling;
-			delete child;
+			DefaultAllocator::GetInstance().Delete(child);
 			child = nextChild;
 		}
 	}
 
-	/// @brief 
-	/// @param node 
+	/// @brief
+	/// @param node
 	void Document::Node::Detach()
 	{
 		if (_parent != nullptr)
@@ -37,8 +56,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param node 
+	/// @brief
+	/// @param node
 	void Document::Node::Detach(Node& node)
 	{
 		Node* child = _firstChild;
@@ -55,8 +74,8 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param node 
+	/// @brief
+	/// @param node
 	void Document::Node::Attach(Node& node)
 	{
 		node.Detach();
@@ -77,15 +96,15 @@ namespace hod
 		}
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	Document::Node& Document::Node::AddChild(const std::string_view& name)
 	{
 		// TODO check if an other child if same name exist
 
-		Node* node = new Node(_document, name);
-		if (node->GetName().empty() == true)
+		Node* node = DefaultAllocator::GetInstance().New<Node>(_document, name);
+		if (node->GetName().Empty() == true)
 		{
 			_type = Type::Array;
 		}
@@ -93,80 +112,87 @@ namespace hod
 		return *node;
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	const Document::Node* Document::Node::GetChild(const std::string_view& name) const
 	{
 		return FindChild(name);
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	Document::Node& Document::Node::GetOrAddChild(const std::string_view& name)
 	{
 		// TODO check if an other child if same name exist
 
-		Node* node = new Node(_document, name);
+		Node* node = DefaultAllocator::GetInstance().New<Node>(_document, name);
 		Attach(*node);
 		return *node;
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
-	Document::Node& Document::Node::operator [] (const std::string_view& name)
+	/// @brief
+	/// @param name
+	/// @return
+	Document::Node& Document::Node::operator[](const std::string_view& name)
 	{
 		return GetOrAddChild(name);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node::Type Document::Node::GetType() const
 	{
 		return _type;
 	}
 
-	/// @brief 
-	/// @param type 
+	/// @brief
+	/// @param type
 	void Document::Node::SetTye(Type type)
 	{
 		// TODO verify if _type is unset otherwise the value will be corrupted
 		_type = type;
 	}
 
-	/// @brief 
-	/// @return 
-	const std::string& Document::Node::GetName() const
+	/// @brief
+	/// @param name
+	void Document::Node::SetName(const std::string_view& name)
+	{
+		_name = name;
+	}
+
+	/// @brief
+	/// @return
+	const String& Document::Node::GetName() const
 	{
 		return _name;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node* Document::Node::GetFirstChild() const
 	{
 		return _firstChild;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node* Document::Node::GetNextSibling() const
 	{
 		return _nextSibling;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node* Document::Node::GetParent() const
 	{
 		return _parent;
 	}
 
-	/// @brief 
-	/// @return 
-	uint32_t  Document::Node::GetChildCount() const
+	/// @brief
+	/// @return
+	uint32_t Document::Node::GetChildCount() const
 	{
 		uint32_t count = 0;
 
@@ -179,9 +205,9 @@ namespace hod
 		return count;
 	}
 
-	/// @brief 
-	/// @param name 
-	/// @return 
+	/// @brief
+	/// @param name
+	/// @return
 	Document::Node* Document::Node::FindChild(const std::string_view& name) const
 	{
 		Node* child = _firstChild;
@@ -269,84 +295,6 @@ namespace hod
 		_value._stringId = _document.AddString(value);
 	}
 
-	template<>
-	void Document::Node::SetValue(const bool& value)
-	{
-		SetBool(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const int8_t& value)
-	{
-		SetInt8(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const int16_t& value)
-	{
-		SetInt16(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const int32_t& value)
-	{
-		SetInt32(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const int64_t& value)
-	{
-		SetInt64(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const uint8_t& value)
-	{
-		SetUInt8(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const uint16_t& value)
-	{
-		SetUInt16(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const uint32_t& value)
-	{
-		SetUInt32(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const uint64_t& value)
-	{
-		SetUInt64(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const float& value)
-	{
-		SetFloat32(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const double& value)
-	{
-		SetFloat64(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const std::string& value)
-	{
-		SetString(value);
-	}
-
-	template<>
-	void Document::Node::SetValue(const std::string_view& value)
-	{
-		SetString(value);
-	}
-
 	bool Document::Node::GetBool() const
 	{
 		return _value._bool;
@@ -405,26 +353,28 @@ namespace hod
 	{
 		return _value._float64;
 	}
-	
-	const std::string& Document::Node::GetString() const
+
+	const String& Document::Node::GetString() const
 	{
 		// TODO add assert if doesn't match with type
 		return _document.GetString(_value._stringId);
 	}
 
-	/// @brief 
-	/// @param right 
-	/// @return 
-	Document& Document::operator = (const Document& right)
+	/// @brief
+	/// @param right
+	/// @return
+	Document& Document::operator=(const Document& right)
 	{
 		_root.Copy(right._root);
 		return *this;
 	}
 
-	/// @brief 
-	/// @param source 
+	/// @brief
+	/// @param source
 	void Document::Node::Copy(const Document::Node& source)
 	{
+		Clear();
+
 		Document::Node* sourceChild = source._firstChild;
 		while (sourceChild != nullptr)
 		{
@@ -447,7 +397,7 @@ namespace hod
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Document::Node::Clear()
 	{
 		Document::Node* child = _firstChild;
@@ -456,21 +406,21 @@ namespace hod
 		while (child != nullptr)
 		{
 			Document::Node* nextChild = child->_nextSibling;
-			delete child;
+			DefaultAllocator::GetInstance().Delete(child);
 			child = nextChild;
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Document::Node& Document::GetRootNode() const
 	{
 		return const_cast<Document::Node&>(_root);
 	}
 
-	/// @brief 
-	/// @param str 
-	/// @return 
+	/// @brief
+	/// @param str
+	/// @return
 	Document::StringId Document::AddString(const std::string_view& str)
 	{
 		StringId hash = Hash::CompilationTimeFnv64(str);
@@ -478,10 +428,10 @@ namespace hod
 		return hash;
 	}
 
-	/// @brief 
-	/// @param hash 
-	/// @return 
-	const std::string& Document::GetString(StringId hash)
+	/// @brief
+	/// @param hash
+	/// @return
+	const String& Document::GetString(StringId hash)
 	{
 		return _stringTable[hash];
 	}

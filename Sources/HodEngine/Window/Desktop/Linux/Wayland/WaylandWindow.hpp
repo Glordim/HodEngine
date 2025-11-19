@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#if defined(PLATFORM_LINUX)
-
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
 #include <wayland-client.h>
@@ -69,5 +67,3 @@ namespace hod::window
 		uint32_t					_requestedHeight = 0;
 	};
 }
-
-#endif

@@ -1,14 +1,15 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/API/RawInput/ApiRawInput.hpp"
 
+#include "HodEngine/Input/API/RawInput/KeyboardRawInput.hpp"
+#include "HodEngine/Input/API/RawInput/MouseRawInput.hpp"
 #include "HodEngine/Input/InputManager.hpp"
-#include "HodEngine/Input/API/RawInput/DeviceMouseRawInput.hpp"
-#include "HodEngine/Input/API/RawInput/DeviceKeyboardRawInput.hpp"
 
+#include <hidusage.h>
 #include <WinDNS.h>
 #include <WinUser.h>
-#include <hidusage.h>
 
+#include <HodEngine/Core/OS.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp>
 #include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
@@ -17,89 +18,41 @@ using namespace hod::window;
 
 namespace hod::input
 {
-	/// @brief 
-	/// @param errorMessage 
-	void GetWinLastErrorMsg(std::string& errorMessage)
-	{
-		// TODO
-	}
-
-	ApiRawInput* ApiRawInput::_pInstance = nullptr;
-	HHOOK ApiRawInput::_hGetMessageHook = nullptr;
-
-	/// @brief 
-	/// @param code
-	/// @param wParam 
-	/// @param lParam 
-	/// @return 
-	LRESULT CALLBACK ApiRawInput::GetMessageHook(int code, WPARAM wParam, LPARAM lParam)
-	{
-		if (code < 0)
-		{
-			return CallNextHookEx(NULL, code, wParam, lParam);
-		}
-
-		if (code == HC_ACTION && wParam == PM_REMOVE)
-		{
-			if (ApiRawInput::_pInstance != nullptr)
-			{
-				MSG* pMsg = (MSG*)lParam;
-
-				ApiRawInput::_pInstance->ProcessWindowMessage(pMsg->message, pMsg->wParam, pMsg->lParam);
-			}
-		}
-
-		return CallNextHookEx(_hGetMessageHook, code, wParam, lParam);
-	}
-
-	/// @brief 
+	/// @brief
 	ApiRawInput::ApiRawInput()
 	: Api("RawInput")
+	, _onWinProcSlot(std::bind(&ApiRawInput::OnWinProc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
 	, _onFocusChangeSlot(std::bind(&ApiRawInput::OnFocusChange, this, std::placeholders::_1))
 	{
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool ApiRawInput::Initialize()
 	{
-		HWND hwnd = NULL; // TODO
+		_window = static_cast<Win32Window*>(Win32DisplayManager::GetInstance()->GetMainWindow());
+
+		HWND hwnd = _window->GetWindowHandle();
 
 		RAWINPUTDEVICE aRawInputDevices[2];
 
 		aRawInputDevices[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
 		aRawInputDevices[0].usUsage = HID_USAGE_GENERIC_MOUSE;
-		aRawInputDevices[0].dwFlags = /*RIDEV_INPUTSINK | */RIDEV_DEVNOTIFY; // RIDEV_NOLEGACY adds HID mouse and also ignores legacy mouse messages
+		aRawInputDevices[0].dwFlags = /*RIDEV_INPUTSINK | */ RIDEV_DEVNOTIFY; // RIDEV_NOLEGACY adds HID mouse and also ignores legacy mouse messages
 		aRawInputDevices[0].hwndTarget = hwnd;
 
 		aRawInputDevices[1].usUsagePage = HID_USAGE_PAGE_GENERIC;
 		aRawInputDevices[1].usUsage = HID_USAGE_GENERIC_KEYBOARD;
-		aRawInputDevices[1].dwFlags = /*RIDEV_INPUTSINK | */RIDEV_DEVNOTIFY; // RIDEV_NOLEGACY adds HID keyboard and also ignores legacy keyboard messages
+		aRawInputDevices[1].dwFlags = /*RIDEV_INPUTSINK | */ RIDEV_DEVNOTIFY; // RIDEV_NOLEGACY adds HID keyboard and also ignores legacy keyboard messages
 		aRawInputDevices[1].hwndTarget = hwnd;
 
 		if (RegisterRawInputDevices(aRawInputDevices, 2, sizeof(RAWINPUTDEVICE)) == FALSE)
 		{
-			std::string sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to register RawInput devices type ({})", sErrorMessage.c_str());
+			OUTPUT_ERROR("Unable to register RawInput devices type ({})", OS::GetLastWin32ErrorMessage());
 			return false;
 		}
 
-		assert(ApiRawInput::_pInstance == nullptr);
-		ApiRawInput::_pInstance = this;
-
-		_window = static_cast<Win32Window*>(Win32DisplayManager::GetInstance()->GetMainWindow());
-
-		assert(ApiRawInput::_hGetMessageHook == nullptr);
-		ApiRawInput::_hGetMessageHook = SetWindowsHookEx(WH_GETMESSAGE, ApiRawInput::GetMessageHook, NULL, _window->GetMessageLoopThreadId());
-		if (ApiRawInput::_hGetMessageHook == nullptr)
-		{
-			std::string sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to set MessageHook ({})", sErrorMessage.c_str());
-		}
+		_window->OnWinProc.Connect(_onWinProcSlot);
 
 		_window->GetFocusedEvent().Connect(_onFocusChangeSlot);
 
@@ -110,29 +63,28 @@ namespace hod::input
 		return true;
 	}
 
-	/// @brief 
+	void ApiRawInput::OnWinProc(HWND, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+	{
+		ProcessWindowMessage(uiMsg, wParam, lParam);
+	}
+
+	/// @brief
 	void ApiRawInput::FetchConnectedDevices()
 	{
-		UINT deviceCount = 0;
+		UINT                deviceCount = 0;
 		PRAWINPUTDEVICELIST pRawInputDeviceList = nullptr;
 
 		if (GetRawInputDeviceList(nullptr, &deviceCount, sizeof(RAWINPUTDEVICELIST)) != 0)
 		{
-			std::string sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to get RawInput device list ({})", sErrorMessage.c_str());
+			OUTPUT_ERROR("Unable to get RawInput device list ({})", OS::GetLastWin32ErrorMessage());
 			return;
 		}
 
-		pRawInputDeviceList = new RAWINPUTDEVICELIST[deviceCount];
+		pRawInputDeviceList = DefaultAllocator::GetInstance().NewArray<RAWINPUTDEVICELIST>(deviceCount);
 
 		if (GetRawInputDeviceList(pRawInputDeviceList, &deviceCount, sizeof(RAWINPUTDEVICELIST)) == (UINT)-1)
 		{
-			std::string sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to get RawInput device list ({})", sErrorMessage.c_str());
+			OUTPUT_ERROR("Unable to get RawInput device list ({})", OS::GetLastWin32ErrorMessage());
 			return;
 		}
 
@@ -140,26 +92,39 @@ namespace hod::input
 		{
 			const RAWINPUTDEVICELIST& device = pRawInputDeviceList[deviceIndex];
 
-			PushDeviceChangeMessage(device.hDevice, GIDC_ARRIVAL);
+			if (device.dwType == RIM_TYPEMOUSE)
+			{
+				RID_DEVICE_INFO_MOUSE info = {}; // TODO useless ?
+				MouseRawInput*        mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(device.hDevice, "Mouse", info);
+				_mice.PushBack(mouse);
+				AddDevice(mouse);
+			}
+			else if (device.dwType == RIM_TYPEKEYBOARD)
+			{
+				RID_DEVICE_INFO_KEYBOARD info = {}; // TODO useless ?
+				KeyboardRawInput*        keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(device.hDevice, "Keyboard", info);
+				_keyboards.PushBack(keyboard);
+				AddDevice(keyboard);
+			}
 		}
 
-		delete[] pRawInputDeviceList;
+		DefaultAllocator::GetInstance().DeleteArray(pRawInputDeviceList);
 	}
 
-	/// @brief 
-	/// @param hDevice 
-	/// @param sName 
-	/// @param info 
-	/// @return 
+	/// @brief
+	/// @param hDevice
+	/// @param sName
+	/// @param info
+	/// @return
 	Device* ApiRawInput::GetOrAddDevice(HANDLE hDevice, const std::string_view& name, const RID_DEVICE_INFO& info)
 	{
 		if (info.dwType == RIM_TYPEMOUSE)
 		{
-			DeviceMouseRawInput* mouse = FindMouse(hDevice);
+			MouseRawInput* mouse = FindMouse(hDevice);
 
 			if (mouse == nullptr)
 			{
-				mouse = new DeviceMouseRawInput(hDevice, name, info.mouse);
+				mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(hDevice, name, info.mouse);
 
 				_mice.push_back(mouse);
 
@@ -170,11 +135,11 @@ namespace hod::input
 		}
 		else if (info.dwType == RIM_TYPEKEYBOARD)
 		{
-			DeviceKeyboardRawInput* keyboard = FindKeyboard(hDevice);
+			KeyboardRawInput* keyboard = FindKeyboard(hDevice);
 
 			if (keyboard == nullptr)
 			{
-				keyboard = new DeviceKeyboardRawInput(hDevice, name, info.keyboard);
+				keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(hDevice, name, info.keyboard);
 
 				_keyboards.push_back(keyboard);
 
@@ -187,54 +152,75 @@ namespace hod::input
 		return nullptr;
 	}
 
-	/// @brief 
+	/// @brief
 	ApiRawInput::~ApiRawInput()
 	{
-		if (ApiRawInput::_hGetMessageHook != nullptr)
-		{
-			if (UnhookWindowsHookEx(ApiRawInput::_hGetMessageHook) == FALSE)
-			{
-				std::string sErrorMessage;
-				GetWinLastErrorMsg(sErrorMessage);
-
-				OUTPUT_ERROR("Unable to release MessageHook ({})", sErrorMessage.c_str());
-			}
-			else
-			{
-				ApiRawInput::_hGetMessageHook = nullptr;
-			}
-		}
-
-		ApiRawInput::_pInstance = nullptr;
-
-		for (DeviceMouseRawInput* mouse : _mice)
+		for (MouseRawInput* mouse : _mice)
 		{
 			if (mouse->IsConnected() == true)
 			{
 				Api::NotifyDeviceDisconnected(mouse);
 			}
-			delete mouse;
+			DefaultAllocator::GetInstance().Delete(mouse);
 		}
 
-		for (DeviceKeyboardRawInput* keyboard : _keyboards)
+		for (KeyboardRawInput* keyboard : _keyboards)
 		{
 			if (keyboard->IsConnected() == true)
 			{
 				Api::NotifyDeviceDisconnected(keyboard);
 			}
-			delete keyboard;
+			DefaultAllocator::GetInstance().Delete(keyboard);
 		}
 	}
 
-	/// @brief 
-	/// @param uiMsg 
-	/// @param wParam 
-	/// @param lParam 
+	/// @brief
+	/// @param uiMsg
+	/// @param wParam
+	/// @param lParam
 	void ApiRawInput::ProcessWindowMessage(UINT uiMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (uiMsg == WM_INPUT_DEVICE_CHANGE)
 		{
-			PushDeviceChangeMessage((HANDLE)lParam, (uint8_t)wParam);
+			uint32_t uiSize = 512;
+			HANDLE   handle = (HANDLE)lParam;
+
+			RID_DEVICE_INFO deviceInfo = {};
+			deviceInfo.cbSize = sizeof(RID_DEVICE_INFO);
+			if (GetRawInputDeviceInfoW(handle, RIDI_DEVICEINFO, &deviceInfo, &uiSize) <= 0)
+			{
+				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)handle, OS::GetLastWin32ErrorMessage());
+				return;
+			}
+
+			if (wParam == GIDC_ARRIVAL)
+			{
+				if (deviceInfo.dwType == RIM_TYPEMOUSE)
+				{
+					MouseRawInput* mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(handle, "Mouse", deviceInfo.mouse);
+					_pendingArrivalMice.PushBack(mouse);
+				}
+				else if (deviceInfo.dwType == RIM_TYPEKEYBOARD)
+				{
+					KeyboardRawInput* keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(handle, "Keyboard", deviceInfo.keyboard);
+					_pendingArrivalKeyboards.PushBack(keyboard);
+				}
+			}
+			else if (wParam == GIDC_REMOVAL)
+			{
+				if (deviceInfo.dwType == RIM_TYPEMOUSE)
+				{
+					_pendingRemoveMice.PushBack(handle);
+				}
+				else if (deviceInfo.dwType == RIM_TYPEKEYBOARD)
+				{
+					_pendingRemoveKeyboards.PushBack(handle);
+				}
+			}
+			else
+			{
+				assert(false);
+			}
 		}
 		else if (uiMsg == WM_INPUT)
 		{
@@ -246,15 +232,12 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @param bFocus 
+	/// @brief
+	/// @param bFocus
 	void ApiRawInput::OnFocusChange(bool bFocus)
 	{
 		if (bFocus == false)
 		{
-			_inputChangesLock.lock();
-			_vInputChangeMessages.clear();
-			_inputChangesLock.unlock();
 		}
 		else
 		{
@@ -262,9 +245,9 @@ namespace hod::input
 		}
 	}
 
-	/// @brief 
-	/// @param hDevice 
-	/// @param uiChangeFlag 
+	/// @brief
+	/// @param hDevice
+	/// @param uiChangeFlag
 	void ApiRawInput::PushDeviceChangeMessage(HANDLE hDevice, uint8_t changeFlag)
 	{
 		DeviceChangeMessage deviceChangeMessage;
@@ -276,10 +259,7 @@ namespace hod::input
 			uint32_t uiSize = 512;
 			if (GetRawInputDeviceInfo(hDevice, RIDI_DEVICENAME, deviceChangeMessage._name, &uiSize) <= 0)
 			{
-				std::string sErrorMessage;
-				GetWinLastErrorMsg(sErrorMessage);
-
-				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, sErrorMessage.c_str());
+				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, OS::GetLastWin32ErrorMessage());
 				return;
 			}
 
@@ -289,10 +269,7 @@ namespace hod::input
 
 			if (GetRawInputDeviceInfo(hDevice, RIDI_DEVICEINFO, &deviceChangeMessage._info, &uiSize) <= 0)
 			{
-				std::string sErrorMessage;
-				GetWinLastErrorMsg(sErrorMessage);
-
-				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, sErrorMessage.c_str());
+				OUTPUT_ERROR("Unable to get RawInput device info (device handle = {}) ({})", (void*)hDevice, OS::GetLastWin32ErrorMessage());
 				return;
 			}
 		}
@@ -302,17 +279,14 @@ namespace hod::input
 		_deviceChangeslock.unlock();
 	}
 
-	/// @brief 
-	/// @param hRawInput 
+	/// @brief
+	/// @param hRawInput
 	void ApiRawInput::PushRawInputMessage(HRAWINPUT hRawInput)
 	{
 		UINT uiSize = 0;
 		if (GetRawInputData(hRawInput, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER)) != 0)
 		{
-			std::string sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, sErrorMessage.c_str());
+			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, OS::GetLastWin32ErrorMessage());
 			return;
 		}
 
@@ -321,23 +295,37 @@ namespace hod::input
 			return;
 		}
 
-		InputChangeMessage inputChangeMessage;
-		if (GetRawInputData(hRawInput, RID_INPUT, reinterpret_cast<BYTE*>(&inputChangeMessage._rawInput), &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
+		RAWINPUT rawInputData;
+		if (GetRawInputData(hRawInput, RID_INPUT, reinterpret_cast<BYTE*>(&rawInputData), &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
 		{
-			std::string sErrorMessage;
-			GetWinLastErrorMsg(sErrorMessage);
-
-			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, sErrorMessage.c_str());
+			OUTPUT_ERROR("Unable to get RawInput data (handle = {}) ({})", (void*)hRawInput, OS::GetLastWin32ErrorMessage());
 			return;
 		}
 
-		_inputChangesLock.lock();
-		_vInputChangeMessages.push_back(inputChangeMessage);
-		_inputChangesLock.unlock();
+		HANDLE hDevice = rawInputData.header.hDevice;
+
+		if (rawInputData.header.dwType == RIM_TYPEMOUSE)
+		{
+			MouseRawInput* mouse = FindMouse(hDevice);
+
+			if (mouse != nullptr)
+			{
+				mouse->ReadRawInput(rawInputData.data.mouse);
+			}
+		}
+		else if (rawInputData.header.dwType == RIM_TYPEKEYBOARD)
+		{
+			KeyboardRawInput* keyboard = FindKeyboard(hDevice);
+
+			if (keyboard != nullptr)
+			{
+				keyboard->ReadRawInput(rawInputData.data.keyboard);
+			}
+		}
 	}
 
-	/// @brief 
-	/// @param cCharacter 
+	/// @brief
+	/// @param cCharacter
 	void ApiRawInput::PushCharacterMessage(char cCharacter)
 	{
 		_characterLock.lock();
@@ -345,35 +333,80 @@ namespace hod::input
 		_characterLock.unlock();
 	}
 
-	/// @brief 
+	/// @brief
 	void ApiRawInput::UpdateDeviceValues()
 	{
 		if (_bJustGainFocus == true)
 		{
 			_bJustGainFocus = false;
 
-			for (DeviceMouseRawInput* mouse : _mice)
+			for (MouseRawInput* mouse : _mice)
 			{
 				mouse->ResyncLastCusorPosition();
 			}
 		}
 
-		for (DeviceMouseRawInput* mouse : _mice)
+		for (MouseRawInput* arrivalMouse : _pendingArrivalMice)
 		{
-			mouse->PrepareUpdate();
+			_mice.PushBack(arrivalMouse);
+			AddDevice(arrivalMouse);
 		}
+		_pendingArrivalMice.Clear();
 
-		for (DeviceKeyboardRawInput* keyboard : _keyboards)
+		for (KeyboardRawInput* arrivalKeyboard : _pendingArrivalKeyboards)
+		{
+			_keyboards.PushBack(arrivalKeyboard);
+			AddDevice(arrivalKeyboard);
+		}
+		_pendingArrivalKeyboards.Clear();
+
+		for (HANDLE removeMouseHandle : _pendingRemoveMice)
+		{
+			auto it = std::find_if(_mice.Begin(), _mice.End(), [removeMouseHandle](const MouseRawInput* mouse) { return mouse->GetHandle() == removeMouseHandle; });
+			if (it != _mice.End())
+			{
+				_mice.Erase(it);
+			}
+		}
+		_pendingRemoveMice.Clear();
+
+		for (HANDLE removeKeyboardHandle : _pendingRemoveKeyboards)
+		{
+			auto it = std::find_if(_keyboards.Begin(), _keyboards.End(),
+			                       [removeKeyboardHandle](const KeyboardRawInput* keyboard) { return keyboard->GetHandle() == removeKeyboardHandle; });
+			if (it != _keyboards.End())
+			{
+				_keyboards.Erase(it);
+			}
+		}
+		_pendingRemoveKeyboards.Clear();
+
+		for (MouseRawInput* arrivalMouse : _pendingArrivalMice)
+		{
+			_mice.PushBack(arrivalMouse);
+		}
+		_pendingArrivalMice.Clear();
+
+		for (KeyboardRawInput* keyboard : _keyboards)
 		{
 			keyboard->ClearBufferedTextIfNeeded();
 		}
 
 		PullDeviceChangeMessages();
-		PullRawInputMessages();
 		PullCharacterMessages();
+
+		for (MouseRawInput* mouse : _mice)
+		{
+			mouse->UpdateState();
+		}
+
+		for (KeyboardRawInput* keyboard : _keyboards)
+		{
+			keyboard->UpdateState();
+		}
 	}
 
-	/// @brief 
+	/// @brief
 	void ApiRawInput::PullDeviceChangeMessages()
 	{
 		_deviceChangeslock.lock();
@@ -396,88 +429,37 @@ namespace hod::input
 			}
 		}
 
-		_vDeviceChangeMessages.clear();
+		_vDeviceChangeMessages.Clear();
 
 		_deviceChangeslock.unlock();
 	}
 
-	/// @brief 
-	void ApiRawInput::PullRawInputMessages()
-	{
-		_inputChangesLock.lock();
-		if (_vInputChangeMessages.empty() == false)
-		{
-			if (_window->IsFocused() == true)
-			{
-				bool isResizingOrMovingWindow = false; // TODO WindowsApplication::GetInstance()->GetIsResizingOrMoving();
-				if (isResizingOrMovingWindow == true)
-				{
-					_bIgnoreNextMouseMessage = true; // Windows do the sum of all movement at the end of the Resizing or Moving
-				}
-
-				for (const InputChangeMessage& inputChangeMessage : _vInputChangeMessages)
-				{
-					HANDLE hDevice = inputChangeMessage._rawInput.header.hDevice;
-
-					if (inputChangeMessage._rawInput.header.dwType == RIM_TYPEMOUSE)
-					{
-						DeviceMouseRawInput* mouse = FindMouse(hDevice);
-
-						if (mouse != nullptr && isResizingOrMovingWindow == false)
-						{
-							if (_bIgnoreNextMouseMessage == true)
-							{
-								_bIgnoreNextMouseMessage = false;
-							}
-							else
-							{
-								mouse->ReadRawInput(inputChangeMessage._rawInput.data.mouse);
-							}
-						}
-					}
-					else if (inputChangeMessage._rawInput.header.dwType == RIM_TYPEKEYBOARD)
-					{
-						DeviceKeyboardRawInput* keyboard = FindKeyboard(hDevice);
-
-						if (keyboard != nullptr)
-						{
-							keyboard->ReadRawInput(inputChangeMessage._rawInput.data.keyboard);
-						}
-					}
-				}
-			}
-			_vInputChangeMessages.clear();
-		}
-
-		_inputChangesLock.unlock();
-	}
-
-	/// @brief 
+	/// @brief
 	void ApiRawInput::PullCharacterMessages()
 	{
 		_characterLock.lock();
 
-		if (_vCharacterMessages.size() != 0)
+		if (_vCharacterMessages.Size() != 0)
 		{
 			_vCharacterMessages.push_back('\0');
 
-			if (_keyboards.size() > 0)
+			if (_keyboards.Size() > 0)
 			{
-				// _keyboards[0]->AppendCharactersToBufferedText(_characterMessages.data()); // TODO
+				// _keyboards[0]->AppendCharactersToBufferedText(_characterMessages.Data()); // TODO
 			}
 
-			_vCharacterMessages.clear();
+			_vCharacterMessages.Clear();
 		}
 
 		_characterLock.unlock();
 	}
 
-	/// @brief 
-	/// @param hDevice 
-	/// @return 
-	DeviceMouseRawInput* ApiRawInput::FindMouse(HANDLE hDevice) const
+	/// @brief
+	/// @param hDevice
+	/// @return
+	MouseRawInput* ApiRawInput::FindMouse(HANDLE hDevice) const
 	{
-		for (DeviceMouseRawInput* mouse : _mice)
+		for (MouseRawInput* mouse : _mice)
 		{
 			if (mouse->GetHandle() == hDevice)
 			{
@@ -486,7 +468,7 @@ namespace hod::input
 		}
 
 #if defined(REDIRECT_INJECTED_INPUT_TO_FIRST_DEVICE)
-		if (_mice.size() != 0)
+		if (_mice.Size() != 0)
 		{
 			return _mice[0];
 		}
@@ -495,12 +477,12 @@ namespace hod::input
 		return nullptr;
 	}
 
-	/// @brief 
-	/// @param hDevice 
-	/// @return 
-	DeviceKeyboardRawInput* ApiRawInput::FindKeyboard(HANDLE hDevice) const
+	/// @brief
+	/// @param hDevice
+	/// @return
+	KeyboardRawInput* ApiRawInput::FindKeyboard(HANDLE hDevice) const
 	{
-		for (DeviceKeyboardRawInput* keyboard : _keyboards)
+		for (KeyboardRawInput* keyboard : _keyboards)
 		{
 			if (keyboard->GetHandle() == hDevice)
 			{
@@ -508,8 +490,8 @@ namespace hod::input
 			}
 		}
 
-#if defined (REDIRECT_INJECTED_INPUT_TO_FIRST_DEVICE)
-		if (_keyboards.size() != 0)
+#if defined(REDIRECT_INJECTED_INPUT_TO_FIRST_DEVICE)
+		if (_keyboards.Size() != 0)
 		{
 			return _keyboards[0];
 		}

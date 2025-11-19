@@ -1,8 +1,6 @@
-#if defined(PLATFORM_MACOS)
-
 #include "MacOsWindow.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 #include "HodEngine/Window/Pch.hpp"
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -19,12 +17,4 @@ namespace hod::window
 	{
 		return _view;
 	}
-
-	/// @brief 
-	void MacOsWindow::Update()
-	{
-		EventLoop();
-	}
 }
-
-#endif

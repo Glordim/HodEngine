@@ -6,16 +6,15 @@
 namespace hod
 {
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	struct HOD_CORE_API Rect
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Rect, HOD_CORE_API)
+		REFLECTED_CLASS_NO_VIRTUAL(Rect)
 
 	public:
-	
-		Vector2	_position;
-		Vector2	_size;
+		Vector2 _position;
+		Vector2 _size;
 
 		bool operator==(const Rect& right) const = default;
 	};

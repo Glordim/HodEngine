@@ -7,12 +7,13 @@ namespace hod::renderer
 {
 	class Material;
 	class MaterialInstance;
-	class RenderQueue;
+	class RenderView;
 }
 
 namespace hod::physics
 {
 	struct RenderCommand;
+	class World;
 }
 
 namespace hod::editor
@@ -26,7 +27,8 @@ namespace hod::editor
 
 	public:
 
-		void									PushToRenderQueue(renderer::RenderQueue& renderQueue);
+		void									Update(physics::World* world);
+		void									PushRenderCommand(renderer::RenderView& renderView, physics::World* world);
 
 	private:
 

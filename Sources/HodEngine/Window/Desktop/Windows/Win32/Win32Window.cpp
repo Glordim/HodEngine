@@ -1,28 +1,25 @@
-#if defined(PLATFORM_WINDOWS)
-
 #include "HodEngine/Window/Pch.hpp"
+#include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
 #include "HodEngine/Window/Surface.hpp"
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
-#include <HodEngine/Core/Output/OutputService.hpp>
-#include <HodEngine/Core/Job/JobQueue.hpp>
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
 #include <HodEngine/Core/OS.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <cstdlib>
 
+#include <windowsx.h>
+
 namespace hod::window
 {
-	constexpr const char* className = "DesktopWindow";
-
-	/// @brief 
-	/// @param hWnd 
-	/// @param msg 
-	/// @param wParam 
-	/// @param lParam 
-	/// @return 
+	/// @brief
+	/// @param hWnd
+	/// @param msg
+	/// @param wParam
+	/// @param lParam
+	/// @return
 	LRESULT Win32Window::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		Win32Window* win32Window = reinterpret_cast<Win32Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
@@ -33,16 +30,87 @@ namespace hod::window
 		return win32Window->InternalWindowProc(msg, wParam, lParam);
 	}
 
-	/// @brief 
-	/// @param msg 
-	/// @param wParam 
-	/// @param lParam 
-	/// @return 
+	/// @brief
+	/// @param msg
+	/// @param wParam
+	/// @param lParam
+	/// @return
 	LRESULT Win32Window::InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		OnWinProc.Emit(_hWnd, msg, wParam, lParam);
 
-		if (msg == WM_SIZE)
+		if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
+		{
+			UINT scancode = (lParam >> 16) & 0xFF;
+			scancode |= ((lParam >> 24) & 1) << 8;
+			EmitKeyPressed(WindowsScanCodeToScanCode(scancode));
+		}
+		else if (msg == WM_KEYUP || msg == WM_SYSKEYUP)
+		{
+			UINT scancode = (lParam >> 16) & 0xFF;
+			scancode |= ((lParam >> 24) & 1) << 8;
+			EmitKeyReleased(WindowsScanCodeToScanCode(scancode));
+		}
+		else if (msg == WM_LBUTTONDOWN)
+		{
+			EmitMouseButtonPressed(MouseButton::Left);
+		}
+		else if (msg == WM_LBUTTONUP)
+		{
+			EmitMouseButtonReleased(MouseButton::Left);
+		}
+		else if (msg == WM_RBUTTONDOWN)
+		{
+			EmitMouseButtonPressed(MouseButton::Right);
+		}
+		else if (msg == WM_RBUTTONUP)
+		{
+			EmitMouseButtonReleased(MouseButton::Right);
+		}
+		else if (msg == WM_MBUTTONDOWN)
+		{
+			EmitMouseButtonPressed(MouseButton::Middle);
+		}
+		else if (msg == WM_MBUTTONUP)
+		{
+			EmitMouseButtonReleased(MouseButton::Middle);
+		}
+		else if (msg == WM_XBUTTONDOWN)
+		{
+			WORD xbtn = HIWORD(wParam);
+			if (xbtn == XBUTTON1)
+			{
+				EmitMouseButtonPressed(MouseButton::Backward);
+			}
+			else
+			{
+				EmitMouseButtonPressed(MouseButton::Forward);
+			}
+		}
+		else if (msg == WM_XBUTTONUP)
+		{
+			WORD xbtn = HIWORD(wParam);
+			if (xbtn == XBUTTON1)
+			{
+				EmitMouseButtonReleased(MouseButton::Backward);
+			}
+			else
+			{
+				EmitMouseButtonReleased(MouseButton::Forward);
+			}
+		}
+		else if (msg == WM_MOUSEMOVE)
+		{
+			int x = GET_X_LPARAM(lParam);
+			int y = GET_Y_LPARAM(lParam);
+			EmitMouseMoved(x, y);
+		}
+		else if (msg == WM_MOUSEWHEEL)
+		{
+			int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+			EmitMouseScroll(delta);
+		}
+		else if (msg == WM_SIZE)
 		{
 			UINT width = LOWORD(lParam);
 			UINT height = HIWORD(lParam);
@@ -58,59 +126,29 @@ namespace hod::window
 		}
 		else if (msg == WM_CLOSE)
 		{
-			::DestroyWindow(_hWnd);
-			_hWnd = nullptr;
 			_close = true;
+			::DestroyWindow(_hWnd);
+		}
+		else if (msg == WM_DESTROY)
+		{
+			HWND hwnd = _hWnd;
+			_hWnd = nullptr;
+			SetWindowLongPtr(nullptr, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+			return ::DefWindowProc(hwnd, msg, wParam, lParam);
 		}
 
 		return ::DefWindowProc(_hWnd, msg, wParam, lParam);
 	}
 
-	/// @brief 
+	/// @brief
 	Win32Window::Win32Window(bool hidden)
-		: DesktopWindow()
-		, _updateJob(this, &Win32Window::Update, JobQueue::Queue::FramedNormalPriority, false, Thread::GetCurrentThreadId())
+	: DesktopWindow()
 	{
 		_hWndThreadId = Thread::GetCurrentThreadId();
 
 		_hInstance = ::GetModuleHandle(NULL);
 
-		WNDCLASSEX windowClass;
-		ZeroMemory(&windowClass, sizeof(WNDCLASSEX));
-		windowClass.cbSize = sizeof(WNDCLASSEX);
-		windowClass.style = CS_HREDRAW | CS_VREDRAW;
-		windowClass.lpfnWndProc = WindowProc;
-		windowClass.cbClsExtra = 0;
-		windowClass.cbWndExtra = 0;
-		windowClass.hInstance = _hInstance;
-		windowClass.hIcon = NULL;
-		windowClass.hCursor = ::LoadCursor(_hInstance, IDC_ARROW);
-		windowClass.hbrBackground = ::CreateSolidBrush(RGB(0, 0, 0));
-		windowClass.lpszMenuName = NULL;
-		windowClass.lpszClassName = className;
-		windowClass.hIconSm = NULL;
-
-		_class = ::RegisterClassEx(&windowClass);
-		if (_class == 0)
-		{
-			OUTPUT_ERROR("DesktopWindow: Unable to RegisterClass -> {}", OS::GetLastWin32ErrorMessage());
-			return;
-		}
-
-		_hWnd = ::CreateWindowEx(
-			0,
-			className,
-			"Window",
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			_width,
-			_height,
-			NULL,
-			NULL,
-			_hInstance,
-			NULL
-		);
+		_hWnd = ::CreateWindowEx(0, Win32DisplayManager::_className, "Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, _hInstance, NULL);
 
 		if (_hWnd == NULL)
 		{
@@ -124,32 +162,18 @@ namespace hod::window
 		{
 			::ShowWindow(_hWnd, SW_NORMAL);
 		}
-
-		//FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreLogic);
 	}
 
-	/// @brief 
+	/// @brief
 	Win32Window::~Win32Window()
 	{
-		//FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::PreLogic);
-
-		if (_updateJob.Cancel() == true)
-		{
-			_updateJob.Wait();
-		}
-
 		if (_hWnd != NULL)
 		{
 			::DestroyWindow(_hWnd);
 		}
-
-		if (_class != 0)
-		{
-			::UnregisterClass(className, _hInstance);
-		}
 	}
 
-	/// @brief 
+	/// @brief
 	void Win32Window::Update()
 	{
 		if (_hWndThreadId != Thread::GetCurrentThreadId())
@@ -161,7 +185,7 @@ namespace hod::window
 		{
 			function();
 		}
-		_runOnWin32Thread.clear();
+		_runOnWin32Thread.Clear();
 
 		::MSG msg;
 		::ZeroMemory(&msg, sizeof(msg));
@@ -173,15 +197,15 @@ namespace hod::window
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	HWND Win32Window::GetWindowHandle() const
 	{
 		return _hWnd;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	HINSTANCE Win32Window::GetInstanceHandle() const
 	{
 		return _hInstance;
@@ -192,12 +216,7 @@ namespace hod::window
 		_width = width;
 		_height = height;
 
-		RunOnWin32Thread(
-			[this]()
-			{
-				SetWindowPos(_hWnd, nullptr, 0, 0, _width, _height, SWP_NOMOVE);
-			}
-		);
+		RunOnWin32Thread([this]() { SetWindowPos(_hWnd, nullptr, 0, 0, _width, _height, SWP_NOMOVE); });
 	}
 
 	void Win32Window::CenterToScreen()
@@ -208,18 +227,12 @@ namespace hod::window
 				int x = static_cast<int>(GetSystemMetrics(SM_CXSCREEN) * 0.5f - _width * 0.5f);
 				int y = static_cast<int>(GetSystemMetrics(SM_CYSCREEN) * 0.5f - _height * 0.5f);
 				SetWindowPos(_hWnd, nullptr, x, y, 0, 0, SWP_NOSIZE);
-			}
-		);
+			});
 	}
 
 	void Win32Window::Maximize()
 	{
-		RunOnWin32Thread(
-			[this]()
-			{
-				ShowWindow(_hWnd, SW_MAXIMIZE);
-			}
-		);
+		RunOnWin32Thread([this]() { ShowWindow(_hWnd, SW_MAXIMIZE); });
 	}
 
 	void Win32Window::SetVisible(bool visible)
@@ -235,8 +248,7 @@ namespace hod::window
 				{
 					ShowWindow(_hWnd, SW_HIDE);
 				}
-			}
-		);
+			});
 	}
 
 	void Win32Window::RunOnWin32Thread(std::function<void()> codeToRun)
@@ -251,12 +263,10 @@ namespace hod::window
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Thread::Id Win32Window::GetMessageLoopThreadId() const
 	{
 		return _hWndThreadId;
 	}
 }
-
-#endif

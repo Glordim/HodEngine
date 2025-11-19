@@ -1,59 +1,60 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 #include <memory>
 
 namespace hod
 {
-    class ReflectionDescriptor;
+	class ReflectionDescriptor;
 }
 
 namespace hod::game
 {
-    class Component;
+	class Component;
 }
 
 namespace hod::editor
 {
-    class EditorReflectedProperty;
-    
-    class HOD_EDITOR_API EditorReflectedObject
-    {
-    public:
+	class EditorTabWindow;
+	class EditorReflectedProperty;
 
-        EditorReflectedObject(std::shared_ptr<game::Component> component);
-        EditorReflectedObject(const std::vector<std::shared_ptr<game::Component>>& components);
+	class HOD_EDITOR_API EditorReflectedObject
+	{
+	public:
 
-        EditorReflectedObject(void* instance, ReflectionDescriptor* reflectionDescriptor);
-        EditorReflectedObject(const std::vector<void*>& instances, ReflectionDescriptor* reflectionDescriptor);
-        
-        EditorReflectedObject(EditorReflectedProperty& sourceProperty);
-        ~EditorReflectedObject();
+		EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow);
+		EditorReflectedObject(const Vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow);
 
-    public:
+		EditorReflectedObject(EditorReflectedProperty& sourceProperty);
+		~EditorReflectedObject();
 
-        bool IsEditingMultipleInstance() const;
-        bool IsOverride() const;
+	public:
 
-        std::vector<EditorReflectedProperty*>&  GetProperties();
+		bool IsEditingMultipleInstance() const;
+		bool IsOverride() const;
 
-        void*                       GetInstance() const;
-        const std::vector<void*>&   GetInstances() const;
+		EditorReflectedProperty*			FindProperty(std::string_view name) const;
+		Vector<EditorReflectedProperty*>&  GetProperties();
 
-        EditorReflectedProperty*    GetSourceProperty() const;
+		void*                       GetInstance() const;
+		const Vector<void*>&   		GetInstances() const;
 
-    private:
+		EditorReflectedProperty*    GetSourceProperty() const;
+		EditorTabWindow*			GetEditorTabWindow() const;
 
-        void GeneratePropertiesFromReflectionDescriptor(ReflectionDescriptor* reflectionDescriptor);
+	private:
 
-    private:
+		void GeneratePropertiesFromReflectionDescriptor(const ReflectionDescriptor* reflectionDescriptor);
 
-        void*                   _sourceInstance = nullptr;
-        std::vector<void*>      _instances;
-        ReflectionDescriptor*   _reflectionDescriptor = nullptr;
-        EditorReflectedProperty*    _sourceProperty = nullptr;
+	private:
 
-        std::vector<EditorReflectedProperty*>    _properties;
-    }; 
+		void*                   _sourceInstance = nullptr;
+		Vector<void*>      _instances;
+		const ReflectionDescriptor*   _reflectionDescriptor = nullptr;
+		EditorReflectedProperty*    _sourceProperty = nullptr;
+		EditorTabWindow*		_editorTabWindow = nullptr;
+
+		Vector<EditorReflectedProperty*>    _properties;
+	};
 }

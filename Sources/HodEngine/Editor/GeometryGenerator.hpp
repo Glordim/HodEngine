@@ -15,6 +15,9 @@ namespace hod::editor
 		static void CircleShape(std::array<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float radius);
 
 		template<uint32_t SegmentCount_>
+		static void CircleShapeFillNoFan(std::array<Vector2, (SegmentCount_) * 3>& vertices, const Vector2& center, float radius);
+
+		template<uint32_t SegmentCount_>
 		static void CapsuleShape(std::array<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float height, float radius);
 	};
 }

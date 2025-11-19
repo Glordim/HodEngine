@@ -1,62 +1,46 @@
-cmake_minimum_required(VERSION 3.4...3.27)
+cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
 project(Editor)
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES FileTemplate)
 
-# Creates C resources file from files in given directory
-function(create_resources input output SourcesVar IncludeVar)
-	file(MAKE_DIRECTORY ${output})
-	# Iterate through input files
-  string(REGEX MATCH "([^/]+)$" filename ${input})
-  # Replace filename spaces & extension separator for C compatibility
-  string(REGEX REPLACE "\\.| |-" "_" variablename ${filename})
-  # Read hex data from file
-  file(READ ${input} filedata HEX)
-  # Convert hex data for C compatibility
-  string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
-  # Create output file
-  file(WRITE "${output}/${filename}.cpp" "#include <cstdint>\n\nnamespace hod\n{\n\tuint8_t ${variablename}[] = {${filedata}};\n\tuint32_t ${variablename}_size = sizeof(${variablename});\n}\n")
-  file(WRITE "${output}/${filename}.h" "#pragma once\n#include <cstdint>\n\nnamespace hod\n{\n\textern uint8_t ${variablename}[];\n\textern uint32_t ${variablename}_size;\n}\n")
+file(GLOB_RECURSE Icons
+	"${PROJECT_SOURCE_DIR}/Icons/*.png"
+)
 
-  set(${SourcesVar} "${output}/${filename}.cpp" PARENT_SCOPE)
-  set(${IncludeVar} "${output}/${filename}.h" PARENT_SCOPE)
+foreach(file ${Icons})
+  EmbedBinaryInSource(${file}
+    ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.hpp.in
+    ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.cpp.in
+    ${PROJECT_BINARY_DIR}/Icons
+    GeneratedFileH
+    GeneratedFileCPP
+  )
+  list(APPEND Srcs ${GeneratedFileH})
+  list(APPEND Includes ${GeneratedFileH})
+  list(APPEND Srcs ${GeneratedFileCPP})
+endforeach()
 
-  message("Pack shader ${input}")
-endfunction()
+file(GLOB_RECURSE FileTemplates
+	"${PROJECT_SOURCE_DIR}/FileTemplate/*"
+)
 
-create_resources("Icons/folder.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/folder-open.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/landscape.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-create_resources("Icons/prefab.png" "Icons" IconSrcs IconIncludes)
-list(APPEND Srcs ${IconSrcs})
-list(APPEND Srcs ${IconIncludes})
-list(APPEND Includes ${IconIncludes})
-
-EmbeedTextInSource("CMakeProjectTemplate/CMakeLists.txt" ${PROJECT_SOURCE_DIR}/CMakeProjectTemplate/CMakeProjectTemplate.hpp.in ${PROJECT_SOURCE_DIR}/CMakeProjectTemplate/Generated GeneratedFile)
-list(APPEND Srcs ${GeneratedFile})
-list(APPEND Includes ${GeneratedFile})
+foreach(file ${FileTemplates})
+  EmbedTextInSource(${file}
+    ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/TextSourceFileTemplate.hpp.in
+    ${PROJECT_BINARY_DIR}/FileTemplates
+    GeneratedFileH
+  )
+  list(APPEND Srcs ${GeneratedFileH})
+  list(APPEND Includes ${GeneratedFileH})
+endforeach()
 
 assign_source_group(${Srcs}) # for VS
 
-find_package(Stb REQUIRED)
-find_package(PortableFileDialog REQUIRED)
-
 add_library(Editor ${LIB_TYPE} ${Srcs} ${Includes})
+set_target_properties(Editor PROPERTIES FOLDER "HodEngine")
 target_precompile_headers(Editor PRIVATE "Pch.hpp")
 set_property(TARGET Editor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
@@ -65,11 +49,12 @@ get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
+  "${PROJECT_BINARY_DIR}/../.."
+  ${PROJECT_BINARY_DIR}
 	${Core_INCLUDES}
-	${PortableFileDialog_INCLUDE_DIRS}
 )
 
-target_include_directories(Editor SYSTEM PRIVATE ${Stb_INCLUDE_DIRS})
+target_include_directories(Editor SYSTEM PRIVATE Stb::Stb PortableFileDialogs::PortableFileDialogs)
 
 target_compile_definitions(Editor PRIVATE HOD_EDITOR_EXPORT)
 target_link_libraries(Editor
@@ -79,4 +64,28 @@ target_link_libraries(Editor
 	Physics
 	Renderer
   Game
+)
+
+add_custom_command(
+  TARGET Editor POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${SLANG_COMPILER}
+    $<TARGET_FILE_DIR:Editor>/Tools/slangc.exe
+  COMMENT "Copying ${SLANG_COMPILER} to output directory"
+)
+
+add_custom_command(
+  TARGET Editor POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${SLANG_DLL}
+    $<TARGET_FILE_DIR:Editor>/Tools/slang.dll
+  COMMENT "Copying ${SLANG_DLL} dll to output directory"
+)
+
+add_custom_command(
+  TARGET Editor POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${SLANG_DLL_GLSLANG}
+    $<TARGET_FILE_DIR:Editor>/Tools/slang-glslang.dll
+  COMMENT "Copying ${SLANG_DLL_GLSLANG} dll to output directory"
 )

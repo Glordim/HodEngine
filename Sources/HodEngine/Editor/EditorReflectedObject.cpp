@@ -2,8 +2,8 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
-#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp>
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
 #include <HodEngine/Game/Component.hpp>
 #include <HodEngine/Game/Entity.hpp>
@@ -11,104 +11,135 @@
 
 namespace hod::editor
 {
-    EditorReflectedObject::EditorReflectedObject(std::shared_ptr<game::Component> component)
-    : _instances({ component.get() })
-    , _reflectionDescriptor(component->GetReflectionDescriptorV())
-    {
-        std::shared_ptr<game::Component> sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
+	EditorReflectedObject::EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)
+	: _sourceInstance(source)
+	, _instances({instance})
+	, _reflectionDescriptor(reflectionDescriptor)
+	, _editorTabWindow(editorTabWindow)
+	{
+		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
+	}
 
-        _sourceInstance = sourceComponent.get();
+	EditorReflectedObject::EditorReflectedObject(const Vector<void*>& instances, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)
+	: _sourceInstance(source)
+	, _instances(instances)
+	, _reflectionDescriptor(reflectionDescriptor)
+	, _editorTabWindow(editorTabWindow)
+	{
+		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
+	}
 
-        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
-    }
+	EditorReflectedObject::EditorReflectedObject(EditorReflectedProperty& sourceProperty)
+	: _sourceProperty(&sourceProperty)
+	, _editorTabWindow(sourceProperty.GetParent()->GetEditorTabWindow())
+	{
+		_instances.Reserve(sourceProperty.GetInstances().Size());
 
-    EditorReflectedObject::EditorReflectedObject(const std::vector<std::shared_ptr<game::Component>>& components)
-    {
-        // todo;
-    }
+		ReflectionProperty* property = sourceProperty.GetReflectionProperty();
+		if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+		{
+			ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
+			_reflectionDescriptor = propertyObject->GetReflectionDescriptor();
 
-    EditorReflectedObject::EditorReflectedObject(void* instance, ReflectionDescriptor* reflectionDescriptor)
-    : _instances({ instance })
-    , _reflectionDescriptor(reflectionDescriptor)
-    {
-        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
-    }
+			if (sourceProperty.GetSourceInstance() != nullptr)
+			{
+				_sourceInstance = propertyObject->GetInstance(sourceProperty.GetSourceInstance());
+			}
+			for (void* instance : sourceProperty.GetInstances())
+			{
+				_instances.push_back(propertyObject->GetInstance(instance));
+			}
+		}
+		else if (property->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+		{
+			ReflectionPropertyArray* propertyArray = static_cast<ReflectionPropertyArray*>(property);
+			_reflectionDescriptor = propertyArray->GetElementReflectionDescriptor();
 
-    EditorReflectedObject::EditorReflectedObject(const std::vector<void*>& instances, ReflectionDescriptor* reflectionDescriptor)
-    : _instances(instances)
-    , _reflectionDescriptor(reflectionDescriptor)
-    {
-        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
-    }
+			if (sourceProperty.GetSourceInstance() != nullptr)
+			{
+				_sourceInstance = propertyArray->GetValue<void*>(sourceProperty.GetSourceInstance(), sourceProperty.GetInternalIndex());
+			}
+			for (void* instance : sourceProperty.GetInstances())
+			{
+				_instances.push_back(propertyArray->GetValue<void*>(instance, sourceProperty.GetInternalIndex()));
+			}
+		}
+		else
+		{
+			assert(false);
+			return;
+		}
 
-    EditorReflectedObject::EditorReflectedObject(EditorReflectedProperty& sourceProperty)
-    : _sourceProperty(&sourceProperty)
-    {
-        ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(sourceProperty.GetReflectionProperty());
-        _reflectionDescriptor = reflectionPropertyObject->GetReflectionDescriptor();
-        _instances.reserve(sourceProperty.GetInstances().size());
-        if (sourceProperty.GetSourceInstance() != nullptr)
-        {
-            _sourceInstance = reflectionPropertyObject->GetInstance(sourceProperty.GetSourceInstance());
-        }
-        for (void* instance : sourceProperty.GetInstances())
-        {
-            _instances.push_back(reflectionPropertyObject->GetInstance(instance));
-        }
+		GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
+	}
 
-        GeneratePropertiesFromReflectionDescriptor(_reflectionDescriptor);
-    }
+	EditorReflectedObject::~EditorReflectedObject()
+	{
+		for (auto* property : _properties)
+		{
+			DefaultAllocator::GetInstance().Delete(property); // avoid alloc ?
+		}
+	}
 
-    EditorReflectedObject::~EditorReflectedObject()
-    {
-        for (auto* property : _properties)
-        {
-            delete property; // avoid alloc ?
-        }
-    }
+	bool EditorReflectedObject::IsOverride() const
+	{
+		if (_sourceInstance == nullptr)
+		{
+			return false;
+		}
 
-    bool EditorReflectedObject::IsOverride() const
-    {
-        if (_sourceInstance == nullptr)
-        {
-            return false;
-        }
+		return _reflectionDescriptor->Compare(_instances[0], _sourceInstance) == false;
+	}
 
-        return (_reflectionDescriptor->Compare(_instances[0], _sourceInstance) == false);
-    }
+	void* EditorReflectedObject::GetInstance() const
+	{
+		return _instances[0];
+	}
 
-    void* EditorReflectedObject::GetInstance() const
-    {
-        return _instances[0];
-    }
+	const Vector<void*>& EditorReflectedObject::GetInstances() const
+	{
+		return _instances;
+	}
 
-    const std::vector<void*>& EditorReflectedObject::GetInstances() const
-    {
-        return _instances;
-    }
+	EditorReflectedProperty* EditorReflectedObject::GetSourceProperty() const
+	{
+		return _sourceProperty;
+	}
 
-    EditorReflectedProperty* EditorReflectedObject::GetSourceProperty() const
-    {
-        return _sourceProperty;
-    }
+	EditorTabWindow* EditorReflectedObject::GetEditorTabWindow() const
+	{
+		return _editorTabWindow;
+	}
 
-    void EditorReflectedObject::GeneratePropertiesFromReflectionDescriptor(ReflectionDescriptor* reflectionDescriptor)
-    {
-        ReflectionDescriptor* parentReflectionDescriptor = reflectionDescriptor->GetParent();
-        if (parentReflectionDescriptor != nullptr)
-        {
-            GeneratePropertiesFromReflectionDescriptor(parentReflectionDescriptor);
-        }
+	void EditorReflectedObject::GeneratePropertiesFromReflectionDescriptor(const ReflectionDescriptor* reflectionDescriptor)
+	{
+		ReflectionDescriptor* parentReflectionDescriptor = reflectionDescriptor->GetParent();
+		if (parentReflectionDescriptor != nullptr)
+		{
+			GeneratePropertiesFromReflectionDescriptor(parentReflectionDescriptor);
+		}
 
-        for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
-        {
-            EditorReflectedProperty* property = new EditorReflectedProperty(_instances, _sourceInstance, reflectionProperty, this);
-            _properties.push_back(property);
-        }
-    }
+		for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
+		{
+			EditorReflectedProperty* property = DefaultAllocator::GetInstance().New<EditorReflectedProperty>(_instances, _sourceInstance, reflectionProperty, this);
+			_properties.push_back(property);
+		}
+	}
 
-    std::vector<EditorReflectedProperty*>& EditorReflectedObject::GetProperties()
-    {
-        return _properties;
-    }
+	Vector<EditorReflectedProperty*>& EditorReflectedObject::GetProperties()
+	{
+		return _properties;
+	}
+
+	EditorReflectedProperty* EditorReflectedObject::FindProperty(std::string_view name) const
+	{
+		for (EditorReflectedProperty* property : _properties)
+		{
+			if (property->GetReflectionProperty()->GetName() == name)
+			{
+				return property;
+			}
+		}
+		return nullptr;
+	}
 }

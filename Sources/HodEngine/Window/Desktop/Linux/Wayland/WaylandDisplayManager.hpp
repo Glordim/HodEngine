@@ -1,10 +1,7 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#if defined(PLATFORM_LINUX)
-
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
-#include "HodEngine/Core/Job/MemberFunctionJob.hpp"
 
 #include <wayland-client.h>
 #include <xkbcommon/xkbcommon.h>
@@ -15,7 +12,7 @@
 #include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-shell-client-protocol.h"
 
 #include <map>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod::window
 {
@@ -23,11 +20,12 @@ namespace hod::window
 
     class HOD_WINDOW_API WaylandDisplayManager : public DesktopDisplayManager
     {
-        _Singleton(WaylandDisplayManager)
+        _SingletonOverride(WaylandDisplayManager)
 
     public:
 
         bool            Initialize() override;
+        void            Update() override;
         void            Terminate() override;
 
         Window*         CreateWindow(bool hidden = false) override;
@@ -68,8 +66,6 @@ namespace hod::window
 
     private:
 
-        void            Update();
-
         Output&         CreateOutput(wl_output* wlOutput, uint32_t id);
 
     private:
@@ -107,10 +103,10 @@ namespace hod::window
         zxdg_decoration_manager_v1* _zxdgDecorationManager = nullptr;
         xdg_wm_base*    _xdgWmBase = nullptr;
 
-        std::vector<Output*>    _outputs;
+        Vector<Output*>    _outputs;
 
         wl_seat*        _wlSeat = nullptr;
-        std::string     _seatName;
+        String     _seatName;
 
         wl_keyboard*    _wlKeyboard = nullptr;
         wl_pointer*     _wlPointer = nullptr;
@@ -128,10 +124,6 @@ namespace hod::window
         xkb_context*    _xkbContext = nullptr;
         xkb_state*      _xkbState = nullptr;
 
-        MemberFunctionJob<WaylandDisplayManager>    _updateJob;
-
         std::map<wl_surface*, WaylandWindow*>   _surfaceToWindowMap;
     };
 }
-
-#endif

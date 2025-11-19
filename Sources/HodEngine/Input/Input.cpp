@@ -1,165 +1,56 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/Input.hpp"
 
-#include <cmath>
-
 namespace hod::input
 {
-	/// @brief 
-	/// @param inputId 
-	Input::Input(InputId inputId)
-		: _inputId(inputId)
+	DESCRIBE_REFLECTED_CLASS(Input, reflectionDescriptor)
 	{
+		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	/// @param newValue 
-	void Input::SetValue(float newValue)
+	Input::Input(Identifier identifier, const String& displayName, const StateView& stateView)
+	: _identifier(identifier)
+	, _displayName(displayName)
+	, _stateView(stateView)
 	{
-		if (_value != newValue)
-		{
-			if (_value == 0.0f)
-			{
-				_repeatCount = 0;
-				_elapsedTime = 0.0f;
 
-				_flags = Flag::Pressed | Flag::JustPressed;
-			}
-			else if (newValue == 0.0f)
-			{
-				_flags = Flag::Released | Flag::JustReleased;
-			}
-
-			_value = newValue;
-		}
 	}
 
-	/// @brief 
-	void Input::ClearInputFlags()
+	void Input::SetStatePtr(const State* state, const State* previousState)
 	{
-		_flags &= ~(Flag::JustPressed | Flag::JustReleased | Flag::JustRepeat);
+		_state = state;
+		_previousState = previousState;
 	}
 
-	/// @brief 
-	void Input::UpdateInputFlags()
+	void Input::SetStateView(const StateView& stateView)
 	{
-		if ((_flags & Flag::Pressed) == Flag::Pressed)
-		{
-			_elapsedTime += 0.016f; // TODO SystemTime
-			if (_repeatCount > 0 && _elapsedTime > Input::RepeatTimestep)
-			{
-				_elapsedTime -= Input::RepeatTimestep;
-				_flags |= Flag::JustRepeat;
-				++_repeatCount;
-			}
-			else if (_repeatCount == 0 && _elapsedTime > Input::RepeatThreshold)
-			{
-				_elapsedTime -= Input::RepeatThreshold;
-				_flags |= Flag::JustRepeat;
-				++_repeatCount;
-			}
-		}
+		_stateView = stateView;
 	}
 
 	/// @brief 
 	/// @return 
-	InputId Input::GetInputId() const
+	Identifier Input::GetIdentifier() const
 	{
-		return _inputId;
+		return _identifier;
 	}
 
-	/// @brief 
-	/// @return 
-	float Input::GetValue() const
+	const String& Input::GetDisplayName() const
 	{
-		return _value;
+		return _displayName;
 	}
 
-	/// @brief 
-	/// @return 
-	uint8_t Input::GetFlags() const
+	const StateView& Input::GetStateView() const
 	{
-		return _flags;
+		return _stateView;
 	}
 
-	/// @brief 
-	/// @return 
-	Input::State Input::GetState() const
+	const State* Input::GetState() const
 	{
-		State state(_value, _flags, _inputId);
-		return state;
+		return _state;
 	}
 
-	/// @brief 
-	/// @param value 
-	/// @param flags 
-	/// @param inputId 
-	Input::State::State(float value, uint8_t flags, InputId inputId)
-		: _value(value)
-		, _flags(flags)
-		, _inputId(inputId)
+	const State* Input::GetPreviousState() const
 	{
-
-	}
-
-	/// @brief 
-	/// @param state 
-	void Input::State::Merge(const State& state)
-	{
-		if (_flags < state._flags)
-		{
-			_flags = state._flags;
-			_value = state._value;
-			_inputId = state._inputId;
-			//_deviceUid = state._deviceUid;
-		}
-		else if (_flags == state._flags && std::abs(_value) < std::abs(state._value))
-		{
-			_value = state._value;
-			_inputId = state._inputId;
-			//_deviceUid = state._deviceUid;
-		}
-	}
-
-	/// @brief 
-	/// @return 
-	bool Input::State::IsPressed() const
-	{
-		return (_flags & Flag::Pressed);
-	}
-
-	/// @brief 
-	/// @return 
-	bool Input::State::IsJustPressed() const
-	{
-		return (_flags & Flag::Pressed);
-	}
-
-	/// @brief 
-	/// @return 
-	bool Input::State::IsReleased() const
-	{
-		return (_flags & Flag::Released);
-	}
-
-	/// @brief 
-	/// @return 
-	bool Input::State::IsJustReleased() const
-	{
-		return (_flags & Flag::JustReleased);
-	}
-
-	/// @brief 
-	/// @return 
-	bool Input::State::IsJustRepeat() const
-	{
-		return (_flags & Flag::JustRepeat);
-	}
-
-	/// @brief 
-	/// @return 
-	bool Input::State::IsJustPressedOrRepeat() const
-	{
-		return (_flags & (Flag::JustPressed | Flag::JustRepeat));
+		return _previousState;
 	}
 }

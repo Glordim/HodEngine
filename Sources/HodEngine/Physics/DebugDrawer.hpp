@@ -4,10 +4,12 @@
 #include <HodEngine/Core/Color.hpp>
 #include <HodEngine/Core/Math/Vector2.hpp>
 
-#include <vector>
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::physics
 {
+	class World;
+	
 	struct HOD_PHYSICS_API RenderCommand
 	{
 		enum Type
@@ -19,7 +21,7 @@ namespace hod::physics
 		};
 
 		Type					_type;
-		std::vector<Vector2>	_vertices;
+		Vector<Vector2>	_vertices;
 		Color					_color;
 	};
 
@@ -47,15 +49,15 @@ namespace hod::physics
 
 	public:
 
-		virtual void						Update() = 0;
-		const std::vector<RenderCommand>&	GetRenderCommands() const;
+		virtual void						Update(World* world) = 0;
+		const Vector<RenderCommand>&	GetRenderCommands() const;
 
-		virtual const std::vector<Flag>&	GetAvailableFlags() const = 0;
+		virtual const Vector<Flag>&	GetAvailableFlags() const = 0;
 		virtual void						SetFlags(uint32_t flags) = 0;
 		virtual uint32_t					GetFlags() const = 0;
 
 	protected:
 
-		std::vector<RenderCommand>			_renderCommands;
+		Vector<RenderCommand>			_renderCommands;
 	};
 }

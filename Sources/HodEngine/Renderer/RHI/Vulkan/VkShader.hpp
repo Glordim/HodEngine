@@ -4,32 +4,34 @@
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 
 #include <vulkan/vulkan.h>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	class ShaderSetDescriptorVk;
+
+	/// @brief 
+	class HOD_RENDERER_API VkShader : public Shader
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API VkShader : public Shader
-		{
-		public:
+	public:
 
-											VkShader(ShaderType type);
-											~VkShader() override;
+									VkShader(ShaderType type);
+									~VkShader() override;
 
 
-			VkShaderModule					GetShaderModule() const;
+		VkShaderModule				GetShaderModule() const;
 
-		protected:
+	protected:
 
-			bool							LoadInternal(const void* data, uint32_t size) override;
+		bool						LoadFromIR(const void* data, uint32_t size) override;
+		bool						GenerateDescriptors() override;
 
-		private:
+	private:
 
-			VkShaderModule					_shaderModule = VK_NULL_HANDLE;
-		};
-	}
+		ShaderSetDescriptorVk*		GetOrCreateSetDescriptor(uint32_t set);
+
+	private:
+
+		VkShaderModule				_shaderModule = VK_NULL_HANDLE;
+	};
 }

@@ -1,13 +1,10 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	DESCRIBE_REFLECTED_CLASS(RendererComponent, reflectionDescriptor)
 	{
-		DESCRIBE_REFLECTED_CLASS(RendererComponent, Component)
-		{
-
-		}
+		(void)reflectionDescriptor;
 	}
 }

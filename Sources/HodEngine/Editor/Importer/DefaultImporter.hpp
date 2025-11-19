@@ -7,7 +7,7 @@ namespace hod::editor
 {
 	class HOD_EDITOR_API DefaultImporterSettings : public ImporterSettings
 	{
-		REFLECTED_CLASS(DefaultImporterSettings, ImporterSettings, HOD_EDITOR_API)
+		REFLECTED_CLASS(DefaultImporterSettings, ImporterSettings)
 	};
 
 	class HOD_EDITOR_API DefaultImporter : public Importer
@@ -30,6 +30,6 @@ namespace hod::editor
 
 	protected:
 
-		bool				WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings) override;
+		bool				WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings) override;
 	};
 }

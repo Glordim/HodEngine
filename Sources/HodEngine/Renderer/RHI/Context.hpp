@@ -3,24 +3,31 @@
 
 #include <HodEngine/Window/Surface.hpp>
 
-#include <string>
+#include "HodEngine/Core/String.hpp"
 #include <cstdint>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	class Semaphore;
+
+	/// @brief 
+	class HOD_RENDERER_API Context : public window::Surface
 	{
-		/// @brief 
-		class HOD_RENDERER_API Context : public window::Surface
-		{
-		public:
-							Context();
-			virtual			~Context();
+	public:
+						Context();
+		virtual			~Context();
 
-		public:
+	public:
 
-			virtual bool	AcquireNextImageIndex() = 0;
-			virtual bool	SwapBuffer() = 0;
-		};
-	}
+		virtual bool	AcquireNextImageIndex() = 0;
+		virtual bool	SwapBuffer() = 0;
+
+		const Semaphore*	GetImageAvailableSempahore() const;
+		void				AddSemaphoreToSwapBuffer(const Semaphore* semaphore);
+
+	protected:
+
+		Semaphore*					_imageAvailableSemaphore;
+		Vector<const Semaphore*>	_semaphoresToSwapBuffer;
+	};
 }

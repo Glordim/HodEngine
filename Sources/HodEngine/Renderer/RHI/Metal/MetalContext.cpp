@@ -6,19 +6,18 @@
 
 #include <limits>
 
-#include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalLayer.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalCpp/QuartzCore/CAMetalDrawable.hpp"
-
 #include <Metal/Metal.hpp>
+#include <QuartzCore/CAMetalDrawable.hpp>
+#include <QuartzCore/CAMetalLayer.hpp>
 
 #include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
 
 namespace hod::renderer
 {
-	/// @brief 
+	/// @brief
 	MetalContext::MetalContext(window::MacOsWindow* window)
-		: Context()
-		, _window(window)
+	: Context()
+	, _window(window)
 	{
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
 
@@ -32,7 +31,7 @@ namespace hod::renderer
 		Resize(window->GetWidth(), window->GetHeight());
 	}
 
-	/// @brief 
+	/// @brief
 	MetalContext::~MetalContext()
 	{
 		if (_drawable != nullptr)
@@ -49,7 +48,7 @@ namespace hod::renderer
 			_drawable->release();
 		}
 		_drawable = _layer->nextDrawable();
-		return (_drawable != nullptr);
+		return _drawable != nullptr;
 	}
 
 	CA::MetalDrawable* MetalContext::GetCurrentDrawable() const
@@ -63,15 +62,20 @@ namespace hod::renderer
 
 		//_layer->setContentsScale(scaleFactor);
 
-        CGSize size;
-        size.width = width * scaleFactor;
-        size.height = height * scaleFactor;
-        _layer->setDrawableSize(size);
+		CGSize Size;
+		Size.width = width * scaleFactor;
+		Size.height = height * scaleFactor;
+		_layer->setDrawableSize(Size);
+	}
+
+	Vector2 MetalContext::GetResolution()
+	{
+		return Vector2(static_cast<uint32_t>(_layer->drawableSize().width), static_cast<uint32_t>(_layer->drawableSize().height));
 	}
 
 	bool MetalContext::SwapBuffer()
 	{
-		return false;
+		return true;
 	}
 
 	CA::MetalLayer* MetalContext::GetLayer() const

@@ -3,13 +3,15 @@
 
 #include <stdint.h>
 
-#include <HodEngine/Core/Singleton.hpp>
-#include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Event.hpp>
+#include <HodEngine/Core/Module/Module.hpp>
+#include <HodEngine/Core/Singleton.hpp>
 
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/FpsCounter.hpp"
 
 namespace hod
 {
@@ -33,84 +35,114 @@ namespace hod::editor
 	class Project;
 	class Asset;
 	class ViewportWindow;
+	class EditorTab;
+	class AssetBrowserWindow;
 
-	/// @brief 
+	/// @brief
 	class HOD_EDITOR_API Editor
 	{
 		_Singleton(Editor)
 
 	public:
+		~Editor();
 
-												~Editor();
+	public:
+		bool Init(const ArgumentParser& argumentParser);
 
-	public:						
+		bool CreateProject(const Path& path);
+		bool OpenProject(const Path& path);
 
-		bool									Init(const ArgumentParser& argumentParser);
+		bool LoadEditor();
 
-		bool									CreateProject(const std::filesystem::path& path);
-		bool									OpenProject(const std::filesystem::path& path);
+		bool Save();
+		bool SaveSceneAs();
 
-		bool									LoadEditor();
+		void Build();
+		void BuildAndRun();
 
-		bool									Save();
-		bool									SaveSceneAs();
+		template<typename _EditorTabType_>
+		_EditorTabType_* OpenAsset(std::shared_ptr<Asset> asset);
+		EditorTab*       OpenAsset(std::shared_ptr<Asset> asset);
 
-		void									Build();
-		void									BuildAndRun();
+		template<typename _EditorTabType_>
+		_EditorTabType_* OpenEditorTab();
 
-		void									SetEntitySelection(std::shared_ptr<game::Entity> selection);
-		void									SetAssetSelection(const AssetDatabase::FileSystemMapping* selection);
+		void PingAsset(std::shared_ptr<Asset> asset);
 
-		std::shared_ptr<game::Entity>			GetEntitySelection() const;
-		const AssetDatabase::FileSystemMapping* GetAssetSelection() const;
+		renderer::Texture* GetHodTexture() const
+		{
+			return _hodTexture;
+		}
 
-		ViewportWindow*							GetCurrentViewport() const;
-		void									SetCurrentViewport(ViewportWindow* viewportWindow);
+		renderer::Texture* GetFolderTexture() const
+		{
+			return _folderTexture;
+		}
 
-		void									OpenAsset(std::shared_ptr<Asset> asset);
+		renderer::Texture* GetFolderOpenTexture() const
+		{
+			return _folderOpenTexture;
+		}
 
-		void									Play();
-		void									Stop();
-		void									Pause();
-		void									Resume();
-		void									PlayNextFrame();
+		renderer::Texture* GetSceneTexture() const
+		{
+			return _sceneTexture;
+		}
 
-		bool									IsPlaying() const;
-		bool									IsPaused() const;
+		renderer::Texture* GetPrefabTexture() const
+		{
+			return _prefabTexture;
+		}
 
-		Asset*									GetCurrentScene() const;
-		void									MarkCurrentSceneAsDirty();
+		renderer::Texture* GetSerializedDataTexture() const
+		{
+			return _serializedDataTexture;
+		}
 
-		renderer::Texture*						GetFolderTexture() const { return _folderTexture; }
-		renderer::Texture*						GetFolderOpenTexture() const  { return _folderOpenTexture; }
-		renderer::Texture*						GetSceneTexture() const  { return _sceneTexture; }
-		renderer::Texture*						GetPrefabTexture() const  { return _prefabTexture; }
-		renderer::Texture*						GetCheckerTexture() const  { return _checkerTexture; }
+		renderer::Texture* GetCheckerTexture() const
+		{
+			return _checkerTexture;
+		}
 
 	private:
+		bool AddProjectInRecentProject(const Path& path) const;
 
-		bool									AddProjectInRecentProject(const std::filesystem::path& path) const;
+		bool LoadEditorModules();
+		bool UnloadEditorModules();
 
 	private:
+		Vector<Module*> _editorModules;
 
-		MainBar*								_mainBar = nullptr;
+		Vector<EditorTab*>                                                            _editorTabs;
+		std::unordered_map<String, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
-		std::weak_ptr<game::Entity> 			_entitySelection;
-		const AssetDatabase::FileSystemMapping* _assetSelection = nullptr;
+		renderer::Texture* _hodTexture = nullptr;
+		renderer::Texture* _folderTexture = nullptr;
+		renderer::Texture* _folderOpenTexture = nullptr;
+		renderer::Texture* _sceneTexture = nullptr;
+		renderer::Texture* _prefabTexture = nullptr;
+		renderer::Texture* _serializedDataTexture = nullptr;
+		renderer::Texture* _checkerTexture = nullptr;
 
-		ViewportWindow*							_currentViewport = nullptr;
+		FpsCounter _fpsCounter;
 
-		Asset*									_currentScene = nullptr;
-
-		bool									_playing = false;
-		bool									_paused = false;
-
-		renderer::Texture*						_folderTexture = nullptr;
-		renderer::Texture*						_folderOpenTexture = nullptr;
-		renderer::Texture*						_sceneTexture = nullptr;
-		renderer::Texture*						_prefabTexture = nullptr;
-		renderer::Texture*						_checkerTexture = nullptr;
-
-		Document								_playedWorldDocument;
+		bool                _showFloatingAssetBrowser = false;
+		bool                _focusFloatingAssetBrowserWindow = false;
+		float               _floatingAssetBrowserWindowPos = 0.0f;
+		AssetBrowserWindow* _floatingAssetBrowserWindow = nullptr;
 	};
+
+	template<typename _EditorTabType_>
+	_EditorTabType_* Editor::OpenAsset(std::shared_ptr<Asset> asset)
+	{
+		return static_cast<_EditorTabType_*>(OpenAsset(asset)); // todo check cast compat ?
+	}
+
+	template<typename _EditorTabType_>
+	_EditorTabType_* Editor::OpenEditorTab()
+	{
+		_EditorTabType_* editorTab = DefaultAllocator::GetInstance().New<_EditorTabType_>(nullptr);
+		_editorTabs.push_back(editorTab);
+		return editorTab;
+	}
 }

@@ -1,161 +1,81 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Asset.hpp"
-#include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/PrefabImporter.hpp"
+#include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
+#include "HodEngine/Editor/ViewportWindow.hpp"
 
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Game/World.hpp"
-#include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/Game/Components/RendererComponent.hpp"
+#include <HodEngine/Core/Color.hpp>
+#include <HodEngine/Core/Math/Vector4.hpp>
+#include <HodEngine/Core/Rect.hpp>
+#include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
-#include <HodEngine/Renderer/RenderQueue.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandSetCameraSettings.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Core/Rect.hpp>
-#include <HodEngine/Core/Math/Vector4.hpp>
-#include <HodEngine/Core/Color.hpp>
 
-#include "HodEngine/Core/Document/Document.hpp"
-#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
-#include "HodEngine/Editor/Asset.hpp"
-#include "HodEngine/Game/Scene.hpp"
-#include "HodEngine/Game/Prefab.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include "HodEngine/Game/Prefab.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
+#include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/World.hpp"
 
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
+#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 
 #include "HodEngine/Editor/PhysicsDebugDrawer.hpp"
-#include <HodEngine/Physics/Physics.hpp>
 #include <HodEngine/Physics/DebugDrawer.hpp>
+#include <HodEngine/Physics/World.hpp>
 
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include <HodEngine/Renderer/PickingManager.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <format>
 
 namespace hod::editor
 {
-	DECLARE_WINDOW_DESCRIPTION(ViewportWindow, "Viewport", false)
-
-	/// @brief 
-	ViewportWindow::ViewportWindow()
+	DESCRIBE_REFLECTED_CLASS(ViewportWindow, reflectionDescriptor)
 	{
-		SetFlags(ImGuiWindowFlags_MenuBar);
+		(void)reflectionDescriptor;
+	}
+
+	/// @brief
+	ViewportWindow::ViewportWindow(EditorTab* editorTab)
+	: EditorTabWindow(editorTab)
+	{
+		SetFlags(ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar);
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_renderQueue.Init();
-
-		_scene = new game::Scene();
-		SetId(reinterpret_cast<uint64_t>(_scene));
-
-		game::World* world = game::World::GetInstance();
-		world->AddScene(_scene);
-
-		SetTitle("New Scene");
+		_renderView.Init();
 	}
 
-	/// @brief 
-	ViewportWindow::ViewportWindow(std::shared_ptr<Asset> asset)
-	{
-		_asset = asset;
-		SetTitle(asset->GetName());
-
-		SetFlags(ImGuiWindowFlags_MenuBar);
-
-		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_renderQueue.Init();
-
-		Document document;
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, asset->GetPath()) == false)
-		{
-			return; // todo message + bool
-		}
-
-		_scene = new game::Scene();
-		_scene->SetName(asset->GetName());
-		SetId(reinterpret_cast<uint64_t>(_scene));
-
-		SceneImporter sceneImporter;
-		if (asset->GetMeta()._importerType == sceneImporter.GetTypeName())
-		{
-			if (Serializer::Deserialize(_scene, document.GetRootNode()) == false)
-			{
-				return; // todo message + bool
-			}
-			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
-		}
-		else
-		{
-			game::Prefab* prefab = new game::Prefab();
-			if (Serializer::Deserialize(prefab, document.GetRootNode()) == false)
-			{
-				return; // todo message + bool
-			}
-			std::shared_ptr<game::Entity> prefabRootEntity = _scene->Instantiate(*prefab);
-			if (prefabRootEntity != nullptr) // TODO a Prefab should not be empty
-			{
-				prefabRootEntity->SetPrefab(nullptr); // Unpack prefab for serialization, otherwise that will be serialize as PrefabInstance
-			}
-			delete prefab;
-			asset->SetInstanceToSave(_scene, _scene->GetReflectionDescriptorV());
-		}
-	}
-
-	/// @brief 
+	/// @brief
 	ViewportWindow::~ViewportWindow()
 	{
-		game::World* world = game::World::GetInstance();
-		world->RemoveScene(_scene);
-
-		if (_asset != nullptr)
-		{
-			_asset->SetInstanceToSave(nullptr, nullptr);
-			_asset->ResetDirty();
-		}
-		delete _scene;
-
-		delete _renderTarget;
-		delete _pickingRenderTarget;
+		DefaultAllocator::GetInstance().Delete(_renderTarget);
+		DefaultAllocator::GetInstance().Delete(_pickingRenderTarget);
 	}
 
-	/// @brief 
-	void ViewportWindow::ReloadScene()
-	{
-		game::World* world = game::World::GetInstance();
-		world->RemoveScene(_scene);
-		world->AddScene(_scene);
-	}
-
+	/// @brief
+	/// @return
 	bool ViewportWindow::Draw()
 	{
 		bool open = true;
-
-		// todo override GetIdentifier ?
-		if (_asset != nullptr && _assetWasDirty == true && _asset->IsDirty() == false)
-		{
-			_assetWasDirty = false;
-			SetTitle(_asset->GetName());
-		}
-		//
-
-		ImGui::SetNextWindowDockID(imgui::ImGuiManager::GetInstance()->GetCentralDockSpace(), ImGuiCond_Once);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		bool beginResult = ImGui::Begin(GetIdentifier(), &open, GetFlags());
+		bool visible = ImGui::Begin(GetIdentifier(), &open, GetFlags());
 		ImGui::PopStyleVar();
-		if (beginResult)
+		if (visible)
 		{
 			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
 			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
@@ -164,34 +84,7 @@ namespace hod::editor
 			cliprect.Max.y += ImGui::GetStyle().WindowPadding.y * 0.5f;
 			ImGui::PopClipRect();
 			ImGui::PushClipRect(cliprect.Min, cliprect.Max, false);
-
-			if (ImGui::IsWindowAppearing())
-			{
-				game::World* world = game::World::GetInstance();
-				world->AddScene(_scene);
-			}
-			
 			DrawContent();
-
-			if (_wasFocus == false && ImGui::IsWindowFocused())
-			{
-				Editor::GetInstance()->SetCurrentViewport(this);
-				_wasFocus = true;
-			}
-		}
-		else
-		{
-			game::World* world = game::World::GetInstance();
-			world->RemoveScene(_scene);
-			if (_wasFocus == true && Editor::GetInstance()->GetEntitySelection() != nullptr)
-			{
-				Editor::GetInstance()->SetEntitySelection(nullptr);
-			}
-			if (Editor::GetInstance()->GetCurrentViewport() == this)
-			{
-				Editor::GetInstance()->SetCurrentViewport(nullptr);
-			}
-			_wasFocus = false;
 		}
 		if (open == false)
 		{
@@ -201,7 +94,7 @@ namespace hod::editor
 		return open;
 	}
 
-	/// @brief 
+	/// @brief
 	void ViewportWindow::DrawContent()
 	{
 		if (ImGui::BeginMenuBar())
@@ -216,9 +109,12 @@ namespace hod::editor
 			ImGui::SameLine();
 			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
 			{
-				uint32_t flags = physics::Physics::GetInstance()->GetDebugDrawer()->GetFlags();
+				game::World*          world = GetOwner<EntityEditorTab>()->GetWorld();
+				physics::World*       physicsWorld = world->GetPhysicsWorld();
+				physics::DebugDrawer* physicsDebugDrawer = physicsWorld->GetDebugDrawer();
+				uint32_t              flags = physicsDebugDrawer->GetFlags();
 
-				for (const physics::DebugDrawer::Flag& flag : physics::Physics::GetInstance()->GetDebugDrawer()->GetAvailableFlags())
+				for (const physics::DebugDrawer::Flag& flag : physicsDebugDrawer->GetAvailableFlags())
 				{
 					bool enabled = flags & flag._value;
 					if (ImGui::MenuItem(flag._label, nullptr, &enabled))
@@ -231,168 +127,247 @@ namespace hod::editor
 						{
 							flags &= ~(flag._value);
 						}
-						physics::Physics::GetInstance()->GetDebugDrawer()->SetFlags(flags);
+						physicsDebugDrawer->SetFlags(flags);
 					}
 				}
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Resolution"))
+			{
+				if (ImGui::MenuItem("16:9 (landscapce)"))
+				{
+					_playRatio = Vector2(16.0f, 9.0f);
+				}
+				if (ImGui::MenuItem("21:9 (landscapce)"))
+				{
+					_playRatio = Vector2(21.0f, 9.0f);
+				}
+				if (ImGui::MenuItem("16:9 (portrait)"))
+				{
+					_playRatio = Vector2(9.0f, 16.0f);
+				}
+				if (ImGui::MenuItem("21:9 (portrait)"))
+				{
+					_playRatio = Vector2(9.0f, 21.0f);
+				}
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::MenuItem(ICON_MDI_GRID, nullptr, &_drawGrid) == true)
+			{
+			}
+			ImGui::SameLine();
+			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
+			{
+				// ImGui::TextUnformatted();
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
 		}
 
 		/*
-		game::World* world = game::World::GetInstance();
+		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 		if (_selectedTab != nullptr)
 		{
-			world->RemoveScene(_selectedTab->_scene);
+		    world->RemoveScene(_selectedTab->_scene);
 		}
 		world->AddScene(tab->_scene);
 		*/
 
-		if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
+		if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
 		{
-			if (ImGui::IsKeyPressed(ImGuiKey_T))
+			if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 			{
-				//_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
-			}
-			else if (ImGui::IsKeyPressed(ImGuiKey_R))
-			{
-				//_gizmoOperation = ImGuizmo::OPERATION::ROTATE_Z;
-			}
-			else if (ImGui::IsKeyPressed(ImGuiKey_S))
-			{
-				//_gizmoOperation = ImGuizmo::OPERATION::SCALE;
-			}
+				if (ImGui::IsKeyPressed(ImGuiKey_T))
+				{
+					//_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+				}
+				else if (ImGui::IsKeyPressed(ImGuiKey_R))
+				{
+					//_gizmoOperation = ImGuizmo::OPERATION::ROTATE_Z;
+				}
+				else if (ImGui::IsKeyPressed(ImGuiKey_S))
+				{
+					//_gizmoOperation = ImGuizmo::OPERATION::SCALE;
+				}
 
-			if (ImGui::GetIO().MouseWheel != 0.0f)
-			{
-				_size -= ImGui::GetIO().MouseWheel * 0.016f * std::abs(_size);
-			}
+				if (ImGui::GetIO().MouseWheel != 0.0f)
+				{
+					_size -= ImGui::GetIO().MouseWheel * 0.1f * std::abs(_size);
+				}
 
-			if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
-			{
-				Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
-				_cameraPosition.SetX(_cameraPosition.GetX() + movement.GetX());
-				_cameraPosition.SetY(_cameraPosition.GetY() + movement.GetY());
-			}
+				if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
+				{
+					Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
+					_cameraPosition.SetX(_cameraPosition.GetX() - movement.GetX());
+					_cameraPosition.SetY(_cameraPosition.GetY() - movement.GetY());
+				}
 
-			if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered())
-			{
-				ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-
-				if (mousePos.x >= 0 && mousePos.x < _pickingRenderTarget->GetWidth() && mousePos.y >= 0 && mousePos.y < _pickingRenderTarget->GetHeight())
+				if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered())
 				{
 					ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-					Vector2 mousePosition(mousePos.x, mousePos.y);
-					Color pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
-					uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
-					if (pickingId == 0)
+
+					Vector2 pickingResolution = _pickingRenderTarget->GetResolution();
+					if (mousePos.x >= 0 && mousePos.x < pickingResolution.GetX() && mousePos.y >= 0 && mousePos.y < pickingResolution.GetY())
 					{
-						Editor::GetInstance()->SetEntitySelection(nullptr);
-					}
-					else
-					{
-						game::World* world = game::World::GetInstance();
-						std::shared_ptr<game::Entity> pickedEntity = world->FindEntity((game::Entity::Id)pickingId).lock();
-						if (pickedEntity != nullptr)
+						ImVec2   mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
+						Vector2  mousePosition(mousePos.x, mousePos.y);
+						Color    pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
+						uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
+						if (pickingId == 0)
 						{
-							Editor::GetInstance()->SetEntitySelection(pickedEntity);
+							GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
 						}
-					}					
+						else
+						{
+							game::World*  world = GetOwner<EntityEditorTab>()->GetWorld();
+							game::Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
+							if (pickedEntity != nullptr)
+							{
+								GetOwner<EntityEditorTab>()->SetEntitySelection(pickedEntity);
+							}
+						}
+					}
 				}
 			}
 		}
 
-		uint32_t windowWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
-		uint32_t windowHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
+		uint32_t resolutionWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
+		uint32_t resolutionHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
 
-		windowWidth = std::clamp(windowWidth, 2u, 16u * 1024u);
-		windowHeight = std::clamp(windowHeight, 2u, 16u * 1024u);
+		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
+		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
 
-		if (_renderTarget->GetWidth() != windowWidth ||
-			_renderTarget->GetHeight() != windowHeight)
+		if (GetOwner<EntityEditorTab>()->IsPlaying() && GetOwner<EntityEditorTab>()->IsPaused() == false)
+		{
+			const float aspectRatio = _playRatio.GetX() / _playRatio.GetY();
+			const float currentRatio = resolutionWidth / static_cast<float>(resolutionHeight);
+
+			if (currentRatio > aspectRatio)
+			{
+				resolutionWidth = static_cast<uint32_t>(resolutionHeight * aspectRatio);
+			}
+			else
+			{
+				resolutionHeight = static_cast<uint32_t>(resolutionWidth / aspectRatio);
+			}
+		}
+
+		if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 		{
 			renderer::Texture::CreateInfo createInfo;
 
 			createInfo._allowReadWrite = false;
-			_renderTarget->Init(windowWidth, windowHeight, createInfo); // todo error
-			_renderTarget->PrepareForRead(); // todo automate ?
+			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
 
 			createInfo._allowReadWrite = true;
-			_pickingRenderTarget->Init(windowWidth, windowHeight, createInfo); // todo error
-			_pickingRenderTarget->PrepareForRead(); // todo automate ?
+			_pickingRenderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
 		}
 
 		if (_renderTarget->IsValid() == true)
 		{
-			ImVec2 origin = ImGui::GetCursorScreenPos();
+			// ImVec2 origin = ImGui::GetCursorScreenPos();
 
-			_renderQueue.Prepare(_renderTarget, _pickingRenderTarget);
+			_renderView.Prepare(_renderTarget, _pickingRenderTarget);
 
-			if (Editor::GetInstance()->IsPlaying() == false)
+			if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
 			{
 				Rect viewport;
 				viewport._position.SetX(0);
 				viewport._position.SetY(0);
-				viewport._size.SetX((float)windowWidth);
-				viewport._size.SetY((float)windowHeight);
+				viewport._size.SetX((float)resolutionWidth);
+				viewport._size.SetY((float)resolutionHeight);
 
-				float aspect = (float)windowWidth / (float)windowHeight;
+				float aspect = (float)resolutionWidth / (float)resolutionHeight;
 
 				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 				_view = Matrix4::Translation(_cameraPosition);
 
-				_renderQueue.PushRenderCommand(new renderer::RenderCommandSetCameraSettings(_projection, _view, viewport));
+				_renderView.SetupCamera(_projection, _view, viewport);
 
-				game::World* world = game::World::GetInstance();
-				world->Draw(&_renderQueue);
-
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
-					_physicsDebugDrawer->PushToRenderQueue(_renderQueue);
+					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
+					_physicsDebugDrawer->PushRenderCommand(_renderView, world->GetPhysicsWorld());
+				}
+				else
+				{
+					world->Draw(_renderView);
 				}
 
-				Editor* editor = Editor::GetInstance();
-				std::shared_ptr<game::Entity> sceneSelection = editor->GetEntitySelection();
-				if (sceneSelection != nullptr)
+				game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+				for (game::Scene* scene : world->GetScenes())
 				{
-					for (std::weak_ptr<game::Component> component : sceneSelection->GetComponents())
+					for (const auto& entityPair : scene->GetEntities())
 					{
-						std::shared_ptr<game::Component> componentLock = component.lock();
-						if (componentLock != nullptr)
+						for (game::Component* component : entityPair.second->GetComponents())
 						{
-							ReflectionTraitComponentCustomEditor* customEditorTrait = componentLock->GetReflectionDescriptorV()->FindTrait<ReflectionTraitComponentCustomEditor>();
-							if (customEditorTrait != nullptr)
+							if (component->IsEnabledInHierarchy())
 							{
-								ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
-								if (customEditor != nullptr)
+								ReflectionTraitComponentCustomEditor* customEditorTrait = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
+								if (customEditorTrait != nullptr)
 								{
-									if (customEditor->OnDrawGizmo(componentLock, *this))
+									ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
+									if (customEditor != nullptr)
 									{
-										MarkCurrentSceneAsDirty();
+										if (customEditor->OnDrawGizmo(component, *this, entityPair.second == sceneSelection))
+										{
+											GetOwner()->MarkAssetAsDirty();
+										}
 									}
 								}
 							}
 						}
 					}
 				}
+
+				if (_drawGrid)
+				{
+					std::array<Vector2, 4> positions = {
+						Vector2(-0.5f, 0.5f),
+						Vector2(0.5f, 0.5f),
+						Vector2(-0.5f, -0.5f),
+						Vector2(0.5f, -0.5f),
+					};
+
+					std::array<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
+
+					_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+						positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
+				}
 			}
 			else
 			{
-				game::World* world = game::World::GetInstance();
-				world->Draw(&_renderQueue);
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+				if (_physicsDebugDrawer != nullptr)
+				{
+					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
+					_physicsDebugDrawer->PushRenderCommand(_renderView, world->GetPhysicsWorld());
+				}
+				else
+				{
+					world->Draw(_renderView);
+				}
 			}
 
-			_renderQueue.Execute();
+			renderer::Renderer::GetInstance()->PushRenderView(_renderView, false);
 
 			if (_debugPicker)
 			{
-				ImGui::Image(_pickingRenderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);
+				ImGui::Image(_pickingRenderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
 			else
 			{
-				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)windowWidth, (float)windowHeight));
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);
+				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
-			//ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth, (float)(windowHeight + menuBarHeight)));
+			// ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth,
+			// (float)(windowHeight + menuBarHeight)));
 			if (ImGui::BeginDragDropTarget() == true)
 			{
 				const ImGuiPayload* payload = ImGui::GetDragDropPayload();
@@ -403,28 +378,17 @@ namespace hod::editor
 					{
 						// todo factorize
 						AssetDatabase::FileSystemMapping* node = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
-						std::shared_ptr<Asset> asset = node->_asset;
+						std::shared_ptr<Asset>            asset = node->_asset;
 						if (asset != nullptr)
 						{
 							PrefabImporter prefabImporter;
 							if (asset->GetMeta()._importerType == prefabImporter.GetTypeName())
 							{
-								Document document;
-								DocumentReaderJson documentReader;
-								if (documentReader.Read(document, asset->GetPath()) == false)
-								{
-									return; // todo message + bool
-								}
+								std::shared_ptr<game::PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<game::PrefabResource>(asset->GetUid());
 
-								game::Prefab* prefab = new game::Prefab(asset->GetUid());
-								if (Serializer::Deserialize(prefab, document.GetRootNode()) == false)
-								{
-									return; // todo message + bool
-								}
+								GetOwner<EntityEditorTab>()->GetCurrentScene()->Instantiate(prefabResource);
 
-								_scene->Instantiate(*prefab);
-
-								MarkCurrentSceneAsDirty();
+								GetOwner()->MarkAssetAsDirty();
 							}
 						}
 					}
@@ -434,80 +398,72 @@ namespace hod::editor
 		}
 	}
 
-	/// @brief 
-	void ViewportWindow::MarkCurrentSceneAsDirty()
-	{
-		if (_asset != nullptr)
-		{
-			_asset->SetDirty();
-			_assetWasDirty = true;
-
-			std::string title = std::format("{} " ICON_MDI_STAR_FOUR_POINTS_SMALL, _asset->GetName());
-			SetTitle(title);
-		}
-	}
-
-	/// @brief 
-	/// @param enabled 
+	/// @brief
+	/// @param enabled
 	void ViewportWindow::EnablePhysicsDebugDrawer(bool enabled)
 	{
 		if (enabled == true)
 		{
 			if (_physicsDebugDrawer == nullptr)
 			{
-				_physicsDebugDrawer = new PhysicsDebugDrawer();
+				_physicsDebugDrawer = DefaultAllocator::GetInstance().New<PhysicsDebugDrawer>();
 			}
 		}
 		else
 		{
 			if (_physicsDebugDrawer != nullptr)
 			{
-				delete _physicsDebugDrawer;
+				DefaultAllocator::GetInstance().Delete(_physicsDebugDrawer);
 				_physicsDebugDrawer = nullptr;
 			}
 		}
 	}
 
-	/// @brief 
-	/// @param enabled 
-	/// @return 
-	bool ViewportWindow::IsPhysicsDebugDrawerEnabled(bool enabled) const
+	/// @brief
+	/// @param enabled
+	/// @return
+	bool ViewportWindow::IsPhysicsDebugDrawerEnabled() const
 	{
-		return (_physicsDebugDrawer != nullptr);
+		return _physicsDebugDrawer != nullptr;
 	}
 
-	/// @brief 
-	/// @return 
-	std::shared_ptr<Asset> ViewportWindow::GetAsset() const
+	/// @brief
+	/// @return
+	renderer::RenderView* ViewportWindow::GetRenderView()
 	{
-		return _asset;
+		return &_renderView;
 	}
 
-	/// @brief 
-	/// @return 
-	renderer::RenderQueue* ViewportWindow::GetRenderQueue()
-	{
-		return &_renderQueue;
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	renderer::RenderTarget* ViewportWindow::GetPickingRenderTarget() const
 	{
 		return _pickingRenderTarget;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Matrix4& ViewportWindow::GetProjectionMatrix() const
 	{
 		return _projection;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const Matrix4& ViewportWindow::GetViewMatrix() const
 	{
 		return _view;
+	}
+
+	/// @brief
+	/// @return
+	const Vector2& ViewportWindow::GetPlayRatio() const
+	{
+		return _playRatio;
+	}
+
+	float ViewportWindow::GetCameraSize() const
+	{
+		return _size;
 	}
 }

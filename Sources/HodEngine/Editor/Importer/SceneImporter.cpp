@@ -8,36 +8,24 @@
 
 namespace hod::editor
 {
-	DESCRIBE_REFLECTED_CLASS(SceneImporterSettings, ImporterSettings)
+	DESCRIBE_REFLECTED_CLASS(SceneImporterSettings, reflectionDescriptor)
 	{
-
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool SceneImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, std::ofstream& resource, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool SceneImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
 	{
-		Document document;
+		// TODO
+		(void)meta;
+		(void)datas;
+		(void)thumbnail;
+		(void)settings;
+
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, data) == false)
-		{
-			return false;
-		}
-
-		std::stringstream documentStringStream;
-
-		DocumentWriterJson documentWriter;
-		if (documentWriter.Write(document, documentStringStream) == false)
-		{
-			return false;
-		}
-
-		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
-		resource.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
-
-		// todo use documentStringStream ?
-		if (documentWriter.Write(document, resource) == false)
 		{
 			return false;
 		}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <map>
-#include <string>
+#include "HodEngine/Core/String.hpp"
 
 namespace hod
 {

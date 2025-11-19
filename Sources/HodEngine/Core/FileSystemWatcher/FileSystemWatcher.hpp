@@ -4,30 +4,31 @@
 #include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 
 #if defined(PLATFORM_WINDOWS)
-#include <Windows.h>
-#include <WinBase.h>
+using HANDLE = void*;
+using DWORD = unsigned long;
+struct _OVERLAPPED;
 #elif defined(PLATFORM_MACOS)
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+	#include <fcntl.h>
+	#include <sys/event.h>
+	#include <sys/stat.h>
+	#include <sys/time.h>
+	#include <sys/types.h>
+	#include <unistd.h>
 #endif
 
 #include <functional>
-#include <filesystem>
+#include <HodEngine/Core/FileSystem/Path.hpp>
 
 namespace hod
 {
 	class HOD_CORE_API FileSystemWatcher
 	{
 	public:
-
 		FileSystemWatcher();
 		~FileSystemWatcher();
 
-		bool Init(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& onCreateFile, const std::function<void(const std::filesystem::path&)>& onDeleteFile, const std::function<void(const std::filesystem::path&)>& onChangeFile, const std::function<void(const std::filesystem::path& old, const std::filesystem::path&)>& onMoveFile);
+		bool Init(const Path& path, const std::function<void(const Path&)>& onCreateFile, const std::function<void(const Path&)>& onDeleteFile,
+		          const std::function<void(const Path&)>& onChangeFile, const std::function<void(const Path& old, const Path&)>& onMoveFile);
 		void Cleanup();
 
 		void RegisterUpdateJob();
@@ -36,29 +37,27 @@ namespace hod
 		void Update();
 
 	private:
-
 		bool InternalInit();
 
 	private:
+		Path                                          _path;
+		std::function<void(const Path&)>              _onCreateFile;
+		std::function<void(const Path&)>              _onDeleteFile;
+		std::function<void(const Path&)>              _onChangeFile;
+		std::function<void(const Path&, const Path&)> _onMoveFile;
 
-		std::filesystem::path _path;
-		std::function<void(const std::filesystem::path&)> _onCreateFile;
-		std::function<void(const std::filesystem::path&)> _onDeleteFile;
-		std::function<void(const std::filesystem::path&)> _onChangeFile;
-		std::function<void(const std::filesystem::path&, const std::filesystem::path&)> _onMoveFile;
-
-		MemberFunctionJob<FileSystemWatcher>	_internalJob;
+		MemberFunctionJob<FileSystemWatcher> _internalJob;
 
 #if defined(PLATFORM_WINDOWS)
-		HANDLE 					_hDir = INVALID_HANDLE_VALUE;
-		OVERLAPPED				_overlapped;
-		alignas(DWORD) uint8_t	_changeBuf[1024];
-		bool					_isFile = false;
-		std::filesystem::path	_dirPath;
+		HANDLE       _hDir = nullptr;
+		_OVERLAPPED* _overlapped = nullptr;
+		alignas(DWORD) uint8_t _changeBuf[1024];
+		bool _isFile = false;
+		Path _dirPath;
 #elif defined(PLATFORM_MACOS)
-		int						_fd = -1;
-		int						_kQueue = -1;
-		struct kevent			_change;
+		int           _fd = -1;
+		int           _kQueue = -1;
+		struct kevent _change;
 #endif
 	};
 }

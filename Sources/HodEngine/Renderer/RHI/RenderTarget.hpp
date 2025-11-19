@@ -6,11 +6,13 @@
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
+#include <HodEngine/Core/Math/Vector2.hpp>
+
 namespace hod::renderer
 {
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
+	class CommandBuffer;
+
+	/// @brief 
 	class HOD_RENDERER_API RenderTarget
 	{
 	public:
@@ -18,16 +20,15 @@ namespace hod::renderer
 						RenderTarget();
 		virtual			~RenderTarget();
 
-		uint32_t		GetWidth() const;
-		uint32_t		GetHeight() const;
+		Vector2			GetResolution() const;
 
 		virtual bool	Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo);
 
 		Texture*		GetColorTexture() const;
 		Texture*		GetDepthTexture() const;
 
-		virtual void	PrepareForWrite() = 0;
-		virtual void	PrepareForRead() = 0;
+		virtual void	PrepareForWrite(const CommandBuffer* commandBuffer) = 0;
+		virtual void	PrepareForRead(const CommandBuffer* commandBuffer) = 0;
 
 		bool			IsValid() const;
 
@@ -42,7 +43,6 @@ namespace hod::renderer
 
 	protected:
 
-		uint32_t		_width = 0;
-		uint32_t		_height = 0;
+		Vector2			_resolution; // TODO Vector2_Int ?
 	};
 }

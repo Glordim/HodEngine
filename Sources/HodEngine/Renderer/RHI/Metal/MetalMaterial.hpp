@@ -3,6 +3,8 @@
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
 
+#include <Foundation/NSRange.hpp>
+
 namespace MTL
 {
     class RenderPipelineState;
@@ -20,15 +22,19 @@ namespace hod
 		public:
 
 									MetalMaterial();
-			virtual					~MetalMaterial();
+                                    ~MetalMaterial() override;
 
 			bool			        Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
             
+			NS::Range				GetVertexAttributeBufferRange() const;
+
             MTL::RenderPipelineState*   GetNativeRenderPipeline() const;
             
         private:
             
-            MTL::RenderPipelineState*    _renderPipelineState = nullptr;
+            MTL::RenderPipelineState*   _renderPipelineState = nullptr;
+
+			NS::Range _vertexAttributeBufferRange;
 		};
 	}
 }

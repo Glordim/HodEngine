@@ -1,28 +1,29 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Module/Module.hpp"
 
+#include "HodEngine/Core/FileSystem/Path.hpp"
 #include <dlfcn.h>
 
 namespace hod
 {
-	/// @brief 
-	/// @return 
-	bool Module::InternalLoad(const std::filesystem::path& path)
+	/// @brief
+	/// @return
+	bool Module::InternalLoad(const Path& path)
 	{
-		_sharedLib = dlopen(path.string().c_str(), RTLD_LAZY);
+		_sharedLib = dlopen(path.CStr(), RTLD_LAZY);
 		if (_sharedLib == nullptr)
 		{
-			//std::cout << "could not load the dynamic library" << std::endl;
+			// std::cout << "could not load the dynamic library" << std::endl;
 			return false;
 		}
 
-		using initFunction = int(*)();
+		using initFunction = int (*)();
 
 		// resolve function address here
-		initFunction initFunc = (initFunction)dlsym(_sharedLib, "Init");
+		initFunction initFunc = (initFunction)dlsym(_sharedLib, "StartupModule");
 		if (initFunc == nullptr)
 		{
-			//std::cout << "could not locate the function" << std::endl;
+			// std::cout << "could not locate the function" << std::endl;
 			return false;
 		}
 
@@ -30,19 +31,19 @@ namespace hod
 
 		return true;
 	}
-	
-	/// @brief 
-	/// @return 
+
+	/// @brief
+	/// @return
 	bool Module::InternalUnload()
 	{
 		if (_sharedLib != nullptr)
 		{
-			using cleanFunction = int(*)();
+			using cleanFunction = int (*)();
 
-			cleanFunction cleanFunc = (cleanFunction)dlsym(_sharedLib, "Clean");
+			cleanFunction cleanFunc = (cleanFunction)dlsym(_sharedLib, "ShutdownModule");
 			if (cleanFunc == nullptr)
 			{
-				//std::cout << "could not locate the function" << std::endl;
+				// std::cout << "could not locate the function" << std::endl;
 				return false;
 			}
 
@@ -55,15 +56,15 @@ namespace hod
 		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const char* Module::GetModuleExtension()
 	{
 		return ".dylib";
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	const char* Module::GetModulePrefix()
 	{
 		return "lib";

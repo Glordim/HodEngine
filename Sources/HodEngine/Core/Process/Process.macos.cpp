@@ -1,20 +1,20 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Process/Process.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/Process/Process.hpp"
 
+#include <string.h> // strerror
 #include <sys/wait.h>
 #include <unistd.h>
-#include <string.h> // strerror
 
-#include <vector>
-#include <string>
+#include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 
 namespace hod
 {
-	/// @brief 
-	/// @param program 
-	/// @param argument 
-	/// @return 
+	/// @brief
+	/// @param program
+	/// @param argument
+	/// @return
 	bool Process::Create(const std::string_view& program, const std::string_view& argument, bool detach)
 	{
 		bool result = false;
@@ -43,28 +43,28 @@ namespace hod
 
 		if (pid == 0) // Child
 		{
-			close(stdout_pipe[0]); // Close the read end of stdout pipe
-        	dup2(stdout_pipe[1], STDOUT_FILENO); // Redirect stdout to the pipe
-        	close(stdout_pipe[1]); // Close the write end of stdout pipe (it is duplicated now)
+			close(stdout_pipe[0]);               // Close the read end of stdout pipe
+			dup2(stdout_pipe[1], STDOUT_FILENO); // Redirect stdout to the pipe
+			close(stdout_pipe[1]);               // Close the write end of stdout pipe (it is duplicated now)
 
-        	close(stderr_pipe[0]); // Close the read end of stderr pipe
-        	dup2(stderr_pipe[1], STDERR_FILENO); // Redirect stderr to the pipe
-        	close(stderr_pipe[1]); // Close the write end of stderr pipe (it is duplicated now)
+			close(stderr_pipe[0]);               // Close the read end of stderr pipe
+			dup2(stderr_pipe[1], STDERR_FILENO); // Redirect stderr to the pipe
+			close(stderr_pipe[1]);               // Close the write end of stderr pipe (it is duplicated now)
 
-			std::string commandLine(program);
+			String commandLine(program);
 			commandLine += " ";
 			commandLine += argument;
-			//OUTPUT_ERROR(commandLine.c_str());
+			// OUTPUT_ERROR(commandLine.c_str());
 
-			std::vector<const char*> argv;
-			char* begin = commandLine.data();
-			char* cursor = begin;
-			bool escaped = 0;
+			Vector<const char*> argv;
+			char*               begin = commandLine.Data();
+			char*               cursor = begin;
+			bool                escaped = 0;
 			while (*cursor != '\0')
 			{
 				if (*cursor == ' ' && escaped == false)
 				{
-					*cursor = '\0';					
+					*cursor = '\0';
 					argv.push_back(begin);
 
 					begin = cursor + 1;
@@ -91,11 +91,11 @@ namespace hod
 			argv.push_back(begin);
 			argv.push_back(nullptr);
 
-			if (execvp(argv[0], (char *const *)argv.data()) == -1)
+			if (execvp(argv[0], (char* const*)argv.Data()) == -1)
 			{
-				//OUTPUT_ERROR("Error executing program: {}", strerror(errno));
+				// OUTPUT_ERROR("Error executing program: {}", strerror(errno));
 				exit(EXIT_FAILURE);
-       		}
+			}
 			exit(EXIT_SUCCESS);
 		}
 		else // Parent
@@ -116,7 +116,7 @@ namespace hod
 				char buffer[1024];
 
 				int status;
-				
+
 				bool finished = false;
 				while (finished != true)
 				{
@@ -130,7 +130,7 @@ namespace hod
 					{
 						finished = (waitResult != 0);
 					}
-					
+
 					FD_ZERO(&stdout_pipe_fds);
 					FD_SET(stdout_pipe[0], &stdout_pipe_fds);
 
@@ -149,8 +149,8 @@ namespace hod
 						size_t n = read(stdout_pipe[0], buffer, sizeof(buffer));
 						if (n == 0)
 						{
-							//printf("Child process terminated\n");
-							//finished = true;
+							// printf("Child process terminated\n");
+							// finished = true;
 						}
 						else if (n > 0)
 						{
@@ -174,8 +174,8 @@ namespace hod
 						size_t n = read(stderr_pipe[0], buffer, sizeof(buffer));
 						if (n == 0)
 						{
-							//printf("Child process terminated\n");
-							//finished = true;
+							// printf("Child process terminated\n");
+							// finished = true;
 						}
 						else if (n > 0)
 						{
@@ -184,23 +184,23 @@ namespace hod
 						}
 					}
 				}
-				
+
 				close(stdout_pipe[0]); // Close the read end of stdout pipe
-        		close(stderr_pipe[0]); // Close the read end of stderr pipe
+				close(stderr_pipe[0]); // Close the read end of stderr pipe
 
 				if (WIFEXITED(status))
 				{
-					//std::cout << "Child exited with status " << WEXITSTATUS(status) << std::endl;
+					// std::cout << "Child exited with status " << WEXITSTATUS(status) << std::endl;
 					result = (WEXITSTATUS(status) == EXIT_SUCCESS);
 				}
 				else if (WIFSIGNALED(status))
 				{
-            		//printf("Child killed by signal %d\n", WTERMSIG(status));
+					// printf("Child killed by signal %d\n", WTERMSIG(status));
 					result = false;
 				}
 				else
 				{
-					//std::cerr << "Child did not exit normally" << std::endl;
+					// std::cerr << "Child did not exit normally" << std::endl;
 					result = false;
 				}
 			}

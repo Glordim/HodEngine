@@ -5,14 +5,76 @@
 #include <Cocoa/Cocoa.h>
 
 @interface CustomView : NSView
+{
+	hod::window::MacOsWindow* window;
+}
+
+- (instancetype)initWithFrame:(NSRect)frameRect window:(hod::window::MacOsWindow*)cppWindow;
 @end
 
 @implementation CustomView
 
-- (void)drawRect:(NSRect)dirtyRect {
+- (instancetype)initWithFrame:(NSRect)frameRect window:(hod::window::MacOsWindow*)cppWindow
+{
+    self = [super initWithFrame:frameRect];
+    if (self)
+	{
+        window = cppWindow;
+    }
+    return self;
+}
+
+- (void)drawRect:(NSRect)dirtyRect
+{
 	[[NSColor whiteColor] setFill];
 	NSRectFill(dirtyRect);
 	[super drawRect:dirtyRect];
+}
+
+- (void)keyDown:(NSEvent*)event
+{
+    window->EmitKeyPressed(hod::window::MacOSKeyCodeToScanCode([event keyCode]));
+}
+
+- (void)keyUp:(NSEvent*)event
+{
+    window->EmitKeyReleased(hod::window::MacOSKeyCodeToScanCode([event keyCode]));
+}
+
+- (void)mouseDown:(NSEvent*)event
+{
+    window->EmitMouseButtonPressed(hod::window::MouseButton::Left);
+}
+
+- (void)mouseUp:(NSEvent*)event
+{
+    window->EmitMouseButtonReleased(hod::window::MouseButton::Left);
+}
+
+- (void)rightMouseDown:(NSEvent*)event
+{
+    window->EmitMouseButtonPressed(hod::window::MouseButton::Right);
+}
+
+- (void)rightMouseUp:(NSEvent*)event
+{
+    window->EmitMouseButtonReleased(hod::window::MouseButton::Right);
+}
+
+- (void)otherMouseDown:(NSEvent*)event
+{
+    window->EmitMouseButtonPressed(hod::window::MouseButton::Middle);
+}
+
+- (void)otherMouseUp:(NSEvent*)event
+{
+    window->EmitMouseButtonReleased(hod::window::MouseButton::Middle);
+}
+
+- (void)mouseMoved:(NSEvent*)event
+{
+    NSPoint location = [self convertPoint:[event locationInWindow] fromView:nil];
+    window->EmitMouseMoved(location.x, location.y);
 }
 
 @end
@@ -33,10 +95,21 @@
 	if (self != nil)
 	{
 		_window = initWindow;
-	}	
+	}
 
 	return self;
 }
+
+- (BOOL)windowShouldClose:(NSWindow *)sender
+{
+    return YES;
+}
+
+- (void)windowWillClose:(NSNotification *)notification
+{
+	_window->Close();
+}
+
 
 - (void)windowDidResize:(NSNotification *)notification
 {
@@ -50,6 +123,8 @@ namespace hod::window
 	MacOsWindow::MacOsWindow(bool hidden)
 		: DesktopWindow()
 	{
+        [NSApplication sharedApplication];
+        
 		_delegate = [[MyWindowDelegate alloc] initWithWindow:this];
 
 		NSRect frame = NSMakeRect(0, 0, _width, _height);
@@ -60,8 +135,9 @@ namespace hod::window
 
         [_window setDelegate:_delegate];
 		[_window setTitle:@"Window"];
+        [_window makeKeyAndOrderFront:(nil)];
 
-        CustomView *customView = [[CustomView alloc] initWithFrame:frame];
+        CustomView *customView = [[CustomView alloc] initWithFrame:frame window:this];
 		_view = customView;
 		_view.wantsLayer = YES;
 
@@ -69,30 +145,15 @@ namespace hod::window
 		[_window setContentView:customView];
 
 		SetVisible(!hidden);
+        
+        [NSApplication sharedApplication];
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+        [NSApp activateIgnoringOtherApps:YES];
 	}
 
 	/// @brief 
 	MacOsWindow::~MacOsWindow()
 	{
-		
-	}
-
-	void MacOsWindow::EventLoop()
-	{
-        @autoreleasepool 
-        {
-            while (true)
-            {
-                NSEvent* event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                                    untilDate:[NSDate distantPast]
-                                                       inMode:NSDefaultRunLoopMode
-                                                      dequeue:YES];
-                if (event == nil)
-                    break;
-
-                [NSApp sendEvent:event];
-            }
-        } // autoreleasepool
 	}
 
 	/// @brief 
