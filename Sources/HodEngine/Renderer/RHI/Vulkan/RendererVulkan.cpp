@@ -526,7 +526,7 @@ namespace hod::renderer
 		window::WaylandDisplayManager* waylandDisplayManager = window::WaylandDisplayManager::GetInstance();
 
 		VkWaylandSurfaceCreateInfoKHR createInfo;
-		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
 		createInfo.flags = 0;
 		createInfo.display = waylandDisplayManager->GetDisplay();
 		createInfo.surface = waylandWindow->GetWaylandSurface();

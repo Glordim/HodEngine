@@ -55,7 +55,8 @@ namespace hod
 			VkAttachmentReference colorAttachmentRef = {};
 			colorAttachmentRef.attachment = 0;
 			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
+			
+			/*
 			VkAttachmentDescription depthAttachment = {};
 			depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -66,7 +67,6 @@ namespace hod
 			depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-			/*
 			VkAttachmentReference depthAttachmentRef = {};
 			depthAttachmentRef.attachment = 1;
 			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

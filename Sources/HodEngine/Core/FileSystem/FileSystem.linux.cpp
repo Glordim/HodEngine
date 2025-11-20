@@ -7,6 +7,7 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <dirent.h>
 #include <unistd.h>
 
 namespace hod
@@ -133,5 +134,220 @@ namespace hod
 	bool FileSystem::Handle::IsOpen() const
 	{
 		return _fd >= 0;
+	}
+
+	bool FileSystem::Exists(const char* path)
+	{
+		return access(path, F_OK) == 0;
+	}
+
+	bool FileSystem::IsDirectory(const char* path)
+	{
+		struct stat info;
+		if (stat(path, &info) != 0)
+			return false;
+
+		return S_ISDIR(info.st_mode);
+	}
+
+	bool FileSystem::CreateDirectories(const char* path)
+	{
+		if (path[0] == '\0')
+		{
+			return false;
+		}
+
+		if (IsDirectory(path))
+		{
+			return false;
+		}
+
+		String cleaned = path;
+		if (!cleaned.Empty() && cleaned.Back() == '/')
+			cleaned.PopBack();
+
+		size_t pos = cleaned.FindR('/');
+		if (pos != std::string::npos)
+		{
+			String parent = cleaned.SubStr(0, pos);
+			if (!parent.Empty() && !CreateDirectories(parent.CStr()))
+				return false;
+		}
+
+		if (mkdir(cleaned.CStr(), 0755) == 0)
+			return true;
+
+		if (errno == EEXIST)
+			return true;
+
+		return false;
+	}
+
+	bool FileSystem::Remove(const char* path)
+	{
+		if (path[0] == '\0')
+		{
+			return false;
+		}
+
+		struct stat info;
+		if (stat(path, &info) != 0)
+			return false;
+
+		if (S_ISDIR(info.st_mode))
+		{
+			if (rmdir(path) == 0)
+				return true;
+			return false;
+		}
+		else
+		{
+			if (unlink(path) == 0)
+				return true;
+			return false;
+		}
+	}
+
+	bool FileSystem::RemoveAll(const char* path)
+	{
+		if (path[0] == '\0')
+		{
+			return false;
+		}
+
+		struct stat info;
+		if (stat(path, &info) != 0)
+			return false;
+
+		if (S_ISDIR(info.st_mode))
+		{
+			DIR* dir = opendir(path);
+			if (!dir)
+				return false;
+
+			struct dirent* entry;
+			while ((entry = readdir(dir)) != nullptr)
+			{
+				const char* name = entry->d_name;
+
+				if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+				continue;
+
+				std::string childPath = std::string(path) + "/" + name;
+				RemoveAll(childPath.c_str());
+			}
+			closedir(dir);
+
+			if (rmdir(path) != 0)
+				return false;
+
+			return true;
+		}
+		else
+		{
+			if (unlink(path) != 0)
+				return false;
+			return true;
+		}
+	}
+
+	bool FileSystem::CopyFile(const char* pathSrc, const char* pathDst, bool overwrite)
+	{
+		if (pathSrc[0] == '\0' || pathDst[0] == '\0')
+		{
+			return false;
+		}
+
+		int src = open(pathSrc, O_RDONLY);
+		if (src < 0)
+			return false;
+
+		struct stat st;
+		if (fstat(src, &st) != 0)
+		{
+			close(src);
+			return false;
+		}
+		if ((st.st_mode & S_IFMT) == S_IFDIR)
+		{
+			close(src);
+			return false;
+		}
+
+		int flags = O_WRONLY | O_CREAT;
+		if (!overwrite)
+			flags |= O_EXCL;
+
+		int dst = open(pathDst, flags, 0644);
+		if (dst < 0)
+		{
+			close(src);
+			return false;
+		}
+
+		char buffer[4096];
+		ssize_t bytes;
+		bool ok = true;
+		while ((bytes = read(src, buffer, sizeof(buffer))) > 0)
+		{
+			ssize_t written = write(dst, buffer, bytes);
+			if (written != bytes)
+			{
+				ok = false;
+				break;
+			}
+		}
+
+		if (bytes < 0)
+			ok = false;
+
+		close(src);
+		close(dst);
+		return ok;
+	}
+
+	bool FileSystem::IsRegularFile(const char* path)
+	{
+		if (path[0] == '\0')
+		{
+			return false;
+		}
+
+		struct stat info;
+		if (stat(path, &info) != 0)
+			return false;
+
+		return S_ISREG(info.st_mode);
+	}
+
+	bool FileSystem::Rename(const char* pathSrc, const char* pathDst)
+	{
+		if (!pathSrc || !pathDst || pathSrc[0] == '\0' || pathDst[0] == '\0')
+		{
+			return false;
+		}
+
+		struct stat info;
+		if (stat(pathSrc, &info) != 0)
+			return false;
+
+		if (stat(pathDst, &info) == 0)
+		{
+			if (S_ISDIR(info.st_mode))
+			{
+				if (rmdir(pathDst) != 0)
+					return false;
+			}
+			else
+			{
+				if (unlink(pathDst) != 0)
+					return false;
+			}
+		}
+
+		if (rename(pathSrc, pathDst) != 0)
+			return false;
+
+		return true;
 	}
 }

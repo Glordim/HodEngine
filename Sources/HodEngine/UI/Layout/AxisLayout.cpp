@@ -2,6 +2,7 @@
 #include "HodEngine/UI/Layout/AxisLayout.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 #undef min
 #undef max

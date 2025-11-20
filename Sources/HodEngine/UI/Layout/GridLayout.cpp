@@ -2,6 +2,7 @@
 #include "HodEngine/UI/Layout/GridLayout.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 namespace hod::ui
 {

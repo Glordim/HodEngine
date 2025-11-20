@@ -6,6 +6,8 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
+#include <cmath>
+
 namespace hod::renderer
 {
 	// Fonction pour obtenir l'explication d'un code FT_Error
@@ -42,12 +44,13 @@ namespace hod::renderer
 	// Fonction pour rendre un glyphe en italique
 	void render_glyph_italic(FT_GlyphSlot slot)
 	{
+		/*
 		FT_Matrix matrix;
 		matrix.xx = 0x10000;
 		matrix.xy = 0x6000; // Ajustez cette valeur pour l'inclinaison
 		matrix.yx = 0x0000;
 		matrix.yy = 0x10000;
-
+		*/
 		// FT_Outline_Transform(&slot->outline, &matrix);
 		(void)slot; // TODO
 	}

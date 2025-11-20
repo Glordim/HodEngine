@@ -54,6 +54,8 @@ namespace hod
 		using FileTime = FILETIME;
 #elif defined(PLATFORM_MACOS)
 		using FileTime = uint64_t;
+#elif defined(PLATFORM_LINUX)
+		using FileTime = struct timespec;
 #endif
 
 	public:

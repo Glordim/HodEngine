@@ -4,6 +4,7 @@
 
 #include <cxxabi.h>
 #include <execinfo.h>
+#include <dlfcn.h>
 
 #include <cassert>
 
@@ -78,5 +79,37 @@ namespace hod
 		}
 
 		return symbol;
+	}
+
+	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
+	{
+		Dl_info info;
+		if (dladdr(addr, &info) == 0)
+		{
+			return false;
+		}
+
+		symbolInfo._address = info.dli_saddr;
+		symbolInfo._module = info.dli_fname;
+		symbolInfo._function = info.dli_sname;
+		symbolInfo._line = 0;
+
+		if (demangle)
+		{
+			int   status;
+			char* demangledSymbol = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
+			if (status == 0)
+			{
+				symbolInfo._function = demangledSymbol;
+				free(demangledSymbol);
+			}
+		}
+
+		return true;
+	}
+
+	bool OS::OpenFileWithDefaultApp(const char* filePath)
+	{
+		return std::system(std::format("xdg-open {}", filePath).c_str()) == 0;
 	}
 }

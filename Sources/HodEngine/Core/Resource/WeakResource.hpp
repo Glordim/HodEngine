@@ -17,6 +17,7 @@ namespace hod
 	public:
 		WeakResourceBase(ReflectionDescriptor* resourceDescriptor);
 		WeakResourceBase(ReflectionDescriptor* resourceDescriptor, const std::shared_ptr<Resource>& pointer);
+		WeakResourceBase(const WeakResourceBase& copy);
 		virtual ~WeakResourceBase();
 
 		WeakResourceBase& operator=(const WeakResourceBase& copy);

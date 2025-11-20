@@ -5,6 +5,8 @@
 
 #include "HodEngine/Core/Math/Vector2.hpp"
 
+#include <cmath>
+
 namespace hod::ui
 {
 	DESCRIBE_REFLECTED_ENUM(ContentSizeFitter::FitMode, reflectionDescriptor)

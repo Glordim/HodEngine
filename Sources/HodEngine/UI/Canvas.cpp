@@ -10,6 +10,8 @@
 
 #include <HodEngine/Renderer/RenderView.hpp>
 
+#include <cmath>
+
 #undef min
 #undef max
 

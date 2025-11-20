@@ -28,6 +28,13 @@ namespace hod
 	{
 	}
 
+	WeakResourceBase::WeakResourceBase(const WeakResourceBase& copy)
+	{
+		_uid = copy._uid;
+		_pointer = copy._pointer;
+		_resourceDescriptor = copy._resourceDescriptor;
+	}
+
 	/// @brief
 	WeakResourceBase::~WeakResourceBase() {}
 

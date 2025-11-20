@@ -290,9 +290,11 @@ namespace hod::imgui
 		ImGui::GetIO().DisplaySize.x = window->GetWidth();
 		ImGui::GetIO().DisplaySize.y = window->GetHeight();
 		ImGui::GetIO().AddMousePosEvent(window->GetMousePosition().GetX(), window->GetMousePosition().GetY());
+		/* TODO
 		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Left, window->GetMouseButton(window::DesktopWindow::MouseButton::Left));
 		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Middle, window->GetMouseButton(window::DesktopWindow::MouseButton::Middle));
 		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Right, window->GetMouseButton(window::DesktopWindow::MouseButton::Right));
+		*/
 #else
 		return;
 #endif
@@ -500,14 +502,14 @@ namespace hod::imgui
 
 			RenderCommandImGui::DrawList* drawList = DefaultAllocator::GetInstance().New<RenderCommandImGui::DrawList>();
 
-			memcpy(&drawList->_displayPosition, &drawData->DisplayPos, sizeof(Vector2));
-			memcpy(&drawList->_displaySize, &drawData->DisplaySize, sizeof(Vector2));
+			memcpy((void*)&drawList->_displayPosition, &drawData->DisplayPos, sizeof(Vector2));
+			memcpy((void*)&drawList->_displaySize, &drawData->DisplaySize, sizeof(Vector2));
 
 			drawList->_vertices.Resize(imDrawList->VtxBuffer.Size);
-			memcpy(drawList->_vertices.Data(), imDrawList->VtxBuffer.Data, imDrawList->VtxBuffer.Size * sizeof(RenderCommandImGui::Vertex));
+			memcpy((void*)drawList->_vertices.Data(), imDrawList->VtxBuffer.Data, imDrawList->VtxBuffer.Size * sizeof(RenderCommandImGui::Vertex));
 
 			drawList->_indices.Resize(imDrawList->IdxBuffer.Size);
-			memcpy(drawList->_indices.Data(), imDrawList->IdxBuffer.Data, imDrawList->IdxBuffer.Size * sizeof(uint16_t));
+			memcpy((void*)drawList->_indices.Data(), imDrawList->IdxBuffer.Data, imDrawList->IdxBuffer.Size * sizeof(uint16_t));
 
 			drawList->_commands.Resize(imDrawList->CmdBuffer.Size);
 			for (int cmdIndex = 0; cmdIndex < imDrawList->CmdBuffer.Size; ++cmdIndex)
