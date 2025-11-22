@@ -317,7 +317,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	bool VkContext::AcquireNextImageIndex()
+	bool VkContext::AcquireNextImageIndex(Semaphore* imageAvailableSemaphore)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
@@ -327,7 +327,7 @@ namespace hod::renderer
 		}
 
 		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(),
-		                                        static_cast<const SemaphoreVk*>(_imageAvailableSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
+		                                        static_cast<const SemaphoreVk*>(imageAvailableSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
 		if (result != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to acquire next image!");

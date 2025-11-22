@@ -15,8 +15,10 @@
 #include <HodEngine/Core/Math/Vector4.hpp>
 #include <HodEngine/Core/Rect.hpp>
 #include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
 
@@ -57,7 +59,6 @@ namespace hod::editor
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_renderView.Init();
 	}
 
 	/// @brief
@@ -269,7 +270,10 @@ namespace hod::editor
 		{
 			// ImVec2 origin = ImGui::GetCursorScreenPos();
 
-			_renderView.Prepare(_renderTarget, _pickingRenderTarget);
+			renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+			renderView->Init();
+			renderView->Prepare(_renderTarget, _pickingRenderTarget);
+			_renderView = renderView;
 
 			if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
 			{
@@ -284,17 +288,17 @@ namespace hod::editor
 				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 				_view = Matrix4::Translation(_cameraPosition);
 
-				_renderView.SetupCamera(_projection, _view, viewport);
+				renderView->SetupCamera(_projection, _view, viewport);
 
 				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
-					_physicsDebugDrawer->PushRenderCommand(_renderView, world->GetPhysicsWorld());
+					_physicsDebugDrawer->PushRenderCommand(*renderView, world->GetPhysicsWorld());
 				}
 				else
 				{
-					world->Draw(_renderView);
+					world->Draw(*renderView);
 				}
 
 				game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
@@ -334,7 +338,7 @@ namespace hod::editor
 
 					std::array<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
 
-					_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+					renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
 						positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
 				}
 			}
@@ -344,15 +348,13 @@ namespace hod::editor
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
-					_physicsDebugDrawer->PushRenderCommand(_renderView, world->GetPhysicsWorld());
+					_physicsDebugDrawer->PushRenderCommand(*renderView, world->GetPhysicsWorld());
 				}
 				else
 				{
-					world->Draw(_renderView);
+					world->Draw(*renderView);
 				}
 			}
-
-			renderer::Renderer::GetInstance()->PushRenderView(_renderView, false);
 
 			if (_debugPicker)
 			{
@@ -395,6 +397,8 @@ namespace hod::editor
 				}
 				ImGui::EndDragDropTarget();
 			}
+
+			_renderView = nullptr;
 		}
 	}
 
@@ -429,13 +433,6 @@ namespace hod::editor
 
 	/// @brief
 	/// @return
-	renderer::RenderView* ViewportWindow::GetRenderView()
-	{
-		return &_renderView;
-	}
-
-	/// @brief
-	/// @return
 	renderer::RenderTarget* ViewportWindow::GetPickingRenderTarget() const
 	{
 		return _pickingRenderTarget;
@@ -465,5 +462,10 @@ namespace hod::editor
 	float ViewportWindow::GetCameraSize() const
 	{
 		return _size;
+	}
+
+	renderer::RenderView* ViewportWindow::GetRenderView()
+	{
+		return _renderView;
 	}
 }

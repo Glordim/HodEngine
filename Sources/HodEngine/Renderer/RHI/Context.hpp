@@ -10,24 +10,20 @@ namespace hod::renderer
 {
 	class Semaphore;
 
-	/// @brief 
+	/// @brief
 	class HOD_RENDERER_API Context : public window::Surface
 	{
 	public:
-						Context();
-		virtual			~Context();
+		Context();
+		virtual ~Context();
 
 	public:
+		virtual bool AcquireNextImageIndex(Semaphore* imageAvailableSemaphore) = 0;
+		virtual bool SwapBuffer() = 0;
 
-		virtual bool	AcquireNextImageIndex() = 0;
-		virtual bool	SwapBuffer() = 0;
-
-		const Semaphore*	GetImageAvailableSempahore() const;
-		void				AddSemaphoreToSwapBuffer(const Semaphore* semaphore);
+		void AddSemaphoreToSwapBuffer(const Semaphore* semaphore);
 
 	protected:
-
-		Semaphore*					_imageAvailableSemaphore;
-		Vector<const Semaphore*>	_semaphoresToSwapBuffer;
+		Vector<const Semaphore*> _semaphoresToSwapBuffer;
 	};
 }

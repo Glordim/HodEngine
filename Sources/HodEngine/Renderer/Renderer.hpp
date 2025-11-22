@@ -83,11 +83,13 @@ namespace hod::renderer
 
 		FrameResources& GetCurrentFrameResources();
 
-		void PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame = true);
-		void RenderViews();
-		void WaitViews();
+		// void PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame = true);
+		// void RenderViews();
+		// void WaitViews();
 
 		void Render();
+
+		bool AcquireNextFrame();
 
 		// Debug
 	public:
@@ -111,6 +113,7 @@ namespace hod::renderer
 		MaterialInstance* _defaultMaterialInstance = nullptr;
 
 		Vector<RenderView*> _renderViews;
+		Vector<Context*>    _contexts;
 
 		/*
 		Material* _unlitVertexColorMaterial = nullptr;

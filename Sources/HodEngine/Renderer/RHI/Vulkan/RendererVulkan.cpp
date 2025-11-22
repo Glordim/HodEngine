@@ -224,6 +224,7 @@ namespace hod::renderer
 
 		_context = DefaultAllocator::GetInstance().New<VkContext>(surface);
 		mainWindow->SetSurface(_context);
+		_contexts.PushBack(_context);
 		/*
 		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill,
 		Material::Topololy::TRIANGLE)); if (_unlitVertexColorMaterial == nullptr)

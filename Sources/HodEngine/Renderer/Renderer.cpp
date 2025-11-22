@@ -16,6 +16,7 @@
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
 #include "HodEngine/Renderer/FrameResources.hpp"
+#include "HodEngine/Renderer/RHI/Context.hpp"
 
 namespace hod
 {
@@ -203,65 +204,82 @@ namespace hod
 			return _defaultWhiteTexture;
 		}
 
+		/*
 		void Renderer::PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame)
 		{
-			renderView.SetAutoDestroy(autoDestroyAfterFrame);
-			_renderViews.push_back(&renderView);
+		    renderView.SetAutoDestroy(autoDestroyAfterFrame);
+		    _renderViews.push_back(&renderView);
 		}
 
 		void Renderer::RenderViews()
 		{
-			// todo sort
+		    // todo sort
 
-			Semaphore* semaphore = nullptr;
-			Context*   context = nullptr;
-			for (RenderView* renderView : _renderViews)
-			{
-				if (renderView->GetContext())
-				{
-					context = renderView->GetContext();
-					if (semaphore == nullptr)
-					{
-						semaphore = (Semaphore*)renderView->GetContext()->GetImageAvailableSempahore();
-					}
-					renderView->Execute(semaphore);
-					semaphore = renderView->GetRenderFinishedSemaphore();
-				}
-				else
-				{
-					renderView->Execute();
-				}
-			}
-			context->AddSemaphoreToSwapBuffer(semaphore);
+		    Semaphore* semaphore = nullptr;
+		    Context*   context = nullptr;
+		    for (RenderView* renderView : _renderViews)
+		    {
+		        if (renderView->GetContext())
+		        {
+		            context = renderView->GetContext();
+		            if (semaphore == nullptr)
+		            {
+		                semaphore = (Semaphore*)renderView->GetContext()->GetImageAvailableSempahore();
+		            }
+		            renderView->Execute(semaphore);
+		            semaphore = renderView->GetRenderFinishedSemaphore();
+		        }
+		        else
+		        {
+		            renderView->Execute();
+		        }
+		    }
+		    context->AddSemaphoreToSwapBuffer(semaphore);
 		}
 
 		void Renderer::WaitViews()
 		{
-			for (RenderView* renderView : _renderViews)
-			{
-				renderView->Wait();
-			}
+		    for (RenderView* renderView : _renderViews)
+		    {
+		        renderView->Wait();
+		    }
 
-			for (RenderView* renderView : _renderViews)
-			{
-				if (renderView->IsAutoDestroy())
-				{
-					DefaultAllocator::GetInstance().Delete(renderView);
-				}
-			}
-			_renderViews.Clear();
+		    for (RenderView* renderView : _renderViews)
+		    {
+		        if (renderView->IsAutoDestroy())
+		        {
+		            DefaultAllocator::GetInstance().Delete(renderView);
+		        }
+		    }
+		    _renderViews.Clear();
 		}
+		    */
 
 		void Renderer::Render()
 		{
-			++_frameCount;
-			_frameIndex = _frameCount % _frameInFlight;
-			GetCurrentFrameResources().DestroyAll();
+			GetCurrentFrameResources().Submit();
 		}
 
 		FrameResources& Renderer::GetCurrentFrameResources()
 		{
 			return _frameResources[_frameIndex];
+		}
+
+		bool Renderer::AcquireNextFrame()
+		{
+			++_frameCount;
+			_frameIndex = _frameCount % _frameInFlight;
+			GetCurrentFrameResources().Wait();
+			GetCurrentFrameResources().DestroyAll();
+
+			for (Context* context : _contexts)
+			{
+				if (context->AcquireNextImageIndex(GetCurrentFrameResources().GetImageAvalaibleSemaphore()) == false)
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 }

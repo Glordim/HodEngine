@@ -1,12 +1,10 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
 #include <HodEngine/Core/Math/Matrix4.hpp>
-
-#include <HodEngine/Renderer/RenderView.hpp>
 
 #include <memory>
 
@@ -24,30 +22,26 @@ namespace hod::editor
 {
 	class EditorReflectedObject;
 
-	/// @brief 
+	/// @brief
 	class HOD_EDITOR_API MaterialEditorViewportWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(MaterialEditorViewportWindow, EditorTabWindow)
 
 	public:
-
-					MaterialEditorViewportWindow() = default;
-					MaterialEditorViewportWindow(EditorTab* editorTab);
-					~MaterialEditorViewportWindow() override;
+		MaterialEditorViewportWindow() = default;
+		MaterialEditorViewportWindow(EditorTab* editorTab);
+		~MaterialEditorViewportWindow() override;
 
 	public:
-
-		bool		Draw() override;
-		void		DrawContent() override;
+		bool Draw() override;
+		void DrawContent() override;
 
 	private:
+		renderer::RenderTarget* _renderTarget = nullptr;
 
-		renderer::RenderTarget* 	_renderTarget = nullptr;
-		renderer::RenderView		_renderView;
+		Matrix4 _projection;
+		Matrix4 _view;
 
-		Matrix4						_projection;
-		Matrix4						_view;
-
-		float						_size = 5.0f;
+		float _size = 5.0f;
 	};
 }

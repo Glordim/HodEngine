@@ -11,6 +11,7 @@ namespace hod::renderer
 	class Buffer;
 	class Semaphore;
 	class Fence;
+	class RenderView;
 
 	class HOD_RENDERER_API FrameResources
 	{
@@ -23,6 +24,12 @@ namespace hod::renderer
 		Semaphore*     CreateSemaphore();
 		Fence*         CreateFence();
 
+		RenderView* CreateRenderView();
+
+		Semaphore* GetImageAvalaibleSemaphore();
+
+		bool Submit();
+		void Wait();
 		void DestroyAll();
 
 	private:
@@ -30,5 +37,9 @@ namespace hod::renderer
 		Vector<Buffer*>        _buffers;
 		Vector<Semaphore*>     _semaphores;
 		Vector<Fence*>         _fences;
+
+		Vector<RenderView*> _renderViews;
+
+		Semaphore* _imageAvalaibleSemaphore = nullptr;
 	};
 }

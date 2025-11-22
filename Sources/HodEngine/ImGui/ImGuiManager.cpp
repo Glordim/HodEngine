@@ -17,7 +17,9 @@
 #include "HodEngine/ImGui/MainBar.hpp"
 #include "HodEngine/ImGui/Window/Window.hpp"
 
+#include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
 
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
@@ -229,8 +231,6 @@ namespace hod::imgui
 #elif defined(PLATFORM_MACOS)
 		ImGui_ImplOSX_Init(static_cast<window::MacOsWindow*>(_mainWindow)->GetNsView());
 #endif
-
-		_renderView.Init();
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
 
@@ -542,12 +542,11 @@ namespace hod::imgui
 
 		RenderCommandImGui* renderCommand = DefaultAllocator::GetInstance().New<RenderCommandImGui>(drawLists, viewport);
 
-		_renderView.Prepare(static_cast<renderer::Context*>(_mainWindow->GetSurface()));
-		_renderView.SetupCamera(Matrix4::Identity, Matrix4::Identity, viewport);
-		_renderView.PushRenderCommand(renderCommand);
-
-		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
-		renderer->PushRenderView(_renderView, false);
+		renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+		renderView->Init();
+		renderView->Prepare(static_cast<renderer::Context*>(_mainWindow->GetSurface()));
+		renderView->SetupCamera(Matrix4::Identity, Matrix4::Identity, viewport);
+		renderView->PushRenderCommand(renderCommand);
 	}
 
 	/// @brief
