@@ -15,6 +15,8 @@
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
+#include "HodEngine/Renderer/FrameResources.hpp"
+
 namespace hod
 {
 	namespace renderer
@@ -26,6 +28,8 @@ namespace hod
 			PickingManager::CreateInstance();
 			FontManager::CreateInstance();
 			FontManager::GetInstance()->Init(); // todo catch error ?
+
+			_frameResources.Resize(_frameInFlight);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -246,6 +250,18 @@ namespace hod
 				}
 			}
 			_renderViews.Clear();
+		}
+
+		void Renderer::Render()
+		{
+			++_frameCount;
+			_frameIndex = _frameCount % _frameInFlight;
+			GetCurrentFrameResources().DestroyAll();
+		}
+
+		FrameResources& Renderer::GetCurrentFrameResources()
+		{
+			return _frameResources[_frameIndex];
 		}
 	}
 }

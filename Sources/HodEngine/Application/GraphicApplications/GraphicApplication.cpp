@@ -160,6 +160,8 @@ namespace hod::application
 			}
 			renderer::Renderer::GetInstance()->WaitViews();
 
+			renderer::Renderer::GetInstance()->Render();
+
 			double sleepTime = targetTimeStep - elapsedTime;
 			if (sleepTime > 0.0)
 			{
