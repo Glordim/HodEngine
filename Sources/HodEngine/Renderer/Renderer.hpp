@@ -81,6 +81,8 @@ namespace hod::renderer
 		virtual Texture*          CreateTexture() = 0;
 		virtual RenderTarget*     CreateRenderTarget() = 0;
 
+		void DestroyTexture(Texture* texture);
+
 		FrameResources& GetCurrentFrameResources();
 
 		// void PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame = true);
@@ -128,6 +130,8 @@ namespace hod::renderer
 		VisualizationMode _visualizationMode = VisualizationMode::Normal;
 
 		Texture* _defaultWhiteTexture = nullptr;
+
+		Vector<Vector<Texture*>> _texturesToDestroy;
 
 		// FIF
 		uint32_t               _frameCount = 0;

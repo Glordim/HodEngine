@@ -444,7 +444,7 @@ namespace hod::imgui
 								break;
 							}
 						}
-						DefaultAllocator::GetInstance().Delete(textureData->TexID);
+						renderer::Renderer::GetInstance()->DestroyTexture(textureData->TexID);
 						textureData->SetTexID(nullptr);
 						textureData->SetStatus(ImTextureStatus_Destroyed);
 
@@ -475,7 +475,7 @@ namespace hod::imgui
 								break;
 							}
 						}
-						DefaultAllocator::GetInstance().Delete(textureData->TexID);
+						renderer::Renderer::GetInstance()->DestroyTexture(textureData->TexID);
 						textureData->SetTexID(nullptr);
 						textureData->SetStatus(ImTextureStatus_Destroyed);
 					}

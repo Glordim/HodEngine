@@ -31,6 +31,7 @@ namespace hod
 			FontManager::GetInstance()->Init(); // todo catch error ?
 
 			_frameResources.Resize(_frameInFlight);
+			_texturesToDestroy.Resize(_frameInFlight);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -257,7 +258,11 @@ namespace hod
 
 		void Renderer::Render()
 		{
-			GetCurrentFrameResources().Submit();
+			FrameResources& frameResources = GetCurrentFrameResources();
+			frameResources.Submit();
+
+			++_frameCount;
+			_frameIndex = _frameCount % _frameInFlight;
 		}
 
 		FrameResources& Renderer::GetCurrentFrameResources()
@@ -267,10 +272,53 @@ namespace hod
 
 		bool Renderer::AcquireNextFrame()
 		{
-			++_frameCount;
-			_frameIndex = _frameCount % _frameInFlight;
-			GetCurrentFrameResources().Wait();
-			GetCurrentFrameResources().DestroyAll();
+			bool resizeRequested = false;
+			for (Context* context : _contexts)
+			{
+				if (context->GetResizeRequested())
+				{
+					resizeRequested = true;
+					break;
+				}
+			}
+			if (resizeRequested)
+			{
+				for (uint32_t frameSkipped = 0; frameSkipped < _frameInFlight; ++frameSkipped)
+				{
+					FrameResources& frameResources = GetCurrentFrameResources();
+					frameResources.Wait();
+					frameResources.DestroyAll();
+
+					for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
+					{
+						DefaultAllocator::GetInstance().Delete(textureToDestroy);
+					}
+					_texturesToDestroy[_frameIndex].Clear();
+
+					++_frameCount;
+					_frameIndex = _frameCount % _frameInFlight;
+				}
+
+				for (Context* context : _contexts)
+				{
+					if (context->GetResizeRequested())
+					{
+						context->ApplyResize();
+					}
+				}
+			}
+			else
+			{
+				FrameResources& frameResources = GetCurrentFrameResources();
+				frameResources.Wait();
+				frameResources.DestroyAll();
+
+				for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
+				{
+					DefaultAllocator::GetInstance().Delete(textureToDestroy);
+				}
+				_texturesToDestroy[_frameIndex].Clear();
+			}
 
 			for (Context* context : _contexts)
 			{
@@ -280,6 +328,11 @@ namespace hod
 				}
 			}
 			return true;
+		}
+
+		void Renderer::DestroyTexture(Texture* texture)
+		{
+			_texturesToDestroy[_frameIndex].PushBack(texture);
 		}
 	}
 }

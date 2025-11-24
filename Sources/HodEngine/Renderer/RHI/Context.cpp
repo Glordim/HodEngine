@@ -17,4 +17,19 @@ namespace hod::renderer
 	{
 		_semaphoresToSwapBuffer.push_back(semaphore);
 	}
+
+	void Context::Resize(uint32_t width, uint32_t height)
+	{
+		if (width != _resizeWidth && height != _resizeHeight)
+		{
+			_resizeRequested = true;
+			_resizeWidth = width;
+			_resizeHeight = height;
+		}
+	}
+
+	bool Context::GetResizeRequested() const
+	{
+		return _resizeRequested;
+	}
 }
