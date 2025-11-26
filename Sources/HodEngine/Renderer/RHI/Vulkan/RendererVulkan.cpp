@@ -728,88 +728,81 @@ namespace hod::renderer
 			return;
 		}
 
-		VkSurfaceCapabilitiesKHR   capabilities;
 		Vector<VkSurfaceFormatKHR> formats;
-		Vector<VkPresentModeKHR>   presentModes;
-
-		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities) != VK_SUCCESS)
+		if (GetPhysicalDeviceSurfaceFormats(physicalDevice, surface, formats) == false || formats.Empty())
 		{
-			OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !");
 			gpuDevice.compatible = false;
 			return;
 		}
-		else
+		bool targetFormatFounded = false;
+		for (const VkSurfaceFormatKHR& format : formats)
 		{
-			uint32_t formatCount;
-			if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr) != VK_SUCCESS)
+			// if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			{
-				OUTPUT_ERROR("Vulkan: Unable to get Surface formats !");
-				gpuDevice.compatible = false;
-				return;
-			}
-
-			if (formatCount != 0)
-			{
-				formats.Resize(formatCount);
-				if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.Data()) != VK_SUCCESS)
-				{
-					OUTPUT_ERROR("Vulkan: Unable to get Surface formats !");
-					gpuDevice.compatible = false;
-					return;
-				}
-
-				bool targetFormatFounded = false;
-
-				for (size_t j = 0; j < formatCount; ++j)
-				{
-					const VkSurfaceFormatKHR& format = formats[j];
-
-					// if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-					if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-					{
-						targetFormatFounded = true;
-						break;
-					}
-				}
-
-				if (targetFormatFounded == false)
-				{
-					gpuDevice.compatible = false;
-					return;
-				}
-			}
-			else
-			{
-				OUTPUT_ERROR("Vulkan: No Surface formats !");
-				gpuDevice.compatible = false;
-				return;
-			}
-
-			uint32_t presentModeCount;
-			if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to get Surface present modes !");
-				gpuDevice.compatible = false;
-				return;
-			}
-
-			if (presentModeCount != 0)
-			{
-				presentModes.Resize(presentModeCount);
-				if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.Data()) != VK_SUCCESS)
-				{
-					OUTPUT_ERROR("Vulkan: Unable to get Surface present modes !");
-					gpuDevice.compatible = false;
-					return;
-				}
-			}
-			else
-			{
-				OUTPUT_ERROR("Vulkan: No Surface present modes !");
-				gpuDevice.compatible = false;
-				return;
+				targetFormatFounded = true;
+				break;
 			}
 		}
+		if (targetFormatFounded == false)
+		{
+			gpuDevice.compatible = false;
+			return;
+		}
+
+		Vector<VkPresentModeKHR> presentModes;
+		if (GetPhysicalDeviceSurfacePresentModes(physicalDevice, surface, presentModes) == false || presentModes.Empty())
+		{
+			gpuDevice.compatible = false;
+			return;
+		}
+	}
+
+	bool RendererVulkan::GetPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR& capabilities)
+	{
+		return vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities) != VK_SUCCESS;
+	}
+
+	bool RendererVulkan::GetPhysicalDeviceSurfaceFormats(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, Vector<VkSurfaceFormatKHR>& formats)
+	{
+		formats.Clear();
+
+		uint32_t formatCount;
+		if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr) != VK_SUCCESS)
+		{
+			return false;
+		}
+
+		if (formatCount != 0)
+		{
+			formats.Resize(formatCount);
+			if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.Data()) != VK_SUCCESS)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool RendererVulkan::GetPhysicalDeviceSurfacePresentModes(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, Vector<VkPresentModeKHR>& presentModes)
+	{
+		presentModes.Clear();
+
+		uint32_t presentModeCount;
+		if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr) != VK_SUCCESS)
+		{
+			return false;
+		}
+
+		if (presentModeCount != 0)
+		{
+			presentModes.Resize(presentModeCount);
+			if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.Data()) != VK_SUCCESS)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/// @brief

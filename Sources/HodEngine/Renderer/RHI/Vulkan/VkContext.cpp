@@ -59,15 +59,23 @@ namespace hod::renderer
 		DestroySwapChain();
 		_currentImageIndex = 0;
 
-		VkSurfaceCapabilitiesKHR   capabilities;
-		Vector<VkSurfaceFormatKHR> formats;
-		Vector<VkPresentModeKHR>   presentModes;
-
 		const VkGpuDevice* selectedGpuDevice = RendererVulkan::GetInstance()->GetVkGpuDevice();
 
-		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(selectedGpuDevice->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
+		VkSurfaceCapabilitiesKHR capabilities;
+		if (RendererVulkan::GetPhysicalDeviceSurfaceCapabilities(selectedGpuDevice->physicalDevice, _surface, capabilities) == false)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !");
+			return false;
+		}
+
+		Vector<VkSurfaceFormatKHR> formats;
+		if (RendererVulkan::GetPhysicalDeviceSurfaceFormats(selectedGpuDevice->physicalDevice, _surface, formats) == false)
+		{
+			return false;
+		}
+
+		Vector<VkPresentModeKHR> presentModes;
+		if (RendererVulkan::GetPhysicalDeviceSurfacePresentModes(selectedGpuDevice->physicalDevice, _surface, presentModes) == false)
+		{
 			return false;
 		}
 
