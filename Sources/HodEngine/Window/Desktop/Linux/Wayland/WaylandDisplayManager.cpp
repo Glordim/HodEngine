@@ -119,7 +119,7 @@ namespace hod::window
 	/// @param version
 	void WaylandDisplayManager::RegistryHandler(void* userData, wl_registry* registry, uint32_t id, const char* interface, uint32_t version)
 	{
-		OUTPUT_MESSAGE("Got a registry event for {} id {}", interface, id);
+		//OUTPUT_MESSAGE("Got a registry event for {} id {}", interface, id);
 
 		if (std::strcmp(interface, wl_compositor_interface.name) == 0)
 		{
@@ -259,7 +259,7 @@ namespace hod::window
 		if ((capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && thiz->_wlKeyboard == nullptr)
 		{
 			thiz->_wlKeyboard = wl_seat_get_keyboard(thiz->_wlSeat);
-			thiz->_xkbContext = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+			//thiz->_xkbContext = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
 			static const wl_keyboard_listener keyboardListener = {
 				.keymap = &WaylandDisplayManager::KeyboardKeymap,
@@ -274,7 +274,7 @@ namespace hod::window
 		}
 		else if (!(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && thiz->_wlKeyboard != nullptr)
 		{
-			xkb_context_unref(thiz->_xkbContext);
+			//xkb_context_unref(thiz->_xkbContext);
 			wl_keyboard_release(thiz->_wlKeyboard);
 			thiz->_wlKeyboard = NULL;
 		}
@@ -424,9 +424,9 @@ namespace hod::window
 	/// @param format
 	/// @param fd
 	/// @param Size
-	void WaylandDisplayManager::KeyboardKeymap(void* userData, wl_keyboard* /*wl_keyboard*/, uint32_t format, int32_t fd, uint32_t Size)
+	void WaylandDisplayManager::KeyboardKeymap(void* /*userData*/, wl_keyboard* /*wl_keyboard*/, uint32_t format, int32_t fd, uint32_t Size)
 	{
-		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
+		//WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 
 		if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1)
 		{
@@ -442,18 +442,18 @@ namespace hod::window
 			return;
 		}
 
-		xkb_keymap* keymap = xkb_keymap_new_from_string(thiz->_xkbContext, mapStr, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
+		//xkb_keymap* keymap = xkb_keymap_new_from_string(thiz->_xkbContext, mapStr, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
 		munmap(mapStr, Size);
 		close(fd);
 
-		if (keymap == nullptr)
+		//if (keymap == nullptr)
 		{
 			return;
 		}
 
-		thiz->_xkbState = xkb_state_new(keymap);
+		//thiz->_xkbState = xkb_state_new(keymap);
 
-		xkb_keymap_unref(keymap);
+		//xkb_keymap_unref(keymap);
 	}
 
 	/// @brief
@@ -574,12 +574,12 @@ namespace hod::window
 	/// @param modsLatched
 	/// @param modsLocked
 	/// @param group
-	void WaylandDisplayManager::KeyboardModifiers(void* userData, wl_keyboard* /*wl_keyboard*/, uint32_t /*serial*/, uint32_t modsDepressed, uint32_t modsLatched, uint32_t modsLocked,
-	                                              uint32_t group)
+	void WaylandDisplayManager::KeyboardModifiers(void* /*userData*/, wl_keyboard* /*wl_keyboard*/, uint32_t /*serial*/, uint32_t /*modsDepressed*/, uint32_t /*modsLatched*/, uint32_t /*modsLocked*/,
+	                                              uint32_t /*group*/)
 	{
-		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
+		//WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 
-		xkb_state_update_mask(thiz->_xkbState, modsDepressed, modsLatched, modsLocked, 0, 0, group);
+		//xkb_state_update_mask(thiz->_xkbState, modsDepressed, modsLatched, modsLocked, 0, 0, group);
 	}
 
 	/// @brief
