@@ -139,7 +139,7 @@ namespace hod::renderer
 		createInfo.pQueueFamilyIndices = nullptr;                // Optional
 		createInfo.preTransform = capabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR; // Todo support VSync
+		createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR; // Todo support VSync
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
