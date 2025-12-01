@@ -1,5 +1,5 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/OS.hpp"
+#include "HodEngine/Core/Debug.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <dlfcn.h>
@@ -15,7 +15,7 @@ namespace hod
 	/// @param callstack
 	/// @param maxSize
 	/// @return
-	uint32_t OS::GetCallstack(void** callstack, uint32_t maxSize)
+	uint32_t Debug::GetCallstack(void** callstack, uint32_t maxSize)
 	{
 		struct BacktraceState
 		{
@@ -54,7 +54,7 @@ namespace hod
 	/// @brief
 	/// @param addr
 	/// @return
-	String OS::GetSymbol(void* addr)
+	String Debug::GetSymbol(void* addr)
 	{
 		String symbol = "NOT_FOUND";
 

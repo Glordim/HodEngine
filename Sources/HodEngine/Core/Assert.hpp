@@ -21,7 +21,7 @@ namespace hod
 	{                                                 \
 		_reportingAssert = true;                      \
 		ReportAssert(#condition, __FILE__, __LINE__); \
-		if (IsDebuggerAttached())                     \
+		if (Debug::IsDebuggerAttached())              \
 			Break();                                  \
 		Crash();                                      \
 	}
