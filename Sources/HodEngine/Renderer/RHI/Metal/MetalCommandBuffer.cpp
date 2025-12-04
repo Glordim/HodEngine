@@ -2,9 +2,9 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
 
-#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 
 #include <Metal/Metal.hpp>
@@ -53,13 +53,13 @@ namespace hod
 
 		/// @brief
 		/// @return
-		bool MetalCommandBuffer::StartRenderPass(RenderTarget* renderTarget, Context* context, const Color& color)
+		bool MetalCommandBuffer::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const Color& color)
 		{
 			(void)renderTarget; // TODO
 
-			MetalContext*      metalContext = static_cast<MetalContext*>(context);
-			CA::MetalDrawable* drawable = metalContext->GetCurrentDrawable();
-			MTL::Texture*      drawableTexture = drawable->texture();
+			MetalPresentationSurface* metalPresentationSurface = static_cast<MetalPresentationSurface*>(presentationSurface);
+			CA::MetalDrawable*        drawable = metalPresentationSurface->GetCurrentDrawable();
+			MTL::Texture*             drawableTexture = drawable->texture();
 
 			MTL::RenderPassDescriptor* renderPassDescriptor = MTL::RenderPassDescriptor::renderPassDescriptor();
 			renderPassDescriptor->colorAttachments()->object(0)->setTexture(drawableTexture);
@@ -227,11 +227,11 @@ namespace hod
 		}
 
 		/// @brief
-		/// @param context
-		void MetalCommandBuffer::Present(Context* context)
+		/// @param presentationSurface
+		void MetalCommandBuffer::Present(PresentationSurface* presentationSurface)
 		{
-			MetalContext* metalContext = static_cast<MetalContext*>(context);
-			_commandBuffer->presentDrawable(metalContext->GetCurrentDrawable());
+			MetalPresentationSurface* metalPresentationSurface = static_cast<MetalPresentationSurface*>(presentationSurface);
+			_commandBuffer->presentDrawable(metalPresentationSurface->GetCurrentDrawable());
 		}
 
 		/// @brief

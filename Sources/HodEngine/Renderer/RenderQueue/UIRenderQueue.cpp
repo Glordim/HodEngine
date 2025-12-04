@@ -8,7 +8,7 @@
 namespace hod::renderer
 {
 	/// @brief
-	/// @param context
+	/// @param renderView
 	/// @return
 	bool UIRenderQueue::Prepare(const RenderView& renderView)
 	{

@@ -8,7 +8,6 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkGpuDevice.hpp"
 
 #include "HodEngine/Renderer/Enums.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 
 #include <VulkanMemoryAllocator/vk_mem_alloc.h>
@@ -43,9 +42,7 @@ namespace hod::renderer
 	public:
 		bool Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
 
-		bool BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) override;
-
-		bool CreateContext(window::Window* window); // TODO virtual in Renderer ?
+		// bool CreateContext(window::Window* window); // TODO virtual in Renderer ?
 
 		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
@@ -72,15 +69,11 @@ namespace hod::renderer
 		const VkGpuDevice* GetVkGpuDevice() const;
 		VkDescriptorPool   GetDescriptorPool() const;
 		VkCommandPool      GetCommandPool() const;
+		VkRenderPass       GetDummyRenderPass() const;
 
 		VkQueue GetPresentQueue() const
 		{
 			return _presentQueue;
-		}
-
-		VkContext* GetContext() const
-		{
-			return _context;
 		}
 
 		VmaAllocator GetVmaAllocator() const
@@ -138,12 +131,11 @@ namespace hod::renderer
 		VkQueue          _presentQueue = VK_NULL_HANDLE;
 		VkCommandPool    _commandPool = VK_NULL_HANDLE;
 		VkDescriptorPool _descriptorPool = VK_NULL_HANDLE;
+		VkRenderPass     _dummyRenderPass = VK_NULL_HANDLE;
 
 		const VkGpuDevice*  _selectedGpu = nullptr;
 		const VkGpuDevice*  _recommandedGpu = nullptr;
 		Vector<VkGpuDevice> _availableGpu;
-
-		VkContext* _context = nullptr;
 
 		VmaAllocator _vmaAllocator = VK_NULL_HANDLE;
 	};

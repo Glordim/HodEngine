@@ -5,8 +5,8 @@
 #include "HodEngine/Renderer/RenderView.hpp"
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/Context.hpp"
 #include "HodEngine/Renderer/RHI/Fence.hpp"
+#include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Semaphore.hpp"
 
 #include <HodEngine/Core/Assert.hpp>
@@ -97,13 +97,13 @@ namespace hod::renderer
 	{
 		// todo sort
 
-		Semaphore* semaphore = nullptr;
-		Context*   context = nullptr;
+		Semaphore*           semaphore = nullptr;
+		PresentationSurface* presentationSurface = nullptr;
 		for (RenderView* renderView : _renderViews)
 		{
-			if (renderView->GetContext())
+			if (renderView->GetPresentationSurface())
 			{
-				context = renderView->GetContext();
+				presentationSurface = renderView->GetPresentationSurface();
 				if (semaphore == nullptr)
 				{
 					semaphore = _imageAvalaibleSemaphore;
@@ -116,9 +116,9 @@ namespace hod::renderer
 				renderView->Execute();
 			}
 		}
-		context->AddSemaphoreToSwapBuffer(semaphore);
+		presentationSurface->AddSemaphoreToSwapBuffer(semaphore);
 
-		if (context->SwapBuffer() == false)
+		if (presentationSurface->SwapBuffer() == false)
 		{
 			return false;
 		}

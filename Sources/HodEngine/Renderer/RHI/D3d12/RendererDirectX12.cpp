@@ -209,159 +209,159 @@ namespace hod::renderer
 		return true;
 	}
 
+	/*
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
 	bool RendererDirectX12::BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier)
 	{
-		/*
-		_selectedGpu = (D3d12GpuDevice*)gpuDevice;
+	    _selectedGpu = (D3d12GpuDevice*)gpuDevice;
 
-		HRESULT result = D3D12CreateDevice(_selectedGpu->adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_device));
-		if (FAILED(result) == true)
-		{
-		    OUTPUT_ERROR("D3d12: Unable to create Device!");
-		    return false;
-		}
+	    HRESULT result = D3D12CreateDevice(_selectedGpu->adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_device));
+	    if (FAILED(result) == true)
+	    {
+	        OUTPUT_ERROR("D3d12: Unable to create Device!");
+	        return false;
+	    }
 
-		ComPtr<ID3D12InfoQueue> pInfoQueue;
-		if (SUCCEEDED(_device.As(&pInfoQueue)) == true)
-		{
-		    pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-		    pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
-		    pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
+	    ComPtr<ID3D12InfoQueue> pInfoQueue;
+	    if (SUCCEEDED(_device.As(&pInfoQueue)) == true)
+	    {
+	        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+	        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+	        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
 
-		    // Suppress whole categories of messages
-		    //D3D12_MESSAGE_CATEGORY Categories[] = {};
+	        // Suppress whole categories of messages
+	        //D3D12_MESSAGE_CATEGORY Categories[] = {};
 
-		    // Suppress messages based on their severity level
-		    D3D12_MESSAGE_SEVERITY Severities[] =
-		    {
-		        D3D12_MESSAGE_SEVERITY_INFO
-		    };
+	        // Suppress messages based on their severity level
+	        D3D12_MESSAGE_SEVERITY Severities[] =
+	        {
+	            D3D12_MESSAGE_SEVERITY_INFO
+	        };
 
-		    // Suppress individual messages by their ID
-		    D3D12_MESSAGE_ID DenyIds[] = {
-		        D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,   // I'm really not sure how to avoid this message.
-		        D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,                         // This warning occurs when using capture frame while graphics debugging.
-		        D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,                       // This warning occurs when using capture frame while graphics debugging.
-		    };
+	        // Suppress individual messages by their ID
+	        D3D12_MESSAGE_ID DenyIds[] = {
+	            D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,   // I'm really not sure how to avoid this message.
+	            D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,                         // This warning occurs when using capture frame while graphics debugging.
+	            D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,                       // This warning occurs when using capture frame while graphics debugging.
+	        };
 
-		    D3D12_INFO_QUEUE_FILTER NewFilter = {};
-		    //NewFilter.DenyList.NumCategories = _countof(Categories);
-		    //NewFilter.DenyList.pCategoryList = Categories;
-		    NewFilter.DenyList.NumSeverities = _countof(Severities);
-		    NewFilter.DenyList.pSeverityList = Severities;
-		    NewFilter.DenyList.NumIDs = _countof(DenyIds);
-		    NewFilter.DenyList.pIDList = DenyIds;
+	        D3D12_INFO_QUEUE_FILTER NewFilter = {};
+	        //NewFilter.DenyList.NumCategories = _countof(Categories);
+	        //NewFilter.DenyList.pCategoryList = Categories;
+	        NewFilter.DenyList.NumSeverities = _countof(Severities);
+	        NewFilter.DenyList.pSeverityList = Severities;
+	        NewFilter.DenyList.NumIDs = _countof(DenyIds);
+	        NewFilter.DenyList.pIDList = DenyIds;
 
-		    if (FAILED(pInfoQueue->PushStorageFilter(&NewFilter)) == true)
-		    {
-		        OUTPUT_ERROR("D3d12: Unable to setup debug InfoQueue!");
-		        return false;
-		    }
-		}
+	        if (FAILED(pInfoQueue->PushStorageFilter(&NewFilter)) == true)
+	        {
+	            OUTPUT_ERROR("D3d12: Unable to setup debug InfoQueue!");
+	            return false;
+	        }
+	    }
 
-		D3D12_COMMAND_QUEUE_DESC desc = {};
-		desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-		desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		desc.NodeMask = 0;
+	    D3D12_COMMAND_QUEUE_DESC desc = {};
+	    desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	    desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+	    desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	    desc.NodeMask = 0;
 
-		if (FAILED(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_commandQueue))) == true)
-		{
-		    OUTPUT_ERROR("D3d12: Unable to create Command queue!");
-		    return false;
-		}
+	    if (FAILED(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_commandQueue))) == true)
+	    {
+	        OUTPUT_ERROR("D3d12: Unable to create Command queue!");
+	        return false;
+	    }
 
-		int width = 0;
-		int height = 0;
+	    int width = 0;
+	    int height = 0;
 
-		HWND hwnd = NULL; // TODO Get from Application
+	    HWND hwnd = NULL; // TODO Get from Application
 
-		RECT rect;
-		if (GetWindowRect(hwnd, &rect) == TRUE)
-		{
-		    width = rect.right - rect.left;
-		    height = rect.bottom - rect.top;
-		}
-		else
-		{
-		    width = 800;
-		    height = 600;
-		}
+	    RECT rect;
+	    if (GetWindowRect(hwnd, &rect) == TRUE)
+	    {
+	        width = rect.right - rect.left;
+	        height = rect.bottom - rect.top;
+	    }
+	    else
+	    {
+	        width = 800;
+	        height = 600;
+	    }
 
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-		swapChainDesc.Width = width;
-		swapChainDesc.Height = height;
-		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapChainDesc.Stereo = FALSE;
-		swapChainDesc.SampleDesc = { 1, 0 };
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferCount = 2;
-		swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-		// It is recommended to always allow tearing if tearing support is available.
-		swapChainDesc.Flags = 0; // CheckTearingSupport() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+	    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+	    swapChainDesc.Width = width;
+	    swapChainDesc.Height = height;
+	    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	    swapChainDesc.Stereo = FALSE;
+	    swapChainDesc.SampleDesc = { 1, 0 };
+	    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	    swapChainDesc.BufferCount = 2;
+	    swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+	    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	    swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+	    // It is recommended to always allow tearing if tearing support is available.
+	    swapChainDesc.Flags = 0; // CheckTearingSupport() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
-		ComPtr<IDXGISwapChain1> swapChain1 = nullptr;
+	    ComPtr<IDXGISwapChain1> swapChain1 = nullptr;
 
-		if (FAILED(_dxgiFactory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &swapChainDesc, nullptr, nullptr, &swapChain1)) == true)
-		{
-		    OUTPUT_ERROR("D3d12: Unable to create Swap Chain!");
-		    return false;
-		}
+	    if (FAILED(_dxgiFactory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &swapChainDesc, nullptr, nullptr, &swapChain1)) == true)
+	    {
+	        OUTPUT_ERROR("D3d12: Unable to create Swap Chain!");
+	        return false;
+	    }
 
-		// Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
-		// will be handled manually.
-		if (FAILED(_dxgiFactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER)) == true)
-		{
-		    OUTPUT_ERROR("D3d12: Unable to disable Alt+Enter for this Window!");
-		}
+	    // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
+	    // will be handled manually.
+	    if (FAILED(_dxgiFactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER)) == true)
+	    {
+	        OUTPUT_ERROR("D3d12: Unable to disable Alt+Enter for this Window!");
+	    }
 
-		swapChain1.As(&_swapChain);
+	    swapChain1.As(&_swapChain);
 
-		D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
-		descHeap.NumDescriptors = 15; // TODO
-		descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	    D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
+	    descHeap.NumDescriptors = 15; // TODO
+	    descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 
-		if (FAILED(_device->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&_descriptorHeap))) == true)
-		{
-		    OUTPUT_ERROR("D3d12: Unable to create Descriptor Heap!");
-		    return false;
-		}
+	    if (FAILED(_device->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&_descriptorHeap))) == true)
+	    {
+	        OUTPUT_ERROR("D3d12: Unable to create Descriptor Heap!");
+	        return false;
+	    }
 
-		UINT rtvDescriptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	    UINT rtvDescriptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-		_backBuffers.Resize(2);
+	    _backBuffers.Resize(2);
 
-		for (size_t i = 0; i < 2; ++i)
-		{
-		    ComPtr<ID3D12Resource> backBuffer = nullptr;
-		    if (FAILED(_swapChain->GetBuffer((UINT)i, IID_PPV_ARGS(&backBuffer))) == true)
-		    {
-		        OUTPUT_ERROR("D3d12: Unable to retreive BackBuffer from SwapChain!");
-		        return false;
-		    }
+	    for (size_t i = 0; i < 2; ++i)
+	    {
+	        ComPtr<ID3D12Resource> backBuffer = nullptr;
+	        if (FAILED(_swapChain->GetBuffer((UINT)i, IID_PPV_ARGS(&backBuffer))) == true)
+	        {
+	            OUTPUT_ERROR("D3d12: Unable to retreive BackBuffer from SwapChain!");
+	            return false;
+	        }
 
-		    _device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
+	        _device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
 
-		    _backBuffers[i] = backBuffer;
+	        _backBuffers[i] = backBuffer;
 
-		    rtvHandle.ptr += rtvDescriptorSize;
-		}
+	        rtvHandle.ptr += rtvDescriptorSize;
+	    }
 
-		if (FAILED(_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator))) == true)
-		{
-		    OUTPUT_ERROR("D3d12: Unable to creare Command Allocator!");
-		    return false;
-		}
-		*/
-		return true;
+	    if (FAILED(_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator))) == true)
+	    {
+	        OUTPUT_ERROR("D3d12: Unable to creare Command Allocator!");
+	        return false;
+	    }
+	    return true;
 	}
+	*/
 
 	/*
 	            ComPtr<ID3D12GraphicsCommandList> commandList = nullptr;

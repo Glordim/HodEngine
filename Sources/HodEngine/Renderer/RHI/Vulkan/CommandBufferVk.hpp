@@ -10,58 +10,54 @@ namespace hod::renderer
 	class VkMaterial;
 	class VkMaterialInstance;
 
-	/// @brief 
+	/// @brief
 	class HOD_RENDERER_API CommandBufferVk : public CommandBuffer
 	{
 	public:
+		CommandBufferVk();
+		CommandBufferVk(const CommandBufferVk&) = delete;
+		CommandBufferVk(CommandBufferVk&&) = delete;
+		~CommandBufferVk() override;
 
-							CommandBufferVk();
-							CommandBufferVk(const CommandBufferVk&) = delete;
-							CommandBufferVk(CommandBufferVk&&) = delete;
-							~CommandBufferVk() override;
-
-		void				operator=(const CommandBufferVk&) = delete;
-		void				operator=(CommandBufferVk&&) = delete;
+		void operator=(const CommandBufferVk&) = delete;
+		void operator=(CommandBufferVk&&) = delete;
 
 	public:
+		VkCommandBuffer GetVkCommandBuffer() const;
 
-		VkCommandBuffer		GetVkCommandBuffer() const;
+		bool StartRecord() override;
+		bool EndRecord() override;
 
-		bool				StartRecord() override;
-		bool				EndRecord() override;
+		bool StartRenderPass(RenderTarget* renderTarget = nullptr, PresentationSurface* presentationSurface = nullptr, const Color& color = Color(0.1f, 0.1f, 0.1f, 1.0f)) override;
+		bool EndRenderPass() override;
 
-		bool				StartRenderPass(RenderTarget* renderTarget = nullptr, Context* context = nullptr, const Color& color = Color(0.1f, 0.1f, 0.1f, 1.0f)) override;
-		bool				EndRenderPass() override;
+		void SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) override;
 
-		void				SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) override;
+		void SetProjectionMatrix(const Matrix4& projectionMatrix) override;
+		void SetViewMatrix(const Matrix4& viewMatrix) override;
+		void SetModelMatrix(const Matrix4& modelMatrix) override;
 
-		void				SetProjectionMatrix(const Matrix4& projectionMatrix) override;
-		void				SetViewMatrix(const Matrix4& viewMatrix) override;
-		void				SetModelMatrix(const Matrix4& modelMatrix) override;
+		void SetViewport(const Rect& viewport) override;
+		void SetScissor(const Rect& scissor) override;
 
-		void				SetViewport(const Rect& viewport) override;
-		void				SetScissor(const Rect& scissor) override;
+		void SetMaterial(const Material* material) override;
+		void SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) override;
+		void SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset = 0) override;
+		void SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) override;
 
-		void				SetMaterial(const Material* material) override;
-		void				SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) override;
-		void				SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset = 0) override;
-		void				SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) override;
+		void Draw(uint32_t vertexCount) override;
+		void DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset) override;
 
-		void				Draw(uint32_t vertexCount) override;
-		void				DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset) override;
-
-		void				Present(Context* context) override;
-
-	private:
-
-		void				Release();
+		void Present(PresentationSurface* presentationSurface) override;
 
 	private:
+		void Release();
 
-		const VkMaterial*	_material = nullptr;
+	private:
+		const VkMaterial* _material = nullptr;
 
-		VkCommandBuffer		_vkCommandBuffer = VK_NULL_HANDLE;
+		VkCommandBuffer _vkCommandBuffer = VK_NULL_HANDLE;
 
-		//VkMaterialInstance* _sharedMinimalMaterialInstance = nullptr;
+		// VkMaterialInstance* _sharedMinimalMaterialInstance = nullptr;
 	};
 }

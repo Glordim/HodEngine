@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include "HodEngine/Renderer/RHI/Context.hpp"
+#include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -10,11 +10,11 @@
 namespace hod::renderer
 {
 	/// @brief
-	class HOD_RENDERER_API VkContext : public Context
+	class HOD_RENDERER_API VkPresentationSurface : public PresentationSurface
 	{
 	public:
-		VkContext(window::Window* window, VkSurfaceKHR surface);
-		~VkContext() override;
+		VkPresentationSurface(window::Window* window, VkSurfaceKHR surface);
+		~VkPresentationSurface() override;
 
 	public:
 		bool    ApplyResize() override;

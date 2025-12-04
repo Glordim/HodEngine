@@ -3,9 +3,9 @@
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/Context.hpp"
 #include "HodEngine/Renderer/RHI/Fence.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 #include "HodEngine/Renderer/RHI/Semaphore.hpp"
 
@@ -44,17 +44,17 @@ namespace hod::renderer
 	}
 
 	/// @brief
-	/// @param context
+	/// @param presentationSurface
 	/// @return
-	bool RenderView::Prepare(Context* context)
+	bool RenderView::Prepare(PresentationSurface* presentationSurface)
 	{
-		_context = context;
+		_presentationSurface = presentationSurface;
 		return true;
 	}
 
 	bool RenderView::Prepare(window::Window* window)
 	{
-		return Prepare(Renderer::GetInstance()->FindContext(window));
+		return Prepare(Renderer::GetInstance()->FindPresentationSurface(window));
 	}
 
 	void RenderView::Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget)
@@ -141,7 +141,7 @@ namespace hod::renderer
 			{
 				_renderTarget->PrepareForWrite(commandBuffer);
 			}
-			commandBuffer->StartRenderPass(_renderTarget, _context);
+			commandBuffer->StartRenderPass(_renderTarget, _presentationSurface);
 
 			commandBuffer->SetProjectionMatrix(_projection);
 			commandBuffer->SetViewMatrix(_view);
@@ -157,16 +157,16 @@ namespace hod::renderer
 			}
 			commandBuffer->EndRecord();
 		}
-		if (_context != nullptr)
+		if (_presentationSurface != nullptr)
 		{
-			commandBuffer->Present(_context);
+			commandBuffer->Present(_presentationSurface);
 		}
 
 		_commandBuffers.push_back(commandBuffer);
 
 		_renderFinishedFence->Reset();
 
-		if (_context != nullptr)
+		if (_presentationSurface != nullptr)
 		{
 			renderer->SubmitCommandBuffers(_commandBuffers.Data(), (uint32_t)_commandBuffers.Size(), _renderFinishedSemaphore, previousSemaphore, _renderFinishedFence);
 		}
@@ -190,7 +190,7 @@ namespace hod::renderer
 		_worldRenderQueue.Clear();
 		_uiRenderQueue.Clear();
 
-		_context = nullptr;
+		_presentationSurface = nullptr;
 		_renderTarget = nullptr;
 		_pickingRenderTarget = nullptr;
 
@@ -203,9 +203,9 @@ namespace hod::renderer
 
 	Vector2 RenderView::GetRenderResolution() const
 	{
-		if (_context != nullptr)
+		if (_presentationSurface != nullptr)
 		{
-			return _context->GetResolution();
+			return _presentationSurface->GetResolution();
 		}
 		else if (_renderTarget != nullptr)
 		{
@@ -234,9 +234,9 @@ namespace hod::renderer
 		return _autoDestroy;
 	}
 
-	Context* RenderView::GetContext() const
+	PresentationSurface* RenderView::GetPresentationSurface() const
 	{
-		return _context;
+		return _presentationSurface;
 	}
 
 	Semaphore* RenderView::GetRenderFinishedSemaphore() const

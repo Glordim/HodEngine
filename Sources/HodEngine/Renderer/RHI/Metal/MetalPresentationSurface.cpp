@@ -1,5 +1,5 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
@@ -15,9 +15,8 @@
 namespace hod::renderer
 {
 	/// @brief
-	MetalContext::MetalContext(window::MacOsWindow* window)
-	: Context()
-	, _window(window)
+	MetalPresentationSurface::MetalPresentationSurface(window::MacOsWindow* window)
+	: PresentationSurface(window)
 	{
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
 
@@ -32,7 +31,7 @@ namespace hod::renderer
 	}
 
 	/// @brief
-	MetalContext::~MetalContext()
+	MetalPresentationSurface::~MetalPresentationSurface()
 	{
 		if (_drawable != nullptr)
 		{
@@ -41,7 +40,7 @@ namespace hod::renderer
 		_layer->release();
 	}
 
-	bool MetalContext::AcquireNextImageIndex()
+	bool MetalPresentationSurface::AcquireNextImageIndex()
 	{
 		if (_drawable != nullptr)
 		{
@@ -51,14 +50,14 @@ namespace hod::renderer
 		return _drawable != nullptr;
 	}
 
-	CA::MetalDrawable* MetalContext::GetCurrentDrawable() const
+	CA::MetalDrawable* MetalPresentationSurface::GetCurrentDrawable() const
 	{
 		return _drawable;
 	}
 
-	void MetalContext::Resize(uint32_t width, uint32_t height)
+	void MetalPresentationSurface::Resize(uint32_t width, uint32_t height)
 	{
-		float scaleFactor = _window->GetScaleFactor();
+		float scaleFactor = static_cast<window::MacOsWindow*>(_window)->GetScaleFactor();
 
 		//_layer->setContentsScale(scaleFactor);
 
@@ -68,17 +67,17 @@ namespace hod::renderer
 		_layer->setDrawableSize(Size);
 	}
 
-	Vector2 MetalContext::GetResolution()
+	Vector2 MetalPresentationSurface::GetResolution()
 	{
 		return Vector2(static_cast<uint32_t>(_layer->drawableSize().width), static_cast<uint32_t>(_layer->drawableSize().height));
 	}
 
-	bool MetalContext::SwapBuffer()
+	bool MetalPresentationSurface::SwapBuffer()
 	{
 		return true;
 	}
 
-	CA::MetalLayer* MetalContext::GetLayer() const
+	CA::MetalLayer* MetalPresentationSurface::GetLayer() const
 	{
 		return _layer;
 	}

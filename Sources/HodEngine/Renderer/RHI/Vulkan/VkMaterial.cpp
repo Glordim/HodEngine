@@ -391,7 +391,7 @@ namespace hod::renderer
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicState;
 		pipelineInfo.layout = _pipelineLayout;
-		pipelineInfo.renderPass = renderer->GetContext()->GetRenderPass();
+		pipelineInfo.renderPass = renderer->GetDummyRenderPass();
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 		pipelineInfo.basePipelineIndex = -1;

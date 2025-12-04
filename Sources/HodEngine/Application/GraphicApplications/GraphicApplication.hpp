@@ -5,8 +5,6 @@
 
 #include <stdint.h>
 
-#include <HodEngine/Renderer/RHI/Context.hpp>
-
 namespace hod::window
 {
 	class Window;

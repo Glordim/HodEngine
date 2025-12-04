@@ -107,17 +107,6 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief
 		//-----------------------------------------------------------------------------
-		bool RendererMetal::BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier)
-		{
-			// TODO
-			(void)context;
-			(void)physicalDeviceIdentifier;
-			return true;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
 		Shader* RendererMetal::CreateShader(Shader::ShaderType type)
 		{
 			return DefaultAllocator::GetInstance().New<MetalShader>(type);

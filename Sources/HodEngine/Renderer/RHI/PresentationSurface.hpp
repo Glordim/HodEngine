@@ -15,11 +15,11 @@ namespace hod::renderer
 	class Semaphore;
 
 	/// @brief
-	class HOD_RENDERER_API Context
+	class HOD_RENDERER_API PresentationSurface
 	{
 	public:
-		Context(window::Window* window);
-		virtual ~Context();
+		PresentationSurface(window::Window* window);
+		virtual ~PresentationSurface();
 
 	public:
 		virtual void Resize(uint32_t width, uint32_t height);

@@ -1,6 +1,6 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
-#include "HodEngine/Renderer/RHI/Context.hpp"
+#include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Semaphore.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
@@ -9,19 +9,19 @@
 
 namespace hod::renderer
 {
-	Context::Context(window::Window* window)
+	PresentationSurface::PresentationSurface(window::Window* window)
 	: _window(window)
 	{
 	}
 
-	Context::~Context() {}
+	PresentationSurface::~PresentationSurface() {}
 
-	void Context::AddSemaphoreToSwapBuffer(const Semaphore* semaphore)
+	void PresentationSurface::AddSemaphoreToSwapBuffer(const Semaphore* semaphore)
 	{
 		_semaphoresToSwapBuffer.push_back(semaphore);
 	}
 
-	void Context::Resize(uint32_t width, uint32_t height)
+	void PresentationSurface::Resize(uint32_t width, uint32_t height)
 	{
 		if (width != _resizeWidth && height != _resizeHeight)
 		{
@@ -31,12 +31,12 @@ namespace hod::renderer
 		}
 	}
 
-	bool Context::GetResizeRequested() const
+	bool PresentationSurface::GetResizeRequested() const
 	{
 		return _resizeRequested;
 	}
 
-	window::Window* Context::GetWindow() const
+	window::Window* PresentationSurface::GetWindow() const
 	{
 		return _window;
 	}

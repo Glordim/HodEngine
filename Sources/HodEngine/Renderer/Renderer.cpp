@@ -5,9 +5,9 @@
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/Renderer/RHI/Context.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
 #include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
@@ -16,7 +16,6 @@
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
 #include "HodEngine/Renderer/FrameResources.hpp"
-#include "HodEngine/Renderer/RHI/Context.hpp"
 
 namespace hod
 {
@@ -273,9 +272,9 @@ namespace hod
 		bool Renderer::AcquireNextFrame()
 		{
 			bool resizeRequested = false;
-			for (Context* context : _contexts)
+			for (PresentationSurface* presentationSurface : _presentationSurfaces)
 			{
-				if (context->GetResizeRequested())
+				if (presentationSurface->GetResizeRequested())
 				{
 					resizeRequested = true;
 					break;
@@ -299,11 +298,11 @@ namespace hod
 					_frameIndex = _frameCount % _frameInFlight;
 				}
 
-				for (Context* context : _contexts)
+				for (PresentationSurface* presentationSurface : _presentationSurfaces)
 				{
-					if (context->GetResizeRequested())
+					if (presentationSurface->GetResizeRequested())
 					{
-						context->ApplyResize();
+						presentationSurface->ApplyResize();
 					}
 				}
 			}
@@ -320,9 +319,9 @@ namespace hod
 				_texturesToDestroy[_frameIndex].Clear();
 			}
 
-			for (Context* context : _contexts)
+			for (PresentationSurface* presentationSurface : _presentationSurfaces)
 			{
-				if (context->AcquireNextImageIndex(GetCurrentFrameResources().GetImageAvalaibleSemaphore()) == false)
+				if (presentationSurface->AcquireNextImageIndex(GetCurrentFrameResources().GetImageAvalaibleSemaphore()) == false)
 				{
 					return false;
 				}
@@ -335,13 +334,13 @@ namespace hod
 			_texturesToDestroy[_frameIndex].PushBack(texture);
 		}
 
-		Context* Renderer::FindContext(window::Window* window) const
+		PresentationSurface* Renderer::FindPresentationSurface(window::Window* window) const
 		{
-			for (Context* context : _contexts)
+			for (PresentationSurface* presentationSurface : _presentationSurfaces)
 			{
-				if (context->GetWindow() == window)
+				if (presentationSurface->GetWindow() == window)
 				{
-					return context;
+					return presentationSurface;
 				}
 			}
 			return nullptr;

@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkPresentationSurface.hpp"
 
 #include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -11,8 +11,8 @@
 namespace hod::renderer
 {
 	/// @brief
-	VkContext::VkContext(window::Window* window, VkSurfaceKHR surface)
-	: Context(window)
+	VkPresentationSurface::VkPresentationSurface(window::Window* window, VkSurfaceKHR surface)
+	: PresentationSurface(window)
 	, _surface(surface)
 	{
 		_resizeWidth = 800;
@@ -21,7 +21,7 @@ namespace hod::renderer
 	}
 
 	/// @brief
-	VkContext::~VkContext()
+	VkPresentationSurface::~VkPresentationSurface()
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -36,7 +36,7 @@ namespace hod::renderer
 	/// @brief
 	/// @param width
 	/// @param height
-	bool VkContext::ApplyResize()
+	bool VkPresentationSurface::ApplyResize()
 	{
 		_resizeRequested = false;
 		return CreateSwapChain(_resizeWidth, _resizeHeight);
@@ -44,14 +44,14 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	Vector2 VkContext::GetResolution() const
+	Vector2 VkPresentationSurface::GetResolution() const
 	{
 		return Vector2((float)_swapChainExtent.width, (float)_swapChainExtent.height);
 	}
 
 	/// @brief
 	/// @return
-	bool VkContext::CreateSwapChain(uint32_t width, uint32_t height)
+	bool VkPresentationSurface::CreateSwapChain(uint32_t width, uint32_t height)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 		Assert(device != nullptr);
@@ -263,7 +263,7 @@ namespace hod::renderer
 	}
 
 	/// @brief
-	void VkContext::DestroySwapChain()
+	void VkPresentationSurface::DestroySwapChain()
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
@@ -296,35 +296,35 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	VkSurfaceKHR VkContext::GetSurface() const
+	VkSurfaceKHR VkPresentationSurface::GetSurface() const
 	{
 		return _surface;
 	}
 
 	/// @brief
 	/// @return
-	VkRenderPass VkContext::GetRenderPass() const
+	VkRenderPass VkPresentationSurface::GetRenderPass() const
 	{
 		return _renderPass;
 	}
 
 	/// @brief
 	/// @return
-	VkExtent2D VkContext::GetSwapChainExtent() const
+	VkExtent2D VkPresentationSurface::GetSwapChainExtent() const
 	{
 		return _swapChainExtent;
 	}
 
 	/// @brief
 	/// @return
-	VkFramebuffer VkContext::GetSwapChainCurrentFrameBuffer() const
+	VkFramebuffer VkPresentationSurface::GetSwapChainCurrentFrameBuffer() const
 	{
 		return _swapchainFramebuffers[_currentImageIndex];
 	}
 
 	/// @brief
 	/// @return
-	bool VkContext::AcquireNextImageIndex(Semaphore* imageAvailableSemaphore)
+	bool VkPresentationSurface::AcquireNextImageIndex(Semaphore* imageAvailableSemaphore)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
@@ -346,7 +346,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	bool VkContext::SwapBuffer()
+	bool VkPresentationSurface::SwapBuffer()
 	{
 		if (_swapchain == nullptr) // For exemple if the window is hidden the Size will be 0 and not swap chain are created
 		{

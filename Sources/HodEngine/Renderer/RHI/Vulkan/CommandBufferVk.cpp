@@ -6,6 +6,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkPresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -99,9 +100,9 @@ namespace hod
 
 		/// @brief
 		/// @param renderTarget
-		/// @param context
+		/// @param presentationSurface
 		/// @param color
-		bool CommandBufferVk::StartRenderPass(RenderTarget* renderTarget, Context* context, const Color& color)
+		bool CommandBufferVk::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const Color& color)
 		{
 			VkClearValue clearColor[1];
 			clearColor[0].color.float32[0] = color.r;
@@ -113,17 +114,11 @@ namespace hod
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			if (renderTarget == nullptr)
 			{
-				VkContext* vkContext = (VkContext*)context;
-				if (vkContext == nullptr)
-				{
-					RendererVulkan* renderer = RendererVulkan::GetInstance();
-					vkContext = renderer->GetContext();
-				}
-
-				renderPassInfo.renderPass = vkContext->GetRenderPass();
-				renderPassInfo.framebuffer = vkContext->GetSwapChainCurrentFrameBuffer();
+				VkPresentationSurface* vkPresentationSurface = (VkPresentationSurface*)presentationSurface;
+				renderPassInfo.renderPass = vkPresentationSurface->GetRenderPass();
+				renderPassInfo.framebuffer = vkPresentationSurface->GetSwapChainCurrentFrameBuffer();
 				renderPassInfo.renderArea.offset = {0, 0};
-				renderPassInfo.renderArea.extent = vkContext->GetSwapChainExtent();
+				renderPassInfo.renderArea.extent = vkPresentationSurface->GetSwapChainExtent();
 			}
 			else
 			{
@@ -325,6 +320,6 @@ namespace hod
 			vkCmdDrawIndexed(_vkCommandBuffer, indexCount, 1, indexOffset, vertexOffset, 0);
 		}
 
-		void CommandBufferVk::Present(Context* /*context*/) {}
+		void CommandBufferVk::Present(PresentationSurface* /*presentationSurface*/) {}
 	}
 }

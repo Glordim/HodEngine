@@ -18,7 +18,7 @@ namespace hod::renderer
 {
 	class RenderCommand;
 	class RenderTarget;
-	class Context;
+	class PresentationSurface;
 	class MaterialInstance;
 	class Semaphore;
 	class Fence;
@@ -41,13 +41,13 @@ namespace hod::renderer
 		void Init();
 		void Terminate();
 
-		bool    Prepare(Context* context);
+		bool    Prepare(PresentationSurface* presentationSurface);
 		bool    Prepare(window::Window* window);
 		void    Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget);
 		Vector2 GetRenderResolution() const;
 
-		Context*   GetContext() const;
-		Semaphore* GetRenderFinishedSemaphore() const;
+		PresentationSurface* GetPresentationSurface() const;
+		Semaphore*           GetRenderFinishedSemaphore() const;
 
 		void           SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport);
 		const Matrix4& GetViewMatrix() const;
@@ -69,9 +69,9 @@ namespace hod::renderer
 
 		MaterialInstance* _pickingMaterialInstance = nullptr;
 
-		Context*      _context = nullptr;
-		RenderTarget* _renderTarget = nullptr;
-		RenderTarget* _pickingRenderTarget = nullptr;
+		PresentationSurface* _presentationSurface = nullptr;
+		RenderTarget*        _renderTarget = nullptr;
+		RenderTarget*        _pickingRenderTarget = nullptr;
 
 		Semaphore* _renderFinishedSemaphore = nullptr;
 		Fence*     _renderFinishedFence = nullptr;

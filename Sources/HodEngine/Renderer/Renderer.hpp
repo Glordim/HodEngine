@@ -31,7 +31,7 @@ namespace hod::renderer
 	class Material;
 	class MaterialInstance;
 	class Texture;
-	class Context;
+	class PresentationSurface;
 	class VertexInput;
 	class RenderTarget;
 	class Semaphore;
@@ -60,8 +60,6 @@ namespace hod::renderer
 
 		virtual bool Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) = 0;
 		virtual void Clear();
-
-		virtual bool BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier = 0) = 0;
 
 		virtual bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) = 0;
 
@@ -93,7 +91,7 @@ namespace hod::renderer
 
 		bool AcquireNextFrame();
 
-		Context* FindContext(window::Window* window) const;
+		PresentationSurface* FindPresentationSurface(window::Window* window) const;
 
 		// Debug
 	public:
@@ -116,8 +114,8 @@ namespace hod::renderer
 		Material*         _defaultMaterial = nullptr;
 		MaterialInstance* _defaultMaterialInstance = nullptr;
 
-		Vector<RenderView*> _renderViews;
-		Vector<Context*>    _contexts;
+		Vector<RenderView*>          _renderViews;
+		Vector<PresentationSurface*> _presentationSurfaces;
 
 		/*
 		Material* _unlitVertexColorMaterial = nullptr;

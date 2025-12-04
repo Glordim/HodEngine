@@ -8,6 +8,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkMaterialInstance.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/VkPresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
@@ -46,6 +47,11 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	RendererVulkan::~RendererVulkan()
 	{
+		if (_dummyRenderPass != VK_NULL_HANDLE)
+		{
+			vkDestroyRenderPass(_device, _dummyRenderPass, nullptr);
+		}
+
 		vmaDestroyAllocator(_vmaAllocator);
 
 		if (_device != VK_NULL_HANDLE)
@@ -136,6 +142,11 @@ namespace hod::renderer
 		return _commandPool;
 	}
 
+	VkRenderPass RendererVulkan::GetDummyRenderPass() const
+	{
+		return _dummyRenderPass;
+	}
+
 	/*
 	//-----------------------------------------------------------------------------
 	//! @brief
@@ -188,10 +199,67 @@ namespace hod::renderer
 			return false;
 		}
 
-		_context = DefaultAllocator::GetInstance().New<VkContext>(mainWindow, surface);
-		_context->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
-		_context->ApplyResize();
-		_contexts.PushBack(_context);
+		VkPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<VkPresentationSurface>(mainWindow, surface);
+		presentationSurface->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
+		presentationSurface->ApplyResize();
+		_presentationSurfaces.PushBack(presentationSurface);
+
+		// TODO
+		{
+			// Render pass
+			VkAttachmentDescription colorAttachment = {};
+			colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+			colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+			VkAttachmentReference colorAttachmentRef = {};
+			colorAttachmentRef.attachment = 0;
+			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			/*
+			VkAttachmentDescription depthAttachment = {};
+			depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
+			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+			depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+			VkAttachmentReference depthAttachmentRef = {};
+			depthAttachmentRef.attachment = 1;
+			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			*/
+
+			VkSubpassDescription subpass = {};
+			subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+			subpass.colorAttachmentCount = 1;
+			subpass.pColorAttachments = &colorAttachmentRef;
+			subpass.pDepthStencilAttachment = nullptr; // &depthAttachmentRef;
+
+			VkAttachmentDescription attachments[] = {colorAttachment}; // , depthAttachment };
+
+			VkRenderPassCreateInfo renderPassInfo = {};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+			renderPassInfo.attachmentCount = 1;
+			renderPassInfo.pAttachments = attachments;
+			renderPassInfo.subpassCount = 1;
+			renderPassInfo.pSubpasses = &subpass;
+
+			if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_dummyRenderPass) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: Unable to create render pass!");
+				return false;
+			}
+		}
+		//
+
 		/*
 		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill,
 		Material::Topololy::TRIANGLE)); if (_unlitVertexColorMaterial == nullptr)
@@ -235,7 +303,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		// TODO move in Context
+		// TODO move in PresentationSurface
 		std::array<const char*, 2> extensionsRequiredByContext {VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(PLATFORM_WINDOWS)
 		                                                        VK_KHR_WIN32_SURFACE_EXTENSION_NAME
@@ -540,59 +608,23 @@ namespace hod::renderer
 	}
 #endif
 
-	/// @brief
-	/// @param window
-	/// @return
-	bool RendererVulkan::CreateContext(window::Window* window)
-	{
-		VkSurfaceKHR surface = CreateSurface(window);
-		if (surface == VK_NULL_HANDLE)
-		{
-			return false;
-		}
+	/*
+	    /// @brief
+	    /// @param window
+	    /// @return
+	    bool RendererVulkan::CreateContext(window::Window* window)
+	    {
+	        VkSurfaceKHR surface = CreateSurface(window);
+	        if (surface == VK_NULL_HANDLE)
+	        {
+	            return false;
+	        }
 
-		VkContext* context = DefaultAllocator::GetInstance().New<VkContext>(window, surface);
-		_contexts.PushBack(context);
-		return true;
-	}
-
-	/// @brief
-	/// @param context
-	/// @param physicalDeviceIdentifier
-	/// @return
-	bool RendererVulkan::BuildPipeline(Context* context, uint32_t physicalDeviceIdentifier)
-	{
-		EnumeratePhysicalDevice(static_cast<VkContext*>(context)->GetSurface());
-		if (SelectPhysicalDevice(physicalDeviceIdentifier) == false)
-		{
-			return false;
-		}
-
-		if (CreateDevice() == false)
-		{
-			return false;
-		}
-
-		if (CreateCommandPool() == false)
-		{
-			return false;
-		}
-
-		_context = (VkContext*)context;
-
-		/*
-		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill,
-		Material::Topololy::TRIANGLE)); _unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor",
-		Material::PolygonMode::Line, Material::Topololy::LINE)); _sharedMinimalMaterial =
-		MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill, Material::Topololy::TRIANGLE,
-		false));
-
-		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
-		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
-		*/
-
-		return true;
-	}
+	        VkContext* context = DefaultAllocator::GetInstance().New<VkContext>(window, surface);
+	        _contexts.PushBack(context);
+	        return true;
+	    }
+	*/
 
 	/// @brief
 	/// @param availableDevices

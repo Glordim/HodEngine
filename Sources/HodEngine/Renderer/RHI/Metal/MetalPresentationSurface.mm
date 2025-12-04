@@ -1,12 +1,12 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalPresentationSurface.hpp"
 #include <HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp>
 
 #include <Cocoa/Cocoa.h>
 
 namespace hod::renderer
 {
-    void MetalContext::SetupLayer(window::MacOsWindow* macOsWindow)
+    void MetalPresentationSurface::SetupLayer(window::MacOsWindow* macOsWindow)
     {
         NSView* view = macOsWindow->GetNsView();
 

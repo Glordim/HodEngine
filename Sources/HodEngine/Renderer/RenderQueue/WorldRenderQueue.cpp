@@ -8,7 +8,7 @@
 namespace hod::renderer
 {
 	/// @brief
-	/// @param context
+	/// @param renderView
 	/// @return
 	bool WorldRenderQueue::Prepare(const RenderView& renderView)
 	{
