@@ -8,11 +8,11 @@
 
 #include <libdecor-0/libdecor.h>
 
-#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-decoration-protocol.h"
-#include "HodEngine/Window/Desktop/Linux/Wayland/Protocols/wayland-xdg-shell-client-protocol.h"
-
 #include <map>
 #include "HodEngine/Core/String.hpp"
+
+struct xdg_wm_base;
+struct zxdg_decoration_manager_v1;
 
 namespace hod::window
 {

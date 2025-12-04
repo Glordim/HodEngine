@@ -2,7 +2,6 @@ build_*/
 build/
 
 Generated
-WaylandGenerated
 
 .vs/
 .vscode/settings.json

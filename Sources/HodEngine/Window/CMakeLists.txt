@@ -51,7 +51,7 @@ if(UNIX AND NOT APPLE AND NOT ANDROID)
         target_sources(Window PRIVATE "${output_file}.h" "${output_file}.c")
     endmacro()
 
-    set(WaylandProtocolDir "${PROJECT_SOURCE_DIR}/Desktop/Linux/Wayland/Protocols")
+    set(WaylandProtocolDir "${PROJECT_BINARY_DIR}/Desktop/Linux/Wayland/Protocols")
 
 	add_custom_target(build-time-make-directory ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory ${WaylandProtocolDir})
@@ -85,6 +85,8 @@ get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 	"../.."
+    "${PROJECT_BINARY_DIR}/../.."
+    ${PROJECT_BINARY_DIR}
 	${Core_INCLUDES}
 	${UNIX_INCLUDES}
 )
