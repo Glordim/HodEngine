@@ -1,4 +1,5 @@
 #include "HodEngine/Core/Pch.hpp"
+#include "HodEngine/Core/Debug.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Memory/MemLeakDetectorAllocator.hpp"
 #include "HodEngine/Core/OS.hpp"
@@ -46,7 +47,7 @@ namespace hod
 		}
 
 		AllocationHeader* allocationHeader = static_cast<AllocationHeader*>(allocation);
-		allocationHeader->_callstackSize = OS::GetCallstack(allocationHeader->_callstack.data(), (uint32_t)allocationHeader->_callstack.size());
+		allocationHeader->_callstackSize = Debug::GetCallstack(allocationHeader->_callstack.data(), (uint32_t)allocationHeader->_callstack.size());
 		allocationHeader->_size = Size;
 		allocationHeader->_next = nullptr;
 		if (_stopAllocationCollect == false)
@@ -140,7 +141,7 @@ namespace hod
 		_stopAllocationCollect = true;
 		if (_firstAlloc != nullptr)
 		{
-			SymbolInfo symbolInfo;
+			Debug::SymbolInfo symbolInfo;
 			symbolInfo._function.Reserve(2048);
 			symbolInfo._module.Reserve(2048);
 
@@ -176,7 +177,7 @@ namespace hod
 
 					for (uint32_t index = 0; index < it->_callstackSize; ++index)
 					{
-						OS::GetSymbolInfo(it->_callstack[index], symbolInfo, true);
+						Debug::GetSymbolInfo(it->_callstack[index], symbolInfo, true);
 						fprintf(memleakReport, "\t%-*s %s + %u\n", 24, symbolInfo._module.CStr(), symbolInfo._function.CStr(), symbolInfo._line);
 					}
 

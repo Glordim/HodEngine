@@ -128,11 +128,10 @@ namespace hod::application
 	{
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
 
-		constexpr double targetTimeStep = (1.0 / 120.0) * 1000.0;
-
-		SystemTime::TimeStamp last = SystemTime::Now();
 		while (_shouldQuit == false)
 		{
+			renderer::Renderer::GetInstance()->AcquireNextFrame();
+
 			window::DisplayManager::GetInstance()->Update();
 			if (_window->IsClose())
 			{
@@ -140,31 +139,9 @@ namespace hod::application
 				break;
 			}
 
-			renderer::Context* context = static_cast<renderer::Context*>(_window->GetSurface());
-			if (context->AcquireNextImageIndex() == false)
-			{
-				return false;
-			}
-
 			frameSequencer->EnqueueAndWaitJobs();
 
-			renderer::Renderer::GetInstance()->RenderViews();
-
-			SystemTime::TimeStamp now = SystemTime::Now();
-			double                elapsedTime = SystemTime::ElapsedTimeInMilliseconds(last, now);
-			last = now;
-
-			if (context->SwapBuffer() == false)
-			{
-				return false;
-			}
-			renderer::Renderer::GetInstance()->WaitViews();
-
-			double sleepTime = targetTimeStep - elapsedTime;
-			if (sleepTime > 0.0)
-			{
-				ThisThread::Sleep(static_cast<uint32_t>(sleepTime));
-			}
+			renderer::Renderer::GetInstance()->Render();
 		}
 		return true;
 	}

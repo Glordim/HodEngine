@@ -4,7 +4,7 @@
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
 
 #include <wayland-client.h>
-#include <xkbcommon/xkbcommon.h>
+//#include <xkbcommon/xkbcommon.h>
 
 #include <libdecor-0/libdecor.h>
 
@@ -121,8 +121,8 @@ namespace hod::window
         wl_fixed_t      _pointerX;
         wl_fixed_t      _pointerY;
 
-        xkb_context*    _xkbContext = nullptr;
-        xkb_state*      _xkbState = nullptr;
+        //xkb_context*    _xkbContext = nullptr;
+        //xkb_state*      _xkbState = nullptr;
 
         std::map<wl_surface*, WaylandWindow*>   _surfaceToWindowMap;
     };

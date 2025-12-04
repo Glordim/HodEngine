@@ -28,7 +28,7 @@ set(UNIX_LIBS "")
 
 if(UNIX AND NOT APPLE AND NOT ANDROID)
 	find_package(Wayland REQUIRED)
-    find_package(XkbCommon REQUIRED)
+    #find_package(XkbCommon REQUIRED)
     find_package(LibDecor REQUIRED)
 	find_program(WAYLAND_SCANNER_EXECUTABLE NAMES wayland-scanner)
 
@@ -66,8 +66,8 @@ if(UNIX AND NOT APPLE AND NOT ANDROID)
         "${WAYLAND_PROTOCOLS_BASE}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml"
         "${WaylandProtocolDir}/wayland-xdg-decoration-protocol")
 
-    set(UNIX_INCLUDES ${WAYLAND_CLIENT_INCLUDE_DIR} ${WAYLAND_EGL_INCLUDE_DIR} ${XkbCommon_INCLUDE_DIRS} ${LibDecor_INCLUDE_DIRS})
-    set(UNIX_LIBS ${WAYLAND_CLIENT_LIBRARIES} ${WAYLAND_EGL_LIBRARIES} ${XkbCommon_LIBRARIES} ${LibDecor_LIBRARIES})
+    set(UNIX_INCLUDES ${WAYLAND_CLIENT_INCLUDE_DIR} ${WAYLAND_EGL_INCLUDE_DIR} ${LibDecor_INCLUDE_DIRS})
+    set(UNIX_LIBS ${WAYLAND_CLIENT_LIBRARIES} ${WAYLAND_EGL_LIBRARIES} ${LibDecor_LIBRARIES})
 endif()
 
 if (APPLE)

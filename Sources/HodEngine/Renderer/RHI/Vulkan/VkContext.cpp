@@ -3,6 +3,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkContext.hpp"
 
+#include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <limits>
@@ -14,6 +15,8 @@ namespace hod::renderer
 	: Context()
 	, _surface(surface)
 	{
+		_resizeWidth = 800;
+		_resizeHeight = 600;
 		CreateSwapChain(800, 600);
 	}
 
@@ -33,9 +36,10 @@ namespace hod::renderer
 	/// @brief
 	/// @param width
 	/// @param height
-	void VkContext::Resize(uint32_t width, uint32_t height)
+	bool VkContext::ApplyResize()
 	{
-		CreateSwapChain(width, height);
+		_resizeRequested = false;
+		return CreateSwapChain(_resizeWidth, _resizeHeight);
 	}
 
 	/// @brief
@@ -50,25 +54,28 @@ namespace hod::renderer
 	bool VkContext::CreateSwapChain(uint32_t width, uint32_t height)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
-		if (device == nullptr)
-		{
-			return true;
-		}
-		vkDeviceWaitIdle(device);
+		Assert(device != nullptr);
 
 		DestroySwapChain();
-
 		_currentImageIndex = 0;
-
-		VkSurfaceCapabilitiesKHR   capabilities;
-		Vector<VkSurfaceFormatKHR> formats;
-		Vector<VkPresentModeKHR>   presentModes;
 
 		const VkGpuDevice* selectedGpuDevice = RendererVulkan::GetInstance()->GetVkGpuDevice();
 
-		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(selectedGpuDevice->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
+		VkSurfaceCapabilitiesKHR capabilities;
+		if (RendererVulkan::GetPhysicalDeviceSurfaceCapabilities(selectedGpuDevice->physicalDevice, _surface, capabilities) == false)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to get Surface capabilities !");
+			return false;
+		}
+
+		Vector<VkSurfaceFormatKHR> formats;
+		if (RendererVulkan::GetPhysicalDeviceSurfaceFormats(selectedGpuDevice->physicalDevice, _surface, formats) == false)
+		{
+			return false;
+		}
+
+		Vector<VkPresentModeKHR> presentModes;
+		if (RendererVulkan::GetPhysicalDeviceSurfacePresentModes(selectedGpuDevice->physicalDevice, _surface, presentModes) == false)
+		{
 			return false;
 		}
 
@@ -132,7 +139,7 @@ namespace hod::renderer
 		createInfo.pQueueFamilyIndices = nullptr;                // Optional
 		createInfo.preTransform = capabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR; // Todo support VSync
+		createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR; // Todo support VSync
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
@@ -317,7 +324,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	bool VkContext::AcquireNextImageIndex()
+	bool VkContext::AcquireNextImageIndex(Semaphore* imageAvailableSemaphore)
 	{
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 
@@ -327,22 +334,10 @@ namespace hod::renderer
 		}
 
 		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(),
-		                                        static_cast<const SemaphoreVk*>(_imageAvailableSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
-		if (result != VK_SUCCESS)
+		                                        static_cast<const SemaphoreVk*>(imageAvailableSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
+		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to acquire next image!");
-
-			if (result == VK_ERROR_OUT_OF_DATE_KHR)
-			{
-				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...");
-				// CreateSwapChain();
-			}
-			else if (result == VK_SUBOPTIMAL_KHR)
-			{
-				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...");
-				// CreateSwapChain();
-			}
-
 			return false;
 		}
 
@@ -386,21 +381,9 @@ namespace hod::renderer
 
 		VkQueue  presentQueue = RendererVulkan::GetInstance()->GetPresentQueue();
 		VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
-		if (result != VK_SUCCESS)
+		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to present frame!");
-
-			if (result == VK_ERROR_OUT_OF_DATE_KHR)
-			{
-				OUTPUT_ERROR("Vulkan: VK_ERROR_OUT_OF_DATE_KHR recreating SwapChain...");
-				// CreateSwapChain();
-			}
-			else if (result == VK_SUBOPTIMAL_KHR)
-			{
-				OUTPUT_ERROR("Vulkan: VK_SUBOPTIMAL_KHR recreating SwapChain...");
-				// CreateSwapChain();
-			}
-
 			return false;
 		}
 

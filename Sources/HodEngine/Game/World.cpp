@@ -17,6 +17,7 @@
 #include <HodEngine/Physics/Physics.hpp>
 #include <HodEngine/Physics/World.hpp>
 
+#include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RHI/Context.hpp>
@@ -284,11 +285,10 @@ namespace hod
 		/// @brief
 		void World::Draw()
 		{
-			renderer::RenderView* renderView = DefaultAllocator::GetInstance().New<renderer::RenderView>();
+			renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 			renderView->Init();
 			renderView->Prepare(static_cast<renderer::Context*>(window::DisplayManager::GetInstance()->GetMainWindow()->GetSurface()));
 			Draw(*renderView);
-			renderer::Renderer::GetInstance()->PushRenderView(*renderView, true);
 		}
 
 		/// @brief

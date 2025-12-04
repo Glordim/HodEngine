@@ -15,6 +15,9 @@
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
+#include "HodEngine/Renderer/FrameResources.hpp"
+#include "HodEngine/Renderer/RHI/Context.hpp"
+
 namespace hod
 {
 	namespace renderer
@@ -26,6 +29,9 @@ namespace hod
 			PickingManager::CreateInstance();
 			FontManager::CreateInstance();
 			FontManager::GetInstance()->Init(); // todo catch error ?
+
+			_frameResources.Resize(_frameInFlight);
+			_texturesToDestroy.Resize(_frameInFlight);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -199,53 +205,134 @@ namespace hod
 			return _defaultWhiteTexture;
 		}
 
+		/*
 		void Renderer::PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame)
 		{
-			renderView.SetAutoDestroy(autoDestroyAfterFrame);
-			_renderViews.push_back(&renderView);
+		    renderView.SetAutoDestroy(autoDestroyAfterFrame);
+		    _renderViews.push_back(&renderView);
 		}
 
 		void Renderer::RenderViews()
 		{
-			// todo sort
+		    // todo sort
 
-			Semaphore* semaphore = nullptr;
-			Context*   context = nullptr;
-			for (RenderView* renderView : _renderViews)
-			{
-				if (renderView->GetContext())
-				{
-					context = renderView->GetContext();
-					if (semaphore == nullptr)
-					{
-						semaphore = (Semaphore*)renderView->GetContext()->GetImageAvailableSempahore();
-					}
-					renderView->Execute(semaphore);
-					semaphore = renderView->GetRenderFinishedSemaphore();
-				}
-				else
-				{
-					renderView->Execute();
-				}
-			}
-			context->AddSemaphoreToSwapBuffer(semaphore);
+		    Semaphore* semaphore = nullptr;
+		    Context*   context = nullptr;
+		    for (RenderView* renderView : _renderViews)
+		    {
+		        if (renderView->GetContext())
+		        {
+		            context = renderView->GetContext();
+		            if (semaphore == nullptr)
+		            {
+		                semaphore = (Semaphore*)renderView->GetContext()->GetImageAvailableSempahore();
+		            }
+		            renderView->Execute(semaphore);
+		            semaphore = renderView->GetRenderFinishedSemaphore();
+		        }
+		        else
+		        {
+		            renderView->Execute();
+		        }
+		    }
+		    context->AddSemaphoreToSwapBuffer(semaphore);
 		}
 
 		void Renderer::WaitViews()
 		{
-			for (RenderView* renderView : _renderViews)
-			{
-				renderView->Wait();
-			}
+		    for (RenderView* renderView : _renderViews)
+		    {
+		        renderView->Wait();
+		    }
 
-			for (RenderView* renderView : _renderViews)
+		    for (RenderView* renderView : _renderViews)
+		    {
+		        if (renderView->IsAutoDestroy())
+		        {
+		            DefaultAllocator::GetInstance().Delete(renderView);
+		        }
+		    }
+		    _renderViews.Clear();
+		}
+		    */
+
+		void Renderer::Render()
+		{
+			FrameResources& frameResources = GetCurrentFrameResources();
+			frameResources.Submit();
+
+			++_frameCount;
+			_frameIndex = _frameCount % _frameInFlight;
+		}
+
+		FrameResources& Renderer::GetCurrentFrameResources()
+		{
+			return _frameResources[_frameIndex];
+		}
+
+		bool Renderer::AcquireNextFrame()
+		{
+			bool resizeRequested = false;
+			for (Context* context : _contexts)
 			{
-				if (renderView->IsAutoDestroy())
+				if (context->GetResizeRequested())
 				{
-					DefaultAllocator::GetInstance().Delete(renderView);
+					resizeRequested = true;
+					break;
 				}
 			}
-			_renderViews.Clear();
+			if (resizeRequested)
+			{
+				for (uint32_t frameSkipped = 0; frameSkipped < _frameInFlight; ++frameSkipped)
+				{
+					FrameResources& frameResources = GetCurrentFrameResources();
+					frameResources.Wait();
+					frameResources.DestroyAll();
+
+					for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
+					{
+						DefaultAllocator::GetInstance().Delete(textureToDestroy);
+					}
+					_texturesToDestroy[_frameIndex].Clear();
+
+					++_frameCount;
+					_frameIndex = _frameCount % _frameInFlight;
+				}
+
+				for (Context* context : _contexts)
+				{
+					if (context->GetResizeRequested())
+					{
+						context->ApplyResize();
+					}
+				}
+			}
+			else
+			{
+				FrameResources& frameResources = GetCurrentFrameResources();
+				frameResources.Wait();
+				frameResources.DestroyAll();
+
+				for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
+				{
+					DefaultAllocator::GetInstance().Delete(textureToDestroy);
+				}
+				_texturesToDestroy[_frameIndex].Clear();
+			}
+
+			for (Context* context : _contexts)
+			{
+				if (context->AcquireNextImageIndex(GetCurrentFrameResources().GetImageAvalaibleSemaphore()) == false)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		void Renderer::DestroyTexture(Texture* texture)
+		{
+			_texturesToDestroy[_frameIndex].PushBack(texture);
 		}
 	}
 }

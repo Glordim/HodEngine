@@ -1,5 +1,5 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/OS.hpp"
+#include "HodEngine/Core/Debug.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <cxxabi.h>
@@ -15,7 +15,7 @@ namespace hod
 	/// @param callstack
 	/// @param maxSize
 	/// @return
-	uint32_t OS::GetCallstack(void** callstack, uint32_t maxSize)
+	uint32_t Debug::GetCallstack(void** callstack, uint32_t maxSize)
 	{
 		return backtrace(callstack, maxSize);
 	}
@@ -23,7 +23,7 @@ namespace hod
 	/// @brief
 	/// @param addr
 	/// @return
-	String OS::GetSymbol(void* addr)
+	String Debug::GetSymbol(void* addr)
 	{
 		String symbol = "NOT_FOUND";
 
@@ -47,7 +47,7 @@ namespace hod
 	/// @param symbol
 	/// @param Size
 	/// @return
-	bool OS::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
+	bool Debug::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
 	{
 		Dl_info info;
 		if (dladdr(addr, &info) == 0)

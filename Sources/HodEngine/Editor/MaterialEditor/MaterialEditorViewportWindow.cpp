@@ -31,8 +31,10 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
+#include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 
 #include <algorithm>
@@ -53,7 +55,6 @@ namespace hod::editor
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
 
 		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_renderView.Init();
 	}
 
 	/// @brief
@@ -103,7 +104,9 @@ namespace hod::editor
 
 				if (_renderTarget->IsValid() == true)
 				{
-					_renderView.Prepare(_renderTarget, nullptr);
+					renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+					renderView->Init();
+					renderView->Prepare(_renderTarget, nullptr);
 
 					Rect viewport;
 					viewport._position.SetX(0);
@@ -116,7 +119,7 @@ namespace hod::editor
 					_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
 					_view = Matrix4::Identity;
 
-					_renderView.SetupCamera(_projection, _view, viewport);
+					renderView->SetupCamera(_projection, _view, viewport);
 
 					Vector2 previewSize = Vector2::One * 3;
 
@@ -141,9 +144,7 @@ namespace hod::editor
 					renderer::RenderCommandMesh* renderMeshCommand =
 						DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(),
 					                                                                     (uint32_t)indices.size(), Matrix4::Identity, material->GetDefaultInstance(), 0);
-					_renderView.PushRenderCommand(renderMeshCommand);
-
-					renderer::Renderer::GetInstance()->PushRenderView(_renderView, false);
+					renderView->PushRenderCommand(renderMeshCommand);
 
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);

@@ -1,22 +1,25 @@
 #pragma once
 #include "HodEngine/ImGui/Export.hpp"
 
-#include <HodEngine/Core/Singleton.hpp>
-#include <HodEngine/Core/Job/MemberFunctionJob.hpp>
 #include <HodEngine/Core/Event.hpp>
-
-#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Core/Job/MemberFunctionJob.hpp>
+#include <HodEngine/Core/Singleton.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <stdint.h>
 
-#if defined (PLATFORM_WINDOWS)
+#if defined(PLATFORM_WINDOWS)
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
 	#undef max
 	#undef FindWindow
 #endif
+
+namespace hod
+{
+	class ReflectionDescriptor;
+}
 
 namespace hod::window
 {
@@ -36,75 +39,73 @@ namespace hod::imgui
 	class Window;
 	class WindowDescription;
 
-	/// @brief 
+	/// @brief
 	class HOD_IMGUI_API ImGuiManager
 	{
 		_Singleton(ImGuiManager)
 
 	public:
+		bool Init(window::Window* window);
+		void Update();
 
-		bool							Init(window::Window* window);
-		void							Update();
+		window::Window* GetMainWindow() const;
 
-		window::Window*					GetMainWindow() const;
-
-		void							SetMainBar(MainBar* mainBar);
+		void SetMainBar(MainBar* mainBar);
 
 		template<typename Window_, typename... Args>
-		Window_*						OpenWindow(Args&&... args);
-		void							OpenWindow(Window* window);
+		Window_* OpenWindow(Args&&... args);
+		void     OpenWindow(Window* window);
 
 		template<typename Window_>
-		Window_*						FindWindow() const;
-		Window*							FindWindow(ReflectionDescriptor& windowDescription) const;
+		Window_* FindWindow() const;
+		Window*  FindWindow(ReflectionDescriptor& windowDescription) const;
 
 		template<typename Window_>
-		Vector<Window*>					FindWindows() const;
-		Vector<Window*>					FindWindows(ReflectionDescriptor& windowDescription) const;
+		Vector<Window*> FindWindows() const;
+		Vector<Window*> FindWindows(ReflectionDescriptor& windowDescription) const;
 
-		void							CloseAllWindow();
-		void							DestroyAllWindow();
+		void CloseAllWindow();
+		void DestroyAllWindow();
 
-		renderer::Material*				GetMaterial() const;
+		renderer::Material* GetMaterial() const;
 
-		ImGuiID							GetCentralDockSpace() const;
+		ImGuiID GetCentralDockSpace() const;
 
-		void							SetDrawCallback(const std::function<void()>& drawCallback) { _callback = drawCallback; }
+		void SetDrawCallback(const std::function<void()>& drawCallback)
+		{
+			_callback = drawCallback;
+		}
 
 	protected:
-
-										~ImGuiManager();
+		~ImGuiManager();
 
 	private:
+		bool CreateMaterial();
 
-		bool							CreateMaterial();
-
-#if defined (PLATFORM_WINDOWS)
-		void							OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#if defined(PLATFORM_WINDOWS)
+		void OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 	private:
+		MemberFunctionJob<ImGuiManager> _updateJob;
 
-		MemberFunctionJob<ImGuiManager>	_updateJob;
+		MainBar*        _mainBar = nullptr;
+		Vector<Window*> _windows;
 
-		MainBar*						_mainBar = nullptr;
-		Vector<Window*>					_windows;
+		Vector<renderer::Texture*> _textures;
 
-		Vector<renderer::Texture*>		_textures;
+		renderer::Material* _material = nullptr;
+		renderer::Shader*   _vertexShader = nullptr;
+		renderer::Shader*   _fragmentShader = nullptr;
 
-		renderer::Material*				_material = nullptr;
-		renderer::Shader*				_vertexShader = nullptr;
-		renderer::Shader*				_fragmentShader = nullptr;
-		renderer::RenderView			_renderView;
+		window::Window* _mainWindow = nullptr;
 
-		window::Window*					_mainWindow = nullptr;
-
-#if defined (PLATFORM_WINDOWS)
+#if defined(PLATFORM_WINDOWS)
 		Event<HWND, UINT, WPARAM, LPARAM>::Slot _winProcSlot;
 #endif
 
-		ImGuiID							_centralDockSpace;
+		ImGuiID _centralDockSpace;
 
-		std::function<void()>			_callback;
+		std::function<void()> _callback;
 	};
 }
 
