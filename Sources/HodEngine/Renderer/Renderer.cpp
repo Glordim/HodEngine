@@ -334,5 +334,17 @@ namespace hod
 		{
 			_texturesToDestroy[_frameIndex].PushBack(texture);
 		}
+
+		Context* Renderer::FindContext(window::Window* window) const
+		{
+			for (Context* context : _contexts)
+			{
+				if (context->GetWindow() == window)
+				{
+					return context;
+				}
+			}
+			return nullptr;
+		}
 	}
 }

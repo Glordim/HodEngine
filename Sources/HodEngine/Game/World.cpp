@@ -287,7 +287,7 @@ namespace hod
 		{
 			renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 			renderView->Init();
-			renderView->Prepare(static_cast<renderer::Context*>(window::DisplayManager::GetInstance()->GetMainWindow()->GetSurface()));
+			renderView->Prepare(window::DisplayManager::GetInstance()->GetMainWindow());
 			Draw(*renderView);
 		}
 

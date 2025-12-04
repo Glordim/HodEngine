@@ -13,12 +13,12 @@ namespace hod::renderer
 	class HOD_RENDERER_API VkContext : public Context
 	{
 	public:
-		VkContext(VkSurfaceKHR surface);
+		VkContext(window::Window* window, VkSurfaceKHR surface);
 		~VkContext() override;
 
 	public:
 		bool    ApplyResize() override;
-		Vector2 GetResolution() override;
+		Vector2 GetResolution() const override;
 
 		bool AcquireNextImageIndex(Semaphore* imageAvailableSemaphore) override;
 		bool SwapBuffer() override;

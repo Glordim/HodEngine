@@ -52,6 +52,11 @@ namespace hod::renderer
 		return true;
 	}
 
+	bool RenderView::Prepare(window::Window* window)
+	{
+		return Prepare(Renderer::GetInstance()->FindContext(window));
+	}
+
 	void RenderView::Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget)
 	{
 		_renderTarget = renderTarget;

@@ -1,7 +1,6 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
-#include "HodEngine/Window/Surface.hpp"
 
 #include "HodEngine/Core/String.hpp"
 
@@ -117,12 +116,6 @@ namespace hod::window
 
 			_width = width;
 			_height = height;
-
-			Surface* surface = GetSurface();
-			if (surface != nullptr)
-			{
-				surface->Resize(width, height);
-			}
 		}
 		else if (msg == WM_CLOSE)
 		{

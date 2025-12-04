@@ -188,8 +188,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		_context = DefaultAllocator::GetInstance().New<VkContext>(surface);
-		mainWindow->SetSurface(_context);
+		_context = DefaultAllocator::GetInstance().New<VkContext>(mainWindow, surface);
 		_context->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
 		_context->ApplyResize();
 		_contexts.PushBack(_context);
@@ -552,7 +551,8 @@ namespace hod::renderer
 			return false;
 		}
 
-		window->SetSurface(DefaultAllocator::GetInstance().New<VkContext>(surface));
+		VkContext* context = DefaultAllocator::GetInstance().New<VkContext>(window, surface);
+		_contexts.PushBack(context);
 		return true;
 	}
 
@@ -762,7 +762,7 @@ namespace hod::renderer
 
 	bool RendererVulkan::GetPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR& capabilities)
 	{
-		return (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities) == VK_SUCCESS);
+		return vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities) == VK_SUCCESS;
 	}
 
 	bool RendererVulkan::GetPhysicalDeviceSurfaceFormats(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, Vector<VkSurfaceFormatKHR>& formats)

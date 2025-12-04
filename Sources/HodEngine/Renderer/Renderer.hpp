@@ -93,6 +93,8 @@ namespace hod::renderer
 
 		bool AcquireNextFrame();
 
+		Context* FindContext(window::Window* window) const;
+
 		// Debug
 	public:
 		VisualizationMode GetVisualizationMode() const;

@@ -544,7 +544,7 @@ namespace hod::imgui
 
 		renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 		renderView->Init();
-		renderView->Prepare(static_cast<renderer::Context*>(_mainWindow->GetSurface()));
+		renderView->Prepare(_mainWindow);
 		renderView->SetupCamera(Matrix4::Identity, Matrix4::Identity, viewport);
 		renderView->PushRenderCommand(renderCommand);
 	}

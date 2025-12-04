@@ -9,7 +9,10 @@
 
 namespace hod::renderer
 {
-	Context::Context() {}
+	Context::Context(window::Window* window)
+	: _window(window)
+	{
+	}
 
 	Context::~Context() {}
 
@@ -31,5 +34,10 @@ namespace hod::renderer
 	bool Context::GetResizeRequested() const
 	{
 		return _resizeRequested;
+	}
+
+	window::Window* Context::GetWindow() const
+	{
+		return _window;
 	}
 }

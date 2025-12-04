@@ -1,8 +1,6 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "Window.hpp"
 
-#include "HodEngine/Window/Surface.hpp"
-
 namespace hod::window
 {
 	DESCRIBE_REFLECTED_CLASS(Window, reflectionDescriptor)
@@ -10,48 +8,28 @@ namespace hod::window
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	Window::~Window()
-	{
-		DefaultAllocator::GetInstance().Delete(_surface);
-	}
+	/// @brief
+	Window::~Window() {}
 
-	/// @brief 
-	void Window::Update()
-	{
+	/// @brief
+	void Window::Update() {}
 
-	}
-
-	/// @brief 
-	/// @return 
-	Surface* Window::GetSurface() const
-	{
-		return _surface;
-	}
-
-	/// @brief 
-	/// @param surface 
-	void Window::SetSurface(Surface* surface)
-	{
-		_surface = surface;
-	}
-
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	uint16_t Window::GetWidth() const
 	{
 		return _width;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	uint16_t Window::GetHeight() const
 	{
 		return _height;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool Window::IsClose() const
 	{
 		return _close;

@@ -11,8 +11,8 @@
 namespace hod::renderer
 {
 	/// @brief
-	VkContext::VkContext(VkSurfaceKHR surface)
-	: Context()
+	VkContext::VkContext(window::Window* window, VkSurfaceKHR surface)
+	: Context(window)
 	, _surface(surface)
 	{
 		_resizeWidth = 800;
@@ -44,7 +44,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	Vector2 VkContext::GetResolution()
+	Vector2 VkContext::GetResolution() const
 	{
 		return Vector2((float)_swapChainExtent.width, (float)_swapChainExtent.height);
 	}
