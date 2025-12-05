@@ -114,8 +114,7 @@ namespace hod::window
 			UINT width = LOWORD(lParam);
 			UINT height = HIWORD(lParam);
 
-			_width = width;
-			_height = height;
+			SetSizeInternal(width, height);
 		}
 		else if (msg == WM_CLOSE)
 		{

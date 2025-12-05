@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
+#include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Math/Vector2.hpp"
 #include "HodEngine/Core/String.hpp"
 #include <cstdint>
@@ -38,6 +39,8 @@ namespace hod::renderer
 
 	protected:
 		Vector<const Semaphore*> _semaphoresToSwapBuffer;
+
+		Delegate _onWindowResizeDelegate;
 
 		window::Window* _window = nullptr;
 
