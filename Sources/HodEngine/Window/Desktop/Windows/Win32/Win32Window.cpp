@@ -4,6 +4,7 @@
 
 #include "HodEngine/Core/String.hpp"
 
+#include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/OS.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -133,27 +134,19 @@ namespace hod::window
 	}
 
 	/// @brief
-	Win32Window::Win32Window(bool hidden)
+	Win32Window::Win32Window(bool /* hidden*/)
 	: DesktopWindow()
 	{
 		_hWndThreadId = Thread::GetCurrentThreadId();
 
 		_hInstance = ::GetModuleHandle(NULL);
 
-		_hWnd = ::CreateWindowEx(0, Win32DisplayManager::_className, "Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, NULL, NULL, _hInstance, NULL);
-
-		if (_hWnd == NULL)
-		{
-			OUTPUT_ERROR("DesktopWindow: Unable to CreateWindow -> {}", OS::GetLastWin32ErrorMessage());
-			return;
-		}
-
-		SetWindowLongPtr(_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
+		/*
 		if (hidden == false)
 		{
-			::ShowWindow(_hWnd, SW_NORMAL);
+		    ::ShowWindow(_hWnd, SW_NORMAL);
 		}
+		    */
 	}
 
 	/// @brief
@@ -179,14 +172,33 @@ namespace hod::window
 		}
 		_runOnWin32Thread.Clear();
 
+		/*
 		::MSG msg;
 		::ZeroMemory(&msg, sizeof(msg));
 
 		while (::PeekMessage(&msg, _hWnd, 0, 0, PM_REMOVE) != 0)
 		{
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
+		    ::TranslateMessage(&msg);
+		    ::DispatchMessage(&msg);
 		}
+		*/
+	}
+
+	bool Win32Window::CreateHWND()
+	{
+		Assert(_hWnd == nullptr);
+		_hWnd = CreateWindowExA(0, Win32DisplayManager::_className, "Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, nullptr, nullptr, _hInstance,
+		                        nullptr);
+
+		if (_hWnd == nullptr)
+		{
+			OUTPUT_ERROR("DesktopWindow: Unable to CreateWindow -> {}", OS::GetLastWin32ErrorMessage());
+			return false;
+		}
+		SetWindowLongPtrA(_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+		ShowWindow(_hWnd, SW_NORMAL);
+
+		return true;
 	}
 
 	/// @brief

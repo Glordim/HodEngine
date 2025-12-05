@@ -7,31 +7,37 @@
 
 #include "HodEngine/Core/Singleton.hpp"
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
+#include <HodEngine/Core/Job/Thread.hpp>
 
 namespace hod::window
 {
-    class HOD_WINDOW_API Win32DisplayManager : public DesktopDisplayManager
-    {
-        _SingletonOverride(Win32DisplayManager)
+	class HOD_WINDOW_API Win32DisplayManager : public DesktopDisplayManager
+	{
+		_SingletonOverride(Win32DisplayManager)
 
-    public:
+	public:
+		static constexpr const char* _className = "HodWin32Window";
 
-        static constexpr const char* _className = "HodWin32Window";
+	public:
+		bool Initialize() override;
+		void Update() override;
+		void Terminate() override;
 
-    public:
+		Window* CreateWindow(bool hidden = false) override;
+		void    DestroyWindow(Window* window) override;
 
-        bool            Initialize() override;
-        void            Update() override;
-        void            Terminate() override;
+	private:
+		static int Win32ThreadEntry(void* param);
+		int        Win32ThreadFunction();
 
-        Window*         CreateWindow(bool hidden = false) override;
-        void            DestroyWindow(Window* window) override;
+	private:
+		HINSTANCE _hInstance = NULL;
+		ATOM      _class = INVALID_ATOM;
 
-    private:
+		Vector<Window*> _windows;
 
-        HINSTANCE       _hInstance = NULL;
-        ATOM            _class = INVALID_ATOM;
+		Thread _win32Thread;
 
-        Vector<Window*> _windows;
-    };
+		std::atomic_flag _wmQueueCreated = ATOMIC_FLAG_INIT;
+	};
 }

@@ -42,6 +42,8 @@ namespace hod::window
 		void       RunOnWin32Thread(std::function<void()> codeToRun);
 		Thread::Id GetMessageLoopThreadId() const;
 
+		bool CreateHWND();
+
 	private:
 		LRESULT InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam);
 
