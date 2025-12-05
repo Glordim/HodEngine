@@ -1,4 +1,5 @@
 #pragma once
+#include "HodEngine/Core/Export.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 #include <functional>
@@ -6,6 +7,14 @@
 
 namespace hod
 {
+	class HOD_CORE_API Delegate
+	{
+	public:
+		~Delegate();
+
+		uint64_t _id = 0;
+	};
+
 	/// @brief
 	/// @tparam ...Types
 	template<typename... Types>
@@ -48,7 +57,9 @@ namespace hod
 		void operator=(Event&&) = delete;
 
 	public:
-		void Emit(Types... args);
+		void     Emit(Types... args);
+		Delegate Add(std::function<void(Types...)> function);
+		void     Remove(Delegate& delegate);
 
 		void Connect(Slot& slot);
 		void Disconnect(Slot& slot);
@@ -59,7 +70,9 @@ namespace hod
 		void operator-=(Slot& slot);
 
 	private:
-		Vector<Slot*> _slots;
+		Vector<Slot*>                                              _slots;
+		Vector<std::pair<Delegate, std::function<void(Types...)>>> _delegates;
+		std::atomic<uint64_t>                                      _nextDelegateId = {1};
 	};
 }
 

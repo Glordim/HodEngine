@@ -19,6 +19,35 @@ namespace hod
 		{
 			slot->CallFunction(args...);
 		}
+
+		for (const std::pair<Delegate, std::function<void(Types...)>>& delegate : _delegates)
+		{
+			delegate.second(args...);
+		}
+	}
+
+	template<typename... Types>
+	Delegate Event<Types...>::Add(std::function<void(Types...)> function)
+	{
+		Delegate delegate;
+		delegate._id = _nextDelegateId.fetch_add(1);
+		_delegates.EmplaceBack(delegate, function); // todo lock ?
+		return delegate;
+	}
+
+	template<typename... Types>
+	void Event<Types...>::Remove(Delegate& delegate)
+	{
+		// todo lock ?
+		for (uint32_t i = 0; i < _delegates.Size(); ++i)
+		{
+			if (_delegates[i].first._id == delegate._id)
+			{
+				_delegates.Erase(i);
+				delegate._id = 0;
+				return;
+			}
+		}
 	}
 
 	/// @brief
