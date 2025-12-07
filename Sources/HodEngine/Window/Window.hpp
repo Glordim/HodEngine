@@ -3,8 +3,9 @@
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
-#include <HodEngine/Core/Event.hpp>
+#include "HodEngine/Window/Event.hpp"
 
+#include <mutex>
 #include <stdint.h>
 
 namespace hod::window
@@ -17,26 +18,33 @@ namespace hod::window
 		REFLECTED_CLASS_NO_PARENT(Window)
 
 	public:
+		Window();
 		virtual ~Window();
 
 	public:
-		virtual void Update();
+		virtual void       Update();
+		[[nodiscard]] bool PollEvent(uint32_t& index, Event& event) const;
+		[[nodiscard]] bool PollEvent(uint32_t& index, Event& event, uint8_t filterMask) const;
 
 		uint16_t GetWidth() const;
 		uint16_t GetHeight() const;
 
 		bool IsClose() const;
 
-		Event<uint16_t, uint16_t>& OnResizeEvent();
-
 	protected:
-		void SetSizeInternal(uint16_t width, uint16_t height);
+		void EnqueueEvent(const Event& event);
+
+		void ResizeInternal(uint16_t width, uint16_t height);
+		void CloseInternal();
 
 	protected:
 		uint16_t _width = 800;
 		uint16_t _height = 600;
 		bool     _close = false;
 
-		Event<uint16_t, uint16_t> _onResizeEvent;
+		Vector<Event> _events;
+
+		std::mutex    _pendingEventsMutex;
+		Vector<Event> _pendingEvents;
 	};
 }

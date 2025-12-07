@@ -50,13 +50,6 @@ namespace hod::window
 
 	/// @brief
 	/// @return
-	Event<bool>& DesktopWindow::GetFocusedEvent()
-	{
-		return _focusEvent;
-	}
-
-	/// @brief
-	/// @return
 	bool DesktopWindow::IsFocused() const
 	{
 		return _focused;
@@ -64,12 +57,15 @@ namespace hod::window
 
 	/// @brief
 	/// @param focused
-	void DesktopWindow::SetFocused(bool focused)
+	void DesktopWindow::SetFocusedInternal(bool focused)
 	{
 		if (_focused != focused)
 		{
 			_focused = focused;
-			_focusEvent.Emit(focused);
+
+			Event event;
+			event.type = focused ? EventType::FocusGained : EventType::FocusLost;
+			EnqueueEvent(event);
 		}
 	}
 
@@ -88,6 +84,12 @@ namespace hod::window
 
 	void DesktopWindow::EmitKeyPressed(ScanCode scanCode)
 	{
+		Event event;
+		event.type = EventType::KeyPressed;
+		event.data.key.scanCode = scanCode;
+		event.data.key.flags = 0; // todo
+		EnqueueEvent(event);
+
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
 			inputListener->OnKeyPressed(scanCode);
@@ -96,6 +98,12 @@ namespace hod::window
 
 	void DesktopWindow::EmitKeyReleased(ScanCode scanCode)
 	{
+		Event event;
+		event.type = EventType::KeyReleased;
+		event.data.key.scanCode = scanCode;
+		event.data.key.flags = 0; // todo
+		EnqueueEvent(event);
+
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
 			inputListener->OnKeyReleased(scanCode);
@@ -104,6 +112,13 @@ namespace hod::window
 
 	void DesktopWindow::EmitMouseButtonPressed(MouseButton button)
 	{
+		Event event;
+		event.type = EventType::MouseButtonDown;
+		event.data.mouseButton.button = button;
+		event.data.mouseButton.x = 0; // todo
+		event.data.mouseButton.y = 0; // todo
+		EnqueueEvent(event);
+
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
 			inputListener->OnMouseButtonPressed(button);
@@ -112,6 +127,13 @@ namespace hod::window
 
 	void DesktopWindow::EmitMouseButtonReleased(MouseButton button)
 	{
+		Event event;
+		event.type = EventType::MouseButtonUp;
+		event.data.mouseButton.button = button;
+		event.data.mouseButton.x = 0; // todo
+		event.data.mouseButton.y = 0; // todo
+		EnqueueEvent(event);
+
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
 			inputListener->OnMouseButtonReleased(button);
@@ -120,6 +142,12 @@ namespace hod::window
 
 	void DesktopWindow::EmitMouseMoved(int x, int y)
 	{
+		Event event;
+		event.type = EventType::MouseMoved;
+		event.data.mouseMove.x = x;
+		event.data.mouseMove.y = y;
+		EnqueueEvent(event);
+
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
 			inputListener->OnMouseMoved((float)x, (float)y);
@@ -128,6 +156,12 @@ namespace hod::window
 
 	void DesktopWindow::EmitMouseScroll(int delta)
 	{
+		/*
+		Event event;
+		event.type = EventType::Mos;
+		EnqueueEvent(event);
+		*/
+
 		for (IDesktopWindowInputListener* inputListener : _inputListeners)
 		{
 			inputListener->OnMouseScroll((float)delta);

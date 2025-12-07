@@ -23,15 +23,12 @@ namespace hod::renderer
 		virtual ~PresentationSurface();
 
 	public:
-		virtual void Resize(uint32_t width, uint32_t height);
+		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
 		virtual bool AcquireNextImageIndex(Semaphore* imageAvailableSemaphore) = 0;
 		virtual bool SwapBuffer() = 0;
 
 		void AddSemaphoreToSwapBuffer(const Semaphore* semaphore);
-
-		bool         GetResizeRequested() const;
-		virtual bool ApplyResize() = 0;
 
 		virtual Vector2 GetResolution() const = 0;
 
@@ -43,9 +40,5 @@ namespace hod::renderer
 		Delegate _onWindowResizeDelegate;
 
 		window::Window* _window = nullptr;
-
-		bool     _resizeRequested = false;
-		uint32_t _resizeWidth = 0;
-		uint32_t _resizeHeight = 0;
 	};
 }

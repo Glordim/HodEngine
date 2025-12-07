@@ -1,4 +1,5 @@
 #include "HodEngine/Window/Pch.hpp"
+#include "HodEngine/Window/Desktop/Windows/Win32/Win32Cursor.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
 
@@ -37,9 +38,16 @@ namespace hod::window
 	/// @return
 	LRESULT Win32Window::InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		OnWinProc.Emit(_hWnd, msg, wParam, lParam);
-
-		if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
+		if (msg == WM_SETCURSOR)
+		{
+			if (LOWORD(lParam) == HTCLIENT)
+			{
+				::SetCursor(static_cast<Win32Cursor*>(GetCursor())->GetCursorHandle());
+				return 1;
+			}
+			return ::DefWindowProc(_hWnd, msg, wParam, lParam);
+		}
+		else if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
 		{
 			UINT scancode = (lParam >> 16) & 0xFF;
 			scancode |= ((lParam >> 24) & 1) << 8;
@@ -103,6 +111,9 @@ namespace hod::window
 		{
 			int x = GET_X_LPARAM(lParam);
 			int y = GET_Y_LPARAM(lParam);
+
+			SetMousePosition(Vector2(x, y));
+
 			EmitMouseMoved(x, y);
 		}
 		else if (msg == WM_MOUSEWHEEL)
@@ -115,7 +126,7 @@ namespace hod::window
 			UINT width = LOWORD(lParam);
 			UINT height = HIWORD(lParam);
 
-			SetSizeInternal(width, height);
+			ResizeInternal(width, height);
 		}
 		else if (msg == WM_CLOSE)
 		{
@@ -161,6 +172,8 @@ namespace hod::window
 	/// @brief
 	void Win32Window::Update()
 	{
+		DesktopWindow::Update();
+
 		if (_hWndThreadId != Thread::GetCurrentThreadId())
 		{
 			return;

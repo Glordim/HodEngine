@@ -52,9 +52,9 @@ namespace hod::input
 			return false;
 		}
 
-		_window->OnWinProc.Connect(_onWinProcSlot);
+		//_window->OnWinProc.Connect(_onWinProcSlot);
 
-		_window->GetFocusedEvent().Connect(_onFocusChangeSlot);
+		//_window->GetFocusedEvent().Connect(_onFocusChangeSlot);
 
 		SetInitialized(true);
 

@@ -17,7 +17,7 @@ namespace hod::renderer
 		~VkPresentationSurface() override;
 
 	public:
-		bool    ApplyResize() override;
+		void    Resize(uint32_t width, uint32_t height) override;
 		Vector2 GetResolution() const override;
 
 		bool AcquireNextImageIndex(Semaphore* imageAvailableSemaphore) override;

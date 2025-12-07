@@ -8,11 +8,69 @@ namespace hod::window
 		(void)reflectionDescriptor;
 	}
 
+	Window::Window()
+	{
+		_pendingEvents.Reserve(1024);
+		_events.Reserve(1024);
+	}
+
 	/// @brief
 	Window::~Window() {}
 
 	/// @brief
-	void Window::Update() {}
+	void Window::Update()
+	{
+		_pendingEventsMutex.lock();
+		_pendingEvents.Swap(_events);
+		_pendingEvents.Clear();
+		_pendingEventsMutex.unlock();
+	}
+
+	bool Window::PollEvent(uint32_t& index, Event& event) const
+	{
+		if (index < _events.Size())
+		{
+			event = _events[index++];
+			return true;
+		}
+		return false;
+	}
+
+	bool Window::PollEvent(uint32_t& index, Event& event, uint8_t filterMask) const
+	{
+		while (index < _events.Size())
+		{
+			if (filterMask & static_cast<uint8_t>(_events[index].type))
+			{
+				event = _events[index++];
+				return true;
+			}
+			++index;
+		}
+		return false;
+	}
+
+	void Window::EnqueueEvent(const Event& event)
+	{
+		_pendingEventsMutex.lock();
+		_pendingEvents.PushBack(event);
+		_pendingEventsMutex.unlock();
+	}
+
+	void Window::ResizeInternal(uint16_t width, uint16_t height)
+	{
+		if (width != _width || height != _height)
+		{
+			_width = width;
+			_height = height;
+
+			Event event;
+			event.type = EventType::Resized;
+			event.data.resize.width = width;
+			event.data.resize.height = height;
+			EnqueueEvent(event);
+		}
+	}
 
 	/// @brief
 	/// @return
@@ -28,14 +86,15 @@ namespace hod::window
 		return _height;
 	}
 
-	void Window::SetSizeInternal(uint16_t width, uint16_t height)
+	void Window::CloseInternal()
 	{
-		if (width != _width || height != _height)
+		if (_close == false)
 		{
-			_width = width;
-			_height = height;
+			_close = true;
 
-			_onResizeEvent.Emit(_width, _height);
+			Event event;
+			event.type = EventType::Closed;
+			EnqueueEvent(event);
 		}
 	}
 
@@ -44,10 +103,5 @@ namespace hod::window
 	bool Window::IsClose() const
 	{
 		return _close;
-	}
-
-	Event<uint16_t, uint16_t>& Window::OnResizeEvent()
-	{
-		return _onResizeEvent;
 	}
 }

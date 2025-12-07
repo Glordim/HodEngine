@@ -2,14 +2,13 @@
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
 #include <HodEngine/Core/Job/Job.hpp>
+#include <HodEngine/Core/Time/SystemTime.hpp>
 
 #include "HodEngine/Window/PlatformWindow.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
-#if defined(PLATFORM_WINDOWS)
-	#include "HodEngine/ImGui/DearImGui/imgui_impl_win32.h"
-#elif defined(PLATFORM_MACOS)
+#if defined(PLATFORM_MACOS)
 	#include "HodEngine/ImGui/DearImGui/imgui_impl_osx.h"
 #endif
 #include "HodEngine/ImGui/RenderCommandImGui.hpp"
@@ -20,6 +19,7 @@
 #include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RHI/PresentationSurface.hpp>
 #include <HodEngine/Renderer/RHI/Texture.hpp>
 
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
@@ -40,7 +40,6 @@
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
 #if defined(PLATFORM_WINDOWS)
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	#undef FindWindow
 	#undef min
 #endif
@@ -50,9 +49,6 @@ namespace hod::imgui
 	/// @brief
 	_SingletonConstructor(ImGuiManager)
 	: _updateJob(this, &ImGuiManager::Update, JobQueue::Queue::Framed)
-#if defined(PLATFORM_WINDOWS)
-	, _winProcSlot(&ImGui_ImplWin32_WndProcHandler)
-#endif
 	{
 	}
 
@@ -60,11 +56,6 @@ namespace hod::imgui
 	ImGuiManager::~ImGuiManager()
 	{
 		DestroyAllWindow();
-
-#if defined(PLATFORM_WINDOWS)
-		ImGui_ImplWin32_Shutdown();
-#elif defined(PLATFORM_MACOS)
-#endif
 
 		// ImGui::DestroyContext(); // todo
 		for (renderer::Texture* texure : _textures)
@@ -224,10 +215,7 @@ namespace hod::imgui
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(MaterialDesignIcons_ttf, MaterialDesignIcons_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
 
 		_mainWindow = window;
-#if defined(PLATFORM_WINDOWS)
-		ImGui_ImplWin32_Init(static_cast<window::Win32Window*>(_mainWindow)->GetWindowHandle());
-		static_cast<window::Win32Window*>(window)->OnWinProc.Connect(_winProcSlot);
-#elif defined(PLATFORM_MACOS)
+#if defined(PLATFORM_MACOS)
 		ImGui_ImplOSX_Init(static_cast<window::MacOsWindow*>(_mainWindow)->GetNsView());
 #endif
 
@@ -235,13 +223,6 @@ namespace hod::imgui
 
 		return true;
 	}
-
-#if defined(PLATFORM_WINDOWS)
-	void ImGuiManager::OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-	{
-		ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
-	}
-#endif
 
 	/// @brief
 	/// @return
@@ -279,25 +260,74 @@ namespace hod::imgui
 	/// @brief
 	void ImGuiManager::Update()
 	{
-#if defined(PLATFORM_WINDOWS)
-		ImGui_ImplWin32_NewFrame();
-#elif defined(PLATFORM_MACOS)
+		ImGuiIO& io = ImGui::GetIO();
+
+#if defined(PLATFORM_MACOS)
 		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(_mainWindow);
 		ImGui_ImplOSX_NewFrame(static_cast<window::MacOsWindow*>(window)->GetNsView());
-#elif defined(PLATFORM_LINUX)
-		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(_mainWindow);
-		ImGui::GetIO().DisplaySize.x = window->GetWidth();
-		ImGui::GetIO().DisplaySize.y = window->GetHeight();
-		ImGui::GetIO().AddMousePosEvent(window->GetMousePosition().GetX(), window->GetMousePosition().GetY());
-		/* TODO
-		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Left, window->GetMouseButton(window::DesktopWindow::MouseButton::Left));
-		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Middle, window->GetMouseButton(window::DesktopWindow::MouseButton::Middle));
-		ImGui::GetIO().AddMouseButtonEvent(ImGuiMouseButton_Right, window->GetMouseButton(window::DesktopWindow::MouseButton::Right));
-		*/
+		// To avoid having animations (ping, translation, etc.) that lag too much (and to keep them at a reasonable duration) in the editor, even when there is lag.
+		io.DeltaTime = std::min(io.DeltaTime, 1.0f / 30.0f);
 #else
-		return;
+		static SystemTime::TimeStamp last = SystemTime::INVALID_TIMESTAMP;
+		SystemTime::TimeStamp        now = SystemTime::Now();
+		io.DeltaTime = SystemTime::ElapsedTimeInSeconds(last, now);
+		last = now;
+
+		// To avoid having animations (ping, translation, etc.) that lag too much (and to keep them at a reasonable duration) in the editor, even when there is lag.
+		io.DeltaTime = std::min(io.DeltaTime, 1.0f / 30.0f);
+
+		window::Event event;
+		uint32_t      eventIndex = 0;
+		while (_mainWindow->PollEvent(eventIndex, event))
+		{
+			if (event.type == window::EventType::MouseMoved)
+			{
+				io.AddMousePosEvent(event.data.mouseMove.x, event.data.mouseMove.y);
+			}
+			else if (event.type == window::EventType::MouseButtonDown)
+			{
+				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), true);
+			}
+			else if (event.type == window::EventType::MouseButtonUp)
+			{
+				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), false);
+			}
+		}
+
+		Vector2 resolution;
+
+		renderer::PresentationSurface* presentationSurface = renderer::Renderer::GetInstance()->FindPresentationSurface(_mainWindow);
+		if (presentationSurface)
+		{
+			resolution = presentationSurface->GetResolution();
+		}
+
+		if (resolution == Vector2::Zero)
+		{
+			return;
+		}
+		io.DisplaySize.x = resolution.GetX();
+		io.DisplaySize.y = resolution.GetY();
+
+	#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
+		ImGuiMouseCursor mouseCursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
+
+		static window::DesktopDisplayManager::BuiltinCursor builtinCursorMapping[ImGuiMouseCursor_COUNT] = {
+			window::DesktopDisplayManager::BuiltinCursor::Arrow,    // ImGuiMouseCursor_Arrow
+			window::DesktopDisplayManager::BuiltinCursor::Ibeam,    // ImGuiMouseCursor_TextInput
+			window::DesktopDisplayManager::BuiltinCursor::SizeNS,   // ImGuiMouseCursor_ResizeAll
+			window::DesktopDisplayManager::BuiltinCursor::SizeNS,   // ImGuiMouseCursor_ResizeNS
+			window::DesktopDisplayManager::BuiltinCursor::SizeWE,   // ImGuiMouseCursor_ResizeEW
+			window::DesktopDisplayManager::BuiltinCursor::SizeNESW, // ImGuiMouseCursor_ResizeNESW
+			window::DesktopDisplayManager::BuiltinCursor::SizeNWSE, // ImGuiMouseCursor_ResizeNWSE
+			window::DesktopDisplayManager::BuiltinCursor::Hand,     // ImGuiMouseCursor_Hand
+			window::DesktopDisplayManager::BuiltinCursor::Wait,     // ImGuiMouseCursor_Wait
+			window::DesktopDisplayManager::BuiltinCursor::Wait,     // ImGuiMouseCursor_Progress
+			window::DesktopDisplayManager::BuiltinCursor::No,       // ImGuiMouseCursor_NotAllowed
+		};
+		static_cast<window::DesktopWindow*>(_mainWindow)->SetCursor(window::DesktopDisplayManager::GetInstance()->GetBultinCursor(builtinCursorMapping[mouseCursor]));
+	#endif
 #endif
-		ImGui::GetIO().DeltaTime = std::min(ImGui::GetIO().DeltaTime, 1.0f / 30.0f);
 
 		ImGui::NewFrame();
 

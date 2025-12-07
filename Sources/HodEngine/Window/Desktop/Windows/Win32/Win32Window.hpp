@@ -3,7 +3,6 @@
 
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
-#include "HodEngine/Core/Event.hpp"
 #include <HodEngine/Core/Job/Thread.hpp>
 
 struct HWND__;
@@ -21,8 +20,7 @@ namespace hod::window
 	class HOD_WINDOW_API Win32Window : public DesktopWindow
 	{
 	public:
-		Event<HWND, UINT, WPARAM, LPARAM> OnWinProc;
-		static LRESULT                    WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		static LRESULT WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	public:
 		Win32Window(bool hidden = false);

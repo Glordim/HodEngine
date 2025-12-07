@@ -201,7 +201,6 @@ namespace hod::renderer
 
 		VkPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<VkPresentationSurface>(mainWindow, surface);
 		presentationSurface->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
-		presentationSurface->ApplyResize();
 		_presentationSurfaces.PushBack(presentationSurface);
 
 		// TODO

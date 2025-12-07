@@ -15,8 +15,6 @@ namespace hod::renderer
 	: PresentationSurface(window)
 	, _surface(surface)
 	{
-		_resizeWidth = 800;
-		_resizeHeight = 600;
 		CreateSwapChain(800, 600);
 	}
 
@@ -36,10 +34,9 @@ namespace hod::renderer
 	/// @brief
 	/// @param width
 	/// @param height
-	bool VkPresentationSurface::ApplyResize()
+	void VkPresentationSurface::Resize(uint32_t width, uint32_t height)
 	{
-		_resizeRequested = false;
-		return CreateSwapChain(_resizeWidth, _resizeHeight);
+		CreateSwapChain(width, height);
 	}
 
 	/// @brief

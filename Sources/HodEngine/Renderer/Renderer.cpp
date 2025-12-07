@@ -17,6 +17,9 @@
 
 #include "HodEngine/Renderer/FrameResources.hpp"
 
+#include <HodEngine/Window/Event.hpp>
+#include <HodEngine/Window/Window.hpp>
+
 namespace hod
 {
 	namespace renderer
@@ -271,16 +274,19 @@ namespace hod
 
 		bool Renderer::AcquireNextFrame()
 		{
-			bool resizeRequested = false;
+			Vector<PresentationSurface*> presentationSurfaceToResize;
 			for (PresentationSurface* presentationSurface : _presentationSurfaces)
 			{
-				if (presentationSurface->GetResizeRequested())
+				window::Event event;
+				uint32_t      eventIndex = 0;
+
+				window::Window* window = presentationSurface->GetWindow();
+				if (window->PollEvent(eventIndex, event, static_cast<uint8_t>(window::EventType::Resized)))
 				{
-					resizeRequested = true;
-					break;
+					presentationSurfaceToResize.PushBack(presentationSurface);
 				}
 			}
-			if (resizeRequested)
+			if (presentationSurfaceToResize.Empty() == false)
 			{
 				for (uint32_t frameSkipped = 0; frameSkipped < _frameInFlight; ++frameSkipped)
 				{
@@ -298,12 +304,10 @@ namespace hod
 					_frameIndex = _frameCount % _frameInFlight;
 				}
 
-				for (PresentationSurface* presentationSurface : _presentationSurfaces)
+				for (PresentationSurface* presentationSurface : presentationSurfaceToResize)
 				{
-					if (presentationSurface->GetResizeRequested())
-					{
-						presentationSurface->ApplyResize();
-					}
+					window::Window* window = presentationSurface->GetWindow();
+					presentationSurface->Resize(window->GetWidth(), window->GetHeight());
 				}
 			}
 			else

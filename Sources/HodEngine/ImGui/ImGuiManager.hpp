@@ -10,8 +10,6 @@
 #include <stdint.h>
 
 #if defined(PLATFORM_WINDOWS)
-	#define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
 	#undef max
 	#undef FindWindow
 #endif
@@ -82,9 +80,6 @@ namespace hod::imgui
 	private:
 		bool CreateMaterial();
 
-#if defined(PLATFORM_WINDOWS)
-		void OnWinProcEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#endif
 	private:
 		MemberFunctionJob<ImGuiManager> _updateJob;
 
@@ -98,10 +93,6 @@ namespace hod::imgui
 		renderer::Shader*   _fragmentShader = nullptr;
 
 		window::Window* _mainWindow = nullptr;
-
-#if defined(PLATFORM_WINDOWS)
-		Event<HWND, UINT, WPARAM, LPARAM>::Slot _winProcSlot;
-#endif
 
 		ImGuiID _centralDockSpace;
 
