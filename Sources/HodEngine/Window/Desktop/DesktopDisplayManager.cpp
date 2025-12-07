@@ -3,8 +3,19 @@
 
 namespace hod::window
 {
-    _SingletonOverrideConstructor(DesktopDisplayManager) : DisplayManager()
+	_SingletonOverrideConstructor(DesktopDisplayManager)
+	: DisplayManager()
 	{
+	}
 
+	Cursor* DesktopDisplayManager::GetBultinCursor(BuiltinCursor builtinCursor)
+	{
+		Cursor* cursor = _builtinCursors[std::to_underlying(builtinCursor)];
+		if (cursor == nullptr)
+		{
+			cursor = CreateBuiltinCursor(builtinCursor);
+			_builtinCursors[std::to_underlying(builtinCursor)] = cursor;
+		}
+		return cursor;
 	}
 }

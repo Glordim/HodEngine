@@ -5,24 +5,22 @@
 
 namespace hod::window
 {
-    class Window;
+	class Window;
 
-    class HOD_WINDOW_API DisplayManager
-    {
-        _SingletonAbstract(DisplayManager)
+	class HOD_WINDOW_API DisplayManager
+	{
+		_SingletonAbstract(DisplayManager)
 
-    public:
+	public:
+		virtual ~DisplayManager() = default;
 
-        virtual         ~DisplayManager() = default;
+		virtual bool Initialize() = 0;
+		virtual void Update() = 0;
+		virtual void Terminate() = 0;
 
-        virtual bool    Initialize() = 0;
-        virtual void    Update() = 0;
-        virtual void    Terminate() = 0;
+		Window* GetMainWindow() const;
 
-        Window*         GetMainWindow() const;
-
-    protected:
-
-        Window*         _mainWindow = nullptr;
-    };
+	protected:
+		Window* _mainWindow = nullptr;
+	};
 }

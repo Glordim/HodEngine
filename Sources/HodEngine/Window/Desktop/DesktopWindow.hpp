@@ -13,12 +13,15 @@
 
 namespace hod::window
 {
+	class Cursor;
 	class IDesktopWindowInputListener;
 
 	/// @brief
 	class HOD_WINDOW_API DesktopWindow : public Window
 	{
 	public:
+		DesktopWindow();
+
 		virtual void SetSize(uint16_t width, uint16_t height) = 0;
 		virtual void CenterToScreen() = 0;
 		virtual void Maximize() = 0;
@@ -30,7 +33,8 @@ namespace hod::window
 
 		const Vector2& GetMousePosition() const;
 
-		void SetMousePosition(const Vector2& mousePosition);
+		void    SetCursor(Cursor* cursor);
+		Cursor* GetCursor() const;
 
 		void RegisterInputListener(IDesktopWindowInputListener* inputListener);
 		void UnregisterInputListener(IDesktopWindowInputListener* inputListener);
@@ -39,6 +43,7 @@ namespace hod::window
 
 	protected:
 		void SetFocused(bool focused);
+		void SetMousePosition(const Vector2& mousePosition);
 
 	public:
 		void EmitKeyPressed(ScanCode scanCode);
@@ -51,8 +56,7 @@ namespace hod::window
 	private:
 		Vector2 _mousePosition;
 
-		bool        _focused = true;
-		Event<bool> _focusEvent;
+		Cursor* _cursor = nullptr;
 
 		Vector<IDesktopWindowInputListener*> _inputListeners;
 	};

@@ -26,6 +26,9 @@ namespace hod::window
 		Window* CreateWindow(bool hidden = false) override;
 		void    DestroyWindow(Window* window) override;
 
+	protected:
+		Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) override;
+
 	private:
 		static int Win32ThreadEntry(void* param);
 		int        Win32ThreadFunction();

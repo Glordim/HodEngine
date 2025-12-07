@@ -1,10 +1,33 @@
 #include "HodEngine/Window/Pch.hpp"
+#include "DesktopDisplayManager.hpp"
 #include "DesktopWindow.hpp"
 
 #include "IDesktopWindowInputListener.hpp"
 
 namespace hod::window
 {
+	DesktopWindow::DesktopWindow()
+	{
+		_cursor = DesktopDisplayManager::GetInstance()->GetBultinCursor(DesktopDisplayManager::BuiltinCursor::Arrow);
+	}
+
+	void DesktopWindow::SetCursor(Cursor* cursor)
+	{
+		if (cursor == nullptr)
+		{
+			_cursor = DesktopDisplayManager::GetInstance()->GetBultinCursor(DesktopDisplayManager::BuiltinCursor::Arrow);
+		}
+		else
+		{
+			_cursor = cursor;
+		}
+	}
+
+	Cursor* DesktopWindow::GetCursor() const
+	{
+		return _cursor;
+	}
+
 	/// @brief
 	/// @param mousePosition
 	void DesktopWindow::SetMousePosition(const Vector2& mousePosition)
