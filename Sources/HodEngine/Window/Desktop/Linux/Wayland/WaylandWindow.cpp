@@ -129,6 +129,8 @@ namespace hod::window
 		libdecor_frame_commit(frame, state, configuration);
 		libdecor_state_free(state);
 
+		// todo resize event
+
 		/* store floating dimensions */
 		/*
 		        if (libdecor_frame_is_floating(window->frame) == true)

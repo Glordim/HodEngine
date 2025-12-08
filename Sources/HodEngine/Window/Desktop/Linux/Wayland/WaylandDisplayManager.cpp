@@ -333,9 +333,10 @@ namespace hod::window
 	{
 		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
 
-		if (thiz->_surfaceToWindowMap.contains(thiz->_pointerFocus) == true)
+		auto it = thiz->_surfaceToWindowMap.find(thiz->_pointerFocus);
+		if (it != thiz->_surfaceToWindowMap.end())
 		{
-			WaylandWindow* waylandWindow = thiz->_surfaceToWindowMap[thiz->_pointerFocus];
+			WaylandWindow* waylandWindow = it->second;
 			waylandWindow->SetMousePosition(Vector2(wl_fixed_to_double(surfaceX), wl_fixed_to_double(surfaceY)));
 		}
 	}
@@ -613,14 +614,30 @@ namespace hod::window
 	/// @brief
 	void WaylandDisplayManager::Update()
 	{
+		for (const auto& windowPair : _surfaceToWindowMap)
+		{
+			windowPair.second->Update();
+		}
+	}
+
+	bool WaylandDisplayManager::Run()
+	{
+		int result = 0;
 		if (_libDecorContext != nullptr)
 		{
-			libdecor_dispatch(_libDecorContext, 0);
+			while ((result = libdecor_dispatch(_libDecorContext, 0)) != -1)
+			{
+
+			}
 		}
 		else
 		{
-			wl_display_roundtrip(_wlDisplay);
+			while ((result = wl_display_dispatch(_wlDisplay)) != -1)
+			{
+
+			}
 		}
+		return result >= 0;
 	}
 
 	/// @brief
