@@ -1,5 +1,5 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Job/Thread.hpp"
+#include "HodEngine/Core/Thread/Thread.hpp"
 
 #include <unistd.h>
 
@@ -48,7 +48,7 @@ namespace hod
 	/// @param parameter
 	/// @param priority
 	/// @param name
-	void Thread::Start(const Function& function, void* parameter, Priority /*priority*/, const char* /*name*/)
+	void Thread::Start(const Function& function, void* parameter, Priority priority, const char* name)
 	{
 		Descriptor* descriptor = DefaultAllocator::GetInstance().New<Descriptor>();
 		descriptor->_function = function;
@@ -62,6 +62,8 @@ namespace hod
 		}
 
 		// todo set attributes
+		(void)priority;
+		(void)name;
 
 		if (pthread_create(&_id, &attributes, ThreadFunctionInternal, descriptor) != 0)
 		{

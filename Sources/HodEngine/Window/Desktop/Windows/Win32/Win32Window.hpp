@@ -3,7 +3,7 @@
 
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
-#include <HodEngine/Core/Job/Thread.hpp>
+#include <HodEngine/Core/Thread/Thread.hpp>
 
 struct HWND__;
 using HWND = HWND__*;

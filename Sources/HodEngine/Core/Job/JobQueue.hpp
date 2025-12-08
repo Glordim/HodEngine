@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include "HodEngine/Core/Job/Thread.hpp"
 #include "HodEngine/Core/LockFreeQueue.hpp"
+#include "HodEngine/Core/Thread/Thread.hpp"
 
 #include <atomic>
 

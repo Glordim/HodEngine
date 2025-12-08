@@ -7,7 +7,7 @@
 
 #include "HodEngine/Core/Singleton.hpp"
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
-#include <HodEngine/Core/Job/Thread.hpp>
+#include <HodEngine/Core/Thread/Thread.hpp>
 
 namespace hod::window
 {
