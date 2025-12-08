@@ -5,7 +5,7 @@
 
 namespace hod::window
 {
-	void CocoaDisplayManager::Update()
+	bool CocoaDisplayManager::Run()
 	{
         @autoreleasepool
         {
@@ -19,5 +19,7 @@ namespace hod::window
                 [NSApp updateWindows];
             }
         }
+
+        return true;
 	}
 }

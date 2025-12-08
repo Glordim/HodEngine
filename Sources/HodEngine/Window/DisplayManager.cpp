@@ -3,10 +3,7 @@
 
 namespace hod::window
 {
-    _SingletonConstructor(DisplayManager)
-	{
-
-	}
+	_SingletonConstructor(DisplayManager) {}
 
 	Window* DisplayManager::GetMainWindow() const
 	{

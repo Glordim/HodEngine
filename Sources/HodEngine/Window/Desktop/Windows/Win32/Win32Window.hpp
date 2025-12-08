@@ -51,6 +51,7 @@ namespace hod::window
 
 		Thread::Id _hWndThreadId;
 
+		std::mutex                    _runOnWin32ThreadMutex;
 		Vector<std::function<void()>> _runOnWin32Thread;
 	};
 }

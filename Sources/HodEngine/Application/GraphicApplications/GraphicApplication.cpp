@@ -122,9 +122,12 @@ namespace hod::application
 		FileSystem::DestroyInstance();
 	}
 
-	/// @brief
-	/// @return
-	bool GraphicApplication::Run()
+	int GraphicApplication::EngineLoopEntry(void* data)
+	{
+		return static_cast<GraphicApplication*>(data)->EngineLoop();
+	}
+
+	int GraphicApplication::EngineLoop()
 	{
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
 
@@ -143,7 +146,22 @@ namespace hod::application
 
 			renderer::Renderer::GetInstance()->Render();
 		}
-		return true;
+
+		return EXIT_SUCCESS;
+	}
+
+	/// @brief
+	/// @return
+	bool GraphicApplication::Run()
+	{
+		Thread engineLoop;
+		engineLoop.Start(&GraphicApplication::EngineLoopEntry, this, Thread::Priority::High, "EngineLoop");
+
+		bool result = window::DisplayManager::GetInstance()->Run();
+
+		engineLoop.Join();
+
+		return result;
 	}
 
 	/// @brief

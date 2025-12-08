@@ -24,6 +24,10 @@ namespace hod::application
 
 		window::Window* GetWindow() const;
 
+	private:
+		static int EngineLoopEntry(void* data);
+		int        EngineLoop();
+
 	protected:
 		window::Window* _window = nullptr;
 	};

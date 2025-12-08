@@ -6,17 +6,17 @@
 
 namespace hod::window
 {
-    class HOD_WINDOW_API CocoaDisplayManager : public DesktopDisplayManager
-    {
-        _SingletonOverride(CocoaDisplayManager)
+	class HOD_WINDOW_API CocoaDisplayManager : public DesktopDisplayManager
+	{
+		_SingletonOverride(CocoaDisplayManager)
 
-    public:
+	public:
+		bool Initialize() override;
+		void Update() override;
+		bool Run() override;
+		void Terminate() override;
 
-        bool            Initialize() override;
-        void            Update() override;
-        void            Terminate() override;
-
-        Window*         CreateWindow(bool hidden = false) override;
-        void            DestroyWindow(Window* window) override;
-    };
+		Window* CreateWindow(bool hidden = false) override;
+		void    DestroyWindow(Window* window) override;
+	};
 }

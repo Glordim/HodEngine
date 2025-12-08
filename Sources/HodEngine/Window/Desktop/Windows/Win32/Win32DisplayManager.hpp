@@ -21,6 +21,7 @@ namespace hod::window
 	public:
 		bool Initialize() override;
 		void Update() override;
+		bool Run() override;
 		void Terminate() override;
 
 		Window* CreateWindow(bool hidden = false) override;
@@ -30,17 +31,10 @@ namespace hod::window
 		Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) override;
 
 	private:
-		static int Win32ThreadEntry(void* param);
-		int        Win32ThreadFunction();
-
-	private:
 		HINSTANCE _hInstance = NULL;
 		ATOM      _class = INVALID_ATOM;
 
 		Vector<Window*> _windows;
-
-		Thread _win32Thread;
-
-		std::atomic_flag _wmQueueCreated = ATOMIC_FLAG_INIT;
+		Thread::Id      _mainThreadId;
 	};
 }

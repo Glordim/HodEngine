@@ -138,7 +138,21 @@ namespace hod::window
 			HWND hwnd = _hWnd;
 			_hWnd = nullptr;
 			SetWindowLongPtr(nullptr, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+			if (DisplayManager::GetInstance()->GetMainWindow() == this)
+			{
+				PostQuitMessage(0);
+			}
 			return ::DefWindowProc(hwnd, msg, wParam, lParam);
+		}
+		else if (msg == WM_USER + 3)
+		{
+			_runOnWin32ThreadMutex.lock();
+			for (const std::function<void()>& function : _runOnWin32Thread)
+			{
+				function();
+			}
+			_runOnWin32Thread.Clear();
+			_runOnWin32ThreadMutex.unlock();
 		}
 
 		return ::DefWindowProc(_hWnd, msg, wParam, lParam);
@@ -174,17 +188,18 @@ namespace hod::window
 	{
 		DesktopWindow::Update();
 
+		/*
 		if (_hWndThreadId != Thread::GetCurrentThreadId())
 		{
-			return;
+		    return;
 		}
 
 		for (const std::function<void()>& function : _runOnWin32Thread)
 		{
-			function();
+		    function();
 		}
 		_runOnWin32Thread.Clear();
-
+		*/
 		/*
 		::MSG msg;
 		::ZeroMemory(&msg, sizeof(msg));
@@ -276,7 +291,16 @@ namespace hod::window
 		}
 		else
 		{
+			_runOnWin32ThreadMutex.lock();
+			if (_runOnWin32Thread.Empty())
+			{
+				if (PostMessageA(_hWnd, WM_USER + 3, 0, 0) == FALSE)
+				{
+					OUTPUT_ERROR("RunOnWin32Thread PostMessageA: {}", OS::GetLastWin32ErrorMessage());
+				}
+			}
 			_runOnWin32Thread.push_back(codeToRun);
+			_runOnWin32ThreadMutex.unlock();
 		}
 	}
 

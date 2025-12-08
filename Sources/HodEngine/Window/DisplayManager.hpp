@@ -16,6 +16,7 @@ namespace hod::window
 
 		virtual bool Initialize() = 0;
 		virtual void Update() = 0;
+		virtual bool Run() = 0;
 		virtual void Terminate() = 0;
 
 		Window* GetMainWindow() const;
