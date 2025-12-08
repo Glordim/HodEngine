@@ -24,7 +24,7 @@ namespace hod::window
 	public:
 		virtual void       Update();
 		[[nodiscard]] bool PollEvent(uint32_t& index, Event& event) const;
-		[[nodiscard]] bool PollEvent(uint32_t& index, Event& event, uint8_t filterMask) const;
+		[[nodiscard]] bool PollEvent(uint32_t& index, Event& event, uint32_t filterMask) const;
 
 		uint16_t GetWidth() const;
 		uint16_t GetHeight() const;

@@ -36,11 +36,11 @@ namespace hod::window
 		return false;
 	}
 
-	bool Window::PollEvent(uint32_t& index, Event& event, uint8_t filterMask) const
+	bool Window::PollEvent(uint32_t& index, Event& event, uint32_t filterMask) const
 	{
 		while (index < _events.Size())
 		{
-			if (filterMask & static_cast<uint8_t>(_events[index].type))
+			if (filterMask & (1 << static_cast<uint8_t>(_events[index].type)))
 			{
 				event = _events[index++];
 				return true;

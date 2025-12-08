@@ -281,7 +281,7 @@ namespace hod
 				uint32_t      eventIndex = 0;
 
 				window::Window* window = presentationSurface->GetWindow();
-				if (window->PollEvent(eventIndex, event, static_cast<uint8_t>(window::EventType::Resized)))
+				if (window->PollEvent(eventIndex, event, 1 << static_cast<uint8_t>(window::EventType::Resized)))
 				{
 					presentationSurfaceToResize.PushBack(presentationSurface);
 				}
