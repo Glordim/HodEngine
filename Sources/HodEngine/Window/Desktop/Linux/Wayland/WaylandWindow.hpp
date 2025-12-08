@@ -15,6 +15,8 @@ namespace hod::window
 	/// @brief 
 	class HOD_WINDOW_API WaylandWindow : public DesktopWindow
 	{
+		friend class WaylandDisplayManager;
+
 	public:
 											WaylandWindow();
 											~WaylandWindow() override;

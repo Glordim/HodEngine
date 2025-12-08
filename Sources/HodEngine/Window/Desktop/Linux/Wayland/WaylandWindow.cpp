@@ -4,8 +4,6 @@
 #include "HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp"
 #include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
 
-#include "HodEngine/Window/Surface.hpp"
-
 #include "HodEngine/Core/String.hpp"
 #include <cstring>
 
@@ -143,12 +141,6 @@ namespace hod::window
 
 		waylandWindow->_width = width;
 		waylandWindow->_height = height;
-
-		Surface* surface = waylandWindow->GetSurface();
-		if (surface != nullptr)
-		{
-			surface->Resize(width, height);
-		}
 	}
 
 	static void handle_close(struct libdecor_frame* /*frame*/, void* data)
@@ -298,12 +290,6 @@ namespace hod::window
 
 		_width = width;
 		_height = height;
-
-		Surface* surface = GetSurface();
-		if (surface != nullptr)
-		{
-			surface->Resize(width, height);
-		}
 
 		/*
 		//wl_surface_set_buffer_scale(_wlSurface, 1);  // Exemple d'échelle

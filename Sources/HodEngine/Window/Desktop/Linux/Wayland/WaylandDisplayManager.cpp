@@ -781,4 +781,9 @@ namespace hod::window
 	/// @param wl_output
 	/// @param description
 	void WaylandDisplayManager::Output::OutputDescription(void* /*userData*/, wl_output* /*wl_output*/, const char* /*description*/) {}
+
+	Cursor* WaylandDisplayManager::CreateBuiltinCursor(BuiltinCursor /*builtinCursor*/)
+	{
+		return nullptr;
+	}
 }

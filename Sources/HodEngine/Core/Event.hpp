@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <functional>
 #include <utility>
+#include <atomic>
 
 namespace hod
 {

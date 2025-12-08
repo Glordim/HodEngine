@@ -37,6 +37,9 @@ namespace hod::window
 		libdecor*      GetLibDecorContext() const;
 		xdg_wm_base*   GetXdgWmBase() const;
 
+	protected:
+		Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) override;
+
 	private:
 		class Output final
 		{
