@@ -6,6 +6,7 @@
 #include <limits>
 #include <type_traits>
 #include <utility>
+#include <new>
 
 #include "HodEngine/Core/Math/Math.hpp"
 

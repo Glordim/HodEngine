@@ -21,9 +21,25 @@ class MyWindowDelegate;
 
 namespace hod::window
 {
+	class MacOsWindow;
+
+    class MacOsWindowEventCaller
+    {
+    public:
+        static void EmitKeyPressed(MacOsWindow* window, ScanCode scanCode);
+        static void EmitKeyReleased(MacOsWindow* window, ScanCode scanCode);
+
+        static void EmitMouseButtonPressed(MacOsWindow* window, MouseButton button);
+        static void EmitMouseButtonReleased(MacOsWindow* window, MouseButton button);
+
+        static void EmitMouseMoved(MacOsWindow* window, float x, float y);
+    };
+
 	/// @brief 
 	class HOD_WINDOW_API MacOsWindow : public DesktopWindow
 	{
+		friend class MacOsWindowEventCaller;
+		
 	public:
 											MacOsWindow(bool hidden);
 											~MacOsWindow() override;

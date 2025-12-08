@@ -17,4 +17,29 @@ namespace hod::window
 	{
 		return _view;
 	}
+
+	void MacOsWindowEventCaller::EmitKeyPressed(MacOsWindow* window, ScanCode scanCode)
+    {
+        window->EmitKeyPressed(scanCode);
+    }
+
+    void MacOsWindowEventCaller::EmitKeyReleased(MacOsWindow* window, ScanCode scanCode)
+    {
+        window->EmitKeyReleased(scanCode);
+    }
+
+    void MacOsWindowEventCaller::EmitMouseButtonPressed(MacOsWindow* window, MouseButton button)
+    {
+        window->EmitMouseButtonPressed(button);
+    }
+
+    void MacOsWindowEventCaller::EmitMouseButtonReleased(MacOsWindow* window, MouseButton button)
+    {
+        window->EmitMouseButtonReleased(button);
+    }
+
+    void MacOsWindowEventCaller::EmitMouseMoved(MacOsWindow* window, float x, float y)
+    {
+        window->EmitMouseMoved(x, y);
+    }
 }

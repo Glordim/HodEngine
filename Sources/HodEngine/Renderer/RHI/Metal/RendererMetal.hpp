@@ -56,8 +56,6 @@ namespace hod
 		private:
 			MTL::Device*       _device = nullptr;
 			MTL::CommandQueue* _commandQueue = nullptr;
-
-			MetalContext* _context = nullptr;
 		};
 	}
 }

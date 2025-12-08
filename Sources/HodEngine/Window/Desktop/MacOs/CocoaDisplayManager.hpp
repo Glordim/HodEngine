@@ -18,5 +18,7 @@ namespace hod::window
 
 		Window* CreateWindow(bool hidden = false) override;
 		void    DestroyWindow(Window* window) override;
+
+		Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) override;
 	};
 }

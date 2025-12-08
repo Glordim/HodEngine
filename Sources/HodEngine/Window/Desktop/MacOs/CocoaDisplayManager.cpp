@@ -18,6 +18,11 @@ namespace hod::window
         return true;
     }
 
+    void CocoaDisplayManager::Update()
+    {
+
+    }
+
     /// @brief 
     void CocoaDisplayManager::Terminate()
     {
@@ -35,5 +40,10 @@ namespace hod::window
     void CocoaDisplayManager::DestroyWindow(Window* window)
     {
         DefaultAllocator::GetInstance().Delete(window);
+    }
+
+    Cursor* CocoaDisplayManager::CreateBuiltinCursor(BuiltinCursor /*builtinCursor*/)
+    {
+        return nullptr;
     }
 }

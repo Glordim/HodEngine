@@ -5,7 +5,7 @@
 
 #include "HodEngine/Renderer/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/Metal/MetalContext.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalFence.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
@@ -76,21 +76,9 @@ namespace hod
 			_device = MTL::CreateSystemDefaultDevice();
 			_commandQueue = _device->newCommandQueue();
 
-			_context = DefaultAllocator::GetInstance().New<MetalContext>(static_cast<window::MacOsWindow*>(mainWindow));
-			mainWindow->SetSurface(_context);
-
-			/*
-			            _layer = [CAMetalLayer layer];
-			            _layer.device = _device->GetNativeDevice();
-			            _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-			            _layer.framebufferOnly = YES;
-			            _layer.frame = mainWindow->GetSize();
-
-			            window::MacOsWindow* macOsWindow = static_cast<window::MacOsWindow*>(mainWindow);
-			            NSView* view = macOsWindow->GetNSView();
-
-			            [view.layer addSublayer:_layer];
-			*/
+			MetalPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<MetalPresentationSurface>(static_cast<window::MacOsWindow*>(mainWindow));
+			presentationSurface->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
+			_presentationSurfaces.PushBack(presentationSurface);
 
 			return true;
 		}

@@ -40,7 +40,7 @@ namespace hod::renderer
 		_layer->release();
 	}
 
-	bool MetalPresentationSurface::AcquireNextImageIndex()
+	bool MetalPresentationSurface::AcquireNextImageIndex(Semaphore* /*imageAvailableSemaphore*/)
 	{
 		if (_drawable != nullptr)
 		{
@@ -67,7 +67,7 @@ namespace hod::renderer
 		_layer->setDrawableSize(Size);
 	}
 
-	Vector2 MetalPresentationSurface::GetResolution()
+	Vector2 MetalPresentationSurface::GetResolution() const
 	{
 		return Vector2(static_cast<uint32_t>(_layer->drawableSize().width), static_cast<uint32_t>(_layer->drawableSize().height));
 	}

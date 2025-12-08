@@ -1,6 +1,5 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "MacOsWindow.hpp"
-#include "HodEngine/Window/Surface.hpp"
 
 #include <Cocoa/Cocoa.h>
 
@@ -33,48 +32,48 @@
 
 - (void)keyDown:(NSEvent*)event
 {
-    window->EmitKeyPressed(hod::window::MacOSKeyCodeToScanCode([event keyCode]));
+    hod::window::MacOsWindowEventCaller::EmitKeyPressed(window, hod::window::MacOSKeyCodeToScanCode([event keyCode]));
 }
 
 - (void)keyUp:(NSEvent*)event
 {
-    window->EmitKeyReleased(hod::window::MacOSKeyCodeToScanCode([event keyCode]));
+    hod::window::MacOsWindowEventCaller::EmitKeyReleased(window, hod::window::MacOSKeyCodeToScanCode([event keyCode]));
 }
 
 - (void)mouseDown:(NSEvent*)event
 {
-    window->EmitMouseButtonPressed(hod::window::MouseButton::Left);
+    hod::window::MacOsWindowEventCaller::EmitMouseButtonPressed(window, hod::window::MouseButton::Left);
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
-    window->EmitMouseButtonReleased(hod::window::MouseButton::Left);
+    hod::window::MacOsWindowEventCaller::EmitMouseButtonReleased(window, hod::window::MouseButton::Left);
 }
 
 - (void)rightMouseDown:(NSEvent*)event
 {
-    window->EmitMouseButtonPressed(hod::window::MouseButton::Right);
+    hod::window::MacOsWindowEventCaller::EmitMouseButtonPressed(window, hod::window::MouseButton::Right);
 }
 
 - (void)rightMouseUp:(NSEvent*)event
 {
-    window->EmitMouseButtonReleased(hod::window::MouseButton::Right);
+    hod::window::MacOsWindowEventCaller::EmitMouseButtonReleased(window, hod::window::MouseButton::Right);
 }
 
 - (void)otherMouseDown:(NSEvent*)event
 {
-    window->EmitMouseButtonPressed(hod::window::MouseButton::Middle);
+    hod::window::MacOsWindowEventCaller::EmitMouseButtonPressed(window, hod::window::MouseButton::Middle);
 }
 
 - (void)otherMouseUp:(NSEvent*)event
 {
-    window->EmitMouseButtonReleased(hod::window::MouseButton::Middle);
+    hod::window::MacOsWindowEventCaller::EmitMouseButtonReleased(window, hod::window::MouseButton::Middle);
 }
 
 - (void)mouseMoved:(NSEvent*)event
 {
     NSPoint location = [self convertPoint:[event locationInWindow] fromView:nil];
-    window->EmitMouseMoved(location.x, location.y);
+    hod::window::MacOsWindowEventCaller::EmitMouseMoved(window, location.x, location.y);
 }
 
 @end
@@ -215,7 +214,5 @@ namespace hod::window
 		NSRect contentRect = [_window contentRectForFrameRect:[_window frame]];
     	NSSize contentSize = contentRect.size;
 
-		Surface* surface = GetSurface();
-        surface->Resize(contentSize.width, contentSize.height);
 	}
 }
