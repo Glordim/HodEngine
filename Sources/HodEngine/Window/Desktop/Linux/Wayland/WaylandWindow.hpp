@@ -54,6 +54,7 @@ namespace hod::window
 		static void							xdg_toplevel_configure(void* data, xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states);
 		static void							xdg_toplevel_close(void* data, xdg_toplevel* toplevel);
 		static void							handle_configure(libdecor_frame* frame, libdecor_configuration* configuration, void* data);
+		void								HandleConfigure(libdecor_frame* frame, libdecor_configuration* configuration);
 
 		static void							BufferRelease(void* userData, wl_buffer* wl_buffer);
 

@@ -91,58 +91,33 @@ namespace hod::window
 
 	void WaylandWindow::handle_configure(libdecor_frame* frame, libdecor_configuration* configuration, void* data)
 	{
-		WaylandWindow*        waylandWindow = static_cast<WaylandWindow*>(data);
-		int                   width = 0;
-		int                   height = 0;
-		libdecor_window_state window_state;
-		libdecor_state*       state;
+		static_cast<WaylandWindow*>(data)->HandleConfigure(frame, configuration);
+	}
 
-		/* Update window state first for the correct calculations */
-		if (libdecor_configuration_get_window_state(configuration, &window_state) == false)
+	void WaylandWindow::HandleConfigure(libdecor_frame* frame, libdecor_configuration* configuration)
+	{
+		int newWidth;
+		int newHeight;
+		if (libdecor_configuration_get_content_size(configuration, frame, &newWidth, &newHeight) == false)
 		{
-			window_state = LIBDECOR_WINDOW_STATE_NONE;
+			newWidth = _width;
+			newHeight = _height;
 		}
-
-		libdecor_frame_unset_fullscreen(frame);
-
-		// window->window_state = window_state;
-
-		if (libdecor_configuration_get_content_size(configuration, frame, &width, &height) == false)
-		{
-			width = 800;
-			height = 600;
-		}
-		// waylandWindow->SetSize(width, height);
-		/*
-		waylandWindow->_requestedWidth = width;
-		waylandWindow->_requestedHeight = height;
-		waylandWindow->_requestFlags |= RequestFlag::NeedResizeReady;
-		*/
-		/*
-		        width = (width == 0) ? window->floating_width : width;
-		        height = (height == 0) ? window->floating_height : height;
-
-		        window->configured_width = width;
-		        window->configured_height = height;
-		*/
-		state = libdecor_state_new(width, height);
+		libdecor_state* state = libdecor_state_new(newWidth, newHeight);
 		libdecor_frame_commit(frame, state, configuration);
 		libdecor_state_free(state);
 
-		// todo resize event
-
-		/* store floating dimensions */
-		/*
-		        if (libdecor_frame_is_floating(window->frame) == true)
-		        {
-		            window->floating_width = width;
-		            window->floating_height = height;
-		        }
-		*/
-		waylandWindow->SetupBuffer();
-
-		waylandWindow->_width = width;
-		waylandWindow->_height = height;
+		if (newWidth != _width || newHeight != _height)
+		{
+			_width = newWidth;
+			_height = newHeight;
+			
+			Event event;
+			event.type = EventType::Resized;
+			event.data.resize.width = newWidth;
+			event.data.resize.height = newHeight;
+			EnqueueEvent(event);
+		}
 	}
 
 	static void handle_close(struct libdecor_frame* /*frame*/, void* data)
@@ -256,6 +231,7 @@ namespace hod::window
 	/// @brief
 	void WaylandWindow::Update()
 	{
+		DesktopWindow::Update();
 		/*
 		if (_requestFlags & RequestFlag::NeedResizeReady)
 		{
