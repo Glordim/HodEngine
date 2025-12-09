@@ -103,6 +103,9 @@ namespace hod::window
 			newWidth = _width;
 			newHeight = _height;
 		}
+		newWidth = std::max(0, newWidth);
+		newHeight = std::max(0, newHeight);
+
 		libdecor_state* state = libdecor_state_new(newWidth, newHeight);
 		libdecor_frame_commit(frame, state, configuration);
 		libdecor_state_free(state);
