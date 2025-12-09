@@ -53,9 +53,6 @@ namespace hod::renderer
 		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
 		Assert(device != nullptr);
 
-		DestroySwapChain();
-		_currentImageIndex = 0;
-
 		const VkGpuDevice* selectedGpuDevice = RendererVulkan::GetInstance()->GetVkGpuDevice();
 
 		VkSurfaceCapabilitiesKHR capabilities;
@@ -138,13 +135,18 @@ namespace hod::renderer
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 		createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR; // Todo support VSync
 		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = VK_NULL_HANDLE;
+		createInfo.oldSwapchain = _swapchain;
 
-		if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &_swapchain) != VK_SUCCESS)
+		VkSwapchainKHR newSwapchain = VK_NULL_HANDLE;
+		if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &newSwapchain) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !");
 			return false;
 		}
+
+		DestroySwapChain();
+		_swapchain = newSwapchain;
+		_currentImageIndex = 0;
 
 		// Render pass
 		VkAttachmentDescription colorAttachment = {};
@@ -185,12 +187,22 @@ namespace hod::renderer
 
 		VkAttachmentDescription attachments[] = {colorAttachment}; // , depthAttachment };
 
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = 1;
 		renderPassInfo.pAttachments = attachments;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
 
 		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
 		{
@@ -209,9 +221,6 @@ namespace hod::renderer
 
 		for (size_t i = 0; i < imageCount; ++i)
 		{
-			RendererVulkan::GetInstance()->TransitionImageLayoutImmediate(swapChainImages[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-			                                                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
 			// TODO use CreateImageView here ?
 
 			VkImageViewCreateInfo imageCreateInfo = {};
