@@ -86,6 +86,7 @@ namespace hod::window
 				.reserved9 = nullptr,
 			};
 
+			setenv("GDK_BACKEND", "wayland", 1);
 			_libDecorContext = libdecor_new(_wlDisplay, &libDecorInterface);
 			if (_libDecorContext == nullptr)
 			{
