@@ -68,8 +68,11 @@ namespace hod::window
 		Output& CreateOutput(wl_output* wlOutput, uint32_t id);
 
 	private:
-		static void RegistryHandler(void* userData, wl_registry* registry, uint32_t id, const char* interface, uint32_t version);
-		static void RegistryRemover(void* userData, wl_registry* registry, uint32_t id);
+		static void HandleGlobal(void* userData, wl_registry* registry, uint32_t id, const char* interface, uint32_t version);
+		void		HandleGlobal(wl_registry* registry, uint32_t id, const char* interface, uint32_t version);
+
+		static void HandleGlobalRemove(void* userData, wl_registry* registry, uint32_t id);
+		void		HandleGlobalRemove(wl_registry* registry, uint32_t id);
 
 		static void SeatName(void* userData, wl_seat* seat, const char* name);
 		static void SeatCapabilities(void* userData, wl_seat* seat, uint32_t capabilities);
@@ -94,7 +97,6 @@ namespace hod::window
 	private:
 		wl_display*    _wlDisplay = nullptr;
 		wl_compositor* _wlCompositor = nullptr;
-		wl_shm*        _wlShm = nullptr;
 
 		libdecor*                   _libDecorContext = nullptr;
 		zxdg_decoration_manager_v1* _zxdgDecorationManager = nullptr;

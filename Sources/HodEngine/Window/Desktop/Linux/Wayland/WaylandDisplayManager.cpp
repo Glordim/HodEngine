@@ -35,9 +35,6 @@ namespace hod::window
 			return false;
 		}
 
-		// wl_list_init(&seats);
-		// wl_list_init(&outputs);
-
 		wl_registry* registry = wl_display_get_registry(_wlDisplay);
 		if (registry == nullptr)
 		{
@@ -46,20 +43,20 @@ namespace hod::window
 		}
 
 		static const wl_registry_listener registryListener = {
-			.global = &WaylandDisplayManager::RegistryHandler,
-			.global_remove = &WaylandDisplayManager::RegistryRemover,
+			.global = &WaylandDisplayManager::HandleGlobal,
+			.global_remove = &WaylandDisplayManager::HandleGlobalRemove,
 		};
-		wl_registry_add_listener(registry, &registryListener, this); // todo return value ?
+		if (wl_registry_add_listener(registry, &registryListener, this) != 0)
+		{
+			OUTPUT_ERROR("WaylandDisplayManager: Can't get add registry listener");
+			return false;
+		}
 
-		wl_display_dispatch_pending(_wlDisplay);
-		// First roundtrip to receive all registry objects.
-		wl_display_roundtrip(_wlDisplay); // todo return value ?
-		                                  // Second roundtrip to receive all output events.
-		wl_display_roundtrip(_wlDisplay); // todo return value ?
-
-		wl_display_dispatch_pending(_wlDisplay);
-
-		// wl_registry_destroy(registry);
+		if (wl_display_roundtrip(_wlDisplay) == -1) // Wait global registry
+		{
+			OUTPUT_ERROR("WaylandDisplayManager: Fail first roundtrip (wait global registry)");
+			return false;
+		}
 
 		if (_wlCompositor == nullptr)
 		{
@@ -67,9 +64,7 @@ namespace hod::window
 			return false;
 		}
 
-		wl_display_sync(_wlDisplay);
-
-		// If the compositor doesn't support server side decoration (gnome or other), use libdecor for client side decoration
+		// If the compositor doesn't support server side decoration (Gnome or others), use libdecor for client side decoration
 		if (_zxdgDecorationManager == nullptr)
 		{
 			static libdecor_interface libDecorInterface = {
@@ -95,12 +90,6 @@ namespace hod::window
 			}
 		}
 
-		// while (true)
-		{
-			// wl_display_dispatch(_wlDisplay);
-			// libdecor_dispatch(_libDecorContext, -1);
-		}
-
 		_mainWindow = CreateWindow();
 
 		return true;
@@ -121,9 +110,14 @@ namespace hod::window
 	/// @param id
 	/// @param
 	/// @param version
-	void WaylandDisplayManager::RegistryHandler(void* userData, wl_registry* registry, uint32_t id, const char* interface, uint32_t version)
+	void WaylandDisplayManager::HandleGlobal(void* userData, wl_registry* registry, uint32_t id, const char* interface, uint32_t version)
 	{
-		//OUTPUT_MESSAGE("Got a registry event for {} id {}", interface, id);
+		static_cast<WaylandDisplayManager*>(userData)->HandleGlobal(registry, id, interface, version);
+	}
+
+	void WaylandDisplayManager::HandleGlobal(wl_registry* registry, uint32_t id, const char* interface, uint32_t version)
+	{
+		//OUTPUT_MESSAGE("Wayland: Got a registry event for {} id {} version {}", interface, id, version);
 
 		if (std::strcmp(interface, wl_compositor_interface.name) == 0)
 		{
@@ -133,14 +127,8 @@ namespace hod::window
 			}
 			else
 			{
-				WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-				thiz->_wlCompositor = (wl_compositor*)wl_registry_bind(registry, id, &wl_compositor_interface, 4);
+				_wlCompositor = static_cast<wl_compositor*>(wl_registry_bind(registry, id, &wl_compositor_interface, 4));
 			}
-		}
-		else if (std::strcmp(interface, wl_shm_interface.name) == 0)
-		{
-			WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-			thiz->_wlShm = (wl_shm*)wl_registry_bind(registry, id, &wl_shm_interface, 1);
 		}
 		else if (std::strcmp(interface, wl_seat_interface.name) == 0)
 		{
@@ -150,13 +138,12 @@ namespace hod::window
 			}
 			else
 			{
-				WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-				thiz->_wlSeat = (wl_seat*)wl_registry_bind(registry, id, &wl_seat_interface, 3);
+				_wlSeat = static_cast<wl_seat*>(wl_registry_bind(registry, id, &wl_seat_interface, 3));
 				static const wl_seat_listener seatListener = {
 					.capabilities = &WaylandDisplayManager::SeatCapabilities,
 					.name = &WaylandDisplayManager::SeatName,
 				};
-				wl_seat_add_listener(thiz->_wlSeat, &seatListener, thiz);
+				wl_seat_add_listener(_wlSeat, &seatListener, this);
 			}
 		}
 		else if (std::strcmp(interface, wl_output_interface.name) == 0)
@@ -167,27 +154,24 @@ namespace hod::window
 			}
 			else
 			{
-				wl_output* wlOutput = (wl_output*)wl_registry_bind(registry, id, &wl_output_interface, version);
+				wl_output* wlOutput = static_cast<wl_output*>(wl_registry_bind(registry, id, &wl_output_interface, version));
 
-				WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-				thiz->CreateOutput(wlOutput, id);
+				CreateOutput(wlOutput, id);
 			}
 		}
 		else if (std::strcmp(interface, xdg_wm_base_interface.name) == 0)
 		{
-			WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-			thiz->_xdgWmBase = (xdg_wm_base*)wl_registry_bind(registry, id, &xdg_wm_base_interface, 1);
+			_xdgWmBase = static_cast<xdg_wm_base*>(wl_registry_bind(registry, id, &xdg_wm_base_interface, 1));
 
 			static const xdg_wm_base_listener xdgWmBaseListener = {
 				.ping = &WaylandDisplayManager::XdgWmBasePing,
 			};
 
-			xdg_wm_base_add_listener(thiz->_xdgWmBase, &xdgWmBaseListener, thiz);
+			xdg_wm_base_add_listener(_xdgWmBase, &xdgWmBaseListener, this);
 		}
 		else if (std::strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
 		{
-			WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-			thiz->_zxdgDecorationManager = (zxdg_decoration_manager_v1*)wl_registry_bind(registry, id, &zxdg_decoration_manager_v1_interface, 1);
+			_zxdgDecorationManager = static_cast<zxdg_decoration_manager_v1*>(wl_registry_bind(registry, id, &zxdg_decoration_manager_v1_interface, 1));
 		}
 	}
 
@@ -195,23 +179,29 @@ namespace hod::window
 	/// @param userData
 	/// @param registry
 	/// @param id
-	void WaylandDisplayManager::RegistryRemover(void* userData, wl_registry* /*registry*/, uint32_t id)
+	void WaylandDisplayManager::HandleGlobalRemove(void* userData, wl_registry* registry, uint32_t id)
+	{
+		static_cast<WaylandDisplayManager*>(userData)->HandleGlobalRemove(registry, id);
+	}
+
+	void WaylandDisplayManager::HandleGlobalRemove(wl_registry* /*registry*/, uint32_t id)
 	{
 		OUTPUT_MESSAGE("Got a registry losing event for %d", id);
 
-		WaylandDisplayManager* thiz = static_cast<WaylandDisplayManager*>(userData);
-		auto                   it = thiz->_outputs.Begin();
-		auto                   itEnd = thiz->_outputs.End();
+		auto                   it = _outputs.Begin();
+		auto                   itEnd = _outputs.End();
 		while (it != itEnd)
 		{
 			if ((*it)->GetId() == id)
 			{
 				DefaultAllocator::GetInstance().Delete(*it);
-				thiz->_outputs.Erase(it);
+				_outputs.Erase(it);
 				break;
 			}
 			++it;
 		}
+
+		// TODO Seat can be removed
 	}
 
 	/// @brief
@@ -668,13 +658,6 @@ namespace hod::window
 	wl_compositor* WaylandDisplayManager::GetCompositor() const
 	{
 		return _wlCompositor;
-	}
-
-	/// @brief
-	/// @return
-	wl_shm* WaylandDisplayManager::GetShm() const
-	{
-		return _wlShm;
 	}
 
 	/// @brief
