@@ -7,18 +7,37 @@
 
 namespace hod::input
 {
-	StateView::StateView(Format format, uint32_t byteOffset, uint32_t bitOffset)
+	StateView::StateView(Format format, uint32_t byteOffset, uint32_t bitOffset, uint32_t rangeSize)
 	: _format(format)
 	, _byteOffset(byteOffset)
 	, _bitOffset(bitOffset)
+	, _rangeSize(rangeSize)
 	{
-
 	}
 
 	bool StateView::ReadBoolValue(const State* state) const
 	{
-		const uint8_t* bytePtr = reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(state) + _byteOffset);
-		return (*bytePtr & (1 << _bitOffset)) != 0;
+		switch (_format)
+		{
+			case Format::Bit:
+			{
+				const uint8_t* bytePtr = reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(state) + _byteOffset);
+				return (*bytePtr & (1 << _bitOffset)) != 0;
+			}
+			case Format::ByteRange:
+			{
+				for (uint32_t byteIndex = 0; byteIndex < _rangeSize; ++byteIndex)
+				{
+					if (*reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(state) + _byteOffset + byteIndex) != 0)
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+
+			default: return false;
+		}
 	}
 
 	int8_t StateView::ReadS8Value(const State* state) const

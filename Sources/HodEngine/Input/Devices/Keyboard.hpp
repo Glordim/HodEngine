@@ -67,6 +67,8 @@ namespace hod::input
 		InputButton _x;
 		InputButton _y;
 		InputButton _z;
+
+		InputButton _any;
 		/*
 		        InputButton							_0;
 		        InputButton							_1;

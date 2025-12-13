@@ -43,6 +43,7 @@ namespace hod::input
 	, _x(Identifier(), "x", StateView(StateView::Format::Bit, 3, 3))
 	, _y(Identifier(), "y", StateView(StateView::Format::Bit, 3, 4))
 	, _z(Identifier(), "z", StateView(StateView::Format::Bit, 3, 5))
+	, _any(Identifier(), "any", StateView(StateView::Format::ByteRange, 0, 0, 16))
 	{
 		AddInput(&_a);
 		AddInput(&_b);
@@ -70,6 +71,8 @@ namespace hod::input
 		AddInput(&_x);
 		AddInput(&_y);
 		AddInput(&_z);
+
+		AddInput(&_any);
 	}
 
 	/// @brief
