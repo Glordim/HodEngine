@@ -15,6 +15,8 @@ namespace hod::window
 		MouseButtonDown,
 		MouseButtonUp,
 		MouseMoved,
+		MouseScroll,
+		MouseHorizontalScroll,
 		Closed,
 		Resized,
 		FocusGained,
@@ -44,9 +46,9 @@ namespace hod::window
 
 	struct MouseButtonEventData
 	{
-		MouseButton button;
 		uint16_t    x;
 		uint16_t    y;
+		MouseButton button;
 	};
 
 	struct MouseMoveEventData
@@ -57,8 +59,7 @@ namespace hod::window
 
 	struct MouseScrollEventData
 	{
-		uint16_t x;
-		uint16_t y;
+		float value;
 	};
 
 	struct Event

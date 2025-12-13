@@ -34,9 +34,6 @@ namespace hod::window
 		void    SetCursor(Cursor* cursor);
 		Cursor* GetCursor() const;
 
-		void RegisterInputListener(IDesktopWindowInputListener* inputListener);
-		void UnregisterInputListener(IDesktopWindowInputListener* inputListener);
-
 		void Close();
 
 	protected:
@@ -48,7 +45,8 @@ namespace hod::window
 		void EmitMouseButtonPressed(MouseButton button);
 		void EmitMouseButtonReleased(MouseButton button);
 		void EmitMouseMoved(int x, int y);
-		void EmitMouseScroll(int scroll);
+		void EmitMouseScroll(float scroll);
+		void EmitMouseHorizontalScroll(float scroll);
 
 	private:
 		Vector2 _mousePosition;
@@ -56,7 +54,5 @@ namespace hod::window
 		bool _focused = true;
 
 		Cursor* _cursor = nullptr;
-
-		Vector<IDesktopWindowInputListener*> _inputListeners;
 	};
 }

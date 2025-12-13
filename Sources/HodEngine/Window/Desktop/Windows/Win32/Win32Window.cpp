@@ -118,8 +118,15 @@ namespace hod::window
 		}
 		else if (msg == WM_MOUSEWHEEL)
 		{
-			int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-			EmitMouseScroll(delta);
+			int   delta = GET_WHEEL_DELTA_WPARAM(wParam);
+			float scroll = (float)delta / (float)WHEEL_DELTA;
+			EmitMouseScroll(scroll);
+		}
+		else if (msg == WM_MOUSEHWHEEL)
+		{
+			int   delta = GET_WHEEL_DELTA_WPARAM(wParam);
+			float scroll = (float)delta / (float)WHEEL_DELTA;
+			EmitMouseHorizontalScroll(scroll);
 		}
 		else if (msg == WM_SIZE)
 		{

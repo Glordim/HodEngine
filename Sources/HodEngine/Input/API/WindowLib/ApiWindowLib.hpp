@@ -6,7 +6,6 @@
 #include "HodEngine/Input/API/WindowLib/MouseWindowLib.hpp"
 #include "HodEngine/Input/InputId.hpp"
 
-#include <HodEngine/Window/Desktop/IDesktopWindowInputListener.hpp>
 #include <HodEngine/Window/MouseButton.hpp>
 #include <HodEngine/Window/ScanCode.hpp>
 
@@ -17,8 +16,7 @@
 namespace hod::input
 {
 	/// @brief
-	class HOD_INPUT_API ApiWindowLib : public Api,
-									   window::IDesktopWindowInputListener
+	class HOD_INPUT_API ApiWindowLib : public Api
 	{
 	public:
 		ApiWindowLib();
@@ -31,13 +29,6 @@ namespace hod::input
 
 	public:
 		bool Initialize() override;
-
-		void OnKeyPressed(window::ScanCode scanCode) override;
-		void OnKeyReleased(window::ScanCode scanCode) override;
-		void OnMouseButtonPressed(window::MouseButton button) override;
-		void OnMouseButtonReleased(window::MouseButton button) override;
-		void OnMouseMoved(float x, float y) override;
-		void OnMouseScroll(float scroll) override;
 
 	protected:
 		void UpdateDeviceValues() override;

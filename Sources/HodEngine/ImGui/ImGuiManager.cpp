@@ -292,6 +292,22 @@ namespace hod::imgui
 			{
 				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), false);
 			}
+			else if (event.type == window::EventType::MouseScroll)
+			{
+				io.AddMouseWheelEvent(0.0f, event.data.mouseScroll.value);
+			}
+			else if (event.type == window::EventType::MouseHorizontalScroll)
+			{
+				io.AddMouseWheelEvent(event.data.mouseScroll.value, 0.0f);
+			}
+			else if (event.type == window::EventType::FocusGained)
+			{
+				io.AddFocusEvent(true);
+			}
+			else if (event.type == window::EventType::FocusLost)
+			{
+				io.AddFocusEvent(false);
+			}
 		}
 
 		Vector2 resolution;

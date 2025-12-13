@@ -2,8 +2,6 @@
 #include "DesktopDisplayManager.hpp"
 #include "DesktopWindow.hpp"
 
-#include "IDesktopWindowInputListener.hpp"
-
 namespace hod::window
 {
 	DesktopWindow::DesktopWindow()
@@ -69,19 +67,6 @@ namespace hod::window
 		}
 	}
 
-	void DesktopWindow::RegisterInputListener(IDesktopWindowInputListener* inputListener)
-	{
-		_inputListeners.push_back(inputListener);
-	}
-
-	void DesktopWindow::UnregisterInputListener(IDesktopWindowInputListener* inputListener)
-	{
-		if (std::remove(_inputListeners.begin(), _inputListeners.end(), inputListener) == _inputListeners.end())
-		{
-			OUTPUT_ERROR("UnregisterInputListener: Not found"); // TODO
-		}
-	}
-
 	void DesktopWindow::EmitKeyPressed(ScanCode scanCode)
 	{
 		Event event;
@@ -89,11 +74,6 @@ namespace hod::window
 		event.data.key.scanCode = scanCode;
 		event.data.key.flags = 0; // todo
 		EnqueueEvent(event);
-
-		for (IDesktopWindowInputListener* inputListener : _inputListeners)
-		{
-			inputListener->OnKeyPressed(scanCode);
-		}
 	}
 
 	void DesktopWindow::EmitKeyReleased(ScanCode scanCode)
@@ -103,11 +83,6 @@ namespace hod::window
 		event.data.key.scanCode = scanCode;
 		event.data.key.flags = 0; // todo
 		EnqueueEvent(event);
-
-		for (IDesktopWindowInputListener* inputListener : _inputListeners)
-		{
-			inputListener->OnKeyReleased(scanCode);
-		}
 	}
 
 	void DesktopWindow::EmitMouseButtonPressed(MouseButton button)
@@ -118,11 +93,6 @@ namespace hod::window
 		event.data.mouseButton.x = 0; // todo
 		event.data.mouseButton.y = 0; // todo
 		EnqueueEvent(event);
-
-		for (IDesktopWindowInputListener* inputListener : _inputListeners)
-		{
-			inputListener->OnMouseButtonPressed(button);
-		}
 	}
 
 	void DesktopWindow::EmitMouseButtonReleased(MouseButton button)
@@ -133,11 +103,6 @@ namespace hod::window
 		event.data.mouseButton.x = 0; // todo
 		event.data.mouseButton.y = 0; // todo
 		EnqueueEvent(event);
-
-		for (IDesktopWindowInputListener* inputListener : _inputListeners)
-		{
-			inputListener->OnMouseButtonReleased(button);
-		}
 	}
 
 	void DesktopWindow::EmitMouseMoved(int x, int y)
@@ -147,24 +112,21 @@ namespace hod::window
 		event.data.mouseMove.x = x;
 		event.data.mouseMove.y = y;
 		EnqueueEvent(event);
-
-		for (IDesktopWindowInputListener* inputListener : _inputListeners)
-		{
-			inputListener->OnMouseMoved((float)x, (float)y);
-		}
 	}
 
-	void DesktopWindow::EmitMouseScroll(int delta)
+	void DesktopWindow::EmitMouseScroll(float scroll)
 	{
-		/*
 		Event event;
-		event.type = EventType::Mos;
+		event.type = EventType::MouseScroll;
+		event.data.mouseScroll.value = scroll;
 		EnqueueEvent(event);
-		*/
+	}
 
-		for (IDesktopWindowInputListener* inputListener : _inputListeners)
-		{
-			inputListener->OnMouseScroll((float)delta);
-		}
+	void DesktopWindow::EmitMouseHorizontalScroll(float scroll)
+	{
+		Event event;
+		event.type = EventType::MouseHorizontalScroll;
+		event.data.mouseScroll.value = scroll;
+		EnqueueEvent(event);
 	}
 }
