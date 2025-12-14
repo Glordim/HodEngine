@@ -36,7 +36,6 @@ namespace hod::renderer
 	VkMaterial::VkMaterial()
 	: Material()
 	{
-		_graphicsPipeline = VK_NULL_HANDLE;
 		_pipelineLayout = VK_NULL_HANDLE;
 	}
 
@@ -45,14 +44,14 @@ namespace hod::renderer
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
+		for (const auto& pair : _pipelines)
+		{
+			vkDestroyPipeline(renderer->GetVkDevice(), pair.second, nullptr);
+		}
+
 		if (_pipelineLayout != VK_NULL_HANDLE)
 		{
 			vkDestroyPipelineLayout(renderer->GetVkDevice(), _pipelineLayout, nullptr);
-		}
-
-		if (_graphicsPipeline != VK_NULL_HANDLE)
-		{
-			vkDestroyPipeline(renderer->GetVkDevice(), _graphicsPipeline, nullptr);
 		}
 	}
 
@@ -68,30 +67,111 @@ namespace hod::renderer
 	bool VkMaterial::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
 	                       Material::Topololy topololy, bool useDepth)
 	{
+		if (VkMaterial::FillCreateInfo(_createInfo, vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+		{
+			return false;
+		}
+
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
-		VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
+		for (const auto& pair : vertexShader->GetSetDescriptors())
+		{
+			auto it = _setDescriptors.find(pair.first);
+			if (it == _setDescriptors.end())
+			{
+				ShaderSetDescriptorVk* shaderSetDescriptorVk = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
+				shaderSetDescriptorVk->Merge(*pair.second);
+				_setDescriptors[pair.first] = shaderSetDescriptorVk;
+			}
+			else
+			{
+				it->second->Merge(*pair.second);
+			}
+		}
+		for (const auto& pair : fragmentShader->GetSetDescriptors())
+		{
+			auto it = _setDescriptors.find(pair.first);
+			if (it == _setDescriptors.end())
+			{
+				ShaderSetDescriptorVk* shaderSetDescriptorVk = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
+				shaderSetDescriptorVk->Merge(*pair.second);
+				_setDescriptors[pair.first] = shaderSetDescriptorVk;
+			}
+			else
+			{
+				it->second->Merge(*pair.second);
+			}
+		}
+
+		Vector<VkDescriptorSetLayout> layouts;
+		for (const auto& pair : _setDescriptors)
+		{
+			static_cast<ShaderSetDescriptorVk*>(pair.second)->BuildDescriptorSetLayout();
+			layouts.push_back(static_cast<const ShaderSetDescriptorVk*>(pair.second)->GetDescriptorSetLayout());
+		}
+
+		Vector<VkPushConstantRange> constants;
+		if (vertexShader->GetConstantDescriptor() != nullptr)
+		{
+			constants.push_back(static_cast<const ShaderConstantDescriptorVk*>(vertexShader->GetConstantDescriptor())->GetPushConstantRange());
+		}
+		if (fragmentShader->GetConstantDescriptor() != nullptr)
+		{
+			constants.push_back(static_cast<const ShaderConstantDescriptorVk*>(fragmentShader->GetConstantDescriptor())->GetPushConstantRange());
+		}
+
+		// Pipeline layout
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.setLayoutCount = (uint32_t)layouts.Size();
+		pipelineLayoutInfo.pSetLayouts = layouts.Data();
+		pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)constants.Size();
+		pipelineLayoutInfo.pPushConstantRanges = constants.Data();
+
+		for (VkPushConstantRange pushConstantRange : constants)
+		{
+			_pushConstantSize = pushConstantRange.size; // todo
+		}
+
+		if (vkCreatePipelineLayout(renderer->GetVkDevice(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create pipeline layout!");
+			return false;
+		}
+
+		return CreatePipeline(renderer->GetDummyRenderPass());
+	}
+
+	bool VkMaterial::FillCreateInfo(CreateInfo& createInfo, const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+	                                PolygonMode polygonMode, Topololy topololy, bool useDepth)
+	{
+		// Shader stages
+		VkPipelineShaderStageCreateInfo& vertShaderStageInfo = createInfo._shaderStageInfos[0];
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertShaderStageInfo.pNext = nullptr;
+		vertShaderStageInfo.flags = 0;
 		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 		vertShaderStageInfo.module = ((VkShader*)vertexShader)->GetShaderModule();
 		vertShaderStageInfo.pName = "main";
+		vertShaderStageInfo.pSpecializationInfo = nullptr;
 
-		VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
+		VkPipelineShaderStageCreateInfo& fragShaderStageInfo = createInfo._shaderStageInfos[1];
 		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		fragShaderStageInfo.pNext = nullptr;
+		fragShaderStageInfo.flags = 0;
 		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 		fragShaderStageInfo.module = ((VkShader*)fragmentShader)->GetShaderModule();
 		fragShaderStageInfo.pName = "main";
+		fragShaderStageInfo.pSpecializationInfo = nullptr;
 
-		VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
-
-		// Extract descriptorSet definition from shader bytecode
+		// Vertex Input
 		const Vector<uint8_t>&       byteCode = vertexShader->GetShaderBytecode();
 		spirv_cross::Compiler        compVert(reinterpret_cast<const uint32_t*>(byteCode.Data()), byteCode.Size() / sizeof(uint32_t));
 		spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
 
-		Vector<uint32_t>                          strides;
-		Vector<VkVertexInputAttributeDescription> vertexAttributeDecriptions;
-		Vector<VkVertexInputBindingDescription>   vertexBindingDescriptions;
+		Vector<uint32_t>                           strides;
+		Vector<VkVertexInputAttributeDescription>& vertexAttributeDecriptions = createInfo._vertexAttributeDecriptions;
+		Vector<VkVertexInputBindingDescription>&   vertexBindingDescriptions = createInfo._vertexBindingDescriptions;
 
 		if (vertexInputs != nullptr)
 		{
@@ -187,18 +267,21 @@ namespace hod::renderer
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 		*/
 
-		// Vertex input
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = (uint32_t)vertexBindingDescriptions.Size();
-		;
-		vertexInputInfo.pVertexBindingDescriptions = vertexBindingDescriptions.Data();
-		vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)vertexAttributeDecriptions.Size();
-		vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDecriptions.Data();
+		VkPipelineVertexInputStateCreateInfo& vertexInput = createInfo._vertexInput;
+		vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		vertexInput.pNext = nullptr;
+		vertexInput.flags = 0;
+		vertexInput.vertexBindingDescriptionCount = (uint32_t)vertexBindingDescriptions.Size();
+
+		vertexInput.pVertexBindingDescriptions = vertexBindingDescriptions.Data();
+		vertexInput.vertexAttributeDescriptionCount = (uint32_t)vertexAttributeDecriptions.Size();
+		vertexInput.pVertexAttributeDescriptions = vertexAttributeDecriptions.Data();
 
 		// Input assembly
-		VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+		VkPipelineInputAssemblyStateCreateInfo& inputAssembly = createInfo._inputAssembly;
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		inputAssembly.pNext = nullptr;
+		inputAssembly.flags = 0;
 		if (topololy == Topololy::TRIANGLE)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -226,16 +309,20 @@ namespace hod::renderer
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 		// Viewports and scissors
-		VkPipelineViewportStateCreateInfo viewportState = {};
-		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.viewportCount = 1;
-		viewportState.pViewports = nullptr;
-		viewportState.scissorCount = 1;
-		viewportState.pScissors = nullptr;
+		VkPipelineViewportStateCreateInfo& viewport = createInfo._viewport;
+		viewport.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewport.pNext = nullptr;
+		viewport.flags = 0;
+		viewport.viewportCount = 1;
+		viewport.pViewports = nullptr;
+		viewport.scissorCount = 1;
+		viewport.pScissors = nullptr;
 
 		// Rasterizer
-		VkPipelineRasterizationStateCreateInfo rasterizer = {};
+		VkPipelineRasterizationStateCreateInfo& rasterizer = createInfo._rasterizer;
 		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		rasterizer.pNext = nullptr;
+		rasterizer.flags = 0;
 		rasterizer.depthClampEnable = VK_FALSE;
 		rasterizer.rasterizerDiscardEnable = VK_FALSE;
 		if (polygonMode == PolygonMode::Fill)
@@ -259,8 +346,10 @@ namespace hod::renderer
 		rasterizer.depthBiasSlopeFactor = 0.0f;    // Optional
 
 		// Multisampling
-		VkPipelineMultisampleStateCreateInfo multisampling = {};
+		VkPipelineMultisampleStateCreateInfo& multisampling = createInfo._multisampling;
 		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		multisampling.pNext = nullptr;
+		multisampling.flags = 0;
 		multisampling.sampleShadingEnable = VK_FALSE;
 		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 		multisampling.minSampleShading = 1.0f;          // Optional
@@ -269,8 +358,10 @@ namespace hod::renderer
 		multisampling.alphaToOneEnable = VK_FALSE;      // Optional
 
 		// Depth and stencil testing
-		VkPipelineDepthStencilStateCreateInfo depthStencil = {};
+		VkPipelineDepthStencilStateCreateInfo& depthStencil = createInfo._depthStencil;
 		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthStencil.pNext = nullptr;
+		depthStencil.flags = 0;
 		if (useDepth == true && false)
 		{
 			depthStencil.depthTestEnable = VK_TRUE;
@@ -285,7 +376,7 @@ namespace hod::renderer
 		}
 
 		// Color blending
-		VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+		VkPipelineColorBlendAttachmentState& colorBlendAttachment = createInfo._colorBlendAttachment;
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable = VK_TRUE;
 		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;           // Optional
@@ -295,8 +386,10 @@ namespace hod::renderer
 		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
 		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;                            // Optional
 
-		VkPipelineColorBlendStateCreateInfo colorBlending = {};
+		VkPipelineColorBlendStateCreateInfo& colorBlending = createInfo._colorBlend;
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		colorBlending.pNext = nullptr;
+		colorBlending.flags = 0;
 		colorBlending.logicOpEnable = VK_FALSE;
 		colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
 		colorBlending.attachmentCount = 1;
@@ -306,110 +399,64 @@ namespace hod::renderer
 		colorBlending.blendConstants[2] = 0.0f; // Optional
 		colorBlending.blendConstants[3] = 0.0f; // Optional
 
-		VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+		createInfo._dynamicStates[0] = VK_DYNAMIC_STATE_VIEWPORT;
+		createInfo._dynamicStates[1] = VK_DYNAMIC_STATE_SCISSOR;
 
-		VkPipelineDynamicStateCreateInfo dynamicState = {};
+		VkPipelineDynamicStateCreateInfo& dynamicState = createInfo._dynamic;
 		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamicState.pNext = nullptr;
+		dynamicState.flags = 0;
 		dynamicState.dynamicStateCount = 2;
-		dynamicState.pDynamicStates = dynamicStates;
-
-		for (const auto& pair : vertexShader->GetSetDescriptors())
-		{
-			auto it = _setDescriptors.find(pair.first);
-			if (it == _setDescriptors.end())
-			{
-				ShaderSetDescriptorVk* shaderSetDescriptorVk = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
-				shaderSetDescriptorVk->Merge(*pair.second);
-				_setDescriptors[pair.first] = shaderSetDescriptorVk;
-			}
-			else
-			{
-				it->second->Merge(*pair.second);
-			}
-		}
-		for (const auto& pair : fragmentShader->GetSetDescriptors())
-		{
-			auto it = _setDescriptors.find(pair.first);
-			if (it == _setDescriptors.end())
-			{
-				ShaderSetDescriptorVk* shaderSetDescriptorVk = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
-				shaderSetDescriptorVk->Merge(*pair.second);
-				_setDescriptors[pair.first] = shaderSetDescriptorVk;
-			}
-			else
-			{
-				it->second->Merge(*pair.second);
-			}
-		}
-
-		Vector<VkDescriptorSetLayout> layouts;
-		for (const auto& pair : _setDescriptors)
-		{
-			static_cast<ShaderSetDescriptorVk*>(pair.second)->BuildDescriptorSetLayout();
-			layouts.push_back(static_cast<const ShaderSetDescriptorVk*>(pair.second)->GetDescriptorSetLayout());
-		}
-
-		Vector<VkPushConstantRange> constants;
-		if (vertexShader->GetConstantDescriptor() != nullptr)
-		{
-			constants.push_back(static_cast<const ShaderConstantDescriptorVk*>(vertexShader->GetConstantDescriptor())->GetPushConstantRange());
-		}
-		if (fragmentShader->GetConstantDescriptor() != nullptr)
-		{
-			constants.push_back(static_cast<const ShaderConstantDescriptorVk*>(fragmentShader->GetConstantDescriptor())->GetPushConstantRange());
-		}
-
-		// Pipeline layout
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = (uint32_t)layouts.Size();
-		pipelineLayoutInfo.pSetLayouts = layouts.Data();
-		pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)constants.Size();
-		pipelineLayoutInfo.pPushConstantRanges = constants.Data();
-
-		for (VkPushConstantRange pushConstantRange : constants)
-		{
-			_pushConstantSize = pushConstantRange.size; // todo
-		}
-
-		if (vkCreatePipelineLayout(renderer->GetVkDevice(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create pipeline layout!");
-			return false;
-		}
-
-		VkGraphicsPipelineCreateInfo pipelineInfo = {};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState = &inputAssembly;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &rasterizer;
-		pipelineInfo.pMultisampleState = &multisampling;
-		pipelineInfo.pDepthStencilState = &depthStencil;
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.pDynamicState = &dynamicState;
-		pipelineInfo.layout = _pipelineLayout;
-		pipelineInfo.renderPass = renderer->GetDummyRenderPass();
-		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-		pipelineInfo.basePipelineIndex = -1;
-
-		if (vkCreateGraphicsPipelines(renderer->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create graphics pipeline!");
-			return false;
-		}
+		dynamicState.pDynamicStates = createInfo._dynamicStates;
 
 		return true;
 	}
 
+	VkPipeline VkMaterial::CreatePipeline(VkRenderPass renderPass)
+	{
+		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+
+		VkGraphicsPipelineCreateInfo pipelineInfo = {};
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.flags = 0;
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.pStages = _createInfo._shaderStageInfos;
+		pipelineInfo.pVertexInputState = &_createInfo._vertexInput;
+		pipelineInfo.pInputAssemblyState = &_createInfo._inputAssembly;
+		pipelineInfo.pViewportState = &_createInfo._viewport;
+		pipelineInfo.pRasterizationState = &_createInfo._rasterizer;
+		pipelineInfo.pMultisampleState = &_createInfo._multisampling;
+		pipelineInfo.pDepthStencilState = &_createInfo._depthStencil;
+		pipelineInfo.pColorBlendState = &_createInfo._colorBlend;
+		pipelineInfo.pDynamicState = &_createInfo._dynamic;
+		pipelineInfo.layout = _pipelineLayout;
+		pipelineInfo.renderPass = renderPass;
+		pipelineInfo.subpass = 0;
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		pipelineInfo.basePipelineIndex = -1;
+
+		VkPipeline pipeline;
+		if (vkCreateGraphicsPipelines(renderer->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create graphics pipeline!");
+			return VK_NULL_HANDLE;
+		}
+		_pipelines.PushBack({renderPass, pipeline});
+		return pipeline;
+	}
+
 	/// @brief
 	/// @return
-	VkPipeline VkMaterial::GetGraphicsPipeline() const
+	VkPipeline VkMaterial::GetGraphicsPipeline(VkRenderPass renderPass)
 	{
-		return _graphicsPipeline;
+		for (const auto& pair : _pipelines)
+		{
+			if (pair.first == renderPass)
+			{
+				return pair.second;
+			}
+		}
+		return CreatePipeline(renderPass);
 	}
 
 	/// @brief

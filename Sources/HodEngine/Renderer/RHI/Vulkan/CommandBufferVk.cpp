@@ -134,6 +134,8 @@ namespace hod
 			renderPassInfo.clearValueCount = 1;
 			renderPassInfo.pClearValues = clearColor;
 
+			_currentRenderPass = renderPassInfo.renderPass;
+
 			vkCmdBeginRenderPass(_vkCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			VkViewport vkViewport = {};
@@ -159,6 +161,7 @@ namespace hod
 		bool CommandBufferVk::EndRenderPass()
 		{
 			vkCmdEndRenderPass(_vkCommandBuffer);
+			_currentRenderPass = VK_NULL_HANDLE;
 			return true; // TODO cant fail
 		}
 
@@ -253,7 +256,7 @@ namespace hod
 			if (_material != vkMaterial)
 			{
 				_material = vkMaterial;
-				vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetGraphicsPipeline());
+				vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<VkMaterial*>(_material)->GetGraphicsPipeline(_currentRenderPass));
 			}
 		}
 
@@ -268,7 +271,7 @@ namespace hod
 			if (_material != material)
 			{
 				_material = material;
-				vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetGraphicsPipeline());
+				vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<VkMaterial*>(_material)->GetGraphicsPipeline(_currentRenderPass));
 			}
 
 			Vector<VkDescriptorSet> descriptorSets = vkMaterialInstance->GetDescriptorSets(setOffset, setCount);

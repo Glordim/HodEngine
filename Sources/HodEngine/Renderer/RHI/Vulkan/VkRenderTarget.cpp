@@ -1,8 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkRenderTarget.hpp"
 
-#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -13,14 +13,15 @@ namespace hod
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
-		VkRenderTarget::VkRenderTarget() : RenderTarget()
+		VkRenderTarget::VkRenderTarget()
+		: RenderTarget()
 		{
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		VkRenderTarget::~VkRenderTarget()
 		{
@@ -28,7 +29,7 @@ namespace hod
 		}
 
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		bool VkRenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo)
 		{
@@ -38,7 +39,7 @@ namespace hod
 			{
 				return false;
 			}
-			
+
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
 			// Render pass
@@ -55,7 +56,7 @@ namespace hod
 			VkAttachmentReference colorAttachmentRef = {};
 			colorAttachmentRef.attachment = 0;
 			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			
+
 			/*
 			VkAttachmentDescription depthAttachment = {};
 			depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
@@ -76,9 +77,27 @@ namespace hod
 			subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 			subpass.colorAttachmentCount = 1;
 			subpass.pColorAttachments = &colorAttachmentRef;
-			subpass.pDepthStencilAttachment = nullptr;// &depthAttachmentRef;
+			subpass.pDepthStencilAttachment = nullptr; // &depthAttachmentRef;
 
-			VkAttachmentDescription attachments[] = { colorAttachment }; // , depthAttachment };
+			VkAttachmentDescription attachments[] = {colorAttachment}; // , depthAttachment };
+
+			VkSubpassDependency dependencies[2] {};
+
+			// External → Subpass
+			dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+			dependencies[0].dstSubpass = 0;
+			dependencies[0].srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependencies[0].srcAccessMask = 0;
+			dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+			// Subpass → External
+			dependencies[1].srcSubpass = 0;
+			dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+			dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
 			VkRenderPassCreateInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -86,6 +105,8 @@ namespace hod
 			renderPassInfo.pAttachments = attachments;
 			renderPassInfo.subpassCount = 1;
 			renderPassInfo.pSubpasses = &subpass;
+			renderPassInfo.dependencyCount = 2;
+			renderPassInfo.pDependencies = dependencies;
 
 			if (vkCreateRenderPass(renderer->GetVkDevice(), &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
 			{
@@ -96,7 +117,7 @@ namespace hod
 
 			VkImageView attachmentImageViews[] = {
 				static_cast<VkTexture*>(GetColorTexture())->GetTextureImageView(),
-				//static_cast<VkTexture*>(GetDepthTexture())->GetTextureImageView()
+				// static_cast<VkTexture*>(GetDepthTexture())->GetTextureImageView()
 			};
 
 			VkFramebufferCreateInfo framebufferInfo = {};
@@ -120,7 +141,7 @@ namespace hod
 			return true;
 		}
 
-		/// @brief 
+		/// @brief
 		void VkRenderTarget::Clear()
 		{
 			RenderTarget::Clear();
@@ -140,41 +161,43 @@ namespace hod
 			}
 		}
 
-		/// @brief 
-		/// @return 
+		/// @brief
+		/// @return
 		VkRenderPass VkRenderTarget::GetRenderPass() const
 		{
 			return _renderPass;
 		}
-		
-		/// @brief 
-		/// @return 
+
+		/// @brief
+		/// @return
 		VkFramebuffer VkRenderTarget::GetFrameBuffer() const
 		{
 			return _frameBuffer;
 		}
 
-		/// @brief 
+		/// @brief
 		void VkRenderTarget::PrepareForWrite(const CommandBuffer* commandBuffer)
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
 			VkCommandBuffer vkCommandBuffer = static_cast<const CommandBufferVk*>(commandBuffer)->GetVkCommandBuffer();
 
-			if (_color != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
+			if (_color != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT,
+			                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
 			{
 				return; // todo bool ?
 			}
 		}
 
-		/// @brief 
+		/// @brief
 		void VkRenderTarget::PrepareForRead(const CommandBuffer* commandBuffer)
 		{
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
 			VkCommandBuffer vkCommandBuffer = static_cast<const CommandBufferVk*>(commandBuffer)->GetVkCommandBuffer();
 
-			if (_color != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
+			if (_color != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT,
+			                                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
 			{
 				return; // todo bool ?
 			}

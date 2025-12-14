@@ -58,6 +58,8 @@ namespace hod::renderer
 
 		VkCommandBuffer _vkCommandBuffer = VK_NULL_HANDLE;
 
+		VkRenderPass _currentRenderPass = VK_NULL_HANDLE;
+
 		// VkMaterialInstance* _sharedMinimalMaterialInstance = nullptr;
 	};
 }
