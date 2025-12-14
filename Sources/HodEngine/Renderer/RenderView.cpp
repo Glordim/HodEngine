@@ -115,7 +115,7 @@ namespace hod::renderer
 
 			if (commandBuffer->StartRecord() == true)
 			{
-				_pickingRenderTarget->PrepareForWrite(commandBuffer);
+				//_pickingRenderTarget->PrepareForWrite(commandBuffer);
 				commandBuffer->StartRenderPass(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f));
 
 				commandBuffer->SetProjectionMatrix(_projection);
@@ -126,7 +126,7 @@ namespace hod::renderer
 				_uiRenderQueue.Execute(commandBuffer, _pickingMaterialInstance);
 
 				commandBuffer->EndRenderPass();
-				_pickingRenderTarget->PrepareForRead(commandBuffer);
+				//_pickingRenderTarget->PrepareForRead(commandBuffer);
 				commandBuffer->EndRecord();
 			}
 
@@ -139,7 +139,7 @@ namespace hod::renderer
 		{
 			if (_renderTarget != nullptr)
 			{
-				_renderTarget->PrepareForWrite(commandBuffer);
+				//_renderTarget->PrepareForWrite(commandBuffer);
 			}
 			commandBuffer->StartRenderPass(_renderTarget, _presentationSurface);
 
@@ -153,7 +153,7 @@ namespace hod::renderer
 			commandBuffer->EndRenderPass();
 			if (_renderTarget != nullptr)
 			{
-				_renderTarget->PrepareForRead(commandBuffer);
+				//_renderTarget->PrepareForRead(commandBuffer);
 			}
 			commandBuffer->EndRecord();
 		}

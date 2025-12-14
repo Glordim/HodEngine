@@ -51,7 +51,7 @@ namespace hod
 			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			VkAttachmentReference colorAttachmentRef = {};
 			colorAttachmentRef.attachment = 0;
@@ -135,9 +135,6 @@ namespace hod
 				Clear();
 				return false;
 			}
-
-			renderer->TransitionImageLayoutImmediate(static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
 			return true;
 		}
 
