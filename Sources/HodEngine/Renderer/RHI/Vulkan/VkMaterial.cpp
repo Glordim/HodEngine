@@ -139,7 +139,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		return CreatePipeline(renderer->GetDummyRenderPass());
+		return CreatePipeline(renderer->GetDummyRenderPass(), true);
 	}
 
 	bool VkMaterial::FillCreateInfo(CreateInfo& createInfo, const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
@@ -412,7 +412,7 @@ namespace hod::renderer
 		return true;
 	}
 
-	VkPipeline VkMaterial::CreatePipeline(VkRenderPass renderPass)
+	VkPipeline VkMaterial::CreatePipeline(VkRenderPass renderPass, bool parent)
 	{
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -432,8 +432,18 @@ namespace hod::renderer
 		pipelineInfo.layout = _pipelineLayout;
 		pipelineInfo.renderPass = renderPass;
 		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-		pipelineInfo.basePipelineIndex = -1;
+		if (parent)
+		{
+			pipelineInfo.flags |= VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
+			pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+			pipelineInfo.basePipelineIndex = -1;
+		}
+		else
+		{
+			pipelineInfo.flags |= VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.basePipelineHandle = _parent;
+			pipelineInfo.basePipelineIndex = -1;
+		}
 
 		VkPipeline pipeline;
 		if (vkCreateGraphicsPipelines(renderer->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
@@ -442,6 +452,11 @@ namespace hod::renderer
 			return VK_NULL_HANDLE;
 		}
 		_pipelines.PushBack({renderPass, pipeline});
+
+		if (parent)
+		{
+			_parent = pipeline;
+		}
 		return pipeline;
 	}
 
@@ -456,7 +471,7 @@ namespace hod::renderer
 				return pair.second;
 			}
 		}
-		return CreatePipeline(renderPass);
+		return CreatePipeline(renderPass, false);
 	}
 
 	/// @brief

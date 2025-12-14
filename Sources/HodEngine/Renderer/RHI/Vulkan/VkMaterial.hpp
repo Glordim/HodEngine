@@ -43,7 +43,7 @@ namespace hod::renderer
 	private:
 		static bool FillCreateInfo(CreateInfo& createInfo, const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
 		                           PolygonMode polygonMode, Topololy topololy, bool useDepth);
-		VkPipeline  CreatePipeline(VkRenderPass renderPass);
+		VkPipeline  CreatePipeline(VkRenderPass renderPass, bool parent);
 
 	private:
 		VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
@@ -51,6 +51,7 @@ namespace hod::renderer
 
 		CreateInfo _createInfo; // Store all create info to be able to create new Pipeline with different renderpass (may be removed if use DynamicRendering VL 1.3)
 
+		VkPipeline                                  _parent = VK_NULL_HANDLE;
 		Vector<std::pair<VkRenderPass, VkPipeline>> _pipelines;
 	};
 
