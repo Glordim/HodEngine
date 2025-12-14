@@ -41,7 +41,12 @@ namespace hod::editor
 	// TODO move in reusable header
 	bool MatchSearch(const hod::String& text, const hod::String& pattern)
 	{
-		if (pattern.Empty() || text.Size() < pattern.Size())
+		if (pattern.Empty() == true)
+		{
+			return true;
+		}
+
+		if (text.Size() < pattern.Size())
 		{
 			return false;
 		}
