@@ -67,20 +67,22 @@ namespace hod::window
 		}
 	}
 
-	void DesktopWindow::EmitKeyPressed(ScanCode scanCode)
+	void DesktopWindow::EmitKeyPressed(ScanCode scanCode, Key key)
 	{
 		Event event;
 		event.type = EventType::KeyPressed;
 		event.data.key.scanCode = scanCode;
+		event.data.key.key = key;
 		event.data.key.flags = 0; // todo
 		EnqueueEvent(event);
 	}
 
-	void DesktopWindow::EmitKeyReleased(ScanCode scanCode)
+	void DesktopWindow::EmitKeyReleased(ScanCode scanCode, Key key)
 	{
 		Event event;
 		event.type = EventType::KeyReleased;
 		event.data.key.scanCode = scanCode;
+		event.data.key.key = key;
 		event.data.key.flags = 0; // todo
 		EnqueueEvent(event);
 	}

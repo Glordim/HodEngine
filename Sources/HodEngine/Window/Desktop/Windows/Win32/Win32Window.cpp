@@ -51,13 +51,13 @@ namespace hod::window
 		{
 			UINT scancode = (lParam >> 16) & 0xFF;
 			scancode |= ((lParam >> 24) & 1) << 8;
-			EmitKeyPressed(WindowsScanCodeToScanCode(scancode));
+			EmitKeyPressed(WindowsScanCodeToScanCode(scancode), WindowsVirtualKeyToKey(wParam));
 		}
 		else if (msg == WM_KEYUP || msg == WM_SYSKEYUP)
 		{
 			UINT scancode = (lParam >> 16) & 0xFF;
 			scancode |= ((lParam >> 24) & 1) << 8;
-			EmitKeyReleased(WindowsScanCodeToScanCode(scancode));
+			EmitKeyReleased(WindowsScanCodeToScanCode(scancode), WindowsVirtualKeyToKey(wParam));
 		}
 		else if (msg == WM_LBUTTONDOWN)
 		{

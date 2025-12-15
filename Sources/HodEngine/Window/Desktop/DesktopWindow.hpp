@@ -3,6 +3,7 @@
 
 #include "HodEngine/Window/Window.hpp"
 
+#include "HodEngine/Window/Key.hpp"
 #include "HodEngine/Window/MouseButton.hpp"
 #include "HodEngine/Window/ScanCode.hpp"
 
@@ -40,8 +41,8 @@ namespace hod::window
 		void SetFocusedInternal(bool focused);
 		void SetMousePosition(const Vector2& mousePosition);
 
-		void EmitKeyPressed(ScanCode scanCode);
-		void EmitKeyReleased(ScanCode scanCode);
+		void EmitKeyPressed(ScanCode scanCode, Key key);
+		void EmitKeyReleased(ScanCode scanCode, Key key);
 		void EmitMouseButtonPressed(MouseButton button);
 		void EmitMouseButtonReleased(MouseButton button);
 		void EmitMouseMoved(int x, int y);

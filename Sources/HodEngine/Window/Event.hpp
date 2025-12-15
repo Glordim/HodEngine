@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
+#include "HodEngine/Window/Key.hpp"
 #include "HodEngine/Window/MouseButton.hpp"
 #include "HodEngine/Window/ScanCode.hpp"
 
@@ -41,6 +42,7 @@ namespace hod::window
 		};
 
 		ScanCode scanCode;
+		Key      key;
 		uint8_t  flags;
 	};
 
