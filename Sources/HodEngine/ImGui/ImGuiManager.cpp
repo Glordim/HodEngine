@@ -46,6 +46,140 @@
 
 namespace hod::imgui
 {
+	ImGuiKey KeyToImGuiKeyTable[] = {
+		/* Key::None */ ImGuiKey_None,
+
+		// Letters
+		/* Key::A */ ImGuiKey_A,
+		/* Key::B */ ImGuiKey_B,
+		/* Key::C */ ImGuiKey_C,
+		/* Key::D */ ImGuiKey_D,
+		/* Key::E */ ImGuiKey_E,
+		/* Key::F */ ImGuiKey_F,
+		/* Key::G */ ImGuiKey_G,
+		/* Key::H */ ImGuiKey_H,
+		/* Key::I */ ImGuiKey_I,
+		/* Key::J */ ImGuiKey_J,
+		/* Key::K */ ImGuiKey_K,
+		/* Key::L */ ImGuiKey_L,
+		/* Key::M */ ImGuiKey_M,
+		/* Key::N */ ImGuiKey_N,
+		/* Key::O */ ImGuiKey_O,
+		/* Key::P */ ImGuiKey_P,
+		/* Key::Q */ ImGuiKey_Q,
+		/* Key::R */ ImGuiKey_R,
+		/* Key::S */ ImGuiKey_S,
+		/* Key::T */ ImGuiKey_T,
+		/* Key::U */ ImGuiKey_U,
+		/* Key::V */ ImGuiKey_V,
+		/* Key::W */ ImGuiKey_W,
+		/* Key::X */ ImGuiKey_X,
+		/* Key::Y */ ImGuiKey_Y,
+		/* Key::Z */ ImGuiKey_Z,
+
+		// Digits (top row)
+		/* Key::Digit0 */ ImGuiKey_0,
+		/* Key::Digit1 */ ImGuiKey_1,
+		/* Key::Digit2 */ ImGuiKey_2,
+		/* Key::Digit3 */ ImGuiKey_3,
+		/* Key::Digit4 */ ImGuiKey_4,
+		/* Key::Digit5 */ ImGuiKey_5,
+		/* Key::Digit6 */ ImGuiKey_6,
+		/* Key::Digit7 */ ImGuiKey_7,
+		/* Key::Digit8 */ ImGuiKey_8,
+		/* Key::Digit9 */ ImGuiKey_9,
+
+		// Whitespace / editing
+		/* Key::Enter */ ImGuiKey_Enter,
+		/* Key::Escape */ ImGuiKey_Escape,
+		/* Key::Backspace */ ImGuiKey_Backspace,
+		/* Key::Tab */ ImGuiKey_Tab,
+		/* Key::Space */ ImGuiKey_Space,
+
+		// Punctuation / symbols
+		/* Key::Minus */ ImGuiKey_Minus,
+		/* Key::Equal */ ImGuiKey_Equal,
+		/* Key::LeftBracket */ ImGuiKey_LeftBracket,
+		/* Key::RightBracket */ ImGuiKey_RightBracket,
+		/* Key::Backslash */ ImGuiKey_Backslash,
+		/* Key::Semicolon */ ImGuiKey_Semicolon,
+		/* Key::Apostrophe */ ImGuiKey_Apostrophe,
+		/* Key::Grave */ ImGuiKey_GraveAccent,
+		/* Key::Comma */ ImGuiKey_Comma,
+		/* Key::Period */ ImGuiKey_Period,
+		/* Key::Slash */ ImGuiKey_Slash,
+
+		// Lock keys
+		/* Key::CapsLock */ ImGuiKey_CapsLock,
+		/* Key::NumLock */ ImGuiKey_NumLock,
+		/* Key::ScrollLock */ ImGuiKey_ScrollLock,
+
+		// Function keys
+		/* Key::F1 */ ImGuiKey_F1,
+		/* Key::F2 */ ImGuiKey_F2,
+		/* Key::F3 */ ImGuiKey_F3,
+		/* Key::F4 */ ImGuiKey_F4,
+		/* Key::F5 */ ImGuiKey_F5,
+		/* Key::F6 */ ImGuiKey_F6,
+		/* Key::F7 */ ImGuiKey_F7,
+		/* Key::F8 */ ImGuiKey_F8,
+		/* Key::F9 */ ImGuiKey_F9,
+		/* Key::F10 */ ImGuiKey_F10,
+		/* Key::F11 */ ImGuiKey_F11,
+		/* Key::F12 */ ImGuiKey_F12,
+		/* Key::F13 */ ImGuiKey_None,
+		/* Key::F14 */ ImGuiKey_None,
+		/* Key::F15 */ ImGuiKey_None,
+		/* Key::F16 */ ImGuiKey_None,
+		/* Key::F17 */ ImGuiKey_None,
+		/* Key::F18 */ ImGuiKey_None,
+		/* Key::F19 */ ImGuiKey_None,
+		/* Key::F20 */ ImGuiKey_None,
+
+		// Navigation
+		/* Key::Insert */ ImGuiKey_Insert,
+		/* Key::Delete */ ImGuiKey_Delete,
+		/* Key::Home */ ImGuiKey_Home,
+		/* Key::End */ ImGuiKey_End,
+		/* Key::PageUp */ ImGuiKey_PageUp,
+		/* Key::PageDown */ ImGuiKey_PageDown,
+
+		// Arrows
+		/* Key::ArrowLeft */ ImGuiKey_LeftArrow,
+		/* Key::ArrowRight */ ImGuiKey_RightArrow,
+		/* Key::ArrowUp */ ImGuiKey_UpArrow,
+		/* Key::ArrowDown */ ImGuiKey_DownArrow,
+
+		// Numpad
+		/* Key::Numpad0 */ ImGuiKey_Keypad0,
+		/* Key::Numpad1 */ ImGuiKey_Keypad1,
+		/* Key::Numpad2 */ ImGuiKey_Keypad2,
+		/* Key::Numpad3 */ ImGuiKey_Keypad3,
+		/* Key::Numpad4 */ ImGuiKey_Keypad4,
+		/* Key::Numpad5 */ ImGuiKey_Keypad5,
+		/* Key::Numpad6 */ ImGuiKey_Keypad6,
+		/* Key::Numpad7 */ ImGuiKey_Keypad7,
+		/* Key::Numpad8 */ ImGuiKey_Keypad8,
+		/* Key::Numpad9 */ ImGuiKey_Keypad9,
+		/* Key::NumpadAdd */ ImGuiKey_KeypadAdd,
+		/* Key::NumpadSubtract */ ImGuiKey_KeypadSubtract,
+		/* Key::NumpadMultiply */ ImGuiKey_KeypadMultiply,
+		/* Key::NumpadDivide */ ImGuiKey_KeypadDivide,
+		/* Key::NumpadDecimal */ ImGuiKey_KeypadDecimal,
+		/* Key::NumpadEnter */ ImGuiKey_KeypadEnter,
+
+		// System / UI
+		/* Key::PrintScreen */ ImGuiKey_PrintScreen,
+		/* Key::Pause */ ImGuiKey_Pause,
+		/* Key::Menu */ ImGuiKey_Menu,
+	};
+
+	ImGuiKey ImGuiManager::KeyToImGuiKey(window::Key key)
+	{
+		uint8_t index = std::to_underlying(key);
+		return (index < std::size(KeyToImGuiKeyTable)) ? KeyToImGuiKeyTable[index] : ImGuiKey_None;
+	}
+
 	/// @brief
 	_SingletonConstructor(ImGuiManager)
 	: _updateJob(this, &ImGuiManager::Update, JobQueue::Queue::Framed)
@@ -299,6 +433,14 @@ namespace hod::imgui
 			else if (event.type == window::EventType::MouseHorizontalScroll)
 			{
 				io.AddMouseWheelEvent(event.data.mouseScroll.value, 0.0f);
+			}
+			else if (event.type == window::EventType::KeyPressed)
+			{
+				io.AddKeyEvent(KeyToImGuiKey(event.data.key.key), true);
+			}
+			else if (event.type == window::EventType::KeyReleased)
+			{
+				io.AddKeyEvent(KeyToImGuiKey(event.data.key.key), false);
 			}
 			else if (event.type == window::EventType::FocusGained)
 			{

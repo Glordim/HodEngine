@@ -7,6 +7,8 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
+#include <HodEngine/Window/Key.hpp>
+
 #include <stdint.h>
 
 #if defined(PLATFORM_WINDOWS)
@@ -79,6 +81,8 @@ namespace hod::imgui
 
 	private:
 		bool CreateMaterial();
+
+		static ImGuiKey KeyToImGuiKey(window::Key key);
 
 	private:
 		MemberFunctionJob<ImGuiManager> _updateJob;
