@@ -18,7 +18,7 @@ namespace hod
 		ProfilerEndEvent();
 	}
 
-	void ProfilerBeginEvent(const char* name)
+	void ProfilerBeginEvent([[maybe_unused]] const char* name)
 	{
 #if defined(HOD_USE_SUPERLIMINAL_PROFILER) && defined(PERFORMANCEAPI_ENABLED)
 		PerformanceAPI_BeginEvent(name, nullptr, PERFORMANCEAPI_DEFAULT_COLOR);
