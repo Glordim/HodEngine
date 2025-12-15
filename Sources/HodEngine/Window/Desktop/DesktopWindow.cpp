@@ -87,6 +87,14 @@ namespace hod::window
 		EnqueueEvent(event);
 	}
 
+	void DesktopWindow::EmitChar(char c)
+	{
+		Event event;
+		event.type = EventType::Char;
+		event.data.character.c = c;
+		EnqueueEvent(event);
+	}
+
 	void DesktopWindow::EmitMouseButtonPressed(MouseButton button)
 	{
 		Event event;

@@ -52,36 +52,49 @@ namespace hod::window
 			UINT scancode = (lParam >> 16) & 0xFF;
 			scancode |= ((lParam >> 24) & 1) << 8;
 			EmitKeyPressed(WindowsScanCodeToScanCode(scancode), WindowsVirtualKeyToKey(wParam));
+			return 0;
 		}
 		else if (msg == WM_KEYUP || msg == WM_SYSKEYUP)
 		{
 			UINT scancode = (lParam >> 16) & 0xFF;
 			scancode |= ((lParam >> 24) & 1) << 8;
 			EmitKeyReleased(WindowsScanCodeToScanCode(scancode), WindowsVirtualKeyToKey(wParam));
+			return 0;
+		}
+		else if (msg == WM_CHAR)
+		{
+			EmitChar(wParam);
+			return 0;
 		}
 		else if (msg == WM_LBUTTONDOWN)
 		{
 			EmitMouseButtonPressed(MouseButton::Left);
+			return 0;
 		}
 		else if (msg == WM_LBUTTONUP)
 		{
 			EmitMouseButtonReleased(MouseButton::Left);
+			return 0;
 		}
 		else if (msg == WM_RBUTTONDOWN)
 		{
 			EmitMouseButtonPressed(MouseButton::Right);
+			return 0;
 		}
 		else if (msg == WM_RBUTTONUP)
 		{
 			EmitMouseButtonReleased(MouseButton::Right);
+			return 0;
 		}
 		else if (msg == WM_MBUTTONDOWN)
 		{
 			EmitMouseButtonPressed(MouseButton::Middle);
+			return 0;
 		}
 		else if (msg == WM_MBUTTONUP)
 		{
 			EmitMouseButtonReleased(MouseButton::Middle);
+			return 0;
 		}
 		else if (msg == WM_XBUTTONDOWN)
 		{
@@ -94,6 +107,7 @@ namespace hod::window
 			{
 				EmitMouseButtonPressed(MouseButton::Forward);
 			}
+			return 0;
 		}
 		else if (msg == WM_XBUTTONUP)
 		{
@@ -106,6 +120,7 @@ namespace hod::window
 			{
 				EmitMouseButtonReleased(MouseButton::Forward);
 			}
+			return 0;
 		}
 		else if (msg == WM_MOUSEMOVE)
 		{
@@ -115,18 +130,21 @@ namespace hod::window
 			SetMousePosition(Vector2(x, y));
 
 			EmitMouseMoved(x, y);
+			return 0;
 		}
 		else if (msg == WM_MOUSEWHEEL)
 		{
 			int   delta = GET_WHEEL_DELTA_WPARAM(wParam);
 			float scroll = (float)delta / (float)WHEEL_DELTA;
 			EmitMouseScroll(scroll);
+			return 0;
 		}
 		else if (msg == WM_MOUSEHWHEEL)
 		{
 			int   delta = GET_WHEEL_DELTA_WPARAM(wParam);
 			float scroll = (float)delta / (float)WHEEL_DELTA;
 			EmitMouseHorizontalScroll(scroll);
+			return 0;
 		}
 		else if (msg == WM_SIZE)
 		{
@@ -134,11 +152,13 @@ namespace hod::window
 			UINT height = HIWORD(lParam);
 
 			ResizeInternal(width, height);
+			return 0;
 		}
 		else if (msg == WM_CLOSE)
 		{
 			_close = true;
 			::DestroyWindow(_hWnd);
+			return 0;
 		}
 		else if (msg == WM_DESTROY)
 		{
@@ -149,7 +169,7 @@ namespace hod::window
 			{
 				PostQuitMessage(0);
 			}
-			return ::DefWindowProc(hwnd, msg, wParam, lParam);
+			return ::DefWindowProc(hwnd, msg, wParam, lParam); // todo ?
 		}
 		else if (msg == WM_USER + 3)
 		{
@@ -160,6 +180,7 @@ namespace hod::window
 			}
 			_runOnWin32Thread.Clear();
 			_runOnWin32ThreadMutex.unlock();
+			return 0;
 		}
 
 		return ::DefWindowProc(_hWnd, msg, wParam, lParam);

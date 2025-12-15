@@ -13,6 +13,7 @@ namespace hod::window
 	{
 		KeyPressed,
 		KeyReleased,
+		Char,
 		MouseButtonDown,
 		MouseButtonUp,
 		MouseMoved,
@@ -46,6 +47,11 @@ namespace hod::window
 		uint8_t  flags;
 	};
 
+	struct CharEventData
+	{
+		char c;
+	};
+
 	struct MouseButtonEventData
 	{
 		uint16_t    x;
@@ -72,6 +78,7 @@ namespace hod::window
 		{
 			ResizeEventData      resize;
 			KeyEventData         key;
+			CharEventData        character;
 			MouseButtonEventData mouseButton;
 			MouseMoveEventData   mouseMove;
 			MouseScrollEventData mouseScroll;

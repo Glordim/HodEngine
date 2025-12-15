@@ -136,6 +136,11 @@ namespace hod::imgui
 		/* Key::F19 */ ImGuiKey_None,
 		/* Key::F20 */ ImGuiKey_None,
 
+		/* Key::Shift */ ImGuiKey_LeftShift,
+		/* Key::Ctrl */ ImGuiKey_LeftCtrl,
+		/* Key::Alt */ ImGuiKey_LeftAlt,
+		/* Key::Super */ ImGuiKey_LeftSuper,
+
 		// Navigation
 		/* Key::Insert */ ImGuiKey_Insert,
 		/* Key::Delete */ ImGuiKey_Delete,
@@ -436,11 +441,41 @@ namespace hod::imgui
 			}
 			else if (event.type == window::EventType::KeyPressed)
 			{
-				io.AddKeyEvent(KeyToImGuiKey(event.data.key.key), true);
+				ImGuiKey imguiKey = KeyToImGuiKey(event.data.key.key);
+				if (imguiKey == ImGuiKey_LeftShift)
+				{
+					io.AddKeyEvent(ImGuiMod_Shift, true);
+				}
+				else if (imguiKey == ImGuiKey_LeftCtrl)
+				{
+					io.AddKeyEvent(ImGuiMod_Ctrl, true);
+				}
+				else if (imguiKey == ImGuiKey_LeftAlt)
+				{
+					io.AddKeyEvent(ImGuiMod_Alt, true);
+				}
+				io.AddKeyEvent(imguiKey, true);
 			}
 			else if (event.type == window::EventType::KeyReleased)
 			{
-				io.AddKeyEvent(KeyToImGuiKey(event.data.key.key), false);
+				ImGuiKey imguiKey = KeyToImGuiKey(event.data.key.key);
+				if (imguiKey == ImGuiKey_LeftShift)
+				{
+					io.AddKeyEvent(ImGuiMod_Shift, false);
+				}
+				else if (imguiKey == ImGuiKey_LeftCtrl)
+				{
+					io.AddKeyEvent(ImGuiMod_Ctrl, false);
+				}
+				else if (imguiKey == ImGuiKey_LeftAlt)
+				{
+					io.AddKeyEvent(ImGuiMod_Alt, false);
+				}
+				io.AddKeyEvent(imguiKey, false);
+			}
+			else if (event.type == window::EventType::Char)
+			{
+				io.AddInputCharacter(event.data.character.c);
 			}
 			else if (event.type == window::EventType::FocusGained)
 			{

@@ -43,6 +43,8 @@ namespace hod::window
 
 		void EmitKeyPressed(ScanCode scanCode, Key key);
 		void EmitKeyReleased(ScanCode scanCode, Key key);
+		void EmitChar(char c);
+
 		void EmitMouseButtonPressed(MouseButton button);
 		void EmitMouseButtonReleased(MouseButton button);
 		void EmitMouseMoved(int x, int y);

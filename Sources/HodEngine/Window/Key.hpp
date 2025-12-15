@@ -98,6 +98,12 @@ namespace hod::window
 		F19,
 		F20,
 
+		// Modifiers
+		Shift,
+		Ctrl,
+		Alt,
+		Super, // Cmd / Win
+
 		// Navigation
 		Insert,
 		Delete,
