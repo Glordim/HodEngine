@@ -115,26 +115,31 @@ namespace hod
 				return false;
 			}
 
-			VkImageView attachmentImageViews[] = {
-				static_cast<VkTexture*>(GetColorTexture())->GetTextureImageView(),
-				// static_cast<VkTexture*>(GetDepthTexture())->GetTextureImageView()
-			};
-
-			VkFramebufferCreateInfo framebufferInfo = {};
-			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = _renderPass;
-			framebufferInfo.attachmentCount = 1;
-			framebufferInfo.pAttachments = attachmentImageViews;
-			framebufferInfo.width = width;
-			framebufferInfo.height = height;
-			framebufferInfo.layers = 1;
-
-			if (vkCreateFramebuffer(renderer->GetVkDevice(), &framebufferInfo, nullptr, &_frameBuffer) != VK_SUCCESS)
+			_frameBuffers.Resize(renderer->GetFrameInFlightCount(), VK_NULL_HANDLE);
+			for (uint32_t i = 0; i < _frameBuffers.Size(); ++i)
 			{
-				OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !");
-				Clear();
-				return false;
+				VkImageView attachmentImageViews[] = {
+					static_cast<VkTexture*>(_colorTextures[i])->GetTextureImageView(),
+					// static_cast<VkTexture*>(_depthTextures[i])->GetTextureImageView()
+				};
+
+				VkFramebufferCreateInfo framebufferInfo = {};
+				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+				framebufferInfo.renderPass = _renderPass;
+				framebufferInfo.attachmentCount = 1;
+				framebufferInfo.pAttachments = attachmentImageViews;
+				framebufferInfo.width = width;
+				framebufferInfo.height = height;
+				framebufferInfo.layers = 1;
+
+				if (vkCreateFramebuffer(renderer->GetVkDevice(), &framebufferInfo, nullptr, &_frameBuffers[i]) != VK_SUCCESS)
+				{
+					OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !");
+					Clear();
+					return false;
+				}
 			}
+
 			return true;
 		}
 
@@ -145,11 +150,14 @@ namespace hod
 
 			RendererVulkan* renderer = RendererVulkan::GetInstance();
 
-			if (_frameBuffer != VK_NULL_HANDLE)
+			for (VkFramebuffer frameBuffer : _frameBuffers)
 			{
-				vkDestroyFramebuffer(renderer->GetVkDevice(), _frameBuffer, nullptr);
-				_frameBuffer = VK_NULL_HANDLE;
+				if (frameBuffer != VK_NULL_HANDLE)
+				{
+					vkDestroyFramebuffer(renderer->GetVkDevice(), frameBuffer, nullptr);
+				}
 			}
+			_frameBuffers.Clear();
 
 			if (_renderPass != VK_NULL_HANDLE)
 			{
@@ -169,7 +177,11 @@ namespace hod
 		/// @return
 		VkFramebuffer VkRenderTarget::GetFrameBuffer() const
 		{
-			return _frameBuffer;
+			if (_frameBuffers.Empty() == false)
+			{
+				return _frameBuffers[Renderer::GetInstance()->GetFrameIndex()];
+			}
+			return VK_NULL_HANDLE;
 		}
 
 		/// @brief
@@ -179,8 +191,10 @@ namespace hod
 
 			VkCommandBuffer vkCommandBuffer = static_cast<const CommandBufferVk*>(commandBuffer)->GetVkCommandBuffer();
 
-			if (_color != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT,
-			                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
+			Texture* colorTexture = GetColorTexture();
+
+			if (colorTexture != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(colorTexture)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT,
+			                                                               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
 			{
 				return; // todo bool ?
 			}
@@ -193,8 +207,10 @@ namespace hod
 
 			VkCommandBuffer vkCommandBuffer = static_cast<const CommandBufferVk*>(commandBuffer)->GetVkCommandBuffer();
 
-			if (_color != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(_color)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT,
-			                                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
+			Texture* colorTexture = GetColorTexture();
+
+			if (colorTexture != nullptr && renderer->TransitionImageLayout(vkCommandBuffer, static_cast<VkTexture*>(colorTexture)->GetTextureImage(), VK_IMAGE_ASPECT_COLOR_BIT,
+			                                                               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
 			{
 				return; // todo bool ?
 			}

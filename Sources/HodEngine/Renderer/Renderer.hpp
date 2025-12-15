@@ -93,6 +93,9 @@ namespace hod::renderer
 
 		PresentationSurface* FindPresentationSurface(window::Window* window) const;
 
+		uint32_t GetFrameIndex() const;
+		uint32_t GetFrameInFlightCount() const;
+
 		// Debug
 	public:
 		VisualizationMode GetVisualizationMode() const;

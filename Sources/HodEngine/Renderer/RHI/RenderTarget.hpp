@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
@@ -12,37 +12,33 @@ namespace hod::renderer
 {
 	class CommandBuffer;
 
-	/// @brief 
+	/// @brief
 	class HOD_RENDERER_API RenderTarget
 	{
 	public:
+		RenderTarget();
+		virtual ~RenderTarget();
 
-						RenderTarget();
-		virtual			~RenderTarget();
+		Vector2 GetResolution() const;
 
-		Vector2			GetResolution() const;
+		virtual bool Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo);
 
-		virtual bool	Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo);
+		Texture* GetColorTexture() const;
+		Texture* GetDepthTexture() const;
 
-		Texture*		GetColorTexture() const;
-		Texture*		GetDepthTexture() const;
+		virtual void PrepareForWrite(const CommandBuffer* commandBuffer) = 0;
+		virtual void PrepareForRead(const CommandBuffer* commandBuffer) = 0;
 
-		virtual void	PrepareForWrite(const CommandBuffer* commandBuffer) = 0;
-		virtual void	PrepareForRead(const CommandBuffer* commandBuffer) = 0;
-
-		bool			IsValid() const;
-
-	protected:
-
-		virtual void	Clear();
+		bool IsValid() const;
 
 	protected:
-
-		Texture*		_color = nullptr;
-		Texture*		_depth = nullptr;
+		virtual void Clear();
 
 	protected:
+		Vector<Texture*> _colorTextures;
+		Vector<Texture*> _depthTextures;
 
-		Vector2			_resolution; // TODO Vector2_Int ?
+	protected:
+		Vector2 _resolution; // TODO Vector2_Int ?
 	};
 }

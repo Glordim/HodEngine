@@ -349,5 +349,15 @@ namespace hod
 			}
 			return nullptr;
 		}
+
+		uint32_t Renderer::GetFrameIndex() const
+		{
+			return _frameIndex;
+		}
+
+		uint32_t Renderer::GetFrameInFlightCount() const
+		{
+			return _frameInFlight;
+		}
 	}
 }

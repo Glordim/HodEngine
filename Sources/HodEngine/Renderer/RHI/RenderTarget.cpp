@@ -8,89 +8,108 @@
 #include "HodEngine/Core/String.hpp"
 #include <iostream>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	RenderTarget::RenderTarget() {}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	RenderTarget::~RenderTarget()
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		RenderTarget::RenderTarget() {}
+		Clear();
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		RenderTarget::~RenderTarget()
+	/// @brief
+	/// @return
+	Vector2 RenderTarget::GetResolution() const
+	{
+		return _resolution;
+	}
+
+	/// @brief
+	/// @param width
+	/// @param height
+	/// @return
+	bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo Vector2 Size
+	{
+		if (width == 0 || height == 0)
 		{
-			Clear();
+			return false;
 		}
 
-		/// @brief
-		/// @return
-		Vector2 RenderTarget::GetResolution() const
+		_resolution.SetX((float)width);
+		_resolution.SetY((float)height);
+
+		uint32_t frameInFlight = Renderer::GetInstance()->GetFrameInFlightCount();
+
+		_colorTextures.Resize(frameInFlight, nullptr);
+		_depthTextures.Resize(frameInFlight, nullptr);
+		for (uint32_t i = 0; i < frameInFlight; ++i)
 		{
-			return _resolution;
-		}
-
-		/// @brief
-		/// @param width
-		/// @param height
-		/// @return
-		bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo Vector2 Size
-		{
-			if (width == 0 || height == 0)
-			{
-				return false;
-			}
-
-			_resolution.SetX((float)width);
-			_resolution.SetY((float)height);
-
-			_color = Renderer::GetInstance()->CreateTexture();
-			if (_color->BuildColor(width, height, createInfo) == false)
-			{
-				Clear();
-				return false;
-			}
-			_depth = Renderer::GetInstance()->CreateTexture();
-			if (_depth->BuildDepth(width, height, createInfo) == false)
+			_colorTextures[i] = Renderer::GetInstance()->CreateTexture();
+			if (_colorTextures[i]->BuildColor(width, height, createInfo) == false)
 			{
 				Clear();
 				return false;
 			}
 
-			return true;
+			_depthTextures[i] = Renderer::GetInstance()->CreateTexture();
+			if (_depthTextures[i]->BuildDepth(width, height, createInfo) == false)
+			{
+				Clear();
+				return false;
+			}
 		}
 
-		/// @brief
-		void RenderTarget::Clear()
+		return true;
+	}
+
+	/// @brief
+	void RenderTarget::Clear()
+	{
+		for (Texture* texture : _colorTextures)
 		{
-			DefaultAllocator::GetInstance().Delete(_color);
-			_color = nullptr;
-
-			DefaultAllocator::GetInstance().Delete(_depth);
-			_depth = nullptr;
+			DefaultAllocator::GetInstance().Delete(texture);
 		}
+		_colorTextures.Clear();
 
-		/// @brief
-		/// @return
-		Texture* RenderTarget::GetColorTexture() const
+		for (Texture* texture : _depthTextures)
 		{
-			return _color;
+			DefaultAllocator::GetInstance().Delete(texture);
 		}
+		_depthTextures.Clear();
+	}
 
-		/// @brief
-		/// @return
-		Texture* RenderTarget::GetDepthTexture() const
+	/// @brief
+	/// @return
+	Texture* RenderTarget::GetColorTexture() const
+	{
+		if (_colorTextures.Empty() == false)
 		{
-			return _depth;
+			return _colorTextures[Renderer::GetInstance()->GetFrameIndex()];
 		}
+		return nullptr;
+	}
 
-		/// @brief
-		/// @return
-		bool RenderTarget::IsValid() const
+	/// @brief
+	/// @return
+	Texture* RenderTarget::GetDepthTexture() const
+	{
+		if (_depthTextures.Empty() == false)
 		{
-			return _color != nullptr;
+			return _depthTextures[Renderer::GetInstance()->GetFrameIndex()];
 		}
+		return nullptr;
+	}
+
+	/// @brief
+	/// @return
+	bool RenderTarget::IsValid() const
+	{
+		return _colorTextures.Empty() == false;
 	}
 }
