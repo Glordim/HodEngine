@@ -45,3 +45,11 @@ target_link_libraries(Core PRIVATE
 
 target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)
+
+option(ENABLE_SUPERLUMINAL_PROFILER "Enable Superluminal profiler" OFF)
+if(ENABLE_SUPERLUMINAL_PROFILER)
+	find_package(SuperluminalAPI REQUIRED)
+	target_link_libraries(Core PRIVATE ${SuperluminalAPI_LIBS_RELEASE})
+	target_include_directories(Core PRIVATE ${SuperluminalAPI_INCLUDE_DIRS})
+	target_compile_definitions(Core PRIVATE HOD_USE_SUPERLIMINAL_PROFILER)
+endif()

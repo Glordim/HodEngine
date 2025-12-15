@@ -34,6 +34,8 @@
 #include "HodEngine/UI/Builtin.hpp"
 #include "HodEngine/Window/Window.hpp"
 
+#include <HodEngine/Core/Profiler.hpp>
+
 namespace hod::application
 {
 	_SingletonOverrideConstructor(GraphicApplication) {}
@@ -133,6 +135,8 @@ namespace hod::application
 
 		while (_shouldQuit == false)
 		{
+			PROFILER_BEGIN_EVENT("Frame");
+
 			renderer::Renderer::GetInstance()->AcquireNextFrame();
 
 			window::DisplayManager::GetInstance()->Update();
@@ -145,6 +149,8 @@ namespace hod::application
 			frameSequencer->EnqueueAndWaitJobs();
 
 			renderer::Renderer::GetInstance()->Render();
+
+			PROFILER_END_EVENT();
 		}
 
 		return EXIT_SUCCESS;
