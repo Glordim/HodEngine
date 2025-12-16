@@ -48,6 +48,7 @@ target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)
 
 option(ENABLE_SUPERLUMINAL_PROFILER "Enable Superluminal profiler" OFF)
 if(ENABLE_SUPERLUMINAL_PROFILER)
+	list(APPEND CMAKE_MODULE_PATH "C:/Program Files/Superluminal/Performance/API")
 	find_package(SuperluminalAPI REQUIRED)
 	target_link_libraries(Core PRIVATE ${SuperluminalAPI_LIBS_RELEASE})
 	target_include_directories(Core PRIVATE ${SuperluminalAPI_INCLUDE_DIRS})

@@ -8,6 +8,7 @@
 #include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/OS.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/Profiler.hpp>
 
 #include <cstdlib>
 
@@ -38,6 +39,8 @@ namespace hod::window
 	/// @return
 	LRESULT Win32Window::InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		PROFILER_SCOPED_EVENT_WITH_PARAM("Win32Window::InternalWindowProc", std::format("msg = {}", msg).c_str())
+
 		if (msg == WM_SETCURSOR)
 		{
 			if (LOWORD(lParam) == HTCLIENT)
