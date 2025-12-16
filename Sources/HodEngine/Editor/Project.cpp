@@ -396,8 +396,10 @@ namespace hod::editor
 		Path toolchainPath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath();
 
 #if defined(PLATFORM_WINDOWS)
-		const char* generator = "Visual Studio 17 2022";
-		toolchainPath /= "CMake/Toolchains/Windows-Msvc-x64.cmake";
+		// const char* generator = "Visual Studio 17 2022";
+		// toolchainPath /= "CMake/Toolchains/Windows-Msvc-x64.cmake";
+		const char* generator = "Ninja Multi-Config";
+		toolchainPath /= "CMake/Toolchains/Windows-ClangCl-x64.cmake";
 #elif defined(PLATFORM_MACOS)
 		const char* generator = "Xcode";
 		toolchainPath /= "CMake/Toolchains/MacOs-Clang-arm64.cmake";
@@ -427,7 +429,7 @@ namespace hod::editor
 		Path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 
 		const char* config = "Release";
-		String      arguments = std::format("--build {} --config {} -j {}", gameModuleBuildDirectoryPath, config, SystemInfo::GetLogicalCoreCount()).c_str();
+		String      arguments = std::format("--build {} --config {} --parallel", gameModuleBuildDirectoryPath, config).c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{
