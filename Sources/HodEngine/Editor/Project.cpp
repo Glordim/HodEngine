@@ -198,8 +198,10 @@ namespace hod::editor
 
 		_gameModule.Init(_projectPath.ParentPath() / "build" / "Release" / _name.CStr(), true);
 		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
-		_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr);
-		_gameModuleFileSystemWatcher.RegisterUpdateJob();
+		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr))
+		{
+			_gameModuleFileSystemWatcher.RegisterUpdateJob();
+		}
 
 		return Load();
 	}

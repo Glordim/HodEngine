@@ -37,14 +37,16 @@ namespace hod
 		{
 			if (FileSystem::GetInstance()->Exists(_path) == false)
 			{
-				return false; // todo output
+				OUTPUT_ERROR("FileSystemWatcher::Init fail, {} doesn't exist", _path);
+				return false;
 			}
 		}
 		else
 		{
 			if (FileSystem::GetInstance()->Exists(_path.ParentPath()) == false)
 			{
-				return false; // todo output
+				OUTPUT_ERROR("FileSystemWatcher::Init fail, {} doesn't exist", _path.ParentPath());
+				return false;
 			}
 		}
 
