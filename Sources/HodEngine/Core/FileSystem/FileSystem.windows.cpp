@@ -174,7 +174,7 @@ namespace hod
 
 		if (IsDirectory(path))
 		{
-			return false;
+			return true;
 		}
 
 		String cleaned = path;
@@ -183,7 +183,7 @@ namespace hod
 			cleaned.PopBack();
 		}
 
-		size_t pos = cleaned.FindR("\\/");
+		size_t pos = cleaned.FindLastOf("\\/");
 
 		if (pos != String::Npos)
 		{
