@@ -155,6 +155,10 @@ namespace hod
 		uint32_t FindR(const String& string, uint32_t position = Npos) const;
 		uint32_t FindR(const std::string_view& string, uint32_t position = Npos) const;
 
+		uint32_t FindLastOf(const char* string, uint32_t position = Npos) const;
+		uint32_t FindLastOf(const String& string, uint32_t position = Npos) const;
+		uint32_t FindLastOf(const std::string_view& string, uint32_t position = Npos) const;
+
 		int32_t Compare(const char* string) const;
 		int32_t Compare(const String& string) const;
 		int32_t Compare(const std::string_view& string) const;
@@ -205,8 +209,8 @@ namespace hod
 
 	private:
 #if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnested-anon-types"
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wnested-anon-types"
 #endif
 
 		union
@@ -223,7 +227,7 @@ namespace hod
 		};
 
 #if defined(__clang__)
-#pragma clang diagnostic pop
+	#pragma clang diagnostic pop
 #endif
 
 		uint32_t _capacity = 0;

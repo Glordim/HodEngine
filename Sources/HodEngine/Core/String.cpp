@@ -1642,6 +1642,51 @@ namespace hod
 		return Npos;
 	}
 
+	uint32_t String::FindLastOf(const char* string, uint32_t position) const
+	{
+		return FindLastOf(std::string_view(string), position);
+	}
+
+	uint32_t String::FindLastOf(const String& string, uint32_t position) const
+	{
+		return FindLastOf(std::string_view(string.CStr(), string.Size()), position);
+	}
+
+	uint32_t String::FindLastOf(const std::string_view& string, uint32_t position) const
+	{
+		if (string.empty() || _size == 0)
+		{
+			return (position < _size) ? position : _size;
+		}
+
+		if (position == String::Npos)
+		{
+			position = 0;
+		}
+
+		uint32_t    currentPos = _size - 1;
+		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+
+		while (currentPos >= position)
+		{
+			for (char c : string)
+			{
+				if (buffer[currentPos] == c)
+				{
+					return currentPos;
+				}
+			}
+
+			if (currentPos == 0)
+			{
+				return Npos;
+			}
+
+			--currentPos;
+		}
+		return Npos;
+	}
+
 	/// @brief
 	/// @param string
 	/// @return
