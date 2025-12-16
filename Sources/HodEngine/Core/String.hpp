@@ -155,6 +155,10 @@ namespace hod
 		uint32_t FindR(const String& string, uint32_t position = Npos) const;
 		uint32_t FindR(const std::string_view& string, uint32_t position = Npos) const;
 
+		uint32_t FindFirstOf(const char* string, uint32_t position = 0) const;
+		uint32_t FindFirstOf(const String& string, uint32_t position = 0) const;
+		uint32_t FindFirstOf(const std::string_view& string, uint32_t position = 0) const;
+
 		uint32_t FindLastOf(const char* string, uint32_t position = Npos) const;
 		uint32_t FindLastOf(const String& string, uint32_t position = Npos) const;
 		uint32_t FindLastOf(const std::string_view& string, uint32_t position = Npos) const;

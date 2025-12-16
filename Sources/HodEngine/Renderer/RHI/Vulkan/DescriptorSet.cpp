@@ -182,7 +182,7 @@ namespace hod::renderer
 		String varIdentifier;
 		String target;
 
-		size_t len = memberName.Find(".[");
+		size_t len = memberName.FindFirstOf(".[");
 		if (len == String::Npos)
 		{
 			target = memberName;
@@ -212,7 +212,7 @@ namespace hod::renderer
 					{
 						String subMemberName;
 
-						size_t len = varIdentifier.Find(".[", 1);
+						size_t len = varIdentifier.FindFirstOf(".[", 1);
 
 						if (len == String::Npos)
 						{
@@ -237,7 +237,7 @@ namespace hod::renderer
 					}
 					else if (varIdentifier[0] == '[')
 					{
-						size_t len = varIdentifier.Find("]", 1);
+						size_t len = varIdentifier.Find(']', 1);
 
 						String indexStr = varIdentifier.SubStr(1, len - 1);
 						int    index = std::atoi(indexStr.CStr());
