@@ -335,7 +335,11 @@ namespace hod::renderer
 
 		bool enableValidationLayers = true;
 
+	#if defined(RENDERER_ENABLE_VALIDATION_LAYER_ADDRESS_BINDING)
+		std::array<const char*, 3> extensionsRequiredByValidationLayers {VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME, VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME};
+	#else
 		std::array<const char*, 2> extensionsRequiredByValidationLayers {VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME};
+	#endif
 
 		if (RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredByValidationLayers.data(), extensionsRequiredByValidationLayers.size(), availableExtensions) == false)
 		{
@@ -399,7 +403,7 @@ namespace hod::renderer
 			                                           VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 			debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
 			                                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
-	#if defined(PLATFORM_WINDOWS)
+	#if defined(RENDERER_ENABLE_VALIDATION_LAYER_ADDRESS_BINDING)
 			                                       | VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT
 	#endif
 				;

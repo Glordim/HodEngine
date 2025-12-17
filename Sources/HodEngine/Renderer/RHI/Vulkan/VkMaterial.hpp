@@ -49,7 +49,7 @@ namespace hod::renderer
 		VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
 		uint32_t         _pushConstantSize = 0;
 
-		CreateInfo _createInfo; // Store all create info to be able to create new Pipeline with different renderpass (may be removed if use DynamicRendering VL 1.3)
+		CreateInfo _createInfo; // Store all create info to be able to create new Pipeline with different renderpass (may be removed if use DynamicRendering VK 1.3)
 
 		VkPipeline                                  _parent = VK_NULL_HANDLE;
 		Vector<std::pair<VkRenderPass, VkPipeline>> _pipelines;
