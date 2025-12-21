@@ -28,14 +28,14 @@ namespace hod::renderer
 		virtual bool AcquireNextImageIndex(Semaphore* imageAvailableSemaphore) = 0;
 		virtual bool SwapBuffer() = 0;
 
-		void AddSemaphoreToSwapBuffer(const Semaphore* semaphore);
+		void AddSemaphoreToSwapBuffer(Semaphore* semaphore);
 
 		virtual Vector2 GetResolution() const = 0;
 
 		window::Window* GetWindow() const;
 
 	protected:
-		Vector<const Semaphore*> _semaphoresToSwapBuffer;
+		Vector<Semaphore*> _semaphoresToSwapBuffer;
 
 		Delegate _onWindowResizeDelegate;
 

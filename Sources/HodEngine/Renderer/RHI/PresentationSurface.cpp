@@ -18,7 +18,7 @@ namespace hod::renderer
 
 	PresentationSurface::~PresentationSurface() {}
 
-	void PresentationSurface::AddSemaphoreToSwapBuffer(const Semaphore* semaphore)
+	void PresentationSurface::AddSemaphoreToSwapBuffer(Semaphore* semaphore)
 	{
 		_semaphoresToSwapBuffer.push_back(semaphore);
 	}
