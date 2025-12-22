@@ -42,6 +42,7 @@ namespace hod::window
 		windowClass.lpszMenuName = NULL;
 		windowClass.lpszClassName = _className;
 		windowClass.hIconSm = NULL;
+		windowClass.hbrBackground = NULL;
 
 		_class = ::RegisterClassEx(&windowClass);
 		if (_class == INVALID_ATOM)

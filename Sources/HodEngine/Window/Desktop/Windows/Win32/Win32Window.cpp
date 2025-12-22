@@ -149,6 +149,10 @@ namespace hod::window
 			EmitMouseHorizontalScroll(scroll);
 			return 0;
 		}
+		else if (msg == WM_ERASEBKGND)
+		{
+			return 1;
+		}
 		else if (msg == WM_SIZE)
 		{
 			UINT width = LOWORD(lParam);
