@@ -20,5 +20,8 @@ namespace hod::window
 		void    DestroyWindow(Window* window) override;
 
 		Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) override;
+
+	private:
+		void CocoaInit();
 	};
 }
