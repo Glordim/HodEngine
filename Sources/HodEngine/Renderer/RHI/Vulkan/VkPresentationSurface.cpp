@@ -3,13 +3,82 @@
 #include "HodEngine/Renderer/RHI/Vulkan/SemaphoreVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkPresentationSurface.hpp"
 
+#include "HodEngine/Renderer/RHI/Vulkan/ExtensionCollector/DeviceExtensionCollector.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/ExtensionCollector/InstanceExtensionCollector.hpp"
+
 #include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <limits>
 
+#undef min
+
+#if defined(PLATFORM_WINDOWS)
+	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
+	#include <vulkan/vulkan_win32.h>
+#elif defined(PLATFORM_LINUX)
+	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp>
+	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp>
+	#include <vulkan/vulkan_wayland.h>
+#elif defined(PLATFORM_ANDROID)
+	#include <HodEngine/Window/Android/AndroidWindow.hpp>
+	#include <vulkan/vulkan_android.h>
+#endif
+
 namespace hod::renderer
 {
+	bool VkPresentationSurface::_hasSurfaceMaintenance1 = false;
+	bool VkPresentationSurface::_hasSwapchainMaintenance1 = false;
+
+	bool VkPresentationSurface::CollectInstanceExtensionRequirements(InstanceExtensionCollector& instanceExtensionCollector)
+	{
+		if (instanceExtensionCollector.AddRequiredExtension(VK_KHR_SURFACE_EXTENSION_NAME) == false)
+		{
+			return false;
+		}
+
+#if defined(PLATFORM_WINDOWS)
+		if (instanceExtensionCollector.AddRequiredExtension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME) == false)
+#elif defined(PLATFORM_LINUX)
+		if (instanceExtensionCollector.AddRequiredExtension(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME) == false)
+#elif defined(PLATFORM_ANDROID)
+		if (instanceExtensionCollector.AddRequiredExtension(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME) == false)
+#else
+	#error
+#endif
+		{
+			return false;
+		}
+
+		if (instanceExtensionCollector.AddOptionalExtension(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME) &&
+		    instanceExtensionCollector.AddOptionalExtension(VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME))
+		{
+			_hasSurfaceMaintenance1 = true;
+		}
+
+		return true;
+	}
+
+	bool VkPresentationSurface::CollectDeviceExtensionRequirements(DeviceExtensionCollector& deviceExtensionCollector)
+	{
+		if (deviceExtensionCollector.AddRequiredExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME) == false)
+		{
+			return false;
+		}
+
+		if (deviceExtensionCollector.AddOptionalExtension(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME))
+		{
+			_hasSwapchainMaintenance1 = true;
+
+			VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR& feature = deviceExtensionCollector.AddFeature<VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR>();
+			feature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR;
+			feature.pNext = nullptr;
+			feature.swapchainMaintenance1 = VK_TRUE;
+		}
+
+		return true;
+	}
+
 	/// @brief
 	VkPresentationSurface::VkPresentationSurface(window::Window* window, VkSurfaceKHR surface)
 	: PresentationSurface(window)

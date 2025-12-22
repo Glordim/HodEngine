@@ -9,9 +9,19 @@
 
 namespace hod::renderer
 {
+	class InstanceExtensionCollector;
+	class DeviceExtensionCollector;
+
 	/// @brief
 	class HOD_RENDERER_API VkPresentationSurface : public PresentationSurface
 	{
+	public:
+		static bool _hasSurfaceMaintenance1;
+		static bool _hasSwapchainMaintenance1;
+
+		static bool CollectInstanceExtensionRequirements(InstanceExtensionCollector& instanceExtensionCollector);
+		static bool CollectDeviceExtensionRequirements(DeviceExtensionCollector& deviceExtensionCollector);
+
 	public:
 		VkPresentationSurface(window::Window* window, VkSurfaceKHR surface);
 		~VkPresentationSurface() override;

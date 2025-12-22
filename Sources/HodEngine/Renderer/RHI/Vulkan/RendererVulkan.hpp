@@ -114,10 +114,6 @@ namespace hod::renderer
 		void FillPhysicalDeviceInfo(VkSurfaceKHR surface, VkPhysicalDevice physicalDevice, VkGpuDevice& gpuDevice);
 		bool SelectPhysicalDevice(uint32_t physicalDeviceIdentifier);
 
-	private:
-		static void GetAvailableExtensions(Vector<VkExtensionProperties>& availableExtensions);
-		static bool CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const Vector<VkExtensionProperties>& availableExtensions);
-
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		static bool                           CheckValidationLayerSupport(const char** validationLayers, size_t validationLayerCount);
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,

@@ -13,6 +13,9 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkShader.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 
+#include "HodEngine/Renderer/RHI/Vulkan/ExtensionCollector/DeviceExtensionCollector.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/ExtensionCollector/InstanceExtensionCollector.hpp"
+
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <HodEngine/Window/Window.hpp>
@@ -244,7 +247,7 @@ namespace hod::renderer
 
 			VkAttachmentDescription attachments[] = {colorAttachment}; // , depthAttachment };
 
-			VkSubpassDependency dependency{};
+			VkSubpassDependency dependency {};
 			dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 			dependency.dstSubpass = 0;
 			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -299,33 +302,14 @@ namespace hod::renderer
 	{
 		// === Extensions ===
 
-		Vector<VkExtensionProperties> availableExtensions;
-		RendererVulkan::GetAvailableExtensions(availableExtensions);
-
-		std::array<const char*, 0> extensionsRequiredByEngine {
-
-		};
-
-		if (RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredByEngine.data(), extensionsRequiredByEngine.size(), availableExtensions) == false)
+		InstanceExtensionCollector instanceExtensionCollector;
+		if (instanceExtensionCollector.CollectAvailableExtension() == false)
 		{
-			OUTPUT_ERROR("Vulkan: Extensions required by the Engine are not available, try to update 'Vulkan Runtime'");
 			return false;
 		}
 
-		// TODO move in PresentationSurface
-		std::array<const char*, 2> extensionsRequiredByContext {VK_KHR_SURFACE_EXTENSION_NAME,
-#if defined(PLATFORM_WINDOWS)
-		                                                        VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-#elif defined(PLATFORM_LINUX)
-		                                                        VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
-#elif defined(PLATFORM_ANDROID)
-		                                                        VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
-#endif
-		};
-
-		if (RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredByContext.data(), extensionsRequiredByContext.size(), availableExtensions) == false)
+		if (VkPresentationSurface::CollectInstanceExtensionRequirements(instanceExtensionCollector) == false)
 		{
-			OUTPUT_ERROR("Vulkan: Extensions required by Context are not available, try to update 'Vulkan Runtime'");
 			return false;
 		}
 
@@ -335,22 +319,24 @@ namespace hod::renderer
 
 		bool enableValidationLayers = true;
 
-	#if defined(RENDERER_ENABLE_VALIDATION_LAYER_ADDRESS_BINDING)
-		std::array<const char*, 3> extensionsRequiredByValidationLayers {VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME, VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME};
-	#else
-		std::array<const char*, 2> extensionsRequiredByValidationLayers {VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME};
-	#endif
-
-		if (RendererVulkan::CheckExtensionsIsAvailable(extensionsRequiredByValidationLayers.data(), extensionsRequiredByValidationLayers.size(), availableExtensions) == false)
+		if (instanceExtensionCollector.AddRequiredExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME) == false)
 		{
-			OUTPUT_ERROR("Vulkan: Extensions required by ValidationLayers are not available, try to update 'Vulkan Runtime'");
-			OUTPUT_ERROR("Vulkan: ValidationLayers have been disabled");
-			enableValidationLayers = false;
+			return false;
 		}
 
-		std::array<const char*, 1> validationLayers {//"VK_LAYER_LUNARG_standard_validation"
-		                                             "VK_LAYER_KHRONOS_validation"};
+		if (instanceExtensionCollector.AddRequiredExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == false)
+		{
+			return false;
+		}
 
+	#if defined(RENDERER_ENABLE_VALIDATION_LAYER_ADDRESS_BINDING)
+		if (instanceExtensionCollector.AddRequiredExtension(VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME) == false)
+		{
+			return false;
+		}
+	#endif
+
+		std::array<const char*, 1> validationLayers {"VK_LAYER_KHRONOS_validation"};
 		if (RendererVulkan::CheckValidationLayerSupport(validationLayers.data(), validationLayers.size()) == false)
 		{
 			OUTPUT_ERROR("Vulkan: ValidationLayers are not available, try to update 'Vulkan Runtime'");
@@ -358,24 +344,6 @@ namespace hod::renderer
 			enableValidationLayers = false;
 		}
 #endif
-
-		Vector<const char*> extensions;
-
-#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-		if (enableValidationLayers == true)
-		{
-			extensions.Reserve(extensionsRequiredByEngine.size() + extensionsRequiredByContext.size() + extensionsRequiredByValidationLayers.size());
-			extensions.Insert(extensions.End(), extensionsRequiredByEngine.begin(), extensionsRequiredByEngine.end());
-			extensions.Insert(extensions.End(), extensionsRequiredByContext.begin(), extensionsRequiredByContext.end());
-			extensions.Insert(extensions.End(), extensionsRequiredByValidationLayers.begin(), extensionsRequiredByValidationLayers.end());
-		}
-		else
-#endif
-		{
-			extensions.Reserve(extensionsRequiredByEngine.size() + extensionsRequiredByContext.size());
-			extensions.Insert(extensions.End(), extensionsRequiredByEngine.begin(), extensionsRequiredByEngine.end());
-			extensions.Insert(extensions.End(), extensionsRequiredByContext.begin(), extensionsRequiredByContext.end());
-		}
 
 		// === Create Instance ===
 
@@ -391,8 +359,8 @@ namespace hod::renderer
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.flags = 0;
 		createInfo.pApplicationInfo = &appInfo;
-		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.Size());
-		createInfo.ppEnabledExtensionNames = extensions.Data();
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensionCollector.GetEnabledExtensions().Size());
+		createInfo.ppEnabledExtensionNames = instanceExtensionCollector.GetEnabledExtensions().Data();
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		if (enableValidationLayers == true)
@@ -426,50 +394,6 @@ namespace hod::renderer
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create a Vulkan instance !");
 			return false;
-		}
-
-		return true;
-	}
-
-	/// @brief
-	/// @param availableExtensions
-	void RendererVulkan::GetAvailableExtensions(Vector<VkExtensionProperties>& availableExtensions)
-	{
-		uint32_t availableExtensionCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr);
-
-		availableExtensions.Resize(availableExtensionCount);
-		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, availableExtensions.Data());
-	}
-
-	/// @brief
-	/// @param extensions
-	/// @param extensionCount
-	/// @param availableExtensions
-	/// @return
-	bool RendererVulkan::CheckExtensionsIsAvailable(const char** extensions, size_t extensionCount, const Vector<VkExtensionProperties>& availableExtensions)
-	{
-		size_t availableExtensionsCount = availableExtensions.Size();
-
-		for (size_t i = 0; i < extensionCount; ++i)
-		{
-			const char* extension = extensions[i];
-
-			bool founded = false;
-
-			for (size_t j = 0; j < availableExtensionsCount; ++j)
-			{
-				if (strcmp(extension, availableExtensions[j].extensionName) == 0)
-				{
-					founded = true;
-					break;
-				}
-			}
-
-			if (founded == false)
-			{
-				return false;
-			}
 		}
 
 		return true;
@@ -761,6 +685,7 @@ namespace hod::renderer
 			return;
 		}
 
+		/* TODO ?
 		std::array<const char*, 1> requiredExtensions {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 		uint32_t availableExtensionCount;
@@ -771,9 +696,10 @@ namespace hod::renderer
 
 		if (RendererVulkan::CheckExtensionsIsAvailable(requiredExtensions.data(), requiredExtensions.size(), availableExtensions) == false)
 		{
-			gpuDevice.compatible = false;
-			return;
+		    gpuDevice.compatible = false;
+		    return;
 		}
+		*/
 
 		Vector<VkSurfaceFormatKHR> formats;
 		if (GetPhysicalDeviceSurfaceFormats(physicalDevice, surface, formats) == false || formats.Empty())
@@ -918,14 +844,21 @@ namespace hod::renderer
 
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
-		const Vector<const char*> requiredExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
-		createInfo.enabledExtensionCount = (uint32_t)requiredExtensions.Size();
-		createInfo.ppEnabledExtensionNames = requiredExtensions.Data();
-
 		// Deprecated, now _device share Validation Layer with the VkInstance
 		createInfo.ppEnabledLayerNames = nullptr;
 		createInfo.enabledLayerCount = 0;
+
+		DeviceExtensionCollector deviceExtensionCollector;
+		deviceExtensionCollector.CollectAvailableExtension(_selectedGpu->physicalDevice);
+
+		if (VkPresentationSurface::CollectDeviceExtensionRequirements(deviceExtensionCollector) == false)
+		{
+			return false;
+		}
+
+		createInfo.enabledExtensionCount = (uint32_t)deviceExtensionCollector.GetEnabledExtensions().Size();
+		createInfo.ppEnabledExtensionNames = deviceExtensionCollector.GetEnabledExtensions().Data();
+		createInfo.pNext = deviceExtensionCollector.GetFirstNextFeature();
 
 		if (vkCreateDevice(_selectedGpu->physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS)
 		{
