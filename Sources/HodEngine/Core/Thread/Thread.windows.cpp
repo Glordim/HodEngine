@@ -113,6 +113,10 @@ namespace hod
 
 	void ThisThread::SetName(const char* name)
 	{
-		SetThreadDescription(GetCurrentThread(), name);
+		std::wstring wideName;
+		if (StringConversion::StringToWString(name, wideName) == true)
+		{
+			::SetThreadDescription(GetCurrentThread(), wideName.c_str());
+		}
 	}
 }
