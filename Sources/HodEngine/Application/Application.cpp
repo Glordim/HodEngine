@@ -32,6 +32,8 @@ namespace hod::application
 	/// @return
 	bool Application::Init(const ArgumentParser& argumentParser)
 	{
+		ThisThread::SetName("MainThread");
+
 		(void)argumentParser;
 
 		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().ParentPath() / "Data");

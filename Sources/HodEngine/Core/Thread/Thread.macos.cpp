@@ -26,6 +26,7 @@ namespace hod
 	{
 		Thread::Function _function;
 		void*            _parameter;
+		char			_name[64];
 	};
 
 	/// @brief
@@ -34,6 +35,9 @@ namespace hod
 	void* ThreadFunctionInternal(void* param)
 	{
 		Descriptor*      descriptor = static_cast<Descriptor*>(param);
+
+		pthread_setname_np(descriptor->_name);
+
 		Thread::Function function = descriptor->_function;
 		void*            parameter = descriptor->_parameter;
 		DefaultAllocator::GetInstance().Delete(descriptor);
@@ -53,6 +57,7 @@ namespace hod
 		Descriptor* descriptor = DefaultAllocator::GetInstance().New<Descriptor>();
 		descriptor->_function = function;
 		descriptor->_parameter = parameter;
+		std::strncpy(descriptor->_name, name, 63);
 
 		pthread_attr_t attributes;
 		if (pthread_attr_init(&attributes) != 0)
@@ -63,7 +68,6 @@ namespace hod
 
 		// todo set attributes
 		(void)priority;
-		(void)name;
 
 		if (pthread_create(&_id, &attributes, ThreadFunctionInternal, descriptor) != 0)
 		{
@@ -98,5 +102,12 @@ namespace hod
 	void ThisThread::Sleep(uint32_t millisecond)
 	{
 		usleep(millisecond * 1000);
+	}
+
+	void ThisThread::SetName(const char* name)
+	{
+		char croppedName[64];
+		std::strncpy(croppedName, name, 63);
+		pthread_setname_np(croppedName);
 	}
 }

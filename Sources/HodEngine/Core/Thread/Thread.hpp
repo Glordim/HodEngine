@@ -67,5 +67,6 @@ namespace hod
 	public:
 		static void Yield();
 		static void Sleep(uint32_t millisecond);
+		static void SetName(const char* name);
 	};
 }

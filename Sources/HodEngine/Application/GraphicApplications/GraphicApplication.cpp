@@ -46,6 +46,8 @@ namespace hod::application
 	/// @return
 	bool GraphicApplication::Init(const ArgumentParser& argumentParser)
 	{
+		ThisThread::SetName("MainThread");
+
 		(void)argumentParser;
 
 		if (FileSystem::CreateInstance()->Init() == false)

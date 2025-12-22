@@ -110,4 +110,9 @@ namespace hod
 	{
 		::Sleep(millisecond);
 	}
+
+	void ThisThread::SetName(const char* name)
+	{
+		SetThreadDescription(GetCurrentThread(), name);
+	}
 }
