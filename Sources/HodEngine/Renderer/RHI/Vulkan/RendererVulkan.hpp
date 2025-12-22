@@ -85,7 +85,7 @@ namespace hod::renderer
 
 		bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
 		bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image,
-		                 VkDeviceMemory* imageMemory);
+		                 VmaAllocation* imageMemory);
 		bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
 		bool CreateSampler(VkSampler* sampler, const SamplerCreateInfo& createInfo);
 

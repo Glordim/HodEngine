@@ -52,7 +52,8 @@ namespace hod
 
 			if (_textureImageMemory != VK_NULL_HANDLE)
 			{
-				vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+				// vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+				vmaFreeMemory(renderer->GetVmaAllocator(), _textureImageMemory);
 			}
 		}
 
@@ -99,11 +100,13 @@ namespace hod
 				goto exit;
 			}
 
+			/*
 			if (renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
 			                                             VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
 			{
-				goto exit;
+			    goto exit;
 			}
+			    */
 
 			if (renderer->CreateImageView(_textureImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, &_textureImageView) == false)
 			{
@@ -136,7 +139,8 @@ namespace hod
 
 				if (_textureImageMemory != VK_NULL_HANDLE)
 				{
-					vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+					// vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+					vmaFreeMemory(renderer->GetVmaAllocator(), _textureImageMemory);
 					_textureImageMemory = VK_NULL_HANDLE;
 				}
 			}
@@ -178,10 +182,12 @@ namespace hod
 				goto exit;
 			}
 
+			/*
 			if (renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
 			{
-				goto exit;
+			    goto exit;
 			}
+			*/
 
 			if (renderer->CreateImageView(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, &_textureImageView) == false)
 			{
@@ -227,7 +233,8 @@ namespace hod
 
 				if (_textureImageMemory != VK_NULL_HANDLE)
 				{
-					vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+					// vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+					vmaFreeMemory(renderer->GetVmaAllocator(), _textureImageMemory);
 					_textureImageMemory = VK_NULL_HANDLE;
 				}
 			}
@@ -344,7 +351,8 @@ namespace hod
 
 				if (_textureImageMemory != VK_NULL_HANDLE)
 				{
-					vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+					// vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
+					vmaFreeMemory(renderer->GetVmaAllocator(), _textureImageMemory);
 					_textureImageMemory = VK_NULL_HANDLE;
 				}
 			}

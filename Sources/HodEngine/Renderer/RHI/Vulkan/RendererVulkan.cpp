@@ -991,6 +991,8 @@ namespace hod::renderer
 	bool RendererVulkan::CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer,
 	                                  VkDeviceMemory* bufferMemory)
 	{
+		// TODO use VMA ?
+
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = bufferSize;
@@ -1036,8 +1038,8 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererVulkan::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-	                                 VkImage* image, VkDeviceMemory* imageMemory)
+	bool RendererVulkan::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags /*properties*/,
+	                                 VkImage* image, VmaAllocation* imageMemory)
 	{
 		VkImageCreateInfo imageInfo = {};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -1054,10 +1056,20 @@ namespace hod::renderer
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		if (vkCreateImage(_device, &imageInfo, nullptr, image) != VK_SUCCESS)
+		VmaAllocationCreateInfo allocInfo = {};
+		allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+
+		if (vmaCreateImage(_vmaAllocator, &imageInfo, &allocInfo, image, imageMemory, nullptr) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create image!");
 			return false;
+		}
+		vmaBindImageMemory(_vmaAllocator, *imageMemory, *image);
+		/*
+		if (vkCreateImage(_device, &imageInfo, nullptr, image) != VK_SUCCESS)
+		{
+		    OUTPUT_ERROR("Vulkan: Unable to create image!");
+		    return false;
 		}
 
 		VkMemoryRequirements memRequirements;
@@ -1067,7 +1079,7 @@ namespace hod::renderer
 
 		if (FindMemoryTypeIndex(memRequirements.memoryTypeBits, properties, &memoryTypeIndex) == false)
 		{
-			return false;
+		    return false;
 		}
 
 		VkMemoryAllocateInfo allocInfo = {};
@@ -1077,15 +1089,16 @@ namespace hod::renderer
 
 		if (vkAllocateMemory(_device, &allocInfo, nullptr, imageMemory) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to allocate image memory!");
-			return false;
+		    OUTPUT_ERROR("Vulkan: Unable to allocate image memory!");
+		    return false;
 		}
 
 		if (vkBindImageMemory(_device, *image, *imageMemory, 0) != VK_SUCCESS)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to bind image and image memory!");
-			return false;
+		    OUTPUT_ERROR("Vulkan: Unable to bind image and image memory!");
+		    return false;
 		}
+		*/
 
 		return true;
 	}
