@@ -101,17 +101,11 @@ namespace hod::renderer
 
 		bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
 
-		static bool GetPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR& capabilities);
-		static bool GetPhysicalDeviceSurfaceFormats(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, Vector<VkSurfaceFormatKHR>& formats);
-		static bool GetPhysicalDeviceSurfacePresentModes(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, Vector<VkPresentModeKHR>& presentModes);
-
 	private:
 		bool CreateVkIntance();
 
-		VkSurfaceKHR CreateSurface(window::Window* window);
-
-		void EnumeratePhysicalDevice(VkSurfaceKHR surface);
-		void FillPhysicalDeviceInfo(VkSurfaceKHR surface, VkPhysicalDevice physicalDevice, VkGpuDevice& gpuDevice);
+		void EnumeratePhysicalDevice();
+		void FillPhysicalDeviceInfo(VkPhysicalDevice physicalDevice, VkGpuDevice& gpuDevice);
 		bool SelectPhysicalDevice(uint32_t physicalDeviceIdentifier);
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)

@@ -10,16 +10,16 @@ namespace hod
 	namespace renderer
 	{
 		//-----------------------------------------------------------------------------
-		//! @brief		
+		//! @brief
 		//-----------------------------------------------------------------------------
 		struct HOD_RENDERER_API VkGpuDevice : public GpuDevice
 		{
-			VkPhysicalDevice physicalDevice;
-			uint32_t graphicsAndPresentQueueFamilyIndex;
-			VkPhysicalDeviceProperties deviceProperties;
+			VkPhysicalDevice                 physicalDevice;
+			uint32_t                         graphicsAndPresentQueueFamilyIndex;
+			VkPhysicalDeviceProperties       deviceProperties;
 			VkPhysicalDeviceMemoryProperties memProperties;
-			uint32_t hostMemoryTypeIndex;
-			uint32_t deviceMemoryTypeIndex;
+			uint32_t                         hostMemoryTypeIndex;
+			uint32_t                         deviceMemoryTypeIndex;
 		};
 	}
 }

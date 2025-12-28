@@ -23,7 +23,7 @@ namespace hod::renderer
 		static bool CollectDeviceExtensionRequirements(DeviceExtensionCollector& deviceExtensionCollector);
 
 	public:
-		VkPresentationSurface(window::Window* window, VkSurfaceKHR surface);
+		VkPresentationSurface(window::Window* window);
 		~VkPresentationSurface() override;
 
 	public:
@@ -38,12 +38,14 @@ namespace hod::renderer
 		VkExtent2D    GetSwapChainExtent() const;
 		VkFramebuffer GetSwapChainCurrentFrameBuffer() const;
 
-	private:
-		bool CreateSwapChain(uint32_t width, uint32_t height);
-		void DestroySwapChain();
-
 	protected:
 		VkSurfaceKHR _surface = VK_NULL_HANDLE;
+
+	private:
+		bool CreateSurface(window::Window* window);
+
+		bool CreateSwapChain(uint32_t width, uint32_t height);
+		void DestroySwapChain();
 
 	private:
 		VkExtent2D            _swapChainExtent;

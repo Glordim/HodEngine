@@ -80,10 +80,10 @@ namespace hod::renderer
 	}
 
 	/// @brief
-	VkPresentationSurface::VkPresentationSurface(window::Window* window, VkSurfaceKHR surface)
+	VkPresentationSurface::VkPresentationSurface(window::Window* window)
 	: PresentationSurface(window)
-	, _surface(surface)
 	{
+		CreateSurface(window);
 		CreateSwapChain(800, 600);
 	}
 
@@ -98,6 +98,61 @@ namespace hod::renderer
 		{
 			vkDestroySurfaceKHR(renderer->GetVkInstance(), _surface, nullptr);
 		}
+	}
+
+	bool VkPresentationSurface::CreateSurface(window::Window* window)
+	{
+#if defined(PLATFORM_WINDOWS)
+		window::Win32Window* win32Window = static_cast<window::Win32Window*>(window);
+
+		VkWin32SurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		createInfo.flags = 0;
+		createInfo.hwnd = win32Window->GetWindowHandle();
+		createInfo.hinstance = win32Window->GetInstanceHandle();
+		createInfo.pNext = nullptr;
+
+		if (vkCreateWin32SurfaceKHR(RendererVulkan::GetInstance()->GetVkInstance(), &createInfo, nullptr, &_surface) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Win32 Surface !");
+			return false;
+		}
+#elif defined(PLATFORM_LINUX)
+		window::WaylandWindow*         waylandWindow = static_cast<window::WaylandWindow*>(window);
+		window::WaylandDisplayManager* waylandDisplayManager = window::WaylandDisplayManager::GetInstance();
+
+		VkWaylandSurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+		createInfo.flags = 0;
+		createInfo.display = waylandDisplayManager->GetDisplay();
+		createInfo.surface = waylandWindow->GetWaylandSurface();
+		createInfo.pNext = nullptr;
+
+		VkSurfaceKHR surface;
+		if (vkCreateWaylandSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Wayland Surface !");
+			return false;
+		}
+#elif defined(PLATFORM_ANDROID)
+		window::AndroidWindow* androidWindow = static_cast<window::AndroidWindow*>(window);
+
+		VkAndroidSurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+		createInfo.flags = 0;
+		createInfo.window = androidWindow->GetNativeWindow();
+		createInfo.pNext = nullptr;
+
+		VkSurfaceKHR surface;
+		if (vkCreateAndroidSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Android Surface !");
+			return false;
+		}
+#else
+	#error
+#endif
+		return true;
 	}
 
 	/// @brief
@@ -125,21 +180,41 @@ namespace hod::renderer
 		const VkGpuDevice* selectedGpuDevice = RendererVulkan::GetInstance()->GetVkGpuDevice();
 
 		VkSurfaceCapabilitiesKHR capabilities;
-		if (RendererVulkan::GetPhysicalDeviceSurfaceCapabilities(selectedGpuDevice->physicalDevice, _surface, capabilities) == false)
+		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(selectedGpuDevice->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
 		{
 			return false;
 		}
 
 		Vector<VkSurfaceFormatKHR> formats;
-		if (RendererVulkan::GetPhysicalDeviceSurfaceFormats(selectedGpuDevice->physicalDevice, _surface, formats) == false)
+		uint32_t                   formatCount;
+		if (vkGetPhysicalDeviceSurfaceFormatsKHR(selectedGpuDevice->physicalDevice, _surface, &formatCount, nullptr) != VK_SUCCESS)
 		{
 			return false;
 		}
 
+		if (formatCount != 0)
+		{
+			formats.Resize(formatCount);
+			if (vkGetPhysicalDeviceSurfaceFormatsKHR(selectedGpuDevice->physicalDevice, _surface, &formatCount, formats.Data()) != VK_SUCCESS)
+			{
+				return false;
+			}
+		}
+
 		Vector<VkPresentModeKHR> presentModes;
-		if (RendererVulkan::GetPhysicalDeviceSurfacePresentModes(selectedGpuDevice->physicalDevice, _surface, presentModes) == false)
+		uint32_t                 presentModeCount;
+		if (vkGetPhysicalDeviceSurfacePresentModesKHR(selectedGpuDevice->physicalDevice, _surface, &presentModeCount, nullptr) != VK_SUCCESS)
 		{
 			return false;
+		}
+
+		if (presentModeCount != 0)
+		{
+			presentModes.Resize(presentModeCount);
+			if (vkGetPhysicalDeviceSurfacePresentModesKHR(selectedGpuDevice->physicalDevice, _surface, &presentModeCount, presentModes.Data()) != VK_SUCCESS)
+			{
+				return false;
+			}
 		}
 
 		if (capabilities.currentExtent.width == 0)

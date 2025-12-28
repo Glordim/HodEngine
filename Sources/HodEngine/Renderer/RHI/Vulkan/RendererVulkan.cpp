@@ -169,13 +169,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		VkSurfaceKHR surface = CreateSurface(mainWindow);
-		if (surface == VK_NULL_HANDLE)
-		{
-			return false;
-		}
-
-		EnumeratePhysicalDevice(surface);
+		EnumeratePhysicalDevice();
 
 		if (SelectPhysicalDevice(physicalDeviceIdentifier) == false)
 		{
@@ -202,7 +196,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		VkPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<VkPresentationSurface>(mainWindow, surface);
+		VkPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<VkPresentationSurface>(mainWindow);
 		presentationSurface->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
 		_presentationSurfaces.PushBack(presentationSurface);
 
@@ -465,104 +459,6 @@ namespace hod::renderer
 	}
 #endif
 
-#if defined(PLATFORM_WINDOWS)
-	/// @brief
-	/// @param window
-	/// @return
-	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
-	{
-		window::Win32Window* win32Window = static_cast<window::Win32Window*>(window);
-
-		VkWin32SurfaceCreateInfoKHR createInfo;
-		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-		createInfo.flags = 0;
-		createInfo.hwnd = win32Window->GetWindowHandle();
-		createInfo.hinstance = win32Window->GetInstanceHandle();
-		createInfo.pNext = nullptr;
-
-		VkSurfaceKHR surface;
-		if (vkCreateWin32SurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create Win32 Surface !");
-			return nullptr;
-		}
-
-		return surface;
-	}
-#elif defined(PLATFORM_LINUX)
-	/// @brief
-	/// @param window
-	/// @return
-	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
-	{
-		window::WaylandWindow*         waylandWindow = static_cast<window::WaylandWindow*>(window);
-		window::WaylandDisplayManager* waylandDisplayManager = window::WaylandDisplayManager::GetInstance();
-
-		VkWaylandSurfaceCreateInfoKHR createInfo;
-		createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
-		createInfo.flags = 0;
-		createInfo.display = waylandDisplayManager->GetDisplay();
-		createInfo.surface = waylandWindow->GetWaylandSurface();
-		createInfo.pNext = nullptr;
-
-		VkSurfaceKHR surface;
-		if (vkCreateWaylandSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create Wayland Surface !");
-			return nullptr;
-		}
-
-		return surface;
-	}
-#elif defined(PLATFORM_ANDROID)
-	/// @brief
-	/// @param window
-	/// @return
-	VkSurfaceKHR RendererVulkan::CreateSurface(window::Window* window)
-	{
-		window::AndroidWindow* androidWindow = static_cast<window::AndroidWindow*>(window);
-
-		if (window == nullptr)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create Android Surface, Windows is nullptr");
-			return nullptr;
-		}
-
-		VkAndroidSurfaceCreateInfoKHR createInfo;
-		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-		createInfo.flags = 0;
-		createInfo.window = androidWindow->GetNativeWindow();
-		createInfo.pNext = nullptr;
-
-		VkSurfaceKHR surface;
-		if (vkCreateAndroidSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create Android Surface !");
-			return nullptr;
-		}
-
-		return surface;
-	}
-#endif
-
-	/*
-	    /// @brief
-	    /// @param window
-	    /// @return
-	    bool RendererVulkan::CreateContext(window::Window* window)
-	    {
-	        VkSurfaceKHR surface = CreateSurface(window);
-	        if (surface == VK_NULL_HANDLE)
-	        {
-	            return false;
-	        }
-
-	        VkContext* context = DefaultAllocator::GetInstance().New<VkContext>(window, surface);
-	        _contexts.PushBack(context);
-	        return true;
-	    }
-	*/
-
 	/// @brief
 	/// @param availableDevices
 	/// @return
@@ -574,7 +470,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void RendererVulkan::EnumeratePhysicalDevice(VkSurfaceKHR surface)
+	void RendererVulkan::EnumeratePhysicalDevice()
 	{
 		uint32_t physicalDeviceCount = 0;
 		vkEnumeratePhysicalDevices(_vkInstance, &physicalDeviceCount, nullptr);
@@ -590,7 +486,7 @@ namespace hod::renderer
 			VkPhysicalDevice physicalDevice = physicalDevices[i];
 			VkGpuDevice&     gpuDevice = _availableGpu[i];
 
-			FillPhysicalDeviceInfo(surface, physicalDevice, gpuDevice);
+			FillPhysicalDeviceInfo(physicalDevice, gpuDevice);
 
 			if (gpuDevice.compatible == true)
 			{
@@ -610,7 +506,7 @@ namespace hod::renderer
 	/// @param physicalDevice
 	/// @param gpuDevice
 	/// @return
-	void RendererVulkan::FillPhysicalDeviceInfo(VkSurfaceKHR surface, VkPhysicalDevice physicalDevice, VkGpuDevice& gpuDevice)
+	void RendererVulkan::FillPhysicalDeviceInfo(VkPhysicalDevice physicalDevice, VkGpuDevice& gpuDevice)
 	{
 		gpuDevice.physicalDevice = physicalDevice;
 		gpuDevice.compatible = false;
@@ -654,25 +550,16 @@ namespace hod::renderer
 		Vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.Data());
 
+		gpuDevice.compatible = false;
 		for (size_t i = 0; i < queueFamilyCount; ++i)
 		{
 			const VkQueueFamilyProperties& queueFamily = queueFamilies[i];
 
-			if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT))
+			if (queueFamily.queueCount > 0 || (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT))
 			{
-				VkBool32 presentSupport = VK_FALSE;
-				if (vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, (uint32_t)i, surface, &presentSupport) != VK_SUCCESS)
-				{
-					OUTPUT_ERROR("Vulkan: Unable to check present support on FamilyQueue !");
-					gpuDevice.graphicsAndPresentQueueFamilyIndex = 0;
-					gpuDevice.compatible = false;
-				}
-				else if (presentSupport == VK_TRUE)
-				{
-					gpuDevice.graphicsAndPresentQueueFamilyIndex = (uint32_t)i;
-					gpuDevice.compatible = true;
-					break;
-				}
+				gpuDevice.compatible = true;
+				gpuDevice.graphicsAndPresentQueueFamilyIndex = i;
+				break;
 			}
 		}
 
@@ -684,98 +571,6 @@ namespace hod::renderer
 			gpuDevice.compatible = false;
 			return;
 		}
-
-		/* TODO ?
-		std::array<const char*, 1> requiredExtensions {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
-		uint32_t availableExtensionCount;
-		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, nullptr);
-
-		Vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
-		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &availableExtensionCount, availableExtensions.Data());
-
-		if (RendererVulkan::CheckExtensionsIsAvailable(requiredExtensions.data(), requiredExtensions.size(), availableExtensions) == false)
-		{
-		    gpuDevice.compatible = false;
-		    return;
-		}
-		*/
-
-		Vector<VkSurfaceFormatKHR> formats;
-		if (GetPhysicalDeviceSurfaceFormats(physicalDevice, surface, formats) == false || formats.Empty())
-		{
-			gpuDevice.compatible = false;
-			return;
-		}
-		bool targetFormatFounded = false;
-		for (const VkSurfaceFormatKHR& format : formats)
-		{
-			// if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-			if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-			{
-				targetFormatFounded = true;
-				break;
-			}
-		}
-		if (targetFormatFounded == false)
-		{
-			gpuDevice.compatible = false;
-			return;
-		}
-
-		Vector<VkPresentModeKHR> presentModes;
-		if (GetPhysicalDeviceSurfacePresentModes(physicalDevice, surface, presentModes) == false || presentModes.Empty())
-		{
-			gpuDevice.compatible = false;
-			return;
-		}
-	}
-
-	bool RendererVulkan::GetPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR& capabilities)
-	{
-		return vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities) == VK_SUCCESS;
-	}
-
-	bool RendererVulkan::GetPhysicalDeviceSurfaceFormats(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, Vector<VkSurfaceFormatKHR>& formats)
-	{
-		formats.Clear();
-
-		uint32_t formatCount;
-		if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr) != VK_SUCCESS)
-		{
-			return false;
-		}
-
-		if (formatCount != 0)
-		{
-			formats.Resize(formatCount);
-			if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.Data()) != VK_SUCCESS)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	bool RendererVulkan::GetPhysicalDeviceSurfacePresentModes(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, Vector<VkPresentModeKHR>& presentModes)
-	{
-		presentModes.Clear();
-
-		uint32_t presentModeCount;
-		if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr) != VK_SUCCESS)
-		{
-			return false;
-		}
-
-		if (presentModeCount != 0)
-		{
-			presentModes.Resize(presentModeCount);
-			if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.Data()) != VK_SUCCESS)
-			{
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/// @brief
