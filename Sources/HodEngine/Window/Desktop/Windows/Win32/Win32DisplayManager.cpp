@@ -24,6 +24,8 @@ namespace hod::window
 	/// @return
 	bool Win32DisplayManager::Initialize()
 	{
+		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
 		OleInitialize(nullptr);
 
 		_hInstance = ::GetModuleHandle(NULL);

@@ -689,7 +689,7 @@ namespace hod::renderer
 			OUTPUT_ERROR("Vulkan: Unable to create image!");
 			return false;
 		}
-		vmaBindImageMemory(_vmaAllocator, *imageMemory, *image);
+		// vmaBindImageMemory(_vmaAllocator, *imageMemory, *image);
 		/*
 		if (vkCreateImage(_device, &imageInfo, nullptr, image) != VK_SUCCESS)
 		{

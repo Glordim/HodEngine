@@ -37,8 +37,6 @@ namespace hod::renderer
 	protected:
 		Vector<Semaphore*> _semaphoresToSwapBuffer;
 
-		Delegate _onWindowResizeDelegate;
-
 		window::Window* _window = nullptr;
 	};
 }
