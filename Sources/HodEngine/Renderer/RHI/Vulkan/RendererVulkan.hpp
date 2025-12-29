@@ -12,6 +12,10 @@
 
 #include <VulkanMemoryAllocator/vk_mem_alloc.h>
 
+#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
+	#include "HodEngine/Renderer/RHI/Vulkan/VkValidationLayer.hpp"
+#endif
+
 #if defined(PLATFORM_WINDOWS)
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
@@ -108,13 +112,11 @@ namespace hod::renderer
 		void FillPhysicalDeviceInfo(VkPhysicalDevice physicalDevice, VkGpuDevice& gpuDevice);
 		bool SelectPhysicalDevice(uint32_t physicalDeviceIdentifier);
 
+	private:
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-		static bool                           CheckValidationLayerSupport(const char** validationLayers, size_t validationLayerCount);
-		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
-		                                                    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+		VkValidationLayer _validationLayer;
 #endif
 
-	private:
 		VkInstance       _vkInstance = VK_NULL_HANDLE;
 		VkDevice         _device = VK_NULL_HANDLE;
 		VkQueue          _graphicsQueue = VK_NULL_HANDLE;

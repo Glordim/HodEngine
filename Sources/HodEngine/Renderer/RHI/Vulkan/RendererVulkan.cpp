@@ -80,6 +80,10 @@ namespace hod::renderer
 			vkDestroyDevice(_device, nullptr);
 		}
 
+#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
+		_validationLayer.DestroyMessager();
+#endif
+
 		if (_vkInstance != VK_NULL_HANDLE)
 		{
 			vkDestroyInstance(_vkInstance, nullptr);
@@ -307,35 +311,10 @@ namespace hod::renderer
 			return false;
 		}
 
-		// === Validation Layers ===
-
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-
-		bool enableValidationLayers = true;
-
-		if (instanceExtensionCollector.AddRequiredExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME) == false)
+		if (_validationLayer.CollectInstanceExtensionRequirements(instanceExtensionCollector) == false)
 		{
 			return false;
-		}
-
-		if (instanceExtensionCollector.AddRequiredExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == false)
-		{
-			return false;
-		}
-
-	#if defined(RENDERER_ENABLE_VALIDATION_LAYER_ADDRESS_BINDING)
-		if (instanceExtensionCollector.AddRequiredExtension(VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME) == false)
-		{
-			return false;
-		}
-	#endif
-
-		std::array<const char*, 1> validationLayers {"VK_LAYER_KHRONOS_validation"};
-		if (RendererVulkan::CheckValidationLayerSupport(validationLayers.data(), validationLayers.size()) == false)
-		{
-			OUTPUT_ERROR("Vulkan: ValidationLayers are not available, try to update 'Vulkan Runtime'");
-			OUTPUT_ERROR("Vulkan: ValidationLayers have been disabled");
-			enableValidationLayers = false;
 		}
 #endif
 
@@ -355,34 +334,14 @@ namespace hod::renderer
 		createInfo.pApplicationInfo = &appInfo;
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensionCollector.GetEnabledExtensions().Size());
 		createInfo.ppEnabledExtensionNames = instanceExtensionCollector.GetEnabledExtensions().Data();
-
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-		if (enableValidationLayers == true)
-		{
-			VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = {};
-			debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-			debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-			                                           VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-			debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-			                                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
-	#if defined(RENDERER_ENABLE_VALIDATION_LAYER_ADDRESS_BINDING)
-			                                       | VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT
-	#endif
-				;
-			debugMessengerCreateInfo.pfnUserCallback = &RendererVulkan::DebugCallback;
-			debugMessengerCreateInfo.pUserData = nullptr;
-
-			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-			createInfo.ppEnabledLayerNames = validationLayers.data();
-			createInfo.pNext = &debugMessengerCreateInfo;
-		}
-		else
+		createInfo.enabledLayerCount = _validationLayer.GetEnabledLayers().Size();
+		createInfo.ppEnabledLayerNames = _validationLayer.GetEnabledLayers().Data();
+#else
+		createInfo.enabledLayerCount = 0;
+		createInfo.ppEnabledLayerNames = nullptr;
 #endif
-		{
-			createInfo.enabledLayerCount = 0;
-			createInfo.ppEnabledLayerNames = nullptr;
-			createInfo.pNext = nullptr;
-		}
+		createInfo.pNext = instanceExtensionCollector.GetFirstNextFeature();
 
 		if (vkCreateInstance(&createInfo, nullptr, &_vkInstance) != VK_SUCCESS)
 		{
@@ -390,74 +349,12 @@ namespace hod::renderer
 			return false;
 		}
 
-		return true;
-	}
-
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-	/// @brief
-	/// @param validationLayers
-	/// @param validationLayerCount
-	/// @return
-	bool RendererVulkan::CheckValidationLayerSupport(const char** validationLayers, size_t validationLayerCount)
-	{
-		uint32_t availableValidationLayerCount = 0;
-		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, nullptr);
-
-		Vector<VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
-		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, availableValidationLayers.Data());
-
-		for (size_t i = 0; i < validationLayerCount; ++i)
-		{
-			const char* validationLayerName = validationLayers[i];
-
-			bool founded = false;
-
-			for (size_t j = 0; j < availableValidationLayerCount; ++j)
-			{
-				if (strcmp(validationLayerName, availableValidationLayers[j].layerName) == 0)
-				{
-					founded = true;
-					break;
-				}
-			}
-
-			if (founded == false)
-			{
-				return false;
-			}
-		}
+		_validationLayer.CreateMessager();
+#endif
 
 		return true;
 	}
-
-	/// @brief
-	/// @param messageSeverity
-	/// @param messageType
-	/// @param pCallbackData
-	/// @param pUserData
-	/// @return
-	VKAPI_ATTR VkBool32 VKAPI_CALL RendererVulkan::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
-	                                                             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
-	{
-		(void)messageType;
-		(void)pUserData;
-
-		if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-		{
-			OUTPUT_ERROR("Validation Layer: {}", pCallbackData->pMessage);
-		}
-		else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-		{
-			OUTPUT_WARNING("Validation Layer: {}", pCallbackData->pMessage);
-		}
-		else
-		{
-			OUTPUT_MESSAGE("Validation Layer: {}", pCallbackData->pMessage);
-		}
-
-		return VK_FALSE;
-	}
-#endif
 
 	/// @brief
 	/// @param availableDevices

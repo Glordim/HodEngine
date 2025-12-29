@@ -68,4 +68,13 @@ namespace hod::renderer
 	{
 		return _enabledExtensions;
 	}
+
+	const void* InstanceExtensionCollector::GetFirstNextFeature() const
+	{
+		if (_features.Empty())
+		{
+			return nullptr;
+		}
+		return _features.Front();
+	}
 }
