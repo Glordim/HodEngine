@@ -155,3 +155,7 @@ endif ()
 
 target_compile_definitions(Renderer PRIVATE ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
 target_compile_definitions(Renderer PRIVATE HOD_RENDERER_EXPORT)
+
+if(API STREQUAL D3D12)
+	target_compile_options(Renderer PRIVATE /clang:-Wno-language-extension-token)
+endif()

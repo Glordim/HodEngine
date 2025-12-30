@@ -23,8 +23,8 @@ namespace hod::renderer
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 	};
 
-	bool D3d12Material::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Topololy topololy,
-	                          bool useDepth)
+	bool D3d12Material::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode /*polygonMode*/,
+	                          Topololy topololy, bool /*useDepth*/)
 	{
 		ComPtr<ID3D12Device5> device = RendererDirectX12::GetInstance()->GetDevice();
 
@@ -33,7 +33,7 @@ namespace hod::renderer
 		psoDesc.PS = static_cast<D3d12Shader*>(fragmentShader)->GetBytecode();
 
 		Vector<D3D12_INPUT_ELEMENT_DESC> inputs;
-		inputs.reserve(vertexInputCount);
+		inputs.Reserve(vertexInputCount);
 		for (uint32_t i = 0; i < vertexInputCount; ++i)
 		{
 			const VertexInput* vertexInput = vertexInputs + i;
@@ -164,7 +164,7 @@ namespace hod::renderer
 		//
 
 		// DepthStencilState
-		psoDesc.DepthStencilState.DepthEnable = TRUE;
+		psoDesc.DepthStencilState.DepthEnable = FALSE;
 		psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 		psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 
@@ -196,6 +196,7 @@ namespace hod::renderer
 		}
 		psoDesc.NumRenderTargets = 1;
 		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 		psoDesc.SampleDesc.Count = 1;
 
 		if (FAILED(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pipelineState))))

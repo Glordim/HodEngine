@@ -17,7 +17,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererDirectX12::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool RendererDirectX12::Init(window::Window* /*mainWindow*/, uint32_t /*physicalDeviceIdentifier*/)
 	{
 		bool enableValidationLayers = true;
 		if (enableValidationLayers == true)
@@ -32,6 +32,8 @@ namespace hod::renderer
 			else
 			{
 				_debugInterface->EnableDebugLayer();
+				//_debugInterface->SetEnableGPUBasedValidation(TRUE);
+				//_debugInterface->SetEnableSynchronizedCommandQueueValidation(TRUE);
 			}
 		}
 		UINT createFactoryFlags = 0;
@@ -146,7 +148,7 @@ namespace hod::renderer
 			return false;
 		}
 
-		if (_availableGpu.empty() == true)
+		if (_availableGpu.Empty() == true)
 		{
 			UINT adaptaterIndex = 0;
 
@@ -203,7 +205,7 @@ namespace hod::renderer
 
 		for (size_t i = 0; i < avalaibleDeviceCount; ++i)
 		{
-			availableDevices->at(i) = (GpuDevice*)(&_availableGpu[i]);
+			availableDevices->At(i) = (GpuDevice*)(&_availableGpu[i]);
 		}
 
 		return true;
@@ -443,8 +445,8 @@ namespace hod::renderer
 		return _device;
 	}
 
-	bool RendererDirectX12::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore,
-	                                             const Fence* fence)
+	bool RendererDirectX12::SubmitCommandBuffers(CommandBuffer** /*commandBuffers*/, uint32_t /*commandBufferCount*/, const Semaphore* /*signalSemaphore*/,
+	                                             const Semaphore* /*waitSemaphore*/, const Fence* /*fence*/)
 	{
 		return false;
 	}
@@ -477,7 +479,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance* RendererDirectX12::CreateMaterialInstance(const Material* material)
+	MaterialInstance* RendererDirectX12::CreateMaterialInstance(const Material* /*material*/)
 	{
 		return nullptr;
 		/*
@@ -502,7 +504,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	Buffer* RendererDirectX12::CreateBuffer(Buffer::Usage usage, uint32_t Size)
+	Buffer* RendererDirectX12::CreateBuffer(Buffer::Usage /*usage*/, uint32_t /*Size*/)
 	{
 		return nullptr; // return DefaultAllocator::GetInstance().New<BufferVk>(usage, Size);
 	}
