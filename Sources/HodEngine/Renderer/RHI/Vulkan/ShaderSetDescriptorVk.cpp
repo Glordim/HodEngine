@@ -5,9 +5,10 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
+#include <HodEngine/Core/Assert.hpp>
+
 #undef min
 #undef max
-#include <spirv_cross/spirv_cross.hpp>
 
 namespace hod::renderer
 {
@@ -55,115 +56,173 @@ namespace hod::renderer
 	/// @brief
 	/// @param comp
 	/// @param resource
-	void ShaderSetDescriptorVk::ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource)
+	void ShaderSetDescriptorVk::ExtractBlockUbo(const Document::Node& parameterNode)
 	{
+		const Document::Node* nameNode = parameterNode.GetChild("name");
+		const Document::Node* bindingNode = parameterNode.GetChild("binding");
+		const Document::Node* indexNode = bindingNode->GetChild("index");
+		const Document::Node* typeNode = parameterNode.GetChild("type");
+		Assert(typeNode);
+		const Document::Node* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
+		Assert(elementVarLayoutNode);
+		bindingNode = elementVarLayoutNode->GetChild("binding");
+		Assert(bindingNode);
+		const Document::Node* sizeNode = bindingNode->GetChild("size");
+		Assert(sizeNode);
+		typeNode = elementVarLayoutNode->GetChild("type");
+		Assert(typeNode);
+		const Document::Node* kindNode = typeNode->GetChild("kind");
+		Assert(kindNode);
+		Assert(kindNode->GetString() == "struct");
+		const Document::Node* fieldsNode = typeNode->GetChild("fields");
+		Assert(fieldsNode);
+
 		BlockUbo ubo;
-		ubo._binding = comp.get_decoration(resource.id, spv::DecorationBinding);
-
-		size_t uboBlockCount = _uboBlockVector.Size();
-		for (size_t i = 0; i < uboBlockCount; ++i)
-		{
-			if (_uboBlockVector[i]._binding == ubo._binding)
-			{
-				return;
-			}
-		}
-
-		ubo._name = comp.get_name(resource.id);
-
-		const spirv_cross::SPIRType& type = comp.get_type(resource.type_id);
-
+		ubo._binding = indexNode->GetUInt32();
+		ubo._name = nameNode->GetString();
 		ubo._rootMember._name = ubo._name;
 		ubo._rootMember._offset = 0;
-		ubo._rootMember._size = comp.get_declared_struct_size(type);
-		if (type.array.empty() == false)
+		ubo._rootMember._size = sizeNode->GetUInt32();
+		ubo._rootMember._count = 1; // todo array, ex: ConstantBuffer<float4> test[4];
+
+		const Document::Node* fieldNode = fieldsNode->GetFirstChild();
+		while (fieldNode != nullptr)
 		{
-			ubo._rootMember._count = type.array[0];
-		}
-		else
-		{
-			ubo._rootMember._count = 1;
+			ExtractUboSubMembers(*fieldNode, ubo._rootMember);
+			fieldNode = fieldNode->GetNextSibling();
 		}
 
-		ExtractUboSubMembers(comp, type, ubo._rootMember);
-
-		_uboBlockVector.push_back(std::move(ubo));
+		_uboBlockVector.PushBack(std::move(ubo));
 	}
 
 	/// @brief
 	/// @param comp
 	/// @param structType
 	/// @param structMember
-	void ShaderSetDescriptorVk::ExtractUboSubMembers(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& structType, BlockUbo::Member& structMember)
+	void ShaderSetDescriptorVk::ExtractUboSubMembers(const Document::Node& fieldNode, BlockUbo::Member& structMember)
 	{
-		size_t memberCount = structType.member_types.size();
-		for (size_t i = 0; i < memberCount; ++i)
+		const Document::Node* nameNode = fieldNode.GetChild("name");
+		const Document::Node* bindingNode = fieldNode.GetChild("binding");
+		const Document::Node* typeNode = fieldNode.GetChild("type");
+		Assert(nameNode);
+		Assert(bindingNode);
+		Assert(typeNode);
+
+		const Document::Node* offsetNode = bindingNode->GetChild("offset");
+		const Document::Node* sizeNode = bindingNode->GetChild("size");
+		Assert(offsetNode);
+		Assert(sizeNode);
+
+		const Document::Node* kindNode = typeNode->GetChild("kind");
+		Assert(kindNode);
+
+		BlockUbo::Member member;
+		member._name = nameNode->GetString();
+		member._offset = offsetNode->GetUInt32();
+		member._size = sizeNode->GetUInt32();
+		const String& kind = kindNode->GetString();
+		if (kind == "scalar")
 		{
-			const spirv_cross::SPIRType& memberType = comp.get_type(structType.member_types[i]);
-
-			BlockUbo::Member member;
-
-			member._name = comp.get_member_name(structType.self, (uint32_t)i);
-			member._size = comp.get_declared_struct_member_size(structType, (uint32_t)i);
-
-			if (memberType.array.empty() == false)
+			const Document::Node* scalarTypeNode = typeNode->GetChild("scalarType");
+			Assert(scalarTypeNode);
+			const String& scalarType = scalarTypeNode->GetString();
+			if (scalarType == "float32")
 			{
-				member._count = memberType.array[0];
+				member._memberType = BlockUbo::MemberType::Float;
 			}
 			else
 			{
-				member._count = 1;
+				Assert(false);
 			}
-
-			member._offset = comp.type_struct_member_offset(structType, (uint32_t)i);
-
-			if (memberType.basetype == spirv_cross::SPIRType::Struct)
-			{
-				ExtractUboSubMembers(comp, memberType, member);
-			}
-			else if (memberType.basetype == spirv_cross::SPIRType::Float)
-			{
-				if (memberType.vecsize == 1)
-				{
-					member._memberType = BlockUbo::MemberType::Float;
-				}
-				else if (memberType.vecsize == 2)
-				{
-					member._memberType = BlockUbo::MemberType::Float2;
-				}
-				else if (memberType.vecsize == 4)
-				{
-					member._memberType = BlockUbo::MemberType::Float4;
-				}
-			}
-
-			structMember._childsMap.emplace(member._name, std::move(member));
 		}
+		else if (kind == "vector")
+		{
+			const Document::Node* elementCountNode = typeNode->GetChild("elementCount");
+			Assert(elementCountNode);
+			member._count = elementCountNode->GetUInt32();
+
+			const Document::Node* elementTypeNode = typeNode->GetChild("elementType");
+			Assert(elementTypeNode);
+
+			kindNode = elementTypeNode->GetChild("kind");
+			Assert(kindNode);
+			const String& kind = kindNode->GetString();
+
+			if (kind == "scalar")
+			{
+				const Document::Node* scalarTypeNode = elementTypeNode->GetChild("scalarType");
+				Assert(scalarTypeNode);
+
+				const String& scalarType = scalarTypeNode->GetString();
+				if (scalarType == "float32")
+				{
+					if (member._count == 2)
+					{
+						member._memberType = BlockUbo::MemberType::Float2;
+					}
+					else if (member._count == 4)
+					{
+						member._memberType = BlockUbo::MemberType::Float4;
+					}
+					else
+					{
+						Assert(false);
+					}
+				}
+				else
+				{
+					Assert(false);
+				}
+			}
+			else
+			{
+				Assert(false);
+			}
+		}
+		else if (kind == "struct")
+		{
+			const Document::Node* fieldsNode = typeNode->GetChild("fields");
+			Assert(fieldsNode);
+			const Document::Node* fieldNode = fieldsNode->GetFirstChild();
+			while (fieldNode != nullptr)
+			{
+				ExtractUboSubMembers(*fieldNode, member);
+				fieldNode = fieldNode->GetNextSibling();
+			}
+		}
+		structMember._childsMap.emplace(member._name, std::move(member));
 	}
 
 	/// @brief
 	/// @param comp
 	/// @param resource
 	/// @param type
-	void ShaderSetDescriptorVk::ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource, VkDescriptorType type)
+	void ShaderSetDescriptorVk::ExtractBlockTexture(const Document::Node& parameterNode)
 	{
+		const Document::Node* nameNode = parameterNode.GetChild("name");
+		const Document::Node* bindingNode = parameterNode.GetChild("binding");
+		const Document::Node* indexNode = bindingNode->GetChild("index");
+
 		BlockTexture texture;
+		texture._type = BlockTexture::Type::Texture;
+		texture._binding = indexNode->GetUInt32();
+		texture._name = nameNode->GetString();
 
-		texture._binding = comp.get_decoration(resource.id, spv::DecorationBinding);
-		texture._name = comp.get_name(resource.id);
+		_textureBlockVector.PushBack(std::move(texture));
+	}
 
-		switch (type)
-		{
-			case VK_DESCRIPTOR_TYPE_SAMPLER: texture._type = BlockTexture::Type::Sampler; break;
+	void ShaderSetDescriptorVk::ExtractBlockSampler(const Document::Node& parameterNode)
+	{
+		const Document::Node* nameNode = parameterNode.GetChild("name");
+		const Document::Node* bindingNode = parameterNode.GetChild("binding");
+		const Document::Node* indexNode = bindingNode->GetChild("index");
 
-			case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE: texture._type = BlockTexture::Type::Texture; break;
+		BlockTexture texture;
+		texture._type = BlockTexture::Type::Sampler;
+		texture._binding = indexNode->GetUInt32();
+		texture._name = nameNode->GetString();
 
-			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER: texture._type = BlockTexture::Type::Combined; break;
-
-			default: return;
-		}
-
-		_textureBlockVector.push_back(std::move(texture));
+		_textureBlockVector.PushBack(std::move(texture));
 	}
 
 	/// @brief
@@ -184,7 +243,7 @@ namespace hod::renderer
 			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 			uboLayoutBinding.pImmutableSamplers = nullptr;
 
-			descriptors.push_back(std::move(uboLayoutBinding));
+			descriptors.PushBack(std::move(uboLayoutBinding));
 		}
 
 		size_t textureCount = _textureBlockVector.Size();
@@ -199,7 +258,7 @@ namespace hod::renderer
 			textureLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 			textureLayoutBinding.pImmutableSamplers = nullptr;
 
-			descriptors.push_back(std::move(textureLayoutBinding));
+			descriptors.PushBack(std::move(textureLayoutBinding));
 		}
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo = {};

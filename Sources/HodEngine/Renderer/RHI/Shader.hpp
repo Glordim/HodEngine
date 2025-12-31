@@ -12,11 +12,10 @@ namespace hod::renderer
 	class ShaderSetDescriptor;
 	class ShaderConstantDescriptor;
 
-	/// @brief 
+	/// @brief
 	class HOD_RENDERER_API Shader
 	{
 	public:
-
 		enum ShaderType
 		{
 			Vertex,
@@ -26,30 +25,24 @@ namespace hod::renderer
 		};
 
 	public:
-										Shader(ShaderType type);
-		virtual							~Shader();
+		Shader(ShaderType type);
+		virtual ~Shader();
 
-		const Vector<uint8_t>&			GetShaderBytecode() const;
-		
-		ShaderType						GetShaderType() const;
+		const Vector<uint8_t>& GetShaderBytecode() const;
 
-		virtual bool					LoadFromIR(const void* data, uint32_t size) = 0;
+		ShaderType GetShaderType() const;
 
-		const ShaderConstantDescriptor*								GetConstantDescriptor() const;
-		const std::unordered_map<uint32_t, ShaderSetDescriptor*>&	GetSetDescriptors() const;
+		virtual bool LoadFromIR(const void* bytecode, uint32_t bytecodeSize, const char* reflection, uint32_t reflectionSize) = 0;
 
-	protected:
-
-		virtual bool					GenerateDescriptors() = 0;
+		const ShaderConstantDescriptor*                           GetConstantDescriptor() const;
+		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
 
 	protected:
-
-		Vector<uint8_t>								_buffer;
-		ShaderConstantDescriptor* 							_constantDescriptor;
-		std::unordered_map<uint32_t, ShaderSetDescriptor*>	_setDescriptors;
+		Vector<uint8_t>                                    _buffer;
+		ShaderConstantDescriptor*                          _constantDescriptor;
+		std::unordered_map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
 
 	private:
-
-		ShaderType						_type;
+		ShaderType _type;
 	};
 }

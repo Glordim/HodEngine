@@ -50,7 +50,7 @@ namespace hod::renderer
 
 		const Resource::Data& vertexData = datas[0];
 		_vertexShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Vertex);
-		if (_vertexShader->LoadFromIR(vertexData._buffer, vertexData._size) == false)
+		if (_vertexShader->LoadFromIR(vertexData._buffer, vertexData._size, nullptr, 0) == false) // todo reflection
 		{
 			DefaultAllocator::GetInstance().Delete(_vertexShader);
 			_vertexShader = nullptr;
@@ -59,7 +59,7 @@ namespace hod::renderer
 
 		const Resource::Data& fragmentData = datas[1];
 		_fragmentShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Fragment);
-		if (_fragmentShader->LoadFromIR(fragmentData._buffer, fragmentData._size) == false)
+		if (_fragmentShader->LoadFromIR(fragmentData._buffer, fragmentData._size, nullptr, 0) == false) // todo reflection
 		{
 			DefaultAllocator::GetInstance().Delete(_fragmentShader);
 			_fragmentShader = nullptr;

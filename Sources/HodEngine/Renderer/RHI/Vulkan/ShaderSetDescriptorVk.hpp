@@ -2,40 +2,33 @@
 #include "HodEngine/Renderer/Export.hpp"
 #include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"
 
-#include <vulkan/vulkan.h>
+#include "HodEngine/Core/Document/Document.hpp"
 
-namespace spirv_cross
-{
-	class Compiler;
-	struct Resource;
-	struct SPIRType;
-}
+#include <vulkan/vulkan.h>
 
 namespace hod::renderer
 {
-	/// @brief 
+	/// @brief
 	class HOD_RENDERER_API ShaderSetDescriptorVk : public ShaderSetDescriptor
 	{
 	public:
-
 		static VkDescriptorType TextureTypeToVkDescriptorType(BlockTexture::Type type);
 
 	public:
+		ShaderSetDescriptorVk();
+		~ShaderSetDescriptorVk() override;
 
-											ShaderSetDescriptorVk();
-											~ShaderSetDescriptorVk() override;
+		VkDescriptorSetLayout GetDescriptorSetLayout() const;
 
-		VkDescriptorSetLayout				GetDescriptorSetLayout() const;
+		void ExtractBlockUbo(const Document::Node& parameterNode);
+		void ExtractUboSubMembers(const Document::Node& fieldNode, BlockUbo::Member& structMember);
 
-		void								ExtractBlockUbo(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource);
-		void								ExtractUboSubMembers(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& type, BlockUbo::Member& member);
+		void ExtractBlockTexture(const Document::Node& parameterNode);
+		void ExtractBlockSampler(const Document::Node& parameterNode);
 
-		void								ExtractBlockTexture(const spirv_cross::Compiler& comp, const spirv_cross::Resource& resource, VkDescriptorType type);
-
-		bool								BuildDescriptorSetLayout();
+		bool BuildDescriptorSetLayout();
 
 	private:
-
-		VkDescriptorSetLayout				_descriptorSetLayout = VK_NULL_HANDLE;
+		VkDescriptorSetLayout _descriptorSetLayout = VK_NULL_HANDLE;
 	};
 }

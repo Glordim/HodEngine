@@ -793,14 +793,14 @@ namespace hod::imgui
 			};
 
 			_vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
-			if (_vertexShader->LoadFromIR(ImGui_Vertex, ImGui_Vertex_size) == false)
+			if (_vertexShader->LoadFromIR(ImGui_Vertex, ImGui_Vertex_size, ImGui_Vertex_reflection, ImGui_Vertex_reflection_size) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(_vertexShader);
 				return false;
 			}
 
 			_fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
-			if (_fragmentShader->LoadFromIR(ImGui_Fragment, ImGui_Fragment_size) == false)
+			if (_fragmentShader->LoadFromIR(ImGui_Fragment, ImGui_Fragment_size, ImGui_Fragment_reflection, ImGui_Fragment_reflection_size) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(_vertexShader);
 				DefaultAllocator::GetInstance().Delete(_fragmentShader);

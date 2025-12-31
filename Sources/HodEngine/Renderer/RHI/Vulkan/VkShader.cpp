@@ -9,11 +9,14 @@
 #include "HodEngine/Renderer/RHI/Vulkan/ShaderConstantDescriptorVk.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 
+#include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
+
+#include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 
 #undef min
 #undef max
-#include <spirv_cross/spirv_cross.hpp>
 
 namespace hod::renderer
 {
@@ -39,14 +42,14 @@ namespace hod::renderer
 	/// @param data
 	/// @param Size
 	/// @return
-	bool VkShader::LoadFromIR(const void* data, uint32_t Size)
+	bool VkShader::LoadFromIR(const void* bytecode, uint32_t bytecodeSize, const char* reflection, uint32_t reflectionSize)
 	{
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.flags = 0;
 		createInfo.pNext = nullptr;
-		createInfo.codeSize = Size;
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(data);
+		createInfo.codeSize = bytecodeSize;
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(bytecode);
 
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
 
@@ -56,10 +59,10 @@ namespace hod::renderer
 			return false;
 		}
 
-		_buffer.Resize(Size);
-		memcpy(_buffer.Data(), data, Size);
+		_buffer.Resize(bytecodeSize);
+		memcpy(_buffer.Data(), bytecode, bytecodeSize);
 
-		if (GenerateDescriptors() == false)
+		if (GenerateDescriptors(reflection, reflectionSize) == false)
 		{
 			vkDestroyShaderModule(renderer->GetVkDevice(), _shaderModule, nullptr);
 			_shaderModule = VK_NULL_HANDLE;
@@ -101,68 +104,83 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	bool VkShader::GenerateDescriptors()
+	bool VkShader::GenerateDescriptors(const char* reflection, uint32_t reflectionSize)
 	{
-		spirv_cross::Compiler        compiler(reinterpret_cast<const uint32_t*>(_buffer.Data()), _buffer.Size() / sizeof(uint32_t));
-		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
-
-		size_t constantBufferCount = resources.push_constant_buffers.size();
-		if (constantBufferCount > 0)
+		Document           reflectionDocument;
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(reflectionDocument, reflection, reflectionSize) == false)
 		{
-			spirv_cross::Resource& resource = resources.push_constant_buffers[0]; // todo only first ?
+			return false;
+		}
 
-			uint32_t                                           Size = 0;
-			spirv_cross::SmallVector<spirv_cross::BufferRange> ranges = compiler.get_active_buffer_ranges(resource.id);
-			for (const spirv_cross::BufferRange& range : ranges)
+		const Document::Node* parametersNode = reflectionDocument.GetRootNode().GetChild("parameters");
+		if (parametersNode)
+		{
+			const Document::Node* parameterNode = parametersNode->GetFirstChild();
+			while (parameterNode != nullptr)
 			{
-				Size += unsigned(range.range);
+				const Document::Node* nameNode = parameterNode->GetChild("name");
+				const Document::Node* bindingNode = parameterNode->GetChild("binding");
+				const Document::Node* typeNode = parameterNode->GetChild("type");
+				Assert(nameNode);
+				Assert(bindingNode);
+				Assert(typeNode);
+
+				const Document::Node* kindNode = bindingNode->GetChild("kind");
+				const Document::Node* indexNode = bindingNode->GetChild("index");
+				Assert(kindNode);
+				Assert(indexNode);
+
+				const String& kind = kindNode->GetString();
+				if (kind == "pushConstantBuffer")
+				{
+					const Document::Node* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
+					Assert(elementVarLayoutNode);
+					bindingNode = elementVarLayoutNode->GetChild("binding");
+					Assert(bindingNode);
+					const Document::Node* sizeNode = bindingNode->GetChild("size");
+					Assert(sizeNode);
+					_constantDescriptor = DefaultAllocator::GetInstance().New<ShaderConstantDescriptorVk>(0, sizeNode->GetUInt32(), GetShaderType());
+				}
+				else if (kind == "descriptorTableSlot")
+				{
+					uint32_t              set = 0;
+					const Document::Node* spaceNode = bindingNode->GetChild("space");
+					if (spaceNode != nullptr)
+					{
+						set = spaceNode->GetUInt32();
+					}
+					ShaderSetDescriptorVk* setDescriptor = GetOrCreateSetDescriptor(set);
+
+					kindNode = typeNode->GetChild("kind");
+					const String& kind = kindNode->GetString();
+					if (kind == "constantBuffer")
+					{
+						setDescriptor->ExtractBlockUbo(*parameterNode);
+					}
+					else if (kind == "resource")
+					{
+						const Document::Node* baseShapeNode = typeNode->GetChild("baseShape");
+						Assert(baseShapeNode);
+						Assert(baseShapeNode->GetString() == "texture2D");
+						setDescriptor->ExtractBlockTexture(*parameterNode);
+					}
+					else if (kind == "samplerState")
+					{
+						setDescriptor->ExtractBlockSampler(*parameterNode);
+					}
+					else
+					{
+						Assert(false);
+					}
+				}
+				else
+				{
+					Assert(false);
+				}
+
+				parameterNode = parameterNode->GetNextSibling();
 			}
-
-			_constantDescriptor = DefaultAllocator::GetInstance().New<ShaderConstantDescriptorVk>(0, Size, GetShaderType());
-		}
-
-		size_t uniformBufferCount = resources.uniform_buffers.size();
-		for (size_t i = 0; i < uniformBufferCount; ++i)
-		{
-			spirv_cross::Resource& resource = resources.uniform_buffers[i];
-
-			uint32_t set = (uint32_t)compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-
-			ShaderSetDescriptorVk* setDescriptor = GetOrCreateSetDescriptor(set);
-			setDescriptor->ExtractBlockUbo(compiler, resource);
-		}
-
-		size_t textureCount = resources.sampled_images.size();
-		for (size_t i = 0; i < textureCount; ++i)
-		{
-			spirv_cross::Resource& resource = resources.sampled_images[i];
-
-			uint32_t set = (uint32_t)compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-
-			ShaderSetDescriptorVk* setDescriptor = GetOrCreateSetDescriptor(set);
-			setDescriptor->ExtractBlockTexture(compiler, resource, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-		}
-
-		textureCount = resources.separate_samplers.size();
-		for (size_t i = 0; i < textureCount; ++i)
-		{
-			spirv_cross::Resource& resource = resources.separate_samplers[i];
-
-			uint32_t set = (uint32_t)compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-
-			ShaderSetDescriptorVk* setDescriptor = GetOrCreateSetDescriptor(set);
-			setDescriptor->ExtractBlockTexture(compiler, resource, VK_DESCRIPTOR_TYPE_SAMPLER);
-		}
-
-		textureCount = resources.separate_images.size();
-		for (size_t i = 0; i < textureCount; ++i)
-		{
-			spirv_cross::Resource& resource = resources.separate_images[i];
-
-			uint32_t set = (uint32_t)compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-
-			ShaderSetDescriptorVk* setDescriptor = GetOrCreateSetDescriptor(set);
-			setDescriptor->ExtractBlockTexture(compiler, resource, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 		}
 
 		return true;

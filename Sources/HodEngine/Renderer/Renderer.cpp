@@ -127,14 +127,14 @@ namespace hod
 					};
 
 					Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
-					if (vertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size) == false)
+					if (vertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size) == false)
 					{
 						DefaultAllocator::GetInstance().Delete(vertexShader);
 						return nullptr;
 					}
 
 					Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
-					if (fragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size) == false)
+					if (fragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size) == false)
 					{
 						DefaultAllocator::GetInstance().Delete(vertexShader);
 						DefaultAllocator::GetInstance().Delete(fragmentShader);
