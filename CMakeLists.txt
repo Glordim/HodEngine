@@ -71,13 +71,6 @@ set_target_properties(Freetype::Freetype PROPERTIES
     INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
 )
 
-add_library(SpirvCross::SpirvCross STATIC IMPORTED GLOBAL)
-set_target_properties(SpirvCross::SpirvCross PROPERTIES
-    IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}spirv-cross-core.${LIB_EXTENSION}"
-    INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-)
-
 add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)
 set_target_properties(Stb::Stb PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
