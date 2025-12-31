@@ -6,5 +6,8 @@ namespace hod::imgui
 	// clang-format off
 	extern const uint8_t @ESCAPED_FILE_NAME@[];
 	extern const uint32_t @ESCAPED_FILE_NAME@_size;
+
+	extern const char @ESCAPED_FILE_NAME@_reflection[];
+	extern const uint32_t @ESCAPED_FILE_NAME@_reflection_size;
 	// clang-format on
 }

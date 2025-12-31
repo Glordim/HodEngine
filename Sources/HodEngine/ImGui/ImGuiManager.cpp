@@ -338,7 +338,7 @@ namespace hod::imgui
 		window::MacOsWindow* macOsWindow = static_cast<window::MacOsWindow*>(window);
 		icons_configProggyClean.RasterizerDensity = macOsWindow->GetScaleFactor();
 #endif
-		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Roboto_Regular_ttf, Roboto_Regular_ttf_size, 16.0f, &icons_configProggyClean);
+		ImGui::GetIO().Fonts->AddFontFromMemoryTTF((void*)Roboto_Regular_ttf, Roboto_Regular_ttf_size, 16.0f, &icons_configProggyClean);
 
 		const ImWchar iconsRangesMDI[] = {ICON_MIN_MDI, ICON_MAX_MDI, 0};
 		ImFontConfig  icons_configMDI;
@@ -351,7 +351,7 @@ namespace hod::imgui
 		icons_configProggyClean.RasterizerDensity = macOsWindow->GetScaleFactor();
 #endif
 
-		ImGui::GetIO().Fonts->AddFontFromMemoryTTF(MaterialDesignIcons_ttf, MaterialDesignIcons_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
+		ImGui::GetIO().Fonts->AddFontFromMemoryTTF((void*)MaterialDesignIcons_ttf, MaterialDesignIcons_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
 
 		_mainWindow = window;
 #if defined(PLATFORM_MACOS)

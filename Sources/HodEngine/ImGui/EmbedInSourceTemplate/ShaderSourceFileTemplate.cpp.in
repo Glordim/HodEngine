@@ -1,0 +1,16 @@
+#include <cstdint>
+
+namespace hod::imgui
+{
+	// clang-format off
+	extern const uint8_t @ESCAPED_FILE_NAME@[] = {@BYTECODE_CONTENTS@};
+	extern const uint32_t @ESCAPED_FILE_NAME@_size = sizeof(@ESCAPED_FILE_NAME@);
+
+	extern const char @ESCAPED_FILE_NAME@_reflection[] = @REFLECTION_CONTENTS@;
+	extern const uint32_t @ESCAPED_FILE_NAME@_reflection_size = sizeof(@ESCAPED_FILE_NAME@_reflection);
+	// clang-format on
+
+	/*
+	@COMMENT@
+	*/
+}
