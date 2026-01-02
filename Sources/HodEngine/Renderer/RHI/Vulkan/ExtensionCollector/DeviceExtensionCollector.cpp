@@ -41,7 +41,7 @@ namespace hod::renderer
 	{
 		for (const VkExtensionProperties& availableExtension : _availableExtensions)
 		{
-			if (std::strcmp(availableExtension.extensionName, extension))
+			if (std::strcmp(availableExtension.extensionName, extension) == 0)
 			{
 				return true;
 			}
