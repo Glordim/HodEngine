@@ -154,11 +154,11 @@ namespace hod::window
 
 	Cursor* Win32DisplayManager::CreateBuiltinCursor(BuiltinCursor builtinCursor)
 	{
-		static const char* builtinWin32CursorNames[std::to_underlying(BuiltinCursor::Count)] = {
+		static const char* builtinWin32CursorNames[static_cast<uint32_t>(BuiltinCursor::Count)] = {
 			IDC_ARROW, IDC_IBEAM, IDC_WAIT, IDC_CROSS, IDC_NO, IDC_HAND, IDC_SIZEWE, IDC_SIZENS, IDC_SIZENESW, IDC_SIZENWSE,
 		};
 
-		HCURSOR cursorHandle = LoadCursorA(nullptr, builtinWin32CursorNames[std::to_underlying(builtinCursor)]);
+		HCURSOR cursorHandle = LoadCursorA(nullptr, builtinWin32CursorNames[static_cast<uint32_t>(builtinCursor)]);
 		return DefaultAllocator::GetInstance().New<Win32Cursor>(cursorHandle);
 	}
 }

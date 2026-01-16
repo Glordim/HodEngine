@@ -14,7 +14,6 @@
 namespace hod::window
 {
 	class Cursor;
-	class IDesktopWindowInputListener;
 
 	/// @brief
 	class HOD_WINDOW_API DesktopWindow : public Window

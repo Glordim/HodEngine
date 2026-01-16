@@ -43,6 +43,6 @@ namespace hod::window
 		virtual Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) = 0;
 
 	private:
-		std::array<Cursor*, std::to_underlying(BuiltinCursor::Count)> _builtinCursors = {nullptr};
+		std::array<Cursor*, static_cast<uint32_t>(BuiltinCursor::Count)> _builtinCursors = {nullptr};
 	};
 }

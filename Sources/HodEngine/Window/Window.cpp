@@ -3,19 +3,11 @@
 
 namespace hod::window
 {
-	DESCRIBE_REFLECTED_CLASS(Window, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
-
 	Window::Window()
 	{
 		_pendingEvents.Reserve(1024);
 		_events.Reserve(1024);
 	}
-
-	/// @brief
-	Window::~Window() {}
 
 	/// @brief
 	void Window::Update()

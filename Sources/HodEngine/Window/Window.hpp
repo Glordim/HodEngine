@@ -15,11 +15,9 @@ namespace hod::window
 	/// @brief
 	class HOD_WINDOW_API Window
 	{
-		REFLECTED_CLASS_NO_PARENT(Window)
-
 	public:
 		Window();
-		virtual ~Window();
+		virtual ~Window() = default;
 
 	public:
 		virtual void       Update();

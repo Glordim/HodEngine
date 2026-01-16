@@ -10,11 +10,11 @@ namespace hod::window
 
 	Cursor* DesktopDisplayManager::GetBultinCursor(BuiltinCursor builtinCursor)
 	{
-		Cursor* cursor = _builtinCursors[std::to_underlying(builtinCursor)];
+		Cursor* cursor = _builtinCursors[static_cast<uint32_t>(builtinCursor)];
 		if (cursor == nullptr)
 		{
 			cursor = CreateBuiltinCursor(builtinCursor);
-			_builtinCursors[std::to_underlying(builtinCursor)] = cursor;
+			_builtinCursors[static_cast<uint32_t>(builtinCursor)] = cursor;
 		}
 		return cursor;
 	}
