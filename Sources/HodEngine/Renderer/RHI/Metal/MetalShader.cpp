@@ -34,12 +34,12 @@ namespace hod::renderer
 	/// @param data
 	/// @param Size
 	/// @return
-	bool MetalShader::LoadFromIR(const void* data, uint32_t Size)
+	bool MetalShader::LoadFromIR(const void* data, uint32_t size, const char* /*reflection*/, uint32_t /*reflectionSize*/)
 	{
 		RendererMetal* metalRenderer = RendererMetal::GetInstance();
 
 		NS::Error* error = nullptr;
-		_library = metalRenderer->GetDevice()->newLibrary(dispatch_data_create(data, Size, nullptr, DISPATCH_DATA_DESTRUCTOR_DEFAULT), &error);
+		_library = metalRenderer->GetDevice()->newLibrary(dispatch_data_create(data, size, nullptr, DISPATCH_DATA_DESTRUCTOR_DEFAULT), &error);
 
 		if (_library == nullptr)
 		{
@@ -113,12 +113,5 @@ namespace hod::renderer
 	MTL::Function* MetalShader::GetNativeFunction() const
 	{
 		return _function;
-	}
-
-	/// @brief
-	/// @return
-	bool MetalShader::GenerateDescriptors()
-	{
-		return false;
 	}
 }
