@@ -42,4 +42,9 @@ namespace hod::window
     {
         window->EmitMouseMoved(x, y);
     }
+
+    void MacOsWindowEventCaller::EmitResize(MacOsWindow* window, float x, float y)
+    {
+        window->ResizeInternal(static_cast<uint16_t>(x), static_cast<uint16_t>(y));
+    }
 }

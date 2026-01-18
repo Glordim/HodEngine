@@ -160,11 +160,8 @@ namespace hod::window
 	/// @param height 
 	void MacOsWindow::SetSize(uint16_t width, uint16_t height)
 	{
-		_width = width;
-		_height = height;
-
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSSize newSize = NSMakeSize(_width, _height);
+            NSSize newSize = NSMakeSize(width, height);
             [_window setContentSize:newSize];
         });
 	}
@@ -213,6 +210,6 @@ namespace hod::window
 	{
 		NSRect contentRect = [_window contentRectForFrameRect:[_window frame]];
     	NSSize contentSize = contentRect.size;
-
+		hod::window::MacOsWindowEventCaller::EmitResize(this, contentSize.width, contentSize.height);
 	}
 }
