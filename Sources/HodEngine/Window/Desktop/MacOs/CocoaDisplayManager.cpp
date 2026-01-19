@@ -21,7 +21,10 @@ namespace hod::window
 
     void CocoaDisplayManager::Update()
     {
-
+        for (Window* window : _windows)
+		{
+			window->Update();
+		}
     }
 
     /// @brief 
@@ -33,7 +36,9 @@ namespace hod::window
     /// @return 
     Window* CocoaDisplayManager::CreateWindow(bool hidden)
     {
-        return DefaultAllocator::GetInstance().New<MacOsWindow>(hidden);
+        MacOsWindow* window = DefaultAllocator::GetInstance().New<MacOsWindow>(hidden);
+        _windows.PushBack(window);
+        return window;
     }
 
     /// @brief 

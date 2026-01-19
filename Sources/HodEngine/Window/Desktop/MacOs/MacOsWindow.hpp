@@ -33,6 +33,8 @@ namespace hod::window
         static void EmitMouseButtonReleased(MacOsWindow* window, MouseButton button);
 
         static void EmitMouseMoved(MacOsWindow* window, float x, float y);
+
+		static void EmitResize(MacOsWindow* window, float x, float y);
     };
 
 	/// @brief 

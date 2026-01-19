@@ -23,5 +23,8 @@ namespace hod::window
 
 	private:
 		void CocoaInit();
+
+	private:
+		Vector<Window*> _windows;
 	};
 }
