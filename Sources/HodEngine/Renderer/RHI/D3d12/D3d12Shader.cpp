@@ -1,6 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/D3d12/D3d12Shader.hpp"
 
+#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+
 namespace hod::renderer
 {
 	/// @brief
@@ -21,16 +23,23 @@ namespace hod::renderer
 		}
 	}
 
-	bool D3d12Shader::LoadFromIR(const void* data, uint32_t Size)
+	bool D3d12Shader::LoadFromIR(const void* bytecode, uint32_t bytecodeSize, const char* reflection, uint32_t reflectionSize)
 	{
 		if (_bytecode.pShaderBytecode != nullptr)
 		{
 			DefaultAllocator::GetInstance().Free((void*)_bytecode.pShaderBytecode);
 		}
 
-		_bytecode.BytecodeLength = Size;
-		_bytecode.pShaderBytecode = DefaultAllocator::GetInstance().Allocate(Size);
-		std::memcpy((void*)_bytecode.pShaderBytecode, data, Size);
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(_reflection, reflection, reflectionSize) == false)
+		{
+			return false;
+		}
+
+		_bytecode.BytecodeLength = bytecodeSize;
+		_bytecode.pShaderBytecode = DefaultAllocator::GetInstance().Allocate(bytecodeSize);
+		std::memcpy((void*)_bytecode.pShaderBytecode, bytecode, bytecodeSize);
+
 		return true;
 	}
 
@@ -42,5 +51,10 @@ namespace hod::renderer
 	const D3D12_SHADER_BYTECODE& D3d12Shader::GetBytecode() const
 	{
 		return _bytecode;
+	}
+
+	const Document& D3d12Shader::GetReflection() const
+	{
+		return _reflection;
 	}
 }

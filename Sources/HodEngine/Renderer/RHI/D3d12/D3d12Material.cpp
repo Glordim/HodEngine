@@ -4,6 +4,12 @@
 #include "HodEngine/Renderer/RHI/D3d12/RendererDirectX12.hpp"
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
+#include <HodEngine/Core/Assert.hpp>
+
+#include <algorithm>
+
+#undef max
+
 namespace hod::renderer
 {
 	/// @brief
@@ -22,6 +28,56 @@ namespace hod::renderer
 		DXGI_FORMAT_R32G32B32A32_FLOAT,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 	};
+
+	enum class UsedStage : uint8_t
+	{
+		Vertex = (1 << 0),
+		Fragment = (1 << 1),
+	};
+
+	struct Param
+	{
+		uint32_t index;
+		uint8_t  usedStages;
+	};
+
+	struct SpaceReflection
+	{
+		uint32_t      spaceIndex;
+		Vector<Param> contantBuffers;
+		Vector<Param> shaderResources;
+		Vector<Param> samplerStates;
+	};
+
+	void AppendRanges(const Vector<Param>& params, std::underlying_type_t<UsedStage> usedStages, D3D12_DESCRIPTOR_RANGE1 range, Vector<D3D12_DESCRIPTOR_RANGE1>& ranges)
+	{
+		uint32_t lastIndex = std::numeric_limits<uint32_t>::max();
+		for (const Param& param : params)
+		{
+			if (param.usedStages != usedStages)
+			{
+				continue;
+			}
+
+			if (lastIndex == std::numeric_limits<uint32_t>::max())
+			{
+				range.BaseShaderRegister = param.index;
+				range.NumDescriptors = 0;
+			}
+			else if (lastIndex != param.index - 1)
+			{
+				ranges.PushBack(range);
+				range.BaseShaderRegister = param.index;
+				range.NumDescriptors = 0;
+			}
+			++range.NumDescriptors;
+			lastIndex = param.index;
+		}
+		if (range.NumDescriptors > 0)
+		{
+			ranges.PushBack(range);
+		}
+	}
 
 	bool D3d12Material::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode /*polygonMode*/,
 	                          Topololy topololy, bool /*useDepth*/)
@@ -62,50 +118,208 @@ namespace hod::renderer
 		psoDesc.InputLayout.NumElements = (UINT)inputs.Size();
 		psoDesc.InputLayout.pInputElementDescs = inputs.Data();
 
+		Vector<SpaceReflection> spaceParams;
+		spaceParams.Reserve(4);
+
+		const Document&       vertexShaderReflection = static_cast<D3d12Shader*>(vertexShader)->GetReflection();
+		const Document::Node* vertexShaderEntryPointsNode = vertexShaderReflection.GetRootNode().GetChild("entryPoints");
+		Assert(vertexShaderEntryPointsNode);
+		const Document::Node* vertexShaderEntryPointNode = vertexShaderEntryPointsNode->GetFirstChild();
+		Assert(vertexShaderEntryPointNode);
+		const Document::Node* vertexShaderEntryPointsBindingNode = vertexShaderEntryPointNode->GetChild("bindings");
+		if (vertexShaderEntryPointsBindingNode != nullptr)
+		{
+			const Document::Node* childNode = vertexShaderEntryPointsBindingNode->GetFirstChild();
+			while (childNode != nullptr)
+			{
+				const Document::Node* bindingNode = childNode->GetChild("binding");
+				Assert(bindingNode);
+
+				const Document::Node* usedNode = bindingNode->GetChild("used");
+				Assert(usedNode);
+
+				if (usedNode->GetBool() == false)
+				{
+					childNode = childNode->GetNextSibling();
+					continue;
+				}
+
+				uint32_t space = 0;
+				auto     it = std::find_if(spaceParams.Begin(), spaceParams.End(), [space](const SpaceReflection& spaceReflection) { return spaceReflection.spaceIndex == space; });
+				if (it == spaceParams.End())
+				{
+					SpaceReflection spaceReflection;
+					spaceReflection.spaceIndex = space;
+					spaceParams.PushBack(spaceReflection);
+					it = spaceParams.End() - 1;
+				}
+
+				const Document::Node* indexNode = bindingNode->GetChild("index");
+				Assert(indexNode);
+				uint32_t index = indexNode->GetUInt32();
+
+				Vector<Param>::Iterator paramIt;
+				Vector<Param>*          params = nullptr;
+
+				const Document::Node* kindNode = bindingNode->GetChild("kind");
+				Assert(kindNode);
+				const String& kind = kindNode->GetString();
+				if (kind == "constantBuffer")
+				{
+					params = &it->contantBuffers;
+				}
+				else if (kind == "shaderResource")
+				{
+					params = &it->shaderResources;
+				}
+				else if (kind == "samplerState")
+				{
+					params = &it->samplerStates;
+				}
+				else
+				{
+					Assert(false);
+				}
+
+				paramIt = std::find_if(params->Begin(), params->End(), [index](const Param& param) { return param.index == index; });
+				if (paramIt == params->End())
+				{
+					Param param;
+					param.index = index;
+					params->PushBack(param);
+					paramIt = params->Begin() + params->Size();
+				}
+
+				paramIt->usedStages |= std::to_underlying(UsedStage::Vertex);
+
+				childNode = childNode->GetNextSibling();
+			}
+		}
+
+		const Document&       fragmentShaderReflection = static_cast<D3d12Shader*>(fragmentShader)->GetReflection();
+		const Document::Node* fragmentShaderEntryPointsNode = fragmentShaderReflection.GetRootNode().GetChild("entryPoints");
+		Assert(fragmentShaderEntryPointsNode);
+		const Document::Node* fragmentShaderEntryPointNode = fragmentShaderEntryPointsNode->GetFirstChild();
+		Assert(fragmentShaderEntryPointNode);
+		const Document::Node* fragmentShaderEntryPointsBindingNode = fragmentShaderEntryPointNode->GetChild("bindings");
+		if (fragmentShaderEntryPointsBindingNode != nullptr)
+		{
+			const Document::Node* childNode = fragmentShaderEntryPointsBindingNode->GetFirstChild();
+			while (childNode != nullptr)
+			{
+				const Document::Node* bindingNode = childNode->GetChild("binding");
+				Assert(bindingNode);
+
+				const Document::Node* usedNode = bindingNode->GetChild("used");
+				Assert(usedNode);
+
+				if (usedNode->GetBool() == false)
+				{
+					childNode = childNode->GetNextSibling();
+					continue;
+				}
+
+				uint32_t space = 0;
+				auto     it = std::find_if(spaceParams.Begin(), spaceParams.End(), [space](const SpaceReflection& spaceReflection) { return spaceReflection.spaceIndex == space; });
+				if (it == spaceParams.End())
+				{
+					SpaceReflection spaceReflection;
+					spaceReflection.spaceIndex = space;
+					spaceParams.PushBack(spaceReflection);
+					it = spaceParams.End() - 1;
+				}
+
+				const Document::Node* indexNode = bindingNode->GetChild("index");
+				Assert(indexNode);
+				uint32_t index = indexNode->GetUInt32();
+
+				Vector<Param>::Iterator paramIt;
+				Vector<Param>*          params = nullptr;
+
+				const Document::Node* kindNode = bindingNode->GetChild("kind");
+				Assert(kindNode);
+				const String& kind = kindNode->GetString();
+				if (kind == "constantBuffer")
+				{
+					params = &it->contantBuffers;
+				}
+				else if (kind == "shaderResource")
+				{
+					params = &it->shaderResources;
+				}
+				else if (kind == "samplerState")
+				{
+					params = &it->samplerStates;
+				}
+				else
+				{
+					Assert(false);
+				}
+
+				paramIt = std::find_if(params->Begin(), params->End(), [index](const Param& param) { return param.index == index; });
+				if (paramIt == params->End())
+				{
+					Param param;
+					param.index = index;
+					params->PushBack(param);
+					paramIt = params->Begin() + params->Size();
+				}
+
+				paramIt->usedStages |= std::to_underlying(UsedStage::Fragment);
+
+				childNode = childNode->GetNextSibling();
+			}
+		}
+
+		Vector<D3D12_DESCRIPTOR_RANGE1> vertexRanges;
+		Vector<D3D12_DESCRIPTOR_RANGE1> fragmentRanges;
+		Vector<D3D12_DESCRIPTOR_RANGE1> bothRanges;
+		for (SpaceReflection& spaceParam : spaceParams)
+		{
+			D3D12_DESCRIPTOR_RANGE1 range;
+			range.RegisterSpace = spaceParam.spaceIndex;
+			range.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+			std::sort(spaceParam.contantBuffers.Begin(), spaceParam.contantBuffers.End(), [](const Param& a, const Param& b) { return a.index < b.index; });
+			AppendRanges(spaceParam.contantBuffers, std::to_underlying(UsedStage::Vertex), range, vertexRanges);
+			AppendRanges(spaceParam.contantBuffers, std::to_underlying(UsedStage::Fragment), range, fragmentRanges);
+			AppendRanges(spaceParam.contantBuffers, std::to_underlying(UsedStage::Vertex) | std::to_underlying(UsedStage::Fragment), range, bothRanges);
+
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			std::sort(spaceParam.shaderResources.Begin(), spaceParam.shaderResources.End(), [](const Param& a, const Param& b) { return a.index < b.index; });
+			AppendRanges(spaceParam.shaderResources, std::to_underlying(UsedStage::Vertex), range, vertexRanges);
+			AppendRanges(spaceParam.shaderResources, std::to_underlying(UsedStage::Fragment), range, fragmentRanges);
+			AppendRanges(spaceParam.shaderResources, std::to_underlying(UsedStage::Vertex) | std::to_underlying(UsedStage::Fragment), range, bothRanges);
+
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			std::sort(spaceParam.samplerStates.Begin(), spaceParam.samplerStates.End(), [](const Param& a, const Param& b) { return a.index < b.index; });
+			AppendRanges(spaceParam.samplerStates, std::to_underlying(UsedStage::Vertex), range, vertexRanges);
+			AppendRanges(spaceParam.samplerStates, std::to_underlying(UsedStage::Fragment), range, fragmentRanges);
+			AppendRanges(spaceParam.samplerStates, std::to_underlying(UsedStage::Vertex) | std::to_underlying(UsedStage::Fragment), range, bothRanges);
+		}
+
 		// RootSignature
-		D3D12_DESCRIPTOR_RANGE1 cbvRange = {};
-		cbvRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-		cbvRange.NumDescriptors = 1;
-		cbvRange.BaseShaderRegister = 0; // register b0
-		cbvRange.RegisterSpace = 0;      // espace 0
-		cbvRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
-		cbvRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		D3D12_ROOT_PARAMETER1 vertexParam = {};
+		vertexParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		vertexParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+		vertexParam.DescriptorTable.NumDescriptorRanges = vertexRanges.Size();
+		vertexParam.DescriptorTable.pDescriptorRanges = vertexRanges.Data();
 
-		D3D12_DESCRIPTOR_RANGE1 samplerRange = {};
-		samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-		samplerRange.NumDescriptors = 1;
-		samplerRange.BaseShaderRegister = 0; // s0
-		samplerRange.RegisterSpace = 0;
-		samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		samplerRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
+		D3D12_ROOT_PARAMETER1 fragmentParam = {};
+		fragmentParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		fragmentParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		fragmentParam.DescriptorTable.NumDescriptorRanges = fragmentRanges.Size();
+		fragmentParam.DescriptorTable.pDescriptorRanges = fragmentRanges.Data();
 
-		D3D12_DESCRIPTOR_RANGE1 srvRange = {};
-		srvRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-		srvRange.NumDescriptors = 1;
-		srvRange.BaseShaderRegister = 0; // t0
-		srvRange.RegisterSpace = 0;
-		srvRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		srvRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
+		D3D12_ROOT_PARAMETER1 allParam = {};
+		allParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		allParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		allParam.DescriptorTable.NumDescriptorRanges = bothRanges.Size();
+		allParam.DescriptorTable.pDescriptorRanges = bothRanges.Data();
 
-		D3D12_ROOT_PARAMETER1 cbvParam = {};
-		cbvParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		cbvParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-		cbvParam.DescriptorTable.NumDescriptorRanges = 1;
-		cbvParam.DescriptorTable.pDescriptorRanges = &cbvRange;
-
-		D3D12_ROOT_PARAMETER1 samplerParam = {};
-		samplerParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		samplerParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-		samplerParam.DescriptorTable.NumDescriptorRanges = 1;
-		samplerParam.DescriptorTable.pDescriptorRanges = &samplerRange;
-
-		D3D12_ROOT_PARAMETER1 srvParam = {};
-		srvParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		srvParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-		srvParam.DescriptorTable.NumDescriptorRanges = 1;
-		srvParam.DescriptorTable.pDescriptorRanges = &srvRange;
-
-		D3D12_ROOT_PARAMETER1 rootParams[3] = {cbvParam, srvParam, samplerParam};
+		D3D12_ROOT_PARAMETER1 rootParams[3] = {vertexParam, fragmentParam, allParam};
 
 		D3D12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 		rootSignatureDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
