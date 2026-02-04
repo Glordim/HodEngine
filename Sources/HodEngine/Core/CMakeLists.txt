@@ -43,6 +43,10 @@ target_link_libraries(Core PRIVATE
 	WindowsHModular::WindowsHModular
 )
 
+target_link_libraries(Core PUBLIC
+	Fmt::Fmt
+)
+
 target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)
 

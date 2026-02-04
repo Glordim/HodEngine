@@ -65,7 +65,7 @@ namespace hod::imgui
 		{
 			title = _title.CStr();
 		}
-		_identifier = std::format("{}###{}_{}", title, GetReflectionDescriptorV().GetTypeName(), _id);
+		_identifier = fmt::format("{}###{}_{}", title, GetReflectionDescriptorV().GetTypeName(), _id);
 		return _identifier.CStr();
 	}
 

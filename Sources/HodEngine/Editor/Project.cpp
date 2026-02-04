@@ -410,7 +410,7 @@ namespace hod::editor
 	#error
 #endif
 
-		String arguments = std::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G \"{}\"", toolchainPath, gameModuleBuildDirectoryPath,
+		String arguments = fmt::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G \"{}\"", toolchainPath, gameModuleBuildDirectoryPath,
 		                               gameModuleSourceDirectoryPath, generator)
 		                       .c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
@@ -429,7 +429,7 @@ namespace hod::editor
 		Path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
 
 		const char* config = "Release";
-		String      arguments = std::format("--build {} --config {} --parallel", gameModuleBuildDirectoryPath, config).c_str();
+		String      arguments = fmt::format("--build {} --config {} --parallel", gameModuleBuildDirectoryPath, config).c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{

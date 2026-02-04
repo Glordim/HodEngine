@@ -68,11 +68,11 @@ namespace hod::editor
 		Path   slangVertexOutput = FileSystem::GetTemporaryPath() / "HodShaderVertexImporter.tmp";
 		String stageVertexParameter = "-entry VertexMain -stage vertex";
 #if defined(PLATFORM_WINDOWS)
-		bool slangResult = Process::Create("Tools/slangc.exe", std::format("{} -target spirv {} -o {}", data._path, stageVertexParameter, slangVertexOutput), false);
+		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv {} -o {}", data._path, stageVertexParameter, slangVertexOutput), false);
 #elif defined(PLATFORM_LINUX)
-		bool slangResult = Process::Create("Tools/slangc", std::format("{} -target spv {} -o {}", data._path, stageVertexParameter, slangVertexOutput), false);
+		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spv {} -o {}", data._path, stageVertexParameter, slangVertexOutput), false);
 #else
-		bool slangResult = Process::Create("Tools/slangc", std::format("{} -target metallib {} -o {}", data._path, stageVertexParameter, slangVertexOutput), false);
+		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {}", data._path, stageVertexParameter, slangVertexOutput), false);
 #endif
 		if (slangResult == false)
 		{
@@ -83,11 +83,11 @@ namespace hod::editor
 		Path   slangFragmentOutput = FileSystem::GetTemporaryPath() / "HodShaderFragmentImporter.tmp";
 		String stageFragmentParameter = "-entry FragmentMain -stage fragment";
 #if defined(PLATFORM_WINDOWS)
-		slangResult = Process::Create("Tools/slangc.exe", std::format("{} -target spirv {} -o {}", data._path, stageFragmentParameter, slangFragmentOutput), false);
+		slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv {} -o {}", data._path, stageFragmentParameter, slangFragmentOutput), false);
 #elif defined(PLATFORM_LINUX)
-		slangResult = Process::Create("Tools/slangc", std::format("{} -target spv {} -o {}", data._path, stageFragmentParameter, slangFragmentOutput), false);
+		slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spv {} -o {}", data._path, stageFragmentParameter, slangFragmentOutput), false);
 #else
-		slangResult = Process::Create("Tools/slangc", std::format("{} -target metallib {} -o {}", data._path, stageFragmentParameter, slangFragmentOutput), false);
+		slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {}", data._path, stageFragmentParameter, slangFragmentOutput), false);
 #endif
 		if (slangResult == false)
 		{

@@ -4,7 +4,7 @@
 
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
-#include <format>
+#include <fmt/format.h>
 
 #define OUTPUT_MESSAGE(...) hod::OutputService::AddOutput(__FILE__, __LINE__, hod::Output::Type::Message, __VA_ARGS__);
 #define OUTPUT_WARNING(...) hod::OutputService::AddOutput(__FILE__, __LINE__, hod::Output::Type::Warning, __VA_ARGS__);
@@ -21,7 +21,7 @@ namespace hod
 		static void AddOutput(const char* fileName, int lineNumber, Output::Type type, const char* format);
 
 		template<typename... Args>
-		static void AddOutput(const char* fileName, int lineNumber, Output::Type type, std::format_string<Args...> format, Args&&... args);
+		static void AddOutput(const char* fileName, int lineNumber, Output::Type type, fmt::format_string<Args...> format, Args&&... args);
 
 		static void PushBucket(OutputBucket& bucket);
 		static void PopBucket();
@@ -47,9 +47,9 @@ namespace hod
 	/// @param format
 	/// @param ...args
 	template<typename... Args>
-	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, std::format_string<Args...> format, Args&&... args)
+	void OutputService::AddOutput(const char* fileName, int lineNumber, Output::Type type, fmt::format_string<Args...> format, Args&&... args)
 	{
-		String content = std::vformat(format.get(), std::make_format_args(args...)).c_str();
+		String content = fmt::vformat(format.get(), fmt::make_format_args(args...)).c_str();
 		AddOutput(fileName, lineNumber, type, content.CStr());
 	}
 }

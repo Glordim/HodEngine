@@ -363,7 +363,7 @@ namespace hod::editor
 
 					_fpsCounter.OnFrame();
 					char fps[64] = {'\0'};
-					std::format_to_n(fps, sizeof(fps) - 1, "{} fps", (uint32_t)_fpsCounter.GetFPS());
+					fmt::format_to_n(fps, sizeof(fps) - 1, "{} fps", (uint32_t)_fpsCounter.GetFPS());
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(fps).x);
 					ImGui::BeginDisabled();
 					ImGui::TextUnformatted(fps);

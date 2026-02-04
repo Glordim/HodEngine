@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Memory/Allocator.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 
-#include <format>
+#include <fmt/format.h>
 #include <string>
 
 // Todo move it in reusable include
@@ -257,20 +257,20 @@ namespace hod
 }
 
 template<>
-struct HOD_CORE_API std::formatter<hod::String, char> : std::formatter<std::string_view, char>
+struct HOD_CORE_API fmt::formatter<hod::String, char> : fmt::formatter<std::string_view, char>
 {
 	constexpr formatter() noexcept = default;
 
 	template<class ParseContext>
 	constexpr auto parse(ParseContext& ctx)
 	{
-		return std::formatter<std::string_view, char>::parse(ctx);
+		return fmt::formatter<std::string_view, char>::parse(ctx);
 	}
 
 	template<class FmtContext>
 	auto format(const hod::String& str, FmtContext& ctx) const
 	{
-		return std::formatter<std::string_view, char>::format(std::string_view(str.CStr(), str.Size()), ctx);
+		return fmt::formatter<std::string_view, char>::format(std::string_view(str.CStr(), str.Size()), ctx);
 	}
 };
 

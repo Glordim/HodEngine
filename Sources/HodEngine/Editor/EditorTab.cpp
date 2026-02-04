@@ -18,11 +18,11 @@ namespace hod::editor
 		_asset = asset;
 		if (_asset == nullptr)
 		{
-			_title = std::format("{}   Untitled", icon);
+			_title = fmt::format("{}   Untitled", icon);
 		}
 		else
 		{
-			_title = std::format("{}   {}", icon, _asset->GetName());
+			_title = fmt::format("{}   {}", icon, _asset->GetName());
 		}
 
 		_dockSpaceId = ImGui::GetID(this);

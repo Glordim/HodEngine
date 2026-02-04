@@ -24,7 +24,7 @@ namespace hod::editor
 	DeviceWindow::DeviceWindow(input::Device* device)
 	: _device(device)
 	{
-		SetTitle(std::format("{} {}", deviceTypeToIcon[(uint8_t)device->GetType()], device->GetName()));
+		SetTitle(fmt::format("{} {}", deviceTypeToIcon[(uint8_t)device->GetType()], device->GetName()));
 	}
 
 	void DeviceWindow::DrawContent()

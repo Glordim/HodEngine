@@ -39,7 +39,7 @@ namespace hod::window
 	/// @return
 	LRESULT Win32Window::InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		PROFILER_SCOPED_EVENT_WITH_PARAM("Win32Window::InternalWindowProc", std::format("msg = {}", msg).c_str())
+		PROFILER_SCOPED_EVENT_WITH_PARAM("Win32Window::InternalWindowProc", fmt::format("msg = {}", msg).c_str())
 
 		if (msg == WM_SETCURSOR)
 		{

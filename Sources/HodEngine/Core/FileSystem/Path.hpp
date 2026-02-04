@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Export.hpp"
 #include "HodEngine/Core/String.hpp"
 
-#include <format>
+#include <fmt/format.h>
 #include <string_view>
 
 namespace hod
@@ -151,12 +151,12 @@ struct std::hash<hod::Path>
 
 // std::formatter specialization
 template<>
-struct std::formatter<hod::Path, char> : std::formatter<std::string_view, char>
+struct fmt::formatter<hod::Path, char> : fmt::formatter<std::string_view, char>
 {
 	constexpr formatter() noexcept = default;
 
 	auto format(const hod::Path& path, auto& ctx) const
 	{
-		return std::formatter<std::string_view, char>::format(path.GetString(), ctx);
+		return fmt::formatter<std::string_view, char>::format(path.GetString(), ctx);
 	}
 };

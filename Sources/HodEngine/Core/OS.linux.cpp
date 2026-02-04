@@ -8,6 +8,6 @@ namespace hod
 {
 	bool OS::OpenFileWithDefaultApp(const char* filePath)
 	{
-		return std::system(std::format("xdg-open {}", filePath).c_str()) == 0;
+		return std::system(fmt::format("xdg-open {}", filePath).c_str()) == 0;
 	}
 }

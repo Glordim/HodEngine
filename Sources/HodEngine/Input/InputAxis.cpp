@@ -20,6 +20,6 @@ namespace hod::input
 
 	String InputAxis::ToString() const
 	{
-		return std::format("{}", ReadValue()).c_str();
+		return fmt::format("{}", ReadValue()).c_str();
 	}
 }

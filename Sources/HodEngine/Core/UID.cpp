@@ -24,8 +24,6 @@ using Uuid = CFUUIDBytes;
 #endif
 
 #include <cstdint>
-#include <iomanip>
-#include <sstream>
 
 //-----------------------------------------------------------------------------
 //! @brief
@@ -157,17 +155,14 @@ namespace hod
 		str = (const char*)stringTmp;
 		RpcStringFree(&stringTmp);
 #else
-		std::stringstream ss;
+		uint64_t reversedHigh = reverseBytes(_high, 8);
 
-		uint64_t reversedHigh = reverseBytes(_high, 8); // 8 octets pour les 64 bits
-
-		ss << std::hex << std::setfill('0') << std::setw(8) << (_low & 0xFFFFFFFF) // 32 bits les moins significatifs de `low`
-		   << '-' << std::setw(4) << ((_low >> 32) & 0xFFFF)                       // 16 bits suivants de `low`
-		   << '-' << std::setw(4) << ((_low >> 48) & 0xFFFF)                       // 16 bits suivants de `low`
-		   << '-' << std::setw(4) << ((reversedHigh >> 48) & 0xFFFF)               // 16 bits les plus significatifs de `high` inversé
-		   << '-' << std::setw(12) << (reversedHigh & 0xFFFFFFFFFFFF);             // 48 bits les moins significatifs de `high` inversé
-
-		str = ss.str();
+		str = fmt::format("{:08x}-{:04x}-{:04x}-{:04x}-{:012x}",
+			static_cast<uint32_t>(_low & 0xFFFFFFFF),
+			static_cast<uint16_t>((_low >> 32) & 0xFFFF),
+			static_cast<uint16_t>((_low >> 48) & 0xFFFF),
+			static_cast<uint16_t>((reversedHigh >> 48) & 0xFFFF),
+			(reversedHigh & 0xFFFFFFFFFFFF));
 #endif
 
 		return str;

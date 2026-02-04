@@ -19,7 +19,7 @@ namespace hod
 			bucket->AddOutput(Output(type, format));
 		}
 
-		String content = std::format("{}({}) : {} : {}\n", fileName, lineNumber, Output::GetTypeName(type), format).c_str();
+		String content = fmt::format("{}({}) : {} : {}\n", fileName, lineNumber, Output::GetTypeName(type), format).c_str();
 
 		PlatformOutput(type, content);
 	}

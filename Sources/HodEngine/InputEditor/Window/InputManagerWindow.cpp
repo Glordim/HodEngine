@@ -29,7 +29,7 @@ namespace hod::editor
 			ImGui::Indent();
 			for (Device* device : InputManager::GetInstance()->GetDevices())
 			{
-				String label = std::format("{} {}##{}", deviceTypeToIcon[(uint8_t)device->GetType()], device->GetName(), (void*)device).c_str();
+				String label = fmt::format("{} {}##{}", deviceTypeToIcon[(uint8_t)device->GetType()], device->GetName(), (void*)device).c_str();
 				bool   selected = false;
 				if (ImGui::Selectable(label.CStr(), &selected))
 				{
