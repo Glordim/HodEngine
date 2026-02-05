@@ -3,7 +3,6 @@
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
-#include <istream>
 #include <stdint.h>
 
 namespace hod

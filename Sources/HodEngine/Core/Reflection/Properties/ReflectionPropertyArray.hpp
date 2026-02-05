@@ -2,8 +2,8 @@
 #include "HodEngine/Core/Export.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/FunctionPtr.hpp"
 #include <cassert>
-#include <functional>
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
@@ -88,11 +88,11 @@ namespace hod
 		}
 
 	public:
-		std::function<uint32_t(const void*)>        _getElementCountFunction;
-		std::function<void*(const void*, uint32_t)> _getElementAddressFunction;
-		std::function<void(void*, uint32_t)>        _insertElementFunction;
-		std::function<void(void*, uint32_t)>        _removeElementFunction;
-		std::function<void(void*)>                  _clearFunction;
+		FunctionPtr<uint32_t(const void*)>        _getElementCountFunction;
+		FunctionPtr<void*(const void*, uint32_t)> _getElementAddressFunction;
+		FunctionPtr<void(void*, uint32_t)>        _insertElementFunction;
+		FunctionPtr<void(void*, uint32_t)>        _removeElementFunction;
+		FunctionPtr<void(void*)>                  _clearFunction;
 	};
 
 	template<typename _container_>
