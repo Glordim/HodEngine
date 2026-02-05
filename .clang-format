@@ -3,7 +3,6 @@ Language: Cpp
 BasedOnStyle: LLVM
 ColumnLimit: 180
 AccessModifierOffset: -4
-AlignArrayOfStructure: Left
 AlignConsecutiveDeclarations:
   Enabled: true
   AcrossEmptyLines: false
@@ -72,11 +71,8 @@ RemoveBracesLLVM: false
 AlignEscapedNewlines: Left
 
 BreakBeforeBraces: Allman
-BreakBeforeInitializerList: Always
-AllowShortArraysOnASingleLine: false
 
 StatementMacros:
   - _Singleton
   - _SingletonOverride
   - _SingletonAbstract
----
