@@ -3,102 +3,100 @@ cmake_minimum_required(VERSION 3.10)
 include(Global)
 
 if (APPLE)
-    project(Window LANGUAGES CXX OBJCXX)
+	project(Window LANGUAGES CXX OBJCXX)
 else()
-    project(Window LANGUAGES CXX)
+	project(Window LANGUAGES CXX)
 endif()
 
 if (APPLE)
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32 Android Linux)
+	CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32 Android Linux)
 elseif(ANDROID)
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs Win32 Linux)
+	CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs Win32 Linux)
 elseif(WIN32)
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs Android Linux)
+	CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES MacOs Android Linux)
 else() # Linux
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32 Android MacOs)
+	CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES Win32 Android MacOs)
 endif()
 
 assign_source_group(${Srcs}) # for VS
 
 add_library(Window ${LIB_TYPE} ${Srcs} ${Includes})
-set_target_properties(Window PROPERTIES FOLDER "HodEngine")
-set_property(TARGET Window PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-
-set(UNIX_LIBS "")
+add_library(HodEngine::Window ALIAS Window)
+set_target_properties(Window PROPERTIES
+	FOLDER "HodEngine"
+	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
+)
 
 if(UNIX AND NOT APPLE AND NOT ANDROID)
 	find_package(Wayland REQUIRED)
-    #find_package(XkbCommon REQUIRED)
-    find_package(LibDecor REQUIRED)
+	find_package(LibDecor REQUIRED)
 	find_program(WAYLAND_SCANNER_EXECUTABLE NAMES wayland-scanner)
 
 	include(FindPkgConfig)
-    pkg_check_modules(WAYLAND_PROTOCOLS REQUIRED wayland-protocols>=1.15)
-    pkg_get_variable(WAYLAND_PROTOCOLS_BASE wayland-protocols pkgdatadir)
-    pkg_get_variable(WAYLAND_CLIENT_PKGDATADIR wayland-client pkgdatadir)
+	pkg_check_modules(WAYLAND_PROTOCOLS REQUIRED wayland-protocols>=1.15)
+	pkg_get_variable(WAYLAND_PROTOCOLS_BASE wayland-protocols pkgdatadir)
+	pkg_get_variable(WAYLAND_CLIENT_PKGDATADIR wayland-client pkgdatadir)
 
-    macro(wayland_generate protocol_file output_file)
-        add_custom_command(OUTPUT "${output_file}.h"
-            COMMAND "${WAYLAND_SCANNER_EXECUTABLE}" client-header "${protocol_file}" "${output_file}.h"
-            DEPENDS "${protocol_file}"
-            VERBATIM)
+	macro(wayland_generate protocol_file output_file)
+		add_custom_command(OUTPUT "${output_file}.h"
+			COMMAND "${WAYLAND_SCANNER_EXECUTABLE}" client-header "${protocol_file}" "${output_file}.h"
+			DEPENDS "${protocol_file}"
+			VERBATIM)
 
-        add_custom_command(OUTPUT "${output_file}.c"
-            COMMAND "${WAYLAND_SCANNER_EXECUTABLE}" private-code "${protocol_file}" "${output_file}.c"
-            DEPENDS "${protocol_file}"
-            VERBATIM)
+		add_custom_command(OUTPUT "${output_file}.c"
+			COMMAND "${WAYLAND_SCANNER_EXECUTABLE}" private-code "${protocol_file}" "${output_file}.c"
+			DEPENDS "${protocol_file}"
+			VERBATIM)
 
-        target_sources(Window PRIVATE "${output_file}.h" "${output_file}.c")
-    endmacro()
+		target_sources(Window PRIVATE "${output_file}.h" "${output_file}.c")
+	endmacro()
 
-    set(WaylandProtocolDir "${PROJECT_BINARY_DIR}/Desktop/Linux/Wayland/Protocols")
-
-	add_custom_target(build-time-make-directory ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${WaylandProtocolDir})
+	set(WaylandProtocolDir "${PROJECT_BINARY_DIR}/Desktop/Linux/Wayland/Protocols")
+	file(MAKE_DIRECTORY ${WaylandProtocolDir})
 
 	wayland_generate(
-        "${WAYLAND_CLIENT_PKGDATADIR}/wayland.xml"
-        "${WaylandProtocolDir}/wayland-client-protocol")
-    wayland_generate(
-        "${WAYLAND_PROTOCOLS_BASE}/stable/xdg-shell/xdg-shell.xml"
-        "${WaylandProtocolDir}/wayland-xdg-shell-client-protocol")
-    wayland_generate(
-        "${WAYLAND_PROTOCOLS_BASE}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml"
-        "${WaylandProtocolDir}/wayland-xdg-decoration-protocol")
+		"${WAYLAND_CLIENT_PKGDATADIR}/wayland.xml"
+		"${WaylandProtocolDir}/wayland-client-protocol")
+	wayland_generate(
+		"${WAYLAND_PROTOCOLS_BASE}/stable/xdg-shell/xdg-shell.xml"
+		"${WaylandProtocolDir}/wayland-xdg-shell-client-protocol")
+	wayland_generate(
+		"${WAYLAND_PROTOCOLS_BASE}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml"
+		"${WaylandProtocolDir}/wayland-xdg-decoration-protocol")
 
-    set(UNIX_INCLUDES ${WAYLAND_CLIENT_INCLUDE_DIR} ${WAYLAND_EGL_INCLUDE_DIR} ${LibDecor_INCLUDE_DIRS})
-    set(UNIX_LIBS ${WAYLAND_CLIENT_LIBRARIES} ${WAYLAND_EGL_LIBRARIES} ${LibDecor_LIBRARIES})
+	target_link_libraries(Window PRIVATE ${WAYLAND_CLIENT_LIBRARIES} ${WAYLAND_EGL_LIBRARIES} ${LibDecor_LIBRARIES})
+	target_include_directories(Window PRIVATE ${WAYLAND_CLIENT_INCLUDE_DIR} ${WAYLAND_EGL_INCLUDE_DIR} ${LibDecor_INCLUDE_DIRS})
 endif()
 
 if (APPLE)
-    find_library(COCOA_LIBRARY Cocoa)
+	find_library(COCOA_LIBRARY Cocoa)
+	target_link_libraries(Window PRIVATE ${COCOA_LIBRARY})
 endif()
 
 if(ANDROID)
-    find_library(android-lib android)
-    target_link_libraries(Window ${android-lib})
+	find_library(android-lib android)
+	target_link_libraries(Window PRIVATE ${android-lib})
 endif()
 
-add_dependencies(Window Core)
-target_precompile_headers(Window PRIVATE $<$<COMPILE_LANGUAGE:CXX>:Pch.hpp>)
-get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
+target_include_directories(Window PUBLIC 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<INSTALL_INTERFACE:include>
+)
+target_precompile_headers(Window PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-	"../.."
-    "${PROJECT_BINARY_DIR}/../.."
-    ${PROJECT_BINARY_DIR}
-	${Core_INCLUDES}
-	${UNIX_INCLUDES}
+target_link_libraries(Window
+	PUBLIC HodEngine::Core
 )
 
-target_link_libraries(Window PUBLIC
-	Core
+target_compile_definitions(Window
+	PUBLIC ${PLATFORM_DEFINE}
+	PRIVATE HOD_WINDOW_EXPORT
 )
 
-target_link_libraries(Window PRIVATE
-	${UNIX_LIBS}
-    ${COCOA_LIBRARY}
+install(TARGETS Window
+	EXPORT HodEngineTargets
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
 )
-
-target_compile_definitions(Window PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(Window PRIVATE HOD_WINDOW_EXPORT)

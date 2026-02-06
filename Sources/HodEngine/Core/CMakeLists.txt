@@ -3,27 +3,31 @@ cmake_minimum_required(VERSION 3.10)
 include(Global)
 
 if (APPLE)
-    project(Core LANGUAGES CXX OBJCXX)
+	project(Core LANGUAGES CXX OBJCXX)
 else()
-    project(Core LANGUAGES CXX)
+	project(Core LANGUAGES CXX)
 endif()
 
 if (ANDROID)
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES FileSystemWatcher)
+	CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES FileSystemWatcher)
 else()
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+	CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 endif()
 
 assign_source_group(${Srcs}) # for VS
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-	"../.."
-)
-
 add_library(Core ${LIB_TYPE} ${Srcs} ${Includes})
-set_target_properties(Core PROPERTIES FOLDER "HodEngine")
-target_precompile_headers(Core PRIVATE "Pch.hpp")
-set_property(TARGET Core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+add_library(HodEngine::Core ALIAS Core)
+
+set_target_properties(Core PROPERTIES
+	FOLDER "HodEngine"
+	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
+)
+target_include_directories(Core PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<INSTALL_INTERFACE:include>
+)
+target_precompile_headers(Core PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 if (APPLE)
 	find_library(COREFOUNDATION_LIBRARY CoreFoundation)
@@ -38,17 +42,23 @@ else()
 	set(PLATFORM_LIBS uuid)
 endif()
 
-target_link_libraries(Core PRIVATE
-	${PLATFORM_LIBS}
-	WindowsHModular::WindowsHModular
+target_link_libraries(Core
+	PRIVATE ${PLATFORM_LIBS} WindowsHModular::WindowsHModular
+	PUBLIC Fmt::Fmt
 )
 
-target_link_libraries(Core PUBLIC
-	Fmt::Fmt
+target_compile_definitions(Core
+	PUBLIC ${PLATFORM_DEFINE}
+	PRIVATE HOD_CORE_EXPORT
 )
 
-target_compile_definitions(Core PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)
+install(TARGETS Core
+	EXPORT HodEngineTargets
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
+)
 
 option(ENABLE_SUPERLUMINAL_PROFILER "Enable Superluminal profiler" OFF)
 if(ENABLE_SUPERLUMINAL_PROFILER)
