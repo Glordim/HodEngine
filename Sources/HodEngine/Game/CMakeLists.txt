@@ -2,30 +2,36 @@ cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
-project(Game)
+project(Game LANGUAGES CXX)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 assign_source_group(${Srcs}) # for VS
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-	"../.."
-	${box2d_INCLUDE_DIRS}
+add_library(Game ${LIB_TYPE} ${Srcs} ${Includes})
+add_library(HodEngine::Game ALIAS Game)
+set_target_properties(Game PROPERTIES
+	FOLDER "HodEngine"
+	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
-add_library(Game ${LIB_TYPE} ${Srcs} ${Includes})
-set_target_properties(Game PROPERTIES FOLDER "HodEngine")
-target_precompile_headers(Game PRIVATE "Pch.hpp")
-set_property(TARGET Game PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+target_include_directories(Game PUBLIC 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<INSTALL_INTERFACE:include>
+)
+target_precompile_headers(Game PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_compile_definitions(Game PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(Game PRIVATE HOD_GAME_EXPORT)
 
-add_dependencies(Game Core Window Physics Renderer)
-
 target_link_libraries(Game
-	Core
-	Window
-	Physics
-	Renderer
+	PUBLIC Core Window Physics Renderer
+)
+
+install(TARGETS Game
+	EXPORT HodEngineTargets
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
 )
