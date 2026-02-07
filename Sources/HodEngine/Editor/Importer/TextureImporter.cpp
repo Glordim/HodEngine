@@ -9,13 +9,8 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <Stb/stb_image.h>
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <Stb/stb_image_write.h>
-
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <Stb/stb_image_resize2.h>
 
 #include <sstream>
