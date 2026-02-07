@@ -29,10 +29,10 @@
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
-#include "HodEngine/ImGui/Font/MaterialDesignIcons.ttf.hpp"
-#include "HodEngine/ImGui/Font/Roboto-Regular.ttf.hpp"
-#include "HodEngine/ImGui/Shader/ImGui_Fragment.hpp"
-#include "HodEngine/ImGui/Shader/ImGui_Vertex.hpp"
+#include "Font/MaterialDesignIcons.ttf.hpp"
+#include "Font/Roboto-Regular.ttf.hpp"
+#include "Shader/ImGui_Fragment.hpp"
+#include "Shader/ImGui_Vertex.hpp"
 
 #include <HodEngine/Renderer/RHI/VertexInput.hpp>
 

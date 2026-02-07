@@ -2,43 +2,15 @@ cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 include(EmbedInSource)
+include(EmbedShader)
 
 if(APPLE)
-project(ImGui LANGUAGES CXX OBJCXX)
+	project(ImGui LANGUAGES CXX OBJCXX)
 else()
-project(ImGui LANGUAGES CXX)
+	project(ImGui LANGUAGES CXX)
 endif()
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
-
-function(CompileReflectEmbedShader INPUT_SLANG TARGET_API SHADER_TYPE SHADER_CONFIG TEMPLATE_CPP TEMPLATE_HPP OUTPUT_CPP OUTPUT_HPP TEMP_DIR)
-	add_custom_command(
-		OUTPUT ${OUTPUT_CPP} ${OUTPUT_HPP}
-		COMMAND ${Python3_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/CMake/CompileReflectEmbedShader.py
-			${SLANG_COMPILER}
-			${INPUT_SLANG}
-			${TARGET_API}
-			${SHADER_TYPE}
-			${SHADER_CONFIG}
-			${TEMPLATE_CPP}
-			${TEMPLATE_HPP}
-			${OUTPUT_CPP}
-			${OUTPUT_HPP}
-			${TEMP_DIR}
-		DEPENDS
-			${INPUT_SLANG}
-			${CMAKE_SOURCE_DIR}/CMake/CompileReflectEmbedShader.py
-			${TEMPLATE_CPP}
-			${TEMPLATE_HPP}
-		COMMENT "Compiling ${SHADER_TYPE} shader from ${INPUT_SLANG}"
-	)
-endfunction()
-
-set(ShaderCpps "")
-set(ShaderHpps "")
 
 file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*.slang")
 
@@ -52,37 +24,23 @@ if(NOT APPLE)
 else()
 	set(SHADER_TARGET_API Metal)
 endif()
+set(GENERATED_DIR ${PROJECT_BINARY_DIR}/Generated)
 set(SHADER_TMP_DIR ${PROJECT_BINARY_DIR}/ShaderTmp)
+set(SHADER_OUTPUT_DIR ${GENERATED_DIR}/Shader)
 set(SHADER_CPP_TEMPLATE ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/ShaderSourceFileTemplate.cpp.in)
 set(SHADER_HPP_TEMPLATE ${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/ShaderSourceFileTemplate.hpp.in)
-
 set(SHADER_CONFIG Debug)
 
-foreach(file ${ShaderSources})
-	get_filename_component(BASENAME "${file}" NAME_WE)
-
-	set(SHADER_TYPE "Vertex")
-	set(SHADER_EMBED_CPP ${PROJECT_BINARY_DIR}/Shader/${BASENAME}_${SHADER_TYPE}.cpp)
-	set(SHADER_EMBED_HPP ${PROJECT_BINARY_DIR}/Shader/${BASENAME}_${SHADER_TYPE}.hpp)
-	CompileReflectEmbedShader(${file} ${SHADER_TARGET_API} ${SHADER_TYPE} ${SHADER_CONFIG} ${SHADER_CPP_TEMPLATE} ${SHADER_HPP_TEMPLATE} ${SHADER_EMBED_CPP} ${SHADER_EMBED_HPP} ${SHADER_TMP_DIR})
-	list(APPEND ShaderCpps ${SHADER_EMBED_CPP})
-	list(APPEND ShaderHpps ${SHADER_EMBED_HPP})
-
-	set(SHADER_TYPE "Fragment")
-	set(SHADER_EMBED_CPP ${PROJECT_BINARY_DIR}/Shader/${BASENAME}_${SHADER_TYPE}.cpp)
-	set(SHADER_EMBED_HPP ${PROJECT_BINARY_DIR}/Shader/${BASENAME}_${SHADER_TYPE}.hpp)
-	CompileReflectEmbedShader(${file} ${SHADER_TARGET_API} ${SHADER_TYPE} ${SHADER_CONFIG} ${SHADER_CPP_TEMPLATE} ${SHADER_HPP_TEMPLATE} ${SHADER_EMBED_CPP} ${SHADER_EMBED_HPP} ${SHADER_TMP_DIR})
-	list(APPEND ShaderCpps ${SHADER_EMBED_CPP})
-	list(APPEND ShaderHpps ${SHADER_EMBED_HPP})
-endforeach()
-
-list(APPEND Srcs ${ShaderCpps})
-list(APPEND Includes ${ShaderHpps})
+set(GENERATED_SHADER_CPPS "")
+set(GENERATED_SHADER_HPPS "")
+EmbedShaders(ShaderSources ${SHADER_TARGET_API} ${SHADER_CONFIG} ${SHADER_CPP_TEMPLATE} ${SHADER_HPP_TEMPLATE} ${SHADER_OUTPUT_DIR} ${SHADER_TMP_DIR} GENERATED_SHADER_CPPS GENERATED_SHADER_HPPS)
+list(APPEND Srcs ${GENERATED_SHADER_CPPS})
+list(APPEND Includes ${GENERATED_SHADER_HPPS})
 
 EmbedBinaryInSource("Font/MaterialDesignIcons.ttf"
 	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.hpp.in
 	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.cpp.in
-	${PROJECT_BINARY_DIR}/Font
+	${GENERATED_DIR}/Font
 	GeneratedFileH
 	GeneratedFileCPP
 )
@@ -93,7 +51,7 @@ list(APPEND Srcs ${GeneratedFileCPP})
 EmbedBinaryInSource("Font/Roboto-Regular.ttf"
 	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.hpp.in
 	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/BinarySourceFileTemplate.cpp.in
-	${PROJECT_BINARY_DIR}/Font
+	${GENERATED_DIR}/Font
 	GeneratedFileH
 	GeneratedFileCPP
 )
@@ -104,46 +62,35 @@ list(APPEND Srcs ${GeneratedFileCPP})
 assign_source_group(${Srcs}) # for VS
 
 add_library(ImGui ${LIB_TYPE} ${Srcs} ${Includes})
-set_target_properties(ImGui PROPERTIES FOLDER "HodEngine")
-target_precompile_headers(ImGui PRIVATE "Pch.hpp")
-set_property(TARGET ImGui PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-
-add_dependencies(ImGui Core Window Renderer Freetype::Freetype)
-get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
-get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
-get_target_property(Renderer_INCLUDES Renderer INCLUDE_DIRECTORIES)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-  "../.."
-  "${PROJECT_BINARY_DIR}/../.."
-  ${PROJECT_BINARY_DIR}
-  ${Core_INCLUDES}
-  ${Window_INCLUDES}
-  ${Renderer_INCLUDES}
+add_library(HodEngine::ImGui ALIAS ImGui)
+set_target_properties(Renderer PROPERTIES
+	FOLDER "HodEngine"
+	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
-include_directories(SYSTEM
-  "DearImGui" # for imguiFreetype include
+target_include_directories(ImGui PUBLIC 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<INSTALL_INTERFACE:include>
+	PRIVATE ${GENERATED_DIR} ${CMAKE_CURRENT_SOURCE_DIR} SYSTEM "DearImGui"
 )
+target_precompile_headers(ImGui PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 if (APPLE)
-	set(PLATFORM_LIBS "-framework GameController" "-framework AppKit")
+	target_link_libraries(ImGui PRIVATE "-framework GameController" "-framework AppKit")
 endif()
 
-target_link_libraries(ImGui PUBLIC
-  Core
-  Renderer
-  Window
+target_link_libraries(ImGui
+	PUBLIC Core Renderer Window
+	PRIVATE Freetype::Freetype
 )
-
-target_link_libraries(ImGui PRIVATE
-  Freetype::Freetype
-  ${PLATFORM_LIBS}
-)
-
-if(MSVC)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif()
 
 target_compile_definitions(ImGui PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(ImGui PRIVATE HOD_IMGUI_EXPORT)
+
+install(TARGETS ImGui
+	EXPORT HodEngineTargets
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
+)

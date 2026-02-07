@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 include(EmbedInSource)
+include(EmbedShader)
 
 if(APPLE)
 	project(Renderer LANGUAGES CXX OBJCXX)
@@ -27,57 +28,6 @@ endif()
 list(REMOVE_ITEM ExcludeDirs ${API})
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ${ExcludeDirs})
-
-function(CompileReflectEmbedShader INPUT_SLANG TARGET_API SHADER_TYPE SHADER_CONFIG TEMPLATE_CPP TEMPLATE_HPP OUTPUT_CPP OUTPUT_HPP TEMP_DIR)
-	find_package(Python3 REQUIRED COMPONENTS Interpreter)
-	add_custom_command(
-		OUTPUT ${OUTPUT_CPP} ${OUTPUT_HPP}
-		COMMAND ${Python3_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/CMake/CompileReflectEmbedShader.py
-			${SLANG_COMPILER}
-			${INPUT_SLANG}
-			${TARGET_API}
-			${SHADER_TYPE}
-			${SHADER_CONFIG}
-			${TEMPLATE_CPP}
-			${TEMPLATE_HPP}
-			${OUTPUT_CPP}
-			${OUTPUT_HPP}
-			${TEMP_DIR}
-		DEPENDS
-			${INPUT_SLANG}
-			${CMAKE_SOURCE_DIR}/CMake/CompileReflectEmbedShader.py
-			${TEMPLATE_CPP}
-			${TEMPLATE_HPP}
-		COMMENT "Compiling ${SHADER_TYPE} shader from ${INPUT_SLANG}"
-	)
-endfunction()
-
-function(EmbedShaders SHADER_SOURCES TARGET_API SHADER_CONFIG TEMPLATE_CPP TEMPLATE_HPP OUTPUT_DIR TEMP_DIR OUT_CPPS OUT_HPPS)
-	set(ShaderCpps "")
-	set(ShaderHpps "")
-	file(MAKE_DIRECTORY ${TEMP_DIR})
-	file(MAKE_DIRECTORY ${OUTPUT_DIR})
-	foreach(file IN LISTS ${SHADER_SOURCES})
-		get_filename_component(BASENAME "${file}" NAME_WE)
-
-		set(SHADER_TYPE "Vertex")
-		set(SHADER_EMBED_CPP ${OUTPUT_DIR}/${BASENAME}_${SHADER_TYPE}.cpp)
-		set(SHADER_EMBED_HPP ${OUTPUT_DIR}/${BASENAME}_${SHADER_TYPE}.hpp)
-		CompileReflectEmbedShader(${file} ${TARGET_API} ${SHADER_TYPE} ${SHADER_CONFIG} ${TEMPLATE_CPP} ${TEMPLATE_HPP} ${SHADER_EMBED_CPP} ${SHADER_EMBED_HPP} ${TEMP_DIR})
-		list(APPEND ShaderCpps ${SHADER_EMBED_CPP})
-		list(APPEND ShaderHpps ${SHADER_EMBED_HPP})
-
-		set(SHADER_TYPE "Fragment")
-		set(SHADER_EMBED_CPP ${OUTPUT_DIR}/${BASENAME}_${SHADER_TYPE}.cpp)
-		set(SHADER_EMBED_HPP ${OUTPUT_DIR}/${BASENAME}_${SHADER_TYPE}.hpp)
-		CompileReflectEmbedShader(${file} ${TARGET_API} ${SHADER_TYPE} ${SHADER_CONFIG} ${TEMPLATE_CPP} ${TEMPLATE_HPP} ${SHADER_EMBED_CPP} ${SHADER_EMBED_HPP} ${TEMP_DIR})
-		list(APPEND ShaderCpps ${SHADER_EMBED_CPP})
-		list(APPEND ShaderHpps ${SHADER_EMBED_HPP})
-	endforeach()
-	set(${OUT_CPPS} ${ShaderCpps} PARENT_SCOPE)
-	set(${OUT_HPPS} ${ShaderHpps} PARENT_SCOPE)
-endfunction()
 
 file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*.slang")
 
