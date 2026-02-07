@@ -2,34 +2,34 @@ cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
-project(GameEditor)
+project(GameEditor LANGUAGES CXX)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 add_library(GameEditor ${LIB_TYPE} ${Srcs} ${Includes})
-set_target_properties(GameEditor PROPERTIES FOLDER "HodEngine")
-target_precompile_headers(GameEditor PRIVATE "Pch.hpp")
-set_property(TARGET GameEditor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-
-add_dependencies(GameEditor Game Editor)
-get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
-get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-  "../.."
-  ${Core_INCLUDES}
-  ${Window_INCLUDES}
-  ${Application_INCLUDES}
+add_library(HodEngine::GameEditor ALIAS GameEditor)
+set_target_properties(GameEditor PROPERTIES
+	FOLDER "HodEngine"
+	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
+
+target_include_directories(GameEditor PUBLIC 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<INSTALL_INTERFACE:include>
+)
+target_precompile_headers(GameEditor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(GameEditor
-  Game
-  Editor
+	PUBLIC Game Editor
 )
-
-if(MSVC)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif()
 
 target_compile_definitions(GameEditor PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(GameEditor PRIVATE HOD_GAME_EDITOR_EXPORT)
+
+install(TARGETS GameEditor
+	EXPORT HodEngineTargets
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
+)

@@ -2,34 +2,34 @@ cmake_minimum_required(VERSION 3.10)
 
 include(Global)
 
-project(InputEditor)
+project(InputEditor LANGUAGES CXX)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 add_library(InputEditor ${LIB_TYPE} ${Srcs} ${Includes})
-set_target_properties(InputEditor PROPERTIES FOLDER "HodEngine")
-target_precompile_headers(InputEditor PRIVATE "Pch.hpp")
-set_property(TARGET InputEditor PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-
-add_dependencies(InputEditor Editor Input)
-get_target_property(Core_INCLUDES Core INCLUDE_DIRECTORIES)
-get_target_property(Window_INCLUDES Window INCLUDE_DIRECTORIES)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-  "../.."
-  ${Core_INCLUDES}
-  ${Window_INCLUDES}
-  ${Application_INCLUDES}
+add_library(HodEngine::InputEditor ALIAS InputEditor)
+set_target_properties(InputEditor PROPERTIES
+	FOLDER "HodEngine"
+	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
+
+target_include_directories(InputEditor PUBLIC 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<INSTALL_INTERFACE:include>
+)
+target_precompile_headers(InputEditor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(InputEditor
-  Editor
-  Input
+	PUBLIC Input Editor
 )
-
-if(MSVC)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif()
 
 target_compile_definitions(InputEditor PUBLIC ${PLATFORM_DEFINE})
 target_compile_definitions(InputEditor PRIVATE HOD_INPUT_EDITOR_EXPORT)
+
+install(TARGETS InputEditor
+	EXPORT HodEngineTargets
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
+)
