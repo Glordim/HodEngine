@@ -4,7 +4,7 @@
 #include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
 #include "HodEngine/Physics/Collision.hpp"
 
-#include "Physics.hpp"
+#include "HodEngine/Physics/Physics.hpp"
 
 #include <box2d/box2d.h>
 
