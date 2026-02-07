@@ -7,14 +7,14 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
-#include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit_Fragment.hpp"
-#include "HodEngine/Renderer/Shader/P2fT2f_Texture_Unlit_Vertex.hpp"
+#include "Shader/P2fT2f_Texture_Unlit_Fragment.hpp"
+#include "Shader/P2fT2f_Texture_Unlit_Vertex.hpp"
 
-#include "HodEngine/Renderer/Shader/P2fC4f_Unlit_Fragment.hpp"
-#include "HodEngine/Renderer/Shader/P2fC4f_Unlit_Vertex.hpp"
+#include "Shader/P2fC4f_Unlit_Fragment.hpp"
+#include "Shader/P2fC4f_Unlit_Vertex.hpp"
 
-#include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
-#include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
+#include "Shader/P2f_Unlit_Fragment.hpp"
+#include "Shader/P2f_Unlit_Vertex.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 #include <cstring>

@@ -3,74 +3,67 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <Stb/stb_image.h>
 
-#include <iostream>
-#include "HodEngine/Core/String.hpp"
-
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	Texture::Texture()
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		Texture::Texture()
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	Texture::~Texture()
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	bool Texture::LoadFromPath(const char* path)
+	{
+		int width;
+		int height;
+		int channel;
+
+		uint8_t* buffer = stbi_load(path, &width, &height, &channel, 4);
+		if (buffer == nullptr)
 		{
+			OUTPUT_ERROR("Texture : Failed to load Texture \"{}\"", path);
+			return false; // Todo Memleak
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		Texture::~Texture()
+		CreateInfo createInfo;
+		if (BuildBuffer(width, height, buffer, createInfo) == false)
 		{
+			return false; // Todo Memleak
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool Texture::LoadFromPath(const char* path)
-		{
-			int width;
-			int height;
-			int channel;
+		_width = width;
+		_height = height;
 
-			uint8_t* buffer = stbi_load(path, &width, &height, &channel, 4);
-			if (buffer == nullptr)
-			{
-				OUTPUT_ERROR("Texture : Failed to load Texture \"{}\"", path);
-				return false; // Todo Memleak
-			}
+		stbi_image_free(buffer);
 
-			CreateInfo createInfo;
-			if (BuildBuffer(width, height, buffer, createInfo) == false)
-			{
-				return false; // Todo Memleak
-			}
+		return true;
+	}
 
-			_width = width;
-			_height = height;
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	uint32_t Texture::GetWidth() const
+	{
+		return _width;
+	}
 
-			stbi_image_free(buffer);
-
-			return true;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		uint32_t Texture::GetWidth() const
-		{
-			return _width;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		uint32_t Texture::GetHeight() const
-		{
-			return _height;
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	uint32_t Texture::GetHeight() const
+	{
+		return _height;
 	}
 }

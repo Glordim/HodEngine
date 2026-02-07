@@ -10,8 +10,8 @@
 #include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include "HodEngine/Renderer/Shader/P2f_Unlit_Fragment.hpp"
-#include "HodEngine/Renderer/Shader/P2f_Unlit_Vertex.hpp"
+#include "Shader/P2f_Unlit_Fragment.hpp"
+#include "Shader/P2f_Unlit_Vertex.hpp"
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
