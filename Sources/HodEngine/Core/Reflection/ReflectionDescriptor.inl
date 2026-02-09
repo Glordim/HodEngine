@@ -21,13 +21,11 @@ namespace hod
 		{
 			data._allocateFunction = nullptr;
 			data._deleteFunction = nullptr;
-			data._sharedAllocateFunction = nullptr;
 		}
 		else
 		{
 			data._allocateFunction = +[]() -> void* { return DefaultAllocator::GetInstance().New<_Class_>(); };
 			data._deleteFunction = +[](void* instance) { hod::DefaultAllocator::GetInstance().Delete(static_cast<_Class_*>(instance)); };
-			data._sharedAllocateFunction = +[]() -> std::shared_ptr<void> { return std::make_shared<_Class_>(); };
 		}
 
 		if constexpr (HasEqualOperator<_Class_>::value)
@@ -79,12 +77,6 @@ namespace hod
 	_Type_* ReflectionDescriptor::CreateInstance() const
 	{
 		return static_cast<_Type_*>(CreateInstance());
-	}
-
-	template<typename _Type_>
-	std::shared_ptr<_Type_> ReflectionDescriptor::CreateSharedInstance() const
-	{
-		return std::static_pointer_cast<_Type_>(CreateSharedInstance());
 	}
 
 	template<typename _ObjectType_>

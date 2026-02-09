@@ -3,7 +3,6 @@
 
 #include "HodEngine/Core/FunctionPtr.hpp"
 #include "HodEngine/Core/Vector.hpp"
-#include <memory>
 #include <string_view>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
@@ -24,7 +23,6 @@ namespace hod
 			ReflectionDescriptor*                       _parent = nullptr;
 			FunctionPtr<void*()>                        _allocateFunction = nullptr;
 			FunctionPtr<void(void*)>                    _deleteFunction = nullptr;
-			FunctionPtr<std::shared_ptr<void>()>        _sharedAllocateFunction = nullptr;
 			FunctionPtr<bool(const void*, const void*)> _compareFunction = nullptr;
 			MetaType                                    _metaType;
 		};
@@ -76,13 +74,8 @@ namespace hod
 		void* CreateInstance() const;
 		void  DeleteInstance(void* instance);
 
-		std::shared_ptr<void> CreateSharedInstance() const;
-
 		template<typename _Type_>
 		_Type_* CreateInstance() const;
-
-		template<typename _Type_>
-		std::shared_ptr<_Type_> CreateSharedInstance() const;
 
 		void Copy(const void* sourceInstance, void* destinationInstance);
 
@@ -103,7 +96,6 @@ namespace hod
 		ReflectionDescriptor*                       _parent = nullptr;
 		FunctionPtr<void*()>                        _allocateFunction = nullptr;
 		FunctionPtr<void(void*)>                    _deleteFunction = nullptr;
-		FunctionPtr<std::shared_ptr<void>()>        _sharedAllocateFunction = nullptr;
 		FunctionPtr<bool(const void*, const void*)> _compareFunction = nullptr;
 		MetaType                                    _metaType;
 

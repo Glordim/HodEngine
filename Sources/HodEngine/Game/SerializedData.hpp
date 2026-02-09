@@ -3,6 +3,8 @@
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
+#include <memory>
+
 namespace hod::game
 {
 	///@brief 

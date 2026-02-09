@@ -25,7 +25,6 @@ namespace hod
 	, _parent(data._parent)
 	, _allocateFunction(data._allocateFunction)
 	, _deleteFunction(data._deleteFunction)
-	, _sharedAllocateFunction(data._sharedAllocateFunction)
 	, _compareFunction(data._compareFunction)
 	, _metaType(data._metaType)
 	{
@@ -39,7 +38,6 @@ namespace hod
 		_parent = data._parent;
 		_allocateFunction = data._allocateFunction;
 		_deleteFunction = data._deleteFunction;
-		_sharedAllocateFunction = data._sharedAllocateFunction;
 		_compareFunction = data._compareFunction;
 		_metaType = data._metaType;
 	}
@@ -81,13 +79,6 @@ namespace hod
 	void ReflectionDescriptor::DeleteInstance(void* instance)
 	{
 		_deleteFunction(instance);
-	}
-
-	/// @brief
-	/// @return
-	std::shared_ptr<void> ReflectionDescriptor::CreateSharedInstance() const
-	{
-		return _sharedAllocateFunction();
 	}
 
 	/// @brief

@@ -6,6 +6,8 @@
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Core/UID.hpp"
 
+#include <memory>
+
 namespace hod
 {
 	class HOD_CORE_API Resource : public std::enable_shared_from_this<Resource>

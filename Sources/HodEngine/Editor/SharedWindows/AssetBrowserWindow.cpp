@@ -641,7 +641,7 @@ namespace hod::editor
 							ImGui::PushID(pair.second);
 							if (ImGui::MenuItem(pair.second->GetDisplayName().CStr()))
 							{
-								std::shared_ptr<game::SerializedData> serializedData = pair.second->CreateSharedInstance<game::SerializedData>();
+								std::shared_ptr<game::SerializedData> serializedData(pair.second->CreateInstance<game::SerializedData>());
 
 								SerializedDataAsset serializedDataAsset(serializedData.get());
 

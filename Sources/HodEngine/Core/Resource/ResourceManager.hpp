@@ -8,6 +8,8 @@
 
 #include "HodEngine/Core/Singleton.hpp"
 
+#include <memory>
+
 #undef FindResource
 
 namespace hod
