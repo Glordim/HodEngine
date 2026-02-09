@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(Global)
+include(ClangBuildAnalyzer)
 
 project(Physics LANGUAGES CXX)
 
@@ -36,3 +37,5 @@ install(TARGETS Physics
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
+
+ClangBuildAnalyzer(Physics)

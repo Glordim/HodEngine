@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(Global)
+include(ClangBuildAnalyzer)
 
 project(GameEditor LANGUAGES CXX)
 
@@ -33,3 +34,5 @@ install(TARGETS GameEditor
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
+
+ClangBuildAnalyzer(GameEditor)

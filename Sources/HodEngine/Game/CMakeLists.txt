@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(Global)
+include(ClangBuildAnalyzer)
 
 project(Game LANGUAGES CXX)
 
@@ -35,3 +36,5 @@ install(TARGETS Game
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
+
+ClangBuildAnalyzer(Game)

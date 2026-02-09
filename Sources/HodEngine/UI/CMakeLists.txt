@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(Global)
+include(ClangBuildAnalyzer)
 
 project(UI LANGUAGES CXX)
 
@@ -33,3 +34,5 @@ install(TARGETS UI
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
+
+ClangBuildAnalyzer(UI)

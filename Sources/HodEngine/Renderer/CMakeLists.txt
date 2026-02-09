@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 include(Global)
 include(EmbedInSource)
 include(EmbedShader)
+include(ClangBuildAnalyzer)
 
 if(APPLE)
 	project(Renderer LANGUAGES CXX OBJCXX)
@@ -89,7 +90,6 @@ endif()
 
 unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
 option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" OFF)
-set(RENDERER_ENABLE_VALIDATION_LAYER True)
 if (RENDERER_ENABLE_VALIDATION_LAYER)
 	target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
 endif()
@@ -104,3 +104,5 @@ install(TARGETS Renderer
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
+
+ClangBuildAnalyzer(Renderer)

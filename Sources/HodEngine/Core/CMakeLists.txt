@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(Global)
+include(ClangBuildAnalyzer)
 
 if (APPLE)
 	project(Core LANGUAGES CXX OBJCXX)
@@ -68,3 +69,5 @@ if(ENABLE_SUPERLUMINAL_PROFILER)
 	target_include_directories(Core PRIVATE ${SuperluminalAPI_INCLUDE_DIRS})
 	target_compile_definitions(Core PRIVATE HOD_USE_SUPERLIMINAL_PROFILER)
 endif()
+
+ClangBuildAnalyzer(Core)

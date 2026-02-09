@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 include(Global)
+include(ClangBuildAnalyzer)
 
 if (APPLE)
 	project(Input LANGUAGES CXX OBJCXX)
@@ -50,3 +51,5 @@ install(TARGETS Input
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
+
+ClangBuildAnalyzer(Input)

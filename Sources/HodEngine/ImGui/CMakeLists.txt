@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 include(Global)
 include(EmbedInSource)
 include(EmbedShader)
+include(ClangBuildAnalyzer)
 
 if(APPLE)
 	project(ImGui LANGUAGES CXX OBJCXX)
@@ -94,3 +95,5 @@ install(TARGETS ImGui
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
+
+ClangBuildAnalyzer(ImGui)
