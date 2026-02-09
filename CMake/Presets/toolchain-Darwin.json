@@ -1,0 +1,15 @@
+{
+	"version": 10,
+	"configurePresets": [
+		{
+			"name": "toolchain-macos-clang-arm64",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Darwin"
+			},
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/MacOs-Clang-arm64.cmake"
+		}
+	]
+}

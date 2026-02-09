@@ -1,0 +1,25 @@
+{
+	"version": 10,
+	"configurePresets": [
+		{
+			"name": "toolchain-linux-clang-x64",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Linux"
+			},
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/Linux-Clang-x64.cmake"
+		},
+		{
+			"name": "toolchain-linux-gcc-x64",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Linux"
+			},
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/Linux-Gcc-x64.cmake"
+		}
+	]
+}

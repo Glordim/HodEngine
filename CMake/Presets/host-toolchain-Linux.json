@@ -1,0 +1,22 @@
+{
+	"version": 10,
+	"include": [
+		"${sourceDir}/CMake/Presets/toolchain-Linux.json"
+	],
+	"configurePresets": [
+		{
+			"name": "host-toolchain-clang",
+			"hidden": true,
+			"inherits": [
+				"toolchain-linux-clang-x64"
+			]
+		},
+		{
+			"name": "host-toolchain-native",
+			"hidden": true,
+			"inherits": [
+				"toolchain-linux-gcc-x64"
+			]
+		}
+	]
+}

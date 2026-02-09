@@ -1,0 +1,62 @@
+{
+	"version": 10,
+	"include": [
+		"${sourceDir}/CMake/Presets/host-toolchain-${hostSystemName}.json",
+		"${sourceDir}/CMake/Presets/options.json"
+	],
+	"configurePresets": [
+		{
+			"name": "base",
+			"hidden": true,
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/build/${presetName}",
+			"cacheVariables": {
+				"CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+			}
+		},
+		{
+			"name": "host-clang-debug",
+			"displayName": "Debug (Clang)",
+			"inherits": [
+				"base",
+				"host-toolchain-clang"
+			],
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "host-clang-release",
+			"displayName": "Release (Clang)",
+			"inherits": [
+				"base",
+				"host-toolchain-clang"
+			],
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			}
+		},
+		{
+			"name": "host-native-debug",
+			"displayName": "Debug (Native)",
+			"inherits": [
+				"base",
+				"host-toolchain-native"
+			],
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "host-native-release",
+			"displayName": "Release (Native)",
+			"inherits": [
+				"base",
+				"host-toolchain-native"
+			],
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			}
+		}
+	]
+}

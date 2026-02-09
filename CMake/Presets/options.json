@@ -1,0 +1,19 @@
+{
+	"version": 10,
+	"configurePresets": [
+		{
+			"name": "opt-clang-build-analyzer",
+			"hidden": true,
+			"cacheVariables": {
+				"ENABLE_CLANG_BUILD_ANALYZER": "ON"
+			}
+		},
+		{
+			"name": "opt-renderer-validation-layers",
+			"hidden": true,
+			"cacheVariables": {
+				"RENDERER_ENABLE_VALIDATION_LAYER": "ON"
+			}
+		}
+	]
+}

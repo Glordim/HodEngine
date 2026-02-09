@@ -5,3 +5,5 @@ build/
 .vscode/settings.json
 .cache/
 .DS_Store
+
+CMakeUserPresets.json

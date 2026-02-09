@@ -1,0 +1,22 @@
+{
+	"version": 10,
+	"include": [
+		"${sourceDir}/CMake/Presets/toolchain-Darwin.json"
+	],
+	"configurePresets": [
+		{
+			"name": "host-toolchain-clang",
+			"hidden": true,
+			"inherits": [
+				"toolchain-macos-clang-arm64"
+			]
+		},
+		{
+			"name": "host-toolchain-native",
+			"hidden": true,
+			"inherits": [
+				"toolchain-macos-clang-arm64"
+			]
+		}
+	]
+}

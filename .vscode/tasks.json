@@ -1,41 +1,10 @@
 {
-	// See https://go.microsoft.com/fwlink/?LinkId=733558
-	// for the documentation about the tasks.json format
 	"version": "2.0.0",
 	"tasks": [
 		{
 			"label": "Build Target",
 			"type": "cmake",
 			"command": "build",
-			"group": "build"
-		},
-		{
-			"label": "Build HodEngine",
-			"type": "shell",
-			"command": "bazelisk",
-			"args": ["build", "Sources/HodEngine:HodEngine"],
-			"group": "build"
-		},
-		{
-			"label": "Build HodGame",
-			"type": "shell",
-			"command": "bazelisk",
-			"args": ["build", "Sources/GameApplication:HodGame"],
-			"group": "build"
-		},
-		{
-			"label": "Build HodEditor",
-			"type": "shell",
-			"command": "bazelisk",
-			"args": ["build", "Sources/EditorApplication:HodEditor"],
-			"group": "build",
-			"problemMatcher": ["$msCompile"],
-		},
-		{
-			"label": "Clean",
-			"type": "shell",
-			"command": "bazelisk",
-			"args": ["clean"],
 			"group": "build"
 		}
 	]

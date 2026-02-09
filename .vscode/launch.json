@@ -1,87 +1,20 @@
 {
-	// Use IntelliSense to learn about possible attributes.
-	// Hover to view descriptions of existing attributes.
-	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "(Linux) Launch",
+			"name": "Launch (lldb)",
 			"type": "lldb",
 			"request": "launch",
 			"program": "${command:cmake.launchTargetPath}",
 			"preLaunchTask": "Build Target",
-			"args": [],
-			"stopAtEntry": false,
-			//"cwd": "${workspaceFolder}/Data",
-			"environment": [],
-			"externalConsole": false,
-			"MIMode": "lldb",
-			"setupCommands": [
-				{
-					"description": "Enable pretty-printing for gdb",
-					"text": "-enable-pretty-printing",
-					"ignoreFailures": true
-				},
-				{
-					"description": "Set Disassembly Flavor to Intel",
-					"text": "-gdb-set disassembly-flavor intel",
-					"ignoreFailures": true
-				}
-			]
+			"args": []
 		},
 		{
-			"name": "(Linux) Editor",
-			"type": "lldb",
-			"request": "launch",
-			"program": "${command:cmake.launchTargetDirectory}/HodEditor",
-			//"args": ["--ProjectPath", "/home/glordim/Dev/Pong/Pong.hod"],
-			"console": "integratedTerminal",
-			"preLaunchTask": "Build Target",
-		},
-		{
-			"name": "(Mac) Editor",
-			"type": "lldb",
-			"request": "launch",
-			"program": "${command:cmake.launchTargetDirectory}/HodEditor",
-			//"args": ["--ProjectPath", "/Users/anthony/Dev/Pong/Pong.hod"],
-			"console": "integratedTerminal",
-			"preLaunchTask": "Build Target",
-		},
-		{
-			"name": "(Windows) Editor",
+			"name": "Launch (cppvsdbg)",
 			"type": "cppvsdbg",
 			"request": "launch",
-			"program": "${command:cmake.launchTargetDirectory}/HodEditor.exe",
-			//"args": ["--ProjectPath", "E:/Pong/Pong.hod"],
+			"program": "${command:cmake.launchTargetPath}",
 			"stopAtEntry": false,
-			//"cwd": "E:/Pong/Pong.hod",
-			"environment": [],
-			"console": "integratedTerminal",
-			"preLaunchTask": "Build Target",
-		},
-		{
-			"name": "(Windows) Editor attach",
-			"type": "cppvsdbg",
-			"request": "attach",
-			"program": "${command:cmake.launchTargetDirectory}/HodEditor.exe",
-			//"args": ["--ProjectPath", "E:/Pong/Pong.hod"],
-			"stopAtEntry": false,
-			//"cwd": "E:/Pong/Pong.hod",
-			"environment": [],
-			"console": "integratedTerminal",
-			"preLaunchTask": "Build Target",
-		},
-		{
-			"name": "(Windows) Game",
-			"type": "cppvsdbg",
-			"request": "launch",
-			"program": "${command:cmake.launchTargetDirectory}/HodApplication.exe",
-			"args": [
-				"--BuildPath",
-				"E:/Circle/Builds/Latest"
-			],
-			"stopAtEntry": false,
-			//"cwd": "E:/Pong/Pong.hod",
 			"environment": [],
 			"console": "integratedTerminal",
 			"preLaunchTask": "Build Target",
