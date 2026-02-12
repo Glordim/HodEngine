@@ -174,9 +174,9 @@ install(EXPORT HodEngineTargets
 )
 
 export(EXPORT HodEngineTargets
-	FILE "${CMAKE_BINARY_DIR}/HodEngineTargets.cmake"
+	FILE "${CMAKE_BINARY_DIR}/Output/cmake/HodEngineTargets.cmake"
 	NAMESPACE HodEngine::
 )
-file(WRITE "${CMAKE_BINARY_DIR}/HodEngineConfig.cmake"
+file(WRITE "${CMAKE_BINARY_DIR}/Output/cmake/HodEngineConfig.cmake"
 	"include(\"\${CMAKE_CURRENT_LIST_DIR}/HodEngineTargets.cmake\")\n"
 )

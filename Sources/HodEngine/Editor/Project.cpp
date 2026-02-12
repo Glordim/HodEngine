@@ -309,7 +309,7 @@ namespace hod::editor
 	{
 		String cmakeLists(CMakeLists_txt);
 
-		String enginePath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath().GetString().CStr(); // todo...
+		String enginePath = FileSystem::GetExecutablePath().ParentPath().GetString();
 #if defined(PLATFORM_WINDOWS)
 		// CMakeLists require portable path
 		for (char& c : enginePath)
@@ -398,13 +398,13 @@ namespace hod::editor
 #if defined(PLATFORM_WINDOWS)
 		// const char* generator = "Visual Studio 17 2022";
 		// toolchainPath /= "CMake/Toolchains/Windows-Msvc-x64.cmake";
-		const char* generator = "Ninja Multi-Config";
+		const char* generator = "Ninja";
 		toolchainPath /= "CMake/Toolchains/Windows-ClangCl-x64.cmake";
 #elif defined(PLATFORM_MACOS)
 		const char* generator = "Xcode";
 		toolchainPath /= "CMake/Toolchains/MacOs-Clang-arm64.cmake";
 #elif defined(PLATFORM_LINUX)
-		const char* generator = "Ninja Multi-Config";
+		const char* generator = "Ninja";
 		toolchainPath /= "CMake/Toolchains/Linux-Clang-x64.cmake";
 #else
 	#error

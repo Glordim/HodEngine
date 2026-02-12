@@ -7,12 +7,11 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 
 set(HodEngine_DIR [[ENGINE_PATH]])
-include(${HodEngine_DIR}/CMake/Global.cmake)
+include(${HodEngine_DIR}/cmake/Global.cmake)
 SetupPlatform()
 SetupCompilation()
 
-include(${HodEngine_DIR}/CMake/FindHodEngine.cmake)
-FindHodEngine()
+include(${HodEngine_DIR}/cmake/HodEngineConfig.cmake)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/Sources/*.cpp"
@@ -41,22 +40,20 @@ endif()
 
 target_include_directories([[PROJECT_NAME]] PUBLIC
 	${PROJECT_SOURCE_DIR}/Sources
-	${HodEngine_INCLUDE_DIRS}
 )
 
 target_link_libraries([[PROJECT_NAME]]
-	${HodEngine_CORE_LIBRARY}
-	${HodEngine_WINDOW_LIBRARY}
-	${HodEngine_RENDERER_LIBRARY}
-	${HodEngine_INPUT_LIBRARY}
-	${HodEngine_PHYSICS_LIBRARY}
-	${HodEngine_GAME_LIBRARY}
-	${HodEngine_IMGUI_LIBRARY}
-	${HodEngine_EDITOR_LIBRARY}
-	${HodEngine_AUDIO_LIBRARY}
-	${HodEngine_UI_LIBRARY}
-	${HodEngine_APPLICATION_LIBRARY}
-	${HodEngine_HOD_APPLICATION_LIBRARY}
+	HodEngine::Core
+	HodEngine::Window
+	HodEngine::Renderer
+	HodEngine::Input
+	HodEngine::Physics
+	HodEngine::Game
+	HodEngine::ImGui
+	HodEngine::Editor
+	HodEngine::Audio
+	HodEngine::UI
+	HodEngine::Application
 )
 
 target_compile_definitions([[PROJECT_NAME]] PUBLIC ${PLATFORM_DEFINE})
