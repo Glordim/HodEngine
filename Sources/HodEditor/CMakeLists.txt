@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
-
 if (APPLE)
 	project(HodEditor LANGUAGES CXX OBJCXX)
 else()
@@ -36,7 +34,7 @@ target_link_libraries(HodEditor
 	PUBLIC Application Editor
 )
 
-target_compile_definitions(HodEditor PUBLIC ${PLATFORM_DEFINE})
+target_compile_definitions(HodEditor PUBLIC ${HOD_PLATFORM_DEFINE})
 
 install(TARGETS HodEditor
 	EXPORT HodEngineTargets

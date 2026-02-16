@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
 include(ClangBuildAnalyzer)
 
 project(InputEditor LANGUAGES CXX)
@@ -11,11 +10,10 @@ add_library(InputEditor ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::InputEditor ALIAS InputEditor)
 set_target_properties(InputEditor PROPERTIES
 	FOLDER "HodEngine"
-	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
 target_include_directories(InputEditor PUBLIC 
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
 )
 target_precompile_headers(InputEditor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
@@ -24,8 +22,10 @@ target_link_libraries(InputEditor
 	PUBLIC Input Editor
 )
 
-target_compile_definitions(InputEditor PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(InputEditor PRIVATE HOD_INPUT_EDITOR_EXPORT)
+target_compile_definitions(InputEditor
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE HOD_INPUT_EDITOR_EXPORT
+)
 
 install(TARGETS InputEditor
 	EXPORT HodEngineTargets

@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
 include(ClangBuildAnalyzer)
 
 if (APPLE)
@@ -25,7 +24,6 @@ add_library(Window ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::Window ALIAS Window)
 set_target_properties(Window PROPERTIES
 	FOLDER "HodEngine"
-	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
 if(UNIX AND NOT APPLE AND NOT ANDROID)
@@ -80,17 +78,17 @@ if(ANDROID)
 endif()
 
 target_include_directories(Window PUBLIC 
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
 )
 target_precompile_headers(Window PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Window
-	PUBLIC HodEngine::Core
+	PUBLIC Core
 )
 
 target_compile_definitions(Window
-	PUBLIC ${PLATFORM_DEFINE}
+	PUBLIC ${HOD_PLATFORM_DEFINE}
 	PRIVATE HOD_WINDOW_EXPORT
 )
 

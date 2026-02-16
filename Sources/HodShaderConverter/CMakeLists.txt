@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
-
 project(HodShaderConverter)
 
 file(GLOB_RECURSE Srcs
@@ -32,4 +30,4 @@ include_directories(
 #	Core
 #)
 
-target_compile_definitions(HodShaderConverter PUBLIC ${PLATFORM_DEFINE})
+target_compile_definitions(HodShaderConverter PUBLIC ${HOD_PLATFORM_DEFINE})

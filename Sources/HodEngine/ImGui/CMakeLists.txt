@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
 include(EmbedInSource)
 include(EmbedShader)
 include(ClangBuildAnalyzer)
@@ -66,11 +65,10 @@ add_library(ImGui ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::ImGui ALIAS ImGui)
 set_target_properties(Renderer PROPERTIES
 	FOLDER "HodEngine"
-	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
 target_include_directories(ImGui PUBLIC 
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
 	PRIVATE ${GENERATED_DIR} ${CMAKE_CURRENT_SOURCE_DIR} SYSTEM "DearImGui"
 )
@@ -85,8 +83,10 @@ target_link_libraries(ImGui
 	PRIVATE Freetype::Freetype
 )
 
-target_compile_definitions(ImGui PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(ImGui PRIVATE HOD_IMGUI_EXPORT)
+target_compile_definitions(ImGui
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE HOD_IMGUI_EXPORT
+)
 
 install(TARGETS ImGui
 	EXPORT HodEngineTargets

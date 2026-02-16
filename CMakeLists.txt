@@ -114,17 +114,14 @@ set_target_properties(GtestMain::GtestMain PROPERTIES
 )
 
 if(WIN32)
-set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc.exe")
-set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang.${DLL_EXTENSION}")
-set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc.exe")
+	set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang.${DLL_EXTENSION}")
+	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
 else()
-set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc")
-set(SLANG_DLL "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang.${DLL_EXTENSION}")
-set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc")
+	set(SLANG_DLL "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang.${DLL_EXTENSION}")
+	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
 endif()
-
-SetupPlatform()
-SetupCompilation()
 
 option(BUILD_UNIT_TESTS "Enable UnitTests compilation" ON)
 if (BUILD_UNIT_TESTS)
@@ -168,15 +165,43 @@ if (NOT ANDROID)
 endif()
 
 install(EXPORT HodEngineTargets
+	NAMESPACE HodEngine::
+	FILE HodEngineTargets.cmake
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/cmake"
+)
+
+configure_file(cmake/HodEngineConfig.cmake.in 
+	"${CMAKE_BINARY_DIR}/Output/cmake/HodEngineConfig.cmake" @ONLY)
+install(FILES "${CMAKE_BINARY_DIR}/Output/cmake/HodEngineConfig.cmake"
+	DESTINATION "cmake")
+
+install(EXPORT HodEngineTargets
 	FILE HodEngineTargets.cmake
 	NAMESPACE HodEngine::
 	DESTINATION lib/cmake/HodEngine
 )
 
 export(EXPORT HodEngineTargets
-	FILE "${CMAKE_BINARY_DIR}/Output/cmake/HodEngineTargets.cmake"
+	FILE "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/cmake/HodEngineTargets.cmake"
 	NAMESPACE HodEngine::
 )
-file(WRITE "${CMAKE_BINARY_DIR}/Output/cmake/HodEngineConfig.cmake"
-	"include(\"\${CMAKE_CURRENT_LIST_DIR}/HodEngineTargets.cmake\")\n"
+
+if(CMAKE_TOOLCHAIN_FILE)
+	install(FILES "${CMAKE_TOOLCHAIN_FILE}"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}"
+		RENAME "toolchain.cmake")
+
+	configure_file(
+		"${CMAKE_TOOLCHAIN_FILE}"
+		"${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/cmake/toolchain.cmake"
+		COPYONLY
+	)
+endif()
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake"
+		DESTINATION "cmake")
+configure_file(
+		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake"
+		"${CMAKE_BINARY_DIR}/Output/cmake/Global.cmake"
+		COPYONLY
 )

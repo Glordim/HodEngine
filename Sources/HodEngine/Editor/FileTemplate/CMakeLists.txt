@@ -1,17 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
 project([[PROJECT_NAME]] LANGUAGES CXX)
+find_package(HodEngine
+	HINTS "[[ROOT_ENGINE_DIR]]/cmake"
+	NO_DEFAULT_PATH
+)
 
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
-
-set(HodEngine_DIR [[ENGINE_PATH]])
-include(${HodEngine_DIR}/cmake/Global.cmake)
-SetupPlatform()
-SetupCompilation()
-
-include(${HodEngine_DIR}/cmake/HodEngineConfig.cmake)
 
 file(GLOB_RECURSE Srcs
 	"${PROJECT_SOURCE_DIR}/Sources/*.cpp"
@@ -33,7 +30,6 @@ if (APPLE)
 	target_include_directories([[PROJECT_NAME]] PRIVATE ${PROJECT_SOURCE_DIR})
 else()
 	add_library([[PROJECT_NAME]] SHARED ${Srcs} ${Includes})
-	set_property(TARGET [[PROJECT_NAME]] PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 	#set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodApplication)
 endif()
@@ -56,6 +52,8 @@ target_link_libraries([[PROJECT_NAME]]
 	HodEngine::Application
 )
 
-target_compile_definitions([[PROJECT_NAME]] PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions([[PROJECT_NAME]] PRIVATE [[PROJECT_EXPORT]])
+target_compile_definitions([[PROJECT_NAME]]
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE [[PROJECT_EXPORT]]
+)
 

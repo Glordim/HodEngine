@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
 include(ClangBuildAnalyzer)
 
 if (APPLE)
@@ -25,11 +24,10 @@ add_library(Application ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::Application ALIAS Application)
 set_target_properties(Application PROPERTIES
 	FOLDER "HodEngine"
-	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
 target_include_directories(Application PUBLIC 
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
 )
 target_precompile_headers(Application PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
@@ -45,8 +43,10 @@ if (ANDROID)
 	target_link_libraries(Application ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-activity_static.a)
 endif()
 
-target_compile_definitions(Application PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(Application PRIVATE HOD_APPLICATION_EXPORT)
+target_compile_definitions(Application
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE HOD_APPLICATION_EXPORT
+)
 
 install(TARGETS Application
 	EXPORT HodEngineTargets

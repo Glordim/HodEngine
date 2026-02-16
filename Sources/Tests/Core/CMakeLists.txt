@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
-
 project(TestsCore)
 
 file(GLOB_RECURSE Srcs
@@ -38,7 +36,7 @@ target_link_libraries(TestsCore
 		GtestMain::GtestMain
 )
 
-target_compile_definitions(TestsCore PUBLIC ${PLATFORM_DEFINE})
+target_compile_definitions(TestsCore PUBLIC ${HOD_PLATFORM_DEFINE})
 
 include(GoogleTest)
 gtest_discover_tests(TestsCore)

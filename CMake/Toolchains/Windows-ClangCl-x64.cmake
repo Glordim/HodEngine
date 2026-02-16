@@ -2,6 +2,9 @@ set(CMAKE_C_COMPILER "clang-cl.exe" CACHE STRING "Clang-Cl C compiler" FORCE)
 set(CMAKE_CXX_COMPILER "clang-cl.exe" CACHE STRING "Clang-Cl C++ compiler" FORCE)
 
 set(ARCH "x64" CACHE STRING "Target platform" FORCE)
+set(HOD_PLATFORM "windows-x64")
+set(HOD_PLATFORM_DEFINE "PLATFORM_WINDOWS")
+set(HOD_PLATFORM_WINDOWS True)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

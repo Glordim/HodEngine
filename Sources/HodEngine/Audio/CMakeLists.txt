@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
 include(ClangBuildAnalyzer)
 
 if (APPLE)
@@ -25,11 +24,10 @@ add_library(Audio ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::Audio ALIAS Audio)
 set_target_properties(Audio PROPERTIES
 	FOLDER "HodEngine"
-	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
 target_include_directories(Audio PUBLIC 
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
 )
 target_precompile_headers(Audio PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
@@ -38,8 +36,10 @@ target_link_libraries(Audio
 	PUBLIC Core
 )
 
-target_compile_definitions(Audio PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(Audio PRIVATE HOD_AUDIO_EXPORT)
+target_compile_definitions(Audio
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE HOD_AUDIO_EXPORT
+)
 
 install(TARGETS Audio
 	EXPORT HodEngineTargets

@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
 include(EmbedInSource)
 include(EmbedShader)
 include(ClangBuildAnalyzer)
@@ -52,11 +51,10 @@ add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::Renderer ALIAS Renderer)
 set_target_properties(Renderer PROPERTIES
 	FOLDER "HodEngine"
-	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
 target_include_directories(Renderer PUBLIC 
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
 	PRIVATE ${GENERATED_DIR}
 )
@@ -94,8 +92,10 @@ if (RENDERER_ENABLE_VALIDATION_LAYER)
 	target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
 endif()
 
-target_compile_definitions(Renderer PRIVATE ${PLATFORM_DEFINE} ${RENDERER_DEFINE})
-target_compile_definitions(Renderer PRIVATE HOD_RENDERER_EXPORT)
+target_compile_definitions(Renderer
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE ${RENDERER_DEFINE} HOD_RENDERER_EXPORT
+)
 
 install(TARGETS Renderer
 	EXPORT HodEngineTargets

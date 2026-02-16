@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
 include(ClangBuildAnalyzer)
 
 if (APPLE)
@@ -22,10 +21,9 @@ add_library(HodEngine::Core ALIAS Core)
 
 set_target_properties(Core PROPERTIES
 	FOLDER "HodEngine"
-	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 target_include_directories(Core PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
 )
 target_precompile_headers(Core PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
@@ -49,16 +47,17 @@ target_link_libraries(Core
 )
 
 target_compile_definitions(Core
-	PUBLIC ${PLATFORM_DEFINE}
+	PUBLIC ${HOD_PLATFORM_DEFINE}
 	PRIVATE HOD_CORE_EXPORT
 )
 
-install(TARGETS Core
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+hod_install_lib(Core)
+
+install(DIRECTORY "."
+	DESTINATION "include/HodEngine/Core"
+	FILES_MATCHING PATTERN "*.hpp"
+	PATTERN "*.h"
+	PATTERN "Pch.hpp" EXCLUDE
 )
 
 option(ENABLE_SUPERLUMINAL_PROFILER "Enable Superluminal profiler" OFF)

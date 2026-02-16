@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
-
 if (APPLE)
     project(HodApplication LANGUAGES CXX OBJCXX)
 else()
@@ -43,4 +41,4 @@ target_link_libraries(HodApplication
 	Application
 )
 
-target_compile_definitions(HodApplication PUBLIC ${PLATFORM_DEFINE})
+target_compile_definitions(HodApplication PUBLIC ${HOD_PLATFORM_DEFINE})

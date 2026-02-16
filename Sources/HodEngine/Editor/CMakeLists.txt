@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(Global)
 include(ClangBuildAnalyzer)
 
 project(Editor LANGUAGES CXX)
@@ -47,11 +46,10 @@ add_library(Editor ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::Editor ALIAS Editor)
 set_target_properties(Renderer PROPERTIES
 	FOLDER "HodEngine"
-	MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
 
 target_include_directories(Editor PUBLIC 
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
 	PRIVATE ${GENERATED_DIR} SYSTEM Stb::Stb PortableFileDialogs::PortableFileDialogs
 )
@@ -61,8 +59,10 @@ target_link_libraries(Editor
 	PUBLIC Core ImGui Window Physics Renderer Game
 )
 
-target_compile_definitions(Editor PUBLIC ${PLATFORM_DEFINE})
-target_compile_definitions(Editor PRIVATE HOD_EDITOR_EXPORT)
+target_compile_definitions(Editor
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE HOD_EDITOR_EXPORT
+)
 
 add_custom_command(
 	TARGET Editor POST_BUILD
