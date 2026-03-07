@@ -157,15 +157,14 @@ namespace hod
 		if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
 		{
 			std::memcpy(_small._buffer, string._small._buffer, _size + 1);
-			string._small._buffer[0] = '\0';
 		}
 		else
 		{
 			_large = string._large;
-			string._size = 0;
-			string._capacity = 0;
-			string._large._buffer = nullptr;
 		}
+		string._size = 0;
+		string._capacity = 0;
+		string._large._buffer = nullptr;
 	}
 
 	/// @brief Creates a string from a substring
@@ -911,11 +910,11 @@ namespace hod
 			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
 			if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
 			{
-				std::memcpy(buffer + count, string._small._buffer + position, count);
+				std::memcpy(buffer + _size, string._small._buffer + position, count);
 			}
 			else
 			{
-				std::memcpy(buffer + count, string._large._buffer + position, count);
+				std::memcpy(buffer + _size, string._large._buffer + position, count);
 			}
 			buffer[_size + count] = '\0';
 
@@ -961,7 +960,7 @@ namespace hod
 			Reserve(_size + count);
 			ModifyAddressSanitizerAnnotation(_size, _size + count);
 			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			std::memcpy(buffer + count, string.data() + position, count);
+			std::memcpy(buffer + _size, string.data() + position, count);
 			buffer[_size + count] = '\0';
 
 			_size += count;
@@ -1548,10 +1547,10 @@ namespace hod
 			return Npos;
 		}
 
-		uint32_t    currentPos = _size - compareSize;
+		uint32_t    currentPos = (position < _size - compareSize) ? position : _size - compareSize;
 		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
 
-		while (currentPos >= position)
+		while (true)
 		{
 			if (std::strncmp(buffer + currentPos, string, compareSize) == 0)
 			{
@@ -1565,8 +1564,6 @@ namespace hod
 
 			--currentPos;
 		}
-
-		return Npos;
 	}
 
 	/// @brief
@@ -1584,11 +1581,11 @@ namespace hod
 			return Npos;
 		}
 
-		uint32_t    currentPos = _size - string._size;
+		uint32_t    currentPos = (position < _size - string._size) ? position : _size - string._size;
 		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
 		const char* otherBuffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
 
-		while (currentPos >= position)
+		while (true)
 		{
 			if (std::strncmp(buffer + currentPos, otherBuffer, string._size) == 0)
 			{
@@ -1602,8 +1599,6 @@ namespace hod
 
 			--currentPos;
 		}
-
-		return Npos;
 	}
 
 	/// @brief
@@ -1621,10 +1616,10 @@ namespace hod
 			return Npos;
 		}
 
-		uint32_t    currentPos = _size - static_cast<uint32_t>(string.size());
+		uint32_t    currentPos = (position < _size - static_cast<uint32_t>(string.size())) ? position : _size - static_cast<uint32_t>(string.size());
 		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
 
-		while (currentPos >= position)
+		while (true)
 		{
 			if (std::strncmp(buffer + currentPos, string.data(), static_cast<uint32_t>(string.size())) == 0)
 			{
@@ -1638,8 +1633,6 @@ namespace hod
 
 			--currentPos;
 		}
-
-		return Npos;
 	}
 
 	uint32_t String::FindFirstOf(const char* string, uint32_t position) const
@@ -1712,18 +1705,26 @@ namespace hod
 	int32_t String::Compare(const std::string_view& string) const
 	{
 		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		const uint32_t otherSize = static_cast<uint32_t>(string.size());
 
-		if (_capacity == 0 || buffer[0] == '\0')
+		if (_size == 0)
 		{
-			return (string.data() == nullptr || static_cast<uint32_t>(string.size()) == 0) ? 0 : -1;
+			return (otherSize == 0) ? 0 : -1;
 		}
-		else if (string.data() == nullptr || static_cast<uint32_t>(string.size()) == 0)
+		else if (otherSize == 0)
 		{
 			return 1;
 		}
 		else
 		{
-			return std::strcmp(buffer, string.data());
+			int32_t result = std::strncmp(buffer, string.data(), _size < otherSize ? _size : otherSize);
+			if (result != 0)
+			{
+				return result;
+			}
+			if (_size < otherSize) return -1;
+			if (_size > otherSize) return 1;
+			return 0;
 		}
 	}
 
@@ -2028,38 +2029,7 @@ namespace hod
 	/// @return
 	bool String::Contains(const char* string) const
 	{
-		uint32_t    size = static_cast<uint32_t>(std::strlen(string));
-		uint32_t    matchingcharCount = 0;
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-
-		if (size == 0)
-		{
-			return true;
-		}
-
-		for (uint32_t index = 0; index < _size; ++index)
-		{
-			if (_size - index < size - matchingcharCount)
-			{
-				return false;
-			}
-
-			if (buffer[index] == string[matchingcharCount])
-			{
-				++matchingcharCount;
-
-				if (matchingcharCount == size)
-				{
-					return true;
-				}
-			}
-			else
-			{
-				matchingcharCount = 0;
-			}
-		}
-
-		return false;
+		return Find(string) != Npos;
 	}
 
 	/// @brief
@@ -2067,39 +2037,7 @@ namespace hod
 	/// @return
 	bool String::Contains(const String& string) const
 	{
-		const char* stringBuffer = string.CStr();
-		uint32_t    matchingcharCount = 0;
-
-		if (string._size == 0)
-		{
-			return true;
-		}
-
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-
-		for (uint32_t index = 0; index < _size; ++index)
-		{
-			if (_size - index < string._size - matchingcharCount)
-			{
-				return false;
-			}
-
-			if (buffer[index] == stringBuffer[matchingcharCount])
-			{
-				++matchingcharCount;
-
-				if (matchingcharCount == string._size)
-				{
-					return true;
-				}
-			}
-			else
-			{
-				matchingcharCount = 0;
-			}
-		}
-
-		return false;
+		return Find(string) != Npos;
 	}
 
 	/// @brief
@@ -2107,39 +2045,12 @@ namespace hod
 	/// @return
 	bool String::Contains(const std::string_view& string) const
 	{
-		const char* stringBuffer = string.data();
-		uint32_t    matchingcharCount = 0;
-
 		if (static_cast<uint32_t>(string.size()) == 0)
 		{
 			return true;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-
-		for (uint32_t index = 0; index < _size; ++index)
-		{
-			if (_size - index < static_cast<uint32_t>(string.size()) - matchingcharCount)
-			{
-				return false;
-			}
-
-			if (buffer[index] == stringBuffer[matchingcharCount])
-			{
-				++matchingcharCount;
-
-				if (matchingcharCount == static_cast<uint32_t>(string.size()))
-				{
-					return true;
-				}
-			}
-			else
-			{
-				matchingcharCount = 0;
-			}
-		}
-
-		return false;
+		return Find(string) != Npos;
 	}
 
 	/// @brief
