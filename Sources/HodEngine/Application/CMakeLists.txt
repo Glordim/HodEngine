@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(ClangBuildAnalyzer)
-
 if (APPLE)
 	project(Application LANGUAGES CXX OBJCXX)
 else()
@@ -55,5 +53,3 @@ install(TARGETS Application
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-
-ClangBuildAnalyzer(Application)

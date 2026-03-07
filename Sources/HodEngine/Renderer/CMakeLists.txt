@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 
 include(EmbedInSource)
 include(EmbedShader)
-include(ClangBuildAnalyzer)
 
 if(APPLE)
 	project(Renderer LANGUAGES CXX OBJCXX)
@@ -104,5 +103,3 @@ install(TARGETS Renderer
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-
-ClangBuildAnalyzer(Renderer)

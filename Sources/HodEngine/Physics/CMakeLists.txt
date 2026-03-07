@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(ClangBuildAnalyzer)
-
 project(Physics LANGUAGES CXX)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
@@ -37,5 +35,3 @@ install(TARGETS Physics
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-
-ClangBuildAnalyzer(Physics)

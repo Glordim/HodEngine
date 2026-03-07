@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(ClangBuildAnalyzer)
-
 if (APPLE)
 	project(Window LANGUAGES CXX OBJCXX)
 else()
@@ -48,5 +46,3 @@ install(TARGETS Audio
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-
-ClangBuildAnalyzer(Audio)

@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(ClangBuildAnalyzer)
-
 project(CoreEditor LANGUAGES CXX)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
@@ -34,5 +32,3 @@ install(TARGETS CoreEditor
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-
-ClangBuildAnalyzer(CoreEditor)

@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-include(ClangBuildAnalyzer)
-
 project(Game LANGUAGES CXX)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
@@ -36,5 +34,3 @@ install(TARGETS Game
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-
-ClangBuildAnalyzer(Game)
