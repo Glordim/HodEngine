@@ -173,7 +173,7 @@ namespace hod
 		{
 			size = std::min(size, _material->GetPushConstantSize());
 
-			vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, Size, constant);
+			vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, size, constant);
 		}
 
 		//-----------------------------------------------------------------------------
