@@ -5,6 +5,8 @@
 
 #include <HodEngine/Core/Thread/Thread.hpp>
 
+#include <mutex>
+
 struct HWND__;
 using HWND = HWND__*;
 struct HINSTANCE__;
@@ -35,6 +37,9 @@ namespace hod::window
 		void CenterToScreen() override;
 		void Maximize() override;
 
+		void LockSize();
+		void UnlockSize();
+
 		void SetVisible(bool visible) override;
 
 		void       RunOnWin32Thread(std::function<void()> codeToRun);
@@ -53,5 +58,7 @@ namespace hod::window
 
 		std::mutex                    _runOnWin32ThreadMutex;
 		Vector<std::function<void()>> _runOnWin32Thread;
+
+		std::mutex _sizeLock;
 	};
 }

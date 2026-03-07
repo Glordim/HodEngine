@@ -116,6 +116,14 @@ namespace hod::renderer
 				renderView->Execute();
 			}
 		}
+		for (uint32_t i = 0; i < _semaphores.Size(); ++i)
+		{
+			if (_semaphores[i] == semaphore)
+			{
+				_semaphores.Erase(i);
+				break;
+			}
+		}
 		presentationSurface->AddSemaphoreToSwapBuffer(semaphore);
 
 		if (presentationSurface->SwapBuffer() == false)

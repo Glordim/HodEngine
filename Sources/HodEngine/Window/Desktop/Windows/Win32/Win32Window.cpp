@@ -155,10 +155,19 @@ namespace hod::window
 		}
 		else if (msg == WM_SIZE)
 		{
+			_sizeLock.lock();
 			UINT width = LOWORD(lParam);
 			UINT height = HIWORD(lParam);
 
 			ResizeInternal(width, height);
+			_sizeLock.unlock();
+			return 0;
+		}
+		else if (msg == WM_SIZING)
+		{
+			_sizeLock.lock();
+
+			_sizeLock.unlock();
 			return 0;
 		}
 		else if (msg == WM_CLOSE)
@@ -344,5 +353,15 @@ namespace hod::window
 	Thread::Id Win32Window::GetMessageLoopThreadId() const
 	{
 		return _hWndThreadId;
+	}
+
+	void Win32Window::LockSize()
+	{
+		_sizeLock.lock();
+	}
+
+	void Win32Window::UnlockSize()
+	{
+		_sizeLock.unlock();
 	}
 }

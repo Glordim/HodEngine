@@ -286,41 +286,24 @@ namespace hod
 					presentationSurfaceToResize.PushBack(presentationSurface);
 				}
 			}
+
+			FrameResources& frameResources = GetCurrentFrameResources();
+			frameResources.Wait();
+			frameResources.DestroyAll();
+
+			for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
+			{
+				DefaultAllocator::GetInstance().Delete(textureToDestroy);
+			}
+			_texturesToDestroy[_frameIndex].Clear();
+
 			if (presentationSurfaceToResize.Empty() == false)
 			{
-				for (uint32_t frameSkipped = 0; frameSkipped < _frameInFlight; ++frameSkipped)
-				{
-					FrameResources& frameResources = GetCurrentFrameResources();
-					frameResources.Wait();
-					frameResources.DestroyAll();
-
-					for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
-					{
-						DefaultAllocator::GetInstance().Delete(textureToDestroy);
-					}
-					_texturesToDestroy[_frameIndex].Clear();
-
-					++_frameCount;
-					_frameIndex = _frameCount % _frameInFlight;
-				}
-
 				for (PresentationSurface* presentationSurface : presentationSurfaceToResize)
 				{
 					window::Window* window = presentationSurface->GetWindow();
 					presentationSurface->Resize(window->GetWidth(), window->GetHeight());
 				}
-			}
-			else
-			{
-				FrameResources& frameResources = GetCurrentFrameResources();
-				frameResources.Wait();
-				frameResources.DestroyAll();
-
-				for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
-				{
-					DefaultAllocator::GetInstance().Delete(textureToDestroy);
-				}
-				_texturesToDestroy[_frameIndex].Clear();
 			}
 
 			for (PresentationSurface* presentationSurface : _presentationSurfaces)

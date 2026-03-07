@@ -7,6 +7,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <queue>
+
 namespace hod::renderer
 {
 	class InstanceExtensionCollector;
@@ -42,6 +44,17 @@ namespace hod::renderer
 		VkSurfaceKHR _surface = VK_NULL_HANDLE;
 
 	private:
+		struct RetiredSwapchain
+		{
+			VkSwapchainKHR        swapchain;
+			Vector<VkImageView>   imageViews; // Les vues associées doivent mourir avec la swapchain
+			Vector<VkFramebuffer> framebuffers;
+			uint32_t              _presentCountForRemoval;
+		};
+
+		std::deque<RetiredSwapchain> _deletionQueue;
+
+	private:
 		bool CreateSurface(window::Window* window);
 
 		bool CreateSwapChain(uint32_t width, uint32_t height);
@@ -50,10 +63,13 @@ namespace hod::renderer
 	private:
 		VkExtent2D            _swapChainExtent;
 		VkSwapchainKHR        _swapchain = VK_NULL_HANDLE;
+		Vector<VkImage>       _swapchainImages;
 		Vector<VkImageView>   _swapchainImageViews;
 		Vector<VkFramebuffer> _swapchainFramebuffers;
 		VkRenderPass          _renderPass = VK_NULL_HANDLE;
 
 		uint32_t _currentImageIndex = 0;
+
+		uint32_t _presentCount = 0;
 	};
 }
