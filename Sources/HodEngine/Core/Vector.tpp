@@ -888,7 +888,8 @@ namespace hod
 	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Insert(ConstIterator iterator, const __TYPE__& value)
 	{
 		uint32_t index = iterator._ptr - _elements;
-		return Begin() + Insert(index, value);
+		Insert(index, value);
+		return Begin() + index;
 	}
 
 	template<typename __TYPE__>
@@ -940,7 +941,8 @@ namespace hod
 	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Insert(ConstIterator iterator, __TYPE__&& value)
 	{
 		uint32_t index = iterator._ptr - _elements;
-		return Begin() + Insert(index, std::move(value));
+		Insert(index, std::move(value));
+		return Begin() + index;
 	}
 
 	template<typename __TYPE__>
@@ -991,7 +993,8 @@ namespace hod
 		              "Insert Range with reverse iterators is not supported");
 
 		uint32_t index = iterator._ptr - _elements;
-		return Begin() + Insert(index, first, last);
+		Insert(index, first, last);
+		return Begin() + index;
 	}
 
 	template<typename __TYPE__>
@@ -1042,7 +1045,7 @@ namespace hod
 		}
 		_size += elementToInsertCount;
 
-		return index + elementToInsertCount;
+		return index;
 	}
 
 	template<typename __TYPE__>

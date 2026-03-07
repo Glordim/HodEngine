@@ -609,6 +609,7 @@ struct NonTrivial
 	NonTrivial(NonTrivial&& other) noexcept
 	: value(other.value)
 	{
+		other.value = 0;
 		++constructCount;
 	}
 
@@ -767,8 +768,12 @@ TEST_F(Vector, CapacityGrowth)
 		}
 	}
 
-	// Verify exponential growth
+	// Verify factor-of-2 growth
 	EXPECT_GT(capacities.Size(), 0);
+	for (uint32_t i = 1; i < capacities.Size(); ++i)
+	{
+		EXPECT_EQ(capacities[i], capacities[i - 1] * 2);
+	}
 }
 
 TEST_F(Vector, NoUnnecessaryReallocations)
@@ -785,4 +790,236 @@ TEST_F(Vector, NoUnnecessaryReallocations)
 
 	// Data pointer should not change if capacity was sufficient
 	EXPECT_EQ(vec.Data(), dataPtr);
+}
+
+// ============================================================================
+// Iterator Tests (additional)
+// ============================================================================
+
+TEST_F(Vector, IteratorDifference)
+{
+	hod::Vector<int> vec = {10, 20, 30, 40, 50};
+
+	auto it1 = vec.Begin();
+	auto it2 = vec.Begin() + 3;
+
+	EXPECT_EQ(it2 - it1, 3);
+	EXPECT_EQ(it1 - it2, -3);
+	EXPECT_EQ(vec.End() - vec.Begin(), static_cast<std::ptrdiff_t>(vec.Size()));
+}
+
+TEST_F(Vector, CBeginCEndOnNonConst)
+{
+	hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	int sum = 0;
+	for (auto it = vec.CBegin(); it != vec.CEnd(); ++it)
+	{
+		sum += *it;
+	}
+	EXPECT_EQ(sum, 15);
+}
+
+TEST_F(Vector, ConstReverseIterators)
+{
+	const hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	hod::Vector<int> reversed;
+	for (auto it = vec.CRBegin(); it != vec.CREnd(); ++it)
+	{
+		reversed.PushBack(*it);
+	}
+
+	EXPECT_EQ(reversed.Size(), 5);
+	EXPECT_EQ(reversed[0], 5);
+	EXPECT_EQ(reversed[4], 1);
+}
+
+TEST_F(Vector, ConstReverseIteratorsOnNonConst)
+{
+	hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	int sum = 0;
+	for (auto it = vec.CRBegin(); it != vec.CREnd(); ++it)
+	{
+		sum += *it;
+	}
+	EXPECT_EQ(sum, 15);
+}
+
+// ============================================================================
+// Return Value Tests
+// ============================================================================
+
+TEST_F(Vector, InsertReturnValue)
+{
+	hod::Vector<int> vec = {1, 2, 4, 5};
+
+	auto it = vec.Insert(vec.Begin() + 2, 3);
+
+	EXPECT_EQ(*it, 3);
+	EXPECT_EQ(it - vec.Begin(), 2);
+}
+
+TEST_F(Vector, EraseReturnValue)
+{
+	hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	auto it = vec.Erase(vec.Begin() + 2); // erase 3
+
+	EXPECT_EQ(*it, 4);
+	EXPECT_EQ(it - vec.Begin(), 2);
+}
+
+TEST_F(Vector, EraseReturnValueForLastElement)
+{
+	hod::Vector<int> vec = {1, 2, 3};
+
+	auto it = vec.Erase(vec.Begin() + 2); // erase last element
+
+	EXPECT_EQ(it, vec.End());
+}
+
+// ============================================================================
+// Index-based Overloads Tests
+// ============================================================================
+
+TEST_F(Vector, InsertByIndex)
+{
+	hod::Vector<int> vec = {1, 2, 4, 5};
+
+	uint32_t idx = vec.Insert(2u, 3);
+
+	EXPECT_EQ(idx, 2u);
+	EXPECT_EQ(vec.Size(), 5);
+	EXPECT_EQ(vec[2], 3);
+	EXPECT_EQ(vec[3], 4);
+}
+
+TEST_F(Vector, InsertRangeByIndex)
+{
+	hod::Vector<int> vec    = {1, 5};
+	hod::Vector<int> toInsert = {2, 3, 4};
+
+	uint32_t idx = vec.Insert(1u, toInsert.Begin(), toInsert.End());
+
+	EXPECT_EQ(idx, 1u);
+	EXPECT_EQ(vec.Size(), 5);
+	for (uint32_t i = 0; i < vec.Size(); ++i)
+	{
+		EXPECT_EQ(vec[i], static_cast<int>(i + 1));
+	}
+}
+
+TEST_F(Vector, EmplaceByIndex)
+{
+	hod::Vector<std::pair<int, std::string>> vec;
+	vec.EmplaceBack(1, "first");
+	vec.EmplaceBack(3, "third");
+
+	uint32_t idx = vec.Emplace(1u, 2, "second");
+
+	EXPECT_EQ(idx, 1u);
+	EXPECT_EQ(vec.Size(), 3);
+	EXPECT_EQ(vec[1].first, 2);
+	EXPECT_EQ(vec[1].second, "second");
+}
+
+TEST_F(Vector, EraseByIndexWithCount)
+{
+	hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	uint32_t idx = vec.Erase(1u, 3u); // erase elements 2, 3, 4
+
+	EXPECT_EQ(idx, 1u);
+	EXPECT_EQ(vec.Size(), 2);
+	EXPECT_EQ(vec[0], 1);
+	EXPECT_EQ(vec[1], 5);
+}
+
+TEST_F(Vector, EraseByIndexWithCountZero)
+{
+	hod::Vector<int> vec = {1, 2, 3};
+
+	uint32_t idx = vec.Erase(1u, 0u);
+
+	EXPECT_EQ(idx, 1u);
+	EXPECT_EQ(vec.Size(), 3); // unchanged
+}
+
+// ============================================================================
+// Reverse Iterator Modifier Tests
+// ============================================================================
+
+TEST_F(Vector, InsertWithReverseIterator)
+{
+	hod::Vector<int> vec = {1, 2, 3};
+
+	// RBegin() points to last element (3); inserting there places 99 before 3
+	vec.Insert(vec.RBegin(), 99);
+
+	EXPECT_EQ(vec.Size(), 4);
+	EXPECT_EQ(vec[0], 1);
+	EXPECT_EQ(vec[1], 2);
+	EXPECT_EQ(vec[2], 99);
+	EXPECT_EQ(vec[3], 3);
+}
+
+TEST_F(Vector, EraseWithReverseIterator)
+{
+	hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	// RBegin() points to last element (5)
+	vec.Erase(vec.RBegin());
+
+	EXPECT_EQ(vec.Size(), 4);
+	EXPECT_EQ(vec.Back(), 4);
+}
+
+TEST_F(Vector, EraseSecondToLastWithReverseIterator)
+{
+	hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	// RBegin()+1 points to second-to-last element (4)
+	vec.Erase(vec.RBegin() + 1);
+
+	EXPECT_EQ(vec.Size(), 4);
+	EXPECT_EQ(vec[3], 5);
+	EXPECT_EQ(vec[2], 3);
+}
+
+TEST_F(Vector, EmplaceWithReverseIterator)
+{
+	hod::Vector<std::pair<int, std::string>> vec;
+	vec.EmplaceBack(1, "first");
+	vec.EmplaceBack(3, "third");
+
+	// RBegin() points to last element {3,"third"}; emplacing there inserts before it
+	vec.Emplace(vec.RBegin(), 2, "second");
+
+	EXPECT_EQ(vec.Size(), 3);
+	EXPECT_EQ(vec[1].first, 2);
+	EXPECT_EQ(vec[1].second, "second");
+	EXPECT_EQ(vec[2].first, 3);
+}
+
+TEST_F(Vector, SwapAndPopBackByIndex)
+{
+	hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	vec.SwapAndPopBack(1u); // swap index 1 (=2) with last (=5), then pop
+
+	EXPECT_EQ(vec.Size(), 4);
+	EXPECT_EQ(vec[1], 5);
+}
+
+TEST_F(Vector, SwapAndPopBackReverseIterator)
+{
+	hod::Vector<int> vec = {1, 2, 3, 4, 5};
+
+	// RBegin()+1 points to second-to-last element (4, index 3)
+	vec.SwapAndPopBack(vec.RBegin() + 1);
+
+	EXPECT_EQ(vec.Size(), 4);
+	EXPECT_EQ(vec[3], 5);
 }
