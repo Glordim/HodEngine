@@ -71,11 +71,30 @@ set_target_properties(Freetype::Freetype PROPERTIES
 	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
 )
 
-add_library(Fmt::Fmt STATIC IMPORTED GLOBAL)
-set_target_properties(Fmt::Fmt PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+find_package(fmt REQUIRED CONFIG
+	PATHS "${THIRDPARTY_ROOT}/lib/cmake"
+	NO_DEFAULT_PATH
+)
+
+install(DIRECTORY "${THIRDPARTY_ROOT}/lib/cmake/fmt"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/lib/cmake"
+)
+install(FILES "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/lib"
+)
+install(DIRECTORY "${THIRDPARTY_ROOT}/include/fmt"
+	DESTINATION "include"
+)
+
+# Copy fmt to build tree so HodEngineConfig.cmake works without install
+file(COPY "${THIRDPARTY_ROOT}/lib/cmake/fmt"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/lib/cmake"
+)
+file(COPY "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/lib"
+)
+file(COPY "${THIRDPARTY_ROOT}/include/fmt"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/include"
 )
 
 add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)

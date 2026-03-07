@@ -196,7 +196,7 @@ namespace hod::editor
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule.Init(_projectPath.ParentPath() / "build" / "Release" / _name.CStr(), true);
+		_gameModule.Init(_projectPath.ParentPath() / "build" / "Output" / "platforms" / "windows-x64" / "bin" / _name.CStr(), true);
 		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
 		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr))
 		{
@@ -309,7 +309,7 @@ namespace hod::editor
 	{
 		String cmakeLists(CMakeLists_txt);
 
-		String enginePath = FileSystem::GetExecutablePath().ParentPath().GetString();
+		String enginePath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath().ParentPath().GetString();
 #if defined(PLATFORM_WINDOWS)
 		// CMakeLists require portable path
 		for (char& c : enginePath)
@@ -320,7 +320,7 @@ namespace hod::editor
 			}
 		}
 #endif
-		constexpr std::string_view enginePathTag = "[[ENGINE_PATH]]";
+		constexpr std::string_view enginePathTag = "[[ROOT_ENGINE_DIR]]";
 		size_t                     replaceIndex = cmakeLists.Find(enginePathTag);
 		while (replaceIndex != String::Npos)
 		{
@@ -393,26 +393,9 @@ namespace hod::editor
 			return false;
 		}
 
-		Path toolchainPath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath();
+		Path toolchainPath = FileSystem::GetExecutablePath().ParentPath().ParentPath() / "cmake" / "toolchain.cmake";
 
-#if defined(PLATFORM_WINDOWS)
-		// const char* generator = "Visual Studio 17 2022";
-		// toolchainPath /= "CMake/Toolchains/Windows-Msvc-x64.cmake";
-		const char* generator = "Ninja";
-		toolchainPath /= "CMake/Toolchains/Windows-ClangCl-x64.cmake";
-#elif defined(PLATFORM_MACOS)
-		const char* generator = "Xcode";
-		toolchainPath /= "CMake/Toolchains/MacOs-Clang-arm64.cmake";
-#elif defined(PLATFORM_LINUX)
-		const char* generator = "Ninja";
-		toolchainPath /= "CMake/Toolchains/Linux-Clang-x64.cmake";
-#else
-	#error
-#endif
-
-		String arguments = fmt::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G \"{}\"", toolchainPath, gameModuleBuildDirectoryPath,
-		                               gameModuleSourceDirectoryPath, generator)
-		                       .c_str();
+		String arguments = fmt::format("-DHOD_PLATFORM={} -DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {}", "windows-x64", toolchainPath, gameModuleBuildDirectoryPath, gameModuleSourceDirectoryPath).c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{

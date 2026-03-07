@@ -41,7 +41,7 @@ endif()
 
 target_link_libraries(Core
 	PRIVATE ${PLATFORM_LIBS} WindowsHModular::WindowsHModular
-	PUBLIC Fmt::Fmt
+	PUBLIC fmt::fmt
 )
 
 target_compile_definitions(Core
