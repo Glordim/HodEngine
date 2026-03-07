@@ -167,19 +167,13 @@ namespace hod
 
 		/// @brief
 		/// @param constant
-		/// @param Size
+		/// @param size
 		/// @param shaderType
-		void CommandBufferVk::SetConstant(void* constant, uint32_t Size, Shader::ShaderType shaderType)
+		void CommandBufferVk::SetConstant(void* constant, uint32_t size, Shader::ShaderType /*shaderType*/)
 		{
-			VkShaderStageFlags shaderStage = VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
-			if (shaderType == Shader::ShaderType::Fragment)
-			{
-				shaderStage = VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
-			}
+			size = std::min(size, _material->GetPushConstantSize());
 
-			Size = std::min(Size, _material->GetPushConstantSize());
-
-			vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), shaderStage, 0, Size, constant);
+			vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, Size, constant);
 		}
 
 		//-----------------------------------------------------------------------------

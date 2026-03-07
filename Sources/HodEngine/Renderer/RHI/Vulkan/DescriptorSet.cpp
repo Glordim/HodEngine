@@ -161,14 +161,6 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const ShaderSetDescriptorVk* DescriptorSet::GetLayout() const
-	{
-		return _descriptorSetLayout;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
 	VkDescriptorSet DescriptorSet::GetDescriptorSet() const
 	{
 		return _descriptorSet;
