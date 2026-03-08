@@ -365,6 +365,13 @@ namespace hod
 	{
 		if (_capacity < capacity || _capacity == 0) // if _capacity is zero we force the allocation to provide a valid buffer after each Reserve() call
 		{
+			if (_capacity > 0)
+			{
+				uint32_t doubleCapacity = _capacity * 2;
+				if (doubleCapacity > capacity)
+					capacity = doubleCapacity;
+			}
+
 			if (capacity >= SMALL_BUFFER_MAX_CAPACITY)
 			{
 				capacity = AddressSanitizerAlignCapacity(capacity);
@@ -1394,18 +1401,16 @@ namespace hod
 	/// @return Index of the first occurrence, otherwise Npos
 	uint32_t String::Find(char character, uint32_t position) const
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		if (buffer != nullptr)
+		if (position >= _size)
 		{
-			while (position < _size)
-			{
-				if (buffer[position] == character)
-				{
-					return position;
-				}
+			return Npos;
+		}
 
-				++position;
-			}
+		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		const void* found = std::memchr(buffer + position, static_cast<unsigned char>(character), _size - position);
+		if (found != nullptr)
+		{
+			return static_cast<uint32_t>(static_cast<const char*>(found) - buffer);
 		}
 
 		return Npos;

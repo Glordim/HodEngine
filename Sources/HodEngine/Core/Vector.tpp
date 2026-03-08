@@ -286,9 +286,16 @@ namespace hod
 	{
 		_elements = (_capacity != 0) ? reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__))) : nullptr;
 
-		for (uint32_t index = 0; index < _size; ++index)
+		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 		{
-			New(&_elements[index], values.begin()[index]);
+			std::memcpy(_elements, values.begin(), _size * sizeof(__TYPE__));
+		}
+		else
+		{
+			for (uint32_t index = 0; index < _size; ++index)
+			{
+				New(&_elements[index], values.begin()[index]);
+			}
 		}
 	}
 
@@ -304,9 +311,16 @@ namespace hod
 	{
 		_elements = (_capacity != 0) ? reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__))) : nullptr;
 
-		for (uint32_t index = 0; index < _size; ++index)
+		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 		{
-			New(&_elements[index], vector._elements[index]);
+			std::memcpy(_elements, vector._elements, _size * sizeof(__TYPE__));
+		}
+		else
+		{
+			for (uint32_t index = 0; index < _size; ++index)
+			{
+				New(&_elements[index], vector._elements[index]);
+			}
 		}
 	}
 
@@ -681,9 +695,12 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::Clear()
 	{
-		for (uint32_t index = 0; index < _size; ++index)
+		if constexpr (!std::is_trivially_destructible_v<__TYPE__>)
 		{
-			_elements[index].~__TYPE__();
+			for (uint32_t index = 0; index < _size; ++index)
+			{
+				_elements[index].~__TYPE__();
+			}
 		}
 
 		_size = 0;
@@ -1324,12 +1341,20 @@ namespace hod
 	{
 		assert(iterator._ptr < _elements + _size);
 
-		for (__TYPE__* element = _elements + (iterator._ptr - _elements); element < _elements + _size - 1; ++element)
-		{
-			*element = std::move(*(element + 1));
-		}
+		uint32_t index = static_cast<uint32_t>(iterator._ptr - _elements);
 
-		_elements[_size - 1].~__TYPE__();
+		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
+		{
+			std::memmove(_elements + index, _elements + index + 1, (_size - index - 1) * sizeof(__TYPE__));
+		}
+		else
+		{
+			for (__TYPE__* element = _elements + index; element < _elements + _size - 1; ++element)
+			{
+				*element = std::move(*(element + 1));
+			}
+			_elements[_size - 1].~__TYPE__();
+		}
 		--_size;
 
 		return Iterator(const_cast<typename Iterator::pointer>(iterator._ptr));
@@ -1340,12 +1365,18 @@ namespace hod
 	{
 		assert(index < _size);
 
-		for (__TYPE__* element = _elements + index; element < _elements + _size - 1; ++element)
+		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 		{
-			*element = std::move(*(element + 1));
+			std::memmove(_elements + index, _elements + index + 1, (_size - index - 1) * sizeof(__TYPE__));
 		}
-
-		_elements[_size - 1].~__TYPE__();
+		else
+		{
+			for (__TYPE__* element = _elements + index; element < _elements + _size - 1; ++element)
+			{
+				*element = std::move(*(element + 1));
+			}
+			_elements[_size - 1].~__TYPE__();
+		}
 		--_size;
 
 		return index;
@@ -1377,18 +1408,26 @@ namespace hod
 			return Iterator(const_cast<typename Iterator::pointer>(last._ptr));
 		}
 
-		uint32_t  newSize = _size - static_cast<uint32_t>(last._ptr - first._ptr);
-		__TYPE__* firstPtr = _elements + (first._ptr - _elements);
+		uint32_t  eraseCount = static_cast<uint32_t>(last._ptr - first._ptr);
+		uint32_t  newSize = _size - eraseCount;
+		uint32_t  firstIndex = static_cast<uint32_t>(first._ptr - _elements);
 
-		for (__TYPE__* element = _elements + (last._ptr - _elements); element < _elements + _size; ++element)
+		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 		{
-			*(firstPtr) = std::move(*element);
-			++firstPtr;
+			std::memmove(_elements + firstIndex, _elements + firstIndex + eraseCount, (newSize - firstIndex) * sizeof(__TYPE__));
 		}
-
-		for (__TYPE__* element = firstPtr; element < _elements + _size; ++element)
+		else
 		{
-			element->~__TYPE__();
+			__TYPE__* firstPtr = _elements + firstIndex;
+			for (__TYPE__* element = _elements + (last._ptr - _elements); element < _elements + _size; ++element)
+			{
+				*(firstPtr) = std::move(*element);
+				++firstPtr;
+			}
+			for (__TYPE__* element = firstPtr; element < _elements + _size; ++element)
+			{
+				element->~__TYPE__();
+			}
 		}
 
 		_size = newSize;
@@ -1406,18 +1445,24 @@ namespace hod
 			return index;
 		}
 
-		uint32_t  newSize = _size - count;
-		__TYPE__* firstPtr = _elements + index;
+		uint32_t newSize = _size - count;
 
-		for (__TYPE__* element = _elements + index + count; element < _elements + _size; ++element)
+		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 		{
-			*(firstPtr) = std::move(*element);
-			++firstPtr;
+			std::memmove(_elements + index, _elements + index + count, (newSize - index) * sizeof(__TYPE__));
 		}
-
-		for (__TYPE__* element = firstPtr; element < _elements + _size; ++element)
+		else
 		{
-			element->~__TYPE__();
+			__TYPE__* firstPtr = _elements + index;
+			for (__TYPE__* element = _elements + index + count; element < _elements + _size; ++element)
+			{
+				*(firstPtr) = std::move(*element);
+				++firstPtr;
+			}
+			for (__TYPE__* element = firstPtr; element < _elements + _size; ++element)
+			{
+				element->~__TYPE__();
+			}
 		}
 
 		_size = newSize;
@@ -1535,40 +1580,54 @@ namespace hod
 	template<typename __TYPE__>
 	void Vector<__TYPE__>::Assign(const __TYPE__* source, uint32_t count)
 	{
-		if (_capacity >= count)
+		if constexpr (std::is_trivially_copyable_v<__TYPE__>)
 		{
-			uint32_t minSize = (_size < count) ? _size : count;
-
-			for (uint32_t i = 0; i < minSize; ++i)
+			if (_capacity < count)
 			{
-				_elements[i] = source[i];
+				_allocator->Free(_elements);
+				_capacity = count;
+				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
 			}
-
-			for (uint32_t i = minSize; i < count; ++i)
-			{
-				New(&_elements[i], source[i]);
-			}
-
-			for (uint32_t i = count; i < _size; ++i)
-			{
-				_elements[i].~__TYPE__();
-			}
-
+			std::memcpy(_elements, source, count * sizeof(__TYPE__));
 			_size = count;
 		}
 		else
 		{
-			FreeAndDestructElements();
-
-			_capacity = count;
-			_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
-
-			for (uint32_t i = 0; i < count; ++i)
+			if (_capacity >= count)
 			{
-				New(&_elements[i], source[i]);
-			}
+				uint32_t minSize = (_size < count) ? _size : count;
 
-			_size = count;
+				for (uint32_t i = 0; i < minSize; ++i)
+				{
+					_elements[i] = source[i];
+				}
+
+				for (uint32_t i = minSize; i < count; ++i)
+				{
+					New(&_elements[i], source[i]);
+				}
+
+				for (uint32_t i = count; i < _size; ++i)
+				{
+					_elements[i].~__TYPE__();
+				}
+
+				_size = count;
+			}
+			else
+			{
+				FreeAndDestructElements();
+
+				_capacity = count;
+				_elements = reinterpret_cast<__TYPE__*>(_allocator->Allocate(_capacity * sizeof(__TYPE__), alignof(__TYPE__)));
+
+				for (uint32_t i = 0; i < count; ++i)
+				{
+					New(&_elements[i], source[i]);
+				}
+
+				_size = count;
+			}
 		}
 	}
 
@@ -1664,9 +1723,12 @@ namespace hod
 	{
 		if (_elements != nullptr)
 		{
-			for (uint32_t index = 0; index < _size; ++index)
+			if constexpr (!std::is_trivially_destructible_v<__TYPE__>)
 			{
-				_elements[index].~__TYPE__();
+				for (uint32_t index = 0; index < _size; ++index)
+				{
+					_elements[index].~__TYPE__();
+				}
 			}
 
 			_allocator->Free(_elements);
