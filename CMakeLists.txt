@@ -121,6 +121,20 @@ set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
 	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
 )
 
+add_library(Benchmark::Benchmark STATIC IMPORTED GLOBAL)
+set_target_properties(Benchmark::Benchmark PROPERTIES
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}benchmark.${LIB_EXTENSION}"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/benchmark"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/benchmark"
+	INTERFACE_COMPILE_DEFINITIONS "BENCHMARK_STATIC_DEFINE"
+	INTERFACE_LINK_LIBRARIES "$<LINK_ONLY:shlwapi>"
+)
+add_library(BenchmarkMain::BenchmarkMain STATIC IMPORTED GLOBAL)
+set_target_properties(BenchmarkMain::BenchmarkMain PROPERTIES
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}benchmark_main.${LIB_EXTENSION}"
+	INTERFACE_LINK_LIBRARIES "Benchmark::Benchmark"
+)
+
 add_library(Gtest::Gtest STATIC IMPORTED GLOBAL)
 set_target_properties(Gtest::Gtest PROPERTIES
 	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}gtest.${LIB_EXTENSION}"
@@ -140,6 +154,13 @@ else()
 	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc")
 	set(SLANG_DLL "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang.${DLL_EXTENSION}")
 	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+endif()
+
+option(BUILD_BENCHMARKS "Enable Benchmarks compilation" ON)
+if (BUILD_BENCHMARKS)
+	add_subdirectory("Sources/Benchmarks/Core")
+
+	set_target_properties(BenchmarksCore PROPERTIES FOLDER "Benchmark/")
 endif()
 
 option(BUILD_UNIT_TESTS "Enable UnitTests compilation" ON)
