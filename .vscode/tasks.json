@@ -5,6 +5,7 @@
 			"label": "Build Target",
 			"type": "cmake",
 			"command": "build",
+			"targets": ["${command:cmake.launchTargetName}"],
 			"group": "build"
 		}
 	]
