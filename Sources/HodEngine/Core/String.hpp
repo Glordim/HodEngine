@@ -209,7 +209,8 @@ namespace hod
 		uint32_t AddressSanitizerAlignCapacity(uint32_t capacity);
 
 	private:
-		static constexpr uint32_t SMALL_BUFFER_MAX_CAPACITY = 16;
+		static constexpr uint32_t SMALL_BUFFER_MAX_SIZE = 23;
+		static constexpr uint8_t  LARGE_STRING_FLAG      = 0x80;
 
 	private:
 #if defined(__clang__)
@@ -221,23 +222,33 @@ namespace hod
 		{
 			struct
 			{
-				char* _buffer; // { nullptr }; Cannot initialise buffer at nullptr implicitly because compiler says the _large struct has a non trivial default constructor
-			} _large;
+				char    _buffer[23];
+				uint8_t _remainingSize; // MSB=0: small mode; low7 bits = 23-size; when 0: acts as '\0' after 23 chars
+			} _small;
 
 			struct
 			{
-				char _buffer[SMALL_BUFFER_MAX_CAPACITY]; // { '\0' };
-			} _small;
+				char*    _ptr;         // offset 0
+				uint32_t _size;        // offset 8
+				uint32_t _capacity;    // offset 12
+				char     _padding[7];  // offset 16
+				uint8_t  _flag;        // offset 23, MSB=1: large mode
+			} _large;
 		};
 
 #if defined(__clang__)
 	#pragma clang diagnostic pop
 #endif
 
-		uint32_t _capacity = 0;
-		uint32_t _size = 0;
-
 		Allocator* _allocator = &DefaultAllocator::GetInstance();
+
+	private:
+		inline bool        IsSmall()                const noexcept { return (_small._remainingSize & LARGE_STRING_FLAG) == 0; }
+		inline uint32_t    GetSize()                const noexcept { return IsSmall() ? SMALL_BUFFER_MAX_SIZE - _small._remainingSize : _large._size; }
+		inline void        SetSize(uint32_t size)         noexcept { if (IsSmall()) _small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - size); else _large._size = size; }
+		inline uint32_t    GetCapacity()            const noexcept { return IsSmall() ? SMALL_BUFFER_MAX_SIZE : _large._capacity; }
+		inline char*       GetBuffer()                    noexcept { return IsSmall() ? _small._buffer : _large._ptr; }
+		inline const char* GetBuffer()              const noexcept { return IsSmall() ? _small._buffer : _large._ptr; }
 	};
 
 	HOD_CORE_API String operator+(const char* leftString, const String& rightString);

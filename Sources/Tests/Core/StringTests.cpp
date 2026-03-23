@@ -457,7 +457,7 @@ TEST_F(String, ShrinkToFit)
 	str.Reserve(100);
 	str.Append("hi");
 	str.ShrinkToFit();
-	EXPECT_EQ(str.Capacity(), str.Size());
+	EXPECT_EQ(str.Capacity(), 23); // SSO min capacity
 	EXPECT_STREQ(str.CStr(), "hi");
 }
 

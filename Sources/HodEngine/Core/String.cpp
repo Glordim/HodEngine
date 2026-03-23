@@ -6,51 +6,66 @@
 namespace hod
 {
 	String::String()
-	: _large {nullptr}
+	: _small{}
 	{
+		_small._remainingSize = SMALL_BUFFER_MAX_SIZE; // size = 0
 	}
 
 	String::String(Allocator& allocator)
-	: _large {nullptr}
+	: _small{}
 	, _allocator(&allocator)
 	{
+		_small._remainingSize = SMALL_BUFFER_MAX_SIZE; // size = 0
 	}
 
 	String::String(uint32_t capacity, Allocator& allocator)
-	: _large {nullptr}
+	: _small{}
 	, _allocator(&allocator)
 	{
-		_capacity = capacity;
-		if (_capacity >= SMALL_BUFFER_MAX_CAPACITY)
+		if (capacity > SMALL_BUFFER_MAX_SIZE)
 		{
-			_capacity = AddressSanitizerAlignCapacity(capacity);
-			_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-			_large._buffer[0] = '\0';
+			capacity = AddressSanitizerAlignCapacity(capacity);
+			_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+			_large._ptr[0] = '\0';
+			_large._size = 0;
+			_large._capacity = capacity;
+			_large._flag = LARGE_STRING_FLAG;
 			CreateAddressSanitizerAnnotation();
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE; // size = 0, small mode
 		}
 	}
 
 	String::String(uint32_t count, char character, Allocator& allocator)
-	: _large {nullptr}
-	, _size(count)
+	: _small{}
 	, _allocator(&allocator)
 	{
-		if (_size > 0)
+		if (count > 0)
 		{
-			_capacity = _size;
-			if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+			if (count <= SMALL_BUFFER_MAX_SIZE)
 			{
 				std::memset(_small._buffer, character, count);
-				_small._buffer[_size] = '\0';
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - count);
+				// null terminator: for count < 23 it's _small._buffer[count] (already '\0' from zero-init)
+				// for count == 23 it's _small._remainingSize == 0
 			}
 			else
 			{
-				_capacity = AddressSanitizerAlignCapacity(_capacity);
-				_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-				std::memset(_large._buffer, character, count);
-				_large._buffer[_size] = '\0';
+				uint32_t capacity = AddressSanitizerAlignCapacity(count);
+				_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+				std::memset(_large._ptr, character, count);
+				_large._ptr[count] = '\0';
+				_large._size = count;
+				_large._capacity = capacity;
+				_large._flag = LARGE_STRING_FLAG;
 				CreateAddressSanitizerAnnotation();
 			}
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 	}
 
@@ -58,24 +73,31 @@ namespace hod
 	/// @param string
 	/// @param allocator
 	String::String(const char* string, Allocator& allocator)
-	: _large {nullptr} // See String.h
-	, _size(string != nullptr ? static_cast<uint32_t>(std::strlen(string)) : 0)
+	: _small{}
 	, _allocator(&allocator)
 	{
-		if (_size > 0)
+		const uint32_t size = (string != nullptr) ? static_cast<uint32_t>(std::strlen(string)) : 0;
+		if (size > 0)
 		{
-			_capacity = _size;
-			if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+			if (size <= SMALL_BUFFER_MAX_SIZE)
 			{
-				std::memcpy(_small._buffer, string, _size + 1); // +1 to copy the '\0' from the end of the source string
+				std::memcpy(_small._buffer, string, size); // +1 not needed: '\0' at [size] already from zero-init (or _remainingSize=0 for size==23)
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - size);
 			}
 			else
 			{
-				_capacity = AddressSanitizerAlignCapacity(_capacity);
-				_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-				std::memcpy(_large._buffer, string, _size + 1);                           // +1 to copy the '\0' from the end of the source string
+				uint32_t capacity = AddressSanitizerAlignCapacity(size);
+				_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+				std::memcpy(_large._ptr, string, size + 1);                           // +1 to copy the '\0' from the end of the source string
+				_large._size = size;
+				_large._capacity = capacity;
+				_large._flag = LARGE_STRING_FLAG;
 				CreateAddressSanitizerAnnotation();
 			}
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 	}
 
@@ -84,26 +106,31 @@ namespace hod
 	/// @param length
 	/// @param allocator
 	String::String(const char* string, uint32_t length, Allocator& allocator)
-	: _large {nullptr} // See String.h
-	, _size(length)
+	: _small{}
 	, _allocator(&allocator)
 	{
-		if (_size > 0)
+		if (length > 0)
 		{
-			_capacity = _size;
-			if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+			if (length <= SMALL_BUFFER_MAX_SIZE)
 			{
-				std::memcpy(_small._buffer, string, _size);
-				_small._buffer[_size] = '\0';
+				std::memcpy(_small._buffer, string, length);
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - length);
 			}
 			else
 			{
-				_capacity = AddressSanitizerAlignCapacity(_capacity);
-				_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-				std::memcpy(_large._buffer, string, _size);
-				_large._buffer[_size] = '\0';
+				uint32_t capacity = AddressSanitizerAlignCapacity(length);
+				_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+				std::memcpy(_large._ptr, string, length);
+				_large._ptr[length] = '\0';
+				_large._size = length;
+				_large._capacity = capacity;
+				_large._flag = LARGE_STRING_FLAG;
 				CreateAddressSanitizerAnnotation();
 			}
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 	}
 
@@ -111,60 +138,55 @@ namespace hod
 	/// @param string
 	/// @param allocator
 	String::String(const String& string, Allocator& allocator)
-	: _large {nullptr} // See String.h
-	, _size(string._size)
+	: _small{}
 	, _allocator(&allocator)
 	{
-		if (_size > 0)
+		const uint32_t size = string.GetSize();
+		if (size > 0)
 		{
-			_capacity = _size;
-			if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+			if (size <= SMALL_BUFFER_MAX_SIZE)
 			{
-				if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-				{
-					std::memcpy(_small._buffer, string._small._buffer, _size + 1); // +1 to copy the '\0' from the end of the source string
-				}
-				else
-				{
-					std::memcpy(_small._buffer, string._large._buffer, _size + 1); // +1 to copy the '\0' from the end of the source string
-				}
+				std::memcpy(_small._buffer, string.GetBuffer(), size);
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - size);
 			}
 			else
 			{
-				_capacity = AddressSanitizerAlignCapacity(_capacity);
-				_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-				if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-				{
-					std::memcpy(_large._buffer, string._small._buffer, _size + 1); // +1 to copy the '\0' from the end of the source string
-				}
-				else
-				{
-					std::memcpy(_large._buffer, string._large._buffer, _size + 1); // +1 to copy the '\0' from the end of the source string
-				}
+				uint32_t capacity = AddressSanitizerAlignCapacity(size);
+				_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+				std::memcpy(_large._ptr, string.GetBuffer(), size + 1);               // +1 to copy the '\0'
+				_large._size = size;
+				_large._capacity = capacity;
+				_large._flag = LARGE_STRING_FLAG;
 				CreateAddressSanitizerAnnotation();
 			}
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 	}
 
 	/// @brief
 	/// @param string
 	String::String(String&& string)
-	: _large {nullptr} // See String.h
-	, _capacity(string._capacity)
-	, _size(string._size)
+	: _small{}
 	, _allocator(string._allocator)
 	{
-		if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+		if (string.IsSmall())
 		{
-			std::memcpy(_small._buffer, string._small._buffer, _size + 1);
+			std::memcpy(&_small, &string._small, sizeof(_small)); // copy all 24 bytes incl. _remainingSize
+			string._small._buffer[0]   = '\0';
+			string._small._remainingSize = SMALL_BUFFER_MAX_SIZE; // source is now empty small
 		}
 		else
 		{
-			_large = string._large;
+			_large._ptr      = string._large._ptr;
+			_large._size     = string._large._size;
+			_large._capacity = string._large._capacity;
+			_large._flag     = LARGE_STRING_FLAG;
+			string._small._buffer[0]   = '\0';
+			string._small._remainingSize = SMALL_BUFFER_MAX_SIZE; // source becomes empty small
 		}
-		string._size = 0;
-		string._capacity = 0;
-		string._large._buffer = nullptr;
 	}
 
 	/// @brief Creates a string from a substring
@@ -174,47 +196,38 @@ namespace hod
 	/// If count == Npos, or bigger than the string size, it will create a substring from position until string.Size()
 	/// @param allocator
 	String::String(const String& string, uint32_t position, uint32_t count, Allocator& allocator)
-	: _large {nullptr} // See String.h
+	: _small{}
 	, _allocator(&allocator)
 	{
-		assert(position < string._size);
+		assert(position < string.GetSize());
 
-		if (count > string._size - position)
+		if (count > string.GetSize() - position)
 		{
-			count = string._size - position;
+			count = string.GetSize() - position;
 		}
 
 		if (count > 0)
 		{
-			_size = count;
-			_capacity = _size;
-			if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+			if (count <= SMALL_BUFFER_MAX_SIZE)
 			{
-				if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-				{
-					std::memcpy(_small._buffer, string._small._buffer + position, count);
-				}
-				else
-				{
-					std::memcpy(_small._buffer, string._large._buffer + position, count);
-				}
-				_small._buffer[_size] = '\0';
+				std::memcpy(_small._buffer, string.GetBuffer() + position, count);
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - count);
 			}
 			else
 			{
-				_capacity = AddressSanitizerAlignCapacity(_capacity);
-				_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-				if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-				{
-					std::memcpy(_large._buffer, string._small._buffer + position, count);
-				}
-				else
-				{
-					std::memcpy(_large._buffer, string._large._buffer + position, count);
-				}
-				_large._buffer[_size] = '\0';
+				uint32_t capacity = AddressSanitizerAlignCapacity(count);
+				_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+				std::memcpy(_large._ptr, string.GetBuffer() + position, count);
+				_large._ptr[count] = '\0';
+				_large._size = count;
+				_large._capacity = capacity;
+				_large._flag = LARGE_STRING_FLAG;
 				CreateAddressSanitizerAnnotation();
 			}
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 	}
 
@@ -224,57 +237,60 @@ namespace hod
 	/// @param count The number of characters to copy from position.
 	/// If count == Npos, or bigger than the string size, it will create a substring from position until string.Size()
 	String::String(String&& string, uint32_t position, uint32_t count)
-	: _large {nullptr} // See String.h
+	: _small{}
 	, _allocator(string._allocator)
 	{
-		assert(position < string._size);
+		const uint32_t sourceSize = string.GetSize();
+		assert(position < sourceSize);
 
-		if (count > string._size - position)
+		if (count > sourceSize - position)
 		{
-			count = string._size - position;
+			count = sourceSize - position;
 		}
 
 		if (count > 0)
 		{
-			_size = count;
-			_capacity = count;
-			if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+			if (count <= SMALL_BUFFER_MAX_SIZE)
 			{
-				if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-				{
-					std::memcpy(_small._buffer, string._small._buffer + position, count);
-				}
-				else
-				{
-					std::memcpy(_small._buffer, string._large._buffer + position, count);
-				}
-
-				_small._buffer[_size] = '\0';
+				std::memcpy(_small._buffer, string.GetBuffer() + position, count);
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - count);
+				// source: reset to empty small
+				string._small._buffer[0]   = '\0';
+				string._small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 			}
 			else
 			{
-				_capacity = AddressSanitizerAlignCapacity(_capacity);
-				if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
+				if (string.IsSmall())
 				{
-					_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-					std::memcpy(_large._buffer, string._small._buffer + position, count);
-					_large._buffer[_size] = '\0';
+					uint32_t capacity = AddressSanitizerAlignCapacity(count);
+					_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+					std::memcpy(_large._ptr, string._small._buffer + position, count);
+					_large._ptr[count] = '\0';
+					_large._size = count;
+					_large._capacity = capacity;
+					_large._flag = LARGE_STRING_FLAG;
 					CreateAddressSanitizerAnnotation();
+					string._small._buffer[0]   = '\0';
+					string._small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 				}
 				else
 				{
-					_large._buffer = string._large._buffer;
-					_capacity = string._capacity;
-
-					std::memmove(_large._buffer, _large._buffer + position, count);
-					_size = count;
-					_large._buffer[_size] = '\0';
-
-					string._size = 0;
-					string._capacity = 0;
-					string._large._buffer = nullptr;
+					// Steal the large buffer and memmove
+					_large._ptr      = string._large._ptr;
+					_large._capacity = string._large._capacity;
+					std::memmove(_large._ptr, _large._ptr + position, count);
+					_large._ptr[count] = '\0';
+					_large._size = count;
+					_large._flag = LARGE_STRING_FLAG;
+					CreateAddressSanitizerAnnotation();
+					string._small._buffer[0]   = '\0';
+					string._small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 				}
 			}
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 	}
 
@@ -282,26 +298,32 @@ namespace hod
 	/// @param stringView
 	/// @param allocator
 	String::String(const std::string_view& stringView, Allocator& allocator)
-	: _large {nullptr} // See String.h
-	, _size(static_cast<uint32_t>(stringView.size()))
+	: _small{}
 	, _allocator(&allocator)
 	{
-		if (_size > 0)
+		const uint32_t size = static_cast<uint32_t>(stringView.size());
+		if (size > 0)
 		{
-			_capacity = _size;
-			if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+			if (size <= SMALL_BUFFER_MAX_SIZE)
 			{
-				std::memcpy(_small._buffer, stringView.data(), _size);
-				_small._buffer[_size] = '\0';
+				std::memcpy(_small._buffer, stringView.data(), size);
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - size);
 			}
 			else
 			{
-				_capacity = AddressSanitizerAlignCapacity(_capacity);
-				_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-				std::memcpy(_large._buffer, stringView.data(), _size);
-				_large._buffer[_size] = '\0';
+				uint32_t capacity = AddressSanitizerAlignCapacity(size);
+				_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+				std::memcpy(_large._ptr, stringView.data(), size);
+				_large._ptr[size] = '\0';
+				_large._size = size;
+				_large._capacity = capacity;
+				_large._flag = LARGE_STRING_FLAG;
 				CreateAddressSanitizerAnnotation();
 			}
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 	}
 
@@ -311,7 +333,7 @@ namespace hod
 	/// @param count
 	/// @param allocator
 	String::String(const std::string_view& stringView, uint32_t position, uint32_t count, Allocator& allocator)
-	: _large {nullptr} // See String.h
+	: _small{}
 	, _allocator(&allocator)
 	{
 		assert(position < static_cast<uint32_t>(stringView.size()));
@@ -323,93 +345,99 @@ namespace hod
 
 		if (count > 0)
 		{
-			_size = count;
-			_capacity = _size;
-
-			if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+			if (count <= SMALL_BUFFER_MAX_SIZE)
 			{
 				std::memcpy(_small._buffer, stringView.data() + position, count);
-				_small._buffer[_size] = '\0';
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - count);
 			}
 			else
 			{
-				_capacity = AddressSanitizerAlignCapacity(_capacity);
-				_large._buffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-				std::memcpy(_large._buffer, stringView.data() + position, count);
-				_large._buffer[_size] = '\0';
+				uint32_t capacity = AddressSanitizerAlignCapacity(count);
+				_large._ptr = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+				std::memcpy(_large._ptr, stringView.data() + position, count);
+				_large._ptr[count] = '\0';
+				_large._size = count;
+				_large._capacity = capacity;
+				_large._flag = LARGE_STRING_FLAG;
 				CreateAddressSanitizerAnnotation();
 			}
+		}
+		else
+		{
+			_small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 	}
 
 	/// @brief
 	String::~String()
 	{
-		if (_capacity >= SMALL_BUFFER_MAX_CAPACITY)
+		if (!IsSmall())
 		{
 			RemoveAddressSanitizerAnnotation();
-			_allocator->Free(_large._buffer); // size to free is _capacity + 1
+			_allocator->Free(_large._ptr); // size to free is _large._capacity + 1
 		}
 	}
 
 	/// @brief
 	String::operator std::string_view() const
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return std::string_view(buffer, _size);
+		return std::string_view(GetBuffer(), GetSize());
 	}
 
 	/// @brief
 	/// @param capacity Reservation size (without '\\0')
 	void String::Reserve(uint32_t capacity)
 	{
-		if (_capacity < capacity || _capacity == 0) // if _capacity is zero we force the allocation to provide a valid buffer after each Reserve() call
+		if (IsSmall())
 		{
-			if (_capacity > 0)
+			if (capacity <= SMALL_BUFFER_MAX_SIZE)
+				return; // small buffer always valid
+
+			// Transition from small to large
+			capacity = AddressSanitizerAlignCapacity(capacity);
+			const uint32_t savedSize = GetSize(); // save before overwriting union
+
+			char* newBuffer = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+			std::memcpy(newBuffer, _small._buffer, savedSize);
+			newBuffer[savedSize] = '\0';
+
+			_large._ptr      = newBuffer;
+			_large._size     = savedSize;
+			_large._capacity = capacity;
+			_large._flag     = LARGE_STRING_FLAG;
+			CreateAddressSanitizerAnnotation();
+		}
+		else
+		{
+			if (_large._capacity >= capacity)
+				return;
+
+			uint32_t doubleCapacity = _large._capacity * 2;
+			if (doubleCapacity > capacity)
+				capacity = doubleCapacity;
+
+			capacity = AddressSanitizerAlignCapacity(capacity);
+
+			if (_large._capacity > 0)
 			{
-				uint32_t doubleCapacity = _capacity * 2;
-				if (doubleCapacity > capacity)
-					capacity = doubleCapacity;
-			}
-
-			if (capacity >= SMALL_BUFFER_MAX_CAPACITY)
-			{
-				capacity = AddressSanitizerAlignCapacity(capacity);
-
-				if (_capacity > 0)
+				if (_allocator->Resize(_large._ptr, capacity + 1) == false)
 				{
-					if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
-					{
-						char* pNewBuffer = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
-						std::memcpy(pNewBuffer, _small._buffer, _size + 1);                        // +1 to copy the '\0' from the end of the source string
-
-						_large._buffer = pNewBuffer;
-						CreateAddressSanitizerAnnotation();
-					}
-					else
-					{
-						if (_allocator->Resize(_large._buffer, capacity + 1) == false)
-						{
-							char* pNewBuffer = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
-							std::memcpy(pNewBuffer, _large._buffer, _size + 1);                        // +1 to copy the '\0' from the end of the source string
-							RemoveAddressSanitizerAnnotation();
-							_allocator->Free(_large._buffer); // size to free is _capacity + 1
-
-							_large._buffer = pNewBuffer;
-							CreateAddressSanitizerAnnotation();
-						}
-					}
-				}
-				else
-				{
-					char* pNewBuffer = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
-					pNewBuffer[0] = '\0';
-
-					_large._buffer = pNewBuffer;
+					char* newBuffer = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+					std::memcpy(newBuffer, _large._ptr, _large._size + 1);                    // +1 to copy '\0'
+					RemoveAddressSanitizerAnnotation();
+					_allocator->Free(_large._ptr);
+					_large._ptr = newBuffer;
 					CreateAddressSanitizerAnnotation();
 				}
 			}
-			_capacity = capacity;
+			else
+			{
+				char* newBuffer = static_cast<char*>(_allocator->Allocate(capacity + 1)); // +1 for '\0'
+				newBuffer[0] = '\0';
+				_large._ptr = newBuffer;
+				CreateAddressSanitizerAnnotation();
+			}
+			_large._capacity = capacity;
 		}
 	}
 
@@ -417,16 +445,15 @@ namespace hod
 	/// @param size
 	void String::Resize(uint32_t size)
 	{
-		if (size < _size)
+		if (size < GetSize())
 		{
-			ModifyAddressSanitizerAnnotation(_size, size);
-			_size = size;
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			buffer[size] = '\0';
+			ModifyAddressSanitizerAnnotation(GetSize(), size);
+			SetSize(size);
+			GetBuffer()[size] = '\0';
 		}
 		else
 		{
-			Append(size - _size, '\0');
+			Append(size - GetSize(), '\0');
 		}
 	}
 
@@ -435,62 +462,53 @@ namespace hod
 	/// @param character
 	void String::Resize(uint32_t size, char character)
 	{
-		if (size < _size)
+		if (size < GetSize())
 		{
-			ModifyAddressSanitizerAnnotation(_size, size);
-			_size = size;
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			buffer[size] = '\0';
+			ModifyAddressSanitizerAnnotation(GetSize(), size);
+			SetSize(size);
+			GetBuffer()[size] = '\0';
 		}
 		else
 		{
-			Append(size - _size, character);
+			Append(size - GetSize(), character);
 		}
 	}
 
 	/// @brief
-	/// @remark If size == 0 the buffer will be delete and set to nullptr
+	/// @remark If size == 0 the buffer will be deleted if large and reset to small
 	void String::ShrinkToFit()
 	{
 		RemoveAddressSanitizerAnnotation();
-		if (_size != _capacity)
+		if (!IsSmall())
 		{
-			if (_size > 0)
+			const uint32_t size     = _large._size;
+			const uint32_t capacity = _large._capacity;
+
+			if (size <= SMALL_BUFFER_MAX_SIZE)
 			{
-				uint32_t oldCapacity = _capacity;
-				_capacity = _size;
-
-				if (_capacity < SMALL_BUFFER_MAX_CAPACITY && oldCapacity >= SMALL_BUFFER_MAX_CAPACITY)
+				// Transition back to small
+				char* oldBuffer = _large._ptr;
+				if (size > 0)
 				{
-					char* oldBuffer = _large._buffer;
-
-					std::memcpy(_small._buffer, oldBuffer, _size);
-
-					_allocator->Free(oldBuffer);
-					_small._buffer[_size] = '\0';
+					std::memcpy(_small._buffer, oldBuffer, size);
 				}
-				else if (_capacity >= SMALL_BUFFER_MAX_CAPACITY && oldCapacity >= SMALL_BUFFER_MAX_CAPACITY)
+				_allocator->Free(oldBuffer);
+				if (size < SMALL_BUFFER_MAX_SIZE)
 				{
-					_capacity = AddressSanitizerAlignCapacity(_capacity);
-					char* newBuffer = static_cast<char*>(_allocator->Allocate(_capacity + 1)); // +1 for '\0'
-
-					std::memcpy(newBuffer, _large._buffer, _size);
-					newBuffer[_size] = '\0';
-
-					_allocator->Free(_large._buffer);
-					_large._buffer = newBuffer;
+					_small._buffer[size] = '\0';
 				}
+				_small._remainingSize = static_cast<uint8_t>(SMALL_BUFFER_MAX_SIZE - size);
 			}
-			else
+			else if (size != capacity)
 			{
-				if (_capacity >= SMALL_BUFFER_MAX_CAPACITY)
-				{
-					_allocator->Free(_large._buffer);
-					_small._buffer[_size] = '\0';
-
-					_capacity = 0;
-					_large._buffer = nullptr;
-				}
+				// Shrink large buffer to fit
+				uint32_t newCapacity = AddressSanitizerAlignCapacity(size);
+				char* newBuffer = static_cast<char*>(_allocator->Allocate(newCapacity + 1)); // +1 for '\0'
+				std::memcpy(newBuffer, _large._ptr, size);
+				newBuffer[size] = '\0';
+				_allocator->Free(_large._ptr);
+				_large._ptr      = newBuffer;
+				_large._capacity = newCapacity;
 			}
 		}
 		CreateAddressSanitizerAnnotation();
@@ -499,10 +517,9 @@ namespace hod
 	/// @brief
 	void String::Clear()
 	{
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		buffer[0] = '\0';
-		ModifyAddressSanitizerAnnotation(_size, 0);
-		_size = 0;
+		GetBuffer()[0] = '\0';
+		ModifyAddressSanitizerAnnotation(GetSize(), 0);
+		SetSize(0);
 	}
 
 	void String::PushBack(char character)
@@ -512,10 +529,10 @@ namespace hod
 
 	void String::PopBack()
 	{
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		buffer[_size - 1] = '\0';
-		ModifyAddressSanitizerAnnotation(_size, _size - 1);
-		--_size;
+		const uint32_t size = GetSize();
+		GetBuffer()[size - 1] = '\0';
+		ModifyAddressSanitizerAnnotation(size, size - 1);
+		SetSize(size - 1);
 	}
 
 	/// @brief
@@ -523,8 +540,7 @@ namespace hod
 	/// @return
 	char& String::operator[](uint32_t position) &
 	{
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[position];
+		return GetBuffer()[position];
 	}
 
 	/// @brief
@@ -532,8 +548,7 @@ namespace hod
 	/// @return
 	char String::operator[](uint32_t position) const&
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[position];
+		return GetBuffer()[position];
 	}
 
 	/// @brief
@@ -541,8 +556,7 @@ namespace hod
 	/// @return
 	char& String::At(uint32_t position) &
 	{
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[position];
+		return GetBuffer()[position];
 	}
 
 	/// @brief
@@ -550,40 +564,35 @@ namespace hod
 	/// @return
 	char String::At(uint32_t position) const&
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[position];
+		return GetBuffer()[position];
 	}
 
 	/// @brief
 	/// @return
 	char& String::Front() &
 	{
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[0];
+		return GetBuffer()[0];
 	}
 
 	/// @brief
 	/// @return
 	char String::Front() const&
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[0];
+		return GetBuffer()[0];
 	}
 
 	/// @brief
 	/// @return
 	char& String::Back() &
 	{
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[_size - 1];
+		return GetBuffer()[GetSize() - 1];
 	}
 
 	/// @brief
 	/// @return
 	char String::Back() const&
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[_size - 1];
+		return GetBuffer()[GetSize() - 1];
 	}
 
 	/// @brief
@@ -594,14 +603,15 @@ namespace hod
 		if (count > 0)
 		{
 			Reserve(count);
-			ModifyAddressSanitizerAnnotation(_size, count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			const uint32_t oldSize = GetSize();
+			ModifyAddressSanitizerAnnotation(oldSize, count);
+			char* buffer = GetBuffer();
 			for (uint32_t i = 0; i < count; ++i)
 			{
 				buffer[i] = character;
 			}
 			buffer[count] = '\0';
-			_size = count;
+			SetSize(count);
 		}
 		else
 		{
@@ -629,11 +639,11 @@ namespace hod
 		if (newSize > 0)
 		{
 			Reserve(newSize);
-			ModifyAddressSanitizerAnnotation(_size, newSize);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			ModifyAddressSanitizerAnnotation(GetSize(), newSize);
+			char* buffer = GetBuffer();
 			std::memmove(buffer, string, newSize + 1); // +1 to copy the '\0' at the end of the source string
 
-			_size = newSize;
+			SetSize(newSize);
 		}
 		else
 		{
@@ -655,12 +665,12 @@ namespace hod
 		if (size > 0)
 		{
 			Reserve(size);
-			ModifyAddressSanitizerAnnotation(_size, size);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			ModifyAddressSanitizerAnnotation(GetSize(), size);
+			char* buffer = GetBuffer();
 			std::memmove(buffer, string, size);
 			buffer[size] = '\0';
 
-			_size = size;
+			SetSize(size);
 		}
 		else
 		{
@@ -675,21 +685,15 @@ namespace hod
 	/// @return
 	String& String::Assign(const String& string)
 	{
-		if (string._size > 0)
+		const uint32_t newSize = string.GetSize();
+		if (newSize > 0)
 		{
-			Reserve(string._size);
-			ModifyAddressSanitizerAnnotation(_size, string._size);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-			{
-				std::memmove(buffer, string._small._buffer, string._size + 1); // +1 to copy the '\0' at the end of the source string
-			}
-			else
-			{
-				std::memmove(buffer, string._large._buffer, string._size + 1); // +1 to copy the '\0' at the end of the source string
-			}
+			Reserve(newSize);
+			ModifyAddressSanitizerAnnotation(GetSize(), newSize);
+			char* buffer = GetBuffer();
+			std::memmove(buffer, string.GetBuffer(), newSize + 1); // +1 to copy the '\0' at the end of the source string
 
-			_size = string._size;
+			SetSize(newSize);
 		}
 		else
 		{
@@ -705,29 +709,23 @@ namespace hod
 	/// @return
 	String& String::Assign(const String& string, uint32_t position, uint32_t count)
 	{
-		assert(position < string._size);
+		const uint32_t sourceSize = string.GetSize();
+		assert(position < sourceSize);
 
-		if (count > string._size - position)
+		if (count > sourceSize - position)
 		{
-			count = string._size - position;
+			count = sourceSize - position;
 		}
 
 		if (count > 0)
 		{
 			Reserve(count);
-			ModifyAddressSanitizerAnnotation(_size, count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-			{
-				std::memmove(buffer, string._small._buffer + position, count);
-			}
-			else
-			{
-				std::memmove(buffer, string._large._buffer + position, count);
-			}
+			ModifyAddressSanitizerAnnotation(GetSize(), count);
+			char* buffer = GetBuffer();
+			std::memmove(buffer, string.GetBuffer() + position, count);
 			buffer[count] = '\0';
 
-			_size = count;
+			SetSize(count);
 		}
 		else
 		{
@@ -742,15 +740,16 @@ namespace hod
 	/// @return
 	String& String::Assign(const std::string_view& string)
 	{
-		if (static_cast<uint32_t>(string.size()) > 0)
+		const uint32_t newSize = static_cast<uint32_t>(string.size());
+		if (newSize > 0)
 		{
-			Reserve(static_cast<uint32_t>(string.size()));
-			ModifyAddressSanitizerAnnotation(_size, static_cast<uint32_t>(string.size()));
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			std::memmove(buffer, string.data(), static_cast<uint32_t>(string.size()));
-			buffer[static_cast<uint32_t>(string.size())] = '\0'; // Add manually the \0, std::string_view don't always have it
+			Reserve(newSize);
+			ModifyAddressSanitizerAnnotation(GetSize(), newSize);
+			char* buffer = GetBuffer();
+			std::memmove(buffer, string.data(), newSize);
+			buffer[newSize] = '\0'; // std::string_view doesn't always have '\0'
 
-			_size = static_cast<uint32_t>(string.size());
+			SetSize(newSize);
 		}
 		else
 		{
@@ -766,22 +765,23 @@ namespace hod
 	/// @return
 	String& String::Assign(const std::string_view& string, uint32_t position, uint32_t count)
 	{
-		assert(position < static_cast<uint32_t>(string.size()));
+		const uint32_t sourceSize = static_cast<uint32_t>(string.size());
+		assert(position < sourceSize);
 
-		if (count > static_cast<uint32_t>(string.size()) - position)
+		if (count > sourceSize - position)
 		{
-			count = static_cast<uint32_t>(string.size()) - position;
+			count = sourceSize - position;
 		}
 
 		if (count > 0)
 		{
 			Reserve(count);
-			ModifyAddressSanitizerAnnotation(_size, count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			ModifyAddressSanitizerAnnotation(GetSize(), count);
+			char* buffer = GetBuffer();
 			std::memmove(buffer, string.data() + position, count);
 			buffer[count] = '\0';
 
-			_size = count;
+			SetSize(count);
 		}
 		else
 		{
@@ -796,29 +796,29 @@ namespace hod
 	/// @return
 	String& String::Assign(String&& string)
 	{
-		if (_capacity >= SMALL_BUFFER_MAX_CAPACITY)
+		if (!IsSmall())
 		{
 			RemoveAddressSanitizerAnnotation();
-			_allocator->Free(_large._buffer); // size to free is _capacity + 1
+			_allocator->Free(_large._ptr);
 		}
 
-		_size = string._size;
-		_capacity = string._capacity;
 		_allocator = string._allocator;
 
-		if (_capacity < SMALL_BUFFER_MAX_CAPACITY)
+		if (string.IsSmall())
 		{
-			std::memmove(_small._buffer, string._small._buffer, _size + 1);
-			string._small._buffer[0] = '\0';
+			std::memcpy(&_small, &string._small, sizeof(_small)); // copy all 24 bytes incl. _remainingSize
+			string._small._buffer[0]   = '\0';
+			string._small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
 		else
 		{
-			_large._buffer = string._large._buffer;
-			string._capacity = 0;
-			string._large._buffer = nullptr;
+			_large._ptr      = string._large._ptr;
+			_large._size     = string._large._size;
+			_large._capacity = string._large._capacity;
+			_large._flag     = LARGE_STRING_FLAG;
+			string._small._buffer[0]   = '\0';
+			string._small._remainingSize = SMALL_BUFFER_MAX_SIZE;
 		}
-
-		string._size = 0;
 
 		return *this;
 	}
@@ -828,16 +828,17 @@ namespace hod
 	/// @return
 	String& String::Append(uint32_t count, char character)
 	{
-		Reserve(_size + count);
-		ModifyAddressSanitizerAnnotation(_size, _size + count);
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		for (uint32_t i = _size; i < _size + count; ++i)
+		const uint32_t size = GetSize();
+		Reserve(size + count);
+		ModifyAddressSanitizerAnnotation(size, size + count);
+		char* buffer = GetBuffer();
+		for (uint32_t i = size; i < size + count; ++i)
 		{
 			buffer[i] = character;
 		}
-		buffer[_size + count] = '\0';
+		buffer[size + count] = '\0';
 
-		_size += count;
+		SetSize(size + count);
 
 		return *this;
 	}
@@ -859,12 +860,13 @@ namespace hod
 
 		if (appendSize > 0)
 		{
-			Reserve(_size + appendSize);
-			ModifyAddressSanitizerAnnotation(_size, _size + appendSize);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			std::memcpy(buffer + _size, string, appendSize + 1); // +1 to copy the '\0' at the end of the source string
+			const uint32_t size = GetSize();
+			Reserve(size + appendSize);
+			ModifyAddressSanitizerAnnotation(size, size + appendSize);
+			char* buffer = GetBuffer();
+			std::memcpy(buffer + size, string, appendSize + 1); // +1 to copy the '\0' at the end of the source string
 
-			_size += appendSize;
+			SetSize(size + appendSize);
 		}
 
 		return *this;
@@ -878,21 +880,16 @@ namespace hod
 	/// @return
 	String& String::Append(const String& string)
 	{
-		if (string._size > 0)
+		const uint32_t appendSize = string.GetSize();
+		if (appendSize > 0)
 		{
-			Reserve(_size + string._size);
-			ModifyAddressSanitizerAnnotation(_size, _size + string._size);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-			{
-				std::memcpy(buffer + _size, string._small._buffer, string._size + 1); // +1 to copy the '\0' at the end of the source string
-			}
-			else
-			{
-				std::memcpy(buffer + _size, string._large._buffer, string._size + 1); // +1 to copy the '\0' at the end of the source string
-			}
+			const uint32_t size = GetSize();
+			Reserve(size + appendSize);
+			ModifyAddressSanitizerAnnotation(size, size + appendSize);
+			char* buffer = GetBuffer();
+			std::memcpy(buffer + size, string.GetBuffer(), appendSize + 1); // +1 to copy the '\0' at the end of the source string
 
-			_size += string._size;
+			SetSize(size + appendSize);
 		}
 
 		return *this;
@@ -903,29 +900,24 @@ namespace hod
 	/// @return
 	String& String::Append(const String& string, uint32_t position, uint32_t count)
 	{
-		assert(position < string._size);
+		const uint32_t sourceSize = string.GetSize();
+		assert(position < sourceSize);
 
-		if (count > string._size - position)
+		if (count > sourceSize - position)
 		{
-			count = string._size - position;
+			count = sourceSize - position;
 		}
 
 		if (count > 0)
 		{
-			Reserve(_size + count);
-			ModifyAddressSanitizerAnnotation(_size, _size + count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-			{
-				std::memcpy(buffer + _size, string._small._buffer + position, count);
-			}
-			else
-			{
-				std::memcpy(buffer + _size, string._large._buffer + position, count);
-			}
-			buffer[_size + count] = '\0';
+			const uint32_t size = GetSize();
+			Reserve(size + count);
+			ModifyAddressSanitizerAnnotation(size, size + count);
+			char* buffer = GetBuffer();
+			std::memcpy(buffer + size, string.GetBuffer() + position, count);
+			buffer[size + count] = '\0';
 
-			_size += count;
+			SetSize(size + count);
 		}
 
 		return *this;
@@ -936,15 +928,17 @@ namespace hod
 	/// @return
 	String& String::Append(const std::string_view& string)
 	{
-		if (static_cast<uint32_t>(string.size()) > 0)
+		const uint32_t appendSize = static_cast<uint32_t>(string.size());
+		if (appendSize > 0)
 		{
-			Reserve(_size + static_cast<uint32_t>(string.size()));
-			ModifyAddressSanitizerAnnotation(_size, _size + static_cast<uint32_t>(string.size()));
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			std::memcpy(buffer + _size, string.data(), static_cast<uint32_t>(string.size()));
-			buffer[_size + static_cast<uint32_t>(string.size())] = '\0'; // Add manually the \0, std::string_view don't always have it
+			const uint32_t size = GetSize();
+			Reserve(size + appendSize);
+			ModifyAddressSanitizerAnnotation(size, size + appendSize);
+			char* buffer = GetBuffer();
+			std::memcpy(buffer + size, string.data(), appendSize);
+			buffer[size + appendSize] = '\0'; // std::string_view doesn't always have '\0'
 
-			_size += static_cast<uint32_t>(string.size());
+			SetSize(size + appendSize);
 		}
 
 		return *this;
@@ -955,22 +949,24 @@ namespace hod
 	/// @return
 	String& String::Append(const std::string_view& string, uint32_t position, uint32_t count)
 	{
-		assert(position < static_cast<uint32_t>(string.size()));
+		const uint32_t sourceSize = static_cast<uint32_t>(string.size());
+		assert(position < sourceSize);
 
-		if (count > static_cast<uint32_t>(string.size()) - position)
+		if (count > sourceSize - position)
 		{
-			count = static_cast<uint32_t>(string.size()) - position;
+			count = sourceSize - position;
 		}
 
 		if (count > 0)
 		{
-			Reserve(_size + count);
-			ModifyAddressSanitizerAnnotation(_size, _size + count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			std::memcpy(buffer + _size, string.data() + position, count);
-			buffer[_size + count] = '\0';
+			const uint32_t size = GetSize();
+			Reserve(size + count);
+			ModifyAddressSanitizerAnnotation(size, size + count);
+			char* buffer = GetBuffer();
+			std::memcpy(buffer + size, string.data() + position, count);
+			buffer[size + count] = '\0';
 
-			_size += count;
+			SetSize(size + count);
 		}
 
 		return *this;
@@ -982,21 +978,22 @@ namespace hod
 	/// @return
 	String& String::Insert(uint32_t position, uint32_t count, char character)
 	{
-		assert(position <= _size);
+		const uint32_t size = GetSize();
+		assert(position <= size);
 
 		if (count > 0)
 		{
-			Reserve(_size + count);
-			ModifyAddressSanitizerAnnotation(_size, _size + count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			Reserve(size + count);
+			ModifyAddressSanitizerAnnotation(size, size + count);
+			char* buffer = GetBuffer();
 			std::memmove(buffer + position + count, buffer + position,
-			             _size - position + 1); // Use a std::memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
+			             size - position + 1); // Use a std::memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
 			for (uint32_t i = position; i < position + count; ++i)
 			{
 				buffer[i] = character;
 			}
 
-			_size += count;
+			SetSize(size + count);
 		}
 
 		return *this;
@@ -1008,20 +1005,21 @@ namespace hod
 	/// @return
 	String& String::Insert(uint32_t position, const char* string)
 	{
-		assert(position <= _size);
+		const uint32_t size = GetSize();
+		assert(position <= size);
 
 		const uint32_t insertSize = (string != nullptr) ? static_cast<uint32_t>(std::strlen(string)) : 0;
 
 		if (insertSize > 0)
 		{
-			Reserve(_size + insertSize);
-			ModifyAddressSanitizerAnnotation(_size, _size + insertSize);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			Reserve(size + insertSize);
+			ModifyAddressSanitizerAnnotation(size, size + insertSize);
+			char* buffer = GetBuffer();
 
 			std::memmove(buffer + position + insertSize, buffer + position,
-			             _size - position + 1); // Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
+			             size - position + 1); // Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
 			std::memmove(buffer + position, string, insertSize);
-			_size += insertSize;
+			SetSize(size + insertSize);
 		}
 
 		return *this;
@@ -1034,18 +1032,19 @@ namespace hod
 	/// @return
 	String& String::Insert(uint32_t position, const char* string, uint32_t count)
 	{
-		assert(position <= _size);
+		const uint32_t size = GetSize();
+		assert(position <= size);
 
 		if (count > 0)
 		{
-			Reserve(_size + count);
-			ModifyAddressSanitizerAnnotation(_size, _size + count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			Reserve(size + count);
+			ModifyAddressSanitizerAnnotation(size, size + count);
+			char* buffer = GetBuffer();
 
 			std::memmove(buffer + position + count, buffer + position,
-			             _size - position + 1); // Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
+			             size - position + 1); // Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
 			std::memmove(buffer + position, string, count);
-			_size += count;
+			SetSize(size + count);
 		}
 		return *this;
 	}
@@ -1057,30 +1056,25 @@ namespace hod
 	/// @return
 	String& String::Insert(uint32_t position, const String& string, uint32_t index, uint32_t count)
 	{
-		assert(position <= _size && index <= string._size);
+		const uint32_t size = GetSize();
+		const uint32_t sourceSize = string.GetSize();
+		assert(position <= size && index <= sourceSize);
 
-		if (count > string._size - index)
+		if (count > sourceSize - index)
 		{
-			count = string._size - index;
+			count = sourceSize - index;
 		}
 
 		if (count > 0)
 		{
-			Reserve(_size + count);
-			ModifyAddressSanitizerAnnotation(_size, _size + count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			Reserve(size + count);
+			ModifyAddressSanitizerAnnotation(size, size + count);
+			char* buffer = GetBuffer();
 
 			std::memmove(buffer + position + count, buffer + position,
-			             _size - position + 1); // Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
-			if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-			{
-				std::memmove(buffer + position, string._small._buffer + index, count);
-			}
-			else
-			{
-				std::memmove(buffer + position, string._large._buffer + index, count);
-			}
-			_size += count;
+			             size - position + 1); // Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
+			std::memmove(buffer + position, string.GetBuffer() + index, count);
+			SetSize(size + count);
 		}
 		return *this;
 	}
@@ -1092,23 +1086,25 @@ namespace hod
 	/// @return
 	String& String::Insert(uint32_t position, const std::string_view& string, uint32_t index, uint32_t count)
 	{
-		assert(position <= _size || index <= static_cast<uint32_t>(string.size()));
+		const uint32_t size = GetSize();
+		const uint32_t sourceSize = static_cast<uint32_t>(string.size());
+		assert(position <= size || index <= sourceSize);
 
-		if (count > static_cast<uint32_t>(string.size()) - index)
+		if (count > sourceSize - index)
 		{
-			count = static_cast<uint32_t>(string.size()) - index;
+			count = sourceSize - index;
 		}
 
 		if (count > 0)
 		{
-			Reserve(_size + count);
-			ModifyAddressSanitizerAnnotation(_size, _size + count);
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			Reserve(size + count);
+			ModifyAddressSanitizerAnnotation(size, size + count);
+			char* buffer = GetBuffer();
 
 			std::memmove(buffer + position + count, buffer + position,
-			             _size - position + 1); // Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
+			             size - position + 1); // Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
 			std::memmove(buffer + position, string.data() + index, count);
-			_size += count;
+			SetSize(size + count);
 		}
 		return *this;
 	}
@@ -1120,26 +1116,27 @@ namespace hod
 	/// @return
 	String& String::Replace(uint32_t position, uint32_t length, uint32_t count, char character)
 	{
-		assert(position <= _size);
+		uint32_t size = GetSize();
+		assert(position <= size);
 
-		if (length > _size - position)
+		if (length > size - position)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
 		if (count > length)
 		{
-			Reserve(_size + count - length);
-			ModifyAddressSanitizerAnnotation(_size, _size + count - length);
+			Reserve(size + count - length);
+			ModifyAddressSanitizerAnnotation(size, size + count - length);
 		}
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		char* buffer = GetBuffer();
 
-		if (_size > 0)
+		if (size > 0)
 		{
 			if (count != length)
 			{
 				// Use a std::memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
-				std::memmove(buffer + position + count, buffer + position + length, _size - position - length + 1);
+				std::memmove(buffer + position + count, buffer + position + length, size - position - length + 1);
 			}
 
 			for (uint32_t i = position; i < position + count; ++i)
@@ -1149,9 +1146,9 @@ namespace hod
 
 			if (count < length)
 			{
-				ModifyAddressSanitizerAnnotation(_size, _size + count - length);
+				ModifyAddressSanitizerAnnotation(size, size + count - length);
 			}
-			_size += count - length;
+			SetSize(size + count - length);
 		}
 		else
 		{
@@ -1168,11 +1165,12 @@ namespace hod
 	/// @return
 	String& String::Replace(uint32_t position, uint32_t length, const char* string, uint32_t count)
 	{
-		assert(position <= _size);
+		uint32_t size = GetSize();
+		assert(position <= size);
 
-		if (length > _size - position)
+		if (length > size - position)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
 		if (count == Npos)
@@ -1182,17 +1180,17 @@ namespace hod
 
 		if (count > length)
 		{
-			Reserve(_size + count - length);
-			ModifyAddressSanitizerAnnotation(_size, _size + count - length);
+			Reserve(size + count - length);
+			ModifyAddressSanitizerAnnotation(size, size + count - length);
 		}
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		char* buffer = GetBuffer();
 
-		if (_size > 0)
+		if (size > 0)
 		{
 			if (count != length)
 			{
 				// Use a Memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
-				std::memmove(buffer + position + count, buffer + position + length, _size - position - length + 1);
+				std::memmove(buffer + position + count, buffer + position + length, size - position - length + 1);
 			}
 
 			if (count > 0)
@@ -1202,9 +1200,9 @@ namespace hod
 
 			if (count < length)
 			{
-				ModifyAddressSanitizerAnnotation(_size, _size + count - length);
+				ModifyAddressSanitizerAnnotation(size, size + count - length);
 			}
-			_size += count - length;
+			SetSize(size + count - length);
 		}
 		else
 		{
@@ -1221,50 +1219,44 @@ namespace hod
 	/// @return
 	String& String::Replace(uint32_t position, uint32_t length, const String& string, uint32_t index, uint32_t count)
 	{
-		assert(position <= _size);
+		uint32_t size = GetSize();
+		assert(position <= size);
 
-		if (count > string._size - index)
+		if (count > string.GetSize() - index)
 		{
-			count = string._size - index;
+			count = string.GetSize() - index;
 		}
 
-		if (length > _size - position)
+		if (length > size - position)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
 		if (count > length)
 		{
-			Reserve(_size + count - length);
-			ModifyAddressSanitizerAnnotation(_size, _size + count - length);
+			Reserve(size + count - length);
+			ModifyAddressSanitizerAnnotation(size, size + count - length);
 		}
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		char* buffer = GetBuffer();
 
-		if (_size > 0)
+		if (size > 0)
 		{
 			if (count != length)
 			{
 				// Use a std::memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
-				std::memmove(buffer + position + count, buffer + position + length, _size - position - length + 1);
+				std::memmove(buffer + position + count, buffer + position + length, size - position - length + 1);
 			}
 
 			if (count > 0)
 			{
-				if (string._capacity < SMALL_BUFFER_MAX_CAPACITY)
-				{
-					std::memmove(buffer + position, string._small._buffer + index, count);
-				}
-				else
-				{
-					std::memmove(buffer + position, string._large._buffer + index, count);
-				}
+				std::memmove(buffer + position, string.GetBuffer() + index, count);
 			}
 
 			if (count < length)
 			{
-				ModifyAddressSanitizerAnnotation(_size, _size + count - length);
+				ModifyAddressSanitizerAnnotation(size, size + count - length);
 			}
-			_size += count - length;
+			SetSize(size + count - length);
 		}
 		else
 		{
@@ -1281,31 +1273,32 @@ namespace hod
 	/// @return
 	String& String::Replace(uint32_t position, uint32_t length, const std::string_view& string, uint32_t index, uint32_t count)
 	{
-		assert(position <= _size);
+		uint32_t size = GetSize();
+		assert(position <= size);
 
 		if (count > static_cast<uint32_t>(string.size()) - index)
 		{
 			count = static_cast<uint32_t>(string.size()) - index;
 		}
 
-		if (length > _size - position)
+		if (length > size - position)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
 		if (count > length)
 		{
-			Reserve(_size + count - length);
-			ModifyAddressSanitizerAnnotation(_size, _size + count - length);
+			Reserve(size + count - length);
+			ModifyAddressSanitizerAnnotation(size, size + count - length);
 		}
-		char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		char* buffer = GetBuffer();
 
-		if (_size > 0)
+		if (size > 0)
 		{
 			if (count != length)
 			{
 				// Use a std::memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
-				std::memmove(buffer + position + count, buffer + position + length, _size - position - length + 1);
+				std::memmove(buffer + position + count, buffer + position + length, size - position - length + 1);
 			}
 
 			if (count > 0)
@@ -1315,9 +1308,9 @@ namespace hod
 
 			if (count < length)
 			{
-				ModifyAddressSanitizerAnnotation(_size, _size + count - length);
+				ModifyAddressSanitizerAnnotation(size, size + count - length);
 			}
-			_size += count - length;
+			SetSize(size + count - length);
 		}
 		else
 		{
@@ -1333,20 +1326,21 @@ namespace hod
 	/// @return
 	String& String::Erase(uint32_t position, uint32_t length)
 	{
-		assert(position <= _size);
+		const uint32_t size = GetSize();
+		assert(position <= size);
 
-		if (length > _size - position)
+		if (length > size - position)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
 		if (length > 0)
 		{
-			char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			char* buffer = GetBuffer();
 			std::memmove(buffer + position, buffer + position + length,
-			             _size - position - length + 1); // Use a std::memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
-			ModifyAddressSanitizerAnnotation(_size, _size - length);
-			_size -= length;
+			             size - position - length + 1); // Use a std::memmove (Memcpy doesn't prevent overlapping) to shift right part of the string (including '\0')
+			ModifyAddressSanitizerAnnotation(size, size - length);
+			SetSize(size - length);
 		}
 
 		return *this;
@@ -1358,18 +1352,18 @@ namespace hod
 	/// @return
 	String String::SubStr(uint32_t position, uint32_t length) const&
 	{
-		assert(position <= _size);
+		const uint32_t size = GetSize();
+		assert(position <= size);
 
-		if (length > _size - position)
+		if (length > size - position)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
 		if (length > 0)
 		{
 			String      result(length, *_allocator);
-			const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			result.Assign(std::string_view(buffer + position, length));
+			result.Assign(std::string_view(GetBuffer() + position, length));
 
 			return result;
 		}
@@ -1401,13 +1395,14 @@ namespace hod
 	/// @return Index of the first occurrence, otherwise Npos
 	uint32_t String::Find(char character, uint32_t position) const
 	{
-		if (position >= _size)
+		const uint32_t size = GetSize();
+		if (position >= size)
 		{
 			return Npos;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		const void* found = std::memchr(buffer + position, static_cast<unsigned char>(character), _size - position);
+		const char* buffer = GetBuffer();
+		const void* found = std::memchr(buffer + position, static_cast<unsigned char>(character), size - position);
 		if (found != nullptr)
 		{
 			return static_cast<uint32_t>(static_cast<const char*>(found) - buffer);
@@ -1422,7 +1417,8 @@ namespace hod
 	/// @return Index of the first occurrence, otherwise Npos
 	uint32_t String::Find(const char* string, uint32_t position) const
 	{
-		const char*    buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		const char*    buffer = GetBuffer();
+		const uint32_t size = GetSize();
 		const uint32_t compareSize = (string != nullptr) ? static_cast<uint32_t>(std::strlen(string)) : 0;
 
 		if (compareSize == 0)
@@ -1432,7 +1428,7 @@ namespace hod
 
 		if (buffer != nullptr && compareSize > 0)
 		{
-			while (position + compareSize <= _size)
+			while (position + compareSize <= size)
 			{
 				if (std::strncmp(buffer + position, string, compareSize) == 0)
 				{
@@ -1452,18 +1448,20 @@ namespace hod
 	/// @return Index of the first occurrence, otherwise Npos
 	uint32_t String::Find(const String& string, uint32_t position) const
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		const char* otherBuffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
+		const char*    buffer      = GetBuffer();
+		const char*    otherBuffer = string.GetBuffer();
+		const uint32_t size        = GetSize();
+		const uint32_t otherSize   = string.GetSize();
 
-		if (string._size == 0)
+		if (otherSize == 0)
 		{
 			return position;
 		}
-		if (buffer != nullptr && string._size > 0)
+		if (buffer != nullptr && otherSize > 0)
 		{
-			while (position + string._size <= _size)
+			while (position + otherSize <= size)
 			{
-				if (std::strncmp(buffer + position, otherBuffer, string._size) == 0)
+				if (std::strncmp(buffer + position, otherBuffer, otherSize) == 0)
 				{
 					return position;
 				}
@@ -1481,13 +1479,15 @@ namespace hod
 	/// @return Index of the first occurrence, otherwise Npos
 	uint32_t String::Find(const std::string_view& string, uint32_t position) const
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		const char*    buffer    = GetBuffer();
+		const uint32_t size      = GetSize();
+		const uint32_t otherSize = static_cast<uint32_t>(string.size());
 
-		if (buffer != nullptr && static_cast<uint32_t>(string.size()) > 0)
+		if (buffer != nullptr && otherSize > 0)
 		{
-			while (position + static_cast<uint32_t>(string.size()) <= _size)
+			while (position + otherSize <= size)
 			{
-				if (std::strncmp(buffer + position, string.data(), static_cast<uint32_t>(string.size())) == 0)
+				if (std::strncmp(buffer + position, string.data(), otherSize) == 0)
 				{
 					return position;
 				}
@@ -1505,17 +1505,18 @@ namespace hod
 	/// @return
 	uint32_t String::FindR(char character, uint32_t position) const
 	{
-		if (_size == 0)
+		const uint32_t size = GetSize();
+		if (size == 0)
 		{
 			return Npos;
 		}
 
 		uint32_t currentPos = position;
-		if (currentPos >= _size)
+		if (currentPos >= size)
 		{
-			currentPos = _size - 1;
+			currentPos = size - 1;
 		}
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		const char* buffer = GetBuffer();
 
 		while (true)
 		{
@@ -1541,19 +1542,20 @@ namespace hod
 	/// @return Index of the last occurrence, otherwise Npos
 	uint32_t String::FindR(const char* string, uint32_t position) const
 	{
-		uint32_t compareSize = (string != nullptr) ? static_cast<uint32_t>(std::strlen(string)) : 0;
+		const uint32_t size        = GetSize();
+		uint32_t       compareSize = (string != nullptr) ? static_cast<uint32_t>(std::strlen(string)) : 0;
 		if (compareSize == 0)
 		{
-			return (position < _size) ? position : _size;
+			return (position < size) ? position : size;
 		}
 
-		if (_size < compareSize)
+		if (size < compareSize)
 		{
 			return Npos;
 		}
 
-		uint32_t    currentPos = (position < _size - compareSize) ? position : _size - compareSize;
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		uint32_t    currentPos = (position < size - compareSize) ? position : size - compareSize;
+		const char* buffer = GetBuffer();
 
 		while (true)
 		{
@@ -1577,22 +1579,25 @@ namespace hod
 	/// @return Index of the last occurrence, otherwise Npos
 	uint32_t String::FindR(const String& string, uint32_t position) const
 	{
+		const uint32_t size      = GetSize();
+		const uint32_t otherSize = string.GetSize();
+
 		if (string.Empty())
 		{
-			return (position < _size) ? position : _size;
+			return (position < size) ? position : size;
 		}
-		if (_size < string._size)
+		if (size < otherSize)
 		{
 			return Npos;
 		}
 
-		uint32_t    currentPos = (position < _size - string._size) ? position : _size - string._size;
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		const char* otherBuffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
+		uint32_t    currentPos  = (position < size - otherSize) ? position : size - otherSize;
+		const char* buffer      = GetBuffer();
+		const char* otherBuffer = string.GetBuffer();
 
 		while (true)
 		{
-			if (std::strncmp(buffer + currentPos, otherBuffer, string._size) == 0)
+			if (std::strncmp(buffer + currentPos, otherBuffer, otherSize) == 0)
 			{
 				return currentPos;
 			}
@@ -1612,21 +1617,24 @@ namespace hod
 	/// @return Index of the last occurrence, otherwise Npos
 	uint32_t String::FindR(const std::string_view& string, uint32_t position) const
 	{
+		const uint32_t size      = GetSize();
+		const uint32_t otherSize = static_cast<uint32_t>(string.size());
+
 		if (string.empty())
 		{
-			return (position < _size) ? position : _size;
+			return (position < size) ? position : size;
 		}
-		if (_size < static_cast<uint32_t>(string.size()))
+		if (size < otherSize)
 		{
 			return Npos;
 		}
 
-		uint32_t    currentPos = (position < _size - static_cast<uint32_t>(string.size())) ? position : _size - static_cast<uint32_t>(string.size());
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		uint32_t    currentPos = (position < size - otherSize) ? position : size - otherSize;
+		const char* buffer = GetBuffer();
 
 		while (true)
 		{
-			if (std::strncmp(buffer + currentPos, string.data(), static_cast<uint32_t>(string.size())) == 0)
+			if (std::strncmp(buffer + currentPos, string.data(), otherSize) == 0)
 			{
 				return currentPos;
 			}
@@ -1652,7 +1660,7 @@ namespace hod
 
 	uint32_t String::FindFirstOf(const std::string_view& string, uint32_t position) const
 	{
-		if (string.empty() || _size == 0)
+		if (string.empty() || GetSize() == 0)
 		{
 			return String::Npos;
 		}
@@ -1673,7 +1681,7 @@ namespace hod
 
 	uint32_t String::FindLastOf(const std::string_view& string, uint32_t position) const
 	{
-		if (string.empty() || _size == 0)
+		if (string.empty() || GetSize() == 0)
 		{
 			return String::Npos;
 		}
@@ -1687,14 +1695,14 @@ namespace hod
 	/// @return
 	int32_t String::Compare(const String& string) const
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		const char* otherBuffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
+		const char* buffer      = GetBuffer();
+		const char* otherBuffer = string.GetBuffer();
 
-		if (_capacity == 0 || buffer[0] == '\0')
+		if (GetSize() == 0)
 		{
-			return (string._capacity == 0 || otherBuffer[0] == '\0') ? 0 : -1;
+			return (string.GetSize() == 0) ? 0 : -1;
 		}
-		else if (string._capacity == 0 || otherBuffer[0] == '\0')
+		else if (string.GetSize() == 0)
 		{
 			return 1;
 		}
@@ -1709,10 +1717,11 @@ namespace hod
 	/// @return
 	int32_t String::Compare(const std::string_view& string) const
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		const char*    buffer    = GetBuffer();
+		const uint32_t size      = GetSize();
 		const uint32_t otherSize = static_cast<uint32_t>(string.size());
 
-		if (_size == 0)
+		if (size == 0)
 		{
 			return (otherSize == 0) ? 0 : -1;
 		}
@@ -1722,13 +1731,13 @@ namespace hod
 		}
 		else
 		{
-			int32_t result = std::strncmp(buffer, string.data(), _size < otherSize ? _size : otherSize);
+			int32_t result = std::strncmp(buffer, string.data(), size < otherSize ? size : otherSize);
 			if (result != 0)
 			{
 				return result;
 			}
-			if (_size < otherSize) return -1;
-			if (_size > otherSize) return 1;
+			if (size < otherSize) return -1;
+			if (size > otherSize) return 1;
 			return 0;
 		}
 	}
@@ -1738,9 +1747,9 @@ namespace hod
 	/// @return
 	int32_t String::Compare(const char* string) const
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		const char* buffer = GetBuffer();
 
-		if (_capacity == 0 || buffer[0] == '\0')
+		if (GetSize() == 0)
 		{
 			return (string == nullptr || string[0] == '\0') ? 0 : -1;
 		}
@@ -1761,23 +1770,24 @@ namespace hod
 	/// @return
 	int32_t String::Compare(uint32_t position, uint32_t length, const String& string) const
 	{
-		assert(position < _size);
+		const uint32_t size = GetSize();
+		assert(position < size);
 
 		if (length == Npos)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
-		if (position + length <= _size)
+		if (position + length <= size)
 		{
-			const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-			const char* otherBuffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
+			const char* buffer      = GetBuffer();
+			const char* otherBuffer = string.GetBuffer();
 
-			if (_capacity == 0 || buffer[0] == '\0')
+			if (GetSize() == 0)
 			{
-				return (string._capacity == 0 || otherBuffer[0] == '\0') ? 0 : -1;
+				return (string.GetSize() == 0) ? 0 : -1;
 			}
-			else if (string._capacity == 0 || otherBuffer[0] == '\0')
+			else if (string.GetSize() == 0)
 			{
 				return 1;
 			}
@@ -1799,18 +1809,19 @@ namespace hod
 	/// @return
 	int32_t String::Compare(uint32_t position, uint32_t length, const std::string_view& string) const
 	{
-		assert(position < _size);
+		const uint32_t size = GetSize();
+		assert(position < size);
 
 		if (length == Npos)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
-		if (position + length <= _size)
+		if (position + length <= size)
 		{
-			const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			const char* buffer = GetBuffer();
 
-			if (_capacity == 0 || buffer[0] == '\0')
+			if (size == 0)
 			{
 				return (string.data() == nullptr || string.data()[0] == '\0') ? 0 : -1;
 			}
@@ -1836,18 +1847,19 @@ namespace hod
 	/// @return
 	int32_t String::Compare(uint32_t position, uint32_t length, const char* string) const
 	{
-		assert(position < _size);
+		const uint32_t size = GetSize();
+		assert(position < size);
 
 		if (length == Npos)
 		{
-			length = _size - position;
+			length = size - position;
 		}
 
-		if (position + length <= _size)
+		if (position + length <= size)
 		{
-			const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+			const char* buffer = GetBuffer();
 
-			if (_capacity == 0 || buffer[0] == '\0')
+			if (size == 0)
 			{
 				return (string == nullptr || string[0] == '\0') ? 0 : -1;
 			}
@@ -1871,13 +1883,12 @@ namespace hod
 	/// @return
 	bool String::StartsWith(char character) const
 	{
-		if (_size == 0)
+		if (GetSize() == 0)
 		{
 			return false;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[0] == character;
+		return GetBuffer()[0] == character;
 	}
 
 	/// @brief
@@ -1885,8 +1896,8 @@ namespace hod
 	/// @return bool
 	bool String::StartsWith(const char* string) const
 	{
-		uint32_t stringSize = static_cast<uint32_t>(std::strlen(string));
-		if (_size < stringSize)
+		const uint32_t stringSize = static_cast<uint32_t>(std::strlen(string));
+		if (GetSize() < stringSize)
 		{
 			return false;
 		}
@@ -1896,8 +1907,7 @@ namespace hod
 			return true;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return std::strncmp(buffer, string, stringSize) == 0;
+		return std::strncmp(GetBuffer(), string, stringSize) == 0;
 	}
 
 	/// @brief
@@ -1905,19 +1915,18 @@ namespace hod
 	/// @return
 	bool String::StartsWith(const String& string) const
 	{
-		if (_size < string._size)
+		const uint32_t otherSize = string.GetSize();
+		if (GetSize() < otherSize)
 		{
 			return false;
 		}
 
-		if (string._size == 0) // To comply with c++ standard
+		if (otherSize == 0) // To comply with c++ standard
 		{
 			return true;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		const char* otherBuffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
-		return std::strncmp(buffer, otherBuffer, string._size) == 0;
+		return std::strncmp(GetBuffer(), string.GetBuffer(), otherSize) == 0;
 	}
 
 	/// @brief
@@ -1925,18 +1934,18 @@ namespace hod
 	/// @return
 	bool String::StartsWith(const std::string_view& string) const
 	{
-		if (_size < static_cast<uint32_t>(string.size()))
+		const uint32_t otherSize = static_cast<uint32_t>(string.size());
+		if (GetSize() < otherSize)
 		{
 			return false;
 		}
 
-		if (static_cast<uint32_t>(string.size()) == 0) // To comply with c++ standard
+		if (otherSize == 0) // To comply with c++ standard
 		{
 			return true;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return std::strncmp(buffer, string.data(), static_cast<uint32_t>(string.size())) == 0;
+		return std::strncmp(GetBuffer(), string.data(), otherSize) == 0;
 	}
 
 	/// @brief
@@ -1944,13 +1953,13 @@ namespace hod
 	/// @return
 	bool String::EndsWith(char character) const
 	{
-		if (_size == 0)
+		const uint32_t size = GetSize();
+		if (size == 0)
 		{
 			return false;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return buffer[_size - 1] == character;
+		return GetBuffer()[size - 1] == character;
 	}
 
 	/// @brief
@@ -1958,8 +1967,9 @@ namespace hod
 	/// @return
 	bool String::EndsWith(const char* string) const
 	{
-		uint32_t stringSize = static_cast<uint32_t>(std::strlen(string));
-		if (_size < stringSize)
+		const uint32_t size       = GetSize();
+		const uint32_t stringSize = static_cast<uint32_t>(std::strlen(string));
+		if (size < stringSize)
 		{
 			return false;
 		}
@@ -1969,8 +1979,7 @@ namespace hod
 			return true;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return std::strncmp(buffer + (_size - stringSize), string, stringSize) == 0;
+		return std::strncmp(GetBuffer() + (size - stringSize), string, stringSize) == 0;
 	}
 
 	/// @brief
@@ -1978,19 +1987,19 @@ namespace hod
 	/// @return
 	bool String::EndsWith(const String& string) const
 	{
-		if (_size < string._size)
+		const uint32_t size      = GetSize();
+		const uint32_t otherSize = string.GetSize();
+		if (size < otherSize)
 		{
 			return false;
 		}
 
-		if (string._size == 0) // To comply with c++ standard
+		if (otherSize == 0) // To comply with c++ standard
 		{
 			return true;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		const char* otherBuffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
-		return std::strncmp(buffer + (_size - string._size), otherBuffer, string._size) == 0;
+		return std::strncmp(GetBuffer() + (size - otherSize), string.GetBuffer(), otherSize) == 0;
 	}
 
 	/// @brief
@@ -1998,18 +2007,19 @@ namespace hod
 	/// @return
 	bool String::EndsWith(const std::string_view& string) const
 	{
-		if (_size < static_cast<uint32_t>(string.size()))
+		const uint32_t size      = GetSize();
+		const uint32_t otherSize = static_cast<uint32_t>(string.size());
+		if (size < otherSize)
 		{
 			return false;
 		}
 
-		if (static_cast<uint32_t>(string.size()) == 0) // To comply with c++ standard
+		if (otherSize == 0) // To comply with c++ standard
 		{
 			return true;
 		}
 
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		return std::strncmp(buffer + (_size - static_cast<uint32_t>(string.size())), string.data(), static_cast<uint32_t>(string.size())) == 0;
+		return std::strncmp(GetBuffer() + (size - otherSize), string.data(), otherSize) == 0;
 	}
 
 	/// @brief
@@ -2017,8 +2027,9 @@ namespace hod
 	/// @return
 	bool String::Contains(char character) const
 	{
-		const char* buffer = _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
-		for (uint32_t i = 0; i < _size; ++i)
+		const char*    buffer = GetBuffer();
+		const uint32_t size   = GetSize();
+		for (uint32_t i = 0; i < size; ++i)
 		{
 			if (buffer[i] == character)
 			{
@@ -2088,9 +2099,9 @@ namespace hod
 		if (requiredCapacity > 0)
 		{
 			string.Reserve(static_cast<uint32_t>(requiredCapacity));
-			string.ModifyAddressSanitizerAnnotation(string._size, static_cast<uint32_t>(requiredCapacity));
-			char* buffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
-			string._size = vsnprintf(buffer, string._capacity + 1, format, vaList); // +1 because QDT_VSNPRINTF want the real size of the buffer including '\0'
+			string.ModifyAddressSanitizerAnnotation(string.GetSize(), static_cast<uint32_t>(requiredCapacity));
+			char* buffer = string.GetBuffer();
+			string.SetSize(static_cast<uint32_t>(vsnprintf(buffer, string.GetCapacity() + 1, format, vaList))); // +1 because vsnprintf wants the real size of the buffer including '\0'
 		}
 
 		return string;
@@ -2114,40 +2125,30 @@ namespace hod
 	/// @param
 	void String::FormatV(String& string, const char* format, va_list vaList)
 	{
-		int32_t requiredCapacity;
-
 		string.RemoveAddressSanitizerAnnotation();
-		char* buffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
+		char* buffer = string.GetBuffer();
 
-		if (string._capacity != 0)
+		// Always try existing buffer first (small buffer gives 23 chars, large gives more)
 		{
 			va_list vaListForCapacity;
 			va_copy(vaListForCapacity, vaList);
-			requiredCapacity = vsnprintf(buffer, string._capacity + 1, format, vaListForCapacity); // +1 because QDT_VSNPRINTF want the real size of the buffer including '\0'
+			int32_t requiredCapacity = vsnprintf(buffer, string.GetCapacity() + 1, format, vaListForCapacity); // +1 for '\0'
 			va_end(vaListForCapacity);
-			if (requiredCapacity > 0 && static_cast<uint32_t>(requiredCapacity) <= string._capacity)
+			if (requiredCapacity > 0 && static_cast<uint32_t>(requiredCapacity) <= string.GetCapacity())
 			{
-				string._size = requiredCapacity;
+				string.SetSize(static_cast<uint32_t>(requiredCapacity));
 				string.CreateAddressSanitizerAnnotation();
 				return;
 			}
-		}
-		else
-		{
-			char    achar[1];
-			va_list vaListForCapacity;
-			va_copy(vaListForCapacity, vaList);
-			requiredCapacity = vsnprintf(achar, sizeof(achar), format, vaListForCapacity);
-			va_end(vaListForCapacity);
-		}
 
-		if (requiredCapacity > 0)
-		{
-			string.CreateAddressSanitizerAnnotation();
-			string.Reserve(static_cast<uint32_t>(requiredCapacity));
-			string.RemoveAddressSanitizerAnnotation();
-			buffer = string._capacity < SMALL_BUFFER_MAX_CAPACITY ? string._small._buffer : string._large._buffer;
-			string._size = vsnprintf(buffer, string._capacity + 1, format, vaList); // +1 because QDT_VSNPRINTF want the real size of the buffer including '\0'
+			if (requiredCapacity > 0)
+			{
+				string.CreateAddressSanitizerAnnotation();
+				string.Reserve(static_cast<uint32_t>(requiredCapacity));
+				string.RemoveAddressSanitizerAnnotation();
+				buffer = string.GetBuffer();
+				string.SetSize(static_cast<uint32_t>(vsnprintf(buffer, string.GetCapacity() + 1, format, vaList))); // +1 for '\0'
+			}
 		}
 		string.CreateAddressSanitizerAnnotation();
 	}
@@ -2157,7 +2158,7 @@ namespace hod
 	/// @return
 	String String::operator+(char character) const
 	{
-		String result(_size + 1, *_allocator);
+		String result(GetSize() + 1, *_allocator);
 		result.Append(*this);
 		result.Append(1, character);
 
@@ -2169,7 +2170,7 @@ namespace hod
 	/// @return
 	String String::operator+(const String& string) const
 	{
-		String result(_size + string.Size(), *_allocator);
+		String result(GetSize() + string.GetSize(), *_allocator);
 		result.Append(*this);
 		result.Append(string);
 
@@ -2181,7 +2182,7 @@ namespace hod
 	/// @return
 	String String::operator+(const std::string_view& string) const
 	{
-		String result(_size + static_cast<uint32_t>(string.size()), *_allocator);
+		String result(GetSize() + static_cast<uint32_t>(string.size()), *_allocator);
 		result.Append(*this);
 		result.Append(string);
 
@@ -2193,7 +2194,7 @@ namespace hod
 	/// @return
 	String String::operator+(const char* string) const
 	{
-		String result(Size() + ((string != nullptr) ? static_cast<uint32_t>(std::strlen(string)) : 0), *_allocator);
+		String result(GetSize() + ((string != nullptr) ? static_cast<uint32_t>(std::strlen(string)) : 0), *_allocator);
 		result.Append(*this);
 		result.Append(string);
 
@@ -2218,42 +2219,42 @@ namespace hod
 	/// @return Capacity in byte (without '\\0')
 	uint32_t String::Capacity() const
 	{
-		return _capacity;
+		return GetCapacity();
 	}
 
 	/// @brief
 	/// @return Size in byte (without '\\0')
 	uint32_t String::Size() const
 	{
-		return _size;
+		return GetSize();
 	}
 
 	/// @brief
 	/// @return Size in byte (without '\\0')
 	uint32_t String::Length() const
 	{
-		return _size;
+		return GetSize();
 	}
 
 	/// @brief
 	/// @return
 	bool String::Empty() const
 	{
-		return _size == 0;
+		return GetSize() == 0;
 	}
 
 	/// @brief
-	/// @return Internal buffer of the String if capacity > 0, otherwise "" (const char[1] = { '\\0' })
+	/// @return Internal buffer of the String
 	const char* String::CStr() const&
 	{
-		return _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		return GetBuffer();
 	}
 
 	/// @brief
-	/// @return Internal buffer of the String if capacity > 0, otherwise "" (const char[1] = { '\\0' })
+	/// @return Internal buffer of the String
 	char* String::Data() &
 	{
-		return _capacity < SMALL_BUFFER_MAX_CAPACITY ? _small._buffer : _large._buffer;
+		return GetBuffer();
 	}
 
 	char* String::begin()
@@ -2512,10 +2513,10 @@ namespace hod
 	void String::CreateAddressSanitizerAnnotation()
 	{
 #if defined ASAN && defined ENABLE_ASAN_STRING_ANNOTATION
-		if (_capacity >= SMALL_BUFFER_MAX_CAPACITY)
+		if (!IsSmall())
 		{
 			// Null terminator is not included in size and capacity
-			__sanitizer_annotate_contiguous_container(_large._buffer, _large._buffer + _capacity + 1, _large._buffer + _capacity + 1, _large._buffer + _size + 1);
+			__sanitizer_annotate_contiguous_container(_large._ptr, _large._ptr + _large._capacity + 1, _large._ptr + _large._capacity + 1, _large._ptr + _large._size + 1);
 		}
 #endif
 	}
@@ -2526,10 +2527,10 @@ namespace hod
 	void String::ModifyAddressSanitizerAnnotation([[maybe_unused]] uint32_t oldSize, [[maybe_unused]] uint32_t newSize)
 	{
 #if defined ASAN && defined ENABLE_ASAN_STRING_ANNOTATION
-		if (_capacity >= SMALL_BUFFER_MAX_CAPACITY)
+		if (!IsSmall())
 		{
 			// Null terminator is not included in size and capacity
-			__sanitizer_annotate_contiguous_container(_large._buffer, _large._buffer + _capacity + 1, _large._buffer + oldSize + 1, _large._buffer + newSize + 1);
+			__sanitizer_annotate_contiguous_container(_large._ptr, _large._ptr + _large._capacity + 1, _large._ptr + oldSize + 1, _large._ptr + newSize + 1);
 		}
 #endif
 	}
@@ -2538,10 +2539,10 @@ namespace hod
 	void String::RemoveAddressSanitizerAnnotation()
 	{
 #if defined ASAN && defined ENABLE_ASAN_STRING_ANNOTATION
-		if (_capacity >= SMALL_BUFFER_MAX_CAPACITY)
+		if (!IsSmall())
 		{
 			// Null terminator is not included in size and capacity
-			__sanitizer_annotate_contiguous_container(_large._buffer, _large._buffer + _capacity + 1, _large._buffer + _size + 1, _large._buffer + _capacity + 1);
+			__sanitizer_annotate_contiguous_container(_large._ptr, _large._ptr + _large._capacity + 1, _large._ptr + _large._size + 1, _large._ptr + _large._capacity + 1);
 		}
 #endif
 	}
