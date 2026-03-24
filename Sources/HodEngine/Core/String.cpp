@@ -622,8 +622,8 @@ namespace hod
 	}
 
 #if defined(PLATFORM_WINDOWS)
-	// The std::memcpy for the small buffer creates the warning C4789, indicating that the buffer will be overrun.
-	// This happens only in retail compilation, with LTCG and inlining. But the buffer is always guaranteed to have the good size, with the Reserve above the std::memcpy.
+	// The std::memmove for the small buffer creates the warning C4789, indicating that the buffer will be overrun.
+	// This happens only in retail compilation, with LTCG and inlining. But the buffer is always guaranteed to have the good size, with the Reserve above the std::memmove.
 	// Microsoft indicates the warning can be raised even if the code path never executes.
 	// This warning appeared with MSVC 17.4.1
 	#pragma warning(push)
@@ -1695,9 +1695,6 @@ namespace hod
 	/// @return
 	int32_t String::Compare(const String& string) const
 	{
-		const char* buffer      = GetBuffer();
-		const char* otherBuffer = string.GetBuffer();
-
 		if (GetSize() == 0)
 		{
 			return (string.GetSize() == 0) ? 0 : -1;
@@ -1708,6 +1705,8 @@ namespace hod
 		}
 		else
 		{
+			const char* buffer      = GetBuffer();
+			const char* otherBuffer = string.GetBuffer();
 			return std::strcmp(buffer, otherBuffer);
 		}
 	}
@@ -1717,7 +1716,6 @@ namespace hod
 	/// @return
 	int32_t String::Compare(const std::string_view& string) const
 	{
-		const char*    buffer    = GetBuffer();
 		const uint32_t size      = GetSize();
 		const uint32_t otherSize = static_cast<uint32_t>(string.size());
 
@@ -1731,6 +1729,7 @@ namespace hod
 		}
 		else
 		{
+			const char* buffer = GetBuffer();
 			int32_t result = std::strncmp(buffer, string.data(), size < otherSize ? size : otherSize);
 			if (result != 0)
 			{
@@ -1747,8 +1746,6 @@ namespace hod
 	/// @return
 	int32_t String::Compare(const char* string) const
 	{
-		const char* buffer = GetBuffer();
-
 		if (GetSize() == 0)
 		{
 			return (string == nullptr || string[0] == '\0') ? 0 : -1;
@@ -1759,6 +1756,7 @@ namespace hod
 		}
 		else
 		{
+			const char* buffer = GetBuffer();
 			return std::strcmp(buffer, string);
 		}
 	}
@@ -1780,9 +1778,6 @@ namespace hod
 
 		if (position + length <= size)
 		{
-			const char* buffer      = GetBuffer();
-			const char* otherBuffer = string.GetBuffer();
-
 			if (GetSize() == 0)
 			{
 				return (string.GetSize() == 0) ? 0 : -1;
@@ -1793,6 +1788,8 @@ namespace hod
 			}
 			else
 			{
+				const char* buffer      = GetBuffer();
+				const char* otherBuffer = string.GetBuffer();
 				return std::strncmp(buffer + position, otherBuffer, length);
 			}
 		}
@@ -1819,8 +1816,6 @@ namespace hod
 
 		if (position + length <= size)
 		{
-			const char* buffer = GetBuffer();
-
 			if (size == 0)
 			{
 				return (string.data() == nullptr || string.data()[0] == '\0') ? 0 : -1;
@@ -1831,6 +1826,7 @@ namespace hod
 			}
 			else
 			{
+				const char* buffer = GetBuffer();
 				return std::strncmp(buffer + position, string.data(), length);
 			}
 		}
@@ -1857,8 +1853,6 @@ namespace hod
 
 		if (position + length <= size)
 		{
-			const char* buffer = GetBuffer();
-
 			if (size == 0)
 			{
 				return (string == nullptr || string[0] == '\0') ? 0 : -1;
@@ -1869,6 +1863,7 @@ namespace hod
 			}
 			else
 			{
+				const char* buffer = GetBuffer();
 				return std::strncmp(buffer + position, string, length);
 			}
 		}
