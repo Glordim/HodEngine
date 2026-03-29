@@ -46,8 +46,13 @@ target_link_libraries(Core
 
 target_compile_definitions(Core
 	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_CORE_EXPORT
 )
+
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(Core PUBLIC HOD_CORE_STATIC)
+else()
+	target_compile_definitions(Core PRIVATE HOD_CORE_EXPORT)
+endif()
 
 hod_install_lib(Core)
 
