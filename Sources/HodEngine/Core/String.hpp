@@ -41,75 +41,75 @@ namespace hod
 		explicit String(const std::string_view& stringView, uint32_t position, uint32_t count, Allocator& allocator = DefaultAllocator::GetInstance());
 		~String();
 
-		String& operator=(char character);
-		String& operator=(const char* string);
-		String& operator=(const String& string);
-		String& operator=(String&& string);
-		String& operator=(const std::string_view& string);
+		String& operator=(char character)                 { return Assign(1, character); }
+		String& operator=(const char* string)             { return Assign(string); }
+		String& operator=(const String& string)           { return Assign(string); }
+		String& operator=(String&& string)                { return Assign(std::move(string)); }
+		String& operator=(const std::string_view& string) { return Assign(string); }
 
-		String& operator+=(char character);
-		String& operator+=(const char* string);
-		String& operator+=(const String& sText);
-		String& operator+=(const std::string_view& sText);
+		String& operator+=(char character)                { return Append(1, character); }
+		String& operator+=(const char* string)            { return Append(string); }
+		String& operator+=(const String& sText)           { return Append(sText); }
+		String& operator+=(const std::string_view& sText) { return Append(sText); }
 
 		String operator+(char character) const;
 		String operator+(const char* string) const;
 		String operator+(const String& string) const;
 		String operator+(const std::string_view& string) const;
 
-		bool operator==(const String& string) const;
-		bool operator==(const char* string) const;
-		bool operator!=(const String& string) const;
-		bool operator!=(const char* string) const;
+		bool operator==(const String& string) const { return Length() == string.Length() && Compare(string) == 0; }
+		bool operator==(const char* string)   const { return Compare(string) == 0; }
+		bool operator!=(const String& string) const { return Length() != string.Length() || Compare(string) != 0; }
+		bool operator!=(const char* string)   const { return Compare(string) != 0; }
 
-		bool operator<(const String& string) const;
-		bool operator<(const char* string) const;
-		bool operator<=(const String& string) const;
-		bool operator<=(const char* string) const;
-		bool operator>(const String& string) const;
-		bool operator>(const char* string) const;
-		bool operator>=(const String& string) const;
-		bool operator>=(const char* string) const;
-			 operator std::string_view() const;
+		bool operator<(const String& string)  const { return Compare(string) < 0; }
+		bool operator<(const char* string)    const { return Compare(string) < 0; }
+		bool operator<=(const String& string) const { return Compare(string) <= 0; }
+		bool operator<=(const char* string)   const { return Compare(string) <= 0; }
+		bool operator>(const String& string)  const { return Compare(string) > 0; }
+		bool operator>(const char* string)    const { return Compare(string) > 0; }
+		bool operator>=(const String& string) const { return Compare(string) >= 0; }
+		bool operator>=(const char* string)   const { return Compare(string) >= 0; }
+			 operator std::string_view()      const { return std::string_view(GetBuffer(), GetSize()); }
 
-		Allocator& GetAllocator() const;
+		Allocator& GetAllocator() const { return *_allocator; }
 
-		uint32_t Capacity() const;
+		uint32_t Capacity() const { return GetCapacity(); }
 		void     Reserve(uint32_t capacity);
 
 		void Resize(uint32_t size);
 		void Resize(uint32_t size, char character);
 
-		uint32_t Size() const;
-		uint32_t Length() const;
-		bool     Empty() const;
+		uint32_t Size()   const { return GetSize(); }
+		uint32_t Length() const { return GetSize(); }
+		bool     Empty()  const { return GetSize() == 0; }
 		void     Clear();
 		void     ShrinkToFit();
 
-		const char* CStr() const&;
-		char*       Data() &;
+		const char* CStr() const& { return GetBuffer(); }
+		char*       Data() &      { return GetBuffer(); }
 
 		// range-based for
-		char*       begin();
-		const char* begin() const;
-		char*       end();
-		const char* end() const;
+		char*       begin()       { return GetBuffer(); }
+		const char* begin() const { return GetBuffer(); }
+		char*       end()         { return GetBuffer() + GetSize(); }
+		const char* end()   const { return GetBuffer() + GetSize(); }
 		//
 
-		void PushBack(char character);
+		void PushBack(char character) { Append(1, character); }
 		void PopBack();
 
-		char& operator[](uint32_t position) &;
-		char  operator[](uint32_t position) const&;
+		char& operator[](uint32_t position) &      { return GetBuffer()[position]; }
+		char  operator[](uint32_t position) const& { return GetBuffer()[position]; }
 
-		char& At(uint32_t position) &;
-		char  At(uint32_t position) const&;
+		char& At(uint32_t position) &      { return GetBuffer()[position]; }
+		char  At(uint32_t position) const& { return GetBuffer()[position]; }
 
-		char& Front() &;
-		char  Front() const&;
+		char& Front() &      { return GetBuffer()[0]; }
+		char  Front() const& { return GetBuffer()[0]; }
 
-		char& Back() &;
-		char  Back() const&;
+		char& Back() &      { return GetBuffer()[GetSize() - 1]; }
+		char  Back() const& { return GetBuffer()[GetSize() - 1]; }
 
 		String& Assign(uint32_t count, char character);
 		String& Assign(const char* string);
@@ -141,7 +141,7 @@ namespace hod
 		String& Erase(uint32_t position, uint32_t length = Npos);
 
 		String SubStr(uint32_t position, uint32_t length = Npos) const&;
-		String SubStr(uint32_t position, uint32_t length = Npos) &&;
+		String SubStr(uint32_t position, uint32_t length = Npos) && { return String(std::move(*this), position, length); }
 		// TODO SubStr for rvalue
 		void Swap(String& string);
 
@@ -155,12 +155,12 @@ namespace hod
 		uint32_t FindR(const String& string, uint32_t position = Npos) const;
 		uint32_t FindR(const std::string_view& string, uint32_t position = Npos) const;
 
-		uint32_t FindFirstOf(const char* string, uint32_t position = 0) const;
-		uint32_t FindFirstOf(const String& string, uint32_t position = 0) const;
+		uint32_t FindFirstOf(const char* string, uint32_t position = 0) const          { return FindFirstOf(std::string_view(string), position); }
+		uint32_t FindFirstOf(const String& string, uint32_t position = 0) const        { return FindFirstOf(std::string_view(string.CStr(), string.Size()), position); }
 		uint32_t FindFirstOf(const std::string_view& string, uint32_t position = 0) const;
 
-		uint32_t FindLastOf(const char* string, uint32_t position = Npos) const;
-		uint32_t FindLastOf(const String& string, uint32_t position = Npos) const;
+		uint32_t FindLastOf(const char* string, uint32_t position = Npos) const        { return FindLastOf(std::string_view(string), position); }
+		uint32_t FindLastOf(const String& string, uint32_t position = Npos) const      { return FindLastOf(std::string_view(string.CStr(), string.Size()), position); }
 		uint32_t FindLastOf(const std::string_view& string, uint32_t position = Npos) const;
 
 		int32_t Compare(const char* string) const;
@@ -181,8 +181,8 @@ namespace hod
 		bool EndsWith(const std::string_view& string) const;
 
 		bool Contains(char character) const;
-		bool Contains(const char* string) const;
-		bool Contains(const String& string) const;
+		bool Contains(const char* string) const   { return Find(string) != Npos; }
+		bool Contains(const String& string) const  { return Find(string) != Npos; }
 		bool Contains(const std::string_view& string) const;
 
 		// Deleted functions to prevent access to raw buffer on temporary (rvalue) string
@@ -253,17 +253,17 @@ namespace hod
 
 	HOD_CORE_API String operator+(const char* leftString, const String& rightString);
 
-	HOD_CORE_API bool operator==(const char* leftString, const String& rightString);
-	HOD_CORE_API bool operator!=(const char* leftString, const String& rightString);
+	inline bool operator==(const char* leftString, const String& rightString) { return rightString.Compare(leftString) == 0; }
+	inline bool operator!=(const char* leftString, const String& rightString) { return rightString.Compare(leftString) != 0; }
 
-	HOD_CORE_API bool operator<(const char* leftString, const String& rightString);
-	HOD_CORE_API bool operator<=(const char* leftString, const String& rightString);
-	HOD_CORE_API bool operator>(const char* leftString, const String& rightString);
-	HOD_CORE_API bool operator>=(const char* leftString, const String& rightString);
+	inline bool operator<(const char* leftString, const String& rightString)  { return rightString.Compare(leftString) > 0; }
+	inline bool operator<=(const char* leftString, const String& rightString) { return rightString.Compare(leftString) >= 0; }
+	inline bool operator>(const char* leftString, const String& rightString)  { return rightString.Compare(leftString) < 0; }
+	inline bool operator>=(const char* leftString, const String& rightString) { return rightString.Compare(leftString) <= 0; }
 
 	namespace String_Literals
 	{
-		HOD_CORE_API String operator""_s(const char* string, std::size_t size);
+		inline String operator""_s(const char* string, std::size_t size) { return String(string, static_cast<uint32_t>(size)); }
 	}
 }
 

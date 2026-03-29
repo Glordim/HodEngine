@@ -379,12 +379,6 @@ namespace hod
 	}
 
 	/// @brief
-	String::operator std::string_view() const
-	{
-		return std::string_view(GetBuffer(), GetSize());
-	}
-
-	/// @brief
 	/// @param capacity Reservation size (without '\\0')
 	void String::Reserve(uint32_t capacity)
 	{
@@ -522,77 +516,12 @@ namespace hod
 		SetSize(0);
 	}
 
-	void String::PushBack(char character)
-	{
-		Append(1, character);
-	}
-
 	void String::PopBack()
 	{
 		const uint32_t size = GetSize();
 		GetBuffer()[size - 1] = '\0';
 		ModifyAddressSanitizerAnnotation(size, size - 1);
 		SetSize(size - 1);
-	}
-
-	/// @brief
-	/// @param position
-	/// @return
-	char& String::operator[](uint32_t position) &
-	{
-		return GetBuffer()[position];
-	}
-
-	/// @brief
-	/// @param position
-	/// @return
-	char String::operator[](uint32_t position) const&
-	{
-		return GetBuffer()[position];
-	}
-
-	/// @brief
-	/// @param position
-	/// @return
-	char& String::At(uint32_t position) &
-	{
-		return GetBuffer()[position];
-	}
-
-	/// @brief
-	/// @param position
-	/// @return
-	char String::At(uint32_t position) const&
-	{
-		return GetBuffer()[position];
-	}
-
-	/// @brief
-	/// @return
-	char& String::Front() &
-	{
-		return GetBuffer()[0];
-	}
-
-	/// @brief
-	/// @return
-	char String::Front() const&
-	{
-		return GetBuffer()[0];
-	}
-
-	/// @brief
-	/// @return
-	char& String::Back() &
-	{
-		return GetBuffer()[GetSize() - 1];
-	}
-
-	/// @brief
-	/// @return
-	char String::Back() const&
-	{
-		return GetBuffer()[GetSize() - 1];
 	}
 
 	/// @brief
@@ -1372,15 +1301,6 @@ namespace hod
 	}
 
 	/// @brief
-	/// @param position
-	/// @param length
-	/// @return
-	String String::SubStr(uint32_t position, uint32_t length) &&
-	{
-		return String(std::move(*this), position, length);
-	}
-
-	/// @brief
 	/// @param string
 	void String::Swap(String& string)
 	{
@@ -1648,16 +1568,6 @@ namespace hod
 		}
 	}
 
-	uint32_t String::FindFirstOf(const char* string, uint32_t position) const
-	{
-		return FindFirstOf(std::string_view(string), position);
-	}
-
-	uint32_t String::FindFirstOf(const String& string, uint32_t position) const
-	{
-		return FindFirstOf(std::string_view(string.CStr(), string.Size()), position);
-	}
-
 	uint32_t String::FindFirstOf(const std::string_view& string, uint32_t position) const
 	{
 		if (string.empty() || GetSize() == 0)
@@ -1667,16 +1577,6 @@ namespace hod
 
 		std::string_view data(*this);
 		return data.find_first_of(string, position);
-	}
-
-	uint32_t String::FindLastOf(const char* string, uint32_t position) const
-	{
-		return FindLastOf(std::string_view(string), position);
-	}
-
-	uint32_t String::FindLastOf(const String& string, uint32_t position) const
-	{
-		return FindLastOf(std::string_view(string.CStr(), string.Size()), position);
 	}
 
 	uint32_t String::FindLastOf(const std::string_view& string, uint32_t position) const
@@ -2038,22 +1938,6 @@ namespace hod
 	/// @brief
 	/// @param string if empty, always returns true, to match std compliance
 	/// @return
-	bool String::Contains(const char* string) const
-	{
-		return Find(string) != Npos;
-	}
-
-	/// @brief
-	/// @param string if empty, always returns true, to match std compliance
-	/// @return
-	bool String::Contains(const String& string) const
-	{
-		return Find(string) != Npos;
-	}
-
-	/// @brief
-	/// @param string if empty, always returns true, to match std compliance
-	/// @return
 	bool String::Contains(const std::string_view& string) const
 	{
 		if (static_cast<uint32_t>(string.size()) == 0)
@@ -2211,300 +2095,6 @@ namespace hod
 	}
 
 	/// @brief
-	/// @return Capacity in byte (without '\\0')
-	uint32_t String::Capacity() const
-	{
-		return GetCapacity();
-	}
-
-	/// @brief
-	/// @return Size in byte (without '\\0')
-	uint32_t String::Size() const
-	{
-		return GetSize();
-	}
-
-	/// @brief
-	/// @return Size in byte (without '\\0')
-	uint32_t String::Length() const
-	{
-		return GetSize();
-	}
-
-	/// @brief
-	/// @return
-	bool String::Empty() const
-	{
-		return GetSize() == 0;
-	}
-
-	/// @brief
-	/// @return Internal buffer of the String
-	const char* String::CStr() const&
-	{
-		return GetBuffer();
-	}
-
-	/// @brief
-	/// @return Internal buffer of the String
-	char* String::Data() &
-	{
-		return GetBuffer();
-	}
-
-	char* String::begin()
-	{
-		return Data();
-	}
-
-	char* String::end()
-	{
-		return Data() + Size();
-	}
-
-	const char* String::begin() const
-	{
-		return CStr();
-	}
-
-	const char* String::end() const
-	{
-		return CStr() + Size();
-	}
-
-	Allocator& String::GetAllocator() const
-	{
-		return *_allocator;
-	}
-
-	/// @brief
-	/// @param character
-	/// @return
-	String& String::operator=(char character)
-	{
-		return Assign(1, character);
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	String& String::operator=(const char* string)
-	{
-		return Assign(string);
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	String& String::operator=(const String& string)
-	{
-		return Assign(string);
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	String& String::operator=(String&& string)
-	{
-		return Assign(std::move(string));
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	String& String::operator=(const std::string_view& string)
-	{
-		return Assign(string);
-	}
-
-	/// @brief
-	/// @param character
-	/// @return
-	String& String::operator+=(char character)
-	{
-		return Append(1, character);
-	}
-
-	/// @brief
-	/// @param text
-	/// @return
-	String& String::operator+=(const String& text)
-	{
-		return Append(text);
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	String& String::operator+=(const char* string)
-	{
-		return Append(string);
-	}
-
-	String& String::operator+=(const std::string_view& text)
-	{
-		return Append(text);
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator==(const String& string) const
-	{
-		if (Length() != string.Length())
-		{
-			return false;
-		}
-		return Compare(string) == 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator==(const char* string) const
-	{
-		return Compare(string) == 0;
-	}
-
-	/// @brief
-	/// @param leftString
-	/// @param rightString
-	/// @return
-	bool operator==(const char* leftString, const String& rightString)
-	{
-		return rightString.Compare(leftString) == 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator!=(const String& string) const
-	{
-		if (Length() != string.Length())
-		{
-			return true;
-		}
-		return Compare(string) != 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator!=(const char* string) const
-	{
-		return Compare(string) != 0;
-	}
-
-	/// @brief
-	/// @param leftString
-	/// @param rightString
-	/// @return
-	bool operator!=(const char* leftString, const String& rightString)
-	{
-		return rightString.Compare(leftString) != 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator<(const String& string) const
-	{
-		return Compare(string) < 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator<(const char* string) const
-	{
-		return Compare(string) < 0;
-	}
-
-	/// @brief
-	/// @param leftString
-	/// @param rightString
-	/// @return
-	bool operator<(const char* leftString, const String& rightString)
-	{
-		return rightString.Compare(leftString) > 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator<=(const String& string) const
-	{
-		return Compare(string) <= 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator<=(const char* string) const
-	{
-		return Compare(string) <= 0;
-	}
-
-	/// @brief
-	/// @param leftString
-	/// @param rightString
-	/// @return
-	bool operator<=(const char* leftString, const String& rightString)
-	{
-		return rightString.Compare(leftString) >= 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator>(const String& string) const
-	{
-		return Compare(string) > 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator>(const char* string) const
-	{
-		return Compare(string) > 0;
-	}
-
-	/// @brief
-	/// @param leftString
-	/// @param rightString
-	/// @return
-	bool operator>(const char* leftString, const String& rightString)
-	{
-		return rightString.Compare(leftString) < 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator>=(const String& string) const
-	{
-		return Compare(string) >= 0;
-	}
-
-	/// @brief
-	/// @param string
-	/// @return
-	bool String::operator>=(const char* string) const
-	{
-		return Compare(string) >= 0;
-	}
-
-	/// @brief
-	/// @param leftString
-	/// @param rightString
-	/// @return
-	bool operator>=(const char* leftString, const String& rightString)
-	{
-		return rightString.Compare(leftString) <= 0;
-	}
-
-	/// @brief
 	void String::CreateAddressSanitizerAnnotation()
 	{
 #if defined ASAN && defined ENABLE_ASAN_STRING_ANNOTATION
@@ -2559,11 +2149,4 @@ namespace hod
 		return capacity;
 	}
 
-	namespace String_Literals
-	{
-		String operator""_s(const char* string, std::size_t size)
-		{
-			return String(string, static_cast<uint32_t>(size));
-		}
-	}
 }
