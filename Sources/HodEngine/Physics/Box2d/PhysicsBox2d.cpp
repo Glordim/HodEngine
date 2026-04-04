@@ -2,7 +2,7 @@
 #include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
 #include "HodEngine/Physics/Box2d/WorldBox2d.hpp"
 #include "HodEngine/Physics/Box2d/DebugDrawerBox2d.hpp"
-#include "HodEngine/Core/Math/Math.hpp"
+#include "HodEngine/Math/Math.hpp"
 
 #include <box2d/box2d.h>
 

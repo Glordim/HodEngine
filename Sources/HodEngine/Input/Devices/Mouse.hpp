@@ -7,7 +7,7 @@
 #include "HodEngine/Input/InputAxis.hpp"
 #include "HodEngine/Input/InputButton.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 namespace hod::input
 {

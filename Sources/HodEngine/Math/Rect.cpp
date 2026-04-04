@@ -1,7 +1,7 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Rect.hpp"
+#include "HodEngine/Math/Pch.hpp"
+#include "HodEngine/Math/Rect.hpp"
 
-namespace hod
+namespace hod::math
 {
 	DESCRIBE_REFLECTED_CLASS(Rect, reflectionDescriptor)
 	{

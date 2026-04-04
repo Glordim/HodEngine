@@ -3,7 +3,7 @@
 #include "HodEngine/Physics/Body.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 #include <box2d/id.h>
 
@@ -21,16 +21,16 @@ namespace hod::physics
 	public:
 
 		void				ClearAllShapes() override;
-		Collider*			AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition) override;
-		Collider*			AddCircleShape(bool isTrigger, const Vector2& position, float radius) override;
-		Collider*			AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) override;
-		Collider*			AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle) override;
-		Collider*			AddConvexShape(bool isTrigger, const Vector<Vector2>& vertices) override;
+		Collider*			AddEdgeShape(bool isTrigger, const math::Vector2& startPosition, const math::Vector2& endPosition) override;
+		Collider*			AddCircleShape(bool isTrigger, const math::Vector2& position, float radius) override;
+		Collider*			AddCapsuleShape(bool isTrigger, const math::Vector2& position, float height, float radius, float angle) override;
+		Collider*			AddBoxShape(bool isTrigger, const math::Vector2& position, const math::Vector2& size, float angle) override;
+		Collider*			AddConvexShape(bool isTrigger, const Vector<math::Vector2>& vertices) override;
 
 		void				SetEnabled(bool enabled) override;
-		void				SetTransform(const Vector2& position, float angle, const Vector2& scale) override;
+		void				SetTransform(const math::Vector2& position, float angle, const math::Vector2& scale) override;
 
-		Vector2				GetPosition() const override;
+		math::Vector2				GetPosition() const override;
 		float				GetRotation() const override;
 
 		void				GetCollisions(Vector<Collision>& collisions) override;
@@ -41,11 +41,11 @@ namespace hod::physics
 		float				GetGravityScale() const override;
 		void				SetGravityScale(float gravityScale) override;
 
-		void				SetVelocity(const Vector2& velocity) override;
-		Vector2				GetVelocity() const override;
+		void				SetVelocity(const math::Vector2& velocity) override;
+		math::Vector2				GetVelocity() const override;
 
-		void				AddForce(const Vector2& force) override;
-		void				AddImpulse(const Vector2& impulse) override;
+		void				AddForce(const math::Vector2& force) override;
+		void				AddImpulse(const math::Vector2& impulse) override;
 
 		b2BodyId			GetB2Actor() const;
 		ColliderBox2d*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;

@@ -104,7 +104,7 @@ namespace hod::editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(vec2Parameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				EditorReflectedObject editorObject(&vec2Parameter._value, &Vector2::GetReflectionDescriptor(), nullptr, nullptr);
+				EditorReflectedObject editorObject(&vec2Parameter._value, &math::Vector2::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
 					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec2("ubo." + vec2Parameter._name, vec2Parameter._value);
@@ -118,7 +118,7 @@ namespace hod::editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(vec4Parameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				EditorReflectedObject editorObject(&vec4Parameter._value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
+				EditorReflectedObject editorObject(&vec4Parameter._value, &math::Vector4::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
 					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec4("ubo." + vec4Parameter._name, vec4Parameter._value);

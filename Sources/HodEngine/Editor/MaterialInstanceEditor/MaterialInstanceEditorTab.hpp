@@ -4,8 +4,8 @@
 #include "HodEngine/Editor/EditorTab.hpp"
 
 #include <HodEngine/Core/Type.hpp>
-#include <HodEngine/Core/Math/Vector2.hpp>
-#include <HodEngine/Core/Math/Vector4.hpp>
+#include <HodEngine/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector4.hpp>
 #include <HodEngine/Core/Resource/WeakResource.hpp>
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
@@ -44,12 +44,12 @@ namespace hod::editor
 
 		struct ShaderParamVec2 : renderer::ShaderParameter
 		{
-			Vector2 _value;
+			math::Vector2 _value;
 		};
 
 		struct ShaderParamVec4 : renderer::ShaderParameter
 		{
-			Vector4 _value;
+			math::Vector4 _value;
 		};
 
 	public:

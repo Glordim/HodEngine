@@ -3,8 +3,8 @@
 
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
-#include <HodEngine/Core/Math/Matrix4.hpp>
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Matrix4.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -34,11 +34,11 @@ namespace hod::editor
 
 		renderer::RenderView*   GetRenderView();
 		renderer::RenderTarget* GetPickingRenderTarget() const;
-		const Matrix4&          GetProjectionMatrix() const;
-		const Matrix4&          GetViewMatrix() const;
+		const math::Matrix4&          GetProjectionMatrix() const;
+		const math::Matrix4&          GetViewMatrix() const;
 		float                   GetCameraSize() const;
 
-		const Vector2& GetPlayRatio() const;
+		const math::Vector2& GetPlayRatio() const;
 
 	private:
 		void EnablePhysicsDebugDrawer(bool enabled);
@@ -48,12 +48,12 @@ namespace hod::editor
 		renderer::RenderTarget* _renderTarget = nullptr;
 		renderer::RenderTarget* _pickingRenderTarget = nullptr;
 
-		Matrix4 _projection;
-		Matrix4 _view;
+		math::Matrix4 _projection;
+		math::Matrix4 _view;
 
-		Vector2 _playRatio = Vector2(16.0f, 9.0f);
+		math::Vector2 _playRatio = math::Vector2(16.0f, 9.0f);
 
-		Vector2 _cameraPosition = Vector2::Zero;
+		math::Vector2 _cameraPosition = math::Vector2::Zero;
 		float   _size = 5.0f;
 
 		PhysicsDebugDrawer* _physicsDebugDrawer = nullptr;

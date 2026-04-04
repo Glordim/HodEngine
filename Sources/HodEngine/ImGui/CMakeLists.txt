@@ -78,7 +78,7 @@ if (APPLE)
 endif()
 
 target_link_libraries(ImGui
-	PUBLIC Core Renderer Window
+	PUBLIC Core Math Renderer Window
 	PRIVATE Freetype::Freetype
 )
 

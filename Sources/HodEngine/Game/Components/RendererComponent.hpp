@@ -5,7 +5,7 @@
 
 #include "HodEngine/Game/Component.hpp"
 
-#include <HodEngine/Core/Rect.hpp>
+#include <HodEngine/Math/Rect.hpp>
 
 namespace hod::renderer
 {
@@ -37,6 +37,6 @@ namespace hod::game
 	public:
 
 		virtual void	PushRenderCommand(renderer::RenderView& renderView) = 0;
-		virtual Rect	GetBoundingBox() const = 0;
+		virtual math::Rect	GetBoundingBox() const = 0;
 	};
 }

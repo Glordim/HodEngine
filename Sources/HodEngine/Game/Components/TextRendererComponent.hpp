@@ -42,7 +42,7 @@ namespace hod
 			// void							SetText(const std::string_view& text);
 
 			void PushRenderCommand(renderer::RenderView& renderView) override;
-			Rect GetBoundingBox() const override;
+			math::Rect GetBoundingBox() const override;
 
 		private:
 			String _text = "EditMe";

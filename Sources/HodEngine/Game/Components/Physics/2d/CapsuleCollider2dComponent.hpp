@@ -26,8 +26,8 @@ namespace hod::game
 
 		void			OnStart() override;
 
-		void			SetOffset(const Vector2& offset);
-		const Vector2&	GetOffset() const;
+		void			SetOffset(const math::Vector2& offset);
+		const math::Vector2&	GetOffset() const;
 		
 		void			SetHeight(float height);
 		float			GetHeight() const;
@@ -40,7 +40,7 @@ namespace hod::game
 
 	private:
 
-		Vector2			_offset = Vector2::Zero;
+		math::Vector2			_offset = math::Vector2::Zero;
 		float			_height = 1.0f;
 		float			_radius = 0.20f;
 		float			_rotation = 0.0f;

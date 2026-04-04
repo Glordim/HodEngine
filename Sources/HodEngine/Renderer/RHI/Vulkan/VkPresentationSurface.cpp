@@ -166,9 +166,9 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	Vector2 VkPresentationSurface::GetResolution() const
+	math::Vector2 VkPresentationSurface::GetResolution() const
 	{
-		return Vector2((float)_swapChainExtent.width, (float)_swapChainExtent.height);
+		return math::Vector2((float)_swapChainExtent.width, (float)_swapChainExtent.height);
 	}
 
 	/// @brief

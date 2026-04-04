@@ -57,53 +57,53 @@ namespace hod::editor
 		constexpr float squareSize = 0.25f;
 		constexpr float squareOffset = 0.5f;
 
-		std::array<Vector2, 12> verticesX = {
-			Vector2(-thickness * 0.5f, -thickness * 0.5f),
-			Vector2(thickness * 0.5f, thickness * 0.5f),
-			Vector2(thickness * 0.5f, -thickness * 0.5f),
+		std::array<math::Vector2, 12> verticesX = {
+			math::Vector2(-thickness * 0.5f, -thickness * 0.5f),
+			math::Vector2(thickness * 0.5f, thickness * 0.5f),
+			math::Vector2(thickness * 0.5f, -thickness * 0.5f),
 
-			Vector2(thickness * 0.5f, thickness * 0.5f),
-			Vector2(thickness * 0.5f, -thickness * 0.5f),
-			Vector2(lineLength, thickness * 0.5f),
+			math::Vector2(thickness * 0.5f, thickness * 0.5f),
+			math::Vector2(thickness * 0.5f, -thickness * 0.5f),
+			math::Vector2(lineLength, thickness * 0.5f),
 
-			Vector2(0.0f, -thickness * 0.5f),
-			Vector2(lineLength, -thickness * 0.5f),
-			Vector2(lineLength, thickness * 0.5f),
+			math::Vector2(0.0f, -thickness * 0.5f),
+			math::Vector2(lineLength, -thickness * 0.5f),
+			math::Vector2(lineLength, thickness * 0.5f),
 
-			Vector2(lineLength, headHeight * 0.5f),
-			Vector2(lineLength, -headHeight * 0.5f),
-			Vector2(length, 0.0f),
+			math::Vector2(lineLength, headHeight * 0.5f),
+			math::Vector2(lineLength, -headHeight * 0.5f),
+			math::Vector2(length, 0.0f),
 		};
 
-		std::array<Vector2, 12> verticesY = {
-			Vector2(-thickness * 0.5f, -thickness * 0.5f),
-			Vector2(-thickness * 0.5f, thickness * 0.5f),
-			Vector2(thickness * 0.5f, thickness * 0.5f),
+		std::array<math::Vector2, 12> verticesY = {
+			math::Vector2(-thickness * 0.5f, -thickness * 0.5f),
+			math::Vector2(-thickness * 0.5f, thickness * 0.5f),
+			math::Vector2(thickness * 0.5f, thickness * 0.5f),
 
-			Vector2(thickness * 0.5f, thickness * 0.5f),
-			Vector2(-thickness * 0.5f, thickness * 0.5f),
-			Vector2(thickness * 0.5f, lineLength),
+			math::Vector2(thickness * 0.5f, thickness * 0.5f),
+			math::Vector2(-thickness * 0.5f, thickness * 0.5f),
+			math::Vector2(thickness * 0.5f, lineLength),
 
-			Vector2(-thickness * 0.5f, 0.0f),
-			Vector2(-thickness * 0.5f, lineLength),
-			Vector2(thickness * 0.5f, lineLength),
+			math::Vector2(-thickness * 0.5f, 0.0f),
+			math::Vector2(-thickness * 0.5f, lineLength),
+			math::Vector2(thickness * 0.5f, lineLength),
 
-			Vector2(headHeight * 0.5f, lineLength),
-			Vector2(-headHeight * 0.5f, lineLength),
-			Vector2(0.0f, length),
+			math::Vector2(headHeight * 0.5f, lineLength),
+			math::Vector2(-headHeight * 0.5f, lineLength),
+			math::Vector2(0.0f, length),
 		};
 
-		Matrix4 worldMatrix = node2D->GetWorldMatrix();
+		math::Matrix4 worldMatrix = node2D->GetWorldMatrix();
 		worldMatrix.RemoveScale();
-		worldMatrix *= Matrix4::Scale(Vector2(handleSize, handleSize));
+		worldMatrix *= math::Matrix4::Scale(math::Vector2(handleSize, handleSize));
 
 		bool interacted = false;
-		interacted |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::One * squareOffset, Vector2::One * squareSize, Color(0.0f, 0.0f, 1.0f, 1.0f),
-		                                   Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
+		interacted |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, math::Vector2::One * squareOffset, math::Vector2::One * squareSize, math::Color(0.0f, 0.0f, 1.0f, 1.0f),
+		                                   math::Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
 		interacted |=
-			Gizmos::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.data(), (uint32_t)verticesX.size(), Color(1.0f, 0.0f, 0.0f, 1.0f), Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
+			Gizmos::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.data(), (uint32_t)verticesX.size(), math::Color(1.0f, 0.0f, 0.0f, 1.0f), math::Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
 		interacted |=
-			Gizmos::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.data(), (uint32_t)verticesY.size(), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
+			Gizmos::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.data(), (uint32_t)verticesY.size(), math::Color(0.0f, 1.0f, 0.0f, 1.0f), math::Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
 		if (interacted)
 		{
 			if (_freeMoveHandle._justPressed || _XAxisHandle._justPressed || _YAxisHandle._justPressed)
@@ -124,12 +124,12 @@ namespace hod::editor
 				}
 				else if (_XAxisHandle._pressed)
 				{
-					node2D->SetPosition(Vector2(_initialPosition.GetX() + _XAxisHandle._delta.GetX(), _initialPosition.GetY()));
+					node2D->SetPosition(math::Vector2(_initialPosition.GetX() + _XAxisHandle._delta.GetX(), _initialPosition.GetY()));
 					changed = true;
 				}
 				else if (_YAxisHandle._pressed)
 				{
-					node2D->SetPosition(Vector2(_initialPosition.GetX(), _initialPosition.GetY() + _YAxisHandle._delta.GetY()));
+					node2D->SetPosition(math::Vector2(_initialPosition.GetX(), _initialPosition.GetY() + _YAxisHandle._delta.GetY()));
 					changed = true;
 				}
 			}

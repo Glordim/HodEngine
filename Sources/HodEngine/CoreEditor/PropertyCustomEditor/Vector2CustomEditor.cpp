@@ -5,7 +5,7 @@
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 
@@ -20,7 +20,7 @@ namespace hod::editor
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		Vector2 value = *editorReflectedProperty.GetObject<Vector2>();
+		math::Vector2 value = *editorReflectedProperty.GetObject<math::Vector2>();
 		changed |= DrawHelper::DrawVector2(value);
 		if (changed == true)
 		{

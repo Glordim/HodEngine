@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HodEngine/Core/Color.hpp>
+#include <HodEngine/Math/Color.hpp>
 
 namespace hod
 {
@@ -16,7 +16,7 @@ namespace hod
 
 			}
 
-			Color color;
+			math::Color color;
 			float intensity;
 		};
 	}

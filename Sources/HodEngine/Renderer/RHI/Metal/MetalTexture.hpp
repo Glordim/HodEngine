@@ -27,7 +27,7 @@ namespace hod
 			bool			BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
 			bool			BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) override;
 
-			Color			ReadPixel(const Vector2& position) const override;
+			math::Color			ReadPixel(const math::Vector2& position) const override;
             
             MTL::Texture*       GetNativeTexture() const;
             MTL::SamplerState*  GetNativeSampler() const;

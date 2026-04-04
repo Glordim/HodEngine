@@ -4,7 +4,7 @@
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
 
-#include "HodEngine/Core/Math/Matrix4.hpp"
+#include "HodEngine/Math/Matrix4.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 #include <memory>
@@ -28,22 +28,22 @@ namespace hod::game
 
 	public:
 
-		const Matrix4&			GetLocalMatrix();
-		Matrix4					GetWorldMatrix();
+		const math::Matrix4&			GetLocalMatrix();
+		math::Matrix4					GetWorldMatrix();
 
 	protected:
 
-		virtual void			ComputeLocalMatrix(Matrix4& localMatrix) { localMatrix = Matrix4::Identity; }
+		virtual void			ComputeLocalMatrix(math::Matrix4& localMatrix) { localMatrix = math::Matrix4::Identity; }
 		void					SetLocalMatrixDirty();
 
 	private:
 
-		void					ComputeWorldMatrix(const Matrix4& parentMatrix);
+		void					ComputeWorldMatrix(const math::Matrix4& parentMatrix);
 
 	private:
 
 		bool					_localMatrixDirty = true;
-		Matrix4					_localMatrix = Matrix4::Identity;
-		Matrix4					_worldMatrix = Matrix4::Identity;
+		math::Matrix4					_localMatrix = math::Matrix4::Identity;
+		math::Matrix4					_worldMatrix = math::Matrix4::Identity;
 	};
 }

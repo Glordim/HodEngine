@@ -5,8 +5,8 @@
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
-#include "HodEngine/Core/Math/Vector4.hpp"
+#include "HodEngine/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector4.hpp"
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
@@ -122,13 +122,13 @@ namespace hod
 							}
 							else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float2)
 							{
-								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &Vector2::GetReflectionDescriptor(),
+								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &math::Vector2::GetReflectionDescriptor(),
 								                                                               nullptr, nullptr);
 								uboOffset += 2 * sizeof(float);
 							}
 							else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float4)
 							{
-								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &Vector4::GetReflectionDescriptor(),
+								uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &math::Vector4::GetReflectionDescriptor(),
 								                                                               nullptr, nullptr);
 								uboOffset += 4 * sizeof(float);
 							}

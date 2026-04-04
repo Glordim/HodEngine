@@ -130,7 +130,7 @@ namespace hod::window
 			int x = GET_X_LPARAM(lParam);
 			int y = GET_Y_LPARAM(lParam);
 
-			SetMousePosition(Vector2(x, y));
+			SetMousePosition(math::Vector2(x, y));
 
 			EmitMouseMoved(x, y);
 			return 0;

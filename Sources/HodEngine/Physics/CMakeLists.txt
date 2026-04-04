@@ -19,7 +19,7 @@ target_include_directories(Physics PUBLIC
 target_precompile_headers(Physics PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Physics
-	PUBLIC Core
+	PUBLIC Core Math
 	PRIVATE Box2d::Box2d
 )
 

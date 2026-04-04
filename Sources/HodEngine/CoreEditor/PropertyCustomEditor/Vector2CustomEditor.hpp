@@ -6,7 +6,6 @@
 namespace hod
 {
 	class ReflectionPropertyObject;
-	class Vector2;
 }
 
 namespace hod::editor

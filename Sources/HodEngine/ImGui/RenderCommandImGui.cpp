@@ -12,14 +12,14 @@
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
-#include "HodEngine/Core/Rect.hpp"
+#include "HodEngine/Math/Rect.hpp"
 
 namespace hod::imgui
 {
 	/// @brief
 	/// @param drawLists
 	/// @param viewport
-	RenderCommandImGui::RenderCommandImGui(const Vector<DrawList*>& drawLists, const Rect& viewport)
+	RenderCommandImGui::RenderCommandImGui(const Vector<DrawList*>& drawLists, const math::Rect& viewport)
 	: RenderCommand()
 	, _viewport(viewport)
 	, _drawLists(drawLists)
@@ -77,8 +77,8 @@ namespace hod::imgui
 
 			struct Constant
 			{
-				Vector2 _scale;
-				Vector2 _translate;
+				math::Vector2 _scale;
+				math::Vector2 _translate;
 			};
 
 			Constant constant;

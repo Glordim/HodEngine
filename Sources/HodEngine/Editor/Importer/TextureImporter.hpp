@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include "HodEngine/Core/Rect.hpp"
+#include "HodEngine/Math/Rect.hpp"
 #include "HodEngine/Core/UID.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
@@ -23,7 +23,7 @@ namespace hod::editor
 		virtual ~SpriteData() = default;
 
 		UID      _uid;
-		Rect     _rect;
+		math::Rect     _rect;
 		MeshType _meshType = MeshType::Rect;
 	};
 

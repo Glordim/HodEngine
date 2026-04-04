@@ -13,7 +13,7 @@ namespace hod::renderer
 	bool WorldRenderQueue::Prepare(const RenderView& renderView)
 	{
 		_projection = renderView.GetProjectionMatrix();
-		_view = Matrix4::Inverse(renderView.GetViewMatrix());
+		_view = math::Matrix4::Inverse(renderView.GetViewMatrix());
 		_viewport = renderView.GetViewport();
 
 		std::sort(_renderCommands.begin(), _renderCommands.end(), [](RenderCommand* a, RenderCommand* b) { return a->GetRenderingOrder() < b->GetRenderingOrder(); });

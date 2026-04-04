@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Core/Math/Matrix4.hpp"
+#include "HodEngine/Math/Matrix4.hpp"
 #include "HodEngine/Game/Component.hpp"
 
 #include "../Scene.hpp"
@@ -50,7 +50,7 @@ namespace hod::game
 		void       SetProjection(Projection projection);
 		Projection GetProjection() const;
 
-		const Matrix4& GetProjectionMatrix();
+		const math::Matrix4& GetProjectionMatrix();
 
 		void SetupRenderView(renderer::RenderView& renderView);
 
@@ -69,6 +69,6 @@ namespace hod::game
 
 		bool _dirtyFlag = true;
 
-		Matrix4 _projectionMatrix;
+		math::Matrix4 _projectionMatrix;
 	};
 }

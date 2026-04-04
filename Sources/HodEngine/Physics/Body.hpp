@@ -4,7 +4,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 #include <functional>
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 namespace hod::physics
 {
@@ -31,8 +31,8 @@ namespace hod::physics
 		void				SetUserData(void* userData);
 		void*				GetUserData() const;
 
-		void				SetMoveEventCallback(std::function<void(const Vector2& position, float rotation)> callback);
-		const std::function<void(const Vector2& position, float rotation)>& GetMoveEventCallback() const;
+		void				SetMoveEventCallback(std::function<void(const math::Vector2& position, float rotation)> callback);
+		const std::function<void(const math::Vector2& position, float rotation)>& GetMoveEventCallback() const;
 
 		void				SetCollisionEnterCallback(std::function<void(const Collision& collision)> callback);
 		const std::function<void(const Collision& collision)>& GetCollisionEnterCallback() const;
@@ -47,23 +47,23 @@ namespace hod::physics
 		const std::function<void(const Collider& trigger, const Collider& visitor)>& GetTriggerExitCallback() const;
 
 		virtual void		ClearAllShapes() = 0;
-		virtual Collider*	AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition) = 0;
-		virtual Collider*	AddCircleShape(bool isTrigger, const Vector2& position, float radius) = 0;
-		virtual Collider*	AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle) = 0;
-		virtual Collider*	AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& size, float angle) = 0;
-		virtual Collider*	AddConvexShape(bool isTrigger, const Vector<Vector2>& vertices) = 0;
+		virtual Collider*	AddEdgeShape(bool isTrigger, const math::Vector2& startPosition, const math::Vector2& endPosition) = 0;
+		virtual Collider*	AddCircleShape(bool isTrigger, const math::Vector2& position, float radius) = 0;
+		virtual Collider*	AddCapsuleShape(bool isTrigger, const math::Vector2& position, float height, float radius, float angle) = 0;
+		virtual Collider*	AddBoxShape(bool isTrigger, const math::Vector2& position, const math::Vector2& size, float angle) = 0;
+		virtual Collider*	AddConvexShape(bool isTrigger, const Vector<math::Vector2>& vertices) = 0;
 
 		virtual void		SetEnabled(bool enabled) = 0;
-		virtual void		SetTransform(const Vector2& position, float angle, const Vector2& scale) = 0;
+		virtual void		SetTransform(const math::Vector2& position, float angle, const math::Vector2& scale) = 0;
 
-		virtual Vector2		GetPosition() const = 0;
+		virtual math::Vector2		GetPosition() const = 0;
 		virtual float		GetRotation() const = 0;
 
-		virtual void		SetVelocity(const Vector2& velocity) = 0;
-		virtual Vector2		GetVelocity() const = 0;
+		virtual void		SetVelocity(const math::Vector2& velocity) = 0;
+		virtual math::Vector2		GetVelocity() const = 0;
 
-		virtual void		AddForce(const Vector2& force) = 0;
-		virtual void		AddImpulse(const Vector2& impulse) = 0;
+		virtual void		AddForce(const math::Vector2& force) = 0;
+		virtual void		AddImpulse(const math::Vector2& impulse) = 0;
 
 		virtual void		GetCollisions(Vector<Collision>& collisions) = 0;
 
@@ -77,7 +77,7 @@ namespace hod::physics
 
 		Vector<Collider*> _colliders;
 
-		std::function<void(const Vector2& position, float rotation)> _moveCallback;
+		std::function<void(const math::Vector2& position, float rotation)> _moveCallback;
 		std::function<void(const Collision& collision)> _collisionEnterCallback;
 		std::function<void(const Collision& collision)> _collisionExitCallback;
 		std::function<void(const Collider& trigger, const Collider& visitor)> _triggerEnterCallback;

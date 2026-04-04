@@ -6,7 +6,7 @@
 #include "HodEngine/UI/Padding.hpp"
 #include "HodEngine/UI/Rebuildable.hpp"
 
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Game/Entity.hpp>
 
 namespace hod::ui
@@ -57,9 +57,9 @@ namespace hod::ui
 		Alignment GetAlignment() const;
 		void      SetAlignment(Alignment alignment);
 
-		const Vector2& GetTotalMinSize() const;
-		const Vector2& GetTotalPreferredSize() const;
-		const Vector2& GetTotalFlexibleSize() const;
+		const math::Vector2& GetTotalMinSize() const;
+		const math::Vector2& GetTotalPreferredSize() const;
+		const math::Vector2& GetTotalFlexibleSize() const;
 
 		bool Rebuild() override;
 
@@ -98,9 +98,9 @@ namespace hod::ui
 		LayoutElement::PropertyChangedEvent::Slot _onDrivenNodeLayoutElementChangedSlot;
 		game::Entity::ChildrenChangedEvent::Slot  _onChildrenChangedSlot;
 
-		Vector2 _totalMinSize;
-		Vector2 _totalPreferredSize;
-		Vector2 _totalFlexibleSize;
+		math::Vector2 _totalMinSize;
+		math::Vector2 _totalPreferredSize;
+		math::Vector2 _totalFlexibleSize;
 
 		SizeChangedEvent _sizeChangedEvent;
 	};

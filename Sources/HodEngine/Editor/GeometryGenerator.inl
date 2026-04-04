@@ -1,4 +1,4 @@
-#include <HodEngine/Core/Math/Math.hpp>
+#include <HodEngine/Math/Math.hpp>
 
 #include <cmath>
 
@@ -10,7 +10,7 @@ namespace hod::editor
 	/// @param center 
 	/// @param radius 
 	template<uint32_t SegmentCount_>
-	void GeometryGenerator::CircleShape(std::array<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float radius)
+	void GeometryGenerator::CircleShape(std::array<math::Vector2, SegmentCount_ + 1>& vertices, const math::Vector2& center, float radius)
 	{
 		const float angleStep = 360.0f / SegmentCount_;
 
@@ -27,7 +27,7 @@ namespace hod::editor
 	}
 
 	template<uint32_t SegmentCount_>
-	void GeometryGenerator::CircleShapeFillNoFan(std::array<Vector2, (SegmentCount_) * 3>& vertices, const Vector2& center, float radius)
+	void GeometryGenerator::CircleShapeFillNoFan(std::array<math::Vector2, (SegmentCount_) * 3>& vertices, const math::Vector2& center, float radius)
 	{
 		const float angleStep = 360.0f / SegmentCount_;
 
@@ -57,11 +57,11 @@ namespace hod::editor
 	/// @param height 
 	/// @param radius 
 	template<uint32_t SegmentCount_>
-	void GeometryGenerator::CapsuleShape(std::array<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float height, float radius)
+	void GeometryGenerator::CapsuleShape(std::array<math::Vector2, SegmentCount_ + 1>& vertices, const math::Vector2& center, float height, float radius)
 	{
 		const float angleStep = 360.0f / SegmentCount_;
 
-		Vector2 offset = center + Vector2(0.0f, height * 0.5f - radius);
+		math::Vector2 offset = center + math::Vector2(0.0f, height * 0.5f - radius);
 
 		for (uint32_t currentSegment = 0; currentSegment < SegmentCount_ / 2; ++currentSegment)
 		{
@@ -72,7 +72,7 @@ namespace hod::editor
 			vertices[currentSegment].SetY(offset.GetY() + (radius * sinf(angle)));
 		}
 
-		offset = center - Vector2(0.0f, height * 0.5f - radius);
+		offset = center - math::Vector2(0.0f, height * 0.5f - radius);
 
 		for (uint32_t currentSegment = SegmentCount_ / 2; currentSegment < SegmentCount_; ++currentSegment)
 		{

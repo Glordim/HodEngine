@@ -45,13 +45,13 @@ namespace hod::game
 			physics::Body::Type::Dynamic,
 		};
 
-		Vector2 position = Vector2::Zero;
+		math::Vector2 position = math::Vector2::Zero;
 		float   rotation = 0.0f;
 
 		_body = GetWorld()->GetPhysicsWorld()->CreateBody(modeToTypeMapping[std::to_underlying(_mode)], position, rotation);
 		_body->SetUserData(this);
 		_body->SetMoveEventCallback(
-			[this](const Vector2& position, float rotation)
+			[this](const math::Vector2& position, float rotation)
 			{
 				Entity* entity = GetOwner();
 				if (entity != nullptr)
@@ -113,9 +113,9 @@ namespace hod::game
 	/// @brief
 	void Rigidbody2dComponent::OnStart()
 	{
-		Vector2 position = Vector2::Zero;
+		math::Vector2 position = math::Vector2::Zero;
 		float   rotation = 0.0f;
-		Vector2 scale = Vector2::One;
+		math::Vector2 scale = math::Vector2::One;
 
 		Entity* entity = GetOwner();
 		if (entity != nullptr)
@@ -123,7 +123,7 @@ namespace hod::game
 			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
-				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
+				math::Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
 				position = worldMatrix.GetTranslation();
 				rotation = worldMatrix.GetRotation().GetAngleZ();
 				// scale = worldMatrix.GetScale();
@@ -149,10 +149,10 @@ namespace hod::game
 			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
-				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
-				Vector2 position = worldMatrix.GetTranslation();
+				math::Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
+				math::Vector2 position = worldMatrix.GetTranslation();
 				float   rotation = worldMatrix.GetRotation().GetAngleZ();
-				Vector2 scale; // = worldMatrix.GetScale();
+				math::Vector2 scale; // = worldMatrix.GetScale();
 				_body->SetTransform(position, rotation, scale);
 			}
 		}
@@ -184,17 +184,17 @@ namespace hod::game
 	/// @brief
 	/// @param collider
 	/// @return
-	Vector2 Rigidbody2dComponent::GetParentOffset(Collider2dComponent* collider) const
+	math::Vector2 Rigidbody2dComponent::GetParentOffset(Collider2dComponent* collider) const
 	{
 		Node2dComponent* colliderNode2dComponent = collider->GetOwner()->GetComponent<Node2dComponent>();
 		Node2dComponent* bodyNode2dComponent = GetOwner()->GetComponent<Node2dComponent>();
 		if (colliderNode2dComponent == bodyNode2dComponent)
 		{
-			return Vector2::Zero;
+			return math::Vector2::Zero;
 		}
 
-		Matrix4 colliderWorldMatrix = colliderNode2dComponent->GetWorldMatrix();
-		Matrix4 bodyWorldMatrix = bodyNode2dComponent->GetWorldMatrix();
+		math::Matrix4 colliderWorldMatrix = colliderNode2dComponent->GetWorldMatrix();
+		math::Matrix4 bodyWorldMatrix = bodyNode2dComponent->GetWorldMatrix();
 		return colliderWorldMatrix.GetTranslation() - bodyWorldMatrix.GetTranslation();
 	}
 
@@ -242,7 +242,7 @@ namespace hod::game
 
 	/// @brief
 	/// @param velocity
-	void Rigidbody2dComponent::SetVelocity(const Vector2& velocity)
+	void Rigidbody2dComponent::SetVelocity(const math::Vector2& velocity)
 	{
 		if (_body != nullptr)
 		{
@@ -252,7 +252,7 @@ namespace hod::game
 
 	/// @brief
 	/// @return
-	Vector2 Rigidbody2dComponent::GetVelocity() const
+	math::Vector2 Rigidbody2dComponent::GetVelocity() const
 	{
 		if (_body != nullptr)
 		{
@@ -260,13 +260,13 @@ namespace hod::game
 		}
 		else
 		{
-			return Vector2::Zero;
+			return math::Vector2::Zero;
 		}
 	}
 
 	/// @brief
 	/// @param force
-	void Rigidbody2dComponent::AddForce(const Vector2& force)
+	void Rigidbody2dComponent::AddForce(const math::Vector2& force)
 	{
 		if (_body != nullptr)
 		{
@@ -276,7 +276,7 @@ namespace hod::game
 
 	/// @brief
 	/// @param impulse
-	void Rigidbody2dComponent::AddImpulse(const Vector2& impulse)
+	void Rigidbody2dComponent::AddImpulse(const math::Vector2& impulse)
 	{
 		if (_body != nullptr)
 		{

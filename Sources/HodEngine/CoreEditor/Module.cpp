@@ -2,9 +2,9 @@
 #include "HodEngine/CoreEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Core/Color.hpp"
-#include "HodEngine/Core/Math/Vector2.hpp"
-#include "HodEngine/Core/Math/Vector4.hpp"
+#include "HodEngine/Math/Color.hpp"
+#include "HodEngine/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector4.hpp"
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 
 #include "HodEngine/CoreEditor/PropertyCustomEditor/ColorCustomEditor.hpp"
@@ -20,9 +20,9 @@ using namespace hod::editor;
 
 HOD_STARTUP_MODULE(CoreEditor)
 {
-	Color::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<ColorCustomEditor>());
-	Vector2::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector2CustomEditor>());
-	Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector4CustomEditor>());
+	math::Color::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<ColorCustomEditor>());
+	math::Vector2::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector2CustomEditor>());
+	math::Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector4CustomEditor>());
 	WeakResourceBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<WeakResourceCustomEditor>());
 
 	return 0;
@@ -30,9 +30,9 @@ HOD_STARTUP_MODULE(CoreEditor)
 
 HOD_SHUTDOWN_MODULE(CoreEditor)
 {
-	Color::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-	Vector2::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-	Vector4::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+	math::Color::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+	math::Vector2::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+	math::Vector4::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 	WeakResourceBase::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
 
 	return 0;

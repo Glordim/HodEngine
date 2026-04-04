@@ -33,14 +33,14 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const Vector2& GridLayout::GetCellSize() const
+	const math::Vector2& GridLayout::GetCellSize() const
 	{
 		return _cellSize;
 	}
 
 	/// @brief
 	/// @param cellSize
-	void GridLayout::SetCellSize(const Vector2& cellSize)
+	void GridLayout::SetCellSize(const math::Vector2& cellSize)
 	{
 		if (_cellSize != cellSize)
 		{
@@ -51,14 +51,14 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const Vector2& GridLayout::GetCellSpacing() const
+	const math::Vector2& GridLayout::GetCellSpacing() const
 	{
 		return _cellSpacing;
 	}
 
 	/// @brief
 	/// @param cellSpacing
-	void GridLayout::SetCellSpacing(const Vector2& cellSpacing)
+	void GridLayout::SetCellSpacing(const math::Vector2& cellSpacing)
 	{
 		if (_cellSpacing != cellSpacing)
 		{
@@ -148,7 +148,7 @@ namespace hod::ui
 			return;
 		}
 
-		Vector2                      availableSize = node->ComputeSize();
+		math::Vector2                      availableSize = node->ComputeSize();
 		const Vector<WeakPtr<Node>>& drivenNodes = GetDrivenNodes();
 		uint32_t                     drivenNodeCount = (uint32_t)drivenNodes.Size();
 

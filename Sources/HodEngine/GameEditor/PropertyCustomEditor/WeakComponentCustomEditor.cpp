@@ -1,7 +1,7 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/GameEditor/PropertyCustomEditor/WeakComponentCustomEditor.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"

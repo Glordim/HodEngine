@@ -29,7 +29,7 @@ namespace hod
 		{
 			PWSTR wpath = nullptr;
 
-			HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &wpath);
+			[[maybe_unused]] HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &wpath);
 
 			assert(SUCCEEDED(hr) && wpath != nullptr);
 

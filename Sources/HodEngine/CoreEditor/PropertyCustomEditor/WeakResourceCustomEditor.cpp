@@ -1,7 +1,7 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"

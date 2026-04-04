@@ -28,14 +28,14 @@ namespace hod::window
 
 	/// @brief
 	/// @param mousePosition
-	void DesktopWindow::SetMousePosition(const Vector2& mousePosition)
+	void DesktopWindow::SetMousePosition(const math::Vector2& mousePosition)
 	{
 		_mousePosition = mousePosition;
 	}
 
 	/// @brief
 	/// @return
-	const Vector2& DesktopWindow::GetMousePosition() const
+	const math::Vector2& DesktopWindow::GetMousePosition() const
 	{
 		return _mousePosition;
 	}

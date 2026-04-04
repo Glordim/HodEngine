@@ -31,14 +31,14 @@ namespace hod::ui
 
 	/// @brief 
 	/// @return 
-	const Vector2& LayoutElement::GetMinSize() const
+	const math::Vector2& LayoutElement::GetMinSize() const
 	{
 		return _minSize;
 	}
 
 	/// @brief 
 	/// @param minSize 
-	void LayoutElement::SetMinSize(const Vector2& minSize)
+	void LayoutElement::SetMinSize(const math::Vector2& minSize)
 	{
 		if (_minSize != minSize)
 		{
@@ -58,14 +58,14 @@ namespace hod::ui
 
 	/// @brief 
 	/// @return 
-	const Vector2& LayoutElement::GetPreferredSize() const
+	const math::Vector2& LayoutElement::GetPreferredSize() const
 	{
 		return _preferredSize;
 	}
 
 	/// @brief 
 	/// @param preferredSize 
-	void LayoutElement::SetPreferredSize(const Vector2& preferredSize)
+	void LayoutElement::SetPreferredSize(const math::Vector2& preferredSize)
 	{
 		if (_preferredSize != preferredSize)
 		{
@@ -85,14 +85,14 @@ namespace hod::ui
 
 	/// @brief 
 	/// @return 
-	const Vector2& LayoutElement::GetFlexibleSize() const
+	const math::Vector2& LayoutElement::GetFlexibleSize() const
 	{
 		return _flexibleSize;
 	}
 
 	/// @brief 
 	/// @param flexibleSize 
-	void LayoutElement::SetFlexibleSize(const Vector2& flexibleSize)
+	void LayoutElement::SetFlexibleSize(const math::Vector2& flexibleSize)
 	{
 		if (_flexibleSize != flexibleSize)
 		{

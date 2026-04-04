@@ -3,7 +3,7 @@
 
 #include "HodEngine/Game/Component.hpp"
 
-#include <HodEngine/Core/Color.hpp>
+#include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Renderer/Light/DirLight.hpp>
 
 namespace hod

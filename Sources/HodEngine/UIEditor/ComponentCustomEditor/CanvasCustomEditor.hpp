@@ -2,7 +2,7 @@
 #include "HodEngine/UIEditor/Export.hpp"
 
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 namespace hod::renderer
 {

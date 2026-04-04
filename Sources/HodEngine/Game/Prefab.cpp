@@ -11,7 +11,7 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Core/Color.hpp"
+#include "HodEngine/Math/Color.hpp"
 
 namespace hod::game
 {

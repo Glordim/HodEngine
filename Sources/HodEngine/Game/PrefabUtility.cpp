@@ -9,7 +9,7 @@
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
 
-#include "HodEngine/Core/Color.hpp"
+#include "HodEngine/Math/Color.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"

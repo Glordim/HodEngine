@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Physics/Export.hpp"
 
-#include <HodEngine/Core/Color.hpp>
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Color.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -21,8 +21,8 @@ namespace hod::physics
 		};
 
 		Type					_type;
-		Vector<Vector2>	_vertices;
-		Color					_color;
+		Vector<math::Vector2>	_vertices;
+		math::Color				_color;
 	};
 
 	/// @brief 

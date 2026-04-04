@@ -91,7 +91,7 @@ namespace hod::renderer
 	/// @brief
 	/// @param memberName
 	/// @param value
-	void VkMaterialInstance::ApplyVec2(const String& memberName, const Vector2& value)
+	void VkMaterialInstance::ApplyVec2(const String& memberName, const math::Vector2& value)
 	{
 		size_t descriptorSetCount = _descriptorSets.Size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)
@@ -103,7 +103,7 @@ namespace hod::renderer
 	/// @brief
 	/// @param memberName
 	/// @param value
-	void VkMaterialInstance::ApplyVec4(const String& memberName, const Vector4& value)
+	void VkMaterialInstance::ApplyVec4(const String& memberName, const math::Vector4& value)
 	{
 		size_t descriptorSetCount = _descriptorSets.Size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)
@@ -115,7 +115,7 @@ namespace hod::renderer
 	/// @brief
 	/// @param memberName
 	/// @param value
-	void VkMaterialInstance::ApplyMat4(const String& memberName, const Matrix4& value)
+	void VkMaterialInstance::ApplyMat4(const String& memberName, const math::Matrix4& value)
 	{
 		size_t descriptorSetCount = _descriptorSets.Size();
 		for (size_t i = 0; i < descriptorSetCount; ++i)

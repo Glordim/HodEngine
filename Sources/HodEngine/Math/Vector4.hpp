@@ -1,11 +1,11 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/Math/Export.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
-namespace hod
+namespace hod::math
 {
-	class HOD_CORE_API Vector4 final
+	class HOD_MATH_API Vector4 final
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Vector4)
 

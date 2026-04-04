@@ -1,17 +1,17 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/Math/Export.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
 #include <cstddef>
 #include <cstdint>
 
-namespace hod
+namespace hod::math
 {
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	struct HOD_CORE_API Color final
+	struct HOD_MATH_API Color final
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Color)
 

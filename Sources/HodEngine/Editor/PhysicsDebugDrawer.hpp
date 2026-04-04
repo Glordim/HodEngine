@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
-#include "HodEngine/Core/Math/Vector4.hpp"
+#include "HodEngine/Math/Vector4.hpp"
 
 namespace hod::renderer
 {
@@ -57,6 +57,6 @@ namespace hod::editor
 	private:
 
 		const renderer::Material&	_material;
-		Vector4						_color;
+		math::Vector4						_color;
 	};
 }

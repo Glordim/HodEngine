@@ -40,7 +40,7 @@ namespace hod::ui
 
 		void PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) override;
 
-		Vector2 GetContentSize() const;
+		math::Vector2 GetContentSize() const;
 
 		PropertyChangedEvent& GetPropertyChangedEvent();
 

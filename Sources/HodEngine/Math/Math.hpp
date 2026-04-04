@@ -13,5 +13,4 @@ namespace hod::math
 	{
 		return radian * (180.0f / pi);
 	}
-
 }

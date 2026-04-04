@@ -373,7 +373,7 @@ namespace hod::renderer
 		depthStencil.front = {}; // Optional
 		depthStencil.back = {};  // Optional
 
-		// Color blending
+		// math::Color blending
 		VkPipelineColorBlendAttachmentState& colorBlendAttachment = createInfo._colorBlendAttachment;
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable = VK_TRUE;

@@ -1,13 +1,13 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/Math/Export.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 #include <cstdint>
 
-namespace hod
+namespace hod::math
 {
-	class HOD_CORE_API Quaternion final
+	class HOD_MATH_API Quaternion final
 	{
 	public:
 		static const Quaternion Identity;

@@ -1,14 +1,16 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/Math/Export.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
-namespace hod
+#include "HodEngine/Math/Vector2.hpp"
+
+namespace hod::math
 {
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	struct HOD_CORE_API Rect
+	struct HOD_MATH_API Rect
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Rect)
 

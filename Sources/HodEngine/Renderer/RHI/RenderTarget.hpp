@@ -6,7 +6,7 @@
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 namespace hod::renderer
 {
@@ -19,7 +19,7 @@ namespace hod::renderer
 		RenderTarget();
 		virtual ~RenderTarget();
 
-		Vector2 GetResolution() const;
+		math::Vector2 GetResolution() const;
 
 		virtual bool Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo);
 
@@ -39,6 +39,6 @@ namespace hod::renderer
 		Vector<Texture*> _depthTextures;
 
 	protected:
-		Vector2 _resolution; // TODO Vector2_Int ?
+		math::Vector2 _resolution; // TODO Vector2_Int ?
 	};
 }

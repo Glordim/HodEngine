@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Core/UID.hpp"
-#include "HodEngine/Core/Rect.hpp"
+#include "HodEngine/Math/Rect.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Resource/WeakResource.hpp"

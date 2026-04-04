@@ -22,51 +22,51 @@ namespace hod::game
 		Collider2dComponent::OnStart();
 
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
-		Vector2               parentOffset = rigidbody->GetParentOffset(this);
+		math::Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-		Vector2 scale = GetScale();
+		math::Vector2 scale = GetScale();
 		_collider = GetRigidbody()->GetInternalBody()->AddBoxShape(_isTrigger, parentOffset + _offset * scale, _size * scale, _rotation);
 		_collider->SetUserData(this);
 	}
 
 	/// @brief
-	void BoxCollider2dComponent::SetOffset(const Vector2& offset)
+	void BoxCollider2dComponent::SetOffset(const math::Vector2& offset)
 	{
 		_offset = offset;
 		if (_collider != nullptr)
 		{
 			Rigidbody2dComponent* rigidbody = GetRigidbody();
-			Vector2               parentOffset = rigidbody->GetParentOffset(this);
+			math::Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-			Vector2 scale = GetScale();
+			math::Vector2 scale = GetScale();
 			_collider->SetAsBoxShape(parentOffset + _offset * scale, _size * scale, _rotation);
 		}
 	}
 
 	/// @brief
 	/// @return
-	const Vector2& BoxCollider2dComponent::GetOffset() const
+	const math::Vector2& BoxCollider2dComponent::GetOffset() const
 	{
 		return _offset;
 	}
 
 	/// @brief
-	void BoxCollider2dComponent::SetSize(const Vector2& Size)
+	void BoxCollider2dComponent::SetSize(const math::Vector2& Size)
 	{
 		_size = Size;
 		if (_collider != nullptr)
 		{
 			Rigidbody2dComponent* rigidbody = GetRigidbody();
-			Vector2               parentOffset = rigidbody->GetParentOffset(this);
+			math::Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-			Vector2 scale = GetScale();
+			math::Vector2 scale = GetScale();
 			_collider->SetAsBoxShape(parentOffset + _offset * scale, _size * scale, _rotation);
 		}
 	}
 
 	/// @brief
 	/// @return
-	const Vector2& BoxCollider2dComponent::GetSize() const
+	const math::Vector2& BoxCollider2dComponent::GetSize() const
 	{
 		return _size;
 	}
@@ -78,9 +78,9 @@ namespace hod::game
 		if (_collider != nullptr)
 		{
 			Rigidbody2dComponent* rigidbody = GetRigidbody();
-			Vector2               parentOffset = rigidbody->GetParentOffset(this);
+			math::Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-			Vector2 scale = GetScale();
+			math::Vector2 scale = GetScale();
 			_collider->SetAsBoxShape(parentOffset + _offset * scale, _size * scale, _rotation);
 		}
 	}

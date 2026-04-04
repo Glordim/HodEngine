@@ -43,46 +43,46 @@ namespace hod::ui
 	{
 		if (_node.Get() && _font.Lock())
 		{
-			Vector2 Size = _node->ComputeSize();
-			Matrix4 worldMatrix = _node->ComputeWorldMatrix();
+			math::Vector2 Size = _node->ComputeSize();
+			math::Matrix4 worldMatrix = _node->ComputeWorldMatrix();
 
 			renderer::Font* font = _font.Lock()->GetFont();
 
-			Vector<Vector2> positions;
+			Vector<math::Vector2> positions;
 			positions.Reserve(_value.Size() * 4);
 
-			Vector<Vector2> uvs;
+			Vector<math::Vector2> uvs;
 			uvs.Reserve(_value.Size() * 4);
 
 			Vector<uint16_t> indices;
 			indices.Reserve(_value.Size() * 6);
 
-			Vector2 requiredSize = font->ComputeRequiredSize(_value);
+			math::Vector2 requiredSize = font->ComputeRequiredSize(_value);
 
-			Vector2 lineTopLeftCorner;
+			math::Vector2 lineTopLeftCorner;
 			switch (_alignment)
 			{
-				case Alignment::TopLeft: lineTopLeftCorner = Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f); break;
-				case Alignment::TopCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, Size.GetY() * 0.5f); break;
-				case Alignment::TopRight: lineTopLeftCorner = Vector2(Size.GetX() * 0.5f - requiredSize.GetX(), Size.GetY() * 0.5f); break;
+				case Alignment::TopLeft: lineTopLeftCorner = math::Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f); break;
+				case Alignment::TopCenter: lineTopLeftCorner = math::Vector2(-requiredSize.GetX() * 0.5f, Size.GetY() * 0.5f); break;
+				case Alignment::TopRight: lineTopLeftCorner = math::Vector2(Size.GetX() * 0.5f - requiredSize.GetX(), Size.GetY() * 0.5f); break;
 
-				case Alignment::MiddleLeft: lineTopLeftCorner = Vector2(-Size.GetX() * 0.5f, requiredSize.GetY() * 0.5f); break;
-				case Alignment::MiddleCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, requiredSize.GetY() * 0.5f); break;
-				case Alignment::MiddleRight: lineTopLeftCorner = Vector2(Size.GetX() * 0.5f - requiredSize.GetX(), requiredSize.GetY() * 0.5f); break;
+				case Alignment::MiddleLeft: lineTopLeftCorner = math::Vector2(-Size.GetX() * 0.5f, requiredSize.GetY() * 0.5f); break;
+				case Alignment::MiddleCenter: lineTopLeftCorner = math::Vector2(-requiredSize.GetX() * 0.5f, requiredSize.GetY() * 0.5f); break;
+				case Alignment::MiddleRight: lineTopLeftCorner = math::Vector2(Size.GetX() * 0.5f - requiredSize.GetX(), requiredSize.GetY() * 0.5f); break;
 
-				case Alignment::BottomLeft: lineTopLeftCorner = Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f + requiredSize.GetY()); break;
-				case Alignment::BottomCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, -Size.GetY() * 0.5f + requiredSize.GetY()); break;
-				case Alignment::BottomRight: lineTopLeftCorner = Vector2(Size.GetX() * 0.5f - requiredSize.GetX(), -Size.GetY() * 0.5f + requiredSize.GetY()); break;
+				case Alignment::BottomLeft: lineTopLeftCorner = math::Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f + requiredSize.GetY()); break;
+				case Alignment::BottomCenter: lineTopLeftCorner = math::Vector2(-requiredSize.GetX() * 0.5f, -Size.GetY() * 0.5f + requiredSize.GetY()); break;
+				case Alignment::BottomRight: lineTopLeftCorner = math::Vector2(Size.GetX() * 0.5f - requiredSize.GetX(), -Size.GetY() * 0.5f + requiredSize.GetY()); break;
 			}
 
 			/*
-			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f),
-			Color::White); GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()), worldMatrix.GetTranslation() +
-			lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
+			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + math::Vector2(requiredSize.GetX(), 0.0f),
+			math::Color::White); GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + math::Vector2(0.0f, -requiredSize.GetY()), worldMatrix.GetTranslation() +
+			lineTopLeftCorner + math::Vector2(requiredSize.GetX(), -requiredSize.GetY()), math::Color::White);
 
-			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(0.0f, -requiredSize.GetY()),
-			Color::White); GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + Vector2(requiredSize.GetX(), 0.0f), worldMatrix.GetTranslation() +
-			lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
+			GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner, worldMatrix.GetTranslation() + lineTopLeftCorner + math::Vector2(0.0f, -requiredSize.GetY()),
+			math::Color::White); GetWorld()->DrawDebugLine(worldMatrix.GetTranslation() + lineTopLeftCorner + math::Vector2(requiredSize.GetX(), 0.0f), worldMatrix.GetTranslation() +
+			lineTopLeftCorner + math::Vector2(requiredSize.GetX(), -requiredSize.GetY()), math::Color::White);
 			*/
 
 			Vector<renderer::Font::GlyphGeometry> glyphGeometries;
@@ -92,15 +92,15 @@ namespace hod::ui
 			{
 				uint16_t vertexCount = (uint16_t)positions.Size();
 
-				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + Vector2(-glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f));
-				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + Vector2(glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f));
-				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + Vector2(-glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f));
-				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + Vector2(glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f));
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + math::Vector2(-glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f));
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + math::Vector2(glyphGeometry._posSize.GetX() * 0.5f, glyphGeometry._posSize.GetY() * 0.5f));
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + math::Vector2(-glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f));
+				positions.push_back(lineTopLeftCorner + glyphGeometry._posCenter + math::Vector2(glyphGeometry._posSize.GetX() * 0.5f, -glyphGeometry._posSize.GetY() * 0.5f));
 
 				uvs.push_back(glyphGeometry._uvPos);
-				uvs.push_back(glyphGeometry._uvPos + Vector2(glyphGeometry._uvSize.GetX(), 0.0f));
-				uvs.push_back(glyphGeometry._uvPos + Vector2(0.0f, glyphGeometry._uvSize.GetY()));
-				uvs.push_back(glyphGeometry._uvPos + Vector2(glyphGeometry._uvSize.GetX(), glyphGeometry._uvSize.GetY()));
+				uvs.push_back(glyphGeometry._uvPos + math::Vector2(glyphGeometry._uvSize.GetX(), 0.0f));
+				uvs.push_back(glyphGeometry._uvPos + math::Vector2(0.0f, glyphGeometry._uvSize.GetY()));
+				uvs.push_back(glyphGeometry._uvPos + math::Vector2(glyphGeometry._uvSize.GetX(), glyphGeometry._uvSize.GetY()));
 
 				indices.push_back(vertexCount + 1);
 				indices.push_back(vertexCount + 0);
@@ -120,7 +120,7 @@ namespace hod::ui
 					_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
 				}
 				_materialInstance->SetTexture("image", font->GetTexture());
-				Vector4 vec4Color;
+				math::Vector4 vec4Color;
 				vec4Color.SetX(_color.r);
 				vec4Color.SetY(_color.g);
 				vec4Color.SetZ(_color.b);
@@ -168,9 +168,9 @@ namespace hod::ui
 		}
 	}
 
-	Vector2 Text::GetContentSize() const
+	math::Vector2 Text::GetContentSize() const
 	{
-		Vector2 requiredSize;
+		math::Vector2 requiredSize;
 		if (_font.Lock())
 		{
 			renderer::Font* font = _font.Lock()->GetFont();

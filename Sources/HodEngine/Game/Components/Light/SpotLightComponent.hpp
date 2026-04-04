@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Color.hpp>
-
 #include "HodEngine/Game/Component.hpp"
 
 #include <HodEngine/Renderer/Light/SpotLight.hpp>

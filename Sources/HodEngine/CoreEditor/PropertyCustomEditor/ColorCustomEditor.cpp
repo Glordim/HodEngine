@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
-#include "HodEngine/Core/Color.hpp"
+#include "HodEngine/Math/Color.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
@@ -22,7 +22,7 @@ namespace hod::editor
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		Color value = *editorReflectedProperty.GetObject<Color>();
+		math::Color value = *editorReflectedProperty.GetObject<math::Color>();
 		changed |= ColorCustomEditor::Draw(value);
 		if (changed == true)
 		{
@@ -34,7 +34,7 @@ namespace hod::editor
 	/// @brief
 	/// @param value
 	/// @return
-	bool ColorCustomEditor::Draw(Color& value)
+	bool ColorCustomEditor::Draw(math::Color& value)
 	{
 		bool  changed = false;
 		float r = value.r;

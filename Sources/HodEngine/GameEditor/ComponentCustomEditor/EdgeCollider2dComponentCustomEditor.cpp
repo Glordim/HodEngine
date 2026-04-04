@@ -24,7 +24,7 @@ namespace hod::editor
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", math::Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
 	/// @brief
@@ -52,7 +52,7 @@ namespace hod::editor
 			game::Node2dComponent* node2D = edgeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				std::array<Vector2, 2> vertices = {
+				std::array<math::Vector2, 2> vertices = {
 					edgeCollider2d->GetStart(),
 					edgeCollider2d->GetEnd(),
 				};

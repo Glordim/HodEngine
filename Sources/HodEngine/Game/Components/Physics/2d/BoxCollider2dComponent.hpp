@@ -26,19 +26,19 @@ namespace hod::game
 
 		void			OnStart() override;
 
-		void			SetOffset(const Vector2& offset);
-		const Vector2&	GetOffset() const;
+		void			SetOffset(const math::Vector2& offset);
+		const math::Vector2&	GetOffset() const;
 
-		void			SetSize(const Vector2& size);
-		const Vector2&	GetSize() const;
+		void			SetSize(const math::Vector2& size);
+		const math::Vector2&	GetSize() const;
 
 		void			SetRotation(float rotation);
 		float			GetRotation() const;
 
 	private:
 
-		Vector2			_offset = Vector2::Zero;
-		Vector2			_size = Vector2::One;
+		math::Vector2			_offset = math::Vector2::Zero;
+		math::Vector2			_size = math::Vector2::One;
 		float			_rotation = 0.0f;
 	};
 }

@@ -4,7 +4,7 @@
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
-#include <HodEngine/Core/Math/Matrix4.hpp>
+#include <HodEngine/Math/Matrix4.hpp>
 
 #include <memory>
 
@@ -39,8 +39,8 @@ namespace hod::editor
 	private:
 		renderer::RenderTarget* _renderTarget = nullptr;
 
-		Matrix4 _projection;
-		Matrix4 _view;
+		math::Matrix4 _projection;
+		math::Matrix4 _view;
 
 		float _size = 5.0f;
 	};

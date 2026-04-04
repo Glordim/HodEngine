@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Core/Event.hpp"
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Game/Component.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
@@ -22,7 +22,7 @@ namespace hod::game
 	{
 		Collider2dComponent* _collider;
 		Collider2dComponent* _other;
-		Vector2              _normal;
+		math::Vector2              _normal;
 	};
 
 	struct TriggerEvent
@@ -66,7 +66,7 @@ namespace hod::game
 		void OnDestruct() override;
 
 		physics::Body* GetInternalBody() const;
-		Vector2        GetParentOffset(Collider2dComponent* collider) const;
+		math::Vector2        GetParentOffset(Collider2dComponent* collider) const;
 
 		void SetMode(Mode mode);
 		Mode GetMode() const;
@@ -74,11 +74,11 @@ namespace hod::game
 		void  SetGravityScale(float gravityScale);
 		float GetGravityScale() const;
 
-		void    SetVelocity(const Vector2& velocity);
-		Vector2 GetVelocity() const;
+		void    SetVelocity(const math::Vector2& velocity);
+		math::Vector2 GetVelocity() const;
 
-		void AddForce(const Vector2& force);
-		void AddImpulse(const Vector2& impulse);
+		void AddForce(const math::Vector2& force);
+		void AddImpulse(const math::Vector2& impulse);
 
 		Event<const CollisionEvent&>& GetOnCollisionEnterEvent();
 		Event<const CollisionEvent&>& GetOnCollisionExitEvent();

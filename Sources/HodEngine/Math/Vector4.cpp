@@ -1,9 +1,9 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Math/Vector4.hpp"
+#include "HodEngine/Math/Pch.hpp"
+#include "HodEngine/Math/Vector4.hpp"
 
 #include <cmath>
 
-namespace hod
+namespace hod::math
 {
 	DESCRIBE_REFLECTED_CLASS(Vector4, reflectionDescriptor)
 	{

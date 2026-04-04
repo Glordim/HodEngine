@@ -6,6 +6,11 @@
 
 #include <box2d/types.h>
 
+namespace hod::math
+{
+	class Vector2;
+}
+
 namespace hod::physics
 {
 	/// @brief 
@@ -35,7 +40,7 @@ namespace hod::physics
 		static void	DrawPoint(b2Vec2 p, float size, b2HexColor color, void* context);
 		static void	DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context);
 
-		static void BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount);
+		static void BuildCircleVertices(math::Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount);
 
 	private:
 

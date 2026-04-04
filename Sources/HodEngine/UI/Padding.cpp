@@ -5,7 +5,7 @@ namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(Padding, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Padding::_vector4, "Vector4");
+		AddPropertyT(reflectionDescriptor, &Padding::_vector4, "math::Vector4");
 	}
 
 	void Padding::SetLeft(float left)

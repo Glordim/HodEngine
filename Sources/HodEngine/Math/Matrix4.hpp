@@ -1,15 +1,14 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
-#include "HodEngine/Core/Math/Quaternion.hpp"
+#include "HodEngine/Math/Export.hpp"
+#include "HodEngine/Math/Quaternion.hpp"
+#include "HodEngine/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector4.hpp"
 
 #include <cstdint>
 
-namespace hod
+namespace hod::math
 {
-	class Vector2;
-	class Vector4;
-
-	class HOD_CORE_API Matrix4 final
+	class HOD_MATH_API Matrix4 final
 	{
 	public:
 		static Matrix4 Identity;

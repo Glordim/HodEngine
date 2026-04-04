@@ -67,9 +67,9 @@ namespace hod::renderer
 		_layer->setDrawableSize(Size);
 	}
 
-	Vector2 MetalPresentationSurface::GetResolution() const
+	math::Vector2 MetalPresentationSurface::GetResolution() const
 	{
-		return Vector2(static_cast<uint32_t>(_layer->drawableSize().width), static_cast<uint32_t>(_layer->drawableSize().height));
+		return math::Vector2(static_cast<uint32_t>(_layer->drawableSize().width), static_cast<uint32_t>(_layer->drawableSize().height));
 	}
 
 	bool MetalPresentationSurface::SwapBuffer()

@@ -15,7 +15,7 @@ namespace hod::renderer
 
 		float		GetKerning(char32_t left, char32_t right) const;
 
-		Vector2		ComputeRequiredSize(const String& value) const;
+		math::Vector2		ComputeRequiredSize(const String& value) const;
 		void		BuildTextGeometry(const String& value, Vector<Font::GlyphGeometry>& glyphGeometries, const Vector<Font::GlyphInfo>& glyphInfos);
 	
 	private:

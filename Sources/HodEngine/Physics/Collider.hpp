@@ -2,7 +2,7 @@
 #include "HodEngine/Physics/Export.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 namespace hod::physics
 {
@@ -20,11 +20,11 @@ namespace hod::physics
 		void				SetUserData(void* userData);
 		void*				GetUserData() const;
 
-		virtual void		SetAsEdge(const Vector2& startPosition, const Vector2& endPosition) = 0;
-		virtual void		SetAsCircleShape(const Vector2& position, float radius) = 0;
-		virtual void		SetAsCapsuleShape(const Vector2& position, float height, float radius, float angle) = 0;
-		virtual void		SetAsBoxShape(const Vector2& position, const Vector2& size, float angle) = 0;
-		virtual void		SetAsConvexShape(const Vector<Vector2>& vertices) = 0;
+		virtual void		SetAsEdge(const math::Vector2& startPosition, const math::Vector2& endPosition) = 0;
+		virtual void		SetAsCircleShape(const math::Vector2& position, float radius) = 0;
+		virtual void		SetAsCapsuleShape(const math::Vector2& position, float height, float radius, float angle) = 0;
+		virtual void		SetAsBoxShape(const math::Vector2& position, const math::Vector2& size, float angle) = 0;
+		virtual void		SetAsConvexShape(const Vector<math::Vector2>& vertices) = 0;
 
 		virtual void		SetBounciness(float bounciness) = 0;
 

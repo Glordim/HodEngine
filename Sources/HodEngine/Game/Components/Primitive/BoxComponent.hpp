@@ -36,7 +36,7 @@ namespace hod
 			void			OnConstruct() override;
 
 			void			PushRenderCommand(renderer::RenderView& renderView) override;
-			Rect			GetBoundingBox() const override;
+			math::Rect			GetBoundingBox() const override;
 
 			renderer::MaterialInstance*		GetMaterialInstance() const;
 

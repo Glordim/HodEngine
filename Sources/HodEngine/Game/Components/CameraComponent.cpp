@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Components/CameraComponent.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 
-#include <HodEngine/Core/Rect.hpp>
+#include <HodEngine/Math/Rect.hpp>
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
@@ -39,17 +39,17 @@ namespace hod::game
 
 	/// @brief
 	/// @return
-	const Matrix4& CameraComponent::GetProjectionMatrix()
+	const math::Matrix4& CameraComponent::GetProjectionMatrix()
 	{
 		if (_dirtyFlag == true)
 		{
 			if (_projection == Projection::Perpective)
 			{
-				_projectionMatrix = Matrix4::Identity; // todo
+				_projectionMatrix = math::Matrix4::Identity; // todo
 			}
 			else
 			{
-				_projectionMatrix = Matrix4::OrthogonalProjection(-_size * _aspect, _size * _aspect, -_size, _size, _near, _far);
+				_projectionMatrix = math::Matrix4::OrthogonalProjection(-_size * _aspect, _size * _aspect, -_size, _size, _near, _far);
 			}
 
 			_dirtyFlag = false;
@@ -99,9 +99,9 @@ namespace hod::game
 	/// @param renderView
 	void CameraComponent::SetupRenderView(renderer::RenderView& renderView)
 	{
-		Vector2 resolution = renderView.GetRenderResolution();
+		math::Vector2 resolution = renderView.GetRenderResolution();
 
-		Rect viewport;
+		math::Rect viewport;
 		viewport._position.SetX(0);
 		viewport._position.SetY(0);
 		viewport._size.SetX(resolution.GetX());
@@ -109,8 +109,8 @@ namespace hod::game
 
 		SetAspect(resolution.GetX() / resolution.GetY());
 
-		Matrix4 projection = GetProjectionMatrix();
-		Matrix4 view = Matrix4::Identity;
+		math::Matrix4 projection = GetProjectionMatrix();
+		math::Matrix4 view = math::Matrix4::Identity;
 
 		Entity* entity = GetOwner();
 		if (entity != nullptr)

@@ -9,10 +9,6 @@
 
 #include <box2d/id.h>
 
-namespace hod
-{
-	class Vector2;
-}
 
 namespace hod::physics
 {

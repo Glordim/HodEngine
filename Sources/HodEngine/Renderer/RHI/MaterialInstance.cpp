@@ -54,7 +54,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief
 		//-----------------------------------------------------------------------------
-		void MaterialInstance::SetVec2(const String& memberName, const Vector2& value)
+		void MaterialInstance::SetVec2(const String& memberName, const math::Vector2& value)
 		{
 			_vec2Map[memberName] = value;
 			ApplyVec2(memberName, value);
@@ -63,7 +63,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief
 		//-----------------------------------------------------------------------------
-		void MaterialInstance::SetVec4(const String& memberName, const Vector4& value)
+		void MaterialInstance::SetVec4(const String& memberName, const math::Vector4& value)
 		{
 			_vec4Map[memberName] = value;
 			ApplyVec4(memberName, value);
@@ -72,7 +72,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief
 		//-----------------------------------------------------------------------------
-		void MaterialInstance::SetMat4(const String& memberName, const Matrix4& value)
+		void MaterialInstance::SetMat4(const String& memberName, const math::Matrix4& value)
 		{
 			_mat4Map[memberName] = value;
 			ApplyMat4(memberName, value);
@@ -114,7 +114,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief
 		//-----------------------------------------------------------------------------
-		const Vector2& MaterialInstance::GetVec2(const String& memberName)
+		const math::Vector2& MaterialInstance::GetVec2(const String& memberName)
 		{
 			return _vec2Map[memberName];
 		}
@@ -122,7 +122,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief
 		//-----------------------------------------------------------------------------
-		const Vector4& MaterialInstance::GetVec4(const String& memberName)
+		const math::Vector4& MaterialInstance::GetVec4(const String& memberName)
 		{
 			return _vec4Map[memberName];
 		}
@@ -130,7 +130,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief
 		//-----------------------------------------------------------------------------
-		const Matrix4& MaterialInstance::GetMat4(const String& memberName)
+		const math::Matrix4& MaterialInstance::GetMat4(const String& memberName)
 		{
 			return _mat4Map[memberName];
 		}
@@ -153,17 +153,17 @@ namespace hod
 			return _floatMap;
 		}
 
-		const std::map<String, Vector2>& MaterialInstance::GetVec2Map() const
+		const std::map<String, math::Vector2>& MaterialInstance::GetVec2Map() const
 		{
 			return _vec2Map;
 		}
 
-		const std::map<String, Vector4>& MaterialInstance::GetVec4Map() const
+		const std::map<String, math::Vector4>& MaterialInstance::GetVec4Map() const
 		{
 			return _vec4Map;
 		}
 
-		const std::map<String, Matrix4>& MaterialInstance::GetMat4Map() const
+		const std::map<String, math::Matrix4>& MaterialInstance::GetMat4Map() const
 		{
 			return _mat4Map;
 		}

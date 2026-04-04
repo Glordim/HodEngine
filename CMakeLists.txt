@@ -183,6 +183,7 @@ else()
 endif()
 
 add_subdirectory("Sources/HodEngine/Core")
+add_subdirectory("Sources/HodEngine/Math")
 add_subdirectory("Sources/HodEngine/Window")
 add_subdirectory("Sources/HodEngine/Renderer")
 add_subdirectory("Sources/HodEngine/ImGui")

@@ -21,10 +21,10 @@ namespace hod::ui
 
 		game::WeakComponent<Drawable>	_target;
 
-		Color	_normalColor;
-		Color	_highlightedColor;
-		Color	_pressedColor;
-		Color	_disabledColor;
-		Color	_disabledHighlightedColor;
+		math::Color	_normalColor;
+		math::Color	_highlightedColor;
+		math::Color	_pressedColor;
+		math::Color	_disabledColor;
+		math::Color	_disabledHighlightedColor;
 	};
 }

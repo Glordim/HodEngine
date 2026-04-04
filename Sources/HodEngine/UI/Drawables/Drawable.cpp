@@ -8,7 +8,7 @@ namespace hod::ui
 {
 	DESCRIBE_REFLECTED_CLASS(Drawable, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Drawable::_color, "Color", &Drawable::SetColor);
+		AddPropertyT(reflectionDescriptor, &Drawable::_color, "math::Color", &Drawable::SetColor);
 	}
 
 	void Drawable::OnEnable()
@@ -20,12 +20,12 @@ namespace hod::ui
 		}
 	}
 
-	void Drawable::SetColor(const Color& color)
+	void Drawable::SetColor(const math::Color& color)
 	{
 		_color = color;
 	}
 
-	const Color& Drawable::GetColor() const
+	const math::Color& Drawable::GetColor() const
 	{
 		return _color;
 	}

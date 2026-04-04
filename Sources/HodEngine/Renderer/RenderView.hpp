@@ -4,8 +4,8 @@
 #include "HodEngine/Renderer/RenderQueue/UIRenderQueue.hpp"
 #include "HodEngine/Renderer/RenderQueue/WorldRenderQueue.hpp"
 
-#include "HodEngine/Core/Math/Matrix4.hpp"
-#include "HodEngine/Core/Rect.hpp"
+#include "HodEngine/Math/Matrix4.hpp"
+#include "HodEngine/Math/Rect.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -44,15 +44,15 @@ namespace hod::renderer
 		bool    Prepare(PresentationSurface* presentationSurface);
 		bool    Prepare(window::Window* window);
 		void    Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget);
-		Vector2 GetRenderResolution() const;
+		math::Vector2 GetRenderResolution() const;
 
 		PresentationSurface* GetPresentationSurface() const;
 		Semaphore*           GetRenderFinishedSemaphore() const;
 
-		void           SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport);
-		const Matrix4& GetViewMatrix() const;
-		const Matrix4& GetProjectionMatrix() const;
-		const Rect&    GetViewport() const;
+		void           SetupCamera(const math::Matrix4& projection, const math::Matrix4& view, const math::Rect& viewport);
+		const math::Matrix4& GetViewMatrix() const;
+		const math::Matrix4& GetProjectionMatrix() const;
+		const math::Rect&    GetViewport() const;
 
 		void PushRenderCommand(RenderCommand* renderCommand, RenderQueueType renderQueueType = RenderQueueType::World);
 		void Execute(Semaphore* previous = nullptr);
@@ -78,9 +78,9 @@ namespace hod::renderer
 
 		Vector<CommandBuffer*> _commandBuffers;
 
-		Matrix4 _projection;
-		Matrix4 _view;
-		Rect    _viewport;
+		math::Matrix4 _projection;
+		math::Matrix4 _view;
+		math::Rect    _viewport;
 
 		Vector<MaterialInstance*> _materialInstancesToDelete;
 		bool                      _autoDestroy = true;

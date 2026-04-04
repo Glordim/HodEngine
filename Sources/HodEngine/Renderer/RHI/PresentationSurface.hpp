@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/Core/Event.hpp"
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/String.hpp"
 #include <cstdint>
 
@@ -30,7 +30,7 @@ namespace hod::renderer
 
 		void AddSemaphoreToSwapBuffer(Semaphore* semaphore);
 
-		virtual Vector2 GetResolution() const = 0;
+		virtual math::Vector2 GetResolution() const = 0;
 
 		window::Window* GetWindow() const;
 

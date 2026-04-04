@@ -28,9 +28,9 @@ namespace hod
 
 			void							ApplyInt(const String& memberName, int value) override;
 			void							ApplyFloat(const String& memberName, float value) override;
-			void							ApplyVec2(const String& memberName, const Vector2& value) override;
-			void							ApplyVec4(const String& memberName, const Vector4& value) override;
-			void							ApplyMat4(const String& memberName, const Matrix4& value) override;
+			void							ApplyVec2(const String& memberName, const math::Vector2& value) override;
+			void							ApplyVec4(const String& memberName, const math::Vector4& value) override;
+			void							ApplyMat4(const String& memberName, const math::Matrix4& value) override;
 			void							ApplyTexture(const String& name, const Texture& value) override;
 		};
 	}

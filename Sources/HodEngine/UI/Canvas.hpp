@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/UI/Export.hpp"
 
-#include <HodEngine/Core/Math/Matrix4.hpp>
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Matrix4.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Game/Components/RendererComponent.hpp>
 
 #include <HodEngine/Game/Components/CameraComponent.hpp>
@@ -55,12 +55,12 @@ namespace hod::ui
 		float GetWidthHeightPreferredAxis() const;
 		void  SetWidthHeightPreferredAxis(float widthHeightPreferredAxis);
 
-		void RecomputeRootNodeSize(const Vector2& resolution);
+		void RecomputeRootNodeSize(const math::Vector2& resolution);
 
-		Rect GetBoundingBox() const override;
+		math::Rect GetBoundingBox() const override;
 		void PushRenderCommand(renderer::RenderView& renderView) override;
 
-		const Matrix4& GetRenderModeMatrix() const;
+		const math::Matrix4& GetRenderModeMatrix() const;
 
 		void MarkForRebuild(Rebuildable* rebuildable);
 
@@ -77,7 +77,7 @@ namespace hod::ui
 
 		float _scaleFactor = 1.0f;
 
-		Matrix4 _renderModeMatrix;
+		math::Matrix4 _renderModeMatrix;
 
 		Vector<WeakPtr<Rebuildable>> _markedForRebuild;
 	};

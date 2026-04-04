@@ -1,10 +1,10 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Math/Quaternion.hpp"
+#include "HodEngine/Math/Pch.hpp"
+#include "HodEngine/Math/Quaternion.hpp"
 
 #include <cmath>
 #include <cstring>
 
-namespace hod
+namespace hod::math
 {
 	const Quaternion Quaternion::Identity;
 

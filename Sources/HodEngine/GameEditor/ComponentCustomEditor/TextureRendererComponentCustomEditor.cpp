@@ -23,7 +23,7 @@ namespace hod::editor
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", Vector4(0.75f, 0.75f, 0.75f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", math::Vector4(0.75f, 0.75f, 0.75f, 1.0f));
 	}
 
 	/// @brief
@@ -51,12 +51,12 @@ namespace hod::editor
 			game::Node2dComponent* node2D = textureRenderer->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				Rect bb = textureRenderer->GetBoundingBox();
+				math::Rect bb = textureRenderer->GetBoundingBox();
 
-				std::array<Vector2, 5> vertices = {
-					Vector2(-bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f), Vector2(bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f),
-					Vector2(bb._size.GetX() * 0.5f, -bb._size.GetY() * 0.5f), Vector2(-bb._size.GetX() * 0.5f, -bb._size.GetY() * 0.5f),
-					Vector2(-bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f),
+				std::array<math::Vector2, 5> vertices = {
+					math::Vector2(-bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f), math::Vector2(bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f),
+					math::Vector2(bb._size.GetX() * 0.5f, -bb._size.GetY() * 0.5f), math::Vector2(-bb._size.GetX() * 0.5f, -bb._size.GetY() * 0.5f),
+					math::Vector2(-bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f),
 				};
 
 				renderer::RenderCommandMesh* renderMeshCommand =

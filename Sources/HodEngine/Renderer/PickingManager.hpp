@@ -5,7 +5,8 @@
 #include <unordered_map>
 
 #include <HodEngine/Core/Singleton.hpp>
-#include <HodEngine/Core/Color.hpp>
+
+#include <HodEngine/Math/Color.hpp>
 
 #include <utility>
 #include <atomic>
@@ -21,8 +22,8 @@ namespace hod::renderer
 
 		static constexpr uint32_t InvalidId = 0;
 
-		static Color	ConvertIdToColor(uint32_t pickingId);
-		static uint32_t	ConvertColorToId(Color pickingColor);
+		static math::Color	ConvertIdToColor(uint32_t pickingId);
+		static uint32_t	ConvertColorToId(math::Color pickingColor);
 
 	public:
 

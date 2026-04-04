@@ -29,18 +29,18 @@ namespace hod
 		// |_____|
 		// 1     2
 
-		static std::array<Vector2, 4> _positions = {
-			Vector2(-0.5f, 0.5f),
-			Vector2(-0.5f, -0.5f),
-			Vector2(0.5f, -0.5f),
-			Vector2(0.5f, 0.5f),
+		static std::array<math::Vector2, 4> _positions = {
+			math::Vector2(-0.5f, 0.5f),
+			math::Vector2(-0.5f, -0.5f),
+			math::Vector2(0.5f, -0.5f),
+			math::Vector2(0.5f, 0.5f),
 		};
 
-		static std::array<Vector2, 4> _uvs = {
-			Vector2(0, 0),
-			Vector2(0, 1),
-			Vector2(1, 1),
-			Vector2(1, 0),
+		static std::array<math::Vector2, 4> _uvs = {
+			math::Vector2(0, 0),
+			math::Vector2(0, 1),
+			math::Vector2(1, 1),
+			math::Vector2(1, 0),
 		};
 
 		static std::array<uint16_t, 6> _indices = {
@@ -108,9 +108,9 @@ namespace hod
 			}
 		}
 
-		Rect BoxComponent::GetBoundingBox() const
+		math::Rect BoxComponent::GetBoundingBox() const
 		{
-			return Rect();
+			return math::Rect();
 		}
 	}
 }

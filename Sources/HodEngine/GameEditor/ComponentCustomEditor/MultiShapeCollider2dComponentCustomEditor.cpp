@@ -24,7 +24,7 @@ namespace hod::editor
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", math::Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
 	/// @brief
@@ -52,17 +52,17 @@ namespace hod::editor
 			game::Node2dComponent* node2D = multiShapeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				Vector2 scale = node2D->GetScale();
+				math::Vector2 scale = node2D->GetScale();
 
 				for (const game::MultiShapeCollider2dComponent::BoxShape& boxShape : multiShapeCollider2d->GetBoxShapes())
 				{
-					std::array<Vector2, 5> vertices = {
-						Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f), Vector2(boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
-						Vector2(boxShape._size.GetX() * 0.5f, -boxShape._size.GetY() * 0.5f), Vector2(-boxShape._size.GetX() * 0.5f, -boxShape._size.GetY() * 0.5f),
-						Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
+					std::array<math::Vector2, 5> vertices = {
+						math::Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f), math::Vector2(boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
+						math::Vector2(boxShape._size.GetX() * 0.5f, -boxShape._size.GetY() * 0.5f), math::Vector2(-boxShape._size.GetX() * 0.5f, -boxShape._size.GetY() * 0.5f),
+						math::Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
 					};
 
-					Matrix4 localMatrix = Matrix4::Translation(boxShape._origin) * Matrix4::Rotation(boxShape._angle);
+					math::Matrix4 localMatrix = math::Matrix4::Translation(boxShape._origin) * math::Matrix4::Rotation(boxShape._angle);
 
 					renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
 						vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance,
@@ -72,7 +72,7 @@ namespace hod::editor
 
 				for (const game::MultiShapeCollider2dComponent::CircleShape& circleShape : multiShapeCollider2d->GetCircleShapes())
 				{
-					std::array<Vector2, 65> vertices;
+					std::array<math::Vector2, 65> vertices;
 					GeometryGenerator::CircleShape<64>(vertices, circleShape._origin * scale, circleShape._radius * std::max(scale.GetX(), scale.GetY()));
 
 					renderer::RenderCommandMesh* renderMeshCommand =

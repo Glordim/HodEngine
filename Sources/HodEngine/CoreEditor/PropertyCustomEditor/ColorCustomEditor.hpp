@@ -6,6 +6,10 @@
 namespace hod
 {
 	class ReflectionPropertyObject;
+}
+
+namespace hod::math
+{
 	struct Color;
 }
 
@@ -26,6 +30,6 @@ namespace hod::editor
 	public:
 		bool Draw(EditorReflectedProperty& editorReflectedProperty) override;
 
-		static bool Draw(Color& value);
+		static bool Draw(math::Color& value);
 	};
 }

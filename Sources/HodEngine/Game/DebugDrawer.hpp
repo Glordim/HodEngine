@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Color.hpp>
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Color.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -21,9 +21,9 @@ namespace hod::game
 
 		struct Line
 		{
-			Vector2	_start;
-			Vector2	_end;
-			Color	_color;
+			math::Vector2	_start;
+			math::Vector2	_end;
+			math::Color	_color;
 			float	_duration = 0.0f;
 		};
 
@@ -33,7 +33,7 @@ namespace hod::game
 
 	public:
 
-		void	AddLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
+		void	AddLine(const math::Vector2& start, const math::Vector2& end, const math::Color& color, float duration = 0.0f);
 
 		void	Draw(renderer::RenderView& renderView);
 

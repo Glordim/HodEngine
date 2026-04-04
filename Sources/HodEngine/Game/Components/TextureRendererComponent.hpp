@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
-#include <HodEngine/Core/Rect.hpp>
+#include <HodEngine/Math/Rect.hpp>
 
 namespace hod::renderer
 {
@@ -41,10 +41,10 @@ namespace hod::game
 
 		void							PushRenderCommand(renderer::RenderView& renderView) override;
 
-		Rect							GetBoundingBox() const override;
+		math::Rect							GetBoundingBox() const override;
 
-		void							SetColor(const Color& color);
-		const Color&					GetColor() const;
+		void							SetColor(const math::Color& color);
+		const math::Color&					GetColor() const;
 
 	private:
 
@@ -56,7 +56,7 @@ namespace hod::game
 		WeakResource<renderer::MaterialInstanceResource>	_material;
 		float												_pixelPerUnit = 100.0f;
 
-		Color												_color;
+		math::Color												_color;
 		
 		renderer::MaterialInstance*							_materialInstance = nullptr;
 		renderer::MaterialInstance*							_builtinMaterialInstance = nullptr;

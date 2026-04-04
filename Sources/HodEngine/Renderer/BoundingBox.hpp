@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 namespace hod
 {
@@ -11,10 +11,10 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		struct BoundingBox
 		{
-			Vector2 center;
-			Vector2 size;
-			Vector2 min;
-			Vector2 max;
+			math::Vector2 center;
+			math::Vector2 size;
+			math::Vector2 min;
+			math::Vector2 max;
 		};
 	}
 }

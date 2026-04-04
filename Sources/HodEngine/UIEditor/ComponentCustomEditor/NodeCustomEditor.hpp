@@ -2,7 +2,7 @@
 #include "HodEngine/UIEditor/Export.hpp"
 
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 #include "HodEngine/Editor/Gizmos/Gizmos.hpp"
 
@@ -35,7 +35,7 @@ namespace hod::editor
 
 	private:
 
-		static bool						DrawAnchorPresets(const ImVec2& size, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot);
+		static bool						DrawAnchorPresets(const ImVec2& size, math::Vector2& anchorMin, math::Vector2& anchorMax, math::Vector2& pivot);
 		
 	private:
 
@@ -51,8 +51,8 @@ namespace hod::editor
 		Handle							_leftEdge;
 		Handle							_rightEdge;
 
-		Vector2							_pickingOffset;
-		Vector2							_pickingPosition;
-		Vector2							_pickingSize;
+		math::Vector2							_pickingOffset;
+		math::Vector2							_pickingPosition;
+		math::Vector2							_pickingSize;
 	};
 }

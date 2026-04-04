@@ -8,7 +8,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include "HodEngine/Core/Math/Math.hpp"
+#include "HodEngine/Math/Math.hpp"
 
 namespace hod
 {
@@ -85,15 +85,15 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Node2dComponent::ComputeLocalMatrix(Matrix4& localMatrix)
+		void Node2dComponent::ComputeLocalMatrix(math::Matrix4& localMatrix)
 		{
-			localMatrix = Matrix4::Translation(_position) * Matrix4::Rotation(math::DegreeToRadian(_rotation)) * Matrix4::Scale(_scale);
+			localMatrix = math::Matrix4::Translation(_position) * math::Matrix4::Rotation(math::DegreeToRadian(_rotation)) * math::Matrix4::Scale(_scale);
 		}
 
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Node2dComponent::SetPosition(const Vector2& position)
+		void Node2dComponent::SetPosition(const math::Vector2& position)
 		{
 			_position = position;
 			SetLocalMatrixDirty();
@@ -102,7 +102,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const Vector2& Node2dComponent::GetPosition() const
+		const math::Vector2& Node2dComponent::GetPosition() const
 		{
 			return _position;
 		}
@@ -136,7 +136,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		void Node2dComponent::SetScale(const Vector2& scale)
+		void Node2dComponent::SetScale(const math::Vector2& scale)
 		{
 			_scale = scale;
 			SetLocalMatrixDirty();
@@ -145,7 +145,7 @@ namespace hod
 		//-----------------------------------------------------------------------------
 		//! @brief		
 		//-----------------------------------------------------------------------------
-		const Vector2& Node2dComponent::GetScale() const
+		const math::Vector2& Node2dComponent::GetScale() const
 		{
 			return _scale;
 		}

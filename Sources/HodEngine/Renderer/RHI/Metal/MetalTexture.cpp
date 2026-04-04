@@ -117,10 +117,10 @@ namespace hod
 		/// @brief 
 		/// @param position 
 		/// @return 
-		Color MetalTexture::ReadPixel(const Vector2& position) const
+		math::Color MetalTexture::ReadPixel(const math::Vector2& position) const
 		{
             (void)position; // TODO
-			return Color();
+			return math::Color();
 		}
     
         MTL::Texture* MetalTexture::GetNativeTexture() const

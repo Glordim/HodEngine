@@ -1,8 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
-#include "HodEngine/Core/Math/Vector4.hpp"
+#include "HodEngine/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector4.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/Widgets.hpp"
@@ -10,7 +10,7 @@
 
 namespace hod::editor
 {
-	bool DrawHelper::DrawVector2(Vector2& value, const char* labelX, const char* labelY)
+	bool DrawHelper::DrawVector2(math::Vector2& value, const char* labelX, const char* labelY)
 	{
 		bool changed = false;
 		float x = value.GetX();
@@ -52,7 +52,7 @@ namespace hod::editor
 		return changed;
 	}
 
-	bool DrawHelper::DrawVector4(Vector4& value, const char* labelX, const char* labelY, const char* labelZ, const char* labelW)
+	bool DrawHelper::DrawVector4(math::Vector4& value, const char* labelX, const char* labelY, const char* labelZ, const char* labelW)
 	{
 		bool changed = false;
 		float x = value.GetX();

@@ -86,9 +86,9 @@ namespace hod
 			// _materialInstance));
 		}
 
-		Rect SpriteRendererComponent::GetBoundingBox() const
+		math::Rect SpriteRendererComponent::GetBoundingBox() const
 		{
-			return Rect();
+			return math::Rect();
 		}
 	}
 }

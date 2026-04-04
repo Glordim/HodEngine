@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include "HodEngine/Core/Rect.hpp"
-#include "HodEngine/Core/Math/Matrix4.hpp"
+#include "HodEngine/Math/Rect.hpp"
+#include "HodEngine/Math/Matrix4.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -31,9 +31,9 @@ namespace hod::renderer
 
 	protected:
 
-		Matrix4							_projection;
-		Matrix4							_view;
-		Rect							_viewport;
+		math::Matrix4							_projection;
+		math::Matrix4							_view;
+		math::Rect							_viewport;
 
 		Vector<RenderCommand*>			_renderCommands;
 	};

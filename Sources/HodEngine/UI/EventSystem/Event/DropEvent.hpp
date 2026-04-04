@@ -2,7 +2,7 @@
 #include "HodEngine/UI/Export.hpp"
 
 #include "HodEngine/UI/EventSystem/Event/Event.hpp"
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 namespace hod::ui
 {
@@ -14,7 +14,7 @@ namespace hod::ui
 			UserRelease,
 			Cancel,
 		};
-		Vector2	_position;
+		math::Vector2	_position;
 		Reason	_reason = Reason::UserRelease;
 	};
 }

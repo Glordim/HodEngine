@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/UI/Export.hpp"
 
-#include <HodEngine/Core/Math/Vector4.hpp>
+#include <HodEngine/Math/Vector4.hpp>
 
 namespace hod::ui
 {
@@ -23,6 +23,6 @@ namespace hod::ui
 		void	SetTop(float top);
 		float	GetTop() const;
 
-		Vector4	_vector4;
+		math::Vector4	_vector4;
 	};
 }

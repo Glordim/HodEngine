@@ -328,7 +328,7 @@ namespace hod::window
 		if (it != thiz->_surfaceToWindowMap.end())
 		{
 			WaylandWindow* waylandWindow = it->second;
-			waylandWindow->SetMousePosition(Vector2(wl_fixed_to_double(surfaceX), wl_fixed_to_double(surfaceY)));
+			waylandWindow->SetMousePosition(math::Vector2(wl_fixed_to_double(surfaceX), wl_fixed_to_double(surfaceY)));
 		}
 	}
 

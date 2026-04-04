@@ -28,14 +28,14 @@ namespace hod::physics
 
 	/// @brief 
 	/// @param callback 
-	void Body::SetMoveEventCallback(std::function<void(const Vector2& position, float rotation)> callback)
+	void Body::SetMoveEventCallback(std::function<void(const math::Vector2& position, float rotation)> callback)
 	{
 		_moveCallback = callback;
 	}
 
 	/// @brief 
 	/// @return 
-	const std::function<void(const Vector2& position, float rotation)>& Body::GetMoveEventCallback() const
+	const std::function<void(const math::Vector2& position, float rotation)>& Body::GetMoveEventCallback() const
 	{
 		return _moveCallback;
 	}

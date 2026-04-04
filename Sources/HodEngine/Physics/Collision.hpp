@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Physics/Export.hpp"
 
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 namespace hod::physics
 {
@@ -12,6 +12,6 @@ namespace hod::physics
 	{
 		Collider&	_colliderA;
 		Collider&	_colliderB;
-		Vector2		_normal;
+		math::Vector2		_normal;
 	};
 }

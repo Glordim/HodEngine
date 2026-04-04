@@ -2,7 +2,7 @@
 #include "HodEngine/GameEditor/Export.hpp"
 
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 #include "HodEngine/Editor/Gizmos/Gizmos.hpp"
 
@@ -37,6 +37,6 @@ namespace hod::editor
 		Handle							_XAxisHandle;
 		Handle							_YAxisHandle;
 
-		Vector2							_initialPosition;
+		math::Vector2							_initialPosition;
 	};
 }

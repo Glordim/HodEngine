@@ -1,7 +1,7 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Color.hpp"
+#include "HodEngine/Math/Pch.hpp"
+#include "HodEngine/Math/Color.hpp"
 
-namespace hod
+namespace hod::math
 {
 	Color Color::White(1.0f, 1.0f, 1.0f, 1.0f);
 	Color Color::Black(0.0f, 0.0f, 0.0f, 1.0f);

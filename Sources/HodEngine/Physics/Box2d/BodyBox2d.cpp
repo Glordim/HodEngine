@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-#include "HodEngine/Core/Math/Math.hpp"
+#include "HodEngine/Math/Math.hpp"
 
 namespace hod::physics
 {
@@ -38,7 +38,7 @@ namespace hod::physics
 	/// @brief
 	/// @param startPosition
 	/// @param endPosition
-	Collider* BodyBox2d::AddEdgeShape(bool isTrigger, const Vector2& startPosition, const Vector2& endPosition)
+	Collider* BodyBox2d::AddEdgeShape(bool isTrigger, const math::Vector2& startPosition, const math::Vector2& endPosition)
 	{
 		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsEdge(startPosition, endPosition);
@@ -49,7 +49,7 @@ namespace hod::physics
 	/// @brief
 	/// @param position
 	/// @param radius
-	Collider* BodyBox2d::AddCircleShape(bool isTrigger, const Vector2& position, float radius)
+	Collider* BodyBox2d::AddCircleShape(bool isTrigger, const math::Vector2& position, float radius)
 	{
 		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsCircleShape(position, radius);
@@ -63,7 +63,7 @@ namespace hod::physics
 	/// @param radius
 	/// @param angle
 	/// @return
-	Collider* BodyBox2d::AddCapsuleShape(bool isTrigger, const Vector2& position, float height, float radius, float angle)
+	Collider* BodyBox2d::AddCapsuleShape(bool isTrigger, const math::Vector2& position, float height, float radius, float angle)
 	{
 		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsCapsuleShape(position, height, radius, angle);
@@ -76,7 +76,7 @@ namespace hod::physics
 	/// @param Size
 	/// @param angle
 	/// @param density
-	Collider* BodyBox2d::AddBoxShape(bool isTrigger, const Vector2& position, const Vector2& Size, float angle)
+	Collider* BodyBox2d::AddBoxShape(bool isTrigger, const math::Vector2& position, const math::Vector2& Size, float angle)
 	{
 		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsBoxShape(position, Size, angle);
@@ -86,7 +86,7 @@ namespace hod::physics
 
 	/// @brief
 	/// @param vertices
-	Collider* BodyBox2d::AddConvexShape(bool isTrigger, const Vector<Vector2>& vertices)
+	Collider* BodyBox2d::AddConvexShape(bool isTrigger, const Vector<math::Vector2>& vertices)
 	{
 		ColliderBox2d* collider = DefaultAllocator::GetInstance().New<ColliderBox2d>(this, isTrigger);
 		collider->SetAsConvexShape(vertices);
@@ -112,7 +112,7 @@ namespace hod::physics
 	/// @param position
 	/// @param rotation
 	/// @param scale
-	void BodyBox2d::SetTransform(const Vector2& position, float rotation, const Vector2& scale)
+	void BodyBox2d::SetTransform(const math::Vector2& position, float rotation, const math::Vector2& scale)
 	{
 		// todo scale
 		(void)scale;
@@ -121,10 +121,10 @@ namespace hod::physics
 
 	/// @brief
 	/// @return
-	Vector2 BodyBox2d::GetPosition() const
+	math::Vector2 BodyBox2d::GetPosition() const
 	{
 		b2Vec2 position = b2Body_GetPosition(_b2BodyId);
-		return Vector2(position.x, position.y);
+		return math::Vector2(position.x, position.y);
 	}
 
 	/// @brief
@@ -166,29 +166,29 @@ namespace hod::physics
 
 	/// @brief
 	/// @param velocity
-	void BodyBox2d::SetVelocity(const Vector2& velocity)
+	void BodyBox2d::SetVelocity(const math::Vector2& velocity)
 	{
 		b2Body_SetLinearVelocity(_b2BodyId, {velocity.GetX(), velocity.GetY()});
 	}
 
 	/// @brief
 	/// @return
-	Vector2 BodyBox2d::GetVelocity() const
+	math::Vector2 BodyBox2d::GetVelocity() const
 	{
 		b2Vec2 velocity = b2Body_GetLinearVelocity(_b2BodyId);
-		return Vector2(velocity.x, velocity.y);
+		return math::Vector2(velocity.x, velocity.y);
 	}
 
 	/// @brief
 	/// @param force
-	void BodyBox2d::AddForce(const Vector2& force)
+	void BodyBox2d::AddForce(const math::Vector2& force)
 	{
 		b2Body_ApplyForceToCenter(_b2BodyId, {force.GetX(), force.GetY()}, true);
 	}
 
 	/// @brief
 	/// @param force
-	void BodyBox2d::AddImpulse(const Vector2& impulse)
+	void BodyBox2d::AddImpulse(const math::Vector2& impulse)
 	{
 		b2Body_ApplyLinearImpulseToCenter(_b2BodyId, {impulse.GetX(), impulse.GetY()}, true);
 	}
@@ -233,7 +233,7 @@ namespace hod::physics
 			Collision& collision = collisions[index];
 			collision._colliderA = PhysicsBox2d::GetInstance()->FindColliderByB2ShapeId(contactData.shapeIdA);
 			collision._colliderB = PhysicsBox2d::GetInstance()->FindColliderByB2ShapeId(contactData.shapeIdB);
-			collision._normal = Vector2(contactData.manifold.normal.x, contactData.manifold.normal.y);
+			collision._normal = math::Vector2(contactData.manifold.normal.x, contactData.manifold.normal.y);
 			*/
 		}
 	}

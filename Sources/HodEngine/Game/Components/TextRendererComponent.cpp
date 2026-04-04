@@ -3,7 +3,7 @@
 #include "HodEngine/Game/Components/TextRendererComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
 
-#include <HodEngine/Core/Color.hpp>
+#include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Renderer/Font/Font.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/P2fC4f.hpp>
@@ -83,9 +83,9 @@ namespace hod
 			return _materialInstance;
 		}
 
-		Rect TextRendererComponent::GetBoundingBox() const
+		math::Rect TextRendererComponent::GetBoundingBox() const
 		{
-			return Rect();
+			return math::Rect();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -112,10 +112,10 @@ namespace hod
 					float atlasWidth = (float)font->GetTexture()->GetWidth();
 					float atlasHeight = (float)font->GetTexture()->GetHeight();
 
-					Vector<Vector2> positions;
+					Vector<math::Vector2> positions;
 					positions.reserve(_text.Size() * 4);
 
-					Vector<Vector2> uvs;
+					Vector<math::Vector2> uvs;
 					uvs.reserve(_text.Size() * 4);
 
 					Vector<uint16_t> indices;

@@ -82,7 +82,7 @@ target_include_directories(Window PUBLIC
 target_precompile_headers(Window PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Window
-	PUBLIC Core
+	PUBLIC Core Math
 )
 
 target_compile_definitions(Window

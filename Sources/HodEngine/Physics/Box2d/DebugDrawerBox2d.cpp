@@ -3,8 +3,8 @@
 #include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
 #include "HodEngine/Physics/Box2d/WorldBox2d.hpp"
 
-#include "HodEngine/Core/Math/Math.hpp"
-#include "HodEngine/Core/Math/Matrix4.hpp"
+#include "HodEngine/Math/Math.hpp"
+#include "HodEngine/Math/Matrix4.hpp"
 
 #include <box2d/box2d.h>
 
@@ -181,7 +181,7 @@ namespace hod::physics
 	/// @param transform
 	/// @param radius
 	/// @param segmentCount
-	void DebugDrawerBox2d::BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
+	void DebugDrawerBox2d::BuildCircleVertices(math::Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
 	{
 		const float angleStep = 360.0f / segmentCount;
 

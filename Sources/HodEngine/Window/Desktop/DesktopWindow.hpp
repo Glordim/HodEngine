@@ -7,7 +7,7 @@
 #include "HodEngine/Window/MouseButton.hpp"
 #include "HodEngine/Window/ScanCode.hpp"
 
-#include <HodEngine/Core/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 #include <array>
 
@@ -29,7 +29,7 @@ namespace hod::window
 
 		bool IsFocused() const;
 
-		const Vector2& GetMousePosition() const;
+		const math::Vector2& GetMousePosition() const;
 
 		void    SetCursor(Cursor* cursor);
 		Cursor* GetCursor() const;
@@ -38,7 +38,7 @@ namespace hod::window
 
 	protected:
 		void SetFocusedInternal(bool focused);
-		void SetMousePosition(const Vector2& mousePosition);
+		void SetMousePosition(const math::Vector2& mousePosition);
 
 		void EmitKeyPressed(ScanCode scanCode, Key key);
 		void EmitKeyReleased(ScanCode scanCode, Key key);
@@ -51,7 +51,7 @@ namespace hod::window
 		void EmitMouseHorizontalScroll(float scroll);
 
 	private:
-		Vector2 _mousePosition;
+		math::Vector2 _mousePosition;
 
 		bool _focused = true;
 

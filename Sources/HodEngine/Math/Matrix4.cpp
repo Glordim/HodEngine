@@ -1,12 +1,12 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Math/Matrix4.hpp"
-#include "HodEngine/Core/Math/Vector2.hpp"
-#include "HodEngine/Core/Math/Vector4.hpp"
+#include "HodEngine/Math/Pch.hpp"
+#include "HodEngine/Math/Matrix4.hpp"
+#include "HodEngine/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector4.hpp"
 
 #include <cmath>
 #include <cstring>
 
-namespace hod
+namespace hod::math
 {
 	Matrix4 Matrix4::Identity;
 
@@ -315,9 +315,7 @@ namespace hod
 	void Matrix4::RemoveScale()
 	{
 		float scaleX = std::sqrt(_values[0][0] * _values[0][0] + _values[1][0] * _values[1][0] + _values[2][0] * _values[2][0]);
-
 		float scaleY = std::sqrt(_values[0][1] * _values[0][1] + _values[1][1] * _values[1][1] + _values[2][1] * _values[2][1]);
-
 		float scaleZ = std::sqrt(_values[0][2] * _values[0][2] + _values[1][2] * _values[1][2] + _values[2][2] * _values[2][2]);
 
 		if (scaleX != 0.0f)

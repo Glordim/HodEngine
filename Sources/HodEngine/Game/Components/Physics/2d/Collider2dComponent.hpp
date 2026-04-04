@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Component.hpp"
-#include "HodEngine/Core/Math/Vector2.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -23,8 +23,8 @@ namespace hod::game
 
 		~EdgeShape() override = default;
 
-		Vector2 _start;
-		Vector2 _end;
+		math::Vector2 _start;
+		math::Vector2 _end;
 	};
 
 	struct HOD_GAME_API CircleShape : public Shape
@@ -34,7 +34,7 @@ namespace hod::game
 
 		~CircleShape() override = default;
 
-		Vector2	_origin;
+		math::Vector2	_origin;
 		float	_radius;
 	};
 
@@ -45,8 +45,8 @@ namespace hod::game
 
 		~BoxShape() override = default;
 
-		Vector2	_origin;
-		Vector2	_size;
+		math::Vector2	_origin;
+		math::Vector2	_size;
 		float	_angle;
 	};
 		*/
@@ -71,7 +71,7 @@ namespace hod::game
 		void			OnStart() override;
 
 		Rigidbody2dComponent*		GetRigidbody();
-		Vector2						GetScale() const;
+		math::Vector2						GetScale() const;
 
 	protected:
 

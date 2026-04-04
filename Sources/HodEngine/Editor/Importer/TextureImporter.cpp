@@ -34,7 +34,7 @@ namespace hod::editor
 	DESCRIBE_REFLECTED_CLASS(SpriteData, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &SpriteData::_uid, "Uid");
-		AddPropertyT(reflectionDescriptor, &SpriteData::_rect, "Rect");
+		AddPropertyT(reflectionDescriptor, &SpriteData::_rect, "math::Rect");
 		AddPropertyT(reflectionDescriptor, &SpriteData::_meshType, "MeshType");
 	}
 
