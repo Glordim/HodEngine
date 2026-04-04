@@ -8,7 +8,7 @@
 #include <utility>
 #include <new>
 
-#include "HodEngine/Core/Math/Math.hpp"
+#include "HodEngine/Core/Math.hpp"
 
 namespace hod
 {
@@ -78,7 +78,7 @@ namespace hod
 
 	inline void* Allocator::Allocate(uint32_t size, uint32_t alignment)
 	{
-		alignment = math::Max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
+		alignment = Max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
 		void* allocation = AllocateInternal(size, alignment);
 		assert((reinterpret_cast<uintptr_t>(allocation) % alignment) == 0);
 		return allocation;
@@ -94,7 +94,7 @@ namespace hod
 
 	inline void* Allocator::Reallocate(void* ptr, uint32_t newSize, uint32_t alignment)
 	{
-		alignment = math::Max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
+		alignment = Max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
 		void* allocation = ReallocateInternal(ptr, newSize, alignment);
 		assert((reinterpret_cast<uintptr_t>(allocation) % alignment) == 0);
 		return allocation;
@@ -108,7 +108,7 @@ namespace hod
 
 	inline bool Allocator::Resize(void* ptr, uint32_t newSize, uint32_t alignment)
 	{
-		alignment = math::Max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
+		alignment = Max(static_cast<uint32_t>(alignof(std::max_align_t)), alignment);
 		return ResizeInternal(ptr, newSize, alignment);
 	}
 
