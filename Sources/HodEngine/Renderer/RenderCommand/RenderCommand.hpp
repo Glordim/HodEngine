@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
+#include <cstdint>
+
 namespace hod
 {
 	namespace renderer

@@ -3,6 +3,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 #include <memory>
+#include <string_view>
 
 namespace hod
 {

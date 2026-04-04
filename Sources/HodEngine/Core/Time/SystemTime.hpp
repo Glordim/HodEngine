@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
+#include <cstdint>
+
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
 	#include <time.h>
 #endif

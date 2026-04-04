@@ -2,6 +2,8 @@
 #include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
+#include <HodEngine/Core/Memory/DefaultAllocator.hpp>
+
 namespace hod::editor
 {
 	///@brief 

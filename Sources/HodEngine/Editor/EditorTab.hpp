@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Core/String.hpp"
+#include "HodEngine/Core/Vector.hpp"
 #include <memory>
 #include <string_view>
 

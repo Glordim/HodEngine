@@ -3,6 +3,7 @@
 
 #include "HodEngine/Core/Memory/Allocator.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
+#include <iterator>
 
 namespace hod
 {

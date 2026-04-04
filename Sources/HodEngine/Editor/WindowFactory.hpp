@@ -2,6 +2,9 @@
 #include "HodEngine/Editor/Export.hpp"
 #include <HodEngine/Core/Singleton.hpp>
 
+#include <HodEngine/Core/String.hpp>
+#include <HodEngine/Core/Vector.hpp>
+
 namespace hod
 {
 	class ReflectionDescriptor;
