@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <HodEngine/Core/Type.hpp> // std::to_underlying
+#include <HodEngine/Core/TypeTrait.hpp> // std::to_underlying
 
 #include "HodEngine/Core/String.hpp"
 

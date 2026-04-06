@@ -6,6 +6,6 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <string_view>
 
-#include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/TypeTrait.hpp"
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>

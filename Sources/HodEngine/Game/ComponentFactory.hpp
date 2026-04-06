@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
-#include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/TypeTrait.hpp"
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 

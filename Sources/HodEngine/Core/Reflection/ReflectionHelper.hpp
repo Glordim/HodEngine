@@ -10,7 +10,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
-#include "HodEngine/Core/Reflection/TypeTrait.hpp"
+#include "HodEngine/Core/TypeTrait.hpp"
 
 namespace hod
 {

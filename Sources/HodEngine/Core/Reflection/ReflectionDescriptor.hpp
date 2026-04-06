@@ -7,7 +7,7 @@
 #include <string_view>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
-#include "HodEngine/Core/Reflection/TypeTrait.hpp"
+#include "HodEngine/Core/TypeTrait.hpp"
 
 namespace hod
 {

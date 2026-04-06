@@ -2,7 +2,7 @@
 #include <limits>
 
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/TypeTrait.hpp"
 #include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Input/API/WindowLib/MouseWindowLib.hpp"
 #include "HodEngine/Input/InputIdHelper.hpp"

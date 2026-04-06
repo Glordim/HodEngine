@@ -5,7 +5,7 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/TypeTrait.hpp"
 
 #include "HodEngine/Core/String.hpp"
 #include <cstring>

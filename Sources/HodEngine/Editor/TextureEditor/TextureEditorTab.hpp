@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 
-#include <HodEngine/Core/Type.hpp>
+#include <HodEngine/Core/TypeTrait.hpp>
 #include <memory>
 
 namespace hod::renderer

@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 
-#include <HodEngine/Core/Type.hpp>
+#include <HodEngine/Core/TypeTrait.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Math/Vector4.hpp>
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>

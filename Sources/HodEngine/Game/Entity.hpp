@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "HodEngine/Core/Event.hpp"
-#include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/TypeTrait.hpp"
 #include "HodEngine/Core/UID.hpp"
 #include "HodEngine/Core/Weakable/Weakable.hpp"
 

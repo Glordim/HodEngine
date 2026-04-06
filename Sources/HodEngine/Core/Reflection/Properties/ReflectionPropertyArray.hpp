@@ -7,7 +7,7 @@
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
-#include "HodEngine/Core/Reflection/TypeTrait.hpp"
+#include "HodEngine/Core/TypeTrait.hpp"
 
 namespace hod
 {
