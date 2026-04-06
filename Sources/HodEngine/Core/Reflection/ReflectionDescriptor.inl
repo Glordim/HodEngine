@@ -6,7 +6,6 @@ namespace hod
 	{
 		Data data;
 		data._name = name;
-		data._metaType = _Class_::GetMetaTypeStatic();
 
 		if constexpr (std::is_same<_ParentClass_, void>::value == true)
 		{

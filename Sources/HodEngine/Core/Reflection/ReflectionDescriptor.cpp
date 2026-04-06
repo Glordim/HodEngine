@@ -26,7 +26,6 @@ namespace hod
 	, _allocateFunction(data._allocateFunction)
 	, _deleteFunction(data._deleteFunction)
 	, _compareFunction(data._compareFunction)
-	, _metaType(data._metaType)
 	{
 	}
 
@@ -39,7 +38,6 @@ namespace hod
 		_allocateFunction = data._allocateFunction;
 		_deleteFunction = data._deleteFunction;
 		_compareFunction = data._compareFunction;
-		_metaType = data._metaType;
 	}
 
 	/// @brief
@@ -79,13 +77,6 @@ namespace hod
 	void ReflectionDescriptor::DeleteInstance(void* instance)
 	{
 		_deleteFunction(instance);
-	}
-
-	/// @brief
-	/// @return
-	MetaType ReflectionDescriptor::GetMetaType() const
-	{
-		return _metaType;
 	}
 
 	/// @brief

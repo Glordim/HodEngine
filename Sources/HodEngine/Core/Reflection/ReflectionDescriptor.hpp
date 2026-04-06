@@ -24,7 +24,6 @@ namespace hod
 			FunctionPtr<void*()>                        _allocateFunction = nullptr;
 			FunctionPtr<void(void*)>                    _deleteFunction = nullptr;
 			FunctionPtr<bool(const void*, const void*)> _compareFunction = nullptr;
-			MetaType                                    _metaType;
 		};
 
 		template<typename _Class_, typename _ParentClass_ = void>
@@ -97,7 +96,6 @@ namespace hod
 		FunctionPtr<void*()>                        _allocateFunction = nullptr;
 		FunctionPtr<void(void*)>                    _deleteFunction = nullptr;
 		FunctionPtr<bool(const void*, const void*)> _compareFunction = nullptr;
-		MetaType                                    _metaType;
 
 		Vector<ReflectionTrait*>    _traits;
 		Vector<ReflectionProperty*> _properties;
