@@ -90,6 +90,7 @@ namespace hod
 
 	private:
 		String         _typeName;
+		MetaType       _metaType;
 		mutable String _displayName;
 
 		ReflectionDescriptor*                       _parent = nullptr;

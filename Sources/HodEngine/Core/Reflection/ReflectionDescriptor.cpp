@@ -14,6 +14,7 @@ namespace hod
 	///@param typeName
 	ReflectionDescriptor::ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent)
 	: _typeName(typeName)
+	, _metaType(hod::Hash::CompilationTimeFnv64(_typeName))
 	, _parent(parent)
 	{
 	}
@@ -22,6 +23,7 @@ namespace hod
 	/// @param data
 	ReflectionDescriptor::ReflectionDescriptor(const Data& data)
 	: _typeName(data._name.data()) // todo
+	, _metaType(hod::Hash::CompilationTimeFnv64(_typeName))
 	, _parent(data._parent)
 	, _allocateFunction(data._allocateFunction)
 	, _deleteFunction(data._deleteFunction)
@@ -34,6 +36,7 @@ namespace hod
 	void ReflectionDescriptor::Init(const Data& data)
 	{
 		_typeName = data._name.data(); // todo
+		_metaType = hod::Hash::CompilationTimeFnv64(_typeName);
 		_parent = data._parent;
 		_allocateFunction = data._allocateFunction;
 		_deleteFunction = data._deleteFunction;
@@ -77,6 +80,11 @@ namespace hod
 	void ReflectionDescriptor::DeleteInstance(void* instance)
 	{
 		_deleteFunction(instance);
+	}
+
+	MetaType ReflectionDescriptor::GetMetaType() const
+	{
+		return _metaType;
 	}
 
 	/// @brief
