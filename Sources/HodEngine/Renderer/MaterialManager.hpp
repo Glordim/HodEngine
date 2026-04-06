@@ -4,8 +4,8 @@
 #include "HodEngine/Core/String.hpp"
 #include <unordered_map>
 
-#include <HodEngine/Core/GenericManager.hpp>
 #include <HodEngine/Core/Singleton.hpp>
+#include <HodEngine/Core/UID.hpp>
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
 
@@ -16,7 +16,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	class HOD_RENDERER_API MaterialManager : public GenericManager<Material>
+	class HOD_RENDERER_API MaterialManager
 	{
 		_Singleton(MaterialManager)
 
