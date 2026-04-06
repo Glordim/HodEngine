@@ -23,6 +23,11 @@ public:                                                                         
 	virtual ReflectionDescriptor& GetReflectionDescriptorV() const                                   \
 	{                                                                                                \
 		return hod::ReflectedClass<CLASS>::GetReflectionDescriptor();                                \
+	}                                                                                                \
+                                                                                                     \
+	friend void DescribeClass(hod::ReflectionDescriptor& reflectionDescriptor, const CLASS*)         \
+	{                                                                                                \
+		CLASS::FillReflectionDescriptor(reflectionDescriptor);                                       \
 	}
 
 #define REFLECTED_CLASS_NO_VIRTUAL(CLASS)                                                            \
@@ -44,6 +49,11 @@ public:                                                                         
 	ReflectionDescriptor& GetReflectionDescriptorV() const                                           \
 	{                                                                                                \
 		return hod::ReflectedClass<CLASS>::GetReflectionDescriptor();                                \
+	}                                                                                                \
+                                                                                                     \
+	friend void DescribeClass(hod::ReflectionDescriptor& reflectionDescriptor, const CLASS*)         \
+	{                                                                                                \
+		CLASS::FillReflectionDescriptor(reflectionDescriptor);                                       \
 	}
 
 #define REFLECTED_CLASS(CLASS, PARENT)                                                                       \
@@ -65,6 +75,11 @@ public:                                                                         
 	hod::ReflectionDescriptor& GetReflectionDescriptorV() const override                                     \
 	{                                                                                                        \
 		return hod::ReflectedClass<CLASS>::GetReflectionDescriptor();                                        \
+	}                                                                                                        \
+                                                                                                             \
+	friend void DescribeClass(hod::ReflectionDescriptor& reflectionDescriptor, const CLASS*)                 \
+	{                                                                                                        \
+		CLASS::FillReflectionDescriptor(reflectionDescriptor);                                               \
 	}
 
 ///@brief

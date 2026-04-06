@@ -52,7 +52,14 @@ namespace hod
 			static bool                 init = false;
 			if (init == false)
 			{
-				_Class_::FillReflectionDescriptor(reflectionDescriptor);
+				if constexpr (requires { _Class_::FillReflectionDescriptor(reflectionDescriptor); })
+				{
+					_Class_::FillReflectionDescriptor(reflectionDescriptor);
+				}
+				else
+				{
+					DescribeClass(reflectionDescriptor, (const _Class_*)nullptr); // ADL
+				}
 				init = true;
 			}
 			return reflectionDescriptor;

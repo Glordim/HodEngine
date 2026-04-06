@@ -1,4 +1,5 @@
 
+#include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
 namespace hod
 {
 	template<typename _MemberVariable_>
@@ -117,7 +118,7 @@ namespace hod
 		}
 		else if constexpr (std::is_class<_MemberVariable_>::value)
 		{
-			return descriptor.AddProperty<ReflectionPropertyObject>(offset, name.data(), &_MemberVariable_::GetReflectionDescriptor(), setMethod,
+			return descriptor.AddProperty<ReflectionPropertyObject>(offset, name.data(), &ReflectedClass<_MemberVariable_>::GetReflectionDescriptor(), setMethod,
 			                                                        getMethod); // TODO remove data, descriptor must use string view
 		}
 		else
