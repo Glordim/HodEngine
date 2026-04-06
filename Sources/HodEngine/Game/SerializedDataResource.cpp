@@ -29,9 +29,9 @@ namespace hod::game
 			return false;
 		}
 
-		MetaType metaType = typeNode->GetUInt64();
+		RttiType RttiType = typeNode->GetUInt64();
 
-		ReflectionDescriptor* reflectionDescriptor = SerializedDataFactory::GetInstance()->FindReflectionDescriptor(metaType);
+		ReflectionDescriptor* reflectionDescriptor = SerializedDataFactory::GetInstance()->FindReflectionDescriptor(RttiType);
 		if (reflectionDescriptor == nullptr)
 		{
 			// todo message

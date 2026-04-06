@@ -11,7 +11,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionTraitNoSerialization : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitNoSerialization, ReflectionTrait)
+		RTTI(ReflectionTraitNoSerialization, ReflectionTrait)
 
 	public:
 		ReflectionTraitNoSerialization() = default;

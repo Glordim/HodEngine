@@ -36,7 +36,7 @@ namespace hod::editor
 		_instances.Reserve(sourceProperty.GetInstances().Size());
 
 		ReflectionProperty* property = sourceProperty.GetReflectionProperty();
-		if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+		if (property->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 		{
 			ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
 			_reflectionDescriptor = propertyObject->GetReflectionDescriptor();
@@ -50,7 +50,7 @@ namespace hod::editor
 				_instances.push_back(propertyObject->GetInstance(instance));
 			}
 		}
-		else if (property->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+		else if (property->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
 		{
 			ReflectionPropertyArray* propertyArray = static_cast<ReflectionPropertyArray*>(property);
 			_reflectionDescriptor = propertyArray->GetElementReflectionDescriptor();

@@ -12,7 +12,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionTraitAllowedClasses : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitAllowedClasses, ReflectionTrait)
+		RTTI(ReflectionTraitAllowedClasses, ReflectionTrait)
 
 	public:
 		ReflectionTraitAllowedClasses() = default;

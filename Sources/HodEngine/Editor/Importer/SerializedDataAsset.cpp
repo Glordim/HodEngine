@@ -14,15 +14,15 @@ namespace hod::editor
 		{
 			const SerializedDataAsset* serializedDataAsset = static_cast<const SerializedDataAsset*>(instance);
 
-			documentNode.AddChild("Type").SetUInt64(serializedDataAsset->_data->GetReflectionDescriptorV().GetMetaType());
+			documentNode.AddChild("Type").SetUInt64(serializedDataAsset->_data->GetReflectionDescriptorV().GetType());
 			return Serializer::Serialize(static_cast<const game::SerializedData*>(serializedDataAsset->_data), documentNode.AddChild("Data"));
 		},
 		[](void* instance, const Document::Node& documentNode)
 		{
 			SerializedDataAsset* serializedDataAsset = static_cast<SerializedDataAsset*>(instance);
 
-			MetaType metaType = documentNode.GetChild("Type")->GetUInt64();
-			ReflectionDescriptor* reflectionDescriptor = game::SerializedDataFactory::GetInstance()->FindReflectionDescriptor(metaType);
+			RttiType RttiType = documentNode.GetChild("Type")->GetUInt64();
+			ReflectionDescriptor* reflectionDescriptor = game::SerializedDataFactory::GetInstance()->FindReflectionDescriptor(RttiType);
 			DefaultAllocator::GetInstance().Delete(serializedDataAsset->_data);
 			serializedDataAsset->_data = static_cast<game::SerializedData*>(reflectionDescriptor->CreateInstance());
 			return Serializer::Deserialize(*static_cast<game::SerializedData*>(serializedDataAsset->_data), *documentNode.GetChild("Data"));

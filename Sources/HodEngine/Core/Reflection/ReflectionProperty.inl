@@ -19,6 +19,6 @@ namespace hod
 	template<typename _Trait_>
 	_Trait_* ReflectionProperty::FindTrait() const
 	{
-		return static_cast<_Trait_*>(FindTrait(_Trait_::GetMetaTypeStatic()));
+		return static_cast<_Trait_*>(FindTrait(_Trait_::GetRttiTypeStatic()));
 	}
 }

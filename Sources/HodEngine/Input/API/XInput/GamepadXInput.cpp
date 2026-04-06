@@ -125,9 +125,9 @@ namespace hod::input
 	/// @return 
 	bool GamepadXInput::ApplyFeedback(Feedback& feedback)
 	{
-		switch (feedback.GetMetaType())
+		switch (feedback.GetRttiType())
 		{
-			case FeedbackVibration::GetMetaTypeStatic():
+			case FeedbackVibration::GetRttiTypeStatic():
 			{
 				FeedbackVibration& feedbackVibration = static_cast<FeedbackVibration&>(feedback);
 				Vibrate(feedbackVibration._left, feedbackVibration._right);

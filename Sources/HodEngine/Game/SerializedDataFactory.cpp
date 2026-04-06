@@ -11,10 +11,10 @@ namespace hod::game
 	/// @brief 
 	/// @param type 
 	/// @return 
-	ReflectionDescriptor* SerializedDataFactory::FindReflectionDescriptor(MetaType type) const
+	ReflectionDescriptor* SerializedDataFactory::FindReflectionDescriptor(RttiType type) const
 	{
-		auto it = _metaTypeToDescriptors.find(type);
-		if (it != _metaTypeToDescriptors.end())
+		auto it = _RttiTypeToDescriptors.find(type);
+		if (it != _RttiTypeToDescriptors.end())
 		{
 			return it->second;
 		}

@@ -200,9 +200,9 @@ namespace hod::editor
 				ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
 				}
 				*/
-				// bool opened = ImGui::CollapsingHeader(componentLock->GetMetaTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
+				// bool opened = ImGui::CollapsingHeader(componentLock->GetRttiTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 
-				ImGui::PushID(component->GetMetaTypeName());
+				ImGui::PushID(component->GetReflectionDescriptorV().GetType());
 				if (ImGui::BeginChild("Component", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders))
 				{
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));

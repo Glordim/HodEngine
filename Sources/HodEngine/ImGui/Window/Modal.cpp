@@ -4,6 +4,11 @@
 
 namespace hod::imgui
 {
+	DESCRIBE_REFLECTED_CLASS(Modal, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
+
 	/// @brief 
 	/// @return 
 	bool Modal::Draw()

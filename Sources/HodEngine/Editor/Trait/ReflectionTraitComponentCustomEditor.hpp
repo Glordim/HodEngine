@@ -10,7 +10,7 @@ namespace hod::editor
 	///@brief 
 	class HOD_EDITOR_API ReflectionTraitComponentCustomEditor : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitComponentCustomEditor, ReflectionTrait)
+		RTTI(ReflectionTraitComponentCustomEditor, ReflectionTrait)
 
 	public:
 

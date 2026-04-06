@@ -1,14 +1,14 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/Reflection/Rtti.hpp"
 
 namespace hod
 {
 	///@brief
 	class HOD_CORE_API ReflectionTrait
 	{
-		BASE_META_TYPE(ReflectionTrait)
+		RTTI_BASE(ReflectionTrait)
 
 	public:
 		ReflectionTrait() = default;

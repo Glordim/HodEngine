@@ -10,7 +10,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionTraitDisplayName : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitDisplayName, ReflectionTrait)
+		RTTI(ReflectionTraitDisplayName, ReflectionTrait)
 
 	public:
 		ReflectionTraitDisplayName(const std::string_view& name);

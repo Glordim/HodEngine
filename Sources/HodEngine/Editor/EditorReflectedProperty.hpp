@@ -90,7 +90,7 @@ namespace hod::editor
     template<typename _type_>
     _type_ EditorReflectedProperty::GetValue() const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
         {
             return static_cast<ReflectionPropertyVariable*>(_reflectionProperty)->GetValue<_type_>(_instances[0]);
         }
@@ -104,11 +104,11 @@ namespace hod::editor
     template<typename _type_>
     _type_* EditorReflectedProperty::GetObject() const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
         {
             return static_cast<_type_*>(static_cast<ReflectionPropertyObject*>(_reflectionProperty)->GetValue(_instances[0]));
         }
-        else if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)
+        else if (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)
         {
             return GetObjectAtIndex<_type_>(_internalIndex);
         }
@@ -122,7 +122,7 @@ namespace hod::editor
     template<typename _type_>
     void EditorReflectedProperty::SetValue(_type_ value) const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
         {
             for (void* instance : _instances)
             {
@@ -134,7 +134,7 @@ namespace hod::editor
     template<typename _type_>
     void EditorReflectedProperty::SetObject(const _type_& value) const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
         {
             for (void* instance : _instances)
             {
@@ -146,7 +146,7 @@ namespace hod::editor
     template<typename _type_>
     _type_ EditorReflectedProperty::GetValueAtIndex(uint32_t index) const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
         {
             return static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetValue<_type_>(_instances[0], index);
         }
@@ -160,7 +160,7 @@ namespace hod::editor
     template<typename _type_>
     _type_* EditorReflectedProperty::GetObjectAtIndex(uint32_t index) const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
         {
             return static_cast<_type_*>(static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetValue<void*>(_instances[0], index));
         }
@@ -174,7 +174,7 @@ namespace hod::editor
     template<typename _type_>
     void EditorReflectedProperty::SetValueAtIndex(uint32_t index, _type_ value) const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
         {
             for (void* instance : _instances)
             {
@@ -187,7 +187,7 @@ namespace hod::editor
     template<typename _type_>
     void EditorReflectedProperty::SetObjectAtIndex(uint32_t index, const _type_& value) const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
         {
             for (void* instance : _instances)
             {

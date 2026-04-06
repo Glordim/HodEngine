@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
-#include "HodEngine/Core/Type.hpp"
+#include "HodEngine/Core/Reflection/Rtti.hpp"
 
 namespace hod
 {
@@ -14,7 +14,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionProperty
 	{
-		BASE_META_TYPE(ReflectionProperty)
+		RTTI_BASE(ReflectionProperty)
 
 	public:
 		ReflectionProperty(uint32_t offset, const char* name);
@@ -29,7 +29,7 @@ namespace hod
 		const Vector<ReflectionTrait*>& GetTraits() const;
 		template<typename _Trait_>
 		_Trait_*         FindTrait() const;
-		ReflectionTrait* FindTrait(MetaType metaType) const;
+		ReflectionTrait* FindTrait(RttiType rttiType) const;
 
 		template<typename __TRAIT_TYPE__, typename... Args>
 		__TRAIT_TYPE__* AddTrait(Args&&... args);

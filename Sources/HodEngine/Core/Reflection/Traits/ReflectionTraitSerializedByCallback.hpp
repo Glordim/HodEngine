@@ -8,7 +8,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionTraitSerializedByCallback : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitSerializedByCallback, ReflectionTrait)
+		RTTI(ReflectionTraitSerializedByCallback, ReflectionTrait)
 
 	public:
 		ReflectionTraitSerializedByCallback() = default;

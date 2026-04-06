@@ -44,15 +44,15 @@ namespace hod::editor
 		ImGui::PushID(reflectionProperty);
 		bool changed = false;
 
-		if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+		if (reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
 		{
 			changed = DrawPropertyVariable(reflectedProperty);
 		}
-		else if (reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+		else if (reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
 		{
 			changed = DrawPropertyArray(reflectedProperty);
 		}
-		else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+		else if (reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 		{
 			changed = DrawPropertyObject(reflectedProperty);
 
@@ -474,12 +474,12 @@ namespace hod::editor
 		ReflectionDescriptor* instanceDescriptor;
 
 		ReflectionProperty* property = reflectedProperty.GetReflectionProperty();
-		if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+		if (property->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 		{
 			ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
 			instanceDescriptor = propertyObject->GetReflectionDescriptor();
 		}
-		else if (property->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+		else if (property->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
 		{
 			ReflectionPropertyArray* propertyArray = static_cast<ReflectionPropertyArray*>(property);
 			instanceDescriptor = propertyArray->GetElementReflectionDescriptor();

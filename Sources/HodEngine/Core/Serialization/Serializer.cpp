@@ -1,4 +1,5 @@
 #include "HodEngine/Core/Pch.hpp"
+#include "HodEngine/Core/Reflection/Rtti.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
@@ -50,22 +51,22 @@ namespace hod
 						continue;
 					}
 
-					MetaType type = property->GetMetaType();
+					RttiType type = property->GetRttiType();
 					switch (type)
 					{
-						case ReflectionPropertyVariable::GetMetaTypeStatic():
+						case ReflectionPropertyVariable::GetRttiTypeStatic():
 						{
 							Serializer::SerializeVariable(static_cast<const ReflectionPropertyVariable*>(property), instance, documentNode);
 						}
 						break;
 
-						case ReflectionPropertyArray::GetMetaTypeStatic():
+						case ReflectionPropertyArray::GetRttiTypeStatic():
 						{
 							Serializer::SerializeArray(static_cast<const ReflectionPropertyArray*>(property), instance, documentNode);
 						}
 						break;
 
-						case ReflectionPropertyObject::GetMetaTypeStatic():
+						case ReflectionPropertyObject::GetRttiTypeStatic():
 						{
 							Serializer::SerializeObject(static_cast<const ReflectionPropertyObject*>(property), instance, documentNode, customSerializationCallback);
 						}
@@ -108,22 +109,22 @@ namespace hod
 	    {
 	        for (const ReflectionProperty* property : reflectionDescriptor->GetProperties())
 	        {
-	            MetaType type = property->GetMetaType();
+	            RttiType type = property->GetRttiType();
 	            switch (type)
 	            {
-	            case ReflectionPropertyVariable::GetMetaTypeStatic():
+	            case ReflectionPropertyVariable::GetRttiTypeStatic():
 	            {
 	                //Serializer::SerializeDiffVariable(static_cast<const ReflectionPropertyVariable*>(property), reference, instance, documentNode);
 	            }
 	            break;
 
-	            case ReflectionPropertyArray::GetMetaTypeStatic():
+	            case ReflectionPropertyArray::GetRttiTypeStatic():
 	            {
 	                Serializer::SerializeArray(static_cast<const ReflectionPropertyArray*>(property), instance, documentNode);
 	            }
 	            break;
 
-	            case ReflectionPropertyObject::GetMetaTypeStatic():
+	            case ReflectionPropertyObject::GetRttiTypeStatic():
 	            {
 	                Serializer::SerializeDiffObject(static_cast<const ReflectionPropertyObject*>(property), reference, instance, documentNode);
 	            }
@@ -187,10 +188,10 @@ namespace hod
 						continue;
 					}
 
-					MetaType type = property->GetMetaType();
+					RttiType type = property->GetRttiType();
 					switch (type)
 					{
-						case ReflectionPropertyVariable::GetMetaTypeStatic():
+						case ReflectionPropertyVariable::GetRttiTypeStatic():
 						{
 							if (Serializer::DeserializeVariable(static_cast<const ReflectionPropertyVariable*>(property), instance, documentNode) == false)
 							{
@@ -199,7 +200,7 @@ namespace hod
 						}
 						break;
 
-						case ReflectionPropertyArray::GetMetaTypeStatic():
+						case ReflectionPropertyArray::GetRttiTypeStatic():
 						{
 							if (Serializer::DeserializeArray(static_cast<const ReflectionPropertyArray*>(property), instance, documentNode) == false)
 							{
@@ -208,7 +209,7 @@ namespace hod
 						}
 						break;
 
-						case ReflectionPropertyObject::GetMetaTypeStatic():
+						case ReflectionPropertyObject::GetRttiTypeStatic():
 						{
 							if (Serializer::DeserializeObject(static_cast<const ReflectionPropertyObject*>(property), instance, documentNode, customDeserializationCallback) ==
 							    false)

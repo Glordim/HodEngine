@@ -6,6 +6,7 @@
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 
+#include <cstdint>
 #include <map>
 
 namespace hod::core
@@ -28,7 +29,7 @@ namespace hod::game
 		template<typename _Component_>
 		bool				Unregister();
 
-		const std::map<MetaType, ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
+		const std::map<uint64_t, ReflectionDescriptor*>& GetAllDescriptors() const { return _typeToDescriptors; }
 
 	protected:
 
@@ -36,7 +37,7 @@ namespace hod::game
 
 	private:
 
-		std::map<MetaType, ReflectionDescriptor*>	_metaTypeToDescriptors;
+		std::map<uint64_t, ReflectionDescriptor*>	_typeToDescriptors;
 	};
 }
 

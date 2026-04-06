@@ -6,7 +6,7 @@ namespace hod::input
 {
 	class HOD_INPUT_API FeedbackVibration : public Feedback
 	{
-		META_TYPE(FeedbackVibration, Feedback)
+		RTTI(FeedbackVibration, Feedback)
 
 	public:
 		float _left = 1.0f;

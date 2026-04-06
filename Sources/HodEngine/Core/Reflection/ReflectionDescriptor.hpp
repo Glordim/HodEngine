@@ -3,6 +3,7 @@
 
 #include "HodEngine/Core/FunctionPtr.hpp"
 #include "HodEngine/Core/Vector.hpp"
+#include <cstdint>
 #include <string_view>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
@@ -56,7 +57,7 @@ namespace hod
 
 		template<typename _Trait_>
 		_Trait_*         FindTrait(bool fallbackOnParent = true) const;
-		ReflectionTrait* FindTrait(MetaType metaType, bool fallbackOnParent = true) const;
+		ReflectionTrait* FindTrait(RttiType rttiType, bool fallbackOnParent = true) const;
 
 		template<typename _Property_>
 		_Property_*         FindProperty(const std::string_view& name, bool fallbackOnParent = true) const;
@@ -68,7 +69,7 @@ namespace hod
 
 		template<typename _Trait_>
 		void RemoveTrait();
-		void RemoveTrait(MetaType metaType);
+		void RemoveTrait(RttiType rttiType);
 
 		void* CreateInstance() const;
 		void  DeleteInstance(void* instance);
@@ -80,7 +81,7 @@ namespace hod
 
 		bool Compare(const void* left, const void* right) const;
 
-		MetaType      GetMetaType() const;
+		uint64_t      GetType() const;
 		const String& GetTypeName() const;
 
 		ReflectionDescriptor* GetParent() const;
@@ -90,7 +91,7 @@ namespace hod
 
 	private:
 		String         _typeName;
-		MetaType       _metaType;
+		uint64_t       _type;
 		mutable String _displayName;
 
 		ReflectionDescriptor*                       _parent = nullptr;

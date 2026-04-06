@@ -7,6 +7,7 @@
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
 #include <cassert>
+#include <cstdint>
 
 namespace hod
 {
@@ -14,7 +15,7 @@ namespace hod
 	///@param typeName
 	ReflectionDescriptor::ReflectionDescriptor(const char* typeName, ReflectionDescriptor* parent)
 	: _typeName(typeName)
-	, _metaType(hod::Hash::CompilationTimeFnv64(_typeName))
+	, _type(hod::Hash::CompilationTimeFnv64(_typeName))
 	, _parent(parent)
 	{
 	}
@@ -23,7 +24,7 @@ namespace hod
 	/// @param data
 	ReflectionDescriptor::ReflectionDescriptor(const Data& data)
 	: _typeName(data._name.data()) // todo
-	, _metaType(hod::Hash::CompilationTimeFnv64(_typeName))
+	, _type(hod::Hash::CompilationTimeFnv64(_typeName))
 	, _parent(data._parent)
 	, _allocateFunction(data._allocateFunction)
 	, _deleteFunction(data._deleteFunction)
@@ -36,7 +37,7 @@ namespace hod
 	void ReflectionDescriptor::Init(const Data& data)
 	{
 		_typeName = data._name.data(); // todo
-		_metaType = hod::Hash::CompilationTimeFnv64(_typeName);
+		_type = hod::Hash::CompilationTimeFnv64(_typeName);
 		_parent = data._parent;
 		_allocateFunction = data._allocateFunction;
 		_deleteFunction = data._deleteFunction;
@@ -82,9 +83,9 @@ namespace hod
 		_deleteFunction(instance);
 	}
 
-	MetaType ReflectionDescriptor::GetMetaType() const
+	uint64_t ReflectionDescriptor::GetType() const
 	{
-		return _metaType;
+		return _type;
 	}
 
 	/// @brief
@@ -116,13 +117,13 @@ namespace hod
 	}
 
 	/// @brief
-	/// @param metaType
+	/// @param RttiType
 	/// @return
-	ReflectionTrait* ReflectionDescriptor::FindTrait(MetaType metaType, bool fallbackOnParent) const
+	ReflectionTrait* ReflectionDescriptor::FindTrait(RttiType rttiType, bool fallbackOnParent) const
 	{
 		for (uint32_t index = 0; index < _traits.Size(); ++index)
 		{
-			if (_traits[index]->GetMetaType() == metaType)
+			if (_traits[index]->GetRttiType() == rttiType)
 			{
 				return _traits[index];
 			}
@@ -133,7 +134,7 @@ namespace hod
 			ReflectionDescriptor* parent = GetParent();
 			if (parent != nullptr)
 			{
-				return parent->FindTrait(metaType);
+				return parent->FindTrait(rttiType);
 			}
 		}
 
@@ -141,12 +142,12 @@ namespace hod
 	}
 
 	/// @brief
-	/// @param metaType
-	void ReflectionDescriptor::RemoveTrait(MetaType metaType)
+	/// @param RttiType
+	void ReflectionDescriptor::RemoveTrait(RttiType rttiType)
 	{
 		for (uint32_t index = 0; index < _traits.Size(); ++index)
 		{
-			if (_traits[index]->GetMetaType() == metaType)
+			if (_traits[index]->GetRttiType() == rttiType)
 			{
 				ReflectionTrait* trait = _traits[index];
 				_traits.Erase(index);
@@ -241,7 +242,7 @@ namespace hod
 	{
 		for (ReflectionProperty* property : GetProperties())
 		{
-			if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+			if (property->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 			{
 				ReflectionPropertyObject* objectProperty = static_cast<ReflectionPropertyObject*>(property);
 				if (objectProperty->GetReflectionDescriptor()->IsCompatible(reflectionDescriptor))

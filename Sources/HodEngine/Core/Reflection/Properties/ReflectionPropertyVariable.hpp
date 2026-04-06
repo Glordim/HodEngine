@@ -16,7 +16,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionPropertyVariable : public ReflectionProperty
 	{
-		META_TYPE(ReflectionPropertyVariable, ReflectionProperty)
+		RTTI(ReflectionPropertyVariable, ReflectionProperty)
 
 	public:
 		enum class Type : uint8_t

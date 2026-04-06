@@ -12,7 +12,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionPropertyObject : public ReflectionProperty // todo rename remove namespace
 	{
-		META_TYPE(ReflectionPropertyObject, ReflectionProperty)
+		RTTI(ReflectionPropertyObject, ReflectionProperty)
 
 	public:
 		ReflectionPropertyObject(uint32_t offset, const char* name, ReflectionDescriptor* reflectionDesceriptor, std::function<void(void*, void*)> setMethod,

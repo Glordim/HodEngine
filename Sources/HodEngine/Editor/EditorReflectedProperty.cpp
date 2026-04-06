@@ -59,7 +59,7 @@ namespace hod::editor
 
     EditorReflectedObject* EditorReflectedProperty::GetEditorReflectedObject()
     {
-        if (_reflectedObject == nullptr && (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic() || (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)))
+        if (_reflectedObject == nullptr && (_reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic() || (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)))
         {
             _reflectedObject = DefaultAllocator::GetInstance().New<EditorReflectedObject>(*this);
         }
@@ -73,11 +73,11 @@ namespace hod::editor
             return false;
         }
 
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
         {
             return (static_cast<ReflectionPropertyVariable*>(_reflectionProperty)->CompareInstance(_instances[0], _sourceInstance) == false);
         }
-        else if (_reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+        else if (_reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
         {
             return _reflectedObject->IsOverride();
         }
@@ -86,12 +86,12 @@ namespace hod::editor
 
     bool EditorReflectedProperty::IsArray() const
     {
-        return (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic());
+        return (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic());
     }
 
     uint32_t EditorReflectedProperty::GetArraySize() const
     {
-        if (_reflectionProperty->GetMetaType() == ReflectionPropertyArray::GetMetaTypeStatic())
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
         {
             return static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementCount(_instances[0]);
         }

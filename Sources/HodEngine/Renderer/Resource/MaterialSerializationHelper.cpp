@@ -132,7 +132,7 @@ namespace hod::renderer
 				newPath = path + "." + property->GetName();
 			}
 
-			if (property->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+			if (property->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
 			{
 				ReflectionPropertyVariable* propertyVariable = static_cast<ReflectionPropertyVariable*>(property);
 				switch (propertyVariable->GetType())
@@ -151,7 +151,7 @@ namespace hod::renderer
 					break;
 				}
 			}
-			else if (property->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+			else if (property->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 			{
 				ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
 

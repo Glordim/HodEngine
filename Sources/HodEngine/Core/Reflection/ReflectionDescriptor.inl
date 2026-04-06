@@ -46,7 +46,7 @@ namespace hod
 	template<typename _Trait_>
 	void ReflectionDescriptor::RemoveTrait()
 	{
-		RemoveTrait(_Trait_::GetMetaTypeStatic());
+		RemoveTrait(_Trait_::GetRttiTypeStatic());
 	}
 
 	/// @brief
@@ -55,7 +55,7 @@ namespace hod
 	template<typename _Trait_>
 	_Trait_* ReflectionDescriptor::FindTrait(bool fallbackOnParent) const
 	{
-		return static_cast<_Trait_*>(FindTrait(_Trait_::GetMetaTypeStatic(), fallbackOnParent));
+		return static_cast<_Trait_*>(FindTrait(_Trait_::GetRttiTypeStatic(), fallbackOnParent));
 	}
 
 	template<typename _Property_, typename... Args>

@@ -121,7 +121,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionPropertyArray : public ReflectionProperty
 	{
-		META_TYPE(ReflectionPropertyArray, ReflectionProperty)
+		RTTI(ReflectionPropertyArray, ReflectionProperty)
 
 	public:
 		ReflectionPropertyArray(Adapter adapter, ReflectionPropertyVariable::Type type, uint32_t offset, const char* name,

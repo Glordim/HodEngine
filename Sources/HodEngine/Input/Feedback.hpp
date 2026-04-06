@@ -1,12 +1,12 @@
 #pragma once
 #include "HodEngine/Input/Export.hpp"
 
-#include <HodEngine/Core/Type.hpp>
+#include <HodEngine/Core/Reflection/Rtti.hpp>
 
 namespace hod::input
 {
 	class HOD_INPUT_API Feedback
 	{
-		BASE_META_TYPE(Feedback)
+		RTTI_BASE(Feedback)
 	};
 }

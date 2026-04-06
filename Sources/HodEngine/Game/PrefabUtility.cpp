@@ -109,7 +109,7 @@ namespace hod::game::PrefabUtility
 	{
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor.GetProperties())
 		{
-			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+			if (reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
 			{
 				ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
 				if (reflectionPropertyVariable->CompareInstance(sourceAddr, instanceAddr) == false)
@@ -126,7 +126,7 @@ namespace hod::game::PrefabUtility
 					overrides.push_back(override);
 				}
 			}
-			else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+			else if (reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 			{
 				ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
 				void*                     subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);
@@ -156,7 +156,7 @@ namespace hod::game::PrefabUtility
 
 		for (ReflectionProperty* reflectionProperty : reflectionDescriptor.GetProperties())
 		{
-			if (reflectionProperty->GetMetaType() == ReflectionPropertyVariable::GetMetaTypeStatic())
+			if (reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
 			{
 				ReflectionPropertyVariable* reflectionPropertyVariable = static_cast<ReflectionPropertyVariable*>(reflectionProperty);
 				if (reflectionPropertyVariable->CompareInstance(sourceAddr, instanceAddr) == false)
@@ -173,7 +173,7 @@ namespace hod::game::PrefabUtility
 					overrides.push_back(override);
 				}
 			}
-			else if (reflectionProperty->GetMetaType() == ReflectionPropertyObject::GetMetaTypeStatic())
+			else if (reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 			{
 				ReflectionPropertyObject* reflectionPropertyObject = static_cast<ReflectionPropertyObject*>(reflectionProperty);
 				void*                     subObjectSourceAddr = reflectionPropertyObject->GetInstance(sourceAddr);

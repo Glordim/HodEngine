@@ -7,7 +7,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionTraitHide : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitHide, ReflectionTrait)
+		RTTI(ReflectionTraitHide, ReflectionTrait)
 
 	public:
 		ReflectionTraitHide() = default;

@@ -71,7 +71,7 @@ namespace hod::game
 		for (Component* component : entity->GetComponents())
 		{
 			Document::Node& componentNode = componentsNode.AddChild("");
-			componentNode.AddChild("MetaType").SetUInt64(component->GetMetaType());
+			componentNode.AddChild("MetaType").SetUInt64(component->GetReflectionDescriptorV().GetType());
 			if (component->GetLocalId() == 0)
 			{
 				component->SetLocalId(nextLocalId);
@@ -290,9 +290,9 @@ namespace hod::game
 		const Document::Node* componentNode = componentsNode->GetFirstChild();
 		while (componentNode != nullptr)
 		{
-			MetaType metaType = componentNode->GetChild("MetaType")->GetUInt64();
+			RttiType RttiType = componentNode->GetChild("RttiType")->GetUInt64();
 
-			auto it = componentFactory->GetAllDescriptors().find(metaType);
+			auto it = componentFactory->GetAllDescriptors().find(RttiType);
 			if (it != componentFactory->GetAllDescriptors().end())
 			{
 				const ReflectionDescriptor& componentDescriptor = *it->second;

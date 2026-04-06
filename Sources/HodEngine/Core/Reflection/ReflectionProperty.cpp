@@ -51,13 +51,13 @@ namespace hod
 	}
 
 	/// @brief
-	/// @param metaType
+	/// @param RttiType
 	/// @return
-	ReflectionTrait* ReflectionProperty::FindTrait(MetaType metaType) const
+	ReflectionTrait* ReflectionProperty::FindTrait(RttiType rttiType) const
 	{
 		for (uint32_t index = 0; index < _traits.Size(); ++index)
 		{
-			if (_traits[index]->GetMetaType() == metaType)
+			if (_traits[index]->GetRttiType() == rttiType)
 			{
 				return _traits[index];
 			}

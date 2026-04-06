@@ -4,6 +4,11 @@
 
 namespace hod::imgui
 {
+	DESCRIBE_REFLECTED_CLASS(Popup, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
+
 	/// @brief 
 	Popup::Popup()
 	{

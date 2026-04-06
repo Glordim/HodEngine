@@ -10,7 +10,7 @@ namespace hod::editor
 	///@brief 
 	class HOD_EDITOR_API ReflectionTraitCustomPropertyDrawer : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitCustomPropertyDrawer, ReflectionTrait)
+		RTTI(ReflectionTraitCustomPropertyDrawer, ReflectionTrait)
 
 	public:
 

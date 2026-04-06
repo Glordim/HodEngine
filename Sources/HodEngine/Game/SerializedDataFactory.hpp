@@ -28,8 +28,8 @@ namespace hod::game
 		template<typename _SerializedData_>
 		bool				Unregister();
 
-		const std::map<MetaType, ReflectionDescriptor*>& GetAllDescriptors() const { return _metaTypeToDescriptors; }
-		ReflectionDescriptor* FindReflectionDescriptor(MetaType type) const;
+		const std::map<RttiType, ReflectionDescriptor*>& GetAllDescriptors() const { return _RttiTypeToDescriptors; }
+		ReflectionDescriptor* FindReflectionDescriptor(RttiType type) const;
 
 	protected:
 
@@ -37,7 +37,7 @@ namespace hod::game
 
 	private:
 
-		std::map<MetaType, ReflectionDescriptor*>	_metaTypeToDescriptors;
+		std::map<RttiType, ReflectionDescriptor*>	_RttiTypeToDescriptors;
 	};
 }
 

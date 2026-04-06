@@ -6,7 +6,7 @@ namespace hod::game
 	{
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use ComponentFactory::Register()");
 
-		_metaTypeToDescriptors[_Component_::GetMetaTypeStatic()] = &_Component_::GetReflectionDescriptor();;
+		_typeToDescriptors[_Component_::GetReflectionDescriptor().GetType()] = &_Component_::GetReflectionDescriptor();
 		return true;
 	}
 
@@ -15,10 +15,10 @@ namespace hod::game
 	{
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use ComponentFactory::Register()");
 
-		auto it = _metaTypeToDescriptors.find(_Component_::GetMetaTypeStatic());
-		if (it != _metaTypeToDescriptors.end())
+		auto it = _typeToDescriptors.find(_Component_::GetReflectionDescriptor().GetType());
+		if (it != _typeToDescriptors.end())
 		{
-			_metaTypeToDescriptors.erase(it);
+			_typeToDescriptors.erase(it);
 			return true;
 		}
 		return false;

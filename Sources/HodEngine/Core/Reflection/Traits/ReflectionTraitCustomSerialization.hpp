@@ -11,7 +11,7 @@ namespace hod
 	///@brief
 	class HOD_CORE_API ReflectionTraitCustomSerialization : public ReflectionTrait
 	{
-		META_TYPE(ReflectionTraitCustomSerialization, ReflectionTrait)
+		RTTI(ReflectionTraitCustomSerialization, ReflectionTrait)
 
 	public:
 		ReflectionTraitCustomSerialization(const std::function<bool(const void*, Document::Node&)> serialization,

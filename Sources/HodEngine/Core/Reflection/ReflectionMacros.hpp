@@ -5,7 +5,6 @@
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
 
 #define REFLECTED_CLASS_NO_PARENT(CLASS)                                                             \
-	BASE_META_TYPE(CLASS)                                                                            \
 public:                                                                                              \
 	static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescriptor)            \
 	{                                                                                                \
@@ -31,7 +30,6 @@ public:                                                                         
 	}
 
 #define REFLECTED_CLASS_NO_VIRTUAL(CLASS)                                                            \
-	META_TYPE_NO_VIRTUAL(CLASS)                                                                      \
 public:                                                                                              \
 	static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescriptor)            \
 	{                                                                                                \
@@ -57,7 +55,6 @@ public:                                                                         
 	}
 
 #define REFLECTED_CLASS(CLASS, PARENT)                                                                       \
-	META_TYPE(CLASS, PARENT)                                                                                 \
 public:                                                                                                      \
 	static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescriptor)                    \
 	{                                                                                                        \
