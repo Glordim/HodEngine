@@ -8,7 +8,6 @@
 
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
-#include <HodEngine/Core/LinkedList.hpp>
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
 
@@ -48,9 +47,6 @@ namespace hod::editor
 
 			// const FileSystemMapping*		_firstChildrenFolder = nullptr;
 			// const FileSystemMapping*		_nextChildrenFolder = nullptr;
-
-			// LinkedList<FileSystemMapping>	_childrenAsset;
-			// LinkedList<FileSystemMapping>	_childrenFolder;
 
 			FileSystemMapping* _parentFolder = nullptr;
 
