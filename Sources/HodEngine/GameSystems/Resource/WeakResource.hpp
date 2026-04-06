@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Game/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
 #include <memory>
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
@@ -10,7 +10,7 @@ namespace hod
 	class Resource;
 
 	/// @brief
-	class HOD_CORE_API WeakResourceBase
+	class HOD_GAME_SYSTEMS_API WeakResourceBase
 	{
 		REFLECTED_CLASS_NO_PARENT(WeakResourceBase)
 

@@ -5,7 +5,7 @@
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
-#include <HodEngine/Core/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"

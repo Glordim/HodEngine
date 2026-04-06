@@ -12,7 +12,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 
 #include <HodEngine/Physics/Physics.hpp>
 #include <HodEngine/Physics/World.hpp>

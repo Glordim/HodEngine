@@ -24,7 +24,7 @@ target_compile_definitions(Game
 )
 
 target_link_libraries(Game
-	PUBLIC Core Math Window Physics Renderer
+	PUBLIC Core Math Window Physics Renderer GameSystems
 )
 
 install(TARGETS Game

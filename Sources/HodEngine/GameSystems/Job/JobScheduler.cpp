@@ -1,7 +1,7 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Job/JobScheduler.hpp"
+#include "HodEngine/GameSystems/Pch.hpp"
+#include "HodEngine/GameSystems/Job/JobScheduler.hpp"
 
-#include "HodEngine/Core/Job/Job.hpp"
+#include "HodEngine/GameSystems/Job/Job.hpp"
 
 namespace hod
 {

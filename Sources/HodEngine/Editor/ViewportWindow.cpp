@@ -14,7 +14,7 @@
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Vector4.hpp>
 #include <HodEngine/Math/Rect.hpp>
-#include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 #include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>

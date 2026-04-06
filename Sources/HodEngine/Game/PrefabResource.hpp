@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include <HodEngine/Core/Resource/Resource.hpp>
+#include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include "HodEngine/Game/Prefab.hpp"
 
 namespace hod::game

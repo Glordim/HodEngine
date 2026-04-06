@@ -6,7 +6,7 @@
 #include <HodEngine/Core/Type.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Math/Vector4.hpp>
-#include <HodEngine/Core/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 #include <unordered_map>

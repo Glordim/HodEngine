@@ -31,7 +31,7 @@ target_include_directories(Audio PUBLIC
 target_precompile_headers(Audio PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Audio
-	PUBLIC Core
+	PUBLIC Core GameSystems
 )
 
 target_compile_definitions(Audio

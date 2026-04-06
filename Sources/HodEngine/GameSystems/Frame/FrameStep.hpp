@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -8,7 +8,7 @@ namespace hod
 	class Job;
 
 	/// @brief
-	class HOD_CORE_API FrameStep
+	class HOD_GAME_SYSTEMS_API FrameStep
 	{
 	public:
 		void InsertJob(Job* job);

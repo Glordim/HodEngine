@@ -14,7 +14,7 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 #include <cstring>
 

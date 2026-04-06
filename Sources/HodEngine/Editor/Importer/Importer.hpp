@@ -6,7 +6,7 @@
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
-#include "HodEngine/Core/Resource/Resource.hpp"
+#include "HodEngine/GameSystems/Resource/Resource.hpp"
 
 namespace hod
 {

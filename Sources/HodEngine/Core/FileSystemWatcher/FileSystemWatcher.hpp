@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <HodEngine/Core/Job/MemberFunctionJob.hpp>
-
 #if defined(PLATFORM_WINDOWS)
 using HANDLE = void*;
 using DWORD = unsigned long;
@@ -31,9 +29,6 @@ namespace hod
 		          const std::function<void(const Path&)>& onChangeFile, const std::function<void(const Path& old, const Path&)>& onMoveFile);
 		void Cleanup();
 
-		void RegisterUpdateJob();
-		void UnregisterUpdateJob();
-
 		void Update();
 
 	private:
@@ -45,8 +40,6 @@ namespace hod
 		std::function<void(const Path&)>              _onDeleteFile;
 		std::function<void(const Path&)>              _onChangeFile;
 		std::function<void(const Path&, const Path&)> _onMoveFile;
-
-		MemberFunctionJob<FileSystemWatcher> _internalJob;
 
 #if defined(PLATFORM_WINDOWS)
 		HANDLE       _hDir = nullptr;

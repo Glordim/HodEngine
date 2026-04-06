@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 
@@ -20,8 +20,8 @@
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
-#include <HodEngine/Core/Job/JobScheduler.hpp>
+#include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
+#include <HodEngine/GameSystems/Job/JobScheduler.hpp>
 
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
@@ -41,8 +41,8 @@
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
-#include <HodEngine/Core/Resource/Resource.hpp>
-#include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/GameSystems/Resource/Resource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 #include <HodEngine/Game/BootInfo.hpp>
 #include <HodEngine/Game/Scene.hpp>

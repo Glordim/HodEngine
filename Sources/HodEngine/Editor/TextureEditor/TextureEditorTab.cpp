@@ -18,7 +18,7 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
-#include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 

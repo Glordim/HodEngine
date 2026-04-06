@@ -4,6 +4,7 @@
 #include <HodEngine/ImGui/Window/Modal.hpp>
 #include <HodEngine/Editor/Project.hpp>
 #include <HodEngine/Core/Output/OutputBucket.hpp>
+#include <HodEngine/GameSystems/Job/MemberFunctionJob.hpp>
 
 namespace hod::editor
 {

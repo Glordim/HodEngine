@@ -1,7 +1,7 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
 
-#include "HodEngine/Core/Job/JobQueue.hpp"
+#include "HodEngine/GameSystems/Job/JobQueue.hpp"
 #include "HodEngine/Core/Singleton.hpp"
 
 #include "HodEngine/Core/Reflection/EnumTrait.hpp"
@@ -13,7 +13,7 @@ namespace hod
 	class Job;
 
 	/// @brief
-	class HOD_CORE_API JobScheduler : public Singleton<JobScheduler>
+	class HOD_GAME_SYSTEMS_API JobScheduler : public Singleton<JobScheduler>
 	{
 		friend class Singleton<JobScheduler>;
 		friend class Allocator;

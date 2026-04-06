@@ -6,7 +6,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/Core/Resource/Resource.hpp"
+#include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/UID.hpp"
 

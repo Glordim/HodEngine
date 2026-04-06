@@ -1,7 +1,7 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
 
-#include "HodEngine/Core/LockFreeQueue.hpp"
+#include "HodEngine/GameSystems/Job/LockFreeQueue.hpp"
 #include "HodEngine/Core/Thread/Thread.hpp"
 
 #include <atomic>
@@ -11,7 +11,7 @@ namespace hod
 	class Job;
 
 	/// @brief
-	class HOD_CORE_API JobQueue
+	class HOD_GAME_SYSTEMS_API JobQueue
 	{
 	public:
 		enum class Queue

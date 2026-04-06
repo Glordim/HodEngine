@@ -3,8 +3,8 @@
 #include "HodEngine/Input/Devices/Device.hpp"
 #include "HodEngine/Input/InputManager.hpp"
 
-#include "HodEngine/Core/Frame/FrameSequencer.hpp"
-#include "HodEngine/Core/Job/JobScheduler.hpp"
+#include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
+#include "HodEngine/GameSystems/Job/JobScheduler.hpp"
 
 namespace hod::input
 {

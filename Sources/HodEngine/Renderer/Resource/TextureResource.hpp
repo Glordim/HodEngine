@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include "HodEngine/Core/Resource/Resource.hpp"
+#include "HodEngine/GameSystems/Resource/Resource.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 

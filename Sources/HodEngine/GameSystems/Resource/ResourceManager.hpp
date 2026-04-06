@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Core/UID.hpp"
@@ -16,7 +16,7 @@ namespace hod
 {
 	class Resource;
 
-	class HOD_CORE_API ResourceManager : public Singleton<ResourceManager>
+	class HOD_GAME_SYSTEMS_API ResourceManager : public Singleton<ResourceManager>
 	{
 		friend class Singleton<ResourceManager>;
 		friend class Allocator;

@@ -5,7 +5,7 @@
 
 #include <HodEngine/Game/Component.hpp>
 #include <HodEngine/Game/WeakComponent.hpp>
-#include <HodEngine/Core/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 
 namespace hod::ui
 {

@@ -1,8 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include "HodEngine/Core/Resource/Resource.hpp"
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/Resource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"

@@ -5,7 +5,7 @@
 #include "HodEngine/Math/Color.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Math/Vector4.hpp"
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
 #include "HodEngine/CoreEditor/PropertyCustomEditor/ColorCustomEditor.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/Vector2CustomEditor.hpp"

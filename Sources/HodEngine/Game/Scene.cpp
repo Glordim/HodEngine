@@ -19,7 +19,7 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include "HodEngine/Core/Resource/ResourceManager.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 #include <unordered_map>

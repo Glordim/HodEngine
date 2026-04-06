@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/Core/Resource/ResourceManager.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Project.hpp"
@@ -200,7 +200,7 @@ namespace hod::editor
 		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
 		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr))
 		{
-			_gameModuleFileSystemWatcher.RegisterUpdateJob();
+			return false;
 		}
 
 		return Load();

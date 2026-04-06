@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Audio/Export.hpp"
 
-#include "HodEngine/Core/Job/MemberFunctionJob.hpp"
+#include "HodEngine/GameSystems/Job/MemberFunctionJob.hpp"
 #include "HodEngine/Core/Singleton.hpp"
 
 namespace hod::audio

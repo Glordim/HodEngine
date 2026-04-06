@@ -1,10 +1,10 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Resource/ResourceManager.hpp"
+#include "HodEngine/GameSystems/Pch.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
-#include "HodEngine/Core/Resource/Resource.hpp"
+#include "HodEngine/GameSystems/Resource/Resource.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 

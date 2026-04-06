@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Components/Primitive/PrimitiveComponent.hpp"
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 
 namespace hod

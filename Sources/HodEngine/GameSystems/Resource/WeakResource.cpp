@@ -1,8 +1,8 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Pch.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
-#include "HodEngine/Core/Resource/Resource.hpp"
-#include "HodEngine/Core/Resource/ResourceManager.hpp"
+#include "HodEngine/GameSystems/Resource/Resource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
 namespace hod
 {

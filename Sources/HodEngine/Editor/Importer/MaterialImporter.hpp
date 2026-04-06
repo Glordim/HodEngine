@@ -6,7 +6,7 @@
 #include "HodEngine/Math/Rect.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 
 namespace hod::editor

@@ -1,16 +1,16 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
+#include "HodEngine/GameSystems/Job/JobQueue.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Core/Job/JobQueue.hpp"
 
 #include <atomic>
 
 namespace hod
 {
 	/// @brief
-	class HOD_CORE_API Job
+	class HOD_GAME_SYSTEMS_API Job
 	{
 	public:
 		enum State

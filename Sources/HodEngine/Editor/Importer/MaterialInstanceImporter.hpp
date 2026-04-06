@@ -5,7 +5,7 @@
 #include "HodEngine/Core/UID.hpp"
 #include "HodEngine/Math/Rect.hpp"
 
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 

@@ -7,8 +7,8 @@
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
-#include <HodEngine/Core/Resource/Resource.hpp>
-#include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/GameSystems/Resource/Resource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 #include <HodEngine/Game/BootInfo.hpp>
 #include <HodEngine/Game/Scene.hpp>

@@ -1,8 +1,8 @@
-#include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Frame/FrameStep.hpp"
+#include "HodEngine/GameSystems/Pch.hpp"
+#include "HodEngine/GameSystems/Frame/FrameStep.hpp"
 
-#include "HodEngine/Core/Job/Job.hpp"
-#include "HodEngine/Core/Job/JobScheduler.hpp"
+#include "HodEngine/GameSystems/Job/Job.hpp"
+#include "HodEngine/GameSystems/Job/JobScheduler.hpp"
 
 #include <cassert>
 

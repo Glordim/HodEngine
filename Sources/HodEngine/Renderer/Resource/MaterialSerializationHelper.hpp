@@ -3,7 +3,7 @@
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
-#include <HodEngine/Core/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"

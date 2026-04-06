@@ -1,6 +1,6 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp"
-#include "HodEngine/Core/Frame/FrameSequencer.hpp"
+#include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
@@ -8,7 +8,6 @@ namespace hod
 {
 	/// @brief
 	FileSystemWatcher::FileSystemWatcher()
-	: _internalJob(this, &FileSystemWatcher::Update, JobQueue::Queue::Framed)
 	{
 	}
 
@@ -51,17 +50,5 @@ namespace hod
 		}
 
 		return InternalInit();
-	}
-
-	/// @brief
-	void FileSystemWatcher::RegisterUpdateJob()
-	{
-		FrameSequencer::GetInstance()->InsertJob(&_internalJob, FrameSequencer::Step::PreRender);
-	}
-
-	/// @brief
-	void FileSystemWatcher::UnregisterUpdateJob()
-	{
-		FrameSequencer::GetInstance()->RemoveJob(&_internalJob, FrameSequencer::Step::PreRender);
 	}
 }

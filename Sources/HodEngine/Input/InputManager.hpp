@@ -2,7 +2,7 @@
 #include "HodEngine/Input/Export.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
-#include <HodEngine/Core/Job/MemberFunctionJob.hpp>
+#include <HodEngine/GameSystems/Job/MemberFunctionJob.hpp>
 
 #include "HodEngine/Input/Input.hpp"
 

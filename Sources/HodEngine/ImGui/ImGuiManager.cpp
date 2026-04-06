@@ -1,7 +1,7 @@
 #include "HodEngine/ImGui/Pch.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
-#include <HodEngine/Core/Job/Job.hpp>
+#include <HodEngine/GameSystems/Job/Job.hpp>
 #include <HodEngine/Core/Time/SystemTime.hpp>
 
 #include "HodEngine/Window/PlatformWindow.hpp"
@@ -23,7 +23,7 @@
 #include <HodEngine/Renderer/RHI/Texture.hpp>
 
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 
 #include <HodEngine/Window/Desktop/DesktopDisplayManager.hpp>
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>

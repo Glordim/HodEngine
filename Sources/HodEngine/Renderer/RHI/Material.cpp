@@ -7,7 +7,7 @@
 
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Math/Vector4.hpp"
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"

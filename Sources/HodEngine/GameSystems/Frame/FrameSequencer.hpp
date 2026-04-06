@@ -1,7 +1,7 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
 
-#include "HodEngine/Core/Frame/FrameStep.hpp"
+#include "HodEngine/GameSystems/Frame/FrameStep.hpp"
 #include "HodEngine/Core/Singleton.hpp"
 
 #include <cstdint>
@@ -11,7 +11,7 @@ namespace hod
 	class Job;
 
 	/// @brief
-	class HOD_CORE_API FrameSequencer : public Singleton<FrameSequencer>
+	class HOD_GAME_SYSTEMS_API FrameSequencer : public Singleton<FrameSequencer>
 	{
 		friend class Singleton<FrameSequencer>;
 		friend class Allocator;

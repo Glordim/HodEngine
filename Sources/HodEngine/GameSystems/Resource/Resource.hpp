@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Core/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
@@ -10,7 +10,7 @@
 
 namespace hod
 {
-	class HOD_CORE_API Resource : public std::enable_shared_from_this<Resource>
+	class HOD_GAME_SYSTEMS_API Resource : public std::enable_shared_from_this<Resource>
 	{
 		REFLECTED_CLASS_NO_PARENT(Resource)
 

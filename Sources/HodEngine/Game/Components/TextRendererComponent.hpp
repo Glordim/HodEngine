@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 

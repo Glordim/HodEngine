@@ -109,7 +109,6 @@ namespace hod::editor
 		{
 			return false;
 		}
-		_fileSystemWatcher.RegisterUpdateJob();
 
 		return true;
 	}

@@ -1,7 +1,7 @@
 #include "HodEngine/Application/Pch.hpp"
 #include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
 
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
+#include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 #include <HodEngine/Renderer/PlatformRenderer.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 
@@ -18,8 +18,8 @@
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-#include <HodEngine/Core/Frame/FrameSequencer.hpp>
-#include <HodEngine/Core/Job/JobScheduler.hpp>
+#include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
+#include <HodEngine/GameSystems/Job/JobScheduler.hpp>
 
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
@@ -28,7 +28,7 @@
 
 #include "HodEngine/Physics/Physics.hpp"
 
-#include "HodEngine/Core/Resource/ResourceManager.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Time/SystemTime.hpp"
 
 #include "HodEngine/UI/Builtin.hpp"

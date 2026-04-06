@@ -10,7 +10,7 @@
 
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
-#include <HodEngine/Core/Job/MemberFunctionJob.hpp>
+#include <HodEngine/GameSystems/Job/MemberFunctionJob.hpp>
 
 #include <HodEngine/Core/Time/SystemTime.hpp>
 

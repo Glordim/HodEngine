@@ -33,7 +33,7 @@
 #include "HodEngine/Game/SerializedDataFactory.hpp"
 #include "HodEngine/Game/World.hpp"
 
-#include <HodEngine/Core/Resource/ResourceManager.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include <cmath>

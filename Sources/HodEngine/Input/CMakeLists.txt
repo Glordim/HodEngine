@@ -34,7 +34,7 @@ if (WIN32)
 endif()
 
 target_link_libraries(Input
-	PUBLIC Core Math Window
+	PUBLIC Core Math Window GameSystems
 )
 
 target_compile_definitions(Input

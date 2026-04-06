@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HodEngine/Core/Job/Job.hpp"
+#include "HodEngine/GameSystems/Job/Job.hpp"
 
 namespace hod
 {

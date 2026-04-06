@@ -8,7 +8,7 @@
 #include "HodEngine/ImGui/Helper.hpp"
 #include "HodEngine/ImGui/Widgets.hpp"
 
-#include "HodEngine/Core/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
