@@ -385,7 +385,7 @@ namespace hod
 				uint32_t elementCount = property->GetElementCount(instance);
 				if (elementCount == 0)
 				{
-					arrayNode.SetTye(Document::Node::Type::Array);
+					arrayNode.SetType(Document::Node::Type::Array);
 				}
 				else
 				{

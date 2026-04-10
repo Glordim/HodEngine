@@ -60,16 +60,21 @@ namespace hod
 	/// @param node
 	void Document::Node::Detach(Node& node)
 	{
+		Node* prev = nullptr;
 		Node* child = _firstChild;
 		while (child != nullptr)
 		{
 			if (child == &node)
 			{
-				child = node._nextSibling;
+				if (prev == nullptr)
+					_firstChild = node._nextSibling;
+				else
+					prev->_nextSibling = node._nextSibling;
 				node._parent = nullptr;
 				node._nextSibling = nullptr;
 				return;
 			}
+			prev = child;
 			child = child->_nextSibling;
 		}
 	}
@@ -125,7 +130,11 @@ namespace hod
 	/// @return
 	Document::Node& Document::Node::GetOrAddChild(const std::string_view& name)
 	{
-		// TODO check if an other child if same name exist
+		Node* existing = FindChild(name);
+		if (existing != nullptr)
+		{
+			return *existing;
+		}
 
 		Node* node = DefaultAllocator::GetInstance().New<Node>(_document, name);
 		Attach(*node);
@@ -149,7 +158,7 @@ namespace hod
 
 	/// @brief
 	/// @param type
-	void Document::Node::SetTye(Type type)
+	void Document::Node::SetType(Type type)
 	{
 		// TODO verify if _type is unset otherwise the value will be corrupted
 		_type = type;
@@ -292,7 +301,7 @@ namespace hod
 	void Document::Node::SetString(const std::string_view& value)
 	{
 		_type = Type::String;
-		_value._stringId = _document.AddString(value);
+		_value._stringHash = _document.AddString(value);
 	}
 
 	bool Document::Node::GetBool() const
@@ -357,7 +366,7 @@ namespace hod
 	const String& Document::Node::GetString() const
 	{
 		// TODO add assert if doesn't match with type
-		return _document.GetString(_value._stringId);
+		return _document.GetString(_value._stringHash);
 	}
 
 	/// @brief

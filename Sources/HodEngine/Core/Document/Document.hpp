@@ -60,11 +60,7 @@ namespace hod
 			const String& GetName() const;
 
 			Type GetType() const;
-			void SetTye(Type type);
-
-			bool IsValid() const;
-			bool IsObject() const;
-			bool IsArray() const;
+			void SetType(Type type);
 
 			template<typename T, size_t Size>
 			void SetValues(const std::span<T, Size>& values);
@@ -113,7 +109,7 @@ namespace hod
 				uint64_t _uint64;
 				float    _float32;
 				double   _float64;
-				StringId _stringId;
+				uint64_t _stringHash;
 			};
 
 		private:
@@ -166,8 +162,8 @@ namespace hod
 		*/
 
 	private:
-		StringId      AddString(const std::string_view& str);
-		const String& GetString(StringId hash);
+		uint64_t      AddString(const std::string_view& str);
+		const String& GetString(uint64_t stringHash);
 
 	private:
 		Node _root = Node(*this, "");
