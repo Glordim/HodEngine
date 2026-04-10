@@ -6,7 +6,7 @@
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
-#include <HodEngine/Core/Module/Module.hpp>
+#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Singleton.hpp>
@@ -62,7 +62,7 @@ namespace hod::editor
 		String _name;
 		UID    _startupScene;
 
-		Module            _gameModule;
+		DynamicLibrary    _gameModule;
 		FileSystemWatcher _gameModuleFileSystemWatcher;
 	};
 }

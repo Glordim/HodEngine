@@ -1,26 +1,25 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Module/Module.hpp"
+#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 
-#include <win32/misc.h>
+#include <dlfcn.h>
 
 namespace hod
 {
 	/// @brief
 	/// @return
-	bool Module::InternalLoad(const Path& path)
+	bool DynamicLibrary::InternalLoad(const Path& path)
 	{
-		_dll = (HINSTANCE__*)LoadLibraryW(path.ToNative().c_str());
-		if (_dll == NULL)
+		_sharedLib = dlopen(path.string().c_str(), RTLD_LAZY);
+		if (_sharedLib == nullptr)
 		{
 			// std::cout << "could not load the dynamic library" << std::endl;
-			OUTPUT_ERROR("Unable to load module {}", path);
 			return false;
 		}
 
 		using initFunction = int (*)();
 
 		// resolve function address here
-		initFunction initFunc = (initFunction)GetProcAddress(_dll, "StartupModule");
+		initFunction initFunc = (initFunction)dlsym(_sharedLib, "StartupModule");
 		if (initFunc == nullptr)
 		{
 			// std::cout << "could not locate the function" << std::endl;
@@ -34,13 +33,13 @@ namespace hod
 
 	/// @brief
 	/// @return
-	bool Module::InternalUnload()
+	bool DynamicLibrary::InternalUnload()
 	{
-		if (_dll)
+		if (_sharedLib != nullptr)
 		{
 			using cleanFunction = int (*)();
 
-			cleanFunction cleanFunc = (cleanFunction)GetProcAddress(_dll, "ShutdownModule");
+			cleanFunction cleanFunc = (cleanFunction)dlsym(_sharedLib, "ShutdownModule");
 			if (cleanFunc == nullptr)
 			{
 				// std::cout << "could not locate the function" << std::endl;
@@ -49,8 +48,8 @@ namespace hod
 
 			cleanFunc();
 
-			FreeLibrary(_dll);
-			_dll = NULL;
+			dlclose(_sharedLib);
+			_sharedLib = nullptr;
 		}
 
 		return true;
@@ -58,15 +57,15 @@ namespace hod
 
 	/// @brief
 	/// @return
-	const char* Module::GetModuleExtension()
+	const char* DynamicLibrary::GetModuleExtension()
 	{
-		return ".dll";
+		return ".so";
 	}
 
 	/// @brief
 	/// @return
-	const char* Module::GetModulePrefix()
+	const char* DynamicLibrary::GetModulePrefix()
 	{
-		return "";
+		return "lib";
 	}
 }

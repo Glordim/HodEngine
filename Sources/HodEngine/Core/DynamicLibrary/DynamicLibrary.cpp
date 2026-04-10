@@ -1,6 +1,6 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
-#include "HodEngine/Core/Module/Module.hpp"
+#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
@@ -11,7 +11,7 @@ namespace hod
 	/// @brief
 	/// @param path
 	/// @param copyForSupportReload
-	void Module::Init(const Path& path, bool copyForSupportReload)
+	void DynamicLibrary::Init(const Path& path, bool copyForSupportReload)
 	{
 		_path = path;
 		_copyForSupportReload = copyForSupportReload;
@@ -38,21 +38,21 @@ namespace hod
 	}
 
 	/// @brief
-	Module::~Module()
+	DynamicLibrary::~DynamicLibrary()
 	{
 		Unload();
 	}
 
 	/// @brief
 	/// @return
-	const Path& Module::GetPath() const
+	const Path& DynamicLibrary::GetPath() const
 	{
 		return _path;
 	}
 
 	/// @brief
 	/// @return
-	bool Module::Load()
+	bool DynamicLibrary::Load()
 	{
 		if (_copyForSupportReload == true)
 		{
@@ -62,7 +62,7 @@ namespace hod
 			}
 			catch (std::exception& e)
 			{
-				OUTPUT_ERROR("Module::Load(): {}", e.what());
+				OUTPUT_ERROR("DynamicLibrary::Load(): {}", e.what());
 			}
 			return InternalLoad(_copyPath);
 		}
@@ -74,7 +74,7 @@ namespace hod
 
 	/// @brief
 	/// @return
-	bool Module::Unload()
+	bool DynamicLibrary::Unload()
 	{
 		if (InternalUnload() == false)
 		{
@@ -97,7 +97,7 @@ namespace hod
 
 	/// @brief
 	/// @return
-	bool Module::Reload()
+	bool DynamicLibrary::Reload()
 	{
 		if (Unload() == false)
 		{

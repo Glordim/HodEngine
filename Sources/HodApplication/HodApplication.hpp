@@ -1,7 +1,7 @@
 #pragma once
 
 #include <HodEngine/Application/PlatformApplication.hpp>
-#include <HodEngine/Core/Module/Module.hpp>
+#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 
 namespace hod
 {
@@ -25,6 +25,6 @@ public:
 
 private:
 
-	hod::Module			_gameModule;
+	hod::DynamicLibrary	_gameModule;
 	hod::game::World*	_world = nullptr;
 };

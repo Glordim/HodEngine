@@ -19,11 +19,11 @@ struct HINSTANCE__;
 
 namespace hod
 {
-	class HOD_CORE_API Module
+	class HOD_CORE_API DynamicLibrary
 	{
 	public:
-		Module() = default;
-		~Module();
+		DynamicLibrary() = default;
+		~DynamicLibrary();
 
 		void Init(const Path& path, bool copyForSupportReload);
 

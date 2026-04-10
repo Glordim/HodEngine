@@ -2,7 +2,7 @@
 #include "HodEngine/Application/Export.hpp"
 
 #include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
-#include <HodEngine/Core/Module/Module.hpp>
+#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 
 struct android_app;
 
@@ -24,6 +24,6 @@ namespace hod::application
 
 	private:
 		android_app* _androidApp = nullptr;
-		Module       _gameModule;
+		DynamicLibrary _gameModule;
 	};
 }

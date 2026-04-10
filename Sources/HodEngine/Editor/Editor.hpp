@@ -5,7 +5,7 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Event.hpp>
-#include <HodEngine/Core/Module/Module.hpp>
+#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 #include <HodEngine/Core/Singleton.hpp>
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
@@ -111,7 +111,7 @@ namespace hod::editor
 		bool UnloadEditorModules();
 
 	private:
-		Vector<Module*> _editorModules;
+		Vector<DynamicLibrary*> _editorModules;
 
 		Vector<EditorTab*>                                                            _editorTabs;
 		std::unordered_map<String, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;

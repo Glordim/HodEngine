@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
 
@@ -195,7 +196,7 @@ namespace hod::editor
 
 		for (const char* moduleName : editorModules)
 		{
-			Module* module = DefaultAllocator::GetInstance().New<Module>();
+			DynamicLibrary* module = DefaultAllocator::GetInstance().New<DynamicLibrary>();
 			module->Init(FileSystem::GetExecutablePath().ParentPath() / moduleName, true);
 			if (module->Load() == false)
 			{
@@ -212,7 +213,7 @@ namespace hod::editor
 	/// @return
 	bool Editor::UnloadEditorModules()
 	{
-		for (Module* module : _editorModules)
+		for (DynamicLibrary* module : _editorModules)
 		{
 			module->Unload();
 			DefaultAllocator::GetInstance().Delete(module);

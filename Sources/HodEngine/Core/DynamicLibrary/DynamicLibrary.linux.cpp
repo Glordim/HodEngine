@@ -1,16 +1,15 @@
 #include "HodEngine/Core/Pch.hpp"
-#include "HodEngine/Core/Module/Module.hpp"
+#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 
-#include "HodEngine/Core/FileSystem/Path.hpp"
 #include <dlfcn.h>
 
 namespace hod
 {
 	/// @brief
 	/// @return
-	bool Module::InternalLoad(const Path& path)
+	bool DynamicLibrary::InternalLoad(const Path& path)
 	{
-		_sharedLib = dlopen(path.CStr(), RTLD_LAZY);
+		_sharedLib = dlopen(path.GetString().CStr(), RTLD_LAZY);
 		if (_sharedLib == nullptr)
 		{
 			// std::cout << "could not load the dynamic library" << std::endl;
@@ -34,7 +33,7 @@ namespace hod
 
 	/// @brief
 	/// @return
-	bool Module::InternalUnload()
+	bool DynamicLibrary::InternalUnload()
 	{
 		if (_sharedLib != nullptr)
 		{
@@ -58,14 +57,14 @@ namespace hod
 
 	/// @brief
 	/// @return
-	const char* Module::GetModuleExtension()
+	const char* DynamicLibrary::GetModuleExtension()
 	{
-		return ".dylib";
+		return ".so";
 	}
 
 	/// @brief
 	/// @return
-	const char* Module::GetModulePrefix()
+	const char* DynamicLibrary::GetModulePrefix()
 	{
 		return "lib";
 	}
