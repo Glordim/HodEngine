@@ -89,7 +89,7 @@ namespace hod::editor
 		{
 			return false;
 		}
-		const Document::Node* importerSettingsNode = document.GetRootNode().GetChild("importerSettings");
+		const DocumentNode* importerSettingsNode = document.GetRootNode().GetChild("importerSettings");
 		if (importerSettingsNode != nullptr && _meta.LoadImporterConfig(*importerSettingsNode) == false) // TODO improve reflection
 		{
 			return false;
@@ -233,7 +233,7 @@ namespace hod::editor
 	/// @brief
 	/// @param documentNode
 	/// @return
-	bool Meta::LoadImporterConfig(const Document::Node& documentNode)
+	bool Meta::LoadImporterConfig(const DocumentNode& documentNode)
 	{
 		Importer* importer = AssetDatabase::GetInstance()->GetImporter(_importerType);
 		if (importer != nullptr)
@@ -258,7 +258,7 @@ namespace hod::editor
 	/// @brief
 	/// @param documentNode
 	/// @return
-	bool Meta::SaveImporterConfig(Document::Node& documentNode) const
+	bool Meta::SaveImporterConfig(DocumentNode& documentNode) const
 	{
 		// TODO Ensure _importerSettings == nullptr
 

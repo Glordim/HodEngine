@@ -20,7 +20,7 @@ namespace hod
 	/// @param node
 	/// @param stream
 	/// @return
-	bool DocumentWriterJson::WriteNode(const Document::Node& node, std::ostream& stream)
+	bool DocumentWriterJson::WriteNode(const DocumentNode& node, std::ostream& stream)
 	{
 		if (_pretty == true)
 		{
@@ -45,9 +45,9 @@ namespace hod
 
 		switch (node.GetType())
 		{
-			case Document::Node::Type::Object:
+			case DocumentNode::Type::Object:
 			{
-				Document::Node* child = node.GetFirstChild();
+				DocumentNode* child = node.GetFirstChild();
 				if (child == nullptr)
 				{
 					stream.write("{}", 2);
@@ -87,9 +87,9 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::Array:
+			case DocumentNode::Type::Array:
 			{
-				Document::Node* child = node.GetFirstChild();
+				DocumentNode* child = node.GetFirstChild();
 				if (child == nullptr)
 				{
 					stream.write("[]", 2);
@@ -129,7 +129,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::Bool:
+			case DocumentNode::Type::Bool:
 			{
 				if (node.GetBool() == true)
 				{
@@ -142,7 +142,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::Int8:
+			case DocumentNode::Type::Int8:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt8());
@@ -151,7 +151,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::Int16:
+			case DocumentNode::Type::Int16:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt16());
@@ -160,7 +160,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::Int32:
+			case DocumentNode::Type::Int32:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt32());
@@ -169,7 +169,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::Int64:
+			case DocumentNode::Type::Int64:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt64());
@@ -178,7 +178,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::UInt8:
+			case DocumentNode::Type::UInt8:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt8());
@@ -187,7 +187,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::UInt16:
+			case DocumentNode::Type::UInt16:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt16());
@@ -196,7 +196,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::UInt32:
+			case DocumentNode::Type::UInt32:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt32());
@@ -205,7 +205,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::UInt64:
+			case DocumentNode::Type::UInt64:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt64());
@@ -214,7 +214,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::Float32:
+			case DocumentNode::Type::Float32:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat32(), std::chars_format::scientific);
@@ -223,7 +223,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::Float64:
+			case DocumentNode::Type::Float64:
 			{
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat64(), std::chars_format::scientific);
@@ -232,7 +232,7 @@ namespace hod
 			}
 			break;
 
-			case Document::Node::Type::String:
+			case DocumentNode::Type::String:
 			{
 				stream.write("\"", 1);
 				const String& value = node.GetString();

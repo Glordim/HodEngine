@@ -83,7 +83,7 @@ namespace hod::editor
 				}
 			}
 
-			const Document::Node* paramNode = _materialInstanceAsset._params.GetRootNode().GetFirstChild();
+			const DocumentNode* paramNode = _materialInstanceAsset._params.GetRootNode().GetFirstChild();
 			while (paramNode != nullptr)
 			{
 				String name = paramNode->GetChild("Name")->GetString();

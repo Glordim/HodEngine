@@ -51,15 +51,15 @@ namespace hod::renderer
 	}
 
 	/// @brief
-	void MaterialSerializationHelper::ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode,
+	void MaterialSerializationHelper::ApplyParamsFromDocument(MaterialInstance& materialInstance, const DocumentNode& paramsNode,
 	                                                          Vector<WeakResource<TextureResource>>& textureResources)
 	{
-		const Document::Node* paramNode = paramsNode.GetFirstChild();
+		const DocumentNode* paramNode = paramsNode.GetFirstChild();
 		while (paramNode != nullptr)
 		{
 			String                name = paramNode->GetChild("Name")->GetString();
 			ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
-			const Document::Node* valueNode = paramNode->GetChild("Value");
+			const DocumentNode* valueNode = paramNode->GetChild("Value");
 			switch (type)
 			{
 				case ShaderParameter::Type::Float:

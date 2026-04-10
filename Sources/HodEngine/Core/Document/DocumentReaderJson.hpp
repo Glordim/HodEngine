@@ -22,11 +22,11 @@ namespace hod
 		bool PopulateDocument(Document& document, const char* buffer) override;
 
 	private:
-		bool            ParseNode(Document::Node& node);
-		bool            ParseObject(Document::Node& node);
-		bool            ParseArray(Document::Node& node);
-		Document::Node* ParseKeyAndCreateChildNode(Document::Node& node);
-		bool            ParseValue(Document::Node& node);
+		bool            ParseNode(DocumentNode& node);
+		bool            ParseObject(DocumentNode& node);
+		bool            ParseArray(DocumentNode& node);
+		DocumentNode* ParseKeyAndCreateChildNode(DocumentNode& node);
+		bool            ParseValue(DocumentNode& node);
 
 		void SkipWhiteSpace();
 

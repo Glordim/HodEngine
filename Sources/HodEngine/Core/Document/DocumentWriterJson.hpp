@@ -22,7 +22,7 @@ namespace hod
 		bool WriteDocument(Document& document, std::ostream& stream) override;
 
 	private:
-		bool WriteNode(const Document::Node& node, std::ostream& stream);
+		bool WriteNode(const DocumentNode& node, std::ostream& stream);
 
 	private:
 		bool     _pretty = true;

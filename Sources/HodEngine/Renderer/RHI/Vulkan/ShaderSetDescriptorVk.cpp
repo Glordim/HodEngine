@@ -56,25 +56,25 @@ namespace hod::renderer
 	/// @brief
 	/// @param comp
 	/// @param resource
-	void ShaderSetDescriptorVk::ExtractBlockUbo(const Document::Node& parameterNode)
+	void ShaderSetDescriptorVk::ExtractBlockUbo(const DocumentNode& parameterNode)
 	{
-		const Document::Node* nameNode = parameterNode.GetChild("name");
-		const Document::Node* bindingNode = parameterNode.GetChild("binding");
-		const Document::Node* indexNode = bindingNode->GetChild("index");
-		const Document::Node* typeNode = parameterNode.GetChild("type");
+		const DocumentNode* nameNode = parameterNode.GetChild("name");
+		const DocumentNode* bindingNode = parameterNode.GetChild("binding");
+		const DocumentNode* indexNode = bindingNode->GetChild("index");
+		const DocumentNode* typeNode = parameterNode.GetChild("type");
 		Assert(typeNode);
-		const Document::Node* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
+		const DocumentNode* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
 		Assert(elementVarLayoutNode);
 		bindingNode = elementVarLayoutNode->GetChild("binding");
 		Assert(bindingNode);
-		const Document::Node* sizeNode = bindingNode->GetChild("size");
+		const DocumentNode* sizeNode = bindingNode->GetChild("size");
 		Assert(sizeNode);
 		typeNode = elementVarLayoutNode->GetChild("type");
 		Assert(typeNode);
-		const Document::Node* kindNode = typeNode->GetChild("kind");
+		const DocumentNode* kindNode = typeNode->GetChild("kind");
 		Assert(kindNode);
 		Assert(kindNode->GetString() == "struct");
-		const Document::Node* fieldsNode = typeNode->GetChild("fields");
+		const DocumentNode* fieldsNode = typeNode->GetChild("fields");
 		Assert(fieldsNode);
 
 		BlockUbo ubo;
@@ -85,7 +85,7 @@ namespace hod::renderer
 		ubo._rootMember._size = sizeNode->GetUInt32();
 		ubo._rootMember._count = 1; // todo array, ex: ConstantBuffer<float4> test[4];
 
-		const Document::Node* fieldNode = fieldsNode->GetFirstChild();
+		const DocumentNode* fieldNode = fieldsNode->GetFirstChild();
 		while (fieldNode != nullptr)
 		{
 			ExtractUboSubMembers(*fieldNode, ubo._rootMember);
@@ -99,21 +99,21 @@ namespace hod::renderer
 	/// @param comp
 	/// @param structType
 	/// @param structMember
-	void ShaderSetDescriptorVk::ExtractUboSubMembers(const Document::Node& fieldNode, BlockUbo::Member& structMember)
+	void ShaderSetDescriptorVk::ExtractUboSubMembers(const DocumentNode& fieldNode, BlockUbo::Member& structMember)
 	{
-		const Document::Node* nameNode = fieldNode.GetChild("name");
-		const Document::Node* bindingNode = fieldNode.GetChild("binding");
-		const Document::Node* typeNode = fieldNode.GetChild("type");
+		const DocumentNode* nameNode = fieldNode.GetChild("name");
+		const DocumentNode* bindingNode = fieldNode.GetChild("binding");
+		const DocumentNode* typeNode = fieldNode.GetChild("type");
 		Assert(nameNode);
 		Assert(bindingNode);
 		Assert(typeNode);
 
-		const Document::Node* offsetNode = bindingNode->GetChild("offset");
-		const Document::Node* sizeNode = bindingNode->GetChild("size");
+		const DocumentNode* offsetNode = bindingNode->GetChild("offset");
+		const DocumentNode* sizeNode = bindingNode->GetChild("size");
 		Assert(offsetNode);
 		Assert(sizeNode);
 
-		const Document::Node* kindNode = typeNode->GetChild("kind");
+		const DocumentNode* kindNode = typeNode->GetChild("kind");
 		Assert(kindNode);
 
 		BlockUbo::Member member;
@@ -123,7 +123,7 @@ namespace hod::renderer
 		const String& kind = kindNode->GetString();
 		if (kind == "scalar")
 		{
-			const Document::Node* scalarTypeNode = typeNode->GetChild("scalarType");
+			const DocumentNode* scalarTypeNode = typeNode->GetChild("scalarType");
 			Assert(scalarTypeNode);
 			const String& scalarType = scalarTypeNode->GetString();
 			if (scalarType == "float32")
@@ -137,11 +137,11 @@ namespace hod::renderer
 		}
 		else if (kind == "vector")
 		{
-			const Document::Node* elementCountNode = typeNode->GetChild("elementCount");
+			const DocumentNode* elementCountNode = typeNode->GetChild("elementCount");
 			Assert(elementCountNode);
 			member._count = elementCountNode->GetUInt32();
 
-			const Document::Node* elementTypeNode = typeNode->GetChild("elementType");
+			const DocumentNode* elementTypeNode = typeNode->GetChild("elementType");
 			Assert(elementTypeNode);
 
 			kindNode = elementTypeNode->GetChild("kind");
@@ -150,7 +150,7 @@ namespace hod::renderer
 
 			if (kind == "scalar")
 			{
-				const Document::Node* scalarTypeNode = elementTypeNode->GetChild("scalarType");
+				const DocumentNode* scalarTypeNode = elementTypeNode->GetChild("scalarType");
 				Assert(scalarTypeNode);
 
 				const String& scalarType = scalarTypeNode->GetString();
@@ -181,9 +181,9 @@ namespace hod::renderer
 		}
 		else if (kind == "struct")
 		{
-			const Document::Node* fieldsNode = typeNode->GetChild("fields");
+			const DocumentNode* fieldsNode = typeNode->GetChild("fields");
 			Assert(fieldsNode);
-			const Document::Node* fieldNode = fieldsNode->GetFirstChild();
+			const DocumentNode* fieldNode = fieldsNode->GetFirstChild();
 			while (fieldNode != nullptr)
 			{
 				ExtractUboSubMembers(*fieldNode, member);
@@ -197,11 +197,11 @@ namespace hod::renderer
 	/// @param comp
 	/// @param resource
 	/// @param type
-	void ShaderSetDescriptorVk::ExtractBlockTexture(const Document::Node& parameterNode)
+	void ShaderSetDescriptorVk::ExtractBlockTexture(const DocumentNode& parameterNode)
 	{
-		const Document::Node* nameNode = parameterNode.GetChild("name");
-		const Document::Node* bindingNode = parameterNode.GetChild("binding");
-		const Document::Node* indexNode = bindingNode->GetChild("index");
+		const DocumentNode* nameNode = parameterNode.GetChild("name");
+		const DocumentNode* bindingNode = parameterNode.GetChild("binding");
+		const DocumentNode* indexNode = bindingNode->GetChild("index");
 
 		BlockTexture texture;
 		texture._type = BlockTexture::Type::Texture;
@@ -211,11 +211,11 @@ namespace hod::renderer
 		_textureBlockVector.PushBack(std::move(texture));
 	}
 
-	void ShaderSetDescriptorVk::ExtractBlockSampler(const Document::Node& parameterNode)
+	void ShaderSetDescriptorVk::ExtractBlockSampler(const DocumentNode& parameterNode)
 	{
-		const Document::Node* nameNode = parameterNode.GetChild("name");
-		const Document::Node* bindingNode = parameterNode.GetChild("binding");
-		const Document::Node* indexNode = bindingNode->GetChild("index");
+		const DocumentNode* nameNode = parameterNode.GetChild("name");
+		const DocumentNode* bindingNode = parameterNode.GetChild("binding");
+		const DocumentNode* indexNode = bindingNode->GetChild("index");
 
 		BlockTexture texture;
 		texture._type = BlockTexture::Type::Sampler;

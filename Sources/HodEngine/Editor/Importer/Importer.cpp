@@ -81,7 +81,7 @@ namespace hod::editor
 			return false;
 		}
 
-		const Document::Node* importerNode = metaDocument.GetRootNode().GetChild("importerSettings");
+		const DocumentNode* importerNode = metaDocument.GetRootNode().GetChild("importerSettings");
 		if (importerNode == nullptr)
 		{
 			// TODO output reason

@@ -1,146 +1,24 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include "HodEngine/Core/String.hpp"
-#include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/Core/Document/DocumentNode.hpp"
+
 #include <cstdint>
 #include <map>
-#include <span>
 #include <string_view>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
 namespace hod
 {
-	/// @brief
 	class HOD_CORE_API Document
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(Document)
 
+		friend class DocumentNode;
+
 	private:
 		using StringId = uint64_t;
-
-	public:
-		class HOD_CORE_API Node
-		{
-			friend class Document;
-			friend class Allocator;
-
-		public:
-			enum class Type : uint8_t
-			{
-				Object,
-				Array,
-				Bool,
-				Int8,
-				Int16,
-				Int32,
-				Int64,
-				UInt8,
-				UInt16,
-				UInt32,
-				UInt64,
-				Float32,
-				Float64,
-				String,
-			};
-
-		public:
-			Node&       AddChild(const std::string_view& name);
-			const Node* GetChild(const std::string_view& name) const;
-			Node&       GetOrAddChild(const std::string_view& name);
-
-			Node* GetFirstChild() const;
-			Node* GetNextSibling() const;
-			Node* GetParent() const;
-
-			uint32_t GetChildCount() const;
-
-			void          SetName(const std::string_view& name);
-			const String& GetName() const;
-
-			Type GetType() const;
-			void SetType(Type type);
-
-			template<typename T, size_t Size>
-			void SetValues(const std::span<T, Size>& values);
-
-			template<typename T>
-			void SetValue(const T& value);
-			void SetBool(bool value);
-			void SetInt8(int8_t value);
-			void SetInt16(int16_t value);
-			void SetInt32(int32_t value);
-			void SetInt64(int64_t value);
-			void SetUInt8(uint8_t value);
-			void SetUInt16(uint16_t value);
-			void SetUInt32(uint32_t value);
-			void SetUInt64(uint64_t value);
-			void SetFloat32(float value);
-			void SetFloat64(double value);
-			void SetString(const std::string_view& value);
-
-			bool          GetBool() const;
-			int8_t        GetInt8() const;
-			int16_t       GetInt16() const;
-			int32_t       GetInt32() const;
-			int64_t       GetInt64() const;
-			uint8_t       GetUInt8() const;
-			uint16_t      GetUInt16() const;
-			uint32_t      GetUInt32() const;
-			uint64_t      GetUInt64() const;
-			float         GetFloat32() const;
-			double        GetFloat64() const;
-			const String& GetString() const;
-
-			Node& operator[](const std::string_view& name);
-
-		private:
-			union Value
-			{
-				bool     _bool;
-				int8_t   _sint8;
-				int16_t  _sint16;
-				int32_t  _sint32;
-				int64_t  _sint64;
-				uint8_t  _uint8;
-				uint16_t _uint16;
-				uint32_t _uint32;
-				uint64_t _uint64;
-				float    _float32;
-				double   _float64;
-				uint64_t _stringHash;
-			};
-
-		private:
-			Node(Document& document, const std::string_view& name);
-			Node(const Node&) = delete;
-			Node(Node&&) = delete;
-			~Node();
-
-			Node& operator=(const Node&) = delete;
-			Node& operator=(Node&&) = delete;
-
-		public:
-			void Copy(const Node& source);
-			void Clear();
-
-		private:
-			void  Detach();
-			void  Detach(Node& node);
-			void  Attach(Node& node);
-			Node* FindChild(const std::string_view& name) const;
-
-		private:
-			Node*     _firstChild = nullptr;
-			Node*     _nextSibling = nullptr;
-			Node*     _parent = nullptr;
-			Document& _document;
-
-			Type   _type;
-			String _name;
-			Value  _value;
-		};
 
 	public:
 		Document() = default;
@@ -152,24 +30,15 @@ namespace hod
 		Document& operator=(Document&&) = delete;
 
 	public:
-		Node& GetRootNode() const;
-
-		/*
-		bool		Parse(const char* buffer, uint32_t size);
-
-		String		Dump() const;
-		void		Dump(const char* buffer, uint32_t size) const;
-		*/
+		DocumentNode& GetRootNode() const;
 
 	private:
-		uint64_t      AddString(const std::string_view& str);
-		const String& GetString(uint64_t stringHash);
+		StringId      AddString(const std::string_view& str);
+		const String& GetString(StringId hash);
 
 	private:
-		Node _root = Node(*this, "");
+		DocumentNode _root{*this, ""};
 
 		std::map<uint64_t, String> _stringTable;
 	};
 }
-
-#include "Document.inl"

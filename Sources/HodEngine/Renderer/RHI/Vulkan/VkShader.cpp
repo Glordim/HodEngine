@@ -113,39 +113,39 @@ namespace hod::renderer
 			return false;
 		}
 
-		const Document::Node* parametersNode = reflectionDocument.GetRootNode().GetChild("parameters");
+		const DocumentNode* parametersNode = reflectionDocument.GetRootNode().GetChild("parameters");
 		if (parametersNode)
 		{
-			const Document::Node* parameterNode = parametersNode->GetFirstChild();
+			const DocumentNode* parameterNode = parametersNode->GetFirstChild();
 			while (parameterNode != nullptr)
 			{
-				const Document::Node* nameNode = parameterNode->GetChild("name");
-				const Document::Node* bindingNode = parameterNode->GetChild("binding");
-				const Document::Node* typeNode = parameterNode->GetChild("type");
+				const DocumentNode* nameNode = parameterNode->GetChild("name");
+				const DocumentNode* bindingNode = parameterNode->GetChild("binding");
+				const DocumentNode* typeNode = parameterNode->GetChild("type");
 				Assert(nameNode);
 				Assert(bindingNode);
 				Assert(typeNode);
 
-				const Document::Node* kindNode = bindingNode->GetChild("kind");
-				const Document::Node* indexNode = bindingNode->GetChild("index");
+				const DocumentNode* kindNode = bindingNode->GetChild("kind");
+				const DocumentNode* indexNode = bindingNode->GetChild("index");
 				Assert(kindNode);
 				Assert(indexNode);
 
 				const String& kind = kindNode->GetString();
 				if (kind == "pushConstantBuffer")
 				{
-					const Document::Node* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
+					const DocumentNode* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
 					Assert(elementVarLayoutNode);
 					bindingNode = elementVarLayoutNode->GetChild("binding");
 					Assert(bindingNode);
-					const Document::Node* sizeNode = bindingNode->GetChild("size");
+					const DocumentNode* sizeNode = bindingNode->GetChild("size");
 					Assert(sizeNode);
 					_constantDescriptor = DefaultAllocator::GetInstance().New<ShaderConstantDescriptorVk>(0, sizeNode->GetUInt32(), GetShaderType());
 				}
 				else if (kind == "descriptorTableSlot")
 				{
 					uint32_t              set = 0;
-					const Document::Node* spaceNode = bindingNode->GetChild("space");
+					const DocumentNode* spaceNode = bindingNode->GetChild("space");
 					if (spaceNode != nullptr)
 					{
 						set = spaceNode->GetUInt32();
@@ -160,7 +160,7 @@ namespace hod::renderer
 					}
 					else if (kind == "resource")
 					{
-						const Document::Node* baseShapeNode = typeNode->GetChild("baseShape");
+						const DocumentNode* baseShapeNode = typeNode->GetChild("baseShape");
 						Assert(baseShapeNode);
 						Assert(baseShapeNode->GetString() == "texture2D");
 						setDescriptor->ExtractBlockTexture(*parameterNode);

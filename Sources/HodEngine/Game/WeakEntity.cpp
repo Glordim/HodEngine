@@ -10,7 +10,7 @@ namespace hod::game
     DESCRIBE_REFLECTED_CLASS(WeakEntity, reflectionDescriptor)
     {
         reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
-            [](const void* instance, Document::Node& documentNode)
+            [](const void* instance, DocumentNode& documentNode)
             {
                 const WeakEntity* weakEntity = static_cast<const WeakEntity*>(instance);
                 uint64_t id = weakEntity->GetForSerialization();
@@ -18,12 +18,12 @@ namespace hod::game
                 //Serializer::Serialize(id, documentNode);
                 return true;
             },
-            [](void* instance, const Document::Node& documentNode)
+            [](void* instance, const DocumentNode& documentNode)
             {
                 WeakEntity* weakEntity = static_cast<WeakEntity*>(instance);
                 //uint64_t id;
                 //Serializer::Deserialize(id, documentNode);
-                const Document::Node* idNode = documentNode.GetChild("Id");
+                const DocumentNode* idNode = documentNode.GetChild("Id");
                 if (idNode != nullptr)
                 {
                     weakEntity->SetInstanceId(idNode->GetUInt64());

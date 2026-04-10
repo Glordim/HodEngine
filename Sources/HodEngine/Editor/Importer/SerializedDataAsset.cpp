@@ -10,14 +10,14 @@ namespace hod::editor
 {
 	DESCRIBE_REFLECTED_CLASS(SerializedDataAsset, reflectionDescriptor)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>([](const void* instance, Document::Node& documentNode)
+		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>([](const void* instance, DocumentNode& documentNode)
 		{
 			const SerializedDataAsset* serializedDataAsset = static_cast<const SerializedDataAsset*>(instance);
 
 			documentNode.AddChild("Type").SetUInt64(serializedDataAsset->_data->GetReflectionDescriptorV().GetType());
 			return Serializer::Serialize(static_cast<const game::SerializedData*>(serializedDataAsset->_data), documentNode.AddChild("Data"));
 		},
-		[](void* instance, const Document::Node& documentNode)
+		[](void* instance, const DocumentNode& documentNode)
 		{
 			SerializedDataAsset* serializedDataAsset = static_cast<SerializedDataAsset*>(instance);
 

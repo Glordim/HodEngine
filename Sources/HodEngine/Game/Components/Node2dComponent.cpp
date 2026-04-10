@@ -17,22 +17,22 @@ namespace hod
 		DESCRIBE_REFLECTED_CLASS(ZOrder, reflectionDescriptor)
 		{
 			reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
-			[](const void* instance, Document::Node& documentNode)
+			[](const void* instance, DocumentNode& documentNode)
 			{
 				const ZOrder* zorder = static_cast<const ZOrder*>(instance);
 				documentNode.AddChild("Layer").SetUInt16(zorder->GetLayer());
 				documentNode.AddChild("InternalOrder").SetInt16(zorder->GetInternalOrder());
 				return true;
 			},
-			[](void* instance, const Document::Node& documentNode)
+			[](void* instance, const DocumentNode& documentNode)
 			{
 				ZOrder* zorder = static_cast<ZOrder*>(instance);
-				const Document::Node* layerNode = documentNode.GetChild("Layer");
+				const DocumentNode* layerNode = documentNode.GetChild("Layer");
 				if (layerNode)
 				{
 					zorder->SetLayer(layerNode->GetUInt16());
 				}
-				const Document::Node* internalOrderNode = documentNode.GetChild("InternalOrder");
+				const DocumentNode* internalOrderNode = documentNode.GetChild("InternalOrder");
 				if (internalOrderNode)
 				{
 					zorder->SetInternalOrder(internalOrderNode->GetInt16());

@@ -14,8 +14,8 @@ namespace hod
 		RTTI(ReflectionTraitCustomSerialization, ReflectionTrait)
 
 	public:
-		ReflectionTraitCustomSerialization(const std::function<bool(const void*, Document::Node&)> serialization,
-		                                   const std::function<bool(void*, const Document::Node&)> deserialization);
+		ReflectionTraitCustomSerialization(const std::function<bool(const void*, DocumentNode&)> serialization,
+		                                   const std::function<bool(void*, const DocumentNode&)> deserialization);
 		ReflectionTraitCustomSerialization(const ReflectionTraitCustomSerialization& copy) = default;
 		ReflectionTraitCustomSerialization(ReflectionTraitCustomSerialization&& move) = default;
 		~ReflectionTraitCustomSerialization() = default;
@@ -24,11 +24,11 @@ namespace hod
 		ReflectionTraitCustomSerialization& operator=(ReflectionTraitCustomSerialization&& move) = default;
 
 	public:
-		bool Serialize(const void* instance, Document::Node& documentNode) const;
-		bool Deserialize(void* instance, const Document::Node& documentNode) const;
+		bool Serialize(const void* instance, DocumentNode& documentNode) const;
+		bool Deserialize(void* instance, const DocumentNode& documentNode) const;
 
 	private:
-		std::function<bool(const void*, Document::Node&)> _serialization;
-		std::function<bool(void*, const Document::Node&)> _deserialization;
+		std::function<bool(const void*, DocumentNode&)> _serialization;
+		std::function<bool(void*, const DocumentNode&)> _deserialization;
 	};
 }

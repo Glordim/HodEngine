@@ -22,7 +22,7 @@ namespace hod::game
 
 	public:
 
-		bool					Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) override;
+		bool					Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas) override;
 
 		SerializedData&			GetSerializedData();
 

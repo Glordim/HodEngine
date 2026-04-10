@@ -34,7 +34,7 @@ namespace hod::renderer
 	/// @param document
 	/// @param stream
 	/// @return
-	bool MaterialResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
+	bool MaterialResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas)
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{

@@ -74,7 +74,7 @@ namespace hod::editor
 					}
 				}
 
-				const Document::Node* paramNode = materialImporterSettings->_defaultInstanceParams.GetRootNode().GetFirstChild();
+				const DocumentNode* paramNode = materialImporterSettings->_defaultInstanceParams.GetRootNode().GetFirstChild();
 				while (paramNode != nullptr)
 				{
 					String name = paramNode->GetChild("Name")->GetString();

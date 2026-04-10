@@ -17,7 +17,7 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SceneResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& /*datas*/)
+	bool SceneResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& /*datas*/)
 	{
 		_document.GetRootNode().Copy(documentNode);
 		return true;

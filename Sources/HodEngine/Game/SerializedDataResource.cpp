@@ -20,9 +20,9 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SerializedDataResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& /*datas*/)
+	bool SerializedDataResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& /*datas*/)
 	{
-		const Document::Node* typeNode = documentNode.GetChild("Type");
+		const DocumentNode* typeNode = documentNode.GetChild("Type");
 		if (typeNode == nullptr)
 		{
 			// todo message
@@ -40,7 +40,7 @@ namespace hod::game
 
 		_serializedData = static_cast<SerializedData*>(reflectionDescriptor->CreateInstance());
 
-		const Document::Node* dataNode = documentNode.GetChild("Data");
+		const DocumentNode* dataNode = documentNode.GetChild("Data");
 		if (typeNode == nullptr)
 		{
 			// todo message

@@ -18,7 +18,7 @@ namespace hod::game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool PrefabResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
+	bool PrefabResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas)
 	{
 		(void)datas;
 

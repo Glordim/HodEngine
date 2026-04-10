@@ -41,7 +41,7 @@ namespace hod
 			_uid = uid;
 		}
 
-		virtual bool Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas) = 0;
+		virtual bool Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas) = 0;
 
 	private:
 		UID _uid;

@@ -20,11 +20,11 @@ namespace hod::renderer
 
 		VkDescriptorSetLayout GetDescriptorSetLayout() const;
 
-		void ExtractBlockUbo(const Document::Node& parameterNode);
-		void ExtractUboSubMembers(const Document::Node& fieldNode, BlockUbo::Member& structMember);
+		void ExtractBlockUbo(const DocumentNode& parameterNode);
+		void ExtractUboSubMembers(const DocumentNode& fieldNode, BlockUbo::Member& structMember);
 
-		void ExtractBlockTexture(const Document::Node& parameterNode);
-		void ExtractBlockSampler(const Document::Node& parameterNode);
+		void ExtractBlockTexture(const DocumentNode& parameterNode);
+		void ExtractBlockSampler(const DocumentNode& parameterNode);
 
 		bool BuildDescriptorSetLayout();
 

@@ -99,7 +99,7 @@ namespace hod
 				FileSystem::GetInstance()->Close(fileHandle);
 				return false; // todo message
 			}
-			Document::Node& rootNode = document.GetRootNode();
+			DocumentNode& rootNode = document.GetRootNode();
 
 			uint32_t dataCount = 0;
 			if (FileSystem::GetInstance()->Read(fileHandle, (char*)(&dataCount), sizeof(dataCount)) != sizeof(dataCount))

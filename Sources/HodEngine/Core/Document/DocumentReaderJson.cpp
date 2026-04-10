@@ -33,7 +33,7 @@ namespace hod
 	/// @param json
 	/// @param node
 	/// @return
-	bool DocumentReaderJson::ParseObject(Document::Node& node)
+	bool DocumentReaderJson::ParseObject(DocumentNode& node)
 	{
 		if (*_cursor != '{')
 		{
@@ -45,7 +45,7 @@ namespace hod
 
 		while (*_cursor != '}')
 		{
-			Document::Node* child = ParseKeyAndCreateChildNode(node);
+			DocumentNode* child = ParseKeyAndCreateChildNode(node);
 			if (child == nullptr)
 			{
 				return false;
@@ -95,7 +95,7 @@ namespace hod
 	/// @param json
 	/// @param node
 	/// @return
-	bool DocumentReaderJson::ParseArray(Document::Node& node)
+	bool DocumentReaderJson::ParseArray(DocumentNode& node)
 	{
 		if (*_cursor != '[')
 		{
@@ -107,7 +107,7 @@ namespace hod
 
 		while (*_cursor != ']')
 		{
-			Document::Node& child = node.AddChild("");
+			DocumentNode& child = node.AddChild("");
 
 			if (ParseValue(child) == false)
 			{
@@ -141,7 +141,7 @@ namespace hod
 	/// @brief
 	/// @param node
 	/// @return
-	bool DocumentReaderJson::ParseValue(Document::Node& node)
+	bool DocumentReaderJson::ParseValue(DocumentNode& node)
 	{
 		if (*_cursor == '{') // object
 		{
@@ -343,7 +343,7 @@ namespace hod
 	/// @brief
 	/// @param node
 	/// @return
-	Document::Node* DocumentReaderJson::ParseKeyAndCreateChildNode(Document::Node& node)
+	DocumentNode* DocumentReaderJson::ParseKeyAndCreateChildNode(DocumentNode& node)
 	{
 		if (*_cursor != '\"')
 		{
@@ -362,7 +362,7 @@ namespace hod
 		const char* keyEnd = _cursor;
 		++_cursor;
 
-		Document::Node& child = node.AddChild(std::string_view(keyStart, keyEnd - keyStart));
+		DocumentNode& child = node.AddChild(std::string_view(keyStart, keyEnd - keyStart));
 		return &child;
 	}
 }

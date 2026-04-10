@@ -23,8 +23,8 @@ namespace hod::editor
 		REFLECTED_CLASS_NO_VIRTUAL(Meta)
 
 	public:
-		bool LoadImporterConfig(const Document::Node& documentNode);
-		bool SaveImporterConfig(Document::Node& documentNode) const;
+		bool LoadImporterConfig(const DocumentNode& documentNode);
+		bool SaveImporterConfig(DocumentNode& documentNode) const;
 
 		void SetImporterConfig(std::shared_ptr<ImporterSettings> importerSettings, const char* importerType);
 

@@ -41,8 +41,8 @@ namespace hod::game
 		void          SetName(const std::string_view& name);
 		const String& GetName() const;
 
-		bool SerializeInDocument(Document::Node& documentNode);
-		bool DeserializeFromDocument(const Document::Node& documentNode);
+		bool SerializeInDocument(DocumentNode& documentNode);
+		bool DeserializeFromDocument(const DocumentNode& documentNode);
 
 		Entity* CreateEntity(const std::string_view& name = "");
 		void    DestroyEntity(Entity* entity);

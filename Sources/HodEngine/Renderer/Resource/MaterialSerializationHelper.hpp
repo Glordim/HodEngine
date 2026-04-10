@@ -42,7 +42,7 @@ namespace hod::renderer
 	public:
 		static void GenerateParameters(const Material& material, Vector<ShaderParameter>& params);
 
-		static void ApplyParamsFromDocument(MaterialInstance& materialInstance, const Document::Node& paramsNode, Vector<WeakResource<TextureResource>>& textureResources);
+		static void ApplyParamsFromDocument(MaterialInstance& materialInstance, const DocumentNode& paramsNode, Vector<WeakResource<TextureResource>>& textureResources);
 		static void ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, String path,
 		                                 Vector<WeakResource<TextureResource>>& textureResources);
 	};

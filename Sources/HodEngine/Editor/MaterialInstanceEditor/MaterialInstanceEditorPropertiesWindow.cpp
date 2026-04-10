@@ -159,28 +159,28 @@ namespace hod::editor
 					materialInstanceAsset._params.GetRootNode().Clear();
 					for (const MaterialInstanceEditorTab::ShaderParamScalar& scalarParameter : GetOwner<MaterialInstanceEditorTab>()->GetScalarParameters())
 					{
-						Document::Node& node = materialInstanceAsset._params.GetRootNode().AddChild("");
+						DocumentNode& node = materialInstanceAsset._params.GetRootNode().AddChild("");
 						node.AddChild("Name").SetString(scalarParameter._name);
 						node.AddChild("Type").SetUInt8((uint8_t)scalarParameter._type);
 						node.AddChild("Value").SetFloat32(scalarParameter._value.floatValue);
 					}
 					for (const MaterialInstanceEditorTab::ShaderParamVec2& vec2Parameter : GetOwner<MaterialInstanceEditorTab>()->GetVector2Parameters())
 					{
-						Document::Node& node = materialInstanceAsset._params.GetRootNode().AddChild("");
+						DocumentNode& node = materialInstanceAsset._params.GetRootNode().AddChild("");
 						node.AddChild("Name").SetString(vec2Parameter._name);
 						node.AddChild("Type").SetUInt8((uint8_t)vec2Parameter._type);
 						Serializer::Serialize(vec2Parameter._value, node.AddChild("Value"));
 					}
 					for (const MaterialInstanceEditorTab::ShaderParamVec4& vec4Parameter : GetOwner<MaterialInstanceEditorTab>()->GetVector4Parameters())
 					{
-						Document::Node& node = materialInstanceAsset._params.GetRootNode().AddChild("");
+						DocumentNode& node = materialInstanceAsset._params.GetRootNode().AddChild("");
 						node.AddChild("Name").SetString(vec4Parameter._name);
 						node.AddChild("Type").SetUInt8((uint8_t)vec4Parameter._type);
 						Serializer::Serialize(vec4Parameter._value, node.AddChild("Value"));
 					}
 					for (const MaterialInstanceEditorTab::ShaderParamTexture& textureParameter : GetOwner<MaterialInstanceEditorTab>()->GetTextureParameters())
 					{
-						Document::Node& node = materialInstanceAsset._params.GetRootNode().AddChild("");
+						DocumentNode& node = materialInstanceAsset._params.GetRootNode().AddChild("");
 						node.AddChild("Name").SetString(textureParameter._name);
 						node.AddChild("Type").SetUInt8((uint8_t)textureParameter._type);
 						Serializer::Serialize(textureParameter._value, node.AddChild("Value"));

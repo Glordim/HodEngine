@@ -28,7 +28,7 @@ namespace hod::renderer
 	/// @param document
 	/// @param stream
 	/// @return
-	bool FontResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
+	bool FontResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas)
 	{
 		(void)documentNode; // TODO
 

@@ -15,9 +15,9 @@ namespace hod::game
 	class HOD_GAME_API SceneSerializer
 	{
 	public:
-		bool	SerializeEntity(Entity* entity, bool withChildren, Document::Node& entityNode, uint64_t& nextLocalId);
+		bool	SerializeEntity(Entity* entity, bool withChildren, DocumentNode& entityNode, uint64_t& nextLocalId);
 
-		bool	Deserialize(const Document::Node& entitiesNode);
+		bool	Deserialize(const DocumentNode& entitiesNode);
 
 		const Vector<Entity*>&		GetEntities() const;
 		const Vector<Component*>&	GetComponents() const;
@@ -32,15 +32,15 @@ namespace hod::game
 
 	private:
 
-		bool	SerializeEntityRaw(Entity* entity, Document::Node& entityNode, uint64_t& nextLocalId);
-		bool	SerializeEntityPrefab(Entity* entity, Document::Node& entityNode, uint64_t& nextLocalId);
+		bool	SerializeEntityRaw(Entity* entity, DocumentNode& entityNode, uint64_t& nextLocalId);
+		bool	SerializeEntityPrefab(Entity* entity, DocumentNode& entityNode, uint64_t& nextLocalId);
 
-		bool	DeserializeEntity(const Document::Node& entityNode);
-		bool	DeserializeEntityRaw(const Document::Node& entityNode);
-		bool	DeserializeEntityPrefab(const Document::Node& entityNode);
+		bool	DeserializeEntity(const DocumentNode& entityNode);
+		bool	DeserializeEntityRaw(const DocumentNode& entityNode);
+		bool	DeserializeEntityPrefab(const DocumentNode& entityNode);
 
-		bool	CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, Document::Node& documentNode);
-		bool	CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const Document::Node& documentNode);
+		bool	CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, DocumentNode& documentNode);
+		bool	CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const DocumentNode& documentNode);
 
 	private:
 

@@ -18,11 +18,11 @@ namespace hod::game
 	DESCRIBE_REFLECTED_CLASS(Prefab, reflectionDescriptor)
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
-		[](const void* instance, Document::Node& documentNode)
+		[](const void* instance, DocumentNode& documentNode)
 		{
 			return const_cast<Prefab*>(static_cast<const Prefab*>(instance))->SerializeInDocument(documentNode);
 		},
-		[](void* instance, const Document::Node& documentNode)
+		[](void* instance, const DocumentNode& documentNode)
 		{
 			return static_cast<Prefab*>(instance)->DeserializeFromDocument(documentNode);
 		});
@@ -53,10 +53,10 @@ namespace hod::game
 
 	/// @brief 
 	/// @param documentNode 
-	bool Prefab::SerializeInDocument(Document::Node& documentNode)
+	bool Prefab::SerializeInDocument(DocumentNode& documentNode)
 	{
 		documentNode.AddChild("Name").SetString(_name);
-		Document::Node& entitiesNode = documentNode.AddChild("Entities");
+		DocumentNode& entitiesNode = documentNode.AddChild("Entities");
 
 		for (const auto& entityPair : _entities)
 		{
@@ -77,21 +77,21 @@ namespace hod::game
 
 	/// @brief 
 	/// @param documentNode 
-	bool Prefab::DeserializeFromDocument(const Document::Node& documentNode)
+	bool Prefab::DeserializeFromDocument(const DocumentNode& documentNode)
 	{
-		const Document::Node* nameNode = documentNode.GetChild("Name");
+		const DocumentNode* nameNode = documentNode.GetChild("Name");
 		if (nameNode != nullptr)
 		{
 			_name = nameNode->GetString();
 		}
 
-		const Document::Node* nextLocalIdNode = documentNode.GetChild("NextLocalId");
+		const DocumentNode* nextLocalIdNode = documentNode.GetChild("NextLocalId");
 		if (nextLocalIdNode != nullptr)
 		{
 			_nextLocalId = nextLocalIdNode->GetUInt64();
 		}
 
-		const Document::Node* entitiesNode = documentNode.GetChild("Entities");
+		const DocumentNode* entitiesNode = documentNode.GetChild("Entities");
 		SceneSerializer sceneSerializer;
 		if (sceneSerializer.Deserialize(*entitiesNode) == false)
 		{

@@ -130,7 +130,7 @@ namespace hod::editor
 			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
 			return false;
 		}
-		const Document::Node* importerSettings = metaDocument.GetRootNode().GetChild("importerSettings");
+		const DocumentNode* importerSettings = metaDocument.GetRootNode().GetChild("importerSettings");
 		if (importerSettings == nullptr)
 		{
 			DefaultAllocator::GetInstance().Free(vertexDataBuffer);

@@ -26,7 +26,7 @@ namespace hod::game
 	/// @param entityNode
 	/// @param nextLocalId
 	/// @return
-	bool SceneSerializer::SerializeEntity(Entity* entity, bool withChildren, Document::Node& entitiesNode, uint64_t& nextLocalId)
+	bool SceneSerializer::SerializeEntity(Entity* entity, bool withChildren, DocumentNode& entitiesNode, uint64_t& nextLocalId)
 	{
 		(void)withChildren; // TODO
 
@@ -45,9 +45,9 @@ namespace hod::game
 	/// @param entityNode
 	/// @param nextLocalId
 	/// @return
-	bool SceneSerializer::SerializeEntityRaw(Entity* entity, Document::Node& entitiesNode, uint64_t& nextLocalId)
+	bool SceneSerializer::SerializeEntityRaw(Entity* entity, DocumentNode& entitiesNode, uint64_t& nextLocalId)
 	{
-		Document::Node& entityNode = entitiesNode.AddChild("");
+		DocumentNode& entityNode = entitiesNode.AddChild("");
 
 		if (entity->GetLocalId() == 0)
 		{
@@ -66,11 +66,11 @@ namespace hod::game
 
 		Serializer::Serialize(entity, entityNode);
 
-		Document::Node& componentsNode = entityNode.AddChild("Components");
+		DocumentNode& componentsNode = entityNode.AddChild("Components");
 
 		for (Component* component : entity->GetComponents())
 		{
-			Document::Node& componentNode = componentsNode.AddChild("");
+			DocumentNode& componentNode = componentsNode.AddChild("");
 			componentNode.AddChild("MetaType").SetUInt64(component->GetReflectionDescriptorV().GetType());
 			if (component->GetLocalId() == 0)
 			{
@@ -101,9 +101,9 @@ namespace hod::game
 	/// @param entityNode
 	/// @param nextLocalId
 	/// @return
-	bool SceneSerializer::SerializeEntityPrefab(Entity* entity, Document::Node& entitiesNode, uint64_t& nextLocalId)
+	bool SceneSerializer::SerializeEntityPrefab(Entity* entity, DocumentNode& entitiesNode, uint64_t& nextLocalId)
 	{
-		Document::Node& entityNode = entitiesNode.AddChild("");
+		DocumentNode& entityNode = entitiesNode.AddChild("");
 
 		if (entity->GetLocalId() == 0)
 		{
@@ -114,10 +114,10 @@ namespace hod::game
 		Serializer::SerializeVariable(entity->GetReflectionDescriptorV().FindProperty<ReflectionPropertyVariable>("_localId"), entity, entityNode);
 		Serializer::SerializeObject(entity->GetReflectionDescriptorV().FindProperty<ReflectionPropertyObject>("Parent"), entity, entityNode, nullptr);
 
-		Document::Node& prefabInstance = entityNode.AddChild("PrefabInstance");
+		DocumentNode& prefabInstance = entityNode.AddChild("PrefabInstance");
 		UID             uid = entity->GetPrefabResource()->GetUid(); // TODO fix Serializa template lvalue
 		Serializer::Serialize(uid, prefabInstance.AddChild("UID"));
-		Document::Node& overridesNode = prefabInstance.AddChild("Overrides");
+		DocumentNode& overridesNode = prefabInstance.AddChild("Overrides");
 
 		Vector<PrefabUtility::PrefabOverride> prefabOverrides;
 		PrefabUtility::CollectPrefabOverride(entity, prefabOverrides);
@@ -134,8 +134,8 @@ namespace hod::game
 				continue;
 			}
 
-			Document::Node& overrideNode = overridesNode.AddChild("");
-			Document::Node& overrideTargetNode = overrideNode.AddChild("Target");
+			DocumentNode& overrideNode = overridesNode.AddChild("");
+			DocumentNode& overrideTargetNode = overrideNode.AddChild("Target");
 			if (override._type == PrefabUtility::PrefabOverride::Type::Entity)
 			{
 				overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Entity));
@@ -148,7 +148,7 @@ namespace hod::game
 			overrideTargetNode.AddChild("LocalIds").SetValues(std::span(override._target));
 
 			// TODO can be an array of modifcations to mutalize target description
-			Document::Node& overrideModificationNode = overrideNode.AddChild("Modification");
+			DocumentNode& overrideModificationNode = overrideNode.AddChild("Modification");
 			Serializer::SerializeVariable((ReflectionPropertyVariable*) override._reflectionProperty, override._effectiveInstanceAddr, overrideModificationNode, override._path);
 		}
 
@@ -158,9 +158,9 @@ namespace hod::game
 	/// @brief
 	/// @param entitiesNode
 	/// @return
-	bool SceneSerializer::Deserialize(const Document::Node& entitiesNode)
+	bool SceneSerializer::Deserialize(const DocumentNode& entitiesNode)
 	{
-		const Document::Node* entityNode = entitiesNode.GetFirstChild();
+		const DocumentNode* entityNode = entitiesNode.GetFirstChild();
 		while (entityNode != nullptr)
 		{
 			if (DeserializeEntity(*entityNode) == false)
@@ -263,9 +263,9 @@ namespace hod::game
 	/// @brief
 	/// @param entityNode
 	/// @return
-	bool SceneSerializer::DeserializeEntity(const Document::Node& entityNode)
+	bool SceneSerializer::DeserializeEntity(const DocumentNode& entityNode)
 	{
-		const Document::Node* prefabInstanceNode = entityNode.GetChild("PrefabInstance");
+		const DocumentNode* prefabInstanceNode = entityNode.GetChild("PrefabInstance");
 		if (prefabInstanceNode != nullptr)
 		{
 			return DeserializeEntityPrefab(entityNode);
@@ -279,15 +279,15 @@ namespace hod::game
 	/// @brief
 	/// @param entityNode
 	/// @return
-	bool SceneSerializer::DeserializeEntityRaw(const Document::Node& entityNode)
+	bool SceneSerializer::DeserializeEntityRaw(const DocumentNode& entityNode)
 	{
 		Entity*           entity = DefaultAllocator::GetInstance().New<Entity>("");
 		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 
 		Serializer::Deserialize(*entity, entityNode);
 
-		const Document::Node* componentsNode = entityNode.GetChild("Components");
-		const Document::Node* componentNode = componentsNode->GetFirstChild();
+		const DocumentNode* componentsNode = entityNode.GetChild("Components");
+		const DocumentNode* componentNode = componentsNode->GetFirstChild();
 		while (componentNode != nullptr)
 		{
 			RttiType RttiType = componentNode->GetChild("RttiType")->GetUInt64();
@@ -331,9 +331,9 @@ namespace hod::game
 	/// @brief
 	/// @param entityNode
 	/// @return
-	bool SceneSerializer::DeserializeEntityPrefab(const Document::Node& entityNode)
+	bool SceneSerializer::DeserializeEntityPrefab(const DocumentNode& entityNode)
 	{
-		const Document::Node* prefabInstanceNode = entityNode.GetChild("PrefabInstance");
+		const DocumentNode* prefabInstanceNode = entityNode.GetChild("PrefabInstance");
 		if (prefabInstanceNode == nullptr)
 		{
 			assert(false);
@@ -344,7 +344,7 @@ namespace hod::game
 		Serializer::Deserialize(uid, *prefabInstanceNode->GetChild("UID"));
 
 		std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(uid);
-		const Document::Node*           prefabEntitiesNode = prefabResource->GetDocument().GetRootNode().GetChild("Entities");
+		const DocumentNode*           prefabEntitiesNode = prefabResource->GetDocument().GetRootNode().GetChild("Entities");
 
 		SceneSerializer sceneSerializer;
 		if (sceneSerializer.Deserialize(*prefabEntitiesNode) == false)
@@ -352,21 +352,21 @@ namespace hod::game
 			return false;
 		}
 
-		const Document::Node* overridesNode = prefabInstanceNode->GetChild("Overrides");
-		const Document::Node* overrideNode = overridesNode->GetFirstChild();
+		const DocumentNode* overridesNode = prefabInstanceNode->GetChild("Overrides");
+		const DocumentNode* overrideNode = overridesNode->GetFirstChild();
 		while (overrideNode != nullptr)
 		{
-			const Document::Node* targetNode = overrideNode->GetChild("Target");
-			const Document::Node* modificationsNode = overrideNode->GetChild("Modification");
+			const DocumentNode* targetNode = overrideNode->GetChild("Target");
+			const DocumentNode* modificationsNode = overrideNode->GetChild("Modification");
 			if (targetNode != nullptr && modificationsNode != nullptr)
 			{
-				const Document::Node* typeNode = targetNode->GetChild("Type");
-				const Document::Node* localIdsNode = targetNode->GetChild("LocalIds");
+				const DocumentNode* typeNode = targetNode->GetChild("Type");
+				const DocumentNode* localIdsNode = targetNode->GetChild("LocalIds");
 				if (typeNode != nullptr && localIdsNode != nullptr)
 				{
 					PrefabUtility::PrefabOverride::Type type = static_cast<PrefabUtility::PrefabOverride::Type>(typeNode->GetInt64());
 
-					const Document::Node* localIdNode = localIdsNode->GetFirstChild();
+					const DocumentNode* localIdNode = localIdsNode->GetFirstChild();
 					uint64_t              localId = localIdNode->GetUInt64();
 
 					if (type == PrefabUtility::PrefabOverride::Type::Entity)
@@ -384,7 +384,7 @@ namespace hod::game
 						if (it != sceneSerializer._contextualComponentMap.end())
 						{
 							Component*            component = it->second;
-							const Document::Node* modificationNode = modificationsNode->GetFirstChild();
+							const DocumentNode* modificationNode = modificationsNode->GetFirstChild();
 							while (modificationNode != nullptr)
 							{
 								Serializer::DeserializeWithPath(modificationNode->GetName(), *component, *modificationsNode);
@@ -450,7 +450,7 @@ namespace hod::game
 	/// @param instance
 	/// @param reflectionDescriptor
 	/// @param documentNode
-	bool SceneSerializer::CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, Document::Node& documentNode)
+	bool SceneSerializer::CustomComponentSerializationCallback(const void* instance, const ReflectionDescriptor& reflectionDescriptor, DocumentNode& documentNode)
 	{
 		if (WeakComponentBase::GetReflectionDescriptor().IsCompatible(reflectionDescriptor))
 		{
@@ -481,7 +481,7 @@ namespace hod::game
 
 				for (auto it = routes.RBegin(); it != routes.REnd(); ++it)
 				{
-					Document::Node& routeNode = documentNode.AddChild("");
+					DocumentNode& routeNode = documentNode.AddChild("");
 					routeNode.AddChild("Entity").SetUInt64(it->_entityId);
 					routeNode.AddChild("Component").SetUInt64(it->_componentId);
 				}
@@ -495,18 +495,18 @@ namespace hod::game
 	/// @param instance
 	/// @param reflectionDescriptor
 	/// @param documentNode
-	bool SceneSerializer::CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const Document::Node& documentNode)
+	bool SceneSerializer::CustomComponentDeserializationCallback(void* instance, const ReflectionDescriptor& reflectionDescriptor, const DocumentNode& documentNode)
 	{
 		if (WeakComponentBase::GetReflectionDescriptor().IsCompatible(reflectionDescriptor))
 		{
 			WeakComponentBase*           weakComponent = static_cast<WeakComponentBase*>(instance);
 			Vector<EntityComponentRoute> routes;
-			const Document::Node*        childNode = documentNode.GetFirstChild();
+			const DocumentNode*        childNode = documentNode.GetFirstChild();
 			while (childNode != nullptr)
 			{
 				EntityComponentRoute route;
 
-				const Document::Node* entityNode = childNode->GetChild("Entity");
+				const DocumentNode* entityNode = childNode->GetChild("Entity");
 				if (entityNode)
 				{
 					route._entityId = entityNode->GetUInt64();
@@ -516,7 +516,7 @@ namespace hod::game
 					// todo format error
 				}
 
-				const Document::Node* componentNode = childNode->GetChild("Component");
+				const DocumentNode* componentNode = childNode->GetChild("Component");
 				if (componentNode)
 				{
 					route._componentId = componentNode->GetUInt64();

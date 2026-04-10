@@ -122,20 +122,20 @@ namespace hod::renderer
 		spaceParams.Reserve(4);
 
 		const Document&       vertexShaderReflection = static_cast<D3d12Shader*>(vertexShader)->GetReflection();
-		const Document::Node* vertexShaderEntryPointsNode = vertexShaderReflection.GetRootNode().GetChild("entryPoints");
+		const DocumentNode* vertexShaderEntryPointsNode = vertexShaderReflection.GetRootNode().GetChild("entryPoints");
 		Assert(vertexShaderEntryPointsNode);
-		const Document::Node* vertexShaderEntryPointNode = vertexShaderEntryPointsNode->GetFirstChild();
+		const DocumentNode* vertexShaderEntryPointNode = vertexShaderEntryPointsNode->GetFirstChild();
 		Assert(vertexShaderEntryPointNode);
-		const Document::Node* vertexShaderEntryPointsBindingNode = vertexShaderEntryPointNode->GetChild("bindings");
+		const DocumentNode* vertexShaderEntryPointsBindingNode = vertexShaderEntryPointNode->GetChild("bindings");
 		if (vertexShaderEntryPointsBindingNode != nullptr)
 		{
-			const Document::Node* childNode = vertexShaderEntryPointsBindingNode->GetFirstChild();
+			const DocumentNode* childNode = vertexShaderEntryPointsBindingNode->GetFirstChild();
 			while (childNode != nullptr)
 			{
-				const Document::Node* bindingNode = childNode->GetChild("binding");
+				const DocumentNode* bindingNode = childNode->GetChild("binding");
 				Assert(bindingNode);
 
-				const Document::Node* usedNode = bindingNode->GetChild("used");
+				const DocumentNode* usedNode = bindingNode->GetChild("used");
 				Assert(usedNode);
 
 				if (usedNode->GetBool() == false)
@@ -154,14 +154,14 @@ namespace hod::renderer
 					it = spaceParams.End() - 1;
 				}
 
-				const Document::Node* indexNode = bindingNode->GetChild("index");
+				const DocumentNode* indexNode = bindingNode->GetChild("index");
 				Assert(indexNode);
 				uint32_t index = indexNode->GetUInt32();
 
 				Vector<Param>::Iterator paramIt;
 				Vector<Param>*          params = nullptr;
 
-				const Document::Node* kindNode = bindingNode->GetChild("kind");
+				const DocumentNode* kindNode = bindingNode->GetChild("kind");
 				Assert(kindNode);
 				const String& kind = kindNode->GetString();
 				if (kind == "constantBuffer")
@@ -197,20 +197,20 @@ namespace hod::renderer
 		}
 
 		const Document&       fragmentShaderReflection = static_cast<D3d12Shader*>(fragmentShader)->GetReflection();
-		const Document::Node* fragmentShaderEntryPointsNode = fragmentShaderReflection.GetRootNode().GetChild("entryPoints");
+		const DocumentNode* fragmentShaderEntryPointsNode = fragmentShaderReflection.GetRootNode().GetChild("entryPoints");
 		Assert(fragmentShaderEntryPointsNode);
-		const Document::Node* fragmentShaderEntryPointNode = fragmentShaderEntryPointsNode->GetFirstChild();
+		const DocumentNode* fragmentShaderEntryPointNode = fragmentShaderEntryPointsNode->GetFirstChild();
 		Assert(fragmentShaderEntryPointNode);
-		const Document::Node* fragmentShaderEntryPointsBindingNode = fragmentShaderEntryPointNode->GetChild("bindings");
+		const DocumentNode* fragmentShaderEntryPointsBindingNode = fragmentShaderEntryPointNode->GetChild("bindings");
 		if (fragmentShaderEntryPointsBindingNode != nullptr)
 		{
-			const Document::Node* childNode = fragmentShaderEntryPointsBindingNode->GetFirstChild();
+			const DocumentNode* childNode = fragmentShaderEntryPointsBindingNode->GetFirstChild();
 			while (childNode != nullptr)
 			{
-				const Document::Node* bindingNode = childNode->GetChild("binding");
+				const DocumentNode* bindingNode = childNode->GetChild("binding");
 				Assert(bindingNode);
 
-				const Document::Node* usedNode = bindingNode->GetChild("used");
+				const DocumentNode* usedNode = bindingNode->GetChild("used");
 				Assert(usedNode);
 
 				if (usedNode->GetBool() == false)
@@ -229,14 +229,14 @@ namespace hod::renderer
 					it = spaceParams.End() - 1;
 				}
 
-				const Document::Node* indexNode = bindingNode->GetChild("index");
+				const DocumentNode* indexNode = bindingNode->GetChild("index");
 				Assert(indexNode);
 				uint32_t index = indexNode->GetUInt32();
 
 				Vector<Param>::Iterator paramIt;
 				Vector<Param>*          params = nullptr;
 
-				const Document::Node* kindNode = bindingNode->GetChild("kind");
+				const DocumentNode* kindNode = bindingNode->GetChild("kind");
 				Assert(kindNode);
 				const String& kind = kindNode->GetString();
 				if (kind == "constantBuffer")

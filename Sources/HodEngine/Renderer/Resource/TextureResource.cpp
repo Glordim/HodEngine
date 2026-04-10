@@ -28,7 +28,7 @@ namespace hod::renderer
 	/// @param document
 	/// @param stream
 	/// @return
-	bool TextureResource::Initialize(const Document::Node& documentNode, const Vector<Resource::Data>& datas)
+	bool TextureResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas)
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
