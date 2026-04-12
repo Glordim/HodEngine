@@ -160,7 +160,10 @@ namespace hod
 			return existingResource;
 		}
 
-		std::shared_ptr<Resource> resource(reflectionDescriptor.CreateInstance<Resource>());
+		std::shared_ptr<Resource> resource(reflectionDescriptor.CreateInstance<Resource>(), [](Resource* resource)
+		{
+			resource->GetReflectionDescriptorV().DeleteInstance(resource);
+		});
 		resource->SetUid(uid);
 		if (Load(resource.get(), uid) == false)
 		{
