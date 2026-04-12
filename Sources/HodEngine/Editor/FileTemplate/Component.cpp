@@ -1,5 +1,6 @@
 #include "MyFirstComponent.hpp"
 
-DESCRIBE_REFLECTED_CLASS(MyFirstComponent, hod::game::Component)
+DESCRIBE_REFLECTED_CLASS(MyFirstComponent, reflectionDescriptor)
 {
+	(void)reflectionDescriptor;
 }

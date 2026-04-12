@@ -1,4 +1,5 @@
 #include <HodEngine/HodEngine.hpp>
+#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 
 #if defined([[PROJECT_EXPORT]])
 	#define [[API]] HOD_EXPORT
@@ -6,8 +7,4 @@
 	#define [[API]] HOD_IMPORT
 #endif
 
-extern "C"
-{
-	[[API]] int Init();
-	[[API]] int Clean();
-}
+HOD_DECLARE_MODULE([[PROJECT_NAME]], [[API]])

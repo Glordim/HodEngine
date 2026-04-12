@@ -1,3 +1,4 @@
+#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 #include "[[PROJECT_NAME]].hpp"
 #include <HodEngine/Game/ComponentFactory.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
@@ -8,7 +9,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 /// @brief 
 /// @return 
-int Init()
+HOD_STARTUP_MODULE([[PROJECT_NAME]])
 {
 	hod::game::ComponentFactory* componentFactory = hod::game::ComponentFactory::GetInstance();
 	componentFactory->Register<MyFirstComponent>();
@@ -17,7 +18,7 @@ int Init()
 
 /// @brief 
 /// @return 
-int Clean()
+HOD_SHUTDOWN_MODULE([[PROJECT_NAME]])
 {
 	hod::game::ComponentFactory* componentFactory = hod::game::ComponentFactory::GetInstance();
 	componentFactory->Unregister<MyFirstComponent>();

@@ -5,5 +5,5 @@
 
 class [[API]] MyFirstComponent : public hod::game::Component
 {
-	REFLECTED_CLASS(MyFirstComponent, hod::game::Component, [[API]]);
+	REFLECTED_CLASS(MyFirstComponent, hod::game::Component);
 };

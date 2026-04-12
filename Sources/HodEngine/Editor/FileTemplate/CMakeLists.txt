@@ -40,10 +40,12 @@ target_include_directories([[PROJECT_NAME]] PUBLIC
 
 target_link_libraries([[PROJECT_NAME]]
 	HodEngine::Core
+	HodEngine::Math
 	HodEngine::Window
 	HodEngine::Renderer
 	HodEngine::Input
 	HodEngine::Physics
+	HodEngine::GameSystems
 	HodEngine::Game
 	HodEngine::ImGui
 	HodEngine::Editor
@@ -56,4 +58,3 @@ target_compile_definitions([[PROJECT_NAME]]
 	PUBLIC ${HOD_PLATFORM_DEFINE}
 	PRIVATE [[PROJECT_EXPORT]]
 )
-
