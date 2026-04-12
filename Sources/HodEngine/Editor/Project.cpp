@@ -198,7 +198,7 @@ namespace hod::editor
 
 		_gameModule.Init(_projectPath.ParentPath() / "build" / "Output" / "platforms" / "windows-x64" / "bin" / _name.CStr(), true);
 		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
-		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr))
+		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr) == false)
 		{
 			return false;
 		}
@@ -395,7 +395,7 @@ namespace hod::editor
 
 		Path toolchainPath = FileSystem::GetExecutablePath().ParentPath().ParentPath() / "cmake" / "toolchain.cmake";
 
-		String arguments = fmt::format("-DHOD_PLATFORM={} -DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {}", "windows-x64", toolchainPath, gameModuleBuildDirectoryPath, gameModuleSourceDirectoryPath).c_str();
+		String arguments = fmt::format("-DHOD_PLATFORM={} -DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G Ninja", "windows-x64", toolchainPath, gameModuleBuildDirectoryPath, gameModuleSourceDirectoryPath).c_str();
 		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
 		if (Process::Create("cmake", arguments, false) == false)
 		{

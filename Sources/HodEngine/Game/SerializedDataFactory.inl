@@ -6,7 +6,7 @@ namespace hod::game
 	{
 		static_assert(std::is_base_of<SerializedData, _SerializedData_>::value, "_SerializedData_ must derive from SerializedData to use SerializedDataFactory::Register()");
 
-		_RttiTypeToDescriptors[_SerializedData_::GetRttiTypeStatic()] = &_SerializedData_::GetReflectionDescriptor();
+		_RttiTypeToDescriptors[_SerializedData_::GetReflectionDescriptor().GetType()] = &_SerializedData_::GetReflectionDescriptor();
 		return true;
 	}
 
@@ -15,7 +15,7 @@ namespace hod::game
 	{
 		static_assert(std::is_base_of<SerializedData, _SerializedData_>::value, "_SerializedData_ must derive from SerializedData to use SerializedDataFactory::Register()");
 
-		auto it = _RttiTypeToDescriptors.find(_SerializedData_::GetRttiTypeStatic());
+		auto it = _RttiTypeToDescriptors.find(_SerializedData_::GetReflectionDescriptor().GetType());
 		if (it != _RttiTypeToDescriptors.end())
 		{
 			_RttiTypeToDescriptors.erase(it);
