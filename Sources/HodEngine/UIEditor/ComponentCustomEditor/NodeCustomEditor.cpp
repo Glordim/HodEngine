@@ -86,7 +86,7 @@ namespace hod::editor
 		ImGui::SetCursorPos(cursorPos + ImVec2(0.0f, 120.0f));
 
 		const char* anchoredPosLabelX = "X";
-		const char* anchoredPosLabelY = "X";
+		const char* anchoredPosLabelY = "Y";
 		const char* deltaSizeLabelX = "Width";
 		const char* deltaSizeLabelY = "Height";
 
