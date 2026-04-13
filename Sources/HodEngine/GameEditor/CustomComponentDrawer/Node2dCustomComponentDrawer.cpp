@@ -1,7 +1,7 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/GameEditor/ComponentCustomEditor/Node2dComponentCustomEditor.hpp"
+#include "HodEngine/GameEditor/CustomComponentDrawer/Node2dCustomComponentDrawer.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 
 #include <HodEngine/Renderer/MaterialManager.hpp>
@@ -19,7 +19,7 @@
 namespace hod::editor
 {
 	/// @brief
-	Node2dComponentCustomEditor::Node2dComponentCustomEditor()
+	Node2dCustomComponentDrawer::Node2dCustomComponentDrawer()
 	{
 		_freeMoveHandle = Gizmos::GenerateHandle();
 
@@ -33,7 +33,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool Node2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool Node2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{

@@ -14,17 +14,17 @@ namespace hod::renderer
 namespace hod::editor
 {
 	/// @brief 
-	class HOD_GAME_EDITOR_API Node2dComponentCustomEditor : public CustomComponentDrawer
+	class HOD_GAME_EDITOR_API Node2dCustomComponentDrawer : public CustomComponentDrawer
 	{
 	public:
 
-										Node2dComponentCustomEditor();
-										Node2dComponentCustomEditor(const Node2dComponentCustomEditor&) = delete;
-										Node2dComponentCustomEditor(Node2dComponentCustomEditor&&) = delete;
-										~Node2dComponentCustomEditor() override = default;
+										Node2dCustomComponentDrawer();
+										Node2dCustomComponentDrawer(const Node2dCustomComponentDrawer&) = delete;
+										Node2dCustomComponentDrawer(Node2dCustomComponentDrawer&&) = delete;
+										~Node2dCustomComponentDrawer() override = default;
 
-		Node2dComponentCustomEditor		operator = (const Node2dComponentCustomEditor&) = delete;
-		Node2dComponentCustomEditor		operator = (Node2dComponentCustomEditor&&) = delete;
+		Node2dCustomComponentDrawer		operator = (const Node2dCustomComponentDrawer&) = delete;
+		Node2dCustomComponentDrawer		operator = (Node2dCustomComponentDrawer&&) = delete;
 
 	public:
 

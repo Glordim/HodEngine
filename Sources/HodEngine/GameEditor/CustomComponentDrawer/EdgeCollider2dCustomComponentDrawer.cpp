@@ -1,7 +1,7 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Editor/GeometryGenerator.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/GameEditor/ComponentCustomEditor/CircleCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/GameEditor/CustomComponentDrawer/EdgeCollider2dCustomComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -12,7 +12,7 @@
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
-#include <HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp>
+#include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
 #include <HodEngine/Game/Entity.hpp>
 
 #undef max
@@ -20,7 +20,7 @@
 namespace hod::editor
 {
 	/// @brief
-	CircleCollider2dComponentCustomEditor::CircleCollider2dComponentCustomEditor()
+	EdgeCollider2dCustomComponentDrawer::EdgeCollider2dCustomComponentDrawer()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
@@ -28,7 +28,7 @@ namespace hod::editor
 	}
 
 	/// @brief
-	CircleCollider2dComponentCustomEditor::~CircleCollider2dComponentCustomEditor()
+	EdgeCollider2dCustomComponentDrawer::~EdgeCollider2dCustomComponentDrawer()
 	{
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
@@ -39,23 +39,23 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool CircleCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool EdgeCollider2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{
 			return false;
 		}
 
-		game::CircleCollider2dComponent* circleCollider2d = static_cast<game::CircleCollider2dComponent*>(component);
-		if (circleCollider2d != nullptr)
+		game::EdgeCollider2dComponent* edgeCollider2d = static_cast<game::EdgeCollider2dComponent*>(component);
+		if (edgeCollider2d != nullptr)
 		{
-			game::Node2dComponent* node2D = circleCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
+			game::Node2dComponent* node2D = edgeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				math::Vector2 scale = node2D->GetScale();
-
-				std::array<math::Vector2, 65> vertices;
-				GeometryGenerator::CircleShape<64>(vertices, circleCollider2d->GetOffset() * scale, circleCollider2d->GetRadius() * std::max(scale.GetX(), scale.GetY()));
+				std::array<math::Vector2, 2> vertices = {
+					edgeCollider2d->GetStart(),
+					edgeCollider2d->GetEnd(),
+				};
 
 				renderer::RenderCommandMesh* renderMeshCommand =
 					DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,

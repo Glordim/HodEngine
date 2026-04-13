@@ -1,7 +1,7 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Editor/GeometryGenerator.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/GameEditor/ComponentCustomEditor/CapsuleCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/GameEditor/CustomComponentDrawer/CapsuleCollider2dCustomComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -20,7 +20,7 @@
 namespace hod::editor
 {
 	/// @brief
-	CapsuleCollider2dComponentCustomEditor::CapsuleCollider2dComponentCustomEditor()
+	CapsuleCollider2dCustomComponentDrawer::CapsuleCollider2dCustomComponentDrawer()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
@@ -28,7 +28,7 @@ namespace hod::editor
 	}
 
 	/// @brief
-	CapsuleCollider2dComponentCustomEditor::~CapsuleCollider2dComponentCustomEditor()
+	CapsuleCollider2dCustomComponentDrawer::~CapsuleCollider2dCustomComponentDrawer()
 	{
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
@@ -39,7 +39,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool CapsuleCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool CapsuleCollider2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{

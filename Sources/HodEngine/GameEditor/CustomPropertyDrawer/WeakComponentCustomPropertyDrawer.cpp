@@ -1,5 +1,5 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/GameEditor/PropertyCustomEditor/WeakComponentCustomEditor.hpp"
+#include "HodEngine/GameEditor/CustomPropertyDrawer/WeakComponentCustomPropertyDrawer.hpp"
 
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
@@ -36,7 +36,7 @@ namespace hod::editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool WeakComponentCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool WeakComponentCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);

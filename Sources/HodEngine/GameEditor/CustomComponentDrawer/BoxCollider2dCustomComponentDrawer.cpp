@@ -1,6 +1,6 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/GameEditor/ComponentCustomEditor/BoxCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/GameEditor/CustomComponentDrawer/BoxCollider2dCustomComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -19,7 +19,7 @@
 namespace hod::editor
 {
 	/// @brief
-	BoxCollider2dComponentCustomEditor::BoxCollider2dComponentCustomEditor()
+	BoxCollider2dCustomComponentDrawer::BoxCollider2dCustomComponentDrawer()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
@@ -27,7 +27,7 @@ namespace hod::editor
 	}
 
 	/// @brief
-	BoxCollider2dComponentCustomEditor::~BoxCollider2dComponentCustomEditor()
+	BoxCollider2dCustomComponentDrawer::~BoxCollider2dCustomComponentDrawer()
 	{
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
@@ -38,7 +38,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool BoxCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool BoxCollider2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{

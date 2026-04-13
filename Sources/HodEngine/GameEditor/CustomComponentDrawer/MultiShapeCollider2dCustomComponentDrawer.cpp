@@ -1,7 +1,7 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Editor/GeometryGenerator.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/GameEditor/ComponentCustomEditor/MultiShapeCollider2dComponentCustomEditor.hpp"
+#include "HodEngine/GameEditor/CustomComponentDrawer/MultiShapeCollider2dCustomComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -20,7 +20,7 @@
 namespace hod::editor
 {
 	/// @brief
-	MultiShapeCollider2dComponentCustomEditor::MultiShapeCollider2dComponentCustomEditor()
+	MultiShapeCollider2dCustomComponentDrawer::MultiShapeCollider2dCustomComponentDrawer()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
@@ -28,7 +28,7 @@ namespace hod::editor
 	}
 
 	/// @brief
-	MultiShapeCollider2dComponentCustomEditor::~MultiShapeCollider2dComponentCustomEditor()
+	MultiShapeCollider2dCustomComponentDrawer::~MultiShapeCollider2dCustomComponentDrawer()
 	{
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
@@ -39,7 +39,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool MultiShapeCollider2dComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool MultiShapeCollider2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{

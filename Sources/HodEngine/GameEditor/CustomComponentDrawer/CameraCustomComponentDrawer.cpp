@@ -1,6 +1,6 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/GameEditor/ComponentCustomEditor/CameraComponentCustomEditor.hpp"
+#include "HodEngine/GameEditor/CustomComponentDrawer/CameraCustomComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -19,7 +19,7 @@
 namespace hod::editor
 {
 	/// @brief
-	CameraComponentCustomEditor::CameraComponentCustomEditor()
+	CameraCustomComponentDrawer::CameraCustomComponentDrawer()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
@@ -27,7 +27,7 @@ namespace hod::editor
 	}
 
 	/// @brief
-	CameraComponentCustomEditor::~CameraComponentCustomEditor()
+	CameraCustomComponentDrawer::~CameraCustomComponentDrawer()
 	{
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
@@ -38,7 +38,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool CameraComponentCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool CameraCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{

@@ -1,5 +1,5 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/GameEditor/PropertyCustomEditor/ZOrderCustomEditor.hpp"
+#include "HodEngine/GameEditor/CustomPropertyDrawer/ZOrderCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
@@ -16,14 +16,14 @@ namespace hod::editor
 	/// @brief 
 	/// @param editorReflectedProperty 
 	/// @return 
-	bool ZOrderCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool ZOrderCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
 		//changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		//ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
 		game::ZOrder& value = *editorReflectedProperty.GetObject<game::ZOrder>();
-		changed |= ZOrderCustomEditor::Draw(value);
+		changed |= ZOrderCustomPropertyDrawer::Draw(value);
 		/*
 		if (changed == true)
 		{
@@ -36,7 +36,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param value 
 	/// @return 
-	bool ZOrderCustomEditor::Draw(game::ZOrder& value)
+	bool ZOrderCustomPropertyDrawer::Draw(game::ZOrder& value)
 	{
 		bool changed = false;
 		uint16_t layer = value.GetLayer();
