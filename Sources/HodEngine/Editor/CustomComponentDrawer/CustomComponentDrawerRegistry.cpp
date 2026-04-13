@@ -1,14 +1,14 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <cstdint>
 
 namespace hod::editor
 {
-	std::unordered_map<uint64_t, CustomPropertyDrawer*> CustomPropertyDrawerRegistry::_drawers;
+	std::unordered_map<uint64_t, CustomComponentDrawer*> CustomComponentDrawerRegistry::_drawers;
 
-	void CustomPropertyDrawerRegistry::Register(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
+	void CustomComponentDrawerRegistry::Register(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer)
 	{
 		uint64_t type = descriptor.GetType();
 		if (_drawers.find(type) == _drawers.end())
@@ -21,7 +21,7 @@ namespace hod::editor
 		}
 	}
 
-	void CustomPropertyDrawerRegistry::Unregister(const ReflectionDescriptor& descriptor)
+	void CustomComponentDrawerRegistry::Unregister(const ReflectionDescriptor& descriptor)
 	{
 		uint64_t type = descriptor.GetType();
 		auto it = _drawers.find(type);
@@ -32,7 +32,7 @@ namespace hod::editor
 		}
 	}
 
-	CustomPropertyDrawer* CustomPropertyDrawerRegistry::Find(const ReflectionDescriptor& descriptor)
+	CustomComponentDrawer* CustomComponentDrawerRegistry::Find(const ReflectionDescriptor& descriptor)
 	{
 		uint64_t type = descriptor.GetType();
 		auto it = _drawers.find(type);

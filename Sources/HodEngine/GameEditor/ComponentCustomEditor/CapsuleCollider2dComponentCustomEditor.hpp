@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/GameEditor/Export.hpp"
 
-#include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 
 namespace hod::renderer
 {
@@ -11,7 +11,7 @@ namespace hod::renderer
 namespace hod::editor
 {
 	/// @brief 
-	class HOD_GAME_EDITOR_API CapsuleCollider2dComponentCustomEditor : public ComponentCustomEditor
+	class HOD_GAME_EDITOR_API CapsuleCollider2dComponentCustomEditor : public CustomComponentDrawer
 	{
 	public:
 

@@ -6,8 +6,8 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"

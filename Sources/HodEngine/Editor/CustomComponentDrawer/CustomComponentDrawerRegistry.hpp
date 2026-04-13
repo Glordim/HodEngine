@@ -13,26 +13,26 @@ namespace hod
 
 namespace hod::editor
 {
-	class ComponentCustomEditor;
+	class CustomComponentDrawer;
 
 	class HOD_EDITOR_API CustomComponentDrawerRegistry
 	{
 	public:
 		template<typename _Type_, typename _Drawer_>
 		static void Register();
-		static void Register(const ReflectionDescriptor& descriptor, ComponentCustomEditor* drawer);
+		static void Register(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
 
 		template<typename _Type_>
 		static void Unregister();
 		static void Unregister(const ReflectionDescriptor& descriptor);
 
 		template<typename _Type_>
-		static ComponentCustomEditor* Find();
-		static ComponentCustomEditor* Find(const ReflectionDescriptor& descriptor);
+		static CustomComponentDrawer* Find();
+		static CustomComponentDrawer* Find(const ReflectionDescriptor& descriptor);
 
 	private:
 
-		static std::unordered_map<uint64_t, ComponentCustomEditor*> _drawers;
+		static std::unordered_map<uint64_t, CustomComponentDrawer*> _drawers;
 	};
 
 	template<typename _Type_, typename _Drawer_>
@@ -48,7 +48,7 @@ namespace hod::editor
 	}
 
 	template<typename _Type_>
-	ComponentCustomEditor* CustomComponentDrawerRegistry::Find()
+	CustomComponentDrawer* CustomComponentDrawerRegistry::Find()
 	{
 		return Find(_Type_::GetReflectionDescriptor());
 	}

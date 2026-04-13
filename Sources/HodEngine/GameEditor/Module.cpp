@@ -2,8 +2,8 @@
 #include "HodEngine/GameEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 
 #include "HodEngine/Game/WeakComponent.hpp"
 #include "HodEngine/Game/Components/CameraComponent.hpp"

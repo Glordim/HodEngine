@@ -2,7 +2,7 @@
 #include "HodEngine/UIEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/ComponentCustomEditor/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 
 #include "HodEngine/UI/Canvas.hpp"
 #include "HodEngine/UI/Node.hpp"
@@ -12,7 +12,7 @@
 #include "HodEngine/UI/Padding.hpp"
 #include "HodEngine/UIEditor/PropertyCustomEditor/PaddingCustomEditor.hpp"
 
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 

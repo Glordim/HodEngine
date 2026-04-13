@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/CoreEditor/Export.hpp"
 
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawer.hpp"
 
 namespace hod
 {

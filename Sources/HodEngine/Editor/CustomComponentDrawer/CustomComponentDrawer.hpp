@@ -18,17 +18,17 @@ namespace hod::editor
 	class ViewportWindow;
 
 	///@brief 
-	class HOD_EDITOR_API ComponentCustomEditor
+	class HOD_EDITOR_API CustomComponentDrawer
 	{
 	public:
 
-									ComponentCustomEditor() = default;
-									ComponentCustomEditor(const ComponentCustomEditor&) = delete;
-									ComponentCustomEditor(ComponentCustomEditor&&) = delete;
-			virtual					~ComponentCustomEditor() = default;
+									CustomComponentDrawer() = default;
+									CustomComponentDrawer(const CustomComponentDrawer&) = delete;
+									CustomComponentDrawer(CustomComponentDrawer&&) = delete;
+			virtual					~CustomComponentDrawer() = default;
 
-			ComponentCustomEditor	operator = (const ComponentCustomEditor&) = delete;
-			ComponentCustomEditor	operator = (ComponentCustomEditor&&) = delete;
+			CustomComponentDrawer	operator = (const CustomComponentDrawer&) = delete;
+			CustomComponentDrawer	operator = (CustomComponentDrawer&&) = delete;
 
 	public:
 

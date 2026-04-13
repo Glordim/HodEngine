@@ -28,8 +28,8 @@
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
 
-#include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
-#include "HodEngine/Editor/ComponentCustomEditor/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 
 #include "HodEngine/Editor/PhysicsDebugDrawer.hpp"
 #include <HodEngine/Physics/DebugDrawer.hpp>
@@ -310,7 +310,7 @@ namespace hod::editor
 						{
 							if (component->IsEnabledInHierarchy())
 							{
-								ComponentCustomEditor* drawer = CustomComponentDrawerRegistry::Find(component->GetReflectionDescriptorV());
+								CustomComponentDrawer* drawer = CustomComponentDrawerRegistry::Find(component->GetReflectionDescriptorV());
 								if (drawer != nullptr)
 								{
 									if (drawer->OnDrawGizmo(component, *this, entityPair.second == sceneSelection))

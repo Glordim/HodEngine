@@ -11,8 +11,8 @@
 #include "HodEngine/CoreEditor/PropertyCustomEditor/Vector2CustomEditor.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/Vector4CustomEditor.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
-#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawer.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
