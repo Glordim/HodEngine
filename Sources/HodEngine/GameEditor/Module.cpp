@@ -2,7 +2,7 @@
 #include "HodEngine/GameEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
 #include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 
 #include "HodEngine/Game/WeakComponent.hpp"
@@ -48,8 +48,8 @@ using namespace hod::editor;
 
 HOD_STARTUP_MODULE(GameEditor)
 {
-	game::ZOrder::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<ZOrderCustomEditor>());
-	game::WeakComponentBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<WeakComponentCustomEditor>());
+	hod::editor::CustomPropertyDrawerRegistry::Register<game::ZOrder, ZOrderCustomEditor>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<game::WeakComponentBase, WeakComponentCustomEditor>();
 	
 	game::Node2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<Node2dComponentCustomEditor>());
 	game::CameraComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CameraComponentCustomEditor>());
@@ -65,8 +65,8 @@ HOD_STARTUP_MODULE(GameEditor)
 
 HOD_SHUTDOWN_MODULE(GameEditor)
 {
-	game::ZOrder::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-	game::WeakComponentBase::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<game::ZOrder>();
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<game::WeakComponentBase>();
 	
 	game::Node2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
 	game::CameraComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();

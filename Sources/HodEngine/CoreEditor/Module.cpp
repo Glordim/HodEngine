@@ -11,7 +11,8 @@
 #include "HodEngine/CoreEditor/PropertyCustomEditor/Vector2CustomEditor.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/Vector4CustomEditor.hpp"
 #include "HodEngine/CoreEditor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -20,20 +21,18 @@ using namespace hod::editor;
 
 HOD_STARTUP_MODULE(CoreEditor)
 {
-	math::Color::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<ColorCustomEditor>());
-	math::Vector2::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector2CustomEditor>());
-	math::Vector4::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<Vector4CustomEditor>());
-	WeakResourceBase::GetReflectionDescriptor().AddTrait<ReflectionTraitCustomPropertyDrawer>(DefaultAllocator::GetInstance().New<WeakResourceCustomEditor>());
-
+	hod::editor::CustomPropertyDrawerRegistry::Register<math::Color, ColorCustomEditor>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<math::Vector2, Vector2CustomEditor>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<math::Vector4, Vector4CustomEditor>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<WeakResourceBase, WeakResourceCustomEditor>();
 	return 0;
 }
 
 HOD_SHUTDOWN_MODULE(CoreEditor)
 {
-	math::Color::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-	math::Vector2::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-	math::Vector4::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-	WeakResourceBase::GetReflectionDescriptor().RemoveTrait<ReflectionTraitCustomPropertyDrawer>();
-
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<math::Color>();
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<math::Vector2>();
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<math::Vector4>();
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<WeakResourceBase>();
 	return 0;
 }

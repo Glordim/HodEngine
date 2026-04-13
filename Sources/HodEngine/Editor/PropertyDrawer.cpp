@@ -7,14 +7,13 @@
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 #include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
-
-#include "HodEngine/Editor/Trait/ReflectionTraitCustomPropertyDrawer.hpp"
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
@@ -492,10 +491,10 @@ namespace hod::editor
 
 		bool changed = false;
 
-		ReflectionTraitCustomPropertyDrawer* customPropertyDrawerTrait = instanceDescriptor->FindTrait<ReflectionTraitCustomPropertyDrawer>();
-		if (customPropertyDrawerTrait != nullptr)
+		CustomPropertyDrawer* customPropertyDrawer = CustomPropertyDrawerRegistry::Find(*instanceDescriptor);
+		if (customPropertyDrawer != nullptr)
 		{
-			changed = customPropertyDrawerTrait->GetPropertyDrawer()->Draw(reflectedProperty);
+			changed = customPropertyDrawer->Draw(reflectedProperty);
 		}
 		else
 		{

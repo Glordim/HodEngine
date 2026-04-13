@@ -17,7 +17,7 @@ target_include_directories(CoreEditor PUBLIC
 target_precompile_headers(CoreEditor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(CoreEditor
-	PUBLIC Core Editor
+	PUBLIC Core Editor Math GameSystems
 )
 
 target_compile_definitions(CoreEditor
