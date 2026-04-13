@@ -290,7 +290,7 @@ namespace hod::game
 		const DocumentNode* componentNode = componentsNode->GetFirstChild();
 		while (componentNode != nullptr)
 		{
-			RttiType RttiType = componentNode->GetChild("RttiType")->GetUInt64();
+			RttiType RttiType = componentNode->GetChild("MetaType")->GetUInt64();
 
 			auto it = componentFactory->GetAllDescriptors().find(RttiType);
 			if (it != componentFactory->GetAllDescriptors().end())
