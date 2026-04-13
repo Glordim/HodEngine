@@ -1,5 +1,5 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include "HodEngine/CoreEditor/PropertyCustomEditor/ColorCustomEditor.hpp"
+#include "HodEngine/CoreEditor/CustomPropertyDrawer/ColorCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
@@ -16,14 +16,14 @@ namespace hod::editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool ColorCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool ColorCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
 		math::Color value = *editorReflectedProperty.GetObject<math::Color>();
-		changed |= ColorCustomEditor::Draw(value);
+		changed |= ColorCustomPropertyDrawer::Draw(value);
 		if (changed == true)
 		{
 			editorReflectedProperty.SetObject(value);
@@ -34,7 +34,7 @@ namespace hod::editor
 	/// @brief
 	/// @param value
 	/// @return
-	bool ColorCustomEditor::Draw(math::Color& value)
+	bool ColorCustomPropertyDrawer::Draw(math::Color& value)
 	{
 		bool  changed = false;
 		float r = value.r;

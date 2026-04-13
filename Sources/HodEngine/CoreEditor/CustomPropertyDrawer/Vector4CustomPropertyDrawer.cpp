@@ -1,5 +1,5 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include "HodEngine/CoreEditor/PropertyCustomEditor/Vector4CustomEditor.hpp"
+#include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector4CustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
@@ -17,7 +17,7 @@ namespace hod::editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool Vector4CustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool Vector4CustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);

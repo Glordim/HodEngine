@@ -1,5 +1,5 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include "HodEngine/CoreEditor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
+#include "HodEngine/CoreEditor/CustomPropertyDrawer/WeakResourceCustomPropertyDrawer.hpp"
 
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
@@ -31,14 +31,14 @@ namespace hod::editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool WeakResourceCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool WeakResourceCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
 		WeakResourceBase* value = editorReflectedProperty.GetObject<WeakResourceBase>();
-		changed |= WeakResourceCustomEditor::Draw(*value);
+		changed |= WeakResourceCustomPropertyDrawer::Draw(*value);
 		if (changed == true)
 		{
 			editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
@@ -49,7 +49,7 @@ namespace hod::editor
 	/// @brief
 	/// @param weakResource
 	/// @return
-	bool WeakResourceCustomEditor::Draw(WeakResourceBase& weakResource)
+	bool WeakResourceCustomPropertyDrawer::Draw(WeakResourceBase& weakResource)
 	{
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 

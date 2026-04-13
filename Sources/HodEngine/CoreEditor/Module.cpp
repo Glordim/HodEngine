@@ -7,12 +7,11 @@
 #include "HodEngine/Math/Vector4.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
-#include "HodEngine/CoreEditor/PropertyCustomEditor/ColorCustomEditor.hpp"
-#include "HodEngine/CoreEditor/PropertyCustomEditor/Vector2CustomEditor.hpp"
-#include "HodEngine/CoreEditor/PropertyCustomEditor/Vector4CustomEditor.hpp"
-#include "HodEngine/CoreEditor/PropertyCustomEditor/WeakResourceCustomEditor.hpp"
 #include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawer.hpp"
+#include "HodEngine/CoreEditor/CustomPropertyDrawer/ColorCustomPropertyDrawer.hpp"
+#include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector2CustomPropertyDrawer.hpp"
+#include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector4CustomPropertyDrawer.hpp"
+#include "HodEngine/CoreEditor/CustomPropertyDrawer/WeakResourceCustomPropertyDrawer.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -21,10 +20,10 @@ using namespace hod::editor;
 
 HOD_STARTUP_MODULE(CoreEditor)
 {
-	hod::editor::CustomPropertyDrawerRegistry::Register<math::Color, ColorCustomEditor>();
-	hod::editor::CustomPropertyDrawerRegistry::Register<math::Vector2, Vector2CustomEditor>();
-	hod::editor::CustomPropertyDrawerRegistry::Register<math::Vector4, Vector4CustomEditor>();
-	hod::editor::CustomPropertyDrawerRegistry::Register<WeakResourceBase, WeakResourceCustomEditor>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<math::Color, ColorCustomPropertyDrawer>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<math::Vector2, Vector2CustomPropertyDrawer>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<math::Vector4, Vector4CustomPropertyDrawer>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
 	return 0;
 }
 
