@@ -3,7 +3,7 @@
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/PropertyCustomEditor/CustomPropertyDrawerRegistry.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/CustomComponentDrawerRegistry.hpp"
 
 #include "HodEngine/Game/WeakComponent.hpp"
 #include "HodEngine/Game/Components/CameraComponent.hpp"
@@ -51,14 +51,14 @@ HOD_STARTUP_MODULE(GameEditor)
 	hod::editor::CustomPropertyDrawerRegistry::Register<game::ZOrder, ZOrderCustomEditor>();
 	hod::editor::CustomPropertyDrawerRegistry::Register<game::WeakComponentBase, WeakComponentCustomEditor>();
 	
-	game::Node2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<Node2dComponentCustomEditor>());
-	game::CameraComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CameraComponentCustomEditor>());
-	game::TextureRendererComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<TextureRendererComponentCustomEditor>());
-	game::BoxCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<BoxCollider2dComponentCustomEditor>());
-	game::CircleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CircleCollider2dComponentCustomEditor>());
-	game::CapsuleCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CapsuleCollider2dComponentCustomEditor>());
-	game::EdgeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<EdgeCollider2dComponentCustomEditor>());
-	game::MultiShapeCollider2dComponent::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<MultiShapeCollider2dComponentCustomEditor>());
+	hod::editor::CustomComponentDrawerRegistry::Register<game::Node2dComponent, Node2dComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<game::CameraComponent, CameraComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<game::TextureRendererComponent, TextureRendererComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<game::BoxCollider2dComponent, BoxCollider2dComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<game::CircleCollider2dComponent, CircleCollider2dComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<game::CapsuleCollider2dComponent, CapsuleCollider2dComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<game::EdgeCollider2dComponent, EdgeCollider2dComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<game::MultiShapeCollider2dComponent, MultiShapeCollider2dComponentCustomEditor>();
 	
 	return 0;
 }
@@ -68,14 +68,14 @@ HOD_SHUTDOWN_MODULE(GameEditor)
 	hod::editor::CustomPropertyDrawerRegistry::Unregister<game::ZOrder>();
 	hod::editor::CustomPropertyDrawerRegistry::Unregister<game::WeakComponentBase>();
 	
-	game::Node2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-	game::CameraComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-	game::TextureRendererComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-	game::BoxCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-	game::CircleCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-	game::CapsuleCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-	game::EdgeCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-	game::MultiShapeCollider2dComponent::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<game::Node2dComponent>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<game::CameraComponent>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<game::TextureRendererComponent>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<game::BoxCollider2dComponent>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<game::CircleCollider2dComponent>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<game::CapsuleCollider2dComponent>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<game::EdgeCollider2dComponent>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<game::MultiShapeCollider2dComponent>();
 
 	return 0;
 }

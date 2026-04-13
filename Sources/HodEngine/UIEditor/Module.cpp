@@ -2,7 +2,7 @@
 #include "HodEngine/UIEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/CustomComponentDrawerRegistry.hpp"
 
 #include "HodEngine/UI/Canvas.hpp"
 #include "HodEngine/UI/Node.hpp"
@@ -22,8 +22,8 @@ using namespace hod::editor;
 
 HOD_STARTUP_MODULE(UIEditor)
 {
-	ui::Canvas::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<CanvasCustomEditor>());
-	ui::Node::GetReflectionDescriptor().AddTrait<ReflectionTraitComponentCustomEditor>(DefaultAllocator::GetInstance().New<NodeCustomEditor>());
+	hod::editor::CustomComponentDrawerRegistry::Register<ui::Canvas, CanvasCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<ui::Node, NodeCustomEditor>();
 
 	hod::editor::CustomPropertyDrawerRegistry::Register<ui::Padding, PaddingCustomEditor>();
 	
@@ -32,8 +32,8 @@ HOD_STARTUP_MODULE(UIEditor)
 
 HOD_SHUTDOWN_MODULE(UIEditor)
 {
-	ui::Canvas::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
-	ui::Node::GetReflectionDescriptor().RemoveTrait<ReflectionTraitComponentCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<ui::Canvas>();
+	hod::editor::CustomComponentDrawerRegistry::Unregister<ui::Node>();
 
 	hod::editor::CustomPropertyDrawerRegistry::Unregister<ui::Padding>();
 

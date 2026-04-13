@@ -29,7 +29,7 @@
 #include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
+#include "HodEngine/Editor/ComponentCustomEditor/CustomComponentDrawerRegistry.hpp"
 
 #include "HodEngine/Editor/PhysicsDebugDrawer.hpp"
 #include <HodEngine/Physics/DebugDrawer.hpp>
@@ -310,16 +310,12 @@ namespace hod::editor
 						{
 							if (component->IsEnabledInHierarchy())
 							{
-								ReflectionTraitComponentCustomEditor* customEditorTrait = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitComponentCustomEditor>();
-								if (customEditorTrait != nullptr)
+								ComponentCustomEditor* drawer = CustomComponentDrawerRegistry::Find(component->GetReflectionDescriptorV());
+								if (drawer != nullptr)
 								{
-									ComponentCustomEditor* customEditor = customEditorTrait->GetCustomEditor();
-									if (customEditor != nullptr)
+									if (drawer->OnDrawGizmo(component, *this, entityPair.second == sceneSelection))
 									{
-										if (customEditor->OnDrawGizmo(component, *this, entityPair.second == sceneSelection))
-										{
-											GetOwner()->MarkAssetAsDirty();
-										}
+										GetOwner()->MarkAssetAsDirty();
 									}
 								}
 							}

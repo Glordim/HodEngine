@@ -24,7 +24,6 @@
 #include "HodEngine/Editor/ComponentCustomEditor/ComponentCustomEditor.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/Trait/ReflectionTraitComponentCustomEditor.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
