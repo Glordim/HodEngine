@@ -1,7 +1,7 @@
 #include "HodEngine/UIEditor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/UIEditor/ComponentCustomEditor/CanvasCustomEditor.hpp"
+#include "HodEngine/UIEditor/CustomComponentDrawer/CanvasCustomComponentDrawer.hpp"
 #include <HodEngine/UI/Canvas.hpp>
 #include <HodEngine/UI/Node.hpp>
 
@@ -25,7 +25,7 @@
 namespace hod::editor
 {
 	/// @brief
-	CanvasCustomEditor::CanvasCustomEditor()
+	CanvasCustomComponentDrawer::CanvasCustomComponentDrawer()
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
@@ -33,12 +33,12 @@ namespace hod::editor
 	}
 
 	/// @brief
-	CanvasCustomEditor::~CanvasCustomEditor()
+	CanvasCustomComponentDrawer::~CanvasCustomComponentDrawer()
 	{
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
 
-	bool CanvasCustomEditor::OnDrawInspector(EditorReflectedObject& reflectedObject)
+	bool CanvasCustomComponentDrawer::OnDrawInspector(EditorReflectedObject& reflectedObject)
 	{
 		bool changed = false;
 
@@ -65,7 +65,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool CanvasCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool CanvasCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		static_cast<ui::Canvas*>(component)->DoRebuild();
 

@@ -12,17 +12,17 @@ namespace hod::renderer
 namespace hod::editor
 {
 	/// @brief 
-	class HOD_UI_EDITOR_API CanvasCustomEditor : public CustomComponentDrawer
+	class HOD_UI_EDITOR_API CanvasCustomComponentDrawer : public CustomComponentDrawer
 	{
 	public:
 
-										CanvasCustomEditor();
-										CanvasCustomEditor(const CanvasCustomEditor&) = delete;
-										CanvasCustomEditor(CanvasCustomEditor&&) = delete;
-										~CanvasCustomEditor() override;
+										CanvasCustomComponentDrawer();
+										CanvasCustomComponentDrawer(const CanvasCustomComponentDrawer&) = delete;
+										CanvasCustomComponentDrawer(CanvasCustomComponentDrawer&&) = delete;
+										~CanvasCustomComponentDrawer() override;
 
-		CanvasCustomEditor				operator = (const CanvasCustomEditor&) = delete;
-		CanvasCustomEditor				operator = (CanvasCustomEditor&&) = delete;
+		CanvasCustomComponentDrawer				operator = (const CanvasCustomComponentDrawer&) = delete;
+		CanvasCustomComponentDrawer				operator = (CanvasCustomComponentDrawer&&) = delete;
 
 	public:
 

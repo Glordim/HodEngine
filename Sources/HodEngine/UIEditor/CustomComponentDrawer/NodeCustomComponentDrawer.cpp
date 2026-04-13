@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/UIEditor/ComponentCustomEditor/NodeCustomEditor.hpp"
+#include "HodEngine/UIEditor/CustomComponentDrawer/NodeCustomComponentDrawer.hpp"
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/UI/Node.hpp>
 
@@ -27,7 +27,7 @@
 namespace hod::editor
 {
 	/// @brief
-	NodeCustomEditor::NodeCustomEditor()
+	NodeCustomComponentDrawer::NodeCustomComponentDrawer()
 	{
 		_freeMoveHandle = Gizmos::GenerateHandle();
 
@@ -43,9 +43,9 @@ namespace hod::editor
 	}
 
 	/// @brief
-	NodeCustomEditor::~NodeCustomEditor() {}
+	NodeCustomComponentDrawer::~NodeCustomComponentDrawer() {}
 
-	bool NodeCustomEditor::OnDrawInspector(EditorReflectedObject& reflectedObject)
+	bool NodeCustomComponentDrawer::OnDrawInspector(EditorReflectedObject& reflectedObject)
 	{
 		bool changed = false;
 
@@ -317,7 +317,7 @@ namespace hod::editor
 	/// @param anchorMax
 	/// @param pivot
 	/// @return
-	bool NodeCustomEditor::DrawAnchorPresets(const ImVec2& Size, math::Vector2& anchorMin, math::Vector2& anchorMax, math::Vector2& pivot)
+	bool NodeCustomComponentDrawer::DrawAnchorPresets(const ImVec2& Size, math::Vector2& anchorMin, math::Vector2& anchorMax, math::Vector2& pivot)
 	{
 		bool changed = false;
 
@@ -542,7 +542,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool NodeCustomEditor::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool NodeCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
 	{
 		ui::Node* node = static_cast<ui::Node*>(component);
 		if (node == nullptr)

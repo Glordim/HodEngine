@@ -2,17 +2,17 @@
 #include "HodEngine/UIEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
-
 #include "HodEngine/UI/Canvas.hpp"
 #include "HodEngine/UI/Node.hpp"
-#include "HodEngine/UIEditor/ComponentCustomEditor/CanvasCustomEditor.hpp"
-#include "HodEngine/UIEditor/ComponentCustomEditor/NodeCustomEditor.hpp"
-
 #include "HodEngine/UI/Padding.hpp"
-#include "HodEngine/UIEditor/PropertyCustomEditor/PaddingCustomEditor.hpp"
+
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/UIEditor/CustomComponentDrawer/CanvasCustomComponentDrawer.hpp"
+#include "HodEngine/UIEditor/CustomComponentDrawer/NodeCustomComponentDrawer.hpp"
 
 #include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/UIEditor/CustomPropertyDrawer/PaddingCustomPropertyDrawer.hpp"
+
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -22,10 +22,10 @@ using namespace hod::editor;
 
 HOD_STARTUP_MODULE(UIEditor)
 {
-	hod::editor::CustomComponentDrawerRegistry::Register<ui::Canvas, CanvasCustomEditor>();
-	hod::editor::CustomComponentDrawerRegistry::Register<ui::Node, NodeCustomEditor>();
+	hod::editor::CustomComponentDrawerRegistry::Register<ui::Canvas, CanvasCustomComponentDrawer>();
+	hod::editor::CustomComponentDrawerRegistry::Register<ui::Node, NodeCustomComponentDrawer>();
 
-	hod::editor::CustomPropertyDrawerRegistry::Register<ui::Padding, PaddingCustomEditor>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<ui::Padding, PaddingCustomPropertyDrawer>();
 	
 	return 0;
 }

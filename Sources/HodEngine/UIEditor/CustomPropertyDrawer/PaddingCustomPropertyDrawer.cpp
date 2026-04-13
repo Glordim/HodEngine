@@ -1,5 +1,5 @@
 #include "HodEngine/UIEditor/Pch.hpp"
-#include "HodEngine/UIEditor/PropertyCustomEditor/PaddingCustomEditor.hpp"
+#include "HodEngine/UIEditor/CustomPropertyDrawer/PaddingCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
@@ -19,7 +19,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param instance 
 	/// @return 
-	bool PaddingCustomEditor::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool PaddingCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
