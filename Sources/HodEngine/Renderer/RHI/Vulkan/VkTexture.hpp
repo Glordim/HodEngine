@@ -6,35 +6,32 @@
 #include <vulkan/vulkan.h>
 #include <VulkanMemoryAllocator/vk_mem_alloc.h>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	class HOD_RENDERER_API VkTexture : public Texture
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API VkTexture : public Texture
-		{
-		public:
-			VkTexture();
-			~VkTexture() override;
+	public:
+		VkTexture();
+		~VkTexture() override;
 
-			bool BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
-			bool BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
-			bool BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) override;
+		bool BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
+		bool BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
+		bool BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) override;
 
-			math::Color ReadPixel(const math::Vector2& position) const override;
+		math::Color ReadPixel(const math::Vector2& position) const override;
 
-			VkImage     GetTextureImage() const;
-			VkImageView GetTextureImageView() const;
-			VkSampler   GetTextureSampler() const;
+		VkImage     GetTextureImage() const;
+		VkImageView GetTextureImageView() const;
+		VkSampler   GetTextureSampler() const;
 
-		private:
-			VkImage       _textureImage;
-			VmaAllocation _textureImageMemory;
+	private:
+		VkImage       _textureImage;
+		VmaAllocation _textureImageMemory;
 
-			VkImageView _textureImageView;
-			VkSampler   _textureSampler;
-		};
-	}
+		VkImageView _textureImageView;
+		VkSampler   _textureSampler;
+	};
 }

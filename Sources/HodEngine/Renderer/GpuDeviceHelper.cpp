@@ -3,80 +3,77 @@
 
 #include "HodEngine/Renderer/Renderer.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	bool GpuDeviceHelper::GetAvailableDevices(Vector<GpuDevice*>* availableDevices)
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		bool GpuDeviceHelper::GetAvailableDevices(Vector<GpuDevice*>* availableDevices)
+		if (availableDevices == nullptr)
 		{
-			if (availableDevices == nullptr)
-			{
-				return false;
-			}
-
-			Renderer* renderer = Renderer::GetInstance();
-
-			if (renderer == nullptr)
-			{
-				return false;
-			}
-
-			return renderer->GetAvailableGpuDevices(availableDevices);
+			return false;
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		bool GpuDeviceHelper::GetBestAvailableAndCompatibleDevice(GpuDevice** ret)
+		Renderer* renderer = Renderer::GetInstance();
+
+		if (renderer == nullptr)
 		{
-			if (ret == nullptr)
-			{
-				return false;
-			}
-
-			Renderer* renderer = Renderer::GetInstance();
-
-			if (renderer == nullptr)
-			{
-				return false;
-			}
-
-			Vector<GpuDevice*> availableDevices;
-
-			if (renderer->GetAvailableGpuDevices(&availableDevices) == false)
-			{
-				return false;
-			}
-
-			GpuDevice* bestDevice = nullptr;
-
-			size_t deviceCount = availableDevices.Size();
-			for (size_t i = 0; i < deviceCount; ++i)
-			{
-				GpuDevice* device = availableDevices[i];
-
-				if (device->compatible == false)
-				{
-					continue;
-				}
-
-				if (bestDevice == nullptr || device->score > bestDevice->score)
-				{
-					bestDevice = device;
-				}
-			}
-
-			if (bestDevice == nullptr)
-			{
-				return false;
-			}
-
-			*ret = bestDevice;
-
-			return true;
+			return false;
 		}
+
+		return renderer->GetAvailableGpuDevices(availableDevices);
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	bool GpuDeviceHelper::GetBestAvailableAndCompatibleDevice(GpuDevice** ret)
+	{
+		if (ret == nullptr)
+		{
+			return false;
+		}
+
+		Renderer* renderer = Renderer::GetInstance();
+
+		if (renderer == nullptr)
+		{
+			return false;
+		}
+
+		Vector<GpuDevice*> availableDevices;
+
+		if (renderer->GetAvailableGpuDevices(&availableDevices) == false)
+		{
+			return false;
+		}
+
+		GpuDevice* bestDevice = nullptr;
+
+		size_t deviceCount = availableDevices.Size();
+		for (size_t i = 0; i < deviceCount; ++i)
+		{
+			GpuDevice* device = availableDevices[i];
+
+			if (device->compatible == false)
+			{
+				continue;
+			}
+
+			if (bestDevice == nullptr || device->score > bestDevice->score)
+			{
+				bestDevice = device;
+			}
+		}
+
+		if (bestDevice == nullptr)
+		{
+			return false;
+		}
+
+		*ret = bestDevice;
+
+		return true;
 	}
 }

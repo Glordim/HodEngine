@@ -2,22 +2,19 @@
 
 #include <HodEngine/Math/Color.hpp>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	struct DirLight
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		struct DirLight
+		DirLight()
 		{
-			DirLight()
-			{
 
-			}
+		}
 
-			math::Color color;
-			float intensity;
-		};
-	}
+		math::Color color;
+		float intensity;
+	};
 }

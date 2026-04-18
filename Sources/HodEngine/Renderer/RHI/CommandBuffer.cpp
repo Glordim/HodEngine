@@ -4,50 +4,47 @@
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	CommandBuffer::~CommandBuffer()
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		CommandBuffer::~CommandBuffer()
-		{
-			PurgePointerToDelete();
-		}
+		PurgePointerToDelete();
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		void CommandBuffer::DeleteAfterRender(MaterialInstance* materialInstance)
-		{
-			_materialInstanceToDelete.push_back(materialInstance);
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	void CommandBuffer::DeleteAfterRender(MaterialInstance* materialInstance)
+	{
+		_materialInstanceToDelete.push_back(materialInstance);
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		void CommandBuffer::DeleteAfterRender(Buffer* buffer)
-		{
-			_bufferToDelete.push_back(buffer);
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	void CommandBuffer::DeleteAfterRender(Buffer* buffer)
+	{
+		_bufferToDelete.push_back(buffer);
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		void CommandBuffer::PurgePointerToDelete()
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	void CommandBuffer::PurgePointerToDelete()
+	{
+		for (MaterialInstance* materialInstance : _materialInstanceToDelete)
 		{
-			for (MaterialInstance* materialInstance : _materialInstanceToDelete)
-			{
-				DefaultAllocator::GetInstance().Delete(materialInstance);
-			}
-			_materialInstanceToDelete.Clear();
-
-			for (Buffer* buffer : _bufferToDelete)
-			{
-				DefaultAllocator::GetInstance().Delete(buffer);
-			}
-			_bufferToDelete.Clear();
+			DefaultAllocator::GetInstance().Delete(materialInstance);
 		}
+		_materialInstanceToDelete.Clear();
+
+		for (Buffer* buffer : _bufferToDelete)
+		{
+			DefaultAllocator::GetInstance().Delete(buffer);
+		}
+		_bufferToDelete.Clear();
 	}
 }

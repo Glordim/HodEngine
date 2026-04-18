@@ -5,18 +5,15 @@
 
 #include "HodEngine/Renderer/RHI/GpuDevice.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_RENDERER_API GpuDeviceHelper
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API GpuDeviceHelper
-		{
-		public:
-			static bool GetAvailableDevices(Vector<GpuDevice*>* availableDevices);
-			static bool GetBestAvailableAndCompatibleDevice(GpuDevice** bestDevice);
-		};
-	}
+	public:
+		static bool GetAvailableDevices(Vector<GpuDevice*>* availableDevices);
+		static bool GetBestAvailableAndCompatibleDevice(GpuDevice** bestDevice);
+	};
 }

@@ -8,36 +8,33 @@ namespace MTL
     class Buffer;
 }
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_RENDERER_API MetalBuffer : public Buffer
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API MetalBuffer : public Buffer
-		{
-		public:
+	public:
 
-										MetalBuffer(Usage usage, uint32_t size);
-										MetalBuffer(const MetalBuffer&) = delete;
-										MetalBuffer(MetalBuffer&&) = delete;
-										~MetalBuffer() override;
+									MetalBuffer(Usage usage, uint32_t size);
+									MetalBuffer(const MetalBuffer&) = delete;
+									MetalBuffer(MetalBuffer&&) = delete;
+									~MetalBuffer() override;
 
-			MetalBuffer&				operator=(const MetalBuffer&) = delete;
-			MetalBuffer&				operator=(MetalBuffer&&) = delete;
+		MetalBuffer&				operator=(const MetalBuffer&) = delete;
+		MetalBuffer&				operator=(MetalBuffer&&) = delete;
 
-		public:
+	public:
 
-			bool						Resize(uint32_t size) override;
-			void*						Lock() override;
-			void						Unlock() override;
-            
-            MTL::Buffer*                GetNativeBuffer() const;
-            
-        private:
-            
-            MTL::Buffer*                _nativeBuffer;
-		};
-	}
+		bool						Resize(uint32_t size) override;
+		void*						Lock() override;
+		void						Unlock() override;
+		
+		MTL::Buffer*                GetNativeBuffer() const;
+		
+	private:
+		
+		MTL::Buffer*                _nativeBuffer;
+	};
 }

@@ -2,25 +2,22 @@
 
 #include <HodEngine/Math/Color.hpp>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	struct SpotLight
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		struct SpotLight
+		SpotLight()
 		{
-			SpotLight()
-			{
 
-			}
+		}
 
-			math::Color color;
-			float intensity;
-			float radius;
-			float outer;
-			float inner;
-		};
-	}
+		math::Color color;
+		float intensity;
+		float radius;
+		float outer;
+		float inner;
+	};
 }

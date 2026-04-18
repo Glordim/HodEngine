@@ -10,31 +10,28 @@ namespace MTL
     class RenderPipelineState;
 }
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_RENDERER_API MetalMaterial : public Material
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API MetalMaterial : public Material
-		{
-		public:
+	public:
 
-									MetalMaterial();
-                                    ~MetalMaterial() override;
+								MetalMaterial();
+								~MetalMaterial() override;
 
-			bool			        Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
-            
-			NS::Range				GetVertexAttributeBufferRange() const;
+		bool			        Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
+		
+		NS::Range				GetVertexAttributeBufferRange() const;
 
-            MTL::RenderPipelineState*   GetNativeRenderPipeline() const;
-            
-        private:
-            
-            MTL::RenderPipelineState*   _renderPipelineState = nullptr;
+		MTL::RenderPipelineState*   GetNativeRenderPipeline() const;
+		
+	private:
+		
+		MTL::RenderPipelineState*   _renderPipelineState = nullptr;
 
-			NS::Range _vertexAttributeBufferRange;
-		};
-	}
+		NS::Range _vertexAttributeBufferRange;
+	};
 }

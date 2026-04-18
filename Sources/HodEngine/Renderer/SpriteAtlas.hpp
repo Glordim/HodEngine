@@ -6,39 +6,36 @@
 
 #include "HodEngine/Renderer/Sprite.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	class Texture;
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_RENDERER_API SpriteAtlas
 	{
-		class Texture;
+	public:
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API SpriteAtlas
-		{
-		public:
+								SpriteAtlas() = default;
+								SpriteAtlas(const SpriteAtlas&) = delete;
+								SpriteAtlas(SpriteAtlas&&) = delete;
+		virtual					~SpriteAtlas();
 
-									SpriteAtlas() = default;
-									SpriteAtlas(const SpriteAtlas&) = delete;
-									SpriteAtlas(SpriteAtlas&&) = delete;
-			virtual					~SpriteAtlas();
+		void					operator=(const SpriteAtlas&) = delete;
+		void					operator=(SpriteAtlas&&) = delete;
 
-			void					operator=(const SpriteAtlas&) = delete;
-			void					operator=(SpriteAtlas&&) = delete;
+	public:
 
-		public:
+		bool					LoadFromFile(const String& spriteAltasJsonPath);
 
-			bool					LoadFromFile(const String& spriteAltasJsonPath);
+		const Sprite*			FindSprite(const String& spriteName) const;
 
-			const Sprite*			FindSprite(const String& spriteName) const;
+		const Texture*			GetTexture() const;
 
-			const Texture*			GetTexture() const;
+	private:
 
-		private:
-
-			Texture*				_texture = nullptr;
-			Vector<Sprite>		_sprites;
-		};
-	}
+		Texture*				_texture = nullptr;
+		Vector<Sprite>		_sprites;
+	};
 }

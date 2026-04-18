@@ -20,328 +20,325 @@
 #include <HodEngine/Window/Event.hpp>
 #include <HodEngine/Window/Window.hpp>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	/// @brief
+	_SingletonConstructor(Renderer)
 	{
-		/// @brief
-		_SingletonConstructor(Renderer)
+		MaterialManager::CreateInstance();
+		PickingManager::CreateInstance();
+		FontManager::CreateInstance();
+		FontManager::GetInstance()->Init(); // todo catch error ?
+
+		_frameResources.Resize(_frameInFlight);
+		_texturesToDestroy.Resize(_frameInFlight);
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	Renderer::~Renderer()
+	{
+		FontManager::DestroyInstance();
+		PickingManager::DestroyInstance();
+		MaterialManager::DestroyInstance();
+	}
+
+	/// @brief
+	void Renderer::Clear()
+	{
+		MaterialManager::GetInstance()->Clear();
+
+		DefaultAllocator::GetInstance().Delete(_overdrawnMaterialInstance);
+		_overdrawnMaterialInstance = nullptr;
+		DefaultAllocator::GetInstance().Delete(_overdrawnMaterial);
+		_overdrawnMaterial = nullptr;
+
+		DefaultAllocator::GetInstance().Delete(_wireframeMaterialInstance);
+		_wireframeMaterialInstance = nullptr;
+		DefaultAllocator::GetInstance().Delete(_wireframeMaterial);
+		_wireframeMaterial = nullptr;
+
+		DefaultAllocator::GetInstance().Delete(_defaultMaterialInstance);
+		_defaultMaterialInstance = nullptr;
+		DefaultAllocator::GetInstance().Delete(_defaultMaterial);
+		_defaultMaterial = nullptr;
+
+		DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
+		_defaultWhiteTexture = nullptr;
+	}
+
+	/*
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	bool Renderer::Init()
+	{
+		DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
+
+		pDebugLayer->RegisterDebugWindow(&_rendererDebugWindow);
+
+		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	void Renderer::Clear()
+	{
+		DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
+
+		pDebugLayer->UnregisterDebugWindow(&_rendererDebugWindow);
+	}
+	*/
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	Renderer::VisualizationMode Renderer::GetVisualizationMode() const
+	{
+		return _visualizationMode;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	void Renderer::SetVisualizationMode(VisualizationMode visualizationMode)
+	{
+		_visualizationMode = visualizationMode;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	MaterialInstance* Renderer::GetDefaultMaterialInstance()
+	{
+		if (_defaultMaterialInstance == nullptr)
 		{
-			MaterialManager::CreateInstance();
-			PickingManager::CreateInstance();
-			FontManager::CreateInstance();
-			FontManager::GetInstance()->Init(); // todo catch error ?
-
-			_frameResources.Resize(_frameInFlight);
-			_texturesToDestroy.Resize(_frameInFlight);
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		Renderer::~Renderer()
-		{
-			FontManager::DestroyInstance();
-			PickingManager::DestroyInstance();
-			MaterialManager::DestroyInstance();
-		}
-
-		/// @brief
-		void Renderer::Clear()
-		{
-			MaterialManager::GetInstance()->Clear();
-
-			DefaultAllocator::GetInstance().Delete(_overdrawnMaterialInstance);
-			_overdrawnMaterialInstance = nullptr;
-			DefaultAllocator::GetInstance().Delete(_overdrawnMaterial);
-			_overdrawnMaterial = nullptr;
-
-			DefaultAllocator::GetInstance().Delete(_wireframeMaterialInstance);
-			_wireframeMaterialInstance = nullptr;
-			DefaultAllocator::GetInstance().Delete(_wireframeMaterial);
-			_wireframeMaterial = nullptr;
-
-			DefaultAllocator::GetInstance().Delete(_defaultMaterialInstance);
-			_defaultMaterialInstance = nullptr;
-			DefaultAllocator::GetInstance().Delete(_defaultMaterial);
-			_defaultMaterial = nullptr;
-
-			DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
-			_defaultWhiteTexture = nullptr;
-		}
-
-		/*
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		bool Renderer::Init()
-		{
-		    DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
-
-		    pDebugLayer->RegisterDebugWindow(&_rendererDebugWindow);
-
-		    return true;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		void Renderer::Clear()
-		{
-		    DEBUG_LAYER::DebugLayer* pDebugLayer = DEBUG_LAYER::DebugLayer::GetInstance();
-
-		    pDebugLayer->UnregisterDebugWindow(&_rendererDebugWindow);
-		}
-		*/
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		Renderer::VisualizationMode Renderer::GetVisualizationMode() const
-		{
-			return _visualizationMode;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		void Renderer::SetVisualizationMode(VisualizationMode visualizationMode)
-		{
-			_visualizationMode = visualizationMode;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		MaterialInstance* Renderer::GetDefaultMaterialInstance()
-		{
-			if (_defaultMaterialInstance == nullptr)
+			if (_defaultMaterial == nullptr)
 			{
+				Renderer* renderer = Renderer::GetInstance();
+
+				renderer::VertexInput vertexInput[1] = {
+					{0, 0, renderer::VertexInput::Format::R32G32_SFloat},
+					//{ 8, renderer::VertexInput::Format::R32G32_SFloat },
+					//{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
+				};
+
+				Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
+				if (vertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size) == false)
+				{
+					DefaultAllocator::GetInstance().Delete(vertexShader);
+					return nullptr;
+				}
+
+				Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
+				if (fragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size) == false)
+				{
+					DefaultAllocator::GetInstance().Delete(vertexShader);
+					DefaultAllocator::GetInstance().Delete(fragmentShader);
+					return nullptr;
+				}
+
+				_defaultMaterial = renderer->CreateMaterial(vertexInput, 1, vertexShader, fragmentShader);
 				if (_defaultMaterial == nullptr)
 				{
-					Renderer* renderer = Renderer::GetInstance();
-
-					renderer::VertexInput vertexInput[1] = {
-						{0, 0, renderer::VertexInput::Format::R32G32_SFloat},
-						//{ 8, renderer::VertexInput::Format::R32G32_SFloat },
-					    //{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
-					};
-
-					Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
-					if (vertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size) == false)
-					{
-						DefaultAllocator::GetInstance().Delete(vertexShader);
-						return nullptr;
-					}
-
-					Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
-					if (fragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size) == false)
-					{
-						DefaultAllocator::GetInstance().Delete(vertexShader);
-						DefaultAllocator::GetInstance().Delete(fragmentShader);
-						return nullptr;
-					}
-
-					_defaultMaterial = renderer->CreateMaterial(vertexInput, 1, vertexShader, fragmentShader);
-					if (_defaultMaterial == nullptr)
-					{
-						DefaultAllocator::GetInstance().Delete(vertexShader);
-						DefaultAllocator::GetInstance().Delete(fragmentShader);
-						return nullptr;
-					}
+					DefaultAllocator::GetInstance().Delete(vertexShader);
+					DefaultAllocator::GetInstance().Delete(fragmentShader);
+					return nullptr;
 				}
-
-				_defaultMaterialInstance = CreateMaterialInstance(_defaultMaterial);
 			}
 
-			return _defaultMaterialInstance;
+			_defaultMaterialInstance = CreateMaterialInstance(_defaultMaterial);
 		}
 
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		MaterialInstance* Renderer::GetOverdrawMaterialInstance()
+		return _defaultMaterialInstance;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	MaterialInstance* Renderer::GetOverdrawMaterialInstance()
+	{
+		if (_overdrawnMaterialInstance == nullptr)
 		{
-			if (_overdrawnMaterialInstance == nullptr)
+			if (_overdrawnMaterial == nullptr)
 			{
-				if (_overdrawnMaterial == nullptr)
+				//_overdrawnMaterial = MaterialManager::GetInstance()->CreateMaterial("SpriteOverdraw"); // TODO
+			}
+
+			_overdrawnMaterialInstance = CreateMaterialInstance(_overdrawnMaterial);
+		}
+
+		return _overdrawnMaterialInstance;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	MaterialInstance* Renderer::GetWireframeMaterialInstance()
+	{
+		if (_wireframeMaterialInstance == nullptr)
+		{
+			if (_wireframeMaterial == nullptr)
+			{
+				// TODO
+				//_wireframeMaterial = MaterialManager::GetInstance()->GetData(
+				//	MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
+			}
+
+			_wireframeMaterialInstance = CreateMaterialInstance(_wireframeMaterial);
+		}
+
+		return _wireframeMaterialInstance;
+	}
+
+	/// @brief
+	/// @return
+	Texture* Renderer::GetDefaultWhiteTexture()
+	{
+		if (_defaultWhiteTexture == nullptr)
+		{
+			uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+
+			_defaultWhiteTexture = CreateTexture();
+			_defaultWhiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
+		}
+		return _defaultWhiteTexture;
+	}
+
+	/*
+	void Renderer::PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame)
+	{
+		renderView.SetAutoDestroy(autoDestroyAfterFrame);
+		_renderViews.push_back(&renderView);
+	}
+
+	void Renderer::RenderViews()
+	{
+		// todo sort
+
+		Semaphore* semaphore = nullptr;
+		Context*   context = nullptr;
+		for (RenderView* renderView : _renderViews)
+		{
+			if (renderView->GetContext())
+			{
+				context = renderView->GetContext();
+				if (semaphore == nullptr)
 				{
-					//_overdrawnMaterial = MaterialManager::GetInstance()->CreateMaterial("SpriteOverdraw"); // TODO
+					semaphore = (Semaphore*)renderView->GetContext()->GetImageAvailableSempahore();
 				}
-
-				_overdrawnMaterialInstance = CreateMaterialInstance(_overdrawnMaterial);
+				renderView->Execute(semaphore);
+				semaphore = renderView->GetRenderFinishedSemaphore();
 			}
-
-			return _overdrawnMaterialInstance;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		MaterialInstance* Renderer::GetWireframeMaterialInstance()
-		{
-			if (_wireframeMaterialInstance == nullptr)
+			else
 			{
-				if (_wireframeMaterial == nullptr)
-				{
-					// TODO
-					//_wireframeMaterial = MaterialManager::GetInstance()->GetData(
-					//	MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
-				}
-
-				_wireframeMaterialInstance = CreateMaterialInstance(_wireframeMaterial);
+				renderView->Execute();
 			}
+		}
+		context->AddSemaphoreToSwapBuffer(semaphore);
+	}
 
-			return _wireframeMaterialInstance;
+	void Renderer::WaitViews()
+	{
+		for (RenderView* renderView : _renderViews)
+		{
+			renderView->Wait();
 		}
 
-		/// @brief
-		/// @return
-		Texture* Renderer::GetDefaultWhiteTexture()
+		for (RenderView* renderView : _renderViews)
 		{
-			if (_defaultWhiteTexture == nullptr)
+			if (renderView->IsAutoDestroy())
 			{
-				uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
-
-				_defaultWhiteTexture = CreateTexture();
-				_defaultWhiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
+				DefaultAllocator::GetInstance().Delete(renderView);
 			}
-			return _defaultWhiteTexture;
 		}
+		_renderViews.Clear();
+	}
+		*/
 
-		/*
-		void Renderer::PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame)
+	void Renderer::Render()
+	{
+		FrameResources& frameResources = GetCurrentFrameResources();
+		frameResources.Submit();
+
+		++_frameCount;
+		_frameIndex = _frameCount % _frameInFlight;
+	}
+
+	FrameResources& Renderer::GetCurrentFrameResources()
+	{
+		return _frameResources[_frameIndex];
+	}
+
+	bool Renderer::AcquireNextFrame()
+	{
+		Vector<PresentationSurface*> presentationSurfaceToResize;
+		for (PresentationSurface* presentationSurface : _presentationSurfaces)
 		{
-		    renderView.SetAutoDestroy(autoDestroyAfterFrame);
-		    _renderViews.push_back(&renderView);
-		}
+			window::Event event;
+			uint32_t      eventIndex = 0;
 
-		void Renderer::RenderViews()
-		{
-		    // todo sort
-
-		    Semaphore* semaphore = nullptr;
-		    Context*   context = nullptr;
-		    for (RenderView* renderView : _renderViews)
-		    {
-		        if (renderView->GetContext())
-		        {
-		            context = renderView->GetContext();
-		            if (semaphore == nullptr)
-		            {
-		                semaphore = (Semaphore*)renderView->GetContext()->GetImageAvailableSempahore();
-		            }
-		            renderView->Execute(semaphore);
-		            semaphore = renderView->GetRenderFinishedSemaphore();
-		        }
-		        else
-		        {
-		            renderView->Execute();
-		        }
-		    }
-		    context->AddSemaphoreToSwapBuffer(semaphore);
-		}
-
-		void Renderer::WaitViews()
-		{
-		    for (RenderView* renderView : _renderViews)
-		    {
-		        renderView->Wait();
-		    }
-
-		    for (RenderView* renderView : _renderViews)
-		    {
-		        if (renderView->IsAutoDestroy())
-		        {
-		            DefaultAllocator::GetInstance().Delete(renderView);
-		        }
-		    }
-		    _renderViews.Clear();
-		}
-		    */
-
-		void Renderer::Render()
-		{
-			FrameResources& frameResources = GetCurrentFrameResources();
-			frameResources.Submit();
-
-			++_frameCount;
-			_frameIndex = _frameCount % _frameInFlight;
-		}
-
-		FrameResources& Renderer::GetCurrentFrameResources()
-		{
-			return _frameResources[_frameIndex];
-		}
-
-		bool Renderer::AcquireNextFrame()
-		{
-			Vector<PresentationSurface*> presentationSurfaceToResize;
-			for (PresentationSurface* presentationSurface : _presentationSurfaces)
+			window::Window* window = presentationSurface->GetWindow();
+			if (window->PollEvent(eventIndex, event, 1 << static_cast<uint8_t>(window::EventType::Resized)))
 			{
-				window::Event event;
-				uint32_t      eventIndex = 0;
+				presentationSurfaceToResize.PushBack(presentationSurface);
+			}
+		}
 
+		FrameResources& frameResources = GetCurrentFrameResources();
+		frameResources.Wait();
+		frameResources.DestroyAll();
+
+		for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
+		{
+			DefaultAllocator::GetInstance().Delete(textureToDestroy);
+		}
+		_texturesToDestroy[_frameIndex].Clear();
+
+		if (presentationSurfaceToResize.Empty() == false)
+		{
+			for (PresentationSurface* presentationSurface : presentationSurfaceToResize)
+			{
 				window::Window* window = presentationSurface->GetWindow();
-				if (window->PollEvent(eventIndex, event, 1 << static_cast<uint8_t>(window::EventType::Resized)))
-				{
-					presentationSurfaceToResize.PushBack(presentationSurface);
-				}
+				presentationSurface->Resize(window->GetWidth(), window->GetHeight());
 			}
-
-			FrameResources& frameResources = GetCurrentFrameResources();
-			frameResources.Wait();
-			frameResources.DestroyAll();
-
-			for (Texture* textureToDestroy : _texturesToDestroy[_frameIndex])
-			{
-				DefaultAllocator::GetInstance().Delete(textureToDestroy);
-			}
-			_texturesToDestroy[_frameIndex].Clear();
-
-			if (presentationSurfaceToResize.Empty() == false)
-			{
-				for (PresentationSurface* presentationSurface : presentationSurfaceToResize)
-				{
-					window::Window* window = presentationSurface->GetWindow();
-					presentationSurface->Resize(window->GetWidth(), window->GetHeight());
-				}
-			}
-
-			for (PresentationSurface* presentationSurface : _presentationSurfaces)
-			{
-				if (presentationSurface->AcquireNextImageIndex(GetCurrentFrameResources().GetImageAvalaibleSemaphore()) == false)
-				{
-					return false;
-				}
-			}
-			return true;
 		}
 
-		void Renderer::DestroyTexture(Texture* texture)
+		for (PresentationSurface* presentationSurface : _presentationSurfaces)
 		{
-			_texturesToDestroy[_frameIndex].PushBack(texture);
-		}
-
-		PresentationSurface* Renderer::FindPresentationSurface(window::Window* window) const
-		{
-			for (PresentationSurface* presentationSurface : _presentationSurfaces)
+			if (presentationSurface->AcquireNextImageIndex(GetCurrentFrameResources().GetImageAvalaibleSemaphore()) == false)
 			{
-				if (presentationSurface->GetWindow() == window)
-				{
-					return presentationSurface;
-				}
+				return false;
 			}
-			return nullptr;
 		}
+		return true;
+	}
 
-		uint32_t Renderer::GetFrameIndex() const
-		{
-			return _frameIndex;
-		}
+	void Renderer::DestroyTexture(Texture* texture)
+	{
+		_texturesToDestroy[_frameIndex].PushBack(texture);
+	}
 
-		uint32_t Renderer::GetFrameInFlightCount() const
+	PresentationSurface* Renderer::FindPresentationSurface(window::Window* window) const
+	{
+		for (PresentationSurface* presentationSurface : _presentationSurfaces)
 		{
-			return _frameInFlight;
+			if (presentationSurface->GetWindow() == window)
+			{
+				return presentationSurface;
+			}
 		}
+		return nullptr;
+	}
+
+	uint32_t Renderer::GetFrameIndex() const
+	{
+		return _frameIndex;
+	}
+
+	uint32_t Renderer::GetFrameInFlightCount() const
+	{
+		return _frameInFlight;
 	}
 }

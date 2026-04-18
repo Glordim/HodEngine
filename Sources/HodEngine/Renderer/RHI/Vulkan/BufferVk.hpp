@@ -6,45 +6,42 @@
 #include <vulkan/vulkan.h>
 #include <VulkanMemoryAllocator/vk_mem_alloc.h>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_RENDERER_API BufferVk : public Buffer
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_RENDERER_API BufferVk : public Buffer
-		{
-		public:
+	public:
 
-										BufferVk(Usage usage, uint32_t size);
-										BufferVk(const BufferVk&) = delete;
-										BufferVk(BufferVk&&) = delete;
-										~BufferVk() override;
+									BufferVk(Usage usage, uint32_t size);
+									BufferVk(const BufferVk&) = delete;
+									BufferVk(BufferVk&&) = delete;
+									~BufferVk() override;
 
-			BufferVk&					operator=(const BufferVk&) = delete;
-			BufferVk&					operator=(BufferVk&&) = delete;
+		BufferVk&					operator=(const BufferVk&) = delete;
+		BufferVk&					operator=(BufferVk&&) = delete;
 
-		public:
+	public:
 
-			VkBuffer					GetVkBuffer() const;
+		VkBuffer					GetVkBuffer() const;
 
-			bool						Resize(uint32_t size) override;
-			void*						Lock() override;
-			void						Unlock() override;
+		bool						Resize(uint32_t size) override;
+		void*						Lock() override;
+		void						Unlock() override;
 
-		private:
+	private:
 
-			void						Release();
+		void						Release();
 
-		private:
+	private:
 
-			VkBuffer					_vkBuffer = VK_NULL_HANDLE;
-			VmaAllocation				_vmaAllocation = VK_NULL_HANDLE;
+		VkBuffer					_vkBuffer = VK_NULL_HANDLE;
+		VmaAllocation				_vmaAllocation = VK_NULL_HANDLE;
 
-		private:
+	private:
 
-			static VkBufferUsageFlags	_usageMap[Usage::Count];
-		};
-	}
+		static VkBufferUsageFlags	_usageMap[Usage::Count];
+	};
 }

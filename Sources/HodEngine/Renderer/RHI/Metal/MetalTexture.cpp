@@ -4,134 +4,131 @@
 
 #include <Metal/Metal.hpp>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	MetalTexture::MetalTexture() : Texture()
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		MetalTexture::MetalTexture() : Texture()
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	MetalTexture::~MetalTexture()
+	{
+		if (_texture != nullptr)
 		{
+			_texture->release();
 		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		MetalTexture::~MetalTexture()
+		
+		if (_sampler != nullptr)
 		{
-            if (_texture != nullptr)
-            {
-                _texture->release();
-            }
-            
-            if (_sampler != nullptr)
-            {
-                _sampler->release();
-            }
+			_sampler->release();
 		}
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool MetalTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
-		{
-            (void)createInfo; // TODO
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	bool MetalTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
+	{
+		(void)createInfo; // TODO
 
-			MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-            textureDescriptor->setWidth(width);
-            textureDescriptor->setHeight(height);
-            textureDescriptor->setPixelFormat(MTL::PixelFormatDepth24Unorm_Stencil8);
-            textureDescriptor->setTextureType(MTL::TextureType2D);
-            textureDescriptor->setStorageMode(MTL::StorageModeManaged);
-            textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-            _texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
-            textureDescriptor->release();
-            
-            MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-            _sampler = RendererMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
-            samplerDescriptor->release();
+		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
+		textureDescriptor->setWidth(width);
+		textureDescriptor->setHeight(height);
+		textureDescriptor->setPixelFormat(MTL::PixelFormatDepth24Unorm_Stencil8);
+		textureDescriptor->setTextureType(MTL::TextureType2D);
+		textureDescriptor->setStorageMode(MTL::StorageModeManaged);
+		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
+		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
+		textureDescriptor->release();
+		
+		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
+		_sampler = RendererMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
+		samplerDescriptor->release();
 
-			_width = width;
-			_height = height;
+		_width = width;
+		_height = height;
 
-			return true;
-		}
+		return true;
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool MetalTexture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
-		{
-			MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-            textureDescriptor->setWidth(width);
-            textureDescriptor->setHeight(height);
-            textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
-            textureDescriptor->setTextureType(MTL::TextureType2D);
-            textureDescriptor->setStorageMode(MTL::StorageModeManaged);
-            textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-            _texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
-            textureDescriptor->release();
-            
-            MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-            samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
-			samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
-            _sampler = RendererMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
-            samplerDescriptor->release();
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	bool MetalTexture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
+	{
+		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
+		textureDescriptor->setWidth(width);
+		textureDescriptor->setHeight(height);
+		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
+		textureDescriptor->setTextureType(MTL::TextureType2D);
+		textureDescriptor->setStorageMode(MTL::StorageModeManaged);
+		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
+		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
+		textureDescriptor->release();
+		
+		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
+		samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
+		samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
+		_sampler = RendererMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
+		samplerDescriptor->release();
 
-			_width = width;
-			_height = height;
+		_width = width;
+		_height = height;
 
-			return true;
-		}
+		return true;
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		bool MetalTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
-		{
-            MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-            textureDescriptor->setWidth(width);
-            textureDescriptor->setHeight(height);
-            textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
-            textureDescriptor->setTextureType(MTL::TextureType2D);
-            textureDescriptor->setStorageMode(MTL::StorageModeManaged);
-            textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-            _texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
-            textureDescriptor->release();
-            
-            _texture->replaceRegion(MTL::Region( 0, 0, 0, width, height, 1 ), 0, pixels, width * 4);
-            
-            MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-            samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
-			samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
-            _sampler = RendererMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
-            samplerDescriptor->release();
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	bool MetalTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
+	{
+		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
+		textureDescriptor->setWidth(width);
+		textureDescriptor->setHeight(height);
+		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
+		textureDescriptor->setTextureType(MTL::TextureType2D);
+		textureDescriptor->setStorageMode(MTL::StorageModeManaged);
+		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
+		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
+		textureDescriptor->release();
+		
+		_texture->replaceRegion(MTL::Region( 0, 0, 0, width, height, 1 ), 0, pixels, width * 4);
+		
+		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
+		samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
+		samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
+		_sampler = RendererMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
+		samplerDescriptor->release();
 
-			_width = width;
-			_height = height;
+		_width = width;
+		_height = height;
 
-			return true;
-		}
+		return true;
+	}
 
-		/// @brief 
-		/// @param position 
-		/// @return 
-		math::Color MetalTexture::ReadPixel(const math::Vector2& position) const
-		{
-            (void)position; // TODO
-			return math::Color();
-		}
-    
-        MTL::Texture* MetalTexture::GetNativeTexture() const
-        {
-            return _texture;
-        }
-    
-        MTL::SamplerState* MetalTexture::GetNativeSampler() const
-        {
-            return _sampler;
-        }
+	/// @brief 
+	/// @param position 
+	/// @return 
+	math::Color MetalTexture::ReadPixel(const math::Vector2& position) const
+	{
+		(void)position; // TODO
+		return math::Color();
+	}
+
+	MTL::Texture* MetalTexture::GetNativeTexture() const
+	{
+		return _texture;
+	}
+
+	MTL::SamplerState* MetalTexture::GetNativeSampler() const
+	{
+		return _sampler;
 	}
 }
 

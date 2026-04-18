@@ -2,19 +2,16 @@
 
 #include "HodEngine/Math/Vector2.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	struct BoundingBox
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		struct BoundingBox
-		{
-			math::Vector2 center;
-			math::Vector2 size;
-			math::Vector2 min;
-			math::Vector2 max;
-		};
-	}
+		math::Vector2 center;
+		math::Vector2 size;
+		math::Vector2 min;
+		math::Vector2 max;
+	};
 }

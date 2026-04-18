@@ -2,23 +2,20 @@
 
 #include <HodEngine/Math/Color.hpp>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	struct PointLight
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		struct PointLight
+		PointLight()
 		{
-			PointLight()
-			{
 
-			}
+		}
 
-			math::Color color;
-			float intensity;
-			float range;
-		};
-	}
+		math::Color color;
+		float intensity;
+		float range;
+	};
 }

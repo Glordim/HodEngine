@@ -8,16 +8,13 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	struct HOD_RENDERER_API D3d12GpuDevice : public GpuDevice
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		struct HOD_RENDERER_API D3d12GpuDevice : public GpuDevice
-		{
-			ComPtr<IDXGIAdapter1> adapter;
-		};
-	}
+		ComPtr<IDXGIAdapter1> adapter;
+	};
 }

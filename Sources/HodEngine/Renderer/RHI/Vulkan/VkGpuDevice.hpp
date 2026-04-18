@@ -5,21 +5,18 @@
 
 #include <vulkan/vulkan.h>
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	struct HOD_RENDERER_API VkGpuDevice : public GpuDevice
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		struct HOD_RENDERER_API VkGpuDevice : public GpuDevice
-		{
-			VkPhysicalDevice                 physicalDevice;
-			uint32_t                         graphicsAndPresentQueueFamilyIndex;
-			VkPhysicalDeviceProperties       deviceProperties;
-			VkPhysicalDeviceMemoryProperties memProperties;
-			uint32_t                         hostMemoryTypeIndex;
-			uint32_t                         deviceMemoryTypeIndex;
-		};
-	}
+		VkPhysicalDevice                 physicalDevice;
+		uint32_t                         graphicsAndPresentQueueFamilyIndex;
+		VkPhysicalDeviceProperties       deviceProperties;
+		VkPhysicalDeviceMemoryProperties memProperties;
+		uint32_t                         hostMemoryTypeIndex;
+		uint32_t                         deviceMemoryTypeIndex;
+	};
 }

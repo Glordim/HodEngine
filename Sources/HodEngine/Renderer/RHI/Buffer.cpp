@@ -1,17 +1,14 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
 
-namespace hod
+namespace hod::renderer
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	Buffer::Buffer(Usage usage, uint32_t Size)
+	: _usage(usage)
+	, _size(Size)
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		Buffer::Buffer(Usage usage, uint32_t Size)
-		: _usage(usage)
-		, _size(Size)
-		{
-		}
 	}
 }
