@@ -25,35 +25,32 @@
 
 #include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	void RegisterBuiltin()
 	{
-		void RegisterBuiltin()
-		{
-			ComponentFactory* componentFactory = ComponentFactory::GetInstance();
-			componentFactory->Register<NodeComponent>();
-			componentFactory->Register<Node2dComponent>();
-			componentFactory->Register<BoxComponent>();
-			componentFactory->Register<TextureRendererComponent>();
-			componentFactory->Register<TextRendererComponent>();
-			componentFactory->Register<Collider2dComponent>();
-			componentFactory->Register<MultiShapeCollider2dComponent>();
-			componentFactory->Register<BoxCollider2dComponent>();
-			componentFactory->Register<CircleCollider2dComponent>();
-			componentFactory->Register<CapsuleCollider2dComponent>();
-			componentFactory->Register<EdgeCollider2dComponent>();
-			componentFactory->Register<Rigidbody2dComponent>();
-			componentFactory->Register<CameraComponent>();
-			//componentFactory->Register<SpriteRendererComponent>();
-			/*
-			componentReflection->Register<ColliderComponent>();
-			componentReflection->Register<RendererComponent>();
-			componentReflection->Register<SpriteRendererComponent>();
-			componentReflection->Register<PointLightComponent>();
-			componentReflection->Register<DirLightComponent>();
-			componentReflection->Register<SpotLightComponent>();
-			*/
-		}
+		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
+		componentFactory->Register<NodeComponent>();
+		componentFactory->Register<Node2dComponent>();
+		componentFactory->Register<BoxComponent>();
+		componentFactory->Register<TextureRendererComponent>();
+		componentFactory->Register<TextRendererComponent>();
+		componentFactory->Register<Collider2dComponent>();
+		componentFactory->Register<MultiShapeCollider2dComponent>();
+		componentFactory->Register<BoxCollider2dComponent>();
+		componentFactory->Register<CircleCollider2dComponent>();
+		componentFactory->Register<CapsuleCollider2dComponent>();
+		componentFactory->Register<EdgeCollider2dComponent>();
+		componentFactory->Register<Rigidbody2dComponent>();
+		componentFactory->Register<CameraComponent>();
+		//componentFactory->Register<SpriteRendererComponent>();
+		/*
+		componentReflection->Register<ColliderComponent>();
+		componentReflection->Register<RendererComponent>();
+		componentReflection->Register<SpriteRendererComponent>();
+		componentReflection->Register<PointLightComponent>();
+		componentReflection->Register<DirLightComponent>();
+		componentReflection->Register<SpotLightComponent>();
+		*/
 	}
 }

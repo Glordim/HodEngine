@@ -6,31 +6,28 @@
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Renderer/Light/DirLight.hpp>
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API DirLightComponent : public Component
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API DirLightComponent : public Component
-		{
-		public:
+	public:
 
-								DirLightComponent() = default;
-								DirLightComponent(const DirLightComponent&) = delete;
-								DirLightComponent(DirLightComponent&&) = delete;
-								~DirLightComponent() override = default;
+							DirLightComponent() = default;
+							DirLightComponent(const DirLightComponent&) = delete;
+							DirLightComponent(DirLightComponent&&) = delete;
+							~DirLightComponent() override = default;
 
-			void				operator=(const DirLightComponent&) = delete;
-			void				operator=(DirLightComponent&&) = delete;
+		void				operator=(const DirLightComponent&) = delete;
+		void				operator=(DirLightComponent&&) = delete;
 
-		public:
+	public:
 
-			renderer::DirLight*	GetDirLight() const;
+		renderer::DirLight*	GetDirLight() const;
 
-		public:
-			renderer::DirLight	_data;
-		};
-	}
+	public:
+		renderer::DirLight	_data;
+	};
 }

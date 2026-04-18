@@ -3,31 +3,25 @@
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 
-namespace hod
+namespace hod::renderer { class MaterialInstance; }
+
+namespace hod::game
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API PrimitiveComponent : public RendererComponent
 	{
-		class MaterialInstance;
-	}
+		REFLECTED_CLASS(PrimitiveComponent, RendererComponent)
 
-	namespace game
-	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API PrimitiveComponent : public RendererComponent
-		{
-			REFLECTED_CLASS(PrimitiveComponent, RendererComponent)
+	public:
 
-		public:
+										PrimitiveComponent() = default;
+										PrimitiveComponent(const PrimitiveComponent&) = delete;
+										PrimitiveComponent(PrimitiveComponent&&) = delete;
+										~PrimitiveComponent() override;
 
-											PrimitiveComponent() = default;
-											PrimitiveComponent(const PrimitiveComponent&) = delete;
-											PrimitiveComponent(PrimitiveComponent&&) = delete;
-											~PrimitiveComponent() override;
-
-			PrimitiveComponent&				operator=(const PrimitiveComponent&) = delete;
-			PrimitiveComponent&				operator=(PrimitiveComponent&&) = delete;
-		};
-	}
+		PrimitiveComponent&				operator=(const PrimitiveComponent&) = delete;
+		PrimitiveComponent&				operator=(PrimitiveComponent&&) = delete;
+	};
 }

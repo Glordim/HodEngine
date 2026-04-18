@@ -5,47 +5,41 @@
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Sprite.hpp"
 
-namespace hod
+namespace hod::renderer { class MaterialInstance; }
+
+namespace hod::game
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API SpriteRendererComponent : public RendererComponent
 	{
-		class MaterialInstance;
-	}
+		REFLECTED_CLASS(SpriteRendererComponent, RendererComponent)
 
-	namespace game
-	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API SpriteRendererComponent : public RendererComponent
-		{
-			REFLECTED_CLASS(SpriteRendererComponent, RendererComponent)
+	public:
 
-		public:
+										SpriteRendererComponent() = default;
+										SpriteRendererComponent(const SpriteRendererComponent&) = delete;
+										SpriteRendererComponent(SpriteRendererComponent&&) = delete;
+										~SpriteRendererComponent() override;
 
-											SpriteRendererComponent() = default;
-											SpriteRendererComponent(const SpriteRendererComponent&) = delete;
-											SpriteRendererComponent(SpriteRendererComponent&&) = delete;
-											~SpriteRendererComponent() override;
+		SpriteRendererComponent&		operator=(const SpriteRendererComponent&) = delete;
+		SpriteRendererComponent&		operator=(SpriteRendererComponent&&) = delete;
 
-			SpriteRendererComponent&		operator=(const SpriteRendererComponent&) = delete;
-			SpriteRendererComponent&		operator=(SpriteRendererComponent&&) = delete;
+	public:
+		/*
+		const renderer::Sprite*			GetSprite() const;
+		void							SetSprite(std::shared_ptr<renderer::Sprite> sprite);
+		*/
+		renderer::MaterialInstance*		GetMaterialInstance() const;
+		void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
 
-		public:
-			/*
-			const renderer::Sprite*			GetSprite() const;
-			void							SetSprite(std::shared_ptr<renderer::Sprite> sprite);
-			*/
-			renderer::MaterialInstance*		GetMaterialInstance() const;
-			void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
+		void							PushRenderCommand(renderer::RenderView& renderView) override;
+		math::Rect							GetBoundingBox() const override;
 
-			void							PushRenderCommand(renderer::RenderView& renderView) override;
-			math::Rect							GetBoundingBox() const override;
+	private:
 
-		private:
-
-			WeakResource<renderer::Sprite>		_sprite;
-			renderer::MaterialInstance*			_materialInstance = nullptr;
-		};
-	}
+		WeakResource<renderer::Sprite>		_sprite;
+		renderer::MaterialInstance*			_materialInstance = nullptr;
+	};
 }

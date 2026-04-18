@@ -4,80 +4,77 @@
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	class HOD_GAME_API ZOrder
 	{
-		class HOD_GAME_API ZOrder
+		REFLECTED_CLASS_NO_VIRTUAL(ZOrder)
+
+	public:
+
+		ZOrder(uint16_t layer, uint16_t internalOrder);
+
+		void		SetLayer(uint16_t layer);
+		uint16_t	GetLayer() const;
+
+		void		SetInternalOrder(int16_t internalOrder);
+		int16_t		GetInternalOrder() const;
+
+		uint32_t	GetValue() const;
+
+	private:
+
+		union UnfiedValue
 		{
-			REFLECTED_CLASS_NO_VIRTUAL(ZOrder)
-
-		public:
-
-			ZOrder(uint16_t layer, uint16_t internalOrder);
-
-			void		SetLayer(uint16_t layer);
-			uint16_t	GetLayer() const;
-
-			void		SetInternalOrder(int16_t internalOrder);
-			int16_t		GetInternalOrder() const;
-
-			uint32_t	GetValue() const;
-
-		private:
-
-			union UnfiedValue
+			struct
 			{
-				struct
-				{
-					int16_t		_internalOrder;
-					uint16_t	_layer;
-				} split;
-				uint32_t _value = 0;
-			} _unifiedValue;
-		};
+				int16_t		_internalOrder;
+				uint16_t	_layer;
+			} split;
+			uint32_t _value = 0;
+		} _unifiedValue;
+	};
 
-		/// @brief 
-		class HOD_GAME_API Node2dComponent : public NodeComponent
-		{
-			REFLECTED_CLASS(Node2dComponent, NodeComponent)
+	/// @brief 
+	class HOD_GAME_API Node2dComponent : public NodeComponent
+	{
+		REFLECTED_CLASS(Node2dComponent, NodeComponent)
 
-		public:
+	public:
 
-											Node2dComponent() = default;
-											Node2dComponent(const Node2dComponent&) = delete;
-											Node2dComponent(Node2dComponent&&) = delete;
-											~Node2dComponent() override = default;
+										Node2dComponent() = default;
+										Node2dComponent(const Node2dComponent&) = delete;
+										Node2dComponent(Node2dComponent&&) = delete;
+										~Node2dComponent() override = default;
 
-			void							operator=(const Node2dComponent&) = delete;
-			void							operator=(Node2dComponent&&) = delete;
+		void							operator=(const Node2dComponent&) = delete;
+		void							operator=(Node2dComponent&&) = delete;
 
-		public:
+	public:
 
-			void							SetPosition(const math::Vector2& position);
-			const math::Vector2&					GetPosition() const;
+		void							SetPosition(const math::Vector2& position);
+		const math::Vector2&					GetPosition() const;
 
-			void							SetRotation(float rot);
-			float							GetRotation() const;
-			void							Rotate(float angle);
+		void							SetRotation(float rot);
+		float							GetRotation() const;
+		void							Rotate(float angle);
 
-			void							SetScale(const math::Vector2& scale);
-			const math::Vector2&					GetScale() const;
+		void							SetScale(const math::Vector2& scale);
+		const math::Vector2&					GetScale() const;
 
-			void							SetZOrder(ZOrder zOrder);
-			ZOrder							GetZOrder() const;
+		void							SetZOrder(ZOrder zOrder);
+		ZOrder							GetZOrder() const;
 
-		protected:
+	protected:
 
-			void							ComputeLocalMatrix(math::Matrix4& localMatrix) override;
+		void							ComputeLocalMatrix(math::Matrix4& localMatrix) override;
 
-		private:
+	private:
 
-			math::Vector2							_position = math::Vector2::Zero;
-			math::Vector2							_scale = math::Vector2::One;
-			float							_rotation = 0.0f;
+		math::Vector2							_position = math::Vector2::Zero;
+		math::Vector2							_scale = math::Vector2::One;
+		float							_rotation = 0.0f;
 
-			ZOrder							_zOrder = ZOrder(0, 0);
-		};
-	}
+		ZOrder							_zOrder = ZOrder(0, 0);
+	};
 }

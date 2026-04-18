@@ -5,32 +5,29 @@
 
 #include <HodEngine/Renderer/Light/PointLight.hpp>
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API PointLightComponent : public Component
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API PointLightComponent : public Component
-		{
-		public:
+	public:
 
-									PointLightComponent() = default;
-									PointLightComponent(const PointLightComponent&) = delete;
-									PointLightComponent(PointLightComponent&&) = delete;
-									~PointLightComponent() override = default;
+								PointLightComponent() = default;
+								PointLightComponent(const PointLightComponent&) = delete;
+								PointLightComponent(PointLightComponent&&) = delete;
+								~PointLightComponent() override = default;
 
-			void					operator=(const PointLightComponent&) = delete;
-			void					operator=(PointLightComponent&&) = delete;
+		void					operator=(const PointLightComponent&) = delete;
+		void					operator=(PointLightComponent&&) = delete;
 
-		public:
+	public:
 
-			renderer::PointLight*	GetPointLight() const;
+		renderer::PointLight*	GetPointLight() const;
 
-		public:
+	public:
 
-			renderer::PointLight	_data;
-		};
-	}
+		renderer::PointLight	_data;
+	};
 }

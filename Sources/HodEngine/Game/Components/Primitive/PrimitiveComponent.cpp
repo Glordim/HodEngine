@@ -7,21 +7,18 @@
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	DESCRIBE_REFLECTED_CLASS(PrimitiveComponent, reflectionDescriptor)
 	{
-		DESCRIBE_REFLECTED_CLASS(PrimitiveComponent, reflectionDescriptor)
-		{
-			(void)reflectionDescriptor;
-		}
+		(void)reflectionDescriptor;
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		PrimitiveComponent::~PrimitiveComponent()
-		{
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	PrimitiveComponent::~PrimitiveComponent()
+	{
 
-		}
 	}
 }

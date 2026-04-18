@@ -7,49 +7,43 @@
 
 #include "HodEngine/Core/String.hpp"
 
-namespace hod
+namespace hod::renderer { class MaterialInstance; }
+
+namespace hod::game
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API TextRendererComponent : public RendererComponent
 	{
-		class MaterialInstance;
-	}
+		REFLECTED_CLASS(TextRendererComponent, RendererComponent)
 
-	namespace game
-	{
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API TextRendererComponent : public RendererComponent
-		{
-			REFLECTED_CLASS(TextRendererComponent, RendererComponent)
+	public:
+		TextRendererComponent();
+		TextRendererComponent(const TextRendererComponent&) = delete;
+		TextRendererComponent(TextRendererComponent&&) = delete;
+		~TextRendererComponent() override;
 
-		public:
-			TextRendererComponent();
-			TextRendererComponent(const TextRendererComponent&) = delete;
-			TextRendererComponent(TextRendererComponent&&) = delete;
-			~TextRendererComponent() override;
+		TextRendererComponent& operator=(const TextRendererComponent&) = delete;
+		TextRendererComponent& operator=(TextRendererComponent&&) = delete;
 
-			TextRendererComponent& operator=(const TextRendererComponent&) = delete;
-			TextRendererComponent& operator=(TextRendererComponent&&) = delete;
+	public:
+		void OnConstruct() override;
 
-		public:
-			void OnConstruct() override;
+		renderer::MaterialInstance* GetMaterialInstance() const;
+		void                        SetMaterialInstance(renderer::MaterialInstance* materialInstance);
 
-			renderer::MaterialInstance* GetMaterialInstance() const;
-			void                        SetMaterialInstance(renderer::MaterialInstance* materialInstance);
+		void SetFont(const WeakResource<renderer::FontResource>& font);
+		// void							SetText(const std::string_view& text);
 
-			void SetFont(const WeakResource<renderer::FontResource>& font);
-			// void							SetText(const std::string_view& text);
+		void PushRenderCommand(renderer::RenderView& renderView) override;
+		math::Rect GetBoundingBox() const override;
 
-			void PushRenderCommand(renderer::RenderView& renderView) override;
-			math::Rect GetBoundingBox() const override;
+	private:
+		String _text = "EditMe";
 
-		private:
-			String _text = "EditMe";
+		WeakResource<renderer::FontResource> _fontResource;
 
-			WeakResource<renderer::FontResource> _fontResource;
-
-			renderer::MaterialInstance* _materialInstance = nullptr;
-		};
-	}
+		renderer::MaterialInstance* _materialInstance = nullptr;
+	};
 }

@@ -20,97 +20,94 @@
 
 #include <array>
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	// 0_____3
+	// |     |
+	// |_____|
+	// 1     2
+
+	static std::array<math::Vector2, 4> _positions = {
+		math::Vector2(-0.5f, 0.5f),
+		math::Vector2(-0.5f, -0.5f),
+		math::Vector2(0.5f, -0.5f),
+		math::Vector2(0.5f, 0.5f),
+	};
+
+	static std::array<math::Vector2, 4> _uvs = {
+		math::Vector2(0, 0),
+		math::Vector2(0, 1),
+		math::Vector2(1, 1),
+		math::Vector2(1, 0),
+	};
+
+	static std::array<uint16_t, 6> _indices = {
+		0, 1, 3, 3, 1, 2,
+	};
+
+	DESCRIBE_REFLECTED_CLASS(BoxComponent, reflectionDescriptor)
 	{
-		// 0_____3
-		// |     |
-		// |_____|
-		// 1     2
+		AddPropertyT(reflectionDescriptor, &BoxComponent::_material, "_material", &BoxComponent::SetMaterialInstanceResource);
+	}
 
-		static std::array<math::Vector2, 4> _positions = {
-			math::Vector2(-0.5f, 0.5f),
-			math::Vector2(-0.5f, -0.5f),
-			math::Vector2(0.5f, -0.5f),
-			math::Vector2(0.5f, 0.5f),
-		};
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	BoxComponent::~BoxComponent() {}
 
-		static std::array<math::Vector2, 4> _uvs = {
-			math::Vector2(0, 0),
-			math::Vector2(0, 1),
-			math::Vector2(1, 1),
-			math::Vector2(1, 0),
-		};
-
-		static std::array<uint16_t, 6> _indices = {
-			0, 1, 3, 3, 1, 2,
-		};
-
-		DESCRIBE_REFLECTED_CLASS(BoxComponent, reflectionDescriptor)
+	void BoxComponent::OnConstruct()
+	{
+		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		if (materialInstanceResource != nullptr)
 		{
-			AddPropertyT(reflectionDescriptor, &BoxComponent::_material, "_material", &BoxComponent::SetMaterialInstanceResource);
+			_materialInstance = materialInstanceResource->GetMaterialInstance();
 		}
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		BoxComponent::~BoxComponent() {}
-
-		void BoxComponent::OnConstruct()
+	/// @brief
+	/// @param materialInstance
+	void BoxComponent::SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& weakMaterialInstanceResource)
+	{
+		_material = weakMaterialInstanceResource;
+		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		if (materialInstanceResource != nullptr)
 		{
-			std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
-			if (materialInstanceResource != nullptr)
+			_materialInstance = materialInstanceResource->GetMaterialInstance();
+		}
+		else
+		{
+			_materialInstance = nullptr;
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	renderer::MaterialInstance* BoxComponent::GetMaterialInstance() const
+	{
+		return _materialInstance;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	void BoxComponent::PushRenderCommand(renderer::RenderView& renderView)
+	{
+		Entity* entity = GetOwner();
+		if (entity != nullptr)
+		{
+			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
+			if (node2dComponent != nullptr)
 			{
-				_materialInstance = materialInstanceResource->GetMaterialInstance();
+				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+					_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
+					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 			}
 		}
+	}
 
-		/// @brief
-		/// @param materialInstance
-		void BoxComponent::SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& weakMaterialInstanceResource)
-		{
-			_material = weakMaterialInstanceResource;
-			std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
-			if (materialInstanceResource != nullptr)
-			{
-				_materialInstance = materialInstanceResource->GetMaterialInstance();
-			}
-			else
-			{
-				_materialInstance = nullptr;
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		renderer::MaterialInstance* BoxComponent::GetMaterialInstance() const
-		{
-			return _materialInstance;
-		}
-
-		//-----------------------------------------------------------------------------
-		//! @brief
-		//-----------------------------------------------------------------------------
-		void BoxComponent::PushRenderCommand(renderer::RenderView& renderView)
-		{
-			Entity* entity = GetOwner();
-			if (entity != nullptr)
-			{
-				Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
-				if (node2dComponent != nullptr)
-				{
-					renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
-						_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
-						node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
-				}
-			}
-		}
-
-		math::Rect BoxComponent::GetBoundingBox() const
-		{
-			return math::Rect();
-		}
+	math::Rect BoxComponent::GetBoundingBox() const
+	{
+		return math::Rect();
 	}
 }

@@ -5,48 +5,42 @@
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 
-namespace hod
+namespace hod::renderer { class MaterialInstance; }
+
+namespace hod::game
 {
-	namespace renderer
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API BoxComponent : public PrimitiveComponent
 	{
-		class MaterialInstance;
-	}
+		REFLECTED_CLASS(BoxComponent, PrimitiveComponent)
 
-	namespace game
-	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API BoxComponent : public PrimitiveComponent
-		{
-			REFLECTED_CLASS(BoxComponent, PrimitiveComponent)
+	public:
 
-		public:
+						BoxComponent() = default;
+						BoxComponent(const BoxComponent&) = delete;
+						BoxComponent(BoxComponent&&) = delete;
+						~BoxComponent() override;
 
-							BoxComponent() = default;
-							BoxComponent(const BoxComponent&) = delete;
-							BoxComponent(BoxComponent&&) = delete;
-							~BoxComponent() override;
+		BoxComponent&	operator=(const BoxComponent&) = delete;
+		BoxComponent&	operator=(BoxComponent&&) = delete;
 
-			BoxComponent&	operator=(const BoxComponent&) = delete;
-			BoxComponent&	operator=(BoxComponent&&) = delete;
+	public:
 
-		public:
+		void			OnConstruct() override;
 
-			void			OnConstruct() override;
+		void			PushRenderCommand(renderer::RenderView& renderView) override;
+		math::Rect			GetBoundingBox() const override;
 
-			void			PushRenderCommand(renderer::RenderView& renderView) override;
-			math::Rect			GetBoundingBox() const override;
+		renderer::MaterialInstance*		GetMaterialInstance() const;
 
-			renderer::MaterialInstance*		GetMaterialInstance() const;
+		void							SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& materialInstance);
 
-			void							SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& materialInstance);
+	private:
 
-		private:
+		WeakResource<renderer::MaterialInstanceResource>	_material;
 
-			WeakResource<renderer::MaterialInstanceResource>	_material;
-
-			renderer::MaterialInstance*							_materialInstance = nullptr;
-		};
-	}
+		renderer::MaterialInstance*							_materialInstance = nullptr;
+	};
 }

@@ -5,32 +5,29 @@
 
 #include <HodEngine/Renderer/Light/SpotLight.hpp>
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API SpotLightComponent : public Component
 	{
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API SpotLightComponent : public Component
-		{
-		public:
+	public:
 
-									SpotLightComponent() = default;
-									SpotLightComponent(const SpotLightComponent&) = delete;
-									SpotLightComponent(SpotLightComponent&&) = delete;
-									~SpotLightComponent() override = default;
+								SpotLightComponent() = default;
+								SpotLightComponent(const SpotLightComponent&) = delete;
+								SpotLightComponent(SpotLightComponent&&) = delete;
+								~SpotLightComponent() override = default;
 
-			void					operator=(const SpotLightComponent&) = delete;
-			void					operator=(SpotLightComponent&&) = delete;
+		void					operator=(const SpotLightComponent&) = delete;
+		void					operator=(SpotLightComponent&&) = delete;
 
-		public:
+	public:
 
-			renderer::SpotLight*	GetSpotLight() const;
+		renderer::SpotLight*	GetSpotLight() const;
 
-		public:
+	public:
 
-			renderer::SpotLight		_data;
-		};
-	}
+		renderer::SpotLight		_data;
+	};
 }

@@ -15,100 +15,89 @@
 #include <HodEngine/Core/Time/SystemTime.hpp>
 
 namespace hod::math { struct Color; class Vector2; }
+namespace hod::renderer { class RenderView; }
+namespace hod::physics { class World; }
 
-namespace hod
+namespace hod::game
 {
-	namespace renderer
+	class Scene;
+	class RendererComponent;
+
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	class HOD_GAME_API World
 	{
-		class RenderView;
-	}
+	public:
 
-	namespace physics
-	{
-		class World;
-	}
+									World();
+									~World();
 
-	namespace game
-	{
-		class Scene;
-		class RendererComponent;
-
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		class HOD_GAME_API World
-		{
-		public:
-
-										World();
-										~World();
-
-			bool						Init();
-			void						Clear();
+		bool						Init();
+		void						Clear();
 
 // todo
-			void						DisableDrawJob();
+		void						DisableDrawJob();
 
-			void						SetEditorPlaying(bool editorPlaying);
-			bool						GetEditorPlaying() const;
+		void						SetEditorPlaying(bool editorPlaying);
+		bool						GetEditorPlaying() const;
 
-			void						SetEditorPaused(bool editorPaused);
-			bool						GetEditorPaused() const;
+		void						SetEditorPaused(bool editorPaused);
+		bool						GetEditorPaused() const;
 
-			void						EditorNextFrame();
+		void						EditorNextFrame();
 //
 
-			World*						Clone();
-			void						ProcessActication();
+		World*						Clone();
+		void						ProcessActication();
 
-			void						Update();
-			void						Draw();
+		void						Update();
+		void						Draw();
 
-			Scene*						CreateScene();
-			void						DestroyScene(Scene* pScene);
+		Scene*						CreateScene();
+		void						DestroyScene(Scene* pScene);
 
-			bool						AddScene(Scene* scene);
-			bool						RemoveScene(Scene* scene);
+		bool						AddScene(Scene* scene);
+		bool						RemoveScene(Scene* scene);
 
-			const Vector<Scene*>&		GetScenes() const;
+		const Vector<Scene*>&		GetScenes() const;
 
-			Entity*						CreateEntity(const std::string_view& name = "");
-			void						DestroyEntity(Entity* entity);
-			
-			Entity*						FindEntity(uint64_t entityId);
+		Entity*						CreateEntity(const std::string_view& name = "");
+		void						DestroyEntity(Entity* entity);
+		
+		Entity*						FindEntity(uint64_t entityId);
 
 //			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const math::Color& debugColor, float debugDuration);
 
-			void						Draw(renderer::RenderView& renderView);
+		void						Draw(renderer::RenderView& renderView);
 
-			// todo #ifndef retail ?
-			void						DrawDebugLine(const math::Vector2& start, const math::Vector2& end, const math::Color& color, float duration = 0.0f);
-			//
+		// todo #ifndef retail ?
+		void						DrawDebugLine(const math::Vector2& start, const math::Vector2& end, const math::Color& color, float duration = 0.0f);
+		//
 
-			physics::World*				GetPhysicsWorld() const;
+		physics::World*				GetPhysicsWorld() const;
 
-		private:
+	private:
 // todo
-			bool						_editorPlaying = false;
-			bool						_editorPaused = false;
-			bool						_editorNextFrame = false;
+		bool						_editorPlaying = false;
+		bool						_editorPaused = false;
+		bool						_editorNextFrame = false;
 ///
-			MemberFunctionJob<World>	_updateJob;
-			MemberFunctionJob<World>	_drawJob;
-			bool						_drawJobEnabled = true;
+		MemberFunctionJob<World>	_updateJob;
+		MemberFunctionJob<World>	_drawJob;
+		bool						_drawJobEnabled = true;
 
-			Vector<Scene*>				_scenes;
-			Scene*						_persistanteScene = nullptr;
+		Vector<Scene*>				_scenes;
+		Scene*						_persistanteScene = nullptr;
 
-			DebugDrawer					_debugDrawer;
+		DebugDrawer					_debugDrawer;
 
-			SystemTime::TimeStamp		_lastUpdateTimestamp = SystemTime::INVALID_TIMESTAMP;
+		SystemTime::TimeStamp		_lastUpdateTimestamp = SystemTime::INVALID_TIMESTAMP;
 
-			bool						_jobInserted = false;
+		bool						_jobInserted = false;
 
-			float						_physicsUpdateTimestep = 1.0f / 120.0f;
-			float						_accumulatedPhysicsTime = 0.0f;
-			physics::World*				_physicsWorld = nullptr;
-		};
-	}
+		float						_physicsUpdateTimestep = 1.0f / 120.0f;
+		float						_accumulatedPhysicsTime = 0.0f;
+		physics::World*				_physicsWorld = nullptr;
+	};
 }

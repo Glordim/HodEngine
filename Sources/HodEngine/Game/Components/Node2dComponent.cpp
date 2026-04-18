@@ -10,154 +10,151 @@
 
 #include "HodEngine/Math/Math.hpp"
 
-namespace hod
+namespace hod::game
 {
-	namespace game
+	DESCRIBE_REFLECTED_CLASS(ZOrder, reflectionDescriptor)
 	{
-		DESCRIBE_REFLECTED_CLASS(ZOrder, reflectionDescriptor)
+		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
+		[](const void* instance, DocumentNode& documentNode)
 		{
-			reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
-			[](const void* instance, DocumentNode& documentNode)
+			const ZOrder* zorder = static_cast<const ZOrder*>(instance);
+			documentNode.AddChild("Layer").SetUInt16(zorder->GetLayer());
+			documentNode.AddChild("InternalOrder").SetInt16(zorder->GetInternalOrder());
+			return true;
+		},
+		[](void* instance, const DocumentNode& documentNode)
+		{
+			ZOrder* zorder = static_cast<ZOrder*>(instance);
+			const DocumentNode* layerNode = documentNode.GetChild("Layer");
+			if (layerNode)
 			{
-				const ZOrder* zorder = static_cast<const ZOrder*>(instance);
-				documentNode.AddChild("Layer").SetUInt16(zorder->GetLayer());
-				documentNode.AddChild("InternalOrder").SetInt16(zorder->GetInternalOrder());
-				return true;
-			},
-			[](void* instance, const DocumentNode& documentNode)
+				zorder->SetLayer(layerNode->GetUInt16());
+			}
+			const DocumentNode* internalOrderNode = documentNode.GetChild("InternalOrder");
+			if (internalOrderNode)
 			{
-				ZOrder* zorder = static_cast<ZOrder*>(instance);
-				const DocumentNode* layerNode = documentNode.GetChild("Layer");
-				if (layerNode)
-				{
-					zorder->SetLayer(layerNode->GetUInt16());
-				}
-				const DocumentNode* internalOrderNode = documentNode.GetChild("InternalOrder");
-				if (internalOrderNode)
-				{
-					zorder->SetInternalOrder(internalOrderNode->GetInt16());
-				}
-				return true;
-			});
-		}
+				zorder->SetInternalOrder(internalOrderNode->GetInt16());
+			}
+			return true;
+		});
+	}
 
-		ZOrder::ZOrder(uint16_t layer, uint16_t internalOrder)
-		{
-			_unifiedValue.split._layer = layer;
-			_unifiedValue.split._internalOrder = internalOrder;
-		}
+	ZOrder::ZOrder(uint16_t layer, uint16_t internalOrder)
+	{
+		_unifiedValue.split._layer = layer;
+		_unifiedValue.split._internalOrder = internalOrder;
+	}
 
-		void ZOrder::SetLayer(uint16_t layer)
-		{
-			_unifiedValue.split._layer = layer;
-		}
+	void ZOrder::SetLayer(uint16_t layer)
+	{
+		_unifiedValue.split._layer = layer;
+	}
 
-		uint16_t ZOrder::GetLayer() const
-		{
-			return _unifiedValue.split._layer;
-		}
+	uint16_t ZOrder::GetLayer() const
+	{
+		return _unifiedValue.split._layer;
+	}
 
-		void ZOrder::SetInternalOrder(int16_t internalOrder)
-		{
-			_unifiedValue.split._internalOrder = internalOrder;
-		}
+	void ZOrder::SetInternalOrder(int16_t internalOrder)
+	{
+		_unifiedValue.split._internalOrder = internalOrder;
+	}
 
-		int16_t ZOrder::GetInternalOrder() const
-		{
-			return _unifiedValue.split._internalOrder;
-		}
+	int16_t ZOrder::GetInternalOrder() const
+	{
+		return _unifiedValue.split._internalOrder;
+	}
 
-		uint32_t ZOrder::GetValue() const
-		{
-			uint16_t order = static_cast<uint16_t>(_unifiedValue.split._internalOrder ^ 0x8000);
-			return (static_cast<uint32_t>(_unifiedValue.split._layer) << 16) | order;
-		}
+	uint32_t ZOrder::GetValue() const
+	{
+		uint16_t order = static_cast<uint16_t>(_unifiedValue.split._internalOrder ^ 0x8000);
+		return (static_cast<uint32_t>(_unifiedValue.split._layer) << 16) | order;
+	}
 
-		DESCRIBE_REFLECTED_CLASS(Node2dComponent, reflectionDescriptor)
-		{
-			AddPropertyT(reflectionDescriptor, &Node2dComponent::_position, "_position", &Node2dComponent::SetPosition);
-			AddPropertyT(reflectionDescriptor, &Node2dComponent::_rotation, "_rotation", &Node2dComponent::SetRotation);
-			AddPropertyT(reflectionDescriptor, &Node2dComponent::_scale, "_scale", &Node2dComponent::SetScale);
+	DESCRIBE_REFLECTED_CLASS(Node2dComponent, reflectionDescriptor)
+	{
+		AddPropertyT(reflectionDescriptor, &Node2dComponent::_position, "_position", &Node2dComponent::SetPosition);
+		AddPropertyT(reflectionDescriptor, &Node2dComponent::_rotation, "_rotation", &Node2dComponent::SetRotation);
+		AddPropertyT(reflectionDescriptor, &Node2dComponent::_scale, "_scale", &Node2dComponent::SetScale);
 
-			AddPropertyT(reflectionDescriptor, &Node2dComponent::_zOrder, "_zOrder");
-		}
+		AddPropertyT(reflectionDescriptor, &Node2dComponent::_zOrder, "_zOrder");
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Node2dComponent::ComputeLocalMatrix(math::Matrix4& localMatrix)
-		{
-			localMatrix = math::Matrix4::Translation(_position) * math::Matrix4::Rotation(math::DegreeToRadian(_rotation)) * math::Matrix4::Scale(_scale);
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void Node2dComponent::ComputeLocalMatrix(math::Matrix4& localMatrix)
+	{
+		localMatrix = math::Matrix4::Translation(_position) * math::Matrix4::Rotation(math::DegreeToRadian(_rotation)) * math::Matrix4::Scale(_scale);
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Node2dComponent::SetPosition(const math::Vector2& position)
-		{
-			_position = position;
-			SetLocalMatrixDirty();
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void Node2dComponent::SetPosition(const math::Vector2& position)
+	{
+		_position = position;
+		SetLocalMatrixDirty();
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		const math::Vector2& Node2dComponent::GetPosition() const
-		{
-			return _position;
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	const math::Vector2& Node2dComponent::GetPosition() const
+	{
+		return _position;
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Node2dComponent::Rotate(float angle)
-		{
-			_rotation += angle;
-			SetLocalMatrixDirty();
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void Node2dComponent::Rotate(float angle)
+	{
+		_rotation += angle;
+		SetLocalMatrixDirty();
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Node2dComponent::SetRotation(float angle)
-		{
-			_rotation = angle;
-			SetLocalMatrixDirty();
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void Node2dComponent::SetRotation(float angle)
+	{
+		_rotation = angle;
+		SetLocalMatrixDirty();
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		float Node2dComponent::GetRotation() const
-		{
-			return _rotation;
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	float Node2dComponent::GetRotation() const
+	{
+		return _rotation;
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		void Node2dComponent::SetScale(const math::Vector2& scale)
-		{
-			_scale = scale;
-			SetLocalMatrixDirty();
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	void Node2dComponent::SetScale(const math::Vector2& scale)
+	{
+		_scale = scale;
+		SetLocalMatrixDirty();
+	}
 
-		//-----------------------------------------------------------------------------
-		//! @brief		
-		//-----------------------------------------------------------------------------
-		const math::Vector2& Node2dComponent::GetScale() const
-		{
-			return _scale;
-		}
+	//-----------------------------------------------------------------------------
+	//! @brief		
+	//-----------------------------------------------------------------------------
+	const math::Vector2& Node2dComponent::GetScale() const
+	{
+		return _scale;
+	}
 
-		void Node2dComponent::SetZOrder(ZOrder zOrder)
-		{
-			_zOrder = zOrder;
-		}
+	void Node2dComponent::SetZOrder(ZOrder zOrder)
+	{
+		_zOrder = zOrder;
+	}
 
-		ZOrder Node2dComponent::GetZOrder() const
-		{
-			return _zOrder;
-		}
+	ZOrder Node2dComponent::GetZOrder() const
+	{
+		return _zOrder;
 	}
 }
