@@ -11,7 +11,7 @@
 #include <cmath>
 #include <cstring>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(FontResource, reflectionDescriptor)
 	{

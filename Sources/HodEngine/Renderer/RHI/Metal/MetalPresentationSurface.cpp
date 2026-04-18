@@ -12,7 +12,7 @@
 
 #include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	MetalPresentationSurface::MetalPresentationSurface(MacOsWindow* window)

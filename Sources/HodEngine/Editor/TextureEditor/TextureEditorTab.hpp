@@ -6,7 +6,7 @@
 #include <HodEngine/Core/TypeTrait.hpp>
 #include <memory>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class TextureResource;
 }

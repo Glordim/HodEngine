@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class VkMaterial;
 	class VkMaterialInstance;

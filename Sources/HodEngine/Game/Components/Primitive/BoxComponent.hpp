@@ -5,7 +5,7 @@
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 
-namespace hod::renderer { class MaterialInstance; }
+namespace hod::inline renderer { class MaterialInstance; }
 
 namespace hod::inline game
 {

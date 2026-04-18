@@ -9,7 +9,7 @@
 
 struct FT_FaceRec_;
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class Font;
 

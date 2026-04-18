@@ -8,7 +8,7 @@
 
 #include <iostream> // TODO output
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	MTL::VertexFormat FormatToMetalFormat[VertexInput::Format::Count] = {
 		MTL::VertexFormatFloat,

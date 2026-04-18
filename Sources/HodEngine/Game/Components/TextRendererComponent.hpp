@@ -7,7 +7,7 @@
 
 #include "HodEngine/Core/String.hpp"
 
-namespace hod::renderer { class MaterialInstance; }
+namespace hod::inline renderer { class MaterialInstance; }
 
 namespace hod::inline game
 {

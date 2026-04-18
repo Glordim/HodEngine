@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief 
 	class HOD_RENDERER_API Semaphore

@@ -37,7 +37,7 @@
 	#include <vulkan/vulkan_android.h>
 #endif
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	_SingletonOverrideConstructor(RendererVulkan)
 	: Renderer()

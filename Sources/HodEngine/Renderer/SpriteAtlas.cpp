@@ -9,7 +9,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

@@ -6,7 +6,7 @@
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	/// @param material

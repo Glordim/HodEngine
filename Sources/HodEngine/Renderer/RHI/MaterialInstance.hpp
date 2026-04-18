@@ -8,7 +8,7 @@
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Math/Vector4.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class Texture;
 	class Material;

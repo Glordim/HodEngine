@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Enums.hpp"
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_ENUM(FilterMode, enumReflection)
 	{

@@ -5,7 +5,7 @@
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {	
 	class HOD_RENDERER_API TextureResource : public Resource
 	{

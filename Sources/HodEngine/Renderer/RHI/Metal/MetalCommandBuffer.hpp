@@ -9,7 +9,7 @@ namespace MTL
 	class RenderCommandEncoder;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class MetalBuffer;
 	class MetalMaterial;

@@ -6,7 +6,7 @@
 
 #include <Metal/Metal.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	MetalBuffer::MetalBuffer(Usage usage, uint32_t Size)
 	: Buffer(usage, Size)

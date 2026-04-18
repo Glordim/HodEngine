@@ -8,7 +8,7 @@ namespace MTL
     class RenderCommandEncoder;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

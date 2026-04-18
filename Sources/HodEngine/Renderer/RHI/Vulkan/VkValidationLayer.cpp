@@ -9,7 +9,7 @@
 #include <array>
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	VKAPI_ATTR VkBool32 VKAPI_CALL VkValidationLayer::DebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
 	                                                                     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)

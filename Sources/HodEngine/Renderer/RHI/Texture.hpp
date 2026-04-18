@@ -8,7 +8,7 @@
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

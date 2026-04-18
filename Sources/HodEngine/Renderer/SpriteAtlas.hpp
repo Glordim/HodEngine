@@ -6,7 +6,7 @@
 
 #include "HodEngine/Renderer/Sprite.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class Texture;
 

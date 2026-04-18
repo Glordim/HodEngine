@@ -1,6 +1,6 @@
 #include <cstdint>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	// clang-format off
 	extern const uint8_t @ESCAPED_FILE_NAME@[] = {@BYTECODE_CONTENTS@};

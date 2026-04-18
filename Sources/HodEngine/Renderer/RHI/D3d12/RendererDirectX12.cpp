@@ -5,7 +5,7 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	_SingletonOverrideConstructor(RendererDirectX12)
 	: Renderer()

@@ -20,7 +20,7 @@
 #include <HodEngine/Window/Event.hpp>
 #include <HodEngine/Window/Window.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	_SingletonConstructor(Renderer)

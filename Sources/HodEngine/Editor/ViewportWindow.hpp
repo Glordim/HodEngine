@@ -8,7 +8,7 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class RenderTarget;
 	class RenderView;

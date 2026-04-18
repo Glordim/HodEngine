@@ -9,7 +9,7 @@
 #include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class MaterialResource;
 }

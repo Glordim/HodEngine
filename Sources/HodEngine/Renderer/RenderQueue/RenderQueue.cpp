@@ -11,7 +11,7 @@
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	void RenderQueue::Init() {}

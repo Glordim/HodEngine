@@ -2,7 +2,7 @@
 
 #include <HodEngine/Math/Color.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

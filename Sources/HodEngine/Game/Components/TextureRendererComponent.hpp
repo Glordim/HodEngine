@@ -7,7 +7,7 @@
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include <HodEngine/Math/Rect.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class MaterialInstance;
 }

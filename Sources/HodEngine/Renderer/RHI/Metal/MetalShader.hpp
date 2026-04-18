@@ -9,7 +9,7 @@ namespace MTL
     class Function;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

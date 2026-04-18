@@ -7,7 +7,7 @@
 
 #undef max
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class RenderView;
 	class MaterialInstance;

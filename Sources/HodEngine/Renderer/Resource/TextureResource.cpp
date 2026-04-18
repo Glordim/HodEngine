@@ -6,7 +6,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(TextureResource, reflectionDescriptor)
 	{

@@ -15,7 +15,7 @@
 
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	VkFormat FormatToVkFormat[VertexInput::Format::Count] = {
 		VK_FORMAT_R32_SFLOAT,

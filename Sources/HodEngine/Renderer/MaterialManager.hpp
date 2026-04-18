@@ -11,7 +11,7 @@
 
 #include <utility>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

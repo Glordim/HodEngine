@@ -15,7 +15,7 @@
 #include <HodEngine/Core/Time/SystemTime.hpp>
 
 namespace hod::inline math { struct Color; class Vector2; }
-namespace hod::renderer { class RenderView; }
+namespace hod::inline renderer { class RenderView; }
 namespace hod::inline physics { class World; }
 
 namespace hod::inline game

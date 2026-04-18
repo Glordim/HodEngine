@@ -6,7 +6,7 @@
 #include "HodEngine/Core/String.hpp"
 #include <vulkan/vulkan.h>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class ShaderSetDescriptorVk;
 

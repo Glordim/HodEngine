@@ -9,7 +9,7 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class Shader;
 	class Texture;

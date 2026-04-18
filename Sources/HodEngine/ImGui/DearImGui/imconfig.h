@@ -116,7 +116,7 @@
 //---- ...Or use Dear ImGui's own very basic math operators.
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
         class Texture;
 }

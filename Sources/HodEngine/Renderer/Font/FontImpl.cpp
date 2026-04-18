@@ -8,7 +8,7 @@
 
 #include <cmath>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	// Fonction pour obtenir l'explication d'un code FT_Error
 	const char* FT_Error_String(FT_Error err)

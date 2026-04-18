@@ -8,7 +8,7 @@
 #include "HodEngine/Core/String.hpp"
 #include <iostream>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

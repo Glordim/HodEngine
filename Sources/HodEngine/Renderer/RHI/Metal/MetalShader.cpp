@@ -7,7 +7,7 @@
 #include "Metal/Metal.hpp"
 #include <Foundation/Foundation.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	/// @param type

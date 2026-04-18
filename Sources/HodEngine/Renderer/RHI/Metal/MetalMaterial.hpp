@@ -10,7 +10,7 @@ namespace MTL
     class RenderPipelineState;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

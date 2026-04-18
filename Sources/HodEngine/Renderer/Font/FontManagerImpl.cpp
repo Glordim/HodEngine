@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Font/FontManagerImpl.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	bool FontManagerImpl::Init()
 	{

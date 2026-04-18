@@ -5,7 +5,7 @@
 
 #undef CreateFont
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class Font;
 	class FontManagerImpl;

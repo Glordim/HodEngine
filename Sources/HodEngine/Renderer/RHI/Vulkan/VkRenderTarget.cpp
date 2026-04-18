@@ -8,7 +8,7 @@
 
 #include <cstring>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

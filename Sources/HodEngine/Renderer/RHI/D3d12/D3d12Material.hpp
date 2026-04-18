@@ -5,7 +5,7 @@
 #include "d3d12.h"
 #include <wrl/client.h>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class HOD_RENDERER_API D3d12Material : public Material
 	{

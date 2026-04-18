@@ -17,7 +17,7 @@
 #include <cassert>
 #include <iostream>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_ENUM(Material::PolygonMode, reflectionDescriptor)
 	{

@@ -3,7 +3,7 @@
 #include "HodEngine/Renderer/Font/FontImpl.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	Font::Font()
 	{

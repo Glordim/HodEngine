@@ -17,7 +17,7 @@ namespace hod::inline window
 	class Window;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	struct GpuDevice;
 	class RenderView;

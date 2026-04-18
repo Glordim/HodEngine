@@ -20,7 +20,7 @@
 #include <cstring>
 #include <span>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	_SingletonConstructor(MaterialManager) {}
 

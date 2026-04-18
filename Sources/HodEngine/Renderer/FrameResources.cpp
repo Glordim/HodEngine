@@ -11,7 +11,7 @@
 
 #include <HodEngine/Core/Assert.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	FrameResources::~FrameResources()
 	{

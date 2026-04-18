@@ -23,7 +23,7 @@
 	#undef CreateSemaphore
 #endif
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class DescriptorSet;
 

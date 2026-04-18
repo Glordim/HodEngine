@@ -3,7 +3,7 @@
 #include <map>
 #include "HodEngine/Core/String.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief 
 	class VertexInput

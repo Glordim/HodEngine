@@ -10,7 +10,7 @@
 
 #undef max
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	/// @param type

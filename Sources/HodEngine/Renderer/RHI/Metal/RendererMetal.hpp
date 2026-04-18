@@ -11,7 +11,7 @@ namespace MTL
 	class CommandQueue;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class MetalContext;
 	class MetalDevice;

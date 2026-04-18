@@ -10,7 +10,7 @@
 
 #include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	/// @param material

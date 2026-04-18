@@ -15,7 +15,7 @@
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class MaterialResource;
 }

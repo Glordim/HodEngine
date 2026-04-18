@@ -14,7 +14,7 @@ namespace hod::inline math
 	struct Rect;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class Material;
 	class MaterialInstance;

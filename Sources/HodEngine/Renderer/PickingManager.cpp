@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	_SingletonConstructor(PickingManager)
 	{

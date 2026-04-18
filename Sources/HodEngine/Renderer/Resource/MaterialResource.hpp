@@ -7,7 +7,7 @@
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class TextureResource;
 

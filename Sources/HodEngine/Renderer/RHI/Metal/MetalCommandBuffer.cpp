@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <cstring>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	MetalCommandBuffer::MetalCommandBuffer()

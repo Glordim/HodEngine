@@ -26,7 +26,7 @@
 	#include <vulkan/vulkan_android.h>
 #endif
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	bool VkPresentationSurface::_hasSurfaceMaintenance1 = false;
 	bool VkPresentationSurface::_hasSwapchainMaintenance1 = false;

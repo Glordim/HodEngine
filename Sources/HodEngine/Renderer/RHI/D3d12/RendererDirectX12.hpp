@@ -17,7 +17,7 @@ using namespace Microsoft::WRL;
 
 #undef CreateSemaphore
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class HOD_RENDERER_API RendererDirectX12 : public Renderer
 	{

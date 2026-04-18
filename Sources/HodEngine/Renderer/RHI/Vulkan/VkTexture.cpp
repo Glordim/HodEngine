@@ -11,7 +11,7 @@
 
 #include <VulkanMemoryAllocator/vk_mem_alloc.h>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

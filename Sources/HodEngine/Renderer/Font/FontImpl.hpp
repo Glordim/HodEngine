@@ -3,7 +3,7 @@
 
 #include <freetype/freetype.h>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class FontImpl final
 	{

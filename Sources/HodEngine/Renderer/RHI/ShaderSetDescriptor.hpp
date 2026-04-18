@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <unordered_map>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	class HOD_RENDERER_API ShaderSetDescriptor

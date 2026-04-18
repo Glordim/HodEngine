@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief 
 	struct P2fC4f

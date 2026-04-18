@@ -5,7 +5,7 @@
 
 #include <Metal/Metal.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief 
 	class HOD_RENDERER_API MetalSemaphore : public Semaphore

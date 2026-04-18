@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	class HOD_RENDERER_API InstanceExtensionCollector final

@@ -16,7 +16,7 @@ namespace CA
 	class MetalDrawable;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	class HOD_RENDERER_API MetalPresentationSurface : public PresentationSurface

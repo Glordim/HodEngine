@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/Export.hpp"
 #include "HodEngine/Renderer/RenderQueue/RenderQueue.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief 
 	class HOD_RENDERER_API WorldRenderQueue : public RenderQueue

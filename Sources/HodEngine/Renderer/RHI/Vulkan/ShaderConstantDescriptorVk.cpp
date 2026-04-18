@@ -9,7 +9,7 @@
 #undef min
 #undef max
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	ShaderConstantDescriptorVk::ShaderConstantDescriptorVk(uint32_t offset, uint32_t Size, Shader::ShaderType shaderType)

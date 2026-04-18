@@ -11,7 +11,7 @@
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceResource, reflectionDescriptor)
 	{

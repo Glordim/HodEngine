@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

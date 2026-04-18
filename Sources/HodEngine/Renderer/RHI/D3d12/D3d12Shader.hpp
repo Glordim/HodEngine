@@ -6,7 +6,7 @@
 
 #include "d3d12.h"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class HOD_RENDERER_API D3d12Shader : public Shader
 	{

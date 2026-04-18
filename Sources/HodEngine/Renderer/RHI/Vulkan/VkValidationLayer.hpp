@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.h>
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class InstanceExtensionCollector;
 

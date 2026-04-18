@@ -8,7 +8,7 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

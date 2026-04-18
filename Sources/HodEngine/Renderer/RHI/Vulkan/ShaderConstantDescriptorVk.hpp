@@ -12,7 +12,7 @@ namespace spirv_cross
 	struct SPIRType;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief 
 	class HOD_RENDERER_API ShaderConstantDescriptorVk : public ShaderConstantDescriptor

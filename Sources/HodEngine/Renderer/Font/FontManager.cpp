@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/Font/FontManager.hpp"
 #include "HodEngine/Renderer/Font/FontManagerImpl.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	_SingletonConstructor(FontManager)
 	{

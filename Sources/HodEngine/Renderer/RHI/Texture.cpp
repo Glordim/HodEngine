@@ -5,7 +5,7 @@
 
 #include <Stb/stb_image.h>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

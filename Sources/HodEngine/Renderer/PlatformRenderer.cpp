@@ -14,7 +14,7 @@
 	#pragma error
 #endif
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	Renderer* CreatePlatformRenderer()
 	{

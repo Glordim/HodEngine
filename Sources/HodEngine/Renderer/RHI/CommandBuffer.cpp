@@ -4,7 +4,7 @@
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

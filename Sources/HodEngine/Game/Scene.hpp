@@ -10,7 +10,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class RenderView;
 }

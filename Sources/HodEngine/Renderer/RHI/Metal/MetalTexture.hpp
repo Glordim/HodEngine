@@ -9,7 +9,7 @@ namespace MTL
 	class SamplerState;
 }
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

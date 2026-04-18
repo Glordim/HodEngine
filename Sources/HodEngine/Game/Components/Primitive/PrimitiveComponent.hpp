@@ -3,7 +3,7 @@
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 
-namespace hod::renderer { class MaterialInstance; }
+namespace hod::inline renderer { class MaterialInstance; }
 
 namespace hod::inline game
 {

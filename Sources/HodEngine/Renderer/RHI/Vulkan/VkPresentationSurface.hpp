@@ -9,7 +9,7 @@
 
 #include <queue>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class InstanceExtensionCollector;
 	class DeviceExtensionCollector;

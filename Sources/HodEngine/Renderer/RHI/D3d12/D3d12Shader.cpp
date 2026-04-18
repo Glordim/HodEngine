@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	/// @param type

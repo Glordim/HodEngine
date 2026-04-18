@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	/// @brief
 	/// @param positions

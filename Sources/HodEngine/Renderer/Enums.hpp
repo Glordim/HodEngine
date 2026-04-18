@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	enum class FilterMode : uint8_t
 	{

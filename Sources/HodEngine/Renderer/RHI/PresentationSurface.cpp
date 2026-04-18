@@ -9,7 +9,7 @@
 #include <fstream>
 #include <iostream>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	PresentationSurface::PresentationSurface(Window* window)
 	: _window(window)

@@ -3,7 +3,7 @@
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/Math/Vector4.hpp"
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class Material;
 	class MaterialInstance;

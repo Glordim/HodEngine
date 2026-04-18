@@ -7,7 +7,7 @@
 
 #include <HodEngine/Math/Rect.hpp>
 
-namespace hod::renderer
+namespace hod::inline renderer
 {
 	class RenderView;
 }
