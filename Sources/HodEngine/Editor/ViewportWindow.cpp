@@ -57,8 +57,8 @@ namespace hod::inline editor
 	{
 		SetFlags(ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar);
 
-		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
-		_pickingRenderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+		_renderTarget = Renderer::GetInstance()->CreateRenderTarget();
+		_pickingRenderTarget = Renderer::GetInstance()->CreateRenderTarget();
 	}
 
 	/// @brief
@@ -215,7 +215,7 @@ namespace hod::inline editor
 						ImVec2   mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 						Vector2  mousePosition(mousePos.x, mousePos.y);
 						Color    pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
-						uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
+						uint32_t pickingId = PickingManager::ConvertColorToId(pickingColor);
 						if (pickingId == 0)
 						{
 							GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
@@ -257,7 +257,7 @@ namespace hod::inline editor
 
 		if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 		{
-			renderer::Texture::CreateInfo createInfo;
+			Texture::CreateInfo createInfo;
 
 			createInfo._allowReadWrite = false;
 			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
@@ -270,7 +270,7 @@ namespace hod::inline editor
 		{
 			// ImVec2 origin = ImGui::GetCursorScreenPos();
 
-			renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+			RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 			renderView->Init();
 			renderView->Prepare(_renderTarget, _pickingRenderTarget);
 			_renderView = renderView;
@@ -334,7 +334,7 @@ namespace hod::inline editor
 
 					std::array<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
 
-					renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+					renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 						positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
 				}
 			}
@@ -429,7 +429,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	renderer::RenderTarget* ViewportWindow::GetPickingRenderTarget() const
+	RenderTarget* ViewportWindow::GetPickingRenderTarget() const
 	{
 		return _pickingRenderTarget;
 	}
@@ -460,7 +460,7 @@ namespace hod::inline editor
 		return _size;
 	}
 
-	renderer::RenderView* ViewportWindow::GetRenderView()
+	RenderView* ViewportWindow::GetRenderView()
 	{
 		return _renderView;
 	}

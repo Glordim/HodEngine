@@ -58,7 +58,7 @@ namespace hod::inline ui
 		void RecomputeRootNodeSize(const Vector2& resolution);
 
 		Rect GetBoundingBox() const override;
-		void PushRenderCommand(renderer::RenderView& renderView) override;
+		void PushRenderCommand(RenderView& renderView) override;
 
 		const Matrix4& GetRenderModeMatrix() const;
 

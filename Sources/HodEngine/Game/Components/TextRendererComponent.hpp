@@ -30,20 +30,20 @@ namespace hod::inline game
 	public:
 		void OnConstruct() override;
 
-		renderer::MaterialInstance* GetMaterialInstance() const;
-		void                        SetMaterialInstance(renderer::MaterialInstance* materialInstance);
+		MaterialInstance* GetMaterialInstance() const;
+		void                        SetMaterialInstance(MaterialInstance* materialInstance);
 
-		void SetFont(const WeakResource<renderer::FontResource>& font);
+		void SetFont(const WeakResource<FontResource>& font);
 		// void							SetText(const std::string_view& text);
 
-		void PushRenderCommand(renderer::RenderView& renderView) override;
+		void PushRenderCommand(RenderView& renderView) override;
 		Rect GetBoundingBox() const override;
 
 	private:
 		String _text = "EditMe";
 
-		WeakResource<renderer::FontResource> _fontResource;
+		WeakResource<FontResource> _fontResource;
 
-		renderer::MaterialInstance* _materialInstance = nullptr;
+		MaterialInstance* _materialInstance = nullptr;
 	};
 }

@@ -27,7 +27,7 @@ namespace hod::inline editor
 	{
 	public:
 
-		struct ShaderParamScalar : renderer::ShaderParameter
+		struct ShaderParamScalar : ShaderParameter
 		{
 			union
 			{
@@ -37,17 +37,17 @@ namespace hod::inline editor
 			} _value;
 		};
 
-		struct ShaderParamTexture : renderer::ShaderParameter
+		struct ShaderParamTexture : ShaderParameter
 		{
-			WeakResource<renderer::TextureResource> _value;
+			WeakResource<TextureResource> _value;
 		};
 
-		struct ShaderParamVec2 : renderer::ShaderParameter
+		struct ShaderParamVec2 : ShaderParameter
 		{
 			Vector2 _value;
 		};
 
-		struct ShaderParamVec4 : renderer::ShaderParameter
+		struct ShaderParamVec4 : ShaderParameter
 		{
 			Vector4 _value;
 		};
@@ -56,7 +56,7 @@ namespace hod::inline editor
 				MaterialEditorTab(std::shared_ptr<Asset> asset);
 				~MaterialEditorTab() override;
 
-		std::shared_ptr<renderer::MaterialResource>	GetMaterial() const;
+		std::shared_ptr<MaterialResource>	GetMaterial() const;
 
 		Vector<ShaderParamScalar>&					GetScalarParameters();
 		Vector<ShaderParamTexture>&					GetTextureParameters();
@@ -76,9 +76,9 @@ namespace hod::inline editor
 
 		float _zoomFactor = 1.0f;
 
-		std::shared_ptr<renderer::MaterialResource>	_material;
+		std::shared_ptr<MaterialResource>	_material;
 
-		Vector<renderer::ShaderParameter>	_parameters;
+		Vector<ShaderParameter>	_parameters;
 		Vector<ShaderParamScalar>			_scalarParameters;
 		Vector<ShaderParamTexture>			_textureParameters;
 		Vector<ShaderParamVec2>				_vec2Parameters;

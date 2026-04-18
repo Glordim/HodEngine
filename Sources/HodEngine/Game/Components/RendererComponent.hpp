@@ -36,7 +36,7 @@ namespace hod::inline game
 
 	public:
 
-		virtual void	PushRenderCommand(renderer::RenderView& renderView) = 0;
+		virtual void	PushRenderCommand(RenderView& renderView) = 0;
 		virtual Rect	GetBoundingBox() const = 0;
 	};
 }

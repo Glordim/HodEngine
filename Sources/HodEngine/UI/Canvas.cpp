@@ -144,9 +144,9 @@ namespace hod::inline ui
 		return Rect();
 	}
 
-	void Canvas::PushRenderCommand(renderer::RenderView& renderView)
+	void Canvas::PushRenderCommand(RenderView& renderView)
 	{
-		renderer::RenderView::RenderQueueType renderQueueType = renderer::RenderView::RenderQueueType::UI;
+		RenderView::RenderQueueType renderQueueType = RenderView::RenderQueueType::UI;
 		if (_renderMode == RenderMode::Camera)
 		{
 			RecomputeRootNodeSize(renderView.GetRenderResolution());
@@ -155,25 +155,25 @@ namespace hod::inline ui
 			if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 			{
 				_renderModeMatrix = Matrix4::Scale(Vector2::One * _scaleFactor);
-				renderQueueType = renderer::RenderView::RenderQueueType::UI;
+				renderQueueType = RenderView::RenderQueueType::UI;
 			}
 			else
 			{
 				_scaleFactor = 1.0f;
 				_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f) * _scaleFactor);
-				renderQueueType = renderer::RenderView::RenderQueueType::World;
+				renderQueueType = RenderView::RenderQueueType::World;
 			}
 		}
 		else
 		{
 			_scaleFactor = 1.0f;
 			_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f) * _scaleFactor);
-			renderQueueType = renderer::RenderView::RenderQueueType::World;
+			renderQueueType = RenderView::RenderQueueType::World;
 		}
 
 		int32_t                                                                                                   zOrder = 0;
-		static std::function<void(Node*, renderer::RenderView&, renderer::RenderView::RenderQueueType, int32_t&)> drawRecursively =
-			[&](Node* node, renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType, int32_t& zOrder)
+		static std::function<void(Node*, RenderView&, RenderView::RenderQueueType, int32_t&)> drawRecursively =
+			[&](Node* node, RenderView& renderView, RenderView::RenderQueueType renderQueueType, int32_t& zOrder)
 		{
 			if (node == nullptr || node->GetOwner()->IsActiveInHierarchy() == false)
 			{

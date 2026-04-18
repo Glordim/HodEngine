@@ -29,8 +29,8 @@ namespace hod::inline game
 	/// @brief
 	TextRendererComponent::TextRendererComponent()
 	{
-		const renderer::Material* material = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
-		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+		const Material* material = MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
 	}
 
 	/// @brief
@@ -49,7 +49,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void TextureRendererComponent::SetSprite(std::shared_ptr<renderer::Sprite> sprite)
+	void TextureRendererComponent::SetSprite(std::shared_ptr<Sprite> sprite)
 	{
 		_sprite = sprite;
 
@@ -59,7 +59,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const renderer::Sprite* TextureRendererComponent::GetSprite() const
+	const Sprite* TextureRendererComponent::GetSprite() const
 	{
 		return _sprite;
 	}
@@ -68,7 +68,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void TextRendererComponent::SetMaterialInstance(renderer::MaterialInstance* materialInstance)
+	void TextRendererComponent::SetMaterialInstance(MaterialInstance* materialInstance)
 	{
 		_materialInstance = materialInstance;
 	}
@@ -76,7 +76,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	renderer::MaterialInstance* TextRendererComponent::GetMaterialInstance() const
+	MaterialInstance* TextRendererComponent::GetMaterialInstance() const
 	{
 		return _materialInstance;
 	}
@@ -89,7 +89,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void TextRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
+	void TextRendererComponent::PushRenderCommand(RenderView& renderView)
 	{
 		(void)renderView; // TODO
 
@@ -105,7 +105,7 @@ namespace hod::inline game
 			if (node2dComponent != nullptr)
 			{
 				/*
-				renderer::Font* font = _fontResource.Lock()->GetFont();
+				Font* font = _fontResource.Lock()->GetFont();
 
 				float atlasWidth = (float)font->GetTexture()->GetWidth();
 				float atlasHeight = (float)font->GetTexture()->GetHeight();
@@ -124,7 +124,7 @@ namespace hod::inline game
 				const char* str = _text.c_str();
 				while (*str != '\0')
 				{
-					const renderer::Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
+					const Font::GlyphInfo& kerning = font->GetGlyphInfo(*str);
 
 					uint16_t vertexCount = (uint16_t)positions.Size();
 
@@ -155,7 +155,7 @@ namespace hod::inline game
 
 				if (positions.empty() == false)
 				{
-					renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.Data(), uvs.Data(), nullptr,
+					renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(positions.Data(), uvs.Data(), nullptr,
 				(uint32_t)positions.Size(), indices.Data(), (uint32_t)indices.Size(), node2dComponent->GetWorldMatrix(), _materialInstance,
 				node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 				}
@@ -166,15 +166,15 @@ namespace hod::inline game
 
 	/// @brief
 	/// @param texture
-	void TextRendererComponent::SetFont(const WeakResource<renderer::FontResource>& font)
+	void TextRendererComponent::SetFont(const WeakResource<FontResource>& font)
 	{
 		_fontResource = font;
 
-		renderer::Texture*                      texture = nullptr;
-		std::shared_ptr<renderer::FontResource> fontResource = _fontResource.Lock();
+		Texture*                      texture = nullptr;
+		std::shared_ptr<FontResource> fontResource = _fontResource.Lock();
 		if (fontResource != nullptr)
 		{
-			renderer::Font* font = fontResource->GetFont();
+			Font* font = fontResource->GetFont();
 			if (font != nullptr)
 			{
 				texture = font->GetTexture();

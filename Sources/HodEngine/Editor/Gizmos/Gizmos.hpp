@@ -42,8 +42,8 @@ namespace hod::inline editor
 		static bool FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor, ViewportWindow& viewport);
 		static bool FreeMoveMesh(Handle& handle, const Matrix4& worldMatrix, const Vector2* vertices, uint32_t vertexCount, const Color& color, const Color& highlightColor, ViewportWindow& viewport);
 
-		static void Rect(const Matrix4& worldMatrix, const Vector2& size, const Color& color, renderer::RenderView& renderView);
-		static void Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, renderer::RenderView& renderView);
+		static void Rect(const Matrix4& worldMatrix, const Vector2& size, const Color& color, RenderView& renderView);
+		static void Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView);
 
 	private:
 

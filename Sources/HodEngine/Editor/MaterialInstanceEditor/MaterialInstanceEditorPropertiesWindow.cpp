@@ -68,12 +68,12 @@ namespace hod::inline editor
 
 		if (ImGui::CollapsingHeader("Params", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
+			std::shared_ptr<MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
 			for (MaterialInstanceEditorTab::ShaderParamScalar& scalarParameter : GetOwner<MaterialInstanceEditorTab>()->GetScalarParameters())
 			{
 				switch (scalarParameter._type)
 				{
-					case renderer::ShaderParameter::Type::Float:
+					case ShaderParameter::Type::Float:
 					{
 						ImGui::PushID(&scalarParameter);
 						ImGui::AlignTextToFramePadding();
@@ -135,7 +135,7 @@ namespace hod::inline editor
 				EditorReflectedObject editorObject(&textureParameter._value, &WeakResourceBase::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
-					std::shared_ptr<hod::renderer::TextureResource> textureResource = textureParameter._value.Lock();
+					std::shared_ptr<hod::TextureResource> textureResource = textureParameter._value.Lock();
 					if (textureResource != nullptr)
 					{
 						GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetTexture(textureParameter._name, textureResource->GetTexture());
@@ -149,10 +149,10 @@ namespace hod::inline editor
 		ImGui::BeginDisabled(asset->IsDirty() == false);
 		if (ImGui::Button("Apply"))
 		{
-			std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
+			std::shared_ptr<MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
 			if (materialInstanceResource != nullptr)
 			{
-				renderer::MaterialInstance* materialInstance = materialInstanceResource->GetMaterialInstance();
+				MaterialInstance* materialInstance = materialInstanceResource->GetMaterialInstance();
 				if (materialInstance != nullptr)
 				{
 					materialInstanceAsset._params.GetRootNode().Clear();

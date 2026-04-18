@@ -734,7 +734,7 @@ namespace hod::inline editor
 		{
 			std::shared_ptr<Asset> asset = item->_asset;
 
-			renderer::Texture* thumbnailTexture = asset->GetThumbnail();
+			Texture* thumbnailTexture = asset->GetThumbnail();
 			if (thumbnailTexture == nullptr)
 			{
 				if (asset->GetMeta()._importerType == "PrefabImporter")

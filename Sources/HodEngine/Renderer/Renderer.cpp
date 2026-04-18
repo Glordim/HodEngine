@@ -118,10 +118,10 @@ namespace hod::inline renderer
 			{
 				Renderer* renderer = Renderer::GetInstance();
 
-				renderer::VertexInput vertexInput[1] = {
-					{0, 0, renderer::VertexInput::Format::R32G32_SFloat},
-					//{ 8, renderer::VertexInput::Format::R32G32_SFloat },
-					//{ 16, renderer::VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
+				VertexInput vertexInput[1] = {
+					{0, 0, VertexInput::Format::R32G32_SFloat},
+					//{ 8, VertexInput::Format::R32G32_SFloat },
+					//{ 16, VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
 				};
 
 				Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);

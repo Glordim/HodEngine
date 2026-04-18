@@ -25,7 +25,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void SpriteRendererComponent::SetSprite(std::shared_ptr<renderer::Sprite> sprite)
+	void SpriteRendererComponent::SetSprite(std::shared_ptr<Sprite> sprite)
 	{
 		_sprite = sprite;
 
@@ -35,7 +35,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const renderer::Sprite* SpriteRendererComponent::GetSprite() const
+	const Sprite* SpriteRendererComponent::GetSprite() const
 	{
 		return _sprite;
 	}
@@ -44,7 +44,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void SpriteRendererComponent::SetMaterialInstance(renderer::MaterialInstance* materialInstance)
+	void SpriteRendererComponent::SetMaterialInstance(MaterialInstance* materialInstance)
 	{
 		_materialInstance = materialInstance;
 	}
@@ -52,7 +52,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	renderer::MaterialInstance* SpriteRendererComponent::GetMaterialInstance() const
+	MaterialInstance* SpriteRendererComponent::GetMaterialInstance() const
 	{
 		return _materialInstance;
 	}
@@ -60,12 +60,12 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void SpriteRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
+	void SpriteRendererComponent::PushRenderCommand(RenderView& renderView)
 	{
 		(void)renderView; // TODO
 
 		/*
-		Vector<renderer::P2fT2f> vertices(6);
+		Vector<P2fT2f> vertices(6);
 		vertices[0]._position[0] = -0.5f;
 		vertices[0]._position[1] = -0.5f;
 		vertices[0]._textCoord[0] = 0.0f;
@@ -79,8 +79,8 @@ namespace hod::inline game
 		vertices[2]._textCoord[0] = 1.0f;
 		vertices[2]._textCoord[1] = 0.0f;
 		*/
-		// renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(_sprite->GetVertices().Data(), _sprite->GetVertices().Size(),
-		// sizeof(renderer::P2fT2f), _sprite->GetIndices().Data(), _sprite->GetIndices().Size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(),
+		// renderQueue.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(_sprite->GetVertices().Data(), _sprite->GetVertices().Size(),
+		// sizeof(P2fT2f), _sprite->GetIndices().Data(), _sprite->GetIndices().Size(), GetActor()->GetComponent<SceneComponent>()->GetModelMatrix(),
 		// _materialInstance));
 	}
 

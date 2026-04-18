@@ -22,8 +22,8 @@ namespace hod::inline editor
 	/// @brief
 	CapsuleCollider2dCustomComponentDrawer::CapsuleCollider2dCustomComponentDrawer()
 	{
-		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
-			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
@@ -62,8 +62,8 @@ namespace hod::inline editor
 
 				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset() * scale) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
 
-				renderer::RenderCommandMesh* renderMeshCommand =
-					DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,
+				RenderCommandMesh* renderMeshCommand =
+					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,
 				                                                                     worldMatrix * localMatrix, _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 			}

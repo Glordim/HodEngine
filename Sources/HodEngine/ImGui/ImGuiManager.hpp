@@ -67,7 +67,7 @@ namespace hod::inline imgui
 		void CloseAllWindow();
 		void DestroyAllWindow();
 
-		renderer::Material* GetMaterial() const;
+		Material* GetMaterial() const;
 
 		ImGuiID GetCentralDockSpace() const;
 
@@ -90,11 +90,11 @@ namespace hod::inline imgui
 		MainBar*        _mainBar = nullptr;
 		Vector<Window*> _windows;
 
-		Vector<renderer::Texture*> _textures;
+		Vector<Texture*> _textures;
 
-		renderer::Material* _material = nullptr;
-		renderer::Shader*   _vertexShader = nullptr;
-		renderer::Shader*   _fragmentShader = nullptr;
+		Material* _material = nullptr;
+		Shader*   _vertexShader = nullptr;
+		Shader*   _fragmentShader = nullptr;
 
 		window::Window* _mainWindow = nullptr;
 

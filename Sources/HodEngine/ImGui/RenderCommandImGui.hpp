@@ -18,7 +18,7 @@ namespace hod::inline renderer
 namespace hod::inline imgui
 {
 	/// @brief 
-	class HOD_IMGUI_API RenderCommandImGui : public renderer::RenderCommand
+	class HOD_IMGUI_API RenderCommandImGui : public RenderCommand
 	{
 	public:
 
@@ -32,7 +32,7 @@ namespace hod::inline imgui
 		struct Command
 		{
 			Rect		_clipRect;
-			renderer::Texture*	_texture;
+			Texture*	_texture;
 			uint32_t	_vertexOffset;
 			uint32_t	_indexOffset;
 			uint32_t	_elementCount;
@@ -60,7 +60,7 @@ namespace hod::inline imgui
 
 	public:
 
-		void						Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial) override;
+		void						Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial) override;
 		uint32_t					GetRenderingOrder() const override;
 
 	private:

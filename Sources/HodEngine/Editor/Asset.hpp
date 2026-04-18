@@ -51,7 +51,7 @@ namespace hod::inline editor
 
 		Meta& GetMeta();
 
-		renderer::Texture* GetThumbnail() const;
+		Texture* GetThumbnail() const;
 
 		bool IsDirty() const;
 		void SetDirty();
@@ -69,7 +69,7 @@ namespace hod::inline editor
 		String _name;
 		Path   _path;
 
-		renderer::Texture* _thumbnail = nullptr;
+		Texture* _thumbnail = nullptr;
 
 		const void*           _instanceToSave = nullptr;
 		ReflectionDescriptor* _instanceToSaveReflectionDescriptor = nullptr;

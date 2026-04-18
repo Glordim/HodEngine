@@ -30,17 +30,17 @@ namespace hod::inline game
 
 		void			OnConstruct() override;
 
-		void			PushRenderCommand(renderer::RenderView& renderView) override;
+		void			PushRenderCommand(RenderView& renderView) override;
 		Rect			GetBoundingBox() const override;
 
-		renderer::MaterialInstance*		GetMaterialInstance() const;
+		MaterialInstance*		GetMaterialInstance() const;
 
-		void							SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& materialInstance);
+		void							SetMaterialInstanceResource(const WeakResource<MaterialInstanceResource>& materialInstance);
 
 	private:
 
-		WeakResource<renderer::MaterialInstanceResource>	_material;
+		WeakResource<MaterialInstanceResource>	_material;
 
-		renderer::MaterialInstance*							_materialInstance = nullptr;
+		MaterialInstance*							_materialInstance = nullptr;
 	};
 }

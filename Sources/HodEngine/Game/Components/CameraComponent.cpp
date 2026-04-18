@@ -75,13 +75,13 @@ namespace hod::inline game
 	{
 		(void)scene; // TODO
 					 /*
-		             renderer::RenderQueue renderQueue;
+		             RenderQueue renderQueue;
 		     
 		             renderQueue.SetCameraPos(GetActor()->GetComponent<SceneComponent>()->GetPosition());
 		             renderQueue.SetViewMatrix(glm::inverse(GetActor()->GetComponent<SceneComponent>()->GetModelMatrix()));
 		             renderQueue.SetProjMatrix(GetProjectionMatrix());
 		     
-		             renderQueue.SetClearFlag(renderer::RenderQueue::ClearFlag::COLOR | renderer::RenderQueue::ClearFlag::DEPTH);
+		             renderQueue.SetClearFlag(RenderQueue::ClearFlag::COLOR | RenderQueue::ClearFlag::DEPTH);
 		     
 		             renderQueue.SetHdriMaterial(_hdriMat);
 		             renderQueue.SetHdriTexture(_hdriTexture);
@@ -90,14 +90,14 @@ namespace hod::inline game
 		             RenderQueueHelper::AddScenePhysicsDebug(renderQueue, &scene);
 		             RenderQueueHelper::AddDebugLines(renderQueue, &scene);
 		     
-		             renderer::Renderer* renderer = renderer::Renderer::GetInstance();
+		             Renderer* renderer = Renderer::GetInstance();
 		             renderer->SubmitRenderQueue(renderQueue);
 		             */
 	}
 
 	/// @brief
 	/// @param renderView
-	void CameraComponent::SetupRenderView(renderer::RenderView& renderView)
+	void CameraComponent::SetupRenderView(RenderView& renderView)
 	{
 		Vector2 resolution = renderView.GetRenderResolution();
 

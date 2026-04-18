@@ -26,8 +26,8 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	renderer::SpotLight* SpotLightComponent::GetSpotLight() const
+	SpotLight* SpotLightComponent::GetSpotLight() const
 	{
-		return (renderer::SpotLight*)(&_data);
+		return (SpotLight*)(&_data);
 	}
 }

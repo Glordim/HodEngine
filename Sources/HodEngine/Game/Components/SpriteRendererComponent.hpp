@@ -28,18 +28,18 @@ namespace hod::inline game
 
 	public:
 		/*
-		const renderer::Sprite*			GetSprite() const;
-		void							SetSprite(std::shared_ptr<renderer::Sprite> sprite);
+		const Sprite*			GetSprite() const;
+		void							SetSprite(std::shared_ptr<Sprite> sprite);
 		*/
-		renderer::MaterialInstance*		GetMaterialInstance() const;
-		void							SetMaterialInstance(renderer::MaterialInstance* materialInstance);
+		MaterialInstance*		GetMaterialInstance() const;
+		void							SetMaterialInstance(MaterialInstance* materialInstance);
 
-		void							PushRenderCommand(renderer::RenderView& renderView) override;
+		void							PushRenderCommand(RenderView& renderView) override;
 		Rect							GetBoundingBox() const override;
 
 	private:
 
-		WeakResource<renderer::Sprite>		_sprite;
-		renderer::MaterialInstance*			_materialInstance = nullptr;
+		WeakResource<Sprite>		_sprite;
+		MaterialInstance*			_materialInstance = nullptr;
 	};
 }

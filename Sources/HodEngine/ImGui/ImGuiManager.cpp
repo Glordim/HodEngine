@@ -197,7 +197,7 @@ namespace hod::inline imgui
 		DestroyAllWindow();
 
 		// ImGui::DestroyContext(); // todo
-		for (renderer::Texture* texure : _textures)
+		for (Texture* texure : _textures)
 		{
 			DefaultAllocator::GetInstance().Delete(texure);
 		}
@@ -489,7 +489,7 @@ namespace hod::inline imgui
 
 		Vector2 resolution;
 
-		renderer::PresentationSurface* presentationSurface = renderer::Renderer::GetInstance()->FindPresentationSurface(_mainWindow);
+		PresentationSurface* presentationSurface = Renderer::GetInstance()->FindPresentationSurface(_mainWindow);
 		if (presentationSurface)
 		{
 			resolution = presentationSurface->GetResolution();
@@ -639,11 +639,11 @@ namespace hod::inline imgui
 
 					case ImTextureStatus_WantCreate:
 					{
-						renderer::Texture*                 texture = renderer::Renderer::GetInstance()->CreateTexture();
-						hod::renderer::Texture::CreateInfo createInfo;
+						Texture*                 texture = Renderer::GetInstance()->CreateTexture();
+						hod::Texture::CreateInfo createInfo;
 						createInfo._allowReadWrite = false;
-						createInfo._filterMode = renderer::FilterMode::Linear;
-						createInfo._wrapMode = renderer::WrapMode::Clamp;
+						createInfo._filterMode = FilterMode::Linear;
+						createInfo._wrapMode = WrapMode::Clamp;
 						assert(textureData->Format == ImTextureFormat_RGBA32 && textureData->BytesPerPixel == 4);
 						if (texture->BuildBuffer(textureData->Width, textureData->Height, textureData->Pixels, createInfo) == false)
 						{
@@ -666,15 +666,15 @@ namespace hod::inline imgui
 								break;
 							}
 						}
-						renderer::Renderer::GetInstance()->DestroyTexture(textureData->TexID);
+						Renderer::GetInstance()->DestroyTexture(textureData->TexID);
 						textureData->SetTexID(nullptr);
 						textureData->SetStatus(ImTextureStatus_Destroyed);
 
-						renderer::Texture*                 texture = renderer::Renderer::GetInstance()->CreateTexture();
-						hod::renderer::Texture::CreateInfo createInfo;
+						Texture*                 texture = Renderer::GetInstance()->CreateTexture();
+						hod::Texture::CreateInfo createInfo;
 						createInfo._allowReadWrite = false;
-						createInfo._filterMode = renderer::FilterMode::Linear;
-						createInfo._wrapMode = renderer::WrapMode::Clamp;
+						createInfo._filterMode = FilterMode::Linear;
+						createInfo._wrapMode = WrapMode::Clamp;
 						assert(textureData->Format == ImTextureFormat_RGBA32 && textureData->BytesPerPixel == 4);
 						if (texture->BuildBuffer(textureData->Width, textureData->Height, textureData->Pixels, createInfo) == false)
 						{
@@ -697,7 +697,7 @@ namespace hod::inline imgui
 								break;
 							}
 						}
-						renderer::Renderer::GetInstance()->DestroyTexture(textureData->TexID);
+						Renderer::GetInstance()->DestroyTexture(textureData->TexID);
 						textureData->SetTexID(nullptr);
 						textureData->SetStatus(ImTextureStatus_Destroyed);
 					}
@@ -747,7 +747,7 @@ namespace hod::inline imgui
 				command._clipRect._position.SetY(clipMin.y);
 				command._clipRect._size.SetX(clipMax.x - clipMin.x);
 				command._clipRect._size.SetY(clipMax.y - clipMin.y);
-				command._texture = reinterpret_cast<renderer::Texture*>(imCommand.GetTexID());
+				command._texture = reinterpret_cast<Texture*>(imCommand.GetTexID());
 				command._vertexOffset = imCommand.VtxOffset;
 				command._indexOffset = imCommand.IdxOffset;
 				command._elementCount = imCommand.ElemCount;
@@ -764,7 +764,7 @@ namespace hod::inline imgui
 
 		RenderCommandImGui* renderCommand = DefaultAllocator::GetInstance().New<RenderCommandImGui>(drawLists, viewport);
 
-		renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+		RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 		renderView->Init();
 		renderView->Prepare(_mainWindow);
 		renderView->SetupCamera(Matrix4::Identity, Matrix4::Identity, viewport);
@@ -773,7 +773,7 @@ namespace hod::inline imgui
 
 	/// @brief
 	/// @return
-	renderer::Material* ImGuiManager::GetMaterial() const
+	Material* ImGuiManager::GetMaterial() const
 	{
 		return _material;
 	}
@@ -784,22 +784,22 @@ namespace hod::inline imgui
 	{
 		if (_material == nullptr)
 		{
-			renderer::Renderer* renderer = renderer::Renderer::GetInstance();
+			Renderer* renderer = Renderer::GetInstance();
 
-			renderer::VertexInput vertexInput[3] = {
-				{0, 0, renderer::VertexInput::Format::R32G32_SFloat},
-				{0, 8, renderer::VertexInput::Format::R32G32_SFloat},
-				{0, 16, renderer::VertexInput::Format::R8G8B8A8_UNorm},
+			VertexInput vertexInput[3] = {
+				{0, 0, VertexInput::Format::R32G32_SFloat},
+				{0, 8, VertexInput::Format::R32G32_SFloat},
+				{0, 16, VertexInput::Format::R8G8B8A8_UNorm},
 			};
 
-			_vertexShader = renderer->CreateShader(renderer::Shader::ShaderType::Vertex);
+			_vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
 			if (_vertexShader->LoadFromIR(ImGui_Vertex, ImGui_Vertex_size, ImGui_Vertex_reflection, ImGui_Vertex_reflection_size) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(_vertexShader);
 				return false;
 			}
 
-			_fragmentShader = renderer->CreateShader(renderer::Shader::ShaderType::Fragment);
+			_fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
 			if (_fragmentShader->LoadFromIR(ImGui_Fragment, ImGui_Fragment_size, ImGui_Fragment_reflection, ImGui_Fragment_reflection_size) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(_vertexShader);

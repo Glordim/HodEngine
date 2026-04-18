@@ -59,7 +59,7 @@ namespace hod::inline game
 		void ProcessActivation();
 		void Update(float deltaTime);
 		void FixedUpdate();
-		void Draw(renderer::RenderView& renderView);
+		void Draw(RenderView& renderView);
 
 		void SetNextLocalId(uint64_t nextLocalId)
 		{

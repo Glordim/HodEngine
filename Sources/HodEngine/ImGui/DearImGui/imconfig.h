@@ -121,7 +121,7 @@ namespace hod::inline renderer
         class Texture;
 }
 
-#define ImTextureID hod::renderer::Texture*
+#define ImTextureID hod::Texture*
 
 //---- Use 32-bit vertex indices (default is 16-bit) is one way to allow large meshes with more than 64K vertices.
 // Your renderer backend will need to support it (most example renderer backends support both 16/32-bit indices).

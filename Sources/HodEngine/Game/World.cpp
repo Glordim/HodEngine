@@ -282,7 +282,7 @@ namespace hod::inline game
 	/// @brief
 	void World::Draw()
 	{
-		renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+		RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 		renderView->Init();
 		renderView->Prepare(DisplayManager::GetInstance()->GetMainWindow());
 		Draw(*renderView);
@@ -290,7 +290,7 @@ namespace hod::inline game
 
 	/// @brief
 	/// @param renderQueue
-	void World::Draw(renderer::RenderView& renderView)
+	void World::Draw(RenderView& renderView)
 	{
 		if (_editorPlaying == true && _editorPaused == false)
 		{

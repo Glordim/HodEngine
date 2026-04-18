@@ -29,6 +29,6 @@ namespace hod::inline editor
 
 	private:
 
-		renderer::MaterialInstance*			_materialInstance = nullptr;
+		MaterialInstance*			_materialInstance = nullptr;
 	};
 }

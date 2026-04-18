@@ -15,8 +15,8 @@ namespace hod::inline editor
 	{
 		REFLECTED_CLASS(MaterialImporterSettings, ImporterSettings)
 
-		renderer::Material::PolygonMode			_polygonMode = renderer::Material::PolygonMode::Fill;
-		renderer::Material::Topololy			_topololy = renderer::Material::Topololy::TRIANGLE;
+		Material::PolygonMode			_polygonMode = Material::PolygonMode::Fill;
+		Material::Topololy			_topololy = Material::Topololy::TRIANGLE;
 
 		Document								_defaultInstanceParams;
 	};

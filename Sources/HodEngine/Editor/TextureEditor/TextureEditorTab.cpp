@@ -30,7 +30,7 @@ namespace hod::inline editor
 	{
 		if (asset != nullptr)
 		{
-			_texture = ResourceManager::GetInstance()->GetResource<renderer::TextureResource>(asset->GetMeta()._uid);
+			_texture = ResourceManager::GetInstance()->GetResource<TextureResource>(asset->GetMeta()._uid);
 		}
 	}
 
@@ -41,7 +41,7 @@ namespace hod::inline editor
 
 	/// @brief 
 	/// @return 
-	std::shared_ptr<renderer::TextureResource> TextureEditorTab::GetTexture() const
+	std::shared_ptr<TextureResource> TextureEditorTab::GetTexture() const
 	{
 		return _texture;
 	}

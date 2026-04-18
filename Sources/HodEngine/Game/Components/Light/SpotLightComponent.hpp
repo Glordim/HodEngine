@@ -24,10 +24,10 @@ namespace hod::inline game
 
 	public:
 
-		renderer::SpotLight*	GetSpotLight() const;
+		SpotLight*	GetSpotLight() const;
 
 	public:
 
-		renderer::SpotLight		_data;
+		SpotLight		_data;
 	};
 }

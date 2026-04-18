@@ -38,7 +38,7 @@ namespace hod::inline game
 	/// @brief
 	void TextureRendererComponent::OnConstruct()
 	{
-		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
@@ -50,7 +50,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void TextureRendererComponent::SetSprite(std::shared_ptr<renderer::Sprite> sprite)
+	void TextureRendererComponent::SetSprite(std::shared_ptr<Sprite> sprite)
 	{
 	    _sprite = sprite;
 
@@ -60,7 +60,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const renderer::Sprite* TextureRendererComponent::GetSprite() const
+	const Sprite* TextureRendererComponent::GetSprite() const
 	{
 	    return _sprite;
 	}
@@ -68,10 +68,10 @@ namespace hod::inline game
 
 	/// @brief
 	/// @param materialInstance
-	void TextureRendererComponent::SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& weakMaterialInstanceResource)
+	void TextureRendererComponent::SetMaterialInstanceResource(const WeakResource<MaterialInstanceResource>& weakMaterialInstanceResource)
 	{
 		_material = weakMaterialInstanceResource;
-		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
@@ -86,7 +86,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	renderer::MaterialInstance* TextureRendererComponent::GetMaterialInstance() const
+	MaterialInstance* TextureRendererComponent::GetMaterialInstance() const
 	{
 		return _materialInstance;
 	}
@@ -94,7 +94,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void TextureRendererComponent::PushRenderCommand(renderer::RenderView& renderView)
+	void TextureRendererComponent::PushRenderCommand(RenderView& renderView)
 	{
 		Entity* entity = GetOwner();
 		if (entity != nullptr)
@@ -124,14 +124,14 @@ namespace hod::inline game
 
 				if (_materialInstance == nullptr)
 				{
-					const renderer::Material* material =
-						renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
-					_builtinMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+					const Material* material =
+						MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+					_builtinMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
 					_materialInstance = _builtinMaterialInstance;
 					RefreshMaterialInstance();
 				}
 
-				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 					vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
 					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 			}
@@ -140,7 +140,7 @@ namespace hod::inline game
 
 	/// @brief
 	/// @param texture
-	void TextureRendererComponent::SetTexture(const WeakResource<renderer::TextureResource>& texture)
+	void TextureRendererComponent::SetTexture(const WeakResource<TextureResource>& texture)
 	{
 		_texture = texture;
 		RefreshMaterialInstance();
@@ -151,7 +151,7 @@ namespace hod::inline game
 	{
 		if (_materialInstance != nullptr)
 		{
-			std::shared_ptr<renderer::TextureResource> textureResourceLock = _texture.Lock();
+			std::shared_ptr<TextureResource> textureResourceLock = _texture.Lock();
 			if (textureResourceLock != nullptr)
 			{
 				_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
@@ -177,7 +177,7 @@ namespace hod::inline game
 		float width = _pixelPerUnit;
 		float height = _pixelPerUnit;
 
-		std::shared_ptr<renderer::TextureResource> textureResourceLock = _texture.Lock();
+		std::shared_ptr<TextureResource> textureResourceLock = _texture.Lock();
 		if (textureResourceLock != nullptr)
 		{
 			width = (float)textureResourceLock->GetTexture()->GetWidth();

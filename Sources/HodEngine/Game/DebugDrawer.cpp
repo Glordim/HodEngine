@@ -12,7 +12,7 @@ namespace hod::inline game
 	/// @brief
 	DebugDrawer::DebugDrawer()
 	{
-		_lineMaterial = renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line)->GetDefaultInstance();
+		_lineMaterial = MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line)->GetDefaultInstance();
 	}
 
 	/// @brief
@@ -27,7 +27,7 @@ namespace hod::inline game
 
 	/// @brief
 	/// @param renderView
-	void DebugDrawer::Draw(renderer::RenderView& renderView)
+	void DebugDrawer::Draw(RenderView& renderView)
 	{
 		auto it = _lines.Begin();
 		auto itEnd = _lines.End();
@@ -35,7 +35,7 @@ namespace hod::inline game
 		{
 			std::array<Vector2, 2> vertices = {it->_start, it->_end};
 			std::array<Color, 2>   colors = {it->_color, it->_color};
-			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(),
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(),
 			                                                                                              nullptr, 0, Matrix4::Identity, _lineMaterial, 0));
 
 			it->_duration -= 0.016f; // todo

@@ -35,12 +35,12 @@ namespace hod::inline game
 
 		void	AddLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
 
-		void	Draw(renderer::RenderView& renderView);
+		void	Draw(RenderView& renderView);
 
 	private:
 
 		Vector<Line>	_lines;
 
-		const renderer::MaterialInstance*	_lineMaterial = nullptr; 
+		const MaterialInstance*	_lineMaterial = nullptr; 
 	};
 }

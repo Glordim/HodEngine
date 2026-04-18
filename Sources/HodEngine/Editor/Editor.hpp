@@ -69,37 +69,37 @@ namespace hod::inline editor
 
 		void PingAsset(std::shared_ptr<Asset> asset);
 
-		renderer::Texture* GetHodTexture() const
+		Texture* GetHodTexture() const
 		{
 			return _hodTexture;
 		}
 
-		renderer::Texture* GetFolderTexture() const
+		Texture* GetFolderTexture() const
 		{
 			return _folderTexture;
 		}
 
-		renderer::Texture* GetFolderOpenTexture() const
+		Texture* GetFolderOpenTexture() const
 		{
 			return _folderOpenTexture;
 		}
 
-		renderer::Texture* GetSceneTexture() const
+		Texture* GetSceneTexture() const
 		{
 			return _sceneTexture;
 		}
 
-		renderer::Texture* GetPrefabTexture() const
+		Texture* GetPrefabTexture() const
 		{
 			return _prefabTexture;
 		}
 
-		renderer::Texture* GetSerializedDataTexture() const
+		Texture* GetSerializedDataTexture() const
 		{
 			return _serializedDataTexture;
 		}
 
-		renderer::Texture* GetCheckerTexture() const
+		Texture* GetCheckerTexture() const
 		{
 			return _checkerTexture;
 		}
@@ -116,13 +116,13 @@ namespace hod::inline editor
 		Vector<EditorTab*>                                                            _editorTabs;
 		std::unordered_map<String, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
-		renderer::Texture* _hodTexture = nullptr;
-		renderer::Texture* _folderTexture = nullptr;
-		renderer::Texture* _folderOpenTexture = nullptr;
-		renderer::Texture* _sceneTexture = nullptr;
-		renderer::Texture* _prefabTexture = nullptr;
-		renderer::Texture* _serializedDataTexture = nullptr;
-		renderer::Texture* _checkerTexture = nullptr;
+		Texture* _hodTexture = nullptr;
+		Texture* _folderTexture = nullptr;
+		Texture* _folderOpenTexture = nullptr;
+		Texture* _sceneTexture = nullptr;
+		Texture* _prefabTexture = nullptr;
+		Texture* _serializedDataTexture = nullptr;
+		Texture* _checkerTexture = nullptr;
 
 		FpsCounter _fpsCounter;
 

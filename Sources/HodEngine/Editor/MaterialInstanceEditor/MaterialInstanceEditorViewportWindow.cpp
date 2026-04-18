@@ -53,7 +53,7 @@ namespace hod::inline editor
 	{
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
 
-		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+		_renderTarget = Renderer::GetInstance()->CreateRenderTarget();
 	}
 
 	/// @brief
@@ -81,10 +81,10 @@ namespace hod::inline editor
 	/// @brief
 	void MaterialInstanceEditorViewportWindow::DrawContent()
 	{
-		std::shared_ptr<hod::renderer::MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
+		std::shared_ptr<hod::MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
 		if (materialInstanceResource != nullptr)
 		{
-			renderer::MaterialInstance* materialInstance = materialInstanceResource->GetMaterialInstance();
+			MaterialInstance* materialInstance = materialInstanceResource->GetMaterialInstance();
 			if (materialInstance != nullptr)
 			{
 				uint32_t resolutionWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
@@ -95,7 +95,7 @@ namespace hod::inline editor
 
 				if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 				{
-					renderer::Texture::CreateInfo createInfo;
+					Texture::CreateInfo createInfo;
 
 					createInfo._allowReadWrite = false;
 					_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
@@ -103,7 +103,7 @@ namespace hod::inline editor
 
 				if (_renderTarget->IsValid() == true)
 				{
-					renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+					RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 					renderView->Init();
 					renderView->Prepare(_renderTarget, nullptr);
 
@@ -140,7 +140,7 @@ namespace hod::inline editor
 						0, 1, 2, 0, 2, 3,
 					};
 
-					renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+					RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 						vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, materialInstance, 0);
 					renderView->PushRenderCommand(renderMeshCommand);
 				}

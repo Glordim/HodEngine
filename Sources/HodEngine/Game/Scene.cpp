@@ -233,7 +233,7 @@ namespace hod::inline game
 
 	/// @brief
 	/// @param renderQueue
-	void Scene::Draw(renderer::RenderView& renderView)
+	void Scene::Draw(RenderView& renderView)
 	{
 		for (const auto& pair : _entities)
 		{

@@ -109,7 +109,7 @@ namespace hod::inline editor
 
 		TextureImporterSettings& textureSettings = (TextureImporterSettings&)settings;
 
-		renderer::TextureResource textureResource;
+		TextureResource textureResource;
 		textureResource._width = x;
 		textureResource._height = y;
 		textureResource._componentCount = componentCount;
@@ -145,7 +145,7 @@ namespace hod::inline editor
 
 	ReflectionDescriptor* TextureImporter::GetResourceDescriptor() const
 	{
-		return &renderer::TextureResource::GetReflectionDescriptor();
+		return &TextureResource::GetReflectionDescriptor();
 	}
 
 	std::shared_ptr<ImporterSettings> TextureImporter::AllocateSettings() const

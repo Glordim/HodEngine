@@ -67,12 +67,12 @@ namespace hod::inline editor
 
 		if (ImGui::CollapsingHeader("Default Params", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			std::shared_ptr<renderer::MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
+			std::shared_ptr<MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
 			for (MaterialEditorTab::ShaderParamScalar& scalarParameter : GetOwner<MaterialEditorTab>()->GetScalarParameters())
 			{
 				switch (scalarParameter._type)
 				{
-					case renderer::ShaderParameter::Type::Float:
+					case ShaderParameter::Type::Float:
 					{
 						ImGui::PushID(&scalarParameter);
 						ImGui::AlignTextToFramePadding();
@@ -134,7 +134,7 @@ namespace hod::inline editor
 				EditorReflectedObject editorObject(&textureParameter._value, &WeakResourceBase::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
-					std::shared_ptr<hod::renderer::TextureResource> textureResource = textureParameter._value.Lock();
+					std::shared_ptr<hod::TextureResource> textureResource = textureParameter._value.Lock();
 					if (textureResource != nullptr)
 					{
 						GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetTexture(textureParameter._name, textureResource->GetTexture());
@@ -148,10 +148,10 @@ namespace hod::inline editor
 		ImGui::BeginDisabled(asset->IsDirty() == false);
 		if (ImGui::Button("Apply"))
 		{
-			std::shared_ptr<renderer::MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
+			std::shared_ptr<MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
 			if (materialResource != nullptr)
 			{
-				renderer::Material* material = materialResource->GetMaterial();
+				Material* material = materialResource->GetMaterial();
 				if (material != nullptr)
 				{
 					materialImporterSettings->_defaultInstanceParams.GetRootNode().Clear();

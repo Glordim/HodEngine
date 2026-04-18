@@ -211,7 +211,7 @@ namespace hod::inline editor
 
 	ReflectionDescriptor* MaterialImporter::GetResourceDescriptor() const
 	{
-		return &renderer::MaterialResource::GetReflectionDescriptor();
+		return &MaterialResource::GetReflectionDescriptor();
 	}
 
 	std::shared_ptr<ImporterSettings> MaterialImporter::AllocateSettings() const

@@ -34,22 +34,22 @@ namespace hod::inline ui
 	public:
 		void OnDestruct() override;
 
-		void SetFont(const WeakResource<renderer::FontResource>& font);
+		void SetFont(const WeakResource<FontResource>& font);
 		void SetValue(const String& value);
 		void SetAlignment(Alignment alignment);
 
-		void PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) override;
+		void PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType renderQueueType) override;
 
 		Vector2 GetContentSize() const;
 
 		PropertyChangedEvent& GetPropertyChangedEvent();
 
 	private:
-		WeakResource<renderer::FontResource> _font;
+		WeakResource<FontResource> _font;
 		String                               _value;
 		Alignment                            _alignment;
 
-		renderer::MaterialInstance* _materialInstance = nullptr;
+		MaterialInstance* _materialInstance = nullptr;
 
 		PropertyChangedEvent _propertyChangedEvent;
 	};

@@ -26,8 +26,8 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	renderer::PointLight* PointLightComponent::GetPointLight() const
+	PointLight* PointLightComponent::GetPointLight() const
 	{
-		return (renderer::PointLight*)(&_data);
+		return (PointLight*)(&_data);
 	}
 }

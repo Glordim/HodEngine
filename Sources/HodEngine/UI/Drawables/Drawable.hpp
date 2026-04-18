@@ -23,7 +23,7 @@ namespace hod::inline ui
 		void			SetColor(const Color& color);
 		const Color&	GetColor() const;
 
-		virtual void	PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) = 0;
+		virtual void	PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType renderQueueType) = 0;
 
 	protected:
 

@@ -89,7 +89,7 @@ namespace hod::inline renderer
 	/// @param shaderType
 	void MetalCommandBuffer::SetConstant(void* constant, uint32_t Size, Shader::ShaderType shaderType)
 	{
-		Buffer* constantBuffer = RendererMetal::GetInstance()->CreateBuffer(renderer::Buffer::Usage::Vertex, Size);
+		Buffer* constantBuffer = RendererMetal::GetInstance()->CreateBuffer(Buffer::Usage::Vertex, Size);
 		void*   constantBufferData = constantBuffer->Lock();
 		if (constantBufferData != nullptr)
 		{

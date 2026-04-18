@@ -24,10 +24,10 @@ namespace hod::inline game
 
 	public:
 
-		renderer::PointLight*	GetPointLight() const;
+		PointLight*	GetPointLight() const;
 
 	public:
 
-		renderer::PointLight	_data;
+		PointLight	_data;
 	};
 }

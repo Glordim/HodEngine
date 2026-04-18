@@ -29,7 +29,7 @@ namespace hod::inline editor
 				TextureEditorTab(std::shared_ptr<Asset> asset);
 				~TextureEditorTab() override;
 
-		std::shared_ptr<renderer::TextureResource>	GetTexture() const;
+		std::shared_ptr<TextureResource>	GetTexture() const;
 		float										GetZoomFactor() const;
 		void										SetZoomFactor(float zoomFactor);
 
@@ -47,6 +47,6 @@ namespace hod::inline editor
 		uint8_t	_maxMipmapLevel = 0;
 		float _zoomFactor = 1.0f;
 
-		std::shared_ptr<renderer::TextureResource>	_texture;
+		std::shared_ptr<TextureResource>	_texture;
 	};
 }

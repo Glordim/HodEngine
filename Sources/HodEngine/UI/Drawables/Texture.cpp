@@ -22,7 +22,7 @@ namespace hod::inline ui
 		_materialInstance = nullptr;
 	}
 
-	void Texture::PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType)
+	void Texture::PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType renderQueueType)
 	{
 		if (_node.Get())
 		{
@@ -49,9 +49,9 @@ namespace hod::inline ui
 
 			if (_materialInstance == nullptr)
 			{
-				const renderer::Material* material =
-					renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
-				_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+				const Material* material =
+					MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+				_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
 			}
 
 			if (_texture.Lock())
@@ -64,7 +64,7 @@ namespace hod::inline ui
 			vec4Color.SetZ(_color.b);
 			vec4Color.SetW(_color.a);
 			_materialInstance->SetVec4("ubo.color", vec4Color);
-			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(),
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(),
 			                                                                                              indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance,
 			                                                                                              0, 0),
 			                             renderQueueType);
@@ -73,7 +73,7 @@ namespace hod::inline ui
 
 	/// @brief
 	/// @param texture
-	void Texture::SetTexture(const WeakResource<renderer::TextureResource>& texture)
+	void Texture::SetTexture(const WeakResource<TextureResource>& texture)
 	{
 		_texture = texture;
 	}

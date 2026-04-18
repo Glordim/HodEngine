@@ -32,8 +32,8 @@ namespace hod::inline editor
 		bool Draw() override;
 		void DrawContent() override;
 
-		renderer::RenderView*   GetRenderView();
-		renderer::RenderTarget* GetPickingRenderTarget() const;
+		RenderView*   GetRenderView();
+		RenderTarget* GetPickingRenderTarget() const;
 		const Matrix4&          GetProjectionMatrix() const;
 		const Matrix4&          GetViewMatrix() const;
 		float                   GetCameraSize() const;
@@ -44,9 +44,9 @@ namespace hod::inline editor
 		void EnablePhysicsDebugDrawer(bool enabled);
 		bool IsPhysicsDebugDrawerEnabled() const;
 
-		renderer::RenderView*   _renderView = nullptr;
-		renderer::RenderTarget* _renderTarget = nullptr;
-		renderer::RenderTarget* _pickingRenderTarget = nullptr;
+		RenderView*   _renderView = nullptr;
+		RenderTarget* _renderTarget = nullptr;
+		RenderTarget* _pickingRenderTarget = nullptr;
 
 		Matrix4 _projection;
 		Matrix4 _view;

@@ -107,7 +107,7 @@ namespace hod::inline editor
 			_thumbnail = nullptr;
 		}
 
-		_thumbnail = renderer::Renderer::GetInstance()->CreateTexture();
+		_thumbnail = Renderer::GetInstance()->CreateTexture();
 		if (_thumbnail->LoadFromPath(thumbnailFilePath.GetString().CStr()) == false)
 		{
 			DefaultAllocator::GetInstance().Delete(_thumbnail);
@@ -216,7 +216,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	renderer::Texture* Asset::GetThumbnail() const
+	Texture* Asset::GetThumbnail() const
 	{
 		return _thumbnail;
 	}

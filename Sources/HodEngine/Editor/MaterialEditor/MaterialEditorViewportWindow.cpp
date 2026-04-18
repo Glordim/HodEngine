@@ -53,7 +53,7 @@ namespace hod::inline editor
 	{
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
 
-		_renderTarget = renderer::Renderer::GetInstance()->CreateRenderTarget();
+		_renderTarget = Renderer::GetInstance()->CreateRenderTarget();
 	}
 
 	/// @brief
@@ -81,10 +81,10 @@ namespace hod::inline editor
 	/// @brief
 	void MaterialEditorViewportWindow::DrawContent()
 	{
-		std::shared_ptr<hod::renderer::MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
+		std::shared_ptr<hod::MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
 		if (materialResource != nullptr)
 		{
-			renderer::Material* material = materialResource->GetMaterial();
+			Material* material = materialResource->GetMaterial();
 			if (material != nullptr)
 			{
 				uint32_t resolutionWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
@@ -95,7 +95,7 @@ namespace hod::inline editor
 
 				if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 				{
-					renderer::Texture::CreateInfo createInfo;
+					Texture::CreateInfo createInfo;
 
 					createInfo._allowReadWrite = false;
 					_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
@@ -103,7 +103,7 @@ namespace hod::inline editor
 
 				if (_renderTarget->IsValid() == true)
 				{
-					renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+					RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 					renderView->Init();
 					renderView->Prepare(_renderTarget, nullptr);
 
@@ -140,8 +140,8 @@ namespace hod::inline editor
 						0, 1, 2, 0, 2, 3,
 					};
 
-					renderer::RenderCommandMesh* renderMeshCommand =
-						DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(),
+					RenderCommandMesh* renderMeshCommand =
+						DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(),
 					                                                                     (uint32_t)indices.size(), Matrix4::Identity, material->GetDefaultInstance(), 0);
 					renderView->PushRenderCommand(renderMeshCommand);
 

@@ -39,14 +39,14 @@ namespace hod::inline ui
 		_materialInstance = nullptr;
 	}
 
-	void Text::PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType)
+	void Text::PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType renderQueueType)
 	{
 		if (_node.Get() && _font.Lock())
 		{
 			Vector2 Size = _node->ComputeSize();
 			Matrix4 worldMatrix = _node->ComputeWorldMatrix();
 
-			renderer::Font* font = _font.Lock()->GetFont();
+			Font* font = _font.Lock()->GetFont();
 
 			Vector<Vector2> positions;
 			positions.Reserve(_value.Size() * 4);
@@ -85,10 +85,10 @@ namespace hod::inline ui
 			lineTopLeftCorner + Vector2(requiredSize.GetX(), -requiredSize.GetY()), Color::White);
 			*/
 
-			Vector<renderer::Font::GlyphGeometry> glyphGeometries;
+			Vector<Font::GlyphGeometry> glyphGeometries;
 			font->BuildTextGeometry(_value, glyphGeometries);
 
-			for (const renderer::Font::GlyphGeometry& glyphGeometry : glyphGeometries)
+			for (const Font::GlyphGeometry& glyphGeometry : glyphGeometries)
 			{
 				uint16_t vertexCount = (uint16_t)positions.Size();
 
@@ -115,9 +115,9 @@ namespace hod::inline ui
 			{
 				if (_materialInstance == nullptr)
 				{
-					const renderer::Material* material =
-						renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
-					_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+					const Material* material =
+						MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+					_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
 				}
 				_materialInstance->SetTexture("image", font->GetTexture());
 				Vector4 vec4Color;
@@ -127,7 +127,7 @@ namespace hod::inline ui
 				vec4Color.SetW(_color.a);
 				_materialInstance->SetVec4("ubo.color", vec4Color);
 
-				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(positions.Data(), uvs.Data(), nullptr, (uint32_t)positions.Size(),
+				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(positions.Data(), uvs.Data(), nullptr, (uint32_t)positions.Size(),
 				                                                                                              indices.Data(), (uint32_t)indices.Size(), worldMatrix,
 				                                                                                              _materialInstance, 0, 0),
 				                             renderQueueType);
@@ -137,7 +137,7 @@ namespace hod::inline ui
 
 	/// @brief
 	/// @param font
-	void Text::SetFont(const WeakResource<renderer::FontResource>& font)
+	void Text::SetFont(const WeakResource<FontResource>& font)
 	{
 		if (_font != font)
 		{
@@ -173,7 +173,7 @@ namespace hod::inline ui
 		Vector2 requiredSize;
 		if (_font.Lock())
 		{
-			renderer::Font* font = _font.Lock()->GetFont();
+			Font* font = _font.Lock()->GetFont();
 			requiredSize = font->ComputeRequiredSize(_value);
 		}
 		return requiredSize;

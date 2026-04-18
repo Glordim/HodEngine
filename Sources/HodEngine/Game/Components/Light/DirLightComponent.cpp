@@ -25,8 +25,8 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	renderer::DirLight* DirLightComponent::GetDirLight() const
+	DirLight* DirLightComponent::GetDirLight() const
 	{
-		return (renderer::DirLight*)(&_data);
+		return (DirLight*)(&_data);
 	}
 }

@@ -33,7 +33,7 @@ namespace hod::inline editor
 	{
 		if (asset != nullptr)
 		{
-			_materialInstance = ResourceManager::GetInstance()->GetResource<renderer::MaterialInstanceResource>(asset->GetMeta()._uid);
+			_materialInstance = ResourceManager::GetInstance()->GetResource<MaterialInstanceResource>(asset->GetMeta()._uid);
 
 			Document document;
 			DocumentReaderJson reader;
@@ -43,36 +43,36 @@ namespace hod::inline editor
 
 			if (_materialInstance != nullptr)
 			{
-				renderer::MaterialInstance* materialInstance = _materialInstance->GetMaterialInstance();
+				MaterialInstance* materialInstance = _materialInstance->GetMaterialInstance();
 				if (materialInstance != nullptr)
 				{
-					const renderer::Material& material = materialInstance->GetMaterial();
+					const Material& material = materialInstance->GetMaterial();
 
-					renderer::MaterialSerializationHelper::GenerateParameters(material, _parameters);
-					for (const renderer::ShaderParameter& param : _parameters)
+					MaterialSerializationHelper::GenerateParameters(material, _parameters);
+					for (const ShaderParameter& param : _parameters)
 					{
-						if (param._type == renderer::ShaderParameter::Type::Texture)
+						if (param._type == ShaderParameter::Type::Texture)
 						{
 							ShaderParamTexture textureParam;
 							textureParam._name = param._name;
 							textureParam._type = param._type;
 							_textureParameters.push_back(textureParam);
 						}
-						else if (param._type == renderer::ShaderParameter::Type::Float2)
+						else if (param._type == ShaderParameter::Type::Float2)
 						{
 							ShaderParamVec2 value;
 							value._name = param._name;
 							value._type = param._type;
 							_vec2Parameters.push_back(value);
 						}
-						else if (param._type == renderer::ShaderParameter::Type::Float4)
+						else if (param._type == ShaderParameter::Type::Float4)
 						{
 							ShaderParamVec4 value;
 							value._name = param._name;
 							value._type = param._type;
 							_vec4Parameters.push_back(value);
 						}
-						else if (param._type != renderer::ShaderParameter::Type::Unknown)
+						else if (param._type != ShaderParameter::Type::Unknown)
 						{
 							ShaderParamScalar value;
 							value._name = param._name;
@@ -87,10 +87,10 @@ namespace hod::inline editor
 			while (paramNode != nullptr)
 			{
 				String name = paramNode->GetChild("Name")->GetString();
-				renderer::ShaderParameter::Type type = static_cast<renderer::ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
+				ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
 				switch (type)
 				{
-				case renderer::ShaderParameter::Type::Float:
+				case ShaderParameter::Type::Float:
 					for (ShaderParamScalar& param : _scalarParameters)
 					{
 						if (param._name == name)
@@ -101,7 +101,7 @@ namespace hod::inline editor
 					}
 					break;
 
-				case renderer::ShaderParameter::Type::Float2:
+				case ShaderParameter::Type::Float2:
 					for (ShaderParamVec2& param : _vec2Parameters)
 					{
 						if (param._name == name)
@@ -112,7 +112,7 @@ namespace hod::inline editor
 					}
 					break;
 
-				case renderer::ShaderParameter::Type::Float4:
+				case ShaderParameter::Type::Float4:
 					for (ShaderParamVec4& param : _vec4Parameters)
 					{
 						if (param._name == name)
@@ -123,7 +123,7 @@ namespace hod::inline editor
 					}
 					break;
 
-				case renderer::ShaderParameter::Type::Texture:
+				case ShaderParameter::Type::Texture:
 					for (ShaderParamTexture& param : _textureParameters)
 					{
 						if (param._name == name)
@@ -149,7 +149,7 @@ namespace hod::inline editor
 
 	/// @brief 
 	/// @return 
-	std::shared_ptr<renderer::MaterialInstanceResource> MaterialInstanceEditorTab::GetMaterialInstance() const
+	std::shared_ptr<MaterialInstanceResource> MaterialInstanceEditorTab::GetMaterialInstance() const
 	{
 		return _materialInstance;
 	}

@@ -33,8 +33,8 @@ namespace hod::inline editor
 
 	public:
 		bool                 _generateMipmap = false;
-		renderer::FilterMode _filterMode = renderer::FilterMode::Linear;
-		renderer::WrapMode   _wrapMode = renderer::WrapMode::Clamp;
+		FilterMode _filterMode = FilterMode::Linear;
+		WrapMode   _wrapMode = WrapMode::Clamp;
 		Vector<SpriteData>   _spriteDatas;
 	};
 

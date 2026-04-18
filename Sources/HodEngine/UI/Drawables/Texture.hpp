@@ -16,13 +16,13 @@ namespace hod::inline ui
 
 		void	OnDestruct() override;
 
-		void	SetTexture(const WeakResource<renderer::TextureResource>& texture);
+		void	SetTexture(const WeakResource<TextureResource>& texture);
 
-		void	PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) override;
+		void	PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType renderQueueType) override;
 
 	private:
 
-		WeakResource<renderer::TextureResource>	_texture;
-		renderer::MaterialInstance* _materialInstance = nullptr;
+		WeakResource<TextureResource>	_texture;
+		MaterialInstance* _materialInstance = nullptr;
 	};
 }

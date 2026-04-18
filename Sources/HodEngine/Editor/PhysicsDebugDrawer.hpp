@@ -28,21 +28,21 @@ namespace hod::inline editor
 	public:
 
 		void									Update(physics::World* world);
-		void									PushRenderCommand(renderer::RenderView& renderView, physics::World* world);
+		void									PushRenderCommand(RenderView& renderView, physics::World* world);
 
 	private:
 
-		renderer::MaterialInstance*		_pointMaterialInstance = nullptr;
-		renderer::MaterialInstance*		_lineMaterialInstance = nullptr;
-		renderer::MaterialInstance*		_wireframePolygonMaterialInstance = nullptr;
-		renderer::MaterialInstance*		_solidPolygonMaterialInstance = nullptr;
+		MaterialInstance*		_pointMaterialInstance = nullptr;
+		MaterialInstance*		_lineMaterialInstance = nullptr;
+		MaterialInstance*		_wireframePolygonMaterialInstance = nullptr;
+		MaterialInstance*		_solidPolygonMaterialInstance = nullptr;
 	};
 
-	class HOD_EDITOR_API RenderCommandPhysicsDrawer : public renderer::RenderCommandMesh
+	class HOD_EDITOR_API RenderCommandPhysicsDrawer : public RenderCommandMesh
 	{
 	public:
 
-								RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const renderer::Material& material);
+								RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const Material& material);
 								RenderCommandPhysicsDrawer(const RenderCommandPhysicsDrawer&) = delete;
 								RenderCommandPhysicsDrawer(RenderCommandPhysicsDrawer&&) = delete;
 								~RenderCommandPhysicsDrawer() override = default;
@@ -52,11 +52,11 @@ namespace hod::inline editor
 
 	public:
 
-		void					Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial) override;
+		void					Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial) override;
 
 	private:
 
-		const renderer::Material&	_material;
+		const Material&	_material;
 		Vector4						_color;
 	};
 }

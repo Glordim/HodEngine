@@ -17,7 +17,7 @@ namespace hod::inline editor
 
 		virtual ~MaterialInstanceAsset() = default;
 
-		WeakResource<renderer::MaterialResource>	_material;
+		WeakResource<MaterialResource>	_material;
 		Document									_params;
 	};
 

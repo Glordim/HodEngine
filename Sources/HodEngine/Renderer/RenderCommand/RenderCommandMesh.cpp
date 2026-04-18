@@ -140,7 +140,7 @@ namespace hod::inline renderer
 		materialInstance->SetFloat("global.time", (float)SystemTime::ToSeconds(SystemTime::Now()));
 		if (overrideMaterial != nullptr)
 		{
-			Color color = renderer::PickingManager::ConvertIdToColor(_pickingId);
+			Color color = PickingManager::ConvertIdToColor(_pickingId);
 
 			materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
 			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
@@ -168,7 +168,7 @@ namespace hod::inline renderer
 		Constant constant;
 		constant._mvp = (commandBuffer->_projection * commandBuffer->_view * _modelMatrix).Transpose();
 		constant._model = _modelMatrix.Transpose();
-		commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
+		commandBuffer->SetConstant(&constant, sizeof(constant), Shader::ShaderType::Vertex);
 
 		if (_indices.Empty() == false)
 		{

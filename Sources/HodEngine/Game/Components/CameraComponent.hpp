@@ -52,7 +52,7 @@ namespace hod::inline game
 
 		const Matrix4& GetProjectionMatrix();
 
-		void SetupRenderView(renderer::RenderView& renderView);
+		void SetupRenderView(RenderView& renderView);
 
 		void  SetSize(float size);
 		float GetSize() const;

@@ -82,8 +82,8 @@ namespace hod::inline application
 			return false;
 		}
 
-		renderer::CreatePlatformRenderer();
-		if (renderer::Renderer::GetInstance()->Init(_window) == false)
+		CreatePlatformRenderer();
+		if (Renderer::GetInstance()->Init(_window) == false)
 		{
 			return false;
 		}
@@ -109,8 +109,8 @@ namespace hod::inline application
 		ComponentFactory::DestroyInstance();
 		ImGuiManager::DestroyInstance();
 		DefaultAllocator::GetInstance().Delete(_window);
-		renderer::Renderer::GetInstance()->Clear();
-		renderer::Renderer::DestroyInstance();
+		Renderer::GetInstance()->Clear();
+		Renderer::DestroyInstance();
 		InputManager::DestroyInstance();
 		PlatformDisplayManager::DestroyInstance();
 		PlatformAudioManager::DestroyInstance();
@@ -138,7 +138,7 @@ namespace hod::inline application
 		{
 			PROFILER_BEGIN_EVENT("Frame");
 
-			renderer::Renderer::GetInstance()->AcquireNextFrame();
+			Renderer::GetInstance()->AcquireNextFrame();
 
 			DisplayManager::GetInstance()->Update();
 			if (_window->IsClose())
@@ -149,7 +149,7 @@ namespace hod::inline application
 
 			frameSequencer->EnqueueAndWaitJobs();
 
-			renderer::Renderer::GetInstance()->Render();
+			Renderer::GetInstance()->Render();
 
 			PROFILER_END_EVENT();
 		}

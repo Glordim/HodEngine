@@ -22,8 +22,8 @@ namespace hod::inline editor
 	/// @brief
 	CircleCollider2dCustomComponentDrawer::CircleCollider2dCustomComponentDrawer()
 	{
-		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
-			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
@@ -57,8 +57,8 @@ namespace hod::inline editor
 				std::array<Vector2, 65> vertices;
 				GeometryGenerator::CircleShape<64>(vertices, circleCollider2d->GetOffset() * scale, circleCollider2d->GetRadius() * std::max(scale.GetX(), scale.GetY()));
 
-				renderer::RenderCommandMesh* renderMeshCommand =
-					DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,
+				RenderCommandMesh* renderMeshCommand =
+					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,
 				                                                                     node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 			}

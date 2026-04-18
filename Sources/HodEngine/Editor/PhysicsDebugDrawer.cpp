@@ -23,16 +23,16 @@ namespace hod::inline editor
 	/// @brief
 	PhysicsDebugDrawer::PhysicsDebugDrawer()
 	{
-		renderer::MaterialManager* materialManager = renderer::MaterialManager::GetInstance();
+		MaterialManager* materialManager = MaterialManager::GetInstance();
 
-		const renderer::Material* material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
-		_solidPolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+		const Material* material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
+		_solidPolygonMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
 
-		material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
-		_wireframePolygonMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
+		_wireframePolygonMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
 
-		material = materialManager->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line);
-		_lineMaterialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(material);
+		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line);
+		_lineMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
 	}
 
 	/// @brief
@@ -53,11 +53,11 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param renderQueue
-	void PhysicsDebugDrawer::PushRenderCommand(renderer::RenderView& renderView, physics::World* world)
+	void PhysicsDebugDrawer::PushRenderCommand(RenderView& renderView, physics::World* world)
 	{
 		for (const physics::RenderCommand& renderCommand : world->GetDebugDrawer()->GetRenderCommands())
 		{
-			renderer::MaterialInstance* materialInstance = nullptr;
+			MaterialInstance* materialInstance = nullptr;
 
 			if (renderCommand._type == physics::RenderCommand::Type::Point)
 			{
@@ -81,7 +81,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const renderer::Material& material)
+	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const Material& material)
 	: RenderCommandMesh(renderCommand._vertices.Data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.Size(), nullptr, 0, Matrix4::Identity, nullptr, true)
 	, _material(material)
 	, _color(renderCommand._color.r, renderCommand._color.g, renderCommand._color.b, renderCommand._color.a)
@@ -90,16 +90,16 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param commandBuffer
-	void RenderCommandPhysicsDrawer::Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial)
+	void RenderCommandPhysicsDrawer::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
 	{
 		if (overrideMaterial != nullptr)
 		{
 			return;
 		}
 
-		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(&_material);
-		const_cast<renderer::MaterialInstance*>(_materialInstance)->SetVec4("ubo.color", _color);
+		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&_material);
+		const_cast<MaterialInstance*>(_materialInstance)->SetVec4("ubo.color", _color);
 		RenderCommandMesh::Execute(commandBuffer, overrideMaterial);
-		commandBuffer->DeleteAfterRender(const_cast<renderer::MaterialInstance*>(_materialInstance));
+		commandBuffer->DeleteAfterRender(const_cast<MaterialInstance*>(_materialInstance));
 	}
 }

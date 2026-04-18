@@ -19,7 +19,7 @@ namespace hod::inline editor
 	Handle Gizmos::GenerateHandle()
 	{
 		Handle handle;
-		handle._pickingId = renderer::PickingManager::GetInstance()->GenerateId();
+		handle._pickingId = PickingManager::GetInstance()->GenerateId();
 		return handle;
 	}
 
@@ -36,7 +36,7 @@ namespace hod::inline editor
 		ImVec2   mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 		Vector2  mousePosition(mousePos.x, mousePos.y);
 		Color    mousePickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
-		uint32_t mousePickingId = renderer::PickingManager::ConvertColorToId(mousePickingColor);
+		uint32_t mousePickingId = PickingManager::ConvertColorToId(mousePickingColor);
 
 		handle._hovered = (mousePickingId == handle._pickingId);
 
@@ -90,13 +90,13 @@ namespace hod::inline editor
 		std::array<Vector2, segmentCount * 3> vertices;
 		GeometryGenerator::CircleShapeFillNoFan<segmentCount>(vertices, Vector2::Zero, radius);
 
-		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
-			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		MaterialInstance* materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		materialInstance->SetVec4("ubo.color",
 		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
 		Matrix4                      finalMatrix = worldMatrix * Matrix4::Translation(position);
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 			vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
 		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		viewport.GetRenderView()->DeleteAfter(materialInstance);
@@ -114,13 +114,13 @@ namespace hod::inline editor
 
 			Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f)};
 
-		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
-			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		MaterialInstance* materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		materialInstance->SetVec4("ubo.color",
 		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
 		Matrix4                      finalMatrix = worldMatrix * Matrix4::Translation(position);
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 			vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
 		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		viewport.GetRenderView()->DeleteAfter(materialInstance);
@@ -133,12 +133,12 @@ namespace hod::inline editor
 	{
 		bool changed = FreeMoveBehavior(handle, viewport);
 
-		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
-			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		MaterialInstance* materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		materialInstance->SetVec4("ubo.color",
 		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 			vertices, nullptr, nullptr, vertexCount, nullptr, 0, worldMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
 		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		viewport.GetRenderView()->DeleteAfter(materialInstance);
@@ -146,32 +146,32 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	void Gizmos::Rect(const Matrix4& worldMatrix, const Vector2& Size, const Color& color, renderer::RenderView& renderView)
+	void Gizmos::Rect(const Matrix4& worldMatrix, const Vector2& Size, const Color& color, RenderView& renderView)
 	{
 		std::array<Vector2, 5> vertices = {
 			Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
 			Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),
 		};
 
-		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
-			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		MaterialInstance* materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 			vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 		renderView.PushRenderCommand(renderMeshCommand);
 		renderView.DeleteAfter(materialInstance);
 	}
 
-	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, renderer::RenderView& renderView)
+	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView)
 	{
 		std::array<Vector2, 2> vertices {start, end};
 
-		renderer::MaterialInstance* materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
-			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		MaterialInstance* materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
-		renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 			vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 		renderView.PushRenderCommand(renderMeshCommand);
 		renderView.DeleteAfter(materialInstance);

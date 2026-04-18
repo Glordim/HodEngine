@@ -37,7 +37,7 @@ namespace hod::inline editor
 		void DrawContent() override;
 
 	private:
-		renderer::RenderTarget* _renderTarget = nullptr;
+		RenderTarget* _renderTarget = nullptr;
 
 		Matrix4 _projection;
 		Matrix4 _view;

@@ -57,7 +57,7 @@ namespace hod::inline game
 
 	void BoxComponent::OnConstruct()
 	{
-		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
@@ -66,10 +66,10 @@ namespace hod::inline game
 
 	/// @brief
 	/// @param materialInstance
-	void BoxComponent::SetMaterialInstanceResource(const WeakResource<renderer::MaterialInstanceResource>& weakMaterialInstanceResource)
+	void BoxComponent::SetMaterialInstanceResource(const WeakResource<MaterialInstanceResource>& weakMaterialInstanceResource)
 	{
 		_material = weakMaterialInstanceResource;
-		std::shared_ptr<renderer::MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
@@ -83,7 +83,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	renderer::MaterialInstance* BoxComponent::GetMaterialInstance() const
+	MaterialInstance* BoxComponent::GetMaterialInstance() const
 	{
 		return _materialInstance;
 	}
@@ -91,7 +91,7 @@ namespace hod::inline game
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void BoxComponent::PushRenderCommand(renderer::RenderView& renderView)
+	void BoxComponent::PushRenderCommand(RenderView& renderView)
 	{
 		Entity* entity = GetOwner();
 		if (entity != nullptr)
@@ -99,7 +99,7 @@ namespace hod::inline game
 			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
-				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
+				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
 					_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
 					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 			}

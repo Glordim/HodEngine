@@ -37,7 +37,7 @@ namespace hod::inline imgui
 
 	/// @brief
 	/// @param commandBuffer
-	void RenderCommandImGui::Execute(renderer::CommandBuffer* commandBuffer, renderer::MaterialInstance* overrideMaterial)
+	void RenderCommandImGui::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
 	{
 		if (overrideMaterial != nullptr)
 		{
@@ -47,14 +47,14 @@ namespace hod::inline imgui
 		commandBuffer->SetMaterial(ImGuiManager::GetInstance()->GetMaterial());
 		commandBuffer->SetViewport(_viewport);
 
-		renderer::Renderer* renderer = renderer::Renderer::GetInstance();
+		Renderer* renderer = Renderer::GetInstance();
 
 		for (size_t drawListIndex = 0; drawListIndex < _drawLists.Size(); ++drawListIndex)
 		{
 			DrawList* drawList = _drawLists[drawListIndex];
 
 			uint32_t          vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.Size() * sizeof(Vertex));
-			renderer::Buffer* vertexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Vertex, vertexBufferSize);
+			Buffer* vertexBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, vertexBufferSize);
 			void*             vertexBufferData = vertexBuffer->Lock();
 			if (vertexBufferData != nullptr)
 			{
@@ -65,7 +65,7 @@ namespace hod::inline imgui
 			commandBuffer->SetVertexBuffer(&vertexBuffer, 1);
 
 			uint32_t          indexBufferSize = static_cast<uint32_t>(drawList->_indices.Size() * sizeof(uint16_t));
-			renderer::Buffer* indexBuffer = renderer->CreateBuffer(renderer::Buffer::Usage::Index, indexBufferSize);
+			Buffer* indexBuffer = renderer->CreateBuffer(Buffer::Usage::Index, indexBufferSize);
 			void*             indexBufferData = indexBuffer->Lock();
 			if (indexBufferData != nullptr)
 			{
@@ -86,13 +86,13 @@ namespace hod::inline imgui
 			constant._scale.SetY(2.0f / drawList->_displaySize.GetY());
 			constant._translate.SetX(-1.0f - drawList->_displayPosition.GetX() * constant._scale.GetX());
 			constant._translate.SetY(-1.0f - drawList->_displayPosition.GetY() * constant._scale.GetY());
-			commandBuffer->SetConstant(&constant, sizeof(constant), renderer::Shader::ShaderType::Vertex);
+			commandBuffer->SetConstant(&constant, sizeof(constant), Shader::ShaderType::Vertex);
 
 			for (size_t commandIndex = 0; commandIndex < drawList->_commands.Size(); ++commandIndex)
 			{
 				Command& command = drawList->_commands[commandIndex];
 
-				renderer::MaterialInstance* materialInstance = renderer->CreateMaterialInstance(ImGuiManager::GetInstance()->GetMaterial());
+				MaterialInstance* materialInstance = renderer->CreateMaterialInstance(ImGuiManager::GetInstance()->GetMaterial());
 
 				materialInstance->SetTexture("image", command._texture);
 				commandBuffer->SetMaterialInstance(materialInstance, 0);
