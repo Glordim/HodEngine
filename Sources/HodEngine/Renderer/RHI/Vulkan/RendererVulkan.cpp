@@ -165,7 +165,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	bool RendererVulkan::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool RendererVulkan::Init(Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
 		if (CreateVkIntance() == false)
 		{

@@ -29,7 +29,7 @@ namespace hod::inline application
 		int        EngineLoop();
 
 	protected:
-		window::Window* _window = nullptr;
+		Window* _window = nullptr;
 	};
 }
 

@@ -204,7 +204,7 @@ namespace hod::inline editor
 
 			if (ImGui::MenuItem("Show in Explorer") == true)
 			{
-				window::OpenExplorerAtPath(node->_path);
+				OpenExplorerAtPath(node->_path);
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -322,7 +322,7 @@ namespace hod::inline editor
 			{
 				if (ImGui::MenuItem("Show in Explorer") == true)
 				{
-					window::OpenExplorerAtPath(pathNode->_path);
+					OpenExplorerAtPath(pathNode->_path);
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::EndPopup();
@@ -489,7 +489,7 @@ namespace hod::inline editor
 				}
 				else if (ImGui::MenuItem("Show Resource in explorer") == true)
 				{
-					window::OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
+					OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
 				}
 				else if (ImGui::MenuItem("Rename") == true)
 				{
@@ -602,7 +602,7 @@ namespace hod::inline editor
 
 				if (ImGui::MenuItem("Show in Explorer") == true)
 				{
-					window::OpenExplorerAtPath(_currentFolderTreeNode->_path);
+					OpenExplorerAtPath(_currentFolderTreeNode->_path);
 					ImGui::CloseCurrentPopup();
 				}
 

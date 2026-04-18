@@ -140,7 +140,7 @@ namespace hod::inline application
 
 			renderer::Renderer::GetInstance()->AcquireNextFrame();
 
-			window::DisplayManager::GetInstance()->Update();
+			DisplayManager::GetInstance()->Update();
 			if (_window->IsClose())
 			{
 				Quit();
@@ -164,7 +164,7 @@ namespace hod::inline application
 		Thread engineLoop;
 		engineLoop.Start(&GraphicApplication::EngineLoopEntry, this, Thread::Priority::High, "EngineLoop");
 
-		bool result = window::DisplayManager::GetInstance()->Run();
+		bool result = DisplayManager::GetInstance()->Run();
 
 		engineLoop.Join();
 

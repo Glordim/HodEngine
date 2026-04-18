@@ -3,17 +3,17 @@
 #if defined(PLATFORM_WINDOWS)
 
 	#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
-	#define PlatformWindow hod::window::Win32Window
+	#define PlatformWindow hod::Win32Window
 
 #elif defined(PLATFORM_MACOS)
 
 	#include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
-	#define PlatformWindow hod::window::MacOsWindow
+	#define PlatformWindow hod::MacOsWindow
 
 #elif defined(PLATFORM_LINUX)
 
 	#include "HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp"
-	#define PlatformWindow hod::window::WaylandWindow
+	#define PlatformWindow hod::WaylandWindow
 
 #elif defined(PLATFORM_ANDROID)
 

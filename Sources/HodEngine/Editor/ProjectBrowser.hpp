@@ -12,9 +12,9 @@
 namespace hod::inline editor
 {
 	/// @brief
-	class HOD_EDITOR_API ProjectBrowser : public Window
+	class HOD_EDITOR_API ProjectBrowser : public imgui::Window
 	{
-		REFLECTED_CLASS(ProjectBrowser, Window)
+		REFLECTED_CLASS(ProjectBrowser, imgui::Window)
 
 	public:
 		ProjectBrowser();

@@ -86,7 +86,7 @@ namespace hod::inline application
 			return false;
 		}
 
-		window::AndroidDisplayManager* androidDisplayManager = window::AndroidDisplayManager::CreateInstance();
+		AndroidDisplayManager* androidDisplayManager = AndroidDisplayManager::CreateInstance();
 		if (androidDisplayManager->Initialize() == false)
 		{
 			return false;

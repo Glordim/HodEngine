@@ -22,13 +22,13 @@ namespace hod::inline input
 		return false;
 	}
 
-	void KeyboardWindowLib::OnKeyPressed(window::ScanCode scanCode)
+	void KeyboardWindowLib::OnKeyPressed(ScanCode scanCode)
 	{
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(EditNextState()) + (std::to_underlying(scanCode) / 8));
 		*bytePtr |= (1 << (std::to_underlying(scanCode) % 8));
 	}
 
-	void KeyboardWindowLib::OnKeyReleased(window::ScanCode scanCode)
+	void KeyboardWindowLib::OnKeyReleased(ScanCode scanCode)
 	{
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(EditNextState()) + (std::to_underlying(scanCode) / 8));
 		*bytePtr &= ~(1 << (std::to_underlying(scanCode) % 8));

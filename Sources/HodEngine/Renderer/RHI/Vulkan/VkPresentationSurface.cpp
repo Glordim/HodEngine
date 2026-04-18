@@ -81,7 +81,7 @@ namespace hod::renderer
 	}
 
 	/// @brief
-	VkPresentationSurface::VkPresentationSurface(window::Window* window)
+	VkPresentationSurface::VkPresentationSurface(Window* window)
 	: PresentationSurface(window)
 	{
 		CreateSurface(window);
@@ -101,10 +101,10 @@ namespace hod::renderer
 		}
 	}
 
-	bool VkPresentationSurface::CreateSurface(window::Window* window)
+	bool VkPresentationSurface::CreateSurface(Window* window)
 	{
 #if defined(PLATFORM_WINDOWS)
-		window::Win32Window* win32Window = static_cast<window::Win32Window*>(window);
+		Win32Window* win32Window = static_cast<Win32Window*>(window);
 
 		VkWin32SurfaceCreateInfoKHR createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -119,8 +119,8 @@ namespace hod::renderer
 			return false;
 		}
 #elif defined(PLATFORM_LINUX)
-		window::WaylandWindow*         waylandWindow = static_cast<window::WaylandWindow*>(window);
-		window::WaylandDisplayManager* waylandDisplayManager = window::WaylandDisplayManager::GetInstance();
+		WaylandWindow*         waylandWindow = static_cast<WaylandWindow*>(window);
+		WaylandDisplayManager* waylandDisplayManager = WaylandDisplayManager::GetInstance();
 
 		VkWaylandSurfaceCreateInfoKHR createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
@@ -136,7 +136,7 @@ namespace hod::renderer
 			return false;
 		}
 #elif defined(PLATFORM_ANDROID)
-		window::AndroidWindow* androidWindow = static_cast<window::AndroidWindow*>(window);
+		AndroidWindow* androidWindow = static_cast<AndroidWindow*>(window);
 
 		VkAndroidSurfaceCreateInfoKHR createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
@@ -180,12 +180,12 @@ namespace hod::renderer
 
 		const VkGpuDevice* selectedGpuDevice = RendererVulkan::GetInstance()->GetVkGpuDevice();
 
-		static_cast<window::Win32Window*>(_window)->LockSize();
+		static_cast<Win32Window*>(_window)->LockSize();
 
 		VkSurfaceCapabilitiesKHR capabilities;
 		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(selectedGpuDevice->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
 		{
-			static_cast<window::Win32Window*>(_window)->UnlockSize();
+			static_cast<Win32Window*>(_window)->UnlockSize();
 			return false;
 		}
 
@@ -193,7 +193,7 @@ namespace hod::renderer
 		uint32_t                   formatCount;
 		if (vkGetPhysicalDeviceSurfaceFormatsKHR(selectedGpuDevice->physicalDevice, _surface, &formatCount, nullptr) != VK_SUCCESS)
 		{
-			static_cast<window::Win32Window*>(_window)->UnlockSize();
+			static_cast<Win32Window*>(_window)->UnlockSize();
 			return false;
 		}
 
@@ -202,7 +202,7 @@ namespace hod::renderer
 			formats.Resize(formatCount);
 			if (vkGetPhysicalDeviceSurfaceFormatsKHR(selectedGpuDevice->physicalDevice, _surface, &formatCount, formats.Data()) != VK_SUCCESS)
 			{
-				static_cast<window::Win32Window*>(_window)->UnlockSize();
+				static_cast<Win32Window*>(_window)->UnlockSize();
 				return false;
 			}
 		}
@@ -211,7 +211,7 @@ namespace hod::renderer
 		uint32_t                 presentModeCount;
 		if (vkGetPhysicalDeviceSurfacePresentModesKHR(selectedGpuDevice->physicalDevice, _surface, &presentModeCount, nullptr) != VK_SUCCESS)
 		{
-			static_cast<window::Win32Window*>(_window)->UnlockSize();
+			static_cast<Win32Window*>(_window)->UnlockSize();
 			return false;
 		}
 
@@ -220,14 +220,14 @@ namespace hod::renderer
 			presentModes.Resize(presentModeCount);
 			if (vkGetPhysicalDeviceSurfacePresentModesKHR(selectedGpuDevice->physicalDevice, _surface, &presentModeCount, presentModes.Data()) != VK_SUCCESS)
 			{
-				static_cast<window::Win32Window*>(_window)->UnlockSize();
+				static_cast<Win32Window*>(_window)->UnlockSize();
 				return false;
 			}
 		}
 
 		if (capabilities.currentExtent.width == 0)
 		{
-			static_cast<window::Win32Window*>(_window)->UnlockSize();
+			static_cast<Win32Window*>(_window)->UnlockSize();
 			return false;
 		}
 
@@ -293,7 +293,7 @@ namespace hod::renderer
 		uint32_t imageCount = std::max(capabilities.minImageCount, Renderer::GetInstance()->GetFrameInFlightCount() + 1);
 		if (capabilities.maxImageCount > 0 && capabilities.maxImageCount < imageCount)
 		{
-			static_cast<window::Win32Window*>(_window)->UnlockSize();
+			static_cast<Win32Window*>(_window)->UnlockSize();
 			OUTPUT_ERROR("Create VkSwapchain: Hardware limits maxImageCount to {}, but FIF+1 requires {}.", capabilities.maxImageCount, imageCount);
 			return false;
 		}
@@ -363,12 +363,12 @@ namespace hod::renderer
 		VkResult       result = vkCreateSwapchainKHR(device, &createInfo, nullptr, &newSwapchain);
 		if (result != VK_SUCCESS)
 		{
-			static_cast<window::Win32Window*>(_window)->UnlockSize();
+			static_cast<Win32Window*>(_window)->UnlockSize();
 			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !");
 			return false;
 		}
 
-		static_cast<window::Win32Window*>(_window)->UnlockSize();
+		static_cast<Win32Window*>(_window)->UnlockSize();
 
 		if (createInfo.oldSwapchain != VK_NULL_HANDLE)
 		{

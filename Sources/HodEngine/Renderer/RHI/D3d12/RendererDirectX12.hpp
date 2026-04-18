@@ -27,7 +27,7 @@ namespace hod::renderer
 		~RendererDirectX12() override;
 
 	public:
-		bool Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
+		bool Init(Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
 
 		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 

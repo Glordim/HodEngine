@@ -22,7 +22,7 @@ namespace hod::renderer
 	class HOD_RENDERER_API MetalPresentationSurface : public PresentationSurface
 	{
 	public:
-		MetalPresentationSurface(window::MacOsWindow* window);
+		MetalPresentationSurface(MacOsWindow* window);
 		~MetalPresentationSurface() override;
 
 	public:
@@ -39,7 +39,7 @@ namespace hod::renderer
 		CA::MetalLayer* GetLayer() const;
 
 	private:
-		void SetupLayer(window::MacOsWindow* window);
+		void SetupLayer(MacOsWindow* window);
 
 	private:
 		CA::MetalLayer*    _layer = nullptr;

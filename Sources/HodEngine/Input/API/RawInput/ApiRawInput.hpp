@@ -99,6 +99,6 @@ namespace hod::inline input
 
 		Event<bool>::Slot _onFocusChangeSlot;
 
-		window::Win32Window* _window = nullptr;
+		Win32Window* _window = nullptr;
 	};
 }

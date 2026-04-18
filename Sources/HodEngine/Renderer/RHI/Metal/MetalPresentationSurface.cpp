@@ -15,7 +15,7 @@
 namespace hod::renderer
 {
 	/// @brief
-	MetalPresentationSurface::MetalPresentationSurface(window::MacOsWindow* window)
+	MetalPresentationSurface::MetalPresentationSurface(MacOsWindow* window)
 	: PresentationSurface(window)
 	{
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
@@ -57,7 +57,7 @@ namespace hod::renderer
 
 	void MetalPresentationSurface::Resize(uint32_t width, uint32_t height)
 	{
-		float scaleFactor = static_cast<window::MacOsWindow*>(_window)->GetScaleFactor();
+		float scaleFactor = static_cast<MacOsWindow*>(_window)->GetScaleFactor();
 
 		//_layer->setContentsScale(scaleFactor);
 

@@ -67,14 +67,14 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererMetal::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool RendererMetal::Init(Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
 		(void)physicalDeviceIdentifier; // TODO
 
 		_device = MTL::CreateSystemDefaultDevice();
 		_commandQueue = _device->newCommandQueue();
 
-		MetalPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<MetalPresentationSurface>(static_cast<window::MacOsWindow*>(mainWindow));
+		MetalPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<MetalPresentationSurface>(static_cast<MacOsWindow*>(mainWindow));
 		presentationSurface->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
 		_presentationSurfaces.PushBack(presentationSurface);
 

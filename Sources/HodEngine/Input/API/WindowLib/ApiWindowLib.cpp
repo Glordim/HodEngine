@@ -32,48 +32,48 @@ namespace hod::inline input
 	/// @brief
 	void ApiWindowLib::UpdateDeviceValues()
 	{
-		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(window::DisplayManager::GetInstance()->GetMainWindow());
+		DesktopWindow* window = static_cast<DesktopWindow*>(DisplayManager::GetInstance()->GetMainWindow());
 
 		window::Event event;
 		uint32_t      eventIndex = 0;
-		uint32_t      eventMask = 1 << static_cast<uint32_t>(window::EventType::KeyPressed) | 1 << static_cast<uint32_t>(window::EventType::KeyReleased) |
-		                     1 << static_cast<uint32_t>(window::EventType::MouseButtonDown) | 1 << static_cast<uint32_t>(window::EventType::MouseButtonUp) |
-		                     1 << static_cast<uint32_t>(window::EventType::MouseMoved) | 1 << static_cast<uint32_t>(window::EventType::MouseScroll);
+		uint32_t      eventMask = 1 << static_cast<uint32_t>(EventType::KeyPressed) | 1 << static_cast<uint32_t>(EventType::KeyReleased) |
+		                     1 << static_cast<uint32_t>(EventType::MouseButtonDown) | 1 << static_cast<uint32_t>(EventType::MouseButtonUp) |
+		                     1 << static_cast<uint32_t>(EventType::MouseMoved) | 1 << static_cast<uint32_t>(EventType::MouseScroll);
 		while (window->PollEvent(eventIndex, event, eventMask))
 		{
 			switch (event.type)
 			{
-				case window::EventType::KeyPressed:
+				case EventType::KeyPressed:
 				{
 					_keyboard.OnKeyPressed(event.data.key.scanCode);
 				}
 				break;
 
-				case window::EventType::KeyReleased:
+				case EventType::KeyReleased:
 				{
 					_keyboard.OnKeyReleased(event.data.key.scanCode);
 				}
 				break;
 
-				case window::EventType::MouseButtonDown:
+				case EventType::MouseButtonDown:
 				{
 					_mouse.OnButtonPressed(event.data.mouseButton.button);
 				}
 				break;
 
-				case window::EventType::MouseButtonUp:
+				case EventType::MouseButtonUp:
 				{
 					_mouse.OnButtonReleased(event.data.mouseButton.button);
 				}
 				break;
 
-				case window::EventType::MouseMoved:
+				case EventType::MouseMoved:
 				{
 					_mouse.OnButtonMoved(event.data.mouseMove.x, event.data.mouseMove.y);
 				}
 				break;
 
-				case window::EventType::MouseScroll:
+				case EventType::MouseScroll:
 				{
 					_mouse.OnButtonScroll(event.data.mouseScroll.value);
 				}

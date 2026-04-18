@@ -1,21 +1,20 @@
 #include "MacOsWindow.hpp"
 #include "HodEngine/Window/Pch.hpp"
 
-
 #include <Cocoa/Cocoa.h>
 
 @interface CustomView : NSView {
-  hod::window::MacOsWindow *window;
+  hod::MacOsWindow *window;
 }
 
 - (instancetype)initWithFrame:(NSRect)frameRect
-                       window:(hod::window::MacOsWindow *)cppWindow;
+                       window:(hod::MacOsWindow *)cppWindow;
 @end
 
 @implementation CustomView
 
 - (instancetype)initWithFrame:(NSRect)frameRect
-                       window:(hod::window::MacOsWindow *)cppWindow {
+                       window:(hod::MacOsWindow *)cppWindow {
   self = [super initWithFrame:frameRect];
   if (self) {
     window = cppWindow;
@@ -30,63 +29,62 @@
 }
 
 - (void)keyDown:(NSEvent *)event {
-  hod::window::MacOsWindowEventCaller::EmitKeyPressed(
-      window, hod::window::MacOSKeyCodeToScanCode([event keyCode]));
+  hod::MacOsWindowEventCaller::EmitKeyPressed(
+      window, hod::MacOSKeyCodeToScanCode([event keyCode]));
 }
 
 - (void)keyUp:(NSEvent *)event {
-  hod::window::MacOsWindowEventCaller::EmitKeyReleased(
-      window, hod::window::MacOSKeyCodeToScanCode([event keyCode]));
+  hod::MacOsWindowEventCaller::EmitKeyReleased(
+      window, hod::MacOSKeyCodeToScanCode([event keyCode]));
 }
 
 - (void)mouseDown:(NSEvent *)event {
-  hod::window::MacOsWindowEventCaller::EmitMouseButtonPressed(
-      window, hod::window::MouseButton::Left);
+  hod::MacOsWindowEventCaller::EmitMouseButtonPressed(window,
+                                                      hod::MouseButton::Left);
 }
 
 - (void)mouseUp:(NSEvent *)event {
-  hod::window::MacOsWindowEventCaller::EmitMouseButtonReleased(
-      window, hod::window::MouseButton::Left);
+  hod::MacOsWindowEventCaller::EmitMouseButtonReleased(window,
+                                                       hod::MouseButton::Left);
 }
 
 - (void)rightMouseDown:(NSEvent *)event {
-  hod::window::MacOsWindowEventCaller::EmitMouseButtonPressed(
-      window, hod::window::MouseButton::Right);
+  hod::MacOsWindowEventCaller::EmitMouseButtonPressed(window,
+                                                      hod::MouseButton::Right);
 }
 
 - (void)rightMouseUp:(NSEvent *)event {
-  hod::window::MacOsWindowEventCaller::EmitMouseButtonReleased(
-      window, hod::window::MouseButton::Right);
+  hod::MacOsWindowEventCaller::EmitMouseButtonReleased(window,
+                                                       hod::MouseButton::Right);
 }
 
 - (void)otherMouseDown:(NSEvent *)event {
-  hod::window::MacOsWindowEventCaller::EmitMouseButtonPressed(
-      window, hod::window::MouseButton::Middle);
+  hod::MacOsWindowEventCaller::EmitMouseButtonPressed(window,
+                                                      hod::MouseButton::Middle);
 }
 
 - (void)otherMouseUp:(NSEvent *)event {
-  hod::window::MacOsWindowEventCaller::EmitMouseButtonReleased(
-      window, hod::window::MouseButton::Middle);
+  hod::MacOsWindowEventCaller::EmitMouseButtonReleased(
+      window, hod::MouseButton::Middle);
 }
 
 - (void)mouseMoved:(NSEvent *)event {
   NSPoint location = [self convertPoint:[event locationInWindow] fromView:nil];
-  hod::window::MacOsWindowEventCaller::EmitMouseMoved(window, location.x,
-                                                      location.y);
+  hod::MacOsWindowEventCaller::EmitMouseMoved(window, location.x, location.y);
 }
 
 @end
 
 @interface MyWindowDelegate : NSObject <NSWindowDelegate> {
-  hod::window::MacOsWindow *_window;
+  hod::MacOsWindow *_window;
 }
 
-- (instancetype)initWithWindow:(hod::window::MacOsWindow *)initWindow;
+- (instancetype)initWithWindow:(hod::MacOsWindow *)initWindow;
 @end
 
 @implementation MyWindowDelegate
 
-- (instancetype)initWithWindow:(hod::window::MacOsWindow *)initWindow {
+- (instancetype)initWithWindow:(hod::MacOsWindow *)initWindow {
   self = [super init];
   if (self != nil) {
     _window = initWindow;
@@ -190,7 +188,7 @@ float MacOsWindow::GetScaleFactor() const {
 void MacOsWindow::ResizeContext() {
   NSRect contentRect = [_window contentRectForFrameRect:[_window frame]];
   NSSize contentSize = contentRect.size;
-  hod::window::MacOsWindowEventCaller::EmitResize(this, contentSize.width,
-                                                  contentSize.height);
+  hod::MacOsWindowEventCaller::EmitResize(this, contentSize.width,
+                                          contentSize.height);
 }
 } // namespace hod::inline window

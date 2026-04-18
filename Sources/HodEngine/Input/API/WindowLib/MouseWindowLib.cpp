@@ -29,13 +29,13 @@ namespace hod::inline input
 		return false;
 	}
 
-	void MouseWindowLib::OnButtonPressed(window::MouseButton button)
+	void MouseWindowLib::OnButtonPressed(MouseButton button)
 	{
 		EditNextState<MouseState>()->_buttons |= (1 << std::to_underlying(button));
 		MarkForCurrent();
 	}
 
-	void MouseWindowLib::OnButtonReleased(window::MouseButton button)
+	void MouseWindowLib::OnButtonReleased(MouseButton button)
 	{
 		EditNextState<MouseState>()->_buttons &= ~(1 << std::to_underlying(button));
 	}

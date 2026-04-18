@@ -10,9 +10,9 @@
 namespace hod::inline editor
 {
 	/// @brief
-	class HOD_EDITOR_API AssetBrowserWindow : public Window
+	class HOD_EDITOR_API AssetBrowserWindow : public imgui::Window
 	{
-		REFLECTED_CLASS(AssetBrowserWindow, Window)
+		REFLECTED_CLASS(AssetBrowserWindow, imgui::Window)
 
 	public:
 		AssetBrowserWindow();

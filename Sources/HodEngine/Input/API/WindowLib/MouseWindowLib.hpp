@@ -19,8 +19,8 @@ namespace hod::inline input
 		MouseWindowLib& operator=(const MouseWindowLib&) = delete;
 		MouseWindowLib& operator=(MouseWindowLib&&) = delete;
 
-		void OnButtonPressed(window::MouseButton button);
-		void OnButtonReleased(window::MouseButton button);
+		void OnButtonPressed(MouseButton button);
+		void OnButtonReleased(MouseButton button);
 		void OnButtonMoved(int x, int y);
 		void OnButtonScroll(int scroll);
 

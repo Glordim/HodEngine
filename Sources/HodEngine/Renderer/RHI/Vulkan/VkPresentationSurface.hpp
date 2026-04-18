@@ -25,7 +25,7 @@ namespace hod::renderer
 		static bool CollectDeviceExtensionRequirements(DeviceExtensionCollector& deviceExtensionCollector);
 
 	public:
-		VkPresentationSurface(window::Window* window);
+		VkPresentationSurface(Window* window);
 		~VkPresentationSurface() override;
 
 	public:
@@ -55,7 +55,7 @@ namespace hod::renderer
 		std::deque<RetiredSwapchain> _deletionQueue;
 
 	private:
-		bool CreateSurface(window::Window* window);
+		bool CreateSurface(Window* window);
 
 		bool CreateSwapChain(uint32_t width, uint32_t height);
 		void DestroySwapChain();

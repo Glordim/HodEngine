@@ -279,8 +279,8 @@ namespace hod::renderer
 			window::Event event;
 			uint32_t      eventIndex = 0;
 
-			window::Window* window = presentationSurface->GetWindow();
-			if (window->PollEvent(eventIndex, event, 1 << static_cast<uint8_t>(window::EventType::Resized)))
+			Window* window = presentationSurface->GetWindow();
+			if (window->PollEvent(eventIndex, event, 1 << static_cast<uint8_t>(EventType::Resized)))
 			{
 				presentationSurfaceToResize.PushBack(presentationSurface);
 			}
@@ -300,7 +300,7 @@ namespace hod::renderer
 		{
 			for (PresentationSurface* presentationSurface : presentationSurfaceToResize)
 			{
-				window::Window* window = presentationSurface->GetWindow();
+				Window* window = presentationSurface->GetWindow();
 				presentationSurface->Resize(window->GetWidth(), window->GetHeight());
 			}
 		}
@@ -320,7 +320,7 @@ namespace hod::renderer
 		_texturesToDestroy[_frameIndex].PushBack(texture);
 	}
 
-	PresentationSurface* Renderer::FindPresentationSurface(window::Window* window) const
+	PresentationSurface* Renderer::FindPresentationSurface(Window* window) const
 	{
 		for (PresentationSurface* presentationSurface : _presentationSurfaces)
 		{

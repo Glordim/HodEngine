@@ -284,7 +284,7 @@ namespace hod::inline game
 	{
 		renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 		renderView->Init();
-		renderView->Prepare(window::DisplayManager::GetInstance()->GetMainWindow());
+		renderView->Prepare(DisplayManager::GetInstance()->GetMainWindow());
 		Draw(*renderView);
 	}
 

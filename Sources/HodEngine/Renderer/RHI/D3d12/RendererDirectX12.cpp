@@ -17,7 +17,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererDirectX12::Init(window::Window* /*mainWindow*/, uint32_t /*physicalDeviceIdentifier*/)
+	bool RendererDirectX12::Init(Window* /*mainWindow*/, uint32_t /*physicalDeviceIdentifier*/)
 	{
 		bool enableValidationLayers = true;
 		if (enableValidationLayers == true)

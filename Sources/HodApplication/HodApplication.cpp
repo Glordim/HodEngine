@@ -74,7 +74,7 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	startupScene->ProcessActivation();
 
 	// todo remove
-	static_cast<hod::window::DesktopWindow*>(hod::GraphicApplication::GetInstance()->GetWindow())->SetVisible(true);
+	static_cast<hod::DesktopWindow*>(hod::GraphicApplication::GetInstance()->GetWindow())->SetVisible(true);
 	//
 
 	return true;

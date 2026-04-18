@@ -19,8 +19,8 @@ namespace hod::inline input
 		KeyboardWindowLib& operator=(const KeyboardWindowLib&) = delete;
 		KeyboardWindowLib& operator=(KeyboardWindowLib&&) = delete;
 
-		void OnKeyPressed(window::ScanCode scanCode);
-		void OnKeyReleased(window::ScanCode scanCode);
+		void OnKeyPressed(ScanCode scanCode);
+		void OnKeyReleased(ScanCode scanCode);
 
 	protected:
 		bool ApplyFeedback(Feedback& feedback) override;

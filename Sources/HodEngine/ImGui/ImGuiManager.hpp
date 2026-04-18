@@ -82,7 +82,7 @@ namespace hod::inline imgui
 	private:
 		bool CreateMaterial();
 
-		static ImGuiKey KeyToImGuiKey(window::Key key);
+		static ImGuiKey KeyToImGuiKey(Key key);
 
 	private:
 		MemberFunctionJob<ImGuiManager> _updateJob;

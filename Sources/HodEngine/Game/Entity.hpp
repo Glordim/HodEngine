@@ -44,7 +44,7 @@ namespace hod::inline game
 		};
 		REFLECTED_ENUM(HOD_GAME_API, InternalState);
 
-		using ChildrenChangedEvent = Event<>;
+		using ChildrenChangedEvent = core::Event<>;
 
 	public:
 		Entity(const std::string_view& name);

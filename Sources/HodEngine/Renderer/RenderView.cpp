@@ -52,7 +52,7 @@ namespace hod::renderer
 		return true;
 	}
 
-	bool RenderView::Prepare(window::Window* window)
+	bool RenderView::Prepare(Window* window)
 	{
 		return Prepare(Renderer::GetInstance()->FindPresentationSurface(window));
 	}

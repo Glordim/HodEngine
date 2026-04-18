@@ -74,7 +74,7 @@ namespace hod::inline editor
 				if (result.empty() == false)
 				{
 					Path path = result[0].c_str();
-					// Path path = window::GetOpenFileDialog();
+					// Path path = GetOpenFileDialog();
 					if (path.Empty() == false)
 					{
 						Editor::GetInstance()->OpenProject(path);
@@ -87,7 +87,7 @@ namespace hod::inline editor
 			ImGui::PopStyleColor(1);
 			if (newProjectButtonClicked == true)
 			{
-				Path path = window::GetFolderDialog();
+				Path path = GetFolderDialog();
 				if (path.Empty() == false)
 				{
 					Editor::GetInstance()->CreateProject(path);

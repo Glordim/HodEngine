@@ -11,7 +11,7 @@
 
 namespace hod::renderer
 {
-	PresentationSurface::PresentationSurface(window::Window* window)
+	PresentationSurface::PresentationSurface(Window* window)
 	: _window(window)
 	{
 	}
@@ -23,7 +23,7 @@ namespace hod::renderer
 		_semaphoresToSwapBuffer.push_back(semaphore);
 	}
 
-	window::Window* PresentationSurface::GetWindow() const
+	Window* PresentationSurface::GetWindow() const
 	{
 		return _window;
 	}

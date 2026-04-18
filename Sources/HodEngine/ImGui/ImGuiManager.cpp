@@ -179,7 +179,7 @@ namespace hod::inline imgui
 		/* Key::Menu */ ImGuiKey_Menu,
 	};
 
-	ImGuiKey ImGuiManager::KeyToImGuiKey(window::Key key)
+	ImGuiKey ImGuiManager::KeyToImGuiKey(Key key)
 	{
 		uint8_t index = std::to_underlying(key);
 		return (index < std::size(KeyToImGuiKeyTable)) ? KeyToImGuiKeyTable[index] : ImGuiKey_None;
@@ -335,7 +335,7 @@ namespace hod::inline imgui
 		icons_configProggyClean.OversampleV = 1;
 		icons_configProggyClean.PixelSnapH = true;
 #if defined(PLATFORM_MACOS)
-		window::MacOsWindow* macOsWindow = static_cast<window::MacOsWindow*>(window);
+		MacOsWindow* macOsWindow = static_cast<MacOsWindow*>(window);
 		icons_configProggyClean.RasterizerDensity = macOsWindow->GetScaleFactor();
 #endif
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF((void*)Roboto_Regular_ttf, Roboto_Regular_ttf_size, 16.0f, &icons_configProggyClean);
@@ -355,7 +355,7 @@ namespace hod::inline imgui
 
 		_mainWindow = window;
 #if defined(PLATFORM_MACOS)
-		ImGui_ImplOSX_Init(static_cast<window::MacOsWindow*>(_mainWindow)->GetNsView());
+		ImGui_ImplOSX_Init(static_cast<MacOsWindow*>(_mainWindow)->GetNsView());
 #endif
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
@@ -402,8 +402,8 @@ namespace hod::inline imgui
 		ImGuiIO& io = ImGui::GetIO();
 
 #if defined(PLATFORM_MACOS)
-		window::DesktopWindow* window = static_cast<window::DesktopWindow*>(_mainWindow);
-		ImGui_ImplOSX_NewFrame(static_cast<window::MacOsWindow*>(window)->GetNsView());
+		DesktopWindow* window = static_cast<DesktopWindow*>(_mainWindow);
+		ImGui_ImplOSX_NewFrame(static_cast<MacOsWindow*>(window)->GetNsView());
 		// To avoid having animations (ping, translation, etc.) that lag too much (and to keep them at a reasonable duration) in the editor, even when there is lag.
 		io.DeltaTime = std::min(io.DeltaTime, 1.0f / 30.0f);
 #else
@@ -419,27 +419,27 @@ namespace hod::inline imgui
 		uint32_t      eventIndex = 0;
 		while (_mainWindow->PollEvent(eventIndex, event))
 		{
-			if (event.type == window::EventType::MouseMoved)
+			if (event.type == EventType::MouseMoved)
 			{
 				io.AddMousePosEvent(event.data.mouseMove.x, event.data.mouseMove.y);
 			}
-			else if (event.type == window::EventType::MouseButtonDown)
+			else if (event.type == EventType::MouseButtonDown)
 			{
 				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), true);
 			}
-			else if (event.type == window::EventType::MouseButtonUp)
+			else if (event.type == EventType::MouseButtonUp)
 			{
 				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), false);
 			}
-			else if (event.type == window::EventType::MouseScroll)
+			else if (event.type == EventType::MouseScroll)
 			{
 				io.AddMouseWheelEvent(0.0f, event.data.mouseScroll.value);
 			}
-			else if (event.type == window::EventType::MouseHorizontalScroll)
+			else if (event.type == EventType::MouseHorizontalScroll)
 			{
 				io.AddMouseWheelEvent(event.data.mouseScroll.value, 0.0f);
 			}
-			else if (event.type == window::EventType::KeyPressed)
+			else if (event.type == EventType::KeyPressed)
 			{
 				ImGuiKey imguiKey = KeyToImGuiKey(event.data.key.key);
 				if (imguiKey == ImGuiKey_LeftShift)
@@ -456,7 +456,7 @@ namespace hod::inline imgui
 				}
 				io.AddKeyEvent(imguiKey, true);
 			}
-			else if (event.type == window::EventType::KeyReleased)
+			else if (event.type == EventType::KeyReleased)
 			{
 				ImGuiKey imguiKey = KeyToImGuiKey(event.data.key.key);
 				if (imguiKey == ImGuiKey_LeftShift)
@@ -473,15 +473,15 @@ namespace hod::inline imgui
 				}
 				io.AddKeyEvent(imguiKey, false);
 			}
-			else if (event.type == window::EventType::Char)
+			else if (event.type == EventType::Char)
 			{
 				io.AddInputCharacter(event.data.character.c);
 			}
-			else if (event.type == window::EventType::FocusGained)
+			else if (event.type == EventType::FocusGained)
 			{
 				io.AddFocusEvent(true);
 			}
-			else if (event.type == window::EventType::FocusLost)
+			else if (event.type == EventType::FocusLost)
 			{
 				io.AddFocusEvent(false);
 			}
@@ -505,20 +505,20 @@ namespace hod::inline imgui
 	#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
 		ImGuiMouseCursor mouseCursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
 
-		static window::DesktopDisplayManager::BuiltinCursor builtinCursorMapping[ImGuiMouseCursor_COUNT] = {
-			window::DesktopDisplayManager::BuiltinCursor::Arrow,    // ImGuiMouseCursor_Arrow
-			window::DesktopDisplayManager::BuiltinCursor::Ibeam,    // ImGuiMouseCursor_TextInput
-			window::DesktopDisplayManager::BuiltinCursor::SizeNS,   // ImGuiMouseCursor_ResizeAll
-			window::DesktopDisplayManager::BuiltinCursor::SizeNS,   // ImGuiMouseCursor_ResizeNS
-			window::DesktopDisplayManager::BuiltinCursor::SizeWE,   // ImGuiMouseCursor_ResizeEW
-			window::DesktopDisplayManager::BuiltinCursor::SizeNESW, // ImGuiMouseCursor_ResizeNESW
-			window::DesktopDisplayManager::BuiltinCursor::SizeNWSE, // ImGuiMouseCursor_ResizeNWSE
-			window::DesktopDisplayManager::BuiltinCursor::Hand,     // ImGuiMouseCursor_Hand
-			window::DesktopDisplayManager::BuiltinCursor::Wait,     // ImGuiMouseCursor_Wait
-			window::DesktopDisplayManager::BuiltinCursor::Wait,     // ImGuiMouseCursor_Progress
-			window::DesktopDisplayManager::BuiltinCursor::No,       // ImGuiMouseCursor_NotAllowed
+		static DesktopDisplayManager::BuiltinCursor builtinCursorMapping[ImGuiMouseCursor_COUNT] = {
+			DesktopDisplayManager::BuiltinCursor::Arrow,    // ImGuiMouseCursor_Arrow
+			DesktopDisplayManager::BuiltinCursor::Ibeam,    // ImGuiMouseCursor_TextInput
+			DesktopDisplayManager::BuiltinCursor::SizeNS,   // ImGuiMouseCursor_ResizeAll
+			DesktopDisplayManager::BuiltinCursor::SizeNS,   // ImGuiMouseCursor_ResizeNS
+			DesktopDisplayManager::BuiltinCursor::SizeWE,   // ImGuiMouseCursor_ResizeEW
+			DesktopDisplayManager::BuiltinCursor::SizeNESW, // ImGuiMouseCursor_ResizeNESW
+			DesktopDisplayManager::BuiltinCursor::SizeNWSE, // ImGuiMouseCursor_ResizeNWSE
+			DesktopDisplayManager::BuiltinCursor::Hand,     // ImGuiMouseCursor_Hand
+			DesktopDisplayManager::BuiltinCursor::Wait,     // ImGuiMouseCursor_Wait
+			DesktopDisplayManager::BuiltinCursor::Wait,     // ImGuiMouseCursor_Progress
+			DesktopDisplayManager::BuiltinCursor::No,       // ImGuiMouseCursor_NotAllowed
 		};
-		static_cast<window::DesktopWindow*>(_mainWindow)->SetCursor(window::DesktopDisplayManager::GetInstance()->GetBultinCursor(builtinCursorMapping[mouseCursor]));
+		static_cast<DesktopWindow*>(_mainWindow)->SetCursor(DesktopDisplayManager::GetInstance()->GetBultinCursor(builtinCursorMapping[mouseCursor]));
 	#endif
 #endif
 

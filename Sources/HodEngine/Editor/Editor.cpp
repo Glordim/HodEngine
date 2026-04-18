@@ -172,7 +172,7 @@ namespace hod::inline editor
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
 		{
-			window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
+			DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 			mainWindow->SetSize(800, 320);
 			mainWindow->CenterToScreen();
 			mainWindow->SetVisible(true);
@@ -493,7 +493,7 @@ namespace hod::inline editor
 		*/
 		// ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 
-		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
+		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->Maximize();
 		return true;
 	}
@@ -593,7 +593,7 @@ namespace hod::inline editor
 	bool Editor::SaveSceneAs()
 	{
 		/*
-		Path saveLocation = window::GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
+		Path saveLocation = GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
 		if (saveLocation.empty() == true)
 		{
 		    return false;
