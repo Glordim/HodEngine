@@ -33,6 +33,6 @@ namespace hod::editor
 	public:
 
 		virtual bool				OnDrawInspector(EditorReflectedObject &reflectedObject);
-		virtual bool				OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected);
+		virtual bool				OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected);
 	};
 }

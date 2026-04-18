@@ -74,9 +74,9 @@ namespace hod::ui
 				node->GetPropertyChangedEvent() += _onDrivenNodeChangedSlot;
 			}
 
-			for (const game::WeakEntity& weakChild : GetOwner()->GetChildren())
+			for (const WeakEntity& weakChild : GetOwner()->GetChildren())
 			{
-				game::Entity* child = weakChild.Lock();
+				Entity* child = weakChild.Lock();
 				Node*         childNode = child->GetComponent<Node>();
 				if (childNode == nullptr)
 				{

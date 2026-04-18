@@ -39,22 +39,22 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool MultiShapeCollider2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool MultiShapeCollider2dCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{
 			return false;
 		}
 
-		game::MultiShapeCollider2dComponent* multiShapeCollider2d = static_cast<game::MultiShapeCollider2dComponent*>(component);
+		MultiShapeCollider2dComponent* multiShapeCollider2d = static_cast<MultiShapeCollider2dComponent*>(component);
 		if (multiShapeCollider2d != nullptr)
 		{
-			game::Node2dComponent* node2D = multiShapeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
+			Node2dComponent* node2D = multiShapeCollider2d->GetOwner()->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Vector2 scale = node2D->GetScale();
 
-				for (const game::MultiShapeCollider2dComponent::BoxShape& boxShape : multiShapeCollider2d->GetBoxShapes())
+				for (const MultiShapeCollider2dComponent::BoxShape& boxShape : multiShapeCollider2d->GetBoxShapes())
 				{
 					std::array<Vector2, 5> vertices = {
 						Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f), Vector2(boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
@@ -70,7 +70,7 @@ namespace hod::editor
 					viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 				}
 
-				for (const game::MultiShapeCollider2dComponent::CircleShape& circleShape : multiShapeCollider2d->GetCircleShapes())
+				for (const MultiShapeCollider2dComponent::CircleShape& circleShape : multiShapeCollider2d->GetCircleShapes())
 				{
 					std::array<Vector2, 65> vertices;
 					GeometryGenerator::CircleShape<64>(vertices, circleShape._origin * scale, circleShape._radius * std::max(scale.GetX(), scale.GetY()));

@@ -47,6 +47,6 @@ namespace hod::editor
 
 	ReflectionDescriptor* SerializedDataImporter::GetResourceDescriptor() const
 	{
-		return &game::SerializedDataResource::GetReflectionDescriptor();
+		return &SerializedDataResource::GetReflectionDescriptor();
 	}
 }

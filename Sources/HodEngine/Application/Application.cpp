@@ -45,9 +45,9 @@ namespace hod::application
 
 		physics::Physics::CreatePhysicsInstance()->Init();
 
-		game::ComponentFactory::CreateInstance();
-		game::SerializedDataFactory::CreateInstance();
-		game::RegisterBuiltin();
+		ComponentFactory::CreateInstance();
+		SerializedDataFactory::CreateInstance();
+		RegisterBuiltin();
 
 		return true;
 	}
@@ -55,8 +55,8 @@ namespace hod::application
 	/// @brief
 	void Application::Terminate()
 	{
-		game::SerializedDataFactory::DestroyInstance();
-		game::ComponentFactory::DestroyInstance();
+		SerializedDataFactory::DestroyInstance();
+		ComponentFactory::DestroyInstance();
 
 		physics::Physics::DestroyPhysicsInstance();
 

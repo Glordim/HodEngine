@@ -93,7 +93,7 @@ namespace hod::editor
 	/// @brief
 	void InspectorWindow::DrawContent()
 	{
-		game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+		Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 		if (sceneSelection != nullptr)
 		{
 			DrawSceneSelection(sceneSelection);
@@ -102,15 +102,15 @@ namespace hod::editor
 
 	/// @brief
 	/// @param selection
-	void InspectorWindow::DrawSceneSelection(game::Entity* selection)
+	void InspectorWindow::DrawSceneSelection(Entity* selection)
 	{
-		Vector<game::PrefabUtility::PrefabOverride> overrides;
+		Vector<PrefabUtility::PrefabOverride> overrides;
 
-		std::shared_ptr<game::PrefabResource> prefabResource = selection->GetPrefabResource();
+		std::shared_ptr<PrefabResource> prefabResource = selection->GetPrefabResource();
 		if (prefabResource != nullptr)
 		{
 			// todo don't do that in play mode
-			game::PrefabUtility::CollectPrefabOverride(selection, overrides);
+			PrefabUtility::CollectPrefabOverride(selection, overrides);
 			//
 
 			if (ImGui::BeginChild("PrefabInstance", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle) == true)
@@ -178,13 +178,13 @@ namespace hod::editor
 			GetOwner()->MarkAssetAsDirty();
 		}
 
-		for (game::Component* component : selection->GetComponents())
+		for (Component* component : selection->GetComponents())
 		{
 			if (component != nullptr)
 			{
 				/*
 				bool hasOverride = false;
-				Vector<hod::game::PrefabUtility::EntityDiffs::Diff*> componentDiffs;
+				Vector<hod::PrefabUtility::EntityDiffs::Diff*> componentDiffs;
 				for (auto diff : entityDiffs._diffs)
 				{
 				    if (diff->_instance == componentLock.get())
@@ -319,7 +319,7 @@ namespace hod::editor
 					{
 						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
 
-						game::Component*      sourceComponent = game::PrefabUtility::GetCorrespondingComponent(component);
+						Component*      sourceComponent = PrefabUtility::GetCorrespondingComponent(component);
 						EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent, this);
 
 						bool                                  changed = false;
@@ -384,7 +384,7 @@ namespace hod::editor
 
 			if (ImGui::BeginChild("ComponentList", ImVec2(0.0f, 350.0f), ImGuiChildFlags_FrameStyle))
 			{
-				for (const auto& componentDescriptorPair : game::ComponentFactory::GetInstance()->GetAllDescriptors())
+				for (const auto& componentDescriptorPair : ComponentFactory::GetInstance()->GetAllDescriptors())
 				{
 					const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
 					const String&               displayName = componentDescriptor.GetDisplayName();

@@ -11,7 +11,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 /// @return 
 HOD_STARTUP_MODULE([[PROJECT_NAME]])
 {
-	hod::game::ComponentFactory* componentFactory = hod::game::ComponentFactory::GetInstance();
+	hod::ComponentFactory* componentFactory = hod::ComponentFactory::GetInstance();
 	componentFactory->Register<MyFirstComponent>();
 	return 0;
 }
@@ -20,7 +20,7 @@ HOD_STARTUP_MODULE([[PROJECT_NAME]])
 /// @return 
 HOD_SHUTDOWN_MODULE([[PROJECT_NAME]])
 {
-	hod::game::ComponentFactory* componentFactory = hod::game::ComponentFactory::GetInstance();
+	hod::ComponentFactory* componentFactory = hod::ComponentFactory::GetInstance();
 	componentFactory->Unregister<MyFirstComponent>();
 	return 0;
 }

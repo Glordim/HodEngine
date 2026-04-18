@@ -19,7 +19,7 @@ namespace hod::editor
 	/// @param view 
 	/// @param operation 
 	/// @return 
-	bool CustomComponentDrawer::OnDrawGizmo(game::Component* /*component*/, ViewportWindow& /*viewport*/, bool /*selected*/)
+	bool CustomComponentDrawer::OnDrawGizmo(Component* /*component*/, ViewportWindow& /*viewport*/, bool /*selected*/)
 	{
 		return false;
 	}

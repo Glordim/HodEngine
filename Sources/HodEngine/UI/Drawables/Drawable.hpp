@@ -12,9 +12,9 @@ namespace hod::ui
 	class Node;
 
 	/// @brief 
-	class HOD_UI_API Drawable : public game::Component
+	class HOD_UI_API Drawable : public Component
 	{
-		REFLECTED_CLASS(Drawable, game::Component)
+		REFLECTED_CLASS(Drawable, Component)
 
 	public:
 

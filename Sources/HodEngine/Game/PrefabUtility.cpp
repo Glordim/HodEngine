@@ -15,7 +15,7 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-namespace hod::inline game::PrefabUtility
+namespace hod::inline PrefabUtility
 {
 	bool CollectPrefabOverrideInternalRecursive(Entity* source, Entity* instance, const Vector<uint64_t>& target, Vector<PrefabOverride>& overrides);
 	void CollectEntityOverride(Entity* sourceEntity, Entity* instanceEntity, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path,
@@ -264,10 +264,10 @@ namespace hod::inline game::PrefabUtility
 	/// @return
 	Component* GetCorrespondingComponent(Component* component)
 	{
-		game::Entity* entity = component->GetOwner();
+		Entity* entity = component->GetOwner();
 		if (entity != nullptr)
 		{
-			game::Entity* prefabInstanceEntity = GetPrefabInstance(entity);
+			Entity* prefabInstanceEntity = GetPrefabInstance(entity);
 			if (prefabInstanceEntity != nullptr)
 			{
 				String  pathToComponent = GetRelativePath(prefabInstanceEntity, entity);

@@ -13,7 +13,7 @@ namespace hod::ui
 
 	void Drawable::OnEnable()
 	{
-		game::Entity* owner = GetOwner();
+		Entity* owner = GetOwner();
 		if (owner != nullptr)
 		{
 			_node = owner->GetComponent<Node>();

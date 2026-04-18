@@ -3,7 +3,7 @@
 
 #include <HodEngine/Game/Component.hpp>
 
-class [[API]] MyFirstComponent : public hod::game::Component
+class [[API]] MyFirstComponent : public hod::Component
 {
-	REFLECTED_CLASS(MyFirstComponent, hod::game::Component);
+	REFLECTED_CLASS(MyFirstComponent, hod::Component);
 };

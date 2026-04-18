@@ -33,14 +33,14 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool Node2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool Node2dCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{
 			return false;
 		}
 
-		game::Node2dComponent* node2D = static_cast<game::Node2dComponent*>(component);
+		Node2dComponent* node2D = static_cast<Node2dComponent*>(component);
 		if (node2D == nullptr)
 		{
 			return false;

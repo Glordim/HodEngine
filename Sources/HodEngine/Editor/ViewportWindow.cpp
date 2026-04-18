@@ -110,7 +110,7 @@ namespace hod::editor
 			ImGui::SameLine();
 			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
 			{
-				game::World*          world = GetOwner<EntityEditorTab>()->GetWorld();
+				World*          world = GetOwner<EntityEditorTab>()->GetWorld();
 				physics::World*       physicsWorld = world->GetPhysicsWorld();
 				physics::DebugDrawer* physicsDebugDrawer = physicsWorld->GetDebugDrawer();
 				uint32_t              flags = physicsDebugDrawer->GetFlags();
@@ -168,7 +168,7 @@ namespace hod::editor
 		}
 
 		/*
-		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+		World* world = GetOwner<EntityEditorTab>()->GetWorld();
 		if (_selectedTab != nullptr)
 		{
 		    world->RemoveScene(_selectedTab->_scene);
@@ -222,8 +222,8 @@ namespace hod::editor
 						}
 						else
 						{
-							game::World*  world = GetOwner<EntityEditorTab>()->GetWorld();
-							game::Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
+							World*  world = GetOwner<EntityEditorTab>()->GetWorld();
+							Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
 							if (pickedEntity != nullptr)
 							{
 								GetOwner<EntityEditorTab>()->SetEntitySelection(pickedEntity);
@@ -290,7 +290,7 @@ namespace hod::editor
 
 				renderView->SetupCamera(_projection, _view, viewport);
 
-				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+				World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
@@ -301,12 +301,12 @@ namespace hod::editor
 					world->Draw(*renderView);
 				}
 
-				game::Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
-				for (game::Scene* scene : world->GetScenes())
+				Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+				for (Scene* scene : world->GetScenes())
 				{
 					for (const auto& entityPair : scene->GetEntities())
 					{
-						for (game::Component* component : entityPair.second->GetComponents())
+						for (Component* component : entityPair.second->GetComponents())
 						{
 							if (component->IsEnabledInHierarchy())
 							{
@@ -340,7 +340,7 @@ namespace hod::editor
 			}
 			else
 			{
-				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+				World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
@@ -382,7 +382,7 @@ namespace hod::editor
 							PrefabImporter prefabImporter;
 							if (asset->GetMeta()._importerType == prefabImporter.GetTypeName())
 							{
-								std::shared_ptr<game::PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<game::PrefabResource>(asset->GetUid());
+								std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(asset->GetUid());
 
 								GetOwner<EntityEditorTab>()->GetCurrentScene()->Instantiate(prefabResource);
 

@@ -39,17 +39,17 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool CapsuleCollider2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool CapsuleCollider2dCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{
 			return false;
 		}
 
-		game::CapsuleCollider2dComponent* capsuleCollider2d = static_cast<game::CapsuleCollider2dComponent*>(component);
+		CapsuleCollider2dComponent* capsuleCollider2d = static_cast<CapsuleCollider2dComponent*>(component);
 		if (capsuleCollider2d != nullptr)
 		{
-			game::Node2dComponent* node2D = capsuleCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
+			Node2dComponent* node2D = capsuleCollider2d->GetOwner()->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Vector2 scale = node2D->GetScale();

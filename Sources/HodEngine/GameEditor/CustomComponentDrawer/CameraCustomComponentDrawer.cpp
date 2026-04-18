@@ -38,17 +38,17 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool CameraCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool CameraCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{
 			return false;
 		}
 
-		game::CameraComponent* cameraComponent = static_cast<game::CameraComponent*>(component);
+		CameraComponent* cameraComponent = static_cast<CameraComponent*>(component);
 		if (cameraComponent != nullptr)
 		{
-			game::Node2dComponent* node2D = cameraComponent->GetOwner()->GetComponent<game::Node2dComponent>();
+			Node2dComponent* node2D = cameraComponent->GetOwner()->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				cameraComponent->SetAspect((float)viewport.GetPlayRatio().GetX() / (float)viewport.GetPlayRatio().GetY());

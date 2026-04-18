@@ -32,6 +32,6 @@ namespace hod::editor
 
 		bool					Draw(EditorReflectedProperty& editorReflectedProperty) override;
 
-		static bool				Draw(game::ZOrder& value);
+		static bool				Draw(ZOrder& value);
 	};
 }

@@ -15,21 +15,21 @@ namespace hod::editor
 			const SerializedDataAsset* serializedDataAsset = static_cast<const SerializedDataAsset*>(instance);
 
 			documentNode.AddChild("Type").SetUInt64(serializedDataAsset->_data->GetReflectionDescriptorV().GetType());
-			return Serializer::Serialize(static_cast<const game::SerializedData*>(serializedDataAsset->_data), documentNode.AddChild("Data"));
+			return Serializer::Serialize(static_cast<const SerializedData*>(serializedDataAsset->_data), documentNode.AddChild("Data"));
 		},
 		[](void* instance, const DocumentNode& documentNode)
 		{
 			SerializedDataAsset* serializedDataAsset = static_cast<SerializedDataAsset*>(instance);
 
 			RttiType RttiType = documentNode.GetChild("Type")->GetUInt64();
-			ReflectionDescriptor* reflectionDescriptor = game::SerializedDataFactory::GetInstance()->FindReflectionDescriptor(RttiType);
+			ReflectionDescriptor* reflectionDescriptor = SerializedDataFactory::GetInstance()->FindReflectionDescriptor(RttiType);
 			DefaultAllocator::GetInstance().Delete(serializedDataAsset->_data);
-			serializedDataAsset->_data = static_cast<game::SerializedData*>(reflectionDescriptor->CreateInstance());
-			return Serializer::Deserialize(*static_cast<game::SerializedData*>(serializedDataAsset->_data), *documentNode.GetChild("Data"));
+			serializedDataAsset->_data = static_cast<SerializedData*>(reflectionDescriptor->CreateInstance());
+			return Serializer::Deserialize(*static_cast<SerializedData*>(serializedDataAsset->_data), *documentNode.GetChild("Data"));
 		});
 	}
 
-	SerializedDataAsset::SerializedDataAsset(game::SerializedData* serializedData)
+	SerializedDataAsset::SerializedDataAsset(SerializedData* serializedData)
 	: _data(serializedData)
 	{
 		
@@ -42,7 +42,7 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	game::SerializedData* SerializedDataAsset::GetData()
+	SerializedData* SerializedDataAsset::GetData()
 	{
 		return _data;
 	}

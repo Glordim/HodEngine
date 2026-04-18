@@ -128,17 +128,17 @@ namespace hod::application
 			return false;
 		}
 
-		game::ComponentFactory::CreateInstance();
-		game::SerializedDataFactory::CreateInstance();
-		game::RegisterBuiltin();
+		ComponentFactory::CreateInstance();
+		SerializedDataFactory::CreateInstance();
+		RegisterBuiltin();
 
-		game::World::CreateInstance()->Init();
+		World::CreateInstance()->Init();
 
 		hod::Document           document;
 		hod::DocumentReaderJson reader;
 		reader.Read(document, "Boot.json");
 
-		hod::game::BootInfo bootInfo;
+		hod::BootInfo bootInfo;
 		hod::Serializer::Deserialize(bootInfo, document.GetRootNode());
 
 		hod::ResourceManager::GetInstance()->SetResourceDirectory("Datas");
@@ -149,9 +149,9 @@ namespace hod::application
 			return false;
 		}
 
-		std::shared_ptr<hod::game::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::game::SceneResource>(bootInfo._startupScene);
-		hod::game::World::GetInstance()->AddScene(&sceneResource->GetScene());
-		hod::game::World::GetInstance()->SetEditorPlaying(true);
+		std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(bootInfo._startupScene);
+		hod::World::GetInstance()->AddScene(&sceneResource->GetScene());
+		hod::World::GetInstance()->SetEditorPlaying(true);
 
 		return true;
 	}

@@ -17,13 +17,13 @@ namespace hod::editor
 	public:
 
 				SerializedDataAsset() = default;
-				SerializedDataAsset(game::SerializedData* serializedData);
+				SerializedDataAsset(SerializedData* serializedData);
 		virtual	~SerializedDataAsset();
 
-		game::SerializedData*	GetData();
+		SerializedData*	GetData();
 
 	private:
 
-		game::SerializedData*	_data = nullptr;
+		SerializedData*	_data = nullptr;
 	};
 }

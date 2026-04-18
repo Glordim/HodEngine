@@ -34,11 +34,11 @@ namespace hod::editor
 
 		void	ReloadScene();
 
-		game::World*	GetWorld() const;
-		game::Scene*	GetCurrentScene() const;
+		World*	GetWorld() const;
+		Scene*	GetCurrentScene() const;
 
-		void			SetEntitySelection(game::Entity* selection);
-		game::Entity*	GetEntitySelection() const;
+		void			SetEntitySelection(Entity* selection);
+		Entity*	GetEntitySelection() const;
 
 	protected:
 	
@@ -46,16 +46,16 @@ namespace hod::editor
 		
 	protected:
 
-		game::World*				_world = nullptr;
+		World*				_world = nullptr;
 
-		game::World*				_editingWorld = nullptr;
-		game::World*				_playingWorld = nullptr;
+		World*				_editingWorld = nullptr;
+		World*				_playingWorld = nullptr;
 
-		game::Scene*				_scene = nullptr;
+		Scene*				_scene = nullptr;
 
 		bool						_playing = false;
 		bool						_paused = false;
 
-		WeakPtr<game::Entity>		_entitySelection;
+		WeakPtr<Entity>		_entitySelection;
 	};
 }

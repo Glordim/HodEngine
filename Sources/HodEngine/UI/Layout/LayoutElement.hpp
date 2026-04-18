@@ -8,9 +8,9 @@
 namespace hod::ui
 {
 	/// @brief 
-	class HOD_UI_API LayoutElement : public game::Component
+	class HOD_UI_API LayoutElement : public Component
 	{
-		REFLECTED_CLASS(LayoutElement, game::Component)
+		REFLECTED_CLASS(LayoutElement, Component)
 
 	public:
 

@@ -9,9 +9,9 @@
 
 namespace hod::ui
 {
-	class HOD_UI_API InteractableVisual : public game::Component
+	class HOD_UI_API InteractableVisual : public Component
 	{
-		REFLECTED_CLASS(InteractableVisual, game::Component)
+		REFLECTED_CLASS(InteractableVisual, Component)
 
 	public:
 
@@ -19,7 +19,7 @@ namespace hod::ui
 
 	private:
 
-		game::WeakComponent<Drawable>	_target;
+		WeakComponent<Drawable>	_target;
 
 		Color	_normalColor;
 		Color	_highlightedColor;

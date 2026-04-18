@@ -542,7 +542,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool NodeCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool NodeCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
 		ui::Node* node = static_cast<ui::Node*>(component);
 		if (node == nullptr)

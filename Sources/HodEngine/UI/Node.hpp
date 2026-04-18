@@ -16,9 +16,9 @@ namespace hod::inline game
 namespace hod::ui
 {
 	/// @brief 
-	class HOD_UI_API Node : public game::Component
+	class HOD_UI_API Node : public Component
 	{
-		REFLECTED_CLASS(Node, game::Component)
+		REFLECTED_CLASS(Node, Component)
 
 	public:
 
@@ -56,7 +56,7 @@ namespace hod::ui
 		void						MarkZOrderAsDirty();
 		void						MarkLocalMatrixAsDirty();
 		void						MarkCanvasMatrixAsDirty();
-		void						MarkCanvasMatrixAsDirtyOnAllSubGameObject(const game::Entity* gameObject);
+		void						MarkCanvasMatrixAsDirtyOnAllSubGameObject(const Entity* gameObject);
 
 		const Vector2&				ComputeSize();
 		void						ComputeSize(Node* parent, Vector2& size);

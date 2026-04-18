@@ -39,17 +39,17 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool EdgeCollider2dCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool EdgeCollider2dCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{
 			return false;
 		}
 
-		game::EdgeCollider2dComponent* edgeCollider2d = static_cast<game::EdgeCollider2dComponent*>(component);
+		EdgeCollider2dComponent* edgeCollider2d = static_cast<EdgeCollider2dComponent*>(component);
 		if (edgeCollider2d != nullptr)
 		{
-			game::Node2dComponent* node2D = edgeCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
+			Node2dComponent* node2D = edgeCollider2d->GetOwner()->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				std::array<Vector2, 2> vertices = {

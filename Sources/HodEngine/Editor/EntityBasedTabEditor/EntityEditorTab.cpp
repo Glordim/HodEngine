@@ -29,9 +29,9 @@ namespace hod::editor
 	EntityEditorTab::EntityEditorTab(std::shared_ptr<Asset> asset, const char* icon)
 	: EditorTab(asset, icon)
 	{
-		_scene = DefaultAllocator::GetInstance().New<game::Scene>();
+		_scene = DefaultAllocator::GetInstance().New<Scene>();
 
-		_editingWorld = DefaultAllocator::GetInstance().New<game::World>();
+		_editingWorld = DefaultAllocator::GetInstance().New<World>();
 		_editingWorld->Init();
 		_editingWorld->DisableDrawJob();
 		_editingWorld->AddScene(_scene);
@@ -108,14 +108,14 @@ namespace hod::editor
 
 	/// @brief 
 	/// @return 
-	game::World* EntityEditorTab::GetWorld() const
+	World* EntityEditorTab::GetWorld() const
 	{
 		return _world;
 	}
 
 	/// @brief 
 	/// @return 
-	game::Scene* EntityEditorTab::GetCurrentScene() const
+	Scene* EntityEditorTab::GetCurrentScene() const
 	{
 		return _scene;
 	}
@@ -209,14 +209,14 @@ namespace hod::editor
 
 	/// @brief 
 	/// @param asset 
-	void EntityEditorTab::SetEntitySelection(game::Entity* selection)
+	void EntityEditorTab::SetEntitySelection(Entity* selection)
 	{
 		_entitySelection = selection;
 	}
 
 	/// @brief 
 	/// @return 
-	game::Entity* EntityEditorTab::GetEntitySelection() const
+	Entity* EntityEditorTab::GetEntitySelection() const
 	{
 		return _entitySelection.Get();
 	}

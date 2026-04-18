@@ -45,7 +45,7 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	hod::DocumentReaderJson reader;
 	reader.Read(document, buildPath / "Boot.json");
 
-	hod::game::BootInfo bootInfo;
+	hod::BootInfo bootInfo;
 	hod::Serializer::Deserialize(bootInfo, document.GetRootNode());
 
 	hod::ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
@@ -55,19 +55,19 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 		return false;
 	}
 
-	std::shared_ptr<hod::game::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::game::SceneResource>(bootInfo._startupScene);
+	std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(bootInfo._startupScene);
 	if (sceneResource == nullptr)
 	{
 		return false;
 	}
 
-	hod::game::Scene* startupScene = sceneResource->CreateScene();
+	hod::Scene* startupScene = sceneResource->CreateScene();
 	if (startupScene == nullptr)
 	{
 		return false;
 	}
 
-	_world = hod::DefaultAllocator::GetInstance().New<hod::game::World>();
+	_world = hod::DefaultAllocator::GetInstance().New<hod::World>();
 	_world->Init();
 	_world->AddScene(startupScene);
 	_world->SetEditorPlaying(true);

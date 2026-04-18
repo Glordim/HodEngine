@@ -94,9 +94,9 @@ namespace hod::application
 			return false;
 		}
 
-		game::ComponentFactory::CreateInstance();
-		game::SerializedDataFactory::CreateInstance();
-		game::RegisterBuiltin();
+		ComponentFactory::CreateInstance();
+		SerializedDataFactory::CreateInstance();
+		RegisterBuiltin();
 
 		ui::RegisterBuiltin();
 
@@ -106,8 +106,8 @@ namespace hod::application
 	/// @brief
 	void GraphicApplication::Terminate()
 	{
-		game::SerializedDataFactory::DestroyInstance();
-		game::ComponentFactory::DestroyInstance();
+		SerializedDataFactory::DestroyInstance();
+		ComponentFactory::DestroyInstance();
 		ImGuiManager::DestroyInstance();
 		DefaultAllocator::GetInstance().Delete(_window);
 		renderer::Renderer::GetInstance()->Clear();

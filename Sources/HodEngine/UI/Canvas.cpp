@@ -53,12 +53,12 @@ namespace hod::ui
 		return _renderMode;
 	}
 
-	void Canvas::SetCamera(game::CameraComponent* camera)
+	void Canvas::SetCamera(CameraComponent* camera)
 	{
 		_camera = camera;
 	}
 
-	game::CameraComponent* Canvas::GetCamera() const
+	CameraComponent* Canvas::GetCamera() const
 	{
 		return _camera.Get();
 	}
@@ -132,7 +132,7 @@ namespace hod::ui
 			rootNodeSize.SetY(resolution.GetY() / _scaleFactor);
 		}
 
-		game::World* world = GetOwner()->GetScene()->GetWorld();
+		World* world = GetOwner()->GetScene()->GetWorld();
 		if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 		{
 			_rootNode->SetDeltaSize(rootNodeSize);
@@ -151,7 +151,7 @@ namespace hod::ui
 		{
 			RecomputeRootNodeSize(renderView.GetRenderResolution());
 
-			game::World* world = GetOwner()->GetScene()->GetWorld();
+			World* world = GetOwner()->GetScene()->GetWorld();
 			if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 			{
 				_renderModeMatrix = Matrix4::Scale(Vector2::One * _scaleFactor);
@@ -189,7 +189,7 @@ namespace hod::ui
 				drawable->PushRenderCommand(renderView, renderQueueType);
 			}
 
-			for (const game::WeakEntity& child : node->GetOwner()->GetChildren())
+			for (const WeakEntity& child : node->GetOwner()->GetChildren())
 			{
 				Node* childNode = child.Lock()->GetComponent<Node>();
 				drawRecursively(childNode, renderView, renderQueueType, zOrder);

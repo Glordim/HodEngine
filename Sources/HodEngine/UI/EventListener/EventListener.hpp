@@ -17,9 +17,9 @@ namespace hod::ui
 	struct DropEvent;
 	struct NavigationEvent;
 
-	class HOD_UI_API EventListener : public game::Component
+	class HOD_UI_API EventListener : public Component
 	{
-		REFLECTED_CLASS(EventListener, game::Component)
+		REFLECTED_CLASS(EventListener, Component)
 
 	public:
 

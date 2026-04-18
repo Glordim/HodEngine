@@ -65,7 +65,7 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool CanvasCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool CanvasCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
 		static_cast<ui::Canvas*>(component)->DoRebuild();
 

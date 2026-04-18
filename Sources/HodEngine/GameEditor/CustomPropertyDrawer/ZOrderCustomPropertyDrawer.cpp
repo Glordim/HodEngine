@@ -22,7 +22,7 @@ namespace hod::editor
 		//changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		//ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		game::ZOrder& value = *editorReflectedProperty.GetObject<game::ZOrder>();
+		ZOrder& value = *editorReflectedProperty.GetObject<ZOrder>();
 		changed |= ZOrderCustomPropertyDrawer::Draw(value);
 		/*
 		if (changed == true)
@@ -36,7 +36,7 @@ namespace hod::editor
 	/// @brief 
 	/// @param value 
 	/// @return 
-	bool ZOrderCustomPropertyDrawer::Draw(game::ZOrder& value)
+	bool ZOrderCustomPropertyDrawer::Draw(ZOrder& value)
 	{
 		bool changed = false;
 		uint16_t layer = value.GetLayer();

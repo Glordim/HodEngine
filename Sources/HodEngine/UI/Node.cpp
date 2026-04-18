@@ -22,10 +22,10 @@ namespace hod::ui
 	/// @brief
 	void Node::OnEnable()
 	{
-		game::Entity* owner = GetOwner();
+		Entity* owner = GetOwner();
 		if (owner != nullptr)
 		{
-			game::Entity* parentEntity = owner->GetParent().Lock();
+			Entity* parentEntity = owner->GetParent().Lock();
 			if (parentEntity != nullptr)
 			{
 				_parent = parentEntity->GetComponent<Node>();
@@ -182,7 +182,7 @@ namespace hod::ui
 
 		Vector2 half(0.5f, 0.5f);
 
-		game::Entity* entity = GetOwner();
+		Entity* entity = GetOwner();
 		for (uint32_t childIndex = 0; childIndex < entity->GetChildren().Size(); ++childIndex)
 		{
 			Node* childNode = entity->GetChildren()[childIndex].Lock()->GetComponent<Node>();
@@ -210,7 +210,7 @@ namespace hod::ui
 		if ((_dirtyFlags & (uint8_t)DirtyFlag::CanvasMatrix) == 0)
 		{
 			_dirtyFlags |= (uint8_t)DirtyFlag::CanvasMatrix;
-			game::Entity* entity = GetOwner();
+			Entity* entity = GetOwner();
 			for (uint32_t childIndex = 0; childIndex < entity->GetChildren().Size(); ++childIndex)
 			{
 				Node* childNode = entity->GetChildren()[childIndex].Lock()->GetComponent<Node>();

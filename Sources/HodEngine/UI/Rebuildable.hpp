@@ -7,9 +7,9 @@
 
 namespace hod::ui
 {
-	class HOD_UI_API Rebuildable : public game::Component
+	class HOD_UI_API Rebuildable : public Component
 	{
-		REFLECTED_CLASS(Rebuildable, game::Component)
+		REFLECTED_CLASS(Rebuildable, Component)
 
 	public:
 

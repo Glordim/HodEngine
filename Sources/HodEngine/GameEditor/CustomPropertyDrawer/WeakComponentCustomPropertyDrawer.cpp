@@ -44,7 +44,7 @@ namespace hod::editor
 
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
-		game::WeakComponentBase* value = editorReflectedProperty.GetObject<game::WeakComponentBase>();
+		WeakComponentBase* value = editorReflectedProperty.GetObject<WeakComponentBase>();
 
 		ImGui::PushID(value);
 
@@ -79,13 +79,13 @@ namespace hod::editor
 			}
 
 			EntityEditorTab* entityEditorTab = editorReflectedProperty.GetParent()->GetEditorTabWindow()->GetOwner<EntityEditorTab>();
-			for (game::Scene* scene : entityEditorTab->GetWorld()->GetScenes())
+			for (Scene* scene : entityEditorTab->GetWorld()->GetScenes())
 			{
 				for (const auto& entityPair : scene->GetEntities())
 				{
 					if (inputTextBuffer[0] == '\0' || entityPair.second->GetName().Find(inputTextBuffer) != String::Npos)
 					{
-						game::Component* component = entityPair.second->GetComponent(*value->GetComponentDescriptor());
+						Component* component = entityPair.second->GetComponent(*value->GetComponentDescriptor());
 
 						ImGui::PushID(component);
 						if (component != nullptr && ImGui::Button(entityPair.second->GetName().CStr(), ImVec2(-1.0f, 0.0f)))

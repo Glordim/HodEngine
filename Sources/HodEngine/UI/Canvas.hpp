@@ -18,9 +18,9 @@ namespace hod::ui
 	class Rebuildable;
 
 	/// @brief
-	class HOD_UI_API Canvas : public game::RendererComponent
+	class HOD_UI_API Canvas : public RendererComponent
 	{
-		REFLECTED_CLASS(Canvas, game::RendererComponent)
+		REFLECTED_CLASS(Canvas, RendererComponent)
 
 	public:
 		enum class RenderMode
@@ -46,8 +46,8 @@ namespace hod::ui
 		void       SetRenderMode(RenderMode renderMode);
 		RenderMode GetRenderMode() const;
 
-		void                   SetCamera(game::CameraComponent* camera);
-		game::CameraComponent* GetCamera() const;
+		void                   SetCamera(CameraComponent* camera);
+		CameraComponent* GetCamera() const;
 
 		ScaleMode GetScaleMode() const;
 		void      SetScaleMode(ScaleMode scaleMode);
@@ -68,7 +68,7 @@ namespace hod::ui
 
 	private:
 		RenderMode                     _renderMode = RenderMode::Camera;
-		WeakPtr<game::CameraComponent> _camera;
+		WeakPtr<CameraComponent> _camera;
 
 		WeakPtr<Node> _rootNode;
 

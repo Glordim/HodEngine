@@ -569,13 +569,13 @@ namespace hod::editor
 	{
 		Document worldDocument;
 
-		game::World* world = game::World::GetInstance();
+		World* world = World::GetInstance();
 		if (world->SaveToDocument(worldDocument.GetRootNode()) == false)
 		{
 		    return false;
 		}
 
-		game::Scene scene;
+		Scene scene;
 		if (scene.DeserializeFromDocument(worldDocument.GetRootNode()) == false)
 		{
 		    return false;
@@ -601,13 +601,13 @@ namespace hod::editor
 
 		Document worldDocument;
 
-		game::World* world = game::World::GetInstance();
+		World* world = World::GetInstance();
 		if (world->SaveToDocument(worldDocument.GetRootNode()) == false)
 		{
 		    return false;
 		}
 
-		game::Scene scene;
+		Scene scene;
 		if (scene.DeserializeFromDocument(worldDocument.GetRootNode()) == false)
 		{
 		    return false;
@@ -672,7 +672,7 @@ namespace hod::editor
 	        return;
 	    }
 
-	    game::World* world = game::World::GetInstance();
+	    World* world = World::GetInstance();
 
 	    world->SetEditorPlaying(true);
 
@@ -690,7 +690,7 @@ namespace hod::editor
 	    _playing = false;
 	    _paused = false;
 
-	    game::World* world = game::World::GetInstance();
+	    World* world = World::GetInstance();
 	    world->SetEditorPlaying(_playing);
 	    world->SetEditorPaused(_paused);
 	    world->Clear();
@@ -707,7 +707,7 @@ namespace hod::editor
 
 	    _paused = true;
 
-	    game::World::GetInstance()->SetEditorPaused(_paused);
+	    World::GetInstance()->SetEditorPaused(_paused);
 	}
 
 	/// @brief
@@ -720,14 +720,14 @@ namespace hod::editor
 
 	    _paused = false;
 
-	    game::World::GetInstance()->SetEditorPaused(_paused);
+	    World::GetInstance()->SetEditorPaused(_paused);
 	}
 
 	/// @brief
 	void Editor::PlayNextFrame()
 	{
 	    Pause();
-	    game::World::GetInstance()->EditorNextFrame();
+	    World::GetInstance()->EditorNextFrame();
 	}
 
 	/// @brief
@@ -769,7 +769,7 @@ namespace hod::editor
 			Path buildPath = Project::GetInstance()->GetBuildsDirPath() / "Latest";
 			FileSystem::GetInstance()->CreateDirectories(buildPath);
 
-			game::BootInfo bootInfo;
+			BootInfo bootInfo;
 			bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
 			bootInfo._gameModule = Project::GetInstance()->GetName();
 

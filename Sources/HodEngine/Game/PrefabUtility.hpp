@@ -12,7 +12,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace hod::inline game::PrefabUtility
+namespace hod::inline PrefabUtility
 {
 	struct HOD_GAME_API PrefabOverride
 	{

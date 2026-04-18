@@ -528,10 +528,10 @@ namespace hod::editor
 				if (payload != nullptr)
 				{
 					EntityDragAndDropPayload* payloadData = static_cast<EntityDragAndDropPayload*>(payload->Data);
-					game::Entity*             dropEntityLock = payloadData->_entity;
+					Entity*             dropEntityLock = payloadData->_entity;
 					if (dropEntityLock != nullptr)
 					{
-						std::shared_ptr<game::PrefabResource> prefabResource = dropEntityLock->GetPrefabResource();
+						std::shared_ptr<PrefabResource> prefabResource = dropEntityLock->GetPrefabResource();
 						if (prefabResource != nullptr)
 						{
 							dropEntityLock->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
@@ -540,28 +540,28 @@ namespace hod::editor
 						Document prefabDocument;
 						prefabDocument.GetRootNode().AddChild("Name").SetString(dropEntityLock->GetName());
 						uint64_t              nextLocalId = 1; // todo
-						game::SceneSerializer sceneSerializer;
+						SceneSerializer sceneSerializer;
 						if (sceneSerializer.SerializeEntity(dropEntityLock, true, prefabDocument.GetRootNode().AddChild("Entities"), nextLocalId) == false)
 						{
 							// todo output
 						}
 						else
 						{
-							game::Prefab prefab;
+							Prefab prefab;
 							if (Serializer::Deserialize(prefab, prefabDocument.GetRootNode()) == false)
 							{
 								// todo output
 							}
 							else
 							{
-								Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path /
+								Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path /
 								                                                                                            (dropEntityLock->GetName() + ".asset").CStr());
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
 									newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
 									AssetDatabase::GetInstance()->Import(newAssetPath);
-									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<game::PrefabResource>(newAssetNode->_asset->GetUid()));
+									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<PrefabResource>(newAssetNode->_asset->GetUid()));
 									payloadData->_hierarchyWindow->GetOwner()->MarkAssetAsDirty();
 								}
 								else
@@ -610,11 +610,11 @@ namespace hod::editor
 				{
 					if (ImGui::MenuItem("Prefab") == true)
 					{
-						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
+						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
 						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 						if (newAssetNode != nullptr)
 						{
-							game::Prefab prefab;
+							Prefab prefab;
 							prefab.CreateEntity("Prefab");
 							newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
 							AssetDatabase::GetInstance()->Import(newAssetPath);
@@ -625,7 +625,7 @@ namespace hod::editor
 					}
 					if (ImGui::MenuItem("Scene") == true)
 					{
-						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<game::Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
+						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
 						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 						if (newAssetNode != nullptr)
 						{
@@ -636,12 +636,12 @@ namespace hod::editor
 					}
 					if (ImGui::BeginMenu("Data") == true)
 					{
-						for (const auto& pair : game::SerializedDataFactory::GetInstance()->GetAllDescriptors())
+						for (const auto& pair : SerializedDataFactory::GetInstance()->GetAllDescriptors())
 						{
 							ImGui::PushID(pair.second);
 							if (ImGui::MenuItem(pair.second->GetDisplayName().CStr()))
 							{
-								std::shared_ptr<game::SerializedData> serializedData(pair.second->CreateInstance<game::SerializedData>());
+								std::shared_ptr<SerializedData> serializedData(pair.second->CreateInstance<SerializedData>());
 
 								SerializedDataAsset serializedDataAsset(serializedData.get());
 

@@ -96,7 +96,7 @@ namespace hod::ui
 
 		Node::PropertyChangedEvent::Slot          _onDrivenNodeChangedSlot;
 		LayoutElement::PropertyChangedEvent::Slot _onDrivenNodeLayoutElementChangedSlot;
-		game::Entity::ChildrenChangedEvent::Slot  _onChildrenChangedSlot;
+		Entity::ChildrenChangedEvent::Slot  _onChildrenChangedSlot;
 
 		Vector2 _totalMinSize;
 		Vector2 _totalPreferredSize;

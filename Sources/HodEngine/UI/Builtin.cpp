@@ -20,7 +20,7 @@ namespace hod::ui
 {
 	void RegisterBuiltin()
 	{
-		game::ComponentFactory* componentFactory = game::ComponentFactory::GetInstance();
+		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
 		componentFactory->Register<Canvas>();
 		componentFactory->Register<Node>();
 

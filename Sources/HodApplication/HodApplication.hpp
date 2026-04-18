@@ -26,5 +26,5 @@ public:
 private:
 
 	hod::DynamicLibrary	_gameModule;
-	hod::game::World*	_world = nullptr;
+	hod::World*	_world = nullptr;
 };

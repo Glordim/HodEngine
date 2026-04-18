@@ -24,7 +24,7 @@ namespace hod::editor
 
 	struct ChangeParentPayload
 	{
-		Vector<std::weak_ptr<game::Entity>> _entities;
+		Vector<std::weak_ptr<Entity>> _entities;
 	};
 
 	/// @brief
@@ -36,8 +36,8 @@ namespace hod::editor
 	/// @brief
 	void HierachyWindow::DrawContent()
 	{
-		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-		for (game::Scene* scene : world->GetScenes())
+		World* world = GetOwner<EntityEditorTab>()->GetWorld();
+		for (Scene* scene : world->GetScenes())
 		{
 			ImGui::PushID(scene);
 			bool open = ImGui::CollapsingHeader(scene->GetName().CStr(), ImGuiTreeNodeFlags_DefaultOpen);
@@ -46,7 +46,7 @@ namespace hod::editor
 			{
 				for (auto& pair : scene->GetEntities())
 				{
-					game::Entity* entity = pair.second;
+					Entity* entity = pair.second;
 					if (entity->GetParent().Lock() == nullptr)
 					{
 						DrawEntity(entity);
@@ -75,11 +75,11 @@ namespace hod::editor
 
 		if (ImGui::BeginPopup("ContextualMenu") == true)
 		{
-			game::Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+			Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
 			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().Size() > 0)
 			{
-				game::Entity* entity = world->GetScenes()[0]->CreateEntity("EditMe");
+				Entity* entity = world->GetScenes()[0]->CreateEntity("EditMe");
 
 				if (selection != nullptr)
 				{
@@ -114,7 +114,7 @@ namespace hod::editor
 
 	/// @brief
 	/// @param entity
-	void HierachyWindow::DrawEntity(game::Entity* entity)
+	void HierachyWindow::DrawEntity(Entity* entity)
 	{
 		ImGui::PushID(entity - 1);
 		// ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
@@ -144,7 +144,7 @@ namespace hod::editor
 				{
 					// todo factorize
 					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
-					game::Entity*             dropEntity = entityDragAndDropPayload->_entity;
+					Entity*             dropEntity = entityDragAndDropPayload->_entity;
 					if (dropEntity != nullptr)
 					{
 						dropEntity->SetParent(entity->GetParent());
@@ -157,7 +157,7 @@ namespace hod::editor
 		}
 		ImGui::PopStyleVar();
 
-		game::Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+		Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
 		ImGuiTreeNodeFlags treeNodeFlags =
 			ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DrawLinesToNodes;
@@ -172,7 +172,7 @@ namespace hod::editor
 
 		if (_previousSelection != selection)
 		{
-			game::Entity* selectionIt = selection;
+			Entity* selectionIt = selection;
 			while (selectionIt != nullptr)
 			{
 				if (selectionIt == entity)
@@ -203,7 +203,7 @@ namespace hod::editor
 
 		if (ImGui::BeginItemTooltip())
 		{
-			std::string_view internalStateLabel = ReflectedEnum<game::Entity::InternalState>::GetEnumDescriptor().ToString(entity->GetInternalState());
+			std::string_view internalStateLabel = ReflectedEnum<Entity::InternalState>::GetEnumDescriptor().ToString(entity->GetInternalState());
 			ImGui::Text("InternalState: %.*s", (int)internalStateLabel.size(), internalStateLabel.data());
 			ImGui::EndTooltip();
 		}
@@ -225,7 +225,7 @@ namespace hod::editor
 				if ((payload) != nullptr)
 				{
 					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
-					game::Entity*             dropEntity = entityDragAndDropPayload->_entity;
+					Entity*             dropEntity = entityDragAndDropPayload->_entity;
 					if (dropEntity != nullptr)
 					{
 						dropEntity->SetParent(entity);
@@ -272,9 +272,9 @@ namespace hod::editor
 
 		if (opened == true)
 		{
-			for (const game::WeakEntity& child : entity->GetChildren())
+			for (const WeakEntity& child : entity->GetChildren())
 			{
-				game::Entity* childEntity = child.Lock();
+				Entity* childEntity = child.Lock();
 				if (childEntity != nullptr)
 				{
 					DrawEntity(childEntity);
@@ -289,9 +289,9 @@ namespace hod::editor
 	    /// @param entityNode
 	    void HierachyWindow::DrawEntityNode(EntityNode* entityNode)
 	    {
-	        std::shared_ptr<game::Entity> selectionLock = _selection.lock();
+	        std::shared_ptr<Entity> selectionLock = _selection.lock();
 
-	        std::shared_ptr<game::Entity> entityLock = entityNode->_entity.lock();
+	        std::shared_ptr<Entity> entityLock = entityNode->_entity.lock();
 
 	        ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding;
 	        if (entityNode->_children.empty() == true)
@@ -332,24 +332,24 @@ namespace hod::editor
 	                payload = ImGui::AcceptDragDropPayload("EntityId");
 	                if ((payload) != nullptr)
 	                {
-	                    game::Entity::Id entityId = *reinterpret_cast<game::Entity::Id*>(payload->Data);
-	                    game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-	                    std::weak_ptr<game::Entity> dropEntity = world->FindEntity(entityId);
-	                    std::shared_ptr<game::Entity> dropEntityLock = dropEntity.lock();
+	                    Entity::Id entityId = *reinterpret_cast<Entity::Id*>(payload->Data);
+	                    World* world = GetOwner<EntityEditorTab>()->GetWorld();
+	                    std::weak_ptr<Entity> dropEntity = world->FindEntity(entityId);
+	                    std::shared_ptr<Entity> dropEntityLock = dropEntity.lock();
 	                    if (dropEntityLock != nullptr)
 	                    {
 	                        // todo get or add component
-	                        std::shared_ptr<game::NodeComponent> parentNodeComponentLock = entityLock->GetComponent<game::NodeComponent>().lock();
+	                        std::shared_ptr<NodeComponent> parentNodeComponentLock = entityLock->GetComponent<NodeComponent>().lock();
 	                        if (parentNodeComponentLock == nullptr)
 	                        {
-	                            parentNodeComponentLock = entityLock->AddComponent<game::NodeComponent>().lock();
+	                            parentNodeComponentLock = entityLock->AddComponent<NodeComponent>().lock();
 	                        }
 
 	                        // todo get or add component
-	                        std::shared_ptr<game::NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<game::NodeComponent>().lock();
+	                        std::shared_ptr<NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<NodeComponent>().lock();
 	                        if (dropNodeComponentLock == nullptr)
 	                        {
-	                            dropNodeComponentLock = dropEntityLock->AddComponent<game::NodeComponent>().lock();
+	                            dropNodeComponentLock = dropEntityLock->AddComponent<NodeComponent>().lock();
 	                        }
 	                        dropNodeComponentLock->SetParent(parentNodeComponentLock);
 	                    }
@@ -362,7 +362,7 @@ namespace hod::editor
 	        {
 	            // Some processing...
 	            ImGui::TextUnformatted(entityLock->GetName().c_str());
-	            game::Entity::Id entityId = entityLock->GetId();
+	            Entity::Id entityId = entityLock->GetId();
 	            ImGui::SetDragDropPayload("EntityId", (void*)&entityId, sizeof(entityId), ImGuiCond_Once);
 	            ImGui::EndDragDropSource();
 	        }

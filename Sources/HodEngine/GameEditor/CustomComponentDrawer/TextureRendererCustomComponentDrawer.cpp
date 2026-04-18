@@ -38,17 +38,17 @@ namespace hod::editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool TextureRendererCustomComponentDrawer::OnDrawGizmo(game::Component* component, ViewportWindow& viewport, bool selected)
+	bool TextureRendererCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
 		if (selected == false)
 		{
 			return false;
 		}
 
-		game::TextureRendererComponent* textureRenderer = static_cast<game::TextureRendererComponent*>(component);
+		TextureRendererComponent* textureRenderer = static_cast<TextureRendererComponent*>(component);
 		if (textureRenderer != nullptr)
 		{
-			game::Node2dComponent* node2D = textureRenderer->GetOwner()->GetComponent<game::Node2dComponent>();
+			Node2dComponent* node2D = textureRenderer->GetOwner()->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Rect bb = textureRenderer->GetBoundingBox();
