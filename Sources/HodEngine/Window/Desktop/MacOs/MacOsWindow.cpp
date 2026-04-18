@@ -9,7 +9,7 @@
 
 #include <cstdlib>
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief 
 	/// @return 

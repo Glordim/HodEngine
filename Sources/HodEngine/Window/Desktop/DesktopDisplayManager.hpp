@@ -7,7 +7,7 @@
 
 #include <array>
 
-namespace hod::window
+namespace hod::inline window
 {
 	class Window;
 	class Cursor;

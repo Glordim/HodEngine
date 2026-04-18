@@ -16,7 +16,7 @@ using WPARAM = uint64_t;
 using LPARAM = int64_t;
 using LRESULT = int64_t;
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief
 	class HOD_WINDOW_API Win32Window : public DesktopWindow

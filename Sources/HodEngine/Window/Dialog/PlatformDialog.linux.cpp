@@ -1,7 +1,7 @@
 #include "HodEngine/Window/Pch.hpp"
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief
 	/// @return

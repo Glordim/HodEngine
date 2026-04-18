@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Singleton.hpp"
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	class HOD_WINDOW_API CocoaDisplayManager : public DesktopDisplayManager
 	{

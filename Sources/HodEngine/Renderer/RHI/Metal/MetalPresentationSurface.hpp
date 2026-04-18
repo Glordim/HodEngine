@@ -5,7 +5,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	class MacOsWindow;
 }

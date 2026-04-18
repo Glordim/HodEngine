@@ -6,7 +6,7 @@
 #include "HodEngine/Core/String.hpp"
 #include <cstdint>
 
-namespace hod::window
+namespace hod::inline window
 {
 	class Window;
 }

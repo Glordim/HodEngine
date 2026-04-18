@@ -4,7 +4,7 @@
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

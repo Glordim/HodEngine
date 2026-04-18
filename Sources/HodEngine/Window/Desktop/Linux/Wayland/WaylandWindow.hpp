@@ -10,7 +10,7 @@
 
 // todo avoid to use libDecor when it's possible, lot of compositor support server side decoration (except gnome...)
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief 
 	class HOD_WINDOW_API WaylandWindow : public DesktopWindow

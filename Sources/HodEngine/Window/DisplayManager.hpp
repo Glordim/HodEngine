@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Singleton.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	class Window;
 

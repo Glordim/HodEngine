@@ -12,7 +12,7 @@
 
 #include <android/native_window.h>
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief 
 	/// @param nativeWindow 

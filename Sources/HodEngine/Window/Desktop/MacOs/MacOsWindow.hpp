@@ -19,7 +19,7 @@ class NSWindow;
 class MyWindowDelegate;
 #endif
 
-namespace hod::window
+namespace hod::inline window
 {
 	class MacOsWindow;
 

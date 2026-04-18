@@ -1,7 +1,7 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	_SingletonOverrideConstructor(DesktopDisplayManager)
 	: DisplayManager()

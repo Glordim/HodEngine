@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <cstddef>
 
-namespace hod::window
+namespace hod::inline window
 {
 	struct Resolution;
 

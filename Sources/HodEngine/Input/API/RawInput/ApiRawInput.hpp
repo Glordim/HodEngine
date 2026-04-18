@@ -17,7 +17,7 @@ struct tagRID_DEVICE_INFO;
 
 #define REDIRECT_INJECTED_INPUT_TO_FIRST_DEVICE // Used to support TeamViewer and Parsec (they don't fill hDevice and need a redirection)
 
-namespace hod::window
+namespace hod::inline window
 {
 	class Win32Window;
 }

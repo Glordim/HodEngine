@@ -5,7 +5,7 @@
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
-namespace hod::window
+namespace hod::inline window
 {
 	HOD_WINDOW_API Path GetOpenFileDialog();
 	HOD_WINDOW_API Path GetSaveFileDialog(const std::string_view& typeName, const std::string_view& typeExtension, const Path& initialFolder = "");

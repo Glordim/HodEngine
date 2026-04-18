@@ -1,7 +1,7 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/MouseButton.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	// Conversion table
 	MouseButton windowsMouseButtonToMouseButton[6] = {

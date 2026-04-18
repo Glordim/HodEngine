@@ -14,7 +14,7 @@
 struct xdg_wm_base;
 struct zxdg_decoration_manager_v1;
 
-namespace hod::window
+namespace hod::inline window
 {
 	class WaylandWindow;
 

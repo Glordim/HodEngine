@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief CrossPlatform enum
 	enum class MouseButton : uint8_t

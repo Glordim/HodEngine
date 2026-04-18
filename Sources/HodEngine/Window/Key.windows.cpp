@@ -1,7 +1,7 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/Key.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	// Index = Windows VK (0x00–0x7B)
 	// Value = Logical Key (layout-dependent)

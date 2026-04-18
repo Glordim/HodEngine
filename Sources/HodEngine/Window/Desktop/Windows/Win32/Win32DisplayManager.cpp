@@ -10,7 +10,7 @@
 
 #undef CreateWindow
 
-namespace hod::window
+namespace hod::inline window
 {
 	constexpr UINT WM_CREATE_WINDOW = WM_USER + 1;
 	constexpr UINT WM_DESTROY_WINDOW = WM_USER + 2;

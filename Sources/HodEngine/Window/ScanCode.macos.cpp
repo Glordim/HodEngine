@@ -1,7 +1,7 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/ScanCode.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	// Mapping Apple keyCode → ScanCode enum (USB HID)
 	// Source: NSEvent keyCode table / USB HID Usage tables

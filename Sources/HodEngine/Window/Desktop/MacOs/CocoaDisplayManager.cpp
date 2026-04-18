@@ -2,7 +2,7 @@
 #include "HodEngine/Window/Desktop/MacOs/CocoaDisplayManager.hpp"
 #include "HodEngine/Window/Desktop/MacOs/MacOsWindow.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
     _SingletonOverrideConstructor(CocoaDisplayManager)
     : DesktopDisplayManager()

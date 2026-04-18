@@ -1,6 +1,6 @@
 #pragma once
 
-namespace hod::window
+namespace hod::inline window
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

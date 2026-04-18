@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <shlobj_core.h>
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief
 	/// @return

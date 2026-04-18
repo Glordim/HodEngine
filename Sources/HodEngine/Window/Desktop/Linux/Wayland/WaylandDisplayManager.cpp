@@ -17,7 +17,7 @@
 
 static const char* hodTag = "wlHodTag";
 
-namespace hod::window
+namespace hod::inline window
 {
 	_SingletonOverrideConstructor(WaylandDisplayManager)
 	: DesktopDisplayManager()

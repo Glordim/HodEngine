@@ -1,7 +1,7 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "Window.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	Window::Window()
 	{

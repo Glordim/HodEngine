@@ -9,7 +9,7 @@
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
 #include <HodEngine/Core/Thread/Thread.hpp>
 
-namespace hod::window
+namespace hod::inline window
 {
 	class HOD_WINDOW_API Win32DisplayManager : public DesktopDisplayManager
 	{

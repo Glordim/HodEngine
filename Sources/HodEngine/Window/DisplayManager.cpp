@@ -1,7 +1,7 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/DisplayManager.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	_SingletonConstructor(DisplayManager) {}
 

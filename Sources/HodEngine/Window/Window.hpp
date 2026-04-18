@@ -8,7 +8,7 @@
 #include <mutex>
 #include <stdint.h>
 
-namespace hod::window
+namespace hod::inline window
 {
 	class Surface;
 

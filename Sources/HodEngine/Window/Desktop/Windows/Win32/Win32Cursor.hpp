@@ -6,7 +6,7 @@
 struct HICON__;
 using HCURSOR = HICON__*;
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief
 	class HOD_WINDOW_API Win32Cursor : public Cursor

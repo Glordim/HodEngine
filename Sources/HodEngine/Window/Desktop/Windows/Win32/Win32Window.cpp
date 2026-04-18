@@ -14,7 +14,7 @@
 
 #include <windowsx.h>
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief
 	/// @param hWnd

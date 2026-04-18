@@ -4,7 +4,7 @@
 
 struct ANativeWindow;
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief 
 	class HOD_WINDOW_API AndroidWindow : public Window

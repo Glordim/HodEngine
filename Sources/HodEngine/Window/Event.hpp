@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-namespace hod::window
+namespace hod::inline window
 {
 	enum class EventType : uint8_t
 	{

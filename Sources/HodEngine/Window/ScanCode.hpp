@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief CrossPlatform ScanCode based on HID USB Keyboard
 	enum class ScanCode : uint8_t

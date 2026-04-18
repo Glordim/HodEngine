@@ -21,7 +21,7 @@ namespace hod::inline core
 	class ReflectionDescriptor;
 }
 
-namespace hod::window
+namespace hod::inline window
 {
 	class Window;
 }

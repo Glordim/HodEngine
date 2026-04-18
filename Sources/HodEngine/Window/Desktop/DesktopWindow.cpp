@@ -2,7 +2,7 @@
 #include "DesktopDisplayManager.hpp"
 #include "DesktopWindow.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	DesktopWindow::DesktopWindow()
 	{

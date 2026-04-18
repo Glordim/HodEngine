@@ -1,7 +1,7 @@
 #include "HodEngine/Window/Pch.hpp"
 #include "HodEngine/Window/ScanCode.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
 	// Conversion table: Windows Scan Code Set-1 → USB HID ScanCode
 	// Index = Windows scancode, Value = ScanCode enum

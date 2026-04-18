@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace hod::window
+namespace hod::inline window
 {
 	/// @brief Logical key, depends on the current keyboard layout.
 	///        Used for commands and shortcuts, NOT for text input.

@@ -2,7 +2,7 @@
 #include "HodEngine/Window/Android/AndroidDisplayManager.hpp"
 #include "HodEngine/Window/Android/AndroidWindow.hpp"
 
-namespace hod::window
+namespace hod::inline window
 {
     _SingletonOverrideConstructor(AndroidDisplayManager) : DisplayManager()
 	{

@@ -14,7 +14,7 @@
 
 #include <libdecor.h>
 
-namespace hod::window
+namespace hod::inline window
 {
 	void WaylandWindow::xdg_toplevel_configure(void* /*userData*/, xdg_toplevel* /*xdg_toplevel*/, int32_t width, int32_t height, wl_array* /*states*/)
 	{
