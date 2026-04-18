@@ -25,7 +25,7 @@ namespace hod::inline editor
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		ui::Padding value = *editorReflectedProperty.GetObject<ui::Padding>();
+		Padding value = *editorReflectedProperty.GetObject<Padding>();
 		changed |= DrawHelper::DrawVector4(value._vector4, "Left", "Bottom", "Right", "Top");
 		if (changed == true)
 		{

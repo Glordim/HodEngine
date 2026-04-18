@@ -544,7 +544,7 @@ namespace hod::inline editor
 	/// @return
 	bool NodeCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
-		ui::Node* node = static_cast<ui::Node*>(component);
+		Node* node = static_cast<Node*>(component);
 		if (node == nullptr)
 		{
 			return false;

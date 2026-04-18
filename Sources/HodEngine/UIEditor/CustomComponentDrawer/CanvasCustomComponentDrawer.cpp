@@ -48,7 +48,7 @@ namespace hod::inline editor
 		EditorReflectedProperty* scaleMode = reflectedObject.FindProperty("ScaleMode");
 		changed |= PropertyDrawer::DrawProperty(*scaleMode);
 
-		if (scaleMode->GetValue<ui::Canvas::ScaleMode>() == ui::Canvas::ScaleMode::WidthHeight)
+		if (scaleMode->GetValue<Canvas::ScaleMode>() == Canvas::ScaleMode::WidthHeight)
 		{
 			ImGui::Indent();
 			EditorReflectedProperty* widthHeightPreferredAxis = reflectedObject.FindProperty("WidthHeightPreferredAxis");
@@ -67,9 +67,9 @@ namespace hod::inline editor
 	/// @return
 	bool CanvasCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
 	{
-		static_cast<ui::Canvas*>(component)->DoRebuild();
+		static_cast<Canvas*>(component)->DoRebuild();
 
-		ui::Node* node = component->GetOwner()->GetComponent<ui::Node>();
+		Node* node = component->GetOwner()->GetComponent<Node>();
 		if (node != nullptr)
 		{
 			Vector2 Size = node->ComputeSize();

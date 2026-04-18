@@ -96,8 +96,7 @@ namespace hod::application
 
 		ComponentFactory::CreateInstance();
 		SerializedDataFactory::CreateInstance();
-		RegisterBuiltin();
-
+		game::RegisterBuiltin();
 		ui::RegisterBuiltin();
 
 		return true;
