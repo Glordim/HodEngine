@@ -3,7 +3,7 @@
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
-namespace hod::editor
+namespace hod::inline editor
 {
     const char* deviceTypeToIcon[static_cast<uint8_t>(input::Device::Type::Count)] = {
 		ICON_MDI_CONTROLLER,

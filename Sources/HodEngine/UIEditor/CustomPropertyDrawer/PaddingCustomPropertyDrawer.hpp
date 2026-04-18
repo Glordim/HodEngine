@@ -8,7 +8,7 @@ namespace hod::inline core
 	class ReflectionPropertyObject;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_UI_EDITOR_API PaddingCustomPropertyDrawer : public CustomPropertyDrawer

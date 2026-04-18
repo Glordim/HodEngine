@@ -14,7 +14,7 @@
 
 #undef max
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	Handle Gizmos::GenerateHandle()
 	{

@@ -4,7 +4,7 @@
 
 #include <array>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class GeometryGenerator

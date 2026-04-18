@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
     DESCRIBE_REFLECTED_CLASS(EditorTabWindow, reflectionDescriptor)
     {

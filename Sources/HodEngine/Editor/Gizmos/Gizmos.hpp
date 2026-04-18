@@ -13,7 +13,7 @@ namespace hod::renderer
 	class MaterialInstance;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class ViewportWindow;
 

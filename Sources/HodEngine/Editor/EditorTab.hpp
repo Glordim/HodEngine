@@ -8,7 +8,7 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class Asset;
 	class EditorTabWindow;

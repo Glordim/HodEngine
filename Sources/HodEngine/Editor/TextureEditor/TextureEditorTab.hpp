@@ -11,7 +11,7 @@ namespace hod::renderer
 	class TextureResource;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_EDITOR_API TextureEditorTab : public EditorTab

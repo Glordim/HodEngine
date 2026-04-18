@@ -18,7 +18,7 @@ namespace hod::renderer
 	class RenderTarget;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class EditorReflectedObject;
 

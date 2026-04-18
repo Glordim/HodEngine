@@ -13,7 +13,7 @@ namespace hod::inline game
 	class Component;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class ViewportWindow;
 

@@ -15,7 +15,7 @@ namespace hod::renderer
 	class Texture;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	// TODO embed in Asset when reflection support it
 	struct HOD_EDITOR_API Meta

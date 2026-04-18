@@ -8,7 +8,7 @@
 #include "HodEngine/ImGui/Widgets.hpp"
 #include "HodEngine/ImGui/Helper.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	bool DrawHelper::DrawVector2(Vector2& value, const char* labelX, const char* labelY)
 	{

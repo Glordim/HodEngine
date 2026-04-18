@@ -11,7 +11,7 @@ namespace hod::inline core
 	class ReflectionDescriptor;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class CustomComponentDrawer;
 

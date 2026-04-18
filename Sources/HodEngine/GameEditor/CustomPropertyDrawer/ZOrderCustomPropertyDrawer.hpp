@@ -13,7 +13,7 @@ namespace hod::inline game
 	class ZOrder;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_GAME_EDITOR_API ZOrderCustomPropertyDrawer : public CustomPropertyDrawer

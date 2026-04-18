@@ -10,7 +10,7 @@ namespace hod::inline core
     class ReflectionPropertyObject;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
     class EditorReflectedObject;
     class EditorReflectedProperty;

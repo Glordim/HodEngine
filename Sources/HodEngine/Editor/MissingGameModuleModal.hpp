@@ -6,7 +6,7 @@
 #include <HodEngine/Core/Output/OutputBucket.hpp>
 #include <HodEngine/GameSystems/Job/MemberFunctionJob.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class EditorReflectedObject;
 

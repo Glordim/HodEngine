@@ -29,7 +29,7 @@ namespace hod::renderer
 	class Texture;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class MainBar;
 	class Project;

@@ -6,7 +6,7 @@
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	_SingletonConstructor(WindowFactory) {}
 

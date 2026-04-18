@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(FontImporterSettings, reflectionDescriptor)
 	{

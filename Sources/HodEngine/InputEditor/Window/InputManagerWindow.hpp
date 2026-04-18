@@ -5,7 +5,7 @@
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class HOD_INPUT_EDITOR_API InputManagerWindow : public Window
 	{

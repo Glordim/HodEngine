@@ -3,7 +3,7 @@
 
 #include <HodEngine/ImGui/Window/Window.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
     class EditorTab;
 

@@ -17,7 +17,7 @@
 
 #undef max
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	CapsuleCollider2dCustomComponentDrawer::CapsuleCollider2dCustomComponentDrawer()

@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Importer/DefaultImporter.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(DefaultImporterSettings, reflectionDescriptor)
 	{

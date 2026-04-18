@@ -7,7 +7,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	class HOD_EDITOR_API AssetBrowserWindow : public Window

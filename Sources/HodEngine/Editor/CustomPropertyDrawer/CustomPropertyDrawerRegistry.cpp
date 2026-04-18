@@ -4,7 +4,7 @@
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <cstdint>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	std::unordered_map<uint64_t, CustomPropertyDrawer*> CustomPropertyDrawerRegistry::_drawers;
 

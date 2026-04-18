@@ -9,7 +9,7 @@
 
 #include "HodEngine/Editor/RecentProjects.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	class HOD_EDITOR_API ProjectBrowser : public Window

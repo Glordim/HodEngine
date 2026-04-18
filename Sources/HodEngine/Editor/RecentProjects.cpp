@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(RecentProjects, reflectionDescriptor)
 	{

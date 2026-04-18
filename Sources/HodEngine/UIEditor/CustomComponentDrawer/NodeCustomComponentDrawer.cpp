@@ -24,7 +24,7 @@
 
 #undef max
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	NodeCustomComponentDrawer::NodeCustomComponentDrawer()

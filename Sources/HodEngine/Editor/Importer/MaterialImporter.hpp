@@ -9,7 +9,7 @@
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/RHI/Material.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class HOD_EDITOR_API MaterialImporterSettings : public ImporterSettings
 	{

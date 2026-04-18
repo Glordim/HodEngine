@@ -14,7 +14,7 @@ namespace hod::renderer
 	class RenderView;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class PhysicsDebugDrawer;
 

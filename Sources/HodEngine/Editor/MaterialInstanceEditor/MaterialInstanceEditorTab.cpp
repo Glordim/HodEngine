@@ -25,7 +25,7 @@
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	MaterialInstanceEditorTab::MaterialInstanceEditorTab(std::shared_ptr<Asset> asset)

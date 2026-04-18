@@ -36,7 +36,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	// TODO move in reusable header
 	bool MatchSearch(const hod::String& text, const hod::String& pattern)

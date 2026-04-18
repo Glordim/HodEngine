@@ -13,7 +13,7 @@
 
 #include "HodEngine/Editor/Importer/DefaultImporter.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class Asset;
 	class Project;

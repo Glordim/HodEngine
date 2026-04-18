@@ -13,7 +13,7 @@ namespace hod::inline core
 	class FileStream;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class HOD_EDITOR_API ImporterSettings
 	{

@@ -22,7 +22,7 @@
 
 #undef max
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	CanvasCustomComponentDrawer::CanvasCustomComponentDrawer()

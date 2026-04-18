@@ -23,7 +23,7 @@
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	EntityEditorTab::EntityEditorTab(std::shared_ptr<Asset> asset, const char* icon)

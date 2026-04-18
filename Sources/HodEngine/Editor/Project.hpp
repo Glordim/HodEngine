@@ -12,7 +12,7 @@
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class Asset;
 

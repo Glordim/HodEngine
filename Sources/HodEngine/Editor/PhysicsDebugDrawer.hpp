@@ -16,7 +16,7 @@ namespace hod::physics
 	class World;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_EDITOR_API PhysicsDebugDrawer

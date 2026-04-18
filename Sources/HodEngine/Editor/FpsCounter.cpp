@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/FpsCounter.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	/// @param sampleCount

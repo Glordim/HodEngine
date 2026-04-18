@@ -19,7 +19,7 @@ namespace hod::inline game
 	class Entity;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class EditorReflectedObject;
 

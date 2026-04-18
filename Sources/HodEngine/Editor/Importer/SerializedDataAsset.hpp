@@ -8,7 +8,7 @@ namespace hod::inline game
 	class SerializedData;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class HOD_EDITOR_API SerializedDataAsset
 	{

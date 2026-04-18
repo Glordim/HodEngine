@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	extern uint8_t @ESCAPED_FILE_NAME@[];
 	extern uint32_t @ESCAPED_FILE_NAME@_size;

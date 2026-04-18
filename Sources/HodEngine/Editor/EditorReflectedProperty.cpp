@@ -7,7 +7,7 @@
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
     EditorReflectedProperty::EditorReflectedProperty(void* instance, void* sourceInstance, ReflectionProperty* reflectionProperty, EditorReflectedObject* parent)
     : _instances({ instance })

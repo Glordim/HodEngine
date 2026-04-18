@@ -26,7 +26,7 @@
 
 #undef GetObject
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	/// @param instance

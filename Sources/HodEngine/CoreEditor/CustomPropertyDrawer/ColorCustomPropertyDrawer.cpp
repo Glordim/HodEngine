@@ -11,7 +11,7 @@
 #include "HodEngine/ImGui/Helper.hpp"
 #include "HodEngine/ImGui/Widgets.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	/// @param instance

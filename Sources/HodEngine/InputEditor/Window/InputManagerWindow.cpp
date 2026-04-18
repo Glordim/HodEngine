@@ -15,7 +15,7 @@
 
 using namespace hod::input;
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(InputManagerWindow, reflectionDescriptor)
 	{

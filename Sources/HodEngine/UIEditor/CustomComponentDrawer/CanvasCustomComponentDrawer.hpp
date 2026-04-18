@@ -9,7 +9,7 @@ namespace hod::renderer
 	class MaterialInstance;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_UI_EDITOR_API CanvasCustomComponentDrawer : public CustomComponentDrawer

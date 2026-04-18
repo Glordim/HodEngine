@@ -22,7 +22,7 @@
 
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	TextureEditorTab::TextureEditorTab(std::shared_ptr<Asset> asset)

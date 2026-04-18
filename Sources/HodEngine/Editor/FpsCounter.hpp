@@ -4,7 +4,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class FpsCounter

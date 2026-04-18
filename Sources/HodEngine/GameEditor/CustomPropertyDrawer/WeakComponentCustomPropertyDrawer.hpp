@@ -8,7 +8,7 @@ namespace hod::inline core
 	class ReflectionPropertyObject;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_GAME_EDITOR_API WeakComponentCustomPropertyDrawer : public CustomPropertyDrawer

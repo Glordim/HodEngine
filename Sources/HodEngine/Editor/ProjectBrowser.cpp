@@ -27,7 +27,7 @@
 
 #include <PortableFileDialogs/portable-file-dialogs.h>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(ProjectBrowser, reflectionDescriptor)
 	{

@@ -20,7 +20,7 @@ namespace hod::renderer
 	class MaterialInstanceResource;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_EDITOR_API MaterialInstanceEditorTab : public EditorTab

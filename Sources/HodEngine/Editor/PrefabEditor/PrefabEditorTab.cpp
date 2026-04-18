@@ -22,7 +22,7 @@
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	PrefabEditorTab::PrefabEditorTab(std::shared_ptr<Asset> asset)

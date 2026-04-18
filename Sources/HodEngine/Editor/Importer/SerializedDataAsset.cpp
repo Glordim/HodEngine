@@ -6,7 +6,7 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(SerializedDataAsset, reflectionDescriptor)
 	{

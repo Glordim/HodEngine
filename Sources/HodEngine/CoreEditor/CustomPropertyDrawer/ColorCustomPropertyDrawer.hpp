@@ -13,7 +13,7 @@ namespace hod::inline math
 	struct Color;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	class HOD_CORE_EDITOR_API ColorCustomPropertyDrawer : public CustomPropertyDrawer

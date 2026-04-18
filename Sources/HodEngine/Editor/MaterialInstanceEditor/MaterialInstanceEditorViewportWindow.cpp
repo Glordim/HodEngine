@@ -39,7 +39,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceEditorViewportWindow, reflectionDescriptor)
 	{

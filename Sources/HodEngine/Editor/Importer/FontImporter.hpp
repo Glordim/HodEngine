@@ -6,7 +6,7 @@
 #include "HodEngine/Math/Rect.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class HOD_EDITOR_API FontImporterSettings : public ImporterSettings
 	{

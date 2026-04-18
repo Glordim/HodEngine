@@ -23,7 +23,7 @@
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	SerializedDataEditorTab::SerializedDataEditorTab(std::shared_ptr<Asset> asset)

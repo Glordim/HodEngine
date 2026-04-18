@@ -18,7 +18,7 @@
 #include <HodEngine/Physics/Physics.hpp>
 #include <HodEngine/Physics/World.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	PhysicsDebugDrawer::PhysicsDebugDrawer()

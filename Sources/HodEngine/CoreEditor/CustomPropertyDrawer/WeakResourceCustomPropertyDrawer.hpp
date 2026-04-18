@@ -12,7 +12,7 @@ namespace hod::inline gamesystems
 	class WeakResourceBase;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	class HOD_CORE_EDITOR_API WeakResourceCustomPropertyDrawer : public CustomPropertyDrawer

@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_EDITOR_API SceneEditorTab : public EntityEditorTab

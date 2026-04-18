@@ -18,7 +18,7 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	bool PropertyDrawer::DrawDescriptor(EditorReflectedObject& reflectedObject)
 	{

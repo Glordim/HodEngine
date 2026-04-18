@@ -8,7 +8,7 @@ namespace hod::inline core
 	class ReflectionPropertyObject;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	class HOD_CORE_EDITOR_API Vector2CustomPropertyDrawer : public CustomPropertyDrawer

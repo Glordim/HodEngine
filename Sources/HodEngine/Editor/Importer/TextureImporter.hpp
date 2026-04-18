@@ -6,7 +6,7 @@
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Renderer/Enums.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	enum class MeshType
 	{

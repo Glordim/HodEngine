@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/Importer/Importer.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class HOD_EDITOR_API SceneImporterSettings : public ImporterSettings
 	{

@@ -7,7 +7,7 @@ namespace hod::inline math
     class Vector4;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
     class HOD_EDITOR_API DrawHelper
     {

@@ -70,7 +70,7 @@
 #undef max
 #undef min
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	_SingletonConstructor(Editor) {}
 

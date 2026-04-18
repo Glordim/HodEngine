@@ -14,7 +14,7 @@ namespace hod::inline game
 	class Entity;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	class HOD_EDITOR_API EntityEditorTab : public EditorTab

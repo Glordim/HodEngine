@@ -9,7 +9,7 @@
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	/// @param asset

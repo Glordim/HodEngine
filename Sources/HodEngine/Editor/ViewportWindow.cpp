@@ -44,7 +44,7 @@
 #include <cmath>
 #include <format>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(ViewportWindow, reflectionDescriptor)
 	{

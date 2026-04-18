@@ -15,7 +15,7 @@
 
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(HierachyWindow, reflectionDescriptor)
 	{

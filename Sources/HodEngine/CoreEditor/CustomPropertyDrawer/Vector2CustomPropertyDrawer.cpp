@@ -9,7 +9,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief
 	/// @param editorReflectedProperty

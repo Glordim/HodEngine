@@ -9,7 +9,7 @@
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Game/PrefabUtility.hpp>
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	EditorReflectedObject::EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)
 	: _sourceInstance(source)

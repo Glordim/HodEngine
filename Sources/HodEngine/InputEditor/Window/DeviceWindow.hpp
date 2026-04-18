@@ -10,7 +10,7 @@ namespace hod::input
 	class Device;
 }
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	class HOD_INPUT_EDITOR_API DeviceWindow : public Window
 	{

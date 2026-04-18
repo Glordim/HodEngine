@@ -8,7 +8,7 @@
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	struct HOD_EDITOR_API RecentProjects
 	{

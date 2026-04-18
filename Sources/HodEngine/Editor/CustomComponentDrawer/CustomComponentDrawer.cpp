@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
-namespace hod::editor
+namespace hod::inline editor
 {
 	/// @brief 
 	/// @param reflectedObject 
