@@ -195,7 +195,7 @@ namespace hod
 	/// @return
 	bool ReflectionDescriptor::IsCompatible(const ReflectionDescriptor& descriptor) const
 	{
-		if (this == &descriptor)
+		if (_type == descriptor._type)
 		{
 			return true;
 		}
