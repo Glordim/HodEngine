@@ -36,7 +36,7 @@ namespace hod::inline editor
 	/// @brief
 	void HierachyWindow::DrawContent()
 	{
-		World* world = GetOwner<EntityEditorTab>()->GetWorld();
+		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 		for (Scene* scene : world->GetScenes())
 		{
 			ImGui::PushID(scene);

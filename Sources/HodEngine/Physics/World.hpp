@@ -9,7 +9,7 @@ namespace hod::inline math
 	class Vector2;
 }
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	class DebugDrawer;
 

@@ -4,7 +4,7 @@
 
 #include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	/// @brief
 	/// @return

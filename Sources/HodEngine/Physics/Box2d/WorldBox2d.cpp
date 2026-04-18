@@ -7,7 +7,7 @@
 
 #include <box2d/box2d.h>
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	/// @brief
 	/// @param body

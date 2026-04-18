@@ -2,7 +2,7 @@
 #include "HodEngine/Physics/Body.hpp"
 #include "HodEngine/Physics/Collider.hpp"
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	Body::~Body()
 	{

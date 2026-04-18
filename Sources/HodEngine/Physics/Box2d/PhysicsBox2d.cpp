@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	/// @brief 
 	/// @param  

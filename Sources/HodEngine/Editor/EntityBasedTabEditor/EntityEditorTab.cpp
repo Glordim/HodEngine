@@ -31,7 +31,7 @@ namespace hod::inline editor
 	{
 		_scene = DefaultAllocator::GetInstance().New<Scene>();
 
-		_editingWorld = DefaultAllocator::GetInstance().New<World>();
+		_editingWorld = DefaultAllocator::GetInstance().New<game::World>();
 		_editingWorld->Init();
 		_editingWorld->DisableDrawJob();
 		_editingWorld->AddScene(_scene);
@@ -108,7 +108,7 @@ namespace hod::inline editor
 
 	/// @brief 
 	/// @return 
-	World* EntityEditorTab::GetWorld() const
+	game::World* EntityEditorTab::GetWorld() const
 	{
 		return _world;
 	}

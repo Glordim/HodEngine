@@ -10,7 +10,7 @@ namespace hod::renderer
 	class RenderView;
 }
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	struct RenderCommand;
 	class World;

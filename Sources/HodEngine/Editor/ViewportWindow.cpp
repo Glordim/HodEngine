@@ -110,7 +110,7 @@ namespace hod::inline editor
 			ImGui::SameLine();
 			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
 			{
-				World*          world = GetOwner<EntityEditorTab>()->GetWorld();
+				game::World*          world = GetOwner<EntityEditorTab>()->GetWorld();
 				physics::World*       physicsWorld = world->GetPhysicsWorld();
 				physics::DebugDrawer* physicsDebugDrawer = physicsWorld->GetDebugDrawer();
 				uint32_t              flags = physicsDebugDrawer->GetFlags();
@@ -222,7 +222,7 @@ namespace hod::inline editor
 						}
 						else
 						{
-							World*  world = GetOwner<EntityEditorTab>()->GetWorld();
+							game::World*  world = GetOwner<EntityEditorTab>()->GetWorld();
 							Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
 							if (pickedEntity != nullptr)
 							{
@@ -290,7 +290,7 @@ namespace hod::inline editor
 
 				renderView->SetupCamera(_projection, _view, viewport);
 
-				World* world = GetOwner<EntityEditorTab>()->GetWorld();
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
@@ -340,7 +340,7 @@ namespace hod::inline editor
 			}
 			else
 			{
-				World* world = GetOwner<EntityEditorTab>()->GetWorld();
+				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
 				if (_physicsDebugDrawer != nullptr)
 				{
 					_physicsDebugDrawer->Update(world->GetPhysicsWorld());

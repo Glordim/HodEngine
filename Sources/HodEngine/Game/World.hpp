@@ -16,7 +16,7 @@
 
 namespace hod::inline math { struct Color; class Vector2; }
 namespace hod::renderer { class RenderView; }
-namespace hod::physics { class World; }
+namespace hod::inline physics { class World; }
 
 namespace hod::inline game
 {

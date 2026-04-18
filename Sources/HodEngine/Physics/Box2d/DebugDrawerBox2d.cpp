@@ -10,7 +10,7 @@
 
 #include <cstring>
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	/// @brief
 	DebugDrawerBox2d::DebugDrawerBox2d()

@@ -132,7 +132,7 @@ namespace hod::inline ui
 			rootNodeSize.SetY(resolution.GetY() / _scaleFactor);
 		}
 
-		World* world = GetOwner()->GetScene()->GetWorld();
+		game::World* world = GetOwner()->GetScene()->GetWorld();
 		if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 		{
 			_rootNode->SetDeltaSize(rootNodeSize);
@@ -151,7 +151,7 @@ namespace hod::inline ui
 		{
 			RecomputeRootNodeSize(renderView.GetRenderResolution());
 
-			World* world = GetOwner()->GetScene()->GetWorld();
+			game::World* world = GetOwner()->GetScene()->GetWorld();
 			if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 			{
 				_renderModeMatrix = Matrix4::Scale(Vector2::One * _scaleFactor);

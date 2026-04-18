@@ -6,7 +6,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	class Collider;
 }

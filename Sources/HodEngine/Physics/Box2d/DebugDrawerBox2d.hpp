@@ -11,7 +11,7 @@ namespace hod::inline math
 	class Vector2;
 }
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	/// @brief 
 	class HOD_PHYSICS_API DebugDrawerBox2d : public DebugDrawer

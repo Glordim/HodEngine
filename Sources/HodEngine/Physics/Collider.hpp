@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	class Body;
 

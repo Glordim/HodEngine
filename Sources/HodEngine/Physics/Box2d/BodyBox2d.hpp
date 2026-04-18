@@ -7,7 +7,7 @@
 
 #include <box2d/id.h>
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	class ColliderBox2d;
 

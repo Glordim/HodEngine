@@ -6,7 +6,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <cstdint>
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	class World;
 

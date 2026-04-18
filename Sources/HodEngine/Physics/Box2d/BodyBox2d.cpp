@@ -15,7 +15,7 @@
 
 #include "HodEngine/Math/Math.hpp"
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	/// @brief
 	/// @param b2BodyId

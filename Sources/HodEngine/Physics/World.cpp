@@ -1,7 +1,7 @@
 #include "HodEngine/Physics/Pch.hpp"
 #include "HodEngine/Physics/World.hpp"
 
-namespace hod::physics
+namespace hod::inline physics
 {
 	/// @brief
 	World::~World()

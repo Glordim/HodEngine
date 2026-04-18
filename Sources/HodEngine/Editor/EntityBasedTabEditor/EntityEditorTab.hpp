@@ -34,7 +34,7 @@ namespace hod::inline editor
 
 		void	ReloadScene();
 
-		World*	GetWorld() const;
+		game::World*	GetWorld() const;
 		Scene*	GetCurrentScene() const;
 
 		void			SetEntitySelection(Entity* selection);
@@ -46,10 +46,10 @@ namespace hod::inline editor
 		
 	protected:
 
-		World*				_world = nullptr;
+		game::World*				_world = nullptr;
 
-		World*				_editingWorld = nullptr;
-		World*				_playingWorld = nullptr;
+		game::World*				_editingWorld = nullptr;
+		game::World*				_playingWorld = nullptr;
 
 		Scene*				_scene = nullptr;
 
