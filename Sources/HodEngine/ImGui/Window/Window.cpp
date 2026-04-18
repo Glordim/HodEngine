@@ -5,7 +5,7 @@
 
 #include <format>
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	DESCRIBE_REFLECTED_CLASS(Window, reflectionDescriptor)
 	{

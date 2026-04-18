@@ -14,7 +14,7 @@
 
 #include "HodEngine/Math/Rect.hpp"
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	/// @brief
 	/// @param drawLists

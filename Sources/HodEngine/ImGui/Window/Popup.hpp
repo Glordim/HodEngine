@@ -3,7 +3,7 @@
 
 #include "HodEngine/ImGui/Window/Window.hpp"
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	/// @brief 
 	class HOD_IMGUI_API Popup : public Window

@@ -15,7 +15,7 @@ namespace hod::renderer
 	class MaterialInstance;
 }
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	/// @brief 
 	class HOD_IMGUI_API RenderCommandImGui : public renderer::RenderCommand

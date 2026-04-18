@@ -1,4 +1,4 @@
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	/// @brief 
 	/// @tparam Window_ 

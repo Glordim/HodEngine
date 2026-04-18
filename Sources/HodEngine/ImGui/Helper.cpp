@@ -1,7 +1,7 @@
 #include "HodEngine/ImGui/Pch.hpp"
 #include "Helper.hpp"
 
-namespace hod
+namespace hod::inline imgui
 {
 	ImVec2 CalculateButtonSize(const char* label)
 	{

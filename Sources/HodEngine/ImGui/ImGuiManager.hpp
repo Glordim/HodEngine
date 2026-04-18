@@ -33,7 +33,7 @@ namespace hod::renderer
 	class Texture;
 }
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	class MainBar;
 	class Window;

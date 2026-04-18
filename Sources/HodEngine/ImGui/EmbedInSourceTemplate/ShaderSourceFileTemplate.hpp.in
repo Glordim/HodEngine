@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	// clang-format off
 	extern const uint8_t @ESCAPED_FILE_NAME@[];

@@ -2,7 +2,7 @@
 #include "HodEngine/ImGui/Window/Modal.hpp"
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	DESCRIBE_REFLECTED_CLASS(Modal, reflectionDescriptor)
 	{

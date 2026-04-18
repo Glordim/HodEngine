@@ -11,7 +11,7 @@
 #include <cstring>
 #include <functional>
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	/// @brief
 	class HOD_IMGUI_API Window

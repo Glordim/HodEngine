@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/ImGui/Export.hpp"
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	/// @brief 
 	class HOD_IMGUI_API MainBar

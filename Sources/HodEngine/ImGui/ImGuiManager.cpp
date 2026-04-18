@@ -44,7 +44,7 @@
 	#undef min
 #endif
 
-namespace hod::imgui
+namespace hod::inline imgui
 {
 	ImGuiKey KeyToImGuiKeyTable[] = {
 		/* Key::None */ ImGuiKey_None,

@@ -4,7 +4,7 @@
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_internal.h"
 
-namespace hod
+namespace hod::inline imgui
 {
 	HOD_IMGUI_API ImVec2 CalculateButtonSize(const char* label);
 }
