@@ -3,7 +3,7 @@
 
 #include "HodEngine/UI/Canvas.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(Rebuildable, reflectionDescriptor)
 	{

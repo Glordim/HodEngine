@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/UI/Export.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	enum class NavigationDirection : uint8_t
 	{

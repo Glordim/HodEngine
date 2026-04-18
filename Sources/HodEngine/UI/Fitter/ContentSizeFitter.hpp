@@ -6,7 +6,7 @@
 #include "HodEngine/UI/Drawables/Text.hpp"
 #include "HodEngine/UI/Layout/Layout.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief
 	class HOD_UI_API ContentSizeFitter : public Fitter

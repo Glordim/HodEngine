@@ -7,7 +7,7 @@
 #undef min
 #undef max
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(AxisLayout, reflectionDescriptor)
 	{

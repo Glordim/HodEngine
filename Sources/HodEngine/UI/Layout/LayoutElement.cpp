@@ -1,7 +1,7 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Layout/LayoutElement.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(LayoutElement, reflectionDescriptor)
 	{

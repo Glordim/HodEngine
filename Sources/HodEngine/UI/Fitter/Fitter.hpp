@@ -3,7 +3,7 @@
 
 #include "HodEngine/UI/Rebuildable.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	class HOD_UI_API Fitter : public Rebuildable
 	{

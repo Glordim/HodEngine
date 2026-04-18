@@ -7,7 +7,7 @@
 
 #include <HodEngine/Renderer/RenderView.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	class Node;
 

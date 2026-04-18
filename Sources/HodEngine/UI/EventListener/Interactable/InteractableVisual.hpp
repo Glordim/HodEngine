@@ -7,7 +7,7 @@
 #include <HodEngine/Game/WeakComponent.hpp>
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	class HOD_UI_API InteractableVisual : public Component
 	{

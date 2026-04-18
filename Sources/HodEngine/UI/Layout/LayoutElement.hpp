@@ -5,7 +5,7 @@
 #include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Core/Event.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief 
 	class HOD_UI_API LayoutElement : public Component

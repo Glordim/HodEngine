@@ -1,7 +1,7 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Layout/VerticalLayout.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(VerticalLayout, reflectionDescriptor)
 	{

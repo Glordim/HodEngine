@@ -13,7 +13,7 @@ namespace hod::inline game
 	class Entity;
 }
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief 
 	class HOD_UI_API Node : public Component

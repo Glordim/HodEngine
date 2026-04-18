@@ -3,7 +3,7 @@
 
 #include <HodEngine/Math/Vector4.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	class HOD_UI_API Padding final
 	{

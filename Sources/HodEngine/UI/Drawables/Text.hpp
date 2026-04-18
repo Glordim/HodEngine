@@ -6,7 +6,7 @@
 #include <HodEngine/Renderer/Resource/FontResource.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief
 	class HOD_UI_API Text : public Drawable

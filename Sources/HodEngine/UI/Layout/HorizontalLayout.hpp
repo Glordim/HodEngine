@@ -3,7 +3,7 @@
 
 #include "HodEngine/UI/Layout/AxisLayout.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief 
 	class HOD_UI_API HorizontalLayout : public AxisLayout

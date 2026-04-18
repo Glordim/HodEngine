@@ -11,7 +11,7 @@
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Game/World.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_ENUM(Text::Alignment, reflectionDescriptor)
 	{

@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_ENUM(ContentSizeFitter::FitMode, reflectionDescriptor)
 	{

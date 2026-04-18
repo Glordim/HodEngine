@@ -5,7 +5,7 @@
 
 #include <HodEngine/Game/Component.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	class HOD_UI_API Rebuildable : public Component
 	{

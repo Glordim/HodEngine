@@ -15,7 +15,7 @@
 #undef min
 #undef max
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_ENUM(Canvas::RenderMode, reflectionDescriptor)
 	{

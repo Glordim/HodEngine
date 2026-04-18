@@ -3,7 +3,7 @@
 
 #include <HodEngine/Game/Entity.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(InteractableVisual, reflectionDescriptor)
 	{

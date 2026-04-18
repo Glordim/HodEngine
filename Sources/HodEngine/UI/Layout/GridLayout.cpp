@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_ENUM(GridLayout::Constraint, reflectionDescriptor)
 	{

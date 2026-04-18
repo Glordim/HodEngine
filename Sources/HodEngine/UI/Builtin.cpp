@@ -16,7 +16,7 @@
 
 #include "HodEngine/UI/Fitter/ContentSizeFitter.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	void RegisterBuiltin()
 	{

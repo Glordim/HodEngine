@@ -3,7 +3,7 @@
 
 #include "HodEngine/UI/Layout/Layout.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief
 	class HOD_UI_API GridLayout : public Layout

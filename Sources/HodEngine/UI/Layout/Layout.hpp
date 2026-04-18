@@ -9,7 +9,7 @@
 #include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Game/Entity.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief
 	class HOD_UI_API Layout : public Rebuildable

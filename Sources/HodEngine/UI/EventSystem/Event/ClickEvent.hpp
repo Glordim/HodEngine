@@ -3,7 +3,7 @@
 
 #include "HodEngine/UI/EventSystem/Event/Event.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief 
 	struct HOD_UI_API ClickEvent : public Event

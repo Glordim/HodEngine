@@ -3,7 +3,7 @@
 
 #include <HodEngine/Game/Component.hpp>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	struct PointerEnterEvent;
 	struct PointerExitEvent;

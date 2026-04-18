@@ -12,7 +12,7 @@ namespace hod::inline game
 	class Entity;
 }
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	class Node;
 	class Rebuildable;

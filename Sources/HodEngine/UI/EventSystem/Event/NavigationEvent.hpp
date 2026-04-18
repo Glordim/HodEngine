@@ -4,7 +4,7 @@
 #include "HodEngine/UI/EventSystem/Event/Event.hpp"
 #include "HodEngine/UI/NavigationDirection.hpp"
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	/// @brief 
 	struct HOD_UI_API NavigationEvent : public Event

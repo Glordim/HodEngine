@@ -7,7 +7,7 @@
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
 #include <array>
 
-namespace hod::ui
+namespace hod::inline ui
 {
 	class HOD_UI_API Interactable : public EventListener
 	{
