@@ -21,7 +21,7 @@ namespace hod::inline editor
 		(void)reflectionDescriptor;
 	}
 
-	DeviceWindow::DeviceWindow(input::Device* device)
+	DeviceWindow::DeviceWindow(Device* device)
 	: _device(device)
 	{
 		SetTitle(fmt::format("{} {}", deviceTypeToIcon[(uint8_t)device->GetType()], device->GetName()));

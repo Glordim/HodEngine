@@ -6,5 +6,5 @@
 
 namespace hod::inline editor
 {
-    extern const char* deviceTypeToIcon[static_cast<uint8_t>(input::Device::Type::Count)];
+    extern const char* deviceTypeToIcon[static_cast<uint8_t>(Device::Type::Count)];
 }

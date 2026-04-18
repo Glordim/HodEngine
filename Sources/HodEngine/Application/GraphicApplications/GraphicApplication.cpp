@@ -76,8 +76,8 @@ namespace hod::inline application
 
 		_window = platformDisplayManager->GetMainWindow();
 
-		input::InputManager::CreateInstance();
-		if (input::InputManager::GetInstance()->Initialize() == false)
+		InputManager::CreateInstance();
+		if (InputManager::GetInstance()->Initialize() == false)
 		{
 			return false;
 		}
@@ -111,7 +111,7 @@ namespace hod::inline application
 		DefaultAllocator::GetInstance().Delete(_window);
 		renderer::Renderer::GetInstance()->Clear();
 		renderer::Renderer::DestroyInstance();
-		input::InputManager::DestroyInstance();
+		InputManager::DestroyInstance();
 		PlatformDisplayManager::DestroyInstance();
 		PlatformAudioManager::DestroyInstance();
 

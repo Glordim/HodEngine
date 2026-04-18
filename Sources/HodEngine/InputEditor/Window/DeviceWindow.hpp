@@ -19,12 +19,12 @@ namespace hod::inline editor
 	public:
 
 		DeviceWindow() = default; // TODO REMOVE
-		DeviceWindow(input::Device* device);
+		DeviceWindow(Device* device);
 
 		void				DrawContent() override;
 
 	private:
 
-		input::Device* _device;
+		Device* _device;
 	};
 }

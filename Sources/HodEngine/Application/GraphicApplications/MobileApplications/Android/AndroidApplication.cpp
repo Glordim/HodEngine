@@ -116,8 +116,8 @@ namespace hod::inline application
 
 		_window = androidDisplayManager->CreateMainWindow(_androidApp->window);
 
-		input::InputManager::CreateInstance();
-		if (input::InputManager::GetInstance()->Initialize() == false)
+		InputManager::CreateInstance();
+		if (InputManager::GetInstance()->Initialize() == false)
 		{
 			return false;
 		}
