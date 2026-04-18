@@ -65,7 +65,7 @@ namespace hod::inline game
 		void OnDisable() override;
 		void OnDestruct() override;
 
-		physics::Body* GetInternalBody() const;
+		Body* GetInternalBody() const;
 		Vector2        GetParentOffset(Collider2dComponent* collider) const;
 
 		void SetMode(Mode mode);
@@ -87,7 +87,7 @@ namespace hod::inline game
 		Event<const TriggerEvent&>& GetOnTriggerExitEvent();
 
 	private:
-		physics::Body* _body = nullptr;
+		Body* _body = nullptr;
 
 		Mode  _mode = Mode::Static;
 		float _gravityScale = 1.0f;

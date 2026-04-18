@@ -39,10 +39,10 @@ namespace hod::inline game
 	/// @brief
 	void Rigidbody2dComponent::OnConstruct()
 	{
-		static physics::Body::Type modeToTypeMapping[static_cast<uint32_t>(Mode::Count)] = {
-			physics::Body::Type::Static,
-			physics::Body::Type::Kinematic,
-			physics::Body::Type::Dynamic,
+		static Body::Type modeToTypeMapping[static_cast<uint32_t>(Mode::Count)] = {
+			Body::Type::Static,
+			Body::Type::Kinematic,
+			Body::Type::Dynamic,
 		};
 
 		Vector2 position = Vector2::Zero;
@@ -65,7 +65,7 @@ namespace hod::inline game
 				}
 			});
 		_body->SetCollisionEnterCallback(
-			[this](const physics::Collision& collision)
+			[this](const Collision& collision)
 			{
 				CollisionEvent collisionEvent;
 				collisionEvent._collider = static_cast<Collider2dComponent*>(collision._colliderA.GetUserData());
@@ -75,7 +75,7 @@ namespace hod::inline game
 				_onCollisionEnterEvent.Emit(collisionEvent);
 			});
 		_body->SetCollisionExitCallback(
-			[this](const physics::Collision& collision)
+			[this](const Collision& collision)
 			{
 				CollisionEvent collisionEvent;
 				collisionEvent._collider = static_cast<Collider2dComponent*>(collision._colliderA.GetUserData());
@@ -85,7 +85,7 @@ namespace hod::inline game
 				_onCollisionExitEvent.Emit(collisionEvent);
 			});
 		_body->SetTriggerEnterCallback(
-			[this](const physics::Collider& trigger, const physics::Collider& visitor)
+			[this](const Collider& trigger, const Collider& visitor)
 			{
 				TriggerEvent triggerEvent;
 				triggerEvent._collider = static_cast<Collider2dComponent*>(trigger.GetUserData());
@@ -94,7 +94,7 @@ namespace hod::inline game
 				_onTriggerEnterEvent.Emit(triggerEvent);
 			});
 		_body->SetTriggerExitCallback(
-			[this](const physics::Collider& trigger, const physics::Collider& visitor)
+			[this](const Collider& trigger, const Collider& visitor)
 			{
 				TriggerEvent triggerEvent;
 				triggerEvent._collider = static_cast<Collider2dComponent*>(trigger.GetUserData());
@@ -159,9 +159,9 @@ namespace hod::inline game
 
 		/*
 		// todo check if have slot connected ?
-		Vector<physics::Collision> collisions;
+		Vector<Collision> collisions;
 		_body->GetCollisions(collisions);
-		for (const physics::Collision& collision : collisions)
+		for (const Collision& collision : collisions)
 		{
 		    _onCollisionEnterEvent.Emit(collision);
 		}
@@ -176,7 +176,7 @@ namespace hod::inline game
 
 	/// @brief
 	/// @return
-	physics::Body* Rigidbody2dComponent::GetInternalBody() const
+	Body* Rigidbody2dComponent::GetInternalBody() const
 	{
 		return _body;
 	}
@@ -205,10 +205,10 @@ namespace hod::inline game
 		_mode = mode;
 		if (_body != nullptr)
 		{
-			static physics::Body::Type modeToTypeMapping[static_cast<uint32_t>(Mode::Count)] = {
-				physics::Body::Type::Static,
-				physics::Body::Type::Kinematic,
-				physics::Body::Type::Dynamic,
+			static Body::Type modeToTypeMapping[static_cast<uint32_t>(Mode::Count)] = {
+				Body::Type::Static,
+				Body::Type::Kinematic,
+				Body::Type::Dynamic,
 			};
 
 			_body->SetType(modeToTypeMapping[std::to_underlying(_mode)]);

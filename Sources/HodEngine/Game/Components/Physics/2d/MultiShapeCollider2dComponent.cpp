@@ -37,17 +37,17 @@ namespace hod::inline game
 		Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
 		Vector2        scale = GetScale();
-		physics::Body* body = rigidbody->GetInternalBody();
+		Body* body = rigidbody->GetInternalBody();
 
 		for (const CircleShape& circle : _circles)
 		{
-			physics::Collider* collider = body->AddCircleShape(_isTrigger, parentOffset + circle._origin * scale, circle._radius * scale.GetX());
+			Collider* collider = body->AddCircleShape(_isTrigger, parentOffset + circle._origin * scale, circle._radius * scale.GetX());
 			collider->SetUserData(this);
 		}
 
 		for (const BoxShape& box : _boxes)
 		{
-			physics::Collider* collider = body->AddBoxShape(_isTrigger, parentOffset + box._origin * scale, box._size * scale, box._angle);
+			Collider* collider = body->AddBoxShape(_isTrigger, parentOffset + box._origin * scale, box._size * scale, box._angle);
 			collider->SetUserData(this);
 		}
 	}
@@ -58,7 +58,7 @@ namespace hod::inline game
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
 		if (rigidbody != nullptr)
 		{
-			physics::Body* body = rigidbody->GetInternalBody();
+			Body* body = rigidbody->GetInternalBody();
 			if (body != nullptr)
 			{
 				body->ClearAllShapes();
@@ -76,14 +76,14 @@ namespace hod::inline game
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
 		if (rigidbody != nullptr)
 		{
-			physics::Body* body = rigidbody->GetInternalBody();
+			Body* body = rigidbody->GetInternalBody();
 			if (body != nullptr)
 			{
 				Rigidbody2dComponent* rigidbody = GetRigidbody();
 				Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
 				Vector2            scale = GetScale();
-				physics::Collider* collider = body->AddCircleShape(_isTrigger, parentOffset + circleShape._origin * scale, circleShape._radius * scale.GetX());
+				Collider* collider = body->AddCircleShape(_isTrigger, parentOffset + circleShape._origin * scale, circleShape._radius * scale.GetX());
 				collider->SetUserData(this);
 				_circles.push_back(circleShape);
 			}
@@ -104,14 +104,14 @@ namespace hod::inline game
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
 		if (rigidbody != nullptr)
 		{
-			physics::Body* body = rigidbody->GetInternalBody();
+			Body* body = rigidbody->GetInternalBody();
 			if (body != nullptr)
 			{
 				Rigidbody2dComponent* rigidbody = GetRigidbody();
 				Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
 				Vector2            scale = GetScale();
-				physics::Collider* collider = body->AddBoxShape(_isTrigger, parentOffset + boxshape._origin * scale, boxshape._size * scale, boxshape._angle);
+				Collider* collider = body->AddBoxShape(_isTrigger, parentOffset + boxshape._origin * scale, boxshape._size * scale, boxshape._angle);
 				collider->SetUserData(this);
 				_boxes.push_back(boxshape);
 			}

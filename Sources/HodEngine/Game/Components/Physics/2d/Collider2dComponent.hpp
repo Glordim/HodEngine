@@ -75,7 +75,7 @@ namespace hod::inline game
 
 	protected:
 
-		physics::Collider*	_collider = nullptr;
+		Collider*	_collider = nullptr;
 
 		bool			_isTrigger = false;
 		float			_friction = 0.5f;

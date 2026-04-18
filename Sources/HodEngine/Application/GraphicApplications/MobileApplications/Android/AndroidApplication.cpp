@@ -78,7 +78,7 @@ namespace hod::inline application
 
 		ResourceManager::CreateInstance();
 
-		physics::Physics::CreatePhysicsInstance()->Init();
+		Physics::CreatePhysicsInstance()->Init();
 
 		PlatformAudioManager::CreateInstance();
 		if (PlatformAudioManager::GetInstance()->Initialize() == false)

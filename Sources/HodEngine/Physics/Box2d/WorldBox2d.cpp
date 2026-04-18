@@ -188,7 +188,7 @@ namespace hod::inline physics
 	/// @param distance
 	/// @param result
 	/// @return
-	bool WorldBox2d::Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result)
+	bool WorldBox2d::Raycast(const Vector2& origin, const Vector2& dir, float distance, RaycastResult& result)
 	{
 		// TODO
 		//_world->RayCast();

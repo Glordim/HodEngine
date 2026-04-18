@@ -60,7 +60,7 @@ namespace hod::inline application
 
 		ResourceManager::CreateInstance();
 
-		physics::Physics::CreatePhysicsInstance()->Init();
+		Physics::CreatePhysicsInstance()->Init();
 
 		PlatformAudioManager::CreateInstance();
 		if (PlatformAudioManager::GetInstance()->Initialize() == false)
@@ -115,7 +115,7 @@ namespace hod::inline application
 		PlatformDisplayManager::DestroyInstance();
 		PlatformAudioManager::DestroyInstance();
 
-		physics::Physics::DestroyPhysicsInstance();
+		Physics::DestroyPhysicsInstance();
 
 		ResourceManager::DestroyInstance();
 

@@ -43,7 +43,7 @@ namespace hod::inline application
 
 		ResourceManager::CreateInstance();
 
-		physics::Physics::CreatePhysicsInstance()->Init();
+		Physics::CreatePhysicsInstance()->Init();
 
 		ComponentFactory::CreateInstance();
 		SerializedDataFactory::CreateInstance();
@@ -58,7 +58,7 @@ namespace hod::inline application
 		SerializedDataFactory::DestroyInstance();
 		ComponentFactory::DestroyInstance();
 
-		physics::Physics::DestroyPhysicsInstance();
+		Physics::DestroyPhysicsInstance();
 
 		ResourceManager::DestroyInstance();
 

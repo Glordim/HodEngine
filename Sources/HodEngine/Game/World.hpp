@@ -67,7 +67,7 @@ namespace hod::inline game
 		
 		Entity*						FindEntity(uint64_t entityId);
 
-//			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
+//			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
 		void						Draw(renderer::RenderView& renderView);
 

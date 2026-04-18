@@ -101,7 +101,7 @@ namespace hod::inline game
 	/// @return
 	bool World::Init()
 	{
-		_physicsWorld = physics::Physics::GetInstance()->CreateWorld();
+		_physicsWorld = Physics::GetInstance()->CreateWorld();
 
 		_lastUpdateTimestamp = SystemTime::Now();
 

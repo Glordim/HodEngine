@@ -35,7 +35,7 @@ namespace hod::inline physics
 
 		virtual void		Update(float dt) = 0;
 
-		virtual bool		Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result) = 0;
+		virtual bool		Raycast(const Vector2& origin, const Vector2& dir, float distance, RaycastResult& result) = 0;
 
 		DebugDrawer*		GetDebugDrawer();
 
