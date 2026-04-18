@@ -42,24 +42,26 @@ namespace hod::renderer
 			return false;
 		}
 
-		if (datas.Size() != 2)
+		if (datas.Size() != 4)
 		{
 			// TODO message
 			return false;
 		}
 
 		const Resource::Data& vertexData = datas[0];
+		const Resource::Data& vertexReflectionData = datas[1];
 		_vertexShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Vertex);
-		if (_vertexShader->LoadFromIR(vertexData._buffer, vertexData._size, nullptr, 0) == false) // todo reflection
+		if (_vertexShader->LoadFromIR(vertexData._buffer, vertexData._size, (const char*)vertexReflectionData._buffer, vertexReflectionData._size) == false) // todo reflection
 		{
 			DefaultAllocator::GetInstance().Delete(_vertexShader);
 			_vertexShader = nullptr;
 			return false;
 		}
 
-		const Resource::Data& fragmentData = datas[1];
+		const Resource::Data& fragmentData = datas[2];
+		const Resource::Data& fragmentReflectionData = datas[3];
 		_fragmentShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Fragment);
-		if (_fragmentShader->LoadFromIR(fragmentData._buffer, fragmentData._size, nullptr, 0) == false) // todo reflection
+		if (_fragmentShader->LoadFromIR(fragmentData._buffer, fragmentData._size, (const char*)fragmentReflectionData._buffer, fragmentReflectionData._size) == false) // todo reflection
 		{
 			DefaultAllocator::GetInstance().Delete(_fragmentShader);
 			_fragmentShader = nullptr;
