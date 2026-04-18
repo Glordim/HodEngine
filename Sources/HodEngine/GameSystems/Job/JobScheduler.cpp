@@ -3,7 +3,7 @@
 
 #include "HodEngine/GameSystems/Job/Job.hpp"
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	/// @brief
 	JobScheduler::JobScheduler()

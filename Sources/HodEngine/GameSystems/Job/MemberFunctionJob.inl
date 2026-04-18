@@ -1,5 +1,5 @@
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	template<typename Type, typename Function>
 	MemberFunctionJob<Type, Function>::MemberFunctionJob(Type* instance, Function memberFunction, JobQueue::Queue queue, bool deleteAfterCompletion, Thread::Id threadId)

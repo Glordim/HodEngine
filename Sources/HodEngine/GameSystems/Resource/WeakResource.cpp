@@ -4,7 +4,7 @@
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	DESCRIBE_REFLECTED_CLASS(WeakResourceBase, reflectionDescriptor)
 	{

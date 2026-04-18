@@ -3,7 +3,7 @@
 #include <atomic>
 #include <stdint.h>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	template<typename _Type_, uint32_t _Capacity_>
 	class LockFreeQueue

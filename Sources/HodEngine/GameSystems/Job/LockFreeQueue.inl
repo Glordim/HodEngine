@@ -1,5 +1,5 @@
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	/// @brief
 	/// @tparam _Type_

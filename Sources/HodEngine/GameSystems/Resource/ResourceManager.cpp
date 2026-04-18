@@ -12,7 +12,7 @@
 
 #undef FindResource
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	/// @brief
 	/// @param directory

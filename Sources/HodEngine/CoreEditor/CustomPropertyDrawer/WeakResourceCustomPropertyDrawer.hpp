@@ -7,7 +7,7 @@ namespace hod::inline core
 {
 	class ReflectionPropertyObject;
 }
-namespace hod
+namespace hod::inline gamesystems
 {
 	class WeakResourceBase;
 }

@@ -7,7 +7,7 @@
 
 #include <atomic>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	/// @brief
 	class HOD_GAME_SYSTEMS_API Job

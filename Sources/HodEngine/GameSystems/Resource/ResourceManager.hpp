@@ -12,14 +12,14 @@
 
 #undef FindResource
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	class Resource;
 
 	class HOD_GAME_SYSTEMS_API ResourceManager : public Singleton<ResourceManager>
 	{
 		friend class Singleton<ResourceManager>;
-		friend class Allocator;
+		friend class hod::Allocator;
 
 	public:
 		void SetResourceDirectory(const Path& directory);

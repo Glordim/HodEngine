@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	class Job;
 
@@ -14,7 +14,7 @@ namespace hod
 	class HOD_GAME_SYSTEMS_API FrameSequencer : public Singleton<FrameSequencer>
 	{
 		friend class Singleton<FrameSequencer>;
-		friend class Allocator;
+		friend class hod::Allocator;
 
 	public:
 		enum class Step

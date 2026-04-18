@@ -5,7 +5,7 @@
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/UID.hpp>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	class Resource;
 

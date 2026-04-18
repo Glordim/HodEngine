@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	/// @brief
 	/// @param queue

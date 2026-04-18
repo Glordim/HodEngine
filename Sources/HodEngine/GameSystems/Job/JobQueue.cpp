@@ -9,7 +9,7 @@
 #include "HodEngine/Core/String.hpp"
 #include <atomic>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	/// @brief
 	const char* jobQueueNames[static_cast<uint32_t>(JobQueue::Queue::COUNT)] = {

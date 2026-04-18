@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	class Job;
 
@@ -16,7 +16,7 @@ namespace hod
 	class HOD_GAME_SYSTEMS_API JobScheduler : public Singleton<JobScheduler>
 	{
 		friend class Singleton<JobScheduler>;
-		friend class Allocator;
+		friend class hod::Allocator;
 
 	public:
 		void Push(Job* job);

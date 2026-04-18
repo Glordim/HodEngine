@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	class Job;
 

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	/// @brief
 	FrameSequencer::FrameSequencer() {}

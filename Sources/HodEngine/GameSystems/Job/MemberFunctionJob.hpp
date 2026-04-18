@@ -2,7 +2,7 @@
 
 #include "HodEngine/GameSystems/Job/Job.hpp"
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	/// @brief
 	template<typename Type, typename Function = void (Type::*)()>

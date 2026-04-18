@@ -6,7 +6,7 @@
 
 #include <atomic>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	class Job;
 

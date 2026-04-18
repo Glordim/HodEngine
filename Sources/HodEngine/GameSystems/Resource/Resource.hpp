@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace hod
+namespace hod::inline gamesystems
 {
 	class HOD_GAME_SYSTEMS_API Resource : public std::enable_shared_from_this<Resource>
 	{
