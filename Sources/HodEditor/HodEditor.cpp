@@ -36,8 +36,8 @@ bool HodEditor::Init(const hod::ArgumentParser& argumentParser)
 		return false;
 	}
 
-	hod::editor::Editor::CreateInstance();
-	if (hod::editor::Editor::GetInstance()->Init(argumentParser) == false)
+	hod::Editor::CreateInstance();
+	if (hod::Editor::GetInstance()->Init(argumentParser) == false)
 	{
 		return false;
 	}
@@ -48,7 +48,7 @@ bool HodEditor::Init(const hod::ArgumentParser& argumentParser)
 /// @brief
 void HodEditor::Terminate()
 {
-	hod::editor::Editor::DestroyInstance();
+	hod::Editor::DestroyInstance();
 
 	PlatformApplication::Terminate();
 }

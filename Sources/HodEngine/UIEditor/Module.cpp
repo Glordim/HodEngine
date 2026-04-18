@@ -22,20 +22,20 @@ using namespace hod::editor;
 
 HOD_STARTUP_MODULE(UIEditor)
 {
-	hod::editor::CustomComponentDrawerRegistry::Register<ui::Canvas, CanvasCustomComponentDrawer>();
-	hod::editor::CustomComponentDrawerRegistry::Register<ui::Node, NodeCustomComponentDrawer>();
+	hod::CustomComponentDrawerRegistry::Register<ui::Canvas, CanvasCustomComponentDrawer>();
+	hod::CustomComponentDrawerRegistry::Register<ui::Node, NodeCustomComponentDrawer>();
 
-	hod::editor::CustomPropertyDrawerRegistry::Register<ui::Padding, PaddingCustomPropertyDrawer>();
+	hod::CustomPropertyDrawerRegistry::Register<ui::Padding, PaddingCustomPropertyDrawer>();
 	
 	return 0;
 }
 
 HOD_SHUTDOWN_MODULE(UIEditor)
 {
-	hod::editor::CustomComponentDrawerRegistry::Unregister<ui::Canvas>();
-	hod::editor::CustomComponentDrawerRegistry::Unregister<ui::Node>();
+	hod::CustomComponentDrawerRegistry::Unregister<ui::Canvas>();
+	hod::CustomComponentDrawerRegistry::Unregister<ui::Node>();
 
-	hod::editor::CustomPropertyDrawerRegistry::Unregister<ui::Padding>();
+	hod::CustomPropertyDrawerRegistry::Unregister<ui::Padding>();
 
 	return 0;
 }
