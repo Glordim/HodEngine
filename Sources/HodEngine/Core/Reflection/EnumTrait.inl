@@ -4,7 +4,7 @@
 #undef max
 #undef min
 
-namespace hod
+namespace hod::inline core
 {
 	template<auto Enum>
 		requires std::is_enum_v<decltype(Enum)>

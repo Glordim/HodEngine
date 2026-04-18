@@ -2,7 +2,7 @@
 
 #include <HodEngine/Application/PlatformApplication.hpp>
 
-namespace hod
+namespace hod::inline core
 {
 	class ArgumentParser;
 }

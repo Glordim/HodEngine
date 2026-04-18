@@ -6,7 +6,7 @@
 #include <charconv>
 #include <cstring>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	void DocumentReaderJson::SkipWhiteSpace()

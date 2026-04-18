@@ -3,7 +3,7 @@
 #include "HodEngine/Core/StringConversion.hpp"
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param path

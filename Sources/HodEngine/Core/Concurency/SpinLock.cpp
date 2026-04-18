@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Concurency/SpinLock.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	void SpinLock::Lock()

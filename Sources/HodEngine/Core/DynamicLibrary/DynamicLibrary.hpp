@@ -17,7 +17,7 @@ struct HINSTANCE__;
 #define HOD_STARTUP_MODULE(Name) int StartupModule()
 #define HOD_SHUTDOWN_MODULE(Name) int ShutdownModule()
 
-namespace hod
+namespace hod::inline core
 {
 	class HOD_CORE_API DynamicLibrary
 	{

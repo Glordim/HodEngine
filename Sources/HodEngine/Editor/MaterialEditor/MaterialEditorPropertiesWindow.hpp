@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionDescriptor;
 }

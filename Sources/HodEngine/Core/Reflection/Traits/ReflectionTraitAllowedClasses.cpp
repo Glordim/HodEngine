@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitAllowedClasses.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @return

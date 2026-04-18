@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Debug.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	// Macro ensures the crash triggers in caller code
 #define Crash()                \

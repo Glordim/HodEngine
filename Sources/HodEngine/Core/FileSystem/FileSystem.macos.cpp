@@ -12,7 +12,7 @@
 #include <mach-o/dyld.h>
 #include <sys/param.h>
 
-namespace hod
+namespace hod::inline core
 {
 	Path FileSystem::_temporaryPath;
 	Path FileSystem::_userSettingsPath;

@@ -5,7 +5,7 @@
 
 #include <type_traits>
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionDescriptor;
 	class ReflectionPropertyVariable;

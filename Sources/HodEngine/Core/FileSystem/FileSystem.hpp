@@ -13,7 +13,7 @@ using HANDLE = void*;
 	#include <cstdio>
 #endif
 
-namespace hod
+namespace hod::inline core
 {
 	class HOD_CORE_API FileSystem
 	{

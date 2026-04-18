@@ -13,7 +13,7 @@
 
 #include <cstring>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param reflectionDescriptor

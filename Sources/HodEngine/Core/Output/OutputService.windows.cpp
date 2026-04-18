@@ -4,7 +4,7 @@
 
 #include <win32/dbghelp.h>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param type

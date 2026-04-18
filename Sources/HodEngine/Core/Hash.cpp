@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Hash.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	//-----------------------------------------------------------------------------
 	//! @fn			UInt64 HASH::ComputeFnv64(const void* pBuffer, UInt32 uiSize, UInt64 uiBasis = FNV_64_BASIS)

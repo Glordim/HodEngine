@@ -3,7 +3,7 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include <memory>
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionDescriptor;
 }

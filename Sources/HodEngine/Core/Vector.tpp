@@ -1,6 +1,6 @@
 #include <cstring>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @tparam __TYPE__

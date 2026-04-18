@@ -5,7 +5,7 @@
 // #include "HodEngine/Core/Weakable/Weakable.hpp"
 #include "HodEngine/Core/Weakable/WeakableAliveController.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename _Type_>
 	concept IsDerivedFromWeakable = true; // std::is_base_of_v<Weakable, _Type_>;

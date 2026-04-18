@@ -6,7 +6,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <mutex>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	class HOD_CORE_API OutputBucket

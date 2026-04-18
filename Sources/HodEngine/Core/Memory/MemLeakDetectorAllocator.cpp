@@ -11,7 +11,7 @@
 	#include <cstdlib>
 	#include <cstring>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	MemLeakDetectorAllocator::~MemLeakDetectorAllocator()

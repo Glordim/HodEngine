@@ -7,7 +7,7 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	///@brief
 	class HOD_CORE_API ReflectionPropertyObject : public ReflectionProperty // todo rename remove namespace

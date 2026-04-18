@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 
-namespace hod
+namespace hod::inline core
 {
 	void* MallocAllocator::AllocateInternal(uint32_t Size, uint32_t alignment)
 	{

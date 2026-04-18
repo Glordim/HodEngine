@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Weakable/WeakableAliveController.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	void WeakableAliveController::MarkAsDead()
 	{

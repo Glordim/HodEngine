@@ -1,5 +1,5 @@
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename T>
 	T* Singleton<T>::_instance = nullptr;

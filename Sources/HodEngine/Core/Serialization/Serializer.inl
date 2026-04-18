@@ -1,4 +1,4 @@
-namespace hod
+namespace hod::inline core
 {
 	template<typename _InstanceType_>
 	bool Serializer::Serialize(const _InstanceType_& instance, DocumentNode& documentNode,

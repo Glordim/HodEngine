@@ -10,7 +10,7 @@
 
 #include "HodEngine/Core/Math.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class HOD_CORE_API Allocator
 	{

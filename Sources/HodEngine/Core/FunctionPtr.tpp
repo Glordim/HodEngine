@@ -1,6 +1,6 @@
 #include <utility>
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename Return, typename... Args>
 	constexpr FunctionPtr<Return(Args...)>::FunctionPtr(std::nullptr_t) noexcept

@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Singleton.hpp>
 
-namespace hod
+namespace hod::inline core
 {
 	class ArgumentParser;
 }

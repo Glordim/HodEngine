@@ -9,7 +9,7 @@
 #include <cassert>
 #include <cstdint>
 
-namespace hod
+namespace hod::inline core
 {
 	///@brief Construct a new ReflectionDescriptor::ReflectionDescriptor object
 	///@param typeName

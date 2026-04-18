@@ -1,6 +1,6 @@
 #pragma once
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename T>
 	constexpr T Min(T a, T b)

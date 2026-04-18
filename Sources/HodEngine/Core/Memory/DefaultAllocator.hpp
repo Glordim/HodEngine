@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Memory/Allocator.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class Allocator;
 

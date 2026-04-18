@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 
-namespace hod
+namespace hod::inline core
 {
 	int priorities[Thread::Priority::Count] = {-1, 0, 1};
 

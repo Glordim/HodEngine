@@ -16,7 +16,7 @@
 
 #include "HodEngine/Game/WeakEntity.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionDescriptor;
 }

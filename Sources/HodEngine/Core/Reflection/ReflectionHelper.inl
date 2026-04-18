@@ -1,6 +1,6 @@
 
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
-namespace hod
+namespace hod::inline core
 {
 	template<typename _MemberVariable_>
 	constexpr ReflectionPropertyVariable::Type GetVariableType()

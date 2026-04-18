@@ -3,7 +3,7 @@
 
 #include <thread>
 
-namespace hod
+namespace hod::inline core
 {
 	namespace SystemInfo
 	{

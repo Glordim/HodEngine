@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param type

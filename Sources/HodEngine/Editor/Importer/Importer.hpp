@@ -8,7 +8,7 @@
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class FileStream;
 }

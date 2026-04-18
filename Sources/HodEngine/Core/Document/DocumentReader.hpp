@@ -5,7 +5,7 @@
 #include <HodEngine/Core/FileSystem/Path.hpp>
 #include <stdint.h>
 
-namespace hod
+namespace hod::inline core
 {
 	class Stream;
 	class Document;

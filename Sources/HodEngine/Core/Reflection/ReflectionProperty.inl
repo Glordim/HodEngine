@@ -1,5 +1,5 @@
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @tparam __TRAIT_TYPE__

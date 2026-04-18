@@ -8,7 +8,7 @@
 #include <win32/process.h>
 #include <win32/threads.h>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param program

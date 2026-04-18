@@ -6,7 +6,7 @@
 
 #undef CopyFile
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param path

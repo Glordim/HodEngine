@@ -3,7 +3,7 @@
 
 #include <android/asset_manager.h>
 
-namespace hod
+namespace hod::inline core
 {
 	Path FileSystem::_userSettingsPath;
 	Path FileSystem::_executablePath;

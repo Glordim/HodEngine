@@ -7,7 +7,7 @@
 #include <limits>
 #include <locale>
 
-namespace hod
+namespace hod::inline core
 {
 	namespace StringConversion
 	{

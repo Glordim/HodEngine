@@ -121,7 +121,7 @@ private:
 
 #define _SingletonOverrideConstructor(T) T::T()
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @tparam T

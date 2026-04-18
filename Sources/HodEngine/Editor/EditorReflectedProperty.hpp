@@ -9,7 +9,7 @@
 
 #undef GetObject
 
-namespace hod
+namespace hod::inline core
 {
     class ReflectionProperty;
 }

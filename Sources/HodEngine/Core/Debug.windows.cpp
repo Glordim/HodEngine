@@ -57,7 +57,7 @@ extern "C"
 	BOOL SymGetModuleInfo64(_In_ HANDLE hProcess, _In_ DWORD64 qwAddr, _Out_ PIMAGEHLP_MODULE64 ModuleInfo);
 }
 
-namespace hod
+namespace hod::inline core
 {
 	bool Debug::IsDebuggerAttached()
 	{

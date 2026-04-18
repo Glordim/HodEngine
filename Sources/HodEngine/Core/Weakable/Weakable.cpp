@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Weakable/Weakable.hpp"
 #include "HodEngine/Core/Weakable/WeakableAliveController.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	Weakable::Weakable()
 	: _aliveController(std::make_shared<WeakableAliveController>())

@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param document

@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 // Macro ensures the breakpoint triggers in caller code
 #if defined(_MSC_VER) || (defined(_WIN32) && defined(__clang__))

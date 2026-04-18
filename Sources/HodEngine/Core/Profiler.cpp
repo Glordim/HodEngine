@@ -6,7 +6,7 @@
 	#include <Superluminal/PerformanceAPI_capi.h>
 #endif
 
-namespace hod
+namespace hod::inline core
 {
 	ProfilerScopedEvent::ProfilerScopedEvent(const char* name, const char* param)
 	{

@@ -8,7 +8,7 @@
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionDescriptor;
 }

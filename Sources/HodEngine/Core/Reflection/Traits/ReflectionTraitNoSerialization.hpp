@@ -6,7 +6,7 @@
 
 #include <functional>
 
-namespace hod
+namespace hod::inline core
 {
 	///@brief
 	class HOD_CORE_API ReflectionTraitNoSerialization : public ReflectionTrait

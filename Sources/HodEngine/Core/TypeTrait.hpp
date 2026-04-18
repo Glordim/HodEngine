@@ -13,7 +13,7 @@ namespace std
 	}
 }
 
-namespace hod
+namespace hod::inline core
 {
 	template<class...>
 	constexpr std::false_type always_false {};

@@ -9,7 +9,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class HOD_CORE_API Document
 	{

@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	///@brief
 	class HOD_CORE_API ReflectionTraitSerializedByCallback : public ReflectionTrait

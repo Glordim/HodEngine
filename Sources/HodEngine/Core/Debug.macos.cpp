@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace hod
+namespace hod::inline core
 {
 	bool Debug::IsDebuggerAttached()
 	{

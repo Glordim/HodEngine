@@ -10,7 +10,7 @@
 #include <dirent.h>
 #include <unistd.h>
 
-namespace hod
+namespace hod::inline core
 {
 	static_assert(static_cast<int>(FileSystem::SeekMode::Begin) == SEEK_SET);
 	static_assert(static_cast<int>(FileSystem::SeekMode::Current) == SEEK_CUR);

@@ -3,7 +3,7 @@
 
 #include <cstdarg>
 
-namespace hod
+namespace hod::inline core
 {
 	String::String()
 	: _small{}

@@ -4,7 +4,7 @@
 #include "HodEngine/Core/FileSystem/Path.hpp"
 #include <dlfcn.h>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @return

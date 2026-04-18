@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param offset

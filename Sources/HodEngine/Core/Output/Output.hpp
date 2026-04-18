@@ -5,7 +5,7 @@
 
 #include "HodEngine/Core/String.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	struct HOD_CORE_API Output

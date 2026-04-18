@@ -1,6 +1,6 @@
 #include "HodEngine/Core/CharHelper.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	String GenerateDisplayName(const std::string_view& name)
 	{

@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawer.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionPropertyObject;
 }

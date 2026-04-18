@@ -13,7 +13,7 @@ extern "C"
 
 #undef CopyFile
 
-namespace hod
+namespace hod::inline core
 {
 	static_assert(static_cast<DWORD>(FileSystem::SeekMode::Begin) == FILE_BEGIN);
 	static_assert(static_cast<DWORD>(FileSystem::SeekMode::Current) == FILE_CURRENT);

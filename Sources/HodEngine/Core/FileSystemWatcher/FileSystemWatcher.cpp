@@ -4,7 +4,7 @@
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	FileSystemWatcher::FileSystemWatcher()

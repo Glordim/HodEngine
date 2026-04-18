@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionDescriptor;
 }

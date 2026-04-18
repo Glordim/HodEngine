@@ -4,7 +4,7 @@
 
 #include <android/log.h>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param type

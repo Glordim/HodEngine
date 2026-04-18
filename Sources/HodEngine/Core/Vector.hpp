@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include <iterator>
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename __TYPE__>
 	class Vector

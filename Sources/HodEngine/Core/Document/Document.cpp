@@ -5,7 +5,7 @@
 
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	DESCRIBE_REFLECTED_CLASS(Document, reflectionDescriptor)
 	{

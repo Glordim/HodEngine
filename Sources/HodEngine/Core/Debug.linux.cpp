@@ -6,7 +6,7 @@
 #include <dlfcn.h>
 #include <execinfo.h>
 
-namespace hod
+namespace hod::inline core
 {
 	bool Debug::IsDebuggerAttached()
 	{

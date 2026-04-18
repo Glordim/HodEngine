@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Document/DocumentNode.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param name

@@ -3,7 +3,7 @@
 #include "HodEngine/Core/String.hpp"
 #include <string_view>
 
-namespace hod
+namespace hod::inline core
 {
 	constexpr bool IsNumeric(char c)
 	{

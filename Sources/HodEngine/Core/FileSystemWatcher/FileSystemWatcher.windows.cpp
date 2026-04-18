@@ -13,12 +13,8 @@ extern "C"
 {
 	BOOL WINAPI GetOverlappedResult(_In_ HANDLE hFile, _In_ LPOVERLAPPED lpOverlapped, _Out_ LPDWORD lpNumberOfBytesTransferred, _In_ BOOL bWait);
 }
-
-namespace hod
+namespace hod::inline core
 {
-	/// @brief
-	/// @param path
-	/// @return
 	bool FileSystemWatcher::InternalInit()
 	{
 		if (FileSystem::GetInstance()->IsDirectory(_path))

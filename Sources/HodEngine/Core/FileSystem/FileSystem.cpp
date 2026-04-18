@@ -2,7 +2,7 @@
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/UID.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	_SingletonConstructor(FileSystem) {}
 

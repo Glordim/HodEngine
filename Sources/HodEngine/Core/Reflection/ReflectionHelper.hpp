@@ -12,7 +12,7 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/TypeTrait.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	///@brief
 	class HOD_CORE_API ReflectionHelper
@@ -24,7 +24,7 @@ namespace hod
 	};
 }
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename _Enum_>
 	class ReflectedEnum

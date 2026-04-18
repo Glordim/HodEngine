@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	///@brief
 	ReflectionTraitDisplayName::ReflectionTraitDisplayName(const std::string_view& name)

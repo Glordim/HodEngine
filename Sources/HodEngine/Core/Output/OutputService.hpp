@@ -10,7 +10,7 @@
 #define OUTPUT_WARNING(...) hod::OutputService::AddOutput(__FILE__, __LINE__, hod::Output::Type::Warning, __VA_ARGS__);
 #define OUTPUT_ERROR(...) hod::OutputService::AddOutput(__FILE__, __LINE__, hod::Output::Type::Error, __VA_ARGS__);
 
-namespace hod
+namespace hod::inline core
 {
 	class OutputBucket;
 

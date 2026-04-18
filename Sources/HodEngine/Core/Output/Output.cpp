@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Output/Output.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	const char* Output::_typeNames[std::to_underlying(Type::Count)] = {"Message", "Warning", "Error", "Assert"};

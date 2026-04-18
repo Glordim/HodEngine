@@ -17,7 +17,7 @@
 #endif
 //
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	class HOD_CORE_API String

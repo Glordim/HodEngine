@@ -8,7 +8,7 @@
 
 #include <map>
 
-namespace hod::core
+namespace hod::inline core
 {
 	class ReflectionDescriptor;
 }

@@ -7,7 +7,7 @@
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Core/Reflection/Rtti.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionTrait;
 

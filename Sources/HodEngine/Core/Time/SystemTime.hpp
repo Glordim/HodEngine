@@ -7,7 +7,7 @@
 	#include <time.h>
 #endif
 
-namespace hod
+namespace hod::inline core
 {
 	class HOD_CORE_API SystemTime
 	{

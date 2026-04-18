@@ -9,7 +9,7 @@
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/TypeTrait.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionTrait;
 	class ReflectionProperty;

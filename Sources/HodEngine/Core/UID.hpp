@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Core/String.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	class HOD_CORE_API UID final

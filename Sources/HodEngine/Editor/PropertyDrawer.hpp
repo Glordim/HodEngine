@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-namespace hod
+namespace hod::inline core
 {
     class ReflectionDescriptor;
 	class ReflectionProperty;

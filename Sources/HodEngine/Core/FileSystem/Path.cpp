@@ -14,7 +14,7 @@
 	#include <unistd.h>
 #endif
 
-namespace hod
+namespace hod::inline core
 {
 	Path::Path() {}
 

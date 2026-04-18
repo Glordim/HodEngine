@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename>
 	class FunctionPtr;

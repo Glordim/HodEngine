@@ -5,7 +5,7 @@
 #include <memory>
 #include <string_view>
 
-namespace hod
+namespace hod::inline core
 {
 	class ReflectionDescriptor;
 }

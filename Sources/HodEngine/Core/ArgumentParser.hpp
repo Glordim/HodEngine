@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	struct HOD_CORE_API Argument

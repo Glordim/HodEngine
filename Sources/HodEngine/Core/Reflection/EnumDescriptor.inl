@@ -1,6 +1,6 @@
 #include "HodEngine/Core/Reflection/EnumTrait.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @tparam __TYPE__

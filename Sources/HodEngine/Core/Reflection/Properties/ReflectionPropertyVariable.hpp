@@ -9,7 +9,7 @@
 #include <cassert>
 #include <functional>
 
-namespace hod
+namespace hod::inline core
 {
 	class EnumDescriptor;
 

@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Memory/MallocAllocator.hpp"
 #include "HodEngine/Core/Memory/MemLeakDetectorAllocator.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 #if defined(HOD_ENABLED_MEMLEAK_DETECTOR)
 	using DefaultAllocatorType = MemLeakDetectorAllocator;

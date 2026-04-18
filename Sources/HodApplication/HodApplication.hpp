@@ -3,7 +3,7 @@
 #include <HodEngine/Application/PlatformApplication.hpp>
 #include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 
-namespace hod
+namespace hod::inline core
 {
 	class ArgumentParser;
 }

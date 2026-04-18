@@ -4,7 +4,7 @@
 #include "HodEngine/Core/String.hpp"
 #include <string_view>
 
-namespace hod
+namespace hod::inline core
 {
 	namespace StringConversion
 	{

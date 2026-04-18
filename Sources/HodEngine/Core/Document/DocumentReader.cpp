@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param document

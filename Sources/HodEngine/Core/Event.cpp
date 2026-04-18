@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Event.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	Delegate::~Delegate()
 	{

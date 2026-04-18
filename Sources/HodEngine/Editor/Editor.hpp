@@ -13,7 +13,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/FpsCounter.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	class ArgumentParser;
 }

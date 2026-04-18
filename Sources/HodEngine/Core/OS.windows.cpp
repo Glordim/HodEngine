@@ -13,7 +13,7 @@ extern "C"
 	HANDLE    LocalFree(HANDLE hMem);
 }
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @return

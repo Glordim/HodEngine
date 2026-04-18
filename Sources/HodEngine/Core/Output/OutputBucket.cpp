@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Output/OutputBucket.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	void OutputBucket::Clear()

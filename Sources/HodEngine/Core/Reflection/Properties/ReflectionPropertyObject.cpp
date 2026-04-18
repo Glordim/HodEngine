@@ -1,7 +1,7 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @param offset

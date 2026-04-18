@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	bool _reportingAssert = false;
 

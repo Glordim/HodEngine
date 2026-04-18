@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReader.hpp"
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	class HOD_CORE_API DocumentReaderJson : public DocumentReader

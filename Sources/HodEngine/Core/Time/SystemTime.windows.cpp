@@ -3,7 +3,7 @@
 
 #include <win32/misc.h>
 
-namespace hod
+namespace hod::inline core
 {
 	/// @brief
 	/// @return

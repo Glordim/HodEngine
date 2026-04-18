@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-namespace hod
+namespace hod::inline core
 {
 	bool OS::OpenFileWithDefaultApp(const char* filePath)
 	{

@@ -17,7 +17,7 @@ struct _OVERLAPPED;
 #include <functional>
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
-namespace hod
+namespace hod::inline core
 {
 	class HOD_CORE_API FileSystemWatcher
 	{

@@ -1,5 +1,5 @@
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename _type_>
 	_type_ ReflectionPropertyVariable::GetValue(const void* instance) const

@@ -1,5 +1,5 @@
 
-namespace hod
+namespace hod::inline core
 {
 	template<typename T, size_t Size>
 	void DocumentNode::SetValues(const std::span<T, Size>& values)
