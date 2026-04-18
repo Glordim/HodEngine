@@ -14,7 +14,7 @@ namespace hod::inline core
 	class ReflectionDescriptor;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief 
 	class HOD_GAME_API ComponentFactory

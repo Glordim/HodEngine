@@ -14,7 +14,7 @@
 
 #undef max
 
-namespace hod::game
+namespace hod::inline game
 {
 	std::atomic<uint64_t> Entity::_nextInstanceId = 0;
 

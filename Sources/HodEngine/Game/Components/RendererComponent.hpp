@@ -12,7 +12,7 @@ namespace hod::renderer
 	class RenderView;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	class CameraComponent;
 	class PointLightComponent;

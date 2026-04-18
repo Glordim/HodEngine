@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 #include <memory>
 
-namespace hod::game
+namespace hod::inline game
 {
 	class Entity;
 	class Component;

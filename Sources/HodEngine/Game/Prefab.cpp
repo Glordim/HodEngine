@@ -13,7 +13,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Math/Color.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(Prefab, reflectionDescriptor)
 	{

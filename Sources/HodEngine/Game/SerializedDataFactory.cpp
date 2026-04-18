@@ -1,7 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/SerializedDataFactory.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	_SingletonConstructor(SerializedDataFactory)
 	{

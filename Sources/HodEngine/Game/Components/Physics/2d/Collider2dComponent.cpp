@@ -12,7 +12,7 @@
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitAllowedClasses.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(Collider2dComponent, reflectionDescriptor)
 	{

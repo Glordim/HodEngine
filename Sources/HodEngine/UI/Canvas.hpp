@@ -7,7 +7,7 @@
 
 #include <HodEngine/Game/Components/CameraComponent.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	class Entity;
 }

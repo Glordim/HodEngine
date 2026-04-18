@@ -3,7 +3,7 @@
 
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

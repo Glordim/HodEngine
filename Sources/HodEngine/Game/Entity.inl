@@ -5,7 +5,7 @@
 
 #include "HodEngine/Game/Component.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	template<typename _Component_>
 	_Component_* Entity::GetComponent()

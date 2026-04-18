@@ -7,7 +7,7 @@
 #include <memory>
 #include <atomic>
 
-namespace hod::game
+namespace hod::inline game
 {
 	class Entity;
 	class Scene;

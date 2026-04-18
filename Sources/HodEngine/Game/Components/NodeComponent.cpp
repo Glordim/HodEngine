@@ -3,7 +3,7 @@
 
 #include "HodEngine/Game/Entity.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(NodeComponent, reflectionDescriptor)
 	{

@@ -13,7 +13,7 @@ namespace hod::inline core
 	class ReflectionDescriptor;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	class Actor;
 	class Entity;

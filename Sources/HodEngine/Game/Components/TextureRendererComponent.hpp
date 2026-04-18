@@ -12,7 +12,7 @@ namespace hod::renderer
 	class MaterialInstance;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief 
 	class HOD_GAME_API TextureRendererComponent : public RendererComponent

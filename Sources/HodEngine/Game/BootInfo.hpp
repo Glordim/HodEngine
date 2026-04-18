@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/UID.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	class HOD_GAME_API BootInfo
 	{

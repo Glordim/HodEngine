@@ -1,7 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(PrefabResource, reflectionDescriptor)
 	{

@@ -4,7 +4,7 @@
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include "HodEngine/Game/SerializedData.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief 
 	class HOD_GAME_API SerializedDataResource : public Resource

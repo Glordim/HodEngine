@@ -10,7 +10,7 @@
 
 #include "HodEngine/Math/Math.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(ZOrder, reflectionDescriptor)
 	{

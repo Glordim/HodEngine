@@ -24,7 +24,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <unordered_map>
 
-namespace hod::game
+namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(Scene, reflectionDescriptor)
 	{

@@ -15,7 +15,7 @@
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, reflectionDescriptor)
 	{

@@ -1,5 +1,5 @@
 
-namespace hod::game
+namespace hod::inline game
 {
 	template<typename _SerializedData_>
 	bool SerializedDataFactory::Register()

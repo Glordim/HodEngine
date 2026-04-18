@@ -18,7 +18,7 @@ namespace hod::inline core
 	class ArgumentParser;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	class Actor;
 	class Entity;

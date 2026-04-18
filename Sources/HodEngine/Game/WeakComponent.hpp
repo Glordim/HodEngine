@@ -8,7 +8,7 @@
 
 #include "HodEngine/Game/Component.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
     class HOD_GAME_API WeakComponentBase
     {

@@ -15,7 +15,7 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-namespace hod::game::PrefabUtility
+namespace hod::inline game::PrefabUtility
 {
 	bool CollectPrefabOverrideInternalRecursive(Entity* source, Entity* instance, const Vector<uint64_t>& target, Vector<PrefabOverride>& overrides);
 	void CollectEntityOverride(Entity* sourceEntity, Entity* instanceEntity, Vector<PrefabOverride>& overrides, const Vector<uint64_t>& target, const String& path,

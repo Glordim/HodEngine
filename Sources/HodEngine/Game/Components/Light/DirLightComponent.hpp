@@ -6,7 +6,7 @@
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Renderer/Light/DirLight.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

@@ -5,7 +5,7 @@
 
 #include <HodEngine/Renderer/Light/PointLight.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		

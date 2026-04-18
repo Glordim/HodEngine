@@ -7,7 +7,7 @@
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
     class Entity;
 

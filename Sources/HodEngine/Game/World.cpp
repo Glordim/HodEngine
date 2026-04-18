@@ -26,7 +26,7 @@
 
 #undef min
 
-namespace hod::game
+namespace hod::inline game
 {
 	// TODO
 	/// @brief

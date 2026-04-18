@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/Importer/Importer.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	class SerializedData;
 }

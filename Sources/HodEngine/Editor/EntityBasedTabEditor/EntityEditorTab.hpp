@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace hod::game
+namespace hod::inline game
 {
 	class World;
 	class Scene;

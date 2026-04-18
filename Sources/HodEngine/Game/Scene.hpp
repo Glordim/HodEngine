@@ -15,7 +15,7 @@ namespace hod::renderer
 	class RenderView;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	class RendererComponent;
 	class PrefabResource;

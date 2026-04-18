@@ -1,5 +1,5 @@
 
-namespace hod::game
+namespace hod::inline game
 {
 	template<typename _Component_>
 	bool ComponentFactory::Register()

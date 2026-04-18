@@ -4,7 +4,7 @@
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include "HodEngine/Game/Scene.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief 
 	class HOD_GAME_API SceneResource : public Resource

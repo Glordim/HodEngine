@@ -10,7 +10,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief
 	class HOD_GAME_API Prefab

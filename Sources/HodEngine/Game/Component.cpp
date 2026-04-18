@@ -7,7 +7,7 @@
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	std::atomic<uint64_t> Component::_nextInstanceId = 0;
 

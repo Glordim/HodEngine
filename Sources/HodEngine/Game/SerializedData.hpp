@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace hod::game
+namespace hod::inline game
 {
 	///@brief 
 	class HOD_GAME_API SerializedData : public std::enable_shared_from_this<SerializedData>

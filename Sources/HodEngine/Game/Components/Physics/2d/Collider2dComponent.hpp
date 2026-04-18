@@ -11,7 +11,7 @@ namespace hod::physics
 	class Collider;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	class Rigidbody2dComponent;
 

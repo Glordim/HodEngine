@@ -4,7 +4,7 @@
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	class HOD_GAME_API ZOrder
 	{

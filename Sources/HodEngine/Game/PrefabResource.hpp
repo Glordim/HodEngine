@@ -4,7 +4,7 @@
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include "HodEngine/Game/Prefab.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief 
 	class HOD_GAME_API PrefabResource : public Resource

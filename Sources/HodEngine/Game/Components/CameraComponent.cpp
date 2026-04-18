@@ -7,7 +7,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	CameraComponent* CameraComponent::_main = nullptr;
 

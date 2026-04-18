@@ -6,7 +6,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief 
 	class HOD_GAME_API MultiShapeCollider2dComponent : public Collider2dComponent

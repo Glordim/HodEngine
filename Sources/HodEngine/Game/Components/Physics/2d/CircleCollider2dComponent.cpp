@@ -7,7 +7,7 @@
 
 #include "HodEngine/Game/Scene.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(CircleCollider2dComponent, reflectionDescriptor)
 	{

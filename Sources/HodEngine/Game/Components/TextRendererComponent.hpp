@@ -9,7 +9,7 @@
 
 namespace hod::renderer { class MaterialInstance; }
 
-namespace hod::game
+namespace hod::inline game
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

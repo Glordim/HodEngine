@@ -1,7 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	_SingletonConstructor(ComponentFactory)
 	{

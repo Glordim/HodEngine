@@ -25,7 +25,7 @@
 
 #include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 
-namespace hod::game
+namespace hod::inline game
 {
 	void RegisterBuiltin()
 	{

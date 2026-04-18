@@ -8,7 +8,7 @@
 #include <HodEngine/Math/Matrix4.hpp>
 #include <HodEngine/Core/Event.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
 	class Entity;
 }

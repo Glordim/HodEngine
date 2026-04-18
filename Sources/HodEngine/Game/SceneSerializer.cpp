@@ -18,7 +18,7 @@
 
 #include <cstring>
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief
 	/// @param entity

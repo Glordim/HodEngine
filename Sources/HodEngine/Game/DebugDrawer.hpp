@@ -12,7 +12,7 @@ namespace hod::renderer
 	class MaterialInstance;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	// todo #ifndef retail ?
 	class HOD_GAME_API DebugDrawer

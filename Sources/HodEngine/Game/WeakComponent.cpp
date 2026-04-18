@@ -5,7 +5,7 @@
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitSerializedByCallback.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
-namespace hod::game
+namespace hod::inline game
 {
     DESCRIBE_REFLECTED_CLASS(WeakComponentBase, reflectionDescriptor)
     {

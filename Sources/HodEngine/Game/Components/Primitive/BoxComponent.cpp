@@ -20,7 +20,7 @@
 
 #include <array>
 
-namespace hod::game
+namespace hod::inline game
 {
 	// 0_____3
 	// |     |

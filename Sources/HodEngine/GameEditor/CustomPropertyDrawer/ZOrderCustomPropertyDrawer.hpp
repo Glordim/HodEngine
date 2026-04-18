@@ -8,7 +8,7 @@ namespace hod::inline core
 	class ReflectionPropertyObject;
 }
 
-namespace hod::game
+namespace hod::inline game
 {
 	class ZOrder;
 }

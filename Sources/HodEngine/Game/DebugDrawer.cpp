@@ -7,7 +7,7 @@
 
 #include <utility>
 
-namespace hod::game
+namespace hod::inline game
 {
 	/// @brief
 	DebugDrawer::DebugDrawer()
