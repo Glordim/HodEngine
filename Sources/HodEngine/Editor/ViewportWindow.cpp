@@ -138,19 +138,19 @@ namespace hod::editor
 			{
 				if (ImGui::MenuItem("16:9 (landscapce)"))
 				{
-					_playRatio = math::Vector2(16.0f, 9.0f);
+					_playRatio = Vector2(16.0f, 9.0f);
 				}
 				if (ImGui::MenuItem("21:9 (landscapce)"))
 				{
-					_playRatio = math::Vector2(21.0f, 9.0f);
+					_playRatio = Vector2(21.0f, 9.0f);
 				}
 				if (ImGui::MenuItem("16:9 (portrait)"))
 				{
-					_playRatio = math::Vector2(9.0f, 16.0f);
+					_playRatio = Vector2(9.0f, 16.0f);
 				}
 				if (ImGui::MenuItem("21:9 (portrait)"))
 				{
-					_playRatio = math::Vector2(9.0f, 21.0f);
+					_playRatio = Vector2(9.0f, 21.0f);
 				}
 				ImGui::EndMenu();
 			}
@@ -200,7 +200,7 @@ namespace hod::editor
 
 				if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 				{
-					math::Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
+					Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
 					_cameraPosition.SetX(_cameraPosition.GetX() - movement.GetX());
 					_cameraPosition.SetY(_cameraPosition.GetY() - movement.GetY());
 				}
@@ -209,12 +209,12 @@ namespace hod::editor
 				{
 					ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 
-					math::Vector2 pickingResolution = _pickingRenderTarget->GetResolution();
+					Vector2 pickingResolution = _pickingRenderTarget->GetResolution();
 					if (mousePos.x >= 0 && mousePos.x < pickingResolution.GetX() && mousePos.y >= 0 && mousePos.y < pickingResolution.GetY())
 					{
 						ImVec2   mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
-						math::Vector2  mousePosition(mousePos.x, mousePos.y);
-						math::Color    pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
+						Vector2  mousePosition(mousePos.x, mousePos.y);
+						Color    pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
 						uint32_t pickingId = renderer::PickingManager::ConvertColorToId(pickingColor);
 						if (pickingId == 0)
 						{
@@ -277,7 +277,7 @@ namespace hod::editor
 
 			if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
 			{
-				math::Rect viewport;
+				Rect viewport;
 				viewport._position.SetX(0);
 				viewport._position.SetY(0);
 				viewport._size.SetX((float)resolutionWidth);
@@ -285,8 +285,8 @@ namespace hod::editor
 
 				float aspect = (float)resolutionWidth / (float)resolutionHeight;
 
-				_projection = math::Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-				_view = math::Matrix4::Translation(_cameraPosition);
+				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+				_view = Matrix4::Translation(_cameraPosition);
 
 				renderView->SetupCamera(_projection, _view, viewport);
 
@@ -325,17 +325,17 @@ namespace hod::editor
 
 				if (_drawGrid)
 				{
-					std::array<math::Vector2, 4> positions = {
-						math::Vector2(-0.5f, 0.5f),
-						math::Vector2(0.5f, 0.5f),
-						math::Vector2(-0.5f, -0.5f),
-						math::Vector2(0.5f, -0.5f),
+					std::array<Vector2, 4> positions = {
+						Vector2(-0.5f, 0.5f),
+						Vector2(0.5f, 0.5f),
+						Vector2(-0.5f, -0.5f),
+						Vector2(0.5f, -0.5f),
 					};
 
 					std::array<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
 
 					renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
-						positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), math::Matrix4::Identity, nullptr, 0, 0, true));
+						positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
 				}
 			}
 			else
@@ -436,21 +436,21 @@ namespace hod::editor
 
 	/// @brief
 	/// @return
-	const math::Matrix4& ViewportWindow::GetProjectionMatrix() const
+	const Matrix4& ViewportWindow::GetProjectionMatrix() const
 	{
 		return _projection;
 	}
 
 	/// @brief
 	/// @return
-	const math::Matrix4& ViewportWindow::GetViewMatrix() const
+	const Matrix4& ViewportWindow::GetViewMatrix() const
 	{
 		return _view;
 	}
 
 	/// @brief
 	/// @return
-	const math::Vector2& ViewportWindow::GetPlayRatio() const
+	const Vector2& ViewportWindow::GetPlayRatio() const
 	{
 		return _playRatio;
 	}

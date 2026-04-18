@@ -50,7 +50,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	math::Vector2 Collider2dComponent::GetScale() const
+	Vector2 Collider2dComponent::GetScale() const
 	{
 		Entity* entity = GetOwner();
 		if (entity != nullptr)
@@ -61,6 +61,6 @@ namespace hod::game
 				return node2dComponent->GetScale();
 			}
 		}
-		return math::Vector2::One;
+		return Vector2::One;
 	}
 }

@@ -26,15 +26,15 @@ namespace hod::game
 
 		void			OnStart() override;
 
-		void			SetOffset(const math::Vector2& offset);
-		const math::Vector2&	GetOffset() const;
+		void			SetOffset(const Vector2& offset);
+		const Vector2&	GetOffset() const;
 
 		void			SetRadius(float radius);
 		float			GetRadius() const;
 
 	private:
 
-		math::Vector2			_offset = math::Vector2::Zero;
+		Vector2			_offset = Vector2::Zero;
 		float			_radius = 0.5f;
 
 		float			_bounciness = 0.0f; // tmp

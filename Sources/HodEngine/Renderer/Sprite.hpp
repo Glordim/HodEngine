@@ -33,9 +33,9 @@ namespace hod::renderer
 		SpriteAtlas* GetSpriteAtlas() const;
 
 		const String&  GetName() const;
-		const math::Rect&    GetFrame() const;
-		const math::Vector2& GetSize() const;
-		const math::Vector2& GetPivot() const;
+		const Rect&    GetFrame() const;
+		const Vector2& GetSize() const;
+		const Vector2& GetPivot() const;
 
 		const Vector<P2fT2f>&   GetVertices() const;
 		const Vector<uint16_t>& GetIndices() const;
@@ -47,9 +47,9 @@ namespace hod::renderer
 		SpriteAtlas* _spriteAtlas = nullptr;
 
 		String  _name;
-		math::Rect    _frame;
-		math::Vector2 _size;
-		math::Vector2 _pivot;
+		Rect    _frame;
+		Vector2 _size;
+		Vector2 _pivot;
 
 		Vector<P2fT2f>   _vertices;
 		Vector<uint16_t> _indices;

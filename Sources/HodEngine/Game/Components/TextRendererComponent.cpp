@@ -81,9 +81,9 @@ namespace hod::game
 		return _materialInstance;
 	}
 
-	math::Rect TextRendererComponent::GetBoundingBox() const
+	Rect TextRendererComponent::GetBoundingBox() const
 	{
-		return math::Rect();
+		return Rect();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -110,10 +110,10 @@ namespace hod::game
 				float atlasWidth = (float)font->GetTexture()->GetWidth();
 				float atlasHeight = (float)font->GetTexture()->GetHeight();
 
-				Vector<math::Vector2> positions;
+				Vector<Vector2> positions;
 				positions.reserve(_text.Size() * 4);
 
-				Vector<math::Vector2> uvs;
+				Vector<Vector2> uvs;
 				uvs.reserve(_text.Size() * 4);
 
 				Vector<uint16_t> indices;

@@ -19,7 +19,7 @@ namespace hod::game
 		{
 			REFLECTED_CLASS_NO_VIRTUAL(CircleShape)
 
-			math::Vector2	_origin = math::Vector2::Zero;
+			Vector2	_origin = Vector2::Zero;
 			float	_radius = 1.0f;
 		};
 
@@ -27,8 +27,8 @@ namespace hod::game
 		{
 			REFLECTED_CLASS_NO_VIRTUAL(BoxShape)
 
-			math::Vector2	_origin = math::Vector2::Zero;
-			math::Vector2	_size = math::Vector2::One;
+			Vector2	_origin = Vector2::Zero;
+			Vector2	_size = Vector2::One;
 			float	_angle = 0.0f;
 		};
 

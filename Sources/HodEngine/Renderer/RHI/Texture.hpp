@@ -38,7 +38,7 @@ namespace hod::renderer
 		virtual bool BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo) = 0;
 		virtual bool BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) = 0;
 
-		virtual math::Color ReadPixel(const math::Vector2& position) const = 0;
+		virtual Color ReadPixel(const Vector2& position) const = 0;
 
 	protected:
 

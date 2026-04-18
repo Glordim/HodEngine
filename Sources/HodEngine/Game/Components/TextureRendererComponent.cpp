@@ -102,20 +102,20 @@ namespace hod::game
 			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
 			if (node2dComponent != nullptr)
 			{
-				math::Rect bb = GetBoundingBox();
+				Rect bb = GetBoundingBox();
 
-				std::array<math::Vector2, 4> vertices = {
-					math::Vector2(-0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
-					math::Vector2(0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
-					math::Vector2(0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
-					math::Vector2(-0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
+				std::array<Vector2, 4> vertices = {
+					Vector2(-0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
+					Vector2(0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
+					Vector2(0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
+					Vector2(-0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
 				};
 
-				static std::array<math::Vector2, 4> uvs = {
-					math::Vector2(0, 0),
-					math::Vector2(1, 0),
-					math::Vector2(1, 1),
-					math::Vector2(0, 1),
+				static std::array<Vector2, 4> uvs = {
+					Vector2(0, 0),
+					Vector2(1, 0),
+					Vector2(1, 1),
+					Vector2(0, 1),
 				};
 
 				static std::array<uint16_t, 3 * 2> indices = {
@@ -161,7 +161,7 @@ namespace hod::game
 				_materialInstance->SetTexture("image", nullptr);
 			}
 
-			math::Vector4 vec4Color;
+			Vector4 vec4Color;
 			vec4Color.SetX(_color.r);
 			vec4Color.SetY(_color.g);
 			vec4Color.SetZ(_color.b);
@@ -172,7 +172,7 @@ namespace hod::game
 
 	/// @brief
 	/// @return
-	math::Rect TextureRendererComponent::GetBoundingBox() const
+	Rect TextureRendererComponent::GetBoundingBox() const
 	{
 		float width = _pixelPerUnit;
 		float height = _pixelPerUnit;
@@ -184,15 +184,15 @@ namespace hod::game
 			height = (float)textureResourceLock->GetTexture()->GetHeight();
 		}
 
-		math::Rect bb;
-		bb._position = math::Vector2::Zero;
-		bb._size = math::Vector2(width, height) / _pixelPerUnit;
+		Rect bb;
+		bb._position = Vector2::Zero;
+		bb._size = Vector2(width, height) / _pixelPerUnit;
 		return bb;
 	}
 
 	/// @brief
 	/// @param color
-	void TextureRendererComponent::SetColor(const math::Color& color)
+	void TextureRendererComponent::SetColor(const Color& color)
 	{
 		_color = color;
 		RefreshMaterialInstance();
@@ -200,7 +200,7 @@ namespace hod::game
 
 	/// @brief
 	/// @return
-	const math::Color& TextureRendererComponent::GetColor() const
+	const Color& TextureRendererComponent::GetColor() const
 	{
 		return _color;
 	}

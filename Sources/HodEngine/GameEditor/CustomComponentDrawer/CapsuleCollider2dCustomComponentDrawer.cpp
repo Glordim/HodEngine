@@ -24,7 +24,7 @@ namespace hod::editor
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", math::Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
 	/// @brief
@@ -52,15 +52,15 @@ namespace hod::editor
 			game::Node2dComponent* node2D = capsuleCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				math::Vector2 scale = node2D->GetScale();
+				Vector2 scale = node2D->GetScale();
 
-				std::array<math::Vector2, 65> vertices;
-				GeometryGenerator::CapsuleShape<64>(vertices, math::Vector2::Zero, capsuleCollider2d->GetHeight() * scale.GetY(), capsuleCollider2d->GetRadius() * scale.GetX());
+				std::array<Vector2, 65> vertices;
+				GeometryGenerator::CapsuleShape<64>(vertices, Vector2::Zero, capsuleCollider2d->GetHeight() * scale.GetY(), capsuleCollider2d->GetRadius() * scale.GetX());
 
-				math::Matrix4 worldMatrix = node2D->GetWorldMatrix();
+				Matrix4 worldMatrix = node2D->GetWorldMatrix();
 				worldMatrix.RemoveScale();
 
-				math::Matrix4 localMatrix = math::Matrix4::Translation(capsuleCollider2d->GetOffset() * scale) * math::Matrix4::Rotation(capsuleCollider2d->GetRotation());
+				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset() * scale) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
 
 				renderer::RenderCommandMesh* renderMeshCommand =
 					DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,

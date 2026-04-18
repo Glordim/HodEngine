@@ -21,7 +21,7 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	const math::Matrix4& NodeComponent::GetLocalMatrix()
+	const Matrix4& NodeComponent::GetLocalMatrix()
 	{
 		if (_localMatrixDirty == true)
 		{
@@ -35,7 +35,7 @@ namespace hod::game
 
 	/// @brief 
 	/// @return 
-	math::Matrix4 NodeComponent::GetWorldMatrix()
+	Matrix4 NodeComponent::GetWorldMatrix()
 	{
 		Entity* parent = GetOwner()->GetParent().Lock();
 		if (parent == nullptr)

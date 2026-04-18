@@ -12,6 +12,6 @@ namespace hod::physics
 	{
 		Collider&	_colliderA;
 		Collider&	_colliderB;
-		math::Vector2		_normal;
+		Vector2		_normal;
 	};
 }

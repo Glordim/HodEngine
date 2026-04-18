@@ -30,12 +30,12 @@ namespace hod::physics
 
 		void				Clear();
 
-		virtual Body*		CreateBody(Body::Type type, const math::Vector2& position, float rotation) = 0;
+		virtual Body*		CreateBody(Body::Type type, const Vector2& position, float rotation) = 0;
 		virtual void		DeleteBody(Body* body) = 0;
 
 		virtual void		Update(float dt) = 0;
 
-		virtual bool		Raycast(const math::Vector2& origin, const math::Vector2& dir, float distance, physics::RaycastResult& result) = 0;
+		virtual bool		Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result) = 0;
 
 		DebugDrawer*		GetDebugDrawer();
 

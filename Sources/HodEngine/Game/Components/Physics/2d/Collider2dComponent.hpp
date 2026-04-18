@@ -23,8 +23,8 @@ namespace hod::game
 
 		~EdgeShape() override = default;
 
-		math::Vector2 _start;
-		math::Vector2 _end;
+		Vector2 _start;
+		Vector2 _end;
 	};
 
 	struct HOD_GAME_API CircleShape : public Shape
@@ -34,7 +34,7 @@ namespace hod::game
 
 		~CircleShape() override = default;
 
-		math::Vector2	_origin;
+		Vector2	_origin;
 		float	_radius;
 	};
 
@@ -45,8 +45,8 @@ namespace hod::game
 
 		~BoxShape() override = default;
 
-		math::Vector2	_origin;
-		math::Vector2	_size;
+		Vector2	_origin;
+		Vector2	_size;
 		float	_angle;
 	};
 		*/
@@ -71,7 +71,7 @@ namespace hod::game
 		void			OnStart() override;
 
 		Rigidbody2dComponent*		GetRigidbody();
-		math::Vector2						GetScale() const;
+		Vector2						GetScale() const;
 
 	protected:
 

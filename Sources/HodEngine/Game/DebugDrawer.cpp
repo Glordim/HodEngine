@@ -20,7 +20,7 @@ namespace hod::game
 	/// @param end
 	/// @param color
 	/// @param duration
-	void DebugDrawer::AddLine(const math::Vector2& start, const math::Vector2& end, const math::Color& color, float duration)
+	void DebugDrawer::AddLine(const Vector2& start, const Vector2& end, const Color& color, float duration)
 	{
 		_lines.EmplaceBack(start, end, color, duration);
 	}
@@ -33,10 +33,10 @@ namespace hod::game
 		auto itEnd = _lines.End();
 		while (it != itEnd)
 		{
-			std::array<math::Vector2, 2> vertices = {it->_start, it->_end};
-			std::array<math::Color, 2>   colors = {it->_color, it->_color};
+			std::array<Vector2, 2> vertices = {it->_start, it->_end};
+			std::array<Color, 2>   colors = {it->_color, it->_color};
 			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(),
-			                                                                                              nullptr, 0, math::Matrix4::Identity, _lineMaterial, 0));
+			                                                                                              nullptr, 0, Matrix4::Identity, _lineMaterial, 0));
 
 			it->_duration -= 0.016f; // todo
 			if (it->_duration <= 0.0f)

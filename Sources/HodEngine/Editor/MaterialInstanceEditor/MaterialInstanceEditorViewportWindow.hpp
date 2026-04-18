@@ -39,8 +39,8 @@ namespace hod::editor
 	private:
 		renderer::RenderTarget* _renderTarget = nullptr;
 
-		math::Matrix4 _projection;
-		math::Matrix4 _view;
+		Matrix4 _projection;
+		Matrix4 _view;
 
 		float _size = 5.0f;
 	};

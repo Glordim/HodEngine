@@ -37,6 +37,6 @@ namespace hod::editor
 		Handle							_XAxisHandle;
 		Handle							_YAxisHandle;
 
-		math::Vector2							_initialPosition;
+		Vector2							_initialPosition;
 	};
 }

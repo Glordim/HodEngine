@@ -26,15 +26,15 @@ namespace hod::game
 
 		void			OnStart() override;
 
-		void			SetStart(const math::Vector2& start);
-		const math::Vector2&	GetStart() const;
+		void			SetStart(const Vector2& start);
+		const Vector2&	GetStart() const;
 
-		void			SetEnd(const math::Vector2& end);
-		const math::Vector2&	GetEnd() const;
+		void			SetEnd(const Vector2& end);
+		const Vector2&	GetEnd() const;
 
 	private:
 
-		math::Vector2			_start = math::Vector2(-0.5f, 0.0f);
-		math::Vector2			_end = math::Vector2(0.5f, 0.0f);
+		Vector2			_start = Vector2(-0.5f, 0.0f);
+		Vector2			_end = Vector2(0.5f, 0.0f);
 	};
 }

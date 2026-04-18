@@ -14,7 +14,7 @@ namespace hod::ui
 			UserRelease,
 			Cancel,
 		};
-		math::Vector2	_position;
+		Vector2	_position;
 		Reason	_reason = Reason::UserRelease;
 	};
 }

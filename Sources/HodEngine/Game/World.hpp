@@ -67,12 +67,12 @@ namespace hod::game
 		
 		Entity*						FindEntity(uint64_t entityId);
 
-//			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const math::Color& debugColor, float debugDuration);
+//			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, physics::RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
 		void						Draw(renderer::RenderView& renderView);
 
 		// todo #ifndef retail ?
-		void						DrawDebugLine(const math::Vector2& start, const math::Vector2& end, const math::Color& color, float duration = 0.0f);
+		void						DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
 		//
 
 		physics::World*				GetPhysicsWorld() const;

@@ -59,13 +59,13 @@ namespace hod::editor
 		EditorReflectedProperty* rotation = reflectedObject.FindProperty("Rotation");
 		EditorReflectedProperty* scale = reflectedObject.FindProperty("Scale");
 
-		math::Vector2 deltaSizeValue = *deltaSize->GetObject<math::Vector2>();
+		Vector2 deltaSizeValue = *deltaSize->GetObject<Vector2>();
 
 		ImVec2 cursorPos = ImGui::GetCursorPos();
 
-		math::Vector2 anchorMinValue = *anchorMin->GetObject<math::Vector2>();
-		math::Vector2 anchorMaxValue = *anchorMax->GetObject<math::Vector2>();
-		math::Vector2 pivotValue = *pivot->GetObject<math::Vector2>();
+		Vector2 anchorMinValue = *anchorMin->GetObject<Vector2>();
+		Vector2 anchorMaxValue = *anchorMax->GetObject<Vector2>();
+		Vector2 pivotValue = *pivot->GetObject<Vector2>();
 		if (DrawAnchorPresets(ImVec2(100.0f, 100.0f), anchorMinValue, anchorMaxValue, pivotValue))
 		{
 			anchorMin->SetObject(anchorMinValue);
@@ -90,7 +90,7 @@ namespace hod::editor
 		const char* deltaSizeLabelX = "Width";
 		const char* deltaSizeLabelY = "Height";
 
-		math::Vector2 anchoredPositionValue = *position->GetObject<math::Vector2>();
+		Vector2 anchoredPositionValue = *position->GetObject<Vector2>();
 		ImGui::TextUnformatted("Anchored Position");
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		if (DrawHelper::DrawVector2(anchoredPositionValue, anchoredPosLabelX, anchoredPosLabelY))
@@ -278,8 +278,8 @@ namespace hod::editor
 		}
 	}
 
-	bool DrawPresetButton(const char* id, const ImVec2& Size, uint8_t edge, uint16_t anchors, uint8_t expandArrows, math::Vector2& anchorMin, math::Vector2& anchorMax, math::Vector2& pivot,
-	                      math::Vector2 presetAnchorMin, math::Vector2 presetAnchorMax)
+	bool DrawPresetButton(const char* id, const ImVec2& Size, uint8_t edge, uint16_t anchors, uint8_t expandArrows, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot,
+	                      Vector2 presetAnchorMin, Vector2 presetAnchorMax)
 	{
 		(void)pivot; // TODO
 
@@ -307,7 +307,7 @@ namespace hod::editor
 		{
 			anchorMin = presetAnchorMin;
 			anchorMax = presetAnchorMax;
-			// pivot = math::Vector2(0.5f, 0.5f);
+			// pivot = Vector2(0.5f, 0.5f);
 		}
 		return clicked;
 	}
@@ -317,7 +317,7 @@ namespace hod::editor
 	/// @param anchorMax
 	/// @param pivot
 	/// @return
-	bool NodeCustomComponentDrawer::DrawAnchorPresets(const ImVec2& Size, math::Vector2& anchorMin, math::Vector2& anchorMax, math::Vector2& pivot)
+	bool NodeCustomComponentDrawer::DrawAnchorPresets(const ImVec2& Size, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot)
 	{
 		bool changed = false;
 
@@ -471,57 +471,57 @@ namespace hod::editor
 		{
 			ImGui::TextUnformatted("Anchor Presets");
 
-			changed |= DrawPresetButton("##AnchorPresetTopLeft", presetSize, Edge::Top | Edge::Left, Anchor::TopLeft, 0, anchorMin, anchorMax, pivot, math::Vector2(0.0f, 1.0f),
-			                            math::Vector2(0.0f, 1.0f));
+			changed |= DrawPresetButton("##AnchorPresetTopLeft", presetSize, Edge::Top | Edge::Left, Anchor::TopLeft, 0, anchorMin, anchorMax, pivot, Vector2(0.0f, 1.0f),
+			                            Vector2(0.0f, 1.0f));
 			ImGui::SameLine();
-			changed |= DrawPresetButton("##AnchorPresetTopCenter", presetSize, Edge::Top | Edge::CenterV, Anchor::TopCenter, 0, anchorMin, anchorMax, pivot, math::Vector2(0.5f, 1.0f),
-			                            math::Vector2(0.5f, 1.0f));
+			changed |= DrawPresetButton("##AnchorPresetTopCenter", presetSize, Edge::Top | Edge::CenterV, Anchor::TopCenter, 0, anchorMin, anchorMax, pivot, Vector2(0.5f, 1.0f),
+			                            Vector2(0.5f, 1.0f));
 			ImGui::SameLine();
-			changed |= DrawPresetButton("##AnchorPresetTopRight", presetSize, Edge::Top | Edge::Right, Anchor::TopRight, 0, anchorMin, anchorMax, pivot, math::Vector2(1.0f, 1.0f),
-			                            math::Vector2(1.0f, 1.0f));
+			changed |= DrawPresetButton("##AnchorPresetTopRight", presetSize, Edge::Top | Edge::Right, Anchor::TopRight, 0, anchorMin, anchorMax, pivot, Vector2(1.0f, 1.0f),
+			                            Vector2(1.0f, 1.0f));
 			ImGui::SameLine(0.0f, 25.0f);
 			changed |= DrawPresetButton("##AnchorPresetTopStretch", presetSize, Edge::Top, Anchor::TopLeft | Anchor::TopRight, ExpandArrow::Horizontal, anchorMin, anchorMax, pivot,
-			                            math::Vector2(0.0f, 1.0f), math::Vector2(1.0f, 1.0f));
+			                            Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f));
 
-			changed |= DrawPresetButton("##AnchorPresetMiddleLeft", presetSize, Edge::CenterH | Edge::Left, Anchor::MiddleLeft, 0, anchorMin, anchorMax, pivot, math::Vector2(0.0f, 0.5f),
-			                            math::Vector2(0.0f, 0.5f));
+			changed |= DrawPresetButton("##AnchorPresetMiddleLeft", presetSize, Edge::CenterH | Edge::Left, Anchor::MiddleLeft, 0, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.5f),
+			                            Vector2(0.0f, 0.5f));
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetMiddleCenter", presetSize, Edge::CenterH | Edge::CenterV, Anchor::MiddleCenter, 0, anchorMin, anchorMax, pivot,
-			                            math::Vector2(0.5f, 0.5f), math::Vector2(0.5f, 0.5f));
+			                            Vector2(0.5f, 0.5f), Vector2(0.5f, 0.5f));
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetMiddleRight", presetSize, Edge::CenterH | Edge::Right, Anchor::MiddleRight, 0, anchorMin, anchorMax, pivot,
-			                            math::Vector2(1.0f, 0.5f), math::Vector2(1.0f, 0.5f));
+			                            Vector2(1.0f, 0.5f), Vector2(1.0f, 0.5f));
 			ImGui::SameLine(0.0f, 25.0f);
 			changed |= DrawPresetButton("##AnchorPresetMiddleStretch", presetSize, Edge::CenterH, Anchor::MiddleLeft | Anchor::MiddleRight, ExpandArrow::Horizontal, anchorMin,
-			                            anchorMax, pivot, math::Vector2(0.0f, 0.5f), math::Vector2(1.0f, 0.5f));
+			                            anchorMax, pivot, Vector2(0.0f, 0.5f), Vector2(1.0f, 0.5f));
 
-			changed |= DrawPresetButton("##AnchorPresetBottomLeft", presetSize, Edge::Bottom | Edge::Left, Anchor::BottomLeft, 0, anchorMin, anchorMax, pivot, math::Vector2(0.0f, 0.0f),
-			                            math::Vector2(0.0f, 0.0f));
+			changed |= DrawPresetButton("##AnchorPresetBottomLeft", presetSize, Edge::Bottom | Edge::Left, Anchor::BottomLeft, 0, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.0f),
+			                            Vector2(0.0f, 0.0f));
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetBottomCenter", presetSize, Edge::Bottom | Edge::CenterV, Anchor::BottomCenter, 0, anchorMin, anchorMax, pivot,
-			                            math::Vector2(0.5f, 0.0f), math::Vector2(0.5f, 0.0f));
+			                            Vector2(0.5f, 0.0f), Vector2(0.5f, 0.0f));
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetBottomRight", presetSize, Edge::Bottom | Edge::Right, Anchor::BottomRight, 0, anchorMin, anchorMax, pivot,
-			                            math::Vector2(1.0f, 0.0f), math::Vector2(1.0f, 0.0f));
+			                            Vector2(1.0f, 0.0f), Vector2(1.0f, 0.0f));
 			ImGui::SameLine(0.0f, 25.0f);
 			changed |= DrawPresetButton("##AnchorPresetBottomStretch", presetSize, Edge::Bottom, Anchor::BottomLeft | Anchor::BottomRight, ExpandArrow::Horizontal, anchorMin,
-			                            anchorMax, pivot, math::Vector2(0.0f, 0.0f), math::Vector2(1.0f, 0.0f));
+			                            anchorMax, pivot, Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f));
 
 			ImGui::Spacing();
 			ImGui::Spacing();
 			ImGui::Spacing();
 
 			changed |= DrawPresetButton("##AnchorPresetStretchLeft", presetSize, Edge::Left, Anchor::TopLeft | Anchor::BottomLeft, ExpandArrow::Vertical, anchorMin, anchorMax,
-			                            pivot, math::Vector2(0.0f, 0.0f), math::Vector2(0.0f, 1.0f));
+			                            pivot, Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f));
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetStretchMiddle", presetSize, Edge::CenterV, Anchor::TopCenter | Anchor::BottomCenter, ExpandArrow::Vertical, anchorMin,
-			                            anchorMax, pivot, math::Vector2(0.5f, 0.0f), math::Vector2(0.5f, 1.0f));
+			                            anchorMax, pivot, Vector2(0.5f, 0.0f), Vector2(0.5f, 1.0f));
 			ImGui::SameLine();
 			changed |= DrawPresetButton("##AnchorPresetStretchRight", presetSize, Edge::Right, Anchor::TopRight | Anchor::BottomRight, ExpandArrow::Vertical, anchorMin, anchorMax,
-			                            pivot, math::Vector2(1.0f, 0.0f), math::Vector2(1.0f, 1.0f));
+			                            pivot, Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f));
 			ImGui::SameLine(0.0f, 25.0f);
 			changed |= DrawPresetButton("##AnchorPresetStretchStretch", presetSize, 0, Anchor::TopLeft | Anchor::TopRight | Anchor::BottomLeft | Anchor::BottomRight,
-			                            ExpandArrow::Horizontal | ExpandArrow::Vertical, anchorMin, anchorMax, pivot, math::Vector2(0.0f, 0.0f), math::Vector2(1.0f, 1.0f));
+			                            ExpandArrow::Horizontal | ExpandArrow::Vertical, anchorMin, anchorMax, pivot, Vector2(0.0f, 0.0f), Vector2(1.0f, 1.0f));
 
 			if (ImGui::BeginTable("PresetsTable", 5))
 			{
@@ -550,29 +550,29 @@ namespace hod::editor
 			return false;
 		}
 
-		math::Vector2 Size = node->ComputeSize();
-		math::Matrix4 worldMatrix = node->ComputeWorldMatrix();
+		Vector2 Size = node->ComputeSize();
+		Matrix4 worldMatrix = node->ComputeWorldMatrix();
 
 		if (selected == false)
 		{
-			Gizmos::Rect(worldMatrix, Size, math::Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderView());
+			Gizmos::Rect(worldMatrix, Size, Color(0.75f, 0.75f, 0.75f, 1.0f), *viewport.GetRenderView());
 
-			math::Vector2 position;
+			Vector2 position;
 			Handle  selectionHandle;
 			selectionHandle._pickingId = (uint32_t)node->GetOwner()->GetInstanceId();
 			selectionHandle._sortingOrder = node->GetZOrder();
-			Gizmos::FreeMoveRect(selectionHandle, worldMatrix, position, Size, math::Color(0.0f, 0.0f, 0.0f, 0.0f), math::Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
+			Gizmos::FreeMoveRect(selectionHandle, worldMatrix, position, Size, Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.0f), viewport);
 
 			return false;
 		}
 
 		bool changed = false;
 
-		static math::Color hitboxHandleColor(0.0f, 0.0f, 0.0f, 0.0f);
+		static Color hitboxHandleColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 		_freeMoveHandle._pickingId = (uint32_t)node->GetOwner()->GetInstanceId();
 		_freeMoveHandle._sortingOrder = node->GetZOrder();
-		changed |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, math::Vector2::Zero, Size, hitboxHandleColor, hitboxHandleColor, viewport);
+		changed |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::Zero, Size, hitboxHandleColor, hitboxHandleColor, viewport);
 		if (_freeMoveHandle._justPressed)
 		{
 			_pickingPosition = node->GetPosition();
@@ -584,35 +584,35 @@ namespace hod::editor
 
 		float handleSize = Gizmos::GetHandleSize(0.01f, viewport);
 
-		changed |= Gizmos::FreeMoveRect(_topEdge, worldMatrix, math::Vector2(0.0f, Size.GetY() * 0.5f), math::Vector2(Size.GetX(), handleSize), hitboxHandleColor, hitboxHandleColor, viewport);
+		changed |= Gizmos::FreeMoveRect(_topEdge, worldMatrix, Vector2(0.0f, Size.GetY() * 0.5f), Vector2(Size.GetX(), handleSize), hitboxHandleColor, hitboxHandleColor, viewport);
 		changed |=
-			Gizmos::FreeMoveRect(_bottomEdge, worldMatrix, math::Vector2(0.0f, -Size.GetY() * 0.5f), math::Vector2(Size.GetX(), handleSize), hitboxHandleColor, hitboxHandleColor, viewport);
+			Gizmos::FreeMoveRect(_bottomEdge, worldMatrix, Vector2(0.0f, -Size.GetY() * 0.5f), Vector2(Size.GetX(), handleSize), hitboxHandleColor, hitboxHandleColor, viewport);
 		changed |=
-			Gizmos::FreeMoveRect(_leftEdge, worldMatrix, math::Vector2(-Size.GetX() * 0.5f, 0.0f), math::Vector2(handleSize, Size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
+			Gizmos::FreeMoveRect(_leftEdge, worldMatrix, Vector2(-Size.GetX() * 0.5f, 0.0f), Vector2(handleSize, Size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
 		changed |=
-			Gizmos::FreeMoveRect(_rightEdge, worldMatrix, math::Vector2(Size.GetX() * 0.5f, 0.0f), math::Vector2(handleSize, Size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
+			Gizmos::FreeMoveRect(_rightEdge, worldMatrix, Vector2(Size.GetX() * 0.5f, 0.0f), Vector2(handleSize, Size.GetY()), hitboxHandleColor, hitboxHandleColor, viewport);
 
-		static math::Color lineColor(0.75f, 0.75f, 0.75f, 1.0f);
-		static math::Color lineHighlightColor(0.75f, 0.75f, 0.75f, 1.0f);
+		static Color lineColor(0.75f, 0.75f, 0.75f, 1.0f);
+		static Color lineHighlightColor(0.75f, 0.75f, 0.75f, 1.0f);
 
-		Gizmos::Line(worldMatrix, math::Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f), math::Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f),
+		Gizmos::Line(worldMatrix, Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f), Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f),
 		             _topEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderView());
-		Gizmos::Line(worldMatrix, math::Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), math::Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
+		Gizmos::Line(worldMatrix, Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
 		             _bottomEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderView());
-		Gizmos::Line(worldMatrix, math::Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f), math::Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
+		Gizmos::Line(worldMatrix, Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f), Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
 		             _leftEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderView());
-		Gizmos::Line(worldMatrix, math::Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f), math::Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
+		Gizmos::Line(worldMatrix, Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f), Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
 		             _rightEdge._hovered ? lineHighlightColor : lineColor, *viewport.GetRenderView());
 
-		static math::Color cornerColor(0.25f, 0.25f, 1.0f, 1.0f);
-		static math::Color cornerHighlightColor(0.5f, 0.5f, 1.0f, 1.0f);
+		static Color cornerColor(0.25f, 0.25f, 1.0f, 1.0f);
+		static Color cornerHighlightColor(0.5f, 0.5f, 1.0f, 1.0f);
 
-		changed |= Gizmos::FreeMoveCircle(_topLeftCorner, worldMatrix, math::Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
-		changed |= Gizmos::FreeMoveCircle(_topRightCorner, worldMatrix, math::Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_topLeftCorner, worldMatrix, Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
+		changed |= Gizmos::FreeMoveCircle(_topRightCorner, worldMatrix, Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
 		changed |=
-			Gizmos::FreeMoveCircle(_bottomLeftCorner, worldMatrix, math::Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
+			Gizmos::FreeMoveCircle(_bottomLeftCorner, worldMatrix, Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
 		changed |=
-			Gizmos::FreeMoveCircle(_bottomRightCorner, worldMatrix, math::Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
+			Gizmos::FreeMoveCircle(_bottomRightCorner, worldMatrix, Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f), handleSize, cornerColor, cornerHighlightColor, viewport);
 
 		if (_topLeftCorner._hovered || _bottomRightCorner._hovered)
 		{
@@ -638,56 +638,56 @@ namespace hod::editor
 			_pickingPosition = node->GetPosition();
 		}
 
-		math::Vector2 pivot = node->GetPivot();
+		Vector2 pivot = node->GetPivot();
 
-		math::Vector2 deltaSize;
-		math::Vector2 reverse;
+		Vector2 deltaSize;
+		Vector2 reverse;
 		if (_topEdge._pressed)
 		{
-			deltaSize = math::Vector2(0.0f, _topEdge._delta.GetY());
-			reverse = math::Vector2(0.0f, 0.0f);
+			deltaSize = Vector2(0.0f, _topEdge._delta.GetY());
+			reverse = Vector2(0.0f, 0.0f);
 		}
 		else if (_bottomEdge._pressed)
 		{
-			deltaSize = math::Vector2(0.0f, -_bottomEdge._delta.GetY());
-			reverse = math::Vector2(0.0f, 1.0f);
+			deltaSize = Vector2(0.0f, -_bottomEdge._delta.GetY());
+			reverse = Vector2(0.0f, 1.0f);
 		}
 		else if (_leftEdge._pressed)
 		{
-			deltaSize = math::Vector2(-_leftEdge._delta.GetX(), 0.0f);
-			reverse = math::Vector2(1.0f, 0.0f);
+			deltaSize = Vector2(-_leftEdge._delta.GetX(), 0.0f);
+			reverse = Vector2(1.0f, 0.0f);
 		}
 		else if (_rightEdge._pressed)
 		{
-			deltaSize = math::Vector2(_rightEdge._delta.GetX(), 0.0f);
-			reverse = math::Vector2(0.0f, 0.0f);
+			deltaSize = Vector2(_rightEdge._delta.GetX(), 0.0f);
+			reverse = Vector2(0.0f, 0.0f);
 		}
 		else if (_topLeftCorner._pressed)
 		{
-			deltaSize = math::Vector2(-_topLeftCorner._delta.GetX(), _topLeftCorner._delta.GetY());
-			reverse = math::Vector2(1.0f, 0.0f);
+			deltaSize = Vector2(-_topLeftCorner._delta.GetX(), _topLeftCorner._delta.GetY());
+			reverse = Vector2(1.0f, 0.0f);
 		}
 		else if (_topRightCorner._pressed)
 		{
-			deltaSize = math::Vector2(_topRightCorner._delta.GetX(), _topRightCorner._delta.GetY());
-			reverse = math::Vector2(0.0f, 0.0f);
+			deltaSize = Vector2(_topRightCorner._delta.GetX(), _topRightCorner._delta.GetY());
+			reverse = Vector2(0.0f, 0.0f);
 		}
 		else if (_bottomLeftCorner._pressed)
 		{
-			deltaSize = math::Vector2(-_bottomLeftCorner._delta.GetX(), -_bottomLeftCorner._delta.GetY());
-			reverse = math::Vector2(1.0f, 1.0f);
+			deltaSize = Vector2(-_bottomLeftCorner._delta.GetX(), -_bottomLeftCorner._delta.GetY());
+			reverse = Vector2(1.0f, 1.0f);
 		}
 		else if (_bottomRightCorner._pressed)
 		{
-			deltaSize = math::Vector2(_bottomRightCorner._delta.GetX(), -_bottomRightCorner._delta.GetY());
-			reverse = math::Vector2(0.0f, 1.0f);
+			deltaSize = Vector2(_bottomRightCorner._delta.GetX(), -_bottomRightCorner._delta.GetY());
+			reverse = Vector2(0.0f, 1.0f);
 		}
 
-		if (deltaSize != math::Vector2::Zero)
+		if (deltaSize != Vector2::Zero)
 		{
 			deltaSize *= 100.0f; // TODO NOP !
-			math::Vector2 newSize = _pickingSize + deltaSize;
-			math::Vector2 newPosition = _pickingPosition - deltaSize * (reverse - pivot);
+			Vector2 newSize = _pickingSize + deltaSize;
+			Vector2 newPosition = _pickingPosition - deltaSize * (reverse - pivot);
 
 			if (newSize != _pickingSize)
 			{

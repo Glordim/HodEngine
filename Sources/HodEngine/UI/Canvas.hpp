@@ -55,12 +55,12 @@ namespace hod::ui
 		float GetWidthHeightPreferredAxis() const;
 		void  SetWidthHeightPreferredAxis(float widthHeightPreferredAxis);
 
-		void RecomputeRootNodeSize(const math::Vector2& resolution);
+		void RecomputeRootNodeSize(const Vector2& resolution);
 
-		math::Rect GetBoundingBox() const override;
+		Rect GetBoundingBox() const override;
 		void PushRenderCommand(renderer::RenderView& renderView) override;
 
-		const math::Matrix4& GetRenderModeMatrix() const;
+		const Matrix4& GetRenderModeMatrix() const;
 
 		void MarkForRebuild(Rebuildable* rebuildable);
 
@@ -77,7 +77,7 @@ namespace hod::ui
 
 		float _scaleFactor = 1.0f;
 
-		math::Matrix4 _renderModeMatrix;
+		Matrix4 _renderModeMatrix;
 
 		Vector<WeakPtr<Rebuildable>> _markedForRebuild;
 	};

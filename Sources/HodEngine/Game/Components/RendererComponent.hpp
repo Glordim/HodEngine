@@ -37,6 +37,6 @@ namespace hod::game
 	public:
 
 		virtual void	PushRenderCommand(renderer::RenderView& renderView) = 0;
-		virtual math::Rect	GetBoundingBox() const = 0;
+		virtual Rect	GetBoundingBox() const = 0;
 	};
 }

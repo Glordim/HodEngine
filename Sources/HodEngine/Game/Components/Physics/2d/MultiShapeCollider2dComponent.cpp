@@ -34,9 +34,9 @@ namespace hod::game
 		Collider2dComponent::OnStart();
 
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
-		math::Vector2               parentOffset = rigidbody->GetParentOffset(this);
+		Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-		math::Vector2        scale = GetScale();
+		Vector2        scale = GetScale();
 		physics::Body* body = rigidbody->GetInternalBody();
 
 		for (const CircleShape& circle : _circles)
@@ -80,9 +80,9 @@ namespace hod::game
 			if (body != nullptr)
 			{
 				Rigidbody2dComponent* rigidbody = GetRigidbody();
-				math::Vector2               parentOffset = rigidbody->GetParentOffset(this);
+				Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-				math::Vector2            scale = GetScale();
+				Vector2            scale = GetScale();
 				physics::Collider* collider = body->AddCircleShape(_isTrigger, parentOffset + circleShape._origin * scale, circleShape._radius * scale.GetX());
 				collider->SetUserData(this);
 				_circles.push_back(circleShape);
@@ -108,9 +108,9 @@ namespace hod::game
 			if (body != nullptr)
 			{
 				Rigidbody2dComponent* rigidbody = GetRigidbody();
-				math::Vector2               parentOffset = rigidbody->GetParentOffset(this);
+				Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
-				math::Vector2            scale = GetScale();
+				Vector2            scale = GetScale();
 				physics::Collider* collider = body->AddBoxShape(_isTrigger, parentOffset + boxshape._origin * scale, boxshape._size * scale, boxshape._angle);
 				collider->SetUserData(this);
 				_boxes.push_back(boxshape);

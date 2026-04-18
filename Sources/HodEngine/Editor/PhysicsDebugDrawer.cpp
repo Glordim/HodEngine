@@ -82,7 +82,7 @@ namespace hod::editor
 
 	/// @brief
 	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const hod::physics::RenderCommand& renderCommand, const renderer::Material& material)
-	: RenderCommandMesh(renderCommand._vertices.Data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.Size(), nullptr, 0, math::Matrix4::Identity, nullptr, true)
+	: RenderCommandMesh(renderCommand._vertices.Data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.Size(), nullptr, 0, Matrix4::Identity, nullptr, true)
 	, _material(material)
 	, _color(renderCommand._color.r, renderCommand._color.g, renderCommand._color.b, renderCommand._color.a)
 	{

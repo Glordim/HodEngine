@@ -35,14 +35,14 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Vector2& Node::GetPosition() const
+	const Vector2& Node::GetPosition() const
 	{
 		return _position;
 	}
 
 	/// @brief
 	/// @param position
-	void Node::SetPosition(const math::Vector2& position)
+	void Node::SetPosition(const Vector2& position)
 	{
 		if (_position != position)
 		{
@@ -75,14 +75,14 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Vector2& Node::GetScale() const
+	const Vector2& Node::GetScale() const
 	{
 		return _scale;
 	}
 
 	/// @brief
 	/// @param scale
-	void Node::SetScale(const math::Vector2& scale)
+	void Node::SetScale(const Vector2& scale)
 	{
 		if (_scale != scale)
 		{
@@ -95,14 +95,14 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Vector2& Node::GetAnchorMin() const
+	const Vector2& Node::GetAnchorMin() const
 	{
 		return _anchorMin;
 	}
 
 	/// @brief
 	/// @param anchorMin
-	void Node::SetAnchorMin(const math::Vector2& anchorMin)
+	void Node::SetAnchorMin(const Vector2& anchorMin)
 	{
 		if (_anchorMin != anchorMin)
 		{
@@ -116,14 +116,14 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Vector2& Node::GetAnchorMax() const
+	const Vector2& Node::GetAnchorMax() const
 	{
 		return _anchorMax;
 	}
 
 	/// @brief
 	/// @param anchorMax
-	void Node::SetAnchorMax(const math::Vector2& anchorMax)
+	void Node::SetAnchorMax(const Vector2& anchorMax)
 	{
 		if (_anchorMax != anchorMax)
 		{
@@ -137,14 +137,14 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Vector2& Node::GetPivot() const
+	const Vector2& Node::GetPivot() const
 	{
 		return _pivot;
 	}
 
 	/// @brief
 	/// @param pivot
-	void Node::SetPivot(const math::Vector2& pivot)
+	void Node::SetPivot(const Vector2& pivot)
 	{
 		if (_pivot != pivot)
 		{
@@ -157,14 +157,14 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Vector2& Node::GetDeltaSize() const
+	const Vector2& Node::GetDeltaSize() const
 	{
 		return _deltaSize;
 	}
 
 	/// @brief
 	/// @param deltaSize
-	void Node::SetDeltaSize(const math::Vector2& deltaSize)
+	void Node::SetDeltaSize(const Vector2& deltaSize)
 	{
 		if (_deltaSize != deltaSize)
 		{
@@ -180,7 +180,7 @@ namespace hod::ui
 	{
 		_dirtyFlags |= (uint8_t)DirtyFlag::Size;
 
-		math::Vector2 half(0.5f, 0.5f);
+		Vector2 half(0.5f, 0.5f);
 
 		game::Entity* entity = GetOwner();
 		for (uint32_t childIndex = 0; childIndex < entity->GetChildren().Size(); ++childIndex)
@@ -224,13 +224,13 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Vector2& Node::ComputeSize()
+	const Vector2& Node::ComputeSize()
 	{
 		if (_dirtyFlags & (uint8_t)DirtyFlag::Size)
 		{
 			Node* pParent = _parent.Get();
 
-			math::Vector2 previousSize = _size;
+			Vector2 previousSize = _size;
 			ComputeSize(pParent, _size);
 
 			if (_size != previousSize)
@@ -246,13 +246,13 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	void Node::ComputeSize(Node* pParent, math::Vector2& rSize)
+	void Node::ComputeSize(Node* pParent, Vector2& rSize)
 	{
-		math::Vector2 deltaAnchor = _anchorMax - _anchorMin;
+		Vector2 deltaAnchor = _anchorMax - _anchorMin;
 
-		if (deltaAnchor != math::Vector2::Zero)
+		if (deltaAnchor != Vector2::Zero)
 		{
-			math::Vector2 vParentSize = math::Vector2::Zero;
+			Vector2 vParentSize = Vector2::Zero;
 			if (pParent != nullptr)
 			{
 				vParentSize = pParent->ComputeSize();
@@ -268,7 +268,7 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Matrix4& Node::ComputeLocalMatrix()
+	const Matrix4& Node::ComputeLocalMatrix()
 	{
 		ComputeSize();
 		if (_dirtyFlags & (uint8_t)DirtyFlag::LocalMatrix)
@@ -283,39 +283,39 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	void Node::ComputeLocalMatrix(Node* parent, const math::Vector2& Size, math::Matrix4& localMatrix) const
+	void Node::ComputeLocalMatrix(Node* parent, const Vector2& Size, Matrix4& localMatrix) const
 	{
-		math::Vector2 position(0.0f, 0.0f);
+		Vector2 position(0.0f, 0.0f);
 
-		math::Vector2 parentSize = math::Vector2::Zero;
+		Vector2 parentSize = Vector2::Zero;
 		if (parent != nullptr)
 		{
 			parentSize = parent->ComputeSize();
 		}
 
-		const math::Vector2& anchorSize = _anchorMax - _anchorMin;
-		const math::Vector2& anchorPos = (_anchorMin + _anchorMax) * 0.5f;
+		const Vector2& anchorSize = _anchorMax - _anchorMin;
+		const Vector2& anchorPos = (_anchorMin + _anchorMax) * 0.5f;
 
-		position += (anchorPos - math::Vector2(0.5f, 0.5f)) * parentSize;
-		position += (_pivot - math::Vector2(0.5f, 0.5f)) * parentSize * anchorSize;
+		position += (anchorPos - Vector2(0.5f, 0.5f)) * parentSize;
+		position += (_pivot - Vector2(0.5f, 0.5f)) * parentSize * anchorSize;
 
 		position += GetPosition();
 
-		const math::Vector2& pixelPivot = (_pivot - math::Vector2(0.5f, 0.5f)) * Size;
+		const Vector2& pixelPivot = (_pivot - Vector2(0.5f, 0.5f)) * Size;
 
-		math::Matrix4 anchor = math::Matrix4::Translation(pixelPivot);
-		math::Matrix4 inverseAnchor = math::Matrix4::Translation(-pixelPivot);
+		Matrix4 anchor = Matrix4::Translation(pixelPivot);
+		Matrix4 inverseAnchor = Matrix4::Translation(-pixelPivot);
 
-		math::Matrix4 translation = math::Matrix4::Translation(position);
-		math::Matrix4 rotation = math::Matrix4::Rotation(_rotation);
-		math::Matrix4 scaling = math::Matrix4::Scale(_scale);
+		Matrix4 translation = Matrix4::Translation(position);
+		Matrix4 rotation = Matrix4::Rotation(_rotation);
+		Matrix4 scaling = Matrix4::Scale(_scale);
 
 		localMatrix = inverseAnchor * scaling * rotation * anchor * translation * inverseAnchor;
 	}
 
 	/// @brief
 	/// @return
-	const math::Matrix4& Node::ComputeCanvasMatrix()
+	const Matrix4& Node::ComputeCanvasMatrix()
 	{
 		ComputeLocalMatrix();
 		if (_dirtyFlags & (uint8_t)DirtyFlag::CanvasMatrix)
@@ -337,9 +337,9 @@ namespace hod::ui
 		return _canvasMatrix;
 	}
 
-	math::Matrix4 Node::ComputeWorldMatrix()
+	Matrix4 Node::ComputeWorldMatrix()
 	{
-		math::Matrix4 worldMatrix;
+		Matrix4 worldMatrix;
 		Canvas* canvas = GetOwner()->GetComponentInParent<Canvas>();
 		if (canvas != nullptr)
 		{

@@ -19,7 +19,7 @@ namespace hod::renderer
 		RenderTarget();
 		virtual ~RenderTarget();
 
-		math::Vector2 GetResolution() const;
+		Vector2 GetResolution() const;
 
 		virtual bool Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo);
 
@@ -39,6 +39,6 @@ namespace hod::renderer
 		Vector<Texture*> _depthTextures;
 
 	protected:
-		math::Vector2 _resolution; // TODO Vector2_Int ?
+		Vector2 _resolution; // TODO Vector2_Int ?
 	};
 }

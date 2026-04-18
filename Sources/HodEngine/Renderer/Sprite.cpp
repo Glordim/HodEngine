@@ -27,7 +27,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const math::Rect& Sprite::GetFrame() const
+	const Rect& Sprite::GetFrame() const
 	{
 		return _frame;
 	}
@@ -35,7 +35,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const math::Vector2& Sprite::GetSize() const
+	const Vector2& Sprite::GetSize() const
 	{
 		return _size;
 	}
@@ -43,7 +43,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const math::Vector2& Sprite::GetPivot() const
+	const Vector2& Sprite::GetPivot() const
 	{
 		return _pivot;
 	}

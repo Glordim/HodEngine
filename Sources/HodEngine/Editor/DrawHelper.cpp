@@ -10,7 +10,7 @@
 
 namespace hod::editor
 {
-	bool DrawHelper::DrawVector2(math::Vector2& value, const char* labelX, const char* labelY)
+	bool DrawHelper::DrawVector2(Vector2& value, const char* labelX, const char* labelY)
 	{
 		bool changed = false;
 		float x = value.GetX();
@@ -52,7 +52,7 @@ namespace hod::editor
 		return changed;
 	}
 
-	bool DrawHelper::DrawVector4(math::Vector4& value, const char* labelX, const char* labelY, const char* labelZ, const char* labelW)
+	bool DrawHelper::DrawVector4(Vector4& value, const char* labelX, const char* labelY, const char* labelZ, const char* labelW)
 	{
 		bool changed = false;
 		float x = value.GetX();

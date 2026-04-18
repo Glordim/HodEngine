@@ -30,7 +30,7 @@ namespace hod::renderer
 
 		void AddSemaphoreToSwapBuffer(Semaphore* semaphore);
 
-		virtual math::Vector2 GetResolution() const = 0;
+		virtual Vector2 GetResolution() const = 0;
 
 		window::Window* GetWindow() const;
 

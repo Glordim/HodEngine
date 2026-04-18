@@ -109,8 +109,8 @@ namespace hod::ui
 			Text* text = GetOwner()->GetComponent<Text>();
 			if (text != nullptr)
 			{
-				math::Vector2 Size = node->GetDeltaSize();
-				math::Vector2 contentSize = text->GetContentSize();
+				Vector2 Size = node->GetDeltaSize();
+				Vector2 contentSize = text->GetContentSize();
 
 				if (_horizontalFitMode != FitMode::Unconstrained)
 				{
@@ -143,7 +143,7 @@ namespace hod::ui
 						}
 					}
 
-					math::Vector2 Size = node->GetDeltaSize();
+					Vector2 Size = node->GetDeltaSize();
 
 					layout->Rebuild();
 

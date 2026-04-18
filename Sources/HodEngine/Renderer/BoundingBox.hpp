@@ -9,9 +9,9 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	struct BoundingBox
 	{
-		math::Vector2 center;
-		math::Vector2 size;
-		math::Vector2 min;
-		math::Vector2 max;
+		Vector2 center;
+		Vector2 size;
+		Vector2 min;
+		Vector2 max;
 	};
 }

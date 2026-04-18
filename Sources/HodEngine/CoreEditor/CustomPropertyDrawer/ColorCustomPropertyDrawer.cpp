@@ -22,7 +22,7 @@ namespace hod::editor
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		math::Color value = *editorReflectedProperty.GetObject<math::Color>();
+		Color value = *editorReflectedProperty.GetObject<Color>();
 		changed |= ColorCustomPropertyDrawer::Draw(value);
 		if (changed == true)
 		{
@@ -34,7 +34,7 @@ namespace hod::editor
 	/// @brief
 	/// @param value
 	/// @return
-	bool ColorCustomPropertyDrawer::Draw(math::Color& value)
+	bool ColorCustomPropertyDrawer::Draw(Color& value)
 	{
 		bool  changed = false;
 		float r = value.r;

@@ -23,6 +23,6 @@ namespace hod::ui
 		void	SetTop(float top);
 		float	GetTop() const;
 
-		math::Vector4	_vector4;
+		Vector4	_vector4;
 	};
 }

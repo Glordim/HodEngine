@@ -19,7 +19,7 @@ namespace hod::inline imgui
 	/// @brief
 	/// @param drawLists
 	/// @param viewport
-	RenderCommandImGui::RenderCommandImGui(const Vector<DrawList*>& drawLists, const math::Rect& viewport)
+	RenderCommandImGui::RenderCommandImGui(const Vector<DrawList*>& drawLists, const Rect& viewport)
 	: RenderCommand()
 	, _viewport(viewport)
 	, _drawLists(drawLists)
@@ -77,8 +77,8 @@ namespace hod::inline imgui
 
 			struct Constant
 			{
-				math::Vector2 _scale;
-				math::Vector2 _translate;
+				Vector2 _scale;
+				Vector2 _translate;
 			};
 
 			Constant constant;

@@ -51,7 +51,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	bool MetalCommandBuffer::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const math::Color& color)
+	bool MetalCommandBuffer::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const Color& color)
 	{
 		(void)renderTarget; // TODO
 
@@ -110,7 +110,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @param projectionMatrix
-	void MetalCommandBuffer::SetProjectionMatrix(const math::Matrix4& projectionMatrix)
+	void MetalCommandBuffer::SetProjectionMatrix(const Matrix4& projectionMatrix)
 	{
 		// todo
 		(void)projectionMatrix;
@@ -118,7 +118,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @param viewMatrix
-	void MetalCommandBuffer::SetViewMatrix(const math::Matrix4& viewMatrix)
+	void MetalCommandBuffer::SetViewMatrix(const Matrix4& viewMatrix)
 	{
 		// todo
 		(void)viewMatrix;
@@ -126,7 +126,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @param modelMatrix
-	void MetalCommandBuffer::SetModelMatrix(const math::Matrix4& modelMatrix)
+	void MetalCommandBuffer::SetModelMatrix(const Matrix4& modelMatrix)
 	{
 		// todo
 		(void)modelMatrix;
@@ -134,7 +134,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @param viewport
-	void MetalCommandBuffer::SetViewport(const math::Rect& viewport)
+	void MetalCommandBuffer::SetViewport(const Rect& viewport)
 	{
 		MTL::Viewport mtlViewport;
 		mtlViewport.originX = viewport._position.GetX();
@@ -148,7 +148,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @param scissor
-	void MetalCommandBuffer::SetScissor(const math::Rect& scissor)
+	void MetalCommandBuffer::SetScissor(const Rect& scissor)
 	{
 		MTL::ScissorRect scissorRect;
 		scissorRect.x = std::clamp((uint32_t)scissor._position.GetX(), 0u, _renderPassWidth);

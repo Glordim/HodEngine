@@ -107,7 +107,7 @@ namespace hod::editor
 					renderView->Init();
 					renderView->Prepare(_renderTarget, nullptr);
 
-					math::Rect viewport;
+					Rect viewport;
 					viewport._position.SetX(0);
 					viewport._position.SetY(0);
 					viewport._size.SetX((float)resolutionWidth);
@@ -115,25 +115,25 @@ namespace hod::editor
 
 					float aspect = (float)resolutionWidth / (float)resolutionHeight;
 
-					_projection = math::Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-					_view = math::Matrix4::Identity;
+					_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
+					_view = Matrix4::Identity;
 
 					renderView->SetupCamera(_projection, _view, viewport);
 
-					math::Vector2 previewSize = math::Vector2::One * 3;
+					Vector2 previewSize = Vector2::One * 3;
 
-					std::array<math::Vector2, 4> vertices = {
-						math::Vector2(-0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
-						math::Vector2(0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
-						math::Vector2(0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
-						math::Vector2(-0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
+					std::array<Vector2, 4> vertices = {
+						Vector2(-0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
+						Vector2(0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
+						Vector2(0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
+						Vector2(-0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
 					};
 
-					static std::array<math::Vector2, 4> uvs = {
-						math::Vector2(0, 0),
-						math::Vector2(1, 0),
-						math::Vector2(1, 1),
-						math::Vector2(0, 1),
+					static std::array<Vector2, 4> uvs = {
+						Vector2(0, 0),
+						Vector2(1, 0),
+						Vector2(1, 1),
+						Vector2(0, 1),
 					};
 
 					static std::array<uint16_t, 3 * 2> indices = {
@@ -141,7 +141,7 @@ namespace hod::editor
 					};
 
 					renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
-						vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), math::Matrix4::Identity, materialInstance, 0);
+						vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, materialInstance, 0);
 					renderView->PushRenderCommand(renderMeshCommand);
 				}
 

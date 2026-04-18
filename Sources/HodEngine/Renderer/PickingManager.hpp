@@ -22,8 +22,8 @@ namespace hod::renderer
 
 		static constexpr uint32_t InvalidId = 0;
 
-		static math::Color	ConvertIdToColor(uint32_t pickingId);
-		static uint32_t	ConvertColorToId(math::Color pickingColor);
+		static Color	ConvertIdToColor(uint32_t pickingId);
+		static uint32_t	ConvertColorToId(Color pickingColor);
 
 	public:
 

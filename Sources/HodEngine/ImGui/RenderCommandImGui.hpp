@@ -24,14 +24,14 @@ namespace hod::inline imgui
 
 		struct Vertex
 		{
-			math::Vector2		_position;
-			math::Vector2		_uv;
+			Vector2		_position;
+			Vector2		_uv;
 			uint32_t	_color;
 		};
 
 		struct Command
 		{
-			math::Rect		_clipRect;
+			Rect		_clipRect;
 			renderer::Texture*	_texture;
 			uint32_t	_vertexOffset;
 			uint32_t	_indexOffset;
@@ -40,8 +40,8 @@ namespace hod::inline imgui
 
 		struct DrawList
 		{
-			math::Vector2				_displayPosition;
-			math::Vector2				_displaySize;
+			Vector2				_displayPosition;
+			Vector2				_displaySize;
 
 			Vector<Vertex>		_vertices;
 			Vector<uint16_t>	_indices;
@@ -50,7 +50,7 @@ namespace hod::inline imgui
 
 	public:
 
-									RenderCommandImGui(const Vector<DrawList*>& drawLists, const math::Rect& viewport);
+									RenderCommandImGui(const Vector<DrawList*>& drawLists, const Rect& viewport);
 									RenderCommandImGui(const RenderCommandImGui&) = delete;
 									RenderCommandImGui(RenderCommandImGui&&) = delete;
 									~RenderCommandImGui() override;
@@ -65,7 +65,7 @@ namespace hod::inline imgui
 
 	private:
 
-		math::Rect						_viewport;
+		Rect						_viewport;
 		Vector<DrawList*>		_drawLists;
 	};
 }

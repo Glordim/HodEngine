@@ -21,8 +21,8 @@ namespace hod::physics
 		};
 
 		Type					_type;
-		Vector<math::Vector2>	_vertices;
-		math::Color				_color;
+		Vector<Vector2>	_vertices;
+		Color				_color;
 	};
 
 	/// @brief 

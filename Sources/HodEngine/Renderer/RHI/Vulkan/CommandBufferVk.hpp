@@ -28,17 +28,17 @@ namespace hod::renderer
 		bool StartRecord() override;
 		bool EndRecord() override;
 
-		bool StartRenderPass(RenderTarget* renderTarget = nullptr, PresentationSurface* presentationSurface = nullptr, const math::Color& color = math::Color(0.1f, 0.1f, 0.1f, 1.0f)) override;
+		bool StartRenderPass(RenderTarget* renderTarget = nullptr, PresentationSurface* presentationSurface = nullptr, const Color& color = Color(0.1f, 0.1f, 0.1f, 1.0f)) override;
 		bool EndRenderPass() override;
 
 		void SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) override;
 
-		void SetProjectionMatrix(const math::Matrix4& projectionMatrix) override;
-		void SetViewMatrix(const math::Matrix4& viewMatrix) override;
-		void SetModelMatrix(const math::Matrix4& modelMatrix) override;
+		void SetProjectionMatrix(const Matrix4& projectionMatrix) override;
+		void SetViewMatrix(const Matrix4& viewMatrix) override;
+		void SetModelMatrix(const Matrix4& modelMatrix) override;
 
-		void SetViewport(const math::Rect& viewport) override;
-		void SetScissor(const math::Rect& scissor) override;
+		void SetViewport(const Rect& viewport) override;
+		void SetScissor(const Rect& scissor) override;
 
 		void SetMaterial(const Material* material) override;
 		void SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) override;

@@ -57,6 +57,6 @@ namespace hod::editor
 	private:
 
 		const renderer::Material&	_material;
-		math::Vector4						_color;
+		Vector4						_color;
 	};
 }

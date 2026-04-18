@@ -23,7 +23,7 @@ namespace hod::editor
 		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-		math::Vector4 value = *editorReflectedProperty.GetObject<math::Vector4>();
+		Vector4 value = *editorReflectedProperty.GetObject<Vector4>();
 		changed |= DrawHelper::DrawVector4(value);
 		if (changed == true)
 		{

@@ -48,7 +48,7 @@ namespace hod::renderer
 		return _unknownGlyphInfo;
 	}
 
-	math::Vector2 Font::ComputeRequiredSize(const String& value) const
+	Vector2 Font::ComputeRequiredSize(const String& value) const
 	{
 		return _impl->ComputeRequiredSize(value);
 	}

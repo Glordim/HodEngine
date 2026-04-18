@@ -20,12 +20,12 @@ namespace hod::ui
 		}
 	}
 
-	void Drawable::SetColor(const math::Color& color)
+	void Drawable::SetColor(const Color& color)
 	{
 		_color = color;
 	}
 
-	const math::Color& Drawable::GetColor() const
+	const Color& Drawable::GetColor() const
 	{
 		return _color;
 	}

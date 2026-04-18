@@ -21,9 +21,9 @@ namespace hod::game
 
 		struct Line
 		{
-			math::Vector2	_start;
-			math::Vector2	_end;
-			math::Color	_color;
+			Vector2	_start;
+			Vector2	_end;
+			Color	_color;
 			float	_duration = 0.0f;
 		};
 
@@ -33,7 +33,7 @@ namespace hod::game
 
 	public:
 
-		void	AddLine(const math::Vector2& start, const math::Vector2& end, const math::Color& color, float duration = 0.0f);
+		void	AddLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
 
 		void	Draw(renderer::RenderView& renderView);
 

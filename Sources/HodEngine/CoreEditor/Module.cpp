@@ -20,18 +20,18 @@ using namespace hod::editor;
 
 HOD_STARTUP_MODULE(CoreEditor)
 {
-	hod::editor::CustomPropertyDrawerRegistry::Register<math::Color, ColorCustomPropertyDrawer>();
-	hod::editor::CustomPropertyDrawerRegistry::Register<math::Vector2, Vector2CustomPropertyDrawer>();
-	hod::editor::CustomPropertyDrawerRegistry::Register<math::Vector4, Vector4CustomPropertyDrawer>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<Color, ColorCustomPropertyDrawer>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<Vector2, Vector2CustomPropertyDrawer>();
+	hod::editor::CustomPropertyDrawerRegistry::Register<Vector4, Vector4CustomPropertyDrawer>();
 	hod::editor::CustomPropertyDrawerRegistry::Register<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
 	return 0;
 }
 
 HOD_SHUTDOWN_MODULE(CoreEditor)
 {
-	hod::editor::CustomPropertyDrawerRegistry::Unregister<math::Color>();
-	hod::editor::CustomPropertyDrawerRegistry::Unregister<math::Vector2>();
-	hod::editor::CustomPropertyDrawerRegistry::Unregister<math::Vector4>();
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<Color>();
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<Vector2>();
+	hod::editor::CustomPropertyDrawerRegistry::Unregister<Vector4>();
 	hod::editor::CustomPropertyDrawerRegistry::Unregister<WeakResourceBase>();
 	return 0;
 }

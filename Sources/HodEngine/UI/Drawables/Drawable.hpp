@@ -20,14 +20,14 @@ namespace hod::ui
 
 		void			OnEnable() override;
 
-		void			SetColor(const math::Color& color);
-		const math::Color&	GetColor() const;
+		void			SetColor(const Color& color);
+		const Color&	GetColor() const;
 
 		virtual void	PushRenderCommand(renderer::RenderView& renderView, renderer::RenderView::RenderQueueType renderQueueType) = 0;
 
 	protected:
 
-	 	math::Color				_color;
+	 	Color				_color;
 
 		WeakPtr<Node>		_node;
 	};

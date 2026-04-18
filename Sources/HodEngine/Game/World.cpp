@@ -237,7 +237,7 @@ namespace hod::game
 	/// @param end
 	/// @param color
 	/// @param duration
-	void World::DrawDebugLine(const math::Vector2& start, const math::Vector2& end, const math::Color& color, float duration)
+	void World::DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration)
 	{
 		_debugDrawer.AddLine(start, end, color, duration);
 	}

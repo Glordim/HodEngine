@@ -63,26 +63,26 @@ namespace hod::renderer
 		_pickingRenderTarget = pickingRenderTarget;
 	}
 
-	void RenderView::SetupCamera(const math::Matrix4& projection, const math::Matrix4& view, const math::Rect& viewport)
+	void RenderView::SetupCamera(const Matrix4& projection, const Matrix4& view, const Rect& viewport)
 	{
 		_projection = projection;
-		_view = math::Matrix4::Inverse(view);
+		_view = Matrix4::Inverse(view);
 		_viewport = viewport;
 	}
 
-	const math::Matrix4& RenderView::GetViewMatrix() const
+	const Matrix4& RenderView::GetViewMatrix() const
 	{
-		static math::Matrix4 view;
-		view = math::Matrix4::Inverse(_view);
+		static Matrix4 view;
+		view = Matrix4::Inverse(_view);
 		return view;
 	}
 
-	const math::Matrix4& RenderView::GetProjectionMatrix() const
+	const Matrix4& RenderView::GetProjectionMatrix() const
 	{
 		return _projection;
 	}
 
-	const math::Rect& RenderView::GetViewport() const
+	const Rect& RenderView::GetViewport() const
 	{
 		return _viewport;
 	}
@@ -116,7 +116,7 @@ namespace hod::renderer
 			if (commandBuffer->StartRecord() == true)
 			{
 				//_pickingRenderTarget->PrepareForWrite(commandBuffer);
-				commandBuffer->StartRenderPass(_pickingRenderTarget, nullptr, math::Color(0.0f, 0.0f, 0.0f, 0.0f));
+				commandBuffer->StartRenderPass(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f));
 
 				commandBuffer->SetProjectionMatrix(_projection);
 				commandBuffer->SetViewMatrix(_view);
@@ -201,7 +201,7 @@ namespace hod::renderer
 		_materialInstancesToDelete.Clear();
 	}
 
-	math::Vector2 RenderView::GetRenderResolution() const
+	Vector2 RenderView::GetRenderResolution() const
 	{
 		if (_presentationSurface != nullptr)
 		{
@@ -213,7 +213,7 @@ namespace hod::renderer
 		}
 		else
 		{
-			return math::Vector2::Zero;
+			return Vector2::Zero;
 		}
 	}
 

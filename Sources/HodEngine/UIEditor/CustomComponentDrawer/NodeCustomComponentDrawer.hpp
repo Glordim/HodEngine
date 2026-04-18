@@ -35,7 +35,7 @@ namespace hod::editor
 
 	private:
 
-		static bool						DrawAnchorPresets(const ImVec2& size, math::Vector2& anchorMin, math::Vector2& anchorMax, math::Vector2& pivot);
+		static bool						DrawAnchorPresets(const ImVec2& size, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot);
 		
 	private:
 
@@ -51,8 +51,8 @@ namespace hod::editor
 		Handle							_leftEdge;
 		Handle							_rightEdge;
 
-		math::Vector2							_pickingOffset;
-		math::Vector2							_pickingPosition;
-		math::Vector2							_pickingSize;
+		Vector2							_pickingOffset;
+		Vector2							_pickingPosition;
+		Vector2							_pickingSize;
 	};
 }

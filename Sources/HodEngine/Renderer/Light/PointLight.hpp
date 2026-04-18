@@ -14,7 +14,7 @@ namespace hod::renderer
 
 		}
 
-		math::Color color;
+		Color color;
 		float intensity;
 		float range;
 	};

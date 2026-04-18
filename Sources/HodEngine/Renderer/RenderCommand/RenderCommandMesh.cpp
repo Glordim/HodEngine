@@ -25,8 +25,8 @@ namespace hod::renderer
 	/// @param modelMatrix
 	/// @param materialInstance
 	/// @param ignoreVisualisationMode
-	RenderCommandMesh::RenderCommandMesh(const math::Vector2* positions, const math::Vector2* uvs, const math::Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount,
-	                                     const math::Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t order, uint32_t pickingId, bool ignoreVisualisationMode)
+	RenderCommandMesh::RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount,
+	                                     const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t order, uint32_t pickingId, bool ignoreVisualisationMode)
 	: RenderCommand()
 	, _vertexCount(vertexCount)
 	, _order(order)
@@ -38,18 +38,18 @@ namespace hod::renderer
 	{
 		assert(positions != nullptr);
 		_positions.Resize(vertexCount);
-		memcpy(_positions.Data(), positions, sizeof(math::Vector2) * vertexCount);
+		memcpy(_positions.Data(), positions, sizeof(Vector2) * vertexCount);
 
 		if (uvs != nullptr)
 		{
 			_uvs.Resize(vertexCount);
-			memcpy(_uvs.Data(), uvs, sizeof(math::Vector2) * vertexCount);
+			memcpy(_uvs.Data(), uvs, sizeof(Vector2) * vertexCount);
 		}
 
 		if (colors != nullptr)
 		{
 			_colors.Resize(vertexCount);
-			memcpy(_colors.Data(), colors, sizeof(math::Color) * vertexCount);
+			memcpy(_colors.Data(), colors, sizeof(Color) * vertexCount);
 		}
 
 		if (indices != nullptr)
@@ -77,11 +77,11 @@ namespace hod::renderer
 		std::array<Buffer*, 3> vertexBuffers = {nullptr, nullptr, nullptr};
 		uint32_t               vertexBufferCount = 0;
 
-		Buffer* positionsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_positions.Size() * sizeof(math::Vector2));
+		Buffer* positionsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_positions.Size() * sizeof(Vector2));
 		void*   positionsBufferData = positionsBuffer->Lock();
 		if (positionsBufferData != nullptr)
 		{
-			memcpy(positionsBufferData, _positions.Data(), _positions.Size() * sizeof(math::Vector2));
+			memcpy(positionsBufferData, _positions.Data(), _positions.Size() * sizeof(Vector2));
 			positionsBuffer->Unlock();
 		}
 		vertexBuffers[vertexBufferCount] = positionsBuffer;
@@ -90,11 +90,11 @@ namespace hod::renderer
 
 		if (_uvs.Empty() == false)
 		{
-			Buffer* uvsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_uvs.Size() * sizeof(math::Vector2));
+			Buffer* uvsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_uvs.Size() * sizeof(Vector2));
 			void*   uvsBufferData = uvsBuffer->Lock();
 			if (uvsBufferData != nullptr)
 			{
-				memcpy(uvsBufferData, _uvs.Data(), _uvs.Size() * sizeof(math::Vector2));
+				memcpy(uvsBufferData, _uvs.Data(), _uvs.Size() * sizeof(Vector2));
 				uvsBuffer->Unlock();
 			}
 			vertexBuffers[vertexBufferCount] = uvsBuffer;
@@ -104,11 +104,11 @@ namespace hod::renderer
 
 		if (_colors.Empty() == false)
 		{
-			Buffer* colorsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_colors.Size() * sizeof(math::Color));
+			Buffer* colorsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_colors.Size() * sizeof(Color));
 			void*   colorsBufferData = colorsBuffer->Lock();
 			if (colorsBufferData != nullptr)
 			{
-				memcpy(colorsBufferData, _colors.Data(), _colors.Size() * sizeof(math::Color));
+				memcpy(colorsBufferData, _colors.Data(), _colors.Size() * sizeof(Color));
 				colorsBuffer->Unlock();
 			}
 			vertexBuffers[vertexBufferCount] = colorsBuffer;
@@ -140,10 +140,10 @@ namespace hod::renderer
 		materialInstance->SetFloat("global.time", (float)SystemTime::ToSeconds(SystemTime::Now()));
 		if (overrideMaterial != nullptr)
 		{
-			math::Color color = renderer::PickingManager::ConvertIdToColor(_pickingId);
+			Color color = renderer::PickingManager::ConvertIdToColor(_pickingId);
 
 			materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
-			materialInstance->SetVec4("ubo.color", math::Vector4(color.r, color.g, color.b, color.a));
+			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 			commandBuffer->DeleteAfterRender(materialInstance);
 		}
 		else if (_ignoreVisualisationMode == false)
@@ -161,8 +161,8 @@ namespace hod::renderer
 
 		struct Constant
 		{
-			math::Matrix4 _mvp;
-			math::Matrix4 _model;
+			Matrix4 _mvp;
+			Matrix4 _model;
 		};
 
 		Constant constant;

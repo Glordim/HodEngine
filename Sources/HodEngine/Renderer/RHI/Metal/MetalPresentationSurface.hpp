@@ -30,7 +30,7 @@ namespace hod::renderer
 		CA::MetalDrawable* GetCurrentDrawable() const;
 
 		void    Resize(uint32_t width, uint32_t height) override;
-		math::Vector2 GetResolution() const override;
+		Vector2 GetResolution() const override;
 
 		bool SwapBuffer() override;
 

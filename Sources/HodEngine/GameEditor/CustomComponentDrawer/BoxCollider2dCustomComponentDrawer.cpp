@@ -23,7 +23,7 @@ namespace hod::editor
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", math::Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
 	/// @brief
@@ -51,15 +51,15 @@ namespace hod::editor
 			game::Node2dComponent* node2D = boxCollider2d->GetOwner()->GetComponent<game::Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				std::array<math::Vector2, 5> vertices = {
-					math::Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
-					math::Vector2(boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
-					math::Vector2(boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
-					math::Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
-					math::Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
+				std::array<Vector2, 5> vertices = {
+					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
+					Vector2(boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
+					Vector2(boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
+					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
+					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
 				};
 
-				math::Matrix4 localMatrix = math::Matrix4::Translation(boxCollider2d->GetOffset()) * math::Matrix4::Rotation(boxCollider2d->GetRotation());
+				Matrix4 localMatrix = Matrix4::Translation(boxCollider2d->GetOffset()) * Matrix4::Rotation(boxCollider2d->GetRotation());
 
 				renderer::RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<renderer::RenderCommandMesh>(
 					vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance,

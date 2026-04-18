@@ -487,7 +487,7 @@ namespace hod::inline imgui
 			}
 		}
 
-		math::Vector2 resolution;
+		Vector2 resolution;
 
 		renderer::PresentationSurface* presentationSurface = renderer::Renderer::GetInstance()->FindPresentationSurface(_mainWindow);
 		if (presentationSurface)
@@ -495,7 +495,7 @@ namespace hod::inline imgui
 			resolution = presentationSurface->GetResolution();
 		}
 
-		if (resolution == math::Vector2::Zero)
+		if (resolution == Vector2::Zero)
 		{
 			return;
 		}
@@ -724,8 +724,8 @@ namespace hod::inline imgui
 
 			RenderCommandImGui::DrawList* drawList = DefaultAllocator::GetInstance().New<RenderCommandImGui::DrawList>();
 
-			memcpy((void*)&drawList->_displayPosition, &drawData->DisplayPos, sizeof(math::Vector2));
-			memcpy((void*)&drawList->_displaySize, &drawData->DisplaySize, sizeof(math::Vector2));
+			memcpy((void*)&drawList->_displayPosition, &drawData->DisplayPos, sizeof(Vector2));
+			memcpy((void*)&drawList->_displaySize, &drawData->DisplaySize, sizeof(Vector2));
 
 			drawList->_vertices.Resize(imDrawList->VtxBuffer.Size);
 			memcpy((void*)drawList->_vertices.Data(), imDrawList->VtxBuffer.Data, imDrawList->VtxBuffer.Size * sizeof(RenderCommandImGui::Vertex));
@@ -756,7 +756,7 @@ namespace hod::inline imgui
 			drawLists[drawListIndex] = drawList;
 		}
 
-		math::Rect viewport;
+		Rect viewport;
 		viewport._position.SetX(0.0f);
 		viewport._position.SetY(ImGui::GetIO().DisplaySize.y * ImGui::GetIO().DisplayFramebufferScale.y);
 		viewport._size.SetX(ImGui::GetIO().DisplaySize.x * ImGui::GetIO().DisplayFramebufferScale.x);
@@ -767,7 +767,7 @@ namespace hod::inline imgui
 		renderer::RenderView* renderView = renderer::Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 		renderView->Init();
 		renderView->Prepare(_mainWindow);
-		renderView->SetupCamera(math::Matrix4::Identity, math::Matrix4::Identity, viewport);
+		renderView->SetupCamera(Matrix4::Identity, Matrix4::Identity, viewport);
 		renderView->PushRenderCommand(renderCommand);
 	}
 

@@ -21,53 +21,53 @@ namespace hod::game
 		Collider2dComponent::OnStart();
 
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
-		math::Vector2 parentOffset = rigidbody->GetParentOffset(this);
+		Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
-		math::Vector2 scale = GetScale();
+		Vector2 scale = GetScale();
 		_collider = rigidbody->GetInternalBody()->AddEdgeShape(_isTrigger, parentOffset + _start * scale, parentOffset + _end * scale);
 		_collider->SetUserData(this);
 	}
 
 	/// @brief 
 	/// @param start 
-	void EdgeCollider2dComponent::SetStart(const math::Vector2& start)
+	void EdgeCollider2dComponent::SetStart(const Vector2& start)
 	{
 		_start = start;
 		if (_collider != nullptr)
 		{
 			Rigidbody2dComponent* rigidbody = GetRigidbody();
-			math::Vector2 parentOffset = rigidbody->GetParentOffset(this);
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
-			math::Vector2 scale = GetScale();
+			Vector2 scale = GetScale();
 			_collider->SetAsEdge(parentOffset + _start * scale, parentOffset + _end * scale);
 		}
 	}
 
 	/// @brief 
 	/// @return 
-	const math::Vector2& EdgeCollider2dComponent::GetStart() const
+	const Vector2& EdgeCollider2dComponent::GetStart() const
 	{
 		return _start;
 	}
 
 	/// @brief 
 	/// @param end 
-	void EdgeCollider2dComponent::SetEnd(const math::Vector2& end)
+	void EdgeCollider2dComponent::SetEnd(const Vector2& end)
 	{
 		_end = end;
 		if (_collider != nullptr)
 		{
 			Rigidbody2dComponent* rigidbody = GetRigidbody();
-			math::Vector2 parentOffset = rigidbody->GetParentOffset(this);
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
-			math::Vector2 scale = GetScale();
+			Vector2 scale = GetScale();
 			_collider->SetAsEdge(parentOffset + _start * scale, parentOffset + _end * scale);
 		}
 	}
 
 	/// @brief 
 	/// @return 
-	const math::Vector2& EdgeCollider2dComponent::GetEnd() const
+	const Vector2& EdgeCollider2dComponent::GetEnd() const
 	{
 		return _end;
 	}

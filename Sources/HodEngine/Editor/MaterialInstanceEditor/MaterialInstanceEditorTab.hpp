@@ -44,12 +44,12 @@ namespace hod::editor
 
 		struct ShaderParamVec2 : renderer::ShaderParameter
 		{
-			math::Vector2 _value;
+			Vector2 _value;
 		};
 
 		struct ShaderParamVec4 : renderer::ShaderParameter
 		{
-			math::Vector4 _value;
+			Vector4 _value;
 		};
 
 	public:

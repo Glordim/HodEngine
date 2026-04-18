@@ -26,21 +26,21 @@ namespace hod::ui
 	{
 		if (_node.Get())
 		{
-			math::Vector2 Size = _node->ComputeSize();
-			math::Matrix4 worldMatrix = _node->ComputeWorldMatrix();
+			Vector2 Size = _node->ComputeSize();
+			Matrix4 worldMatrix = _node->ComputeWorldMatrix();
 
-			std::array<math::Vector2, 4> vertices = {
-				math::Vector2(-0.5f * Size.GetX(), 0.5f * Size.GetY()),
-				math::Vector2(0.5f * Size.GetX(), 0.5f * Size.GetY()),
-				math::Vector2(0.5f * Size.GetX(), -0.5f * Size.GetY()),
-				math::Vector2(-0.5f * Size.GetX(), -0.5f * Size.GetY()),
+			std::array<Vector2, 4> vertices = {
+				Vector2(-0.5f * Size.GetX(), 0.5f * Size.GetY()),
+				Vector2(0.5f * Size.GetX(), 0.5f * Size.GetY()),
+				Vector2(0.5f * Size.GetX(), -0.5f * Size.GetY()),
+				Vector2(-0.5f * Size.GetX(), -0.5f * Size.GetY()),
 			};
 
-			static std::array<math::Vector2, 4> uvs = {
-				math::Vector2(0, 0),
-				math::Vector2(1, 0),
-				math::Vector2(1, 1),
-				math::Vector2(0, 1),
+			static std::array<Vector2, 4> uvs = {
+				Vector2(0, 0),
+				Vector2(1, 0),
+				Vector2(1, 1),
+				Vector2(0, 1),
 			};
 
 			static std::array<uint16_t, 3 * 2> indices = {
@@ -58,7 +58,7 @@ namespace hod::ui
 			{
 				_materialInstance->SetTexture("image", _texture.Lock()->GetTexture());
 			}
-			math::Vector4 vec4Color;
+			Vector4 vec4Color;
 			vec4Color.SetX(_color.r);
 			vec4Color.SetY(_color.g);
 			vec4Color.SetZ(_color.b);

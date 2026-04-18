@@ -44,7 +44,7 @@ namespace hod::renderer
 	/// @brief
 	/// @param memberName
 	/// @param value
-	void MetalMaterialInstance::ApplyVec2(const String& memberName, const math::Vector2& value)
+	void MetalMaterialInstance::ApplyVec2(const String& memberName, const Vector2& value)
 	{
 		// TODO
 		(void)memberName;
@@ -54,7 +54,7 @@ namespace hod::renderer
 	/// @brief
 	/// @param memberName
 	/// @param value
-	void MetalMaterialInstance::ApplyVec4(const String& memberName, const math::Vector4& value)
+	void MetalMaterialInstance::ApplyVec4(const String& memberName, const Vector4& value)
 	{
 		// TODO
 		(void)memberName;
@@ -64,7 +64,7 @@ namespace hod::renderer
 	/// @brief
 	/// @param memberName
 	/// @param value
-	void MetalMaterialInstance::ApplyMat4(const String& memberName, const math::Matrix4& value)
+	void MetalMaterialInstance::ApplyMat4(const String& memberName, const Matrix4& value)
 	{
 		// TODO
 		(void)memberName;

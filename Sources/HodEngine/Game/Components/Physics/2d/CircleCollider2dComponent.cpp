@@ -23,31 +23,31 @@ namespace hod::game
 		Collider2dComponent::OnStart();
 
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
-		math::Vector2 parentOffset = rigidbody->GetParentOffset(this);
+		Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
-		math::Vector2 scale = GetScale();
+		Vector2 scale = GetScale();
 		_collider = rigidbody->GetInternalBody()->AddCircleShape(_isTrigger, parentOffset + _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
 		_collider->SetUserData(this);
 		_collider->SetBounciness(_bounciness);
 	}
 
 	/// @brief 
-	void CircleCollider2dComponent::SetOffset(const math::Vector2& offset)
+	void CircleCollider2dComponent::SetOffset(const Vector2& offset)
 	{
 		_offset = offset;
 		if (_collider != nullptr)
 		{
 			Rigidbody2dComponent* rigidbody = GetRigidbody();
-			math::Vector2 parentOffset = rigidbody->GetParentOffset(this);
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
-			math::Vector2 scale = GetScale();
+			Vector2 scale = GetScale();
 			_collider->SetAsCircleShape(parentOffset + _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
 		}
 	}
 
 	/// @brief 
 	/// @return 
-	const math::Vector2& CircleCollider2dComponent::GetOffset() const
+	const Vector2& CircleCollider2dComponent::GetOffset() const
 	{
 		return _offset;
 	}
@@ -59,9 +59,9 @@ namespace hod::game
 		if (_collider != nullptr)
 		{
 			Rigidbody2dComponent* rigidbody = GetRigidbody();
-			math::Vector2 parentOffset = rigidbody->GetParentOffset(this);
+			Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
-			math::Vector2 scale = GetScale();
+			Vector2 scale = GetScale();
 			_collider->SetAsCircleShape(parentOffset + _offset * scale, _radius * std::max(scale.GetX(), scale.GetY()));
 		}
 	}

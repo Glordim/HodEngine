@@ -29,7 +29,7 @@ namespace hod::editor
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", math::Vector4(0.75f, 0.75f, 0.75f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", Vector4(0.75f, 0.75f, 0.75f, 1.0f));
 	}
 
 	/// @brief
@@ -72,15 +72,15 @@ namespace hod::editor
 		ui::Node* node = component->GetOwner()->GetComponent<ui::Node>();
 		if (node != nullptr)
 		{
-			math::Vector2 Size = node->ComputeSize();
+			Vector2 Size = node->ComputeSize();
 
-			std::array<math::Vector2, 5> vertices = {
-				math::Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),  math::Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f),  math::Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
-				math::Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), math::Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),
+			std::array<Vector2, 5> vertices = {
+				Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
+				Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),
 			};
 
-			static math::Vector4 selectedColor(0.75f, 0.75f, 0.75f, 1.0f);
-			static math::Vector4 normalColor(0.45f, 0.45f, 0.45f, 1.0f);
+			static Vector4 selectedColor(0.75f, 0.75f, 0.75f, 1.0f);
+			static Vector4 normalColor(0.45f, 0.45f, 0.45f, 1.0f);
 
 			_materialInstance->SetVec4("ubo.color", selected ? selectedColor : normalColor);
 

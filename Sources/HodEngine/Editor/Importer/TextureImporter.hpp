@@ -23,7 +23,7 @@ namespace hod::editor
 		virtual ~SpriteData() = default;
 
 		UID      _uid;
-		math::Rect     _rect;
+		Rect     _rect;
 		MeshType _meshType = MeshType::Rect;
 	};
 

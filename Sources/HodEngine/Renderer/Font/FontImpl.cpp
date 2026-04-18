@@ -186,8 +186,8 @@ namespace hod::renderer
 				glyphInfo._code = c;
 				glyphInfo._advanceX = (float)(_ftFace->glyph->advance.x >> 6);
 				glyphInfo._baseline = (float)(48 - _ftFace->glyph->bitmap_top);
-				glyphInfo._bearing = math::Vector2((float)(_ftFace->glyph->metrics.horiBearingX >> 6), (float)(_ftFace->glyph->metrics.horiBearingY >> 6));
-				glyphInfo._size = math::Vector2((float)(_ftFace->glyph->metrics.width >> 6), (float)(_ftFace->glyph->metrics.height >> 6));
+				glyphInfo._bearing = Vector2((float)(_ftFace->glyph->metrics.horiBearingX >> 6), (float)(_ftFace->glyph->metrics.horiBearingY >> 6));
+				glyphInfo._size = Vector2((float)(_ftFace->glyph->metrics.width >> 6), (float)(_ftFace->glyph->metrics.height >> 6));
 				glyphInfos.push_back(glyphInfo);
 			}
 		}
@@ -199,8 +199,8 @@ namespace hod::renderer
 		{
 			const CharacterData& characterData = characterDatas[characteIndex];
 			Font::GlyphInfo&     glyphInfo = glyphInfos[characteIndex];
-			glyphInfo._atlasSize = math::Vector2(glyphInfo._size.GetX() / atlasWidth, glyphInfo._size.GetY() / atlasWidth);
-			glyphInfo._atlasPos = math::Vector2(((characteIndex % characterByLine) * 48) / (float)atlasWidth, ((characteIndex / characterByLine) * 48) / (float)atlasWidth);
+			glyphInfo._atlasSize = Vector2(glyphInfo._size.GetX() / atlasWidth, glyphInfo._size.GetY() / atlasWidth);
+			glyphInfo._atlasPos = Vector2(((characteIndex % characterByLine) * 48) / (float)atlasWidth, ((characteIndex / characterByLine) * 48) / (float)atlasWidth);
 
 			uint32_t lineOffset = (characteIndex / characterByLine) * atlasWidth * 4 * 48;
 
@@ -255,9 +255,9 @@ namespace hod::renderer
 	/// @brief
 	/// @param value
 	/// @return
-	math::Vector2 FontImpl::ComputeRequiredSize(const String& value) const
+	Vector2 FontImpl::ComputeRequiredSize(const String& value) const
 	{
-		math::Vector2 requiredSize;
+		Vector2 requiredSize;
 		FT_UInt previous = 0;
 
 		const char* str = value.CStr();
@@ -324,7 +324,7 @@ namespace hod::renderer
 			}
 
 			Font::GlyphGeometry glyphGeometry;
-			glyphGeometry._posCenter = math::Vector2(offsetX + glyphInfo->_size.GetX() * 0.5f, -glyphInfo->_baseline - glyphInfo->_size.GetY() * 0.5f);
+			glyphGeometry._posCenter = Vector2(offsetX + glyphInfo->_size.GetX() * 0.5f, -glyphInfo->_baseline - glyphInfo->_size.GetY() * 0.5f);
 			glyphGeometry._posSize = glyphInfo->_size;
 			glyphGeometry._uvPos = glyphInfo->_atlasPos;
 			glyphGeometry._uvSize = glyphInfo->_atlasSize;

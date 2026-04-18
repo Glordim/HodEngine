@@ -48,7 +48,7 @@ namespace hod::physics
 	/// @brief
 	/// @param startPosition
 	/// @param endPosition
-	void ColliderBox2d::SetAsEdge(const math::Vector2& startPosition, const math::Vector2& endPosition)
+	void ColliderBox2d::SetAsEdge(const Vector2& startPosition, const Vector2& endPosition)
 	{
 		b2Segment segment;
 		segment.point1 = {startPosition.GetX(), startPosition.GetY()};
@@ -60,7 +60,7 @@ namespace hod::physics
 	/// @brief
 	/// @param position
 	/// @param radius
-	void ColliderBox2d::SetAsCircleShape(const math::Vector2& position, float radius)
+	void ColliderBox2d::SetAsCircleShape(const Vector2& position, float radius)
 	{
 		b2Circle circle;
 		circle.center = {position.GetX(), position.GetY()};
@@ -74,7 +74,7 @@ namespace hod::physics
 	/// @param Size
 	/// @param angle
 	/// @param density
-	void ColliderBox2d::SetAsBoxShape(const math::Vector2& position, const math::Vector2& Size, float angle)
+	void ColliderBox2d::SetAsBoxShape(const Vector2& position, const Vector2& Size, float angle)
 	{
 		b2Polygon polygon = b2MakeOffsetBox(Size.GetX() * 0.5f, Size.GetY() * 0.5f, {position.GetX(), position.GetY()}, b2MakeRot(angle));
 		b2Shape_SetPolygon(_shape, &polygon);
@@ -85,7 +85,7 @@ namespace hod::physics
 	/// @param Size
 	/// @param angle
 	/// @param density
-	void ColliderBox2d::SetAsCapsuleShape(const math::Vector2& position, float height, float radius, float angle)
+	void ColliderBox2d::SetAsCapsuleShape(const Vector2& position, float height, float radius, float angle)
 	{
 		b2Capsule capsule;
 		capsule.center1 = {position.GetX(), position.GetY() + (height * 0.5f) - radius};
@@ -98,7 +98,7 @@ namespace hod::physics
 
 	/// @brief
 	/// @param vertices
-	void ColliderBox2d::SetAsConvexShape(const Vector<math::Vector2>& vertices)
+	void ColliderBox2d::SetAsConvexShape(const Vector<Vector2>& vertices)
 	{
 		/*
 		b2Polygon polygon = b2MakeBox(Size.GetX(), Size.GetY());

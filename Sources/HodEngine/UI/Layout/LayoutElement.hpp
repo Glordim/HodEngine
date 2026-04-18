@@ -29,14 +29,14 @@ namespace hod::ui
 		bool						GetIgnoreLayout() const;
 		void						SetIgnoreLayout(bool ignoreLayout);
 
-		const math::Vector2&				GetMinSize() const;
-		void						SetMinSize(const math::Vector2& minSize);
+		const Vector2&				GetMinSize() const;
+		void						SetMinSize(const Vector2& minSize);
 
-		const math::Vector2&				GetPreferredSize() const;
-		void						SetPreferredSize(const math::Vector2& preferredSize);
+		const Vector2&				GetPreferredSize() const;
+		void						SetPreferredSize(const Vector2& preferredSize);
 
-		const math::Vector2&				GetFlexibleSize() const;
-		void						SetFlexibleSize(const math::Vector2& flexibleSize);
+		const Vector2&				GetFlexibleSize() const;
+		void						SetFlexibleSize(const Vector2& flexibleSize);
 
 		PropertyChangedEvent&		GetPropertyChangedEvent();
 
@@ -44,9 +44,9 @@ namespace hod::ui
 
 		bool						_ignoreLayout = false;
 
-		math::Vector2						_minSize;
-		math::Vector2						_preferredSize;
-		math::Vector2						_flexibleSize;
+		Vector2						_minSize;
+		Vector2						_preferredSize;
+		Vector2						_flexibleSize;
 
 		PropertyChangedEvent		_propertyChangedEvent;
 	};

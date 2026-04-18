@@ -366,11 +366,11 @@ namespace hod::renderer
 	/// @brief
 	/// @param position
 	/// @return
-	math::Color VkTexture::ReadPixel(const math::Vector2& position) const
+	Color VkTexture::ReadPixel(const Vector2& position) const
 	{
 		if (position.GetX() < 0 || position.GetX() > _width || position.GetY() < 0 || position.GetY() > _height)
 		{
-			return math::Color(0.0f, 0.0f, 0.0f, 0.0f);
+			return Color(0.0f, 0.0f, 0.0f, 0.0f);
 		}
 
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
@@ -389,14 +389,14 @@ namespace hod::renderer
 		if (vmaCreateBuffer(renderer->GetVmaAllocator(), &bufferCreateInfo, &allocCreateInfo, &stagingBuffer, &stagingBufferAllocation, nullptr) != VK_SUCCESS)
 		{
 			// todo output
-			return math::Color(0.0f, 0.0f, 0.0f, 0.0f);
+			return Color(0.0f, 0.0f, 0.0f, 0.0f);
 		}
 
 		renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		if (renderer->CopyImageToBuffer(_textureImage, stagingBuffer, _width, _height) == false)
 		{
 			// todo ouput
-			return math::Color(0.0f, 0.0f, 0.0f, 0.0f);
+			return Color(0.0f, 0.0f, 0.0f, 0.0f);
 		}
 		renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
@@ -404,12 +404,12 @@ namespace hod::renderer
 		if (vmaMapMemory(renderer->GetVmaAllocator(), stagingBufferAllocation, &data) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Texture, unable to map memory");
-			return math::Color(0.0f, 0.0f, 0.0f, 0.0f);
+			return Color(0.0f, 0.0f, 0.0f, 0.0f);
 		}
 
 		uint8_t* pixelData = (uint8_t*)data + ((uint32_t)position.GetY() * _width + (uint32_t)position.GetX()) * 4;
 
-		math::Color color(((float)pixelData[0]) / 255.0f, ((float)pixelData[1]) / 255.0f, ((float)pixelData[2]) / 255.0f, ((float)pixelData[3]) / 255.0f);
+		Color color(((float)pixelData[0]) / 255.0f, ((float)pixelData[1]) / 255.0f, ((float)pixelData[2]) / 255.0f, ((float)pixelData[3]) / 255.0f);
 
 		vmaUnmapMemory(renderer->GetVmaAllocator(), stagingBufferAllocation);
 		vmaDestroyBuffer(renderer->GetVmaAllocator(), stagingBuffer, stagingBufferAllocation);

@@ -50,7 +50,7 @@ namespace hod::game
 		void       SetProjection(Projection projection);
 		Projection GetProjection() const;
 
-		const math::Matrix4& GetProjectionMatrix();
+		const Matrix4& GetProjectionMatrix();
 
 		void SetupRenderView(renderer::RenderView& renderView);
 
@@ -69,6 +69,6 @@ namespace hod::game
 
 		bool _dirtyFlag = true;
 
-		math::Matrix4 _projectionMatrix;
+		Matrix4 _projectionMatrix;
 	};
 }

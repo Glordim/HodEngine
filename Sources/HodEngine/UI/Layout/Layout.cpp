@@ -202,10 +202,10 @@ namespace hod::ui
 	/// @param position
 	void Layout::SetChildAlongAxis(Node* node, Axis axis, float position)
 	{
-		node->SetAnchorMin(math::Vector2(0.0f, 1.0f));
-		node->SetAnchorMax(math::Vector2(0.0f, 1.0f));
+		node->SetAnchorMin(Vector2(0.0f, 1.0f));
+		node->SetAnchorMax(Vector2(0.0f, 1.0f));
 
-		math::Vector2 anchoredPos = node->GetPosition();
+		Vector2 anchoredPos = node->GetPosition();
 
 		if (axis == Axis::Horizontal)
 		{
@@ -226,10 +226,10 @@ namespace hod::ui
 	/// @param scaleFactor
 	void Layout::SetChildAlongAxisWithScale(Node* node, Axis axis, float position, float scaleFactor)
 	{
-		node->SetAnchorMin(math::Vector2(0.0f, 1.0f));
-		node->SetAnchorMax(math::Vector2(0.0f, 1.0f));
+		node->SetAnchorMin(Vector2(0.0f, 1.0f));
+		node->SetAnchorMax(Vector2(0.0f, 1.0f));
 
-		math::Vector2 anchoredPos = node->GetPosition();
+		Vector2 anchoredPos = node->GetPosition();
 		if (axis == Axis::Horizontal)
 		{
 			anchoredPos.SetX(position + node->GetDeltaSize().GetX() * node->GetPivot().GetX() * scaleFactor);
@@ -250,11 +250,11 @@ namespace hod::ui
 	/// @param scaleFactor
 	void Layout::SetChildAlongAxisWithScale(Node* node, Axis axis, float position, float Size, float scaleFactor)
 	{
-		node->SetAnchorMin(math::Vector2(0.0f, 1.0f));
-		node->SetAnchorMax(math::Vector2(0.0f, 1.0f));
+		node->SetAnchorMin(Vector2(0.0f, 1.0f));
+		node->SetAnchorMax(Vector2(0.0f, 1.0f));
 
-		math::Vector2 deltaSize = node->GetDeltaSize();
-		math::Vector2 anchoredPos = node->GetPosition();
+		Vector2 deltaSize = node->GetDeltaSize();
+		Vector2 anchoredPos = node->GetPosition();
 
 		if (axis == Axis::Horizontal)
 		{
@@ -313,21 +313,21 @@ namespace hod::ui
 
 	/// @brief
 	/// @return
-	const math::Vector2& Layout::GetTotalMinSize() const
+	const Vector2& Layout::GetTotalMinSize() const
 	{
 		return _totalMinSize;
 	}
 
 	/// @brief
 	/// @return
-	const math::Vector2& Layout::GetTotalPreferredSize() const
+	const Vector2& Layout::GetTotalPreferredSize() const
 	{
 		return _totalPreferredSize;
 	}
 
 	/// @brief
 	/// @return
-	const math::Vector2& Layout::GetTotalFlexibleSize() const
+	const Vector2& Layout::GetTotalFlexibleSize() const
 	{
 		return _totalFlexibleSize;
 	}

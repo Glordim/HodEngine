@@ -31,11 +31,11 @@ namespace hod::ui
 		REFLECTED_ENUM(HOD_UI_API, Corner);
 
 	public:
-		const math::Vector2& GetCellSize() const;
-		void           SetCellSize(const math::Vector2& cellSize);
+		const Vector2& GetCellSize() const;
+		void           SetCellSize(const Vector2& cellSize);
 
-		const math::Vector2& GetCellSpacing() const;
-		void           SetCellSpacing(const math::Vector2& cellSpacing);
+		const Vector2& GetCellSpacing() const;
+		void           SetCellSpacing(const Vector2& cellSpacing);
 
 		Constraint GetConstraint() const;
 		void       SetConstraint(Constraint constraint);
@@ -53,8 +53,8 @@ namespace hod::ui
 		void ComputeChildrenPositionAndSize() override;
 
 	private:
-		math::Vector2 _cellSize = math::Vector2(100.0f, 100.0f);
-		math::Vector2 _cellSpacing;
+		Vector2 _cellSize = Vector2(100.0f, 100.0f);
+		Vector2 _cellSpacing;
 
 		Constraint _constraint = Constraint::Flexible;
 		int32_t    _constraintCount = 0;

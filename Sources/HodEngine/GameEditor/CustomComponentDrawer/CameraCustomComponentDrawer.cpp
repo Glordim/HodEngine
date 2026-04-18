@@ -23,7 +23,7 @@ namespace hod::editor
 	{
 		_materialInstance = renderer::Renderer::GetInstance()->CreateMaterialInstance(
 			renderer::MaterialManager::GetInstance()->GetBuiltinMaterial(renderer::MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", math::Vector4(0.8f, 0.8f, 0.8f, 1.0f));
+		_materialInstance->SetVec4("ubo.color", Vector4(0.8f, 0.8f, 0.8f, 1.0f));
 	}
 
 	/// @brief
@@ -52,14 +52,14 @@ namespace hod::editor
 			if (node2D != nullptr)
 			{
 				cameraComponent->SetAspect((float)viewport.GetPlayRatio().GetX() / (float)viewport.GetPlayRatio().GetY());
-				const hod::math::Matrix4& projectionMatrix = cameraComponent->GetProjectionMatrix();
+				const hod::Matrix4& projectionMatrix = cameraComponent->GetProjectionMatrix();
 
 				float width = 2.0f / projectionMatrix[0][0];
 				float height = 2.0f / projectionMatrix[1][1];
 
-				std::array<math::Vector2, 5> vertices = {
-					math::Vector2(-width * 0.5f, height * 0.5f),  math::Vector2(width * 0.5f, height * 0.5f),  math::Vector2(width * 0.5f, -height * 0.5f),
-					math::Vector2(-width * 0.5f, -height * 0.5f), math::Vector2(-width * 0.5f, height * 0.5f),
+				std::array<Vector2, 5> vertices = {
+					Vector2(-width * 0.5f, height * 0.5f),  Vector2(width * 0.5f, height * 0.5f),  Vector2(width * 0.5f, -height * 0.5f),
+					Vector2(-width * 0.5f, -height * 0.5f), Vector2(-width * 0.5f, height * 0.5f),
 				};
 
 				renderer::RenderCommandMesh* renderMeshCommand =

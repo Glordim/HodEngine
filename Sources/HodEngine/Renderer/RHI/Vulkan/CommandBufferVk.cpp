@@ -101,7 +101,7 @@ namespace hod::renderer
 	/// @param renderTarget
 	/// @param presentationSurface
 	/// @param color
-	bool CommandBufferVk::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const math::Color& color)
+	bool CommandBufferVk::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const Color& color)
 	{
 		VkClearValue clearColor[1];
 		clearColor[0].color.float32[0] = color.r;
@@ -126,7 +126,7 @@ namespace hod::renderer
 			renderPassInfo.renderPass = vkRenderTarget->GetRenderPass();
 			renderPassInfo.framebuffer = vkRenderTarget->GetFrameBuffer();
 			renderPassInfo.renderArea.offset = {0, 0};
-			math::Vector2 resolution = vkRenderTarget->GetResolution();
+			Vector2 resolution = vkRenderTarget->GetResolution();
 			renderPassInfo.renderArea.extent.width = (uint32_t)resolution.GetX();
 			renderPassInfo.renderArea.extent.height = (uint32_t)resolution.GetY();
 		}
@@ -178,7 +178,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void CommandBufferVk::SetProjectionMatrix(const math::Matrix4& projectionMatrix)
+	void CommandBufferVk::SetProjectionMatrix(const Matrix4& projectionMatrix)
 	{
 		_projection = projectionMatrix;
 		//_sharedMinimalMaterialInstance->SetMat4("viewUbo.proj", projectionMatrix);
@@ -190,7 +190,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void CommandBufferVk::SetViewMatrix(const math::Matrix4& viewMatrix)
+	void CommandBufferVk::SetViewMatrix(const Matrix4& viewMatrix)
 	{
 		_view = viewMatrix;
 		/*
@@ -204,7 +204,7 @@ namespace hod::renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void CommandBufferVk::SetModelMatrix(const math::Matrix4& /*modelMatrix*/)
+	void CommandBufferVk::SetModelMatrix(const Matrix4& /*modelMatrix*/)
 	{
 		/*
 		MaterialInstance* modelMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(&_sharedMinimalMaterialInstance->GetMaterial());
@@ -217,7 +217,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @param viewport
-	void CommandBufferVk::SetViewport(const math::Rect& viewport)
+	void CommandBufferVk::SetViewport(const Rect& viewport)
 	{
 		VkViewport vkViewport = {};
 		vkViewport.x = viewport._position.GetX();
@@ -232,7 +232,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @param scissor
-	void CommandBufferVk::SetScissor(const math::Rect& scissor)
+	void CommandBufferVk::SetScissor(const Rect& scissor)
 	{
 		VkRect2D vkScissor = {};
 		vkScissor.offset = {std::max((int32_t)scissor._position.GetX(), 0), std::max((int32_t)scissor._position.GetY(), 0)};

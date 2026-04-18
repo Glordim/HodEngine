@@ -71,7 +71,7 @@ namespace hod::renderer
 
 				case ShaderParameter::Type::Float2:
 				{
-					math::Vector2 value;
+					Vector2 value;
 					Serializer::Deserialize(value, *valueNode);
 					materialInstance.SetVec2("ubo." + name, value);
 				}
@@ -79,7 +79,7 @@ namespace hod::renderer
 
 				case ShaderParameter::Type::Float4:
 				{
-					math::Vector4 value;
+					Vector4 value;
 					Serializer::Deserialize(value, *valueNode);
 					materialInstance.SetVec4("ubo." + name, value);
 				}
@@ -155,14 +155,14 @@ namespace hod::renderer
 			{
 				ReflectionPropertyObject* propertyObject = static_cast<ReflectionPropertyObject*>(property);
 
-				if (propertyObject->GetReflectionDescriptor() == &math::Vector2::GetReflectionDescriptor())
+				if (propertyObject->GetReflectionDescriptor() == &Vector2::GetReflectionDescriptor())
 				{
-					math::Vector2* value = static_cast<math::Vector2*>(propertyObject->GetInstance(instance));
+					Vector2* value = static_cast<Vector2*>(propertyObject->GetInstance(instance));
 					materialInstance.SetVec2(newPath, *value);
 				}
-				else if (propertyObject->GetReflectionDescriptor() == &math::Vector4::GetReflectionDescriptor())
+				else if (propertyObject->GetReflectionDescriptor() == &Vector4::GetReflectionDescriptor())
 				{
-					math::Vector4* value = static_cast<math::Vector4*>(propertyObject->GetInstance(instance));
+					Vector4* value = static_cast<Vector4*>(propertyObject->GetInstance(instance));
 					materialInstance.SetVec4(newPath, *value);
 				}
 				else if (propertyObject->GetReflectionDescriptor() == &WeakResource<TextureResource>::GetReflectionDescriptor())

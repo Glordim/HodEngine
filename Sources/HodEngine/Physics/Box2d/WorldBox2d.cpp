@@ -34,7 +34,7 @@ namespace hod::physics
 
 	/// @brief
 	/// @return
-	Body* WorldBox2d::CreateBody(Body::Type type, const math::Vector2& position, float rotation)
+	Body* WorldBox2d::CreateBody(Body::Type type, const Vector2& position, float rotation)
 	{
 		b2BodyDef bodyDef = b2DefaultBodyDef();
 		bodyDef.type = static_cast<b2BodyType>(type);
@@ -109,8 +109,8 @@ namespace hod::physics
 			const b2BodyMoveEvent& moveEvent = bodyEvents.moveEvents[index];
 
 			BodyBox2d* body = static_cast<BodyBox2d*>(moveEvent.userData);
-			math::Vector2    position(moveEvent.transform.p.x, moveEvent.transform.p.y);
-			float      angle = math::RadianToDegree(b2Rot_GetAngle(moveEvent.transform.q));
+			Vector2    position(moveEvent.transform.p.x, moveEvent.transform.p.y);
+			float      angle = RadianToDegree(b2Rot_GetAngle(moveEvent.transform.q));
 			body->GetMoveEventCallback()(position, angle);
 		}
 
@@ -142,7 +142,7 @@ namespace hod::physics
 			const b2ContactBeginTouchEvent& beginEvent = contactEvents.beginEvents[index];
 			Collision                       collision {
                 *static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdA)), *static_cast<Collider*>(b2Shape_GetUserData(beginEvent.shapeIdB)),
-                math::Vector2::Zero // TODO normal ?
+                Vector2::Zero // TODO normal ?
             };
 			b2ContactData contactData[10];
 			int           contactCount = b2Shape_GetContactData(beginEvent.shapeIdA, contactData, 10);
@@ -152,7 +152,7 @@ namespace hod::physics
 
 				if (data.shapeIdA.index1 == beginEvent.shapeIdA.index1 && data.shapeIdB.index1 == beginEvent.shapeIdB.index1)
 				{
-					collision._normal = math::Vector2(data.manifold.normal.x, data.manifold.normal.y);
+					collision._normal = Vector2(data.manifold.normal.x, data.manifold.normal.y);
 					BodyBox2d* bodyA = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.shapeIdA)));
 					BodyBox2d* bodyB = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(beginEvent.shapeIdB)));
 					bodyA->GetCollisionEnterCallback()(collision);
@@ -170,7 +170,7 @@ namespace hod::physics
 
 			Collision collision {
 				*static_cast<Collider*>(b2Shape_GetUserData(endEvent.shapeIdA)), *static_cast<Collider*>(b2Shape_GetUserData(endEvent.shapeIdB)),
-				math::Vector2::Zero // TODO normal ?
+				Vector2::Zero // TODO normal ?
 			};
 			BodyBox2d* bodyA = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(endEvent.shapeIdA)));
 			BodyBox2d* bodyB = static_cast<BodyBox2d*>(b2Body_GetUserData(b2Shape_GetBody(endEvent.shapeIdB)));
@@ -188,7 +188,7 @@ namespace hod::physics
 	/// @param distance
 	/// @param result
 	/// @return
-	bool WorldBox2d::Raycast(const math::Vector2& origin, const math::Vector2& dir, float distance, physics::RaycastResult& result)
+	bool WorldBox2d::Raycast(const Vector2& origin, const Vector2& dir, float distance, physics::RaycastResult& result)
 	{
 		// TODO
 		//_world->RayCast();

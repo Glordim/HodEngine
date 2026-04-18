@@ -120,13 +120,13 @@ namespace hod::renderer
 						}
 						else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float2)
 						{
-							uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &math::Vector2::GetReflectionDescriptor(),
+							uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &Vector2::GetReflectionDescriptor(),
 																							nullptr, nullptr);
 							uboOffset += 2 * sizeof(float);
 						}
 						else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float4)
 						{
-							uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &math::Vector4::GetReflectionDescriptor(),
+							uboReflectionDescriptor->AddProperty<ReflectionPropertyObject>(uboOffset, childPair.second._name.CStr(), &Vector4::GetReflectionDescriptor(),
 																							nullptr, nullptr);
 							uboOffset += 4 * sizeof(float);
 						}

@@ -83,15 +83,15 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void Node2dComponent::ComputeLocalMatrix(math::Matrix4& localMatrix)
+	void Node2dComponent::ComputeLocalMatrix(Matrix4& localMatrix)
 	{
-		localMatrix = math::Matrix4::Translation(_position) * math::Matrix4::Rotation(math::DegreeToRadian(_rotation)) * math::Matrix4::Scale(_scale);
+		localMatrix = Matrix4::Translation(_position) * Matrix4::Rotation(DegreeToRadian(_rotation)) * Matrix4::Scale(_scale);
 	}
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void Node2dComponent::SetPosition(const math::Vector2& position)
+	void Node2dComponent::SetPosition(const Vector2& position)
 	{
 		_position = position;
 		SetLocalMatrixDirty();
@@ -100,7 +100,7 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	const math::Vector2& Node2dComponent::GetPosition() const
+	const Vector2& Node2dComponent::GetPosition() const
 	{
 		return _position;
 	}
@@ -134,7 +134,7 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	void Node2dComponent::SetScale(const math::Vector2& scale)
+	void Node2dComponent::SetScale(const Vector2& scale)
 	{
 		_scale = scale;
 		SetLocalMatrixDirty();
@@ -143,7 +143,7 @@ namespace hod::game
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	const math::Vector2& Node2dComponent::GetScale() const
+	const Vector2& Node2dComponent::GetScale() const
 	{
 		return _scale;
 	}

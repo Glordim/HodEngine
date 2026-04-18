@@ -19,7 +19,7 @@ namespace hod::renderer
 	{
 	public:
 
-								RenderCommandMesh(const math::Vector2* positions, const math::Vector2* uvs, const math::Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const math::Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t order, uint32_t pickingId = 0, bool ignoreVisualisationMode = false);
+								RenderCommandMesh(const Vector2* positions, const Vector2* uvs, const Color* colors, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount, const Matrix4& modelMatrix, const MaterialInstance* materialInstance, uint32_t order, uint32_t pickingId = 0, bool ignoreVisualisationMode = false);
 								RenderCommandMesh(const RenderCommandMesh&) = delete;
 								RenderCommandMesh(RenderCommandMesh&&) = delete;
 								~RenderCommandMesh() override = default;
@@ -34,16 +34,16 @@ namespace hod::renderer
 
 	protected:
 
-		Vector<math::Vector2>			_positions;
-		Vector<math::Vector2>			_uvs;
-		Vector<math::Color>			_colors;
+		Vector<Vector2>			_positions;
+		Vector<Vector2>			_uvs;
+		Vector<Color>			_colors;
 		uint32_t				_vertexCount;
 
 		uint32_t				_order;
 		uint32_t				_pickingId;
 
 		Vector<uint16_t>		_indices;
-		math::Matrix4					_modelMatrix;
+		Matrix4					_modelMatrix;
 		const MaterialInstance*	_materialInstance = nullptr;
 		bool					_ignoreVisualisationMode;
 	};

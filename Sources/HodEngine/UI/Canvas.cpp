@@ -91,9 +91,9 @@ namespace hod::ui
 		}
 	}
 
-	void Canvas::RecomputeRootNodeSize(const math::Vector2& resolution)
+	void Canvas::RecomputeRootNodeSize(const Vector2& resolution)
 	{
-		static math::Vector2 designSize(1920.0f, 1080.0f);
+		static Vector2 designSize(1920.0f, 1080.0f);
 
 		switch (_scaleMode)
 		{
@@ -125,7 +125,7 @@ namespace hod::ui
 			break;
 		}
 
-		math::Vector2 rootNodeSize = designSize;
+		Vector2 rootNodeSize = designSize;
 		if (_scaleMode != ScaleMode::Fixed)
 		{
 			rootNodeSize.SetX(resolution.GetX() / _scaleFactor);
@@ -139,9 +139,9 @@ namespace hod::ui
 		}
 	}
 
-	math::Rect Canvas::GetBoundingBox() const
+	Rect Canvas::GetBoundingBox() const
 	{
-		return math::Rect();
+		return Rect();
 	}
 
 	void Canvas::PushRenderCommand(renderer::RenderView& renderView)
@@ -154,20 +154,20 @@ namespace hod::ui
 			game::World* world = GetOwner()->GetScene()->GetWorld();
 			if (world->GetEditorPlaying() == true && world->GetEditorPaused() == false)
 			{
-				_renderModeMatrix = math::Matrix4::Scale(math::Vector2::One * _scaleFactor);
+				_renderModeMatrix = Matrix4::Scale(Vector2::One * _scaleFactor);
 				renderQueueType = renderer::RenderView::RenderQueueType::UI;
 			}
 			else
 			{
 				_scaleFactor = 1.0f;
-				_renderModeMatrix = math::Matrix4::Scale(math::Vector2(0.01f, 0.01f) * _scaleFactor);
+				_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f) * _scaleFactor);
 				renderQueueType = renderer::RenderView::RenderQueueType::World;
 			}
 		}
 		else
 		{
 			_scaleFactor = 1.0f;
-			_renderModeMatrix = math::Matrix4::Scale(math::Vector2(0.01f, 0.01f) * _scaleFactor);
+			_renderModeMatrix = Matrix4::Scale(Vector2(0.01f, 0.01f) * _scaleFactor);
 			renderQueueType = renderer::RenderView::RenderQueueType::World;
 		}
 
@@ -198,7 +198,7 @@ namespace hod::ui
 		drawRecursively(_rootNode.Get(), renderView, renderQueueType, zOrder);
 	}
 
-	const math::Matrix4& Canvas::GetRenderModeMatrix() const
+	const Matrix4& Canvas::GetRenderModeMatrix() const
 	{
 		return _renderModeMatrix;
 	}

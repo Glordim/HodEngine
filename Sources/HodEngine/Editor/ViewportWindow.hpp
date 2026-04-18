@@ -34,11 +34,11 @@ namespace hod::editor
 
 		renderer::RenderView*   GetRenderView();
 		renderer::RenderTarget* GetPickingRenderTarget() const;
-		const math::Matrix4&          GetProjectionMatrix() const;
-		const math::Matrix4&          GetViewMatrix() const;
+		const Matrix4&          GetProjectionMatrix() const;
+		const Matrix4&          GetViewMatrix() const;
 		float                   GetCameraSize() const;
 
-		const math::Vector2& GetPlayRatio() const;
+		const Vector2& GetPlayRatio() const;
 
 	private:
 		void EnablePhysicsDebugDrawer(bool enabled);
@@ -48,12 +48,12 @@ namespace hod::editor
 		renderer::RenderTarget* _renderTarget = nullptr;
 		renderer::RenderTarget* _pickingRenderTarget = nullptr;
 
-		math::Matrix4 _projection;
-		math::Matrix4 _view;
+		Matrix4 _projection;
+		Matrix4 _view;
 
-		math::Vector2 _playRatio = math::Vector2(16.0f, 9.0f);
+		Vector2 _playRatio = Vector2(16.0f, 9.0f);
 
-		math::Vector2 _cameraPosition = math::Vector2::Zero;
+		Vector2 _cameraPosition = Vector2::Zero;
 		float   _size = 5.0f;
 
 		PhysicsDebugDrawer* _physicsDebugDrawer = nullptr;

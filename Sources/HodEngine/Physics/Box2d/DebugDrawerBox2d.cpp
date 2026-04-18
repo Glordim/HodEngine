@@ -181,7 +181,7 @@ namespace hod::physics
 	/// @param transform
 	/// @param radius
 	/// @param segmentCount
-	void DebugDrawerBox2d::BuildCircleVertices(math::Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
+	void DebugDrawerBox2d::BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
 	{
 		const float angleStep = 360.0f / segmentCount;
 
@@ -193,13 +193,13 @@ namespace hod::physics
 			vertices[offset].SetY(center.y + 0.0f);
 
 			float angle = angleStep * currentSegment;
-			angle = math::DegreeToRadian(angle);
+			angle = DegreeToRadian(angle);
 
 			vertices[offset + 1].SetX(center.x + (radius * cosf(angle)));
 			vertices[offset + 1].SetY(center.y + (radius * sinf(angle)));
 
 			angle = angleStep * (currentSegment + 1);
-			angle = math::DegreeToRadian(angle);
+			angle = DegreeToRadian(angle);
 
 			vertices[offset + 2].SetX(center.x + (radius * cosf(angle)));
 			vertices[offset + 2].SetY(center.y + (radius * sinf(angle)));

@@ -41,10 +41,10 @@ namespace hod::game
 
 		void							PushRenderCommand(renderer::RenderView& renderView) override;
 
-		math::Rect							GetBoundingBox() const override;
+		Rect							GetBoundingBox() const override;
 
-		void							SetColor(const math::Color& color);
-		const math::Color&					GetColor() const;
+		void							SetColor(const Color& color);
+		const Color&					GetColor() const;
 
 	private:
 
@@ -56,7 +56,7 @@ namespace hod::game
 		WeakResource<renderer::MaterialInstanceResource>	_material;
 		float												_pixelPerUnit = 100.0f;
 
-		math::Color												_color;
+		Color												_color;
 		
 		renderer::MaterialInstance*							_materialInstance = nullptr;
 		renderer::MaterialInstance*							_builtinMaterialInstance = nullptr;

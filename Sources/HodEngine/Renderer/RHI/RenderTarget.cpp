@@ -25,7 +25,7 @@ namespace hod::renderer
 
 	/// @brief
 	/// @return
-	math::Vector2 RenderTarget::GetResolution() const
+	Vector2 RenderTarget::GetResolution() const
 	{
 		return _resolution;
 	}
@@ -34,7 +34,7 @@ namespace hod::renderer
 	/// @param width
 	/// @param height
 	/// @return
-	bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo math::Vector2 Size
+	bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo Vector2 Size
 	{
 		if (width == 0 || height == 0)
 		{

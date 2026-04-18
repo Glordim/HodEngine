@@ -43,17 +43,17 @@ namespace hod::renderer
 		virtual bool EndRecord() = 0;
 
 		virtual bool StartRenderPass(RenderTarget* renderTarget = nullptr, PresentationSurface* presentationSurface = nullptr,
-		                             const math::Color& color = math::Color(0.1f, 0.1f, 0.1f, 1.0f)) = 0;
+		                             const Color& color = Color(0.1f, 0.1f, 0.1f, 1.0f)) = 0;
 		virtual bool EndRenderPass() = 0;
 
 		virtual void SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) = 0;
 
-		virtual void SetProjectionMatrix(const math::Matrix4& projectionMatrix) = 0;
-		virtual void SetViewMatrix(const math::Matrix4& viewMatrix) = 0;
-		virtual void SetModelMatrix(const math::Matrix4& modelMatrix) = 0;
+		virtual void SetProjectionMatrix(const Matrix4& projectionMatrix) = 0;
+		virtual void SetViewMatrix(const Matrix4& viewMatrix) = 0;
+		virtual void SetModelMatrix(const Matrix4& modelMatrix) = 0;
 
-		virtual void SetViewport(const math::Rect& viewport) = 0;
-		virtual void SetScissor(const math::Rect& scissor) = 0;
+		virtual void SetViewport(const Rect& viewport) = 0;
+		virtual void SetScissor(const Rect& scissor) = 0;
 
 		virtual void SetMaterial(const Material* material) = 0;
 		virtual void SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) = 0;
@@ -66,8 +66,8 @@ namespace hod::renderer
 		virtual void Present(PresentationSurface* presentationSurface) = 0;
 
 		// TODO
-		math::Matrix4 _projection;
-		math::Matrix4 _view;
+		Matrix4 _projection;
+		Matrix4 _view;
 
 	private:
 		Vector<MaterialInstance*> _materialInstanceToDelete;

@@ -13,7 +13,7 @@ namespace hod::game
 	{
 		_data.intensity = 1.0f;
 		_data.radius = 2.5f;
-		_data.color = math::Color(1.0f, 1.0f, 1.0f, 1.0f);
+		_data.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		StaticMeshComponent* pStaticMesh = GetActor()->GetComponent<StaticMeshComponent>();
 		if (pStaticMesh != nullptr)

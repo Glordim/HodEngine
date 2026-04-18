@@ -52,27 +52,27 @@ namespace hod::game
 
 	public:
 
-		void							SetPosition(const math::Vector2& position);
-		const math::Vector2&					GetPosition() const;
+		void							SetPosition(const Vector2& position);
+		const Vector2&					GetPosition() const;
 
 		void							SetRotation(float rot);
 		float							GetRotation() const;
 		void							Rotate(float angle);
 
-		void							SetScale(const math::Vector2& scale);
-		const math::Vector2&					GetScale() const;
+		void							SetScale(const Vector2& scale);
+		const Vector2&					GetScale() const;
 
 		void							SetZOrder(ZOrder zOrder);
 		ZOrder							GetZOrder() const;
 
 	protected:
 
-		void							ComputeLocalMatrix(math::Matrix4& localMatrix) override;
+		void							ComputeLocalMatrix(Matrix4& localMatrix) override;
 
 	private:
 
-		math::Vector2							_position = math::Vector2::Zero;
-		math::Vector2							_scale = math::Vector2::One;
+		Vector2							_position = Vector2::Zero;
+		Vector2							_scale = Vector2::One;
 		float							_rotation = 0.0f;
 
 		ZOrder							_zOrder = ZOrder(0, 0);
