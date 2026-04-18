@@ -2,7 +2,7 @@
 #include "HodEngine/Audio/AudioManager.hpp"
 #include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
 
-namespace hod::audio
+namespace hod::inline audio
 {
 	_SingletonConstructor(AudioManager)
 	: _updateJob(this, &AudioManager::Update, JobQueue::Queue::Framed)

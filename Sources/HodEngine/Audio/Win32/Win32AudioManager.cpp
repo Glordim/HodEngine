@@ -6,7 +6,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wlanguage-extension-token"
 
-namespace hod::audio
+namespace hod::inline audio
 {
 	_SingletonOverrideConstructor(Win32AudioManager) {}
 

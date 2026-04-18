@@ -4,7 +4,7 @@
 #include "HodEngine/GameSystems/Job/MemberFunctionJob.hpp"
 #include "HodEngine/Core/Singleton.hpp"
 
-namespace hod::audio
+namespace hod::inline audio
 {
 	class HOD_AUDIO_API AudioManager
 	{

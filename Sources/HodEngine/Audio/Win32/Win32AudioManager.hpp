@@ -9,7 +9,7 @@
 #include <mmdeviceapi.h>
 #include <wrl/client.h>
 
-namespace hod::audio
+namespace hod::inline audio
 {
 	class HOD_AUDIO_API Win32AudioManager : public AudioManager
 	{

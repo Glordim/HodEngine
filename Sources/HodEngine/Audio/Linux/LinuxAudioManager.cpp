@@ -1,7 +1,7 @@
 #include "HodEngine/Audio/Pch.hpp"
 #include "HodEngine/Audio/Linux/LinuxAudioManager.hpp"
 
-namespace hod::audio
+namespace hod::inline audio
 {
 	_SingletonOverrideConstructor(LinuxAudioManager) {}
 
