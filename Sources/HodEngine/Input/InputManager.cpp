@@ -6,7 +6,7 @@
 #include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
 #include "HodEngine/GameSystems/Job/JobScheduler.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	_SingletonConstructor(InputManager)
 	: _updateJob(this, &InputManager::UpdateJob, JobQueue::Queue::Framed, false)

@@ -5,7 +5,7 @@
 #undef min
 #undef max
 
-namespace hod::input
+namespace hod::inline input
 {
 	StateView::StateView(Format format, uint32_t byteOffset, uint32_t bitOffset, uint32_t rangeSize)
 	: _format(format)

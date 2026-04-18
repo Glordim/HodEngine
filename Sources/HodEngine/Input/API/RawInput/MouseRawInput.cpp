@@ -9,7 +9,7 @@
 
 #undef max
 
-namespace hod::input
+namespace hod::inline input
 {
 	struct MouseState : public State
 	{

@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Reflection/Rtti.hpp>
 
-namespace hod::input
+namespace hod::inline input
 {
 	class HOD_INPUT_API Feedback
 	{

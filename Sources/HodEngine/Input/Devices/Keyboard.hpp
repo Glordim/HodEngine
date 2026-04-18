@@ -4,7 +4,7 @@
 #include "HodEngine/Input/Devices/Device.hpp"
 #include "HodEngine/Input/InputButton.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	class HOD_INPUT_API Keyboard : public Device

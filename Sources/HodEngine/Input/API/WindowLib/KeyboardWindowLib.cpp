@@ -9,7 +9,7 @@
 
 #undef max
 
-namespace hod::input
+namespace hod::inline input
 {
 	KeyboardWindowLib::KeyboardWindowLib()
 	: Keyboard(UID::INVALID_UID, "Keyboard", Product::UNKNOWN)

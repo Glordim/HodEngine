@@ -5,7 +5,7 @@
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 
-namespace hod::input
+namespace hod::inline input
 {
 	class Device;
 }

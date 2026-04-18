@@ -4,7 +4,7 @@
 #include "HodEngine/Input/API/WindowLib/ApiWindowLib.hpp"
 #include "HodEngine/Input/API/XInput/ApiXInput.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	/// @return

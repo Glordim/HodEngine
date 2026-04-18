@@ -16,7 +16,7 @@
 
 using namespace hod::window;
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	ApiRawInput::ApiRawInput()

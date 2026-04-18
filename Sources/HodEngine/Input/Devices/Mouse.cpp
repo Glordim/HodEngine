@@ -2,7 +2,7 @@
 #include "HodEngine/Input/Devices/Mouse.hpp"
 #include "HodEngine/Input/State.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	struct MouseState : public State
 	{

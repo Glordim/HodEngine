@@ -9,7 +9,7 @@
 
 #include "HodEngine/Math/Vector2.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	class HOD_INPUT_API Mouse : public Device

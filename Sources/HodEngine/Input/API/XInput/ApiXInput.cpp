@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <Xinput.h>
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	ApiXInput::ApiXInput()

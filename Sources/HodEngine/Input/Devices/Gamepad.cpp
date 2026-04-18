@@ -2,7 +2,7 @@
 #include "HodEngine/Input/Devices/Gamepad.hpp"
 #include "HodEngine/Input/State.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	Gamepad* Gamepad::_current = nullptr;
 

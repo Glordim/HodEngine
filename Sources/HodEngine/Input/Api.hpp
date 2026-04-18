@@ -11,7 +11,7 @@ namespace hod::inline core
 	class UID;
 }
 
-namespace hod::input
+namespace hod::inline input
 {
 	class Device;
 

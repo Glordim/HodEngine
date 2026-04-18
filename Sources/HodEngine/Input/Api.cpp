@@ -3,7 +3,7 @@
 #include "HodEngine/Input/Devices/Device.hpp"
 #include "HodEngine/Input/InputManager.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	/// @param name

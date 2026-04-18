@@ -13,7 +13,7 @@
 
 #include <mutex>
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	class HOD_INPUT_API ApiWindowLib : public Api

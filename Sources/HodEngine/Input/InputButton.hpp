@@ -3,7 +3,7 @@
 
 #include "HodEngine/Input/Input.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief 
 	class HOD_INPUT_API InputButton : public Input

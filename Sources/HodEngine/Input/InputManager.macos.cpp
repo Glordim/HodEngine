@@ -3,7 +3,7 @@
 #include "HodEngine/Input/API/WindowLib/ApiWindowLib.hpp"
 #include "HodEngine/Input/API/GameController/ApiGameController.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief 
 	/// @return 

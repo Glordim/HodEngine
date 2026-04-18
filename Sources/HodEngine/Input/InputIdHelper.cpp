@@ -1,7 +1,7 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/InputIdHelper.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief 
 	/// @param inputId 

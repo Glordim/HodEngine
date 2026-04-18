@@ -8,7 +8,7 @@
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 #include <HodEngine/Window/DisplayManager.hpp>
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	ApiWindowLib::ApiWindowLib()

@@ -8,7 +8,7 @@ struct tagRID_DEVICE_INFO_KEYBOARD;
 struct tagRAWKEYBOARD;
 using HANDLE = void*;
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	class HOD_INPUT_API KeyboardRawInput : public Keyboard

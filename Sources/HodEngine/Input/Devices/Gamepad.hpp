@@ -8,7 +8,7 @@
 #include "HodEngine/Input/InputAxis.hpp"
 //#include "HodEngine/Input/InputVector2.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief 
 	class HOD_INPUT_API Gamepad : public Device

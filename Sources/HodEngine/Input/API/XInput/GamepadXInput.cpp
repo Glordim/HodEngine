@@ -11,7 +11,7 @@
 #include <cstring>
 #include <cmath>
 
-namespace hod::input
+namespace hod::inline input
 {
 	struct PadXboxState : public State
 	{

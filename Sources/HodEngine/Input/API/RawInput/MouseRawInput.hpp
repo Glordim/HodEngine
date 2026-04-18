@@ -8,7 +8,7 @@ using HANDLE = void*;
 struct tagRID_DEVICE_INFO_MOUSE;
 struct tagRAWMOUSE;
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	class HOD_INPUT_API MouseRawInput : public Mouse

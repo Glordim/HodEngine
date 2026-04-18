@@ -10,7 +10,7 @@
 struct _XINPUT_STATE;
 using DWORD = unsigned long;
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	class HOD_INPUT_API GamepadXInput : public Gamepad

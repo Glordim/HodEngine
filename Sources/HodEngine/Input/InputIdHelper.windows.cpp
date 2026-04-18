@@ -17,7 +17,7 @@ extern "C"
 	HKL WINAPI  GetKeyboardLayout(_In_ DWORD idThread);
 }
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	/// @param inputId

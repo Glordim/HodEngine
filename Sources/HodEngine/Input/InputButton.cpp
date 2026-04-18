@@ -1,7 +1,7 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/InputButton.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	DESCRIBE_REFLECTED_CLASS(InputButton, reflectionDescriptor)
 	{

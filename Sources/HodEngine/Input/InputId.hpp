@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief 
 	enum InputId : int32_t

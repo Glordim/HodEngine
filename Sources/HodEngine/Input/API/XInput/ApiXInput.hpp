@@ -10,7 +10,7 @@ using DWORD = unsigned long;
 
 #define XUSER_MAX_COUNT 4
 
-namespace hod::input
+namespace hod::inline input
 {
 	class GamepadXInput;
 

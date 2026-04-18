@@ -11,7 +11,7 @@
 
 #undef max
 
-namespace hod::input
+namespace hod::inline input
 {
 	/*
 	The scancode values come from:

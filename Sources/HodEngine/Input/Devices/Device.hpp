@@ -9,7 +9,7 @@
 
 #include "HodEngine/Input/InputId.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	class Input;
 	class Feedback;

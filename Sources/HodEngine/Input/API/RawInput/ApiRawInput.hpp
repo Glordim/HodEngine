@@ -22,7 +22,7 @@ namespace hod::window
 	class Win32Window;
 }
 
-namespace hod::input
+namespace hod::inline input
 {
 	class MouseRawInput;
 	class KeyboardRawInput;

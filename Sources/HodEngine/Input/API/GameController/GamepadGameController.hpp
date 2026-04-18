@@ -11,7 +11,7 @@
 class GCExtendedGamepad;
 #endif
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief 
 	class HOD_INPUT_API GamepadGameController : public Gamepad

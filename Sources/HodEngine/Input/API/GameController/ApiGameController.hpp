@@ -12,7 +12,7 @@
 class GCExtendedGamepad;
 #endif
 
-namespace hod::input
+namespace hod::inline input
 {
 	class GamepadGameController;
 

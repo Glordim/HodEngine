@@ -8,7 +8,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::input
+namespace hod::inline input
 {
 	class Api;
 	class MouseDevice;

@@ -5,7 +5,7 @@
 
 #include <HodEngine/Window/MouseButton.hpp>
 
-namespace hod::input
+namespace hod::inline input
 {
 	/// @brief
 	class HOD_INPUT_API MouseWindowLib : public Mouse
