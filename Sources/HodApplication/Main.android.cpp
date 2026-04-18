@@ -68,7 +68,7 @@ void android_main(android_app* androidApp)
 {
     OUTPUT_MESSAGE("Welcome to android_main");
 
-    hod::application::AndroidApplication* application = (hod::application::AndroidApplication*)hod::application::AndroidApplication::CreateInstance();
+    hod::AndroidApplication* application = (hod::AndroidApplication*)hod::AndroidApplication::CreateInstance();
 	if (application->Init(androidApp) == false)
 	{
         OUTPUT_ERROR("Unable to Init AndroidApplication");
@@ -80,7 +80,7 @@ void android_main(android_app* androidApp)
 
 	application->Terminate();
 
-	hod::application::AndroidApplication::DestroyInstance();
+	hod::AndroidApplication::DestroyInstance();
     /*
 
     // Register an event handler for Android events

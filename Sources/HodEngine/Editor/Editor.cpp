@@ -304,7 +304,7 @@ namespace hod::inline editor
 
 						if (ImGui::MenuItem("Quit") == true)
 						{
-							// application::Application::GetInstance()->Quit();
+							// Application::GetInstance()->Quit();
 						}
 						ImGui::EndMenu();
 					}

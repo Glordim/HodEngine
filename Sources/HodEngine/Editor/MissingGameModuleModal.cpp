@@ -67,7 +67,7 @@ namespace hod::inline editor
 			ImGui::SameLine();
 			if (ImGui::Button("Exit"))
 			{
-				// application::DesktopApplication* application = application::DesktopApplication::GetInstance();
+				// DesktopApplication* application = DesktopApplication::GetInstance();
 				// application->Quit();
 			}
 		}

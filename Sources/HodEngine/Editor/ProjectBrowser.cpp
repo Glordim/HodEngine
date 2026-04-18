@@ -135,7 +135,7 @@ namespace hod::inline editor
 						arguments += *it;
 						if (Process::Create(FileSystem::GetExecutablePath().string(), arguments, true) == true)
 						{
-						    application::Application::GetInstance()->Quit();
+						    Application::GetInstance()->Quit();
 						}
 						*/
 					}
