@@ -12,11 +12,6 @@
 
 #undef CreateSemaphore
 
-namespace hod::application
-{
-	class Application;
-}
-
 namespace hod::window
 {
 	class Window;

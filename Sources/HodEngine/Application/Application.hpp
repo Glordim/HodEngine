@@ -8,7 +8,7 @@ namespace hod::inline core
 	class ArgumentParser;
 }
 
-namespace hod::application
+namespace hod::inline application
 {
 	/// @brief
 	class HOD_APPLICATION_API Application

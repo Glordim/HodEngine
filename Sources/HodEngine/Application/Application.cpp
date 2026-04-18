@@ -22,7 +22,7 @@
 	#include <Windows.h>
 #endif
 
-namespace hod::application
+namespace hod::inline application
 {
 	_SingletonConstructor(Application) {}
 

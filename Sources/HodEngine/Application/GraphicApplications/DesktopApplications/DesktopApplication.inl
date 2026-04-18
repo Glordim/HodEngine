@@ -1,3 +1,3 @@
 
-namespace hod::application
+namespace hod::inline application
 {}

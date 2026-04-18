@@ -36,7 +36,7 @@
 
 #include <HodEngine/Core/Profiler.hpp>
 
-namespace hod::application
+namespace hod::inline application
 {
 	_SingletonOverrideConstructor(GraphicApplication) {}
 

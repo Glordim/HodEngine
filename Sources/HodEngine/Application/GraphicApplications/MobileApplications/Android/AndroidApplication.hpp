@@ -6,7 +6,7 @@
 
 struct android_app;
 
-namespace hod::application
+namespace hod::inline application
 {
 	/// @brief
 	class HOD_APPLICATION_API AndroidApplication : public GraphicApplication

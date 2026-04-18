@@ -3,7 +3,7 @@
 
 #include "HodEngine/Application/GraphicApplications/GraphicApplication.hpp"
 
-namespace hod::application
+namespace hod::inline application
 {
 	/// @brief
 	class HOD_APPLICATION_API DesktopApplication : public GraphicApplication

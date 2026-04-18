@@ -51,7 +51,7 @@
 
 #include <HodEngine/Application/GraphicApplications/GraphicApplication.hpp>
 
-namespace hod::application
+namespace hod::inline application
 {
 	/// @brief
 	/// @param androidApp

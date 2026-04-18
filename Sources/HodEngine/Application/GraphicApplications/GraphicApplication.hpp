@@ -10,7 +10,7 @@ namespace hod::window
 	class Window;
 }
 
-namespace hod::application
+namespace hod::inline application
 {
 	/// @brief
 	class HOD_APPLICATION_API GraphicApplication : public Application
