@@ -3,22 +3,22 @@
 #if defined(PLATFORM_WINDOWS)
 
 	#include "HodEngine/Audio/Win32/Win32AudioManager.hpp"
-	#define PlatformAudioManager hod::audio::Win32AudioManager
+	#define PlatformAudioManager hod::Win32AudioManager
 
 #elif defined(PLATFORM_MACOS)
 
 	#include "HodEngine/Audio/MacOs/MacOsAudioManager.hpp"
-	#define PlatformAudioManager hod::audio::MacOsAudioManager
+	#define PlatformAudioManager hod::MacOsAudioManager
 
 #elif defined(PLATFORM_LINUX)
 
 	#include "HodEngine/Audio/Linux/LinuxAudioManager.hpp"
-	#define PlatformAudioManager hod::audio::LinuxAudioManager
+	#define PlatformAudioManager hod::LinuxAudioManager
 
 #elif defined(PLATFORM_ANDROID)
 
 	#include "HodEngine/Audio/Android/AndroidAudioManager.hpp"
-	#define PlatformAudioManager hod::audio::AndroidAudioManager
+	#define PlatformAudioManager hod::AndroidAudioManager
 
 #elif defined(PLATFORM_IOS)
 
