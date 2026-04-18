@@ -88,8 +88,8 @@ namespace hod::application
 			return false;
 		}
 
-		imgui::ImGuiManager::CreateInstance();
-		if (imgui::ImGuiManager::GetInstance()->Init(_window) == false)
+		ImGuiManager::CreateInstance();
+		if (ImGuiManager::GetInstance()->Init(_window) == false)
 		{
 			return false;
 		}
@@ -108,7 +108,7 @@ namespace hod::application
 	{
 		game::SerializedDataFactory::DestroyInstance();
 		game::ComponentFactory::DestroyInstance();
-		imgui::ImGuiManager::DestroyInstance();
+		ImGuiManager::DestroyInstance();
 		DefaultAllocator::GetInstance().Delete(_window);
 		renderer::Renderer::GetInstance()->Clear();
 		renderer::Renderer::DestroyInstance();

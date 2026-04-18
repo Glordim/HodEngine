@@ -81,8 +81,8 @@ namespace hod::editor
 		{
 			if (ImGui::MenuItem(windowReflectionDescriptor->GetDisplayName().CStr()))
 			{
-				imgui::Window* window = (imgui::Window*)windowReflectionDescriptor->CreateInstance();
-				imgui::ImGuiManager::GetInstance()->OpenWindow(window);
+				Window* window = (Window*)windowReflectionDescriptor->CreateInstance();
+				ImGuiManager::GetInstance()->OpenWindow(window);
 			}
 		}
 	}

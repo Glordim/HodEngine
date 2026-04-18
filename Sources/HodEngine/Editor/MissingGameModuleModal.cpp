@@ -23,7 +23,7 @@ namespace hod::editor
 	MissingGameModuleModal::MissingGameModuleModal()
 	: _generationJob(this, &MissingGameModuleModal::GenerationJob, JobQueue::Queue::Unframed)
 	{
-		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
+		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->SetSize(320, 200);
 		mainWindow->CenterToScreen();
 		mainWindow->SetVisible(true);
@@ -58,7 +58,7 @@ namespace hod::editor
 			{
 				_askForGeneration = false;
 
-				window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
+				window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 				mainWindow->SetSize(800, 600);
 				mainWindow->CenterToScreen();
 

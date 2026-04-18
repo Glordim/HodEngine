@@ -64,7 +64,7 @@ namespace hod::editor
 	/// @brief 
 	void PrefabEditorTab::CreateDefaultLayout()
 	{
-		//imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+		//ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 		HierachyWindow* hierarchyWindow = OpenWindow<HierachyWindow>();
 		InspectorWindow* inspectorWindow = OpenWindow<InspectorWindow>();
 		ViewportWindow* viewportWindow = OpenWindow<ViewportWindow>();

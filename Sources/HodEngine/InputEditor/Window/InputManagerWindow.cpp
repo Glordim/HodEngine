@@ -33,7 +33,7 @@ namespace hod::editor
 				bool   selected = false;
 				if (ImGui::Selectable(label.CStr(), &selected))
 				{
-					imgui::ImGuiManager::GetInstance()->OpenWindow<DeviceWindow>(device);
+					ImGuiManager::GetInstance()->OpenWindow<DeviceWindow>(device);
 				}
 			}
 			ImGui::Unindent();

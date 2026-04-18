@@ -11,9 +11,9 @@ namespace hod::editor
 	class EditorReflectedObject;
 
 	/// @brief 
-	class HOD_EDITOR_API MissingGameModuleModal : public imgui::Modal
+	class HOD_EDITOR_API MissingGameModuleModal : public Modal
 	{
-		REFLECTED_CLASS(MissingGameModuleModal, imgui::Window)
+		REFLECTED_CLASS(MissingGameModuleModal, Window)
 
 		enum class StepStatus
 		{

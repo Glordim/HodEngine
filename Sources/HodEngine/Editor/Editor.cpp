@@ -84,7 +84,7 @@ namespace hod::editor
 		_editorTabs.Clear();
 
 		DefaultAllocator::GetInstance().Delete(_floatingAssetBrowserWindow);
-		imgui::ImGuiManager::GetInstance()->DestroyAllWindow();
+		ImGuiManager::GetInstance()->DestroyAllWindow();
 
 		Project::DestroyInstance();
 		AssetDatabase::DestroyInstance();
@@ -172,12 +172,12 @@ namespace hod::editor
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
 		{
-			window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
+			window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 			mainWindow->SetSize(800, 320);
 			mainWindow->CenterToScreen();
 			mainWindow->SetVisible(true);
 
-			imgui::ImGuiManager::GetInstance()->OpenWindow<ProjectBrowser>();
+			ImGuiManager::GetInstance()->OpenWindow<ProjectBrowser>();
 			return true;
 		}
 		else
@@ -235,8 +235,8 @@ namespace hod::editor
 
 		if (Project::GetInstance()->HasGameModule() == false)
 		{
-			imgui::ImGuiManager::GetInstance()->CloseAllWindow();
-			imgui::ImGuiManager::GetInstance()->OpenWindow<MissingGameModuleModal>();
+			ImGuiManager::GetInstance()->CloseAllWindow();
+			ImGuiManager::GetInstance()->OpenWindow<MissingGameModuleModal>();
 			return true;
 		}
 		else
@@ -256,9 +256,9 @@ namespace hod::editor
 
 		AssetDatabase::GetInstance()->Init();
 
-		imgui::ImGuiManager::GetInstance()->CloseAllWindow();
+		ImGuiManager::GetInstance()->CloseAllWindow();
 
-		imgui::ImGuiManager::GetInstance()->SetDrawCallback(
+		ImGuiManager::GetInstance()->SetDrawCallback(
 			[this]()
 			{
 				static bool ImguiDemo = false;
@@ -332,19 +332,19 @@ namespace hod::editor
 					{
 						if (ImGui::MenuItem("Asset Browser") == true)
 						{
-							imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+							ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 						}
 						if (ImGui::MenuItem("Inspector") == true)
 						{
-							imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
+							ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
 						}
 						if (ImGui::MenuItem("Viewport") == true)
 						{
-							imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
+							ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 						}
 						if (ImGui::MenuItem("Hierachy") == true)
 						{
-							imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
+							ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
 						}
 						if (ImGui::MenuItem("ImGui demo"))
 						{
@@ -487,13 +487,13 @@ namespace hod::editor
 		_showFloatingAssetBrowser = true;
 		_focusFloatingAssetBrowserWindow = true;
 		/*
-		        imgui::ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
-		        imgui::ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
-		        imgui::ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
+		        ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+		        ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
+		        ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
 		*/
-		// imgui::ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
+		// ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 
-		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(imgui::ImGuiManager::GetInstance()->GetMainWindow());
+		window::DesktopWindow* mainWindow = static_cast<window::DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->Maximize();
 		return true;
 	}

@@ -12,9 +12,9 @@ namespace hod::input
 
 namespace hod::editor
 {
-	class HOD_INPUT_EDITOR_API DeviceWindow : public imgui::Window
+	class HOD_INPUT_EDITOR_API DeviceWindow : public Window
 	{
-		REFLECTED_CLASS(DeviceWindow, imgui::Window)
+		REFLECTED_CLASS(DeviceWindow, Window)
 
 	public:
 

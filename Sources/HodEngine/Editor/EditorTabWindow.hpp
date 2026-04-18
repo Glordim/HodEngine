@@ -8,9 +8,9 @@ namespace hod::editor
     class EditorTab;
 
     /// @brief 
-    class HOD_EDITOR_API EditorTabWindow : public imgui::Window
+    class HOD_EDITOR_API EditorTabWindow : public Window
     {
-        REFLECTED_CLASS(EditorTabWindow, imgui::Window)
+        REFLECTED_CLASS(EditorTabWindow, Window)
 
     public:
         EditorTabWindow(EditorTab* owner = nullptr); // todo remove nullptr default value
