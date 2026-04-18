@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-namespace hod::math
+namespace hod::inline math
 {
 	DESCRIBE_REFLECTED_CLASS(Vector4, reflectionDescriptor)
 	{

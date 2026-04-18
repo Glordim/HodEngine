@@ -8,7 +8,7 @@ namespace hod::inline core
 	class ReflectionPropertyObject;
 }
 
-namespace hod::math
+namespace hod::inline math
 {
 	struct Color;
 }

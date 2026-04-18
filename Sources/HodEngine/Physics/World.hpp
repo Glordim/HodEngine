@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include "HodEngine/Physics/Body.hpp"
 
-namespace hod::math
+namespace hod::inline math
 {
 	class Vector2;
 }

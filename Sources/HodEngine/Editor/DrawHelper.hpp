@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-namespace hod::math
+namespace hod::inline math
 {
     class Vector2;
     class Vector4;

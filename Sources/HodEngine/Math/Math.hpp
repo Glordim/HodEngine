@@ -1,6 +1,6 @@
 #pragma once
 
-namespace hod::math
+namespace hod::inline math
 {
 	constexpr float pi = 3.14159265358979323846f;
 

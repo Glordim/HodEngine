@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstring>
 
-namespace hod::math
+namespace hod::inline math
 {
 	const Quaternion Quaternion::Identity;
 

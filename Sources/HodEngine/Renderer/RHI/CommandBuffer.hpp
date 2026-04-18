@@ -9,7 +9,7 @@
 #include "HodEngine/Math/Matrix4.hpp"
 #include "HodEngine/Renderer/RHI/Shader.hpp"
 
-namespace hod::math
+namespace hod::inline math
 {
 	struct Rect;
 }

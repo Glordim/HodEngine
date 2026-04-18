@@ -6,7 +6,7 @@
 #include <cmath>
 #include <cstring>
 
-namespace hod::math
+namespace hod::inline math
 {
 	Matrix4 Matrix4::Identity;
 

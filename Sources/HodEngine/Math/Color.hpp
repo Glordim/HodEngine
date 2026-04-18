@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace hod::math
+namespace hod::inline math
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

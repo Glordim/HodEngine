@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
-namespace hod::math
+namespace hod::inline math
 {
 	class HOD_MATH_API Vector4 final
 	{

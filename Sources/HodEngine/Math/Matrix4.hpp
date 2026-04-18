@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-namespace hod::math
+namespace hod::inline math
 {
 	class HOD_MATH_API Matrix4 final
 	{

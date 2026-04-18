@@ -5,7 +5,7 @@
 
 #include "HodEngine/Math/Vector2.hpp"
 
-namespace hod::math
+namespace hod::inline math
 {
 	//-----------------------------------------------------------------------------
 	//! @brief

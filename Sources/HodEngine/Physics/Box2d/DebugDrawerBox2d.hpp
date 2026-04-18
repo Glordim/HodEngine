@@ -6,7 +6,7 @@
 
 #include <box2d/types.h>
 
-namespace hod::math
+namespace hod::inline math
 {
 	class Vector2;
 }

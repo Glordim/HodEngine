@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-namespace hod::math
+namespace hod::inline math
 {
 	class HOD_MATH_API Quaternion final
 	{
