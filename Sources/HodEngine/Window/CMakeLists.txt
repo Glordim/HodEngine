@@ -85,10 +85,12 @@ target_link_libraries(Window
 	PUBLIC Core Math
 )
 
-target_compile_definitions(Window
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_WINDOW_EXPORT
-)
+target_compile_definitions(Window PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(Window PUBLIC HOD_WINDOW_STATIC)
+else()
+	target_compile_definitions(Window PRIVATE HOD_WINDOW_EXPORT)
+endif()
 
 install(TARGETS Window
 	EXPORT HodEngineTargets

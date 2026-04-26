@@ -23,10 +23,12 @@ target_link_libraries(Physics
 	PRIVATE Box2d::Box2d
 )
 
-target_compile_definitions(Physics
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_PHYSICS_EXPORT
-)
+target_compile_definitions(Physics PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(Physics PUBLIC HOD_PHYSICS_STATIC)
+else()
+	target_compile_definitions(Physics PRIVATE HOD_PHYSICS_EXPORT)
+endif()
 
 install(TARGETS Physics
 	EXPORT HodEngineTargets

@@ -18,10 +18,12 @@ target_include_directories(Game PUBLIC
 )
 target_precompile_headers(Game PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-target_compile_definitions(Game
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_GAME_EXPORT
-)
+target_compile_definitions(Game PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(Game PUBLIC HOD_GAME_STATIC)
+else()
+	target_compile_definitions(Game PRIVATE HOD_GAME_EXPORT)
+endif()
 
 target_link_libraries(Game
 	PUBLIC Core Math Window Physics Renderer GameSystems

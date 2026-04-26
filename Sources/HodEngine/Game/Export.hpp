@@ -1,8 +1,10 @@
 #pragma once
 #include <HodEngine/HodEngine.hpp>
 
-#ifdef HOD_GAME_EXPORT
-    #define HOD_GAME_API HOD_EXPORT
+#if defined(HOD_GAME_STATIC)
+	#define HOD_GAME_API
+#elif defined(HOD_GAME_EXPORT)
+	#define HOD_GAME_API HOD_EXPORT
 #else
-    #define HOD_GAME_API HOD_IMPORT
+	#define HOD_GAME_API HOD_IMPORT
 #endif

@@ -91,10 +91,12 @@ if (RENDERER_ENABLE_VALIDATION_LAYER)
 	target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
 endif()
 
-target_compile_definitions(Renderer
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE ${RENDERER_DEFINE} HOD_RENDERER_EXPORT
-)
+target_compile_definitions(Renderer PUBLIC ${HOD_PLATFORM_DEFINE} PRIVATE ${RENDERER_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(Renderer PUBLIC HOD_RENDERER_STATIC)
+else()
+	target_compile_definitions(Renderer PRIVATE HOD_RENDERER_EXPORT)
+endif()
 
 install(TARGETS Renderer
 	EXPORT HodEngineTargets

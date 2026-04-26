@@ -20,10 +20,12 @@ target_link_libraries(UI
 	PUBLIC Game Renderer
 )
 
-target_compile_definitions(UI
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_UI_EXPORT
-)
+target_compile_definitions(UI PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(UI PUBLIC HOD_UI_STATIC)
+else()
+	target_compile_definitions(UI PRIVATE HOD_UI_EXPORT)
+endif()
 
 install(TARGETS UI
 	EXPORT HodEngineTargets

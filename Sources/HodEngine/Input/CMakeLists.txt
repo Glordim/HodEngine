@@ -37,10 +37,12 @@ target_link_libraries(Input
 	PUBLIC Core Math Window GameSystems
 )
 
-target_compile_definitions(Input
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_INPUT_EXPORT
-)
+target_compile_definitions(Input PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(Input PUBLIC HOD_INPUT_STATIC)
+else()
+	target_compile_definitions(Input PRIVATE HOD_INPUT_EXPORT)
+endif()
 
 install(TARGETS Input
 	EXPORT HodEngineTargets

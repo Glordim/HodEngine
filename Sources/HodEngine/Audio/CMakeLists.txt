@@ -34,10 +34,12 @@ target_link_libraries(Audio
 	PUBLIC Core GameSystems
 )
 
-target_compile_definitions(Audio
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_AUDIO_EXPORT
-)
+target_compile_definitions(Audio PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(Audio PUBLIC HOD_AUDIO_STATIC)
+else()
+	target_compile_definitions(Audio PRIVATE HOD_AUDIO_EXPORT)
+endif()
 
 install(TARGETS Audio
 	EXPORT HodEngineTargets

@@ -82,10 +82,12 @@ target_link_libraries(ImGui
 	PRIVATE Freetype::Freetype
 )
 
-target_compile_definitions(ImGui
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_IMGUI_EXPORT
-)
+target_compile_definitions(ImGui PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(ImGui PUBLIC HOD_IMGUI_STATIC)
+else()
+	target_compile_definitions(ImGui PRIVATE HOD_IMGUI_EXPORT)
+endif()
 
 install(TARGETS ImGui
 	EXPORT HodEngineTargets

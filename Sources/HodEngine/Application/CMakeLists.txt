@@ -41,10 +41,12 @@ if (ANDROID)
 	target_link_libraries(Application ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-activity_static.a)
 endif()
 
-target_compile_definitions(Application
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE HOD_APPLICATION_EXPORT
-)
+target_compile_definitions(Application PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(Application PUBLIC HOD_APPLICATION_STATIC)
+else()
+	target_compile_definitions(Application PRIVATE HOD_APPLICATION_EXPORT)
+endif()
 
 install(TARGETS Application
 	EXPORT HodEngineTargets

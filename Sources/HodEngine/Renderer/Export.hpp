@@ -1,8 +1,10 @@
 #pragma once
 #include <HodEngine/HodEngine.hpp>
 
-#ifdef HOD_RENDERER_EXPORT
-    #define HOD_RENDERER_API HOD_EXPORT
+#if defined(HOD_RENDERER_STATIC)
+	#define HOD_RENDERER_API
+#elif defined(HOD_RENDERER_EXPORT)
+	#define HOD_RENDERER_API HOD_EXPORT
 #else
-    #define HOD_RENDERER_API HOD_IMPORT
+	#define HOD_RENDERER_API HOD_IMPORT
 #endif

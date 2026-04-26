@@ -1,7 +1,9 @@
 #pragma once
 #include <HodEngine/HodEngine.hpp>
 
-#ifdef HOD_WINDOW_EXPORT
+#if defined(HOD_WINDOW_STATIC)
+	#define HOD_WINDOW_API
+#elif defined(HOD_WINDOW_EXPORT)
 	#define HOD_WINDOW_API HOD_EXPORT
 #else
 	#define HOD_WINDOW_API HOD_IMPORT
