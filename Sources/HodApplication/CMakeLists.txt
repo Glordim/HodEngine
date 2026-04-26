@@ -42,3 +42,6 @@ target_link_libraries(HodApplication
 )
 
 target_compile_definitions(HodApplication PUBLIC ${HOD_PLATFORM_DEFINE})
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(HodApplication PRIVATE HOD_GAME_MODULE_STATIC)
+endif()

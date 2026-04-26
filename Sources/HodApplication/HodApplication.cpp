@@ -49,11 +49,23 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	hod::Serializer::Deserialize(bootInfo, document.GetRootNode());
 
 	hod::ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
+
+#if defined(HOD_GAME_MODULE_STATIC)
+	extern "C" int StartupModule();
+	StartupModule();
+#else
 	_gameModule.Init(buildPath / bootInfo._gameModule, false);
 	if (_gameModule.Load() == false)
 	{
 		return false;
 	}
+	auto startupFunc = _gameModule.LoadFunction<int(*)()>("StartupModule");
+	if (startupFunc == nullptr)
+	{
+		return false;
+	}
+	startupFunc();
+#endif
 
 	std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(bootInfo._startupScene);
 	if (sceneResource == nullptr)
@@ -67,7 +79,7 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 		return false;
 	}
 
-	_world = hod::DefaultAllocator::GetInstance().New<hod::World>();
+	_world = hod::DefaultAllocator::GetInstance().New<hod::game::World>();
 	_world->Init();
 	_world->AddScene(startupScene);
 	_world->SetEditorPlaying(true);
@@ -85,6 +97,17 @@ void HodApplication::Terminate()
 {
 	hod::DefaultAllocator::GetInstance().Delete(_world);
 	_world = nullptr;
+
+#if defined(HOD_GAME_MODULE_STATIC)
+	extern "C" int ShutdownModule();
+	ShutdownModule();
+#else
+	auto shutdownFunc = _gameModule.LoadFunction<int(*)()>("ShutdownModule");
+	if (shutdownFunc != nullptr)
+	{
+		shutdownFunc();
+	}
+#endif
 
 	PlatformApplication::Terminate();
 }

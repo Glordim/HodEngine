@@ -1,7 +1,10 @@
 #pragma once
 
 #include <HodEngine/Application/PlatformApplication.hpp>
-#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
+
+#if !defined(HOD_GAME_MODULE_STATIC)
+	#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
+#endif
 
 namespace hod::inline core
 {
@@ -25,6 +28,8 @@ public:
 
 private:
 
+#if !defined(HOD_GAME_MODULE_STATIC)
 	hod::DynamicLibrary	_gameModule;
+#endif
 	hod::World*	_world = nullptr;
 };

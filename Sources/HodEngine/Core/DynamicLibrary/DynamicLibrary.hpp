@@ -33,9 +33,17 @@ namespace hod::inline core
 
 		const Path& GetPath() const;
 
+		template<typename FuncType>
+		FuncType LoadFunction(const char* name) const
+		{
+			return reinterpret_cast<FuncType>(GetFunctionInternal(name));
+		}
+
 	private:
 		bool InternalLoad(const Path& path);
 		bool InternalUnload();
+
+		void* GetFunctionInternal(const char* name) const;
 
 		const char* GetModuleExtension();
 		const char* GetModulePrefix();

@@ -12,23 +12,9 @@ namespace hod::inline core
 		_dll = (HINSTANCE__*)LoadLibraryW(path.ToNative().c_str());
 		if (_dll == NULL)
 		{
-			// std::cout << "could not load the dynamic library" << std::endl;
 			OUTPUT_ERROR("Unable to load module {}", path);
 			return false;
 		}
-
-		using initFunction = int (*)();
-
-		// resolve function address here
-		initFunction initFunc = (initFunction)GetProcAddress(_dll, "StartupModule");
-		if (initFunc == nullptr)
-		{
-			// std::cout << "could not locate the function" << std::endl;
-			return false;
-		}
-
-		initFunc();
-
 		return true;
 	}
 
@@ -38,22 +24,17 @@ namespace hod::inline core
 	{
 		if (_dll)
 		{
-			using cleanFunction = int (*)();
-
-			cleanFunction cleanFunc = (cleanFunction)GetProcAddress(_dll, "ShutdownModule");
-			if (cleanFunc == nullptr)
-			{
-				// std::cout << "could not locate the function" << std::endl;
-				return false;
-			}
-
-			cleanFunc();
-
 			FreeLibrary(_dll);
 			_dll = NULL;
 		}
-
 		return true;
+	}
+
+	/// @brief
+	/// @return
+	void* DynamicLibrary::GetFunctionInternal(const char* name) const
+	{
+		return (void*)GetProcAddress(_dll, name);
 	}
 
 	/// @brief

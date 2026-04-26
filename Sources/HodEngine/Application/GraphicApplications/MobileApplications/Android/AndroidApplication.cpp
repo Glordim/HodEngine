@@ -143,12 +143,6 @@ namespace hod::inline application
 
 		hod::ResourceManager::GetInstance()->SetResourceDirectory("Datas");
 
-		_gameModule.Init(bootInfo._gameModule, false);
-		if (_gameModule.Load() == false)
-		{
-			return false;
-		}
-
 		std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(bootInfo._startupScene);
 		hod::World::GetInstance()->AddScene(&sceneResource->GetScene());
 		hod::World::GetInstance()->SetEditorPlaying(true);

@@ -204,6 +204,14 @@ namespace hod::inline editor
 				return false;
 			}
 
+			auto startupFunc = module->LoadFunction<int(*)()>("StartupModule");
+			if (startupFunc == nullptr)
+			{
+				DefaultAllocator::GetInstance().Delete(module);
+				return false;
+			}
+			startupFunc();
+
 			_editorModules.push_back(module);
 		}
 		return true;
@@ -215,6 +223,11 @@ namespace hod::inline editor
 	{
 		for (DynamicLibrary* module : _editorModules)
 		{
+			auto shutdownFunc = module->LoadFunction<int(*)()>("ShutdownModule");
+			if (shutdownFunc != nullptr)
+			{
+				shutdownFunc();
+			}
 			module->Unload();
 			DefaultAllocator::GetInstance().Delete(module);
 		}

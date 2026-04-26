@@ -426,6 +426,23 @@ namespace hod::inline editor
 	/// @return
 	bool Project::ReloadGameModule()
 	{
-		return _gameModule.Reload();
+		auto shutdownFunc = _gameModule.LoadFunction<int(*)()>("ShutdownModule");
+		if (shutdownFunc != nullptr)
+		{
+			shutdownFunc();
+		}
+
+		if (_gameModule.Reload() == false)
+		{
+			return false;
+		}
+
+		auto startupFunc = _gameModule.LoadFunction<int(*)()>("StartupModule");
+		if (startupFunc == nullptr)
+		{
+			return false;
+		}
+		startupFunc();
+		return true;
 	}
 }
