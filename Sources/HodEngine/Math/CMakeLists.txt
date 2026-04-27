@@ -33,10 +33,3 @@ else()
 endif()
 
 hod_install_lib(Math)
-
-install(DIRECTORY "."
-	DESTINATION "include/HodEngine/Math"
-	FILES_MATCHING PATTERN "*.hpp"
-	PATTERN "*.h"
-	PATTERN "Pch.hpp" EXCLUDE
-)

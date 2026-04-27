@@ -25,10 +25,4 @@ target_compile_definitions(InputEditor
 	PRIVATE HOD_INPUT_EDITOR_EXPORT
 )
 
-install(TARGETS InputEditor
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(InputEditor)

@@ -86,10 +86,4 @@ add_custom_command(
 	COMMENT "Copying ${SLANG_DLL_GLSLANG} dll to output directory"
 )
 
-install(TARGETS Editor
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(Editor)

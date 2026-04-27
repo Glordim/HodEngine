@@ -98,10 +98,4 @@ else()
 	target_compile_definitions(Renderer PRIVATE HOD_RENDERER_EXPORT)
 endif()
 
-install(TARGETS Renderer
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(Renderer)

@@ -32,6 +32,11 @@ macro(hod_install_lib TARGET_NAME)
 		ARCHIVE DESTINATION "${HOD_PLATFORM_SUBDIR}/lib"
 		RUNTIME DESTINATION "${HOD_PLATFORM_SUBDIR}/bin"
 	)
+	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+		DESTINATION "include/HodEngine/${TARGET_NAME}"
+		FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
+		PATTERN "Pch.hpp" EXCLUDE
+	)
 endmacro()
 
 function(CollectSourceFiles ProjectSourceDir SourcesVar IncludesVar)

@@ -30,10 +30,4 @@ else()
 	target_compile_definitions(Physics PRIVATE HOD_PHYSICS_EXPORT)
 endif()
 
-install(TARGETS Physics
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(Physics)

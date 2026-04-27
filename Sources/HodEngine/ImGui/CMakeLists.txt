@@ -89,10 +89,4 @@ else()
 	target_compile_definitions(ImGui PRIVATE HOD_IMGUI_EXPORT)
 endif()
 
-install(TARGETS ImGui
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(ImGui)

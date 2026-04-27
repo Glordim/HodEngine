@@ -25,10 +25,4 @@ target_compile_definitions(CoreEditor
 	PRIVATE HOD_CORE_EDITOR_EXPORT
 )
 
-install(TARGETS CoreEditor
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(CoreEditor)

@@ -29,10 +29,4 @@ target_link_libraries(Game
 	PUBLIC Core Math Window Physics Renderer GameSystems
 )
 
-install(TARGETS Game
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(Game)

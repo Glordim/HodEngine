@@ -56,13 +56,6 @@ endif()
 
 hod_install_lib(Core)
 
-install(DIRECTORY "."
-	DESTINATION "include/HodEngine/Core"
-	FILES_MATCHING PATTERN "*.hpp"
-	PATTERN "*.h"
-	PATTERN "Pch.hpp" EXCLUDE
-)
-
 option(ENABLE_SUPERLUMINAL_PROFILER "Enable Superluminal profiler" OFF)
 if(ENABLE_SUPERLUMINAL_PROFILER)
 	list(APPEND CMAKE_MODULE_PATH "C:/Program Files/Superluminal/Performance/API")

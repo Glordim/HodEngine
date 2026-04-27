@@ -33,10 +33,3 @@ else()
 endif()
 
 hod_install_lib(GameSystems)
-
-install(DIRECTORY "."
-	DESTINATION "include/HodEngine/GameSystems"
-	FILES_MATCHING PATTERN "*.hpp"
-	PATTERN "*.h"
-	PATTERN "Pch.hpp" EXCLUDE
-)

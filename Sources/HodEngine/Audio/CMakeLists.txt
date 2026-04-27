@@ -41,10 +41,4 @@ else()
 	target_compile_definitions(Audio PRIVATE HOD_AUDIO_EXPORT)
 endif()
 
-install(TARGETS Audio
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(Audio)

@@ -48,10 +48,4 @@ else()
 	target_compile_definitions(Application PRIVATE HOD_APPLICATION_EXPORT)
 endif()
 
-install(TARGETS Application
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(Application)

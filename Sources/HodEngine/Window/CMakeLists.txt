@@ -92,10 +92,4 @@ else()
 	target_compile_definitions(Window PRIVATE HOD_WINDOW_EXPORT)
 endif()
 
-install(TARGETS Window
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(Window)

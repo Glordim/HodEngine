@@ -27,10 +27,4 @@ else()
 	target_compile_definitions(UI PRIVATE HOD_UI_EXPORT)
 endif()
 
-install(TARGETS UI
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(UI)

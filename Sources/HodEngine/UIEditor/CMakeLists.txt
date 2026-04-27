@@ -25,10 +25,4 @@ target_compile_definitions(UIEditor
 	PRIVATE HOD_UI_EDITOR_EXPORT
 )
 
-install(TARGETS UIEditor
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(UIEditor)

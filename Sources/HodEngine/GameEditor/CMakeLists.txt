@@ -25,10 +25,4 @@ target_compile_definitions(GameEditor
 	PRIVATE HOD_GAME_EDITOR_EXPORT
 )
 
-install(TARGETS GameEditor
-	EXPORT HodEngineTargets
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+hod_install_lib(GameEditor)
