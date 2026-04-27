@@ -21,6 +21,14 @@
 
 _SingletonOverrideConstructor(HodApplication) {}
 
+#if defined(HOD_GAME_MODULE_STATIC)
+extern "C"
+{
+	int StartupModule();
+	int ShutdownModule();
+}
+#endif
+
 /// @brief
 /// @param argc
 /// @param argv
@@ -51,7 +59,6 @@ bool HodApplication::Init(const hod::ArgumentParser& argumentParser)
 	hod::ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
 
 #if defined(HOD_GAME_MODULE_STATIC)
-	extern "C" int StartupModule();
 	StartupModule();
 #else
 	_gameModule.Init(buildPath / bootInfo._gameModule, false);
@@ -99,7 +106,6 @@ void HodApplication::Terminate()
 	_world = nullptr;
 
 #if defined(HOD_GAME_MODULE_STATIC)
-	extern "C" int ShutdownModule();
 	ShutdownModule();
 #else
 	auto shutdownFunc = _gameModule.LoadFunction<int(*)()>("ShutdownModule");
