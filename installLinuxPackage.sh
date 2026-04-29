@@ -16,6 +16,4 @@ uuid-dev \
 wayland-protocols \
 libxkbcommon-dev \
 libdecor-0-dev \
-libvulkan-dev \
-libspirv-cross-c-shared-dev \
-glslang-tools
+libvulkan-dev

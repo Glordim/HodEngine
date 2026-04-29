@@ -5,13 +5,6 @@
 
 #include <vulkan/vulkan.h>
 
-namespace spirv_cross
-{
-	class Compiler;
-	struct Resource;
-	struct SPIRType;
-}
-
 namespace hod::inline renderer
 {
 	/// @brief 

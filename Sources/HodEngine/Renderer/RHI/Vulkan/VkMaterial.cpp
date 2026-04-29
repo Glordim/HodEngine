@@ -163,13 +163,6 @@ namespace hod::inline renderer
 		fragShaderStageInfo.pName = "main";
 		fragShaderStageInfo.pSpecializationInfo = nullptr;
 
-		// Vertex Input
-		/*
-		const Vector<uint8_t>&       byteCode = vertexShader->GetShaderBytecode();
-		spirv_cross::Compiler        compVert(reinterpret_cast<const uint32_t*>(byteCode.Data()), byteCode.Size() / sizeof(uint32_t));
-		spirv_cross::ShaderResources resourcesVert = compVert.get_shader_resources();
-		*/
-
 		Vector<uint32_t>                           strides;
 		Vector<VkVertexInputAttributeDescription>& vertexAttributeDecriptions = createInfo._vertexAttributeDecriptions;
 		Vector<VkVertexInputBindingDescription>&   vertexBindingDescriptions = createInfo._vertexBindingDescriptions;
