@@ -16,10 +16,12 @@ if (APPLE)
 elseif(ANDROID)
 	add_library(HodApplication ${Srcs} ${Includes})
 	find_library(android-lib android)
-	target_link_libraries(HodApplication ${android-lib} log)
 	target_include_directories(HodApplication PRIVATE ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/include)
-	target_link_libraries(HodApplication ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-activity_static.a)
-	target_link_libraries(HodApplication ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-text-input_static.a)
+	target_link_libraries(HodApplication PRIVATE
+		${android-lib} log
+		${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-activity_static.a
+		${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-text-input_static.a
+	)
 else()
 	add_executable(HodApplication ${Srcs} ${Includes})
 		
@@ -37,7 +39,7 @@ add_dependencies(HodApplication
 	Application
 )
 
-target_link_libraries(HodApplication
+target_link_libraries(HodApplication PUBLIC
 	Application
 )
 

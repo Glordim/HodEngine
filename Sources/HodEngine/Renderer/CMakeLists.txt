@@ -65,18 +65,20 @@ target_link_libraries(Renderer
 )
 
 if(API STREQUAL Vulkan)
-	if (NOT ANDROID)
-		find_package(Vulkan REQUIRED)
-	else()
+	if(ANDROID)
 		find_library(vulkan-lib vulkan)
-		find_library(zlib-lib z)
-		set(Vulkan_INCLUDE_DIRS ${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include) # TODO
-		set(Vulkan_LIBRARIES ${vulkan-lib} ${zlib-lib}) # TODO
-		find_package(BZip2 REQUIRED)
-		find_package(ZLIB REQUIRED)
+		add_library(Vulkan::Vulkan SHARED IMPORTED)
+		set_target_properties(Vulkan::Vulkan PROPERTIES
+			IMPORTED_LOCATION "${vulkan-lib}"
+			INTERFACE_INCLUDE_DIRECTORIES "${ANDROID_NDK}/toolchains/llvm/prebuilt/${ANDROID_HOST_TAG}/sysroot/usr/include"
+		)
+	else()
+		find_package(Vulkan REQUIRED)
 	endif()
 	target_link_libraries(Renderer PRIVATE Vulkan::Vulkan VulkanMemoryAllocator::VulkanMemoryAllocator)
 elseif(API STREQUAL Metal)
+	find_package(BZip2 REQUIRED)
+	find_package(ZLIB REQUIRED)
 	find_library(QUARTZCORE_LIBRARY QuartzCore)
 	find_library(METAL_LIBRARY Metal)
 	target_link_libraries(Renderer PRIVATE ${QUARTZCORE_LIBRARY} ${METAL_LIBRARY} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES})

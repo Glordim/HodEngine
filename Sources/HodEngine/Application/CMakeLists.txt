@@ -36,9 +36,9 @@ target_link_libraries(Application
 
 if (ANDROID)
 	find_library(android-lib android)
-	target_link_libraries(Application ${android-lib} log)
+	target_link_libraries(Application PRIVATE ${android-lib} log)
 	target_include_directories(Application PRIVATE ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/include)
-	target_link_libraries(Application ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-activity_static.a)
+	target_link_libraries(Application PRIVATE ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-activity_static.a)
 endif()
 
 target_compile_definitions(Application PUBLIC ${HOD_PLATFORM_DEFINE})
