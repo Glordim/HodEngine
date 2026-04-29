@@ -17,4 +17,9 @@ namespace hod::inline window
 		_mainWindow = DefaultAllocator::GetInstance().New<AndroidWindow>(nativeWindow);
 		return _mainWindow;
 	}
+
+	bool AndroidDisplayManager::Run()
+	{
+		return true;
+	}
 }

@@ -26,6 +26,26 @@
 	#include <vulkan/vulkan_android.h>
 #endif
 
+// VK_EXT_surface_maintenance1 / VK_EXT_swapchain_maintenance1 were promoted to KHR in Vulkan 1.4.
+// Older headers (Android NDK) only expose EXT — define KHR as aliases when missing.
+#ifndef VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME
+	#define VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME
+	#define VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_KHR VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT
+	#define VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_KHR VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT
+	using VkSurfacePresentScalingCapabilitiesKHR = VkSurfacePresentScalingCapabilitiesEXT;
+	using VkSurfacePresentModeKHR = VkSurfacePresentModeEXT;
+#endif
+#ifndef VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME
+	#define VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME                          VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME
+	#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT
+	#define VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR            VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT
+	#define VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_KHR                 VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT
+	#define VK_PRESENT_GRAVITY_MIN_BIT_KHR                                         VK_PRESENT_GRAVITY_MIN_BIT_EXT
+	#define VK_PRESENT_SCALING_ONE_TO_ONE_BIT_KHR                                  VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT
+	using VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR = VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT;
+	using VkSwapchainPresentScalingCreateInfoKHR = VkSwapchainPresentScalingCreateInfoEXT;
+#endif
+
 namespace hod::inline renderer
 {
 	bool VkPresentationSurface::_hasSurfaceMaintenance1 = false;
@@ -52,7 +72,8 @@ namespace hod::inline renderer
 		}
 
 		if (instanceExtensionCollector.AddOptionalExtension(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME) &&
-		    instanceExtensionCollector.AddOptionalExtension(VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME))
+		   (instanceExtensionCollector.AddOptionalExtension(VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME) ||
+		    instanceExtensionCollector.AddOptionalExtension(VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME)))
 		{
 			_hasSurfaceMaintenance1 = true;
 		}
@@ -67,7 +88,8 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		if (deviceExtensionCollector.AddOptionalExtension(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME))
+		if (deviceExtensionCollector.AddOptionalExtension(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME) ||
+			deviceExtensionCollector.AddOptionalExtension(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME))
 		{
 			_hasSwapchainMaintenance1 = true;
 
@@ -130,7 +152,7 @@ namespace hod::inline renderer
 		createInfo.pNext = nullptr;
 
 		VkSurfaceKHR surface;
-		if (vkCreateWaylandSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
+		if (vkCreateWaylandSurfaceKHR(RendererVulkan::GetInstance()->GetVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create Wayland Surface !");
 			return false;
@@ -145,7 +167,7 @@ namespace hod::inline renderer
 		createInfo.pNext = nullptr;
 
 		VkSurfaceKHR surface;
-		if (vkCreateAndroidSurfaceKHR(_vkInstance, &createInfo, nullptr, &surface) != VK_SUCCESS)
+		if (vkCreateAndroidSurfaceKHR(RendererVulkan::GetInstance()->GetVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create Android Surface !");
 			return false;
@@ -180,12 +202,12 @@ namespace hod::inline renderer
 
 		const VkGpuDevice* selectedGpuDevice = RendererVulkan::GetInstance()->GetVkGpuDevice();
 
-		static_cast<Win32Window*>(_window)->LockSize();
+		//static_cast<Win32Window*>(_window)->LockSize();
 
 		VkSurfaceCapabilitiesKHR capabilities;
 		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(selectedGpuDevice->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
 		{
-			static_cast<Win32Window*>(_window)->UnlockSize();
+			//static_cast<Win32Window*>(_window)->UnlockSize();
 			return false;
 		}
 
@@ -193,7 +215,7 @@ namespace hod::inline renderer
 		uint32_t                   formatCount;
 		if (vkGetPhysicalDeviceSurfaceFormatsKHR(selectedGpuDevice->physicalDevice, _surface, &formatCount, nullptr) != VK_SUCCESS)
 		{
-			static_cast<Win32Window*>(_window)->UnlockSize();
+			//static_cast<Win32Window*>(_window)->UnlockSize();
 			return false;
 		}
 
@@ -202,7 +224,7 @@ namespace hod::inline renderer
 			formats.Resize(formatCount);
 			if (vkGetPhysicalDeviceSurfaceFormatsKHR(selectedGpuDevice->physicalDevice, _surface, &formatCount, formats.Data()) != VK_SUCCESS)
 			{
-				static_cast<Win32Window*>(_window)->UnlockSize();
+				//static_cast<Win32Window*>(_window)->UnlockSize();
 				return false;
 			}
 		}
@@ -211,7 +233,7 @@ namespace hod::inline renderer
 		uint32_t                 presentModeCount;
 		if (vkGetPhysicalDeviceSurfacePresentModesKHR(selectedGpuDevice->physicalDevice, _surface, &presentModeCount, nullptr) != VK_SUCCESS)
 		{
-			static_cast<Win32Window*>(_window)->UnlockSize();
+			//static_cast<Win32Window*>(_window)->UnlockSize();
 			return false;
 		}
 
@@ -220,14 +242,14 @@ namespace hod::inline renderer
 			presentModes.Resize(presentModeCount);
 			if (vkGetPhysicalDeviceSurfacePresentModesKHR(selectedGpuDevice->physicalDevice, _surface, &presentModeCount, presentModes.Data()) != VK_SUCCESS)
 			{
-				static_cast<Win32Window*>(_window)->UnlockSize();
+				//static_cast<Win32Window*>(_window)->UnlockSize();
 				return false;
 			}
 		}
 
 		if (capabilities.currentExtent.width == 0)
 		{
-			static_cast<Win32Window*>(_window)->UnlockSize();
+			//static_cast<Win32Window*>(_window)->UnlockSize();
 			return false;
 		}
 
@@ -293,7 +315,7 @@ namespace hod::inline renderer
 		uint32_t imageCount = std::max(capabilities.minImageCount, Renderer::GetInstance()->GetFrameInFlightCount() + 1);
 		if (capabilities.maxImageCount > 0 && capabilities.maxImageCount < imageCount)
 		{
-			static_cast<Win32Window*>(_window)->UnlockSize();
+			//static_cast<Win32Window*>(_window)->UnlockSize();
 			OUTPUT_ERROR("Create VkSwapchain: Hardware limits maxImageCount to {}, but FIF+1 requires {}.", capabilities.maxImageCount, imageCount);
 			return false;
 		}
@@ -363,12 +385,12 @@ namespace hod::inline renderer
 		VkResult       result = vkCreateSwapchainKHR(device, &createInfo, nullptr, &newSwapchain);
 		if (result != VK_SUCCESS)
 		{
-			static_cast<Win32Window*>(_window)->UnlockSize();
+			//static_cast<Win32Window*>(_window)->UnlockSize();
 			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !");
 			return false;
 		}
 
-		static_cast<Win32Window*>(_window)->UnlockSize();
+		//static_cast<Win32Window*>(_window)->UnlockSize();
 
 		if (createInfo.oldSwapchain != VK_NULL_HANDLE)
 		{

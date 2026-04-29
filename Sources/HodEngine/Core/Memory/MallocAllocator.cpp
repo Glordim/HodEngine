@@ -2,6 +2,9 @@
 #include "HodEngine/Core/Memory/MallocAllocator.hpp"
 
 #include <cstdlib>
+#if PLATFORM_ANDROID
+	#include <malloc.h>
+#endif
 
 namespace hod::inline core
 {
@@ -9,6 +12,8 @@ namespace hod::inline core
 	{
 #if PLATFORM_WINDOWS
 		return _aligned_malloc(Size, alignment);
+#elif PLATFORM_ANDROID
+		return memalign(alignment, Size);
 #else
 		return std::aligned_alloc(alignment, Size);
 #endif

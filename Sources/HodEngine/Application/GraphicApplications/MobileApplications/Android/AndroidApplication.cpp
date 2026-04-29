@@ -122,8 +122,8 @@ namespace hod::inline application
 			return false;
 		}
 
-		PlatformRenderer::CreateInstance();
-		if (PlatformRenderer::GetInstance()->Init(_window) == false)
+		CreatePlatformRenderer();
+		if (Renderer::GetInstance()->Init(_window) == false)
 		{
 			return false;
 		}
@@ -131,21 +131,6 @@ namespace hod::inline application
 		ComponentFactory::CreateInstance();
 		SerializedDataFactory::CreateInstance();
 		RegisterBuiltin();
-
-		World::CreateInstance()->Init();
-
-		hod::Document           document;
-		hod::DocumentReaderJson reader;
-		reader.Read(document, "Boot.json");
-
-		hod::BootInfo bootInfo;
-		hod::Serializer::Deserialize(bootInfo, document.GetRootNode());
-
-		hod::ResourceManager::GetInstance()->SetResourceDirectory("Datas");
-
-		std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(bootInfo._startupScene);
-		hod::World::GetInstance()->AddScene(&sceneResource->GetScene());
-		hod::World::GetInstance()->SetEditorPlaying(true);
 
 		return true;
 	}

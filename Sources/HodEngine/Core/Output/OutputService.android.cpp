@@ -13,11 +13,11 @@ namespace hod::inline core
 	{
 		if (type == Output::Type::Message)
 		{
-			__android_log_print(ANDROID_LOG_INFO, "HodEngine", "%s", content.c_str());
+			__android_log_print(ANDROID_LOG_INFO, "HodEngine", "%s", content.CStr());
 		}
 		else
 		{
-			__android_log_print(ANDROID_LOG_ERROR, "HodEngine", "%s", content.c_str());
+			__android_log_print(ANDROID_LOG_ERROR, "HodEngine", "%s", content.CStr());
 		}
 	}
 }

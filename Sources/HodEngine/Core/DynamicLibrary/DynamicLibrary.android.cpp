@@ -9,7 +9,7 @@ namespace hod::inline core
 	/// @return
 	bool DynamicLibrary::InternalLoad(const Path& path)
 	{
-		_sharedLib = dlopen(path.string().c_str(), RTLD_LAZY);
+		_sharedLib = dlopen(path.GetString().CStr(), RTLD_LAZY);
 		if (_sharedLib == nullptr)
 		{
 			return false;
