@@ -1,9 +1,9 @@
 #include <stdlib.h>
 
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
-	#include <HodEngine/Application/GraphicApplications/DesktopApplications/DesktopApplication.hpp>
+	#include <HodEngine/Application/DesktopApplication.hpp>
 #elif defined(PLATFORM_ANDROID)
-	#include <HodEngine/Application/GraphicApplications/MobileApplications/AndroidApplication.hpp>
+	#include <HodEngine/Application/AndroidApplication.hpp>
 #else
 	#error
 #endif
@@ -22,11 +22,7 @@ int main(int argc, char** argv)
 void android_main(android_app* androidApp)
 {
 	hod::AndroidApplication androidApplication;
-	if (androidApplication.Run(androidApp) == false)
-	{
-		return EXIT_FAILURE;
-	}
-	return EXIT_SUCCESS;
+	androidApplication.Run(androidApp);
 }
 #else
 	#error

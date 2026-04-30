@@ -1,3 +1,0 @@
-
-namespace hod::inline application
-{}

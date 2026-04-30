@@ -15,14 +15,23 @@ namespace hod::inline application
 	/// @brief
 	class HOD_APPLICATION_API GraphicApplication : public Application
 	{
-		_SingletonOverride(GraphicApplication)
+	protected:
+		bool RunInternal() override;
 
-	public:
-		bool Init(const ArgumentParser& argumentParser) override;
-		void Terminate() override;
-		bool Run() override;
+		bool InitAudio();
+		bool TerminateAudio();
 
-		window::Window* GetWindow() const;
+		bool InitWindow();
+		bool TerminateWindow();
+
+		bool InitInput();
+		bool TerminateInput();
+
+		bool InitRenderer();
+		bool TerminateRenderer();
+
+		bool InitImGui();
+		bool TerminateImGui();
 
 	private:
 		static int EngineLoopEntry(void* data);
@@ -32,5 +41,3 @@ namespace hod::inline application
 		Window* _window = nullptr;
 	};
 }
-
-#include "GraphicApplication.inl"

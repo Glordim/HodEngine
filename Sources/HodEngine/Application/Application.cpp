@@ -1,5 +1,6 @@
 #include "HodEngine/Application/Pch.hpp"
 #include "HodEngine/Application/Application.hpp"
+#include "HodEngine/Application/InitGuard.hpp"
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
@@ -9,69 +10,97 @@
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/SerializedDataFactory.hpp"
-#include "HodEngine/Game/World.hpp"
+
+#include "HodEngine/UI/Builtin.hpp"
 
 #include "HodEngine/Physics/Physics.hpp"
 
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Time/SystemTime.hpp"
 
-#include <thread>
-
-#if defined(PLATFORM_WINDOWS)
-	#include <Windows.h>
-#endif
-
 namespace hod::inline application
 {
-	_SingletonConstructor(Application) {}
-
-	/// @brief
-	/// @param argc
-	/// @param argv
-	/// @return
-	bool Application::Init(const ArgumentParser& argumentParser)
+	bool Application::InitCore()
 	{
-		ThisThread::SetName("MainThread");
+		FileSystemConfig config;
+		ConfigureFileSystem(config);
+	#if defined(PLATFORM_ANDROID)
+		if (FileSystem::CreateInstance()->Init(config._assetManager) == false)
+	#else
+		if (FileSystem::CreateInstance()->Init() == false)
+	#endif
+		{
+			return false;
+		}
+		return true;
+	}
 
-		(void)argumentParser;
+	bool Application::TerminateCore()
+	{
+		FileSystem::DestroyInstance();
+		return true;
+	}
 
-		FileSystem::SetWorkingDirectory(FileSystem::GetExecutablePath().ParentPath() / "Data");
-
+	bool Application::InitGameSystems()
+	{
 		JobScheduler::CreateInstance();
 		FrameSequencer::CreateInstance();
-
 		ResourceManager::CreateInstance();
+		return true;
+	}
 
-		Physics::CreatePhysicsInstance()->Init();
+	bool Application::TerminateGameSystems()
+	{
+		ResourceManager::DestroyInstance();
+		FrameSequencer::DestroyInstance();
+		JobScheduler::DestroyInstance();
+		return true;
+	}
 
+	bool Application::InitPhysics()
+	{
+		if (Physics::CreatePhysicsInstance()->Init() == false)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	bool Application::TerminatePhysics()
+	{
+		Physics::DestroyInstance();
+		return true;
+	}
+
+	bool Application::InitGame()
+	{
 		ComponentFactory::CreateInstance();
 		SerializedDataFactory::CreateInstance();
-		RegisterBuiltin();
+		game::RegisterBuiltin();
+		ui::RegisterBuiltin();
+		return true;
+	}
 
+	bool Application::TerminateGame()
+	{
+		SerializedDataFactory::DestroyInstance();
+		ComponentFactory::DestroyInstance();
 		return true;
 	}
 
 	/// @brief
-	void Application::Terminate()
-	{
-		SerializedDataFactory::DestroyInstance();
-		ComponentFactory::DestroyInstance();
-
-		Physics::DestroyPhysicsInstance();
-
-		ResourceManager::DestroyInstance();
-
-		FrameSequencer::DestroyInstance();
-		JobScheduler::DestroyInstance();
-
-		FileSystem::DestroyInstance();
-	}
-
-	/// @brief
 	/// @return
-	bool Application::Run()
+	bool Application::RunInternal()
 	{
+		ThisThread::SetName("MainThread");
+
+		InitGuard initGuard;
+
+		if (!initGuard.Push([this]{ return InitCore(); },        [this]{ TerminateCore(); }))        return false;
+		if (!initGuard.Push([this]{ return InitGameSystems(); }, [this]{ TerminateGameSystems(); })) return false;
+		if (!initGuard.Push([this]{ return InitPhysics(); },     [this]{ TerminatePhysics(); }))     return false;
+		if (!initGuard.Push([this]{ return InitGame(); },        [this]{ TerminateGame(); }))        return false;
+
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
 
 		constexpr double targetTimeStep = (1.0 / 60.0) * 1000.0;

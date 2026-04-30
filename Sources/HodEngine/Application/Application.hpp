@@ -1,7 +1,9 @@
 #pragma once
 #include "HodEngine/Application/Export.hpp"
 
-#include <HodEngine/Core/Singleton.hpp>
+#if defined(PLATFORM_ANDROID)
+struct AAssetManager;
+#endif
 
 namespace hod::inline core
 {
@@ -13,18 +15,40 @@ namespace hod::inline application
 	/// @brief
 	class HOD_APPLICATION_API Application
 	{
-		_Singleton(Application)
-
 	public:
 		virtual ~Application() = default;
-
-		virtual bool Init(const ArgumentParser& argumentParser);
-		virtual void Terminate();
-		virtual bool Run();
 
 		bool CheckIfGameSharedLibraryExist() const;
 
 		void Quit();
+
+	protected:
+
+		virtual bool RunInternal();
+
+		// Core
+		struct FileSystemConfig
+		{
+#if defined(PLATFORM_ANDROID)
+			AAssetManager* _assetManager = nullptr;
+#endif
+		};
+		virtual void ConfigureFileSystem(FileSystemConfig& /*fileSystemConfig*/) {}
+
+		bool InitCore();
+		bool TerminateCore();
+
+		// GameSystems
+		bool InitGameSystems();
+		bool TerminateGameSystems();
+
+		// Physics
+		bool InitPhysics();
+		bool TerminatePhysics();
+
+		// Game
+		bool InitGame();
+		bool TerminateGame();
 
 	protected:
 		bool _shouldQuit = false;
