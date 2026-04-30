@@ -221,6 +221,7 @@ add_subdirectory("Sources/HodEngine/UI")
 add_subdirectory("Sources/HodEngine/Input")
 add_subdirectory("Sources/HodEngine/Audio")
 add_subdirectory("Sources/HodEngine/Application")
+add_subdirectory("Sources/HodEngine/Main")
 
 option(BUILD_RUNTIME "Build HodApplication runtime executable" ON)
 if (BUILD_RUNTIME)
