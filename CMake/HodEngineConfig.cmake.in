@@ -1,30 +1,34 @@
 @PACKAGE_INIT@
 
-set(_HOD_TARGETS_FILE "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/cmake/HodEngineTargets.cmake")
+if(NOT DEFINED HOD_LIB_TYPE)
+	set(HOD_LIB_TYPE "shared")
+endif()
+
+set(_HOD_TARGETS_FILE "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/${HOD_LIB_TYPE}/cmake/HodEngineTargets.cmake")
 
 include(${CMAKE_CURRENT_LIST_DIR}/Global.cmake)
 
 if(EXISTS "${_HOD_TARGETS_FILE}")
 	include("${_HOD_TARGETS_FILE}")
-	
-	set(HOD_TOOLCHAIN_FILE "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/cmake/toolchain.cmake")
+
+	set(HOD_TOOLCHAIN_FILE "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/${HOD_LIB_TYPE}/cmake/toolchain.cmake")
 	if(NOT CMAKE_TOOLCHAIN_FILE)
 		set(CMAKE_TOOLCHAIN_FILE "${HOD_TOOLCHAIN_FILE}" CACHE FILEPATH "HOD Engine Toolchain" FORCE)
 	endif()
-	
-	set(HOD_TOOLS_DIR "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/bin")
-	
+
+	set(HOD_TOOLS_DIR "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/${HOD_LIB_TYPE}/bin")
+
 	set(HodEngine_FOUND TRUE)
 else()
 	set(HodEngine_FOUND FALSE)
 	if(NOT HodEngine_FIND_QUIETLY)
-		message(WARNING "HodEngine: Platform '${HOD_PLATFORM}' is missing from this SDK (Checked in: ${_HOD_TARGETS_FILE})")
+		message(WARNING "HodEngine: Platform '${HOD_PLATFORM}' — variant '${HOD_LIB_TYPE}' not found (Checked: ${_HOD_TARGETS_FILE})")
 	endif()
 endif()
 
 unset(_HOD_TARGETS_FILE)
 
 find_package(fmt REQUIRED CONFIG
-	PATHS "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/lib/cmake"
+	PATHS "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/${HOD_LIB_TYPE}/lib/cmake"
 	NO_DEFAULT_PATH
 )

@@ -13,6 +13,13 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+if (BUILD_SHARED_LIBS)
+	set(LIB_TYPE SHARED)
+else()
+	set(LIB_TYPE STATIC)
+endif()
+
 include(Global)
 include(FetchContent)
 include(ExternalProject)
@@ -85,10 +92,10 @@ find_package(fmt REQUIRED CONFIG
 )
 
 install(DIRECTORY "${THIRDPARTY_ROOT}/lib/cmake/fmt"
-	DESTINATION "${HOD_PLATFORM_SUBDIR}/lib/cmake"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/lib/cmake"
 )
 install(FILES "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
-	DESTINATION "${HOD_PLATFORM_SUBDIR}/lib"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/lib"
 )
 install(DIRECTORY "${THIRDPARTY_ROOT}/include/fmt"
 	DESTINATION "include"
@@ -96,10 +103,10 @@ install(DIRECTORY "${THIRDPARTY_ROOT}/include/fmt"
 
 # Copy fmt to build tree so HodEngineConfig.cmake works without install
 file(COPY "${THIRDPARTY_ROOT}/lib/cmake/fmt"
-	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/lib/cmake"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/lib/cmake"
 )
 file(COPY "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
-	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/lib"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/lib"
 )
 file(COPY "${THIRDPARTY_ROOT}/include/fmt"
 	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/include"
@@ -202,13 +209,6 @@ endif()
 set(CMAKE_SUPPRESS_REGENERATION true)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
-if (BUILD_SHARED_LIBS)
-	set(LIB_TYPE SHARED)
-else()
-	set(LIB_TYPE STATIC)
-endif()
-
 add_subdirectory("Sources/HodEngine/Core")
 add_subdirectory("Sources/HodEngine/Math")
 add_subdirectory("Sources/HodEngine/GameSystems")
@@ -240,33 +240,27 @@ endif()
 install(EXPORT HodEngineTargets
 	NAMESPACE HodEngine::
 	FILE HodEngineTargets.cmake
-	DESTINATION "${HOD_PLATFORM_SUBDIR}/cmake"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/cmake"
 )
 
-configure_file(cmake/HodEngineConfig.cmake.in 
+configure_file(cmake/HodEngineConfig.cmake.in
 	"${CMAKE_BINARY_DIR}/Output/cmake/HodEngineConfig.cmake" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/Output/cmake/HodEngineConfig.cmake"
 	DESTINATION "cmake")
 
-install(EXPORT HodEngineTargets
-	FILE HodEngineTargets.cmake
-	NAMESPACE HodEngine::
-	DESTINATION lib/cmake/HodEngine
-)
-
 export(EXPORT HodEngineTargets
-	FILE "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/cmake/HodEngineTargets.cmake"
+	FILE "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/cmake/HodEngineTargets.cmake"
 	NAMESPACE HodEngine::
 )
 
 if(CMAKE_TOOLCHAIN_FILE)
 	install(FILES "${CMAKE_TOOLCHAIN_FILE}"
-		DESTINATION "${HOD_PLATFORM_SUBDIR}"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/cmake"
 		RENAME "toolchain.cmake")
 
 	configure_file(
 		"${CMAKE_TOOLCHAIN_FILE}"
-		"${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/cmake/toolchain.cmake"
+		"${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/cmake/toolchain.cmake"
 		COPYONLY
 	)
 endif()
