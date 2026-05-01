@@ -39,6 +39,7 @@ namespace hod::inline editor
 		const Path& GetAssetDirPath() const;
 		const Path& GetResourceDirPath() const;
 		const Path& GetThumbnailDirPath() const;
+		const Path& GetIntermediateSourcesDirPath() const;
 		const Path& GetBuildsDirPath() const;
 
 		bool HasGameModule() const;
@@ -57,6 +58,7 @@ namespace hod::inline editor
 		Path _assetDirPath;
 		Path _resourceDirPath;
 		Path _thumbnailDirPath;
+		Path _intermediateSourcesDirPath;
 		Path _buildsDirPath;
 
 		String _name;

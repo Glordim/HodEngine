@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 
+if(HOD_GAME_BUILD_TYPE STREQUAL "GameModule" OR ANDROID)
+	set(BUILD_SHARED_LIBS ON)
+	set(HOD_LIB_TYPE "shared")
+else()
+	set(BUILD_SHARED_LIBS OFF)
+	set(HOD_LIB_TYPE "static")
+endif()
+
 project([[PROJECT_NAME]] LANGUAGES CXX)
-find_package(HodEngine
-	HINTS "[[ROOT_ENGINE_DIR]]/cmake"
-	NO_DEFAULT_PATH
-)
+find_package(HodEngine REQUIRED)
 
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
@@ -25,14 +30,17 @@ file(GLOB_RECURSE Includes
 
 assign_source_group(${Srcs}) # for VS
 
-if (APPLE)
+if(HOD_GAME_BUILD_TYPE STREQUAL "GameModule" OR ANDROID)
 	add_library([[PROJECT_NAME]] SHARED ${Srcs} ${Includes})
-	target_include_directories([[PROJECT_NAME]] PRIVATE ${PROJECT_SOURCE_DIR})
 else()
-	add_library([[PROJECT_NAME]] SHARED ${Srcs} ${Includes})
-
-	#set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HodApplication)
+	add_executable([[PROJECT_NAME]] ${Srcs} ${Includes})
 endif()
+
+install(TARGETS [[PROJECT_NAME]]
+	RUNTIME DESTINATION .
+	LIBRARY DESTINATION .
+	ARCHIVE DESTINATION .
+)
 
 target_include_directories([[PROJECT_NAME]] PUBLIC
 	${PROJECT_SOURCE_DIR}/Sources
@@ -48,11 +56,16 @@ target_link_libraries([[PROJECT_NAME]]
 	HodEngine::GameSystems
 	HodEngine::Game
 	HodEngine::ImGui
-	HodEngine::Editor
 	HodEngine::Audio
 	HodEngine::UI
 	HodEngine::Application
 )
+
+if(NOT HOD_GAME_BUILD_TYPE STREQUAL "Application")
+	target_link_libraries([[PROJECT_NAME]]
+		HodEngine::Editor
+	)
+endif()
 
 target_compile_definitions([[PROJECT_NAME]]
 	PUBLIC ${HOD_PLATFORM_DEFINE}

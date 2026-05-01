@@ -8,22 +8,17 @@
 #include "HodEngine/Editor/Project.hpp"
 
 #include <algorithm>
-#include <format>
+#include <fmt/format.h>
 #include <fstream>
 #include <functional>
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
-#include "HodEngine/Core/Process/Process.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Core/SystemInfo.hpp"
+#include "HodEngine/Editor/CMakeHelper.hpp"
 #include "FileTemplates/CMakeLists.txt.hpp"
 #include "FileTemplates/Component.cpp.hpp"
 #include "FileTemplates/Component.hpp.hpp"
 #include "FileTemplates/Module.cpp.hpp"
 #include "FileTemplates/Module.hpp.hpp"
-#include "HodEngine/Editor/MissingGameModuleModal.hpp"
-
-#include "HodEngine/ImGui/ImGuiManager.hpp"
 
 // todo move ?
 #define STRINGIZE(x) #x
@@ -188,6 +183,12 @@ namespace hod::inline editor
 			return false;
 		}
 
+		_intermediateSourcesDirPath = _projectPath.ParentPath() / "Generated" / "Sources";
+		if (FileSystem::GetInstance()->Exists(_intermediateSourcesDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_intermediateSourcesDirPath) == false)
+		{
+			return false;
+		}
+
 		_buildsDirPath = _projectPath.ParentPath() / "Builds";
 		if (FileSystem::GetInstance()->Exists(_buildsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_buildsDirPath) == false)
 		{
@@ -196,7 +197,8 @@ namespace hod::inline editor
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
-		_gameModule.Init(_projectPath.ParentPath() / "build" / "Output" / "platforms" / "windows-x64" / "bin" / _name.CStr(), true);
+		Path gameModuleBuildDirectoryPath = GetIntermediateSourcesDirPath() / "Editor";
+		_gameModule.Init(gameModuleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / "shared" / "bin" / _name.CStr(), true);
 		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
 		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { _gameModule.Reload(); }, nullptr) == false)
 		{
@@ -282,6 +284,11 @@ namespace hod::inline editor
 		return _thumbnailDirPath;
 	}
 
+	const Path& Project::GetIntermediateSourcesDirPath() const
+	{
+		return _intermediateSourcesDirPath;
+	}
+
 	/// @brief
 	/// @return
 	const Path& Project::GetBuildsDirPath() const
@@ -307,64 +314,17 @@ namespace hod::inline editor
 	/// @return
 	bool Project::GenerateGameModuleCMakeList() const
 	{
-		String cmakeLists(CMakeLists_txt);
-
-		String enginePath = FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath().ParentPath().GetString();
-#if defined(PLATFORM_WINDOWS)
-		// CMakeLists require portable path
-		for (char& c : enginePath)
-		{
-			if (c == '\\')
-			{
-				c = '/';
-			}
-		}
-#endif
-		constexpr std::string_view enginePathTag = "[[ROOT_ENGINE_DIR]]";
-		size_t                     replaceIndex = cmakeLists.Find(enginePathTag);
-		while (replaceIndex != String::Npos)
-		{
-			cmakeLists.Replace(replaceIndex, enginePathTag.size(), enginePath);
-			replaceIndex = cmakeLists.Find(enginePathTag);
-		}
-
-		constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
-		replaceIndex = cmakeLists.Find(projectNameTag);
-		while (replaceIndex != String::Npos)
-		{
-			cmakeLists.Replace(replaceIndex, projectNameTag.size(), _name);
-			replaceIndex = cmakeLists.Find(projectNameTag);
-		}
-
 		String projectExport = _name + "_EXPORT";
 		std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
-		constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
-		replaceIndex = cmakeLists.Find(projectExportTag);
-		while (replaceIndex != String::Npos)
-		{
-			cmakeLists.Replace(replaceIndex, projectExportTag.size(), projectExport);
-			replaceIndex = cmakeLists.Find(projectExportTag);
-		}
 
-		Path path = _projectPath.ParentPath() / "CMakeLists.txt";
-
-		try
-		{
-			std::ofstream cmakeListFileStream;
-			cmakeListFileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-			cmakeListFileStream.open(path.CStr(), std::ios_base::trunc);
-			cmakeListFileStream.write(cmakeLists.CStr(), cmakeLists.Size());
-			cmakeListFileStream.close();
-
-			OUTPUT_MESSAGE("CMakeLists.txt generated at {}", path);
-
-			return true;
-		}
-		catch (const std::ios_base::failure& e)
-		{
-			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {} : {}", path, e.what());
-			return false;
-		}
+		return CMakeHelper::GenerateCMakeLists(
+			_projectPath.ParentPath() / "CMakeLists.txt",
+			CMakeLists_txt,
+			{
+				{"[[PROJECT_NAME]]",   _name.CStr()},
+				{"[[PROJECT_EXPORT]]", projectExport.CStr()},
+			}
+		);
 	}
 
 	/// @brief
@@ -373,7 +333,7 @@ namespace hod::inline editor
 	bool Project::ConfigureGameModule() const
 	{
 		Path gameModuleSourceDirectoryPath = _projectPath.ParentPath();
-		Path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
+		Path gameModuleBuildDirectoryPath = GetIntermediateSourcesDirPath() / "Editor";
 
 		try
 		{
@@ -393,33 +353,15 @@ namespace hod::inline editor
 			return false;
 		}
 
-		Path toolchainPath = FileSystem::GetExecutablePath().ParentPath().ParentPath() / "cmake" / "toolchain.cmake";
-
-		String arguments = fmt::format("-DHOD_PLATFORM={} -DCMAKE_TOOLCHAIN_FILE:FILEPATH={} --no-warn-unused-cli -B {} -S {} -G Ninja", "windows-x64", toolchainPath, gameModuleBuildDirectoryPath, gameModuleSourceDirectoryPath).c_str();
-		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
-		if (Process::Create("cmake", arguments, false) == false)
-		{
-			return false;
-		}
-		return true;
+		return CMakeHelper::Configure(gameModuleSourceDirectoryPath, gameModuleBuildDirectoryPath, "", CMakeHelper::Target::Editor);
 	}
 
 	/// @brief
 	/// @return
 	bool Project::BuildGameModule() const
 	{
-		Path gameModuleSourceDirectoryPath = _projectPath.ParentPath();
-		Path gameModuleBuildDirectoryPath = gameModuleSourceDirectoryPath / "build";
-
-		const char* config = "Release";
-		String      arguments = fmt::format("--build {} --config {} --parallel", gameModuleBuildDirectoryPath, config).c_str();
-		OUTPUT_MESSAGE("Execute: {} {}", "cmake", arguments);
-		if (Process::Create("cmake", arguments, false) == false)
-		{
-			return false;
-		}
-
-		return true;
+		Path gameModuleBuildDirectoryPath = GetIntermediateSourcesDirPath() / "Editor";
+		return CMakeHelper::Build(gameModuleBuildDirectoryPath, "Release");
 	}
 
 	/// @brief

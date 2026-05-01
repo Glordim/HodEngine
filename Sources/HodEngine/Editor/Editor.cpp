@@ -29,6 +29,7 @@
 #include "HodEngine/Editor/WindowFactory.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/CMakeHelper.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
@@ -197,7 +198,7 @@ namespace hod::inline editor
 		for (const char* moduleName : editorModules)
 		{
 			DynamicLibrary* module = DefaultAllocator::GetInstance().New<DynamicLibrary>();
-			module->Init(FileSystem::GetExecutablePath().ParentPath() / moduleName, true);
+			module->Init(FileSystem::GetExecutablePath().ParentPath() / moduleName, false);
 			if (module->Load() == false)
 			{
 				DefaultAllocator::GetInstance().Delete(module);
@@ -779,24 +780,36 @@ namespace hod::inline editor
 	{
 		try
 		{
-			Path buildPath = Project::GetInstance()->GetBuildsDirPath() / "Latest";
-			FileSystem::GetInstance()->CreateDirectories(buildPath);
+			Path buildDir = Project::GetInstance()->GetBuildsDirPath();
+			FileSystem::GetInstance()->CreateDirectories(buildDir);
+
+			Path projectDir = Project::GetInstance()->GetProjectPath().ParentPath();
+			Path intermediateDir   = Project::GetInstance()->GetIntermediateSourcesDirPath() / Path(CMakeHelper::GetCurrentPlatform());
+			FileSystem::GetInstance()->CreateDirectories(intermediateDir);
+
+			if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
+				return;
+
+			if (CMakeHelper::Configure(projectDir, intermediateDir, buildDir, CMakeHelper::Target::Retail) == false)
+				return;
+
+			if (CMakeHelper::Build(intermediateDir, "Release") == false)
+				return;
+
+			if (CMakeHelper::Install(intermediateDir, "Release") == false)
+				return;
 
 			BootInfo bootInfo;
 			bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
-			bootInfo._gameModule = Project::GetInstance()->GetName();
+			bootInfo._gameModule   = Project::GetInstance()->GetName();
 
 			Document bootDocument;
 			Serializer::Serialize(bootInfo, bootDocument.GetRootNode());
 
 			DocumentWriterJson writer;
-			writer.Write(bootDocument, buildPath / "Boot.json");
+			writer.Write(bootDocument, buildDir / "Boot.json");
 
-			std::filesystem::copy(Project::GetInstance()->GetGameModulePath().GetString().CStr(),
-			                      (buildPath / Project::GetInstance()->GetGameModulePath().Filename()).GetString().CStr(), std::filesystem::copy_options::overwrite_existing);
-			// todo copy hodapplication.exe
-
-			Path dataDirPath = buildPath / "Datas";
+			Path dataDirPath = buildDir / "Datas";
 			FileSystem::GetInstance()->CreateDirectories(dataDirPath);
 
 			for (const auto& entry : std::filesystem::directory_iterator(Project::GetInstance()->GetResourceDirPath().GetString().CStr()))
@@ -812,7 +825,6 @@ namespace hod::inline editor
 		catch (const std::exception& e)
 		{
 			OUTPUT_ERROR("Build error : {}", e.what());
-			return;
 		}
 	}
 

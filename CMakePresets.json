@@ -38,6 +38,22 @@
 			}
 		},
 		{
+			"name": "host-clang-release-static",
+			"displayName": "Release Static (Clang) — for install/retail",
+			"inherits": [
+				"base",
+				"host-toolchain-clang"
+			],
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"BUILD_SHARED_LIBS": "OFF",
+				"BUILD_RUNTIME": "OFF",
+				"BUILD_EDITOR": "OFF",
+				"BUILD_UNIT_TESTS": "OFF",
+				"BUILD_BENCHMARKS": "OFF"
+			}
+		},
+		{
 			"name": "host-native-debug",
 			"displayName": "Debug (Native)",
 			"inherits": [
@@ -58,6 +74,134 @@
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release"
 			}
+		},
+		{
+			"name": "host-native-release-static",
+			"displayName": "Release Static (Native) — for install/retail",
+			"inherits": [
+				"base",
+				"host-toolchain-native"
+			],
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"BUILD_SHARED_LIBS": "OFF",
+				"BUILD_RUNTIME": "OFF",
+				"BUILD_EDITOR": "OFF",
+				"BUILD_UNIT_TESTS": "OFF",
+				"BUILD_BENCHMARKS": "OFF"
+			}
+		},
+		{
+			"name": "android-arm64-release-static",
+			"displayName": "Release Static (Android arm64-v8a) — for install/retail",
+			"inherits": ["base"],
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/Android-NDK-arm64.cmake",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"BUILD_SHARED_LIBS": "OFF",
+				"BUILD_RUNTIME": "OFF",
+				"BUILD_EDITOR": "OFF",
+				"BUILD_UNIT_TESTS": "OFF",
+				"BUILD_BENCHMARKS": "OFF"
+			}
+		},
+		{
+			"name": "android-x86_64-release-static",
+			"displayName": "Release Static (Android x86_64) — for install/retail",
+			"inherits": ["base"],
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/Android-NDK-x86_64.cmake",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"BUILD_SHARED_LIBS": "OFF",
+				"BUILD_RUNTIME": "OFF",
+				"BUILD_EDITOR": "OFF",
+				"BUILD_UNIT_TESTS": "OFF",
+				"BUILD_BENCHMARKS": "OFF"
+			}
+		}
+	],
+	"buildPresets": [
+		{ "name": "host-clang-debug",                    "configurePreset": "host-clang-debug" },
+		{ "name": "host-clang-release",                  "configurePreset": "host-clang-release" },
+		{ "name": "host-clang-release-static",           "configurePreset": "host-clang-release-static" },
+		{ "name": "host-clang-release-static-install",   "configurePreset": "host-clang-release-static", "targets": ["install"] },
+		{ "name": "host-native-debug",                   "configurePreset": "host-native-debug" },
+		{ "name": "host-native-release",                 "configurePreset": "host-native-release" },
+		{ "name": "host-native-release-static",          "configurePreset": "host-native-release-static" },
+		{ "name": "host-native-release-static-install",  "configurePreset": "host-native-release-static", "targets": ["install"] },
+		{ "name": "android-arm64-release-static",        "configurePreset": "android-arm64-release-static" },
+		{ "name": "android-arm64-release-static-install","configurePreset": "android-arm64-release-static", "targets": ["install"] },
+		{ "name": "android-x86_64-release-static",       "configurePreset": "android-x86_64-release-static" },
+		{ "name": "android-x86_64-release-static-install","configurePreset": "android-x86_64-release-static", "targets": ["install"] }
+	],
+	"workflowPresets": [
+		{
+			"name": "host-clang-debug",
+			"displayName": "Configure + Build (Clang Debug)",
+			"steps": [
+				{ "type": "configure", "name": "host-clang-debug" },
+				{ "type": "build",     "name": "host-clang-debug" }
+			]
+		},
+		{
+			"name": "host-clang-release",
+			"displayName": "Configure + Build (Clang Release)",
+			"steps": [
+				{ "type": "configure", "name": "host-clang-release" },
+				{ "type": "build",     "name": "host-clang-release" }
+			]
+		},
+		{
+			"name": "host-clang-release-static",
+			"displayName": "Configure + Build + Install (Clang Release Static)",
+			"steps": [
+				{ "type": "configure", "name": "host-clang-release-static" },
+				{ "type": "build",     "name": "host-clang-release-static" },
+				{ "type": "build",     "name": "host-clang-release-static-install" }
+			]
+		},
+		{
+			"name": "host-native-debug",
+			"displayName": "Configure + Build (Native Debug)",
+			"steps": [
+				{ "type": "configure", "name": "host-native-debug" },
+				{ "type": "build",     "name": "host-native-debug" }
+			]
+		},
+		{
+			"name": "host-native-release",
+			"displayName": "Configure + Build (Native Release)",
+			"steps": [
+				{ "type": "configure", "name": "host-native-release" },
+				{ "type": "build",     "name": "host-native-release" }
+			]
+		},
+		{
+			"name": "host-native-release-static",
+			"displayName": "Configure + Build + Install (Native Release Static)",
+			"steps": [
+				{ "type": "configure", "name": "host-native-release-static" },
+				{ "type": "build",     "name": "host-native-release-static" },
+				{ "type": "build",     "name": "host-native-release-static-install" }
+			]
+		},
+		{
+			"name": "android-arm64-release-static",
+			"displayName": "Configure + Build + Install (Android arm64 Release Static)",
+			"steps": [
+				{ "type": "configure", "name": "android-arm64-release-static" },
+				{ "type": "build",     "name": "android-arm64-release-static" },
+				{ "type": "build",     "name": "android-arm64-release-static-install" }
+			]
+		},
+		{
+			"name": "android-x86_64-release-static",
+			"displayName": "Configure + Build + Install (Android x86_64 Release Static)",
+			"steps": [
+				{ "type": "configure", "name": "android-x86_64-release-static" },
+				{ "type": "build",     "name": "android-x86_64-release-static" },
+				{ "type": "build",     "name": "android-x86_64-release-static-install" }
+			]
 		}
 	]
 }
