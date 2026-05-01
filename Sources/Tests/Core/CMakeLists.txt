@@ -32,8 +32,8 @@ target_include_directories(TestsCore
 target_link_libraries(TestsCore
 	PRIVATE
 		Core
-		Gtest::Gtest
-		GtestMain::GtestMain
+		GTest::gtest
+		GTest::gtest_main
 )
 
 target_compile_definitions(TestsCore PUBLIC ${HOD_PLATFORM_DEFINE})

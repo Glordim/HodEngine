@@ -24,8 +24,8 @@ target_include_directories(BenchmarksCore
 target_link_libraries(BenchmarksCore
 	PRIVATE
 		Core
-		Benchmark::Benchmark
-		BenchmarkMain::BenchmarkMain
+		benchmark::benchmark
+		benchmark::benchmark_main
 )
 
 target_compile_definitions(BenchmarksCore PUBLIC ${HOD_PLATFORM_DEFINE})

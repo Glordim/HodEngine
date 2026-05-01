@@ -79,11 +79,9 @@ set_target_properties(Box2d::Box2d PROPERTIES
 	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Box2d/include"
 )
 
-add_library(Freetype::Freetype STATIC IMPORTED GLOBAL)
-set_target_properties(Freetype::Freetype PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Freetype/lib/${LIB_PREFIX}freetype.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Freetype/include/freetype2"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Freetype/include/freetype2"
+find_package(Freetype REQUIRED CONFIG
+	PATHS "${THIRDPARTY_ROOT}/Freetype/lib/cmake"
+	NO_DEFAULT_PATH
 )
 
 find_package(fmt REQUIRED CONFIG
@@ -124,10 +122,9 @@ set_target_properties(WindowsHModular::WindowsHModular PROPERTIES
 	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/WindowsHModular/include"
 )
 
-add_library(VulkanMemoryAllocator::VulkanMemoryAllocator INTERFACE IMPORTED GLOBAL)
-set_target_properties(VulkanMemoryAllocator::VulkanMemoryAllocator PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include"
+find_package(VulkanMemoryAllocator REQUIRED CONFIG
+	PATHS "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake"
+	NO_DEFAULT_PATH
 )
 
 add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)
@@ -136,29 +133,14 @@ set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
 	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/PortableFileDialogs/include"
 )
 
-add_library(Benchmark::Benchmark STATIC IMPORTED GLOBAL)
-set_target_properties(Benchmark::Benchmark PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Benchmark/lib/${LIB_PREFIX}benchmark.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Benchmark/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Benchmark/include"
-	INTERFACE_COMPILE_DEFINITIONS "BENCHMARK_STATIC_DEFINE"
-	INTERFACE_LINK_LIBRARIES "$<LINK_ONLY:shlwapi>"
-)
-add_library(BenchmarkMain::BenchmarkMain STATIC IMPORTED GLOBAL)
-set_target_properties(BenchmarkMain::BenchmarkMain PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Benchmark/lib/${LIB_PREFIX}benchmark_main.${LIB_EXTENSION}"
-	INTERFACE_LINK_LIBRARIES "Benchmark::Benchmark"
+find_package(benchmark REQUIRED CONFIG
+	PATHS "${THIRDPARTY_ROOT}/Benchmark/lib/cmake"
+	NO_DEFAULT_PATH
 )
 
-add_library(Gtest::Gtest STATIC IMPORTED GLOBAL)
-set_target_properties(Gtest::Gtest PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Gtest/lib/${LIB_PREFIX}gtest.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Gtest/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Gtest/include"
-)
-add_library(GtestMain::GtestMain STATIC IMPORTED GLOBAL)
-set_target_properties(GtestMain::GtestMain PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Gtest/lib/${LIB_PREFIX}gtest_main.${LIB_EXTENSION}"
+find_package(GTest REQUIRED CONFIG
+	PATHS "${THIRDPARTY_ROOT}/Gtest/lib/cmake"
+	NO_DEFAULT_PATH
 )
 
 if(ANDROID)
