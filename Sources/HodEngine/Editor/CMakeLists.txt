@@ -71,25 +71,25 @@ target_compile_definitions(Editor
 add_custom_command(
 	TARGET Editor POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${SLANG_COMPILER}
+		$<TARGET_FILE:slang::slangc>
 		$<TARGET_FILE_DIR:Editor>/Tools/slangc.exe
-	COMMENT "Copying ${SLANG_COMPILER} to output directory"
+	COMMENT "Copying slangc to output directory"
 )
 
 add_custom_command(
 	TARGET Editor POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${SLANG_DLL}
-		$<TARGET_FILE_DIR:Editor>/Tools/slang.dll
-	COMMENT "Copying ${SLANG_DLL} dll to output directory"
+		$<TARGET_FILE:slang::slang>
+		$<TARGET_FILE_DIR:Editor>/Tools/$<TARGET_FILE_NAME:slang::slang>
+	COMMENT "Copying slang runtime to output directory"
 )
 
 add_custom_command(
 	TARGET Editor POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${SLANG_DLL_GLSLANG}
-		$<TARGET_FILE_DIR:Editor>/Tools/slang-glslang.dll
-	COMMENT "Copying ${SLANG_DLL_GLSLANG} dll to output directory"
+		$<TARGET_FILE:slang::slang-glslang>
+		$<TARGET_FILE_DIR:Editor>/Tools/$<TARGET_FILE_NAME:slang::slang-glslang>
+	COMMENT "Copying slang-glslang to output directory"
 )
 
 hod_install_lib(Editor)

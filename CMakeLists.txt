@@ -144,32 +144,28 @@ find_package(GTest REQUIRED CONFIG
 )
 
 if(ANDROID)
-	# Cross-compilation: use host tools to compile shaders
+	# Cross-compilation: find slangc on the host (find_program bypasses the Android sysroot)
 	if(CMAKE_HOST_WIN32)
-		set(_HOST_THIRDPARTY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/Win_x64")
-		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/Slang/bin/slangc.exe")
-		set(SLANG_DLL "${_HOST_THIRDPARTY}/Slang/bin/slang.dll")
-		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/Slang/bin/slang-glslang.dll")
+		set(_HOST_SLANG_BIN "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/Win_x64/Slang/bin")
 	elseif(CMAKE_HOST_APPLE)
-		set(_HOST_THIRDPARTY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/MacOs_arm64")
-		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/Slang/bin/slangc")
-		set(SLANG_DLL "${_HOST_THIRDPARTY}/Slang/lib/libslang.dylib")
-		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/Slang/lib/libslang-glslang.dylib")
+		set(_HOST_SLANG_BIN "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/MacOs_arm64/Slang/bin")
 	else()
-		set(_HOST_THIRDPARTY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/Linux_x64")
-		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/Slang/bin/slangc")
-		set(SLANG_DLL "${_HOST_THIRDPARTY}/Slang/lib/libslang.so")
-		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/Slang/lib/libslang-glslang.so")
+		set(_HOST_SLANG_BIN "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/Linux_x64/Slang/bin")
 	endif()
-	unset(_HOST_THIRDPARTY)
-elseif(WIN32)
-	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/Slang/bin/slangc.exe")
-	set(SLANG_DLL "${THIRDPARTY_ROOT}/Slang/bin/${LIB_PREFIX}slang.${DLL_EXTENSION}")
-	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/Slang/bin/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+	find_program(SLANG_COMPILER NAMES slangc slangc.exe
+		HINTS "${_HOST_SLANG_BIN}"
+		NO_DEFAULT_PATH
+	)
+	if(NOT SLANG_COMPILER)
+		message(FATAL_ERROR "slangc not found in ${_HOST_SLANG_BIN}")
+	endif()
+	unset(_HOST_SLANG_BIN)
 else()
-	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/Slang/bin/slangc")
-	set(SLANG_DLL "${THIRDPARTY_ROOT}/Slang/lib/${LIB_PREFIX}slang.${DLL_EXTENSION}")
-	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/Slang/lib/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+	find_package(slang REQUIRED CONFIG
+		PATHS "${THIRDPARTY_ROOT}/Slang/cmake"
+		NO_DEFAULT_PATH
+	)
+	set(SLANG_COMPILER "${SLANG_EXECUTABLE}")
 endif()
 
 option(BUILD_BENCHMARKS "Enable Benchmarks compilation" ON)

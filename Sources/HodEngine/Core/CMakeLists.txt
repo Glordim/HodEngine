@@ -40,7 +40,7 @@ else()
 endif()
 
 target_link_libraries(Core
-	PRIVATE ${PLATFORM_LIBS} WindowsHModular::WindowsHModular
+	PRIVATE ${PLATFORM_LIBS} $<$<BOOL:${WIN32}>:WindowsHModular::WindowsHModular>
 	PUBLIC fmt::fmt
 )
 
