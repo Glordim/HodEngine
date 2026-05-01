@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-#include <Stb/stb_image.h>
+#include <stb_image.h>
 
 namespace hod::inline renderer
 {

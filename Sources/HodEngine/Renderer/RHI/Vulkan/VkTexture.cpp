@@ -9,7 +9,7 @@
 
 #include <HodEngine/Math/Vector2.hpp>
 
-#include <VulkanMemoryAllocator/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 
 namespace hod::inline renderer
 {

@@ -74,120 +74,120 @@ set(THIRDPARTY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/${ARCH_FOLDE
 
 add_library(Box2d::Box2d STATIC IMPORTED GLOBAL)
 set_target_properties(Box2d::Box2d PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Box2d/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Box2d/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Box2d/include"
 )
 
 add_library(Freetype::Freetype STATIC IMPORTED GLOBAL)
 set_target_properties(Freetype::Freetype PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}freetype.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/freetype2"
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Freetype/lib/${LIB_PREFIX}freetype.${LIB_EXTENSION}"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Freetype/include/freetype2"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Freetype/include/freetype2"
 )
 
 find_package(fmt REQUIRED CONFIG
-	PATHS "${THIRDPARTY_ROOT}/lib/cmake"
+	PATHS "${THIRDPARTY_ROOT}/Fmt/lib/cmake"
 	NO_DEFAULT_PATH
 )
 
-install(DIRECTORY "${THIRDPARTY_ROOT}/lib/cmake/fmt"
+install(DIRECTORY "${THIRDPARTY_ROOT}/Fmt/lib/cmake/fmt"
 	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
 )
-install(FILES "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
+install(FILES "${THIRDPARTY_ROOT}/Fmt/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
 	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
 )
-install(DIRECTORY "${THIRDPARTY_ROOT}/include/fmt"
+install(DIRECTORY "${THIRDPARTY_ROOT}/Fmt/include/fmt"
 	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
 )
 
 # Copy fmt to build tree so HodEngineConfig.cmake works without install
-file(COPY "${THIRDPARTY_ROOT}/lib/cmake/fmt"
+file(COPY "${THIRDPARTY_ROOT}/Fmt/lib/cmake/fmt"
 	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
 )
-file(COPY "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
+file(COPY "${THIRDPARTY_ROOT}/Fmt/lib/${LIB_PREFIX}fmt.${LIB_EXTENSION}"
 	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib"
 )
-file(COPY "${THIRDPARTY_ROOT}/include/fmt"
+file(COPY "${THIRDPARTY_ROOT}/Fmt/include/fmt"
 	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
 )
 
 add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)
 set_target_properties(Stb::Stb PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Stb/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Stb/include"
 )
 
 add_library(WindowsHModular::WindowsHModular INTERFACE IMPORTED GLOBAL)
 set_target_properties(WindowsHModular::WindowsHModular PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/WindowsHModular/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/WindowsHModular/include"
 )
 
 add_library(VulkanMemoryAllocator::VulkanMemoryAllocator INTERFACE IMPORTED GLOBAL)
 set_target_properties(VulkanMemoryAllocator::VulkanMemoryAllocator PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include"
 )
 
 add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)
 set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/PortableFileDialogs/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/PortableFileDialogs/include"
 )
 
 add_library(Benchmark::Benchmark STATIC IMPORTED GLOBAL)
 set_target_properties(Benchmark::Benchmark PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}benchmark.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/benchmark"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/benchmark"
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Benchmark/lib/${LIB_PREFIX}benchmark.${LIB_EXTENSION}"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Benchmark/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Benchmark/include"
 	INTERFACE_COMPILE_DEFINITIONS "BENCHMARK_STATIC_DEFINE"
 	INTERFACE_LINK_LIBRARIES "$<LINK_ONLY:shlwapi>"
 )
 add_library(BenchmarkMain::BenchmarkMain STATIC IMPORTED GLOBAL)
 set_target_properties(BenchmarkMain::BenchmarkMain PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}benchmark_main.${LIB_EXTENSION}"
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Benchmark/lib/${LIB_PREFIX}benchmark_main.${LIB_EXTENSION}"
 	INTERFACE_LINK_LIBRARIES "Benchmark::Benchmark"
 )
 
 add_library(Gtest::Gtest STATIC IMPORTED GLOBAL)
 set_target_properties(Gtest::Gtest PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}gtest.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/Gtest"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/include/Gtest"
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Gtest/lib/${LIB_PREFIX}gtest.${LIB_EXTENSION}"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Gtest/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Gtest/include"
 )
 add_library(GtestMain::GtestMain STATIC IMPORTED GLOBAL)
 set_target_properties(GtestMain::GtestMain PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}gtest_main.${LIB_EXTENSION}"
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Gtest/lib/${LIB_PREFIX}gtest_main.${LIB_EXTENSION}"
 )
 
 if(ANDROID)
 	# Cross-compilation: use host tools to compile shaders
 	if(CMAKE_HOST_WIN32)
 		set(_HOST_THIRDPARTY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/Win_x64")
-		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/bin/slangc.exe")
-		set(SLANG_DLL "${_HOST_THIRDPARTY}/bin/slang.dll")
-		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/bin/slang-glslang.dll")
+		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/Slang/bin/slangc.exe")
+		set(SLANG_DLL "${_HOST_THIRDPARTY}/Slang/bin/slang.dll")
+		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/Slang/bin/slang-glslang.dll")
 	elseif(CMAKE_HOST_APPLE)
 		set(_HOST_THIRDPARTY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/MacOs_arm64")
-		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/bin/slangc")
-		set(SLANG_DLL "${_HOST_THIRDPARTY}/lib/libslang.dylib")
-		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/lib/libslang-glslang.dylib")
+		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/Slang/bin/slangc")
+		set(SLANG_DLL "${_HOST_THIRDPARTY}/Slang/lib/libslang.dylib")
+		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/Slang/lib/libslang-glslang.dylib")
 	else()
 		set(_HOST_THIRDPARTY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/Linux_x64")
-		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/bin/slangc")
-		set(SLANG_DLL "${_HOST_THIRDPARTY}/lib/libslang.so")
-		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/lib/libslang-glslang.so")
+		set(SLANG_COMPILER "${_HOST_THIRDPARTY}/Slang/bin/slangc")
+		set(SLANG_DLL "${_HOST_THIRDPARTY}/Slang/lib/libslang.so")
+		set(SLANG_DLL_GLSLANG "${_HOST_THIRDPARTY}/Slang/lib/libslang-glslang.so")
 	endif()
 	unset(_HOST_THIRDPARTY)
 elseif(WIN32)
-	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc.exe")
-	set(SLANG_DLL "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang.${DLL_EXTENSION}")
-	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/bin/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/Slang/bin/slangc.exe")
+	set(SLANG_DLL "${THIRDPARTY_ROOT}/Slang/bin/${LIB_PREFIX}slang.${DLL_EXTENSION}")
+	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/Slang/bin/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
 else()
-	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/bin/slangc")
-	set(SLANG_DLL "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang.${DLL_EXTENSION}")
-	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/lib/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
+	set(SLANG_COMPILER "${THIRDPARTY_ROOT}/Slang/bin/slangc")
+	set(SLANG_DLL "${THIRDPARTY_ROOT}/Slang/lib/${LIB_PREFIX}slang.${DLL_EXTENSION}")
+	set(SLANG_DLL_GLSLANG "${THIRDPARTY_ROOT}/Slang/lib/${LIB_PREFIX}slang-glslang.${DLL_EXTENSION}")
 endif()
 
 option(BUILD_BENCHMARKS "Enable Benchmarks compilation" ON)

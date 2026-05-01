@@ -49,12 +49,13 @@ set_target_properties(Renderer PROPERTIES
 target_include_directories(Editor PUBLIC 
 	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
-	PRIVATE ${GENERATED_DIR} SYSTEM Stb::Stb PortableFileDialogs::PortableFileDialogs
+	PRIVATE ${GENERATED_DIR}
 )
 target_precompile_headers(Editor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Editor
 	PUBLIC Core ImGui Window Physics Renderer Game
+	PRIVATE Stb::Stb PortableFileDialogs::PortableFileDialogs
 )
 
 if(NOT BUILD_RETAIL)

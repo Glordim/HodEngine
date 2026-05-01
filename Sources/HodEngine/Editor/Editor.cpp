@@ -53,7 +53,7 @@
 
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
-#include <Stb/stb_image.h>
+#include <stb_image.h>
 
 #include "Icons/folder-open.png.hpp"
 #include "Icons/folder.png.hpp"

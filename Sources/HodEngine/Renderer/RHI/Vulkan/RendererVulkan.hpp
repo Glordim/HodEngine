@@ -10,7 +10,7 @@
 #include "HodEngine/Renderer/Enums.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 
-#include <VulkanMemoryAllocator/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 	#include "HodEngine/Renderer/RHI/Vulkan/VkValidationLayer.hpp"

@@ -4,7 +4,7 @@
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
 #include <vulkan/vulkan.h>
-#include <VulkanMemoryAllocator/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 
 namespace hod::inline renderer
 {
