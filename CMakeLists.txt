@@ -223,11 +223,6 @@ add_subdirectory("Sources/HodEngine/Audio")
 add_subdirectory("Sources/HodEngine/Application")
 add_subdirectory("Sources/HodEngine/Main")
 
-option(BUILD_RUNTIME "Build HodApplication runtime executable" ON)
-if (BUILD_RUNTIME)
-	add_subdirectory("Sources/HodApplication")
-endif()
-
 option(BUILD_EDITOR "Build Editor modules" ON)
 if (BUILD_EDITOR AND NOT ANDROID)
 	add_subdirectory("Sources/HodEngine/CoreEditor")

@@ -33,6 +33,8 @@ namespace hod::inline application
 		bool InitImGui();
 		bool TerminateImGui();
 
+		bool RunGraphicLoop();
+
 	private:
 		static int EngineLoopEntry(void* data);
 		int        EngineLoop();

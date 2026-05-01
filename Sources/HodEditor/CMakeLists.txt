@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-if (APPLE)
-	project(HodEditor LANGUAGES CXX OBJCXX)
-else()
-	project(HodEditor LANGUAGES CXX)
-endif()
+project(HodEditor LANGUAGES CXX)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 

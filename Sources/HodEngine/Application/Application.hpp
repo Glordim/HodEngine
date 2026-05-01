@@ -1,13 +1,15 @@
 #pragma once
 #include "HodEngine/Application/Export.hpp"
 
+#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
+
 #if defined(PLATFORM_ANDROID)
 struct AAssetManager;
 #endif
 
-namespace hod::inline core
+namespace hod::inline game
 {
-	class ArgumentParser;
+	class World;
 }
 
 namespace hod::inline application
@@ -20,37 +22,44 @@ namespace hod::inline application
 
 		bool CheckIfGameSharedLibraryExist() const;
 
+		
 		void Quit();
-
-	protected:
-
+		
+		protected:
+		
 		virtual bool RunInternal();
-
+		
 		// Core
 		struct FileSystemConfig
 		{
-#if defined(PLATFORM_ANDROID)
+			#if defined(PLATFORM_ANDROID)
 			AAssetManager* _assetManager = nullptr;
-#endif
+			#endif
 		};
 		virtual void ConfigureFileSystem(FileSystemConfig& /*fileSystemConfig*/) {}
-
+		
 		bool InitCore();
 		bool TerminateCore();
-
+		
 		// GameSystems
 		bool InitGameSystems();
 		bool TerminateGameSystems();
-
+		
 		// Physics
 		bool InitPhysics();
 		bool TerminatePhysics();
-
+		
 		// Game
 		bool InitGame();
 		bool TerminateGame();
+		bool BootGame();
 
 	protected:
 		bool _shouldQuit = false;
+
+#if !defined(HOD_GAME_MODULE_STATIC)
+		DynamicLibrary	_gameModule;
+#endif
+		World*	_world = nullptr;
 	};
 }

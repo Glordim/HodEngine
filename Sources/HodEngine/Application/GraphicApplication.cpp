@@ -26,8 +26,6 @@ namespace hod::inline application
 {
 	bool GraphicApplication::RunInternal()
 	{
-		ThisThread::SetName("MainThread");
-
 		InitGuard initGuard;
 
 		if (!initGuard.Push([this]{ return InitCore(); },        [this]{ TerminateCore(); }))        return false;
@@ -40,14 +38,12 @@ namespace hod::inline application
 		if (!initGuard.Push([this]{ return InitImGui(); },       [this]{ TerminateImGui(); }))       return false;
 		if (!initGuard.Push([this]{ return InitGame(); },        [this]{ TerminateGame(); }))        return false;
 
-		Thread engineLoop;
-		engineLoop.Start(&GraphicApplication::EngineLoopEntry, this, Thread::Priority::High, "EngineLoop");
+		if (BootGame() == false)
+		{
+			return false;
+		}
 
-		bool result = DisplayManager::GetInstance()->Run();
-
-		engineLoop.Join();
-
-		return result;
+		return RunGraphicLoop();
 	}
 
 	bool GraphicApplication::InitAudio()
@@ -130,6 +126,18 @@ namespace hod::inline application
 	{
 		ImGuiManager::DestroyInstance();
 		return true;
+	}
+
+	bool GraphicApplication::RunGraphicLoop()
+	{
+		Thread engineLoop;
+		engineLoop.Start(&GraphicApplication::EngineLoopEntry, this, Thread::Priority::High, "EngineLoop");
+
+		bool result = DisplayManager::GetInstance()->Run();
+
+		engineLoop.Join();
+
+		return result;
 	}
 
 	int GraphicApplication::EngineLoopEntry(void* data)
