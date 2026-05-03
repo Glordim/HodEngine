@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 3.10)
+
+project([[PROJECT_GAME_NAME]] LANGUAGES CXX)
+
+file(GLOB_RECURSE Srcs
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/*.hpp"
+	"${PROJECT_SOURCE_DIR}/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.h"
+)
+
+file(GLOB_RECURSE Includes
+	"${PROJECT_SOURCE_DIR}/*.hpp"
+	"${PROJECT_SOURCE_DIR}/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.h"
+)
+
+assign_source_group(${Srcs}) # for VS
+
+if(HOD_GAME_BUILD_TYPE STREQUAL "GameModule" OR ANDROID)
+	add_library([[PROJECT_GAME_NAME]] SHARED ${Srcs} ${Includes})
+	add_library([[PROJECT_NAME]]::[[PROJECT_GAME_NAME]] ALIAS [[PROJECT_GAME_NAME]])
+else()
+	add_executable([[PROJECT_GAME_NAME]] ${Srcs} ${Includes})
+endif()
+
+install(TARGETS [[PROJECT_GAME_NAME]]
+	RUNTIME DESTINATION .
+	LIBRARY DESTINATION .
+	ARCHIVE DESTINATION .
+)
+
+target_include_directories([[PROJECT_GAME_NAME]] PUBLIC
+	"${CMAKE_CURRENT_SOURCE_DIR}/.."
+)
+
+target_link_libraries([[PROJECT_GAME_NAME]]
+	HodEngine::Core
+	HodEngine::Math
+	HodEngine::Window
+	HodEngine::Renderer
+	HodEngine::Input
+	HodEngine::Physics
+	HodEngine::GameSystems
+	HodEngine::Game
+	HodEngine::ImGui
+	HodEngine::Audio
+	HodEngine::UI
+	HodEngine::Application
+)
+if(HOD_GAME_BUILD_TYPE STREQUAL "Application")
+	target_link_libraries([[PROJECT_GAME_NAME]] HodEngine::Main)
+endif()
+
+target_compile_definitions([[PROJECT_GAME_NAME]]
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE [[PROJECT_GAME_EXPORT]]
+)

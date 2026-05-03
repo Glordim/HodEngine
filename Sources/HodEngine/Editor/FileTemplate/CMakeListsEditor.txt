@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.10)
+
+project([[PROJECT_EDITOR_NAME]] LANGUAGES CXX)
+
+file(GLOB_RECURSE Srcs
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/*.hpp"
+	"${PROJECT_SOURCE_DIR}/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.h"
+)
+
+file(GLOB_RECURSE Includes
+	"${PROJECT_SOURCE_DIR}/*.hpp"
+	"${PROJECT_SOURCE_DIR}/*.inl"
+	"${PROJECT_SOURCE_DIR}/*.h"
+)
+
+assign_source_group(${Srcs}) # for VS
+
+add_library([[PROJECT_EDITOR_NAME]] SHARED ${Srcs} ${Includes})
+add_library([[PROJECT_NAME]]::[[PROJECT_EDITOR_NAME]] ALIAS [[PROJECT_EDITOR_NAME]])
+
+target_include_directories([[PROJECT_EDITOR_NAME]] PUBLIC
+	"${CMAKE_CURRENT_SOURCE_DIR}/.."
+)
+
+target_link_libraries([[PROJECT_EDITOR_NAME]]
+	[[PROJECT_NAME]]::[[PROJECT_GAME_NAME]]
+	HodEngine::Editor
+)
+
+target_compile_definitions([[PROJECT_EDITOR_NAME]]
+	PUBLIC ${HOD_PLATFORM_DEFINE}
+	PRIVATE [[PROJECT_EDITOR_EXPORT]]
+)

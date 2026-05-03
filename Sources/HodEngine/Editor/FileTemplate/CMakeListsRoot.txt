@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.10)
+
+project([[PROJECT_NAME]])
+
+if(HOD_GAME_BUILD_TYPE STREQUAL "GameModule" OR ANDROID)
+	set(BUILD_SHARED_LIBS ON)
+	set(HOD_LIB_TYPE "shared")
+else()
+	set(BUILD_SHARED_LIBS OFF)
+	set(HOD_LIB_TYPE "static")
+endif()
+
+find_package(HodEngine REQUIRED)
+
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+
+add_subdirectory("Sources/[[PROJECT_GAME_NAME]]")
+if(NOT HOD_GAME_BUILD_TYPE STREQUAL "Application")
+	add_subdirectory("Sources/[[PROJECT_EDITOR_NAME]]")
+endif()

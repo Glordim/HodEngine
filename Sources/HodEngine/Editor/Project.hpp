@@ -49,7 +49,7 @@ namespace hod::inline editor
 		bool ConfigureGameModule() const;
 		bool BuildGameModule() const;
 
-		bool ReloadGameModule();
+		bool ReloadProjectModules();
 
 		bool CreateMinimalSourceForModule(const Path& directory);
 
@@ -66,5 +66,8 @@ namespace hod::inline editor
 
 		DynamicLibrary    _gameModule;
 		FileSystemWatcher _gameModuleFileSystemWatcher;
+
+		DynamicLibrary    _editorModule;
+		FileSystemWatcher _editorModuleFileSystemWatcher;
 	};
 }

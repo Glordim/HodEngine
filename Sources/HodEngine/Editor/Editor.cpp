@@ -263,7 +263,7 @@ namespace hod::inline editor
 	{
 		AssetDatabase::CreateInstance();
 
-		if (Project::GetInstance()->ReloadGameModule() == false)
+		if (Project::GetInstance()->ReloadProjectModules() == false)
 		{
 			return false;
 		}
@@ -373,7 +373,7 @@ namespace hod::inline editor
 					{
 						UnloadEditorModules();
 						LoadEditorModules();
-						Project::GetInstance()->ReloadGameModule();
+						Project::GetInstance()->ReloadProjectModules();
 					}
 
 					_fpsCounter.OnFrame();

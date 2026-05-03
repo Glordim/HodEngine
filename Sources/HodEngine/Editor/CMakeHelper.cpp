@@ -141,7 +141,7 @@ namespace hod::inline editor
 
 	bool CMakeHelper::Install(const Path& buildDir, const char* config)
 	{
-		std::string arguments = fmt::format("--install {} --config {} --parallel",
+		std::string arguments = fmt::format("--install {} --config {}",
 		                                    buildDir.GetString().CStr(),
 		                                    config);
 
