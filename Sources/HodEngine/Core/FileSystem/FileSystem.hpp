@@ -72,8 +72,9 @@ namespace hod::inline core
 	public:
 #if defined(PLATFORM_ANDROID)
 		bool Init(AAssetManager* assetManager);
-#endif
+#else
 		bool Init();
+#endif
 
 		bool IsRegularFile(const char* path);
 		bool IsRegularFile(const Path& path);

@@ -21,7 +21,7 @@ namespace hod::inline core
 
 	Path FileSystem::GetTemporaryPath()
 	{
-		if (FileSystem::_temporaryPath.empty() == true)
+		if (FileSystem::_temporaryPath.Empty() == true)
 		{
 			assert(false); // TODO
 		}

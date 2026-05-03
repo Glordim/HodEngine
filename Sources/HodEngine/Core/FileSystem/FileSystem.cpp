@@ -6,10 +6,12 @@ namespace hod::inline core
 {
 	_SingletonConstructor(FileSystem) {}
 
+#if !defined(PLATFORM_ANDROID)
 	bool FileSystem::Init()
 	{
 		return true;
 	}
+#endif
 
 	Path FileSystem::GenerateTemporaryFilePath() const
 	{
