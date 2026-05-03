@@ -1,5 +1,6 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
+#include "HodEngine/Core/OS.hpp"
 
 #include <win32/misc.h>
 
@@ -9,10 +10,11 @@ namespace hod::inline core
 	/// @return
 	bool DynamicLibrary::InternalLoad(const Path& path)
 	{
-		_dll = (HINSTANCE__*)LoadLibraryW(path.ToNative().c_str());
+		_dll = (HINSTANCE__*)LoadLibraryExW(path.ToNative().c_str(), NULL, 0x00000008); //LOAD_WITH_ALTERED_SEARCH_PATH
 		if (_dll == NULL)
 		{
 			OUTPUT_ERROR("Unable to load module {}", path);
+			OUTPUT_FUNCTION_ERROR(LoadLibraryW, OS::GetLastWin32ErrorMessage());
 			return false;
 		}
 		return true;
