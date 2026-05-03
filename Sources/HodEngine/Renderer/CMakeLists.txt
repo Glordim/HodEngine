@@ -72,8 +72,6 @@ if(API STREQUAL Vulkan)
 			IMPORTED_LOCATION "${vulkan-lib}"
 			INTERFACE_INCLUDE_DIRECTORIES "${ANDROID_NDK}/toolchains/llvm/prebuilt/${ANDROID_HOST_TAG}/sysroot/usr/include"
 		)
-	else()
-		find_package(Vulkan REQUIRED)
 	endif()
 	target_link_libraries(Renderer PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
 elseif(API STREQUAL Metal)

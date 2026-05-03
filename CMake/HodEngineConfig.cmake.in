@@ -28,7 +28,67 @@ endif()
 
 unset(_HOD_TARGETS_FILE)
 
+set(_HOD_DEPS_DIR "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/deps")
+
 find_package(fmt REQUIRED CONFIG
-	PATHS "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM}/deps/lib/cmake"
+	PATHS "${_HOD_DEPS_DIR}/lib/cmake"
 	NO_DEFAULT_PATH
 )
+
+find_package(Freetype REQUIRED CONFIG
+	PATHS "${_HOD_DEPS_DIR}/lib/cmake"
+	NO_DEFAULT_PATH
+)
+
+find_package(VulkanMemoryAllocator REQUIRED CONFIG
+	PATHS "${_HOD_DEPS_DIR}/share/cmake"
+	NO_DEFAULT_PATH
+)
+
+if(NOT TARGET Box2d::Box2d)
+	add_library(Box2d::Box2d STATIC IMPORTED)
+	set_target_properties(Box2d::Box2d PROPERTIES
+		IMPORTED_LOCATION "${_HOD_DEPS_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}box2d${CMAKE_STATIC_LIBRARY_SUFFIX}"
+		INTERFACE_INCLUDE_DIRECTORIES "${_HOD_DEPS_DIR}/include"
+	)
+endif()
+
+if(NOT TARGET Stb::Stb)
+	add_library(Stb::Stb INTERFACE IMPORTED)
+	set_target_properties(Stb::Stb PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${_HOD_DEPS_DIR}/include"
+	)
+endif()
+
+if(NOT TARGET PortableFileDialogs::PortableFileDialogs)
+	add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED)
+	set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${_HOD_DEPS_DIR}/include"
+	)
+endif()
+
+if(WIN32 AND NOT TARGET WindowsHModular::WindowsHModular)
+	add_library(WindowsHModular::WindowsHModular INTERFACE IMPORTED)
+	set_target_properties(WindowsHModular::WindowsHModular PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${_HOD_DEPS_DIR}/include"
+	)
+endif()
+
+if(NOT APPLE AND NOT ANDROID)
+	find_package(VulkanHeaders REQUIRED CONFIG
+		PATHS "${_HOD_DEPS_DIR}/share/cmake"
+		NO_DEFAULT_PATH
+	)
+	find_package(VulkanLoader REQUIRED CONFIG
+		PATHS "${_HOD_DEPS_DIR}/lib/cmake"
+		NO_DEFAULT_PATH
+	)
+	if(NOT TARGET Vulkan::Vulkan)
+		add_library(Vulkan::Vulkan INTERFACE IMPORTED)
+		set_target_properties(Vulkan::Vulkan PROPERTIES
+			INTERFACE_LINK_LIBRARIES "Vulkan::Loader;Vulkan::Headers"
+		)
+	endif()
+endif()
+
+unset(_HOD_DEPS_DIR)

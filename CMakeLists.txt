@@ -110,6 +110,80 @@ file(COPY "${THIRDPARTY_ROOT}/Fmt/include/fmt"
 	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
 )
 
+# Box2d
+install(FILES "${THIRDPARTY_ROOT}/Box2d/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
+)
+install(DIRECTORY "${THIRDPARTY_ROOT}/Box2d/include/"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+file(COPY "${THIRDPARTY_ROOT}/Box2d/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib"
+)
+file(COPY "${THIRDPARTY_ROOT}/Box2d/include/"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+
+# Freetype
+install(DIRECTORY "${THIRDPARTY_ROOT}/Freetype/lib/cmake/freetype"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
+)
+install(FILES "${THIRDPARTY_ROOT}/Freetype/lib/${LIB_PREFIX}freetype.${LIB_EXTENSION}"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
+)
+install(DIRECTORY "${THIRDPARTY_ROOT}/Freetype/include/"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+file(COPY "${THIRDPARTY_ROOT}/Freetype/lib/cmake/freetype"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
+)
+file(COPY "${THIRDPARTY_ROOT}/Freetype/lib/${LIB_PREFIX}freetype.${LIB_EXTENSION}"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib"
+)
+file(COPY "${THIRDPARTY_ROOT}/Freetype/include/"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+
+# VulkanMemoryAllocator
+install(DIRECTORY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake/VulkanMemoryAllocator"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/share/cmake"
+)
+install(FILES "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include/vk_mem_alloc.h"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+file(COPY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake/VulkanMemoryAllocator"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/share/cmake"
+)
+file(COPY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include/vk_mem_alloc.h"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+
+# Stb (header-only)
+install(DIRECTORY "${THIRDPARTY_ROOT}/Stb/include/"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+file(COPY "${THIRDPARTY_ROOT}/Stb/include/"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+
+# PortableFileDialogs (header-only)
+install(FILES "${THIRDPARTY_ROOT}/PortableFileDialogs/include/portable-file-dialogs.h"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+file(COPY "${THIRDPARTY_ROOT}/PortableFileDialogs/include/portable-file-dialogs.h"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+
+# WindowsHModular (header-only, Windows only)
+if(WIN32)
+	install(DIRECTORY "${THIRDPARTY_ROOT}/WindowsHModular/include/"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/WindowsHModular/include/"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+endif()
+
 add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)
 set_target_properties(Stb::Stb PROPERTIES
 	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Stb/include"
@@ -126,6 +200,52 @@ find_package(VulkanMemoryAllocator REQUIRED CONFIG
 	PATHS "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake"
 	NO_DEFAULT_PATH
 )
+
+if(NOT APPLE AND NOT ANDROID)
+	find_package(VulkanHeaders REQUIRED CONFIG
+		PATHS "${THIRDPARTY_ROOT}/VulkanHeaders/share/cmake"
+		NO_DEFAULT_PATH
+	)
+	find_package(VulkanLoader REQUIRED CONFIG
+		PATHS "${THIRDPARTY_ROOT}/VulkanLoader/lib/cmake"
+		NO_DEFAULT_PATH
+	)
+	add_library(Vulkan::Vulkan INTERFACE IMPORTED GLOBAL)
+	set_target_properties(Vulkan::Vulkan PROPERTIES
+		INTERFACE_LINK_LIBRARIES "Vulkan::Loader;Vulkan::Headers"
+	)
+
+	install(DIRECTORY "${THIRDPARTY_ROOT}/VulkanHeaders/share/cmake/VulkanHeaders"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/share/cmake"
+	)
+	install(DIRECTORY "${THIRDPARTY_ROOT}/VulkanHeaders/include/"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+	install(DIRECTORY "${THIRDPARTY_ROOT}/VulkanLoader/lib/cmake/VulkanLoader"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
+	)
+	install(FILES "${THIRDPARTY_ROOT}/VulkanLoader/lib/${LIB_PREFIX}vulkan-1.${LIB_EXTENSION}"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
+	)
+	install(FILES "${THIRDPARTY_ROOT}/VulkanLoader/bin/vulkan-1.${DLL_EXTENSION}"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/bin"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/VulkanHeaders/share/cmake/VulkanHeaders"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/share/cmake"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/VulkanHeaders/include/"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/VulkanLoader/lib/cmake/VulkanLoader"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/VulkanLoader/lib/${LIB_PREFIX}vulkan-1.${LIB_EXTENSION}"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/VulkanLoader/bin/vulkan-1.${DLL_EXTENSION}"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/bin"
+	)
+endif()
 
 add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)
 set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
@@ -241,6 +361,10 @@ endif()
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake"
 		DESTINATION "cmake")
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/Sources/HodEngine/HodEngine.hpp"
+	DESTINATION "include/HodEngine"
+)
 configure_file(
 		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake"
 		"${CMAKE_BINARY_DIR}/Output/cmake/Global.cmake"

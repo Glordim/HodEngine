@@ -40,7 +40,7 @@ macro(hod_install_lib TARGET_NAME)
 	)
 	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
 		DESTINATION "include/HodEngine/${TARGET_NAME}"
-		FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
+		FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h" PATTERN "*.inl" PATTERN "*.tpp"
 		PATTERN "Pch.hpp" EXCLUDE
 	)
 endmacro()
