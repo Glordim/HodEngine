@@ -40,7 +40,3 @@ else()
 endif()
 
 hod_install_lib(Main)
-
-if(NOT BUILD_SHARED_LIBS)
-	target_compile_definitions(Main PRIVATE HOD_GAME_MODULE_STATIC)
-endif()

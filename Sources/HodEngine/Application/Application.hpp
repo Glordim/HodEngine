@@ -57,9 +57,8 @@ namespace hod::inline application
 	protected:
 		bool _shouldQuit = false;
 
-#if !defined(HOD_GAME_MODULE_STATIC)
 		DynamicLibrary	_gameModule;
-#endif
+
 		World*	_world = nullptr;
 	};
 }

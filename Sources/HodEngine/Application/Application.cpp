@@ -30,6 +30,14 @@
 #include <HodEngine/Game/SceneResource.hpp>
 #include <HodEngine/Game/World.hpp>
 
+#if defined(HOD_APPLICATION_STATIC)
+extern "C"
+{
+	int StartupModule();
+	int ShutdownModule();
+}
+#endif
+
 namespace hod::inline application
 {
 	bool Application::InitCore()
@@ -97,7 +105,7 @@ namespace hod::inline application
 
 	bool Application::BootGame()
 	{
-		hod::Path buildPath = FileSystem::GetExecutablePath();
+		hod::Path buildPath = FileSystem::GetExecutablePath().ParentPath();
 		/*
 		const hod::Argument* datasPathArgument = argumentParser.GetArgument('p', "BuildPath");
 		if (datasPathArgument != nullptr && datasPathArgument->_values[0] != nullptr)
@@ -115,7 +123,7 @@ namespace hod::inline application
 
 		ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
 
-	#if defined(HOD_GAME_MODULE_STATIC)
+	#if defined(HOD_APPLICATION_STATIC)
 		StartupModule();
 	#else
 		_gameModule.Init(buildPath / bootInfo._gameModule, false);
@@ -157,7 +165,7 @@ namespace hod::inline application
 		hod::DefaultAllocator::GetInstance().Delete(_world);
 		_world = nullptr;
 
-	#if defined(HOD_GAME_MODULE_STATIC)
+	#if defined(HOD_APPLICATION_STATIC)
 		ShutdownModule();
 	#else
 		auto shutdownFunc = _gameModule.LoadFunction<int(*)()>("ShutdownModule");
