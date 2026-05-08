@@ -77,4 +77,44 @@ namespace hod::inline core
 	{
 		return _asset != nullptr;
 	}
+
+	bool FileSystem::Exists(const char* /*path*/)
+	{
+		return false;
+	}
+
+	bool FileSystem::IsDirectory(const char* /*path*/)
+	{
+		return false;
+	}
+
+	bool FileSystem::CreateDirectories(const char* /*path*/)
+	{
+		return false;
+	}
+
+	bool FileSystem::Remove(const char* /*path*/)
+	{
+		return false;
+	}
+
+	bool FileSystem::RemoveAll(const char* /*path*/)
+	{
+		return false;
+	}
+
+	bool FileSystem::CopyFile(const char* /*pathSrc*/, const char* /*pathDst*/, bool /*overwrite*/)
+	{
+		return false;
+	}
+
+	bool FileSystem::IsRegularFile(const char* /*path*/)
+	{
+		return false;
+	}
+
+	bool FileSystem::Rename(const char* /*pathSrc*/, const char* /*pathDst*/)
+	{
+		return false;
+	}
 }
