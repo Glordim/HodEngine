@@ -704,6 +704,18 @@ namespace hod::inline core
 		}
 	}
 
+	void Path::PortableSeparator()
+	{
+		// Convert all separators to preferred separator
+		for (uint32_t i = 0; i < _path.Size(); ++i)
+		{
+			if (IsSeparator(_path[i]))
+			{
+				_path[i] = GenericSeparator;
+			}
+		}
+	}
+
 	uint32_t Path::FindFilenamePos() const
 	{
 		if (_path.Empty())

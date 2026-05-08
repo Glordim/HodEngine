@@ -53,6 +53,7 @@
 
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
+#include <fmt/format.h>
 #include <stb_image.h>
 
 #include "Icons/folder-open.png.hpp"
@@ -67,6 +68,8 @@
 #include <HodEngine/Game/BootInfo.hpp>
 
 #include <filesystem> // todo remove
+#include <fstream>
+#include <string>
 
 #undef max
 #undef min
@@ -307,7 +310,11 @@ namespace hod::inline editor
 
 						if (ImGui::MenuItem("Build") == true)
 						{
-							Editor::GetInstance()->Build();
+							Editor::GetInstance()->Build(BuildPlatform::Windows_x64);
+						}
+						if (ImGui::MenuItem("Build Android") == true)
+						{
+							Editor::GetInstance()->Build(BuildPlatform::Android_arm64);
 						}
 						if (ImGui::MenuItem("Build and Run") == true)
 						{
@@ -776,42 +783,45 @@ namespace hod::inline editor
 	*/
 
 	/// @brief
-	void Editor::Build()
+	void Editor::Build(BuildPlatform buildPlatform)
 	{
-		try
+		Path buildDir = Project::GetInstance()->GetBuildsDirPath();
+		FileSystem::GetInstance()->CreateDirectories(buildDir);
+
+		Path projectDir = Project::GetInstance()->GetProjectPath().ParentPath();
+		Path intermediateDir = Project::GetInstance()->GetIntermediateSourcesDirPath() / Path(CMakeHelper::GetCurrentPlatform());
+		FileSystem::GetInstance()->CreateDirectories(intermediateDir);
+
+		if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
+			return;
+
+		if (CMakeHelper::Configure(projectDir, intermediateDir, buildDir, CMakeHelper::Target::Retail) == false)
+			return;
+
+		if (CMakeHelper::Build(intermediateDir, "Release") == false)
+			return;
+
+		if (buildPlatform == BuildPlatform::Windows_x64)
 		{
-			Path buildDir = Project::GetInstance()->GetBuildsDirPath();
-			FileSystem::GetInstance()->CreateDirectories(buildDir);
-
-			Path projectDir = Project::GetInstance()->GetProjectPath().ParentPath();
-			Path intermediateDir   = Project::GetInstance()->GetIntermediateSourcesDirPath() / Path(CMakeHelper::GetCurrentPlatform());
-			FileSystem::GetInstance()->CreateDirectories(intermediateDir);
-
-			if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
-				return;
-
-			if (CMakeHelper::Configure(projectDir, intermediateDir, buildDir, CMakeHelper::Target::Retail) == false)
-				return;
-
-			if (CMakeHelper::Build(intermediateDir, "Release") == false)
-				return;
-
 			if (CMakeHelper::Install(intermediateDir, "Release") == false)
 				return;
+		}
 
-			BootInfo bootInfo;
-			bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
-			bootInfo._gameModule   = Project::GetInstance()->GetName();
+		BootInfo bootInfo;
+		bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
+		bootInfo._gameModule   = Project::GetInstance()->GetName();
 
-			Document bootDocument;
-			Serializer::Serialize(bootInfo, bootDocument.GetRootNode());
+		Document bootDocument;
+		Serializer::Serialize(bootInfo, bootDocument.GetRootNode());
 
-			DocumentWriterJson writer;
-			writer.Write(bootDocument, buildDir / "Boot.json");
+		DocumentWriterJson writer;
+		writer.Write(bootDocument, buildDir / "Boot.json");
 
-			Path dataDirPath = buildDir / "Datas";
-			FileSystem::GetInstance()->CreateDirectories(dataDirPath);
+		Path dataDirPath = buildDir / "Datas";
+		FileSystem::GetInstance()->CreateDirectories(dataDirPath);
 
+		try
+		{
 			for (const auto& entry : std::filesystem::directory_iterator(Project::GetInstance()->GetResourceDirPath().GetString().CStr()))
 			{
 				const std::filesystem::path& source = entry.path();
@@ -825,13 +835,87 @@ namespace hod::inline editor
 		catch (const std::exception& e)
 		{
 			OUTPUT_ERROR("Build error : {}", e.what());
+			return;
+		}
+
+		if (buildPlatform == BuildPlatform::Android_arm64 || buildPlatform == BuildPlatform::Android_x86_64)
+		{
+			Path source = FileSystem::GetExecutablePath().ParentPath() / "Templates" / "AndroidStudio";
+			Path destination = buildDir / "AndroidStudioProject";
+
+			try
+			{
+				const auto copyOptions = std::filesystem::copy_options::recursive 
+									| std::filesystem::copy_options::overwrite_existing;
+
+				std::filesystem::copy(source.GetString().CStr(), destination.GetString().CStr(), copyOptions);
+			}
+			catch (std::filesystem::filesystem_error& e)
+			{
+				OUTPUT_ERROR("Build error : {}", e.what());
+			}
+
+			Path buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
+			Path cmakeLists = projectDir / "CMakeLists.txt";
+
+			Path installDir(HOD_INSTALL_PREFIX);
+			Path toolchainPath = installDir / "platforms" / "android-arm64" / "static" / "cmake" / "toolchain.cmake";
+			Path engineDirPath = installDir / "cmake";
+			String gameBuildType = "Application";
+			String platform = "android-arm64";
+
+			toolchainPath.PortableSeparator();
+			engineDirPath.PortableSeparator();
+
+			std::string cmakeArgs = fmt::format("\"-DHOD_PLATFORM={}\", \"-DCMAKE_TOOLCHAIN_FILE:FILEPATH={}\", \"-DHodEngine_DIR={}\", \"-DHOD_GAME_BUILD_TYPE={}\"", platform, toolchainPath, engineDirPath, gameBuildType);
+
+			try
+			{
+				std::ifstream inFile(buildGradlePath.GetString().CStr());
+				if (inFile.is_open() == false)
+				{
+					OUTPUT_ERROR("Build error : cannot open {}", buildGradlePath.GetString().CStr());
+					return;
+				}
+				std::string content((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+				inFile.close();
+
+				auto replaceAll = [](std::string& str, const std::string& from, const std::string& to)
+				{
+					size_t pos = 0;
+					while ((pos = str.find(from, pos)) != std::string::npos)
+					{
+						str.replace(pos, from.length(), to);
+						pos += to.length();
+					}
+				};
+
+				dataDirPath.PortableSeparator();
+				cmakeLists.PortableSeparator();
+				replaceAll(content, "[[PROJECT_GAME_DATAS]]", dataDirPath.GetString().CStr());
+				replaceAll(content, "[[PROJECT_GAME_CMAKELIST]]", cmakeLists.GetString().CStr());
+				replaceAll(content, "[[PROJECT_CMAKE_ARGS]]", cmakeArgs);
+
+				std::ofstream outFile(buildGradlePath.GetString().CStr());
+				if (outFile.is_open() == false)
+				{
+					OUTPUT_ERROR("Build error : cannot write {}", buildGradlePath.GetString().CStr());
+					return;
+				}
+				outFile << content;
+			}
+			catch (const std::exception& e)
+			{
+				OUTPUT_ERROR("Build error : {}", e.what());
+				return;
+			}
 		}
 	}
 
 	/// @brief
 	void Editor::BuildAndRun()
 	{
-		Build();
+		Build(BuildPlatform::Windows_x64);
 		// todo run
 	}
 }

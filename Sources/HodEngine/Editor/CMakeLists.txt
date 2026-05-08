@@ -70,6 +70,14 @@ target_compile_definitions(Editor
 
 add_custom_command(
 	TARGET Editor POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_CURRENT_SOURCE_DIR}/AndroidStudioTemplate"
+		"$<TARGET_FILE_DIR:Editor>/Templates/AndroidStudio"
+	COMMENT "Copying AndroidStudioTemplate to output directory"
+)
+
+add_custom_command(
+	TARGET Editor POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		$<TARGET_FILE:slang::slangc>
 		$<TARGET_FILE_DIR:Editor>/Tools/slangc.exe
@@ -93,3 +101,7 @@ add_custom_command(
 )
 
 hod_install_lib(Editor)
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/AndroidStudioTemplate/"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/bin/Templates/AndroidStudio"
+)

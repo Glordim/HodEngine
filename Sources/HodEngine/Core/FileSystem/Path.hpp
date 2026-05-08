@@ -122,8 +122,10 @@ namespace hod::inline core
 		static Path Current(); // Get current working directory
 		static Path Temp();    // Get temp directory
 
-	private:
 		void     NormalizeSeparators();
+		void     PortableSeparator();
+
+	private:
 		uint32_t FindFilenamePos() const;
 		uint32_t FindExtensionPos() const;
 		uint32_t FindRootNameEnd() const;

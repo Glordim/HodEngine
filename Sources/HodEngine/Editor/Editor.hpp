@@ -44,6 +44,19 @@ namespace hod::inline editor
 		_Singleton(Editor)
 
 	public:
+
+		enum class BuildPlatform
+		{
+			Windows_x64,
+			Windows_arm64,
+			Macos_arm64,
+			Linux_x64,
+			Linux_arm64,
+			Android_x86_64,
+			Android_arm64,
+		};
+
+	public:
 		~Editor();
 
 	public:
@@ -57,7 +70,7 @@ namespace hod::inline editor
 		bool Save();
 		bool SaveSceneAs();
 
-		void Build();
+		void Build(BuildPlatform buildPlatform);
 		void BuildAndRun();
 
 		template<typename _EditorTabType_>
