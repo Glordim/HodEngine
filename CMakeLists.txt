@@ -245,6 +245,13 @@ if(NOT APPLE AND NOT ANDROID)
 	file(COPY "${THIRDPARTY_ROOT}/VulkanLoader/bin/vulkan-1.${DLL_EXTENSION}"
 		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/bin"
 	)
+elseif(ANDROID)
+	find_library(vulkan-lib vulkan)
+	add_library(Vulkan::Vulkan SHARED IMPORTED)
+	set_target_properties(Vulkan::Vulkan PROPERTIES
+		IMPORTED_LOCATION "${vulkan-lib}"
+		INTERFACE_INCLUDE_DIRECTORIES "${ANDROID_NDK}/toolchains/llvm/prebuilt/${ANDROID_HOST_TAG}/sysroot/usr/include"
+	)
 endif()
 
 add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)

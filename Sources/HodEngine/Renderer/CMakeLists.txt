@@ -65,14 +65,6 @@ target_link_libraries(Renderer
 )
 
 if(API STREQUAL Vulkan)
-	if(ANDROID)
-		find_library(vulkan-lib vulkan)
-		add_library(Vulkan::Vulkan SHARED IMPORTED)
-		set_target_properties(Vulkan::Vulkan PROPERTIES
-			IMPORTED_LOCATION "${vulkan-lib}"
-			INTERFACE_INCLUDE_DIRECTORIES "${ANDROID_NDK}/toolchains/llvm/prebuilt/${ANDROID_HOST_TAG}/sysroot/usr/include"
-		)
-	endif()
 	target_link_libraries(Renderer PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
 elseif(API STREQUAL Metal)
 	find_package(BZip2 REQUIRED)
