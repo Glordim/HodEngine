@@ -2,6 +2,7 @@
 #include "HodEngine/Core/Thread/Thread.hpp"
 
 #include <unistd.h>
+#include <pthread.h>
 
 namespace hod::inline core
 {
@@ -96,5 +97,12 @@ namespace hod::inline core
 	void ThisThread::Sleep(uint32_t millisecond)
 	{
 		usleep(millisecond * 1000);
+	}
+
+	void ThisThread::SetName(const char* name)
+	{
+		char croppedName[16];
+		std::strncpy(croppedName, name, 15);
+		pthread_setname_np(pthread_self(), croppedName);
 	}
 }
