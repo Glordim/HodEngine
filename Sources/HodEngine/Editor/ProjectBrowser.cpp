@@ -1,4 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/ProjectBrowser.hpp"
@@ -128,6 +129,7 @@ namespace hod::inline editor
 					{
 						if (Editor::GetInstance()->OpenProject(it->CStr()) == false)
 						{
+							OUTPUT_ERROR("Unable to open {}", *it);
 							exit(-1);
 						}
 						/*

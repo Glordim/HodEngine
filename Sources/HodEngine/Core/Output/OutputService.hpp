@@ -12,6 +12,29 @@
 
 namespace hod::inline core
 {
+	consteval std::string_view CurrentScope(const char* prettyFunction) noexcept
+	{
+		std::string_view sig(prettyFunction);
+
+		const auto paren = sig.find('(');
+		if (paren != std::string_view::npos)
+			sig = sig.substr(0, paren);
+
+		const auto space = sig.rfind(' ');
+		if (space != std::string_view::npos)
+			sig = sig.substr(space + 1);
+
+		if (sig.starts_with("hod::"))
+			sig.remove_prefix(5);
+
+		return sig;
+	}
+}
+
+#define OUTPUT_FUNCTION_ERROR(Function, Reason) OUTPUT_ERROR("{}::{}: {}", hod::CurrentScope(__PRETTY_FUNCTION__), #Function, Reason);
+
+namespace hod::inline core
+{
 	class OutputBucket;
 
 	/// @brief
