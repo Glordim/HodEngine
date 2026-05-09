@@ -48,6 +48,8 @@ namespace hod::inline core
 					_firstChild = node._nextSibling;
 				else
 					prev->_nextSibling = node._nextSibling;
+				if (_lastChild == &node)
+					_lastChild = prev;
 				node._parent = nullptr;
 				node._nextSibling = nullptr;
 				return;
@@ -67,15 +69,12 @@ namespace hod::inline core
 		if (_firstChild == nullptr)
 		{
 			_firstChild = &node;
+			_lastChild = &node;
 		}
 		else
 		{
-			DocumentNode* child = _firstChild;
-			while (child->_nextSibling != nullptr)
-			{
-				child = child->_nextSibling;
-			}
-			child->_nextSibling = &node;
+			_lastChild->_nextSibling = &node;
+			_lastChild = &node;
 		}
 	}
 
@@ -380,6 +379,7 @@ namespace hod::inline core
 	{
 		DocumentNode* child = _firstChild;
 		_firstChild = nullptr;
+		_lastChild = nullptr;
 
 		while (child != nullptr)
 		{

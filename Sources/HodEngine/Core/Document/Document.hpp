@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Document/DocumentNode.hpp"
 
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include <string_view>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
@@ -39,6 +39,6 @@ namespace hod::inline core
 	private:
 		DocumentNode _root{*this, ""};
 
-		std::map<uint64_t, String> _stringTable;
+		std::unordered_map<uint64_t, String> _stringTable;
 	};
 }

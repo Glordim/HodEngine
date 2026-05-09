@@ -125,6 +125,7 @@ namespace hod::inline core
 
 	private:
 		DocumentNode* _firstChild  = nullptr;
+		DocumentNode* _lastChild   = nullptr;
 		DocumentNode* _nextSibling = nullptr;
 		DocumentNode* _parent      = nullptr;
 		Document&     _document;
