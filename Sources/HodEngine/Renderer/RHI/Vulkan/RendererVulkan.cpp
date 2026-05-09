@@ -342,9 +342,20 @@ namespace hod::inline renderer
 #endif
 		createInfo.pNext = instanceExtensionCollector.GetFirstNextFeature();
 
-		if (vkCreateInstance(&createInfo, nullptr, &_vkInstance) != VK_SUCCESS)
+		OUTPUT_MESSAGE("Vulkan: Creating instance with {} extension(s), {} layer(s):", createInfo.enabledExtensionCount, createInfo.enabledLayerCount);
+		for (uint32_t i = 0; i < createInfo.enabledExtensionCount; ++i)
 		{
-			OUTPUT_ERROR("Vulkan: Unable to create a Vulkan instance !");
+			OUTPUT_MESSAGE("  Extension: {}", createInfo.ppEnabledExtensionNames[i]);
+		}
+		for (uint32_t i = 0; i < createInfo.enabledLayerCount; ++i)
+		{
+			OUTPUT_MESSAGE("  Layer: {}", createInfo.ppEnabledLayerNames[i]);
+		}
+
+		VkResult vkResult = vkCreateInstance(&createInfo, nullptr, &_vkInstance);
+		if (vkResult != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create a Vulkan instance ! (VkResult: {})", (int32_t)vkResult);
 			return false;
 		}
 

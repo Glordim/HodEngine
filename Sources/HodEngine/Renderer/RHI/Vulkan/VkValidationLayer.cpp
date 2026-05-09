@@ -44,6 +44,12 @@ namespace hod::inline renderer
 		Vector<VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
 		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, availableValidationLayers.Data());
 
+		OUTPUT_MESSAGE("Vulkan: {} validation layer(s) available:", availableValidationLayerCount);
+		for (uint32_t i = 0; i < availableValidationLayerCount; ++i)
+		{
+			OUTPUT_MESSAGE("  Layer: {}", availableValidationLayers[i].layerName);
+		}
+
 		_enableValidationLayers = true;
 		for (size_t i = 0; i < validationLayers.size(); ++i)
 		{
@@ -78,6 +84,11 @@ namespace hod::inline renderer
 
 	bool VkValidationLayer::CollectInstanceExtensionRequirements(InstanceExtensionCollector& instanceExtensionCollector) const
 	{
+		if (_enableValidationLayers == false)
+		{
+			return true;
+		}
+
 		if (instanceExtensionCollector.AddRequiredExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == false)
 		{
 			return false;
