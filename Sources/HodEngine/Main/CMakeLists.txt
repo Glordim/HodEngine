@@ -11,11 +11,12 @@ add_library(HodEngine::Main ALIAS Main)
 
 if(ANDROID)
 	find_library(android-lib android)
-	target_include_directories(Main PRIVATE ${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/include)
 	target_link_libraries(Main PUBLIC
-		${android-lib} log
-		${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-activity_static.a
-		${CMAKE_SOURCE_DIR}/Externals/agdk-libraries-2023.3.0.0/libs/${ANDROID_ABI}_cpp_static_Release/libgame-text-input_static.a
+		${android-lib}
+		log
+		-Wl,--whole-archive
+		AGDK::GameActitvity
+		-Wl,--no-whole-archive
 	)
 endif()
 

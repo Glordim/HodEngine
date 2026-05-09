@@ -56,6 +56,6 @@ android {
 dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.games.activity)
+    implementation(files("[[EXTERNAL_JAR_DIR]]/games-activity.jar"))
     implementation(libs.material)
 }

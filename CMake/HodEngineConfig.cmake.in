@@ -101,4 +101,12 @@ elseif(ANDROID)
 	)
 endif()
 
+if(ANDROID)
+	add_library(AGDK::GameActitvity STATIC IMPORTED GLOBAL)
+	set_target_properties(AGDK::GameActitvity PROPERTIES
+		IMPORTED_LOCATION "${_HOD_DEPS_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}game-activity_static${CMAKE_STATIC_LIBRARY_SUFFIX}"
+		INTERFACE_INCLUDE_DIRECTORIES "${_HOD_DEPS_DIR}/include"
+	)
+endif()
+
 unset(_HOD_DEPS_DIR)

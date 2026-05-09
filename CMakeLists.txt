@@ -254,6 +254,37 @@ elseif(ANDROID)
 	)
 endif()
 
+if (ANDROID)
+	# GameActivity
+	set(GameActitvityDir "${CMAKE_SOURCE_DIR}/Externals/games-activity-4.4.2")
+
+	add_library(AGDK::GameActitvity STATIC IMPORTED GLOBAL)
+	set_target_properties(AGDK::GameActitvity PROPERTIES
+		IMPORTED_LOCATION "${GameActitvityDir}/libs/android.${ANDROID_ABI}/libgame-activity_static.a"
+		INTERFACE_INCLUDE_DIRECTORIES "${GameActitvityDir}/include"
+		INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${GameActitvityDir}/include"
+	)
+
+	install(FILES "${GameActitvityDir}/libs/android.${ANDROID_ABI}/libgame-activity_static.a"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
+	)
+	install(DIRECTORY "${GameActitvityDir}/include/"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+	install(FILES "${GameActitvityDir}/jar/games-activity.jar"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/jar"
+	)
+	file(COPY "${GameActitvityDir}/libs/android.${ANDROID_ABI}/libgame-activity_static.a"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib"
+	)
+	file(COPY "${GameActitvityDir}/include/"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+	file(COPY "${GameActitvityDir}/jar/games-activity.jar"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/jar"
+	)
+endif()
+
 add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)
 set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
 	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/PortableFileDialogs/include"
