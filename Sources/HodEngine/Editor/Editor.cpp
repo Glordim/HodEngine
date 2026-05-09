@@ -314,7 +314,7 @@ namespace hod::inline editor
 						}
 						if (ImGui::MenuItem("Build Android") == true)
 						{
-							Editor::GetInstance()->Build(BuildPlatform::Android_arm64);
+							Editor::GetInstance()->Build(BuildPlatform::Android_x86_64);
 						}
 						if (ImGui::MenuItem("Build and Run") == true)
 						{
@@ -855,14 +855,14 @@ namespace hod::inline editor
 				OUTPUT_ERROR("Build error : {}", e.what());
 			}
 
-			Path buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
 			Path cmakeLists = projectDir / "CMakeLists.txt";
 
 			Path installDir(HOD_INSTALL_PREFIX);
-			Path toolchainPath = installDir / "platforms" / "android-arm64" / "static" / "cmake" / "toolchain.cmake";
+			Path externalJarDirPath = installDir / "platforms" / "android-x86_64" / "deps" / "jar";
+			Path toolchainPath = installDir / "platforms" / "android-x86_64" / "static" / "cmake" / "toolchain.cmake";
 			Path engineDirPath = installDir / "cmake";
 			String gameBuildType = "Application";
-			String platform = "android-arm64";
+			String platform = "android-x86_64";
 
 			toolchainPath.PortableSeparator();
 			engineDirPath.PortableSeparator();
@@ -871,6 +871,7 @@ namespace hod::inline editor
 
 			try
 			{
+				Path buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
 				std::ifstream inFile(buildGradlePath.GetString().CStr());
 				if (inFile.is_open() == false)
 				{
@@ -892,14 +893,55 @@ namespace hod::inline editor
 
 				dataDirPath.PortableSeparator();
 				cmakeLists.PortableSeparator();
+				externalJarDirPath.PortableSeparator();
 				replaceAll(content, "[[PROJECT_GAME_DATAS]]", dataDirPath.GetString().CStr());
 				replaceAll(content, "[[PROJECT_GAME_CMAKELIST]]", cmakeLists.GetString().CStr());
 				replaceAll(content, "[[PROJECT_CMAKE_ARGS]]", cmakeArgs);
+				replaceAll(content, "[[EXTERNAL_JAR_DIR]]", externalJarDirPath.GetString().CStr());
 
 				std::ofstream outFile(buildGradlePath.GetString().CStr());
 				if (outFile.is_open() == false)
 				{
 					OUTPUT_ERROR("Build error : cannot write {}", buildGradlePath.GetString().CStr());
+					return;
+				}
+				outFile << content;
+			}
+			catch (const std::exception& e)
+			{
+				OUTPUT_ERROR("Build error : {}", e.what());
+				return;
+			}
+
+			try
+			{
+				Path manifestPath = buildDir / "AndroidStudioProject" / "app" / "src" / "main" / "AndroidManifest.xml";
+				std::ifstream inFile(manifestPath.GetString().CStr());
+				if (inFile.is_open() == false)
+				{
+					OUTPUT_ERROR("Build error : cannot open {}", manifestPath.GetString().CStr());
+					return;
+				}
+				std::string content((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+				inFile.close();
+
+				auto replaceAll = [](std::string& str, const std::string& from, const std::string& to)
+				{
+					size_t pos = 0;
+					while ((pos = str.find(from, pos)) != std::string::npos)
+					{
+						str.replace(pos, from.length(), to);
+						pos += to.length();
+					}
+				};
+
+				String projectGameName = Project::GetInstance()->GetName() + "Game";
+				replaceAll(content, "[[PROJECT_GAME_NAME]]", projectGameName.CStr());
+
+				std::ofstream outFile(manifestPath.GetString().CStr());
+				if (outFile.is_open() == false)
+				{
+					OUTPUT_ERROR("Build error : cannot write {}", manifestPath.GetString().CStr());
 					return;
 				}
 				outFile << content;
