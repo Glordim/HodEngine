@@ -1,3 +1,4 @@
+#include <HodEngine/Main/Export.hpp>
 #include <stdlib.h>
 
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
@@ -19,10 +20,13 @@ int main(int argc, char** argv)
 	return EXIT_SUCCESS;
 }
 #elif defined(PLATFORM_ANDROID)
-void android_main(android_app* androidApp)
+extern "C"
 {
-	hod::AndroidApplication androidApplication;
-	androidApplication.Run(androidApp);
+	void android_main(android_app* androidApp)
+	{
+		hod::AndroidApplication androidApplication;
+		androidApplication.Run(androidApp);
+	}
 }
 #else
 	#error
