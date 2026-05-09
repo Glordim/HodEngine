@@ -11,7 +11,7 @@ if(NOT DEFINED ANDROID_NDK)
 endif()
 
 set(ANDROID_ABI "x86_64" CACHE STRING "Android ABI" FORCE)
-set(ANDROID_PLATFORM "android-24" CACHE STRING "Android API level" FORCE)
+set(ANDROID_PLATFORM "android-29" CACHE STRING "Android API level" FORCE)
 
 include("${ANDROID_NDK}/build/cmake/android.toolchain.cmake")
 

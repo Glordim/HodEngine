@@ -66,6 +66,7 @@ target_link_libraries(Renderer
 
 if(API STREQUAL Vulkan)
 	target_link_libraries(Renderer PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
+	target_compile_definitions(Renderer PRIVATE VMA_VULKAN_VERSION=1001000)
 elseif(API STREQUAL Metal)
 	find_package(BZip2 REQUIRED)
 	find_package(ZLIB REQUIRED)
