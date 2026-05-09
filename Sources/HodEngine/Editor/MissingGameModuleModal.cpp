@@ -157,31 +157,39 @@ namespace hod::inline editor
 	/// @param outputs
 	void MissingGameModuleModal::DrawOutputs() const
 	{
+		/*
 		static ImVec4 outputTypeToColor[std::to_underlying(Output::Type::Count)] = {
 			ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
 			ImVec4(1.0f, 1.0f, 0.0f, 1.0f),
 			ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
 			ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
 		};
+		*/
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
 		ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0, 0, 0, 0));
 
+		String fullLog;
+		fullLog.Reserve(4096);
 		_outputBucket.GetLock().lock();
 		for (const Output& output : _outputBucket.GetOutputs())
 		{
-			ImGui::TextColored(outputTypeToColor[std::to_underlying(output.GetType())], "%s", output.GetContent().CStr());
+			fullLog.Append(output.GetContent());
+			fullLog.Append("\n");
 			/*
-			ImGui::PushStyleColor(ImGuiCol_Text, outputTypeToColor[std::to_underlying(output._type)]);
-			ImGui::PushID((void*)output._content.c_str());
+			ImGui::TextColored(outputTypeToColor[std::to_underlying(output.GetType())], "%s", output.GetContent().CStr());
+			ImGui::PushStyleColor(ImGuiCol_Text, outputTypeToColor[std::to_underlying(output.GetType())]);
+			ImGui::PushID((void*)output.GetContent().CStr());
 			ImGui::SetNextItemWidth(-1.0f);
-			ImGui::InputText("", (char*)output._content.c_str(), output._content.capacity(), ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputText("", (char*)output.GetContent().CStr(), output.GetContent().Capacity() + 1, ImGuiInputTextFlags_ReadOnly);
 			ImGui::PopID();
 			ImGui::PopStyleColor();
 			*/
 		}
 		_outputBucket.GetLock().unlock();
+
+		ImGui::InputTextMultiline("##Log", fullLog.Data(), fullLog.Capacity() + 1, ImVec2(-1, -1), ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_WordWrap);
 		ImGui::PopStyleColor(3);
 	}
 }
