@@ -49,6 +49,11 @@ target_link_libraries([[PROJECT_GAME_NAME]]
 	HodEngine::Application
 )
 if(HOD_GAME_BUILD_TYPE STREQUAL "Application")
+	if(ANDROID)
+		target_link_options(CircleGame PRIVATE
+			"-Wl,--undefined=Java_com_google_androidgamesdk_GameActivity_initializeNativeCode"
+		)
+	endif()
 	target_link_libraries([[PROJECT_GAME_NAME]] HodEngine::Main)
 endif()
 
