@@ -334,10 +334,17 @@ if(ANDROID)
 	endif()
 	unset(_HOST_SLANG_BIN)
 else()
-	find_package(slang REQUIRED CONFIG
-		PATHS "${THIRDPARTY_ROOT}/Slang/lib/cmake"
-		NO_DEFAULT_PATH
-	)
+	if (WIN32)
+		find_package(slang REQUIRED CONFIG
+			PATHS "${THIRDPARTY_ROOT}/Slang/cmake"
+			NO_DEFAULT_PATH
+		)
+	else()
+		find_package(slang REQUIRED CONFIG
+			PATHS "${THIRDPARTY_ROOT}/Slang/lib/cmake"
+			NO_DEFAULT_PATH
+		)
+	endif()
 	set(SLANG_COMPILER "${SLANG_EXECUTABLE}")
 endif()
 
