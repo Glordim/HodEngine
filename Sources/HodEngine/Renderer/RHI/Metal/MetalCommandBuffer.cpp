@@ -7,6 +7,8 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 
+#include <HodEngine/Math/Rect.hpp>
+
 #include <Metal/Metal.hpp>
 
 #include <QuartzCore/CAMetalDrawable.hpp>

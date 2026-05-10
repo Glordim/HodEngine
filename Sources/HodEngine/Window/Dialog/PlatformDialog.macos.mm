@@ -26,4 +26,4 @@ Path GetOpenFileDialog() {
 
   return Path();
 }
-} // namespace hod::inline window
+}

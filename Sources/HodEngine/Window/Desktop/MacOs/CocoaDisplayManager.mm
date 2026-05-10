@@ -26,4 +26,4 @@ bool CocoaDisplayManager::Run() {
 
   return true;
 }
-} // namespace hod::inline window
+}

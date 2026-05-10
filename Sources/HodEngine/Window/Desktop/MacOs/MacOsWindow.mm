@@ -191,4 +191,4 @@ void MacOsWindow::ResizeContext() {
   hod::MacOsWindowEventCaller::EmitResize(this, contentSize.width,
                                           contentSize.height);
 }
-} // namespace hod::inline window
+}

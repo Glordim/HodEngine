@@ -10,7 +10,7 @@ namespace hod::inline core
 	SystemTime::TimeStamp SystemTime::Now()
 	{
 		timespec ts;
-		int      result = clock_gettime(CLOCK_REALTIME, &ts);
+		[[maybe_unused]] int      result = clock_gettime(CLOCK_REALTIME, &ts);
 		assert(result == 0);
 
 		return ts;

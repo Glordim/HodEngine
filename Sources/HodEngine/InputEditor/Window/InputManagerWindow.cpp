@@ -13,8 +13,6 @@
 
 #include "HodEngine/InputEditor/Helper.hpp"
 
-using namespace hod::input;
-
 namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(InputManagerWindow, reflectionDescriptor)

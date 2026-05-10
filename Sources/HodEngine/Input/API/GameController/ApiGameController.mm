@@ -87,4 +87,4 @@ void ApiGameController::UpdateDeviceValues() {
     pad->UpdateState();
   }
 }
-} // namespace hod::inline input
+}

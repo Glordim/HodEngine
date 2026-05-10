@@ -13,7 +13,7 @@
 
 #undef max
 
-namespace hod::input {
+namespace hod::inline input {
 struct PadGameControllerState : public State {
   uint8_t _buttons[16]; // 1 button = 1 bit
 };
@@ -43,4 +43,4 @@ void GamepadGameController::WriteNextState() {
   if (_extendedGamepad.rightThumbstickButton.pressed)
     EditNextState<PadGameControllerState>()->_buttons[0] |= (1 << 3);
 }
-} // namespace hod::input
+}

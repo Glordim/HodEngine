@@ -4,11 +4,15 @@
 
 #include <Cocoa/Cocoa.h>
 
-namespace hod::inline renderer {
-void MetalPresentationSurface::SetupLayer(MacOsWindow *macOsWindow) {
-  NSView *view = macOsWindow->GetNsView();
+namespace hod::inline renderer
+{
+	void MetalPresentationSurface::SetupLayer(MacOsWindow *macOsWindow)
+	{
+		NSView *view = macOsWindow->GetNsView();
 
-  [view setLayer:(__bridge CALayer *)_layer];
-  [view setWantsLayer:YES];
+		[view setLayer:(__bridge CALayer *)_layer];
+		[view setWantsLayer:YES];
+		//[view setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawDuringViewResize];
+		//[view setLayerContentsPlacement:NSViewLayerContentsPlacementTopLeft];
+	}
 }
-} // namespace hod::inline renderer

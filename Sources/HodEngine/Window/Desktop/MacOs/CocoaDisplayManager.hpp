@@ -1,7 +1,8 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
 
-#include "HodEngine/Core/Singleton.hpp"
+#include <HodEngine/Core/Singleton.hpp>
+#include <HodEngine/Core/Vector.hpp>
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
 
 namespace hod::inline window

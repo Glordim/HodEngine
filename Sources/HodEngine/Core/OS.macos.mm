@@ -15,4 +15,4 @@ bool OS::OpenFileWithDefaultApp(const char *filePath) {
   }
   return true;
 }
-} // namespace hod::inline core
+}
