@@ -72,18 +72,6 @@ endif()
 
 set(THIRDPARTY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/${ARCH_FOLDER}")
 
-add_library(Box2d::Box2d STATIC IMPORTED GLOBAL)
-set_target_properties(Box2d::Box2d PROPERTIES
-	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Box2d/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Box2d/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Box2d/include"
-)
-
-find_package(Freetype REQUIRED CONFIG
-	PATHS "${THIRDPARTY_ROOT}/Freetype/lib/cmake"
-	NO_DEFAULT_PATH
-)
-
 find_package(fmt REQUIRED CONFIG
 	PATHS "${THIRDPARTY_ROOT}/Fmt/lib/cmake"
 	NO_DEFAULT_PATH
@@ -111,6 +99,13 @@ file(COPY "${THIRDPARTY_ROOT}/Fmt/include/fmt"
 )
 
 # Box2d
+add_library(Box2d::Box2d STATIC IMPORTED GLOBAL)
+set_target_properties(Box2d::Box2d PROPERTIES
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/Box2d/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Box2d/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Box2d/include"
+)
+
 install(FILES "${THIRDPARTY_ROOT}/Box2d/lib/${LIB_PREFIX}box2d.${LIB_EXTENSION}"
 	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
 )
@@ -125,6 +120,11 @@ file(COPY "${THIRDPARTY_ROOT}/Box2d/include/"
 )
 
 # Freetype
+find_package(Freetype REQUIRED CONFIG
+	PATHS "${THIRDPARTY_ROOT}/Freetype/lib/cmake"
+	NO_DEFAULT_PATH
+)
+
 install(DIRECTORY "${THIRDPARTY_ROOT}/Freetype/lib/cmake/freetype"
 	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
 )
@@ -144,21 +144,13 @@ file(COPY "${THIRDPARTY_ROOT}/Freetype/include/"
 	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
 )
 
-# VulkanMemoryAllocator
-install(DIRECTORY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake/VulkanMemoryAllocator"
-	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/share/cmake"
-)
-install(FILES "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include/vk_mem_alloc.h"
-	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
-)
-file(COPY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake/VulkanMemoryAllocator"
-	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/share/cmake"
-)
-file(COPY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include/vk_mem_alloc.h"
-	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+# Stb (header-only)
+add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)
+set_target_properties(Stb::Stb PROPERTIES
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Stb/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Stb/include"
 )
 
-# Stb (header-only)
 install(DIRECTORY "${THIRDPARTY_ROOT}/Stb/include/"
 	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
 )
@@ -167,6 +159,12 @@ file(COPY "${THIRDPARTY_ROOT}/Stb/include/"
 )
 
 # PortableFileDialogs (header-only)
+add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)
+set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/PortableFileDialogs/include"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/PortableFileDialogs/include"
+)
+
 install(FILES "${THIRDPARTY_ROOT}/PortableFileDialogs/include/portable-file-dialogs.h"
 	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
 )
@@ -176,6 +174,12 @@ file(COPY "${THIRDPARTY_ROOT}/PortableFileDialogs/include/portable-file-dialogs.
 
 # WindowsHModular (header-only, Windows only)
 if(WIN32)
+	add_library(WindowsHModular::WindowsHModular INTERFACE IMPORTED GLOBAL)
+	set_target_properties(WindowsHModular::WindowsHModular PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/WindowsHModular/include"
+		INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/WindowsHModular/include"
+	)
+
 	install(DIRECTORY "${THIRDPARTY_ROOT}/WindowsHModular/include/"
 		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
 	)
@@ -183,23 +187,6 @@ if(WIN32)
 		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
 	)
 endif()
-
-add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)
-set_target_properties(Stb::Stb PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Stb/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/Stb/include"
-)
-
-add_library(WindowsHModular::WindowsHModular INTERFACE IMPORTED GLOBAL)
-set_target_properties(WindowsHModular::WindowsHModular PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/WindowsHModular/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/WindowsHModular/include"
-)
-
-find_package(VulkanMemoryAllocator REQUIRED CONFIG
-	PATHS "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake"
-	NO_DEFAULT_PATH
-)
 
 if(NOT APPLE AND NOT ANDROID)
 	find_package(VulkanHeaders REQUIRED CONFIG
@@ -254,6 +241,40 @@ elseif(ANDROID)
 	)
 endif()
 
+if(NOT APPLE)
+	# VulkanMemoryAllocator
+	find_package(VulkanMemoryAllocator REQUIRED CONFIG
+		PATHS "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake"
+		NO_DEFAULT_PATH
+	)
+
+	install(DIRECTORY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake/VulkanMemoryAllocator"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/share/cmake"
+	)
+	install(FILES "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include/vk_mem_alloc.h"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/share/cmake/VulkanMemoryAllocator"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/share/cmake"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/VulkanMemoryAllocator/include/vk_mem_alloc.h"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+else()
+	add_library(MetalCpp::MetalCpp INTERFACE IMPORTED GLOBAL)
+	set_target_properties(MetalCpp::MetalCpp PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/MetalCpp/include"
+		INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/MetalCpp/include"
+	)
+
+	install(DIRECTORY "${THIRDPARTY_ROOT}/MetalCpp/include/"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+	file(COPY "${THIRDPARTY_ROOT}/MetalCpp/include/"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+	)
+endif()
+
 if (ANDROID)
 	# GameActivity
 	set(GameActitvityDir "${CMAKE_SOURCE_DIR}/Externals/games-activity-4.4.2")
@@ -285,12 +306,6 @@ if (ANDROID)
 	)
 endif()
 
-add_library(PortableFileDialogs::PortableFileDialogs INTERFACE IMPORTED GLOBAL)
-set_target_properties(PortableFileDialogs::PortableFileDialogs PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/PortableFileDialogs/include"
-	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/PortableFileDialogs/include"
-)
-
 find_package(benchmark REQUIRED CONFIG
 	PATHS "${THIRDPARTY_ROOT}/Benchmark/lib/cmake"
 	NO_DEFAULT_PATH
@@ -320,7 +335,7 @@ if(ANDROID)
 	unset(_HOST_SLANG_BIN)
 else()
 	find_package(slang REQUIRED CONFIG
-		PATHS "${THIRDPARTY_ROOT}/Slang/cmake"
+		PATHS "${THIRDPARTY_ROOT}/Slang/lib/cmake"
 		NO_DEFAULT_PATH
 	)
 	set(SLANG_COMPILER "${SLANG_EXECUTABLE}")
