@@ -4,25 +4,25 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
+#include <cstdint>
 #include <vk_mem_alloc.h>
 
 namespace hod::inline renderer
 {
 	/// @brief
 	/// @return
-	bool InstanceExtensionCollector::CollectAvailableExtension()
+	bool InstanceExtensionCollector::CollectAvailableExtension(const char* layer)
 	{
-		_availableExtensions.Clear();
-
 		uint32_t availableExtensionCount = 0;
-		if (vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr) != VK_SUCCESS)
+		if (vkEnumerateInstanceExtensionProperties(layer, &availableExtensionCount, nullptr) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to collect available extensions for VkInstance");
 			return false;
 		}
 
-		_availableExtensions.Resize(availableExtensionCount);
-		if (vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, _availableExtensions.Data()) != VK_SUCCESS)
+		uint32_t currentExtensionCount = _availableExtensions.Size();
+		_availableExtensions.Resize(_availableExtensions.Size() + availableExtensionCount);
+		if (vkEnumerateInstanceExtensionProperties(layer, &availableExtensionCount, _availableExtensions.Data() + currentExtensionCount) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to collect available extensions for VkInstance");
 			return false;

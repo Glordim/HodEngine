@@ -305,17 +305,21 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		if (VkPresentationSurface::CollectInstanceExtensionRequirements(instanceExtensionCollector) == false)
+#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
+		if (instanceExtensionCollector.CollectAvailableExtension("VK_LAYER_KHRONOS_validation") == false)
 		{
 			return false;
 		}
-
-#if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 		if (_validationLayer.CollectInstanceExtensionRequirements(instanceExtensionCollector) == false)
 		{
 			return false;
 		}
 #endif
+
+		if (VkPresentationSurface::CollectInstanceExtensionRequirements(instanceExtensionCollector) == false)
+		{
+			return false;
+		}
 
 		// === Create Instance ===
 
