@@ -28,14 +28,17 @@ if(WIN32)
 	set(LIB_PREFIX "")
 	set(LIB_EXTENSION "lib")
 	set(DLL_EXTENSION "dll")
+	set(DLL_DIR "bin")
 elseif(APPLE)
 	set(LIB_PREFIX "lib")
 	set(LIB_EXTENSION "a")
 	set(DLL_EXTENSION "dylib")
+	set(DLL_DIR "lib")
 else()
 	set(LIB_PREFIX "lib")
 	set(LIB_EXTENSION "a")
 	set(DLL_EXTENSION "so")
+	set(DLL_DIR "lib")
 endif()
 
 if(WIN32)
@@ -69,6 +72,9 @@ elseif(UNIX)
 else()
 	message(FATAL_ERROR "Unsupported system: ${ARCH}")
 endif()
+
+unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
+option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" ON)
 
 set(THIRDPARTY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/${ARCH_FOLDER}")
 
@@ -273,6 +279,13 @@ else()
 	file(COPY "${THIRDPARTY_ROOT}/MetalCpp/include/"
 		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
 	)
+endif()
+
+if (RENDERER_ENABLE_VALIDATION_LAYER AND NOT APPLE)
+	set(VULKAN_KHRONOS_VALIDATION_LAYER_LIB ${THIRDPARTY_ROOT}/VulkanValidationLayers/${DLL_DIR}/${LIB_PREFIX}VkLayer_khronos_validation.${DLL_EXTENSION})
+	if (NOT ANDROID)
+		set(VULKAN_KHRONOS_VALIDATION_LAYER_JSON ${THIRDPARTY_ROOT}/VulkanValidationLayers/${DLL_DIR}/${LIB_PREFIX}VkLayer_khronos_validation.json)
+	endif()
 endif()
 
 if (ANDROID)

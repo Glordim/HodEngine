@@ -1,10 +1,12 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/VkValidationLayer.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/ExtensionCollector/InstanceExtensionCollector.hpp"
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
 
-#include "HodEngine/Core/Debug.hpp"
+#include <HodEngine/Core/Debug.hpp>
+#include <HodEngine/Core/OS.hpp>
 
 #include <array>
 
@@ -36,6 +38,10 @@ namespace hod::inline renderer
 
 	VkValidationLayer::VkValidationLayer()
 	{
+#if !defined(PLATFORM_ANDROID)
+		OS::SetEnv("VK_LAYER_PATH", (FileSystem::GetExecutablePath().ParentPath() / "ValidationLayers").GetString().CStr());
+#endif
+
 		std::array<const char*, 1> validationLayers {"VK_LAYER_KHRONOS_validation"};
 
 		uint32_t availableValidationLayerCount = 0;

@@ -78,10 +78,28 @@ elseif(API STREQUAL D3D12)
 	target_compile_options(Renderer PRIVATE /clang:-Wno-language-extension-token)
 endif()
 
-unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
-option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" OFF)
 if (RENDERER_ENABLE_VALIDATION_LAYER)
 	target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
+	if(API STREQUAL Vulkan)
+		cmake_path(GET VULKAN_KHRONOS_VALIDATION_LAYER_LIB FILENAME VULKAN_KHRONOS_VALIDATION_LAYER_LIB_FILE_NAME)
+		add_custom_command(
+			TARGET Renderer POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${VULKAN_KHRONOS_VALIDATION_LAYER_LIB}
+				$<TARGET_FILE_DIR:Renderer>/ValidationLayers/${VULKAN_KHRONOS_VALIDATION_LAYER_LIB_FILE_NAME}
+			COMMENT "Copying validation layer (lib) to output directory"
+		)
+		if (NOT ANDROID)
+			cmake_path(GET VULKAN_KHRONOS_VALIDATION_LAYER_JSON FILENAME VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME)
+			add_custom_command(
+				TARGET Renderer POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${VULKAN_KHRONOS_VALIDATION_LAYER_JSON}
+					$<TARGET_FILE_DIR:Renderer>/ValidationLayers/${VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME}
+				COMMENT "Copying validation layer (json) to output directory"
+			)
+		endif()
+	endif()
 endif()
 
 target_compile_definitions(Renderer PUBLIC ${HOD_PLATFORM_DEFINE} PRIVATE ${RENDERER_DEFINE})
