@@ -6,11 +6,6 @@
 
 namespace hod::inline core
 {
-	bool OS::OpenFileWithDefaultApp(const char* filePath)
-	{
-		return std::system(fmt::format("xdg-open {}", filePath).c_str()) == 0;
-	}
-
 	bool OS::SetEnv(const char* name, const char* value)
 	{
 		if (setenv(name, value, 1) != 0)

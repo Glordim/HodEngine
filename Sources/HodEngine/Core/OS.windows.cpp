@@ -44,4 +44,16 @@ namespace hod::inline core
 		}
 		return true;
 	}
+
+	bool OS::SetEnv(const char* name, const char* value)
+	{
+		// todo A -> W
+
+		if (SetEnvironmentVariableA(name, value) == FALSE)
+		{
+			OUTPUT_ERROR("OS::SetEnv: SetEnvironmentVariable set {}={} fail ({})", name, value, OS::GetLastWin32ErrorMessage());
+			return false;
+		}
+		return true;
+	}
 }
