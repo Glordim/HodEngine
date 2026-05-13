@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
 function(CompileReflectEmbedShader INPUT_SLANG TARGET_API SHADER_TYPE SHADER_CONFIG TEMPLATE_CPP TEMPLATE_HPP OUTPUT_CPP OUTPUT_HPP TEMP_DIR)
 	find_package(Python3 REQUIRED COMPONENTS Interpreter)
 	add_custom_command(

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
 project(TestsCore)
 
 file(GLOB_RECURSE Srcs

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
 project(Main LANGUAGES CXX)
 
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)

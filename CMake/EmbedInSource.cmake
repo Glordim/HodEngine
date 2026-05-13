@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 3.10)
-
-function(EmbedTextInSource InputFile TemplateFile OutputDir OutOutputFileH)
+function(EmbedTextInSource InputFile TemplateFile OutputDir OutOutputFileHPP)
 
 	get_filename_component(FILENAME "${InputFile}" NAME)
-	set(OutputFileH "${OutputDir}/${FILENAME}.hpp")
-	set(${OutOutputFileH} "${OutputFileH}" PARENT_SCOPE)
+	set(OutputFileHPP "${OutputDir}/${FILENAME}.hpp")
+	set(${OutOutputFileH} "${OutputFileHPP}" PARENT_SCOPE)
 
-	message(STATUS "EmbedTextInSource: ${InputFile} -> ${OutputDir}/${FILENAME}.hpp")
+	message(STATUS "EmbedTextInSource")
+	message(STATUS "Src: ${InputFile}")
+	message(STATUS "Dst: ${OutputDir}/${FILENAME}.hpp")
 
 	string(REGEX REPLACE "\\.| |-" "_" ESCAPED_FILE_NAME ${FILENAME})
 
@@ -16,21 +16,24 @@ function(EmbedTextInSource InputFile TemplateFile OutputDir OutOutputFileH)
 
 	configure_file(
 		${TemplateFile}
-		${OutputFileH}
+		${OutputFileHPP}
 		@ONLY
 	)
 endfunction()
 
-function(EmbedBinaryInSource InputFile TemplateFileH TemplateFileCPP OutputDir OutOutputFileH OutOutputFileCPP)
+function(EmbedBinaryInSource InputFile TemplateFileHPP TemplateFileCPP OutputDir OutOutputFileHPP OutOutputFileCPP)
 
 	get_filename_component(FILENAME "${InputFile}" NAME)
 
-	set(OutputFileH "${OutputDir}/${FILENAME}.hpp")
+	set(OutputFileHPP "${OutputDir}/${FILENAME}.hpp")
 	set(OutputFileCPP "${OutputDir}/${FILENAME}.cpp")
-	set(${OutOutputFileH} "${OutputFileH}" PARENT_SCOPE)
+	set(${OutOutputFileHPP} "${OutputFileHPP}" PARENT_SCOPE)
 	set(${OutOutputFileCPP} "${OutputFileCPP}" PARENT_SCOPE)
 
-	message(STATUS "EmbedBinaryInSource: ${InputFile} -> ${OutputFileCPP} and ${OutputFileH}")
+	message(STATUS "EmbedBinaryInSource")
+	message(STATUS "Src: ${InputFile}")
+	message(STATUS "Dst Cpp: ${OutputFileCPP}")
+	message(STATUS "Dst Hpp: ${OutputFileHPP}")
 
 	string(REGEX REPLACE "\\.| |-" "_" ESCAPED_FILE_NAME ${FILENAME})
 
@@ -38,8 +41,8 @@ function(EmbedBinaryInSource InputFile TemplateFileH TemplateFileCPP OutputDir O
 	string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," ESCAPED_FILE_CONTENTS ${FILE_CONTENTS}) # Convert hex data for C compatibility
 
 	configure_file(
-		${TemplateFileH}
-		${OutputFileH}
+		${TemplateFileHPP}
+		${OutputFileHPP}
 		@ONLY
 	)
 

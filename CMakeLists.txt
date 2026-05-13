@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
+cmake_policy(SET CMP0177 NEW)
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 project(Hod) # Rename
 
@@ -10,8 +13,6 @@ endif()
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
-
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 if (BUILD_SHARED_LIBS)

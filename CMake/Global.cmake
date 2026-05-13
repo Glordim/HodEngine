@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
 set(HOD_PLATFORM_SUBDIR "platforms/${HOD_PLATFORM}")
 
 if(BUILD_SHARED_LIBS)

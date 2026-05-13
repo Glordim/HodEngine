@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
 if (APPLE)
 	project(Input LANGUAGES CXX OBJCXX)
 else()
