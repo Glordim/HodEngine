@@ -25,7 +25,6 @@
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
-#include <HodEngine/Game/BootInfo.hpp>
 #include <HodEngine/Game/Scene.hpp>
 #include <HodEngine/Game/SceneResource.hpp>
 #include <HodEngine/Game/World.hpp>
@@ -105,6 +104,7 @@ namespace hod::inline application
 
 	bool Application::BootGame()
 	{
+#if defined(HOD_APPLICATION_STATIC)
 		hod::Path buildPath = FileSystem::GetExecutablePath().ParentPath();
 		/*
 		const hod::Argument* datasPathArgument = argumentParser.GetArgument('p', "BuildPath");
@@ -114,32 +114,12 @@ namespace hod::inline application
 		}
 		*/
 
-		Document           document;
-		DocumentReaderJson reader;
-		reader.Read(document, buildPath / "Boot.json");
-
-		BootInfo bootInfo;
-		Serializer::Deserialize(bootInfo, document.GetRootNode());
-
 		ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
 
-	#if defined(HOD_APPLICATION_STATIC)
 		StartupModule();
-	#else
-		_gameModule.Init(buildPath / bootInfo._gameModule, false);
-		if (_gameModule.Load() == false)
-		{
-			return false;
-		}
-		auto startupFunc = _gameModule.LoadFunction<int(*)()>("StartupModule");
-		if (startupFunc == nullptr)
-		{
-			return false;
-		}
-		startupFunc();
-	#endif
 
-		std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(bootInfo._startupScene);
+		UID startupScene = GetStartupScene();
+		std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(startupScene);
 		if (sceneResource == nullptr)
 		{
 			return false;
@@ -156,7 +136,7 @@ namespace hod::inline application
 		_world->AddScene(startupScene);
 		_world->SetEditorPlaying(true);
 		startupScene->ProcessActivation();
-
+#endif
 		return true;
 	}
 

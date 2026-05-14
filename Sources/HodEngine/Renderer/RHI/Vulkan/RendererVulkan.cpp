@@ -306,13 +306,16 @@ namespace hod::inline renderer
 		}
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-		if (instanceExtensionCollector.CollectAvailableExtension("VK_LAYER_KHRONOS_validation") == false)
+		if (_validationLayer.IsEnabled())
 		{
-			return false;
-		}
-		if (_validationLayer.CollectInstanceExtensionRequirements(instanceExtensionCollector) == false)
-		{
-			return false;
+			if (instanceExtensionCollector.CollectAvailableExtension("VK_LAYER_KHRONOS_validation") == false)
+			{
+				return false;
+			}
+			if (_validationLayer.CollectInstanceExtensionRequirements(instanceExtensionCollector) == false)
+			{
+				return false;
+			}
 		}
 #endif
 
@@ -364,7 +367,10 @@ namespace hod::inline renderer
 		}
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
-		_validationLayer.CreateMessager();
+		if (_validationLayer.IsEnabled())
+		{
+			_validationLayer.CreateMessager();
+		}
 #endif
 
 		return true;

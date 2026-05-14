@@ -65,8 +65,6 @@
 
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
-#include <HodEngine/Game/BootInfo.hpp>
-
 #include <filesystem> // todo remove
 #include <fstream>
 #include <string>
@@ -807,15 +805,8 @@ namespace hod::inline editor
 				return;
 		}
 
-		BootInfo bootInfo;
 		bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
 		bootInfo._gameModule   = Project::GetInstance()->GetName();
-
-		Document bootDocument;
-		Serializer::Serialize(bootInfo, bootDocument.GetRootNode());
-
-		DocumentWriterJson writer;
-		writer.Write(bootDocument, buildDir / "Boot.json");
 
 		Path dataDirPath = buildDir / "Datas";
 		FileSystem::GetInstance()->CreateDirectories(dataDirPath);

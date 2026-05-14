@@ -17,6 +17,8 @@ namespace hod::inline renderer
 
 		const Vector<const char*>& GetEnabledLayers() const;
 
+		bool IsEnabled() const { return _enableValidationLayers; }
+
 		bool CreateMessager();
 		void DestroyMessager();
 

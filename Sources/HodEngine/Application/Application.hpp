@@ -1,8 +1,6 @@
 #pragma once
 #include "HodEngine/Application/Export.hpp"
 
-#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
-
 #if defined(PLATFORM_ANDROID)
 struct AAssetManager;
 #endif
@@ -55,8 +53,6 @@ namespace hod::inline application
 
 	protected:
 		bool _shouldQuit = false;
-
-		DynamicLibrary	_gameModule;
 
 		World*	_world = nullptr;
 	};

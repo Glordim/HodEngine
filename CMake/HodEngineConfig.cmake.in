@@ -115,22 +115,14 @@ unset(_HOD_DEPS_DIR)
 if(@RENDERER_ENABLE_VALIDATION_LAYER@)
 	set(_VVL_DIR "${CMAKE_CURRENT_LIST_DIR}/../platforms/${HOD_PLATFORM_NAME}/${HOD_ABI_NAME}/deps/ValidationLayers")
 	set_property(TARGET HodEngine::Renderer PROPERTY HOD_VALIDATION_LAYER_LIB  "${_VVL_DIR}/@VULKAN_KHRONOS_VALIDATION_LAYER_LIB_FILE_NAME@")
-	if("@VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME@")
+	if(EXISTS "${_VVL_DIR}/@VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME@")
 		set_property(TARGET HodEngine::Renderer PROPERTY HOD_VALIDATION_LAYER_JSON "${_VVL_DIR}/@VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME@")
 	endif()
 	unset(_VVL_DIR)
 endif()
 
-# hod_deploy_runtime_files(<target> [INSTALL_DESTINATION <dir>])
-# Copies engine runtime files (validation layers, ...) next to <target> at build time,
-# and installs them to INSTALL_DESTINATION at install time (defaults to "ValidationLayers").
 function(hod_deploy_runtime_files target)
 	if (NOT ANDROID)
-		cmake_parse_arguments(_ARG "" "INSTALL_DESTINATION" "" ${ARGN})
-		if(NOT DEFINED _ARG_INSTALL_DESTINATION)
-			set(_ARG_INSTALL_DESTINATION "ValidationLayers")
-		endif()
-
 		get_target_property(_lib  HodEngine::Renderer HOD_VALIDATION_LAYER_LIB)
 		get_target_property(_json HodEngine::Renderer HOD_VALIDATION_LAYER_JSON)
 
@@ -148,7 +140,7 @@ function(hod_deploy_runtime_files target)
 				COMMENT "Deploying Vulkan validation layer"
 			)
 			install(FILES ${_files}
-				DESTINATION "${_ARG_INSTALL_DESTINATION}"
+				DESTINATION "ValidationLayers"
 			)
 		endif()
 	endif()

@@ -53,7 +53,7 @@ if(HOD_GAME_BUILD_TYPE STREQUAL "Application")
 		)
 	endif()
 	target_link_libraries([[PROJECT_GAME_NAME]] HodEngine::Main)
-	hod_deploy_runtime_files([[PROJECT_GAME_NAME]] INSTALL_DESTINATION .)
+	hod_deploy_runtime_files([[PROJECT_GAME_NAME]])
 endif()
 
 target_compile_definitions([[PROJECT_GAME_NAME]]
