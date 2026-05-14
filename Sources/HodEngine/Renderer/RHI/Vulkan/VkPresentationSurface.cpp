@@ -151,8 +151,7 @@ namespace hod::inline renderer
 		createInfo.surface = waylandWindow->GetWaylandSurface();
 		createInfo.pNext = nullptr;
 
-		VkSurfaceKHR surface;
-		if (vkCreateWaylandSurfaceKHR(RendererVulkan::GetInstance()->GetVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS)
+		if (vkCreateWaylandSurfaceKHR(RendererVulkan::GetInstance()->GetVkInstance(), &createInfo, nullptr, &_surface) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create Wayland Surface !");
 			return false;
@@ -166,8 +165,7 @@ namespace hod::inline renderer
 		createInfo.window = androidWindow->GetNativeWindow();
 		createInfo.pNext = nullptr;
 
-		VkSurfaceKHR surface;
-		if (vkCreateAndroidSurfaceKHR(RendererVulkan::GetInstance()->GetVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS)
+		if (vkCreateAndroidSurfaceKHR(RendererVulkan::GetInstance()->GetVkInstance(), &createInfo, nullptr, &_surface) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create Android Surface !");
 			return false;
