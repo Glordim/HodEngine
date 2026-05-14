@@ -118,8 +118,8 @@ namespace hod::inline application
 
 		StartupModule();
 
-		UID startupScene = GetStartupScene();
-		std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(startupScene);
+		UID startupSceneUID(5697855804628231253ull, 12087004502242050213ull);// = GameInfo::GetStartupScene();
+		std::shared_ptr<hod::SceneResource> sceneResource = hod::ResourceManager::GetInstance()->GetResource<hod::SceneResource>(startupSceneUID);
 		if (sceneResource == nullptr)
 		{
 			return false;
@@ -145,15 +145,9 @@ namespace hod::inline application
 		hod::DefaultAllocator::GetInstance().Delete(_world);
 		_world = nullptr;
 
-	#if defined(HOD_APPLICATION_STATIC)
+#if defined(HOD_APPLICATION_STATIC)
 		ShutdownModule();
-	#else
-		auto shutdownFunc = _gameModule.LoadFunction<int(*)()>("ShutdownModule");
-		if (shutdownFunc != nullptr)
-		{
-			shutdownFunc();
-		}
-	#endif
+#endif
 
 		SerializedDataFactory::DestroyInstance();
 		ComponentFactory::DestroyInstance();

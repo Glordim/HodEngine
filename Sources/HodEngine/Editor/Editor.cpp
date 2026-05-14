@@ -805,8 +805,8 @@ namespace hod::inline editor
 				return;
 		}
 
-		bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
-		bootInfo._gameModule   = Project::GetInstance()->GetName();
+		//bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
+		//bootInfo._gameModule   = Project::GetInstance()->GetName();
 
 		Path dataDirPath = buildDir / "Datas";
 		FileSystem::GetInstance()->CreateDirectories(dataDirPath);
