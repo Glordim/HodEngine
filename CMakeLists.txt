@@ -107,8 +107,8 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/Sources/HodEngine/HodEngine.hpp"
 	DESTINATION "include/HodEngine"
 )
 configure_file(
-		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/PlatformDetection.cmake"
-		"${CMAKE_BINARY_DIR}/Output/cmake/PlatformDetection.cmake"
+		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake"
+		"${CMAKE_BINARY_DIR}/Output/cmake/Global.cmake"
 		COPYONLY
 )
 configure_file(
