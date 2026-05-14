@@ -47,13 +47,10 @@ namespace hod::inline editor
 
 		enum class BuildPlatform
 		{
-			Windows_x64,
-			Windows_arm64,
-			Macos_arm64,
-			Linux_x64,
-			Linux_arm64,
-			Android_x86_64,
-			Android_arm64,
+			Windows,
+			Macos,
+			Linux,
+			Android,
 		};
 
 	public:

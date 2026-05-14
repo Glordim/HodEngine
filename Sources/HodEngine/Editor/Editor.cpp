@@ -308,11 +308,11 @@ namespace hod::inline editor
 
 						if (ImGui::MenuItem("Build") == true)
 						{
-							Editor::GetInstance()->Build(BuildPlatform::Windows_x64);
+							Editor::GetInstance()->Build(BuildPlatform::Windows);
 						}
 						if (ImGui::MenuItem("Build Android") == true)
 						{
-							Editor::GetInstance()->Build(BuildPlatform::Android_x86_64);
+							Editor::GetInstance()->Build(BuildPlatform::Android);
 						}
 						if (ImGui::MenuItem("Build and Run") == true)
 						{
@@ -793,14 +793,14 @@ namespace hod::inline editor
 		if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
 			return;
 
-		if (CMakeHelper::Configure(projectDir, intermediateDir, buildDir, CMakeHelper::Target::Retail) == false)
-			return;
-
-		if (CMakeHelper::Build(intermediateDir, "Release") == false)
-			return;
-
-		if (buildPlatform == BuildPlatform::Windows_x64)
+		if (buildPlatform != BuildPlatform::Android)
 		{
+			if (CMakeHelper::Configure(projectDir, intermediateDir, buildDir, CMakeHelper::Target::Retail) == false)
+				return;
+
+			if (CMakeHelper::Build(intermediateDir, "Release") == false)
+				return;
+
 			if (CMakeHelper::Install(intermediateDir, "Release") == false)
 				return;
 		}
@@ -829,7 +829,7 @@ namespace hod::inline editor
 			return;
 		}
 
-		if (buildPlatform == BuildPlatform::Android_arm64 || buildPlatform == BuildPlatform::Android_x86_64)
+		if (buildPlatform == BuildPlatform::Android)
 		{
 			Path source = FileSystem::GetExecutablePath().ParentPath() / "Templates" / "AndroidStudio";
 			Path destination = buildDir / "AndroidStudioProject";
@@ -950,7 +950,7 @@ namespace hod::inline editor
 	/// @brief
 	void Editor::BuildAndRun()
 	{
-		Build(BuildPlatform::Windows_x64);
+		Build(BuildPlatform::Windows);
 		// todo run
 	}
 }
