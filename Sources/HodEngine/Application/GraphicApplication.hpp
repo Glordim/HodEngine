@@ -3,7 +3,12 @@
 
 #include "HodEngine/Application/Application.hpp"
 
+#include "HodEngine/Window/DisplayManager.hpp"
 #include <stdint.h>
+
+#if defined(PLATFORM_ANDROID)
+struct android_app;
+#endif
 
 namespace hod::inline window
 {
@@ -21,6 +26,13 @@ namespace hod::inline application
 		bool InitAudio();
 		bool TerminateAudio();
 
+		struct DisplayManagerConfig
+		{
+			#if defined(PLATFORM_ANDROID)
+			android_app* _androidApp = nullptr;
+			#endif
+		};
+		virtual void ConfigureDisplayManager(DisplayManagerConfig& /*displayManagerConfig*/) {}
 		bool InitWindow();
 		bool TerminateWindow();
 

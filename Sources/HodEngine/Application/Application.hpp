@@ -22,7 +22,6 @@ namespace hod::inline application
 
 		bool CheckIfGameSharedLibraryExist() const;
 
-		
 		void Quit();
 		
 		protected:

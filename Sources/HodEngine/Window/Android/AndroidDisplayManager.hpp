@@ -4,22 +4,31 @@
 #include "HodEngine/Window/DisplayManager.hpp"
 
 struct ANativeWindow;
+struct android_app;
 
 namespace hod::inline window
 {
-    class Window;
+	class Window;
 
-    class HOD_WINDOW_API AndroidDisplayManager : public DisplayManager
-    {
-        _SingletonOverride(AndroidDisplayManager)
+	class HOD_WINDOW_API AndroidDisplayManager : public DisplayManager
+	{
+		_SingletonOverride(AndroidDisplayManager)
 
-    public:
+	public:
 
-        bool    Initialize() override { return true; }
-        void    Update() override {};
-        bool    Run() override;
-        void    Terminate() override {}
+		bool    Initialize() override { return false; };
+		bool    Initialize(android_app* androidApp);
+		void    Update() override {};
+		bool    Run() override;
+		void    Terminate() override {}
 
-        Window* CreateMainWindow(ANativeWindow* nativeWindow);
-    };
+		Window* CreateMainWindow(ANativeWindow* nativeWindow);
+
+	private:
+		static void CommandHandleStatic(android_app* androidApp, int32_t command);
+		void        CommandHandle(int32_t command);
+
+	private:
+		android_app* _androidApp;
+	};
 }

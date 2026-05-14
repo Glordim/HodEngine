@@ -70,7 +70,7 @@ endif()
 
 if(ANDROID)
 	find_library(android-lib android)
-	target_link_libraries(Window PRIVATE ${android-lib})
+	target_link_libraries(Window PRIVATE ${android-lib} AGDK::GameActitvity)
 endif()
 
 target_include_directories(Window PUBLIC 

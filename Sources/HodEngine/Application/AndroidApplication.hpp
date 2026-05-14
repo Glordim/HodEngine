@@ -16,6 +16,7 @@ namespace hod::inline application
 	protected:
 
 		void ConfigureFileSystem(FileSystemConfig& fileSystemConfig) override;
+		void ConfigureDisplayManager(DisplayManagerConfig& displayManagerConfig) override;
 
 	private:
 		android_app* _androidApp = nullptr;

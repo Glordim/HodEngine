@@ -64,8 +64,15 @@ namespace hod::inline application
 
 	bool GraphicApplication::InitWindow()
 	{
+		DisplayManagerConfig config;
+		ConfigureDisplayManager(config);
+
 		PlatformDisplayManager* platformDisplayManager = PlatformDisplayManager::CreateInstance();
+#if defined(PLATFORM_ANDROID)
+		if (platformDisplayManager->Initialize(config._androidApp) == false)
+#else
 		if (platformDisplayManager->Initialize() == false)
+#endif
 		{
 			return false;
 		}
