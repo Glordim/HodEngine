@@ -18,6 +18,7 @@
 			"environment": [],
 			"console": "integratedTerminal",
 			"preLaunchTask": "Build Target",
+			"visualizerFile": "${workspaceFolder}/Sources/HodEngine/Core/String.natvis"
 		}
 	]
 }

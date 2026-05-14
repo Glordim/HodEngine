@@ -14,6 +14,7 @@ assign_source_group(${Srcs}) # for VS
 
 add_library(Core ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::Core ALIAS Core)
+hod_target_natvis(Core)
 
 set_target_properties(Core PROPERTIES
 	FOLDER "HodEngine"

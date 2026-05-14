@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="hod::String">
+    <!--
+      SSO layout (32 bytes total):
+        [0..22]  : small buffer (23 bytes) / large ptr (8) + size (4) + capacity (4) + padding (7)
+        [23]     : _remainingSize (small) / _flag (large) — MSB=1 means large mode
+        [24..31] : _allocator ptr
+    -->
+    <!-- Small mode: byte[23] MSB == 0, content starts at byte 0 -->
+    <DisplayString Condition="(((unsigned char*)this)[23] &amp; 0x80) == 0">{(char*)this,s8b}</DisplayString>
+    <!-- Large mode: byte[23] MSB == 1, ptr is at byte 0 -->
+    <DisplayString Condition="(((unsigned char*)this)[23] &amp; 0x80) != 0">{*(char**)this,s8b}</DisplayString>
+
+    <Expand>
+      <Item Name="[buffer]"   Condition="(((unsigned char*)this)[23] &amp; 0x80) == 0">(char*)this,s8</Item>
+      <Item Name="[buffer]"   Condition="(((unsigned char*)this)[23] &amp; 0x80) != 0">*(char**)this,s8</Item>
+      <Item Name="[size]"     Condition="(((unsigned char*)this)[23] &amp; 0x80) == 0">(unsigned int)(23 - ((unsigned char*)this)[23])</Item>
+      <Item Name="[size]"     Condition="(((unsigned char*)this)[23] &amp; 0x80) != 0">*((unsigned int*)this + 2)</Item>
+      <Item Name="[capacity]" Condition="(((unsigned char*)this)[23] &amp; 0x80) == 0">23u</Item>
+      <Item Name="[capacity]" Condition="(((unsigned char*)this)[23] &amp; 0x80) != 0">*((unsigned int*)this + 3)</Item>
+      <Item Name="[mode]"     Condition="(((unsigned char*)this)[23] &amp; 0x80) == 0">"small"</Item>
+      <Item Name="[mode]"     Condition="(((unsigned char*)this)[23] &amp; 0x80) != 0">"large"</Item>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>
