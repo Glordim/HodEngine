@@ -34,24 +34,27 @@ namespace hod::inline renderer
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
-			// TODO message
+			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Unable to deserialize");
 			return false;
 		}
 
 		std::shared_ptr<MaterialResource> materialResource = _material.Lock();
 		if (materialResource == nullptr)
 		{
+			OUTPUT_ERROR("MaterialInstanceResource::Initialize: MaterialResource is nullptr");
 			return false;
 		}
 		Material* material = materialResource->GetMaterial();
 		if (material == nullptr)
 		{
+			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Material is nullptr");
 			return false;
 		}
 
 		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
 		if (_materialInstance == nullptr)
 		{
+			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Unable to CreateMaterialInstance");
 			return false;
 		}
 
