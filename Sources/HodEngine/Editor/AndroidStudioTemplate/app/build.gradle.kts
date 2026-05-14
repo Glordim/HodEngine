@@ -27,6 +27,7 @@ android {
     sourceSets {
         getByName("main") {
             assets.srcDirs("[[PROJECT_GAME_DATAS]]")
+            jniLibs.srcDirs("[[JNI_LIBS_DIR]]")
         }
     }
 

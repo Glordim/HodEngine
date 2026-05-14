@@ -859,6 +859,7 @@ namespace hod::inline editor
 
 			Path installDir(HOD_INSTALL_PREFIX);
 			Path externalJarDirPath = installDir / "platforms" / "android" / "jar";
+			Path jniLibsDirPath = installDir / "platforms" / "android" / "jniLibs";
 			Path toolchainPath = installDir / "platforms" / "android" / "x86_64" / "static" / "cmake" / "toolchain.cmake";
 			Path engineDirPath = installDir / "cmake";
 			String gameBuildType = "Application";
@@ -893,10 +894,12 @@ namespace hod::inline editor
 				dataDirPath.PortableSeparator();
 				cmakeLists.PortableSeparator();
 				externalJarDirPath.PortableSeparator();
+				jniLibsDirPath.PortableSeparator();
 				replaceAll(content, "[[PROJECT_GAME_DATAS]]", dataDirPath.GetString().CStr());
 				replaceAll(content, "[[PROJECT_GAME_CMAKELIST]]", cmakeLists.GetString().CStr());
 				replaceAll(content, "[[PROJECT_CMAKE_ARGS]]", cmakeArgs);
 				replaceAll(content, "[[EXTERNAL_JAR_DIR]]", externalJarDirPath.GetString().CStr());
+				replaceAll(content, "[[JNI_LIBS_DIR]]", jniLibsDirPath.GetString().CStr());
 
 				std::ofstream outFile(buildGradlePath.GetString().CStr());
 				if (outFile.is_open() == false)

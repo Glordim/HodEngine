@@ -87,6 +87,15 @@ if (RENDERER_ENABLE_VALIDATION_LAYER)
 				$<TARGET_FILE_DIR:Renderer>/ValidationLayers/${VULKAN_KHRONOS_VALIDATION_LAYER_LIB_FILE_NAME}
 			COMMENT "Copying validation layer (lib) to output directory"
 		)
+		if (ANDROID)
+			install(FILES ${VULKAN_KHRONOS_VALIDATION_LAYER_LIB}
+				DESTINATION "platforms/${HOD_PLATFORM_NAME}/jniLibs/${HOD_ABI_NAME}"
+			)
+		else()
+			install(FILES ${VULKAN_KHRONOS_VALIDATION_LAYER_LIB}
+				DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/ValidationLayers"
+			)
+		endif()
 		if (NOT ANDROID)
 			cmake_path(GET VULKAN_KHRONOS_VALIDATION_LAYER_JSON FILENAME VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME)
 			add_custom_command(
@@ -95,6 +104,9 @@ if (RENDERER_ENABLE_VALIDATION_LAYER)
 					${VULKAN_KHRONOS_VALIDATION_LAYER_JSON}
 					$<TARGET_FILE_DIR:Renderer>/ValidationLayers/${VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME}
 				COMMENT "Copying validation layer (json) to output directory"
+			)
+			install(FILES ${VULKAN_KHRONOS_VALIDATION_LAYER_JSON}
+				DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/ValidationLayers"
 			)
 		endif()
 	endif()
