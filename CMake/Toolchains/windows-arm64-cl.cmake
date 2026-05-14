@@ -4,12 +4,8 @@ message(STATUS "Using HodEngine ${_toolchaineName} toolchain")
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR ARM64)
 
-set(CMAKE_C_COMPILER "cl.exe" CACHE STRING "Cl C compiler" FORCE)
-set(CMAKE_CXX_COMPILER "cl.exe" CACHE STRING "Cl C++ compiler" FORCE)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_COMPILER "cl.exe" CACHE STRING "Cl C compiler")
+set(CMAKE_CXX_COMPILER "cl.exe" CACHE STRING "Cl C++ compiler")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DWIN32 /D_WINDOWS /W3 /GR /EHsc /wd4251 /MD /WX")
 set(CMAKE_CXX_FLAGS_DEBUG "/Ob0 /Od /RTC1 /Zi")

@@ -17,7 +17,3 @@ set(ANDROID_ABI "arm64-v8a" CACHE STRING "Android ABI")
 set(ANDROID_PLATFORM "android-29" CACHE STRING "Android API level")
 
 include("${ANDROID_NDK}/build/cmake/android.toolchain.cmake")
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
