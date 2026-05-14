@@ -193,7 +193,7 @@ namespace hod::inline renderer
 		vmaAllocatorInfo.physicalDevice = _selectedGpu->physicalDevice;
 		vmaAllocatorInfo.device = _device;
 		vmaAllocatorInfo.instance = _vkInstance;
-		vmaAllocatorInfo.vulkanApiVersion = VK_API_VERSION_1_3;
+		vmaAllocatorInfo.vulkanApiVersion = VK_API_VERSION_1_1;
 		if (vmaCreateAllocator(&vmaAllocatorInfo, &_vmaAllocator) != VK_SUCCESS)
 		{
 			return false;
@@ -332,7 +332,7 @@ namespace hod::inline renderer
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); // TODO ?
 		appInfo.pEngineName = "HodEngine";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0); // TODO ?
-		appInfo.apiVersion = VK_API_VERSION_1_3;
+		appInfo.apiVersion = VK_API_VERSION_1_1;
 
 		VkInstanceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;

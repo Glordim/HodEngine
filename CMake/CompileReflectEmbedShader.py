@@ -111,6 +111,7 @@ def main():
 		bytecode_target = "spirv"
 		text_ext = "glsl"
 		text_target = "glsl"
+		profile = "glsl_450+spirv_1_3"
 	elif target_api == "metal":
 		bytecode_ext = "metallib"
 		bytecode_target = "metallib"
