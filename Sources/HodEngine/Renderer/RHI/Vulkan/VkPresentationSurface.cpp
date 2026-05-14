@@ -332,7 +332,11 @@ namespace hod::inline renderer
 		createInfo.queueFamilyIndexCount = 0;                    // Optional
 		createInfo.pQueueFamilyIndices = nullptr;                // Optional
 		createInfo.preTransform = capabilities.currentTransform;
+#if defined(PLATFORM_ANDROID)
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+#else
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+#endif
 		createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR; // Todo support VSync
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = _swapchain;
@@ -365,7 +369,11 @@ namespace hod::inline renderer
 		}
 
 		VkSwapchainPresentScalingCreateInfoKHR swapchainPresentScalingInfo;
+#if !defined(PLATFORM_ANDROID)
 		if (_hasSwapchainMaintenance1)
+#else
+		if (false)
+#endif
 		{
 			swapchainPresentScalingInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR;
 			swapchainPresentScalingInfo.pNext = nullptr;
