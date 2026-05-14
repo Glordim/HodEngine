@@ -1,10 +1,11 @@
-set(CMAKE_C_COMPILER "cl.exe" CACHE STRING "MSVC C compiler" FORCE)
-set(CMAKE_CXX_COMPILER "cl.exe" CACHE STRING "MSVC C++ compiler" FORCE)
+get_filename_component(_toolchaineName ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
+message(STATUS "Using HodEngine ${_toolchaineName} toolchain")
 
-set(CMAKE_GENERATOR_PLATFORM "ARM64" CACHE STRING "Target platform" FORCE)
-set(HOD_PLATFORM "windows-arm64")
-set(HOD_PLATFORM_DEFINE "PLATFORM_WINDOWS")
-set(HOD_PLATFORM_WINDOWS True)
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_SYSTEM_PROCESSOR ARM64)
+
+set(CMAKE_C_COMPILER "cl.exe" CACHE STRING "Cl C compiler" FORCE)
+set(CMAKE_CXX_COMPILER "cl.exe" CACHE STRING "Cl C++ compiler" FORCE)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,5 +20,3 @@ set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
-
-message(STATUS "HodEngine -> Windows MSVC Arm64")

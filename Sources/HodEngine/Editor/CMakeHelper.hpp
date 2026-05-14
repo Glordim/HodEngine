@@ -19,6 +19,8 @@ namespace hod::inline editor
 		};
 
 		static std::string_view GetCurrentPlatform();
+		static std::string_view GetCurrentAbi();
+
 		static Path             GetRunningToolchainPath();
 		static Path             GetInstalledToolchainPath();
 

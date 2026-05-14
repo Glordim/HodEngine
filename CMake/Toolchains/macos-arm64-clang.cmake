@@ -1,10 +1,8 @@
-set(CMAKE_C_COMPILER "clang" CACHE STRING "C compiler" FORCE)
-set(CMAKE_CXX_COMPILER "clang++" CACHE STRING "C++ compiler" FORCE)
+get_filename_component(_toolchaineName ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
+message(STATUS "Using HodEngine ${_toolchaineName} toolchain")
 
-set(ARCH "arm64" CACHE STRING "Target platform" FORCE)
-set(HOD_PLATFORM "macos-arm64")
-set(HOD_PLATFORM_DEFINE "PLATFORM_MACOS")
-set(HOD_PLATFORM_MACOS True)
+set(CMAKE_C_COMPILER "clang" CACHE STRING "Clang C compiler")
+set(CMAKE_CXX_COMPILER "clang++" CACHE STRING "Clang C++ compiler")
 
 set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "Target platform" FORCE)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 14 CACHE STRING "OSX Target" FORCE)
@@ -22,5 +20,3 @@ set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-message(STATUS "HodEngine -> MacOs Clang Arm64")

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
 project([[PROJECT_GAME_NAME]] LANGUAGES CXX)
 
 file(GLOB_RECURSE Srcs
@@ -55,6 +53,7 @@ if(HOD_GAME_BUILD_TYPE STREQUAL "Application")
 		)
 	endif()
 	target_link_libraries([[PROJECT_GAME_NAME]] HodEngine::Main)
+	hod_deploy_runtime_files([[PROJECT_GAME_NAME]] INSTALL_DESTINATION .)
 endif()
 
 target_compile_definitions([[PROJECT_GAME_NAME]]

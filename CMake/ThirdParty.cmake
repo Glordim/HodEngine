@@ -1,4 +1,25 @@
-set(THIRDPARTY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/${ARCH_FOLDER}")
+set(THIRDPARTY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/install/${HOD_PLATFORM_NAME}/${HOD_ABI_NAME}")
+if(NOT IS_DIRECTORY "${THIRDPARTY_ROOT}")
+	message(FATAL_ERROR "ThirdParty not found: ${THIRDPARTY_ROOT}")
+endif()
+message(STATUS "ThirdParty: ${THIRDPARTY_ROOT}")
+
+if(WIN32)
+	set(LIB_PREFIX "")
+	set(LIB_EXTENSION "lib")
+	set(DLL_EXTENSION "dll")
+	set(DLL_DIR "bin")
+elseif(APPLE)
+	set(LIB_PREFIX "lib")
+	set(LIB_EXTENSION "a")
+	set(DLL_EXTENSION "dylib")
+	set(DLL_DIR "lib")
+else()
+	set(LIB_PREFIX "lib")
+	set(LIB_EXTENSION "a")
+	set(DLL_EXTENSION "so")
+	set(DLL_DIR "lib")
+endif()
 
 find_package(fmt REQUIRED CONFIG
 	PATHS "${THIRDPARTY_ROOT}/Fmt/lib/cmake"
@@ -230,7 +251,7 @@ if (ANDROID)
 		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
 	)
 	install(FILES "${GameActitvityDir}/jar/games-activity.jar"
-		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/jar"
+		DESTINATION "platforms/${HOD_PLATFORM_NAME}/jar"
 	)
 	file(COPY "${GameActitvityDir}/libs/android.${ANDROID_ABI}/libgame-activity_static.a"
 		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib"
@@ -239,7 +260,7 @@ if (ANDROID)
 		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
 	)
 	file(COPY "${GameActitvityDir}/jar/games-activity.jar"
-		DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/jar"
+		DESTINATION "${CMAKE_BINARY_DIR}/Output/platforms/${HOD_PLATFORM_NAME}/jar"
 	)
 endif()
 
@@ -255,13 +276,7 @@ find_package(GTest REQUIRED CONFIG
 
 if(ANDROID)
 	# Cross-compilation: find slangc on the host (find_program bypasses the Android sysroot)
-	if(CMAKE_HOST_WIN32)
-		set(_HOST_SLANG_BIN "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/Win_x64/Slang/bin")
-	elseif(CMAKE_HOST_APPLE)
-		set(_HOST_SLANG_BIN "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/MacOs_arm64/Slang/bin")
-	else()
-		set(_HOST_SLANG_BIN "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/Linux_x64/Slang/bin")
-	endif()
+	set(_HOST_SLANG_BIN "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR}/Slang/bin")
 	find_program(SLANG_COMPILER NAMES slangc slangc.exe
 		HINTS "${_HOST_SLANG_BIN}"
 		NO_DEFAULT_PATH
@@ -284,3 +299,8 @@ else()
 	endif()
 	set(SLANG_COMPILER "${SLANG_EXECUTABLE}")
 endif()
+
+unset(LIB_PREFIX)
+unset(LIB_EXTENSION)
+unset(DLL_EXTENSION)
+unset(DLL_DIR)

@@ -19,6 +19,7 @@ android {
         externalNativeBuild {
             cmake {
                 arguments([[PROJECT_CMAKE_ARGS]])
+                abiFilters("arm64-v8a", "x86_64")
             }
         }
     }
@@ -51,6 +52,7 @@ android {
             version = "3.22.1"
         }
     }
+    ndkVersion = "29.0.14206865"
 }
 
 dependencies {

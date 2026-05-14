@@ -858,16 +858,15 @@ namespace hod::inline editor
 			Path cmakeLists = projectDir / "CMakeLists.txt";
 
 			Path installDir(HOD_INSTALL_PREFIX);
-			Path externalJarDirPath = installDir / "platforms" / "android-x86_64" / "deps" / "jar";
-			Path toolchainPath = installDir / "platforms" / "android-x86_64" / "static" / "cmake" / "toolchain.cmake";
+			Path externalJarDirPath = installDir / "platforms" / "android" / "jar";
+			Path toolchainPath = installDir / "platforms" / "android" / "x86_64" / "static" / "cmake" / "toolchain.cmake";
 			Path engineDirPath = installDir / "cmake";
 			String gameBuildType = "Application";
-			String platform = "android-x86_64";
 
 			toolchainPath.PortableSeparator();
 			engineDirPath.PortableSeparator();
 
-			std::string cmakeArgs = fmt::format("\"-DHOD_PLATFORM={}\", \"-DCMAKE_TOOLCHAIN_FILE:FILEPATH={}\", \"-DHodEngine_DIR={}\", \"-DHOD_GAME_BUILD_TYPE={}\"", platform, toolchainPath, engineDirPath, gameBuildType);
+			std::string cmakeArgs = fmt::format("\"-DCMAKE_TOOLCHAIN_FILE:FILEPATH={}\", \"-DHodEngine_DIR={}\", \"-DHOD_GAME_BUILD_TYPE={}\"", toolchainPath, engineDirPath, gameBuildType);
 
 			try
 			{

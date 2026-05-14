@@ -9,7 +9,7 @@
 				"lhs": "${hostSystemName}",
 				"rhs": "Windows"
 			},
-			"toolchainFile": "${sourceDir}/CMake/Toolchains/Windows-ClangCl-x64.cmake"
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/windows-amd64-clangcl.cmake"
 		},
 		{
 			"name": "toolchain-windows-msvc-x64",
@@ -19,7 +19,7 @@
 				"lhs": "${hostSystemName}",
 				"rhs": "Windows"
 			},
-			"toolchainFile": "${sourceDir}/CMake/Toolchains/Windows-Msvc-x64.cmake",
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/windows-amd64-cl.cmake",
 			"architecture": {
 				"value": "x64",
 				"strategy": "external"

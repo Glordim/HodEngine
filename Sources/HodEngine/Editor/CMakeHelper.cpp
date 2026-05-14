@@ -9,11 +9,19 @@
 #include <fstream>
 #include <string>
 
+#define STRINGIFY(x) #x
+#define TO_STRING(x) STRINGIFY(x)
+
 namespace hod::inline editor
 {
 	std::string_view CMakeHelper::GetCurrentPlatform()
 	{
-		return HOD_PLATFORM;
+		return TO_STRING(HOD_PLATFORM);
+	}
+
+	std::string_view CMakeHelper::GetCurrentAbi()
+	{
+		return TO_STRING(HOD_ABI);
 	}
 
 	Path CMakeHelper::GetRunningToolchainPath()
@@ -23,7 +31,7 @@ namespace hod::inline editor
 
 	Path CMakeHelper::GetRunningCmakeDirPath()
 	{
-		return FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath().ParentPath().ParentPath() / "cmake";
+		return FileSystem::GetExecutablePath().ParentPath().ParentPath().ParentPath().ParentPath().ParentPath().ParentPath() / "cmake";
 	}
 
 	Path CMakeHelper::GetInstalledCmakeDirPath()
@@ -31,12 +39,13 @@ namespace hod::inline editor
 #ifdef HOD_INSTALL_PREFIX
 		return Path(HOD_INSTALL_PREFIX) / "cmake";
 #else
-		// In a retail install the exe sits at Dist/platforms/<platform>/<type>/bin/,
+		// In a retail install the exe sits at Dist/platforms/<platform>/<abi>/<type>/bin/,
 		// so climbing 5 parent dirs lands on Dist/.
 		return FileSystem::GetExecutablePath()
 		    .ParentPath()  // exe filename
 		    .ParentPath()  // bin/
 		    .ParentPath()  // <type>/
+		    .ParentPath()  // <abi>/
 		    .ParentPath()  // <platform>/
 		    .ParentPath()  // platforms/
 		    / "cmake";
@@ -49,16 +58,17 @@ namespace hod::inline editor
 #ifdef HOD_INSTALL_PREFIX
 		toolchainPath = Path(HOD_INSTALL_PREFIX);
 #else
-		// In a retail install the exe sits at Dist/platforms/<platform>/<type>/bin/,
+		// In a retail install the exe sits at Dist/platforms/<platform>/<abi>/<type>/bin/,
 		// so climbing 5 parent dirs lands on Dist/.
 		toolchainPath = FileSystem::GetExecutablePath()
 		    .ParentPath()  // exe filename
 		    .ParentPath()  // bin/
 		    .ParentPath()  // <type>/
+		    .ParentPath()  // <abi>/
 		    .ParentPath()  // <platform>/
 		    .ParentPath()  // platforms/
 #endif
-		return toolchainPath / "platforms" / GetCurrentPlatform() / "static" / "cmake" / "toolchain.cmake";
+		return toolchainPath / "platforms" / GetCurrentPlatform() / GetCurrentAbi() / "static" / "cmake" / "toolchain.cmake";
 	}
 
 	bool CMakeHelper::GenerateCMakeLists(const Path& outputPath, std::string_view templateContent,
@@ -116,8 +126,7 @@ namespace hod::inline editor
 		if (installDir.Empty() == false)
 			installDirArg = fmt::format("-DCMAKE_INSTALL_PREFIX={}", installDir);
 
-		std::string arguments = fmt::format("-DHOD_PLATFORM={} -DCMAKE_TOOLCHAIN_FILE:FILEPATH={} -DHodEngine_DIR={} -DHOD_GAME_BUILD_TYPE={} --no-warn-unused-cli -B {} -S {} {} -G Ninja",
-		                                    GetCurrentPlatform(),
+		std::string arguments = fmt::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} -DHodEngine_DIR={} -DHOD_GAME_BUILD_TYPE={} --no-warn-unused-cli -B {} -S {} {} -G Ninja",
 		                                    toolchainPath,
 		                                    engineDirPath,
 		                                    gameBuildType,

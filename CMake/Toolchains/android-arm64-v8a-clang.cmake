@@ -1,3 +1,6 @@
+get_filename_component(_toolchaineName ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
+message(STATUS "Using HodEngine ${_toolchaineName} toolchain")
+
 if(NOT DEFINED ANDROID_NDK)
 	if(DEFINED ENV{ANDROID_NDK_ROOT})
 		set(ANDROID_NDK "$ENV{ANDROID_NDK_ROOT}")
@@ -10,17 +13,11 @@ if(NOT DEFINED ANDROID_NDK)
 	endif()
 endif()
 
-set(ANDROID_ABI "arm64-v8a" CACHE STRING "Android ABI" FORCE)
-set(ANDROID_PLATFORM "android-29" CACHE STRING "Android API level" FORCE)
+set(ANDROID_ABI "arm64-v8a" CACHE STRING "Android ABI")
+set(ANDROID_PLATFORM "android-29" CACHE STRING "Android API level")
 
 include("${ANDROID_NDK}/build/cmake/android.toolchain.cmake")
-
-set(HOD_PLATFORM "android-arm64")
-set(HOD_PLATFORM_DEFINE "PLATFORM_ANDROID")
-set(HOD_PLATFORM_ANDROID TRUE)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-message(STATUS "HodEngine -> Android NDK arm64-v8a (API ${ANDROID_PLATFORM})")

@@ -9,7 +9,7 @@
 				"lhs": "${hostSystemName}",
 				"rhs": "Linux"
 			},
-			"toolchainFile": "${sourceDir}/CMake/Toolchains/Linux-Clang-x64.cmake"
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/linux-x86_64-clang.cmake"
 		},
 		{
 			"name": "toolchain-linux-gcc-x64",
@@ -19,7 +19,7 @@
 				"lhs": "${hostSystemName}",
 				"rhs": "Linux"
 			},
-			"toolchainFile": "${sourceDir}/CMake/Toolchains/Linux-Gcc-x64.cmake"
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/linux-x86_64-gcc.cmake"
 		}
 	]
 }

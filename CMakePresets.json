@@ -47,7 +47,6 @@
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release",
 				"BUILD_SHARED_LIBS": "OFF",
-				"BUILD_RUNTIME": "OFF",
 				"BUILD_EDITOR": "OFF",
 				"BUILD_UNIT_TESTS": "OFF",
 				"BUILD_BENCHMARKS": "OFF"
@@ -85,7 +84,6 @@
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release",
 				"BUILD_SHARED_LIBS": "OFF",
-				"BUILD_RUNTIME": "OFF",
 				"BUILD_EDITOR": "OFF",
 				"BUILD_UNIT_TESTS": "OFF",
 				"BUILD_BENCHMARKS": "OFF"
@@ -95,11 +93,10 @@
 			"name": "android-arm64-release-static",
 			"displayName": "Release Static (Android arm64-v8a) — for install/retail",
 			"inherits": ["base"],
-			"toolchainFile": "${sourceDir}/CMake/Toolchains/Android-NDK-arm64.cmake",
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/android-arm64-v8a-clang.cmake",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release",
 				"BUILD_SHARED_LIBS": "OFF",
-				"BUILD_RUNTIME": "OFF",
 				"BUILD_EDITOR": "OFF",
 				"BUILD_UNIT_TESTS": "OFF",
 				"BUILD_BENCHMARKS": "OFF"
@@ -109,11 +106,10 @@
 			"name": "android-x86_64-release-static",
 			"displayName": "Release Static (Android x86_64) — for install/retail",
 			"inherits": ["base"],
-			"toolchainFile": "${sourceDir}/CMake/Toolchains/Android-NDK-x86_64.cmake",
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/android-x86_64-clang.cmake",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release",
 				"BUILD_SHARED_LIBS": "OFF",
-				"BUILD_RUNTIME": "OFF",
 				"BUILD_EDITOR": "OFF",
 				"BUILD_UNIT_TESTS": "OFF",
 				"BUILD_BENCHMARKS": "OFF"

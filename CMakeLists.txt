@@ -4,6 +4,7 @@ cmake_policy(SET CMP0177 NEW)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 project(Hod) # Rename
+include(PlatformDetection)
 
 option(ENABLE_UNITY_BUILD "Enable Unity Build for faster compilation" OFF)
 if (ENABLE_UNITY_BUILD)
@@ -21,86 +22,15 @@ else()
 	set(LIB_TYPE STATIC)
 endif()
 
-unset(BUILD_BENCHMARKS CACHE)
 option(BUILD_BENCHMARKS "Enable Benchmarks compilation" ON)
-
-unset(BUILD_UNIT_TESTS CACHE)
 option(BUILD_UNIT_TESTS "Enable UnitTests compilation" ON)
-
-unset(RENDERER_ENABLE_VALIDATION_LAYER CACHE)
 option(RENDERER_ENABLE_VALIDATION_LAYER "Enable ValidationLayer" ON)
-
-unset(BUILD_EDITOR CACHE)
 option(BUILD_EDITOR "Build Editor modules" ON)
 
 include(Global)
 include(FetchContent)
 include(ExternalProject)
-
-if(WIN32)
-	set(LIB_PREFIX "")
-	set(LIB_EXTENSION "lib")
-	set(DLL_EXTENSION "dll")
-	set(DLL_DIR "bin")
-elseif(APPLE)
-	set(LIB_PREFIX "lib")
-	set(LIB_EXTENSION "a")
-	set(DLL_EXTENSION "dylib")
-	set(DLL_DIR "lib")
-else()
-	set(LIB_PREFIX "lib")
-	set(LIB_EXTENSION "a")
-	set(DLL_EXTENSION "so")
-	set(DLL_DIR "lib")
-endif()
-
-if(WIN32)
-	if(ARCH STREQUAL "x64")
-		set(ARCH_FOLDER "Win_${ARCH}")
-	elseif(ARCH STREQUAL "arm64")
-		set(ARCH_FOLDER "Win_${ARCH}")
-	else()
-		message(FATAL_ERROR "Unsupported Windows architecture: ${ARCH}")
-	endif()
-elseif(APPLE)
-	if(ARCH STREQUAL "arm64")
-		set(ARCH_FOLDER "MacOs_${ARCH}")
-	else()
-		message(FATAL_ERROR "Unsupported Apple architecture: ${ARCH}")
-	endif()
-elseif(ANDROID)
-	if(ANDROID_ABI STREQUAL "arm64-v8a")
-		set(ARCH_FOLDER "Android_arm64-v8a")
-	elseif(ANDROID_ABI STREQUAL "x86_64")
-		set(ARCH_FOLDER "Android_x86_64")
-	else()
-		message(FATAL_ERROR "Unsupported Android ABI: ${ANDROID_ABI}")
-	endif()
-elseif(UNIX)
-	if(ARCH STREQUAL "x64")
-		set(ARCH_FOLDER "Linux_${ARCH}")
-	else()
-		message(FATAL_ERROR "Unsupported Linux architecture: ${ARCH}")
-	endif()
-else()
-	message(FATAL_ERROR "Unsupported system: ${ARCH}")
-endif()
-
 include(ThirdParty)
-
-if (BUILD_BENCHMARKS)
-	add_subdirectory("Sources/Benchmarks/Core")
-
-	set_target_properties(BenchmarksCore PROPERTIES FOLDER "Benchmark/")
-endif()
-
-if (BUILD_UNIT_TESTS)
-	include(CTest)
-	enable_testing()
-	add_subdirectory("Sources/Tests/Core")
-
-	set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
-endif()
 
 set(CMAKE_SUPPRESS_REGENERATION true)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -119,13 +49,27 @@ add_subdirectory("Sources/HodEngine/Audio")
 add_subdirectory("Sources/HodEngine/Application")
 add_subdirectory("Sources/HodEngine/Main")
 
-if (BUILD_EDITOR AND NOT ANDROID)
+if (BUILD_EDITOR AND NOT ANDROID AND BUILD_SHARED_LIBS)
 	add_subdirectory("Sources/HodEngine/CoreEditor")
 	add_subdirectory("Sources/HodEngine/InputEditor")
 	add_subdirectory("Sources/HodEngine/GameEditor")
 	add_subdirectory("Sources/HodEngine/UIEditor")
 	add_subdirectory("Sources/HodEngine/Editor")
 	add_subdirectory("Sources/HodEditor")
+endif()
+
+if (BUILD_BENCHMARKS AND NOT ANDROID)
+	add_subdirectory("Sources/Benchmarks/Core")
+
+	set_target_properties(BenchmarksCore PROPERTIES FOLDER "Benchmark/")
+endif()
+
+if (BUILD_UNIT_TESTS AND NOT ANDROID)
+	include(CTest)
+	enable_testing()
+	add_subdirectory("Sources/Tests/Core")
+
+	set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
 endif()
 
 install(EXPORT HodEngineTargets
@@ -156,14 +100,19 @@ if(CMAKE_TOOLCHAIN_FILE)
 	)
 endif()
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/PlatformDetection.cmake"
 		DESTINATION "cmake")
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/Sources/HodEngine/HodEngine.hpp"
 	DESTINATION "include/HodEngine"
 )
 configure_file(
-		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake"
-		"${CMAKE_BINARY_DIR}/Output/cmake/Global.cmake"
+		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/PlatformDetection.cmake"
+		"${CMAKE_BINARY_DIR}/Output/cmake/PlatformDetection.cmake"
+		COPYONLY
+)
+configure_file(
+		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/PlatformDetection.cmake"
+		"${CMAKE_BINARY_DIR}/Output/cmake/PlatformDetection.cmake"
 		COPYONLY
 )

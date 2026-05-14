@@ -63,7 +63,6 @@ endif()
 target_compile_definitions(Editor
 	PUBLIC ${HOD_PLATFORM_DEFINE}
 	PRIVATE HOD_EDITOR_EXPORT
-	PRIVATE HOD_PLATFORM="${HOD_PLATFORM}"
 )
 
 add_custom_command(

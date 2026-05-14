@@ -9,7 +9,7 @@
 				"lhs": "${hostSystemName}",
 				"rhs": "Darwin"
 			},
-			"toolchainFile": "${sourceDir}/CMake/Toolchains/MacOs-Clang-arm64.cmake"
+			"toolchainFile": "${sourceDir}/CMake/Toolchains/macOs-arm64-clang.cmake"
 		}
 	]
 }

@@ -201,7 +201,7 @@ namespace hod::inline editor
 
 		String gameModuleName = _name + "Game";
 		Path moduleBuildDirectoryPath = GetIntermediateSourcesDirPath() / "Editor";
-		_gameModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / "shared" / "bin" / gameModuleName, true);
+		_gameModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" / gameModuleName, true);
 		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
 		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); }, nullptr) == false)
 		{
@@ -209,7 +209,7 @@ namespace hod::inline editor
 		}
 
 		String editorModuleName = _name + "Editor";
-		_editorModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / "shared" / "bin" / editorModuleName, false);
+		_editorModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" / editorModuleName, false);
 		FileSystem::GetInstance()->CreateDirectories(_editorModule.GetPath().ParentPath());
 		if (_editorModuleFileSystemWatcher.Init(_editorModule.GetPath(), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); }, nullptr) == false)
 		{
