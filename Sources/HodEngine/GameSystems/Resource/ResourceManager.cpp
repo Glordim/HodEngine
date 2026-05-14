@@ -18,7 +18,11 @@ namespace hod::inline gamesystems
 	/// @param directory
 	void ResourceManager::SetResourceDirectory(const Path& directory)
 	{
+#if defined(ANDROID)
+		_directory = "";
+#else
 		_directory = directory;
+#endif
 	}
 
 	/// @brief
