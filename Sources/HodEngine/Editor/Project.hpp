@@ -24,6 +24,8 @@ namespace hod::inline editor
 		_Singleton(Project)
 
 	public:
+		~Project();
+
 		bool Create(const Path& directory);
 		bool Open(const Path& projectPath);
 

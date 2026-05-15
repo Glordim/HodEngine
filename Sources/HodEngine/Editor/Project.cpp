@@ -38,6 +38,20 @@ namespace hod::inline editor
 
 	_SingletonConstructor(Project) {}
 
+	Project::~Project()
+	{
+		auto shutdownFunc = _gameModule.LoadFunction<int(*)()>("ShutdownModule");
+		if (shutdownFunc != nullptr)
+		{
+			shutdownFunc();
+		}
+		shutdownFunc = _editorModule.LoadFunction<int(*)()>("ShutdownModule");
+		if (shutdownFunc != nullptr)
+		{
+			shutdownFunc();
+		}
+	}
+
 	/// @brief
 	/// @param directory
 	/// @return
