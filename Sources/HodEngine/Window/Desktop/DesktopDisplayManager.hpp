@@ -14,9 +14,11 @@ namespace hod::inline window
 
 	class HOD_WINDOW_API DesktopDisplayManager : public DisplayManager
 	{
-	_SingletonAbstractOverride(DesktopDisplayManager)
+		_SingletonAbstractOverride(DesktopDisplayManager)
 
 		public :
+
+		~DesktopDisplayManager() override;
 
 		virtual Window* CreateWindow(bool hidden = false) = 0;
 		virtual void DestroyWindow(Window* window) = 0;

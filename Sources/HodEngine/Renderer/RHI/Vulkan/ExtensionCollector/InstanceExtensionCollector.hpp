@@ -12,6 +12,7 @@ namespace hod::inline renderer
 	{
 	public:
 		InstanceExtensionCollector() = default;
+		~InstanceExtensionCollector();
 
 		bool CollectAvailableExtension(const char* layer = nullptr);
 		bool AddRequiredExtension(const char* extension);

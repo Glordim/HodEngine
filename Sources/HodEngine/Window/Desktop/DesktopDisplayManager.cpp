@@ -1,11 +1,21 @@
 #include "HodEngine/Window/Pch.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Window/Desktop/DesktopDisplayManager.hpp"
+#include "HodEngine/Window/Desktop/Cursor.hpp"
 
 namespace hod::inline window
 {
 	_SingletonOverrideConstructor(DesktopDisplayManager)
 	: DisplayManager()
 	{
+	}
+
+	DesktopDisplayManager::~DesktopDisplayManager()
+	{
+		for (Cursor* builtinCursor : _builtinCursors)
+		{
+			DefaultAllocator::GetInstance().Delete(builtinCursor);
+		}
 	}
 
 	Cursor* DesktopDisplayManager::GetBultinCursor(BuiltinCursor builtinCursor)

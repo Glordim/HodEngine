@@ -9,6 +9,14 @@
 
 namespace hod::inline renderer
 {
+	InstanceExtensionCollector::~InstanceExtensionCollector()
+	{
+		for (void* feature : _features)
+		{
+			DefaultAllocator::GetInstance().Free(feature);
+		}
+	}
+
 	/// @brief
 	/// @return
 	bool InstanceExtensionCollector::CollectAvailableExtension(const char* layer)
