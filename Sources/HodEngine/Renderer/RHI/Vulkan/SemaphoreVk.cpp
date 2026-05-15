@@ -24,20 +24,29 @@ namespace hod::inline renderer
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	SemaphoreVk::~SemaphoreVk()
 	{
 		if (_vkSempahore != VK_NULL_HANDLE)
 		{
-			VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
-			vkDestroySemaphore(device, _vkSempahore, nullptr);
+			RendererVulkan::GetInstance()->DeferDestroy(_vkSempahore);
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	VkSemaphore SemaphoreVk::GetVkSemaphore() const
 	{
 		return _vkSempahore;
+	}
+
+	/// @brief Transfers ownership of the VkSemaphore handle to the caller.
+	/// The destructor will not destroy it.
+	/// @return
+	VkSemaphore SemaphoreVk::TakeVkSemaphore()
+	{
+		VkSemaphore handle = _vkSempahore;
+		_vkSempahore = VK_NULL_HANDLE;
+		return handle;
 	}
 }

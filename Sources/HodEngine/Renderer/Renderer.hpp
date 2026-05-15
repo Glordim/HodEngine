@@ -1,7 +1,6 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Renderer/RHI/Buffer.hpp"
@@ -75,9 +74,6 @@ namespace hod::inline renderer
 		virtual Texture*          CreateTexture() = 0;
 		virtual RenderTarget*     CreateRenderTarget() = 0;
 
-		void DestroyTexture(Texture* texture);
-		void DestroySemaphore(Semaphore* semaphore);
-
 		FrameResources& GetCurrentFrameResources();
 
 		// void PushRenderView(RenderView& renderView, bool autoDestroyAfterFrame = true);
@@ -103,6 +99,9 @@ namespace hod::inline renderer
 		MaterialInstance* GetWireframeMaterialInstance();
 
 		Texture* GetDefaultWhiteTexture();
+
+	protected:
+		virtual void FlushDeferredDeletions(uint32_t) {}
 
 	protected:
 		Material*         _overdrawnMaterial = nullptr;
@@ -132,9 +131,6 @@ namespace hod::inline renderer
 		VisualizationMode _visualizationMode = VisualizationMode::Normal;
 
 		Texture* _defaultWhiteTexture = nullptr;
-
-		Vector<Vector<Texture*>>   _texturesToDestroy;
-		Vector<Vector<Semaphore*>> _semaphoresToDestroy;
 
 		// FIF
 		uint32_t               _frameCount = 0;

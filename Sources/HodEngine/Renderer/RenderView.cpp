@@ -30,7 +30,7 @@ namespace hod::inline renderer
 		DefaultAllocator::GetInstance().Delete(_pickingMaterialInstance);
 		_pickingMaterialInstance = nullptr;
 
-		Renderer::GetInstance()->DestroySemaphore(_renderFinishedSemaphore);
+		DefaultAllocator::GetInstance().Delete(_renderFinishedSemaphore);
 		_renderFinishedSemaphore = nullptr;
 
 		DefaultAllocator::GetInstance().Delete(_renderFinishedFence);

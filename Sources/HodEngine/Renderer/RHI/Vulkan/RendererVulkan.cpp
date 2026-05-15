@@ -57,6 +57,11 @@ namespace hod::inline renderer
 			}
 		}
 
+		for (uint32_t i = 0; i < GetFrameInFlightCount(); ++i)
+		{
+			FlushDeferredDeletions(i);
+		}
+
 		if (_dummyRenderPass != VK_NULL_HANDLE)
 		{
 			vkDestroyRenderPass(_device, _dummyRenderPass, nullptr);
@@ -178,9 +183,93 @@ namespace hod::inline renderer
 	*/
 
 	/// @brief
+	void RendererVulkan::DeferDestroy(VkFramebuffer framebuffer)
+	{
+		_framebuffersToDestroy[_frameIndex].PushBack(framebuffer);
+	}
+
+	/// @brief
+	void RendererVulkan::DeferDestroy(VkRenderPass renderPass)
+	{
+		_renderPassesToDestroy[_frameIndex].PushBack(renderPass);
+	}
+
+	/// @brief
+	void RendererVulkan::DeferDestroy(VkSemaphore semaphore)
+	{
+		_vkSemaphoresToDestroy[_frameIndex].PushBack(semaphore);
+	}
+
+	/// @brief
+	void RendererVulkan::DeferDestroy(VkSampler sampler)
+	{
+		_samplersToDestroy[_frameIndex].PushBack(sampler);
+	}
+
+	/// @brief
+	void RendererVulkan::DeferDestroy(VkImageView imageView)
+	{
+		_imageViewsToDestroy[_frameIndex].PushBack(imageView);
+	}
+
+	/// @brief
+	void RendererVulkan::DeferDestroy(VkImage image, VmaAllocation allocation)
+	{
+		_imagesToDestroy[_frameIndex].PushBack({ image, allocation });
+	}
+
+	/// @brief
+	void RendererVulkan::FlushDeferredDeletions(uint32_t frameIndex)
+	{
+		for (VkFramebuffer framebuffer : _framebuffersToDestroy[frameIndex])
+		{
+			vkDestroyFramebuffer(_device, framebuffer, nullptr);
+		}
+		_framebuffersToDestroy[frameIndex].Clear();
+
+		for (VkSemaphore semaphore : _vkSemaphoresToDestroy[frameIndex])
+		{
+			vkDestroySemaphore(_device, semaphore, nullptr);
+		}
+		_vkSemaphoresToDestroy[frameIndex].Clear();
+
+		for (VkSampler sampler : _samplersToDestroy[frameIndex])
+		{
+			vkDestroySampler(_device, sampler, nullptr);
+		}
+		_samplersToDestroy[frameIndex].Clear();
+
+		for (VkImageView imageView : _imageViewsToDestroy[frameIndex])
+		{
+			vkDestroyImageView(_device, imageView, nullptr);
+		}
+		_imageViewsToDestroy[frameIndex].Clear();
+
+		for (const DeferredImage& img : _imagesToDestroy[frameIndex])
+		{
+			vkDestroyImage(_device, img.image, nullptr);
+			vmaFreeMemory(_vmaAllocator, img.allocation);
+		}
+		_imagesToDestroy[frameIndex].Clear();
+
+		for (VkRenderPass renderPass : _renderPassesToDestroy[frameIndex])
+		{
+			vkDestroyRenderPass(_device, renderPass, nullptr);
+		}
+		_renderPassesToDestroy[frameIndex].Clear();
+	}
+
+	/// @brief
 	/// @return
 	bool RendererVulkan::Init(Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
+		_framebuffersToDestroy.Resize(GetFrameInFlightCount());
+		_renderPassesToDestroy.Resize(GetFrameInFlightCount());
+		_vkSemaphoresToDestroy.Resize(GetFrameInFlightCount());
+		_samplersToDestroy.Resize(GetFrameInFlightCount());
+		_imageViewsToDestroy.Resize(GetFrameInFlightCount());
+		_imagesToDestroy.Resize(GetFrameInFlightCount());
+
 		if (CreateVkIntance() == false)
 		{
 			return false;

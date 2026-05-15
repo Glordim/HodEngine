@@ -1,4 +1,5 @@
 #include "HodEngine/ImGui/Pch.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
 #include <HodEngine/GameSystems/Job/Job.hpp>
@@ -666,7 +667,7 @@ namespace hod::inline imgui
 								break;
 							}
 						}
-						Renderer::GetInstance()->DestroyTexture(textureData->TexID);
+						DefaultAllocator::GetInstance().Delete(textureData->TexID);
 						textureData->SetTexID(nullptr);
 						textureData->SetStatus(ImTextureStatus_Destroyed);
 
@@ -697,7 +698,7 @@ namespace hod::inline imgui
 								break;
 							}
 						}
-						Renderer::GetInstance()->DestroyTexture(textureData->TexID);
+						DefaultAllocator::GetInstance().Delete(textureData->TexID);
 						textureData->SetTexID(nullptr);
 						textureData->SetStatus(ImTextureStatus_Destroyed);
 					}

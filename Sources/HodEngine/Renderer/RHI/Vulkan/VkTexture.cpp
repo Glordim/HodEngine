@@ -35,23 +35,17 @@ namespace hod::inline renderer
 
 		if (_textureSampler != VK_NULL_HANDLE)
 		{
-			vkDestroySampler(renderer->GetVkDevice(), _textureSampler, nullptr);
+			renderer->DeferDestroy(_textureSampler);
 		}
 
 		if (_textureImageView != VK_NULL_HANDLE)
 		{
-			vkDestroyImageView(renderer->GetVkDevice(), _textureImageView, nullptr);
+			renderer->DeferDestroy(_textureImageView);
 		}
 
 		if (_textureImage != VK_NULL_HANDLE)
 		{
-			vkDestroyImage(renderer->GetVkDevice(), _textureImage, nullptr);
-		}
-
-		if (_textureImageMemory != VK_NULL_HANDLE)
-		{
-			// vkFreeMemory(renderer->GetVkDevice(), _textureImageMemory, nullptr);
-			vmaFreeMemory(renderer->GetVmaAllocator(), _textureImageMemory);
+			renderer->DeferDestroy(_textureImage, _textureImageMemory);
 		}
 	}
 

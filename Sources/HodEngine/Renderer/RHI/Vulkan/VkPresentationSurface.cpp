@@ -117,6 +117,13 @@ namespace hod::inline renderer
 
 		DestroySwapChain();
 
+		VkDevice device = renderer->GetVkDevice();
+		while (_semaphoreDeletionQueue.empty() == false)
+		{
+			vkDestroySemaphore(device, _semaphoreDeletionQueue.front().semaphore, nullptr);
+			_semaphoreDeletionQueue.pop_front();
+		}
+
 		if (_surface != VK_NULL_HANDLE)
 		{
 			vkDestroySurfaceKHR(renderer->GetVkInstance(), _surface, nullptr);
@@ -285,6 +292,7 @@ namespace hod::inline renderer
 
 		if (_hasSurfaceMaintenance1)
 		{
+			/*
 			VkSurfacePresentScalingCapabilitiesKHR scalingCaps = {};
 			scalingCaps.sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_KHR;
 
@@ -306,6 +314,7 @@ namespace hod::inline renderer
 
 			extent.width = std::clamp(extent.width, scalingCaps.minScaledImageExtent.width, scalingCaps.maxScaledImageExtent.width);
 			extent.height = std::clamp(extent.height, scalingCaps.minScaledImageExtent.height, scalingCaps.maxScaledImageExtent.height);
+			*/
 		}
 
 		_swapChainExtent = extent;
@@ -681,7 +690,7 @@ namespace hod::inline renderer
 		Vector<VkSemaphore> waitSemaphores(_semaphoresToSwapBuffer.Size());
 		for (uint32_t i = 0; i < _semaphoresToSwapBuffer.Size(); ++i)
 		{
-			waitSemaphores[i] = static_cast<const SemaphoreVk*>(_semaphoresToSwapBuffer[i])->GetVkSemaphore();
+			waitSemaphores[i] = static_cast<SemaphoreVk*>(_semaphoresToSwapBuffer[i])->TakeVkSemaphore();
 		}
 		_semaphoresToSwapBuffer.Clear();
 
@@ -702,13 +711,24 @@ namespace hod::inline renderer
 			return false;
 		}
 
+		for (VkSemaphore semaphore : waitSemaphores)
+		{
+			_semaphoreDeletionQueue.push_back({ semaphore, _presentCount + static_cast<uint32_t>(_swapchainImageViews.Size()) + 1 });
+		}
+
+		VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
+
+		while (_semaphoreDeletionQueue.empty() == false && _semaphoreDeletionQueue.front()._presentCountForRemoval <= _presentCount)
+		{
+			vkDestroySemaphore(device, _semaphoreDeletionQueue.front().semaphore, nullptr);
+			_semaphoreDeletionQueue.pop_front();
+		}
+
 		if (_deletionQueue.empty() == false)
 		{
 			RetiredSwapchain& retiredSwapchain = _deletionQueue.front();
 			if (retiredSwapchain._presentCountForRemoval <= _presentCount)
 			{
-				VkDevice device = RendererVulkan::GetInstance()->GetVkDevice();
-
 				size_t swapChainFramebufferCount = retiredSwapchain.framebuffers.Size();
 				for (size_t i = 0; i < swapChainFramebufferCount; ++i)
 				{

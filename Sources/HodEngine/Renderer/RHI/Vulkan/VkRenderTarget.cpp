@@ -6,7 +6,6 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
-#include <cstring>
 
 namespace hod::inline renderer
 {
@@ -152,14 +151,14 @@ namespace hod::inline renderer
 		{
 			if (frameBuffer != VK_NULL_HANDLE)
 			{
-				vkDestroyFramebuffer(renderer->GetVkDevice(), frameBuffer, nullptr);
+				renderer->DeferDestroy(frameBuffer);
 			}
 		}
 		_frameBuffers.Clear();
 
 		if (_renderPass != VK_NULL_HANDLE)
 		{
-			vkDestroyRenderPass(renderer->GetVkDevice(), _renderPass, nullptr);
+			renderer->DeferDestroy(_renderPass);
 			_renderPass = VK_NULL_HANDLE;
 		}
 	}

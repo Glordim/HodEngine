@@ -106,6 +106,16 @@ namespace hod::inline renderer
 
 		bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
 
+		void DeferDestroy(VkFramebuffer framebuffer);
+		void DeferDestroy(VkRenderPass renderPass);
+		void DeferDestroy(VkSemaphore semaphore);
+		void DeferDestroy(VkSampler sampler);
+		void DeferDestroy(VkImageView imageView);
+		void DeferDestroy(VkImage image, VmaAllocation allocation);
+
+	protected:
+		void FlushDeferredDeletions(uint32_t frameIndex) override;
+
 	private:
 		bool CreateVkIntance();
 
@@ -131,5 +141,18 @@ namespace hod::inline renderer
 		Vector<VkGpuDevice> _availableGpu;
 
 		VmaAllocator _vmaAllocator = VK_NULL_HANDLE;
+
+		struct DeferredImage
+		{
+			VkImage       image      = VK_NULL_HANDLE;
+			VmaAllocation allocation = VK_NULL_HANDLE;
+		};
+
+		Vector<Vector<VkFramebuffer>> _framebuffersToDestroy;
+		Vector<Vector<VkRenderPass>>  _renderPassesToDestroy;
+		Vector<Vector<VkSemaphore>>   _vkSemaphoresToDestroy;
+		Vector<Vector<VkSampler>>     _samplersToDestroy;
+		Vector<Vector<VkImageView>>   _imageViewsToDestroy;
+		Vector<Vector<DeferredImage>> _imagesToDestroy;
 	};
 }

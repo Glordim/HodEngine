@@ -52,7 +52,14 @@ namespace hod::inline renderer
 			uint32_t              _presentCountForRemoval;
 		};
 
-		std::deque<RetiredSwapchain> _deletionQueue;
+		struct RetiredSemaphore
+		{
+			VkSemaphore semaphore;
+			uint32_t    _presentCountForRemoval;
+		};
+
+		std::deque<RetiredSwapchain>  _deletionQueue;
+		std::deque<RetiredSemaphore>  _semaphoreDeletionQueue;
 
 	private:
 		bool CreateSurface(Window* window);

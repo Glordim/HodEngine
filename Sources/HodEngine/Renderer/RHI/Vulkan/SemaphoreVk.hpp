@@ -24,6 +24,7 @@ namespace hod::inline renderer
 	public:
 
 		VkSemaphore					GetVkSemaphore() const;
+		VkSemaphore					TakeVkSemaphore();
 
 	private:
 
