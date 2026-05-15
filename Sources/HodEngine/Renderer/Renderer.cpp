@@ -8,6 +8,7 @@
 #include "HodEngine/Renderer/RHI/Material.hpp"
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
+#include "HodEngine/Renderer/RHI/Semaphore.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
 #include "Shader/P2f_Unlit_Fragment.hpp"
@@ -32,6 +33,7 @@ namespace hod::inline renderer
 
 		_frameResources.Resize(_frameInFlight);
 		_texturesToDestroy.Resize(_frameInFlight);
+		_semaphoresToDestroy.Resize(_frameInFlight);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -66,6 +68,35 @@ namespace hod::inline renderer
 
 		DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
 		_defaultWhiteTexture = nullptr;
+
+		for (uint32_t i = 0; i < _frameInFlight; ++i)
+		{
+			_frameResources[i].Wait();
+			_frameResources[i].DestroyAll();
+
+			for (Texture* texture : _texturesToDestroy[i])
+			{
+				DefaultAllocator::GetInstance().Delete(texture);
+			}
+			_texturesToDestroy[i].Clear();
+		}
+
+		// DestroyAll() calls DestroySemaphore() which always targets _semaphoresToDestroy[_frameIndex],
+		// so flush all slots after the loop to catch everything regardless of _frameIndex.
+		for (uint32_t i = 0; i < _frameInFlight; ++i)
+		{
+			for (Semaphore* semaphore : _semaphoresToDestroy[i])
+			{
+				DefaultAllocator::GetInstance().Delete(semaphore);
+			}
+			_semaphoresToDestroy[i].Clear();
+		}
+
+		for (PresentationSurface* presentationSurface : _presentationSurfaces)
+		{
+			DefaultAllocator::GetInstance().Delete(presentationSurface);
+		}
+		_presentationSurfaces.Clear();
 	}
 
 	/*
@@ -286,6 +317,12 @@ namespace hod::inline renderer
 			}
 		}
 
+		for (Semaphore* semaphoreToDestroy : _semaphoresToDestroy[_frameIndex])
+		{
+			DefaultAllocator::GetInstance().Delete(semaphoreToDestroy);
+		}
+		_semaphoresToDestroy[_frameIndex].Clear();
+
 		FrameResources& frameResources = GetCurrentFrameResources();
 		frameResources.Wait();
 		frameResources.DestroyAll();
@@ -318,6 +355,11 @@ namespace hod::inline renderer
 	void Renderer::DestroyTexture(Texture* texture)
 	{
 		_texturesToDestroy[_frameIndex].PushBack(texture);
+	}
+
+	void Renderer::DestroySemaphore(Semaphore* semaphore)
+	{
+		_semaphoresToDestroy[_frameIndex].PushBack(semaphore);
 	}
 
 	PresentationSurface* Renderer::FindPresentationSurface(Window* window) const

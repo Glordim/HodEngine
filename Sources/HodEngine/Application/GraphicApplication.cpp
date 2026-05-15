@@ -144,6 +144,8 @@ namespace hod::inline application
 
 		engineLoop.Join();
 
+		Renderer::GetInstance()->WaitIdle();
+
 		return result;
 	}
 

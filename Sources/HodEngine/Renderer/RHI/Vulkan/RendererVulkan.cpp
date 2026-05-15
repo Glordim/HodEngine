@@ -49,20 +49,20 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	RendererVulkan::~RendererVulkan()
 	{
+		if (_device != VK_NULL_HANDLE)
+		{
+			if (vkDeviceWaitIdle(_device) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: DeviceWaitIdle failed!");
+			}
+		}
+
 		if (_dummyRenderPass != VK_NULL_HANDLE)
 		{
 			vkDestroyRenderPass(_device, _dummyRenderPass, nullptr);
 		}
 
 		vmaDestroyAllocator(_vmaAllocator);
-
-		if (_device != VK_NULL_HANDLE)
-		{
-			if (vkDeviceWaitIdle(_device) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: DeviceWaitIdel failed!");
-			}
-		}
 
 		if (_descriptorPool != VK_NULL_HANDLE)
 		{
@@ -86,6 +86,20 @@ namespace hod::inline renderer
 		if (_vkInstance != VK_NULL_HANDLE)
 		{
 			vkDestroyInstance(_vkInstance, nullptr);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	void RendererVulkan::WaitIdle()
+	{
+		if (_device != VK_NULL_HANDLE)
+		{
+			if (vkDeviceWaitIdle(_device) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: DeviceWaitIdle failed!");
+			}
 		}
 	}
 

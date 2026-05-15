@@ -45,6 +45,7 @@ namespace hod::inline renderer
 
 	public:
 		bool Init(Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
+		void WaitIdle() override;
 
 		// bool CreateContext(Window* window); // TODO virtual in Renderer ?
 

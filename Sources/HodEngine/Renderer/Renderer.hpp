@@ -54,6 +54,7 @@ namespace hod::inline renderer
 		virtual ~Renderer();
 
 		virtual bool Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) = 0;
+		virtual void WaitIdle() {}
 		virtual void Clear();
 
 		virtual bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) = 0;
@@ -75,6 +76,7 @@ namespace hod::inline renderer
 		virtual RenderTarget*     CreateRenderTarget() = 0;
 
 		void DestroyTexture(Texture* texture);
+		void DestroySemaphore(Semaphore* semaphore);
 
 		FrameResources& GetCurrentFrameResources();
 
@@ -129,7 +131,8 @@ namespace hod::inline renderer
 
 		Texture* _defaultWhiteTexture = nullptr;
 
-		Vector<Vector<Texture*>> _texturesToDestroy;
+		Vector<Vector<Texture*>>   _texturesToDestroy;
+		Vector<Vector<Semaphore*>> _semaphoresToDestroy;
 
 		// FIF
 		uint32_t               _frameCount = 0;
