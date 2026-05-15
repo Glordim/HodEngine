@@ -65,6 +65,10 @@ namespace hod::inline renderer
 		_defaultMaterialInstance = nullptr;
 		DefaultAllocator::GetInstance().Delete(_defaultMaterial);
 		_defaultMaterial = nullptr;
+		DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
+		_defaultVertexShader = nullptr;
+		DefaultAllocator::GetInstance().Delete(_defaultFragmentShader);
+		_defaultFragmentShader = nullptr;
 
 		DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
 		_defaultWhiteTexture = nullptr;
@@ -155,26 +159,31 @@ namespace hod::inline renderer
 					//{ 16, VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
 				};
 
-				Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
-				if (vertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size) == false)
+				_defaultVertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
+				if (_defaultVertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size) == false)
 				{
-					DefaultAllocator::GetInstance().Delete(vertexShader);
+					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
+					_defaultVertexShader = nullptr;
 					return nullptr;
 				}
 
-				Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
-				if (fragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size) == false)
+				_defaultFragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
+				if (_defaultFragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size) == false)
 				{
-					DefaultAllocator::GetInstance().Delete(vertexShader);
-					DefaultAllocator::GetInstance().Delete(fragmentShader);
+					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
+					DefaultAllocator::GetInstance().Delete(_defaultFragmentShader);
+					_defaultVertexShader = nullptr;
+					_defaultFragmentShader = nullptr;
 					return nullptr;
 				}
 
-				_defaultMaterial = renderer->CreateMaterial(vertexInput, 1, vertexShader, fragmentShader);
+				_defaultMaterial = renderer->CreateMaterial(vertexInput, 1, _defaultVertexShader, _defaultFragmentShader);
 				if (_defaultMaterial == nullptr)
 				{
-					DefaultAllocator::GetInstance().Delete(vertexShader);
-					DefaultAllocator::GetInstance().Delete(fragmentShader);
+					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
+					DefaultAllocator::GetInstance().Delete(_defaultFragmentShader);
+					_defaultVertexShader = nullptr;
+					_defaultFragmentShader = nullptr;
 					return nullptr;
 				}
 			}

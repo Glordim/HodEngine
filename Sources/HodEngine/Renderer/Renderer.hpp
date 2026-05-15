@@ -113,6 +113,8 @@ namespace hod::inline renderer
 
 		Material*         _defaultMaterial = nullptr;
 		MaterialInstance* _defaultMaterialInstance = nullptr;
+		Shader*           _defaultVertexShader = nullptr;
+		Shader*           _defaultFragmentShader = nullptr;
 
 		Vector<RenderView*>          _renderViews;
 		Vector<PresentationSurface*> _presentationSurfaces;
