@@ -3,56 +3,93 @@
 #include "HodEngine/Core/StringConversion.hpp"
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
+#include <HodEngine/Core/OS.hpp>
 
+/*
 #include <win32/file.h>
 #include <win32/threads.h>
+#include <win32/io.h>
 #include <win32/window.h>
 #include <win32/windows_base.h>
-
 extern "C"
 {
 	BOOL WINAPI GetOverlappedResult(_In_ HANDLE hFile, _In_ LPOVERLAPPED lpOverlapped, _Out_ LPDWORD lpNumberOfBytesTransferred, _In_ BOOL bWait);
 }
+*/
+#include <Windows.h>
+
 namespace hod::inline core
 {
+	class ScopedFunction
+	{
+	public:
+		template<typename F>
+		ScopedFunction(F&& function) : _function(std::forward<F>(function)) {}
+		~ScopedFunction() { if (_function) _function(); }
+
+		ScopedFunction& operator=(const ScopedFunction& copy) { _function = copy._function; return *this; }
+
+		void Disable() { _function = nullptr; }
+
+	private:
+		std::function<void()> _function;
+	};
+
 	bool FileSystemWatcher::InternalInit()
 	{
-		if (FileSystem::GetInstance()->IsDirectory(_path))
-		{
-			_dirPath = _path;
-		}
-		else
-		{
-			_isFile = true;
-			_dirPath = _path.ParentPath();
-		}
-		std::wstring assetFolderPath;
-		StringConversion::StringToWString(_dirPath.GetString(), assetFolderPath);
-		_hDir = CreateFileW(assetFolderPath.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
+		ScopedFunction cleanup = [&]() {
+			Cleanup();
+		};
+
+		_hDir = CreateFileW(_watchingPath.ToNative().c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
 		                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
-
-		if (_overlapped == nullptr)
+		if (_hDir == INVALID_HANDLE_VALUE)
 		{
-			_overlapped = DefaultAllocator::GetInstance().New<OVERLAPPED>();
+			OUTPUT_FUNCTION_ERROR(CreateFileW, OS::GetLastWin32ErrorMessage());
+			return false;
 		}
+
+		_overlapped = DefaultAllocator::GetInstance().New<OVERLAPPED>();
 		_overlapped->hEvent = CreateEventW(NULL, FALSE, 0, NULL);
+		if (_overlapped->hEvent == NULL)
+		{
+			OUTPUT_FUNCTION_ERROR(CreateEventW, OS::GetLastWin32ErrorMessage());
+			return false;
+		}
 
-		::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL,
-		                        _overlapped, NULL);
+		if (ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL,
+		                        _overlapped, NULL) == 0)
+		{
+			OUTPUT_FUNCTION_ERROR(ReadDirectoryChangesW, OS::GetLastWin32ErrorMessage());
+			return false;
+		}
 
+		cleanup.Disable();
 		return true;
 	}
 
-	/// @brief
 	void FileSystemWatcher::Cleanup()
 	{
 		if (_hDir != INVALID_HANDLE_VALUE)
 		{
-			// ::CloseHandle(_hDir); // todo
+			if (_overlapped && _overlapped->hEvent != NULL)
+			{
+				CancelIoEx(_hDir, _overlapped);
+				DWORD bytesTransferred;
+				GetOverlappedResult(_hDir, _overlapped, &bytesTransferred, TRUE);
+			}
+			CloseHandle(_hDir);
+			_hDir = INVALID_HANDLE_VALUE;
 		}
-
-		DefaultAllocator::GetInstance().Delete(_overlapped);
-		_overlapped = nullptr;
+		if (_overlapped)
+		{
+			if (_overlapped->hEvent)
+			{
+				CloseHandle(_overlapped->hEvent);
+			}
+			DefaultAllocator::GetInstance().Delete(_overlapped);
+			_overlapped = nullptr;
+		}
 	}
 
 	/// @brief
@@ -74,7 +111,7 @@ namespace hod::inline core
 				String       relativefilePath;
 				StringConversion::WStringToString(result, relativefilePath);
 
-				Path filePath = _dirPath / relativefilePath.CStr();
+				Path filePath = _watchingPath / relativefilePath.CStr();
 				if (_isFile == false || fni->Action == FILE_ACTION_RENAMED_NEW_NAME || _path == filePath)
 				{
 					switch (fni->Action)

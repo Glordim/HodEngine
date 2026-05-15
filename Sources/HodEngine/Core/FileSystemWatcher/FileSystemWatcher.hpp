@@ -36,17 +36,17 @@ namespace hod::inline core
 
 	private:
 		Path                                          _path;
+		bool                                          _isFile = false;
+		Path                                          _watchingPath;
 		std::function<void(const Path&)>              _onCreateFile;
 		std::function<void(const Path&)>              _onDeleteFile;
 		std::function<void(const Path&)>              _onChangeFile;
 		std::function<void(const Path&, const Path&)> _onMoveFile;
-
-#if defined(PLATFORM_WINDOWS)
+		
+		#if defined(PLATFORM_WINDOWS)
 		HANDLE       _hDir = nullptr;
 		_OVERLAPPED* _overlapped = nullptr;
 		alignas(DWORD) uint8_t _changeBuf[1024];
-		bool _isFile = false;
-		Path _dirPath;
 #elif defined(PLATFORM_MACOS)
 		int           _fd = -1;
 		int           _kQueue = -1;

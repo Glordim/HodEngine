@@ -1,6 +1,5 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp"
-#include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
@@ -27,26 +26,25 @@ namespace hod::inline core
 	                             const std::function<void(const Path&)>& onChangeFile, const std::function<void(const Path& old, const Path&)>& onMoveFile)
 	{
 		_path = path;
+		if (FileSystem::GetInstance()->IsDirectory(_path))
+		{
+			_watchingPath = _path;
+		}
+		else
+		{
+			_isFile = true;
+			_watchingPath = _path.ParentPath();
+		}
+
 		_onCreateFile = onCreateFile;
 		_onDeleteFile = onDeleteFile;
 		_onChangeFile = onChangeFile;
 		_onMoveFile = onMoveFile;
 
-		if (FileSystem::GetInstance()->IsDirectory(_path))
+		if (FileSystem::GetInstance()->Exists(_watchingPath) == false)
 		{
-			if (FileSystem::GetInstance()->Exists(_path) == false)
-			{
-				OUTPUT_ERROR("FileSystemWatcher::Init fail, {} doesn't exist", _path);
-				return false;
-			}
-		}
-		else
-		{
-			if (FileSystem::GetInstance()->Exists(_path.ParentPath()) == false)
-			{
-				OUTPUT_ERROR("FileSystemWatcher::Init fail, {} doesn't exist", _path.ParentPath());
-				return false;
-			}
+			OUTPUT_ERROR("FileSystemWatcher::Init fail, {} doesn't exist", _watchingPath);
+			return false;
 		}
 
 		return InternalInit();
