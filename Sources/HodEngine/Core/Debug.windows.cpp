@@ -54,11 +54,27 @@ extern "C"
 		DWORD Reserved;    // Padding - don't remove.
 	} IMAGEHLP_MODULE64, *PIMAGEHLP_MODULE64;
 
-	BOOL SymGetModuleInfo64(_In_ HANDLE hProcess, _In_ DWORD64 qwAddr, _Out_ PIMAGEHLP_MODULE64 ModuleInfo);
+	BOOL   SymGetModuleInfo64(_In_ HANDLE hProcess, _In_ DWORD64 qwAddr, _Out_ PIMAGEHLP_MODULE64 ModuleInfo);
+	DWORD64 SymLoadModuleExW(_In_ HANDLE hProcess, _In_opt_ HANDLE hFile, _In_opt_ const wchar_t* ImageName, _In_opt_ const wchar_t* ModuleName, _In_ DWORD64 BaseOfDll, _In_ DWORD DllSize, _In_opt_ void* Data, _In_opt_ DWORD Flags);
 }
 
 namespace hod::inline core
 {
+	static bool EnsureSymInitialized()
+	{
+		static bool symInitialized = false;
+		if (symInitialized == false)
+		{
+			if (SymInitialize(GetCurrentProcess(), NULL, TRUE) == FALSE)
+			{
+				OUTPUT_ERROR("SymInitialize error : {}", OS::GetLastWin32ErrorMessage());
+				return false;
+			}
+			symInitialized = true;
+		}
+		return true;
+	}
+
 	bool Debug::IsDebuggerAttached()
 	{
 		return IsDebuggerPresent();
@@ -79,19 +95,13 @@ namespace hod::inline core
 	String Debug::GetSymbol(void* addr)
 	{
 		String symbol;
-		HANDLE hProcess = GetCurrentProcess();
 
-		static bool symInitialized = false;
-		if (symInitialized == false)
+		if (EnsureSymInitialized() == false)
 		{
-			if (SymInitialize(hProcess, NULL, TRUE) == FALSE)
-			{
-				OUTPUT_ERROR("SymInitialize error : {}", OS::GetLastWin32ErrorMessage());
-				return symbol; // assert ?
-			}
-			symInitialized = true;
+			return symbol;
 		}
 
+		HANDLE             hProcess = GetCurrentProcess();
 		constexpr uint32_t maxFunctionNameSize = 255;
 		uint8_t            data[sizeof(SYMBOL_INFO) + maxFunctionNameSize * sizeof(uint8_t)];
 		PSYMBOL_INFO       symbolInfo = reinterpret_cast<PSYMBOL_INFO>(data);
@@ -120,19 +130,12 @@ namespace hod::inline core
 	/// @return
 	bool Debug::GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle)
 	{
-		HANDLE hProcess = GetCurrentProcess();
-
-		static bool symInitialized = false;
-		if (symInitialized == false)
+		if (EnsureSymInitialized() == false)
 		{
-			if (SymInitialize(hProcess, NULL, TRUE) == FALSE)
-			{
-				OUTPUT_ERROR("SymInitialize error : {}", OS::GetLastWin32ErrorMessage());
-				return false;
-			}
-			symInitialized = true;
+			return false;
 		}
 
+		HANDLE             hProcess = GetCurrentProcess();
 		constexpr uint32_t maxFunctionNameSize = 1024;
 		uint8_t            data[sizeof(SYMBOL_INFO) + maxFunctionNameSize];
 		PSYMBOL_INFO       win32SymbolInfo = reinterpret_cast<PSYMBOL_INFO>(data);
@@ -168,10 +171,21 @@ namespace hod::inline core
 		symbolInfo._function = win32SymbolInfo->Name;
 		symbolInfo._line = static_cast<uint32_t>(displacement);
 
-		if (demangle)
-		{
-		}
+		(void)demangle;
 
 		return true;
+	}
+
+	/// @brief Called when a DLL is loaded so DbgHelp registers its symbols immediately.
+	/// Symbols remain in DbgHelp even after FreeLibrary, enabling memleak callstack resolution at shutdown.
+	/// @param moduleBase base address returned by LoadLibrary
+	/// @param modulePath full path to the DLL
+	void Debug::OnModuleLoaded(void* moduleBase, const wchar_t* modulePath)
+	{
+		if (EnsureSymInitialized() == false)
+		{
+			return;
+		}
+		SymLoadModuleExW(GetCurrentProcess(), NULL, modulePath, NULL, reinterpret_cast<DWORD64>(moduleBase), 0, NULL, 0);
 	}
 }

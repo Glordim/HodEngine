@@ -35,5 +35,9 @@ namespace hod::inline core
 		static uint32_t GetCallstack(void** callstack, uint32_t maxSize); // todo span ?
 		static String   GetSymbol(void* addr);
 		static bool     GetSymbolInfo(void* addr, SymbolInfo& symbolInfo, bool demangle);
+
+#if defined(PLATFORM_WINDOWS)
+		static void     OnModuleLoaded(void* moduleBase, const wchar_t* modulePath);
+#endif
 	};
 }

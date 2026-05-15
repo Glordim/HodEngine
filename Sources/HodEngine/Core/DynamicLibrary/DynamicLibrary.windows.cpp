@@ -1,5 +1,6 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
+#include "HodEngine/Core/Debug.hpp"
 #include "HodEngine/Core/OS.hpp"
 
 #include <win32/misc.h>
@@ -17,6 +18,7 @@ namespace hod::inline core
 			OUTPUT_FUNCTION_ERROR(LoadLibraryW, OS::GetLastWin32ErrorMessage());
 			return false;
 		}
+		Debug::OnModuleLoaded(_dll, path.ToNative().c_str());
 		return true;
 	}
 
