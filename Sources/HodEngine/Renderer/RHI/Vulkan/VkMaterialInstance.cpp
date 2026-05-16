@@ -42,7 +42,7 @@ namespace hod::inline renderer
 	/// @param setOffset
 	/// @param setCount
 	/// @return
-	Vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets(uint32_t setOffset, uint32_t setCount) const
+	Vector<VkDescriptorSet> VkMaterialInstance::GetDescriptorSets(uint32_t setOffset, uint32_t setCount)
 	{
 		if (setOffset > _descriptorSets.Size())
 		{

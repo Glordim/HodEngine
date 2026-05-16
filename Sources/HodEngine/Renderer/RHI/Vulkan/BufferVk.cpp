@@ -52,6 +52,17 @@ namespace hod::inline renderer
 		return _vkBuffer;
 	}
 
+	VmaAllocation BufferVk::GetVmaAllocation() const
+	{
+		return _vmaAllocation;
+	}
+
+	void BufferVk::Detach()
+	{
+		_vkBuffer      = VK_NULL_HANDLE;
+		_vmaAllocation = VK_NULL_HANDLE;
+	}
+
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------

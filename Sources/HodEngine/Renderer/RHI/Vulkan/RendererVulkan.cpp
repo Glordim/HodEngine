@@ -219,6 +219,30 @@ namespace hod::inline renderer
 	}
 
 	/// @brief
+	void RendererVulkan::DeferDestroy(VkBuffer buffer, VmaAllocation allocation)
+	{
+		_buffersToDestroy[_frameIndex].PushBack({ buffer, allocation });
+	}
+
+	/// @brief
+	void RendererVulkan::DeferDestroy(VkDescriptorSet descriptorSet)
+	{
+		_descriptorSetsToDestroy[_frameIndex].PushBack(descriptorSet);
+	}
+
+	/// @brief
+	void RendererVulkan::DeferDestroy(VkPipeline pipeline)
+	{
+		_pipelinesToDestroy[_frameIndex].PushBack(pipeline);
+	}
+
+	/// @brief
+	void RendererVulkan::DeferDestroy(VkPipelineLayout pipelineLayout)
+	{
+		_pipelineLayoutsToDestroy[_frameIndex].PushBack(pipelineLayout);
+	}
+
+	/// @brief
 	void RendererVulkan::FlushDeferredDeletions(uint32_t frameIndex)
 	{
 		for (VkFramebuffer framebuffer : _framebuffersToDestroy[frameIndex])
@@ -252,6 +276,30 @@ namespace hod::inline renderer
 		}
 		_imagesToDestroy[frameIndex].Clear();
 
+		for (const DeferredBuffer& buf : _buffersToDestroy[frameIndex])
+		{
+			vmaDestroyBuffer(_vmaAllocator, buf.buffer, buf.allocation);
+		}
+		_buffersToDestroy[frameIndex].Clear();
+
+		for (VkDescriptorSet descriptorSet : _descriptorSetsToDestroy[frameIndex])
+		{
+			vkFreeDescriptorSets(_device, _descriptorPool, 1, &descriptorSet);
+		}
+		_descriptorSetsToDestroy[frameIndex].Clear();
+
+		for (VkPipeline pipeline : _pipelinesToDestroy[frameIndex])
+		{
+			vkDestroyPipeline(_device, pipeline, nullptr);
+		}
+		_pipelinesToDestroy[frameIndex].Clear();
+
+		for (VkPipelineLayout pipelineLayout : _pipelineLayoutsToDestroy[frameIndex])
+		{
+			vkDestroyPipelineLayout(_device, pipelineLayout, nullptr);
+		}
+		_pipelineLayoutsToDestroy[frameIndex].Clear();
+
 		for (VkRenderPass renderPass : _renderPassesToDestroy[frameIndex])
 		{
 			vkDestroyRenderPass(_device, renderPass, nullptr);
@@ -269,6 +317,10 @@ namespace hod::inline renderer
 		_samplersToDestroy.Resize(GetFrameInFlightCount());
 		_imageViewsToDestroy.Resize(GetFrameInFlightCount());
 		_imagesToDestroy.Resize(GetFrameInFlightCount());
+		_buffersToDestroy.Resize(GetFrameInFlightCount());
+		_descriptorSetsToDestroy.Resize(GetFrameInFlightCount());
+		_pipelinesToDestroy.Resize(GetFrameInFlightCount());
+		_pipelineLayoutsToDestroy.Resize(GetFrameInFlightCount());
 
 		if (CreateVkIntance() == false)
 		{

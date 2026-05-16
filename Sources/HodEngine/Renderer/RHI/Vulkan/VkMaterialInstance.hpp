@@ -4,8 +4,6 @@
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/DescriptorSet.hpp"
-#include "HodEngine/Renderer/RHI/Vulkan/BufferVk.hpp"
-
 #include <vulkan/vulkan.h>
 
 namespace hod::inline renderer
@@ -20,7 +18,7 @@ namespace hod::inline renderer
 										VkMaterialInstance(const Material& material);
 										~VkMaterialInstance() override;
 
-		Vector<VkDescriptorSet>	GetDescriptorSets(uint32_t setOffset, uint32_t setCount) const;
+		Vector<VkDescriptorSet>	GetDescriptorSets(uint32_t setOffset, uint32_t setCount);
 
 	protected:
 

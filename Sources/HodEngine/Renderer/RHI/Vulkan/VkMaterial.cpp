@@ -45,12 +45,12 @@ namespace hod::inline renderer
 
 		for (const auto& pair : _pipelines)
 		{
-			vkDestroyPipeline(renderer->GetVkDevice(), pair.second, nullptr);
+			renderer->DeferDestroy(pair.second);
 		}
 
 		if (_pipelineLayout != VK_NULL_HANDLE)
 		{
-			vkDestroyPipelineLayout(renderer->GetVkDevice(), _pipelineLayout, nullptr);
+			renderer->DeferDestroy(_pipelineLayout);
 		}
 	}
 
