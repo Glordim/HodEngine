@@ -25,7 +25,7 @@ namespace hod::inline game
 		const DocumentNode* typeNode = documentNode.GetChild("Type");
 		if (typeNode == nullptr)
 		{
-			// todo message
+			OUTPUT_ERROR("SerializedDataResource::Initialize: missing Type");
 			return false;
 		}
 
@@ -34,7 +34,7 @@ namespace hod::inline game
 		ReflectionDescriptor* reflectionDescriptor = SerializedDataFactory::GetInstance()->FindReflectionDescriptor(RttiType);
 		if (reflectionDescriptor == nullptr)
 		{
-			// todo message
+			OUTPUT_ERROR("SerializedDataResource::Initialize: unable to find reflectionDescriptor");
 			return false;
 		}
 
@@ -43,7 +43,7 @@ namespace hod::inline game
 		const DocumentNode* dataNode = documentNode.GetChild("Data");
 		if (typeNode == nullptr)
 		{
-			// todo message
+			OUTPUT_ERROR("SerializedDataResource::Initialize: missing Data");
 			DefaultAllocator::GetInstance().Delete(_serializedData);
 			_serializedData = nullptr;
 			return false;
@@ -51,7 +51,7 @@ namespace hod::inline game
 
 		if (Serializer::Deserialize(*reflectionDescriptor, _serializedData, *dataNode) == false)
 		{
-			// todo message
+			OUTPUT_ERROR("SerializedDataResource::Initialize: unable to deserialize");
 			DefaultAllocator::GetInstance().Delete(_serializedData);
 			_serializedData = nullptr;
 			return false;

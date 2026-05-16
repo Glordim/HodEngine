@@ -34,7 +34,7 @@ namespace hod::inline renderer
 
 		if (datas.Empty())
 		{
-			// TODO message
+			OUTPUT_ERROR("FontResource::Initialize: invalid data count");
 			return false;
 		}
 
@@ -43,6 +43,7 @@ namespace hod::inline renderer
 		_font = DefaultAllocator::GetInstance().New<Font>();
 		if (_font->LoadFromMemory(data._buffer, data._size) == false)
 		{
+			OUTPUT_ERROR("FontResource::Initialize: load font failed");
 			DefaultAllocator::GetInstance().Delete(_font);
 			_font = nullptr;
 			return false;

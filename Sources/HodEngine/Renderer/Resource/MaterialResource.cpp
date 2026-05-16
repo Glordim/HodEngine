@@ -38,13 +38,13 @@ namespace hod::inline renderer
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
-			// TODO message
+			OUTPUT_ERROR("MaterialResource::Initialize: unable to deserialize");
 			return false;
 		}
 
 		if (datas.Size() != 4)
 		{
-			// TODO message
+			OUTPUT_ERROR("MaterialResource::Initialize: invalid data count");
 			return false;
 		}
 
@@ -53,6 +53,7 @@ namespace hod::inline renderer
 		_vertexShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Vertex);
 		if (_vertexShader->LoadFromIR(vertexData._buffer, vertexData._size, (const char*)vertexReflectionData._buffer, vertexReflectionData._size) == false) // todo reflection
 		{
+			OUTPUT_ERROR("MaterialResource::Initialize: load vertex shader failed");
 			DefaultAllocator::GetInstance().Delete(_vertexShader);
 			_vertexShader = nullptr;
 			return false;
@@ -63,6 +64,7 @@ namespace hod::inline renderer
 		_fragmentShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Fragment);
 		if (_fragmentShader->LoadFromIR(fragmentData._buffer, fragmentData._size, (const char*)fragmentReflectionData._buffer, fragmentReflectionData._size) == false) // todo reflection
 		{
+			OUTPUT_ERROR("MaterialResource::Initialize: load fragment shader failed");
 			DefaultAllocator::GetInstance().Delete(_fragmentShader);
 			_fragmentShader = nullptr;
 			return false;
@@ -75,6 +77,7 @@ namespace hod::inline renderer
 		_material = Renderer::GetInstance()->CreateMaterial(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy, false);
 		if (_material == nullptr)
 		{
+			OUTPUT_ERROR("MaterialResource::Initialize: load material failed");
 			return false;
 		}
 

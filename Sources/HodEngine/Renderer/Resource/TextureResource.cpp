@@ -32,13 +32,13 @@ namespace hod::inline renderer
 	{
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
-			// TODO message
+			OUTPUT_ERROR("TextureResource::Initialize: unable to deserialize");
 			return false;
 		}
 
 		if (datas.Empty())
 		{
-			// TODO message
+			OUTPUT_ERROR("TextureResource::Initialize: invalid data count");
 			return false;
 		}
 
@@ -51,6 +51,7 @@ namespace hod::inline renderer
 		_texture = Renderer::GetInstance()->CreateTexture();
 		if (_texture->BuildBuffer(_width, _height, (unsigned char*)data._buffer, createInfo) == false) // todo BuildBuffer doesn't take void* ?
 		{
+			OUTPUT_ERROR("TextureResource::Initialize: load texture failed");
 			DefaultAllocator::GetInstance().Delete(_texture);
 			_texture = nullptr;
 			return false;
