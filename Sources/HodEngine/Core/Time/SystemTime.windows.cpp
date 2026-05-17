@@ -15,18 +15,8 @@ namespace hod::inline core
 		return performanceTimeStampFrequency;
 	}
 
-	/// @brief
-	/// @return
-	SystemTime::TimeStamp ComputeStartTimeStamp()
-	{
-		SystemTime::TimeStamp timeStampStartTime = 0;
-		QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&timeStampStartTime));
-
-		return timeStampStartTime;
-	}
-
 	const double                SystemTime::_reverseFrequency = 1.0 / ComputeProcessTimeCounterFrequency();
-	const SystemTime::TimeStamp SystemTime::_startTimeStamp = ComputeStartTimeStamp();
+	const SystemTime::TimeStamp SystemTime::_startTimeStamp = SystemTime::Now();
 
 	/// @brief
 	/// @return

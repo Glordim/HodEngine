@@ -32,9 +32,9 @@ namespace hod::inline core
 		SystemTime() = delete;
 
 	private:
+		static const TimeStamp _startTimeStamp;
 #if defined(PLATFORM_WINDOWS)
 		static const double    _reverseFrequency;
-		static const TimeStamp _startTimeStamp;
 #endif
 	};
 }

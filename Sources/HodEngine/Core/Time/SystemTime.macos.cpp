@@ -5,6 +5,8 @@
 
 namespace hod::inline core
 {
+	const SystemTime::TimeStamp SystemTime::_startTimeStamp = SystemTime::Now();
+
 	/// @brief
 	/// @return
 	SystemTime::TimeStamp SystemTime::Now()
@@ -21,7 +23,9 @@ namespace hod::inline core
 	/// @return
 	double SystemTime::ToSeconds(const TimeStamp& timeStamp)
 	{
-		return static_cast<double>(timeStamp.tv_sec) + static_cast<double>(timeStamp.tv_nsec) * 0.000000001;
+		double second = static_cast<double>(timeStamp.tv_sec - _startTimeStamp.tv_sec);
+		second += static_cast<double>(timeStamp.tv_nsec - _startTimeStamp.tv_nsec) * 0.000000001;
+		return second;
 	}
 
 	/// @brief
@@ -29,7 +33,9 @@ namespace hod::inline core
 	/// @return
 	double SystemTime::ToMilliseconds(const TimeStamp& timeStamp)
 	{
-		return static_cast<double>(timeStamp.tv_sec) * 1000.0 + static_cast<double>(timeStamp.tv_nsec) * 0.000001;
+		double second = static_cast<double>(timeStamp.tv_sec - _startTimeStamp.tv_sec) * 1000.0;
+		second += static_cast<double>(timeStamp.tv_nsec - _startTimeStamp.tv_nsec) * 0.000001;
+		return second;
 	}
 
 	/// @brief
