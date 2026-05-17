@@ -3,6 +3,7 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Importer/AudioImporter.hpp"
 #include "HodEngine/Editor/Importer/FontImporter.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Importer/MaterialImporter.hpp"
@@ -43,6 +44,7 @@ namespace hod::inline editor
 	{
 		_importers.push_back(&_defaultImporter);
 
+		RegisterImporter<AudioImporter>();
 		RegisterImporter<TextureImporter>();
 		RegisterImporter<FontImporter>();
 		RegisterImporter<SceneImporter>();

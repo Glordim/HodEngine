@@ -25,6 +25,8 @@
 
 #include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 
+#include "HodEngine/Game/Components/Audio/AudioSourceComponent.hpp"
+
 namespace hod::inline game
 {
 	void RegisterBuiltin()
@@ -43,6 +45,7 @@ namespace hod::inline game
 		componentFactory->Register<EdgeCollider2dComponent>();
 		componentFactory->Register<Rigidbody2dComponent>();
 		componentFactory->Register<CameraComponent>();
+		componentFactory->Register<AudioSourceComponent>();
 		//componentFactory->Register<SpriteRendererComponent>();
 		/*
 		componentReflection->Register<ColliderComponent>();

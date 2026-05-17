@@ -24,7 +24,7 @@ else()
 endif()
 
 target_link_libraries(Game
-	PUBLIC Core Math Window Physics Renderer GameSystems
+	PUBLIC Core Math Window Physics Renderer GameSystems Audio
 )
 
 hod_install_lib(Game)

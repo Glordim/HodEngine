@@ -41,6 +41,7 @@
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
 #include "HodEngine/Editor/Importer/TextureImporter.hpp"
 
+#include "HodEngine/Editor/AudioEditor/AudioEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
 #include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
@@ -168,6 +169,7 @@ namespace hod::inline editor
 		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
 		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
 		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
+		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
 
 		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();
 
