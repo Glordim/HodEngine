@@ -45,6 +45,17 @@ namespace hod::inline game
 		uint64_t				GetLocalId() const;
 		void					SetLocalId(uint64_t localId); // TODO move in private ?
 
+		enum class InternalState : uint8_t
+		{
+			None,
+			Constructed,
+			Awaked,
+			Started,
+			Destructed,
+		};
+
+		InternalState			GetInternalState() const;
+
 	protected:
 
 								Component();
@@ -57,20 +68,7 @@ namespace hod::inline game
 
 	private:
 
-		enum class InternalState : uint8_t
-		{
-			None,
-			Constructed,
-			Awaked,
-			Started,
-			Destructed,
-		};
-
-	private:
-
 		void					AttachTo(Entity* owner);
-
-		InternalState			GetInternalState() const;
 
 		void					Construct();
 		void					Awake();

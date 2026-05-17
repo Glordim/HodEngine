@@ -199,7 +199,39 @@ namespace hod::inline game
 			Entity* entity = entityPair.second;
 			if (entity->GetParent().Lock() == nullptr)
 			{
-				entity->ProcessActivation();
+				entity->Construct();
+			}
+		}
+
+		for (const auto& entityPair : _entities)
+		{
+			Entity* entity = entityPair.second;
+			if (entity->GetParent().Lock() == nullptr)
+			{
+				if (entity->GetActive())
+				{
+					if (entity->GetScene()->GetWorld()->GetEditorPlaying())
+					{
+						entity->Awake();
+					}
+					entity->Enable();
+				}
+				else if (entity->IsActiveInHierarchy())
+				{
+					entity->Disable();
+				}
+			}
+		}
+
+		for (const auto& entityPair : _entities)
+		{
+			Entity* entity = entityPair.second;
+			if (entity->GetParent().Lock() == nullptr && entity->GetActive())
+			{
+				if (entity->GetScene()->GetWorld()->GetEditorPlaying())
+				{
+					entity->Start();
+				}
 			}
 		}
 	}
