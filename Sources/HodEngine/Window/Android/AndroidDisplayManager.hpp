@@ -24,6 +24,8 @@ namespace hod::inline window
 
 		Window* CreateMainWindow(ANativeWindow* nativeWindow);
 
+		android_app* GetAndroidApp() const { return _androidApp; }
+
 	private:
 		static void CommandHandleStatic(android_app* androidApp, int32_t command);
 		void        CommandHandle(int32_t command);

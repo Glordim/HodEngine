@@ -30,6 +30,10 @@ endif()
 if (WIN32)
 	target_link_libraries(Input PRIVATE WindowsHModular::WindowsHModular)
 endif()
+if(ANDROID)
+	find_library(android-lib android)
+	target_link_libraries(Input PRIVATE ${android-lib} AGDK::GameActitvity)
+endif()
 
 target_link_libraries(Input
 	PUBLIC Core Math Window GameSystems
