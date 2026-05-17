@@ -14,9 +14,12 @@ namespace hod::inline window
 
 	bool AndroidDisplayManager::Initialize(android_app* androidApp)
 	{
+		GameActivity_setWindowFlags(androidApp->activity, GAMEACTIVITY_FLAG_FULLSCREEN, 0);
+
 		_androidApp = androidApp;
 
 		_androidApp->userData = this;
+		_androidApp->onAppCmd = AndroidDisplayManager::CommandHandleStatic;
 		while (_androidApp->window == nullptr)
 		{
 			int                  timeout = 0; // non-blocking
@@ -79,6 +82,23 @@ namespace hod::inline window
 
 	bool AndroidDisplayManager::Run()
 	{
-		return true;
+		while (true)
+		{
+			int                  events;
+			android_poll_source* source;
+			int                  result = ALooper_pollOnce(-1, nullptr, &events, reinterpret_cast<void**>(&source));
+
+			if (result == ALOOPER_POLL_ERROR)
+			{
+				OUTPUT_ERROR("ALooper_pollOnce returned an error");
+				return EXIT_FAILURE;
+			}
+
+			if (source != nullptr)
+				source->process(_androidApp, source);
+
+			if (_androidApp->destroyRequested)
+				return EXIT_SUCCESS;
+		}
 	}
 }
