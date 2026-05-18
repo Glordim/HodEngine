@@ -4,12 +4,14 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include <cstring>
 
 namespace hod::inline audio
 {
 	DESCRIBE_REFLECTED_CLASS(AudioResource, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &AudioResource::_loop, "_loop");
+		AddPropertyT(reflectionDescriptor, &AudioResource::_sampleRate, "_sampleRate");
+		AddPropertyT(reflectionDescriptor, &AudioResource::_channelCount, "_channelCount");
 	}
 
 	/// @brief
@@ -36,7 +38,11 @@ namespace hod::inline audio
 			return false;
 		}
 
-		//const Resource::Data& data = datas[0];
+		const Resource::Data& data = datas[0];
+		_samples.Resize(data._size / sizeof(float));
+		std::memcpy(_samples.Data(), data._buffer, data._size);
+
+		_frameCount = _samples.Size() / _channelCount;
 
 		return true;
 	}

@@ -25,6 +25,9 @@ namespace hod::inline audio
 
 	public:
 
-		bool					_loop = false;
+		Vector<float>		_samples;
+		uint32_t			_sampleRate = 0;
+		uint32_t			_channelCount = 0;
+		uint32_t			_frameCount = 0;
 	};
 }

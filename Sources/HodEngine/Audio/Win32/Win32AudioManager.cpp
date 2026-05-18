@@ -39,12 +39,17 @@ namespace hod::inline audio
 			return false;
 		}
 
-		if (_audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, 10000000, 0, _waveFormat, nullptr) < 0)
+		if (_audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, 500000, 0, _waveFormat, nullptr) < 0)
 		{
 			return false;
 		}
 
 		if (_audioClient->GetService(IID_PPV_ARGS(&_renderClient)) < 0)
+		{
+			return false;
+		}
+
+		if (_audioClient->GetBufferSize(&_bufferFrameCount) < 0)
 		{
 			return false;
 		}
@@ -73,12 +78,6 @@ namespace hod::inline audio
 	/// @brief
 	void Win32AudioManager::Update()
 	{
-		UINT32 bufferFrameCount;
-		if (_audioClient->GetBufferSize(&bufferFrameCount) < 0)
-		{
-			return;
-		}
-
 		BYTE* pData;
 		DWORD flags = 0;
 
@@ -88,41 +87,20 @@ namespace hod::inline audio
 			return;
 		}
 
-		UINT32 framesAvailable = bufferFrameCount - padding;
-
-		if (_renderClient->GetBuffer(framesAvailable, &pData) < 0)
+		UINT32 framesAvailable = _bufferFrameCount - padding;
+		if (framesAvailable > 0)
 		{
-			return;
-		}
+			if (_renderClient->GetBuffer(framesAvailable, &pData) < 0)
+			{
+				return;
+			}
 
-		/* ----------- Test -------
-		// Frequency of the sine wave (440Hz, standard A)
-		const double frequency = 440.0;
-		// Amplitude of the wave
-		const double amplitude = 0.1;
-		// Track the phase of the sine wave
-		double phase = 0.0;
-		const double phaseIncrement = (2.0 * 3.14f * frequency) / _waveFormat->nSamplesPerSec;
+			FillBuffer(reinterpret_cast<float*>(pData), _waveFormat->nSamplesPerSec, _waveFormat->nChannels, framesAvailable);
 
-		float* pFloatData = reinterpret_cast<float*>(pData);
-		for (UINT32 i = 0; i < framesAvailable; ++i)
-		{
-		    float sampleValue = static_cast<float>(amplitude * sin(phase));
-		    for (int channel = 0; channel < _waveFormat->nChannels; ++channel)
-		    {
-		        pFloatData[i * _waveFormat->nChannels + channel] = sampleValue;
-		    }
-		    phase += phaseIncrement;
-		    if (phase >= 2.0 * 3.14f)
-		    {
-		        phase -= 2.0 * 3.14f;
-		    }
-		}
-		*/
-
-		if (_renderClient->ReleaseBuffer(framesAvailable, flags) < 0)
-		{
-			return;
+			if (_renderClient->ReleaseBuffer(framesAvailable, flags) < 0)
+			{
+				return;
+			}
 		}
 	}
 }

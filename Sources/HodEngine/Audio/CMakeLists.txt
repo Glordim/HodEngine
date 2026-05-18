@@ -32,6 +32,10 @@ target_link_libraries(Audio
 	PUBLIC Core GameSystems
 )
 
+if(ANDROID)
+	target_link_libraries(Audio PRIVATE aaudio)
+endif()
+
 target_compile_definitions(Audio PUBLIC ${HOD_PLATFORM_DEFINE})
 if(NOT BUILD_SHARED_LIBS)
 	target_compile_definitions(Audio PUBLIC HOD_AUDIO_STATIC)

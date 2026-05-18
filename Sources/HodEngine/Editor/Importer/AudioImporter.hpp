@@ -11,9 +11,6 @@ namespace hod::inline editor
 	class HOD_EDITOR_API AudioImporterSettings : public ImporterSettings
 	{
 		REFLECTED_CLASS(AudioImporterSettings, ImporterSettings)
-
-	public:
-		bool _loop = false;
 	};
 
 	class HOD_EDITOR_API AudioImporter : public Importer

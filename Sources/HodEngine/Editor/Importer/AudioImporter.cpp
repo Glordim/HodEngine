@@ -16,7 +16,7 @@ namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(AudioImporterSettings, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &AudioImporterSettings::_loop, "Loop");
+		(void)reflectionDescriptor;
 	}
 
 	/// @brief
@@ -29,7 +29,7 @@ namespace hod::inline editor
 	/// @param path
 	/// @return
 	bool AudioImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail,
-	                                    ImporterSettings& settings)
+	                                    ImporterSettings& /*settings*/)
 	{
 		// TODO
 		(void)meta;
@@ -91,10 +91,11 @@ namespace hod::inline editor
 			return false;
 		}
 
-		AudioImporterSettings& audioSettings = (AudioImporterSettings&)settings;
+		//AudioImporterSettings& audioSettings = (AudioImporterSettings&)settings;
 
 		AudioResource audioResource;
-		audioResource._loop = audioSettings._loop;
+		audioResource._channelCount = header.numChannels;
+		audioResource._sampleRate = header.sampleRate;
 
 		if (Serializer::Serialize(audioResource, document.GetRootNode()) == false)
 		{
@@ -102,10 +103,47 @@ namespace hod::inline editor
 			return false;
 		}
 
+		uint32_t sampleCount = header.dataSize / (header.bitsPerSample / 8);
+		Vector<float> floatSamples;
+		floatSamples.Resize(sampleCount);
+
+		if (header.bitsPerSample == 8)
+		{
+			for (uint32_t i = 0; i < sampleCount; ++i)
+				floatSamples[i] = (static_cast<float>(audioBuffer[i]) - 128.0f) / 128.0f;
+		}
+		else if (header.bitsPerSample == 16)
+		{
+			const int16_t* src = reinterpret_cast<const int16_t*>(audioBuffer.Data());
+			for (uint32_t i = 0; i < sampleCount; ++i)
+				floatSamples[i] = static_cast<float>(src[i]) / 32768.0f;
+		}
+		else if (header.bitsPerSample == 24)
+		{
+			for (uint32_t i = 0; i < sampleCount; ++i)
+			{
+				int32_t sample = (audioBuffer[i * 3 + 2] << 16) | (audioBuffer[i * 3 + 1] << 8) | audioBuffer[i * 3];
+				if (sample & 0x800000)
+					sample |= 0xFF000000;
+				floatSamples[i] = static_cast<float>(sample) / 8388608.0f;
+			}
+		}
+		else if (header.bitsPerSample == 32)
+		{
+			const int32_t* src = reinterpret_cast<const int32_t*>(audioBuffer.Data());
+			for (uint32_t i = 0; i < sampleCount; ++i)
+				floatSamples[i] = static_cast<float>(src[i]) / 2147483648.0f;
+		}
+		else
+		{
+			OUTPUT_ERROR("AudioImporter : unsupported bitsPerSample (%u)", header.bitsPerSample);
+			return false;
+		}
+
 		Resource::Data sampleData;
-		sampleData._buffer = DefaultAllocator::GetInstance().Allocate(audioBuffer.Size());
-		std::memcpy(sampleData._buffer, audioBuffer.Data(), audioBuffer.Size());
-		sampleData._size = audioBuffer.Size();
+		sampleData._buffer = DefaultAllocator::GetInstance().Allocate(sampleCount * sizeof(float));
+		std::memcpy(sampleData._buffer, floatSamples.Data(), sampleCount * sizeof(float));
+		sampleData._size = sampleCount * sizeof(float);
 		datas.push_back(sampleData);
 
 		return true;
