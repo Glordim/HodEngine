@@ -9,12 +9,12 @@
 #include "HodEngine/UI/Drawables/Texture.hpp"
 #include "HodEngine/UI/Drawables/Text.hpp"
 
-#include "HodEngine/UI/Layout/LayoutElement.hpp"
-#include "HodEngine/UI/Layout/HorizontalLayout.hpp"
-#include "HodEngine/UI/Layout/VerticalLayout.hpp"
-#include "HodEngine/UI/Layout/GridLayout.hpp"
+#include "HodEngine/UI/Rebuildable/Layout/LayoutElement.hpp"
+#include "HodEngine/UI/Rebuildable/Layout/HorizontalLayout.hpp"
+#include "HodEngine/UI/Rebuildable/Layout/VerticalLayout.hpp"
+#include "HodEngine/UI/Rebuildable/Layout/GridLayout.hpp"
 
-#include "HodEngine/UI/Fitter/ContentSizeFitter.hpp"
+#include "HodEngine/UI/Rebuildable/Fitter/ContentSizeFitter.hpp"
 
 namespace hod::inline ui
 {

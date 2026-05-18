@@ -1,5 +1,5 @@
 #include "HodEngine/UI/Pch.hpp"
-#include "HodEngine/UI/Rebuildable.hpp"
+#include "HodEngine/UI/Rebuildable/Rebuildable.hpp"
 
 #include "HodEngine/UI/Canvas.hpp"
 

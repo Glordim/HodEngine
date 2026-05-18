@@ -1,7 +1,7 @@
 #include "HodEngine/UI/Pch.hpp"
-#include "HodEngine/UI/Fitter/ContentSizeFitter.hpp"
+#include "HodEngine/UI/Rebuildable/Fitter/ContentSizeFitter.hpp"
 
-#include "HodEngine/UI/Layout/GridLayout.hpp"
+#include "HodEngine/UI/Rebuildable/Layout/GridLayout.hpp"
 
 #include "HodEngine/Math/Vector2.hpp"
 

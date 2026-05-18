@@ -1,10 +1,10 @@
 #pragma once
 #include "HodEngine/UI/Export.hpp"
 
-#include "HodEngine/UI/Fitter/Fitter.hpp"
+#include "HodEngine/UI/Rebuildable/Fitter/Fitter.hpp"
 
-#include "HodEngine/UI/Drawables/Text.hpp"
-#include "HodEngine/UI/Layout/Layout.hpp"
+#include "HodEngine/UI/Drawable/Text.hpp"
+#include "HodEngine/UI/Rebuildable/Layout/Layout.hpp"
 
 namespace hod::inline ui
 {

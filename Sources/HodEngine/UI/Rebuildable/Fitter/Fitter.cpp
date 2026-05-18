@@ -1,5 +1,5 @@
 #include "HodEngine/UI/Pch.hpp"
-#include "HodEngine/UI/Fitter/Fitter.hpp"
+#include "HodEngine/UI/Rebuildable/Fitter/Fitter.hpp"
 
 #include "HodEngine/UI/Canvas.hpp"
 
