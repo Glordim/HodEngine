@@ -6,8 +6,8 @@
 #include "HodEngine/UI/Canvas.hpp"
 #include "HodEngine/UI/Node.hpp"
 
-#include "HodEngine/UI/Drawables/Texture.hpp"
-#include "HodEngine/UI/Drawables/Text.hpp"
+#include "HodEngine/UI/Drawable/Texture.hpp"
+#include "HodEngine/UI/Drawable/Text.hpp"
 
 #include "HodEngine/UI/Rebuildable/Layout/LayoutElement.hpp"
 #include "HodEngine/UI/Rebuildable/Layout/HorizontalLayout.hpp"

@@ -1,5 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Canvas.hpp"
+#include "HodEngine/UI/Drawable/Drawable.hpp"
 #include "HodEngine/UI/Rebuildable/Rebuildable.hpp"
 #include "HodEngine/UI/Node.hpp"
 
