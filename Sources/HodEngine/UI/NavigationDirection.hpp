@@ -8,6 +8,8 @@ namespace hod::inline ui
 		Up,
 		Down,
 		Left,
-		Right
+		Right,
+
+		Count
 	};
 }

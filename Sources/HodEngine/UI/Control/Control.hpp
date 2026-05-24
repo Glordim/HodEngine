@@ -17,9 +17,9 @@ namespace hod::inline ui
 	struct DropEvent;
 	struct NavigationEvent;
 
-	class HOD_UI_API EventListener : public Component
+	class HOD_UI_API Control : public Component
 	{
-		REFLECTED_CLASS(EventListener, Component)
+		REFLECTED_CLASS(Control, Component)
 
 	public:
 
