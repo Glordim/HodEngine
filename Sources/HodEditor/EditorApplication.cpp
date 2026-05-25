@@ -24,6 +24,7 @@ namespace hod
 		if (!initGuard.Push([this]{ return InitInput(); },       [this]{ TerminateInput(); }))       return false;
 		if (!initGuard.Push([this]{ return InitRenderer(); },    [this]{ TerminateRenderer(); }))    return false;
 		if (!initGuard.Push([this]{ return InitImGui(); },       [this]{ TerminateImGui(); }))       return false;
+		if (!initGuard.Push([this]{ return InitUI(); },          [this]{ TerminateUI(); }))          return false;
 		if (!initGuard.Push([this]{ return InitGame(); },        [this]{ TerminateGame(); }))        return false;
 		if (!initGuard.Push([this]{ return InitEditor(); },      [this]{ TerminateEditor(); }))      return false;
 

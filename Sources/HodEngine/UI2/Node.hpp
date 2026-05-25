@@ -23,7 +23,7 @@ namespace hod::inline ui2
 	public:
 
 		Node() = default;
-		virtual ~Node() = default;
+		virtual ~Node();
 
 		const Vector2&				GetPosition() const;
 		void						SetPosition(const Vector2& position);
@@ -63,6 +63,9 @@ namespace hod::inline ui2
 		void						ComputeLocalMatrix(Node* parent, const Vector2& size, Matrix4& localMatrix) const;
 		const Matrix4&				ComputeCanvasMatrix();
 		Matrix4						ComputeWorldMatrix();
+
+		void						AddChild(Node* node);
+		void						RemoveChild(Node* node);
 		Node*						GetParent() const;
 
 		PropertyChangedEvent&		GetPropertyChangedEvent();

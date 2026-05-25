@@ -15,6 +15,8 @@
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
+#include <HodEngine/UI2/SceneManager.hpp>
+
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 #include <HodEngine/GameSystems/Job/JobScheduler.hpp>
 
@@ -36,6 +38,7 @@ namespace hod::inline application
 		if (!initGuard.Push([this]{ return InitInput(); },       [this]{ TerminateInput(); }))       return false;
 		if (!initGuard.Push([this]{ return InitRenderer(); },    [this]{ TerminateRenderer(); }))    return false;
 		if (!initGuard.Push([this]{ return InitImGui(); },       [this]{ TerminateImGui(); }))       return false;
+		if (!initGuard.Push([this]{ return InitUI(); },          [this]{ TerminateUI(); }))          return false;
 		if (!initGuard.Push([this]{ return InitGame(); },        [this]{ TerminateGame(); }))        return false;
 
 		if (BootGame() == false)
@@ -132,6 +135,18 @@ namespace hod::inline application
 	bool GraphicApplication::TerminateImGui()
 	{
 		ImGuiManager::DestroyInstance();
+		return true;
+	}
+
+	bool GraphicApplication::InitUI()
+	{
+		ui2::SceneManager::CreateInstance();
+		return true;
+	}
+
+	bool GraphicApplication::TerminateUI()
+	{
+		ui2::SceneManager::DestroyInstance();
 		return true;
 	}
 

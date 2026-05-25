@@ -4,7 +4,7 @@
 
 namespace hod
 {
-	class EditorApplication : public DesktopApplication	
+	class EditorApplication : public DesktopApplication
 	{
 	public:
 		bool RunInternal() override;

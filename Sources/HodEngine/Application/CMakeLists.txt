@@ -29,7 +29,7 @@ target_include_directories(Application PUBLIC
 target_precompile_headers(Application PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Application
-	PUBLIC Core Audio Window Renderer Input Physics Game ImGui UI
+	PUBLIC Core Audio Window Renderer Input Physics Game ImGui UI UI2
 )
 
 if (ANDROID)

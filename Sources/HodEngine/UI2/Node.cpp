@@ -1,4 +1,5 @@
 #include "HodEngine/UI2/Pch.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/UI2/Node.hpp"
 
 namespace hod::inline ui2
@@ -14,6 +15,28 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &Node::_pivot, "Pivot", &Node::SetPivot);
 
 		AddPropertyT(reflectionDescriptor, &Node::_deltaSize, "DeltaSize", &Node::SetDeltaSize);
+	}
+
+	Node::~Node()
+	{
+		for (Node* child : _children)
+		{
+			DefaultAllocator::GetInstance().Delete(child);
+		}
+	}
+
+	void Node::AddChild(Node* node)
+	{
+		_children.PushBack(node);
+	}
+
+	void Node::RemoveChild(Node* node)
+	{
+		auto it = std::find(_children.Begin(), _children.End(), node);
+		if (it != _children.End())
+		{
+			_children.Erase(it);
+		}
 	}
 
 	/// @brief

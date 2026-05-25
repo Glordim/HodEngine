@@ -27,6 +27,8 @@
 
 #include "HodEngine/Game/Components/Audio/AudioSourceComponent.hpp"
 
+#include "HodEngine/Game/Components/UIComponent.hpp"
+
 namespace hod::inline game
 {
 	void RegisterBuiltin()
@@ -46,6 +48,7 @@ namespace hod::inline game
 		componentFactory->Register<Rigidbody2dComponent>();
 		componentFactory->Register<CameraComponent>();
 		componentFactory->Register<AudioSourceComponent>();
+		componentFactory->Register<UIComponent>();
 		//componentFactory->Register<SpriteRendererComponent>();
 		/*
 		componentReflection->Register<ColliderComponent>();
