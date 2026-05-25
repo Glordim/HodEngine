@@ -42,10 +42,12 @@ namespace hod::inline ui
 	{
 		Control::OnDisable();
 
+		/*
 		if (_isFocus && EventSystem::GetInstance()->GetCurrentFocusable() == this)
 		{
 			EventSystem::GetInstance()->Unfocus(UnfocusEvent::Reason::Disabled);
 		}
+		*/
 	}
 
 	/// @brief 
@@ -189,8 +191,9 @@ namespace hod::inline ui
 	/// @brief 
 	/// @param event 
 	/// @return 
-	bool Selectable::OnNavigateEvent(const NavigationEvent& event)
+	bool Selectable::OnNavigateEvent(const NavigationEvent& /*event*/)
 	{
+		/*/
 		EventSystem& eventSystem = *EventSystem::GetInstance();
 		Selectable* destination = eventSystem.ResolveDestination(this, event._direction);
 
@@ -201,6 +204,7 @@ namespace hod::inline ui
 			_onNavigateEvent.Emit(event);
 			return true;
 		}
+		*/
 
 		return false;
 	}
@@ -214,7 +218,7 @@ namespace hod::inline ui
 
 		_isHovered = true;
 
-		EventSystem::GetInstance()->SetLastFocusable(this);
+		//EventSystem::GetInstance()->SetLastFocusable(this);
 
 		UpdateInternalState();
 
@@ -280,7 +284,7 @@ namespace hod::inline ui
 	/// @return 
 	bool Selectable::OnClickEvent(const ClickEvent& event)
 	{
-		EventSystem::GetInstance()->Focus(this, FocusEvent::Reason::Clicked);
+		//EventSystem::GetInstance()->Focus(this, FocusEvent::Reason::Clicked);
 
 		Control::OnClickEvent(event);
 
