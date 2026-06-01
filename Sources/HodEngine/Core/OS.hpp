@@ -8,6 +8,9 @@ namespace hod::inline core
 	class HOD_CORE_API OS
 	{
 	public:
+		static bool ReadClipboard(String& value);
+		static bool WriteClipboard(const std::string_view& value);
+
 		static bool OpenFileWithDefaultApp(const char* filePath);
 		static bool SetEnv(const char* name, const char* value);
 
