@@ -1,12 +1,12 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystem/Path.hpp"
+#include "HodEngine/Core/StringConversion.hpp"
 
 #include <cstring>
 
 #if defined(PLATFORM_WINDOWS)
 	#include <win32/file.h> // GetTempPathW
 	#include <win32/io.h>   // GetCurrentDirectoryW
-	#include <win32/misc.h> // WideCharToMultiByte
 #else
 	#include <limits.h>
 	#include <pwd.h>
@@ -592,41 +592,20 @@ namespace hod::inline core
 	std::wstring Path::ToNative() const
 	{
 		if (_path.Empty())
-		{
 			return std::wstring();
-		}
 
-		// Convert UTF-8 to UTF-16
-		int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, _path.CStr(), static_cast<int>(_path.Size()), nullptr, 0);
-		if (sizeNeeded <= 0)
-		{
-			return std::wstring();
-		}
-
-		std::wstring result(sizeNeeded, 0);
-		MultiByteToWideChar(CP_UTF8, 0, _path.CStr(), static_cast<int>(_path.Size()), &result[0], sizeNeeded);
-
+		std::wstring result;
+		StringConversion::StringToWString(std::string_view(_path.CStr(), _path.Size()), result);
 		return result;
 	}
 
 	Path Path::FromNative(const wchar_t* nativePath)
 	{
 		if (nativePath == nullptr || nativePath[0] == L'\0')
-		{
 			return Path();
-		}
 
-		// Convert UTF-16 to UTF-8
-		int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, nativePath, -1, nullptr, 0, nullptr, nullptr);
-		if (sizeNeeded <= 0)
-		{
-			return Path();
-		}
-
-		String result(sizeNeeded - 1); // -1 for null terminator
-		WideCharToMultiByte(CP_UTF8, 0, nativePath, -1, result.Data(), sizeNeeded, nullptr, nullptr);
-		result = result.Data(); // refresh size
-
+		String result;
+		StringConversion::WStringToString(nativePath, result);
 		return Path(result);
 	}
 #endif

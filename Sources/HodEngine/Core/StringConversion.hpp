@@ -9,8 +9,14 @@ namespace hod::inline core
 	namespace StringConversion
 	{
 #if defined(PLATFORM_WINDOWS)
-		HOD_CORE_API bool StringToWString(const std::string_view& str, std::wstring& result);
-		HOD_CORE_API bool WStringToString(const std::wstring& str, String& result);
+		HOD_CORE_API bool   StringToWString(const std::string_view& str, std::wstring& result);
+		HOD_CORE_API size_t StringToWStringSize(const std::string_view& str);
+		HOD_CORE_API bool   StringToWString(const std::string_view& str, wchar_t* buffer, size_t bufferSize);
+
+		HOD_CORE_API bool   WStringToString(const std::wstring& str, String& result);
+		HOD_CORE_API bool   WStringToString(const wchar_t* str, String& result);
+		HOD_CORE_API size_t WStringToStringSize(const wchar_t* str, size_t len);
+		HOD_CORE_API bool   WStringToString(const wchar_t* str, size_t len, char* buffer, size_t bufferSize);
 #endif
 
 		template<typename... Args>
