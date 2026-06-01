@@ -6,6 +6,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 #include <HodEngine/Core/FileSystem/Path.hpp>
+#include <cstdint>
 
 namespace hod::inline editor
 {
@@ -23,6 +24,25 @@ namespace hod::inline editor
 		void DrawContent() override;
 
 		void PingAsset(Asset& asset);
+
+	public:
+		struct Context
+		{
+			AssetBrowserWindow& assetBrowserWindow;
+			Path currentDirectory;
+			Vector<Path> selectedItems;
+		};
+
+		struct ContextualMenuAction
+		{
+			String path;
+			String group;
+			std::function<bool(const Context&)> available;
+			std::function<void(const Context&)> execute;
+		};
+
+		static uint32_t RegisterContextualMenuAction(ContextualMenuAction contextualMenuAction);
+		static void UnregisterContextualMenuAction(uint32_t contextualMenuActionId);
 
 	private:
 		struct HOD_EDITOR_API FolderItem

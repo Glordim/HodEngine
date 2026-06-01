@@ -36,6 +36,8 @@
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
+#include <HodEngine/Core/OS.hpp>
+
 #include <cmath>
 
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
@@ -60,6 +62,110 @@ namespace hod::inline editor
 	/// @brief
 	AssetBrowserWindow::AssetBrowserWindow()
 	{
+		static bool contextualActionInitialized = false;
+		if (contextualActionInitialized == false)
+		{
+			contextualActionInitialized = true;
+
+			/*
+			RegisterContextualMenuAction({
+				.path = "Rename",
+				.group = "Edit",
+				.available = +[](const Context& context)
+				{
+					return context.selectedItems.Size() == 1;
+				},
+				.execute = +[](const Context& context)
+				{
+					context.assetBrowserWindow.Rename(context.selectedItems[0]);
+				},
+			});
+			RegisterContextualMenuAction({
+				.path = "Delete",
+				.group = "Edit",
+				.available = +[](const Context& context)
+				{
+					return context.selectedItems.Size() > 0;
+				},
+				.execute = +[](const Context& context)
+				{
+					for (Path selectedAsset : context.selectedItems)
+					{
+						auto filesystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedAsset);
+						if (filesystemMapping != nullptr)
+						{
+							AssetDatabase::GetInstance()->Delete(*filesystemMapping);
+						}
+					}
+				},
+			});
+			RegisterContextualMenuAction({
+				.path = "Show in Explorer",
+				.group = "Explore",
+				.available = +[](const Context& context)
+				{
+					return context.selectedItems.Size() <= 1;
+				},
+				.execute = +[](const Context& context)
+				{
+					if (context.selectedItems.Size() == 1)
+					{
+						OpenExplorerAtPath(context.selectedItems[0]);
+					}
+					else
+					{
+						OpenExplorerAtPath(context.currentDirectory);
+					}
+				},
+			});
+			RegisterContextualMenuAction({
+				.path = "Copy path",
+				.group = "Explore",
+				.available = +[](const Context& context)
+				{
+					return context.selectedItems.Size() <= 1;
+				},
+				.execute = +[](const Context& context)
+				{
+					if (context.selectedItems.Size() == 1)
+					{
+						OS::clip(context.selectedItems[0]);
+					}
+					else
+					{
+						OpenExplorerAtPath(context.currentDirectory);
+					}
+				},
+			});
+			RegisterContextualMenuAction({
+				.path = "New folder",
+				.group = "New",
+				.available = +[](const Context& context)
+				{
+					return context.selectedItems.Size() == 0;
+				},
+				.execute = +[](const Context& context)
+				{
+					Path                              newFolderPath = AssetDatabase::GetInstance()->CreateFolder(context.currentDirectory / "Folder");
+					AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
+					context.assetBrowserWindow.Rename(newFolderPath);
+				},
+			});
+			RegisterContextualMenuAction({
+				.path = "Create/Scene",
+				.available = +[](const Context& context)
+				{
+					return context.selectedAssetPaths.Empty();
+				},
+				.execute = +[](const Context& context)
+				{
+					Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(context.currentDirectory / "Scene.asset");
+					context.assetBrowserWindow.Rename(newAssetPath);
+				},
+			});
+			*/
+		}
+
 		SetFlags(ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
 		_folderTree._path = Project::GetInstance()->GetAssetDirPath();
