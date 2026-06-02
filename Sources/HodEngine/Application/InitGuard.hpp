@@ -10,12 +10,16 @@ namespace hod::inline application
 	class HOD_APPLICATION_API InitGuard
 	{
 	public:
-		~InitGuard() { Unwind(); }
+		~InitGuard()
+		{
+			Unwind();
+		}
 
 		bool Push(std::function<bool()> init, std::function<void()> terminate)
 		{
 			if (init() == false)
 			{
+				terminate();
 				Unwind();
 				return false;
 			}
@@ -27,7 +31,9 @@ namespace hod::inline application
 		void Unwind()
 		{
 			for (auto it = _layers.RBegin(); it != _layers.REnd(); ++it)
+			{
 				(*it)();
+			}
 			_layers.Clear();
 		}
 
