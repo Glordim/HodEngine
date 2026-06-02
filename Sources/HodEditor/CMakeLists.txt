@@ -22,6 +22,7 @@ add_dependencies(HodEditor
 	InputEditor
 	GameEditor
 	UIEditor
+	UI2Editor
 )
 
 target_link_libraries(HodEditor
