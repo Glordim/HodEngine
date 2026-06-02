@@ -1,6 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
 
@@ -15,6 +14,7 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
+#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
@@ -86,6 +86,8 @@ namespace hod::inline editor
 		}
 		_editorTabs.Clear();
 
+		UnloadEditorModules();
+
 		DefaultAllocator::GetInstance().Delete(_floatingAssetBrowserWindow);
 		ImGuiManager::GetInstance()->DestroyAllWindow();
 
@@ -100,8 +102,6 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Delete(_prefabTexture);
 		DefaultAllocator::GetInstance().Delete(_serializedDataTexture);
 		DefaultAllocator::GetInstance().Delete(_checkerTexture);
-
-		UnloadEditorModules();
 	}
 
 	/// @brief
@@ -208,7 +208,7 @@ namespace hod::inline editor
 				return false;
 			}
 
-			auto startupFunc = module->LoadFunction<int(*)()>("StartupModule");
+			auto startupFunc = module->LoadFunction<int (*)()>("StartupModule");
 			if (startupFunc == nullptr)
 			{
 				DefaultAllocator::GetInstance().Delete(module);
@@ -227,7 +227,7 @@ namespace hod::inline editor
 	{
 		for (DynamicLibrary* module : _editorModules)
 		{
-			auto shutdownFunc = module->LoadFunction<int(*)()>("ShutdownModule");
+			auto shutdownFunc = module->LoadFunction<int (*)()>("ShutdownModule");
 			if (shutdownFunc != nullptr)
 			{
 				shutdownFunc();
@@ -793,22 +793,30 @@ namespace hod::inline editor
 		FileSystem::GetInstance()->CreateDirectories(intermediateDir);
 
 		if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
+		{
 			return;
+		}
 
 		if (buildPlatform != BuildPlatform::Android)
 		{
 			if (CMakeHelper::Configure(projectDir, intermediateDir, buildDir, CMakeHelper::Target::Retail) == false)
+			{
 				return;
+			}
 
 			if (CMakeHelper::Build(intermediateDir, "Release") == false)
+			{
 				return;
+			}
 
 			if (CMakeHelper::Install(intermediateDir, "Release") == false)
+			{
 				return;
+			}
 		}
 
-		//bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
-		//bootInfo._gameModule   = Project::GetInstance()->GetName();
+		// bootInfo._startupScene = Project::GetInstance()->GetStartupScene();
+		// bootInfo._gameModule   = Project::GetInstance()->GetName();
 
 		Path dataDirPath = buildDir / "Datas";
 		FileSystem::GetInstance()->CreateDirectories(dataDirPath);
@@ -838,8 +846,7 @@ namespace hod::inline editor
 
 			try
 			{
-				const auto copyOptions = std::filesystem::copy_options::recursive 
-									| std::filesystem::copy_options::overwrite_existing;
+				const auto copyOptions = std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing;
 
 				std::filesystem::copy(source.GetString().CStr(), destination.GetString().CStr(), copyOptions);
 			}
@@ -850,10 +857,10 @@ namespace hod::inline editor
 
 			Path cmakeLists = projectDir / "CMakeLists.txt";
 
-			Path installDir(HOD_INSTALL_PREFIX);
-			Path externalJarDirPath = installDir / "platforms" / "android" / "jar";
-			Path jniLibsDirPath = installDir / "platforms" / "android" / "jniLibs";
-			Path engineDirPath = installDir / "cmake";
+			Path   installDir(HOD_INSTALL_PREFIX);
+			Path   externalJarDirPath = installDir / "platforms" / "android" / "jar";
+			Path   jniLibsDirPath = installDir / "platforms" / "android" / "jniLibs";
+			Path   engineDirPath = installDir / "cmake";
 			String gameBuildType = "Application";
 
 			engineDirPath.PortableSeparator();
@@ -862,14 +869,14 @@ namespace hod::inline editor
 
 			try
 			{
-				Path buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
+				Path          buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
 				std::ifstream inFile(buildGradlePath.GetString().CStr());
 				if (inFile.is_open() == false)
 				{
 					OUTPUT_ERROR("Build error : cannot open {}", buildGradlePath.GetString().CStr());
 					return;
 				}
-				std::string content((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+				std::string content {std::istreambuf_iterator<char>(inFile), std::istreambuf_iterator<char>()};
 				inFile.close();
 
 				auto replaceAll = [](std::string& str, const std::string& from, const std::string& to)
@@ -908,14 +915,14 @@ namespace hod::inline editor
 
 			try
 			{
-				Path manifestPath = buildDir / "AndroidStudioProject" / "app" / "src" / "main" / "AndroidManifest.xml";
+				Path          manifestPath = buildDir / "AndroidStudioProject" / "app" / "src" / "main" / "AndroidManifest.xml";
 				std::ifstream inFile(manifestPath.GetString().CStr());
 				if (inFile.is_open() == false)
 				{
 					OUTPUT_ERROR("Build error : cannot open {}", manifestPath.GetString().CStr());
 					return;
 				}
-				std::string content((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+				std::string content {std::istreambuf_iterator<char>(inFile), std::istreambuf_iterator<char>()};
 				inFile.close();
 
 				auto replaceAll = [](std::string& str, const std::string& from, const std::string& to)
