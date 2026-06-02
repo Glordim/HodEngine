@@ -215,13 +215,13 @@ namespace hod::inline renderer
 	/// @brief
 	void RendererVulkan::DeferDestroy(VkImage image, VmaAllocation allocation)
 	{
-		_imagesToDestroy[_frameIndex].PushBack({ image, allocation });
+		_imagesToDestroy[_frameIndex].PushBack({image, allocation});
 	}
 
 	/// @brief
 	void RendererVulkan::DeferDestroy(VkBuffer buffer, VmaAllocation allocation)
 	{
-		_buffersToDestroy[_frameIndex].PushBack({ buffer, allocation });
+		_buffersToDestroy[_frameIndex].PushBack({buffer, allocation});
 	}
 
 	/// @brief
@@ -838,7 +838,7 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererVulkan::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags /*properties*/,
+	bool RendererVulkan::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
 	                                 VkImage* image, VmaAllocation* imageMemory)
 	{
 		VkImageCreateInfo imageInfo = {};
@@ -857,7 +857,7 @@ namespace hod::inline renderer
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocInfo = {};
-		allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		allocInfo.usage = (properties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) ? VMA_MEMORY_USAGE_GPU_ONLY : VMA_MEMORY_USAGE_CPU_TO_GPU;
 
 		if (vmaCreateImage(_vmaAllocator, &imageInfo, &allocInfo, image, imageMemory, nullptr) != VK_SUCCESS)
 		{
