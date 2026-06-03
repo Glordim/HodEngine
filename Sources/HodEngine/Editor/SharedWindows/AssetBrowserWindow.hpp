@@ -7,6 +7,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <HodEngine/Core/FileSystem/Path.hpp>
 #include <cstdint>
+#include <functional>
 
 namespace hod::inline editor
 {
@@ -24,6 +25,8 @@ namespace hod::inline editor
 		void DrawContent() override;
 
 		void PingAsset(Asset& asset);
+
+		void Rename(const Path& path);
 
 	public:
 		struct Context
@@ -86,5 +89,15 @@ namespace hod::inline editor
 		AssetDatabase::FileSystemMapping* _itemToPing = nullptr;
 		PingAnimState                     _pingAnimState;
 		float                             _pingAnimValue;
+
+		static Vector<ContextualMenuAction> _contextualMenuActions;
+
+		struct ContextualMenuItem
+		{
+			String label;
+			bool isSeparator;
+			std::function<void(const Context&)> callback;
+		};
+		Vector<ContextualMenuItem> _contextualMenuData;
 	};
 }

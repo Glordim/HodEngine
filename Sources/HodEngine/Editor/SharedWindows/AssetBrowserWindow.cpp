@@ -40,6 +40,58 @@
 
 #include <cmath>
 
+namespace ImGui
+{
+	void OpenPopupOnItemClick(const char* str_id, ImGuiPopupFlags popup_flags, bool* p_open)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
+		if (IsMouseReleased(mouse_button) && IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+		{
+			ImGuiID id = str_id ? window->GetID(str_id) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+			IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
+			OpenPopupEx(id, popup_flags);
+			if (p_open != NULL)
+				*p_open = true;
+		}
+		else
+		{
+			if (p_open != NULL)
+				*p_open = false;
+		}
+	}
+
+	void OpenPopupOnWindowClick(const char* str_id, ImGuiPopupFlags popup_flags, bool* p_open)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		if (!str_id)
+			str_id = "window_context";
+		ImGuiID id = window->GetID(str_id);
+		int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
+		if (IsMouseReleased(mouse_button) && IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+		{
+			if (!(popup_flags & ImGuiPopupFlags_NoOpenOverItems) || !IsAnyItemHovered())
+			{
+				OpenPopupEx(id, popup_flags);
+				if (p_open != NULL)
+					*p_open = true;
+			}
+			else
+			{
+				if (p_open != NULL)
+					*p_open = false;
+			}
+		}
+		else
+		{
+			if (p_open != NULL)
+				*p_open = false;
+		}
+	}
+}
+
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
 {
 	using namespace ImGui;
@@ -54,9 +106,22 @@ bool Splitter(bool split_vertically, float thickness, float* size1, float* size2
 
 namespace hod::inline editor
 {
+	Vector<AssetBrowserWindow::ContextualMenuAction> AssetBrowserWindow::_contextualMenuActions;
+
 	DESCRIBE_REFLECTED_CLASS(AssetBrowserWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
+	}
+
+	uint32_t AssetBrowserWindow::RegisterContextualMenuAction(ContextualMenuAction contextualMenuAction)
+	{
+		_contextualMenuActions.PushBack(contextualMenuAction);
+		return _contextualMenuActions.Size() - 1;
+	}
+
+	void AssetBrowserWindow::UnregisterContextualMenuAction(uint32_t contextualMenuActionId)
+	{
+		_contextualMenuActions.Erase(_contextualMenuActions.Begin() + contextualMenuActionId);
 	}
 
 	/// @brief
@@ -67,7 +132,6 @@ namespace hod::inline editor
 		{
 			contextualActionInitialized = true;
 
-			/*
 			RegisterContextualMenuAction({
 				.path = "Rename",
 				.group = "Edit",
@@ -123,18 +187,11 @@ namespace hod::inline editor
 				.group = "Explore",
 				.available = +[](const Context& context)
 				{
-					return context.selectedItems.Size() <= 1;
+					return context.selectedItems.Size() == 1;
 				},
 				.execute = +[](const Context& context)
 				{
-					if (context.selectedItems.Size() == 1)
-					{
-						OS::clip(context.selectedItems[0]);
-					}
-					else
-					{
-						OpenExplorerAtPath(context.currentDirectory);
-					}
+					OS::WriteClipboard(context.selectedItems[0].GetString());
 				},
 			});
 			RegisterContextualMenuAction({
@@ -146,16 +203,16 @@ namespace hod::inline editor
 				},
 				.execute = +[](const Context& context)
 				{
-					Path                              newFolderPath = AssetDatabase::GetInstance()->CreateFolder(context.currentDirectory / "Folder");
-					AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
+					Path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(context.currentDirectory / "Folder");
 					context.assetBrowserWindow.Rename(newFolderPath);
 				},
 			});
 			RegisterContextualMenuAction({
 				.path = "Create/Scene",
+				.group = "New",
 				.available = +[](const Context& context)
 				{
-					return context.selectedAssetPaths.Empty();
+					return context.selectedItems.Empty();
 				},
 				.execute = +[](const Context& context)
 				{
@@ -163,7 +220,58 @@ namespace hod::inline editor
 					context.assetBrowserWindow.Rename(newAssetPath);
 				},
 			});
-			*/
+			RegisterContextualMenuAction({
+				.path = "Reimport",
+				.group = "",
+				.available = +[](const Context& context)
+				{
+					return context.selectedItems.Size() == 1;
+				},
+				.execute = +[](const Context& context)
+				{
+					AssetDatabase::GetInstance()->Import(context.selectedItems[0]);
+				},
+			});
+			RegisterContextualMenuAction({
+				.path = "Show Resource in explorer",
+				.group = "",
+				.available = +[](const Context& context)
+				{
+					return context.selectedItems.Size() == 1;
+				},
+				.execute = +[](const Context& context)
+				{
+					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+					if (asset != nullptr)
+					{
+						OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
+					}
+				},
+			});
+			RegisterContextualMenuAction({
+				.path = "Set as startup scene",
+				.group = "",
+				.available = +[](const Context& context)
+				{
+					if (context.selectedItems.Size() == 1)
+					{
+						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+						if (asset != nullptr)
+						{
+							return asset->_asset->GetMeta()._importerType == "SceneImporter";
+						}
+					}
+					return false;
+				},
+				.execute = +[](const Context& context)
+				{
+					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+					if (asset != nullptr)
+					{
+						Project::GetInstance()->SetStartupScene(asset->_asset);
+					}
+				},
+			});
 		}
 
 		SetFlags(ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
@@ -354,6 +462,15 @@ namespace hod::inline editor
 				DrawFolderTreeNode(child);
 			}
 			ImGui::TreePop();
+		}
+	}
+
+	void AssetBrowserWindow::Rename(const Path& path)
+	{
+		AssetDatabase::FileSystemMapping* node = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(path);
+		if (node != nullptr)
+		{
+			EditNodeName(node);
 		}
 	}
 
@@ -587,31 +704,11 @@ namespace hod::inline editor
 					itemToDelete = asset;
 				}
 			}
-			if (ImGui::BeginPopupContextItem())
+			bool open = false;
+			ImGui::OpenPopupOnItemClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight, &open);
+			if (open)
 			{
-				if (ImGui::MenuItem("Reimport") == true)
-				{
-					AssetDatabase::GetInstance()->Import(asset->_path);
-				}
-				else if (ImGui::MenuItem("Show Resource in explorer") == true)
-				{
-					OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
-				}
-				else if (ImGui::MenuItem("Rename") == true)
-				{
-					_itemToRename = asset;
-					std::strcpy(_itemRenameBuffer, asset->_asset->GetName().CStr());
-				}
-				else if (ImGui::MenuItem("Delete") == true)
-				{
-					itemToDelete = asset;
-				}
-
-				if (asset->_asset->GetMeta()._importerType == "SceneImporter" && ImGui::MenuItem("Set as startup scene"))
-				{
-					Project::GetInstance()->SetStartupScene(asset->_asset);
-				}
-				ImGui::EndPopup();
+				_currentExplorerNode = asset;
 			}
 			if (available > 210)
 			{
@@ -682,105 +779,129 @@ namespace hod::inline editor
 			ImGui::EndDragDropTarget();
 		}
 
-		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		bool open = false;
+		ImGui::OpenPopupOnWindowClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems, &open);
+		if (open)
 		{
-			if (ImGui::IsAnyItemHovered() == false)
-			{
-				_currentExplorerNode = nullptr;
-			}
-			ImGui::OpenPopup("FolderExplorerContext");
+			_currentExplorerNode = nullptr;
 		}
 
 		if (ImGui::BeginPopup("FolderExplorerContext") == true)
 		{
-			if (_currentExplorerNode == nullptr)
+			if (ImGui::IsWindowAppearing())
 			{
-				if (ImGui::MenuItem("New Folder") == true)
+				Context context({
+					.assetBrowserWindow = *this,
+					.currentDirectory = _currentFolderTreeNode->_path,
+					.selectedItems = Vector<Path>()
+				});
+				if (_currentExplorerNode != nullptr)
 				{
-					Path                              newFolderPath = AssetDatabase::GetInstance()->CreateFolder(_currentFolderTreeNode->_path / "Folder");
-					AssetDatabase::FileSystemMapping* newFolderNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newFolderPath);
-					if (newFolderNode != nullptr)
+					context.selectedItems.PushBack(_currentExplorerNode->_path);
+				}
+
+				_contextualMenuData.Clear();
+				for (ContextualMenuAction menuAction : _contextualMenuActions)
+				{
+					if (menuAction.available == nullptr || menuAction.available(context))
 					{
-						EditNodeName(newFolderNode);
+						ContextualMenuItem menuItem;
+						menuItem.callback = menuAction.execute;
+						menuItem.label = menuAction.path;
+						menuItem.isSeparator = false;
+						_contextualMenuData.PushBack(menuItem);
+					}
+				}
+			}
+
+			for (const ContextualMenuItem& menuItem : _contextualMenuData)
+			{
+				ImGui::PushID(&menuItem);
+				bool clicked = ImGui::MenuItem(menuItem.label.CStr());
+				ImGui::PopID();
+				if (clicked)
+				{
+					Context context({
+						.assetBrowserWindow = *this,
+						.currentDirectory = _currentFolderTreeNode->_path,
+						.selectedItems = Vector<Path>()
+					});
+					if (_currentExplorerNode != nullptr)
+					{
+						context.selectedItems.PushBack(_currentExplorerNode->_path);
+					}
+
+					menuItem.callback(context);
+				}
+			}
+			if (_currentExplorerNode == nullptr && ImGui::BeginMenu("Create") == true)
+			{
+				if (ImGui::MenuItem("Prefab") == true)
+				{
+					Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
+					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+					if (newAssetNode != nullptr)
+					{
+						Prefab prefab;
+						prefab.CreateEntity("Prefab");
+						newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
+						AssetDatabase::GetInstance()->Import(newAssetPath);
+						_itemToRename = newAssetNode;
+						std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
 						ImGui::CloseCurrentPopup();
 					}
 				}
-
-				if (ImGui::MenuItem("Show in Explorer") == true)
+				if (ImGui::MenuItem("Scene") == true)
 				{
-					OpenExplorerAtPath(_currentFolderTreeNode->_path);
-					ImGui::CloseCurrentPopup();
+					Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
+					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+					if (newAssetNode != nullptr)
+					{
+						_itemToRename = newAssetNode;
+						std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
+						ImGui::CloseCurrentPopup();
+					}
 				}
-
-				if (ImGui::BeginMenu("Create") == true)
+				if (ImGui::BeginMenu("Data") == true)
 				{
-					if (ImGui::MenuItem("Prefab") == true)
+					for (const auto& pair : SerializedDataFactory::GetInstance()->GetAllDescriptors())
 					{
-						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
-						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-						if (newAssetNode != nullptr)
+						ImGui::PushID(pair.second);
+						if (ImGui::MenuItem(pair.second->GetDisplayName().CStr()))
 						{
-							Prefab prefab;
-							prefab.CreateEntity("Prefab");
-							newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
-							AssetDatabase::GetInstance()->Import(newAssetPath);
-							_itemToRename = newAssetNode;
-							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
-							ImGui::CloseCurrentPopup();
-						}
-					}
-					if (ImGui::MenuItem("Scene") == true)
-					{
-						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
-						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-						if (newAssetNode != nullptr)
-						{
-							_itemToRename = newAssetNode;
-							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
-							ImGui::CloseCurrentPopup();
-						}
-					}
-					if (ImGui::BeginMenu("Data") == true)
-					{
-						for (const auto& pair : SerializedDataFactory::GetInstance()->GetAllDescriptors())
-						{
-							ImGui::PushID(pair.second);
-							if (ImGui::MenuItem(pair.second->GetDisplayName().CStr()))
+							std::shared_ptr<SerializedData> serializedData(pair.second->CreateInstance<SerializedData>());
+
+							SerializedDataAsset serializedDataAsset(serializedData.get());
+
+							Importer* importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
+							Path      newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(),
+																								importer->AllocateSettings(), importer->GetTypeName(),
+																								_currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset").CStr());
+							AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+							if (newAssetNode != nullptr)
 							{
-								std::shared_ptr<SerializedData> serializedData(pair.second->CreateInstance<SerializedData>());
-
-								SerializedDataAsset serializedDataAsset(serializedData.get());
-
-								Importer* importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
-								Path      newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(),
-								                                                                   importer->AllocateSettings(), importer->GetTypeName(),
-								                                                                   _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset").CStr());
-								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-								if (newAssetNode != nullptr)
-								{
-									_itemToRename = newAssetNode;
-									std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
-									ImGui::CloseCurrentPopup();
-								}
+								_itemToRename = newAssetNode;
+								std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
+								ImGui::CloseCurrentPopup();
 							}
-							ImGui::PopID();
 						}
-						ImGui::EndMenu();
-					}
-					if (ImGui::MenuItem("Material Instance") == true)
-					{
-						Path newAssetPath =
-							AssetDatabase::GetInstance()->CreateAsset<MaterialInstanceAsset, MaterialInstanceImporter>(_currentFolderTreeNode->_path / "MaterialInstance.mati");
-						AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-						if (newAssetNode != nullptr)
-						{
-							_itemToRename = newAssetNode;
-							std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
-							ImGui::CloseCurrentPopup();
-						}
+						ImGui::PopID();
 					}
 					ImGui::EndMenu();
 				}
+				if (ImGui::MenuItem("Material Instance") == true)
+				{
+					Path newAssetPath =
+						AssetDatabase::GetInstance()->CreateAsset<MaterialInstanceAsset, MaterialInstanceImporter>(_currentFolderTreeNode->_path / "MaterialInstance.mati");
+					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
+					if (newAssetNode != nullptr)
+					{
+						_itemToRename = newAssetNode;
+						std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
+						ImGui::CloseCurrentPopup();
+					}
+				}
+				ImGui::EndMenu();
 			}
 			ImGui::EndPopup();
 		}
