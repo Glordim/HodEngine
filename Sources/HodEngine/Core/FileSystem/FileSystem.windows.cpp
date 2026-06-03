@@ -343,7 +343,7 @@ namespace hod::inline core
 			return false;
 		}
 
-		if ((attr & FILE_ATTRIBUTE_DIRECTORY) == 0 && (attr & FILE_ATTRIBUTE_REPARSE_POINT) == 0)
+		if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0 || (attr & FILE_ATTRIBUTE_REPARSE_POINT) != 0)
 		{
 			return false;
 		}
