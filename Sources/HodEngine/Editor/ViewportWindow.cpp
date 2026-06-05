@@ -1,8 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/Importer/PrefabImporter.hpp"
-#include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 

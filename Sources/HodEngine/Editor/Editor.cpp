@@ -39,7 +39,7 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
-#include "HodEngine/Editor/Importer/TextureImporter.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 
 #include "HodEngine/Editor/AudioEditor/AudioEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"

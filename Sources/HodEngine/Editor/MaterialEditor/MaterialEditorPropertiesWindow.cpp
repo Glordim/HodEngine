@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
-#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -26,8 +26,6 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
-
-#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
 
 #include <HodEngine/Renderer/Resource/MaterialResource.hpp>
 #include <HodEngine/Renderer/RHI/Material.hpp>

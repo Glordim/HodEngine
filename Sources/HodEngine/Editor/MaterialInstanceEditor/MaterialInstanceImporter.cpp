@@ -1,5 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/Importer/MaterialInstanceImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"

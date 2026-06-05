@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
-#include "HodEngine/Editor/Importer/TextureImporter.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 

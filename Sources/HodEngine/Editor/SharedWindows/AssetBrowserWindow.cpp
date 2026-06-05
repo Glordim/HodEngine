@@ -16,10 +16,10 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
-#include "HodEngine/Editor/Importer/MaterialInstanceImporter.hpp"
-#include "HodEngine/Editor/Importer/PrefabImporter.hpp"
-#include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"

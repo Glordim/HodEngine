@@ -3,15 +3,15 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/Importer/AudioImporter.hpp"
+#include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
 #include "HodEngine/Editor/Importer/FontImporter.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
-#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
-#include "HodEngine/Editor/Importer/MaterialInstanceImporter.hpp"
-#include "HodEngine/Editor/Importer/PrefabImporter.hpp"
-#include "HodEngine/Editor/Importer/SceneImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
-#include "HodEngine/Editor/Importer/TextureImporter.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>

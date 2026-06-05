@@ -3,7 +3,7 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
 
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 

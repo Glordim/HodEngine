@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Editor/Importer/AudioImporter.hpp"
+#include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
 
 #include "HodEngine/Audio/AudioResource.hpp"
 

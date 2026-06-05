@@ -11,7 +11,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <unordered_map>
 
-#include "HodEngine/Editor/Importer/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
