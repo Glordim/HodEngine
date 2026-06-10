@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 #include <HodEngine/Core/Document/Document.hpp>
-#include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
+#include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Singleton.hpp>
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
@@ -44,7 +44,6 @@ namespace hod::inline editor
 		_Singleton(Editor)
 
 	public:
-
 		enum class BuildPlatform
 		{
 			Windows,
@@ -66,6 +65,9 @@ namespace hod::inline editor
 
 		bool Save();
 		bool SaveSceneAs();
+
+		void OpenImportDialog(const Path& path);
+		void Import(const Path& sourceFilePath, const Path& destinationDirPath);
 
 		void Build(BuildPlatform buildPlatform);
 		void BuildAndRun();
@@ -140,6 +142,14 @@ namespace hod::inline editor
 		bool                _focusFloatingAssetBrowserWindow = false;
 		float               _floatingAssetBrowserWindowPos = 0.0f;
 		AssetBrowserWindow* _floatingAssetBrowserWindow = nullptr;
+
+		struct ImportRequest
+		{
+			Path _sourceFilePath;
+			Path _destinationDirPath;
+		};
+
+		Vector<ImportRequest> _importRequests;
 	};
 
 	template<typename _EditorTabType_>

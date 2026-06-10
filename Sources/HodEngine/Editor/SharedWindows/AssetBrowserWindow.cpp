@@ -16,10 +16,10 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
 #include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
 #include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
@@ -33,8 +33,8 @@
 #include "HodEngine/Game/SerializedDataFactory.hpp"
 #include "HodEngine/Game/World.hpp"
 
-#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 #include <HodEngine/Core/OS.hpp>
 
@@ -45,49 +45,62 @@ namespace ImGui
 	void OpenPopupOnItemClick(const char* str_id, ImGuiPopupFlags popup_flags, bool* p_open)
 	{
 		ImGuiContext& g = *GImGui;
-		ImGuiWindow* window = g.CurrentWindow;
-		int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
+		ImGuiWindow*  window = g.CurrentWindow;
+		int           mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
 		if (IsMouseReleased(mouse_button) && IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
 		{
-			ImGuiID id = str_id ? window->GetID(str_id) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
-			IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
+			ImGuiID id =
+				str_id ? window->GetID(str_id) : g.LastItemData.ID; // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+			IM_ASSERT(id != 0);                                     // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
 			OpenPopupEx(id, popup_flags);
 			if (p_open != NULL)
+			{
 				*p_open = true;
+			}
 		}
 		else
 		{
 			if (p_open != NULL)
+			{
 				*p_open = false;
+			}
 		}
 	}
 
 	void OpenPopupOnWindowClick(const char* str_id, ImGuiPopupFlags popup_flags, bool* p_open)
 	{
 		ImGuiContext& g = *GImGui;
-		ImGuiWindow* window = g.CurrentWindow;
+		ImGuiWindow*  window = g.CurrentWindow;
 		if (!str_id)
+		{
 			str_id = "window_context";
+		}
 		ImGuiID id = window->GetID(str_id);
-		int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
+		int     mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
 		if (IsMouseReleased(mouse_button) && IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
 		{
 			if (!(popup_flags & ImGuiPopupFlags_NoOpenOverItems) || !IsAnyItemHovered())
 			{
 				OpenPopupEx(id, popup_flags);
 				if (p_open != NULL)
+				{
 					*p_open = true;
+				}
 			}
 			else
 			{
 				if (p_open != NULL)
+				{
 					*p_open = false;
+				}
 			}
 		}
 		else
 		{
 			if (p_open != NULL)
+			{
 				*p_open = false;
+			}
 		}
 	}
 }
@@ -133,144 +146,124 @@ namespace hod::inline editor
 			contextualActionInitialized = true;
 
 			RegisterContextualMenuAction({
+				.path = "Import",
+				.group = "",
+				.available = +[](const Context& context) { return context.selectedItems.Size() == 0; },
+				.execute = +[](const Context& context) { Editor::GetInstance()->OpenImportDialog(context.currentDirectory); },
+			});
+			RegisterContextualMenuAction({
 				.path = "Rename",
 				.group = "Edit",
-				.available = +[](const Context& context)
-				{
-					return context.selectedItems.Size() == 1;
-				},
-				.execute = +[](const Context& context)
-				{
-					context.assetBrowserWindow.Rename(context.selectedItems[0]);
-				},
+				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+				.execute = +[](const Context& context) { context.assetBrowserWindow.Rename(context.selectedItems[0]); },
 			});
 			RegisterContextualMenuAction({
 				.path = "Delete",
 				.group = "Edit",
-				.available = +[](const Context& context)
-				{
-					return context.selectedItems.Size() > 0;
-				},
-				.execute = +[](const Context& context)
-				{
-					for (Path selectedAsset : context.selectedItems)
+				.available = +[](const Context& context) { return context.selectedItems.Size() > 0; },
+				.execute =
+					+[](const Context& context)
 					{
-						auto filesystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedAsset);
-						if (filesystemMapping != nullptr)
+						for (Path selectedAsset : context.selectedItems)
 						{
-							AssetDatabase::GetInstance()->Delete(*filesystemMapping);
+							auto filesystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedAsset);
+							if (filesystemMapping != nullptr)
+							{
+								AssetDatabase::GetInstance()->Delete(*filesystemMapping);
+							}
 						}
-					}
-				},
+					},
 			});
 			RegisterContextualMenuAction({
 				.path = "Show in Explorer",
 				.group = "Explore",
-				.available = +[](const Context& context)
-				{
-					return context.selectedItems.Size() <= 1;
-				},
-				.execute = +[](const Context& context)
-				{
-					if (context.selectedItems.Size() == 1)
+				.available = +[](const Context& context) { return context.selectedItems.Size() <= 1; },
+				.execute =
+					+[](const Context& context)
 					{
-						OpenExplorerAtPath(context.selectedItems[0]);
-					}
-					else
-					{
-						OpenExplorerAtPath(context.currentDirectory);
-					}
-				},
+						if (context.selectedItems.Size() == 1)
+						{
+							OpenExplorerAtPath(context.selectedItems[0]);
+						}
+						else
+						{
+							OpenExplorerAtPath(context.currentDirectory);
+						}
+					},
 			});
 			RegisterContextualMenuAction({
 				.path = "Copy path",
 				.group = "Explore",
-				.available = +[](const Context& context)
-				{
-					return context.selectedItems.Size() == 1;
-				},
-				.execute = +[](const Context& context)
-				{
-					OS::WriteClipboard(context.selectedItems[0].GetString());
-				},
+				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+				.execute = +[](const Context& context) { OS::WriteClipboard(context.selectedItems[0].GetString()); },
 			});
 			RegisterContextualMenuAction({
 				.path = "New folder",
 				.group = "New",
-				.available = +[](const Context& context)
-				{
-					return context.selectedItems.Size() == 0;
-				},
-				.execute = +[](const Context& context)
-				{
-					Path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(context.currentDirectory / "Folder");
-					context.assetBrowserWindow.Rename(newFolderPath);
-				},
+				.available = +[](const Context& context) { return context.selectedItems.Size() == 0; },
+				.execute =
+					+[](const Context& context)
+					{
+						Path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(context.currentDirectory / "Folder");
+						context.assetBrowserWindow.Rename(newFolderPath);
+					},
 			});
 			RegisterContextualMenuAction({
 				.path = "Create/Scene",
 				.group = "New",
-				.available = +[](const Context& context)
-				{
-					return context.selectedItems.Empty();
-				},
-				.execute = +[](const Context& context)
-				{
-					Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(context.currentDirectory / "Scene.asset");
-					context.assetBrowserWindow.Rename(newAssetPath);
-				},
+				.available = +[](const Context& context) { return context.selectedItems.Empty(); },
+				.execute =
+					+[](const Context& context)
+					{
+						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(context.currentDirectory / "Scene.asset");
+						context.assetBrowserWindow.Rename(newAssetPath);
+					},
 			});
 			RegisterContextualMenuAction({
 				.path = "Reimport",
 				.group = "",
-				.available = +[](const Context& context)
-				{
-					return context.selectedItems.Size() == 1;
-				},
-				.execute = +[](const Context& context)
-				{
-					AssetDatabase::GetInstance()->Import(context.selectedItems[0]);
-				},
+				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+				.execute = +[](const Context& context) { AssetDatabase::GetInstance()->Import(context.selectedItems[0]); },
 			});
 			RegisterContextualMenuAction({
 				.path = "Show Resource in explorer",
 				.group = "",
-				.available = +[](const Context& context)
-				{
-					return context.selectedItems.Size() == 1;
-				},
-				.execute = +[](const Context& context)
-				{
-					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-					if (asset != nullptr)
-					{
-						OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
-					}
-				},
-			});
-			RegisterContextualMenuAction({
-				.path = "Set as startup scene",
-				.group = "",
-				.available = +[](const Context& context)
-				{
-					if (context.selectedItems.Size() == 1)
+				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+				.execute =
+					+[](const Context& context)
 					{
 						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
 						if (asset != nullptr)
 						{
-							return asset->_asset->GetMeta()._importerType == "SceneImporter";
+							OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
 						}
-					}
-					return false;
-				},
-				.execute = +[](const Context& context)
-				{
-					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-					if (asset != nullptr)
+					},
+			});
+			RegisterContextualMenuAction({
+				.path = "Set as startup scene",
+				.group = "",
+				.available =
+					+[](const Context& context)
 					{
-						Project::GetInstance()->SetStartupScene(asset->_asset);
-					}
-				},
+						if (context.selectedItems.Size() == 1)
+						{
+							AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+							if (asset != nullptr)
+							{
+								return asset->_asset->GetMeta()._importerType == "SceneImporter";
+							}
+						}
+						return false;
+					},
+				.execute =
+					+[](const Context& context)
+					{
+						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+						if (asset != nullptr)
+						{
+							Project::GetInstance()->SetStartupScene(asset->_asset);
+						}
+					},
 			});
 		}
 
@@ -731,7 +724,7 @@ namespace hod::inline editor
 				if (payload != nullptr)
 				{
 					EntityDragAndDropPayload* payloadData = static_cast<EntityDragAndDropPayload*>(payload->Data);
-					Entity*             dropEntityLock = payloadData->_entity;
+					Entity*                   dropEntityLock = payloadData->_entity;
 					if (dropEntityLock != nullptr)
 					{
 						std::shared_ptr<PrefabResource> prefabResource = dropEntityLock->GetPrefabResource();
@@ -742,7 +735,7 @@ namespace hod::inline editor
 
 						Document prefabDocument;
 						prefabDocument.GetRootNode().AddChild("Name").SetString(dropEntityLock->GetName());
-						uint64_t              nextLocalId = 1; // todo
+						uint64_t        nextLocalId = 1; // todo
 						SceneSerializer sceneSerializer;
 						if (sceneSerializer.SerializeEntity(dropEntityLock, true, prefabDocument.GetRootNode().AddChild("Entities"), nextLocalId) == false)
 						{
@@ -757,8 +750,8 @@ namespace hod::inline editor
 							}
 							else
 							{
-								Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path /
-								                                                                                            (dropEntityLock->GetName() + ".asset").CStr());
+								Path                              newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path /
+								                                                                                                                   (dropEntityLock->GetName() + ".asset").CStr());
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
@@ -790,11 +783,7 @@ namespace hod::inline editor
 		{
 			if (ImGui::IsWindowAppearing())
 			{
-				Context context({
-					.assetBrowserWindow = *this,
-					.currentDirectory = _currentFolderTreeNode->_path,
-					.selectedItems = Vector<Path>()
-				});
+				Context context({.assetBrowserWindow = *this, .currentDirectory = _currentFolderTreeNode->_path, .selectedItems = Vector<Path>()});
 				if (_currentExplorerNode != nullptr)
 				{
 					context.selectedItems.PushBack(_currentExplorerNode->_path);
@@ -821,11 +810,7 @@ namespace hod::inline editor
 				ImGui::PopID();
 				if (clicked)
 				{
-					Context context({
-						.assetBrowserWindow = *this,
-						.currentDirectory = _currentFolderTreeNode->_path,
-						.selectedItems = Vector<Path>()
-					});
+					Context context({.assetBrowserWindow = *this, .currentDirectory = _currentFolderTreeNode->_path, .selectedItems = Vector<Path>()});
 					if (_currentExplorerNode != nullptr)
 					{
 						context.selectedItems.PushBack(_currentExplorerNode->_path);
@@ -853,7 +838,7 @@ namespace hod::inline editor
 				}
 				if (ImGui::MenuItem("Scene") == true)
 				{
-					Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
+					Path                              newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
 					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)
 					{
@@ -875,8 +860,8 @@ namespace hod::inline editor
 
 							Importer* importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
 							Path      newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(),
-																								importer->AllocateSettings(), importer->GetTypeName(),
-																								_currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset").CStr());
+							                                                                   importer->AllocateSettings(), importer->GetTypeName(),
+							                                                                   _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset").CStr());
 							AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 							if (newAssetNode != nullptr)
 							{

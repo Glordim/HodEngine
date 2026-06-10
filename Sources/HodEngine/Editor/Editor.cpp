@@ -70,6 +70,8 @@
 #include <fstream>
 #include <string>
 
+#include "portable-file-dialogs.h"
+
 #undef max
 #undef min
 
@@ -959,5 +961,24 @@ namespace hod::inline editor
 	{
 		Build(BuildPlatform::Windows);
 		// todo run
+	}
+
+	void Editor::OpenImportDialog(const Path& path)
+	{
+		pfd::settings::verbose(true);
+		pfd::open_file dialog("Import", Project::GetInstance()->GetSourceDirPath().GetString().CStr());
+		auto           result = dialog.result();
+		for (const auto& result : dialog.result())
+		{
+			Editor::Import(result.c_str(), path);
+		}
+	}
+
+	void Editor::Import(const Path& sourceFilePath, const Path& destinationDirPath)
+	{
+		ImportRequest importRequest;
+		importRequest._sourceFilePath = sourceFilePath;
+		importRequest._destinationDirPath = destinationDirPath;
+		_importRequests.PushBack(importRequest);
 	}
 }
