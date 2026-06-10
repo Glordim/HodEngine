@@ -785,11 +785,11 @@ namespace hod::inline editor
 	/// @brief
 	void Editor::Build(BuildPlatform buildPlatform)
 	{
-		Path buildDir = Project::GetInstance()->GetBuildsDirPath();
+		Path buildDir = Project::GetInstance()->GetBuildDirPath();
 		FileSystem::GetInstance()->CreateDirectories(buildDir);
 
 		Path projectDir = Project::GetInstance()->GetProjectPath().ParentPath();
-		Path intermediateDir = Project::GetInstance()->GetIntermediateSourcesDirPath() / Path(CMakeHelper::GetCurrentPlatform());
+		Path intermediateDir = Project::GetInstance()->GetCacheBuildDirPath() / Path(CMakeHelper::GetCurrentPlatform());
 		FileSystem::GetInstance()->CreateDirectories(intermediateDir);
 
 		if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)

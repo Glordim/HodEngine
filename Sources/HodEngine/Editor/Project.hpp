@@ -38,11 +38,12 @@ namespace hod::inline editor
 		const String GetName() const;
 
 		const Path& GetProjectPath() const;
+		const Path& GetSourceDirPath() const;
 		const Path& GetAssetDirPath() const;
 		const Path& GetResourceDirPath() const;
 		const Path& GetThumbnailDirPath() const;
-		const Path& GetIntermediateSourcesDirPath() const;
-		const Path& GetBuildsDirPath() const;
+		const Path& GetCacheBuildDirPath() const;
+		const Path& GetBuildDirPath() const;
 
 		bool HasGameModule() const;
 		Path GetGameModulePath() const;
@@ -57,11 +58,12 @@ namespace hod::inline editor
 
 	private:
 		Path _projectPath;
+		Path _sourceDirPath;
 		Path _assetDirPath;
 		Path _resourceDirPath;
 		Path _thumbnailDirPath;
-		Path _intermediateSourcesDirPath;
-		Path _buildsDirPath;
+		Path _cacheBuildDirPath;
+		Path _buildDirPath;
 
 		String _name;
 		UID    _startupScene;

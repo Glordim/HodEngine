@@ -77,7 +77,7 @@ namespace hod::inline editor
 	/// @return
 	bool Project::CreateMinimalSourceForModule(const Path& directory)
 	{
-		Path sourcesDirPath = directory / "Sources" / _name;
+		Path sourcesDirPath = directory / "Code" / _name;
 		Path sourcesComponentsDirPath = sourcesDirPath / "Components";
 		if (FileSystem::GetInstance()->Exists(sourcesDirPath) == false && FileSystem::GetInstance()->CreateDirectories(sourcesDirPath) == false)
 		{
@@ -181,32 +181,34 @@ namespace hod::inline editor
 		_projectPath = projectPath;
 		_name = _projectPath.Stem().GetString();
 
-		_assetDirPath = _projectPath.ParentPath() / "Assets";
+		_sourceDirPath = _projectPath.ParentPath() / "Source";
+
+		_assetDirPath = _projectPath.ParentPath() / "Asset";
 		if (FileSystem::GetInstance()->Exists(_assetDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_assetDirPath) == false)
 		{
 			return false;
 		}
 
-		_resourceDirPath = _projectPath.ParentPath() / "Generated" / "Resources";
+		_resourceDirPath = _projectPath.ParentPath() / "Cache" / "Resources";
 		if (FileSystem::GetInstance()->Exists(_resourceDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_resourceDirPath) == false)
 		{
 			return false;
 		}
 
-		_thumbnailDirPath = _projectPath.ParentPath() / "Generated" / "Thumbnails";
+		_thumbnailDirPath = _projectPath.ParentPath() / "Cache" / "Thumbnails";
 		if (FileSystem::GetInstance()->Exists(_thumbnailDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_thumbnailDirPath) == false)
 		{
 			return false;
 		}
 
-		_intermediateSourcesDirPath = _projectPath.ParentPath() / "Generated" / "Sources";
-		if (FileSystem::GetInstance()->Exists(_intermediateSourcesDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_intermediateSourcesDirPath) == false)
+		_cacheBuildDirPath = _projectPath.ParentPath() / "Cache" / "Build";
+		if (FileSystem::GetInstance()->Exists(_cacheBuildDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_cacheBuildDirPath) == false)
 		{
 			return false;
 		}
 
-		_buildsDirPath = _projectPath.ParentPath() / "Builds";
-		if (FileSystem::GetInstance()->Exists(_buildsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_buildsDirPath) == false)
+		_buildDirPath = _projectPath.ParentPath() / "Build";
+		if (FileSystem::GetInstance()->Exists(_buildDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_buildDirPath) == false)
 		{
 			return false;
 		}
@@ -214,7 +216,7 @@ namespace hod::inline editor
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
 		String gameModuleName = _name + "Game";
-		Path moduleBuildDirectoryPath = GetIntermediateSourcesDirPath() / "Editor";
+		Path moduleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
 		_gameModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" / gameModuleName, true);
 		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
 		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); }, nullptr) == false)
@@ -290,6 +292,13 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
+	const Path& Project::GetSourceDirPath() const
+	{
+		return _sourceDirPath;
+	}
+
+	/// @brief
+	/// @return
 	const Path& Project::GetAssetDirPath() const
 	{
 		return _assetDirPath;
@@ -309,16 +318,16 @@ namespace hod::inline editor
 		return _thumbnailDirPath;
 	}
 
-	const Path& Project::GetIntermediateSourcesDirPath() const
+	const Path& Project::GetCacheBuildDirPath() const
 	{
-		return _intermediateSourcesDirPath;
+		return _cacheBuildDirPath;
 	}
 
 	/// @brief
 	/// @return
-	const Path& Project::GetBuildsDirPath() const
+	const Path& Project::GetBuildDirPath() const
 	{
-		return _buildsDirPath;
+		return _buildDirPath;
 	}
 
 	/// @brief
@@ -347,7 +356,7 @@ namespace hod::inline editor
 
 		bool result = true;
 		result &= CMakeHelper::GenerateCMakeLists(
-			_projectPath.ParentPath() / "Sources" / projectGameName / "CMakeLists.txt",
+			_projectPath.ParentPath() / "Code" / projectGameName / "CMakeLists.txt",
 			CMakeListsGame_txt,
 			{
 				{"[[PROJECT_NAME]]", projectName},
@@ -361,7 +370,7 @@ namespace hod::inline editor
 		std::transform(projectEditorExport.begin(), projectEditorExport.end(), projectEditorExport.begin(), [](char c) { return std::toupper(c); });
 
 		result &= CMakeHelper::GenerateCMakeLists(
-			_projectPath.ParentPath() / "Sources" / projectEditorName / "CMakeLists.txt",
+			_projectPath.ParentPath() / "Code" / projectEditorName / "CMakeLists.txt",
 			CMakeListsEditor_txt,
 			{
 				{"[[PROJECT_NAME]]", projectName},
@@ -390,7 +399,7 @@ namespace hod::inline editor
 	bool Project::ConfigureGameModule() const
 	{
 		Path gameModuleSourceDirectoryPath = _projectPath.ParentPath();
-		Path gameModuleBuildDirectoryPath = GetIntermediateSourcesDirPath() / "Editor";
+		Path gameModuleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
 
 		try
 		{
@@ -417,7 +426,7 @@ namespace hod::inline editor
 	/// @return
 	bool Project::BuildGameModule() const
 	{
-		Path gameModuleBuildDirectoryPath = GetIntermediateSourcesDirPath() / "Editor";
+		Path gameModuleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
 		return CMakeHelper::Build(gameModuleBuildDirectoryPath, "Release");
 	}
 
