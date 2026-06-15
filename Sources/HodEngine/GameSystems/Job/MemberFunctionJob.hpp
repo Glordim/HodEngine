@@ -9,7 +9,7 @@ namespace hod::inline gamesystems
 	class MemberFunctionJob : public Job
 	{
 	public:
-		MemberFunctionJob(Type* instance, Function memberFunction, JobQueue::Queue queue, bool deleteAfterCompletion = false, Thread::Id threadId = Thread::InvalidId);
+		MemberFunctionJob(Type* instance, Function memberFunction);
 		MemberFunctionJob(const Job&) = delete;
 		MemberFunctionJob(Job&&) = delete;
 		~MemberFunctionJob() override = default;

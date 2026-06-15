@@ -93,6 +93,33 @@ file(COPY "${THIRDPARTY_ROOT}/Freetype/include/"
 	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
 )
 
+# EnkiTS
+find_package(enkiTS REQUIRED CONFIG
+	PATHS "${THIRDPARTY_ROOT}/EnkiTS/lib/cmake"
+	NO_DEFAULT_PATH
+)
+
+install(DIRECTORY "${THIRDPARTY_ROOT}/EnkiTS/lib/cmake/enkiTS"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
+)
+install(FILES "${THIRDPARTY_ROOT}/EnkiTS/lib/${LIB_PREFIX}enkiTS.${LIB_EXTENSION}"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
+)
+install(DIRECTORY "${THIRDPARTY_ROOT}/EnkiTS/include/"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+
+# Copy enkiTS to build tree so HodEngineConfig.cmake works without install
+file(COPY "${THIRDPARTY_ROOT}/EnkiTS/lib/cmake/enkiTS"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib/cmake"
+)
+file(COPY "${THIRDPARTY_ROOT}/EnkiTS/lib/${LIB_PREFIX}enkiTS.${LIB_EXTENSION}"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib"
+)
+file(COPY "${THIRDPARTY_ROOT}/EnkiTS/include/"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+
 # Stb (header-only)
 add_library(Stb::Stb INTERFACE IMPORTED GLOBAL)
 set_target_properties(Stb::Stb PROPERTIES

@@ -44,11 +44,7 @@ namespace hod::inline gamesystems
 	/// @brief
 	void FrameStep::Wait()
 	{
-		uint32_t jobCount = (uint32_t)_jobs.Size();
-		for (uint32_t jobIndex = 0; jobIndex < jobCount; ++jobIndex)
-		{
-			Job* job = _jobs[jobIndex];
-			job->Wait();
-		}
+		JobScheduler* jobScheduler = JobScheduler::GetInstance();
+		jobScheduler->Wait();
 	}
 }

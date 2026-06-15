@@ -11,7 +11,7 @@
 namespace hod::inline audio
 {
 	_SingletonConstructor(AudioManager)
-	: _updateJob(this, &AudioManager::Update, JobQueue::Queue::Framed)
+	: _updateJob(this, &AudioManager::Update)
 	{}
 
 	/// @brief

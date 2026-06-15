@@ -9,7 +9,7 @@
 namespace hod::inline input
 {
 	_SingletonConstructor(InputManager)
-	: _updateJob(this, &InputManager::UpdateJob, JobQueue::Queue::Framed, false)
+	: _updateJob(this, &InputManager::UpdateJob)
 	{
 	}
 
@@ -17,10 +17,6 @@ namespace hod::inline input
 	InputManager::~InputManager()
 	{
 		FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::PreLogic);
-		if (_updateJob.Cancel() == true)
-		{
-			_updateJob.Wait();
-		}
 
 		for (Api* api : _apis)
 		{

@@ -21,7 +21,7 @@ namespace hod::inline editor
 
 	/// @brief
 	MissingGameModuleModal::MissingGameModuleModal()
-	: _generationJob(this, &MissingGameModuleModal::GenerationJob, JobQueue::Queue::Unframed)
+	: _generationJob(this, &MissingGameModuleModal::GenerationJob)
 	{
 		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->SetSize(320, 200);
@@ -62,7 +62,7 @@ namespace hod::inline editor
 				mainWindow->SetSize(800, 600);
 				mainWindow->CenterToScreen();
 
-				JobScheduler::GetInstance()->Push(&_generationJob);
+				JobScheduler::GetInstance()->PushBackground(&_generationJob);
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Exit"))

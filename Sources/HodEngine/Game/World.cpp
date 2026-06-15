@@ -73,8 +73,8 @@ namespace hod::inline game
 	/// @brief
 	/// @param
 	World::World()
-	: _updateJob(this, &World::Update, JobQueue::Queue::Framed)
-	, _drawJob(this, &World::Draw, JobQueue::Queue::Framed)
+	: _updateJob(this, &World::Update)
+	, _drawJob(this, &World::Draw)
 	, _persistanteScene(DefaultAllocator::GetInstance().New<Scene>())
 	{
 	}

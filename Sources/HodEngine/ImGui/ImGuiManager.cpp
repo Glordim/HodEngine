@@ -188,7 +188,7 @@ namespace hod::inline imgui
 
 	/// @brief
 	_SingletonConstructor(ImGuiManager)
-	: _updateJob(this, &ImGuiManager::Update, JobQueue::Queue::Framed)
+	: _updateJob(this, &ImGuiManager::Update)
 	{
 	}
 

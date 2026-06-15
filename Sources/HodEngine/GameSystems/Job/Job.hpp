@@ -1,57 +1,36 @@
 #pragma once
 #include "HodEngine/GameSystems/Export.hpp"
-#include "HodEngine/GameSystems/Job/JobQueue.hpp"
 
-#include "HodEngine/Core/Vector.hpp"
-
-
-#include <atomic>
+namespace enki
+{
+	class TaskSet;
+	class TaskScheduler;
+}
 
 namespace hod::inline gamesystems
 {
 	/// @brief
 	class HOD_GAME_SYSTEMS_API Job
 	{
-	public:
-		enum State
-		{
-			Queued = 1 << 0,
-			Executing = 1 << 1,
-			Completed = 1 << 2,
-			Canceled = 1 << 3,
-		};
+		friend class JobScheduler;
 
 	public:
-		Job(JobQueue::Queue queue, bool deleteAfterCompletion, Thread::Id threadId = Thread::InvalidId);
+		Job();
 		Job(const Job&) = delete;
 		Job(Job&&) = delete;
-		virtual ~Job() = default;
+		virtual ~Job();
 
 		Job& operator=(const Job&) = delete;
 		Job& operator=(Job&&) = delete;
 
 	public:
-		void Prepare();
-		void SetQueued();
-
-		void Execute();
-		bool Cancel();
 		void Wait();
-
-		Thread::Id      GetThreadId() const;
-		JobQueue::Queue GetQueue() const;
-		bool            IsDeleteAfterCompletion() const;
 
 	protected:
 		virtual void Execution() = 0;
 
 	private:
-		volatile uint8_t _state = 0;
-
-		Thread::Id      _threadId;
-		JobQueue::Queue _queue;
-		bool            _isDeleteAfterCompletion;
-
-		std::atomic_flag _waitFlag;
+		enki::TaskSet* _taskSet = nullptr;
+		enki::TaskScheduler* _taskScheduler = nullptr;
 	};
 }

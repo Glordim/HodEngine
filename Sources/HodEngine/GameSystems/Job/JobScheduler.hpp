@@ -1,12 +1,14 @@
 #pragma once
 #include "HodEngine/GameSystems/Export.hpp"
 
-#include "HodEngine/GameSystems/Job/JobQueue.hpp"
 #include "HodEngine/Core/Singleton.hpp"
 
-#include "HodEngine/Core/Reflection/EnumTrait.hpp"
-
 #include <stdint.h>
+
+namespace enki
+{
+	class TaskScheduler;
+}
 
 namespace hod::inline gamesystems
 {
@@ -19,12 +21,20 @@ namespace hod::inline gamesystems
 		friend class hod::Allocator;
 
 	public:
+		bool Init();
+
 		void Push(Job* job);
+		void Wait();
+		
+		void PushBackground(Job* job);
+		void WaitBackground();
 
 	protected:
 		JobScheduler();
+		~JobScheduler();
 
 	private:
-		JobQueue _queues[static_cast<uint32_t>(JobQueue::Queue::COUNT)];
+		enki::TaskScheduler* _frameScheduler = nullptr;
+		enki::TaskScheduler* _backgroundScheduler = nullptr;
 	};
 }

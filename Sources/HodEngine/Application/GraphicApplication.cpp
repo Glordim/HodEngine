@@ -171,6 +171,7 @@ namespace hod::inline application
 
 	int GraphicApplication::EngineLoop()
 	{
+		JobScheduler::GetInstance()->Init();
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
 
 		while (_shouldQuit == false)

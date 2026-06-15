@@ -21,6 +21,7 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/Core/Thread/Thread.hpp>
 
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>

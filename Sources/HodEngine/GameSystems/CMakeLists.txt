@@ -18,6 +18,7 @@ target_precompile_headers(GameSystems PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE
 
 target_link_libraries(GameSystems
 	PUBLIC HodEngine::Core
+	PRIVATE enkiTS::enkiTS
 )
 
 target_compile_definitions(GameSystems
