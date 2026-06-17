@@ -6,11 +6,13 @@
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Helper.hpp>
 
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/SharedWindows/TasksWindow.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
@@ -91,6 +93,7 @@ namespace hod::inline editor
 		UnloadEditorModules();
 
 		DefaultAllocator::GetInstance().Delete(_floatingAssetBrowserWindow);
+		DefaultAllocator::GetInstance().Delete(_floatingTasksWindow);
 		ImGuiManager::GetInstance()->DestroyAllWindow();
 
 		Project::DestroyInstance();
@@ -174,6 +177,7 @@ namespace hod::inline editor
 		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
 
 		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();
+		_floatingTasksWindow = DefaultAllocator::GetInstance().New<TasksWindow>();
 
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
@@ -480,6 +484,19 @@ namespace hod::inline editor
 					if (ImGui::Button(ICON_MDI_TEXT_BOX "  Output Log", ImVec2(0.0f, statusBarHeight)))
 					{
 					}
+					ImGui::SameLine();
+					ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
+					ImGui::SameLine(ImGui::GetIO().DisplaySize.x - CalculateButtonSize(ICON_MDI_CIRCLE_OFF_OUTLINE "  Tasks").x - 2);
+					ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
+					ImGui::SameLine();
+					if (ImGui::Button(ICON_MDI_CIRCLE_OFF_OUTLINE "  Tasks", ImVec2(0.0f, statusBarHeight)))
+					{
+						_showFloatingTasks = !_showFloatingTasks;
+						if (_showFloatingTasks)
+						{
+							_focusFloatingTasksWindow = true;
+						}
+					}
 					ImGui::PopStyleVar(3);
 					ImGui::PopStyleColor();
 				}
@@ -503,6 +520,26 @@ namespace hod::inline editor
 						ImGui::SetNextWindowFocus();
 					}
 					_floatingAssetBrowserWindow->Draw();
+				}
+
+				if (_showFloatingTasks)
+				{
+					_floatingTasksWindowPos = std::min(550.0f, _floatingTasksWindowPos + ImGui::GetIO().DeltaTime * 4000.0f);
+				}
+				else
+				{
+					_floatingTasksWindowPos = std::max(0.0f, _floatingTasksWindowPos - ImGui::GetIO().DeltaTime * 4000.0f);
+				}
+				if (_floatingTasksWindowPos > 0.0f)
+				{
+					ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 350.0f - 20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingTasksWindowPos));
+					ImGui::SetNextWindowSize(ImVec2(350.0f, 550.0f));
+					if (_focusFloatingTasksWindow)
+					{
+						_focusFloatingTasksWindow = false;
+						ImGui::SetNextWindowFocus();
+					}
+					_floatingTasksWindow->Draw();
 				}
 			});
 

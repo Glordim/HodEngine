@@ -37,6 +37,7 @@ namespace hod::inline editor
 	class ViewportWindow;
 	class EditorTab;
 	class AssetBrowserWindow;
+	class TasksWindow;
 
 	/// @brief
 	class HOD_EDITOR_API Editor
@@ -142,6 +143,11 @@ namespace hod::inline editor
 		bool                _focusFloatingAssetBrowserWindow = false;
 		float               _floatingAssetBrowserWindowPos = 0.0f;
 		AssetBrowserWindow* _floatingAssetBrowserWindow = nullptr;
+
+		bool                _showFloatingTasks = false;
+		bool                _focusFloatingTasksWindow = false;
+		float               _floatingTasksWindowPos = 0.0f;
+		TasksWindow*        _floatingTasksWindow = nullptr;
 
 		struct ImportRequest
 		{
