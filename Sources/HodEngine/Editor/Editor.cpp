@@ -3,6 +3,7 @@
 
 #include "HodEngine/Editor/Project.hpp"
 
+#include "TaskTracker/TaskTracker.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
@@ -12,7 +13,7 @@
 #include "HodEngine/Editor/InspectorWindow.hpp"
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
-#include "HodEngine/Editor/SharedWindows/TasksWindow.hpp"
+#include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
@@ -93,7 +94,7 @@ namespace hod::inline editor
 		UnloadEditorModules();
 
 		DefaultAllocator::GetInstance().Delete(_floatingAssetBrowserWindow);
-		DefaultAllocator::GetInstance().Delete(_floatingTasksWindow);
+		DefaultAllocator::GetInstance().Delete(_floatingTaskTrackerWindow);
 		ImGuiManager::GetInstance()->DestroyAllWindow();
 
 		Project::DestroyInstance();
@@ -107,6 +108,8 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Delete(_prefabTexture);
 		DefaultAllocator::GetInstance().Delete(_serializedDataTexture);
 		DefaultAllocator::GetInstance().Delete(_checkerTexture);
+
+		DefaultAllocator::GetInstance().Delete(_taskTracker);
 	}
 
 	/// @brief
@@ -114,6 +117,8 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
+		_taskTracker = DefaultAllocator::GetInstance().New<TaskTracker>();
+
 		Project::CreateInstance();
 		WindowFactory::CreateInstance();
 
@@ -177,7 +182,7 @@ namespace hod::inline editor
 		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
 
 		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();
-		_floatingTasksWindow = DefaultAllocator::GetInstance().New<TasksWindow>();
+		_floatingTaskTrackerWindow = DefaultAllocator::GetInstance().New<TaskTrackerWindow>();
 
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
@@ -491,10 +496,10 @@ namespace hod::inline editor
 					ImGui::SameLine();
 					if (ImGui::Button(ICON_MDI_CIRCLE_OFF_OUTLINE "  Tasks", ImVec2(0.0f, statusBarHeight)))
 					{
-						_showFloatingTasks = !_showFloatingTasks;
-						if (_showFloatingTasks)
+						_showFloatingTaskTracker = !_showFloatingTaskTracker;
+						if (_showFloatingTaskTracker)
 						{
-							_focusFloatingTasksWindow = true;
+							_focusFloatingTaskTrackerWindow = true;
 						}
 					}
 					ImGui::PopStyleVar(3);
@@ -522,24 +527,24 @@ namespace hod::inline editor
 					_floatingAssetBrowserWindow->Draw();
 				}
 
-				if (_showFloatingTasks)
+				if (_showFloatingTaskTracker)
 				{
-					_floatingTasksWindowPos = std::min(550.0f, _floatingTasksWindowPos + ImGui::GetIO().DeltaTime * 4000.0f);
+					_floatingTaskTrackerWindowPos = std::min(555.0f, _floatingTaskTrackerWindowPos + ImGui::GetIO().DeltaTime * 4000.0f);
 				}
 				else
 				{
-					_floatingTasksWindowPos = std::max(0.0f, _floatingTasksWindowPos - ImGui::GetIO().DeltaTime * 4000.0f);
+					_floatingTaskTrackerWindowPos = std::max(0.0f, _floatingTaskTrackerWindowPos - ImGui::GetIO().DeltaTime * 4000.0f);
 				}
-				if (_floatingTasksWindowPos > 0.0f)
+				if (_floatingTaskTrackerWindowPos > 0.0f)
 				{
-					ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 350.0f - 20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingTasksWindowPos));
-					ImGui::SetNextWindowSize(ImVec2(350.0f, 550.0f));
-					if (_focusFloatingTasksWindow)
+					ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 350.0f - 20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingTaskTrackerWindowPos));
+					ImGui::SetNextWindowSize(ImVec2(350.0f, 555.0f));
+					if (_focusFloatingTaskTrackerWindow)
 					{
-						_focusFloatingTasksWindow = false;
+						_focusFloatingTaskTrackerWindow = false;
 						ImGui::SetNextWindowFocus();
 					}
-					_floatingTasksWindow->Draw();
+					_floatingTaskTrackerWindow->Draw();
 				}
 			});
 

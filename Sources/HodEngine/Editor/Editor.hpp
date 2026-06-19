@@ -37,7 +37,8 @@ namespace hod::inline editor
 	class ViewportWindow;
 	class EditorTab;
 	class AssetBrowserWindow;
-	class TasksWindow;
+	class TaskTrackerWindow;
+	class TaskTracker;
 
 	/// @brief
 	class HOD_EDITOR_API Editor
@@ -117,6 +118,8 @@ namespace hod::inline editor
 			return _checkerTexture;
 		}
 
+		TaskTracker& GetTaskTracker() { return *_taskTracker; }
+
 	private:
 		bool AddProjectInRecentProject(const Path& path) const;
 
@@ -144,10 +147,12 @@ namespace hod::inline editor
 		float               _floatingAssetBrowserWindowPos = 0.0f;
 		AssetBrowserWindow* _floatingAssetBrowserWindow = nullptr;
 
-		bool                _showFloatingTasks = false;
-		bool                _focusFloatingTasksWindow = false;
-		float               _floatingTasksWindowPos = 0.0f;
-		TasksWindow*        _floatingTasksWindow = nullptr;
+		bool                _showFloatingTaskTracker = false;
+		bool                _focusFloatingTaskTrackerWindow = false;
+		float               _floatingTaskTrackerWindowPos = 0.0f;
+		TaskTrackerWindow*  _floatingTaskTrackerWindow = nullptr;
+
+		TaskTracker*		_taskTracker = nullptr;
 
 		struct ImportRequest
 		{
